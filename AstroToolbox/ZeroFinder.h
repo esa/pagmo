@@ -11,8 +11,6 @@
 #ifndef ZEROFINDER_H
 #define ZEROFINDER_H
 
-using namespace std;
-
 /// Namespace
 namespace ZeroFinder
 {
