@@ -329,3 +329,4 @@ double ZeroFinder::FZero::FindZero7(Function1D_7param &f)
 		err = -2;
 		return  b;
 }
+
