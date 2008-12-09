@@ -10,11 +10,11 @@
 
 
 #include <cmath>
-#include <iostream>
-#include <iomanip>
 
 #include "Pl_Eph_An.h"
 #include "Astro_Functions.h"
+
+// TODO: place constants in separate class and share them.
 
 using namespace std;
 
@@ -23,10 +23,8 @@ void Planet_Ephemerides_Analytical (const double mjd2000,
 									double *position,
 									double *velocity)
 {
-	const double pi = acos(-1.0);
-	const double RAD = pi/180.0;
-	const double AU = 149597870.66; // Astronomical Unit
-	const double KM = AU;
+	const double RAD = M_PI/180.0;
+	const double KM_AU = 149597870.66; // Kilometers in an astronomical Unit
  	//const double MuSun = 1.32712440018e+11; //Gravitational constant of Sun);
 	const double MuSun = 1.327124280000000e+011;  //Gravitational constant of Sun);
 	double Kepl_Par[6];
@@ -124,14 +122,14 @@ void Planet_Ephemerides_Analytical (const double mjd2000,
 	}
 
 	// conversion of AU into KM
-	Kepl_Par[0] *= KM;
+	Kepl_Par[0] *= KM_AU;
 
 	// conversion of DEG into RAD
 	Kepl_Par[2] *= RAD;
 	Kepl_Par[3] *= RAD;
 	Kepl_Par[4] *= RAD;
 	Kepl_Par[5] *= RAD;
-	Kepl_Par[5] =  fmod(Kepl_Par[5], 2.0*pi);
+	Kepl_Par[5] =  fmod(Kepl_Par[5], 2.0*M_PI);
 
 	// Conversion from Mean Anomaly to Eccentric Anomaly via Kepler's equation
 	Kepl_Par[5] = Mean2Eccentric(Kepl_Par[5], Kepl_Par[1]);
@@ -146,14 +144,13 @@ void Custom_Eph(const double jd,
 				double *position,
 				double *velocity)
 {
-	const double pi = acos(-1.0);
-	const double RAD = pi/180.0;
-	const double AU = 149597870.66; // Astronomical Unit
+	const double RAD = M_PI/180.0;
+	const double KM_AU = 149597870.66; // Kilometers in an astronomical Unit
 	const double muSUN = 1.32712428e+11;    // Gravitational constant of Sun
 	double a,e,i,W,w,M,jdepoch,DT,n,E;
 	double V[6];
 
-	a=keplerian[0]*AU; // in km
+	a=keplerian[0]*KM_AU; // in km
     e=keplerian[1];
     i=keplerian[2];
 	W=keplerian[3];
@@ -163,9 +160,9 @@ void Custom_Eph(const double jd,
     DT=(jd-jdepoch)*86400;
     n=sqrt(muSUN/pow(a,3));
 
-    M=M/180.0*pi;
+    M=M/180.0*M_PI;
     M+=n*DT;
-    M=fmod(M,2*pi);
+    M=fmod(M,2*M_PI);
     E=Mean2Eccentric(M,e);
 	V[0] = a; V[1] = e; V[2] = i*RAD;
 	V[3] = W*RAD; V[4] = w*RAD; V[5] = E;
