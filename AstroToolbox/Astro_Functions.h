@@ -26,7 +26,7 @@ using namespace std;
 
 
 // Conversion from Mean Anomaly to Eccentric Anomaly via Kepler's equation
-double Mean2Eccentric (const double ,const double);
+double Mean2Eccentric (const double &, const double &);
 
 void Conversion(const double*, double*, double*, const double);
 

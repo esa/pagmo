@@ -9,25 +9,24 @@
 // ------------------------------------------------------------------------ //
 
 
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include "Astro_Functions.h"
 
-
 class CZF : public ZeroFinder::Function1D
 {
 public:
-	double operator()(double x)
+	double operator()(const double &x) const
 	{
 		return (p1*tan(x) - log(tan(0.5*x + 0.25*M_PI)) - p2);
 	}
 };
 
-
-double Mean2Eccentric (const double M, const double e)
+double Mean2Eccentric (const double &M, const double &e)
 {
 
-	double tolerance = 1e-13;
+	static const double tolerance = 1e-13;
 	int n_of_it = 0; // Number of iterations
 	double Eccentric,Ecc_New;
 	double err = 1.0;
