@@ -18,8 +18,8 @@
 
 using namespace std;
 
-void Planet_Ephemerides_Analytical (const double mjd2000,
-									const int planet,
+void Planet_Ephemerides_Analytical (const double &mjd2000,
+									const int &planet,
 									double *position,
 									double *velocity)
 {
@@ -138,8 +138,8 @@ void Planet_Ephemerides_Analytical (const double mjd2000,
 	Conversion(Kepl_Par, position, velocity, MuSun);
 }
 
-void Custom_Eph(const double jd,
-				const double epoch,
+void Custom_Eph(const double &jd,
+				const double &epoch,
 				const double keplerian[],
 				double *position,
 				double *velocity)

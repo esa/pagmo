@@ -11,12 +11,8 @@
 #ifndef PL_EPH_AN_H
 #define PL_EPH_AN_H
 
-#include <vector>
+void Planet_Ephemerides_Analytical (const double &, const int &, double*, double*);
 
-using namespace std;
-
-void Planet_Ephemerides_Analytical (const double, const int, double*, double*);
-
-void Custom_Eph(const double, const double, const double[], double*, double*);
+void Custom_Eph(const double &, const double &, const double[], double*, double*);
 
 #endif
