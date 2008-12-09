@@ -11,6 +11,8 @@
 // File: propageteKEP.cpp
 //
 
+#include <cmath>
+
 #include "propagateKEP.h"
 
 /*
@@ -30,6 +32,8 @@
  Comments:  The function works in non dimensional units, it takes an
  initial condition and it propagates it as in a kepler motion analytically.
 */
+
+using namespace std;
 
 void propagateKEP(const double *r0_in, const double *v0_in, double t, double mu,
 				  double *r, double *v)

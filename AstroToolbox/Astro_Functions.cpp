@@ -10,16 +10,18 @@
 
 
 #include <cmath>
-#include <iostream>
-#include <iomanip>
+
 #include "Astro_Functions.h"
+#include "ZeroFinder.h"
+
+using namespace std;
 
 class CZF : public ZeroFinder::Function1D
 {
 public:
 	double operator()(const double &x) const
 	{
-		return (p1*tan(x) - log(tan(0.5*x + 0.25*M_PI)) - p2);
+		return (p1*tan(x) - log(tan(0.5*x + M_PI_4)) - p2);
 	}
 };
 
@@ -33,8 +35,7 @@ double Mean2Eccentric (const double &M, const double &e)
 
 
 
-	if (e < 1.0)
-	{
+	if (e < 1.0) {
 		Eccentric = M + e* cos(M); // Initial guess
 		while ( (err > tolerance) && (n_of_it < 100))
 		{
@@ -43,11 +44,9 @@ double Mean2Eccentric (const double &M, const double &e)
 			Eccentric = Ecc_New;
 			n_of_it++;
 		}
-	}
-	else
-	{
+	} else {
 		CZF FF;  // function to find its zero point
-		ZeroFinder::FZero fz(-0.5*3.14159265358979 + 1e-8, 0.5*3.14159265358979-1e-8);
+		ZeroFinder::FZero fz(-M_PI_2 + 1e-8, M_PI_2 - 1e-8);
 		FF.SetParameters(e, M);
 		Ecc_New = fz.FindZero(FF);
 		Eccentric = Ecc_New;
@@ -60,7 +59,7 @@ double Mean2Eccentric (const double &M, const double &e)
 void Conversion (const double *E,
 				 double *pos,
 				 double *vel,
-				 const double mu)
+				 const double &mu)
 {
 	double a,e,i,omg,omp,theta;
 	double b,n;
@@ -146,11 +145,7 @@ void vett(const double *vet1, const double *vet2, double *prod )
 	prod[2]=(vet1[0]*vet2[1]-vet1[1]*vet2[0]);
 }
 
-double asinh (double x) { return log(x + sqrt(x*x + 1)); };
-
-double acosh (double x) { return log(x + sqrt(x*x - 1)); };
-
-double x2tof(const double &x,const double &s,const double &c,const int lw)
+double x2tof(const double &x,const double &s,const double &c,const int &lw)
 {
 	double am,a,alfa,beta;
 

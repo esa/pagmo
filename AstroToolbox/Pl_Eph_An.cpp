@@ -8,10 +8,15 @@
 // Copyright (c) 2004-2007 European Space Agency                            //
 // ------------------------------------------------------------------------ //
 
+
+#include <cmath>
 #include <iostream>
 #include <iomanip>
+
 #include "Pl_Eph_An.h"
 #include "Astro_Functions.h"
+
+using namespace std;
 
 void Planet_Ephemerides_Analytical (const double mjd2000,
 									const int planet,
