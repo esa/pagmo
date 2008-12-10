@@ -20,8 +20,10 @@
 %Comments:  everything works in non dimensional units
 */
 
-#include "time2distance.h"
 #include <complex>
+
+#include "Astro_Functions.h"
+#include "time2distance.h"
 
 double time2distance(const double *r0, const double *v0, double rtarget)
 {

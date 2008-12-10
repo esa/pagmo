@@ -13,6 +13,7 @@
 
 #include <cmath>
 
+#include "Astro_Functions.h"
 #include "propagateKEP.h"
 
 /*
@@ -334,14 +335,4 @@ void par2IC(const double *E, double mu, double *r0, double *v0)
 		}
 	}
 	return;
-}
-
-// Returns the cross product of the vectors X and Y.
-// That is, z = X x Y.  X and Y must be 3 element
-// vectors.
-void cross(const double *x, const double *y, double *z)
-{
-   z[0] = x[1]*y[2] - x[2]*y[1];
-   z[1] = x[2]*y[0] - x[0]*y[2];
-   z[2] = x[0]*y[1] - x[1]*y[0];
 }
