@@ -8,11 +8,18 @@
 // Copyright (c) 2004-2007 European Space Agency                            //
 // ------------------------------------------------------------------------ //
 
+
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include "Pl_Eph_An.h"
+
+#include "Lambert.h"
 #include "mga_dsm.h"
+#include "propagateKEP.h"
+#include "time2distance.h"
+
+using namespace std;
 
 // [MR] TODO: exctract these somewhere...
 const double MU[9] = {

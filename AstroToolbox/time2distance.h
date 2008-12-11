@@ -11,16 +11,7 @@
 #ifndef TIME_2_DISTANCE_H
 #define TIME_2_DISTANCE_H
 
-#include <math.h>
-#include <float.h>
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include "propagateKEP.h"
-
-using namespace std;
-
-double time2distance(const double*, const double*, double);
+double time2distance(const double*, const double*, const double &);
 
 #endif
 

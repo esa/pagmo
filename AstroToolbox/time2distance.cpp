@@ -20,12 +20,19 @@
 %Comments:  everything works in non dimensional units
 */
 
-#include <complex>
+#include <cmath>
+//#include <float.h>
+//#include <iostream>
+//#include <vector>
+//#include <cctype>
 
 #include "Astro_Functions.h"
+#include "propagateKEP.h"
 #include "time2distance.h"
 
-double time2distance(const double *r0, const double *v0, double rtarget)
+using namespace std;
+
+double time2distance(const double *r0, const double *v0, const double &rtarget)
 {
 	double temp = 0.0;
 	double E[6];

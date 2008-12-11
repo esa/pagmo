@@ -12,18 +12,12 @@
 #define MGA_DSM_H
 
 #include <vector>
-#include "Pl_Eph_An.h"
-#include "Astro_Functions.h"
-#include "propagateKEP.h"
-#include "Lambert.h"
-#include "time2distance.h"
-#include "mga.h"
 
-using namespace std;
+#include "mga.h"
 
 struct mgadsmproblem {
 	int type;							//problem type
-	vector<int> sequence;				//fly-by sequence (ex: 3,2,3,3,5,is Earth-Venus-Earth-Earth-Jupiter)
+	std::vector<int> sequence;				//fly-by sequence (ex: 3,2,3,3,5,is Earth-Venus-Earth-Earth-Jupiter)
 	double e;							//insertion e (only in case total_DV_orbit_insertion)
 	double rp;							//insertion rp in km (only in case total_DV_orbit_insertion)
 	customobject asteroid;			//asteroid data (in case fly-by sequence has a final number = 10)
@@ -40,13 +34,12 @@ struct mgadsmproblem {
 
 int MGA_DSM(
 			/* INPUT values: */
-			vector<double> x ,	// it is the decision vector
+			std::vector<double> x ,	// it is the decision vector
 			mgadsmproblem,  // contains the problem specific data
 
 			/* OUTPUT values: */
 			double& J,    // J output
 			double* DVVec// DVVec
 			);
-
 
 #endif
