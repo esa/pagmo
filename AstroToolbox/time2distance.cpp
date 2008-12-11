@@ -21,10 +21,6 @@
 */
 
 #include <cmath>
-//#include <float.h>
-//#include <iostream>
-//#include <vector>
-//#include <cctype>
 
 #include "Astro_Functions.h"
 #include "propagateKEP.h"

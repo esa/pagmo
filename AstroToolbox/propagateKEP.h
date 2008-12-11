@@ -11,12 +11,12 @@
 #ifndef PROPAGATEKEP_H
 #define PROPAGATEKEP_H
 
-void propagateKEP(const double *, const double *, double, double,
+void propagateKEP(const double *, const double *, const double &, const double &,
 				  double *, double *);
 
-void IC2par(const double*, const double*, double, double*);
+void IC2par(const double*, const double*, const double &, double*);
 
-void par2IC(const double*, double, double*, double*);
+void par2IC(const double*, const double &, double*, double*);
 
 // Returns the cross product of the vectors X and Y.
 // That is, z = X x Y.  X and Y must be 3 element

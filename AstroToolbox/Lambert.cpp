@@ -58,14 +58,16 @@
            iter=number of iteration made by the newton solver (usually 6)
 */
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
+
+#include "Astro_Functions.h"
 #include "Lambert.h"
 
 using namespace std;
 
-void LambertI (const double *r1_in, const double *r2_in, double t, const double mu, //INPUT
-	           const int lw, //INPUT
+void LambertI (const double *r1_in, const double *r2_in, double t, const double &mu, //INPUT
+	           const int &lw, //INPUT
 	           double *v1, double *v2, double &a, double &p, double &theta, int &iter)//OUTPUT
 {
 	double	V,T,

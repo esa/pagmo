@@ -36,7 +36,7 @@
 
 using namespace std;
 
-void propagateKEP(const double *r0_in, const double *v0_in, double t, double mu,
+void propagateKEP(const double *r0_in, const double *v0_in, const double &t, const double &mu,
 				  double *r, double *v)
 {
 
@@ -110,7 +110,7 @@ void propagateKEP(const double *r0_in, const double *v0_in, double t, double mu,
 	}
 	else
 	{
-		M0 = E[1]*tan(E[5]) - log(tan(0.5*E[5] + 0.25*M_PI));
+		M0 = E[1]*tan(E[5]) - log(tan(0.5*E[5] + M_PI_4));
 		M=M0+sqrt(mu/pow(-E[0],3))*t;
 	}
 
@@ -159,7 +159,7 @@ void propagateKEP(const double *r0_in, const double *v0_in, double t, double mu,
 	Mueller and White. It goes singular for zero inclination
 */
 
-void IC2par(const double *r0, const double *v0, double mu, double *E)
+void IC2par(const double *r0, const double *v0, const double &mu, double *E)
 {
 	double k[3];
 	double h[3];
@@ -260,7 +260,7 @@ void IC2par(const double *r0, const double *v0, double mu, double *E)
 	This function does work for hyperbolas as well.
 */
 
-void par2IC(const double *E, double mu, double *r0, double *v0)
+void par2IC(const double *E, const double &mu, double *r0, double *v0)
 {
 	double a = E[0];
 	double e = E[1];
@@ -290,7 +290,7 @@ void par2IC(const double *E, double mu, double *r0, double *v0)
 		b = -a*sqrt(e*e-1);
 		n = sqrt(-mu/(a*a*a));
 
-		dNdZeta = e * (1+tan(EA)*tan(EA))-(0.5+0.5*pow(tan(0.5*EA + 0.25*M_PI),2))/tan(0.5*EA+ 0.25*M_PI);
+		dNdZeta = e * (1+tan(EA)*tan(EA))-(0.5+0.5*pow(tan(0.5*EA + M_PI_4),2))/tan(0.5*EA+ M_PI_4);
 
 		xper = a/cos(EA) - a*e;
 		yper = b*tan(EA);

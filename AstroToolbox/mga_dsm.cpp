@@ -8,12 +8,9 @@
 // Copyright (c) 2004-2007 European Space Agency                            //
 // ------------------------------------------------------------------------ //
 
-
 #include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
 
+#include "Astro_Functions.h"
 #include "Lambert.h"
 #include "mga_dsm.h"
 #include "propagateKEP.h"
