@@ -28,17 +28,19 @@ namespace ZeroFinder
 	class Function1D
 	{
 	public:
+        Function1D(const double &a, const double &b):p1(a),p2(b) {}
 		// parameters
-		double p1,p2;
-		void SetParameters(double a, double b);
+		const double p1,p2;
 	};
 
 	class Function1D_7param
 	{
 	public:
+        Function1D_7param(const double &a, const double &b, const double &c,
+                          const double &d, const double &e, const double &f,
+                          const double &g):p1(a),p2(b),p3(c),p4(d),p5(e),p6(f),p7(g) {}
 		// parameters
-		double p1,p2,p3,p4,p5,p6,p7;
-		void SetParameters(double a, double b, double c, double d, double e, double f, double g);
+		const double p1,p2,p3,p4,p5,p6,p7;
 	};
 
 

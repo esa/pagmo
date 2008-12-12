@@ -19,6 +19,7 @@ using namespace std;
 class CZF : public ZeroFinder::Function1D
 {
 public:
+    CZF(const double &a, const double &b):Function1D(a,b) {}
 	double operator()(const double &x) const
 	{
 		return (p1*tan(x) - log(tan(0.5*x + M_PI_4)) - p2);
@@ -45,9 +46,8 @@ double Mean2Eccentric (const double &M, const double &e)
 			n_of_it++;
 		}
 	} else {
-		CZF FF;  // function to find its zero point
+		CZF FF(e,M);  // function to find its zero point
 		ZeroFinder::FZero fz(-M_PI_2 + 1e-8, M_PI_2 - 1e-8);
-		FF.SetParameters(e, M);
 		Ecc_New = fz.FindZero(FF);
 		Eccentric = Ecc_New;
 	}

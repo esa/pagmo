@@ -1,5 +1,5 @@
 PROJECT(PaGMO)
- 
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisabled-optimization")
@@ -34,7 +34,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
 	${CMAKE_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
 	${CMAKE_SOURCE_DIR}/AstroToolbox/time2distance.cpp
-	${CMAKE_SOURCE_DIR}/AstroToolbox/ZeroFinder.cpp
 	${CMAKE_SOURCE_DIR}/Functions/rng/PkRandom.cpp
 	${CMAKE_SOURCE_DIR}/Functions/objfuns/trajobjfuns.cpp
 	${CMAKE_SOURCE_DIR}/GOclasses/algorithms/ASA.cpp
