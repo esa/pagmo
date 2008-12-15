@@ -64,7 +64,7 @@ while (choice != -1) {
 			int niterTot = 10000;			//generations per algorithm call
 			int niterRange = 20;
 			int niterTemp = 1;
-			double T0 = 5;
+			double T0 = 10;
 			double Tf = T0/1000;
 			double Tcoeff = 0.85;
 			double StartStep =1;
@@ -98,6 +98,9 @@ while (choice != -1) {
 						cout << "Initial fitness: " << pop.extractBestIndividual().getFitness() << endl;
 						//we evolve it
 						start1=clock();
+						if (pop.extractBestIndividual().getFitness() < 5){
+							ASA.initASA(niterTot,LB.size(),1,0.01, rng.next());
+						}
 						pop = ASA.evolve(pop[0],problem);
 						end1=clock();
 						dif = (double)(end1-start1) / (double)CLOCKS_PER_SEC;
