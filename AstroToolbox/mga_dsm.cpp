@@ -308,11 +308,10 @@ void final_block(const mgadsmproblem& problem, const std::vector<double*>& , con
 int MGA_DSM(
 			/* INPUT values: */ //[MR] make this parameters const, if they are not modified and possibly references (especially 'problem').
 			vector<double> t,	// it is the vector which provides time in modified julian date 2000. [MR] ??? Isn't it the decision vetor ???
-			mgadsmproblem problem,
+			mgadsmproblem& problem,
 
 			/* OUTPUT values: */
-			double &J,    // output
-			double *DVvec // output
+			double &J    // output
 			)
 {
 	//[MR] A bunch of helper variables to simplify the code
@@ -361,12 +360,13 @@ int MGA_DSM(
 	// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	//[MR] Calculation of the actual procedure output (DVvec and J)
 
-	const double VINF = t[1];         // Hyperbolic escape velocity (km/sec)
+	const double& VINF = t[1];         // Variable renaming: Hyperbolic escape velocity (km/sec)
 
-	DVvec[0] = VINF;
-	for (i = 1; i < n + 1; i++) {
-		DVvec[i] = DV[i - 1];
+	for (i = n; i > 0; i--) {
+		DV[i] = DV[i - 1];
 	}
+	DV[0] = VINF;
+
 
 	// Finally our objective function (J) is:
 
@@ -455,14 +455,14 @@ int MGA_DSM(
 			double sum = 0.0;
 
 			for (i=0; i<n+1; i++)
-				sum += DVvec[i];
+				sum += DV[i];
 
 			if (sum > DVtotal)
 				DVpen += DVpen+(sum-DVtotal);
 
 			sum = 0.0;
 			for (i=1; i<n+1; i++)
-				sum+=DVvec[i];
+				sum+=DV[i];
 
 			if (sum > DVonboard)
 				DVpen = DVpen + (sum - DVonboard);

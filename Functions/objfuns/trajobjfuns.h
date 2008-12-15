@@ -16,7 +16,6 @@
 
 double messenger (const std::vector<double>& x);
 double rosetta (const std::vector<double>& x);
-double tandem (const std::vector<double>& x);
 double gtoc1 (const std::vector<double>& x);
 double cassini1 (const std::vector<double>& x);
 double cassini2 (const std::vector<double>& x);

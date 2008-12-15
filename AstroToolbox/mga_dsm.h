@@ -35,11 +35,10 @@ struct mgadsmproblem {
 int MGA_DSM(
 			/* INPUT values: */
 			std::vector<double> x ,	// it is the decision vector
-			mgadsmproblem,  // contains the problem specific data
+			mgadsmproblem &mgadsm,  // contains the problem specific data
 
 			/* OUTPUT values: */
-			double& J,    // J output
-			double* DVVec// DVVec
+			double &J    // J output
 			);
 
 #endif

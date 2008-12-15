@@ -29,7 +29,7 @@ int main(){
 		Pk::Random32 rng(time(0));
 
 		//we set the problem
-		tandemProb problem;
+		messengerProb problem;
 		//we extract its information into local variables
 		const vector<double>& LB = problem.getLB();
 		const vector<double>& UB = problem.getUB();
@@ -60,11 +60,11 @@ while (choice != -1) {
 			{
 			//Experiment Settings
 			int NP = 1;					    //population size
-			int trials = 100;				//number of trials
+			int trials = 20;				//number of trials
 			int niterTot = 10000;			//generations per algorithm call
 			int niterRange = 20;
 			int niterTemp = 1;
-			double T0 = 1;
+			double T0 = 5;
 			double Tcoeff = 0.77;
 			double StartStep =1;
 
@@ -481,7 +481,7 @@ while (choice != -1) {
 			double F = 0.8;					//F in DE
 			double CR = 0.8;				//CR in DE
 			int strategy = 2;				//DE startegy
-			int islandsN  = 5;				//Number of Islands
+			int islandsN  = 1;				//Number of Islands
 			
 			//stopping criteria
 			int itermax = 120;				//Maximum number of iterations allowed (i.e. output printed on the screen)

@@ -17,29 +17,8 @@
 #include "misc4Tandem.h"
 
 //***********************************************************************************
-//Trajectory problems
+//Trajectory problems MGA
 //***********************************************************************************
-
-class messengerProb : public GOProblem {
-public:
-	messengerProb();
-	virtual ~messengerProb();
-	virtual double objfun(const std::vector<double>&);
-	
-private:
-	mgadsmproblem mgadsm;
-	double Delta_V[6]; //Dummy array, required for calling MGA_DSM
-};	//end class messengerProb
-
-class tandemProb : public GOProblem {
-public:
-	tandemProb();
-	virtual ~tandemProb();
-	virtual double objfun(const std::vector<double>&);
-private:
-	mgadsmproblem mgadsm;
-	double Delta_V[6]; //Dummy array, required for calling MGA_DSM
-};	//end class tandemProb
 
 class cassini1Prob : public GOProblem {
 public:
@@ -53,6 +32,32 @@ public:
 	virtual double objfun(const std::vector<double>&);
 };	//end class gtoc1Prob
 
+
+
+//***********************************************************************************
+//Trajectory problems MGA-1DSM
+//***********************************************************************************
+
+class messengerProb : public GOProblem {
+public:
+	messengerProb();
+	virtual ~messengerProb();
+	virtual double objfun(const std::vector<double>&);
+	
+private:
+	mgadsmproblem mgadsm;
+};	//end class messengerProb
+
+class tandemProb : public GOProblem {
+public:
+	tandemProb();
+	virtual ~tandemProb();
+	virtual double objfun(const std::vector<double>&);
+private:
+	mgadsmproblem mgadsm;
+};	//end class tandemProb
+
+
 class cassini2Prob : public GOProblem {
 public:
 	cassini2Prob();
@@ -60,7 +65,6 @@ public:
 	virtual double objfun(const std::vector<double>&);
 private:
 	mgadsmproblem mgadsm;
-	double Delta_V[7]; //Dummy array, required for calling MGA_DSM
 };	//end class cassini1Prob
 
 class rosettaProb : public GOProblem {
@@ -69,7 +73,6 @@ public:
 	virtual ~rosettaProb();
 	virtual double objfun(const std::vector<double>&);
 private:
-	double Delta_V[7];
 	mgadsmproblem mgadsm;
 };	//end class rosettaProb
 
@@ -79,7 +82,6 @@ public:
 	virtual ~sagasProb();
 	virtual double objfun(const std::vector<double>&);
 private:
-	double Delta_V[4];
 	mgadsmproblem mgadsm;
 };	//end class sagasProb
 

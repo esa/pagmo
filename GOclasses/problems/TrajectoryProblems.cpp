@@ -52,7 +52,7 @@ messengerProb::~messengerProb() {
 double messengerProb::objfun(const std::vector<double>& x) {
    	double obj = 0.0;
 	MGA_DSM(x, mgadsm,
-			obj, Delta_V);
+			obj);
 	return obj;
 }
 
@@ -103,7 +103,7 @@ tandemProb::~tandemProb() {
 double tandemProb::objfun(const std::vector<double>& x) {
     double obj = 0;
 
-	MGA_DSM(x, mgadsm, obj, Delta_V);
+	MGA_DSM(x, mgadsm, obj);
 
 	//evaluating the mass from the dvs
 	double rE[3];
@@ -152,7 +152,7 @@ double tandemProb::objfun(const std::vector<double>& x) {
 	double sumDVvec=0;
 	//double totaltime=x[4]+x[5]+x[6]+x[7];
 	for(unsigned int i=1;i<=5;i++) {
-		sumDVvec=sumDVvec+Delta_V[i];
+		sumDVvec=sumDVvec+mgadsm.DV[i];
 	}
 	double m_final;
 	sumDVvec=sumDVvec+0.165; //losses for 3 swgbys + insertion
@@ -161,6 +161,7 @@ double tandemProb::objfun(const std::vector<double>& x) {
 
 	return -log(m_final);
 }
+
 
 cassini1Prob::cassini1Prob(){
 		setDimension(6);
@@ -223,7 +224,7 @@ cassini2Prob::~cassini2Prob() {
 double cassini2Prob::objfun(const std::vector<double>& x) {
    	double obj = 0;
 	MGA_DSM(x, mgadsm,
-			obj, Delta_V);
+			obj);
 	return obj;
 }
 
@@ -271,7 +272,7 @@ rosettaProb::~rosettaProb() {
 double rosettaProb::objfun(const std::vector<double>& x) {
 	double obj = 0;
 	MGA_DSM(x, mgadsm,
-			obj, Delta_V);
+			obj);
 	return obj;
 }
 
@@ -314,7 +315,7 @@ sagasProb::~sagasProb() {
 double sagasProb::objfun(const std::vector<double>& x) {
    	double obj = 0;
 	MGA_DSM(x, mgadsm,
-			obj, Delta_V);
+			obj);
 	return obj;
 
 }
