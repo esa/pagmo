@@ -48,6 +48,16 @@ private:
 	mgadsmproblem mgadsm;
 };	//end class messengerProb
 
+class messengerfullProb : public GOProblem {
+public:
+	messengerfullProb();
+	virtual ~messengerfullProb();
+	virtual double objfun(const std::vector<double>&);
+	
+private:
+	mgadsmproblem mgadsm;
+};	//end class messengerfullProb
+
 class tandemProb : public GOProblem {
 public:
 	tandemProb();
@@ -65,7 +75,7 @@ public:
 	virtual double objfun(const std::vector<double>&);
 private:
 	mgadsmproblem mgadsm;
-};	//end class cassini1Prob
+};	//end class cassini2Prob
 
 class rosettaProb : public GOProblem {
 public:

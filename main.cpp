@@ -29,7 +29,7 @@ int main(){
 		Pk::Random32 rng(time(0));
 
 		//we set the problem
-		messengerProb problem;
+		messengerfullProb problem;
 		//we extract its information into local variables
 		const vector<double>& LB = problem.getLB();
 		const vector<double>& UB = problem.getUB();
@@ -60,12 +60,13 @@ while (choice != -1) {
 			{
 			//Experiment Settings
 			int NP = 1;					    //population size
-			int trials = 20;				//number of trials
+			int trials = 300;				//number of trials
 			int niterTot = 10000;			//generations per algorithm call
 			int niterRange = 20;
 			int niterTemp = 1;
 			double T0 = 5;
-			double Tcoeff = 0.77;
+			double Tf = T0/1000;
+			double Tcoeff = 0.85;
 			double StartStep =1;
 
 			//stopping criteria
@@ -78,7 +79,8 @@ while (choice != -1) {
 			//Instanciate the algorithm
 			//Adaptive Simulated Annealing
 			ASAalgorithm ASA;
-			ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng.next());
+			//ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng.next());
+			ASA.initASA(niterTot,LB.size(),T0,Tf, rng.next());
 
 			//Pruned bounds
 

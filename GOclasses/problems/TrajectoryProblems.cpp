@@ -16,6 +16,57 @@
 //***********************************************************************************
 //Trajectory problems
 //***********************************************************************************
+messengerfullProb::messengerfullProb() {
+	//Standard GOProblem parameters
+	setDimension(26);
+	double lb[26] = {2000, 4, 0, 0, 428, 210, 210, 250, 340, 520, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
+	double ub[26] = {2100, 5, 1, 1, 468, 240, 240, 280, 370, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
+	
+	//Bounds shrinked to those of the actual mission
+	//double lb[26] = {1900, 3, 0, 0, 400, 200, 200, 200, 300, 400, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
+	//double ub[26] = {2200, 5, 1, 1, 500, 300, 300, 300, 400, 500, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
+	
+	
+	
+	setBounds(lb,ub);
+
+	//MGA_DSM parameters
+	int sequence_[7] = {3, 2, 2, 1, 1, 1, 1}; // sequence of planets
+	mgadsm.sequence.insert(mgadsm.sequence.begin(), sequence_, sequence_ + 7);
+	mgadsm.type = orbit_insertion;
+	
+	mgadsm.rp = 2440 + 200;   //200 km altitude
+	mgadsm.e = 0.704;  // apoapsis at 15193 km
+
+	//Allocate temporary memory for MGA_DSM
+	mgadsm.r = std::vector<double*>(7);
+	mgadsm.v = std::vector<double*>(7);
+	mgadsm.DV = std::vector<double>(7+1);
+
+	for(int i = 0; i < 7; i++) {
+		mgadsm.r[i] = new double[3];
+		mgadsm.v[i] = new double[3];
+	}
+};
+
+messengerfullProb::~messengerfullProb() {
+	//Free temporary memory for MGA_DSM
+	for(int i = 0; i < 7; i++) {
+		delete[] mgadsm.r[i];
+		delete[] mgadsm.v[i];
+	}
+	mgadsm.r.clear();
+	mgadsm.v.clear();
+}
+
+double messengerfullProb::objfun(const std::vector<double>& x) {
+   	double obj = 0.0;
+	MGA_DSM(x, mgadsm,
+			obj);
+	return obj;
+}
+
+
 messengerProb::messengerProb() {
 	//Standard GOProblem parameters
 	setDimension(18);
