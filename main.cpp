@@ -29,7 +29,8 @@ int main(){
 		Pk::Random32 rng(time(0));
 
 		//we set the problem
-		messengerfullProb problem;
+		typedef messengerfullProb problem_type;
+		problem_type problem;
 		//we extract its information into local variables
 		const vector<double>& LB = problem.getLB();
 		const vector<double>& UB = problem.getUB();
@@ -487,7 +488,7 @@ while (choice != -1) {
 			double CR = 0.8;				//CR in DE
 			int strategy = 2;				//DE startegy
 			int islandsN  = 1;				//Number of Islands
-			
+
 			//stopping criteria
 			int itermax = 120;				//Maximum number of iterations allowed (i.e. output printed on the screen)
 
@@ -502,8 +503,8 @@ while (choice != -1) {
 				vector<Population> IslandPop(islandsN);
 				vector<GOProblem*> parallelProblems(islandsN);
 				for (int i=0;i<islandsN;i++){
-					parallelProblems[i] = new tandemProb();
-					
+					parallelProblems[i] = new problem_type();
+
 					IslandPop[i].createRandomPopulation(LB,UB,NP, rng);
 					IslandPop[i].evaluatePopulation(*parallelProblems[i]);
 				}
@@ -663,7 +664,7 @@ while (choice != -1) {
 				//if (iter<itermax){
 				results.push_back(res);
 				//}
-				
+
 				for (int i = 0; i < islandsN; i++) {
 					delete parallelProblems[i];
 				}
