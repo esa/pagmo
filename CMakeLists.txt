@@ -16,13 +16,13 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/GOclasses/basic")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/GOclasses/problems")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/SolversThreads")
 
+# Let's include Boost's headers.
+INCLUDE_DIRECTORIES("external_headers")
+
+SET(MANDATORY_LIBRARIES "")
+
 CHECK_TYPE_SIZE("void *" POINTER_SIZE)
 MESSAGE(STATUS "Pointer size = ${POINTER_SIZE}")
-
-FIND_LIBRARY(PTHREAD_LIBRARY pthread)
-IF(NOT PTHREAD_LIBRARY)
-	MESSAGE(FATAL_ERROR "pthread library not found, please specify manually where it is located.")
-ENDIF(NOT PTHREAD_LIBRARY)
 
 SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
@@ -48,9 +48,34 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
 )
 
+# Boost thread setup.
+ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
+SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST} boost_thread/tss_null.cpp)
+IF(WIN32)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		boost_thread/win32/exceptions.cpp
+		boost_thread/win32/thread.cpp
+		boost_thread/win32/tss_dll.cpp
+		boost_thread/win32/tss_pe.cpp
+	)
+ELSE(WIN32)
+    # If we are not in Windows, let's require pthread.
+    FIND_LIBRARY(PTHREAD_LIBRARY pthread)
+    IF(NOT PTHREAD_LIBRARY)
+        MESSAGE(FATAL_ERROR "pthread library not found, please specify manually where it is located.")
+    ENDIF(NOT PTHREAD_LIBRARY)
+    # TODO: check about the dl library here.
+    SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		boost_thread/pthread/exceptions.cpp
+		boost_thread/pthread/once.cpp
+		boost_thread/pthread/thread.cpp
+	)
+ENDIF(WIN32)
+
 ADD_LIBRARY(pagmo STATIC ${PAGMO_LIB_SRC_LIST})
 
 ADD_EXECUTABLE(main main.cpp)
 
-TARGET_LINK_LIBRARIES(main pagmo ${PTHREAD_LIBRARY})
+TARGET_LINK_LIBRARIES(main pagmo ${MANDATORY_LIBRARIES})
 
