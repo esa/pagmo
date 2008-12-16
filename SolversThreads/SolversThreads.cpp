@@ -32,8 +32,7 @@ typedef boost::unique_lock<boost::mutex> lock_type;
 
 void *DEthread(void *data)
 {
-   threadParam *PtrTP;
-   PtrTP = (threadParam *)data;
+   threadParam *PtrTP = (threadParam *)data;
    Population deme;
    double oldfitness;
    vector <int> picks;
