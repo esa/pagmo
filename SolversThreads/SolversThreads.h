@@ -11,13 +11,10 @@
 #ifndef SOLVERSTHREADS_H
 #define SOLVERSTHREADS_H
 
-#include <vector>
-#include "population.h"
-#include <iostream>
-#include <fstream>
 #include <pthread.h>
-#include "GOproblem.h"
 
+#include "GOproblem.h"
+#include "population.h"
 
 //Here we define the parameters needed to instanciate a thread. These contain
 //datas that are algorithm specific, but also data that are needed for all aglorithms (LB,UB,objfun,mutex etc.)
