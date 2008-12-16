@@ -9,6 +9,7 @@
 
 #ifndef TRAJOBJFUNS_H
 #define TRAJOBJFUNS_H
+
 #include<vector>
 
 //NOTE: the functions here have passing by reference + const as they are called a lot of time during execution and thus

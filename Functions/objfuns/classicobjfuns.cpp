@@ -7,9 +7,9 @@
  *
  */
 
-#include "classicobjfuns.h"
-#include <math.h>
+#include <cmath>
 
+#include "classicobjfuns.h"
 
 using namespace std;
 

@@ -1,7 +1,6 @@
+#include <cmath>
 
 #include "rad_objfun.h"
-#include <iostream>
-#include <math.h>
 
 using namespace std;
 

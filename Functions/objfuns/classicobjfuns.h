@@ -9,7 +9,8 @@
 
 #ifndef CLASSICOBJFUNS_H
 #define CLASSICOBJFUNS_H
-#include<vector>
+
+#include <vector>
 
 //NOTE: the functions here have passing by reference + const as they are called a lot of time during execution and thus
 //it is worth trying to save time by avoiding to make a copy of the variable passed
@@ -21,6 +22,5 @@ double ackley (const std::vector<double>& x);
 double rosenbrock (const std::vector<double>& x);
 double lennardjones (const std::vector<double>& x);
 double levy (const std::vector<double>& x);
-
 
 #endif
