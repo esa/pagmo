@@ -7,6 +7,8 @@
  *
  */
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 #include <fstream>
 #include <vector>
 
@@ -20,6 +22,9 @@
 #include "PkRandom.h"
 
 using namespace std;
+
+// Shortcut definition for the lock type.
+typedef boost::unique_lock<boost::mutex> lock_type;
 
 //******************************************************************************************
 //DE thread type
@@ -41,22 +46,24 @@ void *DEthread(void *data)
 	clock_t start,end;
 	double dif;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+    {
+        lock_type lock(*PtrTP->TPmutex);
         rng = Pk::Random32(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
+		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		DE.initDE(PtrTP->generations,LB.size(),PtrTP->F,PtrTP->CR,PtrTP->strategy, rng.next());
-   pthread_mutex_unlock (PtrTP->TPmutex);
+    }
 
-   oldfitness = deme.extractBestIndividual().getFitness();
+    oldfitness = deme.extractBestIndividual().getFitness();
 
-   start=clock();
+    start=clock();
    deme = DE.evolve(deme, *problem);
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         //insert deme in main population
 		PtrTP->Ptr_pop->insertDeme(deme,picks);
 		//log in cout
@@ -70,8 +77,8 @@ void *DEthread(void *data)
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
 		*(PtrTP->isActive) = false;
-		pthread_cond_signal(PtrTP->exit);
-   pthread_mutex_unlock (PtrTP->TPmutex);
+		PtrTP->exit->notify_one();
+   }
    return 0;
 }
 
@@ -98,13 +105,14 @@ void *MPSOthread(void *data)
 	clock_t start,end;
 	double dif;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         rng = Pk::Random32(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		MPSO.initMPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms, rng.next());
-   pthread_mutex_unlock (PtrTP->TPmutex);
+   }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
@@ -113,7 +121,8 @@ void *MPSOthread(void *data)
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+    {
+        lock_type lock(*PtrTP->TPmutex);
         //insert deme in main population
 		PtrTP->Ptr_pop->insertDeme(deme,picks);
 		//log in cout
@@ -127,8 +136,8 @@ void *MPSOthread(void *data)
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
 		*(PtrTP->isActive) = false;
-		pthread_cond_signal(PtrTP->exit);
-   pthread_mutex_unlock (PtrTP->TPmutex);
+        PtrTP->exit->notify_one();
+    }
    return 0;
 }
 
@@ -151,13 +160,14 @@ void *PSOthread(void *data)
 	clock_t start,end;
 	double dif;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         rng = Pk::Random32(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		PSO.initPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, rng.next());
-   pthread_mutex_unlock (PtrTP->TPmutex);
+   }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
@@ -166,7 +176,8 @@ void *PSOthread(void *data)
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         //insert deme in main population
 		PtrTP->Ptr_pop->insertDeme(deme,picks);
 		//log in cout
@@ -180,8 +191,8 @@ void *PSOthread(void *data)
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
 		*(PtrTP->isActive) = false;
-		pthread_cond_signal(PtrTP->exit);
-   pthread_mutex_unlock (PtrTP->TPmutex);
+		PtrTP->exit->notify_one();
+   }
    return 0;
 }
 
@@ -206,13 +217,14 @@ void *SGAthread(void *data)
 	clock_t start,end;
 	double dif;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         rng = Pk::Random32(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		SGA.initSGA(PtrTP->generations,LB.size(),PtrTP->CRsga,PtrTP->M,PtrTP->insert_best, rng.next());
-   pthread_mutex_unlock (PtrTP->TPmutex);
+   }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
@@ -221,7 +233,8 @@ void *SGAthread(void *data)
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         //insert deme in main population
 		PtrTP->Ptr_pop->insertDeme(deme,picks);
 		//log in cout
@@ -235,8 +248,8 @@ void *SGAthread(void *data)
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
 		*(PtrTP->isActive) = false;
-		pthread_cond_signal(PtrTP->exit);
-   pthread_mutex_unlock (PtrTP->TPmutex);
+		PtrTP->exit->notify_one();
+   }
    return 0;
 }
 
@@ -261,7 +274,8 @@ void *ASAthread(void *data)
 	clock_t start,end;
 	double dif;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         rng = Pk::Random32(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
@@ -269,7 +283,7 @@ void *ASAthread(void *data)
 		unsigned int temp;
 		temp = rng.next();
 		ASA.initASA(PtrTP->generations,LB.size(),PtrTP->Ts,PtrTP->Tf, rng.next());
-   pthread_mutex_unlock (PtrTP->TPmutex);
+   }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
@@ -278,7 +292,8 @@ void *ASAthread(void *data)
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
-   pthread_mutex_lock (PtrTP->TPmutex);
+   {
+        lock_type lock(*PtrTP->TPmutex);
         //insert deme in main population
 		PtrTP->Ptr_pop->insertDeme(deme,picks);
 		//log in cout
@@ -292,8 +307,8 @@ void *ASAthread(void *data)
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
 		*(PtrTP->isActive) = false;
-		pthread_cond_signal(PtrTP->exit);
-   pthread_mutex_unlock (PtrTP->TPmutex);
+		PtrTP->exit->notify_one();
+   }
    return 0;
 }
 

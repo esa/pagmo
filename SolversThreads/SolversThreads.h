@@ -11,6 +11,8 @@
 #ifndef SOLVERSTHREADS_H
 #define SOLVERSTHREADS_H
 
+#include <boost/thread/condition_variable.hpp>
+#include <boost/thread/mutex.hpp>
 #include <pthread.h>
 
 #include "GOproblem.h"
@@ -41,8 +43,8 @@ struct threadParam{
 	GOProblem* problem;
 
 	bool *isActive;
-	pthread_mutex_t *TPmutex;
-	pthread_cond_t *exit;
+	boost::mutex *TPmutex;
+	boost::condition_variable *exit;
 	Population *Ptr_pop;
 	std::ofstream *Ptr_log;
 	unsigned long randomSeed;
