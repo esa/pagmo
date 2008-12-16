@@ -17,7 +17,7 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/GOclasses/problems")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/SolversThreads")
 
 # Let's include Boost's headers.
-INCLUDE_DIRECTORIES("external_headers")
+INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
 
 SET(MANDATORY_LIBRARIES "")
 
