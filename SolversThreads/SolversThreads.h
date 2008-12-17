@@ -13,7 +13,6 @@
 
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
-#include <pthread.h>
 
 #include "GOproblem.h"
 #include "population.h"
