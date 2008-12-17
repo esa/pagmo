@@ -732,10 +732,8 @@ while (choice != -1) {
 				//We instanciate the objects needed for pthreads allocating memory for the threads array
 				pthread_t *threads;
 				threads = new pthread_t [islandsN];
-				pthread_mutex_t mutex;
-				pthread_cond_t exitcond;
-				pthread_mutex_init(&mutex, NULL);
-				pthread_cond_init (&exitcond, NULL);
+				boost::mutex mutex;
+				boost::condition_variable exitcond;
 
 				//We allocate memory for the isActive array containing the status ofeach thread	and we initialise it to false (no threads opened)
 				bool *isActive;
@@ -787,84 +785,83 @@ while (choice != -1) {
 				int IslandType = 0;
 				double loweststd = 1000000;
 
-				pthread_mutex_lock (&mutex);
-				time(&start);
-				while(iter < itermax){
-					for (int i=0;i<islandsN;i++){
-						if ( !*(data[i].isActive) ){
-							//Create again the i-th thread to simulate an Island
-							IslandType = 4;
-							if (IslandType == 0){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, PSOthread, (void *)&data[i]);
-							}
-							else if (IslandType == 1){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, MPSOthread, (void *)&data[i]);
-							}
-							else if (IslandType == 2){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, SGAthread, (void *)&data[i]);
-							}
-							else if (IslandType == 3){
-								data[i].randomSeed = rng.next();
-								data[i].generations=10000;
-								data[i].NP = 1;
-								cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, ASAthread, (void *)&data[i]);
-							}
-							else {
-								data[i].randomSeed = rng.next();
-								data[i].strategy = strategy;
-								cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, DEthread, (void *)&data[i]);
-							}
-							if (rc){
-							//Problem creating the thread
-								printf("ERROR; return code from pthread_create() is %d\n", rc);
-								exit(-1);
-							}
-							else{
-							//Thread Successfully Created
-								iter += 1;
-								*(data[i].isActive) = true;
-								//thread is detached as it will never be joined
-								//(on OSx Leopard this avoids that at a certain point
-								//threads cannot be created anymore resulting in rc=35)
-								pthread_detach(threads[i]);
-							}
+                {
+                    lock_type lock(mutex);
+                    time(&start);
+                    while(iter < itermax){
+                        for (int i=0;i<islandsN;i++){
+                            if ( !*(data[i].isActive) ){
+                                //Create again the i-th thread to simulate an Island
+                                IslandType = 4;
+                                if (IslandType == 0){
+                                    data[i].randomSeed = rng.next();
+                                    cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
+                                    rc = pthread_create(&threads[i], NULL, PSOthread, (void *)&data[i]);
+                                }
+                                else if (IslandType == 1){
+                                    data[i].randomSeed = rng.next();
+                                    cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
+                                    rc = pthread_create(&threads[i], NULL, MPSOthread, (void *)&data[i]);
+                                }
+                                else if (IslandType == 2){
+                                    data[i].randomSeed = rng.next();
+                                    cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
+                                    rc = pthread_create(&threads[i], NULL, SGAthread, (void *)&data[i]);
+                                }
+                                else if (IslandType == 3){
+                                    data[i].randomSeed = rng.next();
+                                    data[i].generations=10000;
+                                    data[i].NP = 1;
+                                    cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
+                                    rc = pthread_create(&threads[i], NULL, ASAthread, (void *)&data[i]);
+                                }
+                                else {
+                                    data[i].randomSeed = rng.next();
+                                    data[i].strategy = strategy;
+                                    cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
+                                    rc = pthread_create(&threads[i], NULL, DEthread, (void *)&data[i]);
+                                }
+                                if (rc){
+                                //Problem creating the thread
+                                    printf("ERROR; return code from pthread_create() is %d\n", rc);
+                                    exit(-1);
+                                }
+                                else{
+                                //Thread Successfully Created
+                                    iter += 1;
+                                    *(data[i].isActive) = true;
+                                    //thread is detached as it will never be joined
+                                    //(on OSx Leopard this avoids that at a certain point
+                                    //threads cannot be created anymore resulting in rc=35)
+                                    pthread_detach(threads[i]);
+                                }
 
-							//evaluate standard deviation in main population
-							//loweststd = IslandPop[0].evaluateStd();
-							loweststd = IslandPop.evaluateStd();
+                                //evaluate standard deviation in main population
+                                //loweststd = IslandPop[0].evaluateStd();
+                                loweststd = IslandPop.evaluateStd();
 
-							//log islands best and std
-							for (int i2=0;i2<islandsN;i2++){
-							cout << "CPU#:" << i2 << ": " << IslandPop.extractBestIndividual().getFitness() << " " << IslandPop.evaluateStd() << endl;
-							}
-							cout << "HighestStd: " << loweststd << endl;
-							cout << "Iter: " << iter+1 << endl;
-							cout << "\nmain():" << endl <<  "\t\t\tcreating thread, ID " << i << endl;
+                                //log islands best and std
+                                for (int i2=0;i2<islandsN;i2++){
+                                cout << "CPU#:" << i2 << ": " << IslandPop.extractBestIndividual().getFitness() << " " << IslandPop.evaluateStd() << endl;
+                                }
+                                cout << "HighestStd: " << loweststd << endl;
+                                cout << "Iter: " << iter+1 << endl;
+                                cout << "\nmain():" << endl <<  "\t\t\tcreating thread, ID " << i << endl;
 
-							//ring topology migration
+                                //ring topology migration
 
 
-						}
-					}
-					pthread_cond_wait(&exitcond, &mutex);
-				}
-				pthread_mutex_unlock (&mutex);
+                            }
+                        }
+                        exitcond.wait(lock);
+                    }
+                }
 				//The main cycle has finished: we wait for all threads to finish
 				for (int i=0; i<islandsN;i++){
 					while (*data[i].isActive); //infinite loop if a thread never ends
 				}
 
-				//we clean the thread objects and deallocate memory
-				pthread_mutex_destroy(&mutex);
-				pthread_cond_destroy(&exitcond);
+				//deallocate memory
 				delete[] data;
 				delete[] threads;
 				delete[] isActive;
