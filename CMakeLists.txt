@@ -19,6 +19,9 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/SolversThreads")
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
 
+# Suggested for multithreaded code.
+ADD_DEFINITIONS(-D_REENTRANT)
+
 SET(MANDATORY_LIBRARIES "")
 
 CHECK_TYPE_SIZE("void *" POINTER_SIZE)
