@@ -35,7 +35,7 @@ private:
 	double eta1;
 	double eta2;
 	double vcoeff;
-	rng_type rng;
+	rng_uint32_type rng;
 };
 
 #endif

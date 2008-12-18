@@ -35,7 +35,7 @@ private:
 	double CR;		//crossover
 	double M;		//mutation
 	int insert_best;
-	rng_type rng;
+	rng_uint32_type rng;
 };
 
 #endif

@@ -39,7 +39,7 @@ void *DEthread(void *data)
    GOProblem* problem;
    vector<double> LB,UB;
    DEalgorithm DE;
-   rng_type rng;
+   rng_uint32_type rng;
 
 
 	clock_t start,end;
@@ -99,7 +99,7 @@ void *MPSOthread(void *data)
    GOProblem* problem;
    vector<double> LB, UB;
    MPSOalgorithm MPSO;
-   rng_type rng;
+   rng_uint32_type rng;
 
 	clock_t start,end;
 	double dif;
@@ -154,7 +154,7 @@ void *PSOthread(void *data)
    GOProblem* problem;
    vector<double> LB,UB;
    PSOalgorithm PSO;
-   rng_type rng;
+   rng_uint32_type rng;
 
 	clock_t start,end;
 	double dif;
@@ -210,7 +210,7 @@ void *SGAthread(void *data)
    vector <int> picks;
    vector<double> LB,UB;
    SGAalgorithm SGA;
-   rng_type rng;
+   rng_uint32_type rng;
    GOProblem* problem;
 
 	clock_t start,end;
@@ -266,7 +266,7 @@ void *ASAthread(void *data)
    vector <int> picks;
    vector<double> LB,UB;
    ASAalgorithm ASA;
-   rng_type rng;
+   rng_uint32_type rng;
    GOProblem* problem;
 
 

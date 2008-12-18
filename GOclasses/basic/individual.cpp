@@ -10,7 +10,7 @@
 #include "individual.h"
 #include "PkRandom.h"
 
-	void Individual::createRandomIndividual(std::vector<double> LB, std::vector<double> UB, rng_type &rng){
+	void Individual::createRandomIndividual(std::vector<double> LB, std::vector<double> UB, rng_uint32_type &rng){
 
 	    //We first delete the vector content if any
 		x.clear();
@@ -29,7 +29,7 @@
 		}
 	};//createRandomIndividual
 
-	void Individual::resetVelocity(std::vector<double> LB, std::vector<double> UB, rng_type &rng){
+	void Individual::resetVelocity(std::vector<double> LB, std::vector<double> UB, rng_uint32_type &rng){
 		v.clear();
 		double dummy;
 		for (unsigned int i=0; i < LB.size(); i++){

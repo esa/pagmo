@@ -34,7 +34,7 @@ private:
 	double F;
 	double CR;
 	int strategy;
-	rng_type rng;
+	rng_uint32_type rng;
 };
 
 #endif

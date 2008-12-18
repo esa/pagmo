@@ -71,7 +71,7 @@
 
 #include <boost/random/mersenne_twister.hpp>
 
-typedef boost::mt19937 rng_type;
+typedef boost::mt19937 rng_uint32_type;
 
 // Mersenne Twister
 
@@ -105,7 +105,7 @@ typedef Random<unsigned long long> Random64;
 // Added and implemented by MaRu.
 // This is the algorithm used in Java Standard Library, but I'm not convinced if it's the correct way to do it.
 // IMHO The correct way should be based on IEEE 754 floating point number encoding standard.
-inline double nextDouble(rng_type &rng) {
+inline double nextDouble(rng_uint32_type &rng) {
     unsigned long long l = ((((unsigned long long)rng()) & 0x03FFFFFFLL) << 27) | (((unsigned long long)rng()) & 0x7FFFFFF);
     return l / (double)(1LL << 53);
 }

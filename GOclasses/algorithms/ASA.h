@@ -50,7 +50,7 @@ private:
 	double Tcoeff;
 	double StartStep;
     int niterOuter;
-    rng_type rng;
+    rng_uint32_type rng;
 };
 
 #endif

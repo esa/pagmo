@@ -33,7 +33,7 @@ int main(){
 
 		//We prepare the pseudorandom sequence (TODO: check the randomnumbers of different threads are different)
 
-		rng_type rng(time(0));
+		rng_uint32_type rng(time(0));
 
 		//we set the problem
 		problem_type problem;
