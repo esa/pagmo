@@ -112,7 +112,7 @@ Population ASAalgorithm::evolve(Individual x0, GOProblem& problem) {
 	return newpop;
 	}
 
-	void ASAalgorithm::initASA(int niterTotInit, int niterTempInit, int niterRangeInit, int SolDimInit, double T0Init, double TcoeffInit, double StartStepInit, unsigned long randomSeed){
+	void ASAalgorithm::initASA(int niterTotInit, int niterTempInit, int niterRangeInit, int SolDimInit, double T0Init, double TcoeffInit, double StartStepInit, uint32_t randomSeed){
 		niterTot=niterTotInit;
 		niterTemp=niterTempInit;
 		niterRange=niterRangeInit;
@@ -121,10 +121,10 @@ Population ASAalgorithm::evolve(Individual x0, GOProblem& problem) {
 		Tcoeff=TcoeffInit;
 		StartStep=StartStepInit;
 		niterOuter = niterTot / (niterTemp * niterRange * SolDim);
-		rng = Pk::Random32(randomSeed);
+		rng.seed(randomSeed);
 	}
 
-	void ASAalgorithm::initASA(int niterTotInit,int SolDimInit, double Ts, double Tf, unsigned long randomSeed){
+	void ASAalgorithm::initASA(int niterTotInit,int SolDimInit, double Ts, double Tf, uint32_t randomSeed){
 		niterTot=niterTotInit;
 		niterTemp=1;
 		niterRange=20;
@@ -133,5 +133,5 @@ Population ASAalgorithm::evolve(Individual x0, GOProblem& problem) {
 		T0=Ts;
 		Tcoeff=pow(Tf/Ts,1.0/(double)(niterOuter));
 		StartStep=1;
-		rng = Pk::Random32(randomSeed);
+		rng.seed(randomSeed);
 	}

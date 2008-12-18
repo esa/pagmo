@@ -28,7 +28,7 @@ void initMPSO(int generationsInit,
 			 double eta2Init,
 			 double vcoeffInit,
 			 int nswarmsInit,
-			 unsigned long randomSeed);
+			 uint32_t randomSeed);
 
 private:
 	int generations;
@@ -38,7 +38,7 @@ private:
 	double eta2;
 	double vcoeff;
 	int nswarms;
-	Pk::Random32 rng;
+	rng_type rng;
 };
 
 #endif

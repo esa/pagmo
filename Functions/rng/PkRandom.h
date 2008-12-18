@@ -69,6 +69,10 @@
 
 #include <cstring>
 
+#include <boost/random/mersenne_twister.hpp>
+
+typedef boost::mt19937 rng_type;
+
 // Mersenne Twister
 
 namespace Pk {
@@ -101,8 +105,8 @@ typedef Random<unsigned long long> Random64;
 // Added and implemented by MaRu.
 // This is the algorithm used in Java Standard Library, but I'm not convinced if it's the correct way to do it.
 // IMHO The correct way should be based on IEEE 754 floating point number encoding standard.
-inline double nextDouble(Random32& rng) {
-    unsigned long long l = ((((unsigned long long)rng.next()) & 0x03FFFFFFLL) << 27) | (((unsigned long long)rng.next()) & 0x7FFFFFF);
+inline double nextDouble(rng_type &rng) {
+    unsigned long long l = ((((unsigned long long)rng()) & 0x03FFFFFFLL) << 27) | (((unsigned long long)rng()) & 0x7FFFFFF);
     return l / (double)(1LL << 53);
 }
 

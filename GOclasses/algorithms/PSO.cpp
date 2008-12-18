@@ -12,14 +12,14 @@
 
 using namespace std;
 
-void PSOalgorithm::initPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, unsigned long randomSeed){
+void PSOalgorithm::initPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, uint32_t randomSeed){
 	generations = generationsInit;
 	SolDim = SolDimInit;
 	omega = omegaInit;
 	eta1 = eta1Init;
 	eta2 = eta2Init;
 	vcoeff = vcoeffInit;
-	rng = Pk::Random32(randomSeed);
+	rng.seed(randomSeed);
 }
 
 Population PSOalgorithm::evolve(Population deme, GOProblem& problem){

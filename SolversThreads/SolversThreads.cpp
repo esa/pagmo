@@ -39,7 +39,7 @@ void *DEthread(void *data)
    GOProblem* problem;
    vector<double> LB,UB;
    DEalgorithm DE;
-   Pk::Random32 rng;
+   rng_type rng;
 
 
 	clock_t start,end;
@@ -47,11 +47,11 @@ void *DEthread(void *data)
 
     {
         lock_type lock(*PtrTP->TPmutex);
-        rng = Pk::Random32(PtrTP->randomSeed);
+        rng.seed(PtrTP->randomSeed);
 		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
-		DE.initDE(PtrTP->generations,LB.size(),PtrTP->F,PtrTP->CR,PtrTP->strategy, rng.next());
+		DE.initDE(PtrTP->generations,LB.size(),PtrTP->F,PtrTP->CR,PtrTP->strategy, rng());
     }
 
     oldfitness = deme.extractBestIndividual().getFitness();
@@ -99,18 +99,18 @@ void *MPSOthread(void *data)
    GOProblem* problem;
    vector<double> LB, UB;
    MPSOalgorithm MPSO;
-   Pk::Random32 rng;
+   rng_type rng;
 
 	clock_t start,end;
 	double dif;
 
    {
         lock_type lock(*PtrTP->TPmutex);
-        rng = Pk::Random32(PtrTP->randomSeed);
+        rng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
-		MPSO.initMPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms, rng.next());
+		MPSO.initMPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms, rng());
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
@@ -154,18 +154,18 @@ void *PSOthread(void *data)
    GOProblem* problem;
    vector<double> LB,UB;
    PSOalgorithm PSO;
-   Pk::Random32 rng;
+   rng_type rng;
 
 	clock_t start,end;
 	double dif;
 
    {
         lock_type lock(*PtrTP->TPmutex);
-        rng = Pk::Random32(PtrTP->randomSeed);
+        rng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
-		PSO.initPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, rng.next());
+		PSO.initPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, rng());
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
@@ -210,7 +210,7 @@ void *SGAthread(void *data)
    vector <int> picks;
    vector<double> LB,UB;
    SGAalgorithm SGA;
-   Pk::Random32 rng;
+   rng_type rng;
    GOProblem* problem;
 
 	clock_t start,end;
@@ -218,11 +218,11 @@ void *SGAthread(void *data)
 
    {
         lock_type lock(*PtrTP->TPmutex);
-        rng = Pk::Random32(PtrTP->randomSeed);
+        rng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
-		SGA.initSGA(PtrTP->generations,LB.size(),PtrTP->CRsga,PtrTP->M,PtrTP->insert_best, rng.next());
+		SGA.initSGA(PtrTP->generations,LB.size(),PtrTP->CRsga,PtrTP->M,PtrTP->insert_best, rng());
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
@@ -266,7 +266,7 @@ void *ASAthread(void *data)
    vector <int> picks;
    vector<double> LB,UB;
    ASAalgorithm ASA;
-   Pk::Random32 rng;
+   rng_type rng;
    GOProblem* problem;
 
 
@@ -275,13 +275,13 @@ void *ASAthread(void *data)
 
    {
         lock_type lock(*PtrTP->TPmutex);
-        rng = Pk::Random32(PtrTP->randomSeed);
+        rng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		unsigned int temp;
-		temp = rng.next();
-		ASA.initASA(PtrTP->generations,LB.size(),PtrTP->Ts,PtrTP->Tf, rng.next());
+		temp = rng();
+		ASA.initASA(PtrTP->generations,LB.size(),PtrTP->Ts,PtrTP->Tf, rng());
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();

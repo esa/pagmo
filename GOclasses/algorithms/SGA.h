@@ -26,7 +26,7 @@ void initSGA(int generationsInit,
 			 double CRInit,
 			 double MInit,
 			 int insert_bestInit,
-			 unsigned long randomSeed
+			 uint32_t randomSeed
 			 );
 
 private:
@@ -35,7 +35,7 @@ private:
 	double CR;		//crossover
 	double M;		//mutation
 	int insert_best;
-	Pk::Random32 rng;
+	rng_type rng;
 };
 
 #endif

@@ -31,7 +31,7 @@ public:
 				 double T0Init,
 				 double TcoeffInit,
 				 double StartStepInit,
-				 unsigned long randomSeed);
+				 uint32_t randomSeed);
 
 	//This method initialise the SA-AN algorithm starting and final temperature setting deafult values for
 	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly
@@ -39,7 +39,7 @@ public:
 				 int SolDimInit,
 				 double Ts,
 				 double Tf,
-				 unsigned long randomSeed);
+				 uint32_t randomSeed);
 
 private:
 	int niterTot;
@@ -50,7 +50,7 @@ private:
 	double Tcoeff;
 	double StartStep;
     int niterOuter;
-    Pk::Random32 rng;
+    rng_type rng;
 };
 
 #endif

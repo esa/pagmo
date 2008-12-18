@@ -12,13 +12,13 @@
 
 using namespace std;
 
-void SGAalgorithm::initSGA(int generationsInit, int SolDimInit, double CRInit, double MInit, int insert_bestInit, unsigned long randomSeed){
+void SGAalgorithm::initSGA(int generationsInit, int SolDimInit, double CRInit, double MInit, int insert_bestInit, uint32_t randomSeed){
 	generations = generationsInit;
 	SolDim = SolDimInit;
 	CR = CRInit;
 	M = MInit;
 	insert_best = insert_bestInit;
-	rng = Pk::Random32(randomSeed);
+	rng.seed(randomSeed);
 }
 
 Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
@@ -116,11 +116,11 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 				member1 = Xnew[i];
 				//we select a mating patner (different from the self (i.e. no masturbation))
 				do { //FIXME: [MaRu] YOU DON'T DO IT THAT WAY, MAN!!!
-					r1 = rng.next() % NP;
+					r1 = rng() % NP;
 				} while ( r1 == i );
 				member2 = Xnew[r1];
 				//and we operate crossover
-				n = rng.next() % D;
+				n = rng() % D;
 				L = 0;
 				do {
 					member1[n] = member2[n];

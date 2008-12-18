@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void MPSOalgorithm::initMPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, int nswarmsInit, unsigned long randomSeed){
+void MPSOalgorithm::initMPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, int nswarmsInit, uint32_t randomSeed){
 	generations = generationsInit;
 	SolDim = SolDimInit;
 	omega = omegaInit;
@@ -20,7 +20,7 @@ void MPSOalgorithm::initMPSO(int generationsInit, int SolDimInit, double omegaIn
 	eta2 = eta2Init;
 	vcoeff = vcoeffInit;
 	nswarms = nswarmsInit;
-	rng = Pk::Random32(randomSeed);
+	rng.seed(randomSeed);
 }
 
 Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){

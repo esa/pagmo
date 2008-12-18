@@ -46,7 +46,7 @@ struct threadParam{
 	boost::condition_variable *exit;
 	Population *Ptr_pop;
 	std::ofstream *Ptr_log;
-	unsigned long randomSeed;
+	uint32_t randomSeed;
 };
 
 //Here we define the protoypes for each type of thread we may want to open

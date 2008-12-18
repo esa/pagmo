@@ -15,13 +15,13 @@
 
 using namespace std;
 
-void DEalgorithm::initDE(int generationsInit, int SolDimInit, double FInit, double CRInit, int strategyInit, unsigned long randomSeed){
+void DEalgorithm::initDE(int generationsInit, int SolDimInit, double FInit, double CRInit, int strategyInit, uint32_t randomSeed){
 	generations = generationsInit;
 	strategy = strategyInit;
 	F = FInit;
 	CR = CRInit;
 	SolDim = SolDimInit;
-	rng = Pk::Random32(randomSeed);
+	rng.seed(randomSeed);
 }
 
 Population DEalgorithm::evolve(Population deme, GOProblem& problem){

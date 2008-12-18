@@ -26,7 +26,7 @@ void initPSO(int generationsInit,
 			 double eta1Init,
 			 double eta2Init,
 			 double vcoeffInit,
-			 unsigned long randomSeed);
+			 uint32_t randomSeed);
 
 private:
 	int generations;
@@ -35,7 +35,7 @@ private:
 	double eta1;
 	double eta2;
 	double vcoeff;
-	Pk::Random32 rng;
+	rng_type rng;
 };
 
 #endif

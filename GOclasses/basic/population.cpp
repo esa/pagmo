@@ -11,7 +11,7 @@
 
 
 
-	void Population::createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, Pk::Random32& rng){
+	void Population::createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, rng_type &rng){
 		Individual x;
 		pop.clear();
 
@@ -21,7 +21,7 @@
 		}//for
 	};//createRandomPopulation
 
-	void Population::resetVelocities(std::vector<double> LB, std::vector<double> UB, Pk::Random32& rng){
+	void Population::resetVelocities(std::vector<double> LB, std::vector<double> UB, rng_type &rng){
 		for (unsigned int j=0 ;j<pop.size();j++){
 				pop[j].resetVelocity(LB,UB, rng);
 		}
@@ -76,7 +76,7 @@
 		return pop[index];
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<int> &picks, Pk::Random32& rng){
+	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_type &rng){
 		Population deme;
 		std::vector<int> PossiblePicks;
 		int Pick;

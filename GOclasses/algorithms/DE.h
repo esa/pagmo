@@ -26,7 +26,7 @@ public:
 				 double FInit,
 				 double CRInit,
 				 int strategyInit,
-				 unsigned long randomSeed);
+				 uint32_t randomSeed);
 
 private:
 	int generations;
@@ -34,7 +34,7 @@ private:
 	double F;
 	double CR;
 	int strategy;
-	Pk::Random32 rng;
+	rng_type rng;
 };
 
 #endif

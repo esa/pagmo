@@ -21,7 +21,9 @@
 
 using namespace std;
 
+// Useful typedefs.
 typedef boost::unique_lock<boost::mutex> lock_type;
+typedef messengerfullProb problem_type;
 
 int main(){
 
@@ -31,10 +33,9 @@ int main(){
 
 		//We prepare the pseudorandom sequence (TODO: check the randomnumbers of different threads are different)
 
-		Pk::Random32 rng(time(0));
+		rng_type rng(time(0));
 
 		//we set the problem
-		typedef messengerfullProb problem_type;
 		problem_type problem;
 		//we extract its information into local variables
 		const vector<double>& LB = problem.getLB();
@@ -85,8 +86,8 @@ while (choice != -1) {
 			//Instanciate the algorithm
 			//Adaptive Simulated Annealing
 			ASAalgorithm ASA;
-			//ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng.next());
-			ASA.initASA(niterTot,LB.size(),T0,Tf, rng.next());
+			//ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng());
+			ASA.initASA(niterTot,LB.size(),T0,Tf, rng());
 
 			//Pruned bounds
 
@@ -105,7 +106,7 @@ while (choice != -1) {
 						//we evolve it
 						start1=clock();
 						if (pop.extractBestIndividual().getFitness() < 5){
-							ASA.initASA(niterTot,LB.size(),1,0.01, rng.next());
+							ASA.initASA(niterTot,LB.size(),1,0.01, rng());
 						}
 						pop = ASA.evolve(pop[0],problem);
 						end1=clock();
@@ -175,7 +176,7 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			PSOalgorithm PSO;
-			PSO.initPSO(gen,LB.size(),omega,eta1,eta2,vcoeff, rng.next());
+			PSO.initPSO(gen,LB.size(),omega,eta1,eta2,vcoeff, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -255,7 +256,7 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			MPSOalgorithm MPSO;
-			MPSO.initMPSO(gen,LB.size(),omega,eta1,eta2,vcoeff,nswarms, rng.next());
+			MPSO.initMPSO(gen,LB.size(),omega,eta1,eta2,vcoeff,nswarms, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -334,7 +335,7 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			DEalgorithm DE;
-			DE.initDE(gen,LB.size(),F,CR,strategy, rng.next());
+			DE.initDE(gen,LB.size(),F,CR,strategy, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -423,7 +424,7 @@ while (choice != -1) {
 			//Instanciate the algorithm
 			//Simple Genetic Algorithm
 			SGAalgorithm SGA;
-			SGA.initSGA(gen,LB.size(),CR,M,insert_best, rng.next());
+			SGA.initSGA(gen,LB.size(),CR,M,insert_best, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -492,7 +493,7 @@ while (choice != -1) {
 			double F = 0.8;					//F in DE
 			double CR = 0.8;				//CR in DE
 			int strategy = 2;				//DE startegy
-			int islandsN  = 6;				//Number of Islands
+			int islandsN  = 8;				//Number of Islands
 
 			//stopping criteria
 			int itermax = 120;				//Maximum number of iterations allowed (i.e. output printed on the screen)
@@ -579,29 +580,29 @@ while (choice != -1) {
                                 //Create again the i-th thread to simulate an Island
                                 IslandType = 3;
                                 if (IslandType == 0){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, PSOthread, (void *)&data[i]);
                                 }
                                 else if (IslandType == 1){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, MPSOthread, (void *)&data[i]);
                                 }
                                 else if (IslandType == 2){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, SGAthread, (void *)&data[i]);
                                 }
                                 else if (IslandType == 3){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     data[i].generations=10000;
                                     data[i].NP = 1;
                                     cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, ASAthread, (void *)&data[i]);
                                 }
                                 else {
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     data[i].strategy = strategy;
                                     cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, DEthread, (void *)&data[i]);
@@ -638,7 +639,7 @@ while (choice != -1) {
 
                                 //ring topology migration
                                 if (Pk::nextDouble(rng) < 0.2){
-                                    IslandPop[(i+1) % islandsN].substituteIndividual(IslandPop[i].extractBestIndividual(), rng.next() % data[i].NP);
+                                    IslandPop[(i+1) % islandsN].substituteIndividual(IslandPop[i].extractBestIndividual(), rng() % data[i].NP);
                                 }
 
                             }
@@ -794,29 +795,29 @@ while (choice != -1) {
                                 //Create again the i-th thread to simulate an Island
                                 IslandType = 4;
                                 if (IslandType == 0){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, PSOthread, (void *)&data[i]);
                                 }
                                 else if (IslandType == 1){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, MPSOthread, (void *)&data[i]);
                                 }
                                 else if (IslandType == 2){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, SGAthread, (void *)&data[i]);
                                 }
                                 else if (IslandType == 3){
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     data[i].generations=10000;
                                     data[i].NP = 1;
                                     cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, ASAthread, (void *)&data[i]);
                                 }
                                 else {
-                                    data[i].randomSeed = rng.next();
+                                    data[i].randomSeed = rng();
                                     data[i].strategy = strategy;
                                     cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
                                     rc = pthread_create(&threads[i], NULL, DEthread, (void *)&data[i]);
