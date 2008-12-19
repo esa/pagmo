@@ -69,9 +69,11 @@
 
 #include <cstring>
 
+#include <boost/random/lagged_fibonacci.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
 typedef boost::mt19937 rng_uint32_type;
+typedef boost::lagged_fibonacci607 rng_double_type;
 
 // Mersenne Twister
 

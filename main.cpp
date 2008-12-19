@@ -502,6 +502,9 @@ while (choice != -1) {
 			double mean = 0, dev= 0, max = 0, min = 200000000;
 			vector <double> results;
 
+			//Double rng.
+			rng_double_type drng(uint32_t(time(0)));
+
 			//Main cycle creating threads
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -638,7 +641,7 @@ while (choice != -1) {
                                 cout << "\nmain():" << endl <<  "\t\t\tcreating thread, ID " << i << endl;
 
                                 //ring topology migration
-                                if (Pk::nextDouble(rng) < 0.2){
+                                if (drng() < 0.2){
                                     IslandPop[(i+1) % islandsN].substituteIndividual(IslandPop[i].extractBestIndividual(), rng() % data[i].NP);
                                 }
 

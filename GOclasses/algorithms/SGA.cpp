@@ -19,6 +19,7 @@ void SGAalgorithm::initSGA(int generationsInit, int SolDimInit, double CRInit, d
 	M = MInit;
 	insert_best = insert_bestInit;
 	rng.seed(randomSeed);
+	drng.seed(randomSeed);
 }
 
 Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
@@ -90,7 +91,7 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 			selection.resize(NP,0);
 			double r2;
 			for (int i = 0; i < NP; i++){
-				r2 = Pk::nextDouble(rng);
+				r2 = drng();
 				for (int j = 0; j < NP; j++){
 					if (cumsum[j] > r2){
 						selection[i]=j;
@@ -126,7 +127,7 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 					member1[n] = member2[n];
 					n = (n+1) % D;
 					L++;
-				}  while ( (Pk::nextDouble(rng) < CR) && (L < D) );
+				}  while ( (drng() < CR) && (L < D) );
 				Xnew[i] = member1;
 			}
 		}
@@ -136,9 +137,9 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 			for (int i = 0; i < NP;i++){
 				//generate a random mutation vector
 				for (int j = 0; j < D;j++)
-					if (Pk::nextDouble(rng) < M)
+					if (drng() < M)
 					{
-						Xnew[i][j] = (UB[j]-LB[j])*Pk::nextDouble(rng) + LB[j];
+						Xnew[i][j] = (UB[j]-LB[j])*drng() + LB[j];
 					}
 			}
 		}

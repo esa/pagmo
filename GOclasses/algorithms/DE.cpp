@@ -21,7 +21,7 @@ void DEalgorithm::initDE(int generationsInit, int SolDimInit, double FInit, doub
 	F = FInit;
 	CR = CRInit;
 	SolDim = SolDimInit;
-	rng.seed(randomSeed);
+	drng.seed(randomSeed);
 }
 
 Population DEalgorithm::evolve(Population deme, GOProblem& problem){
@@ -71,27 +71,27 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 		for (i=0; i<NP; i++){
 			do{                        /* Pick a random population member */
 			                          /* Endless loop for NP < 2 !!!     */
-				r1 = (int)(Pk::nextDouble(rng)*NP);
+				r1 = (int)(drng()*NP);
 			}while(r1==i);
 
 			do{                        /* Pick a random population member */
 									   /* Endless loop for NP < 3 !!!     */
-				r2 = (int)(Pk::nextDouble(rng)*NP);
+				r2 = (int)(drng()*NP);
 			}while((r2==i) || (r2==r1));
 
 			do{                        /* Pick a random population member */
 									   /* Endless loop for NP < 4 !!!     */
-				r3 = (int)(Pk::nextDouble(rng)*NP);
+				r3 = (int)(drng()*NP);
 			}while((r3==i) || (r3==r1) || (r3==r2));
 
 			do{                        /* Pick a random population member */
 									   /* Endless loop for NP < 5 !!!     */
-				r4 = (int)(Pk::nextDouble(rng)*NP);
+				r4 = (int)(drng()*NP);
 			}while((r4==i) || (r4==r1) || (r4==r2) || (r4==r3));
 
 			do{                        /* Pick a random population member */
 									   /* Endless loop for NP < 6 !!!     */
-				r5 = (int)(Pk::nextDouble(rng)*NP);
+				r5 = (int)(drng()*NP);
 			}while((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
 
 
@@ -100,13 +100,13 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------optimization problems where misconvergence occurs.-------------------------------*/
 			if (strategy == 1){ /* strategy DE0 (not in our paper) */
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				L = 0;
 				do{
 					tmp[n] = gbIter[n] + F*(popold[r2][n]-popold[r3][n]);
 					n = (n+1)%D;
 					L++;
-				}while((Pk::nextDouble(rng) < CR) && (L < D));
+				}while((drng() < CR) && (L < D));
 			}
 
 /*-------DE/rand/1/exp-------------------------------------------------------------------*/
@@ -115,13 +115,13 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------as a first guess.---------------------------------------------------------------*/
 			else if (strategy == 2){ /* strategy DE1 in the techreport */
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				L = 0;
 				do{
 					tmp[n] = popold[r1][n] + F*(popold[r2][n]-popold[r3][n]);
 					n = (n+1)%D;
 					L++;
-				}while((Pk::nextDouble(rng) < CR) && (L < D));
+				}while((drng() < CR) && (L < D));
 			}
 
 /*-------DE/rand-to-best/1/exp-----------------------------------------------------------*/
@@ -130,37 +130,37 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------should play around with all three control variables.----------------------------*/
 			else if (strategy == 3){ /* similiar to DE2 but generally better */
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				L = 0;
 				do{
 					tmp[n] = tmp[n] + F*(gbIter[n] - tmp[n]) + F*(popold[r1][n]-popold[r2][n]);
 					n = (n+1)%D;
 					L++;
-				}while((Pk::nextDouble(rng) < CR) && (L < D));
+				}while((drng() < CR) && (L < D));
 			}
 /*-------DE/best/2/exp is another powerful strategy worth trying--------------------------*/
 			else if (strategy == 4){
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				L = 0;
 				do{
 					tmp[n] = gbIter[n] +
 					(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					n = (n+1)%D;
 					L++;
-				}while((Pk::nextDouble(rng) < CR) && (L < D));
+				}while((drng() < CR) && (L < D));
 			}
 /*-------DE/rand/2/exp seems to be a robust optimizer for many functions-------------------*/
 			else if (strategy == 5){
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				L = 0;
 				do{
 					tmp[n] = popold[r5][n] +
 					(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					n = (n+1)%D;
 					L++;
-				}while((Pk::nextDouble(rng) < CR) && (L < D));
+				}while((drng() < CR) && (L < D));
 			}
 
 /*=======Essentially same strategies but BINOMIAL CROSSOVER===============================*/
@@ -168,9 +168,9 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------DE/best/1/bin--------------------------------------------------------------------*/
 			else if (strategy == 6){
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 					for (L=0; L<D; L++){ /* perform D binomial trials */
-						if ((Pk::nextDouble(rng) < CR) || L == (D-1)){ /* change at least one parameter */
+						if ((drng() < CR) || L == (D-1)){ /* change at least one parameter */
 							tmp[n] = gbIter[n] + F*(popold[r2][n]-popold[r3][n]);
 						}
 					n = (n+1)%D;
@@ -179,9 +179,9 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------DE/rand/1/bin-------------------------------------------------------------------*/
 			else if (strategy == 7){
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				for (L=0; L<D; L++){ /* perform D binomial trials */
-					if ((Pk::nextDouble(rng) < CR) || L == (D-1)){ /* change at least one parameter */
+					if ((drng() < CR) || L == (D-1)){ /* change at least one parameter */
 						tmp[n] = popold[r1][n] + F*(popold[r2][n]-popold[r3][n]);
 					}
 					n = (n+1)%D;
@@ -190,9 +190,9 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------DE/rand-to-best/1/bin-----------------------------------------------------------*/
 			else if (strategy == 8){
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				for (L=0; L<D; L++){ /* perform D binomial trials */
-					if ((Pk::nextDouble(rng) < CR) || L == (D-1)){ /* change at least one parameter */
+					if ((drng() < CR) || L == (D-1)){ /* change at least one parameter */
 						tmp[n] = tmp[n] + F*(gbIter[n] - tmp[n]) + F*(popold[r1][n]-popold[r2][n]);
 					}
 					n = (n+1)%D;
@@ -201,9 +201,9 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------DE/best/2/bin--------------------------------------------------------------------*/
 			else if (strategy == 9){
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				for (L=0; L<D; L++){ /* perform D binomial trials */
-					if ((Pk::nextDouble(rng) < CR) || L == (D-1)){ /* change at least one parameter */
+					if ((drng() < CR) || L == (D-1)){ /* change at least one parameter */
 						tmp[n] = gbIter[n] +
 						(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					}
@@ -213,9 +213,9 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 /*-------DE/rand/2/bin--------------------------------------------------------------------*/
 			else if (strategy == 10){
 				tmp = popold[i];
-				n = (int)(Pk::nextDouble(rng)*D);
+				n = (int)(drng()*D);
 				for (L=0; L<D; L++){ /* perform D binomial trials */
-					if ((Pk::nextDouble(rng) < CR) || L == (D-1)){ /* change at least one parameter */
+					if ((drng() < CR) || L == (D-1)){ /* change at least one parameter */
 						tmp[n] = popold[r5][n] +
 						(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					}
@@ -230,7 +230,7 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 			i2=0;
 			while  (i2<D) {
 				if ((tmp[i2] < LB[i2]) || (tmp[i2] > UB[i2]))
-					tmp[i2] = Pk::nextDouble(rng)*(UB[i2]-LB[i2]) + LB[i2];
+					tmp[i2] = drng()*(UB[i2]-LB[i2]) + LB[i2];
 				i2++;
 			}
 			newfitness = problem.objfun(tmp);    /* Evaluate new vector in tmp[] */
