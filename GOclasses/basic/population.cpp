@@ -6,24 +6,25 @@
  *  Copyright 2008 ¿dvanced Concepts Team (European Space Agency). All rights reserved.
  *
  */
+
+#include <cmath>
+
 #include "population.h"
-#include <math.h>
+#include "rng.h"
 
-
-
-	void Population::createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, rng_uint32_type &rng){
+	void Population::createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, rng_double_type &drng){
 		Individual x;
 		pop.clear();
 
 		for (int i=0; i < N; i++){
-			x.createRandomIndividual(LB,UB, rng);
+			x.createRandomIndividual(LB,UB, drng);
 			pop.push_back(x);
 		}//for
 	};//createRandomPopulation
 
-	void Population::resetVelocities(std::vector<double> LB, std::vector<double> UB, rng_uint32_type &rng){
+	void Population::resetVelocities(std::vector<double> LB, std::vector<double> UB, rng_double_type &drng){
 		for (unsigned int j=0 ;j<pop.size();j++){
-				pop[j].resetVelocity(LB,UB, rng);
+				pop[j].resetVelocity(LB,UB, drng);
 		}
 	}
 
@@ -76,7 +77,7 @@
 		return pop[index];
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_uint32_type &rng){
+	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_double_type &drng){
 		Population deme;
 		std::vector<int> PossiblePicks;
 		int Pick;
@@ -87,7 +88,7 @@
 
 		for (int i=0; i < N; i++){
 			//we pick a random position between 0 and popsize-1
-			Pick = (int)(Pk::nextDouble(rng) * PossiblePicks.size());
+			Pick = (int)(drng() * PossiblePicks.size());
 			//and store it
 			picks.push_back(PossiblePicks[Pick]);
 			//we insert the corresponding individual in the deme

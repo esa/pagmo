@@ -7,9 +7,10 @@
  *
  */
 
-#include "ASA.h"
-#include "PkRandom.h"
 #include <iostream>
+
+#include "ASA.h"
+#include "rng.h"
 
 Population ASAalgorithm::evolve(Individual x0, GOProblem& problem) {
 

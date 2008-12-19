@@ -10,11 +10,12 @@
 #ifndef DE_H
 #define DE_H
 
-#include "population.h"
 #include <vector>
-#include <math.h>
+#include <cmath>
+
 #include "constants.h"
-#include "PkRandom.h"
+#include "population.h"
+#include "rng.h"
 
 class DEalgorithm{
 public:

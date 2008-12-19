@@ -9,9 +9,10 @@
  * from http://www.icsi.berkeley.edu/~storn/code.html#csou
  */
 
-#include "DE.h"
-#include "vector"
 #include <iostream>
+#include <vector>
+
+#include "DE.h"
 
 using namespace std;
 

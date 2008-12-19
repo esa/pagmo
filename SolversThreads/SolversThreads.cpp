@@ -12,14 +12,14 @@
 #include <fstream>
 #include <vector>
 
+#include "ASA.h"
+#include "DE.h"
+#include "MPSO.h"
+#include "PSO.h"
+#include "SGA.h"
 #include "SolversThreads.h"
 #include "population.h"
-#include "DE.h"
-#include "PSO.h"
-#include "MPSO.h"
-#include "SGA.h"
-#include "ASA.h"
-#include "PkRandom.h"
+#include "rng.h"
 
 using namespace std;
 
@@ -40,6 +40,7 @@ void *DEthread(void *data)
    vector<double> LB,UB;
    DEalgorithm DE;
    rng_uint32_type rng;
+   rng_double_type drng;
 
 
 	clock_t start,end;
@@ -48,7 +49,8 @@ void *DEthread(void *data)
     {
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
-		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
+        drng.seed(PtrTP->randomSeed);
+		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		DE.initDE(PtrTP->generations,LB.size(),PtrTP->F,PtrTP->CR,PtrTP->strategy, rng());
@@ -100,6 +102,7 @@ void *MPSOthread(void *data)
    vector<double> LB, UB;
    MPSOalgorithm MPSO;
    rng_uint32_type rng;
+   rng_double_type drng;
 
 	clock_t start,end;
 	double dif;
@@ -107,7 +110,8 @@ void *MPSOthread(void *data)
    {
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
+        drng.seed(PtrTP->randomSeed);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		MPSO.initMPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms, rng());
@@ -155,6 +159,7 @@ void *PSOthread(void *data)
    vector<double> LB,UB;
    PSOalgorithm PSO;
    rng_uint32_type rng;
+   rng_double_type drng;
 
 	clock_t start,end;
 	double dif;
@@ -162,7 +167,8 @@ void *PSOthread(void *data)
    {
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
+        drng.seed(PtrTP->randomSeed);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		PSO.initPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, rng());
@@ -211,6 +217,7 @@ void *SGAthread(void *data)
    vector<double> LB,UB;
    SGAalgorithm SGA;
    rng_uint32_type rng;
+   rng_double_type drng;
    GOProblem* problem;
 
 	clock_t start,end;
@@ -219,7 +226,8 @@ void *SGAthread(void *data)
    {
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
+        drng.seed(PtrTP->randomSeed);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		SGA.initSGA(PtrTP->generations,LB.size(),PtrTP->CRsga,PtrTP->M,PtrTP->insert_best, rng());
@@ -267,6 +275,7 @@ void *ASAthread(void *data)
    vector<double> LB,UB;
    ASAalgorithm ASA;
    rng_uint32_type rng;
+   rng_double_type drng;
    GOProblem* problem;
 
 
@@ -276,7 +285,8 @@ void *ASAthread(void *data)
    {
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, rng);
+        drng.seed(PtrTP->randomSeed);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
 		problem->getBounds(LB, UB);
 		unsigned int temp;

@@ -37,7 +37,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
 	${CMAKE_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
 	${CMAKE_SOURCE_DIR}/AstroToolbox/time2distance.cpp
-	${CMAKE_SOURCE_DIR}/Functions/rng/PkRandom.cpp
 	${CMAKE_SOURCE_DIR}/Functions/objfuns/trajobjfuns.cpp
 	${CMAKE_SOURCE_DIR}/GOclasses/algorithms/ASA.cpp
 	${CMAKE_SOURCE_DIR}/GOclasses/algorithms/DE.cpp

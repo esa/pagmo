@@ -7,8 +7,9 @@
  *
  */
 
+#include <vector>
+
 #include "MPSO.h"
-#include "vector"
 
 using namespace std;
 

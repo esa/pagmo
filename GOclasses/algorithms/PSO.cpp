@@ -7,8 +7,9 @@
  *
  */
 
+#include <vector>
+
 #include "PSO.h"
-#include "vector"
 
 using namespace std;
 

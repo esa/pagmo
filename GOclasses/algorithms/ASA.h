@@ -10,12 +10,14 @@
 #ifndef ASA_H
 #define ASA_H
 
-#include "population.h"
 #include <vector>
 #include <cmath>
-#include "constants.h"
-#include "PkRandom.h"
+
 #include "GOproblem.h"
+#include "constants.h"
+#include "individual.h"
+#include "population.h"
+#include "rng.h"
 
 
 class ASAalgorithm{

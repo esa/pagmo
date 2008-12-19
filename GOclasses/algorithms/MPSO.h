@@ -10,11 +10,13 @@
 #ifndef MPSO_H
 #define MPSO_H
 
-#include "population.h"
+#include <cmath>
 #include <vector>
-#include <math.h>
-#include "PkRandom.h"
+
 #include "GOproblem.h"
+#include "population.h"
+#include "rng.h"
+
 
 class MPSOalgorithm{
 public:

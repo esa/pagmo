@@ -12,15 +12,16 @@
 
 #include <iostream>
 #include <vector>
-#include "constants.h"
-#include "PkRandom.h"
+
 #include "GOproblem.h"
+#include "constants.h"
+#include "rng.h"
 
 class Individual{
 
 public:
     //methods
-	void createRandomIndividual(std::vector<double> LB, std::vector<double> UB, rng_uint32_type &rng);
+	void createRandomIndividual(std::vector<double> LB, std::vector<double> UB, rng_double_type &);
 	double evaluateFitness(GOProblem&);
 	double getFitness() const;
 	void setFitness(double fitnessnew);
@@ -28,7 +29,7 @@ public:
 	void setDecisionVector(std::vector<double> xnew);
 	std::vector<double> getVelocity() const;
 	void setVelocity(std::vector<double> xnew);
-	void resetVelocity(std::vector<double> LB, std::vector<double> UB, rng_uint32_type &rng);
+	void resetVelocity(std::vector<double> LB, std::vector<double> UB, rng_double_type &);
 
 	//operators
 	double& operator[](int index);

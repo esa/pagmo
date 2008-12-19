@@ -10,10 +10,11 @@
 #ifndef PSO_H
 #define PSO_H
 
-#include "population.h"
+#include <cmath>
 #include <vector>
-#include <math.h>
-#include "PkRandom.h"
+
+#include "population.h"
+#include "rng.h"
 
 class PSOalgorithm{
 public:

@@ -11,17 +11,18 @@
 #define POPULATION_H
 
 #include <vector>
+
+#include "GOproblem.h"
 #include "constants.h"
 #include "individual.h"
-#include "PkRandom.h"
-#include "GOproblem.h"
+#include "rng.h"
 
 class Population{
 public:
     //Methods
     // TODO: pass by reference here, why the copies?
-	void createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, rng_uint32_type &rng);
-	void resetVelocities(std::vector<double> LB, std::vector<double> UB, rng_uint32_type &rng);
+	void createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, rng_double_type &);
+	void resetVelocities(std::vector<double> LB, std::vector<double> UB, rng_double_type &);
 	void evaluatePopulation(GOProblem&);
 	void addIndividual(Individual x);
 	void substituteIndividual(const Individual x, const int n);
@@ -30,7 +31,7 @@ public:
 	unsigned int size ();
 	Individual extractBestIndividual();
 	Individual extractWorstIndividual();
-	Population extractRandomDeme(int N, std::vector<int> &picks, rng_uint32_type &rng);
+	Population extractRandomDeme(int N, std::vector<int> &picks, rng_double_type &);
 	void insertDeme(Population deme, std::vector<int> picks);
 	void insertBestInDeme(Population deme, std::vector<int> picks);
 	void insertDemeForced(Population deme, std::vector<int> picks);

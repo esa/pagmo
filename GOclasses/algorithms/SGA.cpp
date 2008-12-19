@@ -7,8 +7,9 @@
  *
  */
 
+#include <vector>
+
 #include "SGA.h"
-#include "vector"
 
 using namespace std;
 
