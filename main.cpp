@@ -639,7 +639,8 @@ while (choice != -1) {
                 }
 				//The main cycle has finished: we wait for all threads to finish
 				for (int i=0; i<islandsN;i++){
-					while (*data[i].isActive); //infinite loop if a thread never ends
+				    //infinite loop if a thread never ends
+				    while (__sync_bool_compare_and_swap(data[i].isActive,1,1));
 				}
 
 				//deallocate memory

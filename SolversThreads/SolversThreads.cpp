@@ -315,7 +315,7 @@ void *ASAthread(void *data)
 		//log in logfile
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
-		*(PtrTP->isActive) = false;
+		__sync_sub_and_fetch(PtrTP->isActive,1);
 		PtrTP->exit->notify_one();
    }
    return 0;
