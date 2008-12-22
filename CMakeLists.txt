@@ -6,6 +6,13 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisab
 
 INCLUDE(CheckTypeSize)
 
+# Set default build type to "Release", change it in the GUI if you need to build with debug.
+IF(NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE Release CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+    FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/AstroToolbox")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/Functions/rng")
