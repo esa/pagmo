@@ -3,7 +3,6 @@ PROJECT(PaGMO)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisabled-optimization")
-SET(CMAKE_BUILD_TYPE "Release")
 
 INCLUDE(CheckTypeSize)
 
