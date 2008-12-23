@@ -26,6 +26,15 @@ namespace PaGMO
 				this->m_value -= n;
 				return *this;
 			}
+			template <class IntType2>
+			bool compare_and_swap(const IntType2 &oldval, const IntType2 &newval) {
+				boost::lock_guard<boost::mutex> lock(m_mutex);
+				if (this->m_value == oldval) {
+					this->m_value = newval;
+					return true;
+				}
+				return false;
+			}
 		private:
 			boost::mutex m_mutex;
 	};

@@ -14,6 +14,7 @@
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include "../atomic_counters/atomic_counters.h"
 #include "GOproblem.h"
 #include "population.h"
 
@@ -41,7 +42,7 @@ struct threadParam{
 	//pointers giving access to global resources
 	GOProblem* problem;
 
-	bool *isActive;
+	PaGMO::atomic_counter_int *isActive;
 	boost::mutex *TPmutex;
 	boost::condition_variable *exit;
 	Population *Ptr_pop;

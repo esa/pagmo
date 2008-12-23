@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <vector>
 #include <ctime>	//for time()
+#include "atomic_counters/atomic_counters.h"
 #include "population.h"
 #include "ASA.h"
 #include "PSO.h"
@@ -20,6 +21,7 @@
 #include "rng.h"
 
 using namespace std;
+using namespace PaGMO;
 
 // Useful typedefs.
 typedef boost::unique_lock<boost::mutex> lock_type;
@@ -523,10 +525,8 @@ while (choice != -1) {
 				boost::mutex mutex;
 				boost::condition_variable exitcond;
 
-				//We allocate memory for the isActive array containing the status ofeach thread	and we initialise it to false (no threads opened)
-				bool *isActive;
-				isActive = new bool[islandsN];
-				for (int i=0;i<islandsN;i++) isActive[i]=false;  //all threads are inactive
+				//We allocate memory for the isActive array containing the status of each thread 
+				atomic_counter_int *isActive = new atomic_counter_int[islandsN];
 
 				//We allocate memory and initialise the data threadParam array containing the information to be passed to the different threads
 				threadParam* data;
@@ -577,7 +577,7 @@ while (choice != -1) {
                     time(&start);
                     while(iter < itermax){
                         for (int i=0;i<islandsN;i++){
-                            if ( !*(data[i].isActive) ){
+                            if ( !(data[i].isActive->compare_and_swap(1,1)) ){
                                 //Create again the i-th thread to simulate an Island
                                 IslandType = 3;
                                 if (IslandType == 0){
@@ -610,7 +610,7 @@ while (choice != -1) {
                                 }
                                 //Thread Successfully Created
                                 iter += 1;
-                                *(data[i].isActive) = true;
+                                ++*(data[i].isActive);
 
                                 //evaluate highest standard deviation across Islands
                                 //loweststd = IslandPop[0].evaluateStd();
@@ -640,7 +640,7 @@ while (choice != -1) {
 				//The main cycle has finished: we wait for all threads to finish
 				for (int i=0; i<islandsN;i++){
 				    //infinite loop if a thread never ends
-				    while (__sync_bool_compare_and_swap(data[i].isActive,1,1));
+				    while (data[i].isActive->compare_and_swap(1,1)) {};
 				}
 
 				//deallocate memory
@@ -724,10 +724,8 @@ while (choice != -1) {
 				boost::mutex mutex;
 				boost::condition_variable exitcond;
 
-				//We allocate memory for the isActive array containing the status ofeach thread	and we initialise it to false (no threads opened)
-				bool *isActive;
-				isActive = new bool[islandsN];
-				for (int i=0;i<islandsN;i++) isActive[i]=false;  //all threads are inactive
+				//We allocate memory for the isActive array containing the status ofeach thread
+				atomic_counter_int *isActive = new atomic_counter_int[islandsN];
 
 				//We allocate memory and initialise the data threadParam array containing the information to be passed to the different threads
 				threadParam* data;
@@ -811,7 +809,7 @@ while (choice != -1) {
                                 }
 
                                 iter += 1;
-                                *(data[i].isActive) = true;
+                                ++*(data[i].isActive);
 
                                 //evaluate standard deviation in main population
                                 //loweststd = IslandPop[0].evaluateStd();

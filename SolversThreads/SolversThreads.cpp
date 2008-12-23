@@ -77,7 +77,7 @@ void *DEthread(void *data)
 		//log in logfile
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
-		*(PtrTP->isActive) = false;
+		--*(PtrTP->isActive);
 		PtrTP->exit->notify_one();
    }
    return 0;
@@ -138,7 +138,7 @@ void *MPSOthread(void *data)
 		//log in logfile
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
-		*(PtrTP->isActive) = false;
+		--*(PtrTP->isActive);
         PtrTP->exit->notify_one();
     }
    return 0;
@@ -195,7 +195,7 @@ void *PSOthread(void *data)
 		//log in logfile
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
-		*(PtrTP->isActive) = false;
+		--*(PtrTP->isActive);
 		PtrTP->exit->notify_one();
    }
    return 0;
@@ -254,7 +254,7 @@ void *SGAthread(void *data)
 		//log in logfile
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
-		*(PtrTP->isActive) = false;
+		--*(PtrTP->isActive);
 		PtrTP->exit->notify_one();
    }
    return 0;
@@ -315,7 +315,7 @@ void *ASAthread(void *data)
 		//log in logfile
 		*(PtrTP->Ptr_log) << PtrTP->generations * deme.size() << " " << (PtrTP->Ptr_pop->extractBestIndividual()).getFitness() << endl;
 		//sinal exit
-		__sync_sub_and_fetch(PtrTP->isActive,1);
+		--*PtrTP->isActive;
 		PtrTP->exit->notify_one();
    }
    return 0;

@@ -21,6 +21,10 @@ namespace PaGMO
 				__sync_sub_and_fetch(&(this->m_value),static_cast<IntType>(n));
 				return *this;
 			}
+			template <class IntType2>
+			bool compare_and_swap(const IntType2 &oldval, const IntType2 &newval) {
+				return __sync_bool_compare_and_swap(&(this->m_value),oldval,newval);
+			}
 	};
 }
 
