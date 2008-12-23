@@ -10,11 +10,12 @@
 #ifndef DE_H
 #define DE_H
 
-#include "population.h"
 #include <vector>
-#include <math.h>
+#include <cmath>
+
 #include "constants.h"
-#include "PkRandom.h"
+#include "population.h"
+#include "rng.h"
 
 class DEalgorithm{
 public:
@@ -26,7 +27,7 @@ public:
 				 double FInit,
 				 double CRInit,
 				 int strategyInit,
-				 unsigned long randomSeed);
+				 uint32_t randomSeed);
 
 private:
 	int generations;
@@ -34,7 +35,7 @@ private:
 	double F;
 	double CR;
 	int strategy;
-	Pk::Random32 rng;
+	rng_double_type drng;
 };
 
 #endif

@@ -6,49 +6,50 @@
  *  Copyright 2008 ¿dvanced Concepts Team (European Space Agency). All rights reserved.
  *
  */
+
+#include <cmath>
+
 #include "population.h"
-#include <math.h>
+#include "rng.h"
 
-
-
-	void Population::createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, Pk::Random32& rng){
+	void Population::createRandomPopulation(const std::vector<double> &LB, const std::vector<double> &UB, int N, rng_double_type &drng){
 		Individual x;
 		pop.clear();
 
 		for (int i=0; i < N; i++){
-			x.createRandomIndividual(LB,UB, rng);
+			x.createRandomIndividual(LB,UB, drng);
 			pop.push_back(x);
 		}//for
 	};//createRandomPopulation
 
-	void Population::resetVelocities(std::vector<double> LB, std::vector<double> UB, Pk::Random32& rng){
+	void Population::resetVelocities(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng){
 		for (unsigned int j=0 ;j<pop.size();j++){
-				pop[j].resetVelocity(LB,UB, rng);
+				pop[j].resetVelocity(LB,UB, drng);
 		}
 	}
 
 
-	void Population::evaluatePopulation(GOProblem& problem){
+	void Population::evaluatePopulation(GOProblem &problem){
 
 		for (unsigned int i=0; i < pop.size(); i++)
 			pop[i].evaluateFitness(problem);
 	};//evaluatePopulation
 
-	void Population::addIndividual(Individual x){
+	void Population::addIndividual(const Individual &x){
 		pop.push_back(x);
 	};
 
-	void Population::substituteIndividual(const Individual x, const int n){
+	void Population::substituteIndividual(const Individual &x, int n){
 		pop[n].setDecisionVector(x.getDecisionVector());
 		pop[n].setVelocity(x.getVelocity());
 		pop[n].setFitness(x.getFitness());
 	}
 
-	unsigned int Population::size(){
+	unsigned int Population::size() const {
 		return pop.size();
 	};
 
-	Individual Population::extractBestIndividual(){
+	Individual Population::extractBestIndividual() const {
 
 		double f = pop[0].getFitness();
 		int index = 0;
@@ -62,7 +63,7 @@
 		return pop[index];
 	}
 
-	Individual Population::extractWorstIndividual(){
+	Individual Population::extractWorstIndividual() const {
 
 		double f = pop[0].getFitness();
 		int index = 0;
@@ -76,7 +77,7 @@
 		return pop[index];
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<int> &picks, Pk::Random32& rng){
+	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_double_type &drng){
 		Population deme;
 		std::vector<int> PossiblePicks;
 		int Pick;
@@ -87,7 +88,7 @@
 
 		for (int i=0; i < N; i++){
 			//we pick a random position between 0 and popsize-1
-			Pick = (int)(Pk::nextDouble(rng) * PossiblePicks.size());
+			Pick = (int)(drng() * PossiblePicks.size());
 			//and store it
 			picks.push_back(PossiblePicks[Pick]);
 			//we insert the corresponding individual in the deme
@@ -98,7 +99,7 @@
 		return deme;
 	};
 
-	void Population::insertDeme(Population deme, std::vector<int> picks){
+	void Population::insertDeme(const Population &deme, const std::vector<int> &picks){
 		for (unsigned int i=0; i<picks.size(); i++){
 			if ( deme[i].getFitness() < pop[picks[i]].getFitness() ){
 				pop[picks[i]] = deme[i];
@@ -106,13 +107,13 @@
 		}
 	}
 
-	void Population::insertDemeForced(Population deme, std::vector<int> picks){
+	void Population::insertDemeForced(const Population &deme, const std::vector<int> &picks){
 		for (unsigned int i=0; i<picks.size(); i++){
 				pop[picks[i]] = deme[i];
 		}
 	}
 
-	void Population::insertBestInDeme(Population deme, std::vector<int> picks){
+	void Population::insertBestInDeme(const Population &deme, const std::vector<int> &picks){
 		const int Ndeme = deme.size();
 
 		int bestindeme =  0;
@@ -134,7 +135,7 @@
 
 	}
 
-	double Population::evaluateMean(){
+	double Population::evaluateMean() const {
 		double mean=0;
 		int size = 0;
 		size = pop.size();
@@ -145,7 +146,7 @@
 		return mean;
 	}
 
-	double Population::evaluateStd(){
+	double Population::evaluateStd() const {
 		double Std=0,mean=0;
 		int size = 0;
 		size = pop.size();
@@ -158,18 +159,22 @@
 		return Std;
 	}
 
-	Individual& Population::operator[](int index){
+	Individual &Population::operator[](int index){
 		return pop[index];
 	};
 
-	void Population::operator=(Population newpop){
+    const Individual &Population::operator[](int index) const{
+		return pop[index];
+	};
+
+	void Population::operator=(const Population &newpop){
 		pop.clear();
 		for (unsigned int i=0 ; i<newpop.size(); i++){
 			pop.push_back(newpop[i]);
 		}
 	};
 
-	void Population::operator=(Individual x){
+	void Population::operator=(const Individual &x){
 		pop.clear();
 		pop.push_back(x);
 	};

@@ -10,11 +10,13 @@
 #ifndef MPSO_H
 #define MPSO_H
 
-#include "population.h"
+#include <cmath>
 #include <vector>
-#include <math.h>
-#include "PkRandom.h"
+
 #include "GOproblem.h"
+#include "population.h"
+#include "rng.h"
+
 
 class MPSOalgorithm{
 public:
@@ -28,7 +30,7 @@ void initMPSO(int generationsInit,
 			 double eta2Init,
 			 double vcoeffInit,
 			 int nswarmsInit,
-			 unsigned long randomSeed);
+			 uint32_t randomSeed);
 
 private:
 	int generations;
@@ -38,7 +40,7 @@ private:
 	double eta2;
 	double vcoeff;
 	int nswarms;
-	Pk::Random32 rng;
+	rng_double_type drng;
 };
 
 #endif

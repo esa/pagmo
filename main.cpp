@@ -1,3 +1,7 @@
+#include <boost/thread/condition_variable.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -12,11 +16,14 @@
 #include "LOCAL.h"
 #include "TrajectoryProblems.h"
 #include "ClassicProblems.h"
-#include <pthread.h>
 #include "SolversThreads.h"
-#include "PkRandom.h"
+#include "rng.h"
 
 using namespace std;
+
+// Useful typedefs.
+typedef boost::unique_lock<boost::mutex> lock_type;
+typedef messengerfullProb problem_type;
 
 int main(){
 
@@ -26,10 +33,10 @@ int main(){
 
 		//We prepare the pseudorandom sequence (TODO: check the randomnumbers of different threads are different)
 
-		Pk::Random32 rng(time(0));
+		rng_uint32_type rng(time(0));
+		rng_double_type drng(time(0));
 
 		//we set the problem
-		typedef messengerfullProb problem_type;
 		problem_type problem;
 		//we extract its information into local variables
 		const vector<double>& LB = problem.getLB();
@@ -80,15 +87,15 @@ while (choice != -1) {
 			//Instanciate the algorithm
 			//Adaptive Simulated Annealing
 			ASAalgorithm ASA;
-			//ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng.next());
-			ASA.initASA(niterTot,LB.size(),T0,Tf, rng.next());
+			//ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng());
+			ASA.initASA(niterTot,LB.size(),T0,Tf, rng());
 
 			//Pruned bounds
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, rng);
+				pop.createRandomPopulation(LB,UB,NP, drng);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -100,7 +107,7 @@ while (choice != -1) {
 						//we evolve it
 						start1=clock();
 						if (pop.extractBestIndividual().getFitness() < 5){
-							ASA.initASA(niterTot,LB.size(),1,0.01, rng.next());
+							ASA.initASA(niterTot,LB.size(),1,0.01, rng());
 						}
 						pop = ASA.evolve(pop[0],problem);
 						end1=clock();
@@ -170,12 +177,12 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			PSOalgorithm PSO;
-			PSO.initPSO(gen,LB.size(),omega,eta1,eta2,vcoeff, rng.next());
+			PSO.initPSO(gen,LB.size(),omega,eta1,eta2,vcoeff, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, rng);
+				pop.createRandomPopulation(LB,UB,NP, drng);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -250,12 +257,12 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			MPSOalgorithm MPSO;
-			MPSO.initMPSO(gen,LB.size(),omega,eta1,eta2,vcoeff,nswarms, rng.next());
+			MPSO.initMPSO(gen,LB.size(),omega,eta1,eta2,vcoeff,nswarms, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, rng);
+				pop.createRandomPopulation(LB,UB,NP, drng);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -329,14 +336,14 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			DEalgorithm DE;
-			DE.initDE(gen,LB.size(),F,CR,strategy, rng.next());
+			DE.initDE(gen,LB.size(),F,CR,strategy, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
 
 
-				pop.createRandomPopulation(LB,UB,NP, rng);
+				pop.createRandomPopulation(LB,UB,NP, drng);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -418,12 +425,12 @@ while (choice != -1) {
 			//Instanciate the algorithm
 			//Simple Genetic Algorithm
 			SGAalgorithm SGA;
-			SGA.initSGA(gen,LB.size(),CR,M,insert_best, rng.next());
+			SGA.initSGA(gen,LB.size(),CR,M,insert_best, rng());
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, rng);
+				pop.createRandomPopulation(LB,UB,NP, drng);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -487,7 +494,7 @@ while (choice != -1) {
 			double F = 0.8;					//F in DE
 			double CR = 0.8;				//CR in DE
 			int strategy = 2;				//DE startegy
-			int islandsN  = 1;				//Number of Islands
+			int islandsN  = 8;				//Number of Islands
 
 			//stopping criteria
 			int itermax = 120;				//Maximum number of iterations allowed (i.e. output printed on the screen)
@@ -495,6 +502,9 @@ while (choice != -1) {
 			//Experiment Outputs
 			double mean = 0, dev= 0, max = 0, min = 200000000;
 			vector <double> results;
+
+			//Double rng.
+			rng_double_type drng(uint32_t(time(0)));
 
 			//Main cycle creating threads
 			for (int i=0;i<trials;i++){
@@ -505,17 +515,13 @@ while (choice != -1) {
 				for (int i=0;i<islandsN;i++){
 					parallelProblems[i] = new problem_type();
 
-					IslandPop[i].createRandomPopulation(LB,UB,NP, rng);
+					IslandPop[i].createRandomPopulation(LB,UB,NP, drng);
 					IslandPop[i].evaluatePopulation(*parallelProblems[i]);
 				}
 
-				//We instanciate the objects needed for pthreads allocating memory for the threads array
-				pthread_t *threads;
-				threads = new pthread_t [islandsN];
-				pthread_mutex_t mutex;
-				pthread_cond_t exitcond;
-				pthread_mutex_init(&mutex, NULL);
-				pthread_cond_init (&exitcond, NULL);
+				//We instanciate the objects needed for threads
+				boost::mutex mutex;
+				boost::condition_variable exitcond;
 
 				//We allocate memory for the isActive array containing the status ofeach thread	and we initialise it to false (no threads opened)
 				bool *isActive;
@@ -563,95 +569,82 @@ while (choice != -1) {
 				}
 
 				int iter=0;
-				int rc;
 				int IslandType = 0;
 				double loweststd = 1000000;
 
-				pthread_mutex_lock (&mutex);
-				time(&start);
-				while(iter < itermax){
-					for (int i=0;i<islandsN;i++){
-						if ( !*(data[i].isActive) ){
-							//Create again the i-th thread to simulate an Island
-							IslandType = 3;
-							if (IslandType == 0){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, PSOthread, (void *)&data[i]);
-							}
-							else if (IslandType == 1){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, MPSOthread, (void *)&data[i]);
-							}
-							else if (IslandType == 2){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, SGAthread, (void *)&data[i]);
-							}
-							else if (IslandType == 3){
-								data[i].randomSeed = rng.next();
-								data[i].generations=10000;
-								data[i].NP = 1;
-								cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, ASAthread, (void *)&data[i]);
-							}
-							else {
-								data[i].randomSeed = rng.next();
-								data[i].strategy = strategy;
-								cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, DEthread, (void *)&data[i]);
-							}
-							if (rc){
-							//Problem creating the thread
-								printf("ERROR; return code from pthread_create() is %d\n", rc);
-								exit(-1);
-							}
-							else{
-							//Thread Successfully Created
-								iter += 1;
-								*(data[i].isActive) = true;
-								//thread is detached as it will never be joined
-								//(on OSx Leopard this avoids that at a certain point
-								//threads cannot be created anymore resulting in rc=35)
-								pthread_detach(threads[i]);
-							}
+                {
+                    lock_type lock(mutex);
+                    time(&start);
+                    while(iter < itermax){
+                        for (int i=0;i<islandsN;i++){
+                            if ( !*(data[i].isActive) ){
+                                //Create again the i-th thread to simulate an Island
+                                IslandType = 3;
+                                if (IslandType == 0){
+                                    data[i].randomSeed = rng();
+                                    cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(PSOthread,(void *)&data[i]).detach();
+                                }
+                                else if (IslandType == 1){
+                                    data[i].randomSeed = rng();
+                                    cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(MPSOthread, (void *)&data[i]).detach();
+                                }
+                                else if (IslandType == 2){
+                                    data[i].randomSeed = rng();
+                                    cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(SGAthread,(void *)&data[i]).detach();
+                                }
+                                else if (IslandType == 3){
+                                    data[i].randomSeed = rng();
+                                    data[i].generations=10000;
+                                    data[i].NP = 1;
+                                    cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(ASAthread,(void *)&data[i]).detach();
+                                }
+                                else {
+                                    data[i].randomSeed = rng();
+                                    data[i].strategy = strategy;
+                                    cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(DEthread,(void *)&data[i]).detach();
+                                }
+                                //Thread Successfully Created
+                                iter += 1;
+                                *(data[i].isActive) = true;
 
-							//evaluate highest standard deviation across Islands
-							//loweststd = IslandPop[0].evaluateStd();
-							loweststd = IslandPop[0].extractBestIndividual().getFitness();
-							for (int i2=1;i2<islandsN;i2++){
-								if (loweststd < IslandPop[i2].extractBestIndividual().getFitness()) loweststd = IslandPop[i2].extractBestIndividual().getFitness();
-							}
+                                //evaluate highest standard deviation across Islands
+                                //loweststd = IslandPop[0].evaluateStd();
+                                loweststd = IslandPop[0].extractBestIndividual().getFitness();
+                                for (int i2=1;i2<islandsN;i2++){
+                                    if (loweststd < IslandPop[i2].extractBestIndividual().getFitness()) loweststd = IslandPop[i2].extractBestIndividual().getFitness();
+                                }
 
-							//log islands best and std
-							for (int i2=0;i2<islandsN;i2++){
-							cout << "CPU#:" << i2 << ": " << IslandPop[i2].extractBestIndividual().getFitness() << " " << IslandPop[i2].evaluateStd() << endl;
-							}
-							cout << "HighestStd: " << loweststd << endl;
-							cout << "Iter: " << iter+1 << endl;
-							cout << "\nmain():" << endl <<  "\t\t\tcreating thread, ID " << i << endl;
+                                //log islands best and std
+                                for (int i2=0;i2<islandsN;i2++){
+                                cout << "CPU#:" << i2 << ": " << IslandPop[i2].extractBestIndividual().getFitness() << " " << IslandPop[i2].evaluateStd() << endl;
+                                }
+                                cout << "HighestStd: " << loweststd << endl;
+                                cout << "Iter: " << iter+1 << endl;
+                                cout << "\nmain():" << endl <<  "\t\t\tcreating thread, ID " << i << endl;
 
-							//ring topology migration
-							if (Pk::nextDouble(rng) < 0.2){
-								IslandPop[(i+1) % islandsN].substituteIndividual(IslandPop[i].extractBestIndividual(), rng.next() % data[i].NP);
-							}
+                                //ring topology migration
+                                if (drng() < 0.2){
+                                    IslandPop[(i+1) % islandsN].substituteIndividual(IslandPop[i].extractBestIndividual(), rng() % data[i].NP);
+                                }
 
-						}
-					}
-					pthread_cond_wait(&exitcond, &mutex);
-				}
-				pthread_mutex_unlock (&mutex);
+                            }
+                        }
+                        exitcond.wait(lock);
+                    }
+                }
 				//The main cycle has finished: we wait for all threads to finish
 				for (int i=0; i<islandsN;i++){
-					while (*data[i].isActive); //infinite loop if a thread never ends
+				    //infinite loop if a thread never ends
+				    while (__sync_bool_compare_and_swap(data[i].isActive,1,1));
 				}
 
-				//we clean the thread objects and deallocate memory
-				pthread_mutex_destroy(&mutex);
-				pthread_cond_destroy(&exitcond);
+				//deallocate memory
 				delete[] data;
-				delete[] threads;
 				delete[] isActive;
 				time(&end);
 				dif = difftime(end,start);
@@ -723,17 +716,13 @@ while (choice != -1) {
 				vector<GOProblem*> parallelProblems(islandsN);
 				for (int i=0;i<islandsN;i++) { parallelProblems[i] = new problem_type(); } //It is necessary to create a different object per CPU as to make sure to access different memory
 																							//locations when the problem is mga or mga-1dsm for th r,v,and DV variables in the mgaproblem structures
-				IslandPop.createRandomPopulation(LB,UB,NP, rng);
+				IslandPop.createRandomPopulation(LB,UB,NP, drng);
 				IslandPop.evaluatePopulation(*parallelProblems[0]);							//all the problems are identical.... evaluation is done for the [0] one.
 
 
-				//We instanciate the objects needed for pthreads allocating memory for the threads array
-				pthread_t *threads;
-				threads = new pthread_t [islandsN];
-				pthread_mutex_t mutex;
-				pthread_cond_t exitcond;
-				pthread_mutex_init(&mutex, NULL);
-				pthread_cond_init (&exitcond, NULL);
+				//We instanciate the objects needed for threads
+				boost::mutex mutex;
+				boost::condition_variable exitcond;
 
 				//We allocate memory for the isActive array containing the status ofeach thread	and we initialise it to false (no threads opened)
 				bool *isActive;
@@ -781,90 +770,76 @@ while (choice != -1) {
 				}
 
 				int iter=0;
-				int rc;
 				int IslandType = 0;
 				double loweststd = 1000000;
 
-				pthread_mutex_lock (&mutex);
-				time(&start);
-				while(iter < itermax){
-					for (int i=0;i<islandsN;i++){
-						if ( !*(data[i].isActive) ){
-							//Create again the i-th thread to simulate an Island
-							IslandType = 4;
-							if (IslandType == 0){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, PSOthread, (void *)&data[i]);
-							}
-							else if (IslandType == 1){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, MPSOthread, (void *)&data[i]);
-							}
-							else if (IslandType == 2){
-								data[i].randomSeed = rng.next();
-								cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, SGAthread, (void *)&data[i]);
-							}
-							else if (IslandType == 3){
-								data[i].randomSeed = rng.next();
-								data[i].generations=10000;
-								data[i].NP = 1;
-								cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, ASAthread, (void *)&data[i]);
-							}
-							else {
-								data[i].randomSeed = rng.next();
-								data[i].strategy = strategy;
-								cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
-								rc = pthread_create(&threads[i], NULL, DEthread, (void *)&data[i]);
-							}
-							if (rc){
-							//Problem creating the thread
-								printf("ERROR; return code from pthread_create() is %d\n", rc);
-								exit(-1);
-							}
-							else{
-							//Thread Successfully Created
-								iter += 1;
-								*(data[i].isActive) = true;
-								//thread is detached as it will never be joined
-								//(on OSx Leopard this avoids that at a certain point
-								//threads cannot be created anymore resulting in rc=35)
-								pthread_detach(threads[i]);
-							}
+                {
+                    lock_type lock(mutex);
+                    time(&start);
+                    while(iter < itermax){
+                        for (int i=0;i<islandsN;i++){
+                            if ( !*(data[i].isActive) ){
+                                //Create again the i-th thread to simulate an Island
+                                IslandType = 4;
+                                if (IslandType == 0){
+                                    data[i].randomSeed = rng();
+                                    cout << "\t\t\tPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(PSOthread,(void *)&data[i]).detach();
+                                }
+                                else if (IslandType == 1){
+                                    data[i].randomSeed = rng();
+                                    cout << "\t\t\tMPSO:\t\t omega: "<< data[i].omega  <<  "\t\teta1: " << data[i].eta1 <<  "\t\teta2: " << data[i].eta2 << "\t\tVcoeff: " << data[i].vcoeff  << "\t\tNswamrs: " << data[i].nswarms<< "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(MPSOthread,(void *)&data[i]).detach();
+                                }
+                                else if (IslandType == 2){
+                                    data[i].randomSeed = rng();
+                                    cout << "\t\t\tSGA:\t\t CR: "<< data[i].CRsga  <<  "\t\tM: " << data[i].M <<  "\t\tInsertBest: " << data[i].insert_best << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(SGAthread,(void *)&data[i]).detach();
+                                }
+                                else if (IslandType == 3){
+                                    data[i].randomSeed = rng();
+                                    data[i].generations=10000;
+                                    data[i].NP = 1;
+                                    cout << "\t\t\tASA:\t\t Ts: "<< data[i].Ts  <<  "\t\tTf: " << data[i].Tf << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(ASAthread,(void *)&data[i]).detach();
+                                }
+                                else {
+                                    data[i].randomSeed = rng();
+                                    data[i].strategy = strategy;
+                                    cout << "\t\t\tDE: \t\t F: "<< data[i].F  <<  "\t\tCR: " << data[i].CR << "\t\tStrategy: " << data[i].strategy << "\t\tGenerations: " << data[i].generations << endl;
+                                    boost::thread(DEthread,(void *)&data[i]).detach();
+                                }
 
-							//evaluate standard deviation in main population
-							//loweststd = IslandPop[0].evaluateStd();
-							loweststd = IslandPop.evaluateStd();
+                                iter += 1;
+                                *(data[i].isActive) = true;
 
-							//log islands best and std
-							for (int i2=0;i2<islandsN;i2++){
-							cout << "CPU#:" << i2 << ": " << IslandPop.extractBestIndividual().getFitness() << " " << IslandPop.evaluateStd() << endl;
-							}
-							cout << "HighestStd: " << loweststd << endl;
-							cout << "Iter: " << iter+1 << endl;
-							cout << "\nmain():" << endl <<  "\t\t\tcreating thread, ID " << i << endl;
+                                //evaluate standard deviation in main population
+                                //loweststd = IslandPop[0].evaluateStd();
+                                loweststd = IslandPop.evaluateStd();
 
-							//ring topology migration
-							
+                                //log islands best and std
+                                for (int i2=0;i2<islandsN;i2++){
+                                cout << "CPU#:" << i2 << ": " << IslandPop.extractBestIndividual().getFitness() << " " << IslandPop.evaluateStd() << endl;
+                                }
+                                cout << "HighestStd: " << loweststd << endl;
+                                cout << "Iter: " << iter+1 << endl;
+                                cout << "\nmain():" << endl <<  "\t\t\tcreating thread, ID " << i << endl;
 
-						}
-					}
-					pthread_cond_wait(&exitcond, &mutex);
-				}
-				pthread_mutex_unlock (&mutex);
+                                //ring topology migration
+
+
+                            }
+                        }
+                        exitcond.wait(lock);
+                    }
+                }
 				//The main cycle has finished: we wait for all threads to finish
 				for (int i=0; i<islandsN;i++){
 					while (*data[i].isActive); //infinite loop if a thread never ends
 				}
 
-				//we clean the thread objects and deallocate memory
-				pthread_mutex_destroy(&mutex);
-				pthread_cond_destroy(&exitcond);
+				//deallocate memory
 				delete[] data;
-				delete[] threads;
 				delete[] isActive;
 				time(&end);
 				dif = difftime(end,start);
@@ -905,7 +880,7 @@ while (choice != -1) {
 			cout << "Success: " << results.size() << endl;
 			}
 			break;
-           
+
 		}//end case
 
 } //end while

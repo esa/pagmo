@@ -7,12 +7,13 @@
  *
  */
 
+#include <vector>
+
 #include "MPSO.h"
-#include "vector"
 
 using namespace std;
 
-void MPSOalgorithm::initMPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, int nswarmsInit, unsigned long randomSeed){
+void MPSOalgorithm::initMPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, int nswarmsInit, uint32_t randomSeed){
 	generations = generationsInit;
 	SolDim = SolDimInit;
 	omega = omegaInit;
@@ -20,7 +21,7 @@ void MPSOalgorithm::initMPSO(int generationsInit, int SolDimInit, double omegaIn
 	eta2 = eta2Init;
 	vcoeff = vcoeffInit;
 	nswarms = nswarmsInit;
-	rng = Pk::Random32(randomSeed);
+	drng.seed(randomSeed);
 }
 
 Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){
@@ -94,7 +95,7 @@ Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){
 			for (int k = 0; k< D; k++){
 
 				//new velocity
-				V[i][j][k] = omega * V[i][j][k] + eta1 * Pk::nextDouble(rng) * (lbX[i][j][k] - X[i][j][k]) + eta2 * Pk::nextDouble(rng) * (gbX[i][k] - X[i][j][k]);
+				V[i][j][k] = omega * V[i][j][k] + eta1 * drng() * (lbX[i][j][k] - X[i][j][k]) + eta2 * drng() * (gbX[i][k] - X[i][j][k]);
 
 				//check that it is within the allowed velocity range
 				if ( V[i][j][k] > MAXV[k] )
@@ -107,9 +108,9 @@ Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){
 				X[i][j][k] = X[i][j][k] + V[i][j][k];
 
 				if (X[i][j][k] < LB[k])
-					X[i][j][k] = Pk::nextDouble(rng) * (UB[k] - LB[k]) + LB[k];
+					X[i][j][k] = drng() * (UB[k] - LB[k]) + LB[k];
 				else if (X[i][j][k] > UB[k])
-					X[i][j][k] = Pk::nextDouble(rng) * (UB[k] - LB[k]) + LB[k];
+					X[i][j][k] = drng() * (UB[k] - LB[k]) + LB[k];
 			}
 
 			//We evaluate the new individual fitness now as to be able to update immediately the global best
@@ -129,16 +130,16 @@ Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){
 
 	//exchanges two random elements from randomly selected swarms
 	if (iter % (int)5 == 0){
-		int sw1 = (int)(Pk::nextDouble(rng)*nswarms);		//select 1st swarm
-		int sw2 = (int)(Pk::nextDouble(rng)*nswarms);
+		int sw1 = (int)(drng()*nswarms);		//select 1st swarm
+		int sw2 = (int)(drng()*nswarms);
 		do{										        //endless loop if nswarms<2
-		  sw2 = (int)(Pk::nextDouble(rng)*nswarms);		//selects 2nd swarm different from the first
+		  sw2 = (int)(drng()*nswarms);		//selects 2nd swarm different from the first
 		} while (sw2 == sw1);
 
-		int in1 = (int)(Pk::nextDouble(rng)*NP);	        //select 1st individual
+		int in1 = (int)(drng()*NP);	        //select 1st individual
 		int in2;
 		do{										        //endless loop if nswarms<2
-		  in2 = (int)(Pk::nextDouble(rng)*NP);		    //selects 2nd individual
+		  in2 = (int)(drng()*NP);		    //selects 2nd individual
 		} while (in2 == in1);
 		//swap position
 		dummy = X[sw1][in1];

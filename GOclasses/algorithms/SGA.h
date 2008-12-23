@@ -10,11 +10,12 @@
 #ifndef SGA_H
 #define SGA_H
 
-#include "population.h"
+#include <cmath>
 #include <vector>
-#include <math.h>
-#include "PkRandom.h"
+
 #include "GOproblem.h"
+#include "population.h"
+#include "rng.h"
 
 class SGAalgorithm{
 public:
@@ -26,7 +27,7 @@ void initSGA(int generationsInit,
 			 double CRInit,
 			 double MInit,
 			 int insert_bestInit,
-			 unsigned long randomSeed
+			 uint32_t randomSeed
 			 );
 
 private:
@@ -35,7 +36,8 @@ private:
 	double CR;		//crossover
 	double M;		//mutation
 	int insert_best;
-	Pk::Random32 rng;
+	rng_double_type drng;
+	rng_uint32_type rng;
 };
 
 #endif

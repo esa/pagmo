@@ -11,7 +11,8 @@
 #ifndef SOLVERSTHREADS_H
 #define SOLVERSTHREADS_H
 
-#include <pthread.h>
+#include <boost/thread/condition_variable.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include "GOproblem.h"
 #include "population.h"
@@ -41,11 +42,11 @@ struct threadParam{
 	GOProblem* problem;
 
 	bool *isActive;
-	pthread_mutex_t *TPmutex;
-	pthread_cond_t *exit;
+	boost::mutex *TPmutex;
+	boost::condition_variable *exit;
 	Population *Ptr_pop;
 	std::ofstream *Ptr_log;
-	unsigned long randomSeed;
+	uint32_t randomSeed;
 };
 
 //Here we define the protoypes for each type of thread we may want to open

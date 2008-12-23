@@ -11,33 +11,36 @@
 #define POPULATION_H
 
 #include <vector>
+
+#include "GOproblem.h"
 #include "constants.h"
 #include "individual.h"
-#include "PkRandom.h"
-#include "GOproblem.h"
+#include "rng.h"
 
 class Population{
 public:
     //Methods
-	void createRandomPopulation(std::vector<double> LB, std::vector<double> UB, int N, Pk::Random32& rng);
-	void resetVelocities(std::vector<double> LB, std::vector<double> UB, Pk::Random32& rng);
-	void evaluatePopulation(GOProblem&);
-	void addIndividual(Individual x);
-	void substituteIndividual(const Individual x, const int n);
-	double evaluateMean();
-	double evaluateStd();
-	unsigned int size ();
-	Individual extractBestIndividual();
-	Individual extractWorstIndividual();
-	Population extractRandomDeme(int N, std::vector<int> &picks, Pk::Random32& rng);
-	void insertDeme(Population deme, std::vector<int> picks);
-	void insertBestInDeme(Population deme, std::vector<int> picks);
-	void insertDemeForced(Population deme, std::vector<int> picks);
+    // TODO: pass by reference here, why the copies?
+	void createRandomPopulation(const std::vector<double> &, const std::vector<double> &, int N, rng_double_type &);
+	void resetVelocities(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
+	void evaluatePopulation(GOProblem &);
+	void addIndividual(const Individual &);
+	void substituteIndividual(const Individual &, int);
+	double evaluateMean() const;
+	double evaluateStd() const;
+	unsigned int size () const;
+	Individual extractBestIndividual() const;
+	Individual extractWorstIndividual() const;
+	Population extractRandomDeme(int, std::vector<int> &, rng_double_type &);
+	void insertDeme(const Population &, const std::vector<int> &);
+	void insertBestInDeme(const Population &, const std::vector<int> &);
+	void insertDemeForced(const Population &, const std::vector<int> &);
 
 	//Operators
-	Individual& operator[](int index);
-	void operator=(Population newpop);
-	void operator=(Individual x);
+	Individual &operator[](int);
+	const Individual &operator[](int) const;
+	void operator=(const Population &newpop);
+	void operator=(const Individual &x);
 
 	//logging function
 	friend std::ostream& operator<<(std::ostream& s, Population& pop);

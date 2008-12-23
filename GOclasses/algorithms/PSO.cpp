@@ -7,19 +7,20 @@
  *
  */
 
+#include <vector>
+
 #include "PSO.h"
-#include "vector"
 
 using namespace std;
 
-void PSOalgorithm::initPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, unsigned long randomSeed){
+void PSOalgorithm::initPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, uint32_t randomSeed){
 	generations = generationsInit;
 	SolDim = SolDimInit;
 	omega = omegaInit;
 	eta1 = eta1Init;
 	eta2 = eta2Init;
 	vcoeff = vcoeffInit;
-	rng = Pk::Random32(randomSeed);
+	drng.seed(randomSeed);
 }
 
 Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
@@ -83,7 +84,7 @@ Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
 			for (int jj = 0; jj< m; jj++){
 
 				//new velocity
-				V[ii][jj] = omega * V[ii][jj] + eta1 * Pk::nextDouble(rng) * (lbX[ii][jj] - X[ii][jj]) + eta2 * Pk::nextDouble(rng) * (gbX[jj] - X[ii][jj]);
+				V[ii][jj] = omega * V[ii][jj] + eta1 * drng() * (lbX[ii][jj] - X[ii][jj]) + eta2 * drng() * (gbX[jj] - X[ii][jj]);
 
 				//check that it is within the allowed velocity range
 				if ( V[ii][jj] > MAXV[jj] )
@@ -96,9 +97,9 @@ Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
 				X[ii][jj] = X[ii][jj] + V[ii][jj];
 
 				if (X[ii][jj] < LB[jj])
-					X[ii][jj] = Pk::nextDouble(rng) * (UB[jj] - LB[jj]) + LB[jj];
+					X[ii][jj] = drng() * (UB[jj] - LB[jj]) + LB[jj];
 				else if (X[ii][jj] > UB[jj])
-					X[ii][jj] = Pk::nextDouble(rng) * (UB[jj] - LB[jj]) + LB[jj];
+					X[ii][jj] = drng() * (UB[jj] - LB[jj]) + LB[jj];
 			}
 
 			//We evaluate the new individual fitness now as to be able to update immediately the global best

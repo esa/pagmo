@@ -7,18 +7,20 @@
  *
  */
 
+#include <vector>
+
 #include "SGA.h"
-#include "vector"
 
 using namespace std;
 
-void SGAalgorithm::initSGA(int generationsInit, int SolDimInit, double CRInit, double MInit, int insert_bestInit, unsigned long randomSeed){
+void SGAalgorithm::initSGA(int generationsInit, int SolDimInit, double CRInit, double MInit, int insert_bestInit, uint32_t randomSeed){
 	generations = generationsInit;
 	SolDim = SolDimInit;
 	CR = CRInit;
 	M = MInit;
 	insert_best = insert_bestInit;
-	rng = Pk::Random32(randomSeed);
+	rng.seed(randomSeed);
+	drng.seed(randomSeed);
 }
 
 Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
@@ -90,7 +92,7 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 			selection.resize(NP,0);
 			double r2;
 			for (int i = 0; i < NP; i++){
-				r2 = Pk::nextDouble(rng);
+				r2 = drng();
 				for (int j = 0; j < NP; j++){
 					if (cumsum[j] > r2){
 						selection[i]=j;
@@ -116,17 +118,17 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 				member1 = Xnew[i];
 				//we select a mating patner (different from the self (i.e. no masturbation))
 				do { //FIXME: [MaRu] YOU DON'T DO IT THAT WAY, MAN!!!
-					r1 = rng.next() % NP;
+					r1 = rng() % NP;
 				} while ( r1 == i );
 				member2 = Xnew[r1];
 				//and we operate crossover
-				n = rng.next() % D;
+				n = rng() % D;
 				L = 0;
 				do {
 					member1[n] = member2[n];
 					n = (n+1) % D;
 					L++;
-				}  while ( (Pk::nextDouble(rng) < CR) && (L < D) );
+				}  while ( (drng() < CR) && (L < D) );
 				Xnew[i] = member1;
 			}
 		}
@@ -136,9 +138,9 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 			for (int i = 0; i < NP;i++){
 				//generate a random mutation vector
 				for (int j = 0; j < D;j++)
-					if (Pk::nextDouble(rng) < M)
+					if (drng() < M)
 					{
-						Xnew[i][j] = (UB[j]-LB[j])*Pk::nextDouble(rng) + LB[j];
+						Xnew[i][j] = (UB[j]-LB[j])*drng() + LB[j];
 					}
 			}
 		}
