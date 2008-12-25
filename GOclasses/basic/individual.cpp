@@ -12,7 +12,7 @@
 
 	Individual::Individual(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng):
 		x(LB.size()),v(LB.size()),fitness(0) {
-		//We then push back random numbers to fill a new random chromosome
+		// Fill a new random chromosome and velocity vector.
 		const size_t size = LB.size();
 		for (size_t i = 0; i < size; ++i){
 			x[i] = LB[i] + drng() * (UB[i] - LB[i]);
@@ -20,29 +20,9 @@
 		}
 	}
 
-	double Individual::evaluateFitness(GOProblem &problem){
-		this->fitness = problem.objfun(x);
-		return this->fitness;
-	};
-
-	double Individual::getFitness() const {
+	const double &Individual::evaluateFitness(GOProblem &problem){
+		fitness = problem.objfun(x);
 		return fitness;
-	};
-
-	const std::vector<double> &Individual::getDecisionVector() const{
-		return x;
-	};
-
-	const std::vector<double> &Individual::getVelocity() const {
-		return v;
-	};
-
-	double &Individual::operator[](int index) {
-		return x[index];
-	};
-
-	const double &Individual::operator[](int index) const {
-		return x[index];
 	};
 
     std::ostream& operator<<(std::ostream &s, const Individual &x){

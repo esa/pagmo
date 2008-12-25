@@ -23,14 +23,14 @@ public:
     //methods
 	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):x(x_),v(v_),fitness(fitness_) {}
 	Individual(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
-	double evaluateFitness(GOProblem &);
-	double getFitness() const;
-	const std::vector<double> &getDecisionVector() const;
-	const std::vector<double> &getVelocity() const;
+	const double &evaluateFitness(GOProblem &);
+	const double &getFitness() const {return fitness;}
+	const std::vector<double> &getDecisionVector() const {return x;}
+	const std::vector<double> &getVelocity() const {return v;}
 
 	//operators
-	double &operator[](int);
-	const double &operator[](int) const;
+	double &operator[](int index) {return x[index];}
+	const double &operator[](int index) const {return x[index];}
 
 	//logging function
 	friend std::ostream& operator<<(std::ostream &, const Individual &);
