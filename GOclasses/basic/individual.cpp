@@ -10,7 +10,7 @@
 #include "individual.h"
 #include "rng.h"
 
-	void Individual::createRandomIndividual(std::vector<double> LB, std::vector<double> UB, rng_double_type &drng){
+	void Individual::createRandomIndividual(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng){
 
 	    //We first delete the vector content if any
 		x.clear();
@@ -29,7 +29,7 @@
 		}
 	};//createRandomIndividual
 
-	void Individual::resetVelocity(std::vector<double> LB, std::vector<double> UB, rng_double_type &drng){
+	void Individual::resetVelocity(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng){
 		v.clear();
 		double dummy;
 		for (unsigned int i=0; i < LB.size(); i++){
@@ -38,7 +38,7 @@
 		}
 	}
 
-	double Individual::evaluateFitness(GOProblem& problem){
+	double Individual::evaluateFitness(GOProblem &problem){
 		this->fitness = problem.objfun(x);
 		return this->fitness;
 	};
@@ -47,37 +47,41 @@
 		return fitness;
 	};
 
-	void Individual::setFitness(double fitnessnew){
+	void Individual::setFitness(const double &fitnessnew){
 		fitness = fitnessnew;
 	};
 
-	std::vector<double> Individual::getDecisionVector() const{
+	const std::vector<double> &Individual::getDecisionVector() const{
 		return x;
 	};
 
-	void Individual::setDecisionVector(std::vector<double> xnew){
+	void Individual::setDecisionVector(const std::vector<double> &xnew){
 		x = xnew;
 	};
 
-	std::vector<double> Individual::getVelocity() const {
+	const std::vector<double> &Individual::getVelocity() const {
 		return v;
 	};
 
-	void Individual::setVelocity(std::vector<double> vnew){
+	void Individual::setVelocity(const std::vector<double> &vnew){
 		v = vnew;
 	};
 
-	double& Individual::operator[](int index) {
+	double &Individual::operator[](int index) {
 		return x[index];
 	};
 
-	void Individual::operator=(const Individual& newindividual){
+	const double &Individual::operator[](int index) const {
+		return x[index];
+	};
+
+	void Individual::operator=(const Individual &newindividual){
 			x		=	newindividual.getDecisionVector();
 			v		=	newindividual.getVelocity();
 			fitness =	newindividual.getFitness();
 	};
 
-    std::ostream& operator<<(std::ostream& s, Individual& x){
+    std::ostream& operator<<(std::ostream &s, const Individual &x){
         for (unsigned int i=0;i<x.getDecisionVector().size(); i++){
             s << x[i] << " ";
         }

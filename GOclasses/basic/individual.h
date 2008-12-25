@@ -21,27 +21,28 @@ class Individual{
 
 public:
     //methods
-	void createRandomIndividual(std::vector<double> LB, std::vector<double> UB, rng_double_type &);
-	double evaluateFitness(GOProblem&);
+	void createRandomIndividual(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
+	double evaluateFitness(GOProblem &);
 	double getFitness() const;
-	void setFitness(double fitnessnew);
-	std::vector<double> getDecisionVector() const;
-	void setDecisionVector(std::vector<double> xnew);
-	std::vector<double> getVelocity() const;
-	void setVelocity(std::vector<double> xnew);
-	void resetVelocity(std::vector<double> LB, std::vector<double> UB, rng_double_type &);
+	void setFitness(const double &);
+	const std::vector<double> &getDecisionVector() const;
+	void setDecisionVector(const std::vector<double> &);
+	const std::vector<double> &getVelocity() const;
+	void setVelocity(const std::vector<double> &);
+	void resetVelocity(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
 
 	//operators
-	double& operator[](int index);
-	void operator=(const Individual& newindividual);
+	double &operator[](int);
+	const double &operator[](int) const;
+	void operator=(const Individual &);
 
 	//logging function
-	friend std::ostream& operator<<(std::ostream& s, Individual& x);
+	friend std::ostream& operator<<(std::ostream &, const Individual &);
 private:
 	std::vector<double> x;	//this is the "chromosome" or "decision vector"
 	std::vector<double> v;  //this is the "velocity" or "heading" of each individual
 	double fitness;
 };// class Individual
 
-std::ostream& operator<<(std::ostream& s, Individual& x);
+std::ostream& operator<<(std::ostream &, const Individual &);
 #endif
