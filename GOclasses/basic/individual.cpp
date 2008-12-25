@@ -20,15 +20,15 @@
 		}
 	}
 
-	const double &Individual::evaluateFitness(GOProblem &problem){
+	const double &Individual::evaluateFitness(GOProblem &problem) {
 		fitness = problem.objfun(x);
 		return fitness;
 	};
 
-    std::ostream& operator<<(std::ostream &s, const Individual &x){
-        for (unsigned int i=0;i<x.getDecisionVector().size(); i++){
-            s << x[i] << " ";
-        }
-        return s;
-    }
+	std::ostream &operator<<(std::ostream &s, const Individual &x) {
+		for (size_t i = 0; i < x.getDecisionVector().size(); ++i) {
+			s << x[i] << " ";
+		}
+		return s;
+	}
 

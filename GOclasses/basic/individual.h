@@ -14,31 +14,24 @@
 #include <vector>
 
 #include "GOproblem.h"
-#include "constants.h"
 #include "rng.h"
 
 class Individual{
 
 public:
-    //methods
 	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):x(x_),v(v_),fitness(fitness_) {}
 	Individual(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
 	const double &evaluateFitness(GOProblem &);
 	const double &getFitness() const {return fitness;}
 	const std::vector<double> &getDecisionVector() const {return x;}
 	const std::vector<double> &getVelocity() const {return v;}
-
-	//operators
-	double &operator[](int index) {return x[index];}
 	const double &operator[](int index) const {return x[index];}
-
-	//logging function
-	friend std::ostream& operator<<(std::ostream &, const Individual &);
 private:
 	std::vector<double> x;	//this is the "chromosome" or "decision vector"
 	std::vector<double> v;  //this is the "velocity" or "heading" of each individual
 	double fitness;
-};// class Individual
+};
 
-std::ostream& operator<<(std::ostream &, const Individual &);
+std::ostream &operator<<(std::ostream &, const Individual &);
+
 #endif
