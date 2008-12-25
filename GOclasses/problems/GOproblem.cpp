@@ -21,11 +21,6 @@ GOProblem::GOProblem(int dimension, const double *lower, const double *upper) {
 	setBounds(lower, upper);
 }
 
-void GOProblem::getBounds(std::vector<double> &lower, std::vector <double> &upper) const{
-	lower = LB;
-	upper = UB;
-}
-
 void GOProblem::setBounds(const std::vector<double> &lower, const std::vector <double> &upper){
 	LB = lower;
 	UB = upper;

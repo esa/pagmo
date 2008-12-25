@@ -37,7 +37,7 @@ void *DEthread(void *data)
    double oldfitness;
    vector <int> picks;
    GOProblem* problem;
-   vector<double> LB,UB;
+   const vector<double> &LB = PtrTP->problem->getLB();
    DEalgorithm DE;
    rng_uint32_type rng;
    rng_double_type drng;
@@ -52,7 +52,6 @@ void *DEthread(void *data)
         drng.seed(PtrTP->randomSeed);
 		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
-		problem->getBounds(LB, UB);
 		DE.initDE(PtrTP->generations,LB.size(),PtrTP->F,PtrTP->CR,PtrTP->strategy, rng());
     }
 
@@ -99,7 +98,7 @@ void *MPSOthread(void *data)
    double oldfitness;
    vector <int> picks;
    GOProblem* problem;
-   vector<double> LB, UB;
+   const vector<double> &LB = PtrTP->problem->getLB();
    MPSOalgorithm MPSO;
    rng_uint32_type rng;
    rng_double_type drng;
@@ -113,7 +112,6 @@ void *MPSOthread(void *data)
         drng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
-		problem->getBounds(LB, UB);
 		MPSO.initMPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms, rng());
    }
 
@@ -156,7 +154,7 @@ void *PSOthread(void *data)
    double oldfitness;
    vector <int> picks;
    GOProblem* problem;
-   vector<double> LB,UB;
+   const vector<double> &LB = PtrTP->problem->getLB();
    PSOalgorithm PSO;
    rng_uint32_type rng;
    rng_double_type drng;
@@ -170,7 +168,6 @@ void *PSOthread(void *data)
         drng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
-		problem->getBounds(LB, UB);
 		PSO.initPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, rng());
    }
 
@@ -214,7 +211,7 @@ void *SGAthread(void *data)
    Population deme;
    double oldfitness;
    vector <int> picks;
-   vector<double> LB,UB;
+   const vector<double> &LB = PtrTP->problem->getLB();
    SGAalgorithm SGA;
    rng_uint32_type rng;
    rng_double_type drng;
@@ -229,7 +226,6 @@ void *SGAthread(void *data)
         drng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
-		problem->getBounds(LB, UB);
 		SGA.initSGA(PtrTP->generations,LB.size(),PtrTP->CRsga,PtrTP->M,PtrTP->insert_best, rng());
    }
 
@@ -272,7 +268,7 @@ void *ASAthread(void *data)
    Population deme;
    double oldfitness;
    vector <int> picks;
-   vector<double> LB,UB;
+   const vector<double> &LB = PtrTP->problem->getLB();
    ASAalgorithm ASA;
    rng_uint32_type rng;
    rng_double_type drng;
@@ -288,7 +284,6 @@ void *ASAthread(void *data)
         drng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
 		problem = PtrTP->problem;
-		problem->getBounds(LB, UB);
 		unsigned int temp;
 		temp = rng();
 		ASA.initASA(PtrTP->generations,LB.size(),PtrTP->Ts,PtrTP->Tf, rng());

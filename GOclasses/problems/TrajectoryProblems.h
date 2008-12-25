@@ -50,12 +50,15 @@ private:
 
 class messengerfullProb : public GOProblem {
 public:
+
 	messengerfullProb();
 	virtual ~messengerfullProb();
 	virtual double objfun(const std::vector<double>&);
 	
 private:
 	mgadsmproblem mgadsm;
+	static const double lb[26];
+	static const double ub[26];
 };	//end class messengerfullProb
 
 class tandemProb : public GOProblem {

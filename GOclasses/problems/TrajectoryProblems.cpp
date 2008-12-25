@@ -7,15 +7,20 @@
  *
  */
 
+#include <cmath>
+#include <vector>
+
 #include "TrajectoryProblems.h"
 #include "GOproblem.h"
 #include "trajobjfuns.h"
-#include <math.h>
-#include <vector>
 
 //***********************************************************************************
 //Trajectory problems
 //***********************************************************************************
+
+const double messengerfullProb::lb[26] = {1900, 3,    0, 0, 100, 100, 100, 100, 100, 100, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
+const double messengerfullProb::ub[26] = {2200, 4.05, 1, 1, 500, 500, 500, 500, 500, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
+
 messengerfullProb::messengerfullProb() {
 	//Standard GOProblem parameters
 	setDimension(26);
@@ -32,9 +37,8 @@ messengerfullProb::messengerfullProb() {
 	//double lb[26] = {1900, 3,    0, 0, 400, 200, 200, 200, 300, 400, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
 	//double ub[26] = {2200, 4.05, 1, 1, 500, 300, 300, 300, 400, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
 	
-	//Full Bounds
-	double lb[26] = {1900, 3,    0, 0, 100, 100, 100, 100, 100, 100, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
-	double ub[26] = {2200, 4.05, 1, 1, 500, 500, 500, 500, 500, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
+
+
 	
 	
 	

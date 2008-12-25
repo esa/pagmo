@@ -24,7 +24,6 @@ public:
 	virtual ~GOProblem() {};
 
 	//Bounds getters and setters (via copy)
-	void getBounds(std::vector<double> &, std::vector <double> &) const;
 	void setBounds(const std::vector<double> &, const std::vector <double> &);
 	void setBounds(const double *, const double *);  //this requires setDimension to be called first
 
