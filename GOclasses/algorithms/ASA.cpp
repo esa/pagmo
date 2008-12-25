@@ -12,24 +12,17 @@
 #include "ASA.h"
 #include "rng.h"
 
-Population ASAalgorithm::evolve(Individual x0, GOProblem& problem) {
+Population ASAalgorithm::evolve(const Individual &x0, GOProblem& problem) {
 
-    const std::vector<double>& LB = problem.getLB();
-    const std::vector<double>& UB = problem.getUB();
+    const std::vector<double> &LB = problem.getLB();
+    const std::vector<double> &UB = problem.getUB();
 
-	std::vector<double> xNEW = x0.getDecisionVector();
-	std::vector<double> xOLD = xNEW;
-	double fNEW;
-	fNEW = x0.getFitness();
-	double fOLD;
-	fOLD = fNEW;
+	std::vector<double> xNEW = x0.getDecisionVector(), xOLD = xNEW;
+	double fNEW = x0.getFitness(), fOLD = fNEW;
 	SolDim = xNEW.size();
 	std::vector<double> Step(SolDim,StartStep);
 	std::vector<int> acp(SolDim,0) ;
-	double ratio=0;
-	double currentT = T0;
-	double prob=0;
-	double r=0;
+	double ratio = 0, currentT = T0, prob = 0,  r = 0;
 
 	//Main SA loops
 	for ( int jter=0; jter < niterOuter; jter++){
@@ -106,10 +99,10 @@ Population ASAalgorithm::evolve(Individual x0, GOProblem& problem) {
 
 	Population newpop;
 	if (fOLD < x0.getFitness()){
-	x0.setDecisionVector( xOLD );
-	x0.setFitness( fOLD );
+		newpop.addIndividual(Individual(xOLD,x0.getVelocity(),fOLD));
+	} else {
+		newpop.addIndividual(x0);
 	}
-	newpop.addIndividual( x0 );
 	return newpop;
 	}
 

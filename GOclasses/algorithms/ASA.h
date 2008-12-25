@@ -23,7 +23,7 @@
 class ASAalgorithm{
 public:
 
-	Population evolve(Individual x0, GOProblem& problem);
+	Population evolve(const Individual &, GOProblem &);
 
 	//This method initialise all the SA-AN algorithm parameters
 	void initASA(int niterTotInit,

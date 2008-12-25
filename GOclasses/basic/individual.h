@@ -25,7 +25,6 @@ public:
 	Individual(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
 	double evaluateFitness(GOProblem &);
 	double getFitness() const;
-	void setFitness(const double &);
 	const std::vector<double> &getDecisionVector() const;
 	void setDecisionVector(const std::vector<double> &);
 	const std::vector<double> &getVelocity() const;

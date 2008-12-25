@@ -38,9 +38,7 @@
 	};
 
 	void Population::substituteIndividual(const Individual &x, int n){
-		pop[n].setDecisionVector(x.getDecisionVector());
-		pop[n].setVelocity(x.getVelocity());
-		pop[n].setFitness(x.getFitness());
+		pop[n] = x;
 	}
 
 	unsigned int Population::size() const {

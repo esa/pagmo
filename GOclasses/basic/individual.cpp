@@ -38,10 +38,6 @@
 		return fitness;
 	};
 
-	void Individual::setFitness(const double &fitnessnew){
-		fitness = fitnessnew;
-	};
-
 	const std::vector<double> &Individual::getDecisionVector() const{
 		return x;
 	};
