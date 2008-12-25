@@ -13,12 +13,10 @@
 #include "rng.h"
 
 	void Population::createRandomPopulation(const std::vector<double> &LB, const std::vector<double> &UB, int N, rng_double_type &drng){
-		Individual x;
 		pop.clear();
 
 		for (int i=0; i < N; i++){
-			x.createRandomIndividual(LB,UB, drng);
-			pop.push_back(x);
+			pop.push_back(Individual(LB,UB,drng));
 		}//for
 	};//createRandomPopulation
 

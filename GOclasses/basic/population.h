@@ -20,8 +20,7 @@
 class Population{
 public:
     //Methods
-    // TODO: pass by reference here, why the copies?
-	void createRandomPopulation(const std::vector<double> &, const std::vector<double> &, int N, rng_double_type &);
+	void createRandomPopulation(const std::vector<double> &, const std::vector<double> &, int, rng_double_type &);
 	void resetVelocities(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
 	void evaluatePopulation(GOProblem &);
 	void addIndividual(const Individual &);

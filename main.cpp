@@ -47,7 +47,7 @@ int main(){
 
 		//we declare populations and individuals
 		Population demeDE,demePSO,demeASA,demeLOCA,demeSGA,pop;
-		Individual x;
+		//Individual x;
 		vector <int> picksDE,picksPSO,picksASA,picksLOCAL,picksSGA;
 
 		time_t start,end,start1,end1;

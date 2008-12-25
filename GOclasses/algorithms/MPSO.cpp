@@ -165,14 +165,10 @@ Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){
 
    //we end by constructing the object Population containing the final results
    Population popout;
-   Individual temp;
    for (int i=0; i<nswarms;i++){
-   for (int j=0; j<NP; j++){
-	temp.setDecisionVector(lbX[i][j]);
-	temp.setFitness(lbfit[i][j]);
-	temp.setVelocity(V[i][j]);
-	popout.addIndividual(temp);
-   }
+	for (int j=0; j<NP; j++){
+		popout.addIndividual(Individual(lbX[i][j],V[i][j],lbfit[i][j]));
+	}
    }
    return popout;
 }

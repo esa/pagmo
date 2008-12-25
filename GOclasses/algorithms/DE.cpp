@@ -270,20 +270,15 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
 
    //we end by constructing the object Population containing the final results
    Population popout;
-   Individual dummy2;
    vector <double> Xini(D),Vfin(D);
    for (i=0; i<NP; i++){
-	dummy2.setDecisionVector(popold[i]);
-	dummy2.setFitness(fit[i]);
 	Xini = deme[i].getDecisionVector();
 	for (int j=0; j<D; j++){
 			Vfin[j] = popold[i][j] - Xini[j];
 	}
-	//dummy2.setVelocity(Vfin);
-	dummy2.setVelocity(deme[i].getVelocity());
 	//X[i] - deme[i].getDecisionVector());  DOES NOT WORK AS VECTOR CLASS DOES NOT ACCEPT MINUS AS OPERATOR
 
-	popout.addIndividual(dummy2);
+	popout.addIndividual(Individual(popold[i],deme[i].getVelocity(),fit[i]));
    }
    return popout;
 }

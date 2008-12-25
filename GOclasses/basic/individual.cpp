@@ -10,24 +10,15 @@
 #include "individual.h"
 #include "rng.h"
 
-	void Individual::createRandomIndividual(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng){
-
-	    //We first delete the vector content if any
-		x.clear();
-		v.clear();
-
+	Individual::Individual(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng):
+		x(LB.size()),v(LB.size()),fitness(0) {
 		//We then push back random numbers to fill a new random chromosome
-		double dummy;
-		for (unsigned int i=0; i < LB.size(); i++){
-			dummy = LB[i] + drng() * (UB[i] - LB[i]);
-			x.push_back(dummy);
+		const size_t size = LB.size();
+		for (size_t i = 0; i < size; ++i){
+			x[i] = LB[i] + drng() * (UB[i] - LB[i]);
+			v[i] = drng() * (UB[i] - LB[i]);
 		}
-		//And a random velocity
-		for (unsigned int i=0; i < LB.size(); i++){
-			dummy = drng() * (UB[i] - LB[i]);  //initial velocity range
-			v.push_back(dummy);
-		}
-	};//createRandomIndividual
+	}
 
 	void Individual::resetVelocity(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng){
 		v.clear();

@@ -172,12 +172,8 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 
    //we end by constructing the object Population containing the final results
    Population popout;
-   Individual dummy2;
    for (int i=0; i<NP; i++){
-	dummy2.setDecisionVector(X[i]);
-	dummy2.setFitness(fit[i]);
-	//dummy2.setVelocity(V[i]);
-	popout.addIndividual(dummy2);
+	popout.addIndividual(Individual(X[i],std::vector<double>(),fit[i]));
    }
    return popout;
 }

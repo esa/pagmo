@@ -121,12 +121,8 @@ Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
 
    //we end by constructing the object Population containing the final results
    Population popout;
-   Individual dummy2;
    for (int i=0; i<n; i++){
-	dummy2.setDecisionVector(lbX[i]);
-	dummy2.setFitness(lbfit[i]);
-	dummy2.setVelocity(V[i]);
-	popout.addIndividual(dummy2);
+	popout.addIndividual(Individual(lbX[i],V[i],lbfit[i]));
    }
    return popout;
 }

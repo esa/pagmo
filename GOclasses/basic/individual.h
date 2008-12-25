@@ -21,7 +21,8 @@ class Individual{
 
 public:
     //methods
-	void createRandomIndividual(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
+	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):x(x_),v(v_),fitness(fitness_) {}
+	Individual(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
 	double evaluateFitness(GOProblem &);
 	double getFitness() const;
 	void setFitness(const double &);
