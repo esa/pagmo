@@ -20,13 +20,6 @@
 		}//for
 	};//createRandomPopulation
 
-	void Population::resetVelocities(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng){
-		for (unsigned int j=0 ;j<pop.size();j++){
-				pop[j].resetVelocity(LB,UB, drng);
-		}
-	}
-
-
 	void Population::evaluatePopulation(GOProblem &problem){
 
 		for (unsigned int i=0; i < pop.size(); i++)

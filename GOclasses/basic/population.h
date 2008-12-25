@@ -21,7 +21,6 @@ class Population{
 public:
     //Methods
 	void createRandomPopulation(const std::vector<double> &, const std::vector<double> &, int, rng_double_type &);
-	void resetVelocities(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
 	void evaluatePopulation(GOProblem &);
 	void addIndividual(const Individual &);
 	void substituteIndividual(const Individual &, int);

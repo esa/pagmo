@@ -26,15 +26,11 @@ public:
 	double evaluateFitness(GOProblem &);
 	double getFitness() const;
 	const std::vector<double> &getDecisionVector() const;
-	void setDecisionVector(const std::vector<double> &);
 	const std::vector<double> &getVelocity() const;
-	void setVelocity(const std::vector<double> &);
-	void resetVelocity(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
 
 	//operators
 	double &operator[](int);
 	const double &operator[](int) const;
-	void operator=(const Individual &);
 
 	//logging function
 	friend std::ostream& operator<<(std::ostream &, const Individual &);

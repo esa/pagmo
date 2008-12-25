@@ -20,15 +20,6 @@
 		}
 	}
 
-	void Individual::resetVelocity(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng){
-		v.clear();
-		double dummy;
-		for (unsigned int i=0; i < LB.size(); i++){
-			dummy = (2*drng() - 1) * (UB[i] - LB[i]);
-			v.push_back(dummy);
-		}
-	}
-
 	double Individual::evaluateFitness(GOProblem &problem){
 		this->fitness = problem.objfun(x);
 		return this->fitness;
@@ -42,16 +33,8 @@
 		return x;
 	};
 
-	void Individual::setDecisionVector(const std::vector<double> &xnew){
-		x = xnew;
-	};
-
 	const std::vector<double> &Individual::getVelocity() const {
 		return v;
-	};
-
-	void Individual::setVelocity(const std::vector<double> &vnew){
-		v = vnew;
 	};
 
 	double &Individual::operator[](int index) {
@@ -60,12 +43,6 @@
 
 	const double &Individual::operator[](int index) const {
 		return x[index];
-	};
-
-	void Individual::operator=(const Individual &newindividual){
-			x		=	newindividual.getDecisionVector();
-			v		=	newindividual.getVelocity();
-			fitness =	newindividual.getFitness();
 	};
 
     std::ostream& operator<<(std::ostream &s, const Individual &x){
