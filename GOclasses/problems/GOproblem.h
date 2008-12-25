@@ -17,37 +17,34 @@ public:
 	//Legacy constructor - when using it, remember than all members must be properly initialised afterwards
 	GOProblem() {};
 	//Constructor with vector bounds initialisers
-	GOProblem(int dimension, const std::vector<double>& lower, const std::vector <double>& upper);
+	GOProblem(int, const std::vector<double> &, const std::vector <double> &);
 	//Constructor with array bounds initialisers
-	GOProblem(int dimension, const double lower[], const double upper[]);
+	GOProblem(int, const double *, const double *);
 	//Virtual destructor - required because the class contains a pure virtual member function
-	virtual ~GOProblem() { };
+	virtual ~GOProblem() {};
 
 	//Bounds getters and setters (via copy)
-	void getBounds(std::vector<double>& lower, std::vector <double>& upper) const;
-	void setBounds(const std::vector<double>& lower, const std::vector <double>& upper);
-	void setBounds(const double lower[], const double upper[]);  //this requires setDimension to be called first
+	void getBounds(std::vector<double> &, std::vector <double> &) const;
+	void setBounds(const std::vector<double> &, const std::vector <double> &);
+	void setBounds(const double *, const double *);  //this requires setDimension to be called first
 
-	//Bounds geeters and setters via reference
+	//Bounds getters and setters via reference
 	//read only mode
-	const std::vector<double>& getLB() const { return LB; }
-	const std::vector<double>& getUB() const { return UB; }
-	//rewrite mode
-	std::vector<double>& getLB() { return LB; }
-	std::vector<double>& getUB() { return UB; }
+	const std::vector<double> &getLB() const {return LB;}
+	const std::vector<double> &getUB() const {return UB;}
 
 	//Dimension getter and setter
-    int getDimension() const { return dimension; };
-	void setDimension(const int D) { dimension = D; };
+	int getDimension() const {return dimension;}
+	void setDimension(int D) {dimension = D;}
 
 	//The objective function - must be implemented in subclasses
-	virtual double objfun(const std::vector<double>&) = 0;
+	virtual double objfun(const std::vector<double> &) = 0;
 
 private:
 	int dimension;
-	std::vector <double> LB;
-	std::vector <double> UB;
+	std::vector<double> LB;
+	std::vector<double> UB;
 
-};	//end class GOProblems
+};
 
 #endif
