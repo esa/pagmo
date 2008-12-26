@@ -8,15 +8,18 @@ INCLUDE(CheckTypeSize)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
-    SET(CMAKE_BUILD_TYPE Release CACHE STRING
-        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-    FORCE)
+	SET(CMAKE_BUILD_TYPE Release CACHE STRING
+		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+	FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # Use CMake's 2.6 new policy for library paths.
 IF(COMMAND CMAKE_POLICY)
     CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND CMAKE_POLICY)
+
+OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
+OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/AstroToolbox")
@@ -71,13 +74,13 @@ IF(WIN32)
 		boost_thread/win32/tss_pe.cpp
 	)
 ELSE(WIN32)
-    # If we are not in Windows, let's require pthread.
-    FIND_LIBRARY(PTHREAD_LIBRARY pthread)
-    IF(NOT PTHREAD_LIBRARY)
-        MESSAGE(FATAL_ERROR "pthread library not found, please specify manually where it is located.")
-    ENDIF(NOT PTHREAD_LIBRARY)
-    # TODO: check about the dl library here.
-    SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
+	# If we are not in Windows, let's require pthread.
+	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
+	IF(NOT PTHREAD_LIBRARY)
+		MESSAGE(FATAL_ERROR "pthread library not found, please specify manually where it is located.")
+	ENDIF(NOT PTHREAD_LIBRARY)
+	# TODO: check about the dl library here.
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		boost_thread/pthread/exceptions.cpp
 		boost_thread/pthread/once.cpp
@@ -85,9 +88,9 @@ ELSE(WIN32)
 	)
 ENDIF(WIN32)
 
-ADD_LIBRARY(pagmo STATIC ${PAGMO_LIB_SRC_LIST})
-
-ADD_EXECUTABLE(main main.cpp)
-
-TARGET_LINK_LIBRARIES(main pagmo ${MANDATORY_LIBRARIES})
-
+# Create a pagmo_static library and link it to main.cpp, if main is requested.
+IF(BUILD_MAIN)
+	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
+	ADD_EXECUTABLE(main main.cpp)
+	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
+ENDIF(BUILD_MAIN)
