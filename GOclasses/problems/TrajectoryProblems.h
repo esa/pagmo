@@ -11,10 +11,11 @@
 #define TRAJECTORYPROBLEMS_H
 
 #include <vector>
-#include "trajobjfuns.h"
+
 #include "GOproblem.h"
 #include "mga_dsm.h"
 #include "misc4Tandem.h"
+#include "trajobjfuns.h"
 
 //***********************************************************************************
 //Trajectory problems MGA

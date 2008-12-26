@@ -25,9 +25,9 @@ public:
 	const double &getFitness() const {return fitness;}
 	const std::vector<double> &getDecisionVector() const {return x;}
 	const std::vector<double> &getVelocity() const {return v;}
-	const double &operator[](int index) const {return x[index];}
+	friend std::ostream &operator<<(std::ostream &, const Individual &);
 private:
-	std::vector<double> x;	//this is the "chromosome" or "decision vector"
+	std::vector<double> x;  //this is the "chromosome" or "decision vector"
 	std::vector<double> v;  //this is the "velocity" or "heading" of each individual
 	double fitness;
 };

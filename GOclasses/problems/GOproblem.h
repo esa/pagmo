@@ -14,20 +14,19 @@
 
 class GOProblem {
 public:
-	//Virtual destructor - required because the class contains a pure virtual member function
+	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {};
 	// Bounds getters and setters via reference
 	const std::vector<double> &getLB() const {return LB;}
 	const std::vector<double> &getUB() const {return UB;}
 	// Dimension getter
-	size_t getDimension() const {return dimension;}
+	size_t getDimension() const {return LB.size();}
 	// The objective function - must be implemented in subclasses
 	virtual double objfun(const std::vector<double> &) = 0;
 protected:
-	//Constructor with array bounds initialisers
-	GOProblem(const size_t &d, const double *l, const double *u):dimension(d),LB(l,l+d),UB(u,u+d) {};
+	// Constructor with array bounds initialisers
+	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {};
 private:
-	const size_t dimension;
 	const std::vector<double> LB;
 	const std::vector<double> UB;
 };

@@ -125,9 +125,7 @@ while (choice != -1) {
 				results.push_back(pop.extractBestIndividual().getFitness());
 				dif = difftime(end,start);
 				cout << "\nSeconds elapsed: " << dif << endl<<endl;
-				for (int i=0;i<D;i++){
-				logfile << pop.extractBestIndividual()[i] << " ";
-				}
+				logfile << pop.extractBestIndividual() << " ";
 				logfile << exp(-pop.extractBestIndividual().getFitness()) <<endl;
 			}
 
@@ -373,9 +371,7 @@ while (choice != -1) {
 				//}
 				dif = difftime(end,start);
 				cout << "\nSeconds elapsed: " << dif << endl<<endl;
-				for (int i=0;i<D;i++){
-				logfile << pop.extractBestIndividual()[i] << " ";
-				}
+				logfile << pop.extractBestIndividual() << " ";
 				logfile << exp(-pop.extractBestIndividual().getFitness()) <<endl;
 			}
 
