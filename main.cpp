@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <vector>
 #include <ctime>	//for time()
-#include "atomic_counters/atomic_counters.h"
+#include "src/atomic_counters/atomic_counters.h"
 #include "population.h"
 #include "ASA.h"
 #include "PSO.h"
