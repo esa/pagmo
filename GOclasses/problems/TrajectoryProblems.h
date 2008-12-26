@@ -24,12 +24,18 @@ class cassini1Prob : public GOProblem {
 public:
 	cassini1Prob();
 	virtual double objfun(const std::vector<double>&);
+private:
+	static const double lb[6];
+	static const double ub[6];
 };	//end class cassini1Prob
 
 class gtoc1Prob : public GOProblem {
 public:
 	gtoc1Prob();
 	virtual double objfun(const std::vector<double>&);
+private:
+	static const double lb[8];
+	static const double ub[8];
 };	//end class gtoc1Prob
 
 
@@ -46,6 +52,8 @@ public:
 	
 private:
 	mgadsmproblem mgadsm;
+	static const double lb[18];
+	static const double ub[18];
 };	//end class messengerProb
 
 class messengerfullProb : public GOProblem {
@@ -68,6 +76,8 @@ public:
 	virtual double objfun(const std::vector<double>&);
 private:
 	mgadsmproblem mgadsm;
+	static const double lb[18];
+	static const double ub[18];
 };	//end class tandemProb
 
 
@@ -78,6 +88,8 @@ public:
 	virtual double objfun(const std::vector<double>&);
 private:
 	mgadsmproblem mgadsm;
+	static const double lb[22];
+	static const double ub[22];
 };	//end class cassini2Prob
 
 class rosettaProb : public GOProblem {
@@ -87,6 +99,8 @@ public:
 	virtual double objfun(const std::vector<double>&);
 private:
 	mgadsmproblem mgadsm;
+	static const double lb[22];
+	static const double ub[22];
 };	//end class rosettaProb
 
 class sagasProb : public GOProblem {
@@ -96,6 +110,8 @@ public:
 	virtual double objfun(const std::vector<double>&);
 private:
 	mgadsmproblem mgadsm;
+	static const double lb[12];
+	static const double ub[12];
 };	//end class sagasProb
 
 #endif

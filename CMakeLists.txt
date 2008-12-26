@@ -56,7 +56,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_SOURCE_DIR}/GOclasses/algorithms/SGA.cpp
 	${CMAKE_SOURCE_DIR}/GOclasses/basic/individual.cpp
 	${CMAKE_SOURCE_DIR}/GOclasses/basic/population.cpp
-	${CMAKE_SOURCE_DIR}/GOclasses/problems/GOproblem.cpp
 	${CMAKE_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp
 	${CMAKE_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
 )
