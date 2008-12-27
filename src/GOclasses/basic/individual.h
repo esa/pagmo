@@ -27,6 +27,7 @@ public:
 	const std::vector<double> &getVelocity() const {return v;}
 	friend std::ostream &operator<<(std::ostream &, const Individual &);
 private:
+	void init(GOProblem &);
 	std::vector<double> x;  //this is the "chromosome" or "decision vector"
 	std::vector<double> v;  //this is the "velocity" or "heading" of each individual
 	double fitness;

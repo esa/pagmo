@@ -12,6 +12,8 @@ typedef boost::mt19937 rng_uint32;
 // This rng returns a double in the [0,1] range.
 typedef boost::lagged_fibonacci607 rng_double;
 
+// Generic thread-safe wrapper class around a Boost-like random number generator.
+// Uses time(0) as initial seed.
 template <class Rng>
 class mt_rng {
 	public:
@@ -26,6 +28,7 @@ class mt_rng {
 		Rng		m_rng;
 };
 
+// Thread-safe double rng.
 typedef mt_rng<rng_double> mt_rng_double;
 
 #endif
