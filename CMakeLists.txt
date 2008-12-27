@@ -5,6 +5,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisabled-optimization")
 
 INCLUDE(CheckTypeSize)
+SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
+INCLUDE(PaGMOPythonSetup)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
@@ -38,23 +40,29 @@ ADD_DEFINITIONS(-D_REENTRANT)
 
 SET(MANDATORY_LIBRARIES "")
 
-# Threads setup.
-IF(NOT WIN32)
-	# If we are not in Windows, let's require pthread.
+# Some common platform switches.
+SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+IF(UNIX)
+	# Install path for libraries.
+	SET(LIB_INSTALL_PATH "lib")
+	# TODO: use FindThreads library from CMake here instead.
+	# If we are in Unix, let's require pthread.
 	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
 	IF(NOT PTHREAD_LIBRARY)
 		MESSAGE(FATAL_ERROR "POSIX thread library not found, please install it or specify manually where it is located.")
 	ENDIF(NOT PTHREAD_LIBRARY)
-	# TODO: check about the dl library here.
 	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
-ENDIF(NOT WIN32)
+ELSE(UNIX)
+	SET(LIB_INSTALL_PATH .)
+	SET(PAGMO_INSTALL_PREFIX "${PAGMO_INSTALL_PREFIX} ${PAGMO_VERSION}")
+ENDIF(UNIX)
 
 CHECK_TYPE_SIZE("void *" POINTER_SIZE)
 MESSAGE(STATUS "Pointer size = ${POINTER_SIZE}")
 
 ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
 
-# Link to pagmo_static library if main is requested.
+# Link main to pagmo_static library.
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
 	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})

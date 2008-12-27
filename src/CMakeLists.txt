@@ -23,22 +23,63 @@ SET(PAGMO_LIB_SRC_LIST
 # Boost thread setup.
 ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
 SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST} boost_thread/tss_null.cpp)
-IF(WIN32)
+IF(UNIX)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/exceptions.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/once.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/thread.cpp
+	)
+ELSE(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/exceptions.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/thread.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_dll.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_pe.cpp
 	)
-ELSE(WIN32)
-	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/exceptions.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/once.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/thread.cpp
-	)
-ENDIF(WIN32)
+ENDIF(UNIX)
 
 # Create a pagmo_static library if main is requested.
 IF(BUILD_MAIN)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
 ENDIF(BUILD_MAIN)
+
+# Create a pagmo shared library if PyGMO is requested.
+IF(BUILD_PYGMO)
+	SET(PAGMO_SHARED_LIB_SRC_LIST
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/arg_to_python_base.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/builtin_converters.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/from_python.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/registry.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/type_id.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/class.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/enum.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/function.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/function_doc_signature.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/inheritance.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/iterator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/life_support.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/pickle_support.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/stl_iterator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/dict.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/errors.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/exec.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/import.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/list.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/long.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/module.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/numeric.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object_operators.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object_protocol.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/slice.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/str.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/tuple.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/wrapper.cpp
+	)
+	ADD_DEFINITIONS(-DBOOST_PYTHON_SOURCE)
+	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
+	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
+	INSTALL(TARGETS pagmo
+		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
+		LIBRARY DESTINATION ${LIB_INSTALL_PATH}
+	)
+ENDIF(BUILD_PYGMO)
