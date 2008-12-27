@@ -35,8 +35,8 @@ int main(){
 
 		//We prepare the pseudorandom sequence (TODO: check the randomnumbers of different threads are different)
 
-		rng_uint32_type rng(time(0));
-		rng_double_type drng(time(0));
+		rng_uint32 rng(time(0));
+		rng_double drng(time(0));
 
 		//we set the problem
 		problem_type problem;
@@ -502,7 +502,7 @@ while (choice != -1) {
 			vector <double> results;
 
 			//Double rng.
-			rng_double_type drng(uint32_t(time(0)));
+			rng_double drng(uint32_t(time(0)));
 
 			//Main cycle creating threads
 			for (int i=0;i<trials;i++){

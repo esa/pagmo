@@ -20,7 +20,7 @@
 class Population{
 public:
     //Methods
-	void createRandomPopulation(const std::vector<double> &, const std::vector<double> &, int, rng_double_type &);
+	void createRandomPopulation(const std::vector<double> &, const std::vector<double> &, int, rng_double &);
 	void evaluatePopulation(GOProblem &);
 	void addIndividual(const Individual &);
 	void substituteIndividual(const Individual &, int);
@@ -29,7 +29,7 @@ public:
 	unsigned int size () const;
 	Individual extractBestIndividual() const;
 	Individual extractWorstIndividual() const;
-	Population extractRandomDeme(int, std::vector<int> &, rng_double_type &);
+	Population extractRandomDeme(int, std::vector<int> &, rng_double &);
 	void insertDeme(const Population &, const std::vector<int> &);
 	void insertBestInDeme(const Population &, const std::vector<int> &);
 	void insertDemeForced(const Population &, const std::vector<int> &);

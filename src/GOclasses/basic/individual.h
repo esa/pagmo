@@ -20,7 +20,7 @@ class Individual{
 
 public:
 	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):x(x_),v(v_),fitness(fitness_) {}
-	Individual(const std::vector<double> &, const std::vector<double> &, rng_double_type &);
+	Individual(const std::vector<double> &, const std::vector<double> &, rng_double &);
 	const double &evaluateFitness(GOProblem &);
 	const double &getFitness() const {return fitness;}
 	const std::vector<double> &getDecisionVector() const {return x;}
@@ -30,6 +30,7 @@ private:
 	std::vector<double> x;  //this is the "chromosome" or "decision vector"
 	std::vector<double> v;  //this is the "velocity" or "heading" of each individual
 	double fitness;
+	static mt_rng_double drng;
 };
 
 std::ostream &operator<<(std::ostream &, const Individual &);

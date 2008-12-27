@@ -36,7 +36,7 @@ private:
 	double eta1;
 	double eta2;
 	double vcoeff;
-	rng_double_type drng;
+	rng_double drng;
 };
 
 #endif

@@ -10,7 +10,9 @@
 #include "individual.h"
 #include "rng.h"
 
-	Individual::Individual(const std::vector<double> &LB, const std::vector<double> &UB, rng_double_type &drng):
+	mt_rng_double Individual::drng;
+
+	Individual::Individual(const std::vector<double> &LB, const std::vector<double> &UB, rng_double &):
 		x(LB.size()),v(LB.size()),fitness(0) {
 		// Fill a new random chromosome and velocity vector.
 		const size_t size = LB.size();

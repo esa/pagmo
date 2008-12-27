@@ -40,7 +40,7 @@ private:
 	double eta2;
 	double vcoeff;
 	int nswarms;
-	rng_double_type drng;
+	rng_double drng;
 };
 
 #endif

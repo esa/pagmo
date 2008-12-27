@@ -39,8 +39,8 @@ void *DEthread(void *data)
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
    DEalgorithm DE;
-   rng_uint32_type rng;
-   rng_double_type drng;
+   rng_uint32 rng;
+   rng_double drng;
 
 
 	clock_t start,end;
@@ -100,8 +100,8 @@ void *MPSOthread(void *data)
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
    MPSOalgorithm MPSO;
-   rng_uint32_type rng;
-   rng_double_type drng;
+   rng_uint32 rng;
+   rng_double drng;
 
 	clock_t start,end;
 	double dif;
@@ -156,8 +156,8 @@ void *PSOthread(void *data)
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
    PSOalgorithm PSO;
-   rng_uint32_type rng;
-   rng_double_type drng;
+   rng_uint32 rng;
+   rng_double drng;
 
 	clock_t start,end;
 	double dif;
@@ -213,8 +213,8 @@ void *SGAthread(void *data)
    vector <int> picks;
    const vector<double> &LB = PtrTP->problem->getLB();
    SGAalgorithm SGA;
-   rng_uint32_type rng;
-   rng_double_type drng;
+   rng_uint32 rng;
+   rng_double drng;
    GOProblem* problem;
 
 	clock_t start,end;
@@ -270,8 +270,8 @@ void *ASAthread(void *data)
    vector <int> picks;
    const vector<double> &LB = PtrTP->problem->getLB();
    ASAalgorithm ASA;
-   rng_uint32_type rng;
-   rng_double_type drng;
+   rng_uint32 rng;
+   rng_double drng;
    GOProblem* problem;
 
 

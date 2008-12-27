@@ -12,7 +12,7 @@
 #include "population.h"
 #include "rng.h"
 
-	void Population::createRandomPopulation(const std::vector<double> &LB, const std::vector<double> &UB, int N, rng_double_type &drng){
+	void Population::createRandomPopulation(const std::vector<double> &LB, const std::vector<double> &UB, int N, rng_double &drng){
 		pop.clear();
 
 		for (int i=0; i < N; i++){
@@ -66,7 +66,7 @@
 		return pop[index];
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_double_type &drng){
+	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_double &drng){
 		Population deme;
 		std::vector<int> PossiblePicks;
 		int Pick;
