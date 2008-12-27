@@ -12,13 +12,13 @@
 
 	mt_rng_double Individual::drng;
 
-	Individual::Individual(const std::vector<double> &LB, const std::vector<double> &UB, rng_double &):
-		x(LB.size()),v(LB.size()),fitness(0) {
+	Individual::Individual(GOProblem &problem):
+		x(problem.getLB().size()),v(problem.getLB().size()),fitness(0) {
 		// Fill a new random chromosome and velocity vector.
-		const size_t size = LB.size();
+		const size_t size = problem.getLB().size();
 		for (size_t i = 0; i < size; ++i){
-			x[i] = LB[i] + drng() * (UB[i] - LB[i]);
-			v[i] = drng() * (UB[i] - LB[i]);
+			x[i] = problem.getLB()[i] + drng() * (problem.getUB()[i] - problem.getLB()[i]);
+			v[i] = drng() * (problem.getUB()[i] - problem.getLB()[i]);
 		}
 	}
 

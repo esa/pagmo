@@ -42,7 +42,6 @@ int main(){
 		problem_type problem;
 		//we extract its information into local variables
 		const vector<double>& LB = problem.getLB();
-		const vector<double>& UB = problem.getUB();
 		D = problem.getDimension();
 
 		//we declare populations and individuals
@@ -97,7 +96,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, drng);
+				pop.createRandomPopulation(problem,NP);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -182,7 +181,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, drng);
+				pop.createRandomPopulation(problem,NP);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -262,7 +261,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, drng);
+				pop.createRandomPopulation(problem,NP);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -343,7 +342,7 @@ while (choice != -1) {
 				//we create a random population
 
 
-				pop.createRandomPopulation(LB,UB,NP, drng);
+				pop.createRandomPopulation(problem,NP);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -428,7 +427,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(LB,UB,NP, drng);
+				pop.createRandomPopulation(problem,NP);
 				pop.evaluatePopulation(problem);
 				int iter = 0;
 
@@ -513,7 +512,7 @@ while (choice != -1) {
 				for (int i=0;i<islandsN;i++){
 					parallelProblems[i] = new problem_type();
 
-					IslandPop[i].createRandomPopulation(LB,UB,NP, drng);
+					IslandPop[i].createRandomPopulation(problem,NP);
 					IslandPop[i].evaluatePopulation(*parallelProblems[i]);
 				}
 
@@ -712,7 +711,7 @@ while (choice != -1) {
 				vector<GOProblem*> parallelProblems(islandsN);
 				for (int i=0;i<islandsN;i++) { parallelProblems[i] = new problem_type(); } //It is necessary to create a different object per CPU as to make sure to access different memory
 																							//locations when the problem is mga or mga-1dsm for th r,v,and DV variables in the mgaproblem structures
-				IslandPop.createRandomPopulation(LB,UB,NP, drng);
+				IslandPop.createRandomPopulation(problem,NP);
 				IslandPop.evaluatePopulation(*parallelProblems[0]);							//all the problems are identical.... evaluation is done for the [0] one.
 
 

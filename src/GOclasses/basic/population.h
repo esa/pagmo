@@ -20,7 +20,7 @@
 class Population{
 public:
     //Methods
-	void createRandomPopulation(const std::vector<double> &, const std::vector<double> &, int, rng_double &);
+	void createRandomPopulation(GOProblem &, int);
 	void evaluatePopulation(GOProblem &);
 	void addIndividual(const Individual &);
 	void substituteIndividual(const Individual &, int);

@@ -20,7 +20,7 @@ class Individual{
 
 public:
 	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):x(x_),v(v_),fitness(fitness_) {}
-	Individual(const std::vector<double> &, const std::vector<double> &, rng_double &);
+	Individual(GOProblem &);
 	const double &evaluateFitness(GOProblem &);
 	const double &getFitness() const {return fitness;}
 	const std::vector<double> &getDecisionVector() const {return x;}

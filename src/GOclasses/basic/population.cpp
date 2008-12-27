@@ -9,14 +9,15 @@
 
 #include <cmath>
 
+#include "GOproblem.h"
 #include "population.h"
 #include "rng.h"
 
-	void Population::createRandomPopulation(const std::vector<double> &LB, const std::vector<double> &UB, int N, rng_double &drng){
+	void Population::createRandomPopulation(GOProblem &problem, int N){
 		pop.clear();
 
 		for (int i=0; i < N; i++){
-			pop.push_back(Individual(LB,UB,drng));
+			pop.push_back(Individual(problem));
 		}//for
 	};//createRandomPopulation
 
