@@ -21,7 +21,7 @@
 		fitness = problem.objfun(x);
 	}
 
-	const double &Individual::evaluateFitness(GOProblem &problem) {
+	double Individual::evaluateFitness(GOProblem &problem) {
 		// Re-init the individual in case the problem's size has changed,
 		// otherwise we may be reading out-of-bound memory.
 		if (problem.getLB().size() != x.size()) {

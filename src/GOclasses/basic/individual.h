@@ -21,8 +21,8 @@ class Individual{
 public:
 	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):x(x_),v(v_),fitness(fitness_) {}
 	Individual(GOProblem &);
-	const double &evaluateFitness(GOProblem &);
-	const double &getFitness() const {return fitness;}
+	double evaluateFitness(GOProblem &);
+	double getFitness() const {return fitness;}
 	const std::vector<double> &getDecisionVector() const {return x;}
 	const std::vector<double> &getVelocity() const {return v;}
 	friend std::ostream &operator<<(std::ostream &, const Individual &);

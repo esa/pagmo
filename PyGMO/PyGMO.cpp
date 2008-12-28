@@ -18,9 +18,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
+#include <boost/python/pure_virtual.hpp>
+#include <boost/utility.hpp>
+
+#include "../src/GOclasses/basic/individual.h"
+#include "../src/GOclasses/problems/TrajectoryProblems.h"
+
+using namespace boost::python;
+
+struct GOProblemWrap: GOProblem, wrapper<GOProblem>
+{
+	double objfun(const std::vector<double> &x)
+	{
+		return this->get_override("objfun")(x);
+	}
+};
 
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
 {
+	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
+	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));
+	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension of the problem.");
+
+	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
+
+	class_<Individual> class_ind("individual", "Individual.", init<GOProblem &>());
+	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
 }
