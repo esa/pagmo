@@ -75,8 +75,18 @@ private:
 		}
 		return pop[index];
 	}
+	template <bool Forced>
+	void ll_insert_deme(const Population &deme, const std::vector<int> &picks) {
+		const size_t size = picks.size();
+		for (size_t i = 0; i < size; ++i) {
+			if (Forced || deme[i].getFitness() < pop[picks[i]].getFitness()) {
+				pop[picks[i]] = deme[i];
+			}
+		}
+	}
 	std::vector<Individual> pop;
 };
 
 std::ostream &operator<<(std::ostream &, const Population &);
+
 #endif

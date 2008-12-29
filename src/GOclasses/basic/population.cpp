@@ -65,17 +65,11 @@
 	};
 
 	void Population::insertDeme(const Population &deme, const std::vector<int> &picks){
-		for (unsigned int i=0; i<picks.size(); i++){
-			if ( deme[i].getFitness() < pop[picks[i]].getFitness() ){
-				pop[picks[i]] = deme[i];
-			}
-		}
+		ll_insert_deme<false>(deme,picks);
 	}
 
 	void Population::insertDemeForced(const Population &deme, const std::vector<int> &picks){
-		for (unsigned int i=0; i<picks.size(); i++){
-				pop[picks[i]] = deme[i];
-		}
+		ll_insert_deme<true>(deme,picks);
 	}
 
 	void Population::insertBestInDeme(const Population &deme, const std::vector<int> &picks){
@@ -101,13 +95,12 @@
 	}
 
 	double Population::evaluateMean() const {
-		double mean=0;
-		int size = 0;
-		size = pop.size();
-		for (int i=0; i<size; i++){
-			mean=mean+pop[i].getFitness();
+		double mean = 0;
+		const size_t size = pop.size();
+		for (size_t i = 0; i < size; ++i) {
+			mean += pop[i].getFitness();
 		}
-		mean = mean/(double)size;
+		mean /= (double)size;
 		return mean;
 	}
 
