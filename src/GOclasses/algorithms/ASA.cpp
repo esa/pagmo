@@ -99,9 +99,9 @@ Population ASAalgorithm::evolve(const Individual &x0, GOProblem& problem) {
 
 	Population newpop;
 	if (fOLD < x0.getFitness()){
-		newpop.addIndividual(Individual(xOLD,x0.getVelocity(),fOLD));
+		newpop.push_back(Individual(xOLD,x0.getVelocity(),fOLD));
 	} else {
-		newpop.addIndividual(x0);
+		newpop.push_back(x0);
 	}
 	return newpop;
 	}

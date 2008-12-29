@@ -167,7 +167,7 @@ Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){
    Population popout;
    for (int i=0; i<nswarms;i++){
 	for (int j=0; j<NP; j++){
-		popout.addIndividual(Individual(lbX[i][j],V[i][j],lbfit[i][j]));
+		popout.push_back(Individual(lbX[i][j],V[i][j],lbfit[i][j]));
 	}
    }
    return popout;

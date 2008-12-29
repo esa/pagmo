@@ -122,7 +122,7 @@ Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
    //we end by constructing the object Population containing the final results
    Population popout;
    for (int i=0; i<n; i++){
-	popout.addIndividual(Individual(lbX[i],V[i],lbfit[i]));
+	popout.push_back(Individual(lbX[i],V[i],lbfit[i]));
    }
    return popout;
 }

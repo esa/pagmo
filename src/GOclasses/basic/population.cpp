@@ -24,7 +24,7 @@
 		}
 	};
 
-	void Population::addIndividual(const Individual &x){
+	void Population::push_back(const Individual &x){
 		pop.push_back(x);
 	};
 
@@ -75,7 +75,7 @@
 			//and store it
 			picks.push_back(PossiblePicks[Pick]);
 			//we insert the corresponding individual in the deme
-			deme.addIndividual(pop[PossiblePicks[Pick]]);
+			deme.push_back(pop[PossiblePicks[Pick]]);
 			//and erase it from the possible picks
 			PossiblePicks.erase(PossiblePicks.begin() + Pick);
 		}

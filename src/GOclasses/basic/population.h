@@ -22,7 +22,7 @@ public:
 	//Methods
 	Population() {}
 	Population(GOProblem &, int);
-	void addIndividual(const Individual &);
+	void push_back(const Individual &);
 	double evaluateMean() const;
 	double evaluateStd() const;
 	unsigned int size () const;
