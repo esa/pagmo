@@ -17,3 +17,12 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from _PyGMO import *
+
+class vector_double(_PyGMO.__base_vector_double):
+	def __init__(self, iterable = None):
+		super(type(self), self).__init__()
+		if iterable == None:
+			return
+		if not getattr(iterable, '__iter__', False):
+			raise TypeError('I need an iterable object for initialisation.')
+		for i in iterable: self.append(float(i))

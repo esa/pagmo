@@ -54,7 +54,7 @@ template <class T>
 static inline string Py_repr_vector(const vector<T> &v)
 {
 	ostringstream tmp;
-	tmp << '{';
+	tmp << '<';
 	const size_t size = v.size();
 	for (size_t i = 0; i < size; ++i) {
 		tmp << v[i];
@@ -62,19 +62,23 @@ static inline string Py_repr_vector(const vector<T> &v)
 			tmp << ',';
 		}
 	}
-	tmp << '}';
+	tmp << '>';
 	return tmp.str();
 }
 
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
 {
-	class_<vector<double> > class_vd("vector_double","std::vector<double>");
-	class_vd.def(vector_indexing_suite<vector<double> >());
+	class_<vector<double> > class_vd("__base_vector_double","std::vector<double>");
 	class_vd.def("__repr__", &Py_repr_vector<double>);
+	class_vd.def(vector_indexing_suite<vector<double> >());
 
 	class_<Population> class_pop("population", "Population.", init<>());
+	class_pop.def(init<GOProblem &, int>());
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
+	class_pop.def(vector_indexing_suite<Population>());
+	class_pop.add_property("mean", &Population::evaluateMean, "Evaluate mean.");
+	class_pop.add_property("std", &Population::evaluateStd, "Evaluate std.");
 
 	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));

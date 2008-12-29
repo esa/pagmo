@@ -18,14 +18,32 @@
 #include "rng.h"
 
 class Population{
+	typedef std::vector<Individual> container_type;
 public:
+	// The following is needed to mimic the behaviour of a std::vector, hence easing the interfacing with Python.
+	typedef container_type::value_type value_type;
+	typedef container_type::size_type size_type;
+	typedef container_type::difference_type difference_type;
+	typedef container_type::iterator iterator;
+	typedef container_type::const_iterator const_iterator;
+	template <class InputIterator>
+	Population(InputIterator f, InputIterator l):pop(f,l) {}
+	iterator begin() {return pop.begin();}
+	const_iterator begin() const {return pop.begin();}
+	iterator end() {return pop.end();}
+	const_iterator end() const {return pop.end();}
+	size_t size () const;
+	iterator erase(iterator pos) {return pop.erase(pos);}
+	iterator erase(iterator first, iterator last) {return pop.erase(first,last);}
+	iterator insert(iterator pos, const Individual &x) {return pop.insert(pos,x);}
+	template <class InputIterator>
+	void insert(iterator pos, InputIterator f, InputIterator l) {return pop.insert(pos,f,l);}
+	void push_back(const Individual &);
 	//Methods
 	Population() {}
 	Population(GOProblem &, int);
-	void push_back(const Individual &);
 	double evaluateMean() const;
 	double evaluateStd() const;
-	size_t size () const;
 	const Individual &extractBestIndividual() const;
 	const Individual &extractWorstIndividual() const;
 	Population extractRandomDeme(int, std::vector<int> &, rng_double &);
@@ -54,7 +72,7 @@ private:
 		return pop[index];
 	}
 	std::vector<Individual> pop;
-};//class Population
+};
 
 std::ostream &operator<<(std::ostream &, const Population &);
 #endif

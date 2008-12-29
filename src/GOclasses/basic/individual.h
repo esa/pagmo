@@ -24,6 +24,7 @@ public:
 	double getFitness() const {return fitness;}
 	const std::vector<double> &getDecisionVector() const {return x;}
 	const std::vector<double> &getVelocity() const {return v;}
+	bool operator==(const Individual &other) const {return (x == other.x && v == other.v && fitness == other.fitness);}
 	friend std::ostream &operator<<(std::ostream &, const Individual &);
 private:
 	void init(GOProblem &);
