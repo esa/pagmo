@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "../src/GOclasses/basic/individual.h"
+#include "../src/GOclasses/basic/population.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
 
 using namespace boost::python;
@@ -71,6 +72,9 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<vector<double> > class_vd("vector_double","std::vector<double>");
 	class_vd.def(vector_indexing_suite<vector<double> >());
 	class_vd.def("__repr__", &Py_repr_vector<double>);
+
+	class_<Population> class_pop("population", "Population.", init<>());
+	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
 
 	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));

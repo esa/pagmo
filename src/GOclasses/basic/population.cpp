@@ -131,8 +131,8 @@
 		return pop[index];
 	};
 
-	std::ostream& operator<<(std::ostream& s, Population& pop){
-	for (unsigned int i=0;i<pop.size(); i++){
+	std::ostream &operator<<(std::ostream &s, const Population &pop){
+	for (size_t i = 0; i < pop.size(); ++i){
 		s << "Individual #" << i << ": " << pop[i].getFitness() << " " << pop[i] << std::endl;
 	}
 	return s;

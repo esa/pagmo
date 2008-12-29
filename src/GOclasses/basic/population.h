@@ -37,8 +37,6 @@ public:
 	Individual &operator[](const size_t &);
 	const Individual &operator[](const size_t &) const;
 
-	//logging function
-	friend std::ostream& operator<<(std::ostream &, Population &);
 private:
 	void createRandomPopulation(GOProblem &, int);
 	template <class Functor>
@@ -58,5 +56,5 @@ private:
 	std::vector<Individual> pop;
 };//class Population
 
-std::ostream& operator<<(std::ostream &, Population &);
+std::ostream &operator<<(std::ostream &, const Population &);
 #endif
