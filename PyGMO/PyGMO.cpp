@@ -21,9 +21,11 @@
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/pure_virtual.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
@@ -33,7 +35,7 @@ using namespace std;
 
 struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 {
-	double objfun(const std::vector<double> &x)
+	double objfun(const vector<double> &x)
 	{
 		return this->get_override("objfun")(x);
 	}
@@ -47,9 +49,29 @@ static inline string Py_repr_from_stream(const T &x)
 	return tmp.str();
 }
 
+template <class T>
+static inline string Py_repr_vector(const vector<T> &v)
+{
+	ostringstream tmp;
+	tmp << '{';
+	const size_t size = v.size();
+	for (size_t i = 0; i < size; ++i) {
+		tmp << v[i];
+		if (i + 1 != size) {
+			tmp << ',';
+		}
+	}
+	tmp << '}';
+	return tmp.str();
+}
+
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
 {
+	class_<vector<double> > class_vd("vector_double","std::vector<double>");
+	class_vd.def(vector_indexing_suite<vector<double> >());
+	class_vd.def("__repr__", &Py_repr_vector<double>);
+
 	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));
 	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension of the problem.");
