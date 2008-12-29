@@ -45,7 +45,7 @@ int main(){
 		D = problem.getDimension();
 
 		//we declare populations and individuals
-		Population demeDE,demePSO,demeASA,demeLOCA,demeSGA,pop;
+		Population demeDE,demePSO,demeASA,demeLOCA,demeSGA;
 		//Individual x;
 		vector <int> picksDE,picksPSO,picksASA,picksLOCAL,picksSGA;
 
@@ -96,8 +96,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(problem,NP);
-				pop.evaluatePopulation(problem);
+				Population pop(problem,NP);
 				int iter = 0;
 
 				time(&start);
@@ -181,8 +180,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(problem,NP);
-				pop.evaluatePopulation(problem);
+				Population pop(problem,NP);
 				int iter = 0;
 
 				time(&start);
@@ -261,8 +259,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(problem,NP);
-				pop.evaluatePopulation(problem);
+				Population pop(problem,NP);
 				int iter = 0;
 
 				time(&start);
@@ -342,8 +339,7 @@ while (choice != -1) {
 				//we create a random population
 
 
-				pop.createRandomPopulation(problem,NP);
-				pop.evaluatePopulation(problem);
+				Population pop(problem,NP);
 				int iter = 0;
 
 				time(&start);
@@ -427,8 +423,7 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//we create a random population
-				pop.createRandomPopulation(problem,NP);
-				pop.evaluatePopulation(problem);
+				Population pop(problem,NP);
 				int iter = 0;
 
 				time(&start);
@@ -507,13 +502,13 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//We create a random population in each island (this is done by the main thread - i.e. no parallelization here)
-				vector<Population> IslandPop(islandsN);
+				vector<Population> IslandPop;
+				IslandPop.reserve(islandsN);
 				vector<GOProblem*> parallelProblems(islandsN);
 				for (int i=0;i<islandsN;i++){
 					parallelProblems[i] = new problem_type();
 
-					IslandPop[i].createRandomPopulation(problem,NP);
-					IslandPop[i].evaluatePopulation(*parallelProblems[i]);
+					IslandPop.push_back(Population(problem,NP));
 				}
 
 				//We instanciate the objects needed for threads
@@ -707,13 +702,10 @@ while (choice != -1) {
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
 				//We create a random population in each island (this is done by the main thread - i.e. no parallelization here)
-				Population IslandPop;
+				Population IslandPop(problem,NP);
 				vector<GOProblem*> parallelProblems(islandsN);
 				for (int i=0;i<islandsN;i++) { parallelProblems[i] = new problem_type(); } //It is necessary to create a different object per CPU as to make sure to access different memory
 																							//locations when the problem is mga or mga-1dsm for th r,v,and DV variables in the mgaproblem structures
-				IslandPop.createRandomPopulation(problem,NP);
-				IslandPop.evaluatePopulation(*parallelProblems[0]);							//all the problems are identical.... evaluation is done for the [0] one.
-
 
 				//We instanciate the objects needed for threads
 				boost::mutex mutex;
@@ -882,7 +874,6 @@ while (choice != -1) {
 
 
 
-		cout << "\nBest fitness found: " <<  pop.extractBestIndividual().getFitness() << endl;
 
         return 0;
 

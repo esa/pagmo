@@ -13,19 +13,16 @@
 #include "population.h"
 #include "rng.h"
 
+	Population::Population(GOProblem &p, int N) {
+		createRandomPopulation(p,N);
+	}
+
 	void Population::createRandomPopulation(GOProblem &problem, int N){
 		pop.clear();
-
 		for (int i=0; i < N; i++){
 			pop.push_back(Individual(problem));
-		}//for
-	};//createRandomPopulation
-
-	void Population::evaluatePopulation(GOProblem &problem){
-
-		for (unsigned int i=0; i < pop.size(); i++)
-			pop[i].evaluateFitness(problem);
-	};//evaluatePopulation
+		}
+	};
 
 	void Population::addIndividual(const Individual &x){
 		pop.push_back(x);

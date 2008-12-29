@@ -19,9 +19,9 @@
 
 class Population{
 public:
-    //Methods
-	void createRandomPopulation(GOProblem &, int);
-	void evaluatePopulation(GOProblem &);
+	//Methods
+	Population() {}
+	Population(GOProblem &, int);
 	void addIndividual(const Individual &);
 	void substituteIndividual(const Individual &, int);
 	double evaluateMean() const;
@@ -41,6 +41,7 @@ public:
 	//logging function
 	friend std::ostream& operator<<(std::ostream& s, Population& pop);
 private:
+	void createRandomPopulation(GOProblem &, int);
 	std::vector<Individual> pop;
 };//class Population
 
