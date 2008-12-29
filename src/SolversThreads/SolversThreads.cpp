@@ -50,7 +50,7 @@ void *DEthread(void *data)
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
         drng.seed(PtrTP->randomSeed);
-		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
+		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
 		problem = PtrTP->problem;
 		DE.initDE(PtrTP->generations,LB.size(),PtrTP->F,PtrTP->CR,PtrTP->strategy, rng());
     }
@@ -110,7 +110,7 @@ void *MPSOthread(void *data)
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
         drng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
 		problem = PtrTP->problem;
 		MPSO.initMPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms, rng());
    }
@@ -166,7 +166,7 @@ void *PSOthread(void *data)
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
         drng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
 		problem = PtrTP->problem;
 		PSO.initPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, rng());
    }
@@ -224,7 +224,7 @@ void *SGAthread(void *data)
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
         drng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
 		problem = PtrTP->problem;
 		SGA.initSGA(PtrTP->generations,LB.size(),PtrTP->CRsga,PtrTP->M,PtrTP->insert_best, rng());
    }
@@ -282,7 +282,7 @@ void *ASAthread(void *data)
         lock_type lock(*PtrTP->TPmutex);
         rng.seed(PtrTP->randomSeed);
         drng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks, drng);
+		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
 		problem = PtrTP->problem;
 		unsigned int temp;
 		temp = rng();

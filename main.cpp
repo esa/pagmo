@@ -481,7 +481,7 @@ while (choice != -1) {
 
 			//Experiment Settings
 			int NP = 1;						//population size for each island
-			int trials = 20;				//number of trials
+			int trials = 1;				//number of trials
 			int gen = 500;					//generations per algorithm call
 			double F = 0.8;					//F in DE
 			double CR = 0.8;				//CR in DE

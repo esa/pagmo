@@ -12,6 +12,7 @@
 
 #include <vector>
 
+#include "../exceptions.h"
 #include "GOproblem.h"
 #include "constants.h"
 #include "individual.h"
@@ -46,7 +47,7 @@ public:
 	double evaluateStd() const;
 	const Individual &extractBestIndividual() const;
 	const Individual &extractWorstIndividual() const;
-	Population extractRandomDeme(int, std::vector<int> &, rng_double &);
+	Population extractRandomDeme(int, std::vector<int> &);
 	void insertDeme(const Population &, const std::vector<int> &);
 	void insertBestInDeme(const Population &, const std::vector<int> &);
 	void insertDemeForced(const Population &, const std::vector<int> &);
@@ -59,6 +60,9 @@ private:
 	void createRandomPopulation(GOProblem &, int);
 	template <class Functor>
 	const Individual &extract_most() const {
+		if (pop.empty()) {
+			throw index_error("Population is empty.");
+		}
 		const Functor func = Functor();
 		double f = pop[0].getFitness();
 		size_t index = 0;

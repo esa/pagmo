@@ -19,8 +19,11 @@
  ***************************************************************************/
 
 #include <boost/python/class.hpp>
+#include <boost/python/errors.hpp>
+#include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/pure_virtual.hpp>
+#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
 #include <sstream>
@@ -66,9 +69,15 @@ static inline string Py_repr_vector(const vector<T> &v)
 	return tmp.str();
 }
 
+static inline void ie_translator(const index_error &ie) {
+	PyErr_SetString(PyExc_IndexError, ie.what().c_str());
+}
+
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
 {
+	register_exception_translator<index_error>(ie_translator);
+
 	class_<vector<double> > class_vd("__base_vector_double","std::vector<double>");
 	class_vd.def("__repr__", &Py_repr_vector<double>);
 	class_vd.def(vector_indexing_suite<vector<double> >());
@@ -79,6 +88,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def(vector_indexing_suite<Population>());
 	class_pop.add_property("mean", &Population::evaluateMean, "Evaluate mean.");
 	class_pop.add_property("std", &Population::evaluateStd, "Evaluate std.");
+	class_pop.def("best", &Population::extractBestIndividual, return_internal_reference<>(), "Return best individual.");
+	class_pop.def("worst", &Population::extractWorstIndividual, return_internal_reference<>(), "Return worst individual.");
 
 	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));

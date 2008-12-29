@@ -41,7 +41,8 @@
 		return extract_most<std::greater<double> >();
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_double &drng){
+	Population Population::extractRandomDeme(int N, std::vector<int> &picks){
+		static_rng_double drng;
 		Population deme;
 		std::vector<int> PossiblePicks;
 		int Pick;

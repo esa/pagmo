@@ -24,5 +24,5 @@ class vector_double(_PyGMO.__base_vector_double):
 		if iterable == None:
 			return
 		if not getattr(iterable, '__iter__', False):
-			raise TypeError('I need an iterable object for initialisation.')
+			raise TypeError, 'I need an iterable object for initialisation.'
 		for i in iterable: self.append(float(i))
