@@ -15,19 +15,9 @@
 	Individual::Individual(GOProblem &problem):
 		x(problem.getLB().size()),v(problem.getLB().size()),fitness(0) {
 		init(problem);
-		// Initial evaluation of fitness.
+		// Evaluation of fitness.
 		fitness = problem.objfun(x);
 	}
-
-	double Individual::evaluateFitness(GOProblem &problem) {
-		// Re-init the individual in case the problem's size has changed,
-		// otherwise we may be reading out-of-bound memory.
-		if (problem.getLB().size() != x.size()) {
-			init(problem);
-		}
-		fitness = problem.objfun(x);
-		return fitness;
-	};
 
 	// Resize the individual to the size of the problem and fill it with random values.
 	void Individual::init(GOProblem &problem) {
