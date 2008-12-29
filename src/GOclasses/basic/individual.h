@@ -31,7 +31,6 @@ private:
 	std::vector<double> x;  //this is the "chromosome" or "decision vector"
 	std::vector<double> v;  //this is the "velocity" or "heading" of each individual
 	double fitness;
-	static mt_rng_double drng;
 };
 
 std::ostream &operator<<(std::ostream &, const Individual &);
