@@ -8,6 +8,7 @@
  */
 
 #include <cmath>
+#include <functional>
 
 #include "GOproblem.h"
 #include "population.h"
@@ -28,36 +29,16 @@
 		pop.push_back(x);
 	};
 
-	unsigned int Population::size() const {
+	size_t Population::size() const {
 		return pop.size();
 	};
 
-	Individual Population::extractBestIndividual() const {
-
-		double f = pop[0].getFitness();
-		int index = 0;
-
-		for (unsigned int i=1; i<pop.size();i++){
-			if( pop[i].getFitness() < f ){
-				index=i;
-				f = pop[i].getFitness();
-			}
-		}
-		return pop[index];
+	const Individual &Population::extractBestIndividual() const {
+		return extract_most<std::less<double> >();
 	}
 
-	Individual Population::extractWorstIndividual() const {
-
-		double f = pop[0].getFitness();
-		int index = 0;
-
-		for (unsigned int i=1; i<pop.size();i++){
-			if( pop[i].getFitness() > f ){
-				index=i;
-				f = pop[i].getFitness();
-			}
-		}
-		return pop[index];
+	const Individual &Population::extractWorstIndividual() const {
+		return extract_most<std::greater<double> >();
 	}
 
 	Population Population::extractRandomDeme(int N, std::vector<int> &picks, rng_double &drng){
@@ -142,11 +123,11 @@
 		return Std;
 	}
 
-	Individual &Population::operator[](int index){
+	Individual &Population::operator[](const size_t &index){
 		return pop[index];
 	};
 
-	const Individual &Population::operator[](int index) const{
+	const Individual &Population::operator[](const size_t &index) const{
 		return pop[index];
 	};
 
