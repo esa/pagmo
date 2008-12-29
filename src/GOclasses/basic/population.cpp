@@ -153,26 +153,14 @@
 		return pop[index];
 	};
 
-    const Individual &Population::operator[](int index) const{
+	const Individual &Population::operator[](int index) const{
 		return pop[index];
 	};
 
-	void Population::operator=(const Population &newpop){
-		pop.clear();
-		for (unsigned int i=0 ; i<newpop.size(); i++){
-			pop.push_back(newpop[i]);
-		}
-	};
-
-	void Population::operator=(const Individual &x){
-		pop.clear();
-		pop.push_back(x);
-	};
-
 	std::ostream& operator<<(std::ostream& s, Population& pop){
-        for (unsigned int i=0;i<pop.size(); i++){
-            s << "Individual #" << i << ": " << pop[i].getFitness() << " " << pop[i] << std::endl;
-        }
-        return s;
+	for (unsigned int i=0;i<pop.size(); i++){
+		s << "Individual #" << i << ": " << pop[i].getFitness() << " " << pop[i] << std::endl;
+	}
+	return s;
     }
 

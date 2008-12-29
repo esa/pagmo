@@ -22,11 +22,14 @@
 #include <boost/python/module.hpp>
 #include <boost/python/pure_virtual.hpp>
 #include <boost/utility.hpp>
+#include <sstream>
+#include <string>
 
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
 
 using namespace boost::python;
+using namespace std;
 
 struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 {
@@ -35,6 +38,14 @@ struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 		return this->get_override("objfun")(x);
 	}
 };
+
+template <class T>
+static inline string Py_repr_from_stream(const T &x)
+{
+	ostringstream tmp;
+	tmp << x;
+	return tmp.str();
+}
 
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
@@ -47,4 +58,5 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	class_<Individual> class_ind("individual", "Individual.", init<GOProblem &>());
 	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
+	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
 }

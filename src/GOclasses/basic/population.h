@@ -37,8 +37,6 @@ public:
 	//Operators
 	Individual &operator[](int);
 	const Individual &operator[](int) const;
-	void operator=(const Population &newpop);
-	void operator=(const Individual &x);
 
 	//logging function
 	friend std::ostream& operator<<(std::ostream& s, Population& pop);
