@@ -28,10 +28,6 @@
 		pop.push_back(x);
 	};
 
-	void Population::substituteIndividual(const Individual &x, int n){
-		pop[n] = x;
-	}
-
 	unsigned int Population::size() const {
 		return pop.size();
 	};

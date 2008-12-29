@@ -23,7 +23,6 @@ public:
 	Population() {}
 	Population(GOProblem &, int);
 	void addIndividual(const Individual &);
-	void substituteIndividual(const Individual &, int);
 	double evaluateMean() const;
 	double evaluateStd() const;
 	unsigned int size () const;
