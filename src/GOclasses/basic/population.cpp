@@ -78,8 +78,7 @@
 	}
 
 	void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks){
-		const int Ndeme = deme.size();
-
+		const size_t Ndeme = deme.size();
 		int bestindeme =  0;
 		int worstinpicks = 0;
 		double best = deme[0].getFitness();

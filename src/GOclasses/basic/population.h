@@ -77,8 +77,14 @@ private:
 	}
 	template <bool Forced>
 	void ll_insert_deme(const Population &deme, const std::vector<size_t> &picks) {
-		const size_t size = picks.size();
-		for (size_t i = 0; i < size; ++i) {
+		const size_t picks_size = picks.size(), pop_size = size();
+		if (picks_size != deme.size()) {
+			throw index_error("Mismatch between deme size and picks size while inserting deme.");
+		}
+		for (size_t i = 0; i < picks_size; ++i) {
+			if (picks[i] >= pop_size) {
+				throw index_error("Pick value exceeds population's size while inserting deme.");
+			}
 			if (Forced || deme[i].getFitness() < pop[picks[i]].getFitness()) {
 				pop[picks[i]] = deme[i];
 			}
