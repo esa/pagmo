@@ -94,6 +94,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.add_property("std", &Population::evaluateStd, "Evaluate std.");
 	class_pop.def("best", &Population::extractBestIndividual, return_internal_reference<>(), "Return best individual.");
 	class_pop.def("worst", &Population::extractWorstIndividual, return_internal_reference<>(), "Return worst individual.");
+	class_pop.def("extract_random_deme", &Population::extractRandomDeme, "Extract random deme.");
 
 	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));

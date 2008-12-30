@@ -42,13 +42,18 @@
 		return extract_most<std::greater<double> >();
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks){
+	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks) {
+		if (N > (int)size()) {
+			throw index_error("Cannot extract deme whose size is greater than the original population.");
+		}
+		// Empty picks first.
+		picks.clear();
 		static_rng_double drng;
 		Population deme;
 		const size_t pop_size = size();
 		std::vector<size_t> PossiblePicks;
 		PossiblePicks.reserve(pop_size);
-		for (size_t i=0; i < pop_size; ++i) {
+		for (size_t i = 0; i < pop_size; ++i) {
 			PossiblePicks.push_back(i);
 		}
 		for (int i = 0; i < N; ++i){
