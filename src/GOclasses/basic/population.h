@@ -47,10 +47,10 @@ public:
 	double evaluateStd() const;
 	const Individual &extractBestIndividual() const;
 	const Individual &extractWorstIndividual() const;
-	Population extractRandomDeme(int, std::vector<int> &);
-	void insertDeme(const Population &, const std::vector<int> &);
-	void insertBestInDeme(const Population &, const std::vector<int> &);
-	void insertDemeForced(const Population &, const std::vector<int> &);
+	Population extractRandomDeme(int, std::vector<size_t> &);
+	void insertDeme(const Population &, const std::vector<size_t> &);
+	void insertBestInDeme(const Population &, const std::vector<size_t> &);
+	void insertDemeForced(const Population &, const std::vector<size_t> &);
 
 	//Operators
 	Individual &operator[](const size_t &);
@@ -76,7 +76,7 @@ private:
 		return pop[index];
 	}
 	template <bool Forced>
-	void ll_insert_deme(const Population &deme, const std::vector<int> &picks) {
+	void ll_insert_deme(const Population &deme, const std::vector<size_t> &picks) {
 		const size_t size = picks.size();
 		for (size_t i = 0; i < size; ++i) {
 			if (Forced || deme[i].getFitness() < pop[picks[i]].getFitness()) {

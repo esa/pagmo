@@ -35,7 +35,7 @@ void *DEthread(void *data)
    threadParam *PtrTP = (threadParam *)data;
    Population deme;
    double oldfitness;
-   vector <int> picks;
+   vector<size_t> picks;
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
    DEalgorithm DE;
@@ -96,7 +96,7 @@ void *MPSOthread(void *data)
    PtrTP = (threadParam *)data;
    Population deme;
    double oldfitness;
-   vector <int> picks;
+   vector<size_t> picks;
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
    MPSOalgorithm MPSO;
@@ -152,7 +152,7 @@ void *PSOthread(void *data)
    PtrTP = (threadParam *)data;
    Population deme;
    double oldfitness;
-   vector <int> picks;
+   vector<size_t> picks;
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
    PSOalgorithm PSO;
@@ -210,7 +210,7 @@ void *SGAthread(void *data)
    PtrTP = (threadParam *)data;
    Population deme;
    double oldfitness;
-   vector <int> picks;
+   vector<size_t> picks;
    const vector<double> &LB = PtrTP->problem->getLB();
    SGAalgorithm SGA;
    rng_uint32 rng;
@@ -267,7 +267,7 @@ void *ASAthread(void *data)
    PtrTP = (threadParam *)data;
    Population deme;
    double oldfitness;
-   vector <int> picks;
+   vector<size_t> picks;
    const vector<double> &LB = PtrTP->problem->getLB();
    ASAalgorithm ASA;
    rng_uint32 rng;

@@ -42,19 +42,18 @@
 		return extract_most<std::greater<double> >();
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<int> &picks){
+	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks){
 		static_rng_double drng;
 		Population deme;
-		std::vector<int> PossiblePicks;
-		int Pick;
-
-		for (unsigned int i=0; i < pop.size(); i++)
+		const size_t pop_size = size();
+		std::vector<size_t> PossiblePicks;
+		PossiblePicks.reserve(pop_size);
+		for (size_t i=0; i < pop_size; ++i) {
 			PossiblePicks.push_back(i);
-
-
-		for (int i=0; i < N; i++){
+		}
+		for (int i = 0; i < N; ++i){
 			//we pick a random position between 0 and popsize-1
-			Pick = (int)(drng() * PossiblePicks.size());
+			const size_t Pick = (size_t)(drng() * PossiblePicks.size());
 			//and store it
 			picks.push_back(PossiblePicks[Pick]);
 			//we insert the corresponding individual in the deme
@@ -65,15 +64,15 @@
 		return deme;
 	};
 
-	void Population::insertDeme(const Population &deme, const std::vector<int> &picks){
+	void Population::insertDeme(const Population &deme, const std::vector<size_t> &picks){
 		ll_insert_deme<false>(deme,picks);
 	}
 
-	void Population::insertDemeForced(const Population &deme, const std::vector<int> &picks){
+	void Population::insertDemeForced(const Population &deme, const std::vector<size_t> &picks){
 		ll_insert_deme<true>(deme,picks);
 	}
 
-	void Population::insertBestInDeme(const Population &deme, const std::vector<int> &picks){
+	void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks){
 		const int Ndeme = deme.size();
 
 		int bestindeme =  0;
