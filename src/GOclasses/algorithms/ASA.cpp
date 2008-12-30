@@ -118,14 +118,14 @@ Population ASAalgorithm::evolve(const Individual &x0, GOProblem& problem) {
 		drng.seed(randomSeed);
 	}
 
-	void ASAalgorithm::initASA(int niterTotInit,int SolDimInit, double Ts, double Tf, uint32_t randomSeed){
+	ASAalgorithm::ASAalgorithm(int niterTotInit, const GOProblem &problem, double Ts, double Tf){
 		niterTot=niterTotInit;
 		niterTemp=1;
 		niterRange=20;
-		SolDim=SolDimInit;
+		SolDim=problem.getLB().size();
 		niterOuter = niterTot / (niterTemp * niterRange * SolDim);
 		T0=Ts;
 		Tcoeff=pow(Tf/Ts,1.0/(double)(niterOuter));
 		StartStep=1;
-		drng.seed(randomSeed);
+		drng.seed(static_rng_uint32()());
 	}

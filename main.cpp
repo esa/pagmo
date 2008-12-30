@@ -1,3 +1,4 @@
+#include <boost/scoped_ptr.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
@@ -87,9 +88,9 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			//Adaptive Simulated Annealing
-			ASAalgorithm ASA;
+
+			boost::scoped_ptr<ASAalgorithm> ASA_ptr(new ASAalgorithm(niterTot,problem,T0,Tf));
 			//ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng());
-			ASA.initASA(niterTot,LB.size(),T0,Tf, rng());
 
 			//Pruned bounds
 
@@ -107,9 +108,9 @@ while (choice != -1) {
 						//we evolve it
 						start1=clock();
 						if (pop.extractBestIndividual().getFitness() < 5){
-							ASA.initASA(niterTot,LB.size(),1,0.01, rng());
+							ASA_ptr.reset(new ASAalgorithm(niterTot,problem,1,0.01));
 						}
-						pop = ASA.evolve(pop[0],problem);
+						pop = ASA_ptr->evolve(pop[0],problem);
 						end1=clock();
 						dif = (double)(end1-start1) / (double)CLOCKS_PER_SEC;
 						//we print the result

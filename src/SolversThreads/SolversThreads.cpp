@@ -7,6 +7,7 @@
  *
  */
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <fstream>
@@ -268,8 +269,7 @@ void *ASAthread(void *data)
    Population deme;
    double oldfitness;
    vector<size_t> picks;
-   const vector<double> &LB = PtrTP->problem->getLB();
-   ASAalgorithm ASA;
+   boost::scoped_ptr<ASAalgorithm> ASA_ptr;
    rng_uint32 rng;
    rng_double drng;
    GOProblem *problem = PtrTP->problem;
@@ -282,13 +282,13 @@ void *ASAthread(void *data)
 	rng.seed(PtrTP->randomSeed);
 	drng.seed(PtrTP->randomSeed);
 	deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
-	ASA.initASA(PtrTP->generations,LB.size(),PtrTP->Ts,PtrTP->Tf, rng());
+	ASA_ptr.reset(new ASAalgorithm(PtrTP->generations,*problem,PtrTP->Ts,PtrTP->Tf));
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
    start=clock();
-   deme = ASA.evolve(deme[0], *problem);
+   deme = ASA_ptr->evolve(deme[0], *problem);
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 

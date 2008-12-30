@@ -32,6 +32,9 @@ boost::mutex static_rng<Rng>::m_mutex;
 template <class Rng>
 Rng static_rng<Rng>::m_rng(uint32_t(time(0)));
 
+// Thread-safe uint32 rng.
+typedef static_rng<rng_uint32> static_rng_uint32;
+
 // Thread-safe double rng.
 typedef static_rng<rng_double> static_rng_double;
 
