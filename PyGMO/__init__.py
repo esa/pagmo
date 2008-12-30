@@ -18,11 +18,21 @@
 
 from _PyGMO import *
 
-class vector_double(_PyGMO.__base_vector_double):
-	def __init__(self, iterable = None):
-		super(type(self), self).__init__()
+class __vector_init:
+	def build(self, iterable, t):
 		if iterable == None:
 			return
 		if not getattr(iterable, '__iter__', False):
 			raise TypeError, 'I need an iterable object for initialisation.'
-		for i in iterable: self.append(float(i))
+		for i in iterable: self.append(t(i))
+
+
+class vector_double(_PyGMO.__base_vector_double,__vector_init):
+	def __init__(self, iterable = None):
+		super(type(self), self).__init__()
+		self.build(iterable,float)
+
+class vector_size_t(_PyGMO.__base_vector_size_t,__vector_init):
+	def __init__(self, iterable = None):
+		super(type(self), self).__init__()
+		self.build(iterable,int)

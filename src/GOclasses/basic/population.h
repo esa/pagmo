@@ -12,7 +12,7 @@
 
 #include <vector>
 
-#include "../exceptions.h"
+#include "../../exceptions.h"
 #include "GOproblem.h"
 #include "constants.h"
 #include "individual.h"

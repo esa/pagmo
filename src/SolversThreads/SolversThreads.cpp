@@ -272,21 +272,17 @@ void *ASAthread(void *data)
    ASAalgorithm ASA;
    rng_uint32 rng;
    rng_double drng;
-   GOProblem* problem;
-
+   GOProblem *problem = PtrTP->problem;
 
 	clock_t start,end;
 	double dif;
 
    {
-        lock_type lock(*PtrTP->TPmutex);
-        rng.seed(PtrTP->randomSeed);
-        drng.seed(PtrTP->randomSeed);
-		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
-		problem = PtrTP->problem;
-		unsigned int temp;
-		temp = rng();
-		ASA.initASA(PtrTP->generations,LB.size(),PtrTP->Ts,PtrTP->Tf, rng());
+	lock_type lock(*PtrTP->TPmutex);
+	rng.seed(PtrTP->randomSeed);
+	drng.seed(PtrTP->randomSeed);
+	deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
+	ASA.initASA(PtrTP->generations,LB.size(),PtrTP->Ts,PtrTP->Tf, rng());
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();

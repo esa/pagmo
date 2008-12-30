@@ -82,6 +82,10 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_vd.def("__repr__", &Py_repr_vector<double>);
 	class_vd.def(vector_indexing_suite<vector<double> >());
 
+	class_<vector<size_t> > class_vs("__base_vector_size_t","std::vector<size_t>");
+	class_vs.def("__repr__", &Py_repr_vector<size_t>);
+	class_vs.def(vector_indexing_suite<vector<size_t> >());
+
 	class_<Population> class_pop("population", "Population.", init<>());
 	class_pop.def(init<GOProblem &, int>());
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);

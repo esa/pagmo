@@ -10,6 +10,7 @@
 #include <cmath>
 #include <functional>
 
+#include "../../exceptions.h"
 #include "GOproblem.h"
 #include "population.h"
 #include "rng.h"
@@ -95,6 +96,9 @@
 	}
 
 	double Population::evaluateMean() const {
+		if (pop.empty()) {
+			throw(index_error("Population is empty."));
+		}
 		double mean = 0;
 		const size_t size = pop.size();
 		for (size_t i = 0; i < size; ++i) {
@@ -105,13 +109,13 @@
 	}
 
 	double Population::evaluateStd() const {
-		double Std=0,mean=0;
-		int size = 0;
-		size = pop.size();
-		mean = evaluateMean();
-
-		for (int i=0; i<size; i++){
-			Std=Std+pow((pop[i].getFitness()-mean),2.0);
+		if (pop.empty()) {
+			throw(index_error("Population is empty."));
+		}
+		double Std = 0, mean = evaluateMean();
+		const size_t size = pop.size();
+		for (size_t i = 0; i < size; ++i){
+			Std += pow((pop[i].getFitness()-mean),2.0);
 		}
 		Std = sqrt(Std/size);
 		return Std;
