@@ -69,31 +69,36 @@
 		return deme;
 	};
 
-	void Population::insertDeme(const Population &deme, const std::vector<size_t> &picks){
+	void Population::insertDeme(const Population &deme, const std::vector<size_t> &picks) {
 		ll_insert_deme<false>(deme,picks);
 	}
 
-	void Population::insertDemeForced(const Population &deme, const std::vector<size_t> &picks){
+	void Population::insertDemeForced(const Population &deme, const std::vector<size_t> &picks) {
 		ll_insert_deme<true>(deme,picks);
 	}
 
-	void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks){
-		const size_t Ndeme = deme.size();
-		int bestindeme =  0;
-		int worstinpicks = 0;
-		double best = deme[0].getFitness();
-		double worst = pop[picks[0]].getFitness();
-
-		for (int i=1; i<Ndeme; i++){
-			if ( deme[i].getFitness() < best){
+	void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks) {
+		const size_t Ndeme = deme.size(), pop_size = size();
+		if (picks.size() != Ndeme) {
+			throw index_error("Mismatch between deme size and picks size while inserting best in deme.");
+		}
+		size_t bestindeme = 0, worstinpicks = 0;
+		double best = deme[0].getFitness(), worst = pop[picks[0]].getFitness();
+		// Determine the best individual in deme and the worst among the picks.
+		for (size_t i = 1; i < Ndeme; ++i) {
+			if (deme[i].getFitness() < best) {
 				bestindeme = i;
 				best = deme[i].getFitness();
 			}
-			if ( pop[picks[i]].getFitness() > worst) {
+			if (picks[i] >= pop_size) {
+				throw index_error("Pick value exceeds population's size while inserting best in deme.");
+			}
+			if (pop[picks[i]].getFitness() > worst) {
 				worstinpicks = i;
 				worst = pop[picks[i]].getFitness();
 			}
 		}
+		// In place of the worst among the picks, insert the best in deme.
 		pop[picks[worstinpicks]] = deme[bestindeme];
 
 	}
