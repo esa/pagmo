@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 
+#include "../src/GOclasses/algorithms/ASA.h"
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/population.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
@@ -105,4 +106,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<Individual> class_ind("individual", "Individual.", init<GOProblem &>());
 	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
+
+	// Algorithms.
+	class_<ASAalgorithm> class_asa("asa_algorithm", "ASA algorithm.", init<int, const GOProblem &, double, double>());
+	class_asa.def("evolve", &ASAalgorithm::evolve, "Evolve.");
 }
