@@ -25,9 +25,6 @@
 		if (Ts <= 0 || Tf <= 0 || Ts <= Tf) {
 			pagmo_throw(value_error,"temperatures must be positive and Ts must be greater than Tf");
 		}
-		if (SolDim == 0) {
-			pagmo_throw(value_error,"problem's size cannot be null");
-		}
 		niterTot = niterTotInit;
 		niterTemp = 1;
 		niterRange = 20;
