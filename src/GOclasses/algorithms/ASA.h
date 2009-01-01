@@ -18,8 +18,6 @@
 #include "go_algorithm.h"
 #include "individual.h"
 #include "population.h"
-#include "rng.h"
-
 
 class ASAalgorithm: public go_algorithm {
 public:
@@ -35,7 +33,6 @@ private:
 	double Tcoeff;
 	double StartStep;
 	size_t niterOuter;
-	rng_double drng;
 };
 
 #endif

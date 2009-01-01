@@ -19,10 +19,11 @@
  *****************************************************************************/
 
 #include "../../exceptions.h"
+#include "../../Functions/rng/rng.h"
 #include "../problems/GOproblem.h"
 #include "go_algorithm.h"
 
-go_algorithm::go_algorithm(const GOProblem &p):SolDim(p.getLB().size()) {
+go_algorithm::go_algorithm(const GOProblem &p):SolDim(p.getLB().size()),drng(static_rng_uint32()()) {
 	if (SolDim == 0) {
 		pagmo_throw(value_error,"problem's size cannot be null");
 	}

@@ -21,6 +21,7 @@
 #ifndef PAGMO_GO_ALGORITHM_H
 #define PAGMO_GO_ALGORITHM_H
 
+#include "../../Functions/rng/rng.h"
 #include "../basic/population.h"
 #include "../problems/GOproblem.h"
 
@@ -31,6 +32,7 @@ class go_algorithm
 		virtual Population evolve(const Population &, GOProblem &) = 0;
 	protected:
 		const size_t SolDim;
+		rng_double drng;
 };
 
 #endif
