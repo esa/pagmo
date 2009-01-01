@@ -2,10 +2,12 @@ PROJECT(PaGMO)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 
+# Add to the base flags extra warnings.
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisabled-optimization")
 
-INCLUDE(CheckTypeSize)
+# Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
+INCLUDE(CheckTypeSize)
 INCLUDE(PaGMOPythonSetup)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.

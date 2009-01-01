@@ -1,3 +1,4 @@
+# PaGMO lib source files.
 SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Lambert.cpp
@@ -76,13 +77,12 @@ IF(BUILD_PYGMO)
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/tuple.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/wrapper.cpp
 	)
-	# This definition is required when compiling Boost.Python.
-	ADD_DEFINITIONS(-DBOOST_PYTHON_SOURCE)
 	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
 	# Request linking against the Python libs, in addition to our mandatory libs.
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
-	# Additional definition to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
-	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DPAGMO_BUILD_PYGMO")
+	# A couple of extra definitions. The first is required when building Boost.Python,
+	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
+	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DPAGMO_BUILD_PYGMO")
 	INSTALL(TARGETS pagmo
 		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
 		LIBRARY DESTINATION ${LIB_INSTALL_PATH}
