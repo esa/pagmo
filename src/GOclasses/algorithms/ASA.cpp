@@ -48,7 +48,7 @@ Population ASAalgorithm::evolve(const Population &pop, GOProblem &problem) {
 	std::vector<double> xNEW = x0.getDecisionVector(), xOLD = xNEW;
 	double fNEW = x0.getFitness(), fOLD = fNEW;
 	if (xNEW.size() != SolDim) {
-		pagmo_throw(value_error,"discrepancy between individual size and problem size in ASA evolve");
+		pagmo_throw(value_error,"discrepancy between individual size and problem size.");
 	}
 	std::vector<double> Step(SolDim,StartStep);
 	std::vector<int> acp(SolDim,0) ;
