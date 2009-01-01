@@ -46,6 +46,14 @@ struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 	}
 };
 
+struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
+{
+	Population evolve(const Population &pop, GOProblem &prob)
+	{
+		return this->get_override("evolve")(pop,prob);
+	}
+};
+
 template <class T>
 static inline string Py_repr_from_stream(const T &x)
 {
@@ -111,14 +119,17 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("extract_random_deme", &Population::extractRandomDeme, "Extract random deme.");
 
 	// Expose base GOProblem class.
-	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
-	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));
+	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", no_init);
+	class_gop.def("objfun", pure_virtual(&GOProblem::objfun), "Objective function.");
 	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension of the problem.");
 
 	// Expose problem classes.
 	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
 
+	// Expose base algorithm class.
+	class_<go_algorithm_wrap, boost::noncopyable> class_goa("go_algorithm", "Base GO algorithm", no_init);
+	class_goa.def("evolve", pure_virtual(&go_algorithm::evolve));
+
 	// Expose algorithms.
-	class_<ASAalgorithm> class_asa("asa_algorithm", "ASA algorithm.", init<int, const GOProblem &, double, double>());
-	class_asa.def("evolve", &ASAalgorithm::evolve, "Evolve.");
+	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const GOProblem &, double, double>());
 }

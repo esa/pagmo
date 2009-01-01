@@ -15,9 +15,10 @@
 #include "../basic/individual.h"
 #include "../basic/population.h"
 #include "ASA.h"
+#include "go_algorithm.h"
 
 	ASAalgorithm::ASAalgorithm(int niterTotInit, const GOProblem &problem, const double &Ts, const double &Tf):
-		SolDim(problem.getLB().size()),drng(static_rng_uint32()()) {
+		go_algorithm(problem),drng(static_rng_uint32()()) {
 		if (niterTotInit < 0) {
 			pagmo_throw(value_error,"number of generations must be nonnegative");
 		}
