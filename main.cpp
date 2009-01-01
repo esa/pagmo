@@ -110,7 +110,7 @@ while (choice != -1) {
 						if (pop.extractBestIndividual().getFitness() < 5){
 							ASA_ptr.reset(new ASAalgorithm(niterTot,problem,1,0.01));
 						}
-						pop = ASA_ptr->evolve(pop[0],problem);
+						pop = ASA_ptr->evolve(pop,problem);
 						end1=clock();
 						dif = (double)(end1-start1) / (double)CLOCKS_PER_SEC;
 						//we print the result

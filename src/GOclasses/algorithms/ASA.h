@@ -23,34 +23,19 @@
 class ASAalgorithm{
 public:
 	//This method initialise the SA-AN algorithm starting and final temperature setting deafult values for
-	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly
-	ASAalgorithm (int niterTotInit,
-				 const GOProblem &,
-				 double Ts,
-				 double Tf);
-
-	Population evolve(const Individual &, GOProblem &);
-
-	//This method initialise all the SA-AN algorithm parameters
-	void initASA(int niterTotInit,
-				 int niterTempInit,
-				 int niterRangeInit,
-				 int SolDimInit,
-				 double T0Init,
-				 double TcoeffInit,
-				 double StartStepInit,
-				 uint32_t randomSeed);
-
+	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.
+	ASAalgorithm(int, const GOProblem &, const double &, const double &);
+	Population evolve(const Population &, GOProblem &);
 private:
-	int niterTot;
-	int niterTemp;
-	int niterRange;
-	int SolDim;
+	size_t niterTot;
+	size_t niterTemp;
+	size_t niterRange;
+	const size_t SolDim;
 	double T0;
 	double Tcoeff;
 	double StartStep;
-    int niterOuter;
-    rng_double drng;
+	size_t niterOuter;
+	rng_double drng;
 };
 
 #endif

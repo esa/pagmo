@@ -45,6 +45,7 @@ ENDIF(BUILD_MAIN)
 
 # Create a pagmo shared library if PyGMO is requested.
 IF(BUILD_PYGMO)
+	# We need to compile the source of the Boost.Python libraries.
 	SET(PAGMO_SHARED_LIB_SRC_LIST
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/arg_to_python_base.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/builtin_converters.cpp
@@ -75,9 +76,13 @@ IF(BUILD_PYGMO)
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/tuple.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/wrapper.cpp
 	)
+	# This definition is required when compiling Boost.Python.
 	ADD_DEFINITIONS(-DBOOST_PYTHON_SOURCE)
 	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
+	# Request linking against the Python libs, in addition to our mandatory libs.
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
+	# Additional definition to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
+	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DPAGMO_BUILD_PYGMO")
 	INSTALL(TARGETS pagmo
 		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
 		LIBRARY DESTINATION ${LIB_INSTALL_PATH}

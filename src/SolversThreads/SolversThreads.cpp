@@ -288,7 +288,7 @@ void *ASAthread(void *data)
    oldfitness = deme.extractBestIndividual().getFitness();
 
    start=clock();
-   deme = ASA_ptr->evolve(deme[0], *problem);
+   deme = ASA_ptr->evolve(deme, *problem);
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 

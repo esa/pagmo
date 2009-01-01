@@ -74,11 +74,18 @@ static inline void ie_translator(const index_error &ie) {
 	PyErr_SetString(PyExc_IndexError, ie.what().c_str());
 }
 
+static inline void ve_translator(const value_error &ve) {
+	PyErr_SetString(PyExc_ValueError, ve.what().c_str());
+}
+
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
 {
+	// Translate our C++ exceptions into Python exceptions.
 	register_exception_translator<index_error>(ie_translator);
+	register_exception_translator<value_error>(ve_translator);
 
+	// Expose std::vector<double> and std::vector<size_t>.
 	class_<vector<double> > class_vd("__base_vector_double","std::vector<double>");
 	class_vd.def("__repr__", &Py_repr_vector<double>);
 	class_vd.def(vector_indexing_suite<vector<double> >());
@@ -87,6 +94,12 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_vs.def("__repr__", &Py_repr_vector<size_t>);
 	class_vs.def(vector_indexing_suite<vector<size_t> >());
 
+	// Expose individual class.
+	class_<Individual> class_ind("individual", "Individual.", init<GOProblem &>());
+	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
+	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
+
+	// Expose population class.
 	class_<Population> class_pop("population", "Population.", init<>());
 	class_pop.def(init<GOProblem &, int>());
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
@@ -97,17 +110,15 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("worst", &Population::extractWorstIndividual, return_internal_reference<>(), "Return worst individual.");
 	class_pop.def("extract_random_deme", &Population::extractRandomDeme, "Extract random deme.");
 
+	// Expose base GOProblem class.
 	class_<GOProblemWrap, boost::noncopyable> class_gop("goproblem", "Base GO problem", no_init);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun));
 	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension of the problem.");
 
+	// Expose problem classes.
 	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
 
-	class_<Individual> class_ind("individual", "Individual.", init<GOProblem &>());
-	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
-	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
-
-	// Algorithms.
+	// Expose algorithms.
 	class_<ASAalgorithm> class_asa("asa_algorithm", "ASA algorithm.", init<int, const GOProblem &, double, double>());
 	class_asa.def("evolve", &ASAalgorithm::evolve, "Evolve.");
 }
