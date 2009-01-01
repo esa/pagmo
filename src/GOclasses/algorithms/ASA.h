@@ -25,7 +25,7 @@ public:
 	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.
 	ASAalgorithm(int, const GOProblem &, const double &, const double &);
 	Population evolve(const Population &, GOProblem &);
-private:
+protected:
 	size_t niterTot;
 	size_t niterTemp;
 	size_t niterRange;
@@ -33,6 +33,20 @@ private:
 	double Tcoeff;
 	double StartStep;
 	size_t niterOuter;
+};
+
+class mt_asa_algorithm {
+	public:
+		mt_asa_algorithm(int n, const GOProblem &p, const double &Ts, const double &Tf):
+			m_asa(n,p,Ts,Tf) {}
+		void evolve(const Population &, GOProblem &);
+	private:
+		struct evolver {
+			void operator()(ASAalgorithm &asa, const Population &pop, GOProblem *prob) {
+				asa.evolve(Population(pop),*prob);
+			}
+		};
+		ASAalgorithm m_asa;
 };
 
 #endif

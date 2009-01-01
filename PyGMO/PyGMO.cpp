@@ -121,4 +121,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose algorithms.
 	class_<ASAalgorithm> class_asa("asa_algorithm", "ASA algorithm.", init<int, const GOProblem &, double, double>());
 	class_asa("evolve", &ASAalgorithm::evolve, "Evolve population.");
+
+	class_<mt_asa_algorithm> class_mt_asa("mt_asa_algorithm", "Multi-thread ASA algorithm.", init<int, const GOProblem &, double, double>());
+	class_mt_asa("evolve", &mt_asa_algorithm::evolve, "Evolve population.");
 }
