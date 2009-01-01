@@ -44,7 +44,7 @@
 
 	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks) {
 		if (N > (int)size()) {
-			throw index_error("Cannot extract deme whose size is greater than the original population.");
+			pagmo_throw(index_error,"Cannot extract deme whose size is greater than the original population.");
 		}
 		// Empty picks first.
 		picks.clear();
@@ -80,7 +80,7 @@
 	void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks) {
 		const size_t Ndeme = deme.size(), pop_size = size();
 		if (picks.size() != Ndeme) {
-			throw index_error("Mismatch between deme size and picks size while inserting best in deme.");
+			pagmo_throw(index_error,"Mismatch between deme size and picks size while inserting best in deme.");
 		}
 		size_t bestindeme = 0, worstinpicks = 0;
 		double best = deme[0].getFitness(), worst = pop[picks[0]].getFitness();
@@ -91,7 +91,7 @@
 				best = deme[i].getFitness();
 			}
 			if (picks[i] >= pop_size) {
-				throw index_error("Pick value exceeds population's size while inserting best in deme.");
+				pagmo_throw(index_error,"Pick value exceeds population's size while inserting best in deme.");
 			}
 			if (pop[picks[i]].getFitness() > worst) {
 				worstinpicks = i;
@@ -105,7 +105,7 @@
 
 	double Population::evaluateMean() const {
 		if (pop.empty()) {
-			throw(index_error("Population is empty."));
+			pagmo_throw(index_error,"Population is empty.");
 		}
 		double mean = 0;
 		const size_t size = pop.size();
@@ -118,7 +118,7 @@
 
 	double Population::evaluateStd() const {
 		if (pop.empty()) {
-			throw(index_error("Population is empty."));
+			pagmo_throw(index_error,"Population is empty.");
 		}
 		double Std = 0, mean = evaluateMean();
 		const size_t size = pop.size();
