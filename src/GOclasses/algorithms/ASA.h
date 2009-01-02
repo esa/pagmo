@@ -24,8 +24,8 @@ public:
 	//This method initialise the SA-AN algorithm starting and final temperature setting deafult values for
 	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.
 	ASAalgorithm(int, const GOProblem &, const double &, const double &);
-	Population evolve(const Population &, GOProblem &);
-protected:
+	virtual Population evolve(const Population &, GOProblem &);
+private:
 	size_t niterTot;
 	size_t niterTemp;
 	size_t niterRange;
