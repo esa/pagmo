@@ -20,9 +20,9 @@
 
 const double messengerfullProb::lb[26] = {1900, 3,    0, 0, 100, 100, 100, 100, 100, 100, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
 const double messengerfullProb::ub[26] = {2200, 4.05, 1, 1, 500, 500, 500, 500, 500, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
+const int messengerfullProb::sequence[7] = {3, 2, 2, 1, 1, 1, 1};
 
-messengerfullProb::messengerfullProb():GOProblem(26,lb,ub) {
-
+messengerfullProb::messengerfullProb():GOProblem(26,lb,ub),mgadsm(orbit_insertion,sequence,7,0,0,0,0.704,2440 + 200) {
 	//Bounds shrinked further with the c3=25
 	//double lb[26] = {2000, 4, 0, 0.6, 428, 210, 210, 250, 345, 520, 0.01, 0.01, 0.5, 0.5, 0.6, 0.8, 1.1, 1.1, 1.05, 1.05, 1.05, 0, 1, -M_PI, 0, 0};
 	//double ub[26] = {2070, 5, 0.65, 1  , 468,    230,    230,    270,    365,    550,    0.99,    0.99,    0.99,    0.7,    0.9,    0.95,   6,   1.5,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  3};
@@ -34,35 +34,7 @@ messengerfullProb::messengerfullProb():GOProblem(26,lb,ub) {
     //Bounds shrinked to those of the actual mission (main difference is that thi forces the used resonances at mercury)
 	//double lb[26] = {1900, 3,    0, 0, 400, 200, 200, 200, 300, 400, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
 	//double ub[26] = {2200, 4.05, 1, 1, 500, 300, 300, 300, 400, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
-	
-	//MGA_DSM parameters
-	int sequence_[7] = {3, 2, 2, 1, 1, 1, 1}; // sequence of planets
-	mgadsm.sequence.insert(mgadsm.sequence.begin(), sequence_, sequence_ + 7);
-	mgadsm.type = orbit_insertion;
-	
-	mgadsm.rp = 2440 + 200;   //200 km altitude
-	mgadsm.e = 0.704;  // apoapsis at 15193 km
-
-	//Allocate temporary memory for MGA_DSM
-	mgadsm.r = std::vector<double*>(7);
-	mgadsm.v = std::vector<double*>(7);
-	mgadsm.DV = std::vector<double>(7+1);
-
-	for(int i = 0; i < 7; i++) {
-		mgadsm.r[i] = new double[3];
-		mgadsm.v[i] = new double[3];
-	}
 };
-
-messengerfullProb::~messengerfullProb() {
-	//Free temporary memory for MGA_DSM
-	for(int i = 0; i < 7; i++) {
-		delete[] mgadsm.r[i];
-		delete[] mgadsm.v[i];
-	}
-	mgadsm.r.clear();
-	mgadsm.v.clear();
-}
 
 double messengerfullProb::objfun(const std::vector<double>& x) {
    	double obj = 0.0;
@@ -74,33 +46,9 @@ double messengerfullProb::objfun(const std::vector<double>& x) {
 
 const double messengerProb::lb[18] = {1000, 1, 0, 0, 200, 30,  30,  30,  0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.1, -M_PI, -M_PI, -M_PI};
 const double messengerProb::ub[18] = {1200, 5, 1, 1, 400, 400, 400, 400, 0.99, 0.99, 0.99, 0.99, 6,   6,   6,    M_PI,  M_PI,  M_PI};
+const int messengerProb::sequence[5] = {3, 3, 2, 2, 1};
 
-messengerProb::messengerProb():GOProblem(18,lb,ub) {
-	//MGA_DSM parameters
-	int sequence_[5] = {3, 3, 2, 2, 1}; // sequence of planets
-	mgadsm.sequence.insert(mgadsm.sequence.begin(), sequence_, sequence_ + 5);
-	mgadsm.type = total_DV_rndv;
-
-	//Allocate temporary memory for MGA_DSM
-	mgadsm.r = std::vector<double*>(5);
-	mgadsm.v = std::vector<double*>(5);
-	mgadsm.DV = std::vector<double>(5+1);
-
-	for(int i = 0; i < 5; i++) {
-		mgadsm.r[i] = new double[3];
-		mgadsm.v[i] = new double[3];
-	}
-};
-
-messengerProb::~messengerProb() {
-	//Free temporary memory for MGA_DSM
-	for(int i = 0; i < 5; i++) {
-		delete[] mgadsm.r[i];
-		delete[] mgadsm.v[i];
-	}
-	mgadsm.r.clear();
-	mgadsm.v.clear();
-}
+messengerProb::messengerProb():GOProblem(18,lb,ub),mgadsm(total_DV_rndv,sequence,5,0,0,0,0,0) {};
 
 double messengerProb::objfun(const std::vector<double>& x) {
    	double obj = 0.0;
@@ -111,8 +59,9 @@ double messengerProb::objfun(const std::vector<double>& x) {
 
 const double tandemProb::lb[18] = {5475, 2.5, 0, 0, 20   , 20  ,  20 , 20  , 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI};
 const double tandemProb::ub[18] = {9132, 4.9, 1, 1, 2500 , 2500, 2500, 2500, 0.99, 0.99, 0.99, 0.99,    6,    6,    6,  M_PI,  M_PI,  M_PI};
+const int tandemProb::sequence[5] = {3, 2, 3, 3, 6};
 
-tandemProb::tandemProb():GOProblem(18,lb,ub) {
+tandemProb::tandemProb():GOProblem(18,lb,ub),mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0) {
   /*double lb[18] = { 5475, 2.938860000000, 0.405043000000, 0.315992000000, 94.289800000000, 342.079000000000, 1008.410000000000, 1200.380000000000, 0.028803000000, 0.340659000000, 0.060535100000, 0.112446000000, 1.051750000000, 1.078730000000, 1.053800000000, -1.870500000000, -2.225840000000, -1.886840000000};
     double ub[18] = {9132, 4.093870000000, 0.586676000000, 0.707644000000, 365, 600.040000000000, 1200.320000000000, 2000, 0.897733000000, 0.804798000000, 0.805629000000, 0.419066000000, 2.370910000000, 1.422330000000, 2.156690000000, -1.169580000000, -1.127050000000, -0.917483000000};*/
 
@@ -121,34 +70,7 @@ tandemProb::tandemProb():GOProblem(18,lb,ub) {
 
    /*double lb[18] = { 7006.238587842692, 3.097717073232, 0.487979915911, 0.420687094540, 109.771414690208, 940.854505183490, 1084.392758236149, 1884.930756684131, 0.203810643630, 0.524034320427, 0.061286469418, 0.094306544631, 1.083463972542, 1.236225186517, 1.050000000000, -1.937841604629, -1.743932449066, -1.832730790569};
      double ub[18] = { 9060.215094956218, 3.611338874179, 0.527214806521, 0.657358693786, 1197.610002758771, 1394.575620926851, 1196.061120842642, 2282.478189832147, 0.802342883580, 0.888447799151, 0.686859262454, 0.297661986078, 1.543881588983, 1.456965103045, 1.469911762813, -1.262189135419, -1.184228350040, -1.053263771491};*/
-
-	//MGA_DSM stuff
-	const int sequence_[5] = {3, 2, 3, 3, 6};		// sequence of planets
-	mgadsm.sequence.insert(mgadsm.sequence.begin(), sequence_, sequence_+ 5 );
-	mgadsm.type = orbit_insertion;
-	mgadsm.rp = 80330.0;
-	mgadsm.e = 0.98531407996358;
-
-	//Allocate temporary memory for MGA_DSM
-	mgadsm.r = std::vector<double*>(5);
-	mgadsm.v = std::vector<double*>(5);
-	mgadsm.DV = std::vector<double>(5+1);
-
-	for(int i = 0; i < 5; i++) {
-		mgadsm.r[i] = new double[3];
-		mgadsm.v[i] = new double[3];
-	}
 };
-
-tandemProb::~tandemProb() {
-	//Free temporary memory for MGA_DSM
-	for(int i = 0; i < 5; i++) {
-		delete[] mgadsm.r[i];
-		delete[] mgadsm.v[i];
-	}
-	mgadsm.r.clear();
-	mgadsm.v.clear();
-}
 
 double tandemProb::objfun(const std::vector<double>& x) {
     double obj = 0;
@@ -233,33 +155,9 @@ double gtoc1Prob::objfun(const std::vector<double>& x) {
 
 const double cassini2Prob::lb[22] = {-750, 3, 0, 0, 100, 100, 30, 400, 800, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.15, 1.7, -M_PI, -M_PI, -M_PI, -M_PI};
 const double cassini2Prob::ub[22] = {780,  5, 1, 1, 400, 500, 300, 1600, 2200, 0.9, 0.9, 0.9, 0.9, 0.9, 6, 6, 6.5, 291, M_PI, M_PI, M_PI, M_PI};
+const int cassini2Prob::sequence[6] = {3, 2, 2, 3, 5, 6};
 
-cassini2Prob::cassini2Prob():GOProblem(22,lb,ub) {
-	//MGA_DSM stuff
-	int sequence_[6] = {3, 2, 2, 3, 5, 6}; // sequence of planets
-	mgadsm.sequence.insert(mgadsm.sequence.begin(), sequence_, sequence_+ 6);
-	mgadsm.type = total_DV_rndv;
-
-	//Allocate temporary memory for MGA_DSM
-	mgadsm.r = std::vector<double*>(6);
-	mgadsm.v = std::vector<double*>(6);
-	mgadsm.DV = std::vector<double>(6+1);
-
-	for(int i = 0; i < 6; i++) {
-		mgadsm.r[i] = new double[3];
-		mgadsm.v[i] = new double[3];
-	}
-};
-
-cassini2Prob::~cassini2Prob() {
-	//Free temporary memory for MGA_DSM
-	for(int i = 0; i < 6; i++) {
-		delete[] mgadsm.r[i];
-		delete[] mgadsm.v[i];
-	}
-	mgadsm.r.clear();
-	mgadsm.v.clear();
-}
+cassini2Prob::cassini2Prob():GOProblem(22,lb,ub),mgadsm(total_DV_rndv,sequence,6,0,0,0,0,0) {};
 
 double cassini2Prob::objfun(const std::vector<double>& x) {
    	double obj = 0;
@@ -270,12 +168,10 @@ double cassini2Prob::objfun(const std::vector<double>& x) {
 
 const double rosettaProb::lb[22] = {1460, 3, 0, 0, 300, 150, 150, 300, 700, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI};
 const double rosettaProb::ub[22] = {780,  5, 1, 1, 500, 800, 800, 800, 1850, 0.9, 0.9, 0.9, 0.9, 0.9, 9, 9, 9, 9, M_PI, M_PI, M_PI, M_PI};
+const int rosettaProb::sequence[6] = {3, 3, 4, 3, 3, 10};
 
-rosettaProb::rosettaProb():GOProblem(22,lb,ub) {
+rosettaProb::rosettaProb():GOProblem(22,lb,ub),mgadsm(rndv,sequence,6,0,0,0,0,0) {
 	//MGA_DSM stuff
-	int sequence_[6] = {3, 3, 4, 3, 3, 10}; // sequence of planets
-	mgadsm.sequence.insert(mgadsm.sequence.begin(), sequence_, sequence_+ 6 );
-	mgadsm.type = rndv;
 	mgadsm.asteroid.keplerian[0] = 3.50294972836275;
 	mgadsm.asteroid.keplerian[1] = 0.6319356;
 	mgadsm.asteroid.keplerian[2] = 7.12723;
@@ -284,27 +180,7 @@ rosettaProb::rosettaProb():GOProblem(22,lb,ub) {
 	mgadsm.asteroid.keplerian[5] = 0.0;
 	mgadsm.asteroid.epoch = 52504.23754000012;
 	mgadsm.asteroid.mu = 0.0;
-
-	//Allocate temporary memory for MGA_DSM
-	mgadsm.r = std::vector<double*>(6);
-	mgadsm.v = std::vector<double*>(6);
-	mgadsm.DV = std::vector<double>(6+1);
-
-	for(int i = 0; i < 6; i++) {
-		mgadsm.r[i] = new double[3];
-		mgadsm.v[i] = new double[3];
-	}
 };
-
-rosettaProb::~rosettaProb() {
-	//Free temporary memory for MGA_DSM
-	for(int i = 0; i < 6; i++) {
-		delete[] mgadsm.r[i];
-		delete[] mgadsm.v[i];
-	}
-	mgadsm.r.clear();
-	mgadsm.v.clear();
-}
 
 double rosettaProb::objfun(const std::vector<double>& x) {
 	double obj = 0;
@@ -315,36 +191,9 @@ double rosettaProb::objfun(const std::vector<double>& x) {
 
 const double sagasProb::lb[12] = {7000, 0, 0, 0, 50, 300, 0.01, 0.01, 1.05, 8, -M_PI, -M_PI};
 const double sagasProb::ub[12] = {9100, 7, 1, 1, 2000, 2000, 0.9, 0.9 ,7 ,500 ,M_PI,M_PI};
+const int sagasProb::sequence[3] = {3,3,5};
 
-sagasProb::sagasProb():GOProblem(12,lb,ub) {
-	//MGA_DSM Stuff
-	int sequence_[3] = {3,3,5}; // sequence of planets
-	mgadsm.sequence.insert(mgadsm.sequence.begin(), sequence_, sequence_+ 3 );
-	mgadsm.type = time2AUs;
-	mgadsm.AUdist = 50.0;
-	mgadsm.DVtotal = 6.782;
-	mgadsm.DVonboard = 1.782;
-
-	//Allocate temporary memory for MGA_DSM
-	mgadsm.r = std::vector<double*>(3);
-	mgadsm.v = std::vector<double*>(3);
-	mgadsm.DV = std::vector<double>(3+1);
-
-	for(int i = 0; i < 3; i++) {
-		mgadsm.r[i] = new double[3];
-		mgadsm.v[i] = new double[3];
-	}
-};
-
-sagasProb::~sagasProb() {
-	//Free temporary memory for MGA_DSM
-	for(int i = 0; i < 3; i++) {
-		delete[] mgadsm.r[i];
-		delete[] mgadsm.v[i];
-	}
-	mgadsm.r.clear();
-	mgadsm.v.clear();
-}
+sagasProb::sagasProb():GOProblem(12,lb,ub),mgadsm(time2AUs,sequence,3,50.0,6.782,1.782,0,0) {};
 
 double sagasProb::objfun(const std::vector<double>& x) {
    	double obj = 0;
