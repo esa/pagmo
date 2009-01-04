@@ -18,59 +18,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <boost/thread/thread.hpp>
-#include <exception>
-
-#include "../algorithms/go_algorithm.h"
-#include "../problems/GOproblem.h"
 #include "archipelago.h"
-#include "island.h"
-#include "population.h"
 
-island::island(int n, GOProblem &p, const go_algorithm &al):m_pop(p,n),m_gop(p.clone()),m_goa(al.clone()),m_a(0) {}
+archipelago::archipelago(const archipelago &a):m_container(a.m_container) {}
 
-island::island(const island &i):m_pop(i.get_pop()),m_gop(i.m_gop->clone()),m_goa(i.m_goa->clone()),m_a(0) {}
-
-island &island::operator=(const island &i)
+size_t archipelago::size() const
 {
-	m_pop = i.get_pop();
-	m_gop.reset(i.m_gop->clone());
-	m_goa.reset(i.m_goa->clone());
-	return *this;
+	return m_container.size();
 }
 
-island::~island()
+void archipelago::push_back(const value_type &i)
 {
-	lock_type lock(m_mutex);
+	m_container.push_back(i);
+	m_container.back().set_archipelago(this);
 }
 
-void island::evolve()
-{
-	boost::thread(evolver(this));
-}
+// const island &archipelago::operator[](const size_t &n) const
+// {
+// 	return m_container[n];
+// }
 
-Population island::get_pop() const
-{
-	lock_type lock(m_mutex);
-	return Population(m_pop);
-}
+// island &archipelago::operator[](const size_t &n)
+// {
+// 	return m_container[n];
+// }
 
-void island::set_archipelago(archipelago *a)
-{
-	m_a = a;
-}
 
-void island::evolver::operator()()
-{
-	if (!m_i->m_mutex.try_lock()) {
-		std::cout << "Cannot start evolution while already evolving.\n";
-		return;
-	}
-	try {
-		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop,*m_i->m_gop);
-		std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
-	} catch (const std::exception &e) {
-		std::cout << "Error during evolution: " << e.what() << '\n';
-	}
-	m_i->m_mutex.unlock();
-}

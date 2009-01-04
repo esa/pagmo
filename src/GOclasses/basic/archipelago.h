@@ -18,59 +18,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <boost/thread/thread.hpp>
-#include <exception>
+#ifndef PAGMO_ARCHIPELAGO_H
+#define PAGMO_ARCHIPELAGO_H
 
-#include "../algorithms/go_algorithm.h"
-#include "../problems/GOproblem.h"
-#include "archipelago.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <vector>
+
 #include "island.h"
-#include "population.h"
 
-island::island(int n, GOProblem &p, const go_algorithm &al):m_pop(p,n),m_gop(p.clone()),m_goa(al.clone()),m_a(0) {}
+class archipelago {
+		typedef std::vector<island> container_type;
+		typedef boost::mutex mutex_type;
+		typedef boost::lock_guard<mutex_type> lock_type;
+	public:
+		typedef island value_type;
+		archipelago() {};
+		archipelago(const archipelago &);
+		void push_back(const value_type &);
+		size_t size() const;
+		island get_island(int &) const;
+	private:
+		container_type		m_container;
+		mutable mutex_type	m_mutex;
+};
 
-island::island(const island &i):m_pop(i.get_pop()),m_gop(i.m_gop->clone()),m_goa(i.m_goa->clone()),m_a(0) {}
-
-island &island::operator=(const island &i)
-{
-	m_pop = i.get_pop();
-	m_gop.reset(i.m_gop->clone());
-	m_goa.reset(i.m_goa->clone());
-	return *this;
-}
-
-island::~island()
-{
-	lock_type lock(m_mutex);
-}
-
-void island::evolve()
-{
-	boost::thread(evolver(this));
-}
-
-Population island::get_pop() const
-{
-	lock_type lock(m_mutex);
-	return Population(m_pop);
-}
-
-void island::set_archipelago(archipelago *a)
-{
-	m_a = a;
-}
-
-void island::evolver::operator()()
-{
-	if (!m_i->m_mutex.try_lock()) {
-		std::cout << "Cannot start evolution while already evolving.\n";
-		return;
-	}
-	try {
-		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop,*m_i->m_gop);
-		std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
-	} catch (const std::exception &e) {
-		std::cout << "Error during evolution: " << e.what() << '\n';
-	}
-	m_i->m_mutex.unlock();
-}
+#endif

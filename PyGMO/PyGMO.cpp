@@ -137,5 +137,4 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<int, GOProblem &, const go_algorithm &>());
 	class_island.def("evolve", &island::evolve, "Evolve population on the island.");
-	class_island.add_property("population", &island::get_pop, "Island's population.");
 }

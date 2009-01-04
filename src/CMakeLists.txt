@@ -17,6 +17,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/SGA.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/go_algorithm.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/individual.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/archipelago.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp

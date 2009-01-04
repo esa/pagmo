@@ -29,17 +29,22 @@
 #include "../problems/GOproblem.h"
 #include "population.h"
 
+class archipelago;
+
 class island
 {
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
+		friend class archipelago;
 	public:
 		island(int, GOProblem &, const go_algorithm &);
 		island(const island &);
+		island &operator=(const island &);
 		~island();
 		Population get_pop() const;
 		void evolve();
 	private:
+		void set_archipelago(archipelago *);
 		struct evolver {
 			evolver(island *i):m_i(i) {}
 			void operator()();
@@ -48,6 +53,7 @@ class island
 		Population				m_pop;
 		boost::scoped_ptr<GOProblem>		m_gop;
 		boost::scoped_ptr<go_algorithm>		m_goa;
+		archipelago				*m_a;
 		mutable mutex_type			m_mutex;
 };
 
