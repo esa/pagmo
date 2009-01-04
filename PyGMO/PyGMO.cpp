@@ -137,6 +137,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("best", &Population::extractBestIndividual, return_internal_reference<>(), "Return best individual.");
 	class_pop.def("worst", &Population::extractWorstIndividual, return_internal_reference<>(), "Return worst individual.");
 	class_pop.def("extract_random_deme", &Population::extractRandomDeme, "Extract random deme.");
+	class_pop.def("problem", &Population::problem, return_internal_reference<>(), "Return problem.");
 
 	// Expose base GOProblem class.
 	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", no_init);

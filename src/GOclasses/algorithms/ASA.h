@@ -13,7 +13,6 @@
 #include <vector>
 #include <cmath>
 
-#include "GOproblem.h"
 #include "constants.h"
 #include "go_algorithm.h"
 #include "individual.h"
@@ -24,7 +23,7 @@ public:
 	//This method initialise the SA-AN algorithm starting and final temperature setting deafult values for
 	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.
 	ASAalgorithm(int, const double &, const double &);
-	virtual Population evolve(const Population &, const GOProblem &);
+	virtual Population evolve(const Population &) const;
 	virtual ASAalgorithm *clone() const {return new ASAalgorithm(*this);}
 private:
 	const size_t niterTot;
@@ -33,7 +32,6 @@ private:
 	const double Ts;
 	const double Tf;
 	const double StartStep;
-	size_t niterOuter;
 };
 
 #endif

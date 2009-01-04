@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../../exceptions.h"
 #include "individual.h"
 #include "rng.h"
 
@@ -21,10 +22,9 @@
 
 	Individual::Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):
 		x(x_),v(v_),fitness(fitness_) {
-		// In case the input vectors have different sizes, make sure both x and v have the max size.
-		const size_t max_size = std::max<size_t>(x.size(),v.size());
-		x.resize(max_size);
-		v.resize(max_size);
+		if (x.size() != v.size()) {
+			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
+		}
 	}
 
 	// Resize the individual to the size of the problem and fill it with random values.

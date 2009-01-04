@@ -66,7 +66,7 @@ void island::evolver::operator()()
 		return;
 	}
 	try {
-		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop,m_i->m_pop.problem());
+		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 		std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
