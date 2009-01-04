@@ -36,18 +36,4 @@ private:
 	size_t niterOuter;
 };
 
-class mt_asa_algorithm {
-	public:
-		mt_asa_algorithm(int n, const GOProblem &p, const double &Ts, const double &Tf):
-			m_asa(n,p,Ts,Tf) {}
-		void evolve(const Population &, GOProblem &);
-	private:
-		struct evolver {
-			void operator()(ASAalgorithm &asa, const Population &pop, GOProblem *prob) {
-				asa.evolve(Population(pop),*prob);
-			}
-		};
-		ASAalgorithm m_asa;
-};
-
 #endif

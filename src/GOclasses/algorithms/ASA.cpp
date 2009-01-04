@@ -126,7 +126,3 @@ Population ASAalgorithm::evolve(const Population &pop, GOProblem &problem) {
 	}
 	return newpop;
 	}
-
-void mt_asa_algorithm::evolve(const Population &pop, GOProblem &prob) {
-	boost::thread thr(evolver(),m_asa,pop,&prob);
-}
