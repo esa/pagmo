@@ -15,11 +15,11 @@
 #include "population.h"
 #include "rng.h"
 
-	Population::Population(GOProblem &p):m_problem(p.clone()) {}
+	Population::Population(const GOProblem &p):m_problem(p.clone()) {}
 
-	Population::Population(GOProblem &p, int N):m_problem(p.clone())
+	Population::Population(const GOProblem &p, int N):m_problem(p.clone())
 	{
-		createRandomPopulation(p,N);
+		createRandomPopulation(N);
 	}
 
 	Population::Population(const Population &p):pop(p.pop),m_problem(p.m_problem->clone()) {}
@@ -31,11 +31,11 @@
 		return *this;
 	}
 
-	void Population::createRandomPopulation(GOProblem &problem, int N)
+	void Population::createRandomPopulation(int N)
 	{
 		pop.clear();
 		for (int i=0; i < N; i++){
-			pop.push_back(Individual(problem));
+			pop.push_back(Individual(*m_problem));
 		}
 	};
 

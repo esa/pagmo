@@ -28,7 +28,7 @@ class go_algorithm
 {
 	public:
 		go_algorithm();
-		virtual Population evolve(const Population &, GOProblem &) = 0;
+		virtual Population evolve(const Population &, const GOProblem &) = 0;
 		virtual go_algorithm *clone() const = 0;
 	protected:
 		rng_double drng;

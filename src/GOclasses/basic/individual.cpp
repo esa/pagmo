@@ -14,7 +14,7 @@
 #include "individual.h"
 #include "rng.h"
 
-	Individual::Individual(GOProblem &problem):
+	Individual::Individual(const GOProblem &problem):
 		x(problem.getLB().size()),v(problem.getLB().size()),fitness(0) {
 		init(problem);
 	}
@@ -28,7 +28,7 @@
 	}
 
 	// Resize the individual to the size of the problem and fill it with random values.
-	void Individual::init(GOProblem &problem) {
+	void Individual::init(const GOProblem &problem) {
 		static_rng_double drng;
 		// Store local references.
 		const std::vector<double> &LB = problem.getLB(), &UB = problem.getUB();

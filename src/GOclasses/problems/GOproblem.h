@@ -22,7 +22,7 @@ public:
 	// Dimension getter
 	size_t getDimension() const {return LB.size();}
 	// The objective function - must be implemented in subclasses
-	virtual double objfun(const std::vector<double> &) = 0;
+	virtual double objfun(const std::vector<double> &) const = 0;
 	virtual GOProblem *clone() const = 0;
 protected:
 	// Constructor with array bounds initialisers

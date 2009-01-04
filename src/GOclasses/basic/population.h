@@ -22,12 +22,13 @@
 class Population{
 public:
 	//Methods
-	Population(GOProblem &);
-	Population(GOProblem &, int);
+	Population(const GOProblem &);
+	Population(const GOProblem &, int);
 	Population(const Population &);
 	Population &operator=(const Population &);
 	void push_back(const Individual &);
 	size_t size () const;
+	const GOProblem &problem() const {return *m_problem;}
 	double evaluateMean() const;
 	double evaluateStd() const;
 	const Individual &extractBestIndividual() const;
@@ -40,7 +41,7 @@ public:
 	Individual &operator[](const size_t &);
 	const Individual &operator[](const size_t &) const;
 private:
-	void createRandomPopulation(GOProblem &, int);
+	void createRandomPopulation(int);
 	template <class Functor>
 	const Individual &extract_most() const {
 		if (pop.empty()) {
@@ -73,10 +74,8 @@ private:
 			}
 		}
 	}
-	std::vector<Individual>		pop;
-	// TODO: make pointer to _const_ GOProblem, once we get the const things about problems
-	// worked out.
-	boost::scoped_ptr<GOProblem>	m_problem;
+	std::vector<Individual>			pop;
+	boost::scoped_ptr<const GOProblem>	m_problem;
 };
 
 std::ostream &operator<<(std::ostream &, const Population &);

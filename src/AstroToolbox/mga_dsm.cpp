@@ -308,7 +308,7 @@ void final_block(const mgadsmproblem& problem, const std::vector<double*>& , con
 int MGA_DSM(
 			/* INPUT values: */ //[MR] make this parameters const, if they are not modified and possibly references (especially 'problem').
 			vector<double> t,	// it is the vector which provides time in modified julian date 2000. [MR] ??? Isn't it the decision vetor ???
-			mgadsmproblem& problem,
+			const mgadsmproblem& problem,
 
 			/* OUTPUT values: */
 			double &J    // output

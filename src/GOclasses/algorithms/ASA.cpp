@@ -27,7 +27,7 @@
 		}
 	}
 
-Population ASAalgorithm::evolve(const Population &pop, GOProblem &problem) {
+Population ASAalgorithm::evolve(const Population &pop, const GOProblem &problem) {
 	if (pop.size() == 0) {
 		return Population(problem,0);
 	}

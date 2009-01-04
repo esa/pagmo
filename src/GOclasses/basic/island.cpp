@@ -27,14 +27,13 @@
 #include "island.h"
 #include "population.h"
 
-island::island(int n, GOProblem &p, const go_algorithm &al):m_pop(p,n),m_gop(p.clone()),m_goa(al.clone()),m_a(0) {}
+island::island(int n, GOProblem &p, const go_algorithm &al):m_pop(p,n),m_goa(al.clone()),m_a(0) {}
 
-island::island(const island &i):m_pop(i.get_pop()),m_gop(i.m_gop->clone()),m_goa(i.m_goa->clone()),m_a(0) {}
+island::island(const island &i):m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0) {}
 
 island &island::operator=(const island &i)
 {
 	m_pop = i.get_pop();
-	m_gop.reset(i.m_gop->clone());
 	m_goa.reset(i.m_goa->clone());
 	return *this;
 }
@@ -67,7 +66,7 @@ void island::evolver::operator()()
 		return;
 	}
 	try {
-		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop,*m_i->m_gop);
+		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop,m_i->m_pop.problem());
 		std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';

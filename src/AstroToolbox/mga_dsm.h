@@ -55,16 +55,16 @@ public:
 	double DVonboard;					//Total DV on the spacecraft in km/s (only in case of time2AUs)
 
 	//Pre-allocated memory, in order to remove allocation of heap space in MGA_DSM calls
-	std::vector<double*> r;// = std::vector<double*>(n);
-	std::vector<double*> v;// = std::vector<double*>(n);
-	std::vector<double> DV;// = std::vector<double>(n+1);
+	mutable std::vector<double*> r;// = std::vector<double*>(n);
+	mutable std::vector<double*> v;// = std::vector<double*>(n);
+	mutable std::vector<double> DV;// = std::vector<double>(n+1);
 };
 
 
 int MGA_DSM(
 			/* INPUT values: */
 			std::vector<double> x ,	// it is the decision vector
-			mgadsmproblem &mgadsm,  // contains the problem specific data
+			const mgadsmproblem &mgadsm,  // contains the problem specific data
 
 			/* OUTPUT values: */
 			double &J    // J output

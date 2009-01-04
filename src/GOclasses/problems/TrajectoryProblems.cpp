@@ -36,7 +36,7 @@ messengerfullProb::messengerfullProb():GOProblem(26,lb,ub),mgadsm(orbit_insertio
 	//double ub[26] = {2200, 4.05, 1, 1, 500, 300, 300, 300, 400, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
 };
 
-double messengerfullProb::objfun(const std::vector<double>& x) {
+double messengerfullProb::objfun(const std::vector<double>& x) const {
    	double obj = 0.0;
 	MGA_DSM(x, mgadsm,
 			obj);
@@ -50,7 +50,7 @@ const int messengerProb::sequence[5] = {3, 3, 2, 2, 1};
 
 messengerProb::messengerProb():GOProblem(18,lb,ub),mgadsm(total_DV_rndv,sequence,5,0,0,0,0,0) {};
 
-double messengerProb::objfun(const std::vector<double>& x) {
+double messengerProb::objfun(const std::vector<double>& x) const {
    	double obj = 0.0;
 	MGA_DSM(x, mgadsm,
 			obj);
@@ -72,7 +72,7 @@ tandemProb::tandemProb():GOProblem(18,lb,ub),mgadsm(orbit_insertion,sequence,5,0
      double ub[18] = { 9060.215094956218, 3.611338874179, 0.527214806521, 0.657358693786, 1197.610002758771, 1394.575620926851, 1196.061120842642, 2282.478189832147, 0.802342883580, 0.888447799151, 0.686859262454, 0.297661986078, 1.543881588983, 1.456965103045, 1.469911762813, -1.262189135419, -1.184228350040, -1.053263771491};*/
 };
 
-double tandemProb::objfun(const std::vector<double>& x) {
+double tandemProb::objfun(const std::vector<double>& x) const {
     double obj = 0;
 
 	MGA_DSM(x, mgadsm, obj);
@@ -140,7 +140,7 @@ const double cassini1Prob::ub[6] = {0,400,470,400,2000,6000};
 
 cassini1Prob::cassini1Prob():GOProblem(6,lb,ub) {};
 
-double cassini1Prob::objfun(const std::vector<double>& x) {
+double cassini1Prob::objfun(const std::vector<double>& x) const {
     return cassini1(x);
 }
 
@@ -149,7 +149,7 @@ const double gtoc1Prob::ub[8] = {10000,2000,2000,2000,2000,9000,9000,9000};
 
 gtoc1Prob::gtoc1Prob():GOProblem(8,lb,ub) {};
 
-double gtoc1Prob::objfun(const std::vector<double>& x) {
+double gtoc1Prob::objfun(const std::vector<double>& x) const {
     return gtoc1(x);
 }
 
@@ -159,7 +159,7 @@ const int cassini2Prob::sequence[6] = {3, 2, 2, 3, 5, 6};
 
 cassini2Prob::cassini2Prob():GOProblem(22,lb,ub),mgadsm(total_DV_rndv,sequence,6,0,0,0,0,0) {};
 
-double cassini2Prob::objfun(const std::vector<double>& x) {
+double cassini2Prob::objfun(const std::vector<double>& x) const {
    	double obj = 0;
 	MGA_DSM(x, mgadsm,
 			obj);
@@ -182,7 +182,7 @@ rosettaProb::rosettaProb():GOProblem(22,lb,ub),mgadsm(rndv,sequence,6,0,0,0,0,0)
 	mgadsm.asteroid.mu = 0.0;
 };
 
-double rosettaProb::objfun(const std::vector<double>& x) {
+double rosettaProb::objfun(const std::vector<double>& x) const {
 	double obj = 0;
 	MGA_DSM(x, mgadsm,
 			obj);
@@ -195,7 +195,7 @@ const int sagasProb::sequence[3] = {3,3,5};
 
 sagasProb::sagasProb():GOProblem(12,lb,ub),mgadsm(time2AUs,sequence,3,50.0,6.782,1.782,0,0) {};
 
-double sagasProb::objfun(const std::vector<double>& x) {
+double sagasProb::objfun(const std::vector<double>& x)  const{
    	double obj = 0;
 	MGA_DSM(x, mgadsm,
 			obj);
