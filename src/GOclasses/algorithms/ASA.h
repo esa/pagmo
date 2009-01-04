@@ -25,6 +25,7 @@ public:
 	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.
 	ASAalgorithm(int, const GOProblem &, const double &, const double &);
 	virtual Population evolve(const Population &, GOProblem &);
+	virtual ASAalgorithm *clone() const {return new ASAalgorithm(*this);}
 private:
 	size_t niterTot;
 	size_t niterTemp;

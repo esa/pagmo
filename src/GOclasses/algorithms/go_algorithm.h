@@ -30,6 +30,7 @@ class go_algorithm
 	public:
 		go_algorithm(const GOProblem &);
 		virtual Population evolve(const Population &, GOProblem &) = 0;
+		virtual go_algorithm *clone() const = 0;
 	protected:
 		const size_t SolDim;
 		rng_double drng;

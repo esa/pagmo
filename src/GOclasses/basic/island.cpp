@@ -18,40 +18,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_EXCEPTIONS_H
-#define PAGMO_EXCEPTIONS_H
-
+#include <boost/thread/thread.hpp>
 #include <exception>
-#include <iostream>
-#include <string>
 
-#define _PAGMO_QUOTEME(x) #x
-#define PAGMO_QUOTEME(x) _PAGMO_QUOTEME(x)
-#define PAGMO_EXCTOR(s) (__FILE__ "," PAGMO_QUOTEME(__LINE__) ": " s ".")
-#define pagmo_throw(ex,s) (throw ex(PAGMO_EXCTOR(s)))
+#include "../algorithms/go_algorithm.h"
+#include "../problems/GOproblem.h"
+#include "island.h"
+#include "population.h"
 
-class base_exception: public std::exception
+island::island(int n, GOProblem &p, const go_algorithm &a):m_pop(p,n),m_gop(p.clone()),m_goa(a.clone()) {}
+
+island::island(const island &i):m_pop(i.get_pop()),m_gop(i.m_gop->clone()),m_goa(i.m_goa->clone()) {}
+
+island::~island()
 {
-	public:
-		base_exception(const std::string &s): m_what(s) {
-#ifndef PAGMO_BUILD_PYGMO
-			std::cout << m_what << '\n';
-#endif
-		}
-		virtual const char *what() const throw() {
-			return m_what.c_str();
-		}
-		virtual ~base_exception() throw() {}
-	protected:
-		std::string m_what;
-};
+	lock_type lock(m_mutex);
+}
 
-struct index_error: public base_exception {
-	index_error(const std::string &s): base_exception(s) {}
-};
+void island::evolve()
+{
+	boost::thread(evolver(this));
+}
 
-struct value_error: public base_exception {
-	value_error(const std::string &s): base_exception(s) {}
-};
+Population island::get_pop() const
+{
+	lock_type lock(m_mutex);
+	return Population(m_pop);
+}
 
-#endif
+void island::evolver::operator()()
+{
+	if (!m_i->m_mutex.try_lock()) {
+		std::cout << "Cannot start evolution while already evolving.\n";
+		return;
+	}
+	try {
+		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop,*m_i->m_gop);
+		std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
+	} catch (const std::exception &e) {
+		std::cout << "Error during evolution: " << e.what() << '\n';
+	}
+	m_i->m_mutex.unlock();
+}

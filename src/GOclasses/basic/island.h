@@ -18,40 +18,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_EXCEPTIONS_H
-#define PAGMO_EXCEPTIONS_H
+#ifndef PAGMO_ISLAND_H
+#define PAGMO_ISLAND_H
 
-#include <exception>
-#include <iostream>
-#include <string>
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
-#define _PAGMO_QUOTEME(x) #x
-#define PAGMO_QUOTEME(x) _PAGMO_QUOTEME(x)
-#define PAGMO_EXCTOR(s) (__FILE__ "," PAGMO_QUOTEME(__LINE__) ": " s ".")
-#define pagmo_throw(ex,s) (throw ex(PAGMO_EXCTOR(s)))
+#include "../algorithms/go_algorithm.h"
+#include "../problems/GOproblem.h"
+#include "population.h"
 
-class base_exception: public std::exception
+class island
 {
+		typedef boost::mutex mutex_type;
+		typedef boost::lock_guard<mutex_type> lock_type;
 	public:
-		base_exception(const std::string &s): m_what(s) {
-#ifndef PAGMO_BUILD_PYGMO
-			std::cout << m_what << '\n';
-#endif
-		}
-		virtual const char *what() const throw() {
-			return m_what.c_str();
-		}
-		virtual ~base_exception() throw() {}
-	protected:
-		std::string m_what;
-};
-
-struct index_error: public base_exception {
-	index_error(const std::string &s): base_exception(s) {}
-};
-
-struct value_error: public base_exception {
-	value_error(const std::string &s): base_exception(s) {}
+		island(int, GOProblem &, const go_algorithm &);
+		island(const island &);
+		~island();
+		Population get_pop() const;
+		void evolve();
+	private:
+		struct evolver {
+			evolver(island *i):m_i(i) {}
+			void operator()();
+			island *m_i;
+		};
+		Population				m_pop;
+		boost::scoped_ptr<GOProblem>		m_gop;
+		boost::scoped_ptr<go_algorithm>		m_goa;
+		mutable mutex_type			m_mutex;
 };
 
 #endif

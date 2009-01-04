@@ -32,6 +32,7 @@
 
 #include "../src/GOclasses/algorithms/ASA.h"
 #include "../src/GOclasses/basic/individual.h"
+#include "../src/GOclasses/basic/island.h"
 #include "../src/GOclasses/basic/population.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
 
@@ -79,11 +80,11 @@ static inline string Py_repr_vector(const vector<T> &v)
 }
 
 static inline void ie_translator(const index_error &ie) {
-	PyErr_SetString(PyExc_IndexError, ie.what().c_str());
+	PyErr_SetString(PyExc_IndexError, ie.what());
 }
 
 static inline void ve_translator(const value_error &ve) {
-	PyErr_SetString(PyExc_ValueError, ve.what().c_str());
+	PyErr_SetString(PyExc_ValueError, ve.what());
 }
 
 // Instantiate the PyGMO module.
@@ -133,6 +134,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose algorithms.
 	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const GOProblem &, double, double>());
 
-// 	class_<mt_asa_algorithm> class_mt_asa("mt_asa_algorithm", "Multi-thread ASA algorithm.", init<int, const GOProblem &, double, double>());
-// 	class_mt_asa("evolve", &mt_asa_algorithm::evolve, "Evolve population.");
+	// Expose island.
+	class_<island> class_island("island", "Island.", init<int, GOProblem &, const go_algorithm &>());
+	class_island.def("evolve", &island::evolve, "Evolve population on the island.");
+	class_island.add_property("population", &island::get_pop, "Island's population.");
 }
