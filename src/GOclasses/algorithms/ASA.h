@@ -23,16 +23,16 @@ class ASAalgorithm: public go_algorithm {
 public:
 	//This method initialise the SA-AN algorithm starting and final temperature setting deafult values for
 	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.
-	ASAalgorithm(int, const GOProblem &, const double &, const double &);
+	ASAalgorithm(int, const double &, const double &);
 	virtual Population evolve(const Population &, GOProblem &);
 	virtual ASAalgorithm *clone() const {return new ASAalgorithm(*this);}
 private:
-	size_t niterTot;
-	size_t niterTemp;
-	size_t niterRange;
-	double T0;
-	double Tcoeff;
-	double StartStep;
+	const size_t niterTot;
+	const size_t niterTemp;
+	const size_t niterRange;
+	const double Ts;
+	const double Tf;
+	const double StartStep;
 	size_t niterOuter;
 };
 

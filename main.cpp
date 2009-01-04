@@ -89,7 +89,7 @@ while (choice != -1) {
 			//Instanciate the algorithm
 			//Adaptive Simulated Annealing
 
-			boost::scoped_ptr<ASAalgorithm> ASA_ptr(new ASAalgorithm(niterTot,problem,T0,Tf));
+			boost::scoped_ptr<ASAalgorithm> ASA_ptr(new ASAalgorithm(niterTot,T0,Tf));
 			//ASA.initASA(niterTot,niterTemp,niterRange,LB.size(),T0,Tcoeff,StartStep, rng());
 
 			//Pruned bounds
@@ -108,7 +108,7 @@ while (choice != -1) {
 						//we evolve it
 						start1=clock();
 						if (pop.extractBestIndividual().getFitness() < 5){
-							ASA_ptr.reset(new ASAalgorithm(niterTot,problem,1,0.01));
+							ASA_ptr.reset(new ASAalgorithm(niterTot,1,0.01));
 						}
 						pop = ASA_ptr->evolve(pop,problem);
 						end1=clock();

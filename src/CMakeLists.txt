@@ -20,7 +20,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
 )
 
 # Boost thread setup.
@@ -43,6 +42,9 @@ ENDIF(UNIX)
 
 # Create a pagmo_static library if main is requested.
 IF(BUILD_MAIN)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
+	)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
 ENDIF(BUILD_MAIN)
 

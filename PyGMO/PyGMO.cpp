@@ -132,7 +132,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_goa.def("evolve", pure_virtual(&go_algorithm::evolve));
 
 	// Expose algorithms.
-	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const GOProblem &, double, double>());
+	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const double &, const double &>());
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<int, GOProblem &, const go_algorithm &>());

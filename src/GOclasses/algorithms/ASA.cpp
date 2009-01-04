@@ -7,42 +7,42 @@
  *
  */
 
-#include <boost/thread/thread.hpp>
 #include <cmath>
 #include <iostream>
 
 #include "../../exceptions.h"
 #include "../basic/individual.h"
 #include "../basic/population.h"
+#include "../problems/GOproblem.h"
 #include "ASA.h"
 #include "go_algorithm.h"
 
-	ASAalgorithm::ASAalgorithm(int niterTotInit, const GOProblem &problem, const double &Ts, const double &Tf):
-		go_algorithm(problem) {
+	ASAalgorithm::ASAalgorithm(int niterTotInit, const double &Ts_, const double &Tf_):go_algorithm(),niterTot(niterTotInit),
+		niterTemp(1),niterRange(20),Ts(Ts_),Tf(Tf_),StartStep(1) {
 		if (niterTotInit < 0) {
 			pagmo_throw(value_error,"number of generations must be nonnegative");
 		}
-		if (Ts <= 0 || Tf <= 0 || Ts <= Tf) {
+		if (Ts_ <= 0 || Tf_ <= 0 || Ts_ <= Tf_) {
 			pagmo_throw(value_error,"temperatures must be positive and Ts must be greater than Tf");
 		}
-		niterTot = niterTotInit;
-		niterTemp = 1;
-		niterRange = 20;
-		niterOuter = niterTot / (niterTemp * niterRange * SolDim);
-		T0 = Ts;
-		Tcoeff = std::pow(Tf/Ts,1.0/(double)(niterOuter));
-		StartStep = 1;
 	}
 
 Population ASAalgorithm::evolve(const Population &pop, GOProblem &problem) {
 	if (pop.size() == 0) {
 		pagmo_throw(index_error,"population's size cannot be null");
 	}
-
-    const std::vector<double> &LB = problem.getLB();
-    const std::vector<double> &UB = problem.getUB();
-    const Individual &x0 = pop[0];
-
+	const std::vector<double> &LB = problem.getLB();
+	const std::vector<double> &UB = problem.getUB();
+	const size_t SolDim = LB.size();
+	if (SolDim == 0) {
+		pagmo_throw(value_error,"problem's size cannot be null");
+	}
+	const size_t niterOuter = niterTot / (niterTemp * niterRange * SolDim);
+	if (niterOuter == 0) {
+		pagmo_throw(value_error,"niterOuter cannot be null");
+	}
+	const double Tcoeff = std::pow(Tf/Ts,1.0/(double)(niterOuter));
+	const Individual &x0 = pop[0];
 	std::vector<double> xNEW = x0.getDecisionVector(), xOLD = xNEW;
 	double fNEW = x0.getFitness(), fOLD = fNEW;
 	if (xNEW.size() != SolDim) {
@@ -50,7 +50,7 @@ Population ASAalgorithm::evolve(const Population &pop, GOProblem &problem) {
 	}
 	std::vector<double> Step(SolDim,StartStep);
 	std::vector<int> acp(SolDim,0) ;
-	double ratio = 0, currentT = T0, prob = 0,  r = 0;
+	double ratio = 0, currentT = Ts, prob = 0,  r = 0;
 
 	//Main SA loops
 	for (size_t jter = 0; jter < niterOuter; ++jter) {

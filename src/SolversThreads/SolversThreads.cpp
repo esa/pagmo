@@ -282,7 +282,7 @@ void *ASAthread(void *data)
 	rng.seed(PtrTP->randomSeed);
 	drng.seed(PtrTP->randomSeed);
 	deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
-	ASA_ptr.reset(new ASAalgorithm(PtrTP->generations,*problem,PtrTP->Ts,PtrTP->Tf));
+	ASA_ptr.reset(new ASAalgorithm(PtrTP->generations,PtrTP->Ts,PtrTP->Tf));
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
