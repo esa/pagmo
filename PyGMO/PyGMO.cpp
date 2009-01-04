@@ -35,6 +35,7 @@
 #include "../src/GOclasses/basic/island.h"
 #include "../src/GOclasses/basic/population.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
+#include "../src/exceptions.h"
 
 using namespace boost::python;
 using namespace std;
@@ -87,6 +88,22 @@ static inline void ve_translator(const value_error &ve) {
 	PyErr_SetString(PyExc_ValueError, ve.what());
 }
 
+template <class T, class Container>
+static inline T get_random_access(const Container &c, int n) {
+	const size_t size = c.size();
+	if (n >= 0) {
+		if ((size_t)n >= size) {
+			pagmo_throw(index_error,"container index out of range");
+		}
+		return c[n];
+	} else {
+		if (size < (size_t)(-n)) {
+			pagmo_throw(index_error,"container index out of range");
+		}
+		return c[size - (size_t)(-n)];
+	}
+}
+
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
 {
@@ -109,10 +126,12 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
 
 	// Expose population class.
-	class_<Population> class_pop("population", "Population.", init<>());
+	class_<Population> class_pop("population", "Population.", init<GOProblem &>());
 	class_pop.def(init<GOProblem &, int>());
+	class_pop.def("__getitem__", &get_random_access<Individual,Population>);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
-	class_pop.def(vector_indexing_suite<Population>());
+	class_pop.def("__len__", &Population::size);
+	//class_pop.def("append", &Population::push_back, "Append individual.");
 	class_pop.def("mean", &Population::evaluateMean, "Evaluate mean.");
 	class_pop.def("std", &Population::evaluateStd, "Evaluate std.");
 	class_pop.def("best", &Population::extractBestIndividual, return_internal_reference<>(), "Return best individual.");

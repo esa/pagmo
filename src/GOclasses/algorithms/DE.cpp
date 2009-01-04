@@ -269,7 +269,7 @@ Population DEalgorithm::evolve(Population deme, GOProblem& problem){
    }//end main DE iterations
 
    //we end by constructing the object Population containing the final results
-   Population popout;
+   Population popout(problem,0);
    vector <double> Xini(D),Vfin(D);
    for (i=0; i<NP; i++){
 	Xini = deme[i].getDecisionVector();

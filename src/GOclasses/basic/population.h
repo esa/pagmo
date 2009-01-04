@@ -10,6 +10,7 @@
 #ifndef POPULATION_H
 #define POPULATION_H
 
+#include <boost/scoped_ptr.hpp>
 #include <vector>
 
 #include "../../exceptions.h"
@@ -19,30 +20,14 @@
 #include "rng.h"
 
 class Population{
-	typedef std::vector<Individual> container_type;
 public:
-	// The following is needed to mimic the behaviour of a std::vector, hence easing the interfacing with Python.
-	typedef container_type::value_type value_type;
-	typedef container_type::size_type size_type;
-	typedef container_type::difference_type difference_type;
-	typedef container_type::iterator iterator;
-	typedef container_type::const_iterator const_iterator;
-	template <class InputIterator>
-	Population(InputIterator f, InputIterator l):pop(f,l) {}
-	iterator begin() {return pop.begin();}
-	const_iterator begin() const {return pop.begin();}
-	iterator end() {return pop.end();}
-	const_iterator end() const {return pop.end();}
-	size_t size () const;
-	iterator erase(iterator pos) {return pop.erase(pos);}
-	iterator erase(iterator first, iterator last) {return pop.erase(first,last);}
-	iterator insert(iterator pos, const Individual &x) {return pop.insert(pos,x);}
-	template <class InputIterator>
-	void insert(iterator pos, InputIterator f, InputIterator l) {return pop.insert(pos,f,l);}
-	void push_back(const Individual &);
 	//Methods
-	Population() {}
+	Population(GOProblem &);
 	Population(GOProblem &, int);
+	Population(const Population &);
+	Population &operator=(const Population &);
+	void push_back(const Individual &);
+	size_t size () const;
 	double evaluateMean() const;
 	double evaluateStd() const;
 	const Individual &extractBestIndividual() const;
@@ -51,17 +36,15 @@ public:
 	void insertDeme(const Population &, const std::vector<size_t> &);
 	void insertBestInDeme(const Population &, const std::vector<size_t> &);
 	void insertDemeForced(const Population &, const std::vector<size_t> &);
-
 	//Operators
 	Individual &operator[](const size_t &);
 	const Individual &operator[](const size_t &) const;
-
 private:
 	void createRandomPopulation(GOProblem &, int);
 	template <class Functor>
 	const Individual &extract_most() const {
 		if (pop.empty()) {
-			throw index_error("Population is empty.");
+			pagmo_throw(index_error,"population is empty");
 		}
 		const Functor func = Functor();
 		double f = pop[0].getFitness();
@@ -79,18 +62,21 @@ private:
 	void ll_insert_deme(const Population &deme, const std::vector<size_t> &picks) {
 		const size_t picks_size = picks.size(), pop_size = size();
 		if (picks_size != deme.size()) {
-			throw index_error("Mismatch between deme size and picks size while inserting deme.");
+			pagmo_throw (index_error,"mismatch between deme size and picks size while inserting deme");
 		}
 		for (size_t i = 0; i < picks_size; ++i) {
 			if (picks[i] >= pop_size) {
-				throw index_error("Pick value exceeds population's size while inserting deme.");
+				pagmo_throw (index_error,"pick value exceeds population's size while inserting deme");
 			}
 			if (Forced || deme[i].getFitness() < pop[picks[i]].getFitness()) {
 				pop[picks[i]] = deme[i];
 			}
 		}
 	}
-	std::vector<Individual> pop;
+	std::vector<Individual>		pop;
+	// TODO: make pointer to _const_ GOProblem, once we get the const things about problems
+	// worked out.
+	boost::scoped_ptr<GOProblem>	m_problem;
 };
 
 std::ostream &operator<<(std::ostream &, const Population &);

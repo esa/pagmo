@@ -46,7 +46,7 @@ int main(){
 		D = problem.getDimension();
 
 		//we declare populations and individuals
-		Population demeDE,demePSO,demeASA,demeLOCA,demeSGA;
+		Population demeDE(problem,0),demePSO(problem,0),demeASA(problem,0),demeLOCA(problem,0),demeSGA(problem,0);
 		//Individual x;
 		vector <int> picksDE,picksPSO,picksASA,picksLOCAL,picksSGA;
 

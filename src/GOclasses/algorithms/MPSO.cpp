@@ -164,7 +164,7 @@ Population MPSOalgorithm::evolve(Population deme, GOProblem& problem){
    } // end of main PSO loop
 
    //we end by constructing the object Population containing the final results
-   Population popout;
+   Population popout(problem,0);
    for (int i=0; i<nswarms;i++){
 	for (int j=0; j<NP; j++){
 		popout.push_back(Individual(lbX[i][j],V[i][j],lbfit[i][j]));

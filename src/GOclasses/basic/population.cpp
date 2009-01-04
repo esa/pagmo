@@ -15,41 +15,62 @@
 #include "population.h"
 #include "rng.h"
 
-	Population::Population(GOProblem &p, int N) {
+	Population::Population(GOProblem &p):m_problem(p.clone()) {}
+
+	Population::Population(GOProblem &p, int N):m_problem(p.clone())
+	{
 		createRandomPopulation(p,N);
 	}
 
-	void Population::createRandomPopulation(GOProblem &problem, int N){
+	Population::Population(const Population &p):pop(p.pop),m_problem(p.m_problem->clone()) {}
+
+	Population &Population::operator=(const Population &p)
+	{
+		pop = p.pop;
+		m_problem.reset(p.m_problem->clone());
+		return *this;
+	}
+
+	void Population::createRandomPopulation(GOProblem &problem, int N)
+	{
 		pop.clear();
 		for (int i=0; i < N; i++){
 			pop.push_back(Individual(problem));
 		}
 	};
 
-	void Population::push_back(const Individual &x){
+	void Population::push_back(const Individual &x)
+	{
+		if (x.getDecisionVector().size() != m_problem->getLB().size()) {
+			pagmo_throw(value_error,"cannot insert individual into population, size mismatch");
+		}
 		pop.push_back(x);
 	};
 
-	size_t Population::size() const {
+	size_t Population::size() const
+	{
 		return pop.size();
 	};
 
-	const Individual &Population::extractBestIndividual() const {
+	const Individual &Population::extractBestIndividual() const
+	{
 		return extract_most<std::less<double> >();
 	}
 
-	const Individual &Population::extractWorstIndividual() const {
+	const Individual &Population::extractWorstIndividual() const
+	{
 		return extract_most<std::greater<double> >();
 	}
 
-	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks) {
+	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks)
+	{
 		if (N > (int)size()) {
 			pagmo_throw(index_error,"cannot extract deme whose size is greater than the original population");
 		}
 		// Empty picks first.
 		picks.clear();
 		static_rng_double drng;
-		Population deme;
+		Population deme(*m_problem,0);
 		const size_t pop_size = size();
 		std::vector<size_t> PossiblePicks;
 		PossiblePicks.reserve(pop_size);
@@ -69,15 +90,18 @@
 		return deme;
 	};
 
-	void Population::insertDeme(const Population &deme, const std::vector<size_t> &picks) {
+	void Population::insertDeme(const Population &deme, const std::vector<size_t> &picks)
+	{
 		ll_insert_deme<false>(deme,picks);
 	}
 
-	void Population::insertDemeForced(const Population &deme, const std::vector<size_t> &picks) {
+	void Population::insertDemeForced(const Population &deme, const std::vector<size_t> &picks)
+	{
 		ll_insert_deme<true>(deme,picks);
 	}
 
-	void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks) {
+	void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks)
+	{
 		const size_t Ndeme = deme.size(), pop_size = size();
 		if (picks.size() != Ndeme) {
 			pagmo_throw(index_error,"mismatch between deme size and picks size while inserting best in deme");
@@ -103,7 +127,8 @@
 
 	}
 
-	double Population::evaluateMean() const {
+	double Population::evaluateMean() const
+	{
 		if (pop.empty()) {
 			pagmo_throw(index_error,"population is empty");
 		}
@@ -116,7 +141,8 @@
 		return mean;
 	}
 
-	double Population::evaluateStd() const {
+	double Population::evaluateStd() const
+	{
 		if (pop.empty()) {
 			pagmo_throw(index_error,"population is empty");
 		}
@@ -129,18 +155,21 @@
 		return Std;
 	}
 
-	Individual &Population::operator[](const size_t &index){
+	Individual &Population::operator[](const size_t &index)
+	{
 		return pop[index];
 	};
 
-	const Individual &Population::operator[](const size_t &index) const{
+	const Individual &Population::operator[](const size_t &index) const
+	{
 		return pop[index];
 	};
 
-	std::ostream &operator<<(std::ostream &s, const Population &pop){
-	for (size_t i = 0; i < pop.size(); ++i){
-		s << "Individual #" << i << ": " << pop[i].getFitness() << " " << pop[i] << std::endl;
+	std::ostream &operator<<(std::ostream &s, const Population &pop)
+	{
+		for (size_t i = 0; i < pop.size(); ++i) {
+			s << "Individual #" << i << ": " << pop[i].getFitness() << " " << pop[i] << std::endl;
+		}
+		return s;
 	}
-	return s;
-    }
 

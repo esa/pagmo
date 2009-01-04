@@ -29,7 +29,7 @@
 
 Population ASAalgorithm::evolve(const Population &pop, GOProblem &problem) {
 	if (pop.size() == 0) {
-		pagmo_throw(index_error,"population's size cannot be null");
+		return Population(problem,0);
 	}
 	const std::vector<double> &LB = problem.getLB();
 	const std::vector<double> &UB = problem.getUB();
@@ -118,7 +118,7 @@ Population ASAalgorithm::evolve(const Population &pop, GOProblem &problem) {
 		currentT *= Tcoeff;
 	}
 
-	Population newpop;
+	Population newpop(problem,0);
 	if (fOLD < x0.getFitness()){
 		newpop.push_back(Individual(xOLD,x0.getVelocity(),fOLD));
 	} else {

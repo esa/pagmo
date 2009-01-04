@@ -34,11 +34,11 @@ typedef boost::unique_lock<boost::mutex> lock_type;
 void *DEthread(void *data)
 {
    threadParam *PtrTP = (threadParam *)data;
-   Population deme;
    double oldfitness;
    vector<size_t> picks;
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
+   Population deme(*PtrTP->problem,0);
    DEalgorithm DE;
    rng_uint32 rng;
    rng_double drng;
@@ -95,11 +95,11 @@ void *MPSOthread(void *data)
 {
    threadParam *PtrTP;
    PtrTP = (threadParam *)data;
-   Population deme;
    double oldfitness;
    vector<size_t> picks;
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
+   Population deme(*PtrTP->problem,0);
    MPSOalgorithm MPSO;
    rng_uint32 rng;
    rng_double drng;
@@ -151,11 +151,11 @@ void *PSOthread(void *data)
 {
    threadParam *PtrTP;
    PtrTP = (threadParam *)data;
-   Population deme;
    double oldfitness;
    vector<size_t> picks;
    GOProblem* problem;
    const vector<double> &LB = PtrTP->problem->getLB();
+   Population deme(*PtrTP->problem,0);
    PSOalgorithm PSO;
    rng_uint32 rng;
    rng_double drng;
@@ -209,10 +209,10 @@ void *SGAthread(void *data)
 {
    threadParam *PtrTP;
    PtrTP = (threadParam *)data;
-   Population deme;
    double oldfitness;
    vector<size_t> picks;
    const vector<double> &LB = PtrTP->problem->getLB();
+   Population deme(*PtrTP->problem,0);
    SGAalgorithm SGA;
    rng_uint32 rng;
    rng_double drng;
@@ -266,13 +266,13 @@ void *ASAthread(void *data)
 {
    threadParam *PtrTP;
    PtrTP = (threadParam *)data;
-   Population deme;
    double oldfitness;
    vector<size_t> picks;
    boost::scoped_ptr<ASAalgorithm> ASA_ptr;
    rng_uint32 rng;
    rng_double drng;
    GOProblem *problem = PtrTP->problem;
+   Population deme(*problem,0);
 
 	clock_t start,end;
 	double dif;

@@ -171,7 +171,7 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
    } // end of main SGA loop
 
    //we end by constructing the object Population containing the final results
-   Population popout;
+   Population popout(problem,0);
    for (int i=0; i<NP; i++){
 	popout.push_back(Individual(X[i],std::vector<double>(),fit[i]));
    }
