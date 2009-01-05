@@ -23,24 +23,33 @@
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-#include <vector>
+#include <list>
 
+#include "../../config.h"
+#include "../problems/GOproblem.h"
+#include "../algorithms/go_algorithm.h"
 #include "island.h"
 
-class archipelago {
-		typedef std::vector<island> container_type;
+class __PAGMO_VISIBLE archipelago {
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
+		typedef std::list<island> container_type;
 	public:
-		typedef island value_type;
-		archipelago() {};
+		typedef container_type::iterator iterator;
+		typedef container_type::const_iterator const_iterator;
+		archipelago(const GOProblem &);
+		archipelago(int, int, const GOProblem &, const go_algorithm &);
 		archipelago(const archipelago &);
-		void push_back(const value_type &);
+		void push_back(int, const go_algorithm &);
+		const_iterator begin() const {return m_container.begin();}
+		const_iterator end() const {return m_container.end();}
 		size_t size() const;
-		island get_island(int &) const;
 	private:
-		container_type		m_container;
-		mutable mutex_type	m_mutex;
+		iterator begin() {return m_container.begin();}
+		iterator end() {return m_container.end();}
+		container_type						m_container;
+		boost::scoped_ptr<const GOProblem>	m_gop;
+		mutable mutex_type					m_mutex;
 };
 
 #endif

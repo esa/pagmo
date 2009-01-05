@@ -28,7 +28,7 @@
 #include "island.h"
 #include "population.h"
 
-island::island(int n, GOProblem &p, const go_algorithm &al):m_pop(p,n),m_goa(al.clone()),m_a(0) {}
+island::island(int n, const GOProblem &p, const go_algorithm &al):m_pop(p,n),m_goa(al.clone()),m_a(0) {}
 
 island::island(const island &i):m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0) {}
 

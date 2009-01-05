@@ -38,7 +38,7 @@ class __PAGMO_VISIBLE island
 		typedef boost::lock_guard<mutex_type> lock_type;
 		friend class archipelago;
 	public:
-		island(int, GOProblem &, const go_algorithm &);
+		island(int, const GOProblem &, const go_algorithm &);
 		island(const island &);
 		island &operator=(const island &);
 		~island();

@@ -18,29 +18,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include "../problems/GOproblem.h"
+#include "../algorithms/go_algorithm.h"
 #include "archipelago.h"
+#include "island.h"
 
-archipelago::archipelago(const archipelago &a):m_container(a.m_container) {}
+archipelago::archipelago(const GOProblem &p):m_gop(p.clone()) {}
+
+archipelago::archipelago(int N, int M, const GOProblem &p, const go_algorithm &a):m_gop(p.clone())
+{
+	for (int i = 0; i < N; ++i) {
+		push_back(M,a);
+	}
+}
+
+archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(a.m_gop->clone())
+{
+	const iterator it_f = end();
+	for (iterator it = begin(); it != it_f; ++it) {
+		it->set_archipelago(this);
+	}
+}
 
 size_t archipelago::size() const
 {
 	return m_container.size();
 }
 
-void archipelago::push_back(const value_type &i)
+void archipelago::push_back(int N, const go_algorithm &a)
 {
-	m_container.push_back(i);
+	m_container.push_back(island(N,*m_gop,a));
 	m_container.back().set_archipelago(this);
 }
-
-// const island &archipelago::operator[](const size_t &n) const
-// {
-// 	return m_container[n];
-// }
-
-// island &archipelago::operator[](const size_t &n)
-// {
-// 	return m_container[n];
-// }
-
-

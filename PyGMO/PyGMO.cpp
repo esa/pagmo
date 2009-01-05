@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "../src/GOclasses/algorithms/ASA.h"
+#include "../src/GOclasses/basic/archipelago.h"
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/island.h"
 #include "../src/GOclasses/basic/population.h"
@@ -51,7 +52,7 @@ struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 
 struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
 {
-	Population evolve(const Population &pop, GOProblem &prob)
+	Population evolve(const Population &pop, const GOProblem &prob)
 	{
 		return this->get_override("evolve")(pop,prob);
 	}
@@ -122,13 +123,13 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_vs.def(vector_indexing_suite<vector<size_t> >());
 
 	// Expose individual class.
-	class_<Individual> class_ind("individual", "Individual.", init<GOProblem &>());
+	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
 	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
 
 	// Expose population class.
-	class_<Population> class_pop("population", "Population.", init<GOProblem &>());
-	class_pop.def(init<GOProblem &, int>());
+	class_<Population> class_pop("population", "Population.", init<const GOProblem &>());
+	class_pop.def(init<const GOProblem &, int>());
 	class_pop.def("__getitem__", &get_random_access<Individual,Population>);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
 	class_pop.def("__len__", &Population::size);
@@ -156,6 +157,10 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const double &, const double &>());
 
 	// Expose island.
-	class_<island> class_island("island", "Island.", init<int, GOProblem &, const go_algorithm &>());
+	class_<island> class_island("island", "Island.", init<int, const GOProblem &, const go_algorithm &>());
 	class_island.def("evolve", &island::evolve, "Evolve population on the island.");
+
+	// Expose archipelago.
+	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
+	class_arch.def(init<int, int, const GOProblem &, const go_algorithm &>());
 }
