@@ -30,6 +30,7 @@ class go_algorithm
 		go_algorithm();
 		virtual Population evolve(const Population &) const = 0;
 		virtual go_algorithm *clone() const = 0;
+        virtual ~go_algorithm() {}
 	protected:
 		mutable rng_double drng;
 };

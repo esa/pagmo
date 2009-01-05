@@ -19,8 +19,9 @@
  *****************************************************************************/
 
 #include <boost/thread/thread.hpp>
-#include <exception>
+#include <stdexcept>
 
+#include "../../exceptions.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
 #include "archipelago.h"
@@ -45,6 +46,9 @@ island::~island()
 
 void island::evolve()
 {
+	if (!m_mutex.try_lock()) {
+		pagmo_throw(std::runtime_error,"cannot start evolution while already evolving");
+	}
 	boost::thread(evolver(this));
 }
 
@@ -61,10 +65,6 @@ void island::set_archipelago(archipelago *a)
 
 void island::evolver::operator()()
 {
-	if (!m_i->m_mutex.try_lock()) {
-		std::cout << "Cannot start evolution while already evolving.\n";
-		return;
-	}
 	try {
 		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 		std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';

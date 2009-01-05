@@ -27,6 +27,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
