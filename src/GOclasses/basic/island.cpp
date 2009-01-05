@@ -48,7 +48,14 @@ island::~island()
 void island::evolve(int N)
 {
 	if (!m_mutex.try_lock()) {
-		pagmo_throw(std::runtime_error,"cannot start evolution while already evolving");
+// WORKAROUND: apparently there are some issues here with  exception throwing
+// under MinGW whem evolution is running in another thread. This needs to be investigated.
+#ifdef PAGMO_WIN32
+		std::cout << "Cannot evolve while still evolving!\n";
+		return;
+#else
+		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
+#endif
 	}
 	boost::thread(int_evolver(this,N));
 }
@@ -56,7 +63,12 @@ void island::evolve(int N)
 void island::evolve_t(const double &t)
 {
 	if (!m_mutex.try_lock()) {
-		pagmo_throw(std::runtime_error,"cannot start evolution while already evolving");
+#ifdef PAGMO_WIN32
+		std::cout << "Cannot evolve while still evolving!\n";
+		return;
+#else
+		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
+#endif
 	}
 	boost::thread(t_evolver(this,t));
 }
