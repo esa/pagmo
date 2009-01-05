@@ -43,13 +43,21 @@ class __PAGMO_VISIBLE island
 		island &operator=(const island &);
 		~island();
 		Population get_pop() const;
-		void evolve();
+		void evolve(int n = 1);
+		void evolve_t(const double &);
 	private:
 		void set_archipelago(archipelago *);
-		struct evolver {
-			evolver(island *i):m_i(i) {}
+		struct int_evolver {
+			int_evolver(island *i, int n):m_i(i),m_n(n) {}
 			void operator()();
-			island *m_i;
+			island 		*m_i;
+			const int	m_n;
+		};
+		struct t_evolver {
+			t_evolver(island *i, const double &t):m_i(i),m_t(t) {}
+			void operator()();
+			island 			*m_i;
+			const double	m_t;
 		};
 		Population				m_pop;
 		boost::scoped_ptr<GOProblem>		m_gop;

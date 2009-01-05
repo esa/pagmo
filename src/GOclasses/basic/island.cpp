@@ -19,6 +19,7 @@
  *****************************************************************************/
 
 #include <boost/thread/thread.hpp>
+#include <boost/timer.hpp>
 #include <stdexcept>
 
 #include "../../exceptions.h"
@@ -44,12 +45,20 @@ island::~island()
 	lock_type lock(m_mutex);
 }
 
-void island::evolve()
+void island::evolve(int N)
 {
 	if (!m_mutex.try_lock()) {
 		pagmo_throw(std::runtime_error,"cannot start evolution while already evolving");
 	}
-	boost::thread(evolver(this));
+	boost::thread(int_evolver(this,N));
+}
+
+void island::evolve_t(const double &t)
+{
+	if (!m_mutex.try_lock()) {
+		pagmo_throw(std::runtime_error,"cannot start evolution while already evolving");
+	}
+	boost::thread(t_evolver(this,t));
 }
 
 Population island::get_pop() const
@@ -63,13 +72,36 @@ void island::set_archipelago(archipelago *a)
 	m_a = a;
 }
 
-void island::evolver::operator()()
+void island::int_evolver::operator()()
 {
 	try {
-		m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
-		std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
+		for (int i = 0; i < m_n; ++i) {
+			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
+			std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
+		}
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
+	} catch (...) {
+		std::cout << "Unknown exception caught. :(\n";
+	}
+	m_i->m_mutex.unlock();
+}
+
+void island::t_evolver::operator()()
+{
+	try {
+		boost::timer timer;
+		while (true) {
+			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
+			std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
+			if (timer.elapsed() > m_t) {
+				break;
+			}
+		}
+	} catch (const std::exception &e) {
+		std::cout << "Error during evolution: " << e.what() << '\n';
+	} catch (...) {
+		std::cout << "Unknown exception caught. :(\n";
 	}
 	m_i->m_mutex.unlock();
 }

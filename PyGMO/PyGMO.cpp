@@ -22,6 +22,7 @@
 #include <boost/python/errors.hpp>
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
+#include <boost/python/overloads.hpp>
 #include <boost/python/pure_virtual.hpp>
 #include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -106,6 +107,8 @@ static inline T get_random_access(const Container &c, int n) {
 	}
 }
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
+
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
 {
@@ -158,7 +161,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<int, const GOProblem &, const go_algorithm &>());
-	class_island.def("evolve", &island::evolve, "Evolve population on the island.");
+	class_island.def("evolve", &island::evolve, island_evolve_overloads());
+	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
 
 	// Expose archipelago.
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
