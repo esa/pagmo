@@ -12,7 +12,9 @@
 
 #include <vector>
 
-class GOProblem {
+#include "../../config.h"
+
+class __PAGMO_VISIBLE GOProblem {
 public:
 	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {};

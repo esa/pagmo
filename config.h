@@ -9,4 +9,16 @@
 #error "The GCC compiler is needed to compile PaGMO."
 #endif
 
+#ifdef PAGMO_WIN32
+#ifdef PAGMO_DLL_EXPORT_API
+#define __PAGMO_VISIBLE __declspec(dllexport)
+#elif defined ( PAGMO_DLL_IMPORT_API )
+#define __PAGMO_VISIBLE __declspec(dllimport)
+#else
+#define __PAGMO_VISIBLE
+#endif
+#else
+#define __PAGMO_VISIBLE __attribute__ ((visibility("default")))
+#endif
+
 #endif

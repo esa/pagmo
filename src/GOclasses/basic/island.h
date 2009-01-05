@@ -25,13 +25,14 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include "../../config.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
 #include "population.h"
 
 class archipelago;
 
-class island
+class __PAGMO_VISIBLE island
 {
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;

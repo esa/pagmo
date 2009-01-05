@@ -13,10 +13,11 @@
 #include <iostream>
 #include <vector>
 
+#include "../../config.h"
 #include "GOproblem.h"
 #include "rng.h"
 
-class Individual{
+class __PAGMO_VISIBLE Individual{
 
 public:
 	Individual(const std::vector<double> &, const std::vector<double> &, const double &);
@@ -32,6 +33,6 @@ private:
 	double fitness;
 };
 
-std::ostream &operator<<(std::ostream &, const Individual &);
+std::ostream & __PAGMO_VISIBLE operator<<(std::ostream &, const Individual &);
 
 #endif

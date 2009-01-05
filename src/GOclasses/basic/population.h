@@ -13,13 +13,14 @@
 #include <boost/scoped_ptr.hpp>
 #include <vector>
 
+#include "../../config.h"
 #include "../../exceptions.h"
 #include "GOproblem.h"
 #include "constants.h"
 #include "individual.h"
 #include "rng.h"
 
-class Population{
+class __PAGMO_VISIBLE Population{
 public:
 	//Methods
 	Population(const GOProblem &);
@@ -78,6 +79,6 @@ private:
 	boost::scoped_ptr<const GOProblem>	m_problem;
 };
 
-std::ostream &operator<<(std::ostream &, const Population &);
+std::ostream & __PAGMO_VISIBLE operator<<(std::ostream &, const Population &);
 
 #endif

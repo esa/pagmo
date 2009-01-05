@@ -12,6 +12,7 @@
 
 #include <vector>
 
+#include "../../config.h"
 #include "GOproblem.h"
 #include "mga_dsm.h"
 #include "misc4Tandem.h"
@@ -60,7 +61,7 @@ private:
 	static const int sequence[5];
 };	//end class messengerProb
 
-class messengerfullProb : public GOProblem {
+class __PAGMO_VISIBLE messengerfullProb : public GOProblem {
 public:
 
 	messengerfullProb();

@@ -13,12 +13,13 @@
 #include <vector>
 #include <cmath>
 
+#include "../../config.h"
 #include "constants.h"
 #include "go_algorithm.h"
 #include "individual.h"
 #include "population.h"
 
-class ASAalgorithm: public go_algorithm {
+class __PAGMO_VISIBLE ASAalgorithm: public go_algorithm {
 public:
 	//This method initialise the SA-AN algorithm starting and final temperature setting deafult values for
 	//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.

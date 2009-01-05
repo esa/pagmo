@@ -22,9 +22,10 @@
 #define PAGMO_GO_ALGORITHM_H
 
 #include "../../Functions/rng/rng.h"
+#include "../../config.h"
 #include "../basic/population.h"
 
-class go_algorithm
+class __PAGMO_VISIBLE go_algorithm
 {
 	public:
 		go_algorithm();
