@@ -8,7 +8,6 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisab
 # Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 INCLUDE(CheckTypeSize)
-INCLUDE(PaGMOPythonSetup)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
@@ -61,6 +60,10 @@ ENDIF(UNIX)
 
 CHECK_TYPE_SIZE("void *" POINTER_SIZE)
 MESSAGE(STATUS "Pointer size = ${POINTER_SIZE}")
+
+IF(BUILD_PYGMO)
+	INCLUDE(PaGMOPythonSetup)
+ENDIF(BUILD_PYGMO)
 
 ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
 IF(BUILD_PYGMO)

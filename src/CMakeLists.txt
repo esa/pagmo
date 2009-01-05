@@ -25,7 +25,6 @@ SET(PAGMO_LIB_SRC_LIST
 
 # Boost thread setup.
 ADD_DEFINITIONS(-DBOOST_THREAD_BUILD_LIB)
-SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST} boost_thread/tss_null.cpp)
 IF(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/exceptions.cpp
