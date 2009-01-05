@@ -50,3 +50,8 @@ void archipelago::push_back(int N, const go_algorithm &a)
 	m_container.push_back(island(N,*m_gop,a));
 	m_container.back().set_archipelago(this);
 }
+
+const GOProblem &archipelago::problem() const
+{
+	return *m_gop;
+}

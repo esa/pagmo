@@ -44,6 +44,7 @@ class __PAGMO_VISIBLE archipelago {
 		const_iterator begin() const {return m_container.begin();}
 		const_iterator end() const {return m_container.end();}
 		size_t size() const;
+		const GOProblem &problem() const;
 	private:
 		iterator begin() {return m_container.begin();}
 		iterator end() {return m_container.end();}

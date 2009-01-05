@@ -33,6 +33,11 @@ private:
 	double fitness;
 };
 
-std::ostream & __PAGMO_VISIBLE operator<<(std::ostream &, const Individual &);
+inline std::ostream &operator<<(std::ostream &s, const Individual &ind) {
+	for (size_t i = 0; i < ind.x.size(); ++i) {
+		s << ind.x[i] << " ";
+	}
+	return s;
+}
 
 #endif

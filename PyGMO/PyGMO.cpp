@@ -163,4 +163,6 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose archipelago.
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<int, int, const GOProblem &, const go_algorithm &>());
+	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");
+	class_arch.def("append", &archipelago::push_back, "Append island.");
 }

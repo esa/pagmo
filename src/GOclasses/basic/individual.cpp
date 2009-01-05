@@ -41,11 +41,3 @@
 		// Evaluation of fitness.
 		fitness = problem.objfun(x);
 	}
-
-	std::ostream &operator<<(std::ostream &s, const Individual &ind) {
-		for (size_t i = 0; i < ind.x.size(); ++i) {
-			s << ind.x[i] << " ";
-		}
-		return s;
-	}
-
