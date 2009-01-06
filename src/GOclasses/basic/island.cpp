@@ -87,7 +87,7 @@ void island::join() const {
 	lock_type lock(m_mutex);
 }
 
-bool island::active() const {
+bool island::busy() const {
 	if (!m_mutex.try_lock()) {
 		return true;
 	}

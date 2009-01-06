@@ -111,6 +111,7 @@ static inline T get_random_access(const Container &c, int n) {
 }
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 1)
 
 // Instantiate the PyGMO module.
 BOOST_PYTHON_MODULE(_PyGMO)
@@ -168,11 +169,15 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.def("evolve", &island::evolve, island_evolve_overloads());
 	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
 	class_island.def("join", &island::join, "Block until evolution has terminated.");
-	class_island.add_property("active", &island::active, "True if island is evolving, false otherwise.");
+	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
 
 	// Expose archipelago.
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<int, int, const GOProblem &, const go_algorithm &>());
 	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
+	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
+	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
+	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
+	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
 }

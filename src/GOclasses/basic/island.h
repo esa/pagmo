@@ -48,7 +48,7 @@ class __PAGMO_VISIBLE island
 		void evolve(int n = 1);
 		void evolve_t(const double &);
 		void join() const;
-		bool active() const;
+		bool busy() const;
 	private:
 		void set_archipelago(archipelago *);
 		struct int_evolver {

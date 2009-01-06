@@ -45,6 +45,10 @@ class __PAGMO_VISIBLE archipelago {
 		const_iterator end() const {return m_container.end();}
 		size_t size() const;
 		const GOProblem &problem() const;
+		void join() const;
+		bool busy() const;
+		void evolve(int n = 1);
+		void evolve_t(const double &);
 	private:
 		iterator begin() {return m_container.begin();}
 		iterator end() {return m_container.end();}

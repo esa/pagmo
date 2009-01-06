@@ -55,3 +55,38 @@ const GOProblem &archipelago::problem() const
 {
 	return *m_gop;
 }
+
+void archipelago::join() const
+{
+	const const_iterator it_f = m_container.end();
+	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
+		it->join();
+	}
+}
+
+bool archipelago::busy() const
+{
+	const const_iterator it_f = m_container.end();
+	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
+		if (it->busy()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void archipelago::evolve(int n)
+{
+	const iterator it_f = m_container.end();
+	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		it->evolve(n);
+	}
+}
+
+void archipelago::evolve_t(const double &t)
+{
+	const iterator it_f = m_container.end();
+	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		it->evolve_t(t);
+	}
+}
