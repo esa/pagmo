@@ -1,22 +1,22 @@
-/***************************************************************************
- *   Copyright (C) 2007, 2008 by Francesco Biscani   *
- *   bluescarni@gmail.com   *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/*****************************************************************************
+ *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
 #include <boost/python/class.hpp>
 #include <boost/python/errors.hpp>
@@ -175,7 +175,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose archipelago.
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<int, int, const GOProblem &, const go_algorithm &>());
-	class_arch.def("__iter__",boost::python::iterator<archipelago>());
+	class_arch.def("__iter__", boost::python::iterator<archipelago,return_internal_reference<> >());
+	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
