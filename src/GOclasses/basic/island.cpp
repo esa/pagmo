@@ -18,9 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/timer.hpp>
 #include <stdexcept>
 
 #include "../../atomic_counters/atomic_counters.h"
@@ -129,11 +129,12 @@ void island::int_evolver::operator()()
 void island::t_evolver::operator()()
 {
 	try {
-		boost::timer timer;
+		const boost::posix_time::ptime start = boost::posix_time::second_clock::local_time();
 		while (true) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
-			if (timer.elapsed() > m_t) {
+			const boost::posix_time::time_duration diff = boost::posix_time::second_clock::local_time() - start;
+			if (diff.total_seconds() > m_t) {
 				break;
 			}
 		}
