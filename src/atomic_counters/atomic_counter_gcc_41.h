@@ -23,16 +23,16 @@ namespace PaGMO
 				__sync_sub_and_fetch(&(this->m_value),static_cast<IntType>(n));
 				return *this;
 			}
-			atomic_counter_gcc41 &operator++() {
+			atomic_counter_gcc_41 &operator++() {
 				return operator+=(static_cast<IntType>(1));
 			}
-			atomic_counter_gcc41 &operator--() {
+			atomic_counter_gcc_41 &operator--() {
 				return operator-=(static_cast<IntType>(1));
 			}
-			atomic_counter_gcc41 operator++(int) {
+			atomic_counter_gcc_41 operator++(int) {
 				return atomic_counter_gcc_41(__sync_fetch_and_add(&(this->m_value),1));
 			}
-			atomic_counter_gcc41 operator--(int) {
+			atomic_counter_gcc_41 operator--(int) {
 				return atomic_counter_gcc_41(__sync_fetch_and_sub(&(this->m_value),1));
 			}
 			template <class IntType2>
