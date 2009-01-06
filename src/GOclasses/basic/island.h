@@ -63,8 +63,8 @@ class __PAGMO_VISIBLE island
 		static size_t get_new_id();
 		size_t			m_id;
 		Population				m_pop;
-		boost::scoped_ptr<GOProblem>		m_gop;
-		boost::scoped_ptr<go_algorithm>		m_goa;
+		boost::scoped_ptr<const GOProblem>		m_gop;
+		boost::scoped_ptr<const go_algorithm>		m_goa;
 		archipelago				*m_a;
 		mutable mutex_type			m_mutex;
 		static size_t			id_counter;
