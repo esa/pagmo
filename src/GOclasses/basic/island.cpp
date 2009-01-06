@@ -55,7 +55,7 @@ island &island::operator=(const island &i)
 
 island::~island()
 {
-	lock_type lock(m_mutex);
+	join();
 }
 
 void island::evolve(int N)
@@ -84,6 +84,18 @@ void island::evolve_t(const double &t)
 #endif
 	}
 	boost::thread(t_evolver(this,t));
+}
+
+void island::join() const {
+	lock_type lock(m_mutex);
+}
+
+bool island::active() const {
+	if (!m_mutex.try_lock()) {
+		return true;
+	}
+	m_mutex.unlock();
+	return false;
 }
 
 size_t island::id() const

@@ -167,6 +167,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("id", &island::id, "Identification number.");
 	class_island.def("evolve", &island::evolve, island_evolve_overloads());
 	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
+	class_island.def("join", &island::join, "Block until evolution has terminated.");
+	class_island.add_property("active", &island::active, "True if island is evolving, false otherwise.");
 
 	// Expose archipelago.
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
