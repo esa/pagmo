@@ -45,6 +45,9 @@ using namespace std;
 
 struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 {
+#if defined ( __GNUC__ ) && GCC_VERSION < 400000
+	GOProblemWrap(const size_t &s, const double *d1, const double *d2):GOProblem(s,d1,d2) {}
+#endif
 	double objfun(const vector<double> &x)
 	{
 		return this->get_override("objfun")(x);
