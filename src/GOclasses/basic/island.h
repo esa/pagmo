@@ -30,6 +30,7 @@
 #include "../../config.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
+#include "individual.h"
 #include "population.h"
 
 class archipelago;
@@ -48,6 +49,10 @@ class __PAGMO_VISIBLE island
 		Population get_pop() const;
 		const GOProblem &problem() const;
 		const go_algorithm &algorithm() const;
+		double mean() const;
+		double std() const;
+		Individual best() const;
+		Individual worst() const;
 		size_t size() const;
 		size_t id() const;
 		void evolve(int n = 1);
@@ -71,7 +76,6 @@ class __PAGMO_VISIBLE island
 		static size_t get_new_id();
 		size_t			m_id;
 		Population				m_pop;
-		boost::scoped_ptr<const GOProblem>		m_gop;
 		boost::scoped_ptr<const go_algorithm>		m_goa;
 		archipelago				*m_a;
 		mutable mutex_type				m_mutex;

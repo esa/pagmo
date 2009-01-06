@@ -54,4 +54,8 @@ struct value_error: public base_exception {
 	value_error(const std::string &s): base_exception(s) {}
 };
 
+struct type_error: public base_exception {
+	type_error(const std::string &s): base_exception(s) {}
+};
+
 #endif

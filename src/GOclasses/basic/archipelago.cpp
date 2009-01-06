@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include "../../exceptions.h"
 #include "../problems/GOproblem.h"
 #include "../algorithms/go_algorithm.h"
 #include "archipelago.h"
@@ -28,7 +29,7 @@ archipelago::archipelago(const GOProblem &p):m_gop(p.clone()) {}
 archipelago::archipelago(int N, int M, const GOProblem &p, const go_algorithm &a):m_gop(p.clone())
 {
 	for (int i = 0; i < N; ++i) {
-		push_back(M,a);
+		push_back(island(M,p,a));
 	}
 }
 
@@ -45,9 +46,12 @@ size_t archipelago::size() const
 	return m_container.size();
 }
 
-void archipelago::push_back(int N, const go_algorithm &a)
+void archipelago::push_back(const island &isl)
 {
-	m_container.push_back(island(N,*m_gop,a));
+	if (isl.problem().id_name() != problem().id_name()) {
+		pagmo_throw(type_error, "island's problem type is not compatible with archipelago's problem type");
+	}
+	m_container.push_back(isl);
 	m_container.back().set_archipelago(this);
 }
 

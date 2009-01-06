@@ -29,6 +29,7 @@
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
 #include "archipelago.h"
+#include "individual.h"
 #include "island.h"
 #include "population.h"
 
@@ -58,7 +59,7 @@ island::~island()
 
 const GOProblem &island::problem() const
 {
-	return *m_gop;
+	return m_pop.problem();
 }
 
 const go_algorithm &island::algorithm() const
@@ -117,6 +118,29 @@ size_t island::size() const
 	return m_pop.size();
 }
 
+double island::mean() const
+{
+	lock_type lock(m_mutex);
+	return m_pop.evaluateMean();
+}
+
+double island::std() const
+{
+	lock_type lock(m_mutex);
+	return m_pop.evaluateStd();
+}
+
+Individual island::best() const
+{
+	lock_type lock(m_mutex);
+	return m_pop.extractBestIndividual();
+}
+
+Individual island::worst() const
+{
+	lock_type lock(m_mutex);
+	return m_pop.extractBestIndividual();
+}
 
 Population island::get_pop() const
 {
@@ -134,7 +158,7 @@ void island::int_evolver::operator()()
 	try {
 		for (int i = 0; i < m_n; ++i) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
-			std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
+			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 		}
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
@@ -150,7 +174,7 @@ void island::t_evolver::operator()()
 		const boost::posix_time::ptime start = boost::posix_time::second_clock::local_time();
 		while (true) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
-			std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
+			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			const boost::posix_time::time_duration diff = boost::posix_time::second_clock::local_time() - start;
 			if (diff.total_seconds() > m_t) {
 				break;

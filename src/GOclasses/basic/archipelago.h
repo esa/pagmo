@@ -21,8 +21,6 @@
 #ifndef PAGMO_ARCHIPELAGO_H
 #define PAGMO_ARCHIPELAGO_H
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
 #include <list>
 
 #include "../../config.h"
@@ -31,8 +29,6 @@
 #include "island.h"
 
 class __PAGMO_VISIBLE archipelago {
-		typedef boost::mutex mutex_type;
-		typedef boost::lock_guard<mutex_type> lock_type;
 		typedef std::list<island> container_type;
 		friend std::ostream &operator<<(std::ostream &, const archipelago &);
 	public:
@@ -41,7 +37,7 @@ class __PAGMO_VISIBLE archipelago {
 		archipelago(const GOProblem &);
 		archipelago(int, int, const GOProblem &, const go_algorithm &);
 		archipelago(const archipelago &);
-		void push_back(int, const go_algorithm &);
+		void push_back(const island &);
 		const_iterator begin() const {return m_container.begin();}
 		const_iterator end() const {return m_container.end();}
 		iterator begin() {return m_container.begin();}
@@ -55,7 +51,6 @@ class __PAGMO_VISIBLE archipelago {
 	private:
 		container_type						m_container;
 		boost::scoped_ptr<const GOProblem>	m_gop;
-		mutable mutex_type					m_mutex;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);

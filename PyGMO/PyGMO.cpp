@@ -95,6 +95,10 @@ static inline void ve_translator(const value_error &ve) {
 	PyErr_SetString(PyExc_ValueError, ve.what());
 }
 
+static inline void te_translator(const type_error &te) {
+	PyErr_SetString(PyExc_TypeError, te.what());
+}
+
 template <class T, class Container>
 static inline T get_random_access(const Container &c, int n) {
 	const size_t size = c.size();
@@ -120,6 +124,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Translate our C++ exceptions into Python exceptions.
 	register_exception_translator<index_error>(ie_translator);
 	register_exception_translator<value_error>(ve_translator);
+	register_exception_translator<type_error>(te_translator);
 
 	// Expose std::vector<double> and std::vector<size_t>.
 	class_<vector<double> > class_vd("__base_vector_double","std::vector<double>");
@@ -172,6 +177,10 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("id", &island::id, "Identification number.");
 	class_island.def("problem", &island::problem, return_internal_reference<>(), "Return problem.");
 	class_island.def("algorithm", &island::algorithm, return_internal_reference<>(), "Return algorithm.");
+	class_island.def("mean", &island::mean, "Evaluate mean.");
+	class_island.def("std", &island::std, "Evaluate std.");
+	class_island.def("best", &island::best, "Return best individual.");
+	class_island.def("worst", &island::worst, "Return worst individual.");
 	class_island.def("evolve", &island::evolve, island_evolve_overloads());
 	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
 	class_island.def("join", &island::join, "Block until evolution has terminated.");
