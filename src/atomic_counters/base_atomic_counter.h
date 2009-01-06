@@ -11,14 +11,10 @@ namespace PaGMO
 	{
 		public:
 			base_atomic_counter():m_value(0) {}
+			template <class IntType2>
+			base_atomic_counter(const IntType2 &n):m_value(static_cast<IntType2>(n)) {}
 			operator IntType() const {
 				return m_value;
-			}
-			Derived &operator++() {
-			    return derived_cast->operator+=(static_cast<IntType>(1));
-			}
-			Derived &operator--() {
-			    return derived_cast->operator-=(static_cast<IntType>(1));
 			}
 		protected:
 			IntType m_value;

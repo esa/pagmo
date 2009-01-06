@@ -23,6 +23,7 @@
 #include <boost/timer.hpp>
 #include <stdexcept>
 
+#include "../../atomic_counters/atomic_counters.h"
 #include "../../exceptions.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
@@ -30,15 +31,11 @@
 #include "island.h"
 #include "population.h"
 
-size_t island::id_counter = 0;
-boost::mutex island::id_mutex;
+PaGMO::atomic_counter_size_t island::id_counter;
 
 size_t island::get_new_id()
 {
-	lock_type lock(id_mutex);
-	const size_t retval = id_counter;
-	++id_counter;
-	return retval;
+	return (size_t)(id_counter++);
 }
 
 island::island(int n, const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0) {}

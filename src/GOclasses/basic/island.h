@@ -25,6 +25,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include "../../atomic_counters/atomic_counters.h"
 #include "../../config.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
@@ -68,9 +69,8 @@ class __PAGMO_VISIBLE island
 		boost::scoped_ptr<const GOProblem>		m_gop;
 		boost::scoped_ptr<const go_algorithm>		m_goa;
 		archipelago				*m_a;
-		mutable mutex_type			m_mutex;
-		static size_t			id_counter;
-		static boost::mutex		id_mutex;
+		mutable mutex_type				m_mutex;
+		static PaGMO::atomic_counter_size_t	id_counter;
 };
 
 #endif

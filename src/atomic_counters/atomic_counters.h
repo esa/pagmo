@@ -10,6 +10,7 @@
 namespace PaGMO
 {
 	typedef atomic_counter_gcc_41<int> atomic_counter_int;
+	typedef atomic_counter_gcc_41<size_t> atomic_counter_size_t;
 }
 
 #else // Not GCC or GCC < 4.1.
@@ -20,6 +21,7 @@ namespace PaGMO
 namespace PaGMO
 {
 	typedef atomic_counter_generic<int> atomic_counter_int;
+	typedef atomic_counter_generic<size_t> atomic_counter_size_t;
 }
 
 #endif // Compiler selection in case of MT.
