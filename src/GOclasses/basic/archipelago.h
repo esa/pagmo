@@ -43,6 +43,8 @@ class __PAGMO_VISIBLE archipelago {
 		void push_back(int, const go_algorithm &);
 		const_iterator begin() const {return m_container.begin();}
 		const_iterator end() const {return m_container.end();}
+		iterator begin() {return m_container.begin();}
+		iterator end() {return m_container.end();}
 		size_t size() const;
 		const GOProblem &problem() const;
 		void join() const;
@@ -50,8 +52,6 @@ class __PAGMO_VISIBLE archipelago {
 		void evolve(int n = 1);
 		void evolve_t(const double &);
 	private:
-		iterator begin() {return m_container.begin();}
-		iterator end() {return m_container.end();}
 		container_type						m_container;
 		boost::scoped_ptr<const GOProblem>	m_gop;
 		mutable mutex_type					m_mutex;

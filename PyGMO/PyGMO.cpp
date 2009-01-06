@@ -20,6 +20,7 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/errors.hpp>
+#include <boost/python/iterator.hpp>
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
@@ -174,6 +175,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose archipelago.
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<int, int, const GOProblem &, const go_algorithm &>());
+	class_arch.def("__iterator__",boost::python::iterator<archipelago>());
 	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
