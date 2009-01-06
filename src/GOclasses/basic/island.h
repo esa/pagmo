@@ -24,6 +24,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <iostream>
 
 #include "../../atomic_counters/atomic_counters.h"
 #include "../../config.h"
@@ -38,12 +39,16 @@ class __PAGMO_VISIBLE island
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
 		friend class archipelago;
+		friend std::ostream &operator<<(std::ostream &, const island &);
 	public:
 		island(int, const GOProblem &, const go_algorithm &);
 		island(const island &);
 		island &operator=(const island &);
 		~island();
 		Population get_pop() const;
+		const GOProblem &problem() const;
+		const go_algorithm &algorithm() const;
+		size_t size() const;
 		size_t id() const;
 		void evolve(int n = 1);
 		void evolve_t(const double &);
@@ -72,5 +77,7 @@ class __PAGMO_VISIBLE island
 		mutable mutex_type				m_mutex;
 		static PaGMO::atomic_counter_size_t	id_counter;
 };
+
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);
 
 #endif

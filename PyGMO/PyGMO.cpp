@@ -168,7 +168,10 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<int, const GOProblem &, const go_algorithm &>());
+	class_island.def("__repr__", &Py_repr_from_stream<island>);
 	class_island.add_property("id", &island::id, "Identification number.");
+	class_island.def("problem", &island::problem, return_internal_reference<>(), "Return problem.");
+	class_island.def("algorithm", &island::algorithm, return_internal_reference<>(), "Return algorithm.");
 	class_island.def("evolve", &island::evolve, island_evolve_overloads());
 	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
 	class_island.def("join", &island::join, "Block until evolution has terminated.");
@@ -179,6 +182,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_arch.def(init<int, int, const GOProblem &, const go_algorithm &>());
 	class_arch.def("__iter__", boost::python::iterator<archipelago,return_internal_reference<> >());
 	class_arch.def("__len__", &archipelago::size);
+	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
 	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");

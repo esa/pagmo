@@ -34,6 +34,7 @@ class __PAGMO_VISIBLE archipelago {
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
 		typedef std::list<island> container_type;
+		friend std::ostream &operator<<(std::ostream &, const archipelago &);
 	public:
 		typedef container_type::iterator iterator;
 		typedef container_type::const_iterator const_iterator;
@@ -56,5 +57,7 @@ class __PAGMO_VISIBLE archipelago {
 		boost::scoped_ptr<const GOProblem>	m_gop;
 		mutable mutex_type					m_mutex;
 };
+
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);
 
 #endif

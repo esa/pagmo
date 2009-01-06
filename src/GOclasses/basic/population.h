@@ -93,6 +93,7 @@ private:
 };
 
 inline std::ostream &operator<<(std::ostream &s, const Population &pop) {
+	s << "Problem type: '" << pop.problem().id_name() << "'\n";
 	for (size_t i = 0; i < pop.size(); ++i) {
 		s << "Individual #" << i << ": " << pop[i].getFitness() << " " << pop[i] << std::endl;
 	}

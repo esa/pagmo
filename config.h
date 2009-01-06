@@ -17,8 +17,10 @@
 #else
 #define __PAGMO_VISIBLE
 #endif
+#define __PAGMO_VISIBLE_FUNC __PAGMO_VISIBLE
 #else
 #define __PAGMO_VISIBLE __attribute__ ((visibility("default")))
+#define __PAGMO_VISIBLE_FUNC
 #endif
 
 #endif

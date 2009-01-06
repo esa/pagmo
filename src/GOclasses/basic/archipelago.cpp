@@ -90,3 +90,14 @@ void archipelago::evolve_t(const double &t)
 		it->evolve_t(t);
 	}
 }
+
+std::ostream &operator<<(std::ostream &s, const archipelago &a) {
+	s << "Problem type: '" << a.m_gop->id_name() << "'\n\n";
+	const archipelago::const_iterator it_f = a.m_container.end();
+	for (archipelago::const_iterator it = a.m_container.begin(); it != it_f; ++it) {
+		s << "ID:              " << it->id() << '\n';
+		s << "Population size: " << it->size() << '\n';
+		s << "Algorithm type:  '" << it->algorithm().id_name() << "'\n\n";
+	}
+	return s;
+}

@@ -21,6 +21,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
+#include <iostream>
 #include <stdexcept>
 
 #include "../../atomic_counters/atomic_counters.h"
@@ -53,6 +54,16 @@ island &island::operator=(const island &i)
 island::~island()
 {
 	join();
+}
+
+const GOProblem &island::problem() const
+{
+	return *m_gop;
+}
+
+const go_algorithm &island::algorithm() const
+{
+	return *m_goa;
 }
 
 void island::evolve(int N)
@@ -100,6 +111,13 @@ size_t island::id() const
 	return m_id;
 }
 
+size_t island::size() const
+{
+	lock_type lock(m_mutex);
+	return m_pop.size();
+}
+
+
 Population island::get_pop() const
 {
 	lock_type lock(m_mutex);
@@ -144,4 +162,12 @@ void island::t_evolver::operator()()
 		std::cout << "Unknown exception caught. :(\n";
 	}
 	m_i->m_mutex.unlock();
+}
+
+std::ostream &operator<<(std::ostream &s, const island &isl) {
+	s << "ID: " << isl.id() << '\n';
+	s << "Algorithm type: '" << isl.algorithm().id_name() << "'\n";
+	boost::lock_guard<boost::mutex> lock(isl.m_mutex);
+	s << isl.m_pop;
+	return s;
 }
