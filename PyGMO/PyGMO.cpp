@@ -153,6 +153,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", no_init);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun), "Objective function.");
 	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension of the problem.");
+	class_gop.add_property("id_name", &GOProblem::id_name, "Identification name.");
 
 	// Expose problem classes.
 	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
@@ -160,6 +161,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose base algorithm class.
 	class_<go_algorithm_wrap, boost::noncopyable> class_goa("go_algorithm", "Base GO algorithm", no_init);
 	class_goa.def("evolve", pure_virtual(&go_algorithm::evolve));
+	class_goa.add_property("id_name", &go_algorithm::id_name, "Identification name.");
 
 	// Expose algorithms.
 	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const double &, const double &>());

@@ -21,6 +21,9 @@
 #ifndef PAGMO_GO_ALGORITHM_H
 #define PAGMO_GO_ALGORITHM_H
 
+#include <string>
+#include <typeinfo>
+
 #include "../../Functions/rng/rng.h"
 #include "../../config.h"
 #include "../basic/population.h"
@@ -32,6 +35,7 @@ class __PAGMO_VISIBLE go_algorithm
 		virtual Population evolve(const Population &) const = 0;
 		virtual go_algorithm *clone() const = 0;
         virtual ~go_algorithm() {}
+		std::string id_name() const {return typeid(*this).name();}
 	protected:
 		mutable rng_double drng;
 };
