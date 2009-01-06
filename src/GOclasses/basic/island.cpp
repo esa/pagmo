@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/timer.hpp>
 #include <stdexcept>
@@ -29,12 +30,24 @@
 #include "island.h"
 #include "population.h"
 
-island::island(int n, const GOProblem &p, const go_algorithm &al):m_pop(p,n),m_goa(al.clone()),m_a(0) {}
+size_t island::id_counter = 0;
+boost::mutex island::id_mutex;
 
-island::island(const island &i):m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0) {}
+size_t island::get_new_id()
+{
+	lock_type lock(id_mutex);
+	const size_t retval = id_counter;
+	++id_counter;
+	return retval;
+}
+
+island::island(int n, const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0) {}
+
+island::island(const island &i):m_id(get_new_id()),m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0) {}
 
 island &island::operator=(const island &i)
 {
+	m_id = get_new_id();
 	m_pop = i.get_pop();
 	m_goa.reset(i.m_goa->clone());
 	return *this;
@@ -49,7 +62,7 @@ void island::evolve(int N)
 {
 	if (!m_mutex.try_lock()) {
 // WORKAROUND: apparently there are some issues here with  exception throwing
-// under MinGW whem evolution is running in another thread. This needs to be investigated.
+// under MinGW when evolution is running in another thread. This needs to be investigated.
 #ifdef PAGMO_WIN32
 		std::cout << "Cannot evolve while still evolving!\n";
 		return;
@@ -71,6 +84,11 @@ void island::evolve_t(const double &t)
 #endif
 	}
 	boost::thread(t_evolver(this,t));
+}
+
+size_t island::id() const
+{
+	return m_id;
 }
 
 Population island::get_pop() const

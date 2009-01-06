@@ -164,6 +164,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<int, const GOProblem &, const go_algorithm &>());
+	class_island.add_property("id", &island::id, "Identification number.");
 	class_island.def("evolve", &island::evolve, island_evolve_overloads());
 	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
 

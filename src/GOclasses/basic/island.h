@@ -43,6 +43,7 @@ class __PAGMO_VISIBLE island
 		island &operator=(const island &);
 		~island();
 		Population get_pop() const;
+		size_t id() const;
 		void evolve(int n = 1);
 		void evolve_t(const double &);
 	private:
@@ -59,11 +60,15 @@ class __PAGMO_VISIBLE island
 			island 			*m_i;
 			const double	m_t;
 		};
+		static size_t get_new_id();
+		size_t			m_id;
 		Population				m_pop;
 		boost::scoped_ptr<GOProblem>		m_gop;
 		boost::scoped_ptr<go_algorithm>		m_goa;
 		archipelago				*m_a;
 		mutable mutex_type			m_mutex;
+		static size_t			id_counter;
+		static boost::mutex		id_mutex;
 };
 
 #endif
