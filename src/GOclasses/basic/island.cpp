@@ -46,8 +46,8 @@ island::island(const island &i):m_id(get_new_id()),m_pop(i.get_pop()),m_goa(i.m_
 
 island &island::operator=(const island &i)
 {
-	m_id = get_new_id();
 	m_pop = i.get_pop();
+	m_id = get_new_id();
 	m_goa.reset(i.m_goa->clone());
 	return *this;
 }

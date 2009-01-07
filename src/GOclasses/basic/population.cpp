@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <functional>
+#include <typeinfo>
 
 #include "../../exceptions.h"
 #include "GOproblem.h"
@@ -39,6 +40,9 @@
 
 	Population &Population::operator=(const Population &p)
 	{
+		if (typeid(*m_problem) != typeid(*p.m_problem)) {
+			pagmo_throw(type_error, "problem types are not comaptible in population assignment");
+		}
 		pop = p.pop;
 		m_problem.reset(p.m_problem->clone());
 		return *this;

@@ -41,6 +41,26 @@ archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(
 	}
 }
 
+const island &archipelago::operator[](int n) const
+{
+	return *it_from_index<const_iterator>(n);
+}
+
+island &archipelago::operator[](int n)
+{
+	return *it_from_index<iterator>(n);
+}
+
+void archipelago::set_island(int n, const island &isl)
+{
+	operator[](n) = isl;
+}
+
+void archipelago::del_island(int n)
+{
+	m_container.erase(it_from_index<iterator>(n));
+}
+
 size_t archipelago::size() const
 {
 	return m_container.size();
@@ -48,7 +68,7 @@ size_t archipelago::size() const
 
 void archipelago::push_back(const island &isl)
 {
-	if (isl.problem().id_name() != problem().id_name()) {
+	if (typeid(isl.problem()) != typeid(problem())) {
 		pagmo_throw(type_error, "island's problem type is not compatible with archipelago's problem type");
 	}
 	m_container.push_back(isl);
@@ -96,12 +116,15 @@ void archipelago::evolve_t(const double &t)
 }
 
 std::ostream &operator<<(std::ostream &s, const archipelago &a) {
-	s << "Problem type: '" << a.m_gop->id_name() << "'\n\n";
+	s << "Problem type:    " << a.m_gop->id_name() << "\n\n";
 	const archipelago::const_iterator it_f = a.m_container.end();
+	size_t i = 0;
 	for (archipelago::const_iterator it = a.m_container.begin(); it != it_f; ++it) {
+		s << "Island #:        " << i << '\n';
 		s << "ID:              " << it->id() << '\n';
 		s << "Population size: " << it->size() << '\n';
-		s << "Algorithm type:  '" << it->algorithm().id_name() << "'\n\n";
+		s << "Algorithm type:  " << it->algorithm().id_name() << "\n\n";
+		++i;
 	}
 	return s;
 }

@@ -187,10 +187,13 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
 
 	// Expose archipelago.
+	typedef const island &(archipelago::*getitem)(int) const;
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<int, int, const GOProblem &, const go_algorithm &>());
-	class_arch.def("__iter__", boost::python::iterator<archipelago,return_internal_reference<> >());
+	class_arch.def("__delitem__", &archipelago::del_island);
+	class_arch.def("__getitem__", getitem(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
+	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
 	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");

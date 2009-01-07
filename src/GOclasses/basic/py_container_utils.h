@@ -18,46 +18,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ARCHIPELAGO_H
-#define PAGMO_ARCHIPELAGO_H
+#ifndef PAGMO_PY_CONTAINER_UTILS_H
+#define PAGMO_PY_CONTAINER_UTILS_H
 
-#include <list>
+#include "../../exceptions.h"
 
-#include "../../config.h"
-#include "../problems/GOproblem.h"
-#include "../algorithms/go_algorithm.h"
-#include "island.h"
-#include "py_container_utils.h"
+#define derived_const_cast static_cast<Derived const *>(this)
+#define derived_cast static_cast<Derived *>(this)
 
-class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
-		typedef std::list<island> container_type;
-		friend std::ostream &operator<<(std::ostream &, const archipelago &);
-	public:
-		typedef container_type::iterator iterator;
-		typedef container_type::const_iterator const_iterator;
-		archipelago(const GOProblem &);
-		archipelago(int, int, const GOProblem &, const go_algorithm &);
-		archipelago(const archipelago &);
-		const island &operator[](int) const;
-		void set_island(int, const island &);
-		void del_island(int);
-		void push_back(const island &);
-		const_iterator begin() const {return m_container.begin();}
-		const_iterator end() const {return m_container.end();}
-		iterator begin() {return m_container.begin();}
-		iterator end() {return m_container.end();}
-		size_t size() const;
-		const GOProblem &problem() const;
-		void join() const;
-		bool busy() const;
-		void evolve(int n = 1);
-		void evolve_t(const double &);
+template <class Derived>
+class py_container_utils
+{
+	protected:
+		template <class ConstIterator>
+		ConstIterator it_from_index(int n) const {
+			const size_t index = get_ra_index(n);
+			ConstIterator it = derived_const_cast->begin();
+			for (size_t i = 0; i < index; ++i, ++it) {}
+			return it;
+		}
+		template <class Iterator>
+		Iterator it_from_index(int n) {
+			const size_t index = get_ra_index(n);
+			Iterator it = derived_cast->begin();
+			for (size_t i = 0; i < index; ++i, ++it) {}
+			return it;
+		}
 	private:
-		island &operator[](int);
-		container_type						m_container;
-		boost::scoped_ptr<const GOProblem>	m_gop;
+		size_t get_ra_index(int n) const {
+			const size_t size = derived_const_cast->size();
+			if (n >= 0) {
+				if ((size_t)n >= size) {
+					pagmo_throw(index_error,"container index out of range");
+				}
+				return n;
+			} else {
+				if (size < (size_t)(-n)) {
+					pagmo_throw(index_error,"container index out of range");
+				}
+				return (size - (size_t)(-n));
+			}
+		}
 };
 
-std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);
+#undef derived_cast
+#undef derived_const_cast
 
 #endif
