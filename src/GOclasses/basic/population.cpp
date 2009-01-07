@@ -40,11 +40,13 @@
 
 	Population &Population::operator=(const Population &p)
 	{
-		if (typeid(*m_problem) != typeid(*p.m_problem)) {
-			pagmo_throw(type_error, "problem types are not comaptible in population assignment");
+		if (this != &p) {
+			if (typeid(*m_problem) != typeid(*p.m_problem)) {
+				pagmo_throw(type_error, "problem types are not compatible in population assignment");
+			}
+			pop = p.pop;
+			m_problem.reset(p.m_problem->clone());
 		}
-		pop = p.pop;
-		m_problem.reset(p.m_problem->clone());
 		return *this;
 	}
 
