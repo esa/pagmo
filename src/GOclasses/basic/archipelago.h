@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+// 04/01/2009: Initial version by Francesco Biscani.
+
 #ifndef PAGMO_ARCHIPELAGO_H
 #define PAGMO_ARCHIPELAGO_H
 
@@ -31,21 +33,22 @@
 
 class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		typedef std::list<island> container_type;
-		friend std::ostream &operator<<(std::ostream &, const archipelago &);
-	public:
 		typedef container_type::iterator iterator;
 		typedef container_type::const_iterator const_iterator;
-		archipelago(const GOProblem &);
-		archipelago(int, int, const GOProblem &, const go_algorithm &);
-		archipelago(const archipelago &);
-		const island &operator[](int) const;
-		void set_island(int, const island &);
-		void del_island(int);
-		void push_back(const island &);
+		friend std::ostream &operator<<(std::ostream &, const archipelago &);
+		template <class T>
+		friend class py_container_utils;
 		const_iterator begin() const {return m_container.begin();}
 		const_iterator end() const {return m_container.end();}
 		iterator begin() {return m_container.begin();}
 		iterator end() {return m_container.end();}
+	public:
+		archipelago(const GOProblem &);
+		archipelago(const GOProblem &, const go_algorithm &, int, int);
+		archipelago(const archipelago &);
+		island &operator[](int);
+		void push_back(const island &);
+		void insert(int, const island &);
 		size_t size() const;
 		const GOProblem &problem() const;
 		void join() const;
@@ -53,7 +56,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		void evolve(int n = 1);
 		void evolve_t(const double &);
 	private:
-		island &operator[](int);
+		void check_island(const island &) const;
 		container_type						m_container;
 		boost::scoped_ptr<const GOProblem>	m_gop;
 };

@@ -42,7 +42,7 @@
 	{
 		if (this != &p) {
 			if (typeid(*m_problem) != typeid(*p.m_problem)) {
-				pagmo_throw(type_error, "problem types are not compatible in population assignment");
+				pagmo_throw(type_error, "problem types are not compatible while assigning population");
 			}
 			pop = p.pop;
 			m_problem.reset(p.m_problem->clone());
@@ -53,32 +53,86 @@
 	void Population::createRandomPopulation(int N)
 	{
 		pop.clear();
-		for (int i=0; i < N; i++){
+		for (int i=0; i < N; ++i){
 			pop.push_back(Individual(*m_problem));
 		}
 	};
 
-	void Population::push_back(const Individual &x)
+	void Population::check_individual(const Individual &i) const
 	{
-		if (x.getDecisionVector().size() != m_problem->getLB().size()) {
-			pagmo_throw(value_error,"cannot insert individual into population, size mismatch");
+		if (i.getDecisionVector().size() != m_problem->getLB().size()) {
+			pagmo_throw(value_error,"individual is incompatible with population");
 		}
-		pop.push_back(x);
+	}
+
+	Individual &Population::operator[](int index)
+	{
+		return pop[get_ra_index(index)];
 	};
+
+	const Individual &Population::operator[](int index) const
+	{
+		return pop[get_ra_index(index)];
+	};
+
+	void Population::push_back(const Individual &i)
+	{
+		check_individual(i);
+		pop.push_back(i);
+	};
+
+	void Population::erase(int n)
+	{
+		pop.erase(pop.begin() + get_ra_index(n));
+	};
+
+	void Population::insert(int n, const Individual &i)
+	{
+		check_individual(i);
+		pop.insert(pop.begin() + get_ra_index(n),i);
+	}
 
 	size_t Population::size() const
 	{
 		return pop.size();
 	};
 
-	const Individual &Population::extractBestIndividual() const
+	Individual Population::extractBestIndividual() const
 	{
 		return extract_most<std::less<double> >();
 	}
 
-	const Individual &Population::extractWorstIndividual() const
+	Individual Population::extractWorstIndividual() const
 	{
 		return extract_most<std::greater<double> >();
+	}
+
+	double Population::evaluateMean() const
+	{
+		if (pop.empty()) {
+			pagmo_throw(index_error,"population is empty");
+		}
+		double mean = 0;
+		const size_t size = pop.size();
+		for (size_t i = 0; i < size; ++i) {
+			mean += pop[i].getFitness();
+		}
+		mean /= (double)size;
+		return mean;
+	}
+
+	double Population::evaluateStd() const
+	{
+		if (pop.empty()) {
+			pagmo_throw(index_error,"population is empty");
+		}
+		double Std = 0, mean = evaluateMean();
+		const size_t size = pop.size();
+		for (size_t i = 0; i < size; ++i){
+			Std += pow((pop[i].getFitness()-mean),2.0);
+		}
+		Std = sqrt(Std/size);
+		return Std;
 	}
 
 	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks)
@@ -145,41 +199,3 @@
 		pop[picks[worstinpicks]] = deme[bestindeme];
 
 	}
-
-	double Population::evaluateMean() const
-	{
-		if (pop.empty()) {
-			pagmo_throw(index_error,"population is empty");
-		}
-		double mean = 0;
-		const size_t size = pop.size();
-		for (size_t i = 0; i < size; ++i) {
-			mean += pop[i].getFitness();
-		}
-		mean /= (double)size;
-		return mean;
-	}
-
-	double Population::evaluateStd() const
-	{
-		if (pop.empty()) {
-			pagmo_throw(index_error,"population is empty");
-		}
-		double Std = 0, mean = evaluateMean();
-		const size_t size = pop.size();
-		for (size_t i = 0; i < size; ++i){
-			Std += pow((pop[i].getFitness()-mean),2.0);
-		}
-		Std = sqrt(Std/size);
-		return Std;
-	}
-
-	Individual &Population::operator[](const size_t &index)
-	{
-		return pop[index];
-	};
-
-	const Individual &Population::operator[](const size_t &index) const
-	{
-		return pop[index];
-	};

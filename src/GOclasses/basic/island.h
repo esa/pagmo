@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+// 04/01/2009: Initial version by Francesco Biscani.
+
 #ifndef PAGMO_ISLAND_H
 #define PAGMO_ISLAND_H
 
@@ -42,13 +44,19 @@ class __PAGMO_VISIBLE island
 		friend class archipelago;
 		friend std::ostream &operator<<(std::ostream &, const island &);
 	public:
-		island(int, const GOProblem &, const go_algorithm &);
+		island(const GOProblem &, const go_algorithm &);
+		island(const GOProblem &, const go_algorithm &, int);
 		island(const island &);
 		island &operator=(const island &);
 		~island();
 		Population get_pop() const;
 		const GOProblem &problem() const;
 		const go_algorithm &algorithm() const;
+		Individual operator[](int) const;
+		void set(int, const Individual &);
+		void push_back(const Individual &);
+		void insert(int, const Individual &);
+		void erase(int);
 		double mean() const;
 		double std() const;
 		Individual best() const;
@@ -74,12 +82,12 @@ class __PAGMO_VISIBLE island
 			const double	m_t;
 		};
 		static size_t get_new_id();
-		size_t			m_id;
-		Population				m_pop;
+		size_t										m_id;
+		Population									m_pop;
 		boost::scoped_ptr<const go_algorithm>		m_goa;
-		archipelago				*m_a;
-		mutable mutex_type				m_mutex;
-		static PaGMO::atomic_counter_size_t	id_counter;
+		archipelago									*m_a;
+		mutable mutex_type							m_mutex;
+		static PaGMO::atomic_counter_size_t			id_counter;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);

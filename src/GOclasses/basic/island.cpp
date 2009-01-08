@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+// 04/01/2009: Initial version by Francesco Biscani.
+
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
@@ -40,15 +42,19 @@ size_t island::get_new_id()
 	return (size_t)(id_counter++);
 }
 
-island::island(int n, const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0) {}
+island::island(const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p),m_goa(al.clone()),m_a(0) {}
+
+island::island(const GOProblem &p, const go_algorithm &al, int n):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0) {}
 
 island::island(const island &i):m_id(get_new_id()),m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0) {}
 
 island &island::operator=(const island &i)
 {
-	m_pop = i.get_pop();
-	m_id = get_new_id();
-	m_goa.reset(i.m_goa->clone());
+	if (this != &i) {
+		m_pop = i.get_pop();
+		m_id = get_new_id();
+		m_goa.reset(i.m_goa->clone());
+	}
 	return *this;
 }
 
@@ -69,30 +75,30 @@ const go_algorithm &island::algorithm() const
 
 void island::evolve(int N)
 {
-	if (!m_mutex.try_lock()) {
+	if (m_mutex.try_lock()) {
+		boost::thread(int_evolver(this,N));
+	} else {
 // WORKAROUND: apparently there are some issues here with  exception throwing
 // under MinGW when evolution is running in another thread. This needs to be investigated.
 #ifdef PAGMO_WIN32
 		std::cout << "Cannot evolve while still evolving!\n";
-		return;
 #else
 		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
 #endif
 	}
-	boost::thread(int_evolver(this,N));
 }
 
 void island::evolve_t(const double &t)
 {
-	if (!m_mutex.try_lock()) {
+	if (m_mutex.try_lock()) {
+		boost::thread(t_evolver(this,t));
+	} else {
 #ifdef PAGMO_WIN32
 		std::cout << "Cannot evolve while still evolving!\n";
-		return;
 #else
 		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
 #endif
 	}
-	boost::thread(t_evolver(this,t));
 }
 
 void island::join() const {
@@ -148,6 +154,38 @@ Population island::get_pop() const
 	return Population(m_pop);
 }
 
+Individual island::operator[](int n) const
+{
+	lock_type lock(m_mutex);
+	return m_pop[n];
+}
+
+void island::set(int n, const Individual &i)
+{
+	lock_type lock(m_mutex);
+	m_pop[n] = i;
+}
+
+void island::push_back(const Individual &i)
+{
+	lock_type lock(m_mutex);
+	m_pop.push_back(i);
+}
+
+void island::insert(int n, const Individual &i)
+{
+	lock_type lock(m_mutex);
+	m_pop.insert(n,i);
+}
+
+void island::erase(int n)
+{
+	lock_type lock(m_mutex);
+	m_pop.erase(n);
+}
+
+// NOTE: no lock needed here because this is intended to be called only by archipelago when
+// adding an island.
 void island::set_archipelago(archipelago *a)
 {
 	m_a = a;

@@ -31,30 +31,34 @@
 #include "GOproblem.h"
 #include "constants.h"
 #include "individual.h"
+#include "py_container_utils.h"
 #include "rng.h"
 
-class __PAGMO_VISIBLE Population{
+class __PAGMO_VISIBLE Population: public py_container_utils<Population> {
 public:
 	//Methods
 	Population(const GOProblem &);
 	Population(const GOProblem &, int);
 	Population(const Population &);
 	Population &operator=(const Population &);
+	Individual &operator[](int);
+	const Individual &operator[](int) const;
 	void push_back(const Individual &);
-	size_t size () const;
+	void insert(int, const Individual &);
+	void erase(int);
+	size_t size() const;
 	const GOProblem &problem() const {return *m_problem;}
 	double evaluateMean() const;
 	double evaluateStd() const;
-	const Individual &extractBestIndividual() const;
-	const Individual &extractWorstIndividual() const;
+	Individual extractBestIndividual() const;
+	Individual extractWorstIndividual() const;
+	// TODO: review this API.
 	Population extractRandomDeme(int, std::vector<size_t> &);
 	void insertDeme(const Population &, const std::vector<size_t> &);
 	void insertBestInDeme(const Population &, const std::vector<size_t> &);
 	void insertDemeForced(const Population &, const std::vector<size_t> &);
-	//Operators
-	Individual &operator[](const size_t &);
-	const Individual &operator[](const size_t &) const;
 private:
+	void check_individual(const Individual &) const;
 	void createRandomPopulation(int);
 	template <class Functor>
 	const Individual &extract_most() const {
@@ -88,7 +92,7 @@ private:
 			}
 		}
 	}
-	std::vector<Individual>			pop;
+	std::vector<Individual>				pop;
 	boost::scoped_ptr<const GOProblem>	m_problem;
 };
 

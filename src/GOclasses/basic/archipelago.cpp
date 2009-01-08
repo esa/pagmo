@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+// 04/01/2009: Initial version by Francesco Biscani.
+
 #include "../../exceptions.h"
 #include "../problems/GOproblem.h"
 #include "../algorithms/go_algorithm.h"
@@ -26,10 +28,10 @@
 
 archipelago::archipelago(const GOProblem &p):m_gop(p.clone()) {}
 
-archipelago::archipelago(int N, int M, const GOProblem &p, const go_algorithm &a):m_gop(p.clone())
+archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone())
 {
 	for (int i = 0; i < N; ++i) {
-		push_back(island(M,p,a));
+		push_back(island(p,a,M));
 	}
 }
 
@@ -41,24 +43,9 @@ archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(
 	}
 }
 
-const island &archipelago::operator[](int n) const
-{
-	return *it_from_index<const_iterator>(n);
-}
-
 island &archipelago::operator[](int n)
 {
 	return *it_from_index<iterator>(n);
-}
-
-void archipelago::set_island(int n, const island &isl)
-{
-	operator[](n) = isl;
-}
-
-void archipelago::del_island(int n)
-{
-	m_container.erase(it_from_index<iterator>(n));
 }
 
 size_t archipelago::size() const
@@ -66,13 +53,27 @@ size_t archipelago::size() const
 	return m_container.size();
 }
 
-void archipelago::push_back(const island &isl)
+void archipelago::check_island(const island &isl) const
 {
 	if (typeid(isl.problem()) != typeid(problem())) {
 		pagmo_throw(type_error, "island's problem type is not compatible with archipelago's problem type");
 	}
+}
+
+void archipelago::push_back(const island &isl)
+{
+	check_island(isl);
 	m_container.push_back(isl);
 	m_container.back().set_archipelago(this);
+}
+
+void archipelago::insert(int n, const island &isl)
+{
+	check_island(isl);
+	iterator it = it_from_index<iterator>(n);
+	m_container.insert(it,isl);
+	--it;
+	it->set_archipelago(this);
 }
 
 const GOProblem &archipelago::problem() const

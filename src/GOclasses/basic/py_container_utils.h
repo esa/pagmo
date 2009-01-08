@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+// 07/01/2009: Initial version by Francesco Biscani.
+
 #ifndef PAGMO_PY_CONTAINER_UTILS_H
 #define PAGMO_PY_CONTAINER_UTILS_H
 

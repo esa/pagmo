@@ -20,31 +20,50 @@
 
 // 16/05/08 Created by Dario Izzo.
 
-#include <algorithm>
-#include <iostream>
 #include <vector>
 
 #include "../../exceptions.h"
+#include "../problems/GOproblem.h"
 #include "individual.h"
 #include "rng.h"
 
-	Individual::Individual(const GOProblem &problem):
-		x(problem.getLB().size()),v(problem.getLB().size()),fitness(0) {
+	Individual::Individual(const GOProblem &problem):x(problem.getLB().size()),v(problem.getLB().size())
+	{
 		init(problem);
 	}
 
 	Individual::Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):
-		x(x_),v(v_),fitness(fitness_) {
+		x(x_),v(v_),fitness(fitness_)
+	{
 		if (x.size() != v.size()) {
 			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
 		}
 	}
 
-	// Resize the individual to the size of the problem and fill it with random values.
-	void Individual::init(const GOProblem &problem) {
+	Individual &Individual::operator=(const Individual &i)
+	{
+		if (this != &i) {
+			check_compatibility(i);
+			x = i.x;
+			v = i.v;
+			fitness = i.fitness;
+		}
+		return *this;
+	}
+
+	void Individual::check_compatibility(const Individual &i) const
+	{
+		if (i.getDecisionVector().size() != x.size()) {
+			pagmo_throw(value_error,"individuals are incompatible");
+		}
+	}
+
+	// Fill the decision and velocity vectors with random values.
+	void Individual::init(const GOProblem &p)
+	{
 		static_rng_double drng;
 		// Store local references.
-		const std::vector<double> &LB = problem.getLB(), &UB = problem.getUB();
+		const std::vector<double> &LB = p.getLB(), &UB = p.getUB();
 		const size_t size = LB.size();
 		// Fill a new random chromosome and velocity vector.
 		for (size_t i = 0; i < size; ++i){
@@ -52,5 +71,5 @@
 			v[i] = drng() * (UB[i] - LB[i]);
 		}
 		// Evaluation of fitness.
-		fitness = problem.objfun(x);
+		fitness = p.objfun(x);
 	}
