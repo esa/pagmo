@@ -37,6 +37,7 @@
 #include <vector>
 
 #include "../src/GOclasses/algorithms/ASA.h"
+#include "../src/GOclasses/algorithms/DE.h"
 #include "../src/GOclasses/basic/archipelago.h"
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/island.h"
@@ -158,6 +159,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	// Expose problem classes.
 	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
+	class_<messengerProb, bases<GOProblem> > class_mp("messenger_problem", "Messenger problem.", init<>());
 
 	// Expose base algorithm class.
 	class_<go_algorithm_wrap, boost::noncopyable> class_goa("go_algorithm", "Base GO algorithm", no_init);
@@ -166,6 +168,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	// Expose algorithms.
 	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const double &, const double &>());
+	class_<DEalgorithm, bases<go_algorithm> > class_de("de_algorithm", "DE algorithm.", init<int, const double &, const double &, int>());
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());

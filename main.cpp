@@ -332,8 +332,7 @@ while (choice != -1) {
 			vector <double> results;
 
 			//Instanciate the algorithm
-			DEalgorithm DE;
-			DE.initDE(gen,LB.size(),F,CR,strategy, rng());
+			DEalgorithm DE(gen, F,CR,strategy);
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -350,7 +349,7 @@ while (choice != -1) {
 						cout << "Initial fitness: " << pop.extractBestIndividual().getFitness() << endl;
 						//we evolve it
 						start1=clock();
-						pop = DE.evolve(pop,problem);
+						pop = DE.evolve(pop);
 						end1=clock();
 						dif = (double)(end1-start1) / (double)CLOCKS_PER_SEC;
 						//we print the result
@@ -516,7 +515,7 @@ while (choice != -1) {
 				boost::mutex mutex;
 				boost::condition_variable exitcond;
 
-				//We allocate memory for the isActive array containing the status of each thread 
+				//We allocate memory for the isActive array containing the status of each thread
 				atomic_counter_int *isActive = new atomic_counter_int[islandsN];
 
 				//We allocate memory and initialise the data threadParam array containing the information to be passed to the different threads

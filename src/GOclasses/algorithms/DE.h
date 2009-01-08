@@ -1,11 +1,24 @@
-/*
- *  DE.h
- *  SeGMO
- *
- *  Created by Dario Izzo on 5/18/08.
- *  Copyright 2008 Àdvanced Concepts Team (European Space Agency). All rights reserved.
- *
- */
+/*****************************************************************************
+ *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
+
+// 18/05/2008: Initial version by Dario Izzo.
 
 #ifndef DE_H
 #define DE_H
@@ -13,29 +26,21 @@
 #include <vector>
 #include <cmath>
 
-#include "constants.h"
-#include "population.h"
-#include "rng.h"
+#include "../../config.h"
+#include "../basic/population.h"
+#include "../problems/GOproblem.h"
+#include "go_algorithm.h"
 
-class DEalgorithm{
-public:
-
-	Population evolve(Population deme, GOProblem& problem);
-
-	void initDE(int generationsInit,
-				 int SolDimInit,
-				 double FInit,
-				 double CRInit,
-				 int strategyInit,
-				 uint32_t randomSeed);
-
-private:
-	int generations;
-	int SolDim;
-	double F;
-	double CR;
-	int strategy;
-	rng_double drng;
+class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
+	public:
+		DEalgorithm(int, const double &, const double &, int);
+		virtual Population evolve(const Population &) const;
+		virtual DEalgorithm *clone() const {return new DEalgorithm(*this);}
+	private:
+		const size_t	generations;
+		const double	F;
+		const double	CR;
+		const int		strategy;
 };
 
 #endif

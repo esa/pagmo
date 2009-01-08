@@ -37,9 +37,8 @@ void *DEthread(void *data)
    double oldfitness;
    vector<size_t> picks;
    GOProblem* problem;
-   const vector<double> &LB = PtrTP->problem->getLB();
    Population deme(*PtrTP->problem,0);
-   DEalgorithm DE;
+   boost::scoped_ptr<DEalgorithm> DE;
    rng_uint32 rng;
    rng_double drng;
 
@@ -53,13 +52,13 @@ void *DEthread(void *data)
         drng.seed(PtrTP->randomSeed);
 		deme = PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
 		problem = PtrTP->problem;
-		DE.initDE(PtrTP->generations,LB.size(),PtrTP->F,PtrTP->CR,PtrTP->strategy, rng());
+		DE.reset(new DEalgorithm(PtrTP->generations, PtrTP->F,PtrTP->CR,PtrTP->strategy));
     }
 
     oldfitness = deme.extractBestIndividual().getFitness();
 
     start=clock();
-   deme = DE.evolve(deme, *problem);
+   deme = DE->evolve(deme);
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
