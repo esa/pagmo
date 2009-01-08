@@ -44,7 +44,6 @@ class py_container_utils
 			for (size_t i = 0; i < index; ++i, ++it) {}
 			return it;
 		}
-	private:
 		size_t get_ra_index(int n) const {
 			const size_t size = derived_const_cast->size();
 			if (n >= 0) {
