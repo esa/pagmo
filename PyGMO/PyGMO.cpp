@@ -191,6 +191,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
 	class_island.def("join", &island::join, "Block until evolution has terminated.");
 	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
+	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);
