@@ -65,6 +65,9 @@ island::~island()
 
 const GOProblem &island::problem() const
 {
+	// We need to lock here because problem is embedded in population, so we
+	// must guard against simultaneous read/write access.
+	lock_type lock(m_mutex);
 	return m_pop.problem();
 }
 
