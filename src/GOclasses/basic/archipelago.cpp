@@ -124,6 +124,7 @@ std::ostream &operator<<(std::ostream &s, const archipelago &a) {
 		s << "Island #:        " << i << '\n';
 		s << "ID:              " << it->id() << '\n';
 		s << "Population size: " << it->size() << '\n';
+		s << "Evolution time:  " << it->evo_time() << '\n';
 		s << "Algorithm type:  " << it->algorithm().id_name() << "\n\n";
 		++i;
 	}

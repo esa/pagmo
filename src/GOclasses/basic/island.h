@@ -67,6 +67,7 @@ class __PAGMO_VISIBLE island
 		void evolve_t(const double &);
 		void join() const;
 		bool busy() const;
+		double evo_time() const;
 	private:
 		void set_archipelago(archipelago *);
 		struct int_evolver {
@@ -86,6 +87,7 @@ class __PAGMO_VISIBLE island
 		Population									m_pop;
 		boost::scoped_ptr<const go_algorithm>		m_goa;
 		archipelago									*m_a;
+		double										m_evo_time;
 		mutable mutex_type							m_mutex;
 		static PaGMO::atomic_counter_size_t			id_counter;
 };

@@ -42,11 +42,11 @@ size_t island::get_new_id()
 	return (size_t)(id_counter++);
 }
 
-island::island(const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p),m_goa(al.clone()),m_a(0) {}
+island::island(const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p),m_goa(al.clone()),m_a(0),m_evo_time(0) {}
 
-island::island(const GOProblem &p, const go_algorithm &al, int n):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0) {}
+island::island(const GOProblem &p, const go_algorithm &al, int n):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0),m_evo_time(0) {}
 
-island::island(const island &i):m_id(get_new_id()),m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0) {}
+island::island(const island &i):m_id(get_new_id()),m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0),m_evo_time(i.m_evo_time) {}
 
 island &island::operator=(const island &i)
 {
@@ -54,6 +54,7 @@ island &island::operator=(const island &i)
 		m_pop = i.get_pop();
 		m_id = get_new_id();
 		m_goa.reset(i.m_goa->clone());
+		m_evo_time = i.m_evo_time;
 	}
 	return *this;
 }
@@ -187,6 +188,11 @@ void island::erase(int n)
 	m_pop.erase(n);
 }
 
+double island::evo_time() const
+{
+	return m_evo_time;
+}
+
 // NOTE: no lock needed here because this is intended to be called only by archipelago when
 // adding an island.
 void island::set_archipelago(archipelago *a)
@@ -196,6 +202,7 @@ void island::set_archipelago(archipelago *a)
 
 void island::int_evolver::operator()()
 {
+	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 	try {
 		for (int i = 0; i < m_n; ++i) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
@@ -206,17 +213,18 @@ void island::int_evolver::operator()()
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
 	}
+	m_i->m_evo_time += (boost::posix_time::microsec_clock::local_time() - start).total_milliseconds() / 1000.;
 	m_i->m_mutex.unlock();
 }
 
 void island::t_evolver::operator()()
 {
+	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 	try {
-		const boost::posix_time::ptime start = boost::posix_time::second_clock::local_time();
 		while (true) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
-			const boost::posix_time::time_duration diff = boost::posix_time::second_clock::local_time() - start;
+			const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
 			if (diff.total_seconds() > m_t) {
 				break;
 			}
@@ -226,12 +234,15 @@ void island::t_evolver::operator()()
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
 	}
+	m_i->m_evo_time += (boost::posix_time::microsec_clock::local_time() - start).total_milliseconds() / 1000.;
 	m_i->m_mutex.unlock();
 }
 
 std::ostream &operator<<(std::ostream &s, const island &isl) {
-	s << "ID: " << isl.id() << '\n';
-	s << "Algorithm type: '" << isl.algorithm().id_name() << "'\n";
+	s << "ID:              " << isl.id() << '\n';
+	s << "Population size: " << isl.size() << '\n';
+	s << "Evolution time:  " << isl.evo_time() << '\n';
+	s << "Algorithm type:  " << isl.algorithm().id_name() << '\n';
 	boost::lock_guard<boost::mutex> lock(isl.m_mutex);
 	s << isl.m_pop;
 	return s;
