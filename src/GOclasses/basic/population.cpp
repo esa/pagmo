@@ -99,12 +99,22 @@
 
 	Individual Population::extractBestIndividual() const
 	{
-		return extract_most<std::less<double> >();
+		return pop[extract_most_index<std::less<double> >()];
 	}
 
 	Individual Population::extractWorstIndividual() const
 	{
-		return extract_most<std::greater<double> >();
+		return pop[extract_most_index<std::greater<double> >()];
+	}
+
+	Individual &Population::best()
+	{
+		return pop[extract_most_index<std::less<double> >()];
+	}
+
+	Individual &Population::worst()
+	{
+		return pop[extract_most_index<std::greater<double> >()];
 	}
 
 	double Population::evaluateMean() const

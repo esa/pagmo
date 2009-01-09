@@ -40,6 +40,8 @@
 		}
 	}
 
+	Individual::Individual(const std::vector<double> &x_, const double &fitness_):x(x_),v(x_.size()),fitness(fitness_) {}
+
 	Individual &Individual::operator=(const Individual &i)
 	{
 		if (this != &i) {

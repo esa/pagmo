@@ -27,9 +27,7 @@
 #include <cmath>
 
 #include "../../config.h"
-#include "constants.h"
 #include "go_algorithm.h"
-#include "individual.h"
 #include "population.h"
 
 class __PAGMO_VISIBLE ASAalgorithm: public go_algorithm {

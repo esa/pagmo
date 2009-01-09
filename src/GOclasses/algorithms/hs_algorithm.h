@@ -18,42 +18,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 16/05/08 Created by Dario Izzo.
+// 09/01/2009: Initial version by Francesco Biscani.
 
-#ifndef INDIVIDUAL_H
-#define INDIVIDUAL_H
-
-#include <iostream>
-#include <vector>
+#ifndef PAGMO_HS_ALGORITHM_H
+#define PAGMO_HS_ALGORITHM_H
 
 #include "../../config.h"
-#include "GOproblem.h"
-#include "rng.h"
+#include "../basic/population.h"
+#include "go_algorithm.h"
 
-class __PAGMO_VISIBLE Individual{
-
-public:
-	Individual(const std::vector<double> &, const std::vector<double> &, const double &);
-	Individual(const std::vector<double> &, const double &);
-	Individual(const GOProblem &);
-	Individual &operator=(const Individual &);
-	double getFitness() const {return fitness;}
-	const std::vector<double> &getDecisionVector() const {return x;}
-	const std::vector<double> &getVelocity() const {return v;}
-private:
-	friend std::ostream &operator<<(std::ostream &, const Individual &);
-	void check_compatibility(const Individual &) const;
-	void init(const GOProblem &);
-	std::vector<double>			x;  //this is the "chromosome" or "decision vector"
-	std::vector<double>			v;  //this is the "velocity" or "heading" of each individual
-	double						fitness;
+/// Harmony search algorithm.
+/**
+ * See http://en.wikipedia.org/wiki/Harmony_search.
+ */
+class __PAGMO_VISIBLE hs_algorithm: public go_algorithm {
+	public:
+		hs_algorithm(int, const double &, const double &, const double &);
+		virtual Population evolve(const Population &) const;
+		virtual hs_algorithm *clone() const {return new hs_algorithm(*this);}
+	private:
+		// Number of generations.
+		const size_t	m_gen;
+		// Rate of choosing from memory (i.e., population).
+		const double	m_phmcr;
+		// Pitch adjustment rate.
+		const double	m_ppar;
+		// 'Distance bandwidth', i.e. max change for pitch adjustment.
+		const double	m_bw;
 };
-
-inline std::ostream &operator<<(std::ostream &s, const Individual &ind) {
-	for (size_t i = 0; i < ind.x.size(); ++i) {
-		s << ind.x[i] << " ";
-	}
-	return s;
-}
 
 #endif

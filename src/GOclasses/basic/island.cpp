@@ -222,6 +222,7 @@ void island::int_evolver::operator()()
 	m_i->m_mutex.unlock();
 }
 
+// Perform at least one evolution, and continue evolving until at least a certain amount of time has passed.
 void island::t_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();

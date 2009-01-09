@@ -52,6 +52,8 @@ public:
 	double evaluateStd() const;
 	Individual extractBestIndividual() const;
 	Individual extractWorstIndividual() const;
+	Individual &best();
+	Individual &worst();
 	// TODO: review this API.
 	Population extractRandomDeme(int, std::vector<size_t> &);
 	void insertDeme(const Population &, const std::vector<size_t> &);
@@ -61,7 +63,7 @@ private:
 	void check_individual(const Individual &) const;
 	void createRandomPopulation(int);
 	template <class Functor>
-	const Individual &extract_most() const {
+	size_t extract_most_index() const {
 		if (pop.empty()) {
 			pagmo_throw(index_error,"population is empty");
 		}
@@ -75,7 +77,7 @@ private:
 				f = pop[i].getFitness();
 			}
 		}
-		return pop[index];
+		return index;
 	}
 	template <bool Forced>
 	void ll_insert_deme(const Population &deme, const std::vector<size_t> &picks) {
