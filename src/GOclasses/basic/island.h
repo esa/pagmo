@@ -64,10 +64,10 @@ class __PAGMO_VISIBLE island
 		size_t size() const;
 		size_t id() const;
 		void evolve(int n = 1);
-		void evolve_t(const double &);
+		void evolve_t(const size_t &);
 		void join() const;
 		bool busy() const;
-		double evo_time() const;
+		size_t evo_time() const;
 	private:
 		void set_archipelago(archipelago *);
 		struct int_evolver {
@@ -77,17 +77,17 @@ class __PAGMO_VISIBLE island
 			const int	m_n;
 		};
 		struct t_evolver {
-			t_evolver(island *i, const double &t):m_i(i),m_t(t) {}
+			t_evolver(island *i, const size_t &t):m_i(i),m_t(t) {}
 			void operator()();
 			island 			*m_i;
-			const double	m_t;
+			const size_t	m_t;
 		};
 		static size_t get_new_id();
 		size_t										m_id;
 		Population									m_pop;
 		boost::scoped_ptr<const go_algorithm>		m_goa;
 		archipelago									*m_a;
-		double										m_evo_time;
+		size_t										m_evo_time;
 		mutable mutex_type							m_mutex;
 		static PaGMO::atomic_counter_size_t			id_counter;
 };

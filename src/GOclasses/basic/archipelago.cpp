@@ -108,7 +108,7 @@ void archipelago::evolve(int n)
 	}
 }
 
-void archipelago::evolve_t(const double &t)
+void archipelago::evolve_t(const size_t &t)
 {
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {

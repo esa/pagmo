@@ -54,7 +54,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		void join() const;
 		bool busy() const;
 		void evolve(int n = 1);
-		void evolve_t(const double &);
+		void evolve_t(const size_t &);
 	private:
 		void check_island(const island &) const;
 		container_type						m_container;

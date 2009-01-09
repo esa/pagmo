@@ -92,7 +92,7 @@ void island::evolve(int N)
 	}
 }
 
-void island::evolve_t(const double &t)
+void island::evolve_t(const size_t &t)
 {
 	if (m_mutex.try_lock()) {
 		boost::thread(t_evolver(this,t));
@@ -188,7 +188,7 @@ void island::erase(int n)
 	m_pop.erase(n);
 }
 
-double island::evo_time() const
+size_t island::evo_time() const
 {
 	return m_evo_time;
 }
@@ -213,28 +213,32 @@ void island::int_evolver::operator()()
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
 	}
-	m_i->m_evo_time += (boost::posix_time::microsec_clock::local_time() - start).total_milliseconds() / 1000.;
+	// We must take care of potentially low-accuracy clocks, where the time difference could be negative for
+	// _really_ short evolution times. In that case do not add anything to the total evolution time.
+	const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
+	if (diff.total_milliseconds() >= 0) {
+		m_i->m_evo_time += diff.total_milliseconds();
+	}
 	m_i->m_mutex.unlock();
 }
 
 void island::t_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+	boost::posix_time::time_duration diff;
 	try {
-		while (true) {
+		do {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
+			diff = boost::posix_time::microsec_clock::local_time() - start;
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
-			const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
-			if (diff.total_seconds() > m_t) {
-				break;
-			}
-		}
+			// Take care of negative timings.
+		} while (diff.total_milliseconds() < 0 || (size_t)diff.total_milliseconds() < m_t);
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
 	}
-	m_i->m_evo_time += (boost::posix_time::microsec_clock::local_time() - start).total_milliseconds() / 1000.;
+	m_i->m_evo_time += diff.total_milliseconds();
 	m_i->m_mutex.unlock();
 }
 
