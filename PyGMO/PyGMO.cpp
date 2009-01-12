@@ -39,7 +39,6 @@
 
 #include "../src/GOclasses/algorithms/ASA.h"
 #include "../src/GOclasses/algorithms/DE.h"
-#include "../src/GOclasses/algorithms/hs_algorithm.h"
 #include "../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../src/GOclasses/basic/archipelago.h"
 #include "../src/GOclasses/basic/individual.h"
@@ -172,7 +171,6 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose algorithms.
 	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const double &, const double &>());
 	class_<DEalgorithm, bases<go_algorithm> > class_de("de_algorithm", "DE algorithm.", init<int, const double &, const double &, int>());
-	class_<hs_algorithm, bases<go_algorithm> > class_hs("hs_algorithm", "HS algorithm.", init<int, const double &, const double &, const double &>());
 	class_<ihs_algorithm, bases<go_algorithm> > class_ihs("ihs_algorithm", "IHS algorithm.", init<int, const double &, const double &,
 		const double &, const double &, const double &>());
 

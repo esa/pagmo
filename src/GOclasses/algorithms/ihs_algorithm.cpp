@@ -57,43 +57,39 @@ Population ihs_algorithm::evolve(const Population &pop) const
 	}
 	// This is the return population.
 	Population retval = pop;
-	// Temporary decision vector.
-	std::vector<double> tmp_dv(problem_size);
-	// Vector of picks.
-	std::vector<size_t> picks;
-	picks.reserve(problem_size);
-	double ppar_cur, bw_cur;
+	// Temporary decision vector, and lower-upper bounds difference vector.
+	std::vector<double> tmp_dv(problem_size), lu_diff(problem_size);
+	for (size_t i = 0; i < problem_size; ++i) {
+		lu_diff[i] = ub[i] - lb[i];
+	}
 	const double c = std::log(m_bw_min/m_bw_max) / m_gen;
 	for (size_t g = 0; g < m_gen; ++g) {
-		ppar_cur = m_ppar_min + ((m_ppar_max - m_ppar_min) * g) / m_gen;
-		bw_cur = m_bw_max * std::exp(c * g);
+		const double ppar_cur = m_ppar_min + ((m_ppar_max - m_ppar_min) * g) / m_gen, bw_cur = m_bw_max * std::exp(c * g);
 		for (size_t i = 0; i < problem_size; ++i) {
 			const double next_rn = drng();
 			if (drng() <= m_phmcr) {
-				const size_t pick = (size_t)(next_rn * pop_size);
-				picks.push_back(pick);
-				tmp_dv[i] = retval[pick].getDecisionVector()[i];
+				// With random probability, tmp's i-th chromosome element is the one from a randomly chosen individual.
+				tmp_dv[i] = retval[(size_t)(next_rn * pop_size)].getDecisionVector()[i];
+				if (drng() <= ppar_cur) {
+					// Randomly, add or subtract pitch from the current chromosome element.
+					const double next_next_rn = drng();
+					if (drng() > .5) {
+						tmp_dv[i] += next_next_rn * bw_cur * lu_diff[i];
+					} else {
+						tmp_dv[i] -= next_next_rn * bw_cur * lu_diff[i];
+					}
+					// Handle the case in which we addded or subtracted too much and ended up out
+					// of boundaries.
+					if (tmp_dv[i] > ub[i]) {
+						tmp_dv[i] = ub[i];
+					} else if (tmp_dv[i] < lb[i]) {
+						tmp_dv[i] = lb[i];
+					}
+				}
 			} else {
-				tmp_dv[i] = lb[i] + next_rn * (ub[i] - lb[i]);
+				tmp_dv[i] = lb[i] + next_rn * lu_diff[i];
 			}
 		}
-		const size_t picks_size = picks.size();
-		for (size_t i = 0; i < picks_size; ++i) {
-			if (drng() <= ppar_cur) {
-				const double next_rn = drng();
-				if (drng() > .5) {
-					tmp_dv[picks[i]] += next_rn * bw_cur * (ub[picks[i]] - lb[picks[i]]);
-				} else {
-					tmp_dv[picks[i]] -= next_rn * bw_cur * (ub[picks[i]] - lb[picks[i]]);
-				}
-				if (tmp_dv[picks[i]] > ub[picks[i]]) {
-					tmp_dv[picks[i]] = ub[picks[i]];
-				} else if (tmp_dv[picks[i]] < lb[picks[i]]) {
-					tmp_dv[picks[i]] = lb[picks[i]];
-				}
-			}
-		}
-		picks.clear();
 		const double tmp_fitness = problem.objfun(tmp_dv);
 		Individual &worst = retval.worst();
 		if (tmp_fitness < worst.getFitness()) {

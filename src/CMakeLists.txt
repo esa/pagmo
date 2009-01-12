@@ -16,7 +16,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/PSO.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/SGA.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/go_algorithm.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/hs_algorithm.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/ihs_algorithm.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/individual.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/archipelago.cpp
