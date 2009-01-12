@@ -21,13 +21,14 @@
 // 27/12/2008: Initial version by Francesco Biscani.
 
 #include <boost/python/class.hpp>
+#include <boost/python/copy_const_reference.hpp>
 #include <boost/python/errors.hpp>
-#include <boost/python/iterator.hpp>
 #include <boost/python/exception_translator.hpp>
+#include <boost/python/iterator.hpp>
+#include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
 #include <boost/python/pure_virtual.hpp>
-#include <boost/python/copy_const_reference.hpp>
 #include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
@@ -185,8 +186,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.def("__repr__", &Py_repr_from_stream<island>);
 	class_island.def("append", &island::push_back, "Append individual at the end of the island.");
 	class_island.def("insert", &island::insert, "Insert individual after index.");
-	class_island.def("problem", &island::problem, return_internal_reference<>(), "Return problem.");
-	class_island.def("algorithm", &island::algorithm, return_internal_reference<>(), "Return algorithm.");
+	class_island.add_property("problem", make_function(&island::problem, return_internal_reference<>()), "Problem.");
+	class_island.add_property("algorithm", make_function(&island::algorithm, return_internal_reference<>()), &island::set_algorithm, "Algorithm.");
 	class_island.def("mean", &island::mean, "Evaluate mean.");
 	class_island.def("std", &island::std, "Evaluate std.");
 	class_island.def("best", &island::best, "Copy of best individual.");

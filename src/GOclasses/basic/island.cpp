@@ -77,6 +77,12 @@ const go_algorithm &island::algorithm() const
 	return *m_goa;
 }
 
+void island::set_algorithm(const go_algorithm &a)
+{
+	lock_type lock(m_mutex);
+	m_goa.reset(a.clone());
+}
+
 void island::evolve(int N)
 {
 	if (m_mutex.try_lock()) {
@@ -203,11 +209,13 @@ void island::set_archipelago(archipelago *a)
 void island::int_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+	m_i->m_a->m_top->pre_evolution(m_i->m_pop);
 	try {
 		for (int i = 0; i < m_n; ++i) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 		}
+		m_i->m_a->m_top->post_evolution(m_i->m_pop);
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {
@@ -226,6 +234,7 @@ void island::int_evolver::operator()()
 void island::t_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+	m_i->m_a->m_top->pre_evolution(m_i->m_pop);
 	boost::posix_time::time_duration diff;
 	try {
 		do {
@@ -234,6 +243,7 @@ void island::t_evolver::operator()()
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			// Take care of negative timings.
 		} while (diff.total_milliseconds() < 0 || (size_t)diff.total_milliseconds() < m_t);
+		m_i->m_a->m_top->post_evolution(m_i->m_pop);
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {

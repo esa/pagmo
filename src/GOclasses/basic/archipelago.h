@@ -28,9 +28,11 @@
 #include "../../config.h"
 #include "../problems/GOproblem.h"
 #include "../algorithms/go_algorithm.h"
+#include "base_topology.h"
 #include "island.h"
 #include "py_container_utils.h"
 
+/// Archipelago class.
 class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		typedef std::list<island> container_type;
 		typedef container_type::iterator iterator;
@@ -38,14 +40,19 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		friend std::ostream &operator<<(std::ostream &, const archipelago &);
 		template <class T>
 		friend class py_container_utils;
+		friend class island;
 		const_iterator begin() const {return m_container.begin();}
 		const_iterator end() const {return m_container.end();}
 		iterator begin() {return m_container.begin();}
 		iterator end() {return m_container.end();}
 	public:
+		// Ctors.
 		archipelago(const GOProblem &);
+		archipelago(const GOProblem &, const base_topology &);
 		archipelago(const GOProblem &, const go_algorithm &, int, int);
+		archipelago(const GOProblem &, const base_topology &, const go_algorithm &, int, int);
 		archipelago(const archipelago &);
+		archipelago &operator=(const archipelago &);
 		island &operator[](int);
 		void push_back(const island &);
 		void insert(int, const island &);
@@ -59,6 +66,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		void check_island(const island &) const;
 		container_type						m_container;
 		boost::scoped_ptr<const GOProblem>	m_gop;
+		boost::scoped_ptr<base_topology>	m_top;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);

@@ -52,6 +52,7 @@ class __PAGMO_VISIBLE island
 		Population get_pop() const;
 		const GOProblem &problem() const;
 		const go_algorithm &algorithm() const;
+		void set_algorithm(const go_algorithm &);
 		Individual operator[](int) const;
 		void set(int, const Individual &);
 		void push_back(const Individual &);

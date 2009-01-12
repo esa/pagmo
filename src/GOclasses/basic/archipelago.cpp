@@ -20,27 +20,66 @@
 
 // 04/01/2009: Initial version by Francesco Biscani.
 
+#include <typeinfo>
+
 #include "../../exceptions.h"
 #include "../problems/GOproblem.h"
 #include "../algorithms/go_algorithm.h"
 #include "archipelago.h"
+#include "base_topology.h"
 #include "island.h"
 
-archipelago::archipelago(const GOProblem &p):m_gop(p.clone()) {}
+archipelago::archipelago(const GOProblem &p):m_gop(p.clone()),m_top(new base_topology())
+{
+	m_top->set_archipelago(this);
+}
 
-archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone())
+archipelago::archipelago(const GOProblem &p, const base_topology &t):m_gop(p.clone()),m_top(t.clone())
+{
+	m_top->set_archipelago(this);
+}
+
+archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(new base_topology())
 {
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M));
 	}
+	m_top->set_archipelago(this);
 }
 
-archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(a.m_gop->clone())
+archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(t.clone())
+{
+	for (int i = 0; i < N; ++i) {
+		push_back(island(p,a,M));
+	}
+	m_top->set_archipelago(this);
+}
+
+archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(a.m_gop->clone()),m_top(a.m_top->clone())
 {
 	const iterator it_f = end();
 	for (iterator it = begin(); it != it_f; ++it) {
 		it->set_archipelago(this);
 	}
+	m_top->set_archipelago(this);
+}
+
+archipelago &archipelago::operator=(const archipelago &a)
+{
+	if (this != &a) {
+		if (typeid(*m_gop) != typeid(*a.m_gop)) {
+			pagmo_throw(type_error, "problem types are not compatible while assigning archipelago");
+		}
+		m_container = a.m_container;
+		const iterator it_f = end();
+		for (iterator it = begin(); it != it_f; ++it) {
+			it->set_archipelago(this);
+		}
+		m_gop.reset(a.m_gop->clone());
+		m_top.reset(a.m_top->clone());
+		m_top->set_archipelago(this);
+	}
+	return *this;
 }
 
 island &archipelago::operator[](int n)
