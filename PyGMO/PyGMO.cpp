@@ -41,7 +41,6 @@
 #include "../src/GOclasses/algorithms/DE.h"
 #include "../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../src/GOclasses/basic/archipelago.h"
-#include "../src/GOclasses/basic/base_topology.h"
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/island.h"
 #include "../src/GOclasses/basic/no_topology.h"
@@ -69,16 +68,6 @@ struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
 	}
 };
 
-struct base_topology_wrap: base_topology, wrapper<base_topology>
-{
-	void pre_evolution(const Population &p) {
-		this->get_override("pre_evolution")(p);
-	}
-	void post_evolution(const Population &p) {
-		this->get_override("post_evolution")(p);
-	}
-};
-
 template <class T>
 static inline string Py_repr_from_stream(const T &x)
 {
@@ -103,24 +92,35 @@ static inline string Py_repr_vector(const vector<T> &v)
 	return tmp.str();
 }
 
+template <class T>
+static inline T Py_copy_from_ctor(const T &x)
+{
+	return T(x);
+}
+
 template <class Container, class Item>
-static inline void Py_set_item_from_ra(Container &c, int n, const Item &x) {
+static inline void Py_set_item_from_ra(Container &c, int n, const Item &x)
+{
 	c[n] = x;
 }
 
-static inline void ie_translator(const index_error &ie) {
+static inline void ie_translator(const index_error &ie)
+{
 	PyErr_SetString(PyExc_IndexError, ie.what());
 }
 
-static inline void ve_translator(const value_error &ve) {
+static inline void ve_translator(const value_error &ve)
+{
 	PyErr_SetString(PyExc_ValueError, ve.what());
 }
 
-static inline void te_translator(const type_error &te) {
+static inline void te_translator(const type_error &te)
+{
 	PyErr_SetString(PyExc_TypeError, te.what());
 }
 
-static inline void ae_translator(const assertion_error &ae) {
+static inline void ae_translator(const assertion_error &ae)
+{
 	PyErr_SetString(PyExc_AssertionError, ae.what());
 }
 
@@ -212,13 +212,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
-	// Base topology class.
-	class_<base_topology_wrap, boost::noncopyable> class_bt("base_topology", "Base topology class.", no_init);
-	class_bt.def("pre_evolution", pure_virtual(&base_topology::pre_evolution));
-	class_bt.def("post_evolution", pure_virtual(&base_topology::post_evolution));
-	class_bt.add_property("arch", make_function(&base_topology::arch, return_internal_reference<>()), "Reference to archipelago.");
-
-	// no_topology.
+	// Topologies.
 	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
 
 	// Expose archipelago.
