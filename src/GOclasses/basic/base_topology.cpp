@@ -20,6 +20,7 @@
 
 // 12/01/2009: Initial version by Francesco Biscani.
 
+#include "../../exceptions.h"
 #include "archipelago.h"
 #include "base_topology.h"
 #include "population.h"
@@ -31,4 +32,12 @@ base_topology::~base_topology() {}
 void base_topology::set_archipelago(archipelago *a)
 {
 	m_arch = a;
+}
+
+archipelago &base_topology::arch()
+{
+	if (!m_arch) {
+		pagmo_throw(assertion_error,"dereferencing NULL archipelago pointer in base_topology");
+	}
+	return *m_arch;
 }

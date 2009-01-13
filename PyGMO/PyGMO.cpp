@@ -41,8 +41,10 @@
 #include "../src/GOclasses/algorithms/DE.h"
 #include "../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../src/GOclasses/basic/archipelago.h"
+#include "../src/GOclasses/basic/base_topology.h"
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/island.h"
+#include "../src/GOclasses/basic/no_topology.h"
 #include "../src/GOclasses/basic/population.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
 #include "../src/exceptions.h"
@@ -55,17 +57,25 @@ struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 #if defined ( __GNUC__ ) && GCC_VERSION < 400000
 	GOProblemWrap(const size_t &s, const double *d1, const double *d2):GOProblem(s,d1,d2) {}
 #endif
-	double objfun(const vector<double> &x)
-	{
+	double objfun(const vector<double> &x) {
 		return this->get_override("objfun")(x);
 	}
 };
 
 struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
 {
-	Population evolve(const Population &pop, const GOProblem &prob)
-	{
+	Population evolve(const Population &pop, const GOProblem &prob) {
 		return this->get_override("evolve")(pop,prob);
+	}
+};
+
+struct base_topology_wrap: base_topology, wrapper<base_topology>
+{
+	void pre_evolution(const Population &p) {
+		this->get_override("pre_evolution")(p);
+	}
+	void post_evolution(const Population &p) {
+		this->get_override("post_evolution")(p);
 	}
 };
 
@@ -110,6 +120,10 @@ static inline void te_translator(const type_error &te) {
 	PyErr_SetString(PyExc_TypeError, te.what());
 }
 
+static inline void ae_translator(const assertion_error &ae) {
+	PyErr_SetString(PyExc_AssertionError, ae.what());
+}
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 1)
 
@@ -120,6 +134,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	register_exception_translator<index_error>(ie_translator);
 	register_exception_translator<value_error>(ve_translator);
 	register_exception_translator<type_error>(te_translator);
+	register_exception_translator<assertion_error>(ae_translator);
 
 	// Expose std::vector<double> and std::vector<size_t>.
 	class_<vector<double> > class_vd("__base_vector_double","std::vector<double>");
@@ -197,6 +212,15 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
+	// Base topology class.
+	class_<base_topology_wrap, boost::noncopyable> class_bt("base_topology", "Base topology class.", no_init);
+	class_bt.def("pre_evolution", pure_virtual(&base_topology::pre_evolution));
+	class_bt.def("post_evolution", pure_virtual(&base_topology::post_evolution));
+	class_bt.add_property("arch", make_function(&base_topology::arch, return_internal_reference<>()), "Reference to archipelago.");
+
+	// no_topology.
+	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
+
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
@@ -205,6 +229,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &Py_set_item_from_ra<archipelago,island>);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
+	class_arch.add_property("topology", make_function(&archipelago::topology, return_internal_reference<>()), &archipelago::set_topology,
+		"Topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.def("insert", &archipelago::insert, "Insert island after index.");
 	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");

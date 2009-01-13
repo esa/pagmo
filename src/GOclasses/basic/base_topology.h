@@ -23,7 +23,7 @@
 #ifndef PAGMO_BASE_TOPOLOGY_H
 #define PAGMO_BASE_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "population.h"
 
 class archipelago;
@@ -36,6 +36,7 @@ class __PAGMO_VISIBLE base_topology {
 		virtual void pre_evolution(const Population &) = 0;
 		virtual void post_evolution(const Population &) = 0;
 		virtual base_topology *clone() const = 0;
+		archipelago &arch();
 	protected:
 		void set_archipelago(archipelago *);
 		archipelago	*m_arch;

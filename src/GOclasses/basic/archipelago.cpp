@@ -83,6 +83,17 @@ archipelago &archipelago::operator=(const archipelago &a)
 	return *this;
 }
 
+const base_topology &archipelago::topology() const
+{
+	return *m_top;
+}
+
+void archipelago::set_topology(const base_topology &t)
+{
+	m_top.reset(t.clone());
+	m_top->set_archipelago(this);
+}
+
 island &archipelago::operator[](int n)
 {
 	return *it_from_index<iterator>(n);

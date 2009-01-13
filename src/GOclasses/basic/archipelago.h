@@ -53,6 +53,8 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		archipelago(const GOProblem &, const base_topology &, const go_algorithm &, int, int);
 		archipelago(const archipelago &);
 		archipelago &operator=(const archipelago &);
+		const base_topology &topology() const;
+		void set_topology(const base_topology &);
 		island &operator[](int);
 		void push_back(const island &);
 		void insert(int, const island &);

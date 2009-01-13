@@ -58,4 +58,8 @@ struct type_error: public base_exception {
 	type_error(const std::string &s): base_exception(s) {}
 };
 
+struct assertion_error: public base_exception {
+	assertion_error(const std::string &s): base_exception(s) {}
+};
+
 #endif
