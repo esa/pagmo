@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+// 12/01/2009: Initial version by Francesco Biscani.
+
 #include "archipelago.h"
 #include "base_topology.h"
 #include "population.h"
@@ -25,15 +27,6 @@
 base_topology::base_topology():m_arch(0) {}
 
 base_topology::~base_topology() {}
-
-base_topology *base_topology::clone() const
-{
-	return new base_topology(*this);
-}
-
-void base_topology::pre_evolution(const Population &) {}
-
-void base_topology::post_evolution(const Population &) {}
 
 void base_topology::set_archipelago(archipelago *a)
 {

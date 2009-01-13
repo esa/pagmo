@@ -18,27 +18,21 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 12/01/2009: Initial version by Francesco Biscani.
+// 13/01/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_BASE_TOPOLOGY_H
-#define PAGMO_BASE_TOPOLOGY_H
+#ifndef PAGMO_NO_TOPOLOGY_H
+#define PAGMO_NO_TOPOLOGY_H
 
 #include "../../config.h"
+#include "base_topology.h"
 #include "population.h"
 
-class archipelago;
-
-class __PAGMO_VISIBLE base_topology {
-		friend class archipelago;
+class __PAGMO_VISIBLE no_topology: public base_topology {
 	public:
-		base_topology();
-		virtual ~base_topology();
-		virtual void pre_evolution(const Population &) = 0;
-		virtual void post_evolution(const Population &) = 0;
-		virtual base_topology *clone() const = 0;
-	protected:
-		void set_archipelago(archipelago *);
-		archipelago	*m_arch;
+		no_topology():base_topology() {}
+		virtual no_topology *clone() const {return new no_topology(*this);}
+		virtual void pre_evolution(const Population &) {}
+		virtual void post_evolution(const Population &) {}
 };
 
 #endif

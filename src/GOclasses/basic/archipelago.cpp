@@ -27,9 +27,10 @@
 #include "../algorithms/go_algorithm.h"
 #include "archipelago.h"
 #include "base_topology.h"
+#include "no_topology.h"
 #include "island.h"
 
-archipelago::archipelago(const GOProblem &p):m_gop(p.clone()),m_top(new base_topology())
+archipelago::archipelago(const GOProblem &p):m_gop(p.clone()),m_top(new no_topology())
 {
 	m_top->set_archipelago(this);
 }
@@ -39,7 +40,7 @@ archipelago::archipelago(const GOProblem &p, const base_topology &t):m_gop(p.clo
 	m_top->set_archipelago(this);
 }
 
-archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(new base_topology())
+archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(new no_topology())
 {
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M));
