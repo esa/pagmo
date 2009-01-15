@@ -46,12 +46,12 @@ island::island(const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_
 
 island::island(const GOProblem &p, const go_algorithm &al, int n):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0),m_evo_time(0) {}
 
-island::island(const island &i):m_id(get_new_id()),m_pop(i.get_pop()),m_goa(i.m_goa->clone()),m_a(0),m_evo_time(i.m_evo_time) {}
+island::island(const island &i):m_id(get_new_id()),m_pop(i.population()),m_goa(i.m_goa->clone()),m_a(0),m_evo_time(i.m_evo_time) {}
 
 island &island::operator=(const island &i)
 {
 	if (this != &i) {
-		m_pop = i.get_pop();
+		m_pop = i.population();
 		m_id = get_new_id();
 		m_goa.reset(i.m_goa->clone());
 		m_evo_time = i.m_evo_time;
@@ -66,9 +66,9 @@ island::~island()
 
 const GOProblem &island::problem() const
 {
-	// We need to lock here because problem is embedded in population, so we
-	// must guard against simultaneous read/write access.
-	lock_type lock(m_mutex);
+	// We must lock here because problem is embedded into population: at the end of an evolution
+	// we overwrite the population, so we may have simultaneous read-write on the problem.
+	join();
 	return m_pop.problem();
 }
 
@@ -79,7 +79,7 @@ const go_algorithm &island::algorithm() const
 
 void island::set_algorithm(const go_algorithm &a)
 {
-	lock_type lock(m_mutex);
+	join();
 	m_goa.reset(a.clone());
 }
 
@@ -130,72 +130,73 @@ size_t island::id() const
 
 size_t island::size() const
 {
-	lock_type lock(m_mutex);
+	join();
 	return m_pop.size();
 }
 
 double island::mean() const
 {
-	lock_type lock(m_mutex);
+	join();
 	return m_pop.evaluateMean();
 }
 
 double island::std() const
 {
-	lock_type lock(m_mutex);
+	join();
 	return m_pop.evaluateStd();
 }
 
 Individual island::best() const
 {
-	lock_type lock(m_mutex);
+	join();
 	return m_pop.extractBestIndividual();
 }
 
 Individual island::worst() const
 {
-	lock_type lock(m_mutex);
+	join();
 	return m_pop.extractBestIndividual();
 }
 
-Population island::get_pop() const
+Population island::population() const
 {
-	lock_type lock(m_mutex);
-	return Population(m_pop);
+	join();
+	return m_pop;
 }
 
 Individual island::operator[](int n) const
 {
-	lock_type lock(m_mutex);
+	join();
 	return m_pop[n];
 }
 
 void island::set(int n, const Individual &i)
 {
-	lock_type lock(m_mutex);
+	join();
 	m_pop[n] = i;
 }
 
 void island::push_back(const Individual &i)
 {
-	lock_type lock(m_mutex);
+	join();
 	m_pop.push_back(i);
 }
 
 void island::insert(int n, const Individual &i)
 {
-	lock_type lock(m_mutex);
+	join();
 	m_pop.insert(n,i);
 }
 
 void island::erase(int n)
 {
-	lock_type lock(m_mutex);
+	join();
 	m_pop.erase(n);
 }
 
 size_t island::evo_time() const
 {
+	join();
 	return m_evo_time;
 }
 
@@ -209,13 +210,17 @@ void island::set_archipelago(archipelago *a)
 void island::int_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
-	m_i->m_a->m_top->pre_evolution(m_i->m_pop);
+	if (m_i->m_a) {
+		m_i->m_a->m_top->pre_evolution(m_i);
+	}
 	try {
 		for (int i = 0; i < m_n; ++i) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 		}
-		m_i->m_a->m_top->post_evolution(m_i->m_pop);
+		if (m_i->m_a) {
+			m_i->m_a->m_top->post_evolution(m_i);
+		}
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {
@@ -234,7 +239,9 @@ void island::int_evolver::operator()()
 void island::t_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
-	m_i->m_a->m_top->pre_evolution(m_i->m_pop);
+	if (m_i->m_a) {
+		m_i->m_a->m_top->pre_evolution(m_i);
+	}
 	boost::posix_time::time_duration diff;
 	try {
 		do {
@@ -243,7 +250,9 @@ void island::t_evolver::operator()()
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			// Take care of negative timings.
 		} while (diff.total_milliseconds() < 0 || (size_t)diff.total_milliseconds() < m_t);
-		m_i->m_a->m_top->post_evolution(m_i->m_pop);
+		if (m_i->m_a) {
+			m_i->m_a->m_top->post_evolution(m_i);
+		}
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {

@@ -50,6 +50,11 @@
 		return *this;
 	}
 
+	const GOProblem &Population::problem() const
+	{
+		return *m_problem;
+	}
+
 	void Population::createRandomPopulation(int N)
 	{
 		pop.clear();
@@ -89,7 +94,15 @@
 	void Population::insert(int n, const Individual &i)
 	{
 		check_individual(i);
-		pop.insert(pop.begin() + get_ra_index(n),i);
+		try {
+			pop.insert(pop.begin() + get_ra_index(n),i);
+		} catch (const index_error &) {
+			if (n >= 0) {
+				pop.insert(pop.begin(),i);
+			} else {
+				pop.insert(pop.end(),i);
+			}
+		}
 	}
 
 	size_t Population::size() const

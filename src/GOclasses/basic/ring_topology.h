@@ -20,19 +20,35 @@
 
 // 13/01/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_NO_TOPOLOGY_H
-#define PAGMO_NO_TOPOLOGY_H
+#ifndef PAGMO_RING_TOPOLOGY_H
+#define PAGMO_RING_TOPOLOGY_H
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/unordered_map.hpp>
+
+#include "../../Functions/rng/rng.h"
 #include "../../config.h"
 #include "base_topology.h"
+#include "individual.h"
 #include "island.h"
 
-class __PAGMO_VISIBLE no_topology: public base_topology {
+class __PAGMO_VISIBLE ring_topology: public base_topology {
+		typedef boost::mutex mutex_type;
+		typedef boost::lock_guard<mutex_type> lock_type;
+		typedef boost::unordered_map<size_t,Individual> container_type;
+		typedef container_type::iterator iterator;
 	public:
-		no_topology():base_topology() {}
-		virtual no_topology *clone() const {return new no_topology(*this);}
-		virtual void pre_evolution(island *) {}
-		virtual void post_evolution(island *) {}
+		ring_topology(const double &);
+		ring_topology(const ring_topology &);
+		virtual ring_topology *clone() const {return new ring_topology(*this);}
+		virtual void pre_evolution(island *);
+		virtual void post_evolution(island *);
+	private:
+		mutable mutex_type		m_mutex;
+		container_type			m_container;
+		rng_double				m_drng;
+		const double			m_prob;
 };
 
 #endif

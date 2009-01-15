@@ -20,24 +20,31 @@
 
 // 12/01/2009: Initial version by Francesco Biscani.
 
-#include "../../exceptions.h"
 #include "archipelago.h"
 #include "base_topology.h"
+#include "island.h"
 #include "population.h"
 
-base_topology::base_topology():m_arch(0) {}
+base_topology::base_topology() {}
 
 base_topology::~base_topology() {}
 
-void base_topology::set_archipelago(archipelago *a)
+Population &base_topology::get_pop(island *isl)
 {
-	m_arch = a;
+	return isl->m_pop;
 }
 
-archipelago &base_topology::arch()
+const Population &base_topology::get_pop(const island *isl)
 {
-	if (!m_arch) {
-		pagmo_throw(assertion_error,"dereferencing NULL archipelago pointer in base_topology");
-	}
-	return *m_arch;
+	return isl->m_pop;
+}
+
+archipelago *base_topology::get_arch(island *isl)
+{
+	return isl->m_a;
+}
+
+const archipelago *base_topology::get_arch(const island *isl)
+{
+	return isl->m_a;
 }

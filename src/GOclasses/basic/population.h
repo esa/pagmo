@@ -47,7 +47,7 @@ public:
 	void insert(int, const Individual &);
 	void erase(int);
 	size_t size() const;
-	const GOProblem &problem() const {return *m_problem;}
+	const GOProblem &problem() const;
 	double evaluateMean() const;
 	double evaluateStd() const;
 	Individual extractBestIndividual() const;

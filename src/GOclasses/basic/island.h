@@ -32,6 +32,7 @@
 #include "../../config.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
+#include "base_topology.h"
 #include "individual.h"
 #include "population.h"
 
@@ -42,6 +43,7 @@ class __PAGMO_VISIBLE island
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
 		friend class archipelago;
+		friend class base_topology;
 		friend std::ostream &operator<<(std::ostream &, const island &);
 	public:
 		island(const GOProblem &, const go_algorithm &);
@@ -49,7 +51,7 @@ class __PAGMO_VISIBLE island
 		island(const island &);
 		island &operator=(const island &);
 		~island();
-		Population get_pop() const;
+		Population population() const;
 		const GOProblem &problem() const;
 		const go_algorithm &algorithm() const;
 		void set_algorithm(const go_algorithm &);

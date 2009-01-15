@@ -30,22 +30,15 @@
 #include "no_topology.h"
 #include "island.h"
 
-archipelago::archipelago(const GOProblem &p):m_gop(p.clone()),m_top(new no_topology())
-{
-	m_top->set_archipelago(this);
-}
+archipelago::archipelago(const GOProblem &p):m_gop(p.clone()),m_top(new no_topology()) {}
 
-archipelago::archipelago(const GOProblem &p, const base_topology &t):m_gop(p.clone()),m_top(t.clone())
-{
-	m_top->set_archipelago(this);
-}
+archipelago::archipelago(const GOProblem &p, const base_topology &t):m_gop(p.clone()),m_top(t.clone()) {}
 
 archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(new no_topology())
 {
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M));
 	}
-	m_top->set_archipelago(this);
 }
 
 archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(t.clone())
@@ -53,7 +46,6 @@ archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_al
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M));
 	}
-	m_top->set_archipelago(this);
 }
 
 archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(a.m_gop->clone()),m_top(a.m_top->clone())
@@ -62,11 +54,15 @@ archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(
 	for (iterator it = begin(); it != it_f; ++it) {
 		it->set_archipelago(this);
 	}
-	m_top->set_archipelago(this);
 }
 
 archipelago &archipelago::operator=(const archipelago &a)
 {
+	// We want to guard against assignment here because the topology might access the info on the island
+	// list while the list itself is being modified (please note that if it weren't for the topology this would be fine,
+	// since the single island take care of themselves against concurrent read/write access through internal
+	// mutexes).
+	join();
 	if (this != &a) {
 		if (typeid(*m_gop) != typeid(*a.m_gop)) {
 			pagmo_throw(type_error, "problem types are not compatible while assigning archipelago");
@@ -78,7 +74,6 @@ archipelago &archipelago::operator=(const archipelago &a)
 		}
 		m_gop.reset(a.m_gop->clone());
 		m_top.reset(a.m_top->clone());
-		m_top->set_archipelago(this);
 	}
 	return *this;
 }
@@ -90,12 +85,15 @@ const base_topology &archipelago::topology() const
 
 void archipelago::set_topology(const base_topology &t)
 {
+	join();
 	m_top.reset(t.clone());
-	m_top->set_archipelago(this);
 }
 
 island &archipelago::operator[](int n)
 {
+	// NOTE: maybe this is not really needed, island should be able to take care of itself
+	// without external protection.
+	join();
 	return *it_from_index<iterator>(n);
 }
 
@@ -111,8 +109,21 @@ void archipelago::check_island(const island &isl) const
 	}
 }
 
+size_t archipelago::island_index(const island *isl) const
+{
+	const const_iterator it_f = end();
+	size_t retval = 0;
+	for (const_iterator it = begin(); it != it_f; ++it, ++retval) {
+		if (&(*it) == isl) {
+			return retval;
+		}
+	}
+	pagmo_throw(index_error,"could not find island index");
+}
+
 void archipelago::push_back(const island &isl)
 {
+	join();
 	check_island(isl);
 	m_container.push_back(isl);
 	m_container.back().set_archipelago(this);
@@ -120,8 +131,20 @@ void archipelago::push_back(const island &isl)
 
 void archipelago::insert(int n, const island &isl)
 {
+	join();
 	check_island(isl);
-	iterator it = it_from_index<iterator>(n);
+	iterator it;
+	// Emulate Python lists' behaviour of inserting at the beginning if the negative index
+	// is out of range, at the end if the positive index is out of range.
+	try {
+		it = it_from_index<iterator>(n);
+	} catch (const index_error &) {
+		if (n >= 0) {
+			it = m_container.begin();
+		} else {
+			it = m_container.end();
+		}
+	}
 	m_container.insert(it,isl);
 	--it;
 	it->set_archipelago(this);
@@ -153,6 +176,9 @@ bool archipelago::busy() const
 
 void archipelago::evolve(int n)
 {
+	if (busy()) {
+		pagmo_throw(runtime_error,"cannot start evolution while evolving");
+	}
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve(n);
@@ -161,6 +187,9 @@ void archipelago::evolve(int n)
 
 void archipelago::evolve_t(const size_t &t)
 {
+	if (busy()) {
+		pagmo_throw(runtime_error,"cannot start evolution while evolving");
+	}
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve_t(t);

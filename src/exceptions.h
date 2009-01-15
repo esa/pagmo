@@ -62,4 +62,8 @@ struct assertion_error: public base_exception {
 	assertion_error(const std::string &s): base_exception(s) {}
 };
 
+struct runtime_error: public base_exception {
+	runtime_error(const std::string &s): base_exception(s) {}
+};
+
 #endif

@@ -41,10 +41,12 @@
 #include "../src/GOclasses/algorithms/DE.h"
 #include "../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../src/GOclasses/basic/archipelago.h"
+#include "../src/GOclasses/basic/base_topology.h"
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/island.h"
 #include "../src/GOclasses/basic/no_topology.h"
 #include "../src/GOclasses/basic/population.h"
+#include "../src/GOclasses/basic/ring_topology.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
 #include "../src/exceptions.h"
 
@@ -66,6 +68,11 @@ struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
 	Population evolve(const Population &pop, const GOProblem &prob) {
 		return this->get_override("evolve")(pop,prob);
 	}
+};
+
+struct base_topology_wrap: base_topology, wrapper<base_topology>
+{
+
 };
 
 template <class T>
@@ -160,9 +167,9 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("__len__", &Population::size);
 	class_pop.def("__setitem__", &Py_set_item_from_ra<Population,Individual>);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
-	class_pop.def("problem", &Population::problem, return_internal_reference<>(), "Return problem.");
+	class_pop.def("problem", &Population::problem, return_value_policy<copy_const_reference>(), "Return problem.");
 	class_pop.def("append", &Population::push_back, "Append individual at the end of the population.");
-	class_pop.def("insert", &Population::insert, "Insert individual after index.");
+	class_pop.def("insert", &Population::insert, "Insert individual before index.");
 	class_pop.def("mean", &Population::evaluateMean, "Evaluate mean.");
 	class_pop.def("std", &Population::evaluateStd, "Evaluate std.");
 	class_pop.def("best", &Population::extractBestIndividual, "Copy of best individual.");
@@ -199,8 +206,9 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.def("__repr__", &Py_repr_from_stream<island>);
 	class_island.def("append", &island::push_back, "Append individual at the end of the island.");
 	class_island.def("insert", &island::insert, "Insert individual after index.");
-	class_island.add_property("problem", make_function(&island::problem, return_internal_reference<>()), "Problem.");
-	class_island.add_property("algorithm", make_function(&island::algorithm, return_internal_reference<>()), &island::set_algorithm, "Algorithm.");
+	class_island.add_property("problem", make_function(&island::problem, return_value_policy<copy_const_reference>()), "Problem.");
+	class_island.add_property("algorithm", make_function(&island::algorithm, return_value_policy<copy_const_reference>()), &island::set_algorithm, "Algorithm.");
+	class_island.add_property("population", &island::population, "Copy of population.");
 	class_island.def("mean", &island::mean, "Evaluate mean.");
 	class_island.def("std", &island::std, "Evaluate std.");
 	class_island.def("best", &island::best, "Copy of best individual.");
@@ -213,21 +221,25 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
 	// Topologies.
+	class_<base_topology_wrap, boost::noncopyable> class_bt("base_topology", "Base topology.", no_init);
 	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
+	class_<ring_topology, bases<base_topology> > class_rt("ring_topology", "Ring topology.", init<const double &>());
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
+	class_arch.def(init<const GOProblem &, const base_topology &>());
+	class_arch.def(init<const GOProblem &, const base_topology &, const go_algorithm &, int, int>());
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &Py_set_item_from_ra<archipelago,island>);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
-	class_arch.add_property("topology", make_function(&archipelago::topology, return_internal_reference<>()), &archipelago::set_topology,
+	class_arch.add_property("topology", make_function(&archipelago::topology, return_value_policy<copy_const_reference>()), &archipelago::set_topology,
 		"Topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.def("insert", &archipelago::insert, "Insert island after index.");
-	class_arch.def("problem", &archipelago::problem, return_internal_reference<>(), "Return problem.");
+	class_arch.def("problem", &archipelago::problem, return_value_policy<copy_const_reference>(), "Return copy of problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
