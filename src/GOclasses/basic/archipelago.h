@@ -41,6 +41,12 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		template <class T>
 		friend class py_container_utils;
 		friend class island;
+// Work around behaviour of GCC < 4.1, which does not recognize
+// friendship with classes defined inside friend classes.
+#if GCC_VERSION < 401000
+		friend class island::int_evolver;
+		friend class island::t_evolver;
+#endif
 		const_iterator begin() const {return m_container.begin();}
 		const_iterator end() const {return m_container.end();}
 		iterator begin() {return m_container.begin();}
