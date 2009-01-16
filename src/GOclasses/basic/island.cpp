@@ -210,10 +210,10 @@ void island::set_archipelago(archipelago *a)
 void island::int_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
-	if (m_i->m_a) {
-		m_i->m_a->m_top->pre_evolution(m_i);
-	}
 	try {
+		if (m_i->m_a) {
+			m_i->m_a->m_top->pre_evolution(m_i);
+		}
 		for (int i = 0; i < m_n; ++i) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
@@ -239,11 +239,11 @@ void island::int_evolver::operator()()
 void island::t_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
-	if (m_i->m_a) {
-		m_i->m_a->m_top->pre_evolution(m_i);
-	}
 	boost::posix_time::time_duration diff;
 	try {
+		if (m_i->m_a) {
+			m_i->m_a->m_top->pre_evolution(m_i);
+		}
 		do {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			diff = boost::posix_time::microsec_clock::local_time() - start;
