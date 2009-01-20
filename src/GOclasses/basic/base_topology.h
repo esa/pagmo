@@ -23,6 +23,9 @@
 #ifndef PAGMO_BASE_TOPOLOGY_H
 #define PAGMO_BASE_TOPOLOGY_H
 
+#include <string>
+#include <typeinfo>
+
 #include "../../../config.h"
 #include "island.h"
 #include "population.h"
@@ -37,6 +40,7 @@ class __PAGMO_VISIBLE base_topology {
 		virtual void pre_evolution(island *) = 0;
 		virtual void post_evolution(island *) = 0;
 		virtual base_topology *clone() const = 0;
+		std::string id_name() const {return typeid(*this).name();}
 	protected:
 		static Population &get_pop(island *);
 		static const Population &get_pop(const island *);

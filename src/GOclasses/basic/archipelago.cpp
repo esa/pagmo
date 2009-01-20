@@ -197,7 +197,8 @@ void archipelago::evolve_t(const size_t &t)
 }
 
 std::ostream &operator<<(std::ostream &s, const archipelago &a) {
-	s << "Problem type:    " << a.m_gop->id_name() << "\n\n";
+	s << "Problem type:    " << a.m_gop->id_name() << '\n';
+	s << "Topology type:   " << a.m_top->id_name() << "\n\n";
 	const archipelago::const_iterator it_f = a.m_container.end();
 	size_t i = 0;
 	for (archipelago::const_iterator it = a.m_container.begin(); it != it_f; ++it) {

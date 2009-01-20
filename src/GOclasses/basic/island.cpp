@@ -262,7 +262,8 @@ void island::t_evolver::operator()()
 	m_i->m_mutex.unlock();
 }
 
-std::ostream &operator<<(std::ostream &s, const island &isl) {
+std::ostream &operator<<(std::ostream &s, const island &isl)
+{
 	s << "ID:              " << isl.id() << '\n';
 	s << "Population size: " << isl.size() << '\n';
 	s << "Evolution time:  " << isl.evo_time() << '\n';

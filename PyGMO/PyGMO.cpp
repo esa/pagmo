@@ -26,6 +26,7 @@
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/iterator.hpp>
 #include <boost/python/make_function.hpp>
+#include <boost/python/manage_new_object.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
 #include <boost/python/pure_virtual.hpp>
@@ -55,7 +56,7 @@ using namespace std;
 
 struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 {
-#if defined ( __GNUC__ ) && GCC_VERSION < 400000
+#if defined ( __GNUC__ ) && GCC_VERSION < 401000
 	GOProblemWrap(const size_t &s, const double *d1, const double *d2):GOProblem(s,d1,d2) {}
 #endif
 	double objfun(const vector<double> &x) {
@@ -109,6 +110,24 @@ template <class Container, class Item>
 static inline void Py_set_item_from_ra(Container &c, int n, const Item &x)
 {
 	c[n] = x;
+}
+
+template <class T, class C>
+static inline T *problem_getter(const C &c)
+{
+	return c.problem().clone();
+}
+
+template <class T, class C>
+static inline T *algorithm_getter(const C &c)
+{
+	return c.algorithm().clone();
+}
+
+template <class T, class C>
+static inline T *topology_getter(const C &c)
+{
+	return c.topology().clone();
 }
 
 static inline void ie_translator(const index_error &ie)
@@ -167,7 +186,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("__len__", &Population::size);
 	class_pop.def("__setitem__", &Py_set_item_from_ra<Population,Individual>);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
-	class_pop.def("problem", &Population::problem, return_value_policy<copy_const_reference>(), "Return problem.");
+	class_pop.add_property("problem", make_function(&problem_getter<GOProblem,Population>,return_value_policy<manage_new_object>()), "Problem.");
 	class_pop.def("append", &Population::push_back, "Append individual at the end of the population.");
 	class_pop.def("insert", &Population::insert, "Insert individual before index.");
 	class_pop.def("mean", &Population::evaluateMean, "Evaluate mean.");
@@ -206,8 +225,9 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.def("__repr__", &Py_repr_from_stream<island>);
 	class_island.def("append", &island::push_back, "Append individual at the end of the island.");
 	class_island.def("insert", &island::insert, "Insert individual after index.");
-	class_island.add_property("problem", make_function(&island::problem, return_value_policy<copy_const_reference>()), "Problem.");
-	class_island.add_property("algorithm", make_function(&island::algorithm, return_value_policy<copy_const_reference>()), &island::set_algorithm, "Algorithm.");
+	class_island.add_property("problem", make_function(&problem_getter<GOProblem,island>, return_value_policy<manage_new_object>()), "Problem.");
+	class_island.add_property("algorithm", make_function(&algorithm_getter<go_algorithm,island>, return_value_policy<manage_new_object>()),
+		&island::set_algorithm, "Algorithm.");
 	class_island.add_property("population", &island::population, "Copy of population.");
 	class_island.def("mean", &island::mean, "Evaluate mean.");
 	class_island.def("std", &island::std, "Evaluate std.");
@@ -224,6 +244,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<base_topology_wrap, boost::noncopyable> class_bt("base_topology", "Base topology.", no_init);
 	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
 	class_<ring_topology, bases<base_topology> > class_rt("ring_topology", "Ring topology.", init<const double &>());
+	class_rt.def("__repr__", &Py_repr_from_stream<ring_topology>);
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);
@@ -235,11 +256,11 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &Py_set_item_from_ra<archipelago,island>);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
-	class_arch.add_property("topology", make_function(&archipelago::topology, return_value_policy<copy_const_reference>()), &archipelago::set_topology,
-		"Topology.");
+	class_arch.add_property("topology", make_function(&topology_getter<base_topology,archipelago>, return_value_policy<manage_new_object>()),
+		&archipelago::set_topology, "Topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.def("insert", &archipelago::insert, "Insert island after index.");
-	class_arch.def("problem", &archipelago::problem, return_value_policy<copy_const_reference>(), "Return copy of problem.");
+	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
