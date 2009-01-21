@@ -32,6 +32,8 @@ class __PAGMO_VISIBLE go_algorithm
 {
 	public:
 		go_algorithm();
+		go_algorithm(const go_algorithm &);
+		go_algorithm &operator=(const go_algorithm &);
 		virtual Population evolve(const Population &) const = 0;
 		virtual go_algorithm *clone() const = 0;
         virtual ~go_algorithm() {}

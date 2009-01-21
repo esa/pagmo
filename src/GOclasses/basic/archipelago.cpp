@@ -115,18 +115,6 @@ void archipelago::check_island(const island &isl) const
 	}
 }
 
-size_t archipelago::island_index(const island &isl) const
-{
-	const const_iterator it_f = end();
-	size_t retval = 0;
-	for (const_iterator it = begin(); it != it_f; ++it, ++retval) {
-		if (&(*it) == &isl) {
-			return retval;
-		}
-	}
-	pagmo_throw(index_error,"could not find island index");
-}
-
 void archipelago::push_back(const island &isl)
 {
 	join();

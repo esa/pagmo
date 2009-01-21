@@ -23,3 +23,13 @@
 #include "go_algorithm.h"
 
 go_algorithm::go_algorithm():drng(static_rng_uint32()()) {}
+
+go_algorithm::go_algorithm(const go_algorithm &):drng(static_rng_uint32()()) {}
+
+go_algorithm &go_algorithm::operator=(const go_algorithm &a)
+{
+	if (this != &a) {
+		drng = rng_double(static_rng_uint32()());
+	}
+	return *this;
+}

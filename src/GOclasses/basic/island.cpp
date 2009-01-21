@@ -217,9 +217,9 @@ void island::int_evolver::operator()()
 		for (int i = 0; i < m_n; ++i) {
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
-		}
-		if (m_i->m_a) {
-			m_i->m_a->m_top->post_evolution(*m_i);
+			if (m_i->m_a) {
+				m_i->m_a->m_top->post_evolution(*m_i);
+			}
 		}
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
@@ -249,10 +249,10 @@ void island::t_evolver::operator()()
 			diff = boost::posix_time::microsec_clock::local_time() - start;
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			// Take care of negative timings.
+			if (m_i->m_a) {
+				m_i->m_a->m_top->post_evolution(*m_i);
+			}
 		} while (diff.total_milliseconds() < 0 || (size_t)diff.total_milliseconds() < m_t);
-		if (m_i->m_a) {
-			m_i->m_a->m_top->post_evolution(*m_i);
-		}
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {
