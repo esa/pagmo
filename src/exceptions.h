@@ -62,6 +62,11 @@ struct assertion_error: public base_exception {
 	assertion_error(const std::string &s): base_exception(s) {}
 };
 
+#define pagmo_assert(expr) \
+if (!(expr)) { \
+	pagmo_throw(assertion_error,"assertion error"); \
+}
+
 struct runtime_error: public base_exception {
 	runtime_error(const std::string &s): base_exception(s) {}
 };

@@ -48,11 +48,11 @@ archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_al
 	}
 }
 
-archipelago::archipelago(const archipelago &a):m_container(a.m_container),m_gop(a.m_gop->clone()),m_top(a.m_top->clone())
+archipelago::archipelago(const archipelago &a):m_container(),m_gop(a.m_gop->clone()),m_top(a.m_top->clone())
 {
-	const iterator it_f = end();
-	for (iterator it = begin(); it != it_f; ++it) {
-		it->set_archipelago(this);
+	const const_iterator it_f = a.m_container.end();
+	for (const_iterator it = a.m_container.begin(); it != it_f; ++it) {
+		push_back(*it);
 	}
 }
 
@@ -67,13 +67,13 @@ archipelago &archipelago::operator=(const archipelago &a)
 		if (typeid(*m_gop) != typeid(*a.m_gop)) {
 			pagmo_throw(type_error, "problem types are not compatible while assigning archipelago");
 		}
-		m_container = a.m_container;
-		const iterator it_f = end();
-		for (iterator it = begin(); it != it_f; ++it) {
-			it->set_archipelago(this);
-		}
 		m_gop.reset(a.m_gop->clone());
 		m_top.reset(a.m_top->clone());
+		m_container.clear();
+		const const_iterator it_f = a.m_container.end();
+		for (const_iterator it = a.m_container.begin(); it != it_f; ++it) {
+			push_back(*it);
+		}
 	}
 	return *this;
 }
@@ -87,6 +87,12 @@ void archipelago::set_topology(const base_topology &t)
 {
 	join();
 	m_top.reset(t.clone());
+	const container_type old = m_container;
+	m_container.clear();
+	const const_iterator it_f = old.end();
+	for (const_iterator it = old.begin(); it != it_f; ++it) {
+		push_back(*it);
+	}
 }
 
 island &archipelago::operator[](int n)
@@ -109,12 +115,12 @@ void archipelago::check_island(const island &isl) const
 	}
 }
 
-size_t archipelago::island_index(const island *isl) const
+size_t archipelago::island_index(const island &isl) const
 {
 	const const_iterator it_f = end();
 	size_t retval = 0;
 	for (const_iterator it = begin(); it != it_f; ++it, ++retval) {
-		if (&(*it) == isl) {
+		if (&(*it) == &isl) {
 			return retval;
 		}
 	}
@@ -127,27 +133,7 @@ void archipelago::push_back(const island &isl)
 	check_island(isl);
 	m_container.push_back(isl);
 	m_container.back().set_archipelago(this);
-}
-
-void archipelago::insert(int n, const island &isl)
-{
-	join();
-	check_island(isl);
-	iterator it;
-	// Emulate Python lists' behaviour of inserting at the beginning if the negative index
-	// is out of range, at the end if the positive index is out of range.
-	try {
-		it = it_from_index<iterator>(n);
-	} catch (const index_error &) {
-		if (n >= 0) {
-			it = m_container.begin();
-		} else {
-			it = m_container.end();
-		}
-	}
-	m_container.insert(it,isl);
-	--it;
-	it->set_archipelago(this);
+	m_top->push_back(m_container.back());
 }
 
 const GOProblem &archipelago::problem() const

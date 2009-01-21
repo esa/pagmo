@@ -37,15 +37,16 @@ class __PAGMO_VISIBLE base_topology {
 	public:
 		base_topology();
 		virtual ~base_topology();
-		virtual void pre_evolution(island *) = 0;
-		virtual void post_evolution(island *) = 0;
+		virtual void push_back(const island &) = 0;
+		virtual void pre_evolution(island &) = 0;
+		virtual void post_evolution(island &) = 0;
 		virtual base_topology *clone() const = 0;
 		std::string id_name() const {return typeid(*this).name();}
 	protected:
-		static Population &get_pop(island *);
-		static const Population &get_pop(const island *);
-		static archipelago *get_arch(island *);
-		static const archipelago *get_arch(const island *);
+		static Population &get_pop(island &);
+		static const Population &get_pop(const island &);
+		static archipelago *get_arch(island &);
+		static const archipelago *get_arch(const island &);
 };
 
 #endif

@@ -258,7 +258,6 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_arch.add_property("topology", make_function(&topology_getter<base_topology,archipelago>, return_value_policy<manage_new_object>()),
 		&archipelago::set_topology, "Topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
-	class_arch.def("insert", &archipelago::insert, "Insert island after index.");
 	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");

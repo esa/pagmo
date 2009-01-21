@@ -36,19 +36,28 @@
 class __PAGMO_VISIBLE ring_topology: public base_topology {
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
-		typedef boost::unordered_map<size_t,Individual> container_type;
-		typedef container_type::iterator iterator;
+		// ic_type = individual container type.
+		typedef boost::unordered_map<size_t,Individual> ic_type;
+		typedef ic_type::iterator ic_iterator;
+		// tc_type = topology container type.
+		typedef boost::unordered_map<size_t,std::vector<size_t> > tc_type;
+		typedef tc_type::iterator tc_iterator;
 	public:
 		ring_topology(const double &);
 		ring_topology(const ring_topology &);
+		ring_topology &operator=(const ring_topology &);
 		virtual ring_topology *clone() const {return new ring_topology(*this);}
-		virtual void pre_evolution(island *);
-		virtual void post_evolution(island *);
+		virtual void push_back(const island &);
+		virtual void pre_evolution(island &);
+		virtual void post_evolution(island &);
 	private:
-		mutable mutex_type		m_mutex;
-		container_type			m_container;
-		rng_double				m_drng;
-		const double			m_prob;
+		mutable mutex_type	m_mutex;
+		tc_type				m_tc;
+		ic_type				m_ic;
+		rng_double			m_drng;
+		double				m_prob;
+		size_t				m_first;
+		size_t				m_last;
 };
 
 #endif

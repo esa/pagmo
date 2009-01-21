@@ -29,10 +29,10 @@
 
 class __PAGMO_VISIBLE no_topology: public base_topology {
 	public:
-		no_topology():base_topology() {}
 		virtual no_topology *clone() const {return new no_topology(*this);}
-		virtual void pre_evolution(island *) {}
-		virtual void post_evolution(island *) {}
+		virtual void push_back(const island &) {}
+		virtual void pre_evolution(island &) {}
+		virtual void post_evolution(island &) {}
 };
 
 #endif
