@@ -29,7 +29,6 @@ typedef boost::unique_lock<boost::mutex> lock_type;
 typedef messengerfullProb problem_type;
 
 int main(){
-
 		int D =0;							//Problem dimension will be assigned later
 		int choice=0;						//User choice
 		cout.precision(9);

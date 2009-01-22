@@ -1,11 +1,11 @@
 #ifndef PAGMO_RNG_H
 #define PAGMO_RNG_H
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/random/lagged_fibonacci.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-#include <ctime>
 
 // This rng returns an unsigned integer in the [0,2**32-1] range.
 typedef boost::mt19937 rng_uint32;
@@ -30,7 +30,8 @@ template <class Rng>
 boost::mutex static_rng<Rng>::m_mutex;
 
 template <class Rng>
-Rng static_rng<Rng>::m_rng(uint32_t(time(0)));
+Rng static_rng<Rng>::m_rng(uint32_t((boost::posix_time::microsec_clock::local_time() -
+	boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds()));
 
 // Thread-safe uint32 rng.
 typedef static_rng<rng_uint32> static_rng_uint32;
