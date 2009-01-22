@@ -48,33 +48,9 @@ archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_al
 	}
 }
 
-archipelago::archipelago(const archipelago &a):m_container(),m_gop(a.m_gop->clone()),m_top(a.m_top->clone())
+archipelago &archipelago::operator=(const archipelago &)
 {
-	const const_iterator it_f = a.m_container.end();
-	for (const_iterator it = a.m_container.begin(); it != it_f; ++it) {
-		push_back(*it);
-	}
-}
-
-archipelago &archipelago::operator=(const archipelago &a)
-{
-	// We want to guard against assignment here because the topology might access the info on the island
-	// list while the list itself is being modified (please note that if it weren't for the topology this would be fine,
-	// since the single island take care of themselves against concurrent read/write access through internal
-	// mutexes).
-	join();
-	if (this != &a) {
-		if (typeid(*m_gop) != typeid(*a.m_gop)) {
-			pagmo_throw(type_error, "problem types are not compatible while assigning archipelago");
-		}
-		m_gop.reset(a.m_gop->clone());
-		m_top.reset(a.m_top->clone());
-		m_container.clear();
-		const const_iterator it_f = a.m_container.end();
-		for (const_iterator it = a.m_container.begin(); it != it_f; ++it) {
-			push_back(*it);
-		}
-	}
+	pagmo_assert(false);
 	return *this;
 }
 

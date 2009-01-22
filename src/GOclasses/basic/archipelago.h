@@ -23,6 +23,7 @@
 #ifndef PAGMO_ARCHIPELAGO_H
 #define PAGMO_ARCHIPELAGO_H
 
+#include <boost/utility.hpp>
 #include <list>
 
 #include "../../config.h"
@@ -33,7 +34,7 @@
 #include "py_container_utils.h"
 
 /// Archipelago class.
-class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
+class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago>, boost::noncopyable {
 		typedef std::list<island> container_type;
 		typedef container_type::iterator iterator;
 		typedef container_type::const_iterator const_iterator;
@@ -57,8 +58,6 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		archipelago(const GOProblem &, const base_topology &);
 		archipelago(const GOProblem &, const go_algorithm &, int, int);
 		archipelago(const GOProblem &, const base_topology &, const go_algorithm &, int, int);
-		archipelago(const archipelago &);
-		archipelago &operator=(const archipelago &);
 		const base_topology &topology() const;
 		void set_topology(const base_topology &);
 		island &operator[](int);
@@ -70,6 +69,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		void evolve(int n = 1);
 		void evolve_t(const size_t &);
 	private:
+		archipelago &operator=(const archipelago &);
 		void check_island(const island &) const;
 		container_type						m_container;
 		boost::scoped_ptr<const GOProblem>	m_gop;
