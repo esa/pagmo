@@ -35,7 +35,7 @@
 #include "island.h"
 #include "population.h"
 
-PaGMO::atomic_counter_size_t island::id_counter;
+PaGMO::atomic_counter_size_t island::id_counter = PaGMO::atomic_counter_size_t(1);
 
 size_t island::get_new_id()
 {
