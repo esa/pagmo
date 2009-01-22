@@ -29,6 +29,8 @@ class static_rng {
 template <class Rng>
 boost::mutex static_rng<Rng>::m_mutex;
 
+// Use as initial seed the number of microseconds elapsed since 01/01/1970, cast to
+// uint32_t.
 template <class Rng>
 Rng static_rng<Rng>::m_rng(uint32_t((boost::posix_time::microsec_clock::local_time() -
 	boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds()));
