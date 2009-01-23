@@ -42,6 +42,7 @@
 #include "../src/GOclasses/algorithms/DE.h"
 #include "../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../src/GOclasses/basic/archipelago.h"
+#include "../src/GOclasses/basic/ba_topology.h"
 #include "../src/GOclasses/basic/base_topology.h"
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/island.h"
@@ -244,6 +245,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<base_topology_wrap, boost::noncopyable> class_bt("base_topology", "Base topology.", no_init);
 	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
 	class_<ring_topology, bases<base_topology> > class_rt("ring_topology", "Ring topology.", init<const double &>());
+	class_<ba_topology, bases<base_topology> > class_bat("ba_topology", "BA model topology.", init<int, int, const double &>());
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);
