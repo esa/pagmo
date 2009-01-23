@@ -38,12 +38,12 @@ class __PAGMO_VISIBLE ASAalgorithm: public go_algorithm {
 		virtual Population evolve(const Population &) const;
 		virtual ASAalgorithm *clone() const {return new ASAalgorithm(*this);}
 	private:
-		const size_t niterTot;
-		const size_t niterTemp;
-		const size_t niterRange;
-		const double Ts;
-		const double Tf;
-		const double StartStep;
+		 size_t niterTot;
+		 size_t niterTemp;
+		 size_t niterRange;
+		 double Ts;
+		 double Tf;
+		 double StartStep;
 };
 
 #endif
