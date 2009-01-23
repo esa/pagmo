@@ -18,30 +18,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 12/01/2009: Initial version by Francesco Biscani.
+// 22/01/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_BASE_TOPOLOGY_H
-#define PAGMO_BASE_TOPOLOGY_H
+#ifndef PAGMO_GRAPH_TOPOLOGY_H
+#define PAGMO_GRAPH_TOPOLOGY_H
 
-#include <string>
-#include <typeinfo>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/unordered_map.hpp>
+#include <vector>
 
-#include "../../../config.h"
+#include "../../Functions/rng/rng.h"
+#include "../../config.h"
+#include "individual.h"
 #include "island.h"
-#include "population.h"
 
-class archipelago;
-
-class __PAGMO_VISIBLE base_topology {
-		friend class archipelago;
+class __PAGMO_VISIBLE graph_topology {
+	protected:
+		typedef boost::mutex mutex_type;
+		typedef boost::lock_guard<mutex_type> lock_type;
+		// ic_type = individual container type.
+		typedef boost::unordered_map<size_t,Individual> ic_type;
+		typedef ic_type::iterator ic_iterator;
+		// tc_type = topology container type.
+		typedef boost::unordered_map<size_t,std::vector<size_t> > tc_type;
+		typedef tc_type::iterator tc_iterator;
 	public:
-		base_topology();
-		virtual ~base_topology();
-		virtual void push_back(const island &) = 0;
-		virtual void pre_evolution(island &) = 0;
-		virtual void post_evolution(island &) = 0;
-		virtual base_topology *clone() const = 0;
-		std::string id_name() const {return typeid(*this).name();}
+		graph_topology(const double &);
+		graph_topology(const graph_topology &);
+	protected:
+		void pre_hook(island &);
+		void post_hook(island &);
+		mutable mutex_type	m_mutex;
+		tc_type				m_tc;
+		ic_type				m_ic;
+		rng_double			m_drng;
+		const double		m_prob;
+	private:
+		graph_topology &operator=(const graph_topology &);
 };
 
 #endif

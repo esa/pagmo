@@ -85,7 +85,7 @@ void island::set_algorithm(const go_algorithm &a)
 
 void island::evolve(int N)
 {
-	if (m_mutex.try_lock()) {
+	if (m_evo_mutex.try_lock()) {
 		boost::thread(int_evolver(this,N));
 	} else {
 // WORKAROUND: apparently there are some issues here with  exception throwing
@@ -100,7 +100,7 @@ void island::evolve(int N)
 
 void island::evolve_t(const size_t &t)
 {
-	if (m_mutex.try_lock()) {
+	if (m_evo_mutex.try_lock()) {
 		boost::thread(t_evolver(this,t));
 	} else {
 #ifdef PAGMO_WIN32
@@ -112,14 +112,14 @@ void island::evolve_t(const size_t &t)
 }
 
 void island::join() const {
-	lock_type lock(m_mutex);
+	lock_type lock(m_evo_mutex);
 }
 
 bool island::busy() const {
-	if (!m_mutex.try_lock()) {
+	if (!m_evo_mutex.try_lock()) {
 		return true;
 	}
-	m_mutex.unlock();
+	m_evo_mutex.unlock();
 	return false;
 }
 
@@ -211,13 +211,15 @@ void island::int_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 	try {
-		if (m_i->m_a) {
-			m_i->m_a->m_top->pre_evolution(*m_i);
-		}
 		for (int i = 0; i < m_n; ++i) {
+			if (m_i->m_a) {
+				lock_type lock(m_i->m_topo_mutex);
+				m_i->m_a->m_top->pre_evolution(*m_i);
+			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			if (m_i->m_a) {
+				lock_type lock(m_i->m_topo_mutex);
 				m_i->m_a->m_top->post_evolution(*m_i);
 			}
 		}
@@ -232,7 +234,7 @@ void island::int_evolver::operator()()
 	if (diff.total_milliseconds() >= 0) {
 		m_i->m_evo_time += diff.total_milliseconds();
 	}
-	m_i->m_mutex.unlock();
+	m_i->m_evo_mutex.unlock();
 }
 
 // Perform at least one evolution, and continue evolving until at least a certain amount of time has passed.
@@ -241,17 +243,19 @@ void island::t_evolver::operator()()
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 	boost::posix_time::time_duration diff;
 	try {
-		if (m_i->m_a) {
-			m_i->m_a->m_top->pre_evolution(*m_i);
-		}
 		do {
+			if (m_i->m_a) {
+				lock_type lock(m_i->m_topo_mutex);
+				m_i->m_a->m_top->pre_evolution(*m_i);
+			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			diff = boost::posix_time::microsec_clock::local_time() - start;
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
-			// Take care of negative timings.
 			if (m_i->m_a) {
+				lock_type lock(m_i->m_topo_mutex);
 				m_i->m_a->m_top->post_evolution(*m_i);
 			}
+			// Take care of negative timings.
 		} while (diff.total_milliseconds() < 0 || (size_t)diff.total_milliseconds() < m_t);
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
@@ -259,7 +263,33 @@ void island::t_evolver::operator()()
 		std::cout << "Unknown exception caught. :(\n";
 	}
 	m_i->m_evo_time += diff.total_milliseconds();
-	m_i->m_mutex.unlock();
+	m_i->m_evo_mutex.unlock();
+}
+
+
+void island::t_check() const
+{
+	if (m_topo_mutex.try_lock()) {
+		m_topo_mutex.unlock();
+		pagmo_throw(runtime_error,"'t_' functions can be called only during the pre/post evolutionary phases in archipelago");
+	}
+}
+
+bool island::t_substitute_worst(const Individual &ind)
+{
+	t_check();
+	Individual &worst = m_pop.worst();
+	if (ind.getFitness() < worst.getFitness()) {
+		worst = ind;
+		return true;
+	}
+	return false;
+}
+
+Individual island::t_best() const
+{
+	t_check();
+	return m_pop.extractBestIndividual();
 }
 
 std::ostream &operator<<(std::ostream &s, const island &isl)
@@ -268,7 +298,7 @@ std::ostream &operator<<(std::ostream &s, const island &isl)
 	s << "Population size: " << isl.size() << '\n';
 	s << "Evolution time:  " << isl.evo_time() << '\n';
 	s << "Algorithm type:  " << isl.algorithm().id_name() << '\n';
-	boost::lock_guard<boost::mutex> lock(isl.m_mutex);
+	boost::lock_guard<boost::mutex> lock(isl.m_evo_mutex);
 	s << isl.m_pop;
 	return s;
 }

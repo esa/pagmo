@@ -28,23 +28,3 @@
 base_topology::base_topology() {}
 
 base_topology::~base_topology() {}
-
-Population &base_topology::get_pop(island &isl)
-{
-	return isl.m_pop;
-}
-
-const Population &base_topology::get_pop(const island &isl)
-{
-	return isl.m_pop;
-}
-
-archipelago *base_topology::get_arch(island &isl)
-{
-	return isl.m_a;
-}
-
-const archipelago *base_topology::get_arch(const island &isl)
-{
-	return isl.m_a;
-}

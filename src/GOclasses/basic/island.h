@@ -32,7 +32,6 @@
 #include "../../config.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
-#include "base_topology.h"
 #include "individual.h"
 #include "population.h"
 
@@ -43,7 +42,6 @@ class __PAGMO_VISIBLE island
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
 		friend class archipelago;
-		friend class base_topology;
 		friend std::ostream &operator<<(std::ostream &, const island &);
 	public:
 		island(const GOProblem &, const go_algorithm &);
@@ -71,8 +69,12 @@ class __PAGMO_VISIBLE island
 		void join() const;
 		bool busy() const;
 		size_t evo_time() const;
+		// Topology functions.
+		bool t_substitute_worst(const Individual &);
+		Individual t_best() const;
 	private:
 		void set_archipelago(archipelago *);
+		void t_check() const;
 		struct int_evolver {
 			int_evolver(island *i, int n):m_i(i),m_n(n) {}
 			void operator()();
@@ -91,7 +93,8 @@ class __PAGMO_VISIBLE island
 		boost::scoped_ptr<const go_algorithm>		m_goa;
 		archipelago									*m_a;
 		size_t										m_evo_time;
-		mutable mutex_type							m_mutex;
+		mutable mutex_type							m_evo_mutex;
+		mutable mutex_type							m_topo_mutex;
 		static PaGMO::atomic_counter_size_t			id_counter;
 };
 

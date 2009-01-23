@@ -26,38 +26,27 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/unordered_map.hpp>
+#include <vector>
 
 #include "../../Functions/rng/rng.h"
 #include "../../config.h"
 #include "base_topology.h"
+#include "graph_topology.h"
 #include "individual.h"
 #include "island.h"
 
-class __PAGMO_VISIBLE ring_topology: public base_topology {
-		typedef boost::mutex mutex_type;
-		typedef boost::lock_guard<mutex_type> lock_type;
-		// ic_type = individual container type.
-		typedef boost::unordered_map<size_t,Individual> ic_type;
-		typedef ic_type::iterator ic_iterator;
-		// tc_type = topology container type.
-		typedef boost::unordered_map<size_t,std::vector<size_t> > tc_type;
-		typedef tc_type::iterator tc_iterator;
+class __PAGMO_VISIBLE ring_topology: public base_topology, public graph_topology {
 	public:
 		ring_topology(const double &);
 		ring_topology(const ring_topology &);
-		ring_topology &operator=(const ring_topology &);
 		virtual ring_topology *clone() const {return new ring_topology(*this);}
 		virtual void push_back(const island &);
 		virtual void pre_evolution(island &);
 		virtual void post_evolution(island &);
 	private:
-		mutable mutex_type	m_mutex;
-		tc_type				m_tc;
-		ic_type				m_ic;
-		rng_double			m_drng;
-		double				m_prob;
-		size_t				m_first;
-		size_t				m_last;
+		ring_topology &operator=(const ring_topology &);
+		size_t	m_first;
+		size_t	m_last;
 };
 
 #endif
