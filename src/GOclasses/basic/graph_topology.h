@@ -26,6 +26,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/unordered_map.hpp>
+#include <iostream>
 #include <vector>
 
 #include "../../Functions/rng/rng.h"
@@ -34,6 +35,7 @@
 #include "island.h"
 
 class __PAGMO_VISIBLE graph_topology {
+		friend std::ostream &operator<<(std::ostream &, const graph_topology &);
 	protected:
 		typedef boost::mutex mutex_type;
 		typedef boost::lock_guard<mutex_type> lock_type;
@@ -57,5 +59,7 @@ class __PAGMO_VISIBLE graph_topology {
 	private:
 		graph_topology &operator=(const graph_topology &);
 };
+
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const graph_topology &);
 
 #endif

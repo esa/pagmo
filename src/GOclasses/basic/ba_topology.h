@@ -23,8 +23,6 @@
 #ifndef PAGMO_BA_TOPOLOGY_H
 #define PAGMO_BA_TOPOLOGY_H
 
-#include <iostream>
-
 #include "../../config.h"
 #include "base_topology.h"
 #include "graph_topology.h"
