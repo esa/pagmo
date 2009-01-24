@@ -43,13 +43,10 @@ ba_topology::ba_topology(const ba_topology &b):base_topology(b),graph_topology(b
 void ba_topology::push_back(const island &isl)
 {
 	const size_t size = m_tc.size(), id = isl.id();
-	if (size == 0) {
-		// If this is the first island, simply insert it with no connections.
-		m_tc.insert(std::make_pair(id,std::vector<size_t>()));
-	} else if (size <= m_m_0) {
+	// Make sure the id is not already there.
+	pagmo_assert(m_tc.find(id) == m_tc.end());
+	if (size <= m_m_0) {
 		// If we have not built the initial m_0 nodes, do it.
-		// Make sure the id is not already there.
-		pagmo_assert(m_tc.find(id) == m_tc.end());
 		// We want to connect the newcomer island with high probability, and make sure that
 		// at least one connection exists (otherwise the island stays isolated).
 		// NOTE: is it worth to make it a user-tunable parameter?
@@ -71,9 +68,9 @@ void ba_topology::push_back(const island &isl)
 				it->second.push_back(id);
 			}
 		}
-		// If no connections were established, establish at least one connection with a
-		// random island.
-		if (new_connections.empty()) {
+		// If no connections were established and this is not the first island being inserted,
+		// establish at least one connection with a random island.
+		if (new_connections.empty() && size != 0) {
 			const size_t random_id = id_list[(size_t)(m_drng() * size)];
 			new_connections.push_back(random_id);
 			m_tc[random_id].push_back(id);
@@ -81,8 +78,6 @@ void ba_topology::push_back(const island &isl)
 		// Finally, add the item with associated connections.
 		m_tc.insert(std::make_pair(id,new_connections));
 	} else {
-		// Make sure the id is not already there.
-		pagmo_assert(m_tc.find(id) == m_tc.end());
 		// Let's find the total number of edges.
 		size_t n_edges = 0;
 		const tc_iterator it_f = m_tc.end();
@@ -94,27 +89,24 @@ void ba_topology::push_back(const island &isl)
 		// connection established in order to avoid connecting twice to the same
 		// node.
 		std::vector<size_t> connections;
-		typedef std::vector<size_t>::iterator conn_iterator;
 		connections.reserve(m_m);
 		size_t i = 0;
 		while(i < m_m) {
 			const size_t rn = (size_t)(m_drng() * n_edges);
 			size_t n = 0;
-			tc_iterator it = m_tc.begin(), it_candidate = it_f;
+			tc_iterator it = m_tc.begin();
 			for (; it != it_f; ++it) {
 				n += it->second.size();
-				it_candidate = it;
-				if (n > rn) {
+				if (rn < n) {
 					break;
 				}
 			}
-			pagmo_assert(it_candidate != it_f);
-			const size_t id_candidate = it_candidate->first;
-			const conn_iterator c_it = std::find(connections.begin(),connections.end(),id_candidate);
+			pagmo_assert(it != it_f);
+			const size_t id_candidate = it->first;
 			// If id_candidate was not already connected, then add it.
-			if (c_it == connections.end()) {
+			if (std::find(connections.begin(),connections.end(),id_candidate) == connections.end()) {
 				connections.push_back(id_candidate);
-				it_candidate->second.push_back(id);
+				it->second.push_back(id);
 				++i;
 			}
 		}

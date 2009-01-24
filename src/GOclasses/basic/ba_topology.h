@@ -23,12 +23,14 @@
 #ifndef PAGMO_BA_TOPOLOGY_H
 #define PAGMO_BA_TOPOLOGY_H
 
+#include <iostream>
+
 #include "../../config.h"
 #include "base_topology.h"
 #include "graph_topology.h"
 #include "island.h"
 
-/// Barabási-Albert scale-free topology.
+/// Barabasi-Albert scale-free topology.
 /**
  * See http://en.wikipedia.org/wiki/BA_model and
  * http://www.nd.edu/~networks/Publication%20Categories/03%20Journal%20Articles/Physics/StatisticalMechanics_Rev%20of%20Modern%20Physics%2074,%2047%20(2002).pdf.
