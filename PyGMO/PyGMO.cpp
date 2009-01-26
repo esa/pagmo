@@ -245,7 +245,9 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<base_topology_wrap, boost::noncopyable> class_bt("base_topology", "Base topology.", no_init);
 	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
 	class_<ring_topology, bases<base_topology> > class_rt("ring_topology", "Ring topology.", init<const double &>());
+	class_rt.def("__repr__", &Py_repr_from_stream<ring_topology>);
 	class_<ba_topology, bases<base_topology> > class_bat("ba_topology", "BA model topology.", init<int, int, const double &>());
+	class_bat.def("__repr__", &Py_repr_from_stream<ba_topology>);
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);

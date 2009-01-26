@@ -20,6 +20,8 @@
 
 // 22/01/2009: Initial version by Francesco Biscani.
 
+#include <iostream>
+
 #include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
 #include "graph_topology.h"
@@ -33,7 +35,7 @@ graph_topology::graph_topology(const double &prob):m_drng(static_rng_uint32()())
 	}
 }
 
-graph_topology::graph_topology(const graph_topology &g):m_drng(static_rng_uint32()()),m_prob(g.m_prob) {}
+graph_topology::graph_topology(const graph_topology &g):m_tc(g.m_tc),m_ic(g.m_ic),m_drng(static_rng_uint32()()),m_prob(g.m_prob) {}
 
 graph_topology &graph_topology::operator=(const graph_topology &)
 {
@@ -90,4 +92,24 @@ void graph_topology::post_hook(island &isl)
 			it->second = best;
 		}
 	}
+}
+
+std::ostream &operator<<(std::ostream &os, const graph_topology &g)
+{
+	graph_topology::lock_type lock(g.m_mutex);
+	for (graph_topology::tc_type::const_iterator it = g.m_tc.begin(); it != g.m_tc.end(); ++it) {
+		const size_t conn_size = it->second.size();
+		os << it->first;
+		if (conn_size > 0) {
+			os << "->";
+			for (size_t i = 0; i < conn_size; ++i) {
+				os << it->second[i];
+				if (i < conn_size - 1) {
+					os << ',';
+				}
+			}
+		}
+		os << '\n';
+	}
+	return os;
 }

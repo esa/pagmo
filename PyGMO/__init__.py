@@ -36,3 +36,30 @@ class vector_size_t(_PyGMO.__base_vector_size_t,__vector_init):
 	def __init__(self, iterable = None):
 		super(type(self), self).__init__()
 		self.build(iterable,int)
+
+def make_neato(arch,directed = True):
+	if directed:
+		graph_t = 'digraph'
+		graph_sep = '->'
+	else:
+		graph_t = 'graph'
+		graph_sep = '--'
+	t_str = arch.topology.__repr__()
+	t_dict = {}
+	for i in t_str.split():
+		tmp = i.split('->')
+		t_dict[int(tmp[0])] = [int(j) for j in tmp[1].split(',')]
+	max_n_edges = max([len(t_dict[i]) for i in t_dict])
+	min_n_edges = min([len(t_dict[i]) for i in t_dict])
+	print 'Max number of edges = ', max_n_edges
+	print 'Min number of edges = ', min_n_edges
+	retval = 'strict ' + graph_t + ' foo {\n'
+	retval += 'edge [len=' + str(max_n_edges) + '];\n'
+	for i in t_dict:
+		retval += str(i) + ' [height=' + str(len(t_dict[i])/5.) + ',width=' + str(len(t_dict[i])/5.) + ',label=' + str(len(t_dict[i])) + ',fontsize=' + \
+			str(len(t_dict[i])*10) + '];\n'
+		#retval += 'edge [w=' + str(len(t_dict[i])*10./max_n_edges) + '];\n'
+		for j in t_dict[i]:
+			retval += str(i) + graph_sep + str(j) + ';\n'
+	retval += '}'
+	return retval

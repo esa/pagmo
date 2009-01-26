@@ -33,7 +33,6 @@
 class archipelago;
 
 class __PAGMO_VISIBLE base_topology {
-		friend class archipelago;
 	public:
 		base_topology();
 		virtual ~base_topology();
