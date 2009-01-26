@@ -36,13 +36,15 @@
 
 class __PAGMO_VISIBLE Population: public py_container_utils<Population> {
 public:
-	//Methods
+	//Constructors
 	Population(const GOProblem &);
 	Population(const GOProblem &, int);
 	Population(const Population &);
 	Population &operator=(const Population &);
+	//Operators
 	Individual &operator[](int);
 	const Individual &operator[](int) const;
+	//Miscellanea
 	void push_back(const Individual &);
 	void insert(int, const Individual &);
 	void erase(int);

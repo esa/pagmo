@@ -32,9 +32,13 @@ public:
 protected:
 	// Constructor with array bounds initialisers
 	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {};
-private:
-	const std::vector<double> LB;
-	const std::vector<double> UB;
+	// Constructor with vectors initialisers
+	GOProblem(const std::vector<double>& l, const std::vector<double>& u):LB(l),UB(u) {};
+	//Default Constructor. Necessary as some derived classes need to call it (i.e. LJ)
+	GOProblem() {};
+	//These need to be protected and cannot be private and const as some problems need to deifne the LB and UB at run time (i.e. LJ)
+	std::vector<double> LB;
+	std::vector<double> UB;
 };
 
 #endif

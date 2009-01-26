@@ -47,7 +47,8 @@ public:
 class rosenbrockProb : public GOProblem{
 public:
 	rosenbrockProb(int dim);
-	virtual double objfun(const std::vector<double>& x) { return rosenbrock(x); }
+	virtual double objfun(const std::vector<double>& x) const { return rosenbrock(x); }
+	virtual rosenbrockProb* clone() const {return new rosenbrockProb(*this);}
 };	//end class rosenbrockProb
 
 class lennardjonesProb : public GOProblem{

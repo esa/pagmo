@@ -33,20 +33,25 @@
 class __PAGMO_VISIBLE Individual{
 
 public:
+	//Constructors
 	Individual(const std::vector<double> &, const std::vector<double> &, const double &);
 	Individual(const std::vector<double> &, const double &);
 	Individual(const GOProblem &);
 	Individual &operator=(const Individual &);
+	//Getters
 	double getFitness() const {return fitness;}
 	const std::vector<double> &getDecisionVector() const {return x;}
 	const std::vector<double> &getVelocity() const {return v;}
 private:
+	//Logging function
 	friend std::ostream &operator<<(std::ostream &, const Individual &);
 	void check_compatibility(const Individual &) const;
+	//Why do we need an init here?
 	void init(const GOProblem &);
-	std::vector<double>			x;  //this is the "chromosome" or "decision vector"
-	std::vector<double>			v;  //this is the "velocity" or "heading" of each individual
-	double						fitness;
+	//Private data
+	std::vector<double>			x;			//this is the "chromosome" or "decision vector"
+	std::vector<double>			v;			//this is the "velocity" or "heading" of each individual
+	double						fitness;	//this is the individual fitness
 };
 
 inline std::ostream &operator<<(std::ostream &s, const Individual &ind) {

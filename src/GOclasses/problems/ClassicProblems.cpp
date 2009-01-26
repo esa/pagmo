@@ -16,43 +16,39 @@
 //Classical problems
 //***********************************************************************************
 
-TestProb::TestProb(int dim):GOProblem(dim, std::vector<double>(dim, 0.0), std::vector<double>(dim, 1.0)) {
+TestProb::TestProb(int dim):GOProblem(std::vector<double>(dim, 0.0), std::vector<double>(dim, 1.0)) {
 	//nothing else to be done
 };
 
-rastriginProb::rastriginProb(int dim):GOProblem(dim, std::vector<double>(dim, -5.12), std::vector<double>(dim, 5.12)) {
+rastriginProb::rastriginProb(int dim):GOProblem(std::vector<double>(dim, -5.12), std::vector<double>(dim, 5.12)) {
 	//nothing else to be done
 };
 
-schwefelProb::schwefelProb(int dim):GOProblem(dim, std::vector<double>(dim, -500.0), std::vector<double>(dim, 500.0)) {
+schwefelProb::schwefelProb(int dim):GOProblem(std::vector<double>(dim, -500.0), std::vector<double>(dim, 500.0)) {
 	//nothing else to be done
 };
 
-ackleyProb::ackleyProb(int dim):GOProblem(dim, std::vector<double>(dim, -15.0), std::vector<double>(dim, 30.0)) {
+ackleyProb::ackleyProb(int dim):GOProblem(std::vector<double>(dim, -15.0), std::vector<double>(dim, 30.0)) {
 	//nothing else to be done
 };
 
-rosenbrockProb::rosenbrockProb(int dim):GOProblem(dim, std::vector<double>(dim, -5.0), std::vector<double>(dim, 10.0)) {
+rosenbrockProb::rosenbrockProb(int dim):GOProblem(std::vector<double>(dim, -5.0), std::vector<double>(dim, 10.0)) {
 	//nothing else to be done
 };
 
-lennardjonesProb::lennardjonesProb(int atoms) {
-		setDimension(3*atoms-6);
-		//lennard jones bounds
-		getLB().resize(getDimension());
-		getUB().resize(getDimension());
-		for (int i = 0; i < getDimension(); i++) {
+lennardjonesProb::lennardjonesProb(int atoms):GOProblem(std::vector<double>(3*atoms-6, 0.0), std::vector<double>(LB.size(), 0.0)) {
+		for (size_t i = 0; i < LB.size(); i++) {
 			if ( (i != 0) && (i % 3) == 0 ) {
-				getLB()[i] = 0.0;
-				getUB()[i] = 6.0;
+				LB[i] = 0.0;
+				UB[i] = 6.0;
 			}
 			else {
-				getLB()[i] = -3.0;
-				getUB()[i] = 3.0;
+				LB[i] = -3.0;
+				UB[i] = 3.0;
 			}
 		}
 };
 
-levyProb::levyProb(int dim):GOProblem(dim, std::vector<double>(dim, -10.0), std::vector<double>(dim, 10.0)) {
+levyProb::levyProb(int dim):GOProblem(std::vector<double>(dim, -10.0), std::vector<double>(dim, 10.0)) {
 	//nothing else to do
 };
