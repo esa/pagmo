@@ -98,9 +98,16 @@ std::ostream &operator<<(std::ostream &os, const graph_topology &g)
 {
 	graph_topology::lock_type lock(g.m_mutex);
 	for (graph_topology::tc_type::const_iterator it = g.m_tc.begin(); it != g.m_tc.end(); ++it) {
+		const size_t conn_size = it->second.size();
 		os << it->first;
-		for (size_t i = 0; i < it->second.size(); ++i) {
-			os << "->" << it->second[i];
+		if (conn_size > 0) {
+			os << "->";
+			for (size_t i = 0; i < conn_size; ++i) {
+				os << it->second[i];
+				if (i < conn_size - 1) {
+					os << ',';
+				}
+			}
 		}
 		os << '\n';
 	}

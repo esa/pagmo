@@ -33,8 +33,8 @@
 ba_topology::ba_topology(int m_0, int m, const double &prob):
 	base_topology(),graph_topology(prob),m_m_0(m_0),m_m(m)
 {
-	if (m_0 < 2 || m < 2 || m > m_0) {
-		pagmo_throw(value_error,"the values of m and m_0 must be at least 2, and m must not be greater than m_0");
+	if (m_0 < 1 || m < 1 || m > m_0) {
+		pagmo_throw(value_error,"the value of m and m_0 must be at least 1, and m must not be greater than m_0");
 	}
 }
 
