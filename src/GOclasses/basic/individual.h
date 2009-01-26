@@ -33,24 +33,29 @@
 class __PAGMO_VISIBLE Individual{
 
 public:
-	//Constructors
+	///Constructs an Individual with x,v,fitness
 	Individual(const std::vector<double> &, const std::vector<double> &, const double &);
+	///Contructs an Individual with x,fitness and an empty velocity of size x.size()
 	Individual(const std::vector<double> &, const double &);
+	///Constructs an Individual with x randomly placed within a GOProblem bounds and a random velocity of maximum magnitude (UB-LB)
 	Individual(const GOProblem &);
 	Individual &operator=(const Individual &);
-	//Getters
+	///Returns the Individual fitness
 	double getFitness() const {return fitness;}
+	///Returns the Individual chromosome (position)
 	const std::vector<double> &getDecisionVector() const {return x;}
+	///Returns the Individual velocity
 	const std::vector<double> &getVelocity() const {return v;}
 private:
-	//Logging function
+	///Operator << for the Individual
 	friend std::ostream &operator<<(std::ostream &, const Individual &);
+	///Throws an exception if the sizes of this and the argument are different
 	void check_compatibility(const Individual &) const;
-	//Why do we need an init here?
-	void init(const GOProblem &);
-	//Private data
-	std::vector<double>			x;			//this is the "chromosome" or "decision vector"
-	std::vector<double>			v;			//this is the "velocity" or "heading" of each individual
+	///Individual chromosome (position)
+	std::vector<double>			x;			
+	///Individual velocity
+	std::vector<double>			v;			
+	///Individual fitness
 	double						fitness;	//this is the individual fitness
 };
 

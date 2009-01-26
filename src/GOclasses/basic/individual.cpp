@@ -29,7 +29,17 @@
 
 	Individual::Individual(const GOProblem &problem):x(problem.getLB().size()),v(problem.getLB().size())
 	{
-		init(problem);
+		static_rng_double drng;
+		// Store local references.
+		const std::vector<double> &LB = problem.getLB(), &UB = problem.getUB();
+		const size_t size = LB.size();
+		// Fill a new random chromosome and velocity vector.
+		for (size_t i = 0; i < size; ++i){
+			x[i] = LB[i] + drng() * (UB[i] - LB[i]);
+			v[i] = drng() * (UB[i] - LB[i]);
+		}
+		// Evaluation of fitness.
+		fitness = problem.objfun(x);
 	}
 
 	Individual::Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):
@@ -60,18 +70,4 @@
 		}
 	}
 
-	// Fill the decision and velocity vectors with random values.
-	void Individual::init(const GOProblem &p)
-	{
-		static_rng_double drng;
-		// Store local references.
-		const std::vector<double> &LB = p.getLB(), &UB = p.getUB();
-		const size_t size = LB.size();
-		// Fill a new random chromosome and velocity vector.
-		for (size_t i = 0; i < size; ++i){
-			x[i] = LB[i] + drng() * (UB[i] - LB[i]);
-			v[i] = drng() * (UB[i] - LB[i]);
-		}
-		// Evaluation of fitness.
-		fitness = p.objfun(x);
-	}
+
