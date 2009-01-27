@@ -38,12 +38,15 @@ class __PAGMO_VISIBLE ASAalgorithm: public go_algorithm {
 		virtual Population evolve(const Population &) const;
 		virtual ASAalgorithm *clone() const {return new ASAalgorithm(*this);}
 	private:
+		 virtual void log(std::ostream& s) const {s << "ASA - Iter:" << niterTot << " Ts:" << Ts << " Tf:" << Tf << " niterTemp:" << niterTemp << " niterRange:" << niterRange << " StartStep:" << StartStep;}
+		
 		 size_t niterTot;
 		 size_t niterTemp;
 		 size_t niterRange;
 		 double Ts;
 		 double Tf;
 		 double StartStep;
+	
 };
 
 #endif

@@ -27,6 +27,7 @@
 #include "../../Functions/rng/rng.h"
 #include "../../config.h"
 #include "../basic/population.h"
+#include <vector>
 
 class __PAGMO_VISIBLE go_algorithm
 {
@@ -37,9 +38,17 @@ class __PAGMO_VISIBLE go_algorithm
 		virtual Population evolve(const Population &) const = 0;
 		virtual go_algorithm *clone() const = 0;
         virtual ~go_algorithm() {}
+		///Virtual log method. Is called by the overloaded operator << of go_algorithm that can thus behave differently for each derived class
+		virtual void log(std::ostream& s) const {s << "You need to implement the virtual method log() for this derived class of go_algorithm" << std::endl;}
+		///Overload of operator <<
+		friend std::ostream &operator<<(std::ostream &, const go_algorithm &);
 		std::string id_name() const {return typeid(*this).name();}
 	protected:
 		mutable rng_double drng;
 };
+inline std::ostream &operator<<(std::ostream &s, const go_algorithm &alg) {	
+		alg.log(s);
+		return s;
+}
 
 #endif
