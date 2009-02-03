@@ -27,12 +27,13 @@
 #include <typeinfo>
 #include <vector>
 
-#include "../../config.h"
+#include "../../../config.h"
+#include "../../exceptions.h"
 
 class __PAGMO_VISIBLE GOProblem {
 public:
 	// Virtual destructor - required because the class contains a pure virtual member function
-	virtual ~GOProblem() {};
+	virtual ~GOProblem() {}
 	// Bounds getters and setters via reference
 	const std::vector<double> &getLB() const {return LB;}
 	const std::vector<double> &getUB() const {return UB;}
@@ -44,14 +45,30 @@ public:
 	std::string id_name() const {return typeid(*this).name();}
 protected:
 	// Constructor with array bounds initialisers
-	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {};
+	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {
+		check_boundaries();
+	}
 	// Constructor with vectors initialisers
-	GOProblem(const std::vector<double>& l, const std::vector<double>& u):LB(l),UB(u) {};
+	GOProblem(const std::vector<double>& l, const std::vector<double>& u):LB(l),UB(u) {
+		if (l.size() != u.size()) {
+			pagmo_throw(value_error,"size mismatch in base problem constructor from vectors");
+		}
+		check_boundaries();
+	}
 	//Default Constructor. Necessary as some derived classes need to call it (i.e. LJ)
-	GOProblem() {};
+	GOProblem() {}
 	//These need to be protected and cannot be private and const as some problems need to deifne the LB and UB at run time (i.e. LJ)
 	std::vector<double> LB;
 	std::vector<double> UB;
+private:
+	void check_boundaries() const {
+		const size_t size = LB.size();
+		for (size_t i = 0; i < size; ++i) {
+			if (LB[i] >= UB[i]) {
+				pagmo_throw(value_error,"upper-lower values inconsistence in base problem");
+			}
+		}
+	}
 };
 
 #endif

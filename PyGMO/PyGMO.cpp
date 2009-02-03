@@ -203,8 +203,10 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_gop.add_property("id_name", &GOProblem::id_name, "Identification name.");
 
 	// Expose problem classes.
+	// Trajectory problems.
 	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
 	class_<messengerProb, bases<GOProblem> > class_mp("messenger_problem", "Messenger problem.", init<>());
+	// Classical problems.
 	class_<TestProb, bases<GOProblem> > class_testp("test_problem", "Test problem.", init<int>());
 	class_<rastriginProb, bases<GOProblem> > class_rastriginp("rastrigin_problem", "Rastrigin problem.", init<int>());
 	class_<schwefelProb, bases<GOProblem> > class_schwefelp("schwefel_problem", "Schwefel problem.", init<int>());
