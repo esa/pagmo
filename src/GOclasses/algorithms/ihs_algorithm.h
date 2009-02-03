@@ -29,7 +29,7 @@
 
 /// Improved harmony search algorithm.
 /**
- * See http://en.wikipedia.org/wiki/Harmony_search.
+ * See http://en.wikipedia.org/wiki/Harmony_search
  */
 class __PAGMO_VISIBLE ihs_algorithm: public go_algorithm {
 	public:

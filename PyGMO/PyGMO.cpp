@@ -41,6 +41,7 @@
 #include "../src/GOclasses/algorithms/ASA.h"
 #include "../src/GOclasses/algorithms/DE.h"
 #include "../src/GOclasses/algorithms/ihs_algorithm.h"
+#include "../src/GOclasses/algorithms/nm_algorithm.h"
 #include "../src/GOclasses/basic/archipelago.h"
 #include "../src/GOclasses/basic/ba_topology.h"
 #include "../src/GOclasses/basic/base_topology.h"
@@ -225,6 +226,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<DEalgorithm, bases<go_algorithm> > class_de("de_algorithm", "DE algorithm.", init<int, const double &, const double &, int>());
 	class_<ihs_algorithm, bases<go_algorithm> > class_ihs("ihs_algorithm", "IHS algorithm.", init<int, const double &, const double &,
 		const double &, const double &, const double &>());
+	class_<nm_algorithm, bases<go_algorithm> > class_nm("nm_algorithm", "Nelder-Mead algorithm",
+		init<int, const double &, const double &, const double &, const double &>());
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
