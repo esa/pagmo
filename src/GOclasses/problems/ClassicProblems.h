@@ -38,25 +38,29 @@
 class __PAGMO_VISIBLE TestProb : public GOProblem {
 public:
 	TestProb(int dim);
-	virtual double objfun(const std::vector<double>& x) { return testfunction(x); }
+	virtual double objfun(const std::vector<double>& x) const { return testfunction(x); }
+	virtual TestProb *clone() const {return new TestProb(*this);}
 };	//end class testfunctionProb
 
 class __PAGMO_VISIBLE rastriginProb : public GOProblem{
 public:
 	rastriginProb(int dim);
-	virtual double objfun(const std::vector<double>& x) { return rastrigin(x); }
+	virtual double objfun(const std::vector<double>& x) const { return rastrigin(x); }
+	virtual rastriginProb *clone() const {return new rastriginProb(*this);}
 };	//end class rastriginProb
 
 class __PAGMO_VISIBLE schwefelProb : public GOProblem{
 public:
 	schwefelProb(int dim);
-	virtual double objfun(const std::vector<double>& x) { return schwefel(x); }
+	virtual double objfun(const std::vector<double>& x) const { return schwefel(x); }
+	virtual schwefelProb *clone() const {return new schwefelProb(*this);}
 };	//end class schwefelProb
 
 class __PAGMO_VISIBLE ackleyProb : public GOProblem{
 public:
 	ackleyProb(int dim);
-	virtual double objfun(const std::vector<double>& x) { return ackley(x); }
+	virtual double objfun(const std::vector<double>& x) const { return ackley(x); }
+	virtual ackleyProb *clone() const {return new ackleyProb(*this);}
 };	//end class ackleyProb
 
 class __PAGMO_VISIBLE rosenbrockProb : public GOProblem{
@@ -69,13 +73,15 @@ public:
 class __PAGMO_VISIBLE lennardjonesProb : public GOProblem{
 public:
 	lennardjonesProb(int atoms);
-	virtual double objfun(const std::vector<double>& x) { return lennardjones(x); };
+	virtual double objfun(const std::vector<double>& x) const { return lennardjones(x); }
+	virtual lennardjonesProb *clone() const {return new lennardjonesProb(*this);}
 };	//end class lennardjonesProb
 
 class __PAGMO_VISIBLE levyProb : public GOProblem{
 public:
 	levyProb(int dim);
-	virtual double objfun(const std::vector<double>& x) { return levy(x); };
+	virtual double objfun(const std::vector<double>& x) const { return levy(x); };
+	virtual levyProb *clone() const {return new levyProb(*this);}
 };	//end class levyProb
 
 

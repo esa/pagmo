@@ -49,6 +49,7 @@
 #include "../src/GOclasses/basic/no_topology.h"
 #include "../src/GOclasses/basic/population.h"
 #include "../src/GOclasses/basic/ring_topology.h"
+#include "../src/GOclasses/problems/ClassicProblems.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
 #include "../src/exceptions.h"
 
@@ -204,6 +205,13 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose problem classes.
 	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
 	class_<messengerProb, bases<GOProblem> > class_mp("messenger_problem", "Messenger problem.", init<>());
+	class_<TestProb, bases<GOProblem> > class_testp("test_problem", "Test problem.", init<int>());
+	class_<rastriginProb, bases<GOProblem> > class_rastriginp("rastrigin_problem", "Rastrigin problem.", init<int>());
+	class_<schwefelProb, bases<GOProblem> > class_schwefelp("schwefel_problem", "Schwefel problem.", init<int>());
+	class_<ackleyProb, bases<GOProblem> > class_ackleyp("ackley_problem", "Ackely problem.", init<int>());
+	class_<rosenbrockProb, bases<GOProblem> > class_rosenbrockp("rosenbrock_problem", "Rosenbrock problem.", init<int>());
+	class_<lennardjonesProb, bases<GOProblem> > class_ljp("lennardjones_problem", "Lennard-Jones problem.", init<int>());
+	class_<levyProb, bases<GOProblem> > class_levyp("levy_problem", "Levy problem.", init<int>());
 
 	// Expose base algorithm class.
 	class_<go_algorithm_wrap, boost::noncopyable> class_goa("go_algorithm", "Base GO algorithm", no_init);
