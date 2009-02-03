@@ -9,6 +9,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/time2distance.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Functions/objfuns/classicobjfuns.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Functions/objfuns/trajobjfuns.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/ASA.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/DE.cpp
@@ -25,6 +26,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/ClassicProblems.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp
 )
 

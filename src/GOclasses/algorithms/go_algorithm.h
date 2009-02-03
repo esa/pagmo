@@ -46,7 +46,7 @@ class __PAGMO_VISIBLE go_algorithm
 	protected:
 		mutable rng_double drng;
 };
-inline std::ostream &operator<<(std::ostream &s, const go_algorithm &alg) {	
+inline std::ostream &operator<<(std::ostream &s, const go_algorithm &alg) {
 		alg.log(s);
 		return s;
 }
