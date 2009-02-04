@@ -207,6 +207,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Trajectory problems.
 	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
 	class_<messengerProb, bases<GOProblem> > class_mp("messenger_problem", "Messenger problem.", init<>());
+	class_<cassini1Prob, bases<GOProblem> > class_c1p("cassini1_problem", "Cassini1 problem.", init<>());
 	// Classical problems.
 	class_<TestProb, bases<GOProblem> > class_testp("test_problem", "Test problem.", init<int>());
 	class_<rastriginProb, bases<GOProblem> > class_rastriginp("rastrigin_problem", "Rastrigin problem.", init<int>());

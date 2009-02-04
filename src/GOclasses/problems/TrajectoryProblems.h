@@ -35,7 +35,7 @@
 //Trajectory problems MGA
 //***********************************************************************************
 
-class cassini1Prob : public GOProblem {
+class __PAGMO_VISIBLE cassini1Prob : public GOProblem {
 public:
 	cassini1Prob();
 	virtual double objfun(const std::vector<double>&) const;
