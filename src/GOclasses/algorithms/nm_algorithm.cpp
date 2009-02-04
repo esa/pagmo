@@ -139,7 +139,7 @@ Population nm_algorithm::evolve(const Population &pop) const
 			check_bounds(xr,problem);
 			// Calculate fitness values. fitness_target is relative to the vertex immediately before the worst one.
 			const double fitness_r = problem.objfun(xr), fitness_best = problem.objfun(s[0]), fitness_target = problem.objfun(s[simplex_size - 2]);
-			if (fitness_r >= fitness_best || fitness_r < fitness_target) {
+			if (fitness_r >= fitness_best && fitness_r < fitness_target) {
 				s.back() = xr;
 			} else if (fitness_r < fitness_best) {
 				std::vector<double> xe = sub_mult_add(x0,s.back(),m_gamma,x0);
