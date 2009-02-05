@@ -57,6 +57,7 @@ public:
 	Individual &best();
 	Individual &worst();
 	// TODO: review this API.
+	void sort();
 	Population extractRandomDeme(int, std::vector<size_t> &);
 	void insertDeme(const Population &, const std::vector<size_t> &);
 	void insertBestInDeme(const Population &, const std::vector<size_t> &);

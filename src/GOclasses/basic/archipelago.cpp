@@ -56,6 +56,7 @@ archipelago &archipelago::operator=(const archipelago &)
 
 const base_topology &archipelago::topology() const
 {
+	join();
 	return *m_top;
 }
 

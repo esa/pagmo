@@ -45,6 +45,7 @@ class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
 		std::vector<double> sub_mult_add(const std::vector<double> &, const std::vector<double> &,
 			const double &, const std::vector<double> &) const;
 		void check_bounds(std::vector<double> &, const GOProblem &) const;
+		double simplex_diameter(const simplex &) const;
 		// Number of generations.
 		const size_t	m_gen;
 		// Reflection coefficient.
