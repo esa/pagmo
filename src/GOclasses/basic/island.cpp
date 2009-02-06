@@ -74,6 +74,7 @@ const GOProblem &island::problem() const
 
 const go_algorithm &island::algorithm() const
 {
+	join();
 	return *m_goa;
 }
 
@@ -215,12 +216,14 @@ void island::int_evolver::operator()()
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
 				m_i->m_a->m_top->pre_evolution(*m_i);
+				m_i->m_pop.problem().pre_evolution();
 			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
 				m_i->m_a->m_top->post_evolution(*m_i);
+				m_i->m_pop.problem().post_evolution();
 			}
 		}
 	} catch (const std::exception &e) {
@@ -247,6 +250,7 @@ void island::t_evolver::operator()()
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
 				m_i->m_a->m_top->pre_evolution(*m_i);
+				m_i->m_pop.problem().pre_evolution();
 			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			diff = boost::posix_time::microsec_clock::local_time() - start;
@@ -254,6 +258,7 @@ void island::t_evolver::operator()()
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
 				m_i->m_a->m_top->post_evolution(*m_i);
+				m_i->m_pop.problem().post_evolution();
 			}
 			// Take care of negative timings.
 		} while (diff.total_milliseconds() < 0 || (size_t)diff.total_milliseconds() < m_t);

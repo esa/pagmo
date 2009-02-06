@@ -20,6 +20,7 @@
 
 // 16/05/08 Created by Dario Izzo.
 
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <typeinfo>
@@ -156,6 +157,17 @@
 		}
 		Std = sqrt(Std/size);
 		return Std;
+	}
+
+	struct fitness_sorter {
+		bool operator()(const Individual &i1, const Individual &i2) const {
+			return (i1.getFitness() < i2.getFitness());
+		}
+	};
+
+	void Population::sort()
+	{
+		std::sort(pop.begin(),pop.end(),fitness_sorter());
 	}
 
 	Population Population::extractRandomDeme(int N, std::vector<size_t> &picks)

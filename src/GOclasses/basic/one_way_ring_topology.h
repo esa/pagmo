@@ -18,44 +18,34 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 03/02/2009: Initial version by Francesco Biscani.
+// 06/02/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_NM_ALGORITHM_H
-#define PAGMO_NM_ALGORITHM_H
+#ifndef PAGMO_ONE_WAY_RING_TOPOLOGY_H
+#define PAGMO_ONE_WAY_RING_TOPOLOGY_H
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/unordered_map.hpp>
 #include <vector>
 
 #include "../../config.h"
-#include "../basic/population.h"
-#include "../problems/GOproblem.h"
-#include "go_algorithm.h"
+#include "base_topology.h"
+#include "graph_topology.h"
+#include "individual.h"
+#include "island.h"
 
-/// Nelder-Mead algorithm.
-/**
- * See http://en.wikipedia.org/wiki/Nelder-Mead_method
- */
-class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
-		typedef std::vector<std::vector<double> > simplex;
+class __PAGMO_VISIBLE one_way_ring_topology: public base_topology, public graph_topology {
 	public:
-		nm_algorithm(int, const double &, const double &, const double &, const double &);
-		virtual Population evolve(const Population &) const;
-		virtual nm_algorithm *clone() const {return new nm_algorithm(*this);}
+		one_way_ring_topology(const double &);
+		one_way_ring_topology(const one_way_ring_topology &);
+		virtual one_way_ring_topology *clone() const {return new one_way_ring_topology(*this);}
+		virtual void push_back(const island &);
+		virtual void pre_evolution(island &);
+		virtual void post_evolution(island &);
 	private:
-		std::vector<double> center_mass(const simplex &) const;
-		std::vector<double> sub_mult_add(const std::vector<double> &, const std::vector<double> &,
-			const double &, const std::vector<double> &) const;
-		void check_bounds(std::vector<double> &, const GOProblem &) const;
-		double simplex_diameter(const simplex &) const;
-		// Number of generations.
-		const size_t	m_gen;
-		// Reflection coefficient.
-		const double	m_alpha;
-		// Expansion coefficient.
-		const double	m_gamma;
-		// Contraction coefficient.
-		const double	m_rho;
-		// Shrink coefficient.
-		const double	m_sigma;
+		one_way_ring_topology &operator=(const one_way_ring_topology &);
+		size_t	m_first;
+		size_t	m_last;
 };
 
 #endif
