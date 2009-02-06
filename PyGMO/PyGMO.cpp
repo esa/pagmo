@@ -60,12 +60,30 @@ using namespace std;
 
 struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 {
-#if defined ( __GNUC__ ) && GCC_VERSION < 401000
-	GOProblemWrap(const size_t &s, const double *d1, const double *d2):GOProblem(s,d1,d2) {}
-#endif
-	double objfun(const vector<double> &x) {
+	GOProblemWrap(int n):GOProblem(n) {}
+	GOProblemWrap(const GOProblemWrap &g):GOProblem(g),wrapper<GOProblem>(g) {}
+	double objfun(const vector<double> &x) const {
 		return this->get_override("objfun")(x);
 	}
+	GOProblemWrap *clone() const {
+		return this->get_override("__copy__")();
+	}
+	void pre_evolution() {
+		if (override pre_evolution = this->get_override("pre_evolution")) {
+			pre_evolution();
+		} else {
+			GOProblem::pre_evolution();
+		}
+	}
+	void default_pre_evolution() {this->GOProblem::pre_evolution();}
+	void post_evolution() {
+		if (override post_evolution = this->get_override("post_evolution")) {
+			post_evolution();
+		} else {
+			GOProblem::post_evolution();
+		}
+	}
+	void default_post_evolution() {this->GOProblem::post_evolution();}
 };
 
 struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
@@ -199,8 +217,13 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("worst", &Population::extractWorstIndividual, "Copy of worst individual.");
 
 	// Expose base GOProblem class.
-	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", no_init);
+	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", init<int>());
+	class_gop.def(init<const GOProblemWrap &>());
+	class_gop.def("__copy__", pure_virtual(&GOProblem::clone), return_value_policy<manage_new_object>());
+	class_gop.def("__repr__", &Py_repr_from_stream<GOProblem>);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun), "Objective function.");
+	class_gop.def("set_lb", &GOProblem::set_lb, "Set lower bound.");
+	class_gop.def("set_ub", &GOProblem::set_ub, "Set upper bound.");
 	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension of the problem.");
 	class_gop.add_property("id_name", &GOProblem::id_name, "Identification name.");
 

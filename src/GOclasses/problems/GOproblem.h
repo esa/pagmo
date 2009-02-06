@@ -23,6 +23,7 @@
 #ifndef PAGMO_GOPROBLEM_H
 #define PAGMO_GOPROBLEM_H
 
+#include <iostream>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -31,7 +32,21 @@
 #include "../../exceptions.h"
 
 class __PAGMO_VISIBLE GOProblem {
+	friend std::ostream &operator<<(std::ostream &, const GOProblem &);
 public:
+	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
+	GOProblem(int n) {
+		if (n <= 0) {
+			pagmo_throw(value_error,"size of problem must be positive");
+		}
+		const size_t size = (size_t)(n);
+		LB.resize(size);
+		UB.resize(size);
+		for (size_t i = 0; i < size; ++i) {
+			LB[i] = 0;
+			UB[i] = 1;
+		}
+	}
 	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {}
 	// Bounds getters and setters via reference
@@ -45,7 +60,27 @@ public:
 	std::string id_name() const {return typeid(*this).name();}
 	virtual void pre_evolution() const {}
 	virtual void post_evolution() const {}
+	void set_lb(int n, const double &value) {
+		if (n < 0 || (size_t)n >= LB.size()) {
+			pagmo_throw(index_error,"invalid index for lower bound");
+		}
+		if (UB[n] <= value) {
+			pagmo_throw(value_error,"invalid value for lower bound");
+		}
+		LB[n] = value;
+	}
+	void set_ub(int n, const double &value) {
+		if (n < 0 || (size_t)n >= UB.size()) {
+			pagmo_throw(index_error,"invalid index for upper bound");
+		}
+		if (LB[n] >= value) {
+			pagmo_throw(value_error,"invalid value for upper bound");
+		}
+		UB[n] = value;
+	}
 protected:
+	// Default Constructor. Necessary as some derived classes need to call it (i.e. LJ)
+	GOProblem() {}
 	// Constructor with array bounds initialisers
 	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {
 		check_boundaries();
@@ -57,9 +92,7 @@ protected:
 		}
 		check_boundaries();
 	}
-	//Default Constructor. Necessary as some derived classes need to call it (i.e. LJ)
-	GOProblem() {}
-	//These need to be protected and cannot be private and const as some problems need to deifne the LB and UB at run time (i.e. LJ)
+	// These need to be protected and cannot be private and const as some problems need to deifne the LB and UB at run time (i.e. LJ)
 	std::vector<double> LB;
 	std::vector<double> UB;
 private:
@@ -72,5 +105,27 @@ private:
 		}
 	}
 };
+
+inline std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &s, const GOProblem &p) {
+	s << "Problem type: " << p.id_name() << '\n';
+	const size_t size = p.getDimension();
+	s << "Lower bounds:\n";
+	for (size_t i = 0; i < size; ++i) {
+		s << p.LB[i];
+		if (i < size - 1) {
+			s << ' ';
+		}
+	}
+	s << '\n';
+	s << "Upper bounds:\n";
+	for (size_t i = 0; i < size; ++i) {
+		s << p.UB[i];
+		if (i < size - 1) {
+			s << ' ';
+		}
+	}
+	s << '\n';
+	return s;
+}
 
 #endif
