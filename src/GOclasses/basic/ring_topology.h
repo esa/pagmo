@@ -28,7 +28,6 @@
 #include <boost/unordered_map.hpp>
 #include <vector>
 
-#include "../../Functions/rng/rng.h"
 #include "../../config.h"
 #include "base_topology.h"
 #include "graph_topology.h"
