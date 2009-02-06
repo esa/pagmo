@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/01/2009: Initial version by Francesco Biscani.
+// 06/02/2009: Initial version by Francesco Biscani.
 
 #include <utility>
 
@@ -27,20 +27,20 @@
 #include "graph_topology.h"
 #include "individual.h"
 #include "island.h"
-#include "ring_topology.h"
+#include "one_way_ring_topology.h"
 
-ring_topology::ring_topology(const double &prob):base_topology(),graph_topology(prob),m_first(0),m_last(0) {}
+one_way_ring_topology::one_way_ring_topology(const double &prob):base_topology(),graph_topology(prob),m_first(0),m_last(0) {}
 
-ring_topology::ring_topology(const ring_topology &r):
+one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r):
 	base_topology(r),graph_topology(r),m_first(0),m_last(0) {}
 
-ring_topology &ring_topology::operator=(const ring_topology &)
+one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topology &)
 {
 	pagmo_assert(false);
 	return *this;
 }
 
-void ring_topology::push_back(const island &isl)
+void one_way_ring_topology::push_back(const island &isl)
 {
 	// Store frequently-used variables.
 	const size_t t_size = m_tc.size(), id = isl.id();
@@ -55,44 +55,29 @@ void ring_topology::push_back(const island &isl)
 			{
 			const tc_iterator b = m_tc.begin();
 			pagmo_assert(id != b->first);
-			// Add a connection to the only existing element.
+			// Add a connection from the only existing element.
 			b->second.push_back(id);
 			// Insert new element and connect it to first.
 			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,b->first)));
 			}
 			break;
-		case 2:
-			pagmo_assert(m_tc.find(id) == m_tc.end());
-			// The first must now have a back connection with the new last and a
-			// forward connection with the current last.
-			m_tc[m_first].push_back(m_tc[m_first][0]);
-			m_tc[m_first][0] = id;
-			// The current last must be forward connected to the new last.
-			m_tc[m_last].push_back(id);
-			// Insert the new last: back connection with current last and forward connection to first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_last)));
-			m_tc[id].push_back(m_first);
-			break;
 		default:
 			pagmo_assert(m_tc.find(id) == m_tc.end());
-			// In general we must change the back connection of the first,
-			// the forward connection of the current last, and add the new last
-			// with proper connections.
-			m_tc[m_first][0] = id;
-			m_tc[m_last][1] = id;
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_last)));
-			m_tc[id].push_back(m_first);
+			// The current last must be connected to the new last.
+			m_tc[m_last][0] = id;
+			// Insert the new last with a connection to the first.
+			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_first)));
 	}
 	// Update the id of the last island.
 	m_last = id;
 }
 
-void ring_topology::pre_evolution(island &isl)
+void one_way_ring_topology::pre_evolution(island &isl)
 {
 	pre_hook(isl);
 }
 
-void ring_topology::post_evolution(island &isl)
+void one_way_ring_topology::post_evolution(island &isl)
 {
 	post_hook(isl);
 }

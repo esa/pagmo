@@ -152,9 +152,11 @@ Population nm_algorithm::evolve(const Population &pop) const
 			}
 		}
 //		if (drng() < .01) {
-//			std::cout << "destructive: " << diameter << '\n';
+//			std::cout << "shuffle!\n";
 //			for (size_t i = 1; i < simplex_size; ++i) {
-//				s[i] = Individual(problem).getDecisionVector();
+//				for (size_t j = 0; j < prob_size; ++j) {
+//					ffd
+//				}
 //			}
 //		}
 		// First order the vertices of the simplex according to fitness.

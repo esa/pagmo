@@ -48,6 +48,7 @@
 #include "../src/GOclasses/basic/individual.h"
 #include "../src/GOclasses/basic/island.h"
 #include "../src/GOclasses/basic/no_topology.h"
+#include "../src/GOclasses/basic/one_way_ring_topology.h"
 #include "../src/GOclasses/basic/population.h"
 #include "../src/GOclasses/basic/ring_topology.h"
 #include "../src/GOclasses/problems/ClassicProblems.h"
@@ -260,6 +261,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
 	class_<ring_topology, bases<base_topology> > class_rt("ring_topology", "Ring topology.", init<const double &>());
 	class_rt.def("__repr__", &Py_repr_from_stream<ring_topology>);
+	class_<one_way_ring_topology, bases<base_topology> > class_owrt("one_way_ring_topology", "One way ring topology.", init<const double &>());
+	class_owrt.def("__repr__", &Py_repr_from_stream<one_way_ring_topology>);
 	class_<ba_topology, bases<base_topology> > class_bat("ba_topology", "BA model topology.", init<int, int, const double &>());
 	class_bat.def("__repr__", &Py_repr_from_stream<ba_topology>);
 

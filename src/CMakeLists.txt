@@ -24,6 +24,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ba_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/base_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/graph_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/one_way_ring_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
