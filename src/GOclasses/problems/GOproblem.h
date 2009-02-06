@@ -43,6 +43,8 @@ public:
 	virtual double objfun(const std::vector<double> &) const = 0;
 	virtual GOProblem *clone() const = 0;
 	std::string id_name() const {return typeid(*this).name();}
+	virtual void pre_evolution() const {}
+	virtual void post_evolution() const {}
 protected:
 	// Constructor with array bounds initialisers
 	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {
