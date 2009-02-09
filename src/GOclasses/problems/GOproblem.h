@@ -34,19 +34,6 @@
 class __PAGMO_VISIBLE GOProblem {
 	friend std::ostream &operator<<(std::ostream &, const GOProblem &);
 public:
-	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
-	GOProblem(int n) {
-		if (n <= 0) {
-			pagmo_throw(value_error,"size of problem must be positive");
-		}
-		const size_t size = (size_t)(n);
-		LB.resize(size);
-		UB.resize(size);
-		for (size_t i = 0; i < size; ++i) {
-			LB[i] = 0;
-			UB[i] = 1;
-		}
-	}
 	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {}
 	// Bounds getters and setters via reference
@@ -79,8 +66,6 @@ public:
 		UB[n] = value;
 	}
 protected:
-	// Default Constructor. Necessary as some derived classes need to call it (i.e. LJ)
-	GOProblem() {}
 	// Constructor with array bounds initialisers
 	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {
 		check_boundaries();
@@ -100,7 +85,7 @@ private:
 		const size_t size = LB.size();
 		for (size_t i = 0; i < size; ++i) {
 			if (LB[i] >= UB[i]) {
-				pagmo_throw(value_error,"upper-lower values inconsistence in base problem");
+				pagmo_throw(value_error,"inconsistent boundaries in base problem");
 			}
 		}
 	}

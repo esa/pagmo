@@ -60,7 +60,6 @@ using namespace std;
 
 struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 {
-	GOProblemWrap(int n):GOProblem(n) {}
 	GOProblemWrap(const GOProblemWrap &g):GOProblem(g),wrapper<GOProblem>(g) {}
 	double objfun(const vector<double> &x) const {
 		return this->get_override("objfun")(x);
@@ -217,7 +216,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("worst", &Population::extractWorstIndividual, "Copy of worst individual.");
 
 	// Expose base GOProblem class.
-	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", init<int>());
+	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", no_init);
 	class_gop.def(init<const GOProblemWrap &>());
 	class_gop.def("__copy__", pure_virtual(&GOProblem::clone), return_value_policy<manage_new_object>());
 	class_gop.def("__repr__", &Py_repr_from_stream<GOProblem>);
