@@ -36,10 +36,9 @@ class __PAGMO_VISIBLE twodee_problem: public GOProblem {
 		twodee_problem(int, const std::string &);
 		virtual double objfun(const std::vector<double> &) const;
 		virtual twodee_problem *clone() const {return new twodee_problem(*this);}
+		virtual void post_evolution() const;
 	private:
-		static const char	*m_input;
-		static const char	*m_output;
-		size_t				m_random_seed;
+		mutable size_t		m_random_seed;
 		const std::string	m_arguments;
 };
 

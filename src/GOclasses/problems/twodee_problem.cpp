@@ -23,6 +23,7 @@
 #include <boost/lexical_cast.hpp>
 #include <cstdio>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -40,26 +41,56 @@ const char *def_arguments =
 	"WheelNoise=0.2 --fitness-function-arguments collisionsallowedpersbot=1 --post-evaluate "
 	"--number-of-individuals-to-evaluate 1 --number-of-samples 40 --renderer NULL";
 
-const char *twodee_problem::m_input = "twodee_input";
-
-const char *twodee_problem::m_output = "twodee_output";
-
 twodee_problem::twodee_problem(int n):GOProblem(n),m_random_seed(static_rng_uint32()()),m_arguments(def_arguments) {}
 
 twodee_problem::twodee_problem(int n, const std::string &arguments):GOProblem(n),m_random_seed(static_rng_uint32()()),m_arguments(arguments) {}
 
 double twodee_problem::objfun(const std::vector<double> &v) const
 {
-	if (v.size() != getDimension()) {
+	double retval = 0;
+	const size_t size = v.size();
+	if (size != getDimension()) {
 		pagmo_throw(value_error,"problem size mismatch in twodee");
 	}
-	// First let's write the current chromosome to a temporary file.
-	const std::string input_name = std::string(tempnam("",0)) + m_input + boost::lexical_cast<std::string>(m_random_seed);
-	std::ofstream input;
+	// Write the current chromosome to a temporary file.
+	const std::string input_name = std::string(tempnam(0,boost::lexical_cast<std::string>(m_random_seed).c_str()));
 std::cout << "Input filename: " << input_name << '\n';
-	//test.open(input_name.c_str());
-	//test.close();
-	//inp.fail();
-	// Then let's run the command.
-	return 0;
+	std::ofstream input(input_name.c_str());
+	input << size << " ";
+	for (size_t i = 0; i < size; ++i) {
+		input << v[i];
+		if (i + 1 != size) {
+			input << " ";
+		}
+	}
+	input.close();
+	// Determine the name of the output file.
+	const std::string output_name = std::string(tempnam(0,boost::lexical_cast<std::string>(m_random_seed).c_str()));
+std::cout << "Output filename: " << output_name << '\n';
+	// Build and run the command.
+	const std::string command = std::string("./twodee ") + std::string("--load-chromosome ") + input_name + std::string(" ") + std::string(m_arguments)
+		+ std::string(" --random-seed ") + boost::lexical_cast<std::string>(m_random_seed)
+		+ std::string(" --twodee_fitness_output ")+ output_name + std::string(" 2>/dev/null");
+std::cout << "Command: " << command << '\n';
+	int status = std::system(command.c_str());
+	std::ifstream res_stream(output_name.c_str());
+	if (res_stream.is_open()) {
+		std::string line;
+		std::getline(res_stream,line);
+		retval = boost::lexical_cast<double>(line);
+	} else {
+		status = 1;
+	}
+	// Try removing the temporary files.
+	std::remove(input_name.c_str());
+	std::remove(output_name.c_str());
+	if (status) {
+		pagmo_throw(runtime_error,"error executing twodee");
+	}
+	return retval;
+}
+
+void twodee_problem::post_evolution() const
+{
+	m_random_seed = static_rng_uint32()();
 }
