@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <iostream>
+
 #include "../../exceptions.h"
 #include "../../Functions/rng/rng.h"
 #include "go_algorithm.h"
@@ -32,4 +34,9 @@ go_algorithm &go_algorithm::operator=(const go_algorithm &a)
 		drng = rng_double(static_rng_uint32()());
 	}
 	return *this;
+}
+
+std::ostream &operator<<(std::ostream &s, const go_algorithm &alg) {
+		alg.log(s);
+		return s;
 }

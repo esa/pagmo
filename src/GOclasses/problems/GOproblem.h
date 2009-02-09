@@ -34,6 +34,19 @@
 class __PAGMO_VISIBLE GOProblem {
 	friend std::ostream &operator<<(std::ostream &, const GOProblem &);
 public:
+	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
+	GOProblem(int n) {
+			if (n <= 0) {
+					pagmo_throw(value_error,"size of problem must be positive");
+			}
+			const size_t size = (size_t)(n);
+			LB.resize(size);
+			UB.resize(size);
+			for (size_t i = 0; i < size; ++i) {
+					LB[i] = 0;
+					UB[i] = 1;
+			}
+	}
 	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {}
 	// Bounds getters and setters via reference

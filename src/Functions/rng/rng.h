@@ -9,7 +9,7 @@
 
 // This rng returns an unsigned integer in the [0,2**32-1] range.
 typedef boost::mt19937 rng_uint32;
-// This rng returns a double in the [0,1] range.
+// This rng returns a double in the [0,1[ range.
 typedef boost::lagged_fibonacci607 rng_double;
 
 // Generic thread-safe wrapper class around a Boost-like random number generator.

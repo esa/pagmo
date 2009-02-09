@@ -18,34 +18,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_GO_ALGORITHM_H
-#define PAGMO_GO_ALGORITHM_H
+// 09/09/09 Created by Francesco Biscani.
 
-#include <iostream>
+#ifndef PAGMO_TWODEE_PROBLEM_H
+#define PAGMO_TWODEE_PROBLEM_H
+
 #include <string>
-#include <typeinfo>
+#include <vector>
 
-#include "../../Functions/rng/rng.h"
-#include "../../config.h"
-#include "../basic/population.h"
+#include "../../../config.h"
+#include "GOproblem.h"
 
-class __PAGMO_VISIBLE go_algorithm
-{
-		friend std::ostream &operator<<(std::ostream &, const go_algorithm &);
+// Twodee problem.
+class __PAGMO_VISIBLE twodee_problem: public GOProblem {
 	public:
-		go_algorithm();
-		go_algorithm(const go_algorithm &);
-		go_algorithm &operator=(const go_algorithm &);
-		virtual Population evolve(const Population &) const = 0;
-		virtual go_algorithm *clone() const = 0;
-        virtual ~go_algorithm() {}
-		std::string id_name() const {return typeid(*this).name();}
-	protected:
-		///Virtual log method. Is called by the overloaded operator << of go_algorithm that can thus behave differently for each derived class
-		virtual void log(std::ostream& s) const {s << "You need to implement the virtual method log() for this derived class of go_algorithm" << std::endl;}
-		mutable rng_double drng;
+		twodee_problem(int);
+		twodee_problem(int, const std::string &);
+		virtual double objfun(const std::vector<double> &) const;
+		virtual twodee_problem *clone() const {return new twodee_problem(*this);}
+	private:
+		static const char	*m_input;
+		static const char	*m_output;
+		size_t				m_random_seed;
+		const std::string	m_arguments;
 };
-
-std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const go_algorithm &);
 
 #endif

@@ -53,6 +53,7 @@
 #include "../src/GOclasses/basic/ring_topology.h"
 #include "../src/GOclasses/problems/ClassicProblems.h"
 #include "../src/GOclasses/problems/TrajectoryProblems.h"
+#include "../src/GOclasses/problems/twodee_problem.h"
 #include "../src/exceptions.h"
 
 using namespace boost::python;
@@ -239,6 +240,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<rosenbrockProb, bases<GOProblem> > class_rosenbrockp("rosenbrock_problem", "Rosenbrock problem.", init<int>());
 	class_<lennardjonesProb, bases<GOProblem> > class_ljp("lennardjones_problem", "Lennard-Jones problem.", init<int>());
 	class_<levyProb, bases<GOProblem> > class_levyp("levy_problem", "Levy problem.", init<int>());
+	// Twodee problem.
+	class_<twodee_problem, bases<GOProblem> > class_twodeep("twodee_problem", "Twodee problem.", init<int>());
 
 	// Expose base algorithm class.
 	class_<go_algorithm_wrap, boost::noncopyable> class_goa("go_algorithm", "Base GO algorithm", no_init);
