@@ -87,7 +87,7 @@ size_t archipelago::size() const
 
 void archipelago::check_island(const island &isl) const
 {
-	if (typeid(isl.problem()) != typeid(problem())) {
+	if (typeid(isl.problem()) != typeid(problem()) || isl.problem().getDimension() != problem().getDimension()) {
 		pagmo_throw(type_error, "island's problem type is not compatible with archipelago's problem type");
 	}
 }

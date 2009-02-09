@@ -42,7 +42,7 @@
 	Population &Population::operator=(const Population &p)
 	{
 		if (this != &p) {
-			if (typeid(*m_problem) != typeid(*p.m_problem)) {
+			if (typeid(*m_problem) != typeid(*p.m_problem) || m_problem->getDimension() != p.m_problem->getDimension()) {
 				pagmo_throw(type_error, "problem types are not compatible while assigning population");
 			}
 			pop = p.pop;
