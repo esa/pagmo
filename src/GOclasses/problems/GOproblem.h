@@ -91,26 +91,6 @@ private:
 	}
 };
 
-inline std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &s, const GOProblem &p) {
-	s << "Problem type: " << p.id_name() << '\n';
-	const size_t size = p.getDimension();
-	s << "Lower bounds:\n";
-	for (size_t i = 0; i < size; ++i) {
-		s << p.LB[i];
-		if (i < size - 1) {
-			s << ' ';
-		}
-	}
-	s << '\n';
-	s << "Upper bounds:\n";
-	for (size_t i = 0; i < size; ++i) {
-		s << p.UB[i];
-		if (i < size - 1) {
-			s << ' ';
-		}
-	}
-	s << '\n';
-	return s;
-}
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const GOProblem &);
 
 #endif

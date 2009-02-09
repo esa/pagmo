@@ -29,6 +29,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/ClassicProblems.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/GOproblem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp
 )
 

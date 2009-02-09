@@ -18,24 +18,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 17/05/08 Created by Dario Izzo.
+// 09/06/09 Created by Francesco Biscani.
 
-#ifndef PAGMO_CLASSICOBJFUNS_H
-#define PAGMO_CLASSICOBJFUNS_H
+#include <iostream>
 
-#include <vector>
+#include "GOproblem.h"
 
-#include "../../../config.h"
-
-//NOTE: the functions here have passing by reference + const as they are called a lot of time during execution and thus
-//it is worth trying to save time by avoiding to make a copy of the variable passed
-
-double __PAGMO_VISIBLE_FUNC testfunction (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC rastrigin (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC schwefel (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC ackley (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC rosenbrock (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC lennardjones (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC levy (const std::vector<double>& x);
-
-#endif
+std::ostream &operator<<(std::ostream &s, const GOProblem &p) {
+	s << "Problem type: " << p.id_name() << '\n';
+	const size_t size = p.getDimension();
+	s << "Lower bounds:\n";
+	for (size_t i = 0; i < size; ++i) {
+		s << p.LB[i];
+		if (i < size - 1) {
+			s << ' ';
+		}
+	}
+	s << '\n';
+	s << "Upper bounds:\n";
+	for (size_t i = 0; i < size; ++i) {
+		s << p.UB[i];
+		if (i < size - 1) {
+			s << ' ';
+		}
+	}
+	s << '\n';
+	return s;
+}
