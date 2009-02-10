@@ -34,7 +34,7 @@
 
 const char *def_arguments =
 	"--controller-type CTRHNN_MULTILAYER "
-	"--experiment 28 --sensors D* --fitness-function 66816 --evaluation-time-limit 50 "
+	"--experiment 28 --sensors D'*' --fitness-function 66816 --evaluation-time-limit 50 "
 	"--experiment-arguments sensors=AHE3N,actuators=WG,TauValue=2.5,hiddennodes=10,"
 	"disablelogging=yes,arena=9,stepinterval=0.2,maxspeed=8,angle_theshold=1,cameradirectionnoise=0.04,"
 	"cameradistancenoise=0.025,cameradirectionbias=0.0,cameradistancebias=0.0,CAM_IR=1,GripperSpeed=1.0,"
@@ -54,7 +54,6 @@ double twodee_problem::objfun(const std::vector<double> &v) const
 	}
 	// Write the current chromosome to a temporary file.
 	const std::string input_name = std::string(tempnam(0,boost::lexical_cast<std::string>(m_random_seed).c_str()));
-std::cout << "Input filename: " << input_name << '\n';
 	std::ofstream input(input_name.c_str());
 	input << size << " ";
 	for (size_t i = 0; i < size; ++i) {
@@ -66,12 +65,10 @@ std::cout << "Input filename: " << input_name << '\n';
 	input.close();
 	// Determine the name of the output file.
 	const std::string output_name = std::string(tempnam(0,boost::lexical_cast<std::string>(m_random_seed).c_str()));
-std::cout << "Output filename: " << output_name << '\n';
 	// Build and run the command.
 	const std::string command = std::string("./twodee ") + std::string("--load-chromosome ") + input_name + std::string(" ") + std::string(m_arguments)
 		+ std::string(" --random-seed ") + boost::lexical_cast<std::string>(m_random_seed)
 		+ std::string(" --twodee_fitness_output ")+ output_name + std::string(" 2>/dev/null");
-std::cout << "Command: " << command << '\n';
 	int status = std::system(command.c_str());
 	std::ifstream res_stream(output_name.c_str());
 	if (res_stream.is_open()) {
@@ -87,7 +84,7 @@ std::cout << "Command: " << command << '\n';
 	if (status) {
 		pagmo_throw(runtime_error,"error executing twodee");
 	}
-	return retval;
+	return -retval;
 }
 
 void twodee_problem::post_evolution() const
