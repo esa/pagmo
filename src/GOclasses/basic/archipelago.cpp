@@ -36,6 +36,9 @@ archipelago::archipelago(const GOProblem &p, const base_topology &t):m_gop(p.clo
 
 archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(new no_topology())
 {
+	if (N < 0 || M < 0) {
+		pagmo_throw(value_error,"number of islands and population size must be nonnegative numbers");
+	}
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M));
 	}
@@ -43,8 +46,19 @@ archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M
 
 archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(t.clone())
 {
+	if (N < 0 || M < 0) {
+		pagmo_throw(value_error,"number of islands and population size must be nonnegative numbers");
+	}
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M));
+	}
+}
+
+archipelago::archipelago(const archipelago &a):m_gop(a.m_gop->clone()),m_top(a.m_top->clone())
+{
+	const const_iterator it_t = a.end();
+	for (const_iterator it = a.begin(); it != it_f; ++it) {
+		push_back(*it);
 	}
 }
 
@@ -64,11 +78,9 @@ void archipelago::set_topology(const base_topology &t)
 {
 	join();
 	m_top.reset(t.clone());
-	const container_type old = m_container;
-	m_container.clear();
-	const const_iterator it_f = old.end();
-	for (const_iterator it = old.begin(); it != it_f; ++it) {
-		push_back(*it);
+	const const_iterator it_f = end();
+	for (const_iterator it = begin(); it != it_f; ++it) {
+		m_top->push_back(*it);
 	}
 }
 

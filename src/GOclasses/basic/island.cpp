@@ -52,7 +52,6 @@ island &island::operator=(const island &i)
 {
 	if (this != &i) {
 		m_pop = i.population();
-		m_id = get_new_id();
 		m_goa.reset(i.m_goa->clone());
 		m_evo_time = i.m_evo_time;
 	}

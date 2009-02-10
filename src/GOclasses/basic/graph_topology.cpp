@@ -35,7 +35,7 @@ graph_topology::graph_topology(const double &prob):m_drng(static_rng_uint32()())
 	}
 }
 
-graph_topology::graph_topology(const graph_topology &g):m_tc(g.m_tc),m_ic(g.m_ic),m_drng(static_rng_uint32()()),m_prob(g.m_prob) {}
+graph_topology::graph_topology(const graph_topology &g):m_tc(),m_ic(),m_drng(static_rng_uint32()()),m_prob(g.m_prob) {}
 
 graph_topology &graph_topology::operator=(const graph_topology &)
 {
