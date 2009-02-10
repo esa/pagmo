@@ -57,24 +57,6 @@
 using namespace boost::python;
 using namespace std;
 
-struct GOProblemWrap: GOProblem, wrapper<GOProblem>
-{
-	GOProblemWrap(const GOProblemWrap &g):GOProblem(g),wrapper<GOProblem>(g) {}
-	double objfun(const vector<double> &x) const {
-		return this->get_override("objfun")(x);
-	}
-	GOProblemWrap *clone() const {
-		return this->get_override("__copy__")();
-	}
-};
-
-struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
-{
-	Population evolve(const Population &pop, const GOProblem &prob) {
-		return this->get_override("evolve")(pop,prob);
-	}
-};
-
 template <class T>
 static inline string Py_repr_from_stream(const T &x)
 {
@@ -127,6 +109,29 @@ template <class T, class C>
 static inline T *topology_getter(const C &c)
 {
 	return c.topology().clone();
+}
+
+template <class Problem>
+static inline class_<Problem,bases<GOProblem> > problem_wrapper(const char *name, const char *descr)
+{
+	class_<Problem,bases<GOProblem> > retval(name,descr,init<const Problem &>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__repr__", &Py_repr_from_stream<Problem>);
+	retval.def("objfun", &Problem::objfun, "Objective function.");
+	retval.def("set_lb", &Problem::set_lb, "Set lower bound.");
+	retval.def("set_ub", &Problem::set_ub, "Set upper bound.");
+	retval.add_property("dimension", &Problem::getDimension, "Dimension.");
+	retval.add_property("id_name", &Problem::id_name, "Identification name.");
+	return retval;
+}
+
+template <class Algorithm>
+static inline class_<Algorithm,bases<go_algorithm> > algorithm_wrapper(const char *name, const char *descr)
+{
+	class_<Algorithm,bases<go_algorithm> > retval(name,descr,init<const Algorithm &>());
+	retval.def("__copy__", &Py_copy_from_ctor<Algorithm>);
+	retval.add_property("id_name", &Algorithm::id_name, "Identification name.");
+	return retval;
 }
 
 static inline void ie_translator(const index_error &ie)
@@ -198,45 +203,34 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("worst", &Population::extractWorstIndividual, "Copy of worst individual.");
 
 	// Expose base GOProblem class.
-	class_<GOProblemWrap, boost::noncopyable> class_gop("__go_problem", "Base GO problem", no_init);
-	class_gop.def(init<const GOProblemWrap &>());
-	class_gop.def("__copy__", pure_virtual(&GOProblem::clone), return_value_policy<manage_new_object>());
-	class_gop.def("__repr__", &Py_repr_from_stream<GOProblem>);
-	class_gop.def("objfun", pure_virtual(&GOProblem::objfun), "Objective function.");
-	class_gop.def("set_lb", &GOProblem::set_lb, "Set lower bound.");
-	class_gop.def("set_ub", &GOProblem::set_ub, "Set upper bound.");
-	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension.");
-	class_gop.add_property("id_name", &GOProblem::id_name, "Identification name.");
+	class_<GOProblem, boost::noncopyable>("__go_problem", "Base GO problem", no_init);
 
 	// Expose problem classes.
 	// Trajectory problems.
-	class_<messengerfullProb, bases<GOProblem> > class_mfp("messenger_full_problem", "Messenger full problem.", init<>());
-	class_<messengerProb, bases<GOProblem> > class_mp("messenger_problem", "Messenger problem.", init<>());
-	class_<cassini1Prob, bases<GOProblem> > class_c1p("cassini1_problem", "Cassini1 problem.", init<>());
+	problem_wrapper<messengerfullProb>("messenger_full_problem", "Messenger full problem.").def(init<>());
+	problem_wrapper<messengerProb>("messenger_problem", "Messenger problem.").def(init<>());
+	problem_wrapper<cassini1Prob>("cassini1_problem", "Cassini1 problem.").def(init<>());
 	// Classical problems.
-	class_<TestProb, bases<GOProblem> > class_testp("test_problem", "Test problem.", init<int>());
-	class_<rastriginProb, bases<GOProblem> > class_rastriginp("rastrigin_problem", "Rastrigin problem.", init<int>());
-	class_<schwefelProb, bases<GOProblem> > class_schwefelp("schwefel_problem", "Schwefel problem.", init<int>());
-	class_<ackleyProb, bases<GOProblem> > class_ackleyp("ackley_problem", "Ackely problem.", init<int>());
-	class_<rosenbrockProb, bases<GOProblem> > class_rosenbrockp("rosenbrock_problem", "Rosenbrock problem.", init<int>());
-	class_<lennardjonesProb, bases<GOProblem> > class_ljp("lennardjones_problem", "Lennard-Jones problem.", init<int>());
-	class_<levyProb, bases<GOProblem> > class_levyp("levy_problem", "Levy problem.", init<int>());
+	problem_wrapper<TestProb>("test_problem", "Test problem.").def(init<int>());
+	problem_wrapper<rastriginProb>("rastrigin_problem", "Rastrigin problem.").def(init<int>());
+	problem_wrapper<schwefelProb>("schwefel_problem", "Schwefel problem.").def(init<int>());
+	problem_wrapper<ackleyProb>("ackley_problem", "Ackely problem.").def(init<int>());
+	problem_wrapper<rosenbrockProb>("rosenbrock_problem", "Rosenbrock problem.").def(init<int>());
+	problem_wrapper<lennardjonesProb>("lennardjones_problem", "Lennard-Jones problem.").def(init<int>());
+	problem_wrapper<levyProb>("levy_problem", "Levy problem.").def(init<int>());
 	// Twodee problem.
-	class_<twodee_problem, bases<GOProblem> > class_twodeep("twodee_problem", "Twodee problem.", init<int>());
-	class_twodeep.def(init<int,const std::string &>());
+	problem_wrapper<twodee_problem>("twodee_problem", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
 
 	// Expose base algorithm class.
-	class_<go_algorithm_wrap, boost::noncopyable> class_goa("__go_algorithm", "Base GO algorithm", no_init);
-	class_goa.def("evolve", pure_virtual(&go_algorithm::evolve));
-	class_goa.add_property("id_name", &go_algorithm::id_name, "Identification name.");
+	class_<go_algorithm, boost::noncopyable>("__go_algorithm", "Base GO algorithm", no_init);
 
 	// Expose algorithms.
-	class_<ASAalgorithm, bases<go_algorithm> > class_asa("asa_algorithm", "ASA algorithm.", init<int, const double &, const double &>());
-	class_<DEalgorithm, bases<go_algorithm> > class_de("de_algorithm", "DE algorithm.", init<int, const double &, const double &, int>());
-	class_<ihs_algorithm, bases<go_algorithm> > class_ihs("ihs_algorithm", "IHS algorithm.", init<int, const double &, const double &,
-		const double &, const double &, const double &>());
-	class_<nm_algorithm, bases<go_algorithm> > class_nm("nm_algorithm", "Nelder-Mead algorithm",
-		init<int, const double &, const double &, const double &, const double &>());
+	algorithm_wrapper<ASAalgorithm>("asa_algorithm", "ASA algorithm.").def(init<int, const double &, const double &>());
+	algorithm_wrapper<DEalgorithm>("de_algorithm", "DE algorithm.").def(init<int, const double &, const double &, int>());
+	algorithm_wrapper<ihs_algorithm>("ihs_algorithm", "IHS algorithm.")
+		.def(init<int, const double &, const double &, const double &, const double &, const double &>());
+	algorithm_wrapper<nm_algorithm>("nm_algorithm", "Nelder-Mead algorithm.")
+		.def(init<int, const double &, const double &, const double &, const double &>());
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
