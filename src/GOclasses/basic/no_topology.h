@@ -30,9 +30,6 @@
 class __PAGMO_VISIBLE no_topology: public base_topology {
 	public:
 		virtual no_topology *clone() const {return new no_topology(*this);}
-		virtual void push_back(const island &) {}
-		virtual void pre_evolution(island &) {}
-		virtual void post_evolution(island &) {}
 };
 
 inline std::ostream &operator<<(std::ostream &s, const no_topology &) {return s;}
