@@ -22,9 +22,7 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
-#include <boost/python/errors.hpp>
 #include <boost/python/exception_translator.hpp>
-#include <boost/python/iterator.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/manage_new_object.hpp>
 #include <boost/python/module.hpp>
@@ -68,22 +66,6 @@ struct GOProblemWrap: GOProblem, wrapper<GOProblem>
 	GOProblemWrap *clone() const {
 		return this->get_override("__copy__")();
 	}
-	void pre_evolution() {
-		if (override pre_evolution = this->get_override("pre_evolution")) {
-			pre_evolution();
-		} else {
-			GOProblem::pre_evolution();
-		}
-	}
-	void default_pre_evolution() {this->GOProblem::pre_evolution();}
-	void post_evolution() {
-		if (override post_evolution = this->get_override("post_evolution")) {
-			post_evolution();
-		} else {
-			GOProblem::post_evolution();
-		}
-	}
-	void default_post_evolution() {this->GOProblem::post_evolution();}
 };
 
 struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
@@ -91,11 +73,6 @@ struct go_algorithm_wrap: go_algorithm, wrapper<go_algorithm>
 	Population evolve(const Population &pop, const GOProblem &prob) {
 		return this->get_override("evolve")(pop,prob);
 	}
-};
-
-struct base_topology_wrap: base_topology, wrapper<base_topology>
-{
-
 };
 
 template <class T>
@@ -221,14 +198,14 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_pop.def("worst", &Population::extractWorstIndividual, "Copy of worst individual.");
 
 	// Expose base GOProblem class.
-	class_<GOProblemWrap, boost::noncopyable> class_gop("go_problem", "Base GO problem", no_init);
+	class_<GOProblemWrap, boost::noncopyable> class_gop("__go_problem", "Base GO problem", no_init);
 	class_gop.def(init<const GOProblemWrap &>());
 	class_gop.def("__copy__", pure_virtual(&GOProblem::clone), return_value_policy<manage_new_object>());
 	class_gop.def("__repr__", &Py_repr_from_stream<GOProblem>);
 	class_gop.def("objfun", pure_virtual(&GOProblem::objfun), "Objective function.");
 	class_gop.def("set_lb", &GOProblem::set_lb, "Set lower bound.");
 	class_gop.def("set_ub", &GOProblem::set_ub, "Set upper bound.");
-	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension of the problem.");
+	class_gop.add_property("dimension", &GOProblem::getDimension, "Dimension.");
 	class_gop.add_property("id_name", &GOProblem::id_name, "Identification name.");
 
 	// Expose problem classes.
@@ -249,7 +226,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_twodeep.def(init<int,const std::string &>());
 
 	// Expose base algorithm class.
-	class_<go_algorithm_wrap, boost::noncopyable> class_goa("go_algorithm", "Base GO algorithm", no_init);
+	class_<go_algorithm_wrap, boost::noncopyable> class_goa("__go_algorithm", "Base GO algorithm", no_init);
 	class_goa.def("evolve", pure_virtual(&go_algorithm::evolve));
 	class_goa.add_property("id_name", &go_algorithm::id_name, "Identification name.");
 
@@ -287,7 +264,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
 	// Topologies.
-	class_<base_topology_wrap, boost::noncopyable> class_bt("base_topology", "Base topology.", no_init);
+	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);
 	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
 	class_<ring_topology, bases<base_topology> > class_rt("ring_topology", "Ring topology.", init<const double &>());
 	class_rt.def("__repr__", &Py_repr_from_stream<ring_topology>);
