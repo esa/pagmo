@@ -242,6 +242,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<levyProb, bases<GOProblem> > class_levyp("levy_problem", "Levy problem.", init<int>());
 	// Twodee problem.
 	class_<twodee_problem, bases<GOProblem> > class_twodeep("twodee_problem", "Twodee problem.", init<int>());
+	class_twodeep.def(init<int,const std::string &>());
 
 	// Expose base algorithm class.
 	class_<go_algorithm_wrap, boost::noncopyable> class_goa("go_algorithm", "Base GO algorithm", no_init);
