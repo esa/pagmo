@@ -134,6 +134,16 @@ static inline class_<Algorithm,bases<go_algorithm> > algorithm_wrapper(const cha
 	return retval;
 }
 
+template <class Topology>
+static inline class_<Topology,bases<base_topology> > topology_wrapper(const char *name, const char *descr)
+{
+	class_<Topology,bases<base_topology> > retval(name,descr,init<const Topology &>());
+	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
+	retval.def("__repr__", &Py_repr_from_stream<Topology>);
+	retval.add_property("id_name", &Topology::id_name, "Identification name.");
+	return retval;
+}
+
 static inline void ie_translator(const index_error &ie)
 {
 	PyErr_SetString(PyExc_IndexError, ie.what());
@@ -235,6 +245,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
 	class_island.def(init<const GOProblem &, const go_algorithm &>());
+	class_island.def(init<const island &>());
+	class_island.def("__copy__", &Py_copy_from_ctor<island>);
 	class_island.def("__delitem__", &island::erase);
 	class_island.def("__getitem__", &island::operator[], "Get a copy of individual.");
 	class_island.def("__len__", &island::size);
@@ -257,15 +269,14 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
-	// Topologies.
+	// Base topology.
 	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);
-	class_<no_topology, bases<base_topology> > class_nt("no_topology", "No topology.", init<>());
-	class_<ring_topology, bases<base_topology> > class_rt("ring_topology", "Ring topology.", init<const double &>());
-	class_rt.def("__repr__", &Py_repr_from_stream<ring_topology>);
-	class_<one_way_ring_topology, bases<base_topology> > class_owrt("one_way_ring_topology", "One way ring topology.", init<const double &>());
-	class_owrt.def("__repr__", &Py_repr_from_stream<one_way_ring_topology>);
-	class_<ba_topology, bases<base_topology> > class_bat("ba_topology", "BA model topology.", init<int, int, const double &>());
-	class_bat.def("__repr__", &Py_repr_from_stream<ba_topology>);
+
+	// Topologies.
+	topology_wrapper<no_topology>("no_topology", "No topology.").def(init<>());
+	topology_wrapper<ring_topology>("ring_topology", "Ring topology.").def(init<const double &>());
+	topology_wrapper<one_way_ring_topology>("one_way_ring_topology", "One way ring topology.").def(init<const double &>());
+	topology_wrapper<ba_topology>("ba_topology", "BA model topology.").def(init<int, int, const double &>());
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);

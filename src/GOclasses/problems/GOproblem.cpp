@@ -26,6 +26,7 @@
 
 std::ostream &operator<<(std::ostream &s, const GOProblem &p) {
 	s << "Problem type: " << p.id_name() << '\n';
+	s << "Dimension: " << p.getDimension() << '\n';
 	const size_t size = p.getDimension();
 	s << "Lower bounds:\n";
 	for (size_t i = 0; i < size; ++i) {

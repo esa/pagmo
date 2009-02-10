@@ -35,4 +35,6 @@ class __PAGMO_VISIBLE no_topology: public base_topology {
 		virtual void post_evolution(island &) {}
 };
 
+inline std::ostream &operator<<(std::ostream &s, const no_topology &) {return s;}
+
 #endif
