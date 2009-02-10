@@ -40,6 +40,7 @@ class __PAGMO_VISIBLE ring_topology: public base_topology, public graph_topology
 		ring_topology(const ring_topology &);
 		virtual ring_topology *clone() const {return new ring_topology(*this);}
 		virtual void push_back(const island &);
+		virtual void reset();
 		virtual void pre_evolution(island &);
 		virtual void post_evolution(island &);
 	private:

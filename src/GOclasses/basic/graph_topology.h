@@ -49,6 +49,7 @@ class __PAGMO_VISIBLE graph_topology {
 		graph_topology(const double &);
 		graph_topology(const graph_topology &);
 	protected:
+		void reset_hook();
 		void pre_hook(island &);
 		void post_hook(island &);
 		mutable mutex_type	m_mutex;

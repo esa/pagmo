@@ -39,6 +39,7 @@ class __PAGMO_VISIBLE ba_topology: public base_topology, public graph_topology {
 		ba_topology(const ba_topology &);
 		virtual ba_topology *clone() const {return new ba_topology(*this);}
 		virtual void push_back(const island &);
+		virtual void reset();
 		virtual void pre_evolution(island &);
 		virtual void post_evolution(island &);
 	private:

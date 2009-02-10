@@ -114,6 +114,11 @@ void ba_topology::push_back(const island &isl)
 	}
 }
 
+void ba_topology::reset()
+{
+	reset_hook();
+}
+
 void ba_topology::pre_evolution(island &isl)
 {
 	pre_hook(isl);

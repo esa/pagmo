@@ -72,6 +72,11 @@ void one_way_ring_topology::push_back(const island &isl)
 	m_last = id;
 }
 
+void one_way_ring_topology::reset()
+{
+	reset_hook();
+}
+
 void one_way_ring_topology::pre_evolution(island &isl)
 {
 	pre_hook(isl);

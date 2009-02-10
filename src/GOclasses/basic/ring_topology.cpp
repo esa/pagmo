@@ -87,6 +87,11 @@ void ring_topology::push_back(const island &isl)
 	m_last = id;
 }
 
+void ring_topology::reset()
+{
+	reset_hook();
+}
+
 void ring_topology::pre_evolution(island &isl)
 {
 	pre_hook(isl);

@@ -39,6 +39,7 @@ class __PAGMO_VISIBLE base_topology {
 		virtual void push_back(const island &) {}
 		virtual void pre_evolution(island &) {}
 		virtual void post_evolution(island &) {}
+		virtual void reset() {}
 		virtual base_topology *clone() const = 0;
 		std::string id_name() const {return typeid(*this).name();}
 };
