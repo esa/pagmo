@@ -280,10 +280,12 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);
-	class_<archipelago, boost::noncopyable> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
+	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
 	class_arch.def(init<const GOProblem &, const base_topology &>());
 	class_arch.def(init<const GOProblem &, const base_topology &, const go_algorithm &, int, int>());
+	class_arch.def(init<const archipelago &>());
+	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &Py_set_item_from_ra<archipelago,island>);
