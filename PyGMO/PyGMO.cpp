@@ -196,6 +196,7 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
 	class_ind.def(init<const Individual &>());
+	class_ind.def("__copy__", &Py_copy_from_ctor<Individual>);
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
 	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
 
@@ -204,6 +205,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_<Population> class_pop("population", "Population.", init<const GOProblem &>());
 	class_pop.def(init<const GOProblem &, int>());
 	class_pop.def(init<const GOProblem &>());
+	class_pop.def(init<const Population &>());
+	class_pop.def("__copy__", &Py_copy_from_ctor<Population>);
 	class_pop.def("__delitem__", &Population::erase);
 	class_pop.def("__getitem__", pop_get_const(&Population::operator[]), return_value_policy<copy_const_reference>(), "Get a copy of individual.");
 	class_pop.def("__len__", &Population::size);
