@@ -195,8 +195,9 @@ BOOST_PYTHON_MODULE(_PyGMO)
 
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
-	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
+	class_ind.def(init<const Individual &>());
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
+	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
 
 	// Expose population class.
 	typedef const Individual &(Population::*pop_get_const)(int) const;

@@ -56,7 +56,7 @@ archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_al
 
 archipelago::archipelago(const archipelago &a):m_gop(a.m_gop->clone()),m_top(a.m_top->clone())
 {
-	const const_iterator it_t = a.end();
+	const const_iterator it_f = a.end();
 	for (const_iterator it = a.begin(); it != it_f; ++it) {
 		push_back(*it);
 	}
