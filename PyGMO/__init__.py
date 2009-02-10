@@ -17,6 +17,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from _PyGMO import *
+from copy import copy
 
 class __vector_init:
 	def build(self, iterable, t):
@@ -37,7 +38,7 @@ class vector_size_t(_PyGMO.__base_vector_size_t,__vector_init):
 		super(type(self), self).__init__()
 		self.build(iterable,int)
 
-def make_neato(arch,directed = True):
+def __arch_make_neato(arch,directed = True):
 	if directed:
 		graph_t = 'digraph'
 		graph_sep = '->'
@@ -63,3 +64,5 @@ def make_neato(arch,directed = True):
 			retval += str(i) + graph_sep + str(j) + ';\n'
 	retval += '}'
 	return retval
+
+archipelago.make_neato = __arch_make_neato
