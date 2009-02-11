@@ -52,16 +52,21 @@ private:
 	///Throws an exception if the sizes of this and the argument are different
 	void check_compatibility(const Individual &) const;
 	///Individual chromosome (position)
-	std::vector<double>			x;			
+	std::vector<double>			x;
 	///Individual velocity
-	std::vector<double>			v;			
+	std::vector<double>			v;
 	///Individual fitness
 	double						fitness;	//this is the individual fitness
 };
 
 inline std::ostream &operator<<(std::ostream &s, const Individual &ind) {
+	s << std::scientific;
+	s.precision(15);
 	for (size_t i = 0; i < ind.x.size(); ++i) {
-		s << ind.x[i] << " ";
+		s << ind.x[i];
+		if (i != ind.x.size() - 1) {
+			s << ',';
+		}
 	}
 	return s;
 }

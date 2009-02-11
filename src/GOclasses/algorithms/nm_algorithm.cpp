@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include "../../exceptions.h"
@@ -53,8 +54,8 @@ nm_algorithm::nm_algorithm(int n_gen, const double &alpha, const double &gamma, 
 
 struct sorter {
 	sorter(const GOProblem &p):problem(p) {}
-	bool operator()(const std::vector<double> &v1, const std::vector<double> &v2) const {
-		return (problem.objfun(v1) < problem.objfun(v2));
+	bool operator()(const std::pair<std::vector<double>,double> &a, const std::pair<std::vector<double>,double> &b) const {
+		return (a.second < b.second);
 	}
 	const GOProblem &problem;
 };
@@ -81,8 +82,8 @@ std::vector<double> nm_algorithm::center_mass(const simplex &s) const
 	for (size_t i = 0; i < size; ++i) {
 		double tmp = 0;
 		for (size_t j = 0; j < size; ++j) {
-			pagmo_assert(size == s[j].size());
-			tmp += s[j][i];
+			pagmo_assert(size == s[j].first.size());
+			tmp += s[j].first[i];
 		}
 		retval[i] = tmp / size;
 	}
@@ -112,7 +113,7 @@ double nm_algorithm::simplex_diameter(const simplex &s) const
 		for (size_t j = i + 1; j < s_size; ++j) {
 			double tmp = 0.;
 			for (size_t k = 0; k < dim; ++k) {
-				tmp += (s[i][k] - s[j][k]) * (s[i][k] - s[j][k]);
+				tmp += (s[i].first[k] - s[j].first[k]) * (s[i].first[k] - s[j].first[k]);
 			}
 			tmp = std::sqrt(tmp);
 			if (tmp > retval) {
@@ -138,9 +139,10 @@ Population nm_algorithm::evolve(const Population &pop) const
 	retval.sort();
 	// Build a simplex from the sorted input population.
 	const size_t simplex_size = prob_size + 1;
-	simplex s(simplex_size,std::vector<double>(prob_size));
+	simplex s(simplex_size,std::make_pair(std::vector<double>(prob_size),0));
 	for (size_t i = 0; i < simplex_size; ++i) {
-		s[i] = retval[i].getDecisionVector();
+		s[i].first = retval[i].getDecisionVector();
+		s[i].second = retval[i].getFitness();
 	}
 	// Perform the NM method for a number of times equal to m_gen.
 	for (size_t gen = 0; gen < m_gen; ++gen) {
@@ -149,7 +151,9 @@ Population nm_algorithm::evolve(const Population &pop) const
 		if (diameter < 1E-6) {
 			//std::cout << "small diameter: " << diameter << '\n';
 			for (size_t i = 1; i < simplex_size; ++i) {
-				s[i] = Individual(problem).getDecisionVector();
+				Individual tmp(problem);
+				s[i].first = tmp.getDecisionVector();
+				s[i].second = tmp.getFitness();
 			}
 		}
 		// First order the vertices of the simplex according to fitness.
@@ -157,38 +161,43 @@ Population nm_algorithm::evolve(const Population &pop) const
 		// Compute the center of mass, excluding the worst point.
 		const std::vector<double> x0 = center_mass(s);
 		// Compute a reflection.
-		std::vector<double> xr = sub_mult_add(x0,s.back(),m_alpha,x0);
+		std::vector<double> xr = sub_mult_add(x0,s.back().first,m_alpha,x0);
 		check_bounds(xr,problem);
 		// Calculate fitness values. fitness_target is relative to the vertex immediately before the worst one.
-		const double fitness_r = problem.objfun(xr), fitness_best = problem.objfun(s[0]), fitness_target = problem.objfun(s[simplex_size - 2]);
+		const double fitness_r = problem.objfun(xr), fitness_best = problem.objfun(s[0].first), fitness_target = problem.objfun(s[simplex_size - 2].first);
 		if (fitness_r >= fitness_best && fitness_r < fitness_target) {
-			s.back() = xr;
+			s.back().first = xr;
+			s.back().second = fitness_r;
 		} else if (fitness_r < fitness_best) {
-			std::vector<double> xe = sub_mult_add(x0,s.back(),m_gamma,x0);
+			std::vector<double> xe = sub_mult_add(x0,s.back().first,m_gamma,x0);
 			check_bounds(xe,problem);
 			const double fitness_e = problem.objfun(xe);
 			if (fitness_e < fitness_r) {
-				s.back() = xe;
+				s.back().first = xe;
+				s.back().second = fitness_e;
 			} else {
-				s.back() = xr;
+				s.back().first = xr;
+				s.back().second = fitness_r;
 			}
 		} else {
-			std::vector<double> xc = sub_mult_add(x0,s.back(),m_rho,s.back());
+			std::vector<double> xc = sub_mult_add(x0,s.back().first,m_rho,s.back().first);
 			check_bounds(xc,problem);
-			const double fitness_c = problem.objfun(xc), fitness_worst = problem.objfun(s.back());
+			const double fitness_c = problem.objfun(xc), fitness_worst = problem.objfun(s.back().first);
 			if (fitness_c <= fitness_worst) {
-				s.back() = xc;
+				s.back().first = xc;
+				s.back().second = fitness_c;
 			} else {
 				for (size_t i = 1; i < simplex_size; ++i) {
-					s[i] = sub_mult_add(s[i],s.front(),m_sigma,s.front());
-					check_bounds(s[i],problem);
+					s[i].first = sub_mult_add(s[i].first,s.front().first,m_sigma,s.front().first);
+					check_bounds(s[i].first,problem);
+					s[i].second = problem.objfun(s[i].first);
 				}
 			}
 		}
 	}
 	// In retval overwrite the individuals that have evolved (i.e., those involved in the simplex).
 	for (size_t i = 0; i < simplex_size; ++i) {
-		retval[i] = Individual(s[i],problem.objfun(s[i]));
+		retval[i] = Individual(s[i].first,s[i].second);
 	}
 	return retval;
 }

@@ -24,6 +24,7 @@
 #define PAGMO_NM_ALGORITHM_H
 
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include "../../config.h"
@@ -36,7 +37,7 @@
  * See http://en.wikipedia.org/wiki/Nelder-Mead_method
  */
 class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
-		typedef std::vector<std::vector<double> > simplex;
+		typedef std::vector<std::pair<std::vector<double>,double> > simplex;
 	public:
 		nm_algorithm(int, const double &, const double &, const double &, const double &);
 		virtual Population evolve(const Population &) const;
