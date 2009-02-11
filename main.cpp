@@ -254,8 +254,7 @@ while (choice != -1) {
 			vector <double> results;
 
 			//Instanciate the algorithm
-			MPSOalgorithm MPSO;
-			MPSO.initMPSO(gen,LB.size(),omega,eta1,eta2,vcoeff,nswarms, rng());
+			MPSOalgorithm MPSO(gen,omega,eta1,eta2,vcoeff,nswarms);
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -270,7 +269,7 @@ while (choice != -1) {
 						cout << "Initial fitness: " << pop.extractBestIndividual().getFitness() << endl;
 						//we evolve it
 						start1=clock();
-						pop = MPSO.evolve(pop,problem);
+						pop = MPSO.evolve(pop);
 						end1=clock();
 						dif = (double)(end1-start1) / (double)CLOCKS_PER_SEC;
 						//we print the result

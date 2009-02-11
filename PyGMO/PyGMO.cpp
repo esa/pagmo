@@ -38,6 +38,7 @@
 
 #include "../src/GOclasses/algorithms/ASA.h"
 #include "../src/GOclasses/algorithms/DE.h"
+#include "../src/GOclasses/algorithms/MPSO.h"
 #include "../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../src/GOclasses/algorithms/nm_algorithm.h"
 #include "../src/GOclasses/basic/archipelago.h"
@@ -241,6 +242,8 @@ BOOST_PYTHON_MODULE(_PyGMO)
 		.def(init<int, const double &, const double &, const double &, const double &, const double &>());
 	algorithm_wrapper<nm_algorithm>("nm_algorithm", "Nelder-Mead algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &>());
+	algorithm_wrapper<MPSOalgorithm>("mpso_algorithm", "MPSO algorithm")
+		.def(init<int, const double &, const double &, const double &, const double &, int>());
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());

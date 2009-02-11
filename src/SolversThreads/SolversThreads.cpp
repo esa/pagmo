@@ -97,28 +97,23 @@ void *MPSOthread(void *data)
    double oldfitness;
    vector<size_t> picks;
    GOProblem* problem;
-   const vector<double> &LB = PtrTP->problem->getLB();
    Population deme(*PtrTP->problem,0);
-   MPSOalgorithm MPSO;
-   rng_uint32 rng;
-   rng_double drng;
+   boost::scoped_ptr<MPSOalgorithm> MPSO;
 
 	clock_t start,end;
 	double dif;
 
    {
         lock_type lock(*PtrTP->TPmutex);
-        rng.seed(PtrTP->randomSeed);
-        drng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
 		problem = PtrTP->problem;
-		MPSO.initMPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms, rng());
+		MPSO.reset(new MPSOalgorithm(PtrTP->generations,PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, PtrTP->nswarms));
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
    start=clock();
-   deme = MPSO.evolve(deme, *problem);
+   deme = MPSO->evolve(deme);
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
