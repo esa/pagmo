@@ -98,3 +98,9 @@ Population ihs_algorithm::evolve(const Population &pop) const
 	}
 	return retval;
 }
+
+void ihs_algorithm::log(std::ostream &s) const
+{
+	s << "IHS - generations:" << m_gen << " phmcr:" << m_phmcr << " ppar_min:" << m_ppar_min
+		<< " ppar_max:" << m_ppar_max << " bw_min:" << m_bw_min << " bw_max:" << m_bw_max;
+}

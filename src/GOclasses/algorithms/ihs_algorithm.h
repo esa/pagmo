@@ -23,6 +23,8 @@
 #ifndef PAGMO_IHS_ALGORITHM_H
 #define PAGMO_IHS_ALGORITHM_H
 
+#include <iostream>
+
 #include "../../config.h"
 #include "../basic/population.h"
 #include "go_algorithm.h"
@@ -37,6 +39,7 @@ class __PAGMO_VISIBLE ihs_algorithm: public go_algorithm {
 		virtual Population evolve(const Population &) const;
 		virtual ihs_algorithm *clone() const {return new ihs_algorithm(*this);}
 	private:
+		virtual void log(std::ostream &) const;
 		// Number of generations.
 		const size_t	m_gen;
 		// Rate of choosing from memory (i.e., population).
