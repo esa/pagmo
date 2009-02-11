@@ -20,9 +20,11 @@
 
 // 18/05/2008: Initial version by Dario Izzo.
 
+#include <iostream>
 #include <vector>
 
 #include "../../exceptions.h"
+#include "../basic/individual.h"
 #include "../basic/population.h"
 #include "../problems/GOproblem.h"
 #include "DE.h"
@@ -292,8 +294,8 @@ Population DEalgorithm::evolve(const Population &deme) const
    return popout;
 }
 
-
-
-
-
-
+void DEalgorithm::log(std::ostream &s) const
+{
+	s << "DE - generations:" << generations << " F:" << F << " CR:" << CR
+		<< " strategy:" << strategy;
+}

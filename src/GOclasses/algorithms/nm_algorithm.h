@@ -23,6 +23,7 @@
 #ifndef PAGMO_NM_ALGORITHM_H
 #define PAGMO_NM_ALGORITHM_H
 
+#include <iostream>
 #include <vector>
 
 #include "../../config.h"
@@ -46,6 +47,7 @@ class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
 			const double &, const std::vector<double> &) const;
 		void check_bounds(std::vector<double> &, const GOProblem &) const;
 		double simplex_diameter(const simplex &) const;
+		virtual void log(std::ostream &) const;
 		// Number of generations.
 		const size_t	m_gen;
 		// Reflection coefficient.

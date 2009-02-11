@@ -28,7 +28,6 @@
 #include "../basic/population.h"
 #include "../problems/GOproblem.h"
 #include "ASA.h"
-#include "go_algorithm.h"
 
 ASAalgorithm::ASAalgorithm(int niterTotInit, const double &Ts_, const double &Tf_):go_algorithm(),niterTot(niterTotInit),
 	niterTemp(1),niterRange(20),Ts(Ts_),Tf(Tf_),StartStep(1)
@@ -140,3 +139,10 @@ Population ASAalgorithm::evolve(const Population &pop) const
 	}
 	return retval;
 	}
+
+void ASAalgorithm::log(std::ostream &s) const
+{
+	s << "ASA - Iter:" << niterTot << " Ts:" << Ts << " Tf:" << Tf
+		<< " niterTemp:" << niterTemp << " niterRange:" << niterRange
+		<< " StartStep:" << StartStep;
+}

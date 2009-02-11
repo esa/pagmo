@@ -20,15 +20,13 @@
 
 // 18/05/2008: Initial version by Dario Izzo.
 
-#ifndef DE_H
-#define DE_H
+#ifndef PAGMO_DE_H
+#define PAGMO_DE_H
 
-#include <vector>
-#include <cmath>
+#include <iostream>
 
 #include "../../config.h"
 #include "../basic/population.h"
-#include "../problems/GOproblem.h"
 #include "go_algorithm.h"
 
 class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
@@ -37,6 +35,7 @@ class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
 		virtual Population evolve(const Population &) const;
 		virtual DEalgorithm *clone() const {return new DEalgorithm(*this);}
 	private:
+		virtual void log(std::ostream &) const;
 		const size_t	generations;
 		const double	F;
 		const double	CR;

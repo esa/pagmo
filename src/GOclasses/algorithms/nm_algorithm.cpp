@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <vector>
 
 #include "../../exceptions.h"
@@ -151,14 +152,6 @@ Population nm_algorithm::evolve(const Population &pop) const
 				s[i] = Individual(problem).getDecisionVector();
 			}
 		}
-//		if (drng() < .01) {
-//			std::cout << "shuffle!\n";
-//			for (size_t i = 1; i < simplex_size; ++i) {
-//				for (size_t j = 0; j < prob_size; ++j) {
-//					ffd
-//				}
-//			}
-//		}
 		// First order the vertices of the simplex according to fitness.
 		std::sort(s.begin(),s.end(),sorter(problem));
 		// Compute the center of mass, excluding the worst point.
@@ -193,9 +186,15 @@ Population nm_algorithm::evolve(const Population &pop) const
 			}
 		}
 	}
-	// In retval overwrite the individual that have evolved.
+	// In retval overwrite the individuals that have evolved (i.e., those involved in the simplex).
 	for (size_t i = 0; i < simplex_size; ++i) {
 		retval[i] = Individual(s[i],problem.objfun(s[i]));
 	}
 	return retval;
+}
+
+void nm_algorithm::log(std::ostream &s) const
+{
+	s << "NM - generations:" << m_gen << " alpha:" << m_alpha << " gamma:" << m_gamma
+		<< " rho:" << m_rho << " sigma:" << m_sigma;
 }

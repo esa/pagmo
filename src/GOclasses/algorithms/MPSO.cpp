@@ -20,13 +20,18 @@
 
 // 23/10/2008: Initial version by Dario Izzo.
 
+#include <iostream>
 #include <vector>
 
 #include "../../exceptions.h"
+#include "../basic/individual.h"
+#include "../basic/population.h"
+#include "../problems/GOproblem.h"
 #include "MPSO.h"
 
 MPSOalgorithm::MPSOalgorithm(int generationsInit, const double &omegaInit, const double &eta1Init, const double &eta2Init,
-	const double &vcoeffInit, int nswarmsInit)
+	const double &vcoeffInit, int nswarmsInit):generations(generationsInit),omega(omegaInit),eta1(eta1Init),eta2(eta2Init),
+	vcoeff(vcoeffInit),nswarms(nswarmsInit)
 {
 	if (generationsInit <= 0) {
 		pagmo_throw(value_error,"number of generations must be positive");
@@ -34,12 +39,6 @@ MPSOalgorithm::MPSOalgorithm(int generationsInit, const double &omegaInit, const
 	if (nswarmsInit <= 0) {
 		pagmo_throw(value_error,"number of swarms must be positive");
 	}
-	generations = generationsInit;
-	omega = omegaInit;
-	eta1 = eta1Init;
-	eta2 = eta2Init;
-	vcoeff = vcoeffInit;
-	nswarms = nswarmsInit;
 }
 
 Population MPSOalgorithm::evolve(const Population &deme) const
@@ -196,3 +195,9 @@ Population MPSOalgorithm::evolve(const Population &deme) const
    return popout;
 }
 
+void MPSOalgorithm::log(std::ostream &s) const
+{
+	s << "MPSO - generations:" << generations << " omega:" << omega << " eta1:" << eta1
+		<< " eta2:" << eta2 << " vcoeff:" << vcoeff
+		<< " nswarms:" << nswarms;
+}

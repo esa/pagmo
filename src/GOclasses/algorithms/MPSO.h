@@ -23,28 +23,25 @@
 #ifndef PAGMO_MPSO_H
 #define PAGMO_MPSO_H
 
-#include <cmath>
-#include <vector>
+#include <iostream>
 
-#include "../../Functions/rng/rng.h"
 #include "../../config.h"
-#include "../problems/GOproblem.h"
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
 class __PAGMO_VISIBLE MPSOalgorithm: public go_algorithm {
-public:
-
-MPSOalgorithm(int, const double &, const double &, const double &, const double &, int);
-virtual Population evolve(const Population &) const;
-virtual MPSOalgorithm *clone() const {return new MPSOalgorithm(*this);}
-private:
-	size_t generations;
-	double omega;
-	double eta1;
-	double eta2;
-	double vcoeff;
-	size_t nswarms;
+	public:
+		MPSOalgorithm(int, const double &, const double &, const double &, const double &, int);
+		virtual Population evolve(const Population &) const;
+		virtual MPSOalgorithm *clone() const {return new MPSOalgorithm(*this);}
+	private:
+		virtual void log(std::ostream &) const;
+		size_t generations;
+		double omega;
+		double eta1;
+		double eta2;
+		double vcoeff;
+		size_t nswarms;
 };
 
 #endif
