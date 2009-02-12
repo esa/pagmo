@@ -124,6 +124,28 @@ double nm_algorithm::simplex_diameter(const simplex &s) const
 	return retval;
 }
 
+// Shuffle the coordinates of the simplex, excluding the first vertex.
+void nm_algorithm::shuffle_simplex(simplex &s, const GOProblem &problem) const
+{
+	const size_t s_size = s.size();
+	pagmo_assert(s_size > 1);
+	std::vector<std::vector<double> > simplex_coordinates(s_size - 1, std::vector<double>(s_size - 1));
+	for (size_t i = 0; i < s_size - 1; ++i) {
+		for (size_t j = 0; j < s_size - 1; ++j) {
+			simplex_coordinates[i][j] = s[j + 1].first[i];
+		}
+	}
+	for (size_t i = 0; i < s_size - 1; ++i) {
+		std::random_shuffle(simplex_coordinates[i].begin(),simplex_coordinates[i].end());
+	}
+	for (size_t i = 0; i < s_size - 1; ++i) {
+		for (size_t j = 0; j < s_size - 1; ++j) {
+			s[j + 1].first[i] = simplex_coordinates[i][j];
+			s[j + 1].second = problem.objfun(s[j + 1].first);
+		}
+	}
+}
+
 Population nm_algorithm::evolve(const Population &pop) const
 {
 	// Preliminary checks and useful variables.
@@ -158,6 +180,10 @@ Population nm_algorithm::evolve(const Population &pop) const
 		}
 		// First order the vertices of the simplex according to fitness.
 		std::sort(s.begin(),s.end(),sorter(problem));
+		// With small probability mix the coordinates between the vertices (excluding the best one).
+		if (drng() < .001) {
+			shuffle_simplex(s,problem);
+		}
 		// Compute the center of mass, excluding the worst point.
 		const std::vector<double> x0 = center_mass(s);
 		// Compute a reflection.

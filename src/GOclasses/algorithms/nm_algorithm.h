@@ -48,6 +48,7 @@ class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
 			const double &, const std::vector<double> &) const;
 		void check_bounds(std::vector<double> &, const GOProblem &) const;
 		double simplex_diameter(const simplex &) const;
+		void shuffle_simplex(simplex &, const GOProblem &) const;
 		virtual void log(std::ostream &) const;
 		// Number of generations.
 		const size_t	m_gen;
