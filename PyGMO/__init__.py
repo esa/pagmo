@@ -19,24 +19,34 @@
 from _PyGMO import *
 from copy import copy
 
-class __vector_init:
-	def build(self, iterable, t):
-		if iterable == None:
-			return
-		if not getattr(iterable, '__iter__', False):
-			raise TypeError, 'I need an iterable object for initialisation.'
-		for i in iterable: self.append(t(i))
-
-
-class vector_double(_PyGMO.__base_vector_double,__vector_init):
-	def __init__(self, iterable = None):
-		super(type(self), self).__init__()
-		self.build(iterable,float)
-
-class vector_size_t(_PyGMO.__base_vector_size_t,__vector_init):
-	def __init__(self, iterable = None):
-		super(type(self), self).__init__()
-		self.build(iterable,int)
+def vector(x):
+	import _PyGMO as PyGMO
+	import re
+	l = dir(PyGMO)
+	p = re.compile('vector_.*')
+	vector_names = []
+	for i in l:
+		if re.match(p,i):
+			vector_names.append(i)
+	if len(vector_names) == 0:
+		raise TypeError('No vector classes in PyGMO.')
+	retval = None
+	for i in vector_names:
+		retval = getattr(PyGMO, i)()
+		if getattr(x, '__iter__', False):
+			try:
+				for j in x:
+					retval.append(j)
+				return retval
+			except TypeError:
+				pass
+		else:
+			try:
+				retval.append(x)
+				return retval
+			except TypeError:
+				pass
+	raise TypeError("No suitable vector class found in PyGMO.")
 
 def __arch_make_neato(arch,directed = True):
 	if directed:

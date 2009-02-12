@@ -178,14 +178,10 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	register_exception_translator<type_error>(te_translator);
 	register_exception_translator<assertion_error>(ae_translator);
 
-	// Expose std::vector<double> and std::vector<size_t>.
-	class_<vector<double> > class_vd("__base_vector_double","std::vector<double>");
+	// Expose std::vector<double>.
+	class_<vector<double> > class_vd("vector_double","std::vector<double>");
 	class_vd.def("__repr__", &Py_repr_vector<double>);
 	class_vd.def(vector_indexing_suite<vector<double> >());
-
-	class_<vector<size_t> > class_vs("__base_vector_size_t","std::vector<size_t>");
-	class_vs.def("__repr__", &Py_repr_vector<size_t>);
-	class_vs.def(vector_indexing_suite<vector<size_t> >());
 
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
