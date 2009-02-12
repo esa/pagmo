@@ -112,8 +112,7 @@
 
 	void Population::push_back(const Individual &i)
 	{
-		Individual tmp = check_individual(i);
-		pop.push_back(tmp);
+		pop.push_back(check_individual(i));
 	}
 
 	void Population::erase(int n)
