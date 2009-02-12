@@ -19,20 +19,23 @@
 from _PyGMO import *
 from copy import copy
 
-def vector(x):
+def vector(x, t = None):
 	import _PyGMO as PyGMO
 	import re
 	l = dir(PyGMO)
 	p = re.compile('vector_.*')
-	vector_names = []
-	for i in l:
-		if re.match(p,i):
-			vector_names.append(i)
-	if len(vector_names) == 0:
-		raise TypeError('No vector classes in PyGMO.')
+	vector_types = []
+	if t == None:
+		for i in l:
+			if re.match(p,i):
+				vector_types.append(getattr(PyGMO, i))
+		if len(vector_types) == 0:
+			raise TypeError('No vector classes in PyGMO.')
+	else:
+		vector_types.append(t)
 	retval = None
-	for i in vector_names:
-		retval = getattr(PyGMO, i)()
+	for i in vector_types:
+		retval = i()
 		if getattr(x, '__iter__', False):
 			try:
 				for j in x:

@@ -20,8 +20,8 @@
 
 // 16/05/08 Created by Dario Izzo.
 
-#ifndef INDIVIDUAL_H
-#define INDIVIDUAL_H
+#ifndef PAGMO_INDIVIDUAL_H
+#define PAGMO_INDIVIDUAL_H
 
 #include <iostream>
 #include <vector>
@@ -30,7 +30,7 @@
 #include "GOproblem.h"
 #include "rng.h"
 
-class __PAGMO_VISIBLE Individual{
+class __PAGMO_VISIBLE Individual {
 
 public:
 	///Constructs an Individual with x,v,fitness.
@@ -56,7 +56,7 @@ private:
 	///Individual velocity.
 	std::vector<double>			v;
 	///Individual fitness.
-	double						fitness;	//this is the individual fitness
+	double						fitness;
 };
 
 inline std::ostream &operator<<(std::ostream &s, const Individual &ind) {
