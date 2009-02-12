@@ -20,8 +20,8 @@
 
 // 16/05/08 Created by Dario Izzo.
 
-#ifndef POPULATION_H
-#define POPULATION_H
+#ifndef PAGMO_POPULATION_H
+#define PAGMO_POPULATION_H
 
 #include <boost/scoped_ptr.hpp>
 #include <vector>
@@ -63,7 +63,7 @@ public:
 	void insertBestInDeme(const Population &, const std::vector<size_t> &);
 	void insertDemeForced(const Population &, const std::vector<size_t> &);
 private:
-	void check_individual(const Individual &) const;
+	Individual check_individual(const Individual &) const;
 	void createRandomPopulation(int);
 	template <class Functor>
 	size_t extract_most_index() const {

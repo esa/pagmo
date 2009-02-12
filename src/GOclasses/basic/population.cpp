@@ -62,46 +62,75 @@
 		for (int i=0; i < N; ++i){
 			pop.push_back(Individual(*m_problem));
 		}
-	};
+	}
 
-	void Population::check_individual(const Individual &i) const
+	// This function returns an individual based on input which has been checked for compatibility with the population.
+	// If there are no size mismatches and no boundaries mismatches (i.e., input's decision vector falls within problem's boundaries),
+	// then a copy of input is returned. If there is a size mismatch, an exception is raised. If there is a boundaries mismatch,
+	// then replace the out-of-boundaries values of the input decision vector with randomly-generated ones.
+	Individual Population::check_individual(const Individual &ind) const
 	{
-		if (i.getDecisionVector().size() != m_problem->getLB().size()) {
-			pagmo_throw(value_error,"individual is incompatible with population");
+		const size_t size = ind.getDecisionVector().size();
+		if (size != m_problem->getDimension()) {
+			pagmo_throw(value_error,"individual's size is incompatible with population");
 		}
+		try {
+			for (size_t i = 0; i < size; ++i) {
+				if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
+					ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
+					pagmo_throw(value_error,"individual decision vector is incompatible with the boundaries of the problem");
+				}
+			}
+		} catch (const value_error &) {
+			const Individual random_ind = Individual(*m_problem);
+			std::vector<double> dv(size), v(size);
+			for (size_t i = 0; i < size; ++i) {
+				if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
+					ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
+					dv[i] = random_ind.getDecisionVector()[i];
+					v[i] = random_ind.getVelocity()[i];
+				} else {
+					dv[i] = ind.getDecisionVector()[i];
+					v[i] = ind.getVelocity()[i];
+				}
+			}
+			const double fitness = m_problem->objfun(dv);
+			return Individual(dv,v,fitness);
+		}
+		return ind;
 	}
 
 	Individual &Population::operator[](int index)
 	{
 		return pop[get_ra_index(index)];
-	};
+	}
 
 	const Individual &Population::operator[](int index) const
 	{
 		return pop[get_ra_index(index)];
-	};
+	}
 
 	void Population::push_back(const Individual &i)
 	{
-		check_individual(i);
-		pop.push_back(i);
-	};
+		Individual tmp = check_individual(i);
+		pop.push_back(tmp);
+	}
 
 	void Population::erase(int n)
 	{
 		pop.erase(pop.begin() + get_ra_index(n));
-	};
+	}
 
 	void Population::insert(int n, const Individual &i)
 	{
-		check_individual(i);
+		Individual tmp = check_individual(i);
 		try {
-			pop.insert(pop.begin() + get_ra_index(n),i);
+			pop.insert(pop.begin() + get_ra_index(n),tmp);
 		} catch (const index_error &) {
 			if (n >= 0) {
-				pop.insert(pop.begin(),i);
+				pop.insert(pop.begin(),tmp);
 			} else {
-				pop.insert(pop.end(),i);
+				pop.insert(pop.end(),tmp);
 			}
 		}
 	}
@@ -109,7 +138,7 @@
 	size_t Population::size() const
 	{
 		return pop.size();
-	};
+	}
 
 	Individual Population::extractBestIndividual() const
 	{
@@ -196,7 +225,7 @@
 			PossiblePicks.erase(PossiblePicks.begin() + Pick);
 		}
 		return deme;
-	};
+	}
 
 	void Population::insertDeme(const Population &deme, const std::vector<size_t> &picks)
 	{
