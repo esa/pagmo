@@ -193,6 +193,10 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	class_ind.def("__copy__", &Py_copy_from_ctor<Individual>);
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
 	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
+	class_ind.add_property("decision_vector", make_function(&Individual::getDecisionVector, return_value_policy<copy_const_reference>()),
+		"Decision vector.");
+	class_ind.add_property("velocity", make_function(&Individual::getVelocity, return_value_policy<copy_const_reference>()),
+		"Velocity.");
 
 	// Expose population class.
 	typedef const Individual &(Population::*pop_get_const)(int) const;
