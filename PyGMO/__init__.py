@@ -21,15 +21,15 @@ import algorithm, problem, topology
 from copy import copy
 
 def vector(x, t = None):
-	import _PyGMO as PyGMO
+	import PyGMO.core as core
 	import re
-	l = dir(PyGMO)
+	l = dir(core)
 	p = re.compile('vector_.*')
 	vector_types = []
 	if t == None:
 		for i in l:
 			if re.match(p,i):
-				vector_types.append(getattr(PyGMO, i))
+				vector_types.append(getattr(core, i))
 		if len(vector_types) == 0:
 			raise TypeError('No vector classes in PyGMO.')
 	else:

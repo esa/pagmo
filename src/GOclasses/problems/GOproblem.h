@@ -55,7 +55,6 @@ public:
 	const std::vector<double> &getUB() const {return UB;}
 	// Dimension getter
 	size_t getDimension() const {return LB.size();}
-	// The objective function - must be implemented in subclasses
 	double objfun(const std::vector<double> &) const;
 	virtual GOProblem *clone() const = 0;
 	std::string id_name() const {return typeid(*this).name();}
@@ -81,6 +80,7 @@ public:
 	}
 	static size_t objfun_calls();
 protected:
+	// The objective function - must be implemented in subclasses
 	virtual double objfun_(const std::vector<double> &) const = 0;
 	// Constructor with array bounds initialisers
 	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {
