@@ -22,49 +22,34 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
-#include <boost/python/exception_translator.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/manage_new_object.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
-#include <boost/python/pure_virtual.hpp>
 #include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "../src/GOclasses/algorithms/ASA.h"
-#include "../src/GOclasses/algorithms/DE.h"
-#include "../src/GOclasses/algorithms/MPSO.h"
-#include "../src/GOclasses/algorithms/ihs_algorithm.h"
-#include "../src/GOclasses/algorithms/nm_algorithm.h"
-#include "../src/GOclasses/basic/archipelago.h"
-#include "../src/GOclasses/basic/ba_topology.h"
-#include "../src/GOclasses/basic/base_topology.h"
-#include "../src/GOclasses/basic/individual.h"
-#include "../src/GOclasses/basic/island.h"
-#include "../src/GOclasses/basic/no_topology.h"
-#include "../src/GOclasses/basic/one_way_ring_topology.h"
-#include "../src/GOclasses/basic/population.h"
-#include "../src/GOclasses/basic/ring_topology.h"
-#include "../src/GOclasses/problems/ClassicProblems.h"
-#include "../src/GOclasses/problems/TrajectoryProblems.h"
-#include "../src/GOclasses/problems/twodee_problem.h"
-#include "../src/exceptions.h"
+#include "../../src/GOclasses/basic/archipelago.h"
+#include "../../src/GOclasses/basic/ba_topology.h"
+#include "../../src/GOclasses/basic/base_topology.h"
+#include "../../src/GOclasses/basic/individual.h"
+#include "../../src/GOclasses/basic/island.h"
+#include "../../src/GOclasses/basic/no_topology.h"
+#include "../../src/GOclasses/basic/one_way_ring_topology.h"
+#include "../../src/GOclasses/basic/population.h"
+#include "../../src/GOclasses/basic/ring_topology.h"
+#include "../../src/GOclasses/problems/ClassicProblems.h"
+#include "../../src/GOclasses/problems/TrajectoryProblems.h"
+#include "../../src/GOclasses/problems/twodee_problem.h"
+#include "../../src/exceptions.h"
+#include "../exceptions.h"
+#include "../utils.h"
 
 using namespace boost::python;
-using namespace std;
-
-template <class T>
-static inline string Py_repr_from_stream(const T &x)
-{
-	ostringstream tmp;
-	tmp << x;
-	return tmp.str();
-}
 
 template <class T>
 static inline string Py_repr_vector(const vector<T> &v)
@@ -80,12 +65,6 @@ static inline string Py_repr_vector(const vector<T> &v)
 	}
 	tmp << '>';
 	return tmp.str();
-}
-
-template <class T>
-static inline T Py_copy_from_ctor(const T &x)
-{
-	return T(x);
 }
 
 template <class Container, class Item>
@@ -126,16 +105,6 @@ static inline class_<Problem,bases<GOProblem> > problem_wrapper(const char *name
 	return retval;
 }
 
-template <class Algorithm>
-static inline class_<Algorithm,bases<go_algorithm> > algorithm_wrapper(const char *name, const char *descr)
-{
-	class_<Algorithm,bases<go_algorithm> > retval(name,descr,init<const Algorithm &>());
-	retval.def("__copy__", &Py_copy_from_ctor<Algorithm>);
-	retval.def("__repr__", &Py_repr_from_stream<Algorithm>);
-	retval.add_property("id_name", &Algorithm::id_name, "Identification name.");
-	return retval;
-}
-
 template <class Topology>
 static inline class_<Topology,bases<base_topology> > topology_wrapper(const char *name, const char *descr)
 {
@@ -146,37 +115,14 @@ static inline class_<Topology,bases<base_topology> > topology_wrapper(const char
 	return retval;
 }
 
-static inline void ie_translator(const index_error &ie)
-{
-	PyErr_SetString(PyExc_IndexError, ie.what());
-}
-
-static inline void ve_translator(const value_error &ve)
-{
-	PyErr_SetString(PyExc_ValueError, ve.what());
-}
-
-static inline void te_translator(const type_error &te)
-{
-	PyErr_SetString(PyExc_TypeError, te.what());
-}
-
-static inline void ae_translator(const assertion_error &ae)
-{
-	PyErr_SetString(PyExc_AssertionError, ae.what());
-}
-
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 1)
 
-// Instantiate the PyGMO module.
-BOOST_PYTHON_MODULE(_PyGMO)
+// Instantiate the core module.
+BOOST_PYTHON_MODULE(_core)
 {
-	// Translate our C++ exceptions into Python exceptions.
-	register_exception_translator<index_error>(ie_translator);
-	register_exception_translator<value_error>(ve_translator);
-	register_exception_translator<type_error>(te_translator);
-	register_exception_translator<assertion_error>(ae_translator);
+	// Translate exceptions for this module.
+	translate_exceptions();
 
 	// Expose std::vector<double>.
 	class_<vector<double> > class_vd("vector_double","std::vector<double>");
@@ -232,19 +178,6 @@ BOOST_PYTHON_MODULE(_PyGMO)
 	problem_wrapper<levyProb>("levy_problem", "Levy problem.").def(init<int>());
 	// Twodee problem.
 	problem_wrapper<twodee_problem>("twodee_problem", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-
-	// Expose base algorithm class.
-	class_<go_algorithm, boost::noncopyable>("__go_algorithm", "Base GO algorithm", no_init);
-
-	// Expose algorithms.
-	algorithm_wrapper<ASAalgorithm>("asa_algorithm", "ASA algorithm.").def(init<int, const double &, const double &>());
-	algorithm_wrapper<DEalgorithm>("de_algorithm", "DE algorithm.").def(init<int, const double &, const double &, int>());
-	algorithm_wrapper<ihs_algorithm>("ihs_algorithm", "IHS algorithm.")
-		.def(init<int, const double &, const double &, const double &, const double &, const double &>());
-	algorithm_wrapper<nm_algorithm>("nm_algorithm", "Nelder-Mead algorithm.")
-		.def(init<int, const double &, const double &, const double &, const double &>());
-	algorithm_wrapper<MPSOalgorithm>("mpso_algorithm", "MPSO algorithm")
-		.def(init<int, const double &, const double &, const double &, const double &, int>());
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
