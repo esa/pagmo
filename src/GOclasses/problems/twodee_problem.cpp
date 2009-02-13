@@ -45,7 +45,7 @@ twodee_problem::twodee_problem(int n):GOProblem(n),m_random_seed(static_rng_uint
 
 twodee_problem::twodee_problem(int n, const std::string &arguments):GOProblem(n),m_random_seed(static_rng_uint32()()),m_arguments(arguments) {}
 
-double twodee_problem::objfun(const std::vector<double> &v) const
+double twodee_problem::objfun_(const std::vector<double> &v) const
 {
 	double retval = 0;
 	const size_t size = v.size();

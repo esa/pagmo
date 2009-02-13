@@ -38,9 +38,9 @@
 class __PAGMO_VISIBLE cassini1Prob : public GOProblem {
 public:
 	cassini1Prob();
-	virtual double objfun(const std::vector<double>&) const;
 	virtual cassini1Prob *clone() const {return new cassini1Prob(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const;
 	static const double lb[6];
 	static const double ub[6];
 };	//end class cassini1Prob
@@ -48,9 +48,9 @@ private:
 class gtoc1Prob : public GOProblem {
 public:
 	gtoc1Prob();
-	virtual double objfun(const std::vector<double>&) const ;
 	virtual gtoc1Prob *clone() const {return new gtoc1Prob(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const ;
 	static const double lb[8];
 	static const double ub[8];
 };	//end class gtoc1Prob
@@ -65,9 +65,9 @@ class __PAGMO_VISIBLE messengerProb : public GOProblem {
 public:
 	messengerProb();
 	virtual ~messengerProb() {};
-	virtual double objfun(const std::vector<double>&) const;
 	virtual messengerProb *clone() const {return new messengerProb(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
 	static const double lb[18];
 	static const double ub[18];
@@ -79,9 +79,9 @@ public:
 
 	messengerfullProb();
 	virtual ~messengerfullProb() {};
-	virtual double objfun(const std::vector<double>&) const;
 	virtual messengerfullProb *clone() const {return new messengerfullProb(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
 	static const double lb[26];
 	static const double ub[26];
@@ -92,9 +92,9 @@ class tandemProb : public GOProblem {
 public:
 	tandemProb();
 	virtual ~tandemProb() {};
-	virtual double objfun(const std::vector<double>&) const;
 	virtual tandemProb *clone() const {return new tandemProb(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
 	static const double lb[18];
 	static const double ub[18];
@@ -106,9 +106,9 @@ class cassini2Prob : public GOProblem {
 public:
 	cassini2Prob();
 	virtual ~cassini2Prob() {};
-	virtual double objfun(const std::vector<double>&) const;
 	virtual cassini2Prob *clone() const {return new cassini2Prob(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
 	static const double lb[22];
 	static const double ub[22];
@@ -119,9 +119,9 @@ class rosettaProb : public GOProblem {
 public:
 	rosettaProb();
 	virtual ~rosettaProb() {};
-	virtual double objfun(const std::vector<double>&) const;
 	virtual rosettaProb *clone() const {return new rosettaProb(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
 	static const double lb[22];
 	static const double ub[22];
@@ -132,9 +132,9 @@ class sagasProb : public GOProblem {
 public:
 	sagasProb();
 	virtual ~sagasProb() {};
-	virtual double objfun(const std::vector<double>&) const;
 	virtual sagasProb *clone() const {return new sagasProb(*this);}
 private:
+	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
 	static const double lb[12];
 	static const double ub[12];

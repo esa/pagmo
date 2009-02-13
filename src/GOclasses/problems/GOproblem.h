@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "../../../config.h"
+#include "../../atomic_counters/atomic_counters.h"
 #include "../../exceptions.h"
 
 class __PAGMO_VISIBLE GOProblem {
@@ -55,7 +56,7 @@ public:
 	// Dimension getter
 	size_t getDimension() const {return LB.size();}
 	// The objective function - must be implemented in subclasses
-	virtual double objfun(const std::vector<double> &) const = 0;
+	double objfun(const std::vector<double> &) const;
 	virtual GOProblem *clone() const = 0;
 	std::string id_name() const {return typeid(*this).name();}
 	virtual void pre_evolution() const {}
@@ -79,6 +80,7 @@ public:
 		UB[n] = value;
 	}
 protected:
+	virtual double objfun_(const std::vector<double> &) const = 0;
 	// Constructor with array bounds initialisers
 	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {
 		check_boundaries();
@@ -102,6 +104,7 @@ private:
 			}
 		}
 	}
+	static PaGMO::atomic_counter_size_t m_objfun_counter;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const GOProblem &);

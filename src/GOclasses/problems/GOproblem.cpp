@@ -21,8 +21,23 @@
 // 09/06/09 Created by Francesco Biscani.
 
 #include <iostream>
+#include <vector>
 
+#include "../../atomic_counters/atomic_counters.h"
+#include "../../exceptions.h"
 #include "GOproblem.h"
+
+PaGMO::atomic_counter_size_t GOProblem::m_objfun_counter(0);
+
+double GOProblem::objfun(const std::vector<double> &v) const
+{
+	if (v.size() != getDimension()) {
+		pagmo_throw(value_error,"mismatch between the size of the decision vector and the size of the problem when calling the objective function");
+	}
+	const double retval = objfun_(v);
+	++m_objfun_counter;
+	return retval;
+}
 
 std::ostream &operator<<(std::ostream &s, const GOProblem &p) {
 	s << "Problem type: " << p.id_name() << '\n';
