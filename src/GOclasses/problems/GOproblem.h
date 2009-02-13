@@ -79,6 +79,7 @@ public:
 		}
 		UB[n] = value;
 	}
+	static size_t objfun_calls();
 protected:
 	virtual double objfun_(const std::vector<double> &) const = 0;
 	// Constructor with array bounds initialisers

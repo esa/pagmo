@@ -33,18 +33,13 @@
 #include <string>
 #include <vector>
 
+#include "../../src/GOclasses/algorithms/go_algorithm.h"
 #include "../../src/GOclasses/basic/archipelago.h"
-#include "../../src/GOclasses/basic/ba_topology.h"
 #include "../../src/GOclasses/basic/base_topology.h"
 #include "../../src/GOclasses/basic/individual.h"
 #include "../../src/GOclasses/basic/island.h"
-#include "../../src/GOclasses/basic/no_topology.h"
-#include "../../src/GOclasses/basic/one_way_ring_topology.h"
 #include "../../src/GOclasses/basic/population.h"
-#include "../../src/GOclasses/basic/ring_topology.h"
-#include "../../src/GOclasses/problems/ClassicProblems.h"
-#include "../../src/GOclasses/problems/TrajectoryProblems.h"
-#include "../../src/GOclasses/problems/twodee_problem.h"
+#include "../../src/GOclasses/problems/GOproblem.h"
 #include "../../src/exceptions.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -52,9 +47,9 @@
 using namespace boost::python;
 
 template <class T>
-static inline string Py_repr_vector(const vector<T> &v)
+static inline std::string Py_repr_vector(const std::vector<T> &v)
 {
-	ostringstream tmp;
+	std::ostringstream tmp;
 	tmp << '<';
 	const size_t size = v.size();
 	for (size_t i = 0; i < size; ++i) {
@@ -91,30 +86,6 @@ static inline T *topology_getter(const C &c)
 	return c.topology().clone();
 }
 
-template <class Problem>
-static inline class_<Problem,bases<GOProblem> > problem_wrapper(const char *name, const char *descr)
-{
-	class_<Problem,bases<GOProblem> > retval(name,descr,init<const Problem &>());
-	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
-	retval.def("__repr__", &Py_repr_from_stream<Problem>);
-	retval.def("objfun", &Problem::objfun, "Objective function.");
-	retval.def("set_lb", &Problem::set_lb, "Set lower bound.");
-	retval.def("set_ub", &Problem::set_ub, "Set upper bound.");
-	retval.add_property("dimension", &Problem::getDimension, "Dimension.");
-	retval.add_property("id_name", &Problem::id_name, "Identification name.");
-	return retval;
-}
-
-template <class Topology>
-static inline class_<Topology,bases<base_topology> > topology_wrapper(const char *name, const char *descr)
-{
-	class_<Topology,bases<base_topology> > retval(name,descr,init<const Topology &>());
-	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
-	retval.def("__repr__", &Py_repr_from_stream<Topology>);
-	retval.add_property("id_name", &Topology::id_name, "Identification name.");
-	return retval;
-}
-
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 1)
 
@@ -125,9 +96,9 @@ BOOST_PYTHON_MODULE(_core)
 	translate_exceptions();
 
 	// Expose std::vector<double>.
-	class_<vector<double> > class_vd("vector_double","std::vector<double>");
+	class_<std::vector<double> > class_vd("vector_double","std::vector<double>");
 	class_vd.def("__repr__", &Py_repr_vector<double>);
-	class_vd.def(vector_indexing_suite<vector<double> >());
+	class_vd.def(vector_indexing_suite<std::vector<double> >());
 
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
@@ -160,25 +131,6 @@ BOOST_PYTHON_MODULE(_core)
 	class_pop.def("best", &Population::extractBestIndividual, "Copy of best individual.");
 	class_pop.def("worst", &Population::extractWorstIndividual, "Copy of worst individual.");
 
-	// Expose base GOProblem class.
-	class_<GOProblem, boost::noncopyable>("__go_problem", "Base GO problem", no_init);
-
-	// Expose problem classes.
-	// Trajectory problems.
-	problem_wrapper<messengerfullProb>("messenger_full_problem", "Messenger full problem.").def(init<>());
-	problem_wrapper<messengerProb>("messenger_problem", "Messenger problem.").def(init<>());
-	problem_wrapper<cassini1Prob>("cassini1_problem", "Cassini1 problem.").def(init<>());
-	// Classical problems.
-	problem_wrapper<TestProb>("test_problem", "Test problem.").def(init<int>());
-	problem_wrapper<rastriginProb>("rastrigin_problem", "Rastrigin problem.").def(init<int>());
-	problem_wrapper<schwefelProb>("schwefel_problem", "Schwefel problem.").def(init<int>());
-	problem_wrapper<ackleyProb>("ackley_problem", "Ackely problem.").def(init<int>());
-	problem_wrapper<rosenbrockProb>("rosenbrock_problem", "Rosenbrock problem.").def(init<int>());
-	problem_wrapper<lennardjonesProb>("lennardjones_problem", "Lennard-Jones problem.").def(init<int>());
-	problem_wrapper<levyProb>("levy_problem", "Levy problem.").def(init<int>());
-	// Twodee problem.
-	problem_wrapper<twodee_problem>("twodee_problem", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
 	class_island.def(init<const GOProblem &, const go_algorithm &>());
@@ -205,15 +157,6 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.def("join", &island::join, "Block until evolution has terminated.");
 	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
-
-	// Base topology.
-	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);
-
-	// Topologies.
-	topology_wrapper<no_topology>("no_topology", "No topology.").def(init<>());
-	topology_wrapper<ring_topology>("ring_topology", "Ring topology.").def(init<const double &>());
-	topology_wrapper<one_way_ring_topology>("one_way_ring_topology", "One way ring topology.").def(init<const double &>());
-	topology_wrapper<ba_topology>("ba_topology", "BA model topology.").def(init<int, int, const double &>());
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);

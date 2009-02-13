@@ -39,6 +39,11 @@ double GOProblem::objfun(const std::vector<double> &v) const
 	return retval;
 }
 
+size_t GOProblem::objfun_calls()
+{
+	return (size_t)(m_objfun_counter);
+}
+
 std::ostream &operator<<(std::ostream &s, const GOProblem &p) {
 	s << "Problem type: " << p.id_name() << '\n';
 	s << "Dimension: " << p.getDimension() << '\n';

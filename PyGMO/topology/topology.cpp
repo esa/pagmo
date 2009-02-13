@@ -20,40 +20,39 @@
 
 // 13/02/2008: Initial version by Francesco Biscani.
 
-#ifndef PYGMO_EXCEPTIONS_H
-#define PYGMO_EXCEPTIONS_H
+#include <boost/python/class.hpp>
+#include <boost/python/module.hpp>
 
-#include <boost/python/exception_translator.hpp>
+#include "../../src/GOclasses/basic/ba_topology.h"
+#include "../../src/GOclasses/basic/base_topology.h"
+#include "../../src/GOclasses/basic/no_topology.h"
+#include "../../src/GOclasses/basic/one_way_ring_topology.h"
+#include "../../src/GOclasses/basic/ring_topology.h"
+#include "../exceptions.h"
+#include "../utils.h"
 
-#include "../src/exceptions.h"
+using namespace boost::python;
 
-inline void ie_translator(const index_error &ie)
+template <class Topology>
+static inline class_<Topology,bases<base_topology> > topology_wrapper(const char *name, const char *descr)
 {
-	PyErr_SetString(PyExc_IndexError, ie.what());
+	class_<Topology,bases<base_topology> > retval(name,descr,init<const Topology &>());
+	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
+	retval.def("__repr__", &Py_repr_from_stream<Topology>);
+	retval.add_property("id_name", &Topology::id_name, "Identification name.");
+	return retval;
 }
 
-inline void ve_translator(const value_error &ve)
-{
-	PyErr_SetString(PyExc_ValueError, ve.what());
-}
+BOOST_PYTHON_MODULE(_topology) {
+	// Translate exceptions for this module.
+	translate_exceptions();
 
-inline void te_translator(const type_error &te)
-{
-	PyErr_SetString(PyExc_TypeError, te.what());
-}
+	// Base topology.
+	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);
 
-inline void ae_translator(const assertion_error &ae)
-{
-	PyErr_SetString(PyExc_AssertionError, ae.what());
+	// Topologies.
+	topology_wrapper<no_topology>("no", "No topology.").def(init<>());
+	topology_wrapper<ring_topology>("ring", "Ring topology.").def(init<const double &>());
+	topology_wrapper<one_way_ring_topology>("one_way_ring", "One way ring topology.").def(init<const double &>());
+	topology_wrapper<ba_topology>("ba", "BA model topology.").def(init<int, int, const double &>());
 }
-
-// Translate our C++ exceptions into Python exceptions.
-inline void translate_exceptions()
-{
-	boost::python::register_exception_translator<index_error>(ie_translator);
-	boost::python::register_exception_translator<value_error>(ve_translator);
-	boost::python::register_exception_translator<type_error>(te_translator);
-	boost::python::register_exception_translator<assertion_error>(ae_translator);
-}
-
-#endif

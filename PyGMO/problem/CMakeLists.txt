@@ -1,0 +1,3 @@
+ADD_LIBRARY(_problem SHARED problem.cpp)
+PYTHON_CPPMODULE(_problem)
+INSTALL(FILES __init__.py DESTINATION ${PYGMO_INSTALL_PATH}/problem)
