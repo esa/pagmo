@@ -44,16 +44,14 @@
         ///
         #define BOOST_PROTO_CHILD(Z, N, DATA)                                                       \
             typedef typename Args::BOOST_PP_CAT(child, N) BOOST_PP_CAT(proto_child, N);             \
-            typedef typename Args::BOOST_PP_CAT(child_ref, N) BOOST_PP_CAT(proto_child_ref, N);     \
             BOOST_PP_CAT(proto_child, N) BOOST_PP_CAT(child, N);                                    \
-            /**/
+            /**< INTERNAL ONLY */
 
         /// INTERNAL ONLY
         ///
         #define BOOST_PROTO_VOID(Z, N, DATA)                                                        \
             typedef void BOOST_PP_CAT(proto_child, N);                                              \
-            typedef void BOOST_PP_CAT(proto_child_ref, N);                                          \
-            /**/
+            /**< INTERNAL ONLY */
 
             struct not_a_valid_type
             {
@@ -163,18 +161,21 @@
         /// \c Tag is type that represents the operation encoded by
         ///             this expression. It is typically one of the structs
         ///             in the \c boost::proto::tag namespace, but it doesn't
-        ///             have to be. If the \c Tag type is \c boost::proto::tag::terminal
-        ///             then this \c expr\<\> type represents a leaf in the
-        ///             expression tree.
+        ///             have to be.
         ///
         /// \c Args is a type list representing the type of the children
         ///             of this expression. It is an instantiation of one
         ///             of \c proto::list1\<\>, \c proto::list2\<\>, etc. The
         ///             child types must all themselves be either \c expr\<\>
-        ///             or <tt>proto::expr\<\>&</tt>, unless the \c Tag
-        ///             type is \c boost::proto::tag::terminal, in which case
-        ///             \c Args must be \c proto::term\<T\>, where \c T can be any
-        ///             type.
+        ///             or <tt>proto::expr\<\>&</tt>. If \c Args is an
+        ///             instantiation of \c proto::term\<\> then this
+        ///             \c expr\<\> type represents a terminal expression;
+        ///             the parameter to the \c proto::term\<\> template
+        ///             represents the terminal's value type.
+        ///
+        /// \c Arity is an integral constant representing the number of child
+        ///             nodes this node contains. If \c Arity is 0, then this
+        ///             node is a terminal.
         ///
         /// \c proto::expr\<\> is a valid Fusion random-access sequence, where
         /// the elements of the sequence are the child expressions.
@@ -182,13 +183,14 @@
         struct expr<Tag, Args, BOOST_PP_ITERATION() >
         {
             typedef Tag proto_tag;
+            BOOST_STATIC_CONSTANT(long, proto_arity_c = BOOST_PP_ITERATION());
             typedef mpl::long_<BOOST_PP_ITERATION() > proto_arity;
             typedef expr proto_base_expr;
             typedef Args proto_args;
             typedef default_domain proto_domain;
             BOOST_PROTO_FUSION_DEFINE_TAG(proto::tag::proto_expr)
-            typedef void proto_is_expr_;
             typedef expr proto_derived_expr;
+            typedef void proto_is_expr_; /**< INTERNAL ONLY */
 
             BOOST_PP_REPEAT(ARG_COUNT, BOOST_PROTO_CHILD, ~)
             BOOST_PP_REPEAT_FROM_TO(ARG_COUNT, BOOST_PROTO_MAX_ARITY, BOOST_PROTO_VOID, ~)
@@ -411,7 +413,7 @@
             template<typename Sig>
             struct result
             {
-                typedef typename result_of::funop<Sig, expr, default_domain>::type type;
+                typedef typename result_of::funop<Sig, expr, default_domain>::type const type;
             };
 
             /// Function call

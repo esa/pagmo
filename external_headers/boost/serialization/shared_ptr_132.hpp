@@ -209,7 +209,7 @@ inline void serialize(
         boost::checked_deleter< T >                                \
     > __shared_ptr_ ## T;                                          \
     BOOST_CLASS_EXPORT_GUID(__shared_ptr_ ## T, "__shared_ptr_" K) \
-    BOOST_CLASS_EXPORT_GUID_1(T, K)                                \
+    BOOST_CLASS_EXPORT_GUID(T, K)                                  \
     /**/
 
 #define BOOST_SHARED_POINTER_EXPORT(T)                             \

@@ -11,6 +11,7 @@
 
 #include <boost/proto/detail/prefix.hpp> // must be first include
 #include <boost/config.hpp>
+#include <boost/detail/workaround.hpp>
 #include <boost/get_pointer.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
@@ -157,7 +158,12 @@ namespace boost { namespace proto
           : T
         {
             using T::operator[];
-            any operator[](any) const volatile;
+
+            #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1500))
+            any operator[](any const volatile &) const volatile;
+            #else
+            any operator[](any const &) const volatile;
+            #endif
         };
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -420,9 +426,9 @@ namespace boost { namespace proto
             typedef typename remove_const<typename remove_reference<PMF>::type>::type pmf_type;
             typedef typename boost::result_of<pmf_type(T)>::type result_type;
 
-            memfun(T t, PMF pmf)
+            memfun(T t, PMF p)
               : obj(t)
-              , pmf(pmf)
+              , pmf(p)
             {}
 
             result_type operator()() const

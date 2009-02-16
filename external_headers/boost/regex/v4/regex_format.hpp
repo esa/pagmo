@@ -231,6 +231,8 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
    //
    // OK find out what kind it is:
    //
+   bool have_brace = false;
+   const char_type* save_position = m_position;
    switch(*m_position)
    {
    case '&':
@@ -248,22 +250,28 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
    case '$':
       put(*m_position++);
       break;
+   case '{':
+      have_brace = true;
+      ++m_position;
+      // fall through....
    default:
       // see if we have a number:
       {
          std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
          len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
          int v = m_traits.toi(m_position, m_position + len, 10);
-         if(v < 0)
+         if((v < 0) || (have_brace && ((m_position == m_end) || (*m_position != '}'))))
          {
             // leave the $ as is, and carry on:
-            --m_position;
+            m_position = --save_position;
             put(*m_position);
             ++m_position;
             break;
          }
          // otherwise output sub v:
          put(this->m_results[v]);
+         if(have_brace)
+            ++m_position;
       }
    }
 }

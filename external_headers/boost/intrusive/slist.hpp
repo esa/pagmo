@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Olaf Krzikalla 2004-2006.
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,6 +22,7 @@
 #include <boost/intrusive/circular_slist_algorithms.hpp>
 #include <boost/intrusive/linear_slist_algorithms.hpp>
 #include <boost/intrusive/detail/pointer_to_other.hpp>
+#include <boost/intrusive/detail/clear_on_destructor_base.hpp>
 #include <boost/intrusive/link_mode.hpp>
 #include <boost/intrusive/options.hpp>
 #include <boost/intrusive/detail/utilities.hpp>
@@ -102,7 +103,9 @@ template<class T, class ...Options>
 template<class Config>
 #endif
 class slist_impl
+   :  private detail::clear_on_destructor_base<slist_impl<Config> >
 {
+   template<class C> friend class detail::clear_on_destructor_base;
    //Public typedefs
    public:
    typedef typename Config::value_traits                             value_traits;
@@ -295,7 +298,7 @@ class slist_impl
    //! <b>Complexity</b>: Linear to the number of elements in the list, if 
    //!   it's a safe-mode or auto-unlink value. Otherwise constant.
    ~slist_impl()
-   {  this->clear(); }
+   {}
 
    //! <b>Effects</b>: Erases all the elements of the container.
    //! 
@@ -977,6 +980,12 @@ class slist_impl
    template<class Disposer>
    iterator erase_and_dispose(const_iterator i, Disposer disposer)
    {  return this->erase_after_and_dispose(this->previous(i), disposer);  }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: first and last must be valid iterator to elements in *this.
    //!                  Disposer::operator()(pointer) shouldn't throw.

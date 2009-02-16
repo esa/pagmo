@@ -121,7 +121,7 @@ class basic_managed_windows_shared_memory
 
    //!Moves the ownership of "moved"'s managed memory to *this.
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    basic_managed_windows_shared_memory
       (detail::moved_object<basic_managed_windows_shared_memory> moved)
    {  this->swap(moved.get());   }
@@ -132,15 +132,16 @@ class basic_managed_windows_shared_memory
 
    //!Moves the ownership of "moved"'s managed memory to *this.
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_managed_windows_shared_memory &operator=
-      (detail::moved_object<basic_managed_windows_shared_memory> moved)
-   {  this->swap(moved.get());   return *this;  }
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   basic_managed_windows_shared_memory &operator=(detail::moved_object<basic_managed_windows_shared_memory> moved)
    #else
-   basic_managed_windows_shared_memory &operator=
-      (basic_managed_windows_shared_memory &&moved)
-   {  this->swap(moved);   return *this;  }
+   basic_managed_windows_shared_memory &operator=(basic_managed_windows_shared_memory &&moved)
    #endif
+   {
+      basic_managed_windows_shared_memory tmp(detail::move_impl(moved));
+      this->swap(tmp);
+      return *this;
+   }
 
    //!Destroys *this and indicates that the calling process is finished using
    //!the resource. All mapped regions are still valid after
@@ -152,13 +153,19 @@ class basic_managed_windows_shared_memory
 
    //!Swaps the ownership of the managed mapped memories managed by *this and other.
    //!Never throws.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<basic_managed_windows_shared_memory> mother)
+   {  this->swap(mother.get());  }
    void swap(basic_managed_windows_shared_memory &other)
+   #else
+   void swap(basic_managed_windows_shared_memory &&other)
+   #endif
    {
       base_t::swap(other);
       m_wshm.swap(other.m_wshm);
    }
-   /// @cond
 
+   /// @cond
    //!Tries to find a previous named allocation address. Returns a memory
    //!buffer and the object count. If not found returned pointer is 0.
    //!Never throws.

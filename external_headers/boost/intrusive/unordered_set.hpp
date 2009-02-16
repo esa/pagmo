@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Olaf Krzikalla 2004-2006.
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -235,7 +235,7 @@ class unordered_set_impl
    key_equal key_eq() const
    { return table_.key_eq(); }
 
-   //! <b>Effects</b>: Returns true is the container is empty.
+   //! <b>Effects</b>: Returns true if the container is empty.
    //! 
    //! <b>Complexity</b>: if constant-time size and cache_last options are disabled,
    //!   average constant time (worst case, with empty() == true: O(this->bucket_count()).
@@ -462,6 +462,12 @@ class unordered_set_impl
    template<class Disposer>
    iterator erase_and_dispose(const_iterator i, Disposer disposer)
    {  return table_.erase_and_dispose(i, disposer);  }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -1288,7 +1294,7 @@ class unordered_multiset_impl
    key_equal key_eq() const
    { return table_.key_eq(); }
 
-   //! <b>Effects</b>: Returns true is the container is empty.
+   //! <b>Effects</b>: Returns true if the container is empty.
    //! 
    //! <b>Complexity</b>: if constant-time size and cache_last options are disabled,
    //!   average constant time (worst case, with empty() == true: O(this->bucket_count()).
@@ -1452,6 +1458,12 @@ class unordered_multiset_impl
    template<class Disposer>
    void erase_and_dispose(const_iterator i, Disposer disposer)
    {  table_.erase_and_dispose(i, disposer);  }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!

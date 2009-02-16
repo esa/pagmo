@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2007
+// (C) Copyright Ion Gaztanaga 2007-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -26,7 +26,9 @@
 #include <boost/intrusive/detail/avltree_node.hpp>
 #include <boost/intrusive/detail/tree_node.hpp>
 #include <boost/intrusive/detail/ebo_functor_holder.hpp>
+#include <boost/intrusive/detail/mpl.hpp>
 #include <boost/intrusive/detail/pointer_to_other.hpp>
+#include <boost/intrusive/detail/clear_on_destructor_base.hpp>
 #include <boost/intrusive/options.hpp>
 #include <boost/intrusive/avltree_algorithms.hpp>
 #include <boost/intrusive/link_mode.hpp>
@@ -77,7 +79,9 @@ template<class T, class ...Options>
 template<class Config>
 #endif
 class avltree_impl
+   :  private detail::clear_on_destructor_base<avltree_impl<Config> >
 {
+   template<class C> friend class detail::clear_on_destructor_base;
    public:
    typedef typename Config::value_traits                             value_traits;
    /// @cond
@@ -200,9 +204,11 @@ class avltree_impl
    //!   
    //! <b>Complexity</b>: Constant. 
    //! 
-   //! <b>Throws</b>: Nothing unless the copy constructor of the value_compare object throws. 
-   avltree_impl( value_compare cmp = value_compare()
-              , const value_traits &v_traits = value_traits()) 
+   //! <b>Throws</b>: If value_traits::node_traits::node
+   //!   constructor throws (this does not happen with predefined Boost.Intrusive hooks)
+   //!   or the copy constructor of the value_compare object throws. Basic guarantee.
+   avltree_impl( const value_compare &cmp = value_compare()
+               , const value_traits &v_traits = value_traits()) 
       :  data_(cmp, v_traits)
    {  
       node_algorithms::init_header(&priv_header());  
@@ -218,10 +224,12 @@ class avltree_impl
    //! <b>Complexity</b>: Linear in N if [b, e) is already sorted using
    //!   comp and otherwise N * log N, where N is the distance between first and last.
    //! 
-   //! <b>Throws</b>: Nothing unless the copy constructor of the value_compare object throws.
+   //! <b>Throws</b>: If value_traits::node_traits::node
+   //!   constructor throws (this does not happen with predefined Boost.Intrusive hooks)
+   //!   or the copy constructor/operator() of the value_compare object throws. Basic guarantee.
    template<class Iterator>
    avltree_impl( bool unique, Iterator b, Iterator e
-              , value_compare cmp = value_compare()
+              , const value_compare &cmp     = value_compare()
               , const value_traits &v_traits = value_traits())
       : data_(cmp, v_traits)
    {
@@ -237,11 +245,11 @@ class avltree_impl
    //!   are not deleted (i.e. no destructors are called), but the nodes according to 
    //!   the value_traits template parameter are reinitialized and thus can be reused. 
    //! 
-   //! <b>Complexity</b>: Linear to elements contained in *this. 
+   //! <b>Complexity</b>: Linear to elements contained in *this.
    //! 
    //! <b>Throws</b>: Nothing.
    ~avltree_impl() 
-   {  this->clear(); }
+   {}
 
    //! <b>Effects</b>: Returns an iterator pointing to the beginning of the tree.
    //! 
@@ -397,7 +405,7 @@ class avltree_impl
    value_compare value_comp() const
    {  return priv_comp();   }
 
-   //! <b>Effects</b>: Returns true is the container is empty.
+   //! <b>Effects</b>: Returns true if the container is empty.
    //! 
    //! <b>Complexity</b>: Constant.
    //! 
@@ -407,7 +415,8 @@ class avltree_impl
 
    //! <b>Effects</b>: Returns the number of elements stored in the tree.
    //! 
-   //! <b>Complexity</b>: Linear to elements contained in *this.
+   //! <b>Complexity</b>: Linear to elements contained in *this
+   //!   if constant-time size option is disabled. Constant time otherwise.
    //! 
    //! <b>Throws</b>: Nothing.
    size_type size() const
@@ -419,7 +428,7 @@ class avltree_impl
       }
    }
 
-   //! <b>Effects</b>: Swaps the contents of two multisets.
+   //! <b>Effects</b>: Swaps the contents of two avltrees.
    //! 
    //! <b>Complexity</b>: Constant.
    //! 
@@ -445,7 +454,7 @@ class avltree_impl
    //! <b>Complexity</b>: Average complexity for insert element is at
    //!   most logarithmic.
    //! 
-   //! <b>Throws</b>: Nothing.
+   //! <b>Throws</b>: If the internal value_compare ordering function throws. Strong guarantee.
    //! 
    //! <b>Note</b>: Does not affect the validity of iterators and references.
    //!   No copy-constructors are called.
@@ -471,7 +480,7 @@ class avltree_impl
    //! <b>Complexity</b>: Logarithmic in general, but it is amortized
    //!   constant time if t is inserted immediately before hint.
    //! 
-   //! <b>Throws</b>: Nothing.
+   //! <b>Throws</b>: If the internal value_compare ordering function throws. Strong guarantee.
    //! 
    //! <b>Note</b>: Does not affect the validity of iterators and references.
    //!   No copy-constructors are called.
@@ -524,7 +533,7 @@ class avltree_impl
    std::pair<iterator, bool> insert_unique(reference value)
    {
       insert_commit_data commit_data;
-      std::pair<iterator, bool> ret = insert_unique_check(value, commit_data);
+      std::pair<iterator, bool> ret = insert_unique_check(value, priv_comp(), commit_data);
       if(!ret.second)
          return ret;
       return std::pair<iterator, bool> (insert_unique_commit(value, commit_data), true);
@@ -547,7 +556,7 @@ class avltree_impl
    iterator insert_unique(const_iterator hint, reference value)
    {
       insert_commit_data commit_data;
-      std::pair<iterator, bool> ret = insert_unique_check(hint, value, commit_data);
+      std::pair<iterator, bool> ret = insert_unique_check(hint, value, priv_comp(), commit_data);
       if(!ret.second)
          return ret.first;
       return insert_unique_commit(value, commit_data);
@@ -580,10 +589,36 @@ class avltree_impl
       }
    }
 
-   std::pair<iterator, bool> insert_unique_check
-      (const_reference value, insert_commit_data &commit_data)
-   {  return insert_unique_check(value, priv_comp(), commit_data); }
-
+   //! <b>Requires</b>: key_value_comp must be a comparison function that induces 
+   //!   the same strict weak ordering as value_compare. The difference is that
+   //!   key_value_comp compares an arbitrary key with the contained values.
+   //! 
+   //! <b>Effects</b>: Checks if a value can be inserted in the container, using
+   //!   a user provided key instead of the value itself.
+   //!
+   //! <b>Returns</b>: If there is an equivalent value
+   //!   returns a pair containing an iterator to the already present value
+   //!   and false. If the value can be inserted returns true in the returned
+   //!   pair boolean and fills "commit_data" that is meant to be used with
+   //!   the "insert_commit" function.
+   //! 
+   //! <b>Complexity</b>: Average complexity is at most logarithmic.
+   //!
+   //! <b>Throws</b>: If the key_value_comp ordering function throws. Strong guarantee.
+   //! 
+   //! <b>Notes</b>: This function is used to improve performance when constructing
+   //!   a value_type is expensive: if there is an equivalent value
+   //!   the constructed object must be discarded. Many times, the part of the
+   //!   node that is used to impose the order is much cheaper to construct
+   //!   than the value_type and this function offers the possibility to use that 
+   //!   part to check if the insertion will be successful.
+   //!
+   //!   If the check is successful, the user can construct the value_type and use
+   //!   "insert_commit" to insert the object in constant-time. This gives a total
+   //!   logarithmic complexity to the insertion: check(O(log(N)) + commit(O(1)).
+   //!
+   //!   "commit_data" remains valid for a subsequent "insert_commit" only if no more
+   //!   objects are inserted or erased from the container.
    template<class KeyType, class KeyValueCompare>
    std::pair<iterator, bool> insert_unique_check
       (const KeyType &key, KeyValueCompare key_value_comp, insert_commit_data &commit_data)
@@ -596,10 +631,38 @@ class avltree_impl
       return std::pair<iterator, bool>(iterator(ret.first, this), ret.second);
    }
 
-   std::pair<iterator, bool> insert_unique_check
-      (const_iterator hint, const_reference value, insert_commit_data &commit_data)
-   {  return insert_unique_check(hint, value, priv_comp(), commit_data); }
-
+   //! <b>Requires</b>: key_value_comp must be a comparison function that induces 
+   //!   the same strict weak ordering as value_compare. The difference is that
+   //!   key_value_comp compares an arbitrary key with the contained values.
+   //! 
+   //! <b>Effects</b>: Checks if a value can be inserted in the container, using
+   //!   a user provided key instead of the value itself, using "hint" 
+   //!   as a hint to where it will be inserted.
+   //!
+   //! <b>Returns</b>: If there is an equivalent value
+   //!   returns a pair containing an iterator to the already present value
+   //!   and false. If the value can be inserted returns true in the returned
+   //!   pair boolean and fills "commit_data" that is meant to be used with
+   //!   the "insert_commit" function.
+   //! 
+   //! <b>Complexity</b>: Logarithmic in general, but it's amortized
+   //!   constant time if t is inserted immediately before hint.
+   //!
+   //! <b>Throws</b>: If the key_value_comp ordering function throws. Strong guarantee.
+   //! 
+   //! <b>Notes</b>: This function is used to improve performance when constructing
+   //!   a value_type is expensive: if there is an equivalent value
+   //!   the constructed object must be discarded. Many times, the part of the
+   //!   constructing that is used to impose the order is much cheaper to construct
+   //!   than the value_type and this function offers the possibility to use that key 
+   //!   to check if the insertion will be successful.
+   //!
+   //!   If the check is successful, the user can construct the value_type and use
+   //!   "insert_commit" to insert the object in constant-time. This can give a total
+   //!   constant-time complexity to the insertion: check(O(1)) + commit(O(1)).
+   //!   
+   //!   "commit_data" remains valid for a subsequent "insert_commit" only if no more
+   //!   objects are inserted or erased from the container.
    template<class KeyType, class KeyValueCompare>
    std::pair<iterator, bool> insert_unique_check
       (const_iterator hint, const KeyType &key
@@ -613,6 +676,23 @@ class avltree_impl
       return std::pair<iterator, bool>(iterator(ret.first, this), ret.second);
    }
 
+   //! <b>Requires</b>: value must be an lvalue of type value_type. commit_data
+   //!   must have been obtained from a previous call to "insert_check".
+   //!   No objects should have been inserted or erased from the container between
+   //!   the "insert_check" that filled "commit_data" and the call to "insert_commit".
+   //! 
+   //! <b>Effects</b>: Inserts the value in the avl_set using the information obtained
+   //!   from the "commit_data" that a previous "insert_check" filled.
+   //!
+   //! <b>Returns</b>: An iterator to the newly inserted object.
+   //! 
+   //! <b>Complexity</b>: Constant time.
+   //!
+   //! <b>Throws</b>: Nothing.
+   //! 
+   //! <b>Notes</b>: This function has only sense if a "insert_check" has been
+   //!   previously executed to fill "commit_data". No value should be inserted or
+   //!   erased between the "insert_check" and "insert_commit" calls.
    iterator insert_unique_commit(reference value, const insert_commit_data &commit_data)
    {
       node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
@@ -632,9 +712,9 @@ class avltree_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(iterator i)
+   iterator erase(const_iterator i)
    {
-      iterator ret(i);
+      const_iterator ret(i);
       ++ret;
       node_ptr to_erase(i.pointed_node());
       if(safemode_or_autounlink)
@@ -643,7 +723,7 @@ class avltree_impl
       this->priv_size_traits().decrement();
       if(safemode_or_autounlink)
          node_algorithms::init(to_erase);
-      return ret;
+      return ret.unconst();
    }
 
    //! <b>Effects</b>: Erases the range pointed to by b end e. 
@@ -655,7 +735,7 @@ class avltree_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(iterator b, iterator e)
+   iterator erase(const_iterator b, const_iterator e)
    {  size_type n;   return private_erase(b, e, n);   }
 
    //! <b>Effects</b>: Erases all the elements with the given value.
@@ -683,7 +763,11 @@ class avltree_impl
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
    template<class KeyType, class KeyValueCompare>
-   size_type erase(const KeyType& key, KeyValueCompare comp)
+   size_type erase(const KeyType& key, KeyValueCompare comp
+                  /// @cond
+                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
+                  /// @endcond
+                  )
    {
       std::pair<iterator,iterator> p = this->equal_range(key, comp);
       size_type n;
@@ -703,13 +787,19 @@ class avltree_impl
    //! <b>Note</b>: Invalidates the iterators 
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(iterator i, Disposer disposer)
+   iterator erase_and_dispose(const_iterator i, Disposer disposer)
    {
       node_ptr to_erase(i.pointed_node());
       iterator ret(this->erase(i));
       disposer(get_real_value_traits().to_value_ptr(to_erase));
       return ret;
    }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -724,7 +814,7 @@ class avltree_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(iterator b, iterator e, Disposer disposer)
+   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
    {  size_type n;   return private_erase(b, e, n, disposer);   }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
@@ -764,7 +854,11 @@ class avltree_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class KeyType, class KeyValueCompare, class Disposer>
-   size_type erase_and_dispose(const KeyType& key, KeyValueCompare comp, Disposer disposer)
+   size_type erase_and_dispose(const KeyType& key, KeyValueCompare comp, Disposer disposer
+                  /// @cond
+                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
+                  /// @endcond
+                  )
    {
       std::pair<iterator,iterator> p = this->equal_range(key, comp);
       size_type n;
@@ -1212,20 +1306,21 @@ class avltree_impl
 */
 
    /// @cond
+
    private:
    template<class Disposer>
-   iterator private_erase(iterator b, iterator e, size_type &n, Disposer disposer)
+   iterator private_erase(const_iterator b, const_iterator e, size_type &n, Disposer disposer)
    {
       for(n = 0; b != e; ++n)
         this->erase_and_dispose(b++, disposer);
-      return b;
+      return b.unconst();
    }
 
-   iterator private_erase(iterator b, iterator e, size_type &n)
+   iterator private_erase(const_iterator b, const_iterator e, size_type &n)
    {
       for(n = 0; b != e; ++n)
         this->erase(b++);
-      return b;
+      return b.unconst();
    }
    /// @endcond
 
@@ -1446,8 +1541,8 @@ class avltree
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename real_value_traits::value_type, T>::value));
 
-   avltree( const value_compare &cmp = value_compare()
-         , const value_traits &v_traits = value_traits())
+   avltree( const value_compare &cmp      = value_compare()
+          , const value_traits &v_traits  = value_traits())
       :  Base(cmp, v_traits)
    {}
 

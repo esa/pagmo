@@ -16,7 +16,6 @@
 #include <boost/version.hpp>
 #include <boost/detail/workaround.hpp>
 #include <boost/preprocessor/cat.hpp>
-#include <boost/preprocessor/arithmetic/sub.hpp>
 #include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
 #include <boost/preprocessor/repetition/enum_trailing_binary_params.hpp>
@@ -298,7 +297,7 @@ namespace boost { namespace proto
             typename Expr
           , typename Derived
           , typename Domain = default_domain
-          , typename Tag = typename Expr::proto_tag
+          , long Arity = Expr::proto_arity_c
         >
         struct extends;
 
@@ -317,26 +316,10 @@ namespace boost { namespace proto
 
     namespace control
     {
-        template<
-            typename Grammar0
-          , typename Grammar1
-          , BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(
-                BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2)
-              , typename G
-              , void
-            )
-        >
+        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_LOGICAL_ARITY, typename G, void)>
         struct or_;
 
-        template<
-            typename Grammar0
-          , typename Grammar1
-          , BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(
-                BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2)
-              , typename G
-              , void
-            )
-        >
+        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_LOGICAL_ARITY, typename G, void)>
         struct and_;
 
         template<typename Grammar>
@@ -374,18 +357,18 @@ namespace boost { namespace proto
     {
         struct null_context;
 
-        template<typename Expr, typename Context, long Arity = Expr::proto_arity::value>
+        template<typename Expr, typename Context, long Arity = Expr::proto_arity_c>
         struct null_eval;
 
         struct default_context;
 
-        template<typename Expr, typename Context, typename Tag = typename Expr::proto_tag, long Arity = Expr::proto_arity::value>
+        template<typename Expr, typename Context, typename Tag = typename Expr::proto_tag, long Arity = Expr::proto_arity_c>
         struct default_eval;
 
         template<typename Derived, typename DefaultCtx = default_context>
         struct callable_context;
 
-        template<typename Expr, typename Context, long Arity = Expr::proto_arity::value>
+        template<typename Expr, typename Context, long Arity = Expr::proto_arity_c>
         struct callable_eval;
     }
 

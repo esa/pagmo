@@ -5,20 +5,21 @@
  * Subject to the Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-26 10:39:19 -0500 (Wed, 26 Nov 2008) $
  */
 
 #include <string>
 #include <sstream>
-#include "boost/date_time/gregorian/gregorian.hpp"
-#include "boost/date_time/time_zone_names.hpp"
-#include "boost/date_time/time_zone_base.hpp"
-#include "boost/date_time/local_time/dst_transition_day_rules.hpp"
-#include "boost/date_time/posix_time/posix_time.hpp"
-#include "boost/date_time/string_convert.hpp"
-#include "boost/date_time/time_parsing.hpp"
-#include "boost/tokenizer.hpp"
 #include <stdexcept>
+#include <boost/tokenizer.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/time_zone_names.hpp>
+#include <boost/date_time/time_zone_base.hpp>
+#include <boost/date_time/local_time/dst_transition_day_rules.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/string_convert.hpp>
+#include <boost/date_time/time_parsing.hpp>
 
 namespace boost{
 namespace local_time{
@@ -26,12 +27,14 @@ namespace local_time{
   //! simple exception for UTC and Daylight savings start/end offsets
   struct bad_offset : public std::out_of_range
   {
-    bad_offset(std::string _msg="") : std::out_of_range(std::string("Offset out of range: " + _msg)) {}
+    bad_offset(std::string const& msg = std::string()) :
+      std::out_of_range(std::string("Offset out of range: " + msg)) {}
   };
   //! simple exception for UTC daylight savings adjustment
   struct bad_adjustment : public std::out_of_range
   {
-    bad_adjustment(std::string _msg="") : std::out_of_range(std::string("Adjustment out of range: " + _msg)) {}
+    bad_adjustment(std::string const& msg = std::string()) :
+      std::out_of_range(std::string("Adjustment out of range: " + msg)) {}
   };
   
   typedef boost::date_time::dst_adjustment_offsets<boost::posix_time::time_duration> dst_adjustment_offsets;
@@ -86,7 +89,13 @@ namespace local_time{
       dst_offsets_(posix_time::hours(0),posix_time::hours(0),posix_time::hours(0)),
       dst_calc_rules_()
     {
+#ifdef __HP_aCC
+      // Work around bug in aC++ compiler: see QXCR1000880488 in the
+      // HP bug tracking system
+      const char_type sep_chars[2] = {',',0};
+#else
       const char_type sep_chars[2] = {','};
+#endif
       char_separator_type sep(sep_chars);
       tokenizer_type tokens(s, sep);
       tokenizer_iterator_type it = tokens.begin();
@@ -231,7 +240,7 @@ namespace local_time{
     void calc_zone(const string_type& obj){
       const char_type empty_string[2] = {'\0'};
       stringstream_type ss(empty_string);
-      typename string_type::const_iterator sit = obj.begin();
+      typename string_type::const_pointer sit = obj.c_str(), obj_end = sit + obj.size();
       string_type l_std_zone_abbrev, l_dst_zone_abbrev;
 
       // get 'std' name/abbrev
@@ -242,37 +251,37 @@ namespace local_time{
       ss.str(empty_string);
 
       // get UTC offset
-      if(sit != obj.end()){
+      if(sit != obj_end){
         // get duration
-        while(sit != obj.end() && !std::isalpha(*sit)){
-        ss << *sit++;
+        while(sit != obj_end && !std::isalpha(*sit)){
+          ss << *sit++;
         }
         base_utc_offset_ = date_time::str_from_delimited_time_duration<time_duration_type,char_type>(ss.str()); 
         ss.str(empty_string);
 
         // base offset must be within range of -12 hours to +12 hours
         if(base_utc_offset_ < time_duration_type(-12,0,0) ||
-            base_utc_offset_ > time_duration_type(12,0,0))
+          base_utc_offset_ > time_duration_type(12,0,0))
         {
-            throw bad_offset(posix_time::to_simple_string(base_utc_offset_));
+          boost::throw_exception(bad_offset(posix_time::to_simple_string(base_utc_offset_)));
         }
       }
 
       // get DST data if given
-      if(sit != obj.end()){
+      if(sit != obj_end){
         has_dst_ = true;
     
         // get 'dst' name/abbrev
-        while(sit != obj.end() && std::isalpha(*sit)){
+        while(sit != obj_end && std::isalpha(*sit)){
           ss << *sit++;
         }
         l_dst_zone_abbrev = ss.str(); 
         ss.str(empty_string);
 
         // get DST offset if given
-        if(sit != obj.end()){
+        if(sit != obj_end){
           // get duration
-          while(sit != obj.end() && !std::isalpha(*sit)){
+          while(sit != obj_end && !std::isalpha(*sit)){
             ss << *sit++;
           }
           dst_offsets_.dst_adjust_ = date_time::str_from_delimited_time_duration<time_duration_type,char_type>(ss.str());  
@@ -286,7 +295,7 @@ namespace local_time{
         if(dst_offsets_.dst_adjust_ <= time_duration_type(-24,0,0) ||
             dst_offsets_.dst_adjust_ >= time_duration_type(24,0,0))
         {
-          throw bad_adjustment(posix_time::to_simple_string(dst_offsets_.dst_adjust_));
+          boost::throw_exception(bad_adjustment(posix_time::to_simple_string(dst_offsets_.dst_adjust_)));
         }
       }
       // full names not extracted so abbrevs used in their place
@@ -294,7 +303,13 @@ namespace local_time{
     }
 
     void calc_rules(const string_type& start, const string_type& end){
+#ifdef __HP_aCC
+      // Work around bug in aC++ compiler: see QXCR1000880488 in the
+      // HP bug tracking system
+      const char_type sep_chars[2] = {'/',0};
+#else
       const char_type sep_chars[2] = {'/'};
+#endif
       char_separator_type sep(sep_chars);
       tokenizer_type st_tok(start, sep);
       tokenizer_type et_tok(end, sep);
@@ -328,7 +343,7 @@ namespace local_time{
       if(dst_offsets_.dst_start_offset_ < time_duration_type(0,0,0) ||
           dst_offsets_.dst_start_offset_ >= time_duration_type(24,0,0))
       {
-        throw bad_offset(posix_time::to_simple_string(dst_offsets_.dst_start_offset_));
+        boost::throw_exception(bad_offset(posix_time::to_simple_string(dst_offsets_.dst_start_offset_)));
       }
 
       // ending offset
@@ -343,7 +358,7 @@ namespace local_time{
       if(dst_offsets_.dst_end_offset_ < time_duration_type(0,0,0) ||
         dst_offsets_.dst_end_offset_ >= time_duration_type(24,0,0))
       {
-        throw bad_offset(posix_time::to_simple_string(dst_offsets_.dst_end_offset_));
+        boost::throw_exception(bad_offset(posix_time::to_simple_string(dst_offsets_.dst_end_offset_)));
       }
     }
 
@@ -354,7 +369,13 @@ namespace local_time{
     void M_func(const string_type& s, const string_type& e){
       typedef gregorian::nth_kday_of_month nkday;
       unsigned short sm=0,sw=0,sd=0,em=0,ew=0,ed=0; // start/end month,week,day
+#ifdef __HP_aCC
+      // Work around bug in aC++ compiler: see QXCR1000880488 in the
+      // HP bug tracking system
+      const char_type sep_chars[3] = {'M','.',0};
+#else
       const char_type sep_chars[3] = {'M','.'};
+#endif
       char_separator_type sep(sep_chars);
       tokenizer_type stok(s, sep), etok(e, sep);
       

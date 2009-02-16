@@ -176,7 +176,7 @@ inline void merge_charset
     if(0 != compound.posix_yes())
     {
         typename Traits::char_class_type mask = compound.posix_yes();
-        for(int i = 0; i <= UCHAR_MAX; ++i)
+        for(int i = 0; i <= static_cast<int>(UCHAR_MAX); ++i)
         {
             if(traits.isctype((Char)i, mask))
             {
@@ -190,7 +190,7 @@ inline void merge_charset
         for(std::size_t j = 0; j < compound.posix_no().size(); ++j)
         {
             typename Traits::char_class_type mask = compound.posix_no()[j];
-            for(int i = 0; i <= UCHAR_MAX; ++i)
+            for(int i = 0; i <= static_cast<int>(UCHAR_MAX); ++i)
             {
                 if(!traits.isctype((Char)i, mask))
                 {

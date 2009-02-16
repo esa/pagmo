@@ -258,7 +258,7 @@ namespace detail
         {
             int i = 0;
             Char allchars[UCHAR_MAX + 1];
-            for(i = 0; i <= UCHAR_MAX; ++i)
+            for(i = 0; i <= static_cast<int>(UCHAR_MAX); ++i)
             {
                 allchars[i] = static_cast<Char>(i);
             }
@@ -266,7 +266,7 @@ namespace detail
             std::ctype<Char> const &ct = BOOST_USE_FACET(std::ctype<Char>, loc);
             std::ctype_base::mask tmp[UCHAR_MAX + 1];
             ct.is(allchars, allchars + UCHAR_MAX + 1, tmp);
-            for(i = 0; i <= UCHAR_MAX; ++i)
+            for(i = 0; i <= static_cast<int>(UCHAR_MAX); ++i)
             {
                 this->masks_[i] = static_cast<umask_t>(tmp[i]);
                 BOOST_ASSERT(0 == (this->masks_[i] & non_std_ctype_masks));

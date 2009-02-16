@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
+//  Copyright (c) 2001-2009 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -70,7 +70,7 @@ namespace boost { namespace spirit { namespace karma
                 main_meta_grammar
             >,
             meta_grammar::unary_rule<
-                karma::domain, proto::tag::posit, plus,
+                karma::domain, proto::tag::unary_plus, plus,
                 main_meta_grammar
             >,
             meta_grammar::binary_rule<

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2007
+// (C) Copyright Ion Gaztanaga  2007-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -274,6 +274,20 @@ struct equal
     struct pack : Base
     {
         typedef Equal equal;
+    };
+/// @endcond
+};
+
+//!This option setter specifies the equality
+//!functor for the value type
+template<class Priority>
+struct priority
+{
+/// @cond
+    template<class Base>
+    struct pack : Base
+    {
+        typedef Priority priority;
     };
 /// @endcond
 };

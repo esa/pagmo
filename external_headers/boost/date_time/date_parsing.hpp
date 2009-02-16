@@ -6,18 +6,18 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-23 06:13:35 -0500 (Sun, 23 Nov 2008) $
  */
 
-#include "boost/tokenizer.hpp"
-#include "boost/lexical_cast.hpp"
-#include "boost/date_time/compiler_config.hpp"
-#include "boost/date_time/parse_format_base.hpp"
 #include <string>
 #include <iterator>
 #include <algorithm>
+#include <boost/tokenizer.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/parse_format_base.hpp>
 
-#if defined(BOOST_NO_STD_LOCALE)
+#if defined(BOOST_DATE_TIME_NO_LOCALE)
 #include <cctype> // ::tolower(int)
 #else
 #include <locale> // std::tolower(char, locale)
@@ -34,38 +34,38 @@ namespace date_time {
    */
   inline
   std::string 
-  convert_to_lower(const std::string& inp) {
-    std::string tmp;
-    unsigned i = 0;
-#if defined(BOOST_NO_STD_LOCALE)
-    while(i < inp.length()) {
-      tmp += static_cast<char>(std::tolower(inp.at(i++)));
+  convert_to_lower(std::string inp)
+  {
+#if !defined(BOOST_DATE_TIME_NO_LOCALE)
+    const std::locale loc(std::locale::classic());
+#endif
+    std::string::size_type i = 0, n = inp.length();
+    for (; i < n; ++i) {
+      inp[i] =
+#if defined(BOOST_DATE_TIME_NO_LOCALE)
+        static_cast<char>(std::tolower(inp[i]));
 #else
-      static const std::locale loc(std::locale::classic());
-      while(i < inp.length()) {
         // tolower and others were brought in to std for borland >= v564
         // in compiler_config.hpp
-        std::string::value_type c(inp.at(i++));
-        tmp += std::tolower(c, loc);
+        std::tolower(inp[i], loc);
 #endif
-        
-      }
-      return tmp;
     }
-    
+    return inp;
+  }
+
     //! Helper function for parse_date.
     /* Used by-value parameter because we change the string and may
      * want to preserve the original argument */
     template<class month_type>
-    unsigned short 
-    month_str_to_ushort(std::string s) {
+    inline unsigned short 
+    month_str_to_ushort(std::string const& s) {
       if((s.at(0) >= '0') && (s.at(0) <= '9')) {
         return boost::lexical_cast<unsigned short>(s);
       } 
       else {
-        s = convert_to_lower(s);
+        std::string str = convert_to_lower(s);
         typename month_type::month_map_ptr_type ptr = month_type::get_month_map_ptr();
-        typename month_type::month_map_type::iterator iter = ptr->find(s);
+        typename month_type::month_map_type::iterator iter = ptr->find(str);
         if(iter != ptr->end()) { // required for STLport
           return iter->second;
         }
@@ -74,22 +74,23 @@ namespace date_time {
     }
  
     //! Find index of a string in either of 2 arrays
-    /*! find_match searches both arrays for a match to 's'. Indexing of the 
-     * arrays is from 0 to 'limit'. The index of the match is returned.
+    /*! find_match searches both arrays for a match to 's'. Both arrays
+     * must contain 'size' elements. The index of the match is returned.
+     * If no match is found, 'size' is returned.
      * Ex. "Jan" returns 0, "Dec" returns 11, "Tue" returns 2.
-     * 'limit' can be sent in with: greg_month::max(), 
-     * greg_weekday::max() or date_time::NumSpecialValues */
+     * 'size' can be sent in with: greg_month::max() (which 12),
+     * greg_weekday::max() + 1 (which is 7) or date_time::NumSpecialValues */
     template<class charT>
     short find_match(const charT* const* short_names, 
                      const charT* const* long_names, 
-                     short limit,
+                     short size,
                      const std::basic_string<charT>& s) {
-      for(short i = 0; i <= limit; ++i){
+      for(short i = 0; i < size; ++i){
         if(short_names[i] == s || long_names[i] == s){
           return i;
         }
       }
-      return static_cast<short>(limit + 1); // not-found, return a value out of range
+      return size; // not-found, return a value out of range
     }
     
     //! Generic function to parse a delimited date (eg: 2002-02-10)
@@ -101,7 +102,7 @@ namespace date_time {
     template<class date_type>
     date_type
     parse_date(const std::string& s, int order_spec = ymd_order_iso) {
-      std::string spec_str("");
+      std::string spec_str;
       if(order_spec == ymd_order_iso) {
         spec_str = "ymd";
       } 
@@ -196,7 +197,7 @@ namespace date_time {
                      iterator_type& end,
                      char) 
     {
-      std::stringstream ss("");
+      std::ostringstream ss;
       while(beg != end) {
         ss << *beg++;
       }
@@ -210,7 +211,7 @@ namespace date_time {
     inline 
     date_type
     from_stream_type(iterator_type& beg, 
-                     iterator_type& end,
+                     iterator_type& /* end */,
                      std::string) 
     {
       return parse_date<date_type>(*beg);
@@ -228,7 +229,7 @@ namespace date_time {
                                iterator_type& end,
                                wchar_t) 
     {
-      std::stringstream ss("");
+      std::ostringstream ss;
       while(beg != end) {
 #if !defined(BOOST_DATE_TIME_NO_LOCALE)
         ss << std::use_facet<std::ctype<wchar_t> >(std::locale()).narrow(*beg++, 'X'); // 'X' will cause exception to be thrown
@@ -246,10 +247,10 @@ namespace date_time {
     inline 
     date_type
     from_stream_type(iterator_type& beg, 
-                     iterator_type& end,
+                     iterator_type& /* end */,
                      std::wstring) {
       std::wstring ws = *beg;
-      std::stringstream ss("");
+      std::ostringstream ss;
       std::wstring::iterator wsb = ws.begin(), wse = ws.end();
       while(wsb != wse) {
 #if !defined(BOOST_DATE_TIME_NO_LOCALE)
@@ -289,7 +290,7 @@ namespace date_time {
       return period<date_type, typename date_type::duration_type>(d1, d2); 
     }
 #endif
-    
+
 } } //namespace date_time
 
 

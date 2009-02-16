@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Olaf Krzikalla 2004-2006.
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,6 +20,7 @@
 #include <boost/intrusive/list_hook.hpp>
 #include <boost/intrusive/circular_list_algorithms.hpp>
 #include <boost/intrusive/detail/pointer_to_other.hpp>
+#include <boost/intrusive/detail/clear_on_destructor_base.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
 #include <boost/intrusive/link_mode.hpp>
 #include <boost/static_assert.hpp>
@@ -72,7 +73,9 @@ template<class T, class ...Options>
 template<class Config>
 #endif
 class list_impl
+   :  private detail::clear_on_destructor_base< list_impl<Config> >
 {
+   template<class C> friend class detail::clear_on_destructor_base;
    //Public typedefs
    public:
    typedef typename Config::value_traits                             value_traits;
@@ -219,11 +222,7 @@ class list_impl
    //! <b>Complexity</b>: Linear to the number of elements in the list, if 
    //!   it's a safe-mode or auto-unlink value . Otherwise constant. 
    ~list_impl() 
-   {
-      if(safemode_or_autounlink){
-         this->clear(); 
-      }
-   }
+   {}
 
    //! <b>Requires</b>: value must be an lvalue.
    //! 
@@ -650,6 +649,12 @@ class list_impl
       disposer(this->get_real_value_traits().to_value_ptr(to_erase));
       return i.unconst();
    }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!

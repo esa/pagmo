@@ -115,8 +115,8 @@ class flat_set
    //! <b>Complexity</b>: Construct.
    //! 
    //! <b>Postcondition</b>: x is emptied.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   flat_set(const detail::moved_object<flat_set<T,Pred,Alloc> >& mx) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   flat_set(detail::moved_object<flat_set<T,Pred,Alloc> > mx) 
       : m_flat_tree(detail::move_impl(mx.get().m_flat_tree)) {}
    #else
    flat_set(flat_set<T,Pred,Alloc> && mx) 
@@ -132,8 +132,8 @@ class flat_set
    //! <b>Effects</b>: Makes *this a copy of x.
    //! 
    //! <b>Complexity</b>: Linear in x.size().
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   flat_set<T,Pred,Alloc>& operator=(const detail::moved_object<flat_set<T, Pred, Alloc> > &mx)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   flat_set<T,Pred,Alloc>& operator=(detail::moved_object<flat_set<T, Pred, Alloc> > mx)
       {  m_flat_tree = detail::move_impl(mx.get().m_flat_tree);   return *this;  }
 
    #else
@@ -301,22 +301,14 @@ class flat_set
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Complexity</b>: Constant.
-   void swap(flat_set<T,Pred,Alloc>& x) 
-      { m_flat_tree.swap(x.m_flat_tree); }
-
-   //! <b>Effects</b>: Swaps the contents of *this and x.
-   //!   If this->allocator_type() != x.allocator_type() allocators are also swapped.
-   //!
-   //! <b>Throws</b>: Nothing.
-   //!
-   //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(const detail::moved_object <flat_set<T,Pred,Alloc> >& mx) 
-      { this->swap(mx.get()); }
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<flat_set> x)
+   {  this->swap(x.get()); }
+   void swap(flat_set& x)
    #else
-   void swap(flat_set<T,Pred,Alloc> && mx) 
-      { this->swap(mx); }
+   void swap(flat_set &&x)
    #endif
+   { m_flat_tree.swap(x.m_flat_tree); }
 
    //! <b>Effects</b>: Inserts x if and only if there is no element in the container 
    //!   with key equivalent to the key of x.
@@ -343,8 +335,8 @@ class flat_set
    //!   to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   std::pair<iterator,bool> insert(const detail::moved_object<value_type>& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   std::pair<iterator,bool> insert(detail::moved_object<value_type> x) 
       {  return m_flat_tree.insert_unique(x);  }
    #else
    std::pair<iterator,bool> insert(value_type && x) 
@@ -374,8 +366,8 @@ class flat_set
    //!   right before p) plus insertion linear to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert(const_iterator position, const detail::moved_object<value_type>& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   iterator insert(const_iterator position, detail::moved_object<value_type> x) 
       {  return m_flat_tree.insert_unique(position, x); }
    #else
    iterator insert(const_iterator position, value_type && x) 
@@ -623,25 +615,21 @@ inline bool operator>=(const flat_set<T,Pred,Alloc>& x,
                        const flat_set<T,Pred,Alloc>& y) 
    {  return !(x < y);  }
 
-#ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 template <class T, class Pred, class Alloc>
-inline void swap(flat_set<T,Pred,Alloc>& x, 
-                 flat_set<T,Pred,Alloc>& y) 
+inline void swap(flat_set<T,Pred,Alloc>& x, flat_set<T,Pred,Alloc>& y) 
    {  x.swap(y);  }
 
 template <class T, class Pred, class Alloc>
-inline void swap(const detail::moved_object<flat_set<T,Pred,Alloc> >& x, 
-                 flat_set<T,Pred,Alloc>& y) 
+inline void swap(detail::moved_object<flat_set<T,Pred,Alloc> > x, flat_set<T,Pred,Alloc>& y) 
    {  x.get().swap(y);  }
 
 template <class T, class Pred, class Alloc>
-inline void swap(flat_set<T,Pred,Alloc>& x, 
-                 const detail::moved_object<flat_set<T,Pred,Alloc> >& y) 
+inline void swap(flat_set<T,Pred,Alloc>& x, detail::moved_object<flat_set<T,Pred,Alloc> > y) 
    {  x.swap(y.get());  }
 #else
 template <class T, class Pred, class Alloc>
-inline void swap(flat_set<T,Pred,Alloc>&&x, 
-                 flat_set<T,Pred,Alloc>&&y) 
+inline void swap(flat_set<T,Pred,Alloc>&&x, flat_set<T,Pred,Alloc>&&y) 
    {  x.swap(y);  }
 #endif
 
@@ -732,8 +720,8 @@ class flat_multiset
    flat_multiset(const flat_multiset<T,Pred,Alloc>& x) 
       : m_flat_tree(x.m_flat_tree) {}
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   flat_multiset(const detail::moved_object<flat_multiset<T,Pred,Alloc> >& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   flat_multiset(detail::moved_object<flat_multiset<T,Pred,Alloc> > x) 
       : m_flat_tree(detail::move_impl(x.get().m_flat_tree)) {}
    #else
    flat_multiset(flat_multiset<T,Pred,Alloc> && x) 
@@ -743,8 +731,8 @@ class flat_multiset
    flat_multiset<T,Pred,Alloc>& operator=(const flat_multiset<T,Pred,Alloc>& x) 
       {  m_flat_tree = x.m_flat_tree;   return *this;  }
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   flat_multiset<T,Pred,Alloc>& operator=(const detail::moved_object<flat_multiset<T,Pred,Alloc> >& mx) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   flat_multiset<T,Pred,Alloc>& operator=(detail::moved_object<flat_multiset<T,Pred,Alloc> > mx) 
       {  m_flat_tree = detail::move_impl(mx.get().m_flat_tree);   return *this;  }
    #else
    flat_multiset<T,Pred,Alloc>& operator=(flat_multiset<T,Pred,Alloc> && mx) 
@@ -910,22 +898,14 @@ class flat_multiset
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Complexity</b>: Constant.
-   void swap(flat_multiset<T,Pred,Alloc>& x) 
-      { m_flat_tree.swap(x.m_flat_tree); }
-
-   //! <b>Effects</b>: Swaps the contents of *this and x.
-   //!   If this->allocator_type() != x.allocator_type() allocators are also swapped.
-   //!
-   //! <b>Throws</b>: Nothing.
-   //!
-   //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(const detail::moved_object<flat_multiset<T,Pred,Alloc> >& mx) 
-      { this->swap(mx.get()); }
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<flat_multiset> x)
+   {  this->swap(x.get()); }
+   void swap(flat_multiset& x)
    #else
-   void swap(flat_multiset<T,Pred,Alloc> && mx) 
-      { this->swap(mx); }
+   void swap(flat_multiset &&x)
    #endif
+   { m_flat_tree.swap(x.m_flat_tree); }
 
    //! <b>Effects</b>: Inserts x and returns the iterator pointing to the
    //!   newly inserted element. 
@@ -944,8 +924,8 @@ class flat_multiset
    //!   to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert(const detail::moved_object<value_type>& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   iterator insert(detail::moved_object<value_type> x) 
       {  return m_flat_tree.insert_equal(x);   }
    #else
    iterator insert(value_type && x) 
@@ -975,8 +955,8 @@ class flat_multiset
    //!   right before p) plus insertion linear to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert(const_iterator position, const detail::moved_object<value_type>& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   iterator insert(const_iterator position, detail::moved_object<value_type> x) 
       {  return m_flat_tree.insert_equal(position, x);  }
    #else
    iterator insert(const_iterator position, value_type && x) 
@@ -1219,25 +1199,21 @@ inline bool operator>=(const flat_multiset<T,Pred,Alloc>& x,
                        const flat_multiset<T,Pred,Alloc>& y) 
 {  return !(x < y);  }
 
-#ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 template <class T, class Pred, class Alloc>
-inline void swap(flat_multiset<T,Pred,Alloc>& x, 
-                 flat_multiset<T,Pred,Alloc>& y) 
+inline void swap(flat_multiset<T,Pred,Alloc>& x, flat_multiset<T,Pred,Alloc>& y) 
    {  x.swap(y);  }
 
 template <class T, class Pred, class Alloc>
-inline void swap(const detail::moved_object<flat_multiset<T,Pred,Alloc> >& x, 
-                 flat_multiset<T,Pred,Alloc>& y) 
+inline void swap(detail::moved_object<flat_multiset<T,Pred,Alloc> > x, flat_multiset<T,Pred,Alloc>& y) 
    {  x.get().swap(y);  }
 
 template <class T, class Pred, class Alloc>
-inline void swap(flat_multiset<T,Pred,Alloc>& x, 
-                 const detail::moved_object<flat_multiset<T,Pred,Alloc> >& y) 
+inline void swap(flat_multiset<T,Pred,Alloc>& x, detail::moved_object<flat_multiset<T,Pred,Alloc> > y) 
    {  x.swap(y.get());  }
 #else
 template <class T, class Pred, class Alloc>
-inline void swap(flat_multiset<T,Pred,Alloc>&&x, 
-                 flat_multiset<T,Pred,Alloc>&&y) 
+inline void swap(flat_multiset<T,Pred,Alloc>&&x, flat_multiset<T,Pred,Alloc>&&y) 
    {  x.swap(y);  }
 #endif
 

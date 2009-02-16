@@ -150,7 +150,7 @@ class unique_ptr
    //!deleter() and u.get_deleter() both reference the same lvalue deleter.
    //!
    //!Throws: nothing.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    unique_ptr(detail::moved_object<unique_ptr> u)
       : ptr_(u.get().release(), detail::move_impl(u.get().get_deleter()))
    {}
@@ -179,7 +179,7 @@ class unique_ptr
    //!was constructed from u.get_deleter().
    //!
    //!Throws: nothing.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    template <class U, class E>
    unique_ptr(detail::moved_object<unique_ptr<U, E> > u,
       typename detail::enable_if_c<
@@ -230,7 +230,7 @@ class unique_ptr
    //!Returns: *this.
    //!
    //!Throws: nothing.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    unique_ptr& operator=(detail::moved_object<unique_ptr> u)
    {
       reset(u.get().release());
@@ -261,7 +261,7 @@ class unique_ptr
    //!
    //!Throws: nothing.
    template <class U, class E>
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    unique_ptr& operator=(detail::moved_object<unique_ptr<U, E> > mu)
    {
       reset(mu.get().release());
@@ -359,7 +359,7 @@ class unique_ptr
    //!Effects: The stored pointers of this and u are exchanged.
    //!   The stored deleters are swapped (unqualified).
    //!Throws: nothing.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    void swap(unique_ptr& u)
    {  ptr_.swap(u.ptr_);   }
 

@@ -309,7 +309,7 @@ struct any_to_set_hook
 {};
 
 //!This option setter specifies that
-//!any hook should behave as a set hook
+//!any hook should behave as an avl_set hook
 template<class BaseHook>
 struct any_to_avl_set_hook
 /// @cond
@@ -318,7 +318,7 @@ struct any_to_avl_set_hook
 {};
 
 //!This option setter specifies that any
-//!hook should behave as a set hook
+//!hook should behave as a bs_set hook
 template<class BaseHook>
 struct any_to_bs_set_hook
 /// @cond

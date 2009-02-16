@@ -153,7 +153,7 @@ class shared_ptr
    //!Move-Constructs a shared_ptr that takes ownership of other resource and
    //!other is put in default-constructed state.
    //!Throws: nothing.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    explicit shared_ptr(detail::moved_object<shared_ptr> other)
       :  m_pn()
    {  this->swap(other.get());   }
@@ -198,7 +198,7 @@ class shared_ptr
 
    //!Move-assignment. Equivalent to shared_ptr(other).swap(*this).
    //!Never throws
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    shared_ptr & operator=(detail::moved_object<shared_ptr> other) // never throws
    {
       this_type(other).swap(*this);

@@ -17,6 +17,14 @@ boost
     {
     template <class Tag,class T>
     inline
+    typename enable_if<has_to_string<T>,std::string>::type
+    to_string( error_info<Tag,T> const & x )
+        {
+        return to_string(x.value());
+        }
+
+    template <class Tag,class T>
+    inline
     error_info<Tag,T>::
     error_info( value_type const & value ):
         value_(value)
@@ -45,7 +53,7 @@ boost
     error_info<Tag,T>::
     value_as_string() const
         {
-        return to_string_stub(value_);
+        return to_string_stub(*this);
         }
 
     namespace

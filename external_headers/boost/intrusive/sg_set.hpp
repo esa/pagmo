@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2007
+// (C) Copyright Ion Gaztanaga 2007-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -15,6 +15,7 @@
 #include <boost/intrusive/detail/config_begin.hpp>
 #include <boost/intrusive/intrusive_fwd.hpp>
 #include <boost/intrusive/sgtree.hpp>
+#include <boost/intrusive/detail/mpl.hpp>
 #include <iterator>
 
 namespace boost {
@@ -296,7 +297,7 @@ class sg_set_impl
    value_compare value_comp() const
    { return tree_.value_comp(); }
 
-   //! <b>Effects</b>: Returns true is the container is empty.
+   //! <b>Effects</b>: Returns true if the container is empty.
    //! 
    //! <b>Complexity</b>: Constant.
    //! 
@@ -498,7 +499,7 @@ class sg_set_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(iterator i)
+   iterator erase(const_iterator i)
    {  return tree_.erase(i);  }
 
    //! <b>Effects</b>: Erases the range pointed to by b end e. 
@@ -512,7 +513,7 @@ class sg_set_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(iterator b, iterator e)
+   iterator erase(const_iterator b, const_iterator e)
    {  return tree_.erase(b, e);  }
 
    //! <b>Effects</b>: Erases all the elements with the given value.
@@ -540,7 +541,11 @@ class sg_set_impl
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
    template<class KeyType, class KeyValueCompare>
-   size_type erase(const KeyType& key, KeyValueCompare comp)
+   size_type erase(const KeyType& key, KeyValueCompare comp
+                  /// @cond
+                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
+                  /// @endcond
+                  )
    {  return tree_.erase(key, comp);  }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
@@ -557,8 +562,14 @@ class sg_set_impl
    //! <b>Note</b>: Invalidates the iterators 
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(iterator i, Disposer disposer)
+   iterator erase_and_dispose(const_iterator i, Disposer disposer)
    {  return tree_.erase_and_dispose(i, disposer);  }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -575,7 +586,7 @@ class sg_set_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(iterator b, iterator e, Disposer disposer)
+   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
    {  return tree_.erase_and_dispose(b, e, disposer);  }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
@@ -610,7 +621,11 @@ class sg_set_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class KeyType, class KeyValueCompare, class Disposer>
-   size_type erase_and_dispose(const KeyType& key, KeyValueCompare comp, Disposer disposer)
+   size_type erase_and_dispose(const KeyType& key, KeyValueCompare comp, Disposer disposer
+                  /// @cond
+                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
+                  /// @endcond
+                  )
    {  return tree_.erase_and_dispose(key, comp, disposer);  }
 
    //! <b>Effects</b>: Erases all the elements of the container.
@@ -1458,7 +1473,7 @@ class sg_multiset_impl
    value_compare value_comp() const
    { return tree_.value_comp(); }
 
-   //! <b>Effects</b>: Returns true is the container is empty.
+   //! <b>Effects</b>: Returns true if the container is empty.
    //! 
    //! <b>Complexity</b>: Constant.
    //! 
@@ -1567,7 +1582,7 @@ class sg_multiset_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(iterator i)
+   iterator erase(const_iterator i)
    {  return tree_.erase(i);  }
 
    //! <b>Effects</b>: Erases the range pointed to by b end e. 
@@ -1581,7 +1596,7 @@ class sg_multiset_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(iterator b, iterator e)
+   iterator erase(const_iterator b, const_iterator e)
    {  return tree_.erase(b, e);  }
 
    //! <b>Effects</b>: Erases all the elements with the given value.
@@ -1609,7 +1624,11 @@ class sg_multiset_impl
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
    template<class KeyType, class KeyValueCompare>
-   size_type erase(const KeyType& key, KeyValueCompare comp)
+   size_type erase(const KeyType& key, KeyValueCompare comp
+                  /// @cond
+                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
+                  /// @endcond
+                  )
    {  return tree_.erase(key, comp);  }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
@@ -1626,8 +1645,14 @@ class sg_multiset_impl
    //! <b>Note</b>: Invalidates the iterators 
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(iterator i, Disposer disposer)
+   iterator erase_and_dispose(const_iterator i, Disposer disposer)
    {  return tree_.erase_and_dispose(i, disposer);  }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -1644,7 +1669,7 @@ class sg_multiset_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(iterator b, iterator e, Disposer disposer)
+   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
    {  return tree_.erase_and_dispose(b, e, disposer);  }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
@@ -1679,7 +1704,11 @@ class sg_multiset_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class KeyType, class KeyValueCompare, class Disposer>
-   size_type erase_and_dispose(const KeyType& key, KeyValueCompare comp, Disposer disposer)
+   size_type erase_and_dispose(const KeyType& key, KeyValueCompare comp, Disposer disposer
+                  /// @cond
+                  , typename detail::enable_if_c<!detail::is_convertible<KeyValueCompare, const_iterator>::value >::type * = 0
+                  /// @endcond
+                  )
    {  return tree_.erase_and_dispose(key, comp, disposer);  }
 
    //! <b>Effects</b>: Erases all the elements of the container.

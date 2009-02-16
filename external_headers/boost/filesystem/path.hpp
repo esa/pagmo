@@ -97,8 +97,9 @@ namespace boost
       { BOOST_STATIC_CONSTANT( bool, value = true ); };
 # endif
 
-    // these only have to be specialized if Path::string_type::value_type
-    // is not convertible from char
+    // These only have to be specialized if Path::string_type::value_type
+    // is not convertible from char, although specializations may eliminate
+    // compiler warnings. See ticket 2543.
     template<class Path> struct slash
       { BOOST_STATIC_CONSTANT( char, value = '/' ); };
 
@@ -108,9 +109,22 @@ namespace boost
     template<class Path> struct colon
       { BOOST_STATIC_CONSTANT( char, value = ':' ); };
 
+# ifndef BOOST_FILESYSTEM_NARROW_ONLY
+    template<> struct slash<wpath>
+      { BOOST_STATIC_CONSTANT( wchar_t, value = L'/' ); };
+    template<> struct dot<wpath>
+      { BOOST_STATIC_CONSTANT( wchar_t, value = L'.' ); };
+    template<> struct colon<wpath>
+      { BOOST_STATIC_CONSTANT( wchar_t, value = L':' ); };
+# endif
+
 # ifdef BOOST_WINDOWS_PATH
     template<class Path> struct path_alt_separator
       { BOOST_STATIC_CONSTANT( char, value = '\\' ); };
+#   ifndef BOOST_FILESYSTEM_NARROW_ONLY
+    template<> struct path_alt_separator<wpath>
+      { BOOST_STATIC_CONSTANT( wchar_t, value = L'\\' ); };
+#   endif
 # endif
 
     //  workaround for VC++ 7.0 and earlier issues with nested classes

@@ -123,12 +123,12 @@ namespace boost { namespace proto
 
     /// INTERNAL ONLY
     ///
-    #define BOOST_PROTO_DEFINE_FUN_OP_CONST(Z, N, DATA)                                         \
+    #define BOOST_PROTO_DEFINE_FUN_OP_CONST(Z, N, DATA)                                             \
         BOOST_PROTO_DEFINE_FUN_OP_IMPL_(Z, N, DATA, 1)
 
     /// INTERNAL ONLY
     ///
-    #define BOOST_PROTO_DEFINE_FUN_OP_NON_CONST(Z, N, DATA)                                     \
+    #define BOOST_PROTO_DEFINE_FUN_OP_NON_CONST(Z, N, DATA)                                         \
         BOOST_PROTO_DEFINE_FUN_OP_IMPL_(Z, N, DATA, 0)
 
     /// INTERNAL ONLY
@@ -144,9 +144,6 @@ namespace boost { namespace proto
         typedef                                                                                     \
             typename proto_base_expr::BOOST_PP_CAT(proto_child, N)                                  \
         BOOST_PP_CAT(proto_child, N);                                                               \
-        typedef                                                                                     \
-            typename proto_base_expr::BOOST_PP_CAT(proto_child_ref, N)                              \
-        BOOST_PP_CAT(proto_child_ref, N);                                                           \
         /**/
 
     #define BOOST_PROTO_BASIC_EXTENDS_(Expr, Derived, Domain)                                       \
@@ -159,7 +156,8 @@ namespace boost { namespace proto
         typedef typename proto_base_expr::proto_args proto_args;                                    \
         typedef typename proto_base_expr::proto_arity proto_arity;                                  \
         typedef typename proto_base_expr::address_of_hack_type_ proto_address_of_hack_type_;        \
-        typedef void proto_is_expr_;                                                                \
+        typedef void proto_is_expr_; /**< INTERNAL ONLY */                                          \
+        BOOST_STATIC_CONSTANT(long, proto_arity_c = proto_base_expr::proto_arity_c);                \
         BOOST_PROTO_FUSION_DEFINE_TAG(boost::proto::tag::proto_expr)                                \
         BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, BOOST_PROTO_EXTENDS_CHILD, ~)                        \
                                                                                                     \
@@ -188,7 +186,7 @@ namespace boost { namespace proto
     #define BOOST_PROTO_BASIC_EXTENDS(Expr, Derived, Domain)                                        \
         BOOST_PROTO_BASIC_EXTENDS_(Expr, Derived, Domain)                                           \
         typedef void proto_is_aggregate_;                                                           \
-        /**/
+        /**< INTERNAL ONLY */
 
         /// INTERNAL ONLY
         ///
@@ -347,7 +345,7 @@ namespace boost { namespace proto
                           , proto_domain                                                            \
                         >::type                                                                     \
                     )                                                                               \
-                >::type                                                                             \
+                >::type const                                                                       \
             type;                                                                                   \
         };                                                                                          \
         /**/
@@ -442,8 +440,8 @@ namespace boost { namespace proto
     template<
         typename Expr
       , typename Derived
-      , typename Domain     BOOST_PROTO_WHEN_BUILDING_DOCS(= default_domain)
-      , typename Tag        BOOST_PROTO_WHEN_BUILDING_DOCS(= typename Expr::proto_tag)
+      , typename Domain     BOOST_PROTO_WHEN_BUILDING_DOCS(= proto::default_domain)
+      , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity_c)
     >
     struct extends
     {
@@ -488,7 +486,7 @@ namespace boost { namespace proto
     /// \brief extends\<\> class template for adding behaviors to a Proto expression template
     ///
     template<typename Expr, typename Derived, typename Domain>
-    struct extends<Expr, Derived, Domain, tag::terminal>
+    struct extends<Expr, Derived, Domain, 0>
     {
         extends()
           : proto_expr_()
@@ -544,10 +542,10 @@ namespace boost { namespace proto
         typedef typename proto_base_expr::proto_args proto_args;
         typedef typename proto_base_expr::proto_arity proto_arity;
         typedef typename proto_base_expr::address_of_hack_type_ proto_address_of_hack_type_;
-        typedef void proto_is_expr_;
+        typedef void proto_is_expr_; /**< INTERNAL ONLY */
         BOOST_PROTO_FUSION_DEFINE_TAG(boost::proto::tag::proto_expr)
         BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, BOOST_PROTO_EXTENDS_CHILD, ~)
-        typedef void proto_is_aggregate_;
+        typedef void proto_is_aggregate_; /**< INTERNAL ONLY */
 
         BOOST_PROTO_EXTENDS_ASSIGN()
         BOOST_PROTO_EXTENDS_SUBSCRIPT()

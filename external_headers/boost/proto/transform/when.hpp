@@ -168,18 +168,18 @@
                 /// whether <tt>is_callable\<R\>::::value</tt> is \c true or
                 /// \c false.
                 ///
-                /// \param expr The current expression
-                /// \param state The current state
-                /// \param data An arbitrary data
+                /// \param e The current expression
+                /// \param s The current state
+                /// \param d An arbitrary data
                 /// \pre <tt>matches\<Expr, Grammar\>::::value</tt> is \c true
-                /// \return <tt>result\<void(Expr, State, Data)\>::::impl()(expr, state, data)</tt>
+                /// \return <tt>result\<void(Expr, State, Data)\>::::impl()(e, s, d)</tt>
                 result_type operator ()(
-                    typename impl::expr_param   expr
-                  , typename impl::state_param  state
-                  , typename impl::data_param   data
+                    typename impl::expr_param   e
+                  , typename impl::state_param  s
+                  , typename impl::data_param   d
                 ) const
                 {
-                    return typename which::template impl<Expr, State, Data>()(expr, state, data);
+                    return typename which::template impl<Expr, State, Data>()(e, s, d);
                 }
             };
         };

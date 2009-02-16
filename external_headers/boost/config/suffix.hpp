@@ -223,7 +223,8 @@
 // from here then add to the appropriate compiler section):
 //
 #if (defined(__MT__) || defined(_MT) || defined(_REENTRANT) \
-    || defined(_PTHREADS)) && !defined(BOOST_HAS_THREADS)
+    || defined(_PTHREADS) || defined(__APPLE__) || defined(__DragonFly__)) \
+    && !defined(BOOST_HAS_THREADS)
 #  define BOOST_HAS_THREADS
 #endif
 

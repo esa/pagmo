@@ -12,8 +12,8 @@
 
 #include <boost/functional/hash_fwd.hpp>
 #include <functional>
-#include <boost/functional/detail/hash_float.hpp>
-#include <boost/functional/detail/container_fwd.hpp>
+#include <boost/functional/hash/detail/hash_float.hpp>
+#include <boost/detail/container_fwd.hpp>
 #include <string>
 
 #if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
@@ -58,10 +58,10 @@ namespace boost
 
 #if !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
     template< class T, unsigned N >
-    std::size_t hash_value(const T (&array)[N]);
+    std::size_t hash_value(const T (&x)[N]);
 
     template< class T, unsigned N >
-    std::size_t hash_value(T (&array)[N]);
+    std::size_t hash_value(T (&x)[N]);
 #endif
 
     std::size_t hash_value(float v);
@@ -281,15 +281,15 @@ namespace boost
 
 #if !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
     template< class T, unsigned N >
-    inline std::size_t hash_value(const T (&array)[N])
+    inline std::size_t hash_value(const T (&x)[N])
     {
-        return hash_range(array, array + N);
+        return hash_range(x, x + N);
     }
 
     template< class T, unsigned N >
-    inline std::size_t hash_value(T (&array)[N])
+    inline std::size_t hash_value(T (&x)[N])
     {
-        return hash_range(array, array + N);
+        return hash_range(x, x + N);
     }
 #endif
 

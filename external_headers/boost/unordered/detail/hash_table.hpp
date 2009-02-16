@@ -26,9 +26,12 @@
 #include <boost/static_assert.hpp>
 #include <boost/unordered/detail/allocator_helpers.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/aligned_storage.hpp>
+#include <boost/type_traits/alignment_of.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/detail/workaround.hpp>
+#include <boost/utility/swap.hpp>
 
 #include <boost/mpl/aux_/config/eti.hpp>
 
@@ -58,17 +61,6 @@ namespace boost {
         static const std::size_t default_initial_bucket_count = 50;
         static const float minimum_max_load_factor = 1e-3f;
 
-        template <class T>
-        inline void hash_swap(T& x, T& y)
-        {
-#if defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP)
-            std::swap(x,y);
-#else
-            using std::swap;
-            swap(x, y);
-#endif
-        }
-
         inline std::size_t double_to_size_t(double f)
         {
             return f >= static_cast<double>((std::numeric_limits<std::size_t>::max)()) ?
@@ -86,8 +78,9 @@ namespace boost {
 
         template<typename T>
         std::size_t const prime_list_template<T>::value[] = {
-            53ul, 97ul, 193ul, 389ul, 769ul,
-            1543ul, 3079ul, 6151ul, 12289ul, 24593ul,
+            5ul, 11ul, 17ul, 29ul, 37ul, 53ul, 67ul, 79ul,
+            97ul, 131ul, 193ul, 257ul, 389ul, 521ul, 769ul,
+            1031ul, 1543ul, 2053ul, 3079ul, 6151ul, 12289ul, 24593ul,
             49157ul, 98317ul, 196613ul, 393241ul, 786433ul,
             1572869ul, 3145739ul, 6291469ul, 12582917ul, 25165843ul,
             50331653ul, 100663319ul, 201326611ul, 402653189ul, 805306457ul,
@@ -230,7 +223,11 @@ namespace boost {
             functions func2_;
             functions_ptr func_; // The currently active functions.
         };
-
+        
+        template <typename T>
+        void destroy(T* x) {
+            x->~T();
+        }
     }
 }
 

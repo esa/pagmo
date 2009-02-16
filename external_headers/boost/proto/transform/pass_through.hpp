@@ -51,7 +51,7 @@
                   , State                                                                           \
                   , Data                                                                            \
                 >()(                                                                                \
-                    expr.proto_base().BOOST_PP_CAT(child, N), state, data                           \
+                    e.proto_base().BOOST_PP_CAT(child, N), s, d                           \
                 )
 
             #define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PROTO_MAX_ARITY, <boost/proto/transform/pass_through.hpp>))
@@ -66,16 +66,21 @@
             {
                 typedef Expr result_type;
 
-                /// \param expr An expression
-                /// \return \c expr
+                /// \param e An expression
+                /// \return \c e
                 /// \throw nothrow
-                typename pass_through_impl::expr_param operator()(
-                    typename pass_through_impl::expr_param expr
+                #ifdef BOOST_HAS_DECLTYPE
+                result_type
+                #else
+                typename pass_through_impl::expr_param 
+                #endif
+                operator()(
+                    typename pass_through_impl::expr_param e
                   , typename pass_through_impl::state_param
                   , typename pass_through_impl::data_param
                 ) const
                 {
-                    return expr;
+                    return e;
                 }
             };
 
@@ -168,9 +173,9 @@
                 > result_type;
 
                 result_type operator ()(
-                    typename pass_through_impl::expr_param expr
-                  , typename pass_through_impl::state_param state
-                  , typename pass_through_impl::data_param data
+                    typename pass_through_impl::expr_param e
+                  , typename pass_through_impl::state_param s
+                  , typename pass_through_impl::data_param d
                 ) const
                 {
                     result_type that = {

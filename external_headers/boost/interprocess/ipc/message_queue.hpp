@@ -465,8 +465,11 @@ inline bool message_queue::do_send(block_t block,
 
             case timed :
                do{
-                  if(!p_hdr->m_cond_send.timed_wait(lock, abs_time))
-                     return !p_hdr->is_full();
+                  if(!p_hdr->m_cond_send.timed_wait(lock, abs_time)){
+                     if(p_hdr->is_full())
+                        return false;
+                     break;
+                  }
                }
                while (p_hdr->is_full());
             break;
@@ -554,8 +557,11 @@ inline bool
 
             case timed :
                do{
-                  if(!p_hdr->m_cond_recv.timed_wait(lock, abs_time))
-                     return !p_hdr->is_empty();
+                  if(!p_hdr->m_cond_recv.timed_wait(lock, abs_time)){
+                     if(p_hdr->is_empty())
+                        return false;
+                     break;
+                  }
                }
                while (p_hdr->is_empty());
             break;

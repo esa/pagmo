@@ -173,6 +173,9 @@ class tree_iterator
       return tree_iterator(node_algorithms::get_header(this->pointed_node()), this->get_container());
    }
 
+   tree_iterator<Container, false> unconst() const
+   {  return tree_iterator<Container, false>(this->pointed_node(), this->get_container());   }
+
    private:
    struct members
       :  public detail::select_constptr

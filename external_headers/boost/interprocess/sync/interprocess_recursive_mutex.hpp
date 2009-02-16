@@ -104,9 +104,9 @@ class interprocess_recursive_mutex
    /// @cond
    private:
    #if defined (BOOST_INTERPROCESS_USE_GENERIC_EMULATION)
-   interprocess_mutex      m_mutex;
-   unsigned int            m_nLockCount;
-   detail::OS_thread_id_t  m_nOwner;
+   interprocess_mutex                  m_mutex;
+   unsigned int                        m_nLockCount;
+   detail::OS_systemwide_thread_id_t   m_nOwner;
    #else    //#if defined (BOOST_INTERPROCESS_USE_GENERIC_EMULATION)
    pthread_mutex_t m_mut;
    #endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)

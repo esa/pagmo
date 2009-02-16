@@ -19,7 +19,7 @@
 #ifndef BOOST_NO_STL_LOCALE
 # include <boost/typeof/std/locale.hpp>
 #endif
-#include <boost/xpressive/proto/proto_typeof.hpp>
+#include <boost/proto/proto_typeof.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 
 #include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()

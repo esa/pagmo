@@ -62,7 +62,7 @@ inline void load(
         return;
     unsigned int v;
     if(3 < ar.get_library_version()){
-        ar >> make_nvp("item_version", v);
+        ar >> boost::serialization::make_nvp("item_version", v);
     }
     boost::serialization::detail::stack_construct<Archive, U> u(ar, v);
     ar >> boost::serialization::make_nvp("item", u.reference());

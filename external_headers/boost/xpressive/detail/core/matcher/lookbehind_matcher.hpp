@@ -39,7 +39,7 @@ namespace boost { namespace xpressive { namespace detail
           , pure_(pure)
           , width_(width)
         {
-            detail::ensure(!is_unknown(this->width_), regex_constants::error_badlookbehind,
+            BOOST_XPR_ENSURE_(!is_unknown(this->width_), regex_constants::error_badlookbehind,
                 "Variable-width look-behind assertions are not supported");
         }
 

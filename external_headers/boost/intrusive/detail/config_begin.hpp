@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -44,6 +44,8 @@
    #pragma warning (disable : 4267) //conversion from 'X' to 'Y', possible loss of data
    #pragma warning (disable : 4127) //conditional expression is constant
    #pragma warning (disable : 4706) //assignment within conditional expression
+   #pragma warning (disable : 4541) //'typeid' used on polymorphic type 'boost::exception' with /GR-
+   #pragma warning (disable : 4512) //'typeid' used on polymorphic type 'boost::exception' with /GR-
 #endif
 
 //#define BOOST_INTRUSIVE_USE_ITERATOR_FACADE

@@ -15,7 +15,7 @@
 
 #include <boost/mpl/bool.hpp>
 #include <boost/iterator/iterator_traits.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 #include <boost/xpressive/regex_traits.hpp>
 #include <boost/xpressive/detail/core/regex_impl.hpp>
 #include <boost/xpressive/detail/core/linker.hpp>
@@ -39,9 +39,14 @@ namespace boost { namespace xpressive { namespace detail
         impl->traits_ = new traits_holder<Traits>(traits);
 
         // "compile" the regex and wrap it in an xpression_adaptor.
-        xpression_visitor<BidiIter, mpl::false_, Traits> visitor(traits, impl);
+        typedef xpression_visitor<BidiIter, mpl::false_, Traits> visitor_type;
+        visitor_type visitor(traits, impl);
         intrusive_ptr<matchable_ex<BidiIter> const> adxpr = make_adaptor<matchable_ex<BidiIter> >(
-            Grammar<char_type>()(xpr, end_xpression(), visitor)
+            typename Grammar<char_type>::template impl<Xpr const &, end_xpression, visitor_type &>()(
+                xpr
+              , end_xpression()
+              , visitor
+            )
         );
 
         // Link and optimize the regex
@@ -81,9 +86,9 @@ namespace boost { namespace xpressive { namespace detail
     static_compile_impl1(Xpr const &xpr, shared_ptr<regex_impl<BidiIter> > const &impl)
     {
         // use specified traits
-        typedef typename proto::result_of::arg<typename proto::result_of::left<Xpr>::type>::type::locale_type locale_type;
+        typedef typename proto::result_of::value<typename proto::result_of::left<Xpr>::type>::type::locale_type locale_type;
         typedef typename regex_traits_type<locale_type, BidiIter>::type traits_type;
-        static_compile_impl2(proto::right(xpr), impl, traits_type(proto::arg(proto::left(xpr)).getloc()));
+        static_compile_impl2(proto::right(xpr), impl, traits_type(proto::value(proto::left(xpr)).getloc()));
     }
 
     ///////////////////////////////////////////////////////////////////////////////

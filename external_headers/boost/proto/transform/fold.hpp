@@ -60,9 +60,9 @@
 
                 template<typename Expr, typename State>
                 typename when<_, Transform>::template impl<Expr &, State const &, Data>::result_type
-                operator ()(Expr &expr, State const &state) const
+                operator ()(Expr &e, State const &s) const
                 {
-                    return typename when<_, Transform>::template impl<Expr &, State const &, Data>()(expr, state, this->v_);
+                    return typename when<_, Transform>::template impl<Expr &, State const &, Data>()(e, s, this->v_);
                 }
 
             private:
@@ -145,9 +145,9 @@
                       , BOOST_PP_CAT(state, N)                                                  \
                       , Data                                                                    \
                     >()(                                                                        \
-                        proto::child_c<N>(expr)                                                 \
+                        proto::child_c<N>(e)                                                 \
                       , BOOST_PP_CAT(s, N)                                                      \
-                      , data                                                                    \
+                      , d                                                                    \
                     );                                                                          \
                 /**/
 
@@ -175,9 +175,9 @@
                       , BOOST_PP_CAT(state, BOOST_PP_SUB(DATA, N))                              \
                       , Data                                                                    \
                     >()(                                                                        \
-                        proto::child_c<BOOST_PP_SUB(DATA, BOOST_PP_INC(N))>(expr)               \
+                        proto::child_c<BOOST_PP_SUB(DATA, BOOST_PP_INC(N))>(e)               \
                       , BOOST_PP_CAT(s, BOOST_PP_SUB(DATA, N))                                  \
-                      , data                                                                    \
+                      , d                                                                    \
                     );                                                                          \
                 /**/
 
@@ -227,27 +227,27 @@
                     >::type
                 result_type;
 
-                /// Let \c seq be <tt>when\<_, Sequence\>()(expr, state, data)</tt>, let
-                /// \c state0 be <tt>when\<_, State0\>()(expr, state, data)</tt>, and
-                /// let \c fun(data) be an object such that <tt>fun(data)(expr, state)</tt>
-                /// is equivalent to <tt>when\<_, Fun\>()(expr, state, data)</tt>. Then, this
-                /// function returns <tt>fusion::fold(seq, state0, fun(data))</tt>.
+                /// Let \c seq be <tt>when\<_, Sequence\>()(e, s, d)</tt>, let
+                /// \c state0 be <tt>when\<_, State0\>()(e, s, d)</tt>, and
+                /// let \c fun(d) be an object such that <tt>fun(d)(e, s)</tt>
+                /// is equivalent to <tt>when\<_, Fun\>()(e, s, d)</tt>. Then, this
+                /// function returns <tt>fusion::fold(seq, state0, fun(d))</tt>.
                 ///
-                /// \param expr The current expression
-                /// \param state The current state
-                /// \param data An arbitrary data
+                /// \param e The current expression
+                /// \param s The current state
+                /// \param d An arbitrary data
                 result_type operator ()(
-                    typename impl::expr_param   expr
-                  , typename impl::state_param  state
-                  , typename impl::data_param   data
+                    typename impl::expr_param   e
+                  , typename impl::state_param  s
+                  , typename impl::data_param   d
                 ) const
                 {
-                    typename when<_, Sequence>::template impl<Expr, State, Data> sequence;
-                    detail::as_callable<Fun, Data> fun(data);
+                    typename when<_, Sequence>::template impl<Expr, State, Data> seq;
+                    detail::as_callable<Fun, Data> f(d);
                     return fusion::fold(
-                        BOOST_PROTO_AS_FUSION_SEQUENCE(sequence(expr, state, data))
-                      , typename when<_, State0>::template impl<Expr, State, Data>()(expr, state, data)
-                      , fun
+                        BOOST_PROTO_AS_FUSION_SEQUENCE(seq(e, s, d))
+                      , typename when<_, State0>::template impl<Expr, State, Data>()(e, s, d)
+                      , f
                     );
                 }
             };
@@ -323,13 +323,13 @@
                 typedef BOOST_PP_CAT(state, N) result_type;
 
                 result_type operator ()(
-                    typename fold_impl::expr_param expr
-                  , typename fold_impl::state_param state
-                  , typename fold_impl::data_param data
+                    typename fold_impl::expr_param e
+                  , typename fold_impl::state_param s
+                  , typename fold_impl::data_param d
                 ) const
                 {
                     state0 s0 =
-                        typename when<_, State0>::template impl<Expr, State, Data>()(expr, state, data);
+                        typename when<_, State0>::template impl<Expr, State, Data>()(e, s, d);
                     BOOST_PP_REPEAT(N, BOOST_PROTO_FOLD_STATE, N)
                     return BOOST_PP_CAT(s, N);
                 }
@@ -344,13 +344,13 @@
                 typedef state0 result_type;
 
                 result_type operator ()(
-                    typename reverse_fold_impl::expr_param expr
-                  , typename reverse_fold_impl::state_param state
-                  , typename reverse_fold_impl::data_param data
+                    typename reverse_fold_impl::expr_param e
+                  , typename reverse_fold_impl::state_param s
+                  , typename reverse_fold_impl::data_param d
                 ) const
                 {
                     BOOST_PP_CAT(state, N) BOOST_PP_CAT(s, N) =
-                        typename when<_, State0>::template impl<Expr, State, Data>()(expr, state, data);
+                        typename when<_, State0>::template impl<Expr, State, Data>()(e, s, d);
                     BOOST_PP_REPEAT(N, BOOST_PROTO_REVERSE_FOLD_STATE, N)
                     return s0;
                 }

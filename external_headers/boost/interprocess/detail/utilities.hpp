@@ -542,7 +542,7 @@ struct pair
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template <class D, class S>
-   pair(const detail::moved_object<std::pair<D, S> >& p)
+   pair(detail::moved_object<std::pair<D, S> > p)
       : first(detail::move_impl(p.get().first)), second(detail::move_impl(p.get().second))
    {}
    #else
@@ -567,7 +567,7 @@ struct pair
    {}
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   pair(const detail::moved_object<pair<T1, T2> >& p)
+   pair(detail::moved_object<pair<T1, T2> > p)
       : first(detail::move_impl(p.get().first)), second(detail::move_impl(p.get().second))
    {}
    #else
@@ -578,7 +578,7 @@ struct pair
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template <class D, class S>
-   pair(const detail::moved_object<pair<D, S> >& p)
+   pair(detail::moved_object<pair<D, S> > p)
       : first(detail::move_impl(p.get().first)), second(detail::move_impl(p.get().second))
    {}
    #else
@@ -616,7 +616,7 @@ struct pair
    #endif
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   pair& operator=(const detail::moved_object<pair<T1, T2> > &p)
+   pair& operator=(detail::moved_object<pair<T1, T2> > p)
    {
       first  = detail::move_impl(p.get().first);
       second = detail::move_impl(p.get().second);
@@ -632,7 +632,7 @@ struct pair
    #endif
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   pair& operator=(const detail::moved_object<std::pair<T1, T2> > &p)
+   pair& operator=(detail::moved_object<std::pair<T1, T2> > p)
    {
       first  = detail::move_impl(p.get().first);
       second = detail::move_impl(p.get().second);
@@ -649,7 +649,7 @@ struct pair
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template <class D, class S>
-   pair& operator=(const detail::moved_object<std::pair<D, S> > &p)
+   pair& operator=(detail::moved_object<std::pair<D, S> > p)
    {
       first  = detail::move_impl(p.get().first);
       second = detail::move_impl(p.get().second);
@@ -666,7 +666,7 @@ struct pair
    #endif
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(const detail::moved_object<pair> &p)
+   void swap(detail::moved_object<pair> p)
    {  std::swap(*this, p.get()); }
 
    void swap(pair& p)
@@ -709,14 +709,14 @@ inline pair<T1, T2> make_pair(T1 x, T2 y)
 
 #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
 template <class T1, class T2>
-inline void swap(const detail::moved_object<pair<T1, T2> > &x, pair<T1, T2>& y)
+inline void swap(detail::moved_object<pair<T1, T2> > &x, pair<T1, T2> y)
 {
    swap(x.get().first, y.first);
    swap(x.get().second, y.second);
 }
 
 template <class T1, class T2>
-inline void swap(pair<T1, T2>& x, const detail::moved_object<pair<T1, T2> > &y)
+inline void swap(pair<T1, T2>& x, detail::moved_object<pair<T1, T2> > y)
 {
    swap(x.first, y.get().first);
    swap(x.second, y.get().second);

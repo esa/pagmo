@@ -118,25 +118,30 @@ class basic_managed_mapped_file
 
    //!Moves the ownership of "moved"'s managed memory to *this.
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    basic_managed_mapped_file
-      (detail::moved_object<basic_managed_mapped_file> moved)
-   {  this->swap(moved.get());   }
+      (detail::moved_object<basic_managed_mapped_file> mother)
+   {
+      basic_managed_mapped_file &moved = mother.get();
    #else
    basic_managed_mapped_file(basic_managed_mapped_file &&moved)
-   {  this->swap(moved);   }
-   #endif
+   {
+   #endif  
+      this->swap(moved);
+   }
 
    //!Moves the ownership of "moved"'s managed memory to *this.
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_managed_mapped_file &operator=
-      (detail::moved_object<basic_managed_mapped_file> moved)
-   {  this->swap(moved.get());   return *this;  }
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   basic_managed_mapped_file &operator=(detail::moved_object<basic_managed_mapped_file> moved)
    #else
    basic_managed_mapped_file &operator=(basic_managed_mapped_file &&moved)
-   {  this->swap(moved);   return *this;  }
    #endif
+   {
+      basic_managed_mapped_file tmp(detail::move_impl(moved));
+      this->swap(tmp);
+      return *this;
+   }
 
    //!Destroys *this and indicates that the calling process is finished using
    //!the resource. The destructor function will deallocate
@@ -149,7 +154,14 @@ class basic_managed_mapped_file
 
    //!Swaps the ownership of the managed mapped memories managed by *this and other.
    //!Never throws.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<basic_managed_mapped_file> mother)
+   {  this->swap(mother.get());  }
+
    void swap(basic_managed_mapped_file &other)
+   #else
+   void swap(basic_managed_mapped_file &&other)
+   #endif
    {
       base_t::swap(other);
       m_mfile.swap(other.m_mfile);

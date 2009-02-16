@@ -312,7 +312,10 @@ struct vector_alloc_holder
 
    //Destructor
    ~vector_alloc_holder()
-   {  this->prot_deallocate(); }
+   {
+      this->prot_destroy_all();
+      this->prot_deallocate();
+   }
 
    typedef detail::integral_constant<unsigned, 1>      allocator_v1;
    typedef detail::integral_constant<unsigned, 2>      allocator_v2;
@@ -395,6 +398,12 @@ struct vector_alloc_holder
    {
       if(!value_traits::trivial_dctr)
          for(; n--; ++p)   p->~value_type();
+   }
+
+   void prot_destroy_all()
+   {
+      this->destroy_n(detail::get_pointer(this->members_.m_start), this->members_.m_size);
+      this->members_.m_size = 0;
    }
 
    A &alloc()
@@ -502,8 +511,8 @@ class vector : private detail::vector_alloc_holder<A>
    //! <b>Throws</b>: If allocator_type's copy constructor throws.
    //! 
    //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   vector(const detail::moved_object<vector<T, A> >& mx) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   vector(detail::moved_object<vector<T, A> > mx) 
       :  base_t(mx.get())
    {  this->swap(mx.get());   }
    #else
@@ -531,7 +540,7 @@ class vector : private detail::vector_alloc_holder<A>
    //!
    //! <b>Complexity</b>: Linear to the number of elements.
    ~vector() 
-   {  this->priv_destroy_all();  }
+   {} //vector_alloc_holder clears the data
 
    //! <b>Effects</b>: Returns an iterator to the first element contained in the vector.
    //! 
@@ -870,8 +879,8 @@ class vector : private detail::vector_alloc_holder<A>
    //! <b>Throws</b>: If allocator_type's copy constructor throws.
    //!
    //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   vector<T, A>& operator=(const detail::moved_object<vector<T, A> >& mx)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   vector<T, A>& operator=(detail::moved_object<vector<T, A> > mx)
    {
       vector<T, A> &x = mx.get();
    #else
@@ -932,8 +941,8 @@ class vector : private detail::vector_alloc_holder<A>
    //! <b>Throws</b>: If memory allocation throws.
    //!
    //! <b>Complexity</b>: Amortized constant time.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void push_back(const detail::moved_object<T> & mx) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void push_back(detail::moved_object<T> mx) 
    {
       value_type &x = mx.get();
    #else
@@ -1059,10 +1068,12 @@ class vector : private detail::vector_alloc_holder<A>
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(vector<T, A>& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<vector> x)
+   {  this->swap(x.get()); }
+   void swap(vector& x)
    #else
-   void swap(vector<T, A> && x) 
+   void swap(vector &&x)
    #endif
    {
       allocator_type &this_al = this->alloc(), &other_al = x.alloc();
@@ -1075,21 +1086,6 @@ class vector : private detail::vector_alloc_holder<A>
          detail::do_swap(this_al, other_al);
       }
    }
-
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   //! <b>Effects</b>: Swaps the contents of *this and x.
-   //!   If this->allocator_type() != x.allocator_type()
-   //!   allocators are also swapped.
-   //!
-   //! <b>Throws</b>: Nothing.
-   //!
-   //! <b>Complexity</b>: Constant.
-   void swap(const detail::moved_object<vector<T, A> >& mx) 
-   {
-      vector<T, A> &x = mx.get();
-      this->swap(x);
-   }
-   #endif
 
    //! <b>Requires</b>: position must be a valid iterator of *this.
    //!
@@ -1115,8 +1111,8 @@ class vector : private detail::vector_alloc_holder<A>
    //!
    //! <b>Complexity</b>: If position is end(), amortized constant time
    //!   Linear time otherwise.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert(const_iterator position, const detail::moved_object<T> &mx) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   iterator insert(const_iterator position, detail::moved_object<T> mx) 
    {
       value_type &x = mx.get();
    #else
@@ -1255,7 +1251,7 @@ class vector : private detail::vector_alloc_holder<A>
    //!
    //! <b>Complexity</b>: Linear to the number of elements in the vector.
    void clear() 
-   {  this->priv_destroy_all();  }
+   {  this->prot_destroy_all();  }
 
    /// @cond
 
@@ -1303,12 +1299,6 @@ class vector : private detail::vector_alloc_holder<A>
       }
    }
 
-   void priv_destroy_all()
-   {
-      this->destroy_n(detail::get_pointer(this->members_.m_start), this->members_.m_size);
-      this->members_.m_size = 0;
-   }
-
    template <class FwdIt>
    void priv_range_insert(pointer pos, FwdIt first, FwdIt last, std::forward_iterator_tag)
    {
@@ -1319,13 +1309,7 @@ class vector : private detail::vector_alloc_holder<A>
       }
    }
 
-   void priv_range_insert(pointer pos, const size_type n,
-                           #ifdef BOOST_INTERPROCESS_PERFECT_FORWARDING
-                           advanced_insert_aux_int_t &&interf
-                           #else
-                           advanced_insert_aux_int_t &interf
-                           #endif
-                          )
+   void priv_range_insert(pointer pos, const size_type n, advanced_insert_aux_int_t &interf)
    {
       //Check if we have enough memory or try to expand current memory
       size_type remaining = this->members_.m_capacity - this->members_.m_size;
@@ -1969,17 +1953,17 @@ operator<(const vector<T, A>& x, const vector<T, A>& y)
                                        y.begin(), y.end());
 }
 
-#ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 template <class T, class A>
 inline void swap(vector<T, A>& x, vector<T, A>& y)
 {  x.swap(y);  }
 
 template <class T, class A>
-inline void swap(const detail::moved_object<vector<T, A> >& x, vector<T, A>& y)
+inline void swap(detail::moved_object<vector<T, A> > x, vector<T, A>& y)
 {  x.get().swap(y);  }
 
 template <class T, class A>
-inline void swap(vector<T, A> &x, const detail::moved_object<vector<T, A> >& y)
+inline void swap(vector<T, A> &x, detail::moved_object<vector<T, A> > y)
 {  x.swap(y.get());  }
 #else
 template <class T, class A>

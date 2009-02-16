@@ -85,9 +85,9 @@ namespace boost { namespace proto
     /// \endcode
     ///
     /// With <tt>recurse_if_\<\></tt> as defined above,
-    /// <tt>fold_tree\<Sequence, State0, Fun\>()(expr, state, data)</tt> is
+    /// <tt>fold_tree\<Sequence, State0, Fun\>()(e, s, d)</tt> is
     /// equivalent to
-    /// <tt>fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(expr, state, data).</tt>
+    /// <tt>fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(e, s, d).</tt>
     /// It has the effect of folding a tree front-to-back, recursing into
     /// child nodes that share a tag type with the parent node.
     template<typename Sequence, typename State0, typename Fun>
@@ -134,9 +134,9 @@ namespace boost { namespace proto
     /// \endcode
     ///
     /// With <tt>recurse_if_\<\></tt> as defined above,
-    /// <tt>reverse_fold_tree\<Sequence, State0, Fun\>()(expr, state, data)</tt> is
+    /// <tt>reverse_fold_tree\<Sequence, State0, Fun\>()(e, s, d)</tt> is
     /// equivalent to
-    /// <tt>reverse_fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(expr, state, data).</tt>
+    /// <tt>reverse_fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(e, s, d).</tt>
     /// It has the effect of folding a tree back-to-front, recursing into
     /// child nodes that share a tag type with the parent node.
     template<typename Sequence, typename State0, typename Fun>

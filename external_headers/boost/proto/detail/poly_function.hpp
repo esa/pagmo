@@ -144,6 +144,7 @@
         ////////////////////////////////////////////////////////////////////////////////////////////////
         struct poly_function_base
         {
+            /// INTERNAL ONLY
             BOOST_PROTO_POLY_FUNCTION()
         };
 

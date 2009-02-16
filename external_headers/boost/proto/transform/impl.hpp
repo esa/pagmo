@@ -60,40 +60,40 @@ namespace boost { namespace proto
 
         template<typename Expr>
         typename apply_transform<PrimitiveTransform, Expr &>::result_type
-        operator ()(Expr &expr) const
+        operator ()(Expr &e) const
         {
             int i = 0;
-            return apply_transform<PrimitiveTransform, Expr &>()(expr, i, i);
+            return apply_transform<PrimitiveTransform, Expr &>()(e, i, i);
         }
 
         template<typename Expr, typename State>
         typename apply_transform<PrimitiveTransform, Expr &, State &>::result_type
-        operator ()(Expr &expr, State &state) const
+        operator ()(Expr &e, State &s) const
         {
             int i = 0;
-            return apply_transform<PrimitiveTransform, Expr &, State &>()(expr, state, i);
+            return apply_transform<PrimitiveTransform, Expr &, State &>()(e, s, i);
         }
 
         template<typename Expr, typename State>
         typename apply_transform<PrimitiveTransform, Expr &, State const &>::result_type
-        operator ()(Expr &expr, State const &state) const
+        operator ()(Expr &e, State const &s) const
         {
             int i = 0;
-            return apply_transform<PrimitiveTransform, Expr &, State const &>()(expr, state, i);
+            return apply_transform<PrimitiveTransform, Expr &, State const &>()(e, s, i);
         }
 
         template<typename Expr, typename State, typename Data>
         typename apply_transform<PrimitiveTransform, Expr &, State &, Data &>::result_type
-        operator ()(Expr &expr, State &state, Data &data) const
+        operator ()(Expr &e, State &s, Data &d) const
         {
-            return apply_transform<PrimitiveTransform, Expr &, State &, Data &>()(expr, state, data);
+            return apply_transform<PrimitiveTransform, Expr &, State &, Data &>()(e, s, d);
         }
 
         template<typename Expr, typename State, typename Data>
         typename apply_transform<PrimitiveTransform, Expr &, State const &, Data &>::result_type
-        operator ()(Expr &expr, State const &state, Data &data) const
+        operator ()(Expr &e, State const &s, Data &d) const
         {
-            return apply_transform<PrimitiveTransform, Expr &, State const &, Data &>()(expr, state, data);
+            return apply_transform<PrimitiveTransform, Expr &, State const &, Data &>()(e, s, d);
         }
     };
 

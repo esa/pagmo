@@ -16,6 +16,7 @@
 #include <boost/proto/tags.hpp>
 #include <boost/proto/eval.hpp>
 #include <boost/proto/expr.hpp>
+#include <boost/proto/repeat.hpp>
 #include <boost/proto/traits.hpp>
 #include <boost/proto/domain.hpp>
 #include <boost/proto/fusion.hpp>

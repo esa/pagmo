@@ -215,6 +215,9 @@ class deque_base
 
       difference_type operator-(const self_t& x) const 
       {
+         if(!this->m_cur && !x.m_cur){
+            return 0;
+         }
          return difference_type(this->s_buffer_size()) * (this->m_node - x.m_node - 1) +
             (this->m_cur - this->m_first) + (x.m_last - x.m_cur);
       }
@@ -459,7 +462,7 @@ class deque_base
       members_holder(const allocator_type &a)
          :  map_allocator_type(a), allocator_type(a)
          ,  m_map(0), m_map_size(0)
-         ,  m_start(), m_finish()
+         ,  m_start(), m_finish(m_start)
       {}
 
       ptr_alloc_ptr   m_map;
@@ -610,11 +613,16 @@ class deque : protected deque_base<T, Alloc>
    {}
 
    deque(const deque& x)
-      :  Base(x.alloc(), x.size()) 
-   { std::uninitialized_copy(x.begin(), x.end(), this->members_.m_start); }
+      :  Base(x.alloc()) 
+   {
+      if(x.size()){
+         this->priv_initialize_map(x.size());
+         std::uninitialized_copy(x.begin(), x.end(), this->members_.m_start);
+      }
+   }
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   deque(const detail::moved_object<deque> &mx) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   deque(detail::moved_object<deque> mx) 
       :  Base(mx.get().alloc())
    {  this->swap(mx.get());   }
    #else
@@ -661,8 +669,8 @@ class deque : protected deque_base<T, Alloc>
       return *this;
    }        
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   deque& operator= (const detail::moved_object<deque> &mx) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   deque& operator= (detail::moved_object<deque> mx) 
    {
       deque &x = mx.get();
    #else
@@ -674,7 +682,9 @@ class deque : protected deque_base<T, Alloc>
       return *this;
    }
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<deque> x)
+   {  this->swap(x.get()); }
    void swap(deque& x)
    #else
    void swap(deque &&x)
@@ -685,11 +695,6 @@ class deque : protected deque_base<T, Alloc>
       std::swap(this->members_.m_map, x.members_.m_map);
       std::swap(this->members_.m_map_size, x.members_.m_map_size);
    }
-
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(const detail::moved_object<deque> &mx)
-   {  this->swap(mx.get());   }
-   #endif
 
    void assign(size_type n, const T& val)
    {  this->priv_fill_assign(n, val);  }
@@ -714,8 +719,8 @@ class deque : protected deque_base<T, Alloc>
       }
    }
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void push_back(const detail::moved_object<value_type> &mt) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void push_back(detail::moved_object<value_type> mt) 
    {
       value_type &t = mt.get();
    #else
@@ -742,8 +747,8 @@ class deque : protected deque_base<T, Alloc>
       }
    }
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void push_front(const detail::moved_object<value_type> &mt)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void push_front(detail::moved_object<value_type> mt)
    {
       value_type &t = mt.get();
    #else
@@ -796,8 +801,8 @@ class deque : protected deque_base<T, Alloc>
       }
    }
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert(const_iterator position, const detail::moved_object<value_type> &m) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   iterator insert(const_iterator position, detail::moved_object<value_type> m) 
    {
       value_type &mx = m.get();
    #else
@@ -1487,11 +1492,33 @@ inline bool operator>=(const deque<T, Alloc>& x,
                        const deque<T, Alloc>& y) 
    {  return !(x < y); }
 
-template <class T, class Alloc>
-inline void swap(deque<T,Alloc>& x, deque<T,Alloc>& y) 
-   {  x.swap(y);  }
+
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+template <class T, class A>
+inline void swap(deque<T, A>& x, deque<T, A>& y)
+{  x.swap(y);  }
+
+template <class T, class A>
+inline void swap(detail::moved_object<deque<T, A> > x, deque<T, A>& y)
+{  x.get().swap(y);  }
+
+template <class T, class A>
+inline void swap(deque<T, A> &x, detail::moved_object<deque<T, A> > y)
+{  x.swap(y.get());  }
+#else
+template <class T, class A>
+inline void swap(deque<T, A>&&x, deque<T, A>&&y)
+{  x.swap(y);  }
+#endif
 
 /// @cond
+
+//!This class is movable
+template <class T, class A>
+struct is_movable<deque<T, A> >
+{
+   enum {   value = true };
+};
 
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations

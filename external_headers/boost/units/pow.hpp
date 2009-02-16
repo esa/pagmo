@@ -60,7 +60,15 @@ struct power_typeof_helper<T, static_rational<N,D> >
 /// raise @c float to a @c static_rational power
 template<long N,long D> 
 struct power_typeof_helper<float, static_rational<N,D> >
-    : power_typeof_helper<double, static_rational<N,D> > {};
+{
+    // N.B.  pathscale doesn't accept inheritence for some reason.
+    typedef power_typeof_helper<double, static_rational<N,D> > base;
+    typedef typename base::type type;
+    static type value(const double& x)
+    {
+        return base::value(x);
+    }
+};
 
 #endif
 
@@ -84,8 +92,16 @@ root(const Y& x)
 
 /// take @c static_rational root of an @c T
 template<class T, long N,long D> 
-struct root_typeof_helper<T,static_rational<N,D> >     
-    : power_typeof_helper<T, static_rational<D,N> > {};
+struct root_typeof_helper<T,static_rational<N,D> >
+{
+    // N.B.  pathscale doesn't accept inheritence for some reason.
+    typedef power_typeof_helper<T, static_rational<D,N> > base;
+    typedef typename base::type type;
+    static type value(const T& x)
+    {
+        return(base::value(x));
+    }
+};
 
 #endif
 

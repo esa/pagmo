@@ -285,7 +285,7 @@ inline u32regex_token_iterator<const wchar_t*> make_u32regex_token_iterator(cons
 #if !defined(U_WCHAR_IS_UTF16) && (U_SIZEOF_WCHAR_T != 2)
 inline u32regex_token_iterator<const UChar*> make_u32regex_token_iterator(const UChar* p, const u32regex& e, int submatch = 0, regex_constants::match_flag_type m = regex_constants::match_default)
 {
-   return u32regex_token_iterator<const UChar*>(p, p+u_strlen(p), e, m);
+   return u32regex_token_iterator<const UChar*>(p, p+u_strlen(p), e, submatch, m);
 }
 #endif
 template <class charT, class Traits, class Alloc>
@@ -347,7 +347,7 @@ inline u32regex_token_iterator<const wchar_t*> make_u32regex_token_iterator(cons
 #if !defined(U_WCHAR_IS_UTF16) && (U_SIZEOF_WCHAR_T != 2)
 inline u32regex_token_iterator<const UChar*> make_u32regex_token_iterator(const UChar* p, const u32regex& e, const std::vector<int>& submatch, regex_constants::match_flag_type m = regex_constants::match_default)
 {
-   return u32regex_token_iterator<const UChar*>(p, p+u_strlen(p), e, m);
+   return u32regex_token_iterator<const UChar*>(p, p+u_strlen(p), e, submatch, m);
 }
 #endif
 template <class charT, class Traits, class Alloc>

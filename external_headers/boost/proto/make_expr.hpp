@@ -17,37 +17,20 @@
     #include <boost/config.hpp>
     #include <boost/detail/workaround.hpp>
     #include <boost/preprocessor/cat.hpp>
-    #include <boost/preprocessor/control/if.hpp>
-    #include <boost/preprocessor/control/expr_if.hpp>
     #include <boost/preprocessor/arithmetic/inc.hpp>
     #include <boost/preprocessor/arithmetic/dec.hpp>
     #include <boost/preprocessor/arithmetic/sub.hpp>
     #include <boost/preprocessor/punctuation/comma_if.hpp>
     #include <boost/preprocessor/iteration/iterate.hpp>
     #include <boost/preprocessor/facilities/intercept.hpp>
-    #include <boost/preprocessor/comparison/greater.hpp>
-    #include <boost/preprocessor/tuple/elem.hpp>
-    #include <boost/preprocessor/tuple/to_list.hpp>
-    #include <boost/preprocessor/logical/and.hpp>
     #include <boost/preprocessor/repetition/enum.hpp>
     #include <boost/preprocessor/repetition/enum_params.hpp>
-    #include <boost/preprocessor/repetition/enum_trailing.hpp>
     #include <boost/preprocessor/repetition/enum_binary_params.hpp>
     #include <boost/preprocessor/repetition/enum_shifted_params.hpp>
     #include <boost/preprocessor/repetition/enum_trailing_params.hpp>
     #include <boost/preprocessor/repetition/enum_shifted_binary_params.hpp>
     #include <boost/preprocessor/repetition/enum_trailing_binary_params.hpp>
     #include <boost/preprocessor/repetition/repeat.hpp>
-    #include <boost/preprocessor/repetition/repeat_from_to.hpp>
-    #include <boost/preprocessor/seq/size.hpp>
-    #include <boost/preprocessor/seq/enum.hpp>
-    #include <boost/preprocessor/seq/seq.hpp>
-    #include <boost/preprocessor/seq/to_tuple.hpp>
-    #include <boost/preprocessor/seq/for_each_i.hpp>
-    #include <boost/preprocessor/seq/pop_back.hpp>
-    #include <boost/preprocessor/seq/push_back.hpp>
-    #include <boost/preprocessor/seq/push_front.hpp>
-    #include <boost/preprocessor/list/for_each_i.hpp>
     #include <boost/ref.hpp>
     #include <boost/mpl/if.hpp>
     #include <boost/mpl/assert.hpp>
@@ -64,15 +47,18 @@
     #include <boost/proto/domain.hpp>
     #include <boost/proto/generate.hpp>
     #if BOOST_VERSION >= 103500
-    # include <boost/fusion/include/at.hpp>
-    # include <boost/fusion/include/value_at.hpp>
+    # include <boost/fusion/include/begin.hpp>
+    # include <boost/fusion/include/next.hpp>
+    # include <boost/fusion/include/value_of.hpp>
     # include <boost/fusion/include/size.hpp>
     #else
-    # include <boost/spirit/fusion/sequence/at.hpp>
-    # include <boost/spirit/fusion/sequence/value_at.hpp>
+    # include <boost/spirit/fusion/sequence/begin.hpp>
+    # include <boost/spirit/fusion/iterator/next.hpp>
+    # include <boost/spirit/fusion/iterator/value_of.hpp>
     # include <boost/spirit/fusion/sequence/size.hpp>
     #endif
     #include <boost/proto/detail/poly_function.hpp>
+    #include <boost/proto/detail/deprecated.hpp>
     #include <boost/proto/detail/suffix.hpp>
 
     #ifdef _MSC_VER
@@ -115,244 +101,67 @@
 
     /// INTERNAL ONLY
     ///
-    # define BOOST_PROTO_AT_TYPE(Z, N, DATA)                                                        \
+    #define BOOST_PROTO_FUSION_NEXT_ITERATOR_TYPE(Z, N, DATA)                                       \
+        typedef typename fusion::BOOST_PROTO_FUSION_RESULT_OF::next<                                \
+            BOOST_PP_CAT(fusion_iterator, N)>::type                                                 \
+                BOOST_PP_CAT(fusion_iterator, BOOST_PP_INC(N));                                     \
+        /**/
+
+    /// INTERNAL ONLY
+    ///
+    #define BOOST_PROTO_FUSION_ITERATORS_TYPE(N)                                                    \
+        typedef                                                                                     \
+            typename fusion::BOOST_PROTO_FUSION_RESULT_OF::begin<Sequence const>::type              \
+        fusion_iterator0;                                                                           \
+        BOOST_PP_REPEAT(BOOST_PP_DEC(N), BOOST_PROTO_FUSION_NEXT_ITERATOR_TYPE, fusion_iterator)    \
+        /**/
+
+    /// INTERNAL ONLY
+    ///
+    #define BOOST_PROTO_FUSION_AT_TYPE(Z, N, DATA)                                                  \
         typename add_const<                                                                         \
-            typename fusion::BOOST_PROTO_FUSION_RESULT_OF::value_at_c<                              \
-                BOOST_PP_TUPLE_ELEM(3, 0, DATA)                                                     \
-              , N                                                                                   \
+            typename fusion::BOOST_PROTO_FUSION_RESULT_OF::value_of<                                \
+                BOOST_PP_CAT(fusion_iterator, N)                                                    \
             >::type                                                                                 \
         >::type                                                                                     \
         /**/
 
     /// INTERNAL ONLY
     ///
-    # define BOOST_PROTO_AT(Z, N, DATA)                                                             \
-        fusion::BOOST_PROTO_FUSION_AT_C(N, BOOST_PP_TUPLE_ELEM(3, 1, DATA))                         \
+    #define BOOST_PROTO_FUSION_NEXT_ITERATOR(Z, N, DATA)                                            \
+        BOOST_PP_CAT(fusion_iterator, BOOST_PP_INC(N)) BOOST_PP_CAT(it, BOOST_PP_INC(N)) =          \
+            fusion::next(BOOST_PP_CAT(it, N));                                                      \
         /**/
 
     /// INTERNAL ONLY
     ///
-    #define BOOST_PROTO_AS_CHILD_AT_TYPE(Z, N, DATA)                                                \
-        typename boost::proto::detail::protoify_<                                                   \
-            BOOST_PROTO_AT_TYPE(Z, N, DATA)                                                         \
-          , BOOST_PP_TUPLE_ELEM(3, 2, DATA)                                                         \
+    #define BOOST_PROTO_FUSION_ITERATORS(N)                                                         \
+        fusion_iterator0 it0 = fusion::begin(sequence);                                             \
+        BOOST_PP_REPEAT(BOOST_PP_DEC(N), BOOST_PROTO_FUSION_NEXT_ITERATOR, fusion_iterator)         \
+        /**/
+
+    /// INTERNAL ONLY
+    ///
+    #define BOOST_PROTO_FUSION_AT(Z, N, DATA)                                                       \
+        *BOOST_PP_CAT(it, N)                                                                        \
+        /**/
+
+    /// INTERNAL ONLY
+    ///
+    #define BOOST_PROTO_FUSION_AS_CHILD_AT_TYPE(Z, N, DATA)                                         \
+        typename detail::protoify_<                                                                 \
+            BOOST_PROTO_FUSION_AT_TYPE(Z, N, DATA)                                                  \
+          , Domain                                                                                  \
         >::type                                                                                     \
         /**/
 
     /// INTERNAL ONLY
     ///
-    #define BOOST_PROTO_AS_CHILD_AT(Z, N, DATA)                                                     \
-        boost::proto::detail::protoify_<                                                            \
-            BOOST_PROTO_AT_TYPE(Z, N, DATA)                                                         \
-          , BOOST_PP_TUPLE_ELEM(3, 2, DATA)                                                         \
-        >::call(BOOST_PROTO_AT(Z, N, DATA))                                                         \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_TEMPLATE_AUX_(R, DATA, I, ELEM)                                      \
-        (ELEM BOOST_PP_CAT(BOOST_PP_CAT(X, DATA), BOOST_PP_CAT(_, I)))                              \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_TEMPLATE_YES_(R, DATA, I, ELEM)                                      \
-        BOOST_PP_LIST_FOR_EACH_I_R(                                                                 \
-            R                                                                                       \
-          , BOOST_PROTO_VARARG_TEMPLATE_AUX_                                                        \
-          , I                                                                                       \
-          , BOOST_PP_TUPLE_TO_LIST(                                                                 \
-                BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(ELEM))                                               \
-              , BOOST_PP_SEQ_TO_TUPLE(BOOST_PP_SEQ_TAIL(ELEM))                                      \
-            )                                                                                       \
-        )                                                                                           \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_TEMPLATE_NO_(R, DATA, I, ELEM)                                       \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_TEMPLATE_(R, DATA, I, ELEM)                                          \
-        BOOST_PP_IF(                                                                                \
-            BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(ELEM))                                                   \
-          , BOOST_PROTO_VARARG_TEMPLATE_YES_                                                        \
-          , BOOST_PROTO_VARARG_TEMPLATE_NO_                                                         \
-        )(R, DATA, I, ELEM)                                                                         \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_TYPE_AUX_(R, DATA, I, ELEM)                                          \
-        (BOOST_PP_CAT(BOOST_PP_CAT(X, DATA), BOOST_PP_CAT(_, I)))                                   \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_TEMPLATE_PARAMS_YES_(R, DATA, I, ELEM)                                      \
-        <                                                                                           \
-            BOOST_PP_SEQ_ENUM(                                                                      \
-                BOOST_PP_LIST_FOR_EACH_I_R(                                                         \
-                    R                                                                               \
-                  , BOOST_PROTO_VARARG_TYPE_AUX_                                                    \
-                  , I                                                                               \
-                  , BOOST_PP_TUPLE_TO_LIST(                                                         \
-                        BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(ELEM))                                       \
-                      , BOOST_PP_SEQ_TO_TUPLE(BOOST_PP_SEQ_TAIL(ELEM))                              \
-                    )                                                                               \
-                )                                                                                   \
-            )                                                                                       \
-        >                                                                                           \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_TEMPLATE_PARAMS_NO_(R, DATA, I, ELEM)                                       \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_TYPE_(R, DATA, I, ELEM)                                              \
-        BOOST_PP_COMMA_IF(I)                                                                        \
-        BOOST_PP_SEQ_HEAD(ELEM)                                                                     \
-        BOOST_PP_IF(                                                                                \
-            BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(ELEM))                                                   \
-          , BOOST_PROTO_TEMPLATE_PARAMS_YES_                                                        \
-          , BOOST_PROTO_TEMPLATE_PARAMS_NO_                                                         \
-        )(R, DATA, I, ELEM) BOOST_PP_EXPR_IF(BOOST_PP_GREATER(I, 1), const)                         \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_AS_EXPR_(R, DATA, I, ELEM)                                           \
-        BOOST_PP_EXPR_IF(                                                                           \
-            BOOST_PP_GREATER(I, 1)                                                                  \
-          , ((                                                                                      \
-                BOOST_PP_SEQ_HEAD(ELEM)                                                             \
-                BOOST_PP_IF(                                                                        \
-                    BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(ELEM))                                           \
-                  , BOOST_PROTO_TEMPLATE_PARAMS_YES_                                                \
-                  , BOOST_PROTO_TEMPLATE_PARAMS_NO_                                                 \
-                )(R, DATA, I, ELEM)()                                                               \
-            ))                                                                                      \
-        )                                                                                           \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_AS_CHILD_(Z, N, DATA)                                                \
-        (BOOST_PP_CAT(DATA, N))                                                                     \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_SEQ_PUSH_FRONT(SEQ, ELEM)                                                   \
-        BOOST_PP_SEQ_POP_BACK(BOOST_PP_SEQ_PUSH_FRONT(BOOST_PP_SEQ_PUSH_BACK(SEQ, _dummy_), ELEM))  \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_AS_PARAM_(Z, N, DATA)                                                \
-        (BOOST_PP_CAT(DATA, N))                                                                     \
-        /**/
-
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_VARARG_FUN_(Z, N, DATA)                                                     \
-        template<                                                                                   \
-            BOOST_PP_SEQ_ENUM(                                                                      \
-                BOOST_PP_SEQ_FOR_EACH_I(                                                            \
-                    BOOST_PROTO_VARARG_TEMPLATE_, ~                                                 \
-                  , BOOST_PP_SEQ_PUSH_FRONT(                                                        \
-                        BOOST_PROTO_SEQ_PUSH_FRONT(                                                 \
-                            BOOST_PP_TUPLE_ELEM(4, 2, DATA)                                         \
-                          , (BOOST_PP_TUPLE_ELEM(4, 3, DATA))                                       \
-                        )                                                                           \
-                      , BOOST_PP_TUPLE_ELEM(4, 1, DATA)                                             \
-                    )                                                                               \
-                )                                                                                   \
-                BOOST_PP_REPEAT_ ## Z(N, BOOST_PROTO_VARARG_AS_PARAM_, typename A)                  \
-            )                                                                                       \
-        >                                                                                           \
-        typename boost::proto::result_of::make_expr<                                                \
-            BOOST_PP_SEQ_FOR_EACH_I(                                                                \
-                BOOST_PROTO_VARARG_TYPE_, ~                                                         \
-              , BOOST_PP_SEQ_PUSH_FRONT(                                                            \
-                    BOOST_PROTO_SEQ_PUSH_FRONT(                                                     \
-                        BOOST_PP_TUPLE_ELEM(4, 2, DATA)                                             \
-                      , (BOOST_PP_TUPLE_ELEM(4, 3, DATA))                                           \
-                    )                                                                               \
-                  , BOOST_PP_TUPLE_ELEM(4, 1, DATA)                                                 \
-                )                                                                                   \
-            )                                                                                       \
-            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS_Z(Z, N, A, const & BOOST_PP_INTERCEPT)             \
-        >::type const                                                                               \
-        BOOST_PP_TUPLE_ELEM(4, 0, DATA)(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, const &a))           \
-        {                                                                                           \
-            return boost::proto::detail::make_expr_<                                                \
-                BOOST_PP_SEQ_FOR_EACH_I(                                                            \
-                    BOOST_PROTO_VARARG_TYPE_, ~                                                     \
-                  , BOOST_PP_SEQ_PUSH_FRONT(                                                        \
-                        BOOST_PROTO_SEQ_PUSH_FRONT(                                                 \
-                            BOOST_PP_TUPLE_ELEM(4, 2, DATA)                                         \
-                          , (BOOST_PP_TUPLE_ELEM(4, 3, DATA))                                       \
-                        )                                                                           \
-                      , BOOST_PP_TUPLE_ELEM(4, 1, DATA)                                             \
-                    )                                                                               \
-                )                                                                                   \
-                BOOST_PP_ENUM_TRAILING_BINARY_PARAMS_Z(Z, N, A, const & BOOST_PP_INTERCEPT)         \
-            >()(                                                                                    \
-                BOOST_PP_SEQ_ENUM(                                                                  \
-                    BOOST_PP_SEQ_FOR_EACH_I(                                                        \
-                        BOOST_PROTO_VARARG_AS_EXPR_, ~                                              \
-                      , BOOST_PP_SEQ_PUSH_FRONT(                                                    \
-                            BOOST_PROTO_SEQ_PUSH_FRONT(                                             \
-                                BOOST_PP_TUPLE_ELEM(4, 2, DATA)                                     \
-                              , (BOOST_PP_TUPLE_ELEM(4, 3, DATA))                                   \
-                            )                                                                       \
-                          , BOOST_PP_TUPLE_ELEM(4, 1, DATA)                                         \
-                        )                                                                           \
-                    )                                                                               \
-                    BOOST_PP_REPEAT_ ## Z(N, BOOST_PROTO_VARARG_AS_CHILD_, a)                       \
-                )                                                                                   \
-            );                                                                                      \
-        }                                                                                           \
-        /**/
-
-    /// \code
-    /// BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-    ///     1
-    ///   , construct
-    ///   , boost::proto::default_domain
-    ///   , (boost::proto::tag::function)
-    ///   , ((op::construct)(typename)(int))
-    /// )
-    /// \endcode
-    #define BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(ARGCOUNT, NAME, DOMAIN, TAG, BOUNDARGS)            \
-        BOOST_PP_REPEAT_FROM_TO(                                                                    \
-            ARGCOUNT                                                                                \
-          , BOOST_PP_INC(ARGCOUNT)                                                                  \
-          , BOOST_PROTO_VARARG_FUN_                                                                 \
-          , (NAME, TAG, BOUNDARGS, DOMAIN)                                                          \
-        )\
-        /**/
-
-    /// \code
-    /// BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(
-    ///     construct
-    ///   , boost::proto::default_domain
-    ///   , (boost::proto::tag::function)
-    ///   , ((op::construct)(typename)(int))
-    /// )
-    /// \endcode
-    #define BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(NAME, DOMAIN, TAG, BOUNDARGS)               \
-        BOOST_PP_REPEAT(                                                                            \
-            BOOST_PP_SUB(BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), BOOST_PP_SEQ_SIZE(BOUNDARGS))         \
-          , BOOST_PROTO_VARARG_FUN_                                                                 \
-          , (NAME, TAG, BOUNDARGS, DOMAIN)                                                          \
-        )                                                                                           \
+    #define BOOST_PROTO_FUSION_AS_CHILD_AT(Z, N, DATA)                                              \
+        detail::protoify_<                                                                          \
+            BOOST_PROTO_FUSION_AT_TYPE(Z, N, DATA)                                                  \
+          , Domain                                                                                  \
+        >::call(BOOST_PROTO_FUSION_AT(Z, N, DATA))                                                  \
         /**/
 
         namespace detail
@@ -445,9 +254,8 @@
             {
                 typedef
                     typename add_const<
-                        typename fusion::BOOST_PROTO_FUSION_RESULT_OF::value_at_c<
-                            Sequence
-                          , 0
+                        typename fusion::BOOST_PROTO_FUSION_RESULT_OF::value_of<
+                            typename fusion::BOOST_PROTO_FUSION_RESULT_OF::begin<Sequence>::type
                         >::type
                     >::type
                 terminal_type;
@@ -524,7 +332,7 @@
                 {
                     proto::expr<tag::terminal, Args, 0> that = {this->a0};
                     return that;
-                };
+                }
 
                 template<typename Expr>
                 operator Expr() const
@@ -558,7 +366,7 @@
                 {
                     proto::expr<Tag, Args, 1> that = {this->a0};
                     return that;
-                };
+                }
 
                 template<typename Expr>
                 operator Expr() const
@@ -672,7 +480,7 @@
             /// Use the <tt>result_of::unpack_expr\<\></tt> metafunction to
             /// compute the return type of the \c unpack_expr() function.
             ///
-            /// \c Sequence is a Fusion Random Access Sequence.
+            /// \c Sequence is a Fusion Forward Sequence.
             ///
             /// In this specialization, the domain is deduced from the
             /// domains of the child types. (If
@@ -686,10 +494,12 @@
             >
             struct unpack_expr
             {
-                /// Same as <tt>result_of::make_expr\<Tag,
-                /// fusion::value_at\<Sequence, 0\>::::type, ...
-                /// fusion::value_at\<Sequence, N-1\>::::type\>::::type</tt>,
-                /// where \c N is the size of \c Sequence.
+                /// Let \c S be the type of a Fusion Random Access Sequence
+                /// equivalent to \c Sequence. Then \c type is the
+                /// same as <tt>result_of::make_expr\<Tag,
+                /// fusion::result_of::value_at_c\<S, 0\>::::type, ...
+                /// fusion::result_of::value_at_c\<S, N-1\>::::type\>::::type</tt>,
+                /// where \c N is the size of \c S.
                 typedef
                     typename detail::unpack_expr_<
                         Tag
@@ -708,10 +518,12 @@
             template<typename Tag, typename Domain, typename Sequence>
             struct unpack_expr<Tag, Domain, Sequence, typename Domain::proto_is_domain_>
             {
-                /// Same as <tt>result_of::make_expr\<Tag, Domain,
-                /// fusion::value_at\<Sequence, 0\>::::type, ...
-                /// fusion::value_at\<Sequence, N-1\>::::type\>::::type</tt>,
-                /// where \c N is the size of \c Sequence.
+                /// Let \c S be the type of a Fusion Random Access Sequence
+                /// equivalent to \c Sequence. Then \c type is the
+                /// same as <tt>result_of::make_expr\<Tag, Domain,
+                /// fusion::result_of::value_at_c\<S, 0\>::::type, ...
+                /// fusion::result_of::value_at_c\<S, N-1\>::::type\>::::type</tt>,
+                /// where \c N is the size of \c S.
                 typedef
                     typename detail::unpack_expr_<
                         Tag
@@ -831,7 +643,7 @@
                 /// Construct an expression node with tag type \c Tag
                 /// and in the domain \c Domain.
                 ///
-                /// \param sequence A Fusion Random Access Sequence
+                /// \param sequence A Fusion Forward Sequence
                 /// \return <tt>proto::unpack_expr\<Tag, Domain\>(sequence)</tt>
                 template<typename Sequence>
                 typename result_of::unpack_expr<Tag, Domain, Sequence const>::type
@@ -957,7 +769,7 @@
 
         /// \brief Construct an expression of the requested tag type
         /// with a domain and with childres from the specified Fusion
-        /// Random Access Sequence.
+        /// Forward Sequence.
         ///
         /// This function template may be invoked either with or without
         /// specifying a \c Domain argument. If no domain is specified,
@@ -966,9 +778,10 @@
         /// \c default_domain, if any such domain exists, or
         /// \c default_domain otherwise.
         ///
+        /// Let \c s be a Fusion Random Access Sequence equivalent to \c sequence.
         /// Let <tt>wrap_\<N\>(s)</tt>, where \c s has type \c S, be defined
         /// such that:
-        /// \li If <tt>fusion::value_at\<S,N\>::::type</tt> is a reference,
+        /// \li If <tt>fusion::result_of::value_at_c\<S,N\>::::type</tt> is a reference,
         /// <tt>wrap_\<N\>(s)</tt> is equivalent to
         /// <tt>as_child\<Domain\>(fusion::at_c\<N\>(s))</tt>.
         /// \li Otherwise, <tt>wrap_\<N\>(s)</tt> is equivalent to
@@ -978,8 +791,8 @@
         /// <tt>expr\<Tag, listN\<B0,...BN\> \>::::make(b0,...bN)</tt>
         /// where \c Bx is the type of \c bx.
         ///
-        /// \param sequence a Fusion Random Access Sequence.
-        /// \return <tt>Domain()(make_\<Tag\>(wrap_\<0\>(s),...wrap_\<N-1\>(S)))</tt>,
+        /// \param sequence a Fusion Forward Sequence.
+        /// \return <tt>Domain()(make_\<Tag\>(wrap_\<0\>(s),...wrap_\<N-1\>(s)))</tt>,
         /// where N is the size of \c Sequence.
         template<typename Tag, typename Sequence>
         typename lazy_disable_if<
@@ -1055,10 +868,14 @@
     # pragma warning(pop)
     #endif
 
-    #undef BOOST_PROTO_AT
-    #undef BOOST_PROTO_AT_TYPE
-    #undef BOOST_PROTO_AS_CHILD_AT
-    #undef BOOST_PROTO_AS_CHILD_AT_TYPE
+    #undef BOOST_PROTO_FUSION_AT
+    #undef BOOST_PROTO_FUSION_AT_TYPE
+    #undef BOOST_PROTO_FUSION_AS_CHILD_AT
+    #undef BOOST_PROTO_FUSION_AS_CHILD_AT_TYPE
+    #undef BOOST_PROTO_FUSION_NEXT_ITERATOR
+    #undef BOOST_PROTO_FUSION_NEXT_ITERATOR_TYPE
+    #undef BOOST_PROTO_FUSION_ITERATORS
+    #undef BOOST_PROTO_FUSION_ITERATORS_TYPE
 
     #endif // BOOST_PROTO_MAKE_EXPR_HPP_EAN_04_01_2005
 
@@ -1087,7 +904,7 @@
                 #undef M0
                 proto::expr<Tag, Args, N> that = {BOOST_PP_ENUM_PARAMS(N, c)};
                 return that;
-            };
+            }
 
             template<typename Expr>
             operator Expr() const
@@ -1185,10 +1002,12 @@
         template<typename Tag, typename Domain, typename Sequence>
         struct unpack_expr_<Tag, Domain, Sequence, N>
         {
+            BOOST_PROTO_FUSION_ITERATORS_TYPE(N)
+
             typedef proto::expr<
                 Tag
               , BOOST_PP_CAT(list, N)<
-                    BOOST_PP_ENUM(N, BOOST_PROTO_AS_CHILD_AT_TYPE, (Sequence const, ~, Domain))
+                    BOOST_PP_ENUM(N, BOOST_PROTO_FUSION_AS_CHILD_AT_TYPE, ~)
                 >
             > expr_type;
 
@@ -1196,8 +1015,9 @@
 
             static type const call(Sequence const &sequence)
             {
+                BOOST_PROTO_FUSION_ITERATORS(N)
                 expr_type that = {
-                    BOOST_PP_ENUM(N, BOOST_PROTO_AS_CHILD_AT, (Sequence const, sequence, Domain))
+                    BOOST_PP_ENUM(N, BOOST_PROTO_FUSION_AS_CHILD_AT, ~)
                 };
                 return Domain()(that);
             }
@@ -1205,15 +1025,27 @@
 
         template<typename Tag, typename Sequence>
         struct unpack_expr_<Tag, deduce_domain, Sequence, N>
-          : unpack_expr_<
-                Tag
-              , typename BOOST_PP_CAT(deduce_domain, N)<
-                    BOOST_PP_ENUM(N, BOOST_PROTO_AT_TYPE, (Sequence const, ~, ~))
-                >::type
-              , Sequence
-              , N
-            >
-        {};
+        {
+            BOOST_PROTO_FUSION_ITERATORS_TYPE(N)
+
+            typedef
+                unpack_expr_<
+                    Tag
+                  , typename BOOST_PP_CAT(deduce_domain, N)<
+                        BOOST_PP_ENUM(N, BOOST_PROTO_FUSION_AT_TYPE, ~)
+                    >::type
+                  , Sequence
+                  , N
+                >
+            other;
+
+            typedef typename other::type type;
+
+            static type const call(Sequence const &sequence)
+            {
+                return other::call(sequence);
+            }
+        };
 
     #undef N
     #undef M

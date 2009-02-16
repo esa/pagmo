@@ -25,7 +25,7 @@
 #if defined(BOOST_NO_STDC_NAMESPACE)
     using ::codecvt;
     using ::mbstate_t;
-    using ::size_t
+    using ::size_t;
 #endif
 
 namespace boost {

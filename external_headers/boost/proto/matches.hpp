@@ -12,6 +12,7 @@
     #define BOOST_PROTO_MATCHES_HPP_EAN_11_03_2006
 
     #include <boost/proto/detail/prefix.hpp> // must be first include
+    #include <boost/config.hpp>
     #include <boost/detail/workaround.hpp>
     #include <boost/preprocessor/cat.hpp>
     #include <boost/preprocessor/arithmetic/dec.hpp>
@@ -87,6 +88,18 @@
 
             template<typename And>
             struct last;
+
+            template<>
+            struct last<proto::and_<> >
+            {
+                typedef proto::_ type;
+            };
+
+            template<typename G0>
+            struct last<proto::and_<G0> >
+            {
+                typedef G0 type;
+            };
 
             template<typename T, typename U>
             struct array_matches
@@ -318,29 +331,34 @@
               : vararg_matches< Args1, Args2, typename Args2::back_, (N1+2 > N2), (N2 > N1) >
             {};
 
-            template<typename Args1, typename Args2, long N2>
-            struct matches_< proto::expr<tag::terminal, Args1, 0>, proto::expr<proto::_, Args2, N2> >
+            template<typename Tag, typename Args1, typename Args2>
+            struct matches_< proto::expr<Tag, Args1, 0>, proto::expr<Tag, Args2, 0> >
+              : terminal_matches<typename Args1::child0, typename Args2::child0>
+            {};
+
+            template<typename Tag, typename Args1, typename Args2, long N2>
+            struct matches_< proto::expr<Tag, Args1, 0>, proto::expr<proto::_, Args2, N2> >
               : mpl::false_
             {};
 
             template<typename Tag, typename Args1, typename Args2>
+            struct matches_< proto::expr<Tag, Args1, 0>, proto::expr<proto::_, Args2, 0> >
+              : terminal_matches<typename Args1::child0, typename Args2::child0>
+            {};
+
+            template<typename Tag, typename Args1, typename Args2>
             struct matches_< proto::expr<Tag, Args1, 1>, proto::expr<Tag, Args2, 1> >
-              : matches_<typename Args1::child_ref0::proto_base_expr, typename Args2::child0::proto_base_expr>
+              : matches_<typename detail::expr_traits<typename Args1::child0>::value_type::proto_base_expr, typename Args2::child0::proto_base_expr>
             {};
 
             template<typename Tag, typename Args1, typename Args2>
             struct matches_< proto::expr<Tag, Args1, 1>, proto::expr<proto::_, Args2, 1> >
-              : matches_<typename Args1::child_ref0::proto_base_expr, typename Args2::child0::proto_base_expr>
-            {};
-
-            template<typename Args1, typename Args2>
-            struct matches_< proto::expr<tag::terminal, Args1, 0>, proto::expr<tag::terminal, Args2, 0> >
-              : terminal_matches<typename Args1::child0, typename Args2::child0>
+              : matches_<typename detail::expr_traits<typename Args1::child0>::value_type::proto_base_expr, typename Args2::child0::proto_base_expr>
             {};
 
         #define BOOST_PROTO_MATCHES_N_FUN(Z, N, DATA)                                               \
             matches_<                                                                               \
-                typename Args1::BOOST_PP_CAT(child_ref, N)::proto_base_expr                         \
+                typename detail::expr_traits<typename Args1::BOOST_PP_CAT(child, N)>::value_type::proto_base_expr\
               , typename Args2::BOOST_PP_CAT(child, N)::proto_base_expr                             \
             >
 
@@ -385,6 +403,32 @@
             template<typename Expr, typename If>
             struct matches_<Expr, proto::if_<If> >
               : detail::uncvref<typename when<_, If>::template impl<Expr, int, int>::result_type>::type
+            {};
+
+            // handle degenerate cases of proto::or_
+            template<typename Expr>
+            struct matches_<Expr, or_<> >
+              : mpl::false_
+            {
+                typedef not_<_> which;
+            };
+
+            template<typename Expr, typename G0>
+            struct matches_<Expr, or_<G0> >
+              : matches_<Expr, typename G0::proto_base_expr>
+            {
+                typedef G0 which;
+            };
+
+            // handle degenerate cases of proto::and_
+            template<typename Expr>
+            struct matches_<Expr, and_<> >
+              : mpl::true_
+            {};
+
+            template<typename Expr, typename G0>
+            struct matches_<Expr, and_<G0> >
+              : matches_<Expr, typename G0::proto_base_expr>
             {};
 
             // handle proto::not_
@@ -441,9 +485,9 @@
             /// \li An expression \c E matches <tt>switch_\<C\></tt> if
             ///     \c E matches <tt>C::case_\<E::proto_tag\></tt>.
             ///
-            /// A terminal expression <tt>expr\<tag::terminal,term\<A\> \></tt> matches
-            /// a grammar <tt>expr\<BT,term\<B\> \></tt> if \c BT is \c _ or
-            /// \c tag::terminal and one of the following is true:
+            /// A terminal expression <tt>expr\<AT,term\<A\> \></tt> matches
+            /// a grammar <tt>expr\<BT,term\<B\> \></tt> if \c BT is \c AT or
+            /// \c proto::_ and if one of the following is true:
             ///
             /// \li \c B is the wildcard pattern, \c _
             /// \li \c A is \c B
@@ -475,6 +519,8 @@
                 >
             {};
 
+            /// INTERNAL ONLY
+            ///
             template<typename Expr, typename Grammar>
             struct matches<Expr &, Grammar>
               : detail::matches_<
@@ -537,14 +583,19 @@
                     typedef Expr result_type;
 
                     /// \param expr An expression
-                    /// \return \c expr
-                    typename impl::expr_param operator()(
-                        typename impl::expr_param expr
+                    /// \return \c e
+                    #ifdef BOOST_HAS_DECLTYPE
+                    result_type
+                    #else
+                    typename impl::expr_param 
+                    #endif
+                    operator()(
+                        typename impl::expr_param e
                       , typename impl::state_param
                       , typename impl::data_param
                     ) const
                     {
-                        return expr;
+                        return e;
                     }
                 };
             };
@@ -570,16 +621,21 @@
                 {
                     typedef Expr result_type;
 
-                    /// \param expr An expression
+                    /// \param e An expression
                     /// \pre <tt>matches\<Expr,not_\>::::value</tt> is \c true.
-                    /// \return \c expr
-                    typename impl::expr_param operator()(
-                        typename impl::expr_param expr
+                    /// \return \c e
+                    #ifdef BOOST_HAS_DECLTYPE
+                    result_type
+                    #else
+                    typename impl::expr_param 
+                    #endif
+                    operator()(
+                        typename impl::expr_param e
                       , typename impl::state_param
                       , typename impl::data_param
                     ) const
                     {
-                        return expr;
+                        return e;
                     }
                 };
             };
@@ -660,17 +716,17 @@
 
                     typedef typename which::template impl<Expr, State, Data>::result_type result_type;
 
-                    /// \param expr An expression
-                    /// \param state The current state
-                    /// \param data A data of arbitrary type
-                    /// \return <tt>which::impl<Expr, State, Data>()(expr, state, data)</tt>
+                    /// \param e An expression
+                    /// \param s The current state
+                    /// \param d A data of arbitrary type
+                    /// \return <tt>which::impl<Expr, State, Data>()(e, s, d)</tt>
                     result_type operator ()(
-                        typename impl::expr_param expr
-                      , typename impl::state_param state
-                      , typename impl::data_param data
+                        typename impl::expr_param e
+                      , typename impl::state_param s
+                      , typename impl::data_param d
                     ) const
                     {
-                        return typename which::template impl<Expr, State, Data>()(expr, state, data);
+                        return typename which::template impl<Expr, State, Data>()(e, s, d);
                     }
                 };
             };
@@ -692,11 +748,11 @@
             {
                 typedef or_ proto_base_expr;
 
-                /// \param expr An expression
-                /// \param state The current state
-                /// \param data A data of arbitrary type
+                /// \param e An expression
+                /// \param s The current state
+                /// \param d A data of arbitrary type
                 /// \pre <tt>matches\<Expr,or_\>::::value</tt> is \c true.
-                /// \return <tt>result\<void(Expr, State, Data)\>::::which()(expr, state, data)</tt>
+                /// \return <tt>result\<void(Expr, State, Data)\>::::which()(e, s, d)</tt>
 
                 template<typename Expr, typename State, typename Data>
                 struct impl
@@ -730,11 +786,11 @@
                 struct impl
                   : detail::last<and_>::type::template impl<Expr, State, Data>
                 {
-                    /// \param expr An expression
-                    /// \param state The current state
-                    /// \param data A data of arbitrary type
+                    /// \param e An expression
+                    /// \param s The current state
+                    /// \param d A data of arbitrary type
                     /// \pre <tt>matches\<Expr,and_\>::::value</tt> is \c true.
-                    /// \return <tt>result\<void(Expr, State, Data)\>::::which()(expr, state, data)</tt>
+                    /// \return <tt>result\<void(Expr, State, Data)\>::::which()(e, s, d)</tt>
                 };
             };
 
@@ -759,11 +815,11 @@
             {
                 typedef switch_ proto_base_expr;
 
-                /// \param expr An expression
-                /// \param state The current state
-                /// \param data A data of arbitrary type
+                /// \param e An expression
+                /// \param s The current state
+                /// \param d A data of arbitrary type
                 /// \pre <tt>matches\<Expr,switch_\>::::value</tt> is \c true.
-                /// \return <tt>result\<void(Expr, State, Data)\>::::which()(expr, state, data)</tt>
+                /// \return <tt>result\<void(Expr, State, Data)\>::::which()(e, s, d)</tt>
 
                 template<typename Expr, typename State, typename Data>
                 struct impl
@@ -829,6 +885,7 @@
             struct vararg
               : Grammar
             {
+                /// INTERNAL ONLY
                 typedef void proto_is_vararg_;
             };
         }
@@ -943,14 +1000,14 @@
             template<typename Args, typename Back, long To>
             struct vararg_matches_impl<Args, Back, N, To>
               : and2<
-                    matches_<typename Args::BOOST_PP_CAT(child_ref, BOOST_PP_DEC(N))::proto_base_expr, Back>::value
+                    matches_<typename detail::expr_traits<typename Args::BOOST_PP_CAT(child, BOOST_PP_DEC(N))>::value_type::proto_base_expr, Back>::value
                   , vararg_matches_impl<Args, Back, N + 1, To>
                 >
             {};
 
             template<typename Args, typename Back>
             struct vararg_matches_impl<Args, Back, N, N>
-              : matches_<typename Args::BOOST_PP_CAT(child_ref, BOOST_PP_DEC(N))::proto_base_expr, Back>
+              : matches_<typename detail::expr_traits<typename Args::BOOST_PP_CAT(child, BOOST_PP_DEC(N))>::value_type::proto_base_expr, Back>
             {};
 
             template<

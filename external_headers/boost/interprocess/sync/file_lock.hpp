@@ -18,16 +18,30 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 #include <boost/interprocess/exceptions.hpp>
-#include <cassert>
 #include <boost/interprocess/detail/os_file_functions.hpp>
 #include <boost/interprocess/detail/os_thread_functions.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
+#include <boost/interprocess/detail/move.hpp>
 
 //!\file
 //!Describes a class that wraps file locking capabilities.
 
 namespace boost {
 namespace interprocess {
+
+///@cond
+
+class file_lock;
+
+//!Trait class to detect if a type is
+//!movable
+template<>
+struct is_movable<file_lock>
+{
+   enum {  value = true };
+};
+
+///@endcond
 
 //!A file lock, is a mutual exclusion utility similar to a mutex using a
 //!file. A file lock has sharable and exclusive locking capabilities and
@@ -38,17 +52,67 @@ class file_lock
 {
    /// @cond
    //Non-copyable
-   file_lock();
    file_lock(const file_lock &);
    file_lock &operator=(const file_lock &);
    /// @endcond
    public:
+
+   //!Constructs an empty file mapping.
+   //!Does not throw
+   file_lock()
+      :  m_file_hnd(file_handle_t(detail::invalid_file()))
+   {}
+
    //!Opens a file lock. Throws interprocess_exception if the file does not
    //!exist or there are no operating system resources.
    file_lock(const char *name);
 
+   //!Moves the ownership of "moved"'s file mapping object to *this. 
+   //!After the call, "moved" does not represent any file mapping object. 
+   //!Does not throw
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   file_lock(detail::moved_object<file_lock> moved)
+      :  m_file_hnd(file_handle_t(detail::invalid_file()))
+   {  this->swap(moved.get());   }
+   #else
+   file_lock(file_lock &&moved)
+      :  m_file_hnd(file_handle_t(detail::invalid_file()))
+   {  this->swap(moved);   }
+   #endif
+
+   //!Moves the ownership of "moved"'s file mapping to *this.
+   //!After the call, "moved" does not represent any file mapping. 
+   //!Does not throw
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   file_lock &operator=(detail::moved_object<file_lock> m_other)
+   {  
+      file_lock &moved = m_other.get();
+   #else
+   file_lock &operator=(file_lock &&moved)
+   {  
+   #endif
+      file_lock tmp(detail::move_impl(moved));
+      this->swap(tmp);
+      return *this;  
+   }
+
    //!Closes a file lock. Does not throw.
    ~file_lock();
+
+   //!Swaps two file_locks.
+   //!Does not throw.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<file_lock> mother)
+   {  this->swap(mother.get());  }
+   void swap(file_lock &other)
+   #else
+   void swap(file_lock &&other)
+   #endif
+   {
+      file_handle_t tmp = m_file_hnd;
+      other.m_file_hnd = other.m_file_hnd;
+      other.m_file_hnd = tmp;
+   }
    
    //Exclusive locking
 
@@ -266,7 +330,6 @@ inline void file_lock::unlock_sharable()
 }
 
 }  //namespace interprocess {
-
 }  //namespace boost {
 
 #include <boost/interprocess/detail/config_end.hpp>

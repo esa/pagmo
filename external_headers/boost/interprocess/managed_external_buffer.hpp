@@ -75,35 +75,42 @@ class basic_managed_external_buffer
    }
 
    //!Moves the ownership of "moved"'s managed memory to *this. Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_managed_external_buffer
-      (detail::moved_object<basic_managed_external_buffer> moved)
-   {  this->swap(moved.get());   }
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   basic_managed_external_buffer(detail::moved_object<basic_managed_external_buffer> mother)
+   {
+      basic_managed_external_buffer &moved = mother.get();
    #else
-   basic_managed_external_buffer
-      (basic_managed_external_buffer &&moved)
-   {  this->swap(moved);   }
-   #endif
+   basic_managed_external_buffer(basic_managed_external_buffer &&moved)
+   {
+   #endif  
+      this->swap(moved);
+   }
 
    //!Moves the ownership of "moved"'s managed memory to *this. Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_managed_external_buffer &operator=
-      (detail::moved_object<basic_managed_external_buffer> moved)
-   {  this->swap(moved.get());   return *this;  }
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   basic_managed_external_buffer &operator=(detail::moved_object<basic_managed_external_buffer> moved)
    #else
-   basic_managed_external_buffer &operator=
-      (basic_managed_external_buffer &&moved)
-   {  this->swap(moved);   return *this;  }
+   basic_managed_external_buffer &operator=(basic_managed_external_buffer &&moved)
    #endif
+   {
+      basic_managed_external_buffer tmp(detail::move_impl(moved));
+      this->swap(tmp);
+      return *this;
+   }
 
    void grow(std::size_t extra_bytes)
    {  base_t::grow(extra_bytes);   }
 
    //!Swaps the ownership of the managed heap memories managed by *this and other.
    //!Never throws.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<basic_managed_external_buffer> mother)
+   {  this->swap(mother.get());  }
    void swap(basic_managed_external_buffer &other)
+   #else
+   void swap(basic_managed_external_buffer &&other)
+   #endif
    {  base_t::swap(other); }
-
 };
 
 ///@cond

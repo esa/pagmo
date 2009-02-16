@@ -46,7 +46,7 @@
             template<typename Context, long Arity>
             struct callable_context_wrapper;
 
-            template<typename Expr, typename Context, long Arity = Expr::proto_arity::value>
+            template<typename Expr, typename Context, long Arity = Expr::proto_arity_c>
             struct is_expr_handled;
 
             template<typename Expr, typename Context>
@@ -86,7 +86,7 @@
             template<
                 typename Expr
               , typename Context
-              , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity::value)
+              , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity_c)
             >
             struct callable_eval
             {};

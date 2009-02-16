@@ -120,11 +120,14 @@ template<typename X,typename Y> struct root_typeof_helper;
 
 #ifdef BOOST_UNITS_DOXYGEN
 
-/// A helper for computing the result of
-/// raising a runtime object to a compile time
+/// A helper used by @c pow to raise
+/// a runtime object to a compile time
 /// known exponent.  This template is intended to
 /// be specialized.  All specializations must
 /// conform to the interface shown here.
+/// @c Exponent will be either the exponent
+/// passed to @c pow or @c static_rational<N>
+/// for and integer argument, N.
 template<typename BaseType, typename Exponent>
 struct power_typeof_helper
 {
@@ -134,18 +137,21 @@ struct power_typeof_helper
     static type value(const BaseType& base);
 };
 
-/// A helper for computing taking a root
+/// A helper used by @c root to take a root
 /// of a runtime object using a compile time
 /// known index.  This template is intended to
 /// be specialized.  All specializations must
 /// conform to the interface shown here.
+/// @c Index will be either the type
+/// passed to @c pow or @c static_rational<N>
+/// for and integer argument, N.
 template<typename Radicand, typename Index>
 struct root_typeof_helper
 {
     /// specifies the result type
     typedef detail::unspecified type;
     /// Carries out the runtime calculation.
-    static type value(const BaseType& base);
+    static type value(const Radicand& base);
 };
 
 #endif

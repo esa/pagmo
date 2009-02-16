@@ -79,6 +79,7 @@
 
 #  define BOOST_HAS_MACRO_USE_FACET
 
+#  define BOOST_NO_INITIALIZER_LISTS
 
    // On non-Win32 platforms let the platform config figure this out:
 # ifdef _WIN32

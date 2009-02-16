@@ -6,21 +6,23 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
  */
 
-#include <exception>
-#include "boost/date_time/gregorian/gregorian_types.hpp"
-#include "boost/date_time/c_time.hpp"
+#include <string>
+#include <stdexcept>
+#include <boost/throw_exception.hpp>
+#include <boost/date_time/gregorian/gregorian_types.hpp>
+#include <boost/date_time/c_time.hpp>
 #if defined(USE_DATE_TIME_PRE_1_33_FACET_IO)
 #  if defined(BOOST_DATE_TIME_INCLUDE_LIMITED_HEADERS)
-#    include "boost/date_time/gregorian/formatters_limited.hpp"
+#    include <boost/date_time/gregorian/formatters_limited.hpp>
 #  else
-#    include "boost/date_time/gregorian/formatters.hpp"
+#    include <boost/date_time/gregorian/formatters.hpp>
 #  endif // BOOST_DATE_TIME_INCLUDE_LIMITED_HEADERS
 #else
 #  include <sstream>
-#  include "boost/date_time/gregorian/gregorian_io.hpp"
+#  include <boost/date_time/gregorian/gregorian_io.hpp>
 #endif // USE_DATE_TIME_PRE_1_33_FACET_IO
 
 namespace boost {
@@ -33,14 +35,15 @@ namespace gregorian {
   std::tm to_tm(const date& d) 
   {
     if(d.is_pos_infinity() || d.is_neg_infinity() || d.is_not_a_date()){
+      std::string s = "tm unable to handle date value of ";
 #if defined(USE_DATE_TIME_PRE_1_33_FACET_IO)
-      std::string s("tm unable to handle date value of " + to_simple_string(d));
-      throw std::out_of_range(s);
+      s += to_simple_string(d);
 #else
-      std::stringstream ss;
-      ss << "tm unable to handle date value of " << d;
-      throw std::out_of_range(ss.str());
+      std::ostringstream ss;
+      ss << d;
+      s += ss.str();
 #endif // USE_DATE_TIME_PRE_1_33_FACET_IO
+      boost::throw_exception(std::out_of_range(s));
     }
     std::tm datetm;
     boost::gregorian::date::ymd_type ymd = d.year_month_day();

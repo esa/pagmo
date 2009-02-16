@@ -74,6 +74,9 @@ struct regex_data
    unsigned int                m_can_be_null;             // whether we can match a null string
    re_detail::raw_storage      m_data;                    // the buffer in which our states are constructed
    typename traits::char_class_type    m_word_mask;       // mask used to determine if a character is a word character
+   std::vector<
+      std::pair<
+      std::size_t, std::size_t> > m_subs;                 // Position of sub-expressions within the *string*.
 };
 //
 // class basic_regex_implementation
@@ -121,6 +124,14 @@ public:
    const_iterator BOOST_REGEX_CALL expression()const
    {
       return this->m_expression;
+   }
+   std::pair<const_iterator, const_iterator> BOOST_REGEX_CALL subexpression(std::size_t n)const
+   {
+      if(n == 0)
+         throw std::out_of_range("0 is not a valid subexpression index.");
+      const std::pair<std::size_t, std::size_t>& pi = this->m_subs.at(n - 1);
+      std::pair<const_iterator, const_iterator> p(expression() + pi.first, expression() + pi.second);
+      return p;
    }
    //
    // begin, end:
@@ -366,7 +377,13 @@ public:
       return m_pimpl.get() ? m_pimpl->str() : std::basic_string<charT>();
    }
    //
-   // begin, end:
+   // begin, end, subexpression:
+   std::pair<const_iterator, const_iterator> BOOST_REGEX_CALL subexpression(std::size_t n)const
+   {
+      if(!m_pimpl.get())
+         throw std::logic_error("Can't access subexpressions in an invalid regex.");
+      return m_pimpl->subexpression(n);
+   }
    const_iterator BOOST_REGEX_CALL begin()const
    { 
       return (m_pimpl.get() ? m_pimpl->begin() : 0); 

@@ -721,22 +721,6 @@ class tree_algorithms
 
    static bool is_header(const_node_ptr p)
    {
-/*
-      node_ptr p_parent = NodeTraits::get_parent(p);
-      if(!p_parent)
-         return true;
-      if(!NodeTraits::get_parent(p_parent) != p)
-         return false;
-      if(NodeTraits::get_left(p) != 0){
-         if(NodeTraits::get_parent(NodeTraits::get_left(p)) != p){
-            is_header = true;
-         }
-         if(NodeTraits::get_parent(p) == NodeTraits::get_left(p)){
-            is_header = true;
-         }
-      }
-*/
-      
       bool is_header = false;
       if(NodeTraits::get_parent(p) == p){
          is_header = true;
@@ -1015,40 +999,69 @@ class tree_algorithms
       }
    }
 
-   //! <b>Requires</b>: "header" must be the header node of a tree.
-   //!   NodePtrCompare is a function object that induces a strict weak
-   //!   ordering compatible with the strict weak ordering used to create the
-   //!   the tree. NodePtrCompare compares two node_ptrs. "hint" is node from
-   //!   the "header"'s tree.
-   //!   
-   //! <b>Effects</b>: Inserts new_node into the tree, using "hint" as a hint to
-   //!   where it will be inserted. If "hint" is the upper_bound
-   //!   the insertion takes constant time (two comparisons in the worst case).
-   //!
-   //! <b>Complexity</b>: Logarithmic in general, but it is amortized
-   //!   constant time if new_node is inserted immediately before "hint".
-   //! 
-   //! <b>Throws</b>: If "comp" throws.
    template<class NodePtrCompare>
-   static node_ptr insert_equal
-      (node_ptr header, node_ptr hint, node_ptr new_node, NodePtrCompare comp, std::size_t *pdepth = 0)
+   static void insert_equal_check
+      ( node_ptr header, node_ptr hint, node_ptr new_node, NodePtrCompare comp
+      , insert_commit_data &commit_data, std::size_t *pdepth = 0)
    {
       if(hint == header || !comp(hint, new_node)){
          node_ptr prev(hint);
          if(hint == NodeTraits::get_left(header) || 
             !comp(new_node, (prev = prev_node(hint)))){
             bool link_left = unique(header) || !NodeTraits::get_left(hint);
-            link(header, new_node, link_left ? hint : prev, link_left);
-            if(pdepth)  *pdepth = depth(new_node) + 1;
-            return new_node;
+            commit_data.link_left = link_left;
+            commit_data.node = link_left ? hint : prev;
+            if(pdepth){
+               *pdepth = commit_data.node == header ? 0 : depth(commit_data.node) + 1;
+            }
          }
          else{
-            return insert_equal_upper_bound(header, new_node, comp, pdepth);
+            insert_equal_upper_bound_check(header, new_node, comp, commit_data, pdepth);
          }
       }
       else{
-         return insert_equal_lower_bound(header, new_node, comp, pdepth);
+         insert_equal_lower_bound_check(header, new_node, comp, commit_data, pdepth);
       }
+   }
+
+   template<class NodePtrCompare>
+   static void insert_equal_upper_bound_check
+      (node_ptr h, node_ptr new_node, NodePtrCompare comp, insert_commit_data & commit_data, std::size_t *pdepth = 0)
+   {  insert_equal_check_impl(true, h, new_node, comp, commit_data, pdepth);  }
+
+   template<class NodePtrCompare>
+   static void insert_equal_lower_bound_check
+      (node_ptr h, node_ptr new_node, NodePtrCompare comp, insert_commit_data & commit_data, std::size_t *pdepth = 0)
+   {  insert_equal_check_impl(false, h, new_node, comp, commit_data, pdepth);  }
+
+   template<class NodePtrCompare>
+   static node_ptr insert_equal
+      (node_ptr h, node_ptr hint, node_ptr new_node, NodePtrCompare comp, std::size_t *pdepth = 0)
+   {
+      insert_commit_data commit_data;
+      insert_equal_check(h, hint, new_node, comp, commit_data, pdepth);
+      link(h, new_node, commit_data.node, commit_data.link_left);
+      return new_node;
+   }
+
+   template<class NodePtrCompare>
+   static node_ptr insert_equal_upper_bound
+      (node_ptr h, node_ptr new_node, NodePtrCompare comp, std::size_t *pdepth = 0)
+   {
+      insert_commit_data commit_data;
+      insert_equal_upper_bound_check(h, new_node, comp, commit_data, pdepth);
+      link(h, new_node, commit_data.node, commit_data.link_left);
+      return new_node;
+   }
+
+   template<class NodePtrCompare>
+   static node_ptr insert_equal_lower_bound
+      (node_ptr h, node_ptr new_node, NodePtrCompare comp, std::size_t *pdepth = 0)
+   {
+      insert_commit_data commit_data;
+      insert_equal_lower_bound_check(h, new_node, comp, commit_data, pdepth);
+      link(h, new_node, commit_data.node, commit_data.link_left);
+      return new_node;
    }
 
    //! <b>Requires</b>: p can't be a header node.
@@ -1069,48 +1082,6 @@ class tree_algorithms
          p = p_parent;
       }
       return depth;
-   }
-
-   template<class NodePtrCompare>
-   static node_ptr insert_equal_upper_bound
-      (node_ptr h, node_ptr new_node, NodePtrCompare comp, std::size_t *pdepth = 0)
-   {
-      std::size_t depth = 0;
-      node_ptr y(h);
-      node_ptr x(NodeTraits::get_parent(y));
-
-      while(x){
-         ++depth;
-         y = x;
-         x = comp(new_node, x) ? 
-               NodeTraits::get_left(x) : NodeTraits::get_right(x);
-      }
-
-      bool link_left = (y == h) || comp(new_node, y);
-      link(h, new_node, y, link_left);
-      if(pdepth)  *pdepth = depth;
-      return new_node;
-   }
-
-   template<class NodePtrCompare>
-   static node_ptr insert_equal_lower_bound
-      (node_ptr h, node_ptr new_node, NodePtrCompare comp, std::size_t *pdepth = 0)
-   {
-      std::size_t depth = 0;
-      node_ptr y(h);
-      node_ptr x(NodeTraits::get_parent(y));
-
-      while(x){
-         ++depth;
-         y = x;
-         x = !comp(x, new_node) ? 
-               NodeTraits::get_left(x) : NodeTraits::get_right(x);
-      }
-
-      bool link_left = (y == h) || !comp(y, new_node);
-      link(h, new_node, y, link_left);
-      if(pdepth)  *pdepth = depth;
-      return new_node;
    }
 
    //! <b>Requires</b>: "cloner" must be a function
@@ -1557,6 +1528,39 @@ class tree_algorithms
    }
 
    private:
+   template<class NodePtrCompare>
+   static void insert_equal_check_impl
+      (bool upper, node_ptr h, node_ptr new_node, NodePtrCompare comp, insert_commit_data & commit_data, std::size_t *pdepth = 0)
+   {
+      std::size_t depth = 0;
+      node_ptr y(h);
+      node_ptr x(NodeTraits::get_parent(y));
+      bool link_left;
+
+      if(upper){
+         while(x){
+            ++depth;
+            y = x;
+            x = comp(new_node, x) ? 
+                  NodeTraits::get_left(x) : NodeTraits::get_right(x);
+         }
+         link_left = (y == h) || comp(new_node, y);
+      }
+      else{
+         while(x){
+            ++depth;
+            y = x;
+            x = !comp(x, new_node) ? 
+                  NodeTraits::get_left(x) : NodeTraits::get_right(x);
+         }
+         link_left = (y == h) || !comp(y, new_node);
+      }
+
+      commit_data.link_left = link_left;
+      commit_data.node = y;
+      if(pdepth)  *pdepth = depth;
+   }
+
    static void erase_impl(node_ptr header, node_ptr z, data_for_rebalance &info)
    {
       node_ptr y(z);

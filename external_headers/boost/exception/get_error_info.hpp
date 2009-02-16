@@ -20,7 +20,7 @@ boost
         struct
         strwrap
             {
-			std::string str;
+            std::string str;
             char const * ptr;
 
             explicit

@@ -378,7 +378,14 @@
             >
             {
                 // BUGBUG should be able to hold this guy by reference, no?
+                #if BOOST_WORKAROUND(BOOST_MSVC, == 1310) || \
+                    BOOST_WORKAROUND(BOOST_INTEL, BOOST_TESTED_AT(1010))
+                // These compilers don't strip top-level cv qualifiers
+                // on arguments in function types
+                typedef typename Domain::template result<void(typename T::proto_derived_expr)>::type type;
+                #else
                 typedef typename Domain::template result<void(T)>::type type;
+                #endif
 
                 /// INTERNAL ONLY
                 ///
@@ -440,16 +447,16 @@
                 /// \c Expr. This may be a value or a reference
                 typedef typename Expr::proto_child0 value_type;
 
-                /// The "value" type of the child, suitable for return by value,
+                /// The "value" type of the child, suitable for storage by value,
                 /// computed as follows:
-                /// \li <tt>T const(&)[N]</tt> becomes <tt>T const(&)[N]</tt>
-                /// \li <tt>T[N]</tt> becomes <tt>T(&)[N]</tt>
-                /// \li <tt>T(&)[N]</tt> becomes <tt>T(&)[N]</tt>
+                /// \li <tt>T const(&)[N]</tt> becomes <tt>T[N]</tt>
+                /// \li <tt>T[N]</tt> becomes <tt>T[N]</tt>
+                /// \li <tt>T(&)[N]</tt> becomes <tt>T[N]</tt>
                 /// \li <tt>R(&)(A0,...)</tt> becomes <tt>R(&)(A0,...)</tt>
                 /// \li <tt>T const &</tt> becomes <tt>T</tt>
                 /// \li <tt>T &</tt> becomes <tt>T</tt>
                 /// \li <tt>T</tt> becomes <tt>T</tt>
-                typedef typename Expr::proto_child_ref0::value_type type;
+                typedef typename detail::term_traits<typename Expr::proto_child0>::value_type type;
             };
 
             template<typename Expr>
@@ -459,7 +466,7 @@
                 /// \c Expr. This may be a value or a reference
                 typedef typename Expr::proto_child0 value_type;
 
-                /// The "reference" type of the child, suitable for return by
+                /// The "reference" type of the child, suitable for storage by
                 /// reference, computed as follows:
                 /// \li <tt>T const(&)[N]</tt> becomes <tt>T const(&)[N]</tt>
                 /// \li <tt>T[N]</tt> becomes <tt>T(&)[N]</tt>
@@ -468,7 +475,7 @@
                 /// \li <tt>T const &</tt> becomes <tt>T const &</tt>
                 /// \li <tt>T &</tt> becomes <tt>T &</tt>
                 /// \li <tt>T</tt> becomes <tt>T &</tt>
-                typedef typename Expr::proto_child_ref0::reference type;
+                typedef typename detail::term_traits<typename Expr::proto_child0>::reference type;
             };
 
             template<typename Expr>
@@ -478,7 +485,7 @@
                 /// \c Expr. This may be a value or a reference
                 typedef typename Expr::proto_child0 value_type;
 
-                /// The "const reference" type of the child, suitable for return by
+                /// The "const reference" type of the child, suitable for storage by
                 /// const reference, computed as follows:
                 /// \li <tt>T const(&)[N]</tt> becomes <tt>T const(&)[N]</tt>
                 /// \li <tt>T[N]</tt> becomes <tt>T const(&)[N]</tt>
@@ -487,7 +494,7 @@
                 /// \li <tt>T const &</tt> becomes <tt>T const &</tt>
                 /// \li <tt>T &</tt> becomes <tt>T &</tt>
                 /// \li <tt>T</tt> becomes <tt>T const &</tt>
-                typedef typename Expr::proto_child_ref0::const_reference type;
+                typedef typename detail::term_traits<typename Expr::proto_child0>::const_reference type;
             };
 
             // TODO left<> and right<> force the instantiation of Expr.
@@ -532,17 +539,22 @@
                 {
                     typedef Expr result_type;
 
-                    /// \param expr The current expression
+                    /// \param e The current expression
                     /// \pre <tt>matches\<Expr, terminal\<T\> \>::::value</tt> is \c true.
-                    /// \return \c expr
+                    /// \return \c e
                     /// \throw nothrow
-                    typename impl::expr_param operator ()(
-                        typename impl::expr_param expr
+                    #ifdef BOOST_HAS_DECLTYPE
+                    result_type
+                    #else
+                    typename impl::expr_param
+                    #endif
+                    operator ()(
+                        typename impl::expr_param e
                       , typename impl::state_param
                       , typename impl::data_param
                     ) const
                     {
-                        return expr;
+                        return e;
                     }
                 };
 
@@ -575,6 +587,49 @@
                 typedef U proto_child1;
                 /// INTERNAL ONLY
                 typedef V proto_child2;
+            };
+
+            /// \brief A metafunction for generating nullary expression types with a
+            /// specified tag type,
+            /// a grammar element for matching nullary expressions, and a
+            /// PrimitiveTransform that returns the current expression unchanged.
+            ///
+            /// Use <tt>nullary_expr\<_, _\></tt> as a grammar element to match any
+            /// nullary expression.
+            template<typename Tag, typename T>
+            struct nullary_expr : transform<nullary_expr<Tag, T>, empty_base>
+            {
+                typedef proto::expr<Tag, term<T> > type;
+                typedef type proto_base_expr;
+
+                template<typename Expr, typename State, typename Data>
+                struct impl : transform_impl<Expr, State, Data>
+                {
+                    typedef Expr result_type;
+
+                    /// \param e The current expression
+                    /// \pre <tt>matches\<Expr, nullary_expr\<Tag, T\> \>::::value</tt> is \c true.
+                    /// \return \c e
+                    /// \throw nothrow
+                    #ifdef BOOST_HAS_DECLTYPE
+                    result_type
+                    #else
+                    typename impl::expr_param
+                    #endif
+                    operator ()(
+                        typename impl::expr_param e
+                      , typename impl::state_param
+                      , typename impl::data_param
+                    ) const
+                    {
+                        return e;
+                    }
+                };
+
+                /// INTERNAL ONLY
+                typedef Tag proto_tag;
+                /// INTERNAL ONLY
+                typedef T proto_child0;
             };
 
             /// \brief A metafunction for generating unary expression types with a
@@ -1720,7 +1775,7 @@
                 /// \brief Return the Nth child of the given expression.
                 /// \param expr The expression node.
                 /// \pre <tt>is_expr\<Expr\>::::value</tt> is \c true
-                /// \pre <tt>N == 0 || N \< Expr::proto_arity::value</tt>
+                /// \pre <tt>N \< Expr::proto_arity::value</tt>
                 /// \return <tt>proto::child_c\<N\>(expr)</tt>
                 /// \throw nothrow
                 template<typename Expr>
@@ -1763,7 +1818,7 @@
                 /// \brief Return the Nth child of the given expression.
                 /// \param expr The expression node.
                 /// \pre <tt>is_expr\<Expr\>::::value</tt> is \c true
-                /// \pre <tt>N::value == 0 || N::value \< Expr::proto_arity::value</tt>
+                /// \pre <tt>N::value \< Expr::proto_arity::value</tt>
                 /// \return <tt>proto::child\<N\>(expr)</tt>
                 /// \throw nothrow
                 template<typename Expr>
@@ -1802,7 +1857,6 @@
                 /// \param expr The terminal expression node.
                 /// \pre <tt>is_expr\<Expr\>::::value</tt> is \c true
                 /// \pre <tt>0 == Expr::proto_arity::value</tt>
-                /// \pre <tt>Expr::proto_tag</tt> is <tt>tag::terminal</tt>
                 /// \return <tt>proto::value(expr)</tt>
                 /// \throw nothrow
                 template<typename Expr>
@@ -2011,13 +2065,12 @@
         /// Return the Nth child of the specified Proto expression. If
         /// \c N is not specified, as in \c child(expr), then \c N is assumed
         /// to be <tt>mpl::long_\<0\></tt>. The child is returned by
-        /// reference. If the expression is holding the child in a
-        /// <tt>ref_\<\></tt> wrapper, it is unwrapped before it is returned.
+        /// reference.
         ///
         /// \param expr The Proto expression.
         /// \pre <tt>is_expr\<Expr\>::::value</tt> is \c true.
         /// \pre \c N is an MPL Integral Constant.
-        /// \pre <tt>N::value == 0 || N::value \< Expr::proto_arity::value</tt>
+        /// \pre <tt>N::value \< Expr::proto_arity::value</tt>
         /// \throw nothrow
         /// \return A reference to the Nth child
         template<typename N, typename Expr>
@@ -2039,7 +2092,7 @@
         /// \overload
         ///
         template<typename Expr2>
-        typename Expr2::proto_base_expr::proto_child_ref0::reference
+        typename detail::expr_traits<typename Expr2::proto_base_expr::proto_child0>::reference
         child(Expr2 &expr2 BOOST_PROTO_DISABLE_IF_IS_CONST(Expr2))
         {
             return expr2.proto_base().child0;
@@ -2048,7 +2101,7 @@
         /// \overload
         ///
         template<typename Expr2>
-        typename Expr2::proto_base_expr::proto_child_ref0::const_reference
+        typename detail::expr_traits<typename Expr2::proto_base_expr::proto_child0>::const_reference
         child(Expr2 const &expr2)
         {
             return expr2.proto_base().child0;
@@ -2057,12 +2110,11 @@
         /// \brief Return the Nth child of the specified Proto expression.
         ///
         /// Return the Nth child of the specified Proto expression. The child
-        /// is returned by reference. If the expression is holding the child in
-        /// a <tt>ref_\<\></tt> wrapper, it is unwrapped before it is returned.
+        /// is returned by reference.
         ///
         /// \param expr The Proto expression.
         /// \pre <tt>is_expr\<Expr\>::::value</tt> is \c true.
-        /// \pre <tt>N == 0 || N \< Expr::proto_arity::value</tt>
+        /// \pre <tt>N \< Expr::proto_arity::value</tt>
         /// \throw nothrow
         /// \return A reference to the Nth child
         template<long N, typename Expr>
@@ -2089,7 +2141,6 @@
         /// reference.
         ///
         /// \param expr The Proto terminal expression.
-        /// \pre \c Expr::proto_tag is \c tag::terminal.
         /// \pre <tt>N::value == 0</tt>
         /// \throw nothrow
         /// \return A reference to the terminal's value
@@ -2304,7 +2355,7 @@
             /// of a Proto expression.
             ///
             /// A metafunction that returns the type of the Nth child
-            /// of a Proto expression. \c N must be 0 or less than
+            /// of a Proto expression. \c N must be less than
             /// \c Expr::proto_arity::value.
             template<typename Expr>
             struct child_c<Expr, N>
@@ -2318,7 +2369,7 @@
                 /// \li <tt>T const &</tt> becomes <tt>T</tt>
                 /// \li <tt>T &</tt> becomes <tt>T</tt>
                 /// \li <tt>T</tt> becomes <tt>T</tt>
-                typedef typename Expr::BOOST_PP_CAT(proto_child_ref, N)::value_type type;
+                typedef typename detail::expr_traits<typename Expr::BOOST_PP_CAT(proto_child, N)>::value_type type;
             };
 
             template<typename Expr>
@@ -2333,7 +2384,7 @@
                 /// \li <tt>T const &</tt> becomes <tt>T const &</tt>
                 /// \li <tt>T &</tt> becomes <tt>T &</tt>
                 /// \li <tt>T</tt> becomes <tt>T &</tt>
-                typedef typename Expr::BOOST_PP_CAT(proto_child_ref, N)::reference type;
+                typedef typename detail::expr_traits<typename Expr::BOOST_PP_CAT(proto_child, N)>::reference type;
 
                 /// INTERNAL ONLY
                 ///
@@ -2355,7 +2406,7 @@
                 /// \li <tt>T const &</tt> becomes <tt>T const &</tt>
                 /// \li <tt>T &</tt> becomes <tt>T &</tt>
                 /// \li <tt>T</tt> becomes <tt>T const &</tt>
-                typedef typename Expr::BOOST_PP_CAT(proto_child_ref, N)::const_reference type;
+                typedef typename detail::expr_traits<typename Expr::BOOST_PP_CAT(proto_child, N)>::const_reference type;
 
                 /// INTERNAL ONLY
                 ///

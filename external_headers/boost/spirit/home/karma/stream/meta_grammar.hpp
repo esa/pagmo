@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
+//  Copyright (c) 2001-2009 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -75,7 +75,7 @@ namespace boost { namespace spirit { namespace karma
             // stream, wstream
             meta_grammar::compose_empty<
                 proto::if_<
-                    is_stream_tag<proto::_arg, karma::domain>()
+                    is_stream_tag<proto::_child, karma::domain>()
                 >,
                 karma::domain,
                 mpl::identity<extract_any_stream_director<mpl::_> >
@@ -84,7 +84,7 @@ namespace boost { namespace spirit { namespace karma
             meta_grammar::compose_function1_eval<
                 proto::function<
                     proto::if_<
-                        is_stream_tag<proto::_arg, karma::domain>()
+                        is_stream_tag<proto::_child, karma::domain>()
                     >,
                     proto::_
                 >,

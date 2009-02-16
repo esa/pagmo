@@ -74,9 +74,8 @@ class shared_memory_object
    //!Moves the ownership of "moved"'s shared memory object to *this. 
    //!After the call, "moved" does not represent any shared memory object. 
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   shared_memory_object
-      (const detail::moved_object<shared_memory_object> moved)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   shared_memory_object(detail::moved_object<shared_memory_object> moved)
       :  m_handle(file_handle_t(detail::invalid_file()))
    {  this->swap(moved.get());   }
    #else
@@ -88,7 +87,7 @@ class shared_memory_object
    //!Moves the ownership of "moved"'s shared memory to *this.
    //!After the call, "moved" does not represent any shared memory. 
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    shared_memory_object &operator=
       (detail::moved_object<shared_memory_object> moved)
    {  
@@ -106,7 +105,13 @@ class shared_memory_object
    #endif
 
    //!Swaps the shared_memory_objects. Does not throw
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<shared_memory_object> mother)
+   {  this->swap(mother.get());  }
    void swap(shared_memory_object &other);
+   #else
+   void swap(shared_memory_object &&other);
+   #endif
 
    //!Erases a shared memory object from the system.
    //!Returns false on error. Never throws
@@ -168,7 +173,11 @@ inline const char *shared_memory_object::get_name() const
 inline bool shared_memory_object::get_size(offset_t &size) const
 {  return detail::get_file_size((file_handle_t)m_handle, size);  }
 
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 inline void shared_memory_object::swap(shared_memory_object &other)
+#else
+inline void shared_memory_object::swap(shared_memory_object &&other)
+#endif
 {  
    std::swap(m_handle,  other.m_handle);
    std::swap(m_mode,    other.m_mode);

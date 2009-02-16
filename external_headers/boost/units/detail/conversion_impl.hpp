@@ -113,7 +113,8 @@ struct base_unit_converter_base<Source, BOOST_UNITS_MAKE_HETEROGENEOUS_UNIT(Sour
     static const bool is_defined = true;
     typedef one type;
     static type value() {
-        return(one());
+        one result;
+        return(result);
     }
 };
 
@@ -172,7 +173,8 @@ struct call_base_unit_converter_base_unit_impl<false, true>
         typedef do_call_base_unit_converter<Dest, typename Source::unit_type> converter;
         typedef typename divide_typeof_helper<one, typename converter::type>::type type;
         static type value() {
-            return(one() / converter::value());
+            one numerator;
+            return(numerator / converter::value());
         }
     };
 };
@@ -232,8 +234,9 @@ struct get_default_conversion_impl<0>
     {
         typedef unit<dimensionless_type, heterogeneous_system<heterogeneous_system_impl<dimensionless_type, dimensionless_type, no_scale> > > unit_type;
         typedef one type;
-        static type value() {
-            return(type());
+        static one value() {
+            one result;
+            return(result);
         }
     };
 };
@@ -322,7 +325,7 @@ struct conversion_impl<0>
     struct apply
     {
         typedef one type;
-        static type value() { return(one()); }
+        static type value() { one result; return(result); }
     };
 };
 
@@ -482,7 +485,8 @@ struct conversion_factor_helper<unit<D, homogeneous_system<L1> >, unit<D, hetero
     typedef typename multiply_typeof_helper<typename impl::type, typename scale::type>::type type;
     static type value()
     {
-        return(one() / (impl::value() * scale::value()));
+        one numerator;
+        return(numerator / (impl::value() * scale::value()));
     }
 };
 

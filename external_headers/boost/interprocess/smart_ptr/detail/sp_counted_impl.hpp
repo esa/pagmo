@@ -84,7 +84,8 @@ class sp_counted_impl_pd
       this_pointer this_ptr (this);
       //Do it now!
       scoped_ptr<this_type, 
-                 scoped_ptr_dealloc_functor<this_allocator> >(this_ptr, a_copy);
+                 scoped_ptr_dealloc_functor<this_allocator> >
+         deallocator(this_ptr, a_copy);
       typedef typename this_allocator::value_type value_type;
       detail::get_pointer(this_ptr)->~value_type();
    }

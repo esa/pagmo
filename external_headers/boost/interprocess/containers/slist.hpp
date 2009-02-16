@@ -178,7 +178,7 @@ class slist
       detail::intrusive_slist_type<A>::type           Icont;
    typedef detail::node_alloc_holder<A, Icont>        AllocHolder;
    typedef typename AllocHolder::NodePtr              NodePtr;
-   typedef list <T, A>                                ThisType;
+   typedef slist <T, A>                               ThisType;
    typedef typename AllocHolder::NodeAlloc            NodeAlloc;
    typedef typename AllocHolder::ValAlloc             ValAlloc;
    typedef typename AllocHolder::Node                 Node;
@@ -384,11 +384,11 @@ class slist
 
    //! <b>Effects</b>: Move constructor. Moves mx's resources to *this.
    //!
-   //! <b>Throws</b>: If allocator_type's default constructor throws.
+   //! <b>Throws</b>: If allocator_type's copy constructor throws.
    //! 
    //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   slist(const detail::moved_object<slist> &x)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   slist(detail::moved_object<slist> x)
       : AllocHolder(detail::move_impl((AllocHolder&)x.get()))
    {}
    #else
@@ -421,8 +421,8 @@ class slist
    //! <b>Throws</b>: If memory allocation throws or T's copy constructor throws.
    //!
    //! <b>Complexity</b>: Linear to the number of elements in x.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   slist& operator= (const detail::moved_object<slist>& mx)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   slist& operator= (detail::moved_object<slist> mx)
    {
       if (&mx.get() != this){
          this->clear();
@@ -448,7 +448,7 @@ class slist
    //!
    //! <b>Complexity</b>: Linear to the number of elements.
    ~slist() 
-   {  this->clear(); }
+   {} //AllocHolder clears the slist
 
    //! <b>Effects</b>: Returns a copy of the internal allocator.
    //! 
@@ -597,7 +597,13 @@ class slist
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Complexity</b>: Linear to the number of elements on *this and x.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<slist> x)
+   {  this->swap(x.get()); }
    void swap(slist& x)
+   #else
+   void swap(slist &&x)
+   #endif
    {  AllocHolder::swap(x);   }
 
    //! <b>Requires</b>: !empty()
@@ -637,8 +643,8 @@ class slist
    //! <b>Throws</b>: If memory allocation throws.
    //!
    //! <b>Complexity</b>: Amortized constant time.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void push_front(const detail::moved_object<T>& x)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void push_front(detail::moved_object<T> x)
    {  this->icont().push_front(*this->create_node(x));  }
    #else
    void push_front(T && x)
@@ -702,8 +708,8 @@ class slist
    //!
    //! <b>Note</b>: Does not affect the validity of iterators and references of
    //!   previous values.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert_after(const_iterator prev_pos, const detail::moved_object<value_type>& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   iterator insert_after(const_iterator prev_pos, detail::moved_object<value_type> x) 
    {  return iterator(this->icont().insert_after(prev_pos.get(), *this->create_node(x))); }
    #else
    iterator insert_after(const_iterator prev_pos, value_type && x) 
@@ -760,8 +766,8 @@ class slist
    //! <b>Throws</b>: If memory allocation throws.
    //!
    //! <b>Complexity</b>: Linear to the elements before p.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert(const_iterator p, const detail::moved_object<value_type>& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   iterator insert(const_iterator p, detail::moved_object<value_type> x) 
    {  return this->insert_after(previous(p), x); }
    #else
    iterator insert(const_iterator p, value_type && x) 
@@ -1000,7 +1006,13 @@ class slist
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of
    //!    this list. Iterators of this list and all the references are not invalidated.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void splice_after(const_iterator prev_pos, detail::moved_object<slist> x)
+   {  this->splice_after(prev_pos, x.get());  }
    void splice_after(const_iterator prev_pos, slist& x)
+   #else
+   void splice_after(const_iterator prev_pos, slist&& x)
+   #endif
    {
       if((NodeAlloc&)*this == (NodeAlloc&)x){
          this->icont().splice_after(prev_pos.get(), x.icont());
@@ -1009,12 +1021,6 @@ class slist
          throw std::runtime_error("slist::splice called with unequal allocators");
       }
    }
-
-   //void splice_after(const_iterator prev_pos, const detail::moved_object<slist>& x)
-   //{  this->splice_after(prev_pos, x.get()); }
-
-   // Moves the element that follows prev to *this, inserting it immediately
-   //  after p.  This is constant time.
 
    //! <b>Requires</b>: prev_pos must be a valid iterator of this.
    //!   i must point to an element contained in list x.
@@ -1030,7 +1036,13 @@ class slist
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of this
    //!   list. Iterators of this list and all the references are not invalidated.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void splice_after(const_iterator prev_pos, detail::moved_object<slist> x, const_iterator prev)
+   {  this->splice_after(prev_pos, x.get(), prev);  }
    void splice_after(const_iterator prev_pos, slist& x, const_iterator prev)
+   #else
+   void splice_after(const_iterator prev_pos, slist&& x, const_iterator prev)
+   #endif
    {
       if((NodeAlloc&)*this == (NodeAlloc&)x){
          this->icont().splice_after(prev_pos.get(), x.icont(), prev.get());
@@ -1039,13 +1051,6 @@ class slist
          throw std::runtime_error("slist::splice called with unequal allocators");
       }
    }
-
-   //void splice_after(const_iterator prev_pos, const detail::moved_object<slist>& x, iterator prev)
-   //{  return splice_after(prev_pos, x.get(), prev);   }
-
-   // Moves the range [before_first + 1, before_last + 1) to *this,
-   //  inserting it immediately after p.  This is constant time.
-
 
    //! <b>Requires</b>: prev_pos must be a valid iterator of this.
    //!   before_first and before_last must be valid iterators of x.
@@ -1061,8 +1066,16 @@ class slist
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of this
    //!   list. Iterators of this list and all the references are not invalidated.
-   void splice_after(const_iterator prev_pos,      slist& x, 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void splice_after(const_iterator prev_pos,      detail::moved_object<slist> x, 
                      const_iterator before_first,  const_iterator before_last)
+   {  this->splice_after(prev_pos, x.get(), before_first, before_last);  }
+   void splice_after(const_iterator prev_pos,      slist& x, 
+      const_iterator before_first,  const_iterator before_last)
+   #else
+   void splice_after(const_iterator prev_pos,      slist&& x, 
+      const_iterator before_first,  const_iterator before_last)
+   #endif
    {
       if((NodeAlloc&)*this == (NodeAlloc&)x){
          this->icont().splice_after
@@ -1072,10 +1085,6 @@ class slist
          throw std::runtime_error("slist::splice called with unequal allocators");
       }
    }
-
-   //void splice_after(const_iterator prev_pos,      const detail::moved_object<slist>& x, 
-   //                  const_iterator before_first,  const_iterator before_last)
-   //{  this->splice_after(prev_pos, x.get(), before_first, before_last); }
 
    //! <b>Requires</b>: prev_pos must be a valid iterator of this.
    //!   before_first and before_last must be valid iterators of x.
@@ -1092,9 +1101,19 @@ class slist
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of this
    //!   list. Iterators of this list and all the references are not invalidated.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void splice_after(const_iterator prev_pos,      detail::moved_object<slist> x, 
+                     const_iterator before_first,  const_iterator before_last,
+                     size_type n)
+   {  this->splice_after(prev_pos, x.get(), before_first, before_last, n);  }
    void splice_after(const_iterator prev_pos,      slist& x, 
                      const_iterator before_first,  const_iterator before_last,
                      size_type n)
+   #else
+   void splice_after(const_iterator prev_pos,      slist&& x, 
+                     const_iterator before_first,  const_iterator before_last,
+                     size_type n)
+   #endif
    {
       if((NodeAlloc&)*this == (NodeAlloc&)x){
          this->icont().splice_after
@@ -1104,10 +1123,6 @@ class slist
          throw std::runtime_error("slist::splice called with unequal allocators");
       }
    }
-
-   //void splice_after(const_iterator prev_pos,      const detail::moved_object<slist>& x, 
-   //                  const_iterator before_first,  const_iterator before_last, size_type n)
-   //{  this->splice_after(prev_pos, x.get(), before_first, before_last, n); }
 
    //! <b>Requires</b>: p must point to an element contained
    //!   by the list. x != *this
@@ -1122,11 +1137,14 @@ class slist
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of
    //!    this list. Iterators of this list and all the references are not invalidated.
-   void splice(const_iterator p, slist& x) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void splice(const_iterator p, detail::moved_object<ThisType> x) 
+   {  this->splice(p, x.get());  }
+   void splice(const_iterator p, ThisType& x) 
+   #else
+   void splice(const_iterator p, ThisType&& x) 
+   #endif
    {  this->splice_after(this->previous(p), x);  }
-
-   //void splice(const_iterator p, const detail::moved_object<slist>& x) 
-   //{  return this->splice(p, x.get());  }
 
    //! <b>Requires</b>: p must point to an element contained
    //!   by this list. i must point to an element contained in list x.
@@ -1142,11 +1160,14 @@ class slist
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of this
    //!   list. Iterators of this list and all the references are not invalidated.
-   void splice(const_iterator p, slist& x, const_iterator i) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void splice(const_iterator p, detail::moved_object<ThisType> x, const_iterator i)
+   {  this->splice(p, x.get(), i);  }
+   void splice(const_iterator p, slist& x, const_iterator i)
+   #else
+   void splice(const_iterator p, slist&& x, const_iterator i)
+   #endif
    {  this->splice_after(previous(p), x, i);  }
-
-   //void splice(const_iterator p, const detail::moved_object<slist>& x, const_iterator i)
-   //{  this->splice(p, x.get(), i);   }
 
    //! <b>Requires</b>: p must point to an element contained
    //!   by this list. first and last must point to elements contained in list x.
@@ -1162,11 +1183,14 @@ class slist
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of this
    //!   list. Iterators of this list and all the references are not invalidated.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void splice(const_iterator p, detail::moved_object<ThisType> x, const_iterator first, const_iterator last)
+   {  this->splice(p, x.get(), first, last);  }
    void splice(const_iterator p, slist& x, const_iterator first, const_iterator last)
+   #else
+   void splice(const_iterator p, slist&& x, const_iterator first, const_iterator last)
+   #endif
    {  this->splice_after(previous(p), x, previous(first), previous(last));  }
-
-   //void splice(const_iterator p, const detail::moved_object<slist>& x, const_iterator first, const_iterator last)
-   //{  this->splice(p, x.get(), first, last);  }
 
    //! <b>Effects</b>: Reverses the order of elements in the list. 
    //! 
@@ -1244,11 +1268,14 @@ class slist
    //! 
    //! <b>Complexity</b>: This function is linear time: it performs at most
    //!   size() + x.size() - 1 comparisons.
-   void merge(slist& x)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void merge(detail::moved_object<slist<T, A> > x)
+   {  this->merge(x.get());  }
+   void merge(slist<T, A>& x)
+   #else
+   void merge(slist<T, A>&& x)
+   #endif
    {  this->merge(x, value_less()); }
-
-   //void merge(const detail::moved_object<slist>& x)
-   //{  this->merge(x.get(), value_less()); }
 
    //! <b>Requires</b>: p must be a comparison function that induces a strict weak
    //!   ordering and both *this and x must be sorted according to that ordering
@@ -1264,8 +1291,16 @@ class slist
    //!   size() + x.size() - 1 comparisons.
    //! 
    //! <b>Note</b>: Iterators and references to *this are not invalidated.
-   template <class StrictWeakOrdering> 
-   void merge(slist& x, StrictWeakOrdering comp)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   template <class StrictWeakOrdering>
+   void merge(detail::moved_object<slist<T, A> > x, StrictWeakOrdering comp)
+   {  this->merge(x.get(), comp);  }
+   template <class StrictWeakOrdering>
+   void merge(slist<T, A>& x, StrictWeakOrdering comp)
+   #else
+   template <class StrictWeakOrdering>
+   void merge(slist<T, A>&& x, StrictWeakOrdering comp)
+   #endif
    {
       if((NodeAlloc&)*this == (NodeAlloc&)x){
          this->icont().merge(x.icont(),
@@ -1275,10 +1310,6 @@ class slist
          throw std::runtime_error("list::merge called with unequal allocators");
       }
    }
-
-   //template <class StrictWeakOrdering> 
-   //void merge(const detail::moved_object<slist>& x, StrictWeakOrdering comp)
-   //{  this->merge(x.get(), comp);  }
 
    //! <b>Effects</b>: This function sorts the list *this according to std::less<value_type>. 
    //!   The sort is stable, that is, the relative order of equivalent elements is preserved.
@@ -1509,17 +1540,17 @@ inline bool
 operator>=(const slist<T,A>& sL1, const slist<T,A>& sL2)
    {  return !(sL1 < sL2); }
 
-#ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 template <class T, class A>
 inline void swap(slist<T,A>& x, slist<T,A>& y) 
    {  x.swap(y);  }
 
 template <class T, class A>
-inline void swap(const detail::moved_object<slist<T,A> >& x, slist<T,A>& y) 
+inline void swap(detail::moved_object<slist<T,A> > x, slist<T,A>& y) 
    {  x.get().swap(y);  }
 
 template <class T, class A>
-inline void swap(slist<T,A>& x, const detail::moved_object<slist<T,A> >& y) 
+inline void swap(slist<T,A>& x, detail::moved_object<slist<T,A> > y) 
    {  x.swap(y.get());  }
 #else
 template <class T, class A>

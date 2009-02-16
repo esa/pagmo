@@ -78,14 +78,14 @@ class upgradable_lock
    //!Postconditions: owns() == false, and mutex() == &m.
    //!Notes: The constructor will not take ownership of the mutex. There is no effect
    //!   required on the referenced mutex.
-   upgradable_lock(mutex_type& m, detail::defer_lock_type)
+   upgradable_lock(mutex_type& m, defer_lock_type)
       : mp_mutex(&m), m_locked(false)
    {}
 
    //!Postconditions: owns() == true, and mutex() == &m.
    //!Notes: The constructor will suppose that the mutex is already upgradable
    //!   locked. There is no effect required on the referenced mutex.
-   upgradable_lock(mutex_type& m, detail::accept_ownership_type)
+   upgradable_lock(mutex_type& m, accept_ownership_type)
       : mp_mutex(&m), m_locked(true)
    {}
 
@@ -97,7 +97,7 @@ class upgradable_lock
    //!   handles recursive locking depends upon the mutex. If the mutex_type
    //!   does not support try_lock_upgradable, this constructor will fail at
    //!   compile time if instantiated, but otherwise have no effect.
-   upgradable_lock(mutex_type& m, detail::try_to_lock_type)
+   upgradable_lock(mutex_type& m, try_to_lock_type)
       : mp_mutex(&m), m_locked(false)
    {  m_locked = mp_mutex->try_lock_upgradable();   }
 
@@ -123,7 +123,7 @@ class upgradable_lock
    //!   signature. An non-moved upgradable_lock can be moved with the
    //!   expression: "detail::move_impl(lock);". This constructor does not alter the
    //!   state of the mutex, only potentially who owns it.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    upgradable_lock(detail::moved_object<upgradable_lock<mutex_type> > upgr)
       : mp_mutex(0), m_locked(upgr.get().owns())
    {  mp_mutex = upgr.get().release(); }
@@ -142,7 +142,7 @@ class upgradable_lock
    //!   Only a moved sharable_lock's will match this
    //!   signature. An non-moved sharable_lock can be moved with the
    //!   expression: "detail::move_impl(lock);".
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    upgradable_lock(detail::moved_object<scoped_lock<mutex_type> > scop)
       : mp_mutex(0), m_locked(false)
    {
@@ -181,9 +181,9 @@ class upgradable_lock
    //!   in the first place, the mutex merely changes type to an unlocked
    //!   "upgradable lock". If the "read lock" is held, then mutex transfer
    //!   occurs only if it can do so in a non-blocking manner.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    upgradable_lock( detail::moved_object<sharable_lock<mutex_type> > shar
-                  , detail::try_to_lock_type)
+                  , try_to_lock_type)
       : mp_mutex(0), m_locked(false)
    {
       sharable_lock<mutex_type> &s_lock = shar.get();
@@ -198,7 +198,7 @@ class upgradable_lock
    }
    #else
    upgradable_lock( sharable_lock<mutex_type> &&shar
-                  , detail::try_to_lock_type)
+                  , try_to_lock_type)
       : mp_mutex(0), m_locked(false)
    {
       sharable_lock<mutex_type> &s_lock = shar;
@@ -229,7 +229,7 @@ class upgradable_lock
    //!   mutex before the assignment. In this case, this will own the mutex
    //!   after the assignment (and upgr will not), but the mutex's upgradable lock
    //!   count will be decremented by one.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    upgradable_lock &operator=(detail::moved_object<upgradable_lock<mutex_type> > upgr)
    {
       if(this->owns())
@@ -336,7 +336,7 @@ class upgradable_lock
 
    //!Effects: Swaps state with moved lock. 
    //!Throws: Nothing.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    void swap(detail::moved_object<upgradable_lock<mutex_type> > other)
    {
       std::swap(mp_mutex, other.get().mp_mutex);

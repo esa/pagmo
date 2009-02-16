@@ -169,10 +169,12 @@ namespace boost
             catch(thread_interrupted const&)
             {
             }
-            catch(...)
-            {
-                std::terminate();
-            }
+// Removed as it stops the debugger identifying the cause of the exception
+// Unhandled exceptions still cause the application to terminate
+//             catch(...)
+//             {
+//                 std::terminate();
+//             }
             run_thread_exit_callbacks();
             return 0;
         }

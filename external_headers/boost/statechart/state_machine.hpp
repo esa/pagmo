@@ -549,9 +549,9 @@ class state_machine : noncopyable
         add_impl( pState, *pState );
 
       if ( isInnermostCommonOuter_ ||
-        is_in_highest_orthogonal_region< State >() &&
+        ( is_in_highest_orthogonal_region< State >() &&
         ( get_pointer( pOutermostUnstableState_ ) ==
-          pState->State::outer_state_ptr() ) )
+          pState->State::outer_state_ptr() ) ) )
       {
         isInnermostCommonOuter_ = false;
         pOutermostUnstableState_ = pNewOutermostUnstableStateCandidate;

@@ -382,7 +382,7 @@ struct index_data
    index_data(void *ptr) : m_ptr(ptr){}
 
    void *value() const
-   {  return static_cast<void>(detail::get_pointer(m_ptr));  }
+   {  return static_cast<void*>(detail::get_pointer(m_ptr));  }
 };
 
 template<class MemoryAlgorithm>

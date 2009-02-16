@@ -24,8 +24,9 @@
 
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-# include <boost/xpressive/proto/proto.hpp>
-# include <boost/xpressive/proto/transform.hpp>
+# include <boost/proto/core.hpp>
+# include <boost/proto/transform/arg.hpp>
+# include <boost/proto/transform/when.hpp>
 # include <boost/xpressive/detail/core/icase.hpp>
 # include <boost/xpressive/detail/static/compile.hpp>
 # include <boost/xpressive/detail/static/modifier.hpp>
@@ -46,7 +47,7 @@ namespace boost { namespace xpressive { namespace detail
             // Marks numbers must be integers greater than 0.
             BOOST_ASSERT(mark_nbr > 0);
             mark_placeholder mark = {mark_nbr};
-            proto::arg(*this) = mark;
+            proto::value(*this) = mark;
         }
 
         operator basic_mark_tag const &() const
@@ -92,8 +93,8 @@ namespace boost { namespace xpressive { namespace detail
     // s1 or -s1
     struct SubMatch
       : proto::or_<
-            proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
-          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, minus_one())              >
+            proto::when<basic_mark_tag,                push_back(proto::_data, mark_number(proto::_value))   >
+          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_data, minus_one())                  >
         >
     {};
 
@@ -119,12 +120,10 @@ namespace boost { namespace xpressive { namespace detail
     #endif
 
     // replace "Expr" with "keep(*State) >> Expr"
-    struct skip_primitives : proto::callable
+    struct skip_primitives : proto::transform<skip_primitives>
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
             typedef
                 typename proto::shift_right<
@@ -134,17 +133,18 @@ namespace boost { namespace xpressive { namespace detail
                     >::type
                   , Expr
                 >::type
-            type;
-        };
+            result_type;
 
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &state, Visitor &) const
-        {
-            typedef typename result<void(Expr, State, Visitor)>::type type;
-            type that = {{{state}}, expr};
-            return that;
-        }
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param
+            ) const
+            {
+                result_type that = {{{state}}, expr};
+                return that;
+            }
+        };
     };
 
     struct Primitives
@@ -185,12 +185,16 @@ namespace boost { namespace xpressive { namespace detail
         struct result<This(Expr)>
         {
             typedef
+                SkipGrammar::impl<
+                    typename proto::result_of::as_expr<Expr>::type
+                  , skip_type const &
+                  , mpl::void_ &
+                >
+            skip_transform;
+
+            typedef
                 typename proto::shift_right<
-                    typename SkipGrammar::result<void(
-                        typename proto::result_of::as_expr<Expr>::type
-                      , skip_type
-                      , mpl::void_
-                    )>::type
+                    typename skip_transform::result_type
                   , typename proto::dereference<skip_type>::type
                 >::type
             type;
@@ -201,9 +205,12 @@ namespace boost { namespace xpressive { namespace detail
         operator ()(Expr const &expr) const
         {
             mpl::void_ ignore;
-            typedef typename result<skip_directive(Expr)>::type result_type;
-            result_type result = {SkipGrammar()(proto::as_expr(expr), this->skip_, ignore), {skip_}};
-            return result;
+            typedef result<skip_directive(Expr)> result_fun;
+            typename result_fun::type that = {
+                typename result_fun::skip_transform()(proto::as_expr(expr), this->skip_, ignore)
+              , {skip_}
+            };
+            return that;
         }
 
     private:

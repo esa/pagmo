@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -30,6 +30,7 @@
 #include <boost/intrusive/detail/transform_iterator.hpp>
 #include <boost/intrusive/link_mode.hpp>
 #include <boost/intrusive/detail/ebo_functor_holder.hpp>
+#include <boost/intrusive/detail/clear_on_destructor_base.hpp>
 //Implementation utilities
 #include <boost/intrusive/trivial_value_traits.hpp>
 #include <boost/intrusive/unordered_set_hook.hpp>
@@ -572,7 +573,9 @@ template<class T, class ...Options>
 template<class Config>
 #endif
 class hashtable_impl
+   :  private detail::clear_on_destructor_base<hashtable_impl<Config> >
 {
+   template<class C> friend class detail::clear_on_destructor_base;
    public:
    typedef typename Config::value_traits                             value_traits;
 
@@ -795,7 +798,7 @@ class hashtable_impl
    //! 
    //! <b>Throws</b>: Nothing.
    ~hashtable_impl() 
-   {  this->clear(); }
+   {}
 
    //! <b>Effects</b>: Returns an iterator pointing to the beginning of the unordered_set.
    //! 
@@ -866,7 +869,7 @@ class hashtable_impl
    key_equal key_eq() const
    {  return this->priv_equal();   }
 
-   //! <b>Effects</b>: Returns true is the container is empty.
+   //! <b>Effects</b>: Returns true if the container is empty.
    //! 
    //! <b>Complexity</b>: if constant-time size and cache_last options are disabled,
    //!   average constant time (worst case, with empty() == true: O(this->bucket_count()).
@@ -1045,6 +1048,18 @@ class hashtable_impl
       }
    }
 
+   //! <b>Requires</b>: value must be an lvalue
+   //! 
+   //! <b>Effects</b>: Inserts the value into the unordered_set.
+   //!
+   //! <b>Returns</b>: An iterator to the inserted value.
+   //! 
+   //! <b>Complexity</b>: Average case O(1), worst case O(this->size()).
+   //! 
+   //! <b>Throws</b>: If the internal hasher or the equality functor throws. Strong guarantee.
+   //! 
+   //! <b>Note</b>: Does not affect the validity of iterators and references.
+   //!   No copy-constructors are called.
    iterator insert_equal(reference value)
    {
       size_type bucket_num;
@@ -1055,6 +1070,18 @@ class hashtable_impl
       return priv_insert_equal_find(value, bucket_num, hash_value, it);
    }
 
+   //! <b>Requires</b>: Dereferencing iterator must yield an lvalue 
+   //!   of type value_type.
+   //! 
+   //! <b>Effects</b>: Equivalent to this->insert_equal(t) for each element in [b, e).
+   //! 
+   //! <b>Complexity</b>: Average case O(N), where N is std::distance(b, e).
+   //!   Worst case O(N*this->size()).
+   //! 
+   //! <b>Throws</b>: If the internal hasher or the equality functor throws. Basic guarantee.
+   //! 
+   //! <b>Note</b>: Does not affect the validity of iterators and references.
+   //!   No copy-constructors are called.
    template<class Iterator>
    void insert_equal(Iterator b, Iterator e)
    {
@@ -1092,7 +1119,7 @@ class hashtable_impl
    //! <b>Requires</b>: Dereferencing iterator must yield an lvalue 
    //!   of type value_type.
    //! 
-   //! <b>Effects</b>: Equivalent to this->insert(t) for each element in [b, e).
+   //! <b>Effects</b>: Equivalent to this->insert_unique(t) for each element in [b, e).
    //! 
    //! <b>Complexity</b>: Average case O(N), where N is std::distance(b, e).
    //!   Worst case O(N*this->size()).
@@ -1274,6 +1301,12 @@ class hashtable_impl
       this->priv_size_traits().decrement();
       priv_erasure_update_cache();
    }
+
+   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
+   template<class Disposer>
+   iterator erase_and_dispose(iterator i, Disposer disposer)
+   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!

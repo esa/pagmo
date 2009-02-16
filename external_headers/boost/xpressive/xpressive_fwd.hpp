@@ -50,8 +50,8 @@
 # endif
 #endif
 
-#include <boost/xpressive/proto/proto_fwd.hpp>
-#include <boost/xpressive/proto/traits.hpp>
+#include <boost/proto/proto_fwd.hpp>
+#include <boost/proto/traits.hpp>
 
 namespace boost { namespace xpressive
 {

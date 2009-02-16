@@ -5,18 +5,20 @@
  * Subject to the Boost Software License, Version 1.0. 
  * (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
  */
 
-
-#include "boost/date_time/time.hpp"
-#include "boost/date_time/posix_time/posix_time.hpp" //todo remove?
-#include "boost/shared_ptr.hpp"
-#include "boost/date_time/dst_rules.hpp"
-#include "boost/date_time/time_zone_base.hpp"
-#include "boost/date_time/special_defs.hpp"
 #include <string>
+#include <iomanip>
 #include <sstream>
+#include <stdexcept>
+#include <boost/shared_ptr.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/date_time/time.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp> //todo remove?
+#include <boost/date_time/dst_rules.hpp>
+#include <boost/date_time/time_zone_base.hpp>
+#include <boost/date_time/special_defs.hpp>
 
 namespace boost {
 namespace local_time {
@@ -24,19 +26,19 @@ namespace local_time {
   //! simple exception for reporting when STD or DST cannot be determined
   struct ambiguous_result : public std::logic_error
   {
-    ambiguous_result (std::string _msg="") :
-      std::logic_error(std::string("Daylight Savings Results are ambiguous: " + _msg)) {}
+    ambiguous_result (std::string const& msg = std::string()) :
+      std::logic_error(std::string("Daylight Savings Results are ambiguous: " + msg)) {}
   };
   //! simple exception for when time label given cannot exist
   struct time_label_invalid : public std::logic_error
   {
-    time_label_invalid (std::string _msg="") :
-      std::logic_error(std::string("Time label given is invalid: " + _msg)) {}
+    time_label_invalid (std::string const& msg = std::string()) :
+      std::logic_error(std::string("Time label given is invalid: " + msg)) {}
   };
   struct dst_not_valid: public std::logic_error
   {
-    dst_not_valid(std::string _msg="") :
-      std::logic_error(std::string("is_dst flag does not match resulting dst for time label given: " + _msg)) {}
+    dst_not_valid(std::string const& msg = std::string()) :
+      std::logic_error(std::string("is_dst flag does not match resulting dst for time label given: " + msg)) {}
   };
 
   //TODO: I think these should be in local_date_time_base and not 
@@ -110,17 +112,17 @@ namespace local_time {
         // ambig occurs at end, invalid at start
         if(result == invalid_time_label){
           // Ex: 2:15am local on trans-in day in nyc, dst_flag irrelevant
-          std::stringstream ss;
+          std::ostringstream ss;
           ss << "time given: " << d << ' ' << td;
-          throw time_label_invalid(ss.str());
+          boost::throw_exception(time_label_invalid(ss.str()));
         }
         else if(result != ambiguous && in_dst != dst_flag){
           // is dst_flag accurate?
           // Ex: false flag in NYC in June
-          std::stringstream ss;
-          ss << "flag given: " << (dst_flag ? "dst=true" : "dst=false")
-            << ", dst calculated: " << (in_dst ? "dst=true" : "dst=false");
-          throw dst_not_valid(ss.str());
+          std::ostringstream ss;
+          ss.setf(std::ios_base::boolalpha);
+          ss << "flag given: dst=" << dst_flag << ", dst calculated: dst=" << in_dst;
+          boost::throw_exception(dst_not_valid(ss.str()));
         }
         
         // everything checks out and conversion to utc already done
@@ -146,9 +148,9 @@ namespace local_time {
       time_is_dst_result result = check_dst(d, td, tz);
       if(result == ambiguous) {
         if(calc_option == EXCEPTION_ON_ERROR){
-          std::stringstream ss;
+          std::ostringstream ss;
           ss << "time given: " << d << ' ' << td;
-          throw ambiguous_result(ss.str());
+          boost::throw_exception(ambiguous_result(ss.str()));
         }
         else{ // NADT on error
           this->time_ = posix_time::posix_time_system::get_time_rep(date_type(date_time::not_a_date_time), time_duration_type(date_time::not_a_date_time));
@@ -156,9 +158,9 @@ namespace local_time {
       }
       else if(result == invalid_time_label){
         if(calc_option == EXCEPTION_ON_ERROR){
-          std::stringstream ss;
+          std::ostringstream ss;
           ss << "time given: " << d << ' ' << td;
-          throw time_label_invalid(ss.str());
+          boost::throw_exception(time_label_invalid(ss.str()));
         }
         else{ // NADT on error
           this->time_ = posix_time::posix_time_system::get_time_rep(date_type(date_time::not_a_date_time), time_duration_type(date_time::not_a_date_time));
@@ -278,7 +280,7 @@ namespace local_time {
     std::string to_string() const
     {
       //TODO is this a temporary function ???
-      std::stringstream ss;
+      std::ostringstream ss;
       if(this->is_special()){
         ss << utc_time();
         return ss.str();
@@ -497,7 +499,7 @@ namespace local_time {
     std::string zone_as_offset(const time_duration_type& td, 
                                const std::string& separator) const
     {
-      std::stringstream ss;
+      std::ostringstream ss;
       if(td.is_negative()) {
         // a negative duration is represented as "-[h]h:mm"
         // we require two digits for the hour. A positive duration 

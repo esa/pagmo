@@ -14,7 +14,6 @@
 #endif
 
 #include <boost/ref.hpp>
-#include <boost/mpl/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/regex_impl.hpp>

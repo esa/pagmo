@@ -109,7 +109,12 @@ void basic_regex_parser<charT, traits>::parse(const charT* p1, const charT* p2, 
    m_position = m_base = p1;
    m_end = p2;
    // empty strings are errors:
-   if(p1 == p2)
+   if((p1 == p2) && 
+      (
+         ((l_flags & regbase::main_option_type) != regbase::perl_syntax_group)
+         || (l_flags & regbase::no_empty_expressions)
+      )
+     )
    {
       fail(regex_constants::error_empty, 0);
       return;
@@ -368,7 +373,11 @@ bool basic_regex_parser<charT, traits>::parse_open_paren()
    //
    unsigned markid = 0;
    if(0 == (this->flags() & regbase::nosubs))
+   {
       markid = ++m_mark_count;
+      if(this->flags() & regbase::save_subexpression_location)
+         this->m_pdata->m_subs.push_back(std::pair<std::size_t, std::size_t>(std::distance(m_base, m_position) - 1, 0));
+   }
    re_brace* pb = static_cast<re_brace*>(this->append_state(syntax_element_startmark, sizeof(re_brace)));
    pb->index = markid;
    std::ptrdiff_t last_paren_start = this->getoffset(pb);
@@ -415,6 +424,8 @@ bool basic_regex_parser<charT, traits>::parse_open_paren()
       return false;
    }
    BOOST_ASSERT(this->m_traits.syntax_type(*m_position) == regex_constants::syntax_close_mark);
+   if(markid && (this->flags() & regbase::save_subexpression_location))
+      this->m_pdata->m_subs.at(markid - 1).second = std::distance(m_base, m_position);
    ++m_position;
    //
    // append closing parenthesis state:
@@ -920,7 +931,15 @@ bool basic_regex_parser<charT, traits>::parse_alt()
    // error check: if there have been no previous states,
    // or if the last state was a '(' then error:
    //
-   if((this->m_last_state == 0) || (this->m_last_state->type == syntax_element_startmark))
+   if(
+      ((this->m_last_state == 0) || (this->m_last_state->type == syntax_element_startmark))
+      &&
+      !(
+         ((this->flags() & regbase::main_option_type) == regbase::perl_syntax_group)
+           &&
+         ((this->flags() & regbase::no_empty_expressions) == 0)
+        )
+      )
    {
       fail(regex_constants::error_empty, this->m_position - this->m_base);
       return false;
@@ -2069,7 +2088,14 @@ bool basic_regex_parser<charT, traits>::unwind_alts(std::ptrdiff_t last_paren_st
    // alternative then that's an error:
    //
    if((this->m_alt_insert_point == static_cast<std::ptrdiff_t>(this->m_pdata->m_data.size()))
-      && m_alt_jumps.size() && (m_alt_jumps.back() > last_paren_start))
+      && m_alt_jumps.size() && (m_alt_jumps.back() > last_paren_start)
+      &&
+      !(
+         ((this->flags() & regbase::main_option_type) == regbase::perl_syntax_group)
+           &&
+         ((this->flags() & regbase::no_empty_expressions) == 0)
+        )
+      )
    {
       fail(regex_constants::error_empty, this->m_position - this->m_base);
       return false;

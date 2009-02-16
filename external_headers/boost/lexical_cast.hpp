@@ -60,15 +60,21 @@ namespace boost
     {
     public:
         bad_lexical_cast() :
-        source(&typeid(void)), target(&typeid(void))
+#ifndef BOOST_NO_TYPEID
+          source(&typeid(void)), target(&typeid(void))
+#else
+          source(0), target(0) // this breaks getters
+#endif
         {
         }
+
         bad_lexical_cast(
             const std::type_info &source_type_arg,
             const std::type_info &target_type_arg) :
             source(&source_type_arg), target(&target_type_arg)
         {
         }
+
         const std::type_info &source_type() const
         {
             return *source;
@@ -77,6 +83,7 @@ namespace boost
         {
             return *target;
         }
+
         virtual const char *what() const throw()
         {
             return "bad lexical cast: "
@@ -1144,7 +1151,11 @@ namespace boost
                 if (interpreter >> result)
                     return result;
             }
+#ifndef BOOST_NO_TYPEID
             throw_exception(bad_lexical_cast(typeid(Source), typeid(Target)));
+#else
+            throw_exception(bad_lexical_cast());
+#endif
             return Target(); // normally never reached (throw_exception)
         }
     }
@@ -1183,7 +1194,11 @@ namespace boost
         Target result;
 
         if(!(interpreter << arg && interpreter >> result))
+#ifndef BOOST_NO_TYPEID
             throw_exception(bad_lexical_cast(typeid(Source), typeid(Target)));
+#else
+            throw_exception(bad_lexical_cast());
+#endif
         return result;
     }
 

@@ -36,16 +36,16 @@ namespace boost { namespace proto
           , typename Domain BOOST_PROTO_WHEN_BUILDING_DOCS(= default_domain)
         >
         struct literal
-          : extends<typename terminal<T>::type, literal<T, Domain>, Domain>
+          : extends<expr<tag::terminal, term<T> >, literal<T, Domain>, Domain>
         {
         private:
-            typedef typename terminal<T>::type terminal_type;
+            typedef expr<tag::terminal, term<T> > terminal_type;
             typedef extends<terminal_type, literal<T, Domain>, Domain> base_type;
 
         public:
-            typedef typename terminal_type::proto_child_ref0::value_type value_type;
-            typedef typename terminal_type::proto_child_ref0::reference reference;
-            typedef typename terminal_type::proto_child_ref0::const_reference const_reference;
+            typedef typename detail::term_traits<T>::value_type       value_type;
+            typedef typename detail::term_traits<T>::reference        reference;
+            typedef typename detail::term_traits<T>::const_reference  const_reference;
 
             template<typename U>
             literal(U &u)

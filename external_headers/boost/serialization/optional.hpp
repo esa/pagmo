@@ -39,7 +39,7 @@ void save(
     if (tflag){
         if(3 < ar.get_library_version()){
             const int v = version<T>::value;
-            ar << make_nvp("item_version", v);
+            ar << boost::serialization::make_nvp("item_version", v);
         }
         ar << boost::serialization::make_nvp("value", *t);
     }
@@ -56,7 +56,7 @@ void load(
     if (tflag){
         unsigned int v = 0;
         if(3 < ar.get_library_version()){
-            ar >> make_nvp("item_version", v);
+            ar >> boost::serialization::make_nvp("item_version", v);
         }
         detail::stack_construct<Archive, T> aux(ar, v);
         ar >> boost::serialization::make_nvp("value", aux.reference());

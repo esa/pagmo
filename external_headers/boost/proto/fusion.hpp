@@ -15,6 +15,7 @@
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/long.hpp>
+#include <boost/mpl/sequence_tag_fwd.hpp>
 #if BOOST_VERSION >= 103500
 #include <boost/fusion/include/is_view.hpp>
 #include <boost/fusion/include/tag_of_fwd.hpp>
@@ -511,7 +512,7 @@ namespace boost { namespace fusion
         {
             template<typename Sequence>
             struct apply
-              : mpl::long_<0 == Sequence::proto_arity::value ? 1 : Sequence::proto_arity::value>
+              : mpl::long_<0 == Sequence::proto_arity_c ? 1 : Sequence::proto_arity_c>
             {};
         };
 
@@ -545,7 +546,7 @@ namespace boost { namespace fusion
                 typedef
                     proto::detail::expr_iterator<
                         Sequence
-                      , 0 == Sequence::proto_arity::value ? 1 : Sequence::proto_arity::value
+                      , 0 == Sequence::proto_arity_c ? 1 : Sequence::proto_arity_c
                     >
                 type;
 
@@ -707,6 +708,15 @@ namespace boost { namespace fusion
     }
 
 }}
+
+namespace boost { namespace mpl
+{
+    template<typename Tag, typename Args, long Arity>
+    struct sequence_tag< proto::expr<Tag, Args, Arity> >
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
+}} 
 
 #endif // BOOST_PROTO_BUILDING_DOCS
 

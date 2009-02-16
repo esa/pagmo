@@ -8,8 +8,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_INTERPROCESS_MAPPED_FILE_HPP
-#define BOOST_INTERPROCESS_MAPPED_FILE_HPP
+#ifndef BOOST_INTERPROCESS_FILE_MAPPING_HPP
+#define BOOST_INTERPROCESS_FILE_MAPPING_HPP
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
@@ -28,8 +28,21 @@
 //!Describes file_mapping and mapped region classes
 
 namespace boost {
-
 namespace interprocess {
+
+///@cond
+
+class file_mapping;
+
+//!Trait class to detect if a type is
+//!movable
+template<>
+struct is_movable<file_mapping>
+{
+   enum {  value = true };
+};
+
+///@endcond
 
 //!A class that wraps a file-mapping that can be used to
 //!create mapped regions from the mapped files
@@ -52,10 +65,10 @@ class file_mapping
    //!modes. Throws interprocess_exception on error.
    file_mapping(const char *filename, mode_t mode);
 
-   //!Moves the ownership of "moved"'s shared memory object to *this. 
-   //!After the call, "moved" does not represent any shared memory object. 
+   //!Moves the ownership of "moved"'s file mapping object to *this. 
+   //!After the call, "moved" does not represent any file mapping object. 
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    file_mapping(detail::moved_object<file_mapping> moved)
       :  m_handle(file_handle_t(detail::invalid_file()))
    {  this->swap(moved.get());   }
@@ -65,29 +78,31 @@ class file_mapping
    {  this->swap(moved);   }
    #endif
 
-   //!Moves the ownership of "moved"'s shared memory to *this.
-   //!After the call, "moved" does not represent any shared memory. 
+   //!Moves the ownership of "moved"'s file mapping to *this.
+   //!After the call, "moved" does not represent any file mapping. 
    //!Does not throw
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   file_mapping &operator=
-      (detail::moved_object<file_mapping> moved)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   file_mapping &operator=(detail::moved_object<file_mapping> m_other)
    {  
-      file_mapping tmp(moved);
-      this->swap(tmp);
-      return *this;  
-   }
+      file_mapping &moved = m_other.get();
    #else
    file_mapping &operator=(file_mapping &&moved)
    {  
+   #endif
       file_mapping tmp(detail::move_impl(moved));
       this->swap(tmp);
       return *this;  
    }
-   #endif
 
    //!Swaps to file_mappings.
    //!Does not throw.
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<file_mapping> mother)
+   {  this->swap(mother.get());  }
    void swap(file_mapping &other);
+   #else
+   void swap(file_mapping &&other);
+   #endif
 
    //!Returns access mode
    //!used in the constructor
@@ -125,7 +140,11 @@ inline file_mapping::~file_mapping()
 inline const char *file_mapping::get_name() const
 {  return m_filename.c_str(); }
 
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 inline void file_mapping::swap(file_mapping &other)
+#else
+inline void file_mapping::swap(file_mapping &&other)
+#endif
 {  
    std::swap(m_handle, other.m_handle);
    std::swap(m_mode, other.m_mode);
@@ -170,15 +189,6 @@ inline void file_mapping::priv_close()
    }
 }
 
-
-//!Trait class to detect if a type is
-//!movable
-template<>
-struct is_movable<file_mapping>
-{
-   enum {  value = true };
-};
-
 ///@endcond
 
 //!A class that stores the name of a file
@@ -202,4 +212,4 @@ class remove_file_on_destroy
 
 #include <boost/interprocess/detail/config_end.hpp>
 
-#endif   //BOOST_INTERPROCESS_MAPPED_FILE_HPP
+#endif   //BOOST_INTERPROCESS_FILE_MAPPING_HPP

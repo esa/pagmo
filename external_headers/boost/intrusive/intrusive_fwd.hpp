@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2007
+// (C) Copyright Ion Gaztanaga  2007-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -310,6 +310,51 @@ template
 template<class ...Options>
 #endif
 class avl_set_member_hook;
+
+
+//treap/treap_set/treap_multiset
+#ifndef BOOST_INTRUSIVE_VARIADIC_TEMPLATES
+template
+   < class T
+   , class O1  = none
+   , class O2  = none
+   , class O3  = none
+   , class O4  = none
+   >
+#else
+template<class T, class ...Options>
+#endif
+class treap;
+
+#ifndef BOOST_INTRUSIVE_VARIADIC_TEMPLATES
+template
+   < class T
+   , class O1  = none
+   , class O2  = none
+   , class O3  = none
+   , class O4  = none
+   >
+#else
+template<class T, class ...Options>
+#endif
+class treap_set;
+
+#ifndef BOOST_INTRUSIVE_VARIADIC_TEMPLATES
+template
+   < class T
+   , class O1  = none
+   , class O2  = none
+   , class O3  = none
+   , class O4  = none
+   >
+#else
+template<class T, class ...Options>
+#endif
+class treap_multiset;
+
+//Default priority comparison functor
+template <class T>
+struct priority_compare;
 
 //sgtree/sg_set/sg_multiset
 #ifndef BOOST_INTRUSIVE_VARIADIC_TEMPLATES

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -129,7 +129,7 @@ struct identity
 #define BOOST_INTRUSIVE_TT_DECL 
 #endif
 
-#if defined(_MSC_EXTENSIONS) && !defined(__BORLAND__)
+#if defined(_MSC_EXTENSIONS) && !defined(__BORLAND__) && !defined(_WIN64)
 #define BOOST_INTRUSIVE_TT_TEST_MSC_FUNC_SIGS
 #endif
 

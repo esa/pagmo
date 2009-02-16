@@ -61,6 +61,7 @@ BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::bitwise_and_assign)
 BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::bitwise_or_assign)
 BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::bitwise_xor_assign)
 BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::subscript)
+BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::member)
 BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::if_else_)
 BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::function)
 

@@ -3,7 +3,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
  */
 
 #ifndef NO_BOOST_DATE_TIME_INLINE
@@ -14,7 +14,7 @@
 namespace boost {
 namespace date_time {
   //! Return the day of the week (0==Sunday, 1==Monday, etc)
-  /*! Converts a the year-month-day into a day of the week number
+  /*! Converts a year-month-day into a day of the week number
    */
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE

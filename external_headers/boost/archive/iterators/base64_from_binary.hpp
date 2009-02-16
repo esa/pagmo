@@ -18,7 +18,14 @@
 
 #include <cassert>
 
+#include <cstddef> // size_t
 #include <boost/config.hpp> // for BOOST_DEDUCED_TYPENAME
+#if defined(BOOST_NO_STDC_NAMESPACE)
+namespace std{ 
+    using ::size_t; 
+} // namespace std
+#endif
+
 #include <boost/serialization/pfto.hpp>
 
 #include <boost/iterator/transform_iterator.hpp>
@@ -43,7 +50,7 @@ struct from_6_bit {
             "0123456789"
             "+/";
         assert(t < 64);
-        return lookup_table[t];
+        return lookup_table[static_cast<size_t>(t)];
     }
 };
 

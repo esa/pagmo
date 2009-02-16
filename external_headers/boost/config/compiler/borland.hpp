@@ -158,6 +158,8 @@
 #  #endif //__BORLANDC__ >= 0x610
 #endif
 
+#define BOOST_NO_INITIALIZER_LISTS
+
 #if __BORLANDC__ >= 0x590
 #  define BOOST_HAS_TR1_HASH
 

@@ -83,6 +83,8 @@ namespace boost { namespace proto
       : Generator
     {
         typedef Grammar proto_grammar;
+
+        /// INTERNAL ONLY
         typedef void proto_is_domain_;
     };
 

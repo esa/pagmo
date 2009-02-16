@@ -182,15 +182,12 @@ template<class Archive, class Elem, class Tr>
 BOOST_ARCHIVE_OR_WARCHIVE_DECL(BOOST_PP_EMPTY())
 basic_binary_iprimitive<Archive, Elem, Tr>::~basic_binary_iprimitive(){
     // push back unread characters
-    int result = static_cast<detail::input_streambuf_access<Elem, Tr> &>(
-        m_sb
-    ).sync();
     //destructor can't throw !
-    //if(0 != result){ 
-    //    boost::serialization::throw_exception(
-    //        archive_exception(archive_exception::stream_error)
-    //    );
-    //}
+    try{
+        static_cast<detail::input_streambuf_access<Elem, Tr> &>(m_sb).sync();
+    }
+    catch(...){
+    }
 }
 
 } // namespace archive

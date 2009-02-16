@@ -78,7 +78,7 @@ class mapped_region
 
    //!Move constructor. *this will be constructed taking ownership of "other"'s 
    //!region and "other" will be left in default constructor state.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    mapped_region(detail::moved_object<mapped_region> other);
    #else
    mapped_region(mapped_region &&other);
@@ -90,7 +90,7 @@ class mapped_region
 
    //!Move assignment. If *this owns a memory mapped region, it will be
    //!destroyed and it will take ownership of "other"'s memory mapped region.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    mapped_region &operator=(detail::moved_object<mapped_region> other);
    #else
    mapped_region &operator=(mapped_region &&other);
@@ -119,7 +119,13 @@ class mapped_region
 
    //!Swaps the mapped_region with another
    //!mapped region
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<mapped_region> mother)
+   {  this->swap(mother.get());  }
    void swap(mapped_region &other);
+   #else
+   void swap(mapped_region &&other);
+   #endif
 
    //!Returns the size of the page. This size is the minimum memory that
    //!will be used by the system when mapping a memory mappable source.
@@ -158,12 +164,16 @@ inline void swap(mapped_region &x, mapped_region &y)
 {  x.swap(y);  }
 
 #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-inline mapped_region &mapped_region::operator=(detail::moved_object<mapped_region> other)
-{  this->swap(other.get());   return *this;  }
+inline mapped_region &mapped_region::operator=(detail::moved_object<mapped_region> moved)
+{
 #else
-inline mapped_region &mapped_region::operator=(mapped_region &&other)
-{  this->swap(other);   return *this;  }
+inline mapped_region &mapped_region::operator=(mapped_region &&moved)
+{
 #endif
+   mapped_region tmp(detail::move_impl(moved));
+   this->swap(tmp);
+   return *this;
+}
 
 inline mapped_region::~mapped_region() 
 {  this->priv_close(); }
@@ -543,9 +553,18 @@ const std::size_t mapped_region::page_size_holder<dummy>::PageSize
    = mapped_region::page_size_holder<dummy>::get_page_size();
 
 inline std::size_t mapped_region::get_page_size()
-{  return page_size_holder<0>::PageSize; }
+{
+   if(!page_size_holder<0>::PageSize)
+      return page_size_holder<0>::get_page_size();
+   else
+      return page_size_holder<0>::PageSize;
+}
 
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 inline void mapped_region::swap(mapped_region &other)
+#else
+inline void mapped_region::swap(mapped_region &&other)
+#endif
 {
    detail::do_swap(this->m_base, other.m_base);
    detail::do_swap(this->m_size, other.m_size);

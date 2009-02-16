@@ -42,7 +42,7 @@
                 typename Expr
               , typename Context
               , typename Tag        BOOST_PROTO_WHEN_BUILDING_DOCS(= typename Expr::proto_tag)
-              , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity::value)
+              , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity_c)
             >
             struct default_eval
             {};
@@ -190,8 +190,8 @@
               : memfun_eval<Expr, Context, is_member_function_eval<Expr, Context>::value>
             {};
 
-            template<typename Expr, typename Context>
-            struct default_eval<Expr, Context, proto::tag::terminal, 0>
+            template<typename Expr, typename Context, typename Tag>
+            struct default_eval<Expr, Context, Tag, 0>
             {
                 typedef
                     typename proto::result_of::value<Expr &>::type

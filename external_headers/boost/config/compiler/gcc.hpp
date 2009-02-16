@@ -116,6 +116,10 @@
 #  endif
 #endif
 
+#if !defined(__GXX_EXPERIMENTAL_CXX0X__) || __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)
+#  define BOOST_NO_INITIALIZER_LISTS
+#endif
+
 //
 // Potential C++0x features
 //

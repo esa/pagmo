@@ -98,8 +98,8 @@ class basic_string_base
       this->allocate_initial_block(n);
    }
 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_string_base(const detail::moved_object<basic_string_base<A> >& b)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE)
+   basic_string_base(detail::moved_object<basic_string_base<A> > b)
       :  members_(b.get().members_)
    {  
       init();
@@ -380,7 +380,13 @@ class basic_string_base
          this->members_.m_repr.long_repr().length = static_cast<typename A::size_type>(sz);
    }
 
-   void swap(basic_string_base& other) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<basic_string_base> x)
+   {  this->swap(x.get()); }
+   void swap(basic_string_base& other)
+   #else
+   void swap(basic_string_base &&other)
+   #endif
    {
       if(this->is_short()){
          if(other.is_short()){
@@ -552,8 +558,8 @@ class basic_string
    //! <b>Throws</b>: If allocator_type's copy constructor throws.
    //! 
    //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_string(const detail::moved_object<basic_string>& s) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   basic_string(detail::moved_object<basic_string> s) 
       : base_t(detail::move_impl((base_t&)s.get()))
    {}
    #else
@@ -637,8 +643,8 @@ class basic_string
    //! <b>Throws</b>: If allocator_type's copy constructor throws.
    //! 
    //! <b>Complexity</b>: Constant.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_string& operator=(const detail::moved_object<basic_string>& ms)
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   basic_string& operator=(detail::moved_object<basic_string> ms)
    {
       basic_string &s = ms.get();
       if (&s != this){
@@ -965,8 +971,8 @@ class basic_string
    {  return this->operator=(s); }
 
    //! <b>Effects</b>: Moves the resources from ms *this.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   basic_string& assign(const detail::moved_object<basic_string>& ms) 
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   basic_string& assign(detail::moved_object<basic_string> ms) 
    {  return this->operator=(ms);}
    #else
    basic_string& assign(basic_string && ms) 
@@ -1259,17 +1265,14 @@ class basic_string
    }
 
    //! <b>Effects</b>: Swaps the contents of two strings. 
-   void swap(basic_string& s) 
-   {  base_t::swap(s);  }
-
-   //! <b>Effects</b>: Swaps the contents of two strings. 
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(const detail::moved_object<basic_string>& ms) 
-   {  this->swap(ms.get());  }
+   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   void swap(detail::moved_object<basic_string> x)
+   {  this->swap(x.get()); }
+   void swap(basic_string& x)
    #else
-   void swap(basic_string && ms) 
-   {  this->swap(ms);  }
+   void swap(basic_string &&x)
    #endif
+   {  base_t::swap(x);  }
 
    //! <b>Returns</b>: Returns a pointer to a null-terminated array of characters 
    //!   representing the string's contents. For any string s it is guaranteed 
@@ -1930,7 +1933,7 @@ operator+(const basic_string<CharT,Traits,A>& x,
 #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
 template <class CharT, class Traits, class A>
 inline detail::moved_object<basic_string<CharT,Traits,A> >
-operator+(const detail::moved_object<basic_string<CharT,Traits,A> >& mx,
+operator+(detail::moved_object<basic_string<CharT,Traits,A> > mx,
           const basic_string<CharT,Traits,A>& y)
 {
    mx.get() += y;
@@ -1951,7 +1954,7 @@ operator+(basic_string<CharT,Traits,A> && mx,
 template <class CharT, class Traits, class A>
 inline detail::moved_object<basic_string<CharT,Traits,A> >
 operator+(const basic_string<CharT,Traits,A>& x,
-          const detail::moved_object<basic_string<CharT,Traits,A> >& my)
+          detail::moved_object<basic_string<CharT,Traits,A> > my)
 {
    typedef typename basic_string<CharT,Traits,A>::size_type size_type;
    return my.get().replace(size_type(0), size_type(0), x);
@@ -1985,7 +1988,7 @@ operator+(const CharT* s, const basic_string<CharT,Traits,A>& y)
 template <class CharT, class Traits, class A>
 inline detail::moved_object<basic_string<CharT,Traits,A> >
 operator+(const CharT* s,
-          const detail::moved_object<basic_string<CharT,Traits,A> >& my)
+          detail::moved_object<basic_string<CharT,Traits,A> > my)
 {
    typedef typename basic_string<CharT,Traits,A>::size_type size_type;
    return my.get().replace(size_type(0), size_type(0), s);
@@ -2018,7 +2021,7 @@ operator+(CharT c, const basic_string<CharT,Traits,A>& y)
 template <class CharT, class Traits, class A>
 inline detail::moved_object<basic_string<CharT,Traits,A> >
 operator+(CharT c,
-          const detail::moved_object<basic_string<CharT,Traits,A> >& my)
+          detail::moved_object<basic_string<CharT,Traits,A> > my)
 {
    typedef typename basic_string<CharT,Traits,A>::size_type size_type;
    return my.get().replace(size_type(0), size_type(0), &c, &c + 1);
@@ -2051,7 +2054,7 @@ operator+(const basic_string<CharT,Traits,A>& x, const CharT* s)
 #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
 template <class CharT, class Traits, class A>
 inline detail::moved_object<basic_string<CharT,Traits,A> >
-operator+(const detail::moved_object<basic_string<CharT,Traits,A> >& mx,
+operator+(detail::moved_object<basic_string<CharT,Traits,A> > mx,
           const CharT* s)
 {
    mx.get() += s;
@@ -2084,7 +2087,7 @@ operator+(const basic_string<CharT,Traits,A>& x, const CharT c)
 #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
 template <class CharT, class Traits, class A>
 inline detail::moved_object<basic_string<CharT,Traits,A> >
-operator+(const detail::moved_object<basic_string<CharT,Traits,A> >& mx,
+operator+(detail::moved_object<basic_string<CharT,Traits,A> > mx,
           const CharT c)
 {
    mx.get() += c;
@@ -2234,23 +2237,19 @@ operator>=(const basic_string<CharT,Traits,A>& x, const CharT* s)
 // Swap.
 #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
 template <class CharT, class Traits, class A>
-inline void swap(basic_string<CharT,Traits,A>& x,
-                 basic_string<CharT,Traits,A>& y) 
+inline void swap(basic_string<CharT,Traits,A>& x, basic_string<CharT,Traits,A>& y) 
 {  x.swap(y);  }
 
 template <class CharT, class Traits, class A>
-inline void swap(const detail::moved_object<basic_string<CharT,Traits,A> >& mx,
-                 basic_string<CharT,Traits,A>& y) 
+inline void swap(detail::moved_object<basic_string<CharT,Traits,A> > mx, basic_string<CharT,Traits,A>& y) 
 {  mx.get().swap(y);  }
 
 template <class CharT, class Traits, class A>
-inline void swap(basic_string<CharT,Traits,A>& x,
-                 const detail::moved_object<basic_string<CharT,Traits,A> >& my) 
+inline void swap(basic_string<CharT,Traits,A>& x, detail::moved_object<basic_string<CharT,Traits,A> > my) 
 {  x.swap(my.get());  }
 #else
 template <class CharT, class Traits, class A>
-inline void swap(basic_string<CharT,Traits,A> && x,
-                 basic_string<CharT,Traits,A> &&y) 
+inline void swap(basic_string<CharT,Traits,A> && x, basic_string<CharT,Traits,A> &&y) 
 {  x.swap(y);  }
 #endif
 
@@ -2319,7 +2318,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
 template <class CharT, class Traits, class A>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, 
-           const detail::moved_object<basic_string<CharT,Traits,A> >& ms)
+           detail::moved_object<basic_string<CharT,Traits,A> > ms)
 {  return os << ms.get();  }
 #endif
 
@@ -2327,7 +2326,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
 template <class CharT, class Traits, class A>
 std::basic_istream<CharT, Traits>& 
 operator>>(std::basic_istream<CharT, Traits>& is,
-            #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+               #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
            basic_string<CharT,Traits,A>& s)
             #else
            basic_string<CharT,Traits,A>&&s)
@@ -2376,18 +2375,18 @@ operator>>(std::basic_istream<CharT, Traits>& is,
    return is;
 }
 
-#ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 template <class CharT, class Traits, class A>
 std::basic_istream<CharT, Traits>& 
 operator>>(std::basic_istream<CharT, Traits>& is,
-           const detail::moved_object<basic_string<CharT,Traits,A> >& ms)
+           detail::moved_object<basic_string<CharT,Traits,A> > ms)
 {  return is >> ms.get();  }
 #endif
 
 template <class CharT, class Traits, class A>    
 std::basic_istream<CharT, Traits>& 
 getline(std::istream& is,
-         #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+            #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
         basic_string<CharT,Traits,A>& s,
          #else
         basic_string<CharT,Traits,A>&&s,
@@ -2427,12 +2426,12 @@ getline(std::istream& is,
 template <class CharT, class Traits, class A>    
 std::basic_istream<CharT, Traits>& 
 getline(std::istream& is,
-        const detail::moved_object<basic_string<CharT,Traits,A> >& ms,
+        detail::moved_object<basic_string<CharT,Traits,A> > ms,
         CharT delim)
 {  return getline(is, ms.get(), delim);   }
 #endif
 
-#ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 template <class CharT, class Traits, class A>    
 inline std::basic_istream<CharT, Traits>& 
 getline(std::basic_istream<CharT, Traits>& is,
@@ -2444,7 +2443,7 @@ getline(std::basic_istream<CharT, Traits>& is,
 template <class CharT, class Traits, class A>    
 std::basic_istream<CharT, Traits>& 
 getline(std::istream& is,
-        const detail::moved_object<basic_string<CharT,Traits,A> >& ms)
+        detail::moved_object<basic_string<CharT,Traits,A> > ms)
 {  return getline(is, ms.get());   }
 #else
 template <class CharT, class Traits, class A>    

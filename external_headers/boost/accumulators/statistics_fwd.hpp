@@ -180,6 +180,11 @@ namespace tag
     struct weighted_sum;
     template<typename VariateType, typename VariateTag>
     struct weighted_sum_of_variates;
+    struct rolling_window_plus1;
+    struct rolling_window;
+    struct rolling_sum;
+    struct rolling_count;
+    struct rolling_mean;
 } // namespace tag
 
 namespace impl
@@ -344,7 +349,20 @@ namespace impl
     template<typename Sample, typename Weight, typename MeanFeature, typename Tag>
     struct weighted_variance_impl;
 
+    template<typename Sample>
+    struct rolling_window_plus1_impl;
 
+    template<typename Sample>
+    struct rolling_window_impl;
+
+    template<typename Sample>
+    struct rolling_sum_impl;
+
+    template<typename Sample>
+    struct rolling_count_impl;
+
+    template<typename Sample>
+    struct rolling_mean_impl;
 } // namespace impl
 
 ///////////////////////////////////////////////////////////////////////////////

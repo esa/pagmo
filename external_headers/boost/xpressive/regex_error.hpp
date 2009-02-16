@@ -17,6 +17,7 @@
 #include <string>
 #include <stdexcept>
 #include <boost/throw_exception.hpp>
+#include <boost/exception/exception.hpp>
 #include <boost/xpressive/regex_constants.hpp>
 
 //{{AFX_DOC_COMMENT
@@ -44,12 +45,14 @@ namespace boost { namespace xpressive
 /// a regular expression to a finite state machine.
 struct regex_error
   : std::runtime_error
+  , boost::exception
 {
     /// Constructs an object of class regex_error.
     /// \param code The error_type this regex_error represents.
     /// \post code() == code
     explicit regex_error(regex_constants::error_type code, char const *str = "")
       : std::runtime_error(str)
+      , boost::exception()
       , code_(code)
     {
     }
@@ -62,6 +65,11 @@ struct regex_error
         return this->code_;
     }
 
+    /// Destructor for class regex_error
+    /// \throw nothrow
+    virtual ~regex_error() throw()
+    {}
+
 private:
 
     regex_constants::error_type code_;
@@ -69,19 +77,21 @@ private:
 
 namespace detail
 {
-
-//////////////////////////////////////////////////////////////////////////
-// ensure
-/// INTERNAL ONLY
-inline bool ensure(bool predicate, regex_constants::error_type code, char const *str = "")
-{
-    if(!predicate)
-    {
-        boost::throw_exception(regex_error(code, str));
-    }
-    return predicate;
+    // To work around a GCC warning
+    inline bool false_() { return false; }
 }
 
-}}} // namespace boost::xpressive::detail
+#define BOOST_XPR_ENSURE_(pred, code, msg)                                                          \
+    (                                                                                               \
+        (pred)                                                                                      \
+      ? true                                                                                        \
+      : (                                                                                           \
+            BOOST_THROW_EXCEPTION(boost::xpressive::regex_error(code, msg))                         \
+          , boost::xpressive::detail::false_()                                                      \
+        )                                                                                           \
+    )                                                                                               \
+    /**/
+
+}} // namespace boost::xpressive
 
 #endif

@@ -19,6 +19,7 @@
 #include <boost/proto/proto_fwd.hpp>
 #include <boost/proto/tags.hpp>
 #include <boost/proto/expr.hpp>
+#include <boost/proto/matches.hpp>
 #include <boost/proto/generate.hpp>
 #include <boost/proto/make_expr.hpp>
 #include <boost/proto/detail/suffix.hpp>
@@ -27,21 +28,66 @@ namespace boost { namespace proto
 {
     namespace detail
     {
+        template<typename Domain, typename Expr>
+        struct generate_if
+          : lazy_enable_if_c<
+                matches<Expr, typename Domain::proto_grammar>::value
+              , typename Domain::template result<void(Expr)>
+            >
+        {};
+
+        // Optimization, generate fewer templates...
+        template<typename Expr>
+        struct generate_if<proto::default_domain, Expr>
+        {
+            typedef Expr type;
+        };
+
+        template<typename Domain, typename Tag, typename Left, typename Right>
+        struct generate_if_left
+          : lazy_enable_if_c<
+                matches<proto::expr<Tag, proto::list2<Left &, Right> >, typename Domain::proto_grammar>::value
+              , typename Domain::template result<void(
+                    proto::expr<Tag, proto::list2<Left &, typename Domain::template result<void(Right)>::type> >
+                )>
+            >
+        {};
+
+        // Optimization, generate fewer templates...
+        template<typename Tag, typename Left, typename Right>
+        struct generate_if_left<proto::default_domain, Tag, Left, Right>
+        {
+            typedef proto::expr<Tag, proto::list2<Left &, Right> > type;
+        };
+
+        template<typename Domain, typename Tag, typename Left, typename Right>
+        struct generate_if_right
+          : lazy_enable_if_c<
+                matches<proto::expr<Tag, proto::list2<Left, Right &> >, typename Domain::proto_grammar>::value
+              , typename Domain::template result<void(
+                    proto::expr<Tag, proto::list2<typename Domain::template result<void(Left)>::type, Right &> >
+                )>
+            >
+        {};
+
+        // Optimization, generate fewer templates...
+        template<typename Tag, typename Left, typename Right>
+        struct generate_if_right<proto::default_domain, Tag, Left, Right>
+        {
+            typedef proto::expr<Tag, proto::list2<Left, Right &> > type;
+        };
+
         template<typename Tag, typename Left, typename Right, typename Enable1 = void, typename Enable2 = void>
         struct as_expr_if2
         {};
 
         template<typename Tag, typename Left, typename Right>
         struct as_expr_if2<Tag, Left, Right, typename Left::proto_is_expr_, void>
-          : generate_if<
+          : generate_if_left<
                 typename Left::proto_domain
-              , proto::expr<
-                    Tag
-                  , list2<
-                        Left &
-                      , typename Left::proto_domain::template result<void(proto::expr<tag::terminal, term<Right &> >)>::type
-                    >
-                >
+              , Tag
+              , Left
+              , proto::expr<tag::terminal, term<Right &> >
             >
         {
             typedef proto::expr<tag::terminal, term<Right &> > term_type;
@@ -58,15 +104,11 @@ namespace boost { namespace proto
 
         template<typename Tag, typename Left, typename Right>
         struct as_expr_if2<Tag, Left, Right, void, typename Right::proto_is_expr_>
-          : generate_if<
+          : generate_if_right<
                 typename Right::proto_domain
-              , proto::expr<
-                    Tag
-                  , list2<
-                        typename Right::proto_domain::template result<void(proto::expr<tag::terminal, term<Left &> >)>::type
-                      , Right &
-                    >
-                >
+              , Tag
+              , proto::expr<tag::terminal, term<Left &> >
+              , Right
             >
         {
             typedef proto::expr<tag::terminal, term<Left &> > term_type;

@@ -116,7 +116,11 @@ inline void save(
     const std::vector<U, Allocator> &t,
     const unsigned int file_version
 ){
-    save(ar,t,file_version, BOOST_DEDUCED_TYPENAME use_array_optimization<Archive>::template apply<U>::type());
+    typedef BOOST_DEDUCED_TYPENAME 
+    boost::serialization::use_array_optimization<Archive>::template apply<
+            BOOST_DEDUCED_TYPENAME remove_const<U>::type 
+        >::type use_optimized;
+    save(ar,t,file_version, use_optimized());
 }
 
 template<class Archive, class U, class Allocator>
@@ -125,7 +129,11 @@ inline void load(
     std::vector<U, Allocator> &t,
     const unsigned int file_version
 ){
-    load(ar,t,file_version, BOOST_DEDUCED_TYPENAME use_array_optimization<Archive>::template apply<U>::type());
+    typedef BOOST_DEDUCED_TYPENAME 
+    boost::serialization::use_array_optimization<Archive>::template apply<
+            BOOST_DEDUCED_TYPENAME remove_const<U>::type 
+        >::type use_optimized;
+    load(ar,t,file_version, use_optimized());
 }
 
 // split non-intrusive serialization function member into separate

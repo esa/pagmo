@@ -87,7 +87,7 @@ struct node_alloc_holder
    {}
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   node_alloc_holder(const detail::moved_object<node_alloc_holder> &other)
+   node_alloc_holder(detail::moved_object<node_alloc_holder> other)
       : members_(detail::move_impl(other.get().node_alloc()))
    {  this->swap(other.get());  }
    #else
@@ -103,7 +103,7 @@ struct node_alloc_holder
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template<class Pred>
-   node_alloc_holder(const detail::moved_object<ValAlloc> &a, const Pred &c) 
+   node_alloc_holder(detail::moved_object<ValAlloc> a, const Pred &c) 
       : members_(a.get(), typename ICont::value_compare(c))
    {}
    #else
@@ -119,7 +119,7 @@ struct node_alloc_holder
    {}
 
    ~node_alloc_holder()
-   {}
+   {  this->clear(alloc_version()); }
 
    size_type max_size() const
    {  return this->node_alloc().max_size();  }
@@ -144,7 +144,7 @@ struct node_alloc_holder
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template<class Convertible1, class Convertible2>
-   static void construct(const NodePtr &ptr, const detail::moved_object<std::pair<Convertible1, Convertible2> > &value)
+   static void construct(const NodePtr &ptr, detail::moved_object<std::pair<Convertible1, Convertible2> > value)
    {
       typedef typename Node::hook_type                hook_type;
       typedef typename Node::value_type::first_type   first_type;
@@ -297,33 +297,36 @@ struct node_alloc_holder
    FwdIterator allocate_many_and_construct
       (FwdIterator beg, difference_type n, Inserter inserter)
    {
-      typedef typename NodeAlloc::multiallocation_iterator multiallocation_iterator;
+      if(n){
+         typedef typename NodeAlloc::multiallocation_iterator multiallocation_iterator;
 
-      //Try to allocate memory in a single block
-      multiallocation_iterator itbeg =
-         this->node_alloc().allocate_individual(n), itend, itold;
-      int constructed = 0;
-      Node *p = 0;
-      BOOST_TRY{
-         for(difference_type i = 0; i < n; ++i, ++beg, --constructed){
-            p = &*itbeg;
-            ++itbeg;
-            //This can throw
-            boost::interprocess::construct_in_place(p, beg);
-            ++constructed;
-            //This can throw in some containers (predicate might throw)
-            inserter(*p);
+         //Try to allocate memory in a single block
+         multiallocation_iterator itbeg =
+            this->node_alloc().allocate_individual(n), itend, itold;
+         int constructed = 0;
+         Node *p = 0;
+         BOOST_TRY{
+            for(difference_type i = 0; i < n; ++i, ++beg, --constructed){
+               p = &*itbeg;
+               ++itbeg;
+               //This can throw
+               boost::interprocess::construct_in_place(p, beg);
+               ++constructed;
+               //This can throw in some containers (predicate might throw)
+               inserter(*p);
+            }
          }
-      }
-      BOOST_CATCH(...){
-         if(constructed){
-            this->destroy(p);
+         BOOST_CATCH(...){
+            if(constructed){
+               this->destroy(p);
+            }
+            this->node_alloc().deallocate_many(itbeg);
+            BOOST_RETHROW
          }
-         this->node_alloc().deallocate_many(itbeg);
-         BOOST_RETHROW
+         BOOST_CATCH_END
       }
-      BOOST_CATCH_END
       return beg;
+
    }
 
    void clear(allocator_v1)

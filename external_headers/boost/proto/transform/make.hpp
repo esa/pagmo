@@ -189,7 +189,7 @@
         /// \code
         /// // OK: replace anything with Bar<_>()
         /// struct Foo
-        ///   : proto::when<_, Bar<_>() >
+        ///   : proto::when<_, Bar<protect<_> >() >
         /// {};
         /// \endcode
         template<typename PrimitiveTransform>
@@ -373,28 +373,28 @@
                 typedef typename detail::make_if_<Object, Expr, State, Data>::type result_type;
                 //typedef typename detail::make_<Object, Expr, State, Data>::type result_type;
 
-                /// Let \c ax be <tt>when\<_, Ax\>()(expr, state, data)</tt>
+                /// Let \c ax be <tt>when\<_, Ax\>()(e, s, d)</tt>
                 /// for each \c x in <tt>[0,N]</tt>.
                 /// Let \c T be <tt>result\<void(Expr, State, Data)\>::::type</tt>.
                 /// Return <tt>T(a0, a1,... aN)</tt>.
                 ///
-                /// \param expr The current expression
-                /// \param state The current state
-                /// \param data An arbitrary data
+                /// \param e The current expression
+                /// \param s The current state
+                /// \param d An arbitrary data
                 result_type operator ()(
-                    typename impl::expr_param   expr
-                  , typename impl::state_param  state
-                  , typename impl::data_param   data
+                    typename impl::expr_param   e
+                  , typename impl::state_param  s
+                  , typename impl::data_param   d
                 ) const
                 {
-                    proto::detail::ignore_unused(expr);
-                    proto::detail::ignore_unused(state);
-                    proto::detail::ignore_unused(data);
+                    proto::detail::ignore_unused(e);
+                    proto::detail::ignore_unused(s);
+                    proto::detail::ignore_unused(d);
                     return detail::construct<result_type>(
                         #define TMP(Z, M, DATA)                                                     \
                             detail::as_lvalue(                                                      \
                                 typename when<_, BOOST_PP_CAT(A, M)>                                \
-                                    ::template impl<Expr, State, Data>()(expr, state, data)         \
+                                    ::template impl<Expr, State, Data>()(e, s, d)         \
                             )
                         BOOST_PP_ENUM(N, TMP, DATA)
                         #undef TMP
@@ -415,16 +415,16 @@
                 typedef proto::expr<Tag, Args, Arity> result_type;
 
                 result_type operator ()(
-                    typename impl::expr_param   expr
-                  , typename impl::state_param  state
-                  , typename impl::data_param   data
+                    typename impl::expr_param   e
+                  , typename impl::state_param  s
+                  , typename impl::data_param   d
                 ) const
                 {
                     return proto::expr<Tag, Args, Arity>::make(
                         #define TMP(Z, M, DATA)                                                     \
                             detail::as_lvalue(                                                      \
                                 typename when<_, BOOST_PP_CAT(A, M)>                                \
-                                    ::template impl<Expr, State, Data>()(expr, state, data)         \
+                                    ::template impl<Expr, State, Data>()(e, s, d)         \
                             )
                         BOOST_PP_ENUM(N, TMP, DATA)
                         #undef TMP

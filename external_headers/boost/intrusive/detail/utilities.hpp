@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2008
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -211,20 +211,25 @@ struct key_nodeptr_comp
 {
    typedef typename Container::real_value_traits         real_value_traits;
    typedef typename real_value_traits::node_ptr          node_ptr;
+   typedef typename real_value_traits::const_node_ptr    const_node_ptr;
    typedef detail::ebo_functor_holder<KeyValueCompare>   base_t;
    key_nodeptr_comp(KeyValueCompare kcomp, const Container *cont)
       :  base_t(kcomp), cont_(cont)
    {}
 
    template<class KeyType>
-   bool operator()(node_ptr node, const KeyType &key) const
+   bool operator()( const_node_ptr node, const KeyType &key
+                  , typename enable_if_c
+                     <!is_convertible<KeyType, const_node_ptr>::value>::type * = 0) const
    {  return base_t::get()(*cont_->get_real_value_traits().to_value_ptr(node), key); }
 
    template<class KeyType>
-   bool operator()(const KeyType &key, node_ptr node) const
+   bool operator()(const KeyType &key, const_node_ptr node
+                  , typename enable_if_c
+                     <!is_convertible<KeyType, const_node_ptr>::value>::type * = 0) const
    {  return base_t::get()(key, *cont_->get_real_value_traits().to_value_ptr(node)); }
 
-   bool operator()(node_ptr node1, node_ptr node2) const
+   bool operator()(const_node_ptr node1, const_node_ptr node2) const
    {
       return base_t::get()
          ( *cont_->get_real_value_traits().to_value_ptr(node1)

@@ -34,10 +34,13 @@ namespace detail{
 
 typedef unsigned long OS_process_id_t;
 typedef unsigned long OS_thread_id_t;
+typedef OS_thread_id_t OS_systemwide_thread_id_t;
 
+//process
 inline OS_process_id_t get_current_process_id()
 {  return winapi::get_current_process_id();  }
 
+//thread
 inline OS_thread_id_t get_current_thread_id()
 {  return winapi::get_current_thread_id();  }
 
@@ -50,28 +53,71 @@ inline bool equal_thread_id(OS_thread_id_t id1, OS_thread_id_t id2)
 inline void thread_yield()
 {  winapi::sched_yield();  }
 
+//systemwide thread
+inline OS_systemwide_thread_id_t get_current_systemwide_thread_id()
+{
+   return get_current_thread_id();
+}
+
+inline bool equal_systemwide_thread_id(const OS_systemwide_thread_id_t &id1, const OS_systemwide_thread_id_t &id2)
+{
+   return equal_thread_id(id1, id2);
+}
+
+inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
+{
+   return get_invalid_thread_id();
+}
+
 #else    //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
 
 typedef pthread_t OS_thread_id_t;
-typedef int OS_process_id_t;
+typedef pid_t     OS_process_id_t;
 
+struct OS_systemwide_thread_id_t
+{  
+   OS_systemwide_thread_id_t(pid_t p, pthread_t t)
+      :  pid(p), tid(t)
+   {}
+   pid_t       pid;
+   pthread_t   tid;
+};
+
+//process
 inline OS_process_id_t get_current_process_id()
-{  return getpid();  }
+{  return ::getpid();  }
 
-inline pthread_t get_current_thread_id()
-{  return pthread_self();  }
+//thread
+inline OS_thread_id_t get_current_thread_id()
+{  return ::pthread_self();  }
 
 inline OS_thread_id_t get_invalid_thread_id()
-{  
+{ 
    static pthread_t invalid_id;
    return invalid_id;
 }
 
 inline bool equal_thread_id(OS_thread_id_t id1, OS_thread_id_t id2)
-{  return 0 != pthread_equal(id1, id2);  }
+{  return 0 != ::pthread_equal(id1, id2);  }
 
 inline void thread_yield()
-{  sched_yield();  }
+{  ::sched_yield();  }
+
+//systemwide thread
+inline OS_systemwide_thread_id_t get_current_systemwide_thread_id()
+{
+   return OS_systemwide_thread_id_t(::getpid(), ::pthread_self());
+}
+
+inline bool equal_systemwide_thread_id(const OS_systemwide_thread_id_t &id1, const OS_systemwide_thread_id_t &id2)
+{
+   return (0 != ::pthread_equal(id1.tid, id2.tid)) && (id1.pid == id2.pid);
+}
+
+inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
+{
+   return OS_systemwide_thread_id_t(pid_t(0), get_invalid_thread_id());
+}
 
 #endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
 

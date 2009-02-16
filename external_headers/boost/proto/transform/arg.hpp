@@ -36,16 +36,21 @@ namespace boost { namespace proto
             typedef Expr result_type;
 
             /// Returns the current expression.
-            /// \param expr The current expression.
-            /// \return \c expr
+            /// \param e The current expression.
+            /// \return \c e
             /// \throw nothrow
-            typename impl::expr_param operator()(
-                typename impl::expr_param expr
+            #ifdef BOOST_HAS_DECLTYPE
+            result_type
+            #else
+            typename impl::expr_param 
+            #endif
+            operator()(
+                typename impl::expr_param e
               , typename impl::state_param
               , typename impl::data_param
             ) const
             {
-                return expr;
+                return e;
             }
         };
     };
@@ -68,16 +73,21 @@ namespace boost { namespace proto
             typedef State result_type;
 
             /// Returns the current state.
-            /// \param state The current state.
-            /// \return \c state
+            /// \param s The current state.
+            /// \return \c s
             /// \throw nothrow
-            typename impl::state_param operator ()(
+            #ifdef BOOST_HAS_DECLTYPE
+            result_type
+            #else
+            typename impl::state_param 
+            #endif
+            operator ()(
                 typename impl::expr_param
-              , typename impl::state_param state
+              , typename impl::state_param s
               , typename impl::data_param
             ) const
             {
-                return state;
+                return s;
             }
         };
     };
@@ -101,16 +111,21 @@ namespace boost { namespace proto
             typedef Data result_type;
 
             /// Returns the current data.
-            /// \param data The current data.
-            /// \return \c data
+            /// \param d The current data.
+            /// \return \c d
             /// \throw nothrow
-            typename impl::data_param operator ()(
+            #ifdef BOOST_HAS_DECLTYPE
+            result_type
+            #else
+            typename impl::data_param 
+            #endif
+            operator ()(
                 typename impl::expr_param
               , typename impl::state_param
-              , typename impl::data_param data
+              , typename impl::data_param d
             ) const
             {
-                return data;
+                return d;
             }
         };
     };
@@ -135,19 +150,23 @@ namespace boost { namespace proto
                 typename result_of::child_c<Expr, N>::type
             result_type;
 
-            /// Returns the N-th child of \c expr
+            /// Returns the N-th child of \c e
             /// \pre <tt>arity_of\<Expr\>::::value \> N</tt> 
-            /// \param expr The current expression.
-            /// \return <tt>proto::child_c\<N\>(expr)</tt>
+            /// \param e The current expression.
+            /// \return <tt>proto::child_c\<N\>(e)</tt>
             /// \throw nothrow
+            #ifdef BOOST_HAS_DECLTYPE
+            result_type
+            #else
             typename result_of::child_c<typename impl::expr_param, N>::type
+            #endif
             operator ()(
-                typename impl::expr_param expr
+                typename impl::expr_param e
               , typename impl::state_param
               , typename impl::data_param
             ) const
             {
-                return proto::child_c<N>(expr);
+                return proto::child_c<N>(e);
             }
         };
     };
@@ -173,17 +192,21 @@ namespace boost { namespace proto
 
             /// Returns the value of the specified terminal expression.
             /// \pre <tt>arity_of\<Expr\>::::value == 0</tt>.
-            /// \param expr The current expression.
-            /// \return <tt>proto::value(expr)</tt>
+            /// \param e The current expression.
+            /// \return <tt>proto::value(e)</tt>
             /// \throw nothrow
+            #ifdef BOOST_HAS_DECLTYPE
+            result_type
+            #else
             typename result_of::value<typename impl::expr_param>::type
+            #endif
             operator ()(
-                typename impl::expr_param expr
+                typename impl::expr_param e
               , typename impl::state_param
               , typename impl::data_param
             ) const
             {
-                return proto::value(expr);
+                return proto::value(e);
             }
         };
     };

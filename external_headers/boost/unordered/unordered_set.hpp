@@ -21,6 +21,15 @@
 #include <boost/unordered/detail/move.hpp>
 #endif
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+#if BOOST_MSVC >= 1400
+#pragma warning(disable:4396) //the inline specifier cannot be used when a
+                              // friend declaration refers to a specialization
+                              // of a function template
+#endif
+#endif
+
 namespace boost
 {
     template <class Value, class Hash, class Pred, class Alloc>
@@ -122,6 +131,24 @@ namespace boost
             return *this;
         }
 #endif
+#endif
+
+#if !defined(BOOST_NO_INITIALIZER_LISTS)
+        unordered_set(std::initializer_list<value_type> list,
+                size_type n = boost::unordered_detail::default_initial_bucket_count,
+                const hasher &hf = hasher(),
+                const key_equal &eql = key_equal(),
+                const allocator_type &a = allocator_type())
+            : base(list.begin(), list.end(), n, hf, eql, a)
+        {
+        }
+
+        unordered_set& operator=(std::initializer_list<value_type> list)
+        {
+            base.data_.clear();
+            base.insert_range(list.begin(), list.end());
+            return *this;
+        }
 #endif
 
     private:
@@ -357,8 +384,8 @@ namespace boost
         friend bool operator==(unordered_set const&, unordered_set const&);
         friend bool operator!=(unordered_set const&, unordered_set const&);
 #else
-        friend bool operator==<>(unordered_set const&, unordered_set const&);
-        friend bool operator!=<>(unordered_set const&, unordered_set const&);
+        friend bool operator==<Value, Hash, Pred, Alloc>(unordered_set const&, unordered_set const&);
+        friend bool operator!=<Value, Hash, Pred, Alloc>(unordered_set const&, unordered_set const&);
 #endif
     }; // class template unordered_set
 
@@ -482,6 +509,24 @@ namespace boost
             return *this;
         }
 #endif
+#endif
+
+#if !defined(BOOST_NO_INITIALIZER_LISTS)
+        unordered_multiset(std::initializer_list<value_type> list,
+                size_type n = boost::unordered_detail::default_initial_bucket_count,
+                const hasher &hf = hasher(),
+                const key_equal &eql = key_equal(),
+                const allocator_type &a = allocator_type())
+            : base(list.begin(), list.end(), n, hf, eql, a)
+        {
+        }
+
+        unordered_multiset& operator=(std::initializer_list<value_type> list)
+        {
+            base.data_.clear();
+            base.insert_range(list.begin(), list.end());
+            return *this;
+        }
 #endif
 
     private:
@@ -714,8 +759,8 @@ namespace boost
         friend bool operator==(unordered_multiset const&, unordered_multiset const&);
         friend bool operator!=(unordered_multiset const&, unordered_multiset const&);
 #else
-        friend bool operator==<>(unordered_multiset const&, unordered_multiset const&);
-        friend bool operator!=<>(unordered_multiset const&, unordered_multiset const&);
+        friend bool operator==<Value, Hash, Pred, Alloc>(unordered_multiset const&, unordered_multiset const&);
+        friend bool operator!=<Value, Hash, Pred, Alloc>(unordered_multiset const&, unordered_multiset const&);
 #endif
     }; // class template unordered_multiset
 
@@ -741,5 +786,9 @@ namespace boost
     }
 
 } // namespace boost
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_UNORDERED_UNORDERED_SET_HPP_INCLUDED

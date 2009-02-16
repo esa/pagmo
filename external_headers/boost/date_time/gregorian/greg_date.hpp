@@ -6,13 +6,14 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland 
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
  */
 
-#include "boost/date_time/date.hpp"
-#include "boost/date_time/special_defs.hpp"
-#include "boost/date_time/gregorian/greg_calendar.hpp"
-#include "boost/date_time/gregorian/greg_duration.hpp"
+#include <boost/throw_exception.hpp>
+#include <boost/date_time/date.hpp>
+#include <boost/date_time/special_defs.hpp>
+#include <boost/date_time/gregorian/greg_calendar.hpp>
+#include <boost/date_time/gregorian/greg_duration.hpp>
 
 namespace boost {
 namespace gregorian {
@@ -55,7 +56,7 @@ namespace gregorian {
       : date_time::date<date, gregorian_calendar, date_duration>(y, m, d)
     {
       if (gregorian_calendar::end_of_month_day(y, m) < d) {
-        throw bad_day_of_month(std::string("Day of month is not valid for year"));
+        boost::throw_exception(bad_day_of_month(std::string("Day of month is not valid for year")));
       }
     }
     //! Constructor from a ymd_type structure

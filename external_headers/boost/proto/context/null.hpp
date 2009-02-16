@@ -26,7 +26,7 @@
         template<
             typename Expr
           , typename Context
-          , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity::value)
+          , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity_c)
         >
         struct null_eval
         {};

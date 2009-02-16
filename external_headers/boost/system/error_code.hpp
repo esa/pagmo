@@ -207,6 +207,7 @@ namespace boost
     
 # ifndef BOOST_SYSTEM_NO_DEPRECATED
     //  deprecated synonyms
+    inline const error_category &  get_posix_category() { return get_generic_category(); }
     static const error_category &  posix_category = get_generic_category();
     static const error_category &  errno_ecat     = get_generic_category();
     static const error_category &  native_ecat    = get_system_category();
@@ -214,7 +215,7 @@ namespace boost
 
     //  class error_condition  -----------------------------------------------//
 
-    //  error_conditions are portable, error_codes are system or lib specific
+    //  error_conditions are portable, error_codes are system or library specific
 
     class error_condition
     {

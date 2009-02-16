@@ -19,7 +19,7 @@
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/core/matcher/action_matcher.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -46,7 +46,7 @@ namespace boost { namespace xpressive { namespace detail
             typedef Arg &result_type;
             result_type operator()(Expr &expr, predicate_context const &) const
             {
-                return proto::arg(expr).get();
+                return proto::value(expr).get();
             }
         };
 
@@ -66,7 +66,7 @@ namespace boost { namespace xpressive { namespace detail
             typedef sub_match<BidiIter> const &result_type;
             result_type operator()(Expr &expr, predicate_context const &ctx) const
             {
-                return ctx.sub_matches_[proto::arg(expr).mark_number_];
+                return ctx.sub_matches_[proto::value(expr).mark_number_];
             }
         };
 
@@ -78,7 +78,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr>
         struct eval<Expr, proto::tag::terminal>
-          : eval_terminal<Expr, typename proto::result_of::arg<Expr>::type>
+          : eval_terminal<Expr, typename proto::result_of::value<Expr>::type>
         {};
 
         #if BOOST_VERSION >= 103500
@@ -131,14 +131,14 @@ namespace boost { namespace xpressive { namespace detail
         bool match_(match_state<BidiIter> &state, Next const &next, mpl::true_) const
         {
             sub_match<BidiIter> const &sub = state.sub_match(this->sub_);
-            return proto::arg(proto::arg_c<1>(this->predicate_))(sub) && next.match(state);
+            return proto::value(proto::child_c<1>(this->predicate_))(sub) && next.match(state);
         }
 
         template<typename BidiIter, typename Next>
         bool match_(match_state<BidiIter> &state, Next const &next, mpl::false_) const
         {
             predicate_context<BidiIter> ctx(this->sub_, state.sub_matches_);
-            return proto::eval(proto::arg_c<1>(this->predicate_), ctx) && next.match(state);
+            return proto::eval(proto::child_c<1>(this->predicate_), ctx) && next.match(state);
         }
     };
 

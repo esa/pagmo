@@ -134,7 +134,7 @@ class flat_tree
    { }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   flat_tree(const detail::moved_object<flat_tree> &x)
+   flat_tree(detail::moved_object<flat_tree> x)
       :  m_data(detail::move_impl(x.get().m_data))
    { }
    #else
@@ -150,7 +150,7 @@ class flat_tree
    {  m_data = x.m_data;   return *this;  }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   flat_tree&  operator=(const detail::moved_object<flat_tree>& mx)
+   flat_tree&  operator=(detail::moved_object<flat_tree> mx)
    {  m_data = detail::move_impl(mx.get().m_data); return *this;  }
    #else
    flat_tree&  operator=(flat_tree &&mx)
@@ -227,7 +227,7 @@ class flat_tree
    }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(const detail::moved_object<flat_tree>& other) 
+   void swap(detail::moved_object<flat_tree> other)
    {  this->swap(other.get());   }
    #else
    void swap(flat_tree &&other) 
@@ -247,7 +247,7 @@ class flat_tree
    }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   std::pair<iterator,bool> insert_unique(const detail::moved_object<value_type>& mval)
+   std::pair<iterator,bool> insert_unique(detail::moved_object<value_type> mval)
    {
       value_type &val = mval.get();
    #else
@@ -271,7 +271,7 @@ class flat_tree
    }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert_equal(const detail::moved_object<value_type>& mval)
+   iterator insert_equal(detail::moved_object<value_type> mval)
    {
       iterator i = this->upper_bound(KeyOfValue()(mval.get()));
       i = this->m_data.m_vect.insert(i, mval);
@@ -297,7 +297,7 @@ class flat_tree
    }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert_unique(const_iterator pos, const detail::moved_object<value_type>& mval)
+   iterator insert_unique(const_iterator pos, detail::moved_object<value_type> mval)
    {
       insert_commit_data data;
       std::pair<iterator,bool> ret = priv_insert_unique_prepare(pos, mval.get(), data);
@@ -326,7 +326,7 @@ class flat_tree
    }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   iterator insert_equal(const_iterator pos, const detail::moved_object<value_type>& mval)
+   iterator insert_equal(const_iterator pos, detail::moved_object<value_type> mval)
    {
       insert_commit_data data;
       priv_insert_equal_prepare(pos, mval.get(), data);

@@ -476,24 +476,18 @@ BOOST_DYNAMIC_BITSET_PRIVATE:
 
 };
 
-#if defined(__IBMCPP__) && BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
+#if !defined BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 
-// Workaround for IBM's AIX platform.
-// See http://comments.gmane.org/gmane.comp.lib.boost.user/15331
-//
-// NOTE:
-//  The compiler is actually right, until core issue 454 will be settled:
-//   <http://www.open-std.org/JTC1/SC22/WG21/docs/cwg_active.html#454>
-//
-//  It's arguable whether we want to mark this with BOOST_WORKAROUND or not.
-
-
-template<typename Block, typename Allocator>
-dynamic_bitset<Block, Allocator>::block_width_type const
+template <typename Block, typename Allocator>
+const typename dynamic_bitset<Block, Allocator>::block_width_type
 dynamic_bitset<Block, Allocator>::bits_per_block;
 
-template<typename Block, typename Allocator>
-dynamic_bitset<Block, Allocator>::block_width_type const
+template <typename Block, typename Allocator>
+const typename dynamic_bitset<Block, Allocator>::size_type
+dynamic_bitset<Block, Allocator>::npos;
+
+template <typename Block, typename Allocator>
+const typename dynamic_bitset<Block, Allocator>::block_width_type
 dynamic_bitset<Block, Allocator>::ulong_width;
 
 #endif

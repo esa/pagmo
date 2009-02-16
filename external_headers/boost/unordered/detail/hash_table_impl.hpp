@@ -34,7 +34,6 @@ namespace boost {
         public:
             typedef BOOST_UNORDERED_TABLE_DATA data;
 
-            struct node_base;
             struct node;
             struct bucket;
             typedef std::size_t size_type;
@@ -45,9 +44,6 @@ namespace boost {
             typedef BOOST_DEDUCED_TYPENAME
                 boost::unordered_detail::rebind_wrap<Alloc, node>::type
                 node_allocator;
-            typedef BOOST_DEDUCED_TYPENAME
-                boost::unordered_detail::rebind_wrap<Alloc, node_base>::type
-                node_base_allocator;
             typedef BOOST_DEDUCED_TYPENAME
                 boost::unordered_detail::rebind_wrap<Alloc, bucket>::type
                 bucket_allocator;
@@ -88,38 +84,35 @@ namespace boost {
                 }
             };
 
+            // Value Base
+
+            struct value_base {
+                typename boost::aligned_storage<
+                    sizeof(value_type),
+                    boost::alignment_of<value_type>::value>::type data_;
+
+                void* address() { return this; }
+            };
+
             // Hash Node
             //
             // all no throw
 
-            struct node_base : bucket
-            {
+            struct node : value_base, bucket {
 #if BOOST_UNORDERED_EQUIVALENT_KEYS
             public:
-                node_base() : group_prev_()
+                node() : group_prev_()
                 {
                     BOOST_UNORDERED_MSVC_RESET_PTR(group_prev_);
                 }
 
                 link_ptr group_prev_;
 #endif
+
+                value_type& value() {
+                    return *static_cast<value_type*>(this->address());
+                }
             };
-
-            struct node : node_base
-            {
-            public:
-#if defined(BOOST_HAS_RVALUE_REFS) && defined(BOOST_HAS_VARIADIC_TMPL)
-                template <typename... Args>
-                node(Args&&... args)
-                    : node_base(), value_(std::forward<Args>(args)...) {}
-#else
-                node(value_type const& v) : node_base(), value_(v) {}
-#endif
-
-                value_type value_;
-            };
-
-#if defined(BOOST_HAS_RVALUE_REFS) && defined(BOOST_HAS_VARIADIC_TMPL)
 
             // allocators
             //
@@ -136,15 +129,17 @@ namespace boost {
 
                 void destroy(link_ptr ptr)
                 {
-                    node_ptr n(node_alloc_.address(*static_cast<node*>(&*ptr)));
+                    node* raw_ptr = static_cast<node*>(&*ptr);
+                    boost::unordered_detail::destroy(&raw_ptr->value());
+                    node_ptr n(node_alloc_.address(*raw_ptr));
                     node_alloc_.destroy(n);
                     node_alloc_.deallocate(n, 1);
                 }
 
                 void swap(allocators& x)
                 {
-                    unordered_detail::hash_swap(node_alloc_, x.node_alloc_);
-                    unordered_detail::hash_swap(bucket_alloc_, x.bucket_alloc_);
+                    boost::swap(node_alloc_, x.node_alloc_);
+                    boost::swap(bucket_alloc_, x.bucket_alloc_);
                 }
 
                 bool operator==(allocators const& x)
@@ -163,146 +158,62 @@ namespace boost {
 
                 node_ptr node_;
                 bool node_constructed_;
+                bool value_constructed_;
 
             public:
 
                 node_constructor(allocators& a)
                     : allocators_(a),
-                    node_(), node_constructed_(false)
+                    node_(), node_constructed_(false), value_constructed_(false)
                 {
                 }
 
                 ~node_constructor()
                 {
                     if (node_) {
+                        if (value_constructed_) {
+                            boost::unordered_detail::destroy(&node_->value());
+                        }
+
                         if (node_constructed_)
                             allocators_.node_alloc_.destroy(node_);
                         allocators_.node_alloc_.deallocate(node_, 1);
                     }
                 }
 
+#if defined(BOOST_HAS_RVALUE_REFS) && defined(BOOST_HAS_VARIADIC_TMPL)
                 template <typename... Args>
                 void construct(Args&&... args)
                 {
                     BOOST_ASSERT(!node_);
                     node_constructed_ = false;
+                    value_constructed_ = false;
 
                     node_ = allocators_.node_alloc_.allocate(1);
-                    allocators_.node_alloc_.construct(node_, std::forward<Args>(args)...);
+
+                    allocators_.node_alloc_.construct(node_, node());
                     node_constructed_ = true;
-                }
 
-                node_ptr get() const
-                {
-                    BOOST_ASSERT(node_);
-                    return node_;
+                    new(node_->address()) value_type(std::forward<Args>(args)...);
+                    value_constructed_ = true;
                 }
-
-                // no throw
-                link_ptr release()
-                {
-                    node_ptr p = node_;
-                    unordered_detail::reset(node_);
-                    return link_ptr(allocators_.bucket_alloc_.address(*p));
-                }
-
-            private:
-                node_constructor(node_constructor const&);
-                node_constructor& operator=(node_constructor const&);
-            };
 #else
-
-            // allocators
-            //
-            // Stores all the allocators that we're going to need.
-
-            struct allocators
-            {
-                node_allocator node_alloc_;
-                bucket_allocator bucket_alloc_;
-                value_allocator value_alloc_;
-                node_base_allocator node_base_alloc_;
-
-                allocators(value_allocator const& a)
-                    : node_alloc_(a), bucket_alloc_(a),
-                    value_alloc_(a), node_base_alloc_(a)
-                {}
-
-                void destroy(link_ptr ptr)
-                {
-                    node_ptr n(node_alloc_.address(*static_cast<node*>(&*ptr)));
-                    value_alloc_.destroy(value_alloc_.address(n->value_));
-                    node_base_alloc_.destroy(node_base_alloc_.address(*n));
-                    node_alloc_.deallocate(n, 1);
-                }
-
-                void swap(allocators& x)
-                {
-                    unordered_detail::hash_swap(node_alloc_, x.node_alloc_);
-                    unordered_detail::hash_swap(bucket_alloc_, x.bucket_alloc_);
-                    unordered_detail::hash_swap(value_alloc_, x.value_alloc_);
-                    unordered_detail::hash_swap(node_base_alloc_, x.node_base_alloc_);
-                }
-
-                bool operator==(allocators const& x)
-                {
-                    return value_alloc_ == x.value_alloc_;
-                }
-            };
-
-            // node_constructor
-            //
-            // Used to construct nodes in an exception safe manner.
-
-            class node_constructor
-            {
-                allocators& allocators_;
-
-                node_ptr node_;
-                bool value_constructed_;
-                bool node_base_constructed_;
-
-            public:
-
-                node_constructor(allocators& a)
-                    : allocators_(a),
-                    node_(), value_constructed_(false), node_base_constructed_(false)
-                {
-                    BOOST_UNORDERED_MSVC_RESET_PTR(node_);
-                }
-
-                ~node_constructor()
-                {
-                    if (node_) {
-                        if (value_constructed_)
-                            allocators_.value_alloc_.destroy(
-                                allocators_.value_alloc_.address(node_->value_));
-                        if (node_base_constructed_)
-                            allocators_.node_base_alloc_.destroy(
-                                allocators_.node_base_alloc_.address(*node_));
-
-                        allocators_.node_alloc_.deallocate(node_, 1);
-                    }
-                }
-
                 template <typename V>
                 void construct(V const& v)
                 {
                     BOOST_ASSERT(!node_);
+                    node_constructed_ = false;
                     value_constructed_ = false;
-                    node_base_constructed_ = false;
 
                     node_ = allocators_.node_alloc_.allocate(1);
 
-                    allocators_.node_base_alloc_.construct(
-                            allocators_.node_base_alloc_.address(*node_),
-                            node_base());
-                    node_base_constructed_ = true;
+                    allocators_.node_alloc_.construct(node_, node());
+                    node_constructed_ = true;
 
-                    allocators_.value_alloc_.construct(
-                            allocators_.value_alloc_.address(node_->value_), v);
+                    new(node_->address()) value_type(v);
                     value_constructed_ = true;
                 }
+#endif
 
                 node_ptr get() const
                 {
@@ -322,7 +233,6 @@ namespace boost {
                 node_constructor(node_constructor const&);
                 node_constructor& operator=(node_constructor const&);
             };
-#endif
 
             // Methods for navigating groups of elements with equal keys.
 
@@ -351,8 +261,7 @@ namespace boost {
 
             // pre: Must be pointing to a node
             static inline reference get_value(link_ptr p) {
-                BOOST_ASSERT(p);
-                return static_cast<node*>(&*p)->value_;
+                return get_node(p).value();
             }
 
             class iterator_base
@@ -1357,17 +1266,10 @@ namespace boost {
             // accessors
 
             // no throw
-#if defined(BOOST_HAS_RVALUE_REFS) && defined(BOOST_HAS_VARIADIC_TMPL)
             node_allocator get_allocator() const
             {
                 return data_.allocators_.node_alloc_;
             }
-#else
-            value_allocator get_allocator() const
-            {
-                return data_.allocators_.value_alloc_;
-            }
-#endif
 
             // no throw
             hasher const& hash_function() const
@@ -1465,6 +1367,21 @@ namespace boost {
                 bool need_to_reserve = n >= max_load_;
                 // throws - basic:
                 if (need_to_reserve) rehash_impl(min_buckets_for_size(n));
+                BOOST_ASSERT(n < max_load_ || n > max_size());
+                return need_to_reserve;
+            }
+
+            // basic exception safety
+            bool reserve_for_insert(size_type n)
+            {
+                bool need_to_reserve = n >= max_load_;
+                // throws - basic:
+                if (need_to_reserve) {
+                    size_type s = size();
+                    s = s + (s >> 1);
+                    s = s > n ? s : n;
+                    rehash_impl(min_buckets_for_size(s));
+                }
                 BOOST_ASSERT(n < max_load_ || n > max_size());
                 return need_to_reserve;
             }
@@ -1713,14 +1630,14 @@ namespace boost {
 
             iterator_base insert_impl(node_constructor& a)
             {
-                key_type const& k = extract_key(a.get()->value_);
+                key_type const& k = extract_key(a.get()->value());
                 size_type hash_value = hash_function()(k);
                 bucket_ptr bucket = data_.bucket_ptr_from_hash(hash_value);
                 link_ptr position = find_iterator(bucket, k);
 
                 // reserve has basic exception safety if the hash function
                 // throws, strong otherwise.
-                if(reserve(size() + 1))
+                if(reserve_for_insert(size() + 1))
                     bucket = data_.bucket_ptr_from_hash(hash_value);
 
                 // I'm relying on link_ptr not being invalidated by
@@ -1735,7 +1652,7 @@ namespace boost {
             iterator_base insert_hint_impl(iterator_base const& it, node_constructor& a)
             {
                 // equal can throw, but with no effects
-                if (it == data_.end() || !equal(extract_key(a.get()->value_), *it)) {
+                if (it == data_.end() || !equal(extract_key(a.get()->value()), *it)) {
                     // Use the standard insert if the iterator doesn't point
                     // to a matching key.
                     return insert_impl(a);
@@ -1750,8 +1667,8 @@ namespace boost {
 
                     // reserve has basic exception safety if the hash function
                     // throws, strong otherwise.
-                    bucket_ptr base = reserve(size() + 1) ?
-                        get_bucket(extract_key(a.get()->value_)) : it.bucket_;
+                    bucket_ptr base = reserve_for_insert(size() + 1) ?
+                        get_bucket(extract_key(a.get()->value())) : it.bucket_;
 
                     // Nothing after this point can throw
 
@@ -1775,13 +1692,13 @@ namespace boost {
                 }
                 else {
                     // Only require basic exception safety here
-                    reserve(size() + distance);
+                    reserve_for_insert(size() + distance);
                     node_constructor a(data_.allocators_);
 
                     for (; i != j; ++i) {
                         a.construct(*i);
 
-                        key_type const& k = extract_key(a.get()->value_);
+                        key_type const& k = extract_key(a.get()->value());
                         bucket_ptr bucket = get_bucket(k);
                         link_ptr position = find_iterator(bucket, k);
 
@@ -1841,7 +1758,7 @@ namespace boost {
 
                     // reserve has basic exception safety if the hash function
                     // throws, strong otherwise.
-                    if(reserve(size() + 1))
+                    if(reserve_for_insert(size() + 1))
                         bucket = data_.bucket_ptr_from_hash(hash_value);
 
                     // Nothing after this point can throw.
@@ -1880,7 +1797,7 @@ namespace boost {
 
                     // reserve has basic exception safety if the hash function
                     // throws, strong otherwise.
-                    if(reserve(size() + 1))
+                    if(reserve_for_insert(size() + 1))
                         bucket = data_.bucket_ptr_from_hash(hash_value);
 
                     // Nothing after this point can throw.
@@ -1947,7 +1864,7 @@ namespace boost {
 
                     // reserve has basic exception safety if the hash function
                     // throws, strong otherwise.
-                    if(reserve(size() + 1))
+                    if(reserve_for_insert(size() + 1))
                         bucket = data_.bucket_ptr_from_hash(hash_value);
 
                     // Nothing after this point can throw.
@@ -1966,7 +1883,7 @@ namespace boost {
                 a.construct(std::forward<Args>(args)...);
 
                 // No side effects in this initial code
-                key_type const& k = extract_key(a.get()->value_);
+                key_type const& k = extract_key(a.get()->value());
                 size_type hash_value = hash_function()(k);
                 bucket_ptr bucket = data_.bucket_ptr_from_hash(hash_value);
                 link_ptr pos = find_iterator(bucket, k);
@@ -1978,7 +1895,7 @@ namespace boost {
                 } else {
                     // reserve has basic exception safety if the hash function
                     // throws, strong otherwise.
-                    if(reserve(size() + 1))
+                    if(reserve_for_insert(size() + 1))
                         bucket = data_.bucket_ptr_from_hash(hash_value);
 
                     // Nothing after this point can throw.
@@ -2047,7 +1964,7 @@ namespace boost {
                         // reserve has basic exception safety if the hash function
                         // throws, strong otherwise.
                         if(size() + 1 >= max_load_) {
-                            reserve(size() + insert_size(i, j));
+                            reserve_for_insert(size() + insert_size(i, j));
                             bucket = data_.bucket_ptr_from_hash(hash_value);
                         }
 

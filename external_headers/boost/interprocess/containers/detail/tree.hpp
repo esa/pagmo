@@ -451,7 +451,7 @@ class rbtree
    }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   rbtree(const detail::moved_object<rbtree>& x) 
+   rbtree(detail::moved_object<rbtree> x) 
       :  AllocHolder(x.get(), x.get().key_comp())
    {  this->swap(x.get());  }
    #else
@@ -461,7 +461,7 @@ class rbtree
    #endif
 
    ~rbtree()
-   {  this->clear(); }
+   {} //AllocHolder clears the tree
 
    rbtree& operator=(const rbtree& x)
    {
@@ -489,7 +489,7 @@ class rbtree
    }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   rbtree& operator=(const detail::moved_object<rbtree>& mx)
+   rbtree& operator=(detail::moved_object<rbtree> mx)
    {  this->clear(); this->swap(mx.get());   return *this;  }
    #else
    rbtree& operator=(rbtree &&mx)
@@ -584,7 +584,7 @@ class rbtree
    {  AllocHolder::swap(x);   }
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   void swap(const detail::moved_object<rbtree>& mt) 
+   void swap(detail::moved_object<rbtree> mt) 
    {  this->swap(mt.get());   }
    #else
    void swap(rbtree &&mt) 
@@ -622,7 +622,7 @@ class rbtree
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template<class MovableConvertible>
    iterator insert_unique_commit
-      (const detail::moved_object<MovableConvertible>& mv, insert_commit_data &data)
+      (detail::moved_object<MovableConvertible> mv, insert_commit_data &data)
    {
       NodePtr tmp = AllocHolder::create_node(mv);
       iiterator it(this->icont().insert_unique_commit(*tmp, data));
@@ -652,8 +652,7 @@ class rbtree
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template<class MovableConvertible>
-   std::pair<iterator,bool> insert_unique
-      (const detail::moved_object<MovableConvertible>& mv)
+   std::pair<iterator,bool> insert_unique(detail::moved_object<MovableConvertible> mv)
    {
       insert_commit_data data;
       std::pair<iterator,bool> ret =
@@ -796,8 +795,7 @@ class rbtree
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template<class MovableConvertible>
-   iterator insert_unique
-      (const_iterator hint, const detail::moved_object<MovableConvertible> &mv)
+   iterator insert_unique(const_iterator hint, detail::moved_object<MovableConvertible> mv)
    {
       insert_commit_data data;
       std::pair<iterator,bool> ret =
@@ -844,7 +842,7 @@ class rbtree
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template<class MovableConvertible>
-   iterator insert_equal(const detail::moved_object<MovableConvertible> &mv)
+   iterator insert_equal(detail::moved_object<MovableConvertible> mv)
    {
       NodePtr p(AllocHolder::create_node(mv));
       return iterator(this->icont().insert_equal(this->icont().end(), *p));
@@ -866,7 +864,7 @@ class rbtree
 
    #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
    template<class MovableConvertible>
-   iterator insert_equal(const_iterator hint, const detail::moved_object<MovableConvertible> &mv)
+   iterator insert_equal(const_iterator hint, detail::moved_object<MovableConvertible> mv)
    {
       NodePtr p(AllocHolder::create_node(mv));
       return iterator(this->icont().insert_equal(hint.get(), *p));
@@ -993,13 +991,15 @@ class rbtree
    void priv_create_and_insert_nodes
       (FwdIterator beg, FwdIterator end, bool unique, allocator_v2, std::forward_iterator_tag)
    {
-      if(unique){
-         priv_create_and_insert_nodes(beg, end, unique, allocator_v2(), std::input_iterator_tag());
-      }
-      else{
-         //Optimized allocation and construction
-         this->allocate_many_and_construct
-            (beg, std::distance(beg, end), insertion_functor(this->icont()));
+      if(beg != end){
+         if(unique){
+            priv_create_and_insert_nodes(beg, end, unique, allocator_v2(), std::input_iterator_tag());
+         }
+         else{
+            //Optimized allocation and construction
+            this->allocate_many_and_construct
+               (beg, std::distance(beg, end), insertion_functor(this->icont()));
+         }
       }
    }
 };

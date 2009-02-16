@@ -112,7 +112,7 @@ public:
             return NULL;
         }
     }
-    void destroy(void const * const p) const {
+    void destroy(void const * const /* p */) const {
         // the only current usage of extended type info is in the
         // serialization library.  The statement below requires
         // that destructor of type T be public and this creates

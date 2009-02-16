@@ -39,7 +39,7 @@ namespace boost { namespace xpressive { namespace detail
     struct type_info_less;
 
     typedef std::map<std::type_info const *, void *, type_info_less> action_args_type;
-    
+
     struct action_context;
 
     template<typename BidiIter>
@@ -405,13 +405,15 @@ namespace boost { namespace xpressive { namespace grammar_detail
     using proto::otherwise;
     using proto::switch_;
     using proto::make;
-    using proto::_arg;
+    using proto::_child;
+    using proto::_value;
     using proto::_left;
     using proto::_right;
     using proto::not_;
     using proto::_state;
-    using proto::_visitor;
+    using proto::_data;
     using proto::callable;
+    using proto::transform;
     using proto::fold;
     using proto::reverse_fold;
     using proto::fold_tree;
@@ -421,7 +423,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
     using proto::bitwise_or;
     using proto::logical_not;
     using proto::dereference;
-    using proto::posit;
+    using proto::unary_plus;
     using proto::negate;
     using proto::complement;
     using proto::comma;

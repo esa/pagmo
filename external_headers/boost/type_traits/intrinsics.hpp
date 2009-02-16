@@ -105,7 +105,8 @@
 #   define BOOST_IS_ENUM(T) __is_enum(T)
 //  This one doesn't quite always do the right thing:
 //  #   define BOOST_IS_POLYMORPHIC(T) __is_polymorphic(T)
-#   define BOOST_ALIGNMENT_OF(T) __alignof(T)
+//  This one fails if the default alignment has been changed with /Zp:
+//  #   define BOOST_ALIGNMENT_OF(T) __alignof(T)
 
 #   define BOOST_HAS_TYPE_TRAITS_INTRINSICS
 #endif
@@ -126,7 +127,7 @@
 #   define BOOST_HAS_TYPE_TRAITS_INTRINSICS
 #endif
 
-#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)))
+#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3) && !defined(__GCCXML__)))
 #   include <boost/type_traits/is_same.hpp>
 #   include <boost/type_traits/is_reference.hpp>
 #   include <boost/type_traits/is_volatile.hpp>
@@ -148,7 +149,12 @@
 #   define BOOST_IS_CLASS(T) __is_class(T)
 #   define BOOST_IS_ENUM(T) __is_enum(T)
 #   define BOOST_IS_POLYMORPHIC(T) __is_polymorphic(T)
-#   define BOOST_ALIGNMENT_OF(T) __alignof__(T)
+#   if !defined(unix) || defined(__LP64__)
+      // GCC sometimes lies about alignment requirements
+      // of type double on 32-bit unix platforms, use the
+      // old implementation instead in that case:
+#     define BOOST_ALIGNMENT_OF(T) __alignof__(T)
+#   endif
 
 #   define BOOST_HAS_TYPE_TRAITS_INTRINSICS
 #endif

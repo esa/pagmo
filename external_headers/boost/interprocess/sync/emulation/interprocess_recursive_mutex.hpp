@@ -33,14 +33,14 @@ namespace boost {
 namespace interprocess {
 
 inline interprocess_recursive_mutex::interprocess_recursive_mutex() 
-   : m_nLockCount(0), m_nOwner(detail::get_invalid_thread_id()){}
+   : m_nLockCount(0), m_nOwner(detail::get_invalid_systemwide_thread_id()){}
 
 inline interprocess_recursive_mutex::~interprocess_recursive_mutex(){}
 
 inline void interprocess_recursive_mutex::lock()
 {
-   detail::OS_thread_id_t th_id = detail::get_current_thread_id();
-   if(detail::equal_thread_id(th_id, m_nOwner)){
+   detail::OS_systemwide_thread_id_t th_id = detail::get_current_systemwide_thread_id();
+   if(detail::equal_systemwide_thread_id(th_id, m_nOwner)){
       if((unsigned int)(m_nLockCount+1) == 0){
          //Overflow, throw an exception
          throw interprocess_exception();
@@ -56,8 +56,8 @@ inline void interprocess_recursive_mutex::lock()
 
 inline bool interprocess_recursive_mutex::try_lock()
 {
-   detail::OS_thread_id_t th_id = detail::get_current_thread_id();
-   if(detail::equal_thread_id(th_id, m_nOwner)) {  // we own it
+   detail::OS_systemwide_thread_id_t th_id = detail::get_current_systemwide_thread_id();
+   if(detail::equal_systemwide_thread_id(th_id, m_nOwner)) {  // we own it
       if((unsigned int)(m_nLockCount+1) == 0){
          //Overflow, throw an exception
          throw interprocess_exception();
@@ -79,8 +79,8 @@ inline bool interprocess_recursive_mutex::timed_lock(const boost::posix_time::pt
       this->lock();
       return true;
    }
-   detail::OS_thread_id_t th_id = detail::get_current_thread_id();
-   if(detail::equal_thread_id(th_id, m_nOwner)) {  // we own it
+   detail::OS_systemwide_thread_id_t th_id = detail::get_current_systemwide_thread_id();
+   if(detail::equal_systemwide_thread_id(th_id, m_nOwner)) {  // we own it
       if((unsigned int)(m_nLockCount+1) == 0){
          //Overflow, throw an exception
          throw interprocess_exception();
@@ -98,10 +98,10 @@ inline bool interprocess_recursive_mutex::timed_lock(const boost::posix_time::pt
 
 inline void interprocess_recursive_mutex::unlock()
 {
-   assert(detail::equal_thread_id(detail::get_current_thread_id(), m_nOwner));
+   assert(detail::equal_systemwide_thread_id(detail::get_current_systemwide_thread_id(), m_nOwner));
    --m_nLockCount;
    if(!m_nLockCount){
-      m_nOwner = detail::get_invalid_thread_id();
+      m_nOwner = detail::get_invalid_systemwide_thread_id();
       m_mutex.unlock();
    }
 }
