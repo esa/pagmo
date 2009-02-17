@@ -223,7 +223,7 @@ Population nm_algorithm::evolve(const Population &pop) const
 	}
 	// In retval overwrite the individuals that have evolved (i.e., those involved in the simplex).
 	for (size_t i = 0; i < simplex_size; ++i) {
-		retval[i] = Individual(s[i].first,s[i].second);
+		retval[i] = Individual(s[i].first,retval[i].getVelocity(),s[i].second);
 	}
 	return retval;
 }

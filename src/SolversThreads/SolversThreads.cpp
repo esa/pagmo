@@ -147,29 +147,22 @@ void *PSOthread(void *data)
    PtrTP = (threadParam *)data;
    double oldfitness;
    vector<size_t> picks;
-   GOProblem* problem;
-   const vector<double> &LB = PtrTP->problem->getLB();
    Population deme(*PtrTP->problem,0);
-   PSOalgorithm PSO;
-   rng_uint32 rng;
-   rng_double drng;
+   boost::scoped_ptr<PSOalgorithm> PSO;
 
 	clock_t start,end;
 	double dif;
 
    {
         lock_type lock(*PtrTP->TPmutex);
-        rng.seed(PtrTP->randomSeed);
-        drng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
-		problem = PtrTP->problem;
-		PSO.initPSO(PtrTP->generations,LB.size(),PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff, rng());
+		PSO.reset(new PSOalgorithm(PtrTP->generations,PtrTP->omega,PtrTP->eta1,PtrTP->eta2,PtrTP->vcoeff));
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
    start=clock();
-   deme = PSO.evolve(deme, *problem);
+   deme = PSO->evolve(deme);
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 

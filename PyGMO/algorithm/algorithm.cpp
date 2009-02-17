@@ -26,6 +26,7 @@
 #include "../../src/GOclasses/algorithms/ASA.h"
 #include "../../src/GOclasses/algorithms/DE.h"
 #include "../../src/GOclasses/algorithms/MPSO.h"
+#include "../../src/GOclasses/algorithms/PSO.h"
 #include "../../src/GOclasses/algorithms/go_algorithm.h"
 #include "../../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../../src/GOclasses/algorithms/nm_algorithm.h"
@@ -60,4 +61,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<int, const double &, const double &, const double &, const double &>());
 	algorithm_wrapper<MPSOalgorithm>("mpso", "MPSO algorithm")
 		.def(init<int, const double &, const double &, const double &, const double &, int>());
+	algorithm_wrapper<PSOalgorithm>("pso", "PSO algorithm")
+		.def(init<int, const double &, const double &, const double &, const double &>());
 }

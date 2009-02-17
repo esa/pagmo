@@ -1,50 +1,63 @@
-/*
- *  PSO.cpp
- *  SeGMO, a Sequential Global Multiobjective Optimiser
- *
- *  Created by Dario Izzo on 5/16/08.
- *  Copyright 2008 Advanced Concepts Team (European Space Agency). All rights reserved.
- *
- */
+/*****************************************************************************
+ *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
+// 16/05/2008: Initial version by Dario Izzo.
+
+#include <iostream>
 #include <vector>
 
+#include "../../exceptions.h"
+#include "../problems/GOproblem.h"
 #include "PSO.h"
 
-using namespace std;
-
-void PSOalgorithm::initPSO(int generationsInit, int SolDimInit, double omegaInit, double eta1Init, double eta2Init,double vcoeffInit, uint32_t randomSeed){
-	generations = generationsInit;
-	SolDim = SolDimInit;
-	omega = omegaInit;
-	eta1 = eta1Init;
-	eta2 = eta2Init;
-	vcoeff = vcoeffInit;
-	drng.seed(randomSeed);
+PSOalgorithm::PSOalgorithm(int generationsInit, const double &omegaInit, const double &eta1Init, const double &eta2Init,
+	const double &vcoeffInit):generations(generationsInit),omega(omegaInit),eta1(eta1Init),eta2(eta2Init),vcoeff(vcoeffInit)
+{
+	if (generationsInit < 0) {
+		pagmo_throw(value_error,"number of generations must be nonnegative");
+	}
 }
 
-Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
-
+Population PSOalgorithm::evolve(const Population &deme) const
+{
+    const GOProblem &problem = deme.problem();
     const std::vector<double>& LB = problem.getLB();
     const std::vector<double>& UB = problem.getUB();
 
 	int n = deme.size();
 	int m = LB.size();
 
-	vector<double> dummy(m,0);							//used for initialisation purposes
-	vector< vector<double> > X(n,dummy);
-	vector< vector<double> > V(n,dummy);
+	std::vector<double> dummy(m,0);							//used for initialisation purposes
+	std::vector<std::vector<double> > X(n,dummy);
+	std::vector<std::vector<double> > V(n,dummy);
 
-	vector<double> fit(n);							//particle fitness
+	std::vector<double> fit(n);							//particle fitness
 
 	double gbfit;										//global best fitness
-	vector<double> gbX(m);								//global best chromosome
+	std::vector<double> gbX(m);								//global best chromosome
 
-	vector<double> lbfit(n);							//local best fitness
-	vector< vector<double> > lbX(n,dummy);				//local best chromosome
+	std::vector<double> lbfit(n);							//local best fitness
+	std::vector<std::vector<double> > lbX(n,dummy);				//local best chromosome
 
 	double vwidth;										//Width of the search space
-    vector<double> MINV(m),MAXV(m);						//Maximum and minumum velocity allowed
+    std::vector<double> MINV(m),MAXV(m);						//Maximum and minumum velocity allowed
 
 	// Initialise the particle (class Individual) positions, their velocities and their fitness to that of the deme
 	for ( int i = 0; i<n; i++ ){
@@ -76,7 +89,7 @@ Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
 
 
    // Main PSO loop
-   for (int j = 0; j<generations; j++){
+   for (size_t j = 0; j < generations; ++j){
 
 
 		//1 - move the particles and check that velocity and positions are in allowed range
@@ -127,8 +140,8 @@ Population PSOalgorithm::evolve(Population deme, GOProblem& problem){
    return popout;
 }
 
-
-
-
-
-
+void PSOalgorithm::log(std::ostream &s) const
+{
+	s << "PSO - generations:" << generations << " omega:" << omega << " eta1:" << eta1
+		<< " eta2:" << eta2 << " vcoeff:" << vcoeff;
+}

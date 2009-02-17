@@ -1,42 +1,45 @@
-/*
- *  PSO.h
- *  SeGMO, a Sequential Global Multiobjective Optimiser
- *
- *  Created by Dario Izzo on 5/16/08.
- *  Copyright 2008 Àdvanced Concepts Team (European Space Agency). All rights reserved.
- *
- */
+/*****************************************************************************
+ *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
-#ifndef PSO_H
-#define PSO_H
+// 16/05/2008: Initial version by Dario Izzo.
 
-#include <cmath>
-#include <vector>
+#ifndef PAGMO_PSO_H
+#define PAGMO_PSO_H
 
-#include "population.h"
-#include "rng.h"
+#include <iostream>
 
-class PSOalgorithm{
-public:
+#include "../basic/population.h"
+#include "go_algorithm.h"
 
-Population evolve(Population deme, GOProblem& problem);
-
-void initPSO(int generationsInit,
-			 int SolDimInit,
-			 double omegaInit,
-			 double eta1Init,
-			 double eta2Init,
-			 double vcoeffInit,
-			 uint32_t randomSeed);
-
-private:
-	int generations;
-	int SolDim;
-	double omega;
-	double eta1;
-	double eta2;
-	double vcoeff;
-	rng_double drng;
+class PSOalgorithm: public go_algorithm {
+	public:
+		PSOalgorithm(int, const double &, const double &, const double &, const double &);
+		virtual Population evolve(const Population &) const;
+		virtual PSOalgorithm *clone() const {return new PSOalgorithm(*this);}
+	private:
+		virtual void log(std::ostream &) const;
+		size_t generations;
+		double omega;
+		double eta1;
+		double eta2;
+		double vcoeff;
 };
 
 #endif
