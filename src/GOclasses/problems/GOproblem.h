@@ -30,84 +30,46 @@
 
 #include "../../../config.h"
 #include "../../atomic_counters/atomic_counters.h"
-#include "../../exceptions.h"
 
 class __PAGMO_VISIBLE GOProblem {
 	friend std::ostream &operator<<(std::ostream &, const GOProblem &);
+	friend size_t objfun_calls();
 public:
-	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
-	GOProblem(int n) {
-			if (n <= 0) {
-					pagmo_throw(value_error,"size of problem must be positive");
-			}
-			const size_t size = (size_t)(n);
-			LB.resize(size);
-			UB.resize(size);
-			for (size_t i = 0; i < size; ++i) {
-					LB[i] = 0;
-					UB[i] = 1;
-			}
-	}
 	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {}
 	// Bounds getters and setters via reference
-	const std::vector<double> &getLB() const {return LB;}
-	const std::vector<double> &getUB() const {return UB;}
+	const std::vector<double> &getLB() const;
+	const std::vector<double> &getUB() const;
+	void setLB(const std::vector<double> &);
+	void setUB(const std::vector<double> &);
 	// Dimension getter
-	size_t getDimension() const {return LB.size();}
+	size_t getDimension() const;
 	double objfun(const std::vector<double> &) const;
 	virtual GOProblem *clone() const = 0;
-	std::string id_name() const {return typeid(*this).name();}
+	std::string id_name() const;
 	virtual void pre_evolution() const {}
 	virtual void post_evolution() const {}
-	void set_lb(int n, const double &value) {
-		if (n < 0 || (size_t)n >= LB.size()) {
-			pagmo_throw(index_error,"invalid index for lower bound");
-		}
-		if (UB[n] <= value) {
-			pagmo_throw(value_error,"invalid value for lower bound");
-		}
-		LB[n] = value;
-	}
-	void set_ub(int n, const double &value) {
-		if (n < 0 || (size_t)n >= UB.size()) {
-			pagmo_throw(index_error,"invalid index for upper bound");
-		}
-		if (LB[n] >= value) {
-			pagmo_throw(value_error,"invalid value for upper bound");
-		}
-		UB[n] = value;
-	}
-	static size_t objfun_calls();
+	void set_lb(int, const double &);
+	void set_ub(int, const double &);
 protected:
 	// The objective function - must be implemented in subclasses
 	virtual double objfun_(const std::vector<double> &) const = 0;
+	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
+	GOProblem(int);
 	// Constructor with array bounds initialisers
-	GOProblem(const size_t &d, const double *l, const double *u):LB(l, l + d),UB(u, u + d) {
-		check_boundaries();
-	}
+	GOProblem(const size_t &, const double *, const double *);
 	// Constructor with vectors initialisers
-	GOProblem(const std::vector<double>& l, const std::vector<double>& u):LB(l),UB(u) {
-		if (l.size() != u.size()) {
-			pagmo_throw(value_error,"size mismatch in base problem constructor from vectors");
-		}
-		check_boundaries();
-	}
+	GOProblem(const std::vector<double> &, const std::vector<double> &);
 	// These need to be protected and cannot be private and const as some problems need to deifne the LB and UB at run time (i.e. LJ)
 	std::vector<double> LB;
 	std::vector<double> UB;
 private:
-	void check_boundaries() const {
-		const size_t size = LB.size();
-		for (size_t i = 0; i < size; ++i) {
-			if (LB[i] >= UB[i]) {
-				pagmo_throw(value_error,"inconsistent boundaries in base problem");
-			}
-		}
-	}
+	void check_boundaries() const;
 	static PaGMO::atomic_counter_size_t m_objfun_counter;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const GOProblem &);
+
+size_t __PAGMO_VISIBLE_FUNC objfun_calls();
 
 #endif

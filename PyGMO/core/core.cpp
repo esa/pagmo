@@ -22,6 +22,7 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
+#include <boost/python/def.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/manage_new_object.hpp>
 #include <boost/python/module.hpp>
@@ -110,6 +111,8 @@ BOOST_PYTHON_MODULE(_core)
 		"Decision vector.");
 	class_ind.add_property("velocity", make_function(&Individual::getVelocity, return_value_policy<copy_const_reference>()),
 		"Velocity.");
+
+	def("objfun_calls", &objfun_calls, "Number of times objective functions have been called.");
 
 	// Expose population class.
 	typedef const Individual &(Population::*pop_get_const)(int) const;
