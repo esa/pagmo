@@ -33,12 +33,12 @@
 class __PAGMO_VISIBLE Individual {
 
 public:
-	///Constructs an Individual with x,v,fitness.
-	Individual(const std::vector<double> &, const std::vector<double> &, const double &);
-	///Contructs an Individual with x,fitness and an empty velocity of size x.size().
-	Individual(const std::vector<double> &, const double &);
 	///Constructs an Individual with x randomly placed within a GOProblem bounds and a random velocity of maximum magnitude (UB-LB).
 	Individual(const GOProblem &);
+	///Constructs an Individual with x and v, fitness will be calculated from the problem.
+	Individual(const GOProblem &, const std::vector<double> &, const std::vector<double> &);
+	///Constructs an Individual with x and an empty velocity of size x.size(). Fitness will be calculated from the problem.
+	Individual(const GOProblem &, const std::vector<double> &);
 	Individual &operator=(const Individual &);
 	///Returns the Individual fitness.
 	double getFitness() const {return fitness;}
@@ -49,8 +49,6 @@ public:
 private:
 	///Operator << for the Individual.
 	friend std::ostream &operator<<(std::ostream &, const Individual &);
-	///Throws an exception if the sizes of this and the argument are different.
-	void check_compatibility(const Individual &) const;
 	///Individual chromosome (position).
 	std::vector<double>			x;
 	///Individual velocity.

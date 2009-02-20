@@ -42,32 +42,35 @@
 		fitness = problem.objfun(x);
 	}
 
-	Individual::Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):
-		x(x_),v(v_),fitness(fitness_)
+	Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, const std::vector<double> &v_):
+		x(x_),v(v_),fitness(0.)
 	{
 		if (x.size() != v.size()) {
 			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
 		}
+		if (problem.getDimension() != x.size()) {
+			pagmo_throw(value_error,"problem size is incompatible with the size of the decision vector");
+		}
+		fitness = problem.objfun(x);
 	}
 
-	Individual::Individual(const std::vector<double> &x_, const double &fitness_):x(x_),v(x_.size()),fitness(fitness_) {}
+	Individual::Individual(const GOProblem &problem, const std::vector<double> &x_):x(x_),v(x_.size()),fitness(0.)
+	{
+		if (problem.getDimension() != x.size()) {
+			pagmo_throw(value_error,"problem size is incompatible with the size of the decision vector");
+		}
+		fitness = problem.objfun(x);
+	}
 
 	Individual &Individual::operator=(const Individual &i)
 	{
 		if (this != &i) {
-			check_compatibility(i);
+			if (i.getDecisionVector().size() != x.size()) {
+				pagmo_throw(value_error,"individuals are incompatible");
+			}
 			x = i.x;
 			v = i.v;
 			fitness = i.fitness;
 		}
 		return *this;
 	}
-
-	void Individual::check_compatibility(const Individual &i) const
-	{
-		if (i.getDecisionVector().size() != x.size()) {
-			pagmo_throw(value_error,"individuals are incompatible");
-		}
-	}
-
-

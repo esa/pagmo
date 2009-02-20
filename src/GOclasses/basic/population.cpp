@@ -64,7 +64,7 @@
 		}
 	}
 
-	// This function returns an individual based on input which has been checked for compatibility with the population.
+	// This function returns an individual based on input individual which has been checked for compatibility with the population.
 	// If there are no size mismatches and no boundaries mismatches (i.e., input's decision vector falls within problem's boundaries),
 	// then a copy of input is returned. If there is a size mismatch, an exception is raised. If there is a boundaries mismatch,
 	// then replace the out-of-boundaries values of the input decision vector with randomly-generated ones.
@@ -94,8 +94,7 @@
 					v[i] = ind.getVelocity()[i];
 				}
 			}
-			const double fitness = m_problem->objfun(dv);
-			return Individual(dv,v,fitness);
+			return Individual(*m_problem,dv,v);
 		}
 		return ind;
 	}

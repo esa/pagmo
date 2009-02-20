@@ -103,6 +103,8 @@ BOOST_PYTHON_MODULE(_core)
 
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
+	class_ind.def(init<const GOProblem &, const std::vector<double> &, const std::vector<double> &>());
+	class_ind.def(init<const GOProblem &, const std::vector<double> &>());
 	class_ind.def(init<const Individual &>());
 	class_ind.def("__copy__", &Py_copy_from_ctor<Individual>);
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);

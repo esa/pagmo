@@ -135,7 +135,7 @@ Population PSOalgorithm::evolve(const Population &deme) const
    //we end by constructing the object Population containing the final results
    Population popout(problem,0);
    for (int i=0; i<n; i++){
-	popout.push_back(Individual(lbX[i],V[i],lbfit[i]));
+	popout.push_back(Individual(problem,lbX[i],V[i]));
    }
    return popout;
 }
