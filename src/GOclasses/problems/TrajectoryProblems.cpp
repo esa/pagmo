@@ -58,7 +58,7 @@ double messengerfullProb::objfun_(const std::vector<double>& x) const {
 
 
 const double messengerProb::lb[18] = {1000, 1, 0, 0, 200, 30,  30,  30,  0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.1, -M_PI, -M_PI, -M_PI};
-const double messengerProb::ub[18] = {1200, 5, 1, 1, 400, 400, 400, 400, 0.99, 0.99, 0.99, 0.99, 6,   6,   6,    M_PI,  M_PI,  M_PI};
+const double messengerProb::ub[18] = {4000, 5, 1, 1, 400, 400, 400, 400, 0.99, 0.99, 0.99, 0.99, 6,   6,   6,    M_PI,  M_PI,  M_PI};
 const int messengerProb::sequence[5] = {3, 3, 2, 2, 1};
 
 messengerProb::messengerProb():GOProblem(18,lb,ub),mgadsm(total_DV_rndv,sequence,5,0,0,0,0,0) {};
