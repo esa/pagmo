@@ -142,7 +142,10 @@ double GOProblem::objfun(const std::vector<double> &v) const
 		pagmo_throw(value_error,"mismatch between the size of the decision vector and the size of the problem when calling the objective function");
 	}
 	const double retval = objfun_(v);
-	++m_objfun_counter;
+	// Disable this for now, until we assess performance impact.
+	if (false) {
+		++m_objfun_counter;
+	}
 	return retval;
 }
 
