@@ -20,6 +20,7 @@
 
 // 16/05/08 Created by Dario Izzo.
 
+#include <iostream>
 #include <vector>
 
 #include "../../exceptions.h"
@@ -48,17 +49,13 @@
 		if (x.size() != v.size()) {
 			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
 		}
-		if (problem.getDimension() != x.size()) {
-			pagmo_throw(value_error,"problem size is incompatible with the size of the decision vector");
-		}
+		check(problem);
 		fitness = problem.objfun(x);
 	}
 
 	Individual::Individual(const GOProblem &problem, const std::vector<double> &x_):x(x_),v(x_.size()),fitness(0.)
 	{
-		if (problem.getDimension() != x.size()) {
-			pagmo_throw(value_error,"problem size is incompatible with the size of the decision vector");
-		}
+		check(problem);
 		fitness = problem.objfun(x);
 	}
 
@@ -74,3 +71,35 @@
 		}
 		return *this;
 	}
+
+	/// Check that the individual is compatible with a problem.
+	/**
+	 * Compatibility means that the individual's size is the same as the problem's and that the values
+	 * of the decision vector are within the boundaries defined in the problem. If the individual is incompatible,
+	 * a value_error exception will be thrown.
+	 */
+	void Individual::check(const GOProblem &p) const
+	{
+		const size_t size = x.size();
+		if (size != p.getDimension()) {
+			pagmo_throw(value_error,"mismatch between individual size and problem size");
+		}
+		for (size_t i = 0; i < size; ++i) {
+			if (x[i] > p.getUB()[i] || x[i] < p.getLB()[i]) {
+				pagmo_throw(value_error,"individual's decision vector is incompatible with the boundaries of the problem");
+			}
+		}
+	}
+
+std::ostream &operator<<(std::ostream &s, const Individual &ind)
+{
+	s << std::scientific;
+	s.precision(15);
+	for (size_t i = 0; i < ind.x.size(); ++i) {
+		s << ind.x[i];
+		if (i != ind.x.size() - 1) {
+			s << ',';
+		}
+	}
+	return s;
+}

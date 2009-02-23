@@ -63,7 +63,7 @@ public:
 	void insertBestInDeme(const Population &, const std::vector<size_t> &);
 	void insertDemeForced(const Population &, const std::vector<size_t> &);
 private:
-	Individual check_individual(const Individual &) const;
+	Individual checked_individual(const Individual &) const;
 	void createRandomPopulation(int);
 	template <class Functor>
 	size_t extract_most_index() const {

@@ -31,7 +31,6 @@
 #include "rng.h"
 
 class __PAGMO_VISIBLE Individual {
-
 public:
 	///Constructs an Individual with x randomly placed within a GOProblem bounds and a random velocity of maximum magnitude (UB-LB).
 	Individual(const GOProblem &);
@@ -46,6 +45,7 @@ public:
 	const std::vector<double> &getDecisionVector() const {return x;}
 	///Returns the Individual velocity.
 	const std::vector<double> &getVelocity() const {return v;}
+	void check(const GOProblem &) const;
 private:
 	///Operator << for the Individual.
 	friend std::ostream &operator<<(std::ostream &, const Individual &);
@@ -57,16 +57,6 @@ private:
 	double						fitness;
 };
 
-inline std::ostream &operator<<(std::ostream &s, const Individual &ind) {
-	s << std::scientific;
-	s.precision(15);
-	for (size_t i = 0; i < ind.x.size(); ++i) {
-		s << ind.x[i];
-		if (i != ind.x.size() - 1) {
-			s << ',';
-		}
-	}
-	return s;
-}
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Individual &);
 
 #endif

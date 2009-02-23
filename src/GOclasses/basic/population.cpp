@@ -27,6 +27,7 @@
 
 #include "../../exceptions.h"
 #include "GOproblem.h"
+#include "individual.h"
 #include "population.h"
 #include "rng.h"
 
@@ -68,33 +69,29 @@
 	// If there are no size mismatches and no boundaries mismatches (i.e., input's decision vector falls within problem's boundaries),
 	// then a copy of input is returned. If there is a size mismatch, an exception is raised. If there is a boundaries mismatch,
 	// then replace the out-of-boundaries values of the input decision vector with randomly-generated ones.
-	Individual Population::check_individual(const Individual &ind) const
+	Individual Population::checked_individual(const Individual &ind) const
 	{
-		const size_t size = ind.getDecisionVector().size();
-		if (size != m_problem->getDimension()) {
-			pagmo_throw(value_error,"individual's size is incompatible with population");
-		}
 		try {
-			for (size_t i = 0; i < size; ++i) {
-				if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
-					ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
-					pagmo_throw(value_error,"individual decision vector is incompatible with the boundaries of the problem");
-				}
-			}
+			ind.check(*m_problem);
 		} catch (const value_error &) {
-			const Individual random_ind = Individual(*m_problem);
-			std::vector<double> dv(size), v(size);
-			for (size_t i = 0; i < size; ++i) {
-				if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
-					ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
-					dv[i] = random_ind.getDecisionVector()[i];
-					v[i] = random_ind.getVelocity()[i];
-				} else {
-					dv[i] = ind.getDecisionVector()[i];
-					v[i] = ind.getVelocity()[i];
+			const size_t size = ind.getDecisionVector().size();
+			if (size != m_problem->getDimension()) {
+				pagmo_throw(value_error,"individual's size is incompatible with population");
+			} else {
+				const Individual random_ind = Individual(*m_problem);
+				std::vector<double> dv(size), v(size);
+				for (size_t i = 0; i < size; ++i) {
+					if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
+						ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
+						dv[i] = random_ind.getDecisionVector()[i];
+						v[i] = random_ind.getVelocity()[i];
+					} else {
+						dv[i] = ind.getDecisionVector()[i];
+						v[i] = ind.getVelocity()[i];
+					}
 				}
+				return Individual(*m_problem,dv,v);
 			}
-			return Individual(*m_problem,dv,v);
 		}
 		return ind;
 	}
@@ -111,7 +108,7 @@
 
 	void Population::push_back(const Individual &i)
 	{
-		pop.push_back(check_individual(i));
+		pop.push_back(checked_individual(i));
 	}
 
 	void Population::erase(int n)
@@ -121,7 +118,7 @@
 
 	void Population::insert(int n, const Individual &i)
 	{
-		Individual tmp = check_individual(i);
+		Individual tmp = checked_individual(i);
 		try {
 			pop.insert(pop.begin() + get_ra_index(n),tmp);
 		} catch (const index_error &) {
