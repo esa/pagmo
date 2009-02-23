@@ -49,9 +49,6 @@ double twodee_problem::objfun_(const std::vector<double> &v) const
 {
 	double retval = 0;
 	const size_t size = v.size();
-	if (size != getDimension()) {
-		pagmo_throw(value_error,"problem size mismatch in twodee");
-	}
 	// Write the current chromosome to a temporary file.
 	const std::string input_name = std::string(tempnam(0,boost::lexical_cast<std::string>(m_random_seed).c_str()));
 	std::ofstream input(input_name.c_str());
