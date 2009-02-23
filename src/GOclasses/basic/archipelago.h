@@ -60,7 +60,8 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		archipelago(const archipelago &);
 		const base_topology &topology() const;
 		void set_topology(const base_topology &);
-		island &operator[](int);
+		const island &operator[](int) const;
+		void set_island(int, const island &);
 		void push_back(const island &);
 		size_t size() const;
 		const GOProblem &problem() const;

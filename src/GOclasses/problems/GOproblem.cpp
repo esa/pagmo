@@ -146,6 +146,25 @@ double GOProblem::objfun(const std::vector<double> &v) const
 	return retval;
 }
 
+bool GOProblem::operator==(const GOProblem &p) const
+{
+	const size_t size = getDimension();
+	if (typeid(*this) != typeid(p) || size != p.getDimension()) {
+		return false;
+	}
+	for (size_t i = 0; i < size; ++i) {
+		if (LB[i] != p.LB[i] || UB[i] != p.UB[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool GOProblem::operator!=(const GOProblem &p) const
+{
+	return !(*this == p);
+}
+
 std::ostream &operator<<(std::ostream &s, const GOProblem &p) {
 	s << "Problem type: " << p.id_name() << '\n';
 	s << "Dimension: " << p.getDimension() << '\n';

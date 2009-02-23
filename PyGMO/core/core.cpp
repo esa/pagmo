@@ -63,12 +63,6 @@ static inline std::string Py_repr_vector(const std::vector<T> &v)
 	return tmp.str();
 }
 
-template <class Container, class Item>
-static inline void Py_set_item_from_ra(Container &c, int n, const Item &x)
-{
-	c[n] = x;
-}
-
 template <class T, class C>
 static inline T *problem_getter(const C &c)
 {
@@ -101,6 +95,11 @@ BOOST_PYTHON_MODULE(_core)
 	class_vd.def("__repr__", &Py_repr_vector<double>);
 	class_vd.def(vector_indexing_suite<std::vector<double> >());
 
+	// Expose std::vector<int>.
+	class_<std::vector<int> > class_vi("vector_int","std::vector<int>");
+	class_vi.def("__repr__", &Py_repr_vector<int>);
+	class_vi.def(vector_indexing_suite<std::vector<int> >());
+
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
 	class_ind.def(init<const GOProblem &, const std::vector<double> &, const std::vector<double> &>());
@@ -126,15 +125,15 @@ BOOST_PYTHON_MODULE(_core)
 	class_pop.def("__delitem__", &Population::erase);
 	class_pop.def("__getitem__", pop_get_const(&Population::operator[]), return_value_policy<copy_const_reference>(), "Get a copy of individual.");
 	class_pop.def("__len__", &Population::size);
-	class_pop.def("__setitem__", &Py_set_item_from_ra<Population,Individual>);
+	class_pop.def("__setitem__", &Population::set_individual);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
 	class_pop.add_property("problem", make_function(&problem_getter<GOProblem,Population>,return_value_policy<manage_new_object>()), "Problem.");
 	class_pop.def("append", &Population::push_back, "Append individual at the end of the population.");
 	class_pop.def("insert", &Population::insert, "Insert individual before index.");
 	class_pop.def("mean", &Population::evaluateMean, "Evaluate mean.");
 	class_pop.def("std", &Population::evaluateStd, "Evaluate std.");
-	class_pop.def("best", &Population::extractBestIndividual, "Copy of best individual.");
-	class_pop.def("worst", &Population::extractWorstIndividual, "Copy of worst individual.");
+	class_pop.def("best", &Population::extractBestIndividual, return_value_policy<copy_const_reference>(), "Copy of best individual.");
+	class_pop.def("worst", &Population::extractWorstIndividual, return_value_policy<copy_const_reference>(), "Copy of worst individual.");
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
@@ -144,7 +143,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.def("__delitem__", &island::erase);
 	class_island.def("__getitem__", &island::operator[], "Get a copy of individual.");
 	class_island.def("__len__", &island::size);
-	class_island.def("__setitem__", &island::set);
+	class_island.def("__setitem__", &island::set_individual);
 	class_island.def("__repr__", &Py_repr_from_stream<island>);
 	class_island.def("append", &island::push_back, "Append individual at the end of the island.");
 	class_island.def("insert", &island::insert, "Insert individual after index.");
@@ -173,7 +172,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
-	class_arch.def("__setitem__", &Py_set_item_from_ra<archipelago,island>);
+	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
 	class_arch.add_property("topology", make_function(&topology_getter<base_topology,archipelago>, return_value_policy<manage_new_object>()),
 		&archipelago::set_topology, "Topology.");

@@ -20,9 +20,11 @@
 
 // 11/06/08 Created by Dario Izzo.
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
+#include "../../exceptions.h"
 #include "TrajectoryProblems.h"
 #include "GOproblem.h"
 #include "trajobjfuns.h"
@@ -214,4 +216,58 @@ double sagasProb::objfun_(const std::vector<double>& x)  const{
 			obj);
 	return obj;
 
+}
+
+laplaceProb::laplaceProb(const std::vector<int> &seq):GOProblem(4 * seq.size() - 2),mgadsm(0)
+{
+	const size_t seq_size = seq.size();
+	if (seq_size < 2) {
+		pagmo_throw(value_error,"flyby sequence size must be at least 2");
+	}
+	for (size_t i = 0; i < seq_size; ++i) {
+		if (seq[i] < 2 || seq[i] > 5) {
+			pagmo_throw(value_error,"invalid planet index in flyby sequence");
+		}
+	}
+	mgadsm.reset(new mgadsmproblem(orbit_insertion,&seq[0],seq.size(),0,0,0,.97,4 * 71492));
+	// Set bounds.
+	LB[0] = 5475;
+	UB[0] = 9132;
+	LB[1] = 0.1;
+	UB[1] = 3.5;
+	LB[2] = LB[3] = 0;
+	UB[2] = UB[3] = 1;
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		LB[i + 4] = 20;
+		UB[i + 4] = 2500;
+	}
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		LB[i + 3 + seq_size] = 0.01;
+		UB[i + 3 + seq_size] = 0.99;
+	}
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		LB[i + 2 * (seq_size + 1)] = 1.05;
+		UB[i + 2 * (seq_size + 1)] = 100.0;
+	}
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		LB[i + 3 * seq_size] = -M_PI;
+		UB[i + 3 * seq_size] = M_PI;
+	}
+}
+
+laplaceProb::laplaceProb(const laplaceProb &l):GOProblem(l),mgadsm(new mgadsmproblem(*l.mgadsm)) {}
+
+double laplaceProb::objfun_(const std::vector<double> &x) const
+{
+	double obj = 0;
+	MGA_DSM(x, *mgadsm, obj);
+	const size_t sequence_size = (x.size() + 2) / 4;
+	double totaltime = 0;
+	for (size_t i = 0; i < sequence_size - 1 ; ++i) {
+		totaltime += x[i + 4];
+	}
+	const double delta = totaltime - 8 * 365.25;
+	// Penalise trajectory longer than 8 years by 200 meters/s per month.
+	obj = std::max(obj,obj + 0.2 / 30 * delta);
+	return obj;
 }

@@ -63,6 +63,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<messengerfullProb>("messenger_full", "Messenger full problem.").def(init<>());
 	problem_wrapper<messengerProb>("messenger", "Messenger problem.").def(init<>());
 	problem_wrapper<cassini1Prob>("cassini1", "Cassini1 problem.").def(init<>());
+	problem_wrapper<laplaceProb>("laplace", "Laplace problem.").def(init<const std::vector<int> &>());
 	// Classical problems.
 	problem_wrapper<TestProb>("test", "Test problem.").def(init<int>());
 	problem_wrapper<rastriginProb>("rastrigin", "Rastrigin problem.").def(init<int>());

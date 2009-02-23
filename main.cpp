@@ -617,7 +617,7 @@ while (choice != -1) {
 
                                 //ring topology migration
                                 if (drng() < 0.2){
-                                    IslandPop[(i+1) % islandsN][rng() % data[i].NP] = IslandPop[i].extractBestIndividual();
+                                    IslandPop[(i+1) % islandsN].set_individual(rng() % data[i].NP,IslandPop[i].extractBestIndividual());
                                 }
 
                             }

@@ -54,7 +54,7 @@ class __PAGMO_VISIBLE island
 		const go_algorithm &algorithm() const;
 		void set_algorithm(const go_algorithm &);
 		Individual operator[](int) const;
-		void set(int, const Individual &);
+		void set_individual(int, const Individual &);
 		void push_back(const Individual &);
 		void insert(int, const Individual &);
 		void erase(int);

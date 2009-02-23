@@ -24,6 +24,7 @@
 #define PAGMO_POPULATION_H
 
 #include <boost/scoped_ptr.hpp>
+#include <iostream>
 #include <vector>
 
 #include "../../config.h"
@@ -35,16 +36,16 @@
 #include "rng.h"
 
 class __PAGMO_VISIBLE Population: public py_container_utils<Population> {
+	friend std::ostream &operator<<(std::ostream &, const Population &);
 public:
 	//Constructors
 	Population(const GOProblem &);
 	Population(const GOProblem &, int);
 	Population(const Population &);
 	Population &operator=(const Population &);
-	//Operators
-	Individual &operator[](int);
-	const Individual &operator[](int) const;
 	//Miscellanea
+	const Individual &operator[](int) const;
+	void set_individual(int, const Individual &);
 	void push_back(const Individual &);
 	void insert(int, const Individual &);
 	void erase(int);
@@ -52,10 +53,10 @@ public:
 	const GOProblem &problem() const;
 	double evaluateMean() const;
 	double evaluateStd() const;
-	Individual extractBestIndividual() const;
-	Individual extractWorstIndividual() const;
-	Individual &best();
-	Individual &worst();
+	const Individual &extractBestIndividual() const;
+	const Individual &extractWorstIndividual() const;
+	void replace_best(const Individual &);
+	void replace_worst(const Individual &);
 	// TODO: review this API.
 	void sort();
 	Population extractRandomDeme(int, std::vector<size_t> &);
@@ -92,8 +93,8 @@ private:
 			if (picks[i] >= pop_size) {
 				pagmo_throw(index_error,"pick value exceeds population's size while inserting deme");
 			}
-			if (Forced || deme[i].getFitness() < pop[picks[i]].getFitness()) {
-				pop[picks[i]] = deme[i];
+			if (Forced || deme.pop[i].getFitness() < pop[picks[i]].getFitness()) {
+				pop[picks[i]] = deme.pop[i];
 			}
 		}
 	}
@@ -101,12 +102,6 @@ private:
 	boost::scoped_ptr<const GOProblem>	m_problem;
 };
 
-inline std::ostream &operator<<(std::ostream &s, const Population &pop) {
-	s << "Problem type: '" << pop.problem().id_name() << "'\n";
-	for (size_t i = 0; i < pop.size(); ++i) {
-		s << "Individual #" << i << ": " << pop[i].getFitness() << " " << pop[i] << std::endl;
-	}
-	return s;
-}
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Population &);
 
 #endif

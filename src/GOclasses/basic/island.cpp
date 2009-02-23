@@ -170,10 +170,10 @@ Individual island::operator[](int n) const
 	return m_pop[n];
 }
 
-void island::set(int n, const Individual &i)
+void island::set_individual(int n, const Individual &i)
 {
 	join();
-	m_pop[n] = i;
+	m_pop.set_individual(n,i);
 }
 
 void island::push_back(const Individual &i)
@@ -282,9 +282,9 @@ void island::t_check() const
 bool island::t_substitute_worst(const Individual &ind)
 {
 	t_check();
-	Individual &worst = m_pop.worst();
+	const Individual &worst = m_pop.extractWorstIndividual();
 	if (ind.getFitness() < worst.getFitness()) {
-		worst = ind;
+		m_pop.replace_worst(ind);
 		return true;
 	}
 	return false;

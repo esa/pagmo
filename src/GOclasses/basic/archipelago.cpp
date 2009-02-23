@@ -90,12 +90,19 @@ void archipelago::set_topology(const base_topology &t)
 	}
 }
 
-island &archipelago::operator[](int n)
+const island &archipelago::operator[](int n) const
 {
 	// NOTE: maybe this is not really needed, island should be able to take care of itself
 	// without external protection.
 	join();
-	return *it_from_index<iterator>(n);
+	return *it_from_index<const_iterator>(n);
+}
+
+void archipelago::set_island(int n, const island &isl)
+{
+	join();
+	check_island(isl);
+	*it_from_index<iterator>(n) = isl;
 }
 
 size_t archipelago::size() const
@@ -105,7 +112,7 @@ size_t archipelago::size() const
 
 void archipelago::check_island(const island &isl) const
 {
-	if (typeid(isl.problem()) != typeid(problem()) || isl.problem().getDimension() != problem().getDimension()) {
+	if (isl.problem() != problem()) {
 		pagmo_throw(type_error, "island's problem type is not compatible with archipelago's problem type");
 	}
 }

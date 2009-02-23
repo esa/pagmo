@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <iostream>
 #include <typeinfo>
 
 #include "../../exceptions.h"
@@ -43,7 +44,7 @@
 	Population &Population::operator=(const Population &p)
 	{
 		if (this != &p) {
-			if (typeid(*m_problem) != typeid(*p.m_problem) || m_problem->getDimension() != p.m_problem->getDimension()) {
+			if (*m_problem != *p.m_problem) {
 				pagmo_throw(type_error, "problem types are not compatible while assigning population");
 			}
 			pop = p.pop;
@@ -96,14 +97,14 @@
 		return ind;
 	}
 
-	Individual &Population::operator[](int index)
+	const Individual &Population::operator[](int index) const
 	{
 		return pop[get_ra_index(index)];
 	}
 
-	const Individual &Population::operator[](int index) const
+	void Population::set_individual(int idx, const Individual &ind)
 	{
-		return pop[get_ra_index(index)];
+		pop[get_ra_index(idx)] = checked_individual(ind);
 	}
 
 	void Population::push_back(const Individual &i)
@@ -135,24 +136,24 @@
 		return pop.size();
 	}
 
-	Individual Population::extractBestIndividual() const
+	const Individual &Population::extractBestIndividual() const
 	{
 		return pop[extract_most_index<std::less<double> >()];
 	}
 
-	Individual Population::extractWorstIndividual() const
+	const Individual &Population::extractWorstIndividual() const
 	{
 		return pop[extract_most_index<std::greater<double> >()];
 	}
 
-	Individual &Population::best()
+	void Population::replace_best(const Individual &ind)
 	{
-		return pop[extract_most_index<std::less<double> >()];
+		set_individual(extract_most_index<std::less<double> >(),ind);
 	}
 
-	Individual &Population::worst()
+	void Population::replace_worst(const Individual &ind)
 	{
-		return pop[extract_most_index<std::greater<double> >()];
+		set_individual(extract_most_index<std::greater<double> >(),ind);
 	}
 
 	double Population::evaluateMean() const
@@ -258,3 +259,12 @@
 		pop[picks[worstinpicks]] = deme[bestindeme];
 
 	}
+
+std::ostream &operator<<(std::ostream &s, const Population &p)
+{
+	s << "Problem type: '" << p.problem().id_name() << "'\n";
+	for (size_t i = 0; i < p.size(); ++i) {
+		s << "Individual #" << i << ": " << p.pop[i].getFitness() << " " << p.pop[i] << std::endl;
+	}
+	return s;
+}

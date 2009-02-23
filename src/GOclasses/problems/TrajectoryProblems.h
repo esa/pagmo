@@ -23,6 +23,7 @@
 #ifndef TRAJECTORYPROBLEMS_H
 #define TRAJECTORYPROBLEMS_H
 
+#include <boost/scoped_ptr.hpp>
 #include <vector>
 
 #include "../../config.h"
@@ -140,5 +141,17 @@ private:
 	static const double ub[12];
 	static const int sequence[3];
 };	//end class sagasProb
+
+class __PAGMO_VISIBLE laplaceProb : public GOProblem {
+	public:
+		laplaceProb(const std::vector<int> &);
+		laplaceProb(const laplaceProb &);
+		virtual ~laplaceProb() {};
+		virtual laplaceProb *clone() const {return new laplaceProb(*this);}
+	private:
+		void operator=(const laplaceProb &) {};
+		virtual double objfun_(const std::vector<double>&) const;
+		boost::scoped_ptr<mgadsmproblem> mgadsm;
+};
 
 #endif

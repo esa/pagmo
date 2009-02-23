@@ -57,7 +57,7 @@ Population ASAalgorithm::evolve(const Population &pop) const
 		pagmo_throw(value_error,"niterOuter cannot be null");
 	}
 	Population retval(pop);
-	Individual &x0 = retval.best();
+	const Individual &x0 = retval.extractBestIndividual();
 	const double Tcoeff = std::pow(Tf/Ts,1.0/(double)(niterOuter));
 	std::vector<double> xNEW = x0.getDecisionVector(), xOLD = xNEW;
 	double fNEW = x0.getFitness(), fOLD = fNEW;
@@ -135,7 +135,7 @@ Population ASAalgorithm::evolve(const Population &pop) const
 	}
 
 	if (fOLD < x0.getFitness()){
-		x0 = Individual(problem,xOLD,x0.getVelocity());
+		retval.replace_best(Individual(problem,xOLD,x0.getVelocity()));
 	}
 	return retval;
 	}
