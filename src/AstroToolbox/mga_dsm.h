@@ -58,12 +58,14 @@ public:
 	mutable std::vector<double*> r;// = std::vector<double*>(n);
 	mutable std::vector<double*> v;// = std::vector<double*>(n);
 	mutable std::vector<double> DV;// = std::vector<double>(n+1);
+	// Temporary variable to hold the Vinf at the flybys.
+	mutable std::vector<double>	vrelin_vec;
 };
 
 
 int MGA_DSM(
 			/* INPUT values: */
-			std::vector<double> x ,	// it is the decision vector
+			const std::vector<double> &x ,	// it is the decision vector
 			const mgadsmproblem &mgadsm,  // contains the problem specific data
 
 			/* OUTPUT values: */

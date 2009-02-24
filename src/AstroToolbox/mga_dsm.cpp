@@ -187,7 +187,7 @@ void first_block(const vector<double>& t, const mgadsmproblem& problem, const st
 // ------
 // INTERMEDIATE BLOCK
 // WARNING: i_count starts from 0
-void intermediate_block(const vector<double>& t, const mgadsmproblem& problem, const std::vector<double*>& r, const std::vector<double*>& v, int i_count, const double v_sc_pl_in[], std::vector<double>& DV, double* v_sc_nextpl_in)
+double intermediate_block(const vector<double>& t, const mgadsmproblem& problem, const std::vector<double*>& r, const std::vector<double*>& v, int i_count, const double v_sc_pl_in[], std::vector<double>& DV, double* v_sc_nextpl_in)
 {
 	//[MR] A bunch of helper variables to simplify the code
 	const int n = problem.sequence.size();
@@ -266,6 +266,8 @@ void intermediate_block(const vector<double>& t, const mgadsmproblem& problem, c
 	}
 
 	DV[i_count + 1] = norm2(Dum_Vec);
+
+	return vrelin;
 }
 
 // FINAL BLOCK
@@ -307,7 +309,7 @@ void final_block(const mgadsmproblem& problem, const std::vector<double*>& , con
 
 int MGA_DSM(
 			/* INPUT values: */ //[MR] make this parameters const, if they are not modified and possibly references (especially 'problem').
-			vector<double> t,	// it is the vector which provides time in modified julian date 2000. [MR] ??? Isn't it the decision vetor ???
+			const vector<double> &t,	// it is the vector which provides time in modified julian date 2000. [MR] ??? Isn't it the decision vetor ???
 			const mgadsmproblem& problem,
 
 			/* OUTPUT values: */
@@ -338,8 +340,8 @@ int MGA_DSM(
 		//copy previous output velocity to current input velocity
 		inter_pl_in_v[0] = inter_pl_out_v[0]; inter_pl_in_v[1] = inter_pl_out_v[1]; inter_pl_in_v[2] = inter_pl_out_v[2];
 
-		intermediate_block(t, problem, r, v, i_count, inter_pl_in_v,
-			DV, inter_pl_out_v);
+		problem.vrelin_vec.push_back(intermediate_block(t, problem, r, v, i_count, inter_pl_in_v,
+			DV, inter_pl_out_v));
 	}
 
 	//copy previous output velocity to current input velocity

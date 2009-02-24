@@ -22,6 +22,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+#include <string>
 #include <vector>
 
 #include "../../exceptions.h"
@@ -270,4 +272,40 @@ double laplaceProb::objfun_(const std::vector<double> &x) const
 	// Penalise trajectory longer than 8 years by 200 meters/s per month.
 	obj = std::max(obj,obj + 0.2 / 30 * delta);
 	return obj;
+}
+
+std::string laplaceProb::solution(const std::vector<double> &x) const
+{
+	double obj = 0;
+	MGA_DSM(x, *mgadsm, obj);
+	std::ostringstream s;
+	s.precision(15);
+	s << std::scientific;
+	const size_t seq_size = (x.size() + 2) / 4;
+	pagmo_assert((x.size() + 2) % 4 == 0 && seq_size >= 2);
+	pagmo_assert(mgadsm->sequence.size() == seq_size);
+	s << "Flyby sequence:        ";
+	for (size_t i = 0; i < seq_size; ++i) {
+		s << mgadsm->sequence[i];
+	}
+	s << '\n';
+	s << "Time of departure:     " << x[0] << '\n';
+	s << "Vinf polar components: ";
+	for (size_t i = 0; i < 3; ++i) {
+		s << x[i + 1] << ' ';
+	}
+	s << '\n';
+	double totaltime = 0;
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		s << "Leg time of flight:    " << x[i + 4] << '\n';
+		totaltime += x[i + 4];
+	}
+	s << "Total time of flight:  " << totaltime << '\n';
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Flyby radius:          " << x[i + 2 * (seq_size + 1)] << '\n';
+	}
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Vinf at flyby:         " << std::sqrt(mgadsm->vrelin_vec[i]) << '\n';
+	}
+	return s.str();
 }
