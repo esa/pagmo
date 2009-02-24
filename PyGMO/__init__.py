@@ -79,8 +79,9 @@ def __arch_make_neato(arch,directed = True):
 	retval += '}'
 	return retval
 
-def __arch_prune(arch,perc):
-	from matplotlib.pylab import subplot,plot,xlim
+def __arch_prune(arch,perc,display = False):
+	if display:
+		from matplotlib.pylab import subplot,plot,xlim
 	from math import sqrt
 	from PyGMO import vector_double
 	if type(perc) != int or perc <= 0 or perc >= 100:
@@ -91,16 +92,18 @@ def __arch_prune(arch,perc):
 		raise ValueError('the given percentile results in an empty list of best individuals')
 	prob = arch.problem
 	p_dimension = prob.dimension
-	edge_size = int(sqrt(p_dimension))
-	height = edge_size
-	width = edge_size
-	if height * width != p_dimension:
-		height += 1
+	if display:
+		edge_size = int(sqrt(p_dimension))
+		height = edge_size
+		width = edge_size
+		if height * width != p_dimension:
+			height += 1
 	retval = (vector_double(),vector_double())
 	for i in range(0,p_dimension):
-		subplot(width,height,i+1)
-		plot([ind.decision_vector[i] for ind in ind_list], [ind.fitness for ind in ind_list],'o')
-		xlim((prob.lb[i],prob.ub[i]))
+		if display:
+			subplot(width,height,i+1)
+			plot([ind.decision_vector[i] for ind in ind_list], [ind.fitness for ind in ind_list],'o')
+			xlim((prob.lb[i],prob.ub[i]))
 		old_width = prob.ub[i] - prob.lb[i]
 		new_lb = min([ind.decision_vector[i] for ind in ind_list]) - old_width * .1
 		new_ub = max([ind.decision_vector[i] for ind in ind_list]) + old_width * .1
