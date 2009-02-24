@@ -20,6 +20,56 @@ from core import *
 import algorithm, problem, topology
 from copy import copy
 
+def adaptive_optimization(prob,topo,algo_list,pop_size,retval):
+	from PyGMO import archipelago,island
+	from copy import copy
+	from numpy import array
+	for iter in range(0,200):
+		# Build the initial archipelago: same island, different algorithms.
+		a = archipelago(prob,topo)
+		isl = island(prob,algo_list[0],pop_size)
+		for i in algo_list:
+			a.append(isl)
+			a[-1].algorithm = i
+		counter = 0;
+		while True:
+			if counter > 20:
+				break
+			# Calculate the current best individuals for each island.
+			cur_best = array([i.best().fitness for i in a])
+			# Evolve with different algorithm.
+			a.evolve_t(12000)
+			a.join()
+			# New best individuals.
+			new_best = array([i.best().fitness for i in a])
+			# Calculate the variation of best individuals after the evolution.
+			delta = cur_best - new_best
+			# The best algorithm is the one that brought the greater improvement.
+			if max(delta) == 0.:
+				print "No difference in delta, continuing with different algos."
+				counter += 1
+				continue
+			else:
+				counter = 0
+			idx = list(delta).index(max(delta))
+			print "Best algorithm = ", algo_list[idx].__repr__()
+			print delta
+			# Copy the best island all over the archipelago.
+			for i in range(0,len(a)): a[i] = a[idx]
+			# Evolve the archipelago.
+			a.evolve_t(8000)
+			a.join()
+			# Find the best individuals.
+			best = [i.best().fitness for i in a]
+			# Copy the best island all over the archipelago and change the algorithms.
+			idx = best.index(min(best))
+			for i in range(0,len(a)):
+				a[i] = a[idx]
+				a[i].algorithm = algo_list[i]
+			print a[0].best().fitness
+		retval.append(a)
+		print "New iteration."
+
 def vector(x, t = None):
 	import PyGMO.core as core
 	import re
