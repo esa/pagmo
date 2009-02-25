@@ -134,8 +134,8 @@ def __arch_prune(arch,perc,display = False):
 		from matplotlib.pylab import subplot,plot,xlim
 	from math import sqrt
 	from PyGMO import vector_double
-	if type(perc) != int or perc <= 0 or perc >= 100:
-		raise ValueError('percentile must be an integer in the ]0,100[ range')
+	if not isinstance(perc,int) or perc < 0 or perc > 100:
+		raise ValueError('percentile must be an integer in the [0,100] range')
 	ind_list = [isl.best() for isl in arch]
 	ind_list = sorted(ind_list, key = lambda i: i.fitness)[0:(len(ind_list)*perc)/100]
 	if len(ind_list) == 0:
@@ -148,7 +148,7 @@ def __arch_prune(arch,perc,display = False):
 		width = edge_size
 		if height * width != p_dimension:
 			height += 1
-	retval = (vector_double(),vector_double())
+	new_bounds = (vector_double(),vector_double())
 	for i in range(0,p_dimension):
 		if display:
 			subplot(width,height,i+1)
@@ -157,8 +157,11 @@ def __arch_prune(arch,perc,display = False):
 		old_width = prob.ub[i] - prob.lb[i]
 		new_lb = min([ind.decision_vector[i] for ind in ind_list]) - old_width * .1
 		new_ub = max([ind.decision_vector[i] for ind in ind_list]) + old_width * .1
-		retval[0].append(max(prob.lb[i],new_lb))
-		retval[1].append(min(prob.ub[i],new_ub))
+		new_bounds[0].append(max(prob.lb[i],new_lb))
+		new_bounds[1].append(min(prob.ub[i],new_ub))
+	retval = arch.problem
+	retval.lb = new_bounds[0]
+	retval.ub = new_bounds[1]
 	return retval
 
 archipelago.make_neato = __arch_make_neato
