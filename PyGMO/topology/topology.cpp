@@ -25,6 +25,7 @@
 
 #include "../../src/GOclasses/basic/ba_topology.h"
 #include "../../src/GOclasses/basic/base_topology.h"
+#include "../../src/GOclasses/basic/fully_connected_topology.h"
 #include "../../src/GOclasses/basic/no_topology.h"
 #include "../../src/GOclasses/basic/one_way_ring_topology.h"
 #include "../../src/GOclasses/basic/ring_topology.h"
@@ -55,4 +56,5 @@ BOOST_PYTHON_MODULE(_topology) {
 	topology_wrapper<ring_topology>("ring", "Ring topology.").def(init<const double &>());
 	topology_wrapper<one_way_ring_topology>("one_way_ring", "One way ring topology.").def(init<const double &>());
 	topology_wrapper<ba_topology>("ba", "BA model topology.").def(init<int, int, const double &>());
+	topology_wrapper<fully_connected_topology>("fully_connected", "Fully connected topology.").def(init<const double &>());
 }
