@@ -23,15 +23,9 @@
 #ifndef PAGMO_RING_TOPOLOGY_H
 #define PAGMO_RING_TOPOLOGY_H
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/unordered_map.hpp>
-#include <vector>
-
 #include "../../config.h"
 #include "base_topology.h"
 #include "graph_topology.h"
-#include "individual.h"
 #include "island.h"
 
 class __PAGMO_VISIBLE ring_topology: public base_topology, public graph_topology {
