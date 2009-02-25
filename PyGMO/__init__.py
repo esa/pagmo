@@ -20,6 +20,42 @@ from core import *
 import algorithm, problem, topology
 from copy import copy
 
+def prune(a,perc = 20,max_iter = 1,min_shrink = 30):
+	from PyGMO import archipelago
+	from numpy import array
+	import copy
+	if not isinstance(a,archipelago):
+		raise ValueError('first input parameter must be an archipelago');
+	if not isinstance(max_iter,int) or max_iter < 1:
+		raise ValueError('maximum number of iterations must be a positive integer')
+	if not isinstance(min_shrink,int) or min_shrink <= 0 or min_shrink >= 100:
+		raise ValueError('min_shrink must be a percentile in the ]0,100[ range')
+	# Make a copy of the original archipelago.
+	arch = copy.copy(a);
+	for i in range(0,max_iter):
+		arch.evolve()
+		arch.join()
+		old_prob = arch.problem
+		new_prob = arch.prune(perc)
+		old_delta = array(old_prob.ub) - array(old_prob.lb)
+		new_delta = array(new_prob.ub) - array(new_prob.lb)
+		delta_perc_change = ((old_delta - new_delta) * 100.) / old_delta
+		max_perc_delta = max(delta_perc_change)
+		print 'max percentage delta is: ', max_perc_delta
+		print 'delta is:\n', delta_perc_change
+		# Store a list of the islands of the current archipelago.
+		island_list = [i for i in arch]
+		# Reset the archipelago: make it empty, with new problem and same topology as original.
+		arch = archipelago(new_prob,arch.topology)
+		# Push back the island list into the new archipelago, with new problem, original algorithm,
+		# same number of individuals.
+		for i in island_list:
+			arch.append(island(new_prob,i.algorithm,len(i)))
+		if max_perc_delta < min_shrink:
+			print 'minimum shrink percentage not satisfied, breaking out'
+			break
+	return new_prob
+
 def adaptive_optimization(prob,topo,algo_list,pop_size,retval):
 	from PyGMO import archipelago,island
 	from copy import copy
@@ -135,11 +171,11 @@ def __arch_prune(arch,perc,display = False):
 	from math import sqrt
 	from PyGMO import vector_double
 	if not isinstance(perc,int) or perc < 0 or perc > 100:
-		raise ValueError('percentile must be an integer in the [0,100] range')
+		raise ValueError('pruning percentile must be an integer in the [0,100] range')
 	ind_list = [isl.best() for isl in arch]
 	ind_list = sorted(ind_list, key = lambda i: i.fitness)[0:(len(ind_list)*perc)/100]
 	if len(ind_list) == 0:
-		raise ValueError('the given percentile results in an empty list of best individuals')
+		raise ValueError('the given pruning percentile results in an empty list of best individuals')
 	prob = arch.problem
 	p_dimension = prob.dimension
 	if display:

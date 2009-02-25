@@ -50,6 +50,9 @@ island::island(const island &i):m_id(get_new_id()),m_pop(i.population()),m_goa(i
 
 island &island::operator=(const island &i)
 {
+	// NOTE: we are not going to assign the id here, because otherwise it would screw up the topology.
+	// The sense of the assignment operator here is to have the island copy over the characteristics of
+	// the target island, but its "identity" stays the same.
 	if (this != &i) {
 		m_pop = i.population();
 		m_goa.reset(i.m_goa->clone());
