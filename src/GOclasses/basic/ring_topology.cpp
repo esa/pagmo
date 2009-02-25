@@ -21,6 +21,7 @@
 // 13/01/2009: Initial version by Francesco Biscani.
 
 #include <utility>
+#include <vector>
 
 #include "../../exceptions.h"
 #include "base_topology.h"
