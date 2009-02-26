@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -308,4 +309,16 @@ std::string laplaceProb::solution(const std::vector<double> &x) const
 		s << "Vinf at flyby:         " << std::sqrt(mgadsm->vrelin_vec[i]) << '\n';
 	}
 	return s.str();
+}
+
+std::ostream &laplaceProb::print(std::ostream &s) const
+{
+	GOProblem::print(s);
+	s << "Flyby sequence: ";
+	const size_t seq_size = mgadsm->sequence.size();
+	for (size_t i = 0; i < seq_size; ++i) {
+		s << mgadsm->sequence[i];
+	}
+	s << '\n';
+	return s;
 }

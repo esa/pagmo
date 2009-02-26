@@ -54,6 +54,8 @@ public:
 	bool operator==(const GOProblem &) const;
 	bool operator!=(const GOProblem &) const;
 protected:
+	// Print function: called by operator<<, can be re-implemented in sublcasses.
+	virtual std::ostream &print(std::ostream &) const;
 	// The objective function - must be implemented in subclasses
 	virtual double objfun_(const std::vector<double> &) const = 0;
 	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one

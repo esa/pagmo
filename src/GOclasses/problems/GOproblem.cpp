@@ -168,13 +168,14 @@ bool GOProblem::operator!=(const GOProblem &p) const
 	return !(*this == p);
 }
 
-std::ostream &operator<<(std::ostream &s, const GOProblem &p) {
-	s << "Problem type: " << p.id_name() << '\n';
-	s << "Dimension: " << p.getDimension() << '\n';
-	const size_t size = p.getDimension();
+std::ostream &GOProblem::print(std::ostream &s) const
+{
+	s << "Problem type: " << id_name() << '\n';
+	s << "Dimension: " << getDimension() << '\n';
+	const size_t size = getDimension();
 	s << "Lower bounds:\n";
 	for (size_t i = 0; i < size; ++i) {
-		s << p.LB[i];
+		s << LB[i];
 		if (i < size - 1) {
 			s << ' ';
 		}
@@ -182,13 +183,18 @@ std::ostream &operator<<(std::ostream &s, const GOProblem &p) {
 	s << '\n';
 	s << "Upper bounds:\n";
 	for (size_t i = 0; i < size; ++i) {
-		s << p.UB[i];
+		s << UB[i];
 		if (i < size - 1) {
 			s << ' ';
 		}
 	}
 	s << '\n';
 	return s;
+}
+
+std::ostream &operator<<(std::ostream &s, const GOProblem &p)
+{
+	return p.print(s);
 }
 
 size_t objfun_calls()

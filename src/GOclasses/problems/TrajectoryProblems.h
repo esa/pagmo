@@ -24,6 +24,7 @@
 #define TRAJECTORYPROBLEMS_H
 
 #include <boost/scoped_ptr.hpp>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -151,6 +152,7 @@ class __PAGMO_VISIBLE laplaceProb : public GOProblem {
 		virtual laplaceProb *clone() const {return new laplaceProb(*this);}
 		std::string solution(const std::vector<double> &) const;
 	private:
+		virtual std::ostream &print(std::ostream &) const;
 		void operator=(const laplaceProb &) {};
 		virtual double objfun_(const std::vector<double>&) const;
 		boost::scoped_ptr<mgadsmproblem> mgadsm;
