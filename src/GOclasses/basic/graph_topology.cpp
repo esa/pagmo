@@ -57,7 +57,6 @@ void graph_topology::pre_hook(island &isl)
 		return;
 	}
 	if (m_drng() < m_prob) {
-		std::cout << "Tentative migration\n";
 		// Let's look for the island inside the topology.
 		const tc_iterator tc_it = m_tc.find(isl.id());
 		// We want to make sure that the island is really there, otherwise the topology
@@ -76,7 +75,6 @@ void graph_topology::pre_hook(island &isl)
 		// If the random island has placed in the database an individual previously, grab it and use
 		// it to replace isl's worst (if it is better).
 		if (ic_it != m_ic.end() && isl.t_substitute_worst(ic_it->second)) {
-			std::cout << "Migration success\n";
 			// Remove the migrated individual from the list.
 			m_ic.erase(ic_it);
 		}
