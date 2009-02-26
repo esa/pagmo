@@ -101,6 +101,7 @@ void graph_topology::post_hook(island &isl)
 std::ostream &operator<<(std::ostream &os, const graph_topology &g)
 {
 	graph_topology::lock_type lock(g.m_mutex);
+	os << "Probability of migration: " << g.m_prob << '\n';
 	for (graph_topology::tc_type::const_iterator it = g.m_tc.begin(); it != g.m_tc.end(); ++it) {
 		const size_t conn_size = it->second.size();
 		os << it->first;
