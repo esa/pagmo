@@ -289,7 +289,7 @@ Population DEalgorithm::evolve(const Population &deme) const
 	}
 	//X[i] - deme[i].getDecisionVector());  DOES NOT WORK AS VECTOR CLASS DOES NOT ACCEPT MINUS AS OPERATOR
 
-	popout.push_back(Individual(problem,popold[i],deme[i].getVelocity()));
+	popout.push_back(Individual(popold[i],deme[i].getVelocity(),fit[i]));
    }
    return popout;
 }

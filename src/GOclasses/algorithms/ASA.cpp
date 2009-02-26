@@ -135,7 +135,7 @@ Population ASAalgorithm::evolve(const Population &pop) const
 	}
 
 	if (fOLD < x0.getFitness()){
-		retval.replace_best(Individual(problem,xOLD,x0.getVelocity()));
+		retval.replace_best(Individual(xOLD,x0.getVelocity(),fOLD));
 	}
 	return retval;
 	}

@@ -38,6 +38,8 @@ public:
 	Individual(const GOProblem &, const std::vector<double> &, const std::vector<double> &);
 	///Constructs an Individual with x and an empty velocity of size x.size(). Fitness will be calculated from the problem.
 	Individual(const GOProblem &, const std::vector<double> &);
+	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_):x(x_),v(v_),fitness(fitness_) {}
+	Individual(const std::vector<double> &x_, const double &fitness_):x(x_),v(x_.size()),fitness(fitness_) {}
 	Individual &operator=(const Individual &);
 	///Returns the Individual fitness.
 	double getFitness() const {return fitness;}

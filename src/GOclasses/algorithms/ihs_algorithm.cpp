@@ -93,7 +93,7 @@ Population ihs_algorithm::evolve(const Population &pop) const
 		const double tmp_fitness = problem.objfun(tmp_dv);
 		const Individual &worst = retval.extractWorstIndividual();
 		if (tmp_fitness < worst.getFitness()) {
-			retval.replace_worst(Individual(problem,tmp_dv,worst.getVelocity()));
+			retval.replace_worst(Individual(tmp_dv,worst.getVelocity(),tmp_fitness));
 		}
 	}
 	return retval;
