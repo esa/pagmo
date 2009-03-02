@@ -20,7 +20,7 @@ from core import *
 import algorithm, problem, topology
 from copy import copy
 
-def prune(a,perc = 20,max_iter = 1,min_shrink = 30):
+def prune(a,perc = 20,max_iter = 1,min_shrink = 10):
 	from PyGMO import archipelago
 	from numpy import array
 	import copy
@@ -32,6 +32,7 @@ def prune(a,perc = 20,max_iter = 1,min_shrink = 30):
 		raise ValueError('min_shrink must be a percentile in the ]0,100[ range')
 	# Make a copy of the original archipelago.
 	arch = copy.copy(a);
+	counter = 0
 	for i in range(0,max_iter):
 		arch.evolve()
 		arch.join()
@@ -52,8 +53,13 @@ def prune(a,perc = 20,max_iter = 1,min_shrink = 30):
 		for i in island_list:
 			arch.append(island(new_prob,i.algorithm,len(i)))
 		if max_perc_delta < min_shrink:
-			print 'minimum shrink percentage not satisfied, breaking out'
-			break
+			if counter > 3:
+				print 'minimum shrink percentage not satisfied, breaking out'
+				break
+			else:
+				counter += 1
+				continue
+		counter = 0
 	return new_prob
 
 def adaptive_optimization(prob,topo,algo_list,pop_size,retval):
