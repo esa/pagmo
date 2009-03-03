@@ -66,10 +66,10 @@ rosenbrockProb::rosenbrockProb(int dim):GOProblem(std::vector<double>(dim, -5.0)
 	}
 };
 
-lennardjonesProb::lennardjonesProb(int atoms):GOProblem(std::vector<double>(3*atoms-6, 0.0), std::vector<double>(LB.size(), 0.0))
+lennardjonesProb::lennardjonesProb(int atoms):GOProblem(3*atoms-6)
 {
-		if (atoms <= 0) {
-			pagmo_throw(value_error,"number of atoms for lennard-jones problem must be positive");
+		if (atoms <= 0 || atoms < 3) {
+			pagmo_throw(value_error,"number of atoms for lennard-jones problem must be greater than 2");
 		}
 		for (size_t i = 0; i < LB.size(); i++) {
 			if ( (i != 0) && (i % 3) == 0 ) {
