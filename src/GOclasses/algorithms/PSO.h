@@ -25,10 +25,11 @@
 
 #include <iostream>
 
+#include "../../config.h"
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
-class PSOalgorithm: public go_algorithm {
+class __PAGMO_VISIBLE PSOalgorithm: public go_algorithm {
 	public:
 		PSOalgorithm(int, const double &, const double &, const double &, const double &);
 		virtual Population evolve(const Population &) const;
