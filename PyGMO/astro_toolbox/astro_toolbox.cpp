@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "../../src/AstroToolbox/Lambert.h"
+#include "../../src/AstroToolbox/propagateKEP.h"
 #include "../../src/exceptions.h"
 #include "../exceptions.h"
 
@@ -50,6 +51,15 @@ static inline void Py_lambertI(const std::vector<double> &r0, const std::vector<
 	LambertI(&r0[0],&r1[0],T,mu,lw,&lr.v0[0],&lr.v1[0],lr.a,lr.p,lr.theta,lr.it);
 }
 
+static inline void Py_propagate_kep(const std::vector<double> &r0, const std::vector<double> &v0, const double &t, const double &mu,
+	std::vector<double> &r1, std::vector<double> &v1)
+{
+	if (r0.size() != 3 || r1.size() != 3 || v0.size() != 3 || v1.size() != 3) {
+		pagmo_throw(value_error,"the size of all input/output position/velocity vectors must be 3");
+	}
+	propagateKEP(&r0[0],&v0[0],t,mu,&r1[1],&v1[1]);
+}
+
 BOOST_PYTHON_MODULE(_astro_toolbox) {
 	// Translate exceptions for this module.
 	translate_exceptions();
@@ -61,5 +71,6 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 		.def_readonly("p", &lambert_result::p)
 		.def_readonly("theta", &lambert_result::theta)
 		.def_readonly("it", &lambert_result::it);
-	def("__lambertI", &Py_lambertI, "Lambert");
+	def("__lambertI", &Py_lambertI);
+	def("__propagate_kep", &Py_propagate_kep);
 }
