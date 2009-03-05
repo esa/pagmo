@@ -115,24 +115,26 @@ def adaptive_optimization(prob,topo,algo_list,pop_size,retval):
 def vector(x, t = None):
 	import PyGMO.core as core
 	import re
-	l = dir(core)
-	p = re.compile('vector_.*')
 	vector_types = []
 	if t == None:
+		# Fetch all vector types from core.
+		l = dir(core)
+		p = re.compile('vector_.*')
 		for i in l:
 			if re.match(p,i):
 				vector_types.append(getattr(core, i))
 		if len(vector_types) == 0:
 			raise TypeError('No vector classes in PyGMO.')
 	else:
+		# Use the specified vector type.
 		vector_types.append(t)
-	retval = None
 	for i in vector_types:
+		# For each vector type try appending x.
 		retval = i()
 		if getattr(x, '__iter__', False):
+			# x is iteratable, try extending. In case of error, try next vector type.
 			try:
-				for j in x:
-					retval.append(j)
+				retval.extend(x)
 				return retval
 			except TypeError:
 				pass
