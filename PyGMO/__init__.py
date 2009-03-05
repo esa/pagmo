@@ -140,6 +140,7 @@ def vector(x, t = None):
 			except TypeError:
 				pass
 		else:
+			# x is a scalar, try appending.
 			try:
 				retval.append(x)
 				return retval
