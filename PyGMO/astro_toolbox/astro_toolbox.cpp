@@ -57,7 +57,7 @@ static inline void Py_propagate_kep(const std::vector<double> &r0, const std::ve
 	if (r0.size() != 3 || r1.size() != 3 || v0.size() != 3 || v1.size() != 3) {
 		pagmo_throw(value_error,"the size of all input/output position/velocity vectors must be 3");
 	}
-	propagateKEP(&r0[0],&v0[0],t,mu,&r1[1],&v1[1]);
+	propagateKEP(&r0[0],&v0[0],t,mu,&r1[0],&v1[0]);
 }
 
 BOOST_PYTHON_MODULE(_astro_toolbox) {
