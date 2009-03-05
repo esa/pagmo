@@ -153,9 +153,12 @@ def __arch_make_neato(arch,directed = True):
 		graph_sep = '--'
 	t_str = arch.topology.__repr__()
 	t_dict = {}
-	for i in t_str.split():
+	for i in t_str.split('\n')[1:-1]:
 		tmp = i.split('->')
-		t_dict[int(tmp[0])] = [int(j) for j in tmp[1].split(',')]
+		if len(tmp) > 1:
+			t_dict[int(tmp[0])] = [int(j) for j in tmp[1].split(',')]
+		else:
+			t_dict[int(tmp[0])] = []
 	max_n_edges = max([len(t_dict[i]) for i in t_dict])
 	min_n_edges = min([len(t_dict[i]) for i in t_dict])
 	print 'Max number of edges = ', max_n_edges
