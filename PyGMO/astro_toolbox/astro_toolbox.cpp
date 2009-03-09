@@ -25,6 +25,7 @@
 #include <boost/python/module.hpp>
 #include <vector>
 
+#include "../../src/AstroToolbox/Astro_Functions.h"
 #include "../../src/AstroToolbox/Lambert.h"
 #include "../../src/AstroToolbox/propagateKEP.h"
 #include "../../src/exceptions.h"
@@ -73,4 +74,5 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 		.def_readonly("it", &lambert_result::it);
 	def("__lambertI", &Py_lambertI);
 	def("__propagate_kep", &Py_propagate_kep);
+	def("M2E", &Mean2Eccentric, "Convert mean anomaly M into eccentric anomaly E by solving Kepler's equation.");
 }
