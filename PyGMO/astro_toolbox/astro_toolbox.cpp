@@ -25,7 +25,6 @@
 #include <boost/python/module.hpp>
 #include <vector>
 
-#include "../../config.h"
 #include "../../src/AstroToolbox/Astro_Functions.h"
 #include "../../src/AstroToolbox/Lambert.h"
 #include "../../src/AstroToolbox/propagateKEP.h"
@@ -44,7 +43,7 @@ struct lambert_result {
 	int 				it;
 };
 
-static inline void __PAGMO_VISIBLE_FUNC Py_lambertI(const std::vector<double> &r0, const std::vector<double> &r1, const double &T, const double &mu, bool lw,
+static inline void Py_lambertI(const std::vector<double> &r0, const std::vector<double> &r1, const double &T, const double &mu, bool lw,
 	lambert_result &lr)
 {
 	if (r0.size() != 3 || r1.size() != 3 || lr.v0.size() != 3 || lr.v1.size() != 3) {
@@ -53,18 +52,13 @@ static inline void __PAGMO_VISIBLE_FUNC Py_lambertI(const std::vector<double> &r
 	LambertI(&r0[0],&r1[0],T,mu,lw,&lr.v0[0],&lr.v1[0],lr.a,lr.p,lr.theta,lr.it);
 }
 
-static inline void __PAGMO_VISIBLE_FUNC Py_propagate_kep(const std::vector<double> &r0, const std::vector<double> &v0, const double &t, const double &mu,
+static inline void Py_propagate_kep(const std::vector<double> &r0, const std::vector<double> &v0, const double &t, const double &mu,
 	std::vector<double> &r1, std::vector<double> &v1)
 {
 	if (r0.size() != 3 || r1.size() != 3 || v0.size() != 3 || v1.size() != 3) {
 		pagmo_throw(value_error,"the size of all input/output position/velocity vectors must be 3");
 	}
 	propagateKEP(&r0[0],&v0[0],t,mu,&r1[0],&v1[0]);
-}
-
-static inline double __PAGMO_VISIBLE_FUNC Py_M2E(const double &M, const double &E)
-{
-	return Mean2Eccentric(M,E);
 }
 
 BOOST_PYTHON_MODULE(_astro_toolbox) {
@@ -80,5 +74,5 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 		.def_readonly("it", &lambert_result::it);
 	def("__lambertI", &Py_lambertI);
 	def("__propagate_kep", &Py_propagate_kep);
-	def("M2E", &Py_M2E, "Convert mean anomaly M into eccentric anomaly E by solving Kepler's equation.");
+	def("M2E", &Mean2Eccentric, "Convert mean anomaly M into eccentric anomaly E by solving Kepler's equation.");
 }

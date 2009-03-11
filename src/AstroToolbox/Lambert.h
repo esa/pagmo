@@ -13,7 +13,9 @@
 #ifndef LAMBERT_H
 #define LAMBERT_H
 
-void LambertI (const double*, const double*, double, const double &, const int &,  //INPUT
+#include "../../config.h"
+
+void __PAGMO_VISIBLE_FUNC LambertI (const double*, const double*, double, const double &, const int &,  //INPUT
 			   double*, double*, double&, double&, double& , int&);//OUTPUT
 
 #endif

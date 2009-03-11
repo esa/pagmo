@@ -11,7 +11,9 @@
 #ifndef PROPAGATEKEP_H
 #define PROPAGATEKEP_H
 
-void propagateKEP(const double *, const double *, const double &, const double &,
+#include "../../config.h"
+
+void __PAGMO_VISIBLE_FUNC propagateKEP(const double *, const double *, const double &, const double &,
 				  double *, double *);
 
 void IC2par(const double*, const double*, const double &, double*);
