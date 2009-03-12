@@ -30,13 +30,10 @@
 
 class __PAGMO_VISIBLE fully_connected_topology: public base_topology, public graph_topology {
 	public:
-		fully_connected_topology(const double &);
+		fully_connected_topology();
 		fully_connected_topology(const fully_connected_topology &);
 		virtual fully_connected_topology *clone() const {return new fully_connected_topology(*this);}
 		virtual void push_back(const island &);
-		virtual void reset();
-		virtual void pre_evolution(island &);
-		virtual void post_evolution(island &);
 	private:
 		fully_connected_topology &operator=(const fully_connected_topology &);
 };
