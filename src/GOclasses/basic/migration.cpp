@@ -18,36 +18,25 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 23/01/2009: Initial version by Francesco Biscani.
+#include "migration.h"
 
-#ifndef PAGMO_BA_TOPOLOGY_H
-#define PAGMO_BA_TOPOLOGY_H
+// 09/03/2009: Initial version by Marek Rucinski.
 
-#include "../../config.h"
-#include "base_topology.h"
-#include "graph_topology.h"
-#include "island.h"
+// ==== DummySelectionPolicy ====
 
-/// Barabasi-Albert scale-free topology.
-/**
- * See http://en.wikipedia.org/wiki/BA_model and
- * http://www.nd.edu/~networks/Publication%20Categories/03%20Journal%20Articles/Physics/StatisticalMechanics_Rev%20of%20Modern%20Physics%2074,%2047%20(2002).pdf.
- */
-class __PAGMO_VISIBLE ba_topology: public base_topology, public graph_topology {
-	public:
-		ba_topology(int, int);
-		ba_topology(const ba_topology &);
-		
-		virtual ba_topology *clone() const {return new ba_topology(*this);}
-		
-		virtual void push_back(const island &);
-	private:
-		ba_topology &operator=(const ba_topology &);
-		
-		// Starting number of nodes (m_0).
-		const size_t	m_m_0;
-		// Number of edges for newly-inserted nodes (m).
-		const size_t	m_m;
-};
+boost::shared_ptr<Population> DummySelectionPolicy::selectForMigration(const Population& population)
+{
+	boost::shared_ptr<Population> result(new Population(population.problem())); //See shared pointers best practices
+	return result;
+}
 
-#endif
+
+
+
+// ==== DummyReplacementPolicy ====
+
+boost::shared_ptr<std::list<std::pair<int, int> > > DummyReplacementPolicy::selectForReplacement(const Population& incomingPopulation, const Population& destinationPopulation)
+{
+	boost::shared_ptr<std::list<std::pair<int, int> > > result(new std::list<std::pair<int, int> >()); //See shared pointers best practices
+	return result;
+}

@@ -34,6 +34,7 @@
 #include "../problems/GOproblem.h"
 #include "individual.h"
 #include "population.h"
+#include "migration.h"
 
 class archipelago;
 
@@ -96,6 +97,8 @@ class __PAGMO_VISIBLE island
 		mutable mutex_type							m_evo_mutex;
 		mutable mutex_type							m_topo_mutex;
 		static PaGMO::atomic_counter_size_t			id_counter;
+		boost::scoped_ptr<MigrationSelectionPolicy>	migrationSelectionPolicy; //cannot be null
+		boost::scoped_ptr<MigrationReplacementPolicy> migrationReplacementPolicy; //cannot be null
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);

@@ -53,8 +53,8 @@ BOOST_PYTHON_MODULE(_topology) {
 
 	// Topologies.
 	topology_wrapper<no_topology>("no", "No topology.").def(init<>());
-	topology_wrapper<ring_topology>("ring", "Ring topology.").def(init<const double &>());
-	topology_wrapper<one_way_ring_topology>("one_way_ring", "One way ring topology.").def(init<const double &>());
-	topology_wrapper<ba_topology>("ba", "BA model topology.").def(init<int, int, const double &>());
-	topology_wrapper<fully_connected_topology>("fully_connected", "Fully connected topology.").def(init<const double &>());
+	topology_wrapper<ring_topology>("ring", "Ring topology.").def(init<>());
+	topology_wrapper<one_way_ring_topology>("one_way_ring", "One way ring topology.").def(init<>());
+	topology_wrapper<ba_topology>("ba", "BA model topology.").def(init<int, int>());
+	topology_wrapper<fully_connected_topology>("fully_connected", "Fully connected topology.").def(init<>());
 }

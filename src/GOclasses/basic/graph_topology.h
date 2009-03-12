@@ -30,34 +30,46 @@
 #include <vector>
 
 #include "../../Functions/rng/rng.h"
-#include "../../config.h"
 #include "individual.h"
 #include "island.h"
 
+/// Simple graph implementation to be used by topologies.
+/**
+ * \todo Rename this class.
+ *
+ * \todo I think this has to be re-designed. Interface of the ba_topology class should be extended with functions
+ * for accessing vertices edges, and the graph_topology should be one of the available implementations of the underlying
+ * graph. All other topologies (like ring, hypercube, etc.) are possible to be implemented with any underlying graph
+ * implementation. At the moment I don't have an idea how to do this in an elegant way. Templates?
+ */
+
 class __PAGMO_VISIBLE graph_topology {
+	
+		///Stream output operator.
 		friend std::ostream &operator<<(std::ostream &, const graph_topology &);
+	
 	protected:
-		typedef boost::mutex mutex_type;
-		typedef boost::lock_guard<mutex_type> lock_type;
-		// ic_type = individual container type.
-		typedef boost::unordered_map<size_t,Individual> ic_type;
-		typedef ic_type::iterator ic_iterator;
-		// tc_type = topology container type.
-		typedef boost::unordered_map<size_t,std::vector<size_t> > tc_type;
-		typedef tc_type::iterator tc_iterator;
+		typedef boost::mutex mutex_type; ///< Mutex type abbreviation.
+		typedef boost::lock_guard<mutex_type> lock_type; ///< Lock guard type abbreviation.
+		
+		typedef boost::unordered_map<size_t,std::vector<size_t> > tc_type; ///< Topology container type abbreviation.
+		typedef tc_type::iterator tc_iterator; ///< Topology container iterator type abbreviation. \todo Maybe make the name a bit more verbose...
+		
 	public:
-		graph_topology(const double &);
+		///Default constructor.
+		/** Creates a topology with no vertices nor edges */
+		graph_topology();
+		
+		///Copy constructor.
 		graph_topology(const graph_topology &);
+	
 	protected:
-		void reset_hook();
-		void pre_hook(island &);
-		void post_hook(island &);
 		mutable mutex_type	m_mutex;
 		tc_type				m_tc;
-		ic_type				m_ic;
-		rng_double			m_drng;
-		const double		m_prob;
+		rng_double			m_drng;		
+	
 	private:
+		///Assignment operator.
 		graph_topology &operator=(const graph_topology &);
 };
 
