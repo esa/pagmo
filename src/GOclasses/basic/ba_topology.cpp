@@ -20,15 +20,7 @@
 
 // 23/01/2009: Initial version by Francesco Biscani.
 
-#include <algorithm>
-#include <utility>
-#include <vector>
-
-#include "../../exceptions.h"
 #include "ba_topology.h"
-#include "base_topology.h"
-#include "graph_topology.h"
-#include "island.h"
 
 ba_topology::ba_topology(int m_0, int m):
 	base_topology(),graph_topology(),m_m_0(m_0),m_m(m)
@@ -112,4 +104,10 @@ void ba_topology::push_back(const island &isl)
 		}
 		m_tc.insert(std::make_pair(id,connections));
 	}
+}
+
+ba_topology& ba_topology::operator=(const ba_topology&)
+{
+	pagmo_assert(false);
+	return *this;
 }

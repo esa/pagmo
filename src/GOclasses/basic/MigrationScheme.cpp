@@ -18,25 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "migration.h"
+#include "MigrationScheme.h"
 
 // 09/03/2009: Initial version by Marek Rucinski.
-
-// ==== DummySelectionPolicy ====
-
-boost::shared_ptr<Population> DummySelectionPolicy::selectForMigration(const Population& population)
-{
-	boost::shared_ptr<Population> result(new Population(population.problem())); //See shared pointers best practices
-	return result;
-}
-
-
-
-
-// ==== DummyReplacementPolicy ====
-
-boost::shared_ptr<std::list<std::pair<int, int> > > DummyReplacementPolicy::selectForReplacement(const Population& incomingPopulation, const Population& destinationPopulation)
-{
-	boost::shared_ptr<std::list<std::pair<int, int> > > result(new std::list<std::pair<int, int> >()); //See shared pointers best practices
-	return result;
-}

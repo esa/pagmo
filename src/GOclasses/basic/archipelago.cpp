@@ -30,24 +30,30 @@
 #include "no_topology.h"
 #include "island.h"
 
-archipelago::archipelago(const GOProblem &p):m_gop(p.clone()),m_top(new no_topology()), migrationScheme(new NoMigrationScheme()) {}
+archipelago::archipelago(const GOProblem &p)
+		:m_gop(p.clone())
+{
+}
 
-archipelago::archipelago(const GOProblem &p, const base_topology &t):m_gop(p.clone()),m_top(t.clone()), migrationScheme(new NoMigrationScheme())
+archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme):m_gop(p.clone()),migrationScheme(_migrationScheme.clone())
 {
 	//TODO: reset the topology/migration scheme?
 }
 
-archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(new no_topology()), migrationScheme(new NoMigrationScheme())
+archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone())
 {
 	if (N < 0 || M < 0) {
 		pagmo_throw(value_error,"number of islands and population size must be nonnegative numbers");
 	}
+	//TODO: reset the topology/migration scheme?
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M));
 	}
 }
 
-archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_algorithm &a, int N, int M):m_gop(p.clone()),m_top(t.clone()), migrationScheme(new NoMigrationScheme())
+archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme, const go_algorithm &a, int N, int M)
+		:m_gop(p.clone()),
+		migrationScheme(_migrationScheme.clone())
 {
 	if (N < 0 || M < 0) {
 		pagmo_throw(value_error,"number of islands and population size must be nonnegative numbers");
@@ -58,7 +64,7 @@ archipelago::archipelago(const GOProblem &p, const base_topology &t, const go_al
 	}
 }
 
-archipelago::archipelago(const archipelago &a):m_gop(a.m_gop->clone()),m_top(a.m_top->clone()), migrationScheme(new NoMigrationScheme())
+archipelago::archipelago(const archipelago &a):m_gop(a.m_gop->clone()),migrationScheme(a.migrationScheme->clone())
 {
 	//TODO: reset the migration scheme?
 	const const_iterator it_f = a.end();
@@ -71,24 +77,6 @@ archipelago &archipelago::operator=(const archipelago &)
 {
 	pagmo_assert(false);
 	return *this;
-}
-
-const base_topology &archipelago::topology() const
-{
-	join();
-	return *m_top;
-}
-
-void archipelago::set_topology(const base_topology &t)
-{
-	join();
-	m_top.reset(t.clone());
-	//TODO: reset the migration scheme?
-	//TODO: reset the topology!!!
-	const const_iterator it_f = end();
-	for (const_iterator it = begin(); it != it_f; ++it) {
-		m_top->push_back(*it);
-	}
 }
 
 const island &archipelago::operator[](int n) const
@@ -124,7 +112,7 @@ void archipelago::push_back(const island &isl)
 	check_island(isl);
 	m_container.push_back(isl);
 	m_container.back().set_archipelago(this);
-	m_top->push_back(m_container.back());
+	//TODO: push island to the topology/migration scheme?
 }
 
 const GOProblem &archipelago::problem() const
@@ -173,15 +161,15 @@ void archipelago::evolve_t(const size_t &t)
 	}
 }
 
-void archipelago::setMigrationScheme(MigrationScheme* newMigrationScheme)
+void archipelago::setMigrationScheme(const MigrationScheme& newMigrationScheme)
 {
 	join();
-	//TODO: migrationScheme.reset(newMigrationSchemeclone());
+	migrationScheme.reset(newMigrationScheme.clone());
 }
 
 std::ostream &operator<<(std::ostream &s, const archipelago &a) {
 	s << "Problem type:    " << a.m_gop->id_name() << '\n';
-	s << "Topology type:   " << a.m_top->id_name() << "\n\n";
+	//s << "Migration scheme:   " << a.m_top->id_name() << "\n\n";
 	const archipelago::const_iterator it_f = a.m_container.end();
 	size_t i = 0;
 	for (archipelago::const_iterator it = a.m_container.begin(); it != it_f; ++it) {

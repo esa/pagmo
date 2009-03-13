@@ -20,14 +20,6 @@
 
 // 13/01/2009: Initial version by Francesco Biscani.
 
-#include <utility>
-#include <vector>
-
-#include "../../exceptions.h"
-#include "base_topology.h"
-#include "graph_topology.h"
-#include "individual.h"
-#include "island.h"
 #include "ring_topology.h"
 
 ring_topology::ring_topology():base_topology(),graph_topology(),m_first(0),m_last(0) {}

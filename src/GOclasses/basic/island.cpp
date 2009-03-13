@@ -42,21 +42,40 @@ size_t island::get_new_id()
 	return (size_t)(id_counter++);
 }
 
-island::island(const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p),m_goa(al.clone()),m_a(0),m_evo_time(0),migrationSelectionPolicy(new DummySelectionPolicy()), migrationReplacementPolicy(new DummyReplacementPolicy()) {}
+island::island(const GOProblem &p, const go_algorithm &al)
+		:m_id(get_new_id()),
+		m_pop(p),
+		m_goa(al.clone()),
+		m_a(0),
+		m_evo_time(0)
+{
+}
 
-island::island(const GOProblem &p, const go_algorithm &al, int n):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0),m_evo_time(0),migrationSelectionPolicy(new DummySelectionPolicy()), migrationReplacementPolicy(new DummyReplacementPolicy()) {}
+island::island(const GOProblem &p, const go_algorithm &al, int n)
+		:m_id(get_new_id()),
+		m_pop(p, n),
+		m_goa(al.clone()),
+		m_a(0),
+		m_evo_time(0)
+{
+}
 
-island::island(const island &i):m_id(get_new_id()),m_pop(i.population()),m_goa(i.m_goa->clone()),m_a(0),m_evo_time(i.m_evo_time),migrationSelectionPolicy(new DummySelectionPolicy()), migrationReplacementPolicy(new DummyReplacementPolicy()) {}
+island::island(const island &i)
+		:m_id(get_new_id()),
+		m_pop(i.population()),
+		m_goa(i.m_goa->clone()),
+		m_a(0),
+		m_evo_time(i.m_evo_time)
+{
+}
 
 island &island::operator=(const island &i)
 {
-	// NOTE: we are not going to assign the id here, because otherwise it would screw up the topology.
-	// The sense of the assignment operator here is to have the island copy over the characteristics of
-	// the target island, but its "identity" stays the same.
 	if (this != &i) {
 		m_pop = i.population();
 		m_goa.reset(i.m_goa->clone());
 		m_evo_time = i.m_evo_time;
+		//TODO: policies!!!
 	}
 	return *this;
 }
@@ -66,10 +85,15 @@ island::~island()
 	join();
 }
 
+
+Population island::population() const
+{
+	join();
+	return m_pop;
+}
+
 const GOProblem &island::problem() const
 {
-	// We must lock here because problem is embedded into population: at the end of an evolution
-	// we overwrite the population, so we may have simultaneous read-write on the problem.
 	join();
 	return m_pop.problem();
 }
@@ -85,6 +109,108 @@ void island::set_algorithm(const go_algorithm &a)
 	join();
 	m_goa.reset(a.clone());
 }
+
+size_t island::id() const
+{
+	return m_id;
+}
+
+size_t island::size() const
+{
+	join();
+	return m_pop.size();
+}
+
+size_t island::evo_time() const
+{
+	join();
+	return m_evo_time;
+}
+
+
+Individual island::operator[](int n) const
+{
+	join();
+	return m_pop[n];
+}
+
+void island::set_individual(int n, const Individual &i)
+{
+	join();
+	m_pop.setIndividual(n,i);
+}
+
+void island::push_back(const Individual &i)
+{
+	join();
+	m_pop.push_back(i);
+}
+
+void island::insert(int n, const Individual &i)
+{
+	join();
+	m_pop.insert(n,i);
+}
+
+void island::erase(int n)
+{
+	join();
+	m_pop.erase(n);
+}
+
+double island::mean() const
+{
+	join();
+	return m_pop.evaluateMean();
+}
+
+double island::std() const
+{
+	join();
+	return m_pop.evaluateStd();
+}
+
+Individual island::best() const
+{
+	join();
+	return m_pop.extractBestIndividual();
+}
+
+Individual island::worst() const
+{
+	join();
+	return m_pop.extractBestIndividual();
+}
+
+
+
+Population island::getMigratingIndividuals()
+{
+	if(migrationSelectionPolicy) {
+		return migrationSelectionPolicy->selectForMigration(m_pop);
+	} else {
+		/// \todo Throw an exception here?
+		//return an empty population
+		return Population(m_pop.problem());
+	}
+}
+
+
+void island::acceptMigratingIndividuals(const Population& incomingPopulation)
+{
+	if(migrationReplacementPolicy) {
+		std::list<std::pair<int, int> > replacement = migrationReplacementPolicy->selectForReplacement(incomingPopulation, m_pop);
+		
+		for(std::list<std::pair<int, int> >::iterator rep = replacement.begin(); rep != replacement.end(); rep++) {
+			/// \todo This method does some strange checking - maybe we could ommit it?
+			m_pop.setIndividual((*rep).first, incomingPopulation[(*rep).second]);
+		}
+	} else {
+		/// \todo Throw an exception here?
+	}	
+}
+
+
 
 void island::evolve(int N)
 {
@@ -126,85 +252,7 @@ bool island::busy() const {
 	return false;
 }
 
-size_t island::id() const
-{
-	return m_id;
-}
 
-size_t island::size() const
-{
-	join();
-	return m_pop.size();
-}
-
-double island::mean() const
-{
-	join();
-	return m_pop.evaluateMean();
-}
-
-double island::std() const
-{
-	join();
-	return m_pop.evaluateStd();
-}
-
-Individual island::best() const
-{
-	join();
-	return m_pop.extractBestIndividual();
-}
-
-Individual island::worst() const
-{
-	join();
-	return m_pop.extractBestIndividual();
-}
-
-Population island::population() const
-{
-	join();
-	return m_pop;
-}
-
-Individual island::operator[](int n) const
-{
-	join();
-	return m_pop[n];
-}
-
-void island::set_individual(int n, const Individual &i)
-{
-	join();
-	m_pop.set_individual(n,i);
-}
-
-void island::push_back(const Individual &i)
-{
-	join();
-	m_pop.push_back(i);
-}
-
-void island::insert(int n, const Individual &i)
-{
-	join();
-	m_pop.insert(n,i);
-}
-
-void island::erase(int n)
-{
-	join();
-	m_pop.erase(n);
-}
-
-size_t island::evo_time() const
-{
-	join();
-	return m_evo_time;
-}
-
-// NOTE: no lock needed here because this is intended to be called only by archipelago when
-// adding an island.
 void island::set_archipelago(archipelago *a)
 {
 	m_a = a;
@@ -216,15 +264,15 @@ void island::int_evolver::operator()()
 	try {
 		for (int i = 0; i < m_n; ++i) {
 			if (m_i->m_a) {
-				lock_type lock(m_i->m_topo_mutex);
-				m_i->m_a->migrationScheme->preEvolutionCallback(*m_i);
+				//lock_type lock(m_i->m_topo_mutex);
+				m_i->m_a->preEvolutionCallback(*m_i);
 				m_i->m_pop.problem().pre_evolution();
 			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			if (m_i->m_a) {
-				lock_type lock(m_i->m_topo_mutex);
-				m_i->m_a->migrationScheme->postEvolutionCallback(*m_i);
+				//lock_type lock(m_i->m_topo_mutex);
+				m_i->m_a->postEvolutionCallback(*m_i);
 				m_i->m_pop.problem().post_evolution();
 			}
 		}
@@ -250,7 +298,7 @@ void island::t_evolver::operator()()
 	try {
 		do {
 			if (m_i->m_a) {
-				lock_type lock(m_i->m_topo_mutex);
+				//lock_type lock(m_i->m_topo_mutex);
 				//m_i->m_a->m_top->pre_evolution(*m_i); //Call migration scheme
 				m_i->m_pop.problem().pre_evolution();
 			}
@@ -258,7 +306,7 @@ void island::t_evolver::operator()()
 			diff = boost::posix_time::microsec_clock::local_time() - start;
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			if (m_i->m_a) {
-				lock_type lock(m_i->m_topo_mutex);
+				//lock_type lock(m_i->m_topo_mutex);
 				//m_i->m_a->m_top->post_evolution(*m_i); //Call migration scheme
 				m_i->m_pop.problem().post_evolution();
 			}
@@ -274,6 +322,7 @@ void island::t_evolver::operator()()
 }
 
 
+/*
 void island::t_check() const
 {
 	if (m_topo_mutex.try_lock()) {
@@ -298,6 +347,7 @@ Individual island::t_best() const
 	t_check();
 	return m_pop.extractBestIndividual();
 }
+*/
 
 std::ostream &operator<<(std::ostream &s, const island &isl)
 {

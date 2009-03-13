@@ -28,16 +28,28 @@
 #include "graph_topology.h"
 #include "island.h"
 
+///Uni-directional ring topology
 class __PAGMO_VISIBLE ring_topology: public base_topology, public graph_topology {
 	public:
+		/// Constructor.
 		ring_topology();
+		/// Copy constructor.
 		ring_topology(const ring_topology &);
+		
+		/// \see base_topology::clone
 		virtual ring_topology *clone() const {return new ring_topology(*this);}
+		
+		/// \see base_topology::push_back
 		virtual void push_back(const island &);
-	private:
-		ring_topology &operator=(const ring_topology &);
+		
+	private:	
+		/// Tracks the id of the first inserted node.
 		size_t	m_first;
+		/// Tracks the id of the last inserted node.
 		size_t	m_last;
+		
+		/// \see graph_topology::operator=
+		ring_topology &operator=(const ring_topology &);
 };
 
 #endif

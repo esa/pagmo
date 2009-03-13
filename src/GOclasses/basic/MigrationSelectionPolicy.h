@@ -18,52 +18,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 06/02/2009: Initial version by Francesco Biscani.
+// 09/03/2009: Initial version by Marek Rucinski.
 
-#include <utility>
-#include <vector>
+#ifndef PAGMO_MIGRATION_SELECTION_POLICY_H
+#define PAGMO_MIGRATION_SELECTION_POLICY_H
 
-#include "one_way_ring_topology.h"
+#include "population.h"
 
-one_way_ring_topology::one_way_ring_topology():base_topology(),graph_topology(),m_first(0),m_last(0) {}
-
-one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r):
-	base_topology(r),graph_topology(r),m_first(0),m_last(0) {}
-
-one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topology &)
+/// Base class for selection policies for migration.
+class MigrationSelectionPolicy
 {
-	pagmo_assert(false);
-	return *this;
-}
+	public:
+		/// Virtual destructor.
+		virtual ~MigrationSelectionPolicy() { }
+		
+		/// Select individuals to migrate out of the given population.
+		/**
+		 * This is the method that actually implements the policy.
+		 * Output population should contain <b>copies</b> of selected individuals.
+		 * \param[in] population Source population.
+		 * \return Population containing selected individuals.
+		 */
+		virtual Population selectForMigration(const Population& population) = 0;
+		
+		///Clone object.
+		/**
+		 * Cloned object should be the exact copy of the original, but should be safe to use in a multithreaded environment.
+		 * \todo Determine if the state variables should also be cloned and a separate method for resetting them be provided, or not.
+		 */
+		virtual MigrationSelectionPolicy* clone() const = 0;
+};
 
-void one_way_ring_topology::push_back(const island &isl)
-{
-	// Store frequently-used variables.
-	const size_t t_size = m_tc.size(), id = isl.id();
-	switch (t_size) {
-		case 0:
-			// If topology is empty, insert the id with no connections and update
-			// the id of the first element.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>()));
-			m_first = id;
-			break;
-		case 1:
-			{
-			const tc_iterator b = m_tc.begin();
-			pagmo_assert(id != b->first);
-			// Add a connection from the only existing element.
-			b->second.push_back(id);
-			// Insert new element and connect it to first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,b->first)));
-			}
-			break;
-		default:
-			pagmo_assert(m_tc.find(id) == m_tc.end());
-			// The current last must be connected to the new last.
-			m_tc[m_last][0] = id;
-			// Insert the new last with a connection to the first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_first)));
-	}
-	// Update the id of the last island.
-	m_last = id;
-}
+#endif

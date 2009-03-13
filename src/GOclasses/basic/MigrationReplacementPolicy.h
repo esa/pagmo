@@ -18,52 +18,41 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 06/02/2009: Initial version by Francesco Biscani.
+// 09/03/2009: Initial version by Marek Rucinski.
 
+#ifndef PAGMO_MIGRATION_REPLACEMENT_POLICY_H
+#define PAGMO_MIGRATION_REPLACEMENT_POLICY_H
+
+#include <boost/shared_ptr.hpp>
+#include <list>
 #include <utility>
-#include <vector>
+#include "population.h"
 
-#include "one_way_ring_topology.h"
-
-one_way_ring_topology::one_way_ring_topology():base_topology(),graph_topology(),m_first(0),m_last(0) {}
-
-one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r):
-	base_topology(r),graph_topology(r),m_first(0),m_last(0) {}
-
-one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topology &)
+/// Base class for replacement policies for migration.
+class MigrationReplacementPolicy
 {
-	pagmo_assert(false);
-	return *this;
-}
+	public:
+		/// Virtual destructor.
+		virtual ~MigrationReplacementPolicy() { }
+		
+		/// Assign pairs of individuals for replacement during migration. 
+		/**
+		 * Note, that this method does not alter any of the populations, it just provides the replacement choice.
+		 * The actual replacement is done in another place.
+		 * The first element of a pair should be the one from the destination population.
+		 * The second one - an individual from the incoming population which is to replace the first one.
+		 * \param[in] incomingPopulation Population of incoming individuals.
+		 * \param[in] destinationPopulation Destination population.
+		 * \return Replacement assignment.
+		 */
+		virtual std::list<std::pair<int, int> > selectForReplacement(const Population& incomingPopulation, const Population& destinationPopulation) = 0;
+		
+		///Clone object.
+		/**
+		 * Cloned object should be the exact copy of the original, but should be safe to use in a multithreaded environment.
+		 * \todo Determine if the state variables should also be cloned and a separate method for resetting them be provided, or not.
+		 */
+		virtual MigrationReplacementPolicy* clone() const = 0;
+};
 
-void one_way_ring_topology::push_back(const island &isl)
-{
-	// Store frequently-used variables.
-	const size_t t_size = m_tc.size(), id = isl.id();
-	switch (t_size) {
-		case 0:
-			// If topology is empty, insert the id with no connections and update
-			// the id of the first element.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>()));
-			m_first = id;
-			break;
-		case 1:
-			{
-			const tc_iterator b = m_tc.begin();
-			pagmo_assert(id != b->first);
-			// Add a connection from the only existing element.
-			b->second.push_back(id);
-			// Insert new element and connect it to first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,b->first)));
-			}
-			break;
-		default:
-			pagmo_assert(m_tc.find(id) == m_tc.end());
-			// The current last must be connected to the new last.
-			m_tc[m_last][0] = id;
-			// Insert the new last with a connection to the first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_first)));
-	}
-	// Update the id of the last island.
-	m_last = id;
-}
+#endif

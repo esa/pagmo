@@ -27,7 +27,9 @@
 #include <typeinfo>
 
 #include "../../../config.h"
-#include "island.h"
+//#include "island.h"
+
+class island;
 
 /// Base class for topologies.
 /**

@@ -61,18 +61,21 @@ class __PAGMO_VISIBLE graph_topology {
 		graph_topology();
 		
 		///Copy constructor.
+		/** This strange thingy copies the structure but reinitialises the RNG... \todo Remove this ASAP */
 		graph_topology(const graph_topology &);
 	
 	protected:
-		mutable mutex_type	m_mutex;
-		tc_type				m_tc;
-		rng_double			m_drng;		
+		mutable mutex_type	m_mutex; ///< Internal mutex to make certain operations thread-safe. \todo I'm not sure if it's still needed.
+		tc_type				m_tc; ///< Graph structure - a map of lists of edges.
+		rng_double			m_drng;	///< A RNG. \todo Move it elsewere.
 	
 	private:
-		///Assignment operator.
+		///Dummy assignment operator.
+		/** Assignment is not a valid operation for topologies - throws exception when called. */
 		graph_topology &operator=(const graph_topology &);
 };
 
+/// Stream output operator.
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const graph_topology &);
 
 #endif

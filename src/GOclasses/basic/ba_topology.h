@@ -28,25 +28,38 @@
 #include "graph_topology.h"
 #include "island.h"
 
-/// Barabasi-Albert scale-free topology.
+/// Barabasi-Albert scale-free network topology.
 /**
  * See http://en.wikipedia.org/wiki/BA_model and
  * http://www.nd.edu/~networks/Publication%20Categories/03%20Journal%20Articles/Physics/StatisticalMechanics_Rev%20of%20Modern%20Physics%2074,%2047%20(2002).pdf.
+ * \todo Rename this class.
  */
 class __PAGMO_VISIBLE ba_topology: public base_topology, public graph_topology {
 	public:
-		ba_topology(int, int);
+		/// Constructor.
+		/**
+		 * Initialises the Barabasi-Albert topology generator.
+		 * \param m_0 Size of the kernel.
+		 * \param m Number of edges per new node.
+		 */
+		ba_topology(int m_0, int m);
+		
+		/// Copy constructor... \todo Change semantics and add a method to re-init an RNG.
 		ba_topology(const ba_topology &);
 		
-		virtual ba_topology *clone() const {return new ba_topology(*this);}
+		/// \see base_topology::clone
+		virtual ba_topology *clone() const { return new ba_topology(*this); }
 		
+		/// \see base_topology::push_back		
 		virtual void push_back(const island &);
+	
 	private:
+		/// \see graph_topology::operator=
 		ba_topology &operator=(const ba_topology &);
 		
-		// Starting number of nodes (m_0).
+		/// Size of the kernel - the starting number of nodes.
 		const size_t	m_m_0;
-		// Number of edges for newly-inserted nodes (m).
+		/// Number of edges per newly-inserted node.
 		const size_t	m_m;
 };
 

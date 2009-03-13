@@ -125,7 +125,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_pop.def("__delitem__", &Population::erase);
 	class_pop.def("__getitem__", pop_get_const(&Population::operator[]), return_value_policy<copy_const_reference>(), "Get a copy of individual.");
 	class_pop.def("__len__", &Population::size);
-	class_pop.def("__setitem__", &Population::set_individual);
+	class_pop.def("__setitem__", &Population::setIndividual);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
 	class_pop.add_property("problem", make_function(&problem_getter<GOProblem,Population>,return_value_policy<manage_new_object>()), "Problem.");
 	class_pop.def("append", &Population::push_back, "Append individual at the end of the population.");
@@ -166,16 +166,16 @@ BOOST_PYTHON_MODULE(_core)
 	typedef island &(archipelago::*arch_get_island)(int);
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
-	class_arch.def(init<const GOProblem &, const base_topology &>());
-	class_arch.def(init<const GOProblem &, const base_topology &, const go_algorithm &, int, int>());
+	class_arch.def(init<const GOProblem &, const MigrationScheme&>());
+	class_arch.def(init<const GOProblem &, const MigrationScheme&, const go_algorithm &, int, int>());
 	class_arch.def(init<const archipelago &>());
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
-	class_arch.add_property("topology", make_function(&topology_getter<base_topology,archipelago>, return_value_policy<manage_new_object>()),
-		&archipelago::set_topology, "Topology.");
+	/*class_arch.add_property("migration_scheme", make_function(&topology_getter<base_topology,archipelago>, return_value_policy<manage_new_object>()),
+		&archipelago::set_topology, "Topology.");*/
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");

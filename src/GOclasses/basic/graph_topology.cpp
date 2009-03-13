@@ -22,11 +22,12 @@
 
 #include <iostream>
 
-#include "../../Functions/rng/rng.h"
-#include "../../exceptions.h"
 #include "graph_topology.h"
-#include "individual.h"
-#include "island.h"
+
+//#include "../../Functions/rng/rng.h"
+//#include "../../exceptions.h"
+//#include "individual.h"
+//#include "island.h"
 
 graph_topology::graph_topology():m_drng(static_rng_uint32()()) { }
 
