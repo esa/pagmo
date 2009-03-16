@@ -41,6 +41,10 @@
 #include "../../src/GOclasses/basic/island.h"
 #include "../../src/GOclasses/basic/population.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
+#include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
+//#include "../../src/GOclasses/problems/GOproblem.h"
+//#include "../../src/GOclasses/problems/GOproblem.h"
 #include "../../src/exceptions.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -182,4 +186,10 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
 	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
+	
+	// Expose MigrationSelectionPolicy
+	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
+	
+	// Expose RandomMigrationSelectionPolicy
+	class_<RandomMigrationSelectionPolicy> class_RMSP("random_migration_selection_policy", "A random migration selection policy.", init<const uint32_t>());	
 }

@@ -26,6 +26,7 @@
 #include "island.h"
 #include <boost/scoped_ptr.hpp>
 #include "base_topology.h"
+#include "../../config.h"
 
 //In order to prevent recursive inclusion... TODO: move MigrationScheme to a separate file?
 class island;
@@ -34,7 +35,7 @@ class island;
 /**
  * Migration schemes are the actual implementation of migration. 
  */
-class MigrationScheme
+class __PAGMO_VISIBLE MigrationScheme
 {
 	public:
 		/// Constructor.

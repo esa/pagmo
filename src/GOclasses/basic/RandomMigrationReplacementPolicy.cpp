@@ -18,22 +18,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "MigrationSelectionPolicy.h"
+#include "RandomMigrationReplacementPolicy.h"
 #include "../../exceptions.h"
+#include <algorithm>
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& population)
+std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation)
 {
-	if(migrationRateAbs < 0) {
-		if(migrationRateFrac > 1.0) {
-			pagmo_throw(assertion_error, "Fractional migration rate is grater than 1!");
-		}
-		return migrationRateFrac * population.size();
-	} else {
-		if(migrationRateAbs > population.size()) {
-			pagmo_throw(assertion_error, "Absolute migration rate exceeds population size!");
-		}
-		return migrationRateAbs;
+	int migrationRateLimit = std::min(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
+	
+	std::vector<int> incomingPopulationIndices(migrationRateLimit);
+	std::vector<int> destinationPopulationIndices(migrationRateLimit);
+	
+	//Fill in the arrays of indices
+	std::generate(incomingPopulationIndices.begin(), incomingPopulationIndices.end(), IndexGenerator());
+	std::generate(destinationPopulationIndices.begin(), destinationPopulationIndices.end(), IndexGenerator());
+	
+	//Permute the indices
+	for(int i = 0; i < migrationRateLimit; i++) {
+		int nextIncomingPopulationIndex = i + (rng() % (migrationRateLimit - i));
+		if(nextIncomingPopulationIndex != i) {
+			std::swap(incomingPopulationIndices[i], incomingPopulationIndices[nextIncomingPopulationIndex]);
+		}				
 	}
+
+	for(int i = 0; i < migrationRateLimit; i++) {
+		int nextDestinationPopulationIndex = i + (rng() % (migrationRateLimit - i));
+		if(nextDestinationPopulationIndex != i) {
+			std::swap(destinationPopulationIndices[i], destinationPopulationIndices[nextDestinationPopulationIndex]);
+		}				
+	}
+	
+	// Create the result
+	std::list<std::pair<int, int> > result(migrationRateLimit);
+	
+	for(int i = 0; i < migrationRateLimit; i++) {
+		result.push_back(std::make_pair(destinationPopulationIndices[i], incomingPopulationIndices[i]));
+	}
+	
+	return result;
 }

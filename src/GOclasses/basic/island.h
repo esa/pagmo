@@ -171,14 +171,14 @@ class __PAGMO_VISIBLE island
 		 * the individuals are copied, i.e. they are not removed from the population.
 		 * \return Population of migrating individuals.
 		 */
-		Population getMigratingIndividuals();
+		std::vector<Individual> getMigratingIndividuals();
 		
 		/// Put migrating individuals to the population.
 		/**
 		 * The island replaces individuals in it's own population with incoming individuals, according the it's policy.
 		 * \param[in] incomingPopulation incoming individuals.
 		 */
-		void acceptMigratingIndividuals(const Population& incomingPopulation);
+		void acceptMigratingIndividuals(const std::vector<Individual>& incomingPopulation);
 		
 		
 		// Evolution functions
@@ -287,8 +287,8 @@ class __PAGMO_VISIBLE island
 		archipelago									*m_a; ///< Associated archipelago (may be null).
 		size_t										m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).
 		mutable mutex_type							m_evo_mutex; ///< Mutex used to control evolution synchronisation.
-		boost::shared_ptr<MigrationSelectionPolicy>	migrationSelectionPolicy; ///< Migration selection strategy of the island (may be null).
-		boost::shared_ptr<MigrationReplacementPolicy> migrationReplacementPolicy; ///< Migration replacement policy of the island (maybe null).
+		boost::scoped_ptr<MigrationSelectionPolicy>	migrationSelectionPolicy; ///< Migration selection policy of the island (may be null).
+		boost::scoped_ptr<MigrationReplacementPolicy> migrationReplacementPolicy; ///< Migration replacement policy of the island (may be null).
 };
 
 /// Stream output operator.

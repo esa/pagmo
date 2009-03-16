@@ -67,7 +67,7 @@ class __PAGMO_VISIBLE graph_topology {
 	protected:
 		mutable mutex_type	m_mutex; ///< Internal mutex to make certain operations thread-safe. \todo I'm not sure if it's still needed.
 		tc_type				m_tc; ///< Graph structure - a map of lists of edges.
-		rng_double			m_drng;	///< A RNG. \todo Move it elsewere.
+		rng_double			m_drng;	///< A RNG. \todo Move it elsewhere.
 	
 	private:
 		///Dummy assignment operator.

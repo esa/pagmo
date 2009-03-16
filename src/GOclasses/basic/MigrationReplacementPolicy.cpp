@@ -19,5 +19,21 @@
  *****************************************************************************/
 
 #include "MigrationReplacementPolicy.h"
+#include "../../exceptions.h"
 
 // 09/03/2009: Initial version by Marek Rucinski.
+
+int MigrationReplacementPolicy::getMaxMigrationRate(const Population& population)
+{
+	if(maxMigrationRateAbs < 0) {
+		if(maxMigrationRateFrac > 1.0) {
+			pagmo_throw(assertion_error, "Fractional maximum migration rate is greate than 1!");
+		}
+		return maxMigrationRateFrac * population.size();
+	} else {
+		if(maxMigrationRateAbs > population.size()) {
+			pagmo_throw(assertion_error, "Absolute maximum migration rate exceeds population size!");
+		}
+		return maxMigrationRateAbs;
+	}
+}

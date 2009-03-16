@@ -135,6 +135,12 @@ public:
 	/// Get the number of individuals in the population.
 	size_t size() const;
 	
+	/// begin() iterator
+	std::vector<Individual>::const_iterator begin() const { return pop.begin(); }
+	
+	/// end() iterator
+	std::vector<Individual>::const_iterator end() const { return pop.end(); }
+	
 		
 	// Getters and setters
 	
@@ -251,8 +257,9 @@ private:
 	/**
 	 * \todo I'm not sure if this should be a pointer, as we always want to have a copy of a GOProlem, to be thread-safe.
 	 * Thus it seems logical to bind the lifetime of this copy of the GOProblem to the population's lifetime.
+	 * Err... do we really want to be thread-safe here?
 	 */
-	boost::scoped_ptr<const GOProblem>	m_problem;
+	boost::shared_ptr<const GOProblem>	m_problem;
 };
 
 /// Stream output operator.

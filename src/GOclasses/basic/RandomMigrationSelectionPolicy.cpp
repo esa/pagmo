@@ -18,22 +18,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "MigrationSelectionPolicy.h"
-#include "../../exceptions.h"
+#include "RandomMigrationSelectionPolicy.h"
+#include <vector>
+#include <algorithm>
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& population)
+std::vector<Individual> RandomMigrationSelectionPolicy::selectForMigration(const Population& population)
 {
-	if(migrationRateAbs < 0) {
-		if(migrationRateFrac > 1.0) {
-			pagmo_throw(assertion_error, "Fractional migration rate is grater than 1!");
+	int migrationRate = getNumberOfIndividualsToMigrate(population);
+	
+	//Create a temporary array of individuals
+	std::vector<Individual> result(population.begin(), population.end());
+	
+	//Permute the temporary array randomly (only first [migrationRate] elements)
+	for(int i = 0; i < migrationRate; i++) {
+		//Draw the next individual index
+		int nextIndividualIndex = i + (rng() % (population.size() - i));
+		
+		//Swap the individual at the current position with the drawn one
+		if(nextIndividualIndex != i) {
+			std::swap(result[i], result[nextIndividualIndex]);
 		}
-		return migrationRateFrac * population.size();
-	} else {
-		if(migrationRateAbs > population.size()) {
-			pagmo_throw(assertion_error, "Absolute migration rate exceeds population size!");
-		}
-		return migrationRateAbs;
 	}
+	
+	//Remove remaining elements from the array
+	result.erase(result.begin() + migrationRate, result.end());
+	
+	return result;
 }
+

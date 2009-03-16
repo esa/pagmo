@@ -184,19 +184,19 @@ Individual island::worst() const
 
 
 
-Population island::getMigratingIndividuals()
+std::vector<Individual> island::getMigratingIndividuals()
 {
 	if(migrationSelectionPolicy) {
 		return migrationSelectionPolicy->selectForMigration(m_pop);
 	} else {
 		/// \todo Throw an exception here?
 		//return an empty population
-		return Population(m_pop.problem());
+		return std::vector<Individual>();
 	}
 }
 
 
-void island::acceptMigratingIndividuals(const Population& incomingPopulation)
+void island::acceptMigratingIndividuals(const std::vector<Individual>& incomingPopulation)
 {
 	if(migrationReplacementPolicy) {
 		std::list<std::pair<int, int> > replacement = migrationReplacementPolicy->selectForReplacement(incomingPopulation, m_pop);
