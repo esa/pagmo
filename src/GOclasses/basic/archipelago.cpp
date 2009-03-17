@@ -27,7 +27,6 @@
 #include "../algorithms/go_algorithm.h"
 #include "archipelago.h"
 #include "base_topology.h"
-#include "no_topology.h"
 #include "island.h"
 
 archipelago::archipelago(const GOProblem &p)

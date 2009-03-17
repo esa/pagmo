@@ -27,9 +27,8 @@
 #include <typeinfo>
 
 #include "../../../config.h"
-//#include "island.h"
-
-class island;
+#include <list>
+#include "island.h"
 
 /// Base class for topologies.
 /**
@@ -38,17 +37,32 @@ class island;
  */
 class __PAGMO_VISIBLE base_topology {
 	public:
-		/// Constructor.
-		base_topology() { };
-		
 		/// Virtual Destructor.
 		virtual ~base_topology() { };
 		
-		/// Add an island to the topology.
+		
+		// Topology interface functions.
+		
+		/// Get a list of island's neighbours (outbound edges).
+		virtual std::list<size_t> get_neighbours_out(const size_t&) = 0;
+		
+		/// Get a list of island's neighbours (inbound edges).
+		virtual std::list<size_t> get_neighbours_in(const size_t&) = 0;
+		
+		/// Check if a pair of islands is connected.
 		/**
-		 * \param[in] island The island to be added.
+		 * The direction of the edge must be island1 -> island2
 		 */
-		virtual void push_back(const island &) = 0;
+		virtual bool are_neighbours(const size_t& island1_id, const size_t& island2_id) = 0;
+		
+		/// Get the number of edges in the topology
+		virtual size_t get_number_of_edges() = 0;
+		
+		/// Get the number of nodes in the topology
+		virtual size_t get_number_of_nodes() = 0;
+		
+		
+		// Utility functions.
 		
 		/// Create a deep copy of the object.
 		/**

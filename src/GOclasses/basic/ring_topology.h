@@ -24,12 +24,11 @@
 #define PAGMO_RING_TOPOLOGY_H
 
 #include "../../config.h"
-#include "base_topology.h"
 #include "graph_topology.h"
-#include "island.h"
+#include "growing_topology.h"
 
 ///Uni-directional ring topology
-class __PAGMO_VISIBLE ring_topology: public base_topology, public graph_topology {
+class __PAGMO_VISIBLE ring_topology: public graph_topology, growing_topology {
 	public:
 		/// Constructor.
 		ring_topology();

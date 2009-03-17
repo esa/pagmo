@@ -40,12 +40,27 @@ class __PAGMO_VISIBLE MigrationScheme
 	public:
 		/// Constructor.
 		/**
+		 * Creates a migration shceme not associated with a topology.
+		 */
+		MigrationScheme():topology(0) { }
+
+		/// Constructor.
+		/**
 		 * Creates a migration shceme associated with the given topology.
 		 * A deep copy of topology is created and stored.
 		 */
 		MigrationScheme(const base_topology& _topology)
 				:topology(_topology.clone())
 		{
+		}
+		
+		/// Copy constructor.
+		/**
+		 * Creates a deep copy of the object
+		 */
+		MigrationScheme(const MigrationScheme& ms)				
+		{
+			topology.reset(ms.topology ? ms.topology->clone() : 0);
 		}
 		
 		/// Virtual destructor.

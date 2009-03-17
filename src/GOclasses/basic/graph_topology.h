@@ -23,56 +23,81 @@
 #ifndef PAGMO_GRAPH_TOPOLOGY_H
 #define PAGMO_GRAPH_TOPOLOGY_H
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/unordered_map.hpp>
+#include "base_topology.h"
 #include <iostream>
+#include <boost/unordered_map.hpp>
 #include <vector>
-
-#include "../../Functions/rng/rng.h"
-#include "individual.h"
-#include "island.h"
 
 /// Simple graph implementation to be used by topologies.
 /**
  * \todo Rename this class.
- *
- * \todo I think this has to be re-designed. Interface of the ba_topology class should be extended with functions
- * for accessing vertices edges, and the graph_topology should be one of the available implementations of the underlying
- * graph. All other topologies (like ring, hypercube, etc.) are possible to be implemented with any underlying graph
- * implementation. At the moment I don't have an idea how to do this in an elegant way. Templates?
  */
-
-class __PAGMO_VISIBLE graph_topology {
+class __PAGMO_VISIBLE graph_topology: public base_topology {
 	
-		///Stream output operator.
+		/// Stream output operator.
 		friend std::ostream &operator<<(std::ostream &, const graph_topology &);
 	
 	protected:
-		typedef boost::mutex mutex_type; ///< Mutex type abbreviation.
-		typedef boost::lock_guard<mutex_type> lock_type; ///< Lock guard type abbreviation.
-		
-		typedef boost::unordered_map<size_t,std::vector<size_t> > tc_type; ///< Topology container type abbreviation.
-		typedef tc_type::iterator tc_iterator; ///< Topology container iterator type abbreviation. \todo Maybe make the name a bit more verbose...
+		typedef boost::unordered_map<size_t,std::vector<size_t> > neighbour_lists_type; ///< Topology container type abbreviation.
+		typedef neighbour_lists_type::iterator nlt_iterator; ///< Topology container iterator type abbreviation.
+		typedef neighbour_lists_type::const_iterator nlt_const_iterator; ///< Topology container const iterator type abbreviation.
 		
 	public:
-		///Default constructor.
+		/// Default constructor.
 		/** Creates a topology with no vertices nor edges */
-		graph_topology();
+		graph_topology() { };
 		
-		///Copy constructor.
-		/** This strange thingy copies the structure but reinitialises the RNG... \todo Remove this ASAP */
-		graph_topology(const graph_topology &);
+		/// Copy constructor.		
+		graph_topology(const graph_topology& gt)
+				:base_topology(), lists_out(gt.lists_out), lists_in(gt.lists_in) { }
+		
+		/// \see base_topology::get_neighbours_out
+		virtual std::list<size_t> get_neighbours_out(const size_t&);
+		
+		/// \see base_topology::get_neighbours_in
+		virtual std::list<size_t> get_neighbours_in(const size_t&);
+		
+		/// \see base_topology::are_neighbours
+		virtual bool are_neighbours(const size_t& island1_id, const size_t& island2_id);
+		
+		/// \see base_topology::get_number_of_edges
+		virtual size_t get_number_of_edges();
+		
+		/// \see base_topology::get_number_of_nodes
+		virtual size_t get_number_of_nodes();
+		
+		/// \see base_topology::clone
+		virtual base_topology *clone() const { return new graph_topology(*this); }
 	
 	protected:
-		mutable mutex_type	m_mutex; ///< Internal mutex to make certain operations thread-safe. \todo I'm not sure if it's still needed.
-		tc_type				m_tc; ///< Graph structure - a map of lists of edges.
-		rng_double			m_drng;	///< A RNG. \todo Move it elsewhere.
-	
+		/// Create an edge from island1 to island2 (by ids).
+		void add_edge(const size_t& island1_id, const size_t& island2_id);
+		
+		/// Drop the edge from island1 to island2 (by ids).
+		void remove_edge(const size_t& island1_id, const size_t& island2_id);
+		
+		/// Drop all edges.
+		void clear_all_edges();
+		
+		/// Accessor to the outbound edges list begin iterator - allows iteration through all nodes. \todo I hate this... any other way to allow iteration through all nodes?
+		nlt_const_iterator lists_out_begin() { return lists_out.begin(); }
+		
+		/// Accessor to the outbound edges list end iterator - allows iteration through all nodes.
+		nlt_const_iterator lists_out_end() { return lists_out.end(); }
+
+		/// Accessor to the inbound edges list begin iterator - allows iteration through all nodes.
+		nlt_const_iterator lists_in_begin() { return lists_in.begin(); }
+		
+		/// Accessor to the inbound edges list end iterator - allows iteration through all nodes.
+		nlt_const_iterator lists_in_end() { return lists_in.end(); }
+
 	private:
-		///Dummy assignment operator.
+		/// Dummy assignment operator.
 		/** Assignment is not a valid operation for topologies - throws exception when called. */
 		graph_topology &operator=(const graph_topology &);
+		
+		neighbour_lists_type				lists_out; ///< Graph structure - a map of lists of outbound edges.
+		neighbour_lists_type				lists_in; ///< Graph structure - a map of lists of inbound edges.
 };
 
 /// Stream output operator.

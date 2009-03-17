@@ -24,9 +24,9 @@
 #define PAGMO_BA_TOPOLOGY_H
 
 #include "../../config.h"
-#include "base_topology.h"
 #include "graph_topology.h"
-#include "island.h"
+#include "growing_topology.h"
+#include "../../Functions/rng/rng.h"
 
 /// Barabasi-Albert scale-free network topology.
 /**
@@ -34,17 +34,18 @@
  * http://www.nd.edu/~networks/Publication%20Categories/03%20Journal%20Articles/Physics/StatisticalMechanics_Rev%20of%20Modern%20Physics%2074,%2047%20(2002).pdf.
  * \todo Rename this class.
  */
-class __PAGMO_VISIBLE ba_topology: public base_topology, public graph_topology {
+class __PAGMO_VISIBLE ba_topology: public graph_topology, growing_topology {
 	public:
 		/// Constructor.
 		/**
 		 * Initialises the Barabasi-Albert topology generator.
-		 * \param m_0 Size of the kernel.
-		 * \param m Number of edges per new node.
+		 * \param[in] m_0 Size of the kernel.
+		 * \param[in] m Number of edges per new node.
+		 * \param[in] optional random seed used to initialise the internal rng.
 		 */
-		ba_topology(int m_0, int m);
+		ba_topology(int m_0, int m, uint32_t seed);
 		
-		/// Copy constructor... \todo Change semantics and add a method to re-init an RNG.
+		/// Copy constructor... \todo Change semantics and add a method to re-init an RNG?
 		ba_topology(const ba_topology &);
 		
 		/// \see base_topology::clone
@@ -61,6 +62,9 @@ class __PAGMO_VISIBLE ba_topology: public base_topology, public graph_topology {
 		const size_t	m_m_0;
 		/// Number of edges per newly-inserted node.
 		const size_t	m_m;
+		
+		/// Random number generator
+		rng_double drng;
 };
 
 #endif

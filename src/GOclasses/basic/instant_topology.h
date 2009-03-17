@@ -18,29 +18,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/01/2009: Initial version by Francesco Biscani.
+// 12/01/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_NO_TOPOLOGY_H
-#define PAGMO_NO_TOPOLOGY_H
+#ifndef PAGMO_INSTANT_TOPOLOGY_H
+#define PAGMO_INSTANT_TOPOLOGY_H
 
-#include "../../config.h"
-#include "base_topology.h"
+#include <vector>
+#include "island.h"
+#include "../../exceptions.h"
 
-///Empty topology (with no connections).
+/// Base class for instant-creation topologies.
 /**
- * Use this as a default value when no connections are needed.
- * \todo Rename this class to conform to the conventions.
+ * Some topologies are restricted to have only certain numbers of nodes. Typical example of such a topology is
+ * a hypercube, which can contain only numbers of edges which are powers of 2. For such topologies
+ * it is usually troublesome to implement "incremental growth".
  */
-class __PAGMO_VISIBLE no_topology: public base_topology {
+class __PAGMO_VISIBLE instant_topology {
 	public:
-		/// \see base_topology::clone
-		virtual no_topology *clone() const { return new no_topology(*this); }
+		/// Virtual Destructor.
+		virtual ~instant_topology() { }
 		
-		/// \see base_topology::push_back
-		virtual void push_back(const island&) { }
+		/// Create a topology with the given islands. 
+		/**
+		 * The size list of islands is verified against being compatible with the topology.
+		 */
+		void initialize(const std::vector<island>& islands)
+		{
+			if(isValidNumberOfNodes(islands.size())) {
+				do_initialize(islands);
+			} else {
+				pagmo_throw(type_error, "Instant creation topology failed due to the wrong number of islands");
+			}
+		}
+		
+		/// Check if the given number of nodes is valid for the topology
+		virtual bool isValidNumberOfNodes(const size_t& nodesCount) = 0;
+		 
+	protected:
+		/// Perform the actual topology creation (to be implemented by subclasses).
+		virtual void do_initialize(const std::vector<island>& islands) = 0;
 };
-
-/// Stream output operator for the no_topology class.
-inline std::ostream &operator<<(std::ostream &s, const no_topology &) {return s;}
 
 #endif

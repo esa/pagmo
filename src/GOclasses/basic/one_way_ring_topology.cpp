@@ -25,10 +25,10 @@
 
 #include "one_way_ring_topology.h"
 
-one_way_ring_topology::one_way_ring_topology():base_topology(),graph_topology(),m_first(0),m_last(0) {}
+one_way_ring_topology::one_way_ring_topology():graph_topology(),m_first(0),m_last(0) {}
 
-one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r):
-	base_topology(r),graph_topology(r),m_first(0),m_last(0) {}
+one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r)
+		:graph_topology(r),growing_topology(),m_first(0),m_last(0) { }
 
 one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topology &)
 {
@@ -39,30 +39,31 @@ one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topol
 void one_way_ring_topology::push_back(const island &isl)
 {
 	// Store frequently-used variables.
-	const size_t t_size = m_tc.size(), id = isl.id();
+	const size_t t_size = get_number_of_nodes(), id = isl.id();
 	switch (t_size) {
 		case 0:
-			// If topology is empty, insert the id with no connections and update
-			// the id of the first element.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>()));
+			// If topology is empty, update the id of the first element.
 			m_first = id;
 			break;
+			
 		case 1:
-			{
-			const tc_iterator b = m_tc.begin();
+		{
+			const nlt_const_iterator b = lists_out_begin();
 			pagmo_assert(id != b->first);
 			// Add a connection from the only existing element.
-			b->second.push_back(id);
-			// Insert new element and connect it to first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,b->first)));
-			}
+			add_edge(b->first, id);
+			add_edge(id, b->first);
 			break;
+		}
+		
 		default:
-			pagmo_assert(m_tc.find(id) == m_tc.end());
+			/// \todo check it in the growing_topology class: pagmo_assert(m_tc.find(id) == m_tc.end());
 			// The current last must be connected to the new last.
-			m_tc[m_last][0] = id;
+			remove_edge(m_last, m_first);
+			add_edge(m_last, id);
+			
 			// Insert the new last with a connection to the first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_first)));
+			add_edge(id, m_first);
 	}
 	// Update the id of the last island.
 	m_last = id;

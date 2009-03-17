@@ -20,18 +20,9 @@
 
 // 22/01/2009: Initial version by Francesco Biscani.
 
-#include <iostream>
-
 #include "graph_topology.h"
-
-//#include "../../Functions/rng/rng.h"
-//#include "../../exceptions.h"
-//#include "individual.h"
-//#include "island.h"
-
-graph_topology::graph_topology():m_drng(static_rng_uint32()()) { }
-
-graph_topology::graph_topology(const graph_topology &g):m_tc(g.m_tc),m_drng(static_rng_uint32()()) {}
+#include "../../exceptions.h"
+#include <algorithm>
 
 graph_topology &graph_topology::operator=(const graph_topology &)
 {
@@ -39,61 +30,59 @@ graph_topology &graph_topology::operator=(const graph_topology &)
 	return *this;
 }
 
-/*
-void graph_topology::pre_hook(island &isl)
+std::list<size_t> graph_topology::get_neighbours_out(const size_t& _island_id)
 {
-	lock_type lock(m_mutex);
-	// We don't want to do any migration if graph size is less than 2.
-	if (m_tc.size() < 2) {
-		return;
-	}
-	if (m_drng() < m_prob) {
-		// Let's look for the island inside the topology.
-		const tc_iterator tc_it = m_tc.find(isl.id());
-		// We want to make sure that the island is really there, otherwise the topology
-		// is being used incorrectly.
-		pagmo_assert(tc_it != m_tc.end());
-		// If the island has no connections we have no candidates for migration, simply exit.
-		const size_t n_conn = tc_it->second.size();
-		if (n_conn == 0) {
-			return;
-		}
-		// Let's choose randomly an island between the ones which are connected to isl.
-		const size_t id_random = tc_it->second[(size_t)(n_conn * m_drng())];
-		// Let's see if the randomly selected island has placed an individual in the best
-		// individuals database.
-		const ic_iterator ic_it = m_ic.find(id_random);
-		// If the random island has placed in the database an individual previously, grab it and use
-		// it to replace isl's worst (if it is better).
-		if (ic_it != m_ic.end() && isl.t_substitute_worst(ic_it->second)) {
-			// Remove the migrated individual from the list.
-			m_ic.erase(ic_it);
-		}
-	}
+	return std::list<size_t>(lists_out[_island_id].begin(), lists_out[_island_id].end());
 }
 
-void graph_topology::post_hook(island &isl)
+std::list<size_t> graph_topology::get_neighbours_in(const size_t& _island_id)
 {
-	lock_type lock(m_mutex);
-	// Insert in the database the best individual of the island. If the island index is already present in the island,
-	// then simply update it if it is better, otherwise insert it.
-	const size_t id = isl.id();
-	const ic_iterator it = m_ic.find(id);
-	const Individual best = isl.t_best();
-	if (it == m_ic.end()) {
-		m_ic.insert(std::make_pair(id,best));
-	} else {
-		if (best.getFitness() < it->second.getFitness()) {
-			it->second = best;
-		}
+	return std::list<size_t>(lists_in[_island_id].begin(), lists_in[_island_id].end());
+}
+
+bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& island2_id)
+{
+	return find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id) != lists_out[island1_id].end();
+}
+
+size_t graph_topology::get_number_of_edges()
+{
+	size_t result = 0;
+	for(nlt_iterator iter = lists_out.begin(); iter != lists_out.end(); ++iter) {
+		result += iter->second.size();
 	}
-}*/
+	return result;
+}
+
+size_t graph_topology::get_number_of_nodes()
+{
+	return lists_out.size();
+}
+
+void graph_topology::add_edge(const size_t& island1_id, const size_t& island2_id)
+{
+	lists_out[island1_id].push_back(island2_id);
+	lists_in[island2_id].push_back(island1_id);	
+}
+
+void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2_id)
+{
+	std::vector<size_t>::iterator position_out = find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id);
+	std::vector<size_t>::iterator position_in = find(lists_in[island2_id].begin(), lists_in[island2_id].end(), island1_id);
+	
+	lists_out[island1_id].erase(position_out);
+	lists_in[island2_id].erase(position_in);
+}
+
+void graph_topology::clear_all_edges()
+{
+	lists_out.clear();
+	lists_in.clear();
+}
 
 std::ostream &operator<<(std::ostream &os, const graph_topology &g)
 {
-	graph_topology::lock_type lock(g.m_mutex);
-	
-	for (graph_topology::tc_type::const_iterator it = g.m_tc.begin(); it != g.m_tc.end(); ++it) {
+	for (graph_topology::neighbour_lists_type::const_iterator it = g.lists_out.begin(); it != g.lists_out.end(); ++it) {
 		const size_t conn_size = it->second.size();
 		os << it->first;
 		if (conn_size > 0) {
