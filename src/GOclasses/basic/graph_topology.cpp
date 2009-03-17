@@ -30,14 +30,14 @@ graph_topology &graph_topology::operator=(const graph_topology &)
 	return *this;
 }
 
-std::list<size_t> graph_topology::get_neighbours_out(const size_t& _island_id)
+const std::vector<size_t> graph_topology::get_neighbours_out(const size_t& _island_id)
 {
-	return std::list<size_t>(lists_out[_island_id].begin(), lists_out[_island_id].end());
+	return lists_out[_island_id];
 }
 
-std::list<size_t> graph_topology::get_neighbours_in(const size_t& _island_id)
+const std::vector<size_t> graph_topology::get_neighbours_in(const size_t& _island_id)
 {
-	return std::list<size_t>(lists_in[_island_id].begin(), lists_in[_island_id].end());
+	return lists_in[_island_id];
 }
 
 bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& island2_id)

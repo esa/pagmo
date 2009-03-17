@@ -27,9 +27,8 @@
 #include <boost/scoped_ptr.hpp>
 #include "base_topology.h"
 #include "../../config.h"
-
-//In order to prevent recursive inclusion... TODO: move MigrationScheme to a separate file?
-class island;
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
 /// Base class for the migration schemes.
 /**
@@ -37,6 +36,10 @@ class island;
  */
 class __PAGMO_VISIBLE MigrationScheme
 {
+	protected:
+		/// Lock guard type abbreviation.
+		typedef boost::lock_guard<boost::mutex> lock_type;
+	
 	public:
 		/// Constructor.
 		/**
@@ -91,10 +94,10 @@ class __PAGMO_VISIBLE MigrationScheme
 		 */
 		virtual MigrationScheme* clone() const = 0;
 		
-	private:
-		
+	protected:		
 		// Class fields.
 		boost::scoped_ptr<base_topology>	topology; ///< Migration topology. \todo I'm not so sure if all possible migration schemes require a topology...
+		boost::mutex						topology_mutex; ///< Topology mutex. <b>Access to the topology must be synchronised!!!</b>
 };
 
 #endif

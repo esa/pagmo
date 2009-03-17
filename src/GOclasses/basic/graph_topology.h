@@ -52,10 +52,10 @@ class __PAGMO_VISIBLE graph_topology: public base_topology {
 				:base_topology(), lists_out(gt.lists_out), lists_in(gt.lists_in) { }
 		
 		/// \see base_topology::get_neighbours_out
-		virtual std::list<size_t> get_neighbours_out(const size_t&);
+		virtual const std::vector<size_t> get_neighbours_out(const size_t&);
 		
 		/// \see base_topology::get_neighbours_in
-		virtual std::list<size_t> get_neighbours_in(const size_t&);
+		virtual const std::vector<size_t> get_neighbours_in(const size_t&);
 		
 		/// \see base_topology::are_neighbours
 		virtual bool are_neighbours(const size_t& island1_id, const size_t& island2_id);

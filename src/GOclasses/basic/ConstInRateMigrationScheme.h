@@ -26,8 +26,7 @@
 #include "MigrationScheme.h"
 #include <boost/unordered_map.hpp>
 #include <vector>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
+#include "../../Functions/rng/rng.h"
 
 /// Migration scheme with constant incoming migration rate.
 /**
@@ -35,16 +34,15 @@
  */
 class __PAGMO_VISIBLE ConstInRateMigrationScheme: public MigrationScheme
 {
-		/// Lock guard type abbreviation.
-		typedef boost::lock_guard<boost::mutex> lock_type;
-
 	public:
 		/// Constructor.
 		/**
 		 * Creates a migration shceme associated with the given topology.
+		 * \param[in] _topology topology to be used with the scheme
+		 * \param[in] seed optional seed to initialise the internal RNG.
 		 */
-		ConstInRateMigrationScheme(const base_topology& _topology)
-				:MigrationScheme(_topology)
+		ConstInRateMigrationScheme(const base_topology& _topology, uint32_t seed = static_rng_uint32()())
+				:MigrationScheme(_topology), rng(seed)
 		{
 		}
 		
@@ -52,7 +50,7 @@ class __PAGMO_VISIBLE ConstInRateMigrationScheme: public MigrationScheme
 		/**
 		 * Creates a deep copy of the object
 		 */
-		ConstInRateMigrationScheme(const ConstInRateMigrationScheme& ms):MigrationScheme(ms) { }
+		ConstInRateMigrationScheme(const ConstInRateMigrationScheme& ms):MigrationScheme(ms),rng(ms.rng) { }
 		
 		/// Virtual destructor.
 		virtual ~ConstInRateMigrationScheme() { }; 
@@ -71,10 +69,9 @@ class __PAGMO_VISIBLE ConstInRateMigrationScheme: public MigrationScheme
 		/**
 		 * Maps island's id to a vector of the most recent migrating individuals from that island.
 		 */
-		boost::unordered_map<size_t, std::vector<Individual> > immigrants;
+		boost::unordered_map<size_t, std::vector<Individual> > immigrantsDB;
 		
-		/// Mutex for protecting the database.
-		boost::mutex							immigrants_mutex;		
+		rng_uint32 rng; ///< Random number generator
 };
 
 #endif

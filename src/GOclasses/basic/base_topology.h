@@ -27,7 +27,7 @@
 #include <typeinfo>
 
 #include "../../../config.h"
-#include <list>
+#include <vector>
 
 /// Base class for topologies.
 /**
@@ -43,10 +43,10 @@ class __PAGMO_VISIBLE base_topology {
 		// Topology interface functions.
 		
 		/// Get a list of island's neighbours (outbound edges).
-		virtual std::list<size_t> get_neighbours_out(const size_t&) = 0;
+		virtual const std::vector<size_t> get_neighbours_out(const size_t&) = 0;
 		
 		/// Get a list of island's neighbours (inbound edges).
-		virtual std::list<size_t> get_neighbours_in(const size_t&) = 0;
+		virtual const std::vector<size_t> get_neighbours_in(const size_t&) = 0;
 		
 		/// Check if a pair of islands is connected.
 		/**

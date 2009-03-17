@@ -24,10 +24,34 @@
 
 void ConstInRateMigrationScheme::preEvolutionCallback(island& _island)
 {
-	//Choose a random _island's neighbour and perform the migration into _island.	
+	// Choose a random incoming neighbour and perform the migration.
+	lock_type lock(topology_mutex);
+	
+	const std::vector<size_t>& neighbours = topology->get_neighbours_in(_island.id());
+	
+	if(neighbours.size() > 0) { //the island must have neighbours
+			
+		//Draw a neighbour
+		size_t chosenNeighbourIndex = rng() % neighbours.size();
+		size_t chosenNeighbour = neighbours[chosenNeighbourIndex];
+		
+		//Get neighbour's immigrants
+		std::vector<Individual> immigrants = immigrantsDB[chosenNeighbour];
+		
+		if(immigrants.size() > 0) { //if there's anything to migrate, do it
+			_island.acceptMigratingIndividuals(immigrants);
+		}	
+	}
 }
 
 void ConstInRateMigrationScheme::postEvolutionCallback(island& _island)
 {
 	//Update _island's database with it's migrating individuals.
+	lock_type lock(topology_mutex);
+	
+	//Get individuals from the islands
+	std::vector<Individual> immigrants = _island.getMigratingIndividuals();
+	
+	//Replace the contents of the database for the island
+	immigrantsDB[_island.id()].swap(immigrants);
 }
