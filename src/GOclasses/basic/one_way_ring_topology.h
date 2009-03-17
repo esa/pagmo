@@ -40,7 +40,7 @@ class __PAGMO_VISIBLE one_way_ring_topology: public graph_topology, growing_topo
 		virtual one_way_ring_topology *clone() const { return new one_way_ring_topology(*this); }
 		
 		/// \see base_topology::push_back
-		virtual void push_back(const island &);
+		virtual void push_back(const size_t&);
 	private:
 		/// Tracks the identifier of the first inserted node.
 		size_t	m_first;

@@ -25,8 +25,6 @@
 
 #include "instant_topology.h"
 
-#include "island.h"
-
 /// Base class for topologies than gan be "grown".
 /**
  * Many topologies can be constructed incrementally, i.e. by adding one island after another.
@@ -41,18 +39,18 @@ class __PAGMO_VISIBLE growing_topology: public instant_topology {
 		
 		/// Add an island to the topology.
 		/**
-		 * \param[in] island The island to be added.
+		 * \param[in] island_id The id to be added.
 		 */
-		virtual void push_back(const island &) = 0;
+		virtual void push_back(const size_t& island_id) = 0;
 		
 		/// \see instant_topology::isValidNumberOfNodes
 		virtual bool isValidNumberOfNodes(const size_t& nodesCount) { return nodesCount >= 1; }
 		
 	protected:
 		/// \see instant_topology::initialize
-		virtual void do_initialize(const std::vector<island>& islands)
+		virtual void do_initialize(const std::vector<size_t>& ids)
 		{
-			for(std::vector<island>::const_iterator i = islands.begin(); i != islands.end(); i++) {
+			for(std::vector<size_t>::const_iterator i = ids.begin(); i != ids.end(); i++) {
 				push_back(*i);
 			}
 		}

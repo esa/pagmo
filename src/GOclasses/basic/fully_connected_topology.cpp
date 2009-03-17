@@ -39,10 +39,8 @@ fully_connected_topology &fully_connected_topology::operator=(const fully_connec
 	return *this;
 }
 
-void fully_connected_topology::push_back(const island &isl)
+void fully_connected_topology::push_back(const size_t& id)
 {
-	// Store frequently-used variables.
-	const size_t id = isl.id();
 	// Iterate over all the existing island, storing their id and adding connections to
 	// the new island in the process.
 	const nlt_const_iterator it_f = lists_out_end();

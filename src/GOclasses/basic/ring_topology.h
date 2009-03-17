@@ -39,7 +39,7 @@ class __PAGMO_VISIBLE ring_topology: public graph_topology, growing_topology {
 		virtual ring_topology *clone() const {return new ring_topology(*this);}
 		
 		/// \see base_topology::push_back
-		virtual void push_back(const island &);
+		virtual void push_back(const size_t& id);
 		
 	private:	
 		/// Tracks the id of the first inserted node.

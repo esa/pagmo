@@ -52,7 +52,7 @@ class __PAGMO_VISIBLE ba_topology: public graph_topology, growing_topology {
 		virtual ba_topology *clone() const { return new ba_topology(*this); }
 		
 		/// \see base_topology::push_back		
-		virtual void push_back(const island &);
+		virtual void push_back(const size_t& id);
 	
 	private:
 		/// \see graph_topology::operator=

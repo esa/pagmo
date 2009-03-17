@@ -36,10 +36,10 @@ one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topol
 	return *this;
 }
 
-void one_way_ring_topology::push_back(const island &isl)
+void one_way_ring_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
-	const size_t t_size = get_number_of_nodes(), id = isl.id();
+	const size_t t_size = get_number_of_nodes();
 	switch (t_size) {
 		case 0:
 			// If topology is empty, update the id of the first element.

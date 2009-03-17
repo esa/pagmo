@@ -33,10 +33,10 @@ ring_topology &ring_topology::operator=(const ring_topology &)
 	return *this;
 }
 
-void ring_topology::push_back(const island &isl)
+void ring_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
-	const size_t t_size = get_number_of_nodes(), id = isl.id();
+	const size_t t_size = get_number_of_nodes();
 	
 	switch (t_size) {
 		case 0:

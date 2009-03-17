@@ -24,7 +24,6 @@
 #define PAGMO_INSTANT_TOPOLOGY_H
 
 #include <vector>
-#include "island.h"
 #include "../../exceptions.h"
 
 /// Base class for instant-creation topologies.
@@ -42,10 +41,10 @@ class __PAGMO_VISIBLE instant_topology {
 		/**
 		 * The size list of islands is verified against being compatible with the topology.
 		 */
-		void initialize(const std::vector<island>& islands)
+		void initialize(const std::vector<size_t>& ids)
 		{
-			if(isValidNumberOfNodes(islands.size())) {
-				do_initialize(islands);
+			if(isValidNumberOfNodes(ids.size())) {
+				do_initialize(ids);
 			} else {
 				pagmo_throw(type_error, "Instant creation topology failed due to the wrong number of islands");
 			}
@@ -56,7 +55,7 @@ class __PAGMO_VISIBLE instant_topology {
 		 
 	protected:
 		/// Perform the actual topology creation (to be implemented by subclasses).
-		virtual void do_initialize(const std::vector<island>& islands) = 0;
+		virtual void do_initialize(const std::vector<size_t>& ids) = 0;
 };
 
 #endif

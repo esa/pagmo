@@ -28,7 +28,6 @@
 
 #include "../../../config.h"
 #include <list>
-#include "island.h"
 
 /// Base class for topologies.
 /**

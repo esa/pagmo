@@ -32,9 +32,9 @@ ba_topology::ba_topology(int m_0, int m, uint32_t seed = static_rng_uint32()())
 
 ba_topology::ba_topology(const ba_topology &b):graph_topology(b), growing_topology(), m_m_0(b.m_m_0),m_m(b.m_m) {}
 
-void ba_topology::push_back(const island &isl)
+void ba_topology::push_back(const size_t& id)
 {
-	const size_t size = get_number_of_nodes(), id = isl.id();
+	const size_t size = get_number_of_nodes();
 	
 	// Make sure the id is not already there. [MaRu] why?
 	/// \todo maybe this should be controlled by the grow_topology itself?

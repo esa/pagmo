@@ -39,7 +39,7 @@ class __PAGMO_VISIBLE fully_connected_topology: public graph_topology,growing_to
 		virtual fully_connected_topology *clone() const { return new fully_connected_topology(*this); }
 		
 		/// \see base_topology::push_back
-		virtual void push_back(const island &);
+		virtual void push_back(const size_t&);
 	
 	private:
 		/// \see graph_topology::operator=
