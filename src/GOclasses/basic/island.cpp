@@ -228,7 +228,12 @@ void island::acceptMigratingIndividuals(const std::vector<Individual>& incomingP
 void island::evolve(int N)
 {
 	if (m_evo_mutex.try_lock()) {
-		boost::thread(int_evolver(this,N));
+		try {
+			boost::thread(int_evolver(this,N));
+		} catch(...) {
+			std::cout << "Failed to launch the thread: " << m_id << std::endl;
+			/// \todo throw;
+		}
 	} else {
 // WORKAROUND: apparently there are some issues here with  exception throwing
 // under MinGW when evolution is running in another thread. This needs to be investigated.
@@ -243,7 +248,12 @@ void island::evolve(int N)
 void island::evolve_t(const size_t &t)
 {
 	if (m_evo_mutex.try_lock()) {
-		boost::thread(t_evolver(this,t));
+		try {
+			boost::thread(t_evolver(this,t));
+		} catch(...) {
+			std::cout << "Failed to launch the thread: " << m_id << std::endl;
+			/// \todo throw;
+		}
 	} else {
 #ifdef PAGMO_WIN32
 		std::cout << "Cannot evolve while still evolving!\n";
@@ -334,33 +344,6 @@ void island::t_evolver::operator()()
 	m_i->m_evo_mutex.unlock();
 }
 
-
-/*
-void island::t_check() const
-{
-	if (m_topo_mutex.try_lock()) {
-		m_topo_mutex.unlock();
-		pagmo_throw(runtime_error,"'t_' functions can be called only during the pre/post evolutionary phases in archipelago");
-	}
-}
-
-bool island::t_substitute_worst(const Individual &ind)
-{
-	t_check();
-	const Individual &worst = m_pop.extractWorstIndividual();
-	if (ind.getFitness() < worst.getFitness()) {
-		m_pop.replace_worst(ind);
-		return true;
-	}
-	return false;
-}
-
-Individual island::t_best() const
-{
-	t_check();
-	return m_pop.extractBestIndividual();
-}
-*/
 
 std::ostream &operator<<(std::ostream &s, const island &isl)
 {
