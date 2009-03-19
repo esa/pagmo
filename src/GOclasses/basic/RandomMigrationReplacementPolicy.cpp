@@ -29,22 +29,23 @@ std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForRepla
 	int migrationRateLimit = std::min(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
 	
 	std::vector<int> incomingPopulationIndices(migrationRateLimit);
-	std::vector<int> destinationPopulationIndices(migrationRateLimit);
+	std::vector<int> destinationPopulationIndices(destinationPopulation.size());
 	
 	//Fill in the arrays of indices
 	std::generate(incomingPopulationIndices.begin(), incomingPopulationIndices.end(), IndexGenerator());
 	std::generate(destinationPopulationIndices.begin(), destinationPopulationIndices.end(), IndexGenerator());
 	
-	//Permute the indices
+	//Permute the indices (incoming population)
 	for(int i = 0; i < migrationRateLimit; i++) {
 		int nextIncomingPopulationIndex = i + (rng() % (migrationRateLimit - i));
 		if(nextIncomingPopulationIndex != i) {
 			std::swap(incomingPopulationIndices[i], incomingPopulationIndices[nextIncomingPopulationIndex]);
 		}				
 	}
-
+	
+	//Permute the indices (destination population)
 	for(int i = 0; i < migrationRateLimit; i++) {
-		int nextDestinationPopulationIndex = i + (rng() % (migrationRateLimit - i));
+		int nextDestinationPopulationIndex = i + (rng() % (destinationPopulation.size() - i));
 		if(nextDestinationPopulationIndex != i) {
 			std::swap(destinationPopulationIndices[i], destinationPopulationIndices[nextDestinationPopulationIndex]);
 		}				

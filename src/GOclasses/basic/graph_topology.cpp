@@ -30,43 +30,94 @@ graph_topology &graph_topology::operator=(const graph_topology &)
 	return *this;
 }
 
-const std::vector<size_t> graph_topology::get_neighbours_out(const size_t& _island_id)
+const std::vector<size_t> graph_topology::get_neighbours_out(const size_t& _island_id) const
 {
-	return lists_out[_island_id];
+	check_node_present(_island_id);
+	return lists_out.find(_island_id)->second;
 }
 
-const std::vector<size_t> graph_topology::get_neighbours_in(const size_t& _island_id)
+const std::vector<size_t> graph_topology::get_neighbours_in(const size_t& _island_id) const
 {
-	return lists_in[_island_id];
+	check_node_present(_island_id);
+	return lists_in.find(_island_id)->second;
 }
 
-bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& island2_id)
+bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& island2_id) const
 {
-	return find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id) != lists_out[island1_id].end();
+	if(contains_node(island1_id) && contains_node(island2_id)) {
+		const std::vector<size_t>& out_neighbours = lists_out.find(island1_id)->second;
+		return find(out_neighbours.begin(), out_neighbours.end(), island2_id) != out_neighbours.end();
+	} else {
+		return false;
+	}
 }
 
-size_t graph_topology::get_number_of_edges()
+size_t graph_topology::get_number_of_edges() const
 {
 	size_t result = 0;
-	for(nlt_iterator iter = lists_out.begin(); iter != lists_out.end(); ++iter) {
+	for(nlt_const_iterator iter = lists_out.begin(); iter != lists_out.end(); ++iter) {
 		result += iter->second.size();
 	}
 	return result;
 }
 
-size_t graph_topology::get_number_of_nodes()
+const std::vector<size_t> graph_topology::get_nodes() const
 {
-	return lists_out.size();
+	return std::vector<size_t>(nodes.begin(), nodes.end());
+}
+
+size_t graph_topology::get_number_of_nodes() const
+{
+	return nodes.size();
+}
+
+void graph_topology::add_node(const size_t& id)
+{
+	check_node_not_present(id);
+	nodes.insert(id);
+	lists_in[id] = std::vector<size_t>();
+	lists_out[id] = std::vector<size_t>();
+}
+
+bool graph_topology::contains_node(const size_t& id) const
+{
+	return nodes.find(id) != nodes.end();
+}
+
+void graph_topology::check_node_present(const size_t& id) const
+{
+	if(!contains_node(id)) {
+		pagmo_throw(index_error, "Topology doesn't contain the node yet!");
+	}
+}
+
+void graph_topology::check_node_not_present(const size_t& id) const
+{
+	if(contains_node(id)) {
+		pagmo_throw(index_error, "Topology already contains the node!");
+	}
+}
+
+void graph_topology::remove_node(const size_t& id)
+{
+	check_node_present(id);
+	nodes.erase(id);
 }
 
 void graph_topology::add_edge(const size_t& island1_id, const size_t& island2_id)
 {
+	check_node_present(island1_id);
+	check_node_present(island2_id);
+		
 	lists_out[island1_id].push_back(island2_id);
-	lists_in[island2_id].push_back(island1_id);	
+	lists_in[island2_id].push_back(island1_id);
 }
 
 void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2_id)
 {
+	check_node_present(island1_id);
+	check_node_present(island2_id);
+
 	std::vector<size_t>::iterator position_out = find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id);
 	std::vector<size_t>::iterator position_in = find(lists_in[island2_id].begin(), lists_in[island2_id].end(), island1_id);
 	
@@ -74,27 +125,9 @@ void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2
 	lists_in[island2_id].erase(position_in);
 }
 
-void graph_topology::clear_all_edges()
+void graph_topology::clear()
 {
+	nodes.clear();
 	lists_out.clear();
 	lists_in.clear();
-}
-
-std::ostream &operator<<(std::ostream &os, const graph_topology &g)
-{
-	for (graph_topology::neighbour_lists_type::const_iterator it = g.lists_out.begin(); it != g.lists_out.end(); ++it) {
-		const size_t conn_size = it->second.size();
-		os << it->first;
-		if (conn_size > 0) {
-			os << "->";
-			for (size_t i = 0; i < conn_size; ++i) {
-				os << it->second[i];
-				if (i < conn_size - 1) {
-					os << ',';
-				}
-			}
-		}
-		os << '\n';
-	}
-	return os;
 }

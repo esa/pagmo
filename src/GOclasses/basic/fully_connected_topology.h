@@ -24,10 +24,9 @@
 #define PAGMO_FULLY_CONNECTED_TOPOLOGY_H
 
 #include "graph_topology.h"
-#include "growing_topology.h"
 
 /// Fully-connected topology.
-class __PAGMO_VISIBLE fully_connected_topology: public graph_topology,growing_topology {
+class __PAGMO_VISIBLE fully_connected_topology: public graph_topology {
 	public:
 		/// Constructor.
 		fully_connected_topology();

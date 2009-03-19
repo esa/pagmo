@@ -21,3 +21,10 @@
 #include "MigrationScheme.h"
 
 // 09/03/2009: Initial version by Marek Rucinski.
+
+std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms)
+{
+	s << "Migration scheme: " << typeid(ms).name() << std::endl;
+	s << "Topology:" << std::endl << (*(ms.topology.get())) << std::endl;
+	return s;
+}

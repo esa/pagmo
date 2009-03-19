@@ -83,6 +83,10 @@ class __PAGMO_VISIBLE island
 		 */
 		island(const GOProblem& p, const go_algorithm& al, int n);
 		
+		/// Constructor.
+		/** \todo Document me!!! */
+		island(const GOProblem& p, const go_algorithm& al, int n, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp);
+		
 		/// Copy constructor.
 		/**
 		 * Creates a deep copy of an island. The only differences are that the new island is assigned a new id

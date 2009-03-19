@@ -28,6 +28,7 @@
 
 #include "../../../config.h"
 #include <vector>
+#include "../../exceptions.h"
 
 /// Base class for topologies.
 /**
@@ -35,32 +36,49 @@
  * \todo Rename this class in order to keep to the standard conventions.
  */
 class __PAGMO_VISIBLE base_topology {
+	
+		/// Stream output operator.
+		friend std::ostream &operator<<(std::ostream &, const base_topology &);
+	
 	public:
 		/// Virtual Destructor.
 		virtual ~base_topology() { };
 		
-		
+		// Creation functions
+		/// Create the topology incrementally
+		/**
+		 * This is an optional method. If your topology class is to support incremental construction, ovveride it.
+		 */
+		virtual void push_back(const size_t& island_id)
+		{
+			pagmo_throw(type_error, "This topology class does not support incremental construction!");
+		}
+						
+				
 		// Topology interface functions.
 		
 		/// Get a list of island's neighbours (outbound edges).
-		virtual const std::vector<size_t> get_neighbours_out(const size_t&) = 0;
+		virtual const std::vector<size_t> get_neighbours_out(const size_t&) const = 0;
 		
 		/// Get a list of island's neighbours (inbound edges).
-		virtual const std::vector<size_t> get_neighbours_in(const size_t&) = 0;
+		virtual const std::vector<size_t> get_neighbours_in(const size_t&) const = 0;
 		
 		/// Check if a pair of islands is connected.
 		/**
 		 * The direction of the edge must be island1 -> island2
 		 */
-		virtual bool are_neighbours(const size_t& island1_id, const size_t& island2_id) = 0;
+		virtual bool are_neighbours(const size_t& island1_id, const size_t& island2_id) const = 0;
 		
-		/// Get the number of edges in the topology
-		virtual size_t get_number_of_edges() = 0;
+		/// Get the number of edges in the topology.
+		virtual size_t get_number_of_edges() const = 0;
 		
-		/// Get the number of nodes in the topology
-		virtual size_t get_number_of_nodes() = 0;
+		/// Get the vector of all nodes in the topology.
+		virtual const std::vector<size_t> get_nodes() const = 0;
 		
+		/// Get the number of nodes in the topology.
+		virtual size_t get_number_of_nodes() const = 0;
 		
+				
 		// Utility functions.
 		
 		/// Create a deep copy of the object.
@@ -74,5 +92,8 @@ class __PAGMO_VISIBLE base_topology {
 		/** \todo Rename this method to something more sensible. */
 		std::string id_name() const {return typeid(*this).name();}
 };
+
+/// Stream output operator.
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base_topology &);
 
 #endif

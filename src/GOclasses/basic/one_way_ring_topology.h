@@ -25,11 +25,10 @@
 
 #include "../../config.h"
 #include "graph_topology.h"
-#include "growing_topology.h"
 #include "island.h"
 
 ///Uni-directional ring topology.
-class __PAGMO_VISIBLE one_way_ring_topology: public graph_topology, growing_topology {
+class __PAGMO_VISIBLE one_way_ring_topology: public graph_topology {
 	public:
 		/// Constructor.
 		one_way_ring_topology();

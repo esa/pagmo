@@ -22,10 +22,10 @@
 
 #include "ring_topology.h"
 
-ring_topology::ring_topology():graph_topology(), growing_topology(), m_first(0), m_last(0) {}
+ring_topology::ring_topology():graph_topology(), m_first(0), m_last(0) {}
 
 ring_topology::ring_topology(const ring_topology &r)
-	:graph_topology(r), growing_topology(), m_first(0), m_last(0) {}
+	:graph_topology(r), m_first(0), m_last(0) {}
 
 ring_topology &ring_topology::operator=(const ring_topology &)
 {
@@ -38,24 +38,24 @@ void ring_topology::push_back(const size_t& id)
 	// Store frequently-used variables.
 	const size_t t_size = get_number_of_nodes();
 	
+	//Add the new node to the graph
+	add_node(id);
+	
 	switch (t_size) {
 		case 0:
-			// If topology is empty, update the id of the first element.
+			// If topology is empty, update the id of the first element.			
 			m_first = id;
 			break;
 		
 		case 1:
 		{
-			const nlt_const_iterator b = lists_out_begin();
-			/// \todo pagmo_assert(id != b->first);
 			// Add connections to the only existing element.
-			add_edge(id, b->first);
-			add_edge(b->first, id);
+			add_edge(id, m_first);
+			add_edge(m_first, id);
 			break;
 		}
 		
 		case 2:
-			/// \todo pagmo_assert(m_tc.find(id) == m_tc.end());
 			// Add new connections
 			add_edge(m_last, id);
 			add_edge(id, m_last);
@@ -64,7 +64,6 @@ void ring_topology::push_back(const size_t& id)
 			break;
 			
 		default:
-			/// \todo pagmo_assert(m_tc.find(id) == m_tc.end());
 			// In general we must change the back connection of the first,
 			// the forward connection of the current last, and add the new last
 			// with proper connections.

@@ -29,9 +29,9 @@
 #include "individual.h"
 #include "island.h"
 
-fully_connected_topology::fully_connected_topology():graph_topology(),growing_topology() {}
+fully_connected_topology::fully_connected_topology():graph_topology() {}
 
-fully_connected_topology::fully_connected_topology(const fully_connected_topology &f):graph_topology(f),growing_topology() {}
+fully_connected_topology::fully_connected_topology(const fully_connected_topology &f):graph_topology(f) {}
 
 fully_connected_topology &fully_connected_topology::operator=(const fully_connected_topology &)
 {
@@ -43,10 +43,13 @@ void fully_connected_topology::push_back(const size_t& id)
 {
 	// Iterate over all the existing island, storing their id and adding connections to
 	// the new island in the process.
-	const nlt_const_iterator it_f = lists_out_end();
-	for (nlt_const_iterator it = lists_out_begin(); it != it_f; ++it) {
-		pagmo_assert(id != it->first);
-		add_edge(id, it->first);
-		add_edge(it->first, id);		
+	std::vector<size_t> nodes_list = get_nodes();
+	
+	// Add the new node
+	add_node(id);
+		
+	for (std::vector<size_t>::const_iterator it = nodes_list.begin(); it != nodes_list.end(); ++it) {
+		add_edge(id, *it);
+		add_edge(*it, id);
 	}
 }

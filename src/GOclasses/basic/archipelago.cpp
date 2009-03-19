@@ -50,7 +50,7 @@ archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M
 	}
 }
 
-archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme, const go_algorithm &a, int N, int M)
+archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme, const go_algorithm &a, int N, int M, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp)
 		:m_gop(p.clone()),
 		migrationScheme(_migrationScheme.clone())
 {
@@ -59,8 +59,10 @@ archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationSc
 	}
 	//TODO: reset the migration scheme?
 	for (int i = 0; i < N; ++i) {
-		push_back(island(p,a,M));
+		push_back(island(p,a,M,msp,mrp));
 	}
+	
+	std::cout << (*(migrationScheme.get()));
 }
 
 archipelago::archipelago(const archipelago &a):m_gop(a.m_gop->clone()),migrationScheme(a.migrationScheme->clone())
@@ -109,9 +111,10 @@ void archipelago::push_back(const island &isl)
 {
 	join();
 	check_island(isl);
+	// A COPY of an island is create here!!!
 	m_container.push_back(isl);
 	m_container.back().set_archipelago(this);
-	//TODO: push island to the topology/migration scheme?
+	migrationScheme->push_back(m_container.back());	
 }
 
 const GOProblem &archipelago::problem() const
@@ -158,6 +161,28 @@ void archipelago::evolve_t(const size_t &t)
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve_t(t);
 	}
+}
+
+Individual archipelago::best() const
+{
+	join();
+	
+	bool bestFound = false;
+	Individual result(*m_gop);
+	
+	const const_iterator it_f = m_container.end();	
+	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
+		if((!bestFound) || (it->best().getFitness() < result.getFitness())) {
+			bestFound = true;
+			result = it->best();
+		}		
+	}
+	
+	if(!bestFound) {
+		pagmo_throw(value_error, "In an empty archipelago there's no best individual!");
+	}
+	
+	return result;
 }
 
 void archipelago::setMigrationScheme(const MigrationScheme& newMigrationScheme)

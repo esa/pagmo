@@ -27,17 +27,15 @@
 #include <iostream>
 #include <boost/unordered_map.hpp>
 #include <vector>
+#include <boost/unordered_set.hpp>
 
 /// Simple graph implementation to be used by topologies.
 /**
  * \todo Rename this class.
  */
 class __PAGMO_VISIBLE graph_topology: public base_topology {
-	
-		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &, const graph_topology &);
-	
 	protected:
+		typedef boost::unordered_set<size_t> node_set_type;
 		typedef boost::unordered_map<size_t,std::vector<size_t> > neighbour_lists_type; ///< Topology container type abbreviation.
 		typedef neighbour_lists_type::iterator nlt_iterator; ///< Topology container iterator type abbreviation.
 		typedef neighbour_lists_type::const_iterator nlt_const_iterator; ///< Topology container const iterator type abbreviation.
@@ -49,35 +47,58 @@ class __PAGMO_VISIBLE graph_topology: public base_topology {
 		
 		/// Copy constructor.		
 		graph_topology(const graph_topology& gt)
-				:base_topology(), lists_out(gt.lists_out), lists_in(gt.lists_in) { }
+				:base_topology(), nodes(gt.nodes), lists_out(gt.lists_out), lists_in(gt.lists_in) { }
 		
 		/// \see base_topology::get_neighbours_out
-		virtual const std::vector<size_t> get_neighbours_out(const size_t&);
+		virtual const std::vector<size_t> get_neighbours_out(const size_t&) const;
 		
 		/// \see base_topology::get_neighbours_in
-		virtual const std::vector<size_t> get_neighbours_in(const size_t&);
+		virtual const std::vector<size_t> get_neighbours_in(const size_t&) const;
 		
 		/// \see base_topology::are_neighbours
-		virtual bool are_neighbours(const size_t& island1_id, const size_t& island2_id);
+		virtual bool are_neighbours(const size_t& island1_id, const size_t& island2_id) const;
 		
 		/// \see base_topology::get_number_of_edges
-		virtual size_t get_number_of_edges();
+		virtual size_t get_number_of_edges() const;
+		
+		/// \see base_topology::get_nodes
+		virtual const std::vector<size_t> get_nodes() const;
 		
 		/// \see base_topology::get_number_of_nodes
-		virtual size_t get_number_of_nodes();
+		virtual size_t get_number_of_nodes() const;
 		
 		/// \see base_topology::clone
 		virtual base_topology *clone() const { return new graph_topology(*this); }
 	
 	protected:
+		/// Add a node to the graph.
+		/** \todo Document me! */
+		void add_node(const size_t& id);
+		
+		/// Check if the node has been already added to te graph.
+		/** \todo Document me! */
+		bool contains_node(const size_t& id) const;
+		
+		/// Check if the node has been already added to te graph, throw an exception if failed.
+		/** \todo Document me! */
+		void check_node_present(const size_t& id) const;
+		
+		/// Check if the node hasn't been yet added to te graph, throw an exception if failed.
+		/** \todo Document me! */
+		void check_node_not_present(const size_t& id) const;
+
+		/// Remove a node
+		/** \todo Document me! */
+		void remove_node(const size_t& id);
+		
 		/// Create an edge from island1 to island2 (by ids).
 		void add_edge(const size_t& island1_id, const size_t& island2_id);
 		
 		/// Drop the edge from island1 to island2 (by ids).
 		void remove_edge(const size_t& island1_id, const size_t& island2_id);
 		
-		/// Drop all edges.
-		void clear_all_edges();
+		/// Drop all edges and nodes.
+		void clear();
 		
 		/// Accessor to the outbound edges list begin iterator - allows iteration through all nodes. \todo I hate this... any other way to allow iteration through all nodes?
 		nlt_const_iterator lists_out_begin() { return lists_out.begin(); }
@@ -96,11 +117,9 @@ class __PAGMO_VISIBLE graph_topology: public base_topology {
 		/** Assignment is not a valid operation for topologies - throws exception when called. */
 		graph_topology &operator=(const graph_topology &);
 		
+		node_set_type						nodes; ///< Nodes present in the graph.
 		neighbour_lists_type				lists_out; ///< Graph structure - a map of lists of outbound edges.
 		neighbour_lists_type				lists_in; ///< Graph structure - a map of lists of inbound edges.
 };
-
-/// Stream output operator.
-std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const graph_topology &);
 
 #endif

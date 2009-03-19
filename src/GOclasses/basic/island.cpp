@@ -60,12 +60,25 @@ island::island(const GOProblem &p, const go_algorithm &al, int n)
 {
 }
 
+island::island(const GOProblem& p, const go_algorithm& al, int n, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp)
+		:m_id(get_new_id()),
+		m_pop(p, n),
+		m_goa(al.clone()),
+		m_a(0),
+		m_evo_time(0),
+		migrationSelectionPolicy(msp.clone()),
+		migrationReplacementPolicy(mrp.clone())
+{
+}
+
 island::island(const island &i)
 		:m_id(get_new_id()),
 		m_pop(i.population()),
 		m_goa(i.m_goa->clone()),
 		m_a(0),
-		m_evo_time(i.m_evo_time)
+		m_evo_time(i.m_evo_time),
+		migrationSelectionPolicy(i.migrationSelectionPolicy->clone()),
+		migrationReplacementPolicy(i.migrationReplacementPolicy->clone())
 {
 }
 

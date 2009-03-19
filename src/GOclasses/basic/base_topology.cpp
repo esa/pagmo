@@ -21,3 +21,29 @@
 // 12/01/2009: Initial version by Francesco Biscani.
 
 #include "base_topology.h"
+
+std::ostream &operator<<(std::ostream &os, const base_topology &topology)
+{
+	std::vector<size_t> graph_nodes = topology.get_nodes();
+	
+	for (std::vector<size_t>::const_iterator it = graph_nodes.begin(); it != graph_nodes.end(); ++it) {
+		//The node
+		os << *it;
+		
+		//The edges
+		std::vector<size_t> neighbours = topology.get_neighbours_out(*it);
+		
+		if (neighbours.size() > 0) {
+			os << "->";
+			for (size_t i = 0; i < neighbours.size(); ++i) {
+				os << neighbours[i];
+				if (i < neighbours.size() - 1) {
+					os << ',';
+				}
+			}
+		}
+		os << std::endl;
+	}
+	return os;
+}
+

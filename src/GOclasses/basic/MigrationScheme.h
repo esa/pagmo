@@ -29,6 +29,7 @@
 #include "../../config.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <iostream>
 
 /// Base class for the migration schemes.
 /**
@@ -94,10 +95,21 @@ class __PAGMO_VISIBLE MigrationScheme
 		 */
 		virtual MigrationScheme* clone() const = 0;
 		
+		/// Register an island with the migration scheme.
+		virtual void push_back(const island& _island)
+		{
+			lock_type lock(topology_mutex); //just in case
+			topology->push_back(_island.id());
+		}
+		
 	protected:		
 		// Class fields.
 		boost::scoped_ptr<base_topology>	topology; ///< Migration topology. \todo I'm not so sure if all possible migration schemes require a topology...
-		boost::mutex						topology_mutex; ///< Topology mutex. <b>Access to the topology must be synchronised!!!</b>
+		mutable boost::mutex				topology_mutex; ///< Topology mutex. <b>Access to the topology must be synchronised!!!</b>
+		
+	private:
+		/// Stream output operator.
+		friend std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
 };
 
 #endif

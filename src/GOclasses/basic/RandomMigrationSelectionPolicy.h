@@ -39,7 +39,7 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 		 * \see MigrationSelectionPolicy::MigrationSelectionPolicy().
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
-		RandomMigrationSelectionPolicy(const uint32_t seed = static_rng_uint32()):MigrationSelectionPolicy(), rng(seed) { }
+		RandomMigrationSelectionPolicy(const uint32_t seed = static_rng_uint32()()):MigrationSelectionPolicy(), rng(seed) { }
 		
 		/// Constructor.
 		/**
@@ -48,7 +48,7 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 		 * \param[in] _migrationRate desired migration rate (absolute).
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
-		RandomMigrationSelectionPolicy(const int& _migrationRate, const uint32_t seed = static_rng_uint32()):MigrationSelectionPolicy(_migrationRate), rng(seed) { }
+		RandomMigrationSelectionPolicy(const int& _migrationRate, const uint32_t seed = static_rng_uint32()()):MigrationSelectionPolicy(_migrationRate), rng(seed) { }
 		
 		/// Constructor.
 		/**
@@ -57,7 +57,7 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 		 * \param[in] _migrationRate desired migration rate (fractional).
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
-		RandomMigrationSelectionPolicy(const double& _migrationRate, const uint32_t seed = static_rng_uint32()):MigrationSelectionPolicy(_migrationRate), rng(seed) { }
+		RandomMigrationSelectionPolicy(const double& _migrationRate, const uint32_t seed = static_rng_uint32()()):MigrationSelectionPolicy(_migrationRate), rng(seed) { }
 		
 		/// Copy constructor.
 		/**

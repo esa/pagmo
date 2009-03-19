@@ -99,7 +99,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		 * \param[in] N number of islands to create.
 		 * \param[in] M population size for each created island.
 		 */
-		archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme, const go_algorithm &a, int N, int M);
+		archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme, const go_algorithm &a, int N, int M, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp);
 		
 		/// Copy constructor.
 		archipelago(const archipelago &);
@@ -140,6 +140,9 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		
 		/// Get the number of islands in the archipelago.
 		size_t size() const;
+		
+		/// Get the best individual from the whole archipelago.
+		Individual best() const;
 
 		/// To be called by an island before the actual evolution starts.
 		/** \see MigrationScheme::preEvolutionCallback */
