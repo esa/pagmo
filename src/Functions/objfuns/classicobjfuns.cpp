@@ -55,38 +55,44 @@ double ackley (const vector<double>& x){
 	return -20*exp(-0.2 * sqrt(1.0/n * s1))-exp(1.0/n*s2)+ 20 + nepero;
 }
 
+//lennardjones helper function that transforms the decision vector x in atoms positions r
+const double r(const int& atom, const int& coord, const vector <double>& x) {
+	if(atom == 0) { //x1,y1,z1 fixed
+		return 0.0;
+	} else if(atom == 1) {
+		if(coord < 2) { //x2,y2    fixed
+			return 0.0;
+		} else { //z2 is a variable
+			return x[0];
+		}
+	} else if(atom == 2) {
+		if(coord == 0) { //x3	   fixed
+			return 0.0;
+		} else { //y3 and x3 are variables
+			return x[coord];
+		}
+	} else {
+		return x[3 * (atom - 2) + coord];
+	}
+}
+
 double lennardjones(const vector <double>& x){
 	int n = x.size();
 	int atoms = (n + 6) / 3;
-	vector<double> dummy(3);
-	vector< vector<double> > r(atoms,dummy);				//double dimensional vector containing the atom positions
+
 	double V = 0;											//LJ potential
-	double sixth,dist;
-
-	//we transform the decision vector x in atoms positions r
-	r[0][0] = r[0][1] = r[0][2] = 0;						//x1,y1,z1 fixed
-	r[1][0] = r[1][1] = 0;									//x2,y2    fixed
-	r[1][2] = x[0];											//z2	   is a variable
-	r[2][0] = 0;											//x3	   fixed
-	r[2][1] = x[1];											//y3       is a variable
-	r[2][2] = x[2];											//z3	   is a variable
-
-	for (int i=3; i<atoms; i++){
-		r[i][0] = x[3*(i-2)];
-		r[i][1] = x[3*(i-2)+1];
-		r[i][2] = x[3*(i-2)+2];
-	}
-
+	double sixth, dist;
+	
 	//We evaluate the potential
 	for ( int i=0; i<(atoms-1); i++ ) {
 		for ( int j=(i+1); j<atoms; j++ ) {
-			dist = pow(r[i][0]-r[j][0],2) +  pow(r[i][1]-r[j][1],2) +  pow(r[i][2]-r[j][2],2);  //rij^2
+			dist = pow(r(i, 0, x) - r(j, 0, x), 2) + pow(r(i, 1, x) - r(j, 1, x), 2) + pow(r(i, 2, x) - r(j, 2, x), 2);  //rij^2
 			if ( dist == 0.0 ) {
 				return 1e+20;	//penalty
 			}
 			else {
-				sixth = pow(dist,-3);	//rij^-6
-				V += ( pow(sixth,2) - sixth );
+				sixth = pow(dist, -3);	//rij^-6
+				V += (pow(sixth, 2) - sixth);
 			}
 		}
 	}
