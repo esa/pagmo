@@ -29,7 +29,7 @@ int MigrationReplacementPolicy::getMaxMigrationRate(const Population& population
 		if(maxMigrationRateFrac > 1.0) {
 			pagmo_throw(assertion_error, "Fractional maximum migration rate is greate than 1!");
 		}
-		return maxMigrationRateFrac * population.size();
+		return (int)(maxMigrationRateFrac * (double)population.size());
 	} else {
 		if(maxMigrationRateAbs > population.size()) {
 			pagmo_throw(assertion_error, "Absolute maximum migration rate exceeds population size!");

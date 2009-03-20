@@ -48,6 +48,7 @@ class __PAGMO_VISIBLE base_topology {
 		/// Create the topology incrementally
 		/**
 		 * This is an optional method. If your topology class is to support incremental construction, ovveride it.
+		 * \param[in] island_id Identifier of the island being added.
 		 */
 		virtual void push_back(const size_t& island_id)
 		{

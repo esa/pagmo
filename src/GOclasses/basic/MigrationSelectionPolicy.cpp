@@ -29,7 +29,7 @@ int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& 
 		if(migrationRateFrac > 1.0) {
 			pagmo_throw(assertion_error, "Fractional migration rate is grater than 1!");
 		}
-		return migrationRateFrac * population.size();
+		return (int)(migrationRateFrac * (double)population.size());
 	} else {
 		if(migrationRateAbs > population.size()) {
 			pagmo_throw(assertion_error, "Absolute migration rate exceeds population size!");

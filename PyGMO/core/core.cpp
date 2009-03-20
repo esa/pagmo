@@ -43,8 +43,8 @@
 #include "../../src/GOclasses/problems/GOproblem.h"
 #include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
-//#include "../../src/GOclasses/problems/GOproblem.h"
-//#include "../../src/GOclasses/problems/GOproblem.h"
+#include "../../src/GOclasses/basic/MigrationReplacementPolicy.h"
+#include "../../src/GOclasses/basic/RandomMigrationReplacementPolicy.h"
 #include "../../src/exceptions.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -171,15 +171,14 @@ BOOST_PYTHON_MODULE(_core)
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
 	class_arch.def(init<const GOProblem &, const MigrationScheme&>());
-	class_arch.def(init<const GOProblem &, const MigrationScheme&, const go_algorithm &, int, int>());
+	class_arch.def(init<const GOProblem &, const MigrationScheme&, const go_algorithm &, int, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
 	class_arch.def(init<const archipelago &>());
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
-	/*class_arch.add_property("migration_scheme", make_function(&topology_getter<base_topology,archipelago>, return_value_policy<manage_new_object>()),
-		&archipelago::set_topology, "Topology.");*/
+	class_arch.add_property("migration_scheme", &archipelago::getMigrationScheme, &archipelago::setMigrationScheme, "Migration scheme.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
@@ -191,5 +190,18 @@ BOOST_PYTHON_MODULE(_core)
 	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
 	
 	// Expose RandomMigrationSelectionPolicy
-	class_<RandomMigrationSelectionPolicy> class_RMSP("random_migration_selection_policy", "A random migration selection policy.", init<const uint32_t>());	
+	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_migration_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
+	class_RMSP.def(init<const int&, optional<const uint32_t> >());
+	class_RMSP.def(init<const int&, optional<const uint32_t> >());
+	class_RMSP.def(init<const double&, optional<const uint32_t> >());
+	
+	
+	// Expose MigrationReplacementPolicy
+	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
+	
+	// Expose RandomMigrationReplacementPolicy
+	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_migration_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());	
+	class_RMSP.def(init<const int&, optional<const uint32_t> >());
+	class_RMSP.def(init<const int&, optional<const uint32_t> >());
+	class_RMSP.def(init<const double&, optional<const uint32_t> >());	
 }
