@@ -41,6 +41,8 @@
 #include "../../src/GOclasses/basic/island.h"
 #include "../../src/GOclasses/basic/population.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
+#include "../../src/GOclasses/basic/MigrationScheme.h"
+#include "../../src/GOclasses/basic/ConstInRateMigrationScheme.h"
 #include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/MigrationReplacementPolicy.h"
@@ -142,6 +144,7 @@ BOOST_PYTHON_MODULE(_core)
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
 	class_island.def(init<const GOProblem &, const go_algorithm &>());
+	class_island.def(init<const GOProblem&, const go_algorithm&, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
 	class_island.def(init<const island &>());
 	class_island.def("__copy__", &Py_copy_from_ctor<island>);
 	class_island.def("__delitem__", &island::erase);
@@ -186,22 +189,28 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
 	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
 	
+	//Expose MigrationScheme
+	class_<MigrationScheme, boost::noncopyable> class_MS("__migration_scheme", "A migration scheme.", no_init);
+	
+	class_<ConstInRateMigrationScheme, bases<MigrationScheme> > class_CIRMS("const_in_rate_migration", "Migration scheme with constant incoming migration rate.", init<const base_topology&, optional<uint32_t> >());
+	class_CIRMS.def("__copy__", &Py_copy_from_ctor<ConstInRateMigrationScheme>);
+	
 	// Expose MigrationSelectionPolicy
 	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
 	
 	// Expose RandomMigrationSelectionPolicy
 	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_migration_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
 	class_RMSP.def(init<const int&, optional<const uint32_t> >());
-	class_RMSP.def(init<const int&, optional<const uint32_t> >());
 	class_RMSP.def(init<const double&, optional<const uint32_t> >());
+	class_RMSP.def("__copy__", &Py_copy_from_ctor<RandomMigrationSelectionPolicy>);
 	
 	
 	// Expose MigrationReplacementPolicy
 	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
 	
 	// Expose RandomMigrationReplacementPolicy
-	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_migration_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());	
-	class_RMSP.def(init<const int&, optional<const uint32_t> >());
-	class_RMSP.def(init<const int&, optional<const uint32_t> >());
-	class_RMSP.def(init<const double&, optional<const uint32_t> >());
+	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_migration_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());
+	class_RMRP.def(init<const int&, optional<const uint32_t> >());
+	class_RMRP.def(init<const double&, optional<const uint32_t> >());
+	class_RMRP.def("__copy__", &Py_copy_from_ctor<RandomMigrationReplacementPolicy>);
 }

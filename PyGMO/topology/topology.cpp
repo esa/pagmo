@@ -37,7 +37,7 @@ using namespace boost::python;
 template <class Topology>
 static inline class_<Topology,bases<graph_topology> > topology_wrapper(const char *name, const char *descr)
 {
-	class_<Topology, bases<graph_topology> > retval(name, descr,init<const Topology &>());
+	class_<Topology, bases<graph_topology> > retval(name, descr, init<const Topology &>());
 	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
 	retval.def("__repr__", &Py_repr_from_stream<Topology>);
 	retval.add_property("id_name", &Topology::id_name, "Identification name.");
