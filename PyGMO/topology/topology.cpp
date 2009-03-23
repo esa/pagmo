@@ -52,7 +52,7 @@ BOOST_PYTHON_MODULE(_topology) {
 	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);
 	
 	// Graph topology implementation
-	class_<graph_topology> graph_topo_class("__graph_topology", "Simple topology implementation.", no_init);
+	class_<graph_topology, bases<base_topology>, boost::noncopyable> graph_topo_class("__graph_topology", "Simple topology implementation.", no_init);
 
 	// Topologies.
 	topology_wrapper<ring_topology>("ring", "Ring topology.").def(init<>());
