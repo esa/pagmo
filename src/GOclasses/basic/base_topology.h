@@ -90,7 +90,7 @@ class __PAGMO_VISIBLE base_topology {
 		virtual base_topology *clone() const = 0;
 		
 		/// Get the name of the object's class.
-		/** \todo Rename this method to something more sensible. */
+		/** Exposed to Python. \todo Rename this method to something more sensible. */
 		std::string id_name() const {return typeid(*this).name();}
 };
 

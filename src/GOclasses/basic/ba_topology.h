@@ -33,6 +33,7 @@
  * http://www.nd.edu/~networks/Publication%20Categories/03%20Journal%20Articles/Physics/StatisticalMechanics_Rev%20of%20Modern%20Physics%2074,%2047%20(2002).pdf.
  * \todo Rename this class.
  */
+
 class __PAGMO_VISIBLE ba_topology: public graph_topology {
 	public:
 		/// Constructor.

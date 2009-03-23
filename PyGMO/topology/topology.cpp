@@ -23,8 +23,9 @@
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 
-#include "../../src/GOclasses/basic/ba_topology.h"
 #include "../../src/GOclasses/basic/base_topology.h"
+#include "../../src/GOclasses/basic/graph_topology.h"
+#include "../../src/GOclasses/basic/ba_topology.h"
 #include "../../src/GOclasses/basic/fully_connected_topology.h"
 #include "../../src/GOclasses/basic/one_way_ring_topology.h"
 #include "../../src/GOclasses/basic/ring_topology.h"
@@ -34,9 +35,9 @@
 using namespace boost::python;
 
 template <class Topology>
-static inline class_<Topology,bases<base_topology> > topology_wrapper(const char *name, const char *descr)
+static inline class_<Topology,bases<graph_topology> > topology_wrapper(const char *name, const char *descr)
 {
-	class_<Topology,bases<base_topology> > retval(name,descr,init<const Topology &>());
+	class_<Topology, bases<graph_topology> > retval(name, descr,init<const Topology &>());
 	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
 	retval.def("__repr__", &Py_repr_from_stream<Topology>);
 	retval.add_property("id_name", &Topology::id_name, "Identification name.");
@@ -49,6 +50,9 @@ BOOST_PYTHON_MODULE(_topology) {
 
 	// Base topology.
 	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);
+	
+	// Graph topology implementation
+	class_<graph_topology> graph_topo_class("__graph_topology", "Simple topology implementation.", no_init);
 
 	// Topologies.
 	topology_wrapper<ring_topology>("ring", "Ring topology.").def(init<>());

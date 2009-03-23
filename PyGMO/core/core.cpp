@@ -92,7 +92,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 
 BOOST_PYTHON_MODULE(_core)
 {
 	// Translate exceptions for this module.
-	translate_exceptions();
+	//translate_exceptions();
 
 	// Expose std::vector<double>.
 	class_<std::vector<double> > class_vd("vector_double","std::vector<double>");
@@ -140,7 +140,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_pop.def("worst", &Population::extractWorstIndividual, return_value_policy<copy_const_reference>(), "Copy of worst individual.");
 
 	// Expose island.
-	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
+	/*class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
 	class_island.def(init<const GOProblem &, const go_algorithm &>());
 	class_island.def(init<const island &>());
 	class_island.def("__copy__", &Py_copy_from_ctor<island>);
@@ -164,15 +164,15 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.def("evolve_t", &island::evolve_t, "Evolve for an amount of time.");
 	class_island.def("join", &island::join, "Block until evolution has terminated.");
 	class_island.add_property("busy", &island::busy, "True if island is evolving, false otherwise.");
-	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
+	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");*/
 
 	// Expose archipelago.
 	typedef island &(archipelago::*arch_get_island)(int);
-	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
-	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
-	class_arch.def(init<const GOProblem &, const MigrationScheme&>());
-	class_arch.def(init<const GOProblem &, const MigrationScheme&, const go_algorithm &, int, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
-	class_arch.def(init<const archipelago &>());
+	//class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
+	//class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
+	//class_arch.def(init<const GOProblem &, const MigrationScheme&>());
+	//class_arch.def(init<const GOProblem &, const MigrationScheme&, const go_algorithm &, int, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
+	/*class_arch.def(init<const archipelago &>());
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
@@ -184,24 +184,24 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
-	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
+	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");*/
 	
 	// Expose MigrationSelectionPolicy
-	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
+	//class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
 	
 	// Expose RandomMigrationSelectionPolicy
-	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_migration_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
+	/*class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_migration_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
 	class_RMSP.def(init<const int&, optional<const uint32_t> >());
 	class_RMSP.def(init<const int&, optional<const uint32_t> >());
-	class_RMSP.def(init<const double&, optional<const uint32_t> >());
+	class_RMSP.def(init<const double&, optional<const uint32_t> >());*/
 	
 	
 	// Expose MigrationReplacementPolicy
-	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
+	//class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
 	
 	// Expose RandomMigrationReplacementPolicy
-	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_migration_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());	
+	/*class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_migration_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());	
 	class_RMSP.def(init<const int&, optional<const uint32_t> >());
 	class_RMSP.def(init<const int&, optional<const uint32_t> >());
-	class_RMSP.def(init<const double&, optional<const uint32_t> >());	
+	class_RMSP.def(init<const double&, optional<const uint32_t> >());*/
 }
