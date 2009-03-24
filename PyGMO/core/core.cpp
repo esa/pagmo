@@ -84,7 +84,7 @@ static inline T *algorithm_getter(const C &c)
 template <class T, class C>
 static inline T *topology_getter(const C &c)
 {
-	return c.topology().clone();
+	return c.getTopology().clone();
 }
 
 /// \todo Is this really the correct way to do things??
@@ -206,6 +206,8 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
 	class_arch.add_property("migration_scheme", make_function(&migration_scheme_getter<MigrationScheme, archipelago>, return_value_policy<manage_new_object>()),
 		&archipelago::setMigrationScheme, "The archipelago's migration scheme.");
+	class_arch.add_property("topology", make_function(&topology_getter<base_topology, archipelago>, return_value_policy<manage_new_object>()),
+		&archipelago::setTopology, "The archipelago's migration topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");

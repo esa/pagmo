@@ -108,6 +108,8 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		const island &operator[](int) const;
 		void set_island(int, const island &);
 		
+		const GOProblem &problem() const;
+		
 		/// Archipelago's migration scheme public getter (<b>synchronised</b>).
 		/**
 		 * Note that the method will throw an exception when there's no scheme associated with the archipelago.
@@ -120,9 +122,27 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		 * All islands in the archipelago are registred in the new migration scheme.
 		 * \param[in] newMigrationScheme migration scheme to be set in the archipelago.
 		 */
-		void setMigrationScheme(const MigrationScheme& newMigrationScheme);
+		void setMigrationScheme(const MigrationScheme* newMigrationScheme);
+		
+		/// Underlying topology getter (<b>synchronised</b>).
+		/**
+		 * This method has been provided for the user's convenience so that it is possible to
+		 * get the topology of the archipelago without an intermediate reference to the migration scheme.
+		 * Note that the method will throw an exception when there's no migration scheme associated with the archipelago
+		 * or when the scheme has no topology.
+		 */
+		const base_topology& getTopology() const;
+		
+		/// Underlying topology setter (<b>synchronised</b>).
+		/**
+		 * This method has been provided for the user's convenience so that it is possible to
+		 * change the topology of the archipelago without an intermediate reference to the migration scheme.
+		 * Note that the method will throw an exception when there's no migration scheme associated with the archipelago.
+		 */
+		void setTopology(const base_topology* newTopology);
 
-		const GOProblem &problem() const;
+		
+		//Evolution functions
 		
 		/// Wait until all islands complete evolution.
 		void join() const;

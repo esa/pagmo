@@ -197,15 +197,45 @@ const MigrationScheme& archipelago::getMigrationScheme() const
 	return *migrationScheme;
 }
 
-void archipelago::setMigrationScheme(const MigrationScheme& newMigrationScheme)
+void archipelago::setMigrationScheme(const MigrationScheme* newMigrationScheme)
 {
 	join();
-	migrationScheme.reset(newMigrationScheme.clone());
+	migrationScheme.reset(newMigrationScheme ? newMigrationScheme->clone() : 0);
+	
+	if(migrationScheme) {
+		// Clear all information potentially present in the migration scheme.
+		migrationScheme->reset();
+		
+		// Re-register all islands with the new scheme
+		for(const_iterator it = m_container.begin(); it != m_container.end(); ++it) {
+			migrationScheme->push_back(*it);
+		}
+	}
+}
+
+const base_topology& archipelago::getTopology() const
+{
+	join();
+	if(!migrationScheme) {
+		pagmo_throw(value_error, "The archipelago has no associated migration scheme!");
+	}
+	return migrationScheme->getTopology();
+}
+
+void archipelago::setTopology(const base_topology* newTopology)
+{
+	join();
+	
+	if(!migrationScheme) {
+		pagmo_throw(value_error, "The archipelago has no associated migration scheme!");
+	}
+	
+	migrationScheme->setTopology(newTopology); //deep copy inside
 	
 	// Clear all information potentially present in the migration scheme.
 	migrationScheme->reset();
 	
-	// Re-register all islands with the new scheme
+	// Re-register all islands with the changed scheme
 	for(const_iterator it = m_container.begin(); it != m_container.end(); ++it) {
 		migrationScheme->push_back(*it);
 	}
