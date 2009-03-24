@@ -95,6 +95,13 @@ class __PAGMO_VISIBLE MigrationSelectionPolicy
 		/// Migration rate (fractional value)
 		/** This variable specifies the fraction of the population to migrate. */
 		double migrationRateFrac;
+		
+	private:
+		/// Stream output operator.
+		friend std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& ms);
 };
+
+/// Stream output operator.
+__PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& ms);
 
 #endif

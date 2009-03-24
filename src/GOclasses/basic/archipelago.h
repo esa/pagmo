@@ -144,6 +144,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		/// Get the best individual from the whole archipelago.
 		Individual best() const;
 
+	protected:
 		/// To be called by an island before the actual evolution starts.
 		/** \see MigrationScheme::preEvolutionCallback */
 		void preEvolutionCallback(island& _island) { if(migrationScheme) { migrationScheme->preEvolutionCallback(_island); } }

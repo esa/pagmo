@@ -44,13 +44,13 @@ class __PAGMO_VISIBLE MigrationScheme
 	public:
 		/// Constructor.
 		/**
-		 * Creates a migration shceme not associated with a topology.
+		 * Creates a migration scheme not associated with a topology.
 		 */
 		MigrationScheme():topology(0) { }
 
 		/// Constructor.
 		/**
-		 * Creates a migration shceme associated with the given topology.
+		 * Creates a migration scheme associated with the given topology.
 		 * A deep copy of topology is created and stored.
 		 */
 		MigrationScheme(const base_topology& _topology)
@@ -102,6 +102,23 @@ class __PAGMO_VISIBLE MigrationScheme
 			topology->push_back(_island.id());
 		}
 		
+		
+		//Getters and setters
+		/// Topology getter.
+		/**
+		 * \return Const poiner to the associated topology or NULL if no topology is associated with the scheme.
+		 */
+		const base_topology* getTopology() const { return topology.get(); }
+		
+		/// Topology setter.
+		/**
+		 * A deep copy of the given object is created and stored. Apart from this,the method has no embedded logic;
+		 * it just performs a replacement of the associated topology. In consequence, the toplogy object must contain
+		 * valid content.
+		 * \todo Is this the right behaviour?
+		 */
+		void setTopology(const base_topology* _topology) { topology.reset(_topology ? _topology->clone() : 0); }		
+		
 	protected:		
 		// Class fields.
 		boost::scoped_ptr<base_topology>	topology; ///< Migration topology. \todo I'm not so sure if all possible migration schemes require a topology...
@@ -111,5 +128,8 @@ class __PAGMO_VISIBLE MigrationScheme
 		/// Stream output operator.
 		friend std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
 };
+
+/// Stream output operator.
+__PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
 
 #endif

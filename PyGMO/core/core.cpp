@@ -87,6 +87,19 @@ static inline T *topology_getter(const C &c)
 	return c.topology().clone();
 }
 
+/// \todo Is this really the correct way to do things??
+template <class T, class C>
+static inline T *selection_policy_getter(const C &c)
+{
+	return c.getMigrationSelectionPolicy() ? c.getMigrationSelectionPolicy()->clone() : 0;
+}
+
+template <class T, class C>
+static inline T *replacement_policy_getter(const C &c)
+{
+	return c.getMigrationReplacementPolicy() ? c.getMigrationReplacementPolicy()->clone() : 0;
+}
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 1)
 
@@ -157,6 +170,10 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.add_property("problem", make_function(&problem_getter<GOProblem,island>, return_value_policy<manage_new_object>()), "Problem.");
 	class_island.add_property("algorithm", make_function(&algorithm_getter<go_algorithm,island>, return_value_policy<manage_new_object>()),
 		&island::set_algorithm, "Algorithm.");
+	class_island.add_property("selection_policy", make_function(&selection_policy_getter<MigrationSelectionPolicy, island>, return_value_policy<manage_new_object>()),
+		&island::setMigrationSelectionPolicy, "The island's migration selection policy.");
+	class_island.add_property("replacement_policy", make_function(&replacement_policy_getter<MigrationReplacementPolicy, island>, return_value_policy<manage_new_object>()),
+		&island::setMigrationReplacementPolicy, "The island's migration selection policy.");
 	class_island.add_property("population", &island::population, "Copy of population.");
 	class_island.def("mean", &island::mean, "Evaluate mean.");
 	class_island.def("std", &island::std, "Evaluate std.");
@@ -181,7 +198,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
-	class_arch.add_property("migration_scheme", &archipelago::getMigrationScheme, &archipelago::setMigrationScheme, "Migration scheme.");
+	//class_arch.add_property("migration_scheme", &archipelago::getMigrationScheme, &archipelago::setMigrationScheme, "Migration scheme.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");

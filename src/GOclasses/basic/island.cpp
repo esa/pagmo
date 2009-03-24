@@ -77,8 +77,8 @@ island::island(const island &i)
 		m_goa(i.m_goa->clone()),
 		m_a(0),
 		m_evo_time(i.m_evo_time),
-		migrationSelectionPolicy(i.migrationSelectionPolicy->clone()),
-		migrationReplacementPolicy(i.migrationReplacementPolicy->clone())
+		migrationSelectionPolicy(i.migrationSelectionPolicy ? i.migrationSelectionPolicy->clone() : 0),
+		migrationReplacementPolicy(i.migrationReplacementPolicy ? i.migrationReplacementPolicy->clone() : 0)
 {
 }
 
@@ -121,6 +121,30 @@ void island::set_algorithm(const go_algorithm &a)
 {
 	join();
 	m_goa.reset(a.clone());
+}
+
+const MigrationSelectionPolicy* island::getMigrationSelectionPolicy() const
+{
+	join();
+	return migrationSelectionPolicy.get();
+}
+
+void island::setMigrationSelectionPolicy(const MigrationSelectionPolicy* msp)
+{
+	join();
+	migrationSelectionPolicy.reset(msp ? msp->clone() : 0);
+}
+
+const MigrationReplacementPolicy* island::getMigrationReplacementPolicy() const
+{
+	join();
+	return migrationReplacementPolicy.get();
+}
+
+void island::setMigrationReplacementPolicy(const MigrationReplacementPolicy* mrp)
+{
+	join();
+	migrationReplacementPolicy.reset(mrp ? mrp->clone() : 0);
 }
 
 size_t island::id() const
@@ -347,10 +371,22 @@ void island::t_evolver::operator()()
 
 std::ostream &operator<<(std::ostream &s, const island &isl)
 {
-	s << "ID:              " << isl.id() << '\n';
-	s << "Population size: " << isl.size() << '\n';
-	s << "Evolution time:  " << isl.evo_time() << '\n';
-	s << "Algorithm type:  " << isl.algorithm().id_name() << '\n';
+	s << "ID:                 " << isl.id() << '\n';
+	s << "Population size:    " << isl.size() << '\n';
+	s << "Evolution time:     " << isl.evo_time() << '\n';
+	s << "Algorithm type:     " << isl.algorithm().id_name() << '\n';
+	s << "Selection policy:   ";
+	if(isl.migrationSelectionPolicy) {
+		s << std::endl << *(isl.migrationSelectionPolicy) << std::endl;
+	} else {
+		s << "none" << std::endl;		
+	}
+	s << "Replacement policy: ";
+	if(isl.migrationReplacementPolicy) {
+		s << std::endl << *(isl.migrationReplacementPolicy) << std::endl;	
+	} else {
+		s << "none" << std::endl;		
+	}	
 	boost::lock_guard<boost::mutex> lock(isl.m_evo_mutex);
 	s << isl.m_pop;
 	return s;

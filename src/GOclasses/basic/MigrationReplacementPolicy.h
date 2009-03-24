@@ -99,6 +99,13 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 		int maxMigrationRateAbs; ///< Maximum incoming migration rate (absolute value), -1 means: use fraction.
 		
 		double maxMigrationRateFrac; ///< Maximum incoming migration rate (fractional value).
+		
+	private:
+		/// Stream output operator.
+		friend std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& ms);
 };
+
+/// Stream output operator.
+__PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& ms);
 
 #endif

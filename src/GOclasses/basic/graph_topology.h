@@ -45,7 +45,10 @@ class __PAGMO_VISIBLE graph_topology: public base_topology {
 		/** Creates a topology with no vertices nor edges */
 		graph_topology() { };
 		
-		/// Copy constructor.		
+		/// Copy constructor.
+		/**		 
+		 * Since topologies no longer contain references to islands, but raw IDs, they can safely be deeply copied.
+		 */		
 		graph_topology(const graph_topology& gt)
 				:base_topology(), nodes(gt.nodes), lists_out(gt.lists_out), lists_in(gt.lists_in) { }
 		

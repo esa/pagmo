@@ -37,3 +37,10 @@ int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& 
 		return migrationRateAbs;
 	}
 }
+
+std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& msp)
+{
+	s << "Selection policy type: " << typeid(msp).name() << std::endl;
+	s << "Migration rate (out):  " << std::endl << (msp.migrationRateAbs < 0 ? msp.migrationRateFrac : msp.migrationRateAbs) << std::endl;
+	return s;
+}

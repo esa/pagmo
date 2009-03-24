@@ -66,8 +66,8 @@ class __PAGMO_VISIBLE island
 		 * Creates an island associated with a specified problem and using the specified algorithm.
 		 * The island is not associated to any archipelago, the island's population is empty,
 		 * the total evolution time is reset to 0 and the island uses dummy selection and replacement policies.
-		 * \param p Problem to be associated with the island.
-		 * \param al Algorithm to be used by the island.
+		 * \param[in] p Problem to be associated with the island.
+		 * \param[in] al Algorithm to be used by the island.
 		 */
 		island(const GOProblem& p, const go_algorithm& al);
 		
@@ -77,14 +77,23 @@ class __PAGMO_VISIBLE island
 		 * an initial population of given size.
 		 * The island is not associated to any archipelago, the total evolution time is reset to 0
 		 * and the island uses the dummy selection and replacement policies.
-		 * \param p Problem to be associated with the island.
-		 * \param al Algorithm to be used by the island.
-		 * \param n Size of the island's population.
+		 * \param[in] p Problem to be associated with the island.
+		 * \param[in] al Algorithm to be used by the island.
+		 * \param[in] n Size of the island's population.
 		 */
 		island(const GOProblem& p, const go_algorithm& al, int n);
 		
 		/// Constructor.
-		/** \todo Document me!!! */
+		/**
+		 * Creates an island associated with a specified problem, using the specified algorithm, having
+		 * an initial population of given size and using specified selection and replacement policies.
+		 * Deep copies of the policies are created and internally stored (what allows safe milti-thread operation).
+		 * \param[in] p Problem to be associated with the island.
+		 * \param[in] al Algorithm to be used by the island.
+		 * \param[in] n Size of the island's population.
+		 * \param[in] msp Migration selection policy.
+		 * \param[in] mrp Migration replacement policy.
+		 */
 		island(const GOProblem& p, const go_algorithm& al, int n, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp);
 		
 		/// Copy constructor.
@@ -117,9 +126,32 @@ class __PAGMO_VISIBLE island
 		
 		/// Algorithm getter (<b>synchronised</b>).
 		const go_algorithm &algorithm() const;
+		
 		/// Algorithm seter (<b>synchronised</b>).
 		void set_algorithm(const go_algorithm &);
 		
+		/// Migration selection policy getter (<b>synchronised</b>).
+		/**  Note, that this function may return null if no policy is associated with the island. */
+		const MigrationSelectionPolicy* getMigrationSelectionPolicy() const;
+		
+		/// Migration selection policy setter (<b>synchronised</b>).
+		/**
+		 * A deep copy of the given object is created and stored.
+		 * \param[in] msp Selection policy to be used with the island. May be null.
+		 */
+		void setMigrationSelectionPolicy(const MigrationSelectionPolicy* msp);
+				
+		/// Migration replacement policy getter (<b>synchronised</b>).
+		/**  Note, that this function may return null if no policy is associated with the island. */
+		const MigrationReplacementPolicy* getMigrationReplacementPolicy() const;
+		
+		/// Migration replacement policy setter (<b>synchronised</b>).
+		/**
+		 * A deep copy of the given object is created and stored.
+		 * \param[in] msp Replacement policy to be used with the island. May be null.
+		 */
+		void setMigrationReplacementPolicy(const MigrationReplacementPolicy* mrp);
+
 		/// Get the island size (the number of individuals) (<b>synchronised</b>).
 		size_t size() const;
 		
@@ -127,7 +159,7 @@ class __PAGMO_VISIBLE island
 		size_t id() const;
 		
 		/// Get the total time spent by the island on evolution (<b>synchronised</b>).
-		size_t evo_time() const;		
+		size_t evo_time() const;
 		
 		
 		//Collection interface functions

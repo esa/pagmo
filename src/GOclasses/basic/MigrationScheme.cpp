@@ -24,7 +24,13 @@
 
 std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms)
 {
-	s << "Migration scheme: " << typeid(ms).name() << std::endl;
-	s << "Topology:" << std::endl << (*(ms.topology.get())) << std::endl;
+	s << "Migration algorithm: " << typeid(ms).name() << std::endl;
+	s << "Topology:            ";
+	if(ms.topology) {
+		s << std::endl << *(ms.topology) << std::endl;
+	} else {
+		s << "none" << std::endl;
+	}
+	
 	return s;
 }
