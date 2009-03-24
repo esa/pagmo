@@ -212,6 +212,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
 	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
+	class_arch.def("best", &archipelago::best, "Copy of best individual.");
 	
 	//Expose MigrationScheme
 	class_<MigrationScheme, boost::noncopyable> class_MS("__migration_scheme", "A migration scheme.", no_init);
