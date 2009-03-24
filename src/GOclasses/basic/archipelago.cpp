@@ -61,8 +61,6 @@ archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationSc
 	for (int i = 0; i < N; ++i) {
 		push_back(island(p,a,M,msp,mrp));
 	}
-	
-	std::cout << (*(migrationScheme.get()));
 }
 
 archipelago::archipelago(const archipelago &a):m_gop(a.m_gop->clone()),migrationScheme(a.migrationScheme->clone())
