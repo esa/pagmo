@@ -185,10 +185,24 @@ Individual archipelago::best() const
 	return result;
 }
 
+const MigrationScheme* archipelago::getMigrationScheme()
+{
+	join();
+	return migrationScheme.get();
+}
+
 void archipelago::setMigrationScheme(const MigrationScheme& newMigrationScheme)
 {
 	join();
 	migrationScheme.reset(newMigrationScheme.clone());
+	
+	// Clear all information potentially present in the migration scheme.
+	migrationScheme->reset();
+	
+	// Re-register all islands with the new scheme
+	for(const_iterator it = m_container.begin(); it != m_container.end(); ++it) {
+		migrationScheme->push_back(*it);
+	}
 }
 
 std::ostream &operator<<(std::ostream &s, const archipelago &a) {

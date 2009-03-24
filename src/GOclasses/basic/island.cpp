@@ -377,13 +377,13 @@ std::ostream &operator<<(std::ostream &s, const island &isl)
 	s << "Algorithm type:     " << isl.algorithm().id_name() << '\n';
 	s << "Selection policy:   ";
 	if(isl.migrationSelectionPolicy) {
-		s << std::endl << *(isl.migrationSelectionPolicy) << std::endl;
+		s << std::endl << *(isl.migrationSelectionPolicy);
 	} else {
 		s << "none" << std::endl;		
 	}
 	s << "Replacement policy: ";
 	if(isl.migrationReplacementPolicy) {
-		s << std::endl << *(isl.migrationReplacementPolicy) << std::endl;	
+		s << std::endl << *(isl.migrationReplacementPolicy);
 	} else {
 		s << "none" << std::endl;		
 	}	

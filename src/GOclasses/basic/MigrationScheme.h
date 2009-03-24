@@ -98,10 +98,21 @@ class __PAGMO_VISIBLE MigrationScheme
 		/// Register an island with the migration scheme.
 		virtual void push_back(const island& _island)
 		{
-			lock_type lock(topology_mutex); //just in case
+			lock_type lock(topology_mutex); ///\todo just in case... is it really needed?
 			topology->push_back(_island.id());
 		}
 		
+		/// Reset the migration scheme.
+		/**
+		 * Associated topology, if present, is cleared. All islands have to be re-registered with the migration scheme.
+		 * If you override this method, do not forget to call this implementation inside.
+		 */
+		virtual void reset()
+		{
+			if(topology) {
+				topology->clear();
+			}
+		}		
 		
 		//Getters and setters
 		/// Topology getter.

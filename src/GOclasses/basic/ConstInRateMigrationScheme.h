@@ -64,6 +64,9 @@ class __PAGMO_VISIBLE ConstInRateMigrationScheme: public MigrationScheme
 		/// \see MigrationScheme::clone
 		virtual MigrationScheme* clone() const { return new ConstInRateMigrationScheme(*this); }
 		
+		/// \see MigrationScheme::reset
+		virtual void reset();
+		
 	private:
 		/// Database of the migrating individuals.
 		/**

@@ -54,8 +54,15 @@ class __PAGMO_VISIBLE base_topology {
 		{
 			pagmo_throw(type_error, "This topology class does not support incremental construction!");
 		}
-						
-				
+		
+		/// Clear the topology.
+		/**
+		 * After calling this method, the topology should be brought back to it's initial state, so that all
+		 * nodes and edges have to be re-created.
+		 */
+		virtual void clear() = 0;
+		
+		
 		// Topology interface functions.
 		
 		/// Get a list of island's neighbours (outbound edges).

@@ -51,6 +51,9 @@ class __PAGMO_VISIBLE graph_topology: public base_topology {
 		 */		
 		graph_topology(const graph_topology& gt)
 				:base_topology(), nodes(gt.nodes), lists_out(gt.lists_out), lists_in(gt.lists_in) { }
+				
+		/// \see base_topology::clear
+		virtual void clear();
 		
 		/// \see base_topology::get_neighbours_out
 		virtual const std::vector<size_t> get_neighbours_out(const size_t&) const;
@@ -99,9 +102,6 @@ class __PAGMO_VISIBLE graph_topology: public base_topology {
 		
 		/// Drop the edge from island1 to island2 (by ids).
 		void remove_edge(const size_t& island1_id, const size_t& island2_id);
-		
-		/// Drop all edges and nodes.
-		void clear();
 		
 		/// Accessor to the outbound edges list begin iterator - allows iteration through all nodes. \todo I hate this... any other way to allow iteration through all nodes?
 		nlt_const_iterator lists_out_begin() { return lists_out.begin(); }

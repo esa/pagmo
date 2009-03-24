@@ -211,23 +211,26 @@ BOOST_PYTHON_MODULE(_core)
 	
 	class_<ConstInRateMigrationScheme, bases<MigrationScheme> > class_CIRMS("const_in_rate_migration", "Migration scheme with constant incoming migration rate.", init<const base_topology&, optional<uint32_t> >());
 	class_CIRMS.def("__copy__", &Py_copy_from_ctor<ConstInRateMigrationScheme>);
+	class_CIRMS.def("__repr__", &Py_repr_from_stream<ConstInRateMigrationScheme>);
 	
 	// Expose MigrationSelectionPolicy
 	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
 	
 	// Expose RandomMigrationSelectionPolicy
-	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_migration_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
+	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
 	class_RMSP.def(init<const int&, optional<const uint32_t> >());
 	class_RMSP.def(init<const double&, optional<const uint32_t> >());
 	class_RMSP.def("__copy__", &Py_copy_from_ctor<RandomMigrationSelectionPolicy>);
+	class_RMSP.def("__repr__", &Py_repr_from_stream<RandomMigrationSelectionPolicy>);
 	
 	
 	// Expose MigrationReplacementPolicy
 	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
 	
 	// Expose RandomMigrationReplacementPolicy
-	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_migration_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());
+	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());
 	class_RMRP.def(init<const int&, optional<const uint32_t> >());
 	class_RMRP.def(init<const double&, optional<const uint32_t> >());
 	class_RMRP.def("__copy__", &Py_copy_from_ctor<RandomMigrationReplacementPolicy>);
+	class_RMRP.def("__repr__", &Py_repr_from_stream<RandomMigrationReplacementPolicy>);
 }

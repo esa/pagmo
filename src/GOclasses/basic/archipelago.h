@@ -108,10 +108,13 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		const island &operator[](int) const;
 		void set_island(int, const island &);
 		
-		boost::shared_ptr<const MigrationScheme> getMigrationScheme() { return migrationScheme; }
-		/// Archipelago's migration scheme setter.
+		/// Archipelago's migration scheme getter (<b>synchronised</b>).
+		const MigrationScheme* getMigrationScheme();
+		
+		/// Archipelago's migration scheme setter (<b>synchronised</b>).
 		/**
 		 * A deep copy of the passed migration scheme is stored.
+		 * All islands in the archipelago are registred in the new migration scheme.
 		 * \param[in] newMigrationScheme migration scheme to be set in the archipelago.
 		 */
 		void setMigrationScheme(const MigrationScheme& newMigrationScheme);
@@ -135,13 +138,13 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		 */
 		void evolve_t(const size_t& t);
 		
-		/// Add an island to the archipelago.
+		/// Add an island to the archipelago (<b>synchronised</b>).
 		void push_back(const island &);
 		
 		/// Get the number of islands in the archipelago.
 		size_t size() const;
 		
-		/// Get the best individual from the whole archipelago.
+		/// Get the best individual from the whole archipelago (<b>synchronised</b>)
 		Individual best() const;
 
 	protected:

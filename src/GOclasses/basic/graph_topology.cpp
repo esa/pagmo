@@ -30,6 +30,13 @@ graph_topology &graph_topology::operator=(const graph_topology &)
 	return *this;
 }
 
+void graph_topology::clear()
+{
+	nodes.clear();
+	lists_out.clear();
+	lists_in.clear();
+}
+
 const std::vector<size_t> graph_topology::get_neighbours_out(const size_t& _island_id) const
 {
 	check_node_present(_island_id);
@@ -123,11 +130,4 @@ void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2
 	
 	lists_out[island1_id].erase(position_out);
 	lists_in[island2_id].erase(position_in);
-}
-
-void graph_topology::clear()
-{
-	nodes.clear();
-	lists_out.clear();
-	lists_in.clear();
 }

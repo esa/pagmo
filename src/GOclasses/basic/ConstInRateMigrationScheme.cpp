@@ -68,3 +68,9 @@ void ConstInRateMigrationScheme::postEvolutionCallback(island& _island)
 	//Replace the contents of the database for the island
 	immigrantsDB[_island.id()].swap(immigrants);
 }
+
+void ConstInRateMigrationScheme::reset()
+{
+	immigrantsDB.clear();	
+	MigrationScheme::reset();	
+}
