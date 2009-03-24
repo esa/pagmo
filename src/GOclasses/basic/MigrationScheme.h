@@ -99,7 +99,9 @@ class __PAGMO_VISIBLE MigrationScheme
 		virtual void push_back(const island& _island)
 		{
 			lock_type lock(topology_mutex); ///\todo just in case... is it really needed?
-			topology->push_back(_island.id());
+			if(topology) {
+				topology->push_back(_island.id());
+			}
 		}
 		
 		/// Reset the migration scheme.

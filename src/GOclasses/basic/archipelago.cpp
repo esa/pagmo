@@ -111,10 +111,13 @@ void archipelago::push_back(const island &isl)
 {
 	join();
 	check_island(isl);
-	// A COPY of an island is create here!!!
+	// A COPY of an island is created here!!!
 	m_container.push_back(isl);
 	m_container.back().set_archipelago(this);
-	migrationScheme->push_back(m_container.back());	
+	
+	if(migrationScheme) {
+		migrationScheme->push_back(m_container.back());	
+	}
 }
 
 const GOProblem &archipelago::problem() const

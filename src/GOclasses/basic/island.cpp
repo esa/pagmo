@@ -127,7 +127,7 @@ const MigrationSelectionPolicy& island::getMigrationSelectionPolicy() const
 {
 	join();
 	if(!migrationSelectionPolicy) {
-		pagmo_throw(value_error, "The islands has no associated selection policy!");
+		pagmo_throw(value_error, "The island has no associated selection policy!");
 	}
 	return *migrationSelectionPolicy;
 }
@@ -142,7 +142,7 @@ const MigrationReplacementPolicy& island::getMigrationReplacementPolicy() const
 {
 	join();
 	if(!migrationReplacementPolicy) {
-		pagmo_throw(value_error, "The islands has no associated replacement policy!");
+		pagmo_throw(value_error, "The island has no associated replacement policy!");
 	}
 	return *migrationReplacementPolicy;
 }
@@ -377,17 +377,17 @@ void island::t_evolver::operator()()
 
 std::ostream &operator<<(std::ostream &s, const island &isl)
 {
-	s << "ID:                 " << isl.id() << '\n';
-	s << "Population size:    " << isl.size() << '\n';
-	s << "Evolution time:     " << isl.evo_time() << '\n';
-	s << "Algorithm type:     " << isl.algorithm().id_name() << '\n';
-	s << "Selection policy:   ";
+	s << "ID:                          " << isl.id() << '\n';
+	s << "Population size:             " << isl.size() << '\n';
+	s << "Evolution time:              " << isl.evo_time() << '\n';
+	s << "Algorithm type:              " << isl.algorithm().id_name() << '\n';
+	s << "Selection policy:            ";
 	if(isl.migrationSelectionPolicy) {
 		s << std::endl << *(isl.migrationSelectionPolicy);
 	} else {
 		s << "none" << std::endl;		
 	}
-	s << "Replacement policy: ";
+	s << "Replacement policy:          ";
 	if(isl.migrationReplacementPolicy) {
 		s << std::endl << *(isl.migrationReplacementPolicy);
 	} else {
