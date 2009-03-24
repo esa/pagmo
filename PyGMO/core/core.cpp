@@ -91,13 +91,19 @@ static inline T *topology_getter(const C &c)
 template <class T, class C>
 static inline T *selection_policy_getter(const C &c)
 {
-	return c.getMigrationSelectionPolicy() ? c.getMigrationSelectionPolicy()->clone() : 0;
+	return c.getMigrationSelectionPolicy().clone();
 }
 
 template <class T, class C>
 static inline T *replacement_policy_getter(const C &c)
 {
-	return c.getMigrationReplacementPolicy() ? c.getMigrationReplacementPolicy()->clone() : 0;
+	return c.getMigrationReplacementPolicy().clone();
+}
+
+template <class T, class C>
+static inline T *migration_scheme_getter(const C &c)
+{
+	return c.getMigrationScheme().clone();
 }
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
@@ -198,7 +204,8 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
-	//class_arch.add_property("migration_scheme", &archipelago::getMigrationScheme, &archipelago::setMigrationScheme, "Migration scheme.");
+	class_arch.add_property("migration_scheme", make_function(&migration_scheme_getter<MigrationScheme, archipelago>, return_value_policy<manage_new_object>()),
+		&archipelago::setMigrationScheme, "The archipelago's migration scheme.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");

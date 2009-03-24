@@ -123,10 +123,13 @@ void island::set_algorithm(const go_algorithm &a)
 	m_goa.reset(a.clone());
 }
 
-const MigrationSelectionPolicy* island::getMigrationSelectionPolicy() const
+const MigrationSelectionPolicy& island::getMigrationSelectionPolicy() const
 {
 	join();
-	return migrationSelectionPolicy.get();
+	if(!migrationSelectionPolicy) {
+		pagmo_throw(value_error, "The islands has no associated selection policy!");
+	}
+	return *migrationSelectionPolicy;
 }
 
 void island::setMigrationSelectionPolicy(const MigrationSelectionPolicy* msp)
@@ -135,10 +138,13 @@ void island::setMigrationSelectionPolicy(const MigrationSelectionPolicy* msp)
 	migrationSelectionPolicy.reset(msp ? msp->clone() : 0);
 }
 
-const MigrationReplacementPolicy* island::getMigrationReplacementPolicy() const
+const MigrationReplacementPolicy& island::getMigrationReplacementPolicy() const
 {
 	join();
-	return migrationReplacementPolicy.get();
+	if(!migrationReplacementPolicy) {
+		pagmo_throw(value_error, "The islands has no associated replacement policy!");
+	}
+	return *migrationReplacementPolicy;
 }
 
 void island::setMigrationReplacementPolicy(const MigrationReplacementPolicy* mrp)

@@ -108,8 +108,11 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		const island &operator[](int) const;
 		void set_island(int, const island &);
 		
-		/// Archipelago's migration scheme getter (<b>synchronised</b>).
-		const MigrationScheme* getMigrationScheme();
+		/// Archipelago's migration scheme public getter (<b>synchronised</b>).
+		/**
+		 * Note that the method will throw an exception when there's no scheme associated with the archipelago.
+		 */
+		const MigrationScheme& getMigrationScheme() const;
 		
 		/// Archipelago's migration scheme setter (<b>synchronised</b>).
 		/**

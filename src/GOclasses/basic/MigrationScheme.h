@@ -115,11 +115,17 @@ class __PAGMO_VISIBLE MigrationScheme
 		}		
 		
 		//Getters and setters
-		/// Topology getter.
+		/// Public topology getter.
 		/**
-		 * \return Const poiner to the associated topology or NULL if no topology is associated with the scheme.
+		 * Note that this function will throw an exception if no topology is associated with the scheme.		 
 		 */
-		const base_topology* getTopology() const { return topology.get(); }
+		const base_topology& getTopology() const
+		{
+			if(!topology) {
+				pagmo_throw(value_error, "The migration scheme has no associated topology!");
+			}
+			return *topology;
+		}
 		
 		/// Topology setter.
 		/**

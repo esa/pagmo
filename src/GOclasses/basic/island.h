@@ -60,6 +60,9 @@ class __PAGMO_VISIBLE island
 		/// Stream output operator.
 		friend std::ostream &operator<<(std::ostream &, const island &);
 		
+		/// Stream output operator (for the archipelago class).
+		friend std::ostream &operator<<(std::ostream &s, const archipelago &a);
+			
 	public:
 		/// Constructor.
 		/**
@@ -130,11 +133,11 @@ class __PAGMO_VISIBLE island
 		/// Algorithm seter (<b>synchronised</b>).
 		void set_algorithm(const go_algorithm &);
 		
-		/// Migration selection policy getter (<b>synchronised</b>).
-		/**  Note, that this function may return null if no policy is associated with the island. */
-		const MigrationSelectionPolicy* getMigrationSelectionPolicy() const;
+		/// Migration selection policy public getter (<b>synchronised</b>).
+		/** Note, that this function will throw an exception if no policy is associated with the island. */
+		const MigrationSelectionPolicy& getMigrationSelectionPolicy() const;
 		
-		/// Migration selection policy setter (<b>synchronised</b>).
+		/// Migration selection policy public setter (<b>synchronised</b>).
 		/**
 		 * A deep copy of the given object is created and stored.
 		 * \param[in] msp Selection policy to be used with the island. May be null.
@@ -142,8 +145,8 @@ class __PAGMO_VISIBLE island
 		void setMigrationSelectionPolicy(const MigrationSelectionPolicy* msp);
 				
 		/// Migration replacement policy getter (<b>synchronised</b>).
-		/**  Note, that this function may return null if no policy is associated with the island. */
-		const MigrationReplacementPolicy* getMigrationReplacementPolicy() const;
+		/**  Note, that this function will throw an exception if no policy is associated with the island. */
+		const MigrationReplacementPolicy& getMigrationReplacementPolicy() const;
 		
 		/// Migration replacement policy setter (<b>synchronised</b>).
 		/**

@@ -185,10 +185,13 @@ Individual archipelago::best() const
 	return result;
 }
 
-const MigrationScheme* archipelago::getMigrationScheme()
+const MigrationScheme& archipelago::getMigrationScheme() const
 {
 	join();
-	return migrationScheme.get();
+	if(!migrationScheme) {
+		pagmo_throw(value_error, "The archipelago has no associated migration scheme!");
+	}
+	return *migrationScheme;
 }
 
 void archipelago::setMigrationScheme(const MigrationScheme& newMigrationScheme)
@@ -207,13 +210,11 @@ void archipelago::setMigrationScheme(const MigrationScheme& newMigrationScheme)
 
 std::ostream &operator<<(std::ostream &s, const archipelago &a) {
 	s << "Problem type:        " << a.m_gop->id_name() << '\n';
-	s << "Migration algorithm: ";
 	if(a.migrationScheme) {
 		s << std::endl << *(a.migrationScheme) << std::endl;
 	} else {
-		s << "none" << std::endl;
+		s << "Migration algorithm: none" << std::endl;
 	}
-	s << std::endl;
 	const archipelago::const_iterator it_f = a.m_container.end();
 	size_t i = 0;
 	for (archipelago::const_iterator it = a.m_container.begin(); it != it_f; ++it) {
@@ -223,14 +224,14 @@ std::ostream &operator<<(std::ostream &s, const archipelago &a) {
 		s << "Evolution time:     " << it->evo_time() << '\n';
 		s << "Algorithm type:     " << it->algorithm().id_name() << "\n";
 		s << "Selection policy:   ";
-		if(it->getMigrationSelectionPolicy()) {
-			s << std::endl << *(it->getMigrationSelectionPolicy()) << std::endl;
+		if(it->migrationSelectionPolicy) {
+			s << std::endl << *(it->migrationSelectionPolicy) << std::endl;
 		} else {
 			s << "none" << std::endl;
 		}
 		s << "Replacement policy: ";
-		if(it->getMigrationReplacementPolicy()) {
-			s << std::endl << *(it->getMigrationReplacementPolicy()) << std::endl;
+		if(it->migrationReplacementPolicy) {
+			s << std::endl << *(it->migrationReplacementPolicy) << std::endl;
 		} else {
 			s << "none" << std::endl;
 		}
