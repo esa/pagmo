@@ -52,11 +52,13 @@ std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForRepla
 	}
 	
 	// Create the result
-	std::list<std::pair<int, int> > result(migrationRateLimit);
+	std::list<std::pair<int, int> > result;
 	
 	for(int i = 0; i < migrationRateLimit; i++) {
 		result.push_back(std::make_pair(destinationPopulationIndices[i], incomingPopulationIndices[i]));
 	}
+	
+	std::cout << "Result size: " << result.size() << std::endl;
 	
 	return result;
 }
