@@ -29,12 +29,12 @@ void ConstOutRateMigrationScheme::preEvolutionCallback(island& _island)
 	
 	lock_type lock(topology_mutex);
 	
-	std::cout << "preEvolutionCallback( " << _island.id() << " )" << std::endl;
+	//std::cout << "preEvolutionCallback( " << _island.id() << " )" << std::endl;
 
 	// Get individuals from the island's inbox
 	std::vector<Individual> immigrants = inbox[_island.id()];
 	
-	std::cout << immigrants.size() << " individuals available in the inbox!" << std::endl;
+	//std::cout << immigrants.size() << " individuals available in the inbox!" << std::endl;
 	
 	if(immigrants.size() > 0) {
 		_island.acceptMigratingIndividuals(immigrants); // Accept new individuals
@@ -49,30 +49,30 @@ void ConstOutRateMigrationScheme::postEvolutionCallback(island& _island)
 	
 	lock_type lock(topology_mutex);
 	
-	std::cout << "postEvolutionCallback( " << _island.id() << " )" << std::endl;
+	//std::cout << "postEvolutionCallback( " << _island.id() << " )" << std::endl;
 	
 	const std::vector<size_t>& neighbours = topology->get_neighbours_out(_island.id());
 	
-	std::cout << "The island has " << neighbours.size() << " neigbours." << std::endl;
+	//std::cout << "The island has " << neighbours.size() << " neigbours." << std::endl;
 	
 	if(neighbours.size() > 0) { //the island must have neighbours
 		//Draw a neighbour
 		size_t chosenNeighbourIndex = rng() % neighbours.size();
 		size_t chosenNeighbour = neighbours[chosenNeighbourIndex];
 		
-		std::cout << "Randomly chosen neighbour id: " << chosenNeighbour << std::endl;
+		//std::cout << "Randomly chosen neighbour id: " << chosenNeighbour << std::endl;
 		
 		//Add migrating individuals to neighbour's inbox
 		
 		std::vector<Individual> immigrants = _island.getMigratingIndividuals();
 		
-		std::cout << "The neighbour receives " << immigrants.size() << " individuals" << std::endl;
+		//std::cout << "The neighbour receives " << immigrants.size() << " individuals" << std::endl;
 		
 		if(immigrants.size() > 0) { //if there's anything to migrate, do it
 			inbox[chosenNeighbour].insert(inbox[chosenNeighbour].end(), immigrants.begin(), immigrants.end());			
 		}
 		
-		std::cout << "The size of the neighbour's inbox is now "  << inbox[chosenNeighbour].size() << std::endl;
+		//std::cout << "The size of the neighbour's inbox is now "  << inbox[chosenNeighbour].size() << std::endl;
 	}
 }
 

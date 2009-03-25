@@ -146,6 +146,12 @@ public:
 	
 	/// Get the problem associated with the population.
 	const GOProblem &problem() const;
+	
+	/// Exposes the underlying vector of individuals.
+	/**
+	 * This is very useful when one wants to view Population just as a vector.
+	 */
+	const std::vector<Individual>& toVector() const { return pop; }
 		
 	
 	// Utility functions.

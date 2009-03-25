@@ -34,8 +34,10 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstOutRateMigrationScheme.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationSelectionPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ChooseBestMigrationSelectionPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationReplacementPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/ClassicProblems.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/GOproblem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp

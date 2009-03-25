@@ -88,6 +88,11 @@ void Individual::check(const GOProblem &p) const
 	}
 }
 
+int Individual::compare_by_fitness(const Individual& ind1, const Individual& ind2)
+{
+	return ind1.fitness < ind2.fitness;
+}
+
 std::ostream &operator<<(std::ostream &s, const Individual &ind)
 {
 	s << std::scientific;

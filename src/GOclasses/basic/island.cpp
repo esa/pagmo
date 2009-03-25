@@ -250,7 +250,7 @@ void island::acceptMigratingIndividuals(const std::vector<Individual>& incomingP
 		}
 	} else {
 		/// \todo Throw an exception here?
-	}	
+	}
 }
 
 

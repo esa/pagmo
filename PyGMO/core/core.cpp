@@ -43,10 +43,13 @@
 #include "../../src/GOclasses/problems/GOproblem.h"
 #include "../../src/GOclasses/basic/MigrationScheme.h"
 #include "../../src/GOclasses/basic/ConstInRateMigrationScheme.h"
+#include "../../src/GOclasses/basic/ConstOutRateMigrationScheme.h"
 #include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/ChooseBestMigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/MigrationReplacementPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationReplacementPolicy.h"
+#include "../../src/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.h"
 #include "../../src/exceptions.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -216,12 +219,17 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
 	class_arch.def("best", &archipelago::best, "Copy of best individual.");
 	
-	//Expose MigrationScheme
+	// Expose MigrationScheme
 	class_<MigrationScheme, boost::noncopyable> class_MS("__migration_scheme", "A migration scheme.", no_init);
-	
+	// Expose ConstInRateMigrationScheme
 	class_<ConstInRateMigrationScheme, bases<MigrationScheme> > class_CIRMS("const_in_rate_migration", "Migration scheme with constant incoming migration rate.", init<const base_topology&, optional<uint32_t> >());
 	class_CIRMS.def("__copy__", &Py_copy_from_ctor<ConstInRateMigrationScheme>);
 	class_CIRMS.def("__repr__", &Py_repr_from_stream<ConstInRateMigrationScheme>);
+	// Expose ConstOutRateMigrationScheme
+	class_<ConstOutRateMigrationScheme, bases<MigrationScheme> > class_CORMS("const_out_rate_migration", "Migration scheme with constant outgoing migration rate.", init<const base_topology&, optional<uint32_t> >());
+	class_CORMS.def("__copy__", &Py_copy_from_ctor<ConstOutRateMigrationScheme>);
+	class_CORMS.def("__repr__", &Py_repr_from_stream<ConstOutRateMigrationScheme>);
+
 	
 	// Expose MigrationSelectionPolicy
 	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
@@ -232,8 +240,13 @@ BOOST_PYTHON_MODULE(_core)
 	class_RMSP.def(init<const double&, optional<const uint32_t> >());
 	class_RMSP.def("__copy__", &Py_copy_from_ctor<RandomMigrationSelectionPolicy>);
 	class_RMSP.def("__repr__", &Py_repr_from_stream<RandomMigrationSelectionPolicy>);
-	
-	
+	// Expose ChooseBestMigrationSelectionPolicy
+	class_<ChooseBestMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_CBMSP("choose_best_selection_policy", "A choose best migration selection policy.", init<>());	
+	class_CBMSP.def(init<const int&>());
+	class_CBMSP.def(init<const double&>());
+	class_CBMSP.def("__copy__", &Py_copy_from_ctor<ChooseBestMigrationSelectionPolicy>);
+	class_CBMSP.def("__repr__", &Py_repr_from_stream<ChooseBestMigrationSelectionPolicy>);
+		
 	// Expose MigrationReplacementPolicy
 	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
 	
@@ -243,4 +256,10 @@ BOOST_PYTHON_MODULE(_core)
 	class_RMRP.def(init<const double&, optional<const uint32_t> >());
 	class_RMRP.def("__copy__", &Py_copy_from_ctor<RandomMigrationReplacementPolicy>);
 	class_RMRP.def("__repr__", &Py_repr_from_stream<RandomMigrationReplacementPolicy>);
+
+	class_<BestReplaceWorstIfBetterMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_BRWIBMRP("best_rep_worst_replacement_policy", "A migration replacement policy where best incoming replace worst present if they are better.", init<>());
+	class_BRWIBMRP.def(init<const int&>());
+	class_BRWIBMRP.def(init<const double&>());
+	class_BRWIBMRP.def("__copy__", &Py_copy_from_ctor<BestReplaceWorstIfBetterMigrationReplacementPolicy>);
+	class_BRWIBMRP.def("__repr__", &Py_repr_from_stream<BestReplaceWorstIfBetterMigrationReplacementPolicy>);	
 }

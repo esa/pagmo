@@ -125,6 +125,12 @@ public:
 	 */
 	void check(const GOProblem &p) const;
 	
+	/// Individual comparator for STL sorting methods.
+	/**
+	 * Useful utility function. Minimisation is assumed (lower fitness goes first).
+	 */
+	static int compare_by_fitness(const Individual& ind1, const Individual& ind2);
+	
 private:
 	/// Stream output operator
 	friend std::ostream &operator<<(std::ostream &, const Individual &);
