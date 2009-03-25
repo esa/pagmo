@@ -31,6 +31,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationScheme.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstInRateMigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstOutRateMigrationScheme.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationSelectionPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationSelectionPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationReplacementPolicy.cpp
@@ -103,7 +104,7 @@ IF(BUILD_PYGMO)
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
 	# A couple of extra definitions. The first is required when building Boost.Python,
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
-	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
+	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API -DBOOST_HAS_DECLSPEC")
 	INSTALL(TARGETS pagmo
 		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
 		LIBRARY DESTINATION ${LIB_INSTALL_PATH}
