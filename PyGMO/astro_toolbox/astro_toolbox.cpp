@@ -20,18 +20,20 @@
 
 // 05/03/2009: Initial version by Francesco Biscani.
 
-#include <boost/python/class.hpp>
-#include <boost/python/def.hpp>
-#include <boost/python/module.hpp>
+#include <boost/python.hpp>
 #include <vector>
 
 #include "../../src/AstroToolbox/Astro_Functions.h"
 #include "../../src/AstroToolbox/Lambert.h"
 #include "../../src/AstroToolbox/propagateKEP.h"
+#include "../../src/keplerian_toolbox/kstate.h"
 #include "../../src/exceptions.h"
+#include "../boost_python_container_conversions.h"
 #include "../exceptions.h"
 
 using namespace boost::python;
+using namespace boost_python::container_conversions;
+using namespace keplerian_toolbox;
 
 struct lambert_result {
 	lambert_result():v0(size_t(3)),v1(size_t(3)),a(0),p(0),theta(0),it(0) {}
@@ -62,6 +64,9 @@ static inline void Py_propagate_kep(const std::vector<double> &r0, const std::ve
 }
 
 BOOST_PYTHON_MODULE(_astro_toolbox) {
+	to_tuple_mapping<array_d3>();
+	from_python_sequence<std::vector<double>,variable_capacity_policy>(); 
+
 	// Translate exceptions for this module.
 	translate_exceptions();
 
@@ -75,4 +80,10 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 	def("__lambertI", &Py_lambertI);
 	def("__propagate_kep", &Py_propagate_kep);
 	def("M2E", &Mean2Eccentric, "Convert mean anomaly M into eccentric anomaly E by solving Kepler's equation.");
+
+	class_<kstate> ks("kstate",init<>());
+	ks.def(init<const std::vector<double> &, const std::vector<double> &, const double &, const double &>());
+	ks.add_property("r",make_function(&kstate::get_r, return_value_policy<return_by_value>()), &kstate::set_r<std::vector<double> >);
+	ks.add_property("v",make_function(&kstate::get_v, return_value_policy<return_by_value>()), &kstate::set_v<std::vector<double> >);
+	ks.def(repr(self));
 }

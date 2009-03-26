@@ -19,8 +19,12 @@ namespace keplerian_toolbox
 			// Getters and setters.
 			const array_d3 &get_r() const;
 			void set_r(const array_d3 &);
+			template <class Vector>
+			void set_r(const Vector &);
 			const array_d3 &get_v() const;
 			void set_v(const array_d3 &);
+			template <class Vector>
+			void set_v(const Vector &);
 		private:
 			friend std::ostream &operator<<(std::ostream &, const kstate &);
 			array_d3	m_r;
@@ -114,10 +118,22 @@ namespace keplerian_toolbox
 		return m_r;
 	}
 
-	inline void kstate::set_r(const array_d3 &r) const
+	inline void kstate::set_r(const array_d3 &r)
 	{
 		// TODO: check that r is not fucked up.
 		m_r = r;
+	}
+
+	template <class Vector>
+	inline void kstate::set_r(const Vector &r)
+	{
+		if (r.size() != 3) {
+			// TODO: throw.
+		}
+		// TODO: check that r is not fucked up.
+		m_r[0] = r[0];
+		m_r[1] = r[1];
+		m_r[2] = r[2];
 	}
 
 	inline const array_d3 &kstate::get_v() const
@@ -125,9 +141,20 @@ namespace keplerian_toolbox
 		return m_v;
 	}
 
-	inline void kstate::set_v(const array_d3 &v) const
+	inline void kstate::set_v(const array_d3 &v)
 	{
 		m_v = v;
+	}
+
+	template <class Vector>
+	inline void kstate::set_v(const Vector &v)
+	{
+		if (v.size() != 3) {
+			// TODO: throw.
+		}
+		m_v[0] = v[0];
+		m_v[1] = v[1];
+		m_v[2] = v[2];
 	}
 
 	inline std::ostream &operator<<(std::ostream &os, const kstate &k)
