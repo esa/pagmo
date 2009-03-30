@@ -21,54 +21,9 @@
 #ifndef PAGMO_EXCEPTIONS_H
 #define PAGMO_EXCEPTIONS_H
 
-#include <exception>
-#include <iostream>
-#include <string>
+#include "p_exceptions.h"
 
-#define _PAGMO_QUOTEME(x) #x
-#define PAGMO_QUOTEME(x) _PAGMO_QUOTEME(x)
-#define PAGMO_EXCTOR(s) (__FILE__ "," PAGMO_QUOTEME(__LINE__) ": " s ".")
-#define pagmo_throw(ex,s) (throw ex(PAGMO_EXCTOR(s)))
-
-class base_exception: public std::exception
-{
-	public:
-		base_exception(const std::string &s): m_what(s) {
-#ifndef PAGMO_BUILD_PYGMO
-			std::cout << m_what << '\n';
-#endif
-		}
-		virtual const char *what() const throw() {
-			return m_what.c_str();
-		}
-		virtual ~base_exception() throw() {}
-	protected:
-		std::string m_what;
-};
-
-struct index_error: public base_exception {
-	index_error(const std::string &s): base_exception(s) {}
-};
-
-struct value_error: public base_exception {
-	value_error(const std::string &s): base_exception(s) {}
-};
-
-struct type_error: public base_exception {
-	type_error(const std::string &s): base_exception(s) {}
-};
-
-struct assertion_error: public base_exception {
-	assertion_error(const std::string &s): base_exception(s) {}
-};
-
-#define pagmo_assert(expr) \
-if (!(expr)) { \
-	pagmo_throw(assertion_error,"assertion error"); \
-}
-
-struct runtime_error: public base_exception {
-	runtime_error(const std::string &s): base_exception(s) {}
-};
+#define pagmo_throw(ex,s) P_EX_THROW(ex,s)
+#define pagmo_assert(expr) P_EX_ASSERT(expr)
 
 #endif

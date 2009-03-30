@@ -22,6 +22,7 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
+#include <boost_python_p_exceptions.h>
 
 #include "../../src/GOclasses/basic/ba_topology.h"
 #include "../../src/GOclasses/basic/base_topology.h"
@@ -46,7 +47,7 @@ static inline class_<Topology,bases<base_topology> > topology_wrapper(const char
 
 BOOST_PYTHON_MODULE(_topology) {
 	// Translate exceptions for this module.
-	translate_exceptions();
+	translate_p_exceptions();
 
 	// Base topology.
 	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);

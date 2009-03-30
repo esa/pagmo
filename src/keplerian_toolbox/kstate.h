@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <p_exceptions.h>
 
 #include "s2t.h"
 #include "t2s.h"
@@ -15,23 +16,44 @@ namespace keplerian_toolbox
 			kstate();
 			template <class Vector>
 			kstate(const Vector &, const Vector &, const double &, const double &);
-			void propagate(const double &);
+			kstate &propagate(const double &);
 			// Getters and setters.
 			const array_d3 &get_r() const;
-			void set_r(const array_d3 &);
 			template <class Vector>
 			void set_r(const Vector &);
 			const array_d3 &get_v() const;
-			void set_v(const array_d3 &);
 			template <class Vector>
 			void set_v(const Vector &);
 		private:
 			friend std::ostream &operator<<(std::ostream &, const kstate &);
+			template <class Vector>
+			static void check_r(const Vector &);
+			template <class Vector>
+			static void check_v(const Vector &);
 			array_d3	m_r;
 			array_d3	m_v;
 			double		m_t;
 			double		m_mu;
 	};
+
+	template <class Vector>
+	inline void kstate::check_r(const Vector &r)
+	{
+		if (r.size() != 3) {
+			P_EX_THROW(value_error,"size of position vector must be 3");
+		}
+		if (r[0] == 0 && r[1] == 0 && r[2] == 0) {
+			P_EX_THROW(value_error,"null position vector");
+		}
+	}
+
+	template <class Vector>
+	inline void kstate::check_v(const Vector &v)
+	{
+		if (v.size() != 3) {
+			P_EX_THROW(value_error,"size of velocity vector must be 3");
+		}
+	}
 
 	inline kstate::kstate():m_t(0.),m_mu(1.)
 	{
@@ -45,23 +67,19 @@ namespace keplerian_toolbox
 	inline kstate::kstate(const Vector &r, const Vector &v, const double &t, const double &mu):m_t(t),m_mu(mu)
 	{
 		if (mu <= 0) {
-			// TODO: throw.
+			P_EX_THROW(value_error,"mu must be strictly positive");
 		}
-		if (r.size() != 3 || v.size() != 3) {
-			// TODO: throw.
-		}
-		if (r[0] == 0. && r[1] == 0. && r[2] == 0.) {
-			// TODO: throw.
-		}
+		check_r(r);
+		check_v(v);
 		for (size_t i = 0; i < 3; ++i) {
 			m_r[i] = r[i];
 			m_v[i] = v[i];
 		}
 	}
 
-	inline void kstate::propagate(const double &tf)
+	inline kstate &kstate::propagate(const double &tf)
 	{
-		// Compute current absolute values for position and radial velocity.
+		// Compute current absolute values for position, velocity and radial velocity.
 		const double r0 = std::sqrt(m_r[0] * m_r[0] + m_r[1] * m_r[1] + m_r[2] * m_r[2]);
 		const double vr0 = (m_v[0] * m_r[0] + m_v[1] * m_r[1] + m_v[2] * m_r[2]) / r0;
 		const double v0 = std::sqrt(m_v[0] * m_v[0] + m_v[1] * m_v[1] + m_v[2] * m_v[2]);
@@ -72,22 +90,20 @@ namespace keplerian_toolbox
 		// F and G functions.
 		double F, G, Fp, Gp;
 		array_d3 old_r = m_r, old_v = m_v;
-		// TODO: in the F&G funcs we must check that the new r does not go to zero.
-		// Must decide a course of action: complete stop of the propagation (i.e., exception) or use some numerical trick to
-		// set the radius to _almost_ zero?
 		// Handle the parabolic case.
 		if (alpha == 0) {
 			const double s2 = s * s;
 			// Calculate the F and G functions.
-			F = 1. - m_mu / r0 * s2 / 2.;
+			F = 1. - (m_mu * s2) / (r0 * 2.);
 			G = tf - m_t - m_mu * s * s2 / 6.;
 			m_r[0] = F * old_r[0] + G * old_v[0];
 			m_r[1] = F * old_r[1] + G * old_v[1];
 			m_r[2] = F * old_r[2] + G * old_v[2];
+			check_r(m_r);
 			const double r = std::sqrt(m_r[0] * m_r[0] + m_r[1] * m_r[1] + m_r[2] * m_r[2]);
 			// Now Fp and Gp.
 			Fp = -m_mu * s / (r * r0);
-			Gp = 1. - m_mu / r * s2 / 2.;
+			Gp = 1. - (m_mu * s2) / (r * 2.);
 			m_v[0] = Fp * old_r[0] + Gp * old_v[0];
 			m_v[1] = Fp * old_r[1] + Gp * old_v[1];
 			m_v[2] = Fp * old_r[2] + Gp * old_v[2];
@@ -101,6 +117,7 @@ namespace keplerian_toolbox
 			m_r[0] = F * old_r[0] + G * old_v[0];
 			m_r[1] = F * old_r[1] + G * old_v[1];
 			m_r[2] = F * old_r[2] + G * old_v[2];
+			check_r(m_r);
 			const double r = std::sqrt(m_r[0] * m_r[0] + m_r[1] * m_r[1] + m_r[2] * m_r[2]);
 			// Now Fp and Gp.
 			Fp = -m_mu * s * c1 / (r * r0);
@@ -111,6 +128,7 @@ namespace keplerian_toolbox
 		}
 		// Last step: update the time.
 		m_t = tf;
+		return *this;
 	}
 
 	inline const array_d3 &kstate::get_r() const
@@ -118,19 +136,10 @@ namespace keplerian_toolbox
 		return m_r;
 	}
 
-	inline void kstate::set_r(const array_d3 &r)
-	{
-		// TODO: check that r is not fucked up.
-		m_r = r;
-	}
-
 	template <class Vector>
 	inline void kstate::set_r(const Vector &r)
 	{
-		if (r.size() != 3) {
-			// TODO: throw.
-		}
-		// TODO: check that r is not fucked up.
+		check_r(r);
 		m_r[0] = r[0];
 		m_r[1] = r[1];
 		m_r[2] = r[2];
@@ -141,17 +150,10 @@ namespace keplerian_toolbox
 		return m_v;
 	}
 
-	inline void kstate::set_v(const array_d3 &v)
-	{
-		m_v = v;
-	}
-
 	template <class Vector>
 	inline void kstate::set_v(const Vector &v)
 	{
-		if (v.size() != 3) {
-			// TODO: throw.
-		}
+		check_v(v);
 		m_v[0] = v[0];
 		m_v[1] = v[1];
 		m_v[2] = v[2];
@@ -159,6 +161,8 @@ namespace keplerian_toolbox
 
 	inline std::ostream &operator<<(std::ostream &os, const kstate &k)
 	{
+		os << std::scientific;
+		os.precision(15);
 		os << "Position: [" << k.m_r[0] << ',' << k.m_r[1] << ',' << k.m_r[2] << "]\n";
 		os << "Velocity: [" << k.m_v[0] << ',' << k.m_v[1] << ',' << k.m_v[2] << "]\n";
 		os << "Time:     " << k.m_t << '\n';

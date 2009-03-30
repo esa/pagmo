@@ -22,6 +22,7 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
+#include <boost_python_p_exceptions.h>
 
 #include "../../src/GOclasses/algorithms/ASA.h"
 #include "../../src/GOclasses/algorithms/DE.h"
@@ -30,7 +31,6 @@
 #include "../../src/GOclasses/algorithms/go_algorithm.h"
 #include "../../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../../src/GOclasses/algorithms/nm_algorithm.h"
-#include "../exceptions.h"
 #include "../utils.h"
 
 using namespace boost::python;
@@ -47,7 +47,7 @@ static inline class_<Algorithm,bases<go_algorithm> > algorithm_wrapper(const cha
 
 BOOST_PYTHON_MODULE(_algorithm) {
 	// Translate exceptions for this module.
-	translate_exceptions();
+	translate_p_exceptions();
 
 	// Expose base algorithm class.
 	class_<go_algorithm, boost::noncopyable>("__go_algorithm", "Base GO algorithm", no_init);

@@ -21,18 +21,17 @@
 // 05/03/2009: Initial version by Francesco Biscani.
 
 #include <boost/python.hpp>
+#include <boost_python_p_exceptions.h>
+#include <boost_python_container_conversions.h>
+#include <p_exceptions.h>
 #include <vector>
 
 #include "../../src/AstroToolbox/Astro_Functions.h"
 #include "../../src/AstroToolbox/Lambert.h"
 #include "../../src/AstroToolbox/propagateKEP.h"
 #include "../../src/keplerian_toolbox/kstate.h"
-#include "../../src/exceptions.h"
-#include "../boost_python_container_conversions.h"
-#include "../exceptions.h"
 
 using namespace boost::python;
-using namespace boost_python::container_conversions;
 using namespace keplerian_toolbox;
 
 struct lambert_result {
@@ -49,7 +48,7 @@ static inline void Py_lambertI(const std::vector<double> &r0, const std::vector<
 	lambert_result &lr)
 {
 	if (r0.size() != 3 || r1.size() != 3 || lr.v0.size() != 3 || lr.v1.size() != 3) {
-		pagmo_throw(value_error,"the size of all input/output position/velocity vectors must be 3");
+		P_EX_THROW(value_error,"the size of all input/output position/velocity vectors must be 3");
 	}
 	LambertI(&r0[0],&r1[0],T,mu,lw,&lr.v0[0],&lr.v1[0],lr.a,lr.p,lr.theta,lr.it);
 }
@@ -58,7 +57,7 @@ static inline void Py_propagate_kep(const std::vector<double> &r0, const std::ve
 	std::vector<double> &r1, std::vector<double> &v1)
 {
 	if (r0.size() != 3 || r1.size() != 3 || v0.size() != 3 || v1.size() != 3) {
-		pagmo_throw(value_error,"the size of all input/output position/velocity vectors must be 3");
+		P_EX_THROW(value_error,"the size of all input/output position/velocity vectors must be 3");
 	}
 	propagateKEP(&r0[0],&v0[0],t,mu,&r1[0],&v1[0]);
 }
@@ -68,7 +67,7 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 
 	// Translate exceptions for this module.
-	translate_exceptions();
+	translate_p_exceptions();
 
 	class_<lambert_result>("__lambert_result",init<>())
 		.def_readonly("v0", &lambert_result::v0)
@@ -86,5 +85,5 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 	ks.def(repr(self));
 	ks.add_property("r",make_function(&kstate::get_r, return_value_policy<return_by_value>()), &kstate::set_r<std::vector<double> >);
 	ks.add_property("v",make_function(&kstate::get_v, return_value_policy<return_by_value>()), &kstate::set_v<std::vector<double> >);
-	ks.def("propagate", &kstate::propagate);
+	ks.def("propagate", &kstate::propagate, return_value_policy<return_by_value>());
 }

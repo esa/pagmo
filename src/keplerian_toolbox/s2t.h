@@ -2,6 +2,7 @@
 #define KEPLERIAN_TOOLBOX_S2T_H
 
 #include <cmath>
+#include <p_exceptions.h>
 
 #include "stumpff.h"
 
@@ -9,7 +10,12 @@ namespace keplerian_toolbox
 {
 	inline double s2t(const double &s, const double &r0, const double &vr0, const double &v0, const double &t0, const double &mu)
 	{
-		// TODO: throw for bad values of mu and r0.
+		if (mu <= 0) {
+			P_EX_THROW(value_error,"mu must be strictly positive");
+		}
+		if (r0 <= 0) {
+			P_EX_THROW(value_error,"initial radius must be strictly positive");
+		}
 		// Cache values.
 		const double s2 = s * s, s3 = s2 * s, as2 = (s2 * (2. * mu - r0 * v0 * v0)) / r0;
 		// Evaluate first 2 Stumpff functions.

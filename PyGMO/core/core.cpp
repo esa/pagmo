@@ -30,6 +30,7 @@
 #include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
+#include <boost_python_p_exceptions.h>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -41,8 +42,6 @@
 #include "../../src/GOclasses/basic/island.h"
 #include "../../src/GOclasses/basic/population.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
-#include "../../src/exceptions.h"
-#include "../exceptions.h"
 #include "../utils.h"
 
 using namespace boost::python;
@@ -88,7 +87,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 
 BOOST_PYTHON_MODULE(_core)
 {
 	// Translate exceptions for this module.
-	translate_exceptions();
+	translate_p_exceptions();
 
 	// Expose std::vector<double>.
 	class_<std::vector<double> > class_vd("vector_double","std::vector<double>");

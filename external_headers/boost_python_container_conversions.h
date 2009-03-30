@@ -10,8 +10,6 @@
 #include <boost/python/extract.hpp>
 #include <boost/python/to_python_converter.hpp>
 
-namespace boost_python { namespace container_conversions {
-
   template <typename ContainerType>
   struct to_tuple
   {
@@ -299,7 +297,5 @@ namespace boost_python { namespace container_conversions {
         set_policy>();
     }
   };
-
-}}
 
 #endif

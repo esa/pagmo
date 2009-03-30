@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <p_exceptions.h>
 
 #include "stumpff.h"
 
@@ -11,7 +12,12 @@ namespace keplerian_toolbox
 	// Solve Kepler's equation in universal variable formulation using Laguerre's method.
 	inline double t2s(const double &t, const double &r0, const double &vr0, const double &v0, const double &t0, const double &mu)
 	{
-		// TODO: throw for bad r0 or mu.
+		if (mu <= 0) {
+			P_EX_THROW(value_error,"mu must be strictly positive");
+		}
+		if (r0 <= 0) {
+			P_EX_THROW(value_error,"initial radius must be strictly positive");
+		}
 		// Configuration parameters.
 		static const double n = 5., tol = 1E-13;
 		static const unsigned max_it_n = 100;
@@ -39,9 +45,8 @@ namespace keplerian_toolbox
 				fp = a + c0 * r0_m_a + c1 * s * r0vr0;
 				fpp = r0 * c0_p + r0vr0 * c0 + mu * s * c1;
 			}
-			// If f is zero, stop. Tolerance is weighted against f + t, i.e., the value
-			// of Kepler's equation for current s.
-			if (std::abs(f) <= tol * std::abs(f + t)) {
+			// If f is small enough, stop.
+			if (std::abs(f) <= tol) {
 				break;
 			}
 			double cur_n = n;
@@ -49,7 +54,7 @@ namespace keplerian_toolbox
 			double root = std::sqrt(std::abs((cur_n - 1.) * (cur_n * H - G2)));
 			// Here we change root using another polynomial order n in order to avoid a division
 			// by zero when G is also zero.
-			while (root == 0) {
+			while (G == 0 && root == 0) {
 				cur_n += 1.;
 				root = std::sqrt(std::abs((cur_n - 1.) * (cur_n * H - G2)));
 			}
@@ -57,12 +62,7 @@ namespace keplerian_toolbox
 			if (std::abs(alt_div) > std::abs(div)) {
 				div = alt_div;
 			}
-			const double diff = n / div;
-			// std::cout << "Current diff is: " << diff << '\n';
-			// std::cout << "Current div is: " << div << '\n';
-			// std::cout << "Current f: " << f << '\n';
-			// std::cout << "Current fp: " << fp << '\n';
-			// std::cout << "Current fpp: " << fpp << '\n';
+			const double diff = cur_n / div;
 			s -= diff;
 			++i;
 			if (std::abs(diff) < tol) {
@@ -75,7 +75,6 @@ namespace keplerian_toolbox
 				break;
 			}
 		}
-		//std::cout << "Total number of iterations: " << i << '\n';
 		return s;
 	}
 }
