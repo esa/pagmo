@@ -51,7 +51,7 @@ public:
 	virtual void post_evolution() const {}
 	void set_lb(int, const double &);
 	void set_ub(int, const double &);
-	bool operator==(const GOProblem &) const;
+	virtual bool operator==(const GOProblem &) const;
 	bool operator!=(const GOProblem &) const;
 protected:
 	// Print function: called by operator<<, can be re-implemented in sublcasses.
