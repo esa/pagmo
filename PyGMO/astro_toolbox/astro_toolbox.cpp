@@ -65,7 +65,7 @@ static inline void Py_propagate_kep(const std::vector<double> &r0, const std::ve
 
 BOOST_PYTHON_MODULE(_astro_toolbox) {
 	to_tuple_mapping<array_d3>();
-	from_python_sequence<std::vector<double>,variable_capacity_policy>(); 
+	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 
 	// Translate exceptions for this module.
 	translate_exceptions();
@@ -83,7 +83,8 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 
 	class_<kstate> ks("kstate",init<>());
 	ks.def(init<const std::vector<double> &, const std::vector<double> &, const double &, const double &>());
+	ks.def(repr(self));
 	ks.add_property("r",make_function(&kstate::get_r, return_value_policy<return_by_value>()), &kstate::set_r<std::vector<double> >);
 	ks.add_property("v",make_function(&kstate::get_v, return_value_policy<return_by_value>()), &kstate::set_v<std::vector<double> >);
-	ks.def(repr(self));
+	ks.def("propagate", &kstate::propagate);
 }
