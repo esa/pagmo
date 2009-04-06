@@ -30,7 +30,7 @@ ba_topology::ba_topology(int m_0, int m, uint32_t seed)
 	}
 }
 
-ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m) {}
+ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m),drng(b.drng) { }
 
 void ba_topology::push_back(const size_t& id)
 {
@@ -81,8 +81,6 @@ void ba_topology::push_back(const size_t& id)
 		// proportional to their number of connections. We keep track of the
 		// connection established in order to avoid connecting twice to the same
 		// node.
-		std::vector<size_t> connections;
-		connections.reserve(m_m);
 		
 		const std::vector<size_t>& nodes_list = get_nodes();
 		

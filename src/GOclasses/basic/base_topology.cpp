@@ -26,6 +26,8 @@ std::ostream &operator<<(std::ostream &os, const base_topology &topology)
 {
 	std::vector<size_t> graph_nodes = topology.get_nodes();
 	
+	os << topology.id_name() << std::endl;
+	
 	for (std::vector<size_t>::const_iterator it = graph_nodes.begin(); it != graph_nodes.end(); ++it) {
 		//The node
 		os << *it;

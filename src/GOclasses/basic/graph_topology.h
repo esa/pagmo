@@ -25,9 +25,9 @@
 
 #include "base_topology.h"
 #include <iostream>
-#include <boost/unordered_map.hpp>
+#include <map>
 #include <vector>
-#include <boost/unordered_set.hpp>
+#include <set>
 
 /// Simple graph implementation to be used by topologies.
 /**
@@ -35,8 +35,8 @@
  */
 class __PAGMO_VISIBLE graph_topology: public base_topology {
 	protected:
-		typedef boost::unordered_set<size_t> node_set_type;
-		typedef boost::unordered_map<size_t,std::vector<size_t> > neighbour_lists_type; ///< Topology container type abbreviation.
+		typedef std::set<size_t> node_set_type;
+		typedef std::map<size_t,std::vector<size_t> > neighbour_lists_type; ///< Topology container type abbreviation.
 		typedef neighbour_lists_type::iterator nlt_iterator; ///< Topology container iterator type abbreviation.
 		typedef neighbour_lists_type::const_iterator nlt_const_iterator; ///< Topology container const iterator type abbreviation.
 		
