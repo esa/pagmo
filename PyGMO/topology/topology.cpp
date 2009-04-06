@@ -29,6 +29,9 @@
 #include "../../src/GOclasses/basic/fully_connected_topology.h"
 #include "../../src/GOclasses/basic/one_way_ring_topology.h"
 #include "../../src/GOclasses/basic/ring_topology.h"
+#include "../../src/GOclasses/basic/broadcast_topology.h"
+#include "../../src/GOclasses/basic/chain_topology.h"
+#include "../../src/GOclasses/basic/torus_topology.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
@@ -59,4 +62,7 @@ BOOST_PYTHON_MODULE(_topology) {
 	topology_wrapper<one_way_ring_topology>("one_way_ring", "One way ring topology.").def(init<>());
 	topology_wrapper<ba_topology>("ba", "BA model topology.").def(init<int, int, optional<uint32_t> >());
 	topology_wrapper<fully_connected_topology>("fully_connected", "Fully connected topology.").def(init<>());
+	topology_wrapper<chain_topology>("chain", "Broadcast topology.").def(init<>());
+	topology_wrapper<broadcast_topology>("broadcast", "Broadcast topology.").def(init<>());
+	topology_wrapper<torus_topology>("torus", "Torus topology.").def(init<>());	
 }

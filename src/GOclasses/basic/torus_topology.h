@@ -18,59 +18,40 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 06/02/2009: Initial version by Francesco Biscani.
+// 13/01/2009: Initial version by Marek Ruciński.
 
-#include <utility>
-#include <vector>
+#ifndef PAGMO_TORUS_TOPOLOGY_H
+#define PAGMO_TORUS_TOPOLOGY_H
 
-#include "one_way_ring_topology.h"
+#include "../../config.h"
+#include "graph_topology.h"
 
-one_way_ring_topology::one_way_ring_topology():graph_topology(),m_first(0),m_last(0) {}
-
-one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r)
-		:graph_topology(r),m_first(r.m_first),m_last(r.m_last) { }
-
-one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topology &)
-{
-	pagmo_assert(false);
-	return *this;
-}
-
-void one_way_ring_topology::push_back(const size_t& id)
-{
-	// Store frequently-used variables.
-	const size_t t_size = get_number_of_nodes();
-	switch (t_size) {
-		case 0:
-			// If the topology is empty, register the node and update the id of the first element.
-			add_node(id);
-			m_first = id;
-			break;
-			
-		case 1:
-		{
-			pagmo_assert(id != m_first);
-			
-			// Add the node
-			add_node(id);
-			// Add connections to the only existing element.
-			add_edge(m_first, id);
-			add_edge(id, m_first);
-			break;
-		}
+/// Torus topology (also known as ladder) - two parallel rings with corresponding nodes connected.
+class __PAGMO_VISIBLE torus_topology: public graph_topology {
+	public:
+		/// Constructor.
+		torus_topology();
+		/// Copy constructor.
+		torus_topology(const torus_topology &);
 		
-		default:
-			/// \todo check it in the growing_topology class: pagmo_assert(m_tc.find(id) == m_tc.end());
-			
-			// Add the new node
-			add_node(id);
-			
-			// The current last must be connected to the new one.
-			remove_edge(m_last, m_first);
-			add_edge(m_last, id);
-			add_edge(id, m_first);
-	}
-	
-	// Update the id of the last island.
-	m_last = id;
-}
+		/// \see base_topology::clone
+		virtual torus_topology *clone() const {return new torus_topology(*this);}
+		
+		/// \see base_topology::push_back
+		virtual void push_back(const size_t& id);
+		
+	private:	
+		/// Tracks the id of the first inserted node on the inner ring.
+		size_t	m_in_first;
+		/// Tracks the id of the last inserted node on the inner ring.
+		size_t	m_in_last;
+		/// Tracks the id of the first inserted node on the outer ring.
+		size_t	m_out_first;
+		/// Tracks the id of the last inserted node on the outer ring.
+		size_t	m_out_last;
+		
+		/// \see graph_topology::operator=
+		torus_topology &operator=(const torus_topology &);
+};
+
+#endif

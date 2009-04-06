@@ -25,7 +25,7 @@
 ring_topology::ring_topology():graph_topology(), m_first(0), m_last(0) {}
 
 ring_topology::ring_topology(const ring_topology &r)
-	:graph_topology(r), m_first(0), m_last(0) {}
+	:graph_topology(r), m_first(r.m_first), m_last(r.m_last) {}
 
 ring_topology &ring_topology::operator=(const ring_topology &)
 {

@@ -30,7 +30,8 @@ ba_topology::ba_topology(int m_0, int m, uint32_t seed)
 	}
 }
 
-ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m),drng(b.drng) { }
+/** Assignment operator for the RNG is used here on purpose - it will create the exact copy of the RNG, so the original network and it's copy will grow identically */
+ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m) { drng = b.drng; }
 
 void ba_topology::push_back(const size_t& id)
 {

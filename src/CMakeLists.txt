@@ -26,7 +26,10 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/fully_connected_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/graph_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/one_way_ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/chain_topology.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/broadcast_topology.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/torus_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationScheme.cpp
