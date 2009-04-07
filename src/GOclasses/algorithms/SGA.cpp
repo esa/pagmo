@@ -1,29 +1,57 @@
-/*
- *  SGA.cpp
- *  PaGMO
- *
- *  Created by Dario Izzo on 10/5/08.
- *  Copyright 2008 __MyCompanyName__. All rights reserved.
- *
- */
+/*****************************************************************************
+ *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
+// Created by Dario Izzo on 10/05/08.
+
+#include <cmath>
+#include <iostream>
 #include <vector>
 
+#include "../../exceptions.h"
+#include "../basic/individual.h"
+#include "../basic/population.h"
+#include "../problems/GOproblem.h"
 #include "SGA.h"
+#include "go_algorithm.h"
 
 using namespace std;
 
-void SGAalgorithm::initSGA(int generationsInit, int SolDimInit, double CRInit, double MInit, int insert_bestInit, uint32_t randomSeed){
-	generations = generationsInit;
-	SolDim = SolDimInit;
-	CR = CRInit;
-	M = MInit;
-	insert_best = insert_bestInit;
-	rng.seed(randomSeed);
-	drng.seed(randomSeed);
+SGAalgorithm::SGAalgorithm(int generationsInit, const double &CRInit, const double &MInit, int insert_bestInit):
+	go_algorithm(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestInit),rng(static_rng_uint32()())
+{
+	if (generationsInit <= 0) {
+		pagmo_throw(value_error,"number of generations must be strictly positive");
+	}
+	if (CRInit < 0) {
+		pagmo_throw(value_error,"CR value must be non-negative");
+	}
+	if (MInit < 0) {
+		pagmo_throw(value_error,"M value must be non-negative");
+	}
+	if (insert_bestInit <= 0) {
+		pagmo_throw(value_error,"insert_best value must be positive");
+	}
 }
 
-Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
+Population SGAalgorithm::evolve(const Population &deme) const {
+	const GOProblem &problem = deme.problem();
 
     const std::vector<double>& LB = problem.getLB();
     const std::vector<double>& UB = problem.getUB();
@@ -61,7 +89,7 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 
 
    // Main SGA loop
-   for (int j = 0; j<generations; j++){
+   for (int j = 0; j<(int)generations; j++){
 
 
 		//1 - Selection
@@ -73,7 +101,7 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
 				if (fit[i] > worstfit) worstfit=fit[i];
 			}
 
-			double factor = log((double)(j+1))/10;
+			double factor = std::log((double)(j+1))/10;
 			for (int i = 0; i < NP; i++){
 
 				selectionfitness.push_back(pow((worstfit - fit[i]),1.0 + factor)); //works for minimisation
@@ -178,6 +206,8 @@ Population SGAalgorithm::evolve(Population deme, GOProblem& problem){
    return popout;
 }
 
-
-
-
+void SGAalgorithm::log(std::ostream &s) const
+{
+	s << "SGA - Generations:" << generations << " CR:" << CR << " M:" << M
+		<< " insert_best:" << insert_best;
+}
