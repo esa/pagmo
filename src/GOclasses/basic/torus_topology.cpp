@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/01/2009: Initial version by Francesco Biscani.
+// 13/01/2009: Initial version by Marek Ruciński.
 
 #include "torus_topology.h"
 

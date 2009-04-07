@@ -147,6 +147,10 @@ void archipelago::evolve(int n)
 	if (busy()) {
 		pagmo_throw(runtime_error,"cannot start evolution while evolving");
 	}
+	
+	// Initialise the synchronisation barrier
+	islandsSyncPoint.reset(new boost::barrier(m_container.size()));
+
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve(n);
@@ -158,6 +162,10 @@ void archipelago::evolve_t(const size_t &t)
 	if (busy()) {
 		pagmo_throw(runtime_error,"cannot start evolution while evolving");
 	}
+	
+	// Initialise the synchronisation barrier
+	islandsSyncPoint.reset(new boost::barrier(m_container.size()));
+		
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve_t(t);
@@ -185,6 +193,37 @@ Individual archipelago::best() const
 	
 	return result;
 }
+
+size_t archipelago::getMaxEvoTime() const
+{
+	join();
+	
+	size_t result = 0;
+
+	const const_iterator it_f = m_container.end();	
+	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
+		if(it->evo_time() > result) {
+			result = it->evo_time();
+		}
+	}
+	
+	return result;
+}
+
+size_t archipelago::getTotalEvoTime() const
+{
+	join();
+	
+	size_t result = 0;
+
+	const const_iterator it_f = m_container.end();	
+	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
+		result += it->evo_time();
+	}
+	
+	return result;
+}
+
 
 const MigrationScheme& archipelago::getMigrationScheme() const
 {
@@ -237,6 +276,13 @@ void archipelago::setTopology(const base_topology* newTopology)
 	for(const_iterator it = m_container.begin(); it != m_container.end(); ++it) {
 		migrationScheme->push_back(*it);
 	}
+}
+
+void archipelago::syncIslandStart() const
+{
+	pagmo_assert(islandsSyncPoint);
+	
+	islandsSyncPoint->wait();
 }
 
 std::ostream &operator<<(std::ostream &s, const archipelago &a) {

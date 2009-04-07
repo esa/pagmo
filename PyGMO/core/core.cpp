@@ -218,6 +218,9 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
 	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
 	class_arch.def("best", &archipelago::best, "Copy of best individual.");
+	class_arch.def("max_evo_time", &archipelago::getMaxEvoTime, "Maximum of total evolution times for all islands.");
+	class_arch.def("total_evo_time", &archipelago::getTotalEvoTime, "Sum of total evolution times for all islands.");
+	
 	
 	// Expose MigrationScheme
 	class_<MigrationScheme, boost::noncopyable> class_MS("__migration_scheme", "A migration scheme.", no_init);

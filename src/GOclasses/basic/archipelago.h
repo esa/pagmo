@@ -24,6 +24,7 @@
 #define PAGMO_ARCHIPELAGO_H
 
 #include <list>
+#include <boost/thread/barrier.hpp>
 
 #include "../../config.h"
 #include "../problems/GOproblem.h"
@@ -169,6 +170,12 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		
 		/// Get the best individual from the whole archipelago (<b>synchronised</b>)
 		Individual best() const;
+		
+		/// Get the maximum total evolution time for all islands (<b>synchronised</b>).
+		size_t getMaxEvoTime() const;
+		
+		/// Get the sum of total evolution times for all islands (<b>synchronised</b>).
+		size_t getTotalEvoTime() const;
 
 	protected:
 		/// To be called by an island before the actual evolution starts.
@@ -178,6 +185,13 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		/// To be called by an island after the actual evolution finishes.
 		/** \see MigrationScheme::postEvolutionCallback */
 		void postEvolutionCallback(island& _island) { if(migrationScheme) { migrationScheme->postEvolutionCallback(_island); } }
+		
+		/// To be called by an islands thread just before starting the evolution.
+		/**
+		 * This method allows synchronisation of all computational threads. All islands should call
+		 * this method, which will block all of them until all threads are ready for computation.
+		 */
+		 void syncIslandStart() const;
 		
 	private:
 		/// Check if the island is compatible with the archipelago
@@ -190,6 +204,14 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		container_type						m_container; ///< Island container.
 		boost::shared_ptr<const GOProblem>	m_gop; ///< Problem associated with the archipelago.
 		boost::shared_ptr<MigrationScheme>  migrationScheme; ///< Migration scheme of the archipelago. May be null, what means no migration.
+	
+		/// A barrier used to synchronise the start time of all islands.
+		/**
+		 * A pointer is used here because the ultimate number of islands is not known on archipelago creation.
+		 * The object is created on each call to archipelago::evolve and archipelago::evolve_t
+		 */
+		boost::scoped_ptr<boost::barrier> islandsSyncPoint;
+
 		
 		/// Dummy assognment operator. Assignment is not a valid operation - throws an exception.
 		archipelago &operator=(const archipelago &);

@@ -315,6 +315,11 @@ void island::int_evolver::operator()()
 {
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 	try {
+		//Synchronise start with all other threads
+		if (m_i->m_a) {
+			m_i->m_a->syncIslandStart();
+		}
+		
 		for (int i = 0; i < m_n; ++i) {
 			if (m_i->m_a) {
 				//lock_type lock(m_i->m_topo_mutex);
@@ -349,6 +354,11 @@ void island::t_evolver::operator()()
 	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 	boost::posix_time::time_duration diff;
 	try {
+		// Synchronise start
+		if (m_i->m_a) {
+			m_i->m_a->syncIslandStart();
+		}
+
 		do {
 			if (m_i->m_a) {
 				//lock_type lock(m_i->m_topo_mutex);
