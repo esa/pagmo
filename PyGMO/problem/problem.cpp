@@ -30,7 +30,6 @@
 #include "../../src/GOclasses/problems/ClassicProblems.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
 #include "../../src/GOclasses/problems/TrajectoryProblems.h"
-#include "../../src/GOclasses/problems/hippo_problem.h"
 #include "../../src/GOclasses/problems/twodee_problem.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -77,6 +76,4 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<levyProb>("levy", "Levy problem.").def(init<int>());
 	// Twodee problem.
 	problem_wrapper<twodee_problem>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-	// Hippo's problem.
-	problem_wrapper<hippo_problem>("hippo", "Hippo's problem.").def(init<int>());
 }
