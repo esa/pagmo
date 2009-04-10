@@ -32,9 +32,7 @@
 
 class p_base_exception: public std::exception {
 	public:
-		p_base_exception(const std::string &s):m_what(s) {
-			std::cout << m_what << '\n';
-		}
+		p_base_exception(const std::string &s):m_what(s) {}
 		virtual const char *what() const throw() {
 			return m_what.c_str();
 		}
@@ -57,6 +55,10 @@ struct type_error: public p_base_exception {
 
 struct assertion_error: public p_base_exception {
 	assertion_error(const std::string &s): p_base_exception(s) {}
+};
+
+struct zero_division_error: public p_base_exception {
+	zero_division_error(): p_base_exception("division by zero") {}
 };
 
 #define P_EX_ASSERT(expr) \
