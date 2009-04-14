@@ -48,6 +48,7 @@ static inline class_<Problem,bases<GOProblem> > problem_wrapper(const char *name
 	retval.add_property("ub", make_function(&Problem::getUB,return_value_policy<copy_const_reference>()), &Problem::setUB, "Upper bounds.");
 	retval.add_property("dimension", &Problem::getDimension, "Dimension.");
 	retval.add_property("id_name", &Problem::id_name, "Identification name.");
+	retval.add_property("id_object", &Problem::id_object, "Object identification name.");
 	return retval;
 }
 

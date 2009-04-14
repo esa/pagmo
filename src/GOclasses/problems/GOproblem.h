@@ -53,6 +53,11 @@ public:
 	void set_ub(int, const double &);
 	virtual bool operator==(const GOProblem &) const;
 	bool operator!=(const GOProblem &) const;
+	
+	/// Get the name identyfing the object (<b>not</b> the class).
+	/** Exposed to Python. The string should identify the object, so that instanciations of the same class with different parameters are distinguishable. */
+	virtual std::string id_object() const = 0;
+
 protected:
 	// Print function: called by operator<<, can be re-implemented in sublcasses.
 	virtual std::ostream &print(std::ostream &) const;

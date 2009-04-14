@@ -75,6 +75,9 @@ class __PAGMO_VISIBLE graph_topology: public base_topology {
 		
 		/// \see base_topology::clone
 		virtual base_topology *clone() const { return new graph_topology(*this); }
+		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const;
 	
 	protected:
 		/// Add a node to the graph.

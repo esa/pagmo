@@ -36,6 +36,7 @@ class __PAGMO_VISIBLE ASAalgorithm: public go_algorithm {
 		ASAalgorithm(int, const double &, const double &);
 		virtual Population evolve(const Population &) const;
 		virtual ASAalgorithm *clone() const {return new ASAalgorithm(*this);}
+		virtual std::string id_object() const { return id_name(); }
 	private:
 		virtual void log(std::ostream &) const;
 		size_t niterTot;

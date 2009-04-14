@@ -40,6 +40,9 @@ class __PAGMO_VISIBLE torus_topology: public graph_topology {
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
 		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const { return id_name(); }
+		
 	private:	
 		/// Tracks the id of the first inserted node on the inner ring.
 		size_t	m_in_first;

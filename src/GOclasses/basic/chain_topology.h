@@ -39,7 +39,11 @@ class __PAGMO_VISIBLE chain_topology: public graph_topology {
 		
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t&);
-	private:
+
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const { return id_name(); }
+		
+	private:	
 		/// Tracks the identifier of the last inserted node.
 		size_t	m_last;
 		

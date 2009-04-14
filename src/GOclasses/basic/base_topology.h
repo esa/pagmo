@@ -99,6 +99,10 @@ class __PAGMO_VISIBLE base_topology {
 		/// Get the name of the object's class.
 		/** Exposed to Python. \todo Rename this method to something more sensible. */
 		std::string id_name() const {return typeid(*this).name();}
+		
+		/// Get the name identyfing the object (<b>not</b> the class).
+		/** Exposed to Python. The string should identify the object, so that instanciations of the same class with different parameters are distinguishable. */
+		virtual std::string id_object() const = 0;
 };
 
 /// Stream output operator.

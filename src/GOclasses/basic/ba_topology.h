@@ -53,6 +53,9 @@ class __PAGMO_VISIBLE ba_topology: public graph_topology {
 		
 		/// \see base_topology::push_back		
 		virtual void push_back(const size_t& id);
+		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const;
 	
 	private:
 		/// \see graph_topology::operator=
@@ -65,6 +68,8 @@ class __PAGMO_VISIBLE ba_topology: public graph_topology {
 		
 		/// Random number generator
 		rng_double drng;
+		/// Seed with which rng was initialised.
+		const uint32_t seed;
 };
 
 #endif

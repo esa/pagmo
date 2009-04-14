@@ -42,6 +42,7 @@ class __PAGMO_VISIBLE cassini1Prob : public GOProblem {
 public:
 	cassini1Prob();
 	virtual cassini1Prob *clone() const {return new cassini1Prob(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const;
 	static const double lb[6];
@@ -52,6 +53,7 @@ class gtoc1Prob : public GOProblem {
 public:
 	gtoc1Prob();
 	virtual gtoc1Prob *clone() const {return new gtoc1Prob(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const ;
 	static const double lb[8];
@@ -69,6 +71,7 @@ public:
 	messengerProb();
 	virtual ~messengerProb() {};
 	virtual messengerProb *clone() const {return new messengerProb(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
@@ -83,6 +86,7 @@ public:
 	messengerfullProb();
 	virtual ~messengerfullProb() {};
 	virtual messengerfullProb *clone() const {return new messengerfullProb(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
@@ -96,6 +100,7 @@ public:
 	tandemProb();
 	virtual ~tandemProb() {};
 	virtual tandemProb *clone() const {return new tandemProb(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
@@ -110,6 +115,7 @@ public:
 	cassini2Prob();
 	virtual ~cassini2Prob() {};
 	virtual cassini2Prob *clone() const {return new cassini2Prob(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
@@ -123,6 +129,7 @@ public:
 	rosettaProb();
 	virtual ~rosettaProb() {};
 	virtual rosettaProb *clone() const {return new rosettaProb(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
@@ -136,6 +143,7 @@ public:
 	sagasProb();
 	virtual ~sagasProb() {};
 	virtual sagasProb *clone() const {return new sagasProb(*this);}
+	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
@@ -151,6 +159,7 @@ class __PAGMO_VISIBLE laplaceProb : public GOProblem {
 		virtual ~laplaceProb() {};
 		virtual laplaceProb *clone() const {return new laplaceProb(*this);}
 		std::string solution(const std::vector<double> &) const;
+		virtual std::string id_object() const {return id_name(); }
 	private:
 		virtual std::ostream &print(std::ostream &) const;
 		void operator=(const laplaceProb &) {};

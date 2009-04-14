@@ -21,9 +21,10 @@
 // 23/01/2009: Initial version by Francesco Biscani.
 
 #include "ba_topology.h"
+#include <sstream>
 
-ba_topology::ba_topology(int m_0, int m, uint32_t seed)
-		:graph_topology(),m_m_0(m_0),m_m(m),drng(seed)
+ba_topology::ba_topology(int m_0, int m, uint32_t _seed)
+		:graph_topology(),m_m_0(m_0),m_m(m),drng(_seed),seed(_seed)
 {
 	if (m_0 < 1 || m < 1 || m > m_0) {
 		pagmo_throw(value_error,"the value of m and m_0 must be at least 1, and m must not be greater than m_0");
@@ -31,7 +32,7 @@ ba_topology::ba_topology(int m_0, int m, uint32_t seed)
 }
 
 /** Assignment operator for the RNG is used here on purpose - it will create the exact copy of the RNG, so the original network and it's copy will grow identically */
-ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m) { drng = b.drng; }
+ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m),seed(b.seed) { drng = b.drng; }
 
 void ba_topology::push_back(const size_t& id)
 {
@@ -117,4 +118,11 @@ ba_topology& ba_topology::operator=(const ba_topology&)
 {
 	pagmo_assert(false);
 	return *this;
+}
+
+std::string ba_topology::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << m_m_0 << "_" << m_m << "_"<< seed;
+	return tmp.str();
 }

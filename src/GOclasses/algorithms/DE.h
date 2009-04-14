@@ -34,6 +34,7 @@ class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
 		DEalgorithm(int, const double &, const double &, int);
 		virtual Population evolve(const Population &) const;
 		virtual DEalgorithm *clone() const {return new DEalgorithm(*this);}
+		virtual std::string id_object() const;
 	private:
 		virtual void log(std::ostream &) const;
 		const size_t	generations;

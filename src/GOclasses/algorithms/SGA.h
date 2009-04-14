@@ -29,6 +29,8 @@ void initSGA(int generationsInit,
 			 int insert_bestInit,
 			 uint32_t randomSeed
 			 );
+	
+	//virtual std::string id_object() const {return id_name(); }
 
 private:
 	int generations;

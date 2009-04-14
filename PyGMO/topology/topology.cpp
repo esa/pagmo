@@ -45,6 +45,7 @@ static inline class_<Topology,bases<graph_topology> > topology_wrapper(const cha
 	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
 	retval.def("__repr__", &Py_repr_from_stream<Topology>);
 	retval.add_property("id_name", &Topology::id_name, "Identification name.");
+	retval.add_property("id_object", &Topology::id_object, "Object identification name.");
 	return retval;
 }
 

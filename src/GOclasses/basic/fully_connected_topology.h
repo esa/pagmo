@@ -39,6 +39,9 @@ class __PAGMO_VISIBLE fully_connected_topology: public graph_topology {
 		
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t&);
+
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const { return id_name(); }
 	
 	private:
 		/// \see graph_topology::operator=

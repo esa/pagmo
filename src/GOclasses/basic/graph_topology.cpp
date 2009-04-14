@@ -23,6 +23,7 @@
 #include "graph_topology.h"
 #include "../../exceptions.h"
 #include <algorithm>
+#include <sstream>
 
 graph_topology &graph_topology::operator=(const graph_topology &)
 {
@@ -130,4 +131,11 @@ void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2
 	
 	lists_out[island1_id].erase(position_out);
 	lists_in[island2_id].erase(position_in);
+}
+
+std::string graph_topology::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << get_number_of_nodes() << "_" << get_number_of_nodes();
+	return tmp.str();
 }

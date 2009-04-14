@@ -38,6 +38,7 @@ class __PAGMO_VISIBLE ihs_algorithm: public go_algorithm {
 		ihs_algorithm(int, const double &, const double &, const double &, const double &, const double &);
 		virtual Population evolve(const Population &) const;
 		virtual ihs_algorithm *clone() const {return new ihs_algorithm(*this);}
+		virtual std::string id_object() const {return id_name(); }
 	private:
 		virtual void log(std::ostream &) const;
 		// Number of generations.
