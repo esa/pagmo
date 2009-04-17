@@ -31,6 +31,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/torus_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/cartwheel_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/lattice_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/hypercube_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationScheme.cpp
