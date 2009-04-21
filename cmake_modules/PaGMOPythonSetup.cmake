@@ -36,17 +36,19 @@ ELSE(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		STRING(REGEX REPLACE \\. "" PYTHON_LIBRARY_VERSION ${PYTHON_LIBRARY_VERSION_DOT})
 		# In certain systems the Python lib is in /usr/lib(64), in others under /usr/lib/python2.5/config/.
 		# We try here to catch both cases.
-		STRING(REGEX REPLACE "(python${PYTHON_LIBRARY_VERSION_DOT}/config/)?libpython.*"
-			"python${PYTHON_LIBRARY_VERSION_DOT}/site-packages/" PYTHON_MODULES_PATH ${PYTHON_LIBRARY})
+		#STRING(REGEX REPLACE "(python${PYTHON_LIBRARY_VERSION_DOT}/config/)?libpython.*"
+		#	"python${PYTHON_LIBRARY_VERSION_DOT}/site-packages/" PYTHON_MODULES_PATH ${PYTHON_LIBRARY})
+		# Let's use CMAKE_INSTALL_PREFIX, so that if we specify a different install path it will be respected.
+		SET(PYTHON_MODULES_PATH ${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_LIBRARY_VERSION_DOT}/site-packages)
 	ELSE(UNIX)
 		STRING(REGEX MATCH python[0-9]\\.?[0-9] PYTHON_LIBRARY_VERSION ${PYTHON_LIBRARY})
 		STRING(REGEX REPLACE python "" PYTHON_LIBRARY_VERSION ${PYTHON_LIBRARY_VERSION})
 		SET(PYTHON_MODULES_PATH .)
 	ENDIF(UNIX)
-        MESSAGE(STATUS "Python library version: " ${PYTHON_LIBRARY_VERSION})
-        IF(${PYTHON_LIBRARY_VERSION} GREATER 24 AND WIN32)
-                MESSAGE(STATUS "Python >= 2.5 detected on WIN32 platform. Output extension for compiled modules will be '.pyd'.")
-                SET(PYDEXTENSION TRUE)
-        ENDIF(${PYTHON_LIBRARY_VERSION} GREATER 24 AND WIN32)
+	MESSAGE(STATUS "Python library version: " ${PYTHON_LIBRARY_VERSION})
+	IF(${PYTHON_LIBRARY_VERSION} GREATER 24 AND WIN32)
+		MESSAGE(STATUS "Python >= 2.5 detected on WIN32 platform. Output extension for compiled modules will be '.pyd'.")
+		SET(PYDEXTENSION TRUE)
+	ENDIF(${PYTHON_LIBRARY_VERSION} GREATER 24 AND WIN32)
 ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 MESSAGE(STATUS "Python modules install path: " "${PYTHON_MODULES_PATH}")
