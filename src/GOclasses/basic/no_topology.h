@@ -25,22 +25,13 @@
 
 #include "../../config.h"
 #include "base_topology.h"
+#include "island.h"
 
-///Empty topology (with no connections).
-/**
- * Use this as a default value when no connections are needed.
- * \todo Rename this class to conform to the conventions.
- */
 class __PAGMO_VISIBLE no_topology: public base_topology {
 	public:
-		/// \see base_topology::clone
-		virtual no_topology *clone() const { return new no_topology(*this); }
-		
-		/// \see base_topology::push_back
-		virtual void push_back(const island&) { }
+		virtual no_topology *clone() const {return new no_topology(*this);}
 };
 
-/// Stream output operator for the no_topology class.
 inline std::ostream &operator<<(std::ostream &s, const no_topology &) {return s;}
 
 #endif

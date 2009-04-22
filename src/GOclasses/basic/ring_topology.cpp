@@ -30,7 +30,7 @@
 #include "island.h"
 #include "ring_topology.h"
 
-ring_topology::ring_topology():base_topology(),graph_topology(),m_first(0),m_last(0) {}
+ring_topology::ring_topology(const double &prob):base_topology(),graph_topology(prob),m_first(0),m_last(0) {}
 
 ring_topology::ring_topology(const ring_topology &r):
 	base_topology(r),graph_topology(r),m_first(0),m_last(0) {}
@@ -86,4 +86,19 @@ void ring_topology::push_back(const island &isl)
 	}
 	// Update the id of the last island.
 	m_last = id;
+}
+
+void ring_topology::reset()
+{
+	reset_hook();
+}
+
+void ring_topology::pre_evolution(island &isl)
+{
+	pre_hook(isl);
+}
+
+void ring_topology::post_evolution(island &isl)
+{
+	post_hook(isl);
 }

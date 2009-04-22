@@ -42,11 +42,11 @@ size_t island::get_new_id()
 	return (size_t)(id_counter++);
 }
 
-island::island(const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p),m_goa(al.clone()),m_a(0),m_evo_time(0),migrationSelectionPolicy(new DummySelectionPolicy()), migrationReplacementPolicy(new DummyReplacementPolicy()) {}
+island::island(const GOProblem &p, const go_algorithm &al):m_id(get_new_id()),m_pop(p),m_goa(al.clone()),m_a(0),m_evo_time(0) {}
 
-island::island(const GOProblem &p, const go_algorithm &al, int n):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0),m_evo_time(0),migrationSelectionPolicy(new DummySelectionPolicy()), migrationReplacementPolicy(new DummyReplacementPolicy()) {}
+island::island(const GOProblem &p, const go_algorithm &al, int n):m_id(get_new_id()),m_pop(p,n),m_goa(al.clone()),m_a(0),m_evo_time(0) {}
 
-island::island(const island &i):m_id(get_new_id()),m_pop(i.population()),m_goa(i.m_goa->clone()),m_a(0),m_evo_time(i.m_evo_time),migrationSelectionPolicy(new DummySelectionPolicy()), migrationReplacementPolicy(new DummyReplacementPolicy()) {}
+island::island(const island &i):m_id(get_new_id()),m_pop(i.population()),m_goa(i.m_goa->clone()),m_a(0),m_evo_time(i.m_evo_time) {}
 
 island &island::operator=(const island &i)
 {
@@ -217,14 +217,14 @@ void island::int_evolver::operator()()
 		for (int i = 0; i < m_n; ++i) {
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
-				m_i->m_a->migrationScheme->preEvolutionCallback(*m_i);
+				m_i->m_a->m_top->pre_evolution(*m_i);
 				m_i->m_pop.problem().pre_evolution();
 			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
-				m_i->m_a->migrationScheme->postEvolutionCallback(*m_i);
+				m_i->m_a->m_top->post_evolution(*m_i);
 				m_i->m_pop.problem().post_evolution();
 			}
 		}
@@ -251,7 +251,7 @@ void island::t_evolver::operator()()
 		do {
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
-				//m_i->m_a->m_top->pre_evolution(*m_i); //Call migration scheme
+				m_i->m_a->m_top->pre_evolution(*m_i);
 				m_i->m_pop.problem().pre_evolution();
 			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
@@ -259,7 +259,7 @@ void island::t_evolver::operator()()
 			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestIndividual().getFitness() << '\n';
 			if (m_i->m_a) {
 				lock_type lock(m_i->m_topo_mutex);
-				//m_i->m_a->m_top->post_evolution(*m_i); //Call migration scheme
+				m_i->m_a->m_top->post_evolution(*m_i);
 				m_i->m_pop.problem().post_evolution();
 			}
 			// Take care of negative timings.

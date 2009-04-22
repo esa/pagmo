@@ -69,15 +69,12 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		bool busy() const;
 		void evolve(int n = 1);
 		void evolve_t(const size_t &);
-		MigrationScheme& getMigrationScheme() { return *migrationScheme; };
-		void setMigrationScheme(MigrationScheme* newMigrationScheme);
 	private:
 		archipelago &operator=(const archipelago &);
 		void check_island(const island &) const;
 		container_type						m_container;
 		boost::scoped_ptr<const GOProblem>	m_gop;
 		boost::scoped_ptr<base_topology>	m_top;
-		boost::scoped_ptr<MigrationScheme>  migrationScheme;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);

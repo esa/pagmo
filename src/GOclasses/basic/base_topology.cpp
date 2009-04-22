@@ -20,4 +20,11 @@
 
 // 12/01/2009: Initial version by Francesco Biscani.
 
+#include "archipelago.h"
 #include "base_topology.h"
+#include "island.h"
+#include "population.h"
+
+base_topology::base_topology() {}
+
+base_topology::~base_topology() {}

@@ -30,10 +30,13 @@
 
 class __PAGMO_VISIBLE one_way_ring_topology: public base_topology, public graph_topology {
 	public:
-		one_way_ring_topology();
+		one_way_ring_topology(const double &);
 		one_way_ring_topology(const one_way_ring_topology &);
 		virtual one_way_ring_topology *clone() const {return new one_way_ring_topology(*this);}
 		virtual void push_back(const island &);
+		virtual void reset();
+		virtual void pre_evolution(island &);
+		virtual void post_evolution(island &);
 	private:
 		one_way_ring_topology &operator=(const one_way_ring_topology &);
 		size_t	m_first;

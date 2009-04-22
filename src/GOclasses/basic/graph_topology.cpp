@@ -28,9 +28,14 @@
 #include "individual.h"
 #include "island.h"
 
-graph_topology::graph_topology():m_drng(static_rng_uint32()()) { }
+graph_topology::graph_topology(const double &prob):m_drng(static_rng_uint32()()),m_prob(prob)
+{
+	if (prob < 0 || prob > 1) {
+		pagmo_throw(value_error, "probability must be in the [0,1] range");
+	}
+}
 
-graph_topology::graph_topology(const graph_topology &g):m_tc(g.m_tc),m_drng(static_rng_uint32()()) {}
+graph_topology::graph_topology(const graph_topology &g):m_tc(g.m_tc),m_ic(g.m_ic),m_drng(static_rng_uint32()()),m_prob(g.m_prob) {}
 
 graph_topology &graph_topology::operator=(const graph_topology &)
 {
@@ -38,7 +43,12 @@ graph_topology &graph_topology::operator=(const graph_topology &)
 	return *this;
 }
 
-/*
+void graph_topology::reset_hook()
+{
+	m_tc.clear();
+	m_ic.clear();
+}
+
 void graph_topology::pre_hook(island &isl)
 {
 	lock_type lock(m_mutex);
@@ -86,12 +96,12 @@ void graph_topology::post_hook(island &isl)
 			it->second = best;
 		}
 	}
-}*/
+}
 
 std::ostream &operator<<(std::ostream &os, const graph_topology &g)
 {
 	graph_topology::lock_type lock(g.m_mutex);
-	
+	os << "Probability of migration: " << g.m_prob << '\n';
 	for (graph_topology::tc_type::const_iterator it = g.m_tc.begin(); it != g.m_tc.end(); ++it) {
 		const size_t conn_size = it->second.size();
 		os << it->first;
