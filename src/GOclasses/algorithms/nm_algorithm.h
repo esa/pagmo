@@ -42,6 +42,7 @@ class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
 		nm_algorithm(int, const double &, const double &, const double &, const double &);
 		virtual Population evolve(const Population &) const;
 		virtual nm_algorithm *clone() const {return new nm_algorithm(*this);}
+		virtual std::string id_object() const {return id_name(); }
 	private:
 		std::vector<double> center_mass(const simplex &) const;
 		std::vector<double> sub_mult_add(const std::vector<double> &, const std::vector<double> &,

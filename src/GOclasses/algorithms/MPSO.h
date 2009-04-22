@@ -34,6 +34,7 @@ class __PAGMO_VISIBLE MPSOalgorithm: public go_algorithm {
 		MPSOalgorithm(int, const double &, const double &, const double &, const double &, int);
 		virtual Population evolve(const Population &) const;
 		virtual MPSOalgorithm *clone() const {return new MPSOalgorithm(*this);}
+		virtual std::string id_object() const {return id_name(); }
 	private:
 		virtual void log(std::ostream &) const;
 		size_t generations;

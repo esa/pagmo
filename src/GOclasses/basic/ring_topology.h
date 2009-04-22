@@ -24,23 +24,33 @@
 #define PAGMO_RING_TOPOLOGY_H
 
 #include "../../config.h"
-#include "base_topology.h"
 #include "graph_topology.h"
-#include "island.h"
 
-class __PAGMO_VISIBLE ring_topology: public base_topology, public graph_topology {
+///Uni-directional ring topology
+class __PAGMO_VISIBLE ring_topology: public graph_topology {
 	public:
-		ring_topology(const double &);
+		/// Constructor.
+		ring_topology();
+		/// Copy constructor.
 		ring_topology(const ring_topology &);
+		
+		/// \see base_topology::clone
 		virtual ring_topology *clone() const {return new ring_topology(*this);}
-		virtual void push_back(const island &);
-		virtual void reset();
-		virtual void pre_evolution(island &);
-		virtual void post_evolution(island &);
-	private:
-		ring_topology &operator=(const ring_topology &);
+		
+		/// \see base_topology::push_back
+		virtual void push_back(const size_t& id);
+		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const { return id_name(); }
+		
+	private:	
+		/// Tracks the id of the first inserted node.
 		size_t	m_first;
+		/// Tracks the id of the last inserted node.
 		size_t	m_last;
+		
+		/// \see graph_topology::operator=
+		ring_topology &operator=(const ring_topology &);
 };
 
 #endif

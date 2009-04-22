@@ -20,111 +20,109 @@
 
 // 23/01/2009: Initial version by Francesco Biscani.
 
-#include <algorithm>
-#include <utility>
-#include <vector>
-
-#include "../../exceptions.h"
 #include "ba_topology.h"
-#include "base_topology.h"
-#include "graph_topology.h"
-#include "island.h"
+#include <sstream>
 
-ba_topology::ba_topology(int m_0, int m, const double &prob):
-	base_topology(),graph_topology(prob),m_m_0(m_0),m_m(m)
+ba_topology::ba_topology(int m_0, int m, uint32_t _seed)
+		:graph_topology(),m_m_0(m_0),m_m(m),drng(_seed),seed(_seed)
 {
-	if (m_0 < 1 || m < 1 || m > m_0) {
-		pagmo_throw(value_error,"the value of m and m_0 must be at least 1, and m must not be greater than m_0");
+	if (m_0 < 2 || m < 1 || m > m_0) {
+		pagmo_throw(value_error,"the value of m and m_0 must be at least 1 and 2, and m must not be greater than m_0");
 	}
 }
 
-ba_topology::ba_topology(const ba_topology &b):base_topology(b),graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m) {}
+/** Assignment operator for the RNG is used here on purpose - it will create the exact copy of the RNG, so the original network and it's copy will grow identically */
+ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m),seed(b.seed) { drng = b.drng; }
 
-void ba_topology::push_back(const island &isl)
+void ba_topology::push_back(const size_t& id)
 {
-	const size_t size = m_tc.size(), id = isl.id();
-	// Make sure the id is not already there.
-	pagmo_assert(m_tc.find(id) == m_tc.end());
-	if (size <= m_m_0) {
+	const size_t size = get_number_of_nodes();
+	
+	// Make sure the id is not already there. [MaRu] why?
+	/// \todo maybe this should be controlled by the grow_topology itself?	
+	
+	// Add the new node to the graph
+	add_node(id);
+	
+	if (size < m_m_0) {
 		// If we have not built the initial m_0 nodes, do it.
 		// We want to connect the newcomer island with high probability, and make sure that
 		// at least one connection exists (otherwise the island stays isolated).
 		// NOTE: is it worth to make it a user-tunable parameter?
 		const double prob = 0.8;
-		// We want to keep a list of island IDs as we go so that we can shoot randomly
-		// in case no connections were established in the main loop below.
-		std::vector<size_t> id_list;
-		id_list.reserve(size);
-		// This will be the list of connections from the newcomer to the rest of the island.
-		std::vector<size_t> new_connections;
-		// Main loop.
-		const tc_iterator it_f = m_tc.end();
-		for (tc_iterator it = m_tc.begin(); it != it_f; ++it) {
-			id_list.push_back(it->first);
-			if (m_drng() < prob) {
-				// Add the current item to the list of newcomer's connected islands.
-				new_connections.push_back(it->first);
-				// Add newcomer to the connections of the current item.
-				it->second.push_back(id);
+
+		// Flag indicating if at least 1 connection was added in the first phase.
+		bool connectionAdded = false;
+		
+		const std::vector<size_t>& nodes_list = get_nodes();
+		
+		// Main loop.		
+		for (std::vector<size_t>::const_iterator it = nodes_list.begin(); it != nodes_list.end(); ++it) {
+			if((*it) != id) { // Do not consider the node itself!
+				if (drng() < prob) {
+					connectionAdded = true;
+					// Add the connections
+					add_edge(*it, id);
+					add_edge(id, *it);
+				}
 			}
 		}
+		
 		// If no connections were established and this is not the first island being inserted,
 		// establish at least one connection with a random island.
-		if (new_connections.empty() && size != 0) {
-			const size_t random_id = id_list[(size_t)(m_drng() * size)];
-			new_connections.push_back(random_id);
-			m_tc[random_id].push_back(id);
+		if ((!connectionAdded) && (size != 0)) {
+			const size_t random_id = nodes_list[(size_t)(drng() * size)];
+			add_edge(random_id, id);
+			add_edge(id, random_id);
 		}
-		// Finally, add the item with associated connections.
-		m_tc.insert(std::make_pair(id,new_connections));
 	} else {
 		// Let's find the total number of edges.
-		size_t n_edges = 0;
-		const tc_iterator it_f = m_tc.end();
-		for (tc_iterator it = m_tc.begin(); it != it_f; ++it) {
-			n_edges += it->second.size();
-		}
+		size_t n_edges = get_number_of_edges();
+		
 		// Now we need to add m edges, choosing the nodes with a probability
 		// proportional to their number of connections. We keep track of the
 		// connection established in order to avoid connecting twice to the same
 		// node.
-		std::vector<size_t> connections;
-		connections.reserve(m_m);
+		
+		const std::vector<size_t>& nodes_list = get_nodes();
+		
 		size_t i = 0;
 		while(i < m_m) {
-			const size_t rn = (size_t)(m_drng() * n_edges);
+			const size_t rn = (size_t)(drng() * n_edges);
 			size_t n = 0;
-			tc_iterator it = m_tc.begin();
-			for (; it != it_f; ++it) {
-				n += it->second.size();
-				if (rn < n) {
-					break;
-				}
+			
+			std::vector<size_t>::const_iterator it;
+			
+			for (it = nodes_list.begin(); it != nodes_list.end(); ++it) {
+				if(*it != id) { // do not cosider the node itself
+					n += get_neighbours_out(*it).size();					
+					if (rn < n) {
+						break;
+					}
+				}	
 			}
-			pagmo_assert(it != it_f);
-			const size_t id_candidate = it->first;
+			
+			pagmo_assert(it != nodes_list.end());
+			
 			// If id_candidate was not already connected, then add it.
-			if (std::find(connections.begin(),connections.end(),id_candidate) == connections.end()) {
-				connections.push_back(id_candidate);
-				it->second.push_back(id);
+			if (!are_neighbours(id, *it)) {
+				add_edge(*it, id);
+				add_edge(id, *it);
 				++i;
 			}
 		}
-		m_tc.insert(std::make_pair(id,connections));
 	}
 }
 
-void ba_topology::reset()
+ba_topology& ba_topology::operator=(const ba_topology&)
 {
-	reset_hook();
+	pagmo_assert(false);
+	return *this;
 }
 
-void ba_topology::pre_evolution(island &isl)
+std::string ba_topology::id_object() const
 {
-	pre_hook(isl);
-}
-
-void ba_topology::post_evolution(island &isl)
-{
-	post_hook(isl);
+	std::stringstream tmp;
+	tmp << id_name() << "_" << m_m_0 << "_" << m_m << "_"<< seed;
+	return tmp.str();
 }

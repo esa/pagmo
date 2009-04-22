@@ -20,22 +20,10 @@
 
 // 22/01/2009: Initial version by Francesco Biscani.
 
-#include <iostream>
-
-#include "../../Functions/rng/rng.h"
-#include "../../exceptions.h"
 #include "graph_topology.h"
-#include "individual.h"
-#include "island.h"
-
-graph_topology::graph_topology(const double &prob):m_drng(static_rng_uint32()()),m_prob(prob)
-{
-	if (prob < 0 || prob > 1) {
-		pagmo_throw(value_error, "probability must be in the [0,1] range");
-	}
-}
-
-graph_topology::graph_topology(const graph_topology &g):m_tc(g.m_tc),m_ic(g.m_ic),m_drng(static_rng_uint32()()),m_prob(g.m_prob) {}
+#include "../../exceptions.h"
+#include <algorithm>
+#include <sstream>
 
 graph_topology &graph_topology::operator=(const graph_topology &)
 {
@@ -43,78 +31,111 @@ graph_topology &graph_topology::operator=(const graph_topology &)
 	return *this;
 }
 
-void graph_topology::reset_hook()
+void graph_topology::clear()
 {
-	m_tc.clear();
-	m_ic.clear();
+	nodes.clear();
+	lists_out.clear();
+	lists_in.clear();
 }
 
-void graph_topology::pre_hook(island &isl)
+const std::vector<size_t> graph_topology::get_neighbours_out(const size_t& _island_id) const
 {
-	lock_type lock(m_mutex);
-	// We don't want to do any migration if graph size is less than 2.
-	if (m_tc.size() < 2) {
-		return;
-	}
-	if (m_drng() < m_prob) {
-		// Let's look for the island inside the topology.
-		const tc_iterator tc_it = m_tc.find(isl.id());
-		// We want to make sure that the island is really there, otherwise the topology
-		// is being used incorrectly.
-		pagmo_assert(tc_it != m_tc.end());
-		// If the island has no connections we have no candidates for migration, simply exit.
-		const size_t n_conn = tc_it->second.size();
-		if (n_conn == 0) {
-			return;
-		}
-		// Let's choose randomly an island between the ones which are connected to isl.
-		const size_t id_random = tc_it->second[(size_t)(n_conn * m_drng())];
-		// Let's see if the randomly selected island has placed an individual in the best
-		// individuals database.
-		const ic_iterator ic_it = m_ic.find(id_random);
-		// If the random island has placed in the database an individual previously, grab it and use
-		// it to replace isl's worst (if it is better).
-		if (ic_it != m_ic.end() && isl.t_substitute_worst(ic_it->second)) {
-			// Remove the migrated individual from the list.
-			m_ic.erase(ic_it);
-		}
-	}
+	check_node_present(_island_id);
+	return lists_out.find(_island_id)->second;
 }
 
-void graph_topology::post_hook(island &isl)
+const std::vector<size_t> graph_topology::get_neighbours_in(const size_t& _island_id) const
 {
-	lock_type lock(m_mutex);
-	// Insert in the database the best individual of the island. If the island index is already present in the island,
-	// then simply update it if it is better, otherwise insert it.
-	const size_t id = isl.id();
-	const ic_iterator it = m_ic.find(id);
-	const Individual best = isl.t_best();
-	if (it == m_ic.end()) {
-		m_ic.insert(std::make_pair(id,best));
+	check_node_present(_island_id);
+	return lists_in.find(_island_id)->second;
+}
+
+bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& island2_id) const
+{
+	if(contains_node(island1_id) && contains_node(island2_id)) {
+		const std::vector<size_t>& out_neighbours = lists_out.find(island1_id)->second;
+		return find(out_neighbours.begin(), out_neighbours.end(), island2_id) != out_neighbours.end();
 	} else {
-		if (best.getFitness() < it->second.getFitness()) {
-			it->second = best;
-		}
+		return false;
 	}
 }
 
-std::ostream &operator<<(std::ostream &os, const graph_topology &g)
+size_t graph_topology::get_number_of_edges() const
 {
-	graph_topology::lock_type lock(g.m_mutex);
-	os << "Probability of migration: " << g.m_prob << '\n';
-	for (graph_topology::tc_type::const_iterator it = g.m_tc.begin(); it != g.m_tc.end(); ++it) {
-		const size_t conn_size = it->second.size();
-		os << it->first;
-		if (conn_size > 0) {
-			os << "->";
-			for (size_t i = 0; i < conn_size; ++i) {
-				os << it->second[i];
-				if (i < conn_size - 1) {
-					os << ',';
-				}
-			}
-		}
-		os << '\n';
+	size_t result = 0;
+	for(nlt_const_iterator iter = lists_out.begin(); iter != lists_out.end(); ++iter) {
+		result += iter->second.size();
 	}
-	return os;
+	return result;
+}
+
+const std::vector<size_t> graph_topology::get_nodes() const
+{
+	return std::vector<size_t>(nodes.begin(), nodes.end());
+}
+
+size_t graph_topology::get_number_of_nodes() const
+{
+	return nodes.size();
+}
+
+void graph_topology::add_node(const size_t& id)
+{
+	check_node_not_present(id);
+	nodes.insert(id);
+	lists_in[id] = std::vector<size_t>();
+	lists_out[id] = std::vector<size_t>();
+}
+
+bool graph_topology::contains_node(const size_t& id) const
+{
+	return nodes.find(id) != nodes.end();
+}
+
+void graph_topology::check_node_present(const size_t& id) const
+{
+	if(!contains_node(id)) {
+		pagmo_throw(index_error, "Topology doesn't contain the node yet!");
+	}
+}
+
+void graph_topology::check_node_not_present(const size_t& id) const
+{
+	if(contains_node(id)) {
+		pagmo_throw(index_error, "Topology already contains the node!");
+	}
+}
+
+void graph_topology::remove_node(const size_t& id)
+{
+	check_node_present(id);
+	nodes.erase(id);
+}
+
+void graph_topology::add_edge(const size_t& island1_id, const size_t& island2_id)
+{
+	check_node_present(island1_id);
+	check_node_present(island2_id);
+		
+	lists_out[island1_id].push_back(island2_id);
+	lists_in[island2_id].push_back(island1_id);
+}
+
+void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2_id)
+{
+	check_node_present(island1_id);
+	check_node_present(island2_id);
+
+	std::vector<size_t>::iterator position_out = find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id);
+	std::vector<size_t>::iterator position_in = find(lists_in[island2_id].begin(), lists_in[island2_id].end(), island1_id);
+	
+	lists_out[island1_id].erase(position_out);
+	lists_in[island2_id].erase(position_in);
+}
+
+std::string graph_topology::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << get_number_of_nodes() << "_" << get_number_of_nodes();
+	return tmp.str();
 }

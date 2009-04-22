@@ -36,6 +36,7 @@ class __PAGMO_VISIBLE SGAalgorithm: public go_algorithm {
 		SGAalgorithm(int, const double &, const double &, int insert_bestInit);
 		virtual Population evolve(const Population &) const;
 		virtual SGAalgorithm *clone() const {return new SGAalgorithm(*this);}
+		virtual std::string id_object() const { return id_name(); }
 	private:
 		virtual void log(std::ostream &) const;
 		const size_t	generations;

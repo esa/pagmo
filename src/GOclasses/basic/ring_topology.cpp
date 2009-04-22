@@ -20,20 +20,12 @@
 
 // 13/01/2009: Initial version by Francesco Biscani.
 
-#include <utility>
-#include <vector>
-
-#include "../../exceptions.h"
-#include "base_topology.h"
-#include "graph_topology.h"
-#include "individual.h"
-#include "island.h"
 #include "ring_topology.h"
 
-ring_topology::ring_topology(const double &prob):base_topology(),graph_topology(prob),m_first(0),m_last(0) {}
+ring_topology::ring_topology():graph_topology(), m_first(0), m_last(0) {}
 
-ring_topology::ring_topology(const ring_topology &r):
-	base_topology(r),graph_topology(r),m_first(0),m_last(0) {}
+ring_topology::ring_topology(const ring_topology &r)
+	:graph_topology(r), m_first(r.m_first), m_last(r.m_last) {}
 
 ring_topology &ring_topology::operator=(const ring_topology &)
 {
@@ -41,64 +33,47 @@ ring_topology &ring_topology::operator=(const ring_topology &)
 	return *this;
 }
 
-void ring_topology::push_back(const island &isl)
+void ring_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
-	const size_t t_size = m_tc.size(), id = isl.id();
+	const size_t t_size = get_number_of_nodes();
+	
+	//Add the new node to the graph
+	add_node(id);
+	
 	switch (t_size) {
 		case 0:
-			// If topology is empty, insert the id with no connections and update
-			// the id of the first element.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>()));
+			// If topology is empty, update the id of the first element.			
 			m_first = id;
 			break;
+		
 		case 1:
-			{
-			const tc_iterator b = m_tc.begin();
-			pagmo_assert(id != b->first);
-			// Add a connection to the only existing element.
-			b->second.push_back(id);
-			// Insert new element and connect it to first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,b->first)));
-			}
+		{
+			// Add connections to the only existing element.
+			add_edge(id, m_first);
+			add_edge(m_first, id);
 			break;
+		}
+		
 		case 2:
-			pagmo_assert(m_tc.find(id) == m_tc.end());
-			// The first must now have a back connection with the new last and a
-			// forward connection with the current last.
-			m_tc[m_first].push_back(m_tc[m_first][0]);
-			m_tc[m_first][0] = id;
-			// The current last must be forward connected to the new last.
-			m_tc[m_last].push_back(id);
-			// Insert the new last: back connection with current last and forward connection to first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_last)));
-			m_tc[id].push_back(m_first);
+			// Add new connections
+			add_edge(m_last, id);
+			add_edge(id, m_last);
+			add_edge(m_first, id);
+			add_edge(id, m_first);		
 			break;
+			
 		default:
-			pagmo_assert(m_tc.find(id) == m_tc.end());
 			// In general we must change the back connection of the first,
 			// the forward connection of the current last, and add the new last
 			// with proper connections.
-			m_tc[m_first][0] = id;
-			m_tc[m_last][1] = id;
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_last)));
-			m_tc[id].push_back(m_first);
+			remove_edge(m_last, m_first);
+			remove_edge(m_first, m_last);
+			add_edge(m_last, id);
+			add_edge(id, m_last);
+			add_edge(m_first, id);
+			add_edge(id, m_first);
 	}
 	// Update the id of the last island.
 	m_last = id;
-}
-
-void ring_topology::reset()
-{
-	reset_hook();
-}
-
-void ring_topology::pre_evolution(island &isl)
-{
-	pre_hook(isl);
-}
-
-void ring_topology::post_evolution(island &isl)
-{
-	post_hook(isl);
 }

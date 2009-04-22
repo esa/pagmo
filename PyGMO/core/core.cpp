@@ -42,6 +42,18 @@
 #include "../../src/GOclasses/basic/island.h"
 #include "../../src/GOclasses/basic/population.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
+#include "../../src/GOclasses/basic/MigrationScheme.h"
+#include "../../src/GOclasses/basic/ConstInRateMigrationScheme.h"
+#include "../../src/GOclasses/basic/ConstOutRateMigrationScheme.h"
+#include "../../src/GOclasses/basic/ConstOutRateBCastMigrationScheme.h"
+#include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/ChooseBestMigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/MigrationReplacementPolicy.h"
+#include "../../src/GOclasses/basic/RandomMigrationReplacementPolicy.h"
+#include "../../src/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.h"
+#include "../../src/exceptions.h"
+#include "../exceptions.h"
 #include "../utils.h"
 
 using namespace boost::python;
@@ -77,7 +89,26 @@ static inline T *algorithm_getter(const C &c)
 template <class T, class C>
 static inline T *topology_getter(const C &c)
 {
-	return c.topology().clone();
+	return c.getTopology().clone();
+}
+
+/// \todo Is this really the correct way to do things??
+template <class T, class C>
+static inline T *selection_policy_getter(const C &c)
+{
+	return c.getMigrationSelectionPolicy().clone();
+}
+
+template <class T, class C>
+static inline T *replacement_policy_getter(const C &c)
+{
+	return c.getMigrationReplacementPolicy().clone();
+}
+
+template <class T, class C>
+static inline T *migration_scheme_getter(const C &c)
+{
+	return c.getMigrationScheme().clone();
 }
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
@@ -124,7 +155,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_pop.def("__delitem__", &Population::erase);
 	class_pop.def("__getitem__", pop_get_const(&Population::operator[]), return_value_policy<copy_const_reference>(), "Get a copy of individual.");
 	class_pop.def("__len__", &Population::size);
-	class_pop.def("__setitem__", &Population::set_individual);
+	class_pop.def("__setitem__", &Population::setIndividual);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
 	class_pop.add_property("problem", make_function(&problem_getter<GOProblem,Population>,return_value_policy<manage_new_object>()), "Problem.");
 	class_pop.def("append", &Population::push_back, "Append individual at the end of the population.");
@@ -137,6 +168,7 @@ BOOST_PYTHON_MODULE(_core)
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
 	class_island.def(init<const GOProblem &, const go_algorithm &>());
+	class_island.def(init<const GOProblem&, const go_algorithm&, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
 	class_island.def(init<const island &>());
 	class_island.def("__copy__", &Py_copy_from_ctor<island>);
 	class_island.def("__delitem__", &island::erase);
@@ -149,6 +181,10 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.add_property("problem", make_function(&problem_getter<GOProblem,island>, return_value_policy<manage_new_object>()), "Problem.");
 	class_island.add_property("algorithm", make_function(&algorithm_getter<go_algorithm,island>, return_value_policy<manage_new_object>()),
 		&island::set_algorithm, "Algorithm.");
+	class_island.add_property("selection_policy", make_function(&selection_policy_getter<MigrationSelectionPolicy, island>, return_value_policy<manage_new_object>()),
+		&island::setMigrationSelectionPolicy, "The island's migration selection policy.");
+	class_island.add_property("replacement_policy", make_function(&replacement_policy_getter<MigrationReplacementPolicy, island>, return_value_policy<manage_new_object>()),
+		&island::setMigrationReplacementPolicy, "The island's migration selection policy.");
 	class_island.add_property("population", &island::population, "Copy of population.");
 	class_island.def("mean", &island::mean, "Evaluate mean.");
 	class_island.def("std", &island::std, "Evaluate std.");
@@ -165,20 +201,74 @@ BOOST_PYTHON_MODULE(_core)
 	typedef island &(archipelago::*arch_get_island)(int);
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
-	class_arch.def(init<const GOProblem &, const base_topology &>());
-	class_arch.def(init<const GOProblem &, const base_topology &, const go_algorithm &, int, int>());
+	class_arch.def(init<const GOProblem &, const MigrationScheme&>());
+	class_arch.def(init<const GOProblem &, const MigrationScheme&, const go_algorithm &, int, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
 	class_arch.def(init<const archipelago &>());
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
-	class_arch.add_property("topology", make_function(&topology_getter<base_topology,archipelago>, return_value_policy<manage_new_object>()),
-		&archipelago::set_topology, "Topology.");
+	class_arch.add_property("migration_scheme", make_function(&migration_scheme_getter<MigrationScheme, archipelago>, return_value_policy<manage_new_object>()),
+		&archipelago::setMigrationScheme, "The archipelago's migration scheme.");
+	class_arch.add_property("topology", make_function(&topology_getter<base_topology, archipelago>, return_value_policy<manage_new_object>()),
+		&archipelago::setTopology, "The archipelago's migration topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
 	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
+	class_arch.def("best", &archipelago::best, "Copy of best individual.");
+	class_arch.def("max_evo_time", &archipelago::getMaxEvoTime, "Maximum of total evolution times for all islands.");
+	class_arch.def("total_evo_time", &archipelago::getTotalEvoTime, "Sum of total evolution times for all islands.");
+	
+	
+	// Expose MigrationScheme
+	class_<MigrationScheme, boost::noncopyable> class_MS("__migration_scheme", "A migration scheme.", no_init);
+	// Expose ConstInRateMigrationScheme
+	class_<ConstInRateMigrationScheme, bases<MigrationScheme> > class_CIRMS("const_in_rate_migration", "Migration scheme with constant incoming migration rate.", init<const base_topology&, optional<uint32_t> >());
+	class_CIRMS.def("__copy__", &Py_copy_from_ctor<ConstInRateMigrationScheme>);
+	class_CIRMS.def("__repr__", &Py_repr_from_stream<ConstInRateMigrationScheme>);
+	// Expose ConstOutRateMigrationScheme
+	class_<ConstOutRateMigrationScheme, bases<MigrationScheme> > class_CORMS("const_out_rate_migration", "Migration scheme with constant outgoing migration rate.", init<const base_topology&, optional<uint32_t> >());
+	class_CORMS.def("__copy__", &Py_copy_from_ctor<ConstOutRateMigrationScheme>);
+	class_CORMS.def("__repr__", &Py_repr_from_stream<ConstOutRateMigrationScheme>);
+	// Expose ConstOutRateBCastMigrationScheme
+	class_<ConstOutRateBCastMigrationScheme, bases<MigrationScheme> > class_CORBCMS("const_out_rate_bcast_migration", "Migration scheme with constant outgoing migration rate and broadcast.", init<const base_topology&>());
+	class_CORBCMS.def("__copy__", &Py_copy_from_ctor<ConstOutRateBCastMigrationScheme>);
+	class_CORBCMS.def("__repr__", &Py_repr_from_stream<ConstOutRateBCastMigrationScheme>);
+
+	
+	// Expose MigrationSelectionPolicy
+	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
+	
+	// Expose RandomMigrationSelectionPolicy
+	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
+	class_RMSP.def(init<const int&, optional<const uint32_t> >());
+	class_RMSP.def(init<const double&, optional<const uint32_t> >());
+	class_RMSP.def("__copy__", &Py_copy_from_ctor<RandomMigrationSelectionPolicy>);
+	class_RMSP.def("__repr__", &Py_repr_from_stream<RandomMigrationSelectionPolicy>);
+	// Expose ChooseBestMigrationSelectionPolicy
+	class_<ChooseBestMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_CBMSP("choose_best_selection_policy", "A choose best migration selection policy.", init<>());	
+	class_CBMSP.def(init<const int&>());
+	class_CBMSP.def(init<const double&>());
+	class_CBMSP.def("__copy__", &Py_copy_from_ctor<ChooseBestMigrationSelectionPolicy>);
+	class_CBMSP.def("__repr__", &Py_repr_from_stream<ChooseBestMigrationSelectionPolicy>);
+		
+	// Expose MigrationReplacementPolicy
+	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
+	
+	// Expose RandomMigrationReplacementPolicy
+	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());
+	class_RMRP.def(init<const int&, optional<const uint32_t> >());
+	class_RMRP.def(init<const double&, optional<const uint32_t> >());
+	class_RMRP.def("__copy__", &Py_copy_from_ctor<RandomMigrationReplacementPolicy>);
+	class_RMRP.def("__repr__", &Py_repr_from_stream<RandomMigrationReplacementPolicy>);
+
+	class_<BestReplaceWorstIfBetterMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_BRWIBMRP("best_rep_worst_replacement_policy", "A migration replacement policy where best incoming replace worst present if they are better.", init<>());
+	class_BRWIBMRP.def(init<const int&>());
+	class_BRWIBMRP.def(init<const double&>());
+	class_BRWIBMRP.def("__copy__", &Py_copy_from_ctor<BestReplaceWorstIfBetterMigrationReplacementPolicy>);
+	class_BRWIBMRP.def("__repr__", &Py_repr_from_stream<BestReplaceWorstIfBetterMigrationReplacementPolicy>);	
 }

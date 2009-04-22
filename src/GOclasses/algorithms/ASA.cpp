@@ -138,7 +138,7 @@ Population ASAalgorithm::evolve(const Population &pop) const
 		retval.replace_best(Individual(xOLD,x0.getVelocity(),fOLD));
 	}
 	return retval;
-	}
+}
 
 void ASAalgorithm::log(std::ostream &s) const
 {

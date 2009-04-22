@@ -24,30 +24,52 @@
 #define PAGMO_BA_TOPOLOGY_H
 
 #include "../../config.h"
-#include "base_topology.h"
 #include "graph_topology.h"
-#include "island.h"
+#include "../../Functions/rng/rng.h"
 
-/// Barabasi-Albert scale-free topology.
+/// Barabasi-Albert scale-free network topology.
 /**
  * See http://en.wikipedia.org/wiki/BA_model and
  * http://www.nd.edu/~networks/Publication%20Categories/03%20Journal%20Articles/Physics/StatisticalMechanics_Rev%20of%20Modern%20Physics%2074,%2047%20(2002).pdf.
+ * \todo Rename this class.
  */
-class __PAGMO_VISIBLE ba_topology: public base_topology, public graph_topology {
+
+class __PAGMO_VISIBLE ba_topology: public graph_topology {
 	public:
-		ba_topology(int, int, const double &);
+		/// Constructor.
+		/**
+		 * Initialises the Barabasi-Albert topology generator.
+		 * \param[in] m_0 Size of the kernel.
+		 * \param[in] m Number of edges per new node.
+		 * \param[in] optional random seed used to initialise the internal rng.
+		 */
+		ba_topology(int m_0, int m, uint32_t seed = static_rng_uint32()());
+		
+		/// Copy constructor... \todo Change semantics and add a method to re-init an RNG?
 		ba_topology(const ba_topology &);
-		virtual ba_topology *clone() const {return new ba_topology(*this);}
-		virtual void push_back(const island &);
-		virtual void reset();
-		virtual void pre_evolution(island &);
-		virtual void post_evolution(island &);
+		
+		/// \see base_topology::clone
+		virtual ba_topology *clone() const { return new ba_topology(*this); }
+		
+		/// \see base_topology::push_back		
+		virtual void push_back(const size_t& id);
+		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const;
+	
 	private:
+		/// \see graph_topology::operator=
 		ba_topology &operator=(const ba_topology &);
-		// Starting number of nodes (m_0).
+		
+		/// Size of the kernel - the starting number of nodes.
 		const size_t	m_m_0;
-		// Number of edges for newly-inserted nodes (m).
+		/// Number of edges per newly-inserted node.
 		const size_t	m_m;
+		
+		/// Random number generator
+		rng_double drng;
+		/// Seed with which rng was initialised.
+		const uint32_t seed;
 };
 
 #endif

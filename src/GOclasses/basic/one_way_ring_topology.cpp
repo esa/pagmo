@@ -23,17 +23,12 @@
 #include <utility>
 #include <vector>
 
-#include "../../exceptions.h"
-#include "base_topology.h"
-#include "graph_topology.h"
-#include "individual.h"
-#include "island.h"
 #include "one_way_ring_topology.h"
 
-one_way_ring_topology::one_way_ring_topology(const double &prob):base_topology(),graph_topology(prob),m_first(0),m_last(0) {}
+one_way_ring_topology::one_way_ring_topology():graph_topology(),m_first(0),m_last(0) {}
 
-one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r):
-	base_topology(r),graph_topology(r),m_first(0),m_last(0) {}
+one_way_ring_topology::one_way_ring_topology(const one_way_ring_topology &r)
+		:graph_topology(r),m_first(r.m_first),m_last(r.m_last) { }
 
 one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topology &)
 {
@@ -41,49 +36,41 @@ one_way_ring_topology &one_way_ring_topology::operator=(const one_way_ring_topol
 	return *this;
 }
 
-void one_way_ring_topology::push_back(const island &isl)
+void one_way_ring_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
-	const size_t t_size = m_tc.size(), id = isl.id();
+	const size_t t_size = get_number_of_nodes();
 	switch (t_size) {
 		case 0:
-			// If topology is empty, insert the id with no connections and update
-			// the id of the first element.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>()));
+			// If the topology is empty, register the node and update the id of the first element.
+			add_node(id);
 			m_first = id;
 			break;
+			
 		case 1:
-			{
-			const tc_iterator b = m_tc.begin();
-			pagmo_assert(id != b->first);
-			// Add a connection from the only existing element.
-			b->second.push_back(id);
-			// Insert new element and connect it to first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,b->first)));
-			}
+		{
+			pagmo_assert(id != m_first);
+			
+			// Add the node
+			add_node(id);
+			// Add connections to the only existing element.
+			add_edge(m_first, id);
+			add_edge(id, m_first);
 			break;
+		}
+		
 		default:
-			pagmo_assert(m_tc.find(id) == m_tc.end());
-			// The current last must be connected to the new last.
-			m_tc[m_last][0] = id;
-			// Insert the new last with a connection to the first.
-			m_tc.insert(std::make_pair(id,std::vector<size_t>(1,m_first)));
+			/// \todo check it in the growing_topology class: pagmo_assert(m_tc.find(id) == m_tc.end());
+			
+			// Add the new node
+			add_node(id);
+			
+			// The current last must be connected to the new one.
+			remove_edge(m_last, m_first);
+			add_edge(m_last, id);
+			add_edge(id, m_first);
 	}
+	
 	// Update the id of the last island.
 	m_last = id;
-}
-
-void one_way_ring_topology::reset()
-{
-	reset_hook();
-}
-
-void one_way_ring_topology::pre_evolution(island &isl)
-{
-	pre_hook(isl);
-}
-
-void one_way_ring_topology::post_evolution(island &isl)
-{
-	post_hook(isl);
 }

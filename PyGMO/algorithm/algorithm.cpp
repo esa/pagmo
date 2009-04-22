@@ -43,6 +43,7 @@ static inline class_<Algorithm,bases<go_algorithm> > algorithm_wrapper(const cha
 	retval.def("__copy__", &Py_copy_from_ctor<Algorithm>);
 	retval.def("__repr__", &Py_repr_from_stream<Algorithm>);
 	retval.add_property("id_name", &Algorithm::id_name, "Identification name.");
+	retval.add_property("id_object", &Algorithm::id_object, "Object identification name.");
 	return retval;
 }
 

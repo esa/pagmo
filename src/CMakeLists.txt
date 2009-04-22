@@ -26,9 +26,27 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/fully_connected_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/graph_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/one_way_ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/chain_topology.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/broadcast_topology.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring12_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring123_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/torus_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/cartwheel_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/lattice_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/hypercube_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstInRateMigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstOutRateMigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstOutRateBCastMigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ChooseBestMigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/ClassicProblems.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/GOproblem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp
@@ -56,7 +74,7 @@ IF(BUILD_MAIN)
 		${CMAKE_CURRENT_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
 	)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
-	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "-DBOOST_THREAD_BUILD_LIB=1")
+	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "-DBOOST_THREAD_BUILD_LIB")
 ENDIF(BUILD_MAIN)
 
 # Create a pagmo shared library if PyGMO is requested.
@@ -97,7 +115,12 @@ IF(BUILD_PYGMO)
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
 	# A couple of extra definitions. The first is required when building Boost.Python,
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
-	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL=1 -DPAGMO_DLL_EXPORT_API")
+	IF(UNIX)
+		SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
+	ELSE(UNIX)
+		SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API -DBOOST_HAS_DECLSPEC")
+	ENDIF(UNIX)
+
 	INSTALL(TARGETS pagmo
 		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
 		LIBRARY DESTINATION ${LIB_INSTALL_PATH}

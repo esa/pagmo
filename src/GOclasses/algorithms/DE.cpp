@@ -28,6 +28,7 @@
 #include "../basic/population.h"
 #include "../problems/GOproblem.h"
 #include "DE.h"
+#include <sstream>
 
 DEalgorithm::DEalgorithm(int g, const double &F_, const double &CR_, int s):generations(g),F(F_),CR(CR_),strategy(s)
 {
@@ -298,4 +299,11 @@ void DEalgorithm::log(std::ostream &s) const
 {
 	s << "DE - generations:" << generations << " F:" << F << " CR:" << CR
 		<< " strategy:" << strategy;
+}
+
+std::string DEalgorithm::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << strategy;
+	return tmp.str();
 }

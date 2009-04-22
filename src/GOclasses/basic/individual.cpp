@@ -20,76 +20,78 @@
 
 // 16/05/08 Created by Dario Izzo.
 
-#include <iostream>
-#include <vector>
-
 #include "../../exceptions.h"
-#include "../problems/GOproblem.h"
 #include "individual.h"
-#include "rng.h"
 
-	Individual::Individual(const GOProblem &problem):x(problem.getLB().size()),v(problem.getLB().size())
-	{
-		static_rng_double drng;
-		// Store local references.
-		const std::vector<double> &LB = problem.getLB(), &UB = problem.getUB();
-		const size_t size = LB.size();
-		// Fill a new random chromosome and velocity vector.
-		for (size_t i = 0; i < size; ++i){
-			x[i] = LB[i] + drng() * (UB[i] - LB[i]);
-			v[i] = drng() * (UB[i] - LB[i]);
-		}
-		// Evaluation of fitness.
-		fitness = problem.objfun(x);
+Individual::Individual(const GOProblem &problem)
+		:x(problem.getLB().size()),
+		v(problem.getLB().size())
+{
+	static_rng_double drng;
+	
+	// Store local references.
+	const std::vector<double> &LB = problem.getLB(), &UB = problem.getUB();
+	const size_t size = LB.size();
+	
+	// Fill a new random chromosome and velocity vector.
+	for (size_t i = 0; i < size; ++i){
+		x[i] = LB[i] + drng() * (UB[i] - LB[i]);
+		v[i] = drng() * (UB[i] - LB[i]);
 	}
+	
+	// Evaluation of fitness.
+	fitness = problem.objfun(x);
+}
 
-	Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, const std::vector<double> &v_):
-		x(x_),v(v_),fitness(0.)
-	{
-		if (x.size() != v.size()) {
-			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
-		}
-		check(problem);
-		fitness = problem.objfun(x);
+Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, const std::vector<double> &v_)
+		:x(x_),
+		v(v_)		
+{
+	if (x.size() != v.size()) {
+		pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
 	}
+	check(problem);
+	fitness = problem.objfun(x);
+}
 
-	Individual::Individual(const GOProblem &problem, const std::vector<double> &x_):x(x_),v(x_.size()),fitness(0.)
-	{
-		check(problem);
-		fitness = problem.objfun(x);
-	}
+Individual::Individual(const GOProblem &problem, const std::vector<double> &x_)
+		:x(x_),
+		v(x_.size())		
+{
+	check(problem);
+	fitness = problem.objfun(x);
+}
 
-	Individual &Individual::operator=(const Individual &i)
-	{
-		if (this != &i) {
-			if (i.getDecisionVector().size() != x.size()) {
-				pagmo_throw(value_error,"individuals are incompatible");
-			}
-			x = i.x;
-			v = i.v;
-			fitness = i.fitness;
+Individual &Individual::operator=(const Individual &i)
+{
+	if (this != &i) {
+		if (i.getDecisionVector().size() != x.size()) {
+			pagmo_throw(value_error,"individuals are incompatible");
 		}
-		return *this;
+		x = i.x;
+		v = i.v;
+		fitness = i.fitness;
 	}
+	return *this;
+}
 
-	/// Check that the individual is compatible with a problem.
-	/**
-	 * Compatibility means that the individual's size is the same as the problem's and that the values
-	 * of the decision vector are within the boundaries defined in the problem. If the individual is incompatible,
-	 * a value_error exception will be thrown.
-	 */
-	void Individual::check(const GOProblem &p) const
-	{
-		const size_t size = x.size();
-		if (size != p.getDimension()) {
-			pagmo_throw(value_error,"mismatch between individual size and problem size");
-		}
-		for (size_t i = 0; i < size; ++i) {
-			if (x[i] > p.getUB()[i] || x[i] < p.getLB()[i]) {
-				pagmo_throw(value_error,"individual's decision vector is incompatible with the boundaries of the problem");
-			}
+void Individual::check(const GOProblem &p) const
+{
+	const size_t size = x.size();
+	if (size != p.getDimension()) {
+		pagmo_throw(value_error,"mismatch between individual size and problem size");
+	}
+	for (size_t i = 0; i < size; ++i) {
+		if (x[i] > p.getUB()[i] || x[i] < p.getLB()[i]) {
+			pagmo_throw(value_error,"individual's decision vector is incompatible with the boundaries of the problem");
 		}
 	}
+}
+
+int Individual::compare_by_fitness(const Individual& ind1, const Individual& ind2)
+{
+	return ind1.fitness < ind2.fitness;
+}
 
 std::ostream &operator<<(std::ostream &s, const Individual &ind)
 {

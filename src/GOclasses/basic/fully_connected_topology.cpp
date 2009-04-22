@@ -29,10 +29,9 @@
 #include "individual.h"
 #include "island.h"
 
-fully_connected_topology::fully_connected_topology(const double &prob):base_topology(),graph_topology(prob) {}
+fully_connected_topology::fully_connected_topology():graph_topology() {}
 
-fully_connected_topology::fully_connected_topology(const fully_connected_topology &f):
-	base_topology(f),graph_topology(f) {}
+fully_connected_topology::fully_connected_topology(const fully_connected_topology &f):graph_topology(f) {}
 
 fully_connected_topology &fully_connected_topology::operator=(const fully_connected_topology &)
 {
@@ -40,35 +39,17 @@ fully_connected_topology &fully_connected_topology::operator=(const fully_connec
 	return *this;
 }
 
-void fully_connected_topology::push_back(const island &isl)
+void fully_connected_topology::push_back(const size_t& id)
 {
-	// Store frequently-used variables.
-	const size_t t_size = m_tc.size(), id = isl.id();
 	// Iterate over all the existing island, storing their id and adding connections to
 	// the new island in the process.
-	std::vector<size_t> new_connections;
-	new_connections.reserve(t_size);
-	const tc_iterator it_f = m_tc.end();
-	for (tc_iterator it = m_tc.begin(); it != it_f; ++it) {
-		pagmo_assert(id != it->first);
-		new_connections.push_back(it->first);
-		it->second.push_back(id);
+	std::vector<size_t> nodes_list = get_nodes();
+	
+	// Add the new node
+	add_node(id);
+		
+	for (std::vector<size_t>::const_iterator it = nodes_list.begin(); it != nodes_list.end(); ++it) {
+		add_edge(id, *it);
+		add_edge(*it, id);
 	}
-	// Insert the new island with its connections.
-	m_tc.insert(std::make_pair(id,new_connections));
-}
-
-void fully_connected_topology::reset()
-{
-	reset_hook();
-}
-
-void fully_connected_topology::pre_evolution(island &isl)
-{
-	pre_hook(isl);
-}
-
-void fully_connected_topology::post_evolution(island &isl)
-{
-	post_hook(isl);
 }

@@ -26,6 +26,7 @@
 #include "../../exceptions.h"
 #include "ClassicProblems.h"
 #include "GOproblem.h"
+#include <sstream>
 
 //***********************************************************************************
 //Classical problems
@@ -38,12 +39,27 @@ TestProb::TestProb(int dim):GOProblem(std::vector<double>(dim, 0.0), std::vector
 	}
 };
 
+std::string TestProb::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << getDimension();
+	return tmp.str();
+}
+
 rastriginProb::rastriginProb(int dim):GOProblem(std::vector<double>(dim, -5.12), std::vector<double>(dim, 5.12))
 {
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of rastrigin problem must be positive");
 	}
 };
+
+std::string rastriginProb::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << getDimension();
+	return tmp.str();
+}
+
 
 schwefelProb::schwefelProb(int dim):GOProblem(std::vector<double>(dim, -500.0), std::vector<double>(dim, 500.0))
 {
@@ -52,6 +68,14 @@ schwefelProb::schwefelProb(int dim):GOProblem(std::vector<double>(dim, -500.0), 
 	}
 };
 
+std::string schwefelProb::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << getDimension();
+	return tmp.str();
+}
+
+
 ackleyProb::ackleyProb(int dim):GOProblem(std::vector<double>(dim, -15.0), std::vector<double>(dim, 30.0))
 {
 	if (dim <= 0) {
@@ -59,12 +83,28 @@ ackleyProb::ackleyProb(int dim):GOProblem(std::vector<double>(dim, -15.0), std::
 	}
 };
 
+std::string ackleyProb::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << getDimension();
+	return tmp.str();
+}
+
+
 rosenbrockProb::rosenbrockProb(int dim):GOProblem(std::vector<double>(dim, -5.0), std::vector<double>(dim, 10.0))
 {
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of rosenbrock problem must be positive");
 	}
 };
+
+std::string rosenbrockProb::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << getDimension();
+	return tmp.str();
+}
+
 
 lennardjonesProb::lennardjonesProb(int atoms):GOProblem(3*atoms-6)
 {
@@ -83,9 +123,24 @@ lennardjonesProb::lennardjonesProb(int atoms):GOProblem(3*atoms-6)
 		}
 };
 
+std::string lennardjonesProb::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << ((getDimension() + 6) / 3);
+	return tmp.str();
+}
+
+
 levyProb::levyProb(int dim):GOProblem(std::vector<double>(dim, -10.0), std::vector<double>(dim, 10.0))
 {
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of levy problem must be positive");
 	}
 };
+
+std::string levyProb::id_object() const
+{
+	std::stringstream tmp;
+	tmp << id_name() << "_" << getDimension();
+	return tmp.str();
+}
