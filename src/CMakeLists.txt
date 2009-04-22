@@ -38,6 +38,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationScheme.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstInRateMigrationScheme.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstOutRateMigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ConstOutRateBCastMigrationScheme.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationSelectionPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationSelectionPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ChooseBestMigrationSelectionPolicy.cpp

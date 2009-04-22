@@ -58,7 +58,7 @@ std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForRepla
 		result.push_back(std::make_pair(destinationPopulationIndices[i], incomingPopulationIndices[i]));
 	}
 	
-	std::cout << "Result size: " << result.size() << std::endl;
+	//std::cout << "Result size: " << result.size() << std::endl;
 	
 	return result;
 }

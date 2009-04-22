@@ -26,8 +26,8 @@
 ba_topology::ba_topology(int m_0, int m, uint32_t _seed)
 		:graph_topology(),m_m_0(m_0),m_m(m),drng(_seed),seed(_seed)
 {
-	if (m_0 < 1 || m < 1 || m > m_0) {
-		pagmo_throw(value_error,"the value of m and m_0 must be at least 1, and m must not be greater than m_0");
+	if (m_0 < 2 || m < 1 || m > m_0) {
+		pagmo_throw(value_error,"the value of m and m_0 must be at least 1 and 2, and m must not be greater than m_0");
 	}
 }
 

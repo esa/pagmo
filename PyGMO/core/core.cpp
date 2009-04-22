@@ -44,6 +44,7 @@
 #include "../../src/GOclasses/basic/MigrationScheme.h"
 #include "../../src/GOclasses/basic/ConstInRateMigrationScheme.h"
 #include "../../src/GOclasses/basic/ConstOutRateMigrationScheme.h"
+#include "../../src/GOclasses/basic/ConstOutRateBCastMigrationScheme.h"
 #include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/ChooseBestMigrationSelectionPolicy.h"
@@ -232,6 +233,10 @@ BOOST_PYTHON_MODULE(_core)
 	class_<ConstOutRateMigrationScheme, bases<MigrationScheme> > class_CORMS("const_out_rate_migration", "Migration scheme with constant outgoing migration rate.", init<const base_topology&, optional<uint32_t> >());
 	class_CORMS.def("__copy__", &Py_copy_from_ctor<ConstOutRateMigrationScheme>);
 	class_CORMS.def("__repr__", &Py_repr_from_stream<ConstOutRateMigrationScheme>);
+	// Expose ConstOutRateBCastMigrationScheme
+	class_<ConstOutRateBCastMigrationScheme, bases<MigrationScheme> > class_CORBCMS("const_out_rate_bcast_migration", "Migration scheme with constant outgoing migration rate and broadcast.", init<const base_topology&>());
+	class_CORBCMS.def("__copy__", &Py_copy_from_ctor<ConstOutRateBCastMigrationScheme>);
+	class_CORBCMS.def("__repr__", &Py_repr_from_stream<ConstOutRateBCastMigrationScheme>);
 
 	
 	// Expose MigrationSelectionPolicy
