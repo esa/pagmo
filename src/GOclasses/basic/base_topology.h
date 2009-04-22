@@ -52,6 +52,7 @@ class __PAGMO_VISIBLE base_topology {
 		 */
 		virtual void push_back(const size_t& island_id)
 		{
+			(void)island_id;
 			pagmo_throw(type_error, "This topology class does not support incremental construction!");
 		}
 		
