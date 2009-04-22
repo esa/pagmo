@@ -30,8 +30,8 @@
 #include "graph_topology.h"
 #include "island.h"
 
-ba_topology::ba_topology(int m_0, int m):
-	base_topology(),graph_topology(),m_m_0(m_0),m_m(m)
+ba_topology::ba_topology(int m_0, int m, const double &prob):
+	base_topology(),graph_topology(prob),m_m_0(m_0),m_m(m)
 {
 	if (m_0 < 1 || m < 1 || m > m_0) {
 		pagmo_throw(value_error,"the value of m and m_0 must be at least 1, and m must not be greater than m_0");
@@ -112,4 +112,19 @@ void ba_topology::push_back(const island &isl)
 		}
 		m_tc.insert(std::make_pair(id,connections));
 	}
+}
+
+void ba_topology::reset()
+{
+	reset_hook();
+}
+
+void ba_topology::pre_evolution(island &isl)
+{
+	pre_hook(isl);
+}
+
+void ba_topology::post_evolution(island &isl)
+{
+	post_hook(isl);
 }

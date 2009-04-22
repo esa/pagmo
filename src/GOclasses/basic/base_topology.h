@@ -28,35 +28,19 @@
 
 #include "../../../config.h"
 #include "island.h"
+#include "population.h"
 
-/// Base class for topologies.
-/**
- * This class defines the interface that all topologies must implement.
- * \todo Rename this class in order to keep to the standard conventions.
- */
+class archipelago;
+
 class __PAGMO_VISIBLE base_topology {
 	public:
-		/// Constructor.
-		base_topology() { };
-		
-		/// Virtual Destructor.
-		virtual ~base_topology() { };
-		
-		/// Add an island to the topology.
-		/**
-		 * \param[in] island The island to be added.
-		 */
-		virtual void push_back(const island &) = 0;
-		
-		/// Create a deep copy of the object.
-		/**
-		 * This method should create the exact copy of the object, including any state variables.
-		 * \return Exact deep copy of the object.
-		 */
+		base_topology();
+		virtual ~base_topology();
+		virtual void push_back(const island &) {}
+		virtual void pre_evolution(island &) {}
+		virtual void post_evolution(island &) {}
+		virtual void reset() {}
 		virtual base_topology *clone() const = 0;
-		
-		/// Get the name of the object's class.
-		/** \todo Rename this method to something more sensible. */
 		std::string id_name() const {return typeid(*this).name();}
 };
 

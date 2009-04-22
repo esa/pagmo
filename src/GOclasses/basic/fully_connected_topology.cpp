@@ -29,7 +29,7 @@
 #include "individual.h"
 #include "island.h"
 
-fully_connected_topology::fully_connected_topology():base_topology(),graph_topology() {}
+fully_connected_topology::fully_connected_topology(const double &prob):base_topology(),graph_topology(prob) {}
 
 fully_connected_topology::fully_connected_topology(const fully_connected_topology &f):
 	base_topology(f),graph_topology(f) {}
@@ -56,4 +56,19 @@ void fully_connected_topology::push_back(const island &isl)
 	}
 	// Insert the new island with its connections.
 	m_tc.insert(std::make_pair(id,new_connections));
+}
+
+void fully_connected_topology::reset()
+{
+	reset_hook();
+}
+
+void fully_connected_topology::pre_evolution(island &isl)
+{
+	pre_hook(isl);
+}
+
+void fully_connected_topology::post_evolution(island &isl)
+{
+	post_hook(isl);
 }

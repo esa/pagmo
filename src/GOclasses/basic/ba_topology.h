@@ -35,15 +35,15 @@
  */
 class __PAGMO_VISIBLE ba_topology: public base_topology, public graph_topology {
 	public:
-		ba_topology(int, int);
+		ba_topology(int, int, const double &);
 		ba_topology(const ba_topology &);
-		
 		virtual ba_topology *clone() const {return new ba_topology(*this);}
-		
 		virtual void push_back(const island &);
+		virtual void reset();
+		virtual void pre_evolution(island &);
+		virtual void post_evolution(island &);
 	private:
 		ba_topology &operator=(const ba_topology &);
-		
 		// Starting number of nodes (m_0).
 		const size_t	m_m_0;
 		// Number of edges for newly-inserted nodes (m).
