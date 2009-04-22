@@ -20,20 +20,20 @@
 
 // 13/01/2009: Initial version by Marek Ruciński.
 
-#include "ring12_topology.h"
+#include "ring123_topology.h"
 
-ring12_topology::ring12_topology():graph_topology(), a(0), b(0), c(0), d(0) {}
+ring123_topology::ring123_topology():graph_topology(), a(0), b(0), c(0), d(0), e(0), f(0) {}
 
-ring12_topology::ring12_topology(const ring12_topology &r)
-	:graph_topology(r), a(r.a), b(r.b), c(r.c), d(r.d) {}
+ring123_topology::ring123_topology(const ring123_topology &r)
+	:graph_topology(r), a(r.a), b(r.b), c(r.c), d(r.d), e(r.e), f(r.f) {}
 
-ring12_topology &ring12_topology::operator=(const ring12_topology &)
+ring123_topology &ring123_topology::operator=(const ring123_topology &)
 {
 	pagmo_assert(false);
 	return *this;
 }
 
-void ring12_topology::push_back(const size_t& id)
+void ring123_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
 	const size_t t_size = get_number_of_nodes();
@@ -75,50 +75,84 @@ void ring12_topology::push_back(const size_t& id)
 			break;
 			
 		case 4:
-			// Add new connections and update c,d
+			// Add new connections
 			
-			// First, put the node in between a and d. Former +1 link a-d becomes now a +2 link
-			add_edge(d, id);
-			add_edge(id, d);
 			add_edge(a, id);
 			add_edge(id, a);
-			
-			// Also add connections id-b and id-c. Nothing needs to be dropped.
 			add_edge(b, id);
 			add_edge(id, b);
 			add_edge(c, id);
 			add_edge(id, c);
+			add_edge(d, id);
+			add_edge(id, d);
 			
-			// Update nodes
-			c = d;
-			d = id;
-			
-			// Now we have a pentagram :)
+			e = id;			
 			break;
 			
-		default:
-			// Insert the new node between d and a.
-			
-			// First, put the node in between a and d. Former +1 link a-d becomes now a +2 link
+		case 5:
+			// Add new connections
+			add_edge(a, id);
+			add_edge(id, a);
+			add_edge(b, id);
+			add_edge(id, b);
+			add_edge(c, id);
+			add_edge(id, c);
 			add_edge(d, id);
 			add_edge(id, d);
+			add_edge(e, id);
+			add_edge(id, e);
+			
+			f = id;
+			break;
+			
+		case 6:
+			// Add new connections and update the nodes
+			add_edge(a, id);
+			add_edge(id, a);
+			add_edge(b, id);
+			add_edge(id, b);
+			add_edge(c, id);
+			add_edge(id, c);
+			add_edge(d, id);
+			add_edge(id, d);
+			add_edge(e, id);
+			add_edge(id, e);
+			add_edge(f, id);
+			add_edge(id, f);
+			d = e;
+			e = f;
+			f = id;
+			break;			
+			
+		default:
+			// Insert the new node between f and a.
+			
+			// First, put the node in between a and f. Former +1 link a-f becomes now a +2 link. Links b-f and a-e become +3.
+			add_edge(f, id);
+			add_edge(id, f);
 			add_edge(a, id);
 			add_edge(id, a);
 			
-			// Now drop connections b-d and c-a, as they are no longer +2 but +3, replacing them by edges b-id and c-id
-			remove_edge(a, c);
-			remove_edge(c, a);
+			// Now drop connections b-e and d-a, and c-f as they are no longer +3 but +4, replacing them by edges c-id and b-id, e-id and and d-id
+			remove_edge(b, e);
+			remove_edge(e, b);
+			remove_edge(c, f);
+			remove_edge(f, c);
+			remove_edge(a, d);
+			remove_edge(d, a);			
 			add_edge(id, c);
 			add_edge(c, id);
-			
-			remove_edge(b, d);
-			remove_edge(d, b);
 			add_edge(id, b);
 			add_edge(b, id);
+			add_edge(id, e);
+			add_edge(e, id);
+			add_edge(id, d);
+			add_edge(d, id);			
 			
 			// Finally, update the nodes
-			c = d;
-			d = id;
+			d = e;
+			e = f;
+			f = id;
 			break;
 	}
 }

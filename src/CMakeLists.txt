@@ -30,6 +30,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/broadcast_topology.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring12_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring123_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/torus_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/cartwheel_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/lattice_topology.cpp
