@@ -25,7 +25,7 @@
 
 #include "../config.h"
 
-#if defined( __GNUC__ ) && GCC_VERSION >= 401000
+#if defined( __GNUC__ ) && GCC_VERSION >= 401000 && !defined( __ICC )
 
 #include "atomic_counter_gcc_41.h"
 
