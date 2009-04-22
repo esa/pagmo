@@ -64,7 +64,7 @@ void ConstOutRateBCastMigrationScheme::postEvolutionCallback(island& _island)
 		
 		if(immigrants.size() > 0) { //if there's anything to migrate, do it			
 			// Add migrating individuals to neighbours' inboxes
-			for(int i = 0; i < neighbours.size(); i++) {
+			for(size_t i = 0; i < neighbours.size(); i++) {
 				inbox[neighbours[i]].insert(inbox[neighbours[i]].end(), immigrants.begin(), immigrants.end());
 				
 				//std::cout << "Size of the inbox of island " << neighbours[i] << " is now " << inbox[neighbours[i]].size() << std::endl;
