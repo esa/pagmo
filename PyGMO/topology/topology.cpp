@@ -35,6 +35,7 @@
 #include "../../src/GOclasses/basic/cartwheel_topology.h"
 #include "../../src/GOclasses/basic/lattice_topology.h"
 #include "../../src/GOclasses/basic/hypercube_topology.h"
+#include "../../src/GOclasses/basic/ring12_topology.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
@@ -72,4 +73,5 @@ BOOST_PYTHON_MODULE(_topology) {
 	topology_wrapper<cartwheel_topology>("cartwheel", "Cartwheel topology.").def(init<>());
 	topology_wrapper<lattice_topology>("lattice", "Lattice topology.").def(init<>()).def(init<size_t, size_t>());
 	topology_wrapper<hypercube_topology>("hypercube", "Hypercube topology.").def(init<>());
+	topology_wrapper<ring12_topology>("ring12", "+1+2 ring topology.").def(init<>());
 }
