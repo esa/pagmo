@@ -51,7 +51,7 @@ void ConstOutRateMigrationScheme::postEvolutionCallback(island& _island)
 	
 	//std::cout << "postEvolutionCallback( " << _island.id() << " )" << std::endl;
 	
-	const std::vector<size_t>& neighbours = topology->get_neighbours_out(_island.id());
+	const std::vector<size_t> neighbours = topology->get_neighbours_out(_island.id());
 	
 	//std::cout << "The island has " << neighbours.size() << " neigbours." << std::endl;
 	
