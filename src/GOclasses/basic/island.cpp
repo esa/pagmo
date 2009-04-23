@@ -222,7 +222,7 @@ Individual island::best() const
 Individual island::worst() const
 {
 	join();
-	return m_pop.extractBestIndividual();
+	return m_pop.extractWorstIndividual();
 }
 
 
