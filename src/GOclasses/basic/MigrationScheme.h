@@ -30,10 +30,14 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <iostream>
+#include <boost/unordered_map.hpp>
+#include "../../Functions/rng/rng.h"
+#include <vector>
 
 /// Base class for the migration schemes.
 /**
  * Migration schemes are the actual implementation of migration. 
+ * By the collective decision, the objective programming paradigm was sacrificed here for the sake of the ease of use in python.
  */
 class __PAGMO_VISIBLE MigrationScheme
 {
@@ -46,15 +50,16 @@ class __PAGMO_VISIBLE MigrationScheme
 		/**
 		 * Creates a migration scheme not associated with a topology.
 		 */
-		MigrationScheme():topology(0) { }
+		MigrationScheme(int _distributionType, int _migrationDirection, uint32_t seed = static_rng_uint32()())
+			: distributionType(_distributionType), migrationDirection(_migrationDirection), topology(0), rng(seed) { }
 
 		/// Constructor.
 		/**
 		 * Creates a migration scheme associated with the given topology.
 		 * A deep copy of topology is created and stored.
 		 */
-		MigrationScheme(const base_topology& _topology)
-				:topology(_topology.clone())
+		MigrationScheme(int _distributionType, int _migrationDirection, const base_topology& _topology, uint32_t seed = static_rng_uint32()())
+				:distributionType(_distributionType), migrationDirection(_migrationDirection), topology(_topology.clone()), rng(seed)
 		{
 		}
 		
@@ -64,7 +69,10 @@ class __PAGMO_VISIBLE MigrationScheme
 		 */
 		MigrationScheme(const MigrationScheme& ms)				
 		{
+			distributionType = ms.distributionType;
+			migrationDirection = ms.migrationDirection;
 			topology.reset(ms.topology ? ms.topology->clone() : 0);
+			rng = ms.rng;
 		}
 		
 		/// Virtual destructor.
@@ -77,7 +85,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * evolving at the moment.
 		 * \param[in,out] _island island calling the function.
 		 */		
-		virtual void preEvolutionCallback(island& _island) = 0;
+		void preEvolutionCallback(island& _island);
 		
 		/// Post-evolution callback.
 		/**
@@ -86,14 +94,14 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * evolving at the moment.
 		 * \param[in,out] _island island calling the function.
 		 */		
-		virtual void postEvolutionCallback(island& _island) = 0;
+		void postEvolutionCallback(island& _island);
 
 		///Clone object.
 		/**
 		 * Cloned object should be the exact copy of the original, but should be safe to use in a multithreaded environment.
 		 * \todo Determine if the state variables should also be cloned and a separate method for resetting them be provided, or not.
 		 */
-		virtual MigrationScheme* clone() const = 0;
+		MigrationScheme* clone() const { return new MigrationScheme(*this); }
 		
 		/// Register an island with the migration scheme.
 		virtual void push_back(const island& _island)
@@ -106,11 +114,12 @@ class __PAGMO_VISIBLE MigrationScheme
 		
 		/// Reset the migration scheme.
 		/**
-		 * Associated topology, if present, is cleared. All islands have to be re-registered with the migration scheme.
-		 * If you override this method, do not forget to call this implementation inside.
+		 * Associated topology, if present, is cleared. All islands have to be re-registered with the migration scheme.		 
 		 */
 		virtual void reset()
 		{
+			immigrantsByIsland.clear();
+			
 			if(topology) {
 				topology->clear();
 			}
@@ -138,12 +147,26 @@ class __PAGMO_VISIBLE MigrationScheme
 		 */
 		void setTopology(const base_topology* _topology) { topology.reset(_topology ? _topology->clone() : 0); }		
 		
-	protected:		
-		// Class fields.
+	private:
+		/// Immigrants distribution type flag.
+		/** 0 = point-to-point, 1 = broadcast among neighbours */
+		int distributionType;
+		
+		/// Migration direction flag.
+		/** 0 = immigrants flow is initiated by the source island, 1 = immingrants flow is initiated by the destination island */
+		int migrationDirection;
+	
 		boost::scoped_ptr<base_topology>	topology; ///< Migration topology. \todo I'm not so sure if all possible migration schemes require a topology...
 		mutable boost::mutex				topology_mutex; ///< Topology mutex. <b>Access to the topology must be synchronised!!!</b>
+
+		/// Container for migrating individuals.
+		/**
+		 * The way in which this container is used depends on the type of migration performed.
+		 */
+		boost::unordered_map<size_t, std::vector<Individual> > immigrantsByIsland;
 		
-	private:
+		rng_uint32 rng; ///< Random number generator	
+	
 		/// Stream output operator.
 		friend std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
 };

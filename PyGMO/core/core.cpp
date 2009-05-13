@@ -43,9 +43,6 @@
 #include "../../src/GOclasses/basic/population.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
 #include "../../src/GOclasses/basic/MigrationScheme.h"
-#include "../../src/GOclasses/basic/ConstInRateMigrationScheme.h"
-#include "../../src/GOclasses/basic/ConstOutRateMigrationScheme.h"
-#include "../../src/GOclasses/basic/ConstOutRateBCastMigrationScheme.h"
 #include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/ChooseBestMigrationSelectionPolicy.h"
@@ -225,20 +222,10 @@ BOOST_PYTHON_MODULE(_core)
 	
 	
 	// Expose MigrationScheme
-	class_<MigrationScheme, boost::noncopyable> class_MS("__migration_scheme", "A migration scheme.", no_init);
-	// Expose ConstInRateMigrationScheme
-	class_<ConstInRateMigrationScheme, bases<MigrationScheme> > class_CIRMS("const_in_rate_migration", "Migration scheme with constant incoming migration rate.", init<const base_topology&, optional<uint32_t> >());
-	class_CIRMS.def("__copy__", &Py_copy_from_ctor<ConstInRateMigrationScheme>);
-	class_CIRMS.def("__repr__", &Py_repr_from_stream<ConstInRateMigrationScheme>);
-	// Expose ConstOutRateMigrationScheme
-	class_<ConstOutRateMigrationScheme, bases<MigrationScheme> > class_CORMS("const_out_rate_migration", "Migration scheme with constant outgoing migration rate.", init<const base_topology&, optional<uint32_t> >());
-	class_CORMS.def("__copy__", &Py_copy_from_ctor<ConstOutRateMigrationScheme>);
-	class_CORMS.def("__repr__", &Py_repr_from_stream<ConstOutRateMigrationScheme>);
-	// Expose ConstOutRateBCastMigrationScheme
-	class_<ConstOutRateBCastMigrationScheme, bases<MigrationScheme> > class_CORBCMS("const_out_rate_bcast_migration", "Migration scheme with constant outgoing migration rate and broadcast.", init<const base_topology&>());
-	class_CORBCMS.def("__copy__", &Py_copy_from_ctor<ConstOutRateBCastMigrationScheme>);
-	class_CORBCMS.def("__repr__", &Py_repr_from_stream<ConstOutRateBCastMigrationScheme>);
-
+	class_<MigrationScheme> class_MS("migration_scheme", "The migration scheme.", init<int, int, optional<uint32_t> >());
+	class_MS.def(init<int, int, const base_topology&, optional<uint32_t> >());
+	class_MS.def("__copy__", &Py_copy_from_ctor<MigrationScheme>);
+	class_MS.def("__repr__", &Py_repr_from_stream<MigrationScheme>);
 	
 	// Expose MigrationSelectionPolicy
 	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
