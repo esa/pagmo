@@ -36,8 +36,33 @@
 
 /// Base class for the migration schemes.
 /**
- * Migration schemes are the actual implementation of migration. 
+ * Migration scheme is the actual implementation of migration. 
  * By the collective decision, the objective programming paradigm was sacrificed here for the sake of the ease of use in python.
+ *
+ * In this class it is decided how migrating individuals are distributed, and by which island (source or destination) the migration is initiated.
+ * So far, two ways of immigrants distribution are possible:
+ * <ul>
+ *   <li>Point-to-point: the migration takes place only between the initiating island and one randomly selected neighbour</li>
+ *   <li>Broadcast: the migration takes place between the initiating island and all its neghbours</li>
+ * </ul>
+ * The type of distribution is set with the first argument of the class' constructor.
+ *
+ * Asynchronous migration may be initiated in two ways: either by the island being the "source" of migrating individuals in the processs of migration,
+ * or by the one being the "destination" of the immigrants. The difference between the two cases may not be evident immidiately, but they 
+ * are not identical.
+ * 
+ * Consider the case of a star-like (broadcast) topology with one node in the centre (the hub) and many nodes connected only to it (the leaves).
+ * Consider the incoming and outgoing flow rates of immigrants for bot the hub and a leaf:
+ * <ul>
+ *   <li>When the migration is initiated by the source island, outgoing immigrant flow rate of the hub is contant and outgoing rate of the leaves is also constant.
+ *   Incoming rates however are low for the leaves, especially in case of the point-to-point migration, as migration out of the hub occurs relatively rarely
+ *   and the chance that the particular leaf is the migration target is very low. Symetrically, the incoming migration rate of the hub is very high, as many leaves
+ *   migrate to it simultanously.</li>
+ *   <li>When the migration is initiated by the destination island, the situation is reversed. Incoming immigrant flow rates are constant for both hub and the
+ *   leaves, but the outgoing rate is very high for the hub and very low for the leaves (again, probability of choosing a particular leaf for migration is
+ *   relatively low)</li>
+ * </ul>
+ * The type of migration initiation is governed by the second argument of the class' constructor.
  */
 class __PAGMO_VISIBLE MigrationScheme
 {
@@ -49,6 +74,9 @@ class __PAGMO_VISIBLE MigrationScheme
 		/// Constructor.
 		/**
 		 * Creates a migration scheme not associated with a topology.
+		 * @param _distributionType Immigrants distribution type: 0 = point-to-point, 1 = broadcast
+		 * @param _migrationDirection Initiating island: 0 = source, 1 = destination
+		 * @param seed RNG seed.
 		 */
 		MigrationScheme(int _distributionType, int _migrationDirection, uint32_t seed = static_rng_uint32()())
 			: distributionType(_distributionType), migrationDirection(_migrationDirection), topology(0), rng(seed) { }
@@ -57,6 +85,10 @@ class __PAGMO_VISIBLE MigrationScheme
 		/**
 		 * Creates a migration scheme associated with the given topology.
 		 * A deep copy of topology is created and stored.
+		 * @param _distributionType Immigrants distribution type: 0 = point-to-point, 1 = broadcast
+		 * @param _migrationDirection Initiating island: 0 = source, 1 = destination
+		 * @param _topology Topology to be used for the migration.
+		 * @param seed RNG seed.
 		 */
 		MigrationScheme(int _distributionType, int _migrationDirection, const base_topology& _topology, uint32_t seed = static_rng_uint32()())
 				:distributionType(_distributionType), migrationDirection(_migrationDirection), topology(_topology.clone()), rng(seed)
