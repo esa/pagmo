@@ -415,8 +415,7 @@ while (choice != -1) {
 
 			//Instanciate the algorithm
 			//Simple Genetic Algorithm
-			SGAalgorithm SGA;
-			SGA.initSGA(gen,LB.size(),CR,M,insert_best, rng());
+			SGAalgorithm SGA(gen,CR,M,insert_best);
 
 			for (int i=0;i<trials;i++){
 				cout << "\nTrial number #" << i+1 << endl;
@@ -431,7 +430,7 @@ while (choice != -1) {
 						cout << "Initial fitness: " << pop.extractBestIndividual().getFitness() << endl;
 						//we evolve it
 						start1=clock();
-						pop = SGA.evolve(pop,problem);
+						pop = SGA.evolve(pop);
 						end1=clock();
 						dif = (double)(end1-start1) / (double)CLOCKS_PER_SEC;
 						//we print the result
@@ -617,7 +616,7 @@ while (choice != -1) {
 
                                 //ring topology migration
                                 if (drng() < 0.2){
-                                    IslandPop[(i+1) % islandsN].set_individual(rng() % data[i].NP,IslandPop[i].extractBestIndividual());
+                                    IslandPop[(i+1) % islandsN].setIndividual(rng() % data[i].NP,IslandPop[i].extractBestIndividual());
                                 }
 
                             }

@@ -198,29 +198,22 @@ void *SGAthread(void *data)
    PtrTP = (threadParam *)data;
    double oldfitness;
    vector<size_t> picks;
-   const vector<double> &LB = PtrTP->problem->getLB();
    Population deme(*PtrTP->problem,0);
-   SGAalgorithm SGA;
-   rng_uint32 rng;
-   rng_double drng;
-   GOProblem* problem;
+   boost::scoped_ptr<SGAalgorithm> SGA;
 
 	clock_t start,end;
 	double dif;
 
    {
         lock_type lock(*PtrTP->TPmutex);
-        rng.seed(PtrTP->randomSeed);
-        drng.seed(PtrTP->randomSeed);
 		deme=PtrTP->Ptr_pop->extractRandomDeme(PtrTP->NP,picks);
-		problem = PtrTP->problem;
-		SGA.initSGA(PtrTP->generations,LB.size(),PtrTP->CRsga,PtrTP->M,PtrTP->insert_best, rng());
+		SGA.reset(new SGAalgorithm (PtrTP->generations,PtrTP->CRsga,PtrTP->M,PtrTP->insert_best));
    }
 
    oldfitness = deme.extractBestIndividual().getFitness();
 
    start=clock();
-   deme = SGA.evolve(deme, *problem);
+   deme = SGA->evolve(deme);
    end=clock();
    dif = (double)(end-start) / (double)CLOCKS_PER_SEC;
 
