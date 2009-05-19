@@ -62,6 +62,7 @@ class earth_mars_lt_problem: public GOProblem {
 			std::cout <<
 				"number of segments:\t\t" << n << '\n' <<
 				"max thrust:\t\t" << thrust * F * 1000 << '\n' <<
+				"max DV per segment (km/s):\t" << (thrust * F / M * x.back() * 86400. / n) << '\n' <<
 				"mass:\t\t" << M << '\n' <<
 				"dep. date (mjd2000):\t" << x[0] << '\n' <<
 				"vinf at departure:\t" << x[1] << '\n';
