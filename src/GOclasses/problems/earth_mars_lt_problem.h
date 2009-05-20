@@ -90,11 +90,11 @@ class earth_mars_lt_problem: public GOProblem {
 			state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
 			const double s_mismatch = std::sqrt((r_back[0] - r_fwd[0]) * (r_back[0] - r_fwd[0]) + (r_back[1] - r_fwd[1]) * (r_back[1] - r_fwd[1]) +
 				(r_back[2] - r_fwd[2]) * (r_back[2] - r_fwd[2])) +
-				10 * std::sqrt((v_back[0] - v_fwd[0]) * (v_back[0] - v_fwd[0]) + (v_back[1] - v_fwd[1]) * (v_back[1] - v_fwd[1]) +
+				1 * std::sqrt((v_back[0] - v_fwd[0]) * (v_back[0] - v_fwd[0]) + (v_back[1] - v_fwd[1]) * (v_back[1] - v_fwd[1]) +
 				(v_back[2] - v_fwd[2]) * (v_back[2] - v_fwd[2]));
 				
 			//std::cout << s_mismatch << '\n';
-			return main_objfun(x) + s_mismatch;
+			return main_objfun(x) + 1000 * s_mismatch;
 		}
 		double main_objfun(const std::vector<double> &x) const {
 			double retval = 0;
