@@ -31,6 +31,12 @@
 #include "../../../config.h"
 #include "../../atomic_counters/atomic_counters.h"
 
+/// Global Optimisation Problem class.
+/**
+ * This class implements the highest hierarchical level of a global optimisation problem here defined as unconstrained
+ * optimisation problems where the search domain is hyperrectanguar
+ */
+
 class __PAGMO_VISIBLE GOProblem {
 	friend std::ostream &operator<<(std::ostream &, const GOProblem &);
 	friend size_t objfun_calls();
