@@ -40,6 +40,26 @@ ASAalgorithm::ASAalgorithm(int niterTotInit, const double &Ts_, const double &Tf
 	}
 }
 
+ASAalgorithm::ASAalgorithm(int niterTotInit, const double &Ts_, const double &Tf_, const int niterTemp_, const int niterRange_, const double StartStep_):go_algorithm(),niterTot(niterTotInit),
+        niterTemp(niterTemp_),niterRange(niterRange_),Ts(Ts_),Tf(Tf_),StartStep(StartStep_)
+{
+        if (niterTotInit < 0) {
+                pagmo_throw(value_error,"number of generations must be nonnegative");
+        }
+        if (Ts_ <= 0 || Tf_ <= 0 || Ts_ <= Tf_) {
+                pagmo_throw(value_error,"temperatures must be positive and Ts must be greater than Tf");
+        }
+        if (niterTemp_ < 0) {
+                pagmo_throw(value_error,"number of iteration before adjusting the temperature must be positive");
+        }
+        if (niterRange_ < 0) {
+                pagmo_throw(value_error,"number of iteration before adjusting the neighbourhood must be positive");
+        }
+        if (StartStep_ < 0 || StartStep_>1) {
+                pagmo_throw(value_error,"Initial range must be between 0 and 1");
+        }
+}
+
 Population ASAalgorithm::evolve(const Population &pop) const
 {
 	const GOProblem &problem = pop.problem();

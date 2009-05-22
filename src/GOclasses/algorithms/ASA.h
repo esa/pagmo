@@ -29,12 +29,47 @@
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
+/// Simulated Annealing with adaptive neighbourhood (SA-AN)
+/**
+ * The implementation comes from the paper in http://www.csit.fsu.edu/~navon/5420a/corana.pdf by Corana et al.
+ * It is, essentially, a simulated annealing where the new points are generated perturbing each component separately
+ * and the neighbourhood size of each component is controlled by the number of point accepted or rejected according
+ * to the Metropolis criteria
+ */
 class __PAGMO_VISIBLE ASAalgorithm: public go_algorithm {
+
 	public:
-		//This method initialise the SA-AN algorithm starting and final temperature setting deafult values for
-		//the StartStep, the niterTemp and the niterRange. Tcoeff is evaluated accordingly.
-		ASAalgorithm(int, const double &, const double &);
-		virtual Population evolve(const Population &) const;
+                /// Constructor.
+                /**
+                 * Creates the SA-AN algorithm using a minimal amount of parameters. While it does not give full
+                 * control over the algorithm, it assumes reasonable default values for parameters difficult to set
+                 * for non expert users.
+                 * \param[in] niter Maximum number of function evaluation allowed
+                 * \param[in] Ts Starting temperature
+                 * \param[in] Tf Final temperature
+                 */
+                ASAalgorithm(int niter, const double &Ts, const double &Tf);
+
+                /// Constructor.
+                /**
+                 * Creates the SA-AN algorithm specifying all the algorithm parameters. This constructor should be used only
+                 * by users familiar with Corana SA-AN algorithm
+                 * \param[in] niter Maximum number of function evaluation allowed
+                 * \param[in] Ts Starting temperature
+                 * \param[in] Tf Final temperature
+                 * \param[in] niterT The number of temperature adjustments will be proportional to this number
+                 * \param[in] niterR The number of range adjustments will be proportional to this number
+                 * \param[in] startRange Initial range (equal for all components of the decision vector)
+                 */
+                 ASAalgorithm(int niter, const double &Ts, const double &Tf, const int niterT, const int niterR, const double startRange);
+
+                /// Algorithm code.
+                /**
+                * This method contains the actual code of the SA-AN algorithm. It performs the algorithm starting from
+                * the first individual of the population passed as input
+                * \param[in] pop Population to be evolved (only the first individual will change)
+                */
+                virtual Population evolve(const Population & pop) const;
 		virtual ASAalgorithm *clone() const {return new ASAalgorithm(*this);}
 		virtual std::string id_object() const { return id_name(); }
 	private:
