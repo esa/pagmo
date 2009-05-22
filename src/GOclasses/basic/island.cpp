@@ -86,7 +86,7 @@ island &island::operator=(const island &i)
 		m_pop = i.population();
 		m_goa.reset(i.m_goa->clone());
 		m_evo_time = i.m_evo_time;
-		//TODO: policies!!!
+		/** TODO Make it consistent with the copy constructor!!! */
 	}
 	return *this;
 }

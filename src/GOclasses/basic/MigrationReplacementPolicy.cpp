@@ -41,6 +41,13 @@ int MigrationReplacementPolicy::getMaxMigrationRate(const Population& population
 std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& mrp)
 {
 	s << "Replacement policy type:     " << typeid(mrp).name() << std::endl;
-	s << "Maximum migration rate (in): " << (mrp.maxMigrationRateAbs < 0 ? mrp.maxMigrationRateFrac : mrp.maxMigrationRateAbs) << std::endl;
+	s << "Maximum migration rate (in): ";
+	
+	if(mrp.maxMigrationRateAbs < 0) {
+		s << (100.0 * mrp.maxMigrationRateFrac) << " %";
+	} else {
+		s << mrp.maxMigrationRateAbs;
+	}
+	s << std::endl;
 	return s;
 }

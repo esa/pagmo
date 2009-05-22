@@ -247,14 +247,21 @@ BOOST_PYTHON_MODULE(_core)
 	
 	// Expose RandomMigrationSelectionPolicy
 	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
-	class_RMSP.def(init<const int&, optional<const uint32_t> >());
+	/*
+	 * !!!
+	 * Here and below the order of declaration of constructors is crucial !!!
+	 * If the int one is given first, RandomMigrationSelectionPolicy(1) will be interpreted as RandomMigrationSelectionPolicy(1.0) !!!
+	 * Python overloading SUCKS.
+	 * !!!
+	 */	
 	class_RMSP.def(init<const double&, optional<const uint32_t> >());
+	class_RMSP.def(init<const int&, optional<const uint32_t> >());
 	class_RMSP.def("__copy__", &Py_copy_from_ctor<RandomMigrationSelectionPolicy>);
 	class_RMSP.def("__repr__", &Py_repr_from_stream<RandomMigrationSelectionPolicy>);
 	// Expose ChooseBestMigrationSelectionPolicy
 	class_<ChooseBestMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_CBMSP("choose_best_selection_policy", "A choose best migration selection policy.", init<>());	
-	class_CBMSP.def(init<const int&>());
 	class_CBMSP.def(init<const double&>());
+	class_CBMSP.def(init<const int&>());	
 	class_CBMSP.def("__copy__", &Py_copy_from_ctor<ChooseBestMigrationSelectionPolicy>);
 	class_CBMSP.def("__repr__", &Py_repr_from_stream<ChooseBestMigrationSelectionPolicy>);
 		
@@ -263,14 +270,14 @@ BOOST_PYTHON_MODULE(_core)
 	
 	// Expose RandomMigrationReplacementPolicy
 	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());
-	class_RMRP.def(init<const int&, optional<const uint32_t> >());
 	class_RMRP.def(init<const double&, optional<const uint32_t> >());
+	class_RMRP.def(init<const int&, optional<const uint32_t> >());	
 	class_RMRP.def("__copy__", &Py_copy_from_ctor<RandomMigrationReplacementPolicy>);
 	class_RMRP.def("__repr__", &Py_repr_from_stream<RandomMigrationReplacementPolicy>);
 
 	class_<BestReplaceWorstIfBetterMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_BRWIBMRP("best_rep_worst_replacement_policy", "A migration replacement policy where best incoming replace worst present if they are better.", init<>());
-	class_BRWIBMRP.def(init<const int&>());
 	class_BRWIBMRP.def(init<const double&>());
+	class_BRWIBMRP.def(init<const int&>());
 	class_BRWIBMRP.def("__copy__", &Py_copy_from_ctor<BestReplaceWorstIfBetterMigrationReplacementPolicy>);
 	class_BRWIBMRP.def("__repr__", &Py_repr_from_stream<BestReplaceWorstIfBetterMigrationReplacementPolicy>);	
 }
