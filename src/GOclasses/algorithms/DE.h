@@ -29,10 +29,30 @@
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
+/// Differential Evolution Solver
+/**
+ * This implementation is taken from Storn original paper. Implementation is taken from
+ * http://www.icsi.berkeley.edu/~storn/code.html
+ */
+
 class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
 	public:
-		DEalgorithm(int, const double &, const double &, int);
-		virtual Population evolve(const Population &) const;
+                /// Constructor
+                /**
+                 * It instantiate a DE algorithm.
+                 * \param[in] gen Generation to be evolved
+                 * \param[in] F DE scaling parameter (algorithm specific)
+                 * \param[in] CR crossover probability (algorithm specific)
+                */
+                DEalgorithm(int gen, const double &F, const double &CR, int strategy);
+
+                /// Algorithm
+                /**
+                 * It performs a call to the DE algorithm evolving the population for gen generations
+                 * \param[in] popin Starting population
+                 * \return Evolved population
+                */
+                virtual Population evolve(const Population &popin) const;
 		virtual DEalgorithm *clone() const {return new DEalgorithm(*this);}
 		virtual std::string id_object() const;
 	private:
