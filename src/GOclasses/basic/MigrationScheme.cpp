@@ -46,12 +46,12 @@ void MigrationScheme::preEvolutionCallback(island& _island)
 		if(neighbours.size() > 0) {
 			if(!distributionType) {
 				// For one-to-one migration choose a random neighbour island and fetch immigrants
-				size_t chosenNeighbourIndex = rng() % neighbours.size();
+				size_t chosenNeighbourIndex = rng() * neighbours.size();
 				size_t chosenNeighbour = neighbours[chosenNeighbourIndex];
 				
 				//std::cout << "Randomly chosen neighbour id: " << chosenNeighbour << std::endl;
 				
-				std::vector<Individual> immigrants = immigrantsByIsland[chosenNeighbour];
+				immigrants = immigrantsByIsland[chosenNeighbour];
 				
 				//std::cout << "The neighbour provides " << immigrants.size() << " individuals" << std::endl;
 			} else {
@@ -68,7 +68,11 @@ void MigrationScheme::preEvolutionCallback(island& _island)
 	
 	//2. Insert immigrants into population
 	if(immigrants.size() > 0) { //if there's anything to migrate, do it
-		_island.acceptMigratingIndividuals(immigrants);
+		//but take into account the island's migration probability
+		
+		if(rng() < _island.getMigrationProbability()) {		
+			_island.acceptMigratingIndividuals(immigrants);
+		}
 	}	
 }
 
@@ -97,7 +101,7 @@ void MigrationScheme::postEvolutionCallback(island& _island)
 			if(immigrants.size() > 0) {
 				if(!distributionType) {
 					// For one-to-one migration choose a random neighbour island and put immigrants to its inbox
-					size_t chosenNeighbourIndex = rng() % neighbours.size();
+					size_t chosenNeighbourIndex = rng() * neighbours.size();
 					size_t chosenNeighbour = neighbours[chosenNeighbourIndex];
 					
 					//std::cout << "Randomly chosen neighbour id: " << chosenNeighbour << std::endl;
@@ -119,7 +123,7 @@ void MigrationScheme::postEvolutionCallback(island& _island)
 		// For migrationDirection == 1, immigrantsByIsland behave like "outboxes", i.e. each is a "database of best individuals" for corresponding island
 		immigrants = _island.getMigratingIndividuals();
 		
-		//std::cout << "Storing " << immigrants.size() << " individuals int the DB" << std::endl;
+		//std::cout << "Storing " << immigrants.size() << " individuals int the DB of the island " << _island.id() << std::endl;
 		
 		immigrantsByIsland[_island.id()].swap(immigrants);
 	}

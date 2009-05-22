@@ -34,8 +34,7 @@
 #include "../problems/GOproblem.h"
 #include "individual.h"
 #include "population.h"
-#include "MigrationSelectionPolicy.h"
-#include "MigrationReplacementPolicy.h"
+#include "MigrationPolicy.h"
 
 class archipelago;
 
@@ -89,15 +88,14 @@ class __PAGMO_VISIBLE island
 		/// Constructor.
 		/**
 		 * Creates an island associated with a specified problem, using the specified algorithm, having
-		 * an initial population of given size and using specified selection and replacement policies.
-		 * Deep copies of the policies are created and internally stored (what allows safe milti-thread operation).
+		 * an initial population of given size and using specified migration parameters.
+		 * Deep copies of the migration policy is created and internally stored (what allows safe milti-thread operation).
 		 * \param[in] p Problem to be associated with the island.
 		 * \param[in] al Algorithm to be used by the island.
 		 * \param[in] n Size of the island's population.
-		 * \param[in] msp Migration selection policy.
-		 * \param[in] mrp Migration replacement policy.
+		 * \param[in] mp Migration policy.
 		 */
-		island(const GOProblem& p, const go_algorithm& al, int n, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp);
+		island(const GOProblem& p, const go_algorithm& al, int n, const MigrationPolicy& mp);
 		
 		/// Copy constructor.
 		/**
@@ -133,6 +131,7 @@ class __PAGMO_VISIBLE island
 		/// Algorithm seter (<b>synchronised</b>).
 		void set_algorithm(const go_algorithm &);
 		
+		
 		/// Migration selection policy public getter (<b>synchronised</b>).
 		/** Note, that this function will throw an exception if no policy is associated with the island. */
 		const MigrationSelectionPolicy& getMigrationSelectionPolicy() const;
@@ -140,9 +139,9 @@ class __PAGMO_VISIBLE island
 		/// Migration selection policy public setter (<b>synchronised</b>).
 		/**
 		 * A deep copy of the given object is created and stored.
-		 * \param[in] msp Selection policy to be used with the island. May be null.
+		 * \param[in] msp Selection policy to be used with the island. May not be null.
 		 */
-		void setMigrationSelectionPolicy(const MigrationSelectionPolicy* msp);
+		void setMigrationSelectionPolicy(const MigrationSelectionPolicy& msp);
 				
 		/// Migration replacement policy getter (<b>synchronised</b>).
 		/**  Note, that this function will throw an exception if no policy is associated with the island. */
@@ -151,9 +150,26 @@ class __PAGMO_VISIBLE island
 		/// Migration replacement policy setter (<b>synchronised</b>).
 		/**
 		 * A deep copy of the given object is created and stored.
-		 * \param[in] msp Replacement policy to be used with the island. May be null.
+		 * \param[in] msp Replacement policy to be used with the island. May not be null.
 		 */
-		void setMigrationReplacementPolicy(const MigrationReplacementPolicy* mrp);
+		void setMigrationReplacementPolicy(const MigrationReplacementPolicy& mrp);
+		
+		/// Migration policy getter (<b>synchronised</b>).
+		const MigrationPolicy& getMigrationPolicy() const;
+
+		/// Migration policy setter (<b>synchronised</b>).
+		/**
+		 * A deep copy of the given object is created and stored.
+		 * \param[in] mp Migration policy to be used with the island. May be null.
+		 */
+		void setMigrationPolicy(const MigrationPolicy* mp);
+		
+		/// Migration probability getter.
+		/**
+		 * This is provided here for convenience - it allows avoiding bothersome checking for migration policy presence,
+		 * which would require introducing friend classes etc. Clear indication that the code starts getting a bit spaghettish...
+		 */
+		double getMigrationProbability() const { return migrationPolicy ? migrationPolicy->getMigrationProbability() : 0.0; }
 
 		/// Get the island size (the number of individuals) (<b>synchronised</b>).
 		size_t size() const;
@@ -326,8 +342,7 @@ class __PAGMO_VISIBLE island
 		archipelago									*m_a; ///< Associated archipelago (may be null).
 		size_t										m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).
 		mutable mutex_type							m_evo_mutex; ///< Mutex used to control evolution synchronisation.
-		boost::scoped_ptr<MigrationSelectionPolicy>	migrationSelectionPolicy; ///< Migration selection policy of the island (may be null).
-		boost::scoped_ptr<MigrationReplacementPolicy> migrationReplacementPolicy; ///< Migration replacement policy of the island (may be null).
+		boost::scoped_ptr<MigrationPolicy>          migrationPolicy; ///< Migration parameters of the island (may be null).
 };
 
 /// Stream output operator.

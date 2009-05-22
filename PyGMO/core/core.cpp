@@ -43,6 +43,7 @@
 #include "../../src/GOclasses/basic/population.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
 #include "../../src/GOclasses/basic/MigrationScheme.h"
+#include "../../src/GOclasses/basic/MigrationPolicy.h"
 #include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
 #include "../../src/GOclasses/basic/ChooseBestMigrationSelectionPolicy.h"
@@ -165,7 +166,7 @@ BOOST_PYTHON_MODULE(_core)
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
 	class_island.def(init<const GOProblem &, const go_algorithm &>());
-	class_island.def(init<const GOProblem&, const go_algorithm&, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
+	class_island.def(init<const GOProblem&, const go_algorithm&, int, const MigrationPolicy&>());
 	class_island.def(init<const island &>());
 	class_island.def("__copy__", &Py_copy_from_ctor<island>);
 	class_island.def("__delitem__", &island::erase);
@@ -199,7 +200,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
 	class_arch.def(init<const GOProblem &, const MigrationScheme&>());
-	class_arch.def(init<const GOProblem &, const MigrationScheme&, const go_algorithm &, int, int, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
+	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int, const Migration&>());
 	class_arch.def(init<const archipelago &>());
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
@@ -221,11 +222,25 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("total_evo_time", &archipelago::getTotalEvoTime, "Sum of total evolution times for all islands.");
 	
 	
+	// Expose Migration
+	class_<Migration> class_M("migration", "The migration parameters for archipelago.", init<>());
+	class_M.def(init<const MigrationScheme&, const MigrationPolicy&>());
+	class_M.def("__copy__", &Py_copy_from_ctor<Migration>);
+	class_M.def("__repr__", &Py_repr_from_stream<Migration>);
+
 	// Expose MigrationScheme
 	class_<MigrationScheme> class_MS("migration_scheme", "The migration scheme.", init<int, int, optional<uint32_t> >());
 	class_MS.def(init<int, int, const base_topology&, optional<uint32_t> >());
 	class_MS.def("__copy__", &Py_copy_from_ctor<MigrationScheme>);
 	class_MS.def("__repr__", &Py_repr_from_stream<MigrationScheme>);
+	
+	// Expose MigrationPolicy
+	class_<MigrationPolicy> class_MP("migration_policy", "The island's migration policy.", init<>());
+	class_MP.def(init<const double>());
+	class_MP.def(init<const double, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
+	class_MP.def("__copy__", &Py_copy_from_ctor<MigrationPolicy>);
+	class_MP.def("__repr__", &Py_repr_from_stream<MigrationPolicy>);
+	
 	
 	// Expose MigrationSelectionPolicy
 	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);

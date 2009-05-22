@@ -50,16 +50,16 @@ archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M
 	}
 }
 
-archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme, const go_algorithm &a, int N, int M, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp)
+archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M, const Migration& migration)
 		:m_gop(p.clone()),
-		migrationScheme(_migrationScheme.clone())
+		migrationScheme(migration.getMigrationScheme().clone())
 {
 	if (N < 0 || M < 0) {
 		pagmo_throw(value_error,"number of islands and population size must be nonnegative numbers");
 	}
 	//TODO: reset the migration scheme?
 	for (int i = 0; i < N; ++i) {
-		push_back(island(p,a,M,msp,mrp));
+		push_back(island(p,a,M,migration.getMigrationPolicy()));
 	}
 }
 
@@ -300,15 +300,9 @@ std::ostream &operator<<(std::ostream &s, const archipelago &a) {
 		s << "Population size:    " << it->size() << '\n';
 		s << "Evolution time:     " << it->evo_time() << '\n';
 		s << "Algorithm type:     " << it->algorithm().id_name() << "\n";
-		s << "Selection policy:   ";
-		if(it->migrationSelectionPolicy) {
-			s << std::endl << *(it->migrationSelectionPolicy) << std::endl;
-		} else {
-			s << "none" << std::endl;
-		}
-		s << "Replacement policy: ";
-		if(it->migrationReplacementPolicy) {
-			s << std::endl << *(it->migrationReplacementPolicy) << std::endl;
+		s << "Migration policy:   ";
+		if(it->migrationPolicy) {
+			s << std::endl << *(it->migrationPolicy) << std::endl;
 		} else {
 			s << "none" << std::endl;
 		}

@@ -60,14 +60,13 @@ island::island(const GOProblem &p, const go_algorithm &al, int n)
 {
 }
 
-island::island(const GOProblem& p, const go_algorithm& al, int n, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp)
+island::island(const GOProblem& p, const go_algorithm& al, int n, const MigrationPolicy& mp)
 		:m_id(get_new_id()),
 		m_pop(p, n),
 		m_goa(al.clone()),
 		m_a(0),
 		m_evo_time(0),
-		migrationSelectionPolicy(msp.clone()),
-		migrationReplacementPolicy(mrp.clone())
+		migrationPolicy(new MigrationPolicy(mp))
 {
 }
 
@@ -77,8 +76,7 @@ island::island(const island &i)
 		m_goa(i.m_goa->clone()),
 		m_a(0),
 		m_evo_time(i.m_evo_time),
-		migrationSelectionPolicy(i.migrationSelectionPolicy ? i.migrationSelectionPolicy->clone() : 0),
-		migrationReplacementPolicy(i.migrationReplacementPolicy ? i.migrationReplacementPolicy->clone() : 0)
+		migrationPolicy(i.migrationPolicy ? new MigrationPolicy(*(i.migrationPolicy)) : 0)		
 {
 }
 
@@ -126,31 +124,52 @@ void island::set_algorithm(const go_algorithm &a)
 const MigrationSelectionPolicy& island::getMigrationSelectionPolicy() const
 {
 	join();
-	if(!migrationSelectionPolicy) {
-		pagmo_throw(value_error, "The island has no associated selection policy!");
+	if(!migrationPolicy) {
+		pagmo_throw(value_error, "The island has no associated migration policy!");
 	}
-	return *migrationSelectionPolicy;
+	return migrationPolicy->getMigrationSelectionPolicy();
 }
 
-void island::setMigrationSelectionPolicy(const MigrationSelectionPolicy* msp)
+void island::setMigrationSelectionPolicy(const MigrationSelectionPolicy& msp)
 {
 	join();
-	migrationSelectionPolicy.reset(msp ? msp->clone() : 0);
+	if(!migrationPolicy) {
+		pagmo_throw(value_error, "The island has no associated migration policy!");
+	}
+	migrationPolicy->setMigrationSelectionPolicy(msp);
 }
 
 const MigrationReplacementPolicy& island::getMigrationReplacementPolicy() const
 {
 	join();
-	if(!migrationReplacementPolicy) {
-		pagmo_throw(value_error, "The island has no associated replacement policy!");
+	if(!migrationPolicy) {
+		pagmo_throw(value_error, "The island has no associated migration policy!");
 	}
-	return *migrationReplacementPolicy;
+	return migrationPolicy->getMigrationReplacementPolicy();
 }
 
-void island::setMigrationReplacementPolicy(const MigrationReplacementPolicy* mrp)
+void island::setMigrationReplacementPolicy(const MigrationReplacementPolicy& mrp)
 {
 	join();
-	migrationReplacementPolicy.reset(mrp ? mrp->clone() : 0);
+	if(!migrationPolicy) {
+		pagmo_throw(value_error, "The island has no associated migration policy!");
+	}
+	migrationPolicy->setMigrationReplacementPolicy(mrp);
+}
+
+const MigrationPolicy& island::getMigrationPolicy() const
+{
+	join();
+	if(!migrationPolicy) {
+		pagmo_throw(value_error, "The island has no associated migration policy!");
+	}
+	return *migrationPolicy;
+}
+
+void island::setMigrationPolicy(const MigrationPolicy* mp)
+{
+	join();
+	migrationPolicy.reset(mp ? new MigrationPolicy(*mp) : 0);
 }
 
 size_t island::id() const
@@ -226,11 +245,10 @@ Individual island::worst() const
 }
 
 
-
 std::vector<Individual> island::getMigratingIndividuals()
 {
-	if(migrationSelectionPolicy) {
-		return migrationSelectionPolicy->selectForMigration(m_pop);
+	if(migrationPolicy) {
+		return migrationPolicy->getMigrationSelectionPolicy().selectForMigration(m_pop);
 	} else {
 		/// \todo Throw an exception here?
 		//return an empty population
@@ -241,8 +259,8 @@ std::vector<Individual> island::getMigratingIndividuals()
 
 void island::acceptMigratingIndividuals(const std::vector<Individual>& incomingPopulation)
 {
-	if(migrationReplacementPolicy) {
-		std::list<std::pair<int, int> > replacement = migrationReplacementPolicy->selectForReplacement(incomingPopulation, m_pop);
+	if(migrationPolicy) {
+		std::list<std::pair<int, int> > replacement = migrationPolicy->getMigrationReplacementPolicy().selectForReplacement(incomingPopulation, m_pop);
 		
 		for(std::list<std::pair<int, int> >::iterator rep = replacement.begin(); rep != replacement.end(); rep++) {
 			/// \todo This method does some strange checking - maybe we could ommit it?
@@ -391,18 +409,12 @@ std::ostream &operator<<(std::ostream &s, const island &isl)
 	s << "Population size:             " << isl.size() << '\n';
 	s << "Evolution time:              " << isl.evo_time() << '\n';
 	s << "Algorithm type:              " << isl.algorithm().id_name() << '\n';
-	s << "Selection policy:            ";
-	if(isl.migrationSelectionPolicy) {
-		s << std::endl << *(isl.migrationSelectionPolicy);
+	s << "Migration policy:            ";
+	if(isl.migrationPolicy) {
+		s << std::endl << *(isl.migrationPolicy);
 	} else {
 		s << "none" << std::endl;		
 	}
-	s << "Replacement policy:          ";
-	if(isl.migrationReplacementPolicy) {
-		s << std::endl << *(isl.migrationReplacementPolicy);
-	} else {
-		s << "none" << std::endl;		
-	}	
 	boost::lock_guard<boost::mutex> lock(isl.m_evo_mutex);
 	s << isl.m_pop;
 	return s;

@@ -33,6 +33,7 @@
 #include <boost/unordered_map.hpp>
 #include "../../Functions/rng/rng.h"
 #include <vector>
+#include "one_way_ring_topology.h"
 
 /// Base class for the migration schemes.
 /**
@@ -71,6 +72,30 @@ class __PAGMO_VISIBLE MigrationScheme
 		typedef boost::lock_guard<boost::mutex> lock_type;
 	
 	public:
+		/// Default constructor.
+		/**
+		 * Creates a migration scheme with a one-way ring topology, using Dario's favourite defualt parameters.
+		 * Their values are:
+		 * <ul>
+		 * <li>distributionType: point-to-point</li>
+		 * <li>migrationDirection: destination</li>
+		 * </ul>
+		 * @param[in] seed RNG seed.
+		 */
+		MigrationScheme(uint32_t seed = static_rng_uint32()())
+			: distributionType(0), migrationDirection(1), topology(one_way_ring_topology().clone()), rng(seed) { }
+
+		/// Almost default constructor.
+		/**
+		 * Creates a migration scheme with a given topology, using Dario's favourite defualt parameters.
+		 * For values of these parameters see \see MigrationScheme::MigrationScheme()
+		 * @param[in] _topology Topology to be used.
+		 * @param[in] seed RNG seed.
+		 */
+		MigrationScheme(const base_topology& _topology, uint32_t seed = static_rng_uint32()())
+			: distributionType(0), migrationDirection(1), topology(_topology.clone()), rng(seed) { }
+
+
 		/// Constructor.
 		/**
 		 * Creates a migration scheme not associated with a topology.
@@ -197,7 +222,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 */
 		boost::unordered_map<size_t, std::vector<Individual> > immigrantsByIsland;
 		
-		rng_uint32 rng; ///< Random number generator	
+		rng_double rng; ///< Random number generator	
 	
 		/// Stream output operator.
 		friend std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);

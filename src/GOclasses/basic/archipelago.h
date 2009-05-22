@@ -32,6 +32,7 @@
 #include "island.h"
 #include "py_container_utils.h"
 #include "MigrationScheme.h"
+#include "Migration.h"
 
 /// The Archipelago class.
 /** \todo rename. */
@@ -93,14 +94,14 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		/// Constructor.
 		/**
 		 * Creates an archipelago with the given number of islands associated with the given problem,
-		 * using the specified algorithm and having the specified migration scheme.
+		 * using the specified algorithm and having the specified migration parameters.
 		 * \param[in] p problem to be associated with the archipelago.
-		 * \param[in] _migrationScheme migration scheme of the new archipelago.
 		 * \param[in] a algorithm to be used by every island.
 		 * \param[in] N number of islands to create.
 		 * \param[in] M population size for each created island.
+		 * \param[in] migration migration parameters for the archipelago.
 		 */
-		archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme, const go_algorithm &a, int N, int M, const MigrationSelectionPolicy& msp, const MigrationReplacementPolicy& mrp);
+		archipelago(const GOProblem &p, const go_algorithm &a, int N, int M, const Migration& migration);
 		
 		/// Copy constructor.
 		archipelago(const archipelago &);

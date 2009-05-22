@@ -18,43 +18,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
-#include <vector>
-#include <algorithm>
+#include "MigrationPolicy.h"
+#include "../../exceptions.h"
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-std::vector<Individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const Population& population)
+void MigrationPolicy::setMigrationProbability(const double _migrationProbability)
 {
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
-	
-	//Create a temporary array of individuals
-	std::vector<Individual> result(population.begin(), population.end());
-	
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
+	if((_migrationProbability < 0.0) || (_migrationProbability > 1.0)) {
+		pagmo_throw(value_error, "Migration probability must be within the [0.0, 1.0] range.");
 	}
-	std::cout << std::endl;*/
-		
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), Individual::compare_by_fitness);
-	
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-	
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-	
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-	
-	return result;
+	migrationProbability = _migrationProbability;
 }
 
+std::ostream &operator<<(std::ostream &s, const MigrationPolicy& msp)
+{
+	s << "Migration probability: " << msp.migrationProbability << std::endl;
+	s << "Selection policy:      " << std::endl << *(msp.selectionPolicy) << std::endl;
+	s << "Replacement policy:    " << std::endl << *(msp.replacementPolicy) << std::endl;
+	return s;
+}

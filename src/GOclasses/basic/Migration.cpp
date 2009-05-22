@@ -18,43 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
-#include <vector>
-#include <algorithm>
+#include "Migration.h"
+#include "../../exceptions.h"
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-std::vector<Individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const Population& population)
+std::ostream &operator<<(std::ostream &s, const Migration& msp)
 {
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
-	
-	//Create a temporary array of individuals
-	std::vector<Individual> result(population.begin(), population.end());
-	
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-		
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), Individual::compare_by_fitness);
-	
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-	
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-	
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-	
-	return result;
+	s << "Migration scheme: " << std::endl << *(msp.migrationScheme) << std::endl;
+	s << "Migration policy:      " << std::endl << *(msp.migrationPolicy) << std::endl;
+	return s;
 }
-
