@@ -51,7 +51,7 @@ Population MPSOalgorithm::evolve(const Population &deme) const
 		pagmo_throw(value_error,"population size must be a multiple of the number of swarms");
 	}
 
-	const size_t NP = deme.size()/nswarms;							//potentially dangerous when the deme size is not divisible by the numberof swamrs
+        const size_t NP = deme.size()/nswarms;		//potentially dangerous when the deme size is not divisible by the numberof swamrs
 	const size_t D = LB.size();
 
 	std::vector<double> dummy(D,0);								//used for initialisation purposes

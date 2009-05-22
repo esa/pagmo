@@ -27,12 +27,22 @@
 #include "../problems/GOproblem.h"
 #include "PSO.h"
 
-PSOalgorithm::PSOalgorithm(int generationsInit, const double &omegaInit, const double &eta1Init, const double &eta2Init,
-	const double &vcoeffInit):generations(generationsInit),omega(omegaInit),eta1(eta1Init),eta2(eta2Init),vcoeff(vcoeffInit)
+PSOalgorithm::PSOalgorithm(int generations_, const double &omega_, const double &eta1_, const double &eta2_,
+        const double &vcoeff_):generations(generations_),omega(omega_),eta1(eta1_),eta2(eta2_),vcoeff(vcoeff_)
 {
-	if (generationsInit < 0) {
+        if (generations_ < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
+        if (vcoeff_ < 0 || vcoeff_ > 1) {
+                pagmo_throw(value_error,"Velocity coeficient must be between 0 and 1");
+        }
+}
+
+PSOalgorithm::PSOalgorithm(int generations_):generations(generations_),omega(0.65),eta1(2.0),eta2(2.0),vcoeff(0.5)
+{
+        if (generations_ < 0) {
+                pagmo_throw(value_error,"number of generations must be nonnegative");
+        }
 }
 
 Population PSOalgorithm::evolve(const Population &deme) const
@@ -68,7 +78,7 @@ Population PSOalgorithm::evolve(const Population &deme) const
 
    // Initialise the minimum and maximum velocity
    for ( int i = 0; i<m; i++ ) {
-		vwidth = (UB[i]-LB[i])/vcoeff;
+                vwidth = (UB[i]-LB[i]) * vcoeff;
 		MINV[i] = -1.0*vwidth;
 		MAXV[i] = vwidth;
 	}

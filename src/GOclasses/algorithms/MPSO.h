@@ -29,10 +29,35 @@
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
+/// Multiple Particle Swarm Optimisation Solver (MPSO)
+/**
+ * The Multiple Particle Swarm Optimisation algorithm. A simple modification to PSOalgorithm that divides the swarm
+ * into subswarms and exchange particles
+ */
+
 class __PAGMO_VISIBLE MPSOalgorithm: public go_algorithm {
 	public:
-		MPSOalgorithm(int, const double &, const double &, const double &, const double &, int);
-		virtual Population evolve(const Population &) const;
+                /// Constructor
+                /**
+                 * It instantiate a MPSO algorithm.
+                 * \param[in] gen Generation to be evolved
+                 * \param[in] inertia The particle inertia
+                 * \param[in] cognitive The particle cognitive component
+                 * \param[in] social The particle social component
+                 * \param[in] vcoeff Defines the initial particle velocity. Must be in [0,1]. When 0 the particle initial velocity is
+                 * zero, when one it is a random vector between the lower and upper bounds
+                 * \param[in] nswarms Defines the number of swarms
+
+                */
+                MPSOalgorithm(int gen, const double &inertia, const double &cognitive, const double &social, const double &vcoeff, int nswarms);
+
+                /// Algorithm
+                /**
+                 * It performs a call to the MPSO algorithm evolving the population for gen generations
+                 * \param[in] popin Starting population
+                 * \return Evolved population
+                */
+                virtual Population evolve(const Population &popin) const;
 		virtual MPSOalgorithm *clone() const {return new MPSOalgorithm(*this);}
 		virtual std::string id_object() const {return id_name(); }
 	private:

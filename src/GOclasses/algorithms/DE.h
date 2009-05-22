@@ -29,10 +29,10 @@
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
-/// Differential Evolution Solver
+/// Differential Evolution Solver (DE)
 /**
- * This implementation is taken from Storn original paper. Implementation is taken from
- * http://www.icsi.berkeley.edu/~storn/code.html
+ * The Differential Evolution solver by Storn. Implementation is taken from
+ * http://www.icsi.berkeley.edu/~storn/code.html and modified for the go_algorithm class
  */
 
 class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
@@ -41,8 +41,8 @@ class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
                 /**
                  * It instantiate a DE algorithm.
                  * \param[in] gen Generation to be evolved
-                 * \param[in] F DE scaling parameter (algorithm specific)
-                 * \param[in] CR crossover probability (algorithm specific)
+                 * \param[in] F Scaling parameter
+                 * \param[in] CR Crossover probability
                 */
                 DEalgorithm(int gen, const double &F, const double &CR, int strategy);
 

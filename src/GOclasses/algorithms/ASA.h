@@ -29,7 +29,7 @@
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
-/// Simulated Annealing with adaptive neighbourhood (SA-AN)
+/// Simulated Annealing with Adaptive Neighbourhood solver (ASA or SA-AN)
 /**
  * The implementation comes from the paper in http://www.csit.fsu.edu/~navon/5420a/corana.pdf by Corana et al.
  * It is, essentially, a simulated annealing where the new points are generated perturbing each component separately

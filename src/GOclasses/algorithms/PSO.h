@@ -29,10 +29,40 @@
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
+/// Particle Swarm Optimisation Solver (PSO)
+/**
+ * The canonic Particle Swarm Optimisation algorithm. Pseudo algorithm taken from
+ * http://en.wikipedia.org/wiki/Particle_swarm_optimization [July 2008] and implemented for the class go_algorithm
+ */
+
 class __PAGMO_VISIBLE PSOalgorithm: public go_algorithm {
 	public:
-		PSOalgorithm(int, const double &, const double &, const double &, const double &);
-		virtual Population evolve(const Population &) const;
+                /// Constructor
+                /**
+                 * It instantiate a PSO algorithm.
+                 * \param[in] gen Generation to be evolved
+                 * \param[in] inertia The particle inertia
+                 * \param[in] cognitive The particle cognitive component
+                 * \param[in] social The particle social component
+                 * \param[in] vcoeff Defines the initial particle velocity. Must be in [0,1]. When 0 the particle initial velocity is
+                 * zero, when one it is a random vector between the lower and upper bounds
+                */
+                PSOalgorithm(int gen, const double & inertia, const double &cognitive, const double &social, const double &vcoeff);
+
+                /// Constructor
+                /**
+                 * It instantiate a PSO algorithm with default parameters
+                 * \param[in] gen Generation to be evolved
+                */
+                PSOalgorithm(int gen);
+
+                /// Algorithm
+                /**
+                 * It performs a call to the PSO algorithm evolving the population for gen generations
+                 * \param[in] popin Starting population
+                 * \return Evolved population
+                */
+                virtual Population evolve(const Population &popin) const;
 		virtual PSOalgorithm *clone() const {return new PSOalgorithm(*this);}
 		
 		virtual std::string id_object() const {return id_name(); }

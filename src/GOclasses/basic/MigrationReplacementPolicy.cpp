@@ -31,7 +31,7 @@ int MigrationReplacementPolicy::getMaxMigrationRate(const Population& population
 		}
 		return (int)(maxMigrationRateFrac * (double)population.size());
 	} else {
-		if(maxMigrationRateAbs > population.size()) {
+                if((size_t)maxMigrationRateAbs > population.size()) {
 			pagmo_throw(assertion_error, "Absolute maximum migration rate exceeds population size!");
 		}
 		return maxMigrationRateAbs;
