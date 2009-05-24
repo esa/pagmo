@@ -32,7 +32,14 @@
 /// Differential Evolution Solver (DE)
 /**
  * The Differential Evolution solver by Storn. Implementation is taken from
- * http://www.icsi.berkeley.edu/~storn/code.html and modified for the go_algorithm class
+ * http://www.icsi.berkeley.edu/~storn/code.html and modified for the go_algorithm class. The following
+ * description also is taken from that web pages: Differential Evolution grew out of Ken Price's attempts
+ * to solve the Chebychev Polynomial fitting Problem that had been posed to him by Rainer Storn.
+ * A breakthrough happened, when Ken came up with the idea of using vector differences for perturbing the vector
+ * population. Since this seminal idea a lively discussion between Ken and Rainer and endless ruminations and computer
+ * simulations on both parts yielded many substantial improvements which make DE the versatile and robust tool
+ * it is today. The "DE community" has been growing since the early DE years of 1994 - 1996 and ever more
+ * researchers are working on and with DE.
  */
 
 class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
@@ -60,7 +67,7 @@ class __PAGMO_VISIBLE DEalgorithm: public go_algorithm {
 		const size_t	generations;
 		const double	F;
 		const double	CR;
-		const int		strategy;
+                const int	strategy;
 };
 
 #endif

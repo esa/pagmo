@@ -46,8 +46,8 @@ DEalgorithm::DEalgorithm(int g, const double &F_, const double &CR_, int s):gene
 Population DEalgorithm::evolve(const Population &deme) const
 {
 	const GOProblem &problem = deme.problem();
-    const std::vector<double> &LB = problem.getLB();
-    const std::vector<double> &UB = problem.getUB();
+        const std::vector<double> &LB = problem.getLB();
+        const std::vector<double> &UB = problem.getUB();
 	const size_t D = LB.size(), NP = deme.size();
 	// TODO: this needs to go away.
 	if (NP < 6) {

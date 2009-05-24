@@ -47,7 +47,7 @@ class __PAGMO_VISIBLE PSOalgorithm: public go_algorithm {
                  * \param[in] vcoeff Defines the initial particle velocity. Must be in [0,1]. When 0 the particle initial velocity is
                  * zero, when one it is a random vector between the lower and upper bounds
                 */
-                PSOalgorithm(int gen, const double & inertia, const double &cognitive, const double &social, const double &vcoeff);
+                PSOalgorithm(int gen, const double &inertia, const double &cognitive, const double &social, const double &vcoeff);
 
                 /// Constructor
                 /**
