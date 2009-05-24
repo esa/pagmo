@@ -15,7 +15,7 @@
 #include "DE.h"
 #include "SGA.h"
 #include "MPSO.h"
-#include "LOCAL.h"
+#include "CS.h"
 #include "TrajectoryProblems.h"
 #include "ClassicProblems.h"
 #include "SolversThreads.h"

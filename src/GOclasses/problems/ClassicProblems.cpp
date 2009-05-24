@@ -31,15 +31,14 @@
 //***********************************************************************************
 //Classical problems
 //***********************************************************************************
-
-TestProb::TestProb(int dim):GOProblem(std::vector<double>(dim, 0.0), std::vector<double>(dim, 1.0))
+testProb::testProb(int dim):GOProblem(std::vector<double>(dim, 0.0), std::vector<double>(dim, 1.0))
 {
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of test problem must be positive");
 	}
-};
+}
 
-std::string TestProb::id_object() const
+std::string testProb::id_object() const
 {
 	std::stringstream tmp;
 	tmp << id_name() << "_" << getDimension();
@@ -51,7 +50,7 @@ rastriginProb::rastriginProb(int dim):GOProblem(std::vector<double>(dim, -5.12),
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of rastrigin problem must be positive");
 	}
-};
+}
 
 std::string rastriginProb::id_object() const
 {
@@ -66,7 +65,7 @@ schwefelProb::schwefelProb(int dim):GOProblem(std::vector<double>(dim, -500.0), 
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of schwefel problem must be positive");
 	}
-};
+}
 
 std::string schwefelProb::id_object() const
 {
@@ -81,7 +80,7 @@ ackleyProb::ackleyProb(int dim):GOProblem(std::vector<double>(dim, -15.0), std::
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of ackley problem must be positive");
 	}
-};
+}
 
 std::string ackleyProb::id_object() const
 {
@@ -96,7 +95,7 @@ rosenbrockProb::rosenbrockProb(int dim):GOProblem(std::vector<double>(dim, -5.0)
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of rosenbrock problem must be positive");
 	}
-};
+}
 
 std::string rosenbrockProb::id_object() const
 {
@@ -121,7 +120,7 @@ lennardjonesProb::lennardjonesProb(int atoms):GOProblem(3*atoms-6)
 				UB[i] = 3.0;
 			}
 		}
-};
+}
 
 std::string lennardjonesProb::id_object() const
 {
@@ -136,11 +135,25 @@ levyProb::levyProb(int dim):GOProblem(std::vector<double>(dim, -10.0), std::vect
 	if (dim <= 0) {
 		pagmo_throw(value_error,"dimension of levy problem must be positive");
 	}
-};
+}
 
 std::string levyProb::id_object() const
 {
 	std::stringstream tmp;
 	tmp << id_name() << "_" << getDimension();
 	return tmp.str();
+}
+
+griewankProb::griewankProb(int dim):GOProblem(std::vector<double>(dim, -600.0), std::vector<double>(dim, 600.0))
+{
+        if (dim <= 0) {
+                pagmo_throw(value_error,"dimension of griewank problem must be positive");
+        }
+}
+
+std::string griewankProb::id_object() const
+{
+        std::stringstream tmp;
+        tmp << id_name() << "_" << getDimension();
+        return tmp.str();
 }

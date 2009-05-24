@@ -37,5 +37,6 @@ double __PAGMO_VISIBLE_FUNC ackley (const std::vector<double>& x);
 double __PAGMO_VISIBLE_FUNC rosenbrock (const std::vector<double>& x);
 double __PAGMO_VISIBLE_FUNC lennardjones (const std::vector<double>& x);
 double __PAGMO_VISIBLE_FUNC levy (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC griewank (const std::vector<double>& x);
 
 #endif

@@ -37,9 +37,23 @@
 //***********************************************************************************
 //Trajectory problems MGA
 //***********************************************************************************
-
+/// Cassini Multiple Gravity Assist interplanetary trajectory problem
+/**
+ * The problem is part of the European Space Agency GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm)
+ * This is a rather simple six dimensional MGA problem that is related to the Cassini spacecraft trajectory design problem.
+ * The objective of this mission is to reach Saturn and to be captured by its gravity into
+ * an orbit having pericenter radius r_p=108950 km, and eccentricity e=0.98.
+ * The planetary fly-by sequence considered is Earth, Venus, Venus, Earth, Jupiter, Saturn (as the one used by Cassini spacecraft).
+ * As objective function we use the total deltaV accumulated during the mission, including the
+ * launch deltaV and the various deltaV one needs to give at the planets and upon arrival to perform the
+ * final orbit injection
+*/
 class __PAGMO_VISIBLE cassini1Prob : public GOProblem {
 public:
+       /// Constructor
+       /**
+        * It instantiate the cassini1 problem as defined in the ESA GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm)
+        */
 	cassini1Prob();
 	virtual cassini1Prob *clone() const {return new cassini1Prob(*this);}
 	virtual std::string id_object() const {return id_name(); }
@@ -49,8 +63,20 @@ private:
 	static const double ub[6];
 };	//end class cassini1Prob
 
+/// GTOC1 Multiple Gravity Assist interplanetary trajectory problem
+/**
+ * The problem is part of the European Space Agency GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm)
+ * This problem draws inspiration from the first edition of the Global Trajectory Optimisation Competition (GTOC1)
+ * It is an 8 dimensional MGA problem with a rather long fly-by sequence including mainly Earth and Venus. The final target
+ * is the asteroid TW229. The objective of the mission is to maximise the change in sami-major axis of the
+ * asteroid orbit following an anaelastic impact of the spacecraft with the asteroid.
+ */
 class gtoc1Prob : public GOProblem {
 public:
+       /// Constructor
+       /**
+        * It instantiate the gtoc problem as defined in the ESA GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evevejsa.htm)
+        */
 	gtoc1Prob();
 	virtual gtoc1Prob *clone() const {return new gtoc1Prob(*this);}
 	virtual std::string id_object() const {return id_name(); }
@@ -69,7 +95,7 @@ private:
 class __PAGMO_VISIBLE messengerProb : public GOProblem {
 public:
 	messengerProb();
-	virtual ~messengerProb() {};
+        virtual ~messengerProb() {}
 	virtual messengerProb *clone() const {return new messengerProb(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
@@ -98,7 +124,7 @@ private:
 class tandemProb : public GOProblem {
 public:
 	tandemProb();
-	virtual ~tandemProb() {};
+        virtual ~tandemProb() {}
 	virtual tandemProb *clone() const {return new tandemProb(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
@@ -113,7 +139,7 @@ private:
 class cassini2Prob : public GOProblem {
 public:
 	cassini2Prob();
-	virtual ~cassini2Prob() {};
+        virtual ~cassini2Prob() {}
 	virtual cassini2Prob *clone() const {return new cassini2Prob(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:

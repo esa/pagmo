@@ -80,7 +80,7 @@ double lennardjones(const vector <double>& x){
 	int n = x.size();
 	int atoms = (n + 6) / 3;
 
-	double V = 0;											//LJ potential
+        double V = 0;         //LJ potential
 	double sixth, dist;
 	
 	//We evaluate the potential
@@ -128,4 +128,15 @@ double levy(const vector<double>& x){
 		ret += pow(x[j]+1.42513,2) + pow(x[j+1]+0.80032,2);
 
 	return ret;
+}
+
+double griewank (const vector<double>& x){
+        int n = x.size();
+        double fr=4000.0;
+        double retval = 0.0;
+        double p = 1.0;
+
+        for (int i=0; i<n; i++){ retval += x[i]*x[i];}
+        for (int i=0; i<n; i++){ p *= cos(x[i]/sqrt(x[i]));}
+        return (retval/fr - p + 1);
 }

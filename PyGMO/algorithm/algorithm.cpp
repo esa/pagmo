@@ -29,6 +29,7 @@
 #include "../../src/GOclasses/algorithms/MPSO.h"
 #include "../../src/GOclasses/algorithms/PSO.h"
 #include "../../src/GOclasses/algorithms/SGA.h"
+#include "../../src/GOclasses/algorithms/CS.h"
 #include "../../src/GOclasses/algorithms/go_algorithm.h"
 #include "../../src/GOclasses/algorithms/ihs_algorithm.h"
 #include "../../src/GOclasses/algorithms/nm_algorithm.h"
@@ -55,15 +56,16 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	class_<go_algorithm, boost::noncopyable>("__go_algorithm", "Base GO algorithm", no_init);
 
 	// Expose algorithms.
-	algorithm_wrapper<ASAalgorithm>("asa", "ASA algorithm.").def(init<int, const double &, const double &>());
-	algorithm_wrapper<DEalgorithm>("de", "DE algorithm.").def(init<int, const double &, const double &, int>());
+        algorithm_wrapper<ASAalgorithm>("asa", "Simulated Annealing with adaptive neighbourhood algorithm.").def(init<int, const double &, const double &>());
+        algorithm_wrapper<CSalgorithm>("cs", "Compass search algorithm.").def(init<const double &, const double &, const double &>());
+        algorithm_wrapper<DEalgorithm>("de", "Differential evolution algorithm.").def(init<int, const double &, const double &, int>());
 	algorithm_wrapper<ihs_algorithm>("ihs", "IHS algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &, const double &>());
 	algorithm_wrapper<nm_algorithm>("nm", "Nelder-Mead algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &>());
 	algorithm_wrapper<MPSOalgorithm>("mpso", "MPSO algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &, int>());
-	algorithm_wrapper<PSOalgorithm>("pso", "PSO algorithm.")
+        algorithm_wrapper<PSOalgorithm>("pso", "Particle swarm optimization algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &>());
 	algorithm_wrapper<SGAalgorithm>("sga", "Simple genetic algorithm.")
 		.def(init<int, const double &, const double &, int>());
