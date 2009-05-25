@@ -85,57 +85,7 @@ namespace keplerian_toolbox
 
 	template <class T>
 	struct spherical_coordinate_system: public base_coordinate_system<T> {
-		void to_cartesian(boost::array<T,6> &s) const
-		{
-			// Position.
-			const T &r = s[0], &phi = s[1], &theta = s[2], sin_theta = std::sin(theta),
-				cos_theta = std::cos(theta), sin_phi = std::sin(phi), cos_phi = std::cos(phi);
-			const T x = r * sin_theta * cos_phi, y = r * sin_theta * sin_phi, z = r * cos_theta;
-			// Velocity.
-			const T &v = s[0], &vphi = s[1], &vtheta = s[2], sin_vtheta = std::sin(vtheta),
-				cos_vtheta = std::cos(vtheta), sin_vphi = std::sin(vphi), cos_vphi = std::cos(vphi);
-			const T vx = v * sin_vtheta * cos_vphi, vy = v * sin_vtheta * sin_vphi, vz = v * cos_vtheta;
-			s[0] = x;
-			s[1] = y;
-			s[2] = z;
-			s[3] = vx;
-			s[4] = vy;
-			s[5] = vz;
-		}
-		void from_cartesian(boost::array<T,6> &s) const
-		{
-			// Position.
-			const T &x = s[0], &y = s[1], &z = s[2];
-			const T r = std::sqrt(x * x + y * y + z * z);
-			T phi, theta;
-			// If r is zero, assign zero to the other guys by convention.
-			if (r == 0) {
-				phi = theta = T(0);
-			} else {
-				phi = std::atan2(y,x);
-				theta = std::acos(z / r);
-			}
-			// Velocity.
-			const T &vx = s[3], &vy = s[4], &vz = s[5];
-			const T v = std::sqrt(vx * vx + vy * vy + vz * vz);
-			T vphi, vtheta;
-			if (v == 0) {
-				vphi = vtheta = T(0);
-			} else {
-				vphi = std::atan2(vy,vx);
-				vtheta = std::acos(vz / v);
-			}
-			s[0] = r;
-			s[1] = phi;
-			s[2] = theta;
-			s[3] = v;
-			s[4] = vphi;
-			s[5] = vtheta;
-		}
-		boost::shared_ptr<base_coordinate_system<T> > clone() const
-		{
-			return boost::shared_ptr<base_coordinate_system<T> >(new spherical_coordinate_system());
-		}
+
 	};
 
 	template <class T>
