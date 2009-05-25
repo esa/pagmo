@@ -69,7 +69,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<laplaceProb>("laplace", "Laplace problem.").def(init<const std::vector<int> &>())
 		.def("solution", &laplaceProb::solution, "Display solution relative to input decision vector.");
 	// Classical problems.
-	problem_wrapper<TestProb>("test", "Test problem.").def(init<int>());
+	problem_wrapper<testProb>("test", "Test problem.").def(init<int>());
 	problem_wrapper<rastriginProb>("rastrigin", "Rastrigin problem.").def(init<int>());
 	problem_wrapper<schwefelProb>("schwefel", "Schwefel problem.").def(init<int>());
 	problem_wrapper<ackleyProb>("ackley", "Ackely problem.").def(init<int>());
