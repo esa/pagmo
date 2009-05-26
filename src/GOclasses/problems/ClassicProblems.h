@@ -166,7 +166,7 @@ private:
 
 /// The Griewank Problem
 /**
- * The objective function here is the Levy function of arbitrary dimension. Bounds are set to -600,600
+ * The objective function here is the Griewank function of arbitrary dimension. Bounds are set to -600,600
  */
 class __PAGMO_VISIBLE griewankProb : public GOProblem{
 public:
