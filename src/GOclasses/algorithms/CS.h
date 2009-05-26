@@ -30,24 +30,25 @@
 
 /// The Compass Search Solver (CS)
 /**
-* In the review paper by Kolda, Lewis, Torczon: "Optimization by Direct Search: New Perspectives on Some Classical and Modern Methods"
-* published in the SIAM Journal Vol. 45, No. 3, pp. 385–482 (2003) we read the following description of the compass search
-* algorithm:  "Davidon describes what is one of the earliest examples of a direct
-* search method used on a digital computer to solve an optimization problem:
-* Enrico Fermi and Nicholas Metropolis used one of the ﬁrst digital computers,
-* the Los Alamos Maniac, to determine which values of certain theoretical
-* parameters (phase shifts) best ﬁt experimental data (scattering cross
-* sections). They varied one theoretical parameter at a time by steps
-* of the same magnitude, and when no such increase or decrease in any one
-* parameter further improved the ﬁt to the experimental data, they halved
-* the step size and repeated the process until the steps were deemed suﬃciently
-* small. Their simple procedure was slow but sure, and several of us
-* used it on the Avidac computer at the Argonne National Laboratory for
-* adjusting six theoretical parameters to ﬁt the pion-proton scattering data
-* we had gathered using the University of Chicago synchrocyclotron.
-* While this basic algorithm undoubtedly predates Fermi and Metropolis, it has remained
-* a standard in the scientiﬁc computing community for exactly the reason observed
-* by Davidon: it is slow but sure".
+ * In the review paper by Kolda, Lewis, Torczon: "Optimization by Direct Search: New Perspectives on Some Classical and Modern Methods"
+ * published in the SIAM Journal Vol. 45, No. 3, pp. 385–482 (2003) we read the following description of the compass search
+ * algorithm:  "Davidon describes what is one of the earliest examples of a direct
+ * search method used on a digital computer to solve an optimization problem:
+ * Enrico Fermi and Nicholas Metropolis used one of the ﬁrst digital computers,
+ * the Los Alamos Maniac, to determine which values of certain theoretical
+ * parameters (phase shifts) best ﬁt experimental data (scattering cross
+ * sections). They varied one theoretical parameter at a time by steps
+ * of the same magnitude, and when no such increase or decrease in any one
+ * parameter further improved the ﬁt to the experimental data, they halved
+ * the step size and repeated the process until the steps were deemed sufficiently
+ * small. Their simple procedure was slow but sure, and several of us
+ * used it on the Avidac computer at the Argonne National Laboratory for
+ * adjusting six theoretical parameters to ﬁt the pion-proton scattering data
+ * we had gathered using the University of Chicago synchrocyclotron.
+ * While this basic algorithm undoubtedly predates Fermi and Metropolis, it has remained
+ * a standard in the scientiﬁc computing community for exactly the reason observed
+ * by Davidon: it is slow but sure".
+ * @see http://www.cs.wm.edu/~va/research/sirev.pdf
  */
 class __PAGMO_VISIBLE CSalgorithm: public go_algorithm {
        public:

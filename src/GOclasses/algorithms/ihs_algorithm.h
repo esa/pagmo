@@ -48,20 +48,22 @@ class __PAGMO_VISIBLE ihs_algorithm: public go_algorithm {
 		virtual Population evolve(const Population &) const;
 		/// Clone method.
 		virtual ihs_algorithm *clone() const {return new ihs_algorithm(*this);}
+		/// Return a string representing a unique identifier for the algorithm.
 		virtual std::string id_object() const {return id_name(); }
 	private:
+		/// Print to stream a description of the algorithm.
 		virtual void log(std::ostream &) const;
-		// Number of generations.
+		/// Number of generations.
 		const size_t	m_gen;
-		// Rate of choosing from memory (i.e., from population).
+		/// Rate of choosing from memory (i.e., from population).
 		const double	m_phmcr;
-		// Minimum pitch adjustment rate.
+		/// Minimum pitch adjustment rate.
 		const double	m_ppar_min;
-		// Maximum pitch adjustment rate.
+		/// Maximum pitch adjustment rate.
 		const double	m_ppar_max;
-		// Mininum distance bandwidth.
+		/// Mininum distance bandwidth.
 		const double	m_bw_min;
-		// Maximum distance bandwidth.
+		/// Maximum distance bandwidth.
 		const double	m_bw_max;
 };
 
