@@ -64,7 +64,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<int, const double &, const double &, const double &, const double &, const double &>())
 		.def(init<int>());
 	algorithm_wrapper<nm_algorithm>("nm", "Nelder-Mead algorithm.")
-		.def(init<int, const double &, const double &, const double &, const double &>());
+		.def(init<int, const double &, const double &, const double &, const double &>())
+		.def(init<int>());
 	algorithm_wrapper<MPSOalgorithm>("mpso", "MPSO algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &, int>());
 	algorithm_wrapper<PSOalgorithm>("pso", "Particle swarm optimization algorithm.")

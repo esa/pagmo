@@ -32,6 +32,14 @@
 #include "../problems/GOproblem.h"
 #include "nm_algorithm.h"
 
+nm_algorithm::nm_algorithm(int n_gen):
+	m_gen(n_gen),m_alpha(1),m_gamma(2),m_rho(.5),m_sigma(.5)
+{
+	if (n_gen <= 0) {
+		pagmo_throw(value_error,"number of generations must be positive");
+	}
+}
+
 nm_algorithm::nm_algorithm(int n_gen, const double &alpha, const double &gamma, const double &rho, const double &sigma):
 	m_gen(n_gen),m_alpha(alpha),m_gamma(gamma),m_rho(rho),m_sigma(sigma)
 {

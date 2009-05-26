@@ -40,6 +40,7 @@ class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
 		typedef std::vector<std::pair<std::vector<double>,double> > simplex;
 	public:
 		nm_algorithm(int, const double &, const double &, const double &, const double &);
+		nm_algorithm(int);
 		virtual Population evolve(const Population &) const;
 		virtual nm_algorithm *clone() const {return new nm_algorithm(*this);}
 		virtual std::string id_object() const {return id_name(); }
