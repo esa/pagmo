@@ -27,7 +27,6 @@
 #include <boost/python/manage_new_object.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
-#include <boost/python/return_internal_reference.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
 #include <boost_python_p_exceptions.h>
@@ -196,14 +195,13 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
 	// Expose archipelago.
-	typedef island &(archipelago::*arch_get_island)(int);
 	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
 	class_arch.def(init<const GOProblem &, const MigrationScheme&>());
 	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int, const Migration&>());
 	class_arch.def(init<const archipelago &>());
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
-	class_arch.def("__getitem__", arch_get_island(&archipelago::operator[]), return_internal_reference<>());
+	class_arch.def("__getitem__", &archipelago::operator[], return_value_policy<copy_const_reference>());
 	class_arch.def("__len__", &archipelago::size);
 	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
