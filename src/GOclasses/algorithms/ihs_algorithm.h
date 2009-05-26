@@ -31,19 +31,29 @@
 
 /// Improved harmony search algorithm.
 /**
- * See http://en.wikipedia.org/wiki/Harmony_search
+ * Harmony search (HS) is a metaheuristic algorithm mimicking the improvisation process of musicians. In the process, each musician (i.e., each variable)
+ * plays (i.e., generates) a note (i.e., a value) for finding a best harmony (i.e., the global optimum) all together.
+ *
+ * This code implements the so-called improved harmony search algorithm (IHS), in which the probability of picking the variables from
+ * the decision vector and the amount of mutation to which they are subject vary respectively linearly and exponentially as time passes.
+ *
+ * In this algorithm the number of objective function evaluations is equal to the number of generations.
+ * @see http://en.wikipedia.org/wiki/Harmony_search for an introduction on harmony search.
+ * @see http://dx.doi.org/10.1016/j.amc.2006.11.033 for the paper that introduces and explains improved harmony search.
  */
 class __PAGMO_VISIBLE ihs_algorithm: public go_algorithm {
 	public:
+		ihs_algorithm(int);
 		ihs_algorithm(int, const double &, const double &, const double &, const double &, const double &);
 		virtual Population evolve(const Population &) const;
+		/// Clone method.
 		virtual ihs_algorithm *clone() const {return new ihs_algorithm(*this);}
 		virtual std::string id_object() const {return id_name(); }
 	private:
 		virtual void log(std::ostream &) const;
 		// Number of generations.
 		const size_t	m_gen;
-		// Rate of choosing from memory (i.e., population).
+		// Rate of choosing from memory (i.e., from population).
 		const double	m_phmcr;
 		// Minimum pitch adjustment rate.
 		const double	m_ppar_min;

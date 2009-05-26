@@ -28,6 +28,32 @@
 #include "../problems/GOproblem.h"
 #include "ihs_algorithm.h"
 
+/// Simple constructor.
+/**
+ * Initialises the parameters of the algorithms to "standard" values: phmcr = 0.85, ppar_min = 0.35, ppar_max = 0.99,
+ * bw_min = 1E-5 and bw_max = 1.
+ * @param[in] gen number of generations.
+ * @throws value_error if gen is not positive.
+ */
+ihs_algorithm::ihs_algorithm(int gen):m_gen(gen),m_phmcr(0.85),m_ppar_min(0.35),m_ppar_max(0.99),m_bw_min(1E-5),m_bw_max(1)
+{
+	if (gen <= 0) {
+		pagmo_throw(value_error,"number of generations must be positive");
+	}
+}
+
+/// Advanced constructor.
+/**
+ * Allows to specify in detail the parameters of the algorithm.
+ * @param[in] gen number of generations.
+ * @param[in] phmcr rate of choosing from memory.
+ * @param[in] ppar_min minimum pitch adjustment rate.
+ * @param[in] ppar_max maximum pitch adjustment rate.
+ * @param[in] bw_min minimum distance bandwidth.
+ * @param[in] bw_max maximum distance bandwidth.
+ * @throws value_error if gen is not positive, phmcr is not in the ]0,1[ interval, ppar min/max are not in the ]0,1[ interval,
+ * min/max quantities are less than/greater than max/min quantities.
+ */
 ihs_algorithm::ihs_algorithm(int gen, const double &phmcr, const double &ppar_min, const double &ppar_max,
 	const double &bw_min, const double &bw_max):
 	m_gen(gen),m_phmcr(phmcr),m_ppar_min(ppar_min),m_ppar_max(ppar_max),m_bw_min(bw_min),m_bw_max(bw_max)
@@ -46,6 +72,10 @@ ihs_algorithm::ihs_algorithm(int gen, const double &phmcr, const double &ppar_mi
 	}
 }
 
+/// Evolve population.
+/**
+ * @throws value_error if population is empty.
+ */
 Population ihs_algorithm::evolve(const Population &pop) const
 {
 	// Let's store some useful variables.
@@ -53,7 +83,7 @@ Population ihs_algorithm::evolve(const Population &pop) const
 	const std::vector<double> &lb = problem.getLB(), &ub = problem.getUB();
 	const size_t problem_size = lb.size(), pop_size = pop.size();
 	if (pop_size == 0) {
-		pagmo_throw(index_error,"cannot evolve an empty population");
+		pagmo_throw(value_error,"cannot evolve an empty population");
 	}
 	// This is the return population.
 	Population retval = pop;

@@ -60,8 +60,9 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<CSalgorithm>("cs", "Compass search algorithm.").def(init<const double &, const double &, const double &>())
 		.def(init<const double&>());
 	algorithm_wrapper<DEalgorithm>("de", "Differential evolution algorithm.").def(init<int, const double &, const double &, int>());
-	algorithm_wrapper<ihs_algorithm>("ihs", "IHS algorithm.")
-		.def(init<int, const double &, const double &, const double &, const double &, const double &>());
+	algorithm_wrapper<ihs_algorithm>("ihs", "Improved harmony search algorithm.")
+		.def(init<int, const double &, const double &, const double &, const double &, const double &>())
+		.def(init<int>());
 	algorithm_wrapper<nm_algorithm>("nm", "Nelder-Mead algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &>());
 	algorithm_wrapper<MPSOalgorithm>("mpso", "MPSO algorithm.")
