@@ -208,7 +208,7 @@ void nm_algorithm::shuffle_simplex(simplex &s, const GOProblem &problem) const
 /// Evolve a population.
 /**
  * The individuals' decision vectors are interpreted as simplex vertices, and the Nelder-Mead algorithm is run for
- * a number of iterations equal to m_gen.
+ * a number of iterations equal to nm_algorithm::m_gen.
  *
  * In case there are not enough individuals in order to build a simplex, a
  * value_error exception will be thrown. If there are more individuals than needed, the best individuals are selected
