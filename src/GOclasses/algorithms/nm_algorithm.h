@@ -34,6 +34,8 @@
 
 /// Nelder-Mead algorithm.
 /**
+ * \image html Nelder_Mead2.gif
+ *
  * The Nelder-Mead method (or downhill simplex method) is a commonly used nonlinear
  * optimization algorithm by John Nelder and R. Mead (1965). It is a numerical method for minimizing an
  * objective function in a many-dimensional space.
