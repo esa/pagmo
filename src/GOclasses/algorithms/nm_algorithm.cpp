@@ -137,7 +137,7 @@ nm_algorithm::vertex nm_algorithm::center_mass(const simplex &s) const
 
 /// Compute \f$ d + c \cdot \left( a - b \right) \f$.
 /**
- * Where \f$ a \f$, \f$ b \f$ and \f$ d \f$ are vertex, and \f$ c \f$ a real number.
+ * Where \f$ a \f$, \f$ b \f$ and \f$ d \f$ are vertices, and \f$ c \f$ a real number.
  * @throws assertion_error if a, b and d are not of the same size.
  */
 nm_algorithm::vertex nm_algorithm::sub_mult_add(const vertex &a, const vertex &b,

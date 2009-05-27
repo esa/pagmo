@@ -67,9 +67,9 @@ class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
 		virtual std::string id_object() const {return id_name(); }
 	private:
 		std::vector<double> center_mass(const simplex &) const;
-		std::vector<double> sub_mult_add(const std::vector<double> &, const std::vector<double> &,
-			const double &, const std::vector<double> &) const;
-		void check_bounds(std::vector<double> &, const GOProblem &) const;
+		std::vector<double> sub_mult_add(const vertex &, const vertex &,
+			const double &, const vertex &) const;
+		void check_bounds(vertex &, const GOProblem &) const;
 		double simplex_diameter(const simplex &) const;
 		void shuffle_simplex(simplex &, const GOProblem &) const;
 		virtual void log(std::ostream &) const;
