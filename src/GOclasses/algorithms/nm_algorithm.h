@@ -34,15 +34,36 @@
 
 /// Nelder-Mead algorithm.
 /**
- * See http://en.wikipedia.org/wiki/Nelder-Mead_method
+ * The Nelder-Mead method (or downhill simplex method) is a commonly used nonlinear
+ * optimization algorithm by John Nelder and R. Mead (1965). It is a numerical method for minimizing an
+ * objective function in a many-dimensional space.
+ *
+ * Each individual of the incoming population is seen as a vertex of an \f$ n+1 \f$-dimensional simplex (where \f$ n \f$ is the dimension
+ * of the problem).
+ *
+ * The algorithm provided here implements the variant described in http://en.wikipedia.org/wiki/Nelder-Mead_method (as it appeared
+ * on 27/05/2009).
  */
 class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
-		typedef std::vector<std::pair<std::vector<double>,double> > simplex;
+		/// Vertex type.
+		/**
+		 * A vertex is analogous to a decision vector.
+		 */
+		typedef std::vector<double> vertex;
+		/// Simplex type.
+		/**
+		 * A simplex is defined here as a vector of vertex - fitness pairs. We explicitly
+		 * store the fitness in order to avoid objective function evaluations.
+		 */
+		typedef std::vector<std::pair<vertex,double> > simplex;
+		struct sorter;
 	public:
 		nm_algorithm(int, const double &, const double &, const double &, const double &);
 		nm_algorithm(int);
 		virtual Population evolve(const Population &) const;
+		/// Clone method.
 		virtual nm_algorithm *clone() const {return new nm_algorithm(*this);}
+		/// Return unique string identifying the algorithm.
 		virtual std::string id_object() const {return id_name(); }
 	private:
 		std::vector<double> center_mass(const simplex &) const;
@@ -52,15 +73,15 @@ class __PAGMO_VISIBLE nm_algorithm: public go_algorithm {
 		double simplex_diameter(const simplex &) const;
 		void shuffle_simplex(simplex &, const GOProblem &) const;
 		virtual void log(std::ostream &) const;
-		// Number of generations.
+		/// Number of generations.
 		const size_t	m_gen;
-		// Reflection coefficient.
+		/// Reflection coefficient (\f$ \alpha \f$).
 		const double	m_alpha;
-		// Expansion coefficient.
+		/// Expansion coefficient (\f$ \gamma \f$).
 		const double	m_gamma;
-		// Contraction coefficient.
+		/// Contraction coefficient (\f$ \rho \f$).
 		const double	m_rho;
-		// Shrink coefficient.
+		/// Shrink coefficient (\f$ \sigma \f$).
 		const double	m_sigma;
 };
 
