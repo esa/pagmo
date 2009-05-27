@@ -109,6 +109,8 @@ private:
 
 /// The Rosenbrock Problem
 /**
+ * \image html RosenbrockFunction.PNG
+ *
  * The objective function here is the Rosenbrock function of arbitrary dimension. Bounds are set to -5,10
  */
 class __PAGMO_VISIBLE rosenbrockProb : public GOProblem{
