@@ -56,7 +56,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	class_<go_algorithm, boost::noncopyable>("__go_algorithm", "Base GO algorithm", no_init);
 
 	// Expose algorithms.
-	algorithm_wrapper<ASAalgorithm>("asa", "Simulated Annealing with adaptive neighbourhood algorithm.").def(init<int, const double &, const double &>());
+	algorithm_wrapper<ASAalgorithm>("asa", "Simulated Annealing with adaptive neighbourhood algorithm.").def(init<int, const double &, const double &>()).def(init<int, const double&, const double&, const int, const int, const double>());
 	algorithm_wrapper<CSalgorithm>("cs", "Compass search algorithm.").def(init<const double &, const double &, const double &>())
 		.def(init<const double&>());
 	algorithm_wrapper<DEalgorithm>("de", "Differential evolution algorithm.").def(init<int, const double &, const double &, int>());
