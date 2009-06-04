@@ -23,6 +23,8 @@
 #ifndef PAGMO_BA_TOPOLOGY_H
 #define PAGMO_BA_TOPOLOGY_H
 
+#include <boost/cstdint.hpp>
+
 #include "../../config.h"
 #include "graph_topology.h"
 #include "../../Functions/rng/rng.h"
@@ -43,7 +45,7 @@ class __PAGMO_VISIBLE ba_topology: public graph_topology {
 		 * \param[in] m Number of edges per new node.
 		 * \param[in] optional random seed used to initialise the internal rng.
 		 */
-		ba_topology(int m_0, int m, uint32_t seed = static_rng_uint32()());
+		ba_topology(int m_0, int m, boost::uint32_t seed = static_rng_uint32()());
 		
 		/// Copy constructor... \todo Change semantics and add a method to re-init an RNG?
 		ba_topology(const ba_topology &);
@@ -62,14 +64,14 @@ class __PAGMO_VISIBLE ba_topology: public graph_topology {
 		ba_topology &operator=(const ba_topology &);
 		
 		/// Size of the kernel - the starting number of nodes.
-		const size_t	m_m_0;
+		const size_t			m_m_0;
 		/// Number of edges per newly-inserted node.
-		const size_t	m_m;
+		const size_t			m_m;
 		
 		/// Random number generator
-		rng_double drng;
+		rng_double				drng;
 		/// Seed with which rng was initialised.
-		const uint32_t seed;
+		const boost::uint32_t	seed;
 };
 
 #endif

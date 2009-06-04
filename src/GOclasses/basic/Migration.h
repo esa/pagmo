@@ -86,7 +86,7 @@ class __PAGMO_VISIBLE Migration
 		boost::scoped_ptr<MigrationPolicy> migrationPolicy;
 
 		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &s, const Migration& migration);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const Migration& migration);
 };
 
 /// The stream output operator.

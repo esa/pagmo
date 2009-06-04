@@ -133,7 +133,7 @@ public:
 	
 private:
 	/// Stream output operator
-	friend std::ostream &operator<<(std::ostream &, const Individual &);
+	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Individual &);
 	
 	std::vector<double>			x; ///< Individual chromosome (position).
 	std::vector<double>			v; ///< Individual velocity.

@@ -23,6 +23,8 @@
 #ifndef PAGMO_RANDOM_MIGRATION_REPLACEMENT_POLICY_H
 #define PAGMO_RANDOM_MIGRATION_REPLACEMENT_POLICY_H
 
+#include <boost/cstdint.hpp>
+
 #include "MigrationReplacementPolicy.h"
 #include "../../Functions/rng/rng.h"
 #include "../../config.h"
@@ -40,7 +42,7 @@ class __PAGMO_VISIBLE RandomMigrationReplacementPolicy: public MigrationReplacem
 		 * \see MigrationReplacementPolicy::MigrationReplacementPolicy().
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
-		RandomMigrationReplacementPolicy(const uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(), rng(seed) { }
+		RandomMigrationReplacementPolicy(const boost::uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(), rng(seed) { }
 	
 		/// Constructor.
 		/**
@@ -49,7 +51,7 @@ class __PAGMO_VISIBLE RandomMigrationReplacementPolicy: public MigrationReplacem
 		 * \param[in] _maxMigrationRate desired maximum migration rate (absolute).
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
-		RandomMigrationReplacementPolicy(const int& _maxMigrationRate, const uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(_maxMigrationRate), rng(seed) { }
+		RandomMigrationReplacementPolicy(const int& _maxMigrationRate, const boost::uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(_maxMigrationRate), rng(seed) { }
 		
 		/// Constructor.
 		/**
@@ -58,7 +60,7 @@ class __PAGMO_VISIBLE RandomMigrationReplacementPolicy: public MigrationReplacem
 		 * \param[in] _maxMigrationRate desired migration rate (fractional).
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
-		RandomMigrationReplacementPolicy(const double& _maxMigrationRate, const uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(_maxMigrationRate), rng(seed) { }
+		RandomMigrationReplacementPolicy(const double& _maxMigrationRate, const boost::uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(_maxMigrationRate), rng(seed) { }
 		
 		/// Copy constructor.
 		/**

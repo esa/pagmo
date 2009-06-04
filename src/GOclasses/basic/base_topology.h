@@ -38,7 +38,7 @@
 class __PAGMO_VISIBLE base_topology {
 	
 		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &, const base_topology &);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const base_topology &);
 	
 	public:
 		/// Virtual Destructor.

@@ -102,7 +102,7 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 		
 	private:
 		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& ms);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& ms);
 };
 
 /// Stream output operator.

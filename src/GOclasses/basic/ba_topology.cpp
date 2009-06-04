@@ -20,10 +20,12 @@
 
 // 23/01/2009: Initial version by Francesco Biscani.
 
-#include "ba_topology.h"
+#include <boost/cstdint.hpp>
 #include <sstream>
 
-ba_topology::ba_topology(int m_0, int m, uint32_t _seed)
+#include "ba_topology.h"
+
+ba_topology::ba_topology(int m_0, int m, boost::uint32_t _seed)
 		:graph_topology(),m_m_0(m_0),m_m(m),drng(_seed),seed(_seed)
 {
 	if (m_0 < 2 || m < 1 || m > m_0) {

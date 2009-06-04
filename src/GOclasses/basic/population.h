@@ -42,7 +42,7 @@
 class __PAGMO_VISIBLE Population: public py_container_utils<Population> {
 	
 	/// Stream output operator.
-	friend std::ostream &operator<<(std::ostream &, const Population &);
+	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Population &);
 
 public:
 	

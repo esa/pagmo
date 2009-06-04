@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include "../../constants.h"
 #include "../../exceptions.h"
 #include "TrajectoryProblems.h"
 #include "GOproblem.h"

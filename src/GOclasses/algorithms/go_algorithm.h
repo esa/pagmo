@@ -31,7 +31,7 @@
 
 class __PAGMO_VISIBLE go_algorithm
 {
-		friend std::ostream &operator<<(std::ostream &, const go_algorithm &);
+		friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const go_algorithm &);
 	public:
 		go_algorithm();
 		go_algorithm(const go_algorithm &);

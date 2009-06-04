@@ -57,10 +57,10 @@ class __PAGMO_VISIBLE island
 		friend class archipelago;
 		
 		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &, const island &);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
 		
 		/// Stream output operator (for the archipelago class).
-		friend std::ostream &operator<<(std::ostream &s, const archipelago &a);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const archipelago &a);
 			
 	public:
 		/// Constructor.

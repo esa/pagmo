@@ -98,7 +98,7 @@ class __PAGMO_VISIBLE MigrationSelectionPolicy
 		
 	private:
 		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& ms);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& ms);
 };
 
 /// Stream output operator.

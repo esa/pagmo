@@ -20,6 +20,7 @@
 
 // 13/02/2008: Initial version by Francesco Biscani.
 
+#include <boost/cstdint.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost_python_p_exceptions.h>
@@ -67,7 +68,7 @@ BOOST_PYTHON_MODULE(_topology) {
 	// Topologies.
 	topology_wrapper<ring_topology>("ring", "Ring topology.").def(init<>());
 	topology_wrapper<one_way_ring_topology>("one_way_ring", "One way ring topology.").def(init<>());
-	topology_wrapper<ba_topology>("ba", "BA model topology.").def(init<int, int, optional<uint32_t> >());
+	topology_wrapper<ba_topology>("ba", "BA model topology.").def(init<int, int, optional<boost::uint32_t> >());
 	topology_wrapper<fully_connected_topology>("fully_connected", "Fully connected topology.").def(init<>());
 	topology_wrapper<chain_topology>("chain", "Broadcast topology.").def(init<>());
 	topology_wrapper<broadcast_topology>("broadcast", "Broadcast topology.").def(init<>());

@@ -20,6 +20,7 @@
 
 // 27/12/2008: Initial version by Francesco Biscani.
 
+#include <boost/cstdint.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/def.hpp>
@@ -227,8 +228,8 @@ BOOST_PYTHON_MODULE(_core)
 	class_M.def("__repr__", &Py_repr_from_stream<Migration>);
 
 	// Expose MigrationScheme
-	class_<MigrationScheme> class_MS("migration_scheme", "The migration scheme.", init<int, int, optional<uint32_t> >());
-	class_MS.def(init<int, int, const base_topology&, optional<uint32_t> >());
+	class_<MigrationScheme> class_MS("migration_scheme", "The migration scheme.", init<int, int, optional<boost::uint32_t> >());
+	class_MS.def(init<int, int, const base_topology&, optional<boost::uint32_t> >());
 	class_MS.def("__copy__", &Py_copy_from_ctor<MigrationScheme>);
 	class_MS.def("__repr__", &Py_repr_from_stream<MigrationScheme>);
 	
@@ -244,7 +245,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
 	
 	// Expose RandomMigrationSelectionPolicy
-	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_selection_policy", "A random migration selection policy.", init<optional<const uint32_t> >());	
+	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_selection_policy", "A random migration selection policy.", init<optional<const boost::uint32_t> >());	
 	/*
 	 * !!!
 	 * Here and below the order of declaration of constructors is crucial !!!
@@ -252,8 +253,8 @@ BOOST_PYTHON_MODULE(_core)
 	 * Python overloading SUCKS.
 	 * !!!
 	 */	
-	class_RMSP.def(init<const double&, optional<const uint32_t> >());
-	class_RMSP.def(init<const int&, optional<const uint32_t> >());
+	class_RMSP.def(init<const double&, optional<const boost::uint32_t> >());
+	class_RMSP.def(init<const int&, optional<const boost::uint32_t> >());
 	class_RMSP.def("__copy__", &Py_copy_from_ctor<RandomMigrationSelectionPolicy>);
 	class_RMSP.def("__repr__", &Py_repr_from_stream<RandomMigrationSelectionPolicy>);
 	// Expose ChooseBestMigrationSelectionPolicy
@@ -267,9 +268,9 @@ BOOST_PYTHON_MODULE(_core)
 	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
 	
 	// Expose RandomMigrationReplacementPolicy
-	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_replacement_policy", "A random migration replacement policy.", init<optional<const uint32_t> >());
-	class_RMRP.def(init<const double&, optional<const uint32_t> >());
-	class_RMRP.def(init<const int&, optional<const uint32_t> >());	
+	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_replacement_policy", "A random migration replacement policy.", init<optional<const boost::uint32_t> >());
+	class_RMRP.def(init<const double&, optional<const boost::uint32_t> >());
+	class_RMRP.def(init<const int&, optional<const boost::uint32_t> >());	
 	class_RMRP.def("__copy__", &Py_copy_from_ctor<RandomMigrationReplacementPolicy>);
 	class_RMRP.def("__repr__", &Py_repr_from_stream<RandomMigrationReplacementPolicy>);
 

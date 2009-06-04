@@ -23,6 +23,7 @@
 #ifndef PAGMO_MIGRATION_SCHEME_H
 #define PAGMO_MIGRATION_SCHEME_H
 
+#include <boost/cstdint.hpp>
 #include "island.h"
 #include <boost/scoped_ptr.hpp>
 #include "base_topology.h"
@@ -82,7 +83,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * </ul>
 		 * @param[in] seed RNG seed.
 		 */
-		MigrationScheme(uint32_t seed = static_rng_uint32()())
+		MigrationScheme(boost::uint32_t seed = static_rng_uint32()())
 			: distributionType(0), migrationDirection(1), topology(one_way_ring_topology().clone()), rng(seed) { }
 
 		/// Almost default constructor.
@@ -92,7 +93,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * @param[in] _topology Topology to be used.
 		 * @param[in] seed RNG seed.
 		 */
-		MigrationScheme(const base_topology& _topology, uint32_t seed = static_rng_uint32()())
+		MigrationScheme(const base_topology& _topology, boost::uint32_t seed = static_rng_uint32()())
 			: distributionType(0), migrationDirection(1), topology(_topology.clone()), rng(seed) { }
 
 
@@ -103,7 +104,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * @param _migrationDirection Initiating island: 0 = source, 1 = destination
 		 * @param seed RNG seed.
 		 */
-		MigrationScheme(int _distributionType, int _migrationDirection, uint32_t seed = static_rng_uint32()())
+		MigrationScheme(int _distributionType, int _migrationDirection, boost::uint32_t seed = static_rng_uint32()())
 			: distributionType(_distributionType), migrationDirection(_migrationDirection), topology(0), rng(seed) { }
 
 		/// Constructor.
@@ -115,7 +116,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * @param _topology Topology to be used for the migration.
 		 * @param seed RNG seed.
 		 */
-		MigrationScheme(int _distributionType, int _migrationDirection, const base_topology& _topology, uint32_t seed = static_rng_uint32()())
+		MigrationScheme(int _distributionType, int _migrationDirection, const base_topology& _topology, boost::uint32_t seed = static_rng_uint32()())
 				:distributionType(_distributionType), migrationDirection(_migrationDirection), topology(_topology.clone()), rng(seed)
 		{
 		}
@@ -225,7 +226,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		rng_double rng; ///< Random number generator	
 	
 		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
 };
 
 /// Stream output operator.

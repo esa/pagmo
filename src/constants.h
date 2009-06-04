@@ -18,27 +18,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_CONFIG_H
-#define PAGMO_CONFIG_H
+#ifndef PAGMO_CONSTANTS_H
+#define PAGMO_CONSTANTS_H
 
 #ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 100000 \
-	+ __GNUC_MINOR__ * 1000 \
-	+ __GNUC_PATCHLEVEL__ * 10)
-#endif
 
-#ifdef PAGMO_WIN32
-#ifdef PAGMO_DLL_EXPORT_API
-#define __PAGMO_VISIBLE __declspec(dllexport)
-#elif defined ( PAGMO_DLL_IMPORT_API )
-#define __PAGMO_VISIBLE __declspec(dllimport)
+#include <cmath>
+
 #else
-#define __PAGMO_VISIBLE
-#endif
-#define __PAGMO_VISIBLE_FUNC __PAGMO_VISIBLE
-#else
-#define __PAGMO_VISIBLE __attribute__ ((visibility("default")))
-#define __PAGMO_VISIBLE_FUNC
+
+#define M_PI (3.1415926535897931)
+#define M_PI_4 (0.78539816339744828)
+#define M_PI_2 (1.5707963267948966)
+
 #endif
 
 #endif

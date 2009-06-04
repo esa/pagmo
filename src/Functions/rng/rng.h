@@ -23,6 +23,7 @@
 #ifndef PAGMO_RNG_H
 #define PAGMO_RNG_H
 
+#include <boost/cstdint.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/random/lagged_fibonacci.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -54,7 +55,7 @@ boost::mutex static_rng<Rng>::m_mutex;
 // Use as initial seed the number of microseconds elapsed since 01/01/1970, cast to
 // uint32_t.
 template <class Rng>
-Rng static_rng<Rng>::m_rng(uint32_t((boost::posix_time::microsec_clock::local_time() -
+Rng static_rng<Rng>::m_rng(boost::uint32_t((boost::posix_time::microsec_clock::local_time() -
 	boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds()));
 
 // Thread-safe uint32 rng.

@@ -109,7 +109,7 @@ class __PAGMO_VISIBLE MigrationPolicy
 		boost::scoped_ptr<MigrationReplacementPolicy> replacementPolicy;
 
 		/// Stream output operator.
-		friend std::ostream &operator<<(std::ostream &s, const MigrationPolicy& msp);
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationPolicy& msp);
 };
 
 /// The stream output operator.

@@ -46,7 +46,7 @@ void MigrationScheme::preEvolutionCallback(island& _island)
 		if(neighbours.size() > 0) {
 			if(!distributionType) {
 				// For one-to-one migration choose a random neighbour island and fetch immigrants
-				size_t chosenNeighbourIndex = rng() * neighbours.size();
+				size_t chosenNeighbourIndex = (size_t)(rng() * neighbours.size());
 				size_t chosenNeighbour = neighbours[chosenNeighbourIndex];
 				
 				//std::cout << "Randomly chosen neighbour id: " << chosenNeighbour << std::endl;
@@ -101,7 +101,7 @@ void MigrationScheme::postEvolutionCallback(island& _island)
 			if(immigrants.size() > 0) {
 				if(!distributionType) {
 					// For one-to-one migration choose a random neighbour island and put immigrants to its inbox
-					size_t chosenNeighbourIndex = rng() * neighbours.size();
+					size_t chosenNeighbourIndex = (size_t)(rng() * neighbours.size());
 					size_t chosenNeighbour = neighbours[chosenNeighbourIndex];
 					
 					//std::cout << "Randomly chosen neighbour id: " << chosenNeighbour << std::endl;

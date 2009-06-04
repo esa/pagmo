@@ -361,7 +361,7 @@ void island::int_evolver::operator()()
 	// _really_ short evolution times. In that case do not add anything to the total evolution time.
 	const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
 	if (diff.total_milliseconds() >= 0) {
-		m_i->m_evo_time += diff.total_milliseconds();
+		m_i->m_evo_time += (size_t)(diff.total_milliseconds());
 	}
 	m_i->m_evo_mutex.unlock();
 }
@@ -398,7 +398,7 @@ void island::t_evolver::operator()()
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
 	}
-	m_i->m_evo_time += diff.total_milliseconds();
+	m_i->m_evo_time += (size_t)(diff.total_milliseconds());
 	m_i->m_evo_mutex.unlock();
 }
 

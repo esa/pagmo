@@ -58,6 +58,8 @@
            iter=number of iteration made by the newton solver (usually 6)
 */
 
+#include <boost/math/special_functions/acosh.hpp>
+#include <boost/math/special_functions/asinh.hpp>
 #include <cmath>
 #include <iostream>
 
@@ -146,7 +148,7 @@ void LambertI (const double *r1_in, const double *r2_in, double t, const double 
     {
 		i_count++;
 		x_new=(x1*y2-y1*x2)/(y2-y1);
-		y_new=logf(x2tof(expf(x_new)-1,s,c,lw))-logf(t); //[MR] Why ...f() functions? Loss of data!
+		y_new=log(x2tof(exp(x_new)-1,s,c,lw))-log(t);
 		x1=x2;
 		y1=y2;
 		x2=x_new;
@@ -154,7 +156,7 @@ void LambertI (const double *r1_in, const double *r2_in, double t, const double 
 		err = fabs(x1-x_new);
     }
 	iter = i_count;
-	x = expf(x_new)-1; //[MR] Same here... expf -> exp
+	x = exp(x_new)-1;
 
     // The solution has been evaluated in terms of log(x+1) or tan(x*pi/2), we
     // now need the conic. As for transfer angles near to pi the lagrange
@@ -177,9 +179,9 @@ void LambertI (const double *r1_in, const double *r2_in, double t, const double 
     }
 	else       // hyperbola
     {
-		beta = 2*asinh(sqrt((c-s)/(2*a)));
+		beta = 2*boost::math::asinh(sqrt((c-s)/(2*a)));
 		if (lw) beta = -beta;
-		alfa = 2*acosh(x);
+		alfa = 2*boost::math::acosh(x);
 		psi = (alfa-beta)/2;
 		eta2 = -2 * a * pow(sinh(psi),2)/s;
 		eta = sqrt(eta2);

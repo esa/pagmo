@@ -42,15 +42,16 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		typedef container_type::iterator iterator; ///< Island container iterator type abbreviation.
 		typedef container_type::const_iterator const_iterator; ///< Island container const iterator type abbreviation.
 		
-		friend std::ostream &operator<<(std::ostream &, const archipelago &); ///< Stream output operator.
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const archipelago &); ///< Stream output operator.
 		template <class T> friend class py_container_utils; ///< \todo Document me!
 		friend class island; ///< Island as a friend class. Dirty!
 		
 // Work around behaviour of GCC < 4.1, which does not recognize
 // friendship with classes defined inside friend classes.
-#if GCC_VERSION < 401000
-		friend class island::int_evolver;
-		friend class island::t_evolver;
+// TODO: remove support for gcc 3.4?
+#if defined( __GNUC__ ) && GCC_VERSION < 401000
+		friend struct island::int_evolver;
+		friend struct island::t_evolver;
 #endif
 
 		/// \todo Document me!

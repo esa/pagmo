@@ -10,9 +10,12 @@
 
 
 #include <cmath>
+#include <boost/math/special_functions/acosh.hpp>
+#include <boost/math/special_functions/asinh.hpp>
 
 #include "Astro_Functions.h"
 #include "ZeroFinder.h"
+#include "../constants.h"
 
 using namespace std;
 
@@ -159,8 +162,8 @@ double x2tof(const double &x,const double &s,const double &c,const int &lw)
     }
 	else
     {
-		alfa = 2 * acosh(x);
-		beta = 2 * asinh(sqrt ((s - c)/(-2 * a)));
+		alfa = 2 * boost::math::acosh(x);
+		beta = 2 * boost::math::asinh(sqrt ((s - c)/(-2 * a)));
 		if (lw) beta = -beta;
     }
 

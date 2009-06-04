@@ -3,7 +3,11 @@ PROJECT(PaGMO)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 
 # Add to the base flags extra warnings.
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisabled-optimization")
+IF(CMAKE_COMPILER_IS_GNUCXX)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisabled-optimization")
+	# Suggested for multithreaded code.
+	ADD_DEFINITIONS(-D_REENTRANT)
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 # Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
@@ -37,9 +41,6 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/SolversThreads")
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
 
-# Suggested for multithreaded code.
-ADD_DEFINITIONS(-D_REENTRANT)
-
 SET(MANDATORY_LIBRARIES "")
 
 # Some common platform switches.
@@ -59,9 +60,11 @@ ELSE(UNIX)
 	SET(LIB_INSTALL_PATH .)
 	SET(PAGMO_INSTALL_PREFIX "${PAGMO_INSTALL_PREFIX} ${PAGMO_VERSION}")
 	ADD_DEFINITIONS(-DPAGMO_WIN32)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mthreads")
-	SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -mthreads")
+	IF(CMAKE_COMPILER_IS_GNUCXX)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mthreads")
+		SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -mthreads")
+	ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 ENDIF(UNIX)
 
 CHECK_TYPE_SIZE("void *" POINTER_SIZE)
@@ -81,6 +84,10 @@ ENDIF(BUILD_PYGMO)
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
 	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
-        ADD_EXECUTABLE(main-ng main-ng.cpp)
-        TARGET_LINK_LIBRARIES(main-ng pagmo_static ${MANDATORY_LIBRARIES})
 ENDIF(BUILD_MAIN)
+
+# Link main-ng to pagmo_static library.
+IF(BUILD_MAIN_NG)
+	ADD_EXECUTABLE(main-ng main-ng.cpp)
+	TARGET_LINK_LIBRARIES(main-ng pagmo_static ${MANDATORY_LIBRARIES})
+ENDIF(BUILD_MAIN_NG)

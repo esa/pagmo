@@ -36,10 +36,9 @@
  * This class implements the highest hierarchical level of a global optimisation problem here defined as unconstrained
  * optimisation problems where the search domain is hyperrectanguar
  */
-
 class __PAGMO_VISIBLE GOProblem {
-	friend std::ostream &operator<<(std::ostream &, const GOProblem &);
-	friend size_t objfun_calls();
+	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const GOProblem &);
+	friend size_t __PAGMO_VISIBLE_FUNC objfun_calls();
 public:
 	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {}

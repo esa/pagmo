@@ -27,8 +27,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/fully_connected_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/graph_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/one_way_ring_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/chain_topology.cpp	
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/broadcast_topology.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/chain_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/broadcast_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring12_topology.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring123_topology.cpp
@@ -46,11 +46,12 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationReplacementPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/Migration.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/Migration.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/ClassicProblems.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/GOproblem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/twodee_problem.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/earth_mars_lt_problem.cpp
+	#${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/twodee_problem.cpp
 )
 
 IF(UNIX)
@@ -69,13 +70,15 @@ ELSE(UNIX)
 ENDIF(UNIX)
 
 # Create a pagmo_static library if main is requested.
-IF(BUILD_MAIN)
-	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-		${CMAKE_CURRENT_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
-	)
+IF(BUILD_MAIN OR BUILD_MAIN_NG)
+	IF(BUILD_MAIN)
+		SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+			${CMAKE_CURRENT_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
+		)
+	ENDIF(BUILD_MAIN)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
 	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "-DBOOST_THREAD_BUILD_LIB")
-ENDIF(BUILD_MAIN)
+ENDIF(BUILD_MAIN OR BUILD_MAIN_NG)
 
 # Create a pagmo shared library if PyGMO is requested.
 IF(BUILD_PYGMO)
@@ -115,11 +118,7 @@ IF(BUILD_PYGMO)
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
 	# A couple of extra definitions. The first is required when building Boost.Python,
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
-	IF(UNIX)
-		SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
-	ELSE(UNIX)
-		SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API -DBOOST_HAS_DECLSPEC")
-	ENDIF(UNIX)
+	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
 
 	INSTALL(TARGETS pagmo
 		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
