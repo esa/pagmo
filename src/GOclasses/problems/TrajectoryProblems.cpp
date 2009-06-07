@@ -185,8 +185,8 @@ double cassini2Prob::objfun_(const std::vector<double>& x) const {
 	return obj;
 }
 
-const double rosettaProb::lb[22] = {1460, 3, 0, 0, 300, 150, 150, 300, 700, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI};
-const double rosettaProb::ub[22] = {780,  5, 1, 1, 500, 800, 800, 800, 1850, 0.9, 0.9, 0.9, 0.9, 0.9, 9, 9, 9, 9, M_PI, M_PI, M_PI, M_PI};
+const double rosettaProb::lb[22] = {1460, 3, 0, 0, 300, 150, 150, 300, 700 , 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI};
+const double rosettaProb::ub[22] = {1825, 5, 1, 1, 500, 800, 800, 800, 1850, 0.9, 0.9 , 0.9 , 0.9 , 0.9 , 9   , 9   , 9   , 9   , M_PI , M_PI , M_PI , M_PI};
 const int rosettaProb::sequence[6] = {3, 3, 4, 3, 3, 10};
 
 rosettaProb::rosettaProb():GOProblem(22,lb,ub),mgadsm(rndv,sequence,6,0,0,0,0,0) {
