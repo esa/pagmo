@@ -28,7 +28,7 @@
 #include "PSO.h"
 
 PSOalgorithm::PSOalgorithm(int generations_, const double &omega_, const double &eta1_, const double &eta2_,
-        const double &vcoeff_):generations(generations_),omega(omega_),eta1(eta1_),eta2(eta2_),vcoeff(vcoeff_)
+        const double &vcoeff_):generations(generations_),omega(omega_),eta1(eta1_),eta2(eta2_),vcoeff(vcoeff_), strategy(3)
 {
         if (generations_ < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -38,10 +38,34 @@ PSOalgorithm::PSOalgorithm(int generations_, const double &omega_, const double 
         }
 }
 
-PSOalgorithm::PSOalgorithm(int generations_):generations(generations_),omega(0.65),eta1(2.0),eta2(2.0),vcoeff(0.5)
+PSOalgorithm::PSOalgorithm(int generations_):generations(generations_),omega(0.65),eta1(2.0),eta2(2.0),vcoeff(1), strategy(3)
 {
         if (generations_ < 0) {
                 pagmo_throw(value_error,"number of generations must be nonnegative");
+        }
+}
+
+PSOalgorithm::PSOalgorithm(int generations_, const double &omega_, const double &eta1_, const double &eta2_,
+        const double &vcoeff_, const int &strategy_):generations(generations_),omega(omega_),eta1(eta1_),eta2(eta2_),vcoeff(vcoeff_), strategy(strategy_)
+{
+        if (generations_ < 0) {
+                pagmo_throw(value_error,"number of generations must be nonnegative");
+        }
+        if (vcoeff_ < 0 || vcoeff_ > 1) {
+                pagmo_throw(value_error,"Velocity coeficient must be between 0 and 1");
+        }
+        if (strategy_ < 1|| strategy_ > 4) {
+                pagmo_throw(value_error,"Staretgy for PSO must be an integer between 1 and 4");
+        }
+}
+
+PSOalgorithm::PSOalgorithm(int generations_, const int &strategy_):generations(generations_),omega(0.65),eta1(2.0),eta2(2.0),vcoeff(1), strategy(strategy_)
+{
+        if (generations_ < 0) {
+                pagmo_throw(value_error,"number of generations must be nonnegative");
+        }
+        if (strategy_ < 1|| strategy_ > 4) {
+                pagmo_throw(value_error,"Staretgy for PSO must be an integer between 1 and 4");
         }
 }
 
@@ -98,48 +122,85 @@ Population PSOalgorithm::evolve(const Population &deme) const
    }
 
 
+   double r1,r2 = 0;
    // Main PSO loop
    for (size_t j = 0; j < generations; ++j){
+       //For each particle in the swarm
+       for (int ii = 0; ii< n; ii++){
 
+         /*-------PSO canonical--------------------------------------------------------------------*/
+         /*-------The classical PSO velocity update startegy---------------------------------------*/
+         if (strategy==1){
+           r1 = drng();
+           r2 = drng();
+           for (int jj = 0; jj< m; jj++){
+               V[ii][jj] = omega * V[ii][jj] + eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + eta2 * r2 * (gbX[jj] - X[ii][jj]);
+           }
+         }
 
-		//1 - move the particles and check that velocity and positions are in allowed range
-		for (int ii = 0; ii< n; ii++){
-			for (int jj = 0; jj< m; jj++){
+         /*-------PSO canonical with equal random weights of social and cognitive components-------*/
+         /*-------In our experience few problems benefit a lot from having r1=r2. You may check----*/
+         /*-------with Rastrigin-------------------------------------------------------------------*/
+         if (strategy==2){
+           r1 = drng();
+           for (int jj = 0; jj< m; jj++){
+               V[ii][jj] = omega * V[ii][jj] + eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + eta2 * r1 * (gbX[jj] - X[ii][jj]);
+           }
+         }
 
-				//new velocity
-				V[ii][jj] = omega * V[ii][jj] + eta1 * drng() * (lbX[ii][jj] - X[ii][jj]) + eta2 * drng() * (gbX[jj] - X[ii][jj]);
+         /*-------Variant of PSO strategy 1 that has r1 and r2 randomly generated for each----------*/
+         /*-------component. This is also the version that was implemented--------------------------*/
+         /*-------in early versions of pagmo--------------------------------------------------------*/
+         if (strategy==3){
+           for (int jj = 0; jj< m; jj++){
+               r1 = drng();
+               r2 = drng();
+               V[ii][jj] = omega * V[ii][jj] + eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + eta2 * r2 * (gbX[jj] - X[ii][jj]);
+           }
+         }
 
-				//check that it is within the allowed velocity range
-				if ( V[ii][jj] > MAXV[jj] )
-					V[ii][jj] = MAXV[jj];
+         /*-------Variant of PSO strategy 2 that has r1 randomly generated for each-----------------*/
+         /*-------component.------------------------------------------------------------------------*/
+         if (strategy==4){
+           for (int jj = 0; jj< m; jj++){
+           r1 = drng();
+               V[ii][jj] = omega * V[ii][jj] + eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + eta2 * r1 * (gbX[jj] - X[ii][jj]);
+           }
+         }
 
-				else if ( V[ii][jj] < MINV[jj] )
-					V[ii][jj] = MINV[jj];
+         //We now check that the velocity does not exceed the maximum allowed per component
+         //and we perform the position update and the feasibility correction
+         for (int jj = 0; jj< m; jj++){
 
-				//new position
-				X[ii][jj] = X[ii][jj] + V[ii][jj];
+             if ( V[ii][jj] > MAXV[jj] )
+                   V[ii][jj] = MAXV[jj];
 
-				if (X[ii][jj] < LB[jj])
-					X[ii][jj] = drng() * (UB[jj] - LB[jj]) + LB[jj];
-				else if (X[ii][jj] > UB[jj])
-					X[ii][jj] = drng() * (UB[jj] - LB[jj]) + LB[jj];
-			}
+            else if ( V[ii][jj] < MINV[jj] )
+                   V[ii][jj] = MINV[jj];
 
-			//We evaluate the new individual fitness now as to be able to update immediately the global best
-			fit[ii] = problem.objfun(X[ii]);
-			//update local and global best
-			if (fit[ii] < lbfit[ii]){
-				lbfit[ii] = fit[ii];	//local best
-				lbX[ii] = X[ii];
-				if(fit[ii] < gbfit){
-					gbfit = fit[ii];	//global best
-					gbX	= X[ii];
-					ii=ii;
-				}
-			}
-		} //End of loop on the population members
+            //update position
+            X[ii][jj] = X[ii][jj] + V[ii][jj];
 
+            //feasibility correction
+            if (X[ii][jj] < LB[jj])
+                   X[ii][jj] = drng() * (UB[jj] - LB[jj]) + LB[jj];
 
+            else if (X[ii][jj] > UB[jj])
+                   X[ii][jj] = drng() * (UB[jj] - LB[jj]) + LB[jj];
+                        }
+
+            //We evaluate here the new individual fitness as to be able to update the global best in real time
+            fit[ii] = problem.objfun(X[ii]);
+            //update local and global best
+            if (fit[ii] < lbfit[ii]){
+                   lbfit[ii] = fit[ii];	//local best
+                   lbX[ii] = X[ii];
+                   if(fit[ii] < gbfit){
+                         gbfit = fit[ii];	//global best
+                         gbX = X[ii];
+                    }
+             }
+       } //End of loop on the population members
    } // end of main PSO loop
 
    //we end by constructing the object Population containing the final results
@@ -153,5 +214,12 @@ Population PSOalgorithm::evolve(const Population &deme) const
 void PSOalgorithm::log(std::ostream &s) const
 {
 	s << "PSO - generations:" << generations << " omega:" << omega << " eta1:" << eta1
-		<< " eta2:" << eta2 << " vcoeff:" << vcoeff;
+                << " eta2:" << eta2 << " vcoeff:" << vcoeff << " strategy:" << strategy;
+}
+
+std::string PSOalgorithm::id_object() const
+{
+        std::stringstream tmp;
+        tmp << id_name() << "_" << strategy;
+        return tmp.str();
 }
