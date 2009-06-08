@@ -1,17 +1,27 @@
 PROJECT(PaGMO)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
-
-# Add to the base flags extra warnings.
-IF(CMAKE_COMPILER_IS_GNUCXX)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fmessage-length=0 -Wdisabled-optimization")
-	# Suggested for multithreaded code.
-	ADD_DEFINITIONS(-D_REENTRANT)
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-
 # Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
+
 INCLUDE(CheckTypeSize)
+
+# Configuration for GCC.
+IF(CMAKE_COMPILER_IS_GNUCXX)
+	# Add to the base flags extra warnings, and set up message reporting from the compiler so that it is Eclipse-friendly.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0")
+	# Suggested for multithreaded code.
+	ADD_DEFINITIONS(-D_REENTRANT)
+	# Atomic builtins for GCC.
+	TRY_COMPILE(WORKING_ATOMIC_BUILTINS ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/atomic_builtins_test.cpp COMPILE_DEFINITIONS ${CMAKE_CCXX_FLAGS})
+	IF(WORKING_ATOMIC_BUILTINS)
+		MESSAGE(STATUS "GCC is correctly setup to support atomic builtins.")
+		ADD_DEFINITIONS(-D_PAGMO_GCC_ATOMIC_BUILTINS)
+	ELSE(WORKING_ATOMIC_BUILTINS)
+		MESSAGE(STATUS "Either this GCC version does not support atomic builtins or the CXXFLAGS are not properly set to enable them.")
+		MESSAGE(STATUS "Please note that atomic builtins are supported from version 4.1.0 of GCC and need an appropriate '-march' flag (e.g., at least '-march=i486' on x86 architectures).")
+	ENDIF(WORKING_ATOMIC_BUILTINS)
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
