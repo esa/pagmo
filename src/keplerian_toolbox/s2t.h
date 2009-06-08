@@ -2,8 +2,8 @@
 #define KEPLERIAN_TOOLBOX_S2T_H
 
 #include <cmath>
-#include <p_exceptions.h>
 
+#include "../p_exceptions.h"
 #include "stumpff.h"
 
 namespace keplerian_toolbox

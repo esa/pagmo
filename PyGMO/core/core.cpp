@@ -28,9 +28,7 @@
 #include <boost/python/manage_new_object.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/utility.hpp>
-#include <boost_python_p_exceptions.h>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -50,27 +48,11 @@
 #include "../../src/GOclasses/basic/MigrationReplacementPolicy.h"
 #include "../../src/GOclasses/basic/RandomMigrationReplacementPolicy.h"
 #include "../../src/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.h"
-#include "../../src/exceptions.h"
+#include "../boost_python_container_conversions.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
 using namespace boost::python;
-
-template <class T>
-static inline std::string Py_repr_vector(const std::vector<T> &v)
-{
-	std::ostringstream tmp;
-	tmp << '<';
-	const size_t size = v.size();
-	for (size_t i = 0; i < size; ++i) {
-		tmp << v[i];
-		if (i + 1 != size) {
-			tmp << ',';
-		}
-	}
-	tmp << '>';
-	return tmp.str();
-}
 
 template <class T, class C>
 static inline T *problem_getter(const C &c)
@@ -116,17 +98,11 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 
 BOOST_PYTHON_MODULE(_core)
 {
 	// Translate exceptions for this module.
-	translate_p_exceptions();
+	translate_exceptions();
 
-	// Expose std::vector<double>.
-	class_<std::vector<double> > class_vd("vector_double","std::vector<double>");
-	class_vd.def("__repr__", &Py_repr_vector<double>);
-	class_vd.def(vector_indexing_suite<std::vector<double> >());
-
-	// Expose std::vector<int>.
-	class_<std::vector<int> > class_vi("vector_int","std::vector<int>");
-	class_vi.def("__repr__", &Py_repr_vector<int>);
-	class_vi.def(vector_indexing_suite<std::vector<int> >());
+	// Enable automatic conversion to/from python list of double/vector<double>.
+	to_tuple_mapping<std::vector<double> >();
+	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());

@@ -21,15 +21,14 @@
 // 05/03/2009: Initial version by Francesco Biscani.
 
 #include <boost/python.hpp>
-#include <boost_python_p_exceptions.h>
-#include <boost_python_container_conversions.h>
-#include <p_exceptions.h>
 #include <vector>
 
 #include "../../src/AstroToolbox/Astro_Functions.h"
 #include "../../src/AstroToolbox/Lambert.h"
 #include "../../src/AstroToolbox/propagateKEP.h"
 #include "../../src/keplerian_toolbox/kstate.h"
+#include "../boost_python_container_conversions.h"
+#include "../exceptions.h"
 
 using namespace boost::python;
 using namespace keplerian_toolbox;
@@ -67,7 +66,7 @@ BOOST_PYTHON_MODULE(_astro_toolbox) {
 	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 
 	// Translate exceptions for this module.
-	translate_p_exceptions();
+	translate_exceptions();
 
 	class_<lambert_result>("__lambert_result",init<>())
 		.def_readonly("v0", &lambert_result::v0)

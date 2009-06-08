@@ -3,8 +3,8 @@
 
 #include <cmath>
 #include <iostream>
-#include <p_exceptions.h>
 
+#include "../p_exceptions.h"
 #include "stumpff.h"
 
 namespace keplerian_toolbox

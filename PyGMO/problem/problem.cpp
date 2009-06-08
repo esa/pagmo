@@ -24,7 +24,6 @@
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
-#include <boost_python_p_exceptions.h>
 #include <string>
 
 #include "../../src/GOclasses/problems/ClassicProblems.h"
@@ -56,7 +55,7 @@ static inline class_<Problem,bases<GOProblem> > problem_wrapper(const char *name
 
 BOOST_PYTHON_MODULE(_problem) {
 	// Translate exceptions for this module.
-	translate_p_exceptions();
+	translate_exceptions();
 
 	// Expose base GOProblem class.
 	class_<GOProblem, boost::noncopyable>("__go_problem", "Base GO problem", no_init);
