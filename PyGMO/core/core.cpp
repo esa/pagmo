@@ -100,6 +100,7 @@ BOOST_PYTHON_MODULE(_core)
 	// Translate exceptions for this module.
 	translate_exceptions();
 
+	// Enable automatic conversion to/from python list of double/vector<double>.
 	to_tuple_mapping<std::vector<double> >();
 	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 
