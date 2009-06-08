@@ -37,9 +37,9 @@
 
 class __PAGMO_VISIBLE PSOalgorithm: public go_algorithm {
 	public:
-                /// Constructor
+                /// Constructor (deprecated)
                 /**
-                 * It instantiate a PSO algorithm.
+                 * Instantiates a PSO algorithm with strategy 3 (for backcompatibility with older pagmos)
                  * \param[in] gen Generation to be evolved
                  * \param[in] inertia The particle inertia
                  * \param[in] cognitive The particle cognitive component
@@ -49,12 +49,33 @@ class __PAGMO_VISIBLE PSOalgorithm: public go_algorithm {
                 */
                 PSOalgorithm(int gen, const double &inertia, const double &cognitive, const double &social, const double &vcoeff);
 
-                /// Constructor
+                /// Constructor (deprecated)
                 /**
-                 * It instantiate a PSO algorithm with default parameters
+                 * Instantiates a PSO algorithm with default parameters and strategy 3 (for backcompatibility with older pagmos)
                  * \param[in] gen Generation to be evolved
                 */
                 PSOalgorithm(int gen);
+
+                /// Constructor
+                /**
+                 * Instantiates a PSO algorithm giving full control over the parameters
+                 * \param[in] gen Generation to be evolved
+                 * \param[in] inertia The particle inertia
+                 * \param[in] cognitive The particle cognitive component
+                 * \param[in] social The particle social component
+                 * \param[in] vcoeff Defines the initial particle velocity. Must be in [0,1]. When 0 the particle initial velocity is
+                 * zero, when one it is a random vector between the lower and upper bounds
+                 * \param[in] strategy Defines the PSO startegy to be used to update the velocities
+                */
+                PSOalgorithm(int gen, const double &inertia, const double &cognitive, const double &social, const double &vcoeff, const int &strategy);
+
+                /// Constructor
+                /**
+                 * Instantiates a PSO algorithm with default parameters
+                 * \param[in] gen Generation to be evolved
+                 * \param[in] strategy Defines the PSO startegy to be used to update the velocities
+                */
+                PSOalgorithm(int gen, const int &strategy);
 
                 /// Algorithm
                 /**
@@ -65,7 +86,7 @@ class __PAGMO_VISIBLE PSOalgorithm: public go_algorithm {
                 virtual Population evolve(const Population &popin) const;
 		virtual PSOalgorithm *clone() const {return new PSOalgorithm(*this);}
 		
-		virtual std::string id_object() const {return id_name(); }
+                virtual std::string id_object() const;
 	private:
 		virtual void log(std::ostream &) const;
 		size_t generations;
@@ -73,6 +94,7 @@ class __PAGMO_VISIBLE PSOalgorithm: public go_algorithm {
 		double eta1;
 		double eta2;
 		double vcoeff;
+                int strategy;
 };
 
 #endif
