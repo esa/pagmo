@@ -20,6 +20,7 @@
 
 // 04/01/2009: Initial version by Francesco Biscani.
 
+#include <exception>
 #include <typeinfo>
 
 #include "../../exceptions.h"
@@ -145,7 +146,7 @@ bool archipelago::busy() const
 void archipelago::evolve(int n)
 {
 	if (busy()) {
-		pagmo_throw(runtime_error,"cannot start evolution while evolving");
+		pagmo_throw(std::runtime_error,"cannot start evolution while evolving");
 	}
 	
 	// Initialise the synchronisation barrier
@@ -160,7 +161,7 @@ void archipelago::evolve(int n)
 void archipelago::evolve_t(const size_t &t)
 {
 	if (busy()) {
-		pagmo_throw(runtime_error,"cannot start evolution while evolving");
+		pagmo_throw(std::runtime_error,"cannot start evolution while evolving");
 	}
 	
 	// Initialise the synchronisation barrier

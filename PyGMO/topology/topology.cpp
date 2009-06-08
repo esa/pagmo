@@ -23,7 +23,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
-#include <boost_python_p_exceptions.h>
 
 #include "../../src/GOclasses/basic/base_topology.h"
 #include "../../src/GOclasses/basic/graph_topology.h"
@@ -57,7 +56,7 @@ static inline class_<Topology,bases<graph_topology> > topology_wrapper(const cha
 
 BOOST_PYTHON_MODULE(_topology) {
 	// Translate exceptions for this module.
-	translate_p_exceptions();
+	translate_exceptions();
 
 	// Base topology.
 	class_<base_topology, boost::noncopyable> class_bt("__base_topology", "Base topology.", no_init);

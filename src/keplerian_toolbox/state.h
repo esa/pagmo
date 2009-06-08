@@ -10,7 +10,7 @@
 #include <iostream>
 #include <vector>
 
-#include <p_exceptions.h>
+#include "../p_exceptions.h"
 #include "types.h"
 
 namespace keplerian_toolbox

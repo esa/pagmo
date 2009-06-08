@@ -3,8 +3,8 @@
 
 #include <cmath>
 #include <iostream>
-#include <p_exceptions.h>
 
+#include "../p_exceptions.h"
 #include "s2t.h"
 #include "t2s.h"
 #include "types.h"
