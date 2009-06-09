@@ -57,7 +57,7 @@ double ackley (const vector<double>& x){
 }
 
 //lennardjones helper function that transforms the decision vector x in atoms positions r
-const double r(const int& atom, const int& coord, const vector <double>& x) {
+double r(const int& atom, const int& coord, const vector <double>& x) {
 	if(atom == 0) { //x1,y1,z1 fixed
 		return 0.0;
 	} else if(atom == 1) {
