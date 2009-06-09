@@ -13,7 +13,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
 	# Atomic builtins for GCC.
-	TRY_COMPILE(WORKING_ATOMIC_BUILTINS ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/atomic_builtins_test.cpp COMPILE_DEFINITIONS ${CMAKE_CCXX_FLAGS})
+	TRY_COMPILE(WORKING_ATOMIC_BUILTINS ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gcc_atomic_builtins_test.cpp COMPILE_DEFINITIONS ${CMAKE_CCXX_FLAGS})
 	IF(WORKING_ATOMIC_BUILTINS)
 		MESSAGE(STATUS "GCC is correctly setup to support atomic builtins.")
 		ADD_DEFINITIONS(-D_PAGMO_GCC_ATOMIC_BUILTINS)
