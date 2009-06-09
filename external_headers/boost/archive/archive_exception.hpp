@@ -51,8 +51,11 @@ public:
         invalid_class_name, // class name greater than the maximum permitted.
                             // most likely a corrupted archive or an attempt
                             // to insert virus via buffer overrun method.
-        unregistered_cast   // base - derived relationship not registered with 
+        unregistered_cast,   // base - derived relationship not registered with 
                             // void_cast_register
+        unsupported_class_version // type saved with a version # greater than the 
+                            // one used by the program.  This indicates that the proggram
+                            // needs to be rebuilt.
     } exception_code;
     exception_code code;
     archive_exception(exception_code c) : 
@@ -91,6 +94,9 @@ public:
             break;
         case unregistered_cast:
             msg = "unregistered void cast";
+            break;
+        case unsupported_class_version:
+            msg = "class version";
             break;
         case other_exception:
             // if get here - it indicates a derived exception 

@@ -28,7 +28,6 @@
 
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
-
 namespace boost {
 namespace archive {
 
@@ -99,9 +98,9 @@ public:
         ::boost::serialization::nvp<T> & t,
         int
     ){
-        save_start(t.name());
+        this->This()->save_start(t.name());
         this->detail_common_oarchive::save_override(t.const_value(), 0);
-        save_end(t.name());
+        this->This()->save_end(t.name());
     }
 
     // specific overrides for attributes - not name value pairs so we

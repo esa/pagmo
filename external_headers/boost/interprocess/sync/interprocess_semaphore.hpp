@@ -11,6 +11,8 @@
 #ifndef BOOST_INTERPROCESS_SEMAPHORE_HPP
 #define BOOST_INTERPROCESS_SEMAPHORE_HPP
 
+/// @cond
+
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
 #endif
@@ -22,7 +24,7 @@
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
 
 #if !defined(BOOST_INTERPROCESS_FORCE_GENERIC_EMULATION) && \
-   (defined(BOOST_INTERPROCESS_POSIX_PROCESS_SHARED) && defined(BOOST_INTERPROCESS_POSIX_SEMAPHORES))
+   (defined(BOOST_INTERPROCESS_POSIX_PROCESS_SHARED) && defined(BOOST_INTERPROCESS_POSIX_NAMED_SEMAPHORES))
    #include <fcntl.h>      //O_CREAT, O_*... 
    #include <unistd.h>     //close
    #include <string>       //std::string
@@ -38,6 +40,8 @@
    #include <boost/interprocess/sync/interprocess_condition.hpp>
    #define BOOST_INTERPROCESS_USE_GENERIC_EMULATION
 #endif
+
+/// @endcond
 
 //!\file
 //!Describes a interprocess_semaphore class for inter-process synchronization

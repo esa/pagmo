@@ -13,9 +13,9 @@
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
-//#include <boost/interprocess/detail/utilities.hpp>
+#include <string>
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if (defined BOOST_INTERPROCESS_WINDOWS)
 #  include <boost/interprocess/detail/win32_api.hpp>
 #else
 #  ifdef BOOST_HAS_UNISTD_H
@@ -24,6 +24,8 @@
 #     include <sys/types.h>
 #     include <sys/stat.h>
 #     include <errno.h>
+#     include <cstdio>
+#     include <dirent.h>
 #  else
 #    error Unknown platform
 #  endif
@@ -35,11 +37,11 @@
 namespace boost {
 namespace interprocess {
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 typedef void *             file_handle_t;
 typedef long long          offset_t;
-typedef struct{
+typedef struct mapping_handle_impl_t{
    void *   handle;
    bool     is_shm;
 }  mapping_handle_t;
@@ -62,6 +64,14 @@ inline mapping_handle_t mapping_handle_from_file_handle(file_handle_t hnd)
    mapping_handle_t ret;
    ret.handle = hnd;
    ret.is_shm = false;
+   return ret;
+}
+
+inline mapping_handle_t mapping_handle_from_shm_handle(file_handle_t hnd)
+{
+   mapping_handle_t ret;
+   ret.handle = hnd;
+   ret.is_shm = true;
    return ret;
 }
 
@@ -99,10 +109,7 @@ inline file_handle_t open_existing_file
 }
 
 inline bool delete_file(const char *name)
-{  return winapi::delete_file(name);   }
-
-inline bool delete_file_on_reboot_if_possible(const char *filename)
-{  return winapi::move_file_ex(filename, 0, winapi::movefile_delay_until_reboot);  }
+{  return winapi::unlink_file(name);   }
 
 inline bool truncate_file (file_handle_t hnd, std::size_t size)
 {  
@@ -191,16 +198,89 @@ inline bool try_acquire_file_lock_sharable(file_handle_t hnd, bool &acquired)
    return (acquired = true);
 }
 
-
-
 inline bool release_file_lock_sharable(file_handle_t hnd)
 {  return release_file_lock(hnd);   }
 
-#else    //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+inline bool delete_subdirectories_recursive
+   (const std::string &refcstrRootDirectory, const char *dont_delete_this, unsigned int count)
+{
+   bool               bSubdirectory = false;       // Flag, indicating whether
+                                                   // subdirectories have been found
+   void *             hFile;                       // Handle to directory
+   std::string        strFilePath;                 // Filepath
+   std::string        strPattern;                  // Pattern
+   winapi::win32_find_data_t  FileInformation;     // File information
+
+   //Find all files and directories
+   strPattern = refcstrRootDirectory + "\\*.*";
+   hFile = winapi::find_first_file(strPattern.c_str(), &FileInformation);
+   if(hFile != winapi::invalid_handle_value){
+      do{
+         //If it's not "." or ".." or the pointed root_level dont_delete_this erase it
+         if(FileInformation.cFileName[0] != '.' &&
+            !(dont_delete_this && count == 0 && std::strcmp(dont_delete_this, FileInformation.cFileName) == 0)){
+            strFilePath.erase();
+            strFilePath = refcstrRootDirectory + "\\" + FileInformation.cFileName;
+
+            //If it's a directory, go recursive
+            if(FileInformation.dwFileAttributes & winapi::file_attribute_directory){
+               // Delete subdirectory
+               if(!delete_subdirectories_recursive(strFilePath, dont_delete_this, count+1))
+                  return false;
+            }
+            //If it's a file, just delete it
+            else{
+               // Set file attributes
+               //if(::SetFileAttributes(strFilePath.c_str(), winapi::file_attribute_normal) == 0)
+               //return winapi::get_last_error();
+               // Delete file
+               if(winapi::delete_file(strFilePath.c_str()) == 0)
+                  return false;
+            }
+         }
+      //Go to the next file
+      } while(winapi::find_next_file(hFile, &FileInformation) == 1);
+
+      // Close handle
+      winapi::find_close(hFile);
+
+      //See if the loop has ended with an error or just because we've traversed all the files
+      if(winapi::get_last_error() != winapi::error_no_more_files){
+         return false;
+      }
+      else
+      {
+         //Erase empty subdirectories or original refcstrRootDirectory
+         if(!bSubdirectory && count)
+         {
+            // Set directory attributes
+            //if(::SetFileAttributes(refcstrRootDirectory.c_str(), FILE_ATTRIBUTE_NORMAL) == 0)
+               //return ::GetLastError();
+            // Delete directory
+            if(winapi::remove_directory(refcstrRootDirectory.c_str()) == 0)
+               return false;
+         }
+      }
+   }
+   return true;
+}
+
+//This function erases all the subdirectories of a directory except the one pointed by "dont_delete_this"
+inline bool delete_subdirectories(const std::string &refcstrRootDirectory, const char *dont_delete_this)
+{
+   return delete_subdirectories_recursive(refcstrRootDirectory, dont_delete_this, 0u);
+}
+
+#else    //#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 typedef int       file_handle_t;
 typedef off_t     offset_t;
-typedef file_handle_t  mapping_handle_t;
+
+typedef struct mapping_handle_impl_t
+{
+   file_handle_t  handle;
+   bool           is_xsi;
+}  mapping_handle_t;
 
 typedef enum { read_only      = O_RDONLY
              , read_write     = O_RDWR
@@ -216,10 +296,15 @@ typedef enum { file_begin     = SEEK_SET
 namespace detail{
 
 inline mapping_handle_t mapping_handle_from_file_handle(file_handle_t hnd)
-{  return hnd; }
+{
+   mapping_handle_t ret;
+   ret.handle = hnd;
+   ret.is_xsi = false;
+   return ret;
+}
 
 inline file_handle_t file_handle_from_mapping_handle(mapping_handle_t hnd)
-{  return hnd; }
+{  return hnd.handle; }
 
 inline bool create_directory(const char *path)
 {  return ::mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0; }
@@ -262,12 +347,6 @@ inline file_handle_t open_existing_file
 
 inline bool delete_file(const char *name)
 {  return ::unlink(name) == 0;   }
-
-
-inline bool delete_file_on_reboot_if_possible(const char *)
-{  //Function not implemented in POSIX functions
-   return false;
-}
 
 inline bool truncate_file (file_handle_t hnd, std::size_t size)
 {  return 0 == ::ftruncate(hnd, size);   }
@@ -360,12 +439,63 @@ inline bool try_acquire_file_lock_sharable(file_handle_t hnd, bool &acquired)
    return (acquired = true);
 }
 
-
-
 inline bool release_file_lock_sharable(file_handle_t hnd)
 {  return release_file_lock(hnd);   }
 
-#endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+inline bool delete_subdirectories_recursive
+   (const std::string &refcstrRootDirectory, const char *dont_delete_this)
+{
+   DIR *d = opendir(refcstrRootDirectory.c_str());
+   if(!d) {
+      return false;
+   }
+
+   struct dir_close
+   {
+      DIR *d_;
+      dir_close(DIR *d) : d_(d) {}
+      ~dir_close() { ::closedir(d_); }
+   } dc(d); (void)dc;
+
+   struct ::dirent *de;
+   struct ::stat st;
+   std::string fn;
+
+   while((de=::readdir(d))) {
+      if( de->d_name[0] == '.' && ( de->d_name[1] == '\0'
+            || (de->d_name[1] == '.' && de->d_name[2] == '\0' )) ){
+         continue;
+      }
+      if(dont_delete_this && std::strcmp(dont_delete_this, de->d_name) == 0){  
+         continue;
+      }
+      fn = refcstrRootDirectory;
+      fn += '/';
+      fn += de->d_name;
+
+      if(std::remove(fn.c_str())) {
+         if(::stat(fn.c_str(), & st)) {
+            return false;
+         }
+         if(S_ISDIR(st.st_mode)) {
+            if(!delete_subdirectories_recursive(fn, 0) ){
+               return false;
+            }
+         } else {
+            return false;
+         }
+      }
+   }
+   return std::remove(refcstrRootDirectory.c_str()) ? false : true;
+}
+
+//This function erases all the subdirectories of a directory except the one pointed by "dont_delete_this"
+inline bool delete_subdirectories(const std::string &refcstrRootDirectory, const char *dont_delete_this)
+{
+   return delete_subdirectories_recursive(refcstrRootDirectory, dont_delete_this );
+}
+
+#endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 }  //namespace detail{
 }  //namespace interprocess {

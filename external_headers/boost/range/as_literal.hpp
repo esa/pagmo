@@ -38,7 +38,7 @@ namespace boost
             return strlen( s );
         }
 
-#ifndef BOOST_NO_INTRINSIC_WCHAR_T 
+#ifndef BOOST_NO_CWCHAR  
         inline std::size_t length( const wchar_t* s )
         {
             return wcslen( s );
@@ -61,7 +61,7 @@ namespace boost
             return true;
         }
 
-#ifndef BOOST_NO_INTRINSIC_WCHAR_T 
+#ifndef BOOST_NO_CWCHAR  
         inline bool is_char_ptr( wchar_t* )
         {
             return true;

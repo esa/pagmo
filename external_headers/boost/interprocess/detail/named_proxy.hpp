@@ -72,11 +72,11 @@ struct CtorNArg : public placement_destroy<T>
    private:
    template<int ...IdxPack>
    void construct(void *mem, detail::true_, const index_tuple<IdxPack...>&)
-   {  new((void*)mem)T(*detail::forward_impl<Args>(get<IdxPack>(args_))...); }
+   {  new((void*)mem)T(*boost::interprocess::forward<Args>(get<IdxPack>(args_))...); }
 
    template<int ...IdxPack>
    void construct(void *mem, detail::false_, const index_tuple<IdxPack...>&)
-   {  new((void*)mem)T(detail::forward_impl<Args>(get<IdxPack>(args_))...); }
+   {  new((void*)mem)T(boost::interprocess::forward<Args>(get<IdxPack>(args_))...); }
 
    template<int ...IdxPack>
    void do_increment(detail::true_, const index_tuple<IdxPack...>&)
@@ -120,7 +120,7 @@ class named_proxy
    template<class ...Args>
    T *operator()(Args &&...args) const
    {  
-      CtorNArg<T, is_iterator, Args...> ctor_obj(detail::forward_impl<Args>(args)...);
+      CtorNArg<T, is_iterator, Args...> ctor_obj(boost::interprocess::forward<Args>(args)...);
       return mp_mngr->template 
          generic_construct<T>(mp_name, m_num, m_find, m_dothrow, ctor_obj);
    }
@@ -211,7 +211,7 @@ struct Ctor0Arg   :  public placement_destroy<T>
 //be able to bind temporaries. After that we will un-const them.
 //This cast is ugly but it is necessary until "perfect forwarding"
 //is achieved in C++0x. Meanwhile, if we want to be able to
-//bind rvalues with non-const references, we have to be ugly
+//bind lvalues with non-const references, we have to be ugly
 #define BOOST_PP_LOCAL_MACRO(n)                                            \
    template<class T, bool is_iterator, BOOST_PP_ENUM_PARAMS(n, class P) >  \
    struct BOOST_PP_CAT(BOOST_PP_CAT(Ctor, n), Arg)                         \

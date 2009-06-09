@@ -390,64 +390,69 @@ namespace boost
         lhs.begin(), lhs.end(), tmp.begin(), tmp.end() );
     }
 
+    //  operator == uses string compare rather than !(lhs < rhs) && !(rhs < lhs) because
+    //  the result is the same yet the direct string compare is much more efficient that
+    //  lexicographical_compare, and lexicographical_compare used twice at that.
+
     template< class String, class Traits >
     inline bool operator==( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs )
     { 
-      return !(lhs < rhs) && !(rhs < lhs);
+      return lhs.string() == rhs.string();
     }
 
     template< class String, class Traits >
     inline bool operator==( const typename basic_path<String, Traits>::string_type::value_type * lhs,
                     const basic_path<String, Traits> & rhs )
     {
-      basic_path<String, Traits> tmp( lhs );
-      return !(tmp < rhs) && !(rhs < tmp);
+      return lhs == rhs.string();
     }
 
     template< class String, class Traits >
     inline bool operator==( const typename basic_path<String, Traits>::string_type & lhs,
                     const basic_path<String, Traits> & rhs )
     {
-      basic_path<String, Traits> tmp( lhs );
-      return !(tmp < rhs) && !(rhs < tmp);
+      return lhs == rhs.string();
     }
 
     template< class String, class Traits >
     inline bool operator==( const basic_path<String, Traits> & lhs,
                     const typename basic_path<String, Traits>::string_type::value_type * rhs )
     {
-      basic_path<String, Traits> tmp( rhs );
-      return !(lhs < tmp) && !(tmp < lhs);
+      return lhs.string() == rhs;
     }
 
     template< class String, class Traits >
     inline bool operator==( const basic_path<String, Traits> & lhs,
                     const typename basic_path<String, Traits>::string_type & rhs )
     {
-      basic_path<String, Traits> tmp( rhs );
-      return !(lhs < tmp) && !(tmp < lhs);
+      return lhs.string() == rhs;
     }
 
     template< class String, class Traits >
-    inline bool operator!=( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs ) { return !(lhs == rhs); }
+    inline bool operator!=( const basic_path<String, Traits> & lhs,
+      const basic_path<String, Traits> & rhs )
+        { return !(lhs == rhs); }
     
     template< class String, class Traits >
-    inline bool operator!=( const typename basic_path<String, Traits>::string_type::value_type * lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(basic_path<String, Traits>(lhs) == rhs); }
+    inline bool operator!=( const typename basic_path<String,
+      Traits>::string_type::value_type * lhs,
+        const basic_path<String, Traits> & rhs )
+        { return !(lhs == rhs); }
 
     template< class String, class Traits >
     inline bool operator!=( const typename basic_path<String, Traits>::string_type & lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(basic_path<String, Traits>(lhs) == rhs); }
+      const basic_path<String, Traits> & rhs )
+        { return !(lhs == rhs); }
 
     template< class String, class Traits >
     inline bool operator!=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type::value_type * rhs )
-                    { return !(lhs == basic_path<String, Traits>(rhs)); }
+      const typename basic_path<String, Traits>::string_type::value_type * rhs )
+        { return !(lhs == rhs); }
 
     template< class String, class Traits >
     inline bool operator!=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type & rhs )
-                    { return !(lhs == basic_path<String, Traits>(rhs)); }
+      const typename basic_path<String, Traits>::string_type & rhs )
+        { return !(lhs == rhs); }
 
     template< class String, class Traits >
     inline bool operator>( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs ) { return rhs < lhs; }

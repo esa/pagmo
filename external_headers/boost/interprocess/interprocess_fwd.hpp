@@ -11,12 +11,12 @@
 #ifndef BOOST_INTERPROCESS_FWD_HPP
 #define BOOST_INTERPROCESS_FWD_HPP
 
-#if (defined _MSC_VER) && (_MSC_VER >= 1200)
+#if defined (_MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
 #endif
 
-//#include <boost/interprocess/detail/config_begin.hpp>
-//#include <boost/interprocess/detail/workaround.hpp>
+#include <boost/interprocess/detail/config_begin.hpp>
+#include <boost/interprocess/detail/workaround.hpp>
 
 #include <cstddef>
 
@@ -61,9 +61,9 @@ namespace boost { namespace interprocess {
 
 class shared_memory_object;
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if defined (BOOST_INTERPROCESS_WINDOWS)
 class windows_shared_memory;
-#endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
 
 //////////////////////////////////////////////////////////////////////////////
 //              mapped file/mapped region/mapped_file
@@ -112,6 +112,9 @@ class scoped_lock;
 
 template <class SharableMutex>
 class sharable_lock;
+
+template <class UpgradableMutex>
+class upgradable_lock;
 
 //////////////////////////////////////////////////////////////////////////////
 //                      STL compatible allocators
@@ -230,7 +233,7 @@ wmanaged_shared_memory;
 //                      Windows shared memory managed memory classes
 //////////////////////////////////////////////////////////////////////////////
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if defined (BOOST_INTERPROCESS_WINDOWS)
 
 template <class CharType
          ,class MemoryAlgorithm
@@ -249,7 +252,26 @@ typedef basic_managed_windows_shared_memory
    ,iset_index>
 wmanaged_windows_shared_memory;
 
-#endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#else
+
+template <class CharType
+         ,class MemoryAlgorithm
+         ,template<class IndexConfig> class IndexType>
+class basic_managed_xsi_shared_memory;
+
+typedef basic_managed_xsi_shared_memory 
+   <char
+   ,rbtree_best_fit<mutex_family>
+   ,iset_index>
+managed_xsi_shared_memory;
+
+typedef basic_managed_xsi_shared_memory
+   <wchar_t
+   ,rbtree_best_fit<mutex_family>
+   ,iset_index>
+wmanaged_xsi_shared_memory;
+
+#endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
 
 //////////////////////////////////////////////////////////////////////////////
 //                      Fixed address shared memory
@@ -382,98 +404,12 @@ class weak_ptr;
 
 class message_queue;
 
-//////////////////////////////////////////////////////////////////////////////
-//                             Containers
-//////////////////////////////////////////////////////////////////////////////
-
-//vector class
-template <class T
-         ,class A = std::allocator<T> >
-class vector;
-
-//vector class
-template <class T
-,class A = std::allocator<T> >
-class deque;
-
-//list class
-template <class T
-         ,class A = std::allocator<T> >
-class list;
-
-//slist class
-template <class T
-         ,class Alloc = std::allocator<T> >
-class slist;
-
-//set class
-template <class T
-         ,class Pred  = std::less<T>
-         ,class Alloc = std::allocator<T> >
-class set;
-
-//multiset class
-template <class T
-         ,class Pred  = std::less<T>
-         ,class Alloc = std::allocator<T> >
-class multiset;
-
-//map class
-template <class Key
-         ,class T
-         ,class Pred  = std::less<Key>
-         ,class Alloc = std::allocator<std::pair<const Key, T> > >
-class map;
-
-//multimap class
-template <class Key
-         ,class T
-         ,class Pred  = std::less<Key>
-         ,class Alloc = std::allocator<std::pair<const Key, T> > >
-class multimap;
-
-//flat_set class
-template <class T
-         ,class Pred  = std::less<T>
-         ,class Alloc = std::allocator<T> >
-class flat_set;
-
-//flat_multiset class
-template <class T
-         ,class Pred  = std::less<T>
-         ,class Alloc = std::allocator<T> >
-class flat_multiset;
-
-//flat_map class
-template <class Key
-         ,class T
-         ,class Pred  = std::less<Key>
-         ,class Alloc = std::allocator<std::pair<Key, T> > >
-class flat_map;
-
-//flat_multimap class
-template <class Key
-         ,class T
-         ,class Pred  = std::less<Key>
-         ,class Alloc = std::allocator<std::pair<Key, T> > >
-class flat_multimap;
-
-//basic_string class
-template <class CharT
-         ,class Traits = std::char_traits<CharT>
-         ,class Alloc  = std::allocator<CharT> > 
-class basic_string;
-
-//string class
-typedef basic_string
-   <char
-   ,std::char_traits<char>
-   ,std::allocator<char> >
-string;
-
 }}  //namespace boost { namespace interprocess {
 
-//#include <boost/interprocess/detail/config_end.hpp>
+//////////////////////////////////////////////////////////////////////////////
+//                                  CONTAINERS
+//////////////////////////////////////////////////////////////////////////////
+
+#include <boost/interprocess/detail/config_end.hpp>
 
 #endif //#ifndef BOOST_INTERPROCESS_FWD_HPP
-

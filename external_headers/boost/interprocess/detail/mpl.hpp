@@ -59,6 +59,9 @@ struct enable_if_c<false, T> {};
 template <class Cond, class T = void>
 struct enable_if : public enable_if_c<Cond::value, T> {};
 
+template <class Cond, class T = void>
+struct disable_if : public enable_if_c<!Cond::value, T> {};
+
 template <class T, class U>
 class is_convertible
 {
@@ -105,7 +108,8 @@ template <class Pair>
 struct select1st 
 //   : public std::unary_function<Pair, typename Pair::first_type> 
 {
-   const typename Pair::first_type& operator()(const Pair& x) const 
+   template<class OtherPair>
+   const typename Pair::first_type& operator()(const OtherPair& x) const 
    {  return x.first;   }
 
    const typename Pair::first_type& operator()(const typename Pair::first_type& x) const 

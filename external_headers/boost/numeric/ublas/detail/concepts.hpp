@@ -237,10 +237,21 @@ namespace boost { namespace numeric { namespace ublas {
         }
     };
 
+    /** \brief Scalar expression concept.
+     *
+     * requirements
+     * \li \c SE::value_type is the type of the scalar expression
+     * \li \c SE must be convertable to \c SE::value_type
+     * \li the constant \c SE::complexity must exist
+     *
+     * \param SE the type of the scalar expression
+     */
     template<class SE>
     struct ScalarExpressionConcept {
         typedef SE scalar_expression_type;
         typedef typename SE::value_type value_type;
+
+        static const unsigned complexity = SE::complexity;
 
         void constraints () {
             scalar_expression_type *sp;
@@ -252,12 +263,28 @@ namespace boost { namespace numeric { namespace ublas {
         }
     };
 
+    /** \brief Vector expression concept.
+     *
+     * requirements
+     * \li \c VE::value_type is the type of the elements
+     * \li \c VE::const_reference The return type when accessing an element of a constant vector 
+     * expression. Must be convertable to a \c value_type.
+     * \li \c VE::size_type is the (unsigned) type of the indices
+     * \li \c VE::difference_type is the (signed) type of distances between indices
+     * \li \c VE::category
+     * 
+     * \li the constant \c SE::complexity must exist
+     *
+     * \param SE the type of the scalar expression
+     */
     template<class VE>
     struct VectorExpressionConcept {
         typedef VE vector_expression_type;
         typedef typename VE::type_category type_category;
         typedef typename VE::size_type size_type;
+        typedef typename VE::difference_type difference_type;
         typedef typename VE::value_type value_type;
+        typedef typename VE::const_reference const_reference;
         typedef typename VE::const_iterator const_iterator_type;
         typedef typename VE::const_reverse_iterator const_reverse_iterator_type;
 
@@ -939,6 +966,17 @@ namespace boost { namespace numeric { namespace ublas {
            function_requires< Mutable_StorageSparseConcept<container_model > >();
            function_requires< BidirectionalIteratorConcept<container_model::const_iterator> >();
            function_requires< BidirectionalIteratorConcept<container_model::iterator> >();
+        }
+#endif
+
+#if defined (VECTOR_VIEW)	
+        // read only vectors
+        {
+           typedef vector_view<T> container_model;
+           function_requires< RandomAccessContainerConcept<container_model> >();
+           function_requires< VectorConcept<container_model> >();
+           function_requires< IndexedRandomAccess1DIteratorConcept<container_model::const_iterator> >();
+           function_requires< IndexedRandomAccess1DIteratorConcept<container_model::const_reverse_iterator> >();
         }
 #endif
 

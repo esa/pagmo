@@ -718,6 +718,8 @@ class hashtable_impl
 
    //Constant-time size is incompatible with auto-unlink hooks!
    BOOST_STATIC_ASSERT(!(constant_time_size && ((int)real_value_traits::link_mode == (int)auto_unlink)));
+   //Cache begin is incompatible with auto-unlink hooks!
+   BOOST_STATIC_ASSERT(!(cache_begin && ((int)real_value_traits::link_mode == (int)auto_unlink)));
 
    template<class Disposer>
    node_cast_adaptor<detail::node_disposer<Disposer, hashtable_impl> >
@@ -871,7 +873,7 @@ class hashtable_impl
 
    //! <b>Effects</b>: Returns true if the container is empty.
    //! 
-   //! <b>Complexity</b>: if constant-time size and cache_last options are disabled,
+   //! <b>Complexity</b>: if constant-time size and cache_begin options are disabled,
    //!   average constant time (worst case, with empty() == true: O(this->bucket_count()).
    //!   Otherwise constant.
    //! 

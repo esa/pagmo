@@ -18,9 +18,11 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
+#include <boost/pointer_to_other.hpp>
+
 #include <boost/interprocess/interprocess_fwd.hpp>
 #include <boost/interprocess/mem_algo/detail/mem_algo_common.hpp>
-#include <boost/interprocess/allocators/allocation_type.hpp>
+#include <boost/interprocess/containers/allocation_type.hpp>
 #include <boost/interprocess/offset_ptr.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/exceptions.hpp>
@@ -40,15 +42,7 @@
 #include <cassert>
 #include <new>
 
-//#define BOOST_INTERPROCESS_RBTREE_BEST_FIT_USE_SPLAY
-
-#ifndef BOOST_INTERPROCESS_RBTREE_BEST_FIT_USE_SPLAY
 #include <boost/intrusive/set.hpp>
-#else
-//#include <boost/intrusive/splay_set.hpp>
-//#include <boost/intrusive/avl_set.hpp>
-#include <boost/intrusive/sg_set.hpp>
-#endif
 
 //!\file
 //!Describes a best-fit algorithm based in an intrusive red-black tree used to allocate
@@ -75,34 +69,25 @@ class rbtree_best_fit
    typedef MutexFamily        mutex_family;
    //!Pointer type to be used with the rest of the Interprocess framework
    typedef VoidPointer        void_pointer;
-   typedef detail::basic_multiallocation_iterator
-      <void_pointer> multiallocation_iterator;
-   typedef detail::basic_multiallocation_chain
-      <void_pointer> multiallocation_chain;
+   //typedef detail::basic_multiallocation_cached_counted_slist<void_pointer>  multiallocation_chain;
+
+   typedef detail::basic_multiallocation_cached_slist<void_pointer>  multialloc_cached;
+   typedef detail::basic_multiallocation_cached_counted_slist
+      <multialloc_cached>                                            multiallocation_chain;
 
    /// @cond
 
    private:
    struct block_ctrl;
-   typedef typename detail::
+   typedef typename boost::
       pointer_to_other<void_pointer, block_ctrl>::type   block_ctrl_ptr;
-   typedef typename detail::
+   typedef typename boost::
       pointer_to_other<void_pointer, char>::type         char_ptr;
 
-#ifndef BOOST_INTERPROCESS_RBTREE_BEST_FIT_USE_SPLAY
    typedef typename bi::make_set_base_hook
-#else
-//   typedef typename bi::make_splay_set_base_hook
-//   typedef typename bi::make_avl_set_base_hook
-   typedef typename bi::make_sg_set_base_hook
-#endif
       < bi::void_pointer<VoidPointer>
       , bi::optimize_size<true>
       , bi::link_mode<bi::normal_link> >::type           TreeHook;
-
-   typedef detail::multi_allocation_next<void_pointer>   multi_allocation_next_t;
-   typedef typename multi_allocation_next_t::
-      multi_allocation_next_ptr                          multi_allocation_next_ptr;
 
    struct SizeHolder
    {
@@ -138,13 +123,7 @@ class rbtree_best_fit
 
    //!Shared interprocess_mutex to protect memory allocate/deallocate
    typedef typename MutexFamily::mutex_type                       interprocess_mutex;
-#ifndef BOOST_INTERPROCESS_RBTREE_BEST_FIT_USE_SPLAY
    typedef typename bi::make_multiset
-#else
-   //typedef typename bi::make_splay_multiset
-   //typedef typename bi::make_avl_multiset
-   typedef typename bi::make_sg_multiset
-#endif
       <block_ctrl, bi::base_hook<TreeHook> >::type                Imultiset;
 
    typedef typename Imultiset::iterator                           imultiset_iterator;
@@ -163,7 +142,6 @@ class rbtree_best_fit
       std::size_t       m_size;
    }  m_header;
 
-   friend class detail::basic_multiallocation_iterator<void_pointer>;
    friend class detail::memory_algorithm_common<rbtree_best_fit>;
    
    typedef detail::memory_algorithm_common<rbtree_best_fit> algo_impl_t;
@@ -192,13 +170,27 @@ class rbtree_best_fit
    //Experimental. Dont' use
 
    //!Multiple element allocation, same size
-   multiallocation_iterator allocate_many(std::size_t elem_bytes, std::size_t num_elements);
+   multiallocation_chain allocate_many(std::size_t elem_bytes, std::size_t num_elements)
+   {
+
+      //-----------------------
+      boost::interprocess::scoped_lock<interprocess_mutex> guard(m_header);
+      //-----------------------
+      return algo_impl_t::allocate_many(this, elem_bytes, num_elements);
+   }
 
    //!Multiple element allocation, different size
-   multiallocation_iterator allocate_many(const std::size_t *elem_sizes, std::size_t n_elements, std::size_t sizeof_element);
+   multiallocation_chain allocate_many(const std::size_t *elem_sizes, std::size_t n_elements, std::size_t sizeof_element)
+   {
+
+      //-----------------------
+      boost::interprocess::scoped_lock<interprocess_mutex> guard(m_header);
+      //-----------------------
+      return algo_impl_t::allocate_many(this, elem_sizes, n_elements, sizeof_element);
+   }
 
    //!Multiple element allocation, different size
-   void deallocate_many(multiallocation_iterator it);
+   void deallocate_many(multiallocation_chain chain);
 
    /// @endcond
 
@@ -231,12 +223,12 @@ class rbtree_best_fit
 
    template<class T>
    std::pair<T *, bool>
-      allocation_command  (allocation_type command,   std::size_t limit_size,
+      allocation_command  (boost::interprocess::allocation_type command,   std::size_t limit_size,
                            std::size_t preferred_size,std::size_t &received_size, 
                            T *reuse_ptr = 0);
 
    std::pair<void *, bool>
-     raw_allocation_command  (allocation_type command,   std::size_t limit_object,
+     raw_allocation_command  (boost::interprocess::allocation_type command,   std::size_t limit_object,
                               std::size_t preferred_object,std::size_t &received_object, 
                               void *reuse_ptr = 0, std::size_t sizeof_object = 1);
 
@@ -252,13 +244,13 @@ class rbtree_best_fit
    static std::size_t priv_first_block_offset(const void *this_ptr, std::size_t extra_hdr_bytes);
 
    std::pair<void*, bool>
-      priv_allocation_command(allocation_type command,   std::size_t limit_size,
+      priv_allocation_command(boost::interprocess::allocation_type command,   std::size_t limit_size,
                         std::size_t preferred_size,std::size_t &received_size, 
                         void *reuse_ptr, std::size_t sizeof_object);
 
 
    //!Real allocation algorithm with min allocation option
-   std::pair<void *, bool> priv_allocate(allocation_type command
+   std::pair<void *, bool> priv_allocate(boost::interprocess::allocation_type command
                                         ,std::size_t limit_size
                                         ,std::size_t preferred_size
                                         ,std::size_t &received_size
@@ -281,7 +273,7 @@ class rbtree_best_fit
                    ,std::size_t &received_size);
 
    //!Real expand to both sides implementation
-   void* priv_expand_both_sides(allocation_type command
+   void* priv_expand_both_sides(boost::interprocess::allocation_type command
                                ,std::size_t min_size
                                ,std::size_t preferred_size
                                ,std::size_t &received_size
@@ -463,7 +455,7 @@ void rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::shrink_to_fit()
    block_ctrl *last_block;
    if(priv_next_block(first_block) == old_end_block){
       std::size_t ignore;
-      unique_buffer = priv_allocate(allocate_new, 0, 0, ignore).first;
+      unique_buffer = priv_allocate(boost::interprocess::allocate_new, 0, 0, ignore).first;
       if(!unique_buffer)
          return;
       algo_impl_t::assert_alignment(unique_buffer);
@@ -631,7 +623,7 @@ inline void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
    boost::interprocess::scoped_lock<interprocess_mutex> guard(m_header);
    //-----------------------
    std::size_t ignore;
-   void * ret = priv_allocate(allocate_new, nbytes, nbytes, ignore).first;
+   void * ret = priv_allocate(boost::interprocess::allocate_new, nbytes, nbytes, ignore).first;
    return ret;
 }
 
@@ -648,7 +640,7 @@ inline void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
 template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
 template<class T>
 inline std::pair<T*, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   allocation_command  (allocation_type command,   std::size_t limit_size,
+   allocation_command  (boost::interprocess::allocation_type command,   std::size_t limit_size,
                         std::size_t preferred_size,std::size_t &received_size, 
                         T *reuse_ptr)
 {
@@ -661,13 +653,13 @@ inline std::pair<T*, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignmen
 
 template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
 inline std::pair<void*, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   raw_allocation_command  (allocation_type command,   std::size_t limit_objects,
+   raw_allocation_command  (boost::interprocess::allocation_type command,   std::size_t limit_objects,
                         std::size_t preferred_objects,std::size_t &received_objects, 
                         void *reuse_ptr, std::size_t sizeof_object)
 {
    if(!sizeof_object)
       return std::pair<void *, bool>(static_cast<void*>(0), 0);
-   if(command & try_shrink_in_place){
+   if(command & boost::interprocess::try_shrink_in_place){
       bool success = algo_impl_t::try_shrink
          ( this, reuse_ptr, limit_objects*sizeof_object
          , preferred_objects*sizeof_object, received_objects);
@@ -681,7 +673,7 @@ inline std::pair<void*, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlign
 
 template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
 inline std::pair<void*, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   priv_allocation_command (allocation_type command,   std::size_t limit_size,
+   priv_allocation_command (boost::interprocess::allocation_type command,   std::size_t limit_size,
                        std::size_t preferred_size,std::size_t &received_size, 
                        void *reuse_ptr, std::size_t sizeof_object)
 {
@@ -732,7 +724,7 @@ inline void rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::zero_free_m
 
 template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
 void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   priv_expand_both_sides(allocation_type command
+   priv_expand_both_sides(boost::interprocess::allocation_type command
                          ,std::size_t min_size
                          ,std::size_t preferred_size
                          ,std::size_t &received_size
@@ -741,7 +733,7 @@ void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
                          ,std::size_t backwards_multiple)
 {
    algo_impl_t::assert_alignment(reuse_ptr);
-   if(command & expand_fwd){
+   if(command & boost::interprocess::expand_fwd){
       if(priv_expand(reuse_ptr, min_size, preferred_size, received_size))
          return reuse_ptr;
    }
@@ -756,7 +748,7 @@ void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
       BOOST_ASSERT(0 == (preferred_size % backwards_multiple));
    }
 
-   if(command & expand_bwd){
+   if(command & boost::interprocess::expand_bwd){
       //Obtain the real size of the block
       block_ctrl *reuse = priv_get_block(reuse_ptr);
 
@@ -791,7 +783,7 @@ void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
       //Check if previous block has enough size
       if(std::size_t(prev_block->m_size*Alignment) >= needs_backwards_aligned){
          //Now take all next space. This will succeed
-         if(command & expand_fwd){
+         if(command & boost::interprocess::expand_fwd){
             std::size_t received_size2;
             if(!priv_expand(reuse_ptr, received_size, received_size, received_size2)){
                assert(0);
@@ -874,44 +866,18 @@ void* rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
 }
 
 template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
-inline typename rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::multiallocation_iterator
-   rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   allocate_many(std::size_t elem_bytes, std::size_t num_elements)
-{
-   //-----------------------
-   boost::interprocess::scoped_lock<interprocess_mutex> guard(m_header);
-   //-----------------------
-   return algo_impl_t::allocate_many(this, elem_bytes, num_elements);
-}
-
-template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
 inline void rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   deallocate_many(typename rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::multiallocation_iterator it)
+   deallocate_many(typename rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::multiallocation_chain chain)
 {
    //-----------------------
    boost::interprocess::scoped_lock<interprocess_mutex> guard(m_header);
    //-----------------------
-   while(it){
-      void *addr = &*it;
-      ++it;
-      this->priv_deallocate(addr);
-   }
-}
-
-template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
-inline typename rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::multiallocation_iterator
-   rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   allocate_many(const std::size_t *elem_sizes, std::size_t n_elements, std::size_t sizeof_element)
-{
-   //-----------------------
-   boost::interprocess::scoped_lock<interprocess_mutex> guard(m_header);
-   //-----------------------
-   return algo_impl_t::allocate_many(this, elem_sizes, n_elements, sizeof_element);
+   algo_impl_t::deallocate_many(this, boost::interprocess::move(chain));
 }
 
 template<class MutexFamily, class VoidPointer, std::size_t MemAlignment>
 std::pair<void *, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>::
-   priv_allocate(allocation_type command
+   priv_allocate(boost::interprocess::allocation_type command
                 ,std::size_t limit_size
                 ,std::size_t preferred_size
                 ,std::size_t &received_size
@@ -919,9 +885,9 @@ std::pair<void *, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>:
                ,std::size_t backwards_multiple)
 {
    //Remove me. Forbid backwards allocation
-   //command &= (~expand_bwd);
+   //command &= (~boost::interprocess::expand_bwd);
 
-   if(command & shrink_in_place){
+   if(command & boost::interprocess::shrink_in_place){
       bool success = 
          algo_impl_t::shrink(this, reuse_ptr, limit_size, preferred_size, received_size);
       return std::pair<void *, bool> ((success ? reuse_ptr : 0), true);
@@ -940,14 +906,14 @@ std::pair<void *, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>:
    std::size_t limit_units = priv_get_total_units(limit_size);
 
    //Expand in place
-   if(reuse_ptr && (command & (expand_fwd | expand_bwd))){
+   if(reuse_ptr && (command & (boost::interprocess::expand_fwd | boost::interprocess::expand_bwd))){
       void *ret = priv_expand_both_sides
          (command, limit_size, preferred_size, received_size, reuse_ptr, true, backwards_multiple);
       if(ret)
          return return_type(ret, true);
    }
 
-   if(command & allocate_new){
+   if(command & boost::interprocess::allocate_new){
       size_block_ctrl_compare comp;
       imultiset_iterator it(m_header.m_imultiset.lower_bound(preferred_units, comp));
 
@@ -965,7 +931,7 @@ std::pair<void *, bool> rbtree_best_fit<MutexFamily, VoidPointer, MemAlignment>:
 
 
    //Now try to expand both sides with min size
-   if(reuse_ptr && (command & (expand_fwd | expand_bwd))){
+   if(reuse_ptr && (command & (boost::interprocess::expand_fwd | boost::interprocess::expand_bwd))){
       return return_type(priv_expand_both_sides
          (command, limit_size, preferred_size, received_size, reuse_ptr, false, backwards_multiple), true);
    }

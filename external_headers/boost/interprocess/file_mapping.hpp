@@ -21,8 +21,6 @@
 #include <boost/interprocess/detail/os_file_functions.hpp>
 #include <boost/interprocess/detail/move.hpp>
 #include <string>    //std::string
-#include <cstdio>    //std::remove
-#include <string>
 
 //!\file
 //!Describes file_mapping and mapped region classes
@@ -30,31 +28,19 @@
 namespace boost {
 namespace interprocess {
 
-///@cond
-
-class file_mapping;
-
-//!Trait class to detect if a type is
-//!movable
-template<>
-struct is_movable<file_mapping>
-{
-   enum {  value = true };
-};
-
-///@endcond
-
 //!A class that wraps a file-mapping that can be used to
 //!create mapped regions from the mapped files
 class file_mapping
 {
    /// @cond
    //Non-copyable and non-assignable
-   file_mapping(const file_mapping &);
-   file_mapping &operator=(const file_mapping &);
+   file_mapping(file_mapping &);
+   file_mapping &operator=(file_mapping &);
    /// @endcond
 
    public:
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(file_mapping)
+
    //!Constructs an empty file mapping.
    //!Does not throw
    file_mapping();
@@ -68,41 +54,23 @@ class file_mapping
    //!Moves the ownership of "moved"'s file mapping object to *this. 
    //!After the call, "moved" does not represent any file mapping object. 
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   file_mapping(detail::moved_object<file_mapping> moved)
-      :  m_handle(file_handle_t(detail::invalid_file()))
-   {  this->swap(moved.get());   }
-   #else
-   file_mapping(file_mapping &&moved)
+   file_mapping(BOOST_INTERPROCESS_RV_REF(file_mapping) moved)
       :  m_handle(file_handle_t(detail::invalid_file()))
    {  this->swap(moved);   }
-   #endif
 
    //!Moves the ownership of "moved"'s file mapping to *this.
    //!After the call, "moved" does not represent any file mapping. 
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   file_mapping &operator=(detail::moved_object<file_mapping> m_other)
-   {  
-      file_mapping &moved = m_other.get();
-   #else
-   file_mapping &operator=(file_mapping &&moved)
-   {  
-   #endif
-      file_mapping tmp(detail::move_impl(moved));
+   file_mapping &operator=(BOOST_INTERPROCESS_RV_REF(file_mapping) moved)
+   {
+      file_mapping tmp(boost::interprocess::move(moved));
       this->swap(tmp);
       return *this;  
    }
 
    //!Swaps to file_mappings.
    //!Does not throw.
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   void swap(detail::moved_object<file_mapping> mother)
-   {  this->swap(mother.get());  }
    void swap(file_mapping &other);
-   #else
-   void swap(file_mapping &&other);
-   #endif
 
    //!Returns access mode
    //!used in the constructor
@@ -119,6 +87,12 @@ class file_mapping
    //!Returns the name of the file
    //!used in the constructor.
    const char *get_name() const;
+
+   //!Removes the file named "filename" even if it's been memory mapped.
+   //!Returns true on success.
+   //!The function might fail in some operating systems if the file is
+   //!being used other processes and no deletion permission was shared.
+   static bool remove(const char *filename);
 
    /// @cond
    private:
@@ -140,11 +114,7 @@ inline file_mapping::~file_mapping()
 inline const char *file_mapping::get_name() const
 {  return m_filename.c_str(); }
 
-#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 inline void file_mapping::swap(file_mapping &other)
-#else
-inline void file_mapping::swap(file_mapping &&other)
-#endif
 {  
    std::swap(m_handle, other.m_handle);
    std::swap(m_mode, other.m_mode);
@@ -179,6 +149,9 @@ inline file_mapping::file_mapping
    m_mode = mode;
 }
 
+inline bool file_mapping::remove(const char *filename)
+{  return detail::delete_file(filename);  }
+
 ///@cond
 
 inline void file_mapping::priv_close()
@@ -192,7 +165,7 @@ inline void file_mapping::priv_close()
 ///@endcond
 
 //!A class that stores the name of a file
-//!and call std::remove(name) in its destructor
+//!and tries to remove it in its destructor
 //!Useful to remove temporary files in the presence
 //!of exceptions
 class remove_file_on_destroy
@@ -204,7 +177,7 @@ class remove_file_on_destroy
    {}
 
    ~remove_file_on_destroy()
-   {  std::remove(m_name);  }
+   {  detail::delete_file(m_name);  }
 };
 
 }  //namespace interprocess {

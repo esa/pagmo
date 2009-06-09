@@ -26,18 +26,18 @@ class ebo_functor_holder_impl
    ebo_functor_holder_impl()
    {}
    ebo_functor_holder_impl(const T& t)
-      :  t(t)
+      :  t_(t)
    {}
    template<class Arg1, class Arg2>
    ebo_functor_holder_impl(const Arg1& arg1, const Arg2& arg2)
-      :  t(arg1, arg2)
+      :  t_(arg1, arg2)
    {}
 
-   T&       get(){return t;}
-   const T& get()const{return t;}
+   T&       get(){return t_;}
+   const T& get()const{return t_;}
 
    private:
-   T t;
+   T t_;
 };
 
 template<typename T>

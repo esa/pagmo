@@ -98,7 +98,7 @@ class basic_managed_memory_impl
            segment_manager::char_ptr_holder_t         char_ptr_holder_t;
    //Experimental. Don't use.
 
-   typedef typename segment_manager::multiallocation_iterator    multiallocation_iterator;
+   typedef typename segment_manager::multiallocation_chain  multiallocation_chain;
 
    /// @endcond
 
@@ -291,7 +291,7 @@ class basic_managed_memory_impl
 
    template<class T>
    std::pair<T *, bool>
-      allocation_command  (allocation_type command,   std::size_t limit_size,
+      allocation_command  (boost::interprocess::allocation_type command,   std::size_t limit_size,
                            std::size_t preferred_size,std::size_t &received_size,
                            T *reuse_ptr = 0)
    {  
@@ -310,20 +310,24 @@ class basic_managed_memory_impl
    //Experimental. Don't use.
 
    //!Allocates n_elements of elem_size bytes.
-   multiallocation_iterator allocate_many(std::size_t elem_bytes, std::size_t num_elements)
+   multiallocation_chain allocate_many(std::size_t elem_bytes, std::size_t num_elements)
    {  return mp_header->allocate_many(elem_bytes, num_elements); }
 
    //!Allocates n_elements, each one of elem_sizes[i] bytes.
-   multiallocation_iterator allocate_many(const std::size_t *elem_sizes, std::size_t n_elements)
+   multiallocation_chain allocate_many(const std::size_t *elem_sizes, std::size_t n_elements)
    {  return mp_header->allocate_many(elem_sizes, n_elements); }
 
    //!Allocates n_elements of elem_size bytes.
-   multiallocation_iterator allocate_many(std::size_t elem_bytes, std::size_t num_elements, std::nothrow_t nothrow)
+   multiallocation_chain allocate_many(std::size_t elem_bytes, std::size_t num_elements, std::nothrow_t nothrow)
    {  return mp_header->allocate_many(elem_bytes, num_elements, nothrow); }
 
    //!Allocates n_elements, each one of elem_sizes[i] bytes.
-   multiallocation_iterator allocate_many(const std::size_t *elem_sizes, std::size_t n_elements, std::nothrow_t nothrow)
+   multiallocation_chain allocate_many(const std::size_t *elem_sizes, std::size_t n_elements, std::nothrow_t nothrow)
    {  return mp_header->allocate_many(elem_sizes, n_elements, nothrow); }
+
+   //!Allocates n_elements, each one of elem_sizes[i] bytes.
+   void deallocate_many(multiallocation_chain chain)
+   {  return mp_header->deallocate_many(boost::interprocess::move(chain)); }
 
    /// @endcond
 

@@ -36,7 +36,7 @@ namespace serialization {
 namespace archive {
 namespace detail {
 
-class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_oarchive_impl;
+class basic_oarchive_impl;
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_oserializer;
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_pointer_oserializer;
 //////////////////////////////////////////////////////////////////////

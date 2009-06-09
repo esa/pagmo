@@ -1,5 +1,5 @@
 
-// Copyright 2005-2008 Daniel James.
+// Copyright 2005-2009 Daniel James.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -58,6 +58,10 @@
 #  else
 #    define BOOST_HASH_USE_OVERLOAD_FLOAT_FUNCS
 #  endif
+
+// vxWorks. It has its own math library, but uses Dinkumware STL
+#elif defined(__VXWORKS__)
+#  define BOOST_HASH_USE_OVERLOAD_FLOAT_FUNCS
 
 // Dinkumware.
 #elif (defined(_YVALS) && !defined(__IBMCPP__)) || defined(_CPPLIB_VER)

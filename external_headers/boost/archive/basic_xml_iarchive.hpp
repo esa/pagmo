@@ -77,9 +77,9 @@ public:
         boost::serialization::nvp<T> & t,
         int
     ){
-        load_start(t.name());
+        this->This()->load_start(t.name());
         this->detail_common_iarchive::load_override(t.value(), 0);
-        load_end(t.name());
+        this->This()->load_end(t.name());
     }
 
     // specific overrides for attributes - handle as

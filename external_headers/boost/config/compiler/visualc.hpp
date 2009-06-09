@@ -121,6 +121,8 @@
 #endif
 #if (_MSC_VER >= 1310) && defined(_MSC_EXTENSIONS)
 #   define BOOST_HAS_LONG_LONG
+#else
+#   define BOOST_NO_LONG_LONG
 #endif
 #if (_MSC_VER >= 1400) && !defined(_DEBUG)
 #   define BOOST_HAS_NRVO
@@ -140,6 +142,31 @@
 // all versions support __declspec:
 //
 #define BOOST_HAS_DECLSPEC
+//
+// C++0x features
+//
+//   See above for BOOST_NO_LONG_LONG
+#define BOOST_NO_CHAR16_T
+#define BOOST_NO_CHAR32_T
+#define BOOST_NO_CONSTEXPR
+#define BOOST_NO_DECLTYPE
+#define BOOST_NO_DEFAULTED_FUNCTIONS
+#define BOOST_NO_DELETED_FUNCTIONS
+#define BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
+#define BOOST_NO_EXTERN_TEMPLATE
+#define BOOST_NO_RAW_LITERALS
+#define BOOST_NO_SCOPED_ENUMS
+#define BOOST_NO_UNICODE_LITERALS
+#define BOOST_NO_VARIADIC_TEMPLATES
+
+// MSVC 2010 CTP has some support for C++0x, but we still disable it until the compiler release
+// #if _MSC_VER < 1600
+#define BOOST_NO_RVALUE_REFERENCES
+#define BOOST_NO_STATIC_ASSERT
+#define BOOST_NO_AUTO_DECLARATIONS
+#define BOOST_NO_AUTO_MULTIDECLARATIONS
+// #endif // _MSC_VER < 1600
+
 //
 // prefix and suffix headers:
 //
@@ -163,6 +190,10 @@
 #     define BOOST_COMPILER_VERSION evc4.0
 #   elif _MSC_VER == 1400
 #     define BOOST_COMPILER_VERSION evc8
+#   elif _MSC_VER == 1500
+#     define BOOST_COMPILER_VERSION evc9
+#   elif _MSC_VER == 1600
+#     define BOOST_COMPILER_VERSION evc10
 #   else
 #      if defined(BOOST_ASSERT_CONFIG)
 #         error "Unknown EVC++ compiler version - please run the configure tests and report the results"

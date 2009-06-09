@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: linear_feedback_shift.hpp 29116 2005-05-21 15:57:01Z dgregor $
+ * $Id: linear_feedback_shift.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
  *
  */
 
@@ -20,6 +20,7 @@
 #include <boost/config.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/limits.hpp>
+#include <boost/random/detail/config.hpp>
 
 namespace boost {
 namespace random {
@@ -92,11 +93,11 @@ public:
     value = ((value & mask) << s) ^ b;
     return value;
   }
-  bool validation(result_type x) const { return val == x; }
+  static bool validation(result_type x) { return val == x; }
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#ifndef BOOST_RANDOM_NO_STREAM_OPERATORS
   template<class CharT, class Traits>
   friend std::basic_ostream<CharT,Traits>&
   operator<<(std::basic_ostream<CharT,Traits>& os, linear_feedback_shift x)

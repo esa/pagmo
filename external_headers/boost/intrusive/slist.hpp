@@ -598,7 +598,7 @@ class slist_impl
    void swap(slist_impl& other)
    {
       if(cache_last){
-         this->priv_swap_cache_last(other);
+         priv_swap_cache_last(this, &other);
       }
       else{
          this->priv_swap_lists(this->get_root_node(), other.get_root_node(), detail::bool_<linear>());
@@ -1264,6 +1264,7 @@ class slist_impl
             carry.splice_after(carry.cbefore_begin(), *this, this->cbefore_begin());
             int i = 0;
             while(i < fill && !counter[i].empty()) {
+               carry.swap(counter[i]);
                last_inserted = carry.merge(counter[i++], p);
             }
             BOOST_INTRUSIVE_INVARIANT_ASSERT(counter[i].empty());
@@ -1340,24 +1341,26 @@ class slist_impl
    template<class Predicate>
    iterator merge(slist_impl& x, Predicate p) 
    {
-      const_iterator a(cbefore_begin()), e(cend()), ax(x.cbefore_begin()), ex(x.cend());
-      const_iterator last_inserted(e);
-      const_iterator a_next;
-      while(++(a_next = a) != e && !x.empty()) {
-         const_iterator ix(ax);
-         const_iterator cx;
-         size_type n(0);
-         while(++(cx = ix) != ex && p(*cx, *a_next)){
-            ++ix; ++n;
+      const_iterator e(this->cend()), ex(x.cend()), bb(this->cbefore_begin()),
+                     bb_next, last_inserted(e);
+      while(!x.empty()){
+         const_iterator ibx_next(x.cbefore_begin()), ibx(ibx_next++);
+         while (++(bb_next = bb) != e && !p(*ibx_next, *bb_next)){
+            bb = bb_next;
          }
-         if(ax != ix){
-            this->splice_after(a, x, ax, ix, n);
-            last_inserted = ix;
+         if(bb_next == e){
+            //Now transfer the rest to the end of the container
+            last_inserted = this->splice_after(bb, x);
+            break;
          }
-         a = a_next;
-      }  
-      if (!x.empty()){
-         last_inserted = this->splice_after(a, x);
+         else{
+            size_type n(0);
+            do{
+               ibx = ibx_next; ++n;
+            } while(++(ibx_next = ibx) != ex && p(*ibx_next, *bb_next));
+            this->splice_after(bb, x, x.before_begin(), ibx, n);
+            last_inserted = ibx;
+         }
       }
       return last_inserted.unconst();
    }
@@ -1711,22 +1714,40 @@ class slist_impl
       }
    }
 
-   void priv_swap_cache_last(slist_impl &other)
+   static void priv_swap_cache_last(slist_impl *this_impl, slist_impl *other_impl)
    {
-      node_ptr other_last(other.get_last_node());
-      node_ptr this_last(this->get_last_node());
-      node_ptr other_bfirst(other.get_root_node());
-      node_ptr this_bfirst(this->get_root_node());
-      node_algorithms::transfer_after(this_bfirst, other_bfirst, other_last);
-      node_algorithms::transfer_after(other_bfirst, other_last != other_bfirst? other_last : this_bfirst, this_last);
-      node_ptr tmp(this->get_last_node());
-      this->set_last_node(other.get_last_node());
-      other.set_last_node(tmp);
-      if(this->get_last_node() == other_bfirst){
-         this->set_last_node(this_bfirst);
+      bool other_was_empty = false;
+      if(this_impl->empty()){
+         //Check if both are empty or 
+         if(other_impl->empty())
+            return;
+         //If this is empty swap pointers
+         slist_impl *tmp = this_impl;
+         this_impl  = other_impl;
+         other_impl = tmp;
+         other_was_empty = true;
       }
-      if(other.get_last_node() == this_bfirst){
-         other.set_last_node(other_bfirst);
+      else{
+         other_was_empty = other_impl->empty();
+      }
+
+      //Precondition: this is not empty
+      node_ptr other_old_last(other_impl->get_last_node());
+      node_ptr other_bfirst(other_impl->get_root_node());
+      node_ptr this_bfirst(this_impl->get_root_node());
+      node_ptr this_old_last(this_impl->get_last_node());
+
+      //Move all nodes from this to other's beginning
+      node_algorithms::transfer_after(other_bfirst, this_bfirst, this_old_last);
+      other_impl->set_last_node(this_old_last);
+
+      if(other_was_empty){
+         this_impl->set_last_node(this_bfirst);
+      }
+      else{
+         //Move trailing nodes from other to this
+         node_algorithms::transfer_after(this_bfirst, this_old_last, other_old_last);
+         this_impl->set_last_node(other_old_last);
       }
    }
 

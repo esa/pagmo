@@ -22,10 +22,11 @@
 #include <boost/interprocess/detail/tmp_dir_helpers.hpp>
 #include <cstddef>
 #include <string>
-#include <cstdio>    //std::remove
 #include <algorithm>
 
-#ifdef BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS
+#if defined(BOOST_INTERPROCESS_SYSTEM_V_SHARED_MEMORY_OBJECTS)
+#  include <sys/shm.h>      //System V shared memory...
+#elif defined(BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS)
 #  include <fcntl.h>        //O_CREAT, O_*... 
 #  include <sys/mman.h>     //shm_xxx
 #  include <unistd.h>       //ftruncate, close
@@ -46,11 +47,12 @@ class shared_memory_object
 {
    /// @cond
    //Non-copyable and non-assignable
-   shared_memory_object(const shared_memory_object &);
-   shared_memory_object &operator=(const shared_memory_object &);
+   shared_memory_object(shared_memory_object &);
+   shared_memory_object &operator=(shared_memory_object &);
    /// @endcond
 
    public:
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(shared_memory_object)
 
    //!Default constructor. Represents an empty shared_memory_object.
    shared_memory_object();
@@ -74,44 +76,22 @@ class shared_memory_object
    //!Moves the ownership of "moved"'s shared memory object to *this. 
    //!After the call, "moved" does not represent any shared memory object. 
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   shared_memory_object(detail::moved_object<shared_memory_object> moved)
-      :  m_handle(file_handle_t(detail::invalid_file()))
-   {  this->swap(moved.get());   }
-   #else
-   shared_memory_object(shared_memory_object &&moved)
+   shared_memory_object(BOOST_INTERPROCESS_RV_REF(shared_memory_object) moved)
       :  m_handle(file_handle_t(detail::invalid_file()))
    {  this->swap(moved);   }
-   #endif
 
    //!Moves the ownership of "moved"'s shared memory to *this.
    //!After the call, "moved" does not represent any shared memory. 
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   shared_memory_object &operator=
-      (detail::moved_object<shared_memory_object> moved)
+   shared_memory_object &operator=(BOOST_INTERPROCESS_RV_REF(shared_memory_object) moved)
    {  
-      shared_memory_object tmp(moved);
+      shared_memory_object tmp(boost::interprocess::move(moved));
       this->swap(tmp);
       return *this;  
    }
-   #else
-   shared_memory_object &operator=(shared_memory_object &&moved)
-   {  
-      shared_memory_object tmp(detail::move_impl(moved));
-      this->swap(tmp);
-      return *this;  
-   }
-   #endif
 
    //!Swaps the shared_memory_objects. Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   void swap(detail::moved_object<shared_memory_object> mother)
-   {  this->swap(mother.get());  }
-   void swap(shared_memory_object &other);
-   #else
-   void swap(shared_memory_object &&other);
-   #endif
+   void swap(shared_memory_object &moved);
 
    //!Erases a shared memory object from the system.
    //!Returns false on error. Never throws
@@ -173,11 +153,7 @@ inline const char *shared_memory_object::get_name() const
 inline bool shared_memory_object::get_size(offset_t &size) const
 {  return detail::get_file_size((file_handle_t)m_handle, size);  }
 
-#if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 inline void shared_memory_object::swap(shared_memory_object &other)
-#else
-inline void shared_memory_object::swap(shared_memory_object &&other)
-#endif
 {  
    std::swap(m_handle,  other.m_handle);
    std::swap(m_mode,    other.m_mode);
@@ -185,7 +161,9 @@ inline void shared_memory_object::swap(shared_memory_object &&other)
 }
 
 inline mapping_handle_t shared_memory_object::get_mapping_handle() const
-{  return detail::mapping_handle_from_file_handle(m_handle);  }
+{
+   return detail::mapping_handle_from_file_handle(m_handle);
+}
 
 inline mode_t shared_memory_object::get_mode() const
 {  return m_mode; }
@@ -229,7 +207,6 @@ inline bool shared_memory_object::priv_open_or_create
       throw interprocess_exception(err);
    }
 
-   //detail::delete_file_on_reboot_if_possible(shmfile.c_str());
    m_mode = mode;
    return true;
 }
@@ -240,7 +217,7 @@ inline bool shared_memory_object::remove(const char *filename)
       //Make sure a temporary path is created for shared memory
       std::string shmfile;
       detail::tmp_filename(filename, shmfile);
-      return std::remove(shmfile.c_str()) == 0;
+      return detail::delete_file(shmfile.c_str()) == 0;
    }
    catch(...){
       return false;
@@ -354,14 +331,6 @@ inline void shared_memory_object::priv_close()
 }
 
 #endif
-
-//!Trait class to detect if a type is
-//!movable
-template<>
-struct is_movable<shared_memory_object>
-{
-   enum {  value = true };
-};
 
 ///@endcond
 

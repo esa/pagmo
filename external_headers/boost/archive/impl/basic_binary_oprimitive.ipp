@@ -71,7 +71,7 @@ template<class Archive, class Elem, class Tr>
 BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
 basic_binary_oprimitive<Archive, Elem, Tr>::save(const std::string &s)
 {
-    std::size_t l = static_cast<unsigned int>(s.size());
+    std::size_t l = static_cast<std::size_t>(s.size());
     this->This()->save(l);
     save_binary(s.data(), l);
 }

@@ -176,7 +176,7 @@ class iunordered_set_index
          return old_size;
       std::size_t received_size;
       if(!alloc.allocation_command
-         (try_shrink_in_place | nothrow_allocation, old_size, new_size, received_size, buckets).first){
+         (boost::interprocess::try_shrink_in_place | boost::interprocess::nothrow_allocation, old_size, new_size, received_size, buckets).first){
          return old_size;
       }
 
@@ -188,7 +188,7 @@ class iunordered_set_index
       }
 
       bucket_ptr shunk_p = alloc.allocation_command
-         (shrink_in_place | nothrow_allocation, received_size, received_size, received_size, buckets).first;
+         (boost::interprocess::shrink_in_place | boost::interprocess::nothrow_allocation, received_size, received_size, received_size, buckets).first;
       BOOST_ASSERT(buckets == shunk_p);
 
       bucket_ptr buckets_init = buckets + received_size;
@@ -205,7 +205,7 @@ class iunordered_set_index
       std::size_t received_size;
       std::pair<bucket_ptr, bool> ret =
          alloc.allocation_command
-            (expand_fwd | allocate_new, new_num, new_num, received_size, old_buckets);
+            (boost::interprocess::expand_fwd | boost::interprocess::allocate_new, new_num, new_num, received_size, old_buckets);
       if(ret.first == old_buckets){
          bucket_ptr buckets_init = old_buckets + old_num;
          for(std::size_t i = 0; i < (new_num - old_num); ++i){

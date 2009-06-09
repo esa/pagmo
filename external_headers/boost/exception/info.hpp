@@ -1,4 +1,4 @@
-//Copyright (c) 2006-2008 Emil Dotchevski and Reverge Studios, Inc.
+//Copyright (c) 2006-2009 Emil Dotchevski and Reverge Studios, Inc.
 
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -102,17 +102,13 @@ boost
                 {
                 if( diagnostic_info_str_.empty() )
                     {
-                    std::string tmp;
+                    std::ostringstream tmp;
                     for( error_info_map::const_iterator i=info_.begin(),end=info_.end(); i!=end; ++i )
                         {
                         shared_ptr<error_info_base const> const & x = i->second;
-                        tmp += '[';
-                        tmp += x->tag_typeid_name();
-                        tmp += "] = ";
-                        tmp += x->value_as_string();
-                        tmp += '\n';
+                        tmp << '[' << x->tag_typeid_name() << "] = " << x->value_as_string() << std::endl;
                         }
-                    diagnostic_info_str_.swap(tmp);
+                    tmp.str().swap(diagnostic_info_str_);
                     }
                 return diagnostic_info_str_.c_str();
                 }

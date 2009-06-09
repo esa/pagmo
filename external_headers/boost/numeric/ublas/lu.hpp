@@ -32,11 +32,17 @@ namespace boost { namespace numeric { namespace ublas {
 
         // Construction and destruction
         BOOST_UBLAS_INLINE
+        explicit
         permutation_matrix (size_type size):
             vector<T, A> (size) {
             for (size_type i = 0; i < size; ++ i)
                 (*this) (i) = i;
         }
+        BOOST_UBLAS_INLINE
+        explicit
+        permutation_matrix (const vector_type & init) 
+            : vector_type(init)
+        { }
         BOOST_UBLAS_INLINE
         ~permutation_matrix () {}
 

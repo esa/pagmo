@@ -47,6 +47,8 @@ class basic_managed_mapped_file
       <CharType, AllocationAlgorithm, IndexType,
       detail::managed_open_or_create_impl<detail::file_wrapper>::ManagedOpenOrCreateUserOffset>   base_t;
    typedef detail::file_wrapper device_type;
+   basic_managed_mapped_file(basic_managed_mapped_file&);
+   basic_managed_mapped_file & operator=(basic_managed_mapped_file&);
 
    private:
 
@@ -61,6 +63,7 @@ class basic_managed_mapped_file
    /// @endcond
 
    public: //functions
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_managed_mapped_file)
 
    //!Creates mapped file and creates and places the segment manager. 
    //!This can throw.
@@ -118,27 +121,16 @@ class basic_managed_mapped_file
 
    //!Moves the ownership of "moved"'s managed memory to *this.
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   basic_managed_mapped_file
-      (detail::moved_object<basic_managed_mapped_file> mother)
+   basic_managed_mapped_file(BOOST_INTERPROCESS_RV_REF(basic_managed_mapped_file) moved)
    {
-      basic_managed_mapped_file &moved = mother.get();
-   #else
-   basic_managed_mapped_file(basic_managed_mapped_file &&moved)
-   {
-   #endif  
       this->swap(moved);
    }
 
    //!Moves the ownership of "moved"'s managed memory to *this.
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   basic_managed_mapped_file &operator=(detail::moved_object<basic_managed_mapped_file> moved)
-   #else
-   basic_managed_mapped_file &operator=(basic_managed_mapped_file &&moved)
-   #endif
+   basic_managed_mapped_file &operator=(BOOST_INTERPROCESS_RV_REF(basic_managed_mapped_file) moved)
    {
-      basic_managed_mapped_file tmp(detail::move_impl(moved));
+      basic_managed_mapped_file tmp(boost::interprocess::move(moved));
       this->swap(tmp);
       return *this;
    }
@@ -154,14 +146,7 @@ class basic_managed_mapped_file
 
    //!Swaps the ownership of the managed mapped memories managed by *this and other.
    //!Never throws.
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   void swap(detail::moved_object<basic_managed_mapped_file> mother)
-   {  this->swap(mother.get());  }
-
    void swap(basic_managed_mapped_file &other)
-   #else
-   void swap(basic_managed_mapped_file &&other)
-   #endif
    {
       base_t::swap(other);
       m_mfile.swap(other.m_mfile);
@@ -214,27 +199,7 @@ class basic_managed_mapped_file
    /// @endcond
 };
 
-///@cond
-
-//!Trait class to detect if a type is
-//!movable
-template
-      <
-         class CharType, 
-         class AllocationAlgorithm, 
-         template<class IndexConfig> class IndexType
-      >
-struct is_movable<basic_managed_mapped_file
-   <CharType,  AllocationAlgorithm, IndexType>
->
-{
-   static const bool value = true;
-};
-
-///@endcond
-
 }  //namespace interprocess {
-
 }  //namespace boost {
 
 #include <boost/interprocess/detail/config_end.hpp>

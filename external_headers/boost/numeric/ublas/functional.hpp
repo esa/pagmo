@@ -1,6 +1,6 @@
 //
-//  Copyright (c) 2000-2002
-//  Joerg Walter, Mathias Koch
+//  Copyright (c) 2000-2009
+//  Joerg Walter, Mathias Koch, Gunter Winkler
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -1343,6 +1343,9 @@ namespace boost { namespace numeric { namespace ublas {
         }
     };
 
+    // forward declaration
+    template <class Z, class D> struct basic_column_major;
+
     // This functor defines storage layout and it's properties
     // matrix (i,j) -> storage [i * size_i + j]
     template <class Z, class D>
@@ -1350,6 +1353,7 @@ namespace boost { namespace numeric { namespace ublas {
         typedef Z size_type;
         typedef D difference_type;
         typedef row_major_tag orientation_category;
+        typedef basic_column_major<Z,D> transposed_layout;
 
         static
         BOOST_UBLAS_INLINE
@@ -1527,6 +1531,7 @@ namespace boost { namespace numeric { namespace ublas {
         typedef Z size_type;
         typedef D difference_type;
         typedef column_major_tag orientation_category;
+        typedef basic_row_major<Z,D> transposed_layout;
 
         static
         BOOST_UBLAS_INLINE
@@ -1776,7 +1781,7 @@ namespace boost { namespace numeric { namespace ublas {
 	    static
 	    BOOST_UBLAS_INLINE
 	    size_type element (LAYOUT l, size_type i, size_type size_i, size_type j, size_type size_j) {
-		return L::element(l, j, size_j, i, size_i);
+		return L::element(typename LAYOUT::transposed_layout(), j, size_j, i, size_i);
 	    }
 
 	    static
@@ -1826,6 +1831,7 @@ namespace boost { namespace numeric { namespace ublas {
     template <class Z>
     struct basic_lower {
         typedef Z size_type;
+        typedef lower_tag triangular_type;
 
         template<class L>
         static
@@ -1912,6 +1918,7 @@ namespace boost { namespace numeric { namespace ublas {
     template <class Z>
     struct basic_unit_lower : public basic_lower<Z> {
         typedef Z size_type;
+        typedef unit_lower_tag triangular_type;
 
         template<class L>
         static
@@ -1971,6 +1978,7 @@ namespace boost { namespace numeric { namespace ublas {
     template <class Z>
     struct basic_strict_lower : public basic_unit_lower<Z> {
         typedef Z size_type;
+        typedef strict_lower_tag triangular_type;
 
         template<class L>
         static
@@ -2033,15 +2041,21 @@ namespace boost { namespace numeric { namespace ublas {
 
     template <class Z>
     struct basic_upper : public detail::transposed_structure<basic_lower<Z> >
-    { };
+    { 
+        typedef upper_tag triangular_type;
+    };
 
     template <class Z>
     struct basic_unit_upper : public detail::transposed_structure<basic_unit_lower<Z> >
-    { };
+    { 
+        typedef unit_upper_tag triangular_type;
+    };
 
     template <class Z>
     struct basic_strict_upper : public detail::transposed_structure<basic_strict_lower<Z> >
-    { };
+    { 
+        typedef strict_upper_tag triangular_type;
+    };
 
 
 }}}

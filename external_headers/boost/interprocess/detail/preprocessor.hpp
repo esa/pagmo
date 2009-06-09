@@ -36,7 +36,7 @@
 //This cast is ugly but it is necessary until "perfect forwarding"
 //is achieved in C++0x. Meanwhile, if we want to be able to
 //bind rvalues with non-const references, we have to be ugly
-#ifdef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#ifdef BOOST_HAS_RVALUE_REFS
    #define BOOST_INTERPROCESS_PP_PARAM_LIST(z, n, data) \
    BOOST_PP_CAT(P, n) && BOOST_PP_CAT(p, n) \
    //!
@@ -46,7 +46,7 @@
    //!
 #endif
 
-#ifdef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#ifdef BOOST_HAS_RVALUE_REFS
    #define BOOST_INTERPROCESS_PARAM(U, u) \
    U && u \
    //!
@@ -56,7 +56,7 @@
    //!
 #endif
 
-#ifdef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#ifdef BOOST_HAS_RVALUE_REFS
 #define BOOST_INTERPROCESS_AUX_PARAM_INIT(z, n, data) \
   BOOST_PP_CAT(m_p, n) (BOOST_PP_CAT(p, n))           \
 //!
@@ -70,7 +70,7 @@
   BOOST_PP_CAT(++m_p, n)                        \
 //!
 
-#ifdef BOOST_INTERPROCESS_RVALUE_REFERENCE
+#ifdef BOOST_HAS_RVALUE_REFS
 #define BOOST_INTERPROCESS_AUX_PARAM_DEFINE(z, n, data)  \
   BOOST_PP_CAT(P, n) && BOOST_PP_CAT(m_p, n);            \
 //!
@@ -80,25 +80,13 @@
 //!
 #endif
 
-#ifdef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   #define BOOST_INTERPROCESS_PP_PARAM_FORWARD(z, n, data) \
-   detail::forward_impl< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(p, n) ) \
-   //!
-#else
-   #define BOOST_INTERPROCESS_PP_PARAM_FORWARD(z, n, data) \
-   BOOST_PP_CAT(p, n) \
-   //!
-#endif
+#define BOOST_INTERPROCESS_PP_PARAM_FORWARD(z, n, data) \
+boost::interprocess::forward< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(p, n) ) \
+//!
 
-#ifdef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   #define BOOST_INTERPROCESS_PP_MEMBER_FORWARD(z, n, data) \
-   detail::forward_impl< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(m_p, n) ) \
-   //!
-#else
-   #define BOOST_INTERPROCESS_PP_MEMBER_FORWARD(z, n, data) \
-   BOOST_PP_CAT(m_p, n) \
-   //!
-#endif
+#define BOOST_INTERPROCESS_PP_MEMBER_FORWARD(z, n, data) \
+boost::interprocess::forward< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(m_p, n) ) \
+//!
 
 #define BOOST_INTERPROCESS_PP_MEMBER_IT_FORWARD(z, n, data) \
 BOOST_PP_CAT(*m_p, n) \

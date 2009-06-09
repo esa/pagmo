@@ -18,6 +18,8 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
+#include <boost/pointer_to_other.hpp>
+
 #include <boost/detail/no_exceptions_support.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
@@ -27,6 +29,8 @@
 #include <string>    //char_traits
 #include <new>       //std::nothrow
 #include <utility>   //std::pair
+#include <cassert>   //assert
+#include <functional>   //unary_function
 #ifndef BOOST_NO_EXCEPTIONS
 #include <exception>
 #endif
@@ -75,7 +79,7 @@ struct block_header
 
    block_header(std::size_t value_bytes
                ,std::size_t value_alignment
-               ,std::size_t allocation_type
+               ,std::size_t alloc_type
                ,std::size_t sizeof_char
                ,std::size_t num_char
                )
@@ -83,7 +87,7 @@ struct block_header
       ,  m_num_char(num_char)
       ,  m_value_alignment(value_alignment)
       ,  m_alloc_type_sizeof_char
-         ( ((unsigned char)allocation_type << 5u) | 
+         ( ((unsigned char)alloc_type << 5u) | 
            ((unsigned char)sizeof_char & 0x1F)   )
    {};
 
@@ -94,7 +98,7 @@ struct block_header
 
    std::size_t total_size() const
    {
-      if(allocation_type() != anonymous_type){
+      if(alloc_type() != anonymous_type){
          return name_offset() + (m_num_char+1)*sizeof_char();
       }
       else{
@@ -114,7 +118,7 @@ struct block_header
            + total_size();
    }
 
-   std::size_t allocation_type() const
+   std::size_t alloc_type() const
    {  return (m_alloc_type_sizeof_char >> 5u)&(unsigned char)0x7;  }
 
    std::size_t sizeof_char() const
@@ -252,6 +256,7 @@ struct char_if_void<void>
 typedef instance_t<anonymous_type>  anonymous_instance_t;
 typedef instance_t<unique_type>     unique_instance_t;
 
+
 template<class Hook, class CharType>
 struct intrusive_value_type_impl
    :  public Hook
@@ -325,7 +330,7 @@ class char_ptr_holder
 template<class CharT, class VoidPointer>
 struct index_key
 {
-   typedef typename detail::
+   typedef typename boost::
       pointer_to_other<VoidPointer, const CharT>::type   const_char_ptr_t;
    typedef CharT                                         char_type;
 
@@ -470,6 +475,26 @@ struct segment_manager_iterator_transform
 };
 
 }  //namespace detail {
+
+//These pointers are the ones the user will use to 
+//indicate previous allocation types
+static const detail::anonymous_instance_t   * anonymous_instance = 0;
+static const detail::unique_instance_t      * unique_instance = 0;
+
+namespace detail_really_deep_namespace {
+
+//Otherwise, gcc issues a warning of previously defined
+//anonymous_instance and unique_instance
+struct dummy
+{
+   dummy()
+   {
+      (void)anonymous_instance;
+      (void)unique_instance;
+   }
+};
+
+}  //detail_really_deep_namespace
 
 }} //namespace boost { namespace interprocess
 

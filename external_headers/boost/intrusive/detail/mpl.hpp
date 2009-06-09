@@ -64,7 +64,7 @@ class is_convertible
    class false_t { char dummy[2]; };
    static true_t dispatch(U);
    static false_t dispatch(...);
-   static T trigger();
+   static const T &trigger();
    public:
    static const bool value = sizeof(dispatch(trigger())) == sizeof(true_t);
 };

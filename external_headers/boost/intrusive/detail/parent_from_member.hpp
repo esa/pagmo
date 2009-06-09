@@ -15,7 +15,8 @@
 #include <boost/intrusive/detail/config_begin.hpp>
 #include <cstddef>
 
-#if defined(BOOST_MSVC) || (defined (BOOST_WINDOWS) && defined(BOOST_INTEL))
+#if defined(BOOST_MSVC) || ((defined(_WIN32) || defined(__WIN32__) || defined(WIN32)) && defined(BOOST_INTEL))
+
 #define BOOST_INTRUSIVE_MSVC_COMPLIANT_PTR_TO_MEMBER
 #include <boost/cstdint.hpp>
 #endif

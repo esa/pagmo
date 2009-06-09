@@ -86,7 +86,7 @@ struct instantiate_function {};
 template <class Archive, class Serializable>
 struct ptr_serialization_support
 {
-# if defined(BOOST_MSVC)
+# if defined(BOOST_MSVC) || defined(__SUNPRO_CC)
     virtual BOOST_DLLEXPORT void instantiate() BOOST_USED;
 # elif defined(__BORLANDC__)   
     static BOOST_DLLEXPORT void instantiate() BOOST_USED;
@@ -117,6 +117,8 @@ ptr_serialization_support<Archive,Serializable>::instantiate()
         Archive::is_loading()
     );
 }
+
+namespace {
 
 template<class T>
 struct guid_initializer
@@ -149,6 +151,7 @@ struct guid_initializer
 template<typename T>
 struct init_guid;
 
+} // anonymous
 } // namespace detail
 } // namespace archive
 } // namespace boost
@@ -157,17 +160,18 @@ struct init_guid;
     namespace boost {                                                  \
     namespace archive {                                                \
     namespace detail {                                                 \
+    namespace {                                                        \
     template<>                                                         \
     struct init_guid< T > {                                            \
         static ::boost::archive::detail::guid_initializer< T > const   \
             & guid_initializer;                                        \
     };                                                                 \
-    }}}                                                                \
     ::boost::archive::detail::guid_initializer< T > const &            \
         ::boost::archive::detail::init_guid< T >::guid_initializer =   \
            ::boost::serialization::singleton<                          \
                ::boost::archive::detail::guid_initializer< T >         \
            >::get_mutable_instance().export_guid(K);                   \
+    }}}}                                                                \
 /**/
 
 #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))
@@ -178,10 +182,9 @@ struct init_guid;
 // relationships for exported classes.  On all other compilers, use of
 // this macro is entirely optional.
 # define BOOST_SERIALIZATION_MWERKS_BASE_AND_DERIVED(Base,Derived)                  \
-namespace                                                                           \
-{                                                                                   \
+namespace {                                                                         \
   static int BOOST_PP_CAT(boost_serialization_mwerks_init_, __LINE__) =             \
-      (::boost::archive::detail::instantiate_ptr_serialization((Derived*)0,0), 3);  \
+  (::boost::archive::detail::instantiate_ptr_serialization((Derived*)0,0), 3);      \
   static int BOOST_PP_CAT(boost_serialization_mwerks_init2_, __LINE__) = (          \
       ::boost::serialization::void_cast_register((Derived*)0,(Base*)0)              \
     , 3);                                                                           \

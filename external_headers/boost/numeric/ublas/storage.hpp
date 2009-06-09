@@ -340,12 +340,12 @@ namespace boost { namespace numeric { namespace ublas {
         // Resizing
         BOOST_UBLAS_INLINE
         void resize (size_type size) {
-            BOOST_UBLAS_CHECK (size_ <= N, bad_size ());
+            BOOST_UBLAS_CHECK (size <= N, bad_size ());
             size_ = size;
         }
         BOOST_UBLAS_INLINE
         void resize (size_type size, value_type init) {
-            BOOST_UBLAS_CHECK (size_ <= N, bad_size ());
+            BOOST_UBLAS_CHECK (size <= N, bad_size ());
             if (size > size_)
                 std::fill (data_ + size_, data_ + size, init);
             size_ = size;

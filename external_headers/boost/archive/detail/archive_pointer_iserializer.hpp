@@ -35,6 +35,8 @@ namespace serialization {
 namespace archive {
 namespace detail {
 
+class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iarchive;
+
 template<class Archive>
 class archive_pointer_iserializer : 
     public basic_pointer_iserializer {

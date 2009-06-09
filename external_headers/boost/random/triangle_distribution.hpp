@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: triangle_distribution.hpp 49314 2008-10-13 09:00:03Z johnmaddock $
+ * $Id: triangle_distribution.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -18,6 +18,7 @@
 
 #include <boost/config/no_tr1/cmath.hpp>
 #include <cassert>
+#include <boost/random/detail/config.hpp>
 #include <boost/random/uniform_01.hpp>
 
 namespace boost {
@@ -60,7 +61,7 @@ public:
       return _c - d3*sqrt(d2*u-d1);
   }
 
-#if !defined(BOOST_NO_OPERATORS_IN_NAMESPACE) && !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+#ifndef BOOST_RANDOM_NO_STREAM_OPERATORS
   template<class CharT, class Traits>
   friend std::basic_ostream<CharT,Traits>&
   operator<<(std::basic_ostream<CharT,Traits>& os, const triangle_distribution& td)

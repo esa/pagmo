@@ -14,7 +14,7 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if (defined BOOST_INTERPROCESS_WINDOWS)
 #  include <boost/interprocess/detail/win32_api.hpp>
 #else
 #  ifdef BOOST_HAS_UNISTD_H
@@ -30,7 +30,7 @@ namespace boost {
 namespace interprocess {
 namespace detail{
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 typedef unsigned long OS_process_id_t;
 typedef unsigned long OS_thread_id_t;
@@ -39,6 +39,9 @@ typedef OS_thread_id_t OS_systemwide_thread_id_t;
 //process
 inline OS_process_id_t get_current_process_id()
 {  return winapi::get_current_process_id();  }
+
+inline OS_process_id_t get_invalid_process_id()
+{  return OS_process_id_t(0);  }
 
 //thread
 inline OS_thread_id_t get_current_thread_id()
@@ -59,6 +62,12 @@ inline OS_systemwide_thread_id_t get_current_systemwide_thread_id()
    return get_current_thread_id();
 }
 
+inline void systemwide_thread_id_copy
+   (const volatile OS_systemwide_thread_id_t &from, volatile OS_systemwide_thread_id_t &to)
+{
+   to = from;
+}
+
 inline bool equal_systemwide_thread_id(const OS_systemwide_thread_id_t &id1, const OS_systemwide_thread_id_t &id2)
 {
    return equal_thread_id(id1, id2);
@@ -69,23 +78,55 @@ inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
    return get_invalid_thread_id();
 }
 
-#else    //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#else    //#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 typedef pthread_t OS_thread_id_t;
 typedef pid_t     OS_process_id_t;
 
 struct OS_systemwide_thread_id_t
 {  
+   OS_systemwide_thread_id_t()
+      :  pid(), tid()
+   {}
+
    OS_systemwide_thread_id_t(pid_t p, pthread_t t)
       :  pid(p), tid(t)
    {}
+
+   OS_systemwide_thread_id_t(const OS_systemwide_thread_id_t &x)
+      :  pid(x.pid), tid(x.tid)
+   {}
+
+   OS_systemwide_thread_id_t(const volatile OS_systemwide_thread_id_t &x)
+      :  pid(x.pid), tid(x.tid)
+   {}
+
+   OS_systemwide_thread_id_t & operator=(const OS_systemwide_thread_id_t &x)
+   {  pid = x.pid;   tid = x.tid;   return *this;   }
+
+   OS_systemwide_thread_id_t & operator=(const volatile OS_systemwide_thread_id_t &x)
+   {  pid = x.pid;   tid = x.tid;   return *this;  }
+
+   void operator=(const OS_systemwide_thread_id_t &x) volatile
+   {  pid = x.pid;   tid = x.tid;   }
+
    pid_t       pid;
    pthread_t   tid;
 };
 
+inline void systemwide_thread_id_copy
+   (const volatile OS_systemwide_thread_id_t &from, volatile OS_systemwide_thread_id_t &to)
+{
+   to.pid = from.pid;
+   to.tid = from.tid;
+}
+
 //process
 inline OS_process_id_t get_current_process_id()
 {  return ::getpid();  }
+
+inline OS_process_id_t get_invalid_process_id()
+{  return pid_t(0);  }
 
 //thread
 inline OS_thread_id_t get_current_thread_id()
@@ -116,10 +157,10 @@ inline bool equal_systemwide_thread_id(const OS_systemwide_thread_id_t &id1, con
 
 inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
 {
-   return OS_systemwide_thread_id_t(pid_t(0), get_invalid_thread_id());
+   return OS_systemwide_thread_id_t(get_invalid_process_id(), get_invalid_thread_id());
 }
 
-#endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 }  //namespace detail{
 }  //namespace interprocess {

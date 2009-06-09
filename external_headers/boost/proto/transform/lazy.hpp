@@ -36,7 +36,7 @@
             template<typename Expr, typename State, typename Data>
             struct impl
               : call<
-                    typename detail::make_<Object, Expr, State, Data>::type
+                    typename make<Object>::template impl<Expr, State, Data>::result_type
                 >::template impl<Expr, State, Data>
             {};
         };
@@ -74,7 +74,7 @@
             template<typename Expr, typename State, typename Data>
             struct impl
               : call<
-                    typename detail::make_<Object, Expr, State, Data>::type
+                    typename make<Object>::template impl<Expr, State, Data>::result_type
                     (BOOST_PP_ENUM_PARAMS(N, A))
                 >::template impl<Expr, State, Data>
             {};

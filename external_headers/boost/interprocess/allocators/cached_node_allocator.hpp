@@ -23,7 +23,7 @@
 #include <boost/interprocess/allocators/detail/allocator_common.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
-#include <boost/interprocess/detail/version_type.hpp>
+#include <boost/interprocess/containers/version_type.hpp>
 #include <boost/interprocess/allocators/detail/node_tools.hpp>
 #include <cstddef>
 
@@ -115,7 +115,7 @@ class cached_node_allocator
          , 2> base_t;
 
    public:
-   typedef detail::version_type<cached_node_allocator, 2>   version;
+   typedef boost::interprocess::version_type<cached_node_allocator, 2>   version;
 
    template<class T2>
    struct rebind
@@ -238,7 +238,7 @@ class cached_node_allocator
    size_type size(const pointer &p) const;
 
    std::pair<pointer, bool>
-      allocation_command(allocation_type command,
+      allocation_command(boost::interprocess::allocation_type command,
                          size_type limit_size, 
                          size_type preferred_size,
                          size_type &received_size, const pointer &reuse = 0);
@@ -249,12 +249,12 @@ class cached_node_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   multiallocation_iterator allocate_many(size_type elem_size, std::size_t num_elements);
+   multiallocation_chain allocate_many(size_type elem_size, std::size_t num_elements);
 
    //!Allocates n_elements elements, each one of size elem_sizes[i]in a
    //!contiguous block
    //!of memory. The elements must be deallocated
-   multiallocation_iterator allocate_many(const size_type *elem_sizes, size_type n_elements);
+   multiallocation_chain allocate_many(const size_type *elem_sizes, size_type n_elements);
 
    //!Allocates many elements of size elem_size in a contiguous block
    //!of memory. The minimum number to be allocated is min_elements,
@@ -262,7 +262,7 @@ class cached_node_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   void deallocate_many(multiallocation_iterator it);
+   void deallocate_many(multiallocation_chain chain);
 
    //!Allocates just one object. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
@@ -275,7 +275,7 @@ class cached_node_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   multiallocation_iterator allocate_individual(std::size_t num_elements);
+   multiallocation_chain allocate_individual(std::size_t num_elements);
 
    //!Deallocates memory previously allocated with allocate_one().
    //!You should never use deallocate_one to deallocate memory allocated
@@ -288,7 +288,7 @@ class cached_node_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   void deallocate_individual(multiallocation_iterator it);
+   void deallocate_individual(multiallocation_chain it);
    //!Sets the new max cached nodes value. This can provoke deallocations
    //!if "newmax" is less than current cached nodes. Never throws
    void set_max_cached_nodes(std::size_t newmax);

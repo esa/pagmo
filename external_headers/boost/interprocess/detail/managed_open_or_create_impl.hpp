@@ -37,8 +37,8 @@ template<class DeviceAbstraction, bool FileBased = true>
 class managed_open_or_create_impl
 {
    //Non-copyable
-   managed_open_or_create_impl(const managed_open_or_create_impl &);
-   managed_open_or_create_impl &operator=(const managed_open_or_create_impl &);
+   managed_open_or_create_impl(managed_open_or_create_impl &);
+   managed_open_or_create_impl &operator=(managed_open_or_create_impl &);
 
    enum
    {  
@@ -49,6 +49,7 @@ class managed_open_or_create_impl
    };
 
    public:
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(managed_open_or_create_impl)
 
    static const std::size_t
       ManagedOpenOrCreateUserOffset = 
@@ -154,33 +155,15 @@ class managed_open_or_create_impl
          , construct_func);
    }
 
-
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   managed_open_or_create_impl(detail::moved_object<managed_open_or_create_impl> moved)
-   {  this->swap(moved.get());   }
-   #else
-   managed_open_or_create_impl(managed_open_or_create_impl &&moved)
+   managed_open_or_create_impl(BOOST_INTERPROCESS_RV_REF(managed_open_or_create_impl) moved)
    {  this->swap(moved);   }
-   #endif
 
-   //!Move assignment. If *this owns a memory mapped region, it will be
-   //!destroyed and it will take ownership of "other"'s memory mapped region.
-   #ifndef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   managed_open_or_create_impl &operator=(detail::moved_object<managed_open_or_create_impl> moved)
+   managed_open_or_create_impl &operator=(BOOST_INTERPROCESS_RV_REF(managed_open_or_create_impl) moved)
    {  
-      managed_open_or_create_impl tmp(moved);
+      managed_open_or_create_impl tmp(boost::interprocess::move(moved));
       this->swap(tmp);
       return *this;  
    }
-
-   #else
-   managed_open_or_create_impl &operator=(managed_open_or_create_impl &&moved)
-   {  
-      managed_open_or_create_impl tmp(detail::move_impl(moved));
-      this->swap(tmp);
-      return *this;  
-   }
-   #endif
 
    ~managed_open_or_create_impl()
    {}
@@ -436,20 +419,6 @@ inline void swap(managed_open_or_create_impl<DeviceAbstraction> &x
 {  x.swap(y);  }
 
 }  //namespace detail {
-
-
-///@cond
-
-//!Trait class to detect if a type is
-//!movable
-template<class DeviceAbstraction>
-
-struct is_movable<detail::managed_open_or_create_impl<DeviceAbstraction> >
-{
-   enum {  value = true };
-};
-
-///@endcond
 
 }  //namespace interprocess {
 }  //namespace boost {

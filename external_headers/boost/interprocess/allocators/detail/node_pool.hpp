@@ -18,14 +18,17 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
+#include <boost/intrusive/slist.hpp>
+#include <boost/math/common_factor_ct.hpp>
+#include <boost/pointer_to_other.hpp>
+
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
 #include <boost/interprocess/exceptions.hpp>
-#include <boost/intrusive/slist.hpp>
-#include <boost/math/common_factor_ct.hpp>
 #include <boost/interprocess/detail/math_functions.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
 #include <boost/interprocess/allocators/detail/node_tools.hpp>
+#include <boost/interprocess/mem_algo/detail/mem_algo_common.hpp>
 #include <boost/interprocess/allocators/detail/allocator_common.hpp>
 #include <cstddef>
 #include <functional>
@@ -53,7 +56,6 @@ class private_node_pool_impl
    typedef typename node_slist<void_pointer>::slist_hook_t        slist_hook_t;
    typedef typename node_slist<void_pointer>::node_t              node_t;
    typedef typename node_slist<void_pointer>::node_slist_t        free_nodes_t;
-   typedef typename SegmentManagerBase::multiallocation_iterator  multiallocation_iterator;
    typedef typename SegmentManagerBase::multiallocation_chain     multiallocation_chain;
 
    private:
@@ -112,25 +114,9 @@ class private_node_pool_impl
       --m_allocated;
    }
 
-   //!Allocates a singly linked list of n nodes ending in null pointer and pushes them in the chain. 
-   //!can throw boost::interprocess::bad_alloc
-   void allocate_nodes(multiallocation_chain &nodes, const std::size_t n)
-   {
-      std::size_t i = 0;
-      try{
-         for(; i < n; ++i){
-            nodes.push_front(this->allocate_node());
-         }
-      }
-      catch(...){
-         this->deallocate_nodes(nodes, i);
-         throw;
-      }
-   }
-
    //!Allocates a singly linked list of n nodes ending in null pointer 
    //!can throw boost::interprocess::bad_alloc
-   multiallocation_iterator allocate_nodes(const std::size_t n)
+   multiallocation_chain allocate_nodes(const std::size_t n)
    {
       multiallocation_chain nodes;
       std::size_t i = 0;
@@ -143,32 +129,26 @@ class private_node_pool_impl
          this->deallocate_nodes(nodes, i);
          throw;
       }
-      return nodes.get_it();
-   }
-
-   //!Deallocates a linked list of nodes. Never throws
-   void deallocate_nodes(multiallocation_chain &nodes)
-   {
-      this->deallocate_nodes(nodes.get_it());
-      nodes.reset();
+      return boost::interprocess::move(nodes);
    }
 
    //!Deallocates the first n nodes of a linked list of nodes. Never throws
-   void deallocate_nodes(multiallocation_chain &nodes, std::size_t num)
+   void deallocate_nodes(multiallocation_chain &nodes, std::size_t n)
    {
-      assert(nodes.size() >= num);
-      for(std::size_t i = 0; i < num; ++i){
-         deallocate_node(nodes.pop_front());
+      for(std::size_t i = 0; i < n; ++i){
+         void *p = detail::get_pointer(nodes.front());
+         assert(p);
+         nodes.pop_front();
+         this->deallocate_node(p);
       }
    }
 
    //!Deallocates the nodes pointed by the multiallocation iterator. Never throws
-   void deallocate_nodes(multiallocation_iterator it)
+   void deallocate_nodes(multiallocation_chain chain)
    {
-      multiallocation_iterator itend;
-      while(it != itend){
-         void *addr = &*it;
-         ++it;
+      while(!chain.empty()){
+         void *addr = detail::get_pointer(chain.front());
+         chain.pop_front();
          deallocate_node(addr);
       }
    }
@@ -347,7 +327,7 @@ class private_node_pool_impl
    }
 
    private:
-   typedef typename pointer_to_other
+   typedef typename boost::pointer_to_other
       <void_pointer, segment_manager_base_type>::type   segment_mngr_base_ptr_t;
 
    const std::size_t m_nodes_per_block;

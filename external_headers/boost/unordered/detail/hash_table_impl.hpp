@@ -1,6 +1,6 @@
 
 // Copyright (C) 2003-2004 Jeremy B. Maitin-Shepard.
-// Copyright (C) 2005-2008 Daniel James
+// Copyright (C) 2005-2009 Daniel James
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -130,7 +130,7 @@ namespace boost {
                 void destroy(link_ptr ptr)
                 {
                     node* raw_ptr = static_cast<node*>(&*ptr);
-                    boost::unordered_detail::destroy(&raw_ptr->value());
+                    BOOST_UNORDERED_DESTRUCT(&raw_ptr->value(), value_type);
                     node_ptr n(node_alloc_.address(*raw_ptr));
                     node_alloc_.destroy(n);
                     node_alloc_.deallocate(n, 1);
@@ -172,7 +172,7 @@ namespace boost {
                 {
                     if (node_) {
                         if (value_constructed_) {
-                            boost::unordered_detail::destroy(&node_->value());
+                            BOOST_UNORDERED_DESTRUCT(&node_->value(), value_type);
                         }
 
                         if (node_constructed_)
@@ -214,6 +214,22 @@ namespace boost {
                     value_constructed_ = true;
                 }
 #endif
+
+                template <typename K, typename M>
+                void construct_pair(K const& k, M*)
+                {
+                    BOOST_ASSERT(!node_);
+                    node_constructed_ = false;
+                    value_constructed_ = false;
+
+                    node_ = allocators_.node_alloc_.allocate(1);
+
+                    allocators_.node_alloc_.construct(node_, node());
+                    node_constructed_ = true;
+
+                    new(node_->address()) value_type(k, M());
+                    value_constructed_ = true;
+                }
 
                 node_ptr get() const
                 {
@@ -1103,7 +1119,7 @@ namespace boost {
 
                 // This can throw, but BOOST_UNORDERED_TABLE_DATA's destructor will clean
                 // up.
-                copy_buckets(x.data_, data_, functions_.current());
+                x.copy_buckets_to(data_);
             }
 
             // Copy Construct with allocator
@@ -1118,7 +1134,7 @@ namespace boost {
 
                 // This can throw, but BOOST_UNORDERED_TABLE_DATA's destructor will clean
                 // up.
-                copy_buckets(x.data_, data_, functions_.current());
+                x.copy_buckets_to(data_);
             }
 
             // Move Construct
@@ -1143,14 +1159,14 @@ namespace boost {
                 if(x.data_.buckets_) {
                     // This can throw, but BOOST_UNORDERED_TABLE_DATA's destructor will clean
                     // up.
-                    copy_buckets(x.data_, data_, functions_.current());
+                    x.copy_buckets_to(data_);
                 }
             }
 
             // Assign
             //
             // basic exception safety, if buffered_functions::buffer or reserver throws
-            // the container is left in a sane, empty state. If copy_buckets
+            // the container is left in a sane, empty state. If copy_buckets_to
             // throws the container is left with whatever was successfully
             // copied.
 
@@ -1164,7 +1180,7 @@ namespace boost {
                     mlf_ = x.mlf_;                        // no throw
                     calculate_max_load();                 // no throw
                     reserve(x.size());                    // throws
-                    copy_buckets(x.data_, data_, functions_.current()); // throws
+                    x.copy_buckets_to(data_); // throws
                 }
 
                 return *this;
@@ -1207,10 +1223,10 @@ namespace boost {
                     // which will clean up if anything throws an exception.
                     // (all can throw, but with no effect as these are new objects).
                     data new_this(data_, x.min_buckets_for_size(x.data_.size_));
-                    copy_buckets(x.data_, new_this, functions_.*new_func_this);
+                    x.copy_buckets_to(new_this);
 
                     data new_that(x.data_, min_buckets_for_size(data_.size_));
-                    x.copy_buckets(data_, new_that, x.functions_.*new_func_that);
+                    copy_buckets_to(new_that);
 
                     // Start updating the data here, no throw from now on.
                     data_.swap(new_this);
@@ -1251,7 +1267,7 @@ namespace boost {
                     // which will clean up if anything throws an exception.
                     // (all can throw, but with no effect as these are new objects).
                     data new_this(data_, x.min_buckets_for_size(x.data_.size_));
-                    copy_buckets(x.data_, new_this, functions_.*new_func_this);
+                    x.copy_buckets_to(new_this);
 
                     // Start updating the data here, no throw from now on.
                     data_.move(new_this);
@@ -1494,22 +1510,23 @@ namespace boost {
                     return;
 
                 data new_buckets(data_, n); // throws, seperate
-                move_buckets(data_, new_buckets, hash_function());
-                                                        // basic/no throw
+                move_buckets_to(new_buckets);           // basic/no throw
                 new_buckets.swap(data_);                // no throw
                 calculate_max_load();                   // no throw
             }
 
-            // move_buckets & copy_buckets
+            // move_buckets_to & copy_buckets_to
             //
             // if the hash function throws, basic excpetion safety
             // no throw otherwise
 
-            static void move_buckets(data& src, data& dst, hasher const& hf)
+            void move_buckets_to(data& dst)
             {
                 BOOST_ASSERT(dst.size_ == 0);
                 //BOOST_ASSERT(src.allocators_.node_alloc_ == dst.allocators_.node_alloc_);
 
+                data& src = this->data_;
+                hasher const& hf = this->hash_function();
                 bucket_ptr end = src.buckets_end();
 
                 for(; src.cached_begin_bucket_ != end;
@@ -1533,12 +1550,14 @@ namespace boost {
             // basic excpetion safety. If an exception is thrown this will
             // leave dst partially filled.
 
-            static void copy_buckets(data const& src, data& dst, functions const& f)
+            void copy_buckets_to(data& dst) const
             {
                 BOOST_ASSERT(dst.size_ == 0);
+
                 // no throw:
+                data const& src = this->data_;
+                hasher const& hf = this->hash_function();
                 bucket_ptr end = src.buckets_end();
-                hasher const& hf = f.hash_function();
 
                 // no throw:
                 for(bucket_ptr i = src.cached_begin_bucket_; i != end; ++i) {
@@ -1754,7 +1773,7 @@ namespace boost {
                     // Create the node before rehashing in case it throws an
                     // exception (need strong safety in such a case).
                     node_constructor a(data_.allocators_);
-                    a.construct(value_type(k, mapped_type()));
+                    a.construct_pair(k, (mapped_type*) 0);
 
                     // reserve has basic exception safety if the hash function
                     // throws, strong otherwise.

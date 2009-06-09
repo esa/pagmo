@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: xor_combine.hpp 29116 2005-05-21 15:57:01Z dgregor $
+ * $Id: xor_combine.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
  *
  */
 
@@ -21,18 +21,19 @@
 #include <boost/limits.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/cstdint.hpp>     // uint32_t
+#include <boost/random/detail/config.hpp>
 
 
 namespace boost {
 namespace random {
 
-template<class URNG1, int s1, class URNG2, int s2,
 #ifndef BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS
-  typename URNG1::result_type 
+  #define BOOST_RANDOM_VAL_TYPE typename URNG1::result_type 
 #else
-  uint32_t
+  #define BOOST_RANDOM_VAL_TYPE uint32_t
 #endif
-  val = 0>
+
+template<class URNG1, int s1, class URNG2, int s2, BOOST_RANDOM_VAL_TYPE val = 0>
 class xor_combine
 {
 public:
@@ -42,7 +43,7 @@ public:
 
   BOOST_STATIC_CONSTANT(bool, has_fixed_range = false);
   BOOST_STATIC_CONSTANT(int, shift1 = s1);
-  BOOST_STATIC_CONSTANT(int, shfit2 = s2);
+  BOOST_STATIC_CONSTANT(int, shift2 = s2);
 
   xor_combine() : _rng1(), _rng2()
   { }
@@ -77,7 +78,7 @@ public:
 
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#ifndef BOOST_RANDOM_NO_STREAM_OPERATORS
   template<class CharT, class Traits>
   friend std::basic_ostream<CharT,Traits>&
   operator<<(std::basic_ostream<CharT,Traits>& os, const xor_combine& s)
@@ -114,15 +115,15 @@ private:
 
 #ifndef BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 //  A definition is required even for integral static constants
-template<class URNG1, int s1, class URNG2, int s2,
-#ifndef BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS
-  typename URNG1::result_type 
-#else
-  uint32_t
-#endif
-  val>
+template<class URNG1, int s1, class URNG2, int s2, BOOST_RANDOM_VAL_TYPE val>
 const bool xor_combine<URNG1, s1, URNG2, s2, val>::has_fixed_range;
+template<class URNG1, int s1, class URNG2, int s2, BOOST_RANDOM_VAL_TYPE val>
+const int xor_combine<URNG1, s1, URNG2, s2, val>::shift1;
+template<class URNG1, int s1, class URNG2, int s2, BOOST_RANDOM_VAL_TYPE val>
+const int xor_combine<URNG1, s1, URNG2, s2, val>::shift2;
 #endif
+
+#undef BOOST_RANDOM_VAL_TYPE
 
 } // namespace random
 } // namespace boost

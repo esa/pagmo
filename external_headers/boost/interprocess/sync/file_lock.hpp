@@ -29,19 +29,6 @@
 namespace boost {
 namespace interprocess {
 
-///@cond
-
-class file_lock;
-
-//!Trait class to detect if a type is
-//!movable
-template<>
-struct is_movable<file_lock>
-{
-   enum {  value = true };
-};
-
-///@endcond
 
 //!A file lock, is a mutual exclusion utility similar to a mutex using a
 //!file. A file lock has sharable and exclusive locking capabilities and
@@ -56,6 +43,7 @@ class file_lock
    file_lock &operator=(const file_lock &);
    /// @endcond
    public:
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(file_lock)
 
    //!Constructs an empty file mapping.
    //!Does not throw
@@ -70,28 +58,16 @@ class file_lock
    //!Moves the ownership of "moved"'s file mapping object to *this. 
    //!After the call, "moved" does not represent any file mapping object. 
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   file_lock(detail::moved_object<file_lock> moved)
-      :  m_file_hnd(file_handle_t(detail::invalid_file()))
-   {  this->swap(moved.get());   }
-   #else
-   file_lock(file_lock &&moved)
+   file_lock(BOOST_INTERPROCESS_RV_REF(file_lock) moved)
       :  m_file_hnd(file_handle_t(detail::invalid_file()))
    {  this->swap(moved);   }
-   #endif
 
    //!Moves the ownership of "moved"'s file mapping to *this.
    //!After the call, "moved" does not represent any file mapping. 
    //!Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   file_lock &operator=(detail::moved_object<file_lock> m_other)
+   file_lock &operator=(BOOST_INTERPROCESS_RV_REF(file_lock) moved)
    {  
-      file_lock &moved = m_other.get();
-   #else
-   file_lock &operator=(file_lock &&moved)
-   {  
-   #endif
-      file_lock tmp(detail::move_impl(moved));
+      file_lock tmp(boost::interprocess::move(moved));
       this->swap(tmp);
       return *this;  
    }
@@ -101,16 +77,10 @@ class file_lock
 
    //!Swaps two file_locks.
    //!Does not throw.
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   void swap(detail::moved_object<file_lock> mother)
-   {  this->swap(mother.get());  }
    void swap(file_lock &other)
-   #else
-   void swap(file_lock &&other)
-   #endif
    {
       file_handle_t tmp = m_file_hnd;
-      other.m_file_hnd = other.m_file_hnd;
+      m_file_hnd = other.m_file_hnd;
       other.m_file_hnd = tmp;
    }
    

@@ -1,6 +1,6 @@
 
 // Copyright (C) 2003-2004 Jeremy B. Maitin-Shepard.
-// Copyright (C) 2005-2008 Daniel James
+// Copyright (C) 2005-2009 Daniel James
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -87,7 +87,7 @@ namespace boost {
             1610612741ul, 3221225473ul, 4294967291ul };
 
         template<typename T>
-        std::ptrdiff_t const prime_list_template<T>::length = 28;
+        std::ptrdiff_t const prime_list_template<T>::length = 40;
 
         typedef prime_list_template<std::size_t> prime_list;
 
@@ -224,10 +224,15 @@ namespace boost {
             functions_ptr func_; // The currently active functions.
         };
         
+#if defined(BOOST_MSVC)
+#  define BOOST_UNORDERED_DESTRUCT(x, type) (x)->~type();
+#else
+#  define BOOST_UNORDERED_DESTRUCT(x, type) boost::unordered_detail::destroy(x)
         template <typename T>
         void destroy(T* x) {
             x->~T();
         }
+#endif
     }
 }
 

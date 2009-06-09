@@ -105,7 +105,10 @@ typedef const lambda_functor<placeholder<THIRD> >  placeholder3_type;
 // other lambda_functors.
 // -------------------------------------------------------------------
 
-
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
 
 // -- lambda_functor NONE ------------------------------------------------
 template <class T>
@@ -244,6 +247,9 @@ public:
   } 
 };
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 } // namespace lambda
 } // namespace boost

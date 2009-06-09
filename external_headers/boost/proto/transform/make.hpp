@@ -292,6 +292,9 @@
                 typedef void not_applied_;
             };
 
+            #define TMP0(Z, M, DATA) make_if_<BOOST_PP_CAT(A, M), Expr, State, Data>
+            #define TMP1(Z, M, DATA) typename TMP0(Z, M, DATA) ::type
+
             template<
                 template<BOOST_PP_ENUM_PARAMS(N, typename BOOST_PP_INTERCEPT)> class R
                 BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)
@@ -301,14 +304,25 @@
                 BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(N)
             >
               : nested_type_if<
-                    #define TMP0(Z, M, DATA) make_if_<BOOST_PP_CAT(A, M), Expr, State, Data>
-                    #define TMP1(Z, M, DATA) typename TMP0(Z, M, DATA) ::type
                     R<BOOST_PP_ENUM(N, TMP1, ~)>
                   , typelist<BOOST_PP_ENUM(N, TMP0, ~) >
-                    #undef TMP0
-                    #undef TMP1
                 >
             {};
+
+            template<
+                template<BOOST_PP_ENUM_PARAMS(N, typename BOOST_PP_INTERCEPT)> class R
+                BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)
+              , typename Expr, typename State, typename Data
+            >
+            struct make_<noinvoke<R<BOOST_PP_ENUM_PARAMS(N, A)> >, Expr, State, Data
+                BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(N)
+            >
+            {
+                typedef R<BOOST_PP_ENUM(N, TMP1, ~)> type;
+            };
+
+            #undef TMP0
+            #undef TMP1
             #endif
 
             template<

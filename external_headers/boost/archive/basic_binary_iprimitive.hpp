@@ -156,7 +156,7 @@ basic_binary_iprimitive<Archive, Elem, Tr>::load_binary(
         static_cast<Elem *>(address), 
         s
     );
-    if(scount != static_cast<std::streamsize>(s))
+    if(scount != s)
         boost::serialization::throw_exception(
             archive_exception(archive_exception::stream_error)
         );
@@ -180,6 +180,6 @@ basic_binary_iprimitive<Archive, Elem, Tr>::load_binary(
 } // namespace archive
 } // namespace boost
 
-#include <boost/archive/detail/abi_suffix.hpp> // pop pragams
+#include <boost/archive/detail/abi_suffix.hpp> // pop pragmas
 
 #endif // BOOST_ARCHIVE_BINARY_IPRIMITIVE_HPP

@@ -22,6 +22,7 @@
 #include <cassert>
 #include <cstddef> // NULL
 #include <boost/config.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/serialization/config.hpp>
 
 #include <boost/config/abi_prefix.hpp> // must be the last header
@@ -34,8 +35,8 @@
 
 namespace boost { 
 namespace serialization {
-
-class BOOST_SERIALIZATION_DECL(BOOST_PP_EMPTY()) extended_type_info
+class BOOST_SERIALIZATION_DECL(BOOST_PP_EMPTY()) extended_type_info :
+    private boost::noncopyable
 {
 private: 
     // used to uniquely identify the type of class derived from this one

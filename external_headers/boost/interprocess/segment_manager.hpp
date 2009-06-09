@@ -21,7 +21,7 @@
 #include <boost/detail/no_exceptions_support.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
 
-#include <boost/interprocess/detail/iterators.hpp>
+#include <boost/interprocess/detail/transform_iterator.hpp>
 
 #include <boost/interprocess/detail/mpl.hpp>
 #include <boost/interprocess/detail/segment_manager_helper.hpp>
@@ -72,8 +72,7 @@ class segment_manager_base
    /// @cond
    
    //Experimental. Don't use
-   typedef typename MemoryAlgorithm::multiallocation_iterator  multiallocation_iterator;
-   typedef typename MemoryAlgorithm::multiallocation_chain     multiallocation_chain;
+   typedef typename MemoryAlgorithm::multiallocation_chain    multiallocation_chain;
 
    /// @endcond
 
@@ -123,38 +122,40 @@ class segment_manager_base
    //Experimental. Dont' use.
    //!Allocates n_elements of
    //!elem_size bytes. Throws bad_alloc on failure.
-   multiallocation_iterator allocate_many(std::size_t elem_bytes, std::size_t num_elements)
+   multiallocation_chain allocate_many(std::size_t elem_bytes, std::size_t num_elements)
    {
-      multiallocation_iterator ret = MemoryAlgorithm::allocate_many(elem_bytes, num_elements);
-      if(!ret) throw bad_alloc();
-      return ret;
+      multiallocation_chain mem(MemoryAlgorithm::allocate_many(elem_bytes, num_elements));
+      if(mem.empty()) throw bad_alloc();
+      return boost::interprocess::move(mem);
    }
 
    //!Allocates n_elements, each one of
    //!element_lenghts[i]*sizeof_element bytes. Throws bad_alloc on failure.
-   multiallocation_iterator allocate_many
+   multiallocation_chain allocate_many
       (const std::size_t *element_lenghts, std::size_t n_elements, std::size_t sizeof_element = 1)
    {
-      multiallocation_iterator ret = MemoryAlgorithm::allocate_many(element_lenghts, n_elements, sizeof_element);
-      if(!ret) throw bad_alloc();
-      return ret;
+      multiallocation_chain mem(MemoryAlgorithm::allocate_many(element_lenghts, n_elements, sizeof_element));
+      if(mem.empty()) throw bad_alloc();
+      return boost::interprocess::move(mem);
    }
 
    //!Allocates n_elements of
    //!elem_size bytes. Returns a default constructed iterator on failure.
-   multiallocation_iterator allocate_many(std::size_t elem_bytes, std::size_t num_elements, std::nothrow_t)
+   multiallocation_chain allocate_many
+      (std::size_t elem_bytes, std::size_t num_elements, std::nothrow_t)
    {  return MemoryAlgorithm::allocate_many(elem_bytes, num_elements); }
 
    //!Allocates n_elements, each one of
    //!element_lenghts[i]*sizeof_element bytes.
    //!Returns a default constructed iterator on failure.
-   multiallocation_iterator allocate_many(const std::size_t *elem_sizes, std::size_t n_elements, std::size_t sizeof_element, std::nothrow_t)
+   multiallocation_chain allocate_many
+      (const std::size_t *elem_sizes, std::size_t n_elements, std::size_t sizeof_element, std::nothrow_t)
    {  return MemoryAlgorithm::allocate_many(elem_sizes, n_elements, sizeof_element); }
 
    //!Deallocates elements pointed by the
    //!multiallocation iterator range.
-   void deallocate_many(multiallocation_iterator it)
-   {  MemoryAlgorithm::deallocate_many(it); }
+   void deallocate_many(multiallocation_chain chain)
+   {  MemoryAlgorithm::deallocate_many(boost::interprocess::move(chain)); }
 
    /// @endcond
 
@@ -185,27 +186,27 @@ class segment_manager_base
 
    template<class T>
    std::pair<T *, bool>
-      allocation_command  (allocation_type command,   std::size_t limit_size,
+      allocation_command  (boost::interprocess::allocation_type command,   std::size_t limit_size,
                            std::size_t preferred_size,std::size_t &received_size,
                            T *reuse_ptr = 0)
    {
       std::pair<T *, bool> ret = MemoryAlgorithm::allocation_command
-         ( command | nothrow_allocation, limit_size, preferred_size, received_size
+         ( command | boost::interprocess::nothrow_allocation, limit_size, preferred_size, received_size
          , reuse_ptr);
-      if(!(command & nothrow_allocation) && !ret.first)
+      if(!(command & boost::interprocess::nothrow_allocation) && !ret.first)
          throw bad_alloc();
       return ret;
    }
 
    std::pair<void *, bool>
-      raw_allocation_command  (allocation_type command,   std::size_t limit_objects,
+      raw_allocation_command  (boost::interprocess::allocation_type command,   std::size_t limit_objects,
                            std::size_t preferred_objects,std::size_t &received_objects,
                            void *reuse_ptr = 0, std::size_t sizeof_object = 1)
    {
       std::pair<void *, bool> ret = MemoryAlgorithm::raw_allocation_command
-         ( command | nothrow_allocation, limit_objects, preferred_objects, received_objects
+         ( command | boost::interprocess::nothrow_allocation, limit_objects, preferred_objects, received_objects
          , reuse_ptr, sizeof_object);
-      if(!(command & nothrow_allocation) && !ret.first)
+      if(!(command & boost::interprocess::nothrow_allocation) && !ret.first)
          throw bad_alloc();
       return ret;
    }
@@ -297,7 +298,7 @@ class segment_manager_base
       //scoped_lock<rmutex> guard(m_header);
       //-------------------------------
 
-      if(ctrl_data->allocation_type() != anonymous_type){
+      if(ctrl_data->alloc_type() != anonymous_type){
          //This is not an anonymous object, the pointer is wrong!
          assert(0);
       }
@@ -310,11 +311,6 @@ class segment_manager_base
    }
    /// @endcond
 };
-
-//These pointers are the ones the user will use to 
-//indicate previous allocation types
-static const detail::anonymous_instance_t   * anonymous_instance = 0;
-static const detail::unique_instance_t      * unique_instance = 0;
 
 //!This object is placed in the beginning of memory segment and
 //!implements the allocation (named or anonymous) of portions
@@ -351,7 +347,6 @@ class segment_manager
    typedef MemoryAlgorithm                memory_algorithm;
    typedef typename Base::void_pointer    void_pointer;
    typedef CharType                       char_type;
-   typedef typename Base::multiallocation_iterator   multiallocation_iterator;
 
    typedef segment_manager_base<MemoryAlgorithm>   segment_manager_base_type;
 
@@ -672,6 +667,7 @@ class segment_manager
    typename deleter<T>::type
       get_deleter()
    {   return typename deleter<T>::type(this); }
+
    /// @cond
 
    //!Generic named/anonymous new function. Offers all the possibilities, 
@@ -753,7 +749,7 @@ class segment_manager
    void priv_destroy_ptr(const void *ptr, detail::in_place_interface &dtor)
    {
       block_header_t *ctrl_data = block_header_t::block_header_from_value(ptr, dtor.size, dtor.alignment);
-      switch(ctrl_data->allocation_type()){
+      switch(ctrl_data->alloc_type()){
          case anonymous_type:
             this->prot_anonymous_destroy(ptr, dtor);
          break;
@@ -779,7 +775,7 @@ class segment_manager
    //!functions. Does not throw
    static const CharType *priv_get_instance_name(block_header_t *ctrl_data)
    {
-      allocation_type type = ctrl_data->allocation_type();
+      boost::interprocess::allocation_type type = ctrl_data->alloc_type();
       if(type != named_type){
          assert((type == anonymous_type && ctrl_data->m_num_char == 0) ||
                 (type == unique_type    && ctrl_data->m_num_char != 0) );
@@ -805,8 +801,8 @@ class segment_manager
    static instance_type priv_get_instance_type(block_header_t *ctrl_data)
    {
       //Get header
-      assert((instance_type)ctrl_data->allocation_type() < max_allocation_type);
-      return (instance_type)ctrl_data->allocation_type();
+      assert((instance_type)ctrl_data->alloc_type() < max_allocation_type);
+      return (instance_type)ctrl_data->alloc_type();
    }
 
    static std::size_t priv_get_reserved_bytes()
@@ -1311,18 +1307,13 @@ class segment_manager
 
    typedef typename MemoryAlgorithm::mutex_family::recursive_mutex_type   rmutex;
 
-   #ifdef BOOST_INTERPROCESS_RVALUE_REFERENCE
-   scoped_lock<rmutex>
-   #else
-   detail::move_return<scoped_lock<rmutex> >
-   #endif
-      priv_get_lock(bool use_lock)
+   scoped_lock<rmutex> priv_get_lock(bool use_lock)
    {
       scoped_lock<rmutex> local(m_header, defer_lock);
       if(use_lock){
          local.lock();
       }
-      return local;
+      return scoped_lock<rmutex>(boost::interprocess::move(local));
    }
 
    //!This struct includes needed data and derives from
@@ -1338,6 +1329,7 @@ class segment_manager
          ,  m_unique_index(restricted_segment_mngr)
       {}
    }  m_header;
+
    /// @endcond
 };
 

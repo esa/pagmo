@@ -43,7 +43,7 @@ struct tri_state {
     enum state_enum {
         is_false = false,
         is_true = true,
-        is_indeterminant,
+        is_indeterminant
     } m_state;
     // convert to bool
     operator bool (){
@@ -53,6 +53,7 @@ struct tri_state {
     // assign from bool
     tri_state & operator=(bool rhs) {
         m_state = rhs ? is_true : is_false;
+        return *this;
     }
     tri_state(bool rhs) :
         m_state(rhs ? is_true : is_false)

@@ -20,7 +20,7 @@
 #include <semaphore.h>
 
 #ifdef SEM_FAILED
-#define BOOST_INTERPROCESS_POSIX_SEM_FAILED SEM_FAILED
+#define BOOST_INTERPROCESS_POSIX_SEM_FAILED (reinterpret_cast<sem_t*>(SEM_FAILED))
 #else
 #define BOOST_INTERPROCESS_POSIX_SEM_FAILED (reinterpret_cast<sem_t*>(-1))
 #endif

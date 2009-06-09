@@ -291,6 +291,8 @@ namespace boost { namespace numeric { namespace ublas {
     template<class E>
     class matrix_expression:
         public ublas_expression<E> {
+    private:
+        typedef matrix_expression<E> self_type;
     public:
         static const unsigned complexity = 0;
         typedef E expression_type;

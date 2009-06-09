@@ -40,6 +40,7 @@
 #include <boost/wave/util/symbol_table.hpp>
 #include <boost/wave/util/cpp_macromap_utils.hpp>
 #include <boost/wave/util/cpp_macromap_predef.hpp>
+#include <boost/wave/util/filesystem_compatibility.hpp>
 #include <boost/wave/grammars/cpp_defined_grammar_gen.hpp>
 
 #include <boost/wave/wave_version.hpp>
@@ -1414,10 +1415,10 @@ string_type const &value = curr_token.get_value();
         namespace fs = boost::filesystem;
         
     std::string file("\"");
-    fs::path filename(main_pos.get_file().c_str(), fs::native);
+    fs::path filename(wave::util::create_path(main_pos.get_file().c_str()));
     
         using boost::wave::util::impl::escape_lit;
-        file += escape_lit(filename.native_file_string()) + "\"";
+        file += escape_lit(wave::util::native_file_string(filename)) + "\"";
         expanded.push_back(token_type(T_STRINGLIT, file.c_str(), 
             curr_token.get_position()));
         return true;
@@ -1846,21 +1847,21 @@ position_type pos("<built-in>");
 // predefine the __BASE_FILE__ macro which contains the main file name 
     namespace fs = boost::filesystem; 
     if (string_type(fname) != "<Unknown>") {
-    fs::path filename(fname, fs::native);
+    fs::path filename(create_path(fname));
     
         using boost::wave::util::impl::escape_lit;
         predefine_macro(current_scope, "__BASE_FILE__",
             token_type(T_STRINGLIT, string_type("\"") + 
-                escape_lit(filename.native_file_string()).c_str() + "\"", pos));
+                escape_lit(native_file_string(filename)).c_str() + "\"", pos));
         base_name = fname;
     }
     else if (!base_name.empty()) {
-    fs::path filename(base_name.c_str(), fs::native);
+    fs::path filename(create_path(base_name.c_str()));
     
         using boost::wave::util::impl::escape_lit;
         predefine_macro(current_scope, "__BASE_FILE__",
             token_type(T_STRINGLIT, string_type("\"") + 
-                escape_lit(filename.native_file_string()).c_str() + "\"", pos));
+                escape_lit(native_file_string(filename)).c_str() + "\"", pos));
     }
     
 // now add the dynamic macros

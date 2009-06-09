@@ -315,21 +315,21 @@ class basic_managed_multi_shared_memory
             case create_open_func::DoCreate:
             {
                managed_impl shm(create_only, name, size, read_write, addr, func);
-               mshm = detail::move_impl(shm);
+               mshm = boost::interprocess::move(shm);
             }
             break;
 
             case create_open_func::DoOpen:
             {
                managed_impl shm(open_only, name,read_write, addr, func);
-               mshm = detail::move_impl(shm);
+               mshm = boost::interprocess::move(shm);
             }
             break;
 
             case create_open_func::DoOpenOrCreate:
             {
                managed_impl shm(open_or_create, name, size, read_write, addr, func);
-               mshm = detail::move_impl(shm);
+               mshm = boost::interprocess::move(shm);
             }
             break;
 
@@ -339,7 +339,7 @@ class basic_managed_multi_shared_memory
          }
 
          //This can throw.
-         m_shmem_list.push_back(detail::move_impl(mshm));
+         m_shmem_list.push_back(boost::interprocess::move(mshm));
          return true;
       }
       BOOST_CATCH(const std::bad_alloc&){

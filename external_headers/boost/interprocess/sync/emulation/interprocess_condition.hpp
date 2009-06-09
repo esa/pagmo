@@ -94,11 +94,11 @@ inline bool interprocess_condition::do_timed_wait(bool tout_enabled,
       InternalLock lock;
       if(tout_enabled){
          InternalLock dummy(m_enter_mut, abs_time);
-         lock = detail::move_impl(dummy);
+         lock = boost::interprocess::move(dummy);
       }
       else{
          InternalLock dummy(m_enter_mut);
-         lock = detail::move_impl(dummy);
+         lock = boost::interprocess::move(dummy);
       }
 
       if(!lock)
@@ -161,15 +161,18 @@ inline bool interprocess_condition::do_timed_wait(bool tout_enabled,
          InternalLock lock;
          if(tout_enabled){
             InternalLock dummy(m_check_mut, abs_time);
-            lock = detail::move_impl(dummy);
+            lock = boost::interprocess::move(dummy);
          }
          else{
             InternalLock dummy(m_check_mut);
-            lock = detail::move_impl(dummy);
+            lock = boost::interprocess::move(dummy);
          }
 
-         if(!lock)
-            return false;
+         if(!lock){
+            timed_out = true;
+            unlock_enter_mut = true;
+            break;
+         }
          //---------------------------------------------------------------
          boost::uint32_t result = detail::atomic_cas32
                         (const_cast<boost::uint32_t*>(&m_command), SLEEP, NOTIFY_ONE);

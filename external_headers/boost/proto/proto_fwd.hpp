@@ -478,7 +478,7 @@ namespace boost { namespace proto
         template<typename Tag, typename Left, typename Right>
         struct binary_expr;
 
-        template<typename Tag, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_ARITY, typename A, void), typename Dummy = void>
+        template<typename Tag, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_ARITY, typename A, void)>
         struct nary_expr;
 
         // Specific expression metafunctions and
@@ -531,7 +531,7 @@ namespace boost { namespace proto
         template<typename T, typename U> struct member;
         template<typename T, typename U, typename V> struct if_else_;
 
-        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_ARITY, typename A, void), typename Dummy = void>
+        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_ARITY, typename A, void)>
         struct function;
     }
 
@@ -711,6 +711,9 @@ namespace boost { namespace proto
 
     template<typename PrimitiveTransform>
     struct protect;
+
+    template<typename T>
+    struct noinvoke;
 
     template<typename Fun>
     struct lazy;

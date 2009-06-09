@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_real.hpp 47233 2008-07-08 16:22:46Z steven_watanabe $
+ * $Id: uniform_real.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
  *
  * Revision history
  *  2001-04-08  added min<max assertion (N. Becker)
@@ -22,6 +22,7 @@
 #include <boost/config.hpp>
 #include <boost/limits.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/random/detail/config.hpp>
 
 namespace boost {
 
@@ -56,7 +57,7 @@ public:
            * (_max - _min) + _min;
   }
 
-#if !defined(BOOST_NO_OPERATORS_IN_NAMESPACE) && !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+#ifndef BOOST_RANDOM_NO_STREAM_OPERATORS
   template<class CharT, class Traits>
   friend std::basic_ostream<CharT,Traits>&
   operator<<(std::basic_ostream<CharT,Traits>& os, const uniform_real& ud)

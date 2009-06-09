@@ -978,7 +978,8 @@ class list_impl
             carry.splice(carry.cbegin(), *this, this->cbegin());
             int i = 0;
             while(i < fill && !counter[i].empty()) {
-               carry.merge(counter[i++], p);
+               counter[i].merge(carry, p);
+               carry.swap(counter[i++]);
             }
             carry.swap(counter[i]);
             if(i == fill)
@@ -1021,21 +1022,26 @@ class list_impl
    template<class Predicate>
    void merge(list_impl& x, Predicate p)
    {
-      const_iterator e(this->end());
-      const_iterator bx(x.begin());
-      const_iterator ex(x.end());
-
-      for (const_iterator b = this->cbegin(); b != e; ++b) {
-         size_type n(0);
-         const_iterator ix(bx);
-         while(ix != ex && p(*ix, *b)){
-            ++ix; ++n;
+      const_iterator e(this->cend()), ex(x.cend());
+      const_iterator b(this->cbegin());
+      while(!x.empty()){
+         const_iterator ix(x.cbegin());
+         while (b != e && !p(*ix, *b)){
+            ++b;
          }
-         this->splice(b, x, bx, ix, n);
-         bx = ix;
+         if(b == e){
+            //Now transfer the rest to the end of the container
+            this->splice(e, x);
+            break;
+         }
+         else{
+            size_type n(0);
+            do{
+               ++ix; ++n;
+            } while(ix != ex && p(*ix, *b));
+            this->splice(b, x, x.begin(), ix, n);
+         }
       }
-      //Now transfer the rest at the end of the container
-      this->splice(e, x);
    }
 
    //! <b>Effects</b>: Reverses the order of elements in the list. 

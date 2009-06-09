@@ -2261,14 +2261,17 @@
             /// PrimitiveTransform that dispatches to the <tt>pass_through\<\></tt>
             /// transform.
             template<BOOST_PP_ENUM_PARAMS(N, typename A)>
-            struct function<
+            struct function
+            #if N != BOOST_PROTO_MAX_ARITY
+            <
                 BOOST_PP_ENUM_PARAMS(N, A)
-                BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT), void
+                BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT)
             >
+            #endif
               : transform<
                     function<
                         BOOST_PP_ENUM_PARAMS(N, A)
-                        BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT), void
+                        BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT)
                     >
                   , empty_base
                 >
@@ -2301,16 +2304,19 @@
             /// Use <tt>nary_expr\<_, vararg\<_\> \></tt> as a grammar element to match any
             /// n-ary expression; that is, any non-terminal.
             template<typename Tag BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
-            struct nary_expr<
+            struct nary_expr
+            #if N != BOOST_PROTO_MAX_ARITY
+            <
                 Tag
                 BOOST_PP_ENUM_TRAILING_PARAMS(N, A)
-                BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT), void
+                BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT)
             >
+            #endif
               : transform<
                     nary_expr<
                         Tag
                         BOOST_PP_ENUM_TRAILING_PARAMS(N, A)
-                        BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT), void
+                        BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT)
                     >
                   , empty_base
                 >

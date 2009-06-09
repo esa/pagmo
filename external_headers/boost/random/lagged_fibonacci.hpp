@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: lagged_fibonacci.hpp 49314 2008-10-13 09:00:03Z johnmaddock $
+ * $Id: lagged_fibonacci.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -27,6 +27,7 @@
 #include <boost/detail/workaround.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_01.hpp>
+#include <boost/random/detail/config.hpp>
 #include <boost/random/detail/pass_through_engine.hpp>
 
 namespace boost {
@@ -141,7 +142,7 @@ public:
   
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#ifndef BOOST_RANDOM_NO_STREAM_OPERATORS
   template<class CharT, class Traits>
   friend std::basic_ostream<CharT,Traits>&
   operator<<(std::basic_ostream<CharT,Traits>& os, const lagged_fibonacci& f)
@@ -317,12 +318,14 @@ public:
     unsigned long mask = ~((~0u) << (w%32));   // now lowest w bits set
     RealType two32 = pow(RealType(2), 32);
     unsigned int j;
-    for(j = 0; j < long_lag && first != last; ++j, ++first) {
+    for(j = 0; j < long_lag && first != last; ++j) {
       x[j] = RealType(0);
       for(int k = 0; k < w/32 && first != last; ++k, ++first)
         x[j] += *first / pow(two32,k+1);
-      if(first != last && mask != 0)
+      if(first != last && mask != 0) {
         x[j] += fmod((*first & mask) / _modulus, RealType(1));
+        ++first;
+      }
     }
     i = long_lag;
     if(first == last && j < long_lag)
@@ -352,7 +355,7 @@ public:
   
 #ifndef BOOST_NO_OPERATORS_IN_NAMESPACE
 
-#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
+#ifndef BOOST_RANDOM_NO_STREAM_OPERATORS
   template<class CharT, class Traits>
   friend std::basic_ostream<CharT,Traits>&
   operator<<(std::basic_ostream<CharT,Traits>& os, const lagged_fibonacci_01&f)

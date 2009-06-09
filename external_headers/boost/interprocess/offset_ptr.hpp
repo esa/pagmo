@@ -162,7 +162,11 @@ class offset_ptr
    //!Dereferencing operator, if it is a null offset_ptr behavior 
    //!   is undefined. Never throws.
    reference operator* () const           
-   {  return *(this->get());   }
+   {
+      pointer p = this->get();
+      reference r = *p;
+      return r;
+   }
 
    //!Indexing operator.
    //!Never throws.

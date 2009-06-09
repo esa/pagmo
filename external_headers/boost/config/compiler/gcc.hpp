@@ -104,30 +104,45 @@
 //
 // C++0x features
 //
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)
+
+#define BOOST_NO_CHAR16_T
+#define BOOST_NO_CHAR32_T
+#define BOOST_NO_CONSTEXPR
+#define BOOST_NO_DEFAULTED_FUNCTIONS
+#define BOOST_NO_DELETED_FUNCTIONS
+#define BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
+#define BOOST_NO_EXTERN_TEMPLATE
+#define BOOST_NO_RAW_LITERALS
+#define BOOST_NO_SCOPED_ENUMS
+#define BOOST_NO_UNICODE_LITERALS
+// See below for BOOST_NO_AUTO_DECLARATIONS
+#define BOOST_NO_AUTO_MULTIDECLARATIONS
+
+#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)) && defined(__GXX_EXPERIMENTAL_CXX0X__)
 // C++0x features are only enabled when -std=c++0x or -std=gnu++0x are
 // passed on the command line, which in turn defines
-// __GXX_EXPERIMENTAL_CXX0X__. 
-#  if defined(__GXX_EXPERIMENTAL_CXX0X__)
-#    define BOOST_HAS_STATIC_ASSERT
+// __GXX_EXPERIMENTAL_CXX0X__.
+#  define BOOST_HAS_DECLTYPE
+#  define BOOST_HAS_RVALUE_REFS
+#  define BOOST_HAS_STATIC_ASSERT
+#  define BOOST_HAS_VARIADIC_TMPL
+#else
+#  define BOOST_NO_DECLTYPE
+#  define BOOST_NO_RVALUE_REFERENCES
+#  define BOOST_NO_STATIC_ASSERT
+
+// Variadic templates compiler: 
+//   http://www.generic-programming.org/~dgregor/cpp/variadic-templates.html
+#  ifdef __VARIADIC_TEMPLATES
 #    define BOOST_HAS_VARIADIC_TMPL
-#    define BOOST_HAS_RVALUE_REFS
-#    define BOOST_HAS_DECLTYPE
+#  else
+#    define BOOST_NO_VARIADIC_TEMPLATES
 #  endif
 #endif
 
 #if !defined(__GXX_EXPERIMENTAL_CXX0X__) || __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)
 #  define BOOST_NO_INITIALIZER_LISTS
-#endif
-
-//
-// Potential C++0x features
-//
-
-// Variadic templates compiler: 
-//   http://www.generic-programming.org/~dgregor/cpp/variadic-templates.html
-#ifdef __VARIADIC_TEMPLATES
-#  define BOOST_HAS_VARIADIC_TMPL
+#  define BOOST_NO_AUTO_DECLARATIONS
 #endif
 
 // ConceptGCC compiler:

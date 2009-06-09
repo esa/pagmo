@@ -9,8 +9,8 @@
 // For more information, see http://www.boost.org/libs/ptr_container/
 //
 
-#ifndef BOOST_ptr_container_PTR_SEQUENCE_ADAPTER_HPP
-#define BOOST_ptr_container_PTR_SEQUENCE_ADAPTER_HPP
+#ifndef BOOST_PTR_CONTAINER_PTR_SEQUENCE_ADAPTER_HPP
+#define BOOST_PTR_CONTAINER_PTR_SEQUENCE_ADAPTER_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 # pragma once
@@ -723,7 +723,7 @@ namespace ptr_container_detail
             range_check(first,last);
             this->base().erase( std::remove_if( first.base(), last.base(), 
                                                 void_ptr_delete_if<Pred,value_type>(pred) ),
-                                this->base().end() );  
+                                last.base() );  
         }
         
         template< class Pred >

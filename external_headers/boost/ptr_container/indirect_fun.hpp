@@ -1,7 +1,7 @@
 //
 // Boost.Pointer Container
 //
-//  Copyright Thorsten Ottosen 2003-2005. Use, modification and
+//  Copyright Thorsten Ottosen 2003-2007. Use, modification and
 //  distribution is subject to the Boost Software License, Version
 //  1.0. (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -53,7 +53,7 @@ namespace boost
 #ifdef BOOST_NO_SFINAE
         Result    
 #else            
-        BOOST_DEDUCED_TYPENAME result_of< Fun( BOOST_DEDUCED_TYPENAME pointee<T>::type ) >::type 
+        BOOST_DEDUCED_TYPENAME result_of< Fun( BOOST_DEDUCED_TYPENAME pointee<T>::type& ) >::type 
 #endif            
         operator()( const T& r ) const
         { 
@@ -64,8 +64,8 @@ namespace boost
 #ifdef BOOST_NO_SFINAE
         Result    
 #else                        
-        BOOST_DEDUCED_TYPENAME result_of< Fun( BOOST_DEDUCED_TYPENAME pointee<T>::type, 
-                                               BOOST_DEDUCED_TYPENAME pointee<U>::type ) >::type
+        BOOST_DEDUCED_TYPENAME result_of< Fun( BOOST_DEDUCED_TYPENAME pointee<T>::type&, 
+                                               BOOST_DEDUCED_TYPENAME pointee<U>::type& ) >::type
 #endif            
         operator()( const T& r, const U& r2 ) const
         { 
@@ -102,7 +102,7 @@ namespace boost
 #ifdef BOOST_NO_SFINAE
         Result    
 #else            
-        BOOST_DEDUCED_TYPENAME result_of< Fun( Arg1 ) >::type 
+        BOOST_DEDUCED_TYPENAME result_of< Fun( Arg1& ) >::type 
 #endif            
         operator()( const void* r ) const
         { 
@@ -113,7 +113,7 @@ namespace boost
 #ifdef BOOST_NO_SFINAE
         Result    
 #else                    
-        BOOST_DEDUCED_TYPENAME result_of< Fun( Arg1, Arg2 ) >::type 
+        BOOST_DEDUCED_TYPENAME result_of< Fun( Arg1&, Arg2& ) >::type 
 #endif            
         operator()( const void* l, const void* r ) const
         { 

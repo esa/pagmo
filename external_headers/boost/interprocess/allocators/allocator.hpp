@@ -18,15 +18,17 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
+#include <boost/pointer_to_other.hpp>
+
 #include <boost/interprocess/interprocess_fwd.hpp>
-#include <boost/interprocess/allocators/allocation_type.hpp>
+#include <boost/interprocess/containers/allocation_type.hpp>
+#include <boost/interprocess/allocators/detail/allocator_common.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
-#include <boost/interprocess/detail/version_type.hpp>
+#include <boost/interprocess/containers/version_type.hpp>
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/assert.hpp>
 #include <boost/utility/addressof.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
-#include <boost/interprocess/detail/iterators.hpp>
 
 #include <memory>
 #include <algorithm>
@@ -64,11 +66,11 @@ class allocator
 
    //Typedef to const void pointer
    typedef typename 
-      detail::pointer_to_other
+      boost::pointer_to_other
          <aux_pointer_t, const void>::type   cvoid_ptr;
 
    //Pointer to the allocator
-   typedef typename detail::pointer_to_other
+   typedef typename boost::pointer_to_other
       <cvoid_ptr, segment_manager>::type     alloc_ptr_t;
 
    //Not assignable from related allocator
@@ -84,9 +86,9 @@ class allocator
 
    public:
    typedef T                                    value_type;
-   typedef typename detail::pointer_to_other
+   typedef typename boost::pointer_to_other
       <cvoid_ptr, T>::type                      pointer;
-   typedef typename detail::
+   typedef typename boost::
       pointer_to_other<pointer, const T>::type  const_pointer;
    typedef typename detail::add_reference
                      <value_type>::type         reference;
@@ -95,20 +97,13 @@ class allocator
    typedef std::size_t                          size_type;
    typedef std::ptrdiff_t                       difference_type;
 
-   typedef detail::version_type<allocator, 2>   version;
+   typedef boost::interprocess::version_type<allocator, 2>   version;
 
    /// @cond
 
    //Experimental. Don't use.
-   typedef transform_iterator
-      < typename SegmentManager::
-         multiallocation_iterator
-      , detail::cast_functor <T> >              multiallocation_iterator;
-   typedef detail::multiallocation_chain_adaptor
-      <typename SegmentManager::
-         multiallocation_chain
-      , T>                                      multiallocation_chain;
-
+   typedef boost::interprocess::detail::transform_multiallocation_chain
+      <typename SegmentManager::multiallocation_chain, T>multiallocation_chain;
    /// @endcond
 
    //!Obtains an allocator that allocates
@@ -174,7 +169,7 @@ class allocator
    }
 
    std::pair<pointer, bool>
-      allocation_command(allocation_type command,
+      allocation_command(boost::interprocess::allocation_type command,
                          size_type limit_size, 
                          size_type preferred_size,
                          size_type &received_size, const pointer &reuse = 0)
@@ -189,19 +184,19 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   multiallocation_iterator allocate_many(size_type elem_size, std::size_t num_elements)
+   multiallocation_chain allocate_many
+      (size_type elem_size, std::size_t num_elements)
    {
-      return multiallocation_iterator
-         (mp_mngr->allocate_many(sizeof(T)*elem_size, num_elements));
+      return multiallocation_chain(mp_mngr->allocate_many(sizeof(T)*elem_size, num_elements));
    }
 
    //!Allocates n_elements elements, each one of size elem_sizes[i]in a
    //!contiguous block
    //!of memory. The elements must be deallocated
-   multiallocation_iterator allocate_many(const size_type *elem_sizes, size_type n_elements)
+   multiallocation_chain allocate_many
+      (const size_type *elem_sizes, size_type n_elements)
    {
-      return multiallocation_iterator
-         (mp_mngr->allocate_many(elem_sizes, n_elements, sizeof(T)));
+      multiallocation_chain(mp_mngr->allocate_many(elem_sizes, n_elements, sizeof(T)));
    }
 
    //!Allocates many elements of size elem_size in a contiguous block
@@ -210,8 +205,10 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   void deallocate_many(multiallocation_iterator it)
-   {  return mp_mngr->deallocate_many(it.base()); }
+   void deallocate_many(multiallocation_chain chain)
+   {
+      return mp_mngr->deallocate_many(chain.extract_multiallocation_chain());
+   }
 
    //!Allocates just one object. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
@@ -225,7 +222,8 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   multiallocation_iterator allocate_individual(std::size_t num_elements)
+   multiallocation_chain allocate_individual
+      (std::size_t num_elements)
    {  return this->allocate_many(1, num_elements); }
 
    //!Deallocates memory previously allocated with allocate_one().
@@ -240,8 +238,8 @@ class allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   void deallocate_individual(multiallocation_iterator it)
-   {  return this->deallocate_many(it); }
+   void deallocate_individual(multiallocation_chain chain)
+   {  return this->deallocate_many(boost::interprocess::move(chain)); }
 
    //!Returns address of mutable object.
    //!Never throws

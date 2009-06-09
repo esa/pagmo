@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_int.hpp 50601 2009-01-15 03:43:36Z marshall $
+ * $Id: uniform_int.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
  *
  * Revision history
  *  2001-04-08  added min<max assertion (N. Becker)
@@ -24,6 +24,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/detail/workaround.hpp>
 #include <boost/random/uniform_smallint.hpp>
+#include <boost/random/detail/config.hpp>
 #include <boost/random/detail/signed_unsigned_tools.hpp>
 #include <boost/type_traits/make_unsigned.hpp>
 #ifdef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
@@ -76,7 +77,7 @@ public:
       return generate(eng, 0, n - 1, n - 1);
   }
 
-#if !defined(BOOST_NO_OPERATORS_IN_NAMESPACE) && !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+#ifndef BOOST_RANDOM_NO_STREAM_OPERATORS
   template<class CharT, class Traits>
   friend std::basic_ostream<CharT,Traits>&
   operator<<(std::basic_ostream<CharT,Traits>& os, const uniform_int& ud)
@@ -89,13 +90,9 @@ public:
   friend std::basic_istream<CharT,Traits>&
   operator>>(std::basic_istream<CharT,Traits>& is, uniform_int& ud)
   {
-# if BOOST_WORKAROUND(_MSC_FULL_VER, BOOST_TESTED_AT(13102292)) && BOOST_MSVC == 1400
-      return detail::extract_uniform_int(is, ud, ud.impl);
-# else
-   is >> std::ws >> ud._min >> std::ws >> ud._max;
+    is >> std::ws >> ud._min >> std::ws >> ud._max;
     ud.init();
     return is;
-# endif
   }
 #endif
 

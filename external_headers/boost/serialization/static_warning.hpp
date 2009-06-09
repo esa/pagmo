@@ -162,12 +162,12 @@ struct static_warning_impl<true> {
      // VC6; __LINE__ macro broken when -ZI is used see Q199057, so 
      // non-conforming workaround is used.
 #    define BOOST_STATIC_WARNING_IMPL(B)                       \
-     struct {                                                  \
+     struct BOOST_JOIN(STATIC_WARNING, __LINE__) {             \
         struct S {                                             \
             typedef boost::serialization::static_warning_impl<(bool)( B )> f; \
             friend class f::STATIC_WARNING;                    \
         };                                                     \
-     }                                                         \
+     };                                                        \
      /**/
 #elif defined(BOOST_HAS_DESCRIPTIVE_INCOMPLETE_TYPE_WARNING)
 #    define BOOST_STATIC_WARNING_IMPL(B)                     \

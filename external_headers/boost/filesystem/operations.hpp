@@ -40,6 +40,14 @@
     namespace std { using ::time_t; }
 # endif
 
+//----------------------------------------------------------------------------//
+
+namespace boost
+{
+  namespace filesystem
+  {
+
+// typedef boost::filesystem::path Path; needs to be in namespace boost::filesystem
 # ifndef BOOST_FILESYSTEM_NARROW_ONLY
 #   define BOOST_FS_FUNC(BOOST_FS_TYPE) \
       template<class Path> typename boost::enable_if<is_basic_path<Path>, \
@@ -55,12 +63,6 @@
 #   define BOOST_FS_TYPENAME
 # endif
 
-//----------------------------------------------------------------------------//
-
-namespace boost
-{
-  namespace filesystem
-  {
     template<class Path> class basic_directory_iterator;
 
     // BOOST_FILESYSTEM_NARROW_ONLY needs this:

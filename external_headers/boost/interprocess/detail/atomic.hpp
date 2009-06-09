@@ -48,7 +48,7 @@ inline boost::uint32_t atomic_cas32
 }  //namespace interprocess{
 }  //namespace boost{
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 #include <boost/interprocess/detail/win32_api.hpp>
 

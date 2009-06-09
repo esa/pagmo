@@ -23,6 +23,12 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 	ENDIF(WORKING_ATOMIC_BUILTINS)
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
+# Configuration for MSVC.
+IF(MSVC)
+	MESSAGE(STATUS "Enabling MSVC atomic builtins.")
+	ADD_DEFINITIONS(-D_PAGMO_MSVC_ATOMIC_BUILTINS)
+ENDIF(MSVC)
+
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
 	SET(CMAKE_BUILD_TYPE Release CACHE STRING

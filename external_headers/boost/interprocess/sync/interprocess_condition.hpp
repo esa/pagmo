@@ -15,6 +15,8 @@
 #  pragma once
 #endif
 
+/// @cond
+
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
@@ -37,6 +39,8 @@
    #include <boost/interprocess/detail/os_thread_functions.hpp>
    #define BOOST_INTERPROCESS_USE_GENERIC_EMULATION
 #endif
+
+/// @endcond
 
 //!\file
 //!Describes process-shared variables interprocess_condition class

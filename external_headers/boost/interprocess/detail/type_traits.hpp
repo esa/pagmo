@@ -120,13 +120,13 @@ struct add_reference<T&>
 template<>
 struct add_reference<void>
 {
-    typedef nat& type;
+    typedef nat &type;
 };
 
 template<>
 struct add_reference<const void>
 {
-    typedef const nat& type;
+    typedef const nat &type;
 };
 
 template <class T>

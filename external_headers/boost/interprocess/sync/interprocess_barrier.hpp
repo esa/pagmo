@@ -26,6 +26,8 @@
 #ifndef BOOST_INTERPROCESS_BARRIER_HPP
 #define BOOST_INTERPROCESS_BARRIER_HPP
 
+/// @cond
+
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
 #endif
@@ -47,6 +49,8 @@
 #endif
 
 #  include <boost/interprocess/exceptions.hpp>
+
+/// @endcond
 
 namespace boost {
 namespace interprocess {

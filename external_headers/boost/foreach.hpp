@@ -50,7 +50,7 @@
 # if defined(BOOST_FOREACH_NO_RVALUE_DETECTION)                                                 \
   || defined(BOOST_NO_SFINAE)                                                                   \
   || BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1400))                                        \
-  || BOOST_WORKAROUND(BOOST_INTEL_WIN, <= 810)                                                  \
+  || BOOST_WORKAROUND(BOOST_INTEL_WIN, BOOST_TESTED_AT(1400))                                   \
   || BOOST_WORKAROUND(__GNUC__, < 3)                                                            \
   || (BOOST_WORKAROUND(__GNUC__, == 3) && (__GNUC_MINOR__ <= 2))                                \
   || (BOOST_WORKAROUND(__GNUC__, == 3) && (__GNUC_MINOR__ <= 3) && defined(__APPLE_CC__))       \
@@ -868,6 +868,17 @@ rderef(auto_any_t cur, type2type<T, C> *)
 # define BOOST_FOREACH_SUPPRESS_WARNINGS()
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+// Define a macro for giving hidden variables a unique name. Not strictly
+// needed, but eliminates some warnings on some compilers.
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1500))
+// With some versions of MSVC, use of __LINE__ to create unique identifiers
+// can fail when the Edit-and-Continue debug flag is used.
+# define BOOST_FOREACH_ID(x) x
+#else
+# define BOOST_FOREACH_ID(x) BOOST_PP_CAT(x, __LINE__)
+#endif
+
 // A sneaky way to get the type of the collection without evaluating the expression
 #define BOOST_FOREACH_TYPEOF(COL)                                                               \
     (true ? 0 : boost::foreach_detail_::encode_type(COL, boost::foreach_detail_::is_const_(COL)))
@@ -912,11 +923,11 @@ rderef(auto_any_t cur, type2type<T, C> *)
 // Declare a variable to track the rvalue-ness of the collection expression
 # define BOOST_FOREACH_PREAMBLE()                                                               \
     BOOST_FOREACH_SUPPRESS_WARNINGS()                                                           \
-    if (bool _foreach_is_rvalue = false) {} else
+    if (bool BOOST_FOREACH_ID(_foreach_is_rvalue) = false) {} else
 
 // Evaluate the collection expression, and detect if it is an lvalue or and rvalue
 # define BOOST_FOREACH_EVALUATE(COL)                                                            \
-    (true ? boost::foreach_detail_::make_probe((COL), _foreach_is_rvalue) : (COL))
+    (true ? boost::foreach_detail_::make_probe((COL), BOOST_FOREACH_ID(_foreach_is_rvalue)) : (COL))
 
 // The rvalue/lvalue-ness of the collection expression is determined dynamically, unless
 // type type is an array or is noncopyable or is non-const, in which case we know it's an lvalue.
@@ -928,7 +939,7 @@ rderef(auto_any_t cur, type2type<T, C> *)
           , BOOST_FOREACH_IS_NONCOPYABLE(COL)                                                   \
           , boost::foreach_detail_::not_(boost::foreach_detail_::is_const_(COL)))               \
       , true ? 0 : BOOST_FOREACH_IS_LIGHTWEIGHT_PROXY(COL)                                      \
-      , &_foreach_is_rvalue))
+      , &BOOST_FOREACH_ID(_foreach_is_rvalue)))
 
 #elif !defined(BOOST_FOREACH_NO_RVALUE_DETECTION)
 ///////////////////////////////////////////////////////////////////////////////
@@ -976,58 +987,58 @@ rderef(auto_any_t cur, type2type<T, C> *)
 
 #define BOOST_FOREACH_BEGIN(COL)                                                                \
     boost::foreach_detail_::begin(                                                              \
-        _foreach_col                                                                            \
+        BOOST_FOREACH_ID(_foreach_col)                                                          \
       , BOOST_FOREACH_TYPEOF(COL)                                                               \
       , BOOST_FOREACH_SHOULD_COPY(COL))
 
 #define BOOST_FOREACH_END(COL)                                                                  \
     boost::foreach_detail_::end(                                                                \
-        _foreach_col                                                                            \
+        BOOST_FOREACH_ID(_foreach_col)                                                          \
       , BOOST_FOREACH_TYPEOF(COL)                                                               \
       , BOOST_FOREACH_SHOULD_COPY(COL))
 
 #define BOOST_FOREACH_DONE(COL)                                                                 \
     boost::foreach_detail_::done(                                                               \
-        _foreach_cur                                                                            \
-      , _foreach_end                                                                            \
+        BOOST_FOREACH_ID(_foreach_cur)                                                          \
+      , BOOST_FOREACH_ID(_foreach_end)                                                          \
       , BOOST_FOREACH_TYPEOF(COL))
 
 #define BOOST_FOREACH_NEXT(COL)                                                                 \
     boost::foreach_detail_::next(                                                               \
-        _foreach_cur                                                                            \
+        BOOST_FOREACH_ID(_foreach_cur)                                                          \
       , BOOST_FOREACH_TYPEOF(COL))
 
 #define BOOST_FOREACH_DEREF(COL)                                                                \
     boost::foreach_detail_::deref(                                                              \
-        _foreach_cur                                                                            \
+        BOOST_FOREACH_ID(_foreach_cur)                                                          \
       , BOOST_FOREACH_TYPEOF(COL))
 
 #define BOOST_FOREACH_RBEGIN(COL)                                                               \
     boost::foreach_detail_::rbegin(                                                             \
-        _foreach_col                                                                            \
+        BOOST_FOREACH_ID(_foreach_col)                                                          \
       , BOOST_FOREACH_TYPEOF(COL)                                                               \
       , BOOST_FOREACH_SHOULD_COPY(COL))
 
 #define BOOST_FOREACH_REND(COL)                                                                 \
     boost::foreach_detail_::rend(                                                               \
-        _foreach_col                                                                            \
+        BOOST_FOREACH_ID(_foreach_col)                                                          \
       , BOOST_FOREACH_TYPEOF(COL)                                                               \
       , BOOST_FOREACH_SHOULD_COPY(COL))
 
 #define BOOST_FOREACH_RDONE(COL)                                                                \
     boost::foreach_detail_::rdone(                                                              \
-        _foreach_cur                                                                            \
-      , _foreach_end                                                                            \
+        BOOST_FOREACH_ID(_foreach_cur)                                                          \
+      , BOOST_FOREACH_ID(_foreach_end)                                                          \
       , BOOST_FOREACH_TYPEOF(COL))
 
 #define BOOST_FOREACH_RNEXT(COL)                                                                \
     boost::foreach_detail_::rnext(                                                              \
-        _foreach_cur                                                                            \
+        BOOST_FOREACH_ID(_foreach_cur)                                                          \
       , BOOST_FOREACH_TYPEOF(COL))
 
 #define BOOST_FOREACH_RDEREF(COL)                                                               \
     boost::foreach_detail_::rderef(                                                             \
-        _foreach_cur                                                                            \
+        BOOST_FOREACH_ID(_foreach_cur)                                                          \
       , BOOST_FOREACH_TYPEOF(COL))
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1056,16 +1067,16 @@ rderef(auto_any_t cur, type2type<T, C> *)
 //   BOOST_FOREACH(i, int_list)
 //       { ... }
 //
-#define BOOST_FOREACH(VAR, COL)                                                                 \
-    BOOST_FOREACH_PREAMBLE()                                                                    \
-    if (boost::foreach_detail_::auto_any_t _foreach_col = BOOST_FOREACH_CONTAIN(COL)) {} else   \
-    if (boost::foreach_detail_::auto_any_t _foreach_cur = BOOST_FOREACH_BEGIN(COL)) {} else     \
-    if (boost::foreach_detail_::auto_any_t _foreach_end = BOOST_FOREACH_END(COL)) {} else       \
-    for (bool _foreach_continue = true;                                                         \
-              _foreach_continue && !BOOST_FOREACH_DONE(COL);                                    \
-              _foreach_continue ? BOOST_FOREACH_NEXT(COL) : (void)0)                            \
-        if  (boost::foreach_detail_::set_false(_foreach_continue)) {} else                      \
-        for (VAR = BOOST_FOREACH_DEREF(COL); !_foreach_continue; _foreach_continue = true)
+#define BOOST_FOREACH(VAR, COL)                                                                                   \
+    BOOST_FOREACH_PREAMBLE()                                                                                      \
+    if (boost::foreach_detail_::auto_any_t BOOST_FOREACH_ID(_foreach_col) = BOOST_FOREACH_CONTAIN(COL)) {} else   \
+    if (boost::foreach_detail_::auto_any_t BOOST_FOREACH_ID(_foreach_cur) = BOOST_FOREACH_BEGIN(COL)) {} else     \
+    if (boost::foreach_detail_::auto_any_t BOOST_FOREACH_ID(_foreach_end) = BOOST_FOREACH_END(COL)) {} else       \
+    for (bool BOOST_FOREACH_ID(_foreach_continue) = true;                                                         \
+              BOOST_FOREACH_ID(_foreach_continue) && !BOOST_FOREACH_DONE(COL);                                    \
+              BOOST_FOREACH_ID(_foreach_continue) ? BOOST_FOREACH_NEXT(COL) : (void)0)                            \
+        if  (boost::foreach_detail_::set_false(BOOST_FOREACH_ID(_foreach_continue))) {} else                      \
+        for (VAR = BOOST_FOREACH_DEREF(COL); !BOOST_FOREACH_ID(_foreach_continue); BOOST_FOREACH_ID(_foreach_continue) = true)
 
 ///////////////////////////////////////////////////////////////////////////////
 // BOOST_REVERSE_FOREACH
@@ -1074,15 +1085,15 @@ rderef(auto_any_t cur, type2type<T, C> *)
 //   all other respects, BOOST_REVERSE_FOREACH is like
 //   BOOST_FOREACH.
 //
-#define BOOST_REVERSE_FOREACH(VAR, COL)                                                         \
-    BOOST_FOREACH_PREAMBLE()                                                                    \
-    if (boost::foreach_detail_::auto_any_t _foreach_col = BOOST_FOREACH_CONTAIN(COL)) {} else   \
-    if (boost::foreach_detail_::auto_any_t _foreach_cur = BOOST_FOREACH_RBEGIN(COL)) {} else    \
-    if (boost::foreach_detail_::auto_any_t _foreach_end = BOOST_FOREACH_REND(COL)) {} else      \
-    for (bool _foreach_continue = true;                                                         \
-              _foreach_continue && !BOOST_FOREACH_RDONE(COL);                                   \
-              _foreach_continue ? BOOST_FOREACH_RNEXT(COL) : (void)0)                           \
-        if  (boost::foreach_detail_::set_false(_foreach_continue)) {} else                      \
-        for (VAR = BOOST_FOREACH_RDEREF(COL); !_foreach_continue; _foreach_continue = true)
+#define BOOST_REVERSE_FOREACH(VAR, COL)                                                                           \
+    BOOST_FOREACH_PREAMBLE()                                                                                      \
+    if (boost::foreach_detail_::auto_any_t BOOST_FOREACH_ID(_foreach_col) = BOOST_FOREACH_CONTAIN(COL)) {} else   \
+    if (boost::foreach_detail_::auto_any_t BOOST_FOREACH_ID(_foreach_cur) = BOOST_FOREACH_RBEGIN(COL)) {} else    \
+    if (boost::foreach_detail_::auto_any_t BOOST_FOREACH_ID(_foreach_end) = BOOST_FOREACH_REND(COL)) {} else      \
+    for (bool BOOST_FOREACH_ID(_foreach_continue) = true;                                                         \
+              BOOST_FOREACH_ID(_foreach_continue) && !BOOST_FOREACH_RDONE(COL);                                   \
+              BOOST_FOREACH_ID(_foreach_continue) ? BOOST_FOREACH_RNEXT(COL) : (void)0)                           \
+        if  (boost::foreach_detail_::set_false(BOOST_FOREACH_ID(_foreach_continue))) {} else                      \
+        for (VAR = BOOST_FOREACH_RDEREF(COL); !BOOST_FOREACH_ID(_foreach_continue); BOOST_FOREACH_ID(_foreach_continue) = true)
 
 #endif

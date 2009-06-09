@@ -46,9 +46,12 @@ class basic_managed_heap_memory
 
    typedef detail::basic_managed_memory_impl 
       <CharType, AllocationAlgorithm, IndexType>             base_t;
+   basic_managed_heap_memory(basic_managed_heap_memory&);
+   basic_managed_heap_memory & operator=(basic_managed_heap_memory&);
    /// @endcond
 
    public: //functions
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_managed_heap_memory)
 
    //!Default constructor. Does nothing.
    //!Useful in combination with move semantics
@@ -71,26 +74,13 @@ class basic_managed_heap_memory
    }
 
    //!Moves the ownership of "moved"'s managed memory to *this. Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   basic_managed_heap_memory
-      (detail::moved_object<basic_managed_heap_memory> mother)
-   {
-      basic_managed_heap_memory &moved = mother.get();
-   #else
-   basic_managed_heap_memory(basic_managed_heap_memory &&moved)
-   {
-   #endif  
-      this->swap(moved);
-   }
+   basic_managed_heap_memory(BOOST_INTERPROCESS_RV_REF(basic_managed_heap_memory) moved)
+   {  this->swap(moved);   }
 
    //!Moves the ownership of "moved"'s managed memory to *this. Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   basic_managed_heap_memory &operator=(detail::moved_object<basic_managed_heap_memory> moved)
-   #else
-   basic_managed_heap_memory &operator=(basic_managed_heap_memory &&moved)
-   #endif
+   basic_managed_heap_memory &operator=(BOOST_INTERPROCESS_RV_REF(basic_managed_heap_memory) moved)
    {
-      basic_managed_heap_memory tmp(detail::move_impl(moved));
+      basic_managed_heap_memory tmp(boost::interprocess::move(moved));
       this->swap(tmp);
       return *this;
    }
@@ -125,13 +115,7 @@ class basic_managed_heap_memory
 
    //!Swaps the ownership of the managed heap memories managed by *this and other.
    //!Never throws.
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   void swap(detail::moved_object<basic_managed_heap_memory> mother)
-   {  this->swap(mother.get());  }
    void swap(basic_managed_heap_memory &other)
-   #else
-   void swap(basic_managed_heap_memory &&other)
-   #endif
    {
       base_t::swap(other);
       m_heapmem.swap(other.m_heapmem);
@@ -150,27 +134,8 @@ class basic_managed_heap_memory
    /// @endcond
 };
 
-///@cond
-
-//!Trait class to detect if a type is
-//!movable
-template
-      <
-         class CharType, 
-         class AllocationAlgorithm, 
-         template<class IndexConfig> class IndexType
-      >
-struct is_movable<basic_managed_heap_memory
-   <CharType,  AllocationAlgorithm, IndexType>
->
-{
-   static const bool value = true;
-};
-
-///@endcond
 
 }  //namespace interprocess {
-
 }  //namespace boost {
 
 #include <boost/interprocess/detail/config_end.hpp>

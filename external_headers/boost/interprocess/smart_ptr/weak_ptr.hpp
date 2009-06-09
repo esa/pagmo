@@ -22,6 +22,7 @@
 #include <boost/detail/no_exceptions_support.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/smart_ptr/deleter.hpp>
+#include <boost/pointer_to_other.hpp>
 
 //!\file
 //!Describes the smart pointer weak_ptr.
@@ -53,7 +54,7 @@ class weak_ptr
    private:
    // Borland 5.5.1 specific workarounds
    typedef weak_ptr<T, A, D> this_type;
-   typedef typename detail::pointer_to_other
+   typedef typename boost::pointer_to_other
       <typename A::pointer, T>::type      pointer;
    typedef typename detail::add_reference
                      <T>::type            reference;

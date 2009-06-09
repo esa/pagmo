@@ -43,9 +43,12 @@ class basic_managed_external_buffer
    /// @cond
    typedef detail::basic_managed_memory_impl 
       <CharType, AllocationAlgorithm, IndexType>    base_t;
+   basic_managed_external_buffer(basic_managed_external_buffer&);
+   basic_managed_external_buffer & operator=(basic_managed_external_buffer&);
    /// @endcond
-
+   
    public:
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_managed_external_buffer)
 
    //!Default constructor. Does nothing.
    //!Useful in combination with move semantics
@@ -75,25 +78,15 @@ class basic_managed_external_buffer
    }
 
    //!Moves the ownership of "moved"'s managed memory to *this. Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   basic_managed_external_buffer(detail::moved_object<basic_managed_external_buffer> mother)
+   basic_managed_external_buffer(BOOST_INTERPROCESS_RV_REF(basic_managed_external_buffer) moved)
    {
-      basic_managed_external_buffer &moved = mother.get();
-   #else
-   basic_managed_external_buffer(basic_managed_external_buffer &&moved)
-   {
-   #endif  
       this->swap(moved);
    }
 
    //!Moves the ownership of "moved"'s managed memory to *this. Does not throw
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   basic_managed_external_buffer &operator=(detail::moved_object<basic_managed_external_buffer> moved)
-   #else
-   basic_managed_external_buffer &operator=(basic_managed_external_buffer &&moved)
-   #endif
+   basic_managed_external_buffer &operator=(BOOST_INTERPROCESS_RV_REF(basic_managed_external_buffer) moved)
    {
-      basic_managed_external_buffer tmp(detail::move_impl(moved));
+      basic_managed_external_buffer tmp(boost::interprocess::move(moved));
       this->swap(tmp);
       return *this;
    }
@@ -103,35 +96,9 @@ class basic_managed_external_buffer
 
    //!Swaps the ownership of the managed heap memories managed by *this and other.
    //!Never throws.
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   void swap(detail::moved_object<basic_managed_external_buffer> mother)
-   {  this->swap(mother.get());  }
    void swap(basic_managed_external_buffer &other)
-   #else
-   void swap(basic_managed_external_buffer &&other)
-   #endif
    {  base_t::swap(other); }
 };
-
-///@cond
-
-//!Trait class to detect if a type is
-//!movable
-template
-      <
-         class CharType, 
-         class AllocationAlgorithm, 
-         template<class IndexConfig> class IndexType
-      >
-struct is_movable<basic_managed_external_buffer
-   <CharType,  AllocationAlgorithm, IndexType>
->
-{
-   static const bool value = true;
-};
-
-///@endcond
-
 
 }  //namespace interprocess {
 }  //namespace boost {

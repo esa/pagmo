@@ -37,7 +37,7 @@ public:
         xml_archive_tag_name_error
     } exception_code;
     exception_code code;
-    xml_archive_exception(exception_code c)
+    xml_archive_exception(exception_code)
     {}
     virtual const char *what( ) const throw( )
     {

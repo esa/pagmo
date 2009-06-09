@@ -430,6 +430,56 @@ struct bind_traits<const volatile T[n]> {
   typedef const volatile T (&type)[n];
 };
 
+template<class R>
+struct bind_traits<R()> {
+    typedef R(&type)();
+};
+
+template<class R, class Arg1>
+struct bind_traits<R(Arg1)> {
+    typedef R(&type)(Arg1);
+};
+
+template<class R, class Arg1, class Arg2>
+struct bind_traits<R(Arg1, Arg2)> {
+    typedef R(&type)(Arg1, Arg2);
+};
+
+template<class R, class Arg1, class Arg2, class Arg3>
+struct bind_traits<R(Arg1, Arg2, Arg3)> {
+    typedef R(&type)(Arg1, Arg2, Arg3);
+};
+
+template<class R, class Arg1, class Arg2, class Arg3, class Arg4>
+struct bind_traits<R(Arg1, Arg2, Arg3, Arg4)> {
+    typedef R(&type)(Arg1, Arg2, Arg3, Arg4);
+};
+
+template<class R, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5>
+struct bind_traits<R(Arg1, Arg2, Arg3, Arg4, Arg5)> {
+    typedef R(&type)(Arg1, Arg2, Arg3, Arg4, Arg5);
+};
+
+template<class R, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6>
+struct bind_traits<R(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6)> {
+    typedef R(&type)(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6);
+};
+
+template<class R, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6, class Arg7>
+struct bind_traits<R(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7)> {
+    typedef R(&type)(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7);
+};
+
+template<class R, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6, class Arg7, class Arg8>
+struct bind_traits<R(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8)> {
+    typedef R(&type)(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8);
+};
+
+template<class R, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6, class Arg7, class Arg8, class Arg9>
+struct bind_traits<R(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, Arg9)> {
+    typedef R(&type)(Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7, Arg8, Arg9);
+};
+
 template<class T> 
 struct bind_traits<reference_wrapper<T> >{
   typedef T& type;

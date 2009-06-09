@@ -69,7 +69,7 @@ operator symbol(const constant<T>& t, const template_name<Arg1, Arg2>& u)\
 }                                                               \
                                                                 \
 template<class T, class Arg1, class Arg2>                       \
-typename name ## _typeof_helper<typename T::value_type, template_name<Arg1, Arg2> >::type \
+typename name ## _typeof_helper<template_name<Arg1, Arg2>, typename T::value_type>::type \
 operator symbol(const template_name<Arg1, Arg2>& u, const constant<T>& t)\
 {                                                               \
     return(u symbol t.value());                                 \

@@ -35,6 +35,7 @@
 #include <boost/wave/util/interpret_pragma.hpp>
 #include <boost/wave/util/transform_iterator.hpp>
 #include <boost/wave/util/functor_input.hpp>
+#include <boost/wave/util/filesystem_compatibility.hpp>
 
 #include <boost/wave/grammars/cpp_grammar_gen.hpp>
 #include <boost/wave/grammars/cpp_expression_grammar_gen.hpp>
@@ -755,11 +756,11 @@ typename ContextT::position_type pos = act_token.get_position();
 
         // unput the complete #line directive in reverse order
         std::string file("\"");
-        boost::filesystem::path filename(act_pos.get_file().c_str(), 
-            boost::filesystem::native);
+        boost::filesystem::path filename(
+            wave::util::create_path(act_pos.get_file().c_str()));
         
-            using boost::wave::util::impl::escape_lit;
-            file += escape_lit(filename.native_file_string()) + "\"";
+            using wave::util::impl::escape_lit;
+            file += escape_lit(wave::util::native_file_string(filename)) + "\"";
 
         // 21 is the max required size for a 64 bit integer represented as a 
         // string
@@ -1513,7 +1514,7 @@ char const *current_name = 0;   // never try to match current file name
         return false;
     }
 
-fs::path native_path(file_path, fs::native);
+fs::path native_path(wave::util::create_path(file_path));
 
     if (!fs::exists(native_path)) {
         BOOST_WAVE_THROW_CTX(ctx, preprocess_exception, bad_include_file, 
@@ -1523,15 +1524,17 @@ fs::path native_path(file_path, fs::native);
 
 // test, if this file is known through a #pragma once directive
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
-    if (!ctx.has_pragma_once(native_path.native_file_string())) 
+    if (!ctx.has_pragma_once(wave::util::native_file_string(native_path))) 
 #endif 
     {
     // the new include file determines the actual current directory
-        ctx.set_current_directory(native_path.native_file_string().c_str());
+        ctx.set_current_directory(
+            wave::util::native_file_string(native_path).c_str());
         
     // preprocess the opened file
     boost::shared_ptr<base_iteration_context_type> new_iter_ctx (
-        new iteration_context_type(ctx, native_path.native_file_string().c_str(), 
+        new iteration_context_type(ctx, 
+            wave::util::native_file_string(native_path).c_str(), 
             act_pos, boost::wave::enable_prefer_pp_numbers(ctx.get_language())));
 
     // call the include policy trace function

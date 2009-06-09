@@ -1,4 +1,4 @@
-//Copyright (c) 2006-2008 Emil Dotchevski and Reverge Studios, Inc.
+//Copyright (c) 2006-2009 Emil Dotchevski and Reverge Studios, Inc.
 
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -6,6 +6,10 @@
 #ifndef UUID_FA5836A2CADA11DC8CD47C8555D89593
 #define UUID_FA5836A2CADA11DC8CD47C8555D89593
 
+#include <boost/config.hpp>
+#ifdef BOOST_NO_EXCEPTIONS
+#error This header requires exception handling to be enabled.
+#endif
 #include <boost/exception/exception.hpp>
 #include <boost/exception/detail/type_info.hpp>
 #include <boost/shared_ptr.hpp>
@@ -99,7 +103,7 @@ boost
 
         private:
 
-		exception_detail::clone_base const *
+        exception_detail::clone_base const *
         clone() const
             {
             return new unknown_exception(*this);

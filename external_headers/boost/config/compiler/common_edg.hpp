@@ -55,8 +55,31 @@
 
 # if !defined(__NO_LONG_LONG)
 #     define BOOST_HAS_LONG_LONG
+# else
+#     define BOOST_NO_LONG_LONG
 # endif
 
+//
+// C++0x features
+//
+//   See above for BOOST_NO_LONG_LONG
+//
+#define BOOST_NO_CHAR16_T
+#define BOOST_NO_CHAR32_T
+#define BOOST_NO_CONSTEXPR
+#define BOOST_NO_DECLTYPE
+#define BOOST_NO_DEFAULTED_FUNCTIONS
+#define BOOST_NO_DELETED_FUNCTIONS
+#define BOOST_NO_EXPLICIT_CONVERSION_OPERATORS
+#define BOOST_NO_EXTERN_TEMPLATE
+#define BOOST_NO_RAW_LITERALS
+#define BOOST_NO_RVALUE_REFERENCES
+#define BOOST_NO_SCOPED_ENUMS
+#define BOOST_NO_STATIC_ASSERT
+#define BOOST_NO_UNICODE_LITERALS
+#define BOOST_NO_VARIADIC_TEMPLATES
+#define BOOST_NO_AUTO_DECLARATIONS
+#define BOOST_NO_AUTO_MULTIDECLARATIONS
 #ifdef c_plusplus
 // EDG has "long long" in non-strict mode
 // However, some libraries have insufficient "long long" support

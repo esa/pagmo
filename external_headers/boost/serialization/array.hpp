@@ -106,7 +106,6 @@ public:
       return m_element_count;
     }
     
-    
 private:
     value_type* m_t;
     std::size_t const m_element_count;
@@ -121,9 +120,7 @@ array<T> make_array( T* t, std::size_t s){
     return array<T>(t, s);
 }
 
-
 template <class Archive, class T, std::size_t N>
-
 void serialize(Archive& ar, boost::array<T,N>& a, const unsigned int /* version */)
 {
   ar & boost::serialization::make_nvp("elems",a.elems);

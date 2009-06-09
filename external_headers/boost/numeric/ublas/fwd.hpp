@@ -139,6 +139,9 @@ namespace boost { namespace numeric { namespace ublas {
     template<class T, class L = row_major, class A = unbounded_array<unbounded_array<T> > >
     class vector_of_vector;
 
+    template<class T, class L = row_major, class A = vector<compressed_vector<T> > >
+    class generalized_vector_of_vector;
+
     // Triangular matrix type
     struct lower_tag {};
     struct upper_tag {};

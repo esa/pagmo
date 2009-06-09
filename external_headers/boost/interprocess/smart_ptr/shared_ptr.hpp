@@ -29,6 +29,7 @@
 #include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/smart_ptr/deleter.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/pointer_to_other.hpp>
 
 #include <algorithm>            // for std::swap
 #include <functional>           // for std::less
@@ -96,18 +97,20 @@ class shared_ptr
 
    typedef T                                                   element_type;
    typedef T                                                   value_type;
-   typedef typename detail::pointer_to_other
+   typedef typename boost::pointer_to_other
       <typename VoidAllocator::pointer, T>::type               pointer;
    typedef typename detail::add_reference
                      <value_type>::type                        reference;
    typedef typename detail::add_reference
                      <const value_type>::type                  const_reference;
-   typedef typename detail::pointer_to_other
+   typedef typename boost::pointer_to_other
             <typename VoidAllocator::pointer, const Deleter>::type         const_deleter_pointer;
-   typedef typename detail::pointer_to_other
+   typedef typename boost::pointer_to_other
             <typename VoidAllocator::pointer, const VoidAllocator>::type   const_allocator_pointer;
 
    public:
+   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(shared_ptr)
+
    //!Constructs an empty shared_ptr.
    //!Use_count() == 0 && get()== 0.
    shared_ptr()
@@ -122,7 +125,7 @@ class shared_ptr
    {  
       //Check that the pointer passed is of the same type that
       //the pointer the allocator defines or it's a raw pointer
-      typedef typename detail::pointer_to_other<pointer, T>::type ParameterPointer;
+      typedef typename boost::pointer_to_other<pointer, T>::type ParameterPointer;
       BOOST_STATIC_ASSERT((detail::is_same<pointer, ParameterPointer>::value) ||
                           (detail::is_pointer<pointer>::value));
       detail::sp_enable_shared_from_this<T, VoidAllocator, Deleter>( m_pn, detail::get_pointer(p), detail::get_pointer(p) ); 
@@ -153,15 +156,9 @@ class shared_ptr
    //!Move-Constructs a shared_ptr that takes ownership of other resource and
    //!other is put in default-constructed state.
    //!Throws: nothing.
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   explicit shared_ptr(detail::moved_object<shared_ptr> other)
-      :  m_pn()
-   {  this->swap(other.get());   }
-   #else
-   explicit shared_ptr(shared_ptr &&other)
+   explicit shared_ptr(BOOST_INTERPROCESS_RV_REF(shared_ptr) other)
       :  m_pn()
    {  this->swap(other);   }
-   #endif
 
    /// @cond
    template<class Y>
@@ -198,19 +195,11 @@ class shared_ptr
 
    //!Move-assignment. Equivalent to shared_ptr(other).swap(*this).
    //!Never throws
-   #if !defined(BOOST_INTERPROCESS_RVALUE_REFERENCE) && !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
-   shared_ptr & operator=(detail::moved_object<shared_ptr> other) // never throws
+   shared_ptr & operator=(BOOST_INTERPROCESS_RV_REF(shared_ptr) other) // never throws
    {
       this_type(other).swap(*this);
       return *this;
    }
-   #else
-   shared_ptr & operator=(shared_ptr &&other) // never throws
-   {
-      this_type(other).swap(*this);
-      return *this;
-   }
-   #endif
 
    //!This is equivalent to:
    //!this_type().swap(*this);
@@ -226,7 +215,7 @@ class shared_ptr
    {  
       //Check that the pointer passed is of the same type that
       //the pointer the allocator defines or it's a raw pointer
-      typedef typename detail::pointer_to_other<Pointer, T>::type ParameterPointer;
+      typedef typename boost::pointer_to_other<Pointer, T>::type ParameterPointer;
       BOOST_STATIC_ASSERT((detail::is_same<pointer, ParameterPointer>::value) ||
                           (detail::is_pointer<Pointer>::value));
       this_type(p, a, d).swap(*this);  
@@ -370,26 +359,6 @@ inline typename managed_shared_ptr<T, ManagedMemory>::type
    , managed_memory.template get_deleter<T>()
    );
 }
-
-
-/*
-// get_deleter (experimental)
-template<class T, class VoidAllocator, class Deleter> 
-typename detail::pointer_to_other<shared_ptr<T, VoidAllocator, Deleter>, Deleter>::type
-   get_deleter(shared_ptr<T, VoidAllocator, Deleter> const & p)
-{  return static_cast<Deleter *>(p._internal_get_deleter(typeid(Deleter)));   }
-*/
-
-/// @cond
-
-//!This class has move constructor
-template <class T, class VA, class D>
-struct is_movable<boost::interprocess::shared_ptr<T, VA, D> >
-{
-   enum {   value = true };
-};
-
-/// @endcond
 
 } // namespace interprocess
 

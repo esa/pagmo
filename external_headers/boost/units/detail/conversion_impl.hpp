@@ -331,107 +331,18 @@ struct conversion_impl<0>
 
 } // namespace detail
 
-/// conversions between homogeneous systems are defined
+/// forward to conversion_factor (intentionally allowing ADL)
 /// INTERNAL ONLY
-template<class D, class L1, class T1, class L2, class T2>
-struct conversion_helper<quantity<unit<D, homogeneous_system<L1> >, T1>, quantity<unit<D, homogeneous_system<L2> >, T2> >
+template<class Unit1, class T1, class Unit2, class T2>
+struct conversion_helper<quantity<Unit1, T1>, quantity<Unit2, T2> >
 {
     /// INTERNAL ONLY
-    typedef quantity<unit<D, homogeneous_system<L2> >, T2> destination_type;
-    /// INTERNAL ONLY
-    typedef typename reduce_unit<unit<D, homogeneous_system<L1> > >::type source_unit;
-    /// INTERNAL ONLY
-    typedef typename source_unit::system_type::type unit_list;
-    static destination_type convert(const quantity<unit<D, homogeneous_system<L1> >, T1>& source)
+    typedef quantity<Unit2, T2> destination_type;
+    static destination_type convert(const quantity<Unit1, T1>& source)
     {
-        return(destination_type::from_value(source.value() * 
-            detail::conversion_impl<unit_list::size::value>::template apply<
-                unit_list,
-                homogeneous_system<L2>
-            >::value()
-            ));
-    }
-};
-
-/// conversions between heterogeneous systems and homogeneous systems are defined
-/// INTERNAL ONLY
-template<class D, class L1, class T1, class L2, class T2>
-struct conversion_helper<quantity<unit<D, heterogeneous_system<L1> >, T1>, quantity<unit<D, homogeneous_system<L2> >, T2> >
-{
-    /// INTERNAL ONLY
-    typedef quantity<unit<D, homogeneous_system<L2> >, T2> destination_type;
-    static destination_type convert(const quantity<unit<D, heterogeneous_system<L1> >, T1>& source)
-    {
-        return(destination_type::from_value(source.value() * 
-            detail::conversion_impl<L1::type::size::value>::template apply<
-                typename L1::type,
-                homogeneous_system<L2>
-            >::value() *
-            eval_scale_list<typename L1::scale>::value()
-            ));
-    }
-};
-
-// There is no simple algorithm for doing this conversion
-// other than just defining it as the reverse of the
-// heterogeneous->homogeneous case
-/// conversions between heterogeneous systems and homogeneous systems are defined
-/// INTERNAL ONLY
-template<class D, class L1, class T1, class L2, class T2>
-struct conversion_helper<quantity<unit<D, homogeneous_system<L1> >, T1>, quantity<unit<D, heterogeneous_system<L2> >, T2> >
-{
-    /// INTERNAL ONLY
-    typedef quantity<unit<D, heterogeneous_system<L2> >, T2> destination_type;
-    static destination_type convert(const quantity<unit<D, homogeneous_system<L1> >, T1>& source)
-    {
-        return(destination_type::from_value(source.value() /
-            (detail::conversion_impl<L2::type::size::value>::template apply<
-                typename L2::type,
-                homogeneous_system<L1>
-            >::value() *
-            eval_scale_list<typename L2::scale>::value()
-            )
-            ));
-    }
-};
-
-/// Requires that all possible conversions
-/// between base units are defined.
-/// INTERNAL ONLY
-template<class D, class S1, class T1, class S2, class T2>
-struct conversion_helper<quantity<unit<D, heterogeneous_system<S1> >, T1>, quantity<unit<D, heterogeneous_system<S2> >, T2> >
-{
-    /// INTERNAL ONLY
-    typedef quantity<unit<D, heterogeneous_system<S1> >, T1> source_type;
-    /// INTERNAL ONLY
-    typedef quantity<unit<D, heterogeneous_system<S2> >, T2> destination_type;
-    /// INTERNAL ONLY
-    typedef typename detail::extract_base_units<S1::type::size::value>::template apply<
-        typename S1::type,
-        dimensionless_type
-    >::type from_base_units;
-    /// INTERNAL ONLY
-    typedef typename detail::extract_base_units<S2::type::size::value>::template apply<
-        typename S2::type,
-        from_base_units
-    >::type all_base_units;
-    /// INTERNAL ONLY
-    typedef typename detail::make_homogeneous_system<all_base_units>::type system;
-    /// INTERNAL ONLY
-    typedef typename mpl::divides<typename S1::scale, typename S2::scale>::type result_scale;
-    static destination_type convert(const source_type& source)
-    {
-        return(destination_type::from_value(source.value() * 
-            (detail::conversion_impl<S1::type::size::value>::template apply<
-                typename S1::type,
-                system
-            >::value() * eval_scale_list<result_scale>::value() /
-            detail::conversion_impl<S2::type::size::value>::template apply<
-                typename S2::type,
-                system
-            >::value()
-            )
-            ));
+        Unit1 u1;
+        Unit2 u2;
+        return(destination_type::from_value(source.value() * conversion_factor(u1, u2)));
     }
 };
 

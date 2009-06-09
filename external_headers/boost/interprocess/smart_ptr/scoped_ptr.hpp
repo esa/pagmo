@@ -19,6 +19,7 @@
 #include <boost/interprocess/detail/workaround.hpp>
 #include <boost/interprocess/detail/pointer_type.hpp>
 #include <boost/assert.hpp>
+#include <boost/pointer_to_other.hpp>
 
 //!\file
 //!Describes the smart pointer scoped_ptr
@@ -54,7 +55,7 @@ class scoped_ptr
    typedef typename detail::pointer_type<T, Deleter>::type pointer;
 
    //!Provides the type of the internal stored pointer
-//   typedef typename detail::pointer_to_other
+//   typedef typename boost::pointer_to_other
 //            <typename Deleter::pointer, T>::type pointer;
 
    //!Constructs a scoped_ptr, storing a copy of p(which can be 0) and d.

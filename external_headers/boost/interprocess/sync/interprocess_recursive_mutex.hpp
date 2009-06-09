@@ -27,6 +27,8 @@
 #ifndef BOOST_INTERPROCESS_RECURSIVE_MUTEX_HPP
 #define BOOST_INTERPROCESS_RECURSIVE_MUTEX_HPP
 
+/// @cond
+
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
 #  pragma once
 #endif
@@ -49,6 +51,8 @@
    #include <boost/interprocess/sync/interprocess_mutex.hpp>
    #define BOOST_INTERPROCESS_USE_GENERIC_EMULATION
 #endif
+
+/// @endcond
 
 //!\file
 //!Describes interprocess_recursive_mutex and shared_recursive_try_mutex classes
@@ -106,10 +110,10 @@ class interprocess_recursive_mutex
    #if defined (BOOST_INTERPROCESS_USE_GENERIC_EMULATION)
    interprocess_mutex                  m_mutex;
    unsigned int                        m_nLockCount;
-   detail::OS_systemwide_thread_id_t   m_nOwner;
+   volatile detail::OS_systemwide_thread_id_t   m_nOwner;
    #else    //#if defined (BOOST_INTERPROCESS_USE_GENERIC_EMULATION)
    pthread_mutex_t m_mut;
-   #endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+   #endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
    /// @endcond
 };
 

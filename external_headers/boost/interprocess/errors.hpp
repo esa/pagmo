@@ -33,7 +33,7 @@
 #include <stdarg.h>
 #include <string>
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if (defined BOOST_INTERPROCESS_WINDOWS)
 #  include <boost/interprocess/detail/win32_api.hpp>
 #else
 #  ifdef BOOST_HAS_UNISTD_H
@@ -42,7 +42,7 @@
 #  else  //ifdef BOOST_HAS_UNISTD_H
 #    error Unknown platform
 #  endif //ifdef BOOST_HAS_UNISTD_H
-#endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
 
 //!\file
 //!Describes the error numbering of interprocess classes
@@ -52,7 +52,7 @@ namespace interprocess {
 /// @cond
 static inline int system_error_code() // artifact of POSIX and WINDOWS error reporting
 {
-   #if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+   #if (defined BOOST_INTERPROCESS_WINDOWS)
    return winapi::get_last_error();
    #else
    return errno; // GCC 3.1 won't accept ::errno
@@ -60,7 +60,7 @@ static inline int system_error_code() // artifact of POSIX and WINDOWS error rep
 }
 
 
-#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+#if (defined BOOST_INTERPROCESS_WINDOWS)
 inline void fill_system_message(int sys_err_code, std::string &str)
 {
    void *lpMsgBuf;
@@ -110,7 +110,9 @@ enum error_code_t
    sem_error,
    mode_error,
    size_error,
-   corrupted_error
+   corrupted_error,
+   not_such_file_or_directory,
+   invalid_argument
 };
 
 typedef int    native_error_t;
@@ -124,7 +126,7 @@ struct ec_xlate
 
 static const ec_xlate ec_table[] =
 {
-   #if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+   #if (defined BOOST_INTERPROCESS_WINDOWS)
    { /*ERROR_ACCESS_DENIED*/5L, security_error },
    { /*ERROR_INVALID_ACCESS*/12L, security_error },
    { /*ERROR_SHARING_VIOLATION*/32L, security_error },
@@ -156,7 +158,7 @@ static const ec_xlate ec_table[] =
    { /*ERROR_OUTOFMEMORY*/14L, out_of_memory_error },
    { /*ERROR_NOT_ENOUGH_MEMORY*/8L, out_of_memory_error },
    { /*ERROR_TOO_MANY_OPEN_FILES*/4L, out_of_resource_error }
-   #else    //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+   #else    //#if (defined BOOST_INTERPROCESS_WINDOWS)
    { EACCES, security_error },
    { EROFS, read_only_error },
    { EIO, io_error },
@@ -171,8 +173,10 @@ static const ec_xlate ec_table[] =
    { EISDIR, is_directory_error },
    { ENOSPC, out_of_space_error },
    { ENOMEM, out_of_memory_error },
-   { EMFILE, out_of_resource_error }
-   #endif   //#if (defined BOOST_WINDOWS) && !(defined BOOST_DISABLE_WIN32)
+   { EMFILE, out_of_resource_error },
+   { ENOENT, not_such_file_or_directory },
+   { EINVAL, invalid_argument }
+   #endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
 };
 
 static inline error_code_t lookup_error(native_error_t err)

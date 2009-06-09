@@ -20,7 +20,7 @@
 #  ifdef BOOST_HAS_INCLUDE_NEXT
 #     include_next <cmath>
 #  else
-#     include BOOST_TR1_STD_HEADER(cmath)
+#     include BOOST_TR1_STD_CHEADER(cmath)
 #  endif
 #ifdef BOOST_TR1_NO_CMATH_RECURSION3
 #  undef BOOST_TR1_NO_CMATH_RECURSION3

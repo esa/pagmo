@@ -99,8 +99,8 @@ class tree_iterator
       : members_ (0, 0)
    {}
 
-   explicit tree_iterator(node_ptr node, const Container *cont_ptr)
-      : members_ (node, cont_ptr)
+   explicit tree_iterator(node_ptr nodeptr, const Container *cont_ptr)
+      : members_ (nodeptr, cont_ptr)
    {}
 
    tree_iterator(tree_iterator<Container, false> const& other)
@@ -110,8 +110,8 @@ class tree_iterator
    const node_ptr &pointed_node() const
    { return members_.nodeptr_; }
 
-   tree_iterator &operator=(const node_ptr &node)
-   {  members_.nodeptr_ = node;  return static_cast<tree_iterator&>(*this);  }
+   tree_iterator &operator=(const node_ptr &nodeptr)
+   {  members_.nodeptr_ = nodeptr;  return static_cast<tree_iterator&>(*this);  }
 
    public:
    tree_iterator& operator++() 

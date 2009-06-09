@@ -21,7 +21,7 @@
 #     define BOOST_TR1_NO_RECURSION
 #     define BOOST_TR1_NO_CONFIG_RECURSION
 #  endif
-#  ifdef BOOST_HAS_INCLUDE_NEXT
+#  if defined(BOOST_HAS_INCLUDE_NEXT) && !defined(BOOST_TR1_DISABLE_INCLUDE_NEXT)
 #     include_next <utility>
 #  else
 #     include BOOST_TR1_STD_HEADER(utility)
