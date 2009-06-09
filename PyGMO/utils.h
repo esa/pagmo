@@ -26,6 +26,7 @@
 #include <sstream>
 #include <string>
 
+// TODO: remove this and use boost python operator repr.
 template <class T>
 inline std::string Py_repr_from_stream(const T &x)
 {
