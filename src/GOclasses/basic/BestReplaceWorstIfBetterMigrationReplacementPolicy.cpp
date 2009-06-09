@@ -34,7 +34,7 @@ std::ostream& print_vector_of_individuals_indirect(std::ostream& str, const std:
 
 std::list<std::pair<int, int> > BestReplaceWorstIfBetterMigrationReplacementPolicy::selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation)
 {
-	int migrationRateLimit = std::min(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
+	int migrationRateLimit = std::min<int>(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
 	
 	// Temporary vectors to store sorted poopulations
 	std::vector<int> incomingPopulationIndices(incomingPopulation.size());

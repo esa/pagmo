@@ -26,7 +26,7 @@
 
 std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation)
 {
-	int migrationRateLimit = std::min(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
+	int migrationRateLimit = std::min<int>(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
 	
 	std::vector<int> incomingPopulationIndices(migrationRateLimit);
 	std::vector<int> destinationPopulationIndices(destinationPopulation.size());

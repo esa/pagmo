@@ -272,7 +272,7 @@ double laplaceProb::objfun_(const std::vector<double> &x) const
 	}
 	const double delta = totaltime - 8 * 365.25;
 	// Penalise trajectory longer than 8 years by 200 meters/s per month.
-	obj = std::max(obj,obj + 0.2 / 30 * delta);
+	obj = std::max<double>(obj,obj + 0.2 / 30 * delta);
 	return obj;
 }
 
