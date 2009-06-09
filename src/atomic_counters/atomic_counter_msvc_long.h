@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef ATOMIC_COUNTER_GENERIC_H
-#define ATOMIC_COUNTER_GENERIC_H
+#ifndef ATOMIC_COUNTER_MSVC_LONG_H
+#define ATOMIC_COUNTER_MSVC_LONG_H
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/static_assert.hpp>
@@ -27,37 +27,32 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <windows.h>
 
-/// Generic atomic counter class.
+/// Atomic counter class for Visual Studio C++.
 /**
- * Will use a mutex internally to provide atomic operations on a generic integer type IntType.
- * Performance will be poor due to the locking mechanism.
- *
- * If IntType is not an integral type, a compile-time error will be produced upon instantiation.
+ * Will use MSVC's atomic builtins.
  */
-template <class IntType>
-class atomic_counter_generic
+class atomic_counter_msvc_long
 {
-		BOOST_STATIC_ASSERT(boost::is_integral<IntType>::value);
-		typedef boost::lock_guard<boost::mutex> lock_type;
 	public:
 		/// Default constructor.
 		/**
 		 * It will initialise the internal value to zero.
 		 */
-		atomic_counter_generic():m_value(0),m_mutex() {}
+		atomic_counter_msvc_long():m_value(0) {}
 		/// Constructor from generic integer type.
 		/**
-		 * IntType must be constructible from IntType2.
-		 * @throws boost::numeric::bad_numeric_cast if IntType and IntType2 are not the same type
-		 * and conversion from IntType2 to IntType results in loss of information.
+		 * IntType2 must be able to be used to construct long.
+		 * @throws boost::numeric::bad_numeric_cast if long and IntType2 are not the same type
+		 * and conversion from IntType2 to long results in loss of information.
 		 */
 		template <class IntType2>
-		atomic_counter_generic(const IntType2 &n):m_value(n),m_mutex()
+		atomic_counter_msvc_long(const IntType2 &n):m_value(n)
 		{
 			BOOST_STATIC_ASSERT(boost::is_integral<IntType2>::value);
-			if (!boost::is_same<IntType,IntType2>::value) {
-				IntType tmp(boost::numeric_cast<IntType>(n));
+			if (!boost::is_same<long,IntType2>::value) {
+				long tmp(boost::numeric_cast<long>(n));
 				(void)tmp;
 			}
 		}
@@ -65,13 +60,13 @@ class atomic_counter_generic
 		/**
 		 * Operation is atomic with respect to input argument a.
 		 */
-		atomic_counter_generic(const atomic_counter_generic &a):m_value(a.get_value()),m_mutex() {}
+		atomic_counter_msvc_long(const atomic_counter_msvc_long &a):m_value(a.get_value()) {}
 		/// Assignment operator.
 		/**
 		 * This operation acquires atomically the internal value of a, but the assignment
 		 * to this is not atomic.
 		 */
-		atomic_counter_gcc_41 &operator=(const atomic_counter_gcc_41 &a)
+		atomic_counter_msvc_long &operator=(const atomic_counter_msvc_long &a)
 		{
 			if (this != &a) {
 				m_value = a.get_value();
@@ -79,70 +74,56 @@ class atomic_counter_generic
 			return *this;
 		}
 		/// In-place addition.
-		/**
-		 * The operation will be forwarded to the internal value.
-		 */
-		template <class IntType2>
-		atomic_counter_generic &operator+=(const IntType2 &n)
+		atomic_counter_msvc_long &operator+=(const long &n)
 		{
-			BOOST_STATIC_ASSERT(boost::is_integral<IntType2>::value);
-			lock_type lock(m_mutex);
-			m_value += n;
+			InterlockedExchangeAdd(&m_value,n);
 			return *this;
 		}
 		/// In-place subtraction.
-		/**
-		 * The operation will be forwarded to the internal value.
-		 */
-		template <class IntType2>
-		atomic_counter_generic &operator-=(const IntType2 &n)
+		atomic_counter_msvc_long &operator-=(const long &n)
 		{
-			BOOST_STATIC_ASSERT(boost::is_integral<IntType2>::value);
-			lock_type lock(m_mutex);
-			m_value -= n;
+			InterlockedExchangeAdd(&m_value,-n);
 			return *this;
 		}
 		/// Prefix increment.
-		atomic_counter_generic &operator++()
+		atomic_counter_msvc_long &operator++()
 		{
-			return operator+=(static_cast<IntType>(1));
+			InterlockedIncrement(&m_value);
+			return *this;
 		}
 		/// Prefix decrement.
-		atomic_counter_generic &operator--()
+		atomic_counter_msvc_long &operator--()
 		{
-			return operator-=(static_cast<IntType>(1));
+			InterlockedDecrement(&m_value);
+			return *this;
 		}
 		/// Postfix increment.
-		atomic_counter_generic operator++(int)
+		atomic_counter_msvc_long operator++(int)
 		{
-			lock_type lock(m_mutex);
-			atomic_counter_generic retval(m_value);
-			++m_value;
-			return retval;
+			return atomic_counter_msvc_long(InterlockedExchangeAdd(&m_value,1));
 		}
 		/// Postfix decrement.
-		atomic_counter_generic operator--(int)
+		atomic_counter_msvc_long operator--(int)
 		{
-			lock_type lock(m_mutex);
-			atomic_counter_generic retval(m_value);
-			--m_value;
-			return retval;
+			return atomic_counter_msvc_long(InterlockedExchangeAdd(&m_value,-1));
 		}
 		/// Get copy of internal value.
-		IntType get_value() const
+		long get_value() const
 		{
-			lock_type lock(m_mutex);
-			return m_value;
+			return InterlockedExchangeAdd(&m_value,0);
 		}
 		/// Fast type-trait for increment operation.
-		static const bool is_increment_fast = false;
+		static const bool is_increment_fast = true;
 		/// Fast type-trait for arithmetics.
-		static const bool is_arithmetics_fast = false;
+		static const bool is_arithmetics_fast = true;
 	private:
 		/// Internal value.
-		IntType		m_value;
-		/// Mutex.
-		boost::mutex	m_mutex;
+		/**
+		 * Declared mutable because atomic_counter_msvc_long::get_value needs to perform the operation
+		 * this + 0 in order to fetch safely the current m_value with MSVC's atomic builtins.
+		 */
+		mutable long m_value;
 };
 
 #endif
+ 

@@ -118,6 +118,7 @@ BOOST_PYTHON_MODULE(_core)
 		"Velocity.");
 
 	def("objfun_calls", &objfun_calls, "Number of times objective functions have been called.");
+	def("reset_objfun_calls", &reset_objfun_calls, "Reset to zero the number of times objective functions have been called.");
 
 	// Expose population class.
 	typedef const Individual &(Population::*pop_get_const)(int) const;

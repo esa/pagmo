@@ -333,7 +333,7 @@ class __PAGMO_VISIBLE island
 		/// Generates a new uniqe island id.
 		static size_t get_new_id();
 		
-		static PaGMO::atomic_counter_size_t			id_counter; ///< Counter used to generate the island ids.
+		static atomic_counter_size_t			id_counter; ///< Counter used to generate the island ids.
 		
 		//Class fields		
 		size_t										m_id; ///< Island id.

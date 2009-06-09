@@ -28,7 +28,7 @@
 #include "../../exceptions.h"
 #include "GOproblem.h"
 
-PaGMO::atomic_counter_size_t GOProblem::m_objfun_counter(0);
+atomic_counter_size_t GOProblem::m_objfun_counter(0);
 
 GOProblem::GOProblem(int n)
 {
@@ -142,8 +142,8 @@ double GOProblem::objfun(const std::vector<double> &v) const
 		pagmo_throw(value_error,"mismatch between the size of the decision vector and the size of the problem when calling the objective function");
 	}
 	const double retval = objfun_(v);
-	// Disable this for now, until we assess performance impact.
-	if (false) {
+	// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
+	if (m_objfun_counter.is_increment_fast) {
 		++m_objfun_counter;
 	}
 	return retval;
@@ -173,22 +173,22 @@ std::ostream &GOProblem::print(std::ostream &s) const
 	s << "Problem type: " << id_name() << '\n';
 	s << "Dimension: " << getDimension() << '\n';
 	const size_t size = getDimension();
-	s << "Lower bounds:\n";
+	s << "Lower bounds:\n[";
 	for (size_t i = 0; i < size; ++i) {
 		s << LB[i];
 		if (i < size - 1) {
-			s << ' ';
+			s << ',';
 		}
 	}
-	s << '\n';
-	s << "Upper bounds:\n";
+	s << "]\n";
+	s << "Upper bounds:\n[";
 	for (size_t i = 0; i < size; ++i) {
 		s << UB[i];
 		if (i < size - 1) {
 			s << ' ';
 		}
 	}
-	s << '\n';
+	s << "]\n";
 	return s;
 }
 
@@ -199,5 +199,13 @@ std::ostream &operator<<(std::ostream &s, const GOProblem &p)
 
 size_t objfun_calls()
 {
-	return (size_t)(GOProblem::m_objfun_counter);
+	if (!GOProblem::m_objfun_counter.is_increment_fast) {
+		pagmo_throw(not_implemented_error,"fast atomic counters are not available in this version of PaGMO");
+	}
+	return (GOProblem::m_objfun_counter).get_value();
+}
+
+void reset_objfun_calls()
+{
+	GOProblem::m_objfun_counter = atomic_counter_size_t();
 }

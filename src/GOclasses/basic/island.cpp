@@ -35,11 +35,11 @@
 #include "island.h"
 #include "population.h"
 
-PaGMO::atomic_counter_size_t island::id_counter(1);
+atomic_counter_size_t island::id_counter(1);
 
 size_t island::get_new_id()
 {
-	return (size_t)(id_counter++);
+	return (id_counter++).get_value();
 }
 
 island::island(const GOProblem &p, const go_algorithm &al)

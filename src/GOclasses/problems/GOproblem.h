@@ -39,6 +39,7 @@
 class __PAGMO_VISIBLE GOProblem {
 	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const GOProblem &);
 	friend size_t __PAGMO_VISIBLE_FUNC objfun_calls();
+	friend void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
 public:
 	// Virtual destructor - required because the class contains a pure virtual member function
 	virtual ~GOProblem() {}
@@ -79,11 +80,12 @@ protected:
 	std::vector<double> UB;
 private:
 	void check_boundaries() const;
-	static PaGMO::atomic_counter_size_t m_objfun_counter;
+	static atomic_counter_size_t m_objfun_counter;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const GOProblem &);
 
 size_t __PAGMO_VISIBLE_FUNC objfun_calls();
+void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
 
 #endif
