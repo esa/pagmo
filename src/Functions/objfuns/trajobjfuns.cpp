@@ -22,9 +22,9 @@
 
 #include <cmath>
 
-#include "mga.h"
-#include "mga_dsm.h"
-#include "misc4Tandem.h"
+#include "../../AstroToolbox/mga.h"
+#include "../../AstroToolbox/mga_dsm.h"
+#include "../../AstroToolbox/misc4Tandem.h"
 
 using namespace std;
 

@@ -25,9 +25,9 @@
 
 #include <boost/cstdint.hpp>
 
-#include "MigrationReplacementPolicy.h"
+#include "../../../config.h"
 #include "../../Functions/rng/rng.h"
-#include "../../config.h"
+#include "MigrationReplacementPolicy.h"
 
 /// Random migration replacement policy.
 /**

@@ -23,7 +23,7 @@
 #ifndef PAGMO_LATTICE_TOPOLOGY_H
 #define PAGMO_LATTICE_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 /// Lattice topology nodes are organised in a rectangle lattice with adjacent nodes connected.

@@ -26,9 +26,9 @@
 #include <iostream>
 #include <vector>
 
-#include "../../config.h"
-#include "GOproblem.h"
-#include "rng.h"
+#include "../../../config.h"
+#include "../../Functions/rng/rng.h"
+#include "../problems/GOproblem.h"
 
 /// Individual class.
 /**

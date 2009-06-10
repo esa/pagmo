@@ -25,9 +25,9 @@
 
 #include <boost/cstdint.hpp>
 
-#include "../../config.h"
-#include "graph_topology.h"
+#include "../../../config.h"
 #include "../../Functions/rng/rng.h"
+#include "graph_topology.h"
 
 /// Barabasi-Albert scale-free network topology.
 /**

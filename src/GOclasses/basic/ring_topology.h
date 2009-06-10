@@ -23,7 +23,7 @@
 #ifndef PAGMO_RING_TOPOLOGY_H
 #define PAGMO_RING_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 ///Uni-directional ring topology

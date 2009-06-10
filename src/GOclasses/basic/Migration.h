@@ -26,15 +26,14 @@
 #include <boost/scoped_ptr.hpp>
 #include <iostream>
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "MigrationPolicy.h"
 #include "MigrationScheme.h"
 
-
 /// This object gathers migration-related parameters necessary to construct an archipelago.
 /**
- * Introduction of this object has been lobbied by Dario because in his oppinion it's presence will increase
- * the user-friendliness of the python interface.
+ * Introduction of this object has been lobbied by Dario because in his opinion its presence will increase
+ * the user-friendliness of the Python interface.
  */ 
 class __PAGMO_VISIBLE Migration
 {

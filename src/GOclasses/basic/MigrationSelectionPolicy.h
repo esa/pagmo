@@ -24,9 +24,10 @@
 #define PAGMO_MIGRATION_SELECTION_POLICY_H
 
 #include <vector>
+
+#include "../../../config.h"
 #include "individual.h"
 #include "population.h"
-#include "../../config.h"
 
 /// Base class for selection policies for migration.
 /**

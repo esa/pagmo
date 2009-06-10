@@ -25,8 +25,8 @@
 
 #include <vector>
 
-#include "../../config.h"
-#include "classicobjfuns.h"
+#include "../../../config.h"
+#include "../../Functions/objfuns/classicobjfuns.h"
 #include "GOproblem.h"
 
 

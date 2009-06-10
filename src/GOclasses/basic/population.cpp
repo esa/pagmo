@@ -26,11 +26,11 @@
 #include <iostream>
 #include <typeinfo>
 
+#include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
-#include "GOproblem.h"
+#include "../problems/GOproblem.h"
 #include "individual.h"
 #include "population.h"
-#include "rng.h"
 
 Population::Population(const GOProblem &p)
 		:m_problem(p.clone())

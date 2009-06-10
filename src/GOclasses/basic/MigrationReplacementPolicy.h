@@ -26,8 +26,9 @@
 #include <boost/shared_ptr.hpp>
 #include <list>
 #include <utility>
+
+#include "../../../config.h"
 #include "population.h"
-#include "../../config.h"
 
 /// Base class for replacement policies for migration.
 /**

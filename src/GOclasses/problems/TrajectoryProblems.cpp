@@ -27,11 +27,11 @@
 #include <string>
 #include <vector>
 
+#include "../../Functions/objfuns/trajobjfuns.h"
 #include "../../constants.h"
 #include "../../exceptions.h"
 #include "TrajectoryProblems.h"
 #include "GOproblem.h"
-#include "trajobjfuns.h"
 
 //***********************************************************************************
 //Trajectory problems

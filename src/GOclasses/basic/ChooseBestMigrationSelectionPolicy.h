@@ -23,8 +23,8 @@
 #ifndef PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
 #define PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
 
+#include "../../../config.h"
 #include "MigrationSelectionPolicy.h"
-#include "../../config.h"
 
 /// Choose best migration selection policy.
 /**

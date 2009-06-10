@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "../basic/population.h"
 #include "../problems/GOproblem.h"
 #include "go_algorithm.h"

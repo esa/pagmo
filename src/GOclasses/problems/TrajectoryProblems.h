@@ -28,11 +28,11 @@
 #include <string>
 #include <vector>
 
-#include "../../config.h"
-#include "GOproblem.h"
-#include "mga_dsm.h"
-#include "misc4Tandem.h"
-#include "trajobjfuns.h"
+#include "../../../config.h"
+#include "../../AstroToolbox/mga_dsm.h"
+#include "../../AstroToolbox/misc4Tandem.h"
+#include "../../Functions/objfuns/trajobjfuns.h"
+#include "../problems/GOproblem.h"
 
 //***********************************************************************************
 //Trajectory problems MGA

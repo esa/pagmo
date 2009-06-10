@@ -18,11 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "island.h"
-#include "CS.h"
-#include "ClassicProblems.h"
-#include "TrajectoryProblems.h"
 #include <iostream>
+
+#include "src/GOclasses/algorithms/CS.h"
+#include "src/GOclasses/basic/island.h"
+#include "src/GOclasses/problems/TrajectoryProblems.h"
 
 using namespace std;
 

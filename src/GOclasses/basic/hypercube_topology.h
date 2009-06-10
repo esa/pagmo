@@ -23,7 +23,7 @@
 #ifndef PAGMO_HYPERCUBE_TOPOLOGY_H
 #define PAGMO_HYPERCUBE_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 /// Hypercube topology (the number of dimensions grows automatically).

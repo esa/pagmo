@@ -28,8 +28,8 @@
 #include <boost/thread/mutex.hpp>
 #include <iostream>
 
+#include "../../../config.h"
 #include "../../atomic_counters/atomic_counters.h"
-#include "../../config.h"
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
 #include "individual.h"

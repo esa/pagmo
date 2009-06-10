@@ -27,12 +27,12 @@
 #include <iostream>
 #include <vector>
 
-#include "../../config.h"
+#include "../../../config.h"
+#include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
-#include "GOproblem.h"
+#include "../problems/GOproblem.h"
 #include "individual.h"
 #include "py_container_utils.h"
-#include "rng.h"
 
 /// Population class
 /**

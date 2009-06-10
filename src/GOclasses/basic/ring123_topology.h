@@ -23,7 +23,7 @@
 #ifndef PAGMO_RING123_TOPOLOGY_H
 #define PAGMO_RING123_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 ///Bi-directional +1+2+3 ring topology

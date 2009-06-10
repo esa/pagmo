@@ -23,7 +23,7 @@
 #ifndef PAGMO_CARTWHEEL_TOPOLOGY_H
 #define PAGMO_CARTWHEEL_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 /// Cartwheel topology - a two-way ring with every two opposite nodes connected.

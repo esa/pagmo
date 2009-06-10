@@ -20,12 +20,11 @@
 
 // 23/10/2008: Initial version by Dario Izzo.
 
-
-#include "CS.h"
-#include "population.h"
-#include "GOproblem.h"
 #include <vector>
 
+#include "CS.h"
+#include "../basic/population.h"
+#include "../problems/GOproblem.h"
 
 CSalgorithm::CSalgorithm(const double &minRange_):range(0.25),
                                 reduxCoeff(0.5),minRange(minRange_)

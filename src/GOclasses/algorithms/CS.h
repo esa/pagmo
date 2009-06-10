@@ -23,7 +23,7 @@
 #ifndef CS_H
 #define CS_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "../basic/population.h"
 #include "go_algorithm.h"
 

@@ -23,7 +23,7 @@
 #ifndef PAGMO_BROADCAST_TOPOLOGY_H
 #define PAGMO_BROADCAST_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../Functions/rng/rng.h"
 #include "graph_topology.h"
 
 /// Broadcast topology (one node in the center, all others as leaves, bi-directional).

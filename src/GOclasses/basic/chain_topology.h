@@ -23,7 +23,7 @@
 #ifndef PAGMO_CHAIN_TOPOLOGY_H
 #define PAGMO_CHAIN_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../Functions/rng/rng.h"
 #include "graph_topology.h"
 
 /// Chain topology (one-directional).

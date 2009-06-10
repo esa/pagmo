@@ -24,16 +24,17 @@
 #define PAGMO_MIGRATION_SCHEME_H
 
 #include <boost/cstdint.hpp>
-#include "island.h"
 #include <boost/scoped_ptr.hpp>
-#include "base_topology.h"
-#include "../../config.h"
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-#include <iostream>
 #include <boost/unordered_map.hpp>
-#include "../../Functions/rng/rng.h"
+#include <iostream>
 #include <vector>
+
+#include "../../../config.h"
+#include "../../Functions/rng/rng.h"
+#include "../basic/island.h"
+#include "base_topology.h"
 #include "one_way_ring_topology.h"
 
 /// Base class for the migration schemes.

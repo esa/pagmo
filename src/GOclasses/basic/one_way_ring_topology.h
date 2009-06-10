@@ -23,7 +23,7 @@
 #ifndef PAGMO_ONE_WAY_RING_TOPOLOGY_H
 #define PAGMO_ONE_WAY_RING_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 #include "island.h"
 

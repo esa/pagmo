@@ -23,7 +23,7 @@
 #ifndef PAGMO_TORUS_TOPOLOGY_H
 #define PAGMO_TORUS_TOPOLOGY_H
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 /// Torus topology (also known as ladder) - two parallel rings with corresponding nodes connected.

@@ -23,9 +23,9 @@
 #ifndef PAGMO_BEST_REPLACE_WORST_IF_BETTER_MIGRATION_REPLACEMENT_POLICY_H
 #define PAGMO_BEST_REPLACE_WORST_IF_BETTER_MIGRATION_REPLACEMENT_POLICY_H
 
-#include "MigrationReplacementPolicy.h"
+#include "../../../config.h"
 #include "../../Functions/rng/rng.h"
-#include "../../config.h"
+#include "MigrationReplacementPolicy.h"
 
 /// Best-replace-worst-if-better migration replacement policy.
 /**

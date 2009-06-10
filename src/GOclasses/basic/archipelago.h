@@ -26,7 +26,7 @@
 #include <list>
 #include <boost/thread/barrier.hpp>
 
-#include "../../config.h"
+#include "../../../config.h"
 #include "../problems/GOproblem.h"
 #include "../algorithms/go_algorithm.h"
 #include "island.h"
