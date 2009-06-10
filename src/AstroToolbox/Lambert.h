@@ -1,14 +1,24 @@
-// ------------------------------------------------------------------------ //
-// This source file is part of the 'ESA Advanced Concepts Team's			//
-// Space Mechanics Toolbox' software.                                       //
-//                                                                          //
-// The source files are for research use only,                              //
-// and are distributed WITHOUT ANY WARRANTY. Use them on your own risk.     //
-//                                                                          //
-// Copyright (c) 2004-2007 European Space Agency                            //
-// ------------------------------------------------------------------------ //
+/*****************************************************************************
+ *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
-
+// 17/05/2008: Initial version by Dario Izzo.
 
 #ifndef LAMBERT_H
 #define LAMBERT_H
@@ -19,4 +29,3 @@ void __PAGMO_VISIBLE_FUNC LambertI (const double*, const double*, double, const 
 			   double*, double*, double&, double&, double& , int&);//OUTPUT
 
 #endif
-

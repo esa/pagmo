@@ -1,3 +1,23 @@
+/*****************************************************************************
+ *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
+
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/locks.hpp>
@@ -22,7 +42,6 @@
 #include "rng.h"
 
 using namespace std;
-using namespace PaGMO;
 
 // Useful typedefs.
 typedef boost::unique_lock<boost::mutex> lock_type;
@@ -513,7 +532,7 @@ while (choice != -1) {
 				boost::condition_variable exitcond;
 
 				//We allocate memory for the isActive array containing the status of each thread
-				atomic_counter_int *isActive = new atomic_counter_int[islandsN];
+				atomic_counter_size_t *isActive = new atomic_counter_size_t[islandsN];
 
 				//We allocate memory and initialise the data threadParam array containing the information to be passed to the different threads
 				threadParam* data;
@@ -564,7 +583,7 @@ while (choice != -1) {
                     time(&start);
                     while(iter < itermax){
                         for (int i=0;i<islandsN;i++){
-                            if ( !(data[i].isActive->compare_and_swap(1,1)) ){
+                            if ( !data[i].isActive->get_value()){
                                 //Create again the i-th thread to simulate an Island
                                 IslandType = 3;
                                 if (IslandType == 0){
@@ -627,7 +646,7 @@ while (choice != -1) {
 				//The main cycle has finished: we wait for all threads to finish
 				for (int i=0; i<islandsN;i++){
 				    //infinite loop if a thread never ends
-				    while (data[i].isActive->compare_and_swap(1,1)) {};
+				    while (data[i].isActive->get_value()) {};
 				}
 
 				//deallocate memory
@@ -709,7 +728,7 @@ while (choice != -1) {
 				boost::condition_variable exitcond;
 
 				//We allocate memory for the isActive array containing the status ofeach thread
-				atomic_counter_int *isActive = new atomic_counter_int[islandsN];
+				atomic_counter_size_t *isActive = new atomic_counter_size_t[islandsN];
 
 				//We allocate memory and initialise the data threadParam array containing the information to be passed to the different threads
 				threadParam* data;
@@ -760,7 +779,7 @@ while (choice != -1) {
                     time(&start);
                     while(iter < itermax){
                         for (int i=0;i<islandsN;i++){
-                            if ( !*(data[i].isActive) ){
+                            if ( !(data[i].isActive->get_value()) ){
                                 //Create again the i-th thread to simulate an Island
                                 IslandType = 4;
                                 if (IslandType == 0){
@@ -817,7 +836,7 @@ while (choice != -1) {
                 }
 				//The main cycle has finished: we wait for all threads to finish
 				for (int i=0; i<islandsN;i++){
-					while (*data[i].isActive); //infinite loop if a thread never ends
+					while (data[i].isActive->get_value()); //infinite loop if a thread never ends
 				}
 
 				//deallocate memory

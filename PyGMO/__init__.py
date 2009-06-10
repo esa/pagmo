@@ -1,5 +1,6 @@
-# Copyright (C) 2007, 2008 by Francesco Biscani
-# bluescarni@gmail.com
+# -*- coding: utf-8 -*-
+# Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency)
+# act@esa.int
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

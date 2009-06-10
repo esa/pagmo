@@ -30,7 +30,6 @@
 #include "../../config.h"
 #include "../../exceptions.h"
 #include "GOproblem.h"
-#include "constants.h"
 #include "individual.h"
 #include "py_container_utils.h"
 #include "rng.h"
