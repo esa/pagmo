@@ -22,60 +22,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 23/01/2009: Initial version by Francesco Biscani.
+// 25/02/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_BA_TOPOLOGY_H
-#define PAGMO_BA_TOPOLOGY_H
+#include <utility>
 
-#include <boost/cstdint.hpp>
-
-#include "../../../config.h"
-#include "../../Functions/rng/rng.h"
+#include "../../../exceptions.h"
+#include "../individual.h"
+#include "../island.h"
+#include "base_topology.h"
+#include "fully_connected_topology.h"
 #include "graph_topology.h"
 
-/// Barabasi-Albert scale-free network topology.
-/**
- * See http://en.wikipedia.org/wiki/BA_model and
- * http://www.nd.edu/~networks/Publication%20Categories/03%20Journal%20Articles/Physics/StatisticalMechanics_Rev%20of%20Modern%20Physics%2074,%2047%20(2002).pdf.
- * \todo Rename this class.
- */
+fully_connected_topology::fully_connected_topology():graph_topology() {}
 
-class __PAGMO_VISIBLE ba_topology: public graph_topology {
-	public:
-		/// Constructor.
-		/**
-		 * Initialises the Barabasi-Albert topology generator.
-		 * \param[in] m_0 Size of the kernel.
-		 * \param[in] m Number of edges per new node.
-		 * \param[in] optional random seed used to initialise the internal rng.
-		 */
-		ba_topology(int m_0, int m, boost::uint32_t seed = static_rng_uint32()());
-		
-		/// Copy constructor... \todo Change semantics and add a method to re-init an RNG?
-		ba_topology(const ba_topology &);
-		
-		/// \see base_topology::clone
-		virtual ba_topology *clone() const { return new ba_topology(*this); }
-		
-		/// \see base_topology::push_back		
-		virtual void push_back(const size_t& id);
-		
-		/// \see base_topology::id_object()
-		virtual std::string id_object() const;
+fully_connected_topology::fully_connected_topology(const fully_connected_topology &f):graph_topology(f) {}
+
+fully_connected_topology &fully_connected_topology::operator=(const fully_connected_topology &)
+{
+	pagmo_assert(false);
+	return *this;
+}
+
+void fully_connected_topology::push_back(const size_t& id)
+{
+	// Iterate over all the existing island, storing their id and adding connections to
+	// the new island in the process.
+	std::vector<size_t> nodes_list = get_nodes();
 	
-	private:
-		/// \see graph_topology::operator=
-		ba_topology &operator=(const ba_topology &);
+	// Add the new node
+	add_node(id);
 		
-		/// Size of the kernel - the starting number of nodes.
-		const size_t			m_m_0;
-		/// Number of edges per newly-inserted node.
-		const size_t			m_m;
-		
-		/// Random number generator
-		rng_double				drng;
-		/// Seed with which rng was initialised.
-		const boost::uint32_t	seed;
-};
-
-#endif
+	for (std::vector<size_t>::const_iterator it = nodes_list.begin(); it != nodes_list.end(); ++it) {
+		add_edge(id, *it);
+		add_edge(*it, id);
+	}
+}

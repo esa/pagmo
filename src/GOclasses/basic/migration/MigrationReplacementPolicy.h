@@ -31,8 +31,8 @@
 #include <list>
 #include <utility>
 
-#include "../../../config.h"
-#include "population.h"
+#include "../../../../config.h"
+#include "../population.h"
 
 /// Base class for replacement policies for migration.
 /**

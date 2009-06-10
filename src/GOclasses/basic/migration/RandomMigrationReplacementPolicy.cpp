@@ -22,38 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 25/02/2009: Initial version by Francesco Biscani.
+#include "RandomMigrationReplacementPolicy.h"
+#include "../../../exceptions.h"
+#include <algorithm>
 
-#include <utility>
+// 09/03/2009: Initial version by Marek Rucinski.
 
-#include "../../exceptions.h"
-#include "base_topology.h"
-#include "fully_connected_topology.h"
-#include "graph_topology.h"
-#include "individual.h"
-#include "island.h"
-
-fully_connected_topology::fully_connected_topology():graph_topology() {}
-
-fully_connected_topology::fully_connected_topology(const fully_connected_topology &f):graph_topology(f) {}
-
-fully_connected_topology &fully_connected_topology::operator=(const fully_connected_topology &)
+std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation)
 {
-	pagmo_assert(false);
-	return *this;
-}
-
-void fully_connected_topology::push_back(const size_t& id)
-{
-	// Iterate over all the existing island, storing their id and adding connections to
-	// the new island in the process.
-	std::vector<size_t> nodes_list = get_nodes();
+	int migrationRateLimit = std::min<int>(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
 	
-	// Add the new node
-	add_node(id);
-		
-	for (std::vector<size_t>::const_iterator it = nodes_list.begin(); it != nodes_list.end(); ++it) {
-		add_edge(id, *it);
-		add_edge(*it, id);
+	std::vector<int> incomingPopulationIndices(migrationRateLimit);
+	std::vector<int> destinationPopulationIndices(destinationPopulation.size());
+	
+	//Fill in the arrays of indices
+	std::generate(incomingPopulationIndices.begin(), incomingPopulationIndices.end(), IndexGenerator());
+	std::generate(destinationPopulationIndices.begin(), destinationPopulationIndices.end(), IndexGenerator());
+	
+	//Permute the indices (incoming population)
+	for(int i = 0; i < migrationRateLimit; i++) {
+		int nextIncomingPopulationIndex = i + (rng() % (migrationRateLimit - i));
+		if(nextIncomingPopulationIndex != i) {
+			std::swap(incomingPopulationIndices[i], incomingPopulationIndices[nextIncomingPopulationIndex]);
+		}				
 	}
+	
+	//Permute the indices (destination population)
+	for(int i = 0; i < migrationRateLimit; i++) {
+		int nextDestinationPopulationIndex = i + (rng() % (destinationPopulation.size() - i));
+		if(nextDestinationPopulationIndex != i) {
+			std::swap(destinationPopulationIndices[i], destinationPopulationIndices[nextDestinationPopulationIndex]);
+		}				
+	}
+	
+	// Create the result
+	std::list<std::pair<int, int> > result;
+	
+	for(int i = 0; i < migrationRateLimit; i++) {
+		result.push_back(std::make_pair(destinationPopulationIndices[i], incomingPopulationIndices[i]));
+	}
+	
+	//std::cout << "Result size: " << result.size() << std::endl;
+	
+	return result;
 }

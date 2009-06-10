@@ -22,39 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/01/2009: Initial version by Francesco Biscani.
+#include "Migration.h"
+#include "../../../exceptions.h"
 
-#ifndef PAGMO_RING_TOPOLOGY_H
-#define PAGMO_RING_TOPOLOGY_H
+// 09/03/2009: Initial version by Marek Rucinski.
 
-#include "../../../config.h"
-#include "graph_topology.h"
-
-///Uni-directional ring topology
-class __PAGMO_VISIBLE ring_topology: public graph_topology {
-	public:
-		/// Constructor.
-		ring_topology();
-		/// Copy constructor.
-		ring_topology(const ring_topology &);
-		
-		/// \see base_topology::clone
-		virtual ring_topology *clone() const {return new ring_topology(*this);}
-		
-		/// \see base_topology::push_back
-		virtual void push_back(const size_t& id);
-		
-		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
-		/// Tracks the id of the first inserted node.
-		size_t	m_first;
-		/// Tracks the id of the last inserted node.
-		size_t	m_last;
-		
-		/// \see graph_topology::operator=
-		ring_topology &operator=(const ring_topology &);
-};
-
-#endif
+std::ostream &operator<<(std::ostream &s, const Migration& msp)
+{
+	s << "Migration scheme: " << std::endl << *(msp.migrationScheme) << std::endl;
+	s << "Migration policy:      " << std::endl << *(msp.migrationPolicy) << std::endl;
+	return s;
+}

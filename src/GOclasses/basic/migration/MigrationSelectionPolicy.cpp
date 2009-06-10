@@ -22,48 +22,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/01/2009: Initial version by Marek Ruciński.
+#include "MigrationSelectionPolicy.h"
+#include "../../../exceptions.h"
 
-#ifndef PAGMO_RING123_TOPOLOGY_H
-#define PAGMO_RING123_TOPOLOGY_H
+// 09/03/2009: Initial version by Marek Rucinski.
 
-#include "../../../config.h"
-#include "graph_topology.h"
+int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& population)
+{
+	if(migrationRateAbs < 0) {
+		if(migrationRateFrac > 1.0) {
+			pagmo_throw(assertion_error, "Fractional migration rate is grater than 1!");
+		}
+		return (int)(migrationRateFrac * (double)population.size());
+	} else {
+                if((size_t)migrationRateAbs > population.size()) {
+			pagmo_throw(assertion_error, "Absolute migration rate exceeds population size!");
+		}
+		return migrationRateAbs;
+	}
+}
 
-///Bi-directional +1+2+3 ring topology
-/** In such a ring, every node is connected with a direct neigbour and his direct neighbour and his direct neighbour. */
-class __PAGMO_VISIBLE ring123_topology: public graph_topology {
-	public:
-		/// Constructor.
-		ring123_topology();
-		/// Copy constructor.
-		ring123_topology(const ring123_topology &);
-		
-		/// \see base_topology::clone
-		virtual ring123_topology *clone() const {return new ring123_topology(*this);}
-		
-		/// \see base_topology::push_back
-		virtual void push_back(const size_t& id);
-		
-		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
-		/// Tracks the id of the first tracked node.
-		size_t	a;
-		/// Tracks the id of the second tracked node.
-		size_t	b;
-		/// Tracks the id of the third tracked node.
-		size_t	c;
-		/// Tracks the id of the fourth tracked node.
-		size_t	d;
-		/// Tracks the id of the fifth tracked node.
-		size_t	e;
-		/// Tracks the id of the sixth tracked node.
-		size_t	f;
-		
-		/// \see graph_topology::operator=
-		ring123_topology &operator=(const ring123_topology &);
-};
-
-#endif
+std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& msp)
+{
+	s << "Selection policy type: " << typeid(msp).name() << std::endl;
+	s << "Migration rate (out):  ";
+	
+	if(msp.migrationRateAbs < 0) {
+		s << (100.0 * msp.migrationRateFrac) << " %";
+	} else {
+		s << msp.migrationRateAbs;
+	}
+	
+	s << std::endl;
+	
+	return s;
+}

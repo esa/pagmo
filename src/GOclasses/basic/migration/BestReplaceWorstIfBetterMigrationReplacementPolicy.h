@@ -24,65 +24,44 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-#ifndef PAGMO_RANDOM_MIGRATION_REPLACEMENT_POLICY_H
-#define PAGMO_RANDOM_MIGRATION_REPLACEMENT_POLICY_H
+#ifndef PAGMO_BEST_REPLACE_WORST_IF_BETTER_MIGRATION_REPLACEMENT_POLICY_H
+#define PAGMO_BEST_REPLACE_WORST_IF_BETTER_MIGRATION_REPLACEMENT_POLICY_H
 
-#include <boost/cstdint.hpp>
-
-#include "../../../config.h"
-#include "../../Functions/rng/rng.h"
+#include "../../../../config.h"
+#include "../../../Functions/rng/rng.h"
 #include "MigrationReplacementPolicy.h"
 
-/// Random migration replacement policy.
+/// Best-replace-worst-if-better migration replacement policy.
 /**
- * Here randomly selected individuals in the destination population are replaced by the randomly selected
- * incoming individuals. The number of individuals replaced is limited by the maximum incoming rate parameter.
+ * Best individuals from the incoming population are matched with the worst ones from the destination
+ * population. The replacement is moreover condition to that the new individual is better than the old one.
  */
-class __PAGMO_VISIBLE RandomMigrationReplacementPolicy: public MigrationReplacementPolicy
+class __PAGMO_VISIBLE BestReplaceWorstIfBetterMigrationReplacementPolicy: public MigrationReplacementPolicy
 {
 	public:
 		/// Constructor.
-		/**
-		 * \see MigrationReplacementPolicy::MigrationReplacementPolicy().
-		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
-		 */
-		RandomMigrationReplacementPolicy(const boost::uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(), rng(seed) { }
+		/** \see MigrationReplacementPolicy::MigrationReplacementPolicy(). */
+		BestReplaceWorstIfBetterMigrationReplacementPolicy():MigrationReplacementPolicy() { }
 	
 		/// Constructor.
-		/**
-		 * Allows maximum migration rate specification (absolute).
-		 * \see MigrationReplacementPolicy::MigrationReplacementPolicy(const int&)
-		 * \param[in] _maxMigrationRate desired maximum migration rate (absolute).
-		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
-		 */
-		RandomMigrationReplacementPolicy(const int& _maxMigrationRate, const boost::uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(_maxMigrationRate), rng(seed) { }
+		/** \see MigrationReplacementPolicy::MigrationReplacementPolicy(const int&) */
+		BestReplaceWorstIfBetterMigrationReplacementPolicy(const int& _maxMigrationRate):MigrationReplacementPolicy(_maxMigrationRate) { }
 		
 		/// Constructor.
-		/**
-		 * Allows maximum migration rate specification (fractional). 
-		 * \see MigrationReplacementPolicy::MigrationReplacementPolicy(const double&)
-		 * \param[in] _maxMigrationRate desired migration rate (fractional).
-		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
-		 */
-		RandomMigrationReplacementPolicy(const double& _maxMigrationRate, const boost::uint32_t seed = static_rng_uint32()()):MigrationReplacementPolicy(_maxMigrationRate), rng(seed) { }
+		/** \see MigrationReplacementPolicy::MigrationReplacementPolicy(const double&) */
+		BestReplaceWorstIfBetterMigrationReplacementPolicy(const double& _maxMigrationRate):MigrationReplacementPolicy(_maxMigrationRate) { }
 		
 		/// Copy constructor.
-		/**
-		 * The copy inherits migration rate parameters, but it is not strictly identical. This is because the RNG
-		 * of the copy is seeded with the rng of the source, and thus future behaviour of the original and the copy
-		 * will be different.
-		 * \todo figure out if it is possible to create a truly identical copy.
-		 */
-		RandomMigrationReplacementPolicy(const RandomMigrationReplacementPolicy& rmrp):MigrationReplacementPolicy(rmrp),rng(rmrp.rng()) { }
+		BestReplaceWorstIfBetterMigrationReplacementPolicy(const BestReplaceWorstIfBetterMigrationReplacementPolicy& rmrp):MigrationReplacementPolicy(rmrp) { }
 
 		/// Virtual destructor.
-		virtual ~RandomMigrationReplacementPolicy() { }
+		virtual ~BestReplaceWorstIfBetterMigrationReplacementPolicy() { }
 		
 		/// \see MigrationReplacementPolicy::selectForReplacement
 		virtual std::list<std::pair<int, int> > selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation);
 		
 		/// \see MigrationReplacementPolicy::clone
-		virtual RandomMigrationReplacementPolicy* clone() const { return new RandomMigrationReplacementPolicy(*this); };
+		virtual BestReplaceWorstIfBetterMigrationReplacementPolicy* clone() const { return new BestReplaceWorstIfBetterMigrationReplacementPolicy(*this); };
 		
 	private:
 		/// Object used to generate sequences of number from 0 to n using the std::generate function.
@@ -94,8 +73,17 @@ class __PAGMO_VISIBLE RandomMigrationReplacementPolicy: public MigrationReplacem
 			/// Call operator - give the next index value.
 			int operator()() { return currentValue++; }
 		};
-	
-		mutable rng_uint32 rng; ///< Random Number Generator
+		
+		/// Helper object used to sort arrays of indices of object placed in another arrays
+		struct IndirectIndividualSorter
+		{
+			const std::vector<Individual>& actualArray;
+			
+			IndirectIndividualSorter(const std::vector<Individual>& _actualArray)
+				:actualArray(_actualArray) { }
+					
+			int operator() (int i, int j) { return Individual::compare_by_fitness(actualArray[i], actualArray[j]); }
+		};
 };
 
 #endif

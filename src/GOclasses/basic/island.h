@@ -37,8 +37,8 @@
 #include "../algorithms/go_algorithm.h"
 #include "../problems/GOproblem.h"
 #include "individual.h"
+#include "migration/MigrationPolicy.h"
 #include "population.h"
-#include "MigrationPolicy.h"
 
 class archipelago;
 

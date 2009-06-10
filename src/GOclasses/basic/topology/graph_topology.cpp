@@ -25,7 +25,7 @@
 // 22/01/2009: Initial version by Francesco Biscani.
 
 #include "graph_topology.h"
-#include "../../exceptions.h"
+#include "../../../exceptions.h"
 #include <algorithm>
 #include <sstream>
 

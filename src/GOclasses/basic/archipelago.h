@@ -35,8 +35,8 @@
 #include "../algorithms/go_algorithm.h"
 #include "island.h"
 #include "py_container_utils.h"
-#include "MigrationScheme.h"
-#include "Migration.h"
+#include "migration/MigrationScheme.h"
+#include "migration/Migration.h"
 
 /// The Archipelago class.
 /** \todo rename. */

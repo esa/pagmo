@@ -22,24 +22,24 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/01/2009: Initial version by Marek Ruciński.
+// 13/01/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_TORUS_TOPOLOGY_H
-#define PAGMO_TORUS_TOPOLOGY_H
+#ifndef PAGMO_RING_TOPOLOGY_H
+#define PAGMO_RING_TOPOLOGY_H
 
-#include "../../../config.h"
+#include "../../../../config.h"
 #include "graph_topology.h"
 
-/// Torus topology (also known as ladder) - two parallel rings with corresponding nodes connected.
-class __PAGMO_VISIBLE torus_topology: public graph_topology {
+///Uni-directional ring topology
+class __PAGMO_VISIBLE ring_topology: public graph_topology {
 	public:
 		/// Constructor.
-		torus_topology();
+		ring_topology();
 		/// Copy constructor.
-		torus_topology(const torus_topology &);
+		ring_topology(const ring_topology &);
 		
 		/// \see base_topology::clone
-		virtual torus_topology *clone() const {return new torus_topology(*this);}
+		virtual ring_topology *clone() const {return new ring_topology(*this);}
 		
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
@@ -48,17 +48,13 @@ class __PAGMO_VISIBLE torus_topology: public graph_topology {
 		virtual std::string id_object() const { return id_name(); }
 		
 	private:	
-		/// Tracks the id of the first inserted node on the inner ring.
-		size_t	m_in_first;
-		/// Tracks the id of the last inserted node on the inner ring.
-		size_t	m_in_last;
-		/// Tracks the id of the first inserted node on the outer ring.
-		size_t	m_out_first;
-		/// Tracks the id of the last inserted node on the outer ring.
-		size_t	m_out_last;
+		/// Tracks the id of the first inserted node.
+		size_t	m_first;
+		/// Tracks the id of the last inserted node.
+		size_t	m_last;
 		
 		/// \see graph_topology::operator=
-		torus_topology &operator=(const torus_topology &);
+		ring_topology &operator=(const ring_topology &);
 };
 
 #endif

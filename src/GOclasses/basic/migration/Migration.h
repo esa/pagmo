@@ -30,7 +30,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <iostream>
 
-#include "../../../config.h"
+#include "../../../../config.h"
 #include "MigrationPolicy.h"
 #include "MigrationScheme.h"
 

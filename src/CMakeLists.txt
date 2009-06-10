@@ -20,33 +20,33 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/go_algorithm.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/ihs_algorithm.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/nm_algorithm.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/individual.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/archipelago.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ba_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/base_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/fully_connected_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/graph_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/one_way_ring_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/chain_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/broadcast_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring12_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring123_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/torus_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/cartwheel_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/lattice_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/hypercube_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/individual.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationScheme.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationSelectionPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationSelectionPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ChooseBestMigrationSelectionPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationReplacementPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationReplacementPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/Migration.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ba_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/base_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/fully_connected_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/graph_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/one_way_ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/chain_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/broadcast_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ring12_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ring123_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/torus_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/cartwheel_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/lattice_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/hypercube_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/RandomMigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/ChooseBestMigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/RandomMigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/BestReplaceWorstIfBetterMigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/Migration.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/ClassicProblems.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/GOproblem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp

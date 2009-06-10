@@ -29,9 +29,9 @@
 
 #include <vector>
 
-#include "../../../config.h"
-#include "individual.h"
-#include "population.h"
+#include "../../../../config.h"
+#include "../individual.h"
+#include "../population.h"
 
 /// Base class for selection policies for migration.
 /**

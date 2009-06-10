@@ -22,37 +22,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 06/02/2009: Initial version by Marek Ruciński.
+// 09/03/2009: Initial version by Marek Rucinski.
 
-#ifndef PAGMO_CHAIN_TOPOLOGY_H
-#define PAGMO_CHAIN_TOPOLOGY_H
+#ifndef PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
+#define PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
 
-#include "../../Functions/rng/rng.h"
-#include "graph_topology.h"
+#include "../../../../config.h"
+#include "MigrationSelectionPolicy.h"
 
-/// Chain topology (one-directional).
-class __PAGMO_VISIBLE chain_topology: public graph_topology {
+/// Choose best migration selection policy.
+/**
+ * This policy is to choose best individuals from the population as migrating individuals.
+ */
+class __PAGMO_VISIBLE ChooseBestMigrationSelectionPolicy: public MigrationSelectionPolicy
+{
 	public:
 		/// Constructor.
-		chain_topology();
+		/**
+		 * \see MigrationSelectionPolicy::MigrationSelectionPolicy().
+		 */
+		ChooseBestMigrationSelectionPolicy():MigrationSelectionPolicy() { }
+		
+		/// Constructor.
+		/** \see MigrationSelectionPolicy::MigrationSelectionPolicy(const int&) */
+		ChooseBestMigrationSelectionPolicy(const int& _migrationRate):MigrationSelectionPolicy(_migrationRate) { }
+		
+		/// Constructor.
+		/** \see MigrationSelectionPolicy::MigrationSelectionPolicy(const double&) */
+		ChooseBestMigrationSelectionPolicy(const double& _migrationRate):MigrationSelectionPolicy(_migrationRate) { }
+		
 		/// Copy constructor.
-		chain_topology(const chain_topology &);
-		
-		/// \see base_topology::clone
-		virtual chain_topology *clone() const { return new chain_topology(*this); }
-		
-		/// \see base_topology::push_back
-		virtual void push_back(const size_t&);
+		ChooseBestMigrationSelectionPolicy(const ChooseBestMigrationSelectionPolicy& rmsp):MigrationSelectionPolicy(rmsp) { }
 
-		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
+		/// Virtual destructor.
+		virtual ~ChooseBestMigrationSelectionPolicy() { }
 		
-	private:	
-		/// Tracks the identifier of the last inserted node.
-		size_t	m_last;
+		/// \see MigrationSelectionPolicy::selectForMigration
+		virtual std::vector<Individual> selectForMigration(const Population& population);
 		
-		/// \see graph_topology::operator=
-		chain_topology &operator=(const chain_topology &);
+		/// \see MigrationSelectionPolicy::clone
+		virtual ChooseBestMigrationSelectionPolicy* clone() const { return new ChooseBestMigrationSelectionPolicy(*this); }
 };
 
 #endif

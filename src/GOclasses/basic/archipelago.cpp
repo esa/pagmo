@@ -31,8 +31,8 @@
 #include "../problems/GOproblem.h"
 #include "../algorithms/go_algorithm.h"
 #include "archipelago.h"
-#include "base_topology.h"
 #include "island.h"
+#include "topology/base_topology.h"
 
 archipelago::archipelago(const GOProblem &p)
 		:m_gop(p.clone())

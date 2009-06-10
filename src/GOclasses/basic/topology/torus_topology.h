@@ -22,38 +22,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "MigrationSelectionPolicy.h"
-#include "../../exceptions.h"
+// 13/01/2009: Initial version by Marek Ruciński.
 
-// 09/03/2009: Initial version by Marek Rucinski.
+#ifndef PAGMO_TORUS_TOPOLOGY_H
+#define PAGMO_TORUS_TOPOLOGY_H
 
-int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& population)
-{
-	if(migrationRateAbs < 0) {
-		if(migrationRateFrac > 1.0) {
-			pagmo_throw(assertion_error, "Fractional migration rate is grater than 1!");
-		}
-		return (int)(migrationRateFrac * (double)population.size());
-	} else {
-                if((size_t)migrationRateAbs > population.size()) {
-			pagmo_throw(assertion_error, "Absolute migration rate exceeds population size!");
-		}
-		return migrationRateAbs;
-	}
-}
+#include "../../../../config.h"
+#include "graph_topology.h"
 
-std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& msp)
-{
-	s << "Selection policy type: " << typeid(msp).name() << std::endl;
-	s << "Migration rate (out):  ";
-	
-	if(msp.migrationRateAbs < 0) {
-		s << (100.0 * msp.migrationRateFrac) << " %";
-	} else {
-		s << msp.migrationRateAbs;
-	}
-	
-	s << std::endl;
-	
-	return s;
-}
+/// Torus topology (also known as ladder) - two parallel rings with corresponding nodes connected.
+class __PAGMO_VISIBLE torus_topology: public graph_topology {
+	public:
+		/// Constructor.
+		torus_topology();
+		/// Copy constructor.
+		torus_topology(const torus_topology &);
+		
+		/// \see base_topology::clone
+		virtual torus_topology *clone() const {return new torus_topology(*this);}
+		
+		/// \see base_topology::push_back
+		virtual void push_back(const size_t& id);
+		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const { return id_name(); }
+		
+	private:	
+		/// Tracks the id of the first inserted node on the inner ring.
+		size_t	m_in_first;
+		/// Tracks the id of the last inserted node on the inner ring.
+		size_t	m_in_last;
+		/// Tracks the id of the first inserted node on the outer ring.
+		size_t	m_out_first;
+		/// Tracks the id of the last inserted node on the outer ring.
+		size_t	m_out_last;
+		
+		/// \see graph_topology::operator=
+		torus_topology &operator=(const torus_topology &);
+};
+
+#endif

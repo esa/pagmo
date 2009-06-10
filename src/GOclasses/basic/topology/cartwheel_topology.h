@@ -24,34 +24,41 @@
 
 // 13/01/2009: Initial version by Marek Ruciński.
 
-#ifndef PAGMO_HYPERCUBE_TOPOLOGY_H
-#define PAGMO_HYPERCUBE_TOPOLOGY_H
+#ifndef PAGMO_CARTWHEEL_TOPOLOGY_H
+#define PAGMO_CARTWHEEL_TOPOLOGY_H
 
-#include "../../../config.h"
+#include "../../../../config.h"
 #include "graph_topology.h"
 
-/// Hypercube topology (the number of dimensions grows automatically).
-class __PAGMO_VISIBLE hypercube_topology: public graph_topology {
+/// Cartwheel topology - a two-way ring with every two opposite nodes connected.
+class __PAGMO_VISIBLE cartwheel_topology: public graph_topology {
 	public:
 		/// Constructor.
-		hypercube_topology();
+		cartwheel_topology();
 		/// Copy constructor.
-		hypercube_topology(const hypercube_topology &);
+		cartwheel_topology(const cartwheel_topology &);
 		
 		/// \see base_topology::clone
-		virtual hypercube_topology *clone() const {return new hypercube_topology(*this);}
+		virtual cartwheel_topology *clone() const {return new cartwheel_topology(*this);}
 		
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
-		
+
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); };
+		virtual std::string id_object() const { return id_name(); }
 		
-	private:
-		std::vector<size_t> nodes; ///< All previously inserted nodes.
+	private:	
+		/// Tracks the id of the first inserted node on the ring.
+		size_t	m_a;
+		/// Tracks the id of the last inserted node on the ring.
+		size_t	m_b;
+		/// Tracks the id of the last node on the first half of the ring.
+		size_t	m_c;
+		/// Tracks the id of the first node on the second half of the ring.
+		size_t	m_d;
 		
 		/// \see graph_topology::operator=
-		hypercube_topology &operator=(const hypercube_topology &);
+		cartwheel_topology &operator=(const cartwheel_topology &);
 };
 
 #endif

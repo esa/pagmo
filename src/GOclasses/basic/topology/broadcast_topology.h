@@ -22,14 +22,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "Migration.h"
-#include "../../exceptions.h"
+// 06/02/2009: Initial version by Marek Ruciński.
 
-// 09/03/2009: Initial version by Marek Rucinski.
+#ifndef PAGMO_BROADCAST_TOPOLOGY_H
+#define PAGMO_BROADCAST_TOPOLOGY_H
 
-std::ostream &operator<<(std::ostream &s, const Migration& msp)
-{
-	s << "Migration scheme: " << std::endl << *(msp.migrationScheme) << std::endl;
-	s << "Migration policy:      " << std::endl << *(msp.migrationPolicy) << std::endl;
-	return s;
-}
+#include "../../../Functions/rng/rng.h"
+#include "graph_topology.h"
+
+/// Broadcast topology (one node in the center, all others as leaves, bi-directional).
+class __PAGMO_VISIBLE broadcast_topology: public graph_topology {
+	public:
+		/// Constructor.
+		broadcast_topology();
+		/// Copy constructor.
+		broadcast_topology(const broadcast_topology &);
+		
+		/// \see base_topology::clone
+		virtual broadcast_topology *clone() const { return new broadcast_topology(*this); }
+		
+		/// \see base_topology::push_back
+		virtual void push_back(const size_t&);
+		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const { return id_name(); }
+		
+	private:
+		/// Tracks the identifier of the first inserted node.
+		size_t	m_first;
+		
+		/// \see graph_topology::operator=
+		broadcast_topology &operator=(const broadcast_topology &);
+};
+
+#endif

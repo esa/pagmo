@@ -30,9 +30,9 @@
 #include <string>
 #include <typeinfo>
 
-#include "../../../config.h"
+#include "../../../../config.h"
 #include <vector>
-#include "../../exceptions.h"
+#include "../../../exceptions.h"
 
 /// Base class for topologies.
 /**

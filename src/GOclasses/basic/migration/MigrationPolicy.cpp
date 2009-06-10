@@ -22,43 +22,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/01/2009: Initial version by Marek Ruciński.
+#include "MigrationPolicy.h"
+#include "../../../exceptions.h"
 
-#ifndef PAGMO_CARTWHEEL_TOPOLOGY_H
-#define PAGMO_CARTWHEEL_TOPOLOGY_H
+// 09/03/2009: Initial version by Marek Rucinski.
 
-#include "../../../config.h"
-#include "graph_topology.h"
+void MigrationPolicy::setMigrationProbability(const double _migrationProbability)
+{
+	if((_migrationProbability < 0.0) || (_migrationProbability > 1.0)) {
+		pagmo_throw(value_error, "Migration probability must be within the [0.0, 1.0] range.");
+	}
+	migrationProbability = _migrationProbability;
+}
 
-/// Cartwheel topology - a two-way ring with every two opposite nodes connected.
-class __PAGMO_VISIBLE cartwheel_topology: public graph_topology {
-	public:
-		/// Constructor.
-		cartwheel_topology();
-		/// Copy constructor.
-		cartwheel_topology(const cartwheel_topology &);
-		
-		/// \see base_topology::clone
-		virtual cartwheel_topology *clone() const {return new cartwheel_topology(*this);}
-		
-		/// \see base_topology::push_back
-		virtual void push_back(const size_t& id);
-
-		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
-		/// Tracks the id of the first inserted node on the ring.
-		size_t	m_a;
-		/// Tracks the id of the last inserted node on the ring.
-		size_t	m_b;
-		/// Tracks the id of the last node on the first half of the ring.
-		size_t	m_c;
-		/// Tracks the id of the first node on the second half of the ring.
-		size_t	m_d;
-		
-		/// \see graph_topology::operator=
-		cartwheel_topology &operator=(const cartwheel_topology &);
-};
-
-#endif
+std::ostream &operator<<(std::ostream &s, const MigrationPolicy& msp)
+{
+	s << "Migration probability: " << msp.migrationProbability << std::endl;
+	s << "Selection policy:      " << std::endl << *(msp.selectionPolicy) << std::endl;
+	s << "Replacement policy:    " << std::endl << *(msp.replacementPolicy) << std::endl;
+	return s;
+}

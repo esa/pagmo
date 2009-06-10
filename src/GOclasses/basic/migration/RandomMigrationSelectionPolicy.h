@@ -29,8 +29,8 @@
 
 #include <boost/cstdint.hpp>
 
-#include "../../../config.h"
-#include "../../Functions/rng/rng.h"
+#include "../../../../config.h"
+#include "../../../Functions/rng/rng.h"
 #include "MigrationSelectionPolicy.h"
 
 /// Random migration selection policy.

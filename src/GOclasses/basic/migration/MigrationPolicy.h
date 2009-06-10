@@ -30,10 +30,9 @@
 #include <boost/scoped_ptr.hpp>
 #include <iostream>
 
-#include "../../../config.h"
+#include "../../../../config.h"
 #include "ChooseBestMigrationSelectionPolicy.h"
 #include "RandomMigrationReplacementPolicy.h"
-
 
 /// This object gathers island-specific migration-related parameters.
 /**

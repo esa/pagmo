@@ -22,46 +22,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 09/03/2009: Initial version by Marek Rucinski.
+// 13/01/2009: Initial version by Francesco Biscani.
 
-#ifndef PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
-#define PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
+#ifndef PAGMO_RING12_TOPOLOGY_H
+#define PAGMO_RING12_TOPOLOGY_H
 
-#include "../../../config.h"
-#include "MigrationSelectionPolicy.h"
+#include "../../../../config.h"
+#include "graph_topology.h"
 
-/// Choose best migration selection policy.
-/**
- * This policy is to choose best individuals from the population as migrating individuals.
- */
-class __PAGMO_VISIBLE ChooseBestMigrationSelectionPolicy: public MigrationSelectionPolicy
-{
+///Bi-directional +1+2 ring topology
+/** In such a ring, every node is connected with a direct neigbour and his direct neighbour. */
+class __PAGMO_VISIBLE ring12_topology: public graph_topology {
 	public:
 		/// Constructor.
-		/**
-		 * \see MigrationSelectionPolicy::MigrationSelectionPolicy().
-		 */
-		ChooseBestMigrationSelectionPolicy():MigrationSelectionPolicy() { }
-		
-		/// Constructor.
-		/** \see MigrationSelectionPolicy::MigrationSelectionPolicy(const int&) */
-		ChooseBestMigrationSelectionPolicy(const int& _migrationRate):MigrationSelectionPolicy(_migrationRate) { }
-		
-		/// Constructor.
-		/** \see MigrationSelectionPolicy::MigrationSelectionPolicy(const double&) */
-		ChooseBestMigrationSelectionPolicy(const double& _migrationRate):MigrationSelectionPolicy(_migrationRate) { }
-		
+		ring12_topology();
 		/// Copy constructor.
-		ChooseBestMigrationSelectionPolicy(const ChooseBestMigrationSelectionPolicy& rmsp):MigrationSelectionPolicy(rmsp) { }
-
-		/// Virtual destructor.
-		virtual ~ChooseBestMigrationSelectionPolicy() { }
+		ring12_topology(const ring12_topology &);
 		
-		/// \see MigrationSelectionPolicy::selectForMigration
-		virtual std::vector<Individual> selectForMigration(const Population& population);
+		/// \see base_topology::clone
+		virtual ring12_topology *clone() const {return new ring12_topology(*this);}
 		
-		/// \see MigrationSelectionPolicy::clone
-		virtual ChooseBestMigrationSelectionPolicy* clone() const { return new ChooseBestMigrationSelectionPolicy(*this); }
+		/// \see base_topology::push_back
+		virtual void push_back(const size_t& id);
+		
+		/// \see base_topology::id_object()
+		virtual std::string id_object() const { return id_name(); }
+		
+	private:	
+		/// Tracks the id of the first tracked node.
+		size_t	a;
+		/// Tracks the id of the second tracked node.
+		size_t	b;
+		/// Tracks the id of the third tracked node.
+		size_t	c;
+		/// Tracks the id of the fourth tracked node.
+		size_t	d;
+		
+		/// \see graph_topology::operator=
+		ring12_topology &operator=(const ring12_topology &);
 };
 
 #endif
