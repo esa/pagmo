@@ -34,15 +34,22 @@ SET(PYDEXTENSION FALSE)
 SET(SOEXTENSION FALSE)
 
 IF(UNIX)
+	# We need the Python interpreter in order to detect the appropriate directory of modules installation.
+	IF(NOT PYTHONINTERP_FOUND)
+		MESSAGE(FATAL_ERROR "Unable to locate Python interpreter.")
+	ENDIF(NOT PYTHONINTERP_FOUND)
+	MESSAGE(STATUS "Python interpreter is: ${PYTHON_EXECUTABLE}")
+	# Now we must establish if the installation dir for Python modules is named 'site-packages' (as usual)
+	# or 'dist-packages' (apparently Ubuntu 9.04 or maybe Python 2.6, it's not clear).
+	EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/cmake_modules/python_packages_dir.py
+		OUTPUT_VARIABLE PY_PACKAGES_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+	MESSAGE(STATUS "Python packages dir is: ${PY_PACKAGES_DIR}")
 	# SuckOSX suckages.
 	IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		MESSAGE(STATUS "OSX system detected.")
 		SET(SOEXTENSION TRUE)
-		IF(NOT PYTHONINTERP_FOUND)
-			MESSAGE(FATAL_ERROR "Unable to locate Python interpreter.")
-		ENDIF(NOT PYTHONINTERP_FOUND)
 		# Let's determine Python version by running the interpreter with the --version flag.
-		EXECUTE_PROCESS(COMMAND python --version ERROR_VARIABLE PY_VERSION_OSX ERROR_STRIP_TRAILING_WHITESPACE)
+		EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} --version ERROR_VARIABLE PY_VERSION_OSX ERROR_STRIP_TRAILING_WHITESPACE)
 		MESSAGE(STATUS "Python interpeter returns string: " ${PY_VERSION_OSX})
 		STRING(REGEX MATCH [0-9]*\\.[0-9]* PYTHON_LIBRARY_VERSION_DOT ${PY_VERSION_OSX})
 	ELSE(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -53,7 +60,7 @@ IF(UNIX)
 	STRING(REGEX REPLACE libpython "" PYTHON_LIBRARY_VERSION_DOT ${PYTHON_LIBRARY_VERSION_DOT})
 	STRING(REGEX REPLACE \\. "" PYTHON_LIBRARY_VERSION ${PYTHON_LIBRARY_VERSION_DOT})
 	# Let's use CMAKE_INSTALL_PREFIX, so that if we specify a different install path it will be respected.
-	SET(PYTHON_MODULES_PATH ${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_LIBRARY_VERSION_DOT}/site-packages)
+	SET(PYTHON_MODULES_PATH ${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_LIBRARY_VERSION_DOT}/${PY_PACKAGES_DIR})
 ELSE(UNIX)
 	STRING(REGEX MATCH python[0-9]* PYTHON_LIBRARY_VERSION ${PYTHON_LIBRARY})
 	STRING(REGEX REPLACE python "" PYTHON_LIBRARY_VERSION ${PYTHON_LIBRARY_VERSION})
