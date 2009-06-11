@@ -54,6 +54,7 @@ SET(PAGMO_LIB_SRC_LIST
 	#${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/twodee_problem.cpp
 )
 
+# Boost  thread library.
 IF(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/exceptions.cpp
@@ -68,6 +69,44 @@ ELSE(UNIX)
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_pe.cpp
 	)
 ENDIF(UNIX)
+
+# Boost serialization library.
+SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_archive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_iserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_serializer_map.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_iprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_oprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_archive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_typeid.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_no_rtti.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/stl_port.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/void_cast.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_grammar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_wiprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_woprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_wiarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_woarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/utf8_codecvt_facet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wgrammar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wiarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_woarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/codecvt_null.cpp
+)
 
 # Create a pagmo_static library if main is requested.
 IF(BUILD_MAIN)
@@ -113,7 +152,7 @@ IF(BUILD_PYGMO)
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
 	# A couple of extra definitions. The first is required when building Boost.Python,
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
-	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
+	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1 -DBOOST_WSERIALIZATION_DYN_LINK=1 -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
 	# Codeblocks win32 build needs this to be declared...
 	IF(MINGW)
 		SET(ADDITIONAL_FLAGS "${ADDITIONAL_FLAGS} -DBOOST_HAS_DECLSPEC")
