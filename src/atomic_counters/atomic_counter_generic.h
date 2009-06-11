@@ -71,7 +71,7 @@ class atomic_counter_generic
 		 * This operation acquires atomically the internal value of a, but the assignment
 		 * to this is not atomic.
 		 */
-		atomic_counter_gcc_41 &operator=(const atomic_counter_gcc_41 &a)
+		atomic_counter_generic &operator=(const atomic_counter_generic &a)
 		{
 			if (this != &a) {
 				m_value = a.get_value();
@@ -140,9 +140,9 @@ class atomic_counter_generic
 		static const bool is_arithmetics_fast = false;
 	private:
 		/// Internal value.
-		IntType		m_value;
+		IntType					m_value;
 		/// Mutex.
-		boost::mutex	m_mutex;
+		mutable boost::mutex	m_mutex;
 };
 
 #endif
