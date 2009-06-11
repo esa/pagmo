@@ -140,9 +140,9 @@ class atomic_counter_generic
 		static const bool is_arithmetics_fast = false;
 	private:
 		/// Internal value.
-		IntType		m_value;
+		IntType					m_value;
 		/// Mutex.
-		boost::mutex	m_mutex;
+		mutable boost::mutex	m_mutex;
 };
 
 #endif
