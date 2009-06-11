@@ -44,21 +44,21 @@ IF(CPACK_GENERATOR MATCHES "NSIS")
 	SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\pagmo.sf.net")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\pagmo.sf.net")
 	# Add shortcuts to the Start Menu.
-	#SET(CPACK_NSIS_CREATE_ICONS_EXTRA
-	#	"
+	SET(CPACK_NSIS_CREATE_ICONS_EXTRA
+		"
 	#	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Pyranha.lnk\\\" \\\"$INSTDIR\\\\Console.exe\\\"
 	#	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Examples.lnk\\\" \\\"$INSTDIR\\\\examples\\\"
-	#	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\License.lnk\\\" \\\"$INSTDIR\\\\license.txt\\\"
+		CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\License.lnk\\\" \\\"$INSTDIR\\\\license.txt\\\"
 	#	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Changelog.lnk\\\" \\\"$INSTDIR\\\\changelog.txt\\\"
-	#	"
-	#)
+		"
+	)
 	# Delete shortcuts when uninstalling.
-	#SET(CPACK_NSIS_DELETE_ICONS_EXTRA
-	#	"
+	SET(CPACK_NSIS_DELETE_ICONS_EXTRA
+		"
 	#	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\Pyranha.lnk\\\"
 	#	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\Examples.lnk\\\"
-	#	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\License.lnk\\\"
+		Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\License.lnk\\\"
 	#	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\Changelog.lnk\\\"
-	#	"
-	#)
+		"
+	)
 ENDIF(CPACK_GENERATOR MATCHES "NSIS")
