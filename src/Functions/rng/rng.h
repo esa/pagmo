@@ -1,5 +1,9 @@
 /*****************************************************************************
- *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
  *   act@esa.int                                                             *
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
@@ -30,12 +34,12 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 
-// This rng returns an unsigned integer in the [0,2**32-1] range.
+/// This rng returns an unsigned integer in the [0,2**32-1] range.
 typedef boost::mt19937 rng_uint32;
-// This rng returns a double in the [0,1[ range.
+/// This rng returns a double in the [0,1[ range.
 typedef boost::lagged_fibonacci607 rng_double;
 
-// Generic thread-safe wrapper class around a Boost-like random number generator.
+/// Generic thread-safe wrapper class around a Boost-like random number generator.
 template <class Rng>
 class static_rng {
 	public:
@@ -52,16 +56,15 @@ class static_rng {
 template <class Rng>
 boost::mutex static_rng<Rng>::m_mutex;
 
-// Use as initial seed the number of microseconds elapsed since 01/01/1970, cast to
-// uint32_t.
+/// Use as initial seed the number of microseconds elapsed since 01/01/1970, cast to uint32_t.
 template <class Rng>
 Rng static_rng<Rng>::m_rng(boost::uint32_t((boost::posix_time::microsec_clock::local_time() -
 	boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds()));
 
-// Thread-safe uint32 rng.
+/// Thread-safe uint32 rng.
 typedef static_rng<rng_uint32> static_rng_uint32;
 
-// Thread-safe double rng.
+/// Thread-safe double rng.
 typedef static_rng<rng_double> static_rng_double;
 
 #endif

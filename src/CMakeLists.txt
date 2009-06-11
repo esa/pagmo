@@ -20,33 +20,33 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/go_algorithm.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/ihs_algorithm.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/nm_algorithm.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/individual.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/archipelago.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ba_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/base_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/fully_connected_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/graph_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/one_way_ring_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/chain_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/broadcast_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring12_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ring123_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/torus_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/cartwheel_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/lattice_topology.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/hypercube_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/individual.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/population.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationScheme.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationSelectionPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationSelectionPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/ChooseBestMigrationSelectionPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationReplacementPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/RandomMigrationReplacementPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/MigrationPolicy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/Migration.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ba_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/base_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/fully_connected_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/graph_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/one_way_ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/chain_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/broadcast_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ring_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ring12_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/ring123_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/torus_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/cartwheel_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/lattice_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/topology/hypercube_topology.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationScheme.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/RandomMigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/ChooseBestMigrationSelectionPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/RandomMigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/BestReplaceWorstIfBetterMigrationReplacementPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/MigrationPolicy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/basic/migration/Migration.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/ClassicProblems.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/GOproblem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/TrajectoryProblems.cpp
@@ -54,6 +54,7 @@ SET(PAGMO_LIB_SRC_LIST
 	#${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/twodee_problem.cpp
 )
 
+# Boost  thread library.
 IF(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/exceptions.cpp
@@ -69,16 +70,49 @@ ELSE(UNIX)
 	)
 ENDIF(UNIX)
 
+# Boost serialization library.
+SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_archive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_iserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_serializer_map.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_iprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_oprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_archive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_typeid.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_no_rtti.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/stl_port.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/void_cast.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_grammar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_wiprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_woprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_wiarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_woarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/utf8_codecvt_facet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wgrammar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wiarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_woarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/codecvt_null.cpp
+)
+
 # Create a pagmo_static library if main is requested.
-IF(BUILD_MAIN OR BUILD_MAIN_NG)
-	IF(BUILD_MAIN)
-		SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-			${CMAKE_CURRENT_SOURCE_DIR}/SolversThreads/SolversThreads.cpp
-		)
-	ENDIF(BUILD_MAIN)
+IF(BUILD_MAIN)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
 	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "-DBOOST_THREAD_BUILD_LIB")
-ENDIF(BUILD_MAIN OR BUILD_MAIN_NG)
+ENDIF(BUILD_MAIN)
 
 # Create a pagmo shared library if PyGMO is requested.
 IF(BUILD_PYGMO)
@@ -118,7 +152,7 @@ IF(BUILD_PYGMO)
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
 	# A couple of extra definitions. The first is required when building Boost.Python,
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
-	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
+	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1 -DBOOST_WSERIALIZATION_DYN_LINK=1 -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
 	# Codeblocks win32 build needs this to be declared...
 	IF(MINGW)
 		SET(ADDITIONAL_FLAGS "${ADDITIONAL_FLAGS} -DBOOST_HAS_DECLSPEC")

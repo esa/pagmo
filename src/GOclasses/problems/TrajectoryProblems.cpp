@@ -1,5 +1,9 @@
 /*****************************************************************************
- *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
  *   act@esa.int                                                             *
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
@@ -27,11 +31,11 @@
 #include <string>
 #include <vector>
 
+#include "../../Functions/objfuns/trajobjfuns.h"
 #include "../../constants.h"
 #include "../../exceptions.h"
 #include "TrajectoryProblems.h"
 #include "GOproblem.h"
-#include "trajobjfuns.h"
 
 //***********************************************************************************
 //Trajectory problems

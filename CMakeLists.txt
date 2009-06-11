@@ -42,17 +42,7 @@ IF(COMMAND CMAKE_POLICY)
 ENDIF(COMMAND CMAKE_POLICY)
 
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
-OPTION(BUILD_MAIN_NG "Build 'main-ng.cpp'." ON)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
-
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/AstroToolbox")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/Functions/rng")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/Functions/objfuns")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/GOclasses/algorithms")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/GOclasses/basic")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/GOclasses/problems")
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/SolversThreads")
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
@@ -103,9 +93,3 @@ IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
 	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
 ENDIF(BUILD_MAIN)
-
-# Link main-ng to pagmo_static library.
-IF(BUILD_MAIN_NG)
-	ADD_EXECUTABLE(main-ng main-ng.cpp)
-	TARGET_LINK_LIBRARIES(main-ng pagmo_static ${MANDATORY_LIBRARIES})
-ENDIF(BUILD_MAIN_NG)

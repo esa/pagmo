@@ -1,10 +1,14 @@
 /*****************************************************************************
- *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
  *   act@esa.int                                                             *
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 2 of the License, or       *
+ *   the Free Software Foundation; either version 3 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -35,19 +39,19 @@
 
 #include "../../src/GOclasses/algorithms/go_algorithm.h"
 #include "../../src/GOclasses/basic/archipelago.h"
-#include "../../src/GOclasses/basic/base_topology.h"
+#include "../../src/GOclasses/basic/topology/base_topology.h"
 #include "../../src/GOclasses/basic/individual.h"
 #include "../../src/GOclasses/basic/island.h"
 #include "../../src/GOclasses/basic/population.h"
 #include "../../src/GOclasses/problems/GOproblem.h"
-#include "../../src/GOclasses/basic/MigrationScheme.h"
-#include "../../src/GOclasses/basic/MigrationPolicy.h"
-#include "../../src/GOclasses/basic/MigrationSelectionPolicy.h"
-#include "../../src/GOclasses/basic/RandomMigrationSelectionPolicy.h"
-#include "../../src/GOclasses/basic/ChooseBestMigrationSelectionPolicy.h"
-#include "../../src/GOclasses/basic/MigrationReplacementPolicy.h"
-#include "../../src/GOclasses/basic/RandomMigrationReplacementPolicy.h"
-#include "../../src/GOclasses/basic/BestReplaceWorstIfBetterMigrationReplacementPolicy.h"
+#include "../../src/GOclasses/basic/migration/MigrationScheme.h"
+#include "../../src/GOclasses/basic/migration/MigrationPolicy.h"
+#include "../../src/GOclasses/basic/migration/MigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/migration/RandomMigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/migration/ChooseBestMigrationSelectionPolicy.h"
+#include "../../src/GOclasses/basic/migration/MigrationReplacementPolicy.h"
+#include "../../src/GOclasses/basic/migration/RandomMigrationReplacementPolicy.h"
+#include "../../src/GOclasses/basic/migration/BestReplaceWorstIfBetterMigrationReplacementPolicy.h"
 #include "../boost_python_container_conversions.h"
 #include "../exceptions.h"
 #include "../utils.h"

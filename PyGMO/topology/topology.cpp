@@ -1,10 +1,14 @@
 /*****************************************************************************
- *   Copyright (C) 2008, 2009 Advanced Concepts Team (European Space Agency) *
+ *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
  *   act@esa.int                                                             *
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 2 of the License, or       *
+ *   the Free Software Foundation; either version 3 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -24,20 +28,20 @@
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 
-#include "../../src/GOclasses/basic/base_topology.h"
-#include "../../src/GOclasses/basic/graph_topology.h"
-#include "../../src/GOclasses/basic/ba_topology.h"
-#include "../../src/GOclasses/basic/fully_connected_topology.h"
-#include "../../src/GOclasses/basic/one_way_ring_topology.h"
-#include "../../src/GOclasses/basic/ring_topology.h"
-#include "../../src/GOclasses/basic/broadcast_topology.h"
-#include "../../src/GOclasses/basic/chain_topology.h"
-#include "../../src/GOclasses/basic/torus_topology.h"
-#include "../../src/GOclasses/basic/cartwheel_topology.h"
-#include "../../src/GOclasses/basic/lattice_topology.h"
-#include "../../src/GOclasses/basic/hypercube_topology.h"
-#include "../../src/GOclasses/basic/ring12_topology.h"
-#include "../../src/GOclasses/basic/ring123_topology.h"
+#include "../../src/GOclasses/basic/topology/base_topology.h"
+#include "../../src/GOclasses/basic/topology/graph_topology.h"
+#include "../../src/GOclasses/basic/topology/ba_topology.h"
+#include "../../src/GOclasses/basic/topology/fully_connected_topology.h"
+#include "../../src/GOclasses/basic/topology/one_way_ring_topology.h"
+#include "../../src/GOclasses/basic/topology/ring_topology.h"
+#include "../../src/GOclasses/basic/topology/broadcast_topology.h"
+#include "../../src/GOclasses/basic/topology/chain_topology.h"
+#include "../../src/GOclasses/basic/topology/torus_topology.h"
+#include "../../src/GOclasses/basic/topology/cartwheel_topology.h"
+#include "../../src/GOclasses/basic/topology/lattice_topology.h"
+#include "../../src/GOclasses/basic/topology/hypercube_topology.h"
+#include "../../src/GOclasses/basic/topology/ring12_topology.h"
+#include "../../src/GOclasses/basic/topology/ring123_topology.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
