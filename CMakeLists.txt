@@ -75,8 +75,6 @@ ELSE(UNIX)
 		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mthreads")
 		SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -mthreads")
 	ENDIF(MINGW)
-	CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/COPYING" "${CMAKE_SOURCE_DIR}/windows_package/license.txt")
-	INSTALL(FILES "${CMAKE_SOURCE_DIR}/windows_package/license.txt" DESTINATION .)
 ENDIF(UNIX)
 
 CHECK_TYPE_SIZE("void *" POINTER_SIZE)
@@ -89,6 +87,34 @@ ENDIF(BUILD_PYGMO)
 ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
 IF(BUILD_PYGMO)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO")
+	IF(WIN32)
+		SET(WIN_PKG_ROOT ${CMAKE_SOURCE_DIR}/windows_package)
+		# Copy license file into windows package directory and install it.
+		CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/COPYING" "${WIN_PKG_ROOT}/license.txt")
+		INSTALL(FILES "${WIN_PKG_ROOT}/license.txt" DESTINATION .)
+		# Install Console.
+		INSTALL(FILES
+			${WIN_PKG_ROOT}/console/Console.exe
+			${WIN_PKG_ROOT}/console/FreeImage.dll
+			${WIN_PKG_ROOT}/console/console.chm
+			${WIN_PKG_ROOT}/console/console.xml
+			${WIN_PKG_ROOT}/console/ConsoleHook.dll
+			${WIN_PKG_ROOT}/console/FreeImagePlus.dll
+			DESTINATION .
+		)
+		INSTALL(FILES
+			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcm90.dll
+			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcr90.dll
+			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcp90.dll
+			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/Microsoft.VC90.CRT.manifest
+			DESTINATION Microsoft.VC90.CRT
+		)
+		# Install IPython profile file.
+		INSTALL(FILES
+			${CMAKE_SOURCE_DIR}/extras/ipy_profile_pygmo.py
+			DESTINATION .
+		)
+	ENDIF(WIN32)
 ENDIF(BUILD_PYGMO)
 
 # Link main to pagmo_static library.
