@@ -91,7 +91,8 @@ IF(BUILD_PYGMO)
 		SET(WIN_PKG_ROOT ${CMAKE_SOURCE_DIR}/windows_package)
 		# Copy license file into windows package directory and install it.
 		CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/COPYING" "${WIN_PKG_ROOT}/license.txt")
-		INSTALL(FILES "${WIN_PKG_ROOT}/license.txt" DESTINATION .)
+		CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/README" "${WIN_PKG_ROOT}/readme.txt")
+		INSTALL(FILES "${WIN_PKG_ROOT}/license.txt" "${WIN_PKG_ROOT}/readme.txt" DESTINATION .)
 		# Install Console.
 		INSTALL(FILES
 			${WIN_PKG_ROOT}/console/Console.exe

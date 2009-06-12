@@ -39,25 +39,27 @@ SET(CPACK_STRIP_FILES TRUE)
 
 IF(CPACK_GENERATOR MATCHES "NSIS")
 	# With NSIS we have further possibilities for customization.
-	#SET(CPACK_NSIS_DISPLAY_NAME "${PROJECT_NAME} ${VERSION}")
+	SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_NAME} ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 	# Apparently this escaping madness is necessary due to an NSIS bug.
 	SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\pagmo.sf.net")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\pagmo.sf.net")
 	# Add shortcuts to the Start Menu.
 	SET(CPACK_NSIS_CREATE_ICONS_EXTRA
 		"
-	#	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Pyranha.lnk\\\" \\\"$INSTDIR\\\\Console.exe\\\"
+		CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\PaGMO.lnk\\\" \\\"$INSTDIR\\\\Console.exe\\\"
 	#	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Examples.lnk\\\" \\\"$INSTDIR\\\\examples\\\"
 		CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\License.lnk\\\" \\\"$INSTDIR\\\\license.txt\\\"
+		CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Readme.lnk\\\" \\\"$INSTDIR\\\\readme.txt\\\"
 	#	CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Changelog.lnk\\\" \\\"$INSTDIR\\\\changelog.txt\\\"
 		"
 	)
 	# Delete shortcuts when uninstalling.
 	SET(CPACK_NSIS_DELETE_ICONS_EXTRA
 		"
-	#	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\Pyranha.lnk\\\"
+		Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\PaGMO.lnk\\\"
 	#	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\Examples.lnk\\\"
 		Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\License.lnk\\\"
+		Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\Readme.lnk\\\"
 	#	Delete \\\"$SMPROGRAMS\\\\$MUI_TEMP\\\\Changelog.lnk\\\"
 		"
 	)
