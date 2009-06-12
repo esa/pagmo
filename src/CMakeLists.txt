@@ -97,16 +97,22 @@ SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_grammar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_iarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_wiprimitive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_woprimitive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_wiarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_woarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/utf8_codecvt_facet.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wgrammar.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wiarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_woarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/codecvt_null.cpp
 )
+
+# Disable UTF-8 serialization in MinGW, since the latest stable version does not support it.
+IF(NOT MINGW)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_wiprimitive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_woprimitive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_wiarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_woarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/utf8_codecvt_facet.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wgrammar.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wiarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_woarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/codecvt_null.cpp
+	)
+ENDIF(NOT MINGW)
 
 # Create a pagmo_static library if main is requested.
 IF(BUILD_MAIN)
