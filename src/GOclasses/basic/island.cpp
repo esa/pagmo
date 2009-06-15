@@ -287,13 +287,7 @@ void island::evolve(int N)
 			/// \todo throw;
 		}
 	} else {
-// WORKAROUND: apparently there are some issues here with  exception throwing
-// under MinGW when evolution is running in another thread. This needs to be investigated.
-#ifdef PAGMO_WIN32
-		std::cout << "Cannot evolve while still evolving!\n";
-#else
 		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
-#endif
 	}
 }
 
@@ -307,11 +301,7 @@ void island::evolve_t(const size_t &t)
 			/// \todo throw;
 		}
 	} else {
-#ifdef PAGMO_WIN32
-		std::cout << "Cannot evolve while still evolving!\n";
-#else
 		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
-#endif
 	}
 }
 
@@ -357,9 +347,9 @@ void island::int_evolver::operator()()
 			}
 		}
 	} catch (const std::exception &e) {
-		std::cout << "Error during evolution: " << e.what() << '\n';
+		std::cout << "Error during island evolution: " << e.what() << '\n';
 	} catch (...) {
-		std::cout << "Unknown exception caught. :(\n";
+		std::cout << "Error during island evolution, unknown exception caught. :(\n";
 	}
 	// We must take care of potentially low-accuracy clocks, where the time difference could be negative for
 	// _really_ short evolution times. In that case do not add anything to the total evolution time.
