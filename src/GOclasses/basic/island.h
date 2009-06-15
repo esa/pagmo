@@ -93,7 +93,7 @@ class __PAGMO_VISIBLE island
 		/**
 		 * Creates an island associated with a specified problem, using the specified algorithm, having
 		 * an initial population of given size and using specified migration parameters.
-		 * Deep copies of the migration policy is created and internally stored (what allows safe milti-thread operation).
+		 * Deep copies of the migration policy is created and internally stored (which allows safe multi-thread operation).
 		 * \param[in] p Problem to be associated with the island.
 		 * \param[in] al Algorithm to be used by the island.
 		 * \param[in] n Size of the island's population.
@@ -253,7 +253,7 @@ class __PAGMO_VISIBLE island
 		
 		/// Start an evolution fo the specified amount of time.
 		/**
-		 * The algorithm is run for at least the specified amount of time.
+		 * The algorithm is run for at least the specified amount of time and for at least one iteration.
 		 * \param[in] t time for the algorithm to run, in miliseconds.
 		 * Evolution will be launched in a separate thread. The method will fail with an exception if the
 		 * evolution is already running.
