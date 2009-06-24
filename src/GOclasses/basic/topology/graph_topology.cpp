@@ -58,7 +58,7 @@ bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& isla
 {
 	if(contains_node(island1_id) && contains_node(island2_id)) {
 		const std::vector<size_t>& out_neighbours = lists_out.find(island1_id)->second;
-		return find(out_neighbours.begin(), out_neighbours.end(), island2_id) != out_neighbours.end();
+		return std::find(out_neighbours.begin(), out_neighbours.end(), island2_id) != out_neighbours.end();
 	} else {
 		return false;
 	}
@@ -130,8 +130,8 @@ void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2
 	check_node_present(island1_id);
 	check_node_present(island2_id);
 
-	std::vector<size_t>::iterator position_out = find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id);
-	std::vector<size_t>::iterator position_in = find(lists_in[island2_id].begin(), lists_in[island2_id].end(), island1_id);
+	std::vector<size_t>::iterator position_out = std::find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id);
+	std::vector<size_t>::iterator position_in = std::find(lists_in[island2_id].begin(), lists_in[island2_id].end(), island1_id);
 	
 	lists_out[island1_id].erase(position_out);
 	lists_in[island2_id].erase(position_in);
