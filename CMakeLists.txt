@@ -55,14 +55,17 @@ SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 IF(UNIX)
 	# Install path for libraries.
 	SET(LIB_INSTALL_PATH "lib")
-	# TODO: use FindThreads library from CMake here instead.
+	# NOTICE: use FindThreads library from CMake here instead?
 	# If we are in Unix, let's require pthread.
 	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
 	IF(NOT PTHREAD_LIBRARY)
 		MESSAGE(FATAL_ERROR "POSIX thread library not found, please install it or specify manually where it is located.")
 	ENDIF(NOT PTHREAD_LIBRARY)
 	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	# Enable the pthread flag in Unix only if the compiler is GNU.
+	IF(CMAKE_COMPILER_IS_GNUCXX)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 ELSE(UNIX)
 	IF(NOT WIN32)
 		MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
