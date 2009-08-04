@@ -42,10 +42,19 @@ IF(COMMAND CMAKE_POLICY)
     CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND CMAKE_POLICY)
 
+# Provides build options to CMake
+# Build Option: when active the file main.cpp is built and linked to the PaGMO static library
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
-OPTION(BUILD_PYGMO "Build Python bindings." OFF)
-OPTION(ENABLE_GAL "Enable support for GAL library." OFF)
 
+# Build Option: when active the bindings to Python are compiled and linked (installation)
+OPTION(BUILD_PYGMO "Build Python bindings." OFF)
+
+# Build Option: when active the Generic Astrodynamic Library (see http://homepage.mac.com/pclwillmott/GAL/index.html) is linked to the code
+OPTION(ENABLE_GAL "Enable to link to GAL library routines" OFF)
+
+# Here we check that the Generic Astrodynamic Library GAL has been installed in the machine and if not we throw an error. 
+# We also add the compiler directive PAGMO_HAVE_GAL that must be used in the code to skip files including using the GAL headers in case
+# ENABLE_GAL build option is not selected
 IF(ENABLE_GAL)
 	FIND_LIBRARY(GAL_LIBRARY gal)
 	IF(NOT GAL_LIBRARY)
