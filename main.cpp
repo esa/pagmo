@@ -23,20 +23,55 @@
  *****************************************************************************/
 
 #include <iostream>
-
-#include "src/GOclasses/algorithms/CS.h"
-#include "src/GOclasses/basic/island.h"
-#include "src/GOclasses/problems/TrajectoryProblems.h"
+#include <cmath>
+#include <gal_odeint.h>
 
 using namespace std;
 
-int main(){
-        CSalgorithm algo(0.001);
-        messengerfullProb prob;
-        island isl(prob,algo,20);
-        cout << "Best: " << isl.best().getFitness() << endl;
-        isl.evolve();
-        isl.join();
-        cout << "Best: " << isl.best().getFitness() << endl;
+
+void dy (double t,double y[],double dy[], int* param);
+
+int main()
+{
+        double y[6]; 			//Contains the spacecraft state
+	int nvar = 6;	  		//This is the number of equations
+	double t0 = 0;	  		//Starting integration time
+	double tf = 2 * M_PI;		//End integration time
+	double eps = 1e-29;		//Accuracy
+	double h1 = 0.01;		//First guess for the step
+	double hmin = 1e-18;		//Minimum allowed step size
+	
+	int* param;			//Parameters
+	int retval;			//RetVal
+	
+	
+	
+	//Initialise initial conditions
+	y[0] = 1;
+	y[1] = 0;
+	y[2] = 0;
+	y[3] = 0;
+	y[4] = 1;
+	y[5] = 0;
+	
+	cout << "Test for the GAL library ODE integrators: " << endl;
+	cout << "Initial conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
+	
+	//Integrate
+	retval = gal_rkf(y,nvar,t0,tf,eps,h1,hmin,dy,gal_rkfcks45,param);
+	
+	cout << "Return value: " << retval << endl;
+	cout << "Final conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
         return 0;
+}
+
+void dy (double t,double y[],double dy[], int* param){
+  double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
+  double r3 = r*r*r;
+  dy[0] = y[3];
+  dy[1] = y[4];
+  dy[2] = y[5];
+  dy[3] = - y[0] / r3;
+  dy[4] = - y[1] / r3;
+  dy[5] = - y[2] / r3;
 }
