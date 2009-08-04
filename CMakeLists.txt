@@ -44,6 +44,16 @@ ENDIF(COMMAND CMAKE_POLICY)
 
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
+OPTION(ENABLE_GAL "Enable support for GAL library." OFF)
+
+IF(ENABLE_GAL)
+	FIND_LIBRARY(GAL_LIBRARY gal)
+	IF(NOT GAL_LIBRARY)
+		MESSAGE(FATAL_ERROR "GAL library support requested, but libraries not found.")
+	ENDIF(NOT GAL_LIBRARY)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} gal)
+	ADD_DEFINITIONS(-DPAGMO_HAVE_GAL)
+ENDIF(ENABLE_GAL)
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
