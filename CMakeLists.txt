@@ -7,6 +7,9 @@ SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 INCLUDE(CheckTypeSize)
 INCLUDE(PaGMOCPackSetup)
 
+# Initialise (empty) list of libraries to link against.
+SET(MANDATORY_LIBRARIES "")
+
 # Configuration for GCC.
 IF(CMAKE_COMPILER_IS_GNUCXX)
 	# Add to the base flags extra warnings, and set up message reporting from the compiler so that it is Eclipse-friendly.
@@ -55,6 +58,7 @@ OPTION(ENABLE_GAL "Enable to link to GAL library routines" OFF)
 # Here we check that the Generic Astrodynamic Library GAL has been installed in the machine and if not we throw an error. 
 # We also add the compiler directive PAGMO_HAVE_GAL that must be used in the code to skip files including using the GAL headers in case
 # ENABLE_GAL build option is not selected
+
 IF(ENABLE_GAL)
 	FIND_LIBRARY(GAL_LIBRARY gal)
 	IF(NOT GAL_LIBRARY)
@@ -66,8 +70,6 @@ ENDIF(ENABLE_GAL)
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
-
-SET(MANDATORY_LIBRARIES "")
 
 # Some common platform switches.
 SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
