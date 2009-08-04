@@ -37,9 +37,9 @@ int main()
 	int nvar = 6;	  		//This is the number of equations
 	double t0 = 0;	  		//Starting integration time
 	double tf = 2 * M_PI;		//End integration time
-	double eps = 1e-29;		//Accuracy
-	double h1 = 0.01;		//First guess for the step
-	double hmin = 1e-18;		//Minimum allowed step size
+	double eps = 1e-14;		//Accuracy
+	double h1 = 1e-2;		//First guess for the step
+	double hmin = 1e-19;		//Minimum allowed step size
 	
 	int* param;			//Parameters
 	int retval;			//RetVal
@@ -47,18 +47,18 @@ int main()
 	
 	
 	//Initialise initial conditions
-	y[0] = 1;
+	y[0] = 0.1;
 	y[1] = 0;
 	y[2] = 0;
 	y[3] = 0;
-	y[4] = 1;
+	y[4] = 0.1;
 	y[5] = 0;
 	
 	cout << "Test for the GAL library ODE integrators: " << endl;
 	cout << "Initial conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
 	
 	//Integrate
-	retval = gal_rkf(y,nvar,t0,tf,eps,h1,hmin,dy,gal_rkfcks45,param);
+	retval = gal_rkf(y,nvar,t0,tf,eps,h1,hmin,dy,gal_rkfs78,param);
 	
 	cout << "Return value: " << retval << endl;
 	cout << "Final conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
