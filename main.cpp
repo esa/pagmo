@@ -44,15 +44,23 @@ int main()
 	int* param;			//Parameters
 	int retval;			//RetVal
 	
+	double thrust[3];
+	thrust[0] = 1e-4;
+	thrust[1] = 0;
+	thrust[2] = 0;
 	
+	param = (int*) thrust;
 	
 	//Initialise initial conditions
 	y[0] = 0.1;
 	y[1] = 0;
 	y[2] = 0;
 	y[3] = 0;
-	y[4] = 0.1;
+	y[4] = sqrt(1/y[0]);
 	y[5] = 0;
+	
+	//Set integration tuime to one period
+	tf *= pow(y[0],3.0/2.0);
 	
 	cout << "Test for the GAL library ODE integrators: " << endl;
 	cout << "Initial conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
@@ -66,12 +74,16 @@ int main()
 }
 
 void dy (double t,double y[],double dy[], int* param){
+
+  double* thrust;
+  thrust = (double*) param;
+  
   double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
   double r3 = r*r*r;
   dy[0] = y[3];
   dy[1] = y[4];
   dy[2] = y[5];
-  dy[3] = - y[0] / r3;
-  dy[4] = - y[1] / r3;
-  dy[5] = - y[2] / r3;
+  dy[3] = - y[0] / r3 + thrust[0];
+  dy[4] = - y[1] / r3 + thrust[1];
+  dy[5] = - y[2] / r3 + thrust[2];
 }

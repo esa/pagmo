@@ -32,24 +32,26 @@
 
 #include "GOproblem.h"
 
-
-/// The Earth-Mars Low-thrust problem,Sims-Flanagan transcription
+/// The Earth-Mars Low-thrust problem, a novel transcription
 /**
  * In the paper form 1999 by Sims-Flanagan "Preliminary Design of Low-Thrust Interplanetary Missions"
  * a new direct transcription method was presented. The method, alternative to Hermite-Simpson type of
  * transcription, was noted by the authors to have really good convergence properties and speed. 
- * The same method can be transported into a global optimisation framework with only minor modifications
- * giving birth to what we call here an impulsive transcription method.
- * earth_mars_lt_problem creates a global optimisation problem that is an impulsive transcription of the OCP
- * describing a low-thrust trajectory from an Earth launch to a Mars randezvous
+ * We do not think the authors realised that their method coul be significantly generalised and extended to Optimal
+ * Control Problems in general. Their transcription allows for the dynamic to be explicitly accounted for in the objective function
+ * evaluation and not to be considered as a constraint to be solved by the NLP algorithm choosen (as it is in the case of Hermite-Simpson 
+ * transcriptions). In this problem we implement a generalization of the Sims-Flanagan method that does not use impulsive velocity changes,
+ * but rather integrates for each segment the equation of motion using a continuous thrust having fixed inertial direction to be optimised.
+ * This creates a problem whose solution is actually a feasible trajectory for the considered spacecraft and needs no further feasibility
+ * correction. The problem of an Earth Launch, Mars randevouz is chosen as in the case of earth_mars_lt_problem2. The two problems are indeed
+ * comparable both in terms of computational speed and objective function value.
  */
 
-
-class __PAGMO_VISIBLE earth_mars_lt_problem: public GOProblem {
+class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 	public:
 		 /// Constructor
 		 /**
-		 * This instantiate a "earth_mars_lt_problem". This is an impulsive transcription of the low-thrust
+		 * This instantiate a "earth_mars_lt_problem2". This is a transcription of the low-thrust
 		 * trajectory optimisation from Earth Launch to Mars Randezvous. 
 		 *
 		 * \param[in] segments number of segments the trajectory is divided into
@@ -57,10 +59,18 @@ class __PAGMO_VISIBLE earth_mars_lt_problem: public GOProblem {
 		 * \param[in] thrust   maximumm thrust achievable in N
 		 * \param[in] Isp      thrusters specific impulse in seconds
 		 */
-		earth_mars_lt_problem(int, const double &, const double &, const double &);
+		earth_mars_lt_problem(int segments, const double & mass, const double & thrust, const double & Isp);
 		virtual earth_mars_lt_problem *clone() const {return new earth_mars_lt_problem(*this);}
 		virtual std::string id_object() const {return "hippo's problem";}
-		void human_readable(const std::vector<double> &) const;
+		
+		/// Decision Vector log in human-readable format
+		/**
+		 * This function uses the standard output device to print the decision vector of this problem
+		 * in a human-readable format
+		 *
+		 * \param[in] x decision vector (or chromosome)
+		 */
+		void human_readable(const std::vector<double> & x) const;
 	private:
 		virtual double objfun_(const std::vector<double> &) const;
 		double main_objfun(const std::vector<double> &) const;
