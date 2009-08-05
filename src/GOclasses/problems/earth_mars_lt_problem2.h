@@ -83,6 +83,7 @@ class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 		static void back_punch(double *, const double *, const double &, const double &);
 		static void propagate(double *, double *, const double &);
 		static void back_propagate(double *, double *, const double &);
+                static void dy (double t,double y[],double dy[], int* param);
 	private:
 		int 	n;
 		double 	M;

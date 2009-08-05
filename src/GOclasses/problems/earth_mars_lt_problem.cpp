@@ -79,7 +79,7 @@ earth_mars_lt_problem::earth_mars_lt_problem(int n_, const double &M_, const dou
 	UB.back() = 1000;
 }
 
-void earth_mars_lt_problem2::human_readable(const std::vector<double> &x) const
+void earth_mars_lt_problem::human_readable(const std::vector<double> &x) const
 {
 	std::cout <<
 		"number of segments:\t\t" << n << '\n' <<
@@ -107,7 +107,7 @@ void earth_mars_lt_problem2::human_readable(const std::vector<double> &x) const
 	std::cout << "total DV (km/s):\t" << main_objfun(x) * V<< '\n';
 	std::cout << "final mass (kg):\t" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << '\n';
 }
-}
+
 
 double earth_mars_lt_problem::objfun_(const std::vector<double> &x) const
 {

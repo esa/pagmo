@@ -293,3 +293,18 @@ void earth_mars_lt_problem::back_propagate(double *r, double *v, const double &t
 	v[1] = -dummy_v[1];
 	v[2] = -dummy_v[2];
 }
+
+void earth_mars_lt_problem2::dy (double t,double y[],double dy[], int* param){
+
+  double* _thrust;
+  _thrust = (double*) param;
+
+  double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
+  double r3 = r*r*r;
+  dy[0] = y[3];
+  dy[1] = y[4];
+  dy[2] = y[5];
+  dy[3] = - y[0] / r3 + _thrust[0];
+  dy[4] = - y[1] / r3 + _thrust[1];
+  dy[5] = - y[2] / r3 + _thrust[2];
+}
