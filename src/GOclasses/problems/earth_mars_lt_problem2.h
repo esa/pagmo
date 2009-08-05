@@ -52,7 +52,7 @@ class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 		 /// Constructor
 		 /**
 		 * This instantiate a "earth_mars_lt_problem2". This is a transcription of the low-thrust
-		 * trajectory optimisation from Earth Launch to Mars Randezvous. 
+		 * trajectory optimisation from Earth Launch to Mars Randezvous using a novel transcription method
 		 *
 		 * \param[in] segments number of segments the trajectory is divided into
 		 * \param[in] mass     spacecraft launch mass in kg
@@ -65,7 +65,7 @@ class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 		
 		/// Decision Vector log in human-readable format
 		/**
-		 * This function uses the standard output device to print the decision vector of this problem
+		 * This function uses the standard output device to print the decision vector
 		 * in a human-readable format
 		 *
 		 * \param[in] x decision vector (or chromosome)

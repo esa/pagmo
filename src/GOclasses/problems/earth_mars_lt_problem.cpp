@@ -79,7 +79,7 @@ earth_mars_lt_problem::earth_mars_lt_problem(int n_, const double &M_, const dou
 	UB.back() = 1000;
 }
 
-void earth_mars_lt_problem::human_readable(const std::vector<double> &x) const
+void earth_mars_lt_problem2::human_readable(const std::vector<double> &x) const
 {
 	std::cout <<
 		"number of segments:\t\t" << n << '\n' <<
@@ -87,24 +87,26 @@ void earth_mars_lt_problem::human_readable(const std::vector<double> &x) const
 		"max DV per segment (km/s):\t" << (thrust * F / M * x.back() * 86400. / n) << '\n' <<
 		"mass:\t\t" << M << '\n' <<
 		"dep. date (mjd2000):\t" << x[0] << '\n' <<
-		"vinf at departure:\t" << x[1] << '\n';
+		"vinf at departure (km/s):\t" << x[1] << '\n';
+	
 	std::cout << "DV\t\tvx\tvy\tvz\t\n";
 	double tmp_velocity[3];
 	double dt = (x.back() / n) * 86400 / T;
 	for (size_t i = 0; i < (size_t)n; ++i) {
 		ruv2cart(tmp_velocity,&x[3 * i + 4]);
 		std::cout << x[3 * i + 4] * thrust / M * dt * V << "\t\t";
-		std::cout << tmp_velocity[0] * V * thrust / M * dt << '\t' << tmp_velocity[1] * V * thrust / M * dt <<
-			'\t' << tmp_velocity[2] * V * thrust / M * dt << '\n';
+		std::cout << tmp_velocity[0] * thrust / M * dt * V << '\t' << tmp_velocity[1] * thrust / M * dt * V <<
+			'\t' << tmp_velocity[2] * thrust / M * dt * V << '\n';
 	}
-	std::cout << "duration (days):\t" << x.back() << '\n';
+	
+	std::cout << "time of flight (days):\t" << x.back() << '\n';
 	double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
 	state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
-	std::cout << "pos mismatch:\t" << (r_fwd[0] - r_back[0]) << '\t' << (r_fwd[1] - r_back[1]) << '\t' << (r_fwd[2] - r_back[2]) << '\n';
-	std::cout << "vel mismatch:\t" << (v_fwd[0] - v_back[0]) << '\t' << (v_fwd[1] - v_back[1]) << '\t' << (v_fwd[2] - v_back[2]) << '\n';
-	std::cout << "total DV:\t" << main_objfun(x) << '\n';
-	std::cout << "estimated final mass:\t" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << '\n';
-	//std::cout << "DV_penalty:\t" << state_mismatch(x) * V << '\n';
+	std::cout << "pos mismatch (no dim):\t" << (r_fwd[0] - r_back[0]) << '\t' << (r_fwd[1] - r_back[1]) << '\t' << (r_fwd[2] - r_back[2]) << '\n';
+	std::cout << "vel mismatch (no dim):\t" << (v_fwd[0] - v_back[0]) << '\t' << (v_fwd[1] - v_back[1]) << '\t' << (v_fwd[2] - v_back[2]) << '\n';
+	std::cout << "total DV (km/s):\t" << main_objfun(x) * V<< '\n';
+	std::cout << "final mass (kg):\t" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << '\n';
+}
 }
 
 double earth_mars_lt_problem::objfun_(const std::vector<double> &x) const
