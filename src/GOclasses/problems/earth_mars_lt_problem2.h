@@ -24,6 +24,9 @@
 
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
 
+
+#if PAGMO_HAVE_GAL
+
 #ifndef EARTH_MARS_LT2_H
 #define EARTH_MARS_LT2_H
 
@@ -97,4 +100,5 @@ class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 		const double hmin;		//Minimum allowed step size	
 };
 
+#endif 
 #endif

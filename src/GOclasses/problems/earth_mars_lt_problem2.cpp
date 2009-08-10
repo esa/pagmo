@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
+#if PAGMO_HAVE_GAL
 
 #include <cmath>
 #include <iostream>
@@ -44,7 +45,7 @@
 int* param;	
 
 earth_mars_lt_problem2::earth_mars_lt_problem2(int n_, const double &M_, const double &thrust_, const double &Isp_):
-	GOProblem(n_ * 3 + 5),n(n_),M(M_),thrust((thrust_ / 1000) / F),Isp(Isp_),eq_n(6),eps(1e-12),h1(1e-2),hmin(1e-9)
+	GOProblem(n_ * 3 + 5),n(n_),M(M_),thrust((thrust_ / 1000) / F),Isp(Isp_),eq_n(6),eps(1e-10),h1(1e-2),hmin(1e-12)
 {
 	
 	// Launch date in MJD200
@@ -141,17 +142,17 @@ void earth_mars_lt_problem2::state_mismatch(const std::vector<double> &x, double
 	//Forward Propagation
 	for (int i = 0; i < n_seg_fwd; ++i) {
 		ruv2cart(fixed_thrust,&x[3*i+4]);   //We extract from the decision vector the throttle
-		fixed_thrust[0] *= thrust;	   //And we evaluate the actual thrust (non dimensional)	
-		fixed_thrust[1] *= thrust;
-		fixed_thrust[2] *= thrust;
+		fixed_thrust[0] *= thrust / M;	   //And we evaluate the actual thrust (non dimensional)	
+		fixed_thrust[1] *= thrust / M;
+		fixed_thrust[2] *= thrust / M;
 		propagate(r_fwd,v_fwd,dt,fixed_thrust);
 	}
 	//Backward Propagation
 	for (int i = 0; i < n_seg_back; ++i) {
 	        ruv2cart(fixed_thrust,&x[ (x.size()-1) - 3 * (i+1) ]);
-		fixed_thrust[0] *= thrust;
-		fixed_thrust[1] *= thrust;
-		fixed_thrust[2] *= thrust;
+		fixed_thrust[0] *= thrust / M;
+		fixed_thrust[1] *= thrust / M;
+		fixed_thrust[2] *= thrust / M;
 		back_propagate(r_back,v_back,dt,fixed_thrust);
 	}
 }
@@ -227,8 +228,10 @@ void earth_mars_lt_problem2::propagate(double *r, double *v, const double &t, do
 	//Integrate
 	retval = gal_rkf(y,eq_n,0,t,eps,h1,hmin,dy,gal_rkfs78,param);
 	
+	
 	if (retval != 0) {
-	      pagmo_throw(value_error,"error in GAL propagator. Non convergence reached");
+	      std::cout << "fwd: " << retval << std::endl;
+	      //pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached");
 	}
 	
 	//Copy state y into output r,v
@@ -250,8 +253,10 @@ void earth_mars_lt_problem2::back_propagate(double *r, double *v, const double &
 	//Integrate
 	retval = gal_rkf(y,eq_n,0,t,eps,h1,hmin,dy,gal_rkfs78,param);
 	
+	
 	if (retval != 0){
-	      pagmo_throw(value_error,"error in GAL propagator. Non convergence reached");
+	      std::cout << "bck: " << retval << std::endl;
+	      //pagmo_throw(value_error,"error in back-propagator. Non convergence reached");
 	}
 	
 	//Copy state y into output r,v
@@ -264,7 +269,7 @@ void earth_mars_lt_problem2::dy (double t,double y[],double dy[], int* param){
 
   double* th;
   th = (double*) param;
-  
+    
   double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
   double r3 = r*r*r;
   dy[0] = y[3];
@@ -274,3 +279,5 @@ void earth_mars_lt_problem2::dy (double t,double y[],double dy[], int* param){
   dy[4] = - y[1] / r3 + th[1];
   dy[5] = - y[2] / r3 + th[2];
 }
+
+#endif
