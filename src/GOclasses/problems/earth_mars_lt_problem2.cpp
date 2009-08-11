@@ -145,6 +145,7 @@ void earth_mars_lt_problem2::state_mismatch(const std::vector<double> &x, double
 		fixed_thrust[0] *= thrust / M;	   //And we evaluate the actual thrust (non dimensional)	
 		fixed_thrust[1] *= thrust / M;
 		fixed_thrust[2] *= thrust / M;
+		std::cout << r_fwd[0] << " " << r_fwd[1] << " " << r_fwd[2] << " " << v_fwd[0] << " " << v_fwd[1] << " " << v_fwd[2] << " " << fixed_thrust[0] << " " << fixed_thrust[1] << " " << fixed_thrust[2] << std::endl;
 		propagate(r_fwd,v_fwd,dt,fixed_thrust);
 	}
 	//Backward Propagation

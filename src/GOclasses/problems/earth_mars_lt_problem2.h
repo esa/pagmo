@@ -25,7 +25,7 @@
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
 
 
-#if PAGMO_HAVE_GAL
+#if PAGMO_HAVE_GAL //this allows to not compile this file should the GAL library not be installed
 
 #ifndef EARTH_MARS_LT2_H
 #define EARTH_MARS_LT2_H
