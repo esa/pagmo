@@ -44,6 +44,8 @@ int main()
        cout << "Best: " << gorriti.best().getFitness() << endl;
        cout << "Worst: " << gorriti.worst().getFitness() << endl;
        cout << "Time Elapsed: " << gorriti.evo_time() << endl;
+       
+       prob.human_readable(gorriti.best().getDecisionVector());
 
 	
 	//Sample Code to Test GAL integration routine 
@@ -76,7 +78,7 @@ int main()
 	//Set integration tuime to one period
 	tf *= pow(y[0],3.0/2.0);
 	
-	cout << "Test for the GAL library ODE integrators: " << endl;
+	cout << endl << "Test for the GAL library ODE integrators: " << endl;
 	cout << "Initial conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
 	
 	//Integrate

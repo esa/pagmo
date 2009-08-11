@@ -26,6 +26,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 
 #include "../../AstroToolbox/Pl_Eph_An.h"
@@ -81,31 +82,35 @@ earth_mars_lt_problem::earth_mars_lt_problem(int n_, const double &M_, const dou
 
 void earth_mars_lt_problem::human_readable(const std::vector<double> &x) const
 {
-	std::cout <<
-		"number of segments:\t\t" << n << '\n' <<
-		"max thrust:\t\t" << thrust * F * 1000 << '\n' <<
-		"max DV per segment (km/s):\t" << (thrust * F / M * x.back() * 86400. / n) << '\n' <<
-		"mass:\t\t" << M << '\n' <<
-		"dep. date (mjd2000):\t" << x[0] << '\n' <<
-		"vinf at departure (km/s):\t" << x[1] << '\n';
+	using namespace std;
+	cout << left << "*********************** " << endl;
+	cout << "Trajectory description: " << endl;
+	cout << "*********************** " << endl << endl;
+	cout << setw(40) << "Number of segments:" << n << endl <<
+	        setw(40) << "Max thrust:" << thrust * F * 1000 << " N" << endl <<
+	        setw(40) << "Max DV per segment:" << (thrust * F / M * x.back() * 86400. / n) << " Km/s" << endl <<
+		setw(40) << "Initial mass:" << M << " Kg" << endl <<
+		setw(40) << "Departure date:" << x[0] << " MJD2000" << endl <<
+		setw(40) << "Vinf at departure:" << x[1] << " Km/s" << endl << endl;
 	
-	std::cout << "DV\t\tvx\tvy\tvz\t\n";
+	cout << setw(25) << "DV" << setw(15) << right << "vx" << setw(15) << "vy" << setw(15) << "vz" << left << endl;
 	double tmp_velocity[3];
 	double dt = (x.back() / n) * 86400 / T;
 	for (size_t i = 0; i < (size_t)n; ++i) {
 		ruv2cart(tmp_velocity,&x[3 * i + 4]);
-		std::cout << x[3 * i + 4] * thrust / M * dt * V << "\t\t";
-		std::cout << tmp_velocity[0] * thrust / M * dt * V << '\t' << tmp_velocity[1] * thrust / M * dt * V <<
-			'\t' << tmp_velocity[2] * thrust / M * dt * V << '\n';
+		cout << setw(25) << x[3 * i + 4] * thrust / M * dt * V << right;
+		cout << setw(15) << tmp_velocity[0] * thrust / M * dt * V << setw(15) << tmp_velocity[1] * thrust / M * dt * V << setw(15) << tmp_velocity[2] * thrust / M * dt * V << left << endl;
 	}
 	
-	std::cout << "time of flight (days):\t" << x.back() << '\n';
+	
 	double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
 	state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
-	std::cout << "pos mismatch (no dim):\t" << (r_fwd[0] - r_back[0]) << '\t' << (r_fwd[1] - r_back[1]) << '\t' << (r_fwd[2] - r_back[2]) << '\n';
-	std::cout << "vel mismatch (no dim):\t" << (v_fwd[0] - v_back[0]) << '\t' << (v_fwd[1] - v_back[1]) << '\t' << (v_fwd[2] - v_back[2]) << '\n';
-	std::cout << "total DV (km/s):\t" << main_objfun(x) * V<< '\n';
-	std::cout << "final mass (kg):\t" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << '\n';
+	cout << endl << setw(25) << "Pos mismatch:" << right << setw(15) << (r_fwd[0] - r_back[0]) << setw(15) << (r_fwd[1] - r_back[1]) << setw(15) << (r_fwd[2] - r_back[2]) << left << endl;
+	cout << setw(25) << "Vel mismatch:" << right << setw(15) << (v_fwd[0] - v_back[0]) << setw(15) << (v_fwd[1] - v_back[1]) << setw(15) << (v_fwd[2] - v_back[2]) << left << endl << endl;
+	
+	cout << setw(40) << "Time of flight:" << x.back() << " days" << endl;
+	cout << setw(40) << "Total DV:" << main_objfun(x) * V << " Km/s" << endl;
+	cout << setw(40) << "Final mass:" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << " Kg" << endl;
 }
 
 
