@@ -145,9 +145,9 @@ void earth_mars_lt_problem2::state_mismatch(const std::vector<double> &x, double
 		fixed_thrust[0] *= thrust / M;	   //And we evaluate the actual thrust (non dimensional)	
 		fixed_thrust[1] *= thrust / M;
 		fixed_thrust[2] *= thrust / M;
-		std::cout << r_fwd[0] << " " << r_fwd[1] << " " << r_fwd[2] << " " << v_fwd[0] << " " << v_fwd[1] << " " << v_fwd[2] << " " << fixed_thrust[0] << " " << fixed_thrust[1] << " " << fixed_thrust[2] << std::endl;
 		propagate(r_fwd,v_fwd,dt,fixed_thrust);
 	}
+	
 	//Backward Propagation
 	for (int i = 0; i < n_seg_back; ++i) {
 	        ruv2cart(fixed_thrust,&x[ (x.size()-1) - 3 * (i+1) ]);
@@ -231,13 +231,12 @@ void earth_mars_lt_problem2::propagate(double *r, double *v, const double &t, do
 	
 	
 	if (retval != 0) {
-	      std::cout << "fwd: " << retval << std::endl;
-	      //pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached");
+	       pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached. TODO: implement this exception handling");
 	}
 	
 	//Copy state y into output r,v
 	r[0] = y[0]; r[1] = y[1]; r[2] = y[2];
-	v[0] = y[0]; v[1] = y[1]; v[2] = y[2];
+	v[0] = y[3]; v[1] = y[4]; v[2] = y[5];
 }
 
 void earth_mars_lt_problem2::back_propagate(double *r, double *v, const double &t, double* fixed_thrust) const
@@ -256,13 +255,12 @@ void earth_mars_lt_problem2::back_propagate(double *r, double *v, const double &
 	
 	
 	if (retval != 0){
-	      std::cout << "bck: " << retval << std::endl;
-	      //pagmo_throw(value_error,"error in back-propagator. Non convergence reached");
+	       pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached. TODO: implement this exception handling");
 	}
 	
 	//Copy state y into output r,v
 	r[0] = y[0]; r[1] = y[1]; r[2] = y[2];
-	v[0] = -y[0]; v[1] = -y[1]; v[2] = -y[2];
+	v[0] = -y[3]; v[1] = -y[4]; v[2] = -y[5];
 }
 
 

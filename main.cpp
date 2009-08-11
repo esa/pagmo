@@ -25,6 +25,9 @@
 #include <iostream>
 #include <cmath>
 #include <gal_odeint.h>
+#include "../src/GOclasses/basic/island.h"
+#include "../src/GOclasses/algorithms/DE.h"
+#include "../src/GOclasses/problems/earth_mars_lt_problem2.h"
 
 using namespace std;
 
@@ -33,7 +36,18 @@ void dy (double t,double y[],double dy[], int* param);
 
 int main()
 {
-        double y[6]; 			//Contains the spacecraft state
+       //Sample Code to Test the continuous transcription (uses GAL)
+       earth_mars_lt_problem2 prob(10,1500,0.135,3000);        
+       DEalgorithm algo(500,0.8,0.8,7);
+       island gorriti(prob,algo,20);
+       gorriti.evolve(); gorriti.join();
+       cout << "Best: " << gorriti.best().getFitness() << endl;
+       cout << "Worst: " << gorriti.worst().getFitness() << endl;
+       cout << "Time Elapsed: " << gorriti.evo_time() << endl;
+
+	
+	//Sample Code to Test GAL integration routine 
+	double y[6]; 			//Contains the spacecraft state
 	int nvar = 6;	  		//This is the number of equations
 	double t0 = 0;	  		//Starting integration time
 	double tf = 2 * M_PI;		//End integration time
