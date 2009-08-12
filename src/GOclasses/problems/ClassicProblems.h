@@ -47,7 +47,9 @@ class __PAGMO_VISIBLE testProb : public GOProblem {
 public:
         /// Constructor
        /**
-        * It instantiate a test problem
+        * It instantiate a test problem. This is essentially the minimization of the vector norm defined
+	* as the sum of the absolute values of its components. The problem
+	* can be used to test algorithm performances and debug the algorithm code.
         * \param[in] dim problem dimensions
         */
         testProb(int dim);

@@ -24,60 +24,81 @@
 
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
 
-#ifndef EARTH_MARS_LT_H
-#define EARTH_MARS_LT_H
+
+#if PAGMO_HAVE_GAL //this allows to not compile this file should the GAL library not be installed
+
+#ifndef EARTH_MARS_LT2_H
+#define EARTH_MARS_LT2_H
 
 #include <iostream>
 #include <vector>
 
 #include "GOproblem.h"
 
-
-/// The Earth-Mars Low-thrust problem,Sims-Flanagan transcription
+/// The Earth-Mars Low-thrust problem, a novel transcription
 /**
  * In the paper form 1999 by Sims-Flanagan "Preliminary Design of Low-Thrust Interplanetary Missions"
  * a new direct transcription method was presented. The method, alternative to Hermite-Simpson type of
  * transcription, was noted by the authors to have really good convergence properties and speed. 
- * The same method can be transported into a global optimisation framework with only minor modifications
- * giving birth to what we call here an impulsive transcription method.
- * earth_mars_lt_problem creates a global optimisation problem that is an impulsive transcription of the OCP
- * describing a low-thrust trajectory from an Earth launch to a Mars randezvous
+ * We do not think the authors realised that their method coul be significantly generalised and extended to Optimal
+ * Control Problems in general. Their transcription allows for the dynamic to be explicitly accounted for in the objective function
+ * evaluation and not to be considered as a constraint to be solved by the NLP algorithm choosen (as it is in the case of Hermite-Simpson 
+ * transcriptions). In this problem we implement a generalization of the Sims-Flanagan method that does not use impulsive velocity changes,
+ * but rather integrates for each segment the equation of motion using a continuous thrust having fixed inertial direction to be optimised.
+ * This creates a problem whose solution is actually a feasible trajectory for the considered spacecraft and needs no further feasibility
+ * correction. The problem of an Earth Launch, Mars randevouz is chosen as in the case of earth_mars_lt_problem2. The two problems are indeed
+ * comparable both in terms of computational speed and objective function value.
  */
 
-
-class __PAGMO_VISIBLE earth_mars_lt_problem: public GOProblem {
+class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 	public:
 		 /// Constructor
 		 /**
-		 * This instantiate a "earth_mars_lt_problem". This is an impulsive transcription of the low-thrust
-		 * trajectory optimisation from Earth Launch to Mars Randezvous. 
+		 * This instantiate a "earth_mars_lt_problem2". This is a transcription of the low-thrust
+		 * trajectory optimisation from Earth Launch to Mars Randezvous using a novel transcription method
 		 *
 		 * \param[in] segments number of segments the trajectory is divided into
 		 * \param[in] mass     spacecraft launch mass in kg
 		 * \param[in] thrust   maximumm thrust achievable in N
 		 * \param[in] Isp      thrusters specific impulse in seconds
 		 */
-		earth_mars_lt_problem(int, const double &, const double &, const double &);
-		virtual earth_mars_lt_problem *clone() const {return new earth_mars_lt_problem(*this);}
+		earth_mars_lt_problem2(int segments, const double & mass, const double & thrust, const double & Isp);
+		virtual earth_mars_lt_problem2 *clone() const {return new earth_mars_lt_problem2(*this);}
 		virtual std::string id_object() const {return "hippo's problem";}
-		void human_readable(const std::vector<double> &) const;
+		
+		/// Decision Vector log in human-readable format
+		/**
+		 * This function uses the standard output device to print the decision vector
+		 * in a human-readable format
+		 *
+		 * \param[in] x decision vector (or chromosome)
+		 */
+		void human_readable(const std::vector<double> & x) const;
 	private:
 		virtual double objfun_(const std::vector<double> &) const;
 		double main_objfun(const std::vector<double> &) const;
 		void state_mismatch(const std::vector<double> &, double *, double *, double *, double *) const;
+		
+		///To follow is a number of functions that are declared as private static. They should be somewhere else (i.e. a toolbox)
 		static void ruv2cart(double *, const double *);
 		static void earth_eph(const double &, double *, double *);
 		static void mars_eph(const double &, double *, double *);
 		static void kick(double *, const double *);
-		static void punch(double *, const double *, const double &, const double &);
-		static void back_punch(double *, const double *, const double &, const double &);
-		static void propagate(double *, double *, const double &);
-		static void back_propagate(double *, double *, const double &);
+		void propagate(double *r, double *v, const double &t, double* fixed_thrust) const;
+		void back_propagate(double *r, double *v, const double &t, double* fixed_thrust) const;
+                static void dy (double t,double y[],double dy[], int* param);		//Equations of Motion
 	private:
-		int 	n;
-		double 	M;
-		double 	thrust;
-		double	Isp;
+		int 	n;		//Number of segments
+		double 	M;		//Spacecraft mass
+		double 	thrust;		//Spacecraft Thrust
+		double	Isp;		//Spacecraft Specific Impulse
+		
+		//The following are needed for GAL numerical integartor
+		const int eq_n;		        //Number of equations to integrate 
+		const double eps;		//Accuracy of the integrator 
+		const double h1;		//First guess for the step 
+		const double hmin;		//Minimum allowed step size	
 };
 
+#endif 
 #endif

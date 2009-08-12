@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
+#if PAGMO_HAVE_GAL
 
 #include <cmath>
 #include <iostream>
@@ -30,10 +31,11 @@
 #include <vector>
 
 #include "../../AstroToolbox/Pl_Eph_An.h"
-#include "../../AstroToolbox/propagateKEP.h"
+#include <gal_odeint.h>
 #include "../../constants.h"
 #include "GOproblem.h"
-#include "earth_mars_lt_problem.h"
+#include "earth_mars_lt_problem2.h"
+#include "../../exceptions.h"
 
 #define R 149597870.66
 #define V std::sqrt(1.32712428e+11 / 149597870.66)
@@ -41,46 +43,39 @@
 #define A (R / (T * T))
 #define F (1 * A)
 
-// NOTE: parameters must be dimensional:
-// - thrust in Newton
-// - mass in kilograms
-earth_mars_lt_problem::earth_mars_lt_problem(int n_, const double &M_, const double &thrust_, const double &Isp_):
-	GOProblem(n_ * 3 + 5),n(n_),M(M_),thrust((thrust_ / 1000) / F),Isp(Isp_)
+int* param;	
+
+earth_mars_lt_problem2::earth_mars_lt_problem2(int n_, const double &M_, const double &thrust_, const double &Isp_):
+	GOProblem(n_ * 3 + 5),n(n_),M(M_),thrust((thrust_ / 1000) / F),Isp(Isp_),eq_n(6),eps(1e-10),h1(1e-2),hmin(1e-12)
 {
-// std::cout << "thrust:\t" << thrust << '\n';
-// std::cout << R << '\n';
-// std::cout << V << '\n';
-// std::cout << T << '\n';
-// std::cout << A << '\n';
-// std::cout << F << '\n';
-// std::cout << M << '\n';
-// std::cout << "-------" << '\n';
-	// NOTE: sphere picking coord.
-	// Dep. date.
+	
+	// Launch date in MJD200
 	LB[0] = 0;
 	UB[0] = 5000;
-	// Vinf at departure.
-	LB[1] = 0;
-	UB[1] = 3;
+	
+	// Vinf at departure in ruv coordinates
+	LB[1] = 0; // km/s
+	UB[1] = 3; // km/s
 	LB[2] = 0;
 	UB[2] = 1;
 	LB[3] = 0;
 	UB[3] = 1;
 	for (int i = 0; i < n; ++i) {
-		// Segments' deltaVs.
+		// Segments thrust throttle
 		LB[3 * i + 4] = 0;
 		UB[3 * i + 4] = 1;
+		// Segments thrust uv variables
 		LB[3 * i + 5] = 0;
 		UB[3 * i + 5] = 1;
 		LB[3 * i + 6] = 0;
 		UB[3 * i + 6] = 1;
 	}
-	// Transfer time.
+	// Transfer tim in days
 	LB.back() = 0;
 	UB.back() = 1000;
 }
 
-void earth_mars_lt_problem::human_readable(const std::vector<double> &x) const
+void earth_mars_lt_problem2::human_readable(const std::vector<double> &x) const
 {
 	using namespace std;
 	cout << left << "*********************** " << endl;
@@ -113,8 +108,7 @@ void earth_mars_lt_problem::human_readable(const std::vector<double> &x) const
 	cout << setw(40) << "Final mass:" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << " Kg" << endl;
 }
 
-
-double earth_mars_lt_problem::objfun_(const std::vector<double> &x) const
+double earth_mars_lt_problem2::objfun_(const std::vector<double> &x) const
 {
 	double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
 	state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
@@ -126,7 +120,7 @@ double earth_mars_lt_problem::objfun_(const std::vector<double> &x) const
 	return main_objfun(x) + 1000 * s_mismatch;
 }
 
-double earth_mars_lt_problem::main_objfun(const std::vector<double> &x) const
+double earth_mars_lt_problem2::main_objfun(const std::vector<double> &x) const
 {
 	double retval = 0;
 	double dt = (x.back() / n) * 86400 / T;
@@ -136,71 +130,40 @@ double earth_mars_lt_problem::main_objfun(const std::vector<double> &x) const
 	return retval;
 }
 
-void earth_mars_lt_problem::state_mismatch(const std::vector<double> &x, double *r_fwd, double *v_fwd, double *r_back, double *v_back) const
+void earth_mars_lt_problem2::state_mismatch(const std::vector<double> &x, double *r_fwd, double *v_fwd, double *r_back, double *v_back) const
 {
-// std::cout << "max DV:\t" << thrust / M * (x.back() / n) * 86400 / T << '\n';
+	//We divide the n segments in forward segments and backward segments. 
 	const int n_seg_fwd = (n + 1) / 2, n_seg_back = n / 2;
-// std::cout << "n segments:\t" << n_seg_fwd << ',' << n_seg_back << '\n';
+	//This is the segment duration (in non dimensional units)
 	const double dt = (x.back() / n) * 86400 / T;
-// std::cout << "dt_initial:\t" << dt << '\n';
-	// We define two virtual spacecraft, one travelling forward from the first endpoint and a second one travelling
-	// backward from the second endpoint.
-	//double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
+	double fixed_thrust[3];
+	//Here we evaluate the Earth position and velocity and copy these numbers into the forward spacecraft state
 	earth_eph(x[0],r_fwd,v_fwd);
-// std::cout << "rs_fwd:\t" << r_fwd[0] << ',' << r_fwd[1] << ',' << r_fwd[2] << '\n';
-// std::cout << "vs_fwd:\t" << v_fwd[0] << ',' << v_fwd[1] << ',' << v_fwd[2] << '\n';
-	mars_eph(x[0] + x.back(),r_back,v_back);
-	// Forward propagation.
-	// Launcher velocity increment
+	//We add to the spacecraft velocity of the launcher DV
 	kick(v_fwd,&x[1]);
-// std::cout << "rs_fwd:\t" << r_fwd[0] << ',' << r_fwd[1] << ',' << r_fwd[2] << '\n';
-// std::cout << "vs_fwd:\t" << v_fwd[0] << ',' << v_fwd[1] << ',' << v_fwd[2] << '\n';
-	// First propagation
-	propagate(r_fwd,v_fwd,dt / 2.);
-// std::cout << "rs_fwd:\t" << r_fwd[0] << ',' << r_fwd[1] << ',' << r_fwd[2] << '\n';
-// std::cout << "vs_fwd:\t" << v_fwd[0] << ',' << v_fwd[1] << ',' << v_fwd[2] << '\n';
-	// Other propagations
+	//Here we evaluate Mars position and velocity and copy these numbers into the backward spacecraft state
+	mars_eph(x[0] + x.back(),r_back,v_back);
+	
+	//Forward Propagation
 	for (int i = 0; i < n_seg_fwd; ++i) {
-		punch(v_fwd,&x[3 * i + 4],thrust / M,dt);
-// std::cout << "rs_fwd:\t" << r_fwd[0] << ',' << r_fwd[1] << ',' << r_fwd[2] << '\n';
-// std::cout << "vs_fwd:\t" << v_fwd[0] << ',' << v_fwd[1] << ',' << v_fwd[2] << '\n';
-		if (i == n_seg_fwd - 1) {
-			propagate(r_fwd,v_fwd,dt / 2.);
-// std::cout << "rs_fwd:\t" << r_fwd[0] << ',' << r_fwd[1] << ',' << r_fwd[2] << '\n';
-// std::cout << "vs_fwd:\t" << v_fwd[0] << ',' << v_fwd[1] << ',' << v_fwd[2] << '\n';
-		} else {
-			propagate(r_fwd,v_fwd,dt);
-// std::cout << "rs_fwd:\t" << r_fwd[0] << ',' << r_fwd[1] << ',' << r_fwd[2] << '\n';
-// std::cout << "vs_fwd:\t" << v_fwd[0] << ',' << v_fwd[1] << ',' << v_fwd[2] << '\n';
-		}
+		ruv2cart(fixed_thrust,&x[3*i+4]);   //We extract from the decision vector the throttle
+		fixed_thrust[0] *= thrust / M;	   //And we evaluate the actual thrust (non dimensional)	
+		fixed_thrust[1] *= thrust / M;
+		fixed_thrust[2] *= thrust / M;
+		propagate(r_fwd,v_fwd,dt,fixed_thrust);
 	}
-	// Backward propagation.
-	// First propagation
-	back_propagate(r_back,v_back,dt/2.);
-// std::cout << "rs_back:\t" << r_back[0] << ',' << r_back[1] << ',' << r_back[2] << '\n';
-// std::cout << "vs_back:\t" << v_back[0] << ',' << v_back[1] << ',' << v_back[2] << '\n';
-	// Other propagations
+	
+	//Backward Propagation
 	for (int i = 0; i < n_seg_back; ++i) {
-		back_punch(v_back,&x.back() - 3 - 3 * i,thrust / M,dt);
-// std::cout << "rs_back:\t" << r_back[0] << ',' << r_back[1] << ',' << r_back[2] << '\n';
-// std::cout << "vs_back:\t" << v_back[0] << ',' << v_back[1] << ',' << v_back[2] << '\n';
-		if (i == n_seg_back - 1) {
-			back_propagate(r_back,v_back,dt / 2.);
-// std::cout << "rs_back:\t" << r_back[0] << ',' << r_back[1] << ',' << r_back[2] << '\n';
-// std::cout << "vs_back:\t" << v_back[0] << ',' << v_back[1] << ',' << v_back[2] << '\n';
-		} else {
-			back_propagate(r_back,v_back,dt);
-// std::cout << "rs_back:\t" << r_back[0] << ',' << r_back[1] << ',' << r_back[2] << '\n';
-// std::cout << "vs_back:\t" << v_back[0] << ',' << v_back[1] << ',' << v_back[2] << '\n';
-		}
+	        ruv2cart(fixed_thrust,&x[ (x.size()-1) - 3 * (i+1) ]);
+		fixed_thrust[0] *= thrust / M;
+		fixed_thrust[1] *= thrust / M;
+		fixed_thrust[2] *= thrust / M;
+		back_propagate(r_back,v_back,dt,fixed_thrust);
 	}
-// 			return std::sqrt((r_back[0] - r_fwd[0]) * (r_back[0] - r_fwd[0]) + (r_back[1] - r_fwd[1]) * (r_back[1] - r_fwd[1]) +
-// 				(r_back[2] - r_fwd[2]) * (r_back[2] - r_fwd[2])) +
-// 				std::sqrt((v_back[0] - v_fwd[0]) * (v_back[0] - v_fwd[0]) + (v_back[1] - v_fwd[1]) * (v_back[1] - v_fwd[1]) +
-// 					(v_back[2] - v_fwd[2]) * (v_back[2] - v_fwd[2]));
 }
 
-void earth_mars_lt_problem::ruv2cart(double *output, const double *input)
+void earth_mars_lt_problem2::ruv2cart(double *output, const double *input)
 {
 			double theta, phi, r = input[0];
 			theta = 2 * M_PI * input[1];
@@ -210,7 +173,7 @@ void earth_mars_lt_problem::ruv2cart(double *output, const double *input)
 			output[2] = r * std::cos(phi);
 }
 
-void earth_mars_lt_problem::earth_eph(const double &mjd2000, double *position, double *velocity)
+void earth_mars_lt_problem2::earth_eph(const double &mjd2000, double *position, double *velocity)
 {
 	// Non-dimensional axis!
 	const double keplerian[6] = {149597891.091458 / R , 0.0167090220204814, 0, 0, -257.059521691888, -2.47457303222881};
@@ -227,7 +190,7 @@ void earth_mars_lt_problem::earth_eph(const double &mjd2000, double *position, d
 // std::cout << "Earth vel:\t" << velocity[0] << ',' << velocity[1] << ',' << velocity[2] << '\n';
 }
 
-void earth_mars_lt_problem::mars_eph(const double &mjd2000, double *position, double *velocity)
+void earth_mars_lt_problem2::mars_eph(const double &mjd2000, double *position, double *velocity)
 {
 	// Non-dimensional axis!
 	const double keplerian[6] =
@@ -245,7 +208,7 @@ void earth_mars_lt_problem::mars_eph(const double &mjd2000, double *position, do
 // std::cout << "Mars vel:\t" << velocity[0] << ',' << velocity[1] << ',' << velocity[2] << '\n';
 }
 
-void earth_mars_lt_problem::kick(double *output, const double *input)
+void earth_mars_lt_problem2::kick(double *output, const double *input)
 {
 	double input_cart[3], input_copy[3];
 	input_copy[0] = input[0] / V;
@@ -257,55 +220,68 @@ void earth_mars_lt_problem::kick(double *output, const double *input)
 	output[2] += input_cart[2];
 }
 
-void earth_mars_lt_problem::punch(double *output, const double *input, const double &Tmax_M, const double &dt)
+void earth_mars_lt_problem2::propagate(double *r, double *v, const double &t, double* fixed_thrust) const
 {
-	double input_cart[3], input_copy[3];
-	input_copy[0] = input[0] * dt * Tmax_M;
-	input_copy[1] = input[1];
-	input_copy[2] = input[2];
-	ruv2cart(input_cart,input_copy);
-	output[0] += input_cart[0];
-	output[1] += input_cart[1];
-	output[2] += input_cart[2];
+	double y[6]; double retval;
+	
+	//Set initial conditions
+	y[0] = r[0]; y[1] = r[1]; y[2] = r[2];
+	y[3] = v[0]; y[4] = v[1]; y[5] = v[2];
+	
+	//Set the parameter (thrust direction and magnitude)
+	param = (int*)fixed_thrust;
+	
+	//Integrate
+	retval = gal_rkf(y,eq_n,0,t,eps,h1,hmin,dy,gal_rkfs78,param);
+	
+	
+	if (retval != 0) {
+	       pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached. TODO: implement this exception handling");
+	}
+	
+	//Copy state y into output r,v
+	r[0] = y[0]; r[1] = y[1]; r[2] = y[2];
+	v[0] = y[3]; v[1] = y[4]; v[2] = y[5];
 }
 
-void earth_mars_lt_problem::back_punch(double *output, const double *input, const double &Tmax_M, const double &dt)
+void earth_mars_lt_problem2::back_propagate(double *r, double *v, const double &t, double* fixed_thrust) const
 {
-	double input_cart[3], input_copy[3];
-	input_copy[0] = input[0] * dt * Tmax_M;
-	input_copy[1] = input[1];
-	input_copy[2] = input[2];
-	ruv2cart(input_cart,input_copy);
-	output[0] -= input_cart[0];
-	output[1] -= input_cart[1];
-	output[2] -= input_cart[2];
+	double y[6]; double retval;
+	
+	//Set initial conditions
+	y[0] = r[0]; y[1] = r[1]; y[2] = r[2];
+	y[3] = -v[0]; y[4] = -v[1]; y[5] = -v[2];
+	
+	//Set the parameter (thrust direction and magnitude)
+	param = (int*)fixed_thrust;
+	
+	//Integrate
+	retval = gal_rkf(y,eq_n,0,t,eps,h1,hmin,dy,gal_rkfs78,param);
+	
+	
+	if (retval != 0){
+	       pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached. TODO: implement this exception handling");
+	}
+	
+	//Copy state y into output r,v
+	r[0] = y[0]; r[1] = y[1]; r[2] = y[2];
+	v[0] = -y[3]; v[1] = -y[4]; v[2] = -y[5];
 }
 
-void earth_mars_lt_problem::propagate(double *r, double *v, const double &t)
-{
-// std::cout << "dt:\t" << t << '\n';
-	double dummy_r[3], dummy_v[3];
-	propagateKEP(r,v,t,1,dummy_r,dummy_v);
-	r[0] = dummy_r[0];
-	r[1] = dummy_r[1];
-	r[2] = dummy_r[2];
-	v[0] = dummy_v[0];
-	v[1] = dummy_v[1];
-	v[2] = dummy_v[2];
+
+void earth_mars_lt_problem2::dy (double t,double y[],double dy[], int* param){
+
+  double* th;
+  th = (double*) param;
+    
+  double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
+  double r3 = r*r*r;
+  dy[0] = y[3];
+  dy[1] = y[4];
+  dy[2] = y[5];
+  dy[3] = - y[0] / r3 + th[0];
+  dy[4] = - y[1] / r3 + th[1];
+  dy[5] = - y[2] / r3 + th[2];
 }
 
-void earth_mars_lt_problem::back_propagate(double *r, double *v, const double &t)
-{
-// std::cout << "dt:\t" << t << '\n';
-	double dummy_r[3], dummy_v[3], back_v[3];
-	back_v[0] = -v[0];
-	back_v[1] = -v[1];
-	back_v[2] = -v[2];
-	propagateKEP(r,back_v,t,1,dummy_r,dummy_v);
-	r[0] = dummy_r[0];
-	r[1] = dummy_r[1];
-	r[2] = dummy_r[2];
-	v[0] = -dummy_v[0];
-	v[1] = -dummy_v[1];
-	v[2] = -dummy_v[2];
-}
+#endif
