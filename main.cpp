@@ -23,83 +23,20 @@
  *****************************************************************************/
 
 #include <iostream>
-#include <cmath>
-#include <gal_odeint.h>
-#include "../src/GOclasses/basic/island.h"
-#include "../src/GOclasses/algorithms/DE.h"
-#include "../src/GOclasses/problems/earth_mars_lt_problem2.h"
+
+#include "src/GOclasses/algorithms/CS.h"
+#include "src/GOclasses/basic/island.h"
+#include "src/GOclasses/problems/TrajectoryProblems.h"
 
 using namespace std;
 
-
-void dy (double t,double y[],double dy[], int* param);
-
-int main()
-{
-       //Sample Code to Test the continuous transcription (uses GAL)
-       earth_mars_lt_problem2 prob(10,1500,0.135,3000);        
-       DEalgorithm algo(500,0.8,0.8,7);
-       island gorriti(prob,algo,20);
-       gorriti.evolve(); gorriti.join();
-       cout << "Best: " << gorriti.best().getFitness() << endl;
-       cout << "Worst: " << gorriti.worst().getFitness() << endl;
-       cout << "Time Elapsed: " << gorriti.evo_time() << endl;
-       
-       prob.human_readable(gorriti.best().getDecisionVector());
-
-	
-	//Sample Code to Test GAL integration routine 
-	double y[6]; 			//Contains the spacecraft state
-	int nvar = 6;	  		//This is the number of equations
-	double t0 = 0;	  		//Starting integration time
-	double tf = 2 * M_PI;		//End integration time
-	double eps = 1e-14;		//Accuracy
-	double h1 = 1e-2;		//First guess for the step
-	double hmin = 1e-19;		//Minimum allowed step size
-	
-	int* param;			//Parameters
-	int retval;			//RetVal
-	
-	double thrust[3];
-	thrust[0] = 1e-4;
-	thrust[1] = 0;
-	thrust[2] = 0;
-	
-	param = (int*) thrust;
-	
-	//Initialise initial conditions
-	y[0] = 0.1;
-	y[1] = 0;
-	y[2] = 0;
-	y[3] = 0;
-	y[4] = sqrt(1/y[0]);
-	y[5] = 0;
-	
-	//Set integration tuime to one period
-	tf *= pow(y[0],3.0/2.0);
-	
-	cout << endl << "Test for the GAL library ODE integrators: " << endl;
-	cout << "Initial conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
-	
-	//Integrate
-	retval = gal_rkf(y,nvar,t0,tf,eps,h1,hmin,dy,gal_rkfs78,param);
-	
-	cout << "Return value: " << retval << endl;
-	cout << "Final conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
+int main(){
+        CSalgorithm algo(0.001);
+        messengerfullProb prob;
+        island isl(prob,algo,20);
+        cout << "Best: " << isl.best().getFitness() << endl;
+        isl.evolve();
+        isl.join();
+        cout << "Best: " << isl.best().getFitness() << endl;
         return 0;
-}
-
-void dy (double t,double y[],double dy[], int* param){
-
-  double* thrust;
-  thrust = (double*) param;
-  
-  double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
-  double r3 = r*r*r;
-  dy[0] = y[3];
-  dy[1] = y[4];
-  dy[2] = y[5];
-  dy[3] = - y[0] / r3 + thrust[0];
-  dy[4] = - y[1] / r3 + thrust[1];
-  dy[5] = - y[2] / r3 + thrust[2];
 }
