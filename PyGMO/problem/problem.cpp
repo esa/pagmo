@@ -35,6 +35,7 @@
 #include "../../src/GOclasses/problems/TrajectoryProblems.h"
 #include "../../src/GOclasses/problems/earth_mars_lt_problem.h"
 #include "../../src/GOclasses/problems/earth_mars_lt_problem2.h"
+#include "../../src/GOclasses/problems/example_problem.h"
 #include "../../src/GOclasses/problems/twodee_problem.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -84,6 +85,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	//problem_wrapper<twodee_problem>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
 	problem_wrapper<earth_mars_lt_problem>("earth_mars_lt", "Earth-Mars LT problem: impulsive transcription")
 		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem::human_readable);
+	problem_wrapper<example_problem>("example", "Example problem: minimization of y = x * x.").def(init<>());
 #if PAGMO_HAVE_GAL
 	problem_wrapper<earth_mars_lt_problem2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
 		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem2::human_readable);
