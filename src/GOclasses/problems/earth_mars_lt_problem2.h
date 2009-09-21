@@ -25,8 +25,6 @@
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
 
 
-#if PAGMO_HAVE_GAL //this allows to not compile this file should the GAL library not be installed
-
 #ifndef EARTH_MARS_LT2_H
 #define EARTH_MARS_LT2_H
 
@@ -82,23 +80,20 @@ class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 		///To follow is a number of functions that are declared as private static. They should be somewhere else (i.e. a toolbox)
 		static void ruv2cart(double *, const double *);
 		static void earth_eph(const double &, double *, double *);
-		static void mars_eph(const double &, double *, double *);
+                static void mars_eph(const double &, double *, double *);
 		static void kick(double *, const double *);
 		void propagate(double *r, double *v, const double &t, double* fixed_thrust) const;
 		void back_propagate(double *r, double *v, const double &t, double* fixed_thrust) const;
-                static void dy (double t,double y[],double dy[], int* param);		//Equations of Motion
-	private:
+
+        private:
 		int 	n;		//Number of segments
 		double 	M;		//Spacecraft mass
 		double 	thrust;		//Spacecraft Thrust
 		double	Isp;		//Spacecraft Specific Impulse
 		
-		//The following are needed for GAL numerical integartor
-		const int eq_n;		        //Number of equations to integrate 
-		const double eps;		//Accuracy of the integrator 
-		const double h1;		//First guess for the step 
-		const double hmin;		//Minimum allowed step size	
+                //The following are needed for numerical integartor
+                const double eps;		//Accuracy of the integrator (both absolute and relative)
 };
 
 #endif 
-#endif
+

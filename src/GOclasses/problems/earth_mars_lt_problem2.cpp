@@ -23,7 +23,6 @@
  *****************************************************************************/
 
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
-#if PAGMO_HAVE_GAL
 
 #include <cmath>
 #include <iostream>
@@ -31,7 +30,7 @@
 #include <vector>
 
 #include "../../AstroToolbox/Pl_Eph_An.h"
-#include <gal_odeint.h>
+#include "../../AstroToolbox/taylor_fixedthrust.h"
 #include "../../constants.h"
 #include "GOproblem.h"
 #include "earth_mars_lt_problem2.h"
@@ -46,7 +45,7 @@
 int* param;	
 
 earth_mars_lt_problem2::earth_mars_lt_problem2(int n_, const double &M_, const double &thrust_, const double &Isp_):
-	GOProblem(n_ * 3 + 5),n(n_),M(M_),thrust((thrust_ / 1000) / F),Isp(Isp_),eq_n(6),eps(1e-10),h1(1e-2),hmin(1e-12)
+        GOProblem(n_ * 3 + 5),n(n_),M(M_),thrust((thrust_ / 1000) / F),Isp(Isp_),eps(1e-5)
 {
 	
 	// Launch date in MJD200
@@ -98,14 +97,18 @@ void earth_mars_lt_problem2::human_readable(const std::vector<double> &x) const
 	}
 	
 	
-	double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
+        double r_fwd[3], v_fwd[3], r_back[3], v_back[3],Dr,Dv;
 	state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
-	cout << endl << setw(25) << "Pos mismatch:" << right << setw(15) << (r_fwd[0] - r_back[0]) << setw(15) << (r_fwd[1] - r_back[1]) << setw(15) << (r_fwd[2] - r_back[2]) << left << endl;
-	cout << setw(25) << "Vel mismatch:" << right << setw(15) << (v_fwd[0] - v_back[0]) << setw(15) << (v_fwd[1] - v_back[1]) << setw(15) << (v_fwd[2] - v_back[2]) << left << endl << endl;
+        Dr = (r_fwd[0] - r_back[0])*(r_fwd[0] - r_back[0]) +(r_fwd[1] - r_back[1])*(r_fwd[1] - r_back[1]) + (r_fwd[2] - r_back[2])*(r_fwd[2] - r_back[2]);
+        Dv = (v_fwd[0] - v_back[0])*(v_fwd[0] - v_back[0]) +(v_fwd[1] - v_back[1])*(v_fwd[1] - v_back[1]) + (v_fwd[2] - v_back[2])*(v_fwd[2] - v_back[2]);
+        Dr = sqrt(Dr);
+        Dv = sqrt(Dv);
+        cout << endl << setw(25) << "Pos mismatch (km):" << right << setw(15) << Dr*R << left;// << setw(15) << (r_fwd[0] - r_back[0]) << setw(15) << (r_fwd[1] - r_back[1]) << setw(15) << (r_fwd[2] - r_back[2]) << left << endl;
+        cout << endl << setw(25) << "Vel mismatch (km/sec):" << right << setw(15) << Dv*V << left << endl << endl;// << setw(15) << (v_fwd[0] - v_back[0]) << setw(15) << (v_fwd[1] - v_back[1]) << setw(15) << (v_fwd[2] - v_back[2]) << left << endl << endl;
 	
 	cout << setw(40) << "Time of flight:" << x.back() << " days" << endl;
 	cout << setw(40) << "Total DV:" << main_objfun(x) * V << " Km/s" << endl;
-	cout << setw(40) << "Final mass:" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << " Kg" << endl;
+        cout << setw(40) << "Final mass:" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << " Kg" << endl;
 }
 
 double earth_mars_lt_problem2::objfun_(const std::vector<double> &x) const
@@ -222,22 +225,14 @@ void earth_mars_lt_problem2::kick(double *output, const double *input)
 
 void earth_mars_lt_problem2::propagate(double *r, double *v, const double &t, double* fixed_thrust) const
 {
-	double y[6]; double retval;
+        double y[6];
 	
 	//Set initial conditions
 	y[0] = r[0]; y[1] = r[1]; y[2] = r[2];
 	y[3] = v[0]; y[4] = v[1]; y[5] = v[2];
 	
-	//Set the parameter (thrust direction and magnitude)
-	param = (int*)fixed_thrust;
-	
 	//Integrate
-	retval = gal_rkf(y,eq_n,0,t,eps,h1,hmin,dy,gal_rkfs78,param);
-	
-	
-	if (retval != 0) {
-	       pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached. TODO: implement this exception handling");
-	}
+        taylor_fixedthrust(y,0,t,fixed_thrust,eps,eps);
 	
 	//Copy state y into output r,v
 	r[0] = y[0]; r[1] = y[1]; r[2] = y[2];
@@ -246,42 +241,18 @@ void earth_mars_lt_problem2::propagate(double *r, double *v, const double &t, do
 
 void earth_mars_lt_problem2::back_propagate(double *r, double *v, const double &t, double* fixed_thrust) const
 {
-	double y[6]; double retval;
+        double y[6];
 	
 	//Set initial conditions
 	y[0] = r[0]; y[1] = r[1]; y[2] = r[2];
 	y[3] = -v[0]; y[4] = -v[1]; y[5] = -v[2];
 	
-	//Set the parameter (thrust direction and magnitude)
-	param = (int*)fixed_thrust;
-	
-	//Integrate
-	retval = gal_rkf(y,eq_n,0,t,eps,h1,hmin,dy,gal_rkfs78,param);
-	
-	
-	if (retval != 0){
-	       pagmo_throw(value_error,"error in fwd-propagator. Non convergence reached. TODO: implement this exception handling");
-	}
-	
+        //Integrate
+        taylor_fixedthrust(y,0,t,fixed_thrust,eps,eps);
+
 	//Copy state y into output r,v
 	r[0] = y[0]; r[1] = y[1]; r[2] = y[2];
 	v[0] = -y[3]; v[1] = -y[4]; v[2] = -y[5];
 }
 
 
-void earth_mars_lt_problem2::dy (double t,double y[],double dy[], int* param){
-
-  double* th;
-  th = (double*) param;
-    
-  double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
-  double r3 = r*r*r;
-  dy[0] = y[3];
-  dy[1] = y[4];
-  dy[2] = y[5];
-  dy[3] = - y[0] / r3 + th[0];
-  dy[4] = - y[1] / r3 + th[1];
-  dy[5] = - y[2] / r3 + th[2];
-}
-
-#endif

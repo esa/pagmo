@@ -23,69 +23,195 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <fstream>
 #include <cmath>
+#include <time.h>
 #include <gal_odeint.h>
+#include "../src/AstroToolbox/taylor_fixedthrust.h"
 #include "../src/GOclasses/basic/island.h"
 #include "../src/GOclasses/algorithms/DE.h"
 #include "../src/GOclasses/problems/earth_mars_lt_problem2.h"
 
+#define MyDoubleRand(a,b) ( rand()/((double)RAND_MAX + 1)*(b-a) + a );
+
 using namespace std;
-
-
 void dy (double t,double y[],double dy[], int* param);
 
-int main()
-{
-       //Sample Code to Test the continuous transcription (uses GAL)
-       earth_mars_lt_problem2 prob(10,1500,0.135,3000);        
-       DEalgorithm algo(500,0.8,0.8,7);
-       island gorriti(prob,algo,20);
-       gorriti.evolve(); gorriti.join();
-       cout << "Best: " << gorriti.best().getFitness() << endl;
-       cout << "Worst: " << gorriti.worst().getFitness() << endl;
-       cout << "Time Elapsed: " << gorriti.evo_time() << endl;
-       
-       prob.human_readable(gorriti.best().getDecisionVector());
+int main(){
 
-	
-	//Sample Code to Test GAL integration routine 
-	double y[6]; 			//Contains the spacecraft state
-	int nvar = 6;	  		//This is the number of equations
-	double t0 = 0;	  		//Starting integration time
-	double tf = 2 * M_PI;		//End integration time
-	double eps = 1e-14;		//Accuracy
-	double h1 = 1e-2;		//First guess for the step
-	double hmin = 1e-19;		//Minimum allowed step size
-	
-	int* param;			//Parameters
-	int retval;			//RetVal
-	
-	double thrust[3];
-	thrust[0] = 1e-4;
-	thrust[1] = 0;
-	thrust[2] = 0;
-	
-	param = (int*) thrust;
-	
-	//Initialise initial conditions
-	y[0] = 0.1;
-	y[1] = 0;
-	y[2] = 0;
-	y[3] = 0;
-	y[4] = sqrt(1/y[0]);
-	y[5] = 0;
-	
-	//Set integration tuime to one period
-	tf *= pow(y[0],3.0/2.0);
-	
-	cout << endl << "Test for the GAL library ODE integrators: " << endl;
-	cout << "Initial conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
-	
-	//Integrate
-	retval = gal_rkf(y,nvar,t0,tf,eps,h1,hmin,dy,gal_rkfs78,param);
-	
-	cout << "Return value: " << retval << endl;
-	cout << "Final conditions are: " << y[0] << " " << y[1] << " " << y[2] << " " << y[3] << " " << y[4] << " " << y[5] << endl;
+        //Sample Code to compare the GAL Runge Kutta Fhelberg integrator to a Taylor integrator for the fixed thrust problem
+
+        double y_0[6],y[6];    //Contains the spacecraft state
+        int nvar = 6;	  		//This is the number of equations
+        double t0 = 0;	  		//Starting integration time
+        double tf;                      //End integration time
+        double eps[14] = {1e-3,1e-4,1e-5,1e-6,1e-7,1e-8,1e-9,1e-10,1e-11,1e-12,1e-13,1e-14,1e-15,1e-16};		//Accuracy
+        double h1 = 1e-1;		//First guess for the step
+        double hmin = 1e-19;		//Minimum allowed step size
+
+        int* param;			//Parameters for the GAL integrator
+        int retval;			//RetVal
+
+        double thrust[3];
+        double seed=1021;
+        double error[1000000];
+
+        //Comparison Paramaters
+        int N=10000;
+        double min_T = 0.0001, max_T=0.01;
+        double min_y = 0.1, max_y =2;
+        double min_t = M_PI/20, max_t=10*M_PI;
+        double err_min, err_max, err;
+        clock_t start,end;
+
+        param = (int*) thrust;
+
+        ofstream log;
+        log.open ("log.txt");
+
+        for (int k=0; k<14; ++k){
+            cout << endl << "Tolerance requested: " << eps[k] << endl;
+            log << scientific << setprecision(2) << eps[k] << " ";
+
+
+            //RKF 5(6) integrator test
+            err_max = 0; err_min = 100;
+            srand(seed);
+            cout << "Test for the RKF 5(6) library ODE integrators: " << endl;
+            start = clock();
+            for (int j = 0; j<N;++j){
+                //Random Thrust
+                thrust[0] = MyDoubleRand(min_T,max_T);
+                thrust[1] = MyDoubleRand(min_T,max_T);
+                thrust[2] = MyDoubleRand(min_T,max_T);
+
+                //Random I.C.
+                y_0[0] = MyDoubleRand(min_y,max_y);
+                y_0[1] = MyDoubleRand(min_y,max_y);
+                y_0[2] = MyDoubleRand(min_y,max_y);
+                y_0[3] = MyDoubleRand(min_y,max_y);
+                y_0[4] = MyDoubleRand(min_y,max_y);
+                y_0[5] = MyDoubleRand(min_y,max_y);
+                for (int i = 0; i<6;++i){
+                    y[i] = y_0[i];
+                }
+
+
+                //Random Integartion Tima
+                tf = MyDoubleRand(min_t,max_t);
+
+                //Integrate Forward
+                retval = gal_rkf(y,nvar,t0,tf,eps[k],h1,hmin,dy,gal_rkfs56,param);
+                //And Backward
+                y[3] = -y[3]; y[4] = -y[4]; y[5] = -y[5];
+                retval = gal_rkf(y,nvar,t0,tf,eps[k],h1,hmin,dy,gal_rkfs56,param);
+                y[3] = -y[3]; y[4] = -y[4]; y[5] = -y[5];
+                err=0;
+                for (int i = 0 ;i < 3 ; ++i){
+                    err += (y[i] - y_0[i])*(y[i] - y_0[i]);
+                }
+                err = sqrt(err);
+                if (err < err_min) err_min = err;
+                if (err > err_max) err_max = err;
+            }
+            end=clock();
+            cout << "Time required for RK5(6): " << (double)(end-start)/CLOCKS_PER_SEC << " seconds." << endl;
+            cout << "Maximum error: " << scientific << err_max << endl;
+            cout << "Minimum error: " << scientific << err_min << endl;
+            log << (double)(end-start)/CLOCKS_PER_SEC <<" " << err_max<<" "<< " ";
+
+            //RKF 7(8) integrator test
+            err_max = 0; err_min = 100;
+            srand(seed);
+            cout << "Test for the RKF 7(8) library ODE integrators: " << endl;
+            start = clock();
+            for (int j = 0; j<N;++j){
+                //Random Thrust
+                thrust[0] = MyDoubleRand(min_T,max_T);
+                thrust[1] = MyDoubleRand(min_T,max_T);
+                thrust[2] = MyDoubleRand(min_T,max_T);
+
+                //Random I.C.
+                y_0[0] = MyDoubleRand(min_y,max_y);
+                y_0[1] = MyDoubleRand(min_y,max_y);
+                y_0[2] = MyDoubleRand(min_y,max_y);
+                y_0[3] = MyDoubleRand(min_y,max_y);
+                y_0[4] = MyDoubleRand(min_y,max_y);
+                y_0[5] = MyDoubleRand(min_y,max_y);
+                for (int i = 0; i<6;++i){
+                    y[i] = y_0[i];
+                }
+
+
+                //Random Integartion Tima
+                tf = MyDoubleRand(min_t,max_t);
+
+                //Integrate Forward
+                retval = gal_rkf(y,nvar,t0,tf,eps[k],h1,hmin,dy,gal_rkfs78,param);
+                //And Backward
+                y[3] = -y[3]; y[4] = -y[4]; y[5] = -y[5];
+                retval = gal_rkf(y,nvar,t0,tf,eps[k],h1,hmin,dy,gal_rkfs78,param);
+                y[3] = -y[3]; y[4] = -y[4]; y[5] = -y[5];
+                err=0;
+                for (int i = 0 ;i < 3 ; ++i){
+                    err += (y[i] - y_0[i])*(y[i] - y_0[i]);
+                }
+                err = sqrt(err);
+                if (err < err_min) err_min = err;
+                if (err > err_max) err_max = err;
+            }
+            end=clock();
+            cout << "Time required for RKF 7(8): " << (double)(end-start)/CLOCKS_PER_SEC << " seconds." << endl;
+            cout << "Maximum error: " << scientific << err_max << endl;
+            cout << "Minimum error: " << scientific << err_min << endl;
+            log << (double)(end-start)/CLOCKS_PER_SEC <<" " << err_max<<" "<< " ";
+
+
+            //Taylor Integrator Test
+            err_max = 0; err_min = 100;
+            srand(seed);
+            cout << "Test for the Taylor integrator: " << endl;
+            start = clock();
+            for (int j = 0; j<N;++j){
+                //Random Thrust
+                thrust[0] = MyDoubleRand(min_T,max_T);
+                thrust[1] = MyDoubleRand(min_T,max_T);
+                thrust[2] = MyDoubleRand(min_T,max_T);
+
+                //Random I.C.
+                y_0[0] = MyDoubleRand(min_y,max_y);
+                y_0[1] = MyDoubleRand(min_y,max_y);
+                y_0[2] = MyDoubleRand(min_y,max_y);
+                y_0[3] = MyDoubleRand(min_y,max_y);
+                y_0[4] = MyDoubleRand(min_y,max_y);
+                y_0[5] = MyDoubleRand(min_y,max_y);
+                for (int i = 0; i<6;++i){
+                    y[i] = y_0[i];
+                }
+
+                //Random Integartion Tima
+                tf = MyDoubleRand(min_t,max_t);
+
+                //Integrate Forward
+                taylor_fixedthrust(y,t0,tf,thrust,eps[k],eps[k]);
+                //And Backward
+                y[3] = -y[3]; y[4] = -y[4]; y[5] = -y[5];
+                taylor_fixedthrust(y,t0,tf,thrust,eps[k],eps[k]);
+                y[3] = -y[3]; y[4] = -y[4]; y[5] = -y[5];
+                err=0;
+                for (int i = 0 ;i < 6 ; ++i){
+                    err += (y[i] - y_0[i])*(y[i] - y_0[i]);
+                }
+                if (err < err_min) err_min = err;
+                if (err > err_max) err_max = err;
+
+            }
+            end=clock();
+            cout << "Time required for Taylor: " << (double)(end-start)/CLOCKS_PER_SEC << " seconds." << endl;
+            cout << "Maximum error: " << scientific << err_max << endl;
+            cout << "Minimum error: " << scientific << err_min << endl;
+            log << (double)(end-start)/CLOCKS_PER_SEC <<" " << err_max<<" "<<endl;
+        }
         return 0;
 }
 
@@ -93,7 +219,7 @@ void dy (double t,double y[],double dy[], int* param){
 
   double* thrust;
   thrust = (double*) param;
-  
+
   double r = sqrt(y[0]*y[0] + y[1]*y[1] + y[2]*y[2]);
   double r3 = r*r*r;
   dy[0] = y[3];
