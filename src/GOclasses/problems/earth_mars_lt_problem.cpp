@@ -121,9 +121,8 @@ double earth_mars_lt_problem::objfun_(const std::vector<double> &x) const
 {
 	double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
 	state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
-	const double s_mismatch = std::sqrt((r_back[0] - r_fwd[0]) * (r_back[0] - r_fwd[0]) + (r_back[1] - r_fwd[1]) * (r_back[1] - r_fwd[1]) +
-		(r_back[2] - r_fwd[2]) * (r_back[2] - r_fwd[2])) +
-		1 * std::sqrt((v_back[0] - v_fwd[0]) * (v_back[0] - v_fwd[0]) + (v_back[1] - v_fwd[1]) * (v_back[1] - v_fwd[1]) +
+        const double s_mismatch = std::sqrt((r_back[0] - r_fwd[0]) * (r_back[0] - r_fwd[0]) + (r_back[1] - r_fwd[1]) * (r_back[1] - r_fwd[1]) +
+                (v_back[0] - v_fwd[0]) * (v_back[0] - v_fwd[0]) + (v_back[1] - v_fwd[1]) * (v_back[1] - v_fwd[1]) +
 		(v_back[2] - v_fwd[2]) * (v_back[2] - v_fwd[2]));
 //std::cout << s_mismatch << '\n';
 	return main_objfun(x) + 1000 * s_mismatch;

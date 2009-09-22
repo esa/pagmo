@@ -101,14 +101,14 @@ void earth_mars_lt_problem2::human_readable(const std::vector<double> &x) const
 	state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
         Dr = (r_fwd[0] - r_back[0])*(r_fwd[0] - r_back[0]) +(r_fwd[1] - r_back[1])*(r_fwd[1] - r_back[1]) + (r_fwd[2] - r_back[2])*(r_fwd[2] - r_back[2]);
         Dv = (v_fwd[0] - v_back[0])*(v_fwd[0] - v_back[0]) +(v_fwd[1] - v_back[1])*(v_fwd[1] - v_back[1]) + (v_fwd[2] - v_back[2])*(v_fwd[2] - v_back[2]);
-        Dr = sqrt(Dr);
-        Dv = sqrt(Dv);
-        cout << endl << setw(25) << "Pos mismatch (km):" << right << setw(15) << Dr*R << left;// << setw(15) << (r_fwd[0] - r_back[0]) << setw(15) << (r_fwd[1] - r_back[1]) << setw(15) << (r_fwd[2] - r_back[2]) << left << endl;
-        cout << endl << setw(25) << "Vel mismatch (km/sec):" << right << setw(15) << Dv*V << left << endl << endl;// << setw(15) << (v_fwd[0] - v_back[0]) << setw(15) << (v_fwd[1] - v_back[1]) << setw(15) << (v_fwd[2] - v_back[2]) << left << endl << endl;
+        Dr = sqrt(Dr) * R;
+        Dv = sqrt(Dv) * V;
+        cout << endl << setw(25) << "Pos mismatch (km):" << right << setw(15) << Dr << left;// << setw(15) << (r_fwd[0] - r_back[0]) << setw(15) << (r_fwd[1] - r_back[1]) << setw(15) << (r_fwd[2] - r_back[2]) << left << endl;
+        cout << endl << setw(25) << "Vel mismatch (km/sec):" << right << setw(15) << Dv << left << endl << endl;// << setw(15) << (v_fwd[0] - v_back[0]) << setw(15) << (v_fwd[1] - v_back[1]) << setw(15) << (v_fwd[2] - v_back[2]) << left << endl << endl;
 	
 	cout << setw(40) << "Time of flight:" << x.back() << " days" << endl;
 	cout << setw(40) << "Total DV:" << main_objfun(x) * V << " Km/s" << endl;
-        cout << setw(40) << "Final mass:" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << " Kg" << endl;
+	cout << setw(40) << "Final mass:" << M * std::exp(-main_objfun(x) * V * 1000. / (9.80665 * Isp)) << " Kg" << endl;
 }
 
 double earth_mars_lt_problem2::objfun_(const std::vector<double> &x) const
@@ -116,11 +116,9 @@ double earth_mars_lt_problem2::objfun_(const std::vector<double> &x) const
 	double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
 	state_mismatch(x,r_fwd,v_fwd,r_back,v_back);
 	const double s_mismatch = std::sqrt((r_back[0] - r_fwd[0]) * (r_back[0] - r_fwd[0]) + (r_back[1] - r_fwd[1]) * (r_back[1] - r_fwd[1]) +
-		(r_back[2] - r_fwd[2]) * (r_back[2] - r_fwd[2])) +
-		1 * std::sqrt((v_back[0] - v_fwd[0]) * (v_back[0] - v_fwd[0]) + (v_back[1] - v_fwd[1]) * (v_back[1] - v_fwd[1]) +
+                (r_back[2] - r_fwd[2]) * (r_back[2] - r_fwd[2]) + (v_back[0] - v_fwd[0]) * (v_back[0] - v_fwd[0]) + (v_back[1] - v_fwd[1]) * (v_back[1] - v_fwd[1]) +
 		(v_back[2] - v_fwd[2]) * (v_back[2] - v_fwd[2]));
-//std::cout << s_mismatch << '\n';
-	return main_objfun(x) + 1000 * s_mismatch;
+        return main_objfun(x) + 1000 * s_mismatch;
 }
 
 double earth_mars_lt_problem2::main_objfun(const std::vector<double> &x) const
@@ -131,6 +129,70 @@ double earth_mars_lt_problem2::main_objfun(const std::vector<double> &x) const
 		retval += x[3 * i + 4] * thrust / M * dt ;
 	}
 	return retval;
+}
+
+std::vector<std::vector<double> > earth_mars_lt_problem2::visualize(const std::vector<double> &x, const int N) const
+{
+        std::vector<std::vector<double> > retval_fwd,retval_back;
+        std::vector<double> xyz(10);
+
+        const int n_seg_fwd = (n + 1) / 2, n_seg_back = n / 2;
+        const double dt = (x.back() / n) * 86400 / T;
+
+        double r_fwd[3], v_fwd[3], r_back[3], v_back[3];
+        double fixed_thrust[3];
+
+        //1 - Evaluate xyzdxdydzuxuyuz and store data
+        earth_eph(x[0],r_fwd,v_fwd);
+        kick(v_fwd,&x[1]);
+        ruv2cart(fixed_thrust,&x[4]);
+
+            //from throttle to non dimensional thrust
+        fixed_thrust[0] *= thrust / M; fixed_thrust[1] *= thrust / M; fixed_thrust[2] *= thrust / M;
+            //store
+        for (int i = 0; i<3; ++i){xyz[0] = 0; xyz[i+1] = r_fwd[i]; xyz[i+4] = v_fwd[i]; xyz[i+7] = fixed_thrust[i];}; retval_fwd.push_back(xyz);
+
+        //Forward Propagation
+        for (int i = 0; i < n_seg_fwd; ++i) {
+                ruv2cart(fixed_thrust,&x[3*i+4]);   //We extract from the decision vector the throttle
+                fixed_thrust[0] *= thrust / M;	    //And we evaluate the actual thrust (non dimensional)
+                fixed_thrust[1] *= thrust / M;
+                fixed_thrust[2] *= thrust / M;
+                for (int j =0; j<N; ++j){
+                    propagate(r_fwd,v_fwd,dt / (double)N, fixed_thrust);
+                    xyz[0] += dt / (double)N;
+                    for (int i = 0; i<3; ++i){xyz[i+1] = r_fwd[i]; xyz[i+4] = v_fwd[i]; xyz[i+7] = fixed_thrust[i];};
+                    retval_fwd.push_back(xyz);
+                }
+        }
+
+        mars_eph(x[0] + x.back(),r_back,v_back);
+        ruv2cart(fixed_thrust,&x[x.size()-4]);
+        fixed_thrust[0] *= thrust / M; fixed_thrust[1] *= thrust / M; fixed_thrust[2] *= thrust / M;
+
+        xyz[0] = x.back() * 86400 / T;
+        for (int i = 0; i<3; ++i){xyz[i+1] = r_back[i]; xyz[i+4] = v_back[i]; xyz[i+7] = fixed_thrust[i];}; retval_back.push_back(xyz);
+
+        //Bacward Propagation
+        for (int i = 0; i < n_seg_back; ++i) {
+                ruv2cart(fixed_thrust,&x[ (x.size()-1) - 3 * (i+1) ]);   //We extract from the decision vector the throttle
+                fixed_thrust[0] *= thrust / M;	   //And we evaluate the actual thrust (non dimensional)
+                fixed_thrust[1] *= thrust / M;
+                fixed_thrust[2] *= thrust / M;
+                for (int j =0; j<N; ++j){
+                    back_propagate(r_back,v_back,dt / (double)N, fixed_thrust);
+                    xyz[0] -= dt / (double)N;
+                    for (int i = 0; i<3; ++i){xyz[i+1] = r_back[i]; xyz[i+4] = v_back[i]; xyz[i+7] = fixed_thrust[i];}; retval_back.push_back(xyz);
+                }
+        }
+
+        //Assemble the final result in the correct time progression
+        reverse(retval_back.begin(), retval_back.end());
+        for (int i=0; i<retval_back.size(); ++i){
+            retval_fwd.push_back(retval_back[i]);
+        }
+
+        return retval_fwd;
 }
 
 void earth_mars_lt_problem2::state_mismatch(const std::vector<double> &x, double *r_fwd, double *v_fwd, double *r_back, double *v_back) const

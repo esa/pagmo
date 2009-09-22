@@ -86,8 +86,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<earth_mars_lt_problem>("earth_mars_lt", "Earth-Mars LT problem: impulsive transcription")
 		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem::human_readable);
 	problem_wrapper<example_problem>("example", "Example problem: minimization of y = x * x.").def(init<>());
-#if PAGMO_HAVE_GAL
 	problem_wrapper<earth_mars_lt_problem2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
-		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem2::human_readable);
-#endif
+                .def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem2::human_readable).def("visualize",&earth_mars_lt_problem2::visualize);
 }

@@ -72,6 +72,8 @@ class __PAGMO_VISIBLE earth_mars_lt_problem2: public GOProblem {
 		 * \param[in] x decision vector (or chromosome)
 		 */
 		void human_readable(const std::vector<double> & x) const;
+                std::vector<std::vector<double> > visualize(const std::vector<double> &x, const int N) const;
+
 	private:
 		virtual double objfun_(const std::vector<double> &) const;
 		double main_objfun(const std::vector<double> &) const;

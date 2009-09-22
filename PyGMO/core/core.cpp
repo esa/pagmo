@@ -108,6 +108,10 @@ BOOST_PYTHON_MODULE(_core)
 	to_tuple_mapping<std::vector<double> >();
 	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 
+        // Enable automatic conversion to/from python list of double/vector<double>.
+        to_tuple_mapping<std::vector<std::vector<double> > >();
+        from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
+
 	// Expose individual class.
 	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
 	class_ind.def(init<const GOProblem &, const std::vector<double> &, const std::vector<double> &>());
