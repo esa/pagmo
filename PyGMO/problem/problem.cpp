@@ -67,13 +67,23 @@ BOOST_PYTHON_MODULE(_problem) {
 	class_<GOProblem, boost::noncopyable>("__go_problem", "Base GO problem", no_init);
 
 	// Expose problem classes.
-	// Trajectory problems.
+	// Trajectory problems from the GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt.htm)
+	// MGA Problems
+	problem_wrapper<cassini1Prob>("cassini1", "Cassini1 problem.").def(init<>());
+	problem_wrapper<gtoc1Prob>("gtoc1", "Problem associated to the first edition of the GTOC competition.").def(init<>());
+	//MGADSM Problems
 	problem_wrapper<messengerfullProb>("messenger_full", "Messenger full problem.").def(init<>());
 	problem_wrapper<messengerProb>("messenger", "Messenger problem.").def(init<>());
-	problem_wrapper<cassini1Prob>("cassini1", "Cassini1 problem.").def(init<>());
+	problem_wrapper<cassini2Prob>("cassini2", "Cassini2 problem.").def(init<>());
+	problem_wrapper<rosettaProb>("rosetta", "Cassini2 problem.").def(init<>());
+	problem_wrapper<sagasProb>("sagas", "Cassini2 problem.").def(init<>());
+	problem_wrapper<tandemuncProb>("tandem_unc", "TandEM problem.").def(init<const int>());
+	
+	//Miscellanea Trajectory Problems
+	// MGADSM Problems
 	problem_wrapper<laplaceProb>("laplace", "Laplace problem.").def(init<const std::vector<int> &>())
 		.def("solution", &laplaceProb::solution, "Display solution relative to input decision vector.");
-	problem_wrapper<tandemuncProb>("tandem_unc", "TandEM problem.").def(init<const int>());
+	//Low-Thrust Problems
 	problem_wrapper<earth_mars_lt_problem>("earth_mars_lt", "Earth-Mars LT problem: impulsive transcription")
 		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem::human_readable);
 	problem_wrapper<earth_mars_lt_problem2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
