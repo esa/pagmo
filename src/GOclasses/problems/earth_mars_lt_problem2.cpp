@@ -24,6 +24,7 @@
 
 // 05/2009: initial version by Dario Izzo and Francesco Biscani.
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -187,7 +188,7 @@ std::vector<std::vector<double> > earth_mars_lt_problem2::visualize(const std::v
         }
 
         //Assemble the final result in the correct time progression
-        reverse(retval_back.begin(), retval_back.end());
+        std::reverse(retval_back.begin(), retval_back.end());
         for (int i=0; i<retval_back.size(); ++i){
             retval_fwd.push_back(retval_back[i]);
         }
