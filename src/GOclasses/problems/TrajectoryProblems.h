@@ -41,16 +41,11 @@
 //***********************************************************************************
 //Trajectory problems MGA
 //***********************************************************************************
-/// Cassini Multiple Gravity Assist interplanetary trajectory problem
+/// Cassini Multiple Gravity Assist interplanetary trajectory problem (from the GTOP database)
 /**
- * The problem is part of the European Space Agency GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm)
- * This is a rather simple six dimensional MGA problem that is related to the Cassini spacecraft trajectory design problem.
- * The objective of this mission is to reach Saturn and to be captured by its gravity into
- * an orbit having pericenter radius r_p=108950 km, and eccentricity e=0.98.
- * The planetary fly-by sequence considered is Earth, Venus, Venus, Earth, Jupiter, Saturn (as the one used by Cassini spacecraft).
- * As objective function we use the total deltaV accumulated during the mission, including the
- * launch deltaV and the various deltaV one needs to give at the planets and upon arrival to perform the
- * final orbit injection
+  * This is a rather simple six dimensional MGA problem that is related to the Cassini spacecraft trajectory design problem. See 
+  * (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm) for further informations
+ *
 */
 class __PAGMO_VISIBLE cassini1Prob : public GOProblem {
 public:
@@ -67,7 +62,7 @@ private:
 	static const double ub[6];
 };	//end class cassini1Prob
 
-/// GTOC1 Multiple Gravity Assist interplanetary trajectory problem
+/// GTOC1 Multiple Gravity Assist interplanetary trajectory problem (from the GTOP database)
 /**
  * The problem is part of the European Space Agency GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm)
  * This problem draws inspiration from the first edition of the Global Trajectory Optimisation Competition (GTOC1)
@@ -125,18 +120,31 @@ private:
 	static const int sequence[7];
 };	//end class messengerfullProb
 
-class tandemProb : public GOProblem {
+/// Unconstrained TandEM trajectory problem (from the GTOP database)
+/**
+ * This interesting interplanetary trajectory problem has 25 different instances, depending on the fly-by sequence adopted.
+ * Please refer to http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm to select the proper instance. The problem is here
+ * formulated as an unconstarined global optimization problem. No limit is considered in the total time of flight.
+ */
+class __PAGMO_VISIBLE tandemuncProb : public GOProblem {
 public:
-	tandemProb();
-        virtual ~tandemProb() {}
-	virtual tandemProb *clone() const {return new tandemProb(*this);}
+	/// Constructor
+       /**
+        * It instantiates a TandEM problem.
+	* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used. Please Check 
+	* http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
+        */
+	tandemuncProb(const int problemid);
+        virtual ~tandemuncProb() {}
+	virtual tandemuncProb *clone() const {return new tandemuncProb(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
+	virtual std::ostream &print(std::ostream &) const;
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
 	static const double lb[18];
 	static const double ub[18];
-	static const int sequence[5];
+	static const int Data[24][5];
 };	//end class tandemProb
 
 

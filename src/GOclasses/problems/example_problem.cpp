@@ -32,23 +32,23 @@
 
 // Initialise the problem using the constructor of the base class: GOProblem(int n) will initialise a problem
 // with dimension n.
-example_problem::example_problem():GOProblem(1) {}
+exampleProb::exampleProb():GOProblem(1) {}
 
 // Objective function of the problem. Will take a vector of values as input and will return its "fitness".
-double example_problem::objfun_(const std::vector<double> &x) const
+double exampleProb::objfun_(const std::vector<double> &x) const
 {
 	return (x[0] * x[0]);
 }
 
 // Cloning method: this will return a pointer to a new instance of the problem, copied from the current one.
 // This method will look the same in virtually all problems.
-example_problem *example_problem::clone() const
+exampleProb *exampleProb::clone() const
 {
-	return new example_problem(*this);
+	return new exampleProb(*this);
 }
 
 // This method is supposed to return a description of the problem.
-std::string example_problem::id_object() const
+std::string exampleProb::id_object() const
 {
-	return std::string("Example problem.");
+	return std::string("Example problem: minimization of y = x*x.");
 }

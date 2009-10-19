@@ -73,8 +73,15 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<cassini1Prob>("cassini1", "Cassini1 problem.").def(init<>());
 	problem_wrapper<laplaceProb>("laplace", "Laplace problem.").def(init<const std::vector<int> &>())
 		.def("solution", &laplaceProb::solution, "Display solution relative to input decision vector.");
+	problem_wrapper<tandemuncProb>("tandem_unc", "TandEM problem.").def(init<const int>());
+	problem_wrapper<earth_mars_lt_problem>("earth_mars_lt", "Earth-Mars LT problem: impulsive transcription")
+		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem::human_readable);
+	problem_wrapper<earth_mars_lt_problem2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
+                .def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem2::human_readable).def("visualize",&earth_mars_lt_problem2::visualize);
+	
 	// Classical problems.
-	problem_wrapper<testProb>("test", "Test problem.").def(init<int>());
+	problem_wrapper<testProb>("test1", "Example problem: minimization of y = sum x_i").def(init<int>());
+	problem_wrapper<exampleProb>("test2", "Example problem: minimization of y = x * x.").def(init<>());
 	problem_wrapper<rastriginProb>("rastrigin", "Rastrigin problem.").def(init<int>());
 	problem_wrapper<schwefelProb>("schwefel", "Schwefel problem.").def(init<int>());
 	problem_wrapper<ackleyProb>("ackley", "Ackely problem.").def(init<int>());
@@ -83,9 +90,5 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<levyProb>("levy", "Levy problem.").def(init<int>());
 	// Twodee problem.
 	//problem_wrapper<twodee_problem>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-	problem_wrapper<earth_mars_lt_problem>("earth_mars_lt", "Earth-Mars LT problem: impulsive transcription")
-		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem::human_readable);
-	problem_wrapper<example_problem>("example", "Example problem: minimization of y = x * x.").def(init<>());
-	problem_wrapper<earth_mars_lt_problem2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
-                .def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem2::human_readable).def("visualize",&earth_mars_lt_problem2::visualize);
+	
 }
