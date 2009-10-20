@@ -35,6 +35,11 @@
 #include "../../../config.h"
 #include "../../atomic_counters/atomic_counters.h"
 
+// Forward declaration of population class. We cannot include the header directly because
+// we would incur into circular dependency problem (population.h includes GOproblem.h which
+// include population.h ...)
+class Population;
+
 /// Global Optimisation Problem class.
 /**
  * This class implements the highest hierarchical level of a global optimisation problem here defined as unconstrained
@@ -57,8 +62,8 @@ public:
 	double objfun(const std::vector<double> &) const;
 	virtual GOProblem *clone() const = 0;
 	std::string id_name() const;
-	virtual void pre_evolution() const {}
-	virtual void post_evolution() const {}
+	virtual void pre_evolution(Population &) const {}
+	virtual void post_evolution(Population &) const {}
 	void set_lb(int, const double &);
 	void set_ub(int, const double &);
 	virtual bool operator==(const GOProblem &) const;
