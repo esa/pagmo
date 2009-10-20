@@ -26,6 +26,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <cstdio>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -34,6 +35,7 @@
 #include "../../exceptions.h"
 #include "../../Functions/rng/rng.h"
 #include "GOproblem.h"
+#include "../basic/population.h"
 #include "twodee_problem.h"
 
 const char *def_arguments =
@@ -83,12 +85,16 @@ double twodee_problem::objfun_(const std::vector<double> &v) const
 	std::remove(input_name.c_str());
 	std::remove(output_name.c_str());
 	if (status) {
-		pagmo_throw(runtime_error,"error executing twodee");
+		pagmo_throw(std::runtime_error,"error executing twodee");
 	}
 	return -retval;
 }
 
-void twodee_problem::post_evolution() const
+void twodee_problem::pre_evolution(Population & pop) const
 {
 	m_random_seed = static_rng_uint32()();
+	//Re-evaluate the population with respect to the new seed (Internal Sampling Method)
+	for (size_t i=0; i<pop.size(); ++i){
+	  pop[i] = Individual(*this, pop[i].getDecisionVector(), pop[i].getVelocity());
+	}
 }

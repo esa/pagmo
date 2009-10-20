@@ -37,6 +37,7 @@
 #include "../../src/GOclasses/problems/earth_mars_lt_problem2.h"
 #include "../../src/GOclasses/problems/example_problem.h"
 #include "../../src/GOclasses/problems/twodee_problem.h"
+#include "../../src/GOclasses/problems/sp_testproblems.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
@@ -75,8 +76,8 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<messengerfullProb>("messenger_full", "Messenger full problem.").def(init<>());
 	problem_wrapper<messengerProb>("messenger", "Messenger problem.").def(init<>());
 	problem_wrapper<cassini2Prob>("cassini2", "Cassini2 problem.").def(init<>());
-	problem_wrapper<rosettaProb>("rosetta", "Cassini2 problem.").def(init<>());
-	problem_wrapper<sagasProb>("sagas", "Cassini2 problem.").def(init<>());
+	problem_wrapper<rosettaProb>("rosetta", "Rosetta problem.").def(init<>());
+	problem_wrapper<sagasProb>("sagas", "Sagas problem.").def(init<>());
 	problem_wrapper<tandemuncProb>("tandem_unc", "TandEM problem.").def(init<const int>());
 	
 	//Miscellanea Trajectory Problems
@@ -98,7 +99,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<rosenbrockProb>("rosenbrock", "Rosenbrock problem.").def(init<int>());
 	problem_wrapper<lennardjonesProb>("lennardjones", "Lennard-Jones problem.").def(init<int>());
 	problem_wrapper<levyProb>("levy", "Levy problem.").def(init<int>());
-	// Twodee problem.
-	//problem_wrapper<twodee_problem>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-	
+	// Stochastic Programming Problems (evolutionary robotics included)
+	problem_wrapper<twodee_problem>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
+	problem_wrapper<inventory_problem>("inventory", "Inventory problem.").def(init<int>());
 }

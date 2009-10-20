@@ -22,10 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 09/09/09 Created by Francesco Biscani.
+// 09/09/09 Created by Dario Izzo.
 
-#ifndef PAGMO_TWODEE_PROBLEM_H
-#define PAGMO_TWODEE_PROBLEM_H
+#ifndef PAGMO_SP_TESTPROBLEMS_H
+#define PAGMO_SP_TESTPROBLEMS_H
 
 #include <string>
 #include <vector>
@@ -33,18 +33,21 @@
 #include "../../../config.h"
 #include "GOproblem.h"
 
-// Twodee problem.
-class __PAGMO_VISIBLE twodee_problem: public GOProblem {
+/// Stochastic Programming Test Problem: Inventory Model
+/**
+ * This simple test problem represent an inventory problem and is discussed e.g. in A Tutorial on Stochastic Programming
+ * by Shapiro. 
+ */
+class __PAGMO_VISIBLE inventory_problem: public GOProblem {
 	public:
-		twodee_problem(int);
-		twodee_problem(int, const std::string &);
-		virtual twodee_problem *clone() const {return new twodee_problem(*this);}
+		inventory_problem(int sample_size);
+		virtual inventory_problem *clone() const {return new inventory_problem(*this);}
 		virtual void pre_evolution(Population &) const;
 		virtual std::string id_object() const { return id_name(); }
 	private:
 		virtual double objfun_(const std::vector<double> &) const;
-		mutable size_t		m_random_seed;
-		const std::string	m_arguments;
+		mutable std::vector<double> d;
+		size_t m_sample_size;
 };
 
 #endif

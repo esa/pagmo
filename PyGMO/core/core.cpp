@@ -108,6 +108,10 @@ BOOST_PYTHON_MODULE(_core)
 	to_tuple_mapping<std::vector<double> >();
 	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 
+	// Enable automatic conversion to/from python list of double/vector<int>.
+	to_tuple_mapping<std::vector<int> >();
+	from_python_sequence<std::vector<int>,variable_capacity_policy>();
+
         // Enable automatic conversion to/from python list of double/vector<double>.
         to_tuple_mapping<std::vector<std::vector<double> > >();
         from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();

@@ -24,27 +24,45 @@
 
 // 09/09/09 Created by Francesco Biscani.
 
-#ifndef PAGMO_TWODEE_PROBLEM_H
-#define PAGMO_TWODEE_PROBLEM_H
-
+#include <boost/lexical_cast.hpp>
+#include <cstdio>
+#include <exception>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
-#include "../../../config.h"
+#include "../../exceptions.h"
+#include "../../Functions/rng/rng.h"
 #include "GOproblem.h"
+#include "../basic/population.h"
+#include "sp_testproblems.h"
 
-// Twodee problem.
-class __PAGMO_VISIBLE twodee_problem: public GOProblem {
-	public:
-		twodee_problem(int);
-		twodee_problem(int, const std::string &);
-		virtual twodee_problem *clone() const {return new twodee_problem(*this);}
-		virtual void pre_evolution(Population &) const;
-		virtual std::string id_object() const { return id_name(); }
-	private:
-		virtual double objfun_(const std::vector<double> &) const;
-		mutable size_t		m_random_seed;
-		const std::string	m_arguments;
-};
 
-#endif
+inventory_problem::inventory_problem(int sample_size):GOProblem(1),d(sample_size),m_sample_size(sample_size) {
+  set_lb(0,0);
+  set_ub(0,100);
+}
+
+
+double inventory_problem::objfun_(const std::vector<double> &x) const
+{
+		const double c=1.0,b=1.5,h=0.1;
+		double retval=0;
+		for (size_t i = 0; i<m_sample_size; ++i){
+		 retval += c * x[0] + b * std::max(d[i]-x[0],0.0) + h * std::max(x[0] - d[i], 0.0);
+		 }
+		return retval / m_sample_size;
+}
+
+void inventory_problem::pre_evolution(Population & pop) const
+{
+	for (size_t i = 0; i<m_sample_size; ++i){
+	  d[i] = static_rng_double()() * 100;
+	}
+	//Re-evaluate the population with respect to the new seed (Internal Sampling Method)
+	for (size_t i=0; i<pop.size(); ++i){
+	  pop[i] = Individual(*this, pop[i].getDecisionVector(), pop[i].getVelocity());
+	}
+}
