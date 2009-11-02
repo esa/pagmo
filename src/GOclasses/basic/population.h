@@ -99,6 +99,9 @@ public:
 	/**
 	 * Please note that an explicit assignment is different from using the Population::setIndividual method,
 	 * because the latter allows the right-hand individual to be out of problem bounds, while the former does not.
+         * The only operator that can put in a population an out of bounds individual is this one.
+	 * \todo Policy decision: do we want to allow this? No problem in Python, which uses the setIndividual method to overload
+	 * operator[].
 	 */
 	Individual& operator[](int index);
 	
@@ -130,9 +133,6 @@ public:
 	void insert(int, const Individual &);
 	
 	/// Erase an individual at the specified position.
-	/**
-	 * \todo Here in turn, the index is range is not checked. Congrats.
-	 */
 	void erase(int n);
 	
 	/// Get the number of individuals in the population.

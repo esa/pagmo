@@ -220,3 +220,25 @@ def __arch_prune(arch,perc,display = False):
 
 archipelago.make_neato = __arch_make_neato
 archipelago.prune = __arch_prune
+
+def run_test():
+	from PyGMO import problem, algorithm, island
+	from numpy import mean, std
+	prob_list = [problem.schwefel(10),problem.rastrigin(10),problem.rosenbrock(10),
+		problem.ackley(10)]
+	algo_list = [algorithm.pso(500,0.65,2.0,2.0,1.0),algorithm.de(500,0.8,0.8,2),algorithm.asa(10000,1,0.1),
+		algorithm.ihs(500),algorithm.mpso(500,0.65,2.0,2.0,1.0,4),algorithm.nm(500),algorithm.sga(500,0.8,0.1,1),
+		algorithm.cs(.1)]
+	for prob in prob_list:
+		print('Testing problem: ' + str(type(prob)))
+		for algo in algo_list:
+			print('\tTesting algorithm: ' + str(type(algo)))
+			best = []
+			for i in range(0,100):
+				isl = island(prob,algo,20)
+				isl.evolve()
+				isl.join()
+				best.append(isl.best().fitness)
+			print('\t\tBest:\t' + str(min(best)))
+			print('\t\tMean:\t' + str(mean(best)))
+			print('\t\tStd:\t' + str(std(best)))
