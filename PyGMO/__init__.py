@@ -232,7 +232,7 @@ def run_test():
 	for prob in prob_list:
 		print('Testing problem: ' + str(type(prob)))
 		for algo in algo_list:
-			print('\tTesting algorithm: ' + str(type(algo)))
+			print('\tTesting algorithm: ' + str(algo))
 			best = []
 			for i in range(0,100):
 				isl = island(prob,algo,20)
