@@ -230,7 +230,7 @@ def run_test():
 		algorithm.ihs(500),algorithm.mpso(500,0.65,2.0,2.0,1.0,4),algorithm.nm(500),algorithm.sga(500,0.8,0.1,1),
 		algorithm.cs(.1)]
 	for prob in prob_list:
-		print('Testing problem: ' + str(type(prob)))
+		print('Testing problem: ' + str(type(prob)) + ', Dimension: ' + str(prob.dimension))
 		for algo in algo_list:
 			print('\tTesting algorithm: ' + str(algo))
 			best = []
