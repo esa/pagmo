@@ -78,8 +78,8 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<cassini2Prob>("cassini2", "Cassini2 problem.").def(init<>());
 	problem_wrapper<rosettaProb>("rosetta", "Rosetta problem.").def(init<>());
 	problem_wrapper<sagasProb>("sagas", "Sagas problem.").def(init<>());
-	problem_wrapper<tandemuncProb>("tandem_unc", "TandEM problem.").def(init<const int>());
-	
+	problem_wrapper<tandemProb>("tandem", "TandEM problem").def(init<const int>()).def(init<const int, const double>());
+
 	//Miscellanea Trajectory Problems
 	// MGADSM Problems
 	problem_wrapper<laplaceProb>("laplace", "Laplace problem.").def(init<const std::vector<int> &>())

@@ -43,16 +43,16 @@
 //***********************************************************************************
 /// Cassini Multiple Gravity Assist interplanetary trajectory problem (from the GTOP database)
 /**
-  * This is a rather simple six dimensional MGA problem that is related to the Cassini spacecraft trajectory design problem. See 
+  * This is a rather simple six dimensional MGA problem that is related to the Cassini spacecraft trajectory design problem. See
   * (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm) for further informations
  *
 */
 class __PAGMO_VISIBLE cassini1Prob : public GOProblem {
 public:
-       /// Constructor
-       /**
-        * It instantiate the cassini1 problem as defined in the ESA GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm)
-        */
+	/// Constructor
+	/**
+	* It instantiate the cassini1 problem as defined in the ESA GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm)
+	*/
 	cassini1Prob();
 	virtual cassini1Prob *clone() const {return new cassini1Prob(*this);}
 	virtual std::string id_object() const {return id_name(); }
@@ -72,10 +72,10 @@ private:
  */
 class gtoc1Prob : public GOProblem {
 public:
-       /// Constructor
-       /**
-        * It instantiate the gtoc problem as defined in the ESA GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evevejsa.htm)
-        */
+	/// Constructor
+	/**
+	* It instantiate the gtoc problem as defined in the ESA GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt/evevejsa.htm)
+	*/
 	gtoc1Prob();
 	virtual gtoc1Prob *clone() const {return new gtoc1Prob(*this);}
 	virtual std::string id_object() const {return id_name(); }
@@ -94,7 +94,7 @@ private:
 class __PAGMO_VISIBLE messengerProb : public GOProblem {
 public:
 	messengerProb();
-        virtual ~messengerProb() {}
+	virtual ~messengerProb() {}
 	virtual messengerProb *clone() const {return new messengerProb(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
@@ -122,36 +122,51 @@ private:
 
 /// Unconstrained TandEM trajectory problem (from the GTOP database)
 /**
- * This interesting interplanetary trajectory problem has 25 different instances, depending on the fly-by sequence adopted.
- * Please refer to http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm to select the proper instance. The problem is here
- * formulated as an unconstarined global optimization problem. No limit is considered in the total time of flight.
+ * This interplanetary trajectory problem has 25 different instances, depending on the fly-by sequence adopted.
+ * Please refer to http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm to select the proper instance. A classical
+ * choice is 6, which corrsponds to an EVEES fly-by sequence. The possibility of adding one additional constraint
+ * on the time-of-flight is given. If such a constraint is specified the components x[4]-x[7] are no longer time of flights
+ * but they represent the percentage of the remaining time of flight to be used in one leg.
  */
-class __PAGMO_VISIBLE tandemuncProb : public GOProblem {
+class __PAGMO_VISIBLE tandemProb : public GOProblem {
 public:
 	/// Constructor
-       /**
-        * It instantiates a TandEM problem.
-	* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used. Please Check 
+	/**
+	* It instantiates an unconstrained TandEM problem.
+	* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used. Please Check
 	* http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
-        */
-	tandemuncProb(const int problemid);
-        virtual ~tandemuncProb() {}
-	virtual tandemuncProb *clone() const {return new tandemuncProb(*this);}
+	*/
+	tandemProb(const int problemid);
+
+	/// Constructor
+	/**
+	* It instantiates a TandEM problem with a time constraint on the maximum time-of-flight.
+	* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used. Please Check
+	* http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
+	* \param[in] tof (in years) This is a number setting the constraint on the total time of flight (10 from the GTOP database)
+	*/
+	tandemProb(const int problemid, const double tof);
+	virtual ~tandemProb() {}
+	virtual tandemProb *clone() const {return new tandemProb(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
 	virtual std::ostream &print(std::ostream &) const;
 	virtual double objfun_(const std::vector<double>&) const;
 	mgadsmproblem mgadsm;
-	static const double lb[18];
-	static const double ub[18];
+	static const double lbunc[18];
+	static const double ubunc[18];
+	static const double lbcon[18];
+	static const double ubcon[18];
 	static const int Data[24][5];
+	const double tof;
+	mutable vector<double> copy_of_x;
 };	//end class tandemProb
 
 
 class cassini2Prob : public GOProblem {
 public:
 	cassini2Prob();
-        virtual ~cassini2Prob() {}
+	virtual ~cassini2Prob() {}
 	virtual cassini2Prob *clone() const {return new cassini2Prob(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
@@ -165,7 +180,7 @@ private:
 class rosettaProb : public GOProblem {
 public:
 	rosettaProb();
-	virtual ~rosettaProb() {};
+	virtual ~rosettaProb() {}
 	virtual rosettaProb *clone() const {return new rosettaProb(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
@@ -179,7 +194,7 @@ private:
 class sagasProb : public GOProblem {
 public:
 	sagasProb();
-	virtual ~sagasProb() {};
+	virtual ~sagasProb() {}
 	virtual sagasProb *clone() const {return new sagasProb(*this);}
 	virtual std::string id_object() const {return id_name(); }
 private:
@@ -191,18 +206,18 @@ private:
 };	//end class sagasProb
 
 class __PAGMO_VISIBLE laplaceProb : public GOProblem {
-	public:
-		laplaceProb(const std::vector<int> &);
-		laplaceProb(const laplaceProb &);
-		virtual ~laplaceProb() {};
-		virtual laplaceProb *clone() const {return new laplaceProb(*this);}
-		std::string solution(const std::vector<double> &) const;
-		virtual std::string id_object() const {return id_name(); }
-	private:
-		virtual std::ostream &print(std::ostream &) const;
-		void operator=(const laplaceProb &) {};
-		virtual double objfun_(const std::vector<double>&) const;
-		boost::scoped_ptr<mgadsmproblem> mgadsm;
+public:
+	laplaceProb(const std::vector<int> &);
+	laplaceProb(const laplaceProb &);
+	virtual ~laplaceProb() {}
+	virtual laplaceProb *clone() const {return new laplaceProb(*this);}
+	std::string solution(const std::vector<double> &) const;
+	virtual std::string id_object() const {return id_name(); }
+private:
+	virtual std::ostream &print(std::ostream &) const;
+	void operator=(const laplaceProb &) {}
+	virtual double objfun_(const std::vector<double>&) const;
+	boost::scoped_ptr<mgadsmproblem> mgadsm;
 };
 
 #endif
