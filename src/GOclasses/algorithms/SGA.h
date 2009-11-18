@@ -35,19 +35,53 @@
 #include "../basic/population.h"
 #include "go_algorithm.h"
 
+/// A simple genetic algorithm (SGA)
+/**
+ * This is a basic implementation of a genetic algorithm. Selection is either roulette wheel or 20% best repeated 5 times. Mutation is either random, gaussian or bounded. Crossover is exponential. Elitism is implemented by inserting the best every given generations.
+ */
+
 class __PAGMO_VISIBLE SGAalgorithm: public go_algorithm {
-	public:
-		SGAalgorithm(int, const double &, const double &, int insert_bestInit);
-		virtual Population evolve(const Population &) const;
-		virtual SGAalgorithm *clone() const {return new SGAalgorithm(*this);}
-		virtual std::string id_object() const { return id_name(); }
-	private:
-		virtual void log(std::ostream &) const;
-		const size_t	generations;
-		const double 	CR;		//crossover
-		const double	M;		//mutation
-		const int		insert_best;
-		mutable			rng_uint32 rng;
+public:
+	/// Constructor.
+                /**
+                 * Creates the SGA algorithm with a random mutation strategy and a roulette wheel selection
+                 * \param[in] gen Generation number
+                 * \param[in] CR Crossover rate (long chromosomes need higer rates)
+                 * \param[in] M Mutation rate
+		 * \param[in] best Elitism..... every best generation best-so-far is reinserted
+                 */
+	SGAalgorithm(int gen, const double &CR, const double &M, int best);
+	/// Constructor.
+                /**
+                 * Creates the SGA algorithm with a random mutation strategy and a roulette wheel selection
+                 * \param[in] gen Generation number
+                 * \param[in] CR Crossover rate (long chromosomes need higer rates)
+                 * \param[in] M Mutation rate
+		 * \param[in] best Elitism..... every best generation best-so-far is reinserted
+		 * \param[in] mutationRange If bounded mutation is selected it regulates the range within which mutation occur
+		 * \param[in] mutationType (0-gaussian, 1-bounded, 2-random)
+		 * \param[in] selectionType (0-20% best, 1-roulette)
+                 */
+	SGAalgorithm(int gen, const double &CR, const double &M, int best, double mutationRange, int mutationType, int selectionType);
+	virtual Population evolve(const Population &) const;
+	virtual SGAalgorithm *clone() const {return new SGAalgorithm(*this);}
+	virtual std::string id_object() const { return id_name(); }
+private:
+	virtual void log(std::ostream &) const;
+	const size_t	generations;
+	
+	const double 	CR;		//crossover
+	const double	M;		//mutation
+	const int		insert_best;
+	double		MR;    	//mutation range
+	int		MType;		
+	//mutation type: 0: Original Gaussian, 
+	//		 1: Bounded mutation value, 
+	//		 2: Random mutation value.
+	int		SType;		
+	//selection type: 0: Best %20 x 5 
+	//		  1: Roulette selection
+	mutable			rng_uint32 rng;
 };
 
 #endif

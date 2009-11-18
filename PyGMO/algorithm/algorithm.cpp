@@ -75,5 +75,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<PSOalgorithm>("pso", "Particle swarm optimization algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &>());
 	algorithm_wrapper<SGAalgorithm>("sga", "Simple genetic algorithm.")
-		.def(init<int, const double &, const double &, int>());
+		.def(init<int, const double &, const double &, int>())
+		.def(init<int, const double &, const double &, int, double, int, int>());
 }
