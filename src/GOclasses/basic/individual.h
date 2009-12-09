@@ -32,6 +32,7 @@
 
 #include "../../../config.h"
 #include "../../Functions/rng/rng.h"
+#include "../../exceptions.h"
 #include "../problems/GOproblem.h"
 
 /// Individual class.
@@ -81,6 +82,9 @@ public:
 			v(v_),
 			fitness(fitness_)
 	{
+		if (x.size() != v.size()) {
+			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
+		}
 	}
 	
 	/// Constructor.
