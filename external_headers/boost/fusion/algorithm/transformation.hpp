@@ -14,6 +14,7 @@
 #include <boost/fusion/algorithm/transformation/filter_if.hpp>
 #include <boost/fusion/algorithm/transformation/insert.hpp>
 #include <boost/fusion/algorithm/transformation/insert_range.hpp>
+#include <boost/fusion/algorithm/transformation/join.hpp> 
 #include <boost/fusion/algorithm/transformation/pop_back.hpp>
 #include <boost/fusion/algorithm/transformation/pop_front.hpp>
 #include <boost/fusion/algorithm/transformation/push_back.hpp>
@@ -24,5 +25,6 @@
 #include <boost/fusion/algorithm/transformation/replace_if.hpp>
 #include <boost/fusion/algorithm/transformation/reverse.hpp>
 #include <boost/fusion/algorithm/transformation/transform.hpp>
+#include <boost/fusion/algorithm/transformation/zip.hpp> 
 
 #endif

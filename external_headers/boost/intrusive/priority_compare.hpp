@@ -23,7 +23,7 @@ namespace intrusive {
 
 template <class T>
 struct priority_compare
-	: public std::binary_function<T, T, bool>
+   : public std::binary_function<T, T, bool>
 {
    bool operator()(const T &val, const T &val2) const
    {

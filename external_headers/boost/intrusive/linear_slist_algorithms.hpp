@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Olaf Krzikalla 2004-2006.
-// (C) Copyright Ion Gaztanaga  2006-2008
+// (C) Copyright Ion Gaztanaga  2006-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -156,7 +156,7 @@ class linear_slist_algorithms
    //! <b>Effects</b>: Returns the number of nodes in a linear list. If the linear list
    //!  is empty, returns 1.
    //! 
-   //! <b>Complexity</b>: Constant 
+   //! <b>Complexity</b>: Linear 
    //! 
    //! <b>Throws</b>: Nothing.
    static std::size_t count(const_node_ptr this_node) 

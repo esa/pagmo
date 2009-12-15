@@ -192,32 +192,17 @@ template<class CharType>
 bool basic_xml_grammar<CharType>::parse_start_tag(
     BOOST_DEDUCED_TYPENAME basic_xml_grammar<CharType>::IStream & is
 ){
-    if(is.fail()){
-        boost::serialization::throw_exception(
-            archive_exception(archive_exception::stream_error)
-        );
-    }
     rv.class_name.resize(0);
     return my_parse(is, STag);
 }
 
 template<class CharType>
 bool basic_xml_grammar<CharType>::parse_end_tag(IStream & is) const {
-    if(is.fail()){
-        boost::serialization::throw_exception(
-            archive_exception(archive_exception::stream_error)
-        );
-    }
     return my_parse(is, ETag);
 }
 
 template<class CharType>
 bool basic_xml_grammar<CharType>::parse_string(IStream & is, StringType & s){
-    if(is.fail()){
-        boost::serialization::throw_exception(
-            archive_exception(archive_exception::stream_error)
-        );
-    }
     rv.contents.resize(0);
     bool result = my_parse(is, content, '<');
     // note: unget caused a problem with dinkumware.  replace with
@@ -451,7 +436,7 @@ template<class CharType>
 void basic_xml_grammar<CharType>::windup(IStream & is){
     if(is.fail())
         return;
-    // uh-oh - don't exception from code called by a destructor !
+    // uh-oh - don't throw exception from code called by a destructor !
     // so just ignore any failure.
     my_parse(is, ETag);
 }

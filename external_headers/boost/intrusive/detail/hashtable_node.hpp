@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2007-2008
+// (C) Copyright Ion Gaztanaga  2007-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -100,8 +100,12 @@ template<class Container, bool IsConst>
 class hashtable_iterator
    :  public std::iterator
          < std::forward_iterator_tag
+         , typename Container::value_type
+         , typename std::iterator_traits<typename Container::value_type*>::difference_type
          , typename detail::add_const_if_c
-            <typename Container::value_type, IsConst>::type
+                     <typename Container::value_type, IsConst>::type *
+         , typename detail::add_const_if_c
+                     <typename Container::value_type, IsConst>::type &
          >
 {
    typedef typename Container::real_value_traits                  real_value_traits;
@@ -116,8 +120,11 @@ class hashtable_iterator
    {  return typename Container::node_ptr(&static_cast<typename Container::node&>(*p));   }
 
    public:
+   typedef typename Container::value_type    value_type;
+   typedef  typename detail::add_const_if_c
+                     <typename Container::value_type, IsConst>::type *pointer;
    typedef typename detail::add_const_if_c
-      <typename Container::value_type, IsConst>::type          value_type;
+                     <typename Container::value_type, IsConst>::type &reference;
 
    hashtable_iterator ()
    {}
@@ -132,6 +139,9 @@ class hashtable_iterator
 
    const siterator &slist_it() const
    { return slist_it_; }
+
+   hashtable_iterator<Container, false> unconst() const
+   {  return hashtable_iterator<Container, false>(this->slist_it(), this->get_container());   }
 
    public:
    hashtable_iterator& operator++() 
@@ -150,10 +160,10 @@ class hashtable_iterator
    friend bool operator!= (const hashtable_iterator& i, const hashtable_iterator& i2)
    { return !(i == i2); }
 
-   value_type& operator*() const
+   reference operator*() const
    { return *this->operator ->(); }
 
-   value_type* operator->() const
+   pointer operator->() const
    { return detail::get_pointer(this->get_real_value_traits()->to_value_ptr(downcast_bucket(slist_it_.pointed_node()))); }
 
    const Container *get_container() const

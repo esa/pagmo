@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2008
+// (C) Copyright Ion Gaztanaga  2006-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -186,8 +186,7 @@ struct store_hash_bool
    template<bool Add>
    struct two_or_three {one _[2 + Add];};
    template <class U> static one test(...);
-   template <class U> static two_or_three<U::store_hash>
-      test (detail::bool_<U::store_hash>* = 0);
+   template <class U> static two_or_three<U::store_hash> test (int);
    static const std::size_t value = sizeof(test<T>(0));
 };
 
@@ -203,8 +202,7 @@ struct optimize_multikey_bool
    template<bool Add>
    struct two_or_three {one _[2 + Add];};
    template <class U> static one test(...);
-   template <class U> static two_or_three<U::optimize_multikey>
-      test (detail::bool_<U::optimize_multikey>* = 0);
+   template <class U> static two_or_three<U::optimize_multikey> test (int);
    static const std::size_t value = sizeof(test<T>(0));
 };
 
@@ -603,7 +601,7 @@ class hashtable_impl
 
    typedef typename real_value_traits::pointer                       pointer;
    typedef typename real_value_traits::const_pointer                 const_pointer;
-   typedef typename std::iterator_traits<pointer>::value_type        value_type;
+   typedef typename real_value_traits::value_type                                                value_type;
    typedef typename std::iterator_traits<pointer>::reference         reference;
    typedef typename std::iterator_traits<const_pointer>::reference   const_reference;
    typedef typename std::iterator_traits<pointer>::difference_type   difference_type;
@@ -626,7 +624,7 @@ class hashtable_impl
       <node_ptr, const node>::type                                   const_node_ptr;
    typedef typename slist_impl::node_algorithms                      node_algorithms;
 
-   static const bool stateful_value_traits = detail::store_cont_ptr_on_it<hashtable_impl>::value;
+   static const bool stateful_value_traits = detail::is_stateful_value_traits<real_value_traits>::value;
    static const bool store_hash = detail::store_hash_is_true<node_traits>::value;
 
    static const bool unique_keys          = 0 != (Config::bool_flags  & detail::hash_bool_flags::unique_keys_pos);
@@ -1231,8 +1229,8 @@ class hashtable_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased element. No destructors are called.
-   void erase(const_iterator i)
-   {  this->erase_and_dispose(i, detail::null_disposer());  }
+   iterator erase(const_iterator i)
+   {  return this->erase_and_dispose(i, detail::null_disposer());  }
 
    //! <b>Effects</b>: Erases the range pointed to by b end e. 
    //! 
@@ -1243,8 +1241,8 @@ class hashtable_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   void erase(const_iterator b, const_iterator e)
-   {  this->erase_and_dispose(b, e, detail::null_disposer());  }
+   iterator erase(const_iterator b, const_iterator e)
+   {  return this->erase_and_dispose(b, e, detail::null_disposer());  }
 
    //! <b>Effects</b>: Erases all the elements with the given value.
    //! 
@@ -1297,18 +1295,19 @@ class hashtable_impl
    //! <b>Note</b>: Invalidates the iterators 
    //!    to the erased elements.
    template<class Disposer>
-   void erase_and_dispose(const_iterator i, Disposer disposer)
+   iterator erase_and_dispose(const_iterator i, Disposer disposer
+                              /// @cond
+                              , typename detail::enable_if_c<!detail::is_convertible<Disposer, const_iterator>::value >::type * = 0
+                              /// @endcond
+                              )
    {
+      iterator ret(i.unconst());
+      ++ret;
       priv_erase(i, disposer, optimize_multikey_t());
       this->priv_size_traits().decrement();
       priv_erasure_update_cache();
+      return ret;
    }
-
-   #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
-   template<class Disposer>
-   iterator erase_and_dispose(iterator i, Disposer disposer)
-   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
-   #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -1323,31 +1322,32 @@ class hashtable_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class Disposer>
-   void erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
+   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
    {
-      if(b == e)  return;
+      if(b != e){
+         //Get the bucket number and local iterator for both iterators
+         siterator first_local_it(b.slist_it());
+         size_type first_bucket_num = this->priv_get_bucket_num(first_local_it);
 
-      //Get the bucket number and local iterator for both iterators
-      siterator first_local_it(b.slist_it());
-      size_type first_bucket_num = this->priv_get_bucket_num(first_local_it);
+         siterator before_first_local_it
+            = priv_get_previous(priv_buckets()[first_bucket_num], first_local_it);
+         size_type last_bucket_num;
+         siterator last_local_it;
 
-      siterator before_first_local_it
-         = priv_get_previous(priv_buckets()[first_bucket_num], first_local_it);
-      size_type last_bucket_num;
-      siterator last_local_it;
-
-      //For the end iterator, we will assign the end iterator
-      //of the last bucket
-      if(e == this->end()){
-         last_bucket_num   = this->bucket_count() - 1;
-         last_local_it     = priv_buckets()[last_bucket_num].end();
+         //For the end iterator, we will assign the end iterator
+         //of the last bucket
+         if(e == this->end()){
+            last_bucket_num   = this->bucket_count() - 1;
+            last_local_it     = priv_buckets()[last_bucket_num].end();
+         }
+         else{
+            last_local_it     = e.slist_it();
+            last_bucket_num = this->priv_get_bucket_num(last_local_it);
+         }
+         priv_erase_range(before_first_local_it, first_bucket_num, last_local_it, last_bucket_num, disposer);
+         priv_erasure_update_cache(first_bucket_num, last_bucket_num);
       }
-      else{
-         last_local_it     = e.slist_it();
-         last_bucket_num = this->priv_get_bucket_num(last_local_it);
-      }
-      priv_erase_range(before_first_local_it, first_bucket_num, last_local_it, last_bucket_num, disposer);
-      priv_erasure_update_cache(first_bucket_num, last_bucket_num);
+      return e.unconst();
    }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.

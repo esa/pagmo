@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -10,44 +10,34 @@
 
 #include<boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
-#include <boost/interprocess/sync/scoped_lock.hpp>
 
 namespace boost {
 namespace interprocess {
 
+
 inline interprocess_semaphore::~interprocess_semaphore()
 {}
 
-inline interprocess_semaphore::interprocess_semaphore(int initialCount)
-   :  m_mut(), m_cond(), m_count(initialCount)
-{}
+inline interprocess_semaphore::interprocess_semaphore(unsigned int initialCount)
+{  detail::atomic_write32(&this->m_count, boost::uint32_t(initialCount));  }
 
 inline void interprocess_semaphore::post()
 {
-   scoped_lock<interprocess_mutex> lock(m_mut);
-   if(m_count == 0){
-      m_cond.notify_one();
-   }
-   ++m_count;
+   detail::atomic_inc32(&m_count);
 }
 
 inline void interprocess_semaphore::wait()
 {
-   scoped_lock<interprocess_mutex> lock(m_mut);
-   while(m_count == 0){
-      m_cond.wait(lock);
+   while(!detail::atomic_add_unless32(&m_count, boost::uint32_t(-1), boost::uint32_t(0))){
+      while(detail::atomic_read32(&m_count) == 0){
+         detail::thread_yield();
+      }
    }
-   --m_count;
 }
 
 inline bool interprocess_semaphore::try_wait()
 {
-   scoped_lock<interprocess_mutex> lock(m_mut);
-   if(m_count == 0){
-      return false;
-   }
-   --m_count;
-   return true;
+   return detail::atomic_add_unless32(&m_count, boost::uint32_t(-1), boost::uint32_t(0));
 }
 
 inline bool interprocess_semaphore::timed_wait(const boost::posix_time::ptime &abs_time)
@@ -56,19 +46,29 @@ inline bool interprocess_semaphore::timed_wait(const boost::posix_time::ptime &a
       this->wait();
       return true;
    }
-   scoped_lock<interprocess_mutex> lock(m_mut);
-   while(m_count == 0){
-      if(!m_cond.timed_wait(lock, abs_time))
-         return m_count != 0;
-   }
-   --m_count;
+   //Obtain current count and target time
+   boost::posix_time::ptime now(microsec_clock::universal_time());
+   if(now >= abs_time)
+      return false;
+
+   do{
+      if(this->try_wait()){
+         break;
+      }
+      now = microsec_clock::universal_time();
+
+      if(now >= abs_time){
+         return this->try_wait();
+      }
+      // relinquish current time slice
+      detail::thread_yield();
+   }while (true);
    return true;
 }
 /*
 inline int interprocess_semaphore::get_count() const
 {
-   scoped_lock<interprocess_mutex> lock(m_mut);
-   return count;   
+   return (int)detail::atomic_read32(&m_count);
 }*/
 
 }  //namespace interprocess {

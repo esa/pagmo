@@ -85,11 +85,11 @@ namespace boost { namespace fusion
     {
         template <typename Sequence, typename Active>
         struct tag_of
-          : mpl::if_< detail::is_mpl_sequence<Sequence>,
+          : mpl::if_< fusion::detail::is_mpl_sequence<Sequence>,
               mpl::identity<mpl_sequence_tag>,
               mpl::identity<non_fusion_tag> >::type
         {
-            BOOST_MPL_ASSERT_NOT((detail::is_specialized<Sequence>));
+            BOOST_MPL_ASSERT_NOT((fusion::detail::is_specialized<Sequence>));
         };
 
         template <typename Sequence>

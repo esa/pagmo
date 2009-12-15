@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -157,7 +157,8 @@ inline bool interprocess_condition::do_timed_wait(bool tout_enabled,
       else{
          //Notification occurred, we will lock the checking interprocess_mutex so that
          //if a notify_one notification occurs, only one thread can exit
-        //---------------------------------------------------------------
+         //---------------------------------------------------------------
+         /*
          InternalLock lock;
          if(tout_enabled){
             InternalLock dummy(m_check_mut, abs_time);
@@ -167,13 +168,15 @@ inline bool interprocess_condition::do_timed_wait(bool tout_enabled,
             InternalLock dummy(m_check_mut);
             lock = boost::interprocess::move(dummy);
          }
-
          if(!lock){
             timed_out = true;
             unlock_enter_mut = true;
+            detail::atomic_dec32(const_cast<boost::uint32_t*>(&m_num_waiters));
             break;
          }
          //---------------------------------------------------------------
+         */
+         //InternalLock lock(m_check_mut);
          boost::uint32_t result = detail::atomic_cas32
                         (const_cast<boost::uint32_t*>(&m_command), SLEEP, NOTIFY_ONE);
          if(result == SLEEP){

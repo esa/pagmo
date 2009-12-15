@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008.
+// (C) Copyright Ion Gaztanaga 2005-2009.
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,7 +20,7 @@
 #include <cstddef>
 
 namespace boost {
-namespace interprocess_container { 
+namespace container { 
 namespace containers_detail {
 
 template <class T, T val>
@@ -145,7 +145,7 @@ struct ls_zeros<1>
 };
 
 }  //namespace containers_detail { 
-}  //namespace interprocess_container { 
+}  //namespace container { 
 }  //namespace boost {
 
 #endif   //#ifndef BOOST_CONTAINERS_CONTAINER_DETAIL_MPL_HPP

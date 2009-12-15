@@ -31,6 +31,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::quantile> const quantile = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(quantile)
 }
 using extract::quantile;
 
@@ -47,6 +49,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::tail_mean> const tail_mean = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(tail_mean)
 }
 using extract::tail_mean;
 

@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst 
- * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
+ * $Date: 2009-10-03 06:22:58 -0400 (Sat, 03 Oct 2009) $
  */
 
 
@@ -43,7 +43,9 @@ namespace date_time {
    * user created std::tm struct whereas the regular functions use a 
    * staticly created struct and return a pointer to that. These wrapper 
    * functions require the user to create a std::tm struct and send in a 
-   * pointer to it. A pointer to the user created struct will be returned.
+   * pointer to it. This struct may be used to store the resulting time.
+   * The returned pointer may or may not point to this struct, however,
+   * it will point to the result of the corresponding function.
    * All functions do proper checking of the C function results and throw
    * exceptions on error. Therefore the functions will never return NULL.
    */

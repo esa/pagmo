@@ -17,12 +17,13 @@
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/set.hpp>
+#include <boost/interprocess/containers/containers_fwd.hpp>
 
 namespace boost {
 namespace interprocess {
 
-using boost::interprocess_container::set;
-using boost::interprocess_container::multiset;
+using boost::container::set;
+using boost::container::multiset;
 
 }  //namespace interprocess {
 }  //namespace boost {

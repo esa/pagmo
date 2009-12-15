@@ -43,10 +43,14 @@ namespace signals2
 
 namespace detail
 {
-  template< class T > T forward( T t )
+
+#if !defined(BOOST_NO_RVALUE_REFERENCES)
+  template< class T > T&& forward( T &&t )
   {
       return t;
   }
+#endif
+
   inline void adl_predestruct(...) {}
 } // namespace detail
 
@@ -67,7 +71,7 @@ public:
         }
         return _sp;
     }
-#if defined( BOOST_HAS_VARIADIC_TMPL ) && defined( BOOST_HAS_RVALUE_REFS )
+#if !defined(BOOST_NO_VARIADIC_TEMPLATES) && !defined(BOOST_NO_RVALUE_REFERENCES)
     template<class... Args>
       const shared_ptr<T>& postconstruct(Args && ... args)
     {
@@ -79,7 +83,7 @@ public:
         }
         return _sp;
     }
-#else
+#else // !defined(BOOST_NO_VARIADIC_TEMPLATES) && !defined(BOOST_NO_RVALUE_REFERENCES)
     template<typename A1>
       const shared_ptr<T>& postconstruct(const A1 &a1) const
     {
@@ -187,7 +191,7 @@ public:
         }
         return _sp;
     }
-#endif // else defined( BOOST_HAS_VARIADIC_TMPL ) && defined( BOOST_HAS_RVALUE_REFS )
+#endif // !defined(BOOST_NO_VARIADIC_TEMPLATES) && !defined(BOOST_NO_RVALUE_REFERENCES)
 private:
     friend class boost::signals2::deconstruct_access;
     postconstructor_invoker(const shared_ptr<T> & sp):
@@ -288,7 +292,7 @@ public:
 
     }
 
-#if defined( BOOST_HAS_VARIADIC_TMPL ) && defined( BOOST_HAS_RVALUE_REFS )
+#if !defined(BOOST_NO_VARIADIC_TEMPLATES) && !defined(BOOST_NO_RVALUE_REFERENCES)
 
     // Variadic templates, rvalue reference
 
@@ -476,7 +480,7 @@ template< class T > postconstructor_invoker<T> deconstruct()
     return deconstruct_access::deconstruct<T>();
 }
 
-#if defined( BOOST_HAS_VARIADIC_TMPL ) && defined( BOOST_HAS_RVALUE_REFS )
+#if !defined(BOOST_NO_VARIADIC_TEMPLATES) && !defined(BOOST_NO_RVALUE_REFERENCES)
 
 // Variadic templates, rvalue reference
 

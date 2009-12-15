@@ -95,7 +95,7 @@ namespace detail
 /// \param flags Optional match flags, used to control how the expression is matched
 ///        against the sequence. (See \c match_flag_type.)
 /// \return \c true if a match is found, \c false otherwise
-/// \throw \c regex_error on stack exhaustion
+/// \throw regex_error on stack exhaustion
 template<typename BidiIter>
 inline bool regex_match
 (
@@ -417,7 +417,7 @@ namespace detail
 /// \param flags Optional match flags, used to control how the expression is matched against
 ///        the sequence. (See \c match_flag_type.)
 /// \return \c true if a match is found, \c false otherwise
-/// \throw \c regex_error on stack exhaustion
+/// \throw regex_error on stack exhaustion
 template<typename BidiIter>
 inline bool regex_search
 (
@@ -746,7 +746,7 @@ namespace detail
 /// \param flags Optional match flags, used to control how the expression is matched against
 ///        the sequence. (See \c match_flag_type.)
 /// \return The value of the output iterator after the output sequence has been written to it.
-/// \throw \c regex_error on stack exhaustion or invalid format string.
+/// \throw regex_error on stack exhaustion or invalid format string.
 template<typename OutIter, typename BidiIter, typename Formatter>
 inline OutIter regex_replace
 (

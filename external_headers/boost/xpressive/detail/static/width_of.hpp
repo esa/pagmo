@@ -230,8 +230,8 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Expr, typename Char, uint_t Count>
     struct width_of<Expr, Char, generic_quant_tag<Count, Count> >
-      : mpl::if_<
-            mpl::equal_to<unknown_width, width_of<typename remove_reference<typename Expr::proto_child0>::type::proto_base_expr, Char> >
+      : mpl::if_c<
+            mpl::equal_to<unknown_width, width_of<typename remove_reference<typename Expr::proto_child0>::type::proto_base_expr, Char> >::value
           , unknown_width
           , mpl::times<
                 width_of<typename remove_reference<typename Expr::proto_child0>::type::proto_base_expr, Char>

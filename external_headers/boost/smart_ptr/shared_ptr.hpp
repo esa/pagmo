@@ -61,6 +61,7 @@ namespace boost
 template<class T> class shared_ptr;
 template<class T> class weak_ptr;
 template<class T> class enable_shared_from_this;
+template<class T> class enable_shared_from_this2;
 
 namespace detail
 {
@@ -102,6 +103,14 @@ template<> struct shared_ptr_traits<void const volatile>
 // enable_shared_from_this support
 
 template< class X, class Y, class T > inline void sp_enable_shared_from_this( boost::shared_ptr<X> const * ppx, Y const * py, boost::enable_shared_from_this< T > const * pe )
+{
+    if( pe != 0 )
+    {
+        pe->_internal_accept_owner( ppx, const_cast< Y* >( py ) );
+    }
+}
+
+template< class X, class Y, class T > inline void sp_enable_shared_from_this( boost::shared_ptr<X> * ppx, Y const * py, boost::enable_shared_from_this2< T > const * pe )
 {
     if( pe != 0 )
     {
@@ -359,14 +368,14 @@ public:
 
     shared_ptr & operator=( shared_ptr && r ) // never throws
     {
-        this_type( static_cast< shared_ptr && >( r ) ).swap( *this );
+        this_type( std::move( r ) ).swap( *this );
         return *this;
     }
 
     template<class Y>
     shared_ptr & operator=( shared_ptr<Y> && r ) // never throws
     {
-        this_type( static_cast< shared_ptr<Y> && >( r ) ).swap( *this );
+        this_type( std::move( r ) ).swap( *this );
         return *this;
     }
 

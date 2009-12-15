@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2008
+// (C) Copyright Ion Gaztanaga  2006-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,6 +20,7 @@
 #include <boost/intrusive/link_mode.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
 #include <boost/intrusive/detail/assert.hpp>
+#include <boost/intrusive/detail/is_stateful_value_traits.hpp>
 #include <boost/cstdint.hpp>
 #include <cstddef>
 #include <climits>
@@ -45,8 +46,7 @@ struct internal_base_hook_bool
    template<bool Add>
    struct two_or_three {one _[2 + Add];};
    template <class U> static one test(...);
-   template <class U> static two_or_three<U::boost_intrusive_tags::is_base_hook>
-      test (detail::bool_<U::boost_intrusive_tags::is_base_hook>* = 0);
+   template <class U> static two_or_three<U::boost_intrusive_tags::is_base_hook> test (int);
    static const std::size_t value = sizeof(test<T>(0));
 };
 
@@ -62,8 +62,7 @@ struct internal_any_hook_bool
    template<bool Add>
    struct two_or_three {one _[2 + Add];};
    template <class U> static one test(...);
-   template <class U> static two_or_three<U::is_any_hook>
-      test (detail::bool_<U::is_any_hook>* = 0);
+   template <class U> static two_or_three<U::is_any_hook> test (int);
    static const std::size_t value = sizeof(test<T>(0));
 };
 
@@ -80,8 +79,7 @@ struct external_value_traits_bool
    template<bool Add>
    struct two_or_three {one _[2 + Add];};
    template <class U> static one test(...);
-   template <class U> static two_or_three<U::external_value_traits>
-      test (detail::bool_<U::external_value_traits>* = 0);
+   template <class U> static two_or_three<U::external_value_traits> test (int);
    static const std::size_t value = sizeof(test<T>(0));
 };
 
@@ -91,8 +89,7 @@ struct external_bucket_traits_bool
    template<bool Add>
    struct two_or_three {one _[2 + Add];};
    template <class U> static one test(...);
-   template <class U> static two_or_three<U::external_bucket_traits>
-      test (detail::bool_<U::external_bucket_traits>* = 0);
+   template <class U> static two_or_three<U::external_bucket_traits> test (int);
    static const std::size_t value = sizeof(test<T>(0));
 };
 
@@ -337,16 +334,6 @@ struct select_constptr
       >::type type;
 };
 
-template <class Container>
-struct store_cont_ptr_on_it
-{
-   typedef typename Container::value_traits value_traits;
-   static const bool value = 
-      !detail::is_empty_class<value_traits>::value
-   || detail::external_value_traits_is_true<value_traits>::value
-   ;
-};
-
 template<class T, bool Add>
 struct add_const_if_c
 {
@@ -355,58 +342,6 @@ struct add_const_if_c
       , typename detail::add_const<T>::type
       , T
       >::type type;
-};
-
-template<class Container, bool IsConst>
-struct node_to_value
-   :  public detail::select_constptr
-      < typename boost::pointer_to_other
-            <typename Container::pointer, void>::type
-      , detail::store_cont_ptr_on_it<Container>::value
-      >::type
-{
-   static const bool store_container_ptr = 
-      detail::store_cont_ptr_on_it<Container>::value;
-
-   typedef typename Container::real_value_traits         real_value_traits;
-   typedef typename real_value_traits::value_type        value_type;
-   typedef typename detail::select_constptr
-      < typename boost::pointer_to_other
-         <typename Container::pointer, void>::type
-      , store_container_ptr >::type                      Base;
-   typedef typename real_value_traits::node_traits::node node;
-   typedef typename detail::add_const_if_c
-         <value_type, IsConst>::type                  vtype;
-   typedef typename detail::add_const_if_c
-         <node, IsConst>::type                        ntype;
-   typedef typename boost::pointer_to_other
-      <typename Container::pointer, ntype>::type      npointer;
-
-   node_to_value(const Container *cont)
-      :  Base(cont)
-   {}
-
-   typedef vtype &                                 result_type;
-   typedef ntype &                                 first_argument_type;
-
-   const Container *get_container() const
-   {
-      if(store_container_ptr)
-         return static_cast<const Container*>(Base::get_ptr());
-      else
-         return 0;
-   }
-
-   const real_value_traits *get_real_value_traits() const
-   {
-      if(store_container_ptr)
-         return &this->get_container()->get_real_value_traits();
-      else
-         return 0;
-   }
-
-   result_type operator()(first_argument_type arg) const
-   {  return *(this->get_real_value_traits()->to_value_ptr(npointer(&arg))); }
 };
 
 template <link_mode_type LinkMode>
@@ -624,6 +559,79 @@ class exception_array_disposer
       }
    }
 };
+
+template<class ValueTraits, bool ExternalValueTraits>
+struct store_cont_ptr_on_it_impl
+{
+   static const bool value = is_stateful_value_traits<ValueTraits>::value;
+};
+
+template<class ValueTraits>
+struct  store_cont_ptr_on_it_impl<ValueTraits, true>
+{
+   static const bool value = true;
+};
+
+template <class Container>
+struct store_cont_ptr_on_it
+{
+   typedef typename Container::value_traits value_traits;
+   static const bool value = store_cont_ptr_on_it_impl
+      <value_traits, external_value_traits_is_true<value_traits>::value>::value;
+};
+
+template<class Container, bool IsConst>
+struct node_to_value
+   :  public detail::select_constptr
+      < typename boost::pointer_to_other
+            <typename Container::pointer, void>::type
+      , detail::store_cont_ptr_on_it<Container>::value
+      >::type
+{
+   static const bool store_container_ptr = 
+      detail::store_cont_ptr_on_it<Container>::value;
+
+   typedef typename Container::real_value_traits         real_value_traits;
+   typedef typename real_value_traits::value_type        value_type;
+   typedef typename detail::select_constptr
+      < typename boost::pointer_to_other
+         <typename Container::pointer, void>::type
+      , store_container_ptr >::type                      Base;
+   typedef typename real_value_traits::node_traits::node node;
+   typedef typename detail::add_const_if_c
+         <value_type, IsConst>::type                  vtype;
+   typedef typename detail::add_const_if_c
+         <node, IsConst>::type                        ntype;
+   typedef typename boost::pointer_to_other
+      <typename Container::pointer, ntype>::type      npointer;
+
+   node_to_value(const Container *cont)
+      :  Base(cont)
+   {}
+
+   typedef vtype &                                 result_type;
+   typedef ntype &                                 first_argument_type;
+
+   const Container *get_container() const
+   {
+      if(store_container_ptr)
+         return static_cast<const Container*>(Base::get_ptr());
+      else
+         return 0;
+   }
+
+   const real_value_traits *get_real_value_traits() const
+   {
+      if(store_container_ptr)
+         return &this->get_container()->get_real_value_traits();
+      else
+         return 0;
+   }
+
+   result_type operator()(first_argument_type arg) const
+   {  return *(this->get_real_value_traits()->to_value_ptr(npointer(&arg))); }
+};
+
 
 } //namespace detail
 } //namespace intrusive 

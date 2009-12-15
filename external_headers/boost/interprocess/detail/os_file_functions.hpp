@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -26,6 +26,9 @@
 #     include <errno.h>
 #     include <cstdio>
 #     include <dirent.h>
+#     if 0
+#        include <sys/file.h> 
+#     endif
 #  else
 #    error Unknown platform
 #  endif
@@ -84,6 +87,7 @@ inline bool create_directory(const char *path)
 inline const char *get_temporary_path()
 {  return std::getenv("TMP"); }
 
+
 inline file_handle_t create_new_file
    (const char *name, mode_t mode = read_write, bool temporary = false)
 {  
@@ -112,13 +116,37 @@ inline bool delete_file(const char *name)
 {  return winapi::unlink_file(name);   }
 
 inline bool truncate_file (file_handle_t hnd, std::size_t size)
-{  
-   if(!winapi::set_file_pointer_ex(hnd, size, 0, winapi::file_begin)){
+{
+   offset_t filesize;
+   if(!winapi::get_file_size(hnd, filesize))
       return false;
-   }
 
-   if(!winapi::set_end_of_file(hnd)){
-      return false;
+   if(size > filesize){
+      if(!winapi::set_file_pointer_ex(hnd, filesize, 0, winapi::file_begin)){
+         return false;
+      }      
+      //We will write zeros in the end of the file
+      //since set_end_of_file does not guarantee this
+      for(std::size_t remaining = size - filesize, write_size = 0
+         ;remaining > 0
+         ;remaining -= write_size){
+         const std::size_t DataSize = 512;
+         static char data [DataSize];
+         write_size = DataSize < remaining ? DataSize : remaining;
+         unsigned long written;
+         winapi::write_file(hnd, data, (unsigned long)write_size, &written, 0);
+         if(written != write_size){
+            return false;
+         }
+      }
+   }
+   else{
+      if(!winapi::set_file_pointer_ex(hnd, size, 0, winapi::file_begin)){
+         return false;
+      }
+      if(!winapi::set_end_of_file(hnd)){
+         return false;
+      }
    }
    return true;
 }
@@ -310,18 +338,16 @@ inline bool create_directory(const char *path)
 {  return ::mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0; }
 
 inline const char *get_temporary_path()
-{  
-   const char *dir = std::getenv("TMPDIR"); 
-   if(!dir){
-      dir = std::getenv("TMP");
-      if(!dir){
-         dir = std::getenv("TEMP");
-         if(!dir){
-            dir = "/tmp";
-         }
+{
+   const char *names[] = {"/tmp", "TMPDIR", "TMP", "TEMP" };
+   const int names_size = sizeof(names)/sizeof(names[0]);
+   struct stat data;
+   for(int i = 0; i != names_size; ++i){
+      if(::stat(names[i], &data) == 0){
+         return names[i];
       }
    }
-   return dir;
+   return "/tmp";
 }
 
 inline file_handle_t create_new_file
@@ -441,6 +467,34 @@ inline bool try_acquire_file_lock_sharable(file_handle_t hnd, bool &acquired)
 
 inline bool release_file_lock_sharable(file_handle_t hnd)
 {  return release_file_lock(hnd);   }
+
+#if 0
+inline bool acquire_file_lock(file_handle_t hnd)
+{  return 0 == ::flock(hnd, LOCK_EX); }
+
+inline bool try_acquire_file_lock(file_handle_t hnd, bool &acquired)
+{
+   int ret = ::flock(hnd, LOCK_EX | LOCK_NB);
+   acquired = ret == 0;
+   return (acquired || errno == EWOULDBLOCK);
+}
+
+inline bool release_file_lock(file_handle_t hnd)
+{  return 0 == ::flock(hnd, LOCK_UN); }
+
+inline bool acquire_file_lock_sharable(file_handle_t hnd)
+{  return 0 == ::flock(hnd, LOCK_SH); }
+
+inline bool try_acquire_file_lock_sharable(file_handle_t hnd, bool &acquired)
+{
+   int ret = ::flock(hnd, LOCK_SH | LOCK_NB);
+   acquired = ret == 0;
+   return (acquired || errno == EWOULDBLOCK);
+}
+
+inline bool release_file_lock_sharable(file_handle_t hnd)
+{  return 0 == ::flock(hnd, LOCK_UN); }
+#endif
 
 inline bool delete_subdirectories_recursive
    (const std::string &refcstrRootDirectory, const char *dont_delete_this)

@@ -8,7 +8,6 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 #include <string>
-#include <cassert>
 #include <algorithm>
 #include <cstring>
 

@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: lagged_fibonacci.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: lagged_fibonacci.hpp 53871 2009-06-13 17:54:06Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -28,6 +28,7 @@
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/detail/config.hpp>
+#include <boost/random/detail/seed.hpp>
 #include <boost/random/detail/pass_through_engine.hpp>
 
 namespace boost {
@@ -267,9 +268,10 @@ public:
   BOOST_STATIC_CONSTANT(unsigned int, short_lag = q);
 
   lagged_fibonacci_01() { init_modulus(); seed(); }
-  explicit lagged_fibonacci_01(uint32_t value) { init_modulus(); seed(value); }
-  template<class Generator>
-  explicit lagged_fibonacci_01(Generator & gen) { init_modulus(); seed(gen); }
+  BOOST_RANDOM_DETAIL_ARITHMETIC_CONSTRUCTOR(lagged_fibonacci_01, uint32_t, value)
+  { init_modulus(); seed(value); }
+  BOOST_RANDOM_DETAIL_GENERATOR_CONSTRUCTOR(lagged_fibonacci_01, Generator, gen)
+  { init_modulus(); seed(gen); }
   template<class It> lagged_fibonacci_01(It& first, It last)
   { init_modulus(); seed(first, last); }
   // compiler-generated copy ctor and assignment operator are fine
@@ -285,7 +287,8 @@ private:
   }
 
 public:
-  void seed(uint32_t value = 331u)
+  void seed() { seed(331u); }
+  BOOST_RANDOM_DETAIL_ARITHMETIC_SEED(lagged_fibonacci_01, uint32_t, value)
   {
     minstd_rand0 intgen(value);
     seed(intgen);
@@ -294,8 +297,7 @@ public:
   // For GCC, moving this function out-of-line prevents inlining, which may
   // reduce overall object code size.  However, MSVC does not grok
   // out-of-line template member functions.
-  template<class Generator>
-  void seed(Generator & gen)
+  BOOST_RANDOM_DETAIL_GENERATOR_SEED(lagged_fibonacci, Generator, gen)
   {
     // use pass-by-reference, but wrap argument in pass_through_engine
     typedef detail::pass_through_engine<Generator&> ref_gen;

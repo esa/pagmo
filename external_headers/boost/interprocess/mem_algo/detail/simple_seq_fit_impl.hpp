@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -22,6 +22,7 @@
 
 #include <boost/interprocess/interprocess_fwd.hpp>
 #include <boost/interprocess/containers/allocation_type.hpp>
+#include <boost/interprocess/containers/container/detail/multiallocation_chain.hpp>
 #include <boost/interprocess/offset_ptr.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/exceptions.hpp>
@@ -63,9 +64,8 @@ class simple_seq_fit_impl
    typedef MutexFamily        mutex_family;
    //!Pointer type to be used with the rest of the Interprocess framework
    typedef VoidPointer        void_pointer;
-   typedef detail::basic_multiallocation_cached_slist<void_pointer>  multialloc_cached;
-   typedef detail::basic_multiallocation_cached_counted_slist
-      <multialloc_cached>                                            multiallocation_chain;
+   typedef boost::container::containers_detail::
+      basic_multiallocation_chain<VoidPointer>     multiallocation_chain;
 
    private:
    class block_ctrl;

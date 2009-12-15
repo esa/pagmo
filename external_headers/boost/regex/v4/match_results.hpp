@@ -36,6 +36,13 @@ namespace boost{
 #pragma warning(disable : 4251 4231 4660)
 #endif
 
+namespace re_detail{
+
+template <class charT>
+class named_subexpressions;
+
+}
+
 template <class BidiIterator, class Allocator>
 class match_results
 { 
@@ -62,13 +69,14 @@ public:
    typedef typename re_detail::regex_iterator_traits<
                                     BidiIterator>::value_type               char_type;
    typedef          std::basic_string<char_type>                            string_type;
+   typedef          re_detail::named_subexpressions_base<char_type>         named_sub_type;
 
    // construct/copy/destroy:
    explicit match_results(const Allocator& a = Allocator())
 #ifndef BOOST_NO_STD_ALLOCATOR
-      : m_subs(a), m_base() {}
+      : m_subs(a), m_base(), m_last_closed_paren(0) {}
 #else
-      : m_subs(), m_base() { (void)a; }
+      : m_subs(), m_base(), m_last_closed_paren(0) { (void)a; }
 #endif
    match_results(const match_results& m)
       : m_subs(m.m_subs), m_base(m.m_base) {}
@@ -95,6 +103,24 @@ public:
          return m_subs[sub].length();
       return 0;
    }
+   difference_type length(const char_type* sub) const
+   {
+      const char_type* end = sub;
+      while(*end) ++end;
+      return length(named_subexpression_index(sub, end));
+   }
+   template <class charT>
+   difference_type length(const charT* sub) const
+   {
+      const charT* end = sub;
+      while(*end) ++end;
+      return length(named_subexpression_index(sub, end));
+   }
+   template <class charT, class Traits, class A>
+   difference_type length(const std::basic_string<charT, Traits, A>& sub) const
+   {
+      return length(sub.c_str());
+   }
    difference_type position(size_type sub = 0) const
    {
       sub += 2;
@@ -107,6 +133,24 @@ public:
          }
       }
       return ~static_cast<difference_type>(0);
+   }
+   difference_type position(const char_type* sub) const
+   {
+      const char_type* end = sub;
+      while(*end) ++end;
+      return position(named_subexpression_index(sub, end));
+   }
+   template <class charT>
+   difference_type position(const charT* sub) const
+   {
+      const charT* end = sub;
+      while(*end) ++end;
+      return position(named_subexpression_index(sub, end));
+   }
+   template <class charT, class Traits, class A>
+   difference_type position(const std::basic_string<charT, Traits, A>& sub) const
+   {
+      return position(sub.c_str());
    }
    string_type str(int sub = 0) const
    {
@@ -122,6 +166,25 @@ public:
       }
       return result;
    }
+   string_type str(const char_type* sub) const
+   {
+      return (*this)[sub].str();
+   }
+   template <class Traits, class A>
+   string_type str(const std::basic_string<char_type, Traits, A>& sub) const
+   {
+      return (*this)[sub].str();
+   }
+   template <class charT>
+   string_type str(const charT* sub) const
+   {
+      return (*this)[sub].str();
+   }
+   template <class charT, class Traits, class A>
+   string_type str(const std::basic_string<charT, Traits, A>& sub) const
+   {
+      return (*this)[sub].str();
+   }
    const_reference operator[](int sub) const
    {
       sub += 2;
@@ -130,6 +193,75 @@ public:
          return m_subs[sub];
       }
       return m_null;
+   }
+   //
+   // Named sub-expressions:
+   //
+   const_reference named_subexpression(const char_type* i, const char_type* j) const
+   {
+      int index = m_named_subs->get_id(i, j);
+      return index > 0 ? (*this)[index] : m_null;
+   }
+   template <class charT>
+   const_reference named_subexpression(const charT* i, const charT* j) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(i == j)
+         return m_null;
+      std::vector<char_type> s;
+      while(i != j)
+         s.insert(s.end(), *i++);
+      return named_subexpression(&*s.begin(), &*s.begin() + s.size());
+   }
+   int named_subexpression_index(const char_type* i, const char_type* j) const
+   {
+      int index = m_named_subs->get_id(i, j);
+      return index > 0 ? index : -20;
+   }
+   template <class charT>
+   int named_subexpression_index(const charT* i, const charT* j) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(i == j)
+         return -20;
+      std::vector<char_type> s;
+      while(i != j)
+         s.insert(s.end(), *i++);
+      return named_subexpression_index(&*s.begin(), &*s.begin() + s.size());
+   }
+   template <class Traits, class A>
+   const_reference operator[](const std::basic_string<char_type, Traits, A>& s) const
+   {
+      return named_subexpression(s.c_str(), s.c_str() + s.size());
+   }
+   const_reference operator[](const char_type* p) const
+   {
+      const char_type* e = p;
+      while(*e) ++e;
+      return named_subexpression(p, e);
+   }
+
+   template <class charT>
+   const_reference operator[](const charT* p) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(*p == 0)
+         return m_null;
+      std::vector<char_type> s;
+      while(*p)
+         s.insert(s.end(), *p++);
+      return named_subexpression(&*s.begin(), &*s.begin() + s.size());
+   }
+   template <class charT, class Traits, class A>
+   const_reference operator[](const std::basic_string<charT, Traits, A>& ns) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(ns.empty())
+         return m_null;
+      std::vector<char_type> s;
+      for(unsigned i = 0; i < ns.size(); ++i)
+         s.insert(s.end(), ns[i]);
+      return named_subexpression(&*s.begin(), &*s.begin() + s.size());
    }
 
    const_reference prefix() const
@@ -186,6 +318,10 @@ public:
       ::boost::re_detail::regex_format_imp(i, *this, fmt.data(), fmt.data() + fmt.size(), flags, re.get_traits());
       return result;
    }
+   const_reference get_last_closed_paren()const
+   {
+      return m_last_closed_paren == 0 ? m_null : (*this)[m_last_closed_paren];
+   }
 
    allocator_type get_allocator() const
    {
@@ -230,13 +366,15 @@ public:
       m_null.matched = false;
    }
 
-   void BOOST_REGEX_CALL set_second(BidiIterator i, size_type pos, bool m = true)
+   void BOOST_REGEX_CALL set_second(BidiIterator i, size_type pos, bool m = true, bool escape_k = false)
    {
+      if(pos)
+         m_last_closed_paren = pos;
       pos += 2;
       BOOST_ASSERT(m_subs.size() > pos);
       m_subs[pos].second = i;
       m_subs[pos].matched = m;
-      if(pos == 2)
+      if((pos == 2) && !escape_k)
       {
          m_subs[0].first = i;
          m_subs[0].matched = (m_subs[0].first != m_subs[0].second);
@@ -261,6 +399,7 @@ public:
             m_subs.insert(m_subs.end(), n+2-len, v);
       }
       m_subs[1].first = i;
+      m_last_closed_paren = 0;
    }
    void BOOST_REGEX_CALL set_base(BidiIterator pos)
    {
@@ -284,21 +423,34 @@ public:
          m_subs[n].matched = false;
       }
    }
-   void BOOST_REGEX_CALL set_first(BidiIterator i, size_type pos)
+   void BOOST_REGEX_CALL set_first(BidiIterator i, size_type pos, bool escape_k = false)
    {
       BOOST_ASSERT(pos+2 < m_subs.size());
-      if(pos)
+      if(pos || escape_k)
+      {
          m_subs[pos+2].first = i;
+         if(escape_k)
+         {
+            m_subs[1].second = i;
+            m_subs[1].matched = (m_subs[1].first != m_subs[1].second);
+         }
+      }
       else
          set_first(i);
    }
    void BOOST_REGEX_CALL maybe_assign(const match_results<BidiIterator, Allocator>& m);
 
+   void BOOST_REGEX_CALL set_named_subs(boost::shared_ptr<named_sub_type> subs)
+   {
+      m_named_subs = subs;
+   }
 
 private:
    vector_type            m_subs; // subexpressions
    BidiIterator   m_base; // where the search started from
    sub_match<BidiIterator> m_null; // a null match
+   boost::shared_ptr<named_sub_type> m_named_subs;
+   int m_last_closed_paren;
 };
 
 template <class BidiIterator, class Allocator>

@@ -37,8 +37,7 @@ template<class DeviceAbstraction, bool FileBased = true>
 class managed_open_or_create_impl
 {
    //Non-copyable
-   managed_open_or_create_impl(managed_open_or_create_impl &);
-   managed_open_or_create_impl &operator=(managed_open_or_create_impl &);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(managed_open_or_create_impl)
 
    enum
    {  
@@ -49,8 +48,6 @@ class managed_open_or_create_impl
    };
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(managed_open_or_create_impl)
-
    static const std::size_t
       ManagedOpenOrCreateUserOffset = 
          detail::ct_rounded_size
@@ -200,40 +197,6 @@ class managed_open_or_create_impl
 
    //These are templatized to allow explicit instantiations
    template<bool dummy>
-   static void write_whole_device(DeviceAbstraction &, std::size_t, detail::false_)
-   {} //Empty
-
-   template<bool dummy>
-   static void write_whole_device(DeviceAbstraction &dev, std::size_t size, detail::true_)
-   {
-      file_handle_t hnd = detail::file_handle_from_mapping_handle(dev.get_mapping_handle());
-
-      if(size <= ManagedOpenOrCreateUserOffset){
-         throw interprocess_exception(error_info(system_error_code()));
-      }
-
-      size -= ManagedOpenOrCreateUserOffset;
-
-      if(!detail::set_file_pointer(hnd, ManagedOpenOrCreateUserOffset, file_begin)){
-         throw interprocess_exception(error_info(system_error_code()));
-      }
-
-      //We will write zeros in the file
-      for(std::size_t remaining = size, write_size = 0
-         ;remaining > 0
-         ;remaining -= write_size){
-         const std::size_t DataSize = 512;
-         static char data [DataSize];
-         write_size = DataSize < remaining ? DataSize : remaining;
-         if(!detail::write_file(hnd, data, write_size)){
-            error_info err = system_error_code();
-            throw interprocess_exception(err);
-         }
-      }
-   }
-
-   //These are templatized to allow explicit instantiations
-   template<bool dummy>
    static void truncate_device(DeviceAbstraction &, std::size_t, detail::false_)
    {} //Empty
 
@@ -342,7 +305,6 @@ class managed_open_or_create_impl
 
             if(previous == UninitializedSegment){
                try{
-                  write_whole_device<FileBased>(dev, size, file_like_t());
                   construct_func(static_cast<char*>(region.get_address()) + ManagedOpenOrCreateUserOffset, size - ManagedOpenOrCreateUserOffset, true);
                   //All ok, just move resources to the external mapped region
                   m_mapped_region.swap(region);

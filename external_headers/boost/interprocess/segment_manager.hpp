@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -989,7 +989,7 @@ class segment_manager
       //If not found, return false
       if(it == index.end()){
          //This name is not present in the index, wrong pointer or name!
-         assert(0);
+         //assert(0);
          return false;
       }
       return this->priv_generic_named_destroy_impl<CharT>(it, index, table);

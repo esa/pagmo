@@ -218,9 +218,9 @@ namespace boost { namespace accumulators
     private:
         with_cached_result &operator =(with_cached_result const &);
 
-        void set(result_type const &result)
+        void set(result_type const &r)
         {
-            ::new(this->cache.address()) result_type(result);
+            ::new(this->cache.address()) result_type(r);
         }
 
         result_type const &get() const

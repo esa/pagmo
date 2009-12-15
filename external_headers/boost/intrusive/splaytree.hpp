@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2007-2008
+// (C) Copyright Ion Gaztanaga  2007-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -115,7 +115,7 @@ class splaytree_impl
    typedef splaytree_algorithms<node_traits>                         node_algorithms;
 
    static const bool constant_time_size = Config::constant_time_size;
-   static const bool stateful_value_traits = detail::store_cont_ptr_on_it<splaytree_impl>::value;
+   static const bool stateful_value_traits = detail::is_stateful_value_traits<real_value_traits>::value;
 
    /// @cond
    private:
@@ -895,7 +895,6 @@ class splaytree_impl
    {
       node_algorithms::clear_and_dispose(node_ptr(&priv_header())
          , detail::node_disposer<Disposer, splaytree_impl>(disposer, this));
-      node_algorithms::init_header(&priv_header());
       this->priv_size_traits().set_size(0);
    }
 

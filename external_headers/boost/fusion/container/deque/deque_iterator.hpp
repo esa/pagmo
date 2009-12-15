@@ -12,6 +12,7 @@
 #include <boost/fusion/container/deque/detail/keyed_element.hpp>
 #include <boost/mpl/minus.hpp>
 #include <boost/mpl/equal_to.hpp>
+#include <boost/type_traits/is_const.hpp> 
 
 namespace boost { namespace fusion {
 

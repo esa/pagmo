@@ -270,6 +270,8 @@ class lambda_functor_base<explicit_return_type_action<RET>, Args>
 public:
   Args args;
 
+  typedef RET result_type;
+
   explicit lambda_functor_base(const Args& a) : args(a) {}
 
   template <class SigArgs> struct sig { typedef RET type; };

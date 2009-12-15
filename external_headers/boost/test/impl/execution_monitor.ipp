@@ -8,7 +8,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : provides execution monitor implementation for all supported
 //  configurations, including Microsoft structured exception based, unix signals
@@ -114,8 +114,16 @@ typedef void* uintptr_t;
 #endif
 
 #  if !defined(NDEBUG) && defined(_MSC_VER) && !defined(UNDER_CE)
-#    define BOOST_TEST_USE_DEBUG_MS_CRT
 #    include <crtdbg.h>
+#    define BOOST_TEST_CRT_HOOK_TYPE    _CRT_REPORT_HOOK
+#    define BOOST_TEST_CRT_ASSERT       _CRT_ASSERT
+#    define BOOST_TEST_CRT_ERROR        _CRT_ERROR
+#    define BOOST_TEST_CRT_SET_HOOK(H)  _CrtSetReportHook(H)
+#  else
+#    define BOOST_TEST_CRT_HOOK_TYPE    void*
+#    define BOOST_TEST_CRT_ASSERT       2
+#    define BOOST_TEST_CRT_ERROR        1
+#    define BOOST_TEST_CRT_SET_HOOK(H)  (void*)(H)
 #  endif
 
 #  if !BOOST_WORKAROUND(_MSC_VER,  >= 1400 ) || defined(UNDER_CE)
@@ -143,6 +151,25 @@ namespace { void _set_se_translator( void* ) {} }
 #  include <unistd.h>
 #  include <signal.h>
 #  include <setjmp.h>
+
+#  if defined(__FreeBSD__)  
+
+#    ifndef SIGPOLL
+#      define SIGPOLL SIGIO
+#    endif
+
+#    if (__FreeBSD_version < 70100)
+
+#      define ILL_ILLADR 0 // ILL_RESAD_FAULT
+#      define ILL_PRVOPC ILL_PRIVIN_FAULT
+#      define ILL_ILLOPN 2 // ILL_RESOP_FAULT
+#      define ILL_COPROC ILL_FPOP_FAULT
+
+#      define BOOST_TEST_LIMITED_SIGNAL_DETAILS
+#      define BOOST_TEST_IGNORE_SIGCHLD
+
+#    endif 
+#  endif 
 
 #  if !defined(__CYGWIN__) && !defined(__QNXNTO__)
 #   define BOOST_TEST_USE_ALT_STACK
@@ -200,7 +227,9 @@ report_error( execution_exception::error_code ec, char const* format, ... )
     va_list args;
     va_start( args, format );
 
-    BOOST_TEST_VSNPRINTF( buf, sizeof(buf), format, args );
+    BOOST_TEST_VSNPRINTF( buf, sizeof(buf)-1, format, args ); 
+    buf[sizeof(buf)-1] = 0;
+
     va_end( args );
 
     throw execution_exception( ec, buf );
@@ -290,11 +319,28 @@ system_signal_exception::report() const
     switch( m_sig_info->si_signo ) {
     case SIGILL:
         switch( m_sig_info->si_code ) {
+#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
         case ILL_ILLOPC:
             report_error( execution_exception::system_fatal_error,
                           "signal: illegal opcode; address of failing instruction: 0x%08lx",
                           m_sig_info->si_addr );
             break;
+        case ILL_ILLTRP:
+            report_error( execution_exception::system_fatal_error,
+                          "signal: illegal trap; address of failing instruction: 0x%08lx",
+                          m_sig_info->si_addr );
+            break;
+        case ILL_PRVREG:
+            report_error( execution_exception::system_fatal_error,
+                          "signal: privileged register; address of failing instruction: 0x%08lx",
+                          m_sig_info->si_addr );
+            break;
+        case ILL_BADSTK:
+            report_error( execution_exception::system_fatal_error,
+                          "signal: internal stack error; address of failing instruction: 0x%08lx",
+                          m_sig_info->si_addr );
+            break;
+#endif
         case ILL_ILLOPN:
             report_error( execution_exception::system_fatal_error,
                           "signal: illegal operand; address of failing instruction: 0x%08lx",
@@ -305,19 +351,9 @@ system_signal_exception::report() const
                           "signal: illegal addressing mode; address of failing instruction: 0x%08lx",
                           m_sig_info->si_addr );
             break;
-        case ILL_ILLTRP:
-            report_error( execution_exception::system_fatal_error,
-                          "signal: illegal trap; address of failing instruction: 0x%08lx",
-                          m_sig_info->si_addr );
-            break;
         case ILL_PRVOPC:
             report_error( execution_exception::system_fatal_error,
                           "signal: privileged opcode; address of failing instruction: 0x%08lx",
-                          m_sig_info->si_addr );
-            break;
-        case ILL_PRVREG:
-            report_error( execution_exception::system_fatal_error,
-                          "signal: privileged register; address of failing instruction: 0x%08lx",
                           m_sig_info->si_addr );
             break;
         case ILL_COPROC:
@@ -325,10 +361,10 @@ system_signal_exception::report() const
                           "signal: co-processor error; address of failing instruction: 0x%08lx",
                           m_sig_info->si_addr );
             break;
-        case ILL_BADSTK:
-            report_error( execution_exception::system_fatal_error,
-                          "signal: internal stack error; address of failing instruction: 0x%08lx",
-                          m_sig_info->si_addr );
+        default: 
+            report_error( execution_exception::system_fatal_error, 
+                          "signal: SIGILL, si_code: %d (illegal instruction; address of failing instruction: 0x%08lx)", 
+                          m_sig_info->si_addr, m_sig_info->si_code ); 
             break;
         }
         break;
@@ -375,11 +411,17 @@ system_signal_exception::report() const
                           "signal: subscript out of range; address of failing instruction: 0x%08lx",
                           m_sig_info->si_addr );
             break;
+        default:
+            report_error( execution_exception::system_error,
+                          "signal: SIGFPE, si_code: %d (errnoneous arithmetic operations; address of failing instruction: 0x%08lx)",
+                          m_sig_info->si_addr, m_sig_info->si_code );
+            break;
         }
         break;
 
     case SIGSEGV:
         switch( m_sig_info->si_code ) {
+#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
         case SEGV_MAPERR:
             report_error( execution_exception::system_fatal_error,
                           "memory access violation at address: 0x%08lx: no mapping at fault address",
@@ -390,11 +432,18 @@ system_signal_exception::report() const
                           "memory access violation at address: 0x%08lx: invalid permissions",
                           m_sig_info->si_addr );
             break;
+#endif
+        default:
+            report_error( execution_exception::system_fatal_error,
+                          "signal: SIGSEGV, si_code: %d (memory access violation at address: 0x%08lx)",
+                          m_sig_info->si_addr, m_sig_info->si_code );
+            break;
         }
         break;
 
     case SIGBUS:
         switch( m_sig_info->si_code ) {
+#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
         case BUS_ADRALN:
             report_error( execution_exception::system_fatal_error,
                           "memory access violation at address: 0x%08lx: invalid address alignment",
@@ -410,11 +459,18 @@ system_signal_exception::report() const
                           "memory access violation at address: 0x%08lx: object specific hardware error",
                           m_sig_info->si_addr );
             break;
+#endif
+        default:
+            report_error( execution_exception::system_fatal_error,
+                          "signal: SIGSEGV, si_code: %d (memory access violation at address: 0x%08lx)",
+                          m_sig_info->si_addr, m_sig_info->si_code );
+            break;
         }
         break;
 
     case SIGCHLD:
         switch( m_sig_info->si_code ) {
+#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
         case CLD_EXITED:
             report_error( execution_exception::system_error,
                           "child has exited; pid: %d; uid: %d; exit value: %d",
@@ -445,6 +501,12 @@ system_signal_exception::report() const
                           "stopped child had continued; pid: %d; uid: %d; exit value: %d",
                           (int)m_sig_info->si_pid, (int)m_sig_info->si_uid, (int)m_sig_info->si_status );
             break;
+#endif
+        default:
+            report_error( execution_exception::system_error,
+                          "signal: SIGCHLD, si_code: %d (child process has terminated; pid: %d; uid: %d; exit value: %d)",
+                          (int)m_sig_info->si_pid, (int)m_sig_info->si_uid, (int)m_sig_info->si_status, m_sig_info->si_code );
+            break;
         }
         break;
 
@@ -452,6 +514,7 @@ system_signal_exception::report() const
 
     case SIGPOLL:
         switch( m_sig_info->si_code ) {
+#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
         case POLL_IN:
             report_error( execution_exception::system_error,
                           "data input available; band event %d",
@@ -484,6 +547,12 @@ system_signal_exception::report() const
                           (int)m_sig_info->si_band );
             break;
 #endif
+#endif
+        default: 
+            report_error( execution_exception::system_error, 
+                          "signal: SIGPOLL, si_code: %d (asynchronous I/O event occured; band event %d)", 
+                          (int)m_sig_info->si_band, m_sig_info->si_code ); 
+            break; 
         }
         break;
 
@@ -520,7 +589,8 @@ class signal_action {
     typedef struct sigaction* sigaction_ptr;
 public:
     //Constructor
-    explicit            signal_action( int sig, bool install, bool attach_dbg, char* alt_stack );
+    signal_action();
+    signal_action( int sig, bool install, bool attach_dbg, char* alt_stack );
     ~signal_action();
 
 private:
@@ -530,6 +600,12 @@ private:
     struct sigaction    m_new_action;
     struct sigaction    m_old_action;
 };
+
+//____________________________________________________________________________//
+
+signal_action::signal_action()
+: m_installed( false )
+{}
 
 //____________________________________________________________________________//
 
@@ -609,9 +685,7 @@ private:
     signal_action           m_SEGV_action;
     signal_action           m_BUS_action;
     signal_action           m_CHLD_action;
-#ifdef BOOST_TEST_CATCH_SIGPOLL
     signal_action           m_POLL_action;
-#endif
     signal_action           m_ABRT_action;
     signal_action           m_ALRM_action;
 
@@ -634,7 +708,9 @@ signal_handler::signal_handler( bool catch_system_errors, int timeout, bool atta
 , m_FPE_action ( SIGFPE , catch_system_errors, attach_dbg, alt_stack )
 , m_SEGV_action( SIGSEGV, catch_system_errors, attach_dbg, alt_stack )
 , m_BUS_action ( SIGBUS , catch_system_errors, attach_dbg, alt_stack )
+#ifndef BOOST_TEST_IGNORE_SIGCHLD
 , m_CHLD_action( SIGCHLD, catch_system_errors, attach_dbg, alt_stack )
+#endif
 #ifdef BOOST_TEST_CATCH_SIGPOLL
 , m_POLL_action( SIGPOLL, catch_system_errors, attach_dbg, alt_stack )
 #endif
@@ -695,7 +771,10 @@ extern "C" {
 
 static bool ignore_sigchild( siginfo_t* info )
 {
-    return info->si_signo == SIGCHLD && info->si_code == CLD_EXITED 
+    return info->si_signo == SIGCHLD
+#ifndef BOOST_TEST_LIMITED_SIGNAL_DETAILS
+            && info->si_code == CLD_EXITED 
+#endif
 #ifdef BOOST_TEST_IGNORE_NON_ZERO_CHILD_CODE
             ;
 #else
@@ -807,7 +886,7 @@ private:
 static void
 seh_catch_preventer( unsigned int /* id */, _EXCEPTION_POINTERS* /* exps */ )
 {
-        throw;
+    throw;
 }
 
 //____________________________________________________________________________//
@@ -941,21 +1020,19 @@ system_signal_exception::report() const
 
 //____________________________________________________________________________//
 
-#if defined(BOOST_TEST_USE_DEBUG_MS_CRT)
-
 // ************************************************************************** //
 // **************          assert_reporting_function           ************** //
 // ************************************************************************** //
 
 int BOOST_TEST_CALL_DECL
-assert_reporting_function( int reportType, char* userMessage, int* retVal )
+assert_reporting_function( int reportType, char* userMessage, int* )
 {
     switch( reportType ) {
-    case _CRT_ASSERT:
+    case BOOST_TEST_CRT_ASSERT:
         detail::report_error( execution_exception::user_error, userMessage );
 
         return 1; // return value and retVal are not important since we never reach this line
-    case _CRT_ERROR:
+    case BOOST_TEST_CRT_ERROR:
         detail::report_error( execution_exception::system_error, userMessage );
 
         return 1; // return value and retVal are not important since we never reach this line
@@ -963,8 +1040,6 @@ assert_reporting_function( int reportType, char* userMessage, int* retVal )
         return 0; // use usual reporting method
     }
 } // assert_reporting_function
-
-#endif
 
 //____________________________________________________________________________//
 
@@ -1015,6 +1090,7 @@ int
 execution_monitor::catch_signals( unit_test::callback0<int> const& F )
 {
     _invalid_parameter_handler old_iph = _invalid_parameter_handler();
+    BOOST_TEST_CRT_HOOK_TYPE old_crt_hook;
 
     if( !p_catch_system_errors )
         _set_se_translator( &detail::seh_catch_preventer );
@@ -1022,9 +1098,7 @@ execution_monitor::catch_signals( unit_test::callback0<int> const& F )
         if( !!p_detect_fp_exceptions )
             detail::switch_fp_exceptions( true );
 
-#ifdef BOOST_TEST_USE_DEBUG_MS_CRT
-       _CrtSetReportHook( &detail::assert_reporting_function );
-#endif
+       old_crt_hook = BOOST_TEST_CRT_SET_HOOK( &detail::assert_reporting_function );
 
        old_iph = _set_invalid_parameter_handler( 
            reinterpret_cast<_invalid_parameter_handler>( &detail::invalid_param_handler ) );
@@ -1046,6 +1120,8 @@ execution_monitor::catch_signals( unit_test::callback0<int> const& F )
         if( !!p_catch_system_errors ) {
             if( !!p_detect_fp_exceptions )
                 detail::switch_fp_exceptions( false );
+
+            BOOST_TEST_CRT_SET_HOOK( old_crt_hook );
 
            _set_invalid_parameter_handler( old_iph );
         }

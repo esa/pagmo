@@ -18,15 +18,15 @@
 
 #include <cstddef> // std::size_t
 #include <climits> // ULONG_MAX 
-#include <boost/config.hpp>
+#include <string>
 
+#include <boost/config.hpp>
 #if defined(BOOST_NO_STDC_NAMESPACE)
 namespace std{
     using ::size_t;
 } // namespace std
 #endif
 
-#include <string>
 #include <boost/cstdint.hpp>
 
 #include <boost/serialization/pfto.hpp>
@@ -159,15 +159,14 @@ public:
     ) = 0;
     virtual const detail::basic_pointer_iserializer * load_pointer(
         void * & t,
-        const detail::basic_pointer_iserializer * bpis_ptr,
-        const detail::basic_pointer_iserializer * (*finder)(
-            const boost::serialization::extended_type_info & type
-        )
+        const detail::basic_pointer_iserializer * bpis_ptr
     ) = 0;
 };
 
 } // namespace archive
 } // namespace boost
+
+#include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 
 // note special treatment of shared_ptr. This type needs a special
 // structure associated with every archive.  We created a "mix-in"
@@ -191,7 +190,5 @@ public:
 
 // required by export
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(boost::archive::polymorphic_iarchive)
-
-#include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 
 #endif // BOOST_ARCHIVE_POLYMORPHIC_IARCHIVE_HPP

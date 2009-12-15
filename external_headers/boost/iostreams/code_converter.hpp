@@ -138,8 +138,8 @@ struct code_converter_impl {
                 is_direct<Device>,
                 direct_adapter<Device>,
                 Device
-            >::type                                         policy_type;
-    typedef optional< concept_adapter<policy_type> >        storage_type;
+            >::type                                         device_type;
+    typedef optional< concept_adapter<device_type> >        storage_type;
     typedef is_convertible<device_category, two_sequence>   is_double;
     typedef conversion_buffer<Codecvt, Alloc>               buffer_type;
 
@@ -168,7 +168,7 @@ struct code_converter_impl {
             buf_.second().resize(buffer_size);
             buf_.second().set(0, 0);
         }
-        dev_.reset(concept_adapter<policy_type>(dev));
+        dev_.reset(concept_adapter<device_type>(dev));
         flags_ = f_open;
     }
 
@@ -200,7 +200,7 @@ struct code_converter_impl {
 
     bool is_open() const { return (flags_ & f_open) != 0;}
 
-    policy_type& dev() { return **dev_; }
+    device_type& dev() { return **dev_; }
 
     enum flag_type {
         f_open             = 1,
@@ -243,7 +243,7 @@ private:
     typedef detail::code_converter_impl<
                 Device, Codecvt, Alloc
             >                                                       impl_type;
-    typedef typename impl_type::policy_type                         policy_type;
+    typedef typename impl_type::device_type                         device_type;
     typedef typename impl_type::buffer_type                         buffer_type;
     typedef typename detail::codecvt_holder<Codecvt>::codecvt_type  codecvt_type;
     typedef typename detail::codecvt_intern<Codecvt>::type          intern_type;
@@ -298,7 +298,7 @@ private:
     }
 
     const codecvt_type& cvt() { return impl().cvt_.get(); }
-    policy_type& dev() { return impl().dev(); }
+    device_type& dev() { return impl().dev(); }
     buffer_type& in() { return impl().buf_.first(); }
     buffer_type& out() { return impl().buf_.second(); }
     impl_type& impl() { return *this->pimpl_; }

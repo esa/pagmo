@@ -41,9 +41,6 @@ namespace boost {
 namespace archive {
 namespace detail {
 
-class basic_oserializer;
-class basic_pointer_oserializer;
-
 class basic_oarchive_impl {
     friend class basic_oarchive;
     unsigned int m_flags;

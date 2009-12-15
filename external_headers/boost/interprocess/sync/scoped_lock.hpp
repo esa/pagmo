@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -53,12 +53,10 @@ class scoped_lock
    /// @cond
    private:
    typedef scoped_lock<Mutex> this_type;
-   scoped_lock(scoped_lock&);
-   scoped_lock& operator=  (scoped_lock&);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(scoped_lock)
    typedef bool this_type::*unspecified_bool_type;
    /// @endcond
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(scoped_lock)
 
    typedef Mutex mutex_type;
 

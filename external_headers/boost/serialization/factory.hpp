@@ -16,7 +16,7 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <cstdarg>
+#include <cstdarg> // valist
 #include <cstddef> // NULL
 
 #include <boost/preprocessor/control/if.hpp> 

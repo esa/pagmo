@@ -27,6 +27,7 @@
 #include <boost/archive/detail/auto_link_warchive.hpp>
 #include <boost/archive/basic_text_iprimitive.hpp>
 #include <boost/archive/basic_xml_iarchive.hpp>
+#include <boost/archive/detail/register_archive.hpp>
 
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
@@ -105,6 +106,8 @@ public:
 } // namespace archive
 } // namespace boost
 
+#include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
+
 // note special treatment of shared_ptr. This type needs a special
 // structure associated with every archive.  We created a "mix-in"
 // class to provide this functionality.  Since shared_ptr holds a
@@ -130,8 +133,6 @@ public:
 
 // required by export
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(boost::archive::xml_wiarchive)
-
-#include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 
 #endif // BOOST_NO_STD_WSTREAMBUF
 #endif // BOOST_ARCHIVE_XML_WIARCHIVE_HPP

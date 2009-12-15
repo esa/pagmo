@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -15,6 +15,7 @@
 #include <boost/interprocess/detail/workaround.hpp>
 #include <cstddef>
 #include <cstring>
+#include <string>
 #include <memory>
 
 #if (defined _MSC_VER) && (_MSC_VER >= 1200)
@@ -38,8 +39,12 @@ namespace winapi {
 //Some used constants
 static const unsigned long infinite_time        = 0xFFFFFFFF;
 static const unsigned long error_already_exists = 183L;
+static const unsigned long error_sharing_violation = 32L;
 static const unsigned long error_file_not_found = 2u;
 static const unsigned long error_no_more_files  = 18u;
+//Retries in CreateFile, see http://support.microsoft.com/kb/316609
+static const unsigned int  error_sharing_violation_tries = 3u;
+static const unsigned int  error_sharing_violation_sleep_ms = 250u;
 
 static const unsigned long semaphore_all_access = (0x000F0000L)|(0x00100000L)|0x3;
 static const unsigned long mutex_all_access     = (0x000F0000L)|(0x00100000L)|0x0001;
@@ -145,6 +150,9 @@ static const long BootAndSystemstampLength   = 16;
 static const long BootstampLength            = 8;
 static const unsigned long MaxPath           = 260;
 
+//Keys
+static void * const  hkey_local_machine = (void*)(unsigned long*)(long)(0x80000002);
+static unsigned long key_query_value    = 0x0001;
 
 }  //namespace winapi {
 }  //namespace interprocess  {
@@ -440,6 +448,12 @@ typedef long (__stdcall *RtlAppendUnicodeToString_t)(unicode_string_t *Destinati
 typedef long (__stdcall * NtQuerySystemInformation_t)(int, void*, unsigned long, unsigned long *); 
 typedef long (__stdcall * NtQueryObject_t)(void*, object_information_class, void *, unsigned long, unsigned long *); 
 typedef unsigned long (__stdcall * GetMappedFileName_t)(void *, void *, wchar_t *, unsigned long);
+typedef unsigned long (__stdcall * GetMappedFileName_t)(void *, void *, wchar_t *, unsigned long);
+typedef long          (__stdcall * RegOpenKey_t)(void *, const char *, void **);
+typedef long          (__stdcall * RegOpenKeyEx_t)(void *, const char *, unsigned long, unsigned long, void **);
+typedef long          (__stdcall * RegQueryValue_t)(void *, const char *, char *, long*);
+typedef long          (__stdcall * RegQueryValueEx_t)(void *, const char *, unsigned long*, unsigned long*, unsigned char *, unsigned long*);
+typedef long          (__stdcall * RegCloseKey_t)(void *);
 
 }  //namespace winapi {
 }  //namespace interprocess  {
@@ -453,7 +467,10 @@ namespace boost {
 namespace interprocess {
 namespace winapi {
 
-static inline unsigned long format_message
+inline unsigned long get_last_error()
+{  return GetLastError();  }
+
+inline unsigned long format_message
    (unsigned long dwFlags, const void *lpSource,
     unsigned long dwMessageId, unsigned long dwLanguageId,
     char *lpBuffer, unsigned long nSize, std::va_list *Arguments)
@@ -463,34 +480,34 @@ static inline unsigned long format_message
 }
 
 //And now, wrapper functions
-static inline void * local_free(void *hmem)
+inline void * local_free(void *hmem)
 {  return LocalFree(hmem); }
 
-static inline unsigned long make_lang_id(unsigned long p, unsigned long s)
+inline unsigned long make_lang_id(unsigned long p, unsigned long s)
 {  return ((((unsigned short)(s)) << 10) | (unsigned short)(p));   }
 
-static inline void sched_yield()
+inline void sched_yield()
 {  Sleep(1);   }
 
-static inline unsigned long get_current_thread_id()
+inline unsigned long get_current_thread_id()
 {  return GetCurrentThreadId();  }
 
-static inline unsigned long get_current_process_id()
+inline unsigned long get_current_process_id()
 {  return GetCurrentProcessId();  }
 
-static inline unsigned int close_handle(void* handle)
+inline unsigned int close_handle(void* handle)
 {  return CloseHandle(handle);   }
 
-static inline void * find_first_file(const char *lpFileName, win32_find_data_t *lpFindFileData)
+inline void * find_first_file(const char *lpFileName, win32_find_data_t *lpFindFileData)
 {  return FindFirstFileA(lpFileName, lpFindFileData);   }
 
-static inline bool find_next_file(void *hFindFile, win32_find_data_t *lpFindFileData)
+inline bool find_next_file(void *hFindFile, win32_find_data_t *lpFindFileData)
 {  return FindNextFileA(hFindFile, lpFindFileData) != 0;   }
 
-static inline bool find_close(void *handle)
+inline bool find_close(void *handle)
 {  return FindClose(handle) != 0;   }
 
-static inline bool duplicate_current_process_handle
+inline bool duplicate_current_process_handle
    (void *hSourceHandle, void **lpTargetHandle)
 {
    return 0 != DuplicateHandle
@@ -499,41 +516,38 @@ static inline bool duplicate_current_process_handle
       , duplicate_same_access);
 }
 
-static inline unsigned long get_last_error()
-{  return GetLastError();  }
-
-static inline void get_system_time_as_file_time(interprocess_filetime *filetime)
+inline void get_system_time_as_file_time(interprocess_filetime *filetime)
 {  GetSystemTimeAsFileTime(filetime);  }
 
-static inline bool file_time_to_local_file_time
+inline bool file_time_to_local_file_time
    (const interprocess_filetime *in, const interprocess_filetime *out)
 {  return 0 != FileTimeToLocalFileTime(in, out);  }
 
-static inline void *create_mutex(const char *name)
+inline void *create_mutex(const char *name)
 {  return CreateMutexA(0, 0, name); }
 
-static inline void *open_mutex(const char *name)
+inline void *open_mutex(const char *name)
 {  return OpenMutexA(mutex_all_access, 0, name); }
 
-static inline unsigned long wait_for_single_object(void *handle, unsigned long time)
+inline unsigned long wait_for_single_object(void *handle, unsigned long time)
 {  return WaitForSingleObject(handle, time); }
 
-static inline int release_mutex(void *handle)
+inline int release_mutex(void *handle)
 {  return ReleaseMutex(handle);  }
 
-static inline int unmap_view_of_file(void *address)
+inline int unmap_view_of_file(void *address)
 {  return UnmapViewOfFile(address); }
 
-static inline void *create_semaphore(long initialCount, const char *name)
+inline void *create_semaphore(long initialCount, const char *name)
 {  return CreateSemaphoreA(0, initialCount, (long)(((unsigned long)(-1))>>1), name);   }
 
-static inline int release_semaphore(void *handle, long release_count, long *prev_count)
+inline int release_semaphore(void *handle, long release_count, long *prev_count)
 {  return ReleaseSemaphore(handle, release_count, prev_count); }
 
-static inline void *open_semaphore(const char *name)
+inline void *open_semaphore(const char *name)
 {  return OpenSemaphoreA(semaphore_all_access, 1, name); }
 
-static inline void * create_file_mapping (void * handle, unsigned long access, unsigned long high_size, unsigned long low_size, const char * name)
+inline void * create_file_mapping (void * handle, unsigned long access, unsigned long high_size, unsigned long low_size, const char * name)
 {
    interprocess_security_attributes sa;
    interprocess_security_descriptor sd; 
@@ -549,86 +563,101 @@ static inline void * create_file_mapping (void * handle, unsigned long access, u
   //return CreateFileMappingA (handle, 0, access, high_size, low_size, name);  
 }
 
-static inline void * open_file_mapping (unsigned long access, const char *name)
+inline void * open_file_mapping (unsigned long access, const char *name)
 {  return OpenFileMappingA (access, 0, name);   }
 
-static inline void *map_view_of_file_ex(void *handle, unsigned long file_access, unsigned long highoffset, unsigned long lowoffset, std::size_t numbytes, void *base_addr)
+inline void *map_view_of_file_ex(void *handle, unsigned long file_access, unsigned long highoffset, unsigned long lowoffset, std::size_t numbytes, void *base_addr)
 {  return MapViewOfFileEx(handle, file_access, highoffset, lowoffset, numbytes, base_addr);  }
 
-static inline void *create_file(const char *name, unsigned long access, unsigned long creation_flags, unsigned long attributes = 0)
-{  return CreateFileA(name, access, file_share_read | file_share_write | file_share_delete, 0, creation_flags, attributes, 0);  }
+inline void *create_file(const char *name, unsigned long access, unsigned long creation_flags, unsigned long attributes = 0)
+{
+   for (unsigned int attempt(0); attempt < error_sharing_violation_tries; ++attempt){
+      void * const handle = CreateFileA(name, access,
+                                        file_share_read | file_share_write | file_share_delete,
+                                        0, creation_flags, attributes, 0);
+      bool const invalid(invalid_handle_value == handle);
+      if (!invalid){
+         return handle;
+      }
+      if (error_sharing_violation != get_last_error()){
+         return handle;
+      }
+      Sleep(error_sharing_violation_sleep_ms);
+   }
+   return invalid_handle_value;
+}
 
-static inline bool delete_file(const char *name)
+inline bool delete_file(const char *name)
 {  return 0 != DeleteFileA(name);  }
 
-static inline bool move_file_ex(const char *source_filename, const char *destination_filename, unsigned long flags)
+inline bool move_file_ex(const char *source_filename, const char *destination_filename, unsigned long flags)
 {  return 0 != MoveFileExA(source_filename, destination_filename, flags);  }
 
-static inline void get_system_info(system_info *info)
+inline void get_system_info(system_info *info)
 {  GetSystemInfo(info); }
 
-static inline int flush_view_of_file(void *base_addr, std::size_t numbytes)
+inline int flush_view_of_file(void *base_addr, std::size_t numbytes)
 {  return FlushViewOfFile(base_addr, numbytes); }
 
-static inline bool get_file_size(void *handle, __int64 &size)
+inline bool get_file_size(void *handle, __int64 &size)
 {  return 0 != GetFileSizeEx(handle, &size);  }
 
-static inline bool create_directory(const char *name, interprocess_security_attributes* security)
+inline bool create_directory(const char *name, interprocess_security_attributes* security)
 {  return 0 != CreateDirectoryA(name, security);   }
 
-static inline bool remove_directory(const char *lpPathName)
+inline bool remove_directory(const char *lpPathName)
 {  return 0 != RemoveDirectoryA(lpPathName);   }
 
-static inline unsigned long get_temp_path(unsigned long length, char *buffer)
+inline unsigned long get_temp_path(unsigned long length, char *buffer)
 {  return GetTempPathA(length, buffer);   }
 
-static inline int set_end_of_file(void *handle)
+inline int set_end_of_file(void *handle)
 {  return 0 != SetEndOfFile(handle);   }
 
-static inline bool set_file_pointer_ex(void *handle, __int64 distance, __int64 *new_file_pointer, unsigned long move_method)
+inline bool set_file_pointer_ex(void *handle, __int64 distance, __int64 *new_file_pointer, unsigned long move_method)
 {  return 0 != SetFilePointerEx(handle, distance, new_file_pointer, move_method);   }
 
-static inline bool lock_file_ex(void *hnd, unsigned long flags, unsigned long reserved, unsigned long size_low, unsigned long size_high, interprocess_overlapped *overlapped)
+inline bool lock_file_ex(void *hnd, unsigned long flags, unsigned long reserved, unsigned long size_low, unsigned long size_high, interprocess_overlapped *overlapped)
 {  return 0 != LockFileEx(hnd, flags, reserved, size_low, size_high, overlapped); }
 
-static inline bool unlock_file_ex(void *hnd, unsigned long reserved, unsigned long size_low, unsigned long size_high, interprocess_overlapped *overlapped)
+inline bool unlock_file_ex(void *hnd, unsigned long reserved, unsigned long size_low, unsigned long size_high, interprocess_overlapped *overlapped)
 {  return 0 != UnlockFileEx(hnd, reserved, size_low, size_high, overlapped);  }
 
-static inline bool write_file(void *hnd, const void *buffer, unsigned long bytes_to_write, unsigned long *bytes_written, interprocess_overlapped* overlapped)
+inline bool write_file(void *hnd, const void *buffer, unsigned long bytes_to_write, unsigned long *bytes_written, interprocess_overlapped* overlapped)
 {  return 0 != WriteFile(hnd, buffer, bytes_to_write, bytes_written, overlapped);  }
 
-static inline long interlocked_increment(long volatile *addr)
+inline long interlocked_increment(long volatile *addr)
 {  return BOOST_INTERLOCKED_INCREMENT(addr);  }
 
-static inline long interlocked_decrement(long volatile *addr)
+inline long interlocked_decrement(long volatile *addr)
 {  return BOOST_INTERLOCKED_DECREMENT(addr);  }
 
-static inline long interlocked_compare_exchange(long volatile *addr, long val1, long val2)
+inline long interlocked_compare_exchange(long volatile *addr, long val1, long val2)
 {  return BOOST_INTERLOCKED_COMPARE_EXCHANGE(addr, val1, val2);  }
 
-static inline long interlocked_exchange_add(long volatile* addend, long value)
+inline long interlocked_exchange_add(long volatile* addend, long value)
 {  return BOOST_INTERLOCKED_EXCHANGE_ADD(const_cast<long*>(addend), value);  }
 
-static inline long interlocked_exchange(long volatile* addend, long value)
+inline long interlocked_exchange(long volatile* addend, long value)
 {  return BOOST_INTERLOCKED_EXCHANGE(const_cast<long*>(addend), value);  }
 
 //Forward functions
-static inline void *load_library(const char *name)
+inline void *load_library(const char *name)
 {  return LoadLibraryA(name); }
 
-static inline bool free_library(void *module)
+inline bool free_library(void *module)
 {  return 0 != FreeLibrary(module); }
 
-static inline void *get_proc_address(void *module, const char *name)
+inline void *get_proc_address(void *module, const char *name)
 {  return GetProcAddress(module, name); }
 
-static inline void *get_current_process()
+inline void *get_current_process()
 {  return GetCurrentProcess();  }
 
-static inline void *get_module_handle(const char *name)
+inline void *get_module_handle(const char *name)
 {  return GetModuleHandleA(name); }
 
-static inline void initialize_object_attributes
+inline void initialize_object_attributes
 ( object_attributes_t *pobject_attr, unicode_string_t *name
  , unsigned long attr, void *rootdir, void *security_descr)
 
@@ -641,7 +670,7 @@ static inline void initialize_object_attributes
    pobject_attr->SecurityQualityOfService = 0;
 }
 
-static inline void rtl_init_empty_unicode_string(unicode_string_t *ucStr, wchar_t *buf, unsigned short bufSize)
+inline void rtl_init_empty_unicode_string(unicode_string_t *ucStr, wchar_t *buf, unsigned short bufSize)
 {
    ucStr->Buffer = buf;
    ucStr->Length = 0;
@@ -649,9 +678,15 @@ static inline void rtl_init_empty_unicode_string(unicode_string_t *ucStr, wchar_
 }
 
 //Complex winapi based functions...
+struct library_unloader
+{
+   void *lib_;
+   library_unloader(void *module) : lib_(module){}
+   ~library_unloader(){ free_library(lib_);  }
+};
 
 //pszFilename must have room for at least MaxPath+1 characters
-static inline bool get_file_name_from_handle_function
+inline bool get_file_name_from_handle_function
    (void * hFile, wchar_t *pszFilename, std::size_t length, std::size_t &out_length) 
 {
    if(length <= MaxPath){
@@ -662,14 +697,7 @@ static inline bool get_file_name_from_handle_function
    if (0 == hiPSAPI)
       return 0;
 
-   class library_unloader
-   {
-      void *lib_;
-
-   public:
-      library_unloader(void *module) : lib_(module){}
-      ~library_unloader(){ free_library(lib_);  }
-   } unloader(hiPSAPI);
+   library_unloader unloader(hiPSAPI);
 
    //  Pointer to function getMappedFileName() in PSAPI.DLL
    GetMappedFileName_t pfGMFN =
@@ -700,7 +728,7 @@ static inline bool get_file_name_from_handle_function
    return(bSuccess);
 }
 
-static inline bool get_system_time_of_day_information(system_timeofday_information &info)
+inline bool get_system_time_of_day_information(system_timeofday_information &info)
 {
    NtQuerySystemInformation_t pNtQuerySystemInformation = (NtQuerySystemInformation_t)
       get_proc_address(get_module_handle("ntdll.dll"), "NtQuerySystemInformation");
@@ -712,7 +740,7 @@ static inline bool get_system_time_of_day_information(system_timeofday_informati
    return true;
 }
 
-static inline bool get_boot_time(unsigned char (&bootstamp) [BootstampLength])
+inline bool get_boot_time(unsigned char (&bootstamp) [BootstampLength])
 {
    system_timeofday_information info;
    bool ret = get_system_time_of_day_information(info);
@@ -723,7 +751,7 @@ static inline bool get_boot_time(unsigned char (&bootstamp) [BootstampLength])
    return true;
 }
 
-static inline bool get_boot_and_system_time(unsigned char (&bootsystemstamp) [BootAndSystemstampLength])
+inline bool get_boot_and_system_time(unsigned char (&bootsystemstamp) [BootAndSystemstampLength])
 {
    system_timeofday_information info;
    bool ret = get_system_time_of_day_information(info);
@@ -734,7 +762,7 @@ static inline bool get_boot_and_system_time(unsigned char (&bootsystemstamp) [Bo
    return true;
 }
 
-static inline bool get_boot_time_str(char *bootstamp_str, std::size_t &s) //will write BootstampLength chars
+inline bool get_boot_time_str(char *bootstamp_str, std::size_t &s) //will write BootstampLength chars
 {
    if(s < (BootstampLength*2))
       return false;
@@ -755,7 +783,7 @@ static inline bool get_boot_time_str(char *bootstamp_str, std::size_t &s) //will
    return true;
 }
 
-static inline bool get_boot_and_system_time_wstr(wchar_t *bootsystemstamp, std::size_t &s)  //will write BootAndSystemstampLength chars
+inline bool get_boot_and_system_time_wstr(wchar_t *bootsystemstamp, std::size_t &s)  //will write BootAndSystemstampLength chars
 {
    if(s < (BootAndSystemstampLength*2))
       return false;
@@ -776,7 +804,25 @@ static inline bool get_boot_and_system_time_wstr(wchar_t *bootsystemstamp, std::
    return true;
 }
 
-static inline bool unlink_file(const char *filename)
+class handle_closer
+{
+   void *handle_;
+   public:
+   handle_closer(void *handle) : handle_(handle){}
+   ~handle_closer(){ close_handle(handle_);  }
+};
+
+union ntquery_mem_t
+{
+   object_name_information_t name;
+   struct ren_t
+   {
+      file_rename_information_t info;
+      wchar_t buf[32767];
+   } ren;
+};
+
+inline bool unlink_file(const char *filename)
 {
    try{
       NtSetInformationFile_t pNtSetInformationFile =
@@ -795,44 +841,16 @@ static inline bool unlink_file(const char *filename)
          return false;
       }
 
-      class handle_closer
-      {
-         void *handle_;
-         public:
-         handle_closer(void *handle) : handle_(handle){}
-         ~handle_closer(){ close_handle(handle_);  }
-      } handle_closer(fh);
+      handle_closer h_closer(fh);
 
-      const std::size_t CharArraySize = 32767;  //Max name length
-
-      union mem_t
-      {
-         object_name_information_t name;
-         struct ren_t
-         {
-            file_rename_information_t info;
-            wchar_t buf[CharArraySize];
-         } ren;
-      };
-      
-      class auto_ptr
-      {
-         public:
-         explicit auto_ptr(mem_t *ptr) : ptr_(ptr){}
-         ~auto_ptr(){ delete ptr_; }
-         mem_t *get() const{  return (ptr_); }
-         mem_t *operator->() const{ return this->get(); }
-         private:
-         mem_t *ptr_;
-      } pmem(new mem_t);
-
+      std::auto_ptr<ntquery_mem_t> pmem(new ntquery_mem_t);
       file_rename_information_t *pfri = (file_rename_information_t*)&pmem->ren.info;
       const std::size_t RenMaxNumChars =
          ((char*)pmem.get() - (char*)&pmem->ren.info.FileName[0])/sizeof(wchar_t);
 
       //Obtain file name
       unsigned long size;
-      if(pNtQueryObject(fh, object_name_information, pmem.get(), sizeof(mem_t), &size)){
+      if(pNtQueryObject(fh, object_name_information, pmem.get(), sizeof(ntquery_mem_t), &size)){
          return false;
       }
 
@@ -870,13 +888,68 @@ static inline bool unlink_file(const char *filename)
 
       //Final step: change the name of the in-use file:
       io_status_block_t io;
-      if(0 != pNtSetInformationFile(fh, &io, pfri, sizeof(mem_t::ren_t), file_rename_information)){
+      if(0 != pNtSetInformationFile(fh, &io, pfri, sizeof(ntquery_mem_t::ren_t), file_rename_information)){
          return false;
       }
       return true;
    }
    catch(...){
       return false;
+   }
+}
+
+struct reg_closer
+{
+   RegCloseKey_t func_;
+   void *key_;
+   reg_closer(RegCloseKey_t func, void *key) : func_(func), key_(key){}
+   ~reg_closer(){ (*func_)(key_);  }
+};
+
+inline void get_shared_documents_folder(std::string &s)
+{
+   s.clear();
+   void *hAdvapi = load_library("Advapi32.dll");
+   if (hAdvapi){
+      library_unloader unloader(hAdvapi);
+      //  Pointer to function RegOpenKeyA
+      RegOpenKeyEx_t pRegOpenKey =
+         (RegOpenKeyEx_t)get_proc_address(hAdvapi, "RegOpenKeyExA");
+      if (pRegOpenKey){
+         //  Pointer to function RegCloseKey
+         RegCloseKey_t pRegCloseKey =
+            (RegCloseKey_t)get_proc_address(hAdvapi, "RegCloseKey");
+         if (pRegCloseKey){
+            //  Pointer to function RegQueryValueA
+            RegQueryValueEx_t pRegQueryValue =
+               (RegQueryValueEx_t)get_proc_address(hAdvapi, "RegQueryValueExA");
+            if (pRegQueryValue){
+               //Open the key
+               void *key;
+               if ((*pRegOpenKey)( hkey_local_machine
+                                 , "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders"
+                                 , 0
+                                 , key_query_value
+                                 , &key) == 0){
+                  reg_closer key_closer(pRegCloseKey, key);
+
+                  //Obtain the value
+                  unsigned long size;
+                  unsigned long type;
+                  const char *const reg_value = "Common AppData";
+                  long err = (*pRegQueryValue)( key, reg_value, 0, &type, 0, &size);
+                  if(!err){
+                     //Size includes terminating NULL
+                     s.resize(size);
+                     err = (*pRegQueryValue)( key, reg_value, 0, &type, (unsigned char*)(&s[0]), &size);
+                     if(!err)
+                        s.erase(s.end()-1);
+                     (void)err;
+                  }
+               }
+            }
+         }
+      }
    }
 }
 

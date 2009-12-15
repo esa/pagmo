@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -36,7 +36,7 @@
    #  define BOOST_INTERPROCESS_POSIX_PROCESS_SHARED
    #  endif
    #endif
-	   
+   
    #if ((_POSIX_BARRIERS - 0) > 0)
    # define BOOST_INTERPROCESS_POSIX_BARRIERS
    # endif
@@ -62,6 +62,11 @@
    #else
    #endif
 
+   //Check for XSI shared memory objects. They are available in nearly all UNIX platforms
+   #if !defined(__QNXNTO__)
+   # define BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
+   #endif
+
    #if ((_POSIX_SHARED_MEMORY_OBJECTS - 0) > 0)
    # define BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS
    #else
@@ -70,33 +75,36 @@
    #  if __CRTL_VER >= 70200000
    #  define BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS
    #  endif
-   # define BOOST_INTERPROCESS_SYSTEM_V_SHARED_MEMORY_OBJECTS
    //Mac OS has some non-conformant features like names limited to SHM_NAME_MAX
-   //# elif defined (__APPLE__)
-   //#  define BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS
+   # elif defined (__APPLE__)
+//   #  define BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS
+//   #  define BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS_NO_GROW
    # endif 
+   #endif
+
+   //Now check if we have only XSI shared memory
+   #if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS) &&\
+      !defined(BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS)
+   //#  define BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS_ONLY
    #endif
 
    #if ((_POSIX_TIMEOUTS - 0) > 0)
    # define BOOST_INTERPROCESS_POSIX_TIMEOUTS
    #endif 
 
-   //Some systems have filesystem-based resources, so the
-   //portable "/shmname" format does not work due to permission issues
-   //For those systems we need to form a path to a temporary directory:
-   //          hp-ux               tru64               vms               freebsd
-   #if defined(__hpux) || defined(__osf__) || defined(__vms) || defined(__FreeBSD__)
-   #define BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_RESOURCES
-   #endif
 
    #ifdef BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS
-      #if defined(BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_RESOURCES)
+      //Some systems have filesystem-based resources, so the
+      //portable "/shmname" format does not work due to permission issues
+      //For those systems we need to form a path to a temporary directory:
+      //          hp-ux               tru64               vms               freebsd
+      #if defined(__hpux) || defined(__osf__) || defined(__vms) || (defined(__FreeBSD__) && (__FreeBSD__ < 8)) 
       #define BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_SHARED_MEMORY
       #endif
    #endif
 
    #ifdef BOOST_INTERPROCESS_POSIX_NAMED_SEMAPHORES
-      #if defined(BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_RESOURCES)
+      #if defined(__osf__) || defined(__vms)
       #define BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_SEMAPHORES
       #endif
    #endif

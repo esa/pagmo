@@ -184,7 +184,7 @@ public:
                 bad_seek();
             return offset_to_position(pos_ - beg_);
         }
-        if (next < beg_ || end_ != -1 && next >= end_)
+        if (next < beg_ || (end_ != -1 && next >= end_))
             bad_seek();
         pos_ = this->component().seek(dev, next, BOOST_IOS::cur);
         return offset_to_position(pos_ - beg_);
@@ -296,7 +296,7 @@ std::streampos restricted_indirect_device<Device>::seek
             bad_seek();
         return offset_to_position(pos_ - beg_);
     }
-    if (next < beg_ || end_ != -1 && next >= end_)
+    if (next < beg_ || (end_ != -1 && next >= end_))
         bad_seek();
     pos_ = iostreams::seek(this->component(), next - pos_, BOOST_IOS::cur);
     return offset_to_position(pos_ - beg_);
@@ -312,7 +312,7 @@ restricted_direct_device<Device>::restricted_direct_device
     std::pair<char_type*, char_type*> seq =
         sequence(is_convertible<category, input>());
     if ( off < 0 || len < -1 || 
-         len != -1 && off + len > seq.second - seq.first )
+         (len != -1 && off + len > seq.second - seq.first) )
     {
         throw BOOST_IOSTREAMS_FAILURE("bad offset");
     }

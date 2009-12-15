@@ -533,6 +533,20 @@ struct format_name_impl : format_raw_name_impl {
     }
 };
 
+template<class Char, class Traits>
+inline void do_print(std::basic_ostream<Char, Traits>& os, const std::string& s) {
+    os << s.c_str();
+}
+
+inline void do_print(std::ostream& os, const std::string& s) {
+    os << s;
+}
+
+template<class Char, class Traits>
+inline void do_print(std::basic_ostream<Char, Traits>& os, const char* s) {
+    os << s;
+}
+
 } // namespace detail
 
 template<class Dimension,class System>
@@ -567,20 +581,20 @@ inline std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Tra
 {
     if (units::get_format(os) == typename_fmt) 
     {
-        os << typename_string(u);
-    } 
+        detail::do_print(os , typename_string(u));
+    }
     else if (units::get_format(os) == raw_fmt) 
     {
-        os << detail::to_string_impl(u, detail::format_raw_symbol_impl());
-    } 
+        detail::do_print(os, detail::to_string_impl(u, detail::format_raw_symbol_impl()));
+    }
     else if (units::get_format(os) == symbol_fmt) 
     {
-        os << symbol_string(u);
-    } 
+        detail::do_print(os, symbol_string(u));
+    }
     else if (units::get_format(os) == name_fmt) 
     {
-        os << name_string(u);
-    } 
+        detail::do_print(os, name_string(u));
+    }
     else 
     {
         assert(!"The format mode must be one of: typename_format, raw_format, name_format, symbol_format");

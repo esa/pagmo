@@ -12,7 +12,7 @@
      namespace boost { namespace archive { namespace detail {
 #define BOOST_UTF8_DECL
 #define BOOST_UTF8_END_NAMESPACE }}}
-#include "utf8_codecvt_facet.cpp.detail"
+#include "detail_utf8_codecvt_facet.cpp"
 #undef BOOST_UTF8_END_NAMESPACE
 #undef BOOST_UTF8_DECL
 #undef BOOST_UTF8_BEGIN_NAMESPACE

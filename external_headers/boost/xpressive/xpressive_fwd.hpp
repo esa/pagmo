@@ -79,11 +79,10 @@ namespace boost { namespace xpressive
 
         struct mark_placeholder;
         typedef proto::terminal<mark_placeholder>::type basic_mark_tag;
-        struct mark_tag;
 
     } // namespace detail
 
-    using detail::mark_tag;
+    struct mark_tag;
 
     typedef void const *regex_id_type;
 

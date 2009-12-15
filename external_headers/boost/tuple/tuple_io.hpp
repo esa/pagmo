@@ -285,6 +285,21 @@ print(std::basic_ostream<CharType, CharTrait>& o, const cons<T1, T2>& t) {
 } // namespace detail
 
 #if defined (BOOST_NO_TEMPLATED_STREAMS)
+
+inline std::ostream& operator<<(std::ostream& o, const null_type& t) {
+  if (!o.good() ) return o;
+ 
+  const char l = 
+    detail::format_info::get_manipulator(o, detail::format_info::open);
+  const char r = 
+    detail::format_info::get_manipulator(o, detail::format_info::close);
+   
+  o << l;
+  o << r;
+
+  return o;
+}
+
 template<class T1, class T2>
 inline std::ostream& operator<<(std::ostream& o, const cons<T1, T2>& t) {
   if (!o.good() ) return o;
@@ -304,6 +319,23 @@ inline std::ostream& operator<<(std::ostream& o, const cons<T1, T2>& t) {
 }
 
 #else
+
+template<class CharType, class CharTrait>
+inline std::basic_ostream<CharType, CharTrait>& 
+operator<<(std::basic_ostream<CharType, CharTrait>& o, 
+           const null_type& t) {
+  if (!o.good() ) return o;
+ 
+  const CharType l = 
+    detail::format_info::get_manipulator(o, detail::format_info::open);
+  const CharType r = 
+    detail::format_info::get_manipulator(o, detail::format_info::close);
+   
+  o << l;
+  o << r;
+
+  return o;
+}
 
 template<class CharType, class CharTrait, class T1, class T2>
 inline std::basic_ostream<CharType, CharTrait>& 

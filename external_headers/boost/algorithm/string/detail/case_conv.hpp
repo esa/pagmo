@@ -105,10 +105,10 @@ namespace boost {
                 FunctorT Functor)
             {
                 return SequenceT(
-                    make_transform_iterator(
+                    ::boost::make_transform_iterator(
                         ::boost::begin(Input),
                         Functor),
-                    make_transform_iterator(
+                    ::boost::make_transform_iterator(
                         ::boost::end(Input), 
                         Functor));
             }

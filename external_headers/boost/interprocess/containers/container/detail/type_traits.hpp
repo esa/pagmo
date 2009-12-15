@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // (C) Copyright John Maddock 2000.
-// (C) Copyright Ion Gaztanaga 2005-2008.
+// (C) Copyright Ion Gaztanaga 2005-2009.
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,7 +22,7 @@
 #include <boost/interprocess/containers/container/detail/config_begin.hpp>
 
 namespace boost {
-namespace interprocess_container { 
+namespace container { 
 namespace containers_detail {
 
 struct nat{};
@@ -157,7 +157,7 @@ struct is_same
 };
 
 } // namespace containers_detail
-}  //namespace interprocess_container { 
+}  //namespace container { 
 }  //namespace boost {
 
 #endif   //#ifndef BOOST_CONTAINERS_CONTAINER_DETAIL_TYPE_TRAITS_HPP

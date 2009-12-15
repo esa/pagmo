@@ -54,7 +54,7 @@ public:
     {
         return cache[BASEID_FROM_TOKEN(id) - T_FIRST_TOKEN];
     }
-    
+
 private:
     std::vector<StringT> cache;
 };

@@ -129,7 +129,7 @@ namespace boost
         too_many_files_open_in_system = ENFILE,
         too_many_files_open = EMFILE,
         too_many_links = EMLINK,
-        too_many_synbolic_link_levels = ELOOP,
+        too_many_symbolic_link_levels = ELOOP,
         value_too_large = EOVERFLOW,
         wrong_protocol_type = EPROTOTYPE
       };
@@ -183,11 +183,14 @@ namespace boost
     {
     public:
       virtual ~error_category(){}
-      virtual inline const char *    name() const;  // see implementation note below
-      virtual inline std::string     message( int ev ) const;   // see implementation note below
-      virtual inline error_condition default_error_condition( int ev ) const;
-      virtual inline bool equivalent( int code, const error_condition & condition ) const;
-      virtual inline bool equivalent( const error_code & code, int condition ) const;
+
+      virtual const char *     name() const = 0;
+      virtual std::string      message( int ev ) const = 0;
+      virtual error_condition  default_error_condition( int ev ) const;
+      virtual bool             equivalent( int code, 
+                                           const error_condition & condition ) const;
+      virtual bool             equivalent( const error_code & code,
+                                           int condition ) const;
 
       bool operator==(const error_category & rhs) const { return this == &rhs; }
       bool operator!=(const error_category & rhs) const { return this != &rhs; }
@@ -384,8 +387,30 @@ namespace boost
     };
 
     //  predefined error_code object used as "throw on error" tag
+# ifndef BOOST_SYSTEM_NO_DEPRECATED
     BOOST_SYSTEM_DECL extern error_code throws;
+# endif
 
+    //  Moving from a "throws" object to a "throws" function without breaking
+    //  existing code is a bit of a problem. The workaround is to place the
+    //  "throws" function in namespace boost rather than namespace boost::system.
+
+  }  // namespace system
+
+  namespace detail { inline system::error_code * throws() { return 0; } }
+    //  Misuse of the error_code object is turned into a noisy failure by
+    //  poisoning the reference. This particular implementation doesn't
+    //  produce warnings or errors from popular compilers, is very efficient
+    //  (as determined by inspecting generated code), and does not suffer
+    //  from order of initialization problems. In practice, it also seems
+    //  cause user function error handling implementation errors to be detected
+    //  very early in the development cycle.
+
+  inline system::error_code & throws()
+    { return *detail::throws(); }
+
+  namespace system
+  {
     //  non-member functions  ------------------------------------------------//
 
     inline bool operator!=( const error_code & lhs,
@@ -472,19 +497,6 @@ namespace boost
       int condition ) const
     {
       return *this == code.category() && code.value() == condition;
-    }
-
-    //  error_category implementation note: VC++ 8.0 objects to name() and
-    //  message() being pure virtual functions. Thus these implementations.
-    inline const char * error_category::name() const
-    { 
-      return "error: should never be called";
-    }
-
-    inline std::string error_category::message( int ) const
-    { 
-      static std::string s("error: should never be called");
-      return s;
     }
 
   } // namespace system

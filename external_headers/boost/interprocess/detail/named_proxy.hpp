@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -120,7 +120,7 @@ class named_proxy
    template<class ...Args>
    T *operator()(Args &&...args) const
    {  
-      CtorNArg<T, is_iterator, Args...> ctor_obj(boost::interprocess::forward<Args>(args)...);
+      CtorNArg<T, is_iterator, Args...> &&ctor_obj = CtorNArg<T, is_iterator, Args...>(boost::interprocess::forward<Args>(args)...);
       return mp_mngr->template 
          generic_construct<T>(mp_name, m_num, m_find, m_dothrow, ctor_obj);
    }

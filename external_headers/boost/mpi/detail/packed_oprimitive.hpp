@@ -77,12 +77,12 @@ public:
         save_impl(&t, get_mpi_datatype<T>(t), 1);
     }
 
-        void save(const std::string &s)
-        {
+    void save(const std::string &s)
+    {
       unsigned int l = static_cast<unsigned int>(s.size());
       save(l);
       save_impl(s.data(),MPI_CHAR,s.size());
-        }
+    }
 
 private:
 

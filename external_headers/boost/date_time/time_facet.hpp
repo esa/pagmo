@@ -7,7 +7,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author:  Martin Andrian, Jeff Garland, Bart Garst
- * $Date: 2008-11-23 06:13:35 -0500 (Sun, 23 Nov 2008) $
+ * $Date: 2009-10-03 06:04:00 -0400 (Sat, 03 Oct 2009) $
  */
 
 #include <cctype>
@@ -27,6 +27,7 @@
 #include <boost/date_time/date_facet.hpp>
 #include <boost/date_time/string_convert.hpp>
 #include <boost/date_time/special_defs.hpp>
+#include <boost/date_time/time_resolution_traits.hpp> // absolute_value
 
 namespace boost {
 namespace date_time {
@@ -159,7 +160,7 @@ namespace date_time {
   template <class CharT>  
   const typename time_formats<CharT>::char_type 
   time_formats<CharT>::default_time_duration_format[11] = 
-    {'%','H',':','%','M',':','%','S','%','F'};
+    {'%','O',':','%','M',':','%','S','%','F'};
 
 
 

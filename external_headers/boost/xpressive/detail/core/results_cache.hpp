@@ -42,8 +42,8 @@ struct nested_results
   : private std::list<match_results<BidiIter> >
 {
     friend struct results_cache<BidiIter>;
-    friend struct match_results<BidiIter>;
-    typedef std::list<match_results<BidiIter> > base_type;
+    friend struct xpressive::match_results<BidiIter>;
+    typedef std::list<xpressive::match_results<BidiIter> > base_type;
 
     using base_type::iterator;
     using base_type::const_iterator;

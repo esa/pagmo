@@ -127,10 +127,21 @@ struct saved_single_repeat : public saved_state
       : saved_state(arg_id), count(c), rep(r), last_position(lp){}
 };
 
+template <class Results>
+struct saved_recursion : public saved_state
+{
+   saved_recursion(int id, const re_syntax_base* p, Results* pr) 
+      : saved_state(14), recursion_id(id), preturn_address(p), results(*pr)
+   {}
+   int recursion_id;
+   const re_syntax_base* preturn_address;
+   Results results;
+};
+
 template <class BidiIterator, class Allocator, class traits>
 bool perl_matcher<BidiIterator, Allocator, traits>::match_all_states()
 {
-   static matcher_proc_type const s_match_vtable[29] = 
+   static matcher_proc_type const s_match_vtable[30] = 
    {
       (&perl_matcher<BidiIterator, Allocator, traits>::match_startmark),
       &perl_matcher<BidiIterator, Allocator, traits>::match_endmark,
@@ -154,13 +165,18 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_all_states()
       &perl_matcher<BidiIterator, Allocator, traits>::match_combining,
       &perl_matcher<BidiIterator, Allocator, traits>::match_soft_buffer_end,
       &perl_matcher<BidiIterator, Allocator, traits>::match_restart_continue,
-      (::boost::is_random_access_iterator<BidiIterator>::value ? &perl_matcher<BidiIterator, Allocator, traits>::match_dot_repeat_fast : &perl_matcher<BidiIterator, Allocator, traits>::match_dot_repeat_slow),
+      // Although this next line *should* be evaluated at compile time, in practice
+      // some compilers (VC++) emit run-time initialisation which breaks thread
+      // safety, so use a dispatch function instead:
+      //(::boost::is_random_access_iterator<BidiIterator>::value ? &perl_matcher<BidiIterator, Allocator, traits>::match_dot_repeat_fast : &perl_matcher<BidiIterator, Allocator, traits>::match_dot_repeat_slow),
+      &perl_matcher<BidiIterator, Allocator, traits>::match_dot_repeat_dispatch,
       &perl_matcher<BidiIterator, Allocator, traits>::match_char_repeat,
       &perl_matcher<BidiIterator, Allocator, traits>::match_set_repeat,
       &perl_matcher<BidiIterator, Allocator, traits>::match_long_set_repeat,
       &perl_matcher<BidiIterator, Allocator, traits>::match_backstep,
       &perl_matcher<BidiIterator, Allocator, traits>::match_assert_backref,
       &perl_matcher<BidiIterator, Allocator, traits>::match_toggle_case,
+      &perl_matcher<BidiIterator, Allocator, traits>::match_recursion,
    };
 
    push_recursion_stopper();
@@ -209,7 +225,7 @@ void perl_matcher<BidiIterator, Allocator, traits>::extend_stack()
 template <class BidiIterator, class Allocator, class traits>
 inline void perl_matcher<BidiIterator, Allocator, traits>::push_matched_paren(int index, const sub_match<BidiIterator>& sub)
 {
-   BOOST_ASSERT(index);
+   //BOOST_ASSERT(index);
    saved_matched_paren<BidiIterator>* pmp = static_cast<saved_matched_paren<BidiIterator>*>(m_backup_state);
    --pmp;
    if(pmp < m_stack_base)
@@ -313,9 +329,25 @@ inline void perl_matcher<BidiIterator, Allocator, traits>::push_single_repeat(st
 }
 
 template <class BidiIterator, class Allocator, class traits>
+inline void perl_matcher<BidiIterator, Allocator, traits>::push_recursion(int id, const re_syntax_base* p, results_type* presults)
+{
+   saved_recursion<results_type>* pmp = static_cast<saved_recursion<results_type>*>(m_backup_state);
+   --pmp;
+   if(pmp < m_stack_base)
+   {
+      extend_stack();
+      pmp = static_cast<saved_recursion<results_type>*>(m_backup_state);
+      --pmp;
+   }
+   (void) new (pmp)saved_recursion<results_type>(id, p, presults);
+   m_backup_state = pmp;
+}
+
+template <class BidiIterator, class Allocator, class traits>
 bool perl_matcher<BidiIterator, Allocator, traits>::match_startmark()
 {
    int index = static_cast<const re_brace*>(pstate)->index;
+   icase = static_cast<const re_brace*>(pstate)->icase;
    switch(index)
    {
    case 0:
@@ -399,6 +431,13 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_startmark()
             pstate = alt->alt.p;
          break;
       }
+      }
+   case -5:
+      {
+         push_matched_paren(0, (*m_presult)[0]);
+         m_presult->set_first(position, 0, true);
+         pstate = pstate->next.p;
+         break;
       }
    default:
    {
@@ -848,6 +887,100 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_long_set_repeat()
 #endif
 }
 
+template <class BidiIterator, class Allocator, class traits>
+bool perl_matcher<BidiIterator, Allocator, traits>::match_recursion()
+{
+   BOOST_ASSERT(pstate->type == syntax_element_recurse);
+   //
+   // Backup call stack:
+   //
+   push_recursion_pop();
+   //
+   // Set new call stack:
+   //
+   if(recursion_stack_position >= static_cast<int>(sizeof(recursion_stack)/sizeof(recursion_stack[0])))
+   {
+      return false;
+   }
+   recursion_stack[recursion_stack_position].preturn_address = pstate->next.p;
+   recursion_stack[recursion_stack_position].results = *m_presult;
+   pstate = static_cast<const re_jump*>(pstate)->alt.p;
+   recursion_stack[recursion_stack_position].id = static_cast<const re_brace*>(pstate)->index;
+   ++recursion_stack_position;
+   //BOOST_ASSERT(recursion_stack[recursion_stack_position-1].id);
+   return true;
+}
+
+template <class BidiIterator, class Allocator, class traits>
+bool perl_matcher<BidiIterator, Allocator, traits>::match_endmark()
+{
+   int index = static_cast<const re_brace*>(pstate)->index;
+   icase = static_cast<const re_brace*>(pstate)->icase;
+   if(index > 0)
+   {
+      if((m_match_flags & match_nosubs) == 0)
+      {
+         m_presult->set_second(position, index);
+      }
+      if(recursion_stack_position)
+      {
+         if(index == recursion_stack[recursion_stack_position-1].id)
+         {
+            --recursion_stack_position;
+            pstate = recursion_stack[recursion_stack_position].preturn_address;
+            *m_presult = recursion_stack[recursion_stack_position].results;
+            push_recursion(recursion_stack[recursion_stack_position].id, recursion_stack[recursion_stack_position].preturn_address, &recursion_stack[recursion_stack_position].results);
+         }
+      }
+   }
+   else if((index < 0) && (index != -4))
+   {
+      // matched forward lookahead:
+      pstate = 0;
+      return true;
+   }
+   pstate = pstate->next.p;
+   return true;
+}
+
+template <class BidiIterator, class Allocator, class traits>
+bool perl_matcher<BidiIterator, Allocator, traits>::match_match()
+{
+   if(recursion_stack_position)
+   {
+      BOOST_ASSERT(0 == recursion_stack[recursion_stack_position-1].id);
+      --recursion_stack_position;
+      pstate = recursion_stack[recursion_stack_position].preturn_address;
+      *m_presult = recursion_stack[recursion_stack_position].results;
+      push_recursion(recursion_stack[recursion_stack_position].id, recursion_stack[recursion_stack_position].preturn_address, &recursion_stack[recursion_stack_position].results);
+      return true;
+   }
+   if((m_match_flags & match_not_null) && (position == (*m_presult)[0].first))
+      return false;
+   if((m_match_flags & match_all) && (position != last))
+      return false;
+   if((m_match_flags & regex_constants::match_not_initial_null) && (position == search_base))
+      return false;
+   m_presult->set_second(position);
+   pstate = 0;
+   m_has_found_match = true;
+   if((m_match_flags & match_posix) == match_posix)
+   {
+      m_result.maybe_assign(*m_presult);
+      if((m_match_flags & match_any) == 0)
+         return false;
+   }
+#ifdef BOOST_REGEX_MATCH_EXTRA
+   if(match_extra & m_match_flags)
+   {
+      for(unsigned i = 0; i < m_presult->size(); ++i)
+         if((*m_presult)[i].matched)
+            ((*m_presult)[i]).get_captures().push_back((*m_presult)[i]);
+   }
+#endif
+   return true;
+}
+
 /****************************************************************************
 
 Unwind and associated proceedures follow, these perform what normal stack
@@ -858,7 +991,7 @@ unwinding does in the recursive implementation.
 template <class BidiIterator, class Allocator, class traits>
 bool perl_matcher<BidiIterator, Allocator, traits>::unwind(bool have_match)
 {
-   static unwind_proc_type const s_unwind_table[14] = 
+   static unwind_proc_type const s_unwind_table[18] = 
    {
       &perl_matcher<BidiIterator, Allocator, traits>::unwind_end,
       &perl_matcher<BidiIterator, Allocator, traits>::unwind_paren,
@@ -874,6 +1007,8 @@ bool perl_matcher<BidiIterator, Allocator, traits>::unwind(bool have_match)
       &perl_matcher<BidiIterator, Allocator, traits>::unwind_short_set_repeat,
       &perl_matcher<BidiIterator, Allocator, traits>::unwind_long_set_repeat,
       &perl_matcher<BidiIterator, Allocator, traits>::unwind_non_greedy_repeat,
+      &perl_matcher<BidiIterator, Allocator, traits>::unwind_recursion,
+      &perl_matcher<BidiIterator, Allocator, traits>::unwind_recursion_pop,
    };
 
    m_recursive_result = have_match;
@@ -907,8 +1042,8 @@ bool perl_matcher<BidiIterator, Allocator, traits>::unwind_paren(bool have_match
    // restore previous values if no match was found:
    if(have_match == false)
    {
-      m_presult->set_first(pmp->sub.first, pmp->index);
-      m_presult->set_second(pmp->sub.second, pmp->index, pmp->sub.matched);
+      m_presult->set_first(pmp->sub.first, pmp->index, pmp->index == 0);
+      m_presult->set_second(pmp->sub.second, pmp->index, pmp->sub.matched, pmp->index == 0);
    }
 #ifdef BOOST_REGEX_MATCH_EXTRA
    //
@@ -1377,6 +1512,106 @@ bool perl_matcher<BidiIterator, Allocator, traits>::unwind_non_greedy_repeat(boo
    return r;
 }
 
+template <class BidiIterator, class Allocator, class traits>
+bool perl_matcher<BidiIterator, Allocator, traits>::unwind_recursion(bool r)
+{
+   saved_recursion<results_type>* pmp = static_cast<saved_recursion<results_type>*>(m_backup_state);
+   if(!r)
+   {
+      recursion_stack[recursion_stack_position].id = pmp->recursion_id;
+      recursion_stack[recursion_stack_position].preturn_address = pmp->preturn_address;
+      recursion_stack[recursion_stack_position].results = pmp->results;
+      ++recursion_stack_position;
+   }
+   boost::re_detail::inplace_destroy(pmp++);
+   m_backup_state = pmp;
+   return true;
+}
+
+template <class BidiIterator, class Allocator, class traits>
+bool perl_matcher<BidiIterator, Allocator, traits>::unwind_recursion_pop(bool r)
+{
+   saved_state* pmp = static_cast<saved_state*>(m_backup_state);
+   if(!r)
+   {
+      --recursion_stack_position;
+   }
+   boost::re_detail::inplace_destroy(pmp++);
+   m_backup_state = pmp;
+   return true;
+}
+
+template <class BidiIterator, class Allocator, class traits>
+void perl_matcher<BidiIterator, Allocator, traits>::push_recursion_pop()
+{
+   saved_state* pmp = static_cast<saved_state*>(m_backup_state);
+   --pmp;
+   if(pmp < m_stack_base)
+   {
+      extend_stack();
+      pmp = static_cast<saved_state*>(m_backup_state);
+      --pmp;
+   }
+   (void) new (pmp)saved_state(15);
+   m_backup_state = pmp;
+}
+/*
+template <class BidiIterator, class Allocator, class traits>
+bool perl_matcher<BidiIterator, Allocator, traits>::unwind_parenthesis_pop(bool r)
+{
+   saved_state* pmp = static_cast<saved_state*>(m_backup_state);
+   if(!r)
+   {
+      --parenthesis_stack_position;
+   }
+   boost::re_detail::inplace_destroy(pmp++);
+   m_backup_state = pmp;
+   return true;
+}
+
+template <class BidiIterator, class Allocator, class traits>
+void perl_matcher<BidiIterator, Allocator, traits>::push_parenthesis_pop()
+{
+   saved_state* pmp = static_cast<saved_state*>(m_backup_state);
+   --pmp;
+   if(pmp < m_stack_base)
+   {
+      extend_stack();
+      pmp = static_cast<saved_state*>(m_backup_state);
+      --pmp;
+   }
+   (void) new (pmp)saved_state(16);
+   m_backup_state = pmp;
+}
+
+template <class BidiIterator, class Allocator, class traits>
+bool perl_matcher<BidiIterator, Allocator, traits>::unwind_parenthesis_push(bool r)
+{
+   saved_position<BidiIterator>* pmp = static_cast<saved_position<BidiIterator>*>(m_backup_state);
+   if(!r)
+   {
+      parenthesis_stack[parenthesis_stack_position++] = pmp->position;
+   }
+   boost::re_detail::inplace_destroy(pmp++);
+   m_backup_state = pmp;
+   return true;
+}
+
+template <class BidiIterator, class Allocator, class traits>
+inline void perl_matcher<BidiIterator, Allocator, traits>::push_parenthesis_push(BidiIterator p)
+{
+   saved_position<BidiIterator>* pmp = static_cast<saved_position<BidiIterator>*>(m_backup_state);
+   --pmp;
+   if(pmp < m_stack_base)
+   {
+      extend_stack();
+      pmp = static_cast<saved_position<BidiIterator>*>(m_backup_state);
+      --pmp;
+   }
+   (void) new (pmp)saved_position<BidiIterator>(0, p, 17);
+   m_backup_state = pmp;
+}
+*/
 } // namespace re_detail
 } // namespace boost
 

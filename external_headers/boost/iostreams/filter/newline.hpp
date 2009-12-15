@@ -20,7 +20,7 @@
 #include <stdexcept>                       // logic_error.
 #include <boost/config.hpp>                // BOOST_STATIC_CONSTANT.
 #include <boost/iostreams/categories.hpp>
-#include <boost/iostreams/detail/char_traits.hpp>	
+#include <boost/iostreams/detail/char_traits.hpp>
 #include <boost/iostreams/detail/ios.hpp>  // BOOST_IOSTREAMS_FAILURE 
 #include <boost/iostreams/read.hpp>        // get 
 #include <boost/iostreams/write.hpp>       // put 
@@ -211,7 +211,7 @@ public:
     }
 
     template<typename Sink>
-    void close(Sink& dest, BOOST_IOS::openmode which)
+    void close(Sink& dest, BOOST_IOS::openmode)
     {
         typedef typename iostreams::category_of<Sink>::type category;
         if ((flags_ & f_write) != 0 && (flags_ & f_has_CR) != 0)
@@ -398,7 +398,7 @@ public:
     }
 
     template<typename Sink>
-    void close(Sink&, BOOST_IOS::openmode which)
+    void close(Sink&, BOOST_IOS::openmode)
     {
         using iostreams::newline::final_newline;
 

@@ -68,7 +68,7 @@ class if_block_stack
 {
 public:
     typedef std::stack<if_block>::size_type size_type;
-    
+
     void enter_if_block(bool new_status)
     {
     // If enclosing block is false, then this block is also false
@@ -76,7 +76,7 @@ public:
         this->push (value_type (new_status && enclosing_status, enclosing_status));
     }
     bool enter_elif_block(bool new_status)
-     {   
+    {
         if (!is_inside_ifpart())
             return false;       // #elif without matching #if
 
@@ -136,7 +136,7 @@ public:
     }
 
     size_type get_if_block_depth() const { return this->size(); }
-    
+
 protected:
     bool is_inside_ifpart() const
     {

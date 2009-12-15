@@ -48,8 +48,8 @@
         /// In <tt>when\<G, T\></tt>, when \c T is a class type it is a
         /// PrimitiveTransform and the following equivalencies hold:
         ///
-        /// <tt>when\<G,T\>::::result\<void(E,S,V)\>::::type</tt> is the same as
-        /// <tt>T::result\<void(E,S,V)\>::::type</tt>.
+        /// <tt>boost::result_of\<when\<G,T\>(E,S,V)\>::::type</tt> is the same as
+        /// <tt>boost::result_of\<T(E,S,V)\>::::type</tt>.
         ///
         /// <tt>when\<G,T\>()(e,s,v)</tt> is the same as
         /// <tt>T()(e,s,v)</tt>.
@@ -172,7 +172,7 @@
                 /// \param s The current state
                 /// \param d An arbitrary data
                 /// \pre <tt>matches\<Expr, Grammar\>::::value</tt> is \c true
-                /// \return <tt>result\<void(Expr, State, Data)\>::::impl()(e, s, d)</tt>
+                /// \return <tt>which()(e, s, d)</tt>
                 result_type operator ()(
                     typename impl::expr_param   e
                   , typename impl::state_param  s

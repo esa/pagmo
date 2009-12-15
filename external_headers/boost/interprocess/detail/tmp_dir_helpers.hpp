@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2007-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2007-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -84,18 +84,30 @@ inline void get_bootstamp(std::string &s, bool add = false)
 }
 #endif
 
-
-inline void tmp_filename(const char *filename, std::string &tmp_name)
+inline void get_tmp_base_dir(std::string &tmp_name)
 {
-   const char *tmp_dir = get_temporary_path();
-   if(!tmp_dir){
+   #if defined (BOOST_INTERPROCESS_WINDOWS)
+   winapi::get_shared_documents_folder(tmp_name);
+   if(tmp_name.empty()){
+      tmp_name = get_temporary_path();
+   }
+   #else
+   tmp_name = get_temporary_path();
+   #endif
+   if(tmp_name.empty()){
       error_info err = system_error_code();
       throw interprocess_exception(err);
    }
-   tmp_name = tmp_dir;
-
    //Remove final null.
-   tmp_name += "/boost_interprocess/";
+   tmp_name += "/boost_interprocess";
+}
+
+
+inline void tmp_filename(const char *filename, std::string &tmp_name)
+{
+   get_tmp_base_dir(tmp_name);
+   //Remove final null.
+   tmp_name += "/";
    #ifdef BOOST_INTERPROCESS_HAS_KERNEL_BOOTTIME
    get_bootstamp(tmp_name, true);
    tmp_name += '/';
@@ -106,15 +118,7 @@ inline void tmp_filename(const char *filename, std::string &tmp_name)
 inline void create_tmp_dir_and_get_filename(const char *filename, std::string &tmp_name)
 {
    //First get the temp directory
-   const char *tmp_path = get_temporary_path(); 
-   if(!tmp_path){
-      error_info err = system_error_code();
-      throw interprocess_exception(err);
-   }
-
-   //Create Boost.Interprocess dir
-   tmp_name = tmp_path;
-   tmp_name += "/boost_interprocess";
+   get_tmp_base_dir(tmp_name);
 
    //If fails, check that it's because already exists
    if(!create_directory(tmp_name.c_str())){

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -46,12 +46,10 @@ class basic_managed_heap_memory
 
    typedef detail::basic_managed_memory_impl 
       <CharType, AllocationAlgorithm, IndexType>             base_t;
-   basic_managed_heap_memory(basic_managed_heap_memory&);
-   basic_managed_heap_memory & operator=(basic_managed_heap_memory&);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(basic_managed_heap_memory)
    /// @endcond
 
    public: //functions
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_managed_heap_memory)
 
    //!Default constructor. Does nothing.
    //!Useful in combination with move semantics

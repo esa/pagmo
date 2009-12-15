@@ -23,6 +23,10 @@
 // IN GENERAL, ARCHIVES CREATED WITH THIS CLASS WILL NOT BE READABLE
 // ON PLATFORM APART FROM THE ONE THEY ARE CREATE ON
 
+#include <cassert>
+#include <boost/integer.hpp>
+#include <boost/integer_traits.hpp>
+
 #include <boost/config.hpp>
 #include <boost/serialization/pfto.hpp>
 
@@ -69,27 +73,32 @@ public:
     void save_override(const version_type & t, int){
         // upto 255 versions
         // note:t.t resolves borland ambguity
-        const unsigned char x = t.t;
+        assert(t.t <= boost::integer_traits<unsigned char>::const_max);
+        const unsigned char x = static_cast<const unsigned char>(t.t);
         * this->This() << x;
     }
     void save_override(const class_id_type & t, int){
         // upto 32K classes
-        const int_least16_t x = t.t;
+        assert(t.t <= boost::integer_traits<boost::int_least16_t>::const_max);
+        const boost::int_least16_t x = static_cast<const boost::int_least16_t>(t.t); 
         * this->This() << x;
     }
     void save_override(const class_id_reference_type & t, int){
         // upto 32K classes
-        const int_least16_t x = t.t;
+        assert(t.t <= boost::integer_traits<boost::int_least16_t>::const_max);
+        const boost::uint_least16_t x = t.t;
         * this->This() << x;
     }
     void save_override(const object_id_type & t, int){
         // upto 2G objects
-        const uint_least32_t x = t.t;
+        assert(t.t <= boost::integer_traits<boost::uint_least32_t>::const_max);
+        const boost::uint_least32_t x = t.t;
         * this->This() << x;
     }
     void save_override(const object_reference_type & t, int){
         // upto 2G objects
-        uint_least32_t x = t.t;
+        assert(t.t <= boost::integer_traits<boost::uint_least32_t>::const_max);
+        const boost::uint_least32_t x = t.t;
         * this->This() << x;
     }
     void save_override(const tracking_type & t, int){
@@ -105,7 +114,7 @@ public:
 
     void save_override(const serialization::collection_size_type & t, int){
     // for backward compatibility, 64 bit integer or variable length integer would be preferred
-        unsigned int x = t.t;
+        std::size_t x = t.t;
         * this->This() << x;
    }
 

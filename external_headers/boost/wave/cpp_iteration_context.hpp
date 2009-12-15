@@ -58,12 +58,11 @@ namespace iteration_context_policies {
         {
         public:
             template <typename PositionT>
-            static 
-            void init_iterators(IterContextT &iter_ctx, 
+            static void init_iterators(IterContextT &iter_ctx, 
                 PositionT const &act_pos, language_support language)
             {
                 typedef typename IterContextT::iterator_type iterator_type;
-                
+
                 // read in the file
                 std::ifstream instream(iter_ctx.filename.c_str());
                 if (!instream.is_open()) {
@@ -72,7 +71,7 @@ namespace iteration_context_policies {
                     return;
                 }
                 instream.unsetf(std::ios::skipws);
-                
+
                 iter_ctx.instring.assign(
                     std::istreambuf_iterator<char>(instream.rdbuf()),
                     std::istreambuf_iterator<char>());
@@ -87,7 +86,7 @@ namespace iteration_context_policies {
             std::string instring;
         };
     };
-    
+
 }   // namespace iteration_context_policies
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,9 +131,9 @@ struct iteration_context
 {
     typedef IteratorT iterator_type;
     typedef typename IteratorT::token_type::position_type position_type;
-    
+
     typedef iteration_context<ContextT, IteratorT, InputPolicyT> self_type;
-    
+
     iteration_context(ContextT& ctx, BOOST_WAVE_STRINGTYPE const &fname, 
             position_type const &act_pos, 
             boost::wave::language_support language_) 

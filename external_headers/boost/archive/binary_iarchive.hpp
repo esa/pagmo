@@ -18,6 +18,7 @@
 
 #include <istream>
 #include <boost/archive/binary_iarchive_impl.hpp>
+#include <boost/archive/detail/register_archive.hpp>
 
 namespace boost { 
 namespace archive {

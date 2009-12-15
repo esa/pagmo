@@ -17,11 +17,12 @@
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/detail/pair.hpp>
+#include <boost/interprocess/containers/containers_fwd.hpp>
 
 namespace boost {
 namespace interprocess {
 
-using boost::interprocess_container::containers_detail::pair;
+using boost::container::containers_detail::pair;
 
 }  //namespace interprocess {
 }  //namespace boost {

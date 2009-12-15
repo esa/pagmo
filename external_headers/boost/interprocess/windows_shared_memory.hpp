@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -51,13 +51,10 @@ class windows_shared_memory
 {
    /// @cond
    //Non-copyable and non-assignable
-   windows_shared_memory(windows_shared_memory &);
-   windows_shared_memory &operator=(windows_shared_memory &);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(windows_shared_memory)
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(windows_shared_memory)
-
    //!Default constructor.
    //!Represents an empty windows_shared_memory.
    windows_shared_memory();

@@ -56,12 +56,13 @@
                     proto::expr<
                         typename expr_params<Expr>::tag
                       , term<typename detail::term_traits<typename expr_params<Expr>::args::child0>::value_type>
+                      , 0
                     >
                 type;
 
-                static type const make(Expr const &expr)
+                static type const make(Expr const &e)
                 {
-                    type that = {expr.child0};
+                    type that = {e.child0};
                     return that;
                 }
             };
@@ -105,9 +106,9 @@
             #else
             Expr const &
             #endif
-            operator ()(Expr const &expr) const
+            operator ()(Expr const &e) const
             {
-                return expr;
+                return e;
             }
         };
 
@@ -148,9 +149,9 @@
             /// \param expr A Proto expression
             /// \return Extends<Expr>(expr)
             template<typename Expr>
-            Extends<Expr> operator ()(Expr const &expr) const
+            Extends<Expr> operator ()(Expr const &e) const
             {
-                return Extends<Expr>(expr);
+                return Extends<Expr>(e);
             }
         };
 
@@ -193,9 +194,9 @@
             /// \param expr The expression to wrap
             /// \return <tt>Extends\<Expr\> that = {expr}; return that;</tt>
             template<typename Expr>
-            Extends<Expr> operator ()(Expr const &expr) const
+            Extends<Expr> operator ()(Expr const &e) const
             {
-                Extends<Expr> that = {expr};
+                Extends<Expr> that = {e};
                 return that;
             }
         };
@@ -246,9 +247,9 @@
             /// \param expr The expression to modify.
             /// \return <tt>deep_copy(expr)</tt>
             template<typename Expr>
-            typename result<void(Expr)>::type operator ()(Expr const &expr) const
+            typename result<by_value_generator(Expr)>::type operator ()(Expr const &e) const
             {
-                return detail::by_value_generator_<Expr>::make(expr);
+                return detail::by_value_generator_<Expr>::make(e);
             }
         };
 
@@ -275,7 +276,7 @@
             {
                 typedef
                     typename Second::template result<
-                        void(typename First::template result<void(Expr)>::type)
+                        Second(typename First::template result<First(Expr)>::type)
                     >::type
                 type;
             };
@@ -285,7 +286,7 @@
             {
                 typedef
                     typename Second::template result<
-                        void(typename First::template result<void(Expr)>::type)
+                        Second(typename First::template result<First(Expr)>::type)
                     >::type
                 type;
             };
@@ -295,7 +296,7 @@
             {
                 typedef
                     typename Second::template result<
-                        void(typename First::template result<void(Expr)>::type)
+                        Second(typename First::template result<First(Expr)>::type)
                     >::type
                 type;
             };
@@ -303,9 +304,9 @@
             /// \param expr The expression to modify.
             /// \return Second()(First()(expr))
             template<typename Expr>
-            typename result<void(Expr)>::type operator ()(Expr const &expr) const
+            typename result<compose_generators(Expr)>::type operator ()(Expr const &e) const
             {
-                return Second()(First()(expr));
+                return Second()(First()(e));
             }
         };
 
@@ -343,6 +344,16 @@
 
     }}
 
+    // Specialization of boost::result_of to eliminate some unnecessary template instantiations
+    namespace boost
+    {
+        template<typename Expr>
+        struct result_of<proto::default_domain(Expr)>
+        {
+            typedef Expr type;
+        };
+    }
+
     #endif // BOOST_PROTO_GENERATE_HPP_EAN_02_13_2007
 
 #else // BOOST_PP_IS_ITERATING
@@ -359,14 +370,15 @@
                             // typename uncvref<typename expr_params<Expr>::args::child0>::type, ...
                             BOOST_PP_ENUM(N, BOOST_PROTO_DEFINE_BY_VALUE_TYPE, Expr)
                         >
+                      , N
                     >
                 type;
 
-                static type const make(Expr const &expr)
+                static type const make(Expr const &e)
                 {
                     type that = {
                         // expr.child0, ...
-                        BOOST_PP_ENUM(N, BOOST_PROTO_DEFINE_BY_VALUE, expr)
+                        BOOST_PP_ENUM(N, BOOST_PROTO_DEFINE_BY_VALUE, e)
                     };
                     return that;
                 }

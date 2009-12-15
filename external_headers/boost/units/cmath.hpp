@@ -623,10 +623,10 @@ atan(const quantity<unit<dimensionless_type, homogeneous_system<System> >, Y>& v
 }
 
 /// atan2 of @c value_type returning angle in radians
-template<class Y, class System>
+template<class Y, class Dimension, class System>
 quantity<unit<plane_angle_dimension, homogeneous_system<System> >, Y>
-atan2(const quantity<unit<dimensionless_type, homogeneous_system<System> >, Y>& y,
-      const quantity<unit<dimensionless_type, homogeneous_system<System> >, Y>& x)
+atan2(const quantity<unit<Dimension, homogeneous_system<System> >, Y>& y,
+      const quantity<unit<Dimension, homogeneous_system<System> >, Y>& x)
 {
     using std::atan2;
     return quantity<unit<plane_angle_dimension, homogeneous_system<System> >, Y>(atan2(y.value(),x.value())*si::radians);

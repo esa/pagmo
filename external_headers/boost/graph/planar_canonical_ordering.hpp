@@ -14,7 +14,7 @@
 #include <boost/config.hpp>
 #include <boost/utility.hpp>  //for next and prior
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 
 namespace boost
@@ -101,7 +101,7 @@ namespace boost
           {
             
             edge_t e(*ei); // e = (u,v)
-            next_edge_itr = next(ei) == ei_end ? ei_start : next(ei);
+            next_edge_itr = boost::next(ei) == ei_end ? ei_start : boost::next(ei);
             vertex_t v = source(e,g) == u ? target(e,g) : source(e,g);
 
             vertex_t prior_vertex = source(*prior_edge_itr, g) == u ? 
@@ -127,8 +127,8 @@ namespace boost
             // past any loops or parallel edges
             while (next_vertex == v || next_vertex == u)
               {
-                next_edge_itr = next(next_edge_itr) == ei_end ?
-                  ei_start : next(next_edge_itr);
+                next_edge_itr = boost::next(next_edge_itr) == ei_end ?
+                  ei_start : boost::next(next_edge_itr);
                 next_vertex = source(*next_edge_itr, g) == u ? 
                   target(*next_edge_itr, g) : source(*next_edge_itr, g);
               }

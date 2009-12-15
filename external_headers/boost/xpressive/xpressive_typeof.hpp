@@ -16,7 +16,7 @@
 
 #include <boost/config.hpp>
 #include <boost/typeof/typeof.hpp>
-#ifndef BOOST_NO_STL_LOCALE
+#ifndef BOOST_NO_STD_LOCALE
 # include <boost/typeof/std/locale.hpp>
 #endif
 #include <boost/proto/proto_typeof.hpp>

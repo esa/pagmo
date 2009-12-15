@@ -61,13 +61,11 @@ SET(PAGMO_LIB_SRC_LIST
 # Boost  thread library.
 IF(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/exceptions.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/once.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/thread.cpp
 	)
 ELSE(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/exceptions.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/thread.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_dll.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_pe.cpp
@@ -76,31 +74,37 @@ ENDIF(UNIX)
 
 # Boost serialization library.
 SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_archive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iserializer.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oserializer.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_iserializer.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/archive_exception.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_serializer_map.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_iprimitive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_oprimitive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_archive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_iarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_typeid.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_no_rtti.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_iarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/stl_port.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_iarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_oarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/void_cast.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_archive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_iprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_wiarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/shared_ptr_helper.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_archive_exception.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_oprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_woarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/stl_port.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_grammar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_iarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_oarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_archive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_no_rtti.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_iserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_grammar.ipp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_typeid.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_iarchive.cpp
 )
 
 # Disable UTF-8 serialization in MinGW, since the latest stable version does not support it.

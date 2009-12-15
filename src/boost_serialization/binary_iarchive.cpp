@@ -12,15 +12,17 @@
 
 #define BOOST_ARCHIVE_SOURCE
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/detail/archive_serializer_map.hpp>
 
+#include <boost/archive/impl/archive_serializer_map.ipp>
 #include <boost/archive/impl/basic_binary_iprimitive.ipp>
 #include <boost/archive/impl/basic_binary_iarchive.ipp>
-#include <boost/archive/impl/archive_pointer_iserializer.ipp>
 
 namespace boost {
 namespace archive {
 
 // explicitly instantiate for this type of stream
+template class detail::archive_serializer_map<naked_binary_iarchive>;
 template class basic_binary_iprimitive<
     naked_binary_iarchive,
     std::istream::char_type, 
@@ -32,9 +34,9 @@ template class binary_iarchive_impl<
     std::istream::char_type, 
     std::istream::traits_type
 >;
-template class detail::archive_pointer_iserializer<naked_binary_iarchive> ;
 
 // explicitly instantiate for this type of stream
+template class detail::archive_serializer_map<binary_iarchive>;
 template class basic_binary_iprimitive<
     binary_iarchive,
     std::istream::char_type, 
@@ -46,7 +48,6 @@ template class binary_iarchive_impl<
     std::istream::char_type, 
     std::istream::traits_type
 >;
-template class detail::archive_pointer_iserializer<binary_iarchive> ;
 
 } // namespace archive
 } // namespace boost

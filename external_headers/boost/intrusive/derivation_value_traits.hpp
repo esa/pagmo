@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2008
+// (C) Copyright Ion Gaztanaga  2006-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -47,7 +47,7 @@ struct derivation_value_traits
    {  return pointer(static_cast<T*>(detail::get_pointer(n))); }
 
    static const_pointer to_value_ptr(const_node_ptr n)
-   {  return const_pointer(static_cast<T*>(detail::get_pointer(n))); }
+   {  return const_pointer(static_cast<const T*>(detail::get_pointer(n))); }
 };
 
 } //namespace intrusive 

@@ -56,7 +56,7 @@ namespace boost { namespace fusion
 
         template <typename Sequence>
         vector(Sequence const& rhs)
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
+#if BOOST_WORKAROUND(BOOST_MSVC, <= 1500)
             : vec(ctor_helper(rhs, is_base_of<vector, Sequence>())) {}
 #else
             : vec(rhs) {}
@@ -129,7 +129,7 @@ namespace boost { namespace fusion
 
     private:
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
+#if BOOST_WORKAROUND(BOOST_MSVC, <= 1500)
         static vector_n const&
         ctor_helper(vector const& rhs, mpl::true_)
         {

@@ -157,11 +157,21 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
         // Assignment
+#ifdef BOOST_UBLAS_MOVE_SEMANTICS
+
+        /*! @note "pass by value" the key idea to enable move semantics */
+        BOOST_UBLAS_INLINE
+        vector &operator = (vector v) {
+            assign_temporary(v);
+            return *this;
+        }
+#else
         BOOST_UBLAS_INLINE
         vector &operator = (const vector &v) {
             data () = v.data ();
             return *this;
         }
+#endif
         template<class C>          // Container assignment without temporary
         BOOST_UBLAS_INLINE
         vector &operator = (const vector_container<C> &v) {
@@ -550,11 +560,21 @@ namespace boost { namespace numeric { namespace ublas {
         ~bounded_vector () {}
 
         // Assignment
+#ifdef BOOST_UBLAS_MOVE_SEMANTICS
+
+        /*! @note "pass by value" the key idea to enable move semantics */
+        BOOST_UBLAS_INLINE
+        bounded_vector &operator = (bounded_vector v) {
+            vector_type::operator = (v);
+            return *this;
+        }
+#else
         BOOST_UBLAS_INLINE
         bounded_vector &operator = (const bounded_vector &v) {
             vector_type::operator = (v);
             return *this;
         }
+#endif
         template<class A2>         // Generic vector assignment
         BOOST_UBLAS_INLINE
         bounded_vector &operator = (const vector<T, A2> &v) {
@@ -1276,7 +1296,7 @@ namespace boost { namespace numeric { namespace ublas {
             size_ (v.size_) /* , data_ () */ {
             if (size_ > N)
                 bad_size ().raise ();
-            *this = v;
+            assign(v);
         }
         template<class AE>
         BOOST_UBLAS_INLINE
@@ -1359,12 +1379,22 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
         // Assignment
+#ifdef BOOST_UBLAS_MOVE_SEMANTICS
+
+        /*! @note "pass by value" the key idea to enable move semantics */
+        BOOST_UBLAS_INLINE
+        c_vector &operator = (c_vector v) {
+            assign_temporary(v);
+            return *this;
+        }
+#else
         BOOST_UBLAS_INLINE
         c_vector &operator = (const c_vector &v) {
             size_ = v.size_;
             std::copy (v.data_, v.data_ + v.size_, data_);
             return *this;
         }
+#endif
         template<class C>          // Container assignment without temporary
         BOOST_UBLAS_INLINE
         c_vector &operator = (const vector_container<C> &v) {

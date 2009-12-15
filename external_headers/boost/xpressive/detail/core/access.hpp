@@ -71,13 +71,13 @@ struct core_access
     (
         match_results<BidiIter> &what
       , regex_id_type regex_id
-      , intrusive_ptr<traits<char_type> const> const &traits
+      , intrusive_ptr<traits<char_type> const> const &tr
       , sub_match_impl<BidiIter> *sub_matches
       , std::size_t size
       , std::vector<named_mark<char_type> > const &named_marks
     )
     {
-        what.init_(regex_id, traits, sub_matches, size, named_marks);
+        what.init_(regex_id, tr, sub_matches, size, named_marks);
     }
 
     static sub_match_vector<BidiIter> &get_sub_match_vector(match_results<BidiIter> &what)

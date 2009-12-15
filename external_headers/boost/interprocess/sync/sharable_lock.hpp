@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -54,14 +54,11 @@ class sharable_lock
    /// @cond
    private:
    typedef sharable_lock<SharableMutex> this_type;
-   sharable_lock(sharable_lock&);
    explicit sharable_lock(scoped_lock<mutex_type>&);
    typedef bool this_type::*unspecified_bool_type;
-   sharable_lock& operator=(sharable_lock&);
-   sharable_lock& operator=(scoped_lock<mutex_type>&);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(sharable_lock)
    /// @endcond
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(sharable_lock)
 
    //!Effects: Default constructs a sharable_lock.
    //!Postconditions: owns() == false and mutex() == 0.

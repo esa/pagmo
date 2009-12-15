@@ -49,12 +49,18 @@ boost
             return value_;
             }
 
+        value_type &
+        value()
+            {
+            return value_;
+            }
+
         private:
 
         char const * tag_typeid_name() const;
         std::string value_as_string() const;
 
-        value_type const value_;
+        value_type value_;
         };
     }
 

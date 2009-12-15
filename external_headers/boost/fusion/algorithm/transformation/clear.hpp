@@ -16,7 +16,7 @@ namespace boost { namespace fusion
         template <typename Sequence>
         struct clear
         {
-            typedef vector0 type;
+            typedef vector0<> type;
         };
     }
 
@@ -24,7 +24,7 @@ namespace boost { namespace fusion
     inline typename result_of::clear<Sequence const>::type
     clear(Sequence const& seq)
     {
-        return vector0();
+        return vector0<>();
     }
 }}
 

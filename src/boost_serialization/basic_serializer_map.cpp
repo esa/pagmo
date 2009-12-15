@@ -12,9 +12,13 @@
 #  pragma warning (disable : 4786) // too long name, harmless warning
 #endif
 
-#include <stdlib.h> // for NULL
+#include <set>
+#include <utility>
 
 #define BOOST_ARCHIVE_SOURCE
+#include <boost/archive/archive_exception.hpp>
+#include <boost/serialization/throw_exception.hpp>
+
 #include <boost/archive/detail/basic_serializer.hpp>
 #include <boost/archive/detail/basic_serializer_map.hpp>
 
@@ -25,61 +29,64 @@ namespace boost {
 namespace archive {
 namespace detail {
 
-#if 0
-BOOST_ARCHIVE_DECL(bool) 
-type_info_pointer_compare::operator()(
+bool  
+basic_serializer_map::type_info_pointer_compare::operator()(
     const basic_serializer * lhs, const basic_serializer * rhs
 ) const {
     return *lhs < *rhs;
 }
 
-class basic_serializer_arg : public basic_serializer {
-public:
-    basic_serializer_arg(const serialization::extended_type_info & eti) :
-        basic_serializer(eti)
-    {}
-};
-#endif
+BOOST_ARCHIVE_DECL(bool) 
+basic_serializer_map::insert(const basic_serializer * bs){
+    // attempt to insert serializer into it's map
+    const std::pair<map_type::iterator, bool> result =
+        m_map.insert(bs);
+    // if this fails, it's because it's been instantiated
+    // in multiple modules - DLLS - a recipe for problems.
+    // So trap this here
+    if(!result.second){
+        boost::serialization::throw_exception(
+            archive_exception(
+                archive_exception::multiple_code_instantiation,
+                bs->get_debug_info()
+            )
+        );
+    }
+    return true;
+}
+
+BOOST_ARCHIVE_DECL(void) 
+basic_serializer_map::erase(const basic_serializer * bs){
+    map_type::iterator it = m_map.begin();
+    map_type::iterator it_end = m_map.end();
+
+    while(it != it_end){
+        // note item 9 from Effective STL !!! it++
+        if(*it == bs)
+            m_map.erase(it++);
+        else
+            it++;
+    }
+    // note: we can't do this since some of the eti records
+    // we're pointing to might be expired and the comparison
+    // won't work.  Leave this as a reminder not to "optimize" this.
+    //it = m_map.find(bs);
+    //assert(it != m_map.end());
+    //if(*it == bs)
+    //    m_map.erase(it);
+}
+BOOST_ARCHIVE_DECL(const basic_serializer *)
+basic_serializer_map::find(
+    const boost::serialization::extended_type_info & eti
+) const {
+    const basic_serializer_arg bs(eti);
+    map_type::const_iterator it;
+    it = m_map.find(& bs);
+    assert(it != m_map.end());
+    return *it;
+}
 
 } // namespace detail
 } // namespace archive
 } // namespace boost
 
-#if 0
-BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY())
-basic_serializer_map::basic_serializer_map(bool & deleted) :
-    m_deleted(deleted)
-{
-    m_deleted = false;
-}
-
-BOOST_ARCHIVE_DECL(const basic_serializer *) 
-basic_serializer_map::tfind(
-    const boost::serialization::extended_type_info & eti
-) const {
-    const basic_serializer_arg bs(eti);
-    map_type::const_iterator it;
-    boost::serialization::singleton<basic_serializer_map>::lease l;
-    it = l->m_map.find(& bs);
-    if(it == l->m_map.end())
-        return NULL;
-    return *it;
-}
-
-BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY())
-basic_serializer_map::~basic_serializer_map(){
-    m_deleted = true;
-}
-
-BOOST_ARCHIVE_DECL(bool) 
-basic_serializer_map::insert(const basic_serializer * bs){
-    boost::serialization::singleton<basic_serializer_map>::lease l;
-    return l->m_map.insert(bs).second;
-}
-
-BOOST_ARCHIVE_DECL(void) 
-basic_serializer_map::erase(basic_serializer * bs){
-    boost::serialization::singleton<basic_serializer_map>::lease l;
-    l->m_map.erase(bs);
-}
-#endif

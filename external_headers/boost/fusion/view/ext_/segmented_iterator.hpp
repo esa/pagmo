@@ -327,8 +327,8 @@ namespace boost { namespace fusion
         typedef typename Cons::car_type car_type;
         typedef typename Cons::cdr_type cdr_type;
 
-        explicit segmented_iterator(Cons const &cons)
-          : cons_(cons)
+        explicit segmented_iterator(Cons const &c)
+          : cons_(c)
         {}
 
         cons_type const &cons() const { return this->cons_; };

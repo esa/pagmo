@@ -17,11 +17,12 @@
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/slist.hpp>
+#include <boost/interprocess/containers/containers_fwd.hpp>
 
 namespace boost {
 namespace interprocess {
 
-using boost::interprocess_container::slist;
+using boost::container::slist;
 
 }  //namespace interprocess {
 }  //namespace boost {

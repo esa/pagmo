@@ -1,5 +1,5 @@
-//  Copyright (c) 2001-2007 Joel de Guzman
 //  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2009 Joel de Guzman
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,89 +7,139 @@
 #if !defined(SPIRIT_KARMA_LIST_MAY_01_2007_0229PM)
 #define SPIRIT_KARMA_LIST_MAY_01_2007_0229PM
 
-#include <boost/spirit/home/support/component.hpp>
-#include <boost/spirit/home/support/detail/container.hpp>
-#include <boost/spirit/home/support/unused.hpp>
-#include <boost/spirit/home/support/attribute_transform.hpp>
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
-#include <vector>
+#include <boost/spirit/home/karma/domain.hpp>
+#include <boost/spirit/home/karma/generator.hpp>
+#include <boost/spirit/home/karma/meta_compiler.hpp>
+#include <boost/spirit/home/karma/detail/output_iterator.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/support/container.hpp>
+#include <boost/spirit/home/support/attributes.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <>
+    struct use_operator<karma::domain, proto::tag::modulus> // enables g % d
+      : mpl::true_ {};
+
+}}
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace karma
 {
-    struct list
+    template <typename Left, typename Right>
+    struct list : binary_generator<list<Left, Right> >
     {
-        template <typename T>
-        struct build_attribute_container
+    private:
+        // iterate over the given container until its exhausted or the embedded
+        // (left) generator succeeds
+        template <
+            typename OutputIterator, typename Context, typename Delimiter
+          , typename Iterator>
+        bool generate_left(OutputIterator& sink, Context& ctx
+          , Delimiter const& d, Iterator& it, Iterator& end) const
         {
-            typedef std::vector<T> type;
-        };
-
-        template <typename Component, typename Context, typename Iterator>
-        struct attribute :
-            build_container<list, Component, Iterator, Context>
-        {
-        };
-
-        template <typename Component, typename OutputIterator,
-            typename Context, typename Delimiter, typename Parameter>
-        static bool
-        generate(Component const& component, OutputIterator& sink,
-            Context& ctx, Delimiter const& d, Parameter const& param)
-        {
-            typedef typename
-                spirit::result_of::left<Component>::type::director
-            ldirector;
-
-            typedef typename
-                spirit::result_of::right<Component>::type::director
-            rdirector;
-
-            typedef typename
-                container::result_of::iterator<Parameter const>::type
-            iterator_type;
-
-            iterator_type it = container::begin(param);
-            iterator_type end = container::end(param);
-
-            bool result = !container::compare(it, end);
-            if (result && ldirector::generate(
-                  spirit::left(component), sink, ctx, d, container::deref(it)))
+            while (!traits::compare(it, end))
             {
-                for (container::next(it); result && !container::compare(it, end);
-                     container::next(it))
-                {
-                    result =
-                        rdirector::generate(
-                            spirit::right(component), sink, ctx, d, unused) &&
-                        ldirector::generate(
-                            spirit::left(component), sink, ctx, d, container::deref(it));
-                }
-                return result;
+                if (left.generate(sink, ctx, d, traits::deref(it)))
+                    return true;
+                traits::next(it);
             }
             return false;
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+    public:
+        typedef Left left_type;
+        typedef Right right_type;
+
+        typedef mpl::int_<
+            left_type::properties::value 
+          | right_type::properties::value 
+          | generator_properties::buffering 
+          | generator_properties::counting
+        > properties;
+
+        // Build a std::vector from the LHS's attribute. Note
+        // that build_std_vector may return unused_type if the
+        // subject's attribute is an unused_type.
+        template <typename Context, typename Iterator>
+        struct attribute
+          : traits::build_std_vector<
+                typename traits::attribute_of<Left, Context, Iterator>::type>
+        {};
+
+        list(Left const& left, Right const& right)
+          : left(left), right(right) 
+        {}
+
+        template <
+            typename OutputIterator, typename Context, typename Delimiter
+          , typename Attribute>
+        bool generate(OutputIterator& sink, Context& ctx
+          , Delimiter const& d, Attribute const& attr) const
         {
-            std::string result = "list[";
+            typedef typename traits::container_iterator<
+                typename add_const<Attribute>::type
+            >::type iterator_type;
 
-            typedef typename
-                spirit::result_of::left<Component>::type::director
-            ldirector;
+            iterator_type it = traits::begin(attr);
+            iterator_type end = traits::end(attr);
 
-            typedef typename
-                spirit::result_of::right<Component>::type::director
-            rdirector;
+            if (generate_left(sink, ctx, d, it, end))
+            {
+                for (traits::next(it); !traits::compare(it, end); traits::next(it))
+                {
+                    // wrap the given output iterator as generate_left might fail
+                    detail::enable_buffering<OutputIterator> buffering(sink);
+                    {
+                        detail::disable_counting<OutputIterator> nocounting(sink);
 
-            result += ldirector::what(spirit::left(component), ctx);
-            result += ", ";
-            result += rdirector::what(spirit::right(component), ctx);
-            result += "]";
-            return result;
+                        if (!right.generate(sink, ctx, d, unused))
+                            return false;     // shouldn't happen
+
+                        if (!generate_left(sink, ctx, d, it, end))
+                            break;            // return true as one item succeeded
+                    }
+                    buffering.buffer_copy();
+                }
+                return true;
+            }
+            return false;
         }
+
+        template <typename Context>
+        info what(Context& context) const
+        {
+            return info("list",
+                std::make_pair(left.what(context), right.what(context)));
+        }
+
+        Left left;
+        Right right;
     };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Generator generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Elements, typename Modifiers>
+    struct make_composite<proto::tag::modulus, Elements, Modifiers>
+      : make_binary_composite<Elements, list>
+    {};
+
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    template <typename Left, typename Right>
+    struct has_semantic_action<karma::list<Left, Right> >
+      : binary_has_semantic_action<Left, Right> {};
 
 }}}
 

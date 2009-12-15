@@ -34,6 +34,7 @@ namespace std{
 #include <boost/archive/detail/auto_link_warchive.hpp>
 #include <boost/archive/basic_text_oprimitive.hpp>
 #include <boost/archive/basic_text_oarchive.hpp>
+#include <boost/archive/detail/register_archive.hpp>
 
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 

@@ -61,6 +61,10 @@
 // QNX:
 #  define BOOST_PLATFORM_CONFIG "boost/config/platform/qnxnto.hpp"
 
+#elif defined(__VXWORKS__)
+// vxWorks:
+#  define BOOST_PLATFORM_CONFIG "boost/config/platform/vxworks.hpp"
+
 #else
 
 #  if defined(unix) \

@@ -34,7 +34,7 @@ BOOST_STRONG_TYPEDEF(unsigned int, object_id_type)
 BOOST_STRONG_TYPEDEF(unsigned int, object_reference_type)
 
 struct tracking_type {
-    typedef bool value_type;
+//    typedef bool value_type;
     bool t;
     explicit tracking_type(const bool t_ = false)
         : t(t_)

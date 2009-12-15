@@ -24,13 +24,13 @@ namespace interprocess {
 /// @cond
 typedef int allocation_type;
 /// @endcond
-static const allocation_type allocate_new       = boost::interprocess_container::allocate_new;
-static const allocation_type expand_fwd         = boost::interprocess_container::expand_fwd;
-static const allocation_type expand_bwd         = boost::interprocess_container::expand_bwd;
-static const allocation_type shrink_in_place    = boost::interprocess_container::shrink_in_place;
-static const allocation_type try_shrink_in_place= boost::interprocess_container::try_shrink_in_place;
-static const allocation_type nothrow_allocation = boost::interprocess_container::nothrow_allocation;
-static const allocation_type zero_memory        = boost::interprocess_container::zero_memory;
+static const allocation_type allocate_new       = boost::container::allocate_new;
+static const allocation_type expand_fwd         = boost::container::expand_fwd;
+static const allocation_type expand_bwd         = boost::container::expand_bwd;
+static const allocation_type shrink_in_place    = boost::container::shrink_in_place;
+static const allocation_type try_shrink_in_place= boost::container::try_shrink_in_place;
+static const allocation_type nothrow_allocation = boost::container::nothrow_allocation;
+static const allocation_type zero_memory        = boost::container::zero_memory;
 
 }  //namespace interprocess {
 }  //namespace boost {

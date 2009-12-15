@@ -690,6 +690,7 @@ private:
             {
             case token_quote_meta_end: return string_type(old_begin, old_end);
             case token_escape: BOOST_XPR_ENSURE_(begin != end, error_escape, "incomplete escape sequence");
+            case token_invalid_quantifier:
             case token_literal: ++begin;
             default:;
             }

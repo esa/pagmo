@@ -2903,7 +2903,7 @@ namespace boost { namespace numeric { namespace ublas {
         void erase_element (size_type i, size_type j) {
             size_type element1 = layout_type::index_M (i, j);
             size_type element2 = layout_type::index_m (i, j);
-            if (element1 + 1 > filled1_)
+            if (element1 + 1 >= filled1_)
                 return;
             vector_subiterator_type itv (index1_data_.begin () + element1);
             subiterator_type it_begin (index2_data_.begin () + zero_based (*itv));

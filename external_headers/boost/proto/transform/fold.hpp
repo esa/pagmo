@@ -54,7 +54,7 @@
                 #if BOOST_VERSION < 103500
                 template<typename Expr, typename State>
                 struct apply
-                  : result<void(Expr, State)>
+                  : result<as_callable(Expr, State)>
                 {};
                 #endif
 

@@ -64,18 +64,18 @@ namespace boost { namespace proto
             /// \return <tt>typename Context::template eval<Expr>()(expr, context)</tt>
             template<typename Expr, typename Context>
             typename proto::result_of::eval<Expr, Context>::type
-            operator ()(Expr &expr, Context &context) const
+            operator ()(Expr &e, Context &ctx) const
             {
-                return typename Context::template eval<Expr>()(expr, context);
+                return typename Context::template eval<Expr>()(e, ctx);
             }
 
             /// \overload
             ///
             template<typename Expr, typename Context>
             typename proto::result_of::eval<Expr, Context>::type
-            operator ()(Expr &expr, Context const &context) const
+            operator ()(Expr &e, Context const &ctx) const
             {
-                return typename Context::template eval<Expr>()(expr, context);
+                return typename Context::template eval<Expr>()(e, ctx);
             }
         };
     }
@@ -88,18 +88,18 @@ namespace boost { namespace proto
     /// \return <tt>typename Context::template eval<Expr>()(expr, context)</tt>
     template<typename Expr, typename Context>
     typename proto::result_of::eval<Expr, Context>::type
-    eval(Expr &expr, Context &context)
+    eval(Expr &e, Context &ctx)
     {
-        return typename Context::template eval<Expr>()(expr, context);
+        return typename Context::template eval<Expr>()(e, ctx);
     }
 
     /// \overload
     ///
     template<typename Expr, typename Context>
     typename proto::result_of::eval<Expr, Context>::type
-    eval(Expr &expr, Context const &context)
+    eval(Expr &e, Context const &ctx)
     {
-        return typename Context::template eval<Expr>()(expr, context);
+        return typename Context::template eval<Expr>()(e, ctx);
     }
 }}
 

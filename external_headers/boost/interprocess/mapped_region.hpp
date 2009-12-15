@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -31,7 +31,9 @@
 #    include <unistd.h>
 #    include <sys/stat.h>
 #    include <sys/types.h>
-#    include <sys/shm.h>
+#    if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS)
+#      include <sys/shm.h>      //System V shared memory...
+#    endif
 #    include <cassert>
 #  else
 #    error Unknown platform
@@ -57,12 +59,10 @@ class mapped_region
 {
    /// @cond
    //Non-copyable
-   mapped_region(mapped_region &);
-   mapped_region &operator=(mapped_region &);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(mapped_region)
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(mapped_region)
 
    //!Creates a mapping region of the mapped memory "mapping", starting in
    //!offset "offset", and the mapping's size will be "size". The mapping 
@@ -247,12 +247,9 @@ inline mapped_region::mapped_region
             error_info err(winapi::get_last_error());
             throw interprocess_exception(err);
          }
-         #ifdef max
-         #undef max
-         #endif
 
          if(static_cast<unsigned __int64>(total_size) > 
-            std::numeric_limits<std::size_t>::max()){
+            (std::numeric_limits<std::size_t>::max)()){
             error_info err(size_error);
             throw interprocess_exception(err);
          }
@@ -400,6 +397,8 @@ inline mapped_region::mapped_region
 {
    mapping_handle_t map_hnd = mapping.get_mapping_handle();
 
+   //Some systems dont' support XSI shared memory
+   #ifdef BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
    if(map_hnd.is_xsi){
       //Get the size
       ::shmid_ds xsi_ds;
@@ -438,29 +437,23 @@ inline mapped_region::mapped_region
       m_mode   = mode;
       m_extra_offset = 0;
       m_is_xsi = true;
-
       return;
    }
-
+   #endif   //ifdef BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
    if(size == 0){
-      offset_t filesize = lseek
-         (map_hnd.handle, offset, SEEK_END);
-      if(filesize == -1 ){
+      struct ::stat buf;
+      if(0 != fstat(map_hnd.handle, &buf)){
          error_info err(system_error_code());
          throw interprocess_exception(err);
       }
-      if(offset >= filesize){
+      std::size_t filesize = (std::size_t)buf.st_size;
+      if((std::size_t)offset >= filesize){
          error_info err(size_error);
          throw interprocess_exception(err);
       }
 
       filesize -= offset;
-      size = (size_t)filesize;
-
-      if((offset_t)size != filesize){
-         error_info err(size_error);
-         throw interprocess_exception(err);
-      }
+      size = filesize;
    }
 
    //Create new mapping
@@ -551,12 +544,14 @@ inline bool mapped_region::flush(std::size_t mapping_offset, std::size_t numbyte
 inline void mapped_region::priv_close()
 {
    if(m_base != MAP_FAILED){
+      #ifdef BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
       if(m_is_xsi){
          int ret = ::shmdt(m_base);
          assert(ret == 0);
          (void)ret;
          return;
       }
+      #endif //#ifdef BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS
       munmap(static_cast<char*>(m_base) - m_extra_offset, m_size + m_extra_offset);
       m_base = MAP_FAILED;
    }

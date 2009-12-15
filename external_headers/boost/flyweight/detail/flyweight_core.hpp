@@ -1,4 +1,4 @@
-/* Copyright 2006-2008 Joaquin M Lopez Munoz.
+/* Copyright 2006-2009 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -16,7 +16,6 @@
 #include <boost/config.hpp> /* keep it first to prevent nasty warns in MSVC */
 #include <boost/detail/no_exceptions_support.hpp>
 #include <boost/detail/workaround.hpp>
-#include <boost/flyweight/detail/handle_factory_adaptor.hpp>
 #include <boost/mpl/apply.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
 
@@ -79,34 +78,31 @@ template<
 class flyweight_core
 {
 public:
-  typedef typename ValuePolicy::key_type       key_type;
-  typedef typename ValuePolicy::value_type     value_type;
-  typedef typename ValuePolicy::rep_type       rep_type;
+  typedef typename ValuePolicy::key_type     key_type;
+  typedef typename ValuePolicy::value_type   value_type;
+  typedef typename ValuePolicy::rep_type     rep_type;
   typedef typename mpl::apply2<
     typename TrackingPolicy::entry_type,
     rep_type,
     key_type
-  >::type                                      entry_type;
+  >::type                                    entry_type;
   typedef typename mpl::apply2<
     FactorySpecifier,
     entry_type,
     key_type
-  >::type                                      base_factory_type;
+  >::type                                    factory_type;
+  typedef typename factory_type::handle_type base_handle_type;
   typedef typename mpl::apply2<
     typename TrackingPolicy::handle_type,
-    typename base_factory_type::handle_type,
+    base_handle_type,
     flyweight_core_tracking_helper<
       ValuePolicy,Tag,TrackingPolicy,
       FactorySpecifier,LockingPolicy,
       HolderSpecifier
     >
-  >::type                                      handle_type;
-  typedef handle_factory_adaptor<
-    base_factory_type,
-    handle_type,entry_type
-  >                                            factory_type;
-  typedef typename LockingPolicy::mutex_type   mutex_type;
-  typedef typename LockingPolicy::lock_type    lock_type;
+  >::type                                    handle_type;
+  typedef typename LockingPolicy::mutex_type mutex_type;
+  typedef typename LockingPolicy::lock_type  lock_type;
 
   static bool init()
   {
@@ -132,7 +128,7 @@ public:
   static handle_type insert(const value_type& x){return insert_value(x);}
   static handle_type insert(value_type& x){return insert_value(x);}
 
-  static const entry_type& entry(const handle_type& h)
+  static const entry_type& entry(const base_handle_type& h)
   {
     return factory().entry(h);
   }
@@ -158,7 +154,7 @@ public:
   }
 
 private:
-  struct                        holder_arg
+  struct                              holder_arg
   {
     factory_type factory;
     mutex_type   mutex;
@@ -166,14 +162,14 @@ private:
   typedef typename mpl::apply1<
     HolderSpecifier,
     holder_arg
-  >::type                       holder_type;
+  >::type                             holder_type;
 
   static handle_type insert_rep(const rep_type& x)
   {
     init();
-    entry_type  e(x);
-    lock_type   lock(mutex());
-    handle_type h(factory().insert(e));
+    entry_type       e(x);
+    lock_type        lock(mutex());
+    base_handle_type h(factory().insert(e));
     BOOST_TRY{
       ValuePolicy::construct_value(
         static_cast<const rep_type&>(entry(h)));
@@ -183,15 +179,15 @@ private:
       BOOST_RETHROW;
     }
     BOOST_CATCH_END
-    return h;
+    return static_cast<handle_type>(h);
   }
 
   static handle_type insert_value(const value_type& x)
   {
     init();
-    entry_type  e=entry_type(rep_type(x));
-    lock_type   lock(mutex());
-    handle_type h(factory().insert(e));
+    entry_type       e((rep_type(x)));
+    lock_type        lock(mutex());
+    base_handle_type h(factory().insert(e));
     BOOST_TRY{
       ValuePolicy::copy_value(
         static_cast<const rep_type&>(entry(h)));
@@ -201,7 +197,7 @@ private:
       BOOST_RETHROW;
     }
     BOOST_CATCH_END
-    return h;
+    return static_cast<handle_type>(h);
   }
 
   static bool          static_initializer;

@@ -19,6 +19,7 @@
 #else
 // Boost Type Traits:
 #include <boost/type_traits.hpp>
+#include <boost/type_traits/is_base_of_tr1.hpp>
 
 namespace std { namespace tr1{
 
@@ -63,7 +64,7 @@ namespace std { namespace tr1{
    using ::boost::rank;
    using ::boost::extent;
    using ::boost::is_same;
-   using ::boost::is_base_of;
+   using ::boost::tr1::is_base_of;
    using ::boost::is_convertible;
    using ::boost::remove_const;
    using ::boost::remove_volatile;

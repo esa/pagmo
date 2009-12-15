@@ -11,7 +11,12 @@
 
 // This file is included iteratively, and should not be protected from multiple inclusion
 
+#ifdef BOOST_NO_VARIADIC_TEMPLATES
 #define BOOST_SIGNALS2_NUM_ARGS BOOST_PP_ITERATION()
+#else
+#define BOOST_SIGNALS2_NUM_ARGS 1
+#endif
+
 
 namespace boost
 {
@@ -22,7 +27,12 @@ namespace boost
     // slot class template.
     template<BOOST_SIGNALS2_SIGNATURE_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS),
       typename SlotFunction = BOOST_SIGNALS2_FUNCTION_N_DECL(BOOST_SIGNALS2_NUM_ARGS)>
-    class BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS): public slot_base
+      class BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS);
+
+    template<BOOST_SIGNALS2_SLOT_TEMPLATE_SPECIALIZATION_DECL(BOOST_SIGNALS2_NUM_ARGS)>
+      class BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) BOOST_SIGNALS2_SLOT_TEMPLATE_SPECIALIZATION
+      : public slot_base, public detail::BOOST_SIGNALS2_STD_FUNCTIONAL_BASE(R)
+
     {
     public:
       template<BOOST_SIGNALS2_PREFIXED_SIGNATURE_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS, Other), typename OtherSlotFunction>
@@ -30,6 +40,10 @@ namespace boost
 
       typedef SlotFunction slot_function_type;
       typedef R result_type;
+      typedef typename mpl::identity<BOOST_SIGNALS2_SIGNATURE_FUNCTION_TYPE(BOOST_SIGNALS2_NUM_ARGS)>::type signature_type;
+
+#ifdef BOOST_NO_VARIADIC_TEMPLATES
+
 // typedef Tn argn_type;
 #define BOOST_SIGNALS2_MISC_STATEMENT(z, n, data) \
     typedef BOOST_PP_CAT(T, BOOST_PP_INC(n)) BOOST_PP_CAT(BOOST_PP_CAT(arg, BOOST_PP_INC(n)), _type);
@@ -41,7 +55,25 @@ namespace boost
       typedef arg1_type first_argument_type;
       typedef arg2_type second_argument_type;
 #endif
+
+      template<unsigned n> class arg : public
+        detail::BOOST_SIGNALS2_PREPROCESSED_ARG_N_TYPE_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
+        <n BOOST_SIGNALS2_PP_COMMA_IF(BOOST_SIGNALS2_NUM_ARGS)
+        BOOST_SIGNALS2_ARGS_TEMPLATE_INSTANTIATION(BOOST_SIGNALS2_NUM_ARGS)>
+      {};
+
       BOOST_STATIC_CONSTANT(int, arity = BOOST_SIGNALS2_NUM_ARGS);
+
+#else // BOOST_NO_VARIADIC_TEMPLATES
+
+      template<unsigned n> class arg
+      {
+      public:
+        typedef typename detail::variadic_arg_type<n, Args...>::type type;
+      };
+      BOOST_STATIC_CONSTANT(int, arity = sizeof...(Args));
+
+#endif // BOOST_NO_VARIADIC_TEMPLATES
 
       template<typename F>
       BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const F& f)
@@ -49,33 +81,21 @@ namespace boost
         init_slot_function(f);
       }
       // copy constructors
+#ifdef BOOST_NO_VARIADIC_TEMPLATES
       template<BOOST_SIGNALS2_PREFIXED_SIGNATURE_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS, Other), typename OtherSlotFunction>
       BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
         <BOOST_SIGNALS2_PREFIXED_SIGNATURE_TEMPLATE_INSTANTIATION(BOOST_SIGNALS2_NUM_ARGS, Other), OtherSlotFunction> &other_slot):
         slot_base(other_slot), _slot_function(other_slot._slot_function)
       {
       }
+#endif
       template<typename Signature, typename OtherSlotFunction>
       BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const slot<Signature, OtherSlotFunction> &other_slot):
         slot_base(other_slot), _slot_function(other_slot._slot_function)
       {
       }
       // bind syntactic sugar
-// const ArgTypeN & argN
-#define BOOST_SIGNALS2_SLOT_BINDING_ARG_DECL(z, n, data) \
-    const BOOST_PP_CAT(ArgType, n) & BOOST_PP_CAT(arg, n)
-// template<typename Func, typename ArgType0, typename ArgType1, ..., typename ArgTypen-1> slotN(...
-#define BOOST_SIGNALS2_SLOT_BINDING_CONSTRUCTOR(z, n, data) \
-      template<typename Func, BOOST_PP_ENUM_PARAMS(n, typename ArgType)> \
-      BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const Func &func,  BOOST_PP_ENUM(n, BOOST_SIGNALS2_SLOT_BINDING_ARG_DECL, ~)) \
-      { \
-        init_slot_function(bind(func, BOOST_PP_ENUM_PARAMS(n, arg))); \
-      }
-#define BOOST_SIGNALS2_SLOT_MAX_BINDING_ARGS 10
-      BOOST_PP_REPEAT_FROM_TO(1, BOOST_SIGNALS2_SLOT_MAX_BINDING_ARGS, BOOST_SIGNALS2_SLOT_BINDING_CONSTRUCTOR, ~)
-#undef BOOST_SIGNALS2_SLOT_MAX_BINDING_ARGS
-#undef BOOST_SIGNALS2_SLOT_BINDING_ARG_DECL
-#undef BOOST_SIGNALS2_SLOT_BINDING_CONSTRUCTOR
+      BOOST_SIGNALS2_SLOT_N_BINDING_CONSTRUCTORS
       // invocation
       R operator()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS))
       {
@@ -122,6 +142,7 @@ namespace boost
       SlotFunction _slot_function;
     };
 
+#ifdef BOOST_NO_VARIADIC_TEMPLATES
     namespace detail
     {
       template<unsigned arity, typename Signature, typename SlotFunction>
@@ -136,6 +157,7 @@ namespace boost
           SlotFunction> type;
       };
     }
+#endif
   } // end namespace signals2
 } // end namespace boost
 

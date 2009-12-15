@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_real.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: uniform_real.hpp 56814 2009-10-14 04:54:01Z steven_watanabe $
  *
  * Revision history
  *  2001-04-08  added min<max assertion (N. Becker)
@@ -52,9 +52,11 @@ public:
 
   template<class Engine>
   result_type operator()(Engine& eng) {
-    return static_cast<result_type>(eng() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION())
-           / static_cast<result_type>(eng.max BOOST_PREVENT_MACRO_SUBSTITUTION() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION())
-           * (_max - _min) + _min;
+    result_type numerator = static_cast<result_type>(eng() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION());
+    result_type divisor = static_cast<result_type>(eng.max BOOST_PREVENT_MACRO_SUBSTITUTION() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION());
+    assert(divisor > 0);
+    assert(numerator >= 0 && numerator <= divisor);
+    return numerator / divisor * (_max - _min) + _min;
   }
 
 #ifndef BOOST_RANDOM_NO_STREAM_OPERATORS

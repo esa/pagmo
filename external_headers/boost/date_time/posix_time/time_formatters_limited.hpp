@@ -6,15 +6,16 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2009-09-28 14:10:02 -0400 (Mon, 28 Sep 2009) $
  */
 
-#include "boost/date_time/gregorian/gregorian.hpp"
-#include "boost/date_time/compiler_config.hpp"
-#include "boost/date_time/iso_format.hpp"
-#include "boost/date_time/date_format_simple.hpp"
-#include "boost/date_time/posix_time/posix_time_types.hpp"
-#include "boost/date_time/time_formatting_streams.hpp"
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/iso_format.hpp>
+#include <boost/date_time/date_format_simple.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/date_time/time_formatting_streams.hpp>
+#include <boost/date_time/time_resolution_traits.hpp> // absolute_value
  
 namespace boost {
 

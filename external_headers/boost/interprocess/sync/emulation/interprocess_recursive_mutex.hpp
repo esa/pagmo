@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -112,6 +112,7 @@ inline void interprocess_recursive_mutex::unlock()
    detail::systemwide_thread_id_copy(m_nOwner, old_id);
    const handle_t thr_id(detail::get_current_systemwide_thread_id());
    (void)old_id;
+   (void)thr_id;
    assert(detail::equal_systemwide_thread_id(thr_id, old_id));
    --m_nLockCount;
    if(!m_nLockCount){

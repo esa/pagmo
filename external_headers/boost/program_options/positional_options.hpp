@@ -41,7 +41,7 @@ namespace boost { namespace program_options {
         add(const char* name, int max_count);
 
         /** Returns the maximum number of positional options that can
-            be present. Can return numeric_limits<unsigned>::max() to
+            be present. Can return (numeric_limits<unsigned>::max)() to
             indicate unlimited number. */
         unsigned max_total_count() const;
 

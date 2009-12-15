@@ -87,6 +87,10 @@
 namespace boost {
 namespace serialization{
 
+struct null_deleter {
+    void operator()(void const *) const {}
+};
+
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // serialization for shared_ptr
 
@@ -121,7 +125,7 @@ inline void load(
         //    boost_132::detail::sp_counted_base_impl<T *, boost::checked_deleter<T> > *
         //>(NULL));
         ar.register_type(static_cast<
-            boost_132::detail::sp_counted_base_impl<T *, boost::archive::detail::null_deleter > *
+            boost_132::detail::sp_counted_base_impl<T *, null_deleter > *
         >(NULL));
         boost_132::shared_ptr<T> sp;
         ar >> boost::serialization::make_nvp("px", sp.px);

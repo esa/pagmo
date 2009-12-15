@@ -240,6 +240,7 @@ protected:
    bool                          m_has_backrefs;       // true if there are actually any backrefs
    unsigned                      m_backrefs;           // bitmask of permitted backrefs
    boost::uintmax_t              m_bad_repeats;        // bitmask of repeats we can't deduce a startmap for;
+   bool                          m_has_recursions;     // set when we have recursive expresisons to fixup
    typename traits::char_class_type m_word_mask;       // mask used to determine if a character is a word character
    typename traits::char_class_type m_mask_space;      // mask used to determine if a character is a word character
    typename traits::char_class_type m_lower_mask;       // mask used to determine if a character is a lowercase character
@@ -250,6 +251,7 @@ private:
    basic_regex_creator(const basic_regex_creator&);
 
    void fixup_pointers(re_syntax_base* state);
+   void fixup_recursions(re_syntax_base* state);
    void create_startmaps(re_syntax_base* state);
    int calculate_backstep(re_syntax_base* state);
    void create_startmap(re_syntax_base* state, unsigned char* l_map, unsigned int* pnull, unsigned char mask);
@@ -263,7 +265,7 @@ private:
 
 template <class charT, class traits>
 basic_regex_creator<charT, traits>::basic_regex_creator(regex_data<charT, traits>* data)
-   : m_pdata(data), m_traits(*(data->m_ptraits)), m_last_state(0), m_repeater_id(0), m_has_backrefs(false), m_backrefs(0)
+   : m_pdata(data), m_traits(*(data->m_ptraits)), m_last_state(0), m_repeater_id(0), m_has_backrefs(false), m_backrefs(0), m_has_recursions(false)
 {
    m_pdata->m_data.clear();
    m_pdata->m_status = ::boost::regex_constants::error_ok;
@@ -692,6 +694,13 @@ void basic_regex_creator<charT, traits>::finalize(const charT* p1, const charT* 
    m_pdata->m_first_state = static_cast<re_syntax_base*>(m_pdata->m_data.data());
    // fixup pointers in the machine:
    fixup_pointers(m_pdata->m_first_state);
+   if(m_has_recursions)
+   {
+      m_pdata->m_has_recursions = true;
+      fixup_recursions(m_pdata->m_first_state);
+   }
+   else
+      m_pdata->m_has_recursions = false;
    // create nested startmaps:
    create_startmaps(m_pdata->m_first_state);
    // create main startmap:
@@ -713,6 +722,13 @@ void basic_regex_creator<charT, traits>::fixup_pointers(re_syntax_base* state)
    {
       switch(state->type)
       {
+      case syntax_element_recurse:
+         m_has_recursions = true;
+         if(state->next.i)
+            state->next.p = getaddress(state->next.i, state);
+         else
+            state->next.p = 0;
+         break;
       case syntax_element_rep:
       case syntax_element_dot_rep:
       case syntax_element_char_rep:
@@ -733,6 +749,93 @@ void basic_regex_creator<charT, traits>::fixup_pointers(re_syntax_base* state)
             state->next.p = getaddress(state->next.i, state);
          else
             state->next.p = 0;
+      }
+      state = state->next.p;
+   }
+}
+
+template <class charT, class traits>
+void basic_regex_creator<charT, traits>::fixup_recursions(re_syntax_base* state)
+{
+   re_syntax_base* base = state;
+   while(state)
+   {
+      switch(state->type)
+      {
+      case syntax_element_assert_backref:
+         {
+            // just check that the index is valid:
+            int id = static_cast<const re_brace*>(state)->index;
+            if(id < 0)
+            {
+               id = -id-1;
+               if(id >= 10000)
+               {
+                  id = m_pdata->get_id(id);
+                  if(id <= 0)
+                  {
+                     // check of sub-expression that doesn't exist:
+                     if(0 == this->m_pdata->m_status) // update the error code if not already set
+                        this->m_pdata->m_status = boost::regex_constants::error_bad_pattern;
+                     //
+                     // clear the expression, we should be empty:
+                     //
+                     this->m_pdata->m_expression = 0;
+                     this->m_pdata->m_expression_len = 0;
+                     //
+                     // and throw if required:
+                     //
+                     if(0 == (this->flags() & regex_constants::no_except))
+                     {
+                        std::string message = this->m_pdata->m_ptraits->error_string(boost::regex_constants::error_bad_pattern);
+                        boost::regex_error e(message, boost::regex_constants::error_bad_pattern, 0);
+                        e.raise();
+                     }
+                  }
+               }
+            }
+         }
+         break;
+      case syntax_element_recurse:
+         {
+            bool ok = false;
+            re_syntax_base* p = base;
+            int id = static_cast<re_jump*>(state)->alt.i;
+            if(id > 10000)
+               id = m_pdata->get_id(id);
+            while(p)
+            {
+               if((p->type == syntax_element_startmark) && (static_cast<re_brace*>(p)->index == id))
+               {
+                  static_cast<re_jump*>(state)->alt.p = p;
+                  ok = true;
+                  break;
+               }
+               p = p->next.p;
+            }
+            if(!ok)
+            {
+               // recursion to sub-expression that doesn't exist:
+               if(0 == this->m_pdata->m_status) // update the error code if not already set
+                  this->m_pdata->m_status = boost::regex_constants::error_bad_pattern;
+               //
+               // clear the expression, we should be empty:
+               //
+               this->m_pdata->m_expression = 0;
+               this->m_pdata->m_expression_len = 0;
+               //
+               // and throw if required:
+               //
+               if(0 == (this->flags() & regex_constants::no_except))
+               {
+                  std::string message = this->m_pdata->m_ptraits->error_string(boost::regex_constants::error_bad_pattern);
+                  boost::regex_error e(message, boost::regex_constants::error_bad_pattern, 0);
+                  e.raise();
+               }
+            }
+         }
+      default:
+         break;
       }
       state = state->next.p;
    }
@@ -953,6 +1056,7 @@ void basic_regex_creator<charT, traits>::create_startmap(re_syntax_base* state, 
             create_startmap(state->next.p, 0, pnull, mask);
          return;
       }
+      case syntax_element_recurse:
       case syntax_element_backref:
          // can be null, and any character can match:
          if(pnull)

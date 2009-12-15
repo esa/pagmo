@@ -531,6 +531,66 @@ class avltree_algorithms
    }
 
    //! <b>Requires</b>: "header" must be the header node of a tree.
+   //!   "pos" must be a valid iterator or header (end) node.
+   //!   "pos" must be an iterator pointing to the successor to "new_node"
+   //!   once inserted according to the order of already inserted nodes. This function does not
+   //!   check "pos" and this precondition must be guaranteed by the caller.
+   //!   
+   //! <b>Effects</b>: Inserts new_node into the tree before "pos".
+   //!
+   //! <b>Complexity</b>: Constant-time.
+   //! 
+   //! <b>Throws</b>: Nothing.
+   //! 
+   //! <b>Note</b>: If "pos" is not the successor of the newly inserted "new_node"
+   //! tree invariants might be broken.
+   static node_ptr insert_before
+      (node_ptr header, node_ptr pos, node_ptr new_node)
+   {
+      tree_algorithms::insert_before(header, pos, new_node);
+      rebalance_after_insertion(header, new_node);
+      return new_node;
+   }
+
+   //! <b>Requires</b>: "header" must be the header node of a tree.
+   //!   "new_node" must be, according to the used ordering no less than the
+   //!   greatest inserted key.
+   //!   
+   //! <b>Effects</b>: Inserts new_node into the tree before "pos".
+   //!
+   //! <b>Complexity</b>: Constant-time.
+   //! 
+   //! <b>Throws</b>: Nothing.
+   //! 
+   //! <b>Note</b>: If "new_node" is less than the greatest inserted key
+   //! tree invariants are broken. This function is slightly faster than
+   //! using "insert_before".
+   static void push_back(node_ptr header, node_ptr new_node)
+   {
+      tree_algorithms::push_back(header, new_node);
+      rebalance_after_insertion(header, new_node);
+   }
+
+   //! <b>Requires</b>: "header" must be the header node of a tree.
+   //!   "new_node" must be, according to the used ordering, no greater than the
+   //!   lowest inserted key.
+   //!   
+   //! <b>Effects</b>: Inserts new_node into the tree before "pos".
+   //!
+   //! <b>Complexity</b>: Constant-time.
+   //! 
+   //! <b>Throws</b>: Nothing.
+   //! 
+   //! <b>Note</b>: If "new_node" is greater than the lowest inserted key
+   //! tree invariants are broken. This function is slightly faster than
+   //! using "insert_before".
+   static void push_front(node_ptr header, node_ptr new_node)
+   {
+      tree_algorithms::push_front(header, new_node);
+      rebalance_after_insertion(header, new_node);
+   }
+
+   //! <b>Requires</b>: "header" must be the header node of a tree.
    //!   KeyNodePtrCompare is a function object that induces a strict weak
    //!   ordering compatible with the strict weak ordering used to create the
    //!   the tree. NodePtrCompare compares KeyType with a node_ptr.
@@ -664,8 +724,7 @@ class avltree_algorithms
 
    static void rebalance_after_erasure(node_ptr header, node_ptr x, node_ptr x_parent)
    {
-      node_ptr root = NodeTraits::get_parent(header);
-      while (x != root) {
+      for (node_ptr root = NodeTraits::get_parent(header); x != root; root = NodeTraits::get_parent(header)) {
          const balance x_parent_balance = NodeTraits::get_balance(x_parent);
          if(x_parent_balance == NodeTraits::zero()){
             NodeTraits::set_balance(x_parent, 
@@ -686,16 +745,14 @@ class avltree_algorithms
                if (NodeTraits::get_balance(a) == NodeTraits::positive()) {
                   // a MUST have a right child
                   BOOST_INTRUSIVE_INVARIANT_ASSERT(NodeTraits::get_right(a));
-                  rotate_left_right(x_parent, root);
-                  
+                  rotate_left_right(x_parent, header);
                   x = NodeTraits::get_parent(x_parent);
                   x_parent = NodeTraits::get_parent(x);
                }
                else {
-                  rotate_right(x_parent, root);
+                  rotate_right(x_parent, header);
                   x = NodeTraits::get_parent(x_parent);
                   x_parent = NodeTraits::get_parent(x);
-
                }
 
                // if changed from negative to NodeTraits::positive(), no need to check above
@@ -718,15 +775,15 @@ class avltree_algorithms
                if (NodeTraits::get_balance(a) == NodeTraits::negative()) {
                   // a MUST have then a left child
                   BOOST_INTRUSIVE_INVARIANT_ASSERT(NodeTraits::get_left(a));
-                  rotate_right_left(x_parent, root);
+                  rotate_right_left(x_parent, header);
 
                   x = NodeTraits::get_parent(x_parent);
                   x_parent = NodeTraits::get_parent(x);
                }
                else {
-                     rotate_left(x_parent, root);
-                     x = NodeTraits::get_parent(x_parent);
-                     x_parent = NodeTraits::get_parent(x);
+                  rotate_left(x_parent, header);
+                  x = NodeTraits::get_parent(x_parent);
+                  x_parent = NodeTraits::get_parent(x);
                }
                // if changed from NodeTraits::positive() to negative, no need to check above
                if (NodeTraits::get_balance(x) == NodeTraits::negative()){
@@ -738,17 +795,14 @@ class avltree_algorithms
             BOOST_INTRUSIVE_INVARIANT_ASSERT(false);  // never reached
          }
       }
-      NodeTraits::set_parent(header, root);
    }
-
 
    static void rebalance_after_insertion(node_ptr header, node_ptr x)
    {
-      node_ptr root = NodeTraits::get_parent(header);
       NodeTraits::set_balance(x, NodeTraits::zero());
 
       // Rebalance.
-      while (x != root){
+      for(node_ptr root = NodeTraits::get_parent(header); x != root; root = NodeTraits::get_parent(header)){
          const balance x_parent_balance = NodeTraits::get_balance(NodeTraits::get_parent(x));
 
          if(x_parent_balance == NodeTraits::zero()){
@@ -765,9 +819,9 @@ class avltree_algorithms
                NodeTraits::set_balance(NodeTraits::get_parent(x), NodeTraits::zero());
             else{        // x is a right child, needs rebalancing
                if (NodeTraits::get_balance(x) == NodeTraits::negative())
-                  rotate_right_left(NodeTraits::get_parent(x), root);
+                  rotate_right_left(NodeTraits::get_parent(x), header);
                else
-                  rotate_left(NodeTraits::get_parent(x), root);
+                  rotate_left(NodeTraits::get_parent(x), header);
             }
             break;
          }
@@ -775,9 +829,9 @@ class avltree_algorithms
             // if x is a left child, needs rebalancing
             if (x == NodeTraits::get_left(NodeTraits::get_parent(x))) {
                if (NodeTraits::get_balance(x) == NodeTraits::positive())
-                  rotate_left_right(NodeTraits::get_parent(x), root);
+                  rotate_left_right(NodeTraits::get_parent(x), header);
                else
-                  rotate_right(NodeTraits::get_parent(x), root);
+                  rotate_right(NodeTraits::get_parent(x), header);
             }
             else
                NodeTraits::set_balance(NodeTraits::get_parent(x), NodeTraits::zero());
@@ -787,10 +841,32 @@ class avltree_algorithms
             BOOST_INTRUSIVE_INVARIANT_ASSERT(false);  // never reached
          }
       }
-      NodeTraits::set_parent(header, root);
    }
 
-   static void rotate_left_right(node_ptr a, node_ptr &root)
+   static void left_right_balancing(node_ptr a, node_ptr b, node_ptr c)
+   {
+      // balancing...
+      const balance c_balance = NodeTraits::get_balance(c);
+      const balance zero_balance = NodeTraits::zero();
+      NodeTraits::set_balance(c, zero_balance);
+      if(c_balance == NodeTraits::negative()){
+         NodeTraits::set_balance(a, NodeTraits::positive());
+         NodeTraits::set_balance(b, zero_balance);
+      }
+      else if(c_balance == zero_balance){
+         NodeTraits::set_balance(a, zero_balance);
+         NodeTraits::set_balance(b, zero_balance);
+      }
+      else if(c_balance == NodeTraits::positive()){
+         NodeTraits::set_balance(a, zero_balance);
+         NodeTraits::set_balance(b, NodeTraits::negative());
+      }
+      else{
+         BOOST_INTRUSIVE_INVARIANT_ASSERT(false); // never reached
+      }
+   }
+
+   static void rotate_left_right(const node_ptr a, node_ptr hdr)
    {
       //             |                               |         //
       //             a(-2)                           c         //
@@ -802,52 +878,12 @@ class avltree_algorithms
       //           / \                                         //
       //          e   f                                        //
       node_ptr b = NodeTraits::get_left(a), c = NodeTraits::get_right(b);
-
-      // switch
-      NodeTraits::set_left(a, NodeTraits::get_right(c));
-      NodeTraits::set_right(b, NodeTraits::get_left(c));
-
-      NodeTraits::set_right(c, a);
-      NodeTraits::set_left(c, b);
-
-      // set the parents
-      NodeTraits::set_parent(c, NodeTraits::get_parent(a));
-      NodeTraits::set_parent(a, c);
-      NodeTraits::set_parent(b, c);
-
-      if (NodeTraits::get_left(a))   // do we have f?
-         NodeTraits::set_parent(NodeTraits::get_left(a), a);
-      if (NodeTraits::get_right(b))    // do we have e?
-         NodeTraits::set_parent(NodeTraits::get_right(b), b);
-
-      if (a==root)   root = c;
-      else    // a had a parent, his child is now c
-         if (a == NodeTraits::get_left(NodeTraits::get_parent(c)))
-            NodeTraits::set_left(NodeTraits::get_parent(c), c);
-         else
-            NodeTraits::set_right(NodeTraits::get_parent(c), c);
-
-      // balancing...
-      const balance c_balance = NodeTraits::get_balance(c);
-      if(c_balance == NodeTraits::negative()){
-         NodeTraits::set_balance(a, NodeTraits::positive());
-         NodeTraits::set_balance(b, NodeTraits::zero());
-      }
-      else if(c_balance == NodeTraits::zero()){
-         NodeTraits::set_balance(a, NodeTraits::zero());
-         NodeTraits::set_balance(b, NodeTraits::zero());
-      }
-      else if(c_balance == NodeTraits::positive()){
-         NodeTraits::set_balance(a, NodeTraits::zero());
-         NodeTraits::set_balance(b, NodeTraits::negative());
-      }
-      else{
-         BOOST_INTRUSIVE_INVARIANT_ASSERT(false); // never reached
-      }
-      NodeTraits::set_balance(c, NodeTraits::zero());
+      tree_algorithms::rotate_left(b, hdr);
+      tree_algorithms::rotate_right(a, hdr);
+      left_right_balancing(a, b, c);
    }
 
-   static void rotate_right_left(node_ptr a, node_ptr &root)
+   static void rotate_right_left(const node_ptr a, node_ptr hdr)
    {
       //              |                               |           //
       //              a(pos)                          c           //
@@ -859,81 +895,15 @@ class avltree_algorithms
       //             / \                                          //
       //            e   f                                         //
       node_ptr b = NodeTraits::get_right(a), c = NodeTraits::get_left(b);
-
-      // switch
-      NodeTraits::set_right(a, NodeTraits::get_left(c));
-      NodeTraits::set_left(b, NodeTraits::get_right(c));
-
-      NodeTraits::set_left(c, a);
-      NodeTraits::set_right(c, b);
-
-      // set the parents
-      NodeTraits::set_parent(c, NodeTraits::get_parent(a));
-      NodeTraits::set_parent(a, c);
-      NodeTraits::set_parent(b, c);
-
-      if (NodeTraits::get_right(a))   // do we have e?
-         NodeTraits::set_parent(NodeTraits::get_right(a), a);
-      if (NodeTraits::get_left(b))    // do we have f?
-         NodeTraits::set_parent(NodeTraits::get_left(b), b);
-
-      if (a==root)   root = c;
-      else    // a had a parent, his child is now c
-         if (a == NodeTraits::get_left(NodeTraits::get_parent(c)))
-            NodeTraits::set_left(NodeTraits::get_parent(c), c);
-         else
-            NodeTraits::set_right(NodeTraits::get_parent(c), c);
-
-      // balancing...
-      const balance c_balance = NodeTraits::get_balance(c);
-      if(c_balance == NodeTraits::negative()){
-         NodeTraits::set_balance(a, NodeTraits::zero());
-         NodeTraits::set_balance(b, NodeTraits::positive());
-      }
-      else if(c_balance == NodeTraits::zero()){
-         NodeTraits::set_balance(a, NodeTraits::zero());
-         NodeTraits::set_balance(b, NodeTraits::zero());
-      }
-      else if(c_balance == NodeTraits::positive()){
-         NodeTraits::set_balance(a, NodeTraits::negative());
-         NodeTraits::set_balance(b, NodeTraits::zero());
-      }
-      else{
-         BOOST_INTRUSIVE_INVARIANT_ASSERT(false);
-      }
-      NodeTraits::set_balance(c, NodeTraits::zero());
+      tree_algorithms::rotate_right(b, hdr);
+      tree_algorithms::rotate_left(a, hdr);
+      left_right_balancing(b, a, c);
    }
 
-   static void rotate_left(node_ptr x, node_ptr & root)
+   static void rotate_left(const node_ptr x, node_ptr hdr)
    {
-      //            |                          |         //
-      //            x(2)                       y(0)      //
-      //           / \          ==>           / \        //
-      //        n[a]  y(1)n+2          n+1(0)x  [c]n+1   //
-      //             / \                    / \          //
-      //          n[b] [c]n+1            n[a] [b]n       //
-      node_ptr y = NodeTraits::get_right(x);
-
-      // switch
-      NodeTraits::set_right(x, NodeTraits::get_left(y));
-      NodeTraits::set_left(y, x);
-
-      // rearrange parents
-      NodeTraits::set_parent(y, NodeTraits::get_parent(x));
-      NodeTraits::set_parent(x, y);
-
-      // do we have [b]?
-      if (NodeTraits::get_right(x))
-         NodeTraits::set_parent(NodeTraits::get_right(x), x);
-
-      if (x == root)
-         root = y;
-      else
-         // need to reparent y
-         if (NodeTraits::get_left(NodeTraits::get_parent(y)) == x)
-            NodeTraits::set_left(NodeTraits::get_parent(y), y);
-         else
-            NodeTraits::set_right(NodeTraits::get_parent(y), y);
+      const node_ptr y = NodeTraits::get_right(x);
+      tree_algorithms::rotate_left(x, hdr);
 
       // reset the balancing factor
       if (NodeTraits::get_balance(y) == NodeTraits::positive()) {
@@ -946,30 +916,10 @@ class avltree_algorithms
       }
    }
 
-   static void rotate_right(node_ptr x, node_ptr &root)
+   static void rotate_right(const node_ptr x, node_ptr hdr)
    {
-      node_ptr y = NodeTraits::get_left(x);
-
-      // switch
-      NodeTraits::set_left(x, NodeTraits::get_right(y));
-      NodeTraits::set_right(y, x);
-
-      // rearrange parents
-      NodeTraits::set_parent(y, NodeTraits::get_parent(x));
-      NodeTraits::set_parent(x, y);
-
-      // do we have [b]?
-      if (NodeTraits::get_left(x))
-         NodeTraits::set_parent(NodeTraits::get_left(x), x);
-
-      if (x == root)
-         root = y;
-      else
-         // need to reparent y
-         if (NodeTraits::get_left(NodeTraits::get_parent(y)) == x)
-            NodeTraits::set_left(NodeTraits::get_parent(y), y);
-         else
-            NodeTraits::set_right(NodeTraits::get_parent(y), y);
+      const node_ptr y = NodeTraits::get_left(x);
+      tree_algorithms::rotate_right(x, hdr);
 
       // reset the balancing factor
       if (NodeTraits::get_balance(y) == NodeTraits::negative()) {

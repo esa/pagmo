@@ -86,7 +86,7 @@ T log1p_imp(T const & x, const Policy& pol, const mpl::int_<0>&)
          function, 0, pol);
 
    result_type a = abs(result_type(x));
-   if(a > result_type(0.5L))
+   if(a > result_type(0.5f))
       return log(1 + result_type(x));
    // Note that without numeric_limits specialisation support, 
    // epsilon just returns zero, and our "optimisation" will always fail:
@@ -95,10 +95,10 @@ T log1p_imp(T const & x, const Policy& pol, const mpl::int_<0>&)
    detail::log1p_series<result_type> s(x);
    boost::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582)) && !BOOST_WORKAROUND(__EDG_VERSION__, <= 245)
-   result_type result = tools::sum_series(s, policies::digits<result_type, Policy>(), max_iter);
+   result_type result = tools::sum_series(s, policies::get_epsilon<result_type, Policy>(), max_iter);
 #else
    result_type zero = 0;
-   result_type result = tools::sum_series(s, policies::digits<result_type, Policy>(), max_iter, zero);
+   result_type result = tools::sum_series(s, policies::get_epsilon<result_type, Policy>(), max_iter, zero);
 #endif
    policies::check_series_iterations(function, max_iter, pol);
    return result;
@@ -384,7 +384,7 @@ inline double log1p(double x, const Policy& pol)
    if(u == 1.0) 
       return x; 
    else
-      return log(u)*(x/(u-1.0));
+      return ::log(u)*(x/(u-1.0));
 }
 template <class Policy>
 inline float log1p(float x, const Policy& pol)
@@ -404,7 +404,7 @@ inline long double log1p(long double x, const Policy& pol)
    if(u == 1.0) 
       return x; 
    else
-      return log(u)*(x/(u-1.0));
+      return ::logl(u)*(x/(u-1.0));
 }
 #endif
 
@@ -432,7 +432,7 @@ inline typename tools::promote_args<T>::type
          function, 0, pol);
 
    result_type a = abs(result_type(x));
-   if(a > result_type(0.95L))
+   if(a > result_type(0.95f))
       return log(1 + result_type(x)) - result_type(x);
    // Note that without numeric_limits specialisation support, 
    // epsilon just returns zero, and our "optimisation" will always fail:
@@ -443,9 +443,9 @@ inline typename tools::promote_args<T>::type
    boost::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
 #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
    T zero = 0;
-   T result = boost::math::tools::sum_series(s, policies::digits<T, Policy>(), max_iter, zero);
+   T result = boost::math::tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter, zero);
 #else
-   T result = boost::math::tools::sum_series(s, policies::digits<T, Policy>(), max_iter);
+   T result = boost::math::tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter);
 #endif
    policies::check_series_iterations(function, max_iter, pol);
    return result;

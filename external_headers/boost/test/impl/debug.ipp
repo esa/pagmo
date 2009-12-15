@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : debug interfaces implementation
 // ***************************************************************************
@@ -834,8 +834,8 @@ attach_debugger( bool break_or_continue )
     bool created = !!::CreateProcessA(
         NULL,           // pointer to name of executable module; NULL - use the one in command line
         cmd_line,       // pointer to command line string
-        NULL,           // pointer to process security attributes; NULL - debugger's handle couldn't be inherited
-        NULL,           // pointer to thread security attributes; NULL - debugger's handle couldn't be inherited
+        NULL,           // pointer to process security attributes; NULL - debugger's handle can't be inherited
+        NULL,           // pointer to thread security attributes; NULL - debugger's handle can't be inherited
         true,           // debugger inherit opened handles
         0,              // priority flags; 0 - normal priority
         NULL,           // pointer to new environment block; NULL - use this process environment

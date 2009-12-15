@@ -12,18 +12,18 @@
 #  pragma warning (disable : 4786) // too long name, harmless warning
 #endif
 
-#include <ostream>
-
 #define BOOST_ARCHIVE_SOURCE
-#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/archive/detail/archive_serializer_map.hpp>
 
-// explicitly instantiate for this type of text stream
-#include <boost/archive/impl/archive_pointer_oserializer.ipp>
+#include <boost/archive/impl/archive_serializer_map.ipp>
+#include <boost/archive/polymorphic_oarchive.hpp>
 
 namespace boost {
 namespace archive {
+namespace detail {
 
-template class detail::archive_pointer_oserializer<polymorphic_oarchive> ;
+template class archive_serializer_map<polymorphic_oarchive>;
 
-} // namespace archive
-} // namespace boost
+} // detail
+} // archive
+} // boost

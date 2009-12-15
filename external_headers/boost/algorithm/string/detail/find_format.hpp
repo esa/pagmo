@@ -24,26 +24,7 @@ namespace boost {
 
 // find_format_copy (iterator variant) implementation -------------------------------//
 
-            template< 
-                typename OutputIteratorT,
-                typename InputT,
-                typename FormatterT,
-                typename FindResultT >
-            inline OutputIteratorT find_format_copy_impl(
-                OutputIteratorT Output,
-                const InputT& Input,
-                FormatterT Formatter,
-                const FindResultT& FindResult )
-            {       
-                return find_format_copy_impl2( 
-                    Output,
-                    Input,
-                    Formatter,
-                    FindResult,
-                    Formatter(FindResult) );
-            }
-
-            template< 
+           template< 
                 typename OutputIteratorT,
                 typename InputT,
                 typename FormatterT,
@@ -83,25 +64,29 @@ namespace boost {
                 return Output;
             }
 
-// find_format_copy implementation --------------------------------------------------//
-
             template< 
-                typename InputT, 
+                typename OutputIteratorT,
+                typename InputT,
                 typename FormatterT,
                 typename FindResultT >
-            inline InputT find_format_copy_impl(
+            inline OutputIteratorT find_format_copy_impl(
+                OutputIteratorT Output,
                 const InputT& Input,
                 FormatterT Formatter,
-                const FindResultT& FindResult)
-            {
-                return find_format_copy_impl2(
+                const FindResultT& FindResult )
+            {       
+                return ::boost::algorithm::detail::find_format_copy_impl2( 
+                    Output,
                     Input,
                     Formatter,
                     FindResult,
                     Formatter(FindResult) );
             }
 
-            template< 
+ 
+// find_format_copy implementation --------------------------------------------------//
+
+           template< 
                 typename InputT, 
                 typename FormatterT,
                 typename FindResultT,
@@ -138,24 +123,24 @@ namespace boost {
                 return Output;
             }
 
-// replace implementation ----------------------------------------------------//
-        
-            template<
-                typename InputT,
+            template< 
+                typename InputT, 
                 typename FormatterT,
                 typename FindResultT >
-            inline void find_format_impl( 
-                InputT& Input,
+            inline InputT find_format_copy_impl(
+                const InputT& Input,
                 FormatterT Formatter,
                 const FindResultT& FindResult)
             {
-                find_format_impl2(
+                return ::boost::algorithm::detail::find_format_copy_impl2(
                     Input,
                     Formatter,
                     FindResult,
                     Formatter(FindResult) );
             }
 
+ // replace implementation ----------------------------------------------------//
+        
             template<
                 typename InputT,
                 typename FormatterT,
@@ -183,7 +168,23 @@ namespace boost {
                 }
 
                 // Replace match
-                replace( Input, M.begin(), M.end(), M.format_result() );
+                ::boost::algorithm::detail::replace( Input, M.begin(), M.end(), M.format_result() );
+            }
+
+            template<
+                typename InputT,
+                typename FormatterT,
+                typename FindResultT >
+            inline void find_format_impl( 
+                InputT& Input,
+                FormatterT Formatter,
+                const FindResultT& FindResult)
+            {
+                ::boost::algorithm::detail::find_format_impl2(
+                    Input,
+                    Formatter,
+                    FindResult,
+                    Formatter(FindResult) );
             }
 
         } // namespace detail

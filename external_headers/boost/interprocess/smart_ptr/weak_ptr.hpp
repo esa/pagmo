@@ -3,7 +3,7 @@
 // This file is the adaptation for Interprocess of boost/weak_ptr.hpp
 //
 // (C) Copyright Peter Dimov 2001, 2002, 2003
-// (C) Copyright Ion Gaztanaga 2006-2008.
+// (C) Copyright Ion Gaztanaga 2006-2009.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)

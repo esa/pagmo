@@ -73,7 +73,6 @@ private:
             detail::stream_buffer_traits<
                 T, Tr, Alloc, Mode
             >::type                           base_type;
-    typedef T                                 policy_type;
 public:
     typedef typename char_type_of<T>::type    char_type;
     struct category 

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -55,14 +55,11 @@ class upgradable_lock
    /// @cond
    private:
    typedef upgradable_lock<UpgradableMutex> this_type;
-   upgradable_lock(upgradable_lock&);
    explicit upgradable_lock(scoped_lock<mutex_type>&);
    typedef bool this_type::*unspecified_bool_type;
-   upgradable_lock& operator=(upgradable_lock&);
-   upgradable_lock& operator=(scoped_lock<mutex_type>&);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(upgradable_lock)
    /// @endcond
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(upgradable_lock)
 
    //!Effects: Default constructs a upgradable_lock.
    //!Postconditions: owns() == false and mutex() == 0.

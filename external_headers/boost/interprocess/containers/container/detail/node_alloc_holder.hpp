@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -38,7 +38,7 @@
 
 
 namespace boost {
-namespace interprocess_container {
+namespace container {
 namespace containers_detail {
 
 //!A deleter for scoped_ptr that deallocates the memory
@@ -48,7 +48,7 @@ struct scoped_deallocator
 {
    typedef typename Allocator::pointer pointer;
    typedef containers_detail::integral_constant<unsigned,
-      boost::interprocess_container::containers_detail::
+      boost::container::containers_detail::
          version<Allocator>::value>                   alloc_version;
    typedef containers_detail::integral_constant<unsigned, 1>     allocator_v1;
    typedef containers_detail::integral_constant<unsigned, 2>     allocator_v2;
@@ -60,12 +60,9 @@ struct scoped_deallocator
    void priv_deallocate(allocator_v2)
    {  m_alloc.deallocate_one(m_ptr); }
 
-   scoped_deallocator(scoped_deallocator &);
-   scoped_deallocator& operator=(scoped_deallocator &);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(scoped_deallocator)
 
    public:
-
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(scoped_deallocator)
 
    pointer     m_ptr;
    Allocator&  m_alloc;
@@ -173,18 +170,16 @@ struct node_alloc_holder
    typedef containers_detail::integral_constant<unsigned, 1>     allocator_v1;
    typedef containers_detail::integral_constant<unsigned, 2>     allocator_v2;
    typedef containers_detail::integral_constant<unsigned,
-      boost::interprocess_container::containers_detail::
+      boost::container::containers_detail::
          version<NodeAlloc>::value>                   alloc_version;
    typedef typename ICont::iterator                   icont_iterator;
    typedef typename ICont::const_iterator             icont_citerator;
    typedef allocator_destroyer<NodeAlloc>             Destroyer;
 
    private:
-   node_alloc_holder(node_alloc_holder&);
-   node_alloc_holder & operator=(node_alloc_holder&);
+   BOOST_COPYABLE_AND_MOVABLE(node_alloc_holder)
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(node_alloc_holder)
 
    node_alloc_holder(const ValAlloc &a) 
       : members_(a)
@@ -197,6 +192,12 @@ struct node_alloc_holder
    node_alloc_holder(BOOST_INTERPROCESS_RV_REF(node_alloc_holder) other)
       : members_(boost::interprocess::move(other.node_alloc()))
    {  this->swap(other);  }
+
+   node_alloc_holder & operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(node_alloc_holder) other)
+   {  members_.assign(other.node_alloc());   }
+
+   node_alloc_holder & operator=(BOOST_INTERPROCESS_RV_REF(node_alloc_holder) other)
+   {  members_.assign(other.node_alloc());   }
 
    template<class Pred>
    node_alloc_holder(const ValAlloc &a, const Pred &c) 
@@ -239,12 +240,7 @@ struct node_alloc_holder
 
    template<class Convertible1, class Convertible2>
    static void construct(const NodePtr &ptr,
-      #ifdef BOOST_HAS_RVALUE_REFS
-      std::pair<Convertible1, Convertible2> &&
-      #else
-      boost::interprocess::rv<std::pair<Convertible1, Convertible2> > &
-      #endif
-      value)
+      BOOST_INTERPROCESS_RV_REF_2_TEMPL_ARGS(std::pair, Convertible1, Convertible2) value)
    {  
       typedef typename Node::hook_type                hook_type;
       typedef typename Node::value_type::first_type   first_type;
@@ -337,7 +333,7 @@ struct node_alloc_holder
    {
       NodePtr p = this->allocate_one();
       Deallocator node_deallocator(p, this->node_alloc());
-      ::boost::interprocess_container::construct_in_place(containers_detail::get_pointer(p), it);
+      ::boost::container::construct_in_place(containers_detail::get_pointer(p), it);
       node_deallocator.release();
       return (p);
    }
@@ -372,12 +368,12 @@ struct node_alloc_holder
          int constructed = 0;
          Node *p = 0;
          BOOST_TRY{
-            for(difference_type i = 0; i < n; ++i, ++beg, --constructed){
+               for(difference_type i = 0; i < n; ++i, ++beg, --constructed){
                p = containers_detail::get_pointer(mem.front());
                mem.pop_front();
                //This can throw
                constructed = 0;
-               boost::interprocess_container::construct_in_place(p, beg);
+               boost::container::construct_in_place(p, beg);
                ++constructed;
                //This can throw in some containers (predicate might throw)
                inserter(*p);
@@ -393,7 +389,6 @@ struct node_alloc_holder
          BOOST_CATCH_END
       }
       return beg;
-
    }
 
    void clear(allocator_v1)
@@ -404,7 +399,7 @@ struct node_alloc_holder
       typename NodeAlloc::multiallocation_chain chain;
       allocator_destroyer_and_chain_builder<NodeAlloc> builder(this->node_alloc(), chain);
       this->icont().clear_and_dispose(builder);
-      BOOST_STATIC_ASSERT((boost::interprocess::is_movable<typename NodeAlloc::multiallocation_chain>::value == true));
+      BOOST_STATIC_ASSERT((::boost::interprocess::is_movable<typename NodeAlloc::multiallocation_chain>::value == true));
       if(!chain.empty())
          this->node_alloc().deallocate_individual(boost::interprocess::move(chain));
    }
@@ -470,6 +465,13 @@ struct node_alloc_holder
       members_holder(const ConvertibleToAlloc &c2alloc, const Pred &c)
          :  NodeAlloc(c2alloc), m_icont(c)
       {}
+
+      template<class ConvertibleToAlloc>
+      void assign (const ConvertibleToAlloc &c2alloc)
+      {
+         NodeAlloc::operator=(c2alloc);
+      }
+
       //The intrusive container
       ICont m_icont;
    } members_;
@@ -491,7 +493,7 @@ struct node_alloc_holder
 };
 
 }  //namespace containers_detail {
-}  //namespace interprocess_container {
+}  //namespace container {
 }  //namespace boost {
 
 #include <boost/interprocess/containers/container/detail/config_end.hpp>

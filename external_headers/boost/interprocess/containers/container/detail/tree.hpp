@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -44,6 +44,7 @@
 
 #include <boost/interprocess/containers/container/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/detail/workaround.hpp>
+#include <boost/interprocess/containers/container/container_fwd.hpp>
 
 #include <boost/interprocess/detail/move.hpp>
 #include <boost/pointer_to_other.hpp>
@@ -65,7 +66,7 @@
 #include <algorithm>
 
 namespace boost {
-namespace interprocess_container {
+namespace container {
 namespace containers_detail {
 
 template<class Key, class Value, class KeyCompare, class KeyOfValue>
@@ -202,7 +203,7 @@ struct rbtree_node
 #if !defined(BOOST_HAS_RVALUE_REFS)
 template<class T, class VoidPointer>
 struct has_own_construct_from_it
-   < boost::interprocess_container::containers_detail::rbtree_node<T, VoidPointer> >
+   < boost::container::containers_detail::rbtree_node<T, VoidPointer> >
 {
    static const bool value = true;
 };
@@ -297,9 +298,9 @@ class rbtree
       AllocHolder &m_holder;
       Icont &m_icont;
    };
+   BOOST_COPYABLE_AND_MOVABLE(rbtree)
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(rbtree)
 
    typedef Key                                        key_type;
    typedef Value                                      value_type;
@@ -451,6 +452,15 @@ class rbtree
       priv_create_and_insert_nodes(first, last, unique_insertion, alloc_version(), ItCat());
    }
 
+   template <class InputIterator>
+   rbtree( ordered_range_t, InputIterator first, InputIterator last
+         , const key_compare& comp = key_compare(), const allocator_type& a = allocator_type())
+      : AllocHolder(a, comp)
+   {
+      typedef typename std::iterator_traits<InputIterator>::iterator_category ItCat;
+      priv_create_and_insert_ordered_nodes(first, last, alloc_version(), ItCat());
+   }
+
    rbtree(const rbtree& x) 
       :  AllocHolder(x, x.key_comp())
    {
@@ -465,7 +475,7 @@ class rbtree
    ~rbtree()
    {} //AllocHolder clears the tree
 
-   rbtree& operator=(const rbtree& x)
+   rbtree& operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(rbtree) x)
    {
       if (this != &x) {
          //Transfer all the nodes to a temporary tree
@@ -873,14 +883,6 @@ class rbtree
    //Iterator range version
    template<class InpIterator>
    void priv_create_and_insert_nodes
-      (InpIterator beg, InpIterator end, bool unique)
-   {
-      typedef typename std::iterator_traits<InpIterator>::iterator_category ItCat;
-      priv_create_and_insert_nodes(beg, end, unique, alloc_version(), ItCat());
-   }
-
-   template<class InpIterator>
-   void priv_create_and_insert_nodes
       (InpIterator beg, InpIterator end, bool unique, allocator_v1, std::input_iterator_tag)
    {
       if(unique){
@@ -932,6 +934,52 @@ class rbtree
             this->allocate_many_and_construct
                (beg, std::distance(beg, end), insertion_functor(this->icont()));
          }
+      }
+   }
+
+   //Iterator range version
+   template<class InpIterator>
+   void priv_create_and_insert_ordered_nodes
+      (InpIterator beg, InpIterator end, allocator_v1, std::input_iterator_tag)
+   {
+      const_iterator cend_n(this->cend());
+      for (; beg != end; ++beg){
+         this->insert_before(cend_n, *beg);
+      }
+   }
+
+   template<class InpIterator>
+   void priv_create_and_insert_ordered_nodes
+      (InpIterator beg, InpIterator end, allocator_v2, std::input_iterator_tag)
+   {  //Just forward to the default one
+      priv_create_and_insert_ordered_nodes(beg, end, allocator_v1(), std::input_iterator_tag());
+   }
+
+   class back_insertion_functor;
+   friend class back_insertion_functor;
+
+   class back_insertion_functor
+   {
+      Icont &icont_;
+
+      public:
+      back_insertion_functor(Icont &icont)
+         :  icont_(icont)
+      {}
+
+      void operator()(Node &n)
+      {  this->icont_.push_back(n); }
+   };
+
+
+   template<class FwdIterator>
+   void priv_create_and_insert_ordered_nodes
+      (FwdIterator beg, FwdIterator end, allocator_v2, std::forward_iterator_tag)
+   {
+      if(beg != end){
+         //Optimized allocation and construction
+         this->allocate_many_and_construct
+            (beg, std::distance(beg, end), back_insertion_functor(this->icont()));
       }
    }
 };
@@ -999,22 +1047,18 @@ swap(rbtree<Key,Value,KeyOfValue,KeyCompare,A>& x,
 }
 
 } //namespace containers_detail {
-} //namespace interprocess_container {
-
-namespace interprocess {
-
+} //namespace container {
+/*
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations
 template <class K, class V, class KOV, 
 class C, class A>
 struct has_trivial_destructor_after_move
-   <boost::interprocess_container::containers_detail::rbtree<K, V, KOV, C, A> >
+   <boost::container::containers_detail::rbtree<K, V, KOV, C, A> >
 {
    static const bool value = has_trivial_destructor<A>::value && has_trivial_destructor<C>::value;
 };
-
-}  //namespace interprocess {
-
+*/
 } //namespace boost  {
 
 #include <boost/interprocess/containers/container/detail/config_end.hpp>

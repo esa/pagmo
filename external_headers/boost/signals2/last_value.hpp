@@ -12,7 +12,6 @@
 #define BOOST_SIGNALS2_LAST_VALUE_HPP
 
 #include <boost/optional.hpp>
-#include <boost/signals2/detail/result_type_wrapper.hpp>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
 
@@ -36,7 +35,6 @@ namespace boost {
       template<typename InputIterator>
       T operator()(InputIterator first, InputIterator last) const
       {
-        T * resolver = 0;
         if(first == last)
         {
           boost::throw_exception(no_slots_error());
@@ -59,7 +57,7 @@ namespace boost {
     template<>
     class last_value<void> {
     public:
-      typedef detail::result_type_wrapper<void>::type result_type;
+      typedef void result_type;
       template<typename InputIterator>
         result_type operator()(InputIterator first, InputIterator last) const
       {
@@ -72,7 +70,7 @@ namespace boost {
           catch(const expired_slot &) {}
           ++first;
         }
-        return result_type();
+        return;
       }
     };
   } // namespace signals2

@@ -2,7 +2,7 @@
     Boost.Wave: A Standard compliant C++ preprocessor library
 
     Token sequence analysis and transformation helper functions
-    
+
     http://www.boost.org/
 
     Copyright (c) 2001-2009 Hartmut Kaiser. Distributed under the Boost
@@ -49,7 +49,7 @@ namespace on_exit {
     public:
         pop_front(ContainerT &list_) : list(list_) {}
         ~pop_front() { list.pop_front(); }
-    
+
     private:
         ContainerT &list;
     };
@@ -141,13 +141,13 @@ is_special_macroname (StringT const &name)
 {
     if (name.size() < 7)
         return false;
-        
+
     if ("defined" == name)
         return true;
-        
+
     if ('_' == name[0] && '_' == name[1]) {
     StringT str = name.substr(2);
-    
+
         if (str == "cplusplus"  || str == "STDC__" || 
             str == "TIME__"     || str == "DATE__" ||
             str == "LINE__"     || str == "FILE__" ||
@@ -170,12 +170,12 @@ inline bool
 token_equals(TokenT const &left, TokenT const &right)
 {
     using namespace boost::wave;
-    
+
     if (IS_CATEGORY(left, ParameterTokenType)) {
     //  if the existing token is of type T_PARAMETERBASE, then the right token 
     //  must be of type T_IDENTIFIER or a keyword
     token_id id = token_id(right);
-     
+
         return (T_IDENTIFIER == id || 
                 IS_CATEGORY(id, KeywordTokenType) ||
                 IS_EXTCATEGORY(id, OperatorTokenType|AltExtTokenType) ||
@@ -201,12 +201,12 @@ definition_equals(ContainerT const &definition,
     ContainerT const &new_definition)
 {
     typedef typename ContainerT::const_iterator const_iterator_type;
-    
+
 const_iterator_type first1 = definition.begin();
 const_iterator_type last1 = definition.end();
 const_iterator_type first2 = new_definition.begin();
 const_iterator_type last2 = new_definition.end();
-    
+
     while (first1 != last1 && first2 != last2 && token_equals(*first1, *first2)) 
     {
     // skip whitespace, if both sequences have a whitespace next
@@ -248,7 +248,7 @@ parameters_equal(ContainerT const &parameters, ContainerT const &new_parameters)
         return false;   // different parameter count
 
     typedef typename ContainerT::const_iterator const_iterator_type;
-    
+
 const_iterator_type first1 = parameters.begin();
 const_iterator_type last1 = parameters.end();
 const_iterator_type first2 = new_parameters.begin();
@@ -283,7 +283,7 @@ trim_replacement_list (ContainerT &replacement_list)
     if (replacement_list.size() > 0) {
     typename ContainerT::iterator end = replacement_list.end();
     typename ContainerT::iterator it = replacement_list.begin();
-    
+
         while (it != end && IS_CATEGORY(*it, WhiteSpaceTokenType)) { 
             if (T_PLACEHOLDER != token_id(*it)) {
                 typename ContainerT::iterator next = it;
@@ -296,18 +296,18 @@ trim_replacement_list (ContainerT &replacement_list)
             }
         }
     }
-        
+
 // strip trailing whitespace
     if (replacement_list.size() > 0) {
     typename ContainerT::reverse_iterator rend = replacement_list.rend();
     typename ContainerT::reverse_iterator rit = replacement_list.rbegin();
-    
+
         while (rit != rend && IS_CATEGORY(*rit, WhiteSpaceTokenType)) 
             ++rit;
 
     typename ContainerT::iterator end = replacement_list.end();
     typename ContainerT::iterator it = rit.base();
-    
+
         while (it != end && IS_CATEGORY(*it, WhiteSpaceTokenType)) { 
             if (T_PLACEHOLDER != token_id(*it)) {
                 typename ContainerT::iterator next = it;
@@ -337,7 +337,7 @@ remove_placeholders (ContainerT &replacement_list)
     if (replacement_list.size() > 0) {
     typename ContainerT::iterator end = replacement_list.end();
     typename ContainerT::iterator it = replacement_list.begin();
-    
+
         while (it != end) {
             if (T_PLACEHOLDER == token_id(*it)) {
                 typename ContainerT::iterator next = it;
@@ -349,7 +349,7 @@ remove_placeholders (ContainerT &replacement_list)
                 ++it;
             }
         }
-        
+
     // remove all 'new' leading and trailing whitespace 
         trim_replacement_list(replacement_list);
     }
@@ -365,7 +365,7 @@ inline void
 trim_sequence_left (ContainerT &argument)
 {
     using namespace boost::wave;
-    
+
 // strip leading whitespace (should be only one token)
     if (argument.size() > 0 &&
         IS_CATEGORY(argument.front(), WhiteSpaceTokenType))
@@ -384,7 +384,7 @@ inline void
 trim_sequence_right (ContainerT &argument)
 {
     using namespace boost::wave;
-    
+
 // strip trailing whitespace (should be only one token)
     if (argument.size() > 0 &&
         IS_CATEGORY(argument.back(), WhiteSpaceTokenType))
@@ -480,7 +480,7 @@ get_full_name(IteratorT const &begin, IteratorT const &end)
 class find_concat_operator {
 public:
     find_concat_operator(bool &found_) : found_concat(found_) {}
-    
+
     template <typename TokenT>
     bool operator()(TokenT const &tok)
     {
@@ -501,7 +501,7 @@ template <typename Target, typename Src>
 struct to_string_helper
 {
     typedef Target type;
-    
+
     static Target call(Src const& str)
     {
         return Target(str.c_str());

@@ -74,7 +74,7 @@ namespace boost
         }
         ~thread_specific_ptr()
         {
-            reset();
+            detail::set_tss_data(this,boost::shared_ptr<detail::tss_cleanup_function>(),0,true);
         }
 
         T* get() const

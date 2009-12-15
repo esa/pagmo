@@ -158,20 +158,45 @@
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////////
+//  Configure Wave thread support, Boost.Spirit and Boost.Pool are configured 
+//  based on these settings automatically
+//
+//  If BOOST_WAVE_SUPPORT_THREADING is not defined, Wave will use the global 
+//  Boost build settings (BOOST_HAS_THREADS), if it is defined its value
+//  defines, whether threading will be enabled or not (should be set to '0' 
+//  or '1').
+#if !defined(BOOST_WAVE_SUPPORT_THREADING)
+#if defined(BOOST_HAS_THREADS)
+#define BOOST_WAVE_SUPPORT_THREADING 1
+#else
+#define BOOST_WAVE_SUPPORT_THREADING 0
+#endif
+#endif
+
+#if BOOST_WAVE_SUPPORT_THREADING != 0 
+#define BOOST_SPIRIT_THREADSAFE 1
+#define PHOENIX_THREADSAFE 1
+#else
+// disable thread support in Boost.Pool
+#define BOOST_NO_MT 1
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 //  Define the string type to be used to store the token values and the file 
 //  names inside a file_position template class
 //
 #if !defined(BOOST_WAVE_STRINGTYPE)
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || \
-    BOOST_WORKAROUND(__MWERKS__, < 0x3200) || \
-    (defined(__DECCXX) && defined(__alpha)) || \
-    defined(BOOST_WAVE_STRINGTYPE_USE_STDSTRING)
-    
 // VC7 isn't able to compile the flex_string class, fall back to std::string 
 // CW up to 8.3 chokes as well *sigh*
 // Tru64/CXX has linker problems when using flex_string
+#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || \
+    BOOST_WORKAROUND(__MWERKS__, < 0x3200) || \
+    (defined(__DECCXX) && defined(__alpha)) || \
+    defined(BOOST_WAVE_STRINGTYPE_USE_STDSTRING) 
+
 #define BOOST_WAVE_STRINGTYPE std::string
+
 #if !defined(BOOST_WAVE_STRINGTYPE_USE_STDSTRING)
 #define BOOST_WAVE_STRINGTYPE_USE_STDSTRING 1
 #endif
@@ -332,7 +357,7 @@
 //  Decide, whether to support long long integers in the preprocessor.
 //
 //  The C++ standard requires the preprocessor to use one of the following 
-//  types for integer literals: long or unsigned long depending on a optional 
+//  types for integer literals: long or unsigned long depending on an optional 
 //  suffix ('u', 'l', 'ul', or 'lu')
 //
 //  Sometimes it's required to preprocess integer literals bigger than that
@@ -364,30 +389,6 @@ namespace boost { namespace wave
     typedef unsigned long uint_literal_type;
 #endif
 }}
-
-///////////////////////////////////////////////////////////////////////////////
-//  Configure Wave thread support, Boost.Spirit and Boost.Pool are configured 
-//  based on these settings automatically
-//
-//  If BOOST_WAVE_SUPPORT_THREADING is not defined, Wave will use the global 
-//  Boost build settings (BOOST_HAS_THREADS), if it is defined its value
-//  defines, whether threading will be enabled or not (should be set to '0' 
-//  or '1').
-#if !defined(BOOST_WAVE_SUPPORT_THREADING)
-#if defined(BOOST_HAS_THREADS)
-#define BOOST_WAVE_SUPPORT_THREADING 1
-#else
-#define BOOST_WAVE_SUPPORT_THREADING 0
-#endif
-#endif
-
-#if BOOST_WAVE_SUPPORT_THREADING != 0 
-#define BOOST_SPIRIT_THREADSAFE 1
-#define PHOENIX_THREADSAFE 1
-#else
-// disable thread support in Boost.Pool
-#define BOOST_NO_MT 1
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Wave needs at least 4 parameters for phoenix actors

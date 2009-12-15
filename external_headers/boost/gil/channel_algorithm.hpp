@@ -342,14 +342,14 @@ template <> struct channel_convert_from_unsigned<bits32s> : public std::unary_fu
     type operator()(bits32 x) const { return static_cast<bits32s>(x-(1<<31)); }
 };
 
-}	// namespace detail
+}   // namespace detail
 
 /// \ingroup ChannelConvertAlgorithm
 /// \brief A unary function object converting between channel types
 template <typename SrcChannelV, typename DstChannelV> // Model ChannelValueConcept
 struct channel_converter : public std::unary_function<SrcChannelV,DstChannelV> {
     DstChannelV operator()(SrcChannelV src) const {
-		typedef detail::channel_convert_to_unsigned<SrcChannelV> to_unsigned;
+        typedef detail::channel_convert_to_unsigned<SrcChannelV> to_unsigned;
         typedef detail::channel_convert_from_unsigned<DstChannelV>   from_unsigned;
         typedef channel_converter_unsigned<typename to_unsigned::result_type, typename from_unsigned::argument_type> converter_unsigned;
         return from_unsigned()(converter_unsigned()(to_unsigned()(src))); 
@@ -425,7 +425,7 @@ template<> struct channel_multiplier_unsigned<bits32f> : public std::binary_func
 template <typename ChannelValue>
 struct channel_multiplier : public std::binary_function<ChannelValue, ChannelValue, ChannelValue> {
     ChannelValue operator()(ChannelValue a, ChannelValue b) const {
-		typedef detail::channel_convert_to_unsigned<ChannelValue> to_unsigned;
+        typedef detail::channel_convert_to_unsigned<ChannelValue> to_unsigned;
         typedef detail::channel_convert_from_unsigned<ChannelValue>   from_unsigned;
         typedef channel_multiplier_unsigned<typename to_unsigned::result_type> multiplier_unsigned;
         return from_unsigned()(multiplier_unsigned()(to_unsigned()(a), to_unsigned()(b))); 

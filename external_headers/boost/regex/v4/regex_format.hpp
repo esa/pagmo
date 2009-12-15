@@ -107,6 +107,7 @@ private:
    void format_escape();
    void format_conditional();
    void format_until_scope_end();
+   bool handle_perl_verb(bool have_brace);
 
    const traits& m_traits;       // the traits class for localised formatting operations
    const Results& m_results;     // the match_results being used.
@@ -250,6 +251,25 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
    case '$':
       put(*m_position++);
       break;
+   case '+':
+      if((++m_position != m_end) && (*m_position == '{'))
+      {
+         const char_type* base = ++m_position;
+         while((m_position != m_end) && (*m_position != '}')) ++m_position;
+         if(m_position != m_end)
+         {
+            // Named sub-expression:
+            put(this->m_results.named_subexpression(base, m_position));
+            ++m_position;
+            break;
+         }
+         else
+         {
+            m_position = --base;
+         }
+      }
+      put((this->m_results)[this->m_results.size() > 1 ? this->m_results.size() - 1 : 1]);
+      break;
    case '{':
       have_brace = true;
       ++m_position;
@@ -258,14 +278,18 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
       // see if we have a number:
       {
          std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
-         len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
+         //len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
          int v = m_traits.toi(m_position, m_position + len, 10);
          if((v < 0) || (have_brace && ((m_position == m_end) || (*m_position != '}'))))
          {
-            // leave the $ as is, and carry on:
-            m_position = --save_position;
-            put(*m_position);
-            ++m_position;
+            // Look for a Perl-5.10 verb:
+            if(!handle_perl_verb(have_brace))
+            {
+               // leave the $ as is, and carry on:
+               m_position = --save_position;
+               put(*m_position);
+               ++m_position;
+            }
             break;
          }
          // otherwise output sub v:
@@ -274,6 +298,123 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
             ++m_position;
       }
    }
+}
+
+template <class OutputIterator, class Results, class traits>
+bool basic_regex_formatter<OutputIterator, Results, traits>::handle_perl_verb(bool have_brace)
+{
+   // 
+   // We may have a capitalised string containing a Perl action:
+   //
+   static const char_type MATCH[] = { 'M', 'A', 'T', 'C', 'H' };
+   static const char_type PREMATCH[] = { 'P', 'R', 'E', 'M', 'A', 'T', 'C', 'H' };
+   static const char_type POSTMATCH[] = { 'P', 'O', 'S', 'T', 'M', 'A', 'T', 'C', 'H' };
+   static const char_type LAST_PAREN_MATCH[] = { 'L', 'A', 'S', 'T', '_', 'P', 'A', 'R', 'E', 'N', '_', 'M', 'A', 'T', 'C', 'H' };
+   static const char_type LAST_SUBMATCH_RESULT[] = { 'L', 'A', 'S', 'T', '_', 'S', 'U', 'B', 'M', 'A', 'T', 'C', 'H', '_', 'R', 'E', 'S', 'U', 'L', 'T' };
+   static const char_type LAST_SUBMATCH_RESULT_ALT[] = { '^', 'N' };
+
+   if(have_brace && (*m_position == '^'))
+      ++m_position;
+
+   int max_len = m_end - m_position;
+
+   if((max_len >= 5) && std::equal(m_position, m_position + 5, MATCH))
+   {
+      m_position += 5;
+      if(have_brace)
+      {
+         if(*m_position == '}')
+            ++m_position;
+         else
+         {
+            m_position -= 5;
+            return false;
+         }
+      }
+      put(this->m_results[0]);
+      return true;
+   }
+   if((max_len >= 8) && std::equal(m_position, m_position + 8, PREMATCH))
+   {
+      m_position += 8;
+      if(have_brace)
+      {
+         if(*m_position == '}')
+            ++m_position;
+         else
+         {
+            m_position -= 8;
+            return false;
+         }
+      }
+      put(this->m_results.prefix());
+      return true;
+   }
+   if((max_len >= 9) && std::equal(m_position, m_position + 9, POSTMATCH))
+   {
+      m_position += 9;
+      if(have_brace)
+      {
+         if(*m_position == '}')
+            ++m_position;
+         else
+         {
+            m_position -= 9;
+            return false;
+         }
+      }
+      put(this->m_results.suffix());
+      return true;
+   }
+   if((max_len >= 16) && std::equal(m_position, m_position + 16, LAST_PAREN_MATCH))
+   {
+      m_position += 16;
+      if(have_brace)
+      {
+         if(*m_position == '}')
+            ++m_position;
+         else
+         {
+            m_position -= 16;
+            return false;
+         }
+      }
+      put((this->m_results)[this->m_results.size() > 1 ? this->m_results.size() - 1 : 1]);
+      return true;
+   }
+   if((max_len >= 20) && std::equal(m_position, m_position + 20, LAST_SUBMATCH_RESULT))
+   {
+      m_position += 20;
+      if(have_brace)
+      {
+         if(*m_position == '}')
+            ++m_position;
+         else
+         {
+            m_position -= 20;
+            return false;
+         }
+      }
+      put(this->m_results.get_last_closed_paren());
+      return true;
+   }
+   if((max_len >= 2) && std::equal(m_position, m_position + 2, LAST_SUBMATCH_RESULT_ALT))
+   {
+      m_position += 2;
+      if(have_brace)
+      {
+         if(*m_position == '}')
+            ++m_position;
+         else
+         {
+            m_position -= 2;
+            return false;
+         }
+      }
+      put(this->m_results.get_last_closed_paren());
+      return true;
+   }
+   return false;
 }
 
 template <class OutputIterator, class Results, class traits>
@@ -440,9 +581,35 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_conditional(
       put(static_cast<char_type>('?'));
       return;
    }
-   std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
-   len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
-   int v = m_traits.toi(m_position, m_position + len, 10);
+   int v;
+   if(*m_position == '{')
+   {
+      const char_type* base = m_position;
+      ++m_position;
+      v = m_traits.toi(m_position, m_end, 10);
+      if(v < 0)
+      {
+         // Try a named subexpression:
+         while((m_position != m_end) && (*m_position != '}'))
+            ++m_position;
+         v = m_results.named_subexpression_index(base + 1, m_position);
+      }
+      if((v < 0) || (*m_position != '}'))
+      {
+         m_position = base;
+         // oops trailing '?':
+         put(static_cast<char_type>('?'));
+         return;
+      }
+      // Skip trailing '}':
+      ++m_position;
+   }
+   else
+   {
+      std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
+      len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
+      v = m_traits.toi(m_position, m_position + len, 10);
+   }
    if(v < 0)
    {
       // oops not a number:

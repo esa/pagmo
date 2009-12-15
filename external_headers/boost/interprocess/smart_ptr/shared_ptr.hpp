@@ -4,7 +4,7 @@
 //
 // (C) Copyright Greg Colvin and Beman Dawes 1998, 1999.
 // (C) Copyright Peter Dimov 2001, 2002, 2003
-// (C) Copyright Ion Gaztanaga 2006-2008.
+// (C) Copyright Ion Gaztanaga 2006-2009.
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -108,8 +108,8 @@ class shared_ptr
    typedef typename boost::pointer_to_other
             <typename VoidAllocator::pointer, const VoidAllocator>::type   const_allocator_pointer;
 
+   BOOST_COPYABLE_AND_MOVABLE(shared_ptr)
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(shared_ptr)
 
    //!Constructs an empty shared_ptr.
    //!Use_count() == 0 && get()== 0.
@@ -188,6 +188,14 @@ class shared_ptr
    //!Never throws
    template<class Y>
    shared_ptr & operator=(shared_ptr<Y, VoidAllocator, Deleter> const & r)
+   {
+      m_pn = r.m_pn; // shared_count::op= doesn't throw
+      return *this;
+   }
+
+   //!Equivalent to shared_ptr(r).swap(*this).
+   //!Never throws
+   shared_ptr & operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(shared_ptr) r)
    {
       m_pn = r.m_pn; // shared_count::op= doesn't throw
       return *this;

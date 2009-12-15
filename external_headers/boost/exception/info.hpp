@@ -75,38 +75,40 @@ boost
                 }
 
             void
-            set( shared_ptr<error_info_base const> const & x, type_info_ const & typeid_ )
+            set( shared_ptr<error_info_base> const & x, type_info_ const & typeid_ )
                 {
                 BOOST_ASSERT(x);
                 info_[typeid_] = x;
                 diagnostic_info_str_.clear();
                 }
 
-            shared_ptr<error_info_base const>
+            shared_ptr<error_info_base>
             get( type_info_ const & ti ) const
                 {
                 error_info_map::const_iterator i=info_.find(ti);
                 if( info_.end()!=i )
                     {
-                    shared_ptr<error_info_base const> const & p = i->second;
+                    shared_ptr<error_info_base> const & p = i->second;
 #ifndef BOOST_NO_RTTI
                     BOOST_ASSERT( BOOST_EXCEPTION_DYNAMIC_TYPEID(*p)==ti );
 #endif
                     return p;
                     }
-                return shared_ptr<error_info_base const>();
+                return shared_ptr<error_info_base>();
                 }
 
             char const *
-            diagnostic_information() const
+            diagnostic_information( char const * header ) const
                 {
-                if( diagnostic_info_str_.empty() )
+                if( header )
                     {
+                    BOOST_ASSERT(*header!=0);
                     std::ostringstream tmp;
+                    tmp << header;
                     for( error_info_map::const_iterator i=info_.begin(),end=info_.end(); i!=end; ++i )
                         {
                         shared_ptr<error_info_base const> const & x = i->second;
-                        tmp << '[' << x->tag_typeid_name() << "] = " << x->value_as_string() << std::endl;
+                        tmp << '[' << x->tag_typeid_name() << "] = " << x->value_as_string() << '\n';
                         }
                     tmp.str().swap(diagnostic_info_str_);
                     }
@@ -117,7 +119,7 @@ boost
 
             friend class boost::exception;
 
-            typedef std::map< type_info_, shared_ptr<error_info_base const> > error_info_map;
+            typedef std::map< type_info_, shared_ptr<error_info_base> > error_info_map;
             error_info_map info_;
             mutable std::string diagnostic_info_str_;
             mutable int count_;

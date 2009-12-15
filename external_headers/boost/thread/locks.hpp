@@ -214,6 +214,9 @@ namespace boost
         unique_lock& operator=(unique_lock&);
         unique_lock& operator=(upgrade_lock<Mutex>& other);
     public:
+#ifdef __SUNPRO_CC 
+        unique_lock(const volatile unique_lock&); 
+#endif
         unique_lock():
             m(0),is_locked(false)
         {}
@@ -260,16 +263,16 @@ namespace boost
         }
 
 
-        unique_lock& operator=(unique_lock<Mutex>&& other)
+        unique_lock& operator=(unique_lock&& other)
         {
-            unique_lock temp(other);
+            unique_lock temp(other.move());
             swap(temp);
             return *this;
         }
 
         unique_lock& operator=(upgrade_lock<Mutex>&& other)
         {
-            unique_lock temp(other);
+            unique_lock temp(other.move());
             swap(temp);
             return *this;
         }
@@ -297,12 +300,20 @@ namespace boost
             return detail::thread_move_t<unique_lock<Mutex> >(*this);
         }
 
+#ifdef __SUNPRO_CC
+        unique_lock& operator=(unique_lock<Mutex> other) 
+        { 
+            swap(other); 
+            return *this; 
+        } 
+#else
         unique_lock& operator=(detail::thread_move_t<unique_lock<Mutex> > other)
         {
             unique_lock temp(other);
             swap(temp);
             return *this;
         }
+#endif
 
         unique_lock& operator=(detail::thread_move_t<upgrade_lock<Mutex> > other)
         {
@@ -772,7 +783,7 @@ namespace boost
         other.is_locked=false;
         if(is_locked)
         {
-            m.unlock_upgrade_and_lock();
+            m->unlock_upgrade_and_lock();
         }
     }
 #else
@@ -864,6 +875,28 @@ namespace boost
             try_lock_wrapper(Mutex& m_,try_to_lock_t):
                 base(m_,try_to_lock)
             {}
+#ifdef BOOST_HAS_RVALUE_REFS
+            try_lock_wrapper(try_lock_wrapper&& other):
+                base(other.move())
+            {}
+
+            try_lock_wrapper&& move()
+            {
+                return static_cast<try_lock_wrapper&&>(*this);
+            }
+
+            try_lock_wrapper& operator=(try_lock_wrapper<Mutex>&& other)
+            {
+                try_lock_wrapper temp(other.move());
+                swap(temp);
+                return *this;
+            }
+
+            void swap(try_lock_wrapper&& other)
+            {
+                base::swap(other);
+            }
+#else
             try_lock_wrapper(detail::thread_move_t<try_lock_wrapper<Mutex> > other):
                 base(detail::thread_move_t<base>(*other))
             {}
@@ -885,12 +918,6 @@ namespace boost
                 return *this;
             }
 
-#ifdef BOOST_HAS_RVALUE_REFS
-            void swap(try_lock_wrapper&& other)
-            {
-                base::swap(other);
-            }
-#else
             void swap(try_lock_wrapper& other)
             {
                 base::swap(other);
@@ -900,7 +927,6 @@ namespace boost
                 base::swap(*other);
             }
 #endif
-
             void lock()
             {
                 base::lock();

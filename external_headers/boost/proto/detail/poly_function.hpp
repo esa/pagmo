@@ -173,8 +173,32 @@
             #include BOOST_PP_ITERATE()
         };
 
+        typedef char poly_function_t;
+        typedef char (&mono_function_t)[2];
+        typedef char (&unknown_function_t)[3];
+        
+        template<typename T> poly_function_t test_poly_function(T *, typename T::is_poly_function_base_ * = 0);
+        template<typename T> mono_function_t test_poly_function(T *, typename T::result_type * = 0);
+        template<typename T> unknown_function_t test_poly_function(T *, ...);
+
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        template<typename PolyFunSig, bool IsPoly>
+        template<typename Fun, typename Sig, std::size_t Switch = sizeof(test_poly_function<Fun>(0,0))>
+        struct poly_function_traits
+        {
+            typedef typename Fun::template result<Sig>::type result_type;
+            typedef Fun function_type;
+        };
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        template<typename Fun, typename Sig>
+        struct poly_function_traits<Fun, Sig, sizeof(mono_function_t)>
+        {
+            typedef typename Fun::result_type result_type;
+            typedef Fun function_type;
+        };
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        template<typename PolyFunSig, bool IsPolyFunction>
         struct as_mono_function_impl;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,21 +261,29 @@
     #define N BOOST_PP_ITERATION()
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        template<typename PolyFun, BOOST_PP_ENUM_PARAMS(N, typename A)>
+        template<typename PolyFun BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
+        struct poly_function_traits<PolyFun, PolyFun(BOOST_PP_ENUM_PARAMS(N, A)), sizeof(poly_function_t)>
+        {
+            typedef typename PolyFun::template impl<BOOST_PP_ENUM_PARAMS(N, const A)> function_type;
+            typedef typename function_type::result_type result_type;
+        };
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        template<typename PolyFun BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
         struct as_mono_function_impl<PolyFun(BOOST_PP_ENUM_PARAMS(N, A)), true>
         {
             typedef typename PolyFun::template impl<BOOST_PP_ENUM_PARAMS(N, const A)> type;
         };
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        template<typename PolyFun, BOOST_PP_ENUM_PARAMS(N, typename A)>
+        template<typename PolyFun BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
         struct as_mono_function_impl<PolyFun(BOOST_PP_ENUM_PARAMS(N, A)), false>
         {
             typedef PolyFun type;
         };
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        template<typename PolyFun, BOOST_PP_ENUM_PARAMS(N, typename A)>
+        template<typename PolyFun BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
         struct as_mono_function<PolyFun(BOOST_PP_ENUM_PARAMS(N, A))>
           : as_mono_function_impl<PolyFun(BOOST_PP_ENUM_PARAMS(N, A)), is_poly_function<PolyFun>::value>
         {};

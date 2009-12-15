@@ -27,27 +27,34 @@ namespace boost {
 namespace archive {
 namespace detail {
 
-class basic_serializer : private boost::noncopyable
+class basic_serializer : 
+    private boost::noncopyable
 {
-    const boost::serialization::extended_type_info & m_eti;
+    const boost::serialization::extended_type_info * m_eti;
 protected:
     explicit basic_serializer(
         const boost::serialization::extended_type_info & eti
     ) : 
-        m_eti(eti)
+        m_eti(& eti)
     {
         assert(NULL != & eti);
     }
 public:
+    inline bool 
+    operator<(const basic_serializer & rhs) const {
+        // can't compare address since there can be multiple eti records
+        // for the same type in different execution modules (that is, DLLS)
+        // leave this here as a reminder not to do this!
+        // return & lhs.get_eti() < & rhs.get_eti();
+        return get_eti() < rhs.get_eti();
+    }
+    const char * get_debug_info() const {
+        return m_eti->get_debug_info();
+    }
     const boost::serialization::extended_type_info & get_eti() const {
-        return m_eti;
+        return * m_eti;
     }
 };
-
-inline bool 
-operator<(const basic_serializer & lhs, const basic_serializer & rhs)  {
-  return & lhs.get_eti() < & rhs.get_eti();
-}
 
 class basic_serializer_arg : public basic_serializer {
 public:

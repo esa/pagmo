@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -47,8 +47,6 @@ class basic_managed_mapped_file
       <CharType, AllocationAlgorithm, IndexType,
       detail::managed_open_or_create_impl<detail::file_wrapper>::ManagedOpenOrCreateUserOffset>   base_t;
    typedef detail::file_wrapper device_type;
-   basic_managed_mapped_file(basic_managed_mapped_file&);
-   basic_managed_mapped_file & operator=(basic_managed_mapped_file&);
 
    private:
 
@@ -60,10 +58,10 @@ class basic_managed_mapped_file
 
    private:
    typedef typename base_t::char_ptr_holder_t   char_ptr_holder_t;
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(basic_managed_mapped_file)
    /// @endcond
 
    public: //functions
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_managed_mapped_file)
 
    //!Creates mapped file and creates and places the segment manager. 
    //!This can throw.

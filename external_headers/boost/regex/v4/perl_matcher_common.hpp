@@ -200,12 +200,13 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_imp()
    m_match_flags |= regex_constants::match_all;
    m_presult->set_size((m_match_flags & match_nosubs) ? 1 : re.mark_count(), search_base, last);
    m_presult->set_base(base);
+   m_presult->set_named_subs(re_detail::convert_to_named_subs<typename match_results<BidiIterator>::char_type>(this->re.get_named_subs()));
    if(m_match_flags & match_posix)
       m_result = *m_presult;
    verify_options(re.flags(), m_match_flags);
    if(0 == match_prefix())
       return false;
-   return m_result[0].second == last;
+   return (m_result[0].second == last) && (m_result[0].first == base);
 
 #if defined(BOOST_REGEX_NON_RECURSIVE) && !defined(BOOST_NO_EXCEPTIONS)
    }
@@ -261,6 +262,7 @@ bool perl_matcher<BidiIterator, Allocator, traits>::find_imp()
       pstate = re.get_first_state();
       m_presult->set_size((m_match_flags & match_nosubs) ? 1 : re.mark_count(), base, last);
       m_presult->set_base(base);
+      m_presult->set_named_subs(re_detail::convert_to_named_subs<typename match_results<BidiIterator>::char_type>(this->re.get_named_subs()));
       m_match_flags |= regex_constants::match_init;
    }
    else
@@ -341,25 +343,6 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_prefix()
    if(!m_has_found_match)
       position = restart; // reset search postion
    return m_has_found_match;
-}
-
-template <class BidiIterator, class Allocator, class traits>
-bool perl_matcher<BidiIterator, Allocator, traits>::match_endmark()
-{
-   int index = static_cast<const re_brace*>(pstate)->index;
-   if(index > 0)
-   {
-      if((m_match_flags & match_nosubs) == 0)
-         m_presult->set_second(position, index);
-   }
-   else if((index < 0) && (index != -4))
-   {
-      // matched forward lookahead:
-      pstate = 0;
-      return true;
-   }
-   pstate = pstate->next.p;
-   return true;
 }
 
 template <class BidiIterator, class Allocator, class traits>
@@ -459,35 +442,6 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_wild()
       return false;
    pstate = pstate->next.p;
    ++position;
-   return true;
-}
-
-template <class BidiIterator, class Allocator, class traits>
-bool perl_matcher<BidiIterator, Allocator, traits>::match_match()
-{
-   if((m_match_flags & match_not_null) && (position == (*m_presult)[0].first))
-      return false;
-   if((m_match_flags & match_all) && (position != last))
-      return false;
-   if((m_match_flags & regex_constants::match_not_initial_null) && (position == search_base))
-      return false;
-   m_presult->set_second(position);
-   pstate = 0;
-   m_has_found_match = true;
-   if((m_match_flags & match_posix) == match_posix)
-   {
-      m_result.maybe_assign(*m_presult);
-      if((m_match_flags & match_any) == 0)
-         return false;
-   }
-#ifdef BOOST_REGEX_MATCH_EXTRA
-   if(match_extra & m_match_flags)
-   {
-      for(unsigned i = 0; i < m_presult->size(); ++i)
-         if((*m_presult)[i].matched)
-            ((*m_presult)[i]).get_captures().push_back((*m_presult)[i]);
-   }
-#endif
    return true;
 }
 
@@ -758,8 +712,32 @@ template <class BidiIterator, class Allocator, class traits>
 inline bool perl_matcher<BidiIterator, Allocator, traits>::match_assert_backref()
 {
    // return true if marked sub-expression N has been matched:
-   bool result = (*m_presult)[static_cast<const re_brace*>(pstate)->index].matched;
-   pstate = pstate->next.p;
+   int index = static_cast<const re_brace*>(pstate)->index;
+   bool result;
+   if(index == 9999)
+   {
+      // Magic value for a (DEFINE) block:
+      return false;
+   }
+   else if(index > 0)
+   {
+      // Check if index is a hash value:
+      if(index >= 10000)
+         index = re.get_data().get_id(index);
+      // Have we matched subexpression "index"?
+      result = (*m_presult)[index].matched;
+      pstate = pstate->next.p;
+   }
+   else
+   {
+      // Have we recursed into subexpression "index"?
+      // If index == 0 then check for any recursion at all, otherwise for recursion to -index-1.
+      int id = -index-1;
+      if(id >= 10000)
+         id = re.get_data().get_id(id);
+      result = recursion_stack_position && ((recursion_stack[recursion_stack_position-1].id == id) || (index == 0));
+      pstate = pstate->next.p;
+   }
    return result;
 }
 

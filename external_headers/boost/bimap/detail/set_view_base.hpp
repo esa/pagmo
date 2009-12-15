@@ -45,7 +45,7 @@ class set_view_key_to_base
 template< class MutantRelationStorage, class KeyToBase >
 class set_view_key_to_base<MutantRelationStorage,MutantRelationStorage,KeyToBase>
 {
-	typedef BOOST_DEDUCED_TYPENAME MutantRelationStorage::non_mutable_storage non_mutable_storage;
+    typedef BOOST_DEDUCED_TYPENAME MutantRelationStorage::non_mutable_storage non_mutable_storage;
     public:
     const MutantRelationStorage & operator()( const non_mutable_storage & k ) const
     {

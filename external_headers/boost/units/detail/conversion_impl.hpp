@@ -215,7 +215,7 @@ struct get_default_conversion_impl
         typedef typename Begin::item source_pair;
         typedef typename source_pair::value_type exponent;
         typedef typename source_pair::tag_type source;
-        typedef typename get_default_conversion<source>::type new_source;
+        typedef typename reduce_unit<typename get_default_conversion<source>::type>::type new_source;
         typedef typename get_default_conversion_impl<N-1>::template apply<typename Begin::next> next_iteration;
         typedef typename multiply_typeof_helper<typename power_typeof_helper<new_source, exponent>::type, typename next_iteration::unit_type>::type unit_type;
         typedef call_base_unit_converter<source, new_source> conversion;
@@ -342,7 +342,7 @@ struct conversion_helper<quantity<Unit1, T1>, quantity<Unit2, T2> >
     {
         Unit1 u1;
         Unit2 u2;
-        return(destination_type::from_value(source.value() * conversion_factor(u1, u2)));
+        return(destination_type::from_value(static_cast<T2>(source.value() * conversion_factor(u1, u2))));
     }
 };
 
@@ -353,33 +353,41 @@ struct conversion_factor_helper;
 
 template<class D, class L1, class L2>
 struct conversion_factor_helper<unit<D, homogeneous_system<L1> >, unit<D, homogeneous_system<L2> > >
+  : conversion_factor_helper<
+        typename reduce_unit<unit<D, homogeneous_system<L1> > >::type,
+        typename reduce_unit<unit<D, homogeneous_system<L2> > >::type
+    >
 {
-    typedef typename reduce_unit<unit<D, homogeneous_system<L1> > >::type source_unit;
-    typedef typename source_unit::system_type::type unit_list;
-    typedef typename detail::conversion_impl<unit_list::size::value>::template apply<
-        unit_list,
-        homogeneous_system<L2>
-    > impl;
-    typedef typename impl::type type;
-    static type value()
-    {
-        return(impl::value());
-    }
+    //typedef typename reduce_unit<unit<D, homogeneous_system<L1> > >::type source_unit;
+    //typedef typename source_unit::system_type::type unit_list;
+    //typedef typename detail::conversion_impl<unit_list::size::value>::template apply<
+    //    unit_list,
+    //    homogeneous_system<L2>
+    //> impl;
+    //typedef typename impl::type type;
+    //static type value()
+    //{
+    //    return(impl::value());
+    //}
 };
 
 template<class D, class L1, class L2>
 struct conversion_factor_helper<unit<D, heterogeneous_system<L1> >, unit<D, homogeneous_system<L2> > >
+  : conversion_factor_helper<
+        typename reduce_unit<unit<D, heterogeneous_system<L1> > >::type,
+        typename reduce_unit<unit<D, homogeneous_system<L2> > >::type
+    >
 {
-    typedef typename detail::conversion_impl<L1::type::size::value>::template apply<
-        typename L1::type,
-        homogeneous_system<L2>
-    > impl;
-    typedef eval_scale_list<typename L1::scale> scale;
-    typedef typename multiply_typeof_helper<typename impl::type, typename scale::type>::type type;
-    static type value()
-    {
-        return(impl::value() * scale::value());
-    }
+    //typedef typename detail::conversion_impl<L1::type::size::value>::template apply<
+    //    typename L1::type,
+    //    homogeneous_system<L2>
+    //> impl;
+    //typedef eval_scale_list<typename L1::scale> scale;
+    //typedef typename multiply_typeof_helper<typename impl::type, typename scale::type>::type type;
+    //static type value()
+    //{
+    //    return(impl::value() * scale::value());
+    //}
 };
 
 // There is no simple algorithm for doing this conversion
@@ -387,18 +395,22 @@ struct conversion_factor_helper<unit<D, heterogeneous_system<L1> >, unit<D, homo
 // heterogeneous->homogeneous case
 template<class D, class L1, class L2>
 struct conversion_factor_helper<unit<D, homogeneous_system<L1> >, unit<D, heterogeneous_system<L2> > >
+  : conversion_factor_helper<
+        typename reduce_unit<unit<D, homogeneous_system<L1> > >::type,
+        typename reduce_unit<unit<D, heterogeneous_system<L2> > >::type
+    >
 {
-    typedef typename detail::conversion_impl<L2::type::size::value>::template apply<
-        typename L2::type,
-        homogeneous_system<L1>
-    > impl;
-    typedef eval_scale_list<typename L2::scale> scale;
-    typedef typename multiply_typeof_helper<typename impl::type, typename scale::type>::type type;
-    static type value()
-    {
-        one numerator;
-        return(numerator / (impl::value() * scale::value()));
-    }
+    //typedef typename detail::conversion_impl<L2::type::size::value>::template apply<
+    //    typename L2::type,
+    //    homogeneous_system<L1>
+    //> impl;
+    //typedef eval_scale_list<typename L2::scale> scale;
+    //typedef typename multiply_typeof_helper<typename impl::type, typename scale::type>::type type;
+    //static type value()
+    //{
+    //    one numerator;
+    //    return(numerator / (impl::value() * scale::value()));
+    //}
 };
 
 /// Requires that all possible conversions

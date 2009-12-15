@@ -1,6 +1,6 @@
 /* Flyweight class. 
  *
- * Copyright 2006-2008 Joaquin M Lopez Munoz.
+ * Copyright 2006-2009 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -193,7 +193,7 @@ public:
   :h(core::insert(BOOST_PP_ENUM_PARAMS(n,t))){}
 #include <boost/flyweight/detail/perfect_fwd.hpp>
 
-  flyweight& operator=(const flyweight x){h=x.h;return *this;}
+  flyweight& operator=(const flyweight& x){h=x.h;return *this;}
   flyweight& operator=(const value_type& x){return operator=(flyweight(x));}
 
   /* convertibility to underlying type */

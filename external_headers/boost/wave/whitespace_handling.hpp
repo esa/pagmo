@@ -73,7 +73,7 @@ class eat_whitespace
 {
 public:
     eat_whitespace();
-    
+
     template <typename ContextT>
     bool may_skip_whitespace(ContextT const& ctx, TokenT &token, 
         bool &skipped_newline);
@@ -83,7 +83,7 @@ protected:
     {
         return !preserve_comments && T_CPPCOMMENT == id;
     }
-    
+
 private:
     typedef bool state_t(TokenT &token, bool &skipped_newline);
     state_t eat_whitespace::* state;
@@ -172,7 +172,7 @@ inline bool
 eat_whitespace<TokenT>::newline_2nd(TokenT &token, bool &skipped_newline) 
 {
     using namespace boost::wave;
-    
+
     token_id id = token_id(token);
     if (T_SPACE == id || T_SPACE2 == id)
         return true;
@@ -198,14 +198,14 @@ inline bool
 eat_whitespace<TokenT>::whitespace(TokenT &token, bool &skipped_newline) 
 {
     using namespace boost::wave;
-    
+
     token_id id = token_id(token);
     if (T_SPACE != id && T_SPACE2 != id && 
         T_CCOMMENT != id && T_CPPCOMMENT != id) 
     {
         return general(token, skipped_newline);
     }
-    
+
     if (T_CCOMMENT == id) {
         if (util::ccomment_has_newline(token))
             skipped_newline = true;

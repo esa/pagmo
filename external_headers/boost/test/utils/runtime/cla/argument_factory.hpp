@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : generic typed_argument_factory implementation
 // ***************************************************************************
@@ -147,16 +147,16 @@ typed_argument_factory<T>::produce_using( parameter& p, argv_traverser& tr )
         m_value_handler( p, *value );
 
     if( !p.p_multiplicable )
-        arg.reset( p.p_optional_value 
-            ? (argument*)new typed_argument<boost::optional<T> >( p, value )
-            : (argument*)new typed_argument<T>( p, *value ) );
+        arg.reset( p.p_optional_value && (rtti::type_id<T>() != rtti::type_id<bool>())
+            ? static_cast<argument*>(new typed_argument<boost::optional<T> >( p, value ))
+            : static_cast<argument*>(new typed_argument<T>( p, *value )) );
     else {
         typedef std::list<boost::optional<T> > optional_list;
 
         if( !arg )
             arg.reset( p.p_optional_value 
-                ? (argument*)new typed_argument<optional_list>( p )
-                : (argument*)new typed_argument<std::list<T> >( p ) );
+                ? static_cast<argument*>(new typed_argument<optional_list>( p ))
+                : static_cast<argument*>(new typed_argument<std::list<T> >( p )) );
 
         if( p.p_optional_value ) {
             optional_list& values = arg_value<optional_list>( *arg );
@@ -204,7 +204,7 @@ template<typename T>
 inline void
 typed_argument_factory<T>::argument_usage_info( format_stream& fs )
 {
-    rt_cla_detail::argument_value_usage( fs, 0, (T*)0 );
+    rt_cla_detail::argument_value_usage( fs, 0, reinterpret_cast<T*>(0) );
 }
 
 //____________________________________________________________________________//

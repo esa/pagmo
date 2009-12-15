@@ -220,7 +220,7 @@ typename direct_streambuf<T, Tr>::pos_type direct_streambuf<T, Tr>::seek_impl
     bool one = one_head();
     if (one && (pptr() != 0 || gptr()== 0))
         init_get_area(); // Switch to input mode, for code reuse.
-    if (one || (which & BOOST_IOS::in) != 0 && ibeg_ != 0) {
+    if (one || ((which & BOOST_IOS::in) != 0 && ibeg_ != 0)) {
         if (!gptr()) setg(ibeg_, ibeg_, iend_);
         ptrdiff_t next = 0;
         switch (way) {

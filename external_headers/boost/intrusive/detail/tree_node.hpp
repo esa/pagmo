@@ -72,8 +72,12 @@ template<class Container, bool IsConst>
 class tree_iterator
    :  public std::iterator
          < std::bidirectional_iterator_tag
+         , typename Container::value_type
+         , typename std::iterator_traits<typename Container::value_type*>::difference_type
          , typename detail::add_const_if_c
-            <typename Container::value_type, IsConst>::type
+                     <typename Container::value_type, IsConst>::type *
+         , typename detail::add_const_if_c
+                     <typename Container::value_type, IsConst>::type &
          >
 {
    protected:
@@ -88,12 +92,11 @@ class tree_iterator
       detail::store_cont_ptr_on_it<Container>::value;
 
    public:
-   public:
+   typedef typename Container::value_type    value_type;
+   typedef  typename detail::add_const_if_c
+                     <typename Container::value_type, IsConst>::type *pointer;
    typedef typename detail::add_const_if_c
-      <typename Container::value_type, IsConst>
-      ::type                                       value_type;
-   typedef value_type & reference;
-   typedef value_type * pointer;
+                     <typename Container::value_type, IsConst>::type &reference;
 
    tree_iterator()
       : members_ (0, 0)
@@ -146,27 +149,17 @@ class tree_iterator
    bool operator!= (const tree_iterator& i) const
    { return !operator== (i); }
 
-   value_type& operator*() const
+   reference operator*() const
    {  return *operator->();   }
 
    pointer operator->() const
    { return detail::get_pointer(this->get_real_value_traits()->to_value_ptr(members_.nodeptr_)); }
 
    const Container *get_container() const
-   {
-      if(store_container_ptr)
-         return static_cast<const Container*>(members_.get_ptr());
-      else
-         return 0;
-   }
+   {  return static_cast<const Container*>(members_.get_ptr());   }
 
    const real_value_traits *get_real_value_traits() const
-   {
-      if(store_container_ptr)
-         return &this->get_container()->get_real_value_traits();
-      else
-         return 0;
-   }
+   {  return &this->get_container()->get_real_value_traits();  }
 
    tree_iterator end_iterator_from_it() const
    {

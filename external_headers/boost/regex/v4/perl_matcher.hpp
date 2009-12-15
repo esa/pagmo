@@ -285,7 +285,8 @@ public:
    }
    ~repeater_count()
    {
-      *stack = next;
+      if(next)
+         *stack = next;
    }
    std::size_t get_count() { return count; }
    int get_id() { return state_id; }
@@ -325,6 +326,17 @@ enum saved_state_type
    saved_state_count = 14
 };
 
+template <class Results>
+struct recursion_info
+{
+   typedef typename Results::value_type value_type;
+   typedef typename value_type::iterator iterator;
+   int id;
+   const re_syntax_base* preturn_address;
+   Results results;
+   repeater_count<iterator>* repeater_stack;
+};
+
 #ifdef BOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable : 4251 4231 4660)
@@ -340,6 +352,7 @@ public:
    typedef std::size_t traits_size_type;
    typedef typename is_byte<char_type>::width_type width_type;
    typedef typename regex_iterator_traits<BidiIterator>::difference_type difference_type;
+   typedef match_results<BidiIterator, Allocator> results_type;
 
    perl_matcher(BidiIterator first, BidiIterator end, 
       match_results<BidiIterator, Allocator>& what, 
@@ -348,7 +361,7 @@ public:
       BidiIterator l_base)
       :  m_result(what), base(first), last(end), 
          position(first), backstop(l_base), re(e), traits_inst(e.get_traits()), 
-         m_independent(false), next_count(&rep_obj), rep_obj(&next_count)
+         m_independent(false), next_count(&rep_obj), rep_obj(&next_count), recursion_stack_position(0)
    {
       construct_init(e, f);
    }
@@ -403,12 +416,17 @@ private:
    bool match_char_repeat();
    bool match_dot_repeat_fast();
    bool match_dot_repeat_slow();
+   bool match_dot_repeat_dispatch()
+   {
+      return ::boost::is_random_access_iterator<BidiIterator>::value ? match_dot_repeat_fast() : match_dot_repeat_slow();
+   }
    bool match_backstep();
    bool match_assert_backref();
    bool match_toggle_case();
 #ifdef BOOST_REGEX_RECURSIVE
    bool backtrack_till_match(std::size_t count);
 #endif
+   bool match_recursion();
 
    // find procs stored in s_find_vtable:
    bool find_restart_any();
@@ -464,6 +482,9 @@ private:
    typename traits::char_class_type m_word_mask;
    // the bitmask to use when determining whether a match_any matches a newline or not:
    unsigned char match_any_mask;
+   // recursion information:
+   recursion_info<results_type> recursion_stack[50];
+   unsigned recursion_stack_position;
 
 #ifdef BOOST_REGEX_NON_RECURSIVE
    //
@@ -487,6 +508,8 @@ private:
    bool unwind_short_set_repeat(bool);
    bool unwind_long_set_repeat(bool);
    bool unwind_non_greedy_repeat(bool);
+   bool unwind_recursion(bool);
+   bool unwind_recursion_pop(bool);
    void destroy_single_repeat();
    void push_matched_paren(int index, const sub_match<BidiIterator>& sub);
    void push_recursion_stopper();
@@ -495,7 +518,8 @@ private:
    void push_repeater_count(int i, repeater_count<BidiIterator>** s);
    void push_single_repeat(std::size_t c, const re_repeat* r, BidiIterator last_position, int state_id);
    void push_non_greedy_repeat(const re_syntax_base* ps);
-
+   void push_recursion(int id, const re_syntax_base* p, results_type* presults);
+   void push_recursion_pop();
 
    // pointer to base of stack:
    saved_state* m_stack_base;

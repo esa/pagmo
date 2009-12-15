@@ -40,6 +40,31 @@ namespace boost {
         typedef void_type type;
       };
 #endif
+
+      // specialization deals with possible void return from combiners
+      template<typename R> class combiner_invoker
+      {
+      public:
+        typedef R result_type;
+        template<typename Combiner, typename InputIterator>
+          result_type operator()(Combiner &combiner,
+          InputIterator first, InputIterator last) const
+        {
+          return combiner(first, last);
+        }
+      };
+      template<> class combiner_invoker<void>
+      {
+      public:
+        typedef result_type_wrapper<void>::type result_type;
+        template<typename Combiner, typename InputIterator>
+          result_type operator()(Combiner &combiner,
+          InputIterator first, InputIterator last) const
+        {
+          combiner(first, last);
+          return result_type();
+        }
+      };
     } // end namespace detail
   } // end namespace signals2
 } // end namespace boost

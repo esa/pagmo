@@ -78,6 +78,8 @@ private:
    const charT*               m_end;            // the end of the string being parsed
    const charT*               m_position;       // our current parser position
    unsigned                   m_mark_count;     // how many sub-expressions we have
+   int                        m_mark_reset;     // used to indicate that we're inside a (?|...) block.
+   unsigned                   m_max_mark;       // largest mark count seen inside a (?|...) block.
    std::ptrdiff_t             m_paren_start;    // where the last seen ')' began (where repeats are inserted).
    std::ptrdiff_t             m_alt_insert_point; // where to insert the next alternative
    bool                       m_has_case_change; // true if somewhere in the current block the case has changed
@@ -96,7 +98,7 @@ private:
 
 template <class charT, class traits>
 basic_regex_parser<charT, traits>::basic_regex_parser(regex_data<charT, traits>* data)
-   : basic_regex_creator<charT, traits>(data), m_mark_count(0), m_paren_start(0), m_alt_insert_point(0), m_has_case_change(false)
+   : basic_regex_creator<charT, traits>(data), m_mark_count(0), m_mark_reset(-1), m_max_mark(0), m_paren_start(0), m_alt_insert_point(0), m_has_case_change(false)
 {
 }
 
@@ -123,8 +125,16 @@ void basic_regex_parser<charT, traits>::parse(const charT* p1, const charT* p2, 
    switch(l_flags & regbase::main_option_type)
    {
    case regbase::perl_syntax_group:
-      m_parser_proc = &basic_regex_parser<charT, traits>::parse_extended;
-      break;
+      {
+         m_parser_proc = &basic_regex_parser<charT, traits>::parse_extended;
+         //
+         // Add a leading paren with index zero to give recursions a target:
+         //
+         re_brace* br = static_cast<re_brace*>(this->append_state(syntax_element_startmark, sizeof(re_brace)));
+         br->index = 0;
+         br->icase = this->flags() & regbase::icase;
+         break;
+      }
    case regbase::basic_syntax_group:
       m_parser_proc = &basic_regex_parser<charT, traits>::parse_basic;
       break;
@@ -375,11 +385,17 @@ bool basic_regex_parser<charT, traits>::parse_open_paren()
    if(0 == (this->flags() & regbase::nosubs))
    {
       markid = ++m_mark_count;
+#ifndef BOOST_NO_STD_DISTANCE
       if(this->flags() & regbase::save_subexpression_location)
          this->m_pdata->m_subs.push_back(std::pair<std::size_t, std::size_t>(std::distance(m_base, m_position) - 1, 0));
+#else
+      if(this->flags() & regbase::save_subexpression_location)
+         this->m_pdata->m_subs.push_back(std::pair<std::size_t, std::size_t>((m_position - m_base) - 1, 0));
+#endif
    }
    re_brace* pb = static_cast<re_brace*>(this->append_state(syntax_element_startmark, sizeof(re_brace)));
    pb->index = markid;
+   pb->icase = this->flags() & regbase::icase;
    std::ptrdiff_t last_paren_start = this->getoffset(pb);
    // back up insertion point for alternations, and set new point:
    std::ptrdiff_t last_alt_point = m_alt_insert_point;
@@ -391,6 +407,11 @@ bool basic_regex_parser<charT, traits>::parse_open_paren()
    regex_constants::syntax_option_type opts = this->flags();
    bool old_case_change = m_has_case_change;
    m_has_case_change = false; // no changes to this scope as yet...
+   //
+   // Back up branch reset data in case we have a nested (?|...)
+   //
+   int mark_reset = m_mark_reset;
+   m_mark_reset = -1;
    //
    // now recursively add more states, this will terminate when we get to a
    // matching ')' :
@@ -416,6 +437,10 @@ bool basic_regex_parser<charT, traits>::parse_open_paren()
    this->flags(opts);
    m_has_case_change = old_case_change;
    //
+   // restore branch reset:
+   //
+   m_mark_reset = mark_reset;
+   //
    // we either have a ')' or we have run out of characters prematurely:
    //
    if(m_position == m_end)
@@ -424,14 +449,20 @@ bool basic_regex_parser<charT, traits>::parse_open_paren()
       return false;
    }
    BOOST_ASSERT(this->m_traits.syntax_type(*m_position) == regex_constants::syntax_close_mark);
+#ifndef BOOST_NO_STD_DISTANCE
    if(markid && (this->flags() & regbase::save_subexpression_location))
       this->m_pdata->m_subs.at(markid - 1).second = std::distance(m_base, m_position);
+#else
+   if(markid && (this->flags() & regbase::save_subexpression_location))
+      this->m_pdata->m_subs.at(markid - 1).second = (m_position - m_base);
+#endif
    ++m_position;
    //
    // append closing parenthesis state:
    //
    pb = static_cast<re_brace*>(this->append_state(syntax_element_endmark, sizeof(re_brace)));
    pb->index = markid;
+   pb->icase = this->flags() & regbase::icase;
    this->m_paren_start = last_paren_start;
    //
    // restore the alternate insertion point:
@@ -600,6 +631,7 @@ bool basic_regex_parser<charT, traits>::parse_extended_escape()
       // fall through:
    case regex_constants::escape_type_class:
       {
+escape_type_class_jump:
          typedef typename traits::char_class_type mask_type;
          mask_type m = this->m_traits.lookup_classname(m_position, m_position+1);
          if(m != 0)
@@ -709,7 +741,104 @@ bool basic_regex_parser<charT, traits>::parse_extended_escape()
             return true;
          }
          fail(regex_constants::error_ctype, m_position - m_base);
+         return false;
       }
+   case regex_constants::escape_type_reset_start_mark:
+      if(0 == (this->flags() & (regbase::main_option_type | regbase::no_perl_ex)))
+      {
+         re_brace* pb = static_cast<re_brace*>(this->append_state(syntax_element_startmark, sizeof(re_brace)));
+         pb->index = -5;
+         pb->icase = this->flags() & regbase::icase;
+         this->m_pdata->m_data.align();
+         ++m_position;
+         return true;
+      }
+      goto escape_type_class_jump;
+   case regex_constants::escape_type_line_ending:
+      if(0 == (this->flags() & (regbase::main_option_type | regbase::no_perl_ex)))
+      {
+         const charT* e = get_escape_R_string<charT>();
+         const charT* old_position = m_position;
+         const charT* old_end = m_end;
+         const charT* old_base = m_base;
+         m_position = e;
+         m_base = e;
+         m_end = e + traits::length(e);
+         bool r = parse_all();
+         m_position = ++old_position;
+         m_end = old_end;
+         m_base = old_base;
+         return r;
+      }
+      goto escape_type_class_jump;
+   case regex_constants::escape_type_extended_backref:
+      if(0 == (this->flags() & (regbase::main_option_type | regbase::no_perl_ex)))
+      {
+         bool have_brace = false;
+         bool negative = false;
+         if(++m_position == m_end)
+         {
+            fail(regex_constants::error_escape, m_position - m_base);
+            return false;
+         }
+         // maybe have \g{ddd}
+         if(this->m_traits.syntax_type(*m_position) == regex_constants::syntax_open_brace)
+         {
+            if(++m_position == m_end)
+            {
+               fail(regex_constants::error_escape, m_position - m_base);
+               return false;
+            }
+            have_brace = true;
+         }
+         negative = (*m_position == static_cast<charT>('-'));
+         if((negative) && (++m_position == m_end))
+         {
+            fail(regex_constants::error_escape, m_position - m_base);
+            return false;
+         }
+         const charT* pc = m_position;
+         int i = this->m_traits.toi(pc, m_end, 10);
+         if(i < 0)
+         {
+            // Check for a named capture:
+            const charT* base = m_position;
+            while((m_position != m_end) && (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_brace))
+               ++m_position;
+            i = this->m_pdata->get_id(base, m_position);
+            pc = m_position;
+         }
+         if(negative)
+            i = 1 + m_mark_count - i;
+         if((i > 0) && (this->m_backrefs & (1u << (i-1))))
+         {
+            m_position = pc;
+            re_brace* pb = static_cast<re_brace*>(this->append_state(syntax_element_backref, sizeof(re_brace)));
+            pb->index = i;
+            pb->icase = this->flags() & regbase::icase;
+         }
+         else
+         {
+            fail(regex_constants::error_backref, m_position - m_end);
+            return false;
+         }
+         m_position = pc;
+         if(have_brace)
+         {
+            if((m_position == m_end) || (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_brace))
+            {
+               fail(regex_constants::error_escape, m_position - m_base);
+               return false;
+            }
+            ++m_position;
+         }
+         return true;
+      }
+      goto escape_type_class_jump;
+   case regex_constants::escape_type_control_v:
+      if(0 == (this->flags() & (regbase::main_option_type | regbase::no_perl_ex)))
+         goto escape_type_class_jump;
+      // fallthrough:
    default:
       this->append_literal(unescape_character());
       break;
@@ -737,6 +866,7 @@ template <class charT, class traits>
 bool basic_regex_parser<charT, traits>::parse_repeat(std::size_t low, std::size_t high)
 {
    bool greedy = true;
+   bool pocessive = false;
    std::size_t insert_point;
    // 
    // when we get to here we may have a non-greedy ? mark still to come:
@@ -748,10 +878,17 @@ bool basic_regex_parser<charT, traits>::parse_repeat(std::size_t low, std::size_
          )
       )
    {
-      // OK we have a perl regex, check for a '?':
+      // OK we have a perl or emacs regex, check for a '?':
       if(this->m_traits.syntax_type(*m_position) == regex_constants::syntax_question)
       {
          greedy = false;
+         ++m_position;
+      }
+      // for perl regexes only check for pocessive ++ repeats.
+      if((0 == (this->flags() & regbase::main_option_type)) 
+         && (this->m_traits.syntax_type(*m_position) == regex_constants::syntax_plus))
+      {
+         pocessive = true;
          ++m_position;
       }
    }
@@ -822,6 +959,22 @@ bool basic_regex_parser<charT, traits>::parse_repeat(std::size_t low, std::size_
    // now fill in the alt jump for the repeat:
    rep = static_cast<re_repeat*>(this->getaddress(rep_off));
    rep->alt.i = this->m_pdata->m_data.size() - rep_off;
+   //
+   // If the repeat is pocessive then bracket the repeat with a (?>...)
+   // independent sub-expression construct:
+   //
+   if(pocessive)
+   {
+      re_brace* pb = static_cast<re_brace*>(this->insert_state(insert_point, syntax_element_startmark, sizeof(re_brace)));
+      pb->index = -3;
+      pb->icase = this->flags() & regbase::icase;
+      re_jump* jmp = static_cast<re_jump*>(this->insert_state(insert_point + sizeof(re_brace), syntax_element_jump, sizeof(re_jump)));
+      this->m_pdata->m_data.align();
+      jmp->alt.i = this->m_pdata->m_data.size() - this->getoffset(jmp);
+      pb = static_cast<re_brace*>(this->append_state(syntax_element_endmark, sizeof(re_brace)));
+      pb->index = -3;
+      pb->icase = this->flags() & regbase::icase;
+   }
    return true;
 }
 
@@ -944,6 +1097,14 @@ bool basic_regex_parser<charT, traits>::parse_alt()
       fail(regex_constants::error_empty, this->m_position - this->m_base);
       return false;
    }
+   //
+   // Reset mark count if required:
+   //
+   if(m_max_mark < m_mark_count)
+      m_max_mark = m_mark_count;
+   if(m_mark_reset >= 0)
+      m_mark_count = m_mark_reset;
+
    ++m_position;
    //
    // we need to append a trailing jump: 
@@ -1462,7 +1623,7 @@ charT basic_regex_parser<charT, traits>::unescape_character()
          int i = this->m_traits.toi(m_position, m_end, 16);
          if((m_position == m_end)
             || (i < 0)
-            || ((std::numeric_limits<charT>::is_specialized) && (charT(i) > (std::numeric_limits<charT>::max)()))
+            || ((std::numeric_limits<charT>::is_specialized) && (i > (int)(std::numeric_limits<charT>::max)()))
             || (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_brace))
          {
             fail(regex_constants::error_badbrace, m_position - m_base);
@@ -1568,6 +1729,7 @@ bool basic_regex_parser<charT, traits>::parse_backref()
       m_position = pc;
       re_brace* pb = static_cast<re_brace*>(this->append_state(syntax_element_backref, sizeof(re_brace)));
       pb->index = i;
+      pb->icase = this->flags() & regbase::icase;
    }
    else
    {
@@ -1655,6 +1817,7 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
    int markid = 0;
    std::ptrdiff_t jump_offset = 0;
    re_brace* pb = static_cast<re_brace*>(this->append_state(syntax_element_startmark, sizeof(re_brace)));
+   pb->icase = this->flags() & regbase::icase;
    std::ptrdiff_t last_paren_start = this->getoffset(pb);
    // back up insertion point for alternations, and set new point:
    std::ptrdiff_t last_alt_point = m_alt_insert_point;
@@ -1665,11 +1828,18 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
    regex_constants::syntax_option_type old_flags = this->flags();
    bool old_case_change = m_has_case_change;
    m_has_case_change = false;
+   charT name_delim;
+   int mark_reset = m_mark_reset;
+   m_mark_reset = -1;
+   int v;
    //
    // select the actual extension used:
    //
    switch(this->m_traits.syntax_type(*m_position))
    {
+   case regex_constants::syntax_or:
+      m_mark_reset = m_mark_count;
+      // fall through:
    case regex_constants::syntax_colon:
       //
       // a non-capturing mark:
@@ -1677,6 +1847,57 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
       pb->index = markid = 0;
       ++m_position;
       break;
+   case regex_constants::syntax_digit:
+      {
+      //
+      // a recursive subexpression:
+      //
+      v = this->m_traits.toi(m_position, m_end, 10);
+      if((v < 0) || (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark))
+      {
+         fail(regex_constants::error_backref, m_position - m_base);
+         return false;
+      }
+insert_recursion:
+      pb->index = markid = 0;
+      static_cast<re_jump*>(this->append_state(syntax_element_recurse, sizeof(re_jump)))->alt.i = v;
+      static_cast<re_case*>(
+            this->append_state(syntax_element_toggle_case, sizeof(re_case))
+            )->icase = this->flags() & regbase::icase;
+      break;
+      }
+   case regex_constants::syntax_plus:
+      //
+      // A forward-relative recursive subexpression:
+      //
+      ++m_position;
+      v = this->m_traits.toi(m_position, m_end, 10);
+      if((v <= 0) || (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark))
+      {
+         fail(regex_constants::error_backref, m_position - m_base);
+         return false;
+      }
+      v += m_mark_count;
+      goto insert_recursion;
+   case regex_constants::syntax_dash:
+      //
+      // Possibly a backward-relative recursive subexpression:
+      //
+      ++m_position;
+      v = this->m_traits.toi(m_position, m_end, 10);
+      if(v <= 0)
+      {
+         --m_position;
+         // Oops not a relative recursion at all, but a (?-imsx) group:
+         goto option_group_jump;
+      }
+      v = m_mark_count + 1 - v;
+      if(v <= 0)
+      {
+         fail(regex_constants::error_backref, m_position - m_base);
+         return false;
+      }
+      goto insert_recursion;
    case regex_constants::syntax_equal:
       pb->index = markid = -1;
       ++m_position;
@@ -1706,8 +1927,10 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
             pb->index = markid = -1;
          else
          {
-            fail(regex_constants::error_badrepeat, m_position - m_base);
-            return false;
+            // Probably a named capture which also starts (?< :
+            name_delim = '>';
+            --m_position;
+            goto named_capture_jump;
          }
          ++m_position;
          jump_offset = this->getoffset(this->append_state(syntax_element_jump, sizeof(re_jump)));
@@ -1736,7 +1959,95 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
          return false;
       }
       int v = this->m_traits.toi(m_position, m_end, 10);
-      if(v > 0)
+      if(*m_position == charT('R'))
+      {
+         if(++m_position == m_end)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+         if(*m_position == charT('&'))
+         {
+            const charT* base = ++m_position;
+            while((m_position != m_end) && (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark))
+               ++m_position;
+            if(m_position == m_end)
+            {
+               fail(regex_constants::error_badrepeat, m_position - m_base);
+               return false;
+            }
+            v = -static_cast<int>(hash_value_from_capture_name(base, m_position));
+         }
+         else
+         {
+            v = -this->m_traits.toi(m_position, m_end, 10);
+         }
+         re_brace* br = static_cast<re_brace*>(this->append_state(syntax_element_assert_backref, sizeof(re_brace)));
+         br->index = v < 0 ? (v - 1) : 0;
+         if(this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+         if(++m_position == m_end)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+      }
+      else if((*m_position == charT('\'')) || (*m_position == charT('<')))
+      {
+         const charT* base = ++m_position;
+         while((m_position != m_end) && (*m_position != charT('>')) && (*m_position != charT('\'')))
+            ++m_position;
+         if(m_position == m_end)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+         v = static_cast<int>(hash_value_from_capture_name(base, m_position));
+         re_brace* br = static_cast<re_brace*>(this->append_state(syntax_element_assert_backref, sizeof(re_brace)));
+         br->index = v;
+         if(((*m_position != charT('>')) && (*m_position != charT('\''))) || (++m_position == m_end))
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+         if(this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+         if(++m_position == m_end)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+      }
+      else if(*m_position == charT('D'))
+      {
+         const char* def = "DEFINE";
+         while(*def && (m_position != m_end) && (*m_position == charT(*def)))
+            ++m_position, ++def;
+         if((m_position == m_end) || *def)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+         re_brace* br = static_cast<re_brace*>(this->append_state(syntax_element_assert_backref, sizeof(re_brace)));
+         br->index = 9999; // special magic value!
+         if(this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+         if(++m_position == m_end)
+         {
+            fail(regex_constants::error_badrepeat, m_position - m_base);
+            return false;
+         }
+      }
+      else if(v > 0)
       {
          re_brace* br = static_cast<re_brace*>(this->append_state(syntax_element_assert_backref, sizeof(re_brace)));
          br->index = v;
@@ -1784,7 +2095,7 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
             if((this->m_traits.syntax_type(*m_position) != regex_constants::syntax_equal)
                && (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_not))
             {
-               fail(regex_constants::error_badrepeat, m_position - m_base);
+               fail(regex_constants::error_paren, m_position - m_base);
                return false;
             }
             m_position -= 2;
@@ -1795,10 +2106,93 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
    case regex_constants::syntax_close_mark:
       fail(regex_constants::error_badrepeat, m_position - m_base);
       return false;
+   case regex_constants::escape_type_end_buffer:
+      {
+      name_delim = *m_position;
+named_capture_jump:
+      markid = 0;
+      if(0 == (this->flags() & regbase::nosubs))
+      {
+         markid = ++m_mark_count;
+   #ifndef BOOST_NO_STD_DISTANCE
+         if(this->flags() & regbase::save_subexpression_location)
+            this->m_pdata->m_subs.push_back(std::pair<std::size_t, std::size_t>(std::distance(m_base, m_position) - 2, 0));
+   #else
+         if(this->flags() & regbase::save_subexpression_location)
+            this->m_pdata->m_subs.push_back(std::pair<std::size_t, std::size_t>((m_position - m_base) - 2, 0));
+   #endif
+      }
+      pb->index = markid;
+      const charT* base = ++m_position;
+      if(m_position == m_end)
+      {
+         fail(regex_constants::error_paren, m_position - m_base);
+         return false;
+      }
+      while((m_position != m_end) && (*m_position != name_delim))
+         ++m_position;
+      if(m_position == m_end)
+      {
+         fail(regex_constants::error_paren, m_position - m_base);
+         return false;
+      }
+      this->m_pdata->set_name(base, m_position, markid);
+      ++m_position;
+      break;
+      }
    default:
+      if(*m_position == charT('R'))
+      {
+         ++m_position;
+         v = 0;
+         if(this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark)
+         {
+            fail(regex_constants::error_backref, m_position - m_base);
+            return false;
+         }
+         goto insert_recursion;
+      }
+      if(*m_position == charT('&'))
+      {
+         ++m_position;
+         const charT* base = m_position;
+         while((m_position != m_end) && (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark))
+            ++m_position;
+         if(m_position == m_end)
+         {
+            fail(regex_constants::error_backref, m_position - m_base);
+            return false;
+         }
+         v = static_cast<int>(hash_value_from_capture_name(base, m_position));
+         goto insert_recursion;
+      }
+      if(*m_position == charT('P'))
+      {
+         ++m_position;
+         if(m_position == m_end)
+         {
+            fail(regex_constants::error_backref, m_position - m_base);
+            return false;
+         }
+         if(*m_position == charT('>'))
+         {
+            ++m_position;
+            const charT* base = m_position;
+            while((m_position != m_end) && (this->m_traits.syntax_type(*m_position) != regex_constants::syntax_close_mark))
+               ++m_position;
+            if(m_position == m_end)
+            {
+               fail(regex_constants::error_backref, m_position - m_base);
+               return false;
+            }
+            v = static_cast<int>(hash_value_from_capture_name(base, m_position));
+            goto insert_recursion;
+         }
+      }
       //
       // lets assume that we have a (?imsx) group and try and parse it:
       //
+option_group_jump:
       regex_constants::syntax_option_type opts = parse_options();
       if(m_position == m_end)
          return false;
@@ -1897,8 +2291,19 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
       }
       else if(this->getaddress(static_cast<re_alt*>(b)->alt.i, b)->type == syntax_element_alt)
       {
+         // Can't have seen more than one alternative:
          fail(regex_constants::error_bad_pattern, m_position - m_base);
          return false;
+      }
+      else
+      {
+         // We must *not* have seen an alternative inside a (DEFINE) block:
+         b = this->getaddress(b->next.i, b);
+         if((b->type == syntax_element_assert_backref) && (static_cast<re_brace*>(b)->index == 9999))
+         {
+            fail(regex_constants::error_bad_pattern, m_position - m_base);
+            return false;
+         }
       }
       // check for invalid repetition of next state:
       b = this->getaddress(expected_alt_point);
@@ -1915,6 +2320,7 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
    //
    pb = static_cast<re_brace*>(this->append_state(syntax_element_endmark, sizeof(re_brace)));
    pb->index = markid;
+   pb->icase = this->flags() & regbase::icase;
    this->m_paren_start = last_paren_start;
    //
    // restore the alternate insertion point:
@@ -1924,6 +2330,31 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
    // and the case change data:
    //
    m_has_case_change = old_case_change;
+   //
+   // And the mark_reset data:
+   //
+   if(m_max_mark > m_mark_count)
+   {
+      m_mark_count = m_max_mark;
+   }
+   m_mark_reset = mark_reset;
+
+
+   if(markid > 0)
+   {
+#ifndef BOOST_NO_STD_DISTANCE
+      if(this->flags() & regbase::save_subexpression_location)
+         this->m_pdata->m_subs.at(markid - 1).second = std::distance(m_base, m_position) - 1;
+#else
+      if(this->flags() & regbase::save_subexpression_location)
+         this->m_pdata->m_subs.at(markid - 1).second = (m_position - m_base) - 1;
+#endif
+      //
+      // allow backrefs to this mark:
+      //
+      if((markid > 0) && (markid < (int)(sizeof(unsigned) * CHAR_BIT)))
+         this->m_backrefs |= 1u << (markid - 1);
+   }
    return true;
 }
 

@@ -53,8 +53,8 @@ namespace boost { namespace numeric { namespace ublas {
             else
                 *p = s;
         }
-        
-    public:   
+
+    public:
         // Construction and destruction
         sparse_vector_element (vector_type &v, size_type i):
             container_reference<vector_type> (v), i_ (i) {
@@ -428,7 +428,7 @@ namespace boost { namespace numeric { namespace ublas {
                 return;
             data ().erase (it);
         }
-        
+
         // Zeroing
         BOOST_UBLAS_INLINE
         void clear () {
@@ -552,11 +552,11 @@ namespace boost { namespace numeric { namespace ublas {
         class iterator;
 
         // Element lookup
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         const_iterator find (size_type i) const {
             return const_iterator (*this, data ().lower_bound (i));
         }
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         iterator find (size_type i) {
             return iterator (*this, data ().lower_bound (i));
         }
@@ -992,7 +992,7 @@ namespace boost { namespace numeric { namespace ublas {
             }
             storage_invariants ();
         }
-        
+
         // Zeroing
         BOOST_UBLAS_INLINE
         void clear () {
@@ -1143,11 +1143,11 @@ namespace boost { namespace numeric { namespace ublas {
         class iterator;
 
         // Element lookup
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         const_iterator find (size_type i) const {
             return const_iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
         }
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         iterator find (size_type i) {
             return iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
         }
@@ -1479,7 +1479,6 @@ namespace boost { namespace numeric { namespace ublas {
             sorted_filled_ = sorted;
             filled_ = filled;
             storage_invariants ();
-            return filled_;
         }
         BOOST_UBLAS_INLINE
         index_array_type &index_data () {
@@ -1627,7 +1626,7 @@ namespace boost { namespace numeric { namespace ublas {
             }
             storage_invariants ();
         }
-        
+
         // Zeroing
         BOOST_UBLAS_INLINE
         void clear () {
@@ -1636,7 +1635,7 @@ namespace boost { namespace numeric { namespace ublas {
             sorted_ = true;
             storage_invariants ();
         }
-        
+
         // Assignment
         BOOST_UBLAS_INLINE
         coordinate_vector &operator = (const coordinate_vector &v) {
@@ -1756,7 +1755,7 @@ namespace boost { namespace numeric { namespace ublas {
                 // sort new elements and merge
                 std::sort (iunsorted, ipa.end ());
                 std::inplace_merge (ipa.begin (), iunsorted, ipa.end ());
-                
+
                 // sum duplicates with += and remove
                 size_type filled = 0;
                 for (size_type i = 1; i < filled_; ++ i) {
@@ -1821,12 +1820,12 @@ namespace boost { namespace numeric { namespace ublas {
         class iterator;
 
         // Element lookup
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         const_iterator find (size_type i) const {
             sort ();
             return const_iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
         }
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         iterator find (size_type i) {
             sort ();
             return iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
@@ -2038,7 +2037,7 @@ namespace boost { namespace numeric { namespace ublas {
         size_type size_;
         size_type capacity_;
         mutable typename index_array_type::size_type filled_;
-        mutable typename index_array_type::size_type sorted_filled_; 
+        mutable typename index_array_type::size_type sorted_filled_;
         mutable bool sorted_;
         mutable index_array_type index_data_;
         mutable value_array_type value_data_;

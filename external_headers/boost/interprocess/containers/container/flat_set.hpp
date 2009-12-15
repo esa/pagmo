@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -18,7 +18,7 @@
 #include <boost/interprocess/containers/container/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/detail/workaround.hpp>
 
-#include <boost/interprocess/containers/container/containers_fwd.hpp>
+#include <boost/interprocess/containers/container/container_fwd.hpp>
 #include <utility>
 #include <functional>
 #include <memory>
@@ -26,12 +26,12 @@
 #include <boost/interprocess/containers/container/detail/mpl.hpp>
 #include <boost/interprocess/detail/move.hpp>
 
-#ifdef BOOST_INTERPROCESS_DOXYGEN_INVOKED
+#ifdef BOOST_CONTAINER_DOXYGEN_INVOKED
 namespace boost {
-namespace interprocess {
+namespace container {
 #else
 namespace boost {
-namespace interprocess_container {
+namespace container {
 #endif
 
 /// @cond
@@ -65,12 +65,14 @@ class flat_set
 {
    /// @cond
    private:
+   BOOST_COPYABLE_AND_MOVABLE(flat_set)
    typedef containers_detail::flat_tree<T, T, containers_detail::identity<T>, Pred, Alloc> tree_t;
    tree_t m_flat_tree;  // flat tree representing flat_set
+   typedef typename containers_detail::
+      move_const_ref_type<T>::type insert_const_ref_type;
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(flat_set)
 
    // typedefs:
    typedef typename tree_t::key_type               key_type;
@@ -111,6 +113,21 @@ class flat_set
       : m_flat_tree(comp, a) 
       { m_flat_tree.insert_unique(first, last); }
 
+   //! <b>Effects</b>: Constructs an empty flat_set using the specified comparison object and 
+   //! allocator, and inserts elements from the ordered unique range [first ,last). This function
+   //! is more efficient than the normal range creation for ordered ranges.
+   //!
+   //! <b>Requires</b>: [first ,last) must be ordered according to the predicate and must be
+   //! unique values.
+   //! 
+   //! <b>Complexity</b>: Linear in N.
+   template <class InputIterator>
+   flat_set(ordered_unique_range_t, InputIterator first, InputIterator last, 
+            const Pred& comp = Pred(),
+            const allocator_type& a = allocator_type())
+      : m_flat_tree(ordered_range, first, last, comp, a) 
+   {}
+
    //! <b>Effects</b>: Copy constructs a map.
    //! 
    //! <b>Complexity</b>: Linear in x.size().
@@ -129,7 +146,7 @@ class flat_set
    //! <b>Effects</b>: Makes *this a copy of x.
    //! 
    //! <b>Complexity</b>: Linear in x.size().
-   flat_set<T,Pred,Alloc>& operator=(const flat_set<T, Pred, Alloc>& x)
+   flat_set<T,Pred,Alloc>& operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(flat_set) x)
       {  m_flat_tree = x.m_flat_tree;   return *this;  }
 
    //! <b>Effects</b>: Makes *this a copy of x.
@@ -311,8 +328,17 @@ class flat_set
    //!   to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   std::pair<iterator,bool> insert(const value_type& x) 
-      {  return m_flat_tree.insert_unique(x);  }
+   std::pair<iterator, bool> insert(insert_const_ref_type x) 
+   {  return priv_insert(x); }
+
+   #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   std::pair<iterator, bool> insert(T &x)
+   { return this->insert(const_cast<const T &>(x)); }
+
+   template<class U>
+   std::pair<iterator, bool> insert(const U &u, typename containers_detail::enable_if_c<containers_detail::is_same<T, U>::value && !::boost::interprocess::is_movable<U>::value >::type* =0)
+   {  return priv_insert(u); }
+   #endif
 
    //! <b>Effects</b>: Inserts a new value_type move constructed from the pair if and
    //! only if there is no element in the container with key equivalent to the key of x.
@@ -339,8 +365,17 @@ class flat_set
    //!   right before p) plus insertion linear to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   iterator insert(const_iterator position, const value_type& x) 
-      {  return m_flat_tree.insert_unique(position, x); }
+   iterator insert(const_iterator p, insert_const_ref_type x) 
+   {  return priv_insert(p, x); }
+
+   #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   iterator insert(const_iterator position, T &x)
+   { return this->insert(position, const_cast<const T &>(x)); }
+
+   template<class U>
+   iterator insert(const_iterator position, const U &u, typename containers_detail::enable_if_c<containers_detail::is_same<T, U>::value && !::boost::interprocess::is_movable<U>::value >::type* =0)
+   {  return priv_insert(position, u); }
+   #endif
 
    //! <b>Effects</b>: Inserts an element move constructed from x in the container.
    //!   p is a hint pointing to where the insert should start to search.
@@ -367,7 +402,7 @@ class flat_set
    void insert(InputIterator first, InputIterator last) 
       {  m_flat_tree.insert_unique(first, last);  }
 
-   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 
    //! <b>Effects</b>: Inserts an object of type T constructed with
    //!   std::forward<Args>(args)... if and only if there is no element in the container 
@@ -562,6 +597,13 @@ class flat_set
 
    template <class K1, class C1, class A1>
    friend bool operator< (const flat_set<K1,C1,A1>&, const flat_set<K1,C1,A1>&);
+
+   private:
+   std::pair<iterator, bool> priv_insert(const T &x) 
+   {  return m_flat_tree.insert_unique(x);  }
+
+   iterator priv_insert(const_iterator p, const T &x) 
+   {  return m_flat_tree.insert_unique(p, x); }
    /// @endcond
 };
 
@@ -601,21 +643,17 @@ inline void swap(flat_set<T,Pred,Alloc>& x, flat_set<T,Pred,Alloc>& y)
 
 /// @cond
 
-}  //namespace interprocess_container {
-
-namespace interprocess {
-
+}  //namespace container {
+/*
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations
 template <class T, class C, class A>
-struct has_trivial_destructor_after_move<boost::interprocess_container::flat_set<T, C, A> >
+struct has_trivial_destructor_after_move<boost::container::flat_set<T, C, A> >
 {
    static const bool value = has_trivial_destructor<A>::value &&has_trivial_destructor<C>::value;
 };
-
-}  //namespace interprocess {
-
-namespace interprocess_container {
+*/
+namespace container {
 
 // Forward declaration of operators < and ==, needed for friend declaration.
 
@@ -647,13 +685,14 @@ class flat_multiset
 {
    /// @cond
    private:
+   BOOST_COPYABLE_AND_MOVABLE(flat_multiset)
    typedef containers_detail::flat_tree<T, T, containers_detail::identity<T>, Pred, Alloc> tree_t;
    tree_t m_flat_tree;  // flat tree representing flat_multiset
+   typedef typename containers_detail::
+      move_const_ref_type<T>::type insert_const_ref_type;
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(flat_multiset)
-
    // typedefs:
    typedef typename tree_t::key_type               key_type;
    typedef typename tree_t::value_type             value_type;
@@ -684,6 +723,20 @@ class flat_multiset
       : m_flat_tree(comp, a) 
       { m_flat_tree.insert_equal(first, last); }
 
+   //! <b>Effects</b>: Constructs an empty flat_multiset using the specified comparison object and 
+   //! allocator, and inserts elements from the ordered range [first ,last ). This function
+   //! is more efficient than the normal range creation for ordered ranges.
+   //!
+   //! <b>Requires</b>: [first ,last) must be ordered according to the predicate.
+   //! 
+   //! <b>Complexity</b>: Linear in N.
+   template <class InputIterator>
+   flat_multiset(ordered_range_t, InputIterator first, InputIterator last,
+                 const Pred& comp        = Pred(),
+                 const allocator_type& a = allocator_type())
+      : m_flat_tree(ordered_range, first, last, comp, a) 
+   {}
+
    flat_multiset(const flat_multiset<T,Pred,Alloc>& x) 
       : m_flat_tree(x.m_flat_tree) {}
 
@@ -691,7 +744,7 @@ class flat_multiset
       : m_flat_tree(boost::interprocess::move(x.m_flat_tree))
    {}
 
-   flat_multiset<T,Pred,Alloc>& operator=(const flat_multiset<T,Pred,Alloc>& x) 
+   flat_multiset<T,Pred,Alloc>& operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(flat_multiset) x) 
       {  m_flat_tree = x.m_flat_tree;   return *this;  }
 
    flat_multiset<T,Pred,Alloc>& operator=(BOOST_INTERPROCESS_RV_REF(flat_multiset) mx) 
@@ -866,8 +919,17 @@ class flat_multiset
    //!   to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   iterator insert(const value_type& x) 
-      {  return m_flat_tree.insert_equal(x);   }
+   iterator insert(insert_const_ref_type x) 
+   {  return priv_insert(x); }
+
+   #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   iterator insert(T &x)
+   { return this->insert(const_cast<const T &>(x)); }
+
+   template<class U>
+   iterator insert(const U &u, typename containers_detail::enable_if_c<containers_detail::is_same<T, U>::value && !::boost::interprocess::is_movable<U>::value >::type* =0)
+   {  return priv_insert(u); }
+   #endif
 
    //! <b>Effects</b>: Inserts a new value_type move constructed from x
    //!   and returns the iterator pointing to the newly inserted element. 
@@ -889,8 +951,17 @@ class flat_multiset
    //!   right before p) plus insertion linear to the elements with bigger keys than x.
    //!
    //! <b>Note</b>: If an element it's inserted it might invalidate elements.
-   iterator insert(const_iterator position, const value_type& x) 
-      {  return m_flat_tree.insert_equal(position, x);  }
+   iterator insert(const_iterator p, insert_const_ref_type x) 
+   {  return priv_insert(p, x); }
+
+   #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   iterator insert(const_iterator position, T &x)
+   { return this->insert(position, const_cast<const T &>(x)); }
+
+   template<class U>
+   iterator insert(const_iterator position, const U &u, typename containers_detail::enable_if_c<containers_detail::is_same<T, U>::value && !::boost::interprocess::is_movable<U>::value >::type* =0)
+   {  return priv_insert(position, u); }
+   #endif
 
    //! <b>Effects</b>: Inserts a new value move constructed  from x in the container.
    //!   p is a hint pointing to where the insert should start to search.
@@ -917,7 +988,7 @@ class flat_multiset
    void insert(InputIterator first, InputIterator last) 
       {  m_flat_tree.insert_equal(first, last);  }
 
-   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 
    //! <b>Effects</b>: Inserts an object of type T constructed with
    //!   std::forward<Args>(args)... and returns the iterator pointing to the
@@ -1108,6 +1179,12 @@ class flat_multiset
    template <class K1, class C1, class A1>
    friend bool operator< (const flat_multiset<K1,C1,A1>&,
                           const flat_multiset<K1,C1,A1>&);
+   private:
+   iterator priv_insert(const T &x) 
+   {  return m_flat_tree.insert_equal(x);  }
+
+   iterator priv_insert(const_iterator p, const T &x) 
+   {  return m_flat_tree.insert_equal(p, x); }
    /// @endcond
 };
 
@@ -1147,21 +1224,17 @@ inline void swap(flat_multiset<T,Pred,Alloc>& x, flat_multiset<T,Pred,Alloc>& y)
 
 /// @cond
 
-}  //namespace interprocess_container {
-
-namespace interprocess {
-
+}  //namespace container {
+/*
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations
 template <class T, class C, class A>
-struct has_trivial_destructor_after_move<boost::interprocess_container::flat_multiset<T, C, A> >
+struct has_trivial_destructor_after_move<boost::container::flat_multiset<T, C, A> >
 {
    static const bool value = has_trivial_destructor<A>::value && has_trivial_destructor<C>::value;
 };
-
-}  //namespace interprocess {
-
-namespace interprocess_container {
+*/
+namespace container {
 
 /// @endcond
 

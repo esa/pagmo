@@ -7,15 +7,14 @@
 #ifndef PHOENIX_CORE_ACTOR_HPP
 #define PHOENIX_CORE_ACTOR_HPP
 
+#include <boost/spirit/home/phoenix/core/limits.hpp>
+
 #if !defined(BOOST_RESULT_OF_NUM_ARGS)
 # define BOOST_RESULT_OF_NUM_ARGS PHOENIX_ACTOR_LIMIT
-#else
-# if (BOOST_RESULT_OF_NUM_ARGS < PHOENIX_ACTOR_LIMIT)
-#   error "BOOST_RESULT_OF_NUM_ARGS  < PHOENIX_ACTOR_LIMIT"
-# endif
+#elif (BOOST_RESULT_OF_NUM_ARGS < PHOENIX_ACTOR_LIMIT)
+# error "BOOST_RESULT_OF_NUM_ARGS < PHOENIX_ACTOR_LIMIT"
 #endif
 
-#include <boost/spirit/home/phoenix/core/limits.hpp>
 #include <boost/spirit/home/phoenix/core/basic_environment.hpp>
 #include <boost/mpl/min.hpp>
 #include <boost/mpl/identity.hpp>
@@ -138,6 +137,10 @@ namespace boost { namespace phoenix
 
         //  Bring in the rest of the constructors and function call operators 
         #include <boost/spirit/home/phoenix/core/detail/actor.hpp>
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        actor& operator= (actor const&);
     };
 
     //  Forward declaration: The intent to overload the comma must be

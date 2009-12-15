@@ -82,6 +82,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::rolling_sum> const rolling_sum = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(rolling_sum)
 }
 
 using extract::rolling_sum;

@@ -8,6 +8,8 @@
 
 #include <boost/program_options/detail/convert.hpp>
 
+#include <iterator>
+
 namespace boost { namespace program_options {
 
     namespace detail {

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Joaquin M Lopez Munoz  2006-2008
+// (C) Copyright Joaquin M Lopez Munoz  2006-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,6 +13,7 @@
 #ifndef BOOST_INTRUSIVE_DETAIL_EBO_HOLDER_HPP
 #define BOOST_INTRUSIVE_DETAIL_EBO_HOLDER_HPP
 
+#include <boost/intrusive/detail/config_begin.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
 
 namespace boost {
@@ -88,5 +89,7 @@ class ebo_functor_holder
 }  //namespace detail {
 }  //namespace intrusive {
 }  //namespace boost {
+
+#include <boost/intrusive/detail/config_end.hpp>
 
 #endif   //#ifndef BOOST_INTRUSIVE_DETAIL_EBO_HOLDER_HPP

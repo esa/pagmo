@@ -65,7 +65,9 @@
             {};
 
             template<typename R, typename Expr, typename State, typename Data
-                , bool IsTransform = is_callable<R>::value
+                // BUGBUG this should be is_transform, but if R is a template instantiation
+                // it will cause the template to be instantiated, whereas is_callable will not.
+              , bool IsTransform = is_callable<R>::value
             >
             struct make_if_;
 
@@ -96,9 +98,11 @@
             // TODO could optimize this if R is a transform
             template<typename R, typename Expr, typename State, typename Data>
             struct make_if_<R, Expr, State, Data, true>
-              : remove_const<typename remove_reference<
-                    typename boost::result_of<R(Expr, State, Data)>::type
-                >::type>
+              : remove_const<
+                    typename remove_reference<
+                        typename R::template impl<Expr, State, Data>::result_type
+                    >::type
+                >
             {};
 
             template<typename Type, bool IsAggregate = is_aggregate<Type>::value>
@@ -213,15 +217,15 @@
         /// \li Function pointer types
         /// \li Types for which <tt>proto::is_callable\< type \>::::value</tt> is \c true
         ///
-        /// <tt>make\<T\<X0,X1,...\> \>::::result\<void(Expr, State, Data)\>::::type</tt>
+        /// <tt>boost::result_of\<make\<T\<X0,X1,...\> \>(Expr, State, Data)\>::::type</tt>
         /// is evaluated as follows. For each \c X in <tt>X0,X1,...</tt>, do:
         ///
         /// \li If \c X is a template like <tt>U\<Y0,Y1,...\></tt>, then let <tt>X'</tt>
-        ///     be <tt>make\<U\<Y0,Y1,...\> \>::::result\<void(Expr, State, Data)\>::::type</tt>
+        ///     be <tt>boost::result_of\<make\<U\<Y0,Y1,...\> \>(Expr, State, Data)\>::::type</tt>
         ///     (which evaluates this procedure recursively). Note whether any
         ///     substitutions took place during this operation.
         /// \li Otherwise, if \c X is a transform, then let <tt>X'</tt> be
-        ///     <tt>when\<_, X\>::::result\<void(Expr, State, Data)\>::::type</tt>.
+        ///     <tt>boost::result_of\<when\<_, X\>(Expr, State, Data)\>::::type</tt>.
         ///     Note that a substitution took place.
         /// \li Otherwise, let <tt>X'</tt> be \c X, and note that no substitution
         ///     took place.
@@ -383,14 +387,13 @@
             template<typename Expr, typename State, typename Data>
             struct impl : transform_impl<Expr, State, Data>
             {
-                /// \brief <tt>make\<Object\>::::result\<void(Expr, State, Data)\>::::type</tt>
+                /// \brief <tt>boost::result_of\<make\<Object\>(Expr, State, Data)\>::::type</tt>
                 typedef typename detail::make_if_<Object, Expr, State, Data>::type result_type;
                 //typedef typename detail::make_<Object, Expr, State, Data>::type result_type;
 
                 /// Let \c ax be <tt>when\<_, Ax\>()(e, s, d)</tt>
                 /// for each \c x in <tt>[0,N]</tt>.
-                /// Let \c T be <tt>result\<void(Expr, State, Data)\>::::type</tt>.
-                /// Return <tt>T(a0, a1,... aN)</tt>.
+                /// Return <tt>result_type(a0, a1,... aN)</tt>.
                 ///
                 /// \param e The current expression
                 /// \param s The current state

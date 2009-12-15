@@ -65,7 +65,7 @@ class pool_allocator
       // initialization. See ticket #2359 for a complete explaination
       // ( http://svn.boost.org/trac/boost/ticket/2359 )
       singleton_pool<pool_allocator_tag, sizeof(T), UserAllocator, Mutex,
-	             NextSize>::is_from(0);
+                     NextSize>::is_from(0);
     }
 
     // default copy constructor
@@ -81,7 +81,7 @@ class pool_allocator
       // initialization. See ticket #2359 for a complete explaination
       // ( http://svn.boost.org/trac/boost/ticket/2359 )
       singleton_pool<pool_allocator_tag, sizeof(T), UserAllocator, Mutex,
-	             NextSize>::is_from(0);
+                     NextSize>::is_from(0);
     }
 
     // default destructor
@@ -138,7 +138,7 @@ public:
     typedef const void* const_pointer;
     typedef void        value_type;
     template <class U> struct rebind {
-	typedef pool_allocator<U, UserAllocator, Mutex, NextSize> other;
+        typedef pool_allocator<U, UserAllocator, Mutex, NextSize> other;
     };
 };
 
@@ -177,7 +177,7 @@ class fast_pool_allocator
       // initialization. See ticket #2359 for a complete explaination
       // ( http://svn.boost.org/trac/boost/ticket/2359 )
       singleton_pool<fast_pool_allocator_tag, sizeof(T),
-	             UserAllocator, Mutex, NextSize>::is_from(0);
+                     UserAllocator, Mutex, NextSize>::is_from(0);
     }
     
     // default copy constructor
@@ -194,7 +194,7 @@ class fast_pool_allocator
       // initialization. See ticket #2359 for a complete explaination
       // ( http://svn.boost.org/trac/boost/ticket/2359 )
       singleton_pool<fast_pool_allocator_tag, sizeof(T),
-	             UserAllocator, Mutex, NextSize>::is_from(0);
+                     UserAllocator, Mutex, NextSize>::is_from(0);
     }
 
     // default destructor
@@ -228,7 +228,7 @@ class fast_pool_allocator
               singleton_pool<fast_pool_allocator_tag, sizeof(T),
                   UserAllocator, Mutex, NextSize>::ordered_malloc(n) );
       if (ret == 0)
-	boost::throw_exception(std::bad_alloc());
+        boost::throw_exception(std::bad_alloc());
       return ret;
     }
     static pointer allocate(const size_type n, const void * const)
@@ -239,7 +239,7 @@ class fast_pool_allocator
           singleton_pool<fast_pool_allocator_tag, sizeof(T),
               UserAllocator, Mutex, NextSize>::malloc() );
       if (ret == 0)
-	boost::throw_exception(std::bad_alloc());
+        boost::throw_exception(std::bad_alloc());
       return ret;
     }
     static void deallocate(const pointer ptr, const size_type n)
@@ -273,7 +273,7 @@ public:
     typedef const void* const_pointer;
     typedef void        value_type;
     template <class U> struct rebind {
-	typedef fast_pool_allocator<U, UserAllocator, Mutex, NextSize> other;
+        typedef fast_pool_allocator<U, UserAllocator, Mutex, NextSize> other;
     };
 };
 

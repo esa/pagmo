@@ -106,7 +106,7 @@ T temme_method_1_ibeta_inverse(T a, T b, T z, const Policy& pol)
    //
    // Bring them together to get a final estimate for eta:
    //
-   T eta = tools::evaluate_polynomial(terms, 1/a, 4);
+   T eta = tools::evaluate_polynomial(terms, T(1/a), 4);
    //
    // now we need to convert eta to x, by solving the appropriate
    // quadratic equation:
@@ -207,7 +207,7 @@ T temme_method_2_ibeta_inverse(T /*a*/, T /*b*/, T z, T r, T theta, const Policy
    // Bring the correction terms together to evaluate eta,
    // this is the last equation on page 151:
    //
-   T eta = tools::evaluate_polynomial(terms, 1/r, 4);
+   T eta = tools::evaluate_polynomial(terms, T(1/r), 4);
    //
    // Now that we have eta we need to back solve for x,
    // we seek the value of x that gives eta in Eq 3.2.
@@ -660,7 +660,7 @@ T ibeta_inv_imp(T a, T b, T p, T q, const Policy& pol, T* py)
       //
       T lx = log(p * a * boost::math::beta(a, b, pol)) / a;
       x = exp(lx);
-      y = x < 0.9 ? 1 - x : -boost::math::expm1(lx, pol);
+      y = x < 0.9 ? T(1 - x) : (T)(-boost::math::expm1(lx, pol));
 
       if((b < a) && (x < 0.2))
       {
@@ -795,8 +795,10 @@ T ibeta_inv_imp(T a, T b, T p, T q, const Policy& pol, T* py)
    // Now iterate, we can use either p or q as the target here
    // depending on which is smaller:
    //
+   boost::uintmax_t max_iter = policies::get_max_root_iterations<Policy>();
    x = boost::math::tools::halley_iterate(
-      boost::math::detail::ibeta_roots<T, Policy>(a, b, (p < q ? p : q), (p < q ? false : true)), x, lower, upper, digits);
+      boost::math::detail::ibeta_roots<T, Policy>(a, b, (p < q ? p : q), (p < q ? false : true)), x, lower, upper, digits, max_iter);
+   policies::check_root_iterations("boost::math::ibeta<%1%>(%1%, %1%, %1%)", max_iter, pol);
    //
    // We don't really want these asserts here, but they are useful for sanity
    // checking that we have the limits right, uncomment if you suspect bugs *only*.

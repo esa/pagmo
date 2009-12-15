@@ -5,7 +5,7 @@
  * Subject to the Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-11-26 10:39:19 -0500 (Wed, 26 Nov 2008) $
+ * $Date: 2009-10-03 06:04:00 -0400 (Sat, 03 Oct 2009) $
  */
 
 #include <string>
@@ -59,9 +59,12 @@ namespace local_time{
    * An invalid date spec (see date class)<br>
    * A boost::local_time::bad_offset exception will be thrown for:<br>
    * A DST start or end offset that is negative or more than 24 hours<br>
-   * A UTC zone that is greater than +12 or less than -12 hours<br>
+   * A UTC zone that is greater than +14 or less than -12 hours<br>
    * A boost::local_time::bad_adjustment exception will be thrown for:<br>
    * A DST adjustment that is 24 hours or more (positive or negative)<br>
+   *
+   * Note that UTC zone offsets can be greater than +12:
+   * http://www.worldtimezone.com/utc/utc+1200.html
    */
   template<class CharT>
   class posix_time_zone_base : public date_time::time_zone_base<posix_time::ptime,CharT> {
@@ -259,9 +262,9 @@ namespace local_time{
         base_utc_offset_ = date_time::str_from_delimited_time_duration<time_duration_type,char_type>(ss.str()); 
         ss.str(empty_string);
 
-        // base offset must be within range of -12 hours to +12 hours
+        // base offset must be within range of -12 hours to +14 hours
         if(base_utc_offset_ < time_duration_type(-12,0,0) ||
-          base_utc_offset_ > time_duration_type(12,0,0))
+          base_utc_offset_ > time_duration_type(14,0,0))
         {
           boost::throw_exception(bad_offset(posix_time::to_simple_string(base_utc_offset_)));
         }

@@ -173,8 +173,7 @@ public:
         this->begin_ = this->curr_ = this->end_ = 0;
     }
 
-    template<bool Fill>
-    T *push_sequence(std::size_t count, mpl::bool_<Fill>)
+    T *push_sequence(std::size_t count)
     {
         // This is the ptr to return
         T *ptr = this->curr_;
@@ -192,17 +191,15 @@ public:
             return this->grow_(count);
         }
 
-        if(Fill)
-        {
-            std::fill_n(ptr, count, T());
-        }
-
         return ptr;
     }
 
-    T *push_sequence(std::size_t count)
+    template<typename U>
+    T *push_sequence(std::size_t count, U const &u)
     {
-        return this->push_sequence(count, mpl::true_());
+        T *ptr = this->push_sequence(count);
+        std::fill_n(ptr, count, u);
+        return ptr;
     }
 
     void unwind_to(T *ptr)
@@ -228,9 +225,6 @@ public:
         }
     }
 };
-
-typedef mpl::false_ no_fill_t;
-no_fill_t const no_fill = {};
 
 }}} // namespace boost::xpressive::detail
 

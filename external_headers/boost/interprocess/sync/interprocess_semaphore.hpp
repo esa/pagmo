@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -36,8 +36,6 @@
    #include <boost/interprocess/detail/atomic.hpp>
    #include <boost/cstdint.hpp>
    #include <boost/interprocess/detail/os_thread_functions.hpp>
-   #include <boost/interprocess/sync/interprocess_mutex.hpp>
-   #include <boost/interprocess/sync/interprocess_condition.hpp>
    #define BOOST_INTERPROCESS_USE_GENERIC_EMULATION
 #endif
 
@@ -62,7 +60,7 @@ class interprocess_semaphore
    public:
    //!Creates a interprocess_semaphore with the given initial count. 
    //!interprocess_exception if there is an error.*/
-   interprocess_semaphore(int initialCount);
+   interprocess_semaphore(unsigned int initialCount);
 
    //!Destroys the interprocess_semaphore.
    //!Does not throw
@@ -95,9 +93,7 @@ class interprocess_semaphore
    /// @cond
    private:
    #if defined(BOOST_INTERPROCESS_USE_GENERIC_EMULATION)
-   interprocess_mutex       m_mut;
-   interprocess_condition   m_cond;
-   int         m_count;
+   volatile boost::uint32_t m_count;
    #else 
    detail::semaphore_wrapper m_sem;
    #endif   //#if defined(BOOST_INTERPROCESS_USE_GENERIC_EMULATION)

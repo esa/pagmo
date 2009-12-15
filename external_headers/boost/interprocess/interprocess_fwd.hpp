@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -254,6 +254,7 @@ wmanaged_windows_shared_memory;
 
 #else
 
+#if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS)
 template <class CharType
          ,class MemoryAlgorithm
          ,template<class IndexConfig> class IndexType>
@@ -270,6 +271,7 @@ typedef basic_managed_xsi_shared_memory
    ,rbtree_best_fit<mutex_family>
    ,iset_index>
 wmanaged_xsi_shared_memory;
+#endif //#if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS)
 
 #endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
 

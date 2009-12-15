@@ -13,6 +13,7 @@
 #include <boost/proto/proto_fwd.hpp>
 #include <boost/proto/traits.hpp>
 #include <boost/proto/transform/impl.hpp>
+#include <boost/type_traits/is_array.hpp>
 #include <boost/proto/detail/suffix.hpp>
 
 namespace boost { namespace proto
@@ -196,7 +197,7 @@ namespace boost { namespace proto
             /// \return <tt>proto::value(e)</tt>
             /// \throw nothrow
             #ifdef BOOST_HAS_DECLTYPE
-            result_type
+            typename mpl::if_c<is_array<result_type>::value, result_type &, result_type>::type
             #else
             typename result_of::value<typename impl::expr_param>::type
             #endif

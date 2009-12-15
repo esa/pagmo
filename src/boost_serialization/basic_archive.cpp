@@ -57,10 +57,11 @@ BOOST_ARCHIVE_SIGNATURE(){
 // 5 - Boost 1.36
 //     changed serialization of collections: adding version even for primitive
 //     types caused backwards compatibility breaking change in 1.35
+// 6 - Boost 1.41, serializing collection sizes as std::size_t
 
 BOOST_ARCHIVE_DECL(unsigned char)
 BOOST_ARCHIVE_VERSION(){
-    return 5;
+    return 6;
 }
 
 } // namespace archive

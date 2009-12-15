@@ -75,7 +75,7 @@ T expm1_imp(T x, const mpl::int_<0>&, const Policy& pol)
    BOOST_MATH_STD_USING
 
    T a = fabs(x);
-   if(a > T(0.5L))
+   if(a > T(0.5f))
    {
       if(a >= tools::log_max_value<T>())
       {
@@ -90,10 +90,10 @@ T expm1_imp(T x, const mpl::int_<0>&, const Policy& pol)
    detail::expm1_series<T> s(x);
    boost::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582)) && !BOOST_WORKAROUND(__EDG_VERSION__, <= 245)
-   T result = tools::sum_series(s, policies::digits<T, Policy>(), max_iter);
+   T result = tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter);
 #else
    T zero = 0;
-   T result = tools::sum_series(s, policies::digits<T, Policy>(), max_iter, zero);
+   T result = tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter, zero);
 #endif
    policies::check_series_iterations("boost::math::expm1<%1%>(%1%)", max_iter, pol);
    return result;
@@ -267,10 +267,12 @@ inline typename tools::promote_args<T>::type expm1(T x, const Policy& /* pol */)
 #if defined(BOOST_HAS_EXPM1) && !(defined(__osf__) && defined(__DECCXX_VER))
 #  ifdef BOOST_MATH_USE_C99
 inline float expm1(float x, const policies::policy<>&){ return ::expm1f(x); }
+#     ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 inline long double expm1(long double x, const policies::policy<>&){ return ::expm1l(x); }
-#else
+#     endif
+#  else
 inline float expm1(float x, const policies::policy<>&){ return ::expm1(x); }
-#endif
+#  endif
 inline double expm1(double x, const policies::policy<>&){ return ::expm1(x); }
 #endif
 

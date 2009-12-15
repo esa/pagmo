@@ -79,9 +79,9 @@
         /// {};
         /// \endcode
         template<typename PrimitiveTransform>
-        struct call : PrimitiveTransform
-        {
-        };
+        struct call
+          : PrimitiveTransform
+        {};
 
         /// \brief Either call the PolymorphicFunctionObject with 0
         /// arguments, or invoke the PrimitiveTransform with 3
@@ -143,15 +143,14 @@
               : transform_impl<Expr, State, Data>
             {
                 typedef typename when<_, A0>::template impl<Expr, State, Data>::result_type a0;
-                typedef typename detail::as_mono_function<Fun(a0)>::type mono_fun;
-                typedef typename boost::result_of<mono_fun(a0)>::type result_type;
+                typedef typename detail::poly_function_traits<Fun, Fun(a0)>::result_type result_type;
                 result_type operator ()(
                     typename impl2::expr_param   e
                   , typename impl2::state_param  s
                   , typename impl2::data_param   d
                 ) const
                 {
-                    return mono_fun()(
+                    return typename detail::poly_function_traits<Fun, Fun(a0)>::function_type()(
                         detail::as_lvalue(typename when<_, A0>::template impl<Expr, State, Data>()(e, s, d))
                     );
                 }
@@ -214,15 +213,14 @@
             {
                 typedef typename when<_, A0>::template impl<Expr, State, Data>::result_type a0;
                 typedef typename when<_, A1>::template impl<Expr, State, Data>::result_type a1;
-                typedef typename detail::as_mono_function<Fun(a0, a1)>::type mono_fun;
-                typedef typename boost::result_of<mono_fun(a0, a1)>::type result_type;
+                typedef typename detail::poly_function_traits<Fun, Fun(a0, a1)>::result_type result_type;
                 result_type operator ()(
                     typename impl2::expr_param   e
                   , typename impl2::state_param  s
                   , typename impl2::data_param   d
                 ) const
                 {
-                    return mono_fun()(
+                    return typename detail::poly_function_traits<Fun, Fun(a0, a1)>::function_type()(
                         detail::as_lvalue(typename when<_, A0>::template impl<Expr, State, Data>()(e, s, d))
                       , detail::as_lvalue(typename when<_, A1>::template impl<Expr, State, Data>()(e, s, d))
                     );
@@ -295,15 +293,14 @@
                 typedef typename when<_, A0>::template impl<Expr, State, Data>::result_type a0;
                 typedef typename when<_, A1>::template impl<Expr, State, Data>::result_type a1;
                 typedef typename when<_, A2>::template impl<Expr, State, Data>::result_type a2;
-                typedef typename detail::as_mono_function<Fun(a0, a1, a2)>::type mono_fun;
-                typedef typename boost::result_of<mono_fun(a0, a1, a2)>::type result_type;
+                typedef typename detail::poly_function_traits<Fun, Fun(a0, a1, a2)>::result_type result_type;
                 result_type operator ()(
                     typename impl2::expr_param   e
                   , typename impl2::state_param  s
                   , typename impl2::data_param   d
                 ) const
                 {
-                    return mono_fun()(
+                    return typename detail::poly_function_traits<Fun, Fun(a0, a1, a2)>::function_type()(
                         detail::as_lvalue(typename when<_, A0>::template impl<Expr, State, Data>()(e, s, d))
                       , detail::as_lvalue(typename when<_, A1>::template impl<Expr, State, Data>()(e, s, d))
                       , detail::as_lvalue(typename when<_, A2>::template impl<Expr, State, Data>()(e, s, d))
@@ -388,11 +385,7 @@
                 #undef M0
 
                 typedef
-                    typename detail::as_mono_function<Fun(BOOST_PP_ENUM_PARAMS(N, a))>::type
-                mono_fun;
-
-                typedef
-                    typename boost::result_of<mono_fun(BOOST_PP_ENUM_PARAMS(N, a))>::type
+                    typename detail::poly_function_traits<Fun, Fun(BOOST_PP_ENUM_PARAMS(N, a))>::result_type
                 result_type;
 
                 /// Let \c ax be <tt>when\<_, Ax\>()(e, s, d)</tt>
@@ -413,7 +406,9 @@
                             typename when<_, BOOST_PP_CAT(A, M)>                                    \
                                 ::template impl<Expr, State, Data>()(e, s, d))                      \
                         /**/
-                    return mono_fun()(BOOST_PP_ENUM(N, M0, ~));
+                    return typename detail::poly_function_traits<Fun, Fun(BOOST_PP_ENUM_PARAMS(N, a))>::function_type()(
+                        BOOST_PP_ENUM(N, M0, ~)
+                    );
                     #undef M0
                 }
             };

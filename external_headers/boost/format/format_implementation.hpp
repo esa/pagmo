@@ -37,7 +37,7 @@ namespace boost {
     template< class Ch, class Tr, class Alloc>
     basic_format<Ch, Tr, Alloc>:: basic_format(const Ch* s, const std::locale & loc)
         : style_(0), cur_arg_(0), num_args_(0), dumped_(false),
-          loc_(loc), exceptions_(io::all_error_bits)
+          exceptions_(io::all_error_bits), loc_(loc)
     {
         if(s) parse( s );
     }
@@ -45,7 +45,7 @@ namespace boost {
     template< class Ch, class Tr, class Alloc>
     basic_format<Ch, Tr, Alloc>:: basic_format(const string_type& s, const std::locale & loc)
         : style_(0), cur_arg_(0), num_args_(0), dumped_(false),
-          loc_(loc), exceptions_(io::all_error_bits)
+          exceptions_(io::all_error_bits), loc_(loc)
     {
         parse(s);  
     }

@@ -50,6 +50,12 @@ protected:
   indexed_vertex_properties(std::size_t n) : m_vertex_properties(n) { }
 
 public:
+  // Clear the properties vector
+  void clear()
+  {
+    m_vertex_properties.clear();
+  }
+
   // Resize the properties vector
   void resize(std::size_t n)
   {
@@ -66,6 +72,12 @@ public:
   void push_back(const Property& prop)
   {
     m_vertex_properties.push_back(prop);
+  }
+
+  // Write an element by raw index
+  void write_by_index(std::size_t idx, const Property& prop)
+  {
+    m_vertex_properties[idx] = prop;
   }
 
   // Access to the derived object
@@ -95,6 +107,7 @@ class indexed_vertex_properties<Derived, void, Descriptor>
   indexed_vertex_properties(std::size_t) { }
 
 public:
+  void clear() { }
   void resize(std::size_t) { }
   void reserve(std::size_t) { }
 };
@@ -121,6 +134,18 @@ protected:
   // Initialize with n default-constructed property values
   indexed_edge_properties(std::size_t n) : m_edge_properties(n) { }
 
+  // Get the size of the properties vector
+  std::size_t size() const
+  {
+    return m_edge_properties.size();
+  }
+
+  // Clear the properties vector
+  void clear()
+  {
+    m_edge_properties.clear();
+  }
+
   // Resize the properties vector
   void resize(std::size_t n)
   {
@@ -133,12 +158,30 @@ protected:
     m_edge_properties.reserve(n);
   }
 
+  // Write an element by raw index
+  void write_by_index(std::size_t idx, const Property& prop)
+  {
+    m_edge_properties[idx] = prop;
+  }
+
  public:
   // Add a new property value to the back
   void push_back(const Property& prop)
   {
     m_edge_properties.push_back(prop);
   }
+
+  // Move range of properties backwards
+  void move_range(std::size_t src_begin, std::size_t src_end, std::size_t dest_begin) {
+    std::copy_backward(
+        m_edge_properties.begin() + src_begin,
+        m_edge_properties.begin() + src_end,
+        m_edge_properties.begin() + dest_begin + (src_end - src_begin));
+  }
+
+  typedef typename std::vector<Property>::iterator iterator;
+  iterator begin() {return m_edge_properties.begin();}
+  iterator end() {return m_edge_properties.end();}
 
  private:
   // Access to the derived object
@@ -149,6 +192,17 @@ protected:
 
 public: // should be private, but friend templates not portable
   std::vector<Property> m_edge_properties;
+};
+
+struct dummy_no_property_iterator
+: public boost::iterator_facade<dummy_no_property_iterator, no_property, std::random_access_iterator_tag> {
+  mutable no_property prop;
+  no_property& dereference() const {return prop;}
+  bool equal(const dummy_no_property_iterator&) const {return true;}
+  void increment() {}
+  void decrement() {}
+  void advance(std::ptrdiff_t) {}
+  std::ptrdiff_t distance_to(const dummy_no_property_iterator) const {return 0;}
 };
 
 template<typename Derived, typename Descriptor>
@@ -162,16 +216,25 @@ class indexed_edge_properties<Derived, void, Descriptor>
   typedef void* edge_push_back_type;
 
   secret operator[](secret) { return secret(); }
+  void write_by_index(std::size_t idx, const no_property& prop) {}
 
  protected:
   // All operations do nothing.
   indexed_edge_properties() { }
   indexed_edge_properties(std::size_t) { }
+  std::size_t size() const {return 0;}
+  void clear() { }
   void resize(std::size_t) { }
   void reserve(std::size_t) { }
 
  public:
   void push_back(const edge_push_back_type&) { }
+  void move_range(std::size_t src_begin, std::size_t src_end, std::size_t dest_begin) {}
+
+  typedef dummy_no_property_iterator iterator;
+  iterator begin() {return dummy_no_property_iterator();}
+  iterator end() {return dummy_no_property_iterator();}
+
 };
 
 }

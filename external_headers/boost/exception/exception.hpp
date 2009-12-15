@@ -80,13 +80,13 @@ boost
     template <class Tag,class T>
     class error_info;
 
-    typedef error_info<struct tag_throw_function,char const *> throw_function;
-    typedef error_info<struct tag_throw_file,char const *> throw_file;
-    typedef error_info<struct tag_throw_line,int> throw_line;
+    typedef error_info<struct throw_function_,char const *> throw_function;
+    typedef error_info<struct throw_file_,char const *> throw_file;
+    typedef error_info<struct throw_line_,int> throw_line;
 
     template <>
     class
-    error_info<tag_throw_function,char const *>
+    error_info<throw_function_,char const *>
         {
         public:
         typedef char const * value_type;
@@ -100,7 +100,7 @@ boost
 
     template <>
     class
-    error_info<tag_throw_file,char const *>
+    error_info<throw_file_,char const *>
         {
         public:
         typedef char const * value_type;
@@ -114,7 +114,7 @@ boost
 
     template <>
     class
-    error_info<tag_throw_line,int>
+    error_info<throw_line_,int>
         {
         public:
         typedef int value_type;
@@ -143,9 +143,9 @@ boost
         struct
         error_info_container
             {
-            virtual char const * diagnostic_information() const = 0;
-            virtual shared_ptr<error_info_base const> get( type_info_ const & ) const = 0;
-            virtual void set( shared_ptr<error_info_base const> const &, type_info_ const & ) = 0;
+            virtual char const * diagnostic_information( char const * ) const = 0;
+            virtual shared_ptr<error_info_base> get( type_info_ const & ) const = 0;
+            virtual void set( shared_ptr<error_info_base> const &, type_info_ const & ) = 0;
             virtual void add_ref() const = 0;
             virtual void release() const = 0;
 
@@ -169,7 +169,7 @@ boost
         template <>
         struct get_info<throw_line>;
 
-        char const * get_diagnostic_information( exception const & );
+        char const * get_diagnostic_information( exception const &, char const * );
         }
 
     class
@@ -231,7 +231,7 @@ boost
             return x;
             }
 
-        friend char const * exception_detail::get_diagnostic_information( exception const & );
+        friend char const * exception_detail::get_diagnostic_information( exception const &, char const * );
 
         template <class E,class Tag,class T>
         friend E const & operator<<( E const &, error_info<Tag,T> const & );

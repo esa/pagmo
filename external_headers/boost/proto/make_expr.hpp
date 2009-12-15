@@ -174,8 +174,8 @@
                 unref_type;
 
                 typedef
-                    typename mpl::eval_if<
-                        boost::is_reference_wrapper<T>
+                    typename mpl::eval_if_c<
+                        boost::is_reference_wrapper<T>::value
                       , proto::result_of::as_child<unref_type, Domain>
                       , proto::result_of::as_expr<unref_type, Domain>
                     >::type
@@ -183,8 +183,8 @@
 
                 static type call(T &t)
                 {
-                    return typename mpl::if_<
-                        is_reference_wrapper<T>
+                    return typename mpl::if_c<
+                        is_reference_wrapper<T>::value
                       , functional::as_child<Domain>
                       , functional::as_expr<Domain>
                     >::type()(static_cast<unref_type &>(t));
@@ -310,15 +310,15 @@
             {};
 
             template<typename Base, typename Expr>
-            Expr implicit_expr_wrap(Base const &expr, mpl::false_, Expr *)
+            Expr implicit_expr_wrap(Base const &e, mpl::false_, Expr *)
             {
-                return Expr(expr);
+                return Expr(e);
             }
 
             template<typename Base, typename Expr>
-            Expr implicit_expr_wrap(Base const &expr, mpl::true_, Expr *)
+            Expr implicit_expr_wrap(Base const &e, mpl::true_, Expr *)
             {
-                Expr that = {expr};
+                Expr that = {e};
                 return that;
             }
 
@@ -976,9 +976,10 @@
             typedef proto::expr<
                 Tag
               , BOOST_PP_CAT(list, N)<BOOST_PP_ENUM(N, BOOST_PROTO_AS_CHILD_TYPE, (A, ~, Domain)) >
+              , N
             > expr_type;
 
-            typedef typename Domain::template result<void(expr_type)>::type result_type;
+            typedef typename Domain::template result<Domain(expr_type)>::type result_type;
 
             result_type operator()(BOOST_PP_ENUM_BINARY_PARAMS(N, typename add_reference<A, >::type a)) const
             {
@@ -1009,9 +1010,10 @@
               , BOOST_PP_CAT(list, N)<
                     BOOST_PP_ENUM(N, BOOST_PROTO_FUSION_AS_CHILD_AT_TYPE, ~)
                 >
+              , N
             > expr_type;
 
-            typedef typename Domain::template result<void(expr_type)>::type type;
+            typedef typename Domain::template result<Domain(expr_type)>::type type;
 
             static type const call(Sequence const &sequence)
             {

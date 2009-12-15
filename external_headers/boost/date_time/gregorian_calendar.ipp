@@ -3,7 +3,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
+ * $Date: 2009-09-28 14:10:02 -0400 (Mon, 28 Sep 2009) $
  */
 
 #ifndef NO_BOOST_DATE_TIME_INLINE
@@ -99,7 +99,7 @@ namespace date_time {
    */
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
-  long
+  date_int_type_
   gregorian_calendar_base<ymd_type_,date_int_type_>::modjulian_day_number(const ymd_type& ymd) 
   {
     return julian_day_number(ymd)-2400001; //prerounded
@@ -149,7 +149,7 @@ namespace date_time {
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   ymd_type_
-  gregorian_calendar_base<ymd_type_,date_int_type_>::from_modjulian_day_number(long dayNumber) {
+  gregorian_calendar_base<ymd_type_,date_int_type_>::from_modjulian_day_number(date_int_type dayNumber) {
     date_int_type jd = dayNumber + 2400001; //is 2400000.5 prerounded
     return from_julian_day_number(jd);
   }

@@ -88,8 +88,8 @@ namespace boost { namespace proto
             BOOST_PROTO_FUSION_DEFINE_CATEGORY(fusion::forward_traversal_tag)
             BOOST_PROTO_FUSION_DEFINE_TAG(tag::proto_flat_view)
 
-            explicit flat_view(Expr &expr)
-              : expr_(expr)
+            explicit flat_view(Expr &e)
+              : expr_(e)
             {}
 
             Expr &expr_;
@@ -103,8 +103,8 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr>
             struct result<This(Expr)>
-              : mpl::if_<
-                    is_same<Tag, UNREF(Expr)::proto_tag>
+              : mpl::if_c<
+                    is_same<Tag, UNREF(Expr)::proto_tag>::value
                   , flat_view<UNREF(Expr) const>
                   , fusion::single_view<UNREF(Expr) const &>
                 >
@@ -112,9 +112,9 @@ namespace boost { namespace proto
 
             template<typename Expr>
             typename result<as_element(Expr const &)>::type
-            operator ()(Expr const &expr) const
+            operator ()(Expr const &e) const
             {
-                return typename result<as_element(Expr const &)>::type(expr);
+                return typename result<as_element(Expr const &)>::type(e);
             }
         };
     }
@@ -163,9 +163,9 @@ namespace boost { namespace proto
 
             template<typename Expr>
             proto::detail::flat_view<Expr const>
-            operator ()(Expr const &expr) const
+            operator ()(Expr const &e) const
             {
-                return proto::detail::flat_view<Expr const>(expr);
+                return proto::detail::flat_view<Expr const>(e);
             }
         };
 
@@ -196,9 +196,9 @@ namespace boost { namespace proto
 
             template<typename Expr>
             typename fusion::BOOST_PROTO_FUSION_RESULT_OF::pop_front<Expr const>::type
-            operator ()(Expr const &expr) const
+            operator ()(Expr const &e) const
             {
-                return fusion::pop_front(expr);
+                return fusion::pop_front(e);
             }
         };
 
@@ -227,9 +227,9 @@ namespace boost { namespace proto
 
             template<typename Expr>
             typename fusion::BOOST_PROTO_FUSION_RESULT_OF::reverse<Expr const>::type
-            operator ()(Expr const &expr) const
+            operator ()(Expr const &e) const
             {
-                return fusion::reverse(expr);
+                return fusion::reverse(e);
             }
         };
     }
@@ -247,9 +247,9 @@ namespace boost { namespace proto
     /// <tt>((a | b) | c)</tt>.
     template<typename Expr>
     proto::detail::flat_view<Expr const>
-    flatten(Expr const &expr)
+    flatten(Expr const &e)
     {
-        return proto::detail::flat_view<Expr const>(expr);
+        return proto::detail::flat_view<Expr const>(e);
     }
 
     /// INTERNAL ONLY
@@ -295,9 +295,9 @@ namespace boost { namespace proto
 
         template<typename Expr>
         typename proto::result_of::eval<Expr, Context>::type
-        operator ()(Expr &expr) const
+        operator ()(Expr &e) const
         {
-            return proto::eval(expr, this->ctx_);
+            return proto::eval(e, this->ctx_);
         }
 
     private:

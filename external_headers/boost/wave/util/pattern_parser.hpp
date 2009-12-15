@@ -50,8 +50,8 @@ namespace util {
 
     template <typename CharT>
     inline pattern_and<CharT>
-    pattern_p(CharT pattern, long pattern_mask = 0L)
-    { return pattern_and<CharT>(pattern, (unsigned long)pattern_mask); }
+    pattern_p(CharT pattern, unsigned long pattern_mask = 0UL)
+    { return pattern_and<CharT>(pattern, pattern_mask); }
 
 ///////////////////////////////////////////////////////////////////////////////
 }   // namespace util

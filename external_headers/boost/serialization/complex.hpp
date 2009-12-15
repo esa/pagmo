@@ -39,7 +39,7 @@ inline void serialize(
 template<class Archive, class T>
 inline void save(
     Archive & ar,
-    std::complex<T> const& t,
+    std::complex<T> const & t,
     const unsigned int /* file_version */
 ){
     const T re = t.real();

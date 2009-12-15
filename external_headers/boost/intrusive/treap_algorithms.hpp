@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2008.
+// (C) Copyright Ion Gaztanaga  2006-2009.
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,8 +10,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef BOOST_INTRUSIVE_TRIE_ALGORITHMS_HPP
-#define BOOST_INTRUSIVE_TRIE_ALGORITHMS_HPP
+#ifndef BOOST_INTRUSIVE_TREAP_ALGORITHMS_HPP
+#define BOOST_INTRUSIVE_TREAP_ALGORITHMS_HPP
 
 #include <boost/intrusive/detail/config_begin.hpp>
 
@@ -270,15 +270,15 @@ class treap_algorithms
    //! 
    //! <b>Complexity</b>: Average complexity is constant time.
    //! 
-   //! <b>Throws</b>: Nothing.
-   template<class NodePriorityCompare>
-   static void unlink(node_ptr node, NodePriorityCompare prio)
+   //! <b>Throws</b>: If "pcomp" throws, strong guarantee
+   template<class NodePtrPriorityCompare>
+   static void unlink(node_ptr node, NodePtrPriorityCompare pcomp)
    {
       node_ptr x = NodeTraits::get_parent(node);
       if(x){
          while(!is_header(x))
             x = NodeTraits::get_parent(x);
-         erase(x, node, prio);
+         erase(x, node, pcomp);
       }
    }
 
@@ -383,9 +383,9 @@ class treap_algorithms
    //! 
    //! <b>Complexity</b>: Amortized constant time.
    //! 
-   //! <b>Throws</b>: Nothing.
-   template<class NodePriorityCompare>
-   static node_ptr erase(node_ptr header, node_ptr z, NodePriorityCompare pcomp)
+   //! <b>Throws</b>: If "pcomp" throws, strong guarantee.
+   template<class NodePtrPriorityCompare>
+   static node_ptr erase(node_ptr header, node_ptr z, NodePtrPriorityCompare pcomp)
    {
       rebalance_for_erasure(header, z, pcomp);
       tree_algorithms::erase(header, z);
@@ -503,23 +503,24 @@ class treap_algorithms
    //!   NodePtrCompare is a function object that induces a strict weak
    //!   ordering compatible with the strict weak ordering used to create the
    //!   the tree. NodePtrCompare compares two node_ptrs.
+   //!   NodePtrPriorityCompare is a priority function object that induces a strict weak
+   //!   ordering compatible with the one used to create the
+   //!   the tree. NodePtrPriorityCompare compares two node_ptrs.
    //!
    //! <b>Effects</b>: Inserts new_node into the tree before the upper bound
-   //!   according to "comp".
+   //!   according to "comp" and rotates the tree according to "pcomp".
    //! 
    //! <b>Complexity</b>: Average complexity for insert element is at
    //!   most logarithmic.
    //! 
-   //! <b>Throws</b>: If "comp" throws.
-   template<class NodePtrCompare, class PriorityNodeCompare>
+   //! <b>Throws</b>: If "comp" throw or "pcomp" throw.
+   template<class NodePtrCompare, class NodePtrPriorityCompare>
    static node_ptr insert_equal_upper_bound
-      (node_ptr h, node_ptr new_node, NodePtrCompare comp, PriorityNodeCompare pcomp)
+      (node_ptr h, node_ptr new_node, NodePtrCompare comp, NodePtrPriorityCompare pcomp)
    {
       insert_commit_data commit_data;
       tree_algorithms::insert_equal_upper_bound_check(h, new_node, comp, commit_data);
-      rebalance_after_insertion_check(h, commit_data.node, new_node, pcomp, commit_data.rotations);
-      tree_algorithms::insert_unique_commit(h, new_node, commit_data);
-      rebalance_after_insertion_commit(h, new_node, commit_data.rotations);
+      rebalance_check_and_commit(h, new_node, pcomp, commit_data);
       return new_node;
    }
 
@@ -527,23 +528,24 @@ class treap_algorithms
    //!   NodePtrCompare is a function object that induces a strict weak
    //!   ordering compatible with the strict weak ordering used to create the
    //!   the tree. NodePtrCompare compares two node_ptrs.
+   //!   NodePtrPriorityCompare is a priority function object that induces a strict weak
+   //!   ordering compatible with the one used to create the
+   //!   the tree. NodePtrPriorityCompare compares two node_ptrs.
    //!
-   //! <b>Effects</b>: Inserts new_node into the tree before the lower bound
-   //!   according to "comp".
+   //! <b>Effects</b>: Inserts new_node into the tree before the upper bound
+   //!   according to "comp" and rotates the tree according to "pcomp".
    //! 
    //! <b>Complexity</b>: Average complexity for insert element is at
    //!   most logarithmic.
    //! 
    //! <b>Throws</b>: If "comp" throws.
-   template<class NodePtrCompare, class NodePriorityCompare>
+   template<class NodePtrCompare, class NodePtrPriorityCompare>
    static node_ptr insert_equal_lower_bound
-      (node_ptr h, node_ptr new_node, NodePtrCompare comp, NodePriorityCompare pcomp)
+      (node_ptr h, node_ptr new_node, NodePtrCompare comp, NodePtrPriorityCompare pcomp)
    {
       insert_commit_data commit_data;
       tree_algorithms::insert_equal_lower_bound_check(h, new_node, comp, commit_data);
-      rebalance_after_insertion_check(h, commit_data.node, new_node, pcomp, commit_data.rotations);
-      tree_algorithms::insert_unique_commit(h, new_node, commit_data);
-      rebalance_after_insertion_commit(h, new_node, commit_data.rotations);
+      rebalance_check_and_commit(h, new_node, pcomp, commit_data);
       return new_node;
    }
 
@@ -552,25 +554,105 @@ class treap_algorithms
    //!   ordering compatible with the strict weak ordering used to create the
    //!   the tree. NodePtrCompare compares two node_ptrs. "hint" is node from
    //!   the "header"'s tree.
+   //!   NodePtrPriorityCompare is a priority function object that induces a strict weak
+   //!   ordering compatible with the one used to create the
+   //!   the tree. NodePtrPriorityCompare compares two node_ptrs.
    //!   
    //! <b>Effects</b>: Inserts new_node into the tree, using "hint" as a hint to
    //!   where it will be inserted. If "hint" is the upper_bound
    //!   the insertion takes constant time (two comparisons in the worst case).
+   //!   Rotates the tree according to "pcomp".
    //!
    //! <b>Complexity</b>: Logarithmic in general, but it is amortized
    //!   constant time if new_node is inserted immediately before "hint".
    //! 
-   //! <b>Throws</b>: If "comp" throws.
-   template<class NodePtrCompare, class NodePriorityCompare>
+   //! <b>Throws</b>: If "comp" throw or "pcomp" throw.
+   template<class NodePtrCompare, class NodePtrPriorityCompare>
    static node_ptr insert_equal
-      (node_ptr h, node_ptr hint, node_ptr new_node, NodePtrCompare comp, NodePriorityCompare pcomp)
+      (node_ptr h, node_ptr hint, node_ptr new_node, NodePtrCompare comp, NodePtrPriorityCompare pcomp)
    {
       insert_commit_data commit_data;
       tree_algorithms::insert_equal_check(h, hint, new_node, comp, commit_data);
-      rebalance_after_insertion_check(h, commit_data.node, new_node, pcomp, commit_data.rotations);
-      tree_algorithms::insert_unique_commit(h, new_node, commit_data);
-      rebalance_after_insertion_commit(h, new_node, commit_data.rotations);
+      rebalance_check_and_commit(h, new_node, pcomp, commit_data);
       return new_node;
+   }
+
+   //! <b>Requires</b>: "header" must be the header node of a tree.
+   //!   "pos" must be a valid node of the tree (including header end) node.
+   //!   "pos" must be a node pointing to the successor to "new_node"
+   //!   once inserted according to the order of already inserted nodes. This function does not
+   //!   check "pos" and this precondition must be guaranteed by the caller.
+   //!   NodePtrPriorityCompare is a priority function object that induces a strict weak
+   //!   ordering compatible with the one used to create the
+   //!   the tree. NodePtrPriorityCompare compares two node_ptrs.
+   //!   
+   //! <b>Effects</b>: Inserts new_node into the tree before "pos"
+   //!   and rotates the tree according to "pcomp".
+   //!
+   //! <b>Complexity</b>: Constant-time.
+   //! 
+   //! <b>Throws</b>: If "pcomp" throws, strong guarantee.
+   //! 
+   //! <b>Note</b>: If "pos" is not the successor of the newly inserted "new_node"
+   //! tree invariants might be broken.
+   template<class NodePtrPriorityCompare>
+   static node_ptr insert_before
+      (node_ptr header, node_ptr pos, node_ptr new_node, NodePtrPriorityCompare pcomp)
+   {
+      insert_commit_data commit_data;
+      tree_algorithms::insert_before_check(header, pos, commit_data);
+      rebalance_check_and_commit(header, new_node, pcomp, commit_data);
+      return new_node;
+   }
+
+   //! <b>Requires</b>: "header" must be the header node of a tree.
+   //!   "new_node" must be, according to the used ordering no less than the
+   //!   greatest inserted key.
+   //!   NodePtrPriorityCompare is a priority function object that induces a strict weak
+   //!   ordering compatible with the one used to create the
+   //!   the tree. NodePtrPriorityCompare compares two node_ptrs.
+   //!   
+   //! <b>Effects</b>: Inserts x into the tree in the last position
+   //!   and rotates the tree according to "pcomp".
+   //!
+   //! <b>Complexity</b>: Constant-time.
+   //! 
+   //! <b>Throws</b>: If "pcomp" throws, strong guarantee.
+   //! 
+   //! <b>Note</b>: If "new_node" is less than the greatest inserted key
+   //! tree invariants are broken. This function is slightly faster than
+   //! using "insert_before".
+   template<class NodePtrPriorityCompare>
+   static void push_back(node_ptr header, node_ptr new_node, NodePtrPriorityCompare pcomp)
+   {
+      insert_commit_data commit_data;
+      tree_algorithms::push_back_check(header, commit_data);
+      rebalance_check_and_commit(header, new_node, pcomp, commit_data);
+   }
+
+   //! <b>Requires</b>: "header" must be the header node of a tree.
+   //!   "new_node" must be, according to the used ordering, no greater than the
+   //!   lowest inserted key.
+   //!   NodePtrPriorityCompare is a priority function object that induces a strict weak
+   //!   ordering compatible with the one used to create the
+   //!   the tree. NodePtrPriorityCompare compares two node_ptrs.
+   //!   
+   //! <b>Effects</b>: Inserts x into the tree in the first position
+   //!   and rotates the tree according to "pcomp".
+   //!
+   //! <b>Complexity</b>: Constant-time.
+   //! 
+   //! <b>Throws</b>: If "pcomp" throws, strong guarantee.
+   //! 
+   //! <b>Note</b>: If "new_node" is greater than the lowest inserted key
+   //! tree invariants are broken. This function is slightly faster than
+   //! using "insert_before".
+   template<class NodePtrPriorityCompare>
+   static void push_front(node_ptr header, node_ptr new_node, NodePtrPriorityCompare pcomp)
+   {
+      insert_commit_data commit_data;
+      tree_algorithms::push_front_check(header, commit_data);
+      rebalance_check_and_commit(header, new_node, pcomp, commit_data);
    }
 
    //! <b>Requires</b>: "header" must be the header node of a tree.
@@ -720,8 +802,8 @@ class treap_algorithms
       return tree_algorithms::is_header(p);
    }
 
-   template<class NodePriorityCompare>
-   static void rebalance_for_erasure(node_ptr header, node_ptr z, NodePriorityCompare pcomp)
+   template<class NodePtrPriorityCompare>
+   static void rebalance_for_erasure(node_ptr header, node_ptr z, NodePtrPriorityCompare pcomp)
    {
       std::size_t n = 0;
       rerotate_on_destroy rb(header, z, n);
@@ -742,6 +824,17 @@ class treap_algorithms
       rb.release();
    }
 
+   template<class NodePtrPriorityCompare>
+   static void rebalance_check_and_commit
+      (node_ptr h, node_ptr new_node, NodePtrPriorityCompare pcomp, insert_commit_data &commit_data)
+   {
+      rebalance_after_insertion_check(h, commit_data.node, new_node, pcomp, commit_data.rotations);
+      //No-throw
+      tree_algorithms::insert_unique_commit(h, new_node, commit_data);
+      rebalance_after_insertion_commit(h, new_node, commit_data.rotations);
+   }
+
+
    template<class Key, class KeyNodePriorityCompare>
    static void rebalance_after_insertion_check
       ( const_node_ptr header, const_node_ptr upnode, const Key &k
@@ -759,7 +852,7 @@ class treap_algorithms
 
    static void rebalance_after_insertion_commit(node_ptr header, node_ptr p, std::size_t n)
    {
-      // Now to n rotations
+      // Now execute n rotations
       for( node_ptr p_parent = NodeTraits::get_parent(p)
          ; n--
          ; p_parent = NodeTraits::get_parent(p)){
@@ -773,8 +866,8 @@ class treap_algorithms
       }
    }
 
-   template<class NodePriorityCompare>
-   static bool check_invariant(const_node_ptr header, NodePriorityCompare pcomp)
+   template<class NodePtrPriorityCompare>
+   static bool check_invariant(const_node_ptr header, NodePtrPriorityCompare pcomp)
    {
       node_ptr beg = begin_node(header);
       node_ptr end = end_node(header);
@@ -798,4 +891,4 @@ class treap_algorithms
 
 #include <boost/intrusive/detail/config_end.hpp>
 
-#endif //BOOST_INTRUSIVE_TRIE_ALGORITHMS_HPP
+#endif //BOOST_INTRUSIVE_TREAP_ALGORITHMS_HPP

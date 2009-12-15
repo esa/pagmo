@@ -30,7 +30,7 @@ namespace boost
       public:
         template<typename T>
           friend void adl_postconstruct(const shared_ptr<T> &, ...)
-        {};
+        {}
         friend void adl_predestruct(predestructible *p)
         {
           p->predestruct();

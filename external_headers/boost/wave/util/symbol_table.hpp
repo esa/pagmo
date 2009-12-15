@@ -57,11 +57,11 @@ struct symbol_table
 #endif
     typedef typename base_type::iterator iterator_type;
     typedef typename base_type::const_iterator const_iterator_type;
-    
+
     symbol_table(long uid_ = 0) 
     {}
-    
-#if BOOST_WAVE_SERIALIZATION != 0    
+
+#if BOOST_WAVE_SERIALIZATION != 0
 private:
     friend class boost::serialization::access;
     template<typename Archive>

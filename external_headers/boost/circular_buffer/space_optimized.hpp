@@ -1229,8 +1229,8 @@ private:
     }
 
     //! Ensure the reserve for possible growth up.
-    size_type ensure_reserve(size_type new_capacity, size_type size) const {
-        if (size + new_capacity / 5 >= new_capacity)
+    size_type ensure_reserve(size_type new_capacity, size_type buffer_size) const {
+        if (buffer_size + new_capacity / 5 >= new_capacity)
             new_capacity *= 2; // ensure at least 20% reserve
         if (new_capacity > m_capacity_ctrl)
             return m_capacity_ctrl;

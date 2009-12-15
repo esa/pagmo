@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2007-2008
+// (C) Copyright Ion Gaztanaga  2007-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -50,7 +50,7 @@ template<class Pointer, std::size_t NumBits>
 struct pointer_plus_bits;
 
 //!This is the specialization to embed extra bits of information
-//!in a raw pointer. The extra bits are stored in the lower bit of the pointer.
+//!in a raw pointer. The extra bits are stored in the lower bits of the pointer.
 template<class T, std::size_t NumBits>
 struct pointer_plus_bits<T*, NumBits>
 {

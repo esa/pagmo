@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland 
- * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
+ * $Date: 2009-09-28 14:10:02 -0400 (Mon, 28 Sep 2009) $
  */
 
 #include <boost/throw_exception.hpp>
@@ -99,7 +99,7 @@ namespace gregorian {
       return day_of_year_type(doy);
     }
     //!Return the Modified Julian Day number for the date.
-    long modjulian_day() const
+    date_int_type modjulian_day() const
     {
       ymd_type ymd = year_month_day();
       return gregorian_calendar::modjulian_day_number(ymd);      

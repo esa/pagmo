@@ -798,19 +798,19 @@ expression_grammar_gen<TokenT>::evaluate(
     // something. If the remainder consists out of whitespace only, the 
     // expression is still valid.
     iterator_type next = hit.stop;
-    
+
         while (next != last) {
             switch (static_cast<unsigned int>(token_id(*next))) {
             case T_SPACE:
             case T_SPACE2:
             case T_CCOMMENT:
                 break;                      // ok continue
-                
+
             case T_NEWLINE:
             case T_EOF:
             case T_CPPCOMMENT:              // contains newline
                 return as_bool(result);     // expression is valid
-                
+
             default:
             // expression is illformed
                 if (if_block_status) {

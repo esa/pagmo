@@ -101,11 +101,18 @@ public:
         * this->This() >> x;
         t = (0 != x);
     }
-  void load_override(serialization::collection_size_type & t, int){
-       unsigned int x=0;
-       * this->This() >> x;
-       t = serialization::collection_size_type(x);
-   }
+    void load_override(serialization::collection_size_type & t, int){
+      if (this->get_library_version() < 6) {
+        unsigned int x=0;
+        * this->This() >> x;
+        t = serialization::collection_size_type(x);
+      } 
+      else {
+        std::size_t x=0;
+        * this->This() >> x;
+        t = serialization::collection_size_type(x);
+      }
+    }
 
     BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
     load_override(class_name_type & t, int);

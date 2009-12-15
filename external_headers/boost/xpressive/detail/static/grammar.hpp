@@ -33,8 +33,8 @@
 #define BOOST_XPRESSIVE_CHECK_REGEX(Expr, Char)\
     BOOST_MPL_ASSERT\
     ((\
-        typename boost::mpl::if_<\
-            boost::xpressive::is_valid_regex<Expr, Char>\
+        typename boost::mpl::if_c<\
+            boost::xpressive::is_valid_regex<Expr, Char>::value\
           , boost::mpl::true_\
           , boost::xpressive::INVALID_REGULAR_EXPRESSION\
         >::type\

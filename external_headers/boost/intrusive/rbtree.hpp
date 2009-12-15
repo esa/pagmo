@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2008
+// (C) Copyright Ion Gaztanaga  2006-2009
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -29,6 +29,7 @@
 #include <boost/intrusive/detail/mpl.hpp>
 #include <boost/intrusive/detail/pointer_to_other.hpp>
 #include <boost/intrusive/detail/clear_on_destructor_base.hpp>
+#include <boost/intrusive/detail/function_detector.hpp>
 #include <boost/intrusive/options.hpp>
 #include <boost/intrusive/rbtree_algorithms.hpp>
 #include <boost/intrusive/link_mode.hpp>
@@ -116,8 +117,7 @@ class rbtree_impl
    typedef rbtree_algorithms<node_traits>                            node_algorithms;
 
    static const bool constant_time_size = Config::constant_time_size;
-   static const bool stateful_value_traits = detail::store_cont_ptr_on_it<rbtree_impl>::value;
-
+   static const bool stateful_value_traits = detail::is_stateful_value_traits<real_value_traits>::value;
    /// @cond
    private:
    typedef detail::size_holder<constant_time_size, size_type>        size_traits;
@@ -702,6 +702,76 @@ class rbtree_impl
       node_algorithms::insert_unique_commit
                (node_ptr(&priv_header()), to_insert, commit_data);
       return iterator(to_insert, this);
+   }
+
+   //! <b>Requires</b>: value must be an lvalue, "pos" must be
+   //!   a valid iterator (or end) and must be the succesor of value
+   //!   once inserted according to the predicate
+   //!
+   //! <b>Effects</b>: Inserts x into the tree before "pos".
+   //! 
+   //! <b>Complexity</b>: Constant time.
+   //! 
+   //! <b>Throws</b>: Nothing.
+   //! 
+   //! <b>Note</b>: This function does not check preconditions so if "pos" is not
+   //! the successor of "value" tree ordering invariant will be broken.
+   //! This is a low-level function to be used only for performance reasons
+   //! by advanced users.
+   iterator insert_before(const_iterator pos, reference value)
+   {
+      node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
+      if(safemode_or_autounlink)
+         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      this->priv_size_traits().increment();
+      return iterator(node_algorithms::insert_before
+         (node_ptr(&priv_header()), pos.pointed_node(), to_insert), this);
+   }
+
+   //! <b>Requires</b>: value must be an lvalue, and it must be no less
+   //!   than the greatest inserted key
+   //!
+   //! <b>Effects</b>: Inserts x into the tree in the last position.
+   //! 
+   //! <b>Complexity</b>: Constant time.
+   //! 
+   //! <b>Throws</b>: Nothing.
+   //! 
+   //! <b>Note</b>: This function does not check preconditions so if value is
+   //!   less than the greatest inserted key tree ordering invariant will be broken.
+   //!   This function is slightly more efficient than using "insert_before".
+   //!   This is a low-level function to be used only for performance reasons
+   //!   by advanced users.
+   void push_back(reference value)
+   {
+      node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
+      if(safemode_or_autounlink)
+         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      this->priv_size_traits().increment();
+      node_algorithms::push_back(node_ptr(&priv_header()), to_insert);
+   }
+
+   //! <b>Requires</b>: value must be an lvalue, and it must be no greater
+   //!   than the minimum inserted key
+   //!
+   //! <b>Effects</b>: Inserts x into the tree in the first position.
+   //! 
+   //! <b>Complexity</b>: Constant time.
+   //! 
+   //! <b>Throws</b>: Nothing.
+   //! 
+   //! <b>Note</b>: This function does not check preconditions so if value is
+   //!   greater than the minimum inserted key tree ordering invariant will be broken.
+   //!   This function is slightly more efficient than using "insert_before".
+   //!   This is a low-level function to be used only for performance reasons
+   //!   by advanced users.
+   void push_front(reference value)
+   {
+      node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
+      if(safemode_or_autounlink)
+         BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      this->priv_size_traits().increment();
+      node_algorithms::push_front(node_ptr(&priv_header()), to_insert);
    }
 
    //! <b>Effects</b>: Erases the element pointed to by pos. 

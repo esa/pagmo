@@ -12,14 +12,8 @@
 #define BOOST_UNITS_UTILITY_HPP
 
 #include <cstdlib>
-#include <complex>
-#include <iostream>
 #include <typeinfo>
 #include <string>
-
-#include <boost/assert.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/limits.hpp>
 
 #if defined(__GLIBCXX__) || defined(__GLIBCPP__)
 #define BOOST_UNITS_USE_DEMANGLING
@@ -53,13 +47,7 @@ demangle(const char* name)
         
         std::free(realname);
         
-        //boost::replace_all(out," ","");
         boost::replace_all(out,"boost::units::","");
-        //boost::replace_all(out,"static_rational","R");
-        //boost::replace_all(out,"dimensionless_type","dl");
-        //boost::replace_all(out,"_base_dimension","_bd");
-        //boost::replace_all(out,"_base_unit","_bu");
-        //boost::replace_all(out,"heterogeneous_system","hts");
         
         return out;
     }

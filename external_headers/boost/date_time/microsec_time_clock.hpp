@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-11-23 06:13:35 -0500 (Sun, 23 Nov 2008) $
+ * $Date: 2009-06-04 07:36:43 -0400 (Thu, 04 Jun 2009) $
  */
 
 
@@ -89,7 +89,7 @@ namespace date_time {
       winapi::get_system_time_as_file_time(ft);
       uint64_t micros = winapi::file_time_to_microseconds(ft); // it will not wrap, since ft is the current time
                                                                // and cannot be before 1970-Jan-01
-      std::time_t t = static_cast<time_t>(micros / 1000000UL); // seconds since epoch
+      std::time_t t = static_cast<std::time_t>(micros / 1000000UL); // seconds since epoch
       // microseconds -- static casts supress warnings
       boost::uint32_t sub_sec = static_cast<boost::uint32_t>(micros % 1000000UL);
 #else

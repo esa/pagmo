@@ -18,8 +18,6 @@
 
 #include <boost/archive/detail/basic_oarchive.hpp>
 #include <boost/archive/detail/interface_oarchive.hpp>
-#include <boost/archive/detail/oserializer.hpp>
-#include <boost/archive/detail/register_archive.hpp>
 
 namespace boost {
 namespace archive {

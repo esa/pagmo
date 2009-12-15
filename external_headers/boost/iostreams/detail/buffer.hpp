@@ -104,11 +104,6 @@ public:
             iostreams::read(src, this->data() + keep, this->size() - keep);
         if (result != -1)
             this->set(0, keep + result);
-        //return result == this->size() - keep ?
-        //    traits_type::good() :
-        //    keep == -1 ?
-        //        traits_type::eof() :
-        //        traits_type::would_block();
         return result == -1 ?
             traits_type::eof() :
                 result == 0 ?

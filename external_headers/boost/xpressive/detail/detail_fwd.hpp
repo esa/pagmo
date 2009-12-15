@@ -323,22 +323,22 @@ namespace boost { namespace xpressive { namespace detail
     struct memento;
 
     template<typename Char, typename Traits>
-    void set_char(compound_charset<Traits> &chset, Char ch, Traits const &traits, bool icase);
+    void set_char(compound_charset<Traits> &chset, Char ch, Traits const &tr, bool icase);
 
     template<typename Char, typename Traits>
-    void set_range(compound_charset<Traits> &chset, Char from, Char to, Traits const &traits, bool icase);
+    void set_range(compound_charset<Traits> &chset, Char from, Char to, Traits const &tr, bool icase);
 
     template<typename Traits>
-    void set_class(compound_charset<Traits> &chset, typename Traits::char_class_type char_class, bool no, Traits const &traits);
+    void set_class(compound_charset<Traits> &chset, typename Traits::char_class_type char_class, bool no, Traits const &tr);
 
     template<typename Char, typename Traits>
-    void set_char(basic_chset<Char> &chset, Char ch, Traits const &traits, bool icase);
+    void set_char(basic_chset<Char> &chset, Char ch, Traits const &tr, bool icase);
 
     template<typename Char, typename Traits>
-    void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &traits, bool icase);
+    void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &tr, bool icase);
 
     template<typename Char, typename Traits>
-    void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &traits);
+    void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &tr);
 
     template<typename Matcher>
     static_xpression<Matcher> const

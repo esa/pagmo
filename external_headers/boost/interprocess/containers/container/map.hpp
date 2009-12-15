@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -50,7 +50,7 @@
 #include <boost/interprocess/containers/container/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/detail/workaround.hpp>
 
-#include <boost/interprocess/containers/container/containers_fwd.hpp>
+#include <boost/interprocess/containers/container/container_fwd.hpp>
 #include <utility>
 #include <functional>
 #include <memory>
@@ -63,12 +63,12 @@
 #include <boost/interprocess/containers/container/detail/pair.hpp>
 #include <boost/interprocess/detail/move.hpp>
 
-#ifdef BOOST_INTERPROCESS_DOXYGEN_INVOKED
+#ifdef BOOST_CONTAINER_DOXYGEN_INVOKED
 namespace boost {
-namespace interprocess {
+namespace container {
 #else
 namespace boost {
-namespace interprocess_container {
+namespace container {
 #endif
 
 /// @cond
@@ -99,6 +99,7 @@ class map
 {
    /// @cond
    private:
+   BOOST_COPYABLE_AND_MOVABLE(map)
    typedef containers_detail::rbtree<Key, 
                            std::pair<const Key, T>, 
                            containers_detail::select1st< std::pair<const Key, T> >, 
@@ -108,7 +109,6 @@ class map
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(map)
 
    // typedefs:
    typedef typename tree_t::key_type               key_type;
@@ -167,6 +167,20 @@ class map
       : m_tree(first, last, comp, a, true) 
    {}
 
+   //! <b>Effects</b>: Constructs an empty map using the specified comparison object and 
+   //! allocator, and inserts elements from the ordered unique range [first ,last). This function
+   //! is more efficient than the normal range creation for ordered ranges.
+   //!
+   //! <b>Requires</b>: [first ,last) must be ordered according to the predicate and must be
+   //! unique values.
+   //! 
+   //! <b>Complexity</b>: Linear in N.
+   template <class InputIterator>
+   map( ordered_unique_range_t, InputIterator first, InputIterator last
+      , const Pred& comp = Pred(), const allocator_type& a = allocator_type())
+      : m_tree(ordered_range, first, last, comp, a) 
+   {}
+
    //! <b>Effects</b>: Copy constructs a map.
    //! 
    //! <b>Complexity</b>: Linear in x.size().
@@ -186,7 +200,7 @@ class map
    //! <b>Effects</b>: Makes *this a copy of x.
    //! 
    //! <b>Complexity</b>: Linear in x.size().
-   map& operator=(const map<Key, T, Pred, Alloc>& x)
+   map& operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(map) x)
    {  m_tree = x.m_tree;   return *this;  }
 
    //! <b>Effects</b>: this->swap(x.get()).
@@ -504,7 +518,7 @@ class map
    void insert(InputIterator first, InputIterator last) 
    {  m_tree.insert_unique(first, last);  }
 
-   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 
    //! <b>Effects</b>: Inserts an object of type T constructed with
    //!   std::forward<Args>(args)... in the container if and only if there is 
@@ -706,21 +720,17 @@ template <class Key, class T, class Pred, class Alloc>
 inline bool operator<(const multimap<Key,T,Pred,Alloc>& x, 
                       const multimap<Key,T,Pred,Alloc>& y);
 
-}  //namespace interprocess_container {
-
-namespace interprocess {
-
+}  //namespace container {
+/*
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations
 template <class K, class T, class C, class A>
-struct has_trivial_destructor_after_move<boost::interprocess_container::map<K, T, C, A> >
+struct has_trivial_destructor_after_move<boost::container::map<K, T, C, A> >
 {
    static const bool value = has_trivial_destructor<A>::value && has_trivial_destructor<C>::value;
 };
-
-}  //namespace interprocess {
-
-namespace interprocess_container {
+*/
+namespace container {
 
 /// @endcond
 
@@ -742,6 +752,7 @@ class multimap
 {
    /// @cond
    private:
+   BOOST_COPYABLE_AND_MOVABLE(multimap)
    typedef containers_detail::rbtree<Key, 
                            std::pair<const Key, T>, 
                            containers_detail::select1st< std::pair<const Key, T> >, 
@@ -751,7 +762,6 @@ class multimap
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(multimap)
 
    // typedefs:
    typedef typename tree_t::key_type               key_type;
@@ -811,6 +821,20 @@ class multimap
       : m_tree(first, last, comp, a, false) 
    {}
 
+   //! <b>Effects</b>: Constructs an empty multimap using the specified comparison object and 
+   //! allocator, and inserts elements from the ordered range [first ,last). This function
+   //! is more efficient than the normal range creation for ordered ranges.
+   //!
+   //! <b>Requires</b>: [first ,last) must be ordered according to the predicate.
+   //! 
+   //! <b>Complexity</b>: Linear in N.
+   template <class InputIterator>
+   multimap(ordered_range_t ordered_range, InputIterator first, InputIterator last, const Pred& comp = Pred(),
+         const allocator_type& a = allocator_type())
+      : m_tree(ordered_range, first, last, comp, a) 
+   {}
+
+
    //! <b>Effects</b>: Copy constructs a multimap.
    //! 
    //! <b>Complexity</b>: Linear in x.size().
@@ -830,7 +854,7 @@ class multimap
    //! <b>Effects</b>: Makes *this a copy of x.
    //! 
    //! <b>Complexity</b>: Linear in x.size().
-   multimap& operator=(const multimap<Key,T,Pred,Alloc>& x) 
+   multimap& operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(multimap) x) 
    {  m_tree = x.m_tree;   return *this;  }
 
    //! <b>Effects</b>: this->swap(x.get()).
@@ -1048,7 +1072,7 @@ class multimap
    void insert(InputIterator first, InputIterator last) 
    {  m_tree.insert_equal(first, last); }
 
-   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 
    //! <b>Effects</b>: Inserts an object of type T constructed with
    //!   std::forward<Args>(args)... in the container.
@@ -1240,21 +1264,17 @@ inline void swap(multimap<Key,T,Pred,Alloc>& x, multimap<Key,T,Pred,Alloc>& y)
 
 /// @cond
 
-}  //namespace interprocess_container {
-
-namespace interprocess {
-
+}  //namespace container {
+/*
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations
 template <class K, class T, class C, class A>
-struct has_trivial_destructor_after_move<boost::interprocess_container::multimap<K, T, C, A> >
+struct has_trivial_destructor_after_move<boost::container::multimap<K, T, C, A> >
 {
    static const bool value = has_trivial_destructor<A>::value && has_trivial_destructor<C>::value;
 };
-
-}  //namespace interprocess {
-
-namespace interprocess_container {
+*/
+namespace container {
 
 /// @endcond
 

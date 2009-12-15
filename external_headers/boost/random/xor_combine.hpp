@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: xor_combine.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: xor_combine.hpp 53871 2009-06-13 17:54:06Z steven_watanabe $
  *
  */
 
@@ -49,9 +49,12 @@ public:
   { }
   xor_combine(const base1_type & rng1, const base2_type & rng2)
     : _rng1(rng1), _rng2(rng2) { }
+  xor_combine(const result_type & v)
+    : _rng1(v), _rng2(v) { }
   template<class It> xor_combine(It& first, It last)
     : _rng1(first, last), _rng2( /* advanced by other call */ first, last) { }
   void seed() { _rng1.seed(); _rng2.seed(); }
+  void seed(const result_type & v) { _rng1.seed(v); _rng2.seed(v); }
   template<class It> void seed(It& first, It last)
   {
     _rng1.seed(first, last);

@@ -844,6 +844,42 @@ struct BoostRegexConcept
       m_string = m_char + m_sub;
       ignore_unused_variable_warning(m_string);
 
+      // Named sub-expressions:
+      m_sub = m_cresults[&m_char];
+      ignore_unused_variable_warning(m_sub);
+      m_sub = m_cresults[m_string];
+      ignore_unused_variable_warning(m_sub);
+      m_sub = m_cresults[""];
+      ignore_unused_variable_warning(m_sub);
+      m_sub = m_cresults[std::string("")];
+      ignore_unused_variable_warning(m_sub);
+      m_string = m_cresults.str(&m_char);
+      ignore_unused_variable_warning(m_string);
+      m_string = m_cresults.str(m_string);
+      ignore_unused_variable_warning(m_string);
+      m_string = m_cresults.str("");
+      ignore_unused_variable_warning(m_string);
+      m_string = m_cresults.str(std::string(""));
+      ignore_unused_variable_warning(m_string);
+
+      typename match_results_type::difference_type diff;
+      diff = m_cresults.length(&m_char);
+      ignore_unused_variable_warning(diff);
+      diff = m_cresults.length(m_string);
+      ignore_unused_variable_warning(diff);
+      diff = m_cresults.length("");
+      ignore_unused_variable_warning(diff);
+      diff = m_cresults.length(std::string(""));
+      ignore_unused_variable_warning(diff);
+      diff = m_cresults.position(&m_char);
+      ignore_unused_variable_warning(diff);
+      diff = m_cresults.position(m_string);
+      ignore_unused_variable_warning(diff);
+      diff = m_cresults.position("");
+      ignore_unused_variable_warning(diff);
+      diff = m_cresults.position(std::string(""));
+      ignore_unused_variable_warning(diff);
+
 #ifndef BOOST_NO_STD_LOCALE
       m_stream << m_sub;
       m_stream << m_cresults;

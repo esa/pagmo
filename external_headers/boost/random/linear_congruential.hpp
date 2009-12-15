@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: linear_congruential.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: linear_congruential.hpp 53871 2009-06-13 17:54:06Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -212,12 +212,12 @@ public:
   int32_t min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return 0; }
   int32_t max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return std::numeric_limits<int32_t>::max BOOST_PREVENT_MACRO_SUBSTITUTION (); }
   
-  explicit rand48(int32_t x0 = 1) : lcf(cnv(x0)) { }
-  explicit rand48(uint64_t x0) : lcf(x0) { }
+  rand48() : lcf(cnv(static_cast<int32_t>(1))) {}
+  template<class T> explicit rand48(T x0) : lcf(cnv(x0)) { }
   template<class It> rand48(It& first, It last) : lcf(first, last) { }
   // compiler-generated copy ctor and assignment operator are fine
-  void seed(int32_t x0 = 1) { lcf.seed(cnv(x0)); }
-  void seed(uint64_t x0) { lcf.seed(x0); }
+  void seed() { seed(static_cast<int32_t>(1)); }
+  template<class T> void seed(T x0) { lcf.seed(cnv(x0)); }
   template<class It> void seed(It& first, It last) { lcf.seed(first,last); }
 
   int32_t operator()() { return static_cast<int32_t>(lcf() >> 17); }
@@ -253,8 +253,18 @@ private:
   random::linear_congruential<uint64_t,
     uint64_t(0xDEECE66DUL) | (uint64_t(0x5) << 32), // xxxxULL is not portable
     0xB, uint64_t(1)<<48, /* unknown */ 0> lcf;
-  static uint64_t cnv(int32_t x) 
-  { return (static_cast<uint64_t>(x) << 16) | 0x330e;  }
+  template<class T>
+  static uint64_t cnv(T x) 
+  {
+    if(sizeof(T) < sizeof(uint64_t)) {
+      return (static_cast<uint64_t>(x) << 16) | 0x330e;
+    } else {
+        return(static_cast<uint64_t>(x));
+    }
+  }
+  static uint64_t cnv(float x) { return(static_cast<uint64_t>(x)); }
+  static uint64_t cnv(double x) { return(static_cast<uint64_t>(x)); }
+  static uint64_t cnv(long double x) { return(static_cast<uint64_t>(x)); }
 };
 #endif /* !BOOST_NO_INT64_T && !BOOST_NO_INTEGRAL_INT64_T */
 

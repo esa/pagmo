@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -60,12 +60,10 @@ class basic_managed_shared_memory
 
    private:
    typedef typename base_t::char_ptr_holder_t   char_ptr_holder_t;
-   basic_managed_shared_memory(basic_managed_shared_memory&);
-   basic_managed_shared_memory & operator=(basic_managed_shared_memory&);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(basic_managed_shared_memory)
    /// @endcond
 
    public: //functions
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_managed_shared_memory)
 
    //!Destroys *this and indicates that the calling process is finished using
    //!the resource. The destructor function will deallocate

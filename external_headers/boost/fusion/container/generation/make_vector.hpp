@@ -1,7 +1,7 @@
 /*=============================================================================
     Copyright (c) 2001-2006 Joel de Guzman
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #ifndef BOOST_PP_IS_ITERATING
@@ -19,7 +19,7 @@
 namespace boost { namespace fusion
 {
     struct void_;
-        
+
     namespace result_of
     {
         template <
@@ -28,18 +28,18 @@ namespace boost { namespace fusion
           , typename Extra = void_
         >
         struct make_vector;
-            
+
         template <>
         struct make_vector<>
         {
-            typedef vector<> type;
+            typedef vector0<> type;
         };
     }
-    
-    inline vector<>
+
+    inline vector0<>
     make_vector()
     {
-        return vector<>();
+        return vector0<>();
     }
 
 #define BOOST_FUSION_AS_FUSION_ELEMENT(z, n, data)                               \
@@ -74,15 +74,15 @@ namespace boost { namespace fusion
         struct make_vector<BOOST_PP_ENUM_PARAMS(N, T)>
 #endif
         {
-            typedef vector<BOOST_PP_ENUM(N, BOOST_FUSION_AS_FUSION_ELEMENT, _)> type;
+            typedef BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM(N, BOOST_FUSION_AS_FUSION_ELEMENT, _)> type;
         };
     }
 
     template <BOOST_PP_ENUM_PARAMS(N, typename T)>
-    inline vector<BOOST_PP_ENUM(N, BOOST_FUSION_AS_FUSION_ELEMENT, _)>
+    inline BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM(N, BOOST_FUSION_AS_FUSION_ELEMENT, _)>
     make_vector(BOOST_PP_ENUM_BINARY_PARAMS(N, T, const& _))
     {
-        return vector<BOOST_PP_ENUM(N, BOOST_FUSION_AS_FUSION_ELEMENT, _)>(
+        return BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM(N, BOOST_FUSION_AS_FUSION_ELEMENT, _)>(
             BOOST_PP_ENUM_PARAMS(N, _));
     }
 

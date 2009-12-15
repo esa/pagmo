@@ -23,6 +23,13 @@ namespace boost { namespace xpressive { namespace detail
 // need is trivial constructor/destructor. (???)
 
 ///////////////////////////////////////////////////////////////////////////////
+// sub_match_impl_default
+//
+struct sub_match_impl_default
+{
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // sub_match_impl
 //
 template<typename BidiIter>
@@ -39,6 +46,14 @@ struct sub_match_impl
       , begin_()
       , zero_width_(false)
     {
+    }
+
+    sub_match_impl &operator =(sub_match_impl_default const &)
+    {
+        this->matched = false;
+        this->repeat_count_ = 0;
+        this->zero_width_ = false;
+        return *this;
     }
 };
 

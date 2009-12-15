@@ -91,14 +91,14 @@ namespace boost { namespace fusion
         >::type
     at_c(Sequence& seq)
     {
-        return at<mpl::int_<N> >(seq);
+        return fusion::at<mpl::int_<N> >(seq);
     }
 
     template <int N, typename Sequence>
     inline typename result_of::at_c<Sequence const, N>::type
     at_c(Sequence const& seq)
     {
-        return at<mpl::int_<N> >(seq);
+        return fusion::at<mpl::int_<N> >(seq);
     }
 }}
 

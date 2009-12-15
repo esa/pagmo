@@ -237,7 +237,7 @@ namespace boost {
                 num_edges_on_k = 1;
                 BOOST_USING_STD_MAX();
                 int next_k = max BOOST_PREVENT_MACRO_SUBSTITUTION(dfs_num_k, max BOOST_PREVENT_MACRO_SUBSTITUTION(dfs_num[i], dfs_num[j]));
-                if (match(next(iter), next_k))
+                if (match(boost::next(iter), next_k))
                   return true;
                 in_S[v] = false;
               }
@@ -247,7 +247,7 @@ namespace boost {
           else {
             if (container_contains(adjacent_vertices(f[i], G2), f[j])) {
               ++num_edges_on_k;
-              if (match(next(iter), dfs_num_k))
+              if (match(boost::next(iter), dfs_num_k))
                 return true;
             }
                 
@@ -439,13 +439,11 @@ namespace boost {
       return false;
 #endif
   
-    for (typename graph_traits<Graph1>::edge_iterator e1 = edges(g1).first;
-         e1 != edges(g1).second; ++e1) {
+    BGL_FORALL_EDGES_T(e1, g1, Graph1) {
       bool found_edge = false;
-      for (typename graph_traits<Graph2>::edge_iterator e2 = edges(g2).first;
-           e2 != edges(g2).second && !found_edge; ++e2) {
-        if (source(*e2, g2) == get(iso_map, source(*e1, g1)) &&
-            target(*e2, g2) == get(iso_map, target(*e1, g1))) {
+      BGL_FORALL_EDGES_T(e2, g2, Graph2) {
+        if (source(e2, g2) == get(iso_map, source(e1, g1)) &&
+            target(e2, g2) == get(iso_map, target(e1, g1))) {
           found_edge = true;
         }
       }

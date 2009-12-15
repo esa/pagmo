@@ -5,7 +5,7 @@
  * Subject to the Boost Software License, Version 1.0. 
  * (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-11-12 14:37:53 -0500 (Wed, 12 Nov 2008) $
+ * $Date: 2009-09-28 14:10:02 -0400 (Mon, 28 Sep 2009) $
  */
 
 #include <string>
@@ -19,6 +19,7 @@
 #include <boost/date_time/dst_rules.hpp>
 #include <boost/date_time/time_zone_base.hpp>
 #include <boost/date_time/special_defs.hpp>
+#include <boost/date_time/time_resolution_traits.hpp> // absolute_value
 
 namespace boost {
 namespace local_time {

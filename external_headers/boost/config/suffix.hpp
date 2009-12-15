@@ -306,6 +306,14 @@
 #  define BOOST_HASH_MAP_HEADER <hash_map>
 #endif
 
+//
+// Set BOOST_NO_INITIALIZER_LISTS if there is no library support.
+//
+
+#if defined(BOOST_NO_0X_HDR_INITIALIZER_LIST) && !defined(BOOST_NO_INITIALIZER_LISTS)
+#  define BOOST_NO_INITIALIZER_LISTS
+#endif
+
 //  BOOST_HAS_ABI_HEADERS
 //  This macro gets set if we have headers that fix the ABI,
 //  and prevent ODR violations when linking to external libraries:

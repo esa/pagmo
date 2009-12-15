@@ -108,7 +108,7 @@ namespace boost { namespace fusion { namespace detail
         template <typename It, typename F>
         static bool call(It const& it, F f)
         {
-            return false;
+            return true;
         }
     };
 

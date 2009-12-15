@@ -19,9 +19,8 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/signals2/connection.hpp>
 #include <boost/signals2/slot_base.hpp>
-#include <boost/signals2/detail/stack_vector.hpp>
+#include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/weak_ptr.hpp>
 
 namespace boost {
@@ -32,12 +31,16 @@ namespace boost {
       {
       public:
         slot_call_iterator_cache(const Function &f):
-          f(f)
+          f(f),
+          connected_slot_count(0),
+          disconnected_slot_count(0)
         {}
         optional<ResultType> result;
-        typedef stack_vector<boost::shared_ptr<void>, 10> tracked_ptrs_type;
+        typedef auto_buffer<boost::shared_ptr<void>, store_n_objects<10> > tracked_ptrs_type;
         tracked_ptrs_type tracked_ptrs;
         Function f;
+        unsigned connected_slot_count;
+        unsigned disconnected_slot_count;
       };
 
       // Generates a slot call iterator. Essentially, this is an iterator that:
@@ -113,6 +116,13 @@ namespace boost {
             lock_type lock(**iter);
             cache->tracked_ptrs.clear();
             (*iter)->nolock_grab_tracked_objects(std::back_inserter(cache->tracked_ptrs));
+            if((*iter)->nolock_nograb_connected())
+            {
+              ++cache->connected_slot_count;
+            }else
+            {
+              ++cache->disconnected_slot_count;
+            }
             if((*iter)->nolock_nograb_blocked() == false)
             {
               callable_iter = iter;

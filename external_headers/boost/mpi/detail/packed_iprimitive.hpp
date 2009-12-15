@@ -97,15 +97,15 @@ public:
         s.resize(l);
         // note breaking a rule here - could be a problem on some platform
         load_impl(const_cast<char *>(s.data()),MPI_CHAR,l);
-        }
+    }
 
 private:
 
     void load_impl(void * p, MPI_Datatype t, int l)
-        {
+    {
         BOOST_MPI_CHECK_RESULT(MPI_Unpack,
         (const_cast<char*>(boost::serialization::detail::get_data(buffer_)), buffer_.size(), &position, p, l, t, comm));
-        }
+    }
 
         buffer_type & buffer_;
         mutable std::size_t size_;

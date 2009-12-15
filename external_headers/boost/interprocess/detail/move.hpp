@@ -19,8 +19,8 @@
 
 //! \file
 
-#ifndef BOOST_INTERPROCESS_MOVE_HPP
-#define BOOST_INTERPROCESS_MOVE_HPP
+#ifndef BOOST_MOVE_HPP
+#define BOOST_MOVE_HPP
 
 #include <boost/config.hpp>
 #include <algorithm> //copy, copy_backward
@@ -28,7 +28,11 @@
 #include <iterator>  //std::iterator
 #include <boost/mpl/if.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <boost/mpl/bool.hpp>
 #include <boost/type_traits/has_trivial_destructor.hpp>
+#include <boost/utility/addressof.hpp>
+
+/// @cond
 
 namespace boost {
 namespace interprocess {
@@ -52,11 +56,15 @@ class is_convertible
    enum { value = sizeof(dispatch(trigger())) == sizeof(true_t) };
 };
 
-}  //namespace move_detail {
 }  //namespace interprocess {
+}  //namespace move_detail {
 }  //namespace boost {
 
+/// @endcond
+
 #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+
+//#define BOOST_MOVE_ASSIGN_FROM_NON_CONST_RVALUE
 
 namespace boost {
 namespace interprocess {
@@ -73,9 +81,6 @@ class rv : public T
    ~rv();
    rv(rv const&);
    void operator=(rv const&);
-
-   public:
-   //T &get() { return *this; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -107,17 +112,19 @@ struct is_rv< rv<T> >
 //////////////////////////////////////////////////////////////////////////////
 template<class T>
 class is_movable
+   : public ::boost::mpl::bool_<move_detail::is_convertible<T, rv<T>&>::value>
 {
-   public:
-   static const bool value = move_detail::is_convertible<T, rv<T>&>::value;
 };
 
 template<class T>
 class is_movable< rv<T> >
+   : public ::boost::mpl::bool_<false>
 {
-   public:
-   static const bool value = false;
 };
+
+template <class T> 
+struct has_nothrow_move : is_movable<T>
+{};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -125,7 +132,7 @@ class is_movable< rv<T> >
 //
 //////////////////////////////////////////////////////////////////////////////
 template <class T>
-typename boost::disable_if<is_movable<T>, T&>::type move(T& x)
+typename ::boost::disable_if<is_movable<T>, T&>::type move(T& x)
 {
    return x;
 }
@@ -133,13 +140,13 @@ typename boost::disable_if<is_movable<T>, T&>::type move(T& x)
 template <class T>
 typename enable_if<is_movable<T>, rv<T>&>::type move(T& x)
 {
-   return reinterpret_cast<rv<T>& >(x);
+   return *static_cast<rv<T>* >(boost::addressof(x));
 }
 
 template <class T>
-typename enable_if<is_movable<T>, rv<T>&>::type move(const rv<T>& x)
+typename enable_if<is_movable<T>, rv<T>&>::type move(rv<T>& x)
 {
-   return const_cast<rv<T>& >(x);
+   return x;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -149,60 +156,120 @@ typename enable_if<is_movable<T>, rv<T>&>::type move(const rv<T>& x)
 //////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-typename enable_if<boost::interprocess::move_detail::is_rv<T>, T &>::type
+typename enable_if< ::boost::interprocess::move_detail::is_rv<T>, T &>::type
    forward(const typename move_detail::identity<T>::type &x)
 {
    return const_cast<T&>(x);
 }
 
-/*
 template <class T>
-typename enable_if<boost::interprocess::move_detail::is_rv<T>, T &>::type
-forward(typename move_detail::identity<T>::type &x)
-{
-   return x;
-}
-
-template <class T>
-typename disable_if<boost::interprocess::move_detail::is_rv<T>, T &>::type
-   forward(typename move_detail::identity<T>::type &x)
-{
-   return x;
-}
-*/
-template <class T>
-typename disable_if<boost::interprocess::move_detail::is_rv<T>, const T &>::type
+typename disable_if< ::boost::interprocess::move_detail::is_rv<T>, const T &>::type
    forward(const typename move_detail::identity<T>::type &x)
 {
    return x;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-//                         BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION
-//
-//////////////////////////////////////////////////////////////////////////////
-#define BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(TYPE)\
-   operator boost::interprocess::rv<TYPE>&() \
-   {  return reinterpret_cast<boost::interprocess::rv<TYPE>& >(*this);   }\
-//
-
-
 #define BOOST_INTERPROCESS_RV_REF(TYPE)\
-   boost::interprocess::rv< TYPE >& \
+   ::boost::interprocess::rv< TYPE >& \
 //
 
 #define BOOST_INTERPROCESS_RV_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
-   boost::interprocess::rv< TYPE<ARG1, ARG2> >& \
+   ::boost::interprocess::rv< TYPE<ARG1, ARG2> >& \
 //
 
 #define BOOST_INTERPROCESS_RV_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
-   boost::interprocess::rv< TYPE<ARG1, ARG2, ARG3> >& \
+   ::boost::interprocess::rv< TYPE<ARG1, ARG2, ARG3> >& \
 //
+
+#ifdef BOOST_MOVE_ASSIGN_FROM_NON_CONST_RVALUE
+
+#define BOOST_INTERPROCESS_COPY_ASSIGN_REF(TYPE)\
+   const ::boost::interprocess::rv< TYPE >& \
+//
+
+#define BOOST_INTERPROCESS_COPY_ASSIGN_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
+   const ::boost::interprocess::rv< TYPE<ARG1, ARG2> >& \
+//
+
+#define BOOST_INTERPROCESS_COPY_ASSIGN_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
+   const ::boost::interprocess::rv< TYPE<ARG1, ARG2, ARG3> >& \
+//
+
+#else //BOOST_MOVE_ASSIGN_FROM_NON_CONST_RVALUE
+
+#define BOOST_INTERPROCESS_COPY_ASSIGN_REF(TYPE)\
+   const TYPE & \
+//
+
+#define BOOST_INTERPROCESS_COPY_ASSIGN_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
+   const TYPE< ARG1, ARG2 >& \
+//
+
+#define BOOST_INTERPROCESS_COPY_ASSIGN_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
+   const TYPE< ARG1, ARG2, ARG3 > & \
+//
+
+#endif
 
 #define BOOST_INTERPROCESS_FWD_REF(TYPE)\
    const TYPE & \
 //
+
+#define BOOST_INTERPROCESS_CATCH_CONST_RLVALUE(TYPE)\
+   const ::boost::interprocess::rv< TYPE >& \
+//
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//                         BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE
+//
+//////////////////////////////////////////////////////////////////////////////
+#define BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(TYPE)\
+   private:\
+   TYPE(TYPE &);\
+   TYPE& operator=(TYPE &);\
+   public:\
+   operator ::boost::interprocess::rv<TYPE>&() \
+   {  return *reinterpret_cast< ::boost::interprocess::rv<TYPE>* >(this);  }\
+   operator const ::boost::interprocess::rv<TYPE>&() const \
+   {  return *reinterpret_cast<const ::boost::interprocess::rv<TYPE>* >(this);  }\
+   private:\
+//
+
+//////////////////////////////////////////////////////////////////////////////
+//
+//                         BOOST_COPYABLE_AND_MOVABLE
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#ifdef BOOST_MOVE_ASSIGN_FROM_NON_CONST_RVALUE
+
+#define BOOST_COPYABLE_AND_MOVABLE(TYPE)\
+   public:\
+   TYPE& operator=(TYPE &t)\
+   {  this->operator=(static_cast<const ::boost::interprocess::rv<TYPE> &>(const_cast<const TYPE &>(t))); return *this;}\
+   public:\
+   operator ::boost::interprocess::rv<TYPE>&() \
+   {  return *reinterpret_cast< ::boost::interprocess::rv<TYPE>* >(this);  }\
+   operator const ::boost::interprocess::rv<TYPE>&() const \
+   {  return *reinterpret_cast<const ::boost::interprocess::rv<TYPE>* >(this);  }\
+   private:\
+//
+
+#else //#ifdef BOOST_MOVE_ASSIGN_FROM_NON_CONST_RVALUE
+
+#define BOOST_COPYABLE_AND_MOVABLE(TYPE)\
+   public:\
+   operator ::boost::interprocess::rv<TYPE>&() \
+   {  return *reinterpret_cast< ::boost::interprocess::rv<TYPE>* >(this);  }\
+   operator const ::boost::interprocess::rv<TYPE>&() const \
+   {  return *reinterpret_cast<const ::boost::interprocess::rv<TYPE>* >(this);  }\
+   private:\
+//
+
+#endif
+
+
 }  //namespace interprocess {
 }  //namespace boost
 
@@ -213,6 +280,25 @@ typename disable_if<boost::interprocess::move_detail::is_rv<T>, const T &>::type
 namespace boost {
 namespace interprocess {
 
+/// @cond
+
+namespace move_detail {
+
+typedef char one;
+struct two {one _[2];};
+
+template <class T>
+struct internal_member_value_traits
+{
+   template <class U> static one test(...);
+   template <class U> static two test(typename U::boost_move_emulation_t* = 0);
+   static const bool value = sizeof(test<T>(0)) == sizeof(two);
+};
+
+}  //namespace move_detail {
+
+/// @endcond
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //                               is_movable
@@ -220,15 +306,22 @@ namespace interprocess {
 //////////////////////////////////////////////////////////////////////////////
 
 //! For compilers with rvalue references, this traits class returns true
-//! if T && is convertible to T.
+//! if BOOST_ENABLE_MOVE_EMULATION is activated.
 //!
-//! For other compilers returns true if T is convertible to <i>boost::interprocess::rv<T>&</i>
+//! For other compilers returns true if T is convertible to <i>::boost::interprocess::rv<T>&</i>
 template<class T>
 class is_movable
+   : public ::boost::mpl::bool_<move_detail::internal_member_value_traits<T>::value>
 {
-   public:
-   static const bool value = move_detail::is_convertible<T&&, T>::value;
 };
+
+//! For compilers with rvalue references, this traits class returns true
+//! if T && is convertible to T.
+//!
+//! For other compilers returns true if T has implemented move emulation.
+template <class T> 
+struct has_nothrow_move : is_movable<T>
+{};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -240,7 +333,7 @@ class is_movable
 #if defined(BOOST_MOVE_DOXYGEN_INVOKED)
 //! This function provides a way to convert a reference into a rvalue reference
 //! in compilers with rvalue reference. For other compilers converts T & into
-//! <i>boost::interprocess::rv<T> &</i> so that move emulation is activated.
+//! <i>::boost::interprocess::rv<T> &</i> so that move emulation is activated.
 template <class T> inline 
 rvalue_reference move (input_reference);
 #else
@@ -264,8 +357,8 @@ typename remove_reference<T>::type&& move(T&& t)
 //! For compilers with rvalue references this function provides perfect forwarding.
 //!
 //! Otherwise:
-//! * If input_reference binds to const boost::interprocess::rv<T> & then it output_reference is
-//!   boost::rev<T> &
+//! * If input_reference binds to const ::boost::interprocess::rv<T> & then it output_reference is
+//!   ::boost::rev<T> &
 //!
 //! * Else, input_reference is equal to output_reference is equal to input_reference.
 template <class T> inline output_reference forward(input_reference);
@@ -277,18 +370,38 @@ T&& forward (typename move_detail::identity<T>::type&& t)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-//                         BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION
+//                         BOOST_ENABLE_MOVE_EMULATION
 //
 //////////////////////////////////////////////////////////////////////////////
 
-//! This macro expands to nothing for compilers with rvalue references.
-//! Otherwise expands to:
-//! \code
-//! operator boost::interprocess::rv<TYPE>&()
-//! {  return static_cast<boost::interprocess::rv<TYPE>& >(*this);   }
-//! \endcode
-#define BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(TYPE)\
+///@cond
+
+#define BOOST_ENABLE_MOVE_EMULATION(TYPE)\
+   typedef int boost_move_emulation_t;
+\
 //
+
+/// @endcond
+
+//! This macro marks a type as movable but not copyable, disabling copy construction
+//! and assignment. The user will need to write a move constructor/assignment as explained
+//! in the documentation to fully write a movable but not copyable class.
+#define BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(TYPE)\
+   public:\
+   typedef int boost_move_emulation_t;\
+   private:\
+   TYPE(const TYPE &);\
+   TYPE& operator=(const TYPE &);\
+//
+
+//! This macro marks a type as copyable and movable.
+//! The user will need to write a move constructor/assignment and a copy assignment
+//! as explained in the documentation to fully write a copyable and movable class.
+#define BOOST_COPYABLE_AND_MOVABLE(TYPE)\
+   typedef int boost_move_emulation_t;
+//
+
+/// @cond
 
 #define BOOST_INTERPROCESS_RV_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
    TYPE<ARG1, ARG2> && \
@@ -298,16 +411,41 @@ T&& forward (typename move_detail::identity<T>::type&& t)
    TYPE<ARG1, ARG2, ARG3> && \
 //
 
-//! This macro expands to <i>T&&</i> for compilers with rvalue references.
-//! Otherwise expands to <i>boost::interprocess::rv<T> &</i>.
+/// @endcond
+
+//!This macro is used to achieve portable syntax in move
+//!constructors and assignments for classes marked as
+//!BOOST_COPYABLE_AND_MOVABLE or BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE
 #define BOOST_INTERPROCESS_RV_REF(TYPE)\
    TYPE && \
 //
 
-//! This macro expands to <i>T&&</i> for compilers with rvalue references.
-//! Otherwise expands to <i>const T &</i>.
+//!This macro is used to achieve portable syntax in copy
+//!assignment for classes marked as BOOST_COPYABLE_AND_MOVABLE.
+#define BOOST_INTERPROCESS_COPY_ASSIGN_REF(TYPE)\
+   const TYPE & \
+//
+
+/// @cond
+
+#define BOOST_COPY_REF_2_TEMPL_ARGS(TYPE, ARG1, ARG2)\
+   const TYPE<ARG1, ARG2> & \
+//
+
+#define BOOST_COPY_REF_3_TEMPL_ARGS(TYPE, ARG1, ARG2, ARG3)\
+   TYPE<ARG1, ARG2, ARG3>& \
+//
+
+/// @endcond
+
+//! This macro is used to implement portable perfect forwarding
+//! as explained in the documentation.
 #define BOOST_INTERPROCESS_FWD_REF(TYPE)\
    TYPE && \
+//
+
+#define BOOST_INTERPROCESS_CATCH_CONST_RLVALUE(TYPE)\
+   const TYPE & \
 //
 
 }  //namespace interprocess {
@@ -338,12 +476,12 @@ class move_iterator
    #if defined(BOOST_HAS_RVALUE_REFS) || defined(BOOST_MOVE_DOXYGEN_INVOKED)
    typedef value_type &&                                                   reference;
    #else
-   typedef typename boost::mpl::if_
-      < boost::interprocess::is_movable<value_type>
-      , boost::interprocess::rv<value_type>&
+   typedef typename ::boost::mpl::if_
+      < ::boost::interprocess::is_movable<value_type>
+      , ::boost::interprocess::rv<value_type>&
       , value_type & >::type                                               reference;
    #endif
-   typedef typename std::iterator_traits<iterator_type>::pointer           pointer;
+   typedef It                                                              pointer;
    typedef typename std::iterator_traits<iterator_type>::difference_type   difference_type;
    typedef typename std::iterator_traits<iterator_type>::iterator_category iterator_category;
 
@@ -367,7 +505,7 @@ class move_iterator
       #if defined(BOOST_HAS_RVALUE_REFS)
       return *m_it;
       #else
-      return boost::interprocess::move(*m_it);
+      return ::boost::interprocess::move(*m_it);
       #endif
    }
 
@@ -403,7 +541,7 @@ class move_iterator
       #if defined(BOOST_HAS_RVALUE_REFS)
       return m_it[n];
       #else
-      return boost::interprocess::move(m_it[n]);
+      return ::boost::interprocess::move(m_it[n]);
       #endif
    }
 
@@ -441,14 +579,14 @@ namespace move_detail {
 
 template <class I>
 struct is_move_iterator
+   : public ::boost::mpl::bool_<false>
 {
-   static const bool value = false;
 };
 
 template <class I>
 struct is_move_iterator< ::boost::interprocess::move_iterator<I> >
+   : public ::boost::mpl::bool_<true>
 {
-   static const bool value = true;
 };
 
 }  //namespace move_detail {
@@ -557,7 +695,7 @@ class move_insert_iterator
 
    move_insert_iterator& operator=(typename C::reference x)
    {
-      pos_ = container_m->insert(pos_, boost::interprocess::move(x));
+      pos_ = container_m->insert(pos_, ::boost::interprocess::move(x));
       ++pos_;
       return *this;
    }
@@ -584,7 +722,7 @@ inline move_insert_iterator<C> move_inserter(C& x, typename C::iterator it)
 
 //! <b>Effects</b>: Moves elements in the range [first,last) into the range [result,result + (last -
 //!   first)) starting from first and proceeding to last. For each non-negative integer n < (last-first),
-//!   performs *(result + n) = boost::interprocess::move (*(first + n)).
+//!   performs *(result + n) = ::boost::interprocess::move (*(first + n)).
 //!
 //! <b>Effects</b>: result + (last - first).
 //!
@@ -596,7 +734,7 @@ template <typename I, // I models InputIterator
 O move(I f, I l, O result)
 {
    while (f != l) {
-      *result = boost::interprocess::move(*f);
+      *result = ::boost::interprocess::move(*f);
       ++f; ++result;
    }
    return result;
@@ -611,7 +749,7 @@ O move(I f, I l, O result)
 //! <b>Effects</b>: Moves elements in the range [first,last) into the range
 //!   [result - (last-first),result) starting from last - 1 and proceeding to
 //!   first. For each positive integer n <= (last - first),
-//!   performs *(result - n) = boost::interprocess::move(*(last - n)).
+//!   performs *(result - n) = ::boost::interprocess::move(*(last - n)).
 //!
 //! <b>Requires</b>: result shall not be in the range [first,last).
 //!
@@ -624,7 +762,7 @@ O move_backward(I f, I l, O result)
 {
    while (f != l) {
       --l; --result;
-      *result = boost::interprocess::move(*l);
+      *result = ::boost::interprocess::move(*l);
    }
    return result;
 }
@@ -685,7 +823,7 @@ typename F>   // F models ForwardIterator
 F uninitialized_move_move_iterator(I f, I l, F r,
                              typename enable_if< is_movable<typename I::value_type> >::type* = 0)
 {
-   return boost::interprocess::uninitialized_move(f, l, r);
+   return ::boost::interprocess::uninitialized_move(f, l, r);
 }
 
 template
@@ -705,7 +843,7 @@ typename F>   // F models ForwardIterator
 F uninitialized_copy_or_move(I f, I l, F r,
                              typename enable_if< move_detail::is_move_iterator<I> >::type* = 0)
 {
-   return boost::interprocess::move_detail::uninitialized_move_move_iterator(f, l, r);
+   return ::boost::interprocess::move_detail::uninitialized_move_move_iterator(f, l, r);
 }
 
 /// @endcond
@@ -734,14 +872,54 @@ F uninitialized_copy_or_move(I f, I l, F r
    return std::uninitialized_copy(f, l, r);
 }
 
-///has_trivial_destructor_after_move<> == true_type
-///specialization for optimizations
+//! If this trait yields to true
+//! (<i>has_trivial_destructor_after_move_ctor &lt;T&gt;::value == true</i>)
+//! means that if T is used as argument of a move construction,
+//! there is no need to call T's destructor.
+//! This optimization tipically is used to improve containers' performance.
+//!
+//! By default this trait is true if the type has trivial destructor,
+//! every class should specialize this trait if it wants to improve performance
+//! when inserted in containers.
+template <class T>
+struct has_trivial_destructor_after_move_ctor
+   : public ::boost::has_trivial_destructor<T>
+{};
+
+//! If this trait yields to true
+//! (<i>has_trivial_destructor_after_move &lt;T&gt;::value == true</i>)
+//! means that if T is used as argument of a move construction/assignment,
+//! there is no need to call T's destructor.
+//! This optimization tipically is used to improve containers' performance.
+//!
+//! By default this trait is true if the type has trivial destructor,
+//! every class should specialize this trait if it wants to improve performance
+//! when inserted in containers.
 template <class T>
 struct has_trivial_destructor_after_move
-   : public boost::has_trivial_destructor<T>
+   : public ::boost::has_trivial_destructor<T>
+{};
+
+//! If this trait yields to true
+//! (<i>has_trivial_destructor_after_move_to_moved &lt;T&gt;::value == true</i>)
+//! means that if t1 of type T is being moved to an already moved value t2,
+//! there is no need to call t1's destructor:
+//! <pre>
+//! T t1, t2, t3(::boost::interprocess::move(t2));
+//! t2 = ::boost::interprocess::move(t1);
+//! //There is no need to call t1's destructor
+//! </pre>
+//! This optimization is used to improve containers' performance.
+//!
+//! By default this trait is true if the type has trivial destructor,
+//! every class should specialize this trait if it wants to improve performance
+//! when inserted in containers.
+template <class T>
+struct has_trivial_destructor_after_move_to_moved
+   : public has_trivial_destructor_after_move<T>
 {};
 
 }  //namespace interprocess {
 }  //namespace boost {
 
-#endif	//#ifndef BOOST_INTERPROCESS_MOVE_HPP
+#endif	//#ifndef BOOST_MOVE_HPP

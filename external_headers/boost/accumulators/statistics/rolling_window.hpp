@@ -19,6 +19,7 @@
 #include <boost/accumulators/framework/parameters/sample.hpp>
 #include <boost/accumulators/framework/parameters/accumulator.hpp>
 #include <boost/accumulators/numeric/functional.hpp>
+#include <boost/accumulators/statistics_fwd.hpp>
 
 namespace boost { namespace accumulators
 {
@@ -155,6 +156,9 @@ namespace extract
 {
     extractor<tag::rolling_window_plus1> const rolling_window_plus1 = {};
     extractor<tag::rolling_window> const rolling_window = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(rolling_window_plus1)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(rolling_window)
 }
 
 using extract::rolling_window_plus1;

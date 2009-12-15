@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : flexible configuration file iterator implementation
 // ***************************************************************************
@@ -18,7 +18,10 @@
 #include <boost/test/utils/runtime/file/config_file_iterator.hpp>
 #include <boost/test/utils/runtime/validation.hpp>
 
+#ifndef UNDER_CE
 #include <boost/test/utils/runtime/env/environment.hpp>
+#endif
+
 
 // Boost
 #include <boost/utility.hpp>
@@ -155,7 +158,7 @@ include_level::include_level( cstring file_name, cstring path_separators, includ
         }
     }
 
-    BOOST_RT_PARAM_VALIDATE_LOGIC( m_stream.is_open(), BOOST_RT_PARAM_LITERAL( "couldn't open file " ) << file_name );
+    BOOST_RT_PARAM_VALIDATE_LOGIC( m_stream.is_open(), BOOST_RT_PARAM_LITERAL( "can't open file " ) << file_name );
 }
 
 //____________________________________________________________________________//
@@ -352,7 +355,9 @@ config_file_iterator::Impl::get_macro_value( cstring macro_name, bool ignore_mis
     if( it == m_symbols_table.end() ) {
         boost::optional<cstring> macro_value; // !! variable actually may have different type
 
+        #ifndef UNDER_CE
         env::get( macro_name, macro_value );
+        #endif
 
         BOOST_RT_PARAM_VALIDATE_LOGIC( macro_value || ignore_missing || !m_detect_missing_macro, 
             BOOST_RT_PARAM_LITERAL( "Unknown macro \"" ) << macro_name << BOOST_RT_PARAM_LITERAL( "\"" ) );

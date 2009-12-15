@@ -88,7 +88,6 @@ class unique_ptr
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(unique_ptr)
 
    typedef T element_type;
    typedef D deleter_type;
@@ -326,12 +325,10 @@ class unique_ptr
    /// @cond
    private:
    boost::compressed_pair<pointer, D> ptr_;
-
-   unique_ptr(unique_ptr&);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(unique_ptr)
    template <class U, class E> unique_ptr(unique_ptr<U, E>&);
    template <class U> unique_ptr(U&, typename detail::unique_ptr_error<U>::type = 0);
    
-   unique_ptr& operator=(unique_ptr&);
    template <class U, class E> unique_ptr& operator=(unique_ptr<U, E>&);
    template <class U> typename detail::unique_ptr_error<U>::type operator=(U&);
    /// @endcond

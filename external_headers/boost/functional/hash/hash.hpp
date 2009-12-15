@@ -13,19 +13,17 @@
 #include <boost/functional/hash/hash_fwd.hpp>
 #include <functional>
 #include <boost/functional/hash/detail/hash_float.hpp>
-#include <boost/detail/container_fwd.hpp>
 #include <string>
+#include <boost/limits.hpp>
 
 #if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 #include <boost/type_traits/is_pointer.hpp>
 #endif
 
-#if defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
-#include <boost/type_traits/is_array.hpp>
-#endif
-
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-#include <boost/type_traits/is_const.hpp>
+#if BOOST_WORKAROUND(__GNUC__, < 3) && !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)
+#define BOOST_HASH_CHAR_TRAITS string_char_traits
+#else
+#define BOOST_HASH_CHAR_TRAITS char_traits
 #endif
 
 namespace boost
@@ -70,26 +68,6 @@ namespace boost
 
     template <class Ch, class A>
     std::size_t hash_value(std::basic_string<Ch, std::BOOST_HASH_CHAR_TRAITS<Ch>, A> const&);
-
-    template <class A, class B>
-    std::size_t hash_value(std::pair<A, B> const&);
-    template <class T, class A>
-    std::size_t hash_value(std::vector<T, A> const&);
-    template <class T, class A>
-    std::size_t hash_value(std::list<T, A> const& v);
-    template <class T, class A>
-    std::size_t hash_value(std::deque<T, A> const& v);
-    template <class K, class C, class A>
-    std::size_t hash_value(std::set<K, C, A> const& v);
-    template <class K, class C, class A>
-    std::size_t hash_value(std::multiset<K, C, A> const& v);
-    template <class K, class T, class C, class A>
-    std::size_t hash_value(std::map<K, T, C, A> const& v);
-    template <class K, class T, class C, class A>
-    std::size_t hash_value(std::multimap<K, T, C, A> const& v);
-
-    template <class T>
-    std::size_t hash_value(std::complex<T> const&);
 
     // Implementation
 
@@ -314,69 +292,21 @@ namespace boost
         return boost::hash_detail::float_hash_value(v);
     }
 
-    template <class A, class B>
-    std::size_t hash_value(std::pair<A, B> const& v)
-    {
-        std::size_t seed = 0;
-        hash_combine(seed, v.first);
-        hash_combine(seed, v.second);
-        return seed;
-    }
-
-    template <class T, class A>
-    std::size_t hash_value(std::vector<T, A> const& v)
-    {
-        return hash_range(v.begin(), v.end());
-    }
-
-    template <class T, class A>
-    std::size_t hash_value(std::list<T, A> const& v)
-    {
-        return hash_range(v.begin(), v.end());
-    }
-
-    template <class T, class A>
-    std::size_t hash_value(std::deque<T, A> const& v)
-    {
-        return hash_range(v.begin(), v.end());
-    }
-
-    template <class K, class C, class A>
-    std::size_t hash_value(std::set<K, C, A> const& v)
-    {
-        return hash_range(v.begin(), v.end());
-    }
-
-    template <class K, class C, class A>
-    std::size_t hash_value(std::multiset<K, C, A> const& v)
-    {
-        return hash_range(v.begin(), v.end());
-    }
-
-    template <class K, class T, class C, class A>
-    std::size_t hash_value(std::map<K, T, C, A> const& v)
-    {
-        return hash_range(v.begin(), v.end());
-    }
-
-    template <class K, class T, class C, class A>
-    std::size_t hash_value(std::multimap<K, T, C, A> const& v)
-    {
-        return hash_range(v.begin(), v.end());
-    }
-
-    template <class T>
-    std::size_t hash_value(std::complex<T> const& v)
-    {
-        boost::hash<T> hasher;
-        std::size_t seed = hasher(v.imag());
-        seed ^= hasher(v.real()) + (seed<<6) + (seed>>2);
-        return seed;
-    }
-
     //
     // boost::hash
     //
+    
+    // Define the specializations required by the standard. The general purpose
+    // boost::hash is defined later in extensions.hpp if BOOST_HASH_NO_EXTENSIONS
+    // is not defined.
+    
+    // BOOST_HASH_SPECIALIZE - define a specialization for a type which is
+    // passed by copy.
+    //
+    // BOOST_HASH_SPECIALIZE_REF - define a specialization for a type which is
+    // passed by copy.
+    //
+    // These are undefined later.
 
 #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
 #define BOOST_HASH_SPECIALIZE(type) \
@@ -461,10 +391,18 @@ namespace boost
     BOOST_HASH_SPECIALIZE_REF(std::wstring)
 #endif
 
+#if defined(BOOST_HAS_LONG_LONG)
+    BOOST_HASH_SPECIALIZE(boost::long_long_type)
+    BOOST_HASH_SPECIALIZE(boost::ulong_long_type)
+#endif
+
 #undef BOOST_HASH_SPECIALIZE
 #undef BOOST_HASH_SPECIALIZE_REF
 
+// Specializing boost::hash for pointers.
+
 #if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+
     template <class T>
     struct hash<T*>
         : public std::unary_function<T*, std::size_t>
@@ -481,7 +419,15 @@ namespace boost
 #endif
         }
     };
+
 #else
+
+    // For compilers without partial specialization, we define a
+    // boost::hash for all remaining types. But hash_impl is only defined
+    // for pointers in 'extensions.hpp' - so when BOOST_HASH_NO_EXTENSIONS
+    // is defined there will still be a compile error for types not supported
+    // in the standard.
+
     namespace hash_detail
     {
         template <bool IsPointer>
@@ -514,8 +460,11 @@ namespace boost
             ::BOOST_NESTED_TEMPLATE inner<T>
     {
     };
+
 #endif
 }
+
+#undef BOOST_HASH_CHAR_TRAITS
 
 #endif // BOOST_FUNCTIONAL_HASH_HASH_HPP
 

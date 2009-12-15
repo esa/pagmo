@@ -561,7 +561,7 @@ namespace boost
         {
             if(tss_data_node* const current_node=find_tss_data(key))
             {
-                if(cleanup_existing && current_node->func.get())
+                if(cleanup_existing && current_node->func.get() && current_node->value)
                 {
                     (*current_node->func)(current_node->value);
                 }

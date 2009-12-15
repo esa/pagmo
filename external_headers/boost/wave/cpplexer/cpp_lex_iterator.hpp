@@ -67,37 +67,37 @@ public:
         { return *this; }   // nothing to do here
 #endif
 
-// interface to the multi_pass_policies::split_functor_input policy
+// interface to the iterator_policies::split_functor_input policy
     typedef TokenT result_type;
     typedef lex_iterator_functor_shim unique;
     typedef lex_input_interface<TokenT>* shared;
 
     BOOST_WAVE_EOF_PREFIX result_type const eof;
-    
+
     template <typename MultiPass>
     static result_type& get_next(MultiPass& mp, result_type& result)
     { 
-        return mp.shared->ftor->get(result); 
+        return mp.shared()->ftor->get(result); 
     }
-    
+
     // this will be called whenever the last reference to a multi_pass will
     // be released
     template <typename MultiPass>
     static void destroy(MultiPass& mp)
     { 
-        delete mp.shared->ftor; 
+        delete mp.shared()->ftor; 
     }
 
     template <typename MultiPass>
     static void set_position(MultiPass& mp, position_type const &pos)
     {
-        mp.shared->ftor->set_position(pos);
+        mp.shared()->ftor->set_position(pos);
     }
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
     template <typename MultiPass>
     static bool has_include_guards(MultiPass& mp, std::string& guard_name) 
     {
-        return mp.shared->ftor->has_include_guards(guard_name);
+        return mp.shared()->ftor->has_include_guards(guard_name);
     }
 #endif
 };
@@ -148,16 +148,16 @@ struct make_multi_pass
     functor_data_type;
     typedef typename FunctorData::result_type result_type;
 
-    typedef boost::spirit::multi_pass_policies::split_functor_input input_policy;
-    typedef boost::spirit::multi_pass_policies::ref_counted ownership_policy;
+    typedef boost::spirit::iterator_policies::split_functor_input input_policy;
+    typedef boost::spirit::iterator_policies::ref_counted ownership_policy;
 #if defined(BOOST_WAVE_DEBUG)
-    typedef boost::spirit::multi_pass_policies::buf_id_check check_policy;
+    typedef boost::spirit::iterator_policies::buf_id_check check_policy;
 #else
-    typedef boost::spirit::multi_pass_policies::no_check check_policy;
+    typedef boost::spirit::iterator_policies::no_check check_policy;
 #endif
-    typedef boost::spirit::multi_pass_policies::split_std_deque storage_policy;
+    typedef boost::spirit::iterator_policies::split_std_deque storage_policy;
 
-    typedef boost::spirit::multi_pass_policies::default_policy<
+    typedef boost::spirit::iterator_policies::default_policy<
             ownership_policy, check_policy, input_policy, storage_policy>
         policy_type;
     typedef boost::spirit::multi_pass<functor_data_type, policy_type> type;

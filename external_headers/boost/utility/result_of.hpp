@@ -70,8 +70,8 @@ struct result_of_nested_result : F::template result<FArgs>
 template<typename F, typename FArgs>
 struct result_of_impl<F, FArgs, false>
   : mpl::if_<is_function_with_no_args<FArgs>,
-	     result_of_void_impl<F>,
-	     result_of_nested_result<F, FArgs> >::type
+             result_of_void_impl<F>,
+             result_of_nested_result<F, FArgs> >::type
 {};
 
 } // end namespace detail

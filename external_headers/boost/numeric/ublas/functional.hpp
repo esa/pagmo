@@ -446,7 +446,7 @@ namespace boost { namespace numeric { namespace ublas {
             size_type size (e ().size ());
             for (size_type i = 0; i < size; ++ i) {
                 real_type u (type_traits<value_type>::norm_2 (e () (i)));
-		if ( real_type () /* zero */ == u ) continue;
+                if ( real_type () /* zero */ == u ) continue;
                 if (scale < u) {
                     real_type v (scale / u);
                     sum_squares = sum_squares * v * v + real_type (1);
@@ -1727,7 +1727,7 @@ namespace boost { namespace numeric { namespace ublas {
         bool other (size_type /* i */, size_type /* j */) {
             return true;
         }
-	// FIXME: this should not be used at all
+        // FIXME: this should not be used at all
         static
         BOOST_UBLAS_INLINE
         size_type restrict1 (size_type i, size_type j) {
@@ -1751,81 +1751,81 @@ namespace boost { namespace numeric { namespace ublas {
     };
 
     namespace detail {
-	template < class L >
-	struct transposed_structure {
-	    typedef typename L::size_type size_type;
+        template < class L >
+        struct transposed_structure {
+            typedef typename L::size_type size_type;
 
-	    template<class LAYOUT>
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type packed_size (LAYOUT l, size_type size_i, size_type size_j) {
-		return L::packed_size(l, size_j, size_i);
-	    }
+            template<class LAYOUT>
+            static
+            BOOST_UBLAS_INLINE
+            size_type packed_size (LAYOUT l, size_type size_i, size_type size_j) {
+                return L::packed_size(l, size_j, size_i);
+            }
 
-	    static
-	    BOOST_UBLAS_INLINE
-	    bool zero (size_type i, size_type j) {
-		return L::zero(j, i);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    bool one (size_type i, size_type j) {
-		return L::one(j, i);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    bool other (size_type i, size_type j) {
-		return L::other(j, i);
-	    }
-	    template<class LAYOUT>
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type element (LAYOUT l, size_type i, size_type size_i, size_type j, size_type size_j) {
-		return L::element(typename LAYOUT::transposed_layout(), j, size_j, i, size_i);
-	    }
+            static
+            BOOST_UBLAS_INLINE
+            bool zero (size_type i, size_type j) {
+                return L::zero(j, i);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            bool one (size_type i, size_type j) {
+                return L::one(j, i);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            bool other (size_type i, size_type j) {
+                return L::other(j, i);
+            }
+            template<class LAYOUT>
+            static
+            BOOST_UBLAS_INLINE
+            size_type element (LAYOUT l, size_type i, size_type size_i, size_type j, size_type size_j) {
+                return L::element(typename LAYOUT::transposed_layout(), j, size_j, i, size_i);
+            }
 
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type restrict1 (size_type i, size_type j, size_type size1, size_type size2) {
-		return L::restrict2(j, i, size2, size1);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type restrict2 (size_type i, size_type j, size_type size1, size_type size2) {
-		return L::restrict1(j, i, size2, size1);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type mutable_restrict1 (size_type i, size_type j, size_type size1, size_type size2) {
-		return L::mutable_restrict2(j, i, size2, size1);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type mutable_restrict2 (size_type i, size_type j, size_type size1, size_type size2) {
-		return L::mutable_restrict1(j, i, size2, size1);
-	    }
+            static
+            BOOST_UBLAS_INLINE
+            size_type restrict1 (size_type i, size_type j, size_type size1, size_type size2) {
+                return L::restrict2(j, i, size2, size1);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            size_type restrict2 (size_type i, size_type j, size_type size1, size_type size2) {
+                return L::restrict1(j, i, size2, size1);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            size_type mutable_restrict1 (size_type i, size_type j, size_type size1, size_type size2) {
+                return L::mutable_restrict2(j, i, size2, size1);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            size_type mutable_restrict2 (size_type i, size_type j, size_type size1, size_type size2) {
+                return L::mutable_restrict1(j, i, size2, size1);
+            }
 
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type global_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
-		return L::global_restrict2(index2, size2, index1, size1);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type global_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
-		return L::global_restrict1(index2, size2, index1, size1);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type global_mutable_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
-		return L::global_mutable_restrict2(index2, size2, index1, size1);
-	    }
-	    static
-	    BOOST_UBLAS_INLINE
-	    size_type global_mutable_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
-		return L::global_mutable_restrict1(index2, size2, index1, size1);
-	    }
-	};
+            static
+            BOOST_UBLAS_INLINE
+            size_type global_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
+                return L::global_restrict2(index2, size2, index1, size1);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            size_type global_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
+                return L::global_restrict1(index2, size2, index1, size1);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            size_type global_mutable_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
+                return L::global_mutable_restrict2(index2, size2, index1, size1);
+            }
+            static
+            BOOST_UBLAS_INLINE
+            size_type global_mutable_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
+                return L::global_mutable_restrict1(index2, size2, index1, size1);
+            }
+        };
     }
 
     template <class Z>
@@ -1862,56 +1862,56 @@ namespace boost { namespace numeric { namespace ublas {
             return L::lower_element (i, size_i, j, size_j);
         }
 
-	// return nearest valid index in column j
+        // return nearest valid index in column j
         static
         BOOST_UBLAS_INLINE
         size_type restrict1 (size_type i, size_type j, size_type size1, size_type size2) {
             return (std::max)(j, (std::min) (size1, i));
         }
-	// return nearest valid index in row i
+        // return nearest valid index in row i
         static
         BOOST_UBLAS_INLINE
         size_type restrict2 (size_type i, size_type j, size_type /* size1 */, size_type /* size2 */) {
             return (std::max)(size_type(0), (std::min) (i+1, j));
         }
-	// return nearest valid mutable index in column j
+        // return nearest valid mutable index in column j
         static
         BOOST_UBLAS_INLINE
         size_type mutable_restrict1 (size_type i, size_type j, size_type size1, size_type size2) {
             return (std::max)(j, (std::min) (size1, i));
         }
-	// return nearest valid mutable index in row i
+        // return nearest valid mutable index in row i
         static
         BOOST_UBLAS_INLINE
         size_type mutable_restrict2 (size_type i, size_type j, size_type /* size1 */, size_type /* size2 */) {
             return (std::max)(size_type(0), (std::min) (i+1, j));
         }
 
-	// return an index between the first and (1+last) filled row
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    return (std::max)(size_type(0), (std::min)(size1, index1) );
-	}
-	// return an index between the first and (1+last) filled column
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    return (std::max)(size_type(0), (std::min)(size2, index2) );
-	}
+        // return an index between the first and (1+last) filled row
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            return (std::max)(size_type(0), (std::min)(size1, index1) );
+        }
+        // return an index between the first and (1+last) filled column
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            return (std::max)(size_type(0), (std::min)(size2, index2) );
+        }
 
-	// return an index between the first and (1+last) filled mutable row
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_mutable_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    return (std::max)(size_type(0), (std::min)(size1, index1) );
-	}
-	// return an index between the first and (1+last) filled mutable column
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_mutable_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    return (std::max)(size_type(0), (std::min)(size2, index2) );
-	}
+        // return an index between the first and (1+last) filled mutable row
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_mutable_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            return (std::max)(size_type(0), (std::min)(size1, index1) );
+        }
+        // return an index between the first and (1+last) filled mutable column
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_mutable_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            return (std::max)(size_type(0), (std::min)(size2, index2) );
+        }
     };
 
     // the first row only contains a single 1. Thus it is not stored.
@@ -1959,19 +1959,19 @@ namespace boost { namespace numeric { namespace ublas {
             return (std::max)(size_type(0), (std::min) (i, j));
         }
 
-	// return an index between the first and (1+last) filled mutable row
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_mutable_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    return (std::max)(size_type(1), (std::min)(size1, index1) );
-	}
-	// return an index between the first and (1+last) filled mutable column
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_mutable_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    BOOST_UBLAS_CHECK( size2 >= 1 , external_logic() );
-	    return (std::max)(size_type(0), (std::min)(size2-1, index2) );
-	}
+        // return an index between the first and (1+last) filled mutable row
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_mutable_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            return (std::max)(size_type(1), (std::min)(size1, index1) );
+        }
+        // return an index between the first and (1+last) filled mutable column
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_mutable_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            BOOST_UBLAS_CHECK( size2 >= 1 , external_logic() );
+            return (std::max)(size_type(0), (std::min)(size2-1, index2) );
+        }
     };
 
     // the first row only contains no element. Thus it is not stored.
@@ -2016,26 +2016,26 @@ namespace boost { namespace numeric { namespace ublas {
         static
         BOOST_UBLAS_INLINE
         size_type restrict1 (size_type i, size_type j, size_type size1, size_type size2) {
-	    return mutable_restrict1(i, j, size1, size2);
+            return mutable_restrict1(i, j, size1, size2);
         }
         static
         BOOST_UBLAS_INLINE
         size_type restrict2 (size_type i, size_type j, size_type size1, size_type size2) {
-	    return mutable_restrict2(i, j, size1, size2);
+            return mutable_restrict2(i, j, size1, size2);
         }
 
-	// return an index between the first and (1+last) filled row
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    return global_mutable_restrict1(index1, size1, index2, size2);
-	}
-	// return an index between the first and (1+last) filled column
-	static
-	BOOST_UBLAS_INLINE
-	size_type global_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
-	    return global_mutable_restrict2(index1, size1, index2, size2);
-	}
+        // return an index between the first and (1+last) filled row
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_restrict1 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            return global_mutable_restrict1(index1, size1, index2, size2);
+        }
+        // return an index between the first and (1+last) filled column
+        static
+        BOOST_UBLAS_INLINE
+        size_type global_restrict2 (size_type index1, size_type size1, size_type index2, size_type size2) {
+            return global_mutable_restrict2(index1, size1, index2, size2);
+        }
     };
 
 

@@ -34,6 +34,8 @@ namespace tools{
 
 template <class T>
 int digits(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T));
+template <class T>
+T epsilon(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T));
 
 }
 
@@ -285,13 +287,13 @@ char test_is_default_arg(const default_policy*);
 template <class T>
 struct is_valid_policy_imp 
 {
-   BOOST_STATIC_CONSTANT(bool, value = sizeof(test_is_valid_arg(static_cast<T*>(0))) == 1);
+   BOOST_STATIC_CONSTANT(bool, value = sizeof(::boost::math::policies::detail::test_is_valid_arg(static_cast<T*>(0))) == 1);
 };
 
 template <class T>
 struct is_default_policy_imp
 {
-   BOOST_STATIC_CONSTANT(bool, value = sizeof(test_is_default_arg(static_cast<T*>(0))) == 1);
+   BOOST_STATIC_CONSTANT(bool, value = sizeof(::boost::math::policies::detail::test_is_default_arg(static_cast<T*>(0))) == 1);
 };
 
 template <class T> struct is_valid_policy 
@@ -604,6 +606,23 @@ struct normalise<policy<>,
    typedef policy<detail::forwarding_arg1, detail::forwarding_arg2> type;
 };
 
+template <>
+struct normalise<policy<detail::forwarding_arg1, detail::forwarding_arg2>,
+          promote_float<false>,
+          promote_double<false>,
+          discrete_quantile<>,
+          assert_undefined<>,
+          default_policy,
+          default_policy,
+          default_policy,
+          default_policy,
+          default_policy,
+          default_policy,
+          default_policy>
+{
+   typedef policy<detail::forwarding_arg1, detail::forwarding_arg2> type;
+};
+
 inline policy<> make_policy()
 { return policy<>(); }
 
@@ -815,7 +834,7 @@ inline int digits_imp(mpl::false_ const&)
 } // namespace detail
 
 template <class T, class Policy>
-inline int digits()
+inline int digits(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
 {
    typedef mpl::bool_< std::numeric_limits<T>::is_specialized > tag_type;
    return detail::digits_imp<T, Policy>(tag_type());
@@ -837,6 +856,72 @@ inline unsigned long get_max_root_iterations()
 
 namespace detail{
 
+template <class T, class Digits, class Small, class Default>
+struct series_factor_calc
+{
+   static T get()
+   {
+      return ldexp(T(1.0), 1 - Digits::value);
+   }
+};
+
+template <class T, class Digits>
+struct series_factor_calc<T, Digits, mpl::true_, mpl::true_>
+{
+   static T get()
+   {
+      return boost::math::tools::epsilon<T>();
+   }
+};
+template <class T, class Digits>
+struct series_factor_calc<T, Digits, mpl::true_, mpl::false_>
+{
+   static T get()
+   {
+      static const boost::uintmax_t v = static_cast<boost::uintmax_t>(1u) << (Digits::value - 1);
+      return 1 / static_cast<T>(v);
+   }
+};
+template <class T, class Digits>
+struct series_factor_calc<T, Digits, mpl::false_, mpl::true_>
+{
+   static T get()
+   {
+      return boost::math::tools::epsilon<T>();
+   }
+};
+
+template <class T, class Policy>
+inline T get_epsilon_imp(mpl::true_ const&)
+{
+#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+   BOOST_STATIC_ASSERT( ::std::numeric_limits<T>::is_specialized);
+#else
+   BOOST_ASSERT(::std::numeric_limits<T>::is_specialized);
+#endif
+   typedef typename boost::math::policies::precision<T, Policy>::type p_t;
+   typedef mpl::bool_<p_t::value <= std::numeric_limits<boost::uintmax_t>::digits> is_small_int;
+   typedef mpl::bool_<p_t::value >= std::numeric_limits<T>::digits> is_default_value;
+   return series_factor_calc<T, p_t, is_small_int, is_default_value>::get();
+}
+
+template <class T, class Policy>
+inline T get_epsilon_imp(mpl::false_ const&)
+{
+   return tools::epsilon<T>();
+}
+
+} // namespace detail
+
+template <class T, class Policy>
+inline T get_epsilon(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
+{
+   typedef mpl::bool_< std::numeric_limits<T>::is_specialized > tag_type;
+   return detail::get_epsilon_imp<T, Policy>(tag_type());
+}
+
+namespace detail{
+
 template <class A1, 
           class A2, 
           class A3,
@@ -854,7 +939,7 @@ double test_is_policy(...);
 template <class P>
 struct is_policy_imp
 {
-   BOOST_STATIC_CONSTANT(bool, value = (sizeof(test_is_policy(static_cast<P*>(0))) == 1));
+   BOOST_STATIC_CONSTANT(bool, value = (sizeof(::boost::math::policies::detail::test_is_policy(static_cast<P*>(0))) == 1));
 };
 
 }

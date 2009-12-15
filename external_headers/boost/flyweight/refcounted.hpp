@@ -23,22 +23,20 @@
 #include <boost/utility/swap.hpp>
 
 /* Refcounting tracking policy.
- * The implementation deserves some explanation; values are equipped with a
- * reference count with the following semantics:
- *   - 0: newly created value.
- *   - n: (n-1) active references to the value.
- * When the number of references reaches zero, the value can be erased. The
- * exact protocol, however, is a little more complicated to avoid data races
- * like the following:
+ * The implementation deserves some explanation; values are equipped with two
+ * reference counts:
+ *   - a regular count of active references
+ *   - a deleter count
+ * It looks like a value can be erased when the number of references reaches
+ * zero, but this condition alone can lead to data races:
  *   - Thread A detaches the last reference to x and is preempted.
  *   - Thread B looks for x, finds it and attaches a reference to it.
  *   - Thread A resumes and proceeds with erasing x, leaving a dangling
  *     reference in thread B.
- * To cope with this, values are equipped with an additional count of threads
- * preempted during erasure. Such a preemption are detected by the preempting
- * thread by checking whether the reference count of the object is 1 (hence
- * the uncommon refcounting semantics distinguishing between a newly created
- * value and a value with no active references.
+ * Here is where the deleter count comes into play. This count is
+ * incremented when the reference count changes from 0 to 1, and decremented
+ * when a thread is about to check a value for erasure; it can be seen that a
+ * value is effectively erasable only when the deleter count goes down to 0.
  */
 
 namespace boost{
@@ -61,13 +59,13 @@ public:
 
   ~refcounted_value()
   {
-    /* count()>1 most likely indicates that the flyweight factory
+    /* count()!=0 most likely indicates that the flyweight factory
      * has been destructed before some of the flyweight objects using
      * it. Check for static initialization order problems with this
      * flyweight type.
      */
 
-    BOOST_ASSERT(count()<=1);
+    BOOST_ASSERT(count()==0);
   }
 
   refcounted_value& operator=(const refcounted_value& r)
@@ -86,11 +84,10 @@ private:
 
   long count()const{return ref;}
   long add_ref()const{return ++ref;}
-  bool release()const{return (--ref==1);}
+  bool release()const{return (--ref==0);}
 
-  long count_deleters()const{return del_ref;}
   void add_deleter()const{++del_ref;}
-  void release_deleter()const{--del_ref;}
+  bool release_deleter()const{return (--del_ref==0);}
 
 private:
   Value                               x;
@@ -104,14 +101,8 @@ class refcounted_handle
 public:
   explicit refcounted_handle(const Handle& h_):h(h_)
   {
-    switch(TrackingHelper::entry(*this).add_ref()){
-      case 1: /* newly created object, make count()==2 (1 active reference) */
-        TrackingHelper::entry(*this).add_ref();
-        break;
-      case 2: /* object was about to be erased, increment the deleter count */
-        TrackingHelper::entry(*this).add_deleter();
-        break;
-      default:break;
+    if(TrackingHelper::entry(*this).add_ref()==1){
+      TrackingHelper::entry(*this).add_deleter();
     }
   }
   
@@ -143,11 +134,7 @@ public:
 private:
   static bool check_erase(const refcounted_handle& x)
   {
-    if(TrackingHelper::entry(x).count_deleters()){
-      TrackingHelper::entry(x).release_deleter();
-      return false;
-    }
-    return true;
+    return TrackingHelper::entry(x).release_deleter();
   }
 
   Handle h;

@@ -24,13 +24,15 @@
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
 #if defined(BOOST_NO_STDC_NAMESPACE)
+namespace std {
 // For STLport on WinCE, BOOST_NO_STDC_NAMESPACE can get defined if STLport is putting symbols in its own namespace.
 // In the case of codecvt, however, this does not mean that codecvt is in the global namespace (it will be in STLport's namespace)
-#  if !defined(UNDER_CE) || (!defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION))
+#  if !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)
     using ::codecvt;
 #  endif
     using ::mbstate_t;
     using ::size_t;
+} // namespace
 #endif
 
 namespace boost {

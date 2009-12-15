@@ -43,7 +43,7 @@ struct use_array_optimization : boost::mpl::always<boost::mpl::false_> {};
 
 template<class T>
 class array
- : public wrapper_traits<array<T> >
+ : public wrapper_traits<const array<T> >
 {
 public:    
     typedef T value_type;

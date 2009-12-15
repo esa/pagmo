@@ -15,7 +15,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/ref.hpp>
 #include <boost/signals2/signal_base.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/is_base_of.hpp>
 
 namespace boost {
   namespace signals2 {
@@ -42,6 +42,34 @@ namespace boost {
                             reference_tag,
                             signal_or_value>::type type;
       };
+
+      // Get the slot so that it can be copied
+      template<typename F>
+      typename F::weak_signal_type
+      get_invocable_slot(const F &signal, signal_tag)
+      { return typename F::weak_signal_type(signal); }
+
+      template<typename F>
+      const F&
+      get_invocable_slot(const F& f, reference_tag)
+      { return f; }
+
+      template<typename F>
+      const F&
+      get_invocable_slot(const F& f, value_tag)
+      { return f; }
+
+      // Determines the type of the slot - is it a signal, a reference to a
+      // slot or just a normal slot.
+      template<typename F>
+      typename get_slot_tag<F>::type
+      tag_type(const F&)
+      {
+        typedef typename get_slot_tag<F>::type
+          the_tag_type;
+        the_tag_type tag = the_tag_type();
+        return tag;
+      }
     } // end namespace detail
   } // end namespace signals2
 } // end namespace boost

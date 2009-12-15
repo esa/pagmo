@@ -21,7 +21,6 @@
 #include <boost/signals2/detail/null_output_iterator.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
 #include <boost/signals2/slot.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/weak_ptr.hpp>
 
 namespace boost
@@ -178,6 +177,10 @@ namespace boost
         boost::shared_ptr<detail::connection_body_base> otherConnectionBody(other._weak_connection_body.lock());
         return connectionBody == otherConnectionBody;
       }
+      bool operator!=(const connection& other) const
+      {
+        return !(*this == other);
+      }
       bool operator<(const connection& other) const
       {
         boost::shared_ptr<detail::connection_body_base> connectionBody(_weak_connection_body.lock());
@@ -225,6 +228,12 @@ namespace boost
       scoped_connection(const scoped_connection &other);
       scoped_connection& operator=(const scoped_connection &rhs);
     };
+    // Sun 5.9 compiler doesn't find the swap for base connection class when
+    // arguments are scoped_connection, so we provide this explicitly.
+    inline void swap(scoped_connection &conn1, scoped_connection &conn2)
+    {
+      conn1.swap(conn2);
+    }
   }
 }
 

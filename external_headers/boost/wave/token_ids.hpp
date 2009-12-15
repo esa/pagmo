@@ -2,7 +2,7 @@
     Boost.Wave: A Standard compliant C++ preprocessor library
     The definition of a default set of token identifiers and related 
     functions.
-    
+
     http://www.boost.org/
 
     Copyright (c) 2001-2009 Hartmut Kaiser. Distributed under the Boost
@@ -36,7 +36,7 @@ namespace boost {
 namespace wave {
 
 ///////////////////////////////////////////////////////////////////////////////
-//  assemble tokenid's
+//  assemble tokenids
 #define TOKEN_FROM_ID(id, cat)   ((id) | (cat))
 #define ID_FROM_TOKEN(tok)       ((tok) & ~TokenTypeMask)
 #define BASEID_FROM_TOKEN(tok)   ((tok) & ~ExtTokenTypeMask)
@@ -288,7 +288,7 @@ enum token_id {
 
     T_LAST_TOKEN_ID,
     T_LAST_TOKEN = ID_FROM_TOKEN(T_LAST_TOKEN_ID),
-    
+
 // pseudo tokens to help streamlining macro replacement, these should not 
 // returned from the lexer nor should these be returned from the pp-iterator
     T_NONREPLACABLE_IDENTIFIER = TOKEN_FROM_ID(T_LAST_TOKEN+1, IdentifierTokenType),

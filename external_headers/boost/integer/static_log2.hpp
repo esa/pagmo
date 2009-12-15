@@ -48,7 +48,7 @@ namespace boost {
      template <result_type n>
      struct choose_initial_n {
 
-         enum { c = (argument_type(1) << n << n) != 0 };
+         BOOST_STATIC_CONSTANT(bool, c = (argument_type(1) << n << n) != 0);
          BOOST_STATIC_CONSTANT(
              result_type,
              value = !c*n + choose_initial_n<2*c*n>::value
@@ -85,7 +85,7 @@ namespace boost {
      template <argument_type x, result_type n = initial_n>
      struct static_log2_impl {
 
-         enum { c = (x >> n) > 0 }; // x >= 2**n ?
+         BOOST_STATIC_CONSTANT(bool, c = (x >> n) > 0); // x >= 2**n ?
          BOOST_STATIC_CONSTANT(
              result_type,
              value = c*n + (static_log2_impl< (x>>c*n), n/2 >::value)

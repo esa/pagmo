@@ -13,7 +13,7 @@
 #include <algorithm>
 
 #include <boost/serialization/throw_exception.hpp>
-
+#include <boost/archive/xml_archive_exception.hpp>
 #include <boost/archive/basic_xml_iarchive.hpp>
 #include <boost/serialization/tracking.hpp>
 
@@ -67,7 +67,10 @@ basic_xml_iarchive<Archive>::load_end(const char *name){
             )
         ){
             boost::serialization::throw_exception(
-                archive_exception(archive_exception::stream_error)
+                xml_archive_exception(
+                    xml_archive_exception::xml_archive_tag_mismatch,
+                    name
+                )
             );
         }
     }

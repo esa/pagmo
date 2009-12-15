@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008.
+// (C) Copyright Ion Gaztanaga 2005-2009.
 // (C) Copyright Gennaro Prota 2003 - 2004.
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -24,7 +24,7 @@
 #include <iterator>
 
 namespace boost {
-namespace interprocess_container { 
+namespace container { 
 
 template <class PseudoReference>
 struct operator_arrow_proxy
@@ -168,7 +168,7 @@ make_transform_iterator(Iterator it, UnaryFunc fun)
    return transform_iterator<Iterator, UnaryFunc>(it, fun);
 }
 
-}  //namespace interprocess_container { 
+}  //namespace container { 
 }  //namespace boost {
 
 #include <boost/interprocess/containers/container/detail/config_end.hpp>

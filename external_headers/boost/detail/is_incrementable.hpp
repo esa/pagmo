@@ -63,7 +63,12 @@ namespace is_incrementable_
   tag operator,(tag,int);  
 #  define BOOST_comma(a,b) (a,b)
 # endif 
-  
+
+# if defined(BOOST_MSVC)
+#  pragma warning(push)
+#  pragma warning(disable:4913) // Warning about operator,
+# endif 
+
   // two check overloads help us identify which operator++ was picked
   char (& check(tag) )[2];
   
@@ -92,6 +97,11 @@ namespace is_incrementable_
         , value = sizeof(is_incrementable_::check(BOOST_comma(x++,0))) == 1
       );
   };
+
+# if defined(BOOST_MSVC)
+#  pragma warning(pop)
+# endif 
+
 }
 
 # undef BOOST_comma

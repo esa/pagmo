@@ -78,12 +78,12 @@ struct file_position {
 
 public:
     typedef StringT string_type;
-    
+
     file_position()
     :   file(), line(1), column(1)
     {}
-    explicit file_position(string_type const& file_, int line_ = 1, 
-            int column_ = 1)
+    explicit file_position(string_type const& file_, unsigned int line_ = 1, 
+            unsigned int column_ = 1)
     :   file(file_), line(line_), column(column_)
     {
         BOOST_ASSERT(!debug::is_escaped_lit(file));
@@ -93,7 +93,7 @@ public:
     string_type const &get_file() const { return file; }
     unsigned int get_line() const { return line; }
     unsigned int get_column() const { return column; }
-    
+
     void set_file(string_type const &file_) 
     { 
         file = file_; 
@@ -101,7 +101,7 @@ public:
     }
     void set_line(unsigned int line_) { line = line_; }
     void set_column(unsigned int column_) { column = column_; }
-    
+
 private:
 #if BOOST_WAVE_SERIALIZATION != 0
     friend class boost::serialization::access;
@@ -154,11 +154,11 @@ struct position_iterator
 :   boost::spirit::classic::position_iterator<IteratorT, PositionT>
 {
     typedef boost::spirit::classic::position_iterator<IteratorT, PositionT> base_type;
-    
+
     position_iterator()
     {
     }
-    
+
     position_iterator(IteratorT const &begin, IteratorT const &end,
             PositionT const &pos)
     :   base_type(begin, end, pos)

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -28,6 +28,7 @@
 #include <boost/interprocess/allocators/detail/adaptive_node_pool.hpp>
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/allocators/detail/allocator_common.hpp>
+#include <boost/interprocess/containers/container/detail/multiallocation_chain.hpp>
 #include <boost/interprocess/detail/mpl.hpp>
 #include <memory>
 #include <algorithm>
@@ -95,7 +96,7 @@ class adaptive_pool_base
    typedef std::ptrdiff_t                                difference_type;
 
    typedef boost::interprocess::version_type<adaptive_pool_base, Version>   version;
-   typedef detail::transform_multiallocation_chain
+   typedef boost::container::containers_detail::transform_multiallocation_chain
       <typename SegmentManager::multiallocation_chain, T>multiallocation_chain;
 
    //!Obtains adaptive_pool_base from 

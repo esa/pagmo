@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : defines parser - public interface for CLA parsing and accessing
 // ***************************************************************************
@@ -64,7 +64,7 @@ public:
 private:
     // Data members;
     parser&             m_parser;
-    Modifier const&    m_modifiers;
+    Modifier const&     m_modifiers;
 };
 
 }

@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: discard_block.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: discard_block.hpp 53871 2009-06-13 17:54:06Z steven_watanabe $
  *
  * Revision history
  *  2001-03-02  created
@@ -43,6 +43,7 @@ public:
 
   discard_block() : _rng(), _n(0) { }
   explicit discard_block(const base_type & rng) : _rng(rng), _n(0) { }
+  template<class T> explicit discard_block(T s) : _rng(s), _n(0) {}
   template<class It> discard_block(It& first, It last)
     : _rng(first, last), _n(0) { }
   void seed() { _rng.seed(); _n = 0; }

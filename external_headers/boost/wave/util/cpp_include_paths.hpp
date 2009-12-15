@@ -57,10 +57,13 @@ struct bidirectional_map
 {
     typedef std::pair<FromType, ToType> value_type;
 
-#if defined(BOOST_NO_POINTER_TO_MEMBER_TEMPLATE_PARAMETERS) ||\
-    defined(BOOST_MSVC)&&(BOOST_MSVC<1300) ||\
-    defined(BOOST_INTEL_CXX_VERSION)&&defined(_MSC_VER)&&\
-           (BOOST_INTEL_CXX_VERSION<=700)
+// _MSC_FULL_VER == 160020506 || 160021003 detects the VC10 Beta 1 and 2 
+// compilers
+#if defined(BOOST_NO_POINTER_TO_MEMBER_TEMPLATE_PARAMETERS) || \
+    (defined(BOOST_MSVC) && ((BOOST_MSVC < 1300) || \
+        (_MSC_FULL_VER == 160020506 || _MSC_FULL_VER == 160021003))) || \
+    (defined(BOOST_INTEL_CXX_VERSION) && \
+        (defined(_MSC_VER) && (BOOST_INTEL_CXX_VERSION <= 700))) 
 
     BOOST_STATIC_CONSTANT(unsigned, from_offset = offsetof(value_type, first));
     BOOST_STATIC_CONSTANT(unsigned, to_offset   = offsetof(value_type, second));
@@ -140,7 +143,7 @@ private:
     typedef std::list<std::pair<boost::filesystem::path, std::string> > 
         include_list_type;
     typedef include_list_type::value_type include_value_type;
-    
+
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
     typedef bidirectional_map<std::string, std::string>::type 
         pragma_once_set_type;
@@ -350,7 +353,7 @@ include_paths::find_include_file (std::string &s, std::string &dir,
     bool is_system, char const *current_file) const
 {
     namespace fs = boost::filesystem;
-    
+
 // if not system include (<...>), then search current directory first
     if (!is_system) {
         if (!was_sys_include_path) {  // set_sys_include_delimiter() not called
@@ -369,7 +372,7 @@ include_paths::find_include_file (std::string &s, std::string &dir,
                     dirpath = create_path(current_rel_dir.string());
                     dirpath /= create_path(s);
                 }
-                
+
                 dir = dirpath.string();
                 s = normalize(currpath).string();    // found in local directory
                 return true;
@@ -440,7 +443,7 @@ inline void load (Archive & ar, boost::filesystem::path &p,
     using namespace boost::serialization;
     std::string path_str;
     ar & make_nvp("filepath", path_str);
-    p = boost::filesystem::path(path_str, boost::filesystem::native);
+    p = wave::util::create_path(path_str);
 }
 
 // split non-intrusive serialization function member into separate

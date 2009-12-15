@@ -31,14 +31,14 @@ namespace boost { namespace fusion { namespace detail
         template <typename Iterator>
         struct apply
         {
-            typedef vector<> type;
+            typedef vector0<> type;
         };
 
         template <typename Iterator>
         static typename apply<Iterator>::type
         call(Iterator)
         {
-            return vector<>();
+            return vector0<>();
         }
     };
 
@@ -82,7 +82,7 @@ namespace boost { namespace fusion { namespace detail
         {
             BOOST_PP_REPEAT(N, BOOST_FUSION_NEXT_ITERATOR, _)
             BOOST_PP_REPEAT(N, BOOST_FUSION_VALUE_OF_ITERATOR, _)
-            typedef vector<BOOST_PP_ENUM_PARAMS(N, T)> type;
+            typedef BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM_PARAMS(N, T)> type;
         };
 
         template <typename Iterator>

@@ -12,7 +12,6 @@
 #define BOOST_SIGNALS2_OPTIONAL_LAST_VALUE_HPP
 
 #include <boost/optional.hpp>
-#include <boost/signals2/detail/result_type_wrapper.hpp>
 
 namespace boost {
   namespace signals2 {
@@ -45,7 +44,7 @@ namespace boost {
       class optional_last_value<void>
     {
     public:
-      typedef detail::result_type_wrapper<void>::type result_type;
+      typedef void result_type;
       template<typename InputIterator>
         result_type operator()(InputIterator first, InputIterator last) const
       {
@@ -58,7 +57,7 @@ namespace boost {
           catch(const expired_slot &) {}
           ++first;
         }
-        return result_type();
+        return;
       }
     };
   } // namespace signals2

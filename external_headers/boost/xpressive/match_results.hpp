@@ -125,9 +125,9 @@ template<typename OutputIterator, typename Char>
 struct case_converting_iterator
   : std::iterator<std::output_iterator_tag, Char, void, void, case_converting_iterator<OutputIterator, Char> >
 {
-    case_converting_iterator(OutputIterator const &out, traits<Char> const *traits)
+    case_converting_iterator(OutputIterator const &out, traits<Char> const *tr)
       : out_(out)
-      , traits_(traits)
+      , traits_(tr)
       , next_(None)
       , rest_(None)
     {}
@@ -410,7 +410,7 @@ public:
         {
             extras_type &extras = this->get_extras_();
             std::size_t size = that.sub_matches_.size();
-            detail::sub_match_impl<BidiIter> *sub_matches = extras.sub_match_stack_.push_sequence(size);
+            detail::sub_match_impl<BidiIter> *sub_matches = extras.sub_match_stack_.push_sequence(size, detail::sub_match_impl_default());
             detail::core_access<BidiIter>::init_sub_match_vector(this->sub_matches_, sub_matches, size, that.sub_matches_);
 
             // BUGBUG this doesn't share the extras::sequence_stack
@@ -709,13 +709,13 @@ private:
     void init_
     (
         regex_id_type regex_id
-      , intrusive_ptr<detail::traits<char_type> const> const &traits
+      , intrusive_ptr<detail::traits<char_type> const> const &tr
       , detail::sub_match_impl<BidiIter> *sub_matches
       , size_type size
       , std::vector<detail::named_mark<char_type> > const &named_marks
     )
     {
-        this->traits_ = traits;
+        this->traits_ = tr;
         this->regex_id_ = regex_id;
         this->named_marks_ = named_marks;
         detail::core_access<BidiIter>::init_sub_match_vector(this->sub_matches_, sub_matches, size);

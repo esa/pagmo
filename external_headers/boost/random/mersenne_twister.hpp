@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: mersenne_twister.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: mersenne_twister.hpp 53871 2009-06-13 17:54:06Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -28,6 +28,7 @@
 #include <boost/detail/workaround.hpp>
 #include <boost/random/detail/config.hpp>
 #include <boost/random/detail/ptr_helper.hpp>
+#include <boost/random/detail/seed.hpp>
 
 namespace boost {
 namespace random {
@@ -55,28 +56,18 @@ public:
   
   mersenne_twister() { seed(); }
 
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x520)
-  // Work around overload resolution problem (Gennadiy E. Rozental)
-  explicit mersenne_twister(const UIntType& value)
-#else
-  explicit mersenne_twister(UIntType value)
-#endif
+  BOOST_RANDOM_DETAIL_ARITHMETIC_CONSTRUCTOR(mersenne_twister, UIntType, value)
   { seed(value); }
   template<class It> mersenne_twister(It& first, It last) { seed(first,last); }
 
-  template<class Generator>
-  explicit mersenne_twister(Generator & gen) { seed(gen); }
+  BOOST_RANDOM_DETAIL_GENERATOR_CONSTRUCTOR(mersenne_twister, Generator, gen)
+  { seed(gen); }
 
   // compiler-generated copy ctor and assignment operator are fine
 
   void seed() { seed(UIntType(5489)); }
 
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x520)
-  // Work around overload resolution problem (Gennadiy E. Rozental)
-  void seed(const UIntType& value)
-#else
-  void seed(UIntType value)
-#endif
+  BOOST_RANDOM_DETAIL_ARITHMETIC_SEED(mersenne_twister, UIntType, value)
   {
     // New seeding algorithm from 
     // http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
@@ -93,8 +84,7 @@ public:
   // For GCC, moving this function out-of-line prevents inlining, which may
   // reduce overall object code size.  However, MSVC does not grok
   // out-of-line definitions of member function templates.
-  template<class Generator>
-  void seed(Generator & gen)
+  BOOST_RANDOM_DETAIL_GENERATOR_SEED(mersenne_twister, Generator, gen)
   {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
     BOOST_STATIC_ASSERT(!std::numeric_limits<result_type>::is_signed);

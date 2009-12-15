@@ -113,7 +113,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
     struct DeepCopy
       : or_<
             when< terminal<detail::attribute_placeholder<_> >,  as_read_attr>
-          , when< terminal<_>,                                  proto::_deep_copy(_)>
+          , when< terminal<_>,                                  proto::_deep_copy>
           , otherwise< nary_expr<_, vararg<DeepCopy> > >
         >
     {};
@@ -271,8 +271,8 @@ namespace boost { namespace xpressive { namespace grammar_detail
             marked_expr_type;
 
             typedef
-                typename mpl::if_<
-                    proto::matches<action_type, CheckAssertion>
+                typename mpl::if_c<
+                    proto::matches<action_type, CheckAssertion>::value
                   , detail::predicate_matcher<action_copy_type>
                   , detail::action_matcher<action_copy_type>
                 >::type

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -49,7 +49,7 @@
 
 #include <boost/interprocess/containers/container/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/detail/workaround.hpp>
-#include <boost/interprocess/containers/container/containers_fwd.hpp>
+#include <boost/interprocess/containers/container/container_fwd.hpp>
 #include <boost/interprocess/containers/container/detail/version_type.hpp>
 #include <boost/interprocess/detail/move.hpp>
 #include <boost/pointer_to_other.hpp>
@@ -60,11 +60,13 @@
 #include <boost/intrusive/list.hpp>
 #include <boost/interprocess/containers/container/detail/node_alloc_holder.hpp>
 
-#ifndef BOOST_CONTAINERS_PERFECT_FORWARDING
+#if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
+#else
 //Preprocessor library to emulate perfect forwarding
 #include <boost/interprocess/containers/container/detail/preprocessor.hpp> 
 #endif
 
+#include <stdexcept>
 #include <iterator>
 #include <utility>
 #include <memory>
@@ -72,12 +74,12 @@
 #include <algorithm>
 #include <stdexcept>
 
-#ifdef BOOST_INTERPROCESS_DOXYGEN_INVOKED
+#ifdef BOOST_CONTAINER_DOXYGEN_INVOKED
 namespace boost {
-namespace interprocess {
+namespace container {
 #else
 namespace boost {
-namespace interprocess_container {
+namespace container {
 #endif
 
 /// @cond
@@ -95,7 +97,18 @@ struct list_node
    :  public list_hook<VoidPointer>::type
 {
 
-   #ifndef BOOST_CONTAINERS_PERFECT_FORWARDING
+   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
+
+   list_node()
+      : m_data()
+   {}
+
+   template<class ...Args>
+   list_node(Args &&...args)
+      : m_data(boost::interprocess::forward<Args>(args)...)
+   {}
+
+   #else //#ifndef BOOST_CONTAINERS_PERFECT_FORWARDING
 
    list_node()
       : m_data()
@@ -110,16 +123,6 @@ struct list_node
    #define BOOST_PP_LOCAL_LIMITS (1, BOOST_CONTAINERS_MAX_CONSTRUCTOR_PARAMETERS)
    #include BOOST_PP_LOCAL_ITERATE()
 
-   #else //#ifndef BOOST_CONTAINERS_PERFECT_FORWARDING
-
-   list_node()
-      : m_data()
-   {}
-
-   template<class ...Args>
-   list_node(Args &&...args)
-      : m_data(boost::interprocess::forward<Args>(args)...)
-   {}
    #endif//#ifndef BOOST_CONTAINERS_PERFECT_FORWARDING
 
    T m_data;
@@ -161,8 +164,10 @@ class list
       <A, typename containers_detail::intrusive_list_type<A>::type>
 {
    /// @cond
+   typedef typename containers_detail::
+      move_const_ref_type<T>::type                    insert_const_ref_type;
    typedef typename 
-      containers_detail::intrusive_list_type<A>::type            Icont;
+      containers_detail::intrusive_list_type<A>::type Icont;
    typedef list <T, A>                                ThisType;
    typedef containers_detail::node_alloc_holder<A, Icont>        AllocHolder;
    typedef typename AllocHolder::NodePtr              NodePtr;
@@ -226,6 +231,7 @@ class list
 
    /// @cond
    private:
+   BOOST_COPYABLE_AND_MOVABLE(list)
    typedef difference_type                         list_difference_type;
    typedef pointer                                 list_pointer;
    typedef const_pointer                           list_const_pointer;
@@ -234,8 +240,6 @@ class list
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(list)
-
    //! Const iterator used to iterate through a list. 
    class const_iterator
       /// @cond
@@ -387,7 +391,7 @@ class list
    //! 
    //! <b>Complexity</b>: Constant.
    list(BOOST_INTERPROCESS_RV_REF(list) x)
-      : AllocHolder(boost::interprocess::move((AllocHolder&)x))
+      : AllocHolder(boost::interprocess::move(static_cast<AllocHolder&>(x)))
    {}
 
    //! <b>Effects</b>: Constructs a list that will use a copy of allocator a
@@ -565,8 +569,16 @@ class list
    //!   T's copy constructor throws.
    //!
    //! <b>Complexity</b>: Amortized constant time.
-   void push_front(const T& x)   
+   void push_front(insert_const_ref_type x)   
    {  this->insert(this->cbegin(), x);  }
+
+   #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   void push_front(T &x) { push_front(const_cast<const T &>(x)); }
+
+   template<class U>
+   void push_front(const U &u, typename containers_detail::enable_if_c<containers_detail::is_same<T, U>::value && !::boost::interprocess::is_movable<U>::value >::type* =0)
+   {  this->insert(this->cbegin(), u);  }
+   #endif
 
    //! <b>Effects</b>: Constructs a new element in the beginning of the list
    //!   and moves the resources of t to this new element.
@@ -582,8 +594,17 @@ class list
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Complexity</b>: Amortized constant time.
-   void push_back (const T& x)   
+   void push_back (insert_const_ref_type x)   
    {  this->insert(this->cend(), x);    }
+
+   #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   void push_back(T &x) { push_back(const_cast<const T &>(x)); }
+
+   template<class U>
+   void push_back(const U &u, typename containers_detail::enable_if_c<containers_detail::is_same<T, U>::value && !::boost::interprocess::is_movable<U>::value >::type* =0)
+   {  this->insert(this->cend(), u);    }
+
+   #endif
 
    //! <b>Effects</b>: Removes the first element from the list.
    //!
@@ -728,7 +749,7 @@ class list
    //! <b>Throws</b>: If memory allocation throws or T's copy constructor throws.
    //!
    //! <b>Complexity</b>: Linear to the number of elements in x.
-   ThisType& operator=(const ThisType& x)
+   ThisType& operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(ThisType) x)
    {
       if (this != &x) {
          this->assign(x.begin(), x.end());
@@ -784,11 +805,16 @@ class list
    //! <b>Throws</b>: If memory allocation throws or x's copy constructor throws.
    //!
    //! <b>Complexity</b>: Amortized constant time.
-   iterator insert(const_iterator p, const T& x) 
-   {
-      NodePtr tmp = AllocHolder::create_node(x);
-      return iterator(this->icont().insert(p.get(), *tmp));
-   }
+   iterator insert(const_iterator position, insert_const_ref_type x) 
+   {  return this->priv_insert(position, x); }
+
+   #if !defined(BOOST_HAS_RVALUE_REFS) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
+   iterator insert(const_iterator position, T &x) { return this->insert(position, const_cast<const T &>(x)); }
+
+   template<class U>
+   iterator insert(const_iterator position, const U &u, typename containers_detail::enable_if_c<containers_detail::is_same<T, U>::value && !::boost::interprocess::is_movable<U>::value >::type* =0)
+   {  return this->priv_insert(position, u); }
+   #endif
 
    //! <b>Requires</b>: p must be a valid iterator of *this.
    //!
@@ -803,7 +829,7 @@ class list
       return iterator(this->icont().insert(p.get(), *tmp));
    }
 
-   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   #if defined(BOOST_CONTAINERS_PERFECT_FORWARDING) || defined(BOOST_CONTAINER_DOXYGEN_INVOKED)
 
    //! <b>Effects</b>: Inserts an object of type T constructed with
    //!   std::forward<Args>(args)... in the end of the list.
@@ -1167,6 +1193,12 @@ class list
    /// @cond
    private:
 
+   iterator priv_insert(const_iterator p, const T &x) 
+   {
+      NodePtr tmp = AllocHolder::create_node(x);
+      return iterator(this->icont().insert(p.get(), *tmp));
+   }
+
    //Iterator range version
    template<class InpIterator>
    void priv_create_and_insert_nodes
@@ -1351,21 +1383,17 @@ inline void swap(list<T, A>& x, list<T, A>& y)
 
 /// @cond
 
-}  //namespace interprocess_container {
-
-namespace interprocess {
-
+}  //namespace container {
+/*
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations
 template <class T, class A>
-struct has_trivial_destructor_after_move<boost::interprocess_container::list<T, A> >
+struct has_trivial_destructor_after_move<boost::container::list<T, A> >
 {
    static const bool value = has_trivial_destructor<A>::value;
 };
-
-}  //namespace interprocess {
-
-namespace interprocess_container {
+*/
+namespace container {
 
 /// @endcond
 

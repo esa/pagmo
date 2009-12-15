@@ -58,7 +58,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
 {
     typedef typename ContextT::token_type token_type;
     typedef typename token_type::string_type string_type;
-    
+
     using namespace cpplexer;
     if (T_IDENTIFIER == token_id(*it)) {
     // check for pragma wave ...
@@ -111,7 +111,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
                     act_token.get_position());
                 return false;
             }
-        
+
         // remove the falsely matched surrounding parenthesis's
             if (values.size() >= 2) {
                 BOOST_ASSERT(T_LEFTPAREN == values.front() && T_RIGHTPAREN == values.back());
@@ -119,7 +119,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
                 typename ContainerT::reverse_iterator rit = values.rbegin();
                 values.erase((++rit).base());
             }
-            
+
         // decode the option (call the context_policy hook)
             if (!ctx.get_hooks().interpret_pragma(
                   ctx.derived(), pending, option, values, act_token)) 
@@ -143,7 +143,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
         else if ((*it).get_value() == "once") {
         // #pragma once
-            return ctx.add_pragma_once_header(ctx.get_current_filename());
+            return ctx.add_pragma_once_header(act_token, ctx.get_current_filename());
         }
 #endif 
 #if BOOST_WAVE_SUPPORT_PRAGMA_MESSAGE != 0
@@ -151,7 +151,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
         // #pragma message(...) or #pragma message ...
             using namespace boost::spirit::classic;
             ContainerT values;
-            
+
             if (!parse (++it, end, 
                             (   (   ch_p(T_LEFTPAREN) 
                                 >>  lexeme_d[
@@ -173,7 +173,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
                     act_token.get_position());
                 return false;
             }
-        
+
         // remove the falsely matched closing parenthesis/newline
             if (values.size() > 0) {
                 BOOST_ASSERT(T_RIGHTPAREN == values.back() || T_NEWLINE == values.back());

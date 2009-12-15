@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -8,7 +8,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-// This file comes from SGI's string file. Modified by Ion Gaztanaga 2004-2008
+// This file comes from SGI's string file. Modified by Ion Gaztanaga 2004-2009
 // Renaming, isolating and porting to generic algorithms. Pointer typedef 
 // set to allocator::pointer to allow placing it in shared memory.
 //
@@ -31,7 +31,7 @@
 #include <boost/interprocess/containers/container/detail/workaround.hpp>
 
 #include <boost/interprocess/containers/container/detail/workaround.hpp>
-#include <boost/interprocess/containers/container/containers_fwd.hpp>
+#include <boost/interprocess/containers/container/container_fwd.hpp>
 #include <boost/interprocess/containers/container/detail/utilities.hpp>
 #include <boost/interprocess/containers/container/detail/iterators.hpp>
 #include <boost/interprocess/containers/container/detail/algorithms.hpp>
@@ -59,12 +59,12 @@
 #include <boost/detail/no_exceptions_support.hpp>
 #include <boost/type_traits/has_trivial_destructor.hpp>
 
-#ifdef BOOST_INTERPROCESS_DOXYGEN_INVOKED
+#ifdef BOOST_CONTAINER_DOXYGEN_INVOKED
 namespace boost {
-namespace interprocess {
+namespace container {
 #else
 namespace boost {
-namespace interprocess_container {
+namespace container {
 #endif
 
 /// @cond
@@ -83,12 +83,9 @@ template <class A>
 class basic_string_base
 {
    basic_string_base();
-   basic_string_base(basic_string_base&);
-   basic_string_base & operator=(basic_string_base&);
+   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(basic_string_base)
 
  public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_string_base)
-
    typedef A allocator_type;
    //! The stored allocator type
    typedef allocator_type                          stored_allocator_type;
@@ -256,7 +253,7 @@ class basic_string_base
    typedef containers_detail::integral_constant<unsigned, 1>      allocator_v1;
    typedef containers_detail::integral_constant<unsigned, 2>      allocator_v2;
    typedef containers_detail::integral_constant<unsigned,
-      boost::interprocess_container::containers_detail::version<A>::value> alloc_version;
+      boost::container::containers_detail::version<A>::value> alloc_version;
 
    std::pair<pointer, bool>
       allocation_command(allocation_type command,
@@ -448,6 +445,7 @@ class basic_string
 {
    /// @cond
    private:
+   BOOST_COPYABLE_AND_MOVABLE(basic_string)
    typedef containers_detail::basic_string_base<A> base_t;
    static const typename base_t::size_type InternalBufferChars = base_t::InternalBufferChars;
 
@@ -485,7 +483,6 @@ class basic_string
    /// @endcond
 
    public:
-   BOOST_INTERPROCESS_ENABLE_MOVE_EMULATION(basic_string)
 
    //! The allocator type
    typedef A                                       allocator_type;
@@ -621,7 +618,7 @@ class basic_string
    //! <b>Postcondition</b>: x == *this.
    //! 
    //! <b>Complexity</b>: Linear to the elements x contains.
-   basic_string& operator=(const basic_string& s)
+   basic_string& operator=(BOOST_INTERPROCESS_COPY_ASSIGN_REF(basic_string) s)
    {
       if (&s != this) 
          this->assign(s.begin(), s.end());
@@ -1874,6 +1871,22 @@ class basic_string
    /// @endcond
 };
 
+//!Typedef for a basic_string of
+//!narrow characters
+typedef basic_string
+   <char
+   ,std::char_traits<char>
+   ,std::allocator<char> >
+string;
+
+//!Typedef for a basic_string of
+//!narrow characters
+typedef basic_string
+   <wchar_t
+   ,std::char_traits<wchar_t>
+   ,std::allocator<wchar_t> >
+wstring;
+
 /// @cond
 
 template <class CharT, class Traits, class A> 
@@ -2301,17 +2314,16 @@ inline std::size_t hash_value(basic_string<Ch, std::char_traits<Ch>, A> const& v
 /// @cond
 
 namespace boost {
-namespace interprocess {
-
+/*
 //!has_trivial_destructor_after_move<> == true_type
 //!specialization for optimizations
 template <class C, class T, class A>
-struct has_trivial_destructor_after_move<boost::interprocess_container::basic_string<C, T, A> >
+struct has_trivial_destructor_after_move<boost::container::basic_string<C, T, A> >
 {
    static const bool value = has_trivial_destructor<A>::value;
 };
-
-}}
+*/
+}
 
 /// @endcond
 

@@ -43,6 +43,9 @@ struct key_compare
         const extended_type_info * lhs, 
         const extended_type_info * rhs
     ) const {
+        // performance shortcut
+        if(lhs == rhs)
+            return false;
         const char * l = lhs->get_key();
         assert(NULL != l);
         const char * r = rhs->get_key();
@@ -62,35 +65,45 @@ typedef std::multiset<const extended_type_info *, key_compare> ktmap;
 
 class extended_type_info_arg : public extended_type_info
 {
+    virtual bool
+    is_less_than(const extended_type_info & /*rhs*/) const {
+        assert(false);
+        return false;
+    };
+    virtual bool
+    is_equal(const extended_type_info & /*rhs*/) const {
+        assert(false);
+        return false;
+    };
+    virtual const char * get_debug_info() const {
+        return get_key();
+    }
 public:
     extended_type_info_arg(const char * key) :
-        extended_type_info()
-    {
-        m_key = key;
-    }
+        extended_type_info(0, key)
+    {}
+
     ~extended_type_info_arg(){
-        m_key = NULL;
     }
 };
 
 } // namespace detail
 
 BOOST_SERIALIZATION_DECL(void)  
-extended_type_info::key_register(const char *key) {
-    assert(NULL != key);
-    m_key = key;
+extended_type_info::key_register() const{
+    if(NULL == get_key())
+        return;
     singleton<detail::ktmap>::get_mutable_instance().insert(this);
 }
 
 BOOST_SERIALIZATION_DECL(void)  
-extended_type_info::key_unregister() {
-    assert(NULL != m_key);
+extended_type_info::key_unregister() const{
+    if(NULL == get_key())
+        return;
     if(! singleton<detail::ktmap>::is_destroyed()){
         detail::ktmap & x = singleton<detail::ktmap>::get_mutable_instance();
         detail::ktmap::iterator start = x.lower_bound(this);
         detail::ktmap::iterator end = x.upper_bound(this);
-        assert(start != end);
-
         // remove entry in map which corresponds to this type
         for(;start != end; ++start){
             if(this == *start){
@@ -99,7 +112,6 @@ extended_type_info::key_unregister() {
             }
         }
     }
-    m_key = NULL;
 }
 
 BOOST_SERIALIZATION_DECL(const extended_type_info *) 
@@ -115,22 +127,23 @@ extended_type_info::find(const char *key) {
 
 BOOST_SERIALIZATION_DECL(BOOST_PP_EMPTY())
 extended_type_info::extended_type_info(
-    const unsigned int type_info_key
+    const unsigned int type_info_key,
+    const char * key
 ) :
     m_type_info_key(type_info_key),
-    m_key(NULL)
+    m_key(key)
 {
 }
 
 BOOST_SERIALIZATION_DECL(BOOST_PP_EMPTY()) 
 extended_type_info::~extended_type_info(){
-    if(NULL == m_key)
-        return;
-    key_unregister();
 }
 
 BOOST_SERIALIZATION_DECL(bool)  
 extended_type_info::operator<(const extended_type_info &rhs) const {
+    // short cut for a common cases
+    if(this == & rhs)
+        return false;
     if(m_type_info_key == rhs.m_type_info_key){
         return is_less_than(rhs);
     }

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -50,7 +50,7 @@
 namespace boost {
 namespace interprocess {
 /// @cond
-static inline int system_error_code() // artifact of POSIX and WINDOWS error reporting
+inline int system_error_code() // artifact of POSIX and WINDOWS error reporting
 {
    #if (defined BOOST_INTERPROCESS_WINDOWS)
    return winapi::get_last_error();
@@ -82,7 +82,7 @@ inline void fill_system_message(int sys_err_code, std::string &str)
       str.erase( str.size()-1 );
 }
 # else
-static inline void fill_system_message( int system_error, std::string &str)
+inline void fill_system_message( int system_error, std::string &str)
 {  str = std::strerror(system_error);  }
 # endif
 /// @endcond
@@ -179,7 +179,7 @@ static const ec_xlate ec_table[] =
    #endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
 };
 
-static inline error_code_t lookup_error(native_error_t err)
+inline error_code_t lookup_error(native_error_t err)
 {  
    const ec_xlate *cur  = &ec_table[0],
                   *end  = cur + sizeof(ec_table)/sizeof(ec_xlate); 

@@ -137,13 +137,19 @@
             /// INTERNAL ONLY
             template<typename Expr, typename Context>
             struct is_member_function_eval
-            {
-                typedef typename proto::result_of::child_c<Expr, 1>::type e1;
-                typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;
-                typedef typename remove_const<typename remove_reference<r1>::type>::type uncvref_r1;
-                typedef typename is_member_function_pointer<uncvref_r1>::type type;
-                BOOST_STATIC_CONSTANT(bool, value = type::value);
-            };
+              : is_member_function_pointer<
+                    typename remove_const<
+                        typename remove_reference<
+                            typename proto::result_of::eval<
+                                typename remove_reference<
+                                    typename proto::result_of::child_c<Expr, 1>::type
+                                >::type
+                              , Context
+                            >::type
+                        >::type
+                    >::type
+                >
+            {};
 
             /// INTERNAL ONLY
             template<typename Expr, typename Context, bool IsMemFunCall>
@@ -353,14 +359,16 @@
 
                 result_type invoke(Expr &expr, Context &context, mpl::true_, mpl::false_) const
                 {
-                    using namespace detail::get_pointer_;
-                    return (get_pointer(EVAL(~, 1, expr)) ->* EVAL(~, 0, expr))();
+                    BOOST_PROTO_USE_GET_POINTER();
+                    typedef typename detail::classtypeof<function_type>::type class_type;
+                    return (BOOST_PROTO_GET_POINTER(class_type, EVAL(~, 1, expr)) ->* EVAL(~, 0, expr))();
                 }
 
                 result_type invoke(Expr &expr, Context &context, mpl::false_, mpl::true_) const
                 {
-                    using namespace detail::get_pointer_;
-                    return (get_pointer(EVAL(~, 1, expr)) ->* EVAL(~, 0, expr));
+                    BOOST_PROTO_USE_GET_POINTER();
+                    typedef typename detail::classtypeof<function_type>::type class_type;
+                    return (BOOST_PROTO_GET_POINTER(class_type, EVAL(~, 1, expr)) ->* EVAL(~, 0, expr));
                 }
             };
 
@@ -421,8 +429,9 @@
             result_type invoke(Expr &expr, Context &context, mpl::true_) const
             {
                 #define M0(Z, M, expr) BOOST_PP_COMMA_IF(BOOST_PP_SUB(M, 2)) EVAL(Z, M, expr)
-                using namespace detail::get_pointer_;
-                return (get_pointer(EVAL(~, 1, expr)) ->* EVAL(~, 0, expr))(
+                BOOST_PROTO_USE_GET_POINTER();
+                typedef typename detail::classtypeof<function_type>::type class_type;
+                return (BOOST_PROTO_GET_POINTER(class_type, EVAL(~, 1, expr)) ->* EVAL(~, 0, expr))(
                     BOOST_PP_REPEAT_FROM_TO(2, N, M0, expr)
                 );
                 #undef M0

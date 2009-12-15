@@ -43,6 +43,10 @@ namespace boost { namespace fusion
         first_type first() const { return fusion::begin(seq); }
         last_type last() const { return fusion::end(seq); }
         typename mpl::if_<traits::is_view<Sequence>, Sequence, Sequence&>::type seq;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        filter_view& operator= (filter_view const&);
     };
 }}
 

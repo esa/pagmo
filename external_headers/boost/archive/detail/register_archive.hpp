@@ -66,9 +66,6 @@ namespace boost { namespace archive { namespace detail {                  \
 
 #else
 
- // This function gets called, but its only purpose is to participate
- // in overload resolution with the functions declared by
- // BOOST_SERIALIZATION_REGISTER_ARCHIVE, below.
 // This function gets called, but its only purpose is to participate
 // in overload resolution with the functions declared by
 // BOOST_SERIALIZATION_REGISTER_ARCHIVE, below.

@@ -100,8 +100,8 @@ void skip( Filter& flt, Device& dev, stream_offset off,
     >                                                      can_seek;
     BOOST_STATIC_ASSERT(
         ( can_seek::value || 
-          is_convertible<filter_mode, input>::value &&
-          is_convertible<device_mode, input>::value )
+          (is_convertible<filter_mode, input>::value &&
+          is_convertible<device_mode, input>::value) )
     );
     detail::skip(flt, dev, off, which, can_seek());
 }

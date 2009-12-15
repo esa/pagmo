@@ -119,12 +119,10 @@ private:
       std::sprintf(
         mutex_name,
         "boost_flyweight_intermodule_holder_mutex_"
-        "%ld_%u_%u_%u_%u",
+        "%ld_%u_%u",
         (long)detail::process_id(),
         (unsigned)compute_hash(typeid(C).name(),0),
-        (unsigned)compute_hash(typeid(C).name(),1),
-        (unsigned)compute_hash(typeid(C).name(),2),
-        (unsigned)compute_hash(typeid(C).name(),3));
+        (unsigned)compute_hash(typeid(C).name(),1));
 
       return mutex_name;
     }
@@ -134,12 +132,10 @@ private:
       std::sprintf(
         segment_name,
         "boost_flyweight_intermodule_holder_segment_"
-        "%ld_%u_%u_%u_%u",
+        "%ld_%u_%u",
         (long)detail::process_id(),
         (unsigned)compute_hash(typeid(C).name(),0),
-        (unsigned)compute_hash(typeid(C).name(),1),
-        (unsigned)compute_hash(typeid(C).name(),2),
-        (unsigned)compute_hash(typeid(C).name(),3));
+        (unsigned)compute_hash(typeid(C).name(),1));
 
       return segment_name;
     }

@@ -282,8 +282,8 @@ template<typename T, typename Tr, typename Alloc, typename Mode>
 typename indirect_streambuf<T, Tr, Alloc, Mode>::int_type
 indirect_streambuf<T, Tr, Alloc, Mode>::overflow(int_type c)
 {
-    if ( output_buffered() && pptr() == 0 ||
-         shared_buffer() && gptr() != 0 )
+    if ( (output_buffered() && pptr() == 0) ||
+         (shared_buffer() && gptr() != 0) )
     {
         init_put_area();
     }

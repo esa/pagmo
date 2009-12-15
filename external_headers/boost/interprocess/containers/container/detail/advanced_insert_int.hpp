@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2008-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2008-2009. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -23,7 +23,7 @@
 #include <new>       //placement new
 #include <cassert>
 
-namespace boost { namespace interprocess_container { namespace containers_detail {
+namespace boost { namespace container { namespace containers_detail {
 
 //This class will be interface for operations dependent on FwdIt types used advanced_insert_aux_impl
 template<class T, class Iterator>
@@ -54,18 +54,18 @@ struct advanced_insert_aux_proxy
    {  std::copy(first_, last_, p);  }
 
    virtual void uninitialized_copy_all_to(Iterator p)
-   {  boost::interprocess::uninitialized_copy_or_move(first_, last_, p);  }
+   {  ::boost::interprocess::uninitialized_copy_or_move(first_, last_, p);  }
 
    virtual void uninitialized_copy_some_and_update(Iterator pos, difference_type division_count, bool first_n)
    {
       FwdIt mid = first_;
       std::advance(mid, division_count);
       if(first_n){
-         boost::interprocess::uninitialized_copy_or_move(first_, mid, pos);
+         ::boost::interprocess::uninitialized_copy_or_move(first_, mid, pos);
          first_ = mid;
       }
       else{
-         boost::interprocess::uninitialized_copy_or_move(mid, last_, pos);
+         ::boost::interprocess::uninitialized_copy_or_move(mid, last_, pos);
          last_ = mid;
       }
    }
@@ -159,7 +159,7 @@ struct default_construct_aux_proxy
    SizeType count_;
 };
 
-}}}   //namespace boost { namespace interprocess_container { namespace containers_detail {
+}}}   //namespace boost { namespace container { namespace containers_detail {
 
 #ifdef BOOST_CONTAINERS_PERFECT_FORWARDING
 
@@ -169,7 +169,7 @@ struct default_construct_aux_proxy
 //#include <iostream> //For debugging purposes
 
 namespace boost {
-namespace interprocess_container { 
+namespace container { 
 namespace containers_detail {
 
 //This class template will adapt each FwIt types to advanced_insert_aux_int
@@ -180,7 +180,7 @@ struct advanced_insert_aux_emplace
    typedef typename advanced_insert_aux_int<T, Iterator>::difference_type difference_type;
    typedef typename build_number_seq<sizeof...(Args)>::type             index_tuple_t;
 
-   advanced_insert_aux_emplace(Args&&... args)
+   explicit advanced_insert_aux_emplace(Args&&... args)
       : args_(args...), used_(false)
    {}
 
@@ -204,8 +204,7 @@ struct advanced_insert_aux_emplace
    void priv_copy_all_to(const index_tuple<IdxPack...>&, Iterator p)
    {
       if(!used_){
-         T object(boost::interprocess::forward<Args>(get<IdxPack>(args_))...);
-         *p = boost::interprocess::move(object);
+         *p = boost::interprocess::move(T (boost::interprocess::forward<Args>(get<IdxPack>(args_))...));
          used_ = true;
       }
    }
@@ -237,8 +236,7 @@ struct advanced_insert_aux_emplace
       assert(division_count <=1);
       if((first_n && division_count == 1) || (!first_n && division_count == 0)){
          if(!used_){
-            T object(boost::interprocess::forward<Args>(get<IdxPack>(args_))...);
-            *p = boost::interprocess::move(object);
+            *p = boost::interprocess::move(T(boost::interprocess::forward<Args>(get<IdxPack>(args_))...));
             used_ = true;
          }
       }
@@ -247,7 +245,7 @@ struct advanced_insert_aux_emplace
    bool used_;
 };
 
-}}}   //namespace boost { namespace interprocess_container { namespace containers_detail {
+}}}   //namespace boost { namespace container { namespace containers_detail {
 
 #else //#ifdef BOOST_CONTAINERS_PERFECT_FORWARDING
 
@@ -255,7 +253,7 @@ struct advanced_insert_aux_emplace
 #include <boost/interprocess/containers/container/detail/value_init.hpp>
 
 namespace boost {
-namespace interprocess_container { 
+namespace container { 
 namespace containers_detail {
 
 //This class template will adapt each FwIt types to advanced_insert_aux_int
@@ -377,7 +375,7 @@ struct advanced_insert_aux_emplace
 #define BOOST_PP_LOCAL_LIMITS (1, BOOST_CONTAINERS_MAX_CONSTRUCTOR_PARAMETERS)
 #include BOOST_PP_LOCAL_ITERATE()
 
-}}}   //namespace boost { namespace interprocess_container { namespace containers_detail {
+}}}   //namespace boost { namespace container { namespace containers_detail {
 
 #endif   //#ifdef BOOST_CONTAINERS_PERFECT_FORWARDING
 

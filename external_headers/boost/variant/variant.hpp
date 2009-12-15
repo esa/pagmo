@@ -15,7 +15,10 @@
 
 #include <cstddef> // for std::size_t
 #include <new> // for placement new
+
+#if !defined(BOOST_NO_TYPEID)
 #include <typeinfo> // for typeid, std::type_info
+#endif // BOOST_NO_TYPEID
 
 #include "boost/variant/detail/config.hpp"
 #include "boost/mpl/aux_/config/eti.hpp"
@@ -290,7 +293,8 @@ public: // visitor interfaces
     {
         operand.~T();
 
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0551))
+#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0551)) || \
+    BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
         operand; // suppresses warnings
 #endif
 
@@ -529,6 +533,11 @@ public: // visitor interface
 
 #endif // MSVC6 workaround
 
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+private:
+    // silence MSVC warning C4512: assignment operator could not be generated
+    direct_assigner& operator= (direct_assigner const&);
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -647,6 +656,11 @@ public: // visitor interface
         BOOST_VARIANT_AUX_RETURN_VOID;
     }
 
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+private:
+    // silence MSVC warning C4512: assignment operator could not be generated
+    backup_assigner& operator= (backup_assigner const&);
+#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -691,6 +705,9 @@ public: // internal visitor interfaces
 //
 // Generic static visitor that performs a typeid on the value it visits.
 //
+
+#if !defined(BOOST_NO_TYPEID)
+
 class reflect
     : public static_visitor<const std::type_info&>
 {
@@ -703,6 +720,8 @@ public: // visitor interfaces
     }
 
 };
+
+#endif // BOOST_NO_TYPEID
 
 ///////////////////////////////////////////////////////////////////////////////
 // (detail) class comparer
@@ -891,6 +910,11 @@ public: // internal visitor interfaces, cont.
         return internal_visit( operand.get(), 1L );
     }
 
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+private:
+    // silence MSVC warning C4512: assignment operator could not be generated
+    invoke_visitor& operator= (invoke_visitor const&);
+#endif
 };
 
 }} // namespace detail::variant
@@ -1541,6 +1565,11 @@ private: // helpers, for modifiers (below)
             BOOST_VARIANT_AUX_RETURN_VOID;
         }
 
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        assigner& operator= (assigner const&);
+#endif
     };
 
     friend class assigner;
@@ -1627,11 +1656,13 @@ public: // queries
         return false;
     }
 
+#if !defined(BOOST_NO_TYPEID)
     const std::type_info& type() const
     {
         detail::variant::reflect visitor;
         return this->apply_visitor(visitor);
     }
+#endif
 
 public: // prevent comparison with foreign types
 
@@ -1823,6 +1854,9 @@ inline void swap(
 } // namespace boost
 
 // implementation additions
+
+#if !defined(BOOST_NO_IOSTREAM)
 #include "boost/variant/detail/variant_io.hpp"
+#endif // BOOST_NO_IOSTREAM
 
 #endif // BOOST_VARIANT_VARIANT_HPP

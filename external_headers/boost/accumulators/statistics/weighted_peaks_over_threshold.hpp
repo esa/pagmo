@@ -259,6 +259,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::abstract_peaks_over_threshold> const weighted_peaks_over_threshold = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_peaks_over_threshold)
 }
 
 using extract::weighted_peaks_over_threshold;

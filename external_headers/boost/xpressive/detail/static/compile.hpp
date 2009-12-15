@@ -32,15 +32,15 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // static_compile_impl2
     template<typename Xpr, typename BidiIter, typename Traits>
-    void static_compile_impl2(Xpr const &xpr, shared_ptr<regex_impl<BidiIter> > const &impl, Traits const &traits)
+    void static_compile_impl2(Xpr const &xpr, shared_ptr<regex_impl<BidiIter> > const &impl, Traits const &tr)
     {
         typedef typename iterator_value<BidiIter>::type char_type;
         impl->tracking_clear();
-        impl->traits_ = new traits_holder<Traits>(traits);
+        impl->traits_ = new traits_holder<Traits>(tr);
 
         // "compile" the regex and wrap it in an xpression_adaptor.
         typedef xpression_visitor<BidiIter, mpl::false_, Traits> visitor_type;
-        visitor_type visitor(traits, impl);
+        visitor_type visitor(tr, impl);
         intrusive_ptr<matchable_ex<BidiIter> const> adxpr = make_adaptor<matchable_ex<BidiIter> >(
             typename Grammar<char_type>::template impl<Xpr const &, end_xpression, visitor_type &>()(
                 xpr
@@ -75,8 +75,8 @@ namespace boost { namespace xpressive { namespace detail
         // use default traits
         typedef typename iterator_value<BidiIter>::type char_type;
         typedef typename default_regex_traits<char_type>::type traits_type;
-        traits_type traits;
-        static_compile_impl2(xpr, impl, traits);
+        traits_type tr;
+        static_compile_impl2(xpr, impl, tr);
     }
 
     ///////////////////////////////////////////////////////////////////////////////

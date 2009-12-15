@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : model of actual argument (both typed and abstract interface)
 // ***************************************************************************
@@ -35,10 +35,15 @@ namespace BOOST_RT_PARAM_NAMESPACE {
 // **************              runtime::argument               ************** //
 // ************************************************************************** //
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable:4244)
+#endif
+
 class argument {
 public:
     // Constructor
-    argument( parameter const& p, rtti::id_t value_type )
+    argument( parameter const& p, call_traits<rtti::id_t>::param_type value_type )
     : p_formal_parameter( p )
     , p_value_type( value_type )
     {}
@@ -93,6 +98,10 @@ arg_value( argument& arg )
 
     return static_cast<typed_argument<T>&>( arg ).p_value.value;
 }
+
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 
 //____________________________________________________________________________//
 

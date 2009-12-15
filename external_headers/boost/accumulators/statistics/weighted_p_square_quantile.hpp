@@ -241,6 +241,9 @@ namespace extract
 {
     extractor<tag::weighted_p_square_quantile> const weighted_p_square_quantile = {};
     extractor<tag::weighted_p_square_quantile_for_median> const weighted_p_square_quantile_for_median = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_p_square_quantile)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_p_square_quantile_for_median)
 }
 
 using extract::weighted_p_square_quantile;

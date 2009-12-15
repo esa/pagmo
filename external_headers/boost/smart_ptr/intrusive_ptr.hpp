@@ -111,6 +111,23 @@ public:
 
 #endif
 
+// Move support
+
+#if defined( BOOST_HAS_RVALUE_REFS )
+
+    intrusive_ptr(intrusive_ptr && rhs): px( rhs.px )
+    {
+        rhs.px = 0;
+    }
+
+    intrusive_ptr & operator=(intrusive_ptr && rhs)
+    {
+        this_type(std::move(rhs)).swap(*this);
+        return *this;
+    }
+
+#endif
+
     intrusive_ptr & operator=(intrusive_ptr const & rhs)
     {
         this_type(rhs).swap(*this);

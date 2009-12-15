@@ -17,11 +17,12 @@
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/containers/container/stable_vector.hpp>
+#include <boost/interprocess/containers/containers_fwd.hpp>
 
 namespace boost {
    namespace interprocess {
 
-      using boost::interprocess_container::stable_vector;
+      using boost::container::stable_vector;
 
    }  //namespace interprocess {
 }  //namespace boost {

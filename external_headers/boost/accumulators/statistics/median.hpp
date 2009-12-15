@@ -208,6 +208,10 @@ namespace extract
     extractor<tag::median> const median = {};
     extractor<tag::with_density_median> const with_density_median = {};
     extractor<tag::with_p_square_cumulative_distribution_median> const with_p_square_cumulative_distribution_median = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(median)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(with_density_median)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(with_p_square_cumulative_distribution_median)
 }
 
 using extract::median;

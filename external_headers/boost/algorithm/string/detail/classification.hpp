@@ -171,7 +171,7 @@ namespace boost {
                         // Check what kind of storage are we using right now
                         if(use_fixed_storage(m_Size))
                         {
-                            // Using fixed storage, allocate new		
+                            // Using fixed storage, allocate new
                             set_value_type* pTemp=new set_value_type[Other.m_Size];
                             DestStorage=pTemp;
                             m_Storage.m_dynSet=pTemp;

@@ -70,6 +70,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::rolling_mean> const rolling_mean = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(rolling_mean)
 }
 
 using extract::rolling_mean;

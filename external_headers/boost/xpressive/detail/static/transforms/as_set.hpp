@@ -190,8 +190,8 @@ namespace boost { namespace xpressive { namespace grammar_detail
             // if sizeof(char_type)==1, merge everything into a basic_chset
             // BUGBUG this is not optimal.
             typedef
-                typename mpl::if_<
-                    detail::is_narrow_char<char_type>
+                typename mpl::if_c<
+                    detail::is_narrow_char<char_type>::value
                   , detail::basic_chset<char_type>
                   , detail::compound_charset<typename data_type::traits_type>
                 >::type

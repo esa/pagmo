@@ -36,10 +36,10 @@ namespace boost { namespace proto
           , typename Domain BOOST_PROTO_WHEN_BUILDING_DOCS(= default_domain)
         >
         struct literal
-          : extends<expr<tag::terminal, term<T> >, literal<T, Domain>, Domain>
+          : extends<expr<tag::terminal, term<T>, 0>, literal<T, Domain>, Domain>
         {
         private:
-            typedef expr<tag::terminal, term<T> > terminal_type;
+            typedef expr<tag::terminal, term<T>, 0> terminal_type;
             typedef extends<terminal_type, literal<T, Domain>, Domain> base_type;
 
         public:
