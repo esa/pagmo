@@ -27,24 +27,25 @@
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 
-#include "../../src/GOclasses/algorithms/ASA.h"
-#include "../../src/GOclasses/algorithms/DE.h"
-#include "../../src/GOclasses/algorithms/MPSO.h"
-#include "../../src/GOclasses/algorithms/PSO.h"
-#include "../../src/GOclasses/algorithms/SGA.h"
-#include "../../src/GOclasses/algorithms/CS.h"
-#include "../../src/GOclasses/algorithms/go_algorithm.h"
-#include "../../src/GOclasses/algorithms/ihs_algorithm.h"
-#include "../../src/GOclasses/algorithms/nm_algorithm.h"
+#include "../../src/GOclasses/algorithms/asa.h"
+#include "../../src/GOclasses/algorithms/de.h"
+#include "../../src/GOclasses/algorithms/mpso.h"
+#include "../../src/GOclasses/algorithms/pso.h"
+#include "../../src/GOclasses/algorithms/sga.h"
+#include "../../src/GOclasses/algorithms/cs.h"
+#include "../../src/GOclasses/algorithms/base.h"
+#include "../../src/GOclasses/algorithms/ihs.h"
+#include "../../src/GOclasses/algorithms/nm.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
 using namespace boost::python;
+using namespace pagmo;
 
 template <class Algorithm>
-static inline class_<Algorithm,bases<go_algorithm> > algorithm_wrapper(const char *name, const char *descr)
+static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
 {
-	class_<Algorithm,bases<go_algorithm> > retval(name,descr,init<const Algorithm &>());
+	class_<Algorithm,bases<algorithm::base> > retval(name,descr,init<const Algorithm &>());
 	retval.def("__copy__", &Py_copy_from_ctor<Algorithm>);
 	retval.def("__repr__", &Py_repr_from_stream<Algorithm>);
 	retval.add_property("id_name", &Algorithm::id_name, "Identification name.");
@@ -57,24 +58,24 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	translate_exceptions();
 
 	// Expose base algorithm class.
-	class_<go_algorithm, boost::noncopyable>("__go_algorithm", "Base GO algorithm", no_init);
+	class_<algorithm::base, boost::noncopyable>("__algorithm::base", "Base GO algorithm", no_init);
 
 	// Expose algorithms.
-	algorithm_wrapper<ASAalgorithm>("asa", "Simulated Annealing with adaptive neighbourhood algorithm.").def(init<int, const double &, const double &>()).def(init<int, const double&, const double&, const int, const int, const double>());
-	algorithm_wrapper<CSalgorithm>("cs", "Compass search algorithm.").def(init<const double &, const double &, const double &>())
+	algorithm_wrapper<algorithm::asa>("asa", "Simulated Annealing with adaptive neighbourhood algorithm.").def(init<int, const double &, const double &>()).def(init<int, const double&, const double&, const int, const int, const double>());
+	algorithm_wrapper<algorithm::cs>("cs", "Compass search algorithm.").def(init<const double &, const double &, const double &>())
 		.def(init<const double&>());
-	algorithm_wrapper<DEalgorithm>("de", "Differential evolution algorithm.").def(init<int, const double &, const double &, int>());
-	algorithm_wrapper<ihs_algorithm>("ihs", "Improved harmony search algorithm.")
+	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.").def(init<int, const double &, const double &, int>());
+	algorithm_wrapper<algorithm::ihs>("ihs", "Improved harmony search algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &, const double &>())
 		.def(init<int>());
-	algorithm_wrapper<nm_algorithm>("nm", "Nelder-Mead algorithm.")
+	algorithm_wrapper<algorithm::nm>("nm", "Nelder-Mead algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &>())
 		.def(init<int>());
-	algorithm_wrapper<MPSOalgorithm>("mpso", "MPSO algorithm.")
+	algorithm_wrapper<algorithm::mpso>("mpso", "MPSO algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &, int>());
-	algorithm_wrapper<PSOalgorithm>("pso", "Particle swarm optimization algorithm.")
+	algorithm_wrapper<algorithm::pso>("pso", "Particle swarm optimization algorithm.")
 		.def(init<int, const double &, const double &, const double &, const double &>());
-	algorithm_wrapper<SGAalgorithm>("sga", "Simple genetic algorithm.")
+	algorithm_wrapper<algorithm::sga>("sga", "Simple genetic algorithm.")
 		.def(init<int, const double &, const double &, int>())
 		.def(init<int, const double &, const double &, int, double, int, int>());
 }

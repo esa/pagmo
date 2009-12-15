@@ -31,6 +31,8 @@
 #include "../../../Functions/rng/rng.h"
 #include "MigrationReplacementPolicy.h"
 
+namespace pagmo {
+
 /// Best-replace-worst-if-better migration replacement policy.
 /**
  * Best individuals from the incoming population are matched with the worst ones from the destination
@@ -85,5 +87,7 @@ class __PAGMO_VISIBLE BestReplaceWorstIfBetterMigrationReplacementPolicy: public
 			int operator() (int i, int j) { return Individual::compare_by_fitness(actualArray[i], actualArray[j]); }
 		};
 };
+
+}
 
 #endif

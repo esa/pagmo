@@ -26,6 +26,8 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
+namespace pagmo {
+
 void MigrationScheme::preEvolutionCallback(island& _island)
 {
 	lock_type lock(topology_mutex);
@@ -145,4 +147,6 @@ std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms)
 	}
 	
 	return s;
+}
+
 }

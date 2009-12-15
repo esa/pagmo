@@ -33,6 +33,8 @@
 #include "../individual.h"
 #include "../population.h"
 
+namespace pagmo {
+
 /// Base class for selection policies for migration.
 /**
  * This class provides it's subclasses with means for specifying the migration rate.
@@ -63,9 +65,6 @@ class __PAGMO_VISIBLE MigrationSelectionPolicy
 		/// Copy constructor.
 		MigrationSelectionPolicy(const MigrationSelectionPolicy& msp):migrationRateAbs(msp.migrationRateAbs), migrationRateFrac(msp.migrationRateFrac) { }
 
-		/// Virtual destructor.
-		virtual ~MigrationSelectionPolicy() { }
-		
 		/// Select individuals to migrate out of the given population.
 		/**
 		 * This is the method that actually implements the policy.
@@ -108,5 +107,7 @@ class __PAGMO_VISIBLE MigrationSelectionPolicy
 
 /// Stream output operator.
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& ms);
+
+}
 
 #endif

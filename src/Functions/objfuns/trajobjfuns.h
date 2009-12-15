@@ -32,7 +32,7 @@
 //NOTE: the functions here have passing by reference + const as they are called a lot of time during execution and thus
 //it is worth trying to save time by avoiding to make a copy of the variable passed
 
-double gtoc1 (const std::vector<double>& x);
-double cassini1 (const std::vector<double>& x);
+double gtoc1f (const std::vector<double>& x);
+double cassini1f (const std::vector<double>& x);
 
 #endif

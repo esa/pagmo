@@ -27,6 +27,8 @@
 #include <algorithm>
 #include <iostream>
 
+namespace pagmo {
+
 std::ostream& print_vector_of_individuals_indirect(std::ostream& str, const std::vector<Individual>& vect_indiv, const std::vector<int>& vect_index) {
 	for(std::vector<int>::const_iterator it = vect_index.begin(); it != vect_index.end(); ++it) {
 		str << vect_indiv[*it].getFitness() << " ";
@@ -82,4 +84,6 @@ std::list<std::pair<int, int> > BestReplaceWorstIfBetterMigrationReplacementPoli
 	}
 	
 	return result;
+}
+
 }

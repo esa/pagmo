@@ -34,6 +34,8 @@
 #include "ChooseBestMigrationSelectionPolicy.h"
 #include "RandomMigrationReplacementPolicy.h"
 
+namespace pagmo {
+
 /// This object gathers island-specific migration-related parameters.
 /**
  * Introduction of this object has been lobbied by Dario because in his oppinion it's presence will increase
@@ -117,5 +119,7 @@ class __PAGMO_VISIBLE MigrationPolicy
 
 /// The stream output operator.
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationPolicy& msp);
+
+}
 
 #endif

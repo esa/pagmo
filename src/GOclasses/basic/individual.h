@@ -33,13 +33,15 @@
 #include "../../../config.h"
 #include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
-#include "../problems/GOproblem.h"
+#include "../problems/base.h"
+
+namespace pagmo {
 
 /// Individual class.
 /**
  * Individuals represent solutions for a problem.
  * \todo The desturbing thing is passing the problem as an argument of the constructor. It suggests, that
- * the Individual keeps an internal reference to it, which is dangerous (GOProblem is not assumed to be thread safe).
+ * the Individual keeps an internal reference to it, which is dangerous (problem::base is not assumed to be thread safe).
  * It the end the reference is not kept, but in order to discover this, one must re-read the code of the
  * Individual.
  */
@@ -51,7 +53,7 @@ public:
 	 * and a random velocity of maximum magnitude (UB-LB).
 	 * \param[in] problem concerned problem.
 	 */
-	Individual(const GOProblem& problem);
+	Individual(const problem::base& problem);
 	
 	/// Constructor.
 	/**
@@ -60,7 +62,7 @@ public:
 	 * \param[in] x_ individual position.
 	 * \param[in] v_ individual velocity.
 	 */
-	Individual(const GOProblem& problem, const std::vector<double>& x_, const std::vector<double>& v_);
+	Individual(const problem::base& problem, const std::vector<double>& x_, const std::vector<double>& v_);
 	
 	/// Constructor.
 	/**
@@ -68,7 +70,7 @@ public:
 	 * \param[in] problem concerned problem.
 	 * \param[in] x_ individual position.
 	 */
-	Individual(const GOProblem& problem, const std::vector<double> & x_);
+	Individual(const problem::base& problem, const std::vector<double> & x_);
 	
 	/// Constructor.
 	/**
@@ -131,7 +133,7 @@ public:
 	 * an exception will be thrown.
 	 * \param p Problem of interest.
 	 */
-	void check(const GOProblem &p) const;
+	void check(const problem::base &p) const;
 	
 	/// Individual comparator for STL sorting methods.
 	/**
@@ -150,5 +152,7 @@ private:
 
 /// Stream output operator
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Individual &);
+
+}
 
 #endif

@@ -166,7 +166,7 @@ double rosetta(const vector<double>& x){
 }
 
 
-double gtoc1( const vector<double>& x)
+double gtoc1f( const vector<double>& x)
 {
 	const int GTOC1_DIM = 8;
 	vector<double> Delta_V(GTOC1_DIM);
@@ -203,7 +203,7 @@ double gtoc1( const vector<double>& x)
 	return obj;
 }
 
-double cassini1( const vector<double>& x)
+double cassini1f( const vector<double>& x)
 {
 	const int CASSINI_DIM = 6;
 	vector<double> Delta_V(CASSINI_DIM);

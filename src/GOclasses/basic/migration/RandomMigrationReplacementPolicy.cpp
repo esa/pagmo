@@ -28,6 +28,8 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
+namespace pagmo {
+
 std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation)
 {
 	int migrationRateLimit = std::min<int>(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
@@ -65,4 +67,6 @@ std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForRepla
 	//std::cout << "Result size: " << result.size() << std::endl;
 	
 	return result;
+}
+
 }

@@ -34,9 +34,11 @@
 #include "../../../config.h"
 #include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
-#include "../problems/GOproblem.h"
+#include "../problems/base.h"
 #include "individual.h"
 #include "py_container_utils.h"
+
+namespace pagmo {
 
 /// Population class
 /**
@@ -56,7 +58,7 @@ public:
 	 * associated with identical problem can be safely used in different threads.
 	 * \param[in] p Problem to be associated with the population.
 	 */
-	Population(const GOProblem& p);
+	Population(const problem::base& p);
 	
 	/// Constructor.
 	/**
@@ -67,7 +69,7 @@ public:
 	 * \param[in] p Problem to be associated with the population.
 	 * \param[in] N Size of the population.
 	 */
-	Population(const GOProblem& p, int N);
+	Population(const problem::base& p, int N);
 	
 	/// Copy constructor.
 	/**
@@ -84,7 +86,7 @@ public:
 	 * The operation internally creates an own copy of the problem object and of the individuals,
 	 * so that two populations can be safely used in different threads.
 	 * Assignment is allowed only if the populations are associated with identical problems
-	 * (in terms of the operator==  of the GOProblem class).
+	 * (in terms of the operator==  of the problem::base class).
 	 * \param[in] p Population to be duplicated.
 	 */
 	Population &operator=(const Population& p);
@@ -148,7 +150,7 @@ public:
 	// Getters and setters
 	
 	/// Get the problem associated with the population.
-	const GOProblem &problem() const;
+	const problem::base &problem() const;
 	
 	/// Exposes the underlying vector of individuals.
 	/**
@@ -265,13 +267,15 @@ private:
 	/// Associated problem.
 	/**
 	 * \todo I'm not sure if this should be a pointer, as we always want to have a copy of a GOProlem, to be thread-safe.
-	 * Thus it seems logical to bind the lifetime of this copy of the GOProblem to the population's lifetime.
+	 * Thus it seems logical to bind the lifetime of this copy of the problem::base to the population's lifetime.
 	 * Err... do we really want to be thread-safe here?
 	 */
-	boost::shared_ptr<const GOProblem>	m_problem;
+	boost::shared_ptr<const problem::base>	m_problem;
 };
 
 /// Stream output operator.
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Population &);
+
+}
 
 #endif

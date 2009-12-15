@@ -33,6 +33,8 @@
 #include "../../../Functions/rng/rng.h"
 #include "MigrationReplacementPolicy.h"
 
+namespace pagmo {
+
 /// Random migration replacement policy.
 /**
  * Here randomly selected individuals in the destination population are replaced by the randomly selected
@@ -75,9 +77,6 @@ class __PAGMO_VISIBLE RandomMigrationReplacementPolicy: public MigrationReplacem
 		 */
 		RandomMigrationReplacementPolicy(const RandomMigrationReplacementPolicy& rmrp):MigrationReplacementPolicy(rmrp),rng(rmrp.rng()) { }
 
-		/// Virtual destructor.
-		virtual ~RandomMigrationReplacementPolicy() { }
-		
 		/// \see MigrationReplacementPolicy::selectForReplacement
 		virtual std::list<std::pair<int, int> > selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation);
 		
@@ -97,5 +96,7 @@ class __PAGMO_VISIBLE RandomMigrationReplacementPolicy: public MigrationReplacem
 	
 		mutable rng_uint32 rng; ///< Random Number Generator
 };
+
+}
 
 #endif

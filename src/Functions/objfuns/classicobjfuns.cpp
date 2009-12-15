@@ -39,7 +39,7 @@ double testfunction (const vector<double>& x){
 	return finalvalue;
 }
 
-double rastrigin (const vector<double>& x){
+double rastriginf (const vector<double>& x){
 	double omega = 2.0 * M_PI;
 	double value=0;
 	int n = x.size();
@@ -50,7 +50,7 @@ double rastrigin (const vector<double>& x){
 	return (10.0*n + value);
 }
 
-double schwefel (const vector<double>& x){
+double schwefelf (const vector<double>& x){
 	int n = x.size();
 	double value=0;
 
@@ -60,7 +60,7 @@ double schwefel (const vector<double>& x){
 		return (418.9829 * n - value);
 }
 
-double ackley (const vector<double>& x){
+double ackleyf (const vector<double>& x){
 	int n = x.size();
 	double omega = 2.0 * M_PI;
 	double s1=0.0, s2=0.0;
@@ -74,7 +74,7 @@ double ackley (const vector<double>& x){
 }
 
 //lennardjones helper function that transforms the decision vector x in atoms positions r
-double r(const int& atom, const int& coord, const vector <double>& x) {
+static double r(const int& atom, const int& coord, const vector <double>& x) {
 	if(atom == 0) { //x1,y1,z1 fixed
 		return 0.0;
 	} else if(atom == 1) {
@@ -94,7 +94,7 @@ double r(const int& atom, const int& coord, const vector <double>& x) {
 	}
 }
 
-double lennardjones(const vector <double>& x){
+double lennardjonesf(const vector <double>& x){
 	int n = x.size();
 	int atoms = (n + 6) / 3;
 
@@ -117,7 +117,7 @@ double lennardjones(const vector <double>& x){
 	return 4 * V;
 }
 
-double rosenbrock (const vector<double>& x){
+double rosenbrockf (const vector<double>& x){
 	int n = x.size();
 	double value=0.0;
 
@@ -127,7 +127,7 @@ double rosenbrock (const vector<double>& x){
 	return value;
 }
 
-double levy(const vector<double>& x){
+double levyf(const vector<double>& x){
 	int n = x.size();
 	double isum = 0.0;
 	double jsum = 0.0;
@@ -148,7 +148,7 @@ double levy(const vector<double>& x){
 	return ret;
 }
 
-double griewank (const vector<double>& x){
+double griewankf (const vector<double>& x){
         int n = x.size();
         double fr=4000.0;
         double retval = 0.0;

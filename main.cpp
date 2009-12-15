@@ -24,15 +24,16 @@
 
 #include <iostream>
 
-#include "src/GOclasses/algorithms/CS.h"
+#include "src/GOclasses/algorithms/cs.h"
 #include "src/GOclasses/basic/island.h"
-#include "src/GOclasses/problems/TrajectoryProblems.h"
+#include "src/GOclasses/problems/trajectory.h"
 
 using namespace std;
+using namespace pagmo;
 
 int main(){
-        CSalgorithm algo(0.001);
-        messengerfullProb prob;
+        algorithm::cs algo(0.001);
+        problem::messengerfull prob;
         island isl(prob,algo,20);
         cout << "Best: " << isl.best().getFitness() << endl;
         isl.evolve();

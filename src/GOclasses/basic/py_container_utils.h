@@ -32,6 +32,8 @@
 #define derived_const_cast static_cast<Derived const *>(this)
 #define derived_cast static_cast<Derived *>(this)
 
+namespace pagmo {
+
 template <class Derived>
 class py_container_utils
 {
@@ -65,6 +67,8 @@ class py_container_utils
 			}
 		}
 };
+
+}
 
 #undef derived_cast
 #undef derived_const_cast

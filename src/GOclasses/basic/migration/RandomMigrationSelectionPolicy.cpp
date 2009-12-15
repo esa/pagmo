@@ -28,6 +28,8 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
+namespace pagmo {
+
 std::vector<Individual> RandomMigrationSelectionPolicy::selectForMigration(const Population& population)
 {
 	int migrationRate = getNumberOfIndividualsToMigrate(population);
@@ -52,3 +54,4 @@ std::vector<Individual> RandomMigrationSelectionPolicy::selectForMigration(const
 	return result;
 }
 
+}

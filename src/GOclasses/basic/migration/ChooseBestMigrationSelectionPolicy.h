@@ -30,6 +30,8 @@
 #include "../../../../config.h"
 #include "MigrationSelectionPolicy.h"
 
+namespace pagmo {
+
 /// Choose best migration selection policy.
 /**
  * This policy is to choose best individuals from the population as migrating individuals.
@@ -63,5 +65,7 @@ class __PAGMO_VISIBLE ChooseBestMigrationSelectionPolicy: public MigrationSelect
 		/// \see MigrationSelectionPolicy::clone
 		virtual ChooseBestMigrationSelectionPolicy* clone() const { return new ChooseBestMigrationSelectionPolicy(*this); }
 };
+
+}
 
 #endif

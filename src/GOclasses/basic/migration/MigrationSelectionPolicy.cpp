@@ -27,6 +27,8 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
+namespace pagmo {
+
 int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& population)
 {
 	if(migrationRateAbs < 0) {
@@ -56,4 +58,6 @@ std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& msp)
 	s << std::endl;
 	
 	return s;
+}
+
 }

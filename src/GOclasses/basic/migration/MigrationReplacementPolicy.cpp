@@ -27,6 +27,8 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
+namespace pagmo {
+
 int MigrationReplacementPolicy::getMaxMigrationRate(const Population& population)
 {
 	if(maxMigrationRateAbs < 0) {
@@ -54,4 +56,6 @@ std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& mrp)
 	}
 	s << std::endl;
 	return s;
+}
+
 }

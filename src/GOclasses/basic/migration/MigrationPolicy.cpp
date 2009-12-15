@@ -27,6 +27,8 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
+namespace pagmo {
+
 void MigrationPolicy::setMigrationProbability(const double _migrationProbability)
 {
 	if((_migrationProbability < 0.0) || (_migrationProbability > 1.0)) {
@@ -41,4 +43,6 @@ std::ostream &operator<<(std::ostream &s, const MigrationPolicy& msp)
 	s << "Selection policy:      " << std::endl << *(msp.selectionPolicy) << std::endl;
 	s << "Replacement policy:    " << std::endl << *(msp.replacementPolicy) << std::endl;
 	return s;
+}
+
 }

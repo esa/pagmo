@@ -28,23 +28,25 @@
 #include <typeinfo>
 
 #include "../../exceptions.h"
-#include "../problems/GOproblem.h"
-#include "../algorithms/go_algorithm.h"
+#include "../problems/base.h"
+#include "../algorithms/base.h"
 #include "archipelago.h"
 #include "island.h"
 #include "topology/base_topology.h"
 
-archipelago::archipelago(const GOProblem &p)
+namespace pagmo {
+
+archipelago::archipelago(const problem::base &p)
 		:m_gop(p.clone())
 {
 }
 
-archipelago::archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme):m_gop(p.clone()),migrationScheme(_migrationScheme.clone())
+archipelago::archipelago(const problem::base &p, const MigrationScheme& _migrationScheme):m_gop(p.clone()),migrationScheme(_migrationScheme.clone())
 {
 	//TODO: reset the topology/migration scheme?
 }
 
-archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M):m_gop(p.clone())
+archipelago::archipelago(const problem::base &p, const algorithm::base &a, int N, int M):m_gop(p.clone())
 {
 	if (N < 0 || M < 0) {
 		pagmo_throw(value_error,"number of islands and population size must be nonnegative numbers");
@@ -55,7 +57,7 @@ archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M
 	}
 }
 
-archipelago::archipelago(const GOProblem &p, const go_algorithm &a, int N, int M, const Migration& migration)
+archipelago::archipelago(const problem::base &p, const algorithm::base &a, int N, int M, const Migration& migration)
 		:m_gop(p.clone()),
 		migrationScheme(migration.getMigrationScheme().clone())
 {
@@ -123,7 +125,7 @@ void archipelago::push_back(const island &isl)
 	}
 }
 
-const GOProblem &archipelago::problem() const
+const problem::base &archipelago::problem() const
 {
 	return *m_gop;
 }
@@ -315,4 +317,6 @@ std::ostream &operator<<(std::ostream &s, const archipelago &a) {
 		++i;
 	}
 	return s;
+}
+
 }

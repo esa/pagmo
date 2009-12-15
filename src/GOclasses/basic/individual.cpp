@@ -25,9 +25,12 @@
 // 16/05/08 Created by Dario Izzo.
 
 #include "../../exceptions.h"
+#include "../problems/base.h"
 #include "individual.h"
 
-Individual::Individual(const GOProblem &problem)
+namespace pagmo {
+
+Individual::Individual(const problem::base &problem)
 		:x(problem.getLB().size()),
 		v(problem.getLB().size())
 {
@@ -47,7 +50,7 @@ Individual::Individual(const GOProblem &problem)
 	fitness = problem.objfun(x);
 }
 
-Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, const std::vector<double> &v_)
+Individual::Individual(const problem::base &problem, const std::vector<double> &x_, const std::vector<double> &v_)
 		:x(x_),
 		v(v_)		
 {
@@ -58,7 +61,7 @@ Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, 
 	fitness = problem.objfun(x);
 }
 
-Individual::Individual(const GOProblem &problem, const std::vector<double> &x_)
+Individual::Individual(const problem::base &problem, const std::vector<double> &x_)
 		:x(x_),
 		v(x_.size())		
 {
@@ -79,7 +82,7 @@ Individual &Individual::operator=(const Individual &i)
 	return *this;
 }
 
-void Individual::check(const GOProblem &p) const
+void Individual::check(const problem::base &p) const
 {
 	const size_t size = x.size();
 	if (size != p.getDimension()) {
@@ -108,4 +111,6 @@ std::ostream &operator<<(std::ostream &s, const Individual &ind)
 		}
 	}
 	return s;
+}
+
 }

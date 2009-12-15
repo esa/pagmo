@@ -35,12 +35,12 @@
 //it is worth trying to save time by avoiding to make a copy of the variable passed
 
 double __PAGMO_VISIBLE_FUNC testfunction (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC rastrigin (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC schwefel (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC ackley (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC rosenbrock (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC lennardjones (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC levy (const std::vector<double>& x);
-double __PAGMO_VISIBLE_FUNC griewank (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC rastriginf (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC schwefelf (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC ackleyf (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC rosenbrockf (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC lennardjonesf (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC levyf (const std::vector<double>& x);
+double __PAGMO_VISIBLE_FUNC griewankf (const std::vector<double>& x);
 
 #endif

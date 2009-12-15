@@ -27,7 +27,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
-#include <boost/python/def.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/manage_new_object.hpp>
 #include <boost/python/module.hpp>
@@ -37,13 +36,13 @@
 #include <string>
 #include <vector>
 
-#include "../../src/GOclasses/algorithms/go_algorithm.h"
+#include "../../src/GOclasses/algorithms/base.h"
 #include "../../src/GOclasses/basic/archipelago.h"
 #include "../../src/GOclasses/basic/topology/base_topology.h"
 #include "../../src/GOclasses/basic/individual.h"
 #include "../../src/GOclasses/basic/island.h"
 #include "../../src/GOclasses/basic/population.h"
-#include "../../src/GOclasses/problems/GOproblem.h"
+#include "../../src/GOclasses/problems/base.h"
 #include "../../src/GOclasses/basic/migration/MigrationScheme.h"
 #include "../../src/GOclasses/basic/migration/MigrationPolicy.h"
 #include "../../src/GOclasses/basic/migration/MigrationSelectionPolicy.h"
@@ -57,6 +56,7 @@
 #include "../utils.h"
 
 using namespace boost::python;
+using namespace pagmo;
 
 template <class T, class C>
 static inline T *problem_getter(const C &c)
@@ -117,9 +117,9 @@ BOOST_PYTHON_MODULE(_core)
         from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
 
 	// Expose individual class.
-	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
-	class_ind.def(init<const GOProblem &, const std::vector<double> &, const std::vector<double> &>());
-	class_ind.def(init<const GOProblem &, const std::vector<double> &>());
+	class_<Individual> class_ind("individual", "Individual.", init<const problem::base &>());
+	class_ind.def(init<const problem::base &, const std::vector<double> &, const std::vector<double> &>());
+	class_ind.def(init<const problem::base &, const std::vector<double> &>());
 	class_ind.def(init<const Individual &>());
 	class_ind.def("__copy__", &Py_copy_from_ctor<Individual>);
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
@@ -129,14 +129,11 @@ BOOST_PYTHON_MODULE(_core)
 	class_ind.add_property("velocity", make_function(&Individual::getVelocity, return_value_policy<copy_const_reference>()),
 		"Velocity.");
 
-	def("objfun_calls", &objfun_calls, "Number of times objective functions have been called.");
-	def("reset_objfun_calls", &reset_objfun_calls, "Reset to zero the number of times objective functions have been called.");
-
 	// Expose population class.
 	typedef const Individual &(Population::*pop_get_const)(int) const;
-	class_<Population> class_pop("population", "Population.", init<const GOProblem &>());
-	class_pop.def(init<const GOProblem &, int>());
-	class_pop.def(init<const GOProblem &>());
+	class_<Population> class_pop("population", "Population.", init<const problem::base &>());
+	class_pop.def(init<const problem::base &, int>());
+	class_pop.def(init<const problem::base &>());
 	class_pop.def(init<const Population &>());
 	class_pop.def("__copy__", &Py_copy_from_ctor<Population>);
 	class_pop.def("__delitem__", &Population::erase);
@@ -144,7 +141,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_pop.def("__len__", &Population::size);
 	class_pop.def("__setitem__", &Population::setIndividual);
 	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
-	class_pop.add_property("problem", make_function(&problem_getter<GOProblem,Population>,return_value_policy<manage_new_object>()), "Problem.");
+	class_pop.add_property("problem", make_function(&problem_getter<problem::base,Population>,return_value_policy<manage_new_object>()), "Problem.");
 	class_pop.def("append", &Population::push_back, "Append individual at the end of the population.");
 	class_pop.def("insert", &Population::insert, "Insert individual before index.");
 	class_pop.def("mean", &Population::evaluateMean, "Evaluate mean.");
@@ -153,9 +150,9 @@ BOOST_PYTHON_MODULE(_core)
 	class_pop.def("worst", &Population::extractWorstIndividual, return_value_policy<copy_const_reference>(), "Copy of worst individual.");
 
 	// Expose island.
-	class_<island> class_island("island", "Island.", init<const GOProblem &, const go_algorithm &, int>());
-	class_island.def(init<const GOProblem &, const go_algorithm &>());
-	class_island.def(init<const GOProblem&, const go_algorithm&, int, const MigrationPolicy&>());
+	class_<island> class_island("island", "Island.", init<const problem::base &, const algorithm::base &, int>());
+	class_island.def(init<const problem::base &, const algorithm::base &>());
+	class_island.def(init<const problem::base&, const algorithm::base&, int, const MigrationPolicy&>());
 	class_island.def(init<const island &>());
 	class_island.def("__copy__", &Py_copy_from_ctor<island>);
 	class_island.def("__delitem__", &island::erase);
@@ -165,8 +162,8 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.def("__repr__", &Py_repr_from_stream<island>);
 	class_island.def("append", &island::push_back, "Append individual at the end of the island.");
 	class_island.def("insert", &island::insert, "Insert individual after index.");
-	class_island.add_property("problem", make_function(&problem_getter<GOProblem,island>, return_value_policy<manage_new_object>()), "Problem.");
-	class_island.add_property("algorithm", make_function(&algorithm_getter<go_algorithm,island>, return_value_policy<manage_new_object>()),
+	class_island.add_property("problem", make_function(&problem_getter<problem::base,island>, return_value_policy<manage_new_object>()), "Problem.");
+	class_island.add_property("algorithm", make_function(&algorithm_getter<algorithm::base,island>, return_value_policy<manage_new_object>()),
 		&island::set_algorithm, "Algorithm.");
 	class_island.add_property("selection_policy", make_function(&selection_policy_getter<MigrationSelectionPolicy, island>, return_value_policy<manage_new_object>()),
 		&island::setMigrationSelectionPolicy, "The island's migration selection policy.");
@@ -185,10 +182,10 @@ BOOST_PYTHON_MODULE(_core)
 	class_island.add_property("evo_time", &island::evo_time, "Total time spent evolving.");
 
 	// Expose archipelago.
-	class_<archipelago> class_arch("archipelago", "Archipelago", init<const GOProblem &>());
-	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int>());
-	class_arch.def(init<const GOProblem &, const MigrationScheme&>());
-	class_arch.def(init<const GOProblem &, const go_algorithm &, int, int, const Migration&>());
+	class_<archipelago> class_arch("archipelago", "Archipelago", init<const problem::base &>());
+	class_arch.def(init<const problem::base &, const algorithm::base &, int, int>());
+	class_arch.def(init<const problem::base &, const MigrationScheme&>());
+	class_arch.def(init<const problem::base &, const algorithm::base &, int, int, const Migration&>());
 	class_arch.def(init<const archipelago &>());
 	class_arch.def("__copy__", &Py_copy_from_ctor<archipelago>);
 	class_arch.def("__getitem__", &archipelago::operator[], return_value_policy<copy_const_reference>());
@@ -200,7 +197,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.add_property("topology", make_function(&topology_getter<base_topology, archipelago>, return_value_policy<manage_new_object>()),
 		&archipelago::setTopology, "The archipelago's migration topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
-	class_arch.add_property("problem", make_function(&problem_getter<GOProblem,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
+	class_arch.add_property("problem", make_function(&problem_getter<problem::base,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
 	class_arch.add_property("busy", &archipelago::busy, "True if at least one island is evolving, false otherwise.");
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());

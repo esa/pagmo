@@ -34,6 +34,8 @@
 #include "../../../../config.h"
 #include "../population.h"
 
+namespace pagmo {
+
 /// Base class for replacement policies for migration.
 /**
  * The class provides it's subclasses with the basic means for determining the maximum incoming migration rate
@@ -62,9 +64,6 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 		/// Copy constructor.
 		MigrationReplacementPolicy(const MigrationReplacementPolicy& mrp):maxMigrationRateAbs(mrp.maxMigrationRateAbs), maxMigrationRateFrac(mrp.maxMigrationRateFrac) { }
 
-		/// Virtual destructor.
-		virtual ~MigrationReplacementPolicy() { }
-		
 		/// Assign pairs of individuals for replacement during migration. 
 		/**
 		 * Note, that this method does not alter the target population, it just provides the replacement choice.
@@ -112,5 +111,7 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 
 /// Stream output operator.
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& ms);
+
+}
 
 #endif

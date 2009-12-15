@@ -32,16 +32,18 @@
 
 #include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
-#include "../problems/GOproblem.h"
+#include "../problems/base.h"
 #include "individual.h"
 #include "population.h"
 
-Population::Population(const GOProblem &p)
+namespace pagmo {
+
+Population::Population(const problem::base &p)
 		:m_problem(p.clone())
 {
 }
 
-Population::Population(const GOProblem &p, int N)
+Population::Population(const problem::base &p, int N)
 		:m_problem(p.clone())
 {
 	createRandomPopulation(N);
@@ -114,7 +116,7 @@ size_t Population::size() const
 
 
 
-const GOProblem &Population::problem() const
+const problem::base &Population::problem() const
 {
 	return *m_problem;
 }
@@ -295,4 +297,6 @@ std::ostream &operator<<(std::ostream &s, const Population &p)
 		s << "Individual #" << i << ": " << p.pop[i].getFitness() << " " << p.pop[i] << std::endl;
 	}
 	return s;
+}
+
 }

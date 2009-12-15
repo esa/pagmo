@@ -41,6 +41,8 @@
 #include "../topology/base_topology.h"
 #include "../topology/one_way_ring_topology.h"
 
+namespace pagmo {
+
 /// Base class for the migration schemes.
 /**
  * Migration scheme is the actual implementation of migration. 
@@ -236,5 +238,7 @@ class __PAGMO_VISIBLE MigrationScheme
 
 /// Stream output operator.
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
+
+}
 
 #endif

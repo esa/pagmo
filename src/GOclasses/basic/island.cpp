@@ -32,12 +32,14 @@
 
 #include "../../atomic_counters/atomic_counters.h"
 #include "../../exceptions.h"
-#include "../algorithms/go_algorithm.h"
-#include "../problems/GOproblem.h"
+#include "../algorithms/base.h"
+#include "../problems/base.h"
 #include "archipelago.h"
 #include "individual.h"
 #include "island.h"
 #include "population.h"
+
+namespace pagmo {
 
 atomic_counter_size_t island::id_counter(1);
 
@@ -46,7 +48,7 @@ size_t island::get_new_id()
 	return (id_counter++).get_value();
 }
 
-island::island(const GOProblem &p, const go_algorithm &al)
+island::island(const problem::base &p, const algorithm::base &al)
 		:m_id(get_new_id()),
 		m_pop(p),
 		m_goa(al.clone()),
@@ -55,7 +57,7 @@ island::island(const GOProblem &p, const go_algorithm &al)
 {
 }
 
-island::island(const GOProblem &p, const go_algorithm &al, int n)
+island::island(const problem::base &p, const algorithm::base &al, int n)
 		:m_id(get_new_id()),
 		m_pop(p, n),
 		m_goa(al.clone()),
@@ -64,7 +66,7 @@ island::island(const GOProblem &p, const go_algorithm &al, int n)
 {
 }
 
-island::island(const GOProblem& p, const go_algorithm& al, int n, const MigrationPolicy& mp)
+island::island(const problem::base& p, const algorithm::base& al, int n, const MigrationPolicy& mp)
 		:m_id(get_new_id()),
 		m_pop(p, n),
 		m_goa(al.clone()),
@@ -107,19 +109,19 @@ Population island::population() const
 	return m_pop;
 }
 
-const GOProblem &island::problem() const
+const problem::base &island::problem() const
 {
 	join();
 	return m_pop.problem();
 }
 
-const go_algorithm &island::algorithm() const
+const algorithm::base &island::algorithm() const
 {
 	join();
 	return *m_goa;
 }
 
-void island::set_algorithm(const go_algorithm &a)
+void island::set_algorithm(const algorithm::base &a)
 {
 	join();
 	m_goa.reset(a.clone());
@@ -412,4 +414,6 @@ std::ostream &operator<<(std::ostream &s, const island &isl)
 	boost::lock_guard<boost::mutex> lock(isl.m_evo_mutex);
 	s << isl.m_pop;
 	return s;
+}
+
 }

@@ -31,12 +31,14 @@
 #include <boost/thread/barrier.hpp>
 
 #include "../../../config.h"
-#include "../problems/GOproblem.h"
-#include "../algorithms/go_algorithm.h"
+#include "../problems/base.h"
+#include "../algorithms/base.h"
 #include "island.h"
 #include "py_container_utils.h"
 #include "migration/MigrationScheme.h"
 #include "migration/Migration.h"
+
+namespace pagmo {
 
 /// The Archipelago class.
 /** \todo rename. */
@@ -74,7 +76,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		 * No migration between islands is assumed.
 		 * \param[in] p problem to be associated with the archipelago.
 		 */
-		archipelago(const GOProblem& p);
+		archipelago(const problem::base& p);
 		
 		/// Constructor.
 		/**
@@ -82,7 +84,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		 * \param[in] p problem to be associated with the archipelago.
 		 * \param[in] _migrationScheme migration scheme of the new archipelago.
 		 */
-		archipelago(const GOProblem &p, const MigrationScheme& _migrationScheme);
+		archipelago(const problem::base &p, const MigrationScheme& _migrationScheme);
 		
 		/// Constructor.
 		/**
@@ -94,7 +96,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		 * \param[in] N number of islands to create.
 		 * \param[in] M population size for each created island.
 		 */
-		archipelago(const GOProblem& p, const go_algorithm& a, int N, int M);
+		archipelago(const problem::base& p, const algorithm::base& a, int N, int M);
 		
 		/// Constructor.
 		/**
@@ -106,7 +108,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		 * \param[in] M population size for each created island.
 		 * \param[in] migration migration parameters for the archipelago.
 		 */
-		archipelago(const GOProblem &p, const go_algorithm &a, int N, int M, const Migration& migration);
+		archipelago(const problem::base &p, const algorithm::base &a, int N, int M, const Migration& migration);
 		
 		/// Copy constructor.
 		archipelago(const archipelago &);
@@ -115,7 +117,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		const island &operator[](int) const;
 		void set_island(int, const island &);
 		
-		const GOProblem &problem() const;
+		const problem::base &problem() const;
 		
 		/// Archipelago's migration scheme public getter (<b>synchronised</b>).
 		/**
@@ -208,7 +210,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 		void check_island(const island &) const;
 		
 		container_type						m_container; ///< Island container.
-		boost::shared_ptr<const GOProblem>	m_gop; ///< Problem associated with the archipelago.
+		boost::shared_ptr<const problem::base>	m_gop; ///< Problem associated with the archipelago.
 		boost::shared_ptr<MigrationScheme>  migrationScheme; ///< Migration scheme of the archipelago. May be null, what means no migration.
 	
 		/// A barrier used to synchronise the start time of all islands.
@@ -225,5 +227,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago> {
 
 /// Stream output operator.
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);
+
+}
 
 #endif

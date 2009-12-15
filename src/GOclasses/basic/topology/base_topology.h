@@ -45,9 +45,6 @@ class __PAGMO_VISIBLE base_topology {
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const base_topology &);
 	
 	public:
-		/// Virtual Destructor.
-		virtual ~base_topology() { };
-		
 		// Creation functions
 		/// Create the topology incrementally
 		/**

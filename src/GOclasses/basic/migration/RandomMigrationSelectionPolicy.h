@@ -33,6 +33,8 @@
 #include "../../../Functions/rng/rng.h"
 #include "MigrationSelectionPolicy.h"
 
+namespace pagmo {
+
 /// Random migration selection policy.
 /**
  * This policy is to choose migrating individuals randomly.
@@ -86,5 +88,7 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 	private:
 		mutable rng_uint32 rng; ///< Random Number Generator
 };
+
+}
 
 #endif

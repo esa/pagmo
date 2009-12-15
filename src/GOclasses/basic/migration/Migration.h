@@ -34,6 +34,8 @@
 #include "MigrationPolicy.h"
 #include "MigrationScheme.h"
 
+namespace pagmo {
+
 /// This object gathers migration-related parameters necessary to construct an archipelago.
 /**
  * Introduction of this object has been lobbied by Dario because in his opinion its presence will increase
@@ -94,5 +96,7 @@ class __PAGMO_VISIBLE Migration
 
 /// The stream output operator.
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const Migration& migration);
+
+}
 
 #endif

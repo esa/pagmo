@@ -34,11 +34,13 @@
 
 #include "../../../config.h"
 #include "../../atomic_counters/atomic_counters.h"
-#include "../algorithms/go_algorithm.h"
-#include "../problems/GOproblem.h"
+#include "../algorithms/base.h"
+#include "../problems/base.h"
 #include "individual.h"
 #include "migration/MigrationPolicy.h"
 #include "population.h"
+
+namespace pagmo {
 
 class archipelago;
 
@@ -75,7 +77,7 @@ class __PAGMO_VISIBLE island
 		 * \param[in] p Problem to be associated with the island.
 		 * \param[in] al Algorithm to be used by the island.
 		 */
-		island(const GOProblem& p, const go_algorithm& al);
+		island(const problem::base& p, const algorithm::base& al);
 		
 		/// Constructor.
 		/**
@@ -87,7 +89,7 @@ class __PAGMO_VISIBLE island
 		 * \param[in] al Algorithm to be used by the island.
 		 * \param[in] n Size of the island's population.
 		 */
-		island(const GOProblem& p, const go_algorithm& al, int n);
+		island(const problem::base& p, const algorithm::base& al, int n);
 		
 		/// Constructor.
 		/**
@@ -99,7 +101,7 @@ class __PAGMO_VISIBLE island
 		 * \param[in] n Size of the island's population.
 		 * \param[in] mp Migration policy.
 		 */
-		island(const GOProblem& p, const go_algorithm& al, int n, const MigrationPolicy& mp);
+		island(const problem::base& p, const algorithm::base& al, int n, const MigrationPolicy& mp);
 		
 		/// Copy constructor.
 		/**
@@ -127,13 +129,13 @@ class __PAGMO_VISIBLE island
 		Population population() const;
 		
 		/// Problem getter (<b>synchronised</b>).
-		const GOProblem &problem() const;
+		const problem::base &problem() const;
 		
 		/// Algorithm getter (<b>synchronised</b>).
-		const go_algorithm &algorithm() const;
+		const algorithm::base &algorithm() const;
 		
 		/// Algorithm seter (<b>synchronised</b>).
-		void set_algorithm(const go_algorithm &);
+		void set_algorithm(const algorithm::base &);
 		
 		
 		/// Migration selection policy public getter (<b>synchronised</b>).
@@ -342,7 +344,7 @@ class __PAGMO_VISIBLE island
 		//Class fields		
 		size_t										m_id; ///< Island id.
 		Population									m_pop; ///< Island's population.
-		boost::scoped_ptr<const go_algorithm>		m_goa; ///< Island's algorithm.
+		boost::scoped_ptr<const algorithm::base>		m_goa; ///< Island's algorithm.
 		archipelago									*m_a; ///< Associated archipelago (may be null).
 		size_t										m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).
 		mutable mutex_type							m_evo_mutex; ///< Mutex used to control evolution synchronisation.
@@ -351,5 +353,7 @@ class __PAGMO_VISIBLE island
 
 /// Stream output operator.
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);
+
+}
 
 #endif
