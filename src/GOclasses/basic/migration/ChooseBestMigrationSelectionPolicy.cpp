@@ -28,39 +28,40 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-namespace pagmo {
+namespace pagmo
+{
 
-std::vector<Individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const Population& population)
+std::vector<individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const population& population)
 {
 	int migrationRate = getNumberOfIndividualsToMigrate(population);
-	
+
 	//Create a temporary array of individuals
-	std::vector<Individual> result(population.begin(), population.end());
-	
+	std::vector<individual> result(population.begin(), population.end());
+
 	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
+	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
 		std::cout << it->getFitness() << " ";
 	}
 	std::cout << std::endl;*/
-		
+
 	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), Individual::compare_by_fitness);
-	
+	std::sort(result.begin(), result.end(), individual::compare_by_fitness);
+
 	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
+	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
 		std::cout << it->getFitness() << " ";
 	}
 	std::cout << std::endl;*/
-	
+
 	//Leave only desired number of elements in the result
 	result.erase(result.begin() + migrationRate, result.end());
-	
+
 	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<Individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
+	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
 		std::cout << it->getFitness() << " ";
 	}
 	std::cout << std::endl;*/
-	
+
 	return result;
 }
 

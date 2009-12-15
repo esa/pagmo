@@ -40,10 +40,12 @@
 
 using namespace std;
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 sga::sga(int generationsInit, const double &CRInit, const double &MInit, int insert_bestInit):
-base(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestInit),MR(1),MType(2),SType(1),rng(static_rng_uint32()())
+		base(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestInit),MR(1),MType(2),SType(1),rng(static_rng_uint32()())
 {
 	if (generationsInit <= 0) {
 		pagmo_throw(value_error,"number of generations must be strictly positive");
@@ -61,7 +63,7 @@ base(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestI
 
 
 sga::sga(int generationsInit, const double &CRInit, const double &MInit, int insert_bestInit, double mutationRange, int mutationType, int selectionType):
-base(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestInit),rng(static_rng_uint32()())
+		base(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestInit),rng(static_rng_uint32()())
 {
 	if (generationsInit <= 0) {
 		pagmo_throw(value_error,"number of generations must be strictly positive");
@@ -89,150 +91,136 @@ base(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestI
 	SType = selectionType;
 }
 
-Population sga::evolve(const Population &deme) const {
+population sga::evolve(const population &deme) const
+{
 	const problem::base &problem = deme.problem();
-	
-    const std::vector<double>& LB = problem.getLB();
-    const std::vector<double>& UB = problem.getUB();
-	
-    int NP = deme.size();
-    int D = LB.size();
-	
+
+	const std::vector<double>& LB = problem.getLB();
+	const std::vector<double>& UB = problem.getUB();
+
+	int NP = deme.size();
+	int D = LB.size();
+
 	vector<double> dummy(D,0);						//used for initialisation purposes
 	vector< vector<double> > X(NP,dummy), Xnew(NP,dummy);
-	
+
 	vector<double> fit(NP);							//fitness
-	
+
 	double bestfit=0;
 	vector<double> bestX(D,0);
-	
+
 	vector<double> selectionfitness(NP), cumsum(NP), cumsumTemp(NP);
 	vector <int> selection(NP);
-	
+
 	int tempID;
 	double temp;
 	int fitnessID[NP];
-	
+
 	// Initialise the chromosomes and their fitness to that of the initial deme
-	for ( int i = 0; i<NP; i++ ){
+	for ( int i = 0; i<NP; i++ ) {
 		X[i]	=	deme[i].getDecisionVector();
 		fit[i]	=	deme[i].getFitness();
 	}
-	
+
 	// Find the best member and store in bestX and bestfit
 	bestfit = fit[0];
 	bestX = X[0];
-	for (int i = 1; i<NP; i++){		//the int i = 1 jumps the first member as it is already set as the best
-		if (fit[i] < bestfit){
+	for (int i = 1; i<NP; i++) {		//the int i = 1 jumps the first member as it is already set as the best
+		if (fit[i] < bestfit) {
 			bestfit = fit[i];
 			bestX = X[i];
 		}
 	}
-	
-	
+
+
 	// Main SGA loop
-	for (int j = 0; j<(int)generations; j++)
-	{
+	for (int j = 0; j<(int)generations; j++) {
 		//for (int k = 0; k < 5; k++)
 		//{
 		//	cout<<"GENERATIONS: "<<generations<<"  THIS: "<<j<<endl;
 		//}
-		
+
 		//1 - Selection
 		selectionfitness.clear();
 		cumsum.clear();
 		cumsumTemp.clear();
 		double worstfit=fit[0];
-		for (int i = 1; i < NP;i++)
-		{
+		for (int i = 1; i < NP;i++) {
 			if (fit[i] > worstfit) worstfit=fit[i];
 		}
-		
+
 		double factor = std::log((double)(j+1))/10;
-	
+
 		// selectionfitness contains a modification of the objective function (something like a fitness) used for the solution ranking
-		for (int i = 0; i < NP; i++)
-		{
+		for (int i = 0; i < NP; i++) {
 			selectionfitness.push_back(pow((worstfit - fit[i]),1.0 + factor)); //works for minimisation
 		}
-		
+
 		// cumsumTemp contains the cumulative sum of the objective functions in pold
 		cumsumTemp.push_back(selectionfitness[0]);
-		for (int i = 1; i< NP; i++)
-		{
+		for (int i = 1; i< NP; i++) {
 			cumsumTemp.push_back(cumsumTemp[i - 1] + selectionfitness[i]);
 		}
-		
+
 		// cumsum is cumsumTemp normalised so that it increases from 0 to 1.
-		for (int i = 0; i < NP; i++)
-		{
+		for (int i = 0; i < NP; i++) {
 			cumsum.push_back(cumsumTemp[i]/cumsumTemp[NP-1]);
 		}
-		
+
 		selection.resize(NP,0);
-		
-		switch (SType)
-		{
-			//0 - select best %20 and reproduce each 5x	
-			case 0:
-				//Sort the individuals according to their fitness
-				for (int i=0;i<NP;i++) fitnessID[i]=i;
-				for (int i=0; i<(NP-1); ++i)
-				{
-					for (int j=i+1; j<NP; ++j)
-					{
-						if (selectionfitness[i] < selectionfitness[j]) 
-						{   
-							//swap fitness values
-							temp = selectionfitness[i];
-							selectionfitness[i] = selectionfitness[j];
-							selectionfitness[j] = temp;
-							//swap id's
-							tempID = fitnessID[i];
-							fitnessID[i] = fitnessID[j];
-							fitnessID[j] = tempID;
-						}
-					}
-				}						
-				for(int i = 0;i < NP/5; i++)
-				{
-					for (int j = 0; j < 5; j++)
-					{
-						selection[(i*5)+j] = fitnessID[i];
+
+		switch (SType) {
+			//0 - select best %20 and reproduce each 5x
+		case 0:
+			//Sort the individuals according to their fitness
+			for (int i=0;i<NP;i++) fitnessID[i]=i;
+			for (int i=0; i<(NP-1); ++i) {
+				for (int j=i+1; j<NP; ++j) {
+					if (selectionfitness[i] < selectionfitness[j]) {
+						//swap fitness values
+						temp = selectionfitness[i];
+						selectionfitness[i] = selectionfitness[j];
+						selectionfitness[j] = temp;
+						//swap id's
+						tempID = fitnessID[i];
+						fitnessID[i] = fitnessID[j];
+						fitnessID[j] = tempID;
 					}
 				}
-				break;
-				
-		   	//1 - roulette selection
-			case 1:
-				double r2;
-				for (int i = 0; i < NP; i++)
-				{
-					r2 = drng();
-					for (int j = 0; j < NP; j++)
-					{
-						if (cumsum[j] > r2)
-						{
-							selection[i]=j;
-							break;
-						}
+			}
+			for (int i = 0;i < NP/5; i++) {
+				for (int j = 0; j < 5; j++) {
+					selection[(i*5)+j] = fitnessID[i];
+				}
+			}
+			break;
+
+			//1 - roulette selection
+		case 1:
+			double r2;
+			for (int i = 0; i < NP; i++) {
+				r2 = drng();
+				for (int j = 0; j < NP; j++) {
+					if (cumsum[j] > r2) {
+						selection[i]=j;
+						break;
 					}
 				}
-				break;
+			}
+			break;
 		}
-		
+
 		//Xnew is the selected population
-		for (int i = 0; i < NP; i++)
-		{
+		for (int i = 0; i < NP; i++) {
 			Xnew[i]=X[selection[i]];
 		}
-		
+
 		//2 - Crossover
 		{
 			int r1,n,L;
 			vector<double>  member1,member2;
-			
-			for (int i=0; i< NP; i++){
+
+			for (int i=0; i< NP; i++) {
 				//for each member selected from pold (i.e. in pnew)
 				member1 = Xnew[i];
 				//we select a mating patner (different from the self (i.e. no masturbation))
@@ -251,77 +239,67 @@ Population sga::evolve(const Population &deme) const {
 				Xnew[i] = member1;
 			}
 		}
-		
+
 		//3 - Mutation
 		{
-			switch (MType)
-			{
+			switch (MType) {
 
 				//Original Gaussian mutation
-				case 0:
-					for (int i = 0; i < NP;i++)
-					{
-						//generate a random mutation vector
-						for (int k = 0; k < D;k++)
-							if (drng() < M)
-							{
-								//Gaussian mutation instead of : Xnew[i][j] = (UB[j]-LB[j])*drng() + LB[j];
-								Xnew[i][k] = Xnew[i][k] + sqrt(-2*(std::log(drng())))*cos(2*3.14159265*drng());
-								if (Xnew[i][k] > UB[k]) Xnew[i][k] = UB[k];
-								if (Xnew[i][k] < LB[k]) Xnew[i][k] = LB[k];
-							}
-					}
-					break;
-					//2 - Bounded mutation value
-				case 1:
-					for (int i = 0; i < NP;i++)
-					{
-						for (int j = 0; j < D;j++)
-						{
-							if (drng() < M)
-							{
-								Xnew[i][j] = (MR-(-MR))*drng()+(-MR);
-								if (Xnew[i][j] > UB[j]) Xnew[i][j] = UB[j];
-					    		if (Xnew[i][j] < LB[j]) Xnew[i][j] = LB[j];
-							}
+			case 0:
+				for (int i = 0; i < NP;i++) {
+					//generate a random mutation vector
+					for (int k = 0; k < D;k++)
+						if (drng() < M) {
+							//Gaussian mutation instead of : Xnew[i][j] = (UB[j]-LB[j])*drng() + LB[j];
+							Xnew[i][k] = Xnew[i][k] + sqrt(-2*(std::log(drng())))*cos(2*3.14159265*drng());
+							if (Xnew[i][k] > UB[k]) Xnew[i][k] = UB[k];
+							if (Xnew[i][k] < LB[k]) Xnew[i][k] = LB[k];
+						}
+				}
+				break;
+				//2 - Bounded mutation value
+			case 1:
+				for (int i = 0; i < NP;i++) {
+					for (int j = 0; j < D;j++) {
+						if (drng() < M) {
+							Xnew[i][j] = (MR-(-MR))*drng()+(-MR);
+							if (Xnew[i][j] > UB[j]) Xnew[i][j] = UB[j];
+							if (Xnew[i][j] < LB[j]) Xnew[i][j] = LB[j];
 						}
 					}
-					break;
-					//3 - Random mutation
-				case 2:
-					for (int i = 0; i < NP;i++)
-					{
-						//generate a random mutation vector
-						for (int j = 0; j < D;j++)
-						{
-							if (drng() < M)
-							{
-								Xnew[i][j] = (UB[j]-LB[j])*drng() + LB[j];
-							}
+				}
+				break;
+				//3 - Random mutation
+			case 2:
+				for (int i = 0; i < NP;i++) {
+					//generate a random mutation vector
+					for (int j = 0; j < D;j++) {
+						if (drng() < M) {
+							Xnew[i][j] = (UB[j]-LB[j])*drng() + LB[j];
 						}
 					}
-					break;
+				}
+				break;
 			}
-			
+
 		}
-		
+
 		//4 - Evaluate Xnew
 		{
-			for (int i = 0; i < NP;i++){
+			for (int i = 0; i < NP;i++) {
 				fit[i] = problem.objfun(Xnew[i]);
-				if (fit[i] < bestfit){
+				if (fit[i] < bestfit) {
 					bestfit = fit[i];
 					bestX = Xnew[i];
 				}
 			}
 		}
-		
+
 		//5 - Reinsert best individual every insert_best generations (TODO: sort the population?)
-		
-		if (j % insert_best == 0)
-		{
+
+		if (j % insert_best == 0) {
 			int worst=0;
-			for (int i = 1; i < NP;i++){
+			for (int i = 1; i < NP;i++) {
 				if (fit[i] > fit[worst]) worst=i;
 			}
 			Xnew[worst] = bestX;
@@ -329,13 +307,13 @@ Population sga::evolve(const Population &deme) const {
 		}
 		X = Xnew;
 	} // end of main SGA loop
-	
-	//we end by constructing the object Population containing the final results
-	Population popout(problem,0);
-	for (int i=0; i<NP; i++){
+
+	//we end by constructing the object population containing the final results
+	population popout(problem,0);
+	for (int i=0; i<NP; i++) {
 		// TODO: WARNING! here we are creating the individuals with empty velocity vectors,
 		// we could improve this by, e.g., re-using the velocities from the input population.
-		popout.push_back(Individual(X[i],std::vector<double>(X[i].size()),fit[i]));
+		popout.push_back(individual(X[i],std::vector<double>(X[i].size()),fit[i]));
 	}
 	return popout;
 }
@@ -346,4 +324,5 @@ void sga::log(std::ostream &s) const
 	" mutation range:" << MR << " mutation type:" << MType << " selection type:" << SType;
 }
 
-}}
+}
+}

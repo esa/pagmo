@@ -30,11 +30,13 @@
 #include <iostream>
 #include <string>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../basic/population.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Differential Evolution Solver (DE)
 /**
@@ -49,34 +51,38 @@ namespace pagmo { namespace algorithm {
  * researchers are working on and with DE.
  */
 
-class __PAGMO_VISIBLE de: public base {
+class __PAGMO_VISIBLE de: public base
+{
 	public:
-                /// Constructor
-                /**
-                 * It instantiate a DE algorithm.
-                 * \param[in] gen Generation to be evolved
-                 * \param[in] F Scaling parameter
-                 * \param[in] CR Crossover probability
-                */
-                de(int gen, const double &F, const double &CR, int strategy);
+		/// Constructor
+		/**
+		 * It instantiate a DE algorithm.
+		 * \param[in] gen Generation to be evolved
+		 * \param[in] F Scaling parameter
+		 * \param[in] CR Crossover probability
+		*/
+		de(int gen, const double &F, const double &CR, int strategy);
 
-                /// Algorithm
-                /**
-                 * It performs a call to the DE algorithm evolving the population for gen generations
-                 * \param[in] popin Starting population
-                 * \return Evolved population
-                */
-                virtual Population evolve(const Population &popin) const;
-		virtual de *clone() const {return new de(*this);}
+		/// Algorithm
+		/**
+		 * It performs a call to the DE algorithm evolving the population for gen generations
+		 * \param[in] popin Starting population
+		 * \return Evolved population
+		*/
+		virtual population evolve(const population &popin) const;
+		virtual de *clone() const {
+			return new de(*this);
+		}
 		virtual std::string id_object() const;
 	private:
 		virtual void log(std::ostream &) const;
 		const size_t	generations;
 		const double	F;
 		const double	CR;
-                const int	strategy;
+		const int	strategy;
 };
 
-}}
+}
+}
 
 #endif

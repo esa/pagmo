@@ -33,10 +33,12 @@
 #include "../problems/base.h"
 #include "asa.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 asa::asa(int niterTotInit, const double &Ts_, const double &Tf_):base(),niterTot(niterTotInit),
-	niterTemp(1),niterRange(20),Ts(Ts_),Tf(Tf_),StartStep(1)
+		niterTemp(1),niterRange(20),Ts(Ts_),Tf(Tf_),StartStep(1)
 {
 	if (niterTotInit < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -47,30 +49,30 @@ asa::asa(int niterTotInit, const double &Ts_, const double &Tf_):base(),niterTot
 }
 
 asa::asa(int niterTotInit, const double &Ts_, const double &Tf_, const int niterTemp_, const int niterRange_, const double StartStep_):
-	base(),niterTot(niterTotInit),niterTemp(niterTemp_),niterRange(niterRange_),Ts(Ts_),Tf(Tf_),StartStep(StartStep_)
+		base(),niterTot(niterTotInit),niterTemp(niterTemp_),niterRange(niterRange_),Ts(Ts_),Tf(Tf_),StartStep(StartStep_)
 {
-        if (niterTotInit < 0) {
-                pagmo_throw(value_error,"number of generations must be nonnegative");
-        }
-        if (Ts_ <= 0 || Tf_ <= 0 || Ts_ <= Tf_) {
-                pagmo_throw(value_error,"temperatures must be positive and Ts must be greater than Tf");
-        }
-        if (niterTemp_ < 0) {
-                pagmo_throw(value_error,"number of iteration before adjusting the temperature must be positive");
-        }
-        if (niterRange_ < 0) {
-                pagmo_throw(value_error,"number of iteration before adjusting the neighbourhood must be positive");
-        }
-        if (StartStep_ < 0 || StartStep_>1) {
-                pagmo_throw(value_error,"Initial range must be between 0 and 1");
-        }
+	if (niterTotInit < 0) {
+		pagmo_throw(value_error,"number of generations must be nonnegative");
+	}
+	if (Ts_ <= 0 || Tf_ <= 0 || Ts_ <= Tf_) {
+		pagmo_throw(value_error,"temperatures must be positive and Ts must be greater than Tf");
+	}
+	if (niterTemp_ < 0) {
+		pagmo_throw(value_error,"number of iteration before adjusting the temperature must be positive");
+	}
+	if (niterRange_ < 0) {
+		pagmo_throw(value_error,"number of iteration before adjusting the neighbourhood must be positive");
+	}
+	if (StartStep_ < 0 || StartStep_>1) {
+		pagmo_throw(value_error,"Initial range must be between 0 and 1");
+	}
 }
 
-Population asa::evolve(const Population &pop) const
+population asa::evolve(const population &pop) const
 {
 	const problem::base &problem = pop.problem();
 	if (pop.size() == 0) {
-		return Population(problem,0);
+		return population(problem,0);
 	}
 	const std::vector<double> &LB = problem.getLB();
 	const std::vector<double> &UB = problem.getUB();
@@ -82,8 +84,8 @@ Population asa::evolve(const Population &pop) const
 	if (niterOuter == 0) {
 		pagmo_throw(value_error,"niterOuter cannot be null");
 	}
-	Population retval(pop);
-	const Individual &x0 = retval.extractBestIndividual();
+	population retval(pop);
+	const individual &x0 = retval.extractBestIndividual();
 	const double Tcoeff = std::pow(Tf/Ts,1.0/(double)(niterOuter));
 	std::vector<double> xNEW = x0.getDecisionVector(), xOLD = xNEW;
 	double fNEW = x0.getFitness(), fOLD = fNEW;
@@ -152,7 +154,7 @@ Population asa::evolve(const Population &pop) const
 				};
 				//And if it becomes too large, reset it to its initial value
 				if ( Step[iter] > StartStep ) {
-						Step [iter] = StartStep;
+					Step [iter] = StartStep;
 				};
 			}
 		}
@@ -160,8 +162,8 @@ Population asa::evolve(const Population &pop) const
 		currentT *= Tcoeff;
 	}
 
-	if (fOLD < x0.getFitness()){
-		retval.replace_best(Individual(xOLD,x0.getVelocity(),fOLD));
+	if (fOLD < x0.getFitness()) {
+		retval.replace_best(individual(xOLD,x0.getVelocity(),fOLD));
 	}
 	return retval;
 }
@@ -169,8 +171,9 @@ Population asa::evolve(const Population &pop) const
 void asa::log(std::ostream &s) const
 {
 	s << "ASA - Iter:" << niterTot << " Ts:" << Ts << " Tf:" << Tf
-		<< " niterTemp:" << niterTemp << " niterRange:" << niterRange
-		<< " StartStep:" << StartStep;
+	<< " niterTemp:" << niterTemp << " niterRange:" << niterRange
+	<< " StartStep:" << StartStep;
 }
 
-}} // Close namespaces.
+}
+} // Close namespaces.

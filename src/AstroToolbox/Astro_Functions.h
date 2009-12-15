@@ -25,7 +25,7 @@
 #ifndef ASTRO_FUNCTIONS_H
 #define ASTRO_FUNCTIONS_H
 
-#include "../../config.h"
+#include "../config.h"
 
 // Conversion from Mean Anomaly to Eccentric Anomaly via Kepler's equation
 double __PAGMO_VISIBLE_FUNC Mean2Eccentric (const double &, const double &);

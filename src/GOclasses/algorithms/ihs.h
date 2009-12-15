@@ -30,11 +30,13 @@
 #include <iostream>
 #include <string>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../basic/population.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Improved harmony search algorithm.
 /**
@@ -48,15 +50,20 @@ namespace pagmo { namespace algorithm {
  * @see http://en.wikipedia.org/wiki/Harmony_search for an introduction on harmony search.
  * @see http://dx.doi.org/10.1016/j.amc.2006.11.033 for the paper that introduces and explains improved harmony search.
  */
-class __PAGMO_VISIBLE ihs: public base {
+class __PAGMO_VISIBLE ihs: public base
+{
 	public:
 		ihs(int);
 		ihs(int, const double &, const double &, const double &, const double &, const double &);
-		virtual Population evolve(const Population &) const;
+		virtual population evolve(const population &) const;
 		/// Clone method.
-		virtual ihs *clone() const {return new ihs(*this);}
+		virtual ihs *clone() const {
+			return new ihs(*this);
+		}
 		/// Return a string representing a unique identifier for the algorithm.
-		virtual std::string id_object() const {return id_name(); }
+		virtual std::string id_object() const {
+			return id_name();
+		}
 	private:
 		/// Print to stream a description of the algorithm.
 		virtual void log(std::ostream &) const;
@@ -74,6 +81,7 @@ class __PAGMO_VISIBLE ihs: public base {
 		const double	m_bw_max;
 };
 
-}}
+}
+}
 
 #endif

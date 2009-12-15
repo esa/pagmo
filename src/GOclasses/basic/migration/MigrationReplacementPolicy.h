@@ -31,10 +31,11 @@
 #include <list>
 #include <utility>
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "../population.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 /// Base class for replacement policies for migration.
 /**
@@ -48,13 +49,13 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 		/// Default constructor.
 		/** Maximum migration rate is assumed to be 1.0 (whole destination population can be replaced). */
 		MigrationReplacementPolicy():maxMigrationRateAbs(-1), maxMigrationRateFrac(1.0) { }
-		
+
 		/// Constructor.
 		/** Creates a policy with specified absolute maximum migration rate.
 		 * \param[in] _maxMigrationRateAbs desired absolute migration rate.
 		 */
 		MigrationReplacementPolicy(const int& _maxMigrationRateAbs):maxMigrationRateAbs(_maxMigrationRateAbs), maxMigrationRateFrac(0.0) { }
-		
+
 		/// Constructor.
 		/** Creates a policy with specified fractional migration rate.
 		 * \param[in] _maxMigrationRateFrac desired fractional migration rate.
@@ -64,7 +65,7 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 		/// Copy constructor.
 		MigrationReplacementPolicy(const MigrationReplacementPolicy& mrp):maxMigrationRateAbs(mrp.maxMigrationRateAbs), maxMigrationRateFrac(mrp.maxMigrationRateFrac) { }
 
-		/// Assign pairs of individuals for replacement during migration. 
+		/// Assign pairs of individuals for replacement during migration.
 		/**
 		 * Note, that this method does not alter the target population, it just provides the replacement choice.
 		 * The actual replacement is done in another place.
@@ -74,36 +75,42 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 		 * \param[in] destinationPopulation Destination population.
 		 * \return Replacement assignment.
 		 */
-		virtual std::list<std::pair<int, int> > selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation) = 0;
-		
+		virtual std::list<std::pair<int, int> > selectForReplacement(const std::vector<individual>& incomingPopulation, const population& destinationPopulation) = 0;
+
 		/// Clone object.
 		/**
 		 * Cloned object should be the exact copy of the original, but should be safe to use in a multithreaded environment.
 		 * \todo Determine if the state variables should also be cloned and a separate method for resetting them be provided, or not.
 		 */
 		virtual MigrationReplacementPolicy* clone() const = 0;
-		
+
 		/// Calculates the maximum number of individuals that could be replaced in the specified population according to the policy.
 		/**
 		 * \param[in] population destination population.
 		 */
-		int getMaxMigrationRate(const Population& population);
-		
+		int getMaxMigrationRate(const population& population);
+
 		/// Set the absolute maximum migration rate.
 		/** Fractional maximum migration rate parameter is reset to 0.0 */
-		void setMaxMigrationRate(const int& _maxMigrationRateAbs) { maxMigrationRateAbs = _maxMigrationRateAbs; maxMigrationRateFrac = 0.0; }
-		
+		void setMaxMigrationRate(const int& _maxMigrationRateAbs) {
+			maxMigrationRateAbs = _maxMigrationRateAbs;
+			maxMigrationRateFrac = 0.0;
+		}
+
 		/// Set the fractional maximum migration rate.
 		/** Absolute maximum migration rate parameter is reset to -1 (the fractional one will be used). */
-		void setMigrationRate(const double & _maxMigrationRateFrac) { maxMigrationRateAbs = -1; maxMigrationRateFrac = _maxMigrationRateFrac; }
+		void setMigrationRate(const double & _maxMigrationRateFrac) {
+			maxMigrationRateAbs = -1;
+			maxMigrationRateFrac = _maxMigrationRateFrac;
+		}
 
-		
+
 	protected:
-		
+
 		int maxMigrationRateAbs; ///< Maximum incoming migration rate (absolute value), -1 means: use fraction.
-		
+
 		double maxMigrationRateFrac; ///< Maximum incoming migration rate (fractional value).
-		
+
 	private:
 		/// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& ms);

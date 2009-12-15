@@ -30,17 +30,18 @@
 #include <boost/scoped_ptr.hpp>
 #include <iostream>
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "ChooseBestMigrationSelectionPolicy.h"
 #include "RandomMigrationReplacementPolicy.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 /// This object gathers island-specific migration-related parameters.
 /**
  * Introduction of this object has been lobbied by Dario because in his oppinion it's presence will increase
  * the user-friendliness of the python interface.
- */ 
+ */
 class __PAGMO_VISIBLE MigrationPolicy
 {
 	public:
@@ -54,59 +55,65 @@ class __PAGMO_VISIBLE MigrationPolicy
 		 * </ul>
 		 */
 		MigrationPolicy()
-			:migrationProbability(1.0),
-			selectionPolicy(ChooseBestMigrationSelectionPolicy(1).clone()),
-			replacementPolicy(RandomMigrationReplacementPolicy(1.0).clone())
-			{ }
-			
+				:migrationProbability(1.0),
+				selectionPolicy(ChooseBestMigrationSelectionPolicy(1).clone()),
+				replacementPolicy(RandomMigrationReplacementPolicy(1.0).clone()) { }
+
 		/// Constructor with migration probability.
 		/** This constructor allows specifying migration probability without touching the policies. For default values of policies see @see MigrationPolicy::MigrationPolicy(). */
 		MigrationPolicy(const double _migrationProbability)
-			:selectionPolicy(ChooseBestMigrationSelectionPolicy(1).clone()),
-			replacementPolicy(RandomMigrationReplacementPolicy(1.0).clone())
-			{
-				setMigrationProbability(_migrationProbability); // does range checking
-			}
-		
+				:selectionPolicy(ChooseBestMigrationSelectionPolicy(1).clone()),
+				replacementPolicy(RandomMigrationReplacementPolicy(1.0).clone()) {
+			setMigrationProbability(_migrationProbability); // does range checking
+		}
+
 		/// Constructor.
 		/** This constructor allows specyfiyng values of all migration parameters. */
 		MigrationPolicy(const double _migrationProbability, const MigrationSelectionPolicy& _selectionPolicy, const MigrationReplacementPolicy& _replacementPolicy)
-			:selectionPolicy(_selectionPolicy.clone()),
-			replacementPolicy(_replacementPolicy.clone())
-			{
-				setMigrationProbability(_migrationProbability); // does range checking
-			}
-			
+				:selectionPolicy(_selectionPolicy.clone()),
+				replacementPolicy(_replacementPolicy.clone()) {
+			setMigrationProbability(_migrationProbability); // does range checking
+		}
+
 		/// Copy constructor.
 		/** Creates a deep copy of the given migration policy. */
 		MigrationPolicy(const MigrationPolicy& mp)
-			:migrationProbability(mp.migrationProbability),
-			selectionPolicy(mp.selectionPolicy->clone()),
-			replacementPolicy(mp.replacementPolicy->clone())
-			{ }		
-		
+				:migrationProbability(mp.migrationProbability),
+				selectionPolicy(mp.selectionPolicy->clone()),
+				replacementPolicy(mp.replacementPolicy->clone()) { }
+
 		// Getters and setters.
-		double getMigrationProbability() const { return migrationProbability; }
-		
+		double getMigrationProbability() const {
+			return migrationProbability;
+		}
+
 		void setMigrationProbability(const double _migrationProbability);
-		
-		
-		MigrationSelectionPolicy& getMigrationSelectionPolicy() const { return *selectionPolicy; }
-		
-		void setMigrationSelectionPolicy(const MigrationSelectionPolicy& msp) { selectionPolicy.reset(msp.clone()); }
-		
-		
-		MigrationReplacementPolicy& getMigrationReplacementPolicy() const { return *replacementPolicy; }
-		
-		void setMigrationReplacementPolicy(const MigrationReplacementPolicy& mrp) { replacementPolicy.reset(mrp.clone()); }
-			
-		
+
+
+		MigrationSelectionPolicy& getMigrationSelectionPolicy() const {
+			return *selectionPolicy;
+		}
+
+		void setMigrationSelectionPolicy(const MigrationSelectionPolicy& msp) {
+			selectionPolicy.reset(msp.clone());
+		}
+
+
+		MigrationReplacementPolicy& getMigrationReplacementPolicy() const {
+			return *replacementPolicy;
+		}
+
+		void setMigrationReplacementPolicy(const MigrationReplacementPolicy& mrp) {
+			replacementPolicy.reset(mrp.clone());
+		}
+
+
 	private:
-				
+
 		/// Migration probability.
 		/** This number specifies the probability of <b>inserting migrated individuals to the island's population</b>. */
 		double migrationProbability;
-		
+
 		/// The selection policy. Must not be null.
 		boost::scoped_ptr<MigrationSelectionPolicy> selectionPolicy;
 

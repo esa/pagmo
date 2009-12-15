@@ -34,7 +34,9 @@
 #include "base.h"
 #include "ihs.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Simple constructor.
 /**
@@ -63,8 +65,8 @@ ihs::ihs(int gen):base(),m_gen(gen),m_phmcr(0.85),m_ppar_min(0.35),m_ppar_max(0.
  * min/max quantities are less than/greater than max/min quantities.
  */
 ihs::ihs(int gen, const double &phmcr, const double &ppar_min, const double &ppar_max,
-	const double &bw_min, const double &bw_max):
-	base(),m_gen(gen),m_phmcr(phmcr),m_ppar_min(ppar_min),m_ppar_max(ppar_max),m_bw_min(bw_min),m_bw_max(bw_max)
+         const double &bw_min, const double &bw_max):
+		base(),m_gen(gen),m_phmcr(phmcr),m_ppar_min(ppar_min),m_ppar_max(ppar_max),m_bw_min(bw_min),m_bw_max(bw_max)
 {
 	if (gen <= 0) {
 		pagmo_throw(value_error,"number of generations must be positive");
@@ -84,7 +86,7 @@ ihs::ihs(int gen, const double &phmcr, const double &ppar_min, const double &ppa
 /**
  * @throws value_error if population is empty.
  */
-Population ihs::evolve(const Population &pop) const
+population ihs::evolve(const population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &problem = pop.problem();
@@ -94,7 +96,7 @@ Population ihs::evolve(const Population &pop) const
 		pagmo_throw(value_error,"cannot evolve an empty population");
 	}
 	// This is the return population.
-	Population retval = pop;
+	population retval = pop;
 	// Temporary decision vector, and lower-upper bounds difference vector.
 	std::vector<double> tmp_dv(problem_size), lu_diff(problem_size);
 	for (size_t i = 0; i < problem_size; ++i) {
@@ -129,9 +131,9 @@ Population ihs::evolve(const Population &pop) const
 			}
 		}
 		const double tmp_fitness = problem.objfun(tmp_dv);
-		const Individual &worst = retval.extractWorstIndividual();
+		const individual &worst = retval.extractWorstIndividual();
 		if (tmp_fitness < worst.getFitness()) {
-			retval.replace_worst(Individual(tmp_dv,worst.getVelocity(),tmp_fitness));
+			retval.replace_worst(individual(tmp_dv,worst.getVelocity(),tmp_fitness));
 		}
 	}
 	return retval;
@@ -140,7 +142,8 @@ Population ihs::evolve(const Population &pop) const
 void ihs::log(std::ostream &s) const
 {
 	s << "IHS - generations:" << m_gen << " phmcr:" << m_phmcr << " ppar_min:" << m_ppar_min
-		<< " ppar_max:" << m_ppar_max << " bw_min:" << m_bw_min << " bw_max:" << m_bw_max;
+	<< " ppar_max:" << m_ppar_max << " bw_min:" << m_bw_min << " bw_max:" << m_bw_max;
 }
 
-}}
+}
+}

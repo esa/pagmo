@@ -38,18 +38,21 @@ ba_topology::ba_topology(int m_0, int m, boost::uint32_t _seed)
 }
 
 /** Assignment operator for the RNG is used here on purpose - it will create the exact copy of the RNG, so the original network and it's copy will grow identically */
-ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m),seed(b.seed) { drng = b.drng; }
+ba_topology::ba_topology(const ba_topology &b):graph_topology(b),m_m_0(b.m_m_0),m_m(b.m_m),seed(b.seed)
+{
+	drng = b.drng;
+}
 
 void ba_topology::push_back(const size_t& id)
 {
 	const size_t size = get_number_of_nodes();
-	
+
 	// Make sure the id is not already there. [MaRu] why?
-	/// \todo maybe this should be controlled by the grow_topology itself?	
-	
+	/// \todo maybe this should be controlled by the grow_topology itself?
+
 	// Add the new node to the graph
 	add_node(id);
-	
+
 	if (size < m_m_0) {
 		// If we have not built the initial m_0 nodes, do it.
 		// We want to connect the newcomer island with high probability, and make sure that
@@ -59,12 +62,12 @@ void ba_topology::push_back(const size_t& id)
 
 		// Flag indicating if at least 1 connection was added in the first phase.
 		bool connectionAdded = false;
-		
+
 		const std::vector<size_t>& nodes_list = get_nodes();
-		
-		// Main loop.		
+
+		// Main loop.
 		for (std::vector<size_t>::const_iterator it = nodes_list.begin(); it != nodes_list.end(); ++it) {
-			if((*it) != id) { // Do not consider the node itself!
+			if ((*it) != id) { // Do not consider the node itself!
 				if (drng() < prob) {
 					connectionAdded = true;
 					// Add the connections
@@ -73,7 +76,7 @@ void ba_topology::push_back(const size_t& id)
 				}
 			}
 		}
-		
+
 		// If no connections were established and this is not the first island being inserted,
 		// establish at least one connection with a random island.
 		if ((!connectionAdded) && (size != 0)) {
@@ -84,32 +87,32 @@ void ba_topology::push_back(const size_t& id)
 	} else {
 		// Let's find the total number of edges.
 		size_t n_edges = get_number_of_edges();
-		
+
 		// Now we need to add m edges, choosing the nodes with a probability
 		// proportional to their number of connections. We keep track of the
 		// connection established in order to avoid connecting twice to the same
 		// node.
-		
+
 		const std::vector<size_t>& nodes_list = get_nodes();
-		
+
 		size_t i = 0;
-		while(i < m_m) {
+		while (i < m_m) {
 			const size_t rn = (size_t)(drng() * n_edges);
 			size_t n = 0;
-			
+
 			std::vector<size_t>::const_iterator it;
-			
+
 			for (it = nodes_list.begin(); it != nodes_list.end(); ++it) {
-				if(*it != id) { // do not cosider the node itself
-					n += get_neighbours_out(*it).size();					
+				if (*it != id) { // do not cosider the node itself
+					n += get_neighbours_out(*it).size();
 					if (rn < n) {
 						break;
 					}
-				}	
+				}
 			}
-			
+
 			pagmo_assert(it != nodes_list.end());
-			
+
 			// If id_candidate was not already connected, then add it.
 			if (!are_neighbours(id, *it)) {
 				add_edge(*it, id);

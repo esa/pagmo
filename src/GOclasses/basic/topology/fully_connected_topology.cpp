@@ -48,10 +48,10 @@ void fully_connected_topology::push_back(const size_t& id)
 	// Iterate over all the existing island, storing their id and adding connections to
 	// the new island in the process.
 	std::vector<size_t> nodes_list = get_nodes();
-	
+
 	// Add the new node
 	add_node(id);
-		
+
 	for (std::vector<size_t>::const_iterator it = nodes_list.begin(); it != nodes_list.end(); ++it) {
 		add_edge(id, *it);
 		add_edge(*it, id);

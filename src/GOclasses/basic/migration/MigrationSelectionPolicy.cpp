@@ -22,22 +22,24 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "MigrationSelectionPolicy.h"
 #include "../../../exceptions.h"
+#include "../../basic/population.h"
+#include "MigrationSelectionPolicy.h"
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-namespace pagmo {
-
-int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const Population& population)
+namespace pagmo
 {
-	if(migrationRateAbs < 0) {
-		if(migrationRateFrac > 1.0) {
+
+int MigrationSelectionPolicy::getNumberOfIndividualsToMigrate(const population& population)
+{
+	if (migrationRateAbs < 0) {
+		if (migrationRateFrac > 1.0) {
 			pagmo_throw(assertion_error, "Fractional migration rate is grater than 1!");
 		}
 		return (int)(migrationRateFrac * (double)population.size());
 	} else {
-                if((size_t)migrationRateAbs > population.size()) {
+		if ((size_t)migrationRateAbs > population.size()) {
 			pagmo_throw(assertion_error, "Absolute migration rate exceeds population size!");
 		}
 		return migrationRateAbs;
@@ -48,15 +50,15 @@ std::ostream &operator<<(std::ostream &s, const MigrationSelectionPolicy& msp)
 {
 	s << "Selection policy type: " << typeid(msp).name() << std::endl;
 	s << "Migration rate (out):  ";
-	
-	if(msp.migrationRateAbs < 0) {
+
+	if (msp.migrationRateAbs < 0) {
 		s << (100.0 * msp.migrationRateFrac) << " %";
 	} else {
 		s << msp.migrationRateAbs;
 	}
-	
+
 	s << std::endl;
-	
+
 	return s;
 }
 

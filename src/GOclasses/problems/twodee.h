@@ -30,25 +30,33 @@
 #include <string>
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "base.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 // Twodee problem.
-class __PAGMO_VISIBLE twodee: public base {
+class __PAGMO_VISIBLE twodee: public base
+{
 	public:
 		twodee(int);
 		twodee(int, const std::string &);
-		virtual twodee *clone() const {return new twodee(*this);}
-		virtual void pre_evolution(Population &) const;
-		virtual std::string id_object() const { return id_name(); }
+		virtual twodee *clone() const {
+			return new twodee(*this);
+		}
+		virtual void pre_evolution(population &) const;
+		virtual std::string id_object() const {
+			return id_name();
+		}
 	private:
 		virtual double objfun_(const std::vector<double> &) const;
 		mutable size_t		m_random_seed;
 		const std::string	m_arguments;
 };
 
-}}
+}
+}
 
 #endif

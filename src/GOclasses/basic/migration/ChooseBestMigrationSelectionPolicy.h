@@ -27,10 +27,11 @@
 #ifndef PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
 #define PAGMO_CHOOSE_BEST_MIGRATION_SELECTION_POLICY_H
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "MigrationSelectionPolicy.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 /// Choose best migration selection policy.
 /**
@@ -44,26 +45,28 @@ class __PAGMO_VISIBLE ChooseBestMigrationSelectionPolicy: public MigrationSelect
 		 * \see MigrationSelectionPolicy::MigrationSelectionPolicy().
 		 */
 		ChooseBestMigrationSelectionPolicy():MigrationSelectionPolicy() { }
-		
+
 		/// Constructor.
 		/** \see MigrationSelectionPolicy::MigrationSelectionPolicy(const int&) */
 		ChooseBestMigrationSelectionPolicy(const int& _migrationRate):MigrationSelectionPolicy(_migrationRate) { }
-		
+
 		/// Constructor.
 		/** \see MigrationSelectionPolicy::MigrationSelectionPolicy(const double&) */
 		ChooseBestMigrationSelectionPolicy(const double& _migrationRate):MigrationSelectionPolicy(_migrationRate) { }
-		
+
 		/// Copy constructor.
 		ChooseBestMigrationSelectionPolicy(const ChooseBestMigrationSelectionPolicy& rmsp):MigrationSelectionPolicy(rmsp) { }
 
 		/// Virtual destructor.
 		virtual ~ChooseBestMigrationSelectionPolicy() { }
-		
+
 		/// \see MigrationSelectionPolicy::selectForMigration
-		virtual std::vector<Individual> selectForMigration(const Population& population);
-		
+		virtual std::vector<individual> selectForMigration(const population& population);
+
 		/// \see MigrationSelectionPolicy::clone
-		virtual ChooseBestMigrationSelectionPolicy* clone() const { return new ChooseBestMigrationSelectionPolicy(*this); }
+		virtual ChooseBestMigrationSelectionPolicy* clone() const {
+			return new ChooseBestMigrationSelectionPolicy(*this);
+		}
 };
 
 }

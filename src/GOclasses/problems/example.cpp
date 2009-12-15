@@ -30,7 +30,9 @@
 #include "base.h"
 #include "example.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 // Initialise the problem using the constructor of the base class: GOProblem(int n) will initialise a problem
 // with dimension n.
@@ -55,4 +57,5 @@ std::string example::id_object() const
 	return std::string("Example problem: minimization of y = x*x.");
 }
 
-}}
+}
+}

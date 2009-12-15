@@ -27,28 +27,33 @@
 #ifndef PAGMO_RING12_TOPOLOGY_H
 #define PAGMO_RING12_TOPOLOGY_H
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 ///Bi-directional +1+2 ring topology
 /** In such a ring, every node is connected with a direct neigbour and his direct neighbour. */
-class __PAGMO_VISIBLE ring12_topology: public graph_topology {
+class __PAGMO_VISIBLE ring12_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		ring12_topology();
 		/// Copy constructor.
 		ring12_topology(const ring12_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual ring12_topology *clone() const {return new ring12_topology(*this);}
-		
+		virtual ring12_topology *clone() const {
+			return new ring12_topology(*this);
+		}
+
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
-		
+
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
+		virtual std::string id_object() const {
+			return id_name();
+		}
+
+	private:
 		/// Tracks the id of the first tracked node.
 		size_t	a;
 		/// Tracks the id of the second tracked node.
@@ -57,7 +62,7 @@ class __PAGMO_VISIBLE ring12_topology: public graph_topology {
 		size_t	c;
 		/// Tracks the id of the fourth tracked node.
 		size_t	d;
-		
+
 		/// \see graph_topology::operator=
 		ring12_topology &operator=(const ring12_topology &);
 };

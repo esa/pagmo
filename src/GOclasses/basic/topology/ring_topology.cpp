@@ -29,7 +29,7 @@
 ring_topology::ring_topology():graph_topology(), m_first(0), m_last(0) {}
 
 ring_topology::ring_topology(const ring_topology &r)
-	:graph_topology(r), m_first(r.m_first), m_last(r.m_last) {}
+		:graph_topology(r), m_first(r.m_first), m_last(r.m_last) {}
 
 ring_topology &ring_topology::operator=(const ring_topology &)
 {
@@ -41,42 +41,41 @@ void ring_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
 	const size_t t_size = get_number_of_nodes();
-	
+
 	//Add the new node to the graph
 	add_node(id);
-	
+
 	switch (t_size) {
-		case 0:
-			// If topology is empty, update the id of the first element.			
-			m_first = id;
-			break;
-		
-		case 1:
-		{
-			// Add connections to the only existing element.
-			add_edge(id, m_first);
-			add_edge(m_first, id);
-			break;
-		}
-		
-		case 2:
-			// Add new connections
-			add_edge(m_last, id);
-			add_edge(id, m_last);
-			add_edge(m_first, id);
-			add_edge(id, m_first);		
-			break;
-			
-		default:
-			// In general we must change the back connection of the first,
-			// the forward connection of the current last, and add the new last
-			// with proper connections.
-			remove_edge(m_last, m_first);
-			remove_edge(m_first, m_last);
-			add_edge(m_last, id);
-			add_edge(id, m_last);
-			add_edge(m_first, id);
-			add_edge(id, m_first);
+	case 0:
+		// If topology is empty, update the id of the first element.
+		m_first = id;
+		break;
+
+	case 1: {
+		// Add connections to the only existing element.
+		add_edge(id, m_first);
+		add_edge(m_first, id);
+		break;
+	}
+
+	case 2:
+		// Add new connections
+		add_edge(m_last, id);
+		add_edge(id, m_last);
+		add_edge(m_first, id);
+		add_edge(id, m_first);
+		break;
+
+	default:
+		// In general we must change the back connection of the first,
+		// the forward connection of the current last, and add the new last
+		// with proper connections.
+		remove_edge(m_last, m_first);
+		remove_edge(m_first, m_last);
+		add_edge(m_last, id);
+		add_edge(id, m_last);
+		add_edge(m_first, id);
+		add_edge(id, m_first);
 	}
 	// Update the id of the last island.
 	m_last = id;

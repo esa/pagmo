@@ -30,11 +30,13 @@
 #include <iostream>
 #include <string>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../basic/population.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Simulated Annealing with Adaptive Neighbourhood solver (ASA or SA-AN)
 /**
@@ -43,41 +45,46 @@ namespace pagmo { namespace algorithm {
  * and the neighbourhood size of each component is controlled by the number of point accepted or rejected according
  * to the Metropolis criteria
  */
-class __PAGMO_VISIBLE asa: public base {
+class __PAGMO_VISIBLE asa: public base
+{
 	public:
-                /// Constructor.
-                /**
-                 * Creates the SA-AN algorithm using a minimal amount of parameters. While it does not give full
-                 * control over the algorithm, it assumes reasonable default values for parameters difficult to set
-                 * for non expert users.
-                 * \param[in] niter Maximum number of function evaluation allowed
-                 * \param[in] Ts Starting temperature
-                 * \param[in] Tf Final temperature
-                 */
-                asa(int niter, const double &Ts, const double &Tf);
+		/// Constructor.
+		/**
+		 * Creates the SA-AN algorithm using a minimal amount of parameters. While it does not give full
+		 * control over the algorithm, it assumes reasonable default values for parameters difficult to set
+		 * for non expert users.
+		 * \param[in] niter Maximum number of function evaluation allowed
+		 * \param[in] Ts Starting temperature
+		 * \param[in] Tf Final temperature
+		 */
+		asa(int niter, const double &Ts, const double &Tf);
 
-                /// Constructor.
-                /**
-                 * Creates the SA-AN algorithm specifying all the algorithm parameters. This constructor should be used only
-                 * by users familiar with Corana SA-AN algorithm
-                 * \param[in] niter Maximum number of function evaluation allowed
-                 * \param[in] Ts Starting temperature
-                 * \param[in] Tf Final temperature
-                 * \param[in] niterT The number of temperature adjustments will be proportional to this number
-                 * \param[in] niterR The number of range adjustments will be proportional to this number
-                 * \param[in] startRange Initial range (equal for all components of the decision vector)
-                 */
-                 asa(int niter, const double &Ts, const double &Tf, const int niterT, const int niterR, const double startRange);
+		/// Constructor.
+		/**
+		 * Creates the SA-AN algorithm specifying all the algorithm parameters. This constructor should be used only
+		 * by users familiar with Corana SA-AN algorithm
+		 * \param[in] niter Maximum number of function evaluation allowed
+		 * \param[in] Ts Starting temperature
+		 * \param[in] Tf Final temperature
+		 * \param[in] niterT The number of temperature adjustments will be proportional to this number
+		 * \param[in] niterR The number of range adjustments will be proportional to this number
+		 * \param[in] startRange Initial range (equal for all components of the decision vector)
+		 */
+		asa(int niter, const double &Ts, const double &Tf, const int niterT, const int niterR, const double startRange);
 
-                /// Algorithm code.
-                /**
-                * This method contains the actual code of the SA-AN algorithm. It performs the algorithm starting from
-                * the first individual of the population passed as input
-                * \param[in] pop Population to be evolved (only the first individual will change)
-                */
-                virtual Population evolve(const Population & pop) const;
-		virtual asa *clone() const {return new asa(*this);}
-		virtual std::string id_object() const { return id_name(); }
+		/// Algorithm code.
+		/**
+		* This method contains the actual code of the SA-AN algorithm. It performs the algorithm starting from
+		* the first individual of the population passed as input
+		* \param[in] pop Population to be evolved (only the first individual will change)
+		*/
+		virtual population evolve(const population & pop) const;
+		virtual asa *clone() const {
+			return new asa(*this);
+		}
+		virtual std::string id_object() const {
+			return id_name();
+		}
 	private:
 		virtual void log(std::ostream &) const;
 		size_t niterTot;
@@ -88,6 +95,7 @@ class __PAGMO_VISIBLE asa: public base {
 		double StartStep;
 };
 
-}} // Close namespaces.
+}
+} // Close namespaces.
 
 #endif

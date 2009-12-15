@@ -29,7 +29,7 @@
 ring12_topology::ring12_topology():graph_topology(), a(0), b(0), c(0), d(0) {}
 
 ring12_topology::ring12_topology(const ring12_topology &r)
-	:graph_topology(r), a(r.a), b(r.b), c(r.c), d(r.d) {}
+		:graph_topology(r), a(r.a), b(r.b), c(r.c), d(r.d) {}
 
 ring12_topology &ring12_topology::operator=(const ring12_topology &)
 {
@@ -41,88 +41,88 @@ void ring12_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
 	const size_t t_size = get_number_of_nodes();
-	
+
 	//Add the new node to the graph
 	add_node(id);
-	
-	switch (t_size) {
-		case 0:
-			// If topology is empty, update the id of the first element.			
-			a = id;
-			break;
-		
-		case 1:
-			// Add connections to the only existing element.
-			add_edge(id, a);
-			add_edge(a, id);
-			b = id;
-			break;
 
-		case 2:
-			// Add new connections
-			add_edge(a, id);
-			add_edge(id, a);
-			add_edge(b, id);
-			add_edge(id, b);
-			c = id;
-			break;
-			
-		case 3:
-			// Add new connections
-			add_edge(a, id);
-			add_edge(id, a);
-			add_edge(b, id);
-			add_edge(id, b);
-			add_edge(c, id);
-			add_edge(id, c);
-			d = id;
-			break;
-			
-		case 4:
-			// Add new connections and update c,d
-			
-			// First, put the node in between a and d. Former +1 link a-d becomes now a +2 link
-			add_edge(d, id);
-			add_edge(id, d);
-			add_edge(a, id);
-			add_edge(id, a);
-			
-			// Also add connections id-b and id-c. Nothing needs to be dropped.
-			add_edge(b, id);
-			add_edge(id, b);
-			add_edge(c, id);
-			add_edge(id, c);
-			
-			// Update nodes
-			c = d;
-			d = id;
-			
-			// Now we have a pentagram :)
-			break;
-			
-		default:
-			// Insert the new node between d and a.
-			
-			// First, put the node in between a and d. Former +1 link a-d becomes now a +2 link
-			add_edge(d, id);
-			add_edge(id, d);
-			add_edge(a, id);
-			add_edge(id, a);
-			
-			// Now drop connections b-d and c-a, as they are no longer +2 but +3, replacing them by edges b-id and c-id
-			remove_edge(a, c);
-			remove_edge(c, a);
-			add_edge(id, c);
-			add_edge(c, id);
-			
-			remove_edge(b, d);
-			remove_edge(d, b);
-			add_edge(id, b);
-			add_edge(b, id);
-			
-			// Finally, update the nodes
-			c = d;
-			d = id;
-			break;
+	switch (t_size) {
+	case 0:
+		// If topology is empty, update the id of the first element.
+		a = id;
+		break;
+
+	case 1:
+		// Add connections to the only existing element.
+		add_edge(id, a);
+		add_edge(a, id);
+		b = id;
+		break;
+
+	case 2:
+		// Add new connections
+		add_edge(a, id);
+		add_edge(id, a);
+		add_edge(b, id);
+		add_edge(id, b);
+		c = id;
+		break;
+
+	case 3:
+		// Add new connections
+		add_edge(a, id);
+		add_edge(id, a);
+		add_edge(b, id);
+		add_edge(id, b);
+		add_edge(c, id);
+		add_edge(id, c);
+		d = id;
+		break;
+
+	case 4:
+		// Add new connections and update c,d
+
+		// First, put the node in between a and d. Former +1 link a-d becomes now a +2 link
+		add_edge(d, id);
+		add_edge(id, d);
+		add_edge(a, id);
+		add_edge(id, a);
+
+		// Also add connections id-b and id-c. Nothing needs to be dropped.
+		add_edge(b, id);
+		add_edge(id, b);
+		add_edge(c, id);
+		add_edge(id, c);
+
+		// Update nodes
+		c = d;
+		d = id;
+
+		// Now we have a pentagram :)
+		break;
+
+	default:
+		// Insert the new node between d and a.
+
+		// First, put the node in between a and d. Former +1 link a-d becomes now a +2 link
+		add_edge(d, id);
+		add_edge(id, d);
+		add_edge(a, id);
+		add_edge(id, a);
+
+		// Now drop connections b-d and c-a, as they are no longer +2 but +3, replacing them by edges b-id and c-id
+		remove_edge(a, c);
+		remove_edge(c, a);
+		add_edge(id, c);
+		add_edge(c, id);
+
+		remove_edge(b, d);
+		remove_edge(d, b);
+		add_edge(id, b);
+		add_edge(b, id);
+
+		// Finally, update the nodes
+		c = d;
+		d = id;
+		break;
 	}
 }

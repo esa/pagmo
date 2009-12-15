@@ -56,7 +56,7 @@ const std::vector<size_t> graph_topology::get_neighbours_in(const size_t& _islan
 
 bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& island2_id) const
 {
-	if(contains_node(island1_id) && contains_node(island2_id)) {
+	if (contains_node(island1_id) && contains_node(island2_id)) {
 		const std::vector<size_t>& out_neighbours = lists_out.find(island1_id)->second;
 		return std::find(out_neighbours.begin(), out_neighbours.end(), island2_id) != out_neighbours.end();
 	} else {
@@ -67,7 +67,7 @@ bool graph_topology::are_neighbours(const size_t& island1_id, const size_t& isla
 size_t graph_topology::get_number_of_edges() const
 {
 	size_t result = 0;
-	for(nlt_const_iterator iter = lists_out.begin(); iter != lists_out.end(); ++iter) {
+	for (nlt_const_iterator iter = lists_out.begin(); iter != lists_out.end(); ++iter) {
 		result += iter->second.size();
 	}
 	return result;
@@ -98,14 +98,14 @@ bool graph_topology::contains_node(const size_t& id) const
 
 void graph_topology::check_node_present(const size_t& id) const
 {
-	if(!contains_node(id)) {
+	if (!contains_node(id)) {
 		pagmo_throw(index_error, "Topology doesn't contain the node yet!");
 	}
 }
 
 void graph_topology::check_node_not_present(const size_t& id) const
 {
-	if(contains_node(id)) {
+	if (contains_node(id)) {
 		pagmo_throw(index_error, "Topology already contains the node!");
 	}
 }
@@ -120,7 +120,7 @@ void graph_topology::add_edge(const size_t& island1_id, const size_t& island2_id
 {
 	check_node_present(island1_id);
 	check_node_present(island2_id);
-		
+
 	lists_out[island1_id].push_back(island2_id);
 	lists_in[island2_id].push_back(island1_id);
 }
@@ -132,7 +132,7 @@ void graph_topology::remove_edge(const size_t& island1_id, const size_t& island2
 
 	std::vector<size_t>::iterator position_out = std::find(lists_out[island1_id].begin(), lists_out[island1_id].end(), island2_id);
 	std::vector<size_t>::iterator position_in = std::find(lists_in[island2_id].begin(), lists_in[island2_id].end(), island1_id);
-	
+
 	lists_out[island1_id].erase(position_out);
 	lists_in[island2_id].erase(position_in);
 }

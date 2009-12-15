@@ -29,7 +29,7 @@
 
 #include <boost/cstdint.hpp>
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "../../../Functions/rng/rng.h"
 #include "graph_topology.h"
 
@@ -40,7 +40,8 @@
  * \todo Rename this class.
  */
 
-class __PAGMO_VISIBLE ba_topology: public graph_topology {
+class __PAGMO_VISIBLE ba_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		/**
@@ -50,28 +51,30 @@ class __PAGMO_VISIBLE ba_topology: public graph_topology {
 		 * \param[in] optional random seed used to initialise the internal rng.
 		 */
 		ba_topology(int m_0, int m, boost::uint32_t seed = static_rng_uint32()());
-		
+
 		/// Copy constructor... \todo Change semantics and add a method to re-init an RNG?
 		ba_topology(const ba_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual ba_topology *clone() const { return new ba_topology(*this); }
-		
-		/// \see base_topology::push_back		
+		virtual ba_topology *clone() const {
+			return new ba_topology(*this);
+		}
+
+		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
-		
+
 		/// \see base_topology::id_object()
 		virtual std::string id_object() const;
-	
+
 	private:
 		/// \see graph_topology::operator=
 		ba_topology &operator=(const ba_topology &);
-		
+
 		/// Size of the kernel - the starting number of nodes.
 		const size_t			m_m_0;
 		/// Number of edges per newly-inserted node.
 		const size_t			m_m;
-		
+
 		/// Random number generator
 		rng_double				drng;
 		/// Seed with which rng was initialised.

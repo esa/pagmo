@@ -33,10 +33,13 @@
 //Nanostructured Radiator Problems....
 //***********************************************************************************
 
-class radiatorProb : public GOProblem {
-public:
-	radiatorProb(int dim);
-	virtual double objfun(const std::vector<double>& x) { return radiator(x); }
+class radiatorProb : public GOProblem
+{
+	public:
+		radiatorProb(int dim);
+		virtual double objfun(const std::vector<double>& x) {
+			return radiator(x);
+		}
 };	//end class radiatorProb
 
 #endif // GORADIATOR_H_INCLUDED

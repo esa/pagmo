@@ -29,11 +29,12 @@
 #include <string>
 #include <typeinfo>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../../Functions/rng/rng.h"
 #include "../basic/population.h"
 
-namespace pagmo {
+namespace pagmo
+{
 /// Algorithm namespace.
 /**
  * This namespace contains all the algorithms implemented in PaGMO.
@@ -52,7 +53,7 @@ class __PAGMO_VISIBLE base
 		base(const base &);
 		base &operator=(const base &);
 		/// Evolve method.
-		virtual Population evolve(const Population &) const = 0;
+		virtual population evolve(const population &) const = 0;
 		/// Clone method.
 		virtual base *clone() const = 0;
 		/// Destructor.
@@ -60,19 +61,24 @@ class __PAGMO_VISIBLE base
 		// TODO: are these two ever used? Probably we need just the second one, for
 		// printing purposes in Python. Or maybe we need just log()?? Or maybe human_readable, like in problems?
 		/// C++ name of the algorithm.
-		std::string id_name() const {return typeid(*this).name();}
+		std::string id_name() const {
+			return typeid(*this).name();
+		}
 		/// Get the name identyfing the object (<b>not</b> the class).
 		/** Exposed to Python. The string should identify the object, so that instanciations of the same class with different parameters are distinguishable. */
 		virtual std::string id_object() const = 0;
 	protected:
 		///Virtual log method. Is called by the overloaded operator << of algorithm::base that can thus behave differently for each derived class
-		virtual void log(std::ostream& s) const {s << "You need to implement the virtual method log() for this derived class of algorithm::base" << std::endl;}
+		virtual void log(std::ostream& s) const {
+			s << "You need to implement the virtual method log() for this derived class of algorithm::base" << std::endl;
+		}
 		/// Random number generator for double-precision floating point values.
 		mutable rng_double drng;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 
-}}
+}
+}
 
 #endif

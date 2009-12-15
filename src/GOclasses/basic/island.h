@@ -32,7 +32,7 @@
 #include <boost/thread/mutex.hpp>
 #include <iostream>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../../atomic_counters/atomic_counters.h"
 #include "../algorithms/base.h"
 #include "../problems/base.h"
@@ -40,7 +40,8 @@
 #include "migration/MigrationPolicy.h"
 #include "population.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 class archipelago;
 
@@ -58,16 +59,16 @@ class __PAGMO_VISIBLE island
 		typedef boost::mutex mutex_type;
 		/// Lock guard type abbreviation.
 		typedef boost::lock_guard<mutex_type> lock_type;
-		
+
 		/// Friend class... dirty?
 		friend class archipelago;
-		
+
 		/// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
-		
+
 		/// Stream output operator (for the archipelago class).
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const archipelago &a);
-			
+
 	public:
 		/// Constructor.
 		/**
@@ -78,7 +79,7 @@ class __PAGMO_VISIBLE island
 		 * \param[in] al Algorithm to be used by the island.
 		 */
 		island(const problem::base& p, const algorithm::base& al);
-		
+
 		/// Constructor.
 		/**
 		 * Creates an island associated with a specified problem, using the specified algorithm and having
@@ -90,7 +91,7 @@ class __PAGMO_VISIBLE island
 		 * \param[in] n Size of the island's population.
 		 */
 		island(const problem::base& p, const algorithm::base& al, int n);
-		
+
 		/// Constructor.
 		/**
 		 * Creates an island associated with a specified problem, using the specified algorithm, having
@@ -102,7 +103,7 @@ class __PAGMO_VISIBLE island
 		 * \param[in] mp Migration policy.
 		 */
 		island(const problem::base& p, const algorithm::base& al, int n, const MigrationPolicy& mp);
-		
+
 		/// Copy constructor.
 		/**
 		 * Creates a deep copy of an island. The only differences are that the new island is assigned a new id
@@ -111,55 +112,55 @@ class __PAGMO_VISIBLE island
 		 * \param i island to be duplicated.
 		 */
 		island(const island& i);
-		
+
 		/// Assignment operator.
 		/**
 		 * Creates a copy of an island, dropping current contents of the left-side argument.
 		 * The only differences are that the left-side island id and the assiciated archipelago are not changed.
-		 */		 		 
+		 */
 		island &operator=(const island &);
-		
+
 		/// Destructor (<b>synchronised</b>).
 		~island();
-		
-		
+
+
 		//Getters and setters
-		
+
 		/// Population getter (<b>synchronised</b>).
-		Population population() const;
-		
+		population get_population() const;
+
 		/// Problem getter (<b>synchronised</b>).
 		const problem::base &problem() const;
-		
+
 		/// Algorithm getter (<b>synchronised</b>).
 		const algorithm::base &algorithm() const;
-		
+
 		/// Algorithm seter (<b>synchronised</b>).
 		void set_algorithm(const algorithm::base &);
-		
-		
+
+
 		/// Migration selection policy public getter (<b>synchronised</b>).
 		/** Note, that this function will throw an exception if no policy is associated with the island. */
 		const MigrationSelectionPolicy& getMigrationSelectionPolicy() const;
-		
+
 		/// Migration selection policy public setter (<b>synchronised</b>).
 		/**
 		 * A deep copy of the given object is created and stored.
 		 * \param[in] msp Selection policy to be used with the island. May not be null.
 		 */
 		void setMigrationSelectionPolicy(const MigrationSelectionPolicy& msp);
-				
+
 		/// Migration replacement policy getter (<b>synchronised</b>).
 		/**  Note, that this function will throw an exception if no policy is associated with the island. */
 		const MigrationReplacementPolicy& getMigrationReplacementPolicy() const;
-		
+
 		/// Migration replacement policy setter (<b>synchronised</b>).
 		/**
 		 * A deep copy of the given object is created and stored.
 		 * \param[in] msp Replacement policy to be used with the island. May not be null.
 		 */
 		void setMigrationReplacementPolicy(const MigrationReplacementPolicy& mrp);
-		
+
 		/// Migration policy getter (<b>synchronised</b>).
 		const MigrationPolicy& getMigrationPolicy() const;
 
@@ -169,81 +170,83 @@ class __PAGMO_VISIBLE island
 		 * \param[in] mp Migration policy to be used with the island. May be null.
 		 */
 		void setMigrationPolicy(const MigrationPolicy* mp);
-		
+
 		/// Migration probability getter.
 		/**
 		 * This is provided here for convenience - it allows avoiding bothersome checking for migration policy presence,
 		 * which would require introducing friend classes etc. Clear indication that the code starts getting a bit spaghettish...
 		 */
-		double getMigrationProbability() const { return migrationPolicy ? migrationPolicy->getMigrationProbability() : 0.0; }
+		double getMigrationProbability() const {
+			return migrationPolicy ? migrationPolicy->getMigrationProbability() : 0.0;
+		}
 
 		/// Get the island size (the number of individuals) (<b>synchronised</b>).
 		size_t size() const;
-		
+
 		/// Get the island id (<b>synchronised</b>).
 		size_t id() const;
-		
+
 		/// Get the total time spent by the island on evolution (<b>synchronised</b>).
 		size_t evo_time() const;
-		
-		
+
+
 		//Collection interface functions
-		
+
 		/// Individual indexed access operator (<b>synchronised</b>).
-		Individual operator[](int) const;
-		
+		individual operator[](int) const;
+
 		/// Individual setter (<b>synchronised</b>).
-		/** \see Population::setIndividual */
-		void set_individual(int, const Individual &);
-		
+		/** \see population::setIndividual */
+		void set_individual(int, const individual &);
+
 		/// Push back operation for underlying population (<b>synchronised</b>).
-		/** \see Population::push_back */
-		void push_back(const Individual &);
-		
+		/** \see population::push_back */
+		void push_back(const individual &);
+
 		/// Insert operation for underlying population (<b>synchronised</b>).
-		/** \see Population::insert */
-		void insert(int, const Individual &);
-		
+		/** \see population::insert */
+		void insert(int, const individual &);
+
 		/// Erase operation for underlying population (<b>synchronised</b>).
-		/** \see Population::erase */
+		/** \see population::erase */
 		void erase(int);
-		
-		
+
+
 		//Utility functions
-		
+
 		/// Calculate the mean fitness of the individuals (<b>synchronised</b>).
 		double mean() const;
-		
+
 		/// Calculate the mean fitness of the individuals (<b>synchronised</b>).
 		double std() const;
-		
+
 		/// Get the best individual (<b>synchronised</b>).
-		Individual best() const;
-		
+		individual best() const;
+
 		/// Get the best worst (<b>synchronised</b>).
-		Individual worst() const;
-		
-		
+		individual worst() const;
+
+
 		// Migration Functions
-		
+
 		/// Get individuals migrating out of the population.
 		/**
 		 * The method returns a population of individuals selected to migrate according to the island's policy.
 		 * the individuals are copied, i.e. they are not removed from the population.
 		 * \return Population of migrating individuals.
 		 */
-		std::vector<Individual> getMigratingIndividuals();
-		
+		std::vector<individual> getMigratingIndividuals();
+
 		/// Put migrating individuals to the population.
 		/**
 		 * The island replaces individuals in it's own population with incoming individuals, according the it's policy.
 		 * \param[in] incomingPopulation incoming individuals.
 		 */
-		void acceptMigratingIndividuals(const std::vector<Individual>& incomingPopulation);
-		
-		
+		void acceptMigratingIndividuals(const std::vector<individual>& incomingPopulation);
+
+
 		// Evolution functions
-		
+
 		/// Start an evolution fo the specified number of algorithm steps.
 		/**
 		 * What exactly a 'step' means depends on the implementation of the algorithm the island is using.
@@ -252,7 +255,7 @@ class __PAGMO_VISIBLE island
 		 * \param[in] n the number of algorithm steps to perform
 		 */
 		void evolve(int n = 1);
-		
+
 		/// Start an evolution fo the specified amount of time.
 		/**
 		 * The algorithm is run for at least the specified amount of time and for at least one iteration.
@@ -261,57 +264,57 @@ class __PAGMO_VISIBLE island
 		 * evolution is already running.
 		 */
 		void evolve_t(const size_t& t);
-		
-		
+
+
 		//Synchronisation functions
-		
+
 		/// Wait until the evolution finishes.
 		void join() const;
-		
+
 		/// Check the evolution status.
 		/**
 		 * \return true, if the evolution is still running, false otherwise.
 		 */
 		bool busy() const;
-		
+
 		/*
-		bool t_substitute_worst(const Individual &);
-		Individual t_best() const;
+		bool t_substitute_worst(const individual &);
+		individual t_best() const;
 		*/
-		
+
 	private:
-		
+
 		/// Archipelago setter.
 		/**
 		 * This method is to be used only by the archipelago class, which is the friend class.
 		 */
 		void set_archipelago(archipelago *);
-		
+
 		// void t_check() const;
-		
+
 		/// Evolver thread object.
 		/**
 		 * This is a callable helper object used to launch an evolution for a given number of iterations.
 		 */
 		struct int_evolver {
-			
+
 			/// Constructor.
 			/**
 			 * \param[in] i the owner island.
 			 * \param[in] n the number of algorithm steps to perform.
 			 */
 			int_evolver(island *i, int n):m_i(i),m_n(n) { }
-			
+
 			/// Call operator.
 			/**
 			 * Does the actual evolution, including optional calls to the migration scheme.
 			 */
 			void operator()();
-			
+
 			island 		*m_i; ///< Owner island.
 			const int	m_n; ///< Number of steps to perform.
 		};
-		
+
 		/// Time-dependent evolver thread object.
 		/**
 		 * This is a callable helper object used to launch an evolution for a specified amount of time.
@@ -330,20 +333,20 @@ class __PAGMO_VISIBLE island
 			 * Does the actual evolution, including optional calls to the migration scheme.
 			 */
 			void operator()();
-			
+
 			island 			*m_i; ///< Owner island.
 			const size_t	m_t; ///< Number of steps to perform.
 		};
-		
-		
+
+
 		/// Generates a new uniqe island id.
 		static size_t get_new_id();
-		
+
 		static atomic_counter_size_t			id_counter; ///< Counter used to generate the island ids.
-		
-		//Class fields		
+
+		//Class fields
 		size_t										m_id; ///< Island id.
-		Population									m_pop; ///< Island's population.
+		population									m_pop; ///< Island's population.
 		boost::scoped_ptr<const algorithm::base>		m_goa; ///< Island's algorithm.
 		archipelago									*m_a; ///< Associated archipelago (may be null).
 		size_t										m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).

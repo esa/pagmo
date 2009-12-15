@@ -29,7 +29,7 @@
 hypercube_topology::hypercube_topology():graph_topology() { }
 
 hypercube_topology::hypercube_topology(const hypercube_topology &r)
-	:graph_topology(r), nodes(r.nodes) { }
+		:graph_topology(r), nodes(r.nodes) { }
 
 hypercube_topology &hypercube_topology::operator=(const hypercube_topology &)
 {
@@ -47,7 +47,7 @@ hypercube_topology &hypercube_topology::operator=(const hypercube_topology &)
  * Also, for every node in an n-dimensional hypercube one can identify a series of
  * hypercubes of decreasing dimensions, n-1, n-2, ... 1 to which the node belongs. Each
  * node belongs to exactly one hypercube for each of these dimensions.
- * So when adding a new node to a partial hypercube of dimension n, for each dimension n, n-1, ... 1 one has to: 
+ * So when adding a new node to a partial hypercube of dimension n, for each dimension n, n-1, ... 1 one has to:
  * <ul><li>Determine to which "sub-hypercube" of dimension (n-1) the node belongs</li>
  * <li>If the node belongs to the "second" hypercube, one has to add a connection to a coresponding node in the "first" hypercube</li>
  * </ul>
@@ -56,30 +56,30 @@ void hypercube_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
 	const size_t t_size = nodes.size();
-	
+
 	// Add node to the graph
 	add_node(id);
-	
+
 	// Add the node to the local list of all nodes
 	nodes.push_back(id);
-	
+
 	// Traces the size of the current hypercube. We start from dimension 1 and increase.
-	size_t cube_size = 2; 
+	size_t cube_size = 2;
 	// Traces the position offset between the "first" and "second" hypercube. This is actually always equal to cube_size / 2
-	size_t jump_size = 1; 
-	
+	size_t jump_size = 1;
+
 	// Consider all hypercubes of increasing sizes up to the biggest one possible to obtain with the current number of nodes
-	while(jump_size <= t_size) {
+	while (jump_size <= t_size) {
 		// Ordinal position of the new node in the cube with cube_size nodes (i.e. of dimension lg(cube_size))
 		size_t index_in_cube = t_size % cube_size;
-		
+
 		// If the node belongs to the second "sub-hypercube"
-		if(index_in_cube >= jump_size) {
+		if (index_in_cube >= jump_size) {
 			// Connect the new node with the corresponding node in the "first" sub-hypercube
 			add_edge(id, nodes[t_size - jump_size]);
 			add_edge(nodes[t_size - jump_size], id);
 		}
-		
+
 		// Proceed to the larger hypercube
 		cube_size <<= 1;
 		jump_size <<= 1;

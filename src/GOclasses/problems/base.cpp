@@ -32,7 +32,9 @@
 #include "../../exceptions.h"
 #include "base.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 atomic_counter_size_t base::m_objfun_counter(0);
 
@@ -122,7 +124,8 @@ std::string base::id_name() const
 	return typeid(*this).name();
 }
 
-void base::set_lb(int n, const double &value) {
+void base::set_lb(int n, const double &value)
+{
 	if (n < 0 || (size_t)n >= LB.size()) {
 		pagmo_throw(index_error,"invalid index for lower bound");
 	}
@@ -132,7 +135,8 @@ void base::set_lb(int n, const double &value) {
 	LB[n] = value;
 }
 
-void base::set_ub(int n, const double &value) {
+void base::set_ub(int n, const double &value)
+{
 	if (n < 0 || (size_t)n >= UB.size()) {
 		pagmo_throw(index_error,"invalid index for upper bound");
 	}
@@ -216,4 +220,5 @@ void reset_objfun_calls()
 	base::m_objfun_counter = atomic_counter_size_t();
 }
 
-}}
+}
+}

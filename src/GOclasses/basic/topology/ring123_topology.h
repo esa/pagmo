@@ -27,28 +27,35 @@
 #ifndef PAGMO_RING123_TOPOLOGY_H
 #define PAGMO_RING123_TOPOLOGY_H
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
-///Bi-directional +1+2+3 ring topology
-/** In such a ring, every node is connected with a direct neigbour and his direct neighbour and his direct neighbour. */
-class __PAGMO_VISIBLE ring123_topology: public graph_topology {
+/// Bi-directional +1+2+3 ring topology
+/**
+ * In such a ring, every node is connected with a direct neigbour and his direct neighbour and his direct neighbour.
+ */
+class __PAGMO_VISIBLE ring123_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		ring123_topology();
 		/// Copy constructor.
 		ring123_topology(const ring123_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual ring123_topology *clone() const {return new ring123_topology(*this);}
-		
+		virtual ring123_topology *clone() const {
+			return new ring123_topology(*this);
+		}
+
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
-		
+
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
+		virtual std::string id_object() const {
+			return id_name();
+		}
+
+	private:
 		/// Tracks the id of the first tracked node.
 		size_t	a;
 		/// Tracks the id of the second tracked node.
@@ -61,7 +68,7 @@ class __PAGMO_VISIBLE ring123_topology: public graph_topology {
 		size_t	e;
 		/// Tracks the id of the sixth tracked node.
 		size_t	f;
-		
+
 		/// \see graph_topology::operator=
 		ring123_topology &operator=(const ring123_topology &);
 };

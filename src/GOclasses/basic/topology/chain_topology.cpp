@@ -44,15 +44,15 @@ void chain_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
 	const size_t t_size = get_number_of_nodes();
-	
+
 	// Add the new node
 	add_node(id);
-	
+
 	// Add the edge, if not the first node
-	if(t_size > 0) {
+	if (t_size > 0) {
 		add_edge(m_last, id);
 	}
-	
+
 	// Store the last inserted id
-	m_last = id;	
+	m_last = id;
 }

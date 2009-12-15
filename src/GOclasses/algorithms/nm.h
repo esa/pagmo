@@ -32,12 +32,14 @@
 #include <utility>
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../basic/population.h"
 #include "../problems/base.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Nelder-Mead algorithm.
 /**
@@ -53,7 +55,8 @@ namespace pagmo { namespace algorithm {
  * The algorithm provided here implements the variant described in http://en.wikipedia.org/wiki/Nelder-Mead_method (as it appeared
  * on 27/05/2009).
  */
-class __PAGMO_VISIBLE nm: public base {
+class __PAGMO_VISIBLE nm: public base
+{
 		/// Vertex type.
 		/**
 		 * A vertex is analogous to a decision vector.
@@ -69,15 +72,19 @@ class __PAGMO_VISIBLE nm: public base {
 	public:
 		nm(int, const double &, const double &, const double &, const double &);
 		nm(int);
-		virtual Population evolve(const Population &) const;
+		virtual population evolve(const population &) const;
 		/// Clone method.
-		virtual nm *clone() const {return new nm(*this);}
+		virtual nm *clone() const {
+			return new nm(*this);
+		}
 		/// Return unique string identifying the algorithm.
-		virtual std::string id_object() const {return id_name(); }
+		virtual std::string id_object() const {
+			return id_name();
+		}
 	private:
 		std::vector<double> center_mass(const simplex &) const;
 		std::vector<double> sub_mult_add(const vertex &, const vertex &,
-			const double &, const vertex &) const;
+		                                 const double &, const vertex &) const;
 		void check_bounds(vertex &, const problem::base &) const;
 		double simplex_diameter(const simplex &) const;
 		void shuffle_simplex(simplex &, const problem::base &) const;
@@ -94,6 +101,7 @@ class __PAGMO_VISIBLE nm: public base {
 		const double	m_sigma;
 };
 
-}}
+}
+}
 
 #endif

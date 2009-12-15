@@ -36,7 +36,9 @@
 #include "base.h"
 #include "de.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 de::de(int g, const double &F_, const double &CR_, int s):base(),generations(g),F(F_),CR(CR_),strategy(s)
 {
@@ -51,11 +53,11 @@ de::de(int g, const double &F_, const double &CR_, int s):base(),generations(g),
 	}
 }
 
-Population de::evolve(const Population &deme) const
+population de::evolve(const population &deme) const
 {
 	const problem::base &problem = deme.problem();
-        const std::vector<double> &LB = problem.getLB();
-        const std::vector<double> &UB = problem.getUB();
+	const std::vector<double> &LB = problem.getLB();
+	const std::vector<double> &UB = problem.getUB();
 	const size_t D = LB.size(), NP = deme.size();
 	// TODO: this needs to go away.
 	if (NP < 6) {
@@ -63,7 +65,7 @@ Population de::evolve(const Population &deme) const
 	}
 
 	std::vector<double> dummy(D), tmp(D);						//dummy is used for initialisation purposes, tmp to contain
-														//the mutated candidate
+	//the mutated candidate
 	std::vector<std::vector<double> > popold(NP,dummy), popnew(NP,dummy), popswap(NP,dummy);
 	std::vector<double> fit(NP);								//chromosome fitness
 
@@ -72,181 +74,181 @@ Population de::evolve(const Population &deme) const
 	std::vector<double> gbX(D);								//global best chromosome
 	std::vector<double> gbIter(D);							//best chromosome of current iteration
 
-	// Initialise the chromosome (class Individual) values, and their fitness to that of the deme
+	// Initialise the chromosome (class individual) values, and their fitness to that of the deme
 	for (size_t i = 0; i < NP; ++i) {
-			popold[i] = deme[i].getDecisionVector();
-			popnew[i] = deme[i].getDecisionVector();
-			fit[i] = deme[i].getFitness();
-   }
-
-   // Initialise the global bests
-   gbX=popold[0];
-   gbfit=fit[0];
-
-   for (size_t i = 1; i < NP; ++i) {		//the int i = 1 jumps the first member as it is already set as the best
-	if (fit[i] < gbfit){
-		gbfit = fit[i];			// save best member ever
-		gbX = popold[i];
+		popold[i] = deme[i].getDecisionVector();
+		popnew[i] = deme[i].getDecisionVector();
+		fit[i] = deme[i].getFitness();
 	}
-   }
-   gbIter = gbX;				// save best member of generation
 
-   // Main DE iterations
-   size_t r1,r2,r3,r4,r5;	//indexes to the selected population members
-   for (size_t gen = 0; gen < generations; ++gen){
+	// Initialise the global bests
+	gbX=popold[0];
+	gbfit=fit[0];
+
+	for (size_t i = 1; i < NP; ++i) {		//the int i = 1 jumps the first member as it is already set as the best
+		if (fit[i] < gbfit) {
+			gbfit = fit[i];			// save best member ever
+			gbX = popold[i];
+		}
+	}
+	gbIter = gbX;				// save best member of generation
+
+	// Main DE iterations
+	size_t r1,r2,r3,r4,r5;	//indexes to the selected population members
+	for (size_t gen = 0; gen < generations; ++gen) {
 		//Start of the loop through the deme
 		for (size_t i = 0; i < NP; ++i) {
-			do{                        /* Pick a random population member */
-			                          /* Endless loop for NP < 2 !!!     */
+			do {                       /* Pick a random population member */
+				/* Endless loop for NP < 2 !!!     */
 				r1 = (size_t)(drng()*NP);
-			}while(r1==i);
+			} while (r1==i);
 
-			do{                        /* Pick a random population member */
-									   /* Endless loop for NP < 3 !!!     */
+			do {                       /* Pick a random population member */
+				/* Endless loop for NP < 3 !!!     */
 				r2 = (size_t)(drng()*NP);
-			}while((r2==i) || (r2==r1));
+			} while ((r2==i) || (r2==r1));
 
-			do{                        /* Pick a random population member */
-									   /* Endless loop for NP < 4 !!!     */
+			do {                       /* Pick a random population member */
+				/* Endless loop for NP < 4 !!!     */
 				r3 = (size_t)(drng()*NP);
-			}while((r3==i) || (r3==r1) || (r3==r2));
+			} while ((r3==i) || (r3==r1) || (r3==r2));
 
-			do{                        /* Pick a random population member */
-									   /* Endless loop for NP < 5 !!!     */
+			do {                       /* Pick a random population member */
+				/* Endless loop for NP < 5 !!!     */
 				r4 = (size_t)(drng()*NP);
-			}while((r4==i) || (r4==r1) || (r4==r2) || (r4==r3));
+			} while ((r4==i) || (r4==r1) || (r4==r2) || (r4==r3));
 
-			do{                        /* Pick a random population member */
-									   /* Endless loop for NP < 6 !!!     */
+			do {                       /* Pick a random population member */
+				/* Endless loop for NP < 6 !!!     */
 				r5 = (size_t)(drng()*NP);
-			}while((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
+			} while ((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
 
 
-/*-------DE/best/1/exp--------------------------------------------------------------------*/
-/*-------Our oldest strategy but still not bad. However, we have found several------------*/
-/*-------optimization problems where misconvergence occurs.-------------------------------*/
-			if (strategy == 1){ /* strategy DE0 (not in our paper) */
+			/*-------DE/best/1/exp--------------------------------------------------------------------*/
+			/*-------Our oldest strategy but still not bad. However, we have found several------------*/
+			/*-------optimization problems where misconvergence occurs.-------------------------------*/
+			if (strategy == 1) { /* strategy DE0 (not in our paper) */
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D), L = 0;
-				do{
+				do {
 					tmp[n] = gbIter[n] + F*(popold[r2][n]-popold[r3][n]);
 					n = (n+1)%D;
 					++L;
-				}while((drng() < CR) && (L < D));
+				} while ((drng() < CR) && (L < D));
 			}
 
-/*-------DE/rand/1/exp-------------------------------------------------------------------*/
-/*-------This is one of my favourite strategies. It works especially well when the-------*/
-/*-------"gbIter[]"-schemes experience misconvergence. Try e.g. F=0.7 and CR=0.5---------*/
-/*-------as a first guess.---------------------------------------------------------------*/
-			else if (strategy == 2){ /* strategy DE1 in the techreport */
+			/*-------DE/rand/1/exp-------------------------------------------------------------------*/
+			/*-------This is one of my favourite strategies. It works especially well when the-------*/
+			/*-------"gbIter[]"-schemes experience misconvergence. Try e.g. F=0.7 and CR=0.5---------*/
+			/*-------as a first guess.---------------------------------------------------------------*/
+			else if (strategy == 2) { /* strategy DE1 in the techreport */
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D), L = 0;
-				do{
+				do {
 					tmp[n] = popold[r1][n] + F*(popold[r2][n]-popold[r3][n]);
 					n = (n+1)%D;
 					++L;
-				}while((drng() < CR) && (L < D));
+				} while ((drng() < CR) && (L < D));
 			}
 
-/*-------DE/rand-to-best/1/exp-----------------------------------------------------------*/
-/*-------This strategy seems to be one of the best strategies. Try F=0.85 and CR=1.------*/
-/*-------If you get misconvergence try to increase NP. If this doesn't help you----------*/
-/*-------should play around with all three control variables.----------------------------*/
-			else if (strategy == 3){ /* similiar to DE2 but generally better */
+			/*-------DE/rand-to-best/1/exp-----------------------------------------------------------*/
+			/*-------This strategy seems to be one of the best strategies. Try F=0.85 and CR=1.------*/
+			/*-------If you get misconvergence try to increase NP. If this doesn't help you----------*/
+			/*-------should play around with all three control variables.----------------------------*/
+			else if (strategy == 3) { /* similiar to DE2 but generally better */
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D), L = 0;
-				do{
+				do {
 					tmp[n] = tmp[n] + F*(gbIter[n] - tmp[n]) + F*(popold[r1][n]-popold[r2][n]);
 					n = (n+1)%D;
 					++L;
-				}while((drng() < CR) && (L < D));
+				} while ((drng() < CR) && (L < D));
 			}
-/*-------DE/best/2/exp is another powerful strategy worth trying--------------------------*/
-			else if (strategy == 4){
+			/*-------DE/best/2/exp is another powerful strategy worth trying--------------------------*/
+			else if (strategy == 4) {
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D), L = 0;
-				do{
+				do {
 					tmp[n] = gbIter[n] +
-					(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
+					         (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					n = (n+1)%D;
 					++L;
-				}while((drng() < CR) && (L < D));
+				} while ((drng() < CR) && (L < D));
 			}
-/*-------DE/rand/2/exp seems to be a robust optimizer for many functions-------------------*/
-			else if (strategy == 5){
+			/*-------DE/rand/2/exp seems to be a robust optimizer for many functions-------------------*/
+			else if (strategy == 5) {
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D), L = 0;
-				do{
+				do {
 					tmp[n] = popold[r5][n] +
-					(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
+					         (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					n = (n+1)%D;
 					++L;
-				}while((drng() < CR) && (L < D));
+				} while ((drng() < CR) && (L < D));
 			}
 
-/*=======Essentially same strategies but BINOMIAL CROSSOVER===============================*/
+			/*=======Essentially same strategies but BINOMIAL CROSSOVER===============================*/
 
-/*-------DE/best/1/bin--------------------------------------------------------------------*/
-			else if (strategy == 6){
+			/*-------DE/best/1/bin--------------------------------------------------------------------*/
+			else if (strategy == 6) {
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D);
-					for (size_t L = 0; L < D; ++L){ /* perform D binomial trials */
-						if ((drng() < CR) || L + 1 == D){ /* change at least one parameter */
-							tmp[n] = gbIter[n] + F*(popold[r2][n]-popold[r3][n]);
-						}
-					n = (n+1)%D;
+				for (size_t L = 0; L < D; ++L) { /* perform D binomial trials */
+					if ((drng() < CR) || L + 1 == D) { /* change at least one parameter */
+						tmp[n] = gbIter[n] + F*(popold[r2][n]-popold[r3][n]);
 					}
+					n = (n+1)%D;
+				}
 			}
-/*-------DE/rand/1/bin-------------------------------------------------------------------*/
-			else if (strategy == 7){
+			/*-------DE/rand/1/bin-------------------------------------------------------------------*/
+			else if (strategy == 7) {
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D);
-				for (size_t L = 0; L < D; ++L){ /* perform D binomial trials */
-					if ((drng() < CR) || L + 1 == D){ /* change at least one parameter */
+				for (size_t L = 0; L < D; ++L) { /* perform D binomial trials */
+					if ((drng() < CR) || L + 1 == D) { /* change at least one parameter */
 						tmp[n] = popold[r1][n] + F*(popold[r2][n]-popold[r3][n]);
 					}
 					n = (n+1)%D;
 				}
 			}
-/*-------DE/rand-to-best/1/bin-----------------------------------------------------------*/
-			else if (strategy == 8){
+			/*-------DE/rand-to-best/1/bin-----------------------------------------------------------*/
+			else if (strategy == 8) {
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D);
-				for (size_t L = 0; L < D; ++L){ /* perform D binomial trials */
-					if ((drng() < CR) || L + 1 == D){ /* change at least one parameter */
+				for (size_t L = 0; L < D; ++L) { /* perform D binomial trials */
+					if ((drng() < CR) || L + 1 == D) { /* change at least one parameter */
 						tmp[n] = tmp[n] + F*(gbIter[n] - tmp[n]) + F*(popold[r1][n]-popold[r2][n]);
 					}
 					n = (n+1)%D;
 				}
 			}
-/*-------DE/best/2/bin--------------------------------------------------------------------*/
-			else if (strategy == 9){
+			/*-------DE/best/2/bin--------------------------------------------------------------------*/
+			else if (strategy == 9) {
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D);
-				for (size_t L = 0; L < D; ++L){ /* perform D binomial trials */
-					if ((drng() < CR) || L + 1 == D){ /* change at least one parameter */
+				for (size_t L = 0; L < D; ++L) { /* perform D binomial trials */
+					if ((drng() < CR) || L + 1 == D) { /* change at least one parameter */
 						tmp[n] = gbIter[n] +
-						(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
+						         (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					}
 					n = (n+1)%D;
 				}
 			}
-/*-------DE/rand/2/bin--------------------------------------------------------------------*/
-			else if (strategy == 10){
+			/*-------DE/rand/2/bin--------------------------------------------------------------------*/
+			else if (strategy == 10) {
 				tmp = popold[i];
 				size_t n = (size_t)(drng()*D);
-				for (size_t L = 0; L < D; ++L){ /* perform D binomial trials */
-					if ((drng() < CR) || L + 1 == D){ /* change at least one parameter */
+				for (size_t L = 0; L < D; ++L) { /* perform D binomial trials */
+					if ((drng() < CR) || L + 1 == D) { /* change at least one parameter */
 						tmp[n] = popold[r5][n] +
-						(popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
+						         (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					}
 					n = (n+1)%D;
 				}
 			}
 
 
-/*=======Trial mutation now in tmp[]. Force feasibility and how good this choice really was.==================*/
+			/*=======Trial mutation now in tmp[]. Force feasibility and how good this choice really was.==================*/
 			// a) feasibility
 			size_t i2 = 0;
 			while (i2<D) {
@@ -260,16 +262,15 @@ Population de::evolve(const Population &deme) const
 			//cout << tmp[g] << " ";
 			//}
 			//b) how good?
-			if (newfitness <= fit[i]){   /* improved objective function value ? */
+			if (newfitness <= fit[i]) {  /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;
-				if (newfitness<gbfit){         /* Was this a new minimum for the deme? */
-											   /* if so...*/
+				if (newfitness<gbfit) {        /* Was this a new minimum for the deme? */
+					/* if so...*/
 					gbfit=newfitness;          /* reset gbfit to new low...*/
 					gbX=tmp;
 				}
-			}
-			else {
+			} else {
 				popnew[i] = popold[i];
 			}
 			/* swap population arrays. New generation becomes old one */
@@ -280,33 +281,33 @@ Population de::evolve(const Population &deme) const
 		gbIter = gbX;
 
 		/* swap population arrays. New generation becomes old one */
-		for (size_t i = 0; i < NP; ++i){
+		for (size_t i = 0; i < NP; ++i) {
 			popswap[i] = popold[i];
 			popold[i] = popnew[i];
 			popnew[i] = popswap[i];
 		}
 
-   }//end main DE iterations
+	}//end main DE iterations
 
-   //we end by constructing the object Population containing the final results
-   Population popout(problem,0);
-   std::vector<double> Xini(D),Vfin(D);
-   for (size_t i = 0; i < NP; ++i) {
-	Xini = deme[i].getDecisionVector();
-	for (size_t j = 0; j < D; ++j){
+	//we end by constructing the object population containing the final results
+	population popout(problem,0);
+	std::vector<double> Xini(D),Vfin(D);
+	for (size_t i = 0; i < NP; ++i) {
+		Xini = deme[i].getDecisionVector();
+		for (size_t j = 0; j < D; ++j) {
 			Vfin[j] = popold[i][j] - Xini[j];
-	}
-	//X[i] - deme[i].getDecisionVector());  DOES NOT WORK AS VECTOR CLASS DOES NOT ACCEPT MINUS AS OPERATOR
+		}
+		//X[i] - deme[i].getDecisionVector());  DOES NOT WORK AS VECTOR CLASS DOES NOT ACCEPT MINUS AS OPERATOR
 
-	popout.push_back(Individual(popold[i],deme[i].getVelocity(),fit[i]));
-   }
-   return popout;
+		popout.push_back(individual(popold[i],deme[i].getVelocity(),fit[i]));
+	}
+	return popout;
 }
 
 void de::log(std::ostream &s) const
 {
 	s << "DE - generations:" << generations << " F:" << F << " CR:" << CR
-		<< " strategy:" << strategy;
+	<< " strategy:" << strategy;
 }
 
 std::string de::id_object() const
@@ -316,4 +317,5 @@ std::string de::id_object() const
 	return tmp.str();
 }
 
-}}
+}
+}

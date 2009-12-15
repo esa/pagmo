@@ -39,33 +39,37 @@
 #include "base.h"
 #include "sp_test.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
-inventory::inventory(int sample_size):base(1),d(sample_size),m_sample_size(sample_size) {
-  set_lb(0,0);
-  set_ub(0,100);
+inventory::inventory(int sample_size):base(1),d(sample_size),m_sample_size(sample_size)
+{
+	set_lb(0,0);
+	set_ub(0,100);
 }
 
 
 double inventory::objfun_(const std::vector<double> &x) const
 {
-		const double c=1.0,b=1.5,h=0.1;
-		double retval=0;
-		for (size_t i = 0; i<m_sample_size; ++i){
-		 retval += c * x[0] + b * std::max(d[i]-x[0],0.0) + h * std::max(x[0] - d[i], 0.0);
-		 }
-		return retval / m_sample_size;
+	const double c=1.0,b=1.5,h=0.1;
+	double retval=0;
+	for (size_t i = 0; i<m_sample_size; ++i) {
+		retval += c * x[0] + b * std::max(d[i]-x[0],0.0) + h * std::max(x[0] - d[i], 0.0);
+	}
+	return retval / m_sample_size;
 }
 
-void inventory::pre_evolution(Population & pop) const
+void inventory::pre_evolution(population & pop) const
 {
-	for (size_t i = 0; i<m_sample_size; ++i){
-	  d[i] = static_rng_double()() * 100;
+	for (size_t i = 0; i<m_sample_size; ++i) {
+		d[i] = static_rng_double()() * 100;
 	}
 	//Re-evaluate the population with respect to the new seed (Internal Sampling Method)
-	for (size_t i=0; i<pop.size(); ++i){
-	  pop[i] = Individual(*this, pop[i].getDecisionVector(), pop[i].getVelocity());
+	for (size_t i=0; i<pop.size(); ++i) {
+		pop[i] = individual(*this, pop[i].getDecisionVector(), pop[i].getVelocity());
 	}
 }
 
-}}
+}
+}

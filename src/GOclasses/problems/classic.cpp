@@ -36,7 +36,9 @@
 //Classical problems
 //***********************************************************************************
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 test::test(int dim):base(std::vector<double>(dim, 0.0), std::vector<double>(dim, 1.0))
 {
@@ -114,19 +116,18 @@ std::string rosenbrock::id_object() const
 
 lennardjones::lennardjones(int atoms):base(3*atoms-6)
 {
-		if (atoms <= 0 || atoms < 3) {
-			pagmo_throw(value_error,"number of atoms for lennard-jones problem must be greater than 2");
+	if (atoms <= 0 || atoms < 3) {
+		pagmo_throw(value_error,"number of atoms for lennard-jones problem must be greater than 2");
+	}
+	for (size_t i = 0; i < LB.size(); i++) {
+		if ( (i != 0) && (i % 3) == 0 ) {
+			LB[i] = 0.0;
+			UB[i] = 6.0;
+		} else {
+			LB[i] = -3.0;
+			UB[i] = 3.0;
 		}
-		for (size_t i = 0; i < LB.size(); i++) {
-			if ( (i != 0) && (i % 3) == 0 ) {
-				LB[i] = 0.0;
-				UB[i] = 6.0;
-			}
-			else {
-				LB[i] = -3.0;
-				UB[i] = 3.0;
-			}
-		}
+	}
 }
 
 std::string lennardjones::id_object() const
@@ -153,16 +154,17 @@ std::string levy::id_object() const
 
 griewank::griewank(int dim):base(std::vector<double>(dim, -600.0), std::vector<double>(dim, 600.0))
 {
-        if (dim <= 0) {
-                pagmo_throw(value_error,"dimension of griewank problem must be positive");
-        }
+	if (dim <= 0) {
+		pagmo_throw(value_error,"dimension of griewank problem must be positive");
+	}
 }
 
 std::string griewank::id_object() const
 {
-        std::stringstream tmp;
-        tmp << id_name() << "_" << getDimension();
-        return tmp.str();
+	std::stringstream tmp;
+	tmp << id_name() << "_" << getDimension();
+	return tmp.str();
 }
 
-}}
+}
+}

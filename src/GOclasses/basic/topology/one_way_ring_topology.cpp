@@ -45,36 +45,35 @@ void one_way_ring_topology::push_back(const size_t& id)
 	// Store frequently-used variables.
 	const size_t t_size = get_number_of_nodes();
 	switch (t_size) {
-		case 0:
-			// If the topology is empty, register the node and update the id of the first element.
-			add_node(id);
-			m_first = id;
-			break;
-			
-		case 1:
-		{
-			pagmo_assert(id != m_first);
-			
-			// Add the node
-			add_node(id);
-			// Add connections to the only existing element.
-			add_edge(m_first, id);
-			add_edge(id, m_first);
-			break;
-		}
-		
-		default:
-			/// \todo check it in the growing_topology class: pagmo_assert(m_tc.find(id) == m_tc.end());
-			
-			// Add the new node
-			add_node(id);
-			
-			// The current last must be connected to the new one.
-			remove_edge(m_last, m_first);
-			add_edge(m_last, id);
-			add_edge(id, m_first);
+	case 0:
+		// If the topology is empty, register the node and update the id of the first element.
+		add_node(id);
+		m_first = id;
+		break;
+
+	case 1: {
+		pagmo_assert(id != m_first);
+
+		// Add the node
+		add_node(id);
+		// Add connections to the only existing element.
+		add_edge(m_first, id);
+		add_edge(id, m_first);
+		break;
 	}
-	
+
+	default:
+		/// \todo check it in the growing_topology class: pagmo_assert(m_tc.find(id) == m_tc.end());
+
+		// Add the new node
+		add_node(id);
+
+		// The current last must be connected to the new one.
+		remove_edge(m_last, m_first);
+		add_edge(m_last, id);
+		add_edge(id, m_first);
+	}
+
 	// Update the id of the last island.
 	m_last = id;
 }

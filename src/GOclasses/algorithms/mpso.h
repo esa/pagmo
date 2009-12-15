@@ -29,11 +29,13 @@
 
 #include <iostream>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../basic/population.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Multiple Particle Swarm Optimisation Solver (MPSO)
 /**
@@ -41,31 +43,36 @@ namespace pagmo { namespace algorithm {
  * into subswarms and exchange particles
  */
 
-class __PAGMO_VISIBLE mpso: public base {
+class __PAGMO_VISIBLE mpso: public base
+{
 	public:
-                /// Constructor
-                /**
-                 * It instantiate a MPSO algorithm.
-                 * \param[in] gen Generation to be evolved
-                 * \param[in] inertia The particle inertia
-                 * \param[in] cognitive The particle cognitive component
-                 * \param[in] social The particle social component
-                 * \param[in] vcoeff Defines the initial particle velocity. Must be in [0,1]. When 0 the particle initial velocity is
-                 * zero, when one it is a random vector between the lower and upper bounds
-                 * \param[in] nswarms Defines the number of swarms
+		/// Constructor
+		/**
+		 * It instantiate a MPSO algorithm.
+		 * \param[in] gen Generation to be evolved
+		 * \param[in] inertia The particle inertia
+		 * \param[in] cognitive The particle cognitive component
+		 * \param[in] social The particle social component
+		 * \param[in] vcoeff Defines the initial particle velocity. Must be in [0,1]. When 0 the particle initial velocity is
+		 * zero, when one it is a random vector between the lower and upper bounds
+		 * \param[in] nswarms Defines the number of swarms
 
-                */
-                mpso(int gen, const double &inertia, const double &cognitive, const double &social, const double &vcoeff, int nswarms);
+		*/
+		mpso(int gen, const double &inertia, const double &cognitive, const double &social, const double &vcoeff, int nswarms);
 
-                /// Algorithm
-                /**
-                 * It performs a call to the MPSO algorithm evolving the population for gen generations
-                 * \param[in] popin Starting population
-                 * \return Evolved population
-                */
-                virtual Population evolve(const Population &popin) const;
-		virtual mpso *clone() const {return new mpso(*this);}
-		virtual std::string id_object() const {return id_name(); }
+		/// Algorithm
+		/**
+		 * It performs a call to the MPSO algorithm evolving the population for gen generations
+		 * \param[in] popin Starting population
+		 * \return Evolved population
+		*/
+		virtual population evolve(const population &popin) const;
+		virtual mpso *clone() const {
+			return new mpso(*this);
+		}
+		virtual std::string id_object() const {
+			return id_name();
+		}
 	private:
 		virtual void log(std::ostream &) const;
 		size_t generations;
@@ -76,6 +83,7 @@ class __PAGMO_VISIBLE mpso: public base {
 		size_t nswarms;
 };
 
-}}
+}
+}
 
 #endif

@@ -31,26 +31,31 @@
 #include "graph_topology.h"
 
 /// Chain topology (one-directional).
-class __PAGMO_VISIBLE chain_topology: public graph_topology {
+class __PAGMO_VISIBLE chain_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		chain_topology();
 		/// Copy constructor.
 		chain_topology(const chain_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual chain_topology *clone() const { return new chain_topology(*this); }
-		
+		virtual chain_topology *clone() const {
+			return new chain_topology(*this);
+		}
+
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t&);
 
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
+		virtual std::string id_object() const {
+			return id_name();
+		}
+
+	private:
 		/// Tracks the identifier of the last inserted node.
 		size_t	m_last;
-		
+
 		/// \see graph_topology::operator=
 		chain_topology &operator=(const chain_topology &);
 };

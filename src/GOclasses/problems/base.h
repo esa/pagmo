@@ -32,15 +32,16 @@
 #include <typeinfo>
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../../atomic_counters/atomic_counters.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 // Forward declaration of population class. We cannot include the header directly because
 // we would incur into circular dependency problem (population.h includes base.h which
 // includes population.h ...)
-class Population;
+class population;
 
 /// Problem namespace.
 /**
@@ -53,50 +54,51 @@ namespace problem {
  * This class implements the highest hierarchical level of a global optimisation problem here defined as unconstrained
  * optimisation problems where the search domain is hyperrectangular.
  */
-class __PAGMO_VISIBLE base {
-	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
-	friend size_t __PAGMO_VISIBLE_FUNC objfun_calls();
-	friend void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
-public:
-	~base() {}
-	// Bounds getters and setters via reference
-	const std::vector<double> &getLB() const;
-	const std::vector<double> &getUB() const;
-	void setLB(const std::vector<double> &);
-	void setUB(const std::vector<double> &);
-	// Dimension getter
-	size_t getDimension() const;
-	double objfun(const std::vector<double> &) const;
-	virtual base *clone() const = 0;
-	std::string id_name() const;
-	virtual void pre_evolution(Population &) const {}
-	virtual void post_evolution(Population &) const {}
-	void set_lb(int, const double &);
-	void set_ub(int, const double &);
-	virtual bool operator==(const base &) const;
-	bool operator!=(const base &) const;
-	
-	/// Get the name identyfing the object (<b>not</b> the class).
-	/** Exposed to Python. The string should identify the object, so that instantiations of the same class with different parameters are distinguishable. */
-	virtual std::string id_object() const = 0;
+class __PAGMO_VISIBLE base
+{
+		friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
+		friend size_t __PAGMO_VISIBLE_FUNC objfun_calls();
+		friend void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
+	public:
+		~base() {}
+		// Bounds getters and setters via reference
+		const std::vector<double> &getLB() const;
+		const std::vector<double> &getUB() const;
+		void setLB(const std::vector<double> &);
+		void setUB(const std::vector<double> &);
+		// Dimension getter
+		size_t getDimension() const;
+		double objfun(const std::vector<double> &) const;
+		virtual base *clone() const = 0;
+		std::string id_name() const;
+		virtual void pre_evolution(population &) const {}
+		virtual void post_evolution(population &) const {}
+		void set_lb(int, const double &);
+		void set_ub(int, const double &);
+		virtual bool operator==(const base &) const;
+		bool operator!=(const base &) const;
 
-protected:
-	// Print function: called by operator<<, can be re-implemented in sublcasses.
-	virtual std::ostream &print(std::ostream &) const;
-	// The objective function - must be implemented in subclasses
-	virtual double objfun_(const std::vector<double> &) const = 0;
-	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
-	base(int);
-	// Constructor with array bounds initialisers
-	base(const size_t &, const double *, const double *);
-	// Constructor with vectors initialisers
-	base(const std::vector<double> &, const std::vector<double> &);
-	// These need to be protected and cannot be private and const as some problems need to deifne the LB and UB at run time (i.e. LJ)
-	std::vector<double> LB;
-	std::vector<double> UB;
-private:
-	void check_boundaries() const;
-	static atomic_counter_size_t m_objfun_counter;
+		/// Get the name identyfing the object (<b>not</b> the class).
+		/** Exposed to Python. The string should identify the object, so that instantiations of the same class with different parameters are distinguishable. */
+		virtual std::string id_object() const = 0;
+
+	protected:
+		// Print function: called by operator<<, can be re-implemented in sublcasses.
+		virtual std::ostream &print(std::ostream &) const;
+		// The objective function - must be implemented in subclasses
+		virtual double objfun_(const std::vector<double> &) const = 0;
+		// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
+		base(int);
+		// Constructor with array bounds initialisers
+		base(const size_t &, const double *, const double *);
+		// Constructor with vectors initialisers
+		base(const std::vector<double> &, const std::vector<double> &);
+		// These need to be protected and cannot be private and const as some problems need to deifne the LB and UB at run time (i.e. LJ)
+		std::vector<double> LB;
+		std::vector<double> UB;
+	private:
+		void check_boundaries() const;
+		static atomic_counter_size_t m_objfun_counter;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
@@ -104,6 +106,7 @@ std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 size_t __PAGMO_VISIBLE_FUNC objfun_calls();
 void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
 
-}}
+}
+}
 
 #endif

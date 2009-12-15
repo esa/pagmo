@@ -32,11 +32,13 @@
 #include <string>
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../basic/population.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// A simple genetic algorithm (SGA)
 /**
@@ -44,50 +46,56 @@ namespace pagmo { namespace algorithm {
  * Mutation is either random, gaussian or bounded. Crossover is exponential. Elitism is implemented by inserting the best
  * every given generations.
  */
-class __PAGMO_VISIBLE sga: public base {
-public:
-	/// Constructor.
-                /**
-                 * Creates the SGA algorithm with a random mutation strategy and a roulette wheel selection
-                 * \param[in] gen Generation number
-                 * \param[in] CR Crossover rate (long chromosomes need higer rates)
-                 * \param[in] M Mutation rate
-		 * \param[in] best Elitism..... every best generation best-so-far is reinserted
-                 */
-	sga(int gen, const double &CR, const double &M, int best);
-	/// Constructor.
-                /**
-                 * Creates the SGA algorithm with a random mutation strategy and a roulette wheel selection
-                 * \param[in] gen Generation number
-                 * \param[in] CR Crossover rate (long chromosomes need higer rates)
-                 * \param[in] M Mutation rate
-		 * \param[in] best Elitism..... every best generation best-so-far is reinserted
-		 * \param[in] mutationRange If bounded mutation is selected it regulates the range within which mutation occur
-		 * \param[in] mutationType (0-gaussian, 1-bounded, 2-random)
-		 * \param[in] selectionType (0-20% best, 1-roulette)
-                 */
-	sga(int gen, const double &CR, const double &M, int best, double mutationRange, int mutationType, int selectionType);
-	virtual Population evolve(const Population &) const;
-	virtual sga *clone() const {return new sga(*this);}
-	virtual std::string id_object() const { return id_name(); }
-private:
-	virtual void log(std::ostream &) const;
-	const size_t	generations;
-	
-	const double 	CR;		//crossover
-	const double	M;		//mutation
-	const int		insert_best;
-	double		MR;    	//mutation range
-	int		MType;		
-	//mutation type: 0: Original Gaussian, 
-	//		 1: Bounded mutation value, 
-	//		 2: Random mutation value.
-	int		SType;		
-	//selection type: 0: Best %20 x 5 
-	//		  1: Roulette selection
-	mutable			rng_uint32 rng;
+class __PAGMO_VISIBLE sga: public base
+{
+	public:
+		/// Constructor.
+		/**
+		 * Creates the SGA algorithm with a random mutation strategy and a roulette wheel selection
+		 * \param[in] gen Generation number
+		 * \param[in] CR Crossover rate (long chromosomes need higer rates)
+		 * \param[in] M Mutation rate
+		* \param[in] best Elitism..... every best generation best-so-far is reinserted
+		 */
+		sga(int gen, const double &CR, const double &M, int best);
+		/// Constructor.
+		/**
+		 * Creates the SGA algorithm with a random mutation strategy and a roulette wheel selection
+		 * \param[in] gen Generation number
+		 * \param[in] CR Crossover rate (long chromosomes need higer rates)
+		 * \param[in] M Mutation rate
+		* \param[in] best Elitism..... every best generation best-so-far is reinserted
+		* \param[in] mutationRange If bounded mutation is selected it regulates the range within which mutation occur
+		* \param[in] mutationType (0-gaussian, 1-bounded, 2-random)
+		* \param[in] selectionType (0-20% best, 1-roulette)
+		 */
+		sga(int gen, const double &CR, const double &M, int best, double mutationRange, int mutationType, int selectionType);
+		virtual population evolve(const population &) const;
+		virtual sga *clone() const {
+			return new sga(*this);
+		}
+		virtual std::string id_object() const {
+			return id_name();
+		}
+	private:
+		virtual void log(std::ostream &) const;
+		const size_t	generations;
+
+		const double 	CR;		//crossover
+		const double	M;		//mutation
+		const int		insert_best;
+		double		MR;    	//mutation range
+		int		MType;
+		//mutation type: 0: Original Gaussian,
+		//		 1: Bounded mutation value,
+		//		 2: Random mutation value.
+		int		SType;
+		//selection type: 0: Best %20 x 5
+		//		  1: Roulette selection
+		mutable			rng_uint32 rng;
 };
 
-}}
+}
+}
 
 #endif

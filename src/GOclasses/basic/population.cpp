@@ -36,27 +36,28 @@
 #include "individual.h"
 #include "population.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
-Population::Population(const problem::base &p)
+population::population(const problem::base &p)
 		:m_problem(p.clone())
 {
 }
 
-Population::Population(const problem::base &p, int N)
+population::population(const problem::base &p, int N)
 		:m_problem(p.clone())
 {
-	createRandomPopulation(N);
+	createRandompopulation(N);
 }
 
-Population::Population(const Population &p)
+population::population(const population &p)
 		:pop(p.pop),
 		m_problem(p.m_problem->clone())
 {
 	//copy costructor if the std::vector class creates a deep copy of the individuals
 }
 
-Population &Population::operator=(const Population &p)
+population &population::operator=(const population &p)
 {
 	if (this != &p) { //handle p = p
 		if ((*m_problem) != (*p.m_problem)) {
@@ -70,29 +71,29 @@ Population &Population::operator=(const Population &p)
 
 
 
-const Individual &Population::operator[](int index) const
+const individual &population::operator[](int index) const
 {
 	return pop[get_ra_index(index)];
 }
 
-Individual &Population::operator[](int index)
+individual &population::operator[](int index)
 {
 	return pop[get_ra_index(index)];
 }
 
-void Population::setIndividual(int idx, const Individual &ind)
+void population::setIndividual(int idx, const individual &ind)
 {
 	pop[get_ra_index(idx)] = checked_individual(ind);
 }
 
-void Population::push_back(const Individual &i)
+void population::push_back(const individual &i)
 {
 	pop.push_back(checked_individual(i));
 }
 
-void Population::insert(int n, const Individual &i)
+void population::insert(int n, const individual &i)
 {
-	Individual tmp = checked_individual(i);
+	individual tmp = checked_individual(i);
 	try {
 		pop.insert(pop.begin() + get_ra_index(n),tmp);
 	} catch (const index_error &) {
@@ -104,26 +105,26 @@ void Population::insert(int n, const Individual &i)
 	}
 }
 
-void Population::erase(int n)
+void population::erase(int n)
 {
 	pop.erase(pop.begin() + get_ra_index(n));
 }
 
-size_t Population::size() const
+size_t population::size() const
 {
 	return pop.size();
 }
 
 
 
-const problem::base &Population::problem() const
+const problem::base &population::problem() const
 {
 	return *m_problem;
 }
 
 
 
-double Population::evaluateMean() const
+double population::evaluateMean() const
 {
 	if (pop.empty()) {
 		pagmo_throw(index_error,"population is empty");
@@ -137,14 +138,14 @@ double Population::evaluateMean() const
 	return mean;
 }
 
-double Population::evaluateStd() const
+double population::evaluateStd() const
 {
 	if (pop.empty()) {
 		pagmo_throw(index_error,"population is empty");
 	}
 	double Std = 0, mean = evaluateMean();
 	const size_t size = pop.size();
-	for (size_t i = 0; i < size; ++i){
+	for (size_t i = 0; i < size; ++i) {
 		Std += pow((pop[i].getFitness()-mean),2.0);
 	}
 	Std = sqrt(Std/size);
@@ -153,40 +154,40 @@ double Population::evaluateStd() const
 
 
 
-const Individual &Population::extractBestIndividual() const
+const individual &population::extractBestIndividual() const
 {
 	return pop[extract_most_index<std::less<double> >()];
 }
 
-const Individual &Population::extractWorstIndividual() const
+const individual &population::extractWorstIndividual() const
 {
 	return pop[extract_most_index<std::greater<double> >()];
 }
 
 
-void Population::replace_best(const Individual &ind)
+void population::replace_best(const individual &ind)
 {
 	setIndividual(extract_most_index<std::less<double> >(),ind);
 }
 
-void Population::replace_worst(const Individual &ind)
+void population::replace_worst(const individual &ind)
 {
 	setIndividual(extract_most_index<std::greater<double> >(),ind);
 }
 
 
 struct fitness_sorter {
-	bool operator()(const Individual &i1, const Individual &i2) const {
+	bool operator()(const individual &i1, const individual &i2) const {
 		return (i1.getFitness() < i2.getFitness());
 	}
 };
 
-void Population::sort()
+void population::sort()
 {
 	std::sort(pop.begin(),pop.end(),fitness_sorter());
 }
 
-Population Population::extractRandomDeme(int N, std::vector<size_t> &picks)
+population population::extractRandomDeme(int N, std::vector<size_t> &picks)
 {
 	if (N > (int)size()) {
 		pagmo_throw(index_error,"cannot extract deme whose size is greater than the original population");
@@ -194,14 +195,14 @@ Population Population::extractRandomDeme(int N, std::vector<size_t> &picks)
 	// Empty picks first.
 	picks.clear();
 	static_rng_double drng;
-	Population deme(*m_problem,0);
+	population deme(*m_problem,0);
 	const size_t pop_size = size();
 	std::vector<size_t> PossiblePicks;
 	PossiblePicks.reserve(pop_size);
 	for (size_t i = 0; i < pop_size; ++i) {
 		PossiblePicks.push_back(i);
 	}
-	for (int i = 0; i < N; ++i){
+	for (int i = 0; i < N; ++i) {
 		//we pick a random position between 0 and popsize-1
 		const size_t Pick = (size_t)(drng() * PossiblePicks.size());
 		//and store it
@@ -214,17 +215,17 @@ Population Population::extractRandomDeme(int N, std::vector<size_t> &picks)
 	return deme;
 }
 
-void Population::insertDeme(const Population &deme, const std::vector<size_t> &picks)
+void population::insertDeme(const population &deme, const std::vector<size_t> &picks)
 {
 	ll_insert_deme<false>(deme,picks);
 }
 
-void Population::insertDemeForced(const Population &deme, const std::vector<size_t> &picks)
+void population::insertDemeForced(const population &deme, const std::vector<size_t> &picks)
 {
 	ll_insert_deme<true>(deme,picks);
 }
 
-void Population::insertBestInDeme(const Population &deme, const std::vector<size_t> &picks)
+void population::insertBestInDeme(const population &deme, const std::vector<size_t> &picks)
 {
 	const size_t Ndeme = deme.size(), pop_size = size();
 	if (picks.size() != Ndeme) {
@@ -252,7 +253,7 @@ void Population::insertBestInDeme(const Population &deme, const std::vector<size
 }
 
 
-Individual Population::checked_individual(const Individual &ind) const
+individual population::checked_individual(const individual &ind) const
 {
 	try {
 		ind.check(*m_problem);
@@ -261,11 +262,11 @@ Individual Population::checked_individual(const Individual &ind) const
 		if (size != m_problem->getDimension()) {
 			pagmo_throw(value_error,"individual's size is incompatible with population");
 		} else {
-			const Individual random_ind = Individual(*m_problem);
+			const individual random_ind = individual(*m_problem);
 			std::vector<double> dv(size), v(size);
 			for (size_t i = 0; i < size; ++i) {
 				if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
-					ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
+				        ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
 					dv[i] = random_ind.getDecisionVector()[i];
 					v[i] = random_ind.getVelocity()[i];
 				} else {
@@ -273,24 +274,24 @@ Individual Population::checked_individual(const Individual &ind) const
 					v[i] = ind.getVelocity()[i];
 				}
 			}
-			return Individual(*m_problem,dv,v);
+			return individual(*m_problem,dv,v);
 		}
 	}
 	return ind;
 }
 
 
-void Population::createRandomPopulation(int N)
+void population::createRandompopulation(int N)
 {
 	pop.clear();
 	pop.reserve(N);
-	for (int i=0; i < N; ++i){
-		pop.push_back(Individual(*m_problem));
+	for (int i=0; i < N; ++i) {
+		pop.push_back(individual(*m_problem));
 	}
 }
 
 
-std::ostream &operator<<(std::ostream &s, const Population &p)
+std::ostream &operator<<(std::ostream &s, const population &p)
 {
 	s << "Problem type: '" << p.problem().id_name() << "'\n";
 	for (size_t i = 0; i < p.size(); ++i) {

@@ -28,29 +28,30 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-namespace pagmo {
+namespace pagmo
+{
 
-std::vector<Individual> RandomMigrationSelectionPolicy::selectForMigration(const Population& population)
+std::vector<individual> RandomMigrationSelectionPolicy::selectForMigration(const population& population)
 {
 	int migrationRate = getNumberOfIndividualsToMigrate(population);
-	
+
 	//Create a temporary array of individuals
-	std::vector<Individual> result(population.begin(), population.end());
-	
+	std::vector<individual> result(population.begin(), population.end());
+
 	//Permute the temporary array randomly (only first [migrationRate] elements)
-	for(int i = 0; i < migrationRate; i++) {
+	for (int i = 0; i < migrationRate; i++) {
 		//Draw the next individual index
 		int nextIndividualIndex = i + (rng() % (population.size() - i));
-		
+
 		//Swap the individual at the current position with the drawn one
-		if(nextIndividualIndex != i) {
+		if (nextIndividualIndex != i) {
 			std::swap(result[i], result[nextIndividualIndex]);
 		}
 	}
-	
+
 	//Remove remaining elements from the array
 	result.erase(result.begin() + migrationRate, result.end());
-	
+
 	return result;
 }
 

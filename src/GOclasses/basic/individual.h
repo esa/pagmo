@@ -30,128 +30,135 @@
 #include <iostream>
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
 #include "../problems/base.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 /// Individual class.
 /**
  * Individuals represent solutions for a problem.
  * \todo The desturbing thing is passing the problem as an argument of the constructor. It suggests, that
- * the Individual keeps an internal reference to it, which is dangerous (problem::base is not assumed to be thread safe).
+ * the individual keeps an internal reference to it, which is dangerous (problem::base is not assumed to be thread safe).
  * It the end the reference is not kept, but in order to discover this, one must re-read the code of the
- * Individual.
+ * individual.
  */
-class __PAGMO_VISIBLE Individual {
-public:
-	/// Constructor.
-	/**
-	 * Constructs an individual for the given problem with x randomly placed within the problem bounds
-	 * and a random velocity of maximum magnitude (UB-LB).
-	 * \param[in] problem concerned problem.
-	 */
-	Individual(const problem::base& problem);
-	
-	/// Constructor.
-	/**
-	 * Constructs an Individual with given x and v.
-	 * \param[in] problem concerned problem.
-	 * \param[in] x_ individual position.
-	 * \param[in] v_ individual velocity.
-	 */
-	Individual(const problem::base& problem, const std::vector<double>& x_, const std::vector<double>& v_);
-	
-	/// Constructor.
-	/**
-	 * Constructs an Individual with given x and an empty velocity.
-	 * \param[in] problem concerned problem.
-	 * \param[in] x_ individual position.
-	 */
-	Individual(const problem::base& problem, const std::vector<double> & x_);
-	
-	/// Constructor.
-	/**
-	 * Constructs an Individual with given position, velocity and fitness.
-	 * \param[in] x_ individual position.
-	 * \param[in] v_ individual velocity.
-	 * \param[in] fitness_ individual fitness.
-	 */
-	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_)
-			:x(x_),
-			v(v_),
-			fitness(fitness_)
-	{
-		if (x.size() != v.size()) {
-			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
+class __PAGMO_VISIBLE individual
+{
+	public:
+		/// Constructor.
+		/**
+		 * Constructs an individual for the given problem with x randomly placed within the problem bounds
+		 * and a random velocity of maximum magnitude (UB-LB).
+		 * \param[in] problem concerned problem.
+		 */
+		individual(const problem::base& problem);
+
+		/// Constructor.
+		/**
+		 * Constructs an individual with given x and v.
+		 * \param[in] problem concerned problem.
+		 * \param[in] x_ individual position.
+		 * \param[in] v_ individual velocity.
+		 */
+		individual(const problem::base& problem, const std::vector<double>& x_, const std::vector<double>& v_);
+
+		/// Constructor.
+		/**
+		 * Constructs an individual with given x and an empty velocity.
+		 * \param[in] problem concerned problem.
+		 * \param[in] x_ individual position.
+		 */
+		individual(const problem::base& problem, const std::vector<double> & x_);
+
+		/// Constructor.
+		/**
+		 * Constructs an individual with given position, velocity and fitness.
+		 * \param[in] x_ individual position.
+		 * \param[in] v_ individual velocity.
+		 * \param[in] fitness_ individual fitness.
+		 */
+		individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_)
+				:x(x_),
+				v(v_),
+				fitness(fitness_) {
+			if (x.size() != v.size()) {
+				pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
+			}
 		}
-	}
-	
-	/// Constructor.
-	/**
-	 * Constructs an Individual with given position and fitness.
-	 * \param[in] x_ individual position.
-	 * \param[in] fitness_ individual fitness.
-	 */
-	Individual(const std::vector<double> &x_, const double &fitness_)
-			:x(x_),
-			v(x_.size()),
-			fitness(fitness_)
-	{
-	}
-	
-	/// Copy constructor.
-	/**
-	 * Creates a deep copy of an individual.
-	 * \param[in] individual The individual to be duplicated.
-	 */
-	Individual(const Individual& individual)
-		:x(individual.x),
-		v(individual.v),
-		fitness(individual.fitness)
-	{
-	}
-	
-	/// Assignment operator.
-	Individual& operator=(const Individual &);
-	
-	///Returns the Individual fitness.
-	double getFitness() const { return fitness; }
-	
-	///Returns the Individual chromosome (position).
-	const std::vector<double> &getDecisionVector() const { return x; }
-	
-	///Returns the Individual velocity.
-	const std::vector<double> &getVelocity() const { return v; }
-	
-	/// Check if the individual is compatible with a given problem.
-	/**
-	 * Compatibility means that the individual's size is the same as the problem's and that the values
-	 * of the decision vector are within the boundaries defined in the problem. If the individual is incompatible,
-	 * an exception will be thrown.
-	 * \param p Problem of interest.
-	 */
-	void check(const problem::base &p) const;
-	
-	/// Individual comparator for STL sorting methods.
-	/**
-	 * Useful utility function. Minimisation is assumed (lower fitness goes first).
-	 */
-	static int compare_by_fitness(const Individual& ind1, const Individual& ind2);
-	
-private:
-	/// Stream output operator
-	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Individual &);
-	
-	std::vector<double>			x; ///< Individual chromosome (position).
-	std::vector<double>			v; ///< Individual velocity.
-	double						fitness; ///< Individual fitness.
+
+		/// Constructor.
+		/**
+		 * Constructs an individual with given position and fitness.
+		 * \param[in] x_ individual position.
+		 * \param[in] fitness_ individual fitness.
+		 */
+		individual(const std::vector<double> &x_, const double &fitness_)
+				:x(x_),
+				v(x_.size()),
+				fitness(fitness_) {
+		}
+
+		/// Copy constructor.
+		/**
+		 * Creates a deep copy of an individual.
+		 * \param[in] individual The individual to be duplicated.
+		 */
+		individual(const individual& individual)
+				:x(individual.x),
+				v(individual.v),
+				fitness(individual.fitness) {
+		}
+
+		/// Assignment operator.
+		individual& operator=(const individual &);
+
+		///Returns the individual fitness.
+		double getFitness() const {
+			return fitness;
+		}
+
+		///Returns the individual chromosome (position).
+		const std::vector<double> &getDecisionVector() const {
+			return x;
+		}
+
+		///Returns the individual velocity.
+		const std::vector<double> &getVelocity() const {
+			return v;
+		}
+
+		/// Check if the individual is compatible with a given problem.
+		/**
+		 * Compatibility means that the individual's size is the same as the problem's and that the values
+		 * of the decision vector are within the boundaries defined in the problem. If the individual is incompatible,
+		 * an exception will be thrown.
+		 * \param p Problem of interest.
+		 */
+		void check(const problem::base &p) const;
+
+		/// Individual comparator for STL sorting methods.
+		/**
+		 * Useful utility function. Minimisation is assumed (lower fitness goes first).
+		 */
+		static int compare_by_fitness(const individual& ind1, const individual& ind2);
+
+	private:
+		/// Stream output operator
+		friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const individual &);
+		/// Individual chromosome (position).
+		std::vector<double>	x;
+		/// Individual velocity.
+		std::vector<double>	v;
+		/// Individual fitness.
+		double			fitness;
 };
 
 /// Stream output operator
-std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Individual &);
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const individual &);
 
 }
 

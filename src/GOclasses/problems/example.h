@@ -30,16 +30,19 @@
 #include <string>
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "base.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 /// Example problem class.
 /**
  * Minimal example problem representing the minimization of the function y = x * x.
  */
-class __PAGMO_VISIBLE example: public base {
+class __PAGMO_VISIBLE example: public base
+{
 	public:
 		/// Constructor
 		example();
@@ -51,6 +54,7 @@ class __PAGMO_VISIBLE example: public base {
 		virtual double objfun_(const std::vector<double> &) const;
 };
 
-}}
+}
+}
 
 #endif

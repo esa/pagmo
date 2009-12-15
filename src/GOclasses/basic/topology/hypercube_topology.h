@@ -27,29 +27,34 @@
 #ifndef PAGMO_HYPERCUBE_TOPOLOGY_H
 #define PAGMO_HYPERCUBE_TOPOLOGY_H
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 /// Hypercube topology (the number of dimensions grows automatically).
-class __PAGMO_VISIBLE hypercube_topology: public graph_topology {
+class __PAGMO_VISIBLE hypercube_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		hypercube_topology();
 		/// Copy constructor.
 		hypercube_topology(const hypercube_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual hypercube_topology *clone() const {return new hypercube_topology(*this);}
-		
+		virtual hypercube_topology *clone() const {
+			return new hypercube_topology(*this);
+		}
+
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
-		
+
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); };
-		
+		virtual std::string id_object() const {
+			return id_name();
+		};
+
 	private:
 		std::vector<size_t> nodes; ///< All previously inserted nodes.
-		
+
 		/// \see graph_topology::operator=
 		hypercube_topology &operator=(const hypercube_topology &);
 };

@@ -27,27 +27,32 @@
 #ifndef PAGMO_CARTWHEEL_TOPOLOGY_H
 #define PAGMO_CARTWHEEL_TOPOLOGY_H
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 /// Cartwheel topology - a two-way ring with every two opposite nodes connected.
-class __PAGMO_VISIBLE cartwheel_topology: public graph_topology {
+class __PAGMO_VISIBLE cartwheel_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		cartwheel_topology();
 		/// Copy constructor.
 		cartwheel_topology(const cartwheel_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual cartwheel_topology *clone() const {return new cartwheel_topology(*this);}
-		
+		virtual cartwheel_topology *clone() const {
+			return new cartwheel_topology(*this);
+		}
+
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
 
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
+		virtual std::string id_object() const {
+			return id_name();
+		}
+
+	private:
 		/// Tracks the id of the first inserted node on the ring.
 		size_t	m_a;
 		/// Tracks the id of the last inserted node on the ring.
@@ -56,7 +61,7 @@ class __PAGMO_VISIBLE cartwheel_topology: public graph_topology {
 		size_t	m_c;
 		/// Tracks the id of the first node on the second half of the ring.
 		size_t	m_d;
-		
+
 		/// \see graph_topology::operator=
 		cartwheel_topology &operator=(const cartwheel_topology &);
 };

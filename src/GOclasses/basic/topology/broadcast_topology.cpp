@@ -44,13 +44,13 @@ void broadcast_topology::push_back(const size_t& id)
 {
 	// Store frequently-used variables.
 	const size_t t_size = get_number_of_nodes();
-	
+
 	// Add the new node
 	add_node(id);
-	
+
 	// If this is the first node, store the id
-	if(t_size == 0) {
-		m_first = id;	
+	if (t_size == 0) {
+		m_first = id;
 	} else { // otherwise, connect to the first node
 		add_edge(m_first, id);
 		add_edge(id, m_first);

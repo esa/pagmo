@@ -37,7 +37,9 @@
 #include "base.h"
 #include "nm.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Simple constructor.
 /**
@@ -50,7 +52,7 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if number of generations is not positive.
  */
 nm::nm(int n_gen):
-	base(),m_gen(n_gen),m_alpha(1),m_gamma(2),m_rho(.5),m_sigma(.5)
+		base(),m_gen(n_gen),m_alpha(1),m_gamma(2),m_rho(.5),m_sigma(.5)
 {
 	if (n_gen <= 0) {
 		pagmo_throw(value_error,"number of generations must be positive");
@@ -72,7 +74,7 @@ nm::nm(int n_gen):
  * @throws value_error if sigma is not in the ]0,1[ range.
  */
 nm::nm(int n_gen, const double &alpha, const double &gamma, const double &rho, const double &sigma):
-	base(),m_gen(n_gen),m_alpha(alpha),m_gamma(gamma),m_rho(rho),m_sigma(sigma)
+		base(),m_gen(n_gen),m_alpha(alpha),m_gamma(gamma),m_rho(rho),m_sigma(sigma)
 {
 	if (n_gen <= 0) {
 		pagmo_throw(value_error,"number of generations must be positive");
@@ -148,7 +150,7 @@ nm::vertex nm::center_mass(const simplex &s) const
  * @throws assertion_error if a, b and d are not of the same size.
  */
 nm::vertex nm::sub_mult_add(const vertex &a, const vertex &b,
-	const double &c, const vertex &d) const
+                            const double &c, const vertex &d) const
 {
 	const size_t size = a.size();
 	pagmo_assert(b.size() == size && d.size() == size);
@@ -226,7 +228,7 @@ void nm::shuffle_simplex(simplex &s, const problem::base &problem) const
  * @throws value_error if the population size is less than or equal to the size of the problem.
  * @throws value_error if the problem size is 0.
  */
-Population nm::evolve(const Population &pop) const
+population nm::evolve(const population &pop) const
 {
 	// Preliminary checks and useful variables.
 	const problem::base &problem = pop.problem();
@@ -237,7 +239,7 @@ Population nm::evolve(const Population &pop) const
 	if (prob_size < 1) {
 		pagmo_throw(value_error,"the dimension of the problem must be at least 1 for Nelder-Mead method");
 	}
-	Population retval(pop);
+	population retval(pop);
 	retval.sort();
 	// Build a simplex from the sorted input population.
 	const size_t simplex_size = prob_size + 1;
@@ -253,7 +255,7 @@ Population nm::evolve(const Population &pop) const
 		if (diameter < 1E-6) {
 			//std::cout << "small diameter: " << diameter << '\n';
 			for (size_t i = 1; i < simplex_size; ++i) {
-				Individual tmp(problem);
+				individual tmp(problem);
 				s[i].first = tmp.getDecisionVector();
 				s[i].second = tmp.getFitness();
 			}
@@ -303,7 +305,7 @@ Population nm::evolve(const Population &pop) const
 	}
 	// In retval overwrite the individuals that have evolved (i.e., those involved in the simplex).
 	for (size_t i = 0; i < simplex_size; ++i) {
-		retval.setIndividual(i,Individual(s[i].first,retval[i].getVelocity(),s[i].second));
+		retval.setIndividual(i,individual(s[i].first,retval[i].getVelocity(),s[i].second));
 	}
 	return retval;
 }
@@ -312,7 +314,8 @@ Population nm::evolve(const Population &pop) const
 void nm::log(std::ostream &s) const
 {
 	s << "NM - generations:" << m_gen << " alpha:" << m_alpha << " gamma:" << m_gamma
-		<< " rho:" << m_rho << " sigma:" << m_sigma;
+	<< " rho:" << m_rho << " sigma:" << m_sigma;
 }
 
-}}
+}
+}

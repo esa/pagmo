@@ -41,7 +41,9 @@
 //Trajectory problems
 //***********************************************************************************
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 const double messengerfull::lb[26] = {1900, 3,    0, 0, 100, 100, 100, 100, 100, 100, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
 const double messengerfull::ub[26] = {2200, 4.05, 1, 1, 500, 500, 500, 500, 500, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
@@ -49,10 +51,11 @@ const int messengerfull::sequence[7] = {3, 2, 2, 1, 1, 1, 1};
 
 messengerfull::messengerfull():base(26,lb,ub),mgadsm(orbit_insertion,sequence,7,0,0,0,0.704,2440 + 200) {}
 
-double messengerfull::objfun_(const std::vector<double>& x) const {
+double messengerfull::objfun_(const std::vector<double>& x) const
+{
 	double obj = 0.0;
 	MGA_DSM(x, mgadsm,
-		obj);
+	        obj);
 	return obj;
 }
 
@@ -63,10 +66,11 @@ const int messenger::sequence[5] = {3, 3, 2, 2, 1};
 
 messenger::messenger():base(18,lb,ub),mgadsm(total_DV_rndv,sequence,5,0,0,0,0,0) {}
 
-double messenger::objfun_(const std::vector<double>& x) const {
+double messenger::objfun_(const std::vector<double>& x) const
+{
 	double obj = 0.0;
 	MGA_DSM(x, mgadsm,
-		obj);
+	        obj);
 	return obj;
 }
 
@@ -106,28 +110,35 @@ const int tandem::Data[24][5] = {
 
 const int sequence[5] = {1,1,1,1,1};
 
-tandem::tandem(const int probid):base(18,lbunc,ubunc), mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(0), copy_of_x(18) {
+tandem::tandem(const int probid):base(18,lbunc,ubunc), mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(0), copy_of_x(18)
+{
 	if (probid < 1 || probid > 24) {
 		pagmo_throw(value_error,"probid needs to be a number in [1,24]");
 	}
-	for (int i =0; i<5; i++){mgadsm.sequence[i] = Data[probid-1][i];}
+	for (int i =0; i<5; i++) {
+		mgadsm.sequence[i] = Data[probid-1][i];
+	}
 };
 
-tandem::tandem(const int probid, const double tof_):base(18,lbcon,ubcon), mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(tof_),copy_of_x(18) {
+tandem::tandem(const int probid, const double tof_):base(18,lbcon,ubcon), mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(tof_),copy_of_x(18)
+{
 	if (probid < 1 || probid > 24) {
 		pagmo_throw(value_error,"probid needs to be an integer in [1,24]");
 	}
-	if (tof_ > 20 && tof_ <5){
+	if (tof_ > 20 && tof_ <5) {
 		pagmo_throw(value_error,"time of flight constraint needs to be a number in [5,20] (years)");
 	}
-	for (int i =0; i<5; i++){mgadsm.sequence[i] = Data[probid-1][i];}
+	for (int i =0; i<5; i++) {
+		mgadsm.sequence[i] = Data[probid-1][i];
+	}
 };
 
 
 
-double tandem::objfun_(const std::vector<double>& x) const {
+double tandem::objfun_(const std::vector<double>& x) const
+{
 	double obj = 0;
-	if (tof!=0){ //constrained problem
+	if (tof!=0) { //constrained problem
 		//Here we copy the chromosome into a new vector and we transform its time percentages into days
 		copy_of_x = x;
 		copy_of_x[4] = x[4]*365.25*tof;
@@ -135,8 +146,7 @@ double tandem::objfun_(const std::vector<double>& x) const {
 		copy_of_x[6] = x[6]*(365.25*tof-copy_of_x[4]-copy_of_x[5]);
 		copy_of_x[7] = x[7]*(365.25*tof-copy_of_x[4]-copy_of_x[5]-copy_of_x[6]);
 		MGA_DSM(copy_of_x, mgadsm, obj);
-	}
-	else {	//unconstrained problem
+	} else {	//unconstrained problem
 		MGA_DSM(x, mgadsm, obj);
 	}
 	//evaluating the mass from the dvs
@@ -185,7 +195,7 @@ double tandem::objfun_(const std::vector<double>& x) const {
 	double g0 = 9.80665;
 	double sumDVvec=0;
 	//double totaltime=x[4]+x[5]+x[6]+x[7];
-	for(unsigned int i=1;i<=5;i++) {
+	for (unsigned int i=1;i<=5;i++) {
 		sumDVvec=sumDVvec+mgadsm.DV[i];
 	}
 	double m_final;
@@ -213,7 +223,8 @@ const double cassini1::ub[6] = {0,400,470,400,2000,6000};
 
 cassini1::cassini1():base(6,lb,ub) {}
 
-double cassini1::objfun_(const std::vector<double>& x) const {
+double cassini1::objfun_(const std::vector<double>& x) const
+{
 	return cassini1f(x);
 }
 
@@ -222,7 +233,8 @@ const double gtoc1::ub[8] = {10000,2000,2000,2000,2000,9000,9000,9000};
 
 gtoc1::gtoc1():base(8,lb,ub) {}
 
-double gtoc1::objfun_(const std::vector<double>& x) const {
+double gtoc1::objfun_(const std::vector<double>& x) const
+{
 	return gtoc1f(x);
 }
 
@@ -232,10 +244,11 @@ const int cassini2::sequence[6] = {3, 2, 2, 3, 5, 6};
 
 cassini2::cassini2():base(22,lb,ub),mgadsm(total_DV_rndv,sequence,6,0,0,0,0,0) {}
 
-double cassini2::objfun_(const std::vector<double>& x) const {
+double cassini2::objfun_(const std::vector<double>& x) const
+{
 	double obj = 0;
 	MGA_DSM(x, mgadsm,
-		obj);
+	        obj);
 	return obj;
 }
 
@@ -243,7 +256,8 @@ const double rosetta::lb[22] = {1460, 3, 0, 0, 300, 150, 150, 300, 700 , 0.01, 0
 const double rosetta::ub[22] = {1825, 5, 1, 1, 500, 800, 800, 800, 1850, 0.9, 0.9 , 0.9 , 0.9 , 0.9 , 9   , 9   , 9   , 9   , M_PI , M_PI , M_PI , M_PI};
 const int rosetta::sequence[6] = {3, 3, 4, 3, 3, 10};
 
-rosetta::rosetta():base(22,lb,ub),mgadsm(rndv,sequence,6,0,0,0,0,0) {
+rosetta::rosetta():base(22,lb,ub),mgadsm(rndv,sequence,6,0,0,0,0,0)
+{
 	//MGA_DSM stuff
 	mgadsm.asteroid.keplerian[0] = 3.50294972836275;
 	mgadsm.asteroid.keplerian[1] = 0.6319356;
@@ -255,10 +269,11 @@ rosetta::rosetta():base(22,lb,ub),mgadsm(rndv,sequence,6,0,0,0,0,0) {
 	mgadsm.asteroid.mu = 0.0;
 };
 
-double rosetta::objfun_(const std::vector<double>& x) const {
+double rosetta::objfun_(const std::vector<double>& x) const
+{
 	double obj = 0;
 	MGA_DSM(x, mgadsm,
-		obj);
+	        obj);
 	return obj;
 }
 
@@ -268,10 +283,11 @@ const int sagas::sequence[3] = {3,3,5};
 
 sagas::sagas():base(12,lb,ub),mgadsm(time2AUs,sequence,3,50.0,6.782,1.782,0,0) {}
 
-double sagas::objfun_(const std::vector<double>& x)  const{
+double sagas::objfun_(const std::vector<double>& x)  const
+{
 	double obj = 0;
 	MGA_DSM(x, mgadsm,
-		obj);
+	        obj);
 	return obj;
 
 }
@@ -378,4 +394,5 @@ std::ostream &laplace::print(std::ostream &s) const
 	return s;
 }
 
-}}
+}
+}

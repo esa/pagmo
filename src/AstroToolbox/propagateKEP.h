@@ -25,7 +25,7 @@
 #ifndef PROPAGATEKEP_H
 #define PROPAGATEKEP_H
 
-#include "../../config.h"
+#include "../config.h"
 
 void __PAGMO_VISIBLE_FUNC propagateKEP(const double *, const double *, const double &, const double &,
 				  double *, double *);

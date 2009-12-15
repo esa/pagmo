@@ -27,11 +27,12 @@
 #ifndef PAGMO_BEST_REPLACE_WORST_IF_BETTER_MIGRATION_REPLACEMENT_POLICY_H
 #define PAGMO_BEST_REPLACE_WORST_IF_BETTER_MIGRATION_REPLACEMENT_POLICY_H
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "../../../Functions/rng/rng.h"
 #include "MigrationReplacementPolicy.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 /// Best-replace-worst-if-better migration replacement policy.
 /**
@@ -44,47 +45,53 @@ class __PAGMO_VISIBLE BestReplaceWorstIfBetterMigrationReplacementPolicy: public
 		/// Constructor.
 		/** \see MigrationReplacementPolicy::MigrationReplacementPolicy(). */
 		BestReplaceWorstIfBetterMigrationReplacementPolicy():MigrationReplacementPolicy() { }
-	
+
 		/// Constructor.
 		/** \see MigrationReplacementPolicy::MigrationReplacementPolicy(const int&) */
 		BestReplaceWorstIfBetterMigrationReplacementPolicy(const int& _maxMigrationRate):MigrationReplacementPolicy(_maxMigrationRate) { }
-		
+
 		/// Constructor.
 		/** \see MigrationReplacementPolicy::MigrationReplacementPolicy(const double&) */
 		BestReplaceWorstIfBetterMigrationReplacementPolicy(const double& _maxMigrationRate):MigrationReplacementPolicy(_maxMigrationRate) { }
-		
+
 		/// Copy constructor.
 		BestReplaceWorstIfBetterMigrationReplacementPolicy(const BestReplaceWorstIfBetterMigrationReplacementPolicy& rmrp):MigrationReplacementPolicy(rmrp) { }
 
 		/// Virtual destructor.
 		virtual ~BestReplaceWorstIfBetterMigrationReplacementPolicy() { }
-		
+
 		/// \see MigrationReplacementPolicy::selectForReplacement
-		virtual std::list<std::pair<int, int> > selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation);
-		
+		virtual std::list<std::pair<int, int> > selectForReplacement(const std::vector<individual>& incomingpopulation, const population& destinationpopulation);
+
 		/// \see MigrationReplacementPolicy::clone
-		virtual BestReplaceWorstIfBetterMigrationReplacementPolicy* clone() const { return new BestReplaceWorstIfBetterMigrationReplacementPolicy(*this); };
-		
+		virtual BestReplaceWorstIfBetterMigrationReplacementPolicy* clone() const {
+			return new BestReplaceWorstIfBetterMigrationReplacementPolicy(*this);
+		};
+
 	private:
 		/// Object used to generate sequences of number from 0 to n using the std::generate function.
-		struct IndexGenerator
-		{
+		struct IndexGenerator {
 			int currentValue; ///< Current counter value
 			/// Counter constructor; Initialises the counter to 0.
-			IndexGenerator() { currentValue = 0; }
+			IndexGenerator() {
+				currentValue = 0;
+			}
 			/// Call operator - give the next index value.
-			int operator()() { return currentValue++; }
+			int operator()() {
+				return currentValue++;
+			}
 		};
-		
+
 		/// Helper object used to sort arrays of indices of object placed in another arrays
-		struct IndirectIndividualSorter
-		{
-			const std::vector<Individual>& actualArray;
-			
-			IndirectIndividualSorter(const std::vector<Individual>& _actualArray)
-				:actualArray(_actualArray) { }
-					
-			int operator() (int i, int j) { return Individual::compare_by_fitness(actualArray[i], actualArray[j]); }
+		struct IndirectIndividualSorter {
+			const std::vector<individual>& actualArray;
+
+			IndirectIndividualSorter(const std::vector<individual>& _actualArray)
+					:actualArray(_actualArray) { }
+
+			int operator() (int i, int j) {
+				return individual::compare_by_fitness(actualArray[i], actualArray[j]);
+			}
 		};
 };
 

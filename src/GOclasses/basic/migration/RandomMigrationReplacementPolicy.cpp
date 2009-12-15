@@ -22,50 +22,52 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <algorithm>
+
 #include "RandomMigrationReplacementPolicy.h"
 #include "../../../exceptions.h"
-#include <algorithm>
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-namespace pagmo {
-
-std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForReplacement(const std::vector<Individual>& incomingPopulation, const Population& destinationPopulation)
+namespace pagmo
 {
-	int migrationRateLimit = std::min<int>(getMaxMigrationRate(destinationPopulation), (int)incomingPopulation.size());
-	
-	std::vector<int> incomingPopulationIndices(migrationRateLimit);
-	std::vector<int> destinationPopulationIndices(destinationPopulation.size());
-	
+
+std::list<std::pair<int, int> > RandomMigrationReplacementPolicy::selectForReplacement(const std::vector<individual>& incomingpopulation, const population& destinationpopulation)
+{
+	int migrationRateLimit = std::min<int>(getMaxMigrationRate(destinationpopulation), (int)incomingpopulation.size());
+
+	std::vector<int> incomingpopulationIndices(migrationRateLimit);
+	std::vector<int> destinationpopulationIndices(destinationpopulation.size());
+
 	//Fill in the arrays of indices
-	std::generate(incomingPopulationIndices.begin(), incomingPopulationIndices.end(), IndexGenerator());
-	std::generate(destinationPopulationIndices.begin(), destinationPopulationIndices.end(), IndexGenerator());
-	
+	std::generate(incomingpopulationIndices.begin(), incomingpopulationIndices.end(), IndexGenerator());
+	std::generate(destinationpopulationIndices.begin(), destinationpopulationIndices.end(), IndexGenerator());
+
 	//Permute the indices (incoming population)
-	for(int i = 0; i < migrationRateLimit; i++) {
-		int nextIncomingPopulationIndex = i + (rng() % (migrationRateLimit - i));
-		if(nextIncomingPopulationIndex != i) {
-			std::swap(incomingPopulationIndices[i], incomingPopulationIndices[nextIncomingPopulationIndex]);
-		}				
+	for (int i = 0; i < migrationRateLimit; i++) {
+		int nextIncomingpopulationIndex = i + (rng() % (migrationRateLimit - i));
+		if (nextIncomingpopulationIndex != i) {
+			std::swap(incomingpopulationIndices[i], incomingpopulationIndices[nextIncomingpopulationIndex]);
+		}
 	}
-	
+
 	//Permute the indices (destination population)
-	for(int i = 0; i < migrationRateLimit; i++) {
-		int nextDestinationPopulationIndex = i + (rng() % (destinationPopulation.size() - i));
-		if(nextDestinationPopulationIndex != i) {
-			std::swap(destinationPopulationIndices[i], destinationPopulationIndices[nextDestinationPopulationIndex]);
-		}				
+	for (int i = 0; i < migrationRateLimit; i++) {
+		int nextDestinationpopulationIndex = i + (rng() % (destinationpopulation.size() - i));
+		if (nextDestinationpopulationIndex != i) {
+			std::swap(destinationpopulationIndices[i], destinationpopulationIndices[nextDestinationpopulationIndex]);
+		}
 	}
-	
+
 	// Create the result
 	std::list<std::pair<int, int> > result;
-	
-	for(int i = 0; i < migrationRateLimit; i++) {
-		result.push_back(std::make_pair(destinationPopulationIndices[i], incomingPopulationIndices[i]));
+
+	for (int i = 0; i < migrationRateLimit; i++) {
+		result.push_back(std::make_pair(destinationpopulationIndices[i], incomingpopulationIndices[i]));
 	}
-	
+
 	//std::cout << "Result size: " << result.size() << std::endl;
-	
+
 	return result;
 }
 

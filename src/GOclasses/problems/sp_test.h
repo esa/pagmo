@@ -30,28 +30,36 @@
 #include <string>
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "base.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 /// Stochastic Programming Test Problem: Inventory Model
 /**
  * This simple test problem represent an inventory problem and is discussed e.g. in A Tutorial on Stochastic Programming
- * by Shapiro. 
+ * by Shapiro.
  */
-class __PAGMO_VISIBLE inventory: public base {
+class __PAGMO_VISIBLE inventory: public base
+{
 	public:
 		inventory(int sample_size);
-		virtual inventory *clone() const {return new inventory(*this);}
-		virtual void pre_evolution(Population &) const;
-		virtual std::string id_object() const { return id_name(); }
+		virtual inventory *clone() const {
+			return new inventory(*this);
+		}
+		virtual void pre_evolution(population &) const;
+		virtual std::string id_object() const {
+			return id_name();
+		}
 	private:
 		virtual double objfun_(const std::vector<double> &) const;
 		mutable std::vector<double> d;
 		size_t m_sample_size;
 };
 
-}}
+}
+}
 
 #endif

@@ -29,11 +29,14 @@
 
 #include <boost/cstdint.hpp>
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "../../../Functions/rng/rng.h"
 #include "MigrationSelectionPolicy.h"
 
-namespace pagmo {
+// TODO: fix missing headers.
+
+namespace pagmo
+{
 
 /// Random migration selection policy.
 /**
@@ -48,7 +51,7 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
 		RandomMigrationSelectionPolicy(const boost::uint32_t seed = static_rng_uint32()()):MigrationSelectionPolicy(), rng(seed) { }
-		
+
 		/// Constructor.
 		/**
 		 * Allows migration rate specification (absolute).
@@ -57,7 +60,7 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
 		RandomMigrationSelectionPolicy(const int& _migrationRate, const boost::uint32_t seed = static_rng_uint32()()):MigrationSelectionPolicy(_migrationRate), rng(seed) { }
-		
+
 		/// Constructor.
 		/**
 		 * Allows migration rate specification (fractional).
@@ -66,7 +69,7 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 		 * \param[in] seed initial random seed for the internal rng. If it is not specified, it is generated using the static RNG.
 		 */
 		RandomMigrationSelectionPolicy(const double& _migrationRate, const boost::uint32_t seed = static_rng_uint32()()):MigrationSelectionPolicy(_migrationRate), rng(seed) { }
-		
+
 		/// Copy constructor.
 		/**
 		 * The copy inherits migration rate parameters, but it is not strictly identical. This is because the RNG
@@ -78,13 +81,15 @@ class __PAGMO_VISIBLE RandomMigrationSelectionPolicy: public MigrationSelectionP
 
 		/// Virtual destructor.
 		virtual ~RandomMigrationSelectionPolicy() { }
-		
+
 		/// \see MigrationSelectionPolicy::selectForMigration
-		virtual std::vector<Individual> selectForMigration(const Population& population);
-		
+		virtual std::vector<individual> selectForMigration(const population& population);
+
 		/// \see MigrationSelectionPolicy::clone
-		virtual RandomMigrationSelectionPolicy* clone() const { return new RandomMigrationSelectionPolicy(*this); }
-		
+		virtual RandomMigrationSelectionPolicy* clone() const {
+			return new RandomMigrationSelectionPolicy(*this);
+		}
+
 	private:
 		mutable rng_uint32 rng; ///< Random Number Generator
 };

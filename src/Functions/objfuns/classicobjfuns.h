@@ -29,7 +29,7 @@
 
 #include <vector>
 
-#include "../../../config.h"
+#include "../../config.h"
 
 //NOTE: the functions here have passing by reference + const as they are called a lot of time during execution and thus
 //it is worth trying to save time by avoiding to make a copy of the variable passed

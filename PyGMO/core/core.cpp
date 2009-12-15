@@ -117,37 +117,37 @@ BOOST_PYTHON_MODULE(_core)
         from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
 
 	// Expose individual class.
-	class_<Individual> class_ind("individual", "Individual.", init<const problem::base &>());
+	class_<individual> class_ind("individual", "Individual class.", init<const problem::base &>());
 	class_ind.def(init<const problem::base &, const std::vector<double> &, const std::vector<double> &>());
 	class_ind.def(init<const problem::base &, const std::vector<double> &>());
-	class_ind.def(init<const Individual &>());
-	class_ind.def("__copy__", &Py_copy_from_ctor<Individual>);
-	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
-	class_ind.add_property("fitness", &Individual::getFitness, "Fitness.");
-	class_ind.add_property("decision_vector", make_function(&Individual::getDecisionVector, return_value_policy<copy_const_reference>()),
+	class_ind.def(init<const individual &>());
+	class_ind.def("__copy__", &Py_copy_from_ctor<individual>);
+	class_ind.def("__repr__", &Py_repr_from_stream<individual>);
+	class_ind.add_property("fitness", &individual::getFitness, "Fitness.");
+	class_ind.add_property("decision_vector", make_function(&individual::getDecisionVector, return_value_policy<copy_const_reference>()),
 		"Decision vector.");
-	class_ind.add_property("velocity", make_function(&Individual::getVelocity, return_value_policy<copy_const_reference>()),
+	class_ind.add_property("velocity", make_function(&individual::getVelocity, return_value_policy<copy_const_reference>()),
 		"Velocity.");
 
 	// Expose population class.
-	typedef const Individual &(Population::*pop_get_const)(int) const;
-	class_<Population> class_pop("population", "Population.", init<const problem::base &>());
+	typedef const individual &(population::*pop_get_const)(int) const;
+	class_<population> class_pop("population", "Population class.", init<const problem::base &>());
 	class_pop.def(init<const problem::base &, int>());
 	class_pop.def(init<const problem::base &>());
-	class_pop.def(init<const Population &>());
-	class_pop.def("__copy__", &Py_copy_from_ctor<Population>);
-	class_pop.def("__delitem__", &Population::erase);
-	class_pop.def("__getitem__", pop_get_const(&Population::operator[]), return_value_policy<copy_const_reference>(), "Get a copy of individual.");
-	class_pop.def("__len__", &Population::size);
-	class_pop.def("__setitem__", &Population::setIndividual);
-	class_pop.def("__repr__", &Py_repr_from_stream<Population>);
-	class_pop.add_property("problem", make_function(&problem_getter<problem::base,Population>,return_value_policy<manage_new_object>()), "Problem.");
-	class_pop.def("append", &Population::push_back, "Append individual at the end of the population.");
-	class_pop.def("insert", &Population::insert, "Insert individual before index.");
-	class_pop.def("mean", &Population::evaluateMean, "Evaluate mean.");
-	class_pop.def("std", &Population::evaluateStd, "Evaluate std.");
-	class_pop.def("best", &Population::extractBestIndividual, return_value_policy<copy_const_reference>(), "Copy of best individual.");
-	class_pop.def("worst", &Population::extractWorstIndividual, return_value_policy<copy_const_reference>(), "Copy of worst individual.");
+	class_pop.def(init<const population &>());
+	class_pop.def("__copy__", &Py_copy_from_ctor<population>);
+	class_pop.def("__delitem__", &population::erase);
+	class_pop.def("__getitem__", pop_get_const(&population::operator[]), return_value_policy<copy_const_reference>(), "Get a copy of individual.");
+	class_pop.def("__len__", &population::size);
+	class_pop.def("__setitem__", &population::setIndividual);
+	class_pop.def("__repr__", &Py_repr_from_stream<population>);
+	class_pop.add_property("problem", make_function(&problem_getter<problem::base,population>,return_value_policy<manage_new_object>()), "Problem.");
+	class_pop.def("append", &population::push_back, "Append individual at the end of the population.");
+	class_pop.def("insert", &population::insert, "Insert individual before index.");
+	class_pop.def("mean", &population::evaluateMean, "Evaluate mean.");
+	class_pop.def("std", &population::evaluateStd, "Evaluate std.");
+	class_pop.def("best", &population::extractBestIndividual, return_value_policy<copy_const_reference>(), "Copy of best individual.");
+	class_pop.def("worst", &population::extractWorstIndividual, return_value_policy<copy_const_reference>(), "Copy of worst individual.");
 
 	// Expose island.
 	class_<island> class_island("island", "Island.", init<const problem::base &, const algorithm::base &, int>());
@@ -169,7 +169,7 @@ BOOST_PYTHON_MODULE(_core)
 		&island::setMigrationSelectionPolicy, "The island's migration selection policy.");
 	class_island.add_property("replacement_policy", make_function(&replacement_policy_getter<MigrationReplacementPolicy, island>, return_value_policy<manage_new_object>()),
 		&island::setMigrationReplacementPolicy, "The island's migration selection policy.");
-	class_island.add_property("population", &island::population, "Copy of population.");
+	class_island.add_property("population", &island::get_population, "Copy of population.");
 	class_island.def("mean", &island::mean, "Evaluate mean.");
 	class_island.def("std", &island::std, "Evaluate std.");
 	class_island.def("best", &island::best, "Copy of best individual.");

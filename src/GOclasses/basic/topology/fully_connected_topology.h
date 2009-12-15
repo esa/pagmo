@@ -30,23 +30,28 @@
 #include "graph_topology.h"
 
 /// Fully-connected topology.
-class __PAGMO_VISIBLE fully_connected_topology: public graph_topology {
+class __PAGMO_VISIBLE fully_connected_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		fully_connected_topology();
-		
+
 		/// Copy constructor
 		fully_connected_topology(const fully_connected_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual fully_connected_topology *clone() const { return new fully_connected_topology(*this); }
-		
+		virtual fully_connected_topology *clone() const {
+			return new fully_connected_topology(*this);
+		}
+
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t&);
 
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-	
+		virtual std::string id_object() const {
+			return id_name();
+		}
+
 	private:
 		/// \see graph_topology::operator=
 		fully_connected_topology &operator=(const fully_connected_topology &);

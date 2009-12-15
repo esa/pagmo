@@ -27,27 +27,32 @@
 #ifndef PAGMO_TORUS_TOPOLOGY_H
 #define PAGMO_TORUS_TOPOLOGY_H
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "graph_topology.h"
 
 /// Torus topology (also known as ladder) - two parallel rings with corresponding nodes connected.
-class __PAGMO_VISIBLE torus_topology: public graph_topology {
+class __PAGMO_VISIBLE torus_topology: public graph_topology
+{
 	public:
 		/// Constructor.
 		torus_topology();
 		/// Copy constructor.
 		torus_topology(const torus_topology &);
-		
+
 		/// \see base_topology::clone
-		virtual torus_topology *clone() const {return new torus_topology(*this);}
-		
+		virtual torus_topology *clone() const {
+			return new torus_topology(*this);
+		}
+
 		/// \see base_topology::push_back
 		virtual void push_back(const size_t& id);
-		
+
 		/// \see base_topology::id_object()
-		virtual std::string id_object() const { return id_name(); }
-		
-	private:	
+		virtual std::string id_object() const {
+			return id_name();
+		}
+
+	private:
 		/// Tracks the id of the first inserted node on the inner ring.
 		size_t	m_in_first;
 		/// Tracks the id of the last inserted node on the inner ring.
@@ -56,7 +61,7 @@ class __PAGMO_VISIBLE torus_topology: public graph_topology {
 		size_t	m_out_first;
 		/// Tracks the id of the last inserted node on the outer ring.
 		size_t	m_out_last;
-		
+
 		/// \see graph_topology::operator=
 		torus_topology &operator=(const torus_topology &);
 };

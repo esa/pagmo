@@ -27,17 +27,18 @@
 
 // 09/03/2009: Initial version by Marek Rucinski.
 
-namespace pagmo {
-
-int MigrationReplacementPolicy::getMaxMigrationRate(const Population& population)
+namespace pagmo
 {
-	if(maxMigrationRateAbs < 0) {
-		if(maxMigrationRateFrac > 1.0) {
+
+int MigrationReplacementPolicy::getMaxMigrationRate(const population& population)
+{
+	if (maxMigrationRateAbs < 0) {
+		if (maxMigrationRateFrac > 1.0) {
 			pagmo_throw(assertion_error, "Fractional maximum migration rate is greate than 1!");
 		}
 		return (int)(maxMigrationRateFrac * (double)population.size());
 	} else {
-                if((size_t)maxMigrationRateAbs > population.size()) {
+		if ((size_t)maxMigrationRateAbs > population.size()) {
 			pagmo_throw(assertion_error, "Absolute maximum migration rate exceeds population size!");
 		}
 		return maxMigrationRateAbs;
@@ -48,8 +49,8 @@ std::ostream &operator<<(std::ostream &s, const MigrationReplacementPolicy& mrp)
 {
 	s << "Replacement policy type:     " << typeid(mrp).name() << std::endl;
 	s << "Maximum migration rate (in): ";
-	
-	if(mrp.maxMigrationRateAbs < 0) {
+
+	if (mrp.maxMigrationRateAbs < 0) {
 		s << (100.0 * mrp.maxMigrationRateFrac) << " %";
 	} else {
 		s << mrp.maxMigrationRateAbs;

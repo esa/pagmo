@@ -30,11 +30,13 @@
 #include <iostream>
 #include <string>
 
-#include "../../../config.h"
+#include "../../config.h"
 #include "../basic/population.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// The Compass Search Solver (CS)
 /**
@@ -58,44 +60,50 @@ namespace pagmo { namespace algorithm {
  * by Davidon: it is slow but sure".
  * @see http://www.cs.wm.edu/~va/research/sirev.pdf
  */
-class __PAGMO_VISIBLE cs: public base {
-       public:
-                /// Constructor
-                /**
-                 * Instantiates a CS algorithm. Starting range is one fourth of the search domain and at each step it is halved
-                 * \param[in] minRange The algorithm stops when the range gets smaller than minRange. Has to be positive and smaller than one
-                */
-              cs(const double &minRange);
+class __PAGMO_VISIBLE cs: public base
+{
+	public:
+		/// Constructor
+		/**
+		 * Instantiates a CS algorithm. Starting range is one fourth of the search domain and at each step it is halved
+		 * \param[in] minRange The algorithm stops when the range gets smaller than minRange. Has to be positive and smaller than one
+		*/
+		cs(const double &minRange);
 
-                /// Constructor
-                /**
-                 * Instantiates a CS algorithm. All parameters can be set by the user
-                 * \param[in] range Inital range. A number between 0 and 1. When 1 each component gets perturbed by +- (UB[i]-LB[i])
-                 * \param[in] reduxCoeff After each iteration over the decision vector the range gets multiplied by reduxCoeff. Must be between 0 and 1
-                 * \param[in] minRange The algorithm stops when the range gets smaller than minRange. Has to be positive and smaller than one
-                */
-              cs(const double &range, const double &reduxCoeff, const double &minRange);
+		/// Constructor
+		/**
+		 * Instantiates a CS algorithm. All parameters can be set by the user
+		 * \param[in] range Inital range. A number between 0 and 1. When 1 each component gets perturbed by +- (UB[i]-LB[i])
+		 * \param[in] reduxCoeff After each iteration over the decision vector the range gets multiplied by reduxCoeff. Must be between 0 and 1
+		 * \param[in] minRange The algorithm stops when the range gets smaller than minRange. Has to be positive and smaller than one
+		*/
+		cs(const double &range, const double &reduxCoeff, const double &minRange);
 
 
 
-               /// Algorithm
-                /**
-                 * It performs a call to the CS algorithm evolving the best individual in the population
-                 * until the range gets smaller than the minRange
-                 * \param[in] popin Starting population
-                 * \return Evolved population
-                */
-              virtual Population evolve(const Population &popin) const;
-              virtual cs *clone() const {return new cs(*this);}
-              virtual std::string id_object() const {return id_name(); }
+		/// Algorithm
+		/**
+		 * It performs a call to the CS algorithm evolving the best individual in the population
+		 * until the range gets smaller than the minRange
+		 * \param[in] popin Starting population
+		 * \return Evolved population
+		*/
+		virtual population evolve(const population &popin) const;
+		virtual cs *clone() const {
+			return new cs(*this);
+		}
+		virtual std::string id_object() const {
+			return id_name();
+		}
 
-       private:
-              virtual void log(std::ostream &) const;
-              const double range;
-              const double reduxCoeff;
-              const double minRange;
+	private:
+		virtual void log(std::ostream &) const;
+		const double range;
+		const double reduxCoeff;
+		const double minRange;
 };
 
-}}
+}
+}
 
 #endif

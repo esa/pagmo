@@ -30,17 +30,18 @@
 #include <boost/scoped_ptr.hpp>
 #include <iostream>
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "MigrationPolicy.h"
 #include "MigrationScheme.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 /// This object gathers migration-related parameters necessary to construct an archipelago.
 /**
  * Introduction of this object has been lobbied by Dario because in his opinion its presence will increase
  * the user-friendliness of the Python interface.
- */ 
+ */
 class __PAGMO_VISIBLE Migration
 {
 	public:
@@ -54,39 +55,44 @@ class __PAGMO_VISIBLE Migration
 		 * Cool, huh?
 		 */
 		Migration()
-			:migrationScheme(MigrationScheme().clone()),
-			migrationPolicy(new MigrationPolicy())
-			{ }
-			
+				:migrationScheme(MigrationScheme().clone()),
+				migrationPolicy(new MigrationPolicy()) { }
+
 		/// Constructor.
 		/** This constructor allows specifying migration scheme and policy. */
 		Migration(const MigrationScheme& ms, const MigrationPolicy& mp)
-			:migrationScheme(ms.clone()),
-			migrationPolicy(new MigrationPolicy(mp))
-			{ }
-		
+				:migrationScheme(ms.clone()),
+				migrationPolicy(new MigrationPolicy(mp)) { }
+
 		/// Copy constructor.
 		/** Creates a deep copy of the given migration descriptor. */
 		Migration(const Migration& migration)
-			:migrationScheme((*(migration.migrationScheme)).clone()),
-			migrationPolicy(new MigrationPolicy(*(migration.migrationPolicy)))
-			{ }		
-		
+				:migrationScheme((*(migration.migrationScheme)).clone()),
+				migrationPolicy(new MigrationPolicy(*(migration.migrationPolicy))) { }
+
 		// Getters and setters.
-		const MigrationScheme& getMigrationScheme() const { return *migrationScheme; }
-		
-		void setMigrationScheme(const MigrationScheme& ms) { migrationScheme.reset(ms.clone()); }
-		
-		
-		MigrationPolicy& getMigrationPolicy() const { return *migrationPolicy; }
-		
-		void setMigrationPolicy(const MigrationPolicy& mp) { migrationPolicy.reset(new MigrationPolicy(mp)); }
-		
+		const MigrationScheme& getMigrationScheme() const {
+			return *migrationScheme;
+		}
+
+		void setMigrationScheme(const MigrationScheme& ms) {
+			migrationScheme.reset(ms.clone());
+		}
+
+
+		MigrationPolicy& getMigrationPolicy() const {
+			return *migrationPolicy;
+		}
+
+		void setMigrationPolicy(const MigrationPolicy& mp) {
+			migrationPolicy.reset(new MigrationPolicy(mp));
+		}
+
 	private:
-				
+
 		/// The archipelago's migration scheme. Must not be null.
 		boost::scoped_ptr<MigrationScheme> migrationScheme;
-		
+
 		/// The islands' migration policy. Must not be null.
 		boost::scoped_ptr<MigrationPolicy> migrationPolicy;
 

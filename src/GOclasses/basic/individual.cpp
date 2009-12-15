@@ -28,31 +28,32 @@
 #include "../problems/base.h"
 #include "individual.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
-Individual::Individual(const problem::base &problem)
+individual::individual(const problem::base &problem)
 		:x(problem.getLB().size()),
 		v(problem.getLB().size())
 {
 	static_rng_double drng;
-	
+
 	// Store local references.
 	const std::vector<double> &LB = problem.getLB(), &UB = problem.getUB();
 	const size_t size = LB.size();
-	
+
 	// Fill a new random chromosome and velocity vector.
-	for (size_t i = 0; i < size; ++i){
+	for (size_t i = 0; i < size; ++i) {
 		x[i] = LB[i] + drng() * (UB[i] - LB[i]);
 		v[i] = drng() * (UB[i] - LB[i]);
 	}
-	
+
 	// Evaluation of fitness.
 	fitness = problem.objfun(x);
 }
 
-Individual::Individual(const problem::base &problem, const std::vector<double> &x_, const std::vector<double> &v_)
+individual::individual(const problem::base &problem, const std::vector<double> &x_, const std::vector<double> &v_)
 		:x(x_),
-		v(v_)		
+		v(v_)
 {
 	if (x.size() != v.size()) {
 		pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
@@ -61,15 +62,15 @@ Individual::Individual(const problem::base &problem, const std::vector<double> &
 	fitness = problem.objfun(x);
 }
 
-Individual::Individual(const problem::base &problem, const std::vector<double> &x_)
+individual::individual(const problem::base &problem, const std::vector<double> &x_)
 		:x(x_),
-		v(x_.size())		
+		v(x_.size())
 {
 	check(problem);
 	fitness = problem.objfun(x);
 }
 
-Individual &Individual::operator=(const Individual &i)
+individual &individual::operator=(const individual &i)
 {
 	if (this != &i) {
 		if (i.getDecisionVector().size() != x.size()) {
@@ -82,7 +83,7 @@ Individual &Individual::operator=(const Individual &i)
 	return *this;
 }
 
-void Individual::check(const problem::base &p) const
+void individual::check(const problem::base &p) const
 {
 	const size_t size = x.size();
 	if (size != p.getDimension()) {
@@ -95,12 +96,12 @@ void Individual::check(const problem::base &p) const
 	}
 }
 
-int Individual::compare_by_fitness(const Individual& ind1, const Individual& ind2)
+int individual::compare_by_fitness(const individual& ind1, const individual& ind2)
 {
 	return ind1.fitness < ind2.fitness;
 }
 
-std::ostream &operator<<(std::ostream &s, const Individual &ind)
+std::ostream &operator<<(std::ostream &s, const individual &ind)
 {
 	s << std::scientific;
 	s.precision(15);

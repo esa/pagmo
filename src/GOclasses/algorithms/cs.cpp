@@ -32,75 +32,77 @@
 #include "base.h"
 #include "cs.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 cs::cs(const double &minRange_):base(),range(0.25),
-                                reduxCoeff(0.5),minRange(minRange_)
+		reduxCoeff(0.5),minRange(minRange_)
 
 {
-        if (minRange_ > 1 || minRange_ <= 0 || minRange_>0.25) {
-                pagmo_throw(value_error,"the minimum range must be smaller than one, positive and smaller than the starting range, (o44portebat studuisse)!!");
-        }
+	if (minRange_ > 1 || minRange_ <= 0 || minRange_>0.25) {
+		pagmo_throw(value_error,"the minimum range must be smaller than one, positive and smaller than the starting range, (o44portebat studuisse)!!");
+	}
 }
 
 cs::cs(const double &range_, const double &reduxCoeff_, const double &minRange_):base(),range(range_),
-                                reduxCoeff(reduxCoeff_),minRange(minRange_)
+		reduxCoeff(reduxCoeff_),minRange(minRange_)
 
 {
-        if (reduxCoeff_ >= 1 || reduxCoeff_ <=0) {
-                pagmo_throw(value_error,"the reduction coefficient must be smaller than one and positive, You Fool!!");
-        }
-        if (range_ > 1 || range_ <= 0) {
-                pagmo_throw(value_error,"the starting range must be smaller than one and positive, You Fool!!");
-        }
-        if (minRange_ > 1 || minRange_ <= 0 || minRange_>range_) {
-                pagmo_throw(value_error,"the minimum range must be smaller than one, positive and smaller than the starting range, (o44portebat studuisse)!!");
-        }
+	if (reduxCoeff_ >= 1 || reduxCoeff_ <=0) {
+		pagmo_throw(value_error,"the reduction coefficient must be smaller than one and positive, You Fool!!");
+	}
+	if (range_ > 1 || range_ <= 0) {
+		pagmo_throw(value_error,"the starting range must be smaller than one and positive, You Fool!!");
+	}
+	if (minRange_ > 1 || minRange_ <= 0 || minRange_>range_) {
+		pagmo_throw(value_error,"the minimum range must be smaller than one, positive and smaller than the starting range, (o44portebat studuisse)!!");
+	}
 }
 
-Population cs::evolve(const Population &popin) const
+population cs::evolve(const population &popin) const
 {
-        const problem::base &problem = popin.problem();
-        if (popin.size() == 0) {
-                return Population(problem,0);
-        }
+	const problem::base &problem = popin.problem();
+	if (popin.size() == 0) {
+		return population(problem,0);
+	}
 
-        Population retval(popin);
-        const Individual &startIndividual = retval.extractBestIndividual();
-        std::vector <double> x,newx;
-        x = startIndividual.getDecisionVector();
-        double f = startIndividual.getFitness();
+	population retval(popin);
+	const individual &startindividual = retval.extractBestIndividual();
+	std::vector <double> x,newx;
+	x = startindividual.getDecisionVector();
+	double f = startindividual.getFitness();
 	double newf;
-        size_t D = problem.getDimension();
+	size_t D = problem.getDimension();
 	bool flag = false;
-        std::vector <double> UB = problem.getUB();
-        std::vector <double> LB = problem.getLB();
-	
+	std::vector <double> UB = problem.getUB();
+	std::vector <double> LB = problem.getLB();
+
 	double newrange=range;
-	
-        while (newrange > minRange){
+
+	while (newrange > minRange) {
 		flag = false;
-		for (unsigned int i=0; i<D; i++){
+		for (unsigned int i=0; i<D; i++) {
 			newx=x;
-			
-			
+
+
 			newx[i] = x[i] + newrange * (UB[i]-LB[i]);
 			//feasibility correction
 			if (newx[i] > UB [i]) newx[i]=UB[i];
-			
-                        newf = problem.objfun(newx);
+
+			newf = problem.objfun(newx);
 			if (newf < f) {
 				f = newf;
 				x = newx;
 				flag=true;
 				break; //accept
 			}
-		
+
 			newx[i] = x[i] - newrange * (UB[i]-LB[i]);
 			//feasibility correction
 			if (newx[i] < LB [i]) newx[i]=LB[i];
-			
-                        newf = problem.objfun(newx);
+
+			newf = problem.objfun(newx);
 			if (newf < f) {  //accept
 				f = newf;
 				x = newx;
@@ -108,18 +110,19 @@ Population cs::evolve(const Population &popin) const
 				break;
 			}
 		}
-		if (!flag){
+		if (!flag) {
 			newrange *= reduxCoeff;
 		}
 	} //end while
-	
-        retval.replace_best(Individual(x,startIndividual.getVelocity(),f));
-        return retval;
+
+	retval.replace_best(individual(x,startindividual.getVelocity(),f));
+	return retval;
 }
 
 void cs::log(std::ostream &s) const
 {
-        s << "CS - Starting Range:" << range << " FInal Range:" << minRange << " Reduction Coefficient:" << reduxCoeff;
+	s << "CS - Starting Range:" << range << " FInal Range:" << minRange << " Reduction Coefficient:" << reduxCoeff;
 }
 
-}}
+}
+}

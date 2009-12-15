@@ -32,33 +32,40 @@
 
 #include "base.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo
+{
+namespace problem {
 
 /// The Earth-Mars Low-thrust problem,Sims-Flanagan transcription
 /**
  * In the paper form 1999 by Sims-Flanagan "Preliminary Design of Low-Thrust Interplanetary Missions"
  * a new direct transcription method was presented. The method, alternative to Hermite-Simpson type of
- * transcription, was noted by the authors to have really good convergence properties and speed. 
+ * transcription, was noted by the authors to have really good convergence properties and speed.
  * The same method can be transported into a global optimisation framework with only minor modifications
  * giving birth to what we call here an impulsive transcription method.
  * earth_mars_lt creates a global optimisation problem that is an impulsive transcription of the OCP
  * describing a low-thrust trajectory from an Earth launch to a Mars randezvous
  */
-class __PAGMO_VISIBLE earth_mars_lt: public base {
+class __PAGMO_VISIBLE earth_mars_lt: public base
+{
 	public:
-		 /// Constructor.
-		 /**
-		 * This instantiate a "earth_mars_lt" problem. This is an impulsive transcription of the low-thrust
-		 * trajectory optimisation from Earth Launch to Mars Randezvous. 
-		 *
-		 * \param[in] segments number of segments the trajectory is divided into
-		 * \param[in] mass     spacecraft launch mass in kg
-		 * \param[in] thrust   maximumm thrust achievable in N
-		 * \param[in] Isp      thrusters specific impulse in seconds
-		 */
+		/// Constructor.
+		/**
+		* This instantiate a "earth_mars_lt" problem. This is an impulsive transcription of the low-thrust
+		* trajectory optimisation from Earth Launch to Mars Randezvous.
+		*
+		* \param[in] segments number of segments the trajectory is divided into
+		* \param[in] mass     spacecraft launch mass in kg
+		* \param[in] thrust   maximumm thrust achievable in N
+		* \param[in] Isp      thrusters specific impulse in seconds
+		*/
 		earth_mars_lt(int, const double &, const double &, const double &);
-		virtual earth_mars_lt *clone() const {return new earth_mars_lt(*this);}
-		virtual std::string id_object() const {return "hippo's problem";}
+		virtual earth_mars_lt *clone() const {
+			return new earth_mars_lt(*this);
+		}
+		virtual std::string id_object() const {
+			return "hippo's problem";
+		}
 		void human_readable(const std::vector<double> &) const;
 	private:
 		virtual double objfun_(const std::vector<double> &) const;
@@ -79,6 +86,7 @@ class __PAGMO_VISIBLE earth_mars_lt: public base {
 		double	Isp;
 };
 
-}}
+}
+}
 
 #endif

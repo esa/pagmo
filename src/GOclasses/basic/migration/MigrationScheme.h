@@ -35,17 +35,18 @@
 #include <iostream>
 #include <vector>
 
-#include "../../../../config.h"
+#include "../../../config.h"
 #include "../../../Functions/rng/rng.h"
 #include "../../basic/island.h"
 #include "../topology/base_topology.h"
 #include "../topology/one_way_ring_topology.h"
 
-namespace pagmo {
+namespace pagmo
+{
 
 /// Base class for the migration schemes.
 /**
- * Migration scheme is the actual implementation of migration. 
+ * Migration scheme is the actual implementation of migration.
  * By the collective decision, the objective programming paradigm was sacrificed here for the sake of the ease of use in python.
  *
  * In this class it is decided how migrating individuals are distributed, and by which island (source or destination) the migration is initiated.
@@ -57,9 +58,9 @@ namespace pagmo {
  * The type of distribution is set with the first argument of the class' constructor.
  *
  * Asynchronous migration may be initiated in two ways: either by the island being the "source" of migrating individuals in the processs of migration,
- * or by the one being the "destination" of the immigrants. The difference between the two cases may not be evident immidiately, but they 
+ * or by the one being the "destination" of the immigrants. The difference between the two cases may not be evident immidiately, but they
  * are not identical.
- * 
+ *
  * Consider the case of a star-like (broadcast) topology with one node in the centre (the hub) and many nodes connected only to it (the leaves).
  * Consider the incoming and outgoing flow rates of immigrants for bot the hub and a leaf:
  * <ul>
@@ -78,7 +79,7 @@ class __PAGMO_VISIBLE MigrationScheme
 	protected:
 		/// Lock guard type abbreviation.
 		typedef boost::lock_guard<boost::mutex> lock_type;
-	
+
 	public:
 		/// Default constructor.
 		/**
@@ -91,7 +92,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * @param[in] seed RNG seed.
 		 */
 		MigrationScheme(boost::uint32_t seed = static_rng_uint32()())
-			: distributionType(0), migrationDirection(1), topology(one_way_ring_topology().clone()), rng(seed) { }
+				: distributionType(0), migrationDirection(1), topology(one_way_ring_topology().clone()), rng(seed) { }
 
 		/// Almost default constructor.
 		/**
@@ -101,7 +102,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * @param[in] seed RNG seed.
 		 */
 		MigrationScheme(const base_topology& _topology, boost::uint32_t seed = static_rng_uint32()())
-			: distributionType(0), migrationDirection(1), topology(_topology.clone()), rng(seed) { }
+				: distributionType(0), migrationDirection(1), topology(_topology.clone()), rng(seed) { }
 
 
 		/// Constructor.
@@ -112,7 +113,7 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * @param seed RNG seed.
 		 */
 		MigrationScheme(int _distributionType, int _migrationDirection, boost::uint32_t seed = static_rng_uint32()())
-			: distributionType(_distributionType), migrationDirection(_migrationDirection), topology(0), rng(seed) { }
+				: distributionType(_distributionType), migrationDirection(_migrationDirection), topology(0), rng(seed) { }
 
 		/// Constructor.
 		/**
@@ -124,41 +125,39 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * @param seed RNG seed.
 		 */
 		MigrationScheme(int _distributionType, int _migrationDirection, const base_topology& _topology, boost::uint32_t seed = static_rng_uint32()())
-				:distributionType(_distributionType), migrationDirection(_migrationDirection), topology(_topology.clone()), rng(seed)
-		{
+				:distributionType(_distributionType), migrationDirection(_migrationDirection), topology(_topology.clone()), rng(seed) {
 		}
-		
+
 		/// Copy constructor.
 		/**
 		 * Creates a deep copy of the object
 		 */
-		MigrationScheme(const MigrationScheme& ms)				
-		{
+		MigrationScheme(const MigrationScheme& ms) {
 			distributionType = ms.distributionType;
 			migrationDirection = ms.migrationDirection;
 			topology.reset(ms.topology ? ms.topology->clone() : 0);
 			rng = ms.rng;
 		}
-		
+
 		/// Virtual destructor.
-		virtual ~MigrationScheme() { }; 
-	
+		virtual ~MigrationScheme() { };
+
 		/// Pre-evolution callback.
 		/**
 		 * This method is called by islands just before the actual evolution starts.
 		 * The method must be thread-safe, but it may assume that the island being the argument of the function is not
 		 * evolving at the moment.
 		 * \param[in,out] _island island calling the function.
-		 */		
+		 */
 		void preEvolutionCallback(island& _island);
-		
+
 		/// Post-evolution callback.
 		/**
 		 * This method is called by islands right after the actual evolution finishes.
 		 * The method must be thread-safe, but it may assume that the island being the argument of the function is not
 		 * evolving at the moment.
 		 * \param[in,out] _island island calling the function.
-		 */		
+		 */
 		void postEvolutionCallback(island& _island);
 
 		///Clone object.
@@ -166,43 +165,42 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * Cloned object should be the exact copy of the original, but should be safe to use in a multithreaded environment.
 		 * \todo Determine if the state variables should also be cloned and a separate method for resetting them be provided, or not.
 		 */
-		MigrationScheme* clone() const { return new MigrationScheme(*this); }
-		
+		MigrationScheme* clone() const {
+			return new MigrationScheme(*this);
+		}
+
 		/// Register an island with the migration scheme.
-		virtual void push_back(const island& _island)
-		{
+		virtual void push_back(const island& _island) {
 			lock_type lock(topology_mutex); ///\todo just in case... is it really needed?
-			if(topology) {
+			if (topology) {
 				topology->push_back(_island.id());
 			}
 		}
-		
+
 		/// Reset the migration scheme.
 		/**
-		 * Associated topology, if present, is cleared. All islands have to be re-registered with the migration scheme.		 
+		 * Associated topology, if present, is cleared. All islands have to be re-registered with the migration scheme.
 		 */
-		virtual void reset()
-		{
+		virtual void reset() {
 			immigrantsByIsland.clear();
-			
-			if(topology) {
+
+			if (topology) {
 				topology->clear();
 			}
-		}		
-		
+		}
+
 		//Getters and setters
 		/// Public topology getter.
 		/**
-		 * Note that this function will throw an exception if no topology is associated with the scheme.		 
+		 * Note that this function will throw an exception if no topology is associated with the scheme.
 		 */
-		const base_topology& getTopology() const
-		{
-			if(!topology) {
+		const base_topology& getTopology() const {
+			if (!topology) {
 				pagmo_throw(value_error, "The migration scheme has no associated topology!");
 			}
 			return *topology;
 		}
-		
+
 		/// Topology setter.
 		/**
 		 * A deep copy of the given object is created and stored. Apart from this,the method has no embedded logic;
@@ -210,17 +208,19 @@ class __PAGMO_VISIBLE MigrationScheme
 		 * valid content.
 		 * \todo Is this the right behaviour?
 		 */
-		void setTopology(const base_topology* _topology) { topology.reset(_topology ? _topology->clone() : 0); }		
-		
+		void setTopology(const base_topology* _topology) {
+			topology.reset(_topology ? _topology->clone() : 0);
+		}
+
 	private:
 		/// Immigrants distribution type flag.
 		/** 0 = point-to-point, 1 = broadcast among neighbours */
 		int distributionType;
-		
+
 		/// Migration direction flag.
 		/** 0 = immigrants flow is initiated by the source island, 1 = immingrants flow is initiated by the destination island */
 		int migrationDirection;
-	
+
 		boost::scoped_ptr<base_topology>	topology; ///< Migration topology. \todo I'm not so sure if all possible migration schemes require a topology...
 		mutable boost::mutex				topology_mutex; ///< Topology mutex. <b>Access to the topology must be synchronised!!!</b>
 
@@ -228,10 +228,10 @@ class __PAGMO_VISIBLE MigrationScheme
 		/**
 		 * The way in which this container is used depends on the type of migration performed.
 		 */
-		boost::unordered_map<size_t, std::vector<Individual> > immigrantsByIsland;
-		
-		rng_double rng; ///< Random number generator	
-	
+		boost::unordered_map<size_t, std::vector<individual> > immigrantsByIsland;
+
+		rng_double rng; ///< Random number generator
+
 		/// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const MigrationScheme& ms);
 };

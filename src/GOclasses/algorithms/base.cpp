@@ -28,7 +28,9 @@
 #include "../../Functions/rng/rng.h"
 #include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo
+{
+namespace algorithm {
 
 /// Default constructor.
 base::base():drng(static_rng_uint32()()) {}
@@ -46,9 +48,11 @@ base &base::operator=(const base &a)
 }
 
 /// Print to stream.
-std::ostream &operator<<(std::ostream &s, const base &alg) {
-		alg.log(s);
-		return s;
+std::ostream &operator<<(std::ostream &s, const base &alg)
+{
+	alg.log(s);
+	return s;
 }
 
-}}
+}
+}
