@@ -45,4 +45,7 @@
 #define __PAGMO_VISIBLE_FUNC
 #endif
 
+/// Root PaGMO namespace.
+namespace pagmo {}
+
 #endif
