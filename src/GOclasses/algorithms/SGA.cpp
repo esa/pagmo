@@ -329,7 +329,9 @@ Population SGAalgorithm::evolve(const Population &deme) const {
 	//we end by constructing the object Population containing the final results
 	Population popout(problem,0);
 	for (int i=0; i<NP; i++){
-		popout.push_back(Individual(X[i],std::vector<double>(),fit[i]));
+		// TODO: WARNING! here we are creating the individuals with empty velocity vectors,
+		// we could improve this by, e.g., re-using the velocities from the input population.
+		popout.push_back(Individual(X[i],std::vector<double>(X[i].size()),fit[i]));
 	}
 	return popout;
 }
