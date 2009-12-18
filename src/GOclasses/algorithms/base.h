@@ -65,10 +65,16 @@ class __PAGMO_VISIBLE base
 			return typeid(*this).name();
 		}
 		/// Get the name identyfing the object (<b>not</b> the class).
-		/** Exposed to Python. The string should identify the object, so that instanciations of the same class with different parameters are distinguishable. */
+		/**
+		 * Exposed to Python. The string should identify the object, so that instanciations of the
+		 * same class with different parameters are distinguishable.
+		 */
 		virtual std::string id_object() const = 0;
 	protected:
-		///Virtual log method. Is called by the overloaded operator << of algorithm::base that can thus behave differently for each derived class
+		/// Virtual log method.
+		/**
+		 * Is called by the overloaded operator << of algorithm::base that can thus behave differently for each derived class.
+		 */
 		virtual void log(std::ostream& s) const {
 			s << "You need to implement the virtual method log() for this derived class of algorithm::base" << std::endl;
 		}

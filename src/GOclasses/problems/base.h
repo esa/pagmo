@@ -60,7 +60,6 @@ class __PAGMO_VISIBLE base
 		friend size_t __PAGMO_VISIBLE_FUNC objfun_calls();
 		friend void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
 	public:
-		~base() {}
 		// Bounds getters and setters via reference
 		const std::vector<double> &getLB() const;
 		const std::vector<double> &getUB() const;
@@ -83,7 +82,11 @@ class __PAGMO_VISIBLE base
 		virtual std::string id_object() const = 0;
 
 	protected:
-		// Print function: called by operator<<, can be re-implemented in sublcasses.
+		/// Print function.
+		/**
+		 * Called by operator<<, can be re-implemented in sublcasses. Default implementation prints the problem's C++ name,
+		 * dimension and bounds.
+		 */
 		virtual std::ostream &print(std::ostream &) const;
 		// The objective function - must be implemented in subclasses
 		virtual double objfun_(const std::vector<double> &) const = 0;
