@@ -84,7 +84,7 @@ class __PAGMO_VISIBLE base
 	protected:
 		/// Print function.
 		/**
-		 * Called by operator<<, can be re-implemented in sublcasses. Default implementation prints the problem's C++ name,
+		 * Called by operator<<, can be re-implemented in subclasses. Default implementation prints the problem's C++ name,
 		 * dimension and bounds.
 		 */
 		virtual std::ostream &print(std::ostream &) const;
