@@ -1,3 +1,4 @@
+#ifndef ANN_TB_MULTILAYER_PERCEPTRON_H
 /*****************************************************************************
  *   Copyright (C) 2004-2009 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
@@ -22,47 +23,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
-#include <vector>
-#include <algorithm>
+// Created by Juxi Leitner on 2009-12-21.
+// based on the TwoDee Artificial Neural Network Code
 
-// 09/03/2009: Initial version by Marek Rucinski.
+#define ANN_TB_MULTILAYER_PERCEPTRON_H
 
-namespace pagmo
-{
+#include "neural_network.h"
 
-std::vector<individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const population& population)
-{
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
+namespace ann_toolbox {
+	
+/**
+ * A multilayer perceptron (a type of artificial neural network), representing a 
+ * feedforward neural network, with one hidden layer. 
+ * More info: http://en.wikipedia.org/wiki/Mulitlayer_perceptron
+ */	
+class multilayer_perceptron : public neural_network {
+public:
+	/// Constructor
+	/**
+	 * Creates a new multilayer_perceptron object, which is derived from the 
+	 * neural_network class and using one hidden layer of nodes. It calls the
+	 * set_weights function to initalize the weights of the neural network.
+	 * \param input_nodes	the number of input nodes
+	 * \param hidden_nodes	the number of nodes in the hidden layer
+	 * \param output_nodes	the number of output nodes (default = 1)
+	 * \param w				the weights, with which the neural network is initiated (empty by default)
+	 * \return a perceptron object
+	 */
+	multilayer_perceptron(unsigned int input_nodes_, unsigned int hidden_nodes_, 
+			unsigned int output_nodes_ = 1, const std::vector<double> &w = std::vector<double>());	
 
-	//Create a temporary array of individuals
-	std::vector<individual> result(population.begin(), population.end());
+	/// Destructor
+    ~multilayer_perceptron();
 
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
+	/// Compute Outputs
+	const std::vector<double> compute_outputs(std::vector<double> &inputs);
 
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), individual::compare_by_fitness);
-
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	return result;
-}
+protected:
+	// number of hidden nodes
+	unsigned int	m_hidden;
+};
 
 }
+#endif

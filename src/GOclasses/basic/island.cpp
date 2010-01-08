@@ -334,7 +334,7 @@ void island::int_evolver::operator()()
 	try {
 		//Synchronise start with all other threads
 		if (m_i->m_a) {
-			m_i->m_a->syncIslandStart();
+			m_i->m_a->sync_island_start();
 		}
 
 		for (int i = 0; i < m_n; ++i) {
@@ -344,7 +344,7 @@ void island::int_evolver::operator()()
 				m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
-			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestindividual().getFitness() << '\n';
+			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestindividual().get_fitness() << '\n';
 			if (m_i->m_a) {
 				//lock_type lock(m_i->m_topo_mutex);
 				m_i->m_a->postEvolutionCallback(*m_i);
@@ -373,7 +373,7 @@ void island::t_evolver::operator()()
 	try {
 		// Synchronise start
 		if (m_i->m_a) {
-			m_i->m_a->syncIslandStart();
+			m_i->m_a->sync_island_start();
 		}
 
 		do {
@@ -384,7 +384,7 @@ void island::t_evolver::operator()()
 			}
 			m_i->m_pop = m_i->m_goa->evolve(m_i->m_pop);
 			diff = boost::posix_time::microsec_clock::local_time() - start;
-			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestindividual().getFitness() << '\n';
+			//std::cout << "Evolution finished, best fitness is: " << m_i->m_pop.extractBestindividual().get_fitness() << '\n';
 			if (m_i->m_a) {
 				//lock_type lock(m_i->m_topo_mutex);
 				//m_i->m_a->m_top->post_evolution(*m_i); //Call migration scheme

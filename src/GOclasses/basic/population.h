@@ -240,13 +240,13 @@ class __PAGMO_VISIBLE population: public py_container_utils<population>
 				pagmo_throw(index_error,"population is empty");
 			}
 			const Functor func = Functor();
-			double f = pop[0].getFitness();
+			double f = pop[0].get_fitness();
 			size_t index = 0;
 			const size_t size = pop.size();
 			for (size_t i = 1; i < size; ++i) {
-				if (func(pop[i].getFitness(),f)) {
+				if (func(pop[i].get_fitness(),f)) {
 					index = i;
-					f = pop[i].getFitness();
+					f = pop[i].get_fitness();
 				}
 			}
 			return index;
@@ -262,7 +262,7 @@ class __PAGMO_VISIBLE population: public py_container_utils<population>
 				if (picks[i] >= pop_size) {
 					pagmo_throw(index_error,"pick value exceeds population's size while inserting deme");
 				}
-				if (Forced || deme.pop[i].getFitness() < pop[picks[i]].getFitness()) {
+				if (Forced || deme.pop[i].get_fitness() < pop[picks[i]].get_fitness()) {
 					pop[picks[i]] = deme.pop[i];
 				}
 			}

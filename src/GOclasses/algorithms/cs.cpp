@@ -70,8 +70,8 @@ population cs::evolve(const population &popin) const
 	population retval(popin);
 	const individual &startindividual = retval.extractBestIndividual();
 	std::vector <double> x,newx;
-	x = startindividual.getDecisionVector();
-	double f = startindividual.getFitness();
+	x = startindividual.get_decision_vector();
+	double f = startindividual.get_fitness();
 	double newf;
 	size_t D = problem.getDimension();
 	bool flag = false;
@@ -115,7 +115,7 @@ population cs::evolve(const population &popin) const
 		}
 	} //end while
 
-	retval.replace_best(individual(x,startindividual.getVelocity(),f));
+	retval.replace_best(individual(x, startindividual.get_velocity(), f));
 	return retval;
 }
 

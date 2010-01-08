@@ -22,47 +22,25 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
-#include <vector>
-#include <algorithm>
+// Created by Juxi Leitner on 2009-12-21.
+// based on the TwoDee Artificial Neural Network Code
 
-// 09/03/2009: Initial version by Marek Rucinski.
+#include <exception>
+#include "../exceptions.h"
 
-namespace pagmo
-{
+#include "neural_network.h"
 
-std::vector<individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const population& population)
-{
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
+using namespace ann_toolbox;
 
-	//Create a temporary array of individuals
-	std::vector<individual> result(population.begin(), population.end());
+neural_network::neural_network(unsigned int input_nodes_, unsigned int output_nodes_) :
+	m_inputs(input_nodes_), m_outputs(output_nodes_)
+{}
 
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
+neural_network::~neural_network() {}
+
+void neural_network::set_weights(const std::vector<double> &chromosome) {
+	if(chromosome.size() != m_weights.size()) {
+		pagmo_throw(value_error, "number of weights is incorrect");
 	}
-	std::cout << std::endl;*/
-
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), individual::compare_by_fitness);
-
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	return result;
-}
-
+	m_weights = chromosome;
 }

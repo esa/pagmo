@@ -22,47 +22,59 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
-#include <vector>
-#include <algorithm>
+// Created by Juxi Leitner on 2009-12-21.
+// based on the TwoDee Artificial Neural Network Code
 
-// 09/03/2009: Initial version by Marek Rucinski.
+#include <cstdlib>
+#include <cmath>
+#include <vector>        
+#include <exception>
+#include "../exceptions.h"
 
-namespace pagmo
+#include "perceptron.h"
+
+using namespace ann_toolbox;
+
+// Constructor
+perceptron::perceptron(unsigned int input_nodes_, unsigned int output_nodes_, const std::vector<double> &w) : 
+    neural_network(input_nodes_, output_nodes_)
 {
+	// the number of weights is equal to all the inputs (and a bias)
+	// for every output, i.e. it is fully connected
+	unsigned int wghts = (m_inputs + 1) * m_outputs;
+	m_weights = std::vector<double>(wghts, 0);
 
-std::vector<individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const population& population)
-{
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
-
-	//Create a temporary array of individuals
-	std::vector<individual> result(population.begin(), population.end());
-
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), individual::compare_by_fitness);
-
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	return result;
+	if(! w.empty()) set_weights(w);
 }
 
+// Destructor
+perceptron::~perceptron() {}
+
+// Computing the outputs
+const std::vector<double> perceptron::compute_outputs(std::vector<double> &inputs) 
+{
+	// check for correct input size
+	if(inputs.size() != m_inputs) {
+		pagmo_throw(value_error, "incorrect size of input vector");
+	}
+	
+	// generate outputs based on inputs and weights (incl. bias)
+	std::vector<double> outputs(m_outputs, 0);
+	unsigned int i = 0, j, ji;
+    for(  ; i < m_outputs; i++ ) {
+        // Start with the bias (the first weight to the i'th output node)
+        outputs[i] = m_weights[i * (m_inputs + 1)];			    
+        
+        for( j = 0; j < m_inputs; j++ ) {
+            // Compute the weight number
+            ji = i * (m_inputs + 1) + (j + 1);
+            // Add the weighted input
+            outputs[i] += m_weights[ji] * inputs[j];
+        }
+        
+        // Apply the transfer function (a sigmoid with output in [0,1])
+        outputs[i] = 1.0 / (1.0 + exp(-outputs[i]));
+    }
+
+    return outputs;
 }

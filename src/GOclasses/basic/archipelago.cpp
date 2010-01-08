@@ -189,7 +189,7 @@ individual archipelago::best() const
 
 	const const_iterator it_f = m_container.end();
 	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
-		if ((!bestFound) || (it->best().getFitness() < result.getFitness())) {
+		if ((!bestFound) || (it->best().get_fitness() < result.get_fitness())) {
 			bestFound = true;
 			result = it->best();
 		}
@@ -202,7 +202,7 @@ individual archipelago::best() const
 	return result;
 }
 
-size_t archipelago::getMaxEvoTime() const
+size_t archipelago::get_max_evo_time() const
 {
 	join();
 
@@ -218,8 +218,7 @@ size_t archipelago::getMaxEvoTime() const
 	return result;
 }
 
-size_t archipelago::getTotalEvoTime() const
-{
+size_t archipelago::get_total_evo_time() const {
 	join();
 
 	size_t result = 0;
@@ -233,7 +232,7 @@ size_t archipelago::getTotalEvoTime() const
 }
 
 
-const MigrationScheme& archipelago::getMigrationScheme() const
+const MigrationScheme& archipelago::get_migration_scheme() const
 {
 	join();
 	if (!migrationScheme) {
@@ -242,10 +241,10 @@ const MigrationScheme& archipelago::getMigrationScheme() const
 	return *migrationScheme;
 }
 
-void archipelago::setMigrationScheme(const MigrationScheme* newMigrationScheme)
+void archipelago::set_migration_scheme(const MigrationScheme* new_migration_scheme)
 {
 	join();
-	migrationScheme.reset(newMigrationScheme ? newMigrationScheme->clone() : 0);
+	migrationScheme.reset(new_migration_scheme ? new_migration_scheme->clone() : 0);
 
 	if (migrationScheme) {
 		// Clear all information potentially present in the migration scheme.
@@ -258,7 +257,7 @@ void archipelago::setMigrationScheme(const MigrationScheme* newMigrationScheme)
 	}
 }
 
-const base_topology& archipelago::getTopology() const
+const base_topology& archipelago::get_topology() const
 {
 	join();
 	if (!migrationScheme) {
@@ -267,7 +266,7 @@ const base_topology& archipelago::getTopology() const
 	return migrationScheme->getTopology();
 }
 
-void archipelago::setTopology(const base_topology* newTopology)
+void archipelago::set_topology(const base_topology* newTopology)
 {
 	join();
 
@@ -286,7 +285,7 @@ void archipelago::setTopology(const base_topology* newTopology)
 	}
 }
 
-void archipelago::syncIslandStart() const
+void archipelago::sync_island_start() const
 {
 	pagmo_assert(islandsSyncPoint);
 

@@ -33,7 +33,7 @@ namespace pagmo
 std::ostream& print_vector_of_individuals_indirect(std::ostream& str, const std::vector<individual>& vect_indiv, const std::vector<int>& vect_index)
 {
 	for (std::vector<int>::const_iterator it = vect_index.begin(); it != vect_index.end(); ++it) {
-		str << vect_indiv[*it].getFitness() << " ";
+		str << vect_indiv[*it].get_fitness() << " ";
 	}
 	return str;
 }

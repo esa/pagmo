@@ -22,47 +22,56 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
-#include <vector>
-#include <algorithm>
+// Created by Juxi Leitner on 2009-12-21.
+// based on the TwoDee Artificial Neural Network Code
 
-// 09/03/2009: Initial version by Marek Rucinski.
+#ifndef ANN_TB_CTRNN_H
+#define ANN_TB_CTRNN_H
 
-namespace pagmo
-{
+#include "neural_network.h"
 
-std::vector<individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const population& population)
-{
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
+namespace ann_toolbox {
+	
+/**
+ * A Continuous-Time Recurrent Neural Networks (CTRNNs) is a dynamic neural network
+ * allowing recurrent connections and considers continuous time as a factor.
+ * TODO
+ * More info: add link
+ */	
+class ctrnn : public neural_network {
+public:
+	/// Constructor
+	/**
+	 * Creates a new ctrnn (continuous-time recurrent neural network) object, which is derived
+	 * from the neural_network class.
+	 * \param input_nodes	the number of input nodes
+	 * \param hidden_nodes	the number of nodes in the hidden layer
+	 * \param output_nodes	the number of output nodes (default = 1)
+	 * \param w				the weights, with which the neural network is initiated (empty by default)
+	 * \return a perceptron object
+	 */
+	ctrnn(unsigned int input_nodes_, unsigned int hidden_nodes_, 
+			unsigned int output_nodes_ = 1, const std::vector<double> &w = std::vector<double>());	
 
-	//Create a temporary array of individuals
-	std::vector<individual> result(population.begin(), population.end());
+	/// Destructor
+    ~ctrnn();
 
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
+	/// Getter/SetterFunctions
+	virtual void set_weights(const std::vector<double> &w); 
+	//void set_time_step(double ts);
 
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), individual::compare_by_fitness);
+	/// Compute Outputs
+	const std::vector<double> compute_outputs(std::vector<double> &inputs);
 
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
+protected:
+	// number of hidden nodes
+	unsigned int	m_hidden;
+	double	m_time_step;
+	// a vector to store the memory of the network (feedback nodes)
+	std::vector<double>	m_hidden_neurons;
+	std::vector<double>	m_output_neurons;	
+};
 
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	return result;
 }
+#endif
 
-}

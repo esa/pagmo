@@ -67,7 +67,7 @@ void inventory::pre_evolution(population & pop) const
 	}
 	//Re-evaluate the population with respect to the new seed (Internal Sampling Method)
 	for (size_t i=0; i<pop.size(); ++i) {
-		pop[i] = individual(*this, pop[i].getDecisionVector(), pop[i].getVelocity());
+		pop[i] = individual(*this, pop[i].get_decision_vector(), pop[i].get_velocity());
 	}
 }
 

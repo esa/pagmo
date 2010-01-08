@@ -109,7 +109,7 @@ population ihs::evolve(const population &pop) const
 			const double next_rn = drng();
 			if (drng() <= m_phmcr) {
 				// With random probability, tmp's i-th chromosome element is the one from a randomly chosen individual.
-				tmp_dv[i] = retval[(size_t)(next_rn * pop_size)].getDecisionVector()[i];
+				tmp_dv[i] = retval[(size_t)(next_rn * pop_size)].get_decision_vector()[i];
 				if (drng() <= ppar_cur) {
 					// Randomly, add or subtract pitch from the current chromosome element.
 					const double next_next_rn = drng();
@@ -132,8 +132,8 @@ population ihs::evolve(const population &pop) const
 		}
 		const double tmp_fitness = problem.objfun(tmp_dv);
 		const individual &worst = retval.extractWorstIndividual();
-		if (tmp_fitness < worst.getFitness()) {
-			retval.replace_worst(individual(tmp_dv,worst.getVelocity(),tmp_fitness));
+		if (tmp_fitness < worst.get_fitness()) {
+			retval.replace_worst(individual(tmp_dv, worst.get_velocity(), tmp_fitness));
 		}
 	}
 	return retval;

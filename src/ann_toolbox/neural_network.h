@@ -22,47 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
+// Created by Juxi Leitner on 2009-12-21.
+
+#ifndef ANN_TB_NEURALNETWORK_H
+#define ANN_TB_NEURALNETWORK_H
+
 #include <vector>
-#include <algorithm>
 
-// 09/03/2009: Initial version by Marek Rucinski.
+namespace ann_toolbox {
 
-namespace pagmo
-{
+class neural_network {
+public:
+	neural_network(unsigned int input_nodes_, unsigned int output_nodes_);
+	virtual ~neural_network();
 
-std::vector<individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const population& population)
-{
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
+//	virtual void set_inputs(std::vector<double> &inputs);
+	virtual void set_weights(const std::vector<double> &chromosome); 
+    virtual const std::vector<double> compute_outputs(std::vector<double> &inputs) = 0;
 
-	//Create a temporary array of individuals
-	std::vector<individual> result(population.begin(), population.end());
+	//virtual void SimulationStep(unsigned n_step_number, double f_time, double f_step_interval);
 
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
+	unsigned int get_number_of_input_nodes() 	{ return m_inputs; };
+	unsigned int get_number_of_output_nodes()	{ return m_outputs; };
+	unsigned int get_number_of_weights() 		{ return m_weights.size(); };
 
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), individual::compare_by_fitness);
-
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	return result;
-}
+protected:
+	const char*		m_name;
+	unsigned int	m_inputs, m_outputs;
+	std::vector<double>	m_weights;
+};
 
 }
+#endif

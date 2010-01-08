@@ -27,17 +27,19 @@
 #include "src/GOclasses/algorithms/cs.h"
 #include "src/GOclasses/basic/island.h"
 #include "src/GOclasses/problems/trajectory.h"
+//#include "src/ann_toolbox/perceptron.h"
 
 using namespace std;
 using namespace pagmo;
 
-int main(){
+int main(){	
+//		ann_toolbox::perceptron ann = ann_toolbox::perceptron(6, 2);
         algorithm::cs algo(0.001);
         problem::messengerfull prob;
         island isl(prob,algo,20);
-        cout << "Best: " << isl.best().getFitness() << endl;
+        cout << "Best: " << isl.best().get_fitness() << endl;
         isl.evolve();
         isl.join();
-        cout << "Best: " << isl.best().getFitness() << endl;
+        cout << "Best: " << isl.best().get_fitness() << endl;
         return 0;
 }

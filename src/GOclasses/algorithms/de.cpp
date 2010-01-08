@@ -76,9 +76,9 @@ population de::evolve(const population &deme) const
 
 	// Initialise the chromosome (class individual) values, and their fitness to that of the deme
 	for (size_t i = 0; i < NP; ++i) {
-		popold[i] = deme[i].getDecisionVector();
-		popnew[i] = deme[i].getDecisionVector();
-		fit[i] = deme[i].getFitness();
+		popold[i] = deme[i].get_decision_vector();
+		popnew[i] = deme[i].get_decision_vector();
+		fit[i] = deme[i].get_fitness();
 	}
 
 	// Initialise the global bests
@@ -293,13 +293,13 @@ population de::evolve(const population &deme) const
 	population popout(problem,0);
 	std::vector<double> Xini(D),Vfin(D);
 	for (size_t i = 0; i < NP; ++i) {
-		Xini = deme[i].getDecisionVector();
+		Xini = deme[i].get_decision_vector();
 		for (size_t j = 0; j < D; ++j) {
 			Vfin[j] = popold[i][j] - Xini[j];
 		}
-		//X[i] - deme[i].getDecisionVector());  DOES NOT WORK AS VECTOR CLASS DOES NOT ACCEPT MINUS AS OPERATOR
+		//X[i] - deme[i].get_decision_vector());  DOES NOT WORK AS VECTOR CLASS DOES NOT ACCEPT MINUS AS OPERATOR
 
-		popout.push_back(individual(popold[i],deme[i].getVelocity(),fit[i]));
+		popout.push_back(individual(popold[i], deme[i].get_velocity(), fit[i]));
 	}
 	return popout;
 }

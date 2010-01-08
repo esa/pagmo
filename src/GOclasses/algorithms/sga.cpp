@@ -118,8 +118,8 @@ population sga::evolve(const population &deme) const
 
 	// Initialise the chromosomes and their fitness to that of the initial deme
 	for ( int i = 0; i<NP; i++ ) {
-		X[i]	=	deme[i].getDecisionVector();
-		fit[i]	=	deme[i].getFitness();
+		X[i]	=	deme[i].get_decision_vector();
+		fit[i]	=	deme[i].get_fitness();
 	}
 
 	// Find the best member and store in bestX and bestfit

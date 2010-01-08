@@ -87,8 +87,8 @@ population asa::evolve(const population &pop) const
 	population retval(pop);
 	const individual &x0 = retval.extractBestIndividual();
 	const double Tcoeff = std::pow(Tf/Ts,1.0/(double)(niterOuter));
-	std::vector<double> xNEW = x0.getDecisionVector(), xOLD = xNEW;
-	double fNEW = x0.getFitness(), fOLD = fNEW;
+	std::vector<double> xNEW = x0.get_decision_vector(), xOLD = xNEW;
+	double fNEW = x0.get_fitness(), fOLD = fNEW;
 	if (xNEW.size() != SolDim) {
 		pagmo_throw(value_error,"discrepancy between individual size and problem size.");
 	}
@@ -162,8 +162,8 @@ population asa::evolve(const population &pop) const
 		currentT *= Tcoeff;
 	}
 
-	if (fOLD < x0.getFitness()) {
-		retval.replace_best(individual(xOLD,x0.getVelocity(),fOLD));
+	if (fOLD < x0.get_fitness()) {
+		retval.replace_best(individual(xOLD,x0.get_velocity(),fOLD));
 	}
 	return retval;
 }

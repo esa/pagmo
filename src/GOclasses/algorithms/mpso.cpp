@@ -89,9 +89,9 @@ population mpso::evolve(const population &deme) const
 	// Initialise the particles (class individual) positions, their velocities and their fitness to that of the deme
 	for (size_t i = 0; i < nswarms; ++i) {
 		for (size_t j = 0; j < NP; ++j) {
-			X[i][j]	= deme[NP*i+j].getDecisionVector();
-			V[i][j]	= deme[NP*i+j].getVelocity();
-			fit[i][j] = deme[NP*i+j].getFitness();
+			X[i][j]	= deme[NP*i+j].get_decision_vector();
+			V[i][j]	= deme[NP*i+j].get_velocity();
+			fit[i][j] = deme[NP*i+j].get_fitness();
 		}
 	}
 	// Initialise the minimum and maximum velocity

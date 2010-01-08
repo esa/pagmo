@@ -117,17 +117,17 @@ class __PAGMO_VISIBLE individual
 		individual& operator=(const individual &);
 
 		///Returns the individual fitness.
-		double getFitness() const {
+		double get_fitness() const {
 			return fitness;
 		}
 
 		///Returns the individual chromosome (position).
-		const std::vector<double> &getDecisionVector() const {
+		const std::vector<double> &get_decision_vector() const {
 			return x;
 		}
 
 		///Returns the individual velocity.
-		const std::vector<double> &getVelocity() const {
+		const std::vector<double> &get_velocity() const {
 			return v;
 		}
 

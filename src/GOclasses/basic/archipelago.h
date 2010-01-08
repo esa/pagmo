@@ -133,15 +133,15 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago>
 		/**
 		 * Note that the method will throw an exception when there's no scheme associated with the archipelago.
 		 */
-		const MigrationScheme& getMigrationScheme() const;
+		const MigrationScheme& get_migration_scheme() const;
 
 		/// Archipelago's migration scheme setter (<b>synchronised</b>).
 		/**
 		 * A deep copy of the passed migration scheme is stored.
 		 * All islands in the archipelago are registred in the new migration scheme.
-		 * \param[in] newMigrationScheme migration scheme to be set in the archipelago.
+		 * \param[in] new_migration_scheme migration scheme to be set in the archipelago.
 		 */
-		void setMigrationScheme(const MigrationScheme* newMigrationScheme);
+		void set_migration_scheme(const MigrationScheme* new_migration_scheme);
 
 		/// Underlying topology getter (<b>synchronised</b>).
 		/**
@@ -150,7 +150,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago>
 		 * Note that the method will throw an exception when there's no migration scheme associated with the archipelago
 		 * or when the scheme has no topology.
 		 */
-		const base_topology& getTopology() const;
+		const base_topology& get_topology() const;
 
 		/// Underlying topology setter (<b>synchronised</b>).
 		/**
@@ -158,7 +158,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago>
 		 * change the topology of the archipelago without an intermediate reference to the migration scheme.
 		 * Note that the method will throw an exception when there's no migration scheme associated with the archipelago.
 		 */
-		void setTopology(const base_topology* newTopology);
+		void set_topology(const base_topology* newTopology);
 
 
 		//Evolution functions
@@ -190,10 +190,10 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago>
 		individual best() const;
 
 		/// Get the maximum total evolution time for all islands (<b>synchronised</b>).
-		size_t getMaxEvoTime() const;
+		size_t get_max_evo_time() const;
 
 		/// Get the sum of total evolution times for all islands (<b>synchronised</b>).
-		size_t getTotalEvoTime() const;
+		size_t get_total_evo_time() const;
 
 	protected:
 		/// To be called by an island before the actual evolution starts.
@@ -217,7 +217,7 @@ class __PAGMO_VISIBLE archipelago: public py_container_utils<archipelago>
 		 * This method allows synchronisation of all computational threads. All islands should call
 		 * this method, which will block all of them until all threads are ready for computation.
 		 */
-		void syncIslandStart() const;
+		void sync_island_start() const;
 
 	private:
 		/// Check if the island is compatible with the archipelago

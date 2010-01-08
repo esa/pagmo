@@ -245,8 +245,8 @@ population nm::evolve(const population &pop) const
 	const size_t simplex_size = prob_size + 1;
 	simplex s(simplex_size,std::make_pair(vertex(prob_size),0));
 	for (size_t i = 0; i < simplex_size; ++i) {
-		s[i].first = retval[i].getDecisionVector();
-		s[i].second = retval[i].getFitness();
+		s[i].first = retval[i].get_decision_vector();
+		s[i].second = retval[i].get_fitness();
 	}
 	// Perform the NM method for a number of times equal to m_gen.
 	for (size_t gen = 0; gen < m_gen; ++gen) {
@@ -256,8 +256,8 @@ population nm::evolve(const population &pop) const
 			//std::cout << "small diameter: " << diameter << '\n';
 			for (size_t i = 1; i < simplex_size; ++i) {
 				individual tmp(problem);
-				s[i].first = tmp.getDecisionVector();
-				s[i].second = tmp.getFitness();
+				s[i].first = tmp.get_decision_vector();
+				s[i].second = tmp.get_fitness();
 			}
 		}
 		// First order the vertices of the simplex according to fitness.
@@ -305,7 +305,7 @@ population nm::evolve(const population &pop) const
 	}
 	// In retval overwrite the individuals that have evolved (i.e., those involved in the simplex).
 	for (size_t i = 0; i < simplex_size; ++i) {
-		retval.setIndividual(i,individual(s[i].first,retval[i].getVelocity(),s[i].second));
+		retval.setIndividual(i, individual(s[i].first, retval[i].get_velocity(), s[i].second));
 	}
 	return retval;
 }

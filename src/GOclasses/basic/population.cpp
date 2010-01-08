@@ -132,7 +132,7 @@ double population::evaluateMean() const
 	double mean = 0;
 	const size_t size = pop.size();
 	for (size_t i = 0; i < size; ++i) {
-		mean += pop[i].getFitness();
+		mean += pop[i].get_fitness();
 	}
 	mean /= (double)size;
 	return mean;
@@ -146,7 +146,7 @@ double population::evaluateStd() const
 	double Std = 0, mean = evaluateMean();
 	const size_t size = pop.size();
 	for (size_t i = 0; i < size; ++i) {
-		Std += pow((pop[i].getFitness()-mean),2.0);
+		Std += pow((pop[i].get_fitness()-mean),2.0);
 	}
 	Std = sqrt(Std/size);
 	return Std;
@@ -178,7 +178,7 @@ void population::replace_worst(const individual &ind)
 
 struct fitness_sorter {
 	bool operator()(const individual &i1, const individual &i2) const {
-		return (i1.getFitness() < i2.getFitness());
+		return (i1.get_fitness() < i2.get_fitness());
 	}
 };
 
@@ -232,19 +232,19 @@ void population::insertBestInDeme(const population &deme, const std::vector<size
 		pagmo_throw(index_error,"mismatch between deme size and picks size while inserting best in deme");
 	}
 	size_t bestindeme = 0, worstinpicks = 0;
-	double best = deme[0].getFitness(), worst = pop[picks[0]].getFitness();
+	double best = deme[0].get_fitness(), worst = pop[picks[0]].get_fitness();
 	// Determine the best individual in deme and the worst among the picks.
 	for (size_t i = 1; i < Ndeme; ++i) {
-		if (deme[i].getFitness() < best) {
+		if (deme[i].get_fitness() < best) {
 			bestindeme = i;
-			best = deme[i].getFitness();
+			best = deme[i].get_fitness();
 		}
 		if (picks[i] >= pop_size) {
 			pagmo_throw(index_error,"pick value exceeds population's size while inserting best in deme");
 		}
-		if (pop[picks[i]].getFitness() > worst) {
+		if (pop[picks[i]].get_fitness() > worst) {
 			worstinpicks = i;
-			worst = pop[picks[i]].getFitness();
+			worst = pop[picks[i]].get_fitness();
 		}
 	}
 	// In place of the worst among the picks, insert the best in deme.
@@ -258,20 +258,20 @@ individual population::checked_individual(const individual &ind) const
 	try {
 		ind.check(*m_problem);
 	} catch (const value_error &) {
-		const size_t size = ind.getDecisionVector().size();
+		const size_t size = ind.get_decision_vector().size();
 		if (size != m_problem->getDimension()) {
 			pagmo_throw(value_error,"individual's size is incompatible with population");
 		} else {
 			const individual random_ind = individual(*m_problem);
 			std::vector<double> dv(size), v(size);
 			for (size_t i = 0; i < size; ++i) {
-				if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
-				        ind.getDecisionVector()[i] < m_problem->getLB()[i]) {
-					dv[i] = random_ind.getDecisionVector()[i];
-					v[i] = random_ind.getVelocity()[i];
+				if (ind.get_decision_vector()[i] > m_problem->getUB()[i] ||
+				        ind.get_decision_vector()[i] < m_problem->getLB()[i]) {
+					dv[i] = random_ind.get_decision_vector()[i];
+					v[i] = random_ind.get_velocity()[i];
 				} else {
-					dv[i] = ind.getDecisionVector()[i];
-					v[i] = ind.getVelocity()[i];
+					dv[i] = ind.get_decision_vector()[i];
+					v[i] = ind.get_velocity()[i];
 				}
 			}
 			return individual(*m_problem,dv,v);
@@ -295,7 +295,7 @@ std::ostream &operator<<(std::ostream &s, const population &p)
 {
 	s << "Problem type: '" << p.problem().id_name() << "'\n";
 	for (size_t i = 0; i < p.size(); ++i) {
-		s << "Individual #" << i << ": " << p.pop[i].getFitness() << " " << p.pop[i] << std::endl;
+		s << "Individual #" << i << ": " << p.pop[i].get_fitness() << " " << p.pop[i] << std::endl;
 	}
 	return s;
 }

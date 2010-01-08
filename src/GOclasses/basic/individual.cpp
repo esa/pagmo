@@ -73,7 +73,7 @@ individual::individual(const problem::base &problem, const std::vector<double> &
 individual &individual::operator=(const individual &i)
 {
 	if (this != &i) {
-		if (i.getDecisionVector().size() != x.size()) {
+		if (i.get_decision_vector().size() != x.size()) {
 			pagmo_throw(value_error,"individuals are incompatible");
 		}
 		x = i.x;

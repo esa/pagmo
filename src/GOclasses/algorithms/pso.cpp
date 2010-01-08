@@ -105,9 +105,9 @@ population pso::evolve(const population &deme) const
 
 	// Initialise the particle (class individual) positions, their velocities and their fitness to that of the deme
 	for ( int i = 0; i<n; i++ ) {
-		X[i]	=	deme[i].getDecisionVector();
-		V[i]	=	deme[i].getVelocity();
-		fit[i]	=	deme[i].getFitness();
+		X[i]	=	deme[i].get_decision_vector();
+		V[i]	=	deme[i].get_velocity();
+		fit[i]	=	deme[i].get_fitness();
 	}
 
 	// Initialise the minimum and maximum velocity

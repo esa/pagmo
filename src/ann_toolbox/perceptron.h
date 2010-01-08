@@ -22,47 +22,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "ChooseBestMigrationSelectionPolicy.h"
-#include <vector>
-#include <algorithm>
+// Created by Juxi Leitner on 2009-12-21.
+// based on the TwoDee Artificial Neural Network Code
 
-// 09/03/2009: Initial version by Marek Rucinski.
+#ifndef ANN_TB_PERCEPTRON_H
+#define ANN_TB_PERCEPTRON_H
 
-namespace pagmo
-{
+#include "neural_network.h"
 
-std::vector<individual> ChooseBestMigrationSelectionPolicy::selectForMigration(const population& population)
-{
-	int migrationRate = getNumberOfIndividualsToMigrate(population);
+namespace ann_toolbox {
+	
+/**
+ * A simple perceptron (a type of artificial neural network), representing the 
+ * simplest kind of feedforward neural network. This basically refers to a linear
+ * classifier. 
+ * More info: http://en.wikipedia.org/wiki/Perceptron
+ */	
+class perceptron : public neural_network {
+public:
+	/// Constructors
+	/**
+	 * Creates a new perceptron object, which is derived from the neural_network
+	 * class. If initial weights are handed over it calls the set_weights function
+	 * to initalize the weights of the neural network.
+	 * \param input_nodes	the number of input nodes
+	 * \param output_nodes	the number of output nodes (not mandatory, default = 1)
+	 * \param w				the weights, with which the neural network is initiated (not mandatory)
+	 * \return a perceptron object
+	 */
+	perceptron(unsigned int input_nodes_, unsigned int output_nodes_ = 1, const std::vector<double> &w = std::vector<double>());
 
-	//Create a temporary array of individuals
-	std::vector<individual> result(population.begin(), population.end());
+	/// Destructor
+    ~perceptron();
 
-	/*std::cout << "Before sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
+	/// Compute Outputs
+	const std::vector<double> compute_outputs(std::vector<double> &inputs);
 
-	//Sort the individuals (best go first)
-	std::sort(result.begin(), result.end(), individual::compare_by_fitness);
-
-	/*std::cout << "After sorting:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->get_fitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	//Leave only desired number of elements in the result
-	result.erase(result.begin() + migrationRate, result.end());
-
-	/*std::cout << "After erease:" << std::endl;
-	for(std::vector<individual>::const_iterator it = result.begin(); it != result.end(); ++it) {
-		std::cout << it->getFitness() << " ";
-	}
-	std::cout << std::endl;*/
-
-	return result;
-}
+protected:
+};
 
 }
+#endif
