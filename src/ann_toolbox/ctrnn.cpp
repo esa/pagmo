@@ -61,86 +61,51 @@ ctrnn::ctrnn(unsigned int input_nodes_, unsigned int hidden_nodes_, unsigned int
 
 	m_weights = std::vector<double>(wghts, 0);
 	
+	lowbound_weights = -10.0;
+    uppbound_weights =  10.0;
+    lowbound_bias    = -10.0;
+	uppbound_bias    =  10.0;
+    lowbound_tau     = -1.0;
+    uppbound_tau     =  2.0;	
+	
 	if(! w.empty()) set_weights(w);
 }
 
 // Destructor
 ctrnn::~ctrnn() {}
 
-/*TODO  add function 
-set bias and taus and deltas and so forth
-
-    if( m_pcControllerArguments->GetArgumentIsDefined("weight-min") )
-    {
-      fLowBoundNodeWeights = m_pcControllerArguments->GetArgumentAsDouble("weight-min");
-    } 
-
-    if( m_pcControllerArguments->GetArgumentIsDefined("weight-max") )
-    {
-      fUppBoundNodeWeights = m_pcControllerArguments->GetArgumentAsDouble("weight-max");
-    } 
-    
-    if( m_pcControllerArguments->GetArgumentIsDefined("bias-min") )
-    {
-      fLowBoundNodeBias = m_pcControllerArguments->GetArgumentAsDouble("bias-min");
-    } 
-    
-    if( m_pcControllerArguments->GetArgumentIsDefined("bias-max") )
-    {
-      fUppBoundNodeBias = m_pcControllerArguments->GetArgumentAsDouble("bias-max");
-    } 
-
-    if( m_pcControllerArguments->GetArgumentIsDefined("tau-min") )
-    {
-      fLowBoundNodeTau = m_pcControllerArguments->GetArgumentAsDouble("tau-min");
-    } 
-
-    if( m_pcControllerArguments->GetArgumentIsDefined("tau-max") )
-    {
-      fUppBoundNodeTau = m_pcControllerArguments->GetArgumentAsDouble("tau-max");
-    }
-*/
-
 void ctrnn::set_weights(const std::vector<double> &w) {
 	if(w.size() != m_weights.size()) {
 		pagmo_throw(value_error, "number of weights is incorrect");
 	}
 	m_weights = w;
-	
-	double fLowBoundNodeWeights = -10.0;
-    double fUppBoundNodeWeights =  10.0;
-    double fLowBoundNodeBias    = -10.0;
-	double fUppBoundNodeBias    =  10.0;
-    double fLowBoundNodeTau     = -1.0;
-    double fUppBoundNodeTau     =  2.0;
-    
-	
+	    
 	// scale them according to the boundary values (maybe need a set funciton for those?)
 	unsigned int idx = 0, i;
 	
 	// Scale the weigth values to be in the right range
     for (i = 0; i < m_inputs * m_hidden; i++) {
-        input_to_hidden_weights(i) = w[idx++] * (fUppBoundNodeWeights - fLowBoundNodeWeights) + fLowBoundNodeWeights;
+        input_to_hidden_weights(i) = w[idx++] * (uppbound_weights - lowbound_weights) + lowbound_weights;
     }
 
     for (i = 0; i < m_hidden * m_hidden; i++) {
-        hidden_to_hidden_weights(i) = w[idx++] * (fUppBoundNodeWeights - fLowBoundNodeWeights) + fLowBoundNodeWeights;
+        hidden_to_hidden_weights(i) = w[idx++] * (uppbound_weights - lowbound_weights) + lowbound_weights;
     }
 
     for (i = 0; i < m_hidden; i++) {
-        hidden_bias(i) = w[idx++] * (fUppBoundNodeBias - fLowBoundNodeBias) + fLowBoundNodeBias;
+        hidden_bias(i) = w[idx++] * (uppbound_bias - lowbound_bias) + lowbound_bias;
     }
 
     for (i = 0; i < m_hidden; i++) {
-        hidden_taus(i) = pow(10, (fLowBoundNodeTau + ((fUppBoundNodeTau - fLowBoundNodeTau) * w[idx++])));
+        hidden_taus(i) = pow(10, (lowbound_tau + ((uppbound_tau - lowbound_tau) * w[idx++])));
     }
 
     for (i = 0; i < m_hidden * m_outputs; i++) {
-        hidden_to_output_weights(i) = w[idx++] * (fUppBoundNodeWeights - fLowBoundNodeWeights) + fLowBoundNodeWeights;
+        hidden_to_output_weights(i) = w[idx++] * (uppbound_weights - lowbound_weights) + lowbound_weights;
     }
 
     for (i = 0; i < m_outputs; i++) {
-        output_bias(i) = w[idx++]*(fUppBoundNodeBias-fLowBoundNodeBias) + fLowBoundNodeBias;
+        output_bias(i) = w[idx++] * (uppbound_bias - lowbound_bias) + lowbound_bias;
     }
 
 	// set hidden and output layers 0

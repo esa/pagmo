@@ -61,10 +61,12 @@ class __PAGMO_VISIBLE base
 		friend void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
 	public:
 		// Bounds getters and setters via reference
-		const std::vector<double> &getLB() const;
-		const std::vector<double> &getUB() const;
-		void setLB(const std::vector<double> &);
-		void setUB(const std::vector<double> &);
+		const std::vector<double> &get_lb() const;
+		const std::vector<double> &get_ub() const;
+		void set_lb(const std::vector<double> &);
+		void set_lb(int, const double &);
+		void set_ub(const std::vector<double> &);
+		void set_ub(int, const double &);
 		// Dimension getter
 		size_t getDimension() const;
 		double objfun(const std::vector<double> &) const;
@@ -72,8 +74,6 @@ class __PAGMO_VISIBLE base
 		std::string id_name() const;
 		virtual void pre_evolution(population &) const {}
 		virtual void post_evolution(population &) const {}
-		void set_lb(int, const double &);
-		void set_ub(int, const double &);
 		virtual bool operator==(const base &) const;
 		bool operator!=(const base &) const;
 

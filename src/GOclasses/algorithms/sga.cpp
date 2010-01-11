@@ -95,8 +95,8 @@ population sga::evolve(const population &deme) const
 {
 	const problem::base &problem = deme.problem();
 
-	const std::vector<double>& LB = problem.getLB();
-	const std::vector<double>& UB = problem.getUB();
+	const std::vector<double>& LB = problem.get_lb();
+	const std::vector<double>& UB = problem.get_ub();
 
 	int NP = deme.size();
 	int D = LB.size();

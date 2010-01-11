@@ -90,7 +90,7 @@ population ihs::evolve(const population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &problem = pop.problem();
-	const std::vector<double> &lb = problem.getLB(), &ub = problem.getUB();
+	const std::vector<double> &lb = problem.get_lb(), &ub = problem.get_ub();
 	const size_t problem_size = lb.size(), pop_size = pop.size();
 	if (pop_size == 0) {
 		pagmo_throw(value_error,"cannot evolve an empty population");

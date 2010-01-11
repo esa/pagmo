@@ -56,8 +56,8 @@ de::de(int g, const double &F_, const double &CR_, int s):base(),generations(g),
 population de::evolve(const population &deme) const
 {
 	const problem::base &problem = deme.problem();
-	const std::vector<double> &LB = problem.getLB();
-	const std::vector<double> &UB = problem.getUB();
+	const std::vector<double> &LB = problem.get_lb();
+	const std::vector<double> &UB = problem.get_ub();
 	const size_t D = LB.size(), NP = deme.size();
 	// TODO: this needs to go away.
 	if (NP < 6) {

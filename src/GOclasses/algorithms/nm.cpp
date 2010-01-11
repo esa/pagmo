@@ -112,7 +112,7 @@ struct nm::sorter {
 void nm::check_bounds(vertex &v, const problem::base &p) const
 {
 	const size_t size = v.size();
-	const std::vector<double> &LB = p.getLB(), &UB = p.getUB();
+	const std::vector<double> &LB = p.get_lb(), &UB = p.get_ub();
 	pagmo_assert(size == LB.size() && size == UB.size());
 	for (size_t i = 0; i < size; ++i) {
 		if (v[i] < LB[i]) {

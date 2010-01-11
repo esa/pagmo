@@ -75,8 +75,8 @@ population cs::evolve(const population &popin) const
 	double newf;
 	size_t D = problem.getDimension();
 	bool flag = false;
-	std::vector <double> UB = problem.getUB();
-	std::vector <double> LB = problem.getLB();
+	std::vector <double> UB = problem.get_ub();
+	std::vector <double> LB = problem.get_lb();
 
 	double newrange=range;
 

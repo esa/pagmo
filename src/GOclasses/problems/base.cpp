@@ -76,17 +76,17 @@ void base::check_boundaries() const
 	}
 }
 
-const std::vector<double> &base::getLB() const
+const std::vector<double> &base::get_lb() const
 {
 	return LB;
 }
 
-const std::vector<double> &base::getUB() const
+const std::vector<double> &base::get_ub() const
 {
 	return UB;
 }
 
-void base::setLB(const std::vector<double> &lb)
+void base::set_lb(const std::vector<double> &lb)
 {
 	const size_t size = lb.size();
 	if (size != getDimension()) {
@@ -100,7 +100,7 @@ void base::setLB(const std::vector<double> &lb)
 	LB = lb;
 }
 
-void base::setUB(const std::vector<double> &ub)
+void base::set_ub(const std::vector<double> &ub)
 {
 	const size_t size = ub.size();
 	if (size != getDimension()) {

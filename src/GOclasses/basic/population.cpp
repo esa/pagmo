@@ -265,8 +265,8 @@ individual population::checked_individual(const individual &ind) const
 			const individual random_ind = individual(*m_problem);
 			std::vector<double> dv(size), v(size);
 			for (size_t i = 0; i < size; ++i) {
-				if (ind.get_decision_vector()[i] > m_problem->getUB()[i] ||
-				        ind.get_decision_vector()[i] < m_problem->getLB()[i]) {
+				if (ind.get_decision_vector()[i] > m_problem->get_ub()[i] ||
+				        ind.get_decision_vector()[i] < m_problem->get_lb()[i]) {
 					dv[i] = random_ind.get_decision_vector()[i];
 					v[i] = random_ind.get_velocity()[i];
 				} else {

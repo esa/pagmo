@@ -54,8 +54,8 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	retval.def("objfun", &Problem::objfun, "Objective function.");
 	retval.def("set_lb", &Problem::set_lb, "Set lower bound.");
 	retval.def("set_ub", &Problem::set_ub, "Set upper bound.");
-	retval.add_property("lb", make_function(&Problem::getLB,return_value_policy<copy_const_reference>()), &Problem::setLB, "Lower bounds.");
-	retval.add_property("ub", make_function(&Problem::getUB,return_value_policy<copy_const_reference>()), &Problem::setUB, "Upper bounds.");
+	retval.add_property("lb", make_function(&Problem::get_lb,return_value_policy<copy_const_reference>()), &Problem::set_lb, "Lower bounds.");
+	retval.add_property("ub", make_function(&Problem::get_ub,return_value_policy<copy_const_reference>()), &Problem::set_ub, "Upper bounds.");
 	retval.add_property("dimension", &Problem::getDimension, "Dimension.");
 	retval.add_property("id_name", &Problem::id_name, "Identification name.");
 	retval.add_property("id_object", &Problem::id_object, "Object identification name.");

@@ -62,14 +62,29 @@ public:
 
 	/// Compute Outputs
 	const std::vector<double> compute_outputs(std::vector<double> &inputs);
+	
+	// setter methods for the lower and upper boundaries
+	void set_weights_lower_bound(double _in) { lowbound_weights = _in; }
+	void set_weights_upper_bound(double _in) { uppbound_weights = _in; }	
+
+	void set_bias_lower_bound(double _in) { lowbound_bias = _in; }
+	void set_bias_upper_bound(double _in) { uppbound_bias = _in; }	
+
+	void set_tau_lower_bound(double _in) { lowbound_tau = _in; }
+	void set_tau_upper_bound(double _in) { uppbound_tau = _in; }	
 
 protected:
 	// number of hidden nodes
 	unsigned int	m_hidden;
 	double	m_time_step;
+	// the upper and lower boundaries to which the 0-1 values will be scaled
+	// different boundaries may exist for the weights, the biases and the taus
+	double 	lowbound_weights, uppbound_weights, lowbound_bias, uppbound_bias,
+		lowbound_tau, uppbound_tau;
+	
 	// a vector to store the memory of the network (feedback nodes)
 	std::vector<double>	m_hidden_neurons;
-	std::vector<double>	m_output_neurons;	
+	std::vector<double>	m_output_neurons;		
 };
 
 }

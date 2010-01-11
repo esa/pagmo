@@ -82,8 +82,8 @@ pso::pso(int generations_, const int &strategy_):base(),generations(generations_
 population pso::evolve(const population &deme) const
 {
 	const problem::base &problem = deme.problem();
-	const std::vector<double>& LB = problem.getLB();
-	const std::vector<double>& UB = problem.getUB();
+	const std::vector<double>& LB = problem.get_lb();
+	const std::vector<double>& UB = problem.get_ub();
 
 	int n = deme.size();
 	int m = LB.size();

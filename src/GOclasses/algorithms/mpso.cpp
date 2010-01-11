@@ -53,8 +53,8 @@ mpso::mpso(int generationsInit, const double &omegaInit, const double &eta1Init,
 population mpso::evolve(const population &deme) const
 {
 	const problem::base &problem = deme.problem();
-	const std::vector<double>& LB = problem.getLB();
-	const std::vector<double>& UB = problem.getUB();
+	const std::vector<double>& LB = problem.get_lb();
+	const std::vector<double>& UB = problem.get_ub();
 
 	if (deme.size() % nswarms != 0) {
 		pagmo_throw(value_error,"population size must be a multiple of the number of swarms");

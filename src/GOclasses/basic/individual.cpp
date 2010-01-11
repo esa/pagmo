@@ -32,13 +32,13 @@ namespace pagmo
 {
 
 individual::individual(const problem::base &problem)
-		:x(problem.getLB().size()),
-		v(problem.getLB().size())
+		:x(problem.get_lb().size()),
+		v(problem.get_lb().size())
 {
 	static_rng_double drng;
 
 	// Store local references.
-	const std::vector<double> &LB = problem.getLB(), &UB = problem.getUB();
+	const std::vector<double> &LB = problem.get_lb(), &UB = problem.get_ub();
 	const size_t size = LB.size();
 
 	// Fill a new random chromosome and velocity vector.
@@ -90,7 +90,7 @@ void individual::check(const problem::base &p) const
 		pagmo_throw(value_error,"mismatch between individual size and problem size");
 	}
 	for (size_t i = 0; i < size; ++i) {
-		if (x[i] > p.getUB()[i] || x[i] < p.getLB()[i]) {
+		if (x[i] > p.get_ub()[i] || x[i] < p.get_lb()[i]) {
 			pagmo_throw(value_error,"individual's decision vector is incompatible with the boundaries of the problem");
 		}
 	}

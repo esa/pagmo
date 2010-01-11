@@ -74,8 +74,8 @@ population asa::evolve(const population &pop) const
 	if (pop.size() == 0) {
 		return population(problem,0);
 	}
-	const std::vector<double> &LB = problem.getLB();
-	const std::vector<double> &UB = problem.getUB();
+	const std::vector<double> &LB = problem.get_lb();
+	const std::vector<double> &UB = problem.get_ub();
 	const size_t SolDim = LB.size();
 	if (SolDim == 0) {
 		pagmo_throw(value_error,"problem's size cannot be null");
