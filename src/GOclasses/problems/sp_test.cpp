@@ -45,8 +45,8 @@ namespace problem {
 
 inventory::inventory(int sample_size):base(1),d(sample_size),m_sample_size(sample_size)
 {
-	set_lb(0,0);
-	set_ub(0,100);
+	set_lb(0,0.0);
+	set_ub(0,100.0);
 }
 
 

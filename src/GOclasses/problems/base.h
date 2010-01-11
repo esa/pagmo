@@ -64,9 +64,11 @@ class __PAGMO_VISIBLE base
 		const std::vector<double> &get_lb() const;
 		const std::vector<double> &get_ub() const;
 		void set_lb(const std::vector<double> &);
-		void set_lb(int, const double &);
+		void set_lb(unsigned int, const double &);
+		void set_lb(unsigned int, const double *);
 		void set_ub(const std::vector<double> &);
-		void set_ub(int, const double &);
+		void set_ub(unsigned int, const double &);
+		void set_ub(unsigned int, const double *);		
 		// Dimension getter
 		size_t getDimension() const;
 		double objfun(const std::vector<double> &) const;

@@ -100,6 +100,31 @@ void base::set_lb(const std::vector<double> &lb)
 	LB = lb;
 }
 
+void base::set_lb(unsigned int n, const double &value)
+{
+	if (n < 0 || (size_t)n >= LB.size()) {
+		pagmo_throw(index_error,"invalid index for lower bound");
+	}
+	if (UB[n] <= value) {
+		pagmo_throw(value_error,"invalid value for lower bound");
+	}
+	LB[n] = value;
+}
+
+void base::set_lb(unsigned int size, const double *lb_array)
+{
+	if (size != getDimension()) {
+		pagmo_throw(value_error,"size of lower bounds vector is incompatible with problem size");
+	}
+	for (size_t i = 0; i < size; ++i) {
+		if (lb_array[i] >= UB[i]) {
+			pagmo_throw(value_error,"lower bound is not less than upper bound");
+		}
+		LB[i] = lb_array[i];
+	}
+}
+
+
 void base::set_ub(const std::vector<double> &ub)
 {
 	const size_t size = ub.size();
@@ -114,28 +139,7 @@ void base::set_ub(const std::vector<double> &ub)
 	UB = ub;
 }
 
-size_t base::getDimension() const
-{
-	return LB.size();
-}
-
-std::string base::id_name() const
-{
-	return typeid(*this).name();
-}
-
-void base::set_lb(int n, const double &value)
-{
-	if (n < 0 || (size_t)n >= LB.size()) {
-		pagmo_throw(index_error,"invalid index for lower bound");
-	}
-	if (UB[n] <= value) {
-		pagmo_throw(value_error,"invalid value for lower bound");
-	}
-	LB[n] = value;
-}
-
-void base::set_ub(int n, const double &value)
+void base::set_ub(unsigned int n, const double &value)
 {
 	if (n < 0 || (size_t)n >= UB.size()) {
 		pagmo_throw(index_error,"invalid index for upper bound");
@@ -144,6 +148,30 @@ void base::set_ub(int n, const double &value)
 		pagmo_throw(value_error,"invalid value for upper bound");
 	}
 	UB[n] = value;
+}
+
+void base::set_ub(unsigned int size, const double *ub_array) 
+{
+	if (size != getDimension()) {
+		pagmo_throw(value_error,"size of upper bounds vector is incompatible with problem size");
+	}
+	for (size_t i = 0; i < size; ++i) {
+		if (ub_array[i] <= LB[i]) {
+			pagmo_throw(value_error,"upper bound is not greater than lower bound");
+		}
+		UB[i] = ub_array[i];
+	}
+}
+
+
+size_t base::getDimension() const
+{
+	return LB.size();
+}
+
+std::string base::id_name() const
+{
+	return typeid(*this).name();
 }
 
 double base::objfun(const std::vector<double> &v) const
