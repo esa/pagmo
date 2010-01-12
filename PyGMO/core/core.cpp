@@ -117,9 +117,9 @@ BOOST_PYTHON_MODULE(_core)
         from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
 
 	// Expose individual class.
-	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &>());
-	class_ind.def(init<const GOProblem &, const std::vector<double> &, const std::vector<double> &>());
-	class_ind.def(init<const GOProblem &, const std::vector<double> &>());
+	class_<Individual> class_ind("individual", "Individual.", init<const GOProblem &, size_t>());
+	class_ind.def(init<const GOProblem &, const std::vector<double> &, const std::vector<double> &, size_t>());
+	class_ind.def(init<const GOProblem &, const std::vector<double> &, size_t>());
 	class_ind.def(init<const Individual &>());
 	class_ind.def("__copy__", &Py_copy_from_ctor<Individual>);
 	class_ind.def("__repr__", &Py_repr_from_stream<Individual>);
@@ -134,10 +134,10 @@ BOOST_PYTHON_MODULE(_core)
 
 	// Expose population class.
 	typedef const Individual &(Population::*pop_get_const)(int) const;
-	class_<Population> class_pop("population", "Population.", init<const GOProblem &>());
-	class_pop.def(init<const GOProblem &, int>());
-	class_pop.def(init<const GOProblem &>());
-	class_pop.def(init<const Population &>());
+	class_<Population> class_pop("population", "Population.", init<const GOProblem &, size_t>());
+	class_pop.def(init<const GOProblem &, int, size_t>());
+	class_pop.def(init<const GOProblem &, size_t>());
+	class_pop.def(init<const Population &, size_t>());
 	class_pop.def("__copy__", &Py_copy_from_ctor<Population>);
 	class_pop.def("__delitem__", &Population::erase);
 	class_pop.def("__getitem__", pop_get_const(&Population::operator[]), return_value_policy<copy_const_reference>(), "Get a copy of individual.");

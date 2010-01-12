@@ -78,7 +78,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<cassini2Prob>("cassini2", "Cassini2 problem.").def(init<>());
 	problem_wrapper<rosettaProb>("rosetta", "Rosetta problem.").def(init<>());
 	problem_wrapper<sagasProb>("sagas", "Sagas problem.").def(init<>());
-	problem_wrapper<tandemProb>("tandem", "TandEM problem").def(init<const int>()).def(init<const int, const double>());
+	//problem_wrapper<tandemProb>("tandem", "TandEM problem").def(init<const int>()).def(init<const int, const double, size_t>());
 
 	//Miscellanea Trajectory Problems
 	// MGADSM Problems
@@ -87,12 +87,12 @@ BOOST_PYTHON_MODULE(_problem) {
 	//Low-Thrust Problems
 	problem_wrapper<earth_mars_lt_problem>("earth_mars_lt", "Earth-Mars LT problem: impulsive transcription")
 		.def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem::human_readable);
-	problem_wrapper<earth_mars_lt_problem2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
-                .def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem2::human_readable).def("visualize",&earth_mars_lt_problem2::visualize);
+	//problem_wrapper<earth_mars_lt_problem2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
+        //        .def(init<int, double, double, double>()).def("hr",&earth_mars_lt_problem2::human_readable).def("visualize",&earth_mars_lt_problem2::visualize);
 	
 	// Classical problems.
 	problem_wrapper<testProb>("test1", "Example problem: minimization of y = sum x_i").def(init<int>());
-	problem_wrapper<exampleProb>("test2", "Example problem: minimization of y = x * x.").def(init<>());
+	//problem_wrapper<exampleProb>("test2", "Example problem: minimization of y = x * x.").def(init<>());
 	problem_wrapper<rastriginProb>("rastrigin", "Rastrigin problem.").def(init<int>());
 	problem_wrapper<schwefelProb>("schwefel", "Schwefel problem.").def(init<int>());
 	problem_wrapper<ackleyProb>("ackley", "Ackely problem.").def(init<int>());
@@ -101,5 +101,5 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<levyProb>("levy", "Levy problem.").def(init<int>());
 	// Stochastic Programming Problems (evolutionary robotics included)
 	problem_wrapper<twodee_problem>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-	problem_wrapper<inventory_problem>("inventory", "Inventory problem.").def(init<int>());
+	//problem_wrapper<inventory_problem>("inventory", "Inventory problem.").def(init<int>());
 }
