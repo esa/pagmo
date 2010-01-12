@@ -182,7 +182,7 @@ Individual archipelago::best() const
 	join();
 	
 	bool bestFound = false;
-	Individual result(*m_gop);
+	Individual result(*m_gop,0);
 	
 	const const_iterator it_f = m_container.end();	
 	for (const_iterator it = m_container.begin(); it != it_f; ++it) {

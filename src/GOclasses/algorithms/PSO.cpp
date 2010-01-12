@@ -75,9 +75,10 @@ PSOalgorithm::PSOalgorithm(int generations_, const int &strategy_):generations(g
 
 Population PSOalgorithm::evolve(const Population &deme) const
 {
-    const GOProblem &problem = deme.problem();
-    const std::vector<double>& LB = problem.getLB();
-    const std::vector<double>& UB = problem.getUB();
+    	const GOProblem &problem = deme.problem();
+    	const std::vector<double>& LB = problem.getLB();
+    	const std::vector<double>& UB = problem.getUB();
+	const size_t m_id = deme.m_id; //Get associated Island ID
 
 	int n = deme.size();
 	int m = LB.size();
@@ -194,7 +195,7 @@ Population PSOalgorithm::evolve(const Population &deme) const
                         }
 
             //We evaluate here the new individual fitness as to be able to update the global best in real time
-            fit[ii] = problem.objfun(X[ii]);
+            fit[ii] = problem.objfun(X[ii],m_id);
             //update local and global best
             if (fit[ii] < lbfit[ii]){
                    lbfit[ii] = fit[ii];	//local best
@@ -210,7 +211,7 @@ Population PSOalgorithm::evolve(const Population &deme) const
    //we end by constructing the object Population containing the final results
    Population popout(problem,0);
    for (int i=0; i<n; i++){
-	popout.push_back(Individual(lbX[i],V[i],lbfit[i]));
+	popout.push_back(Individual(lbX[i],V[i],lbfit[i],m_id));
    }
    return popout;
 }

@@ -36,22 +36,29 @@
 #include "individual.h"
 #include "population.h"
 
-Population::Population(const GOProblem &p)
+Population::Population(const GOProblem &p, size_t islID)
 		:m_problem(p.clone())
 {
+	//Assign Island ID
+	m_id = islID;
 }
 
-Population::Population(const GOProblem &p, int N)
+Population::Population(const GOProblem &p, int N, size_t islID)
 		:m_problem(p.clone())
 {
+	//Assign Island ID
+	m_id = islID;
+	
 	createRandomPopulation(N);
 }
 
-Population::Population(const Population &p)
+Population::Population(const Population &p, size_t islID)
 		:pop(p.pop),
 		m_problem(p.m_problem->clone())
 {
 	//copy costructor if the std::vector class creates a deep copy of the individuals
+	//Assign Island ID
+	m_id = islID;
 }
 
 Population &Population::operator=(const Population &p)
@@ -259,7 +266,7 @@ Individual Population::checked_individual(const Individual &ind) const
 		if (size != m_problem->getDimension()) {
 			pagmo_throw(value_error,"individual's size is incompatible with population");
 		} else {
-			const Individual random_ind = Individual(*m_problem);
+			const Individual random_ind = Individual(*m_problem,m_id);
 			std::vector<double> dv(size), v(size);
 			for (size_t i = 0; i < size; ++i) {
 				if (ind.getDecisionVector()[i] > m_problem->getUB()[i] ||
@@ -271,7 +278,7 @@ Individual Population::checked_individual(const Individual &ind) const
 					v[i] = ind.getVelocity()[i];
 				}
 			}
-			return Individual(*m_problem,dv,v);
+			return Individual(*m_problem,dv,v,m_id);
 		}
 	}
 	return ind;
@@ -283,7 +290,7 @@ void Population::createRandomPopulation(int N)
 	pop.clear();
 	pop.reserve(N);
 	for (int i=0; i < N; ++i){
-		pop.push_back(Individual(*m_problem));
+		pop.push_back(Individual(*m_problem,m_id));
 	}
 }
 

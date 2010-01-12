@@ -27,10 +27,12 @@
 #include "../../exceptions.h"
 #include "individual.h"
 
-Individual::Individual(const GOProblem &problem)
+Individual::Individual(const GOProblem &problem, size_t islID)
 		:x(problem.getLB().size()),
 		v(problem.getLB().size())
 {
+	//Assign Island ID
+	m_id = islID;
 	static_rng_double drng;
 	
 	// Store local references.
@@ -44,26 +46,32 @@ Individual::Individual(const GOProblem &problem)
 	}
 	
 	// Evaluation of fitness.
-	fitness = problem.objfun(x);
+	fitness = problem.objfun(x, m_id);
 }
 
-Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, const std::vector<double> &v_)
+Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, const std::vector<double> &v_, size_t islID)
 		:x(x_),
 		v(v_)		
 {
+	//Assign Island ID
+	m_id = islID;
+	
 	if (x.size() != v.size()) {
 		pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
 	}
 	check(problem);
-	fitness = problem.objfun(x);
+	fitness = problem.objfun(x, m_id);
 }
 
-Individual::Individual(const GOProblem &problem, const std::vector<double> &x_)
+Individual::Individual(const GOProblem &problem, const std::vector<double> &x_, size_t islID)
 		:x(x_),
 		v(x_.size())		
 {
+	//Assign Island ID
+	m_id = islID;
+	
 	check(problem);
-	fitness = problem.objfun(x);
+	fitness = problem.objfun(x, m_id);
 }
 
 Individual &Individual::operator=(const Individual &i)
@@ -75,6 +83,7 @@ Individual &Individual::operator=(const Individual &i)
 		x = i.x;
 		v = i.v;
 		fitness = i.fitness;
+		m_id = i.m_id;
 	}
 	return *this;
 }

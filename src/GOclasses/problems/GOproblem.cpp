@@ -140,12 +140,12 @@ void GOProblem::set_ub(int n, const double &value) {
 	UB[n] = value;
 }
 
-double GOProblem::objfun(const std::vector<double> &v) const
+double GOProblem::objfun(const std::vector<double> &v, size_t m_id) const
 {
 	if (v.size() != getDimension()) {
 		pagmo_throw(value_error,"mismatch between the size of the decision vector and the size of the problem when calling the objective function");
 	}
-	const double retval = objfun_(v);
+	const double retval = objfun_(v, m_id);
 	// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
 	if (m_objfun_counter.is_increment_fast) {
 		++m_objfun_counter;

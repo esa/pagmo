@@ -56,7 +56,7 @@ public:
         virtual testProb *clone() const {return new testProb(*this);}
 	virtual std::string id_object() const;
 private:
-	virtual double objfun_(const std::vector<double>& x) const { return testfunction(x); }
+	virtual double objfun_(const std::vector<double>& x, size_t islID) const { return testfunction(x); }
 };	//end class testfunctionProb
 
 /// The Rastrigin Problem
@@ -74,7 +74,7 @@ public:
 	virtual rastriginProb *clone() const {return new rastriginProb(*this);}
 	virtual std::string id_object() const;
 private:
-	virtual double objfun_(const std::vector<double>& x) const { return rastrigin(x); }
+	virtual double objfun_(const std::vector<double>& x, size_t islID) const { return rastrigin(x); }
 };	//end class rastriginProb
 
 /// The Schwefel Problem
@@ -92,7 +92,7 @@ public:
 	virtual schwefelProb *clone() const {return new schwefelProb(*this);}
 	virtual std::string id_object() const;
 private:
-	virtual double objfun_(const std::vector<double>& x) const { return schwefel(x); }
+	virtual double objfun_(const std::vector<double>& x, size_t islID) const { return schwefel(x); }
 };	//end class schwefelProb
 
 /// The Ackley Problem
@@ -110,7 +110,7 @@ public:
 	virtual ackleyProb *clone() const {return new ackleyProb(*this);}
 	virtual std::string id_object() const;
 private:
-	virtual double objfun_(const std::vector<double>& x) const { return ackley(x); }
+	virtual double objfun_(const std::vector<double>& x, size_t islID) const { return ackley(x); }
 };	//end class ackleyProb
 
 /// The Rosenbrock Problem
@@ -130,7 +130,7 @@ public:
 	virtual rosenbrockProb* clone() const {return new rosenbrockProb(*this);}
 	virtual std::string id_object() const;
 private:
-	virtual double objfun_(const std::vector<double>& x) const { return rosenbrock(x); }
+	virtual double objfun_(const std::vector<double>& x, size_t islID) const { return rosenbrock(x); }
 };	//end class rosenbrockProb
 
 /// The Lennard-Jones Problem
@@ -150,7 +150,7 @@ public:
 	virtual lennardjonesProb *clone() const {return new lennardjonesProb(*this);}
 	virtual std::string id_object() const;
 private:
-	virtual double objfun_(const std::vector<double>& x) const { return lennardjones(x); }
+	virtual double objfun_(const std::vector<double>& x, size_t islID) const { return lennardjones(x); }
 };	//end class lennardjonesProb
 
 
@@ -169,7 +169,7 @@ public:
 	virtual std::string id_object() const;
 private:
 	virtual levyProb *clone() const {return new levyProb(*this);}
-	virtual double objfun_(const std::vector<double>& x) const { return levy(x); }
+	virtual double objfun_(const std::vector<double>& x, size_t islID) const { return levy(x); }
 };	//end class levyProb
 
 /// The Griewank Problem
@@ -187,7 +187,7 @@ public:
         virtual std::string id_object() const;
 private:
         virtual griewankProb *clone() const {return new griewankProb(*this);}
-        virtual double objfun_(const std::vector<double>& x) const { return griewank(x); }
+        virtual double objfun_(const std::vector<double>& x, size_t islID) const { return griewank(x); }
 };	//end class griewankProb
 
 

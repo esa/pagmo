@@ -48,6 +48,8 @@ class __PAGMO_VISIBLE Population: public py_container_utils<Population> {
 	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Population &);
 
 public:
+
+	size_t 	m_id; ///< Associated island number
 	
 	/// Constructor.
 	/**
@@ -56,7 +58,7 @@ public:
 	 * associated with identical problem can be safely used in different threads.
 	 * \param[in] p Problem to be associated with the population.
 	 */
-	Population(const GOProblem& p);
+	Population(const GOProblem& p, size_t islID);
 	
 	/// Constructor.
 	/**
@@ -67,7 +69,7 @@ public:
 	 * \param[in] p Problem to be associated with the population.
 	 * \param[in] N Size of the population.
 	 */
-	Population(const GOProblem& p, int N);
+	Population(const GOProblem& p, int N, size_t islID);
 	
 	/// Copy constructor.
 	/**
@@ -76,7 +78,7 @@ public:
 	 * so that two populations can be safely used in different threads.
 	 * \param[in] p Population to be duplicated.
 	 */
-	Population(const Population& p);
+	Population(const Population& p, size_t islID);
 	
 	/// Assignment operator
 	/**
@@ -99,9 +101,6 @@ public:
 	/**
 	 * Please note that an explicit assignment is different from using the Population::setIndividual method,
 	 * because the latter allows the right-hand individual to be out of problem bounds, while the former does not.
-         * The only operator that can put in a population an out of bounds individual is this one.
-	 * \todo Policy decision: do we want to allow this? No problem in Python, which uses the setIndividual method to overload
-	 * operator[].
 	 */
 	Individual& operator[](int index);
 	
@@ -133,6 +132,9 @@ public:
 	void insert(int, const Individual &);
 	
 	/// Erase an individual at the specified position.
+	/**
+	 * \todo Here in turn, the index is range is not checked. Congrats.
+	 */
 	void erase(int n);
 	
 	/// Get the number of individuals in the population.

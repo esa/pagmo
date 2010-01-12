@@ -45,12 +45,24 @@ const double messengerfullProb::lb[26] = {1900, 3,    0, 0, 100, 100, 100, 100, 
 const double messengerfullProb::ub[26] = {2200, 4.05, 1, 1, 500, 500, 500, 500, 500, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
 const int messengerfullProb::sequence[7] = {3, 2, 2, 1, 1, 1, 1};
 
-messengerfullProb::messengerfullProb():GOProblem(26,lb,ub),mgadsm(orbit_insertion,sequence,7,0,0,0,0.704,2440 + 200) {}
+messengerfullProb::messengerfullProb():GOProblem(26,lb,ub),mgadsm(orbit_insertion,sequence,7,0,0,0,0.704,2440 + 200) {
+	//Bounds shrinked further with the c3=25
+	//double lb[26] = {2000, 4, 0, 0.6, 428, 210, 210, 250, 345, 520, 0.01, 0.01, 0.5, 0.5, 0.6, 0.8, 1.1, 1.1, 1.05, 1.05, 1.05, 0, 1, -M_PI, 0, 0};
+	//double ub[26] = {2070, 5, 0.65, 1  , 468,    230,    230,    270,    365,    550,    0.99,    0.99,    0.99,    0.7,    0.9,    0.95,   6,   1.5,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  3};
 
-double messengerfullProb::objfun_(const std::vector<double>& x) const {
-	double obj = 0.0;
+	//Bounds shrinked with the c3=25
+	//double lb[26] = {2000, 4, 0, 0, 428, 210, 210, 250, 340, 520, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
+	//double ub[26] = {2100, 5, 1, 1, 468, 240, 240, 280, 370, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
+
+    //Bounds shrinked to those of the actual mission (main difference is that thi forces the used resonances at mercury)
+	//double lb[26] = {1900, 3,    0, 0, 400, 200, 200, 200, 300, 400, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 1.1, 1.1, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI, -M_PI, -M_PI};
+	//double ub[26] = {2200, 4.05, 1, 1, 500, 300, 300, 300, 400, 550, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,   6,   6,    6,    6,    6,  M_PI,  M_PI,  M_PI,  M_PI,  M_PI};
+};
+
+double messengerfullProb::objfun_(const std::vector<double>& x, size_t islID) const {
+   	double obj = 0.0;
 	MGA_DSM(x, mgadsm,
-		obj);
+			obj);
 	return obj;
 }
 
@@ -59,84 +71,35 @@ const double messengerProb::lb[18] = {1000, 1, 0, 0, 200, 30,  30,  30,  0.01, 0
 const double messengerProb::ub[18] = {4000, 5, 1, 1, 400, 400, 400, 400, 0.99, 0.99, 0.99, 0.99, 6,   6,   6,    M_PI,  M_PI,  M_PI};
 const int messengerProb::sequence[5] = {3, 3, 2, 2, 1};
 
-messengerProb::messengerProb():GOProblem(18,lb,ub),mgadsm(total_DV_rndv,sequence,5,0,0,0,0,0) {}
+messengerProb::messengerProb():GOProblem(18,lb,ub),mgadsm(total_DV_rndv,sequence,5,0,0,0,0,0) {};
 
-double messengerProb::objfun_(const std::vector<double>& x) const {
-	double obj = 0.0;
+double messengerProb::objfun_(const std::vector<double>& x, size_t islID) const {
+   	double obj = 0.0;
 	MGA_DSM(x, mgadsm,
-		obj);
+			obj);
 	return obj;
 }
 
-const double tandemProb::lbunc[18] = {5475, 2.5, 0, 0, 20   , 20  ,  20 , 20  , 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI};
-const double tandemProb::ubunc[18] = {9132, 4.9, 1, 1, 2500 , 2500, 2500, 2500, 0.99, 0.99, 0.99, 0.99,    10,    10,    10,  M_PI,  M_PI,  M_PI};
+const double tandemProb::lb[18] = {5475, 2.5, 0, 0, 20   , 20  ,  20 , 20  , 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI};
+const double tandemProb::ub[18] = {9132, 4.9, 1, 1, 2500 , 2500, 2500, 2500, 0.99, 0.99, 0.99, 0.99,    6,    6,    6,  M_PI,  M_PI,  M_PI};
+const int tandemProb::sequence[5] = {3, 2, 3, 3, 6};
 
-const double tandemProb::lbcon[18] = {5475, 2.5, 0, 0, 0, 0, 0, 0, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.05, -M_PI, -M_PI, -M_PI};
-const double tandemProb::ubcon[18] = {9132, 4.9, 1, 1, 1, 1, 1, 1, 0.99, 0.99, 0.99, 0.99,    10,    10,    10,  M_PI,  M_PI,  M_PI};
+tandemProb::tandemProb():GOProblem(18,lb,ub),mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0) {
+  /*double lb[18] = { 5475, 2.938860000000, 0.405043000000, 0.315992000000, 94.289800000000, 342.079000000000, 1008.410000000000, 1200.380000000000, 0.028803000000, 0.340659000000, 0.060535100000, 0.112446000000, 1.051750000000, 1.078730000000, 1.053800000000, -1.870500000000, -2.225840000000, -1.886840000000};
+    double ub[18] = {9132, 4.093870000000, 0.586676000000, 0.707644000000, 365, 600.040000000000, 1200.320000000000, 2000, 0.897733000000, 0.804798000000, 0.805629000000, 0.419066000000, 2.370910000000, 1.422330000000, 2.156690000000, -1.169580000000, -1.127050000000, -0.917483000000};*/
 
+  /*double lb[18] = { 6844.451830612043, 3.067699723709, 0.477284845440, 0.417781690881, 108.507200707471, 511.976881365260, 1004.050120849356, 1784.974706859021, 0.081005224956, 0.364221914356, 0.102296747234, 0.117776456111, 1.052250007616, 1.217251823179, 1.050000000000, -1.927995228102, -1.742401844681, -1.991359970502};
+    double ub[18] = { 9063.429408756601, 3.640972901933, 0.541267874511, 0.666894655742, 1284.558367334185, 1393.888844450796, 1193.773380479754, 2314.454268212400, 0.837754757113, 0.803612856456, 0.559199754928, 0.340380612138, 1.578888906483, 1.414129557493, 1.473108613200, -1.207415304290, -1.162377264313, -1.075256620654};*/
 
-const int tandemProb::Data[24][5] = {
-	{3,2,2,2,6},
-	{3,2,2,3,6},
-	{3,2,2,4,6},
-	{3,2,2,5,6},
-	{3,2,3,2,6},
-	{3,2,3,3,6},
-	{3,2,3,4,6},
-	{3,2,3,5,6},
-	{3,2,4,2,6},
-	{3,2,4,3,6},
-	{3,2,4,4,6},
-	{3,2,4,5,6},
-	{3,3,2,2,6},
-	{3,3,2,3,6},
-	{3,3,2,4,6},
-	{3,3,2,5,6},
-	{3,3,3,2,6},
-	{3,3,3,3,6},
-	{3,3,3,4,6},
-	{3,3,3,5,6},
-	{3,3,4,2,6},
-	{3,3,4,3,6},
-	{3,3,4,4,6},
-	{3,3,4,5,6}
+   /*double lb[18] = { 7006.238587842692, 3.097717073232, 0.487979915911, 0.420687094540, 109.771414690208, 940.854505183490, 1084.392758236149, 1884.930756684131, 0.203810643630, 0.524034320427, 0.061286469418, 0.094306544631, 1.083463972542, 1.236225186517, 1.050000000000, -1.937841604629, -1.743932449066, -1.832730790569};
+     double ub[18] = { 9060.215094956218, 3.611338874179, 0.527214806521, 0.657358693786, 1197.610002758771, 1394.575620926851, 1196.061120842642, 2282.478189832147, 0.802342883580, 0.888447799151, 0.686859262454, 0.297661986078, 1.543881588983, 1.456965103045, 1.469911762813, -1.262189135419, -1.184228350040, -1.053263771491};*/
 };
 
-const int sequence[5] = {1,1,1,1,1};
+double tandemProb::objfun_(const std::vector<double>& x, size_t islID) const {
+    double obj = 0;
 
-tandemProb::tandemProb(const int probid):GOProblem(18,lbunc,ubunc), mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(0), copy_of_x(18) {
-	if (probid < 1 || probid > 24) {
-		pagmo_throw(value_error,"probid needs to be a number in [1,24]");
-	}
-	for (int i =0; i<5; i++){mgadsm.sequence[i] = Data[probid-1][i];}
-};
+	MGA_DSM(x, mgadsm, obj);
 
-tandemProb::tandemProb(const int probid, const double tof_):GOProblem(18,lbcon,ubcon), mgadsm(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(tof_),copy_of_x(18) {
-	if (probid < 1 || probid > 24) {
-		pagmo_throw(value_error,"probid needs to be an integer in [1,24]");
-	}
-	if (tof_ > 20 && tof_ <5){
-		pagmo_throw(value_error,"time of flight constraint needs to be a number in [5,20] (years)");
-	}
-	for (int i =0; i<5; i++){mgadsm.sequence[i] = Data[probid-1][i];}
-};
-
-
-
-double tandemProb::objfun_(const std::vector<double>& x) const {
-	double obj = 0;
-	if (tof!=0){ //constrained problem
-		//Here we copy the chromosome into a new vector and we transform its time percentages into days
-		copy_of_x = x;
-		copy_of_x[4] = x[4]*365.25*tof;
-		copy_of_x[5] = x[5]*(365.25*tof-copy_of_x[4]);
-		copy_of_x[6] = x[6]*(365.25*tof-copy_of_x[4]-copy_of_x[5]);
-		copy_of_x[7] = x[7]*(365.25*tof-copy_of_x[4]-copy_of_x[5]-copy_of_x[6]);
-		MGA_DSM(copy_of_x, mgadsm, obj);
-	}
-	else {	//unconstrained problem
-		MGA_DSM(x, mgadsm, obj);
-	}
 	//evaluating the mass from the dvs
 	double rE[3];
 	double vE[3];
@@ -194,46 +157,35 @@ double tandemProb::objfun_(const std::vector<double>& x) const {
 	return -log(m_final);
 }
 
-std::ostream &tandemProb::print(std::ostream &s) const
-{
-	GOProblem::print(s);
-	s << "Flyby sequence: " << '\n';
-	for (size_t i = 0; i < 5; ++i) {
-		s << mgadsm.sequence[i] << " ";
-	}
-	s << '\n';
-	return s;
-}
-
 
 const double cassini1Prob::lb[6] = {-1000, 30,100,30,400,1000};
 const double cassini1Prob::ub[6] = {0,400,470,400,2000,6000};
 
-cassini1Prob::cassini1Prob():GOProblem(6,lb,ub) {}
+cassini1Prob::cassini1Prob():GOProblem(6,lb,ub) {};
 
-double cassini1Prob::objfun_(const std::vector<double>& x) const {
-	return cassini1(x);
+double cassini1Prob::objfun_(const std::vector<double>& x, size_t islID) const {
+    return cassini1(x);
 }
 
 const double gtoc1Prob::lb[8] = {3000,14,14,14,14,100,366,300};
 const double gtoc1Prob::ub[8] = {10000,2000,2000,2000,2000,9000,9000,9000};
 
-gtoc1Prob::gtoc1Prob():GOProblem(8,lb,ub) {}
+gtoc1Prob::gtoc1Prob():GOProblem(8,lb,ub) {};
 
-double gtoc1Prob::objfun_(const std::vector<double>& x) const {
-	return gtoc1(x);
+double gtoc1Prob::objfun_(const std::vector<double>& x, size_t islID) const {
+    return gtoc1(x);
 }
 
 const double cassini2Prob::lb[22] = {-750, 3, 0, 0, 100, 100, 30, 400, 800, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.15, 1.7, -M_PI, -M_PI, -M_PI, -M_PI};
 const double cassini2Prob::ub[22] = {780,  5, 1, 1, 400, 500, 300, 1600, 2200, 0.9, 0.9, 0.9, 0.9, 0.9, 6, 6, 6.5, 291, M_PI, M_PI, M_PI, M_PI};
 const int cassini2Prob::sequence[6] = {3, 2, 2, 3, 5, 6};
 
-cassini2Prob::cassini2Prob():GOProblem(22,lb,ub),mgadsm(total_DV_rndv,sequence,6,0,0,0,0,0) {}
+cassini2Prob::cassini2Prob():GOProblem(22,lb,ub),mgadsm(total_DV_rndv,sequence,6,0,0,0,0,0) {};
 
-double cassini2Prob::objfun_(const std::vector<double>& x) const {
-	double obj = 0;
+double cassini2Prob::objfun_(const std::vector<double>& x, size_t islID) const {
+   	double obj = 0;
 	MGA_DSM(x, mgadsm,
-		obj);
+			obj);
 	return obj;
 }
 
@@ -253,10 +205,10 @@ rosettaProb::rosettaProb():GOProblem(22,lb,ub),mgadsm(rndv,sequence,6,0,0,0,0,0)
 	mgadsm.asteroid.mu = 0.0;
 };
 
-double rosettaProb::objfun_(const std::vector<double>& x) const {
+double rosettaProb::objfun_(const std::vector<double>& x, size_t islID) const {
 	double obj = 0;
 	MGA_DSM(x, mgadsm,
-		obj);
+			obj);
 	return obj;
 }
 
@@ -264,12 +216,12 @@ const double sagasProb::lb[12] = {7000, 0, 0, 0, 50, 300, 0.01, 0.01, 1.05, 8, -
 const double sagasProb::ub[12] = {9100, 7, 1, 1, 2000, 2000, 0.9, 0.9 ,7 ,500 ,M_PI,M_PI};
 const int sagasProb::sequence[3] = {3,3,5};
 
-sagasProb::sagasProb():GOProblem(12,lb,ub),mgadsm(time2AUs,sequence,3,50.0,6.782,1.782,0,0) {}
+sagasProb::sagasProb():GOProblem(12,lb,ub),mgadsm(time2AUs,sequence,3,50.0,6.782,1.782,0,0) {};
 
-double sagasProb::objfun_(const std::vector<double>& x)  const{
-	double obj = 0;
+double sagasProb::objfun_(const std::vector<double>& x, size_t islID)  const{
+   	double obj = 0;
 	MGA_DSM(x, mgadsm,
-		obj);
+			obj);
 	return obj;
 
 }
@@ -313,7 +265,7 @@ laplaceProb::laplaceProb(const std::vector<int> &seq):GOProblem(4 * seq.size() -
 
 laplaceProb::laplaceProb(const laplaceProb &l):GOProblem(l),mgadsm(new mgadsmproblem(*l.mgadsm)) {}
 
-double laplaceProb::objfun_(const std::vector<double> &x) const
+double laplaceProb::objfun_(const std::vector<double> &x, size_t islID) const
 {
 	double obj = 0;
 	MGA_DSM(x, *mgadsm, obj);

@@ -48,9 +48,10 @@ MPSOalgorithm::MPSOalgorithm(int generationsInit, const double &omegaInit, const
 Population MPSOalgorithm::evolve(const Population &deme) const
 {
 	const GOProblem &problem = deme.problem();
-    const std::vector<double>& LB = problem.getLB();
-    const std::vector<double>& UB = problem.getUB();
-
+    	const std::vector<double>& LB = problem.getLB();
+    	const std::vector<double>& UB = problem.getUB();
+	const size_t m_id = deme.m_id; //Get associated Island ID
+	
 	if (deme.size() % nswarms != 0) {
 		pagmo_throw(value_error,"population size must be a multiple of the number of swarms");
 	}
@@ -141,7 +142,7 @@ Population MPSOalgorithm::evolve(const Population &deme) const
 
 			//We evaluate the new individual fitness now as to be able to update immediately the global best
 			//in case a better solution is found
-			fit[i][j] = problem.objfun(X[i][j]);
+			fit[i][j] = problem.objfun(X[i][j],m_id);
 			//update local and global best
 			if (fit[i][j] < lbfit[i][j]){
 				lbfit[i][j] = fit[i][j];	//local best
@@ -193,7 +194,7 @@ Population MPSOalgorithm::evolve(const Population &deme) const
    Population popout(problem,0);
    for (size_t i = 0; i < nswarms; ++i) {
 	for (size_t j = 0; j < NP; ++j) {
-		popout.push_back(Individual(lbX[i][j],V[i][j],lbfit[i][j]));
+		popout.push_back(Individual(lbX[i][j],V[i][j],lbfit[i][j],m_id));
 	}
    }
    return popout;

@@ -59,7 +59,7 @@ public:
 	void setUB(const std::vector<double> &);
 	// Dimension getter
 	size_t getDimension() const;
-	double objfun(const std::vector<double> &) const;
+	double objfun(const std::vector<double> &, size_t m_id) const;
 	virtual GOProblem *clone() const = 0;
 	std::string id_name() const;
 	virtual void pre_evolution(Population &) const {}
@@ -77,7 +77,7 @@ protected:
 	// Print function: called by operator<<, can be re-implemented in sublcasses.
 	virtual std::ostream &print(std::ostream &) const;
 	// The objective function - must be implemented in subclasses
-	virtual double objfun_(const std::vector<double> &) const = 0;
+	virtual double objfun_(const std::vector<double> &, size_t m_id) const = 0;
 	// Constructor from size; construct problem of size n, with lower bounds to zero and upper bounds to one
 	GOProblem(int);
 	// Constructor with array bounds initialisers

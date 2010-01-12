@@ -340,13 +340,13 @@ class __PAGMO_VISIBLE island
 		static atomic_counter_size_t			id_counter; ///< Counter used to generate the island ids.
 		
 		//Class fields		
-		size_t										m_id; ///< Island id.
-		Population									m_pop; ///< Island's population.
+		size_t						m_id; ///< Island id.
+		Population					m_pop; ///< Island's population.
 		boost::scoped_ptr<const go_algorithm>		m_goa; ///< Island's algorithm.
-		archipelago									*m_a; ///< Associated archipelago (may be null).
-		size_t										m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).
-		mutable mutex_type							m_evo_mutex; ///< Mutex used to control evolution synchronisation.
-		boost::scoped_ptr<MigrationPolicy>          migrationPolicy; ///< Migration parameters of the island (may be null).
+		archipelago					*m_a; ///< Associated archipelago (may be null).
+		size_t						m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).
+		mutable mutex_type				m_evo_mutex; ///< Mutex used to control evolution synchronisation.
+		boost::scoped_ptr<MigrationPolicy>          	migrationPolicy; ///< Migration parameters of the island (may be null).
 };
 
 /// Stream output operator.

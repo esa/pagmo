@@ -53,6 +53,7 @@ Population DEalgorithm::evolve(const Population &deme) const
         const std::vector<double> &LB = problem.getLB();
         const std::vector<double> &UB = problem.getUB();
 	const size_t D = LB.size(), NP = deme.size();
+	const size_t m_id = deme.m_id; //Get associated Island ID
 	// TODO: this needs to go away.
 	if (NP < 6) {
 		pagmo_throw(value_error,"for DE at least 6 individuals in the population are needed");
@@ -250,7 +251,7 @@ Population DEalgorithm::evolve(const Population &deme) const
 					tmp[i2] = drng()*(UB[i2]-LB[i2]) + LB[i2];
 				++i2;
 			}
-			newfitness = problem.objfun(tmp);    /* Evaluate new vector in tmp[] */
+			newfitness = problem.objfun(tmp,m_id);    /* Evaluate new vector in tmp[] */
 			//cout << "\n" << newfitness << endl;
 			//for (int g=0;g<NP;g++){
 			//cout << tmp[g] << " ";
@@ -294,7 +295,7 @@ Population DEalgorithm::evolve(const Population &deme) const
 	}
 	//X[i] - deme[i].getDecisionVector());  DOES NOT WORK AS VECTOR CLASS DOES NOT ACCEPT MINUS AS OPERATOR
 
-	popout.push_back(Individual(popold[i],deme[i].getVelocity(),fit[i]));
+	popout.push_back(Individual(popold[i],deme[i].getVelocity(),fit[i],m_id));
    }
    return popout;
 }

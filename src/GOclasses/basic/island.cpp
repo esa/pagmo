@@ -48,7 +48,7 @@ size_t island::get_new_id()
 
 island::island(const GOProblem &p, const go_algorithm &al)
 		:m_id(get_new_id()),
-		m_pop(p),
+		m_pop(p, m_id),
 		m_goa(al.clone()),
 		m_a(0),
 		m_evo_time(0)
@@ -57,7 +57,7 @@ island::island(const GOProblem &p, const go_algorithm &al)
 
 island::island(const GOProblem &p, const go_algorithm &al, int n)
 		:m_id(get_new_id()),
-		m_pop(p, n),
+		m_pop(p, n, m_id),
 		m_goa(al.clone()),
 		m_a(0),
 		m_evo_time(0)
@@ -66,7 +66,7 @@ island::island(const GOProblem &p, const go_algorithm &al, int n)
 
 island::island(const GOProblem& p, const go_algorithm& al, int n, const MigrationPolicy& mp)
 		:m_id(get_new_id()),
-		m_pop(p, n),
+		m_pop(p, n, m_id),
 		m_goa(al.clone()),
 		m_a(0),
 		m_evo_time(0),
@@ -76,7 +76,7 @@ island::island(const GOProblem& p, const go_algorithm& al, int n, const Migratio
 
 island::island(const island &i)
 		:m_id(get_new_id()),
-		m_pop(i.population()),
+		m_pop(i.population(), m_id),
 		m_goa(i.m_goa->clone()),
 		m_a(0),
 		m_evo_time(i.m_evo_time),

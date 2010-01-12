@@ -45,7 +45,7 @@ class __PAGMO_VISIBLE inventory_problem: public GOProblem {
 		virtual void pre_evolution(Population &) const;
 		virtual std::string id_object() const { return id_name(); }
 	private:
-		virtual double objfun_(const std::vector<double> &) const;
+		virtual double objfun_(const std::vector<double> &, size_t islID) const;
 		mutable std::vector<double> d;
 		size_t m_sample_size;
 };

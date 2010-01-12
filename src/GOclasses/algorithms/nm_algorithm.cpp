@@ -188,7 +188,7 @@ double nm_algorithm::simplex_diameter(const simplex &s) const
  * @param s input/output simplex.
  * @param[in] problem problem used to compute the fitnesses of the new vertices.
  */
-void nm_algorithm::shuffle_simplex(simplex &s, const GOProblem &problem) const
+void nm_algorithm::shuffle_simplex(simplex &s, const GOProblem &problem, size_t m_id) const
 {
 	const size_t s_size = s.size();
 	pagmo_assert(s_size > 1);
@@ -204,7 +204,7 @@ void nm_algorithm::shuffle_simplex(simplex &s, const GOProblem &problem) const
 	for (size_t i = 0; i < s_size - 1; ++i) {
 		for (size_t j = 0; j < s_size - 1; ++j) {
 			s[j + 1].first[i] = simplex_coordinates[i][j];
-			s[j + 1].second = problem.objfun(s[j + 1].first);
+			s[j + 1].second = problem.objfun(s[j + 1].first, m_id);
 		}
 	}
 }
@@ -227,6 +227,7 @@ Population nm_algorithm::evolve(const Population &pop) const
 {
 	// Preliminary checks and useful variables.
 	const GOProblem &problem = pop.problem();
+	const size_t m_id = pop.m_id; //Get associated Island ID
 	const size_t pop_size = pop.size(), prob_size = problem.getDimension();
 	if (pop_size <= prob_size) {
 		pagmo_throw(value_error,"too few individuals in population for Nelder-Mead method");
@@ -250,7 +251,7 @@ Population nm_algorithm::evolve(const Population &pop) const
 		if (diameter < 1E-6) {
 			//std::cout << "small diameter: " << diameter << '\n';
 			for (size_t i = 1; i < simplex_size; ++i) {
-				Individual tmp(problem);
+				Individual tmp(problem, 0);
 				s[i].first = tmp.getDecisionVector();
 				s[i].second = tmp.getFitness();
 			}
@@ -259,7 +260,7 @@ Population nm_algorithm::evolve(const Population &pop) const
 		std::sort(s.begin(),s.end(),sorter(problem));
 		// With small probability mix the coordinates between the vertices (excluding the best one).
 		if (drng() < .001) {
-			shuffle_simplex(s,problem);
+			shuffle_simplex(s,problem,m_id);
 		}
 		// Compute the center of mass, excluding the worst point.
 		const vertex x0(center_mass(s));
@@ -267,14 +268,14 @@ Population nm_algorithm::evolve(const Population &pop) const
 		vertex xr = sub_mult_add(x0,s.back().first,m_alpha,x0);
 		check_bounds(xr,problem);
 		// Calculate fitness values. fitness_target is relative to the vertex immediately before the worst one.
-		const double fitness_r = problem.objfun(xr), fitness_best = problem.objfun(s[0].first), fitness_target = problem.objfun(s[simplex_size - 2].first);
+		const double fitness_r = problem.objfun(xr, m_id), fitness_best = problem.objfun(s[0].first, m_id), fitness_target = problem.objfun(s[simplex_size - 2].first, m_id);
 		if (fitness_r >= fitness_best && fitness_r < fitness_target) {
 			s.back().first = xr;
 			s.back().second = fitness_r;
 		} else if (fitness_r < fitness_best) {
 			vertex xe = sub_mult_add(x0,s.back().first,m_gamma,x0);
 			check_bounds(xe,problem);
-			const double fitness_e = problem.objfun(xe);
+			const double fitness_e = problem.objfun(xe, m_id);
 			if (fitness_e < fitness_r) {
 				s.back().first = xe;
 				s.back().second = fitness_e;
@@ -285,7 +286,7 @@ Population nm_algorithm::evolve(const Population &pop) const
 		} else {
 			vertex xc = sub_mult_add(x0,s.back().first,m_rho,s.back().first);
 			check_bounds(xc,problem);
-			const double fitness_c = problem.objfun(xc), fitness_worst = problem.objfun(s.back().first);
+			const double fitness_c = problem.objfun(xc, m_id), fitness_worst = problem.objfun(s.back().first, m_id);
 			if (fitness_c <= fitness_worst) {
 				s.back().first = xc;
 				s.back().second = fitness_c;
@@ -293,14 +294,14 @@ Population nm_algorithm::evolve(const Population &pop) const
 				for (size_t i = 1; i < simplex_size; ++i) {
 					s[i].first = sub_mult_add(s[i].first,s.front().first,m_sigma,s.front().first);
 					check_bounds(s[i].first,problem);
-					s[i].second = problem.objfun(s[i].first);
+					s[i].second = problem.objfun(s[i].first, m_id);
 				}
 			}
 		}
 	}
 	// In retval overwrite the individuals that have evolved (i.e., those involved in the simplex).
 	for (size_t i = 0; i < simplex_size; ++i) {
-		retval.setIndividual(i,Individual(s[i].first,retval[i].getVelocity(),s[i].second));
+		retval.setIndividual(i,Individual(s[i].first,retval[i].getVelocity(),s[i].second,0));
 	}
 	return retval;
 }

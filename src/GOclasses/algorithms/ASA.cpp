@@ -70,6 +70,7 @@ Population ASAalgorithm::evolve(const Population &pop) const
 	if (pop.size() == 0) {
 		return Population(problem,0);
 	}
+	const size_t m_id = pop.m_id; //Get associated Island ID
 	const std::vector<double> &LB = problem.getLB();
 	const std::vector<double> &UB = problem.getUB();
 	const size_t SolDim = LB.size();
@@ -110,7 +111,7 @@ Population ASAalgorithm::evolve(const Population &pop) const
 						continue;
 					}
 					//And we valuate the objective function for the new point
-					fNEW = problem.objfun(xNEW);
+					fNEW = problem.objfun(xNEW,m_id);
 
 					// We decide wether to accept or discard the point
 					if (fNEW < fOLD) {
@@ -159,7 +160,7 @@ Population ASAalgorithm::evolve(const Population &pop) const
 	}
 
 	if (fOLD < x0.getFitness()){
-		retval.replace_best(Individual(xOLD,x0.getVelocity(),fOLD));
+		retval.replace_best(Individual(xOLD,x0.getVelocity(),fOLD, m_id));
 	}
 	return retval;
 }

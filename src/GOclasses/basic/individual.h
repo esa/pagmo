@@ -32,7 +32,6 @@
 
 #include "../../../config.h"
 #include "../../Functions/rng/rng.h"
-#include "../../exceptions.h"
 #include "../problems/GOproblem.h"
 
 /// Individual class.
@@ -44,14 +43,17 @@
  * Individual.
  */
 class __PAGMO_VISIBLE Individual {
-public:
+public:	
+
+	size_t 	m_id; ///< Associated island number
+	
 	/// Constructor.
 	/**
 	 * Constructs an individual for the given problem with x randomly placed within the problem bounds
 	 * and a random velocity of maximum magnitude (UB-LB).
 	 * \param[in] problem concerned problem.
 	 */
-	Individual(const GOProblem& problem);
+	Individual(const GOProblem& problem, size_t islID);
 	
 	/// Constructor.
 	/**
@@ -60,7 +62,7 @@ public:
 	 * \param[in] x_ individual position.
 	 * \param[in] v_ individual velocity.
 	 */
-	Individual(const GOProblem& problem, const std::vector<double>& x_, const std::vector<double>& v_);
+	Individual(const GOProblem& problem, const std::vector<double>& x_, const std::vector<double>& v_, size_t islID);
 	
 	/// Constructor.
 	/**
@@ -68,7 +70,7 @@ public:
 	 * \param[in] problem concerned problem.
 	 * \param[in] x_ individual position.
 	 */
-	Individual(const GOProblem& problem, const std::vector<double> & x_);
+	Individual(const GOProblem& problem, const std::vector<double> & x_, size_t islID);
 	
 	/// Constructor.
 	/**
@@ -77,14 +79,11 @@ public:
 	 * \param[in] v_ individual velocity.
 	 * \param[in] fitness_ individual fitness.
 	 */
-	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_)
+	Individual(const std::vector<double> &x_, const std::vector<double> &v_, const double &fitness_, size_t islID)
 			:x(x_),
 			v(v_),
 			fitness(fitness_)
 	{
-		if (x.size() != v.size()) {
-			pagmo_throw(value_error,"while constructing individual, size mismatch between decision vector and velocity vector");
-		}
 	}
 	
 	/// Constructor.
@@ -93,7 +92,7 @@ public:
 	 * \param[in] x_ individual position.
 	 * \param[in] fitness_ individual fitness.
 	 */
-	Individual(const std::vector<double> &x_, const double &fitness_)
+	Individual(const std::vector<double> &x_, const double &fitness_, size_t islID)
 			:x(x_),
 			v(x_.size()),
 			fitness(fitness_)
@@ -139,13 +138,14 @@ public:
 	 */
 	static int compare_by_fitness(const Individual& ind1, const Individual& ind2);
 	
+	
 private:
 	/// Stream output operator
 	friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const Individual &);
 	
 	std::vector<double>			x; ///< Individual chromosome (position).
 	std::vector<double>			v; ///< Individual velocity.
-	double						fitness; ///< Individual fitness.
+	double					fitness; ///< Individual fitness.
 };
 
 /// Stream output operator

@@ -62,8 +62,8 @@ class __PAGMO_VISIBLE earth_mars_lt_problem: public GOProblem {
 		virtual std::string id_object() const {return "hippo's problem";}
 		void human_readable(const std::vector<double> &) const;
 	private:
-		virtual double objfun_(const std::vector<double> &) const;
-		double main_objfun(const std::vector<double> &) const;
+		virtual double objfun_(const std::vector<double> &, size_t islID) const;
+		double main_objfun(const std::vector<double> &, size_t islID) const;
 		void state_mismatch(const std::vector<double> &, double *, double *, double *, double *) const;
 		static void ruv2cart(double *, const double *);
 		static void earth_eph(const double &, double *, double *);

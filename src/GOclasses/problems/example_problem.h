@@ -37,16 +37,16 @@
 /**
  * Minimal example problem representing the minimization of the function y = x * x.
  */
-class __PAGMO_VISIBLE exampleProb: public GOProblem {
+class __PAGMO_VISIBLE example_problem: public GOProblem {
 	public:
-		/// Constructor
-		exampleProb();
+		 /// Constructor
+		example_problem();
 		/// Cloning method.
-		virtual exampleProb *clone() const;
+		virtual example_problem *clone() const;
 		/// Object descriptor.
 		virtual std::string id_object() const;
 	private:
-		virtual double objfun_(const std::vector<double> &) const;
+		virtual double objfun_(const std::vector<double> &, size_t islID) const;
 };
 
 #endif

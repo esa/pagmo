@@ -86,6 +86,8 @@ Population ihs_algorithm::evolve(const Population &pop) const
 	const GOProblem &problem = pop.problem();
 	const std::vector<double> &lb = problem.getLB(), &ub = problem.getUB();
 	const size_t problem_size = lb.size(), pop_size = pop.size();
+	const size_t m_id = pop.m_id; //Get associated Island ID
+	
 	if (pop_size == 0) {
 		pagmo_throw(value_error,"cannot evolve an empty population");
 	}
@@ -124,10 +126,10 @@ Population ihs_algorithm::evolve(const Population &pop) const
 				tmp_dv[i] = lb[i] + next_rn * lu_diff[i];
 			}
 		}
-		const double tmp_fitness = problem.objfun(tmp_dv);
+		const double tmp_fitness = problem.objfun(tmp_dv,m_id);
 		const Individual &worst = retval.extractWorstIndividual();
 		if (tmp_fitness < worst.getFitness()) {
-			retval.replace_worst(Individual(tmp_dv,worst.getVelocity(),tmp_fitness));
+			retval.replace_worst(Individual(tmp_dv,worst.getVelocity(),tmp_fitness,m_id));
 		}
 	}
 	return retval;

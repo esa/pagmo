@@ -1,4 +1,3 @@
-
 /*****************************************************************************
  *   Copyright (C) 2004-2009 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
@@ -38,24 +37,6 @@
 
 using namespace std;
 
-SGAalgorithm::SGAalgorithm(int generationsInit, const double &CRInit, const double &MInit, int insert_bestInit):
-go_algorithm(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestInit),MR(1),MType(2),SType(1),rng(static_rng_uint32()())
-{
-	if (generationsInit <= 0) {
-		pagmo_throw(value_error,"number of generations must be strictly positive");
-	}
-	if (CRInit < 0) {
-		pagmo_throw(value_error,"CR value must be non-negative");
-	}
-	if (MInit < 0) {
-		pagmo_throw(value_error,"M value must be non-negative");
-	}
-	if (insert_bestInit <= 0) {
-		pagmo_throw(value_error,"insert_best value must be positive");
-	}
-}
-
-
 SGAalgorithm::SGAalgorithm(int generationsInit, const double &CRInit, const double &MInit, int insert_bestInit, double mutationRange, int mutationType, int selectionType):
 go_algorithm(),generations(generationsInit),CR(CRInit),M(MInit),insert_best(insert_bestInit),rng(static_rng_uint32()())
 {
@@ -93,6 +74,8 @@ Population SGAalgorithm::evolve(const Population &deme) const {
 	
     int NP = deme.size();
     int D = LB.size();
+    
+    const size_t m_id = deme.m_id; //Get associated Island ID
 	
 	vector<double> dummy(D,0);						//used for initialisation purposes
 	vector< vector<double> > X(NP,dummy), Xnew(NP,dummy);
@@ -129,10 +112,10 @@ Population SGAalgorithm::evolve(const Population &deme) const {
 	// Main SGA loop
 	for (int j = 0; j<(int)generations; j++)
 	{
-		//for (int k = 0; k < 5; k++)
-		//{
-		//	cout<<"GENERATIONS: "<<generations<<"  THIS: "<<j<<endl;
-		//}
+		for (int k = 0; k < 5; k++)
+		{
+			cout<<"GENERATIONS: "<<generations<<"  THIS: "<<j<<endl;
+		}
 		
 		//1 - Selection
 		selectionfitness.clear();
@@ -304,7 +287,7 @@ Population SGAalgorithm::evolve(const Population &deme) const {
 		//4 - Evaluate Xnew
 		{
 			for (int i = 0; i < NP;i++){
-				fit[i] = problem.objfun(Xnew[i]);
+				fit[i] = problem.objfun(Xnew[i],m_id);
 				if (fit[i] < bestfit){
 					bestfit = fit[i];
 					bestX = Xnew[i];
@@ -329,15 +312,13 @@ Population SGAalgorithm::evolve(const Population &deme) const {
 	//we end by constructing the object Population containing the final results
 	Population popout(problem,0);
 	for (int i=0; i<NP; i++){
-		// TODO: WARNING! here we are creating the individuals with empty velocity vectors,
-		// we could improve this by, e.g., re-using the velocities from the input population.
-		popout.push_back(Individual(X[i],std::vector<double>(X[i].size()),fit[i]));
+		popout.push_back(Individual(X[i],std::vector<double>(),fit[i],m_id));
 	}
 	return popout;
 }
 
 void SGAalgorithm::log(std::ostream &s) const
 {
-	s << "SGA - Generations:" << generations << " CR:" << CR << " M:" << M << " insert_best:" << insert_best <<
-	" mutation range:" << MR << " mutation type:" << MType << " selection type:" << SType;
+	s << "SGA - Generations:" << generations << " CR:" << CR << " M:" << M
+	<< " insert_best:" << insert_best;
 }

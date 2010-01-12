@@ -46,7 +46,7 @@ inventory_problem::inventory_problem(int sample_size):GOProblem(1),d(sample_size
 }
 
 
-double inventory_problem::objfun_(const std::vector<double> &x) const
+double inventory_problem::objfun_(const std::vector<double> &x, size_t islID) const
 {
 		const double c=1.0,b=1.5,h=0.1;
 		double retval=0;
@@ -63,6 +63,6 @@ void inventory_problem::pre_evolution(Population & pop) const
 	}
 	//Re-evaluate the population with respect to the new seed (Internal Sampling Method)
 	for (size_t i=0; i<pop.size(); ++i){
-	  pop[i] = Individual(*this, pop[i].getDecisionVector(), pop[i].getVelocity());
+	  pop[i] = Individual(*this, pop[i].getDecisionVector(), pop[i].getVelocity(), pop.m_id);
 	}
 }

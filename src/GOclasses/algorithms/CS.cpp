@@ -71,7 +71,8 @@ Population CSalgorithm::evolve(const Population &popin) const
 	bool flag = false;
         std::vector <double> UB = problem.getUB();
         std::vector <double> LB = problem.getLB();
-	
+	const size_t m_id = popin.m_id; //Get associated Island ID
+	    
 	double newrange=range;
 	
         while (newrange > minRange){
@@ -84,7 +85,7 @@ Population CSalgorithm::evolve(const Population &popin) const
 			//feasibility correction
 			if (newx[i] > UB [i]) newx[i]=UB[i];
 			
-                        newf = problem.objfun(newx);
+                        newf = problem.objfun(newx,m_id);
 			if (newf < f) {
 				f = newf;
 				x = newx;
@@ -96,7 +97,7 @@ Population CSalgorithm::evolve(const Population &popin) const
 			//feasibility correction
 			if (newx[i] < LB [i]) newx[i]=LB[i];
 			
-                        newf = problem.objfun(newx);
+                        newf = problem.objfun(newx,m_id);
 			if (newf < f) {  //accept
 				f = newf;
 				x = newx;
@@ -109,7 +110,7 @@ Population CSalgorithm::evolve(const Population &popin) const
 		}
 	} //end while
 	
-        retval.replace_best(Individual(x,startIndividual.getVelocity(),f));
+        retval.replace_best(Individual(x,startIndividual.getVelocity(),f,m_id));
         return retval;
 }
 
