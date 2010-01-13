@@ -15,7 +15,7 @@
 //Objective function (i.e. fitness function); passed vector containing genes and island ID
 double mars_rover::objfun_(const std::vector<double> &x, size_t m_id) const
 {
-    //Corrects Island ID to Island number (e.g. the 4th island will have the m_id of 9)
+    //Corrects Island ID to Island number (e.g. the 4th island will have the m_id of 9);
     m_id = (m_id-1)/2;
     cout<<"running island: "<<m_id<<" terrain ID: "<<island_terrain[m_id]<<" number of faults: "<<island_faults[m_id]<<endl;
     //Local variable for returning fitness
