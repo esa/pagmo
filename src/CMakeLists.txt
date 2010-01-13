@@ -56,6 +56,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/example_problem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/twodee_problem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/sp_testproblems.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/mars_rover.cpp
 )
 
 # Boost  thread library.

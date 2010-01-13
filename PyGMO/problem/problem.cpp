@@ -37,6 +37,7 @@
 #include "../../src/GOclasses/problems/earth_mars_lt_problem2.h"
 #include "../../src/GOclasses/problems/example_problem.h"
 #include "../../src/GOclasses/problems/twodee_problem.h"
+#include "../../src/GOclasses/problems/mars_rover.h"
 #include "../../src/GOclasses/problems/sp_testproblems.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -101,5 +102,5 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<levyProb>("levy", "Levy problem.").def(init<int>());
 	// Stochastic Programming Problems (evolutionary robotics included)
 	problem_wrapper<twodee_problem>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-	//problem_wrapper<inventory_problem>("inventory", "Inventory problem.").def(init<int>());
+	problem_wrapper<mars_rover>("marsrover", "Mars Rover problem.").def(init<int , double>()).def("set_num_hidden",&mars_rover::set_num_hidden);
 }
