@@ -114,7 +114,7 @@ Population SGAalgorithm::evolve(const Population &deme) const {
 	{
 		for (int k = 0; k < 5; k++)
 		{
-			cout<<"GENERATIONS: "<<generations<<"  THIS: "<<j<<endl;
+			//cout<<"GENERATIONS: "<<generations<<"  THIS: "<<j<<endl;
 		}
 		
 		//1 - Selection
