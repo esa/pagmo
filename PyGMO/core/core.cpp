@@ -73,7 +73,7 @@ static inline T *algorithm_getter(const C &c)
 template <class T, class C>
 static inline T *topology_getter(const C &c)
 {
-	return c.getTopology().clone();
+	return c.get_topology().clone();
 }
 
 /// \todo Is this really the correct way to do things??
@@ -92,7 +92,7 @@ static inline T *replacement_policy_getter(const C &c)
 template <class T, class C>
 static inline T *migration_scheme_getter(const C &c)
 {
-	return c.getMigrationScheme().clone();
+	return c.get_migration_scheme().clone();
 }
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
@@ -123,10 +123,10 @@ BOOST_PYTHON_MODULE(_core)
 	class_ind.def(init<const individual &>());
 	class_ind.def("__copy__", &Py_copy_from_ctor<individual>);
 	class_ind.def("__repr__", &Py_repr_from_stream<individual>);
-	class_ind.add_property("fitness", &individual::getFitness, "Fitness.");
-	class_ind.add_property("decision_vector", make_function(&individual::getDecisionVector, return_value_policy<copy_const_reference>()),
+	class_ind.add_property("fitness", &individual::get_fitness, "Fitness.");
+	class_ind.add_property("decision_vector", make_function(&individual::get_decision_vector, return_value_policy<copy_const_reference>()),
 		"Decision vector.");
-	class_ind.add_property("velocity", make_function(&individual::getVelocity, return_value_policy<copy_const_reference>()),
+	class_ind.add_property("velocity", make_function(&individual::get_velocity, return_value_policy<copy_const_reference>()),
 		"Velocity.");
 
 	// Expose population class.
@@ -193,9 +193,9 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("__setitem__", &archipelago::set_island);
 	class_arch.def("__repr__", &Py_repr_from_stream<archipelago>);
 	class_arch.add_property("migration_scheme", make_function(&migration_scheme_getter<MigrationScheme, archipelago>, return_value_policy<manage_new_object>()),
-		&archipelago::setMigrationScheme, "The archipelago's migration scheme.");
+		&archipelago::set_migration_scheme, "The archipelago's migration scheme.");
 	class_arch.add_property("topology", make_function(&topology_getter<base_topology, archipelago>, return_value_policy<manage_new_object>()),
-		&archipelago::setTopology, "The archipelago's migration topology.");
+		&archipelago::set_topology, "The archipelago's migration topology.");
 	class_arch.def("append", &archipelago::push_back, "Append island.");
 	class_arch.add_property("problem", make_function(&problem_getter<problem::base,archipelago>, return_value_policy<manage_new_object>()), "Problem.");
 	class_arch.def("join", &archipelago::join, "Block until evolution on each island has terminated.");
@@ -203,8 +203,8 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("evolve", &archipelago::evolve, archipelago_evolve_overloads());
 	class_arch.def("evolve_t", &archipelago::evolve_t, "Evolve islands for an amount of time.");
 	class_arch.def("best", &archipelago::best, "Copy of best individual.");
-	class_arch.def("max_evo_time", &archipelago::getMaxEvoTime, "Maximum of total evolution times for all islands.");
-	class_arch.def("total_evo_time", &archipelago::getTotalEvoTime, "Sum of total evolution times for all islands.");
+	class_arch.def("max_evo_time", &archipelago::get_max_evo_time, "Maximum of total evolution times for all islands.");
+	class_arch.def("total_evo_time", &archipelago::get_total_evo_time, "Sum of total evolution times for all islands.");
 	
 	
 	// Expose Migration

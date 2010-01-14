@@ -100,7 +100,7 @@ void base::set_lb(const std::vector<double> &lb)
 	LB = lb;
 }
 
-void base::set_lb(unsigned int n, const double &value)
+void base::set_lb(size_t n, const double &value)
 {
 	if (n < 0 || (size_t)n >= LB.size()) {
 		pagmo_throw(index_error,"invalid index for lower bound");
@@ -111,7 +111,7 @@ void base::set_lb(unsigned int n, const double &value)
 	LB[n] = value;
 }
 
-void base::set_lb(unsigned int size, const double *lb_array)
+void base::set_lb(size_t size, const double *lb_array)
 {
 	if (size != getDimension()) {
 		pagmo_throw(value_error,"size of lower bounds vector is incompatible with problem size");
@@ -139,7 +139,7 @@ void base::set_ub(const std::vector<double> &ub)
 	UB = ub;
 }
 
-void base::set_ub(unsigned int n, const double &value)
+void base::set_ub(size_t n, const double &value)
 {
 	if (n < 0 || (size_t)n >= UB.size()) {
 		pagmo_throw(index_error,"invalid index for upper bound");
@@ -150,7 +150,7 @@ void base::set_ub(unsigned int n, const double &value)
 	UB[n] = value;
 }
 
-void base::set_ub(unsigned int size, const double *ub_array) 
+void base::set_ub(size_t size, const double *ub_array) 
 {
 	if (size != getDimension()) {
 		pagmo_throw(value_error,"size of upper bounds vector is incompatible with problem size");
