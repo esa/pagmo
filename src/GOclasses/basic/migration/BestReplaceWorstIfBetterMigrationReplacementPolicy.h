@@ -28,7 +28,7 @@
 #define PAGMO_BEST_REPLACE_WORST_IF_BETTER_MIGRATION_REPLACEMENT_POLICY_H
 
 #include "../../../config.h"
-#include "../../../Functions/rng/rng.h"
+#include "../../../rng.h"
 #include "MigrationReplacementPolicy.h"
 
 namespace pagmo

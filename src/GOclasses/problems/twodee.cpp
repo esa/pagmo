@@ -33,7 +33,7 @@
 #include <vector>
 
 #include "../../exceptions.h"
-#include "../../Functions/rng/rng.h"
+#include "../../rng.h"
 #include "../basic/population.h"
 #include "base.h"
 #include "twodee.h"

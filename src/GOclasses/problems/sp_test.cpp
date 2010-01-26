@@ -34,7 +34,7 @@
 #include <algorithm>
 
 #include "../../exceptions.h"
-#include "../../Functions/rng/rng.h"
+#include "../../rng.h"
 #include "../basic/population.h"
 #include "base.h"
 #include "sp_test.h"

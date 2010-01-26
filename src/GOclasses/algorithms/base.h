@@ -30,7 +30,7 @@
 #include <typeinfo>
 
 #include "../../config.h"
-#include "../../Functions/rng/rng.h"
+#include "../../rng.h"
 #include "../basic/population.h"
 
 namespace pagmo
