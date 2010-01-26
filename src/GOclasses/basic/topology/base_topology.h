@@ -107,6 +107,8 @@ class __PAGMO_VISIBLE base_topology
 		/// Get the name identyfing the object (<b>not</b> the class).
 		/** Exposed to Python. The string should identify the object, so that instanciations of the same class with different parameters are distinguishable. */
 		virtual std::string id_object() const = 0;
+
+		virtual ~base_topology() {}
 };
 
 /// Stream output operator.

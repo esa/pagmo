@@ -99,6 +99,7 @@ class __PAGMO_VISIBLE MigrationSelectionPolicy
 			migrationRateFrac = _migrationRateFrac;
 		}
 
+		virtual ~MigrationSelectionPolicy() {}
 	protected:
 		/// Migration Rate (absolute value)
 		/** This variable specifies the number of individuals to migrate. */

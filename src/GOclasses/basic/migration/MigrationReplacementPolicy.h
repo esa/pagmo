@@ -104,7 +104,7 @@ class __PAGMO_VISIBLE MigrationReplacementPolicy
 			maxMigrationRateFrac = _maxMigrationRateFrac;
 		}
 
-
+		virtual ~MigrationReplacementPolicy() {}
 	protected:
 
 		int maxMigrationRateAbs; ///< Maximum incoming migration rate (absolute value), -1 means: use fraction.
