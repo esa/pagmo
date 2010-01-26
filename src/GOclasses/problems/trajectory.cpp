@@ -31,11 +31,11 @@
 #include <string>
 #include <vector>
 
-#include "../../Functions/objfuns/trajobjfuns.h"
 #include "../../constants.h"
 #include "../../exceptions.h"
 #include "base.h"
 #include "trajectory.h"
+#include "trajobjfuns.h"
 
 //***********************************************************************************
 //Trajectory problems

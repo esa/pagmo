@@ -34,9 +34,9 @@
 
 #include "../../AstroToolbox/mga_dsm.h"
 #include "../../AstroToolbox/misc4Tandem.h"
-#include "../../Functions/objfuns/trajobjfuns.h"
 #include "../../config.h"
 #include "../problems/base.h"
+#include "trajobjfuns.h"
 
 namespace pagmo
 {

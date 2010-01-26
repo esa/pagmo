@@ -15,8 +15,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/ann_toolbox/multilayer_perceptron.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ann_toolbox/neural_network.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ann_toolbox/perceptron.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Functions/objfuns/classicobjfuns.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Functions/objfuns/trajobjfuns.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/asa.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/algorithms/mpso.cpp
@@ -61,6 +59,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/example.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/twodee.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/sp_test.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/classicobjfuns.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GOclasses/problems/trajobjfuns.cpp
 )
 
 # Boost  thread library.

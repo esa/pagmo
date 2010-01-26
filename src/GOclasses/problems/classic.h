@@ -30,10 +30,9 @@
 #include <string>
 #include <vector>
 
-#include "../../Functions/objfuns/classicobjfuns.h"
 #include "../../config.h"
 #include "base.h"
-
+#include "classicobjfuns.h"
 
 //***********************************************************************************
 //Classical problems
