@@ -49,6 +49,8 @@ int taylor_fixedthrust(double y[6], double t0, double tf,double thrust[3],double
         y[4]=xx[4];
         y[5]=xx[5];
 
+		// TODO: check if this return value has meaning or purpose.
+		return 0;
 }
 
 

@@ -114,7 +114,7 @@ population sga::evolve(const population &deme) const
 
 	int tempID;
 	double temp;
-	int fitnessID[NP];
+	std::vector<int> fitnessID(NP);
 
 	// Initialise the chromosomes and their fitness to that of the initial deme
 	for ( int i = 0; i<NP; i++ ) {
