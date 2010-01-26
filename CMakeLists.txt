@@ -52,21 +52,9 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 # Build Option: when active the bindings to Python are compiled and linked (installation)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
-# Build Option: when active the Generic Astrodynamic Library (see http://homepage.mac.com/pclwillmott/GAL/index.html) is linked to the code
-OPTION(ENABLE_GAL "Enable to link to GAL library routines" OFF)
-
 # Here we check that the Generic Astrodynamic Library GAL has been installed in the machine and if not we throw an error. 
 # We also add the compiler directive PAGMO_HAVE_GAL that must be used in the code to skip files including using the GAL headers in case
 # ENABLE_GAL build option is not selected
-
-IF(ENABLE_GAL)
-	FIND_LIBRARY(GAL_LIBRARY gal)
-	IF(NOT GAL_LIBRARY)
-		MESSAGE(FATAL_ERROR "GAL library support requested, but libraries not found.")
-	ENDIF(NOT GAL_LIBRARY)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} gal)
-	ADD_DEFINITIONS(-DPAGMO_HAVE_GAL)
-ENDIF(ENABLE_GAL)
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
