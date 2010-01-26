@@ -79,7 +79,7 @@ class __PAGMO_VISIBLE cassini1 : public base
  * is the asteroid TW229. The objective of the mission is to maximise the change in sami-major axis of the
  * asteroid orbit following an anaelastic impact of the spacecraft with the asteroid.
  */
-class gtoc1 : public base
+class __PAGMO_VISIBLE gtoc1 : public base
 {
 	public:
 		/// Constructor
@@ -192,7 +192,7 @@ class __PAGMO_VISIBLE tandem : public base
 };	//end class tandem
 
 
-class cassini2 : public base
+class __PAGMO_VISIBLE cassini2 : public base
 {
 	public:
 		cassini2();
@@ -211,7 +211,7 @@ class cassini2 : public base
 		static const int sequence[6];
 };	//end class cassini2
 
-class rosetta : public base
+class __PAGMO_VISIBLE rosetta : public base
 {
 	public:
 		rosetta();
@@ -230,7 +230,7 @@ class rosetta : public base
 		static const int sequence[6];
 };	//end class rosetta
 
-class sagas : public base
+class __PAGMO_VISIBLE sagas : public base
 {
 	public:
 		sagas();
