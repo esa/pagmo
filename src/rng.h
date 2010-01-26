@@ -57,7 +57,7 @@ typedef boost::lagged_fibonacci607 rng_double;
  * is the number of microseconds elapsed since 01/01/1970, cast to uint32_t.
  * Please note that the initial seed is set once at program startup and shared among all
  * instances for a given Rng type.
- * @see www.boost.org/doc/libs/release/libs/random/index.html
+ * @see http://www.boost.org/doc/libs/release/libs/random/index.html
  */
 template <class Rng>
 class static_rng {
@@ -93,10 +93,10 @@ template <class Rng>
 Rng static_rng<Rng>::m_rng(boost::uint32_t((boost::posix_time::microsec_clock::local_time() -
 	boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds()));
 
-/// Thread-safe rng_uint32.
+/// Thread-safe version of pagmo::rng_uint32.
 typedef static_rng<rng_uint32> static_rng_uint32;
 
-/// Thread-safe rng_double.
+/// Thread-safe version of pagmo::rng_double.
 typedef static_rng<rng_double> static_rng_double;
 
 }
