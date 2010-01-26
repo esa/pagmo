@@ -47,10 +47,10 @@ typedef boost::mt19937 rng_uint32;
  */
 typedef boost::lagged_fibonacci607 rng_double;
 
-/// Generic thread-safe wrapper class around a Boost-like random number generator.
+/// Generic thread-safe wrapper class around a Boost-like pseudo-random number generator.
 /**
- * To use, construct and call operator() to get a random number. Type Rng must be a Boost-like
- * random number generator.
+ * To use, construct and call operator() to get a pseudo-random number. Type Rng must be a Boost-like
+ * pseudo-random number generator.
  *
  * Implementation internally uses a mutex, so that this generator can
  * be safely called concurrently from multiple threads. The initial seed used
@@ -65,6 +65,9 @@ class static_rng {
 		/// Result type.
 		typedef typename Rng::result_type result_type;
 		/// Return random number.
+		/**
+		 * Return next pseudo-random number in the sequence.
+		 */
 		result_type operator()()
 		{
 			boost::lock_guard<boost::mutex> lock(m_mutex);
