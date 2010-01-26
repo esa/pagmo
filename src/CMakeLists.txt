@@ -172,6 +172,7 @@ IF(BUILD_PYGMO)
 	# A couple of extra definitions. The first is required when building Boost.Python,
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
 	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1 -DBOOST_WSERIALIZATION_DYN_LINK=1 -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
+	# TODO: need to fix this, we are not supposed to fiddle with BOOST internal declarations.
 	# Codeblocks win32 build needs this to be declared...
 	IF(MINGW)
 		SET(ADDITIONAL_FLAGS "${ADDITIONAL_FLAGS} -DBOOST_HAS_DECLSPEC")
