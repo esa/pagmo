@@ -25,7 +25,7 @@
 #include <iostream>
 
 #include "../../exceptions.h"
-#include "../../Functions/rng/rng.h"
+#include "../../rng.h"
 #include "base.h"
 
 namespace pagmo

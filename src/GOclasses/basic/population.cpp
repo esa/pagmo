@@ -30,8 +30,8 @@
 #include <iostream>
 #include <typeinfo>
 
-#include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
+#include "../../rng.h"
 #include "../problems/base.h"
 #include "individual.h"
 #include "population.h"

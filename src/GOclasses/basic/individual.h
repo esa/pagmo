@@ -31,7 +31,7 @@
 #include <vector>
 
 #include "../../config.h"
-#include "../../Functions/rng/rng.h"
+#include "../../rng.h"
 #include "../../exceptions.h"
 #include "../problems/base.h"
 

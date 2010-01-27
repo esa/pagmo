@@ -30,7 +30,7 @@
 #include <typeinfo>
 
 #include "../../config.h"
-#include "../../Functions/rng/rng.h"
+#include "../../rng.h"
 #include "../basic/population.h"
 
 namespace pagmo
@@ -57,7 +57,7 @@ class __PAGMO_VISIBLE base
 		/// Clone method.
 		virtual base *clone() const = 0;
 		/// Destructor.
-		~base() {}
+		virtual ~base() {}
 		// TODO: are these two ever used? Probably we need just the second one, for
 		// printing purposes in Python. Or maybe we need just log()?? Or maybe human_readable, like in problems?
 		/// C++ name of the algorithm.

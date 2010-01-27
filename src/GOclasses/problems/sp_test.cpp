@@ -34,7 +34,7 @@
 #include <algorithm>
 
 #include "../../exceptions.h"
-#include "../../Functions/rng/rng.h"
+#include "../../rng.h"
 #include "../basic/population.h"
 #include "base.h"
 #include "sp_test.h"
@@ -55,7 +55,7 @@ double inventory::objfun_(const std::vector<double> &x) const
 	const double c=1.0,b=1.5,h=0.1;
 	double retval=0;
 	for (size_t i = 0; i<m_sample_size; ++i) {
-		retval += c * x[0] + b * std::max(d[i]-x[0],0.0) + h * std::max(x[0] - d[i], 0.0);
+		retval += c * x[0] + b * std::max<double>(d[i]-x[0],0.0) + h * std::max<double>(x[0] - d[i], 0.0);
 	}
 	return retval / m_sample_size;
 }

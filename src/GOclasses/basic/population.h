@@ -32,8 +32,8 @@
 #include <vector>
 
 #include "../../config.h"
-#include "../../Functions/rng/rng.h"
 #include "../../exceptions.h"
+#include "../../rng.h"
 #include "../problems/base.h"
 #include "individual.h"
 #include "py_container_utils.h"
