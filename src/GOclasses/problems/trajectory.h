@@ -129,7 +129,7 @@ class __PAGMO_VISIBLE messengerfull : public base
 	public:
 
 		messengerfull();
-		virtual ~messengerfull() {};
+		virtual ~messengerfull() {}
 		virtual messengerfull *clone() const {
 			return new messengerfull(*this);
 		}

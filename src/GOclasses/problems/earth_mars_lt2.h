@@ -41,7 +41,7 @@ namespace problem {
  * In the paper form 1999 by Sims-Flanagan "Preliminary Design of Low-Thrust Interplanetary Missions"
  * a new direct transcription method was presented. The method, alternative to Hermite-Simpson type of
  * transcription, was noted by the authors to have really good convergence properties and speed.
- * We do not think the authors realised that their method coul be significantly generalised and extended to Optimal
+ * We do not think the authors realised that their method could be significantly generalised and extended to Optimal
  * Control Problems in general. Their transcription allows for the dynamic to be explicitly accounted for in the objective function
  * evaluation and not to be considered as a constraint to be solved by the NLP algorithm choosen (as it is in the case of Hermite-Simpson
  * transcriptions). In this problem we implement a generalization of the Sims-Flanagan method that does not use impulsive velocity changes,
