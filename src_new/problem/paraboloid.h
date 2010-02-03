@@ -39,7 +39,7 @@ namespace pagmo { namespace problem {
  * \image html paraboloid.png
  * The objective function for an N-dimensional instance of this problem is:
  * \f[
- * 	f = \sum_{i=1}^N x_i^2.
+ * 	f\left(x_1,\ldots,x_N \right) = \sum_{i=1}^N x_i^2.
  * \f]
  * Useful for testing/benchmarking purposes.
  */
