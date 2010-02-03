@@ -22,72 +22,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_CONFIG_H
+#define PAGMO_CONFIG_H
 
-#include "src_new/problem/paraboloid.h"
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 100000 \
+	+ __GNUC_MINOR__ * 1000 \
+	+ __GNUC_PATCHLEVEL__ * 10)
+#endif
 
-using namespace pagmo;
+#ifdef PAGMO_WIN32
+	#ifdef PAGMO_DLL_EXPORT_API
+		#define __PAGMO_VISIBLE __declspec(dllexport)
+	#elif defined ( PAGMO_DLL_IMPORT_API )
+		#define __PAGMO_VISIBLE __declspec(dllimport)
+	#else
+		#define __PAGMO_VISIBLE
+	#endif
+	#define __PAGMO_VISIBLE_FUNC __PAGMO_VISIBLE
+#else
+	#define __PAGMO_VISIBLE __attribute__ ((visibility("default")))
+	#define __PAGMO_VISIBLE_FUNC
+#endif
 
-int main()
-{
-	double lb1[] = {-1,-1};
-	double ub1[] = {-1,-1};
-	std::cout << problem::paraboloid(lb1,ub1) << '\n';
+/// Root PaGMO namespace.
+namespace pagmo {}
 
-	std::vector<double> lb2(4,0);
-	std::vector<double> ub2(4,10);
-	problem::paraboloid p2(lb2,ub2);
-	p2.set_bounds(lb2,ub2);
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	double lb2a[] = {-1,-1,0,1};
-	double ub2a[] = {-1,-1,1,1};
-	p2.set_bounds(lb2a,ub2a);
-	p2.set_lb(0,-4.);
-	std::list<double> ub2b(ub2.begin(),ub2.end());
-	p2.set_bounds(lb2a,lb2a + 4,ub2b.begin(),ub2b.end());
-	p2.set_bounds(lb2,ub2);
-	fitness_vector f(1);
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	std::cout << f << '\n';
-
-	//std::cout << problem::paraboloid(lb2,ub2).objfun(lb2) << '\n';
-}
+#endif

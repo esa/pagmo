@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,72 +22,32 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include <vector>
-#include <list>
+// 01/02/10 Created by Francesco Biscani.
 
-#include "src_new/problem/paraboloid.h"
+#ifndef PAGMO_PROBLEM_PARABOLOID_H
+#define PAGMO_PROBLEM_PARABOLOID_H
 
-using namespace pagmo;
+#include <cstddef>
 
-int main()
+#include "../types.h"
+#include "base.h"
+
+namespace pagmo { namespace problem {
+
+class paraboloid:public base
 {
-	double lb1[] = {-1,-1};
-	double ub1[] = {-1,-1};
-	std::cout << problem::paraboloid(lb1,ub1) << '\n';
+	public:
+		paraboloid();
+		template <std::size_t N>
+		paraboloid(const double (&v1)[N], const double (&v2)[N]):base(v1,v2) {}
+		template <class Iterator1, class Iterator2>
+		paraboloid(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2):base(start1,end1,start2,end2) {}
+		paraboloid(const decision_vector &, const decision_vector &);
+		base_ptr clone() const;
+	private:
+		virtual void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
 
-	std::vector<double> lb2(4,0);
-	std::vector<double> ub2(4,10);
-	problem::paraboloid p2(lb2,ub2);
-	p2.set_bounds(lb2,ub2);
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	double lb2a[] = {-1,-1,0,1};
-	double ub2a[] = {-1,-1,1,1};
-	p2.set_bounds(lb2a,ub2a);
-	p2.set_lb(0,-4.);
-	std::list<double> ub2b(ub2.begin(),ub2.end());
-	p2.set_bounds(lb2a,lb2a + 4,ub2b.begin(),ub2b.end());
-	p2.set_bounds(lb2,ub2);
-	fitness_vector f(1);
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	std::cout << f << '\n';
+}}
 
-	//std::cout << problem::paraboloid(lb2,ub2).objfun(lb2) << '\n';
-}
+#endif

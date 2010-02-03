@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,72 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+// 04/01/2009: Initial version by Francesco Biscani.
+
+#ifndef PAGMO_ISLAND_H
+#define PAGMO_ISLAND_H
+
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 #include <iostream>
-#include <vector>
-#include <list>
 
-#include "src_new/problem/paraboloid.h"
+#include "config.h"
+#include "atomic_counters/atomic_counters.h"
+#include "algorithm/base.h"
+#include "problem/base.h"
+//#include "migration/MigrationPolicy.h"
 
-using namespace pagmo;
-
-int main()
+namespace pagmo
 {
-	double lb1[] = {-1,-1};
-	double ub1[] = {-1,-1};
-	std::cout << problem::paraboloid(lb1,ub1) << '\n';
 
-	std::vector<double> lb2(4,0);
-	std::vector<double> ub2(4,10);
-	problem::paraboloid p2(lb2,ub2);
-	p2.set_bounds(lb2,ub2);
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	double lb2a[] = {-1,-1,0,1};
-	double ub2a[] = {-1,-1,1,1};
-	p2.set_bounds(lb2a,ub2a);
-	p2.set_lb(0,-4.);
-	std::list<double> ub2b(ub2.begin(),ub2.end());
-	p2.set_bounds(lb2a,lb2a + 4,ub2b.begin(),ub2b.end());
-	p2.set_bounds(lb2,ub2);
-	fitness_vector f(1);
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	std::cout << f << '\n';
+// Forward declaration of archipelago class, needed to make friend.
+class archipelago;
 
-	//std::cout << problem::paraboloid(lb2,ub2).objfun(lb2) << '\n';
+/// Island class.
+class __PAGMO_VISIBLE island
+{
+		/// Mutex type abbreviation.
+		typedef boost::mutex mutex_type;
+		/// Lock guard type abbreviation.
+		typedef boost::lock_guard<mutex_type> lock_type;
+		/// Make friend with archipelago.
+		friend class archipelago;
+		/// Stream output operator.
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
+	public:
+		static atomic_counter_size_t			id_counter; ///< Counter used to generate the island ids.
+
+		//Class fields
+		size_t										m_id; ///< Island id.
+		population									m_pop; ///< Island's population.
+		boost::scoped_ptr<const algorithm::base>		m_goa; ///< Island's algorithm.
+		archipelago									*m_a; ///< Associated archipelago (may be null).
+		size_t										m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).
+		// Mutex used to control evolution synchronisation.
+		mutable mutex_type	m_evo_mutex;
+};
+
+/// Stream output operator.
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);
+
 }
+
+#endif
