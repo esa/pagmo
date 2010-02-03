@@ -394,7 +394,7 @@ bool base::operator!=(const base &p) const
 	return !(*this == p);
 }
 
-/// Overload stream operator for base.
+/// Overload stream operator for problem::base.
 /**
  * Equivalent to printing base::human_readable() to stream.
  */

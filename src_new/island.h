@@ -27,16 +27,19 @@
 #ifndef PAGMO_ISLAND_H
 #define PAGMO_ISLAND_H
 
-#include <boost/scoped_ptr.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <cstddef>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "config.h"
-#include "atomic_counters/atomic_counters.h"
 #include "algorithm/base.h"
 #include "problem/base.h"
 //#include "migration/MigrationPolicy.h"
+#include "types.h"
 
 namespace pagmo
 {
@@ -47,28 +50,44 @@ class archipelago;
 /// Island class.
 class __PAGMO_VISIBLE island
 {
-		/// Mutex type abbreviation.
-		typedef boost::mutex mutex_type;
-		/// Lock guard type abbreviation.
-		typedef boost::lock_guard<mutex_type> lock_type;
-		/// Make friend with archipelago.
+		// Lock type alias.
+		typedef boost::lock_guard<boost::mutex> lock_type;
+		// Archipelago is your friend.
 		friend class archipelago;
-		/// Stream output operator.
+		// Algorithm is also your friend.
+		friend class algorithm::base;
+		// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
 	public:
-		static atomic_counter_size_t			id_counter; ///< Counter used to generate the island ids.
+		/// Individuals stored in the island are populations of tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
+		typedef boost::tuple<decision_vector,decision_vector,fitness_vector,fitness_vector> individual;
+		/// Alias for population type.
+		typedef std::vector<individual> population;
+		/// Alias for island size type.
+		typedef population::size_type size_type;
+		island(const island &);
+		island(const problem::base &, const algorithm::base &);
+		island &operator=(const island &);
+		~island();
+		std::string human_readable_terse() const;
+		std::string human_readable() const;
+		void join() const;
+	private:
 
-		//Class fields
-		size_t										m_id; ///< Island id.
-		population									m_pop; ///< Island's population.
-		boost::scoped_ptr<const algorithm::base>		m_goa; ///< Island's algorithm.
-		archipelago									*m_a; ///< Associated archipelago (may be null).
-		size_t										m_evo_time; ///< Counts the total time spent by the island on evolution (in milliseconds).
+	private:
+		// Data members.
+		problem::base_ptr	m_prob;
+		algorithm::base_ptr	m_algo;
+		// Archipelago in which the island is inserted.
+		archipelago		*m_archi;
+		// Counts the total time spent by the island on evolution (in milliseconds).
+		std::size_t		m_evo_time;
+		// Container of individuals.
+		population		m_population;
 		// Mutex used to control evolution synchronisation.
-		mutable mutex_type	m_evo_mutex;
+		mutable boost::mutex	m_evo_mutex;
 };
 
-/// Stream output operator.
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);
 
 }

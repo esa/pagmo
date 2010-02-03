@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,78 +22,65 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#ifndef PAGMO_ALGORITHM_BASE_H
+#define PAGMO_ALGORITHM_BASE_H
+
+#include <boost/shared_ptr.hpp>
 #include <iostream>
-#include <vector>
-#include <list>
+#include <string>
+#include <typeinfo>
 
-#include "src_new/algorithm/null.h"
-#include "src_new/island.h"
-#include "src_new/problem/paraboloid.h"
+#include "../config.h"
+#include "../rng.h"
 
-using namespace pagmo;
-
-int main()
+namespace pagmo
 {
-	double lb1[] = {-1,-1};
-	double ub1[] = {-1,-1};
-	std::cout << problem::paraboloid(lb1,ub1) << '\n';
+// Forward declaration of island class.
+class __PAGMO_VISIBLE island;
 
-	std::vector<double> lb2(4,0);
-	std::vector<double> ub2(4,10);
-	problem::paraboloid p2(lb2,ub2);
-	p2.set_bounds(lb2,ub2);
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	double lb2a[] = {-1,-1,0,1};
-	double ub2a[] = {-1,-1,1,1};
-	p2.set_bounds(lb2a,ub2a);
-	p2.set_lb(0,-4.);
-	std::list<double> ub2b(ub2.begin(),ub2.end());
-	p2.set_bounds(lb2a,lb2a + 4,ub2b.begin(),ub2b.end());
-	p2.set_bounds(lb2,ub2);
-	fitness_vector f(1);
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	std::cout << f << '\n';
+/// Algorithm namespace.
+/**
+ * This namespace contains all the algorithms implemented in PaGMO.
+ */
+namespace algorithm {
 
-	island isl(p2,algorithm::null());
+// Forward declaration of base algorithm class.
+class __PAGMO_VISIBLE base;
 
-	std::cout << isl << '\n';
+/// Alias for shared pointer to base algorithm.
+typedef boost::shared_ptr<base> base_ptr;
 
-	//std::cout << problem::paraboloid(lb2,ub2).objfun(lb2) << '\n';
+/// Base algorithm class.
+/**
+ * All algorithms implemented in PaGMO must derive from this base class. This base class provides each algorithm with one pagmo::rng_double
+ * and one pagmo::rng_uint32 random number generators. Each algorithm must implement the base::evolve() method.
+ */
+class __PAGMO_VISIBLE base
+{
+		friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
+	public:
+		base();
+		/// Evolve method.
+		/**
+		 * This method is supposed to take a pagmo::island as input and make it evolve towards the solution of problem.
+		 */
+		virtual void evolve(island &) const = 0;
+		/// Clone method.
+		virtual base_ptr clone() const = 0;
+		virtual ~base();
+		std::string human_readable() const;
+	protected:
+		virtual std::string human_readable_extra() const;
+	protected:
+		/// Random number generator for double-precision floating point values.
+		mutable rng_double	m_drng;
+		/// Random number generator for unsigned integer values.
+		mutable rng_uint32	m_urng;
+};
+
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
+
 }
+}
+
+#endif

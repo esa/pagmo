@@ -53,9 +53,6 @@ namespace problem {
 // Forward declaration of base problem.
 class __PAGMO_VISIBLE base;
 
-// Forward declaration of class island.
-class __PAGMO_VISIBLE island;
-
 /// Alias for shared pointer to base problem.
 typedef boost::shared_ptr<base> base_ptr;
 
