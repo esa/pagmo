@@ -33,10 +33,19 @@ double ub[] = {1};
 
 namespace pagmo { namespace problem {
 
+/// Default constructor.
+/**
+ * Will construct a one-dimensional problem with bounds [-1,1].
+ */
 paraboloid::paraboloid():base(lb,ub) {}
 
+/// Constructor from lower/upper bounds.
+/**
+ * @see problem::base
+ */
 paraboloid::paraboloid(const decision_vector &lb, const decision_vector &ub):base(lb,ub) {}
 
+/// Clone method.
 base_ptr paraboloid::clone() const
 {
 	return base_ptr(new paraboloid(*this));

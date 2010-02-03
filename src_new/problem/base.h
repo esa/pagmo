@@ -67,6 +67,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * - lower and upper bounds of the global search space,
  * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
+ *
  * All dimensions are supposed to be invariant in the life cycle of a problem object.
  */
 class __PAGMO_VISIBLE base
@@ -77,11 +78,11 @@ class __PAGMO_VISIBLE base
 		typedef boost::circular_buffer<decision_vector> decision_vector_cache_type;
 		typedef boost::circular_buffer<fitness_vector> fitness_vector_cache_type;
 	public:
-		/// Number of decision_vector - fitness_vector pairs to be remembered.
+		/// Capacity of the internal caches.
 		static const std::size_t cache_capacity = 5;
-		/// Problem's size type: the same as decision_vector's size type.
+		/// Problem's size type: the same as pagmo::decision_vector's size type.
 		typedef decision_vector::size_type size_type;
-		/// Fitness' size type: the same as fitness_vector's size type.
+		/// Fitness' size type: the same as pagmo::fitness_vector's size type.
 		typedef fitness_vector::size_type f_size_type;
 		base(int, int ni = 0, int nf = 1);
 		base(const decision_vector &, const decision_vector &, int ni = 0, int nf = 1);
@@ -233,7 +234,6 @@ class __PAGMO_VISIBLE base
 			std::copy(v,v + N,m_ub.begin());
 		}
 		size_type get_dimension() const;
-		size_type get_c_dimension() const;
 		size_type get_i_dimension() const;
 		f_size_type get_f_dimension() const;
 		fitness_vector objfun(const decision_vector &) const;
@@ -251,7 +251,7 @@ class __PAGMO_VISIBLE base
 		virtual bool equality_operator_extra(const base &) const;
 		/// Objective function implementation.
 		/**
-		 * Takes a decision_vector x as input and writes its fitness_vector to f. This function is not to be called directly,
+		 * Takes a pagmo::decision_vector x as input and writes its pagmo::fitness_vector to f. This function is not to be called directly,
 		 * it is invoked by objfun() after a series of safety checks is performed on x and f.
 		 */
 		virtual void objfun_impl(fitness_vector &f, const decision_vector &x) const = 0;

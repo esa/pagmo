@@ -34,12 +34,29 @@
 
 namespace pagmo { namespace problem {
 
+/// N-dimensional paraboloid problem.
+/**
+ * \image html paraboloid.png
+ * The objective function for an N-dimensional instance of this problem is:
+ * \f[
+ * 	f = \sum_{i=1}^N x_i^2.
+ * \f]
+ * Useful for testing/benchmarking purposes.
+ */
 class paraboloid:public base
 {
 	public:
 		paraboloid();
+		/// Constructor from raw arrays.
+		/**
+		 * @see problem::base
+		 */
 		template <std::size_t N>
 		paraboloid(const double (&v1)[N], const double (&v2)[N]):base(v1,v2) {}
+		/// Constructor from iterators.
+		/**
+		 * @see problem::base
+		 */
 		template <class Iterator1, class Iterator2>
 		paraboloid(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2):base(start1,end1,start2,end2) {}
 		paraboloid(const decision_vector &, const decision_vector &);

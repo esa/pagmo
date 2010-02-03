@@ -70,7 +70,7 @@ base::base(int n, int ni, int nf):m_decision_vector_cache(cache_capacity),m_fitn
 	m_tmp_f2.resize(m_f_dimension);
 }
 
-/// Constructor from upper/lower bounds.
+/// Constructor from upper/lower bounds and integer and fitness dimensions.
 /**
  * Will fail if ni is negative or greater than lb.size(), if nf is not positive, if the sizes of the lower/upper bounds are zero or not identical, or
  * any lower bound is greater than the corresponding upper bound.
@@ -103,7 +103,7 @@ const decision_vector &base::get_ub() const
 	return m_ub;
 }
 
-/// Bounds setter from decision_vector.
+/// Bounds setter from pagmo::decision_vector.
 /**
  * Set lower/upper bounds to lb/ub. Will fail if lb and ub sizes do not match, if their sizes are different
  * from the global size of the problem or if at least one lower bound is greater than the corresponding upper bound.
@@ -118,7 +118,7 @@ void base::set_bounds(const decision_vector &lb, const decision_vector &ub)
 	m_ub = ub;
 }
 
-/// Set lower bounds from decision_vector.
+/// Set lower bounds from pagmo::decision_vector.
 /**
  * Will fail if lb's size is different from the global size or if at least one lower bound is greater than the corresponding upper bound.
  */
@@ -158,7 +158,7 @@ void base::set_lb(const double &value)
 	std::fill(m_lb.begin(),m_lb.end(),value);
 }
 
-/// Set upper bounds from decision_vector.
+/// Set upper bounds from pagmo::decision_vector.
 /**
  * Will fail if ub's size is different from the global size or if at least one upper bound is less than the corresponding lower bound.
  */
@@ -204,13 +204,6 @@ base::size_type base::get_dimension() const
 	return m_lb.size();
 }
 
-/// Return continuous dimension.
-base::size_type base::get_c_dimension() const
-{
-	pagmo_assert(m_i_dimension <= m_lb.size());
-	return m_lb.size() - m_i_dimension;
-}
-
 /// Return integer dimension.
 base::size_type base::get_i_dimension() const
 {
@@ -223,9 +216,14 @@ base::f_size_type base::get_f_dimension() const
 	return m_f_dimension;
 }
 
-/// Return fitness of decision vector.
+/// Return fitness of pagmo::decision_vector.
 /**
- * Equivalent to creating a fitness vector f, call objfun(f,x) and return f.
+ * Equivalent to:
+ @verbatim
+ fitness_vector f(get_f_dimension());
+ objfun(f,x);
+ return f;
+ @endverbatim
  */
 fitness_vector base::objfun(const decision_vector &x) const
 {
@@ -234,13 +232,12 @@ fitness_vector base::objfun(const decision_vector &x) const
 	return f;
 }
 
-/// Write fitness of decision vector x into f.
+/// Write fitness of pagmo::decision_vector into pagmo::fitness_vector.
 /**
- * Will call objfun_impl internally. Will fail if f's and x's size are different from the fitness and global dimension respectively
+ * Will call objfun_impl() internally. Will fail if f's and x's size are different from the fitness and global dimension respectively
  * or if the decision vector is outside the bounds of the problem.
  *
- * The implementation internally uses a caching mechanism, so that the last cache_capacity decision_vector/fitness_vector pairs computed are
- * remembered.
+ * The implementation internally uses a caching mechanism, so that recently-computed quantities are remembered and re-used when appropriate.
  */
 void base::objfun(fitness_vector &f, const decision_vector &x) const
 {
@@ -295,6 +292,7 @@ std::cout << "cache hit\n";
  * - problem type (in mangled C++ form),
  * - dimensions,
  * - lower and upper bounds.
+ *
  * The output of human_readable_extra() will be appended at the end of the string.
  */
 std::string base::human_readable() const
@@ -328,7 +326,8 @@ std::string base::human_readable_extra() const
  * - problems are of the same type,
  * - problems have the same dimension,
  * - lower and upper bounds are equal,
- * - return value of quality_operator_extra().
+ * - return value of equality_operator_extra().
+ *
  * If any of the conditions above is false, then the return value will also be false. Otherwise return value will be true.
  */
 bool base::operator==(const base &p) const
@@ -350,7 +349,7 @@ bool base::operator==(const base &p) const
 
 /// Compare decision vectors.
 /**
- * This functions returns true if x1 is a better decision vector than x2, false otherwise. In detail, this function will compute the
+ * This functions returns true if x1 is a better decision_vector than x2, false otherwise. This function will compute the
  * fitness vectors associated to x1 and x2 and will feed them to compare_impl(), whose result will be returned.
  */
 bool base::compare(const decision_vector &x1, const decision_vector &x2) const
@@ -366,15 +365,15 @@ bool base::compare(const decision_vector &x1, const decision_vector &x2) const
 
 /// Compare fitness vectors.
 /**
- * Default implementation will compute the summation f1 and f2 of all elements of the input vectors and return f1 < f2.
+ * Default implementation will compute the summations f1 and f2 of all elements of the input fitness vectors and will return f1 < f2.
  */
-bool base::compare_impl(const fitness_vector &tmp_f1, const fitness_vector &tmp_f2) const
+bool base::compare_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
 {
 	typedef fitness_vector::value_type fitness_type;
 	const fitness_type init = 0;
-	const fitness_type f1 = std::accumulate(tmp_f1.begin(),tmp_f1.end(),init);
-	const fitness_type f2 = std::accumulate(tmp_f2.begin(),tmp_f2.end(),init);
-	return f1 < f2;
+	const fitness_type f1 = std::accumulate(v_f1.begin(),v_f1.end(),init);
+	const fitness_type f2 = std::accumulate(v_f2.begin(),v_f2.end(),init);
+	return (f1 < f2);
 }
 
 /// Extra requirements for equality.
