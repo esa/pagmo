@@ -94,7 +94,7 @@ class __PAGMO_VISIBLE base
 			m_decision_vector_cache(cache_capacity),m_fitness_vector_cache(cache_capacity)
 		{
 			if (ni < 0 || nf <= 0) {
-				pagmo_throw(value_error,"integer and fitness dimensions must be positive");
+				pagmo_throw(value_error,"integer/fitness dimensions must be non-negative/positive");
 			}
 			construct_from_iterators(v1,v1 + N,v2,v2 + N);
 			m_f_dimension = boost::numeric_cast<f_size_type>(nf);
