@@ -42,6 +42,7 @@ namespace pagmo
 
 namespace std
 {
+	/// Overload stream insertion operator for std::vector<double>.
 	inline ostream &operator<<(ostream &os, const vector<double> &v)
 	{
 		os << '[';

@@ -29,14 +29,13 @@
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/tuple/tuple.hpp>
 #include <cstddef>
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include "config.h"
 #include "algorithm/base.h"
+#include "island_storage.h"
 #include "problem/base.h"
 //#include "migration/MigrationPolicy.h"
 #include "types.h"
@@ -48,25 +47,15 @@ namespace pagmo
 class archipelago;
 
 /// Island class.
-class __PAGMO_VISIBLE island
+class __PAGMO_VISIBLE island: public island_storage
 {
 		// Lock type alias.
 		typedef boost::lock_guard<boost::mutex> lock_type;
-		// Archipelago is your friend.
-		friend class archipelago;
-		// Algorithm is also your friend.
-		friend class algorithm::base;
 		// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
 	public:
-		/// Individuals stored in the island are populations of tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
-		typedef boost::tuple<decision_vector,decision_vector,fitness_vector,fitness_vector> individual;
-		/// Alias for population type.
-		typedef std::vector<individual> population;
-		/// Alias for island size type.
-		typedef population::size_type size_type;
 		island(const island &);
-		island(const problem::base &, const algorithm::base &);
+		island(const problem::base &, const algorithm::base &, int n = 0);
 		island &operator=(const island &);
 		~island();
 		std::string human_readable_terse() const;
@@ -75,15 +64,10 @@ class __PAGMO_VISIBLE island
 	private:
 
 	private:
-		// Data members.
-		problem::base_ptr	m_prob;
-		algorithm::base_ptr	m_algo;
-		// Archipelago in which the island is inserted.
+		// Archipelago that, it not null, contains the island.
 		archipelago		*m_archi;
 		// Counts the total time spent by the island on evolution (in milliseconds).
 		std::size_t		m_evo_time;
-		// Container of individuals.
-		population		m_population;
 		// Mutex used to control evolution synchronisation.
 		mutable boost::mutex	m_evo_mutex;
 };

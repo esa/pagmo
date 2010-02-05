@@ -24,36 +24,34 @@
 
 // 04/01/2009: Initial version by Francesco Biscani.
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <sstream>
 #include <string>
 
 #include "algorithm/base.h"
 #include "problem/base.h"
+#include "exceptions.h"
 #include "island.h"
+#include "island_storage.h"
 #include "types.h"
 
 namespace pagmo
 {
 
-/// Constructor from problem::base and algorithm::base.
+/// Constructor from problem::base, algorithm::base and number of individuals.
 /**
- * Will store a copy of the problem and of the algorithm internally, will initialise internal population to zero individuals
- * and evolution time to zero.
+ * Will store a copy of the problem and of the algorithm internally, will initialise internal population to n individuals
+ * and evolution time to zero. Will fail if n is negative.
  */
-island::island(const problem::base &p, const algorithm::base &a):m_prob(p.clone()),m_algo(a.clone()),m_archi(0),m_evo_time(0) {}
+island::island(const problem::base &p, const algorithm::base &a, int n):island_storage(p,a,n),m_archi(0),m_evo_time(0) {}
 
 /// Copy constructor.
 /**
  * Will perform a deep copy of all the elements of island isl, which will be synchronised before any operation takes place.
  */
-island::island(const island &isl)
+island::island(const island &isl):island_storage()
 {
-	isl.join();
-	m_prob = isl.m_prob->clone();
-	m_algo = isl.m_algo->clone();
-	m_archi = isl.m_archi;
-	m_evo_time = isl.m_evo_time;
-	m_population = isl.m_population;
+	operator=(isl);
 }
 
 /// Assignment operator.
@@ -66,12 +64,12 @@ island &island::operator=(const island &isl)
 		// Make sure both islands are in a known state.
 		join();
 		isl.join();
-		// Perform the copies.
-		m_prob = isl.m_prob->clone();
-		m_algo = isl.m_algo->clone();
+		// Call the operator from island_storage.
+		island_storage::operator=(isl);
+		// Archipelago pointer.
 		m_archi = isl.m_archi;
+		// Copy over also evolution time.
 		m_evo_time = isl.m_evo_time;
-		m_population = isl.m_population;
 	}
 	return *this;
 }
@@ -102,8 +100,8 @@ std::string island::human_readable_terse() const
 {
 	join();
 	std::ostringstream oss;
-	oss << (*m_prob) << '\n';
-	oss << (*m_algo) << '\n';
+	oss << prob() << '\n';
+	oss << algo() << '\n';
 	return oss.str();
 }
 
@@ -117,15 +115,15 @@ std::string island::human_readable() const
 	join();
 	std::ostringstream oss;
 	oss << human_readable_terse();
-	oss << "Belongs to archipelago: " << ((m_archi) ? "true" : "false") << '\n' << '\n';
-	if (m_population.size()) {
+	oss << "Belongs to archipelago: " << (m_archi ? "true" : "false") << '\n' << '\n';
+	if (pop().size()) {
 		oss << "List of individuals:\n";
-		for (size_type i = 0; i < m_population.size(); ++i) {
+		for (size_type i = 0; i < pop().size(); ++i) {
 			oss << '#' << i << ":\n";
-			oss << '\t' << m_population[i].get<0>() << '\n';
-			oss << '\t' << m_population[i].get<1>() << '\n';
-			oss << '\t' << m_population[i].get<2>() << '\n';
-			oss << '\t' << m_population[i].get<3>() << '\n';
+			oss << '\t' << pop()[i].get<0>() << '\n';
+			oss << '\t' << pop()[i].get<1>() << '\n';
+			oss << '\t' << pop()[i].get<2>() << '\n';
+			oss << '\t' << pop()[i].get<3>() << '\n';
 		}
 	} else {
 		oss << "No individuals.\n";

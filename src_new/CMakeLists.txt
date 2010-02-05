@@ -4,6 +4,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/paraboloid.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/island_storage.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
 )
 
