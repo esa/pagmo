@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : some generic identification policies definition
 // ***************************************************************************
@@ -62,7 +62,7 @@ public:
     }
 
 protected:
-    explicit basic_naming_policy( call_traits<rtti::id_t>::param_type dyn_type )
+    explicit basic_naming_policy( rtti::id_t dyn_type )
     : identification_policy( dyn_type )
     {}
     BOOST_RT_PARAM_UNNEEDED_VIRTUAL ~basic_naming_policy() {}

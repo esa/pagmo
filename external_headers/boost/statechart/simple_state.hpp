@@ -347,6 +347,11 @@ class simple_state : public detail::simple_state_base_type< MostDerived,
         HistoryContext, orthogonalPosition >();
     }
 
+    const event_base * triggering_event() const
+    {
+      return outermost_context_base().triggering_event();
+    }
+
   protected:
     //////////////////////////////////////////////////////////////////////////
     simple_state() : pContext_( 0 ) {}

@@ -2,7 +2,7 @@
 // socket_ops.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -1388,8 +1388,9 @@ inline int gai_echeck(const char* host, const char* service,
     break;
   case AF_INET:
   case AF_INET6:
-    if (socktype != 0 && socktype != SOCK_STREAM && socktype != SOCK_DGRAM)
-      return EAI_SOCKTYPE;
+    if (service != 0 && service[0] != '\0')
+      if (socktype != 0 && socktype != SOCK_STREAM && socktype != SOCK_DGRAM)
+        return EAI_SOCKTYPE;
     break;
   default:
     return EAI_FAMILY;

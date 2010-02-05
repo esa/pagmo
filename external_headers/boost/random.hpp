@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org/libs/random for documentation.
  *
- * $Id: random.hpp 24096 2004-07-27 03:43:34Z dgregor $
+ * $Id: random.hpp 58649 2010-01-02 21:23:17Z steven_watanabe $
  *
  * Revision history
  *  2000-02-18  portability fixes (thanks to Beman Dawes)
@@ -42,6 +42,9 @@
 #include <boost/random/ranlux.hpp>
 #include <boost/random/linear_feedback_shift.hpp>
 #include <boost/random/xor_combine.hpp>
+#include <boost/random/discard_block.hpp>
+#include <boost/random/subtract_with_carry.hpp>
+#include <boost/random/variate_generator.hpp>
 
 namespace boost {
   typedef random::xor_combine<random::xor_combine<random::linear_feedback_shift<uint32_t, 32, 31, 13, 12, 0>, 0,

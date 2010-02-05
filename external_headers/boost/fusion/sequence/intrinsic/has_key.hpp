@@ -7,9 +7,11 @@
 #if !defined(FUSION_HAS_KEY_09232005_1454)
 #define FUSION_HAS_KEY_09232005_1454
 
-#include <boost/mpl/not.hpp>
 #include <boost/fusion/support/tag_of.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/fusion/iterator/equal_to.hpp>
+#include <boost/fusion/algorithm/query/find.hpp>
+#include <boost/fusion/sequence/intrinsic/end.hpp>
+#include <boost/mpl/not.hpp>
 
 namespace boost { namespace fusion
 {
@@ -26,10 +28,14 @@ namespace boost { namespace fusion
         template <typename Tag>
         struct has_key_impl
         {
-            template <typename Sequence, typename Key>
+            template <typename Seq, typename Key>
             struct apply
-                : mpl::not_<is_same<typename Sequence::
-                    template meta_at_impl<Key>::type, void_> >
+              : mpl::not_<
+                    typename result_of::equal_to<
+                        typename result_of::find<Seq, Key>::type
+                      , typename result_of::end<Seq>::type
+                    >::type
+                >::type
             {};
         };
 

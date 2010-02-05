@@ -109,8 +109,8 @@ public:
     reference operator->()                        const { return **this; }
 
     // PERFORMANCE_CHECK: Remove?
-    bool operator< (const planar_pixel_iterator& ptr)   const { return at_c<0>(*this)< at_c<0>(ptr); }
-    bool operator!=(const planar_pixel_iterator& ptr)   const { return at_c<0>(*this)!=at_c<0>(ptr); }
+    bool operator< (const planar_pixel_iterator& ptr)   const { return gil::at_c<0>(*this)< gil::at_c<0>(ptr); }
+    bool operator!=(const planar_pixel_iterator& ptr)   const { return gil::at_c<0>(*this)!=gil::at_c<0>(ptr); }
 private:
     friend class boost::iterator_core_access;
 
@@ -119,8 +119,8 @@ private:
     void advance(ptrdiff_t d)   { static_transform(*this,*this,std::bind2nd(detail::plus_asymmetric<ChannelPtr,ptrdiff_t>(),d)); }
     reference dereference() const { return this->template deref<reference>(); }
 
-    ptrdiff_t distance_to(const planar_pixel_iterator& it) const { return at_c<0>(it)-at_c<0>(*this); }
-    bool equal(const planar_pixel_iterator& it) const { return at_c<0>(*this)==at_c<0>(it); }
+    ptrdiff_t distance_to(const planar_pixel_iterator& it) const { return gil::at_c<0>(it)-gil::at_c<0>(*this); }
+    bool equal(const planar_pixel_iterator& it) const { return gil::at_c<0>(*this)==gil::at_c<0>(it); }
 };
 
 namespace detail {

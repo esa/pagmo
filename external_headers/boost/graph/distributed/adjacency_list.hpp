@@ -395,9 +395,9 @@ namespace boost {
         typedef typename Graph::directed_selector DirectedS;
 
       public:
-        typedef typename ct_if<(is_same<DirectedS, bidirectionalS>::value),
-                               stored_in_edge<Edge>,
-                               Edge>::type argument_type;
+        typedef typename boost::mpl::if_<is_same<DirectedS, bidirectionalS>,
+                                         stored_in_edge<Edge>,
+                                         Edge>::type argument_type;
         typedef edge_descriptor<Edge> result_type;
 
         in_generator() : g(0) {}
@@ -580,10 +580,10 @@ namespace boost {
                        EdgeProperty> edge_property_with_id;
 
       /// For undirected graphs, introduce the locally-owned property for edges
-      typedef typename ct_if<(is_same<DirectedS, undirectedS>::value),
-                             property<edge_locally_owned_t, bool,
-                                      edge_property_with_id>,
-                             edge_property_with_id>::type
+      typedef typename boost::mpl::if_<is_same<DirectedS, undirectedS>,
+                                       property<edge_locally_owned_t, bool,
+                                                edge_property_with_id>,
+                                       edge_property_with_id>::type
         base_edge_property_type;
 
       /// The edge descriptor type for the local subgraph
@@ -602,10 +602,10 @@ namespace boost {
 
       // Bidirectional graphs have an extra vertex property to store
       // the incoming edges.
-      typedef typename ct_if<(is_same<DirectedS, bidirectionalS>::value),
-                             property<vertex_in_edges_t, in_edge_list_type,
-                                      VertexProperty>,
-                             VertexProperty>::type 
+      typedef typename boost::mpl::if_<is_same<DirectedS, bidirectionalS>,
+                                       property<vertex_in_edges_t, in_edge_list_type,
+                                                VertexProperty>,
+                                       VertexProperty>::type 
         base_vertex_property_type;
 
       // The type of the distributed adjacency list
@@ -1097,9 +1097,9 @@ namespace boost {
     typedef typename base_type::vertex_descriptor local_vertex_descriptor;
     typedef typename base_type::edge_descriptor   local_edge_descriptor;
 
-    typedef typename boost::ct_if_t<typename DirectedS::is_bidir_t,
+    typedef typename boost::mpl::if_<typename DirectedS::is_bidir_t,
       bidirectional_tag,
-      typename boost::ct_if_t<typename DirectedS::is_directed_t,
+      typename boost::mpl::if_<typename DirectedS::is_directed_t,
         directed_tag, undirected_tag
       >::type
     >::type directed_category;
@@ -1355,12 +1355,12 @@ namespace boost {
      * are restricted; see the distributed adjacency_list
      * documentation.
      */
-    typedef typename ct_if<
-              (is_same<DirectedS, directedS>::value),
+    typedef typename boost::mpl::if_<
+              is_same<DirectedS, directedS>,
               directed_distributed_adj_list_tag,
-              typename ct_if<(is_same<DirectedS, bidirectionalS>::value),
-                             bidirectional_distributed_adj_list_tag,
-                             undirected_distributed_adj_list_tag>::type>
+              typename boost::mpl::if_<is_same<DirectedS, bidirectionalS>,
+                                       bidirectional_distributed_adj_list_tag,
+                                       undirected_distributed_adj_list_tag>::type>
       ::type traversal_category;
 
     typedef typename inherited::degree_size_type degree_size_type;
@@ -1376,9 +1376,9 @@ namespace boost {
       local_edge_list_type;
 
   private:
-    typedef typename ct_if<(is_same<DirectedS, bidirectionalS>::value),
-                           typename in_edge_list_type::const_iterator,
-                           typename inherited::out_edge_iterator>::type
+    typedef typename boost::mpl::if_<is_same<DirectedS, bidirectionalS>,
+                                     typename in_edge_list_type::const_iterator,
+                                     typename inherited::out_edge_iterator>::type
       base_in_edge_iterator;
 
     typedef typename inherited::out_edge_iterator base_out_edge_iterator;
@@ -1424,11 +1424,11 @@ namespace boost {
       adjacency_iterator;
 
     /// Iterator over the (local) edges in a graph
-    typedef typename ct_if<(is_same<DirectedS, undirectedS>::value),
-                           undirected_edge_iterator,
-                           transform_iterator<out_edge_generator,
-                                              base_edge_iterator>
-                           >::type 
+    typedef typename boost::mpl::if_<is_same<DirectedS, undirectedS>,
+                                     undirected_edge_iterator,
+                                     transform_iterator<out_edge_generator,
+                                                        base_edge_iterator>
+                                     >::type 
       edge_iterator;
 
   public:

@@ -45,6 +45,7 @@ namespace boost { namespace fusion {
         sequence_base<deque<BOOST_PP_ENUM_PARAMS(FUSION_MAX_DEQUE_SIZE, T)> >
     {
         typedef deque_tag fusion_tag;
+        typedef bidirectional_traversal_tag category;
         typedef typename detail::deque_keyed_values<BOOST_PP_ENUM_PARAMS(FUSION_MAX_DEQUE_SIZE, T)>::type base;
         typedef typename detail::deque_initial_size<BOOST_PP_ENUM_PARAMS(FUSION_MAX_DEQUE_SIZE, T)>::type size;
         typedef mpl::int_<size::value> next_up;

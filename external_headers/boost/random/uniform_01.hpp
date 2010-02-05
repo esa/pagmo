@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_01.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: uniform_01.hpp 58649 2010-01-02 21:23:17Z steven_watanabe $
  *
  * Revision history
  *  2001-02-18  moved to individual header files
@@ -22,6 +22,8 @@
 #include <boost/static_assert.hpp>
 #include <boost/random/detail/config.hpp>
 #include <boost/random/detail/pass_through_engine.hpp>
+
+#include <boost/random/detail/disable_warnings.hpp>
 
 namespace boost {
 
@@ -216,5 +218,7 @@ public:
 };
 
 } // namespace boost
+
+#include <boost/random/detail/enable_warnings.hpp>
 
 #endif // BOOST_RANDOM_UNIFORM_01_HPP

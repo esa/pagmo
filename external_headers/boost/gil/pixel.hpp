@@ -143,11 +143,11 @@ private:
 
 private:
     static void check_gray() {  BOOST_STATIC_ASSERT((is_same<typename Layout::color_space_t, gray_t>::value)); }
-    template <typename Channel> void assign(const Channel& chan, mpl::false_)       { check_gray(); at_c<0>(*this)=chan; }
-    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return at_c<0>(*this)==chan; }
+    template <typename Channel> void assign(const Channel& chan, mpl::false_)       { check_gray(); gil::at_c<0>(*this)=chan; }
+    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return gil::at_c<0>(*this)==chan; }
 public:
-    pixel&  operator= (channel_t chan)       { check_gray(); at_c<0>(*this)=chan; return *this; }
-    bool    operator==(channel_t chan) const { check_gray(); return at_c<0>(*this)==chan; }
+    pixel&  operator= (channel_t chan)       { check_gray(); gil::at_c<0>(*this)=chan; return *this; }
+    bool    operator==(channel_t chan) const { check_gray(); return gil::at_c<0>(*this)==chan; }
 };
 
 /////////////////////////////

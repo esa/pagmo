@@ -8,44 +8,41 @@
 #define FUSION_FIND_05052005_1107
 
 #include <boost/fusion/algorithm/query/detail/find_if.hpp>
-#include <boost/fusion/algorithm/query/detail/assoc_find.hpp>
 #include <boost/fusion/sequence/intrinsic/begin.hpp>
 #include <boost/fusion/sequence/intrinsic/end.hpp>
+#include <boost/fusion/iterator/key_of.hpp>
+#include <boost/fusion/iterator/value_of.hpp>
 #include <boost/fusion/support/category_of.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/utility/enable_if.hpp>
 
 namespace boost { namespace fusion
 {
-    struct associative_sequence_tag;
-
     namespace result_of
     {
         template <
             typename Sequence
           , typename T
-          , bool is_associative_sequence = traits::is_associative<Sequence>::value >
-        struct find;
-
-        template <typename Sequence, typename T>
-        struct find<Sequence, T, false>
+        >
+        struct find
         {
             typedef
-                detail::static_seq_find_if<
+                detail::static_find_if<
                     typename result_of::begin<Sequence>::type
                   , typename result_of::end<Sequence>::type
-                  , is_same<mpl::_, T>
+                  , is_same<
+                        typename mpl::if_<
+                            traits::is_associative<Sequence>
+                          , key_of<mpl::_1>
+                          , value_of<mpl::_1>
+                        >::type
+                      , T
+                    >
                 >
             filter;
 
-            typedef typename filter::type type;
-        };
-
-        template <typename Sequence, typename T>
-        struct find<Sequence, T, true>
-        {
-            typedef detail::assoc_find<Sequence, T> filter;
             typedef typename filter::type type;
         };
     }
@@ -59,7 +56,7 @@ namespace boost { namespace fusion
     find(Sequence& seq)
     {
         typedef typename result_of::find<Sequence, T>::filter filter;
-        return filter::call(seq);
+        return filter::call(fusion::begin(seq));
     }
 
     template <typename T, typename Sequence>
@@ -67,7 +64,7 @@ namespace boost { namespace fusion
     find(Sequence const& seq)
     {
         typedef typename result_of::find<Sequence const, T>::filter filter;
-        return filter::call(seq);
+        return filter::call(fusion::begin(seq));
     }
 }}
 

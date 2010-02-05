@@ -1,5 +1,5 @@
 //  Copyright (c) 2001 Daniel C. Nuffer
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -16,6 +16,7 @@ namespace boost { namespace spirit { namespace iterator_policies
 {
     namespace input_iterator_is_valid_test_
     {
+        ///////////////////////////////////////////////////////////////////////
         template <typename Token>
         inline bool token_is_valid(Token const& c)
         {
@@ -65,15 +66,21 @@ namespace boost { namespace spirit { namespace iterator_policies
             template <typename MultiPass>
             static void destroy(MultiPass&) {}
 
-            template <typename MultiPass>
-            static value_type& advance_input(MultiPass& mp, value_type& t)
+            template <typename ValueType, typename MultiPass>
+            static ValueType const& get_input(MultiPass& mp)
             {
-                return t = *mp.shared()->input_++;
+                return *mp.shared()->input_;
+            }
+
+            template <typename MultiPass>
+            static void advance_input(MultiPass& mp)
+            {
+                ++mp.shared()->input_;
             }
 
             // test, whether we reached the end of the underlying stream
             template <typename MultiPass>
-            static bool input_at_eof(MultiPass const& mp, value_type const&) 
+            static bool input_at_eof(MultiPass const& mp) 
             {
                 static T const end_iter;
                 return mp.shared()->input_ == end_iter;

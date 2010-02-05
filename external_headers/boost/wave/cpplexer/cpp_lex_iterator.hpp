@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2009 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2010 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -201,12 +201,12 @@ public:
         typedef typename TokenT::position_type position_type;
 
     // set the new position in the current token
-    token_type& currtoken = this->base_type::dereference(*this);
+    token_type const& currtoken = this->base_type::dereference(*this);
     position_type currpos = currtoken.get_position();
 
         currpos.set_file(pos.get_file());
         currpos.set_line(pos.get_line());
-        currtoken.set_position(currpos);
+        const_cast<token_type&>(currtoken).set_position(currpos);
 
     // set the new position for future tokens as well
         if (token_type::string_type::npos != 

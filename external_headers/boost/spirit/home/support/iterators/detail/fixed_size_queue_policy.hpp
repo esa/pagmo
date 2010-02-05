@@ -1,5 +1,5 @@
 //  Copyright (c) 2001 Daniel C. Nuffer
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -57,12 +57,9 @@ namespace boost { namespace spirit { namespace iterator_policies
             {
                 if (mp.queuePosition == mp.shared()->queuedElements.end())
                 {
-                    return MultiPass::get_input(mp);
+                    return MultiPass::template get_input<Value>(mp);
                 }
-                else
-                {
-                    return *mp.queuePosition;
-                }
+                return *mp.queuePosition;
             }
 
             //  This is called when the iterator is incremented. It's a 
@@ -77,7 +74,8 @@ namespace boost { namespace spirit { namespace iterator_policies
                     if (mp.shared()->queuedElements.size() >= N)
                         mp.shared()->queuedElements.pop_front();
 
-                    mp.shared()->queuedElements.push_back(MultiPass::get_input(mp));
+                    mp.shared()->queuedElements.push_back(
+                        MultiPass::template get_input<Value>(mp));
                     MultiPass::advance_input(mp);
                 }
                 ++mp.queuePosition;

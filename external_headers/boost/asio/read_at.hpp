@@ -2,7 +2,7 @@
 // read_at.hpp
 // ~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -186,6 +186,8 @@ std::size_t read_at(SyncRandomAccessReadDevice& d,
     boost::uint64_t offset, const MutableBufferSequence& buffers,
     CompletionCondition completion_condition, boost::system::error_code& ec);
 
+#if !defined(BOOST_NO_IOSTREAM)
+
 /// Attempt to read a certain amount of data at the specified offset before
 /// returning.
 /**
@@ -304,6 +306,8 @@ template <typename SyncRandomAccessReadDevice, typename Allocator,
 std::size_t read_at(SyncRandomAccessReadDevice& d,
     boost::uint64_t offset, basic_streambuf<Allocator>& b,
     CompletionCondition completion_condition, boost::system::error_code& ec);
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 /*@}*/
 /**
@@ -449,6 +453,8 @@ void async_read_at(AsyncRandomAccessReadDevice& d,
     boost::uint64_t offset, const MutableBufferSequence& buffers,
     CompletionCondition completion_condition, ReadHandler handler);
 
+#if !defined(BOOST_NO_IOSTREAM)
+
 /// Start an asynchronous operation to read a certain amount of data at the
 /// specified offset.
 /**
@@ -557,6 +563,8 @@ template <typename AsyncRandomAccessReadDevice, typename Allocator,
 void async_read_at(AsyncRandomAccessReadDevice& d,
     boost::uint64_t offset, basic_streambuf<Allocator>& b,
     CompletionCondition completion_condition, ReadHandler handler);
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 /*@}*/
 

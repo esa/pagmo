@@ -20,6 +20,7 @@
 #include <memory>            // allocator, bad_alloc.
 #include <new>          
 #include <boost/config.hpp>  // MSVC, STATIC_CONSTANT, DEDUCED_TYPENAME, DINKUM.
+#include <boost/cstdint.hpp> // uint*_t
 #include <boost/detail/workaround.hpp>
 #include <boost/iostreams/constants.hpp>   // buffer size.
 #include <boost/iostreams/detail/config/auto_link.hpp>
@@ -43,9 +44,9 @@ namespace boost { namespace iostreams {
 namespace zlib {
                     // Typedefs
 
-typedef unsigned int uint;
-typedef unsigned char byte;
-typedef unsigned long ulong;
+typedef uint32_t uint;
+typedef uint8_t byte;
+typedef uint32_t ulong;
 
 // Prefix 'x' prevents symbols from being redefined when Z_PREFIX is defined
 typedef void* (*xalloc_func)(void*, zlib::uint, zlib::uint);
@@ -138,7 +139,7 @@ class BOOST_IOSTREAMS_DECL zlib_error : public BOOST_IOSTREAMS_FAILURE {
 public:
     explicit zlib_error(int error);
     int error() const { return error_; }
-    static void check(int error);
+    static void check BOOST_PREVENT_MACRO_SUBSTITUTION(int error);
 private:
     int error_;
 };
@@ -344,7 +345,7 @@ bool zlib_compressor_impl<Alloc>::filter
     before(src_begin, src_end, dest_begin, dest_end);
     int result = xdeflate(flush ? zlib::finish : zlib::no_flush);
     after(src_begin, dest_begin, true);
-    zlib_error::check(result);
+    zlib_error::check BOOST_PREVENT_MACRO_SUBSTITUTION(result);
     return result != zlib::stream_end; 
 }
 
@@ -377,7 +378,7 @@ bool zlib_decompressor_impl<Alloc>::filter
     before(src_begin, src_end, dest_begin, dest_end);
     int result = xinflate(zlib::sync_flush);
     after(src_begin, dest_begin, false);
-    zlib_error::check(result);
+    zlib_error::check BOOST_PREVENT_MACRO_SUBSTITUTION(result);
     return result != zlib::stream_end;
 }
 

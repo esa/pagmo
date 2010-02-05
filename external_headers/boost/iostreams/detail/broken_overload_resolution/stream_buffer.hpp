@@ -9,6 +9,7 @@
 #define BOOST_IOSTREAMS_DETAIL_BROKEN_OVERLOAD_RESOLUTION_STREAM_BUFFER_HPP_INCLUDED
 
 #include <boost/iostreams/detail/broken_overload_resolution/forward.hpp>
+#include <boost/throw_exception.hpp>
 
 namespace boost { namespace iostreams {
 
@@ -179,7 +180,7 @@ private:
     void check_open()
     {
         if (this->is_open()) 
-            throw BOOST_IOSTREAMS_FAILURE("already open");
+            boost::throw_exception(BOOST_IOSTREAMS_FAILURE("already open"));
     }
 };
 

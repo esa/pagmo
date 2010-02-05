@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -64,20 +64,23 @@ namespace boost { namespace spirit { namespace qi
                 value_type;
             value_type val = value_type();
 
-            if (left.parse(first, last, context, skipper, val))
+            Iterator save = first;
+            if (!left.parse(save, last, context, skipper, val) ||
+                !traits::push_back(attr, val))
             {
-                traits::push_back(attr, val);
-                Iterator i = first;
-                while (right.parse(i, last, context, skipper, unused)
-                 && (traits::clear(val), true)
-                 && left.parse(i, last, context, skipper, val))
-                {
-                    traits::push_back(attr, val);
-                    first = i;
-                }
-                return true;
+                return false;
             }
-            return false;
+            first = save;
+
+            while (right.parse(save, last, context, skipper, unused)
+             && (traits::clear(val), true)
+             && left.parse(save, last, context, skipper, val))
+            {
+                if (!traits::push_back(attr, val))
+                    break;
+                first = save;
+            }
+            return true;
         }
 
         template <typename Context>

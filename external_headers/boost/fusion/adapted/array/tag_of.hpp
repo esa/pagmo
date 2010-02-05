@@ -21,6 +21,7 @@ namespace boost
 namespace boost { namespace fusion 
 {
     struct array_tag;
+    struct fusion_sequence_tag;
 
     namespace traits
     {
@@ -34,6 +35,24 @@ namespace boost { namespace fusion
             typedef array_tag type;
         };
     }
+}}
+
+namespace boost { namespace mpl
+{
+    template<typename>
+    struct sequence_tag;
+
+    template<typename T, std::size_t N>
+    struct sequence_tag<array<T,N> >
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
+
+    template<typename T, std::size_t N>
+    struct sequence_tag<array<T,N> const>
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
 }}
 
 #endif

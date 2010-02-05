@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : defines interface for identification_policy
 // ***************************************************************************
@@ -54,7 +54,7 @@ public:
 
 protected:
     // Constructor
-    explicit        identification_policy( call_traits<rtti::id_t>::param_type dyn_type )
+    explicit        identification_policy( rtti::id_t dyn_type )
     : p_type_id( dyn_type )
     {}
     BOOST_TEST_PROTECTED_VIRTUAL ~identification_policy() {}

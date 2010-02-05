@@ -61,7 +61,7 @@ inline bool can_start(unsigned short c, const unsigned char* map, unsigned char 
 {
    return ((c >= (1 << CHAR_BIT)) ? true : map[c] & mask);
 }
-#if !defined(__hpux) // WCHAR_MIN not usable in pp-directives.
+#if !defined(__hpux) && !defined(__WINSCW__)// WCHAR_MIN not usable in pp-directives.
 #if defined(WCHAR_MIN) && (WCHAR_MIN == 0) && !defined(BOOST_NO_INTRINSIC_WCHAR_T)
 inline bool can_start(wchar_t c, const unsigned char* map, unsigned char mask)
 {
@@ -277,10 +277,15 @@ public:
       else
       {
          repeater_count* p = next;
-         while(p->state_id != state_id)
+         while(p && (p->state_id != state_id))
             p = p->next;
-         count = p->count;
-         start_pos = p->start_pos;
+         if(p)
+         {
+            count = p->count;
+            start_pos = p->start_pos;
+         }
+         else
+            count = 0;
       }
    }
    ~repeater_count()

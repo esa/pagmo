@@ -2,7 +2,7 @@
 // stream_descriptor_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -24,11 +24,7 @@
 
 #include <boost/asio/error.hpp>
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/detail/epoll_reactor.hpp>
-#include <boost/asio/detail/kqueue_reactor.hpp>
-#include <boost/asio/detail/select_reactor.hpp>
 #include <boost/asio/detail/service_base.hpp>
-#include <boost/asio/detail/reactive_descriptor_service.hpp>
 
 #if !defined(BOOST_ASIO_DISABLE_POSIX_STREAM_DESCRIPTOR)
 # if !defined(BOOST_WINDOWS) && !defined(__CYGWIN__)
@@ -38,6 +34,20 @@
 
 #if defined(BOOST_ASIO_HAS_POSIX_STREAM_DESCRIPTOR) \
   || defined(GENERATING_DOCUMENTATION)
+
+#if defined(BOOST_ASIO_HAS_EPOLL)
+# include <boost/asio/detail/epoll_reactor.hpp>
+# include <boost/asio/detail/reactive_descriptor_service.hpp>
+#elif defined(BOOST_ASIO_HAS_KQUEUE)
+# include <boost/asio/detail/kqueue_reactor.hpp>
+# include <boost/asio/detail/reactive_descriptor_service.hpp>
+#elif defined(BOOST_ASIO_HAS_DEV_POLL)
+# include <boost/asio/detail/dev_poll_reactor.hpp>
+# include <boost/asio/detail/reactive_descriptor_service.hpp>
+#else
+# include <boost/asio/detail/select_reactor.hpp>
+# include <boost/asio/detail/reactive_descriptor_service.hpp>
+#endif
 
 namespace boost {
 namespace asio {

@@ -2,7 +2,7 @@
 // streambuf.hpp
 // ~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,6 +19,8 @@
 
 #include <boost/asio/basic_streambuf.hpp>
 
+#if !defined(BOOST_NO_IOSTREAM)
+
 namespace boost {
 namespace asio {
 
@@ -27,6 +29,8 @@ typedef basic_streambuf<> streambuf;
 
 } // namespace asio
 } // namespace boost
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 #include <boost/asio/detail/pop_options.hpp>
 

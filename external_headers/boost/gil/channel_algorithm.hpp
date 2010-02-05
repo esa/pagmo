@@ -348,7 +348,7 @@ template <> struct channel_convert_from_unsigned<bits32s> : public std::unary_fu
 /// \brief A unary function object converting between channel types
 template <typename SrcChannelV, typename DstChannelV> // Model ChannelValueConcept
 struct channel_converter : public std::unary_function<SrcChannelV,DstChannelV> {
-    DstChannelV operator()(SrcChannelV src) const {
+    DstChannelV operator()(const SrcChannelV& src) const {
         typedef detail::channel_convert_to_unsigned<SrcChannelV> to_unsigned;
         typedef detail::channel_convert_from_unsigned<DstChannelV>   from_unsigned;
         typedef channel_converter_unsigned<typename to_unsigned::result_type, typename from_unsigned::argument_type> converter_unsigned;
@@ -359,7 +359,7 @@ struct channel_converter : public std::unary_function<SrcChannelV,DstChannelV> {
 /// \ingroup ChannelConvertAlgorithm
 /// \brief Converting from one channel type to another.
 template <typename DstChannel, typename SrcChannel> // Model ChannelConcept (could be channel references)
-inline typename channel_traits<DstChannel>::value_type channel_convert(SrcChannel src) { 
+inline typename channel_traits<DstChannel>::value_type channel_convert(const SrcChannel& src) { 
     return channel_converter<typename channel_traits<SrcChannel>::value_type,
                              typename channel_traits<DstChannel>::value_type>()(src); 
 }

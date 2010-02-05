@@ -2,7 +2,7 @@
 // address_v6.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,6 +18,10 @@
 #include <boost/asio/detail/push_options.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
+#include <boost/config.hpp>
+#if !defined(BOOST_NO_IOSTREAM)
+# include <iosfwd>
+#endif // !defined(BOOST_NO_IOSTREAM)
 #include <cstring>
 #include <string>
 #include <stdexcept>
@@ -383,6 +387,8 @@ private:
   unsigned long scope_id_;
 };
 
+#if !defined(BOOST_NO_IOSTREAM)
+
 /// Output an address as a string.
 /**
  * Used to output a human-readable string for a specified address.
@@ -413,6 +419,8 @@ std::basic_ostream<Elem, Traits>& operator<<(
       os << os.widen(*i);
   return os;
 }
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 } // namespace ip
 } // namespace asio

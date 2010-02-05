@@ -12,7 +12,6 @@
 #define BOOST_UNORDERED_DETAIL_FWD_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <boost/assert.hpp>
 #include <boost/iterator.hpp>
 #include <boost/compressed_pair.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
@@ -30,7 +29,7 @@
 // P = Predicate
 // A = Value Allocator
 // G = Grouped/Ungrouped
-// K = Key Extractor
+// E = Key Extractor
 
 #if defined(BOOST_HAS_RVALUE_REFS) && defined(BOOST_HAS_VARIADIC_TMPL)
 #   if defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)
@@ -67,7 +66,9 @@ namespace boost { namespace unordered_detail {
 
     template <class Alloc, class Grouped>
     class hash_node_constructor;
+    template <class ValueType>
     struct set_extractor;
+    template <class Key, class ValueType>
     struct map_extractor;
     struct no_key;
 
@@ -75,9 +76,7 @@ namespace boost { namespace unordered_detail {
 
 #if defined(BOOST_MSVC)
 #pragma warning(push)
-#if BOOST_MSVC >= 1400
 #pragma warning(disable:4100) // unreferenced formal parameter
-#endif
 #endif
 
     template <class T>
@@ -106,13 +105,6 @@ namespace boost { namespace unordered_detail {
         node_ptr next_;
 
         hash_bucket() : next_() {}
-        
-        // Only copy construct when allocating.
-        hash_bucket(hash_bucket const& x)
-          : next_()
-        {
-            BOOST_ASSERT(!x.next_);
-        }
     };
 
     template <class A>
@@ -187,6 +179,8 @@ namespace boost { namespace unordered_detail {
         value_type& value() {
             return *(ValueType*) this;
         }
+    private:
+        value_base& operator=(value_base const&);
     };
 
     // Node
@@ -203,6 +197,8 @@ namespace boost { namespace unordered_detail {
         static value_type& get_value(node_ptr p) {
             return static_cast<hash_node&>(*p).value();
         }
+    private:
+        hash_node& operator=(hash_node const&);
     };
 
     // Iterator Base
@@ -214,9 +210,9 @@ namespace boost { namespace unordered_detail {
         typedef A value_allocator;
         typedef hash_bucket<A> bucket;
         typedef hash_node<A, G> node;
-        typedef BOOST_DEDUCED_TYPENAME node::value_type value_type;
-        typedef BOOST_DEDUCED_TYPENAME node::bucket_ptr bucket_ptr;
-        typedef BOOST_DEDUCED_TYPENAME node::node_ptr node_ptr;
+        typedef BOOST_DEDUCED_TYPENAME A::value_type value_type;
+        typedef BOOST_DEDUCED_TYPENAME bucket::bucket_ptr bucket_ptr;
+        typedef BOOST_DEDUCED_TYPENAME bucket::node_ptr node_ptr;
 
         bucket_ptr bucket_;
         node_ptr node_;
@@ -274,9 +270,10 @@ namespace boost { namespace unordered_detail {
         typedef BOOST_DEDUCED_TYPENAME A::value_type value_type;
         typedef BOOST_DEDUCED_TYPENAME iterator_base::node node;
 
-        typedef BOOST_DEDUCED_TYPENAME node::bucket_allocator bucket_allocator;
-        typedef BOOST_DEDUCED_TYPENAME node::bucket_ptr bucket_ptr;
-        typedef BOOST_DEDUCED_TYPENAME node::node_ptr node_ptr;
+        typedef BOOST_DEDUCED_TYPENAME bucket::bucket_allocator
+            bucket_allocator;
+        typedef BOOST_DEDUCED_TYPENAME bucket::bucket_ptr bucket_ptr;
+        typedef BOOST_DEDUCED_TYPENAME bucket::node_ptr node_ptr;
 
         typedef BOOST_DEDUCED_TYPENAME rebind_wrap<value_allocator, node>::type
             node_allocator;
@@ -430,33 +427,28 @@ namespace boost { namespace unordered_detail {
         }
     };
 
-    template <class H, class P, class A, class G, class K>
-    class hash_table :
-        public hash_buckets<A, G>,
-        public hash_buffered_functions<H, P>
+    template <class T>
+    class hash_table : public T::buckets, public T::buffered_functions
     {
         hash_table(hash_table const&);
     public:
-        typedef H hasher;
-        typedef P key_equal;
-        typedef A value_allocator;
-        typedef K key_extractor;
-        typedef hash_buffered_functions<H, P> base;
-        typedef hash_buckets<A, G> buckets;
-        
-        typedef BOOST_DEDUCED_TYPENAME value_allocator::value_type value_type;
-        typedef BOOST_DEDUCED_TYPENAME key_extractor::BOOST_NESTED_TEMPLATE
-            apply<value_type> extractor;    
-        typedef BOOST_DEDUCED_TYPENAME extractor::key_type key_type;
+        typedef BOOST_DEDUCED_TYPENAME T::hasher hasher;
+        typedef BOOST_DEDUCED_TYPENAME T::key_equal key_equal;
+        typedef BOOST_DEDUCED_TYPENAME T::value_allocator value_allocator;
+        typedef BOOST_DEDUCED_TYPENAME T::key_type key_type;
+        typedef BOOST_DEDUCED_TYPENAME T::value_type value_type;
+        typedef BOOST_DEDUCED_TYPENAME T::buffered_functions base;
+        typedef BOOST_DEDUCED_TYPENAME T::buckets buckets;
+        typedef BOOST_DEDUCED_TYPENAME T::extractor extractor;
+        typedef BOOST_DEDUCED_TYPENAME T::node_constructor node_constructor;
 
-        typedef BOOST_DEDUCED_TYPENAME buckets::node node;
-        typedef BOOST_DEDUCED_TYPENAME buckets::bucket bucket;
-        typedef BOOST_DEDUCED_TYPENAME buckets::node_ptr node_ptr;
-        typedef BOOST_DEDUCED_TYPENAME buckets::bucket_ptr bucket_ptr;
-        typedef BOOST_DEDUCED_TYPENAME buckets::iterator_base iterator_base;
-        typedef BOOST_DEDUCED_TYPENAME buckets::node_allocator node_allocator;
-        typedef hash_node_constructor<A, G> node_constructor;
-        typedef std::pair<iterator_base, iterator_base> iterator_pair;
+        typedef BOOST_DEDUCED_TYPENAME T::node node;
+        typedef BOOST_DEDUCED_TYPENAME T::bucket bucket;
+        typedef BOOST_DEDUCED_TYPENAME T::node_ptr node_ptr;
+        typedef BOOST_DEDUCED_TYPENAME T::bucket_ptr bucket_ptr;
+        typedef BOOST_DEDUCED_TYPENAME T::iterator_base iterator_base;
+        typedef BOOST_DEDUCED_TYPENAME T::node_allocator node_allocator;
+        typedef BOOST_DEDUCED_TYPENAME T::iterator_pair iterator_pair;
 
         // Members
         
@@ -475,6 +467,9 @@ namespace boost { namespace unordered_detail {
             return extractor::extract(node::get_value(n));
         }
         bool equal(key_type const& k, value_type const& v) const;
+        template <class Key, class Pred>
+        node_ptr find_iterator(bucket_ptr bucket, Key const& k,
+            Pred const&) const;
         node_ptr find_iterator(bucket_ptr bucket, key_type const& k) const;
         node_ptr find_iterator(key_type const& k) const;
         node_ptr* find_for_erase(bucket_ptr bucket, key_type const& k) const;
@@ -532,6 +527,8 @@ namespace boost { namespace unordered_detail {
 
         std::size_t count(key_type const& k) const;
         iterator_base find(key_type const& k) const;
+        template <class Key, class Hash, class Pred>
+        iterator_base find(Key const& k, Hash const& h, Pred const& eq) const;
         value_type& at(key_type const& k) const;
         iterator_pair equal_range(key_type const& k) const;
 
@@ -541,7 +538,8 @@ namespace boost { namespace unordered_detail {
 
         void clear();
         std::size_t erase_key(key_type const& k);
-        iterator_base erase(iterator_base r);
+        iterator_base erase_return_iterator(iterator_base r);
+        void erase(iterator_base r);
         std::size_t erase_group(node_ptr* it, bucket_ptr bucket);
         iterator_base erase_range(iterator_base r1, iterator_base r2);
 
@@ -569,27 +567,23 @@ namespace boost { namespace unordered_detail {
             node_constructor&, std::size_t);
     };
 
-    template <class H, class P, class A, class K>
-    class hash_unique_table :
-        public hash_table<H, P, A, ungrouped, K>
-        
+    template <class T>
+    class hash_unique_table : public T::table
     {
     public:
-        typedef H hasher;
-        typedef P key_equal;
-        typedef A value_allocator;
-        typedef K key_extractor;
+        typedef BOOST_DEDUCED_TYPENAME T::hasher hasher;
+        typedef BOOST_DEDUCED_TYPENAME T::key_equal key_equal;
+        typedef BOOST_DEDUCED_TYPENAME T::value_allocator value_allocator;
+        typedef BOOST_DEDUCED_TYPENAME T::key_type key_type;
+        typedef BOOST_DEDUCED_TYPENAME T::value_type value_type;
+        typedef BOOST_DEDUCED_TYPENAME T::table table;
+        typedef BOOST_DEDUCED_TYPENAME T::node_constructor node_constructor;
 
-        typedef hash_table<H, P, A, ungrouped, K> table;
-        typedef hash_node_constructor<A, ungrouped> node_constructor;
-
-        typedef BOOST_DEDUCED_TYPENAME table::key_type key_type;
-        typedef BOOST_DEDUCED_TYPENAME table::value_type value_type;
-        typedef BOOST_DEDUCED_TYPENAME table::node node;
-        typedef BOOST_DEDUCED_TYPENAME table::node_ptr node_ptr;
-        typedef BOOST_DEDUCED_TYPENAME table::bucket_ptr bucket_ptr;
-        typedef BOOST_DEDUCED_TYPENAME table::iterator_base iterator_base;
-        typedef BOOST_DEDUCED_TYPENAME table::extractor extractor;
+        typedef BOOST_DEDUCED_TYPENAME T::node node;
+        typedef BOOST_DEDUCED_TYPENAME T::node_ptr node_ptr;
+        typedef BOOST_DEDUCED_TYPENAME T::bucket_ptr bucket_ptr;
+        typedef BOOST_DEDUCED_TYPENAME T::iterator_base iterator_base;
+        typedef BOOST_DEDUCED_TYPENAME T::extractor extractor;
         
         typedef std::pair<iterator_base, bool> emplace_return;
 
@@ -663,27 +657,23 @@ namespace boost { namespace unordered_detail {
         void insert_range_impl(no_key, InputIt i, InputIt j);
     };
 
-    template <class H, class P, class A, class K>
-    class hash_equivalent_table :
-        public hash_table<H, P, A, grouped, K>
-        
+    template <class T>
+    class hash_equivalent_table : public T::table
     {
     public:
-        typedef H hasher;
-        typedef P key_equal;
-        typedef A value_allocator;
-        typedef K key_extractor;
+        typedef BOOST_DEDUCED_TYPENAME T::hasher hasher;
+        typedef BOOST_DEDUCED_TYPENAME T::key_equal key_equal;
+        typedef BOOST_DEDUCED_TYPENAME T::value_allocator value_allocator;
+        typedef BOOST_DEDUCED_TYPENAME T::key_type key_type;
+        typedef BOOST_DEDUCED_TYPENAME T::value_type value_type;
+        typedef BOOST_DEDUCED_TYPENAME T::table table;
+        typedef BOOST_DEDUCED_TYPENAME T::node_constructor node_constructor;
 
-        typedef hash_table<H, P, A, grouped, K> table;
-        typedef hash_node_constructor<A, grouped> node_constructor;
-        typedef hash_iterator_base<A, grouped> iterator_base;
-
-        typedef BOOST_DEDUCED_TYPENAME table::key_type key_type;
-        typedef BOOST_DEDUCED_TYPENAME table::value_type value_type;
-        typedef BOOST_DEDUCED_TYPENAME table::node node;
-        typedef BOOST_DEDUCED_TYPENAME table::node_ptr node_ptr;
-        typedef BOOST_DEDUCED_TYPENAME table::bucket_ptr bucket_ptr;
-        typedef BOOST_DEDUCED_TYPENAME table::extractor extractor;
+        typedef BOOST_DEDUCED_TYPENAME T::node node;
+        typedef BOOST_DEDUCED_TYPENAME T::node_ptr node_ptr;
+        typedef BOOST_DEDUCED_TYPENAME T::bucket_ptr bucket_ptr;
+        typedef BOOST_DEDUCED_TYPENAME T::iterator_base iterator_base;
+        typedef BOOST_DEDUCED_TYPENAME T::extractor extractor;
 
         // Constructors
 
@@ -968,6 +958,81 @@ namespace boost { namespace unordered_detail {
         bool operator!=(hash_const_iterator const& x) const {
             return base_ != x.base_;
         }
+    };
+
+    // types
+
+    template <class K, class V, class H, class P, class A, class E, class G>
+    struct types
+    {
+    public:
+        typedef K key_type;
+        typedef V value_type;
+        typedef H hasher;
+        typedef P key_equal;
+        typedef A value_allocator;
+        typedef E extractor;
+        typedef G group_type;
+        
+        typedef hash_node_constructor<value_allocator, group_type>
+            node_constructor;
+        typedef hash_buckets<value_allocator, group_type> buckets;
+        typedef hash_buffered_functions<hasher, key_equal> buffered_functions;
+
+        typedef BOOST_DEDUCED_TYPENAME buckets::node node;
+        typedef BOOST_DEDUCED_TYPENAME buckets::bucket bucket;
+        typedef BOOST_DEDUCED_TYPENAME buckets::node_ptr node_ptr;
+        typedef BOOST_DEDUCED_TYPENAME buckets::bucket_ptr bucket_ptr;
+        typedef BOOST_DEDUCED_TYPENAME buckets::iterator_base iterator_base;
+        typedef BOOST_DEDUCED_TYPENAME buckets::node_allocator node_allocator;
+
+        typedef std::pair<iterator_base, iterator_base> iterator_pair;
+    };
+
+    template <class H, class P, class A>
+    struct set : public types<
+        BOOST_DEDUCED_TYPENAME A::value_type,
+        BOOST_DEDUCED_TYPENAME A::value_type,
+        H, P, A,
+        set_extractor<BOOST_DEDUCED_TYPENAME A::value_type>,
+        ungrouped>
+    {        
+        typedef hash_unique_table<set<H, P, A> > impl;
+        typedef hash_table<set<H, P, A> > table;
+    };
+
+    template <class H, class P, class A>
+    struct multiset : public types<
+        BOOST_DEDUCED_TYPENAME A::value_type,
+        BOOST_DEDUCED_TYPENAME A::value_type,
+        H, P, A,
+        set_extractor<BOOST_DEDUCED_TYPENAME A::value_type>,
+        grouped>
+    {
+        typedef hash_equivalent_table<multiset<H, P, A> > impl;
+        typedef hash_table<multiset<H, P, A> > table;
+    };
+
+    template <class K, class H, class P, class A>
+    struct map : public types<
+        K, BOOST_DEDUCED_TYPENAME A::value_type,
+        H, P, A,
+        map_extractor<K, BOOST_DEDUCED_TYPENAME A::value_type>,
+        ungrouped>
+    {
+        typedef hash_unique_table<map<K, H, P, A> > impl;
+        typedef hash_table<map<K, H, P, A> > table;
+    };
+
+    template <class K, class H, class P, class A>
+    struct multimap : public types<
+        K, BOOST_DEDUCED_TYPENAME A::value_type,
+        H, P, A,
+        map_extractor<K, BOOST_DEDUCED_TYPENAME A::value_type>,
+        grouped>
+    {
+        typedef hash_equivalent_table<multimap<K, H, P, A> > impl;
+        typedef hash_table<multimap<K, H, P, A> > table;
     };
 }}
 

@@ -24,6 +24,13 @@
 #ifndef BOOST_ARRAY_HPP
 #define BOOST_ARRAY_HPP
 
+#include <boost/detail/workaround.hpp>
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
+# pragma warning(push)  
+# pragma warning(disable:4996) // 'std::equal': Function call with parameters that may be unsafe
+#endif
+
 #include <cstddef>
 #include <stdexcept>
 #include <boost/assert.hpp>
@@ -319,5 +326,10 @@ namespace boost {
     }
 
 } /* namespace boost */
+
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
+# pragma warning(pop)  
+#endif 
 
 #endif /*BOOST_ARRAY_HPP*/

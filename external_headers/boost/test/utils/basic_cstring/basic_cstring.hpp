@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : class basic_cstring wraps C string and provide std_string like 
 //                interface
@@ -548,7 +548,7 @@ basic_cstring<CharT>::rfind( basic_cstring<CharT> str ) const
         --it;
     }
 
-    return it == last ? npos : it - begin();
+    return it == last ? static_cast<size_type>(npos) : static_cast<size_type>(it - begin());
 }
 
 //____________________________________________________________________________//

@@ -1,5 +1,5 @@
 //  Copyright (c) 2001, Daniel C. Nuffer
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 //  http://spirit.sourceforge.net/
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -54,6 +54,12 @@ namespace boost { namespace spirit
         look_ahead(int)         // workaround for a bug in the library
           : base_type() {}      // shipped with gcc 3.1
 #endif // BOOST_WORKAROUND(__GLIBCPP__, == 20020514)
+
+        look_ahead operator= (base_type const& rhs)
+        {
+            this->base_type::operator=(rhs);
+            return *this;
+        }
 
     // default generated operators destructor and assignment operator are ok.
     };

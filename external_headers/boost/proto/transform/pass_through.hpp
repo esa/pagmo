@@ -13,7 +13,6 @@
     #ifndef BOOST_PROTO_TRANSFORM_PASS_THROUGH_HPP_EAN_12_26_2006
     #define BOOST_PROTO_TRANSFORM_PASS_THROUGH_HPP_EAN_12_26_2006
 
-    #include <boost/proto/detail/prefix.hpp>
     #include <boost/preprocessor/cat.hpp>
     #include <boost/preprocessor/repetition/enum.hpp>
     #include <boost/preprocessor/iteration/iterate.hpp>
@@ -22,7 +21,6 @@
     #include <boost/proto/proto_fwd.hpp>
     #include <boost/proto/args.hpp>
     #include <boost/proto/transform/impl.hpp>
-    #include <boost/proto/detail/suffix.hpp>
 
     namespace boost { namespace proto
     {

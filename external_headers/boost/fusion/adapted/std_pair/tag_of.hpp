@@ -15,6 +15,7 @@
 namespace boost { namespace fusion {
 
     struct std_pair_tag;
+    struct fusion_sequence_tag;
 
     namespace traits
     {
@@ -24,6 +25,24 @@ namespace boost { namespace fusion {
             typedef std_pair_tag type;
         };
     }
+}}
+
+namespace boost { namespace mpl
+{
+    template<typename>
+    struct sequence_tag;
+
+    template<typename T1, typename T2>
+    struct sequence_tag<std::pair<T1, T2> >
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
+
+    template<typename T1, typename T2>
+    struct sequence_tag<std::pair<T1, T2> const>
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
 }}
 
 #endif

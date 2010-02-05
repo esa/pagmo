@@ -2,7 +2,7 @@
 // read_until.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,8 +18,13 @@
 #include <boost/asio/detail/push_options.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
-#include <cstddef>
 #include <boost/config.hpp>
+#include <boost/asio/detail/pop_options.hpp>
+
+#if !defined(BOOST_NO_IOSTREAM)
+
+#include <boost/asio/detail/push_options.hpp>
+#include <cstddef>
 #include <boost/regex.hpp>
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
@@ -835,6 +840,8 @@ void async_read_until(AsyncReadStream& s,
 } // namespace boost
 
 #include <boost/asio/impl/read_until.ipp>
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 #include <boost/asio/detail/pop_options.hpp>
 

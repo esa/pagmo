@@ -16,7 +16,7 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <map>
+#include <set>
 #include <list>
 #include <utility>
 #include <cstddef> // NULL
@@ -55,9 +55,17 @@ namespace detail {
 // a common class for holding various types of shared pointers
 
 class shared_ptr_helper {
-    typedef std::map<
-        void *,
-        boost::shared_ptr<const void>
+    struct collection_type_compare {
+        bool operator()(
+            const shared_ptr<const void> &lhs,
+            const shared_ptr<const void> &rhs
+        )const{
+            return lhs.get() < rhs.get();
+        }
+    };
+    typedef std::set<
+        boost::shared_ptr<const void>,
+        collection_type_compare
     > collection_type;
     typedef collection_type::const_iterator iterator_type;
     // list of shared_pointers create accessable by raw pointer. This
@@ -69,6 +77,16 @@ class shared_ptr_helper {
 
     struct null_deleter {
         void operator()(void const *) const {}
+    };
+
+    struct void_deleter {
+        const boost::serialization::extended_type_info * m_eti;
+        void_deleter(const boost::serialization::extended_type_info *eti) :
+            m_eti(eti)
+        {}
+        void operator()(void *vp) const {
+            m_eti->destroy(vp);
+        }
     };
 
 #ifdef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
@@ -94,21 +112,20 @@ public:
     std::list<boost_132::shared_ptr<void> > * m_pointers_132;
 //  #endif
 
-    typedef std::pair<const iterator_type, void *> result_type;
-
     // returns pointer to object and an indicator whether this is a
     // new entry (true) or a previous one (false)
-    BOOST_ARCHIVE_DECL(result_type) get_od(
-            void * od,
-            const boost::serialization::extended_type_info * true_type, 
-            const boost::serialization::extended_type_info * this_type
+    BOOST_ARCHIVE_DECL(shared_ptr<void>) 
+    get_od(
+        const void * od,
+        const boost::serialization::extended_type_info * true_type, 
+        const boost::serialization::extended_type_info * this_type
     );
 
     template<class T>
     struct non_polymorphic {
         static const boost::serialization::extended_type_info * 
         get_object_identifier(T & t){
-            return boost::serialization::singleton<
+            return & boost::serialization::singleton<
                 BOOST_DEDUCED_TYPENAME 
                 boost::serialization::type_info_implementation<T>::type
             >::get_const_instance();
@@ -155,16 +172,21 @@ public:
                     this_type->get_debug_info()
                 )
             );
-        result_type r =
+        shared_ptr<void> r =
             get_od(
-                t, 
+                static_cast<const void *>(t), 
                 true_type,
                 this_type
             );
+
         s = shared_ptr<T>(
-            r.first->second,
-            static_cast<T *>(r.second)
+            r,
+            static_cast<T *>(r.get())
         );
+
+        //s = static_pointer_cast<T,void>(
+        //    const_pointer_cast<void, const void>(*r)
+        //);
     }
 
 //  #ifdef BOOST_SERIALIZATION_SHARED_PTR_132_HPP

@@ -99,7 +99,7 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_all_states()
    };
 
    if(state_count > max_state_count)
-      raise_error(traits_inst, regex_constants::error_space);
+      raise_error(traits_inst, regex_constants::error_complexity);
    while(pstate)
    {
       matcher_proc_type proc = s_match_vtable[pstate->type];

@@ -92,7 +92,8 @@ namespace boost { namespace program_options {
         friend BOOST_PROGRAM_OPTIONS_DECL
         void store(const basic_parsed_options<char>& options, 
               variables_map& m, bool);
-        friend BOOST_PROGRAM_OPTIONS_DECL void notify(variables_map& m);
+
+        friend BOOST_PROGRAM_OPTIONS_DECL class variables_map;
     };
 
     /** Implements string->string mapping with convenient value casting
@@ -147,6 +148,8 @@ namespace boost { namespace program_options {
         // Resolve conflict between inherited operators.
         const variable_value& operator[](const std::string& name) const
         { return abstract_variables_map::operator[](name); }
+        
+        void notify();
 
     private:
         /** Implementation of abstract_variables_map::get
@@ -161,6 +164,10 @@ namespace boost { namespace program_options {
         void store(const basic_parsed_options<char>& options, 
                           variables_map& xm,
                           bool utf8);
+        
+        /** Names of required options, filled by parser which has
+            access to options_description. */
+        std::set<std::string> m_required;
     };
 
 

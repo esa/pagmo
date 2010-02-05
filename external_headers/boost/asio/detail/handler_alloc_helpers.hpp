@@ -2,7 +2,7 @@
 // handler_alloc_helpers.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,6 +19,7 @@
 
 #include <boost/asio/detail/push_options.hpp>
 #include <boost/detail/workaround.hpp>
+#include <boost/utility/addressof.hpp>
 #include <boost/asio/detail/pop_options.hpp>
 
 #include <boost/asio/handler_alloc_hook.hpp>
@@ -30,24 +31,26 @@
 namespace boost_asio_handler_alloc_helpers {
 
 template <typename Handler>
-inline void* allocate(std::size_t s, Handler* h)
+inline void* allocate(std::size_t s, Handler& h)
 {
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) \
+  || BOOST_WORKAROUND(__GNUC__, < 3)
   return ::operator new(s);
 #else
   using namespace boost::asio;
-  return asio_handler_allocate(s, h);
+  return asio_handler_allocate(s, boost::addressof(h));
 #endif
 }
 
 template <typename Handler>
-inline void deallocate(void* p, std::size_t s, Handler* h)
+inline void deallocate(void* p, std::size_t s, Handler& h)
 {
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
+#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) \
+  || BOOST_WORKAROUND(__GNUC__, < 3)
   ::operator delete(p);
 #else
   using namespace boost::asio;
-  asio_handler_deallocate(p, s, h);
+  asio_handler_deallocate(p, s, boost::addressof(h));
 #endif
 }
 
@@ -85,7 +88,7 @@ public:
   raw_handler_ptr(handler_type& handler)
     : handler_(handler),
       pointer_(static_cast<pointer_type>(
-            boost_asio_handler_alloc_helpers::allocate(value_size, &handler_)))
+            boost_asio_handler_alloc_helpers::allocate(value_size, handler_)))
   {
   }
 
@@ -95,7 +98,7 @@ public:
   {
     if (pointer_)
       boost_asio_handler_alloc_helpers::deallocate(
-          pointer_, value_size, &handler_);
+          pointer_, value_size, handler_);
   }
 
 private:
@@ -239,7 +242,7 @@ public:
     {
       pointer_->value_type::~value_type();
       boost_asio_handler_alloc_helpers::deallocate(
-          pointer_, value_size, &handler_);
+          pointer_, value_size, handler_);
       pointer_ = 0;
     }
   }

@@ -28,6 +28,7 @@
 #include <queue>
 #include <stack>
 #include <boost/graph/distributed/detail/tag_allocator.hpp>
+#include <stdio.h>
 
 // #define PBGL_PROCESS_GROUP_DEBUG
 

@@ -2,7 +2,7 @@
 // dev_poll_reactor.hpp
 // ~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -402,9 +402,6 @@ private:
     lock.lock();
     wait_in_progress_ = false;
 
-    // Block signals while performing operations.
-    boost::asio::detail::signal_blocker sb;
-
     // Dispatch the waiting events.
     for (int i = 0; i < num_events; ++i)
     {
@@ -438,7 +435,6 @@ private:
           more_writes = write_op_queue_.has_operation(descriptor);
 
         if ((events[i].events & (POLLERR | POLLHUP)) != 0
-              && (events[i].events & ~(POLLERR | POLLHUP)) == 0
               && !more_except && !more_reads && !more_writes)
         {
           // If we have an event and no operations associated with the

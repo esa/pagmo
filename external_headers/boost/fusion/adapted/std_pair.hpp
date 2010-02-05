@@ -16,6 +16,7 @@
 namespace boost { namespace fusion
 {
     struct struct_tag;
+    struct fusion_sequence_tag;
 
     namespace traits
     {
@@ -29,42 +30,60 @@ namespace boost { namespace fusion
             typedef struct_tag type;
         };
     }
-
-    namespace extension
-    {
-        template <typename Struct, int N>
-        struct struct_member;
-
-        template <typename Struct>
-        struct struct_size;
-
-        template <typename T1, typename T2>
-        struct struct_member<std::pair<T1, T2>, 0>
-        {
-            typedef T1 type;
-
-            static type& call(std::pair<T1, T2>& pair)
-            {
-                return pair.first;
-            }
-        };
-
-        template <typename T1, typename T2>
-        struct struct_member<std::pair<T1, T2>, 1>
-        {
-            typedef T2 type;
-
-            static type& call(std::pair<T1, T2>& pair)
-            {
-                return pair.second;
-            }
-        };
-
-        template <typename T1, typename T2>
-        struct struct_size<std::pair<T1, T2> > : mpl::int_<2>
-        {
-        };
-    }
 }}
+
+namespace boost { namespace mpl
+{
+    template<typename>
+    struct sequence_tag;
+
+    template<typename T1, typename T2>
+    struct sequence_tag<std::pair<T1, T2> >
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
+
+    template<typename T1, typename T2>
+    struct sequence_tag<std::pair<T1, T2> const>
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
+}}
+
+namespace boost { namespace fusion { namespace extension
+{
+    template <typename Struct, int N>
+    struct struct_member;
+
+    template <typename Struct>
+    struct struct_size;
+
+    template <typename T1, typename T2>
+    struct struct_member<std::pair<T1, T2>, 0>
+    {
+        typedef T1 type;
+
+        static type& call(std::pair<T1, T2>& pair)
+        {
+            return pair.first;
+        }
+    };
+
+    template <typename T1, typename T2>
+    struct struct_member<std::pair<T1, T2>, 1>
+    {
+        typedef T2 type;
+
+        static type& call(std::pair<T1, T2>& pair)
+        {
+            return pair.second;
+        }
+    };
+
+    template <typename T1, typename T2>
+    struct struct_size<std::pair<T1, T2> > : mpl::int_<2>
+    {
+    };
+}}}
 
 #endif

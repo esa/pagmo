@@ -9,7 +9,6 @@
 #ifndef BOOST_PROTO_DEBUG_HPP_EAN_12_31_2006
 #define BOOST_PROTO_DEBUG_HPP_EAN_12_31_2006
 
-#include <boost/proto/detail/prefix.hpp>
 #include <boost/preprocessor/iteration/local.hpp>
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <iomanip>
@@ -19,7 +18,6 @@
 #include <boost/proto/expr.hpp>
 #include <boost/proto/traits.hpp>
 #include <boost/proto/detail/dont_care.hpp>
-#include <boost/proto/detail/suffix.hpp>
 
 namespace boost { namespace proto
 {

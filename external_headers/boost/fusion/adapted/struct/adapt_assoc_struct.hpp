@@ -62,6 +62,25 @@ namespace boost { namespace fusion { namespace extension {
             typedef struct_tag type;                                            \
         };                                                                      \
     }}}                                                                         \
+                                                                                \
+    namespace boost { namespace mpl                                             \
+    {                                                                           \
+        template<typename>                                                      \
+        struct sequence_tag;                                                    \
+                                                                                \
+        template<>                                                              \
+        struct sequence_tag<name>                                               \
+        {                                                                       \
+            typedef fusion::fusion_sequence_tag type;                           \
+        };                                                                      \
+                                                                                \
+        template<>                                                              \
+        struct sequence_tag<name const>                                         \
+        {                                                                       \
+            typedef fusion::fusion_sequence_tag type;                           \
+        };                                                                      \
+    }}                                                                          \
+                                                                                \
     namespace boost { namespace fusion { namespace extension                    \
     {                                                                           \
         template <>                                                             \

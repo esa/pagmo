@@ -15,9 +15,9 @@ namespace boost { namespace unordered_detail {
     ////////////////////////////////////////////////////////////////////////////
     // Equality
 
-    template <class H, class P, class A, class K>
-    bool hash_unique_table<H, P, A, K>
-        ::equals(hash_unique_table<H, P, A, K> const& other) const
+    template <class T>
+    bool hash_unique_table<T>
+        ::equals(hash_unique_table<T> const& other) const
     {
         if(this->size_ != other.size_) return false;
         if(!this->size_) return true;
@@ -43,9 +43,9 @@ namespace boost { namespace unordered_detail {
     ////////////////////////////////////////////////////////////////////////////
     // A convenience method for adding nodes.
 
-    template <class H, class P, class A, class K>
-    inline BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::node_ptr
-        hash_unique_table<H, P, A, K>::add_node(node_constructor& a,
+    template <class T>
+    inline BOOST_DEDUCED_TYPENAME hash_unique_table<T>::node_ptr
+        hash_unique_table<T>::add_node(node_constructor& a,
             bucket_ptr bucket)
     {
         node_ptr n = a.release();
@@ -61,9 +61,9 @@ namespace boost { namespace unordered_detail {
 
     // if hash function throws, basic exception safety
     // strong otherwise
-    template <class H, class P, class A, class K>
-    BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::value_type&
-        hash_unique_table<H, P, A, K>::operator[](key_type const& k)
+    template <class T>
+    BOOST_DEDUCED_TYPENAME hash_unique_table<T>::value_type&
+        hash_unique_table<T>::operator[](key_type const& k)
     {
         typedef BOOST_DEDUCED_TYPENAME value_type::second_type mapped_type;
 
@@ -100,9 +100,9 @@ namespace boost { namespace unordered_detail {
         }
     }
 
-    template <class H, class P, class A, class K>
-    inline BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::emplace_return
-    hash_unique_table<H, P, A, K>::emplace_impl_with_node(node_constructor& a)
+    template <class T>
+    inline BOOST_DEDUCED_TYPENAME hash_unique_table<T>::emplace_return
+    hash_unique_table<T>::emplace_impl_with_node(node_constructor& a)
     {
         // No side effects in this initial code
         key_type const& k = this->get_key(a.value());
@@ -129,10 +129,10 @@ namespace boost { namespace unordered_detail {
 
 #if defined(BOOST_UNORDERED_STD_FORWARD)
 
-    template <class H, class P, class A, class K>
+    template <class T>
     template<class... Args>
-    inline BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::emplace_return
-        hash_unique_table<H, P, A, K>::emplace_impl(key_type const& k,
+    inline BOOST_DEDUCED_TYPENAME hash_unique_table<T>::emplace_return
+        hash_unique_table<T>::emplace_impl(key_type const& k,
             Args&&... args)
     {
         // No side effects in this initial code
@@ -166,10 +166,10 @@ namespace boost { namespace unordered_detail {
         }
     }
 
-    template <class H, class P, class A, class K>
+    template <class T>
     template<class... Args>
-    inline BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::emplace_return
-        hash_unique_table<H, P, A, K>::emplace_impl(no_key, Args&&... args)
+    inline BOOST_DEDUCED_TYPENAME hash_unique_table<T>::emplace_return
+        hash_unique_table<T>::emplace_impl(no_key, Args&&... args)
     {
         // Construct the node regardless - in order to get the key.
         // It will be discarded if it isn't used
@@ -178,10 +178,10 @@ namespace boost { namespace unordered_detail {
         return emplace_impl_with_node(a);
     }
 
-    template <class H, class P, class A, class K>
+    template <class T>
     template<class... Args>
-    inline BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::emplace_return
-        hash_unique_table<H, P, A, K>::emplace_empty_impl(Args&&... args)
+    inline BOOST_DEDUCED_TYPENAME hash_unique_table<T>::emplace_return
+        hash_unique_table<T>::emplace_empty_impl(Args&&... args)
     {
         node_constructor a(*this);
         a.construct(std::forward<Args>(args)...);
@@ -191,11 +191,11 @@ namespace boost { namespace unordered_detail {
 #else
 
 #define BOOST_UNORDERED_INSERT_IMPL(z, num_params, _)                          \
-    template <class H, class P, class A, class K>                              \
+    template <class T>                                                         \
     template <BOOST_UNORDERED_TEMPLATE_ARGS(z, num_params)>                    \
     inline BOOST_DEDUCED_TYPENAME                                              \
-        hash_unique_table<H, P, A, K>::emplace_return                          \
-            hash_unique_table<H, P, A, K>::emplace_impl(                       \
+        hash_unique_table<T>::emplace_return                                   \
+            hash_unique_table<T>::emplace_impl(                                \
                 key_type const& k,                                             \
                 BOOST_UNORDERED_FUNCTION_PARAMS(z, num_params))                \
     {                                                                          \
@@ -218,11 +218,11 @@ namespace boost { namespace unordered_detail {
         }                                                                      \
     }                                                                          \
                                                                                \
-    template <class H, class P, class A, class K>                              \
+    template <class T>                                                         \
     template <BOOST_UNORDERED_TEMPLATE_ARGS(z, num_params)>                    \
     inline BOOST_DEDUCED_TYPENAME                                              \
-        hash_unique_table<H, P, A, K>::emplace_return                          \
-            hash_unique_table<H, P, A, K>::                                    \
+        hash_unique_table<T>::emplace_return                                   \
+            hash_unique_table<T>::                                             \
                 emplace_impl(no_key,                                           \
                     BOOST_UNORDERED_FUNCTION_PARAMS(z, num_params))            \
     {                                                                          \
@@ -231,17 +231,17 @@ namespace boost { namespace unordered_detail {
         return emplace_impl_with_node(a);                                      \
     }                                                                          \
                                                                                \
-    template <class H, class P, class A, class K>                              \
+    template <class T>                                                         \
     template <BOOST_UNORDERED_TEMPLATE_ARGS(z, num_params)>                    \
     inline BOOST_DEDUCED_TYPENAME                                              \
-        hash_unique_table<H, P, A, K>::emplace_return                          \
-            hash_unique_table<H, P, A, K>::                                    \
+        hash_unique_table<T>::emplace_return                                   \
+            hash_unique_table<T>::                                             \
                 emplace_empty_impl(                                            \
                     BOOST_UNORDERED_FUNCTION_PARAMS(z, num_params))            \
     {                                                                          \
         node_constructor a(*this);                                             \
         a.construct(BOOST_UNORDERED_CALL_PARAMS(z, num_params));               \
-        return emplace_return(this->emplace_empty_impl_with_node(a, 1), true);  \
+        return emplace_return(this->emplace_empty_impl_with_node(a, 1), true); \
     }
 
     BOOST_PP_REPEAT_FROM_TO(1, BOOST_UNORDERED_EMPLACE_LIMIT,
@@ -259,10 +259,10 @@ namespace boost { namespace unordered_detail {
     // if hash function throws, basic exception safety
     // strong otherwise
 
-    template <class H, class P, class A, class K>
+    template <class T>
     template<class... Args>
-    BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::emplace_return
-        hash_unique_table<H, P, A, K>::emplace(Args&&... args)
+    BOOST_DEDUCED_TYPENAME hash_unique_table<T>::emplace_return
+        hash_unique_table<T>::emplace(Args&&... args)
     {
         return this->size_ ?
             emplace_impl(
@@ -273,10 +273,10 @@ namespace boost { namespace unordered_detail {
 
 #else
 
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class Arg0>
-    BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::emplace_return
-        hash_unique_table<H, P, A, K>::emplace(Arg0 const& arg0)
+    BOOST_DEDUCED_TYPENAME hash_unique_table<T>::emplace_return
+        hash_unique_table<T>::emplace(Arg0 const& arg0)
     {
         return this->size_ ?
             emplace_impl(extractor::extract(arg0), arg0) :
@@ -284,10 +284,10 @@ namespace boost { namespace unordered_detail {
     }
 
 #define BOOST_UNORDERED_INSERT_IMPL(z, num_params, _)                          \
-    template <class H, class P, class A, class K>                              \
+    template <class T>                                                         \
     template <BOOST_UNORDERED_TEMPLATE_ARGS(z, num_params)>                    \
-    BOOST_DEDUCED_TYPENAME hash_unique_table<H, P, A, K>::emplace_return       \
-        hash_unique_table<H, P, A, K>::emplace(                                \
+    BOOST_DEDUCED_TYPENAME hash_unique_table<T>::emplace_return                \
+        hash_unique_table<T>::emplace(                                         \
             BOOST_UNORDERED_FUNCTION_PARAMS(z, num_params))                    \
     {                                                                          \
         return this->size_ ?                                                   \
@@ -307,9 +307,9 @@ namespace boost { namespace unordered_detail {
     ////////////////////////////////////////////////////////////////////////////
     // Insert range methods
 
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class InputIt>
-    inline void hash_unique_table<H, P, A, K>::insert_range_impl(
+    inline void hash_unique_table<T>::insert_range_impl(
         key_type const&, InputIt i, InputIt j)
     {
         node_constructor a(*this);
@@ -323,8 +323,8 @@ namespace boost { namespace unordered_detail {
 
         do {
             // No side effects in this initial code
-            // Note: can't use get_key as '*i' might not be value_type - it could
-            // be a pair with first_types as key_type without const or a
+            // Note: can't use get_key as '*i' might not be value_type - it
+            // could be a pair with first_types as key_type without const or a
             // different second_type.
             key_type const& k = extractor::extract(*i);
             std::size_t hash_value = this->hash_function()(k);
@@ -352,9 +352,9 @@ namespace boost { namespace unordered_detail {
         } while(++i != j);
     }
 
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class InputIt>
-    inline void hash_unique_table<H, P, A, K>::insert_range_impl(
+    inline void hash_unique_table<T>::insert_range_impl(
         no_key, InputIt i, InputIt j)
     {
         node_constructor a(*this);
@@ -375,9 +375,9 @@ namespace boost { namespace unordered_detail {
 
     // if hash function throws, or inserting > 1 element, basic exception safety
     // strong otherwise
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class InputIt>
-    void hash_unique_table<H, P, A, K>::insert_range(InputIt i, InputIt j)
+    void hash_unique_table<T>::insert_range(InputIt i, InputIt j)
     {
         if(i != j)
             return insert_range_impl(extractor::extract(*i), i, j);

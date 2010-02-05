@@ -288,6 +288,9 @@ namespace boost { namespace unordered_detail {
     {
         if (node_) {
             if (value_constructed_) {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+                struct dummy { hash_node<Alloc, Grouped> x; };
+#endif
                 boost::unordered_detail::destroy(&node_->value());
             }
 

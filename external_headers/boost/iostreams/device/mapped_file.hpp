@@ -4,6 +4,9 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
+#ifndef BOOST_IOSTREAMS_MAPPED_FILE_HPP_INCLUDED
+#define BOOST_IOSTREAMS_MAPPED_FILE_HPP_INCLUDED
+
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
 #endif
@@ -25,6 +28,7 @@
 #include <boost/iostreams/positioning.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 // Must come last.
@@ -393,10 +397,10 @@ void mapped_file_source::open(const basic_mapped_file_params<Path>& p)
     param_type params(p);
     if (params.flags) {
         if (params.flags != mapped_file::readonly)
-            throw new BOOST_IOSTREAMS_FAILURE("invalid flags");
+            boost::throw_exception(BOOST_IOSTREAMS_FAILURE("invalid flags"));
     } else {
         if (params.mode & BOOST_IOS::out)
-            throw new BOOST_IOSTREAMS_FAILURE("invalid mode");
+            boost::throw_exception(BOOST_IOSTREAMS_FAILURE("invalid mode"));
         params.mode |= BOOST_IOS::in;
     }
     open_impl(params);
@@ -479,10 +483,10 @@ void mapped_file_sink::open(const basic_mapped_file_params<Path>& p)
     param_type params(p);
     if (params.flags) {
         if (params.flags & mapped_file::readonly)
-            throw new BOOST_IOSTREAMS_FAILURE("invalid flags");
+            boost::throw_exception(BOOST_IOSTREAMS_FAILURE("invalid flags"));
     } else {
         if (params.mode & BOOST_IOS::in)
-            throw new BOOST_IOSTREAMS_FAILURE("invalid mode");
+            boost::throw_exception(BOOST_IOSTREAMS_FAILURE("invalid mode"));
         params.mode |= BOOST_IOS::out;
     }
     mapped_file::open(params);
@@ -591,3 +595,5 @@ operator^=(mapped_file::mapmode& a, mapped_file::mapmode b)
 } } // End namespaces iostreams, boost.
 
 #include <boost/config/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
+
+#endif // #ifndef BOOST_IOSTREAMS_MAPPED_FILE_HPP_INCLUDED

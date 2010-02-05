@@ -18,7 +18,6 @@
 
 #include <string>
 #include <ostream>
-#include <boost/noncopyable.hpp>
 #include <boost/cstdint.hpp>
 #include <cstddef> // size_t
 
@@ -42,13 +41,17 @@ namespace detail{
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_oserializer;
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_pointer_oserializer;
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 template<class ArchiveImplementation>
 class polymorphic_oarchive_route :
     public polymorphic_oarchive,
     // note: gcc dynamic cross cast fails if the the derivation below is
     // not public.  I think this is a mistake.
-    public /*protected*/ ArchiveImplementation,
-    private boost::noncopyable
+    public /*protected*/ ArchiveImplementation
 {
 private:
     // these are used by the serialization library.
@@ -178,6 +181,10 @@ public:
 } // namespace detail
 } // namespace archive
 } // namespace boost
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

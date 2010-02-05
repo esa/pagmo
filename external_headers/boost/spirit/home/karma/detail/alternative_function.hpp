@@ -1,5 +1,5 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
-//  Copyright (c) 2001-2009 Joel de Guzman
+//  Copyright (c) 2001-2010 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Joel de Guzman
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -42,11 +42,20 @@ namespace boost { namespace spirit { namespace karma { namespace detail
     struct attribute_is_compatible<Expected, boost::optional<Attribute> >
       : is_convertible<Attribute, Expected> {};
 
+    template <typename Container>
+    struct is_hold_any_container
+      : is_same<hold_any, typename traits::container_value<Container>::type> {};
+
     template <typename Expected, typename Attribute, typename IsNotVariant>
     struct compute_compatible_component_variant
       : mpl::or_<
-          attribute_is_compatible<Expected, Attribute>
-        , is_same<hold_any, Expected> > {};
+            attribute_is_compatible<Expected, Attribute>
+          , is_same<hold_any, Expected> 
+          , mpl::eval_if<
+                traits::is_container<Expected>
+              , is_hold_any_container<Expected>
+              , mpl::false_>
+        > {};
 
     template <typename Expected, typename Attribute>
     struct compute_compatible_component_variant<Expected, Attribute, mpl::false_>

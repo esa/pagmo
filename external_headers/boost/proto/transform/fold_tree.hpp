@@ -9,14 +9,12 @@
 #ifndef BOOST_PROTO_TRANSFORM_FOLD_TREE_HPP_EAN_11_05_2007
 #define BOOST_PROTO_TRANSFORM_FOLD_TREE_HPP_EAN_11_05_2007
 
-#include <boost/proto/detail/prefix.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/proto/proto_fwd.hpp>
 #include <boost/proto/traits.hpp>
 #include <boost/proto/matches.hpp>
 #include <boost/proto/transform/fold.hpp>
 #include <boost/proto/transform/impl.hpp>
-#include <boost/proto/detail/suffix.hpp>
 
 namespace boost { namespace proto
 {

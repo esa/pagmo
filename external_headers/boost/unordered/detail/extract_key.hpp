@@ -28,128 +28,120 @@ namespace unordered_detail {
         template <class T> no_key(T const&) {}
     };
 
+    template <class ValueType>
     struct set_extractor
     {
-        template <class ValueType>
-        struct apply
+        typedef ValueType value_type;
+        typedef ValueType key_type;
+
+        static key_type const& extract(key_type const& v)
         {
-            typedef ValueType value_type;
-            typedef ValueType key_type;
+            return v;
+        }
 
-            static key_type const& extract(key_type const& v)
-            {
-                return v;
-            }
-
-            static no_key extract()
-            {
-                return no_key();
-            }
-            
-    #if defined(BOOST_UNORDERED_STD_FORWARD)
-            template <class... Args>
-            static no_key extract(Args const&...)
-            {
-                return no_key();
-            }
-    
-    #else
-            template <class Arg>
-            static no_key extract(Arg const&)
-            {
-                return no_key();
-            }
-
-            template <class Arg>
-            static no_key extract(Arg const&, Arg const&)
-            {
-                return no_key();
-            }
-    #endif
-
-            static bool compare_mapped(value_type const&, value_type const&)
-            {
-                return true;
-            }
-        };
-    };
-
-    struct map_extractor
-    {
-        template <class ValueType>
-        struct apply
+        static no_key extract()
         {
-            typedef ValueType value_type;
-            typedef BOOST_DEDUCED_TYPENAME
-                remove_const<BOOST_DEDUCED_TYPENAME ValueType::first_type>::type
-                key_type;
-
-            static key_type const& extract(value_type const& v)
-            {
-                return v.first;
-            }
-                
-            static key_type const& extract(key_type const& v)
-            {
-                return v;
-            }
-
-            template <class Second>
-            static key_type const& extract(std::pair<key_type, Second> const& v)
-            {
-                return v.first;
-            }
-
-            template <class Second>
-            static key_type const& extract(
-                std::pair<key_type const, Second> const& v)
-            {
-                return v.first;
-            }
-
+            return no_key();
+        }
+        
 #if defined(BOOST_UNORDERED_STD_FORWARD)
-            template <class Arg1, class... Args>
-            static key_type const& extract(key_type const& k,
-                Arg1 const&, Args const&...)
-            {
-                return k;
-            }
+        template <class... Args>
+        static no_key extract(Args const&...)
+        {
+            return no_key();
+        }
 
-            template <class... Args>
-            static no_key extract(Args const&...)
-            {
-                return no_key();
-            }
 #else
-            template <class Arg1>
-            static key_type const& extract(key_type const& k, Arg1 const&)
-            {
-                return k;
-            }
+        template <class Arg>
+        static no_key extract(Arg const&)
+        {
+            return no_key();
+        }
 
-            static no_key extract()
-            {
-                return no_key();
-            }
-
-            template <class Arg>
-            static no_key extract(Arg const&)
-            {
-                return no_key();
-            }
-
-            template <class Arg, class Arg1>
-            static no_key extract(Arg const&, Arg1 const&)
-            {
-                return no_key();
-            }
+        template <class Arg>
+        static no_key extract(Arg const&, Arg const&)
+        {
+            return no_key();
+        }
 #endif
 
-            static bool compare_mapped(value_type const& x, value_type const& y)
-            {
-                return x.second == y.second;
-            }
-        };
+        static bool compare_mapped(value_type const&, value_type const&)
+        {
+            return true;
+        }
+    };
+
+    template <class Key, class ValueType>
+    struct map_extractor
+    {
+        typedef ValueType value_type;
+        typedef BOOST_DEDUCED_TYPENAME boost::remove_const<Key>::type key_type;
+
+        static key_type const& extract(value_type const& v)
+        {
+            return v.first;
+        }
+            
+        static key_type const& extract(key_type const& v)
+        {
+            return v;
+        }
+
+        template <class Second>
+        static key_type const& extract(std::pair<key_type, Second> const& v)
+        {
+            return v.first;
+        }
+
+        template <class Second>
+        static key_type const& extract(
+            std::pair<key_type const, Second> const& v)
+        {
+            return v.first;
+        }
+
+#if defined(BOOST_UNORDERED_STD_FORWARD)
+        template <class Arg1, class... Args>
+        static key_type const& extract(key_type const& k,
+            Arg1 const&, Args const&...)
+        {
+            return k;
+        }
+
+        template <class... Args>
+        static no_key extract(Args const&...)
+        {
+            return no_key();
+        }
+#else
+        template <class Arg1>
+        static key_type const& extract(key_type const& k, Arg1 const&)
+        {
+            return k;
+        }
+
+        static no_key extract()
+        {
+            return no_key();
+        }
+
+        template <class Arg>
+        static no_key extract(Arg const&)
+        {
+            return no_key();
+        }
+
+        template <class Arg, class Arg1>
+        static no_key extract(Arg const&, Arg1 const&)
+        {
+            return no_key();
+        }
+#endif
+
+        static bool compare_mapped(value_type const& x, value_type const& y)
+        {
+            return x.second == y.second;
+        }
     };
 }}
 

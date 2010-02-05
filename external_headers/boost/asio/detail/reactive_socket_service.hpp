@@ -2,7 +2,7 @@
 // reactive_socket_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -275,12 +275,21 @@ public:
       return false;
     }
 
+#if defined(SIOCATMARK)
     boost::asio::detail::ioctl_arg_type value = 0;
     socket_ops::ioctl(impl.socket_, SIOCATMARK, &value, ec);
-#if defined(ENOTTY)
+# if defined(ENOTTY)
     if (ec.value() == ENOTTY)
       ec = boost::asio::error::not_socket;
-#endif // defined(ENOTTY)
+# endif // defined(ENOTTY)
+#else // defined(SIOCATMARK)
+    int value = sockatmark(impl.socket_);
+    if (value == -1)
+      ec = boost::system::error_code(errno,
+          boost::asio::error::get_system_category());
+    else
+      ec = boost::system::error_code();
+#endif // defined(SIOCATMARK)
     return ec ? false : value != 0;
   }
 
@@ -644,16 +653,23 @@ public:
             boost::asio::buffer_size(buffer));
       }
 
-      // Send the data.
-      int bytes = socket_ops::send(socket_, bufs, i, flags_, ec);
+      for (;;)
+      {
+        // Send the data.
+        int bytes = socket_ops::send(socket_, bufs, i, flags_, ec);
 
-      // Check if we need to run the operation again.
-      if (ec == boost::asio::error::would_block
-          || ec == boost::asio::error::try_again)
-        return false;
+        // Retry operation if interrupted by signal.
+        if (ec == boost::asio::error::interrupted)
+          continue;
 
-      bytes_transferred = (bytes < 0 ? 0 : bytes);
-      return true;
+        // Check if we need to run the operation again.
+        if (ec == boost::asio::error::would_block
+            || ec == boost::asio::error::try_again)
+          return false;
+
+        bytes_transferred = (bytes < 0 ? 0 : bytes);
+        return true;
+      }
     }
 
     void complete(const boost::system::error_code& ec,
@@ -881,17 +897,24 @@ public:
             boost::asio::buffer_size(buffer));
       }
 
-      // Send the data.
-      int bytes = socket_ops::sendto(socket_, bufs, i, flags_,
-          destination_.data(), destination_.size(), ec);
+      for (;;)
+      {
+        // Send the data.
+        int bytes = socket_ops::sendto(socket_, bufs, i, flags_,
+            destination_.data(), destination_.size(), ec);
 
-      // Check if we need to run the operation again.
-      if (ec == boost::asio::error::would_block
-          || ec == boost::asio::error::try_again)
-        return false;
+        // Retry operation if interrupted by signal.
+        if (ec == boost::asio::error::interrupted)
+          continue;
 
-      bytes_transferred = (bytes < 0 ? 0 : bytes);
-      return true;
+        // Check if we need to run the operation again.
+        if (ec == boost::asio::error::would_block
+            || ec == boost::asio::error::try_again)
+          return false;
+
+        bytes_transferred = (bytes < 0 ? 0 : bytes);
+        return true;
+      }
     }
 
     void complete(const boost::system::error_code& ec,
@@ -1086,18 +1109,25 @@ public:
             boost::asio::buffer_size(buffer));
       }
 
-      // Receive some data.
-      int bytes = socket_ops::recv(socket_, bufs, i, flags_, ec);
-      if (bytes == 0 && protocol_type_ == SOCK_STREAM)
-        ec = boost::asio::error::eof;
+      for (;;)
+      {
+        // Receive some data.
+        int bytes = socket_ops::recv(socket_, bufs, i, flags_, ec);
+        if (bytes == 0 && protocol_type_ == SOCK_STREAM)
+          ec = boost::asio::error::eof;
 
-      // Check if we need to run the operation again.
-      if (ec == boost::asio::error::would_block
-          || ec == boost::asio::error::try_again)
-        return false;
+        // Retry operation if interrupted by signal.
+        if (ec == boost::asio::error::interrupted)
+          continue;
 
-      bytes_transferred = (bytes < 0 ? 0 : bytes);
-      return true;
+        // Check if we need to run the operation again.
+        if (ec == boost::asio::error::would_block
+            || ec == boost::asio::error::try_again)
+          return false;
+
+        bytes_transferred = (bytes < 0 ? 0 : bytes);
+        return true;
+      }
     }
 
     void complete(const boost::system::error_code& ec,
@@ -1331,21 +1361,28 @@ public:
             boost::asio::buffer_size(buffer));
       }
 
-      // Receive some data.
-      std::size_t addr_len = sender_endpoint_.capacity();
-      int bytes = socket_ops::recvfrom(socket_, bufs, i, flags_,
-          sender_endpoint_.data(), &addr_len, ec);
-      if (bytes == 0 && protocol_type_ == SOCK_STREAM)
-        ec = boost::asio::error::eof;
+      for (;;)
+      {
+        // Receive some data.
+        std::size_t addr_len = sender_endpoint_.capacity();
+        int bytes = socket_ops::recvfrom(socket_, bufs, i, flags_,
+            sender_endpoint_.data(), &addr_len, ec);
+        if (bytes == 0 && protocol_type_ == SOCK_STREAM)
+          ec = boost::asio::error::eof;
 
-      // Check if we need to run the operation again.
-      if (ec == boost::asio::error::would_block
-          || ec == boost::asio::error::try_again)
-        return false;
+        // Retry operation if interrupted by signal.
+        if (ec == boost::asio::error::interrupted)
+          continue;
 
-      sender_endpoint_.resize(addr_len);
-      bytes_transferred = (bytes < 0 ? 0 : bytes);
-      return true;
+        // Check if we need to run the operation again.
+        if (ec == boost::asio::error::would_block
+            || ec == boost::asio::error::try_again)
+          return false;
+
+        sender_endpoint_.resize(addr_len);
+        bytes_transferred = (bytes < 0 ? 0 : bytes);
+        return true;
+      }
     }
 
     void complete(const boost::system::error_code& ec,
@@ -1535,43 +1572,50 @@ public:
       if (ec)
         return true;
 
-      // Accept the waiting connection.
-      socket_holder new_socket;
-      std::size_t addr_len = 0;
-      if (peer_endpoint_)
+      for (;;)
       {
-        addr_len = peer_endpoint_->capacity();
-        new_socket.reset(socket_ops::accept(socket_,
-              peer_endpoint_->data(), &addr_len, ec));
-      }
-      else
-      {
-        new_socket.reset(socket_ops::accept(socket_, 0, 0, ec));
-      }
+        // Accept the waiting connection.
+        socket_holder new_socket;
+        std::size_t addr_len = 0;
+        if (peer_endpoint_)
+        {
+          addr_len = peer_endpoint_->capacity();
+          new_socket.reset(socket_ops::accept(socket_,
+                peer_endpoint_->data(), &addr_len, ec));
+        }
+        else
+        {
+          new_socket.reset(socket_ops::accept(socket_, 0, 0, ec));
+        }
 
-      // Check if we need to run the operation again.
-      if (ec == boost::asio::error::would_block
-          || ec == boost::asio::error::try_again)
-        return false;
-      if (ec == boost::asio::error::connection_aborted
-          && !enable_connection_aborted_)
-        return false;
+        // Retry operation if interrupted by signal.
+        if (ec == boost::asio::error::interrupted)
+          continue;
+
+        // Check if we need to run the operation again.
+        if (ec == boost::asio::error::would_block
+            || ec == boost::asio::error::try_again)
+          return false;
+        if (ec == boost::asio::error::connection_aborted
+            && !enable_connection_aborted_)
+          return false;
 #if defined(EPROTO)
-      if (ec.value() == EPROTO && !enable_connection_aborted_)
-        return false;
+        if (ec.value() == EPROTO && !enable_connection_aborted_)
+          return false;
 #endif // defined(EPROTO)
 
-      // Transfer ownership of the new socket to the peer object.
-      if (!ec)
-      {
-        if (peer_endpoint_)
-          peer_endpoint_->resize(addr_len);
-        peer_.assign(protocol_, new_socket.get(), ec);
+        // Transfer ownership of the new socket to the peer object.
         if (!ec)
-          new_socket.release();
-      }
+        {
+          if (peer_endpoint_)
+            peer_endpoint_->resize(addr_len);
+          peer_.assign(protocol_, new_socket.get(), ec);
+          if (!ec)
+            new_socket.release();
+        }
 
-      return true;
+        return true;
+      }
     }
 
     void complete(const boost::system::error_code& ec, std::size_t)

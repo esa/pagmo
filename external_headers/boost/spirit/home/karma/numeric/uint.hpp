@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -249,7 +249,7 @@ namespace boost { namespace spirit { namespace karma
             if (!traits::has_optional_value(attr))
                 return false;       // fail if it's an uninitialized optional
 
-            return int_inserter<Radix, CharEncoding, Tag>::
+            return uint_inserter<Radix, CharEncoding, Tag>::
                         call(sink, traits::extract_from(attr, context)) &&
                    delimit_out(sink, d);      // always do post-delimiting
         }
@@ -315,7 +315,7 @@ namespace boost { namespace spirit { namespace karma
             {
                 return false;
             }
-            return int_inserter<Radix, CharEncoding, Tag>::call(sink, n_) &&
+            return uint_inserter<Radix, CharEncoding, Tag>::call(sink, n_) &&
                    delimit_out(sink, d);      // always do post-delimiting
         }
 
@@ -325,7 +325,7 @@ namespace boost { namespace spirit { namespace karma
         bool generate(OutputIterator& sink, Context&, Delimiter const& d
           , unused_type) const
         {
-            return int_inserter<Radix, CharEncoding, Tag>::call(sink, n_) &&
+            return uint_inserter<Radix, CharEncoding, Tag>::call(sink, n_) &&
                    delimit_out(sink, d);      // always do post-delimiting
         }
 

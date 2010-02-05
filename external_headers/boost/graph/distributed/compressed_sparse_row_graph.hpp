@@ -17,8 +17,6 @@
 #error "Parallel BGL files should not be included unless <boost/graph/use_mpi.hpp> has been included"
 #endif
 
-#define BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include <boost/graph/distributed/selector.hpp>
 #include <boost/mpl/if.hpp>
@@ -179,8 +177,6 @@ class compressed_sparse_row_graph<
                               const Distribution& dist)
     : m_process_group(pg), m_distribution(dist), m_base(numverts) {}
 
-#ifdef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-
   template <typename InputIterator>
   compressed_sparse_row_graph(edges_are_unsorted_t,
                               InputIterator edge_begin, InputIterator edge_end,
@@ -321,8 +317,6 @@ class compressed_sparse_row_graph<
                               const ProcessGroup& pg,
                               const Distribution& dist,
                               const GraphProperty& prop = GraphProperty());
-
-#endif
 
   template<typename InputIterator>
   compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
@@ -706,7 +700,6 @@ edges(const BOOST_DISTRIB_CSR_GRAPH_TYPE& g)
 // -----------------------------------------------------------------
 // Graph constructors
 
-#ifdef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
 // Returns true if a vertex belongs to a process according to a distribution
 template <typename OwnerMap, typename ProcessId>
 struct local_vertex {
@@ -826,12 +819,9 @@ make_index_to_vertex_iterator(IndexIterator it, const Distribution& dist,
   return boost::make_transform_iterator(
     it, index_to_vertex_func<Distribution, Graph>(dist, g));
 }
-#endif
 
 // Forward declaration of csr_vertex_owner_map
 template<typename ProcessID, typename Key> class csr_vertex_owner_map;
-
-#ifdef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
 
 template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
 template<typename InputIterator>
@@ -1215,8 +1205,6 @@ compressed_sparse_row_graph(distributed_construct_inplace_from_sources_and_targe
   // TODO: set property on m_base?
 }
 
-#endif
-
 //
 // Old (untagged) ctors, these default to the unsorted sequential ctors
 //
@@ -1229,9 +1217,6 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
                             const GraphProperty& prop)
   : m_process_group(pg),
     m_distribution(parallel::block(m_process_group, numverts)),
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-    m_base(m_distribution.block_size(process_id(m_process_group), numverts))
-#else
     m_base(edges_are_unsorted_global,
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_begin, *this),
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_end, *this),
@@ -1240,28 +1225,8 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
            local_vertex<csr_vertex_owner_map<process_id_type, vertex_descriptor>, 
                         process_id_type> (get(vertex_owner, *this), process_id(pg)),
            prop)
-#endif    
            
 {
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-  parallel::block dist(m_process_group, numverts);
-
-  // Allows us to add edges
-  m_base.m_last_source = 0;
-
-  typename ProcessGroup::process_id_type id = process_id(m_process_group);
-
-  while (edge_begin != edge_end) {
-    vertex_descriptor src = edge_begin->first;
-    if (static_cast<process_id_type>(dist(src)) == id) {
-      vertex_descriptor tgt = 
-        make_vertex_descriptor(dist(edge_begin->second), 
-                               dist.local(edge_begin->second));
-      add_edge(dist.local(src), tgt, m_base);
-    }
-    ++edge_begin;
-  }
-#endif
 }
 
 template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
@@ -1275,9 +1240,6 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
   : m_process_group(pg),
 
     m_distribution(parallel::block(m_process_group, numverts)),
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-    m_base(m_distribution.block_size(process_id(m_process_group), numverts))
-#else
     m_base(edges_are_unsorted_global,
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_begin, *this),
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_end, *this),
@@ -1287,28 +1249,7 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
            local_vertex<csr_vertex_owner_map<process_id_type, vertex_descriptor>, 
                         process_id_type> (get(vertex_owner, *this), process_id(pg)),
            prop)
-#endif
 {
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-  parallel::block dist(m_process_group, numverts);
-
-  // Allows us to add edges
-  m_base.m_last_source = 0;
-
-  typename ProcessGroup::process_id_type id = process_id(m_process_group);
-
-  while (edge_begin != edge_end) {
-    EdgeIndex src = edge_begin->first;
-    if (static_cast<process_id_type>(dist(src)) == id) {
-      EdgeIndex tgt = 
-        make_vertex_descriptor(dist(edge_begin->second), 
-                               dist.local(edge_begin->second));
-      add_edge(dist.local(src), tgt, *ep_iter, m_base);
-    }
-    ++edge_begin;
-    ++ep_iter;
-  }
-#endif
 }
 
 template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
@@ -1321,9 +1262,6 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
                             const GraphProperty& prop)
   : m_process_group(pg),
     m_distribution(dist),
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-    m_base(dist.block_size(process_id(m_process_group), numverts))
-#else
     m_base(edges_are_unsorted_global,
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_begin, *this),
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_end, *this),
@@ -1332,27 +1270,7 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
            local_vertex<csr_vertex_owner_map<process_id_type, vertex_descriptor>, 
                         process_id_type> (get(vertex_owner, *this), process_id(pg)),
            prop)
-#endif
 {
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-  // Allows us to add edges
-  m_base.m_last_source = 0;
-
-  typename ProcessGroup::process_id_type id = process_id(m_process_group);
-
-  while (edge_begin != edge_end) {
-    vertex_descriptor src = edge_begin->first;
-    if (static_cast<process_id_type>(dist(src)) == id) {
-      vertex_descriptor tgt = 
-        make_vertex_descriptor(dist(edge_begin->second), 
-                               dist.local(edge_begin->second));
-      assert(get(vertex_owner, *this, tgt) == dist(edge_begin->second));
-      assert(get(vertex_local, *this, tgt) == dist.local(edge_begin->second));
-      add_edge(dist.local(src), tgt, m_base);
-    }
-    ++edge_begin;
-  }
-#endif
 }
 
 template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
@@ -1367,9 +1285,6 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
                             const GraphProperty& prop)
   : m_process_group(pg),
     m_distribution(dist),
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-    m_base(dist.block_size(process_id(m_process_group), numverts))
-#else
     m_base(edges_are_unsorted_global,
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_begin, *this),
            index_to_vertex_iterator<InputIterator, BOOST_DISTRIB_CSR_GRAPH_TYPE>(edge_end, *this),
@@ -1378,26 +1293,7 @@ compressed_sparse_row_graph(InputIterator edge_begin, InputIterator edge_end,
            local_vertex<csr_vertex_owner_map<process_id_type, vertex_descriptor>, 
                         process_id_type> (get(vertex_owner, *this), process_id(pg)),
            prop)
-#endif
 {
-#ifndef BOOST_GRAPH_USE_NEW_CSR_INTERFACE
-  // Allows us to add edges
-  m_base.m_last_source = 0;
-
-  typename ProcessGroup::process_id_type id = process_id(m_process_group);
-
-  while (edge_begin != edge_end) {
-    EdgeIndex src = edge_begin->first;
-    if (static_cast<process_id_type>(dist(src)) == id) {
-      EdgeIndex tgt = 
-        make_vertex_descriptor(dist(edge_begin->second), 
-                               dist.local(edge_begin->second));
-      add_edge(dist.local(src), tgt, *ep_iter, m_base);
-    }
-    ++edge_begin;
-    ++ep_iter;
-  }
-#endif
 }
 
 // -----------------------------------------------------------------

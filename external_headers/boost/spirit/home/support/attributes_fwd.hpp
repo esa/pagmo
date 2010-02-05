@@ -1,6 +1,6 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Hartmut Kaiser
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Hartmut Kaiser
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -70,6 +70,9 @@ namespace boost { namespace spirit { namespace traits
     template <typename Container, typename T, typename Enable = void>
     struct push_back_container;
 
+    template <typename Container, typename Enable = void>
+    struct is_empty_container;
+
     ///////////////////////////////////////////////////////////////////////
     // Determine the iterator type of the given container type
     ///////////////////////////////////////////////////////////////////////
@@ -107,9 +110,6 @@ namespace boost { namespace spirit { namespace result_of
 
     template <typename Container>
     struct end;
-
-    template <typename Iterator>
-    struct next;
 
     template <typename Iterator>
     struct deref;

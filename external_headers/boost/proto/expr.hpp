@@ -10,7 +10,6 @@
     #ifndef BOOST_PROTO_EXPR_HPP_EAN_04_01_2005
     #define BOOST_PROTO_EXPR_HPP_EAN_04_01_2005
 
-    #include <boost/proto/detail/prefix.hpp>
     #include <boost/preprocessor/cat.hpp>
     #include <boost/preprocessor/arithmetic/dec.hpp>
     #include <boost/preprocessor/selection/max.hpp>
@@ -26,7 +25,6 @@
     #include <boost/proto/proto_fwd.hpp>
     #include <boost/proto/args.hpp>
     #include <boost/proto/traits.hpp>
-    #include <boost/proto/detail/suffix.hpp>
 
     #if defined(_MSC_VER) && (_MSC_VER >= 1020)
     # pragma warning(push)
@@ -136,10 +134,11 @@
         // a basic_expr because they should be layout compatible. Or not, because
         // that would incur an extra template instantiation. :-(
 
-        BOOST_PROTO_BEGIN_ADL_NAMESPACE(exprns_)
-        #define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PROTO_MAX_ARITY, <boost/proto/expr.hpp>))
-        #include BOOST_PP_ITERATE()
-        BOOST_PROTO_END_ADL_NAMESPACE(exprns_)
+        namespace exprns_
+        {
+            #define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PROTO_MAX_ARITY, <boost/proto/expr.hpp>))
+            #include BOOST_PP_ITERATE()
+        }
 
         #undef BOOST_PROTO_CHILD
         #undef BOOST_PROTO_VOID
@@ -221,7 +220,7 @@
             typedef BOOST_PP_CAT(list, BOOST_PP_ITERATION())<BOOST_PP_ENUM_PARAMS(ARG_COUNT, Arg)> proto_args;
             #endif
             typedef default_domain proto_domain;
-            BOOST_PROTO_FUSION_DEFINE_TAG(proto::tag::proto_expr)
+            typedef proto::tag::proto_expr fusion_tag;
             typedef expr proto_derived_expr;
             typedef void proto_is_expr_; /**< INTERNAL ONLY */
 

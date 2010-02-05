@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: variate_generator.hpp 27375 2005-02-14 11:53:50Z johnmaddock $
+ * $Id: variate_generator.hpp 58649 2010-01-02 21:23:17Z steven_watanabe $
  *
  */
 
@@ -28,6 +28,8 @@
 #if BOOST_WORKAROUND(__BORLANDC__, <= 0x564)
 #include <boost/type_traits/is_integral.hpp>
 #endif
+
+#include <boost/random/detail/disable_warnings.hpp>
 
 namespace boost {
 
@@ -129,5 +131,7 @@ private:
 };
 
 } // namespace boost
+
+#include <boost/random/detail/disable_warnings.hpp>
 
 #endif // BOOST_RANDOM_RANDOM_GENERATOR_HPP

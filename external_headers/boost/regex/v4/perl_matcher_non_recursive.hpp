@@ -188,7 +188,7 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_all_states()
          if(!(this->*proc)())
          {
             if(state_count > max_state_count)
-               raise_error(traits_inst, regex_constants::error_space);
+               raise_error(traits_inst, regex_constants::error_complexity);
             if((m_match_flags & match_partial) && (position == last) && (position != search_base))
                m_has_partial_match = true;
             bool successful_unwind = unwind(false);
@@ -219,7 +219,7 @@ void perl_matcher<BidiIterator, Allocator, traits>::extend_stack()
       m_backup_state = block;
    }
    else
-      raise_error(traits_inst, regex_constants::error_size);
+      raise_error(traits_inst, regex_constants::error_stack);
 }
 
 template <class BidiIterator, class Allocator, class traits>
@@ -904,10 +904,15 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_recursion()
    }
    recursion_stack[recursion_stack_position].preturn_address = pstate->next.p;
    recursion_stack[recursion_stack_position].results = *m_presult;
+   if(static_cast<const re_recurse*>(pstate)->state_id > 0)
+   {
+      push_repeater_count(static_cast<const re_recurse*>(pstate)->state_id, &next_count);
+   }
    pstate = static_cast<const re_jump*>(pstate)->alt.p;
    recursion_stack[recursion_stack_position].id = static_cast<const re_brace*>(pstate)->index;
    ++recursion_stack_position;
    //BOOST_ASSERT(recursion_stack[recursion_stack_position-1].id);
+
    return true;
 }
 

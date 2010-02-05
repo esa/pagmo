@@ -10,7 +10,6 @@
     #ifndef BOOST_PROTO_DEEP_COPY_HPP_EAN_11_21_2006
     #define BOOST_PROTO_DEEP_COPY_HPP_EAN_11_21_2006
 
-    #include <boost/proto/detail/prefix.hpp>
     #include <boost/preprocessor/cat.hpp>
     #include <boost/preprocessor/repetition/enum.hpp>
     #include <boost/preprocessor/iteration/iterate.hpp>
@@ -19,7 +18,6 @@
     #include <boost/type_traits/remove_reference.hpp>
     #include <boost/proto/proto_fwd.hpp>
     #include <boost/proto/expr.hpp>
-    #include <boost/proto/detail/suffix.hpp>
 
     namespace boost { namespace proto
     {

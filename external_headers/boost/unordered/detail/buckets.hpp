@@ -148,7 +148,7 @@ namespace boost { namespace unordered_detail {
 
         // Set up the sentinel (node_ptr cast)
         bucket_ptr sentinel = constructor.get() +
-            static_cast<ptrdiff_t>(this->bucket_count_);
+            static_cast<std::ptrdiff_t>(this->bucket_count_);
         sentinel->next_ = sentinel;
 
         // Only release the buckets once everything is successfully

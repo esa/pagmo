@@ -9,6 +9,8 @@
 #define FUSION_VALUE_AT_KEY_05052005_0229
 
 #include <boost/mpl/int.hpp>
+#include <boost/fusion/iterator/value_of_data.hpp>
+#include <boost/fusion/algorithm/query/find.hpp>
 #include <boost/fusion/support/tag_of.hpp>
 
 namespace boost { namespace fusion
@@ -24,8 +26,12 @@ namespace boost { namespace fusion
         template <typename Tag>
         struct value_at_key_impl
         {
-            template <typename Sequence, typename Key>
-            struct apply;
+            template <typename Seq, typename Key>
+            struct apply
+              : result_of::value_of_data<
+                    typename result_of::find<Seq, Key>::type
+                >
+            {};
         };
 
         template <>

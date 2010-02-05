@@ -10,58 +10,63 @@
 
 #include <boost/type_traits/add_const.hpp>
 
-namespace boost { namespace fusion { namespace extension
+namespace boost { namespace fusion
 {
-    template <typename Struct, int N>
-    struct struct_member;
+    struct fusion_sequence_tag;
 
-    template <typename Struct>
-    struct struct_size;
-
-    template <typename Struct, int N>
-    struct struct_member<Struct const, N>
+    namespace extension
     {
-        typedef typename
-            add_const<typename struct_member<Struct, N>::type>::type
-        type;
+        template <typename Struct, int N>
+        struct struct_member;
 
-        static type&
-        call(Struct const& struct_)
+        template <typename Struct>
+        struct struct_size;
+
+        template <typename Struct, int N>
+        struct struct_member<Struct const, N>
         {
-            return struct_member<Struct, N>::call(
-                const_cast<Struct&>(struct_));
-        }
-    };
+            typedef typename
+                add_const<typename struct_member<Struct, N>::type>::type
+            type;
 
-    template <typename Struct>
-    struct struct_size<Struct const>
-        : struct_size<Struct>
-    {};
+            static type&
+            call(Struct const& struct_)
+            {
+                return struct_member<Struct, N>::call(
+                    const_cast<Struct&>(struct_));
+            }
+        };
 
-    struct no_such_member;
+        template <typename Struct>
+        struct struct_size<Struct const>
+            : struct_size<Struct>
+        {};
 
-    template<typename Struct, typename Key>
-    struct struct_assoc_member
-    {
-        typedef no_such_member type;
-    };
+        struct no_such_member;
 
-    template<typename Struct, typename Key>
-    struct struct_assoc_member<Struct const, Key>
-    {
-        typedef typename
-            add_const<typename struct_assoc_member<Struct, Key>::type>::type
-        type;
-
-        static type&
-        call(Struct const& struct_)
+        template<typename Struct, typename Key>
+        struct struct_assoc_member
         {
-            return struct_assoc_member<Struct, Key>::call(
-                const_cast<Struct&>(struct_));
-        }
-    };
+            typedef no_such_member type;
+        };
 
-}}}
+        template<typename Struct, typename Key>
+        struct struct_assoc_member<Struct const, Key>
+        {
+            typedef typename
+                add_const<typename struct_assoc_member<Struct, Key>::type>::type
+            type;
+
+            static type&
+            call(Struct const& struct_)
+            {
+                return struct_assoc_member<Struct, Key>::call(
+                    const_cast<Struct&>(struct_));
+            }
+        };
+
+    }
+}}
 
 #endif
 

@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -58,21 +58,29 @@ namespace boost { namespace spirit { namespace iterator_policies
 
         public:
             // get the next token
+            template <typename ValueType, typename MultiPass>
+            static ValueType const& get_input(MultiPass& mp)
+            {
+                value_type& curtok = mp.shared()->curtok;
+                if (!input_is_valid(mp, curtok))
+                    curtok = mp.ftor();
+                return curtok;
+            }
+
             template <typename MultiPass>
-            static void advance_input(MultiPass& mp, value_type& t)
+            static void advance_input(MultiPass& mp)
             {
                 // if mp.shared is NULL then this instance of the multi_pass 
-                // represents a end iterator, so no advance functionality is 
-                // needed
-                if (0 != mp.shared()) 
-                    t = mp.ftor();
+                // represents a end iterator
+                BOOST_ASSERT(0 != mp.shared());
+                mp.shared()->curtok = mp.ftor();
             }
 
             // test, whether we reached the end of the underlying stream
             template <typename MultiPass>
-            static bool input_at_eof(MultiPass const& mp, value_type const& t) 
+            static bool input_at_eof(MultiPass const& mp) 
             {
-                return t == mp.ftor.eof;
+                return mp.shared()->curtok == mp.ftor.eof;
             }
 
             template <typename MultiPass>
@@ -95,9 +103,9 @@ namespace boost { namespace spirit { namespace iterator_policies
         template <typename Functor>
         struct shared
         {
-            explicit shared(Functor const& x) {}
+            explicit shared(Functor const& x) : curtok(0) {}
 
-            // no shared data elements
+            result_type curtok;
         };
     };
 

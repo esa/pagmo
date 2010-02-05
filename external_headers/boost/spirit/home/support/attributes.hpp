@@ -1,6 +1,6 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Joel de Guzman
-    Copyright (c) 2001-2009 Hartmut Kaiser
+    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2010 Hartmut Kaiser
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -291,12 +291,12 @@ namespace boost { namespace spirit { namespace traits
         template <typename Sequence, bool no_unused
             , int size = mpl::size<Sequence>::value>
         struct build_collapsed_variant;
-                
+
         // N element case, no unused
         template <typename Sequence, int size>
         struct build_collapsed_variant<Sequence, true, size>
             : spirit::detail::as_variant<Sequence> {};
-                
+
         // N element case with unused
         template <typename Sequence, int size>
         struct build_collapsed_variant<Sequence, false, size>
@@ -337,7 +337,7 @@ namespace boost { namespace spirit { namespace traits
             type;
         };
     }
-        
+
     ///////////////////////////////////////////////////////////////////////////
     // build_variant
     //
@@ -353,7 +353,7 @@ namespace boost { namespace spirit { namespace traits
         typedef typename
             filter_unused_attributes<Sequence>::type
         filtered_attributes;
-        
+
         typedef has_no_unused<Sequence> no_unused;
 
         // If the original attribute list does not contain any unused
@@ -727,7 +727,7 @@ namespace boost { namespace spirit { namespace traits
         static void call(optional<T>& val)
         {
             if (val) 
-                val = none_t();    // leave optional uninitialized
+                val = none_t();   // leave optional uninitialized
         }
     };
 

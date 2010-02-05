@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -54,11 +54,24 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             data (IterData const& data_, Iterator& first, Iterator const& last)
               : first_(first), last_(last)
               , state_machine_(data_.state_machine_)
-              , rules_(data_.rules_) {}
+              , rules_(data_.rules_)
+              , bol_(data_.state_machine_.data()._seen_BOL_assertion) {}
 
             // The following functions are used by the implementation of the 
             // placeholder '_state'.
-            void set_state_name (char_type const*) {}
+            template <typename Char>
+            void set_state_name (Char const*) 
+            {
+// some (random) versions of gcc instantiate this function even if it's not 
+// needed leading to false static asserts
+#if !defined(__GNUC__)
+                // If you see a compile time assertion below you're probably 
+                // using a token type not supporting lexer states (the 3rd 
+                // template parameter of the token is mpl::false_), but your 
+                // code uses state changes anyways.
+                BOOST_STATIC_ASSERT(false);
+#endif
+            }
             char_type const* get_state_name() const { return rules_.initial(); }
             std::size_t get_state_id (char_type const*) const
             {
@@ -88,7 +101,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
                 return it; 
             }
 
-            // The function more() is used by the implemention of the support 
+            // The function more() is used by the implementation of the support 
             // function lex::more(). Its functionality is equivalent to flex'
             // function yymore(): it tells the lexer that the next time it 
             // matches a rule, the corresponding token should be appended onto 
@@ -130,7 +143,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             std::size_t next(Iterator& end, std::size_t& unique_id)
             {
                 typedef basic_iterator_tokeniser<Iterator> tokenizer;
-                return tokenizer::next(state_machine_, first_, end, last_
+                return tokenizer::next(state_machine_, bol_, end, last_
                   , unique_id);
             }
 
@@ -161,6 +174,8 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
 
             boost::lexer::basic_state_machine<char_type> const& state_machine_;
             boost::lexer::basic_rules<char_type> const& rules_;
+
+            bool bol_;      // helper storing whether last character was \n
 
         private:
             // silence MSVC warning C4512: assignment operator could not be generated
@@ -223,7 +238,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             {
                 typedef basic_iterator_tokeniser<Iterator> tokenizer;
                 return tokenizer::next(this->state_machine_, state_, 
-                    this->get_first(), end, this->get_eoi(), unique_id);
+                    this->bol_, end, this->get_eoi(), unique_id);
             }
 
             std::size_t& get_state() { return state_; }
@@ -290,7 +305,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
                 return it;
             }
 
-            // The function more() is used by the implemention of the support 
+            // The function more() is used by the implementation of the support 
             // function lex::more(). Its functionality is equivalent to flex'
             // function yymore(): it tells the lexer that the next time it 
             // matches a rule, the corresponding token should be appended onto 

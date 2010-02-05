@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -34,6 +34,11 @@
 #include <boost/spirit/home/qi/reference.hpp>
 #include <boost/spirit/home/qi/nonterminal/detail/parameterized.hpp>
 #include <boost/spirit/home/qi/nonterminal/detail/parser_binder.hpp>
+
+#if defined(BOOST_MSVC)
+# pragma warning(push)
+# pragma warning(disable: 4355) // 'this' : used in base member initializer list warning
+#endif
 
 namespace boost { namespace spirit { namespace qi
 {
@@ -119,13 +124,13 @@ namespace boost { namespace spirit { namespace qi
         function_type;
 
         explicit rule(std::string const& name_ = "unnamed-rule")
-          : base_type(terminal::make(alias()))
+          : base_type(terminal::make(reference_(*this)))
           , name_(name_)
         {
         }
 
         rule(rule const& rhs)
-          : base_type(rhs)
+          : base_type(terminal::make(reference_(*this)))
           , name_(rhs.name_)
           , f(rhs.f)
         {
@@ -133,7 +138,7 @@ namespace boost { namespace spirit { namespace qi
 
         template <typename Expr>
         rule (Expr const& expr, std::string const& name_ = "unnamed-rule")
-          : base_type(terminal::make(alias()))
+          : base_type(terminal::make(reference_(*this)))
           , name_(name_)
         {
             // Report invalid expression error as early as possible.
@@ -310,5 +315,9 @@ namespace boost { namespace spirit { namespace qi
         function_type f;
     };
 }}}
+
+#if defined(BOOST_MSVC)
+# pragma warning(pop)
+#endif
 
 #endif

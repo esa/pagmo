@@ -11,7 +11,6 @@
     #ifndef BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
     #define BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
 
-    #include <boost/proto/detail/prefix.hpp>
     #include <boost/preprocessor/iteration/iterate.hpp>
     #include <boost/preprocessor/repetition/repeat.hpp>
     #include <boost/preprocessor/repetition/enum_shifted.hpp>
@@ -27,11 +26,10 @@
     #include <boost/proto/transform/impl.hpp>
     #include <boost/proto/transform/arg.hpp>
     #include <boost/proto/detail/decltype.hpp>
-    #include <boost/proto/detail/suffix.hpp>
 
     namespace boost { namespace proto
     {
-        template<typename Grammar BOOST_PROTO_WHEN_BUILDING_DOCS(= detail::_default)>
+        template<typename Grammar /*= detail::_default*/>
         struct _default
           : transform<_default<Grammar> >
         {

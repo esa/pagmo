@@ -38,16 +38,16 @@
 
 namespace boost
 {
-    template <class Value, class Hash, class Pred, class Alloc>
+    template <class T, class H, class P, class A>
     class unordered_set
     {
     public:
 
-        typedef Value key_type;
-        typedef Value value_type;
-        typedef Hash hasher;
-        typedef Pred key_equal;
-        typedef Alloc allocator_type;
+        typedef T key_type;
+        typedef T value_type;
+        typedef H hasher;
+        typedef P key_equal;
+        typedef A allocator_type;
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
     private:
@@ -58,9 +58,11 @@ namespace boost
                 allocator_type, value_type>::type
             value_allocator;
 
-        typedef boost::unordered_detail::hash_unique_table<Hash, Pred,
-            value_allocator, boost::unordered_detail::set_extractor> table;
-        typedef BOOST_DEDUCED_TYPENAME table::iterator_base iterator_base;
+        typedef boost::unordered_detail::set<H, P,
+            value_allocator> types;
+        typedef BOOST_DEDUCED_TYPENAME types::impl table;
+
+        typedef BOOST_DEDUCED_TYPENAME types::iterator_base iterator_base;
 
     public:
 
@@ -91,7 +93,7 @@ namespace boost
 
         table table_;
         
-        BOOST_DEDUCED_TYPENAME table::iterator_base const&
+        BOOST_DEDUCED_TYPENAME types::iterator_base const&
             get(const_iterator const& it)
         {
             return boost::unordered_detail::iterator_access::get(it);
@@ -169,7 +171,7 @@ namespace boost
         }
 #else
         unordered_set(boost::unordered_detail::move_from<
-                unordered_set<Value, Hash, Pred, Alloc>
+                unordered_set<T, H, P, A>
             > other)
           : table_(other.source.table_, boost::unordered_detail::move_tag())
         {
@@ -346,7 +348,7 @@ namespace boost
 
         iterator erase(const_iterator position)
         {
-            return iterator(table_.erase(get(position)));
+            return iterator(table_.erase_return_iterator(get(position)));
         }
 
         size_type erase(const key_type& k)
@@ -357,6 +359,11 @@ namespace boost
         iterator erase(const_iterator first, const_iterator last)
         {
             return iterator(table_.erase_range(get(first), get(last)));
+        }
+
+        void erase_return_void(const_iterator position)
+        {
+            table_.erase(get(position));
         }
 
         void clear()
@@ -388,6 +395,15 @@ namespace boost
             return const_iterator(table_.find(k));
         }
 
+        template <class CompatibleKey, class CompatibleHash,
+            class CompatiblePredicate>
+        const_iterator find(
+            CompatibleKey const& k,
+            CompatibleHash const& hash,
+            CompatiblePredicate const& eq) const
+        {
+            return iterator(table_.find(k, hash, eq));
+        }
         size_type count(const key_type& k) const
         {
             return table_.count(k);
@@ -476,9 +492,9 @@ namespace boost
         }
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
-        friend bool operator==<Value, Hash, Pred, Alloc>(
+        friend bool operator==<T, H, P, A>(
             unordered_set const&, unordered_set const&);
-        friend bool operator!=<Value, Hash, Pred, Alloc>(
+        friend bool operator!=<T, H, P, A>(
             unordered_set const&, unordered_set const&);
 #endif
     }; // class template unordered_set
@@ -487,6 +503,9 @@ namespace boost
     inline bool operator==(unordered_set<T, H, P, A> const& m1,
         unordered_set<T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_set<T,H,P,A> x; };
+#endif
         return m1.table_.equals(m2.table_);
     }
 
@@ -494,6 +513,9 @@ namespace boost
     inline bool operator!=(unordered_set<T, H, P, A> const& m1,
         unordered_set<T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_set<T,H,P,A> x; };
+#endif
         return !m1.table_.equals(m2.table_);
     }
 
@@ -501,31 +523,37 @@ namespace boost
     inline void swap(unordered_set<T, H, P, A> &m1,
             unordered_set<T, H, P, A> &m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_set<T,H,P,A> x; };
+#endif
         m1.swap(m2);
     }
 
-    template <class Value, class Hash, class Pred, class Alloc>
+    template <class T, class H, class P, class A>
     class unordered_multiset
     {
     public:
 
-        typedef Value key_type;
-        typedef Value value_type;
-        typedef Hash hasher;
-        typedef Pred key_equal;
-        typedef Alloc allocator_type;
+        typedef T key_type;
+        typedef T value_type;
+        typedef H hasher;
+        typedef P key_equal;
+        typedef A allocator_type;
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
     private:
 #endif
+
         typedef BOOST_DEDUCED_TYPENAME
             boost::unordered_detail::rebind_wrap<
                 allocator_type, value_type>::type
             value_allocator;
 
-        typedef boost::unordered_detail::hash_equivalent_table<Hash, Pred,
-            value_allocator, boost::unordered_detail::set_extractor> table;
-        typedef BOOST_DEDUCED_TYPENAME table::iterator_base iterator_base;
+        typedef boost::unordered_detail::multiset<H, P,
+            value_allocator> types;
+        typedef BOOST_DEDUCED_TYPENAME types::impl table;
+
+        typedef BOOST_DEDUCED_TYPENAME types::iterator_base iterator_base;
 
     public:
 
@@ -556,7 +584,7 @@ namespace boost
 
         table table_;
         
-        BOOST_DEDUCED_TYPENAME table::iterator_base const&
+        BOOST_DEDUCED_TYPENAME types::iterator_base const&
             get(const_iterator const& it)
         {
             return boost::unordered_detail::iterator_access::get(it);
@@ -635,7 +663,7 @@ namespace boost
         }
 #else
         unordered_multiset(boost::unordered_detail::move_from<
-                unordered_multiset<Value, Hash, Pred, Alloc>
+                unordered_multiset<T, H, P, A>
             > other)
           : table_(other.source.table_, boost::unordered_detail::move_tag())
         {
@@ -808,7 +836,7 @@ namespace boost
 
         iterator erase(const_iterator position)
         {
-            return iterator(table_.erase(get(position)));
+            return iterator(table_.erase_return_iterator(get(position)));
         }
 
         size_type erase(const key_type& k)
@@ -819,6 +847,11 @@ namespace boost
         iterator erase(const_iterator first, const_iterator last)
         {
             return iterator(table_.erase_range(get(first), get(last)));
+        }
+
+        void erase_return_void(const_iterator position)
+        {
+            table_.erase(get(position));
         }
 
         void clear()
@@ -848,6 +881,16 @@ namespace boost
         const_iterator find(const key_type& k) const
         {
             return const_iterator(table_.find(k));
+        }
+
+        template <class CompatibleKey, class CompatibleHash,
+            class CompatiblePredicate>
+        const_iterator find(
+            CompatibleKey const& k,
+            CompatibleHash const& hash,
+            CompatiblePredicate const& eq) const
+        {
+            return iterator(table_.find(k, hash, eq));
         }
 
         size_type count(const key_type& k) const
@@ -938,9 +981,9 @@ namespace boost
         }
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
-        friend bool operator==<Value, Hash, Pred, Alloc>(
+        friend bool operator==<T, H, P, A>(
             unordered_multiset const&, unordered_multiset const&);
-        friend bool operator!=<Value, Hash, Pred, Alloc>(
+        friend bool operator!=<T, H, P, A>(
             unordered_multiset const&, unordered_multiset const&);
 #endif
     }; // class template unordered_multiset
@@ -949,6 +992,9 @@ namespace boost
     inline bool operator==(unordered_multiset<T, H, P, A> const& m1,
         unordered_multiset<T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_multiset<T,H,P,A> x; };
+#endif
         return m1.table_.equals(m2.table_);
     }
 
@@ -956,6 +1002,9 @@ namespace boost
     inline bool operator!=(unordered_multiset<T, H, P, A> const& m1,
         unordered_multiset<T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_multiset<T,H,P,A> x; };
+#endif
         return !m1.table_.equals(m2.table_);
     }
 
@@ -963,6 +1012,9 @@ namespace boost
     inline void swap(unordered_multiset<T, H, P, A> &m1,
             unordered_multiset<T, H, P, A> &m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_multiset<T,H,P,A> x; };
+#endif
         m1.swap(m2);
     }
 

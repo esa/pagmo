@@ -20,7 +20,8 @@
 #include <boost/type_traits/is_pointer.hpp>
 #endif
 
-#if BOOST_WORKAROUND(__GNUC__, < 3) && !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)
+#if BOOST_WORKAROUND(__GNUC__, < 3) \
+    && !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)
 #define BOOST_HASH_CHAR_TRAITS string_char_traits
 #else
 #define BOOST_HASH_CHAR_TRAITS char_traits
@@ -67,7 +68,8 @@ namespace boost
     std::size_t hash_value(long double v);
 
     template <class Ch, class A>
-    std::size_t hash_value(std::basic_string<Ch, std::BOOST_HASH_CHAR_TRAITS<Ch>, A> const&);
+    std::size_t hash_value(
+        std::basic_string<Ch, std::BOOST_HASH_CHAR_TRAITS<Ch>, A> const&);
 
     // Implementation
 
@@ -197,6 +199,16 @@ namespace boost
         return x + (x >> 3);
     }
 
+#if defined(BOOST_MSVC)
+#pragma warning(push)
+#if BOOST_MSVC <= 1400
+#pragma warning(disable:4267) // 'argument' : conversion from 'size_t' to
+                              // 'unsigned int', possible loss of data
+                              // A misguided attempt to detect 64-bit
+                              // incompatability.
+#endif
+#endif
+
 #if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
     template <class T>
     inline void hash_combine(std::size_t& seed, T& v)
@@ -208,6 +220,10 @@ namespace boost
         boost::hash<T> hasher;
         seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
     }
+
+#if defined(BOOST_MSVC)
+#pragma warning(pop)
+#endif
 
     template <class It>
     inline std::size_t hash_range(It first, It last)
@@ -272,7 +288,8 @@ namespace boost
 #endif
 
     template <class Ch, class A>
-    inline std::size_t hash_value(std::basic_string<Ch, std::BOOST_HASH_CHAR_TRAITS<Ch>, A> const& v)
+    inline std::size_t hash_value(
+        std::basic_string<Ch, std::BOOST_HASH_CHAR_TRAITS<Ch>, A> const& v)
     {
         return hash_range(v.begin(), v.end());
     }
@@ -297,8 +314,8 @@ namespace boost
     //
     
     // Define the specializations required by the standard. The general purpose
-    // boost::hash is defined later in extensions.hpp if BOOST_HASH_NO_EXTENSIONS
-    // is not defined.
+    // boost::hash is defined later in extensions.hpp if
+    // BOOST_HASH_NO_EXTENSIONS is not defined.
     
     // BOOST_HASH_SPECIALIZE - define a specialization for a type which is
     // passed by copy.

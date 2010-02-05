@@ -58,7 +58,7 @@ void inline check_object_level(){
     // trap attempts to serialize objects marked
     // not_serializable
     BOOST_STATIC_ASSERT(typex::value);
-};
+}
 
 template<class T>
 void inline check_object_versioning(){
@@ -76,7 +76,7 @@ void inline check_object_versioning(){
     // trap attempts to serialize with objects that don't
     // save class information in the archive with versioning.
     BOOST_STATIC_ASSERT(typex::value);
-};
+}
 
 template<class T>
 void inline check_object_tracking(){
@@ -96,7 +96,7 @@ void inline check_object_tracking(){
     // for motivation for this checking.
 
     BOOST_STATIC_WARNING(typex::value);
-};
+}
 
 // checks for pointers
 
@@ -146,7 +146,7 @@ void inline check_pointer_tracking(){
     // serializing an object of a type marked "track_never" through a pointer
     // could result in creating more objects than were saved!
     BOOST_STATIC_WARNING(typex::value);
-};
+}
 
 template<class T>
 void inline check_const_loading(){
@@ -160,7 +160,7 @@ void inline check_const_loading(){
     // cannot load data into a "const" object unless it's a
     // wrapper around some other non-const object.
     BOOST_STATIC_ASSERT(typex::value);
-};
+}
 
 } // detail
 } // archive

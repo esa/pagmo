@@ -2,7 +2,7 @@
 // eventfd_select_interrupter.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 // Copyright (c) 2008 Roelof Naude (roelof.naude at gmail dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -24,14 +24,14 @@
 #include <boost/system/system_error.hpp>
 #include <boost/asio/detail/pop_options.hpp>
 
-#if defined(linux)
+#if defined(__linux__)
 # if !defined(BOOST_ASIO_DISABLE_EVENTFD)
 #  include <linux/version.h>
 #  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
 #   define BOOST_ASIO_HAS_EVENTFD
 #  endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
 # endif // !defined(BOOST_ASIO_DISABLE_EVENTFD)
-#endif // defined(linux)
+#endif // defined(__linux__)
 
 #if defined(BOOST_ASIO_HAS_EVENTFD)
 
@@ -108,21 +108,32 @@ public:
   {
     if (write_descriptor_ == read_descriptor_)
     {
-      // Only perform one read. The kernel maintains an atomic counter.
-      uint64_t counter(0);
-      int bytes_read = ::read(read_descriptor_, &counter, sizeof(uint64_t));
-      bool was_interrupted = (bytes_read > 0);
-      return was_interrupted;
+      for (;;)
+      {
+        // Only perform one read. The kernel maintains an atomic counter.
+        uint64_t counter(0);
+        errno = 0;
+        int bytes_read = ::read(read_descriptor_, &counter, sizeof(uint64_t));
+        if (bytes_read < 0 && errno == EINTR)
+          continue;
+        bool was_interrupted = (bytes_read > 0);
+        return was_interrupted;
+      }
     }
     else
     {
-      // Clear all data from the pipe.
-      char data[1024];
-      int bytes_read = ::read(read_descriptor_, data, sizeof(data));
-      bool was_interrupted = (bytes_read > 0);
-      while (bytes_read == sizeof(data))
-        bytes_read = ::read(read_descriptor_, data, sizeof(data));
-      return was_interrupted;
+      for (;;)
+      {
+        // Clear all data from the pipe.
+        char data[1024];
+        int bytes_read = ::read(read_descriptor_, data, sizeof(data));
+        if (bytes_read < 0 && errno == EINTR)
+          continue;
+        bool was_interrupted = (bytes_read > 0);
+        while (bytes_read == sizeof(data))
+          bytes_read = ::read(read_descriptor_, data, sizeof(data));
+        return was_interrupted;
+      }
     }
   }
 

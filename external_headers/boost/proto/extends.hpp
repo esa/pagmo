@@ -9,7 +9,6 @@
 #ifndef BOOST_PROTO_EXTENDS_HPP_EAN_11_1_2006
 #define BOOST_PROTO_EXTENDS_HPP_EAN_11_1_2006
 
-#include <boost/proto/detail/prefix.hpp>
 #include <cstddef> // for offsetof
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/control/if.hpp>
@@ -30,7 +29,6 @@
 #include <boost/proto/args.hpp>
 #include <boost/proto/traits.hpp>
 #include <boost/proto/generate.hpp>
-#include <boost/proto/detail/suffix.hpp>
 
 namespace boost { namespace proto
 {
@@ -149,7 +147,8 @@ namespace boost { namespace proto
     #define BOOST_PROTO_BASIC_EXTENDS_(Expr, Derived, Domain)                                       \
         Expr proto_expr_;                                                                           \
                                                                                                     \
-        typedef typename Expr::proto_base_expr proto_base_expr;                                     \
+        typedef Expr proto_base_expr_; /**< INTERNAL ONLY */                                        \
+        typedef typename proto_base_expr_::proto_base_expr proto_base_expr;                         \
         typedef Domain proto_domain;                                                                \
         typedef Derived proto_derived_expr;                                                         \
         typedef typename proto_base_expr::proto_tag proto_tag;                                      \
@@ -158,7 +157,7 @@ namespace boost { namespace proto
         typedef typename proto_base_expr::address_of_hack_type_ proto_address_of_hack_type_;        \
         typedef void proto_is_expr_; /**< INTERNAL ONLY */                                          \
         BOOST_STATIC_CONSTANT(long, proto_arity_c = proto_base_expr::proto_arity_c);                \
-        BOOST_PROTO_FUSION_DEFINE_TAG(boost::proto::tag::proto_expr)                                \
+        typedef boost::proto::tag::proto_expr fusion_tag;                                           \
         BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, BOOST_PROTO_EXTENDS_CHILD, ~)                        \
                                                                                                     \
         static proto_derived_expr const make(Expr const &e)                                         \
@@ -413,192 +412,192 @@ namespace boost { namespace proto
         BOOST_PROTO_EXTENDS_FUNCTION()                                                              \
         /**/
 
-    BOOST_PROTO_BEGIN_ADL_NAMESPACE(exprns_)
-
-    /// \brief Empty type to be used as a dummy template parameter of
-    ///     POD expression wrappers. It allows argument-dependent lookup
-    ///     to find Proto's operator overloads.
-    ///
-    /// \c proto::is_proto_expr allows argument-dependent lookup
-    ///     to find Proto's operator overloads. For example:
-    ///
-    /// \code
-    /// template<typename T, typename Dummy = proto::is_proto_expr>
-    /// struct my_terminal
-    /// {
-    ///     BOOST_PROTO_BASIC_EXTENDS(
-    ///         typename proto::terminal<T>::type
-    ///       , my_terminal<T>
-    ///       , default_domain
-    ///     )
-    /// };
-    ///
-    /// // ...
-    /// my_terminal<int> _1, _2;
-    /// _1 + _2; // OK, uses proto::operator+
-    /// \endcode
-    ///
-    /// Without the second \c Dummy template parameter, Proto's operator
-    /// overloads would not be considered by name lookup.
-    struct is_proto_expr
-    {};
-
-    /// \brief extends\<\> class template for adding behaviors to a Proto expression template
-    ///
-    template<
-        typename Expr
-      , typename Derived
-      , typename Domain     BOOST_PROTO_WHEN_BUILDING_DOCS(= proto::default_domain)
-      , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity_c)
-    >
-    struct extends
+    namespace exprns_
     {
-        extends()
-          : proto_expr_()
-        {}
-
-        extends(extends const &that)
-          : proto_expr_(that.proto_expr_)
-        {}
-
-        extends(Expr const &expr_)
-          : proto_expr_(expr_)
-        {}
-
-        BOOST_PROTO_BASIC_EXTENDS_(Expr, Derived, Domain)
-        BOOST_PROTO_EXTENDS_ASSIGN_CONST()
-        BOOST_PROTO_EXTENDS_SUBSCRIPT_CONST()
-
-        // Instead of using BOOST_PROTO_EXTENDS_FUNCTION, which uses
-        // nested preprocessor loops, use file iteration here to generate
-        // the operator() overloads, which is more efficient.
-        BOOST_PROTO_EXTENDS_FUNCTION_()
-
-    #ifdef BOOST_HAS_VARIADIC_TMPL
-        BOOST_PROTO_DEFINE_FUN_OP_VARIADIC_IMPL_(1)
-    #else
-        /// INTERNAL ONLY
+        /// \brief Empty type to be used as a dummy template parameter of
+        ///     POD expression wrappers. It allows argument-dependent lookup
+        ///     to find Proto's operator overloads.
         ///
-    #define BOOST_PP_LOCAL_MACRO(N)                                                             \
-        BOOST_PROTO_DEFINE_FUN_OP_CONST(1, N, ~)                                                \
-        /**/
-
-        /// INTERNAL ONLY
+        /// \c proto::is_proto_expr allows argument-dependent lookup
+        ///     to find Proto's operator overloads. For example:
         ///
-    #define BOOST_PP_LOCAL_LIMITS (0, BOOST_PP_DEC(BOOST_PROTO_MAX_FUNCTION_CALL_ARITY))
-    #include BOOST_PP_LOCAL_ITERATE()
-
-    #endif
-    };
-
-    /// \brief extends\<\> class template for adding behaviors to a Proto expression template
-    ///
-    template<typename Expr, typename Derived, typename Domain>
-    struct extends<Expr, Derived, Domain, 0>
-    {
-        extends()
-          : proto_expr_()
-        {}
-
-        extends(extends const &that)
-          : proto_expr_(that.proto_expr_)
-        {}
-
-        extends(Expr const &expr_)
-          : proto_expr_(expr_)
-        {}
-
-        BOOST_PROTO_BASIC_EXTENDS_(Expr, Derived, Domain)
-        BOOST_PROTO_EXTENDS_ASSIGN()
-        BOOST_PROTO_EXTENDS_SUBSCRIPT()
-
-        // Instead of using BOOST_PROTO_EXTENDS_FUNCTION, which uses
-        // nested preprocessor loops, use file iteration here to generate
-        // the operator() overloads, which is more efficient.
-        BOOST_PROTO_EXTENDS_FUNCTION_()
-
-    #ifdef BOOST_HAS_VARIADIC_TMPL
-        BOOST_PROTO_DEFINE_FUN_OP_VARIADIC_IMPL_(0)
-        BOOST_PROTO_DEFINE_FUN_OP_VARIADIC_IMPL_(1)
-    #else
-
-        /// INTERNAL ONLY
+        /// \code
+        /// template<typename T, typename Dummy = proto::is_proto_expr>
+        /// struct my_terminal
+        /// {
+        ///     BOOST_PROTO_BASIC_EXTENDS(
+        ///         typename proto::terminal<T>::type
+        ///       , my_terminal<T>
+        ///       , default_domain
+        ///     )
+        /// };
         ///
-    #define BOOST_PP_LOCAL_MACRO(N)                                                             \
-        BOOST_PROTO_DEFINE_FUN_OP(1, N, ~)                                                      \
-        /**/
-
-        /// INTERNAL ONLY
+        /// // ...
+        /// my_terminal<int> _1, _2;
+        /// _1 + _2; // OK, uses proto::operator+
+        /// \endcode
         ///
-    #define BOOST_PP_LOCAL_LIMITS (0, BOOST_PP_DEC(BOOST_PROTO_MAX_FUNCTION_CALL_ARITY))
-    #include BOOST_PP_LOCAL_ITERATE()
+        /// Without the second \c Dummy template parameter, Proto's operator
+        /// overloads would not be considered by name lookup.
+        struct is_proto_expr
+        {};
 
-    #endif
-    };
-
-    /// INTERNAL ONLY
-    ///
-    template<typename This, typename Fun, typename Domain>
-    struct virtual_member
-    {
-        typedef
-            expr<tag::member, list2<This &, expr<tag::terminal, term<Fun> > const &>, 2>
-        proto_base_expr;
-        typedef Domain proto_domain;
-        typedef virtual_member<This, Fun, Domain> proto_derived_expr;
-        typedef typename proto_base_expr::proto_tag proto_tag;
-        typedef typename proto_base_expr::proto_args proto_args;
-        typedef typename proto_base_expr::proto_arity proto_arity;
-        typedef typename proto_base_expr::address_of_hack_type_ proto_address_of_hack_type_;
-        typedef void proto_is_expr_; /**< INTERNAL ONLY */
-        BOOST_STATIC_CONSTANT(long, proto_arity_c = proto_base_expr::proto_arity_c);
-        BOOST_PROTO_FUSION_DEFINE_TAG(boost::proto::tag::proto_expr)
-        BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, BOOST_PROTO_EXTENDS_CHILD, ~)
-        typedef void proto_is_aggregate_; /**< INTERNAL ONLY */
-
-        BOOST_PROTO_EXTENDS_ASSIGN()
-        BOOST_PROTO_EXTENDS_SUBSCRIPT()
-        BOOST_PROTO_EXTENDS_FUNCTION()
-
-        proto_base_expr const proto_base() const
+        /// \brief extends\<\> class template for adding behaviors to a Proto expression template
+        ///
+        template<
+            typename Expr
+          , typename Derived
+          , typename Domain     // = proto::default_domain
+          , long Arity          // = Expr::proto_arity_c
+        >
+        struct extends
         {
-            proto_base_expr that = {this->child0(), this->child1()};
-            return that;
-        }
+            extends()
+              : proto_expr_()
+            {}
 
-        proto_child0 child0() const
+            extends(extends const &that)
+              : proto_expr_(that.proto_expr_)
+            {}
+
+            extends(Expr const &expr_)
+              : proto_expr_(expr_)
+            {}
+
+            BOOST_PROTO_BASIC_EXTENDS_(Expr, Derived, Domain)
+            BOOST_PROTO_EXTENDS_ASSIGN_CONST()
+            BOOST_PROTO_EXTENDS_SUBSCRIPT_CONST()
+
+            // Instead of using BOOST_PROTO_EXTENDS_FUNCTION, which uses
+            // nested preprocessor loops, use file iteration here to generate
+            // the operator() overloads, which is more efficient.
+            BOOST_PROTO_EXTENDS_FUNCTION_()
+
+        #ifdef BOOST_HAS_VARIADIC_TMPL
+            BOOST_PROTO_DEFINE_FUN_OP_VARIADIC_IMPL_(1)
+        #else
+            /// INTERNAL ONLY
+            ///
+        #define BOOST_PP_LOCAL_MACRO(N)                                                             \
+            BOOST_PROTO_DEFINE_FUN_OP_CONST(1, N, ~)                                                \
+            /**/
+
+            /// INTERNAL ONLY
+            ///
+        #define BOOST_PP_LOCAL_LIMITS (0, BOOST_PP_DEC(BOOST_PROTO_MAX_FUNCTION_CALL_ARITY))
+        #include BOOST_PP_LOCAL_ITERATE()
+
+        #endif
+        };
+
+        /// \brief extends\<\> class template for adding behaviors to a Proto expression template
+        ///
+        template<typename Expr, typename Derived, typename Domain>
+        struct extends<Expr, Derived, Domain, 0>
         {
-            return *(This *)((char *)this - BOOST_PROTO_OFFSETOF(This, proto_member_union_start_));
-        }
+            extends()
+              : proto_expr_()
+            {}
 
-        proto_child1 child1() const
+            extends(extends const &that)
+              : proto_expr_(that.proto_expr_)
+            {}
+
+            extends(Expr const &expr_)
+              : proto_expr_(expr_)
+            {}
+
+            BOOST_PROTO_BASIC_EXTENDS_(Expr, Derived, Domain)
+            BOOST_PROTO_EXTENDS_ASSIGN()
+            BOOST_PROTO_EXTENDS_SUBSCRIPT()
+
+            // Instead of using BOOST_PROTO_EXTENDS_FUNCTION, which uses
+            // nested preprocessor loops, use file iteration here to generate
+            // the operator() overloads, which is more efficient.
+            BOOST_PROTO_EXTENDS_FUNCTION_()
+
+        #ifdef BOOST_HAS_VARIADIC_TMPL
+            BOOST_PROTO_DEFINE_FUN_OP_VARIADIC_IMPL_(0)
+            BOOST_PROTO_DEFINE_FUN_OP_VARIADIC_IMPL_(1)
+        #else
+
+            /// INTERNAL ONLY
+            ///
+        #define BOOST_PP_LOCAL_MACRO(N)                                                             \
+            BOOST_PROTO_DEFINE_FUN_OP(1, N, ~)                                                      \
+            /**/
+
+            /// INTERNAL ONLY
+            ///
+        #define BOOST_PP_LOCAL_LIMITS (0, BOOST_PP_DEC(BOOST_PROTO_MAX_FUNCTION_CALL_ARITY))
+        #include BOOST_PP_LOCAL_ITERATE()
+
+        #endif
+        };
+
+        /// INTERNAL ONLY
+        ///
+        template<typename This, typename Fun, typename Domain>
+        struct virtual_member
         {
-            static expr<tag::terminal, term<Fun>, 0> const that = {Fun()};
-            return that;
-        }
-    };
+            typedef
+                expr<tag::member, list2<This &, expr<tag::terminal, term<Fun> > const &>, 2>
+            proto_base_expr;
+            typedef Domain proto_domain;
+            typedef virtual_member<This, Fun, Domain> proto_derived_expr;
+            typedef typename proto_base_expr::proto_tag proto_tag;
+            typedef typename proto_base_expr::proto_args proto_args;
+            typedef typename proto_base_expr::proto_arity proto_arity;
+            typedef typename proto_base_expr::address_of_hack_type_ proto_address_of_hack_type_;
+            typedef void proto_is_expr_; /**< INTERNAL ONLY */
+            BOOST_STATIC_CONSTANT(long, proto_arity_c = proto_base_expr::proto_arity_c);
+            typedef boost::proto::tag::proto_expr fusion_tag;
+            BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, BOOST_PROTO_EXTENDS_CHILD, ~)
+            typedef void proto_is_aggregate_; /**< INTERNAL ONLY */
 
-    /// INTERNAL ONLY
-    ///
-    #define BOOST_PROTO_EXTENDS_MEMBER_(R, DATA, ELEM)                                              \
-        boost::proto::exprns_::virtual_member<                                                      \
-            proto_derived_expr                                                                      \
-          , BOOST_PP_TUPLE_ELEM(2, 0, ELEM)                                                         \
-          , proto_domain                                                                            \
-        > BOOST_PP_TUPLE_ELEM(2, 1, ELEM);                                                          \
-        /**/
+            BOOST_PROTO_EXTENDS_ASSIGN()
+            BOOST_PROTO_EXTENDS_SUBSCRIPT()
+            BOOST_PROTO_EXTENDS_FUNCTION()
 
-    /// \brief For declaring virtual data members in an extension class.
-    ///
-    #define BOOST_PROTO_EXTENDS_MEMBERS(SEQ)                                                        \
-        union                                                                                       \
-        {                                                                                           \
-            char proto_member_union_start_;                                                         \
-            BOOST_PP_SEQ_FOR_EACH(BOOST_PROTO_EXTENDS_MEMBER_, ~, SEQ)                              \
-        };                                                                                          \
-        /**/
+            proto_base_expr const proto_base() const
+            {
+                proto_base_expr that = {this->child0(), this->child1()};
+                return that;
+            }
 
-    BOOST_PROTO_END_ADL_NAMESPACE(exprns_)
+            proto_child0 child0() const
+            {
+                return *(This *)((char *)this - BOOST_PROTO_OFFSETOF(This, proto_member_union_start_));
+            }
+
+            proto_child1 child1() const
+            {
+                static expr<tag::terminal, term<Fun>, 0> const that = {Fun()};
+                return that;
+            }
+        };
+
+        /// INTERNAL ONLY
+        ///
+        #define BOOST_PROTO_EXTENDS_MEMBER_(R, DATA, ELEM)                                              \
+            boost::proto::exprns_::virtual_member<                                                      \
+                proto_derived_expr                                                                      \
+              , BOOST_PP_TUPLE_ELEM(2, 0, ELEM)                                                         \
+              , proto_domain                                                                            \
+            > BOOST_PP_TUPLE_ELEM(2, 1, ELEM);                                                          \
+            /**/
+
+        /// \brief For declaring virtual data members in an extension class.
+        ///
+        #define BOOST_PROTO_EXTENDS_MEMBERS(SEQ)                                                        \
+            union                                                                                       \
+            {                                                                                           \
+                char proto_member_union_start_;                                                         \
+                BOOST_PP_SEQ_FOR_EACH(BOOST_PROTO_EXTENDS_MEMBER_, ~, SEQ)                              \
+            };                                                                                          \
+            /**/
+
+    }
 
 }}
 

@@ -2,7 +2,7 @@
 // buffered_write_stream.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <cstring>
 #include <boost/config.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/asio/detail/pop_options.hpp>
 
 #include <boost/asio/buffered_write_stream_fwd.hpp>

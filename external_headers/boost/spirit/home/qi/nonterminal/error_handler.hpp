@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -116,10 +116,10 @@ namespace boost { namespace spirit { namespace qi
 
                     // The assertions below will fire if you are using a
                     // multi_pass as the underlying iterator, one of your error
-                    // handlers forced to 'fail' or 'retry' its guarded rule,
+                    // handlers forced its guarded rule to 'fail' or 'retry',
                     // and the error handler has not been instantiated using
                     // either 'fail' or 'retry' in the first place. Please see 
-                    // the mutli_pass docs for more information.
+                    // the multi_pass docs for more information.
                     switch (r)
                     {
                         case fail: 

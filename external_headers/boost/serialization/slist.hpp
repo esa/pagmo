@@ -69,7 +69,7 @@ inline void load(
     t.push_front(u.reference());
     BOOST_DEDUCED_TYPENAME BOOST_STD_EXTENSION_NAMESPACE::slist<U, Allocator>::iterator last;
     last = t.begin();
-    std::size_t c = count;
+    collection_size_type c = count;
     while(--c > 0){
         boost::serialization::detail::stack_construct<Archive, U> 
             u(ar, file_version);

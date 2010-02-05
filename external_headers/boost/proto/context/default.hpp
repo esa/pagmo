@@ -12,7 +12,6 @@
     #ifndef BOOST_PROTO_CONTEXT_DEFAULT_HPP_EAN_01_08_2007
     #define BOOST_PROTO_CONTEXT_DEFAULT_HPP_EAN_01_08_2007
 
-    #include <boost/proto/detail/prefix.hpp> // must be first include
     #include <boost/config.hpp>
     #include <boost/preprocessor/iteration/iterate.hpp>
     #include <boost/preprocessor/repetition/enum_shifted.hpp>
@@ -28,7 +27,6 @@
     #include <boost/proto/eval.hpp>
     #include <boost/proto/traits.hpp> // for proto::child_c()
     #include <boost/proto/detail/decltype.hpp>
-    #include <boost/proto/detail/suffix.hpp> // must be last include
 
     namespace boost { namespace proto
     {
@@ -41,8 +39,8 @@
             template<
                 typename Expr
               , typename Context
-              , typename Tag        BOOST_PROTO_WHEN_BUILDING_DOCS(= typename Expr::proto_tag)
-              , long Arity          BOOST_PROTO_WHEN_BUILDING_DOCS(= Expr::proto_arity_c)
+              , typename Tag        // = typename Expr::proto_tag
+              , long Arity          // = Expr::proto_arity_c
             >
             struct default_eval
             {};

@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: linear_feedback_shift.hpp 52492 2009-04-19 14:55:57Z steven_watanabe $
+ * $Id: linear_feedback_shift.hpp 58649 2010-01-02 21:23:17Z steven_watanabe $
  *
  */
 
@@ -77,7 +77,12 @@ public:
     seed(first, last);
   }
 
-  void seed(UIntType s0 = 341) { assert(s0 >= (1 << (w-k))); value = s0; }
+  void seed(UIntType s0 = 341) {
+      if(s0 < (1 << (w-k))) {
+          s0 += 1 << (w-k);
+      }
+      value = s0;
+  }
   template<class It> void seed(It& first, It last)
   {
     if(first == last)

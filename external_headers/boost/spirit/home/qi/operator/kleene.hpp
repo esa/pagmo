@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -67,10 +67,11 @@ namespace boost { namespace spirit { namespace qi
             value_type val = value_type();
 
             // Repeat while subject parses ok
-            while (subject.parse(first, last, context, skipper, val))
+            Iterator save = first;
+            while (subject.parse(save, last, context, skipper, val) &&
+                   traits::push_back(attr, val))    // push the parsed value into our attribute
             {
-                // push the parsed value into our attribute
-                traits::push_back(attr, val);
+                first = save;
                 traits::clear(val);
             }
             return true;

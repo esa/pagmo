@@ -1,6 +1,6 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Hartmut Kaiser
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Hartmut Kaiser
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -40,7 +40,7 @@ namespace boost { namespace spirit { namespace qi
 {
     ///////////////////////////////////////////////////////////////////////////
     template <typename Expr, BOOST_PP_ENUM_PARAMS(N, typename A)>
-    inline detail::match_manip<Expr, mpl::true_, unused_type
+    inline detail::match_manip<Expr, mpl::false_, mpl::true_, unused_type
       , fusion::vector<
             BOOST_PP_ENUM(N, BOOST_SPIRIT_QI_ATTRIBUTE_REFERENCE, A)
         > > 
@@ -60,14 +60,14 @@ namespace boost { namespace spirit { namespace qi
         > vector_type;
 
         vector_type attr (BOOST_PP_ENUM_PARAMS(N, attr));
-        return match_manip<Expr, mpl::true_, unused_type, vector_type>(
+        return match_manip<Expr, mpl::false_, mpl::true_, unused_type, vector_type>(
             xpr, unused, attr);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename Expr, typename Skipper
       , BOOST_PP_ENUM_PARAMS(N, typename A)>
-    inline detail::match_manip<Expr, mpl::true_, Skipper
+    inline detail::match_manip<Expr, mpl::false_, mpl::true_, Skipper
       , fusion::vector<
             BOOST_PP_ENUM(N, BOOST_SPIRIT_QI_ATTRIBUTE_REFERENCE, A)
         > > 
@@ -91,13 +91,13 @@ namespace boost { namespace spirit { namespace qi
         > vector_type;
 
         vector_type attr (BOOST_PP_ENUM_PARAMS(N, attr));
-        return match_manip<Expr, mpl::true_, Skipper, vector_type>(
+        return match_manip<Expr, mpl::false_, mpl::true_, Skipper, vector_type>(
             xpr, s, post_skip, attr);
     }
 
     template <typename Expr, typename Skipper
       , BOOST_PP_ENUM_PARAMS(N, typename A)>
-    inline detail::match_manip<Expr, mpl::true_, Skipper
+    inline detail::match_manip<Expr, mpl::false_, mpl::true_, Skipper
       , fusion::vector<
             BOOST_PP_ENUM(N, BOOST_SPIRIT_QI_ATTRIBUTE_REFERENCE, A)
         > > 
@@ -120,7 +120,8 @@ namespace boost { namespace spirit { namespace qi
         > vector_type;
 
         vector_type attr (BOOST_PP_ENUM_PARAMS(N, attr));
-        return match_manip<Expr, mpl::true_, Skipper, vector_type>(xpr, s, attr);
+        return match_manip<Expr, mpl::false_, mpl::true_, Skipper, vector_type>(
+            xpr, s, attr);
     }
 
 }}}

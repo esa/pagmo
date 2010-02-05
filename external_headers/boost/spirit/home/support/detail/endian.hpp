@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 //  http://spirit.sourceforge.net/
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -16,9 +16,9 @@
 // We need to treat the endian number types as PODs
 #define BOOST_ENDIAN_FORCE_PODNESS
 
-// If Boost has the endian library use it, otherwise use an adapted version 
+// If Boost has the endian library, use it, otherwise use an adapted version 
 // included with Spirit
-#if BOOST_VERSION >= 104200
+#if BOOST_VERSION >= 104300
 #include <boost/integer/endian.hpp>
 #else
 #include <boost/spirit/home/support/detail/integer/endian.hpp>

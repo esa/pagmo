@@ -113,7 +113,7 @@ class BOOST_IOSTREAMS_DECL bzip2_error : public BOOST_IOSTREAMS_FAILURE {
 public:
     explicit bzip2_error(int error);
     int error() const { return error_; }
-    static void check(int error);
+    static void check BOOST_PREVENT_MACRO_SUBSTITUTION(int error);
 private:
     int error_;
 };
@@ -316,7 +316,7 @@ bool bzip2_compressor_impl<Alloc>::filter
     before(src_begin, src_end, dest_begin, dest_end);
     int result = compress(flush ? bzip2::finish : bzip2::run);
     after(src_begin, dest_begin);
-    bzip2_error::check(result);
+    bzip2_error::check BOOST_PREVENT_MACRO_SUBSTITUTION(result);
     return result != bzip2::stream_end;
 }
 
@@ -348,7 +348,7 @@ bool bzip2_decompressor_impl<Alloc>::filter
     before(src_begin, src_end, dest_begin, dest_end);
     int result = decompress();
     after(src_begin, dest_begin);
-    bzip2_error::check(result);
+    bzip2_error::check BOOST_PREVENT_MACRO_SUBSTITUTION(result);
     return !(eof_ = result == bzip2::stream_end); 
 }
 

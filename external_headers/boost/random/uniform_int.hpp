@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_int.hpp 56814 2009-10-14 04:54:01Z steven_watanabe $
+ * $Id: uniform_int.hpp 58649 2010-01-02 21:23:17Z steven_watanabe $
  *
  * Revision history
  *  2001-04-08  added min<max assertion (N. Becker)
@@ -94,7 +94,7 @@ public:
 
 private:
   template<class Engine>
-  static result_type generate(Engine& eng, result_type min_value, result_type max_value, range_type range)
+  static result_type generate(Engine& eng, result_type min_value, result_type /*max_value*/, range_type range)
   {
     typedef typename Engine::result_type base_result;
     // ranges are always unsigned

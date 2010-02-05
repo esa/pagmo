@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -20,6 +20,8 @@
 #include <boost/spirit/home/support/attributes.hpp>
 #include <boost/spirit/home/support/info.hpp>
 #include <boost/fusion/include/at.hpp>
+#include <boost/foreach.hpp>
+#include <vector>
 
 namespace boost { namespace spirit
 {
@@ -149,6 +151,60 @@ namespace boost { namespace spirit { namespace qi
           : subject(subject), iter(iter) {}
 
         template <typename Iterator, typename Context
+          , typename Skipper, typename ValueType, typename Attribute
+          , typename LoopVar>
+        bool parse_minimal(Iterator &first, Iterator const& last
+          , Context& context, Skipper const& skipper
+          , Attribute& attr, ValueType& val, LoopVar& i) const
+        {
+            // this scope allows save and required_attr to be reclaimed 
+            // immediately after we're done with the required minimum 
+            // iteration.
+            Iterator save = first;
+            std::vector<ValueType> required_attr;
+            for (; !iter.got_min(i); ++i)
+            {
+                if (!subject.parse(save, last, context, skipper, val) ||
+                    !traits::push_back(required_attr, val))
+                {
+                    return false;
+                }
+
+                first = save;
+                traits::clear(val);
+            }
+
+            // if we got the required number of items, these are copied 
+            // over (appended) to the 'real' attribute
+            BOOST_FOREACH(ValueType const& v, required_attr)
+            {
+                traits::push_back(attr, v);
+            }
+            return true;
+        }
+
+        template <typename Iterator, typename Context
+          , typename Skipper, typename LoopVar>
+        bool parse_minimal(Iterator &first, Iterator const& last
+          , Context& context, Skipper const& skipper
+          , unused_type, unused_type, LoopVar& i) const
+        {
+            // this scope allows save and required_attr to be reclaimed 
+            // immediately after we're done with the required minimum 
+            // iteration.
+            Iterator save = first;
+            for (; !iter.got_min(i); ++i)
+            {
+                if (!subject.parse(save, last, context, skipper, unused))
+                {
+                    return false;
+                }
+                first = save;
+            }
+            return true;
+        }
+
+        template <typename Iterator, typename Context
           , typename Skipper, typename Attribute>
         bool parse(Iterator& first, Iterator const& last
           , Context& context, Skipper const& skipper
@@ -161,31 +217,22 @@ namespace boost { namespace spirit { namespace qi
             typename LoopIter::type i = iter.start();
 
             // parse the minimum required
-            { // this scope allows save and save_attr to be reclaimed immediately
-              // after we're done with the required minimum iteration.
-                Iterator save = first;
-                Attribute save_attr; traits::swap_impl(save_attr, attr);
-                for (; !iter.got_min(i); ++i)
-                {
-                    if (!subject.parse(first, last, context, skipper, val))
-                    {
-                        // if we fail before reaching the minimum iteration
-                        // required, restore the iterator and the attribute
-                        // then return false
-                        first = save;
-                        traits::swap_impl(save_attr, attr);
-                        return false;
-                    }
-                    traits::push_back(attr, val);
-                    traits::clear(val);
-                }
+            if (!iter.got_min(i) &&
+                !parse_minimal(first, last, context, skipper, attr, val, i))
+            {
+                return false;
             }
+
             // parse some more up to the maximum specified
+            Iterator save = first;
             for (; !iter.got_max(i); ++i)
             {
-                if (!subject.parse(first, last, context, skipper, val))
+                if (!subject.parse(save, last, context, skipper, val) ||
+                    !traits::push_back(attr, val))
+                {
                     break;
-                traits::push_back(attr, val);
+                }
+                first = save;
                 traits::clear(val);
             }
             return true;

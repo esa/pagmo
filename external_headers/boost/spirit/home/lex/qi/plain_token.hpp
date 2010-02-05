@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -81,7 +81,7 @@ namespace boost { namespace spirit { namespace qi
                 token_type;
                 typedef typename token_type::id_type id_type;
 
-                token_type &t = *first;
+                token_type const& t = *first;
                 if (id_type(id) == t.id()) {
                     spirit::traits::assign_to(t, attr);
                     ++first;

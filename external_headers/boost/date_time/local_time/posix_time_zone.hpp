@@ -1,11 +1,11 @@
 #ifndef _DATE_TIME_POSIX_TIME_ZONE__
-#define _DATE_TIME_POSIX_TIME_ZONE__ 
+#define _DATE_TIME_POSIX_TIME_ZONE__
 
 /* Copyright (c) 2003-2005 CrystalClear Software, Inc.
  * Subject to the Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2009-10-03 06:04:00 -0400 (Sat, 03 Oct 2009) $
+ * $Date: 2010-01-10 14:17:23 -0500 (Sun, 10 Jan 2010) $
  */
 
 #include <string>
@@ -36,13 +36,13 @@ namespace local_time{
     bad_adjustment(std::string const& msg = std::string()) :
       std::out_of_range(std::string("Adjustment out of range: " + msg)) {}
   };
-  
+
   typedef boost::date_time::dst_adjustment_offsets<boost::posix_time::time_duration> dst_adjustment_offsets;
 
   //! A time zone class constructed from a POSIX time zone string
   /*! A POSIX time zone string takes the form of:<br>
    * "std offset dst [offset],start[/time],end[/time]" (w/no spaces)
-   * 'std' specifies the abbrev of the time zone.<br> 
+   * 'std' specifies the abbrev of the time zone.<br>
    * 'offset' is the offset from UTC.<br>
    * 'dst' specifies the abbrev of the time zone during daylight savings time.<br>
    * The second offset is how many hours changed during DST. Default=1<br>
@@ -84,10 +84,10 @@ namespace local_time{
                              string_type>::iterator tokenizer_iterator_type;
 
     //! Construct from a POSIX time zone string
-    posix_time_zone_base(const string_type& s) : 
+    posix_time_zone_base(const string_type& s) :
       //zone_names_("std_name","std_abbrev","no-dst","no-dst"),
       zone_names_(),
-      has_dst_(false), 
+      has_dst_(false),
       base_utc_offset_(posix_time::hours(0)),
       dst_offsets_(posix_time::hours(0),posix_time::hours(0),posix_time::hours(0)),
       dst_calc_rules_()
@@ -107,7 +107,7 @@ namespace local_time{
         string_type tmp_str = *it++;
         calc_rules(tmp_str, *it);
       }
-    } 
+    }
     virtual ~posix_time_zone_base() {};
     //!String for the zone when not in daylight savings (eg: EST)
     virtual string_type std_zone_abbrev()const
@@ -121,15 +121,15 @@ namespace local_time{
       return zone_names_.dst_zone_abbrev();
     }
     //!String for the zone when not in daylight savings (eg: Eastern Standard Time)
-    /*! The full STD name is not extracted from the posix time zone string. 
+    /*! The full STD name is not extracted from the posix time zone string.
      * Therefore, the STD abbreviation is used in it's place */
     virtual string_type std_zone_name()const
     {
       return zone_names_.std_zone_name();
     }
     //!String for the timezone when in daylight savings (eg: Eastern Daylight Time)
-    /*! The full DST name is not extracted from the posix time zone string. 
-     * Therefore, the STD abbreviation is used in it's place. For time zones 
+    /*! The full DST name is not extracted from the posix time zone string.
+     * Therefore, the STD abbreviation is used in it's place. For time zones
      * that have no DST, an empty string is used */
     virtual string_type dst_zone_name()const
     {
@@ -250,7 +250,7 @@ namespace local_time{
       while(std::isalpha(*sit)){
         ss << *sit++;
       }
-      l_std_zone_abbrev = ss.str(); 
+      l_std_zone_abbrev = ss.str();
       ss.str(empty_string);
 
       // get UTC offset
@@ -259,7 +259,7 @@ namespace local_time{
         while(sit != obj_end && !std::isalpha(*sit)){
           ss << *sit++;
         }
-        base_utc_offset_ = date_time::str_from_delimited_time_duration<time_duration_type,char_type>(ss.str()); 
+        base_utc_offset_ = date_time::str_from_delimited_time_duration<time_duration_type,char_type>(ss.str());
         ss.str(empty_string);
 
         // base offset must be within range of -12 hours to +14 hours
@@ -273,12 +273,12 @@ namespace local_time{
       // get DST data if given
       if(sit != obj_end){
         has_dst_ = true;
-    
+
         // get 'dst' name/abbrev
         while(sit != obj_end && std::isalpha(*sit)){
           ss << *sit++;
         }
-        l_dst_zone_abbrev = ss.str(); 
+        l_dst_zone_abbrev = ss.str();
         ss.str(empty_string);
 
         // get DST offset if given
@@ -287,7 +287,7 @@ namespace local_time{
           while(sit != obj_end && !std::isalpha(*sit)){
             ss << *sit++;
           }
-          dst_offsets_.dst_adjust_ = date_time::str_from_delimited_time_duration<time_duration_type,char_type>(ss.str());  
+          dst_offsets_.dst_adjust_ = date_time::str_from_delimited_time_duration<time_duration_type,char_type>(ss.str());
           ss.str(empty_string);
         }
         else{ // default DST offset
@@ -381,12 +381,12 @@ namespace local_time{
 #endif
       char_separator_type sep(sep_chars);
       tokenizer_type stok(s, sep), etok(e, sep);
-      
+
       tokenizer_iterator_type it = stok.begin();
       sm = lexical_cast<unsigned short>(*it++);
       sw = lexical_cast<unsigned short>(*it++);
       sd = lexical_cast<unsigned short>(*it);
-     
+
       it = etok.begin();
       em = lexical_cast<unsigned short>(*it++);
       ew = lexical_cast<unsigned short>(*it++);
@@ -395,13 +395,13 @@ namespace local_time{
       dst_calc_rules_ = shared_ptr<dst_calc_rule>(
         new nth_kday_dst_rule(
           nth_last_dst_rule::start_rule(
-            static_cast<nkday::week_num>(sw),sd,sm), 
+            static_cast<nkday::week_num>(sw),sd,sm),
           nth_last_dst_rule::start_rule(
-            static_cast<nkday::week_num>(ew),ed,em) 
+            static_cast<nkday::week_num>(ew),ed,em)
           )
       );
     }
-    
+
     //! Julian day. Feb29 is never counted, even in leap years
     // expects range of 1-365
     void julian_no_leap(const string_type& s, const string_type& e){
@@ -423,9 +423,9 @@ namespace local_time{
       dst_calc_rules_ = shared_ptr<dst_calc_rule>(
         new partial_date_dst_rule(
           partial_date_dst_rule::start_rule(
-            sd, static_cast<date_time::months_of_year>(sm)), 
+            sd, static_cast<date_time::months_of_year>(sm)),
           partial_date_dst_rule::end_rule(
-            ed, static_cast<date_time::months_of_year>(em)) 
+            ed, static_cast<date_time::months_of_year>(em))
           )
       );
     }
@@ -460,8 +460,8 @@ namespace local_time{
   };
 
   typedef posix_time_zone_base<char> posix_time_zone;
-  
+
 } } // namespace boost::local_time
 
 
-#endif // _DATE_TIME_POSIX_TIME_ZONE__ 
+#endif // _DATE_TIME_POSIX_TIME_ZONE__

@@ -108,6 +108,7 @@ inline void save(
     ar << boost::serialization::make_nvp("px", t_ptr);
 }
 
+#ifdef BOOST_SERIALIZATION_SHARED_PTR_132_HPP
 template<class Archive, class T>
 inline void load(
     Archive & ar,
@@ -119,7 +120,6 @@ inline void load(
     // is never tracked by default.  Wrap int in a trackable type
     BOOST_STATIC_ASSERT((tracking_level<T>::value != track_never));
     T* r;
-    #ifdef BOOST_SERIALIZATION_SHARED_PTR_132_HPP
     if(file_version < 1){
         //ar.register_type(static_cast<
         //    boost_132::detail::sp_counted_base_impl<T *, boost::checked_deleter<T> > *
@@ -134,13 +134,28 @@ inline void load(
         ar.append(sp);
         r = sp.get();
     }
-    else    
-    #endif
-    {
+    else{
         ar >> boost::serialization::make_nvp("px", r);
     }
     ar.reset(t,r);
 }
+
+#else
+template<class Archive, class T>
+inline void load(
+    Archive & ar,
+    boost::shared_ptr<T> &t,
+    const unsigned int /*file_version*/
+){
+    // The most common cause of trapping here would be serializing
+    // something like shared_ptr<int>.  This occurs because int
+    // is never tracked by default.  Wrap int in a trackable type
+    BOOST_STATIC_ASSERT((tracking_level<T>::value != track_never));
+    T* r;
+    ar >> boost::serialization::make_nvp("px", r);
+    ar.reset(t,r);
+}
+#endif
 
 template<class Archive, class T>
 inline void serialize(

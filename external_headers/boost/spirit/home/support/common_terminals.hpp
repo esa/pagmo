@@ -1,5 +1,5 @@
 /*=============================================================================
-  Copyright (c) 2001-2009 Joel de Guzman
+  Copyright (c) 2001-2010 Joel de Guzman
   http://spirit.sourceforge.net/
 
   Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -33,6 +33,7 @@ namespace boost { namespace spirit
         ( buffer )
         ( true_ )
         ( false_ )
+        ( matches )
     )
 
     // Here we are reusing proto::lit
@@ -80,6 +81,8 @@ namespace boost { namespace spirit
         ( in_state )
         ( token )
         ( attr )
+        ( columns )
+        ( auto_ )
     )
 
     // special tags (used mainly for stateful tag types)

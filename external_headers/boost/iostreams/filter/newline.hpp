@@ -27,6 +27,7 @@
 #include <boost/iostreams/pipeline.hpp>
 #include <boost/iostreams/putback.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
 // Must come last.
@@ -124,7 +125,7 @@ public:
              target != newline::dos &&
              target != newline::mac )
         {
-            throw std::logic_error("bad flags");
+            boost::throw_exception(std::logic_error("bad flags"));
         }
     }
 
@@ -420,7 +421,7 @@ public:
         }
     }
 private:
-    void fail() { throw newline_error(source()); }
+    void fail() { boost::throw_exception(newline_error(source())); }
     int& source() { return flags_; }
     int source() const { return flags_; }
 

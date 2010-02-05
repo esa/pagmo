@@ -15,9 +15,9 @@ namespace boost { namespace unordered_detail {
     ////////////////////////////////////////////////////////////////////////////
     // Equality
 
-    template <class H, class P, class A, class K>
-    bool hash_equivalent_table<H, P, A, K>
-        ::equals(hash_equivalent_table<H, P, A, K> const& other) const
+    template <class T>
+    bool hash_equivalent_table<T>
+        ::equals(hash_equivalent_table<T> const& other) const
     {
         if(this->size_ != other.size_) return false;
         if(!this->size_) return true;
@@ -51,9 +51,9 @@ namespace boost { namespace unordered_detail {
     ////////////////////////////////////////////////////////////////////////////
     // A convenience method for adding nodes.
 
-    template <class H, class P, class A, class K>
-    inline BOOST_DEDUCED_TYPENAME hash_equivalent_table<H, P, A, K>::node_ptr
-        hash_equivalent_table<H, P, A, K>
+    template <class T>
+    inline BOOST_DEDUCED_TYPENAME hash_equivalent_table<T>::node_ptr
+        hash_equivalent_table<T>
             ::add_node(node_constructor& a, bucket_ptr bucket, node_ptr pos)
     {
         node_ptr n = a.release();
@@ -72,10 +72,10 @@ namespace boost { namespace unordered_detail {
     ////////////////////////////////////////////////////////////////////////////
     // Insert methods
 
-    template <class H, class P, class A, class K>
+    template <class T>
     inline BOOST_DEDUCED_TYPENAME
-        hash_equivalent_table<H, P, A, K>::iterator_base
-        hash_equivalent_table<H, P, A, K>::emplace_impl(node_constructor& a)
+        hash_equivalent_table<T>::iterator_base
+        hash_equivalent_table<T>::emplace_impl(node_constructor& a)
     {
         key_type const& k = this->get_key(a.value());
         std::size_t hash_value = this->hash_function()(k);
@@ -96,8 +96,8 @@ namespace boost { namespace unordered_detail {
         }
     }
     
-    template <class H, class P, class A, class K>
-    inline void hash_equivalent_table<H, P, A, K>
+    template <class T>
+    inline void hash_equivalent_table<T>
             ::emplace_impl_no_rehash(node_constructor& a)
     {
         key_type const& k = this->get_key(a.value());
@@ -112,10 +112,10 @@ namespace boost { namespace unordered_detail {
 
     // if hash function throws, basic exception safety
     // strong otherwise
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class... Args>
-    BOOST_DEDUCED_TYPENAME hash_equivalent_table<H, P, A, K>::iterator_base
-        hash_equivalent_table<H, P, A, K>
+    BOOST_DEDUCED_TYPENAME hash_equivalent_table<T>::iterator_base
+        hash_equivalent_table<T>
             ::emplace(Args&&... args)
     {
         // Create the node before rehashing in case it throws an
@@ -129,10 +129,10 @@ namespace boost { namespace unordered_detail {
 #else
 
 #define BOOST_UNORDERED_INSERT_IMPL(z, num_params, _)                       \
-    template <class H, class P, class A, class K>                           \
+    template <class T>                                                      \
     template <BOOST_UNORDERED_TEMPLATE_ARGS(z, num_params)>                 \
-    BOOST_DEDUCED_TYPENAME hash_equivalent_table<H, P, A, K>::iterator_base \
-        hash_equivalent_table<H, P, A, K>                                   \
+    BOOST_DEDUCED_TYPENAME hash_equivalent_table<T>::iterator_base          \
+        hash_equivalent_table<T>                                            \
             ::emplace(BOOST_UNORDERED_FUNCTION_PARAMS(z, num_params))       \
     {                                                                       \
         node_constructor a(*this);                                          \
@@ -151,9 +151,9 @@ namespace boost { namespace unordered_detail {
 
     // if hash function throws, or inserting > 1 element, basic exception safety
     // strong otherwise
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class I>
-    inline void hash_equivalent_table<H, P, A, K>
+    inline void hash_equivalent_table<T>
         ::insert_for_range(I i, I j, forward_traversal_tag)
     {
         if(i == j) return;
@@ -182,9 +182,9 @@ namespace boost { namespace unordered_detail {
 
     // if hash function throws, or inserting > 1 element, basic exception safety
     // strong otherwise
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class I>
-    inline void hash_equivalent_table<H, P, A, K>
+    inline void hash_equivalent_table<T>
         ::insert_for_range(I i, I j, boost::incrementable_traversal_tag)
     {
         node_constructor a(*this);
@@ -196,9 +196,9 @@ namespace boost { namespace unordered_detail {
 
     // if hash function throws, or inserting > 1 element, basic exception safety
     // strong otherwise
-    template <class H, class P, class A, class K>
+    template <class T>
     template <class I>
-    void hash_equivalent_table<H, P, A, K>::insert_range(I i, I j)
+    void hash_equivalent_table<T>::insert_range(I i, I j)
     {
         BOOST_DEDUCED_TYPENAME boost::iterator_traversal<I>::type
             iterator_traversal_tag;

@@ -71,10 +71,10 @@ namespace boost {
                    boost::tuple<T1,T2,T3, T4>& t,
                    const unsigned int)
     {
-      ar & get<0>(t);
-      ar & get<1>(t);
-      ar & get<2>(t);
-      ar & get<3>(t);
+      ar & boost::tuples::get<0>(t);
+      ar & boost::tuples::get<1>(t);
+      ar & boost::tuples::get<2>(t);
+      ar & boost::tuples::get<3>(t);
     }
 
   } // serialization
@@ -87,7 +87,7 @@ namespace boost {
     
     get_owner_of_first_tuple_element(OwnerMap owner) : owner(owner) { }
 
-    owner_type get_owner(Tuple t) { return get(owner, get<0>(t)); }
+    owner_type get_owner(Tuple t) { return get(owner, boost::tuples::get<0>(t)); }
 
   private:
     OwnerMap owner;
@@ -911,10 +911,10 @@ namespace boost {
     while(!Q.empty()) {
 
       queue_value_type x = Q.top(); Q.pop();
-      vertex_descriptor w = get<0>(x);
-      vertex_descriptor source = get<1>(x);
-      dependency_type dep = get<2>(x);
-      path_count_type pc = get<3>(x);
+      vertex_descriptor w = boost::tuples::get<0>(x);
+      vertex_descriptor source = boost::tuples::get<1>(x);
+      dependency_type dep = boost::tuples::get<2>(x);
+      path_count_type pc = boost::tuples::get<3>(x);
 
       cache(dependency, source, dep);
       cache(path_count, source, pc);

@@ -11,12 +11,10 @@
 #ifndef BOOST_PROTO_DOMAIN_HPP_EAN_02_13_2007
 #define BOOST_PROTO_DOMAIN_HPP_EAN_02_13_2007
 
-#include <boost/proto/detail/prefix.hpp>
 #include <boost/ref.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/proto/proto_fwd.hpp>
 #include <boost/proto/generate.hpp>
-#include <boost/proto/detail/suffix.hpp>
 
 namespace boost { namespace proto
 {
@@ -30,84 +28,83 @@ namespace boost { namespace proto
         {};
     }
 
-    BOOST_PROTO_BEGIN_ADL_NAMESPACE(domainns_)
-
-    /// \brief For use in defining domain tags to be used
-    /// with \c proto::extends\<\>. A \e Domain associates
-    /// an expression type with a \e Generator, and optionally
-    /// a \e Grammar.
-    ///
-    /// The Generator determines how new expressions in the
-    /// domain are constructed. Typically, a generator wraps
-    /// all new expressions in a wrapper that imparts
-    /// domain-specific behaviors to expressions within its
-    /// domain. (See \c proto::extends\<\>.)
-    ///
-    /// The Grammar determines whether a given expression is
-    /// valid within the domain, and automatically disables
-    /// any operator overloads which would cause an invalid
-    /// expression to be created. By default, the Grammar
-    /// parameter defaults to the wildcard, \c proto::_, which
-    /// makes all expressions valid within the domain.
-    ///
-    /// Example:
-    /// \code
-    /// template<typename Expr>
-    /// struct MyExpr;
-    ///
-    /// struct MyGrammar
-    ///   : or_< terminal<_>, plus<MyGrammar, MyGrammar> >
-    /// {};
-    ///
-    /// // Define MyDomain, in which all expressions are
-    /// // wrapped in MyExpr<> and only expressions that
-    /// // conform to MyGrammar are allowed.
-    /// struct MyDomain
-    ///   : domain<generator<MyExpr>, MyGrammar>
-    /// {};
-    ///
-    /// // Use MyDomain to define MyExpr
-    /// template<typename Expr>
-    /// struct MyExpr
-    ///   : extends<Expr, MyExpr<Expr>, MyDomain>
-    /// {
-    ///     // ...
-    /// };
-    /// \endcode
-    ///
-    template<
-        typename Generator BOOST_PROTO_WHEN_BUILDING_DOCS(= default_generator)
-      , typename Grammar   BOOST_PROTO_WHEN_BUILDING_DOCS(= proto::_)
-    >
-    struct domain
-      : Generator
+    namespace domainns_
     {
-        typedef Grammar proto_grammar;
+        /// \brief For use in defining domain tags to be used
+        /// with \c proto::extends\<\>. A \e Domain associates
+        /// an expression type with a \e Generator, and optionally
+        /// a \e Grammar.
+        ///
+        /// The Generator determines how new expressions in the
+        /// domain are constructed. Typically, a generator wraps
+        /// all new expressions in a wrapper that imparts
+        /// domain-specific behaviors to expressions within its
+        /// domain. (See \c proto::extends\<\>.)
+        ///
+        /// The Grammar determines whether a given expression is
+        /// valid within the domain, and automatically disables
+        /// any operator overloads which would cause an invalid
+        /// expression to be created. By default, the Grammar
+        /// parameter defaults to the wildcard, \c proto::_, which
+        /// makes all expressions valid within the domain.
+        ///
+        /// Example:
+        /// \code
+        /// template<typename Expr>
+        /// struct MyExpr;
+        ///
+        /// struct MyGrammar
+        ///   : or_< terminal<_>, plus<MyGrammar, MyGrammar> >
+        /// {};
+        ///
+        /// // Define MyDomain, in which all expressions are
+        /// // wrapped in MyExpr<> and only expressions that
+        /// // conform to MyGrammar are allowed.
+        /// struct MyDomain
+        ///   : domain<generator<MyExpr>, MyGrammar>
+        /// {};
+        ///
+        /// // Use MyDomain to define MyExpr
+        /// template<typename Expr>
+        /// struct MyExpr
+        ///   : extends<Expr, MyExpr<Expr>, MyDomain>
+        /// {
+        ///     // ...
+        /// };
+        /// \endcode
+        ///
+        template<
+            typename Generator // = default_generator
+          , typename Grammar   // = proto::_
+        >
+        struct domain
+          : Generator
+        {
+            typedef Grammar proto_grammar;
 
-        /// INTERNAL ONLY
-        typedef void proto_is_domain_;
-    };
+            /// INTERNAL ONLY
+            typedef void proto_is_domain_;
+        };
 
-    /// \brief The domain expressions have by default, if
-    /// \c proto::extends\<\> has not been used to associate
-    /// a domain with an expression.
-    ///
-    struct default_domain
-      : domain<>
-    {};
+        /// \brief The domain expressions have by default, if
+        /// \c proto::extends\<\> has not been used to associate
+        /// a domain with an expression.
+        ///
+        struct default_domain
+          : domain<>
+        {};
 
-    /// \brief A pseudo-domain for use in functions and
-    /// metafunctions that require a domain parameter. It
-    /// indicates that the domain of the parent node should
-    /// be inferred from the domains of the child nodes.
-    ///
-    /// \attention \c deduce_domain is not itself a valid domain.
-    ///
-    struct deduce_domain
-      : domain<detail::not_a_generator, detail::not_a_grammar>
-    {};
-
-    BOOST_PROTO_END_ADL_NAMESPACE(domainns_)
+        /// \brief A pseudo-domain for use in functions and
+        /// metafunctions that require a domain parameter. It
+        /// indicates that the domain of the parent node should
+        /// be inferred from the domains of the child nodes.
+        ///
+        /// \attention \c deduce_domain is not itself a valid domain.
+        ///
+        struct deduce_domain
+          : domain<detail::not_a_generator, detail::not_a_grammar>
+        {};
+    }
 
     namespace result_of
     {
@@ -116,7 +113,7 @@ namespace boost { namespace proto
         /// \c mpl::false_ otherwise. If \c T inherits from
         /// \c proto::domain\<\>, \c is_domain\<T\> is
         /// \c mpl::true_.
-        template<typename T, typename Void  BOOST_PROTO_WHEN_BUILDING_DOCS(= void)>
+        template<typename T, typename Void  /* = void*/>
         struct is_domain
           : mpl::false_
         {};
@@ -133,7 +130,7 @@ namespace boost { namespace proto
         /// type, it returns that expression's associated
         /// domain. If not, it returns
         /// \c proto::default_domain.
-        template<typename T, typename Void  BOOST_PROTO_WHEN_BUILDING_DOCS(= void)>
+        template<typename T, typename Void /* = void*/>
         struct domain_of
         {
             typedef default_domain type;

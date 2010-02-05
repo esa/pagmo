@@ -2,7 +2,7 @@
 // basic_streambuf.hpp
 // ~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,13 +18,19 @@
 #include <boost/asio/detail/push_options.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
+#include <boost/config.hpp>
+#include <boost/asio/detail/pop_options.hpp>
+
+#if !defined(BOOST_NO_IOSTREAM)
+
+#include <boost/asio/detail/push_options.hpp>
 #include <algorithm>
 #include <cstring>
-#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <streambuf>
 #include <vector>
+#include <boost/limits.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/asio/detail/pop_options.hpp>
 
@@ -90,7 +96,7 @@ namespace asio {
  * boost::asio::streambuf b;
  *
  * // reserve 512 bytes in output sequence
- * boost::asio::streambuf::const_buffers_type bufs = b.prepare(512);
+ * boost::asio::streambuf::mutable_buffers_type bufs = b.prepare(512);
  *
  * size_t n = sock.receive(bufs);
  *
@@ -338,5 +344,7 @@ private:
 } // namespace boost
 
 #include <boost/asio/detail/pop_options.hpp>
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 #endif // BOOST_ASIO_BASIC_STREAMBUF_HPP

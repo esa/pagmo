@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -73,21 +73,23 @@ namespace boost { namespace spirit { namespace karma
             }                                                                 \
         }                                                                     \
     /**/
-#define BOOST_SPIRIT_ABSOLUTE_VALUE_UNSIGNED(type)                            \
+#define BOOST_SPIRIT_ABSOLUTE_VALUE_UNSIGNED(unsignedtype)                    \
         template <>                                                           \
-        struct absolute_value_helper<type>                                    \
+        struct absolute_value_helper<unsignedtype>                            \
         {                                                                     \
-            typedef type result_type;                                         \
-            static result_type call(type n)                                   \
+            typedef unsignedtype result_type;                                 \
+            static result_type call(unsignedtype n)                           \
             {                                                                 \
                 return n;                                                     \
             }                                                                 \
         }                                                                     \
     /**/
 
+        BOOST_SPIRIT_ABSOLUTE_VALUE(char, unsigned char);
         BOOST_SPIRIT_ABSOLUTE_VALUE(short, unsigned short);
         BOOST_SPIRIT_ABSOLUTE_VALUE(int, unsigned int);
         BOOST_SPIRIT_ABSOLUTE_VALUE(long, unsigned long);
+        BOOST_SPIRIT_ABSOLUTE_VALUE_UNSIGNED(unsigned char);
         BOOST_SPIRIT_ABSOLUTE_VALUE_UNSIGNED(unsigned short);
         BOOST_SPIRIT_ABSOLUTE_VALUE_UNSIGNED(unsigned int);
         BOOST_SPIRIT_ABSOLUTE_VALUE_UNSIGNED(unsigned long);
@@ -543,6 +545,29 @@ namespace boost { namespace spirit { namespace karma
 
 #undef BOOST_KARMA_NUMERICS_INNER_LOOP_PREFIX
 #undef BOOST_KARMA_NUMERICS_INNER_LOOP_SUFFIX
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    //  The uint_inserter template takes care of the conversion of any integer 
+    //  to a string, while interpreting the number as an unsigned type.
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    template <
+        unsigned Radix, typename CharEncoding = unused_type
+      , typename Tag = unused_type>
+    struct uint_inserter : int_inserter<Radix, CharEncoding, Tag>
+    {
+        typedef int_inserter<Radix, CharEncoding, Tag> base_type;
+
+        //  Common code for integer string representations
+        template <typename OutputIterator, typename T>
+        static bool
+        call(OutputIterator& sink, T const& n)
+        {
+            typename detail::absolute_value_helper<T>::result_type un = n;
+            return base_type::call(sink, un, un, 0);
+        }
+    };
 
     ///////////////////////////////////////////////////////////////////////////
     //

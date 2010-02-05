@@ -2,7 +2,7 @@
 // timer_queue.hpp
 // ~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -20,10 +20,10 @@
 #include <boost/asio/detail/push_options.hpp>
 #include <cstddef>
 #include <functional>
-#include <limits>
 #include <memory>
 #include <vector>
 #include <boost/config.hpp>
+#include <boost/limits.hpp>
 #include <boost/asio/detail/pop_options.hpp>
 
 #include <boost/asio/error.hpp>

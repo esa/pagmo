@@ -11,11 +11,13 @@
 #include <boost/fusion/support/category_of.hpp>
 #include <boost/fusion/support/detail/access.hpp>
 #include <boost/fusion/container/set/set_fwd.hpp>
-#include <boost/fusion/container/set/detail/lookup_key.hpp>
 #include <boost/fusion/container/set/detail/begin_impl.hpp>
 #include <boost/fusion/container/set/detail/end_impl.hpp>
-#include <boost/fusion/container/set/detail/at_key_impl.hpp>
-#include <boost/fusion/container/set/detail/value_at_key_impl.hpp>
+#include <boost/fusion/container/set/detail/value_of_impl.hpp>
+#include <boost/fusion/container/set/detail/deref_data_impl.hpp>
+#include <boost/fusion/container/set/detail/deref_impl.hpp>
+#include <boost/fusion/container/set/detail/key_of_impl.hpp>
+#include <boost/fusion/container/set/detail/value_of_data_impl.hpp>
 #include <boost/fusion/container/vector/vector.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/bool.hpp>
@@ -23,13 +25,12 @@
 namespace boost { namespace fusion
 {
     struct void_;
-    struct set_tag;
     struct fusion_sequence_tag;
 
     template <BOOST_PP_ENUM_PARAMS(FUSION_MAX_SET_SIZE, typename T)>
     struct set : sequence_base<set<BOOST_PP_ENUM_PARAMS(FUSION_MAX_SET_SIZE, T)> >
     {
-        struct category : forward_traversal_tag, associative_sequence_tag {};
+        struct category : forward_traversal_tag, associative_tag {};
 
         typedef set_tag fusion_tag;
         typedef fusion_sequence_tag tag; // this gets picked up by MPL
@@ -49,7 +50,6 @@ namespace boost { namespace fusion
             : data(rhs) {}
 
         #include <boost/fusion/container/set/detail/set_forward_ctor.hpp>
-        #include <boost/fusion/container/set/detail/set_lookup.hpp>
 
         template <typename T>
         set&

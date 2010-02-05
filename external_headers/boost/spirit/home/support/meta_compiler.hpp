@@ -1,5 +1,5 @@
 /*=============================================================================
-  Copyright (c) 2001-2009 Joel de Guzman
+  Copyright (c) 2001-2010 Joel de Guzman
   http://spirit.sourceforge.net/
 
   Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -56,7 +56,7 @@ namespace boost { namespace spirit
             !use_operator<Domain, proto::tag::subscript>::value
         ), error_proto_tag_subscript_cannot_be_used, ());
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
+#if !BOOST_WORKAROUND(BOOST_MSVC, < 1400)
         // this is the non-broken part for compilers properly supporting 
         // partial template specialization (VC7.1 does not)
         struct cases

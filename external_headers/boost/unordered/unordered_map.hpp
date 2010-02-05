@@ -38,16 +38,16 @@
 
 namespace boost
 {
-    template <class Key, class T, class Hash, class Pred, class Alloc>
+    template <class K, class T, class H, class P, class A>
     class unordered_map
     {
     public:
-        typedef Key key_type;
-        typedef std::pair<const Key, T> value_type;
+        typedef K key_type;
+        typedef std::pair<const K, T> value_type;
         typedef T mapped_type;
-        typedef Hash hasher;
-        typedef Pred key_equal;
-        typedef Alloc allocator_type;
+        typedef H hasher;
+        typedef P key_equal;
+        typedef A allocator_type;
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
     private:
@@ -58,10 +58,11 @@ namespace boost
                 allocator_type, value_type>::type
             value_allocator;
 
-        typedef boost::unordered_detail::hash_unique_table<Hash, Pred,
-            value_allocator, boost::unordered_detail::map_extractor> table;
+        typedef boost::unordered_detail::map<K, H, P,
+            value_allocator> types;
+        typedef BOOST_DEDUCED_TYPENAME types::impl table;
 
-        typedef BOOST_DEDUCED_TYPENAME table::iterator_base iterator_base;
+        typedef BOOST_DEDUCED_TYPENAME types::iterator_base iterator_base;
 
     public:
 
@@ -96,7 +97,7 @@ namespace boost
 
         table table_;
         
-        BOOST_DEDUCED_TYPENAME table::iterator_base const&
+        BOOST_DEDUCED_TYPENAME types::iterator_base const&
             get(const_iterator const& it)
         {
             return boost::unordered_detail::iterator_access::get(it);
@@ -176,7 +177,7 @@ namespace boost
         }
 #else
         unordered_map(boost::unordered_detail::move_from<
-                unordered_map<Key, T, Hash, Pred, Alloc>
+                unordered_map<K, T, H, P, A>
             > other)
           : table_(other.source.table_, boost::unordered_detail::move_tag())
         {
@@ -283,16 +284,19 @@ namespace boost
         }
 #else
 
+        #if !BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x5100))
         std::pair<iterator, bool> emplace(value_type const& v = value_type())
         {
             return boost::unordered_detail::pair_cast<iterator, bool>(
                 table_.emplace(v));
         }
 
-        iterator emplace_hint(const_iterator, value_type const& v = value_type())
+        iterator emplace_hint(const_iterator,
+            value_type const& v = value_type())
         {
             return iterator(table_.emplace(v).first);
         }
+        #endif
 
 #define BOOST_UNORDERED_EMPLACE(z, n, _)                                       \
             template <                                                         \
@@ -352,7 +356,7 @@ namespace boost
 
         iterator erase(const_iterator position)
         {
-            return iterator(table_.erase(get(position)));
+            return iterator(table_.erase_return_iterator(get(position)));
         }
 
         size_type erase(const key_type& k)
@@ -363,6 +367,11 @@ namespace boost
         iterator erase(const_iterator first, const_iterator last)
         {
             return iterator(table_.erase_range(get(first), get(last)));
+        }
+
+        void erase_return_void(const_iterator position)
+        {
+            table_.erase(get(position));
         }
 
         void clear()
@@ -412,6 +421,26 @@ namespace boost
         const_iterator find(const key_type& k) const
         {
             return const_iterator(table_.find(k));
+        }
+
+        template <class CompatibleKey, class CompatibleHash,
+            class CompatiblePredicate>
+        iterator find(
+            CompatibleKey const& k,
+            CompatibleHash const& hash,
+            CompatiblePredicate const& eq)
+        {
+            return iterator(table_.find(k, hash, eq));
+        }
+
+        template <class CompatibleKey, class CompatibleHash,
+            class CompatiblePredicate>
+        const_iterator find(
+            CompatibleKey const& k,
+            CompatibleHash const& hash,
+            CompatiblePredicate const& eq) const
+        {
+            return iterator(table_.find(k, hash, eq));
         }
 
         size_type count(const key_type& k) const
@@ -510,9 +539,9 @@ namespace boost
         }
         
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
-        friend bool operator==<Key, T, Hash, Pred, Alloc>(
+        friend bool operator==<K, T, H, P, A>(
             unordered_map const&, unordered_map const&);
-        friend bool operator!=<Key, T, Hash, Pred, Alloc>(
+        friend bool operator!=<K, T, H, P, A>(
             unordered_map const&, unordered_map const&);
 #endif
     }; // class template unordered_map
@@ -521,6 +550,9 @@ namespace boost
     inline bool operator==(unordered_map<K, T, H, P, A> const& m1,
         unordered_map<K, T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_map<K,T,H,P,A> x; };
+#endif
         return m1.table_.equals(m2.table_);
     }
 
@@ -528,6 +560,9 @@ namespace boost
     inline bool operator!=(unordered_map<K, T, H, P, A> const& m1,
         unordered_map<K, T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_map<K,T,H,P,A> x; };
+#endif
         return !m1.table_.equals(m2.table_);
     }
 
@@ -535,32 +570,38 @@ namespace boost
     inline void swap(unordered_map<K, T, H, P, A> &m1,
             unordered_map<K, T, H, P, A> &m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_map<K,T,H,P,A> x; };
+#endif
         m1.swap(m2);
     }
 
-    template <class Key, class T, class Hash, class Pred, class Alloc>
+    template <class K, class T, class H, class P, class A>
     class unordered_multimap
     {
     public:
 
-        typedef Key key_type;
-        typedef std::pair<const Key, T> value_type;
+        typedef K key_type;
+        typedef std::pair<const K, T> value_type;
         typedef T mapped_type;
-        typedef Hash hasher;
-        typedef Pred key_equal;
-        typedef Alloc allocator_type;
+        typedef H hasher;
+        typedef P key_equal;
+        typedef A allocator_type;
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
     private:
 #endif
+
         typedef BOOST_DEDUCED_TYPENAME
             boost::unordered_detail::rebind_wrap<
                 allocator_type, value_type>::type
             value_allocator;
 
-        typedef boost::unordered_detail::hash_equivalent_table<Hash, Pred,
-            value_allocator, boost::unordered_detail::map_extractor> table;
-        typedef BOOST_DEDUCED_TYPENAME table::iterator_base iterator_base;
+        typedef boost::unordered_detail::multimap<K, H, P,
+            value_allocator> types;
+        typedef BOOST_DEDUCED_TYPENAME types::impl table;
+
+        typedef BOOST_DEDUCED_TYPENAME types::iterator_base iterator_base;
 
     public:
 
@@ -595,7 +636,7 @@ namespace boost
 
         table table_;
         
-        BOOST_DEDUCED_TYPENAME table::iterator_base const&
+        BOOST_DEDUCED_TYPENAME types::iterator_base const&
             get(const_iterator const& it)
         {
             return boost::unordered_detail::iterator_access::get(it);
@@ -676,7 +717,7 @@ namespace boost
         }
 #else
         unordered_multimap(boost::unordered_detail::move_from<
-                unordered_multimap<Key, T, Hash, Pred, Alloc>
+                unordered_multimap<K, T, H, P, A>
             > other)
           : table_(other.source.table_, boost::unordered_detail::move_tag())
         {
@@ -782,6 +823,7 @@ namespace boost
         }
 #else
 
+        #if !BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x5100))
         iterator emplace(value_type const& v = value_type())
         {
             return iterator(table_.emplace(v));
@@ -792,7 +834,7 @@ namespace boost
         {
             return iterator(table_.emplace(v));
         }
-
+        #endif
 
 #define BOOST_UNORDERED_EMPLACE(z, n, _)                                       \
             template <                                                         \
@@ -852,7 +894,7 @@ namespace boost
 
         iterator erase(const_iterator position)
         {
-            return iterator(table_.erase(get(position)));
+            return iterator(table_.erase_return_iterator(get(position)));
         }
 
         size_type erase(const key_type& k)
@@ -863,6 +905,11 @@ namespace boost
         iterator erase(const_iterator first, const_iterator last)
         {
             return iterator(table_.erase_range(get(first), get(last)));
+        }
+
+        void erase_return_void(const_iterator position)
+        {
+            table_.erase(get(position));
         }
 
         void clear()
@@ -897,6 +944,26 @@ namespace boost
         const_iterator find(const key_type& k) const
         {
             return const_iterator(table_.find(k));
+        }
+
+        template <class CompatibleKey, class CompatibleHash,
+            class CompatiblePredicate>
+        iterator find(
+            CompatibleKey const& k,
+            CompatibleHash const& hash,
+            CompatiblePredicate const& eq)
+        {
+            return iterator(table_.find(k, hash, eq));
+        }
+
+        template <class CompatibleKey, class CompatibleHash,
+            class CompatiblePredicate>
+        const_iterator find(
+            CompatibleKey const& k,
+            CompatibleHash const& hash,
+            CompatiblePredicate const& eq) const
+        {
+            return iterator(table_.find(k, hash, eq));
         }
 
         size_type count(const key_type& k) const
@@ -995,9 +1062,9 @@ namespace boost
         }
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x0582)
-        friend bool operator==<Key, T, Hash, Pred, Alloc>(
+        friend bool operator==<K, T, H, P, A>(
             unordered_multimap const&, unordered_multimap const&);
-        friend bool operator!=<Key, T, Hash, Pred, Alloc>(
+        friend bool operator!=<K, T, H, P, A>(
             unordered_multimap const&, unordered_multimap const&);
 #endif
     }; // class template unordered_multimap
@@ -1006,6 +1073,9 @@ namespace boost
     inline bool operator==(unordered_multimap<K, T, H, P, A> const& m1,
         unordered_multimap<K, T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_multimap<K,T,H,P,A> x; };
+#endif
         return m1.table_.equals(m2.table_);
     }
 
@@ -1013,6 +1083,9 @@ namespace boost
     inline bool operator!=(unordered_multimap<K, T, H, P, A> const& m1,
         unordered_multimap<K, T, H, P, A> const& m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_multimap<K,T,H,P,A> x; };
+#endif
         return !m1.table_.equals(m2.table_);
     }
 
@@ -1020,6 +1093,9 @@ namespace boost
     inline void swap(unordered_multimap<K, T, H, P, A> &m1,
             unordered_multimap<K, T, H, P, A> &m2)
     {
+#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x0613))
+        struct dummy { unordered_multimap<K,T,H,P,A> x; };
+#endif
         m1.swap(m2);
     }
 

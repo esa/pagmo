@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2009 Joel de Guzman
+    Copyright (c) 2001-2010 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -48,7 +48,7 @@ namespace boost { namespace spirit { namespace qi
             >::type
           , symbols<Char, T, Lookup, Filter>
         >
-      , parser<symbols<Char, T, Lookup, Filter> >
+      , primitive_parser<symbols<Char, T, Lookup, Filter> >
     {
         typedef Char char_type; // the character type
         typedef T value_type; // the value associated with each entry
@@ -187,6 +187,18 @@ namespace boost { namespace spirit { namespace qi
                 , traits::get_end<Char>(str), T());
         }
 
+        template <typename Iterator>
+        value_type* prefix_find(Iterator& first, Iterator const& last)
+        {
+            return lookup->find(first, last, Filter());
+        }
+
+        template <typename Iterator>
+        value_type const* prefix_find(Iterator& first, Iterator const& last) const
+        {
+            return lookup->find(first, last, Filter());
+        }
+
         template <typename Str>
         value_type* find(Str const& str)
         {
@@ -205,13 +217,15 @@ private:
         template <typename Iterator>
         value_type* find_impl(Iterator begin, Iterator end)
         {
-            return lookup->find(begin, end, Filter());
+            value_type* r = lookup->find(begin, end, Filter());
+            return begin == end ? r : 0;
         }
 
         template <typename Iterator>
         value_type const* find_impl(Iterator begin, Iterator end) const
         {
-            return lookup->find(begin, end, Filter());
+            value_type const* r = lookup->find(begin, end, Filter());
+            return begin == end ? r : 0;
         }
 
 public:

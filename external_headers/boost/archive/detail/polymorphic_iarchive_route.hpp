@@ -27,7 +27,6 @@ namespace std{
 } // namespace std
 #endif
 
-#include <boost/noncopyable.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
@@ -42,13 +41,17 @@ namespace detail{
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iserializer;
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_pointer_iserializer;
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 template<class ArchiveImplementation>
 class polymorphic_iarchive_route :
     public polymorphic_iarchive,
     // note: gcc dynamic cross cast fails if the the derivation below is
     // not public.  I think this is a mistake.
-    public /*protected*/ ArchiveImplementation,
-    private boost::noncopyable
+    public /*protected*/ ArchiveImplementation
 {
 private:
     // these are used by the serialization library.
@@ -60,11 +63,14 @@ private:
     }
     virtual const basic_pointer_iserializer * load_pointer(
         void * & t,
-        const basic_pointer_iserializer * bpis_ptr
+        const basic_pointer_iserializer * bpis_ptr,
+        const basic_pointer_iserializer * (*finder)(
+            const boost::serialization::extended_type_info & type
+        )
     ){
-        return ArchiveImplementation::load_pointer(t, bpis_ptr);
+        return ArchiveImplementation::load_pointer(t, bpis_ptr, finder);
     }
-    virtual void set_library_version(unsigned int archive_library_version){
+    virtual void set_library_version(version_type archive_library_version){
         ArchiveImplementation::set_library_version(archive_library_version);
     }
     virtual unsigned int get_library_version() const{
@@ -187,6 +193,10 @@ public:
 } // namespace detail
 } // namespace archive
 } // namespace boost
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

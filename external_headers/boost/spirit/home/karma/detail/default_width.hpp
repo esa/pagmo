@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -31,6 +31,16 @@
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+//
+//  The BOOST_KARMA_DEFAULT_COLUMNS specifies the default number of columns to
+//  be used with the columns directive.
+//
+///////////////////////////////////////////////////////////////////////////////
+#if !defined(BOOST_KARMA_DEFAULT_COLUMNS)
+#define BOOST_KARMA_DEFAULT_COLUMNS 5
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace karma { namespace detail
 {
     ///////////////////////////////////////////////////////////////////////////
@@ -48,6 +58,15 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         operator int() const
         {
             return BOOST_KARMA_DEFAULT_FIELD_MAXWIDTH;
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    struct default_columns
+    {
+        operator int() const
+        {
+            return BOOST_KARMA_DEFAULT_COLUMNS;
         }
     };
 

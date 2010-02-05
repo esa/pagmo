@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : defines algoirthms for comparing 2 floating point values
 // ***************************************************************************
@@ -54,9 +54,9 @@ namespace tt_detail {
 // FPT is Floating-Point Type: float, double, long double or User-Defined.
 template<typename FPT>
 inline FPT
-fpt_abs( FPT arg ) 
+fpt_abs( FPT fpv ) 
 {
-    return arg < static_cast<FPT>(0) ? -arg : arg;
+    return fpv < static_cast<FPT>(0) ? -fpv : fpv;
 }
 
 //____________________________________________________________________________//

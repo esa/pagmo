@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -73,7 +73,7 @@ namespace boost { namespace spirit { namespace karma
         // wrap user supplied iterator into our own output iterator
         detail::output_iterator<OutputIterator
           , mpl::int_<properties::value> > sink(target_sink);
-        return generate(sink, expr, BOOST_PP_ENUM_PARAMS(N, attr));
+        return karma::generate(sink, expr, BOOST_PP_ENUM_PARAMS(N, attr));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ namespace boost { namespace spirit { namespace karma
         detail::output_iterator<OutputIterator
           , mpl::int_<properties::value | delimiter_properties::value>
         > sink(target_sink);
-        return generate_delimited(sink, expr, delimiter, pre_delimit
+        return karma::generate_delimited(sink, expr, delimiter, pre_delimit
           , BOOST_PP_ENUM_PARAMS(N, attr));
     }
 
@@ -157,7 +157,7 @@ namespace boost { namespace spirit { namespace karma
         detail::output_iterator<OutputIterator
           , mpl::int_<properties::value | delimiter_properties::value>
         > sink(target_sink);
-        return generate_delimited(sink, expr, delimiter
+        return karma::generate_delimited(sink, expr, delimiter
           , delimit_flag::dont_predelimit, BOOST_PP_ENUM_PARAMS(N, attr));
     }
 

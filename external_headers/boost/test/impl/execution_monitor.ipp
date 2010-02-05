@@ -8,7 +8,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 54633 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : provides execution monitor implementation for all supported
 //  configurations, including Microsoft structured exception based, unix signals
@@ -33,6 +33,8 @@
 // Boost
 #include <boost/cstdlib.hpp>    // for exit codes
 #include <boost/config.hpp>     // for workarounds
+#include <boost/exception/get_error_info.hpp> // for get_error_info
+#include <boost/exception/current_exception_cast.hpp> // for current_exception_cast
 
 // STL
 #include <string>               // for std::string
@@ -218,21 +220,56 @@ namespace detail {
 #  define BOOST_TEST_VSNPRINTF( a1, a2, a3, a4 ) vsnprintf( (a1), (a2), (a3), (a4) )
 #endif
 
+template <typename ErrorInfo>
+typename ErrorInfo::value_type
+extract( boost::exception const* ex )
+{
+    if( !ex )
+        return 0;
+
+    typename ErrorInfo::value_type const * val = boost::get_error_info<ErrorInfo>( *ex );
+
+    return val ? *val : 0;
+}
+
+//____________________________________________________________________________//
+
 static void
-report_error( execution_exception::error_code ec, char const* format, ... )
+report_error( execution_exception::error_code ec, boost::exception const* be, char const* format, va_list* args )
 {
     static const int REPORT_ERROR_BUFFER_SIZE = 512;
     static char buf[REPORT_ERROR_BUFFER_SIZE];
 
+    BOOST_TEST_VSNPRINTF( buf, sizeof(buf)-1, format, *args ); 
+    buf[sizeof(buf)-1] = 0;
+
+    va_end( *args );
+
+    throw execution_exception( ec, buf, execution_exception::location( extract<throw_file>( be ), 
+                                                                       extract<throw_line>( be ),
+                                                                       extract<throw_function>( be ) ) );
+}
+
+//____________________________________________________________________________//
+
+static void
+report_error( execution_exception::error_code ec, char const* format, ... )
+{
     va_list args;
     va_start( args, format );
 
-    BOOST_TEST_VSNPRINTF( buf, sizeof(buf)-1, format, args ); 
-    buf[sizeof(buf)-1] = 0;
+    report_error( ec, 0, format, &args );
+}
 
-    va_end( args );
+//____________________________________________________________________________//
 
-    throw execution_exception( ec, buf );
+static void
+report_error( execution_exception::error_code ec, boost::exception const* be, char const* format, ... )
+{
+    va_list args;
+    va_start( args, format );
+
+    report_error( ec, be, format, &args );
 }
 
 //____________________________________________________________________________//
@@ -751,7 +788,14 @@ signal_handler::~signal_handler()
         ::alarm( 0 );
 
 #ifdef BOOST_TEST_USE_ALT_STACK
-    stack_t sigstk = {};
+#ifdef __GNUC__
+    // We shouldn't need to explicitly initialize all the members here,
+    // but gcc warns if we don't, so add initializers for each of the
+    // members specified in the POSIX std:
+    stack_t sigstk = { 0, 0, 0 };
+#else
+    stack_t sigstk = { };
+#endif
 
     sigstk.ss_size  = MINSIGSTKSZ;
     sigstk.ss_flags = SS_DISABLE;
@@ -1090,7 +1134,7 @@ int
 execution_monitor::catch_signals( unit_test::callback0<int> const& F )
 {
     _invalid_parameter_handler old_iph = _invalid_parameter_handler();
-    BOOST_TEST_CRT_HOOK_TYPE old_crt_hook;
+    BOOST_TEST_CRT_HOOK_TYPE old_crt_hook = 0;
 
     if( !p_catch_system_errors )
         _set_se_translator( &detail::seh_catch_preventer );
@@ -1173,60 +1217,105 @@ execution_monitor::execute( unit_test::callback0<int> const& F )
     //  easier than answering questions about non-const usage.
 
     catch( char const* ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "C string: %s", ex ); }
+      { detail::report_error( execution_exception::cpp_exception_error,
+                              "C string: %s", ex ); }
     catch( std::string const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::string: %s", ex.c_str() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              "std::string: %s", ex.c_str() ); }
 
     //  std:: exceptions
 
     catch( std::bad_alloc const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::bad_alloc: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::bad_alloc: %s", ex.what() ); }
 
 #if BOOST_WORKAROUND(__BORLANDC__, <= 0x0551)
     catch( std::bad_cast const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::bad_cast" ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::bad_cast" ); }
     catch( std::bad_typeid const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::bad_typeid" ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::bad_typeid" ); }
 #else
     catch( std::bad_cast const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::bad_cast: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::bad_cast: %s", ex.what() ); }
     catch( std::bad_typeid const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::bad_typeid: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::bad_typeid: %s", ex.what() ); }
 #endif
 
     catch( std::bad_exception const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::bad_exception: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::bad_exception: %s", ex.what() ); }
     catch( std::domain_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::domain_error: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::domain_error: %s", ex.what() ); }
     catch( std::invalid_argument const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::invalid_argument: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::invalid_argument: %s", ex.what() ); }
     catch( std::length_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::length_error: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::length_error: %s", ex.what() ); }
     catch( std::out_of_range const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::out_of_range: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::out_of_range: %s", ex.what() ); }
     catch( std::range_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::range_error: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::range_error: %s", ex.what() ); }
     catch( std::overflow_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::overflow_error: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::overflow_error: %s", ex.what() ); }
     catch( std::underflow_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::underflow_error: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::underflow_error: %s", ex.what() ); }
     catch( std::logic_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::logic_error: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::logic_error: %s", ex.what() ); }
     catch( std::runtime_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::runtime_error: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::runtime_error: %s", ex.what() ); }
     catch( std::exception const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "std::exception: %s", ex.what() ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              current_exception_cast<boost::exception const>(),
+                              "std::exception: %s", ex.what() ); }
+
+    catch( boost::exception const& ex )
+    { detail::report_error( execution_exception::cpp_exception_error, 
+                            &ex,
+                            "unknown boost::exception" ); }
+
+    // system errors
     catch( system_error const& ex )
-      { detail::report_error( execution_exception::cpp_exception_error, "system_error produced by: %s: %s", 
-                              ex.p_failed_exp.get(), 
-                              std::strerror( ex.p_errno ) ); }
+      { detail::report_error( execution_exception::cpp_exception_error, 
+                              "system_error produced by: %s: %s", ex.p_failed_exp.get(), std::strerror( ex.p_errno ) ); }
     catch( detail::system_signal_exception const& ex )
       { ex.report(); }
+
+    // not an error
     catch( execution_aborted const& )
       { return 0; }
+
+    // just forward
     catch( execution_exception const& )
       { throw; }
 
+    // unknown error
     catch( ... )
       { detail::report_error( execution_exception::cpp_exception_error, "unknown type" ); }
 
@@ -1248,12 +1337,29 @@ system_error::system_error( char const* exp )
 , p_failed_exp( exp )
 {}
 
+//____________________________________________________________________________//
+
+// ************************************************************************** //
+// **************              execution_exception             ************** //
+// ************************************************************************** //
+
+execution_exception::execution_exception( error_code ec_, const_string what_msg_, location const& location_ )
+: m_error_code( ec_ )
+, m_what( what_msg_.empty() ? BOOST_TEST_L( "uncaught exception, system error or abort requested" ) : what_msg_ )
+, m_location( location_ )
+{}
+
+//____________________________________________________________________________//
+
+execution_exception::location::location( char const* file_name, size_t line_num, char const* func )
+: m_file_name( file_name ? file_name : "unknown location" )
+, m_line_num( line_num )
+, m_function( func )
+{}
 
 //____________________________________________________________________________//
 
 } // namespace boost
-
-//____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
 

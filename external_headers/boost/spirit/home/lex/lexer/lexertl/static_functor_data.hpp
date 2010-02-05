@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2009 Hartmut Kaiser
+//  Copyright (c) 2001-2010 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -61,7 +61,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
               , std::size_t> wrap_action_type;
  
             typedef std::size_t (*next_token_functor)(std::size_t&, 
-                Iterator const&, Iterator&, Iterator const&, std::size_t&);
+                bool&, Iterator&, Iterator const&, std::size_t&);
             typedef char_type const* (*get_state_name_type)(std::size_t);
 
             // initialize the shared data 
@@ -70,11 +70,24 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
                   , Iterator const& last)
               : first_(first), last_(last) 
               , next_token_(data.next_)
-              , get_state_name_(data.get_state_name_){}
+              , get_state_name_(data.get_state_name_)
+              , bol_(data.bol_) {}
 
             // The following functions are used by the implementation of the 
             // placeholder '_state'.
-            void set_state_name (char_type const*) {}
+            template <typename Char>
+            void set_state_name (Char const*) 
+            {
+// some (random) versions of gcc instantiate this function even if it's not 
+// needed leading to false static asserts
+#if !defined(__GNUC__)
+                // If you see a compile time assertion below you're probably 
+                // using a token type not supporting lexer states (the 3rd 
+                // template parameter of the token is mpl::false_), but your 
+                // code uses state changes anyways.
+                BOOST_STATIC_ASSERT(false);
+#endif
+            }
             char_type const* get_state_name() const 
             { 
                 return get_state_name_(0); 
@@ -107,7 +120,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
                 return it; 
             }
 
-            // The function more() is used by the implemention of the support 
+            // The function more() is used by the implementation of the support 
             // function lex::more(). Its functionality is equivalent to flex'
             // function yymore(): it tells the lexer that the next time it 
             // matches a rule, the corresponding token should be appended onto 
@@ -149,7 +162,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             std::size_t next(Iterator& end, std::size_t& unique_id)
             {
                 std::size_t state;
-                return next_token_(state, first_, end, last_, unique_id);
+                return next_token_(state, bol_, end, last_, unique_id);
             }
 
             // nothing to invoke, so this is empty
@@ -179,6 +192,8 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
 
             next_token_functor next_token_;
             get_state_name_type get_state_name_;
+
+            bool bol_;
 
         private:
             // silence MSVC warning C4512: assignment operator could not be generated
@@ -242,7 +257,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             // underlying input sequence. 
             std::size_t next(Iterator& end, std::size_t& unique_id)
             {
-                return this->next_token_(state_, this->first_, end, this->last_
+                return this->next_token_(state_, this->bol_, end, this->last_
                   , unique_id);
             }
 
@@ -312,7 +327,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
                 return it;
             }
 
-            // The function more() is used by the implemention of the support 
+            // The function more() is used by the implementation of the support 
             // function lex::more(). Its functionality is equivalent to flex'
             // function yymore(): it tells the lexer that the next time it 
             // matches a rule, the corresponding token should be appended onto 
