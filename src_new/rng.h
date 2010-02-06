@@ -40,6 +40,7 @@ namespace pagmo
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
  */
 typedef boost::mt19937 rng_uint32;
+
 /// This rng returns a double in the [0,1[ range.
 /**
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
