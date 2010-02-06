@@ -128,6 +128,13 @@ std::string island::human_readable() const
 	} else {
 		oss << "No individuals.\n";
 	}
+	if (champion().get<0>().size()) {
+		oss << "Champion:\n";
+		oss << "\tDecision vector:\t" << champion().get<0>() << '\n';
+		oss << "\tFitness vector:\t\t" << champion().get<1>() << '\n';
+	} else {
+		oss << "No champion yet.\n";
+	}
 	return oss.str();
 }
 

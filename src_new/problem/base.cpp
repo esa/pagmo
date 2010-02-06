@@ -237,11 +237,11 @@ base::f_size_type base::get_f_dimension() const
 /// Return fitness of pagmo::decision_vector.
 /**
  * Equivalent to:
- @verbatim
- fitness_vector f(get_f_dimension());
- objfun(f,x);
- return f;
- @endverbatim
+@verbatim
+fitness_vector f(get_f_dimension());
+objfun(f,x);
+return f;
+@endverbatim
  */
 fitness_vector base::objfun(const decision_vector &x) const
 {
@@ -368,9 +368,9 @@ bool base::operator==(const base &p) const
 /// Compare decision vectors.
 /**
  * This functions returns true if x1 is a better decision_vector than x2, false otherwise. This function will compute the
- * fitness vectors associated to x1 and x2 and will feed them to compare_impl(), whose result will be returned.
+ * fitness vectors associated to x1 and x2 and will feed them to compare_f(), whose result will be returned.
  */
-bool base::compare(const decision_vector &x1, const decision_vector &x2) const
+bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
 {
 	// Make sure the size of the tmp fitness vectors are suitable.
 	pagmo_assert(m_tmp_f1.size() == m_f_dimension && m_tmp_f2.size() == m_f_dimension);
@@ -378,14 +378,26 @@ bool base::compare(const decision_vector &x1, const decision_vector &x2) const
 	objfun(m_tmp_f1,x1);
 	objfun(m_tmp_f2,x2);
 	// Call the comparison implementation.
-	return compare_impl(m_tmp_f1,m_tmp_f2);
+	return compare_f(m_tmp_f1,m_tmp_f2);
 }
 
 /// Compare fitness vectors.
 /**
+ * Will perform sanity checks on v_f1 and v_f2 and then will call base::compare_f_impl().
+ */
+bool base::compare_f(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+{
+	if (v_f1.size() != m_f_dimension || v_f2.size() != m_f_dimension) {
+		pagmo_throw(value_error,"invalid sizes for fitness vector(s) during comparison");
+	}
+	return compare_f_impl(v_f1,v_f2);
+}
+
+/// Implementation of fitness vectors comparison.
+/**
  * Default implementation will compute the summations f1 and f2 of all elements of the input fitness vectors and will return f1 < f2.
  */
-bool base::compare_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+bool base::compare_f_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
 {
 	typedef fitness_vector::value_type fitness_type;
 	const fitness_type init = 0;

@@ -256,21 +256,22 @@ class __PAGMO_VISIBLE base
 		std::string human_readable() const;
 		bool operator==(const base &) const;
 		bool operator!=(const base &) const;
-		bool compare(const decision_vector &, const decision_vector &) const;
+		bool compare_x(const decision_vector &, const decision_vector &) const;
+		bool compare_f(const fitness_vector &, const fitness_vector &) const;
 	protected:
 		//virtual void pre_evolution(island &) const;
 		//virtual void post_evolution(island &) const;
-		void normalise_bounds();
 		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
+		virtual bool compare_f_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.
 		/**
 		 * Takes a pagmo::decision_vector x as input and writes its pagmo::fitness_vector to f. This function is not to be called directly,
 		 * it is invoked by objfun() after a series of safety checks is performed on x and f.
 		 */
 		virtual void objfun_impl(fitness_vector &f, const decision_vector &x) const = 0;
-		virtual bool compare_impl(const decision_vector &, const decision_vector &) const;
 	private:
+		void normalise_bounds();
 		// Construct from iterators.
 		template <class Iterator1, class Iterator2>
 		void construct_from_iterators(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2)

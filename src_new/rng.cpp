@@ -22,64 +22,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ISLAND_STORAGE_H
-#define PAGMO_ISLAND_STORAGE_H
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include <boost/tuple/tuple.hpp>
-#include <cstddef>
-#include <iostream>
-#include <string>
-#include <vector>
-
-#include "config.h"
-#include "algorithm/base.h"
-#include "problem/base.h"
 #include "rng.h"
-#include "types.h"
 
 namespace pagmo
 {
 
-/// Island storage class.
-/**
- * This class holds data for the pagmo::island class, hiding the data members as private and providing a set of protected
- * methods for use by pagmo::island's friends.
- */
-class __PAGMO_VISIBLE island_storage
-{
-	public:
-		/// Individuals stored in the island are populations of tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
-		typedef boost::tuple<decision_vector,decision_vector,fitness_vector,fitness_vector> individual_type;
-		/// Champion type.
-		/**
-		 * A champion is the best individual that ever lived on the island. It is defined by a decision vector and a fitness vector.
-		 */
-		typedef boost::tuple<decision_vector,fitness_vector> champion_type;
-		/// Alias for population type.
-		typedef std::vector<individual_type> population_type;
-		/// Alias for island size type.
-		typedef population_type::size_type size_type;
-		island_storage(const island_storage &);
-		island_storage(const problem::base &, const algorithm::base &, int n = 0);
-		island_storage &operator=(const island_storage &);
-	protected:
-		island_storage();
-		const problem::base &prob() const;
-		const algorithm::base &algo() const;
-		const population_type &pop() const;
-		const champion_type &champion() const;
-	private:
-		// Data members.
-		problem::base_ptr	m_prob;
-		algorithm::base_ptr	m_algo;
-		// Container of individuals.
-		population_type		m_pop;
-		// Island champion.
-		champion_type		m_champion;
-		// Double precision random number generator.
-		mutable	rng_double	m_drng;
-};
+boost::mutex rng_generator::m_mutex;
 
+// Use as initial seed the number of microseconds elapsed since 01/01/1970, cast to uint32_t.
+rng_uint32 rng_generator::m_seeder(boost::uint32_t((boost::posix_time::microsec_clock::local_time() -
+	boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds()));
+
+/// Set seed.
+/**
+ * Set the seed of the internal generator to n. Thread-safe.
+ */
+void rng_generator::set_seed(int n)
+{
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+	m_seeder.seed(n);
 }
 
-#endif
+}

@@ -24,6 +24,7 @@
 
 // 04/01/2009: Initial version by Francesco Biscani.
 
+#include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/tuple/tuple.hpp>
 
@@ -41,6 +42,16 @@ namespace pagmo
  * Not intended for stand-alone use.
  */
 island_storage::island_storage() {}
+
+// Function object to compare individuals according to their current fitness.
+struct cur_f_comp {
+	cur_f_comp(const problem::base &p):m_p(p) {}
+	bool operator()(const island_storage::individual_type &i1, const island_storage::individual_type &i2) const
+	{
+		return m_p.compare_f(i1.get<2>(),i2.get<2>());
+	}
+	const problem::base &m_p;
+};
 
 /// Constructor from problem::base, algorithm::base and number of individuals.
 /**
@@ -82,6 +93,12 @@ island_storage::island_storage(const problem::base &p, const algorithm::base &a,
 		// Best fitness is current fitness.
 		m_pop.back().get<3>() = m_pop.back().get<2>();
 	}
+	// Calculate the champion.
+	population_type::iterator it = std::min_element(m_pop.begin(),m_pop.end(),cur_f_comp(*m_prob));
+	if (it != m_pop.end()) {
+		m_champion.get<0>() = it->get<0>();
+		m_champion.get<1>() = it->get<2>();
+	}
 }
 
 /// Assignment operator.
@@ -117,6 +134,12 @@ const algorithm::base &island_storage::algo() const
 const island_storage::population_type &island_storage::pop() const
 {
 	return m_pop;
+}
+
+/// Get constant reference to internal champion member.
+const island_storage::champion_type &island_storage::champion() const
+{
+	return m_champion;
 }
 
 }
