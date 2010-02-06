@@ -26,6 +26,7 @@
 #include <sstream>
 #include <typeinfo>
 
+#include "../island.h"
 #include "../rng.h"
 #include "base.h"
 
@@ -41,6 +42,19 @@ base::base():m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<
 
 /// Trivial destructor.
 base::~base() {}
+
+/// Top-level evolve method.
+/**
+ * This method is a wrapper around base::evolve_impl().
+ */
+void base::evolve(island &isl) const
+{
+	if (&isl.algo() != this) {
+		// Join isl if it is not the one containing the current algorithm.
+		isl.join();
+	}
+	evolve_impl(isl);
+}
 
 /// Return human readable representation of the algorithm.
 /**

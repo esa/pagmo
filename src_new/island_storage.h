@@ -44,6 +44,8 @@ namespace pagmo
 /**
  * This class holds data for the pagmo::island class, hiding the data members as private and providing a set of protected
  * methods for use by pagmo::island's friends.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE island_storage
 {
@@ -59,7 +61,6 @@ class __PAGMO_VISIBLE island_storage
 		typedef std::vector<individual_type> population_type;
 		/// Alias for island size type.
 		typedef population_type::size_type size_type;
-		island_storage(const island_storage &);
 		island_storage(const problem::base &, const algorithm::base &, int n = 0);
 		island_storage &operator=(const island_storage &);
 	protected:

@@ -55,6 +55,7 @@ typedef boost::lagged_fibonacci607 rng_double;
  * be safely called concurrently from multiple threads. The initial seed used
  * is the number of microseconds elapsed since 01/01/1970, cast to uint32_t.
  *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  * @see http://www.boost.org/doc/libs/release/libs/random/index.html
  */
 class rng_generator {

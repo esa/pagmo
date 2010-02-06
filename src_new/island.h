@@ -44,15 +44,20 @@ namespace pagmo
 {
 
 // Forward declaration of archipelago class, needed to make friend.
-class archipelago;
+class __PAGMO_VISIBLE archipelago;
 
 /// Island class.
+/**
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE island: public island_storage
 {
 		// Lock type alias.
 		typedef boost::lock_guard<boost::mutex> lock_type;
 		// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
+		// Algorithm is your friend.
+		friend __PAGMO_VISIBLE class algorithm::base;
 	public:
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0);
@@ -61,8 +66,6 @@ class __PAGMO_VISIBLE island: public island_storage
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
 		void join() const;
-	private:
-
 	private:
 		// Archipelago that, it not null, contains the island.
 		archipelago		*m_archi;

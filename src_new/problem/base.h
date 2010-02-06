@@ -66,6 +66,8 @@ typedef boost::shared_ptr<base> base_ptr;
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
  *
  * All dimensions are supposed to be invariant in the life cycle of a problem object.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE base
 {

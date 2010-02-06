@@ -44,7 +44,7 @@ base_ptr null::clone() const
 /**
  * Evolution for this algorithm will leave the island unchanged.
  */
-void null::evolve(island &) const {}
+void null::evolve_impl(island &) const {}
 
 }
 

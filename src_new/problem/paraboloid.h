@@ -42,6 +42,8 @@ namespace pagmo { namespace problem {
  * 	f\left(x_1,\ldots,x_N \right) = \sum_{i=1}^N x_i^2.
  * \f]
  * Useful for testing/benchmarking purposes.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class paraboloid:public base
 {

@@ -54,23 +54,26 @@ typedef boost::shared_ptr<base> base_ptr;
 /**
  * All algorithms implemented in PaGMO must derive from this base class. This base class provides each algorithm with one pagmo::rng_double
  * and one pagmo::rng_uint32 random number generators. Each algorithm must implement the base::evolve() method.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE base
 {
 		friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 	public:
 		base();
-		/// Evolve method.
-		/**
-		 * This method is supposed to take a pagmo::island as input and make it evolve towards the solution of problem.
-		 */
-		virtual void evolve(island &) const = 0;
+		void evolve(island &) const;
 		/// Clone method.
 		virtual base_ptr clone() const = 0;
 		virtual ~base();
 		std::string human_readable() const;
 	protected:
 		virtual std::string human_readable_extra() const;
+		/// Evolution implementation.
+		/**
+		 * The purpose of this method is to take a pagmo::island as input and evolve it towards the solution of the problem.
+		 */
+		virtual void evolve_impl(island &) const = 0;
 	protected:
 		/// Random number generator for double-precision floating point values.
 		mutable rng_double	m_drng;

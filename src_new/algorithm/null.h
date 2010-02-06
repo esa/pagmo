@@ -37,13 +37,16 @@ namespace algorithm
 /// Null algorithm.
 /**
  * Will leave island unchanged during evolution. Useful for testing/benchmarking.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE null:public base
 {
 	public:
 		null();
-		void evolve(island &) const;
 		base_ptr clone() const;
+	private:
+		void evolve_impl(island &) const;
 };
 
 }
