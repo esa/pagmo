@@ -34,6 +34,10 @@ namespace pagmo
 namespace algorithm
 {
 
+/// Null algorithm.
+/**
+ * Will leave island unchanged during evolution. Useful for testing/benchmarking.
+ */
 class __PAGMO_VISIBLE null:public base
 {
 	public:

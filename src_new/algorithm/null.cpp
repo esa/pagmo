@@ -31,13 +31,19 @@ namespace pagmo
 namespace algorithm
 {
 
+/// Default constructor.
 null::null():base() {}
 
+/// Clone method.
 base_ptr null::clone() const
 {
 	return base_ptr(new null(*this));
 }
 
+/// Evolution.
+/**
+ * Evolution for this algorithm will leave the island unchanged.
+ */
 void null::evolve(island &) const {}
 
 }
