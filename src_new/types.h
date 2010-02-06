@@ -27,6 +27,7 @@
 #ifndef PAGMO_TYPES_H
 #define PAGMO_TYPES_H
 
+#include <boost/lexical_cast.hpp>
 #include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
 #include <vector>
@@ -58,7 +59,7 @@ namespace std
 	{
 		os << '[';
 		for (std::vector<double>::size_type i = 0; i < v.size(); ++i) {
-			os << v[i];
+			os << boost::lexical_cast<std::string>(v[i]);
 			if (i != v.size() - 1) {
 				os << ", ";
 			}

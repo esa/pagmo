@@ -93,9 +93,12 @@ int main()
 	std::cout << f << '\n';
 std::cout << "foo!\n";
 
-	island isl(p2,algorithm::null(),10);
+	island isl(problem::paraboloid(lb2,ub2),algorithm::null(),10);
 
 	std::cout << isl << '\n';
+
+
+	std::cout << island(problem::paraboloid(lb2,ub2),algorithm::null(),10) << '\n';
 
 	//std::cout << problem::paraboloid(lb2,ub2).objfun(lb2) << '\n';
 }

@@ -28,7 +28,6 @@
 #define PAGMO_RNG_H
 
 #include <boost/cstdint.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/random/lagged_fibonacci.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/thread/locks.hpp>
@@ -47,60 +46,35 @@ typedef boost::mt19937 rng_uint32;
  */
 typedef boost::lagged_fibonacci607 rng_double;
 
-/// Generic thread-safe wrapper class around a Boost-like pseudo-random number generator.
+/// Generic thread-safe generator of pseudo-random number generators.
 /**
- * To use, construct and call operator() to get a pseudo-random number. Type Rng must be a Boost-like
- * pseudo-random number generator.
+ * To use, call the static member get() to get a pseudo-random number generator seeded with an initial pseudo-random value.
  *
  * Implementation internally uses a mutex, so that this generator can
  * be safely called concurrently from multiple threads. The initial seed used
  * is the number of microseconds elapsed since 01/01/1970, cast to uint32_t.
- * Please note that the initial seed is set once at program startup and shared among all
- * instances for a given Rng type.
+ *
  * @see http://www.boost.org/doc/libs/release/libs/random/index.html
  */
-template <class Rng>
-class static_rng {
+class rng_generator {
 	public:
-		/// Result type.
-		typedef typename Rng::result_type result_type;
-		/// Return random number.
+		/// Return pseudo-random number generator.
 		/**
-		 * Return next pseudo-random number in the sequence.
+		 * Type Rng must be a Boost-like pseudo-random number generator initialisable
+		 * with a boost::uint32_t. Return value is seeded with an internal
+		 * static pagmo::rng_uint32.
 		 */
-		result_type operator()()
+		template <class Rng>
+		static Rng get()
 		{
 			boost::lock_guard<boost::mutex> lock(m_mutex);
-			return m_rng();
+			return Rng(m_seeder());
 		}
-		/// Set seed.
-		/**
-		 * Set seed to n. Thread-safe. It is assumed that the underlying Rng type
-		 * can be successfully seeded with an int value.
-		 */
-		static void set_seed(int n)
-		{
-			boost::lock_guard<boost::mutex> lock(m_mutex);
-			m_rng.seed(n);
-		}
+		static void set_seed(int);
 	private:
 		static boost::mutex	m_mutex;
-		static Rng		m_rng;
+		static rng_uint32	m_seeder;
 };
-
-template <class Rng>
-boost::mutex static_rng<Rng>::m_mutex;
-
-// Use as initial seed the number of microseconds elapsed since 01/01/1970, cast to uint32_t.
-template <class Rng>
-Rng static_rng<Rng>::m_rng(boost::uint32_t((boost::posix_time::microsec_clock::local_time() -
-	boost::posix_time::ptime(boost::gregorian::date(1970,1,1))).total_microseconds()));
-
-/// Thread-safe version of pagmo::rng_uint32.
-typedef static_rng<rng_uint32> static_rng_uint32;
-
-/// Thread-safe version of pagmo::rng_double.
-typedef static_rng<rng_double> static_rng_double;
 
 }
 

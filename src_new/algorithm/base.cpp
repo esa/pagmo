@@ -37,7 +37,7 @@ namespace algorithm {
 /**
  * Will initialise the internal random number generators using seeds provided by the thread-safe pagmo::static_rng_uint32.
  */
-base::base():m_drng(static_rng_uint32()()),m_urng(static_rng_uint32()()) {}
+base::base():m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()) {}
 
 /// Trivial destructor.
 base::~base() {}

@@ -47,7 +47,7 @@ island_storage::island_storage() {}
  * Will store a copy of the problem and of the algorithm internally, and it will initialise the internal population to n randomly-generated individuals.
  * Will fail if n is negative.
  */
-island_storage::island_storage(const problem::base &p, const algorithm::base &a, int n):m_prob(p.clone()),m_algo(a.clone()),m_drng(static_rng_uint32()())
+island_storage::island_storage(const problem::base &p, const algorithm::base &a, int n):m_prob(p.clone()),m_algo(a.clone()),m_drng(rng_generator::get<rng_double>())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");

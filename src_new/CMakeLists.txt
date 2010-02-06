@@ -6,6 +6,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/paraboloid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island_storage.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 )
 
 # Boost  thread library.
