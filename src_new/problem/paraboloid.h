@@ -51,13 +51,13 @@ class paraboloid:public base
 		paraboloid();
 		/// Constructor from raw arrays.
 		/**
-		 * @see problem::base
+		 * @see problem::base constructors.
 		 */
 		template <std::size_t N>
 		paraboloid(const double (&v1)[N], const double (&v2)[N]):base(v1,v2) {}
 		/// Constructor from iterators.
 		/**
-		 * @see problem::base
+		 * @see problem::base constructors.
 		 */
 		template <class Iterator1, class Iterator2>
 		paraboloid(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2):base(start1,end1,start2,end2) {}

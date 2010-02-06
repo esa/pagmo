@@ -39,7 +39,7 @@ namespace pagmo
 {
 /// Default constructor.
 /**
- * Not intended for stand-alone use.
+ * Will default-initialise all data members.
  */
 island_storage::island_storage() {}
 
