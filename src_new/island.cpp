@@ -120,10 +120,10 @@ std::string island::human_readable() const
 		oss << "List of individuals:\n";
 		for (size_type i = 0; i < pop().size(); ++i) {
 			oss << '#' << i << ":\n";
-			oss << '\t' << pop()[i].get<0>() << '\n';
-			oss << '\t' << pop()[i].get<1>() << '\n';
-			oss << '\t' << pop()[i].get<2>() << '\n';
-			oss << '\t' << pop()[i].get<3>() << '\n';
+			oss << "\tDecision vector:\t" << pop()[i].get<0>() << '\n';
+			oss << "\tVelocity vector:\t" << pop()[i].get<1>() << '\n';
+			oss << "\tFitness vector:\t\t" << pop()[i].get<2>() << '\n';
+			oss << "\tBest fitness vector:\t" << pop()[i].get<3>() << '\n';
 		}
 	} else {
 		oss << "No individuals.\n";

@@ -68,6 +68,8 @@ base::base(int n, int ni, int nf):m_decision_vector_cache(cache_capacity),m_fitn
 	// Resize properly temporary fitness storage.
 	m_tmp_f1.resize(m_f_dimension);
 	m_tmp_f2.resize(m_f_dimension);
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Constructor from upper/lower bounds and integer and fitness dimensions.
@@ -86,6 +88,8 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf)
 	// Resize properly temporary fitness storage.
 	m_tmp_f1.resize(m_f_dimension);
 	m_tmp_f2.resize(m_f_dimension);
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Trivial destructor.
@@ -116,6 +120,8 @@ void base::set_bounds(const decision_vector &lb, const decision_vector &ub)
 	verify_bounds(lb.begin(),lb.end(),ub.begin(),ub.end());
 	m_lb = lb;
 	m_ub = ub;
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Set lower bounds from pagmo::decision_vector.
@@ -129,6 +135,8 @@ void base::set_lb(const decision_vector &lb)
 	}
 	verify_bounds(lb.begin(),lb.end(),m_ub.begin(),m_ub.end());
 	m_lb = lb;
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Set specific lower bound to value.
@@ -142,6 +150,8 @@ void base::set_lb(int n, const double &value)
 		pagmo_throw(value_error,"invalid index and/or value for lower bound");
 	}
 	m_lb[i] = value;
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Set all lower bounds to value.
@@ -156,6 +166,8 @@ void base::set_lb(const double &value)
 		}
 	}
 	std::fill(m_lb.begin(),m_lb.end(),value);
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Set upper bounds from pagmo::decision_vector.
@@ -169,6 +181,8 @@ void base::set_ub(const decision_vector &ub)
 	}
 	verify_bounds(m_lb.begin(),m_lb.end(),ub.begin(),ub.end());
 	m_ub = ub;
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Set specific upper bound to value.
@@ -182,6 +196,8 @@ void base::set_ub(int n, const double &value)
 		pagmo_throw(value_error,"invalid index and/or value for upper bound");
 	}
 	m_ub[i] = value;
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Set all upper bounds to value.
@@ -196,6 +212,8 @@ void base::set_ub(const double &value)
 		}
 	}
 	std::fill(m_ub.begin(),m_ub.end(),value);
+	// Normalise bounds.
+	normalise_bounds();
 }
 
 /// Return global dimension.
@@ -392,6 +410,17 @@ bool base::equality_operator_extra(const base &) const
 bool base::operator!=(const base &p) const
 {
 	return !(*this == p);
+}
+
+// This function will round to the nearest integer the upper/lower bounds of the integer part of the problem.
+// This should be called each time bounds are set.
+void base::normalise_bounds()
+{
+	pagmo_assert(m_lb.size() >= m_i_dimension);
+	for (size_type i = m_lb.size() - m_i_dimension; i < m_lb.size(); ++i) {
+		m_lb[i] = double_to_int::nearbyint(m_lb[i]);
+		m_ub[i] = double_to_int::nearbyint(m_ub[i]);
+	}
 }
 
 /// Overload stream operator for problem::base.

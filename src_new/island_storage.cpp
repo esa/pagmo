@@ -25,11 +25,13 @@
 // 04/01/2009: Initial version by Francesco Biscani.
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #include "algorithm/base.h"
 #include "problem/base.h"
 #include "exceptions.h"
 #include "island_storage.h"
+#include "rng.h"
 #include "types.h"
 
 namespace pagmo
@@ -40,20 +42,45 @@ namespace pagmo
  */
 island_storage::island_storage() {}
 
-
 /// Constructor from problem::base, algorithm::base and number of individuals.
 /**
- * Will store a copy of the problem and of the algorithm internally, will initialise internal population to n individuals
- * and evolution time to zero. Will fail if n is negative.
+ * Will store a copy of the problem and of the algorithm internally, and it will initialise the internal population to n randomly-generated individuals.
+ * Will fail if n is negative.
  */
-island_storage::island_storage(const problem::base &p, const algorithm::base &a, int n):m_prob(p.clone()),m_algo(a.clone())
+island_storage::island_storage(const problem::base &p, const algorithm::base &a, int n):m_prob(p.clone()),m_algo(a.clone()),m_drng(static_rng_uint32()())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
 	}
+	// Store sizes temporarily.
 	const size_type size = boost::numeric_cast<size_type>(n);
+	const fitness_vector::size_type f_size = m_prob->get_f_dimension();
+	const decision_vector::size_type p_size = m_prob->get_dimension(), i_size = m_prob->get_i_dimension();
+	pagmo_assert(p_size >= i_size);
 	for (size_type i = 0; i < size; ++i) {
-		
+		// Push back an empty individual.
+		m_pop.push_back(individual_type());
+		// Resize decision vectors and fitness vectors.
+		m_pop.back().get<0>().resize(p_size);
+		m_pop.back().get<1>().resize(p_size);
+		m_pop.back().get<2>().resize(f_size);
+		m_pop.back().get<3>().resize(f_size);
+		// Initialise randomly the continuous part of the decision vector.
+		for (decision_vector::size_type i = 0; i < p_size - i_size; ++i) {
+			m_pop.back().get<0>()[i] = m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
+		}
+		// Initialise randomly the integer part of the decision vector.
+		for (decision_vector::size_type i = p_size - i_size; i < p_size; ++i) {
+			m_pop.back().get<0>()[i] = double_to_int::nearbyint(m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]));
+		}
+		// Initialise randomly the velocity vector.
+		for (decision_vector::size_type i = 0; i < p_size; ++i) {
+			m_pop.back().get<1>()[i] = (m_drng() - .5) * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
+		}
+		// Compute the current fitness.
+		m_prob->objfun(m_pop.back().get<2>(),m_pop.back().get<0>());
+		// Best fitness is current fitness.
+		m_pop.back().get<3>() = m_pop.back().get<2>();
 	}
 }
 
@@ -68,6 +95,8 @@ island_storage &island_storage::operator=(const island_storage &isl)
 		m_prob = isl.m_prob->clone();
 		m_algo = isl.m_algo->clone();
 		m_pop = isl.m_pop;
+		m_champion = isl.m_champion;
+		m_drng = isl.m_drng;
 	}
 	return *this;
 }

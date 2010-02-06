@@ -105,6 +105,8 @@ class __PAGMO_VISIBLE base
 			// Resize properly temporary fitness storage.
 			m_tmp_f1.resize(m_f_dimension);
 			m_tmp_f2.resize(m_f_dimension);
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		/// Constructor from iterators, integer dimension and fitness dimension.
 		/**
@@ -125,9 +127,11 @@ class __PAGMO_VISIBLE base
 			if (m_i_dimension > m_lb.size()) {
 				pagmo_throw(value_error,"integer dimension must not be greater than global dimension");
 			}
-			// Resize properly temporary fitness storage.
+			// Properly resize temporary fitness storage.
 			m_tmp_f1.resize(m_f_dimension);
 			m_tmp_f2.resize(m_f_dimension);
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		virtual ~base();
 		// Getters and setters.
@@ -152,6 +156,8 @@ class __PAGMO_VISIBLE base
 			verify_bounds(start1,end1,start2,end2);
 			std::copy(start1,end1,m_lb.begin());
 			std::copy(start2,end2,m_ub.begin());
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		/// Bounds setter from raw arrays.
 		/**
@@ -167,6 +173,8 @@ class __PAGMO_VISIBLE base
 			verify_bounds(v1,v1 + N,v2,v2 + N);
 			std::copy(v1,v1 + N,m_lb.begin());
 			std::copy(v2,v2 + N,m_ub.begin());
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		void set_lb(const decision_vector &);
 		void set_lb(int, const double &);
@@ -184,6 +192,8 @@ class __PAGMO_VISIBLE base
 			}
 			verify_bounds(start,end,m_ub.begin(),m_ub.end());
 			std::copy(start,end,m_lb.begin());
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		/// Lower bounds setter from raw array.
 		/**
@@ -198,6 +208,8 @@ class __PAGMO_VISIBLE base
 			}
 			verify_bounds(v,v + N,m_ub.begin(),m_ub.end());
 			std::copy(v,v + N,m_lb.begin());
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		void set_ub(const decision_vector &);
 		void set_ub(int, const double &);
@@ -215,6 +227,8 @@ class __PAGMO_VISIBLE base
 			}
 			verify_bounds(m_lb.begin(),m_lb.end(),start,end);
 			std::copy(start,end,m_ub.begin());
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		/// Upper bounds setter from raw array.
 		/**
@@ -229,6 +243,8 @@ class __PAGMO_VISIBLE base
 			}
 			verify_bounds(m_lb.begin(),m_lb.end(),v,v + N);
 			std::copy(v,v + N,m_ub.begin());
+			// Normalise bounds.
+			normalise_bounds();
 		}
 		size_type get_dimension() const;
 		size_type get_i_dimension() const;
@@ -244,6 +260,7 @@ class __PAGMO_VISIBLE base
 	protected:
 		//virtual void pre_evolution(island &) const;
 		//virtual void post_evolution(island &) const;
+		void normalise_bounds();
 		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
 		/// Objective function implementation.

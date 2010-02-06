@@ -89,9 +89,11 @@ int main()
 	ub2[0] -= 1E-3;
 	lb2[0] += 1E-3;
 	p2.objfun(f,lb2);
+	p2.set_lb(0,-1.234);
 	std::cout << f << '\n';
+std::cout << "foo!\n";
 
-	island isl(p2,algorithm::null());
+	island isl(p2,algorithm::null(),10);
 
 	std::cout << isl << '\n';
 

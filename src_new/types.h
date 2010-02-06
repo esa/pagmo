@@ -27,6 +27,7 @@
 #ifndef PAGMO_TYPES_H
 #define PAGMO_TYPES_H
 
+#include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
 #include <vector>
 
@@ -38,6 +39,16 @@ namespace pagmo
 	typedef std::vector<double> decision_vector;
 	/// Fitness vector type.
 	typedef std::vector<double> fitness_vector;
+
+	/// Double to int converter.
+	/**
+	 * Will round a double to the nearest integer using "round half to even" for tie-breaking. Usage example:
+	 @verbatim int i = double_to_int::nearbyint(1.23); @endverbatim
+	 * @see http://www.boost.org/doc/libs/release/libs/numeric/conversion/doc/html/index.html
+	 * @see http://en.wikipedia.org/wiki/Rounding
+	 */
+	typedef boost::numeric::converter<int,double,boost::numeric::conversion_traits<int,double>,
+		boost::numeric::def_overflow_handler,boost::numeric::RoundEven<double> > double_to_int;
 }
 
 namespace std

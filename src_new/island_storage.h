@@ -50,6 +50,11 @@ class __PAGMO_VISIBLE island_storage
 	public:
 		/// Individuals stored in the island are populations of tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
 		typedef boost::tuple<decision_vector,decision_vector,fitness_vector,fitness_vector> individual_type;
+		/// Champion type.
+		/**
+		 * A champion is the best individual that ever lived on the island. It is defined by a decision vector and a fitness vector.
+		 */
+		typedef boost::tuple<decision_vector,fitness_vector> champion_type;
 		/// Alias for population type.
 		typedef std::vector<individual_type> population_type;
 		/// Alias for island size type.
@@ -68,6 +73,10 @@ class __PAGMO_VISIBLE island_storage
 		algorithm::base_ptr	m_algo;
 		// Container of individuals.
 		population_type		m_pop;
+		// Island champion.
+		champion_type		m_champion;
+		// Double precision random number generator.
+		mutable	rng_double	m_drng;
 };
 
 }
