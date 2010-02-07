@@ -318,12 +318,12 @@ std::string base::human_readable() const
 	std::ostringstream s;
 	s << "Problem type: " << typeid(*this).name() << '\n';
 	const size_type size = get_dimension();
-	s << "Global dimension:\t" << size << '\n';
-	s << "Integer dimension:\t" << m_i_dimension << '\n';
-	s << "Fitness dimension:\t" << m_f_dimension << '\n';
-	s << "Lower bounds: ";
+	s << "\tGlobal dimension:\t" << size << '\n';
+	s << "\tInteger dimension:\t" << m_i_dimension << '\n';
+	s << "\tFitness dimension:\t" << m_f_dimension << '\n';
+	s << "\tLower bounds: ";
 	s << m_lb << '\n';
-	s << "Upper bounds: ";
+	s << "\tUpper bounds: ";
 	s << m_ub << '\n';
 	s << human_readable_extra();
 	return s.str();

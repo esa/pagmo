@@ -22,58 +22,61 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include <sstream>
-#include <typeinfo>
+#ifndef PAGMO_ALGORITHM_IHS_H
+#define PAGMO_ALGORITHM_IHS_H
 
+#include <cstddef>
+#include <iostream>
+#include <string>
+
+#include "../config.h"
 #include "../population.h"
-#include "../rng.h"
 #include "base.h"
 
 namespace pagmo
 {
 namespace algorithm {
 
-/// Default constructor.
+/// Improved harmony search algorithm.
 /**
- * Will initialise the internal random number generators using seeds provided by the thread-safe pagmo::static_rng_uint32.
+ * Harmony search (HS) is a metaheuristic algorithm mimicking the improvisation process of musicians. In the process, each musician (i.e., each variable)
+ * plays (i.e., generates) a note (i.e., a value) for finding a best harmony (i.e., the global optimum) all together.
+ *
+ * This code implements the so-called improved harmony search algorithm (IHS), in which the probability of picking the variables from
+ * the decision vector and the amount of mutation to which they are subject vary respectively linearly and exponentially as time passes.
+ *
+ * In this algorithm the number of objective function evaluations is equal to the number of generations.
+ *
+ * @see http://en.wikipedia.org/wiki/Harmony_search for an introduction on harmony search.
+ * @see http://dx.doi.org/10.1016/j.amc.2006.11.033 for the paper that introduces and explains improved harmony search.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-base::base():m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()) {}
-
-/// Trivial destructor.
-base::~base() {}
-
-/// Return human readable representation of the algorithm.
-/**
- * Will return a formatted string containing the problem type (in mangled C++ form).
- * The output of human_readable_extra() will be appended at the end of the string.
- */
-std::string base::human_readable() const
+class __PAGMO_VISIBLE ihs: public base
 {
-	std::ostringstream s;
-	s << "Algorithm type: " << typeid(*this).name() << '\n';
-	s << human_readable_extra();
-	return s.str();
-}
-
-/// Extra information in human readable format.
-/**
- * Default implementation returns an empty string.
- */
-std::string base::human_readable_extra() const
-{
-	return std::string();
-}
-
-/// Overload stream operator for algorithm::base.
-/**
- * Equivalent to printing base::human_readable() to stream.
- */
-std::ostream &operator<<(std::ostream &s, const base &alg)
-{
-	s << alg.human_readable();
-	return s;
-}
+	public:
+		ihs(int);
+		ihs(int, const double &, const double &, const double &, const double &, const double &);
+		base_ptr clone() const;
+		void evolve(population &) const;
+	private:
+		std::string human_readable_extra() const;
+	private:
+		// Number of generations.
+		const std::size_t	m_gen;
+		// Rate of choosing from memory (i.e., from population).
+		const double		m_phmcr;
+		// Minimum pitch adjustment rate.
+		const double		m_ppar_min;
+		// Maximum pitch adjustment rate.
+		const double		m_ppar_max;
+		// Mininum distance bandwidth.
+		const double		m_bw_min;
+		// Maximum distance bandwidth.
+		const double		m_bw_max;
+};
 
 }
 }
+
+#endif

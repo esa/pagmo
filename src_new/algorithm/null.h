@@ -25,7 +25,7 @@
 #ifndef PAGMO_ALGORITHM_NULL_H
 #define PAGMO_ALGORITHM_NULL_H
 
-#include "../island.h"
+#include "../population.h"
 #include "base.h"
 
 namespace pagmo
@@ -36,7 +36,7 @@ namespace algorithm
 
 /// Null algorithm.
 /**
- * Will leave island unchanged during evolution. Useful for testing/benchmarking.
+ * Will leave population unchanged during evolution. Useful for testing/benchmarking.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -45,8 +45,8 @@ class __PAGMO_VISIBLE null:public base
 	public:
 		null();
 		base_ptr clone() const;
+		void evolve(population &) const;
 	private:
-		void evolve_impl(island &) const;
 };
 
 }

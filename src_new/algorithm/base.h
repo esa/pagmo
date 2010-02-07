@@ -31,13 +31,11 @@
 #include <typeinfo>
 
 #include "../config.h"
+#include "../population.h"
 #include "../rng.h"
 
 namespace pagmo
 {
-// Forward declaration of island class.
-class __PAGMO_VISIBLE island;
-
 /// Algorithm namespace.
 /**
  * This namespace contains all the algorithms implemented in PaGMO.
@@ -62,18 +60,17 @@ class __PAGMO_VISIBLE base
 		friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 	public:
 		base();
-		void evolve(island &) const;
+		/// Evolve method.
+		/**
+		 * The purpose of this method is to take a pagmo::population as input and evolve it towards the solution of the problem.
+		 */
+		virtual void evolve(population &) const = 0;
 		/// Clone method.
 		virtual base_ptr clone() const = 0;
 		virtual ~base();
 		std::string human_readable() const;
 	protected:
 		virtual std::string human_readable_extra() const;
-		/// Evolution implementation.
-		/**
-		 * The purpose of this method is to take a pagmo::island as input and evolve it towards the solution of the problem.
-		 */
-		virtual void evolve_impl(island &) const = 0;
 	protected:
 		/// Random number generator for double-precision floating point values.
 		mutable rng_double	m_drng;

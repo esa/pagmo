@@ -35,7 +35,7 @@
 
 #include "config.h"
 #include "algorithm/base.h"
-#include "island_storage.h"
+#include "population.h"
 #include "problem/base.h"
 //#include "migration/MigrationPolicy.h"
 #include "types.h"
@@ -50,14 +50,12 @@ class __PAGMO_VISIBLE archipelago;
 /**
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE island: public island_storage
+class __PAGMO_VISIBLE island
 {
 		// Lock type alias.
 		typedef boost::lock_guard<boost::mutex> lock_type;
 		// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
-		// Algorithm is your friend.
-		friend __PAGMO_VISIBLE class algorithm::base;
 	public:
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0);
@@ -67,7 +65,11 @@ class __PAGMO_VISIBLE island: public island_storage
 		std::string human_readable() const;
 		void join() const;
 	private:
-		// Archipelago that, it not null, contains the island.
+		// Population.
+		population		m_pop;
+		// Algorithm.
+		algorithm::base_ptr	m_algo;
+		// Archipelago that, if not null, contains the island.
 		archipelago		*m_archi;
 		// Counts the total time spent by the island on evolution (in milliseconds).
 		std::size_t		m_evo_time;

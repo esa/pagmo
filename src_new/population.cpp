@@ -26,39 +26,31 @@
 
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/tuple/tuple.hpp>
 
-#include "algorithm/base.h"
 #include "problem/base.h"
 #include "exceptions.h"
-#include "island_storage.h"
+#include "population.h"
 #include "rng.h"
 #include "types.h"
 
 namespace pagmo
 {
-/// Default constructor.
-/**
- * Will default-initialise all data members.
- */
-island_storage::island_storage() {}
-
 // Function object to compare individuals according to their current fitness.
 struct cur_f_comp {
 	cur_f_comp(const problem::base &p):m_p(p) {}
-	bool operator()(const island_storage::individual_type &i1, const island_storage::individual_type &i2) const
+	bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
 	{
 		return m_p.compare_f(i1.get<2>(),i2.get<2>());
 	}
 	const problem::base &m_p;
 };
 
-/// Constructor from problem::base, algorithm::base and number of individuals.
+/// Constructor from problem::base and number of individuals.
 /**
- * Will store a copy of the problem and of the algorithm internally, and it will initialise the internal population to n randomly-generated individuals.
+ * Will store a copy of the problem and will initialise the population to n randomly-generated individuals.
  * Will fail if n is negative.
  */
-island_storage::island_storage(const problem::base &p, const algorithm::base &a, int n):m_prob(p.clone()),m_algo(a.clone()),m_drng(rng_generator::get<rng_double>())
+population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(rng_generator::get<rng_double>())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
@@ -70,76 +62,90 @@ island_storage::island_storage(const problem::base &p, const algorithm::base &a,
 	pagmo_assert(p_size >= i_size);
 	for (size_type i = 0; i < size; ++i) {
 		// Push back an empty individual.
-		m_pop.push_back(individual_type());
+		m_container.push_back(individual_type());
 		// Resize decision vectors and fitness vectors.
-		m_pop.back().get<0>().resize(p_size);
-		m_pop.back().get<1>().resize(p_size);
-		m_pop.back().get<2>().resize(f_size);
-		m_pop.back().get<3>().resize(f_size);
+		m_container.back().get<0>().resize(p_size);
+		m_container.back().get<1>().resize(p_size);
+		m_container.back().get<2>().resize(f_size);
+		m_container.back().get<3>().resize(f_size);
 		// Initialise randomly the continuous part of the decision vector.
 		for (decision_vector::size_type i = 0; i < p_size - i_size; ++i) {
-			m_pop.back().get<0>()[i] = m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
+			m_container.back().get<0>()[i] = m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
 		}
 		// Initialise randomly the integer part of the decision vector.
 		for (decision_vector::size_type i = p_size - i_size; i < p_size; ++i) {
-			m_pop.back().get<0>()[i] = double_to_int::nearbyint(m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]));
+			m_container.back().get<0>()[i] = double_to_int::nearbyint(m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]));
 		}
 		// Initialise randomly the velocity vector.
 		for (decision_vector::size_type i = 0; i < p_size; ++i) {
-			m_pop.back().get<1>()[i] = (m_drng() - .5) * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
+			m_container.back().get<1>()[i] = (m_drng() - .5) * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
 		}
 		// Compute the current fitness.
-		m_prob->objfun(m_pop.back().get<2>(),m_pop.back().get<0>());
+		m_prob->objfun(m_container.back().get<2>(),m_container.back().get<0>());
 		// Best fitness is current fitness.
-		m_pop.back().get<3>() = m_pop.back().get<2>();
+		m_container.back().get<3>() = m_container.back().get<2>();
 	}
 	// Calculate the champion.
-	population_type::iterator it = std::min_element(m_pop.begin(),m_pop.end(),cur_f_comp(*m_prob));
-	if (it != m_pop.end()) {
+	container_type::iterator it = std::min_element(m_container.begin(),m_container.end(),cur_f_comp(*m_prob));
+	if (it != m_container.end()) {
 		m_champion.get<0>() = it->get<0>();
 		m_champion.get<1>() = it->get<2>();
 	}
 }
 
+/// Copy constructor.
+/**
+ * Will perform a deep copy of all the elements.
+ */
+population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_champion(p.m_champion),m_drng(p.m_drng) {}
+
+/// Default constructor.
+/**
+ * For use only by pagmo::island.
+ */
+population::population() {}
+
 /// Assignment operator.
 /**
- * Performs a deep copy of all the elements of isl into this.
+ * Performs a deep copy of all the elements of p into this.
  */
-island_storage &island_storage::operator=(const island_storage &isl)
+population &population::operator=(const population &p)
 {
-	if (this != &isl) {
+	if (this != &p) {
 		// Perform the copies.
-		m_prob = isl.m_prob->clone();
-		m_algo = isl.m_algo->clone();
-		m_pop = isl.m_pop;
-		m_champion = isl.m_champion;
-		m_drng = isl.m_drng;
+		m_prob = p.m_prob->clone();
+		m_container = p.m_container;
+		m_champion = p.m_champion;
+		m_drng = p.m_drng;
 	}
 	return *this;
 }
 
+/// Get constant reference to individual at position n.
+const population::individual_type &population::get_individual(const size_type &n) const
+{
+	if (n >= size()) {
+		pagmo_throw(index_error,"invalid individual position");
+	}
+	return m_container[n];
+}
+
 /// Get constant reference to internal problem::base class.
-const problem::base &island_storage::prob() const
+const problem::base &population::problem() const
 {
 	return *m_prob;
 }
 
-/// Get constant reference to internal algorithm::base class.
-const algorithm::base &island_storage::algo() const
-{
-	return *m_algo;
-}
-
-/// Get constant reference to internal population.
-const island_storage::population_type &island_storage::pop() const
-{
-	return m_pop;
-}
-
 /// Get constant reference to internal champion member.
-const island_storage::champion_type &island_storage::champion() const
+const population::champion_type &population::champion() const
 {
 	return m_champion;
+}
+
+/// Get the size of the population.
+population::size_type population::size() const
+{
+	return m_container.size();
 }
 
 }

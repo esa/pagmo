@@ -26,6 +26,7 @@
 #include <vector>
 #include <list>
 
+#include "src_new/algorithm/ihs.h"
 #include "src_new/algorithm/null.h"
 #include "src_new/island.h"
 #include "src_new/problem/paraboloid.h"
@@ -95,10 +96,11 @@ int main()
 	island isl(problem::paraboloid(lb2,ub2),algorithm::null(),10);
 
 	std::cout << isl << '\n';
+	std::cout << algorithm::ihs(5) << '\n';
 
-	algorithm::null().evolve(isl);
+	//algorithm::null().evolve(isl);
 
-	std::cout << isl << '\n';
+	//std::cout << isl << '\n';
 
 
 	//std::cout << problem::paraboloid(lb2,ub2).objfun(lb2) << '\n';

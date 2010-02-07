@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "../island.h"
+#include "../population.h"
 #include "null.h"
 
 namespace pagmo
@@ -42,9 +42,9 @@ base_ptr null::clone() const
 
 /// Evolution.
 /**
- * Evolution for this algorithm will leave the island unchanged.
+ * Evolution for this algorithm will leave the population unchanged.
  */
-void null::evolve_impl(island &) const {}
+void null::evolve(population &) const {}
 
 }
 

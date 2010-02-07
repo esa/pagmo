@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ISLAND_STORAGE_H
-#define PAGMO_ISLAND_STORAGE_H
+#ifndef PAGMO_POPULATION_H
+#define PAGMO_POPULATION_H
 
 #include <boost/tuple/tuple.hpp>
 #include <cstddef>
@@ -32,7 +32,6 @@
 #include <vector>
 
 #include "config.h"
-#include "algorithm/base.h"
 #include "problem/base.h"
 #include "rng.h"
 #include "types.h"
@@ -40,42 +39,43 @@
 namespace pagmo
 {
 
-/// Island storage class.
+// Forward declaration of island class, needed for friendship.
+class __PAGMO_VISIBLE island;
+
+/// Population class.
 /**
- * This class holds data for the pagmo::island class, hiding the data members as private and providing a set of protected
- * methods for use by pagmo::island's friends.
- *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE island_storage
+class __PAGMO_VISIBLE population
 {
 	public:
-		/// Individuals stored in the island are populations of tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
+		friend class __PAGMO_VISIBLE island;
+		/// Individuals stored in the population are tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
 		typedef boost::tuple<decision_vector,decision_vector,fitness_vector,fitness_vector> individual_type;
 		/// Champion type.
 		/**
-		 * A champion is the best individual that ever lived on the island. It is defined by a decision vector and a fitness vector.
+		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector and a fitness vector.
 		 */
 		typedef boost::tuple<decision_vector,fitness_vector> champion_type;
-		/// Alias for population type.
-		typedef std::vector<individual_type> population_type;
-		/// Alias for island size type.
-		typedef population_type::size_type size_type;
-		island_storage(const problem::base &, const algorithm::base &, int n = 0);
-		island_storage &operator=(const island_storage &);
-	protected:
-		island_storage();
-		const problem::base &prob() const;
-		const algorithm::base &algo() const;
-		const population_type &pop() const;
+		/// Population size type.
+		typedef std::vector<individual_type>::size_type size_type;
+		population(const problem::base &, int n = 0);
+		population(const population &);
+		population &operator=(const population &);
+		const individual_type &get_individual(const size_type &) const;
+		const problem::base &problem() const;
 		const champion_type &champion() const;
+		size_type size() const;
 	private:
+		population();
+	private:
+		typedef std::vector<individual_type> container_type;
 		// Data members.
+		// Problem.
 		problem::base_ptr	m_prob;
-		algorithm::base_ptr	m_algo;
 		// Container of individuals.
-		population_type		m_pop;
-		// Island champion.
+		container_type		m_container;
+		// Population champion.
 		champion_type		m_champion;
 		// Double precision random number generator.
 		mutable	rng_double	m_drng;
