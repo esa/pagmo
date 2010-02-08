@@ -27,7 +27,6 @@
 #include <climits>
 #include <cmath>
 #include <cstddef>
-#include <exception>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -129,9 +128,6 @@ void ihs::evolve(population &pop) const
 						}
 					} else {
 						// Integer part of the problem.
-						if (m_tmp_x[i] == INT_MIN || m_tmp_x[i] == INT_MAX) {
-							pagmo_throw(std::overflow_error,"integer overflow in harmony search algortihm");
-						}
 						if (m_drng() > .5) {
 							m_tmp_x[i] += 1;
 						} else {
