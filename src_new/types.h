@@ -40,6 +40,8 @@ namespace pagmo
 	typedef std::vector<double> decision_vector;
 	/// Fitness vector type.
 	typedef std::vector<double> fitness_vector;
+	/// Constraint vector type.
+	typedef std::vector<double> constraint_vector;
 
 	/// Double to int converter.
 	/**

@@ -49,19 +49,20 @@ namespace problem {
 // Initialisation of static objective function calls counter.
 atomic_counter_size_t base::m_objfun_counter(0);
 
-/// Constructor from global, integer and fitness dimensions.
+/// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 /**
- * Initialises global dimension to n, integer dimension to ni and fitness dimension to nf. n and nf must be positive and ni must be in the [0,n] range.
+ * n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
  * Lower and upper bounds are set to 0 and 1 respectively.
  */
-base::base(int n, int ni, int nf):m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+base::base(int n, int ni, int nf, int nc, int nic):
+	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
+	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+	m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
 {
-	if (n <= 0 || ni < 0 || nf <= 0 || ni > n) {
+	if (n <= 0 || !nf || ni > n || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
 	}
-	m_i_dimension = boost::numeric_cast<size_type>(ni);
-	m_f_dimension = boost::numeric_cast<f_size_type>(nf);
 	const size_type size = boost::numeric_cast<size_type>(n);
 	m_lb.resize(size);
 	m_ub.resize(size);
@@ -74,19 +75,20 @@ base::base(int n, int ni, int nf):m_decision_vector_cache(boost::numeric_cast<de
 	normalise_bounds();
 }
 
-/// Constructor from upper/lower bounds and integer and fitness dimensions.
+/// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 /**
- * Will fail if ni is negative or greater than lb.size(), if nf is not positive, if the sizes of the lower/upper bounds are zero or not identical, or
- * any lower bound is greater than the corresponding upper bound.
+ * Will fail if ni is negative or greater than lb.size(), if nf is not positive, if the sizes of the lower/upper bounds are zero or not identical, if
+ * any lower bound is greater than the corresponding upper bound. nc and nic must be positive and nic must be in the [0,nc] range.
  */
-base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf):m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf, int nc, int nic):
+	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
+	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+	m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity))
 {
-	if (ni < 0 || nf <= 0 || boost::numeric_cast<size_type>(ni) > lb.size()) {
+	if (!nf || m_i_dimension > lb.size() || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
 	}
-	m_i_dimension = boost::numeric_cast<size_type>(ni);
-	m_f_dimension = boost::numeric_cast<f_size_type>(nf);
 	construct_from_iterators(lb.begin(),lb.end(),ub.begin(),ub.end());
 	// Resize properly temporary fitness storage.
 	m_tmp_f1.resize(m_f_dimension);

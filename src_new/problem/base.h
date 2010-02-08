@@ -103,25 +103,31 @@ class __PAGMO_VISIBLE base
 		typedef decision_vector::size_type size_type;
 		/// Fitness' size type: the same as pagmo::fitness_vector's size type.
 		typedef fitness_vector::size_type f_size_type;
-		base(int, int ni = 0, int nf = 1);
-		base(const decision_vector &, const decision_vector &, int ni = 0, int nf = 1);
-		/// Constructor from raw arrays, integer dimension and fitness dimension.
+		/// Constraints' size type: the same as pagmo::constraint_vector's size type.
+		typedef constraint_vector::size_type c_size_type;
+		base(int, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
+		base(const decision_vector &, const decision_vector &, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
+		/// Constructor from raw arrays, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 		/**
 		 * Lower and upper bounds are initialised with the content of two arrays of size N.
 		 * Construction will fail if at least one lower bound is greater than the corresponding upper bound,
-		 * if integer dimension is either negative or greater than the global dimension, or if fitness dimension is not positive.
+		 * if integer dimension is either negative or greater than the global dimension, if fitness dimension is not positive,
+		 * if constraints dimensions are negative or if inequality constraints dimension is greater than global constraints dimension.
 		 */
 		template <std::size_t N>
-		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1):
+		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1, int nc = 0, int nic = 0):
+			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
+			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
 			m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
 		{
-			if (ni < 0 || nf <= 0) {
-				pagmo_throw(value_error,"integer/fitness dimensions must be non-negative/positive");
+			if (!m_f_dimension) {
+				pagmo_throw(value_error,"fitness dimension must be strictly positive");
+			}
+			if (m_ic_dimension > m_c_dimension) {
+				pagmo_throw(value_error,"inequality constraints dimension must not be greater than global constraints dimension");
 			}
 			construct_from_iterators(v1,v1 + N,v2,v2 + N);
-			m_f_dimension = boost::numeric_cast<f_size_type>(nf);
-			m_i_dimension = boost::numeric_cast<size_type>(ni);
 			if (m_i_dimension > m_lb.size()) {
 				pagmo_throw(value_error,"integer dimension must not be greater than global dimension");
 			}
@@ -131,23 +137,27 @@ class __PAGMO_VISIBLE base
 			// Normalise bounds.
 			normalise_bounds();
 		}
-		/// Constructor from iterators, integer dimension and fitness dimension.
+		/// Constructor from iterators, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 		/**
 		 * Lower bounds are initialised with the content in the range [start1,end1[, upper bounds with the content in the range [start2,end2[.
 		 * Construction will fail if the ranges have different or null sizes, if at least one lower bound is greater than the corresponding upper bound,
-		 * if integer dimension is either negative or greater than the global dimension, or if fitness dimension is not positive.
+		 * if integer dimension is either negative or greater than the global dimension, if fitness dimension is not positive,
+		 * if constraints dimensions are negative or if inequality constraints dimension is greater than global constraints dimension.
 		 */
 		template <class Iterator1, class Iterator2>
-		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1):
+		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
+			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
+			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
 			m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
 		{
-			if (ni < 0 || nf <= 0) {
-				pagmo_throw(value_error,"integer and fitness dimensions must be positive");
+			if (!m_f_dimension) {
+				pagmo_throw(value_error,"fitness dimension must be strictly positive");
+			}
+			if (m_ic_dimension > m_c_dimension) {
+				pagmo_throw(value_error,"inequality constraints dimension must not be greater than global constraints dimension");
 			}
 			construct_from_iterators(start1,end1,start2,end2);
-			m_f_dimension = boost::numeric_cast<f_size_type>(nf);
-			m_i_dimension = boost::numeric_cast<size_type>(ni);
 			if (m_i_dimension > m_lb.size()) {
 				pagmo_throw(value_error,"integer dimension must not be greater than global dimension");
 			}
@@ -322,9 +332,13 @@ class __PAGMO_VISIBLE base
 	private:
 		// Data members.
 		// Size of the integer part of the problem.
-		size_type				m_i_dimension;
+		const size_type				m_i_dimension;
 		// Size of the fitness vector.
-		f_size_type				m_f_dimension;
+		const f_size_type			m_f_dimension;
+		// Global constraints dimension.
+		const c_size_type			m_c_dimension;
+		// Inequality constraints dimension
+		const c_size_type			m_ic_dimension;
 		// Lower bounds.
 		decision_vector				m_lb;
 		// Upper bounds.
