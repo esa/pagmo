@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/ref.hpp>
+#include <climits>
 #include <cstddef>
 #include <iostream>
 #include <iterator>
@@ -395,6 +396,7 @@ bool base::compare_f(const fitness_vector &v_f1, const fitness_vector &v_f2) con
 
 /// Implementation of fitness vectors comparison.
 /**
+ * Return true if v_f1 is strictly better than v_f2, false otherwise.
  * Default implementation will compute the summations f1 and f2 of all elements of the input fitness vectors and will return f1 < f2.
  */
 bool base::compare_f_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
@@ -424,14 +426,54 @@ bool base::operator!=(const base &p) const
 	return !(*this == p);
 }
 
+/// Verify compatibility of decision vector x with problem.
+/**
+ * Will return false if any of these conditions, checked in this order, holds:
+ * - x's dimension is different from get_dimension(),
+ * - at least one value of x is outside the bounds of the problem,
+ * - at least one element of the integer part of x is not an integer.
+ *
+ * Otherwise, true will be returned.
+ */
+bool base::verify_x(const decision_vector &x) const
+{
+	if (x.size() != get_dimension()) {
+		return false;
+	}
+	for (size_type i = 0; i < get_dimension(); ++i) {
+		if (x[i] < m_lb[i] || x[i] > m_ub[i]) {
+			return false;
+		}
+		// Check that, if this is an integer component, it is really an integer.
+		if (i >= (get_dimension() - m_i_dimension) && double_to_int::convert(x[i]) != x[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
 // This function will round to the nearest integer the upper/lower bounds of the integer part of the problem.
 // This should be called each time bounds are set.
 void base::normalise_bounds()
 {
 	pagmo_assert(m_lb.size() >= m_i_dimension);
 	for (size_type i = m_lb.size() - m_i_dimension; i < m_lb.size(); ++i) {
-		m_lb[i] = double_to_int::nearbyint(m_lb[i]);
-		m_ub[i] = double_to_int::nearbyint(m_ub[i]);
+		// First let's make sure that integer bounds are in the allowed range.
+		if (m_lb[i] < INT_MIN) {
+			m_lb[i] = INT_MIN;
+		}
+		if (m_lb[i] > INT_MAX) {
+			m_lb[i] = INT_MAX;
+		}
+		if (m_ub[i] < INT_MIN) {
+			m_ub[i] = INT_MIN;
+		}
+		if (m_ub[i] > INT_MAX) {
+			m_ub[i] = INT_MAX;
+		}
+		// Then convert them to the nearest integer.
+		m_lb[i] = double_to_int::convert(m_lb[i]);
+		m_ub[i] = double_to_int::convert(m_ub[i]);
 	}
 }
 

@@ -50,13 +50,12 @@ namespace pagmo
  */
 namespace problem {
 
-// Forward declaration of base problem.
+/// Base problem class.
 class __PAGMO_VISIBLE base;
 
 /// Alias for shared pointer to base problem.
 typedef boost::shared_ptr<base> base_ptr;
 
-/// Base problem class.
 /**
  * This class represents a multiobjective mixed-integer optimisation problem defined by:
  * - a global dimension, i.e., the dimension of the global search space,
@@ -260,6 +259,7 @@ class __PAGMO_VISIBLE base
 		bool operator!=(const base &) const;
 		bool compare_x(const decision_vector &, const decision_vector &) const;
 		bool compare_f(const fitness_vector &, const fitness_vector &) const;
+		bool verify_x(const decision_vector &) const;
 	protected:
 		//virtual void pre_evolution(island &) const;
 		//virtual void post_evolution(island &) const;

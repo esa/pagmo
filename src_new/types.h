@@ -44,7 +44,7 @@ namespace pagmo
 	/// Double to int converter.
 	/**
 	 * Will round a double to the nearest integer using "round half to even" for tie-breaking. Usage example:
-	 @verbatim int i = double_to_int::nearbyint(1.23); @endverbatim
+	 @verbatim int i = double_to_int::convert(1.23); @endverbatim
 	 * @see http://www.boost.org/doc/libs/release/libs/numeric/conversion/doc/html/index.html
 	 * @see http://en.wikipedia.org/wiki/Rounding
 	 */

@@ -26,6 +26,10 @@
 
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <iterator>
+#include <sstream>
+#include <string>
 
 #include "problem/base.h"
 #include "exceptions.h"
@@ -50,7 +54,7 @@ struct cur_f_comp {
  * Will store a copy of the problem and will initialise the population to n randomly-generated individuals.
  * Will fail if n is negative.
  */
-population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(rng_generator::get<rng_double>())
+population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
@@ -74,7 +78,7 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 		}
 		// Initialise randomly the integer part of the decision vector.
 		for (decision_vector::size_type i = p_size - i_size; i < p_size; ++i) {
-			m_container.back().get<0>()[i] = double_to_int::nearbyint(m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]));
+			m_container.back().get<0>()[i] = boost::uniform_int<int>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_urng);
 		}
 		// Initialise randomly the velocity vector.
 		for (decision_vector::size_type i = 0; i < p_size; ++i) {
@@ -97,7 +101,7 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 /**
  * Will perform a deep copy of all the elements.
  */
-population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_champion(p.m_champion),m_drng(p.m_drng) {}
+population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng) {}
 
 /// Default constructor.
 /**
@@ -117,17 +121,118 @@ population &population::operator=(const population &p)
 		m_container = p.m_container;
 		m_champion = p.m_champion;
 		m_drng = p.m_drng;
+		m_urng = p.m_urng;
 	}
 	return *this;
 }
 
 /// Get constant reference to individual at position n.
-const population::individual_type &population::get_individual(const size_type &n) const
+const population::individual_type &population::get_individual(const size_type &idx) const
 {
-	if (n >= size()) {
+	if (idx >= size()) {
 		pagmo_throw(index_error,"invalid individual position");
 	}
-	return m_container[n];
+	return m_container[idx];
+}
+
+/// Get position of worst individual.
+/**
+ * Current fitness is used for comparison.
+ */
+population::size_type population::get_worst_idx() const
+{
+	if (!size()) {
+		pagmo_throw(value_error,"empty population, cannot compute position of worst individual");
+	}
+	container_type::const_iterator it = std::max_element(m_container.begin(),m_container.end(),cur_f_comp(*m_prob));
+	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
+}
+
+/// Get position of best individual.
+/**
+ * Current fitness is used for comparison.
+ */
+population::size_type population::get_best_idx() const
+{
+	if (!size()) {
+		pagmo_throw(value_error,"empty population, cannot compute position of best individual");
+	}
+	container_type::const_iterator it = std::min_element(m_container.begin(),m_container.end(),cur_f_comp(*m_prob));
+	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
+}
+
+/// Return terse human-readable representation.
+/**
+ * Will return a formatted string displaying:
+ * - description of the problem,
+ * - number of individuals.
+ */
+std::string population::human_readable_terse() const
+{
+	std::ostringstream oss;
+	oss << (*m_prob) << '\n';
+	oss << "Number of individuals: " << size() << '\n';
+	return oss.str();
+}
+
+/// Return human-readable representation.
+/**
+ * Will return a formatted string displaying:
+ * - the output of human_readable_terse(),
+ * - list of individuals,
+ * - champion.
+ */
+std::string population::human_readable() const
+{
+	std::ostringstream oss;
+	oss << human_readable_terse();
+	if (size()) {
+		oss << "List of individuals:\n";
+		for (size_type i = 0; i < size(); ++i) {
+			oss << '#' << i << ":\n";
+			oss << "\tDecision vector:\t" << m_container[i].get<0>() << '\n';
+			oss << "\tVelocity vector:\t" << m_container[i].get<1>() << '\n';
+			oss << "\tFitness vector:\t\t" << m_container[i].get<2>() << '\n';
+			oss << "\tBest fitness vector:\t" << m_container[i].get<3>() << '\n';
+		}
+	}
+	if (m_champion.get<0>().size()) {
+		oss << "Champion:\n";
+		oss << "\tDecision vector:\t" << m_champion.get<0>() << '\n';
+		oss << "\tFitness vector:\t\t" << m_champion.get<1>() << '\n';
+	} else {
+		oss << "No champion yet.\n";
+	}
+	return oss.str();
+}
+
+/// Set the decision vector of individual at position idx to x.
+/**
+ * Will update best fitness of individual and champion if needed. Will fail if problem::base::verify_x() on x returns false.
+ */
+void population::set_x(const size_type &idx, const decision_vector &x)
+{
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid individual position");
+	}
+	if (!m_prob->verify_x(x)) {
+		pagmo_throw(value_error,"decision vector is not compatible with problem");
+	}
+	// Set decision vector.
+	m_container[idx].get<0>() = x;
+	// Update current fitness vector.
+	m_prob->objfun(m_container[idx].get<2>(),x);
+	// If needed, update the best fitness vector for the individual.
+	if (m_prob->compare_f(m_container[idx].get<2>(),m_container[idx].get<3>())) {
+		m_container[idx].get<3>() = m_container[idx].get<2>();
+	}
+	// If needed update the champion. Make sure with the assert that the champion exists. It
+	// should be guaranteed at this point.
+	pagmo_assert(m_champion.get<0>().size());
+	if (m_prob->compare_f(m_container[idx].get<2>(),m_champion.get<1>())) {
+		m_champion.get<0>() = x;
+		m_champion.get<1>() = m_container[idx].get<2>();
+	}
 }
 
 /// Get constant reference to internal problem::base class.
@@ -146,6 +251,16 @@ const population::champion_type &population::champion() const
 population::size_type population::size() const
 {
 	return m_container.size();
+}
+
+/// Overload stream operator for pagmo::population.
+/**
+ * Equivalent to printing population::human_readable() to stream.
+ */
+std::ostream &operator<<(std::ostream &s, const population &pop)
+{
+	s << pop.human_readable();
+	return s;
 }
 
 }

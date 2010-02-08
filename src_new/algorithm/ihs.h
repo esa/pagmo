@@ -31,6 +31,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../types.h"
 #include "base.h"
 
 namespace pagmo
@@ -43,9 +44,12 @@ namespace algorithm {
  * plays (i.e., generates) a note (i.e., a value) for finding a best harmony (i.e., the global optimum) all together.
  *
  * This code implements the so-called improved harmony search algorithm (IHS), in which the probability of picking the variables from
- * the decision vector and the amount of mutation to which they are subject vary respectively linearly and exponentially as time passes.
+ * the decision vector and the amount of mutation to which they are subject vary respectively linearly and exponentially within each call
+ * of the evolve() method.
  *
  * In this algorithm the number of objective function evaluations is equal to the number of generations.
+ *
+ * This algorithm is suitable for both continuous and combinatorial optimisation.
  *
  * @see http://en.wikipedia.org/wiki/Harmony_search for an introduction on harmony search.
  * @see http://dx.doi.org/10.1016/j.amc.2006.11.033 for the paper that introduces and explains improved harmony search.
@@ -74,6 +78,10 @@ class __PAGMO_VISIBLE ihs: public base
 		const double		m_bw_min;
 		// Maximum distance bandwidth.
 		const double		m_bw_max;
+		// Internal caches used during evolution.
+		mutable decision_vector	m_tmp_x;
+		mutable decision_vector	m_lu_diff;
+		mutable fitness_vector	m_tmp_f;
 };
 
 }

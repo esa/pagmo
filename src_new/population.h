@@ -46,10 +46,14 @@ class __PAGMO_VISIBLE island;
 /**
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
+// TODO: when appending individual, replacing etc: make sure bounds are respected (throw otherwise), respect INT_MIN/INT_MAX, integral part is really integral
+// (using double_to_int::convert).
 class __PAGMO_VISIBLE population
 {
-	public:
 		friend class __PAGMO_VISIBLE island;
+		// Stream output operator.
+		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);
+	public:
 		/// Individuals stored in the population are tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
 		typedef boost::tuple<decision_vector,decision_vector,fitness_vector,fitness_vector> individual_type;
 		/// Champion type.
@@ -65,6 +69,11 @@ class __PAGMO_VISIBLE population
 		const individual_type &get_individual(const size_type &) const;
 		const problem::base &problem() const;
 		const champion_type &champion() const;
+		std::string human_readable_terse() const;
+		std::string human_readable() const;
+		size_type get_best_idx() const;
+		size_type get_worst_idx() const;
+		void set_x(const size_type &, const decision_vector &);
 		size_type size() const;
 	private:
 		population();
@@ -79,7 +88,11 @@ class __PAGMO_VISIBLE population
 		champion_type		m_champion;
 		// Double precision random number generator.
 		mutable	rng_double	m_drng;
+		// uint32 random number generator.
+		mutable	rng_uint32	m_urng;
 };
+
+__PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);
 
 }
 

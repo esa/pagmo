@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <climits>
 #include <iostream>
 #include <vector>
 #include <list>
@@ -93,10 +94,16 @@ int main()
 	p2.set_lb(0,-1.234);
 	std::cout << f << '\n';
 
-	island isl(problem::paraboloid(lb2,ub2),algorithm::null(),10);
+	population pop(problem::paraboloid(lb2,ub2),10);
 
-	std::cout << isl << '\n';
-	std::cout << algorithm::ihs(5) << '\n';
+	algorithm::ihs algo(100);
+
+	algo.evolve(pop);
+	algo.evolve(pop);
+
+	std::cout << pop << '\n';
+
+	//std::cout << algorithm::ihs(5) << '\n';
 
 	//algorithm::null().evolve(isl);
 

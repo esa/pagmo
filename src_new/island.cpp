@@ -93,47 +93,33 @@ void island::join() const
 
 /// Return terse human readable representation of the island.
 /**
- * Will return a formatted string containing the human readable forms of the problem and of the algorithm.
+ * Will return a formatted string containing:
+ * - description of the algorithm,
+ * - the output of population::human_readable_terse().
  */
 std::string island::human_readable_terse() const
 {
 	join();
 	std::ostringstream oss;
-	oss << m_pop.problem() << '\n';
 	oss << *m_algo << '\n';
+	oss << m_pop.human_readable_terse() << '\n';
 	return oss.str();
 }
 
-/// Return complete human readable representation of the island.
+/// Return human readable representation of the island.
 /**
- * Will return a formatted string containing the output of human_readable_terse(),
- * whether or not the island belongs to an archipelago, the total evolution time and the list of individuals.
+ * Will return a formatted string containing:
+ * - whether the island belong to an archipelago or not,
+ * - description of the algorithm,
+ * - the output of population::human_readable().
  */
 std::string island::human_readable() const
 {
 	join();
 	std::ostringstream oss;
-	oss << human_readable_terse();
 	oss << "Belongs to archipelago: " << (m_archi ? "true" : "false") << '\n' << '\n';
-	if (m_pop.size()) {
-		oss << "List of individuals:\n";
-		for (population::size_type i = 0; i < m_pop.size(); ++i) {
-			oss << '#' << i << ":\n";
-			oss << "\tDecision vector:\t" << m_pop.get_individual(i).get<0>() << '\n';
-			oss << "\tVelocity vector:\t" << m_pop.get_individual(i).get<1>() << '\n';
-			oss << "\tFitness vector:\t\t" << m_pop.get_individual(i).get<2>() << '\n';
-			oss << "\tBest fitness vector:\t" << m_pop.get_individual(i).get<3>() << '\n';
-		}
-	} else {
-		oss << "No individuals.\n";
-	}
-	if (m_pop.champion().get<0>().size()) {
-		oss << "Champion:\n";
-		oss << "\tDecision vector:\t" << m_pop.champion().get<0>() << '\n';
-		oss << "\tFitness vector:\t\t" << m_pop.champion().get<1>() << '\n';
-	} else {
-		oss << "No champion yet.\n";
-	}
+	oss << *m_algo << '\n';
+	oss << m_pop;
 	return oss.str();
 }
 

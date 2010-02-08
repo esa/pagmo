@@ -23,8 +23,12 @@
  *****************************************************************************/
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <climits>
 #include <cmath>
-#include <iostream>
+#include <cstddef>
+#include <exception>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -75,14 +79,14 @@ ihs::ihs(int gen, const double &phmcr, const double &ppar_min, const double &ppa
 	if (!m_gen) {
 		pagmo_throw(value_error,"number of generations must be positive");
 	}
-	if (phmcr >=1 || phmcr <= 0 || ppar_min >=1 || ppar_min <= 0 || ppar_max >=1 || ppar_max <= 0) {
-		pagmo_throw(value_error,"probabilities must be in the ]0,1[ range");
+	if (phmcr > 1 || phmcr < 0 || ppar_min > 1 || ppar_min < 0 || ppar_max > 1 || ppar_max < 0) {
+		pagmo_throw(value_error,"probability of choosing from memory and pitch adjustment rates must be in the [0,1] range");
 	}
-	if (ppar_min >= ppar_max) {
-		pagmo_throw(value_error,"minimum pitch adjustment rate must be smaller than maximum pitch adjustment rate");
+	if (ppar_min > ppar_max) {
+		pagmo_throw(value_error,"minimum pitch adjustment rate must not be greater than maximum pitch adjustment rate");
 	}
-	if (bw_min <= 0 || bw_max <= bw_min) {
-		pagmo_throw(value_error,"bandwidth values must be positive, and minimum bandwidth must be smaller than maximum bandwidth");
+	if (bw_min <= 0 || bw_max < bw_min) {
+		pagmo_throw(value_error,"bandwidth values must be positive, and minimum bandwidth must not be greater than maximum bandwidth");
 	}
 }
 
@@ -93,59 +97,84 @@ base_ptr ihs::clone() const
 }
 
 /// Evolve implementation.
-void ihs::evolve(population &p) const
+/**
+ * Run the IHS algorithm for the number of generations specified in the constructors. Within each call of this method,
+ * the ppar and bw parameters will be varied between maximum and minimum values according to the IHS schedule.
+ * @param[in,out] pop input/output pagmo::population to be evolved.
+ */
+void ihs::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	const problem::base &problem = p.problem();
-	const decision_vector &lb = problem.get_lb(), &ub = problem.get_ub();
-#if 0
-	const size_t problem_size = lb.size(), pop_size = pop.size();
-	if (pop_size == 0) {
-		pagmo_throw(value_error,"cannot evolve an empty population");
+	const problem::base &prob = pop.problem();
+	const problem::base::size_type prob_dimension = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension();
+	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
+	const population::size_type pop_size = pop.size();
+	// Go out if there is nothing to do.
+	if (pop_size == 0 || m_gen == 0) {
+		return;
 	}
-	// This is the return population.
-	population retval = pop;
-	// Temporary decision vector, and lower-upper bounds difference vector.
-	std::vector<double> tmp_dv(problem_size), lu_diff(problem_size);
-	for (size_t i = 0; i < problem_size; ++i) {
-		lu_diff[i] = ub[i] - lb[i];
+	// Init temporary decision vector, and lower-upper bounds difference vector.
+	m_tmp_x.resize(prob_dimension);
+	m_lu_diff.resize(prob_dimension);
+	for (problem::base::size_type i = 0; i < prob_dimension; ++i) {
+		m_lu_diff[i] = ub[i] - lb[i];
 	}
+	// Temporary fitness vector.
+	m_tmp_f.resize(prob.get_f_dimension());
 	const double c = std::log(m_bw_min/m_bw_max) / m_gen;
-	for (size_t g = 0; g < m_gen; ++g) {
+	for (std::size_t g = 0; g < m_gen; ++g) {
 		const double ppar_cur = m_ppar_min + ((m_ppar_max - m_ppar_min) * g) / m_gen, bw_cur = m_bw_max * std::exp(c * g);
-		for (size_t i = 0; i < problem_size; ++i) {
-			const double next_rn = drng();
-			if (drng() <= m_phmcr) {
+		for (problem::base::size_type i = 0; i < prob_dimension; ++i) {
+			const double next_rn = m_drng();
+			if (m_drng() < m_phmcr) {
 				// With random probability, tmp's i-th chromosome element is the one from a randomly chosen individual.
-				tmp_dv[i] = retval[(size_t)(next_rn * pop_size)].get_decision_vector()[i];
-				if (drng() <= ppar_cur) {
-					// Randomly, add or subtract pitch from the current chromosome element.
-					const double next_next_rn = drng();
-					if (drng() > .5) {
-						tmp_dv[i] += next_next_rn * bw_cur * lu_diff[i];
+				m_tmp_x[i] = pop.get_individual((population::size_type)(next_rn * pop_size)).get<0>()[i];
+				if (m_drng() < ppar_cur) {
+					if (i < prob_dimension - prob_i_dimension) {
+						// Handle the continuous part of the problem.
+						// Randomly, add or subtract pitch from the current chromosome element.
+						const double next_next_rn = m_drng();
+						if (m_drng() > .5) {
+							m_tmp_x[i] += next_next_rn * bw_cur * m_lu_diff[i];
+						} else {
+							m_tmp_x[i] -= next_next_rn * bw_cur * m_lu_diff[i];
+						}
 					} else {
-						tmp_dv[i] -= next_next_rn * bw_cur * lu_diff[i];
+						// Integer part of the problem.
+						if (m_tmp_x[i] == INT_MIN || m_tmp_x[i] == INT_MAX) {
+							pagmo_throw(std::overflow_error,"integer overflow in harmony search algortihm");
+						}
+						if (m_drng() > .5) {
+							m_tmp_x[i] += 1;
+						} else {
+							m_tmp_x[i] -= 1;
+						}
 					}
 					// Handle the case in which we addded or subtracted too much and ended up out
 					// of boundaries.
-					if (tmp_dv[i] > ub[i]) {
-						tmp_dv[i] = ub[i];
-					} else if (tmp_dv[i] < lb[i]) {
-						tmp_dv[i] = lb[i];
+					if (m_tmp_x[i] > ub[i]) {
+						m_tmp_x[i] = ub[i];
+					} else if (m_tmp_x[i] < lb[i]) {
+						m_tmp_x[i] = lb[i];
 					}
 				}
 			} else {
-				tmp_dv[i] = lb[i] + next_rn * lu_diff[i];
+				// Pick randomly within the bounds.
+				if (i < prob_dimension - prob_i_dimension) {
+					// Continuous.
+					m_tmp_x[i] = lb[i] + next_rn * m_lu_diff[i];
+				} else {
+					// Integral.
+					m_tmp_x[i] = boost::uniform_int<int>(lb[i],ub[i])(m_urng);
+				}
 			}
 		}
-		const double tmp_fitness = problem.objfun(tmp_dv);
-		const individual &worst = retval.extractWorstIndividual();
-		if (tmp_fitness < worst.get_fitness()) {
-			retval.replace_worst(individual(tmp_dv, worst.get_velocity(), tmp_fitness));
+		const population::size_type worst_idx = pop.get_worst_idx();
+		prob.objfun(m_tmp_f,m_tmp_x);
+		if (prob.compare_f(m_tmp_f,pop.get_individual(worst_idx).get<2>())) {
+			pop.set_x(worst_idx,m_tmp_x);
 		}
 	}
-	return retval;
-#endif
 }
 
 /// Extra human readable algorithm info.
