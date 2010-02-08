@@ -24,6 +24,7 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_real.hpp>
 #include <climits>
 #include <cmath>
 #include <cstddef>
@@ -120,11 +121,10 @@ void ihs::evolve(population &pop) const
 					if (i < prob_dimension - prob_i_dimension) {
 						// Handle the continuous part of the problem.
 						// Randomly, add or subtract pitch from the current chromosome element.
-						const double next_rn = m_drng();
 						if (m_drng() > .5) {
-							m_tmp_x[i] += next_rn * bw_cur * m_lu_diff[i];
+							m_tmp_x[i] += m_drng() * bw_cur * m_lu_diff[i];
 						} else {
-							m_tmp_x[i] -= next_rn * bw_cur * m_lu_diff[i];
+							m_tmp_x[i] -= m_drng() * bw_cur * m_lu_diff[i];
 						}
 					} else {
 						// Integer part of the problem.
@@ -146,7 +146,7 @@ void ihs::evolve(population &pop) const
 				// Pick randomly within the bounds.
 				if (i < prob_dimension - prob_i_dimension) {
 					// Continuous.
-					m_tmp_x[i] = lb[i] + m_drng() * m_lu_diff[i];
+					m_tmp_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 				} else {
 					// Integral.
 					m_tmp_x[i] = boost::uniform_int<int>(lb[i],ub[i])(m_urng);

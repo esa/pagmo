@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_real.hpp>
 #include <iterator>
 #include <sstream>
 #include <string>
@@ -74,7 +75,7 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 		m_container.back().get<3>().resize(f_size);
 		// Initialise randomly the continuous part of the decision vector.
 		for (decision_vector::size_type i = 0; i < p_size - i_size; ++i) {
-			m_container.back().get<0>()[i] = m_prob->get_lb()[i] + m_drng() * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
+			m_container.back().get<0>()[i] = boost::uniform_real<double>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_drng);
 		}
 		// Initialise randomly the integer part of the decision vector.
 		for (decision_vector::size_type i = p_size - i_size; i < p_size; ++i) {
@@ -82,7 +83,10 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 		}
 		// Initialise randomly the velocity vector.
 		for (decision_vector::size_type i = 0; i < p_size; ++i) {
-			m_container.back().get<1>()[i] = (m_drng() - .5) * (m_prob->get_ub()[i] - m_prob->get_lb()[i]);
+			// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
+			m_container.back().get<1>()[i] = boost::uniform_real<double>(m_prob->get_lb()[i] / 2,m_prob->get_ub()[i] / 2)(m_drng);
+			// Change randomly the sign of the velocity.
+			m_container.back().get<1>()[i] *= (m_drng() < .5) ? 1 : -1;
 		}
 		// Compute the current fitness.
 		m_prob->objfun(m_container.back().get<2>(),m_container.back().get<0>());
