@@ -48,6 +48,7 @@ class __PAGMO_VISIBLE base;
 /// Alias for shared pointer to base algorithm.
 typedef boost::shared_ptr<base> base_ptr;
 
+/// Base algorithm class.
 /**
  * All algorithms implemented in PaGMO must derive from this base class. This base class provides each algorithm with one pagmo::rng_double
  * and one pagmo::rng_uint32 random number generators. Each algorithm must implement the base::evolve() method.

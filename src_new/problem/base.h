@@ -56,6 +56,7 @@ class __PAGMO_VISIBLE base;
 /// Alias for shared pointer to base problem.
 typedef boost::shared_ptr<base> base_ptr;
 
+/// Base problem class.
 /**
  * This class represents a multiobjective mixed-integer optimisation problem defined by:
  * - a global dimension, i.e., the dimension of the global search space,
@@ -63,6 +64,8 @@ typedef boost::shared_ptr<base> base_ptr;
  * - lower and upper bounds of the global search space,
  * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
+ *
+ * All dimensions are supposed to be invariant in the life cycle of a problem object.
  *
  * The bounds of the problem are allowed to vary over the whole range of double-precision values for continuous optimisation,
  * while for combinatorial optimisation the bounds must be in the [-32767,32767] range (corresponding to the INT_MIN and INT_MAX
@@ -74,7 +77,15 @@ typedef boost::shared_ptr<base> base_ptr;
  * If the first condition is not met, an error will be raised. If the second condition is not met, the bounds will be set to the extremes
  * of the allowed range and rounded to the nearest integer as necessary.
  *
- * All dimensions are supposed to be invariant in the life cycle of a problem object.
+ * All problems implemented in PaGMO must derive from this base class and implement the following pure virtual methods:
+ * - the clone() method, i.e., the polymorphic copy constructor,
+ * - the objfun_impl() method, i.e., the implementation of the objective function, which computes the fitness vector associated to a decision vector.
+ *
+ * Additionally, the following virtual protected methods can be reimplemented in derived classes:
+ * - human_readable_extra(), for providing extra output when printing the problem to stream,
+ * - equality_operator_extra(), for providing additional criterions when testing for equality between two problems,
+ * - compare_f_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
+ *   than the second one, false otherwise).
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
