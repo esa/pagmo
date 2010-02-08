@@ -68,9 +68,10 @@ base::base(int n, int ni, int nf, int nc, int nic):
 	m_ub.resize(size);
 	std::fill(m_lb.begin(),m_lb.end(),0);
 	std::fill(m_ub.begin(),m_ub.end(),1);
-	// Resize properly temporary fitness storage.
+	// Resize properly temporary fitness and constraint storage.
 	m_tmp_f1.resize(m_f_dimension);
 	m_tmp_f2.resize(m_f_dimension);
+	m_tmp_c.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
 }
@@ -90,9 +91,10 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 		pagmo_throw(value_error,"invalid dimension(s)");
 	}
 	construct_from_iterators(lb.begin(),lb.end(),ub.begin(),ub.end());
-	// Resize properly temporary fitness storage.
+	// Resize properly temporary fitness and constraint storage.
 	m_tmp_f1.resize(m_f_dimension);
 	m_tmp_f2.resize(m_f_dimension);
+	m_tmp_c.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
 }
@@ -407,6 +409,75 @@ bool base::compare_f(const fitness_vector &v_f1, const fitness_vector &v_f2) con
 		pagmo_throw(value_error,"invalid sizes for fitness vector(s) during comparison");
 	}
 	return compare_f_impl(v_f1,v_f2);
+}
+
+/// Implementation of constraint computation.
+/**
+ * This functions is intended to write to c the result of testing a decision vector against the problem constraints.
+ * The first get_c_dimension() - get_ic_dimension() elements of c will hold the results of equality constraint testing:
+ * if a constraint is satisfied, the corresponding value in the vector will be zero. The remaining elements of the vector will hold the results
+ * of inequality constraint testing: if a constraint is satisfied, the corresponding value in the vector will be non-positive.
+ *
+ * Default implementation will fill c with zeroes.
+ */
+void base::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+	(void)x;
+	std::fill(c.begin(),c.end(),0);
+}
+
+/// Compute constraints.
+/**
+ * This function will perform sanity checks on c and x and will then call compute_constraints_impl().
+ */
+void base::compute_constraints(constraint_vector &c, const decision_vector &x) const
+{
+	if (!verify_x(x) || c.size() != get_c_dimension()) {
+		pagmo_throw(value_error,"invalid constraint and/or decision vector(s) during constraint testing");
+	}
+	compute_constraints_impl(c,x);
+}
+
+/// Compute constraints and return constraint vector.
+/**
+ * Equivalent to:
+@verbatim
+constraint_vector c(get_c_dimension());
+compute_constraints(c,x);
+return c;
+@endverbatim
+ */
+constraint_vector base::compute_constraints(const decision_vector &x) const
+{
+	constraint_vector c(get_c_dimension());
+	compute_constraints(c,x);
+	return c;
+}
+
+/// Test constraints.
+/**
+ * This method will compute the constraint vector associated to x and will return true if all constraints are satisfied, false otherwise.
+ * @see compute_constraints()
+ * @see compute_constraints_impl()
+ */
+bool base::test_constraints(const decision_vector &x) const
+{
+	// Compute the constraints
+	compute_constraints(m_tmp_c,x);
+	pagmo_assert(m_c_dimension >= m_ic_dimension);
+	// Test the equality constraints.
+	for (c_size_type i = 0; i < m_c_dimension - m_ic_dimension; ++i) {
+		if (m_tmp_c[i] != 0) {
+			return false;
+		}
+	}
+	// Test the inequality constraints.
+	for (c_size_type i = m_c_dimension - m_ic_dimension; i < m_c_dimension; ++i) {
+		if (m_tmp_c[i] > 0) {
+			return false;
+		}
+	}
+	return true;
 }
 
 /// Implementation of fitness vectors comparison.

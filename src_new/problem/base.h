@@ -63,6 +63,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * - the dimension of the integral (or combinatorial) part of the problem,
  * - the total number of constraints,
  * - the number of inequality constraints (never exceeding the total number of constraints),
+ * - a constraint testing function,
  * - lower and upper bounds of the global search space,
  * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
@@ -87,7 +88,8 @@ typedef boost::shared_ptr<base> base_ptr;
  * - human_readable_extra(), for providing extra output when printing the problem to stream,
  * - equality_operator_extra(), for providing additional criterions when testing for equality between two problems,
  * - compare_f_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
- *   than the second one, false otherwise).
+ *   than the second one, false otherwise),
+ * - compute_constraints_impl(), to calculate the constraint vector associated to a decision vector.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -133,9 +135,10 @@ class __PAGMO_VISIBLE base
 			if (m_i_dimension > m_lb.size()) {
 				pagmo_throw(value_error,"integer dimension must not be greater than global dimension");
 			}
-			// Resize properly temporary fitness storage.
+			// Resize properly temporary fitness and constraint storage.
 			m_tmp_f1.resize(m_f_dimension);
 			m_tmp_f2.resize(m_f_dimension);
+			m_tmp_c.resize(m_c_dimension);
 			// Normalise bounds.
 			normalise_bounds();
 		}
@@ -163,9 +166,10 @@ class __PAGMO_VISIBLE base
 			if (m_i_dimension > m_lb.size()) {
 				pagmo_throw(value_error,"integer dimension must not be greater than global dimension");
 			}
-			// Properly resize temporary fitness storage.
+			// Properly resize temporary fitness and constraint storage.
 			m_tmp_f1.resize(m_f_dimension);
 			m_tmp_f2.resize(m_f_dimension);
+			m_tmp_c.resize(m_c_dimension);
 			// Normalise bounds.
 			normalise_bounds();
 		}
@@ -289,6 +293,9 @@ class __PAGMO_VISIBLE base
 		c_size_type get_ic_dimension() const;
 		fitness_vector objfun(const decision_vector &) const;
 		void objfun(fitness_vector &, const decision_vector &) const;
+		constraint_vector compute_constraints(const decision_vector &) const;
+		void compute_constraints(constraint_vector &, const decision_vector &) const;
+		bool test_constraints(const decision_vector &) const;
 		/// Clone method.
 		virtual base_ptr clone() const = 0;
 		std::string human_readable() const;
@@ -303,6 +310,7 @@ class __PAGMO_VISIBLE base
 		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
 		virtual bool compare_f_impl(const fitness_vector &, const fitness_vector &) const;
+		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		/// Objective function implementation.
 		/**
 		 * Takes a pagmo::decision_vector x as input and writes its pagmo::fitness_vector to f. This function is not to be called directly,
@@ -354,6 +362,8 @@ class __PAGMO_VISIBLE base
 		// Temporary storage used during decision_vector comparisons.
 		mutable fitness_vector			m_tmp_f1;
 		mutable fitness_vector			m_tmp_f2;
+		// Temporary storage used during constraints satisfaction testing.
+		mutable constraint_vector		m_tmp_c;
 		// Objective function calls counter.
 		static atomic_counter_size_t		m_objfun_counter;
 };
