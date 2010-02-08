@@ -54,7 +54,8 @@ atomic_counter_size_t base::m_objfun_counter(0);
  * Initialises global dimension to n, integer dimension to ni and fitness dimension to nf. n and nf must be positive and ni must be in the [0,n] range.
  * Lower and upper bounds are set to 0 and 1 respectively.
  */
-base::base(int n, int ni, int nf):m_decision_vector_cache(cache_capacity),m_fitness_vector_cache(cache_capacity)
+base::base(int n, int ni, int nf):m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
 {
 	if (n <= 0 || ni < 0 || nf <= 0 || ni > n) {
 		pagmo_throw(value_error,"invalid dimension(s)");
@@ -78,7 +79,8 @@ base::base(int n, int ni, int nf):m_decision_vector_cache(cache_capacity),m_fitn
  * Will fail if ni is negative or greater than lb.size(), if nf is not positive, if the sizes of the lower/upper bounds are zero or not identical, or
  * any lower bound is greater than the corresponding upper bound.
  */
-base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf):m_decision_vector_cache(cache_capacity),m_fitness_vector_cache(cache_capacity)
+base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf):m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_fitness_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity))
 {
 	if (ni < 0 || nf <= 0 || boost::numeric_cast<size_type>(ni) > lb.size()) {
 		pagmo_throw(value_error,"invalid dimension(s)");
@@ -94,7 +96,7 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf)
 }
 
 /// Trivial destructor.
-base::~base() {std::cout << m_decision_vector_cache.size() << '\n'; std::cout << m_fitness_vector_cache.size() << '\n';}
+base::~base() {}
 
 /// Lower bounds getter.
 const decision_vector &base::get_lb() const
@@ -253,35 +255,32 @@ fitness_vector base::objfun(const decision_vector &x) const
 
 /// Write fitness of pagmo::decision_vector into pagmo::fitness_vector.
 /**
- * Will call objfun_impl() internally. Will fail if f's and x's size are different from the fitness and global dimension respectively
- * or if the decision vector is outside the bounds of the problem.
+ * Will call objfun_impl() internally. Will fail if f's size is different from the fitness dimension
+ * or if verify_x() on x returns false.
  *
  * The implementation internally uses a caching mechanism, so that recently-computed quantities are remembered and re-used when appropriate.
  */
 void base::objfun(fitness_vector &f, const decision_vector &x) const
 {
 	// Some checks on the input values.
-	if (f.size() != m_f_dimension || x.size() != m_lb.size()) {
-		pagmo_throw(value_error,"vector size(s) mismatch(es) when calling objective function");
+	if (f.size() != m_f_dimension) {
+		pagmo_throw(value_error,"wrong fitness vector size when calling objective function");
 	}
-	for (size_type i = 0; i < m_lb.size(); ++i) {
-		if (x[i] < m_lb[i] || x[i] > m_ub[i]) {
-			pagmo_throw(value_error,"decision vector is not within problem's bounds");
-		}
+	// Make sure the decision vector is compatible with the problem.
+	if (!verify_x(x)) {
+		pagmo_throw(value_error,"incompatible decision vector when calling objective function");
 	}
 	// Look into the cache.
 	typedef decision_vector_cache_type::iterator x_iterator;
 	typedef fitness_vector_cache_type::iterator f_iterator;
 	const x_iterator x_it = std::find(m_decision_vector_cache.begin(),m_decision_vector_cache.end(),x);
 	if (x_it == m_decision_vector_cache.end()) {
-std::cout << "cache miss\n";
 		// Fitness is not into memory. Calculate it.
 		objfun_impl(f,x);
 		// Store the decision vector and the newly-calculated fitness in the front of the buffers.
 		m_decision_vector_cache.push_front(x);
 		m_fitness_vector_cache.push_front(f);
 	} else {
-std::cout << "cache hit\n";
 		// Compute the corresponding iterator in the fitness vector cache.
 		f_iterator f_it = m_fitness_vector_cache.begin();
 		std::advance(f_it,std::distance(m_decision_vector_cache.begin(),x_it));
@@ -369,7 +368,7 @@ bool base::operator==(const base &p) const
 /// Compare decision vectors.
 /**
  * This functions returns true if x1 is a better decision_vector than x2, false otherwise. This function will compute the
- * fitness vectors associated to x1 and x2 and will feed them to compare_f(), whose result will be returned.
+ * fitness vectors associated to x1 and x2 via objfun() and will feed them to compare_f(), whose result will be returned.
  */
 bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
 {

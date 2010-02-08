@@ -51,6 +51,7 @@ base_ptr paraboloid::clone() const
 	return base_ptr(new paraboloid(*this));
 }
 
+/// Implementation of the objective function.
 void paraboloid::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	typedef decision_vector::size_type size_type;

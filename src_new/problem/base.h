@@ -59,10 +59,20 @@ typedef boost::shared_ptr<base> base_ptr;
 /**
  * This class represents a multiobjective mixed-integer optimisation problem defined by:
  * - a global dimension, i.e., the dimension of the global search space,
- * - the dimension of the integral part of the problem,
+ * - the dimension of the integral (or combinatorial) part of the problem,
  * - lower and upper bounds of the global search space,
  * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
+ *
+ * The bounds of the problem are allowed to vary over the whole range of double-precision values for continuous optimisation,
+ * while for combinatorial optimisation the bounds must be in the [-32767,32767] range (corresponding to the INT_MIN and INT_MAX
+ * constants defined in the C++ standard "climits" header file). All bounds setting functions will make sure that the following conditions are
+ * respected:
+ * - lower bounds are not greater than upper bounds,
+ * - the bounds of the integer part of the problem are integer and they are in the allowed range.
+ *
+ * If the first condition is not met, an error will be raised. If the second condition is not met, the bounds will be set to the extremes
+ * of the allowed range and rounded to the nearest integer as necessary.
  *
  * All dimensions are supposed to be invariant in the life cycle of a problem object.
  *
@@ -92,7 +102,8 @@ class __PAGMO_VISIBLE base
 		 */
 		template <std::size_t N>
 		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1):
-			m_decision_vector_cache(cache_capacity),m_fitness_vector_cache(cache_capacity)
+			m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
 		{
 			if (ni < 0 || nf <= 0) {
 				pagmo_throw(value_error,"integer/fitness dimensions must be non-negative/positive");
@@ -117,7 +128,8 @@ class __PAGMO_VISIBLE base
 		 */
 		template <class Iterator1, class Iterator2>
 		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1):
-			m_decision_vector_cache(cache_capacity),m_fitness_vector_cache(cache_capacity)
+			m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
 		{
 			if (ni < 0 || nf <= 0) {
 				pagmo_throw(value_error,"integer and fitness dimensions must be positive");

@@ -96,9 +96,8 @@ int main()
 
 	population pop(problem::paraboloid(lb2,ub2),10);
 
-	algorithm::ihs algo(100);
+	algorithm::ihs algo(1000000);
 
-	algo.evolve(pop);
 	algo.evolve(pop);
 
 	std::cout << pop << '\n';

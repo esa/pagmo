@@ -45,7 +45,7 @@ base::~base() {}
 
 /// Return human readable representation of the algorithm.
 /**
- * Will return a formatted string containing the problem type (in mangled C++ form).
+ * Will return a formatted string containing the algorithm type (in mangled C++ form).
  * The output of human_readable_extra() will be appended at the end of the string.
  */
 std::string base::human_readable() const

@@ -25,6 +25,8 @@
 #ifndef PAGMO_ALGORITHM_NULL_H
 #define PAGMO_ALGORITHM_NULL_H
 
+#include <cstddef>
+
 #include "../population.h"
 #include "base.h"
 
@@ -43,10 +45,11 @@ namespace algorithm
 class __PAGMO_VISIBLE null:public base
 {
 	public:
-		null();
+		null(int);
 		base_ptr clone() const;
 		void evolve(population &) const;
 	private:
+		const std::size_t m_iterations;
 };
 
 }
