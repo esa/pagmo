@@ -239,6 +239,18 @@ base::f_size_type base::get_f_dimension() const
 	return m_f_dimension;
 }
 
+/// Return global constraints dimension.
+base::c_size_type base::get_c_dimension() const
+{
+	return m_c_dimension;
+}
+
+/// Return inequality constraints dimension.
+base::c_size_type base::get_ic_dimension() const
+{
+	return m_ic_dimension;
+}
+
 /// Return fitness of pagmo::decision_vector.
 /**
  * Equivalent to:
@@ -344,7 +356,7 @@ std::string base::human_readable_extra() const
 /**
  * The following conditions will be tested, in order:
  * - problems are of the same type,
- * - problems have the same dimension,
+ * - problems have the same global, integer and constraints dimension,
  * - lower and upper bounds are equal,
  * - return value of equality_operator_extra().
  *
@@ -353,7 +365,9 @@ std::string base::human_readable_extra() const
 bool base::operator==(const base &p) const
 {
 	const size_type size = get_dimension();
-	if (typeid(*this) != typeid(p) || size != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension) {
+	if (typeid(*this) != typeid(p) || size != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension ||
+		m_c_dimension != p.m_c_dimension || m_ic_dimension != p.m_ic_dimension)
+	{
 		return false;
 	}
 	for (size_t i = 0; i < size; ++i) {

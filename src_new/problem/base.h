@@ -58,14 +58,16 @@ typedef boost::shared_ptr<base> base_ptr;
 
 /// Base problem class.
 /**
- * This class represents a multiobjective mixed-integer optimisation problem defined by:
+ * This class represents a multiobjective mixed-integer constrained optimisation problem defined by:
  * - a global dimension, i.e., the dimension of the global search space,
  * - the dimension of the integral (or combinatorial) part of the problem,
+ * - the total number of constraints,
+ * - the number of inequality constraints (never exceeding the total number of constraints),
  * - lower and upper bounds of the global search space,
  * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
  *
- * All dimensions are supposed to be invariant in the life cycle of a problem object.
+ * All dimensions are invariant in the life cycle of a problem object.
  *
  * The bounds of the problem are allowed to vary over the whole range of double-precision values for continuous optimisation,
  * while for combinatorial optimisation the bounds must be in the [-32767,32767] range (corresponding to the INT_MIN and INT_MAX
@@ -283,6 +285,8 @@ class __PAGMO_VISIBLE base
 		size_type get_dimension() const;
 		size_type get_i_dimension() const;
 		f_size_type get_f_dimension() const;
+		c_size_type get_c_dimension() const;
+		c_size_type get_ic_dimension() const;
 		fitness_vector objfun(const decision_vector &) const;
 		void objfun(fitness_vector &, const decision_vector &) const;
 		/// Clone method.
