@@ -114,7 +114,7 @@ class __PAGMO_VISIBLE base
 		/// Constructor from raw arrays, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 		/**
 		 * Lower and upper bounds are initialised with the content of two arrays of size N.
-		 * Construction will fail if at least one lower bound is greater than the corresponding upper bound,
+		 * Construction will fail if at least one lower bound is greater than the corresponding upper bound, if N is zero,
 		 * if integer dimension is either negative or greater than the global dimension, if fitness dimension is not positive,
 		 * if constraints dimensions are negative or if inequality constraints dimension is greater than global constraints dimension.
 		 */

@@ -63,7 +63,7 @@ class __PAGMO_VISIBLE ihs: public base
 		ihs(int, const double &, const double &, const double &, const double &, const double &);
 		base_ptr clone() const;
 		void evolve(population &) const;
-	private:
+	protected:
 		std::string human_readable_extra() const;
 	private:
 		// Number of generations.

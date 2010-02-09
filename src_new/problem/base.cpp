@@ -334,9 +334,11 @@ std::string base::human_readable() const
 	std::ostringstream s;
 	s << "Problem type: " << typeid(*this).name() << '\n';
 	const size_type size = get_dimension();
-	s << "\tGlobal dimension:\t" << size << '\n';
-	s << "\tInteger dimension:\t" << m_i_dimension << '\n';
-	s << "\tFitness dimension:\t" << m_f_dimension << '\n';
+	s << "\tGlobal dimension:\t\t\t" << size << '\n';
+	s << "\tInteger dimension:\t\t\t" << m_i_dimension << '\n';
+	s << "\tFitness dimension:\t\t\t" << m_f_dimension << '\n';
+	s << "\tConstraints dimension:\t\t\t" << m_c_dimension << '\n';
+	s << "\tInequality constraints dimension:\t" << m_ic_dimension << '\n';
 	s << "\tLower bounds: ";
 	s << m_lb << '\n';
 	s << "\tUpper bounds: ";

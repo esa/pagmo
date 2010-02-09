@@ -155,7 +155,7 @@ void ihs::evolve(population &pop) const
 		}
 		const population::size_type worst_idx = pop.get_worst_idx();
 		prob.objfun(m_tmp_f,m_tmp_x);
-		if (prob.compare_f(m_tmp_f,pop.get_individual(worst_idx).get<2>())) {
+		if (prob.test_constraints(m_tmp_x) && prob.compare_f(m_tmp_f,pop.get_individual(worst_idx).get<2>())) {
 			pop.set_x(worst_idx,m_tmp_x);
 		}
 	}

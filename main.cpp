@@ -30,6 +30,7 @@
 #include "src_new/algorithm/ihs.h"
 #include "src_new/algorithm/null.h"
 #include "src_new/island.h"
+#include "src_new/problem/knapsack.h"
 #include "src_new/problem/paraboloid.h"
 
 using namespace pagmo;
@@ -94,9 +95,12 @@ int main()
 	p2.set_lb(0,-1.234);
 	std::cout << f << '\n';
 
-	population pop(problem::paraboloid(lb2,ub2),10);
+	double values[] = {10,2,4,7};
+	double weights[] = {4,6,1,2};
 
-	algorithm::ihs algo(1000000);
+	population pop(problem::knapsack(values,weights,9),10);
+
+	algorithm::ihs algo(0);
 
 	algo.evolve(pop);
 

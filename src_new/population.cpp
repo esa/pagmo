@@ -81,6 +81,11 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 		for (decision_vector::size_type i = p_size - i_size; i < p_size; ++i) {
 			m_container.back().get<0>()[i] = boost::uniform_int<int>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_urng);
 		}
+		// Now check for constraints satisfaction. If not, remove the individual and continue.
+		if (!m_prob->test_constraints(m_container.back().get<0>())) {
+			m_container.pop_back();
+			continue;
+		}
 		// Initialise randomly the velocity vector.
 		for (decision_vector::size_type i = 0; i < p_size; ++i) {
 			// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
@@ -198,12 +203,14 @@ std::string population::human_readable() const
 			oss << "\tVelocity vector:\t" << m_container[i].get<1>() << '\n';
 			oss << "\tFitness vector:\t\t" << m_container[i].get<2>() << '\n';
 			oss << "\tBest fitness vector:\t" << m_container[i].get<3>() << '\n';
+			oss << "\tConstraints vector:\t" << m_prob->compute_constraints(m_container[i].get<0>()) << '\n';
 		}
 	}
 	if (m_champion.get<0>().size()) {
 		oss << "Champion:\n";
 		oss << "\tDecision vector:\t" << m_champion.get<0>() << '\n';
 		oss << "\tFitness vector:\t\t" << m_champion.get<1>() << '\n';
+		oss << "\tConstraints vector:\t" << m_prob->compute_constraints(m_champion.get<0>()) << '\n';
 	} else {
 		oss << "No champion yet.\n";
 	}

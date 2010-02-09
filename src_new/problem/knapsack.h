@@ -22,12 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 01/02/10 Created by Francesco Biscani.
+#ifndef PAGMO_PROBLEM_KNAPSACK_H
+#define PAGMO_PROBLEM_KNAPSACK_H
 
-#ifndef PAGMO_PROBLEM_PARABOLOID_H
-#define PAGMO_PROBLEM_PARABOLOID_H
-
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
+#include <vector>
 
 #include "../config.h"
 #include "../types.h"
@@ -35,41 +35,60 @@
 
 namespace pagmo { namespace problem {
 
-/// N-dimensional paraboloid problem.
+/// N-dimensional knapsack problem.
 /**
- * \image html paraboloid.png "Two-dimensional paraboloid."
- * \image latex paraboloid.png "Two-dimensional paraboloid." width=5cm
  *
- * The objective function for an N-dimensional instance of this problem is:
+ * \image html knapsack.png "Knapsack problem."
+ * \image latex knapsack.png "Knapsack problem." width=3cm
+ *
+ * Classical formulation of the 0-1 knapsack problem: given N items, each one with a weight and a monetary value, determine
+ * which items to include in the knapsack so that the total weight is less than a given limit and the total value is as large as possible.
+ *
+ * Mathematically, the problem is formulated as follows:
  * \f[
- * 	f\left(x_1,\ldots,x_N \right) = \sum_{i=1}^N x_i^2.
+ * 	\begin{array}{ll}
+ * 	\textnormal{maximise:} & \sum_{i=1}^Np_ix_i, \\
+ * 	\textnormal{subject to:} & \sum_{i=1}^Nw_ix_i \leq W, x_i \in \left\{ 0,1 \right\},
+ * 	\end{array}
  * \f]
- * Useful for testing/benchmarking purposes.
+ * where \f$ p_i \f$ is the value of the item and \f$ w_i \f$ its weight.
+ *
+ * In PaGMO's terminology, this problem has global and integer dimensions equal to N, fitness dimension equal to 1, global and inequality constraints
+ * dimensions equal to 1.
+ *
+ * @see http://en.wikipedia.org/wiki/Knapsack_problem
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE paraboloid: public base
+class __PAGMO_VISIBLE knapsack: public base
 {
 	public:
-		paraboloid();
-		/// Constructor from raw arrays.
+		knapsack(const std::vector<double> &, const std::vector<double> &, const double &);
+		/// Constructor from raw arrays and maximum weight.
 		/**
-		 * @see problem::base constructors.
+		 * Initialise the values and weights of the items from raw arrays, and maximum weight to max_weight. Will fail if max_weight is negative,
+		 * if N is 0 or any weight/value is negative.
 		 */
 		template <std::size_t N>
-		paraboloid(const double (&v1)[N], const double (&v2)[N]):base(v1,v2) {}
-		/// Constructor from iterators.
-		/**
-		 * @see problem::base constructors.
-		 */
-		template <class Iterator1, class Iterator2>
-		paraboloid(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2):base(start1,end1,start2,end2) {}
-		paraboloid(const decision_vector &, const decision_vector &);
+		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base(boost::numeric_cast<int>(N),boost::numeric_cast<int>(N),1,1,1),
+			m_values(values,values + N),m_weights(weights,weights + N),m_max_weight(max_weight)
+		{
+			verify_init();
+		}
 		base_ptr clone() const;
 	protected:
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		bool compare_f_impl(const fitness_vector &, const fitness_vector &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		void verify_init() const;
+	private:
+		const std::vector<double>	m_values;
+		const std::vector<double>	m_weights;
+		const double			m_max_weight;
 };
 
-}}
+}
+}
 
 #endif
