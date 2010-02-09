@@ -82,6 +82,16 @@ void knapsack::compute_constraints_impl(constraint_vector &c, const decision_vec
 	c[0] -= m_max_weight;
 }
 
+/// Additional requirements for equality.
+/**
+ * Return true if items values and weights are the same.
+ */
+bool knapsack::equality_operator_extra(const base &other) const
+{
+	pagmo_assert(typeid(*this) == typeid(other));
+	return (m_values == dynamic_cast<knapsack const &>(other).m_values && m_weights == dynamic_cast<knapsack const &>(other).m_weights);
+}
+
 // Verify that sane values have been input during construction.
 void knapsack::verify_init() const
 {

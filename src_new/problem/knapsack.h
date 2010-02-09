@@ -80,6 +80,7 @@ class __PAGMO_VISIBLE knapsack: public base
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		bool compare_f_impl(const fitness_vector &, const fitness_vector &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		bool equality_operator_extra(const base &) const;
 	private:
 		void verify_init() const;
 	private:
