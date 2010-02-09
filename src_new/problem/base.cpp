@@ -428,7 +428,7 @@ void base::compute_constraints_impl(constraint_vector &c, const decision_vector 
 	std::fill(c.begin(),c.end(),0);
 }
 
-/// Compute constraints.
+/// Compute constraints and write them into contraint vector.
 /**
  * This function will perform sanity checks on c and x and will then call compute_constraints_impl().
  */
