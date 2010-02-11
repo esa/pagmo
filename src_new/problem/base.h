@@ -87,7 +87,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * Additionally, the following virtual protected methods can be reimplemented in derived classes:
  * - human_readable_extra(), for providing extra output when printing the problem to stream,
  * - equality_operator_extra(), for providing additional criterions when testing for equality between two problems,
- * - compare_f_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
+ * - compare_fitness_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
  *   than the second one, false otherwise),
  * - compute_constraints_impl(), to calculate the constraint vector associated to a decision vector.
  *
@@ -100,6 +100,7 @@ class __PAGMO_VISIBLE base
 		// Underlying containers used for caching decision and fitness vectors.
 		typedef boost::circular_buffer<decision_vector> decision_vector_cache_type;
 		typedef boost::circular_buffer<fitness_vector> fitness_vector_cache_type;
+		typedef boost::circular_buffer<constraint_vector> constraint_vector_cache_type;
 	public:
 		/// Capacity of the internal caches.
 		static const std::size_t cache_capacity = 5;
@@ -122,8 +123,10 @@ class __PAGMO_VISIBLE base
 		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1, int nc = 0, int nic = 0):
 			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-			m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
+			m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
+			m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+			m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 		{
 			if (!m_f_dimension) {
 				pagmo_throw(value_error,"fitness dimension must be strictly positive");
@@ -138,7 +141,8 @@ class __PAGMO_VISIBLE base
 			// Resize properly temporary fitness and constraint storage.
 			m_tmp_f1.resize(m_f_dimension);
 			m_tmp_f2.resize(m_f_dimension);
-			m_tmp_c.resize(m_c_dimension);
+			m_tmp_c1.resize(m_c_dimension);
+			m_tmp_c2.resize(m_c_dimension);
 			// Normalise bounds.
 			normalise_bounds();
 		}
@@ -153,8 +157,10 @@ class __PAGMO_VISIBLE base
 		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
 			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-			m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
+			m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
+			m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+			m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 		{
 			if (!m_f_dimension) {
 				pagmo_throw(value_error,"fitness dimension must be strictly positive");
@@ -169,12 +175,16 @@ class __PAGMO_VISIBLE base
 			// Properly resize temporary fitness and constraint storage.
 			m_tmp_f1.resize(m_f_dimension);
 			m_tmp_f2.resize(m_f_dimension);
-			m_tmp_c.resize(m_c_dimension);
+			m_tmp_c1.resize(m_c_dimension);
+			m_tmp_c2.resize(m_c_dimension);
 			// Normalise bounds.
 			normalise_bounds();
 		}
 		virtual ~base();
-		// Getters and setters.
+		/** @name Bounds setters/getters.
+		* Methods used to manipulate problem bounds.
+		*/
+		//@{
 		const decision_vector &get_lb() const;
 		const decision_vector &get_ub() const;
 		void set_bounds(const decision_vector &, const decision_vector &);
@@ -286,37 +296,54 @@ class __PAGMO_VISIBLE base
 			// Normalise bounds.
 			normalise_bounds();
 		}
+		//@}
+		/** @name Dimensions getters.*/
+		//@{
 		size_type get_dimension() const;
 		size_type get_i_dimension() const;
 		f_size_type get_f_dimension() const;
 		c_size_type get_c_dimension() const;
 		c_size_type get_ic_dimension() const;
-		fitness_vector objfun(const decision_vector &) const;
-		void objfun(fitness_vector &, const decision_vector &) const;
+		//@}
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;
-		bool test_constraints(const decision_vector &) const;
+		bool compare_constraints(const constraint_vector &, const constraint_vector &) const;
+		bool test_constraints_x(const decision_vector &) const;
+		bool test_constraints_c(const constraint_vector &) const;
 		/// Clone method.
 		virtual base_ptr clone() const = 0;
 		std::string human_readable() const;
 		bool operator==(const base &) const;
 		bool operator!=(const base &) const;
+		// Constraints functions.
 		bool compare_x(const decision_vector &, const decision_vector &) const;
-		bool compare_f(const fitness_vector &, const fitness_vector &) const;
 		bool verify_x(const decision_vector &) const;
+		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 	protected:
 		//virtual void pre_evolution(island &) const;
 		//virtual void post_evolution(island &) const;
 		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
-		virtual bool compare_f_impl(const fitness_vector &, const fitness_vector &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
+		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
+	public:
+		/** @name Objective function and fitness handling.
+		 * Methods used to calculate and compare fitnesses.
+		 */
+		//@{
+		fitness_vector objfun(const decision_vector &) const;
+		void objfun(fitness_vector &, const decision_vector &) const;
+		bool compare_fitness(const fitness_vector &, const fitness_vector &) const;
+	protected:
+		virtual bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.
 		/**
-		 * Takes a pagmo::decision_vector x as input and writes its pagmo::fitness_vector to f. This function is not to be called directly,
-		 * it is invoked by objfun() after a series of safety checks is performed on x and f.
-		 */
+		* Takes a pagmo::decision_vector x as input and writes its pagmo::fitness_vector to f. This function is not to be called directly,
+		* it is invoked by objfun() after a series of safety checks is performed on x and f.
+		*/
 		virtual void objfun_impl(fitness_vector &f, const decision_vector &x) const = 0;
+		//@}
 	private:
 		void normalise_bounds();
 		// Construct from iterators.
@@ -355,15 +382,20 @@ class __PAGMO_VISIBLE base
 		decision_vector				m_lb;
 		// Upper bounds.
 		decision_vector				m_ub;
-		// Decision vector cache.
-		mutable decision_vector_cache_type	m_decision_vector_cache;
+		// Decision vector cache for fitness.
+		mutable decision_vector_cache_type	m_decision_vector_cache_f;
 		// Fitness vector cache.
 		mutable fitness_vector_cache_type	m_fitness_vector_cache;
+		// Decision vector cache for constraints.
+		mutable decision_vector_cache_type	m_decision_vector_cache_c;
+		// Constraint vector cache.
+		mutable constraint_vector_cache_type	m_constraint_vector_cache;
 		// Temporary storage used during decision_vector comparisons.
 		mutable fitness_vector			m_tmp_f1;
 		mutable fitness_vector			m_tmp_f2;
-		// Temporary storage used during constraints satisfaction testing.
-		mutable constraint_vector		m_tmp_c;
+		// Temporary storage used during constraints satisfaction testing and constraints comparison.
+		mutable constraint_vector		m_tmp_c1;
+		mutable constraint_vector		m_tmp_c2;
 		// Objective function calls counter.
 		static atomic_counter_size_t		m_objfun_counter;
 };

@@ -46,21 +46,45 @@ class __PAGMO_VISIBLE island;
 /**
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-// TODO: when appending individual, replacing etc: make sure bounds are respected (throw otherwise), respect INT_MIN/INT_MAX, integral part is really integral
-// (using double_to_int::convert).
 class __PAGMO_VISIBLE population
 {
 		friend class __PAGMO_VISIBLE island;
 		// Stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);
 	public:
-		/// Individuals stored in the population are tuples of decision vector, velocity vector, current fitness vector and best fitness vector.
-		typedef boost::tuple<decision_vector,decision_vector,fitness_vector,fitness_vector> individual_type;
-		/// Champion type.
+		/// Individuals stored in the population.
 		/**
-		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector and a fitness vector.
+		 * Individuals store the current decision and velocity vectors, the current constraint vector and the current fitness vector. They also
+		 * keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
 		 */
-		typedef boost::tuple<decision_vector,fitness_vector> champion_type;
+		struct individual_type {
+			/// Current decision vector.
+			decision_vector		cur_x;
+			/// Current velocity vector.
+			decision_vector		cur_v;
+			/// Current constraint vector.
+			constraint_vector	cur_c;
+			/// Current fitness vector.
+			fitness_vector		cur_f;
+			/// Best decision vector so far.
+			decision_vector		best_x;
+			/// Best constraint vector so far.
+			constraint_vector	best_c;
+			/// Best fitness vector so far.
+			fitness_vector		best_f;
+		};
+		/// Population champion.
+		/**
+		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
+		 */
+		struct champion_type {
+			/// Decision vector.
+			decision_vector		x;
+			/// Constraint vector.
+			constraint_vector	c;
+			/// Fitness vector.
+			fitness_vector		f;
+		};
 		/// Population size type.
 		typedef std::vector<individual_type>::size_type size_type;
 		population(const problem::base &, int n = 0);

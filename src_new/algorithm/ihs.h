@@ -67,21 +67,22 @@ class __PAGMO_VISIBLE ihs: public base
 		std::string human_readable_extra() const;
 	private:
 		// Number of generations.
-		const std::size_t	m_gen;
+		const std::size_t		m_gen;
 		// Rate of choosing from memory (i.e., from population).
-		const double		m_phmcr;
+		const double			m_phmcr;
 		// Minimum pitch adjustment rate.
-		const double		m_ppar_min;
+		const double			m_ppar_min;
 		// Maximum pitch adjustment rate.
-		const double		m_ppar_max;
+		const double			m_ppar_max;
 		// Mininum distance bandwidth.
-		const double		m_bw_min;
+		const double			m_bw_min;
 		// Maximum distance bandwidth.
-		const double		m_bw_max;
+		const double			m_bw_max;
 		// Internal caches used during evolution.
-		mutable decision_vector	m_tmp_x;
-		mutable decision_vector	m_lu_diff;
-		mutable fitness_vector	m_tmp_f;
+		mutable decision_vector		m_tmp_x;
+		mutable decision_vector		m_lu_diff;
+		mutable fitness_vector		m_tmp_f;
+		mutable constraint_vector	m_tmp_c;
 };
 
 }

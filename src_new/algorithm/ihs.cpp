@@ -98,7 +98,7 @@ void ihs::evolve(population &pop) const
 	const problem::base::size_type prob_dimension = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type pop_size = pop.size();
-	// Go out if there is nothing to do.
+	// Get out if there is nothing to do.
 	if (pop_size == 0 || m_gen == 0) {
 		return;
 	}
@@ -110,31 +110,27 @@ void ihs::evolve(population &pop) const
 	}
 	// Temporary fitness vector.
 	m_tmp_f.resize(prob.get_f_dimension());
+	// Temporary constraint vector.
+	m_tmp_c.resize(prob.get_c_dimension());
+	// Int distribution to be used when picking random individuals.
+	boost::uniform_int<population::size_type> uni_int(0,pop_size - 1);
 	const double c = std::log(m_bw_min/m_bw_max) / m_gen;
 	for (std::size_t g = 0; g < m_gen; ++g) {
 		const double ppar_cur = m_ppar_min + ((m_ppar_max - m_ppar_min) * g) / m_gen, bw_cur = m_bw_max * std::exp(c * g);
-		for (problem::base::size_type i = 0; i < prob_dimension; ++i) {
+		// Continuous part.
+		for (problem::base::size_type i = 0; i < prob_dimension - prob_i_dimension; ++i) {
 			if (m_drng() < m_phmcr) {
-				// With random probability ppar_cur, tmp's i-th chromosome element is the one from a randomly chosen individual.
-				m_tmp_x[i] = pop.get_individual(boost::uniform_int<population::size_type>(0,pop_size - 1)(m_urng)).get<0>()[i];
+				// m_tmp's i-th chromosome element is the one from a randomly chosen individual.
+				m_tmp_x[i] = pop.get_individual(uni_int(m_urng)).cur_x[i];
+				// Do pitch adjustment with ppar_cur probability.
 				if (m_drng() < ppar_cur) {
-					if (i < prob_dimension - prob_i_dimension) {
-						// Handle the continuous part of the problem.
-						// Randomly, add or subtract pitch from the current chromosome element.
-						if (m_drng() > .5) {
-							m_tmp_x[i] += m_drng() * bw_cur * m_lu_diff[i];
-						} else {
-							m_tmp_x[i] -= m_drng() * bw_cur * m_lu_diff[i];
-						}
+					// Randomly, add or subtract pitch from the current chromosome element.
+					if (m_drng() > .5) {
+						m_tmp_x[i] += m_drng() * bw_cur * m_lu_diff[i];
 					} else {
-						// Integer part of the problem.
-						if (m_drng() > .5) {
-							m_tmp_x[i] += 1;
-						} else {
-							m_tmp_x[i] -= 1;
-						}
+						m_tmp_x[i] -= m_drng() * bw_cur * m_lu_diff[i];
 					}
-					// Handle the case in which we addded or subtracted too much and ended up out
+					// Handle the case in which we added or subtracted too much and ended up out
 					// of boundaries.
 					if (m_tmp_x[i] > ub[i]) {
 						m_tmp_x[i] = ub[i];
@@ -144,18 +140,36 @@ void ihs::evolve(population &pop) const
 				}
 			} else {
 				// Pick randomly within the bounds.
-				if (i < prob_dimension - prob_i_dimension) {
-					// Continuous.
-					m_tmp_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
-				} else {
-					// Integral.
-					m_tmp_x[i] = boost::uniform_int<int>(lb[i],ub[i])(m_urng);
-				}
+				m_tmp_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 			}
 		}
-		const population::size_type worst_idx = pop.get_worst_idx();
+		for (problem::base::size_type i = prob_dimension - prob_i_dimension; i < prob_dimension; ++i) {
+			if (m_drng() < m_phmcr) {
+				m_tmp_x[i] = pop.get_individual(uni_int(m_urng)).cur_x[i];
+				if (m_drng() < ppar_cur) {
+					if (m_drng() > .5) {
+						m_tmp_x[i] += 1;
+					} else {
+						m_tmp_x[i] -= 1;
+					}
+					// Wrap over in case we went past the bounds.
+					if (m_tmp_x[i] > ub[i]) {
+						m_tmp_x[i] = lb[i];
+					} else if (m_tmp_x[i] < lb[i]) {
+						m_tmp_x[i] = ub[i];
+					}
+				}
+			} else {
+				// Pick randomly within the bounds.
+				m_tmp_x[i] = boost::uniform_int<int>(lb[i],ub[i])(m_urng);
+			}
+		}
+		// Compute fitness and constraints.
 		prob.objfun(m_tmp_f,m_tmp_x);
-		if (prob.test_constraints(m_tmp_x) && prob.compare_f(m_tmp_f,pop.get_individual(worst_idx).get<2>())) {
+		prob.compute_constraints(m_tmp_c,m_tmp_x);
+		// Locate the worst individual.
+		const population::size_type worst_idx = pop.get_worst_idx();
+		if (prob.compare_fc(m_tmp_f,m_tmp_c,pop.get_individual(worst_idx).cur_f,pop.get_individual(worst_idx).cur_c)) {
 			pop.set_x(worst_idx,m_tmp_x);
 		}
 	}

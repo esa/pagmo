@@ -65,7 +65,7 @@ void knapsack::objfun_impl(fitness_vector &f, const decision_vector &x) const
 /**
  * We need to maximise the weight, while the default fitness comparison minimises.
  */
-bool knapsack::compare_f_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+bool knapsack::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
 {
 	pagmo_assert(v_f1.size() == 1 && v_f2.size() == v_f1.size());
 	return v_f1[0] > v_f2[0];

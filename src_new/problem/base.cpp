@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/ref.hpp>
+#include <cmath>
 #include <climits>
 #include <cstddef>
 #include <iostream>
@@ -57,8 +58,10 @@ atomic_counter_size_t base::m_objfun_counter(0);
 base::base(int n, int ni, int nf, int nc, int nic):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-	m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity))
+	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
+	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 {
 	if (n <= 0 || !nf || ni > n || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
@@ -71,7 +74,8 @@ base::base(int n, int ni, int nf, int nc, int nic):
 	// Resize properly temporary fitness and constraint storage.
 	m_tmp_f1.resize(m_f_dimension);
 	m_tmp_f2.resize(m_f_dimension);
-	m_tmp_c.resize(m_c_dimension);
+	m_tmp_c1.resize(m_c_dimension);
+	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
 }
@@ -84,8 +88,10 @@ base::base(int n, int ni, int nf, int nc, int nic):
 base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf, int nc, int nic):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-	m_decision_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_fitness_vector_cache(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity))
+	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
+	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 {
 	if (!nf || m_i_dimension > lb.size() || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
@@ -94,7 +100,8 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 	// Resize properly temporary fitness and constraint storage.
 	m_tmp_f1.resize(m_f_dimension);
 	m_tmp_f2.resize(m_f_dimension);
-	m_tmp_c.resize(m_c_dimension);
+	m_tmp_c1.resize(m_c_dimension);
+	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
 }
@@ -289,22 +296,23 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 	// Look into the cache.
 	typedef decision_vector_cache_type::iterator x_iterator;
 	typedef fitness_vector_cache_type::iterator f_iterator;
-	const x_iterator x_it = std::find(m_decision_vector_cache.begin(),m_decision_vector_cache.end(),x);
-	if (x_it == m_decision_vector_cache.end()) {
+	const x_iterator x_it = std::find(m_decision_vector_cache_f.begin(),m_decision_vector_cache_f.end(),x);
+	if (x_it == m_decision_vector_cache_f.end()) {
 		// Fitness is not into memory. Calculate it.
 		objfun_impl(f,x);
 		// Store the decision vector and the newly-calculated fitness in the front of the buffers.
-		m_decision_vector_cache.push_front(x);
+		m_decision_vector_cache_f.push_front(x);
 		m_fitness_vector_cache.push_front(f);
 	} else {
 		// Compute the corresponding iterator in the fitness vector cache.
 		f_iterator f_it = m_fitness_vector_cache.begin();
-		std::advance(f_it,std::distance(m_decision_vector_cache.begin(),x_it));
+		std::advance(f_it,std::distance(m_decision_vector_cache_f.begin(),x_it));
+		pagmo_assert(f_it != m_decision_vector_cache_f.end());
 		// Assign to the fitness vector the value in the cache.
 		f = *f_it;
 		// Move the content of the current positions to the front of the buffers, and shift everything else down
 		// by one position.
-		x_iterator tmp_x_it = m_decision_vector_cache.begin();
+		x_iterator tmp_x_it = m_decision_vector_cache_f.begin();
 		f_iterator tmp_f_it = m_fitness_vector_cache.begin();
 		while (x_it != tmp_x_it) {
 			x_it->swap(*tmp_x_it);
@@ -318,6 +326,32 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 	if (m_objfun_counter.is_increment_fast) {
 		++m_objfun_counter;
 	}
+}
+
+/// Compare fitness vectors.
+/**
+ * Will perform sanity checks on v_f1 and v_f2 and then will call base::compare_fitness_impl().
+ */
+bool base::compare_fitness(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+{
+	if (v_f1.size() != m_f_dimension || v_f2.size() != m_f_dimension) {
+		pagmo_throw(value_error,"invalid sizes for fitness vector(s) during comparison");
+	}
+	return compare_fitness_impl(v_f1,v_f2);
+}
+
+/// Implementation of fitness vectors comparison.
+/**
+ * Return true if v_f1 is strictly better than v_f2, false otherwise.
+ * Default implementation will compute the summations f1 and f2 of all elements of the input fitness vectors and will return f1 < f2.
+ */
+bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+{
+	typedef fitness_vector::value_type fitness_type;
+	const fitness_type init = 0;
+	const fitness_type f1 = std::accumulate(v_f1.begin(),v_f1.end(),init);
+	const fitness_type f2 = std::accumulate(v_f2.begin(),v_f2.end(),init);
+	return (f1 < f2);
 }
 
 /// Return human readable representation of the problem.
@@ -388,7 +422,11 @@ bool base::operator==(const base &p) const
 /// Compare decision vectors.
 /**
  * This functions returns true if x1 is a better decision_vector than x2, false otherwise. This function will compute the
- * fitness vectors associated to x1 and x2 via objfun() and will feed them to compare_f(), whose result will be returned.
+ * fitness vectors and constraint vectors associated to x1 and x2 via objfun() and compute_constraints(), and will feed them to compare_fc(), whose result will be returned.
+ *
+ * @param[in] x1 first pagmo::decision_vector.
+ * @param[in] x2 second pagmo::decision_vector.
+ * @return true if x1 is better than x2, false otherwise.
  */
 bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
 {
@@ -397,21 +435,83 @@ bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
 	// Store fitnesses into temporary space.
 	objfun(m_tmp_f1,x1);
 	objfun(m_tmp_f2,x2);
+	// Make sure the size of the tmp constraints vectors are suitable.
+	pagmo_assert(m_tmp_c1.size() == m_c_dimension && m_tmp_c2.size() == m_c_dimension);
+	// Store constraints vector into temporary space.
+	compute_constraints(m_tmp_c1,x1);
+	compute_constraints(m_tmp_c2,x2);
 	// Call the comparison implementation.
-	return compare_f(m_tmp_f1,m_tmp_f2);
+	return compare_fc(m_tmp_f1,m_tmp_c1,m_tmp_f2,m_tmp_c2);
 }
 
-/// Compare fitness vectors.
+/// Simultaneous fitness-constraint comparison.
 /**
- * Will perform sanity checks on v_f1 and v_f2 and then will call base::compare_f_impl().
+ * This function will perform sanity checks on the input arguments and will then call compare_fc_impl() if the constraint dimensions is not null, compare_fitness_impl() otherwise.
+ *
+ * @param[in] f1 first pagmo::fitness_vector.
+ * @param[in] c1 first pagmo::constraint_vector.
+ * @param[in] f2 second pagmo::fitness_vector.
+ * @param[in] c2 second pagmo::constraint_vector.
+ * @return result of compare_fc_impl() or compare_fitness_impl().
  */
-bool base::compare_f(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+bool base::compare_fc(const fitness_vector &f1, const constraint_vector &c1, const fitness_vector &f2, const constraint_vector &c2) const
 {
-	if (v_f1.size() != m_f_dimension || v_f2.size() != m_f_dimension) {
-		pagmo_throw(value_error,"invalid sizes for fitness vector(s) during comparison");
+	if (f1.size() != m_f_dimension || f2.size() != m_f_dimension) {
+		pagmo_throw(value_error,"wrong size(s) for fitness vector(s)");
 	}
-	return compare_f_impl(v_f1,v_f2);
+	if (c1.size() != m_c_dimension || c2.size() != m_c_dimension) {
+		pagmo_throw(value_error,"wrong size(s) for constraint vector(s)");
+	}
+	if (m_c_dimension) {
+		return compare_fc_impl(f1,c1,f2,c2);
+	} else {
+		return compare_fitness_impl(f1,f2);
+	}
 }
+
+/// Implementation of simultaneous fitness-constraint comparison.
+/**
+ * This function combines the information of two fitness/constraint vector pairs in order to establish which of the two pairs if strictly
+ * better than the other. Return value will be true if the first pair is strictly better than the second pair, false otherwise.
+ *
+ * Default implementation will return true if one of these conditions, tested in this order, holds:
+ * - c1 is feasible, c2 is not;
+ * - both c1 and c2 are not feasible and compare_constraints(c1,c2) returns true;
+ * - both c1 and c2 are feasible and compare_fitness(f1,f2) returns true.
+ *
+ * Otherwise, false will be returned.
+ *
+ * @param[in] f1 first pagmo::fitness_vector.
+ * @param[in] c1 first pagmo::constraint_vector.
+ * @param[in] f2 second pagmo::fitness_vector.
+ * @param[in] c2 second pagmo::constraint_vector.
+ * @return true if first fitness/constraint vector pair is strictly better than the second one, false otherwise.
+ */
+bool base::compare_fc_impl(const fitness_vector &f1, const constraint_vector &c1, const fitness_vector &f2, const constraint_vector &c2) const
+{
+	const bool test1 = test_constraints_c(c1), test2 = test_constraints_c(c2);
+	if (test1 && !test2) {
+		return true;
+	}
+	if (!test1 && test2) {
+		return false;
+	}
+	// At this point, either they both satisfy or they do not.
+	if (test1) {
+		pagmo_assert(test2);
+		// If they satisfy, compare fitnesses and return.
+		return compare_fitness_impl(f1,f2);
+	} else {
+		pagmo_assert(!test2);
+		// If they do not satisfy, compare constraints and return.
+		return compare_constraints_impl(c1,c2);
+	}
+}
+
+/** @name Constraints-related methods.
+ * Methods used to calculate and compare constraints.
+ */
+//@{
 
 /// Implementation of constraint computation.
 /**
@@ -421,6 +521,9 @@ bool base::compare_f(const fitness_vector &v_f1, const fitness_vector &v_f2) con
  * of inequality constraint testing: if a constraint is satisfied, the corresponding value in the vector will be non-positive.
  *
  * Default implementation will fill c with zeroes.
+ *
+ * @param[out] c pagmo::constraint_vector into which the constraints will be written.
+ * @param[in] x pagmo::decision_vector whose constraints will be computed.
  */
 void base::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
@@ -434,10 +537,42 @@ void base::compute_constraints_impl(constraint_vector &c, const decision_vector 
  */
 void base::compute_constraints(constraint_vector &c, const decision_vector &x) const
 {
+	// Do not do anything if constraints size is 0.
+	if (!m_c_dimension) {
+		return;
+	}
 	if (!verify_x(x) || c.size() != get_c_dimension()) {
 		pagmo_throw(value_error,"invalid constraint and/or decision vector(s) during constraint testing");
 	}
-	compute_constraints_impl(c,x);
+	// Look into the cache.
+	typedef decision_vector_cache_type::iterator x_iterator;
+	typedef constraint_vector_cache_type::iterator c_iterator;
+	const x_iterator x_it = std::find(m_decision_vector_cache_c.begin(),m_decision_vector_cache_c.end(),x);
+	if (x_it == m_decision_vector_cache_c.end()) {
+		// Constraint vector is not into memory. Calculate it.
+		compute_constraints_impl(c,x);
+		// Store the decision vector and the newly-calculated constraint vector in the front of the buffers.
+		m_decision_vector_cache_c.push_front(x);
+		m_constraint_vector_cache.push_front(c);
+	} else {
+		// Compute the corresponding iterator in the constraint vector cache.
+		c_iterator c_it = m_constraint_vector_cache.begin();
+		std::advance(c_it,std::distance(m_decision_vector_cache_c.begin(),x_it));
+		pagmo_assert(c_it != m_decision_vector_cache_c.end());
+		// Assign to the fitness vector the value in the cache.
+		c = *c_it;
+		// Move the content of the current positions to the front of the buffers, and shift everything else down
+		// by one position.
+		x_iterator tmp_x_it = m_decision_vector_cache_c.begin();
+		c_iterator tmp_c_it = m_constraint_vector_cache.begin();
+		while (x_it != tmp_x_it) {
+			x_it->swap(*tmp_x_it);
+			c_it->swap(*tmp_c_it);
+			++tmp_x_it;
+			++tmp_c_it;
+		}
+		pagmo_assert(tmp_c_it == c_it);
+	}
 }
 
 /// Compute constraints and return constraint vector.
@@ -456,45 +591,110 @@ constraint_vector base::compute_constraints(const decision_vector &x) const
 	return c;
 }
 
-/// Test constraints.
+/// Test constraint satisfaction of decision vector.
 /**
- * This method will compute the constraint vector associated to x and will return true if all constraints are satisfied, false otherwise.
+ * This method will compute the constraint vector associated to x and test it with test_constraints_c().
+ *
+ * @param[in] x pagmo::decision_vector whose constraints will be computed and tested.
+ *
  * @see compute_constraints()
  * @see compute_constraints_impl()
  */
-bool base::test_constraints(const decision_vector &x) const
+bool base::test_constraints_x(const decision_vector &x) const
 {
-	// Compute the constraints
-	compute_constraints(m_tmp_c,x);
+	// Compute the constraints and store internally.
+	compute_constraints(m_tmp_c1,x);
+	return test_constraints_c(m_tmp_c1);
+}
+
+/// Test constraint satisfaction of constraint vector.
+/**
+ * This method will return true if all constraints are satisfied, false otherwise.
+ *
+ * @param[in] c pagmo::constraint_vector to be tested.
+ */
+bool base::test_constraints_c(const constraint_vector &c) const
+{
+	if (c.size() != m_c_dimension) {
+		pagmo_throw(value_error,"invalid size for constraint vector");
+	}
 	pagmo_assert(m_c_dimension >= m_ic_dimension);
 	// Test the equality constraints.
 	for (c_size_type i = 0; i < m_c_dimension - m_ic_dimension; ++i) {
-		if (m_tmp_c[i] != 0) {
+		if (c[i] != 0) {
 			return false;
 		}
 	}
 	// Test the inequality constraints.
 	for (c_size_type i = m_c_dimension - m_ic_dimension; i < m_c_dimension; ++i) {
-		if (m_tmp_c[i] > 0) {
+		if (c[i] > 0) {
 			return false;
 		}
 	}
 	return true;
 }
 
-/// Implementation of fitness vectors comparison.
+/// Compare constraint vectors.
 /**
- * Return true if v_f1 is strictly better than v_f2, false otherwise.
- * Default implementation will compute the summations f1 and f2 of all elements of the input fitness vectors and will return f1 < f2.
+ * This function will perform safety checks on c1 and c2 and will then call compare_constraints_impl().
+ *
+ * @param[in] c1 first pagmo::constraint_vector to compare.
+ * @param[in] c2 second pagmo::constraint_vector to compare.
  */
-bool base::compare_f_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+bool base::compare_constraints(const constraint_vector &c1, const constraint_vector &c2) const
 {
-	typedef fitness_vector::value_type fitness_type;
-	const fitness_type init = 0;
-	const fitness_type f1 = std::accumulate(v_f1.begin(),v_f1.end(),init);
-	const fitness_type f2 = std::accumulate(v_f2.begin(),v_f2.end(),init);
-	return (f1 < f2);
+	if (c1.size() != m_c_dimension || c2.size() != m_c_dimension) {
+		pagmo_throw(value_error,"invalid size(s) for constraint vector(s)");
+	}
+	return compare_constraints_impl(c1,c2);
 }
+
+/// Implementation of constraint vector comparison.
+/**
+ * Return true if c1 is a strictly better constraint vector than c2, false otherwise. Default implementation
+ * will return true under the following conditions, tested in order:
+ * - c1 satisfies the constraints, c2 does not,
+ * - both c1 and c2 do not satisfy the constraints and the L2 norm of the unsatisfied constraints for c1 is smaller than for c2.
+ *
+ * Otherwise, false will be returned.
+ *
+ * @param[in] c1 first pagmo::constraint_vector to compare.
+ * @param[in] c2 second pagmo::constraint_vector to compare.
+ */
+bool base::compare_constraints_impl(const constraint_vector &c1, const constraint_vector &c2) const
+{
+	const bool test1 = test_constraints_c(c1), test2 = test_constraints_c(c2);
+	// If the second constraint is satisfied, c1 cannot be better than c2.
+	if (test2) {
+		return false;
+	}
+	// The first constraint is satisfied, the second one isn't. Return true.
+	if (test1) {
+		return true;
+	}
+	// Both constraint vectors are not satisfied. Assert it just in case :)
+	pagmo_assert(!test1 && !test2);
+	// Compute the unsatisfied constraint L2 norm.
+	double norm1 = 0, norm2 = 0;
+	// Equality constraints.
+	for (c_size_type i = 0; i < m_c_dimension - m_ic_dimension; ++i) {
+		norm1 += std::abs(c1[i]) * std::abs(c1[i]);
+		norm2 += std::abs(c2[i]) * std::abs(c2[i]);
+	}
+	// Inequality constraints.
+	for (c_size_type i = m_c_dimension - m_ic_dimension; i < m_c_dimension; ++i) {
+		if (c1[i] > 0) {
+			norm1 += c1[i] * c1[i];
+		}
+		if (c2[i] > 0) {
+			norm2 += c2[i] * c2[i];
+		}
+	}
+	pagmo_assert(norm1 > 0 && norm2 > 0);
+	return (norm1 < norm2);
+}
+
+//@}
 
 /// Extra requirements for equality.
 /**

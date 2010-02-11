@@ -95,12 +95,13 @@ int main()
 	p2.set_lb(0,-1.234);
 	std::cout << f << '\n';
 
-	double values[] = {10,2,4,7};
-	double weights[] = {4,6,1,2};
+	double values[] = {1,2,3,4,5,6,7,8,9,11,15};
+	double weights[] = {4,7,9,1,2,3,5,8,6,12,17};
 
-	population pop(problem::knapsack(values,weights,9),10);
+ 	population pop(problem::knapsack(values,weights,30),10);
+//	population pop(problem::paraboloid(lb2,ub2),10);
 
-	algorithm::ihs algo(0);
+	algorithm::ihs algo(1000);
 
 	algo.evolve(pop);
 

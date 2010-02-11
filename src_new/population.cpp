@@ -40,12 +40,12 @@
 
 namespace pagmo
 {
-// Function object to compare individuals according to their current fitness.
-struct cur_f_comp {
-	cur_f_comp(const problem::base &p):m_p(p) {}
+// Function object to compare individuals according to their current fitness and constraints.
+struct cur_fc_comp {
+	cur_fc_comp(const problem::base &p):m_p(p) {}
 	bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
 	{
-		return m_p.compare_f(i1.get<2>(),i2.get<2>());
+		return m_p.compare_fc(i1.cur_f,i1.cur_c,i2.cur_f,i2.cur_c);
 	}
 	const problem::base &m_p;
 };
@@ -63,46 +63,50 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 	// Store sizes temporarily.
 	const size_type size = boost::numeric_cast<size_type>(n);
 	const fitness_vector::size_type f_size = m_prob->get_f_dimension();
+	const constraint_vector::size_type c_size = m_prob->get_c_dimension();
 	const decision_vector::size_type p_size = m_prob->get_dimension(), i_size = m_prob->get_i_dimension();
 	pagmo_assert(p_size >= i_size);
 	for (size_type i = 0; i < size; ++i) {
 		// Push back an empty individual.
 		m_container.push_back(individual_type());
-		// Resize decision vectors and fitness vectors.
-		m_container.back().get<0>().resize(p_size);
-		m_container.back().get<1>().resize(p_size);
-		m_container.back().get<2>().resize(f_size);
-		m_container.back().get<3>().resize(f_size);
+		// Resize individual's elements.
+		m_container.back().cur_x.resize(p_size);
+		m_container.back().cur_v.resize(p_size);
+		m_container.back().cur_c.resize(c_size);
+		m_container.back().cur_f.resize(f_size);
+		m_container.back().best_x.resize(p_size);
+		m_container.back().best_c.resize(c_size);
+		m_container.back().best_f.resize(f_size);
 		// Initialise randomly the continuous part of the decision vector.
 		for (decision_vector::size_type i = 0; i < p_size - i_size; ++i) {
-			m_container.back().get<0>()[i] = boost::uniform_real<double>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_drng);
+			m_container.back().cur_x[i] = boost::uniform_real<double>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_drng);
 		}
 		// Initialise randomly the integer part of the decision vector.
 		for (decision_vector::size_type i = p_size - i_size; i < p_size; ++i) {
-			m_container.back().get<0>()[i] = boost::uniform_int<int>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_urng);
-		}
-		// Now check for constraints satisfaction. If not, remove the individual and continue.
-		if (!m_prob->test_constraints(m_container.back().get<0>())) {
-			m_container.pop_back();
-			continue;
+			m_container.back().cur_x[i] = boost::uniform_int<int>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_urng);
 		}
 		// Initialise randomly the velocity vector.
 		for (decision_vector::size_type i = 0; i < p_size; ++i) {
 			// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
-			m_container.back().get<1>()[i] = boost::uniform_real<double>(m_prob->get_lb()[i] / 2,m_prob->get_ub()[i] / 2)(m_drng);
+			m_container.back().cur_v[i] = boost::uniform_real<double>(m_prob->get_lb()[i] / 2,m_prob->get_ub()[i] / 2)(m_drng);
 			// Change randomly the sign of the velocity.
-			m_container.back().get<1>()[i] *= (m_drng() < .5) ? 1 : -1;
+			m_container.back().cur_v[i] *= (m_drng() < .5) ? 1 : -1;
 		}
+		// Fill in the constraints part.
+		m_prob->compute_constraints(m_container.back().cur_c,m_container.back().cur_x);
 		// Compute the current fitness.
-		m_prob->objfun(m_container.back().get<2>(),m_container.back().get<0>());
-		// Best fitness is current fitness.
-		m_container.back().get<3>() = m_container.back().get<2>();
+		m_prob->objfun(m_container.back().cur_f,m_container.back().cur_x);
+		// Best decision vector is current decision vector, best fitness is current fitness, best constraints are current constraints.
+		m_container.back().best_x = m_container.back().cur_x;
+		m_container.back().best_f = m_container.back().cur_f;
+		m_container.back().best_c = m_container.back().cur_c;
 	}
 	// Calculate the champion.
-	container_type::iterator it = std::min_element(m_container.begin(),m_container.end(),cur_f_comp(*m_prob));
+	container_type::iterator it = std::min_element(m_container.begin(),m_container.end(),cur_fc_comp(*m_prob));
 	if (it != m_container.end()) {
-		m_champion.get<0>() = it->get<0>();
-		m_champion.get<1>() = it->get<2>();
+		m_champion.x = it->cur_x;
+		m_champion.f = it->cur_f;
+		m_champion.c = it->cur_c;
 	}
 }
 
@@ -153,7 +157,7 @@ population::size_type population::get_worst_idx() const
 	if (!size()) {
 		pagmo_throw(value_error,"empty population, cannot compute position of worst individual");
 	}
-	container_type::const_iterator it = std::max_element(m_container.begin(),m_container.end(),cur_f_comp(*m_prob));
+	container_type::const_iterator it = std::max_element(m_container.begin(),m_container.end(),cur_fc_comp(*m_prob));
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
 
@@ -166,7 +170,7 @@ population::size_type population::get_best_idx() const
 	if (!size()) {
 		pagmo_throw(value_error,"empty population, cannot compute position of best individual");
 	}
-	container_type::const_iterator it = std::min_element(m_container.begin(),m_container.end(),cur_f_comp(*m_prob));
+	container_type::const_iterator it = std::min_element(m_container.begin(),m_container.end(),cur_fc_comp(*m_prob));
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
 
@@ -199,19 +203,22 @@ std::string population::human_readable() const
 		oss << "List of individuals:\n";
 		for (size_type i = 0; i < size(); ++i) {
 			oss << '#' << i << ":\n";
-			oss << "\tDecision vector:\t" << m_container[i].get<0>() << '\n';
-			oss << "\tVelocity vector:\t" << m_container[i].get<1>() << '\n';
-			oss << "\tFitness vector:\t\t" << m_container[i].get<2>() << '\n';
-			oss << "\tBest fitness vector:\t" << m_container[i].get<3>() << '\n';
-			oss << "\tConstraints vector:\t" << m_prob->compute_constraints(m_container[i].get<0>()) << '\n';
+			oss << "\tDecision vector:\t\t" << m_container[i].cur_x << '\n';
+			oss << "\tVelocity vector:\t\t" << m_container[i].cur_v << '\n';
+			oss << "\tConstraint vector:\t\t" << m_container[i].cur_c << '\n';
+			oss << "\tFitness vector:\t\t\t" << m_container[i].cur_f << '\n';
+			oss << "\tBest decision vector:\t\t" << m_container[i].best_x << '\n';
+			oss << "\tBest constraint vector:\t\t" << m_container[i].best_c << '\n';
+			oss << "\tBest fitness vector:\t\t" << m_container[i].best_f << '\n';
 		}
 	}
-	if (m_champion.get<0>().size()) {
+	if (m_champion.x.size()) {
 		oss << "Champion:\n";
-		oss << "\tDecision vector:\t" << m_champion.get<0>() << '\n';
-		oss << "\tFitness vector:\t\t" << m_champion.get<1>() << '\n';
-		oss << "\tConstraints vector:\t" << m_prob->compute_constraints(m_champion.get<0>()) << '\n';
+		oss << "\tDecision vector:\t" << m_champion.x << '\n';
+		oss << "\tConstraints vector:\t" << m_champion.c << '\n';
+		oss << "\tFitness vector:\t\t" << m_champion.f << '\n';
 	} else {
+		pagmo_assert(!size());
 		oss << "No champion yet.\n";
 	}
 	return oss.str();
@@ -230,19 +237,23 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 		pagmo_throw(value_error,"decision vector is not compatible with problem");
 	}
 	// Set decision vector.
-	m_container[idx].get<0>() = x;
+	m_container[idx].cur_x = x;
 	// Update current fitness vector.
-	m_prob->objfun(m_container[idx].get<2>(),x);
-	// If needed, update the best fitness vector for the individual.
-	if (m_prob->compare_f(m_container[idx].get<2>(),m_container[idx].get<3>())) {
-		m_container[idx].get<3>() = m_container[idx].get<2>();
+	m_prob->objfun(m_container[idx].cur_f,x);
+	// Update current constraints vector.
+	m_prob->compute_constraints(m_container[idx].cur_c,x);
+	// If needed, update the best fitness and constraint vectors for the individual.
+	if (m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_container[idx].best_f,m_container[idx].best_c)) {
+		m_container[idx].best_f = m_container[idx].cur_f;
+		m_container[idx].best_c = m_container[idx].cur_c;
 	}
 	// If needed update the champion. Make sure with the assert that the champion exists. It
 	// should be guaranteed at this point.
-	pagmo_assert(m_champion.get<0>().size());
-	if (m_prob->compare_f(m_container[idx].get<2>(),m_champion.get<1>())) {
-		m_champion.get<0>() = x;
-		m_champion.get<1>() = m_container[idx].get<2>();
+	pagmo_assert(m_champion.x.size());
+	if (m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_champion.f,m_champion.c)) {
+		m_champion.x = x;
+		m_champion.f = m_container[idx].cur_f;
+		m_champion.c = m_container[idx].cur_c;
 	}
 }
 
