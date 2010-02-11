@@ -32,6 +32,7 @@
 #include "src_new/island.h"
 #include "src_new/problem/knapsack.h"
 #include "src_new/problem/paraboloid.h"
+#include "src_new/problem/rastrigin.h"
 
 using namespace pagmo;
 
@@ -98,14 +99,15 @@ int main()
 	double values[] = {1,2,3,4,5,6,7,8,9,11,15};
 	double weights[] = {4,7,9,1,2,3,5,8,6,12,17};
 
- 	population pop(problem::knapsack(values,weights,30),10);
-//	population pop(problem::paraboloid(lb2,ub2),10);
+//  	population pop(problem::knapsack(values,weights,30),10);
+// 	population pop(problem::paraboloid(lb2,ub2),10);
+	population pop(problem::rastrigin(2),10);
 
-	algorithm::ihs algo(1000);
+	algorithm::ihs algo(1000000);
 
 	algo.evolve(pop);
 
-	std::cout << pop << '\n';
+	//std::cout << pop << '\n';
 
 	//std::cout << algorithm::ihs(5) << '\n';
 
