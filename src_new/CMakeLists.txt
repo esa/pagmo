@@ -2,6 +2,7 @@
 SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
