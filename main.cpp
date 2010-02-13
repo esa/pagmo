@@ -30,6 +30,7 @@
 #include "src_new/algorithm/ihs.h"
 #include "src_new/algorithm/null.h"
 #include "src_new/island.h"
+#include "src_new/problem/golomb_ruler.h"
 #include "src_new/problem/knapsack.h"
 #include "src_new/problem/paraboloid.h"
 #include "src_new/problem/rastrigin.h"
@@ -101,11 +102,13 @@ int main()
 
 //  	population pop(problem::knapsack(values,weights,30),10);
 // 	population pop(problem::paraboloid(lb2,ub2),10);
-	population pop(problem::rastrigin(2),10);
+	population pop(problem::golomb_ruler(8,15),10);
 
 	algorithm::ihs algo(1000000);
 
 	algo.evolve(pop);
+	
+	std::cout << pop;
 
 	//std::cout << pop << '\n';
 

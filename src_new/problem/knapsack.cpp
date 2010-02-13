@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <typeinfo>
 #include <vector>
 
 #include "../exceptions.h"

@@ -22,46 +22,51 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 01/02/10 Created by Francesco Biscani.
+#ifndef PAGMO_PROBLEM_GOLOMB_RULER_H
+#define PAGMO_PROBLEM_GOLOMB_RULER_H
 
-#include "../exceptions.h"
+#include <cstddef>
+
 #include "../types.h"
 #include "base.h"
-#include "paraboloid.h"
-
-double lb[] = {-1};
-double ub[] = {1};
 
 namespace pagmo { namespace problem {
 
-/// Default constructor.
+/// Golomb ruler problem.
 /**
- * Will construct a one-dimensional problem with bounds [-1,1].
+ * \image html golomb_ruler.png "Optimal and perfect Golomb ruler of order 4."
+ * \image latex golomb_ruler.png "Optimal and perfect Golomb ruler of order 4." width=2cm
+ *
+ * A Golomb ruler is a set of marks at integer positions along an imaginary ruler such that no two pairs of marks
+ * are the same distance apart. The number of marks on the ruler is its order, and the largest distance between two of its marks is its length.
+ * A Golomb ruler is optimal if no shorter Golomb ruler of the same order exists.
+ *
+ * This problem is setup to look for optimal Golomb rulers of a given order. The problem has dimension order - 1, with the decision vector
+ * representing the distances betweem successive marks. The objective is to minimise the length of the ruler, with the equality constraint that
+ * for each possible pair of marks the distance is unique (i.e., the number of duplicate distances must be null in order to satisfy the constraint).
+ *
+ * @see http://en.wikipedia.org/wiki/Golomb_ruler
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-paraboloid::paraboloid():base(lb,ub) {}
-
-/// Constructor from lower/upper bounds.
-/**
- * @see problem::base
- */
-paraboloid::paraboloid(const decision_vector &lb, const decision_vector &ub):base(lb,ub) {}
-
-/// Clone method.
-base_ptr paraboloid::clone() const
+class golomb_ruler: public base
 {
-	return base_ptr(new paraboloid(*this));
-}
-
-/// Implementation of the objective function.
-void paraboloid::objfun_impl(fitness_vector &f, const decision_vector &x) const
-{
-	pagmo_assert(f.size() == 1);
-	typedef decision_vector::size_type size_type;
-	const size_type size = x.size();
-	f[0] = 0;
-	for (size_type i = 0; i < size; ++i) {
-		f[0] += x[i] * x[i];
-	}
-}
+	public:
+		golomb_ruler(int,int);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		bool equality_operator_extra(const base &) const;
+	private:
+		void compute_marks_and_dist(const decision_vector &) const;
+	private:
+		const std::size_t	m_max_length;
+		mutable decision_vector	m_tmp_x;
+		mutable decision_vector	m_tmp_marks;
+		mutable decision_vector	m_tmp_dist;
+};
 
 }}
+
+#endif

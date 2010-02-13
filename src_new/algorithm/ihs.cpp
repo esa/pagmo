@@ -89,6 +89,7 @@ base_ptr ihs::clone() const
 /**
  * Run the IHS algorithm for the number of generations specified in the constructors. Within each call of this method,
  * the ppar and bw parameters will be varied between maximum and minimum values according to the IHS schedule.
+ *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
 void ihs::evolve(population &pop) const
