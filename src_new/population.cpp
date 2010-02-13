@@ -242,8 +242,9 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	m_prob->objfun(m_container[idx].cur_f,x);
 	// Update current constraints vector.
 	m_prob->compute_constraints(m_container[idx].cur_c,x);
-	// If needed, update the best fitness and constraint vectors for the individual.
+	// If needed, update the best decision, fitness and constraint vectors for the individual.
 	if (m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_container[idx].best_f,m_container[idx].best_c)) {
+		m_container[idx].best_x = m_container[idx].cur_x;
 		m_container[idx].best_f = m_container[idx].cur_f;
 		m_container[idx].best_c = m_container[idx].cur_c;
 	}
