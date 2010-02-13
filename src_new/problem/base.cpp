@@ -172,6 +172,9 @@ void base::set_bounds(const decision_vector &lb, const decision_vector &ub)
  */
 void base::set_bounds(const double &l_value, const double &u_value)
 {
+	if (l_value > u_value) {
+		pagmo_throw(value_error,"lower bound cannot be greater than upper bound in set_bounds()");
+	}
 	std::fill(m_lb.begin(),m_lb.end(),l_value);
 	std::fill(m_ub.begin(),m_ub.end(),u_value);
 	normalise_bounds();
