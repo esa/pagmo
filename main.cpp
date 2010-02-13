@@ -103,10 +103,10 @@ int main()
 
 //  	population pop(problem::knapsack(values,weights,30),10);
 // 	population pop(problem::paraboloid(lb2,ub2),10);
-	population pop(problem::golomb_ruler(7,15),10);
+	population pop(problem::golomb_ruler(13,169),10);
 
 	//algorithm::ihs algo(1000000);
-	algorithm::ihs algo(100000);
+	algorithm::ihs algo(10000000);
 
 	algo.evolve(pop);
 	

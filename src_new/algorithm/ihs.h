@@ -47,7 +47,9 @@ namespace algorithm {
  * the decision vector and the amount of mutation to which they are subject vary respectively linearly and exponentially within each call
  * of the evolve() method.
  *
- * In this algorithm the number of objective function evaluations is equal to the number of generations.
+ * In this algorithm the number of objective function evaluations is equal to the number of generations. All the individuals in the input population participate
+ * in the evolution. A new individual is generated at every iteration, substituting the current worst individual of the population if better. This algorithm
+ * will use the comparison methods provided by the problem in order to rank individuals.
  *
  * This algorithm is suitable for both continuous and combinatorial optimisation.
  *

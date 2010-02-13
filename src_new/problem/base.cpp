@@ -54,6 +54,12 @@ atomic_counter_size_t base::m_objfun_counter(0);
 /**
  * n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
  * Lower and upper bounds are set to 0 and 1 respectively.
+ *
+ * @param[in] n global dimension of the problem.
+ * @param[in] ni dimension of the combinatorial part of the problem.
+ * @param[in] nf dimension of the fitness vector of the problem.
+ * @param[in] nc global number of constraints.
+ * @param[in] nic number of inequality constraints.
  */
 base::base(int n, int ni, int nf, int nc, int nic):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
@@ -84,6 +90,13 @@ base::base(int n, int ni, int nf, int nc, int nic):
 /**
  * Will fail if ni is negative or greater than lb.size(), if nf is not positive, if the sizes of the lower/upper bounds are zero or not identical, if
  * any lower bound is greater than the corresponding upper bound. nc and nic must be positive and nic must be in the [0,nc] range.
+ *
+ * @param[in] lb lower bounds for the problem.
+ * @param[in] ub upper bounds for the problem.
+ * @param[in] ni dimension of the combinatorial part of the problem.
+ * @param[in] nf dimension of the fitness vector of the problem.
+ * @param[in] nc global number of constraints.
+ * @param[in] nic number of inequality constraints.
  */
 base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf, int nc, int nic):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
@@ -107,15 +120,24 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 }
 
 /// Trivial destructor.
+/**
+ * No side effects.
+ */
 base::~base() {}
 
 /// Lower bounds getter.
+/**
+ * @return const reference to the lower bounds vector.
+ */
 const decision_vector &base::get_lb() const
 {
 	return m_lb;
 }
 
 /// Upper bounds getter.
+/**
+ * @return const reference to the upper bounds vector.
+ */
 const decision_vector &base::get_ub() const
 {
 	return m_ub;
@@ -125,6 +147,9 @@ const decision_vector &base::get_ub() const
 /**
  * Set lower/upper bounds to lb/ub. Will fail if lb and ub sizes do not match, if their sizes are different
  * from the global size of the problem or if at least one lower bound is greater than the corresponding upper bound.
+ *
+ * @param[in] lb lower bounds.
+ * @param[in] ub upper bounds.
  */
 void base::set_bounds(const decision_vector &lb, const decision_vector &ub)
 {
@@ -138,9 +163,25 @@ void base::set_bounds(const decision_vector &lb, const decision_vector &ub)
 	normalise_bounds();
 }
 
+/// Set bounds to specified values.
+/**
+ * Set all lower bounds to l_value and all upper bounds to u_value. Will fail if l_value > u_value.
+ *
+ * @param[in] l_value value for all lower bounds.
+ * @param[in] u_value value for all upper bounds.
+ */
+void base::set_bounds(const double &l_value, const double &u_value)
+{
+	std::fill(m_lb.begin(),m_lb.end(),l_value);
+	std::fill(m_ub.begin(),m_ub.end(),u_value);
+	normalise_bounds();
+}
+
 /// Set lower bounds from pagmo::decision_vector.
 /**
  * Will fail if lb's size is different from the global size or if at least one lower bound is greater than the corresponding upper bound.
+ *
+ * @param[in] lb lower bounds.
  */
 void base::set_lb(const decision_vector &lb)
 {
@@ -156,6 +197,9 @@ void base::set_lb(const decision_vector &lb)
 /// Set specific lower bound to value.
 /**
  * Will fail if n overflows global dimension or if value is greater than the corresponding upper bound.
+ *
+ * @param[in] n index of the lower bound to be set.
+ * @param[in] value value the specified lower bound will be set to.
  */
 void base::set_lb(int n, const double &value)
 {
@@ -171,6 +215,8 @@ void base::set_lb(int n, const double &value)
 /// Set all lower bounds to value.
 /**
  * Will fail if value is greater than at least one upper bound.
+ *
+ * @param[in] value value to which the lower bounds will be set.
  */
 void base::set_lb(const double &value)
 {
@@ -187,6 +233,8 @@ void base::set_lb(const double &value)
 /// Set upper bounds from pagmo::decision_vector.
 /**
  * Will fail if ub's size is different from the global size or if at least one upper bound is less than the corresponding lower bound.
+ *
+ * @param[in] ub upper bounds.
  */
 void base::set_ub(const decision_vector &ub)
 {
@@ -202,6 +250,9 @@ void base::set_ub(const decision_vector &ub)
 /// Set specific upper bound to value.
 /**
  * Will fail if n overflows global dimension or if value is less than the corresponding lower bound.
+ *
+ * @param[in] n index of the upper bound to be set.
+ * @param[in] value value the specified upper bound will be set to.
  */
 void base::set_ub(int n, const double &value)
 {
@@ -217,6 +268,8 @@ void base::set_ub(int n, const double &value)
 /// Set all upper bounds to value.
 /**
  * Will fail if value is less than at least one lower bound.
+ *
+ * @param[in] value value to which the upper bounds will be set.
  */
 void base::set_ub(const double &value)
 {
@@ -268,6 +321,10 @@ fitness_vector f(get_f_dimension());
 objfun(f,x);
 return f;
 @endverbatim
+ *
+ * @param[in] x decision vector whose fitness will be calculated.
+ *
+ * @return fitness vector of x.
  */
 fitness_vector base::objfun(const decision_vector &x) const
 {

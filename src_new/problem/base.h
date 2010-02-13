@@ -118,6 +118,13 @@ class __PAGMO_VISIBLE base
 		 * Construction will fail if at least one lower bound is greater than the corresponding upper bound, if N is zero,
 		 * if integer dimension is either negative or greater than the global dimension, if fitness dimension is not positive,
 		 * if constraints dimensions are negative or if inequality constraints dimension is greater than global constraints dimension.
+		 *
+		 * @param[in] v1 lower bounds for the problem.
+		 * @param[in] v2 upper bounds for the problem.
+		 * @param[in] ni dimension of the combinatorial part of the problem.
+		 * @param[in] nf dimension of the fitness vector of the problem.
+		 * @param[in] nc global number of constraints.
+		 * @param[in] nic number of inequality constraints.
 		 */
 		template <std::size_t N>
 		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1, int nc = 0, int nic = 0):
@@ -152,6 +159,15 @@ class __PAGMO_VISIBLE base
 		 * Construction will fail if the ranges have different or null sizes, if at least one lower bound is greater than the corresponding upper bound,
 		 * if integer dimension is either negative or greater than the global dimension, if fitness dimension is not positive,
 		 * if constraints dimensions are negative or if inequality constraints dimension is greater than global constraints dimension.
+		 *
+		 * @param[in] start1 iterator to the beginning of the lower bounds sequence.
+		 * @param[in] end1 iterator to the end of the lower bounds sequence.
+		 * @param[in] start2 iterator to the beginning of the upper bounds sequence.
+		 * @param[in] end2 iterator to the end of the upper bounds sequence.
+		 * @param[in] ni dimension of the combinatorial part of the problem.
+		 * @param[in] nf dimension of the fitness vector of the problem.
+		 * @param[in] nc global number of constraints.
+		 * @param[in] nic number of inequality constraints.
 		 */
 		template <class Iterator1, class Iterator2>
 		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
@@ -190,9 +206,14 @@ class __PAGMO_VISIBLE base
 		void set_bounds(const decision_vector &, const decision_vector &);
 		/// Bounds setter from iterators.
 		/**
-		* Set lower and upper bounds to the content of the ranges [start1,end1[ and [start2,end2[. Will fail if ranges sizes do not match, if ranges sizes are different
-		* from the global size of the problem or if at least one lower bound is greater than the corresponding upper bound.
-		*/
+		 * Set lower and upper bounds to the content of the ranges [start1,end1[ and [start2,end2[. Will fail if ranges sizes do not match, if ranges sizes are different
+		 * from the global size of the problem or if at least one lower bound is greater than the corresponding upper bound.
+		 *
+		 * @param[in] start1 iterator to the beginning of the lower bounds sequence.
+		 * @param[in] end1 iterator to the end of the lower bounds sequence.
+		 * @param[in] start2 iterator to the beginning of the upper bounds sequence.
+		 * @param[in] end2 iterator to the end of the upper bounds sequence.
+		 */
 		template <class Iterator1, class Iterator2>
 		void set_bounds(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2)
 		{
@@ -211,9 +232,12 @@ class __PAGMO_VISIBLE base
 		}
 		/// Bounds setter from raw arrays.
 		/**
-		* Set lower and upper bounds to the content of the raw arrays v1 and v2. Will fail if N is different
-		* from the global size of the problem or if at least one lower bound is greater than the corresponding upper bound.
-		*/
+		 * Set lower and upper bounds to the content of the raw arrays v1 and v2. Will fail if N is different
+		 * from the global size of the problem or if at least one lower bound is greater than the corresponding upper bound.
+		 *
+		 * @param[in] v1 lower bounds for the problem.
+		 * @param[in] v2 upper bounds for the problem.
+		 */
 		template <std::size_t N>
 		void set_bounds(const double (&v1)[N], const double (&v2)[N])
 		{
@@ -226,6 +250,7 @@ class __PAGMO_VISIBLE base
 			// Normalise bounds.
 			normalise_bounds();
 		}
+		void set_bounds(const double &, const double &);
 		void set_lb(const decision_vector &);
 		void set_lb(int, const double &);
 		void set_lb(const double &);
@@ -233,6 +258,9 @@ class __PAGMO_VISIBLE base
 		/**
 		 * Will fail if the iterator distance is different from global problem dimension or if at least one lower bound is greater than the
 		 * corresponding upper bound.
+		 *
+		 * @param[in] start iterator to the beginning of the lower bounds sequence.
+		 * @param[in] end iterator to the end of the lower bounds sequence.
 		 */
 		template <class Iterator>
 		void set_lb(Iterator start, Iterator end)
@@ -249,6 +277,8 @@ class __PAGMO_VISIBLE base
 		/**
 		 * Will fail if N is different from global problem dimension or if at least one lower bound is greater than the
 		 * corresponding upper bound.
+		 *
+		 * @param[in] v lower bounds array.
 		 */
 		template <std::size_t N>
 		void set_lb(const double (&v)[N])
@@ -268,6 +298,9 @@ class __PAGMO_VISIBLE base
 		/**
 		 * Will fail if the iterator distance is different from global problem dimension or if at least one upper bound is less than the
 		 * corresponding lower bound.
+		 *
+		 * @param[in] start iterator to the beginning of the upper bounds sequence.
+		 * @param[in] end iterator to the end of the upper bounds sequence.
 		 */
 		template <class Iterator>
 		void set_ub(Iterator start, Iterator end)
@@ -284,6 +317,8 @@ class __PAGMO_VISIBLE base
 		/**
 		 * Will fail if N is different from global problem dimension or if at least one upper bound is less than the
 		 * corresponding lower bound.
+		 *
+		 * @param[in] v upper bounds array.
 		 */
 		template <std::size_t N>
 		void set_ub(const double (&v)[N])
@@ -339,9 +374,12 @@ class __PAGMO_VISIBLE base
 		virtual bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.
 		/**
-		* Takes a pagmo::decision_vector x as input and writes its pagmo::fitness_vector to f. This function is not to be called directly,
-		* it is invoked by objfun() after a series of safety checks is performed on x and f.
-		*/
+		 * Takes a pagmo::decision_vector x as input and writes its pagmo::fitness_vector to f. This function is not to be called directly,
+		 * it is invoked by objfun() after a series of safety checks is performed on x and f.
+		 *
+		 * @param[out] f fitness vector into which x's fitness will be written.
+		 * @param[in] x decision vector whose fitness will be calculated.
+		 */
 		virtual void objfun_impl(fitness_vector &f, const decision_vector &x) const = 0;
 		//@}
 	private:
