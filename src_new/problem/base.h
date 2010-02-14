@@ -340,6 +340,7 @@ class __PAGMO_VISIBLE base
 		f_size_type get_f_dimension() const;
 		c_size_type get_c_dimension() const;
 		c_size_type get_ic_dimension() const;
+		double get_diameter() const;
 		//@}
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;

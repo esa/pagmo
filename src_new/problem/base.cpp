@@ -372,6 +372,21 @@ base::c_size_type base::get_ic_dimension() const
 	return m_ic_dimension;
 }
 
+/// Get the diameter of the problem.
+/**
+ * Calculate and return the space diagonal of the hyperrectangle defined by the bounds of the problem.
+ *
+ * @return the diameter of the problem.
+ */
+double base::get_diameter() const
+{
+	double retval = 0;
+	for (size_type i = 0; i < get_dimension(); ++i) {
+		retval += (m_ub[i] - m_lb[i]) * (m_ub[i] - m_lb[i]);
+	}
+	return std::sqrt(retval);
+}
+
 /// Return fitness of pagmo::decision_vector.
 /**
  * Equivalent to:
