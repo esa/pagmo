@@ -63,6 +63,7 @@ golomb_ruler::golomb_ruler(int n, int m):base(check_golomb_order(n) - 1,n - 1,1,
 	if (double(m_max_length) * get_dimension() > static_cast<double>(INT_MAX)) {
 		pagmo_throw(std::overflow_error,"fitness value overflow in Golomb ruler problem");
 	}
+	// Lower bound is already set to 0.
 	set_ub(m_max_length);
 }
 

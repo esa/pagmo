@@ -287,30 +287,45 @@ void base::set_ub(const double &value)
 }
 
 /// Return global dimension.
+/**
+ * @return global dimension of the problem.
+ */
 base::size_type base::get_dimension() const
 {
 	return m_lb.size();
 }
 
 /// Return integer dimension.
+/**
+ * @return dimension of the combinatorial part of the problem.
+ */
 base::size_type base::get_i_dimension() const
 {
 	return m_i_dimension;
 }
 
 /// Return fitness dimension.
+/**
+ * @return fitness dimension of the problem.
+ */
 base::f_size_type base::get_f_dimension() const
 {
 	return m_f_dimension;
 }
 
 /// Return global constraints dimension.
+/**
+ * @return global constraints dimension of the problem.
+ */
 base::c_size_type base::get_c_dimension() const
 {
 	return m_c_dimension;
 }
 
 /// Return inequality constraints dimension.
+/**
+ * @return inequality constraints dimension of the problem.
+ */
 base::c_size_type base::get_ic_dimension() const
 {
 	return m_ic_dimension;
@@ -342,6 +357,9 @@ fitness_vector base::objfun(const decision_vector &x) const
  * or if verify_x() on x returns false.
  *
  * The implementation internally uses a caching mechanism, so that recently-computed quantities are remembered and re-used when appropriate.
+ *
+ * @param[out] f fitness vector to which x's fitness will be written.
+ * @param[in] x decision vector whose fitness will be calculated.
  */
 void base::objfun(fitness_vector &f, const decision_vector &x) const
 {
@@ -391,6 +409,11 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 /// Compare fitness vectors.
 /**
  * Will perform sanity checks on v_f1 and v_f2 and then will call base::compare_fitness_impl().
+ *
+ * @param[in] v_f1 first fitness vector.
+ * @param[in] v_f2 second fitness vector.
+ *
+ * @return compare_fitness_impl(v_f1,v_f2);
  */
 bool base::compare_fitness(const fitness_vector &v_f1, const fitness_vector &v_f2) const
 {
@@ -402,16 +425,28 @@ bool base::compare_fitness(const fitness_vector &v_f1, const fitness_vector &v_f
 
 /// Implementation of fitness vectors comparison.
 /**
- * Return true if v_f1 is strictly better than v_f2, false otherwise.
- * Default implementation will compute the summations f1 and f2 of all elements of the input fitness vectors and will return f1 < f2.
+ * Return true if v_f1 is strictly better than v_f2, false otherwise. Default implementation will rank fitness vectors for minimisation.
+ * I.e., each pair of corresponding elements in v_f1 and v_f2 is compared: if the number of elements in v_f1 that are less than the corresponding
+ * element in v_f2 is greater than the number of elements in v_f1 that are not less than the corresponding element in v_f2, true will be returned.
+ * Otherwise, false will be returned.
+ *
+ * @param[in] v_f1 first fitness vector.
+ * @param[in] v_f2 second fitness vector.
+ *
+ * @return true if v_f1 is a better fitness vector than v_f2, false otherwise.
  */
 bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
 {
-	typedef fitness_vector::value_type fitness_type;
-	const fitness_type init = 0;
-	const fitness_type f1 = std::accumulate(v_f1.begin(),v_f1.end(),init);
-	const fitness_type f2 = std::accumulate(v_f2.begin(),v_f2.end(),init);
-	return (f1 < f2);
+	pagmo_assert(v_f1.size() == v_f2.size() && v_f1.size() == m_f_dimension);
+	f_size_type count1 = 0, count2 = 0;
+	for (f_size_type i = 0; i < m_f_dimension; ++i) {
+		if (v_f1[i] < v_f2[i]) {
+			++count1;
+		} else {
+			++count2;
+		}
+	}
+	return (count1 > count2);
 }
 
 /// Return human readable representation of the problem.
@@ -422,6 +457,8 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
  * - lower and upper bounds.
  *
  * The output of human_readable_extra() will be appended at the end of the string.
+ *
+ * @return std::string containing a human-readable representation of the problem.
  */
 std::string base::human_readable() const
 {
@@ -444,6 +481,8 @@ std::string base::human_readable() const
 /// Extra information in human readable format.
 /**
  * Default implementation returns an empty string.
+ *
+ * @return std::string containing additional problem-specific human-readable representation of the problem.
  */
 std::string base::human_readable_extra() const
 {
@@ -459,6 +498,10 @@ std::string base::human_readable_extra() const
  * - return value of equality_operator_extra().
  *
  * If any of the conditions above is false, then the return value will also be false. Otherwise return value will be true.
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return true if this is equal to p, false otherwise.
  */
 bool base::operator==(const base &p) const
 {
@@ -486,6 +529,7 @@ bool base::operator==(const base &p) const
  *
  * @param[in] x1 first pagmo::decision_vector.
  * @param[in] x2 second pagmo::decision_vector.
+ *
  * @return true if x1 is better than x2, false otherwise.
  */
 bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
@@ -512,6 +556,7 @@ bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
  * @param[in] c1 first pagmo::constraint_vector.
  * @param[in] f2 second pagmo::fitness_vector.
  * @param[in] c2 second pagmo::constraint_vector.
+ *
  * @return result of compare_fc_impl() or compare_fitness_impl().
  */
 bool base::compare_fc(const fitness_vector &f1, const constraint_vector &c1, const fitness_vector &f2, const constraint_vector &c2) const
@@ -536,8 +581,8 @@ bool base::compare_fc(const fitness_vector &f1, const constraint_vector &c1, con
  *
  * Default implementation will return true if one of these conditions, tested in this order, holds:
  * - c1 is feasible, c2 is not;
- * - both c1 and c2 are not feasible and compare_constraints(c1,c2) returns true;
- * - both c1 and c2 are feasible and compare_fitness(f1,f2) returns true.
+ * - both c1 and c2 are not feasible and compare_constraints_impl(c1,c2) returns true;
+ * - both c1 and c2 are feasible and compare_fitness_impl(f1,f2) returns true.
  *
  * Otherwise, false will be returned.
  *
@@ -545,6 +590,7 @@ bool base::compare_fc(const fitness_vector &f1, const constraint_vector &c1, con
  * @param[in] c1 first pagmo::constraint_vector.
  * @param[in] f2 second pagmo::fitness_vector.
  * @param[in] c2 second pagmo::constraint_vector.
+ *
  * @return true if first fitness/constraint vector pair is strictly better than the second one, false otherwise.
  */
 bool base::compare_fc_impl(const fitness_vector &f1, const constraint_vector &c1, const fitness_vector &f2, const constraint_vector &c2) const
@@ -594,6 +640,11 @@ void base::compute_constraints_impl(constraint_vector &c, const decision_vector 
 /// Compute constraints and write them into contraint vector.
 /**
  * This function will perform sanity checks on c and x and will then call compute_constraints_impl().
+ *
+ * The implementation internally uses a caching mechanism, so that recently-computed quantities are remembered and re-used when appropriate.
+ *
+ * @param[out] c pagmo::constraint_vector into which the constraints will be written.
+ * @param[in] x pagmo::decision_vector whose constraints will be computed.
  */
 void base::compute_constraints(constraint_vector &c, const decision_vector &x) const
 {
@@ -643,6 +694,10 @@ constraint_vector c(get_c_dimension());
 compute_constraints(c,x);
 return c;
 @endverbatim
+ *
+ * @param[in] x pagmo::decision_vector whose constraints will be computed.
+ *
+ * @return x's constraint vector.
  */
 constraint_vector base::compute_constraints(const decision_vector &x) const
 {
@@ -657,8 +712,7 @@ constraint_vector base::compute_constraints(const decision_vector &x) const
  *
  * @param[in] x pagmo::decision_vector whose constraints will be computed and tested.
  *
- * @see compute_constraints()
- * @see compute_constraints_impl()
+ * @return true if x satisfies the constraints, false otherwise.
  */
 bool base::test_constraints_x(const decision_vector &x) const
 {
@@ -672,6 +726,8 @@ bool base::test_constraints_x(const decision_vector &x) const
  * This method will return true if all constraints are satisfied, false otherwise.
  *
  * @param[in] c pagmo::constraint_vector to be tested.
+ *
+ * @return true if c satisfies the constraints, false otherwise.
  */
 bool base::test_constraints_c(const constraint_vector &c) const
 {
@@ -700,6 +756,8 @@ bool base::test_constraints_c(const constraint_vector &c) const
  *
  * @param[in] c1 first pagmo::constraint_vector to compare.
  * @param[in] c2 second pagmo::constraint_vector to compare.
+ *
+ * @return true if c1 is a better constraint vector than c2, false otherwise.
  */
 bool base::compare_constraints(const constraint_vector &c1, const constraint_vector &c2) const
 {
@@ -713,45 +771,54 @@ bool base::compare_constraints(const constraint_vector &c1, const constraint_vec
 /**
  * Return true if c1 is a strictly better constraint vector than c2, false otherwise. Default implementation
  * will return true under the following conditions, tested in order:
- * - c1 satisfies the constraints, c2 does not,
- * - both c1 and c2 do not satisfy the constraints and the L2 norm of the unsatisfied constraints for c1 is smaller than for c2.
+ * - c1 satisfies more constraints than c2,
+ * - c1 and c2 satisfy the same number of constraints and the L2 norm of the constraint mismatches for c1 is smaller than for c2.
  *
  * Otherwise, false will be returned.
  *
  * @param[in] c1 first pagmo::constraint_vector to compare.
  * @param[in] c2 second pagmo::constraint_vector to compare.
+ *
+ * @return true if c1 is a better constraint vector than c2, false otherwise.
  */
 bool base::compare_constraints_impl(const constraint_vector &c1, const constraint_vector &c2) const
 {
-	const bool test1 = test_constraints_c(c1), test2 = test_constraints_c(c2);
-	// If the second constraint is satisfied, c1 cannot be better than c2.
-	if (test2) {
-		return false;
-	}
-	// The first constraint is satisfied, the second one isn't. Return true.
-	if (test1) {
-		return true;
-	}
-	// Both constraint vectors are not satisfied. Assert it just in case :)
-	pagmo_assert(!test1 && !test2);
-	// Compute the unsatisfied constraint L2 norm.
+	pagmo_assert(c1.size() == c2.size() && c1.size() == m_c_dimension);
+	// Counters of satisfied constraints.
+	c_size_type count1 = 0, count2 = 0;
+	// L2 norm of constraints mismatches.
 	double norm1 = 0, norm2 = 0;
 	// Equality constraints.
 	for (c_size_type i = 0; i < m_c_dimension - m_ic_dimension; ++i) {
+		if (c1[i] == 0) {
+			++count1;
+		}
+		if (c2[i] == 0) {
+			++count2;
+		}
 		norm1 += std::abs(c1[i]) * std::abs(c1[i]);
 		norm2 += std::abs(c2[i]) * std::abs(c2[i]);
 	}
 	// Inequality constraints.
 	for (c_size_type i = m_c_dimension - m_ic_dimension; i < m_c_dimension; ++i) {
-		if (c1[i] > 0) {
+		if (c1[i] <= 0) {
+			++count1;
+		} else {
 			norm1 += c1[i] * c1[i];
 		}
-		if (c2[i] > 0) {
+		if (c2[i] <= 0) {
+			++count2;
+		} else {
 			norm2 += c2[i] * c2[i];
 		}
 	}
-	pagmo_assert(norm1 > 0 && norm2 > 0);
-	return (norm1 < norm2);
+	if (count1 > count2) {
+		return true;
+	} else if (count1 < count2) {
+		return false;
+	} else {
+		return (norm1 < norm2);
+	}
 }
 
 //@}
@@ -759,15 +826,24 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
 /// Extra requirements for equality.
 /**
  * Additional problem-specific equality testing. Default implementation returns true.
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return true if p satisfies the additional equality testing, false otherwise.
  */
-bool base::equality_operator_extra(const base &) const
+bool base::equality_operator_extra(const base &p) const
 {
+	(void)p;
 	return true;
 }
 
 /// Inequality operator.
 /**
  * Equivalent to the negation of equality operator.
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return !(*this == p).
  */
 bool base::operator!=(const base &p) const
 {
@@ -782,6 +858,10 @@ bool base::operator!=(const base &p) const
  * - at least one element of the integer part of x is not an integer.
  *
  * Otherwise, true will be returned.
+ *
+ * @param[in] x pagmo::decision_vector to be tested.
+ *
+ * @return true if x is compatible with the problem, false otherwise.
  */
 bool base::verify_x(const decision_vector &x) const
 {
@@ -828,6 +908,11 @@ void base::normalise_bounds()
 /// Overload stream operator for problem::base.
 /**
  * Equivalent to printing base::human_readable() to stream.
+ *
+ * @param[out] s std::ostream to which the problem will be streamed.
+ * @param[in] p problem::base to be inserted into the stream.
+ *
+ * @return reference to s.
  */
 std::ostream &operator<<(std::ostream &s, const base &p)
 {
@@ -838,6 +923,8 @@ std::ostream &operator<<(std::ostream &s, const base &p)
 /// Return the total number of calls to the objective function.
 /**
  * The number is a static global variable that gets incremented each time base::objfun() is called.
+ *
+ * @return total number of objective function calls in all implemented problems.
  */
 std::size_t objfun_calls()
 {

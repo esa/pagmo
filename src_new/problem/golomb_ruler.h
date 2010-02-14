@@ -42,9 +42,10 @@ namespace pagmo { namespace problem {
  * are the same distance apart. The number of marks on the ruler is its order, and the largest distance between two of its marks is its length.
  * A Golomb ruler is optimal if no shorter Golomb ruler of the same order exists.
  *
- * This problem is setup to look for optimal Golomb rulers of a given order. The problem has dimension order - 1, with the decision vector
- * representing the distances betweem successive marks. The objective is to minimise the length of the ruler, with the equality constraint that
- * for each possible pair of marks the distance is unique (i.e., the number of duplicate distances must be null in order to satisfy the constraint).
+ * This problem is setup to look for optimal Golomb rulers of a given order. The problem has dimension (order - 1), with the decision vector
+ * representing distances between successive marks. The objective is to minimise the length of the ruler, with the equality constraint that
+ * for each possible pair of marks the distance must be unique (i.e., the number of duplicate distances must be null in order to satisfy the constraint).
+ * Note that when this constraint is not satisfied, the ruler is not a Golomb ruler.
  *
  * @see http://en.wikipedia.org/wiki/Golomb_ruler
  *
