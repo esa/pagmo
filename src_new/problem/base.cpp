@@ -86,6 +86,47 @@ base::base(int n, int ni, int nf, int nc, int nic):
 	normalise_bounds();
 }
 
+/// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
+/**
+ * l_value must not be greater than u_value, n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
+ * Lower and upper bounds are set to l_value and u_value respectively.
+ *
+ * @param[in] l_value value for all lower bounds.
+ * @param[in] u_value value for all upper bounds.
+ * @param[in] n global dimension of the problem.
+ * @param[in] ni dimension of the combinatorial part of the problem.
+ * @param[in] nf dimension of the fitness vector of the problem.
+ * @param[in] nc global number of constraints.
+ * @param[in] nic number of inequality constraints.
+ */
+base::base(const double &l_value, const double &u_value, int n, int ni, int nf, int nc, int nic):
+	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
+	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
+	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+{
+	if (n <= 0 || !nf || ni > n || nic > nc) {
+		pagmo_throw(value_error,"invalid dimension(s)");
+	}
+	if (l_value > u_value) {
+		pagmo_throw(value_error,"value for lower bounds cannot be greater than value for upper bounds");
+	}
+	const size_type size = boost::numeric_cast<size_type>(n);
+	m_lb.resize(size);
+	m_ub.resize(size);
+	std::fill(m_lb.begin(),m_lb.end(),l_value);
+	std::fill(m_ub.begin(),m_ub.end(),u_value);
+	// Resize properly temporary fitness and constraint storage.
+	m_tmp_f1.resize(m_f_dimension);
+	m_tmp_f2.resize(m_f_dimension);
+	m_tmp_c1.resize(m_c_dimension);
+	m_tmp_c2.resize(m_c_dimension);
+	// Normalise bounds.
+	normalise_bounds();
+}
+
 /// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 /**
  * Will fail if ni is negative or greater than lb.size(), if nf is not positive, if the sizes of the lower/upper bounds are zero or not identical, if

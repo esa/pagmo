@@ -111,6 +111,7 @@ class __PAGMO_VISIBLE base
 		/// Constraints' size type: the same as pagmo::constraint_vector's size type.
 		typedef constraint_vector::size_type c_size_type;
 		base(int, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
+		base(const double &, const double &, int, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
 		base(const decision_vector &, const decision_vector &, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
 		/// Constructor from raw arrays, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 		/**
@@ -346,6 +347,15 @@ class __PAGMO_VISIBLE base
 		bool test_constraints_x(const decision_vector &) const;
 		bool test_constraints_c(const constraint_vector &) const;
 		/// Clone method.
+		/**
+		 * Provided that the derived problem implements properly a copy constructor, virtually all implementations of this method will
+		 * look like this:
+@verbatim
+return base_ptr(new derived_problem(*this));
+@endverbatim
+		 *
+		 * @return problem::base_ptr to a copy of this.
+		 */
 		virtual base_ptr clone() const = 0;
 		std::string human_readable() const;
 		bool operator==(const base &) const;
