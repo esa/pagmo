@@ -52,8 +52,6 @@ class __PAGMO_VISIBLE island;
 class __PAGMO_VISIBLE population
 {
 		friend class __PAGMO_VISIBLE island;
-		// Stream output operator.
-		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);
 	public:
 		/// Individuals stored in the population.
 		/**

@@ -57,7 +57,6 @@ typedef boost::shared_ptr<base> base_ptr;
  */
 class __PAGMO_VISIBLE base
 {
-		friend std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 	public:
 		base();
 		/// Evolve method.

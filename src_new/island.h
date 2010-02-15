@@ -64,8 +64,6 @@ class __PAGMO_VISIBLE island
 {
 		// Lock type alias.
 		typedef boost::lock_guard<boost::mutex> lock_type;
-		/// Friendship for stream output operator.
-		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
 	public:
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0);
