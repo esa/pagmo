@@ -318,7 +318,7 @@ population::size_type population::size() const
 /**
  * Equivalent to printing population::human_readable() to stream.
  *
- * @param[in] s stream to which population will be sent.
+ * @param[in] s stream to which the population will be sent.
  * @param[in] pop population to be sent to stream.
  *
  * @return reference to s.

@@ -40,13 +40,19 @@ namespace pagmo
 /// Constructor from problem::base, algorithm::base and number of individuals.
 /**
  * Will store a copy of the problem and of the algorithm internally, will initialise internal population to n individuals
- * and evolution time to zero. Will fail if n is negative. Island will be associated to no archipelago.
+ * and evolution time to zero. Will fail if n is negative.
+ *
+ * @param[in] p problem::base to which the internal population will be associated.
+ * @param[in] a algorithm::base which will be associated to the island.
+ * @param[in] n number of individuals in the internal population.
  */
 island::island(const problem::base &p, const algorithm::base &a, int n):m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0) {}
 
 /// Copy constructor.
 /**
  * Will perform a deep copy of all the elements of island isl, which will be synchronised before any operation takes place.
+ *
+ * @param[in] isl island to be copied.
  */
 island::island(const island &isl)
 {
@@ -57,6 +63,10 @@ island::island(const island &isl)
 /// Assignment operator.
 /**
  * Performs a deep copy of all the elements of isl into this island. Both island will be synchronised before assignment.
+ *
+ * @param[in] isl island used for assignment.
+ *
+ * @return reference to this.
  */
 island &island::operator=(const island &isl)
 {
@@ -75,7 +85,7 @@ island &island::operator=(const island &isl)
 
 /// Destructor.
 /**
- * Will call island::join() before returning.
+ * Will call island::join() before returning. No other side effects.
  */
 island::~island()
 {
@@ -96,6 +106,8 @@ void island::join() const
  * Will return a formatted string containing:
  * - description of the algorithm,
  * - the output of population::human_readable_terse().
+ *
+ * @return string containing terse human readable representation of the island.
  */
 std::string island::human_readable_terse() const
 {
@@ -112,6 +124,8 @@ std::string island::human_readable_terse() const
  * - whether the island belong to an archipelago or not,
  * - description of the algorithm,
  * - the output of population::human_readable().
+ *
+ * @return string containing complete human readable representation of the island.
  */
 std::string island::human_readable() const
 {
@@ -126,6 +140,11 @@ std::string island::human_readable() const
 /// Overload stream operator for pagmo::island.
 /**
  * Equivalent to printing island::human_readable() to stream.
+ *
+ * @param[in] s stream to which the island will be sent.
+ * @param[in] isl island to be sent to stream.
+ *
+ * @return reference to s.
  */
 std::ostream &operator<<(std::ostream &s, const island &isl)
 {

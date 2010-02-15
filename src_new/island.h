@@ -48,13 +48,22 @@ class __PAGMO_VISIBLE archipelago;
 
 /// Island class.
 /**
+ * This class incorporates a pagmo::population and a pagmo::algorithm::base used to evolve the population. Each time the evolve() (or evolve_t()) method is called, a
+ * local thread is opened and the method returns immediately, while the population is evolved asynchronously in the background. While evolution is undergoing, the island is locked down
+ * and no further operations will be allowed. The method join() can be used to wait until evolution on the island has terminated.
+ *
+ * The interface of this class mirrors the interface of the population class. It is hence possible to get and set individuals, get the population size,
+ * access the population champion, etc. The main difference
+ * is that the methods of this class will never return references to internal members, in order to protect the internal state of the island while evolution is undergoing.
+ * All getters methods will thus return copies instead of references, and all public methods will wait for an ongoing evolution to terminate before performing any action.
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE island
 {
 		// Lock type alias.
 		typedef boost::lock_guard<boost::mutex> lock_type;
-		// Stream output operator.
+		/// Friendship for stream output operator.
 		friend __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const island &);
 	public:
 		island(const island &);

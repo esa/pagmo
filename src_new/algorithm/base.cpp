@@ -76,7 +76,7 @@ std::string base::human_readable_extra() const
 /**
  * Equivalent to printing base::human_readable() to stream.
  *
- * @param[in] s stream to which algorithm will be sent.
+ * @param[in] s stream to which the algorithm will be sent.
  * @param[in] alg algorithm::base to be sent to stream.
  *
  * @return reference to s.
