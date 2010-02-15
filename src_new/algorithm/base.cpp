@@ -24,9 +24,9 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <typeinfo>
 
-#include "../population.h"
 #include "../rng.h"
 #include "base.h"
 
@@ -41,12 +41,17 @@ namespace algorithm {
 base::base():m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()) {}
 
 /// Trivial destructor.
+/**
+ * No side effects.
+ */
 base::~base() {}
 
 /// Return human readable representation of the algorithm.
 /**
  * Will return a formatted string containing the algorithm type (in mangled C++ form).
  * The output of human_readable_extra() will be appended at the end of the string.
+ *
+ * @return string containing human readable representation of the algorithm.
  */
 std::string base::human_readable() const
 {
@@ -59,6 +64,8 @@ std::string base::human_readable() const
 /// Extra information in human readable format.
 /**
  * Default implementation returns an empty string.
+ *
+ * @return string containing algorithm specific human readable representation of the algorithm.
  */
 std::string base::human_readable_extra() const
 {
@@ -68,6 +75,11 @@ std::string base::human_readable_extra() const
 /// Overload stream operator for algorithm::base.
 /**
  * Equivalent to printing base::human_readable() to stream.
+ *
+ * @param[in] s stream to which algorithm will be sent.
+ * @param[in] alg algorithm::base to be sent to stream.
+ *
+ * @return reference to s.
  */
 std::ostream &operator<<(std::ostream &s, const base &alg)
 {

@@ -63,9 +63,16 @@ class __PAGMO_VISIBLE base
 		/// Evolve method.
 		/**
 		 * The purpose of this method is to take a pagmo::population as input and evolve it towards the solution of the problem.
+		 *
+		 * @param[in,out] p population to be evolved.
 		 */
-		virtual void evolve(population &) const = 0;
+		virtual void evolve(population &p) const = 0;
 		/// Clone method.
+		/**
+		 * Must return a base_ptr to a copy of the algorithm.
+		 *
+		 * @return base_ptr to a copy of this.
+		 */
 		virtual base_ptr clone() const = 0;
 		virtual ~base();
 		std::string human_readable() const;
