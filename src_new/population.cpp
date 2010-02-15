@@ -54,6 +54,9 @@ struct cur_fc_comp {
 /**
  * Will store a copy of the problem and will initialise the population to n randomly-generated individuals.
  * Will fail if n is negative.
+ *
+ * @param[in] p problem::base that will be associated to the population.
+ * @param[in] n integer number of individuals in the population.
  */
 population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
@@ -113,6 +116,8 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 /// Copy constructor.
 /**
  * Will perform a deep copy of all the elements.
+ *
+ * @param[in] p population used to initialise this.
  */
 population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng) {}
 
@@ -125,6 +130,10 @@ population::population() {}
 /// Assignment operator.
 /**
  * Performs a deep copy of all the elements of p into this.
+ *
+ * @param[in] p population to be assigned to this.
+ *
+ * @return reference to this.
  */
 population &population::operator=(const population &p)
 {
@@ -140,6 +149,13 @@ population &population::operator=(const population &p)
 }
 
 /// Get constant reference to individual at position n.
+/**
+ * Will fail if idx is greater than size().
+ *
+ * @param idx positional index of the individual to get.
+ *
+ * @return const reference to the individual at position idx.
+ */
 const population::individual_type &population::get_individual(const size_type &idx) const
 {
 	if (idx >= size()) {
@@ -150,7 +166,9 @@ const population::individual_type &population::get_individual(const size_type &i
 
 /// Get position of worst individual.
 /**
- * Current fitness is used for comparison.
+ * problem::base::compare_fc() is used to rank the individuals according to their current fitnesses and constraints vectors.
+ *
+ * @return the positional index of the worst individual.
  */
 population::size_type population::get_worst_idx() const
 {
@@ -163,7 +181,9 @@ population::size_type population::get_worst_idx() const
 
 /// Get position of best individual.
 /**
- * Current fitness is used for comparison.
+ * problem::base::compare_fc() is used to rank the individuals according to their current fitnesses and constraints vectors.
+ *
+ * @return the positional index of the best individual.
  */
 population::size_type population::get_best_idx() const
 {
@@ -177,8 +197,12 @@ population::size_type population::get_best_idx() const
 /// Return terse human-readable representation.
 /**
  * Will return a formatted string displaying:
- * - description of the problem,
+ * - description of the problem (output of problem::base::human_readable())
  * - number of individuals.
+ *
+ * For use in pagmo::island.
+ *
+ * @return string with terse human-readable representation of the population.
  */
 std::string population::human_readable_terse() const
 {
@@ -194,6 +218,8 @@ std::string population::human_readable_terse() const
  * - the output of human_readable_terse(),
  * - list of individuals,
  * - champion.
+ *
+ * @return string with terse human-readable representation of the population.
  */
 std::string population::human_readable() const
 {
@@ -226,7 +252,10 @@ std::string population::human_readable() const
 
 /// Set the decision vector of individual at position idx to x.
 /**
- * Will update best fitness of individual and champion if needed. Will fail if problem::base::verify_x() on x returns false.
+ * Will update best values of individual and champion if needed. Will fail if problem::base::verify_x() on x returns false.
+ *
+ * @param[in] idx positional index of the individual to be set.
+ * @param[in] x decision vector to be set for the individual at position idx.
  */
 void population::set_x(const size_type &idx, const decision_vector &x)
 {
@@ -258,19 +287,28 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	}
 }
 
-/// Get constant reference to internal problem::base class.
+/// Get constant reference to internal problem::base object.
+/**
+ * @return const reference to internal problem::base object.
+ */
 const problem::base &population::problem() const
 {
 	return *m_prob;
 }
 
 /// Get constant reference to internal champion member.
+/**
+ * @return const reference to internal champion_type instance.
+ */
 const population::champion_type &population::champion() const
 {
 	return m_champion;
 }
 
 /// Get the size of the population.
+/**
+ * @return number of individuals in the population.
+ */
 population::size_type population::size() const
 {
 	return m_container.size();
@@ -279,6 +317,11 @@ population::size_type population::size() const
 /// Overload stream operator for pagmo::population.
 /**
  * Equivalent to printing population::human_readable() to stream.
+ *
+ * @param[in] s stream to which population will be sent.
+ * @param[in] pop population to be sent to stream.
+ *
+ * @return reference to s.
  */
 std::ostream &operator<<(std::ostream &s, const population &pop)
 {

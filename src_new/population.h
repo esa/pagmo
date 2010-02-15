@@ -25,7 +25,6 @@
 #ifndef PAGMO_POPULATION_H
 #define PAGMO_POPULATION_H
 
-#include <boost/tuple/tuple.hpp>
 #include <cstddef>
 #include <iostream>
 #include <string>
@@ -44,6 +43,10 @@ class __PAGMO_VISIBLE island;
 
 /// Population class.
 /**
+ * This class contains an instance of an optimisation problem and a group of candidate solutions represented by the class individual_type. On creation,
+ * the population is associated to a problem and initialised with random decision vectors. An instance of champion_type automatically keeps track of the best solution
+ * ever appeared in the population. Methods are offered to get and manipulate the single individuals.
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE population
