@@ -140,7 +140,7 @@ std::string island::human_readable() const
 	return oss.str();
 }
 
-/// Return the total evolution time.
+/// Return the total evolution time in milliseconds.
 /**
  * Note that on many 32-bit machines this counter will wrap after roughly 49 days. On most 64-bit machines, the wrapping time
  * will be around 584 million years.
@@ -273,11 +273,11 @@ void island::t_evolver::operator()()
 				//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 			}
 			m_i->m_algo->evolve(m_i->m_pop);
-			diff = boost::posix_time::microsec_clock::local_time() - start;
 			if (m_i->m_archi) {
 				//m_i->m_a->m_top->post_evolution(*m_i); //Call migration scheme
 				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 			}
+			diff = boost::posix_time::microsec_clock::local_time() - start;
 			// Take care of negative timings.
 		} while (diff.total_milliseconds() < 0 || boost::numeric_cast<std::size_t>(diff.total_milliseconds()) < m_t);
 	} catch (const std::exception &e) {

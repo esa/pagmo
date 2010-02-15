@@ -37,6 +37,10 @@ namespace pagmo { namespace problem {
 /**
  * Initialise the values and weights of the items from vectors, and maximum weight to max_weight. Will fail if max_weight is negative,
  * if vector sizes are not equal or null, or if any weight/value is negative.
+ *
+ * @param[in] values vector of values.
+ * @param[in] weights vector of weights.
+ * @param[in] max_weight maximum weight.
  */
 knapsack::knapsack(const std::vector<double> &values, const std::vector<double> &weights, const double &max_weight):
 	base(boost::numeric_cast<int>(values.size()),boost::numeric_cast<int>(values.size()),1,1,1),

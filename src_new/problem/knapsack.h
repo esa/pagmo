@@ -68,6 +68,10 @@ class __PAGMO_VISIBLE knapsack: public base
 		/**
 		 * Initialise the values and weights of the items from raw arrays, and maximum weight to max_weight. Will fail if max_weight is negative,
 		 * if N is 0 or any weight/value is negative.
+		 *
+		 * @param[in] values raw array of values.
+		 * @param[in] weights raw array of weights.
+		 * @param[in] max_weight maximum weight.
 		 */
 		template <std::size_t N>
 		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base(boost::numeric_cast<int>(N),boost::numeric_cast<int>(N),1,1,1),
