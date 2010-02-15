@@ -105,14 +105,13 @@ int main()
 //  	population pop(problem::knapsack(values,weights,30),10);
 // 	population pop(problem::paraboloid(lb2,ub2),10);
 //	population pop(problem::golomb_ruler(13,169),10);
-	population pop(problem::himmelblau(),10);
+	island isl(problem::himmelblau(),algorithm::ihs(1000),10);
 
 	//algorithm::ihs algo(1000000);
-	algorithm::ihs algo(1000);
 
-	algo.evolve(pop);
+	isl.evolve_t(1000 * 10);
 	
-	std::cout << pop;
+	std::cout << isl;
 
 	//std::cout << pop << '\n';
 

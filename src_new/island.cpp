@@ -25,6 +25,10 @@
 // 04/01/2009: Initial version by Francesco Biscani.
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/thread.hpp>
+#include <cstddef>
+#include <exception>
 #include <sstream>
 #include <string>
 
@@ -92,9 +96,10 @@ island::~island()
 	join();
 }
 
-/// Explicitly synchronise the island.
+/// Synchronise the island.
 /**
- * After this method returns, any pending evolution has been completed.
+ * After this method returns, any pending evolution has been completed. This method is called internally
+ * by all public methods.
  */
 void island::join() const
 {
@@ -121,7 +126,6 @@ std::string island::human_readable_terse() const
 /// Return human readable representation of the island.
 /**
  * Will return a formatted string containing:
- * - whether the island belong to an archipelago or not,
  * - description of the algorithm,
  * - the output of population::human_readable().
  *
@@ -131,10 +135,183 @@ std::string island::human_readable() const
 {
 	join();
 	std::ostringstream oss;
-	oss << "Belongs to archipelago: " << (m_archi ? "true" : "false") << '\n' << '\n';
 	oss << *m_algo << '\n';
 	oss << m_pop;
 	return oss.str();
+}
+
+/// Return the total evolution time.
+/**
+ * Note that on many 32-bit machines this counter will wrap after roughly 49 days. On most 64-bit machines, the wrapping time
+ * will be around 584 million years.
+ *
+ * @return number of milliseconds spent evolving the population.
+ */
+std::size_t island::evolution_time() const
+{
+	join();
+	return m_evo_time;
+}
+
+/// Return copy of the internal algorithm.
+/**
+ * @return algorithm::base_ptr to the cloned algorithm.
+ */
+algorithm::base_ptr island::get_algorithm() const
+{
+	join();
+	return m_algo->clone();
+}
+
+/// Algorithm setter.
+/**
+ * The input algorithm will be cloned.
+ *
+ * @param[in] algo new algorithm::base for the island.
+ */
+void island::set_algorithm(const algorithm::base &algo)
+{
+	join();
+	m_algo = algo.clone();
+}
+
+/// Return copy of the internal problem.
+/**
+ * @return problem::base_ptr to the cloned problem.
+ */
+problem::base_ptr island::get_problem() const
+{
+	join();
+	return m_pop.problem().clone();
+}
+
+/// Size of the internal population.
+/**
+ * @return size of the internal population.
+ */
+population::size_type island::get_size() const
+{
+	join();
+	return m_pop.size();
+}
+
+// Implementation of int_evolver's juice.
+void island::int_evolver::operator()()
+{
+	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+	try {
+		// Synchronise start with all other threads
+		if (m_i->m_archi) {
+			// TODO: restore.
+			// m_i->m_a->sync_island_start();
+		}
+		for (std::size_t i = 0; i < m_n; ++i) {
+			if (m_i->m_archi) {
+				// TODO: restore.
+				//m_i->m_a->preEvolutionCallback(*m_i);
+				//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
+			}
+			// Call the evolution.
+			m_i->m_algo->evolve(m_i->m_pop);
+			if (m_i->m_archi) {
+				// TODO: restore.
+				//m_i->m_a->postEvolutionCallback(*m_i);
+				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
+			}
+		}
+	} catch (const std::exception &e) {
+		std::cout << "Error during island evolution: " << e.what() << '\n';
+	} catch (...) {
+		std::cout << "Error during island evolution, unknown exception caught. :(\n";
+	}
+	// We must take care of potentially low-accuracy clocks, where the time difference could be negative for
+	// _really_ short evolution times. In that case do not add anything to the total evolution time.
+	const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
+	if (diff.total_milliseconds() >= 0) {
+		m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
+	}
+	m_i->m_evo_mutex.unlock();
+}
+
+/// Evolve island n times.
+/**
+ * Open a thread and call the internal algorithm's algorithm::base::evolve() method n times on the internal population. Will fail if n is negative.
+ *
+ * This method will return as soon as it has started the first evolution run. During evolution, the island is locked down and no actions on it are possible,
+ * but the flow of the rest of the program can continue without waiting for all evolutions to finish. To explicitly block the program until all evolution runs
+ * have been performed on the island, call the join() method.
+ *
+ * @param[in] n number of algorithm::base::evolve() calls that will be performed by the internal algorithm on the population.
+ */
+void island::evolve(int n)
+{
+	const std::size_t n_evo = boost::numeric_cast<std::size_t>(n);
+	if (m_evo_mutex.try_lock()) {
+		try {
+			boost::thread(int_evolver(this,n_evo));
+		} catch (...) {
+			pagmo_throw(std::runtime_error,"failed to launch the thread");
+		}
+	} else {
+		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
+	}
+}
+
+// Perform at least one evolution, and continue evolving until at least a certain amount of time has passed.
+void island::t_evolver::operator()()
+{
+	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+	boost::posix_time::time_duration diff;
+	try {
+		// Synchronise start
+		if (m_i->m_archi) {
+			//m_i->m_a->sync_island_start();
+		}
+		do {
+			if (m_i->m_archi) {
+				//m_i->m_a->m_top->pre_evolution(*m_i); //Call migration scheme
+				//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
+			}
+			m_i->m_algo->evolve(m_i->m_pop);
+			diff = boost::posix_time::microsec_clock::local_time() - start;
+			if (m_i->m_archi) {
+				//m_i->m_a->m_top->post_evolution(*m_i); //Call migration scheme
+				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
+			}
+			// Take care of negative timings.
+		} while (diff.total_milliseconds() < 0 || boost::numeric_cast<std::size_t>(diff.total_milliseconds()) < m_t);
+	} catch (const std::exception &e) {
+		std::cout << "Error during evolution: " << e.what() << '\n';
+	} catch (...) {
+		std::cout << "Unknown exception caught. :(\n";
+	}
+	m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
+	m_i->m_evo_mutex.unlock();
+}
+
+/// Evolve island for a specified minimum amount of time.
+/**
+ * Open a thread and call the internal algorithm's algorithm::base::evolve() method on the population at least once, and keep calling it until at least t milliseconds have elapsed.
+ * Will fail if t is negative.
+ *
+ * This method will return as soon as it has started the first evolution run. During evolution, the island is locked down and no actions on it are possible,
+ * but the flow of the rest of the program can continue without waiting for all evolutions to finish. To explicitly block the program until all evolution runs
+ * have been performed on the island, call the join() method.
+ *
+ * @param[in] t minimum evolution time in milliseconds.
+ */
+void island::evolve_t(int t)
+{
+	const std::size_t t_evo = boost::numeric_cast<std::size_t>(t);
+	if (m_evo_mutex.try_lock()) {
+		try {
+			boost::thread(t_evolver(this,t_evo));
+		} catch (...) {
+			pagmo_throw(std::runtime_error,"failed to launch the thread");
+		}
+	} else {
+		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
+	}
 }
 
 /// Overload stream operator for pagmo::island.

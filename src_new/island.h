@@ -73,6 +73,28 @@ class __PAGMO_VISIBLE island
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
 		void join() const;
+		std::size_t evolution_time() const;
+		algorithm::base_ptr get_algorithm() const;
+		void set_algorithm(const algorithm::base &);
+		problem::base_ptr get_problem() const;
+		population::size_type get_size() const;
+		void evolve(int n = 1);
+		void evolve_t(int);
+	private:
+		// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
+		struct int_evolver {
+			int_evolver(island *i, const std::size_t &n):m_i(i),m_n(n) { }
+			void operator()();
+			island 			*m_i;
+			const std::size_t	m_n;
+		};
+		// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.
+		struct t_evolver {
+			t_evolver(island *i, const std::size_t &t):m_i(i),m_t(t) {}
+			void operator()();
+			island 			*m_i;
+			const std::size_t	m_t;
+		};
 	private:
 		// Population.
 		population		m_pop;
