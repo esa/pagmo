@@ -50,7 +50,8 @@ class __PAGMO_VISIBLE archipelago;
 /**
  * This class incorporates a pagmo::population and a pagmo::algorithm::base used to evolve the population. Each time the evolve() (or evolve_t()) method is called, a
  * local thread is opened and the method returns immediately, while the population is evolved asynchronously in the background. While evolution is undergoing, the island is locked down
- * and no further operations will be allowed. The method join() can be used to wait until evolution on the island has terminated.
+ * and no further operations will be allowed. The method join() can be used to wait until evolution on the island has terminated. The busy() methods can be used to query the state
+ * of the island.
  *
  * The interface of this class mirrors the interface of the population class. It is hence possible to get and set individuals, get the population size,
  * access the population champion, etc. The main difference
@@ -72,14 +73,20 @@ class __PAGMO_VISIBLE island
 		~island();
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
+		/** @name Evolution methods.
+		 * Methods used to start evolution, wait for evolution completion and query the state of the island.
+		 */
+		//@{
 		void join() const;
+		bool busy() const;
+		void evolve(int n = 1);
+		void evolve_t(int);
 		std::size_t evolution_time() const;
+		//@}
 		algorithm::base_ptr get_algorithm() const;
 		void set_algorithm(const algorithm::base &);
 		problem::base_ptr get_problem() const;
 		population::size_type get_size() const;
-		void evolve(int n = 1);
-		void evolve_t(int);
 	private:
 		// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
 		struct int_evolver {

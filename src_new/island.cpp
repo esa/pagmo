@@ -163,6 +163,19 @@ algorithm::base_ptr island::get_algorithm() const
 	return m_algo->clone();
 }
 
+/// Query the state of the island.
+/**
+ * @return true if island is evolving, false otherwise.
+ */
+bool island::busy() const
+{
+	if (!m_evo_mutex.try_lock()) {
+		return true;
+	}
+	m_evo_mutex.unlock();
+	return false;
+}
+
 /// Algorithm setter.
 /**
  * The input algorithm will be cloned.
