@@ -71,8 +71,8 @@ class __PAGMO_VISIBLE island
 		~island();
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
-		/** @name Evolution methods.
-		 * Methods used to start evolution, wait for evolution completion and query the state of the island.
+		/** @name Evolution.
+		 * Methods related to island evolution.
 		 */
 		//@{
 		void join() const;
