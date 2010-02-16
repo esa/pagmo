@@ -69,8 +69,11 @@ class __PAGMO_VISIBLE island
 		island(const problem::base &, const algorithm::base &, int n = 0);
 		island &operator=(const island &);
 		~island();
+		/** @name Input/output.*/
+		//@{
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
+		//@}
 		/** @name Evolution.
 		 * Methods related to island evolution.
 		 */
@@ -81,10 +84,13 @@ class __PAGMO_VISIBLE island
 		void evolve_t(int);
 		std::size_t evolution_time() const;
 		//@}
+		/** @name Getters and setters.*/
+		//@{
 		algorithm::base_ptr get_algorithm() const;
 		void set_algorithm(const algorithm::base &);
 		problem::base_ptr get_problem() const;
 		population::size_type get_size() const;
+		//@}
 	private:
 		// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
 		struct int_evolver {

@@ -304,8 +304,8 @@ void island::t_evolver::operator()()
 
 /// Evolve island for a specified minimum amount of time.
 /**
- * Open a thread and call the internal algorithm's algorithm::base::evolve() method on the population at least once, and keep calling it until at least t milliseconds have elapsed.
- * Will fail if t is negative.
+ * Open a thread and call the internal algorithm's algorithm::base::evolve() method on the population at least once, and keep calling it until at least t milliseconds
+ * ("wall clock" time) have elapsed. Will fail if t is negative.
  *
  * This method will return as soon as it has started the first evolution run. During evolution, the island is locked down and no actions on it are possible,
  * but the flow of the rest of the program can continue without waiting for all evolutions to finish. To explicitly block the program until all evolution runs

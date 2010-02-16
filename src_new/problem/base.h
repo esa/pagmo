@@ -58,13 +58,13 @@ typedef boost::shared_ptr<base> base_ptr;
 
 /// Base problem class.
 /**
- * This class represents a multiobjective mixed-integer constrained optimisation problem defined by:
- * - a global dimension, i.e., the dimension of the global search space,
+ * This class represents a box-bounded, multiobjective, mixed-integer, constrained optimisation problem defined by:
+ * - a global dimension, i.e., the number of dimensions of the global search space,
  * - the dimension of the integral (or combinatorial) part of the problem,
+ * - lower and upper bounds of the global search space,
  * - the total number of constraints,
  * - the number of inequality constraints (never exceeding the total number of constraints),
- * - a constraint testing function,
- * - lower and upper bounds of the global search space,
+ * - a constraint computation function,
  * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
  *
@@ -89,7 +89,9 @@ typedef boost::shared_ptr<base> base_ptr;
  * - equality_operator_extra(), for providing additional criterions when testing for equality between two problems,
  * - compare_fitness_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
  *   than the second one, false otherwise),
- * - compute_constraints_impl(), to calculate the constraint vector associated to a decision vector.
+ * - compute_constraints_impl(), to calculate the constraint vector associated to a decision vector,
+ * - compare_constraints_impl(), to compare two constraint vectors,
+ * - compare_fc_impl(), to perform a simultaneous fitness/constraint vector pairs comparison.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -345,11 +347,11 @@ class __PAGMO_VISIBLE base
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;
 		bool compare_constraints(const constraint_vector &, const constraint_vector &) const;
-		bool test_constraints_x(const decision_vector &) const;
-		bool test_constraints_c(const constraint_vector &) const;
+		bool feasibility_x(const decision_vector &) const;
+		bool feasibility_c(const constraint_vector &) const;
 		/// Clone method.
 		/**
-		 * Provided that the derived problem implements properly a copy constructor, virtually all implementations of this method will
+		 * Provided that the derived problem implements properly the copy constructor, virtually all implementations of this method will
 		 * look like this:
 @verbatim
 return base_ptr(new derived_problem(*this));

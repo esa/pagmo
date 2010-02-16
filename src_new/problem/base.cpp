@@ -434,6 +434,10 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 	if (x_it == m_decision_vector_cache_f.end()) {
 		// Fitness is not into memory. Calculate it.
 		objfun_impl(f,x);
+		// Make sure that the implementation of objfun_impl() in the derived class did not fuck up the dimension of the fitness vector.
+		if (f.size() != m_f_dimension) {
+			pagmo_throw(value_error,"fitness dimension was changed inside objfun_impl()");
+		}
 		// Store the decision vector and the newly-calculated fitness in the front of the buffers.
 		m_decision_vector_cache_f.push_front(x);
 		m_fitness_vector_cache.push_front(f);
@@ -595,9 +599,9 @@ bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
 	// Store fitnesses into temporary space.
 	objfun(m_tmp_f1,x1);
 	objfun(m_tmp_f2,x2);
-	// Make sure the size of the tmp constraints vectors are suitable.
+	// Make sure the size of the tmp constraint vectors are suitable.
 	pagmo_assert(m_tmp_c1.size() == m_c_dimension && m_tmp_c2.size() == m_c_dimension);
-	// Store constraints vector into temporary space.
+	// Store constraint vector into temporary space.
 	compute_constraints(m_tmp_c1,x1);
 	compute_constraints(m_tmp_c2,x2);
 	// Call the comparison implementation.
@@ -651,7 +655,7 @@ bool base::compare_fc(const fitness_vector &f1, const constraint_vector &c1, con
  */
 bool base::compare_fc_impl(const fitness_vector &f1, const constraint_vector &c1, const fitness_vector &f2, const constraint_vector &c2) const
 {
-	const bool test1 = test_constraints_c(c1), test2 = test_constraints_c(c2);
+	const bool test1 = feasibility_c(c1), test2 = feasibility_c(c2);
 	if (test1 && !test2) {
 		return true;
 	}
@@ -677,10 +681,10 @@ bool base::compare_fc_impl(const fitness_vector &f1, const constraint_vector &c1
 
 /// Implementation of constraint computation.
 /**
- * This functions is intended to write to c the result of testing a decision vector against the problem constraints.
- * The first get_c_dimension() - get_ic_dimension() elements of c will hold the results of equality constraint testing:
- * if a constraint is satisfied, the corresponding value in the vector will be zero. The remaining elements of the vector will hold the results
- * of inequality constraint testing: if a constraint is satisfied, the corresponding value in the vector will be non-positive.
+ * This functions is intended to write to c the constraint vector of input decision vector x.
+ * The first get_c_dimension() - get_ic_dimension() elements of c will hold the equality constraints:
+ * if a constraint is satisfied, the corresponding value in the vector will be zero. The remaining elements of the vector will hold the
+ * inequality constraints: if a constraint is satisfied, the corresponding value in the vector will be non-positive.
  *
  * Default implementation will fill c with zeroes.
  *
@@ -718,6 +722,10 @@ void base::compute_constraints(constraint_vector &c, const decision_vector &x) c
 	if (x_it == m_decision_vector_cache_c.end()) {
 		// Constraint vector is not into memory. Calculate it.
 		compute_constraints_impl(c,x);
+		// Make sure c was not fucked up in the implementation of constraints calculation.
+		if (c.size() != get_c_dimension()) {
+			pagmo_throw(value_error,"constraints dimension was changed inside compute_constraints_impl()");
+		}
 		// Store the decision vector and the newly-calculated constraint vector in the front of the buffers.
 		m_decision_vector_cache_c.push_front(x);
 		m_constraint_vector_cache.push_front(c);
@@ -762,22 +770,22 @@ constraint_vector base::compute_constraints(const decision_vector &x) const
 	return c;
 }
 
-/// Test constraint satisfaction of decision vector.
+/// Test feasibility of decision vector.
 /**
- * This method will compute the constraint vector associated to x and test it with test_constraints_c().
+ * This method will compute the constraint vector associated to x and test it with feasibility_c().
  *
- * @param[in] x pagmo::decision_vector whose constraints will be computed and tested.
+ * @param[in] x pagmo::decision_vector whose feasibility will be tested.
  *
  * @return true if x satisfies the constraints, false otherwise.
  */
-bool base::test_constraints_x(const decision_vector &x) const
+bool base::feasibility_x(const decision_vector &x) const
 {
 	// Compute the constraints and store internally.
 	compute_constraints(m_tmp_c1,x);
-	return test_constraints_c(m_tmp_c1);
+	return feasibility_c(m_tmp_c1);
 }
 
-/// Test constraint satisfaction of constraint vector.
+/// Test feasibility of constraint vector.
 /**
  * This method will return true if all constraints are satisfied, false otherwise.
  *
@@ -785,7 +793,7 @@ bool base::test_constraints_x(const decision_vector &x) const
  *
  * @return true if c satisfies the constraints, false otherwise.
  */
-bool base::test_constraints_c(const constraint_vector &c) const
+bool base::feasibility_c(const constraint_vector &c) const
 {
 	if (c.size() != m_c_dimension) {
 		pagmo_throw(value_error,"invalid size for constraint vector");
