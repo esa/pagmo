@@ -93,6 +93,11 @@ typedef boost::shared_ptr<base> base_ptr;
  * - compare_constraints_impl(), to compare two constraint vectors,
  * - compare_fc_impl(), to perform a simultaneous fitness/constraint vector pairs comparison.
  *
+ * Please note that while a problem is intended to provide methods for ranking decision and constraint vectors, such methods are not to be used
+ * mandatorily by an algorithm: each algorithm can decide to use its own ranking schemes during an optimisation. The ranking methods provided
+ * by the problem are necessarily used instead during the migration of decision vectors from one island to the other while using a migration policy
+ * that, e.g., substitutes the worst individual of the island with the incoming individual.
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE base
