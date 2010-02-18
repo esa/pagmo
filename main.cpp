@@ -36,13 +36,13 @@
 #include "src_new/problem/knapsack.h"
 #include "src_new/problem/paraboloid.h"
 #include "src_new/problem/rastrigin.h"
-#include "src_new/topology/base.h"
+#include "src_new/topology/unconnected.h"
 
 using namespace pagmo;
 
 int main()
 {
-	topology::base t;
+	topology::unconnected t;
 	t.add_node(45);
 	t.add_node(46);
 	t.add_node(47);

@@ -61,8 +61,12 @@ typedef boost::shared_ptr<base> base_ptr;
  */
 class __PAGMO_VISIBLE base
 {
-		// Typedef for island position in archipelago.
+	public:
+		// NOTE: here it would be better to get the type out from the archipelago,
+		// but can we do that? Circular dependencies...
+		/// Typedef for island's positional index in an archipelago.
 		typedef std::vector<island>::size_type idx_type;
+	private:
 		// Bundled island property for boost graph.
 		struct island_property
 		{
@@ -75,10 +79,10 @@ class __PAGMO_VISIBLE base
 		typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::bidirectionalS,island_property> graph_type;
 		// Vertex iterator.
 		typedef boost::graph_traits<graph_type>::vertex_iterator v_iterator;
-		// In-edge iterator.
-		typedef boost::graph_traits<graph_type>::in_edge_iterator ie_iterator;
-		// Out-edge iterator.
-		typedef boost::graph_traits<graph_type>::out_edge_iterator oe_iterator;
+		// Adjacent vertex iterator.
+		typedef boost::graph_traits<graph_type>::adjacency_iterator a_iterator;
+		// Inverse adjacent vertex iterator.
+		typedef graph_type::inv_adjacency_iterator ia_iterator;
 		// Vertex descriptor.
 		typedef boost::graph_traits<graph_type>::vertex_descriptor v_descriptor;
 		// Helper functor to find an island idx inside the graph.
@@ -106,7 +110,7 @@ return base_ptr(new derived_topology(*this));
 		 *
 		 * @return topology::base_ptr to a copy of this.
 		 */
-		//virtual base_ptr clone() const = 0;
+		virtual base_ptr clone() const = 0;
 		virtual ~base();
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
@@ -114,6 +118,15 @@ return base_ptr(new derived_topology(*this));
 		//@{
 		void add_node(int);
 		//@}
+		/// Insert island with positional index idx into the topology.
+		/**
+		 * This method must be implemented by every topology and is called by the archipelago class each time an island
+		 * is inserted into an archipelago. An implementation of this method typically will add the island index with add_node()
+		 * and then connect it to other nodes according to the topology properties.
+		 *
+		 * @param[in] idx positional index of the island to be inserted in the topology.
+		 */
+		virtual void push_back(int idx) = 0;
 	protected:
 		virtual std::string human_readable_extra() const;
 	private:

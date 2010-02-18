@@ -97,7 +97,7 @@ std::string base::human_readable_terse() const
  * Will return a formatted string containing:
  * - the output of human_readable_terse(),
  * - the output of human_readable_extra(),
- * - the list of nodes and edges.
+ * - the list of nodes and edges in a DOT-like syntax.
  *
  * @return string containing complete human readable representation of the topology.
  */
@@ -105,10 +105,24 @@ std::string base::human_readable() const
 {
 	std::ostringstream s;
 	s << human_readable_terse();
-	s << human_readable_extra();
+	s << human_readable_extra() << '\n';
+	s << "Connections:\n\n";
 	std::pair<v_iterator,v_iterator> vertices = boost::vertices(m_graph);
+	std::pair<a_iterator,a_iterator> adj_nodes;
 	for (; vertices.first != vertices.second; ++vertices.first) {
-		std::cout << m_graph[*vertices.first].m_idx <<  '\n';
+		adj_nodes = boost::adjacent_vertices(*vertices.first,m_graph);
+		s << m_graph[*vertices.first].m_idx <<  '\n';
+		if (adj_nodes.first != adj_nodes.second) {
+			s << " -> {";
+			while (adj_nodes.first != adj_nodes.second) {
+				s << m_graph[*adj_nodes.first].m_idx;
+				++adj_nodes.first;
+				if (adj_nodes.first != adj_nodes.second) {
+					s << ',';
+				}
+			}
+			s << "}\n";
+		}
 	}
 	return s.str();
 }
@@ -147,8 +161,7 @@ void base::add_node(int idx)
 {
 	const idx_type i = boost::numeric_cast<idx_type>(idx);
 	check_idx(i);
-	//m_graph[boost::add_vertex(m_graph)].m_idx = i;
-	boost::add_vertex(island_property(idx),m_graph);
+	boost::add_vertex(island_property(i),m_graph);
 }
 
 

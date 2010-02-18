@@ -22,44 +22,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ARCHIPELAGO_H
-#define PAGMO_ARCHIPELAGO_H
+#include "base.h"
+#include "unconnected.h"
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/thread/barrier.hpp>
-#include <vector>
+namespace pagmo { namespace topology {
 
-#include "config.h"
-#include "island.h"
+/// Default constructor.
+unconnected::unconnected():base() {}
 
-namespace pagmo {
-
-/// Archipelago class.
-/**
- * @author Francesco Biscani (bluescarni@gmail.com)
- */
-class __PAGMO_VISIBLE archipelago
+/// Clone method.
+base_ptr unconnected::clone() const
 {
-		// Internal container of islands.
-		typedef std::vector<island> container_type;
-		// Iterators.
-		typedef container_type::iterator iterator;
-		typedef container_type::const_iterator const_iterator;
-	public:
-		archipelago();
-		archipelago(const archipelago &);
-		archipelago &operator=(const archipelago &);
-		~archipelago();
-		void join() const;
-	private:
-		void reset_barrier();
-	private:
-		// Container of islands.
-		container_type				m_container;
-		// A barrier used to synchronise the start time of all islands.
-		boost::scoped_ptr<boost::barrier>	m_island_sync_point;
-};
-
+	return base_ptr(new unconnected(*this));
 }
 
-#endif
+/// Push back implementation.
+/**
+ * Will call base::add_node() on the input index.
+ *
+ * @param[in] idx positional index of the island to be inserted.
+ */
+void unconnected::push_back(int idx)
+{
+	add_node(idx);
+}
+
+}}
