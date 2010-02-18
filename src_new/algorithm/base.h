@@ -68,9 +68,13 @@ class __PAGMO_VISIBLE base
 		virtual void evolve(population &p) const = 0;
 		/// Clone method.
 		/**
-		 * Must return a base_ptr to a copy of the algorithm.
+		 * Provided that the derived algorithm implements properly the copy constructor, virtually all implementations of this method will
+		 * look like this:
+@verbatim
+return base_ptr(new derived_algorithm(*this));
+@endverbatim
 		 *
-		 * @return base_ptr to a copy of this.
+		 * @return algorithm::base_ptr to a copy of this.
 		 */
 		virtual base_ptr clone() const = 0;
 		virtual ~base();
