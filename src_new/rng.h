@@ -66,6 +66,8 @@ class rng_generator {
 		 * Type Rng must be a Boost-like pseudo-random number generator initialisable
 		 * with a boost::uint32_t. Return value is seeded with an internal
 		 * static pagmo::rng_uint32.
+		 *
+		 * @return pseudo-random number generator seeded with pseudo-random value.
 		 */
 		template <class Rng>
 		static Rng get()

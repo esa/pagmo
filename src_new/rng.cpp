@@ -39,7 +39,10 @@ rng_uint32 rng_generator::m_seeder(boost::uint32_t((boost::posix_time::microsec_
 
 /// Set seed.
 /**
- * Set the seed of the internal generator to n. Thread-safe.
+ * Set the seed of the internal generator to n. Thread-safe. Note that input integer n will be
+ * cast to uint32_t.
+ *
+ * @param[in] n seed for the generator of pseudo-random number generators.
  */
 void rng_generator::set_seed(int n)
 {
