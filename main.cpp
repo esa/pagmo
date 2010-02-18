@@ -36,11 +36,20 @@
 #include "src_new/problem/knapsack.h"
 #include "src_new/problem/paraboloid.h"
 #include "src_new/problem/rastrigin.h"
+#include "src_new/topology/base.h"
 
 using namespace pagmo;
 
 int main()
 {
+	topology::base t;
+	t.add_node(45);
+	t.add_node(46);
+	t.add_node(47);
+	t.add_node(48);
+	std::cout << t << '\n';
+	return 0;
+
 	double lb1[] = {-1,-1};
 	double ub1[] = {-1,-1};
 	std::cout << problem::paraboloid(lb1,ub1) << '\n';
