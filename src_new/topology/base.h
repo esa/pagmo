@@ -51,10 +51,13 @@ typedef boost::shared_ptr<base> base_ptr;
 /// Base topology class.
 /**
  * This class represents a topology connecting island objects in an archipelago
- * using a directed graph in which the nodes contain the positional index of the island inside the archipelago. The internal implementation
+ * using a directed graph in which the vertices contain the positional index of the island inside the archipelago.
+ * E.g., the first island inserted into the archipelago has index 0, the second one index 1 and so on.
+ *
+ * The internal implementation
  * of the graph uses the Boost graph library.
  *
- * @see www.boost.org/doc/libs/release/libs/graph/doc/
+ * @see http://www.boost.org/doc/libs/release/libs/graph/doc/
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Marek Ruciński (marek.rucinski@gmail.com)
@@ -74,17 +77,26 @@ class __PAGMO_VISIBLE base
 			island_property(const idx_type &idx):m_idx(idx) {}
 			idx_type m_idx;
 		};
+	protected:
 		// Useful shortcut typedefs for graph-related types. The graph is directed and bidirectional,
 		// since we need access to both in and out edges.
+		/// Underlying graph type for the representation of the topology.
+		/**
+		 * The graph is a directed and bidirectional adjacency list whose vertices embed an island_property class
+		 * containing the positional index of the island in the archipelago.
+		 */
 		typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::bidirectionalS,island_property> graph_type;
-		// Vertex iterator.
+		/// Iterator over the vertices.
 		typedef boost::graph_traits<graph_type>::vertex_iterator v_iterator;
-		// Adjacent vertex iterator.
+		/// Iterator over adjacent vertices.
 		typedef boost::graph_traits<graph_type>::adjacency_iterator a_iterator;
-		// Inverse adjacent vertex iterator.
+		/// Iterator over inversely adjacent vertices.
 		typedef graph_type::inv_adjacency_iterator ia_iterator;
-		// Vertex descriptor.
+		/// Vertex descriptor.
 		typedef boost::graph_traits<graph_type>::vertex_descriptor v_descriptor;
+		/// Vertices size type.
+		typedef graph_type::vertices_size_type vertices_size_type;
+	private:
 		// Helper functor to find an island idx inside the graph.
 		struct idx_finder
 		{
@@ -114,23 +126,31 @@ return base_ptr(new derived_topology(*this));
 		virtual ~base();
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
-		/** @name Graph manipulation methods. */
+		/** @name High-level graph access and manipulation methods. */
 		//@{
-		void add_node(int);
+		vertices_size_type get_number_of_vertices() const;
+		bool contains_vertex(int) const;
+		void push_back(int n);
 		//@}
-		/// Insert island with positional index idx into the topology.
+	protected:
+		/** @name Low-level graph access and manipulation methods. */
+		//@{
+		v_iterator get_it(int) const;
+		void add_vertex(int);
+		bool are_adjacent(const v_iterator &, const v_iterator &) const;
+		void add_edge(const v_iterator &, const v_iterator &);
+		void remove_edge(const v_iterator &, const v_iterator &);
+		/// Establish connections between islands during a push_back() operation.
 		/**
-		 * This method must be implemented by every topology and is called by the archipelago class each time an island
-		 * is inserted into an archipelago. An implementation of this method typically will add the island index with add_node()
-		 * and then connect it to other nodes according to the topology properties.
+		 * This method will be called by push_back() after the vertex corresponing to island index n has been added to the graph.
+		 * The purpose of this method is to connect the newly-added vertex to other vertices according to the properties of the topology.
 		 *
-		 * @param[in] idx positional index of the island to be inserted in the topology.
+		 * @param[in] n positional index of the newly-inserted island.
 		 */
-		virtual void push_back(int idx) = 0;
+		virtual void connect(int n) = 0;
+		//@}
 	protected:
 		virtual std::string human_readable_extra() const;
-	private:
-		void check_idx(const idx_type &) const;
 	private:
 		graph_type m_graph;
 };

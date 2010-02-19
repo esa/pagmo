@@ -36,17 +36,17 @@
 #include "src_new/problem/knapsack.h"
 #include "src_new/problem/paraboloid.h"
 #include "src_new/problem/rastrigin.h"
-#include "src_new/topology/unconnected.h"
+#include "src_new/topology/one_way_ring.h"
 
 using namespace pagmo;
 
 int main()
 {
-	topology::unconnected t;
-	t.add_node(45);
-	t.add_node(46);
-	t.add_node(47);
-	t.add_node(48);
+	topology::one_way_ring t;
+	t.push_back(45);
+	t.push_back(46);
+	t.push_back(47);
+	t.push_back(48);
 	std::cout << t << '\n';
 	return 0;
 

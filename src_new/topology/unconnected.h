@@ -41,7 +41,8 @@ class __PAGMO_VISIBLE unconnected: public base
 	public:
 		unconnected();
 		base_ptr clone() const;
-		void push_back(int);
+	protected:
+		void connect(int);
 };
 
 } }

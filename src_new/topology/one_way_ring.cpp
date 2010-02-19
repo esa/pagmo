@@ -22,29 +22,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/numeric/conversion/cast.hpp>
+
+#include "../exceptions.h"
 #include "base.h"
-#include "unconnected.h"
+#include "one_way_ring.h"
 
 namespace pagmo { namespace topology {
 
 /// Default constructor.
-unconnected::unconnected():base() {}
+one_way_ring::one_way_ring():base(),m_first(0),m_last(0) {}
 
 /// Clone method.
-base_ptr unconnected::clone() const
+base_ptr one_way_ring::clone() const
 {
-	return base_ptr(new unconnected(*this));
+	return base_ptr(new one_way_ring(*this));
 }
 
-/// Connect implementation.
+/// Connect method.
 /**
- * Will not connect the island to any other island.
- *
- * @param[in] n positional index of the island to be inserted.
+ * Will insert the index into the ring topology, connecting it to the first index in the topology
+ * and connecting the last index in the topology to it.
  */
-void unconnected::connect(int n)
+void one_way_ring::connect(int n)
 {
-	(void)n;
+	// Store frequently-used variables.
+	const vertices_size_type t_size = get_number_of_vertices();
+	pagmo_assert(t_size != 0);
+	switch (t_size) {
+	case 1: {
+			// If the topology was empty, just update the id of the first element.
+			m_first = n;
+			break;
+		}
+	case 2: {
+			pagmo_assert(n != m_first);
+			// Add connections to the only existing element.
+			const v_iterator it_first = get_it(m_first), it_n = get_it(n);
+			add_edge(it_first,it_n);
+			add_edge(it_n,it_first);
+			break;
+		}
+	default: {
+			// The current last must be connected to the new one.
+			const v_iterator it_first = get_it(m_first), it_n = get_it(n), it_last = get_it(m_last);
+			remove_edge(it_last,it_first);
+			add_edge(it_last,it_n);
+			add_edge(it_n,it_first);
+		}
+	}
+	// Update the id of the last island.
+	m_last = n;
 }
 
 }}

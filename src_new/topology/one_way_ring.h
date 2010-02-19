@@ -22,29 +22,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#ifndef PAGMO_TOPOLOGY_ONE_WAY_RING_H
+#define PAGMO_TOPOLOGY_ONE_WAY_RING_H
+
+#include "../config.h"
 #include "base.h"
-#include "unconnected.h"
 
 namespace pagmo { namespace topology {
 
-/// Default constructor.
-unconnected::unconnected():base() {}
-
-/// Clone method.
-base_ptr unconnected::clone() const
-{
-	return base_ptr(new unconnected(*this));
-}
-
-/// Connect implementation.
+/// Uni-directional ring topology.
 /**
- * Will not connect the island to any other island.
- *
- * @param[in] n positional index of the island to be inserted.
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
  */
-void unconnected::connect(int n)
+class __PAGMO_VISIBLE one_way_ring: public base
 {
-	(void)n;
-}
+	public:
+		one_way_ring();
+		base_ptr clone() const;
+	protected:
+		void connect(int);
+	private:
+		// Tracks the identifier of the first inserted vertex.
+		int	m_first;
+		// Tracks the identifier of the last inserted vertex.
+		int	m_last;
+};
 
 }}
+
+#endif

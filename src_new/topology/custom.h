@@ -22,29 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#ifndef PAGMO_TOPOLOGY_CUSTOM_H
+#define PAGMO_TOPOLOGY_CUSTOM_H
+
+#include "../config.h"
 #include "base.h"
-#include "unconnected.h"
 
 namespace pagmo { namespace topology {
 
-/// Default constructor.
-unconnected::unconnected():base() {}
-
-/// Clone method.
-base_ptr unconnected::clone() const
-{
-	return base_ptr(new unconnected(*this));
-}
-
-/// Connect implementation.
+/// Custom topology.
 /**
- * Will not connect the island to any other island.
+ * This topology allows the user to manually build a topology by inserting nodes and creating connections between them. The push_back() method
+ * will add island indices to the topology leaving them unconnected. The intended use of this topology is, on one hand, to give the user the ability to create
+ * quickly a custom topology without having to create another class, recompile, etc. On the other hand, by exposing high-level function to manipulate the
+ * topology using directly island indices, this class is meant to be the "base" topology class
+ * for the Python bindings.
  *
- * @param[in] n positional index of the island to be inserted.
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-void unconnected::connect(int n)
+class __PAGMO_VISIBLE custom: public base
 {
-	(void)n;
-}
+	public:
+		custom();
+		void add_edge(int,int);
+		void remove_edge(int,int);
+		bool are_adjacent(int,int) const;
+	protected:
+		void connect(int n);
+};
 
-}}
+} }
+
+#endif
