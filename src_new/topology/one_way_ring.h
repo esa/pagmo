@@ -32,6 +32,9 @@ namespace pagmo { namespace topology {
 
 /// Uni-directional ring topology.
 /**
+ * \image html one_way_ring.png "Uni-directional ring topology example."
+ * \image latex one_way_ring.png "Uni-directional ring topology example." width=4cm
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Marek Ruciński (marek.rucinski@gmail.com)
  */

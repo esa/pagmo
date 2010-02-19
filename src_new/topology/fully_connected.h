@@ -22,32 +22,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGY_UNCONNECTED_H
-#define PAGMO_TOPOLOGY_UNCONNECTED_H
+#ifndef PAGMO_TOPOLOGY_FULLY_CONNECTED_H
+#define PAGMO_TOPOLOGY_FULLY_CONNECTED_H
 
 #include "../config.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
 
-/// Unconnected topology.
+/// Fully-connected topology.
 /**
- * \image html unconnected.png "Unconnected topology example."
- * \image latex unconnected.png "Unconnected topology example." width=4cm
+ * \image html fully_connected.png "Fully connected topology example."
+ * \image latex fully_connected.png "Fully connected topology example." width=4cm
  *
- * This topology will keep all islands disconnected from each other.
+ * In this topology, each island is connected to all the other islands in both directions.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
  */
-class __PAGMO_VISIBLE unconnected: public base
+class __PAGMO_VISIBLE fully_connected: public base
 {
 	public:
-		unconnected();
+		fully_connected();
 		base_ptr clone() const;
 	protected:
 		void connect(int);
 };
 
-} }
+}}
 
- #endif
+#endif

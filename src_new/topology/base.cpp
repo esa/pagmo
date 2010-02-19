@@ -30,6 +30,7 @@
 #include <string>
 #include <typeinfo>
 #include <utility>
+#include <vector>
 
 #include "../exceptions.h"
 #include "base.h"
@@ -118,11 +119,12 @@ std::string base::human_readable() const
 				s << m_graph[*adj_vertices.first].m_idx;
 				++adj_vertices.first;
 				if (adj_vertices.first != adj_vertices.second) {
-					s << ',';
+					s << ' ';
 				}
 			}
-			s << "}\n";
+			s << '}';
 		}
+		s << '\n';
 	}
 	return s.str();
 }
@@ -240,6 +242,32 @@ void base::remove_edge(const v_iterator &it1, const v_iterator &it2)
 		pagmo_throw(value_error,"cannot remove edge, vertices are not connected");
 	}
 	boost::remove_edge(*it1,*it2,m_graph);
+}
+
+/// Return iterator range to vertices.
+/**
+ * Return a pair of iterators, the first one to the first vertex of the graph, the second one to the end of the graph.
+ *
+ * @return begin/end iterator range for the graph.
+ */
+std::pair<base::v_iterator,base::v_iterator> base::get_vertices_it() const
+{
+	return boost::vertices(m_graph);
+}
+
+/// Return list of vertex indices.
+/**
+ * Return the list of island indices in the graph.
+ *
+ * @return vector of indices of the islands inserted in the topology.
+ */
+std::vector<int> base::get_vertices() const
+{
+	std::vector<int> retval;
+	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+		retval.push_back(boost::numeric_cast<int>(m_graph[*vertices.first].m_idx));
+	}
+	return retval;
 }
 
 /// Get number of vertices.

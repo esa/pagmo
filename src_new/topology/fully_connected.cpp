@@ -22,32 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGY_UNCONNECTED_H
-#define PAGMO_TOPOLOGY_UNCONNECTED_H
+#include <utility>
 
-#include "../config.h"
-#include "base.h"
+#include "fully_connected.h"
 
 namespace pagmo { namespace topology {
 
-/// Unconnected topology.
-/**
- * \image html unconnected.png "Unconnected topology example."
- * \image latex unconnected.png "Unconnected topology example." width=4cm
- *
- * This topology will keep all islands disconnected from each other.
- *
- * @author Francesco Biscani (bluescarni@gmail.com)
- */
-class __PAGMO_VISIBLE unconnected: public base
+/// Default constructor.
+fully_connected::fully_connected():base() {}
+
+/// Clone method.
+base_ptr fully_connected::clone() const
 {
-	public:
-		unconnected();
-		base_ptr clone() const;
-	protected:
-		void connect(int);
-};
+	return base_ptr(new fully_connected(*this));
+}
 
-} }
+/// Connect method.
+/**
+ * After each push_back(), the new island will be connected to each other island and vice-versa.
+ */
+void fully_connected::connect(int n)
+{
+	const v_iterator it_n = get_it(n);
+	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+		// Do not connect with self.
+		if (it_n != vertices.first) {
+			add_edge(it_n,vertices.first);
+			add_edge(vertices.first,it_n);
+		}
+	}
+}
 
- #endif
+}}

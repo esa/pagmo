@@ -29,6 +29,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../config.h"
@@ -131,6 +132,7 @@ return base_ptr(new derived_topology(*this));
 		vertices_size_type get_number_of_vertices() const;
 		bool contains_vertex(int) const;
 		void push_back(int n);
+		std::vector<int> get_vertices() const;
 		//@}
 	protected:
 		/** @name Low-level graph access and manipulation methods. */
@@ -140,6 +142,7 @@ return base_ptr(new derived_topology(*this));
 		bool are_adjacent(const v_iterator &, const v_iterator &) const;
 		void add_edge(const v_iterator &, const v_iterator &);
 		void remove_edge(const v_iterator &, const v_iterator &);
+		std::pair<v_iterator,v_iterator> get_vertices_it() const;
 		/// Establish connections between islands during a push_back() operation.
 		/**
 		 * This method will be called by push_back() after the vertex corresponing to island index n has been added to the graph.

@@ -32,6 +32,9 @@ namespace pagmo { namespace topology {
 
 /// Bi-directional ring topology.
 /**
+ * \image html ring.png "Ring topology example."
+ * \image latex ring.png "Ring topology example." width=4cm
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Marek Ruciński (marek.rucinski@gmail.com)
  */

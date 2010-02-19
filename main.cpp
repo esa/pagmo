@@ -37,16 +37,22 @@
 #include "src_new/problem/paraboloid.h"
 #include "src_new/problem/rastrigin.h"
 #include "src_new/topology/ring.h"
+#include "src_new/topology/one_way_ring.h"
+#include "src_new/topology/unconnected.h"
+#include "src_new/topology/fully_connected.h"
 
 using namespace pagmo;
 
 int main()
 {
-	topology::ring t;
-	t.push_back(45);
-	t.push_back(46);
-	t.push_back(47);
-	t.push_back(48);
+	topology::fully_connected t;
+	t.push_back(0);
+	t.push_back(1);
+	t.push_back(2);
+	t.push_back(3);
+	//t.push_back(4);
+	//t.push_back(5);
+	//t.push_back(6);
 	std::cout << t << '\n';
 	return 0;
 
