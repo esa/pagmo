@@ -24,25 +24,25 @@
 
 #include "../exceptions.h"
 #include "base.h"
-#include "one_way_ring.h"
+#include "ring.h"
 
 namespace pagmo { namespace topology {
 
 /// Default constructor.
-one_way_ring::one_way_ring():base(),m_first(0),m_last(0) {}
+ring::ring():base(),m_first(0),m_last(0) {}
 
 /// Clone method.
-base_ptr one_way_ring::clone() const
+base_ptr ring::clone() const
 {
-	return base_ptr(new one_way_ring(*this));
+	return base_ptr(new ring(*this));
 }
 
 /// Connect method.
 /**
- * Will insert the index into the ring topology, connecting it to the first index in the topology
- * and connecting the last index in the topology to it.
+ * Will insert the index into the ring topology, connecting it to the first and the last indices in the topology
+ * and connecting the last index in the topology to and from it.
  */
-void one_way_ring::connect(int n)
+void ring::connect(int n)
 {
 	// Store frequently-used variables.
 	const vertices_size_type t_size = get_number_of_vertices();
@@ -61,11 +61,25 @@ void one_way_ring::connect(int n)
 			add_edge(it_n,it_first);
 			break;
 		}
-	default: {
-			// The current last must be connected to the new one.
+	case 3: {
+			// Add new connections.
 			const v_iterator it_first = get_it(m_first), it_n = get_it(n), it_last = get_it(m_last);
-			remove_edge(it_last,it_first);
 			add_edge(it_last,it_n);
+			add_edge(it_n,it_last);
+			add_edge(it_first,it_n);
+			add_edge(it_n,it_first);
+			break;
+		}
+	default: {
+			const v_iterator it_first = get_it(m_first), it_n = get_it(n), it_last = get_it(m_last);
+			// In general we must change the back connection of the first,
+			// the forward connection of the current last, and add the new last
+			// with proper connections.
+			remove_edge(it_last,it_first);
+			remove_edge(it_first,it_last);
+			add_edge(it_last,it_n);
+			add_edge(it_n,it_last);
+			add_edge(it_first,it_n);
 			add_edge(it_n,it_first);
 		}
 	}
@@ -74,3 +88,4 @@ void one_way_ring::connect(int n)
 }
 
 }}
+

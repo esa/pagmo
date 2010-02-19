@@ -36,13 +36,13 @@
 #include "src_new/problem/knapsack.h"
 #include "src_new/problem/paraboloid.h"
 #include "src_new/problem/rastrigin.h"
-#include "src_new/topology/one_way_ring.h"
+#include "src_new/topology/ring.h"
 
 using namespace pagmo;
 
 int main()
 {
-	topology::one_way_ring t;
+	topology::ring t;
 	t.push_back(45);
 	t.push_back(46);
 	t.push_back(47);
