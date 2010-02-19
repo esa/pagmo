@@ -32,8 +32,8 @@ namespace pagmo { namespace topology {
 
 /// Custom topology.
 /**
- * This topology allows the user to manually build a topology by inserting nodes and creating connections between them. The push_back() method
- * will add island indices to the topology leaving them unconnected. The intended use of this topology is, on one hand, to give the user the ability to create
+ * This topology allows the user to manually build a topology by inserting nodes and creating connections between them. The connect() method
+ * will leave new nodes unconnected. The intended use of this topology is, on one hand, to give the user the ability to create
  * quickly a custom topology without having to create another class, recompile, etc. On the other hand, by exposing high-level function to manipulate the
  * topology using directly island indices, this class is meant to be the "base" topology class
  * for the Python bindings.
