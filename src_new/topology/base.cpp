@@ -244,6 +244,17 @@ void base::remove_edge(const v_iterator &it1, const v_iterator &it2)
 	boost::remove_edge(*it1,*it2,m_graph);
 }
 
+/// Remove all edges.
+/**
+ * Remove all connections between vertices.
+ */
+void base::remove_all_edges()
+{
+	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+		boost::clear_vertex(*vertices.first,m_graph);
+	}
+}
+
 /// Return iterator range to vertices.
 /**
  * Return a pair of iterators, the first one to the first vertex of the graph, the second one to the end of the graph.

@@ -22,77 +22,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <boost/numeric/conversion/cast.hpp>
-
+#include "../exceptions.h"
+#include "../rng.h"
 #include "base.h"
-#include "custom.h"
+#include "erdos_renyi.h"
 
 namespace pagmo { namespace topology {
 
-/// Default constructor.
+/// Constructor from probability.
 /**
- * Will call base::base().
- */
-custom::custom():base() {}
-
-/// Check if a pair of island indices are adjacent.
-/**
- * The direction of the edge must be n -> m. Will fail if either n or m is negative, or if either n or m is not in the topology.
+ * Construct an Erdős-Rényi graph topology with given probability parameter. Allowed values for the probability are in the [0,1] range.
+ * Please note that if the probability is null, the topology reduces to an unconnected topology, whereas if the probability is unitary
+ * the topology reduces to a fully_connected topology.
  *
- * @param[in] n first island index.
- * @param[in] m second island index.
- *
- * @return true if the two islands are connected, false otherwise.
+ * @param[in] prob probability parameter for the Erdős-Rényi model.
  */
-bool custom::are_adjacent(int n, int m) const
+erdos_renyi::erdos_renyi(const double &prob):base(),m_prob(prob),m_drng(rng_generator::get<rng_double>())
 {
-	return base::are_adjacent(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
+	if (prob < 0 || prob > 1) {
+		pagmo_throw(value_error,"probability must be in the [0,1] range");
+	}
 }
 
-/// Add an edge.
-/**
- * Add an edge connecting index n to index m. Will fail if either n or m is negative, if either n or m is not in the topology or
- * if n and m are already connected.
- *
- * @param[in] n first index.
- * @param[in] m second index.
- */
-void custom::add_edge(int n, int m)
+/// Clone method.
+base_ptr erdos_renyi::clone() const
 {
-	base::add_edge(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
+	return base_ptr(new erdos_renyi(*this));
 }
 
-/// Remove an edge.
-/**
- * Remove the edge connecting index n to index m. Will fail if either n or m is negative, if either n or m is not in the topology or
- * if n and m are not connected.
- *
- * @param[in] n first index.
- * @param[in] m second index.
- */
-void custom::remove_edge(int n, int m)
+/// Connect method.
+void erdos_renyi::connect(int n)
 {
-	base::remove_edge(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
-}
-
-/// Connect implementation.
-/**
- * This class will not automatically add any connection during push_back operations.
- *
- * @param[in] n index to be connected.
- */
-void custom::connect(int n)
-{
-	(void)n;
-}
-
-/// Remove all edges.
-/**
- * Equivalent to base::remove_all_edges().
- */
-void custom::remove_all_edges()
-{
-	base::remove_all_edges();
+	const v_iterator it_n = get_it(n);
+	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+		// Connect n bidirectionally to the other nodes with probability m_prob. Also, avoid to connect n with itself.
+		if (vertices.first != it_n && m_drng() < m_prob) {
+			add_edge(it_n,vertices.first);
+			add_edge(vertices.first,it_n);
+		}
+	}
 }
 
 }}

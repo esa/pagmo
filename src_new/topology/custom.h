@@ -47,6 +47,7 @@ class __PAGMO_VISIBLE custom: public base
 		void add_edge(int,int);
 		void remove_edge(int,int);
 		bool are_adjacent(int,int) const;
+		void remove_all_edges();
 	protected:
 		void connect(int n);
 };

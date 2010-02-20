@@ -142,6 +142,7 @@ return base_ptr(new derived_topology(*this));
 		bool are_adjacent(const v_iterator &, const v_iterator &) const;
 		void add_edge(const v_iterator &, const v_iterator &);
 		void remove_edge(const v_iterator &, const v_iterator &);
+		void remove_all_edges();
 		std::pair<v_iterator,v_iterator> get_vertices_it() const;
 		/// Establish connections between islands during a push_back() operation.
 		/**

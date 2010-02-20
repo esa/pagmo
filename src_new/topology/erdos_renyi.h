@@ -22,77 +22,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <boost/numeric/conversion/cast.hpp>
+#ifndef PAGMO_TOPOLOGY_ERDOS_RENYI_H
+#define PAGMO_TOPOLOGY_ERDOS_RENYI_H
 
+#include "../config.h"
+#include "../rng.h"
 #include "base.h"
-#include "custom.h"
 
 namespace pagmo { namespace topology {
 
-/// Default constructor.
+/// Erdős-Rényi graph topology.
 /**
- * Will call base::base().
- */
-custom::custom():base() {}
-
-/// Check if a pair of island indices are adjacent.
-/**
- * The direction of the edge must be n -> m. Will fail if either n or m is negative, or if either n or m is not in the topology.
+ * \image html erdos_renyi.png "Erdős-Rényi G(n,p) model with n = 100, p = 0.02."
+ * \image latex erdos_renyi_large.png "Erdős-Rényi G(n,p) model with n = 100, p = 0.02." width=7cm
  *
- * @param[in] n first island index.
- * @param[in] m second island index.
+ * In the Erdős-Rényi \f$ G(n,p) \f$ model, a graph with \f$ n \f$ vertices is constructed by connecting vertices randomly,
+ * so that each possible edge is included with probability \f$ p \f$ (independent from the presence or absence of any other edge
+ * in the graph). The expected number of edges in \f$ G(n,p) \f$ is \f$ {n \choose 2} p \f$.
  *
- * @return true if the two islands are connected, false otherwise.
- */
-bool custom::are_adjacent(int n, int m) const
-{
-	return base::are_adjacent(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
-}
-
-/// Add an edge.
-/**
- * Add an edge connecting index n to index m. Will fail if either n or m is negative, if either n or m is not in the topology or
- * if n and m are already connected.
+ * In this implementation, each time an island is added to the topology each new possible edge to and from the new island
+ * is created with probability \f$ p \f$.
  *
- * @param[in] n first index.
- * @param[in] m second index.
- */
-void custom::add_edge(int n, int m)
-{
-	base::add_edge(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
-}
-
-/// Remove an edge.
-/**
- * Remove the edge connecting index n to index m. Will fail if either n or m is negative, if either n or m is not in the topology or
- * if n and m are not connected.
+ * @see http://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model
  *
- * @param[in] n first index.
- * @param[in] m second index.
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-void custom::remove_edge(int n, int m)
+class __PAGMO_VISIBLE erdos_renyi: public base
 {
-	base::remove_edge(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
-}
-
-/// Connect implementation.
-/**
- * This class will not automatically add any connection during push_back operations.
- *
- * @param[in] n index to be connected.
- */
-void custom::connect(int n)
-{
-	(void)n;
-}
-
-/// Remove all edges.
-/**
- * Equivalent to base::remove_all_edges().
- */
-void custom::remove_all_edges()
-{
-	base::remove_all_edges();
-}
+	public:
+		erdos_renyi(const double &);
+		base_ptr clone() const;
+	protected:
+		void connect(int);
+	private:
+		const double	m_prob;
+		rng_double	m_drng;
+};
 
 }}
+
+#endif

@@ -40,16 +40,16 @@
 #include "src_new/topology/one_way_ring.h"
 #include "src_new/topology/unconnected.h"
 #include "src_new/topology/fully_connected.h"
+#include "src_new/topology/erdos_renyi.h"
 
 using namespace pagmo;
 
 int main()
 {
-	topology::fully_connected t;
-	t.push_back(0);
-	t.push_back(1);
-	t.push_back(2);
-	t.push_back(3);
+	topology::erdos_renyi t(.02);
+	for (int i = 0; i < 100; ++i) {
+		t.push_back(i);
+	}
 	//t.push_back(4);
 	//t.push_back(5);
 	//t.push_back(6);

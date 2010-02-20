@@ -12,6 +12,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/erdos_renyi.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/fully_connected.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/one_way_ring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/ring.cpp
