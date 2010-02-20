@@ -46,7 +46,7 @@ using namespace pagmo;
 
 int main()
 {
-	topology::erdos_renyi t(.02);
+	topology::erdos_renyi t;
 	for (int i = 0; i < 100; ++i) {
 		t.push_back(i);
 	}

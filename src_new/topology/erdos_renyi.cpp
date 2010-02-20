@@ -32,7 +32,7 @@ namespace pagmo { namespace topology {
 /// Constructor from probability.
 /**
  * Construct an Erdős-Rényi graph topology with given probability parameter. Allowed values for the probability are in the [0,1] range.
- * Please note that if the probability is null, the topology reduces to an unconnected topology, whereas if the probability is unitary
+ * Note that if the probability is null, the topology reduces to an unconnected topology, whereas if the probability is unitary
  * the topology reduces to a fully_connected topology.
  *
  * @param[in] prob probability parameter for the Erdős-Rényi model.

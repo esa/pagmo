@@ -40,7 +40,7 @@ namespace pagmo { namespace topology {
  * so that each possible edge is included with probability \f$ p \f$ (independent from the presence or absence of any other edge
  * in the graph). The expected number of edges in \f$ G(n,p) \f$ is \f$ {n \choose 2} p \f$.
  *
- * In this implementation, each time an island is added to the topology each new possible edge to and from the new island
+ * In this implementation, each time an island is added to the topology each new possible double edge to and from the new island
  * is created with probability \f$ p \f$.
  *
  * @see http://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model
@@ -50,7 +50,7 @@ namespace pagmo { namespace topology {
 class __PAGMO_VISIBLE erdos_renyi: public base
 {
 	public:
-		erdos_renyi(const double &);
+		erdos_renyi(const double &prob = 0.01);
 		base_ptr clone() const;
 	protected:
 		void connect(int);
