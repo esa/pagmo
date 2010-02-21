@@ -150,8 +150,8 @@ void barabasi_albert::connect(int n)
 std::string barabasi_albert::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "m0:\t" << m_m0 << '\n';
-	oss << "m:\t" << m_m << '\n';
+	oss << "\tm0 = " << m_m0 << '\n';
+	oss << "\tm = " << m_m << '\n';
 	return oss.str();
 }
 

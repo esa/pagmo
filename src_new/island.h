@@ -65,6 +65,8 @@ class __PAGMO_VISIBLE island
 		// Lock type alias.
 		typedef boost::lock_guard<boost::mutex> lock_type;
 	public:
+		/// The archipelago class needs access to the internals of the island.
+		friend class __PAGMO_VISIBLE archipelago;
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0);
 		island &operator=(const island &);

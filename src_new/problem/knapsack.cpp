@@ -23,6 +23,8 @@
  *****************************************************************************/
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <sstream>
+#include <string>
 #include <typeinfo>
 #include <vector>
 
@@ -89,12 +91,26 @@ void knapsack::compute_constraints_impl(constraint_vector &c, const decision_vec
 
 /// Additional requirements for equality.
 /**
- * Return true if items values and weights are the same.
+ * @return true if max weight and items values and weights are the same.
  */
 bool knapsack::equality_operator_extra(const base &other) const
 {
 	pagmo_assert(typeid(*this) == typeid(other));
-	return (m_values == dynamic_cast<knapsack const &>(other).m_values && m_weights == dynamic_cast<knapsack const &>(other).m_weights);
+	return (m_max_weight == dynamic_cast<knapsack const &>(other).m_max_weight &&
+		m_values == dynamic_cast<knapsack const &>(other).m_values && m_weights == dynamic_cast<knapsack const &>(other).m_weights);
+}
+
+/// Extra human readable info for the problem.
+/**
+ * Will return a formatted string containing the values vector, the weights vectors and the max weight.
+ */
+std::string knapsack::human_readable_extra() const
+{
+	std::ostringstream oss;
+	oss << "\tValues: " << m_values << '\n';
+	oss << "\tWeights: " << m_weights << '\n';
+	oss << "\tMax weight: " << m_max_weight << '\n';
+	return oss.str();
 }
 
 // Verify that sane values have been input during construction.

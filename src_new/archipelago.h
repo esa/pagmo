@@ -27,10 +27,13 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/barrier.hpp>
+#include <iostream>
+#include <string>
 #include <vector>
 
 #include "config.h"
 #include "island.h"
+#include "topology/base.h"
 
 namespace pagmo {
 
@@ -42,23 +45,33 @@ class __PAGMO_VISIBLE archipelago
 {
 		// Internal container of islands.
 		typedef std::vector<island> container_type;
+		// Archipelago size type.
+		typedef container_type::size_type size_type;
 		// Iterators.
 		typedef container_type::iterator iterator;
 		typedef container_type::const_iterator const_iterator;
 	public:
 		archipelago();
+		archipelago(const topology::base &);
 		archipelago(const archipelago &);
 		archipelago &operator=(const archipelago &);
 		~archipelago();
 		void join() const;
+		void push_back(const island &);
+		std::string human_readable() const;
 	private:
 		void reset_barrier();
+		void check_island(const island &) const;
 	private:
 		// Container of islands.
 		container_type				m_container;
 		// A barrier used to synchronise the start time of all islands.
 		boost::scoped_ptr<boost::barrier>	m_island_sync_point;
+		// Topology.
+		topology::base_ptr			m_topology;
 };
+
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);
 
 }
 

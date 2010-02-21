@@ -30,6 +30,7 @@
 #include "src_new/algorithm/ihs.h"
 #include "src_new/algorithm/monte_carlo.h"
 #include "src_new/algorithm/null.h"
+#include "src_new/archipelago.h"
 #include "src_new/island.h"
 #include "src_new/problem/golomb_ruler.h"
 #include "src_new/problem/himmelblau.h"
@@ -54,8 +55,8 @@ int main()
 	//t.push_back(4);
 	//t.push_back(5);
 	//t.push_back(6);
-	std::cout << t << '\n';
-	return 0;
+	//std::cout << t << '\n';
+	//return 0;
 
 	double lb1[] = {-1,-1};
 	double ub1[] = {-1,-1};
@@ -121,13 +122,19 @@ int main()
 //  	population pop(problem::knapsack(values,weights,30),10);
 // 	population pop(problem::paraboloid(lb2,ub2),10);
 //	population pop(problem::golomb_ruler(13,169),10);
-	island isl(problem::himmelblau(),algorithm::ihs(1000),10);
+
+
+	archipelago archi = archipelago(topology::barabasi_albert());
+	archi.push_back(island(problem::knapsack(values,weights,30),algorithm::ihs(1000),10));
+	archi.push_back(island(problem::knapsack(values,weights,30),algorithm::ihs(1000),10));
+
+	std::cout << archi;
 
 	//algorithm::ihs algo(1000000);
 
-	isl.evolve_t(1000 * 10);
+	//isl.evolve_t(1000 * 10);
 	
-	std::cout << isl;
+	//std::cout << isl;
 
 	//std::cout << pop << '\n';
 

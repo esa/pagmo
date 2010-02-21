@@ -75,7 +75,7 @@ void erdos_renyi::connect(int n)
 std::string erdos_renyi::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "p:\t" << m_prob << '\n';
+	oss << "\tp: " << m_prob << '\n';
 	return oss.str();
 }
 

@@ -78,7 +78,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * - the bounds of the integer part of the problem are integer and they are in the allowed range.
  *
  * If the first condition is not met, an error will be raised. If the second condition is not met, the bounds will be set to the extremes
- * of the allowed range and rounded to the nearest integer as necessary.
+ * of the allowed range and rounded to the nearest integer as necessary. After that, an error will be generated in order to alert the user.
  *
  * All problems implemented in PaGMO must derive from this base class and implement the following pure virtual methods:
  * - the clone() method, i.e., the polymorphic copy constructor,
@@ -87,6 +87,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * Additionally, the following virtual protected methods can be reimplemented in derived classes:
  * - human_readable_extra(), for providing extra output when printing the problem to stream,
  * - equality_operator_extra(), for providing additional criterions when testing for equality between two problems,
+ * - is_compatible_extra(), for providing additional criterions when testing for compatibility between two problems,
  * - compare_fitness_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
  *   than the second one, false otherwise),
  * - compute_constraints_impl(), to calculate the constraint vector associated to a decision vector,
@@ -368,7 +369,7 @@ return base_ptr(new derived_problem(*this));
 		std::string human_readable() const;
 		bool operator==(const base &) const;
 		bool operator!=(const base &) const;
-		// Constraints functions.
+		bool is_compatible(const base &) const;
 		bool compare_x(const decision_vector &, const decision_vector &) const;
 		bool verify_x(const decision_vector &) const;
 		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
@@ -377,6 +378,7 @@ return base_ptr(new derived_problem(*this));
 		//virtual void post_evolution(island &) const;
 		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
+		virtual bool is_compatible_extra(const base &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;

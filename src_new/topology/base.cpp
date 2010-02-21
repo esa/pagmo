@@ -80,7 +80,8 @@ base::~base() {}
 /**
  * Will return a formatted string containing:
  * - the name of the topology, in mangled C++ form,
- * - the number of vertices.
+ * - the number of vertices,
+ * - the output of human_readable_extra().
  *
  * @return string containing terse human readable representation of the topology.
  */
@@ -88,8 +89,9 @@ std::string base::human_readable_terse() const
 {
 	std::ostringstream s;
 	s << "Topology type:\t" << typeid(*this).name() << '\n';
-	s << "Number of vertices:\t" << boost::num_vertices(m_graph) << '\n';
-	s << "Number of edges:\t" << boost::num_edges(m_graph) << '\n';
+	s << "\tNumber of vertices:\t" << boost::num_vertices(m_graph) << '\n';
+	s << "\tNumber of edges:\t" << boost::num_edges(m_graph) << '\n';
+	s << human_readable_extra() << '\n';
 	return s.str();
 }
 
@@ -97,7 +99,6 @@ std::string base::human_readable_terse() const
 /**
  * Will return a formatted string containing:
  * - the output of human_readable_terse(),
- * - the output of human_readable_extra(),
  * - the list of vertices and edges in a DOT-like syntax.
  *
  * @return string containing complete human readable representation of the topology.
@@ -106,7 +107,6 @@ std::string base::human_readable() const
 {
 	std::ostringstream s;
 	s << human_readable_terse();
-	s << human_readable_extra() << '\n';
 	s << "Connections:\n\n";
 	std::pair<v_iterator,v_iterator> vertices = boost::vertices(m_graph);
 	std::pair<a_iterator,a_iterator> adj_vertices;

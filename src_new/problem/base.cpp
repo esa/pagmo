@@ -559,6 +559,9 @@ std::string base::human_readable_extra() const
  *
  * If any of the conditions above is false, then the return value will also be false. Otherwise return value will be true.
  *
+ * It is expected that, barring problems implying some form of stochasticity, two equal problems will produce the same fitness and constraint
+ * vectors, given the same decision vector.
+ *
  * @param[in] p problem::base to which this will be compared.
  *
  * @return true if this is equal to p, false otherwise.
@@ -580,6 +583,51 @@ bool base::operator==(const base &p) const
 		return false;
 	}
 	return true;
+}
+
+/// Compatibility operator.
+/**
+ * The concept of compatibility is used within the archipelago class: all the islands must contain mutually-compatible problems. The rationale
+ * behind this method is that migration between islands is allowed only if the problems are compatible. Compatibility differs from equality in the sense
+ * that two problems might describe logically the same problem with different parameters. E.g., the optimisation of a neurocontroller driving a rover
+ * in related but different environments (different gravity, different terrain, etc.). When migration occurs between islands whose problem are not equal
+ * (i.e., identical), the incoming decision vector will be re-evaluated before being compared to the existing population.
+ *
+ * The following conditions will be tested, in order:
+ * - problems are of the same type,
+ * - problems have the same global, integer and constraints dimension,
+ * - return value of is_compatible_extra().
+ *
+ * If any of the conditions above is false, then the return value will also be false. Otherwise return value will be true.
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return true if this is compatible with p, false otherwise.
+ */
+bool base::is_compatible(const base &p) const
+{
+	if (typeid(*this) != typeid(p) || get_dimension() != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension ||
+		m_c_dimension != p.m_c_dimension || m_ic_dimension != p.m_ic_dimension)
+	{
+		return false;
+	}
+	if (!is_compatible_extra(p)) {
+		return false;
+	}
+	return true;
+}
+
+/// Extra requirements for compatibility.
+/**
+ * Default implementation will return the output of equality_operator_extra().
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return the output of equality_operator_extra().
+ */
+bool base::is_compatible_extra(const base &p) const
+{
+	return equality_operator_extra(p);
 }
 
 /// Compare decision vectors.
@@ -949,23 +997,38 @@ bool base::verify_x(const decision_vector &x) const
 void base::normalise_bounds()
 {
 	pagmo_assert(m_lb.size() >= m_i_dimension);
+	// Flag to be set if we had to fix the bounds.
+	bool bounds_fixed = false;
 	for (size_type i = m_lb.size() - m_i_dimension; i < m_lb.size(); ++i) {
 		// First let's make sure that integer bounds are in the allowed range.
 		if (m_lb[i] < INT_MIN) {
 			m_lb[i] = INT_MIN;
+			bounds_fixed = true;
 		}
 		if (m_lb[i] > INT_MAX) {
 			m_lb[i] = INT_MAX;
+			bounds_fixed = true;
 		}
 		if (m_ub[i] < INT_MIN) {
 			m_ub[i] = INT_MIN;
+			bounds_fixed = true;
 		}
 		if (m_ub[i] > INT_MAX) {
 			m_ub[i] = INT_MAX;
+			bounds_fixed = true;
 		}
-		// Then convert them to the nearest integer.
-		m_lb[i] = double_to_int::convert(m_lb[i]);
-		m_ub[i] = double_to_int::convert(m_ub[i]);
+		// Then convert them to the nearest integer if necessary.
+		if (m_lb[i] != double_to_int::convert(m_lb[i])) {
+			m_lb[i] = double_to_int::convert(m_lb[i]);
+			bounds_fixed = true;
+		}
+		if (m_ub[i] != double_to_int::convert(m_ub[i])) {
+			m_ub[i] = double_to_int::convert(m_ub[i]);
+			bounds_fixed = true;
+		}
+	}
+	if (bounds_fixed) {
+		pagmo_throw(value_error,"the integer bounds were either over/under-flowing or they were not integer, and they had to be adjusted");
 	}
 }
 
