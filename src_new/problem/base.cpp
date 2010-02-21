@@ -579,15 +579,12 @@ bool base::operator==(const base &p) const
 			return false;
 		}
 	}
-	if (!equality_operator_extra(p)) {
-		return false;
-	}
-	return true;
+	return equality_operator_extra(p);
 }
 
 /// Compatibility operator.
 /**
- * The concept of compatibility is used within the archipelago class: all the islands must contain mutually-compatible problems. The rationale
+ * The concept of compatibility is used within the archipelago class: all islands must contain mutually-compatible problems. The rationale
  * behind this method is that migration between islands is allowed only if the problems are compatible. Compatibility differs from equality in the sense
  * that two problems might describe logically the same problem with different parameters. E.g., the optimisation of a neurocontroller driving a rover
  * in related but different environments (different gravity, different terrain, etc.). When migration occurs between islands whose problem are not equal
@@ -611,10 +608,7 @@ bool base::is_compatible(const base &p) const
 	{
 		return false;
 	}
-	if (!is_compatible_extra(p)) {
-		return false;
-	}
-	return true;
+	return is_compatible_extra(p);
 }
 
 /// Extra requirements for compatibility.

@@ -44,7 +44,7 @@ archipelago::archipelago():m_island_sync_point(),m_topology(new topology::unconn
 
 /// Constructor from topology.
 /**
- * Will construct an empty archipelago with provided topology.
+ * Will construct an empty archipelago with provided topology (which will be deep-copied internally).
  */
 archipelago::archipelago(const topology::base &t):m_island_sync_point(),m_topology(t.clone()) {}
 
@@ -126,8 +126,8 @@ std::string archipelago::human_readable() const
 	oss << "Number of islands:\t" << m_container.size() << "\n\n";
 	oss << m_topology->human_readable_terse() << '\n';
 	for (size_type i = 0; i < m_container.size(); ++i) {
-		oss << "Island index: #" << i << '\n';
-		oss << m_container[i].human_readable_terse();
+		oss << "Island index: #" << i << "\n\n";
+		oss << m_container[i].human_readable_terse() << '\n';
 	}
 	return oss.str();
 }

@@ -125,7 +125,7 @@ int main()
 
 
 	archipelago archi = archipelago(topology::barabasi_albert());
-	archi.push_back(island(problem::knapsack(values,weights,30),algorithm::ihs(1000),10));
+	archi.push_back(island(problem::knapsack(values,weights,31),algorithm::ihs(1000),10));
 	archi.push_back(island(problem::knapsack(values,weights,30),algorithm::ihs(1000),10));
 
 	std::cout << archi;
