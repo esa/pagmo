@@ -10,6 +10,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/paraboloid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/erdos_renyi.cpp

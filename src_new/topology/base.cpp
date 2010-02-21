@@ -212,6 +212,19 @@ bool base::are_adjacent(const v_iterator &it1, const v_iterator &it2) const
 	}
 }
 
+/// Return iterator range to adjcent vertices.
+/**
+ * Adjacent vertices are those connected from the interested vertex.
+ *
+ * @param[in] v_it iterator to the interested vertex.
+ *
+ * @return iterator range over the adjacent vertices.
+ */
+std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const v_iterator &v_it) const
+{
+	return boost::adjacent_vertices(*v_it,m_graph);
+}
+
 /// Add an edge.
 /**
  * Add an edge connecting *it1 to *it2. Will fail if are_adjacent() returns true.
@@ -288,6 +301,15 @@ std::vector<int> base::get_vertices() const
 base::vertices_size_type base::get_number_of_vertices() const
 {
 	return boost::num_vertices(m_graph);
+}
+
+/// Get number of edges.
+/**
+ * @return total number of edges in the graph.
+ */
+base::edges_size_type base::get_number_of_edges() const
+{
+	return boost::num_edges(m_graph);
 }
 
 /// Push back island index.

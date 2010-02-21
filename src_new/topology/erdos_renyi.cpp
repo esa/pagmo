@@ -22,6 +22,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <sstream>
+#include <string>
+
 #include "../exceptions.h"
 #include "../rng.h"
 #include "base.h"
@@ -61,6 +64,19 @@ void erdos_renyi::connect(int n)
 			add_edge(vertices.first,it_n);
 		}
 	}
+}
+
+/// Topology-specific human readable info.
+/**
+ * Will return a formatted string containing the probability of existance of an edge.
+ *
+ * @return string containing the probability parameter of the ER model.
+ */
+std::string erdos_renyi::human_readable_extra() const
+{
+	std::ostringstream oss;
+	oss << "p:\t" << m_prob << '\n';
+	return oss.str();
 }
 
 }}

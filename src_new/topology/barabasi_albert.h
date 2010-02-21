@@ -22,9 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGY_ERDOS_RENYI_H
-#define PAGMO_TOPOLOGY_ERDOS_RENYI_H
+#ifndef PAGMO_TOPOLOGY_BARABASI_ALBERT_H
+#define PAGMO_TOPOLOGY_BARABASI_ALBERT_H
 
+#include <cstddef>
 #include <string>
 
 #include "../config.h"
@@ -33,33 +34,41 @@
 
 namespace pagmo { namespace topology {
 
-/// Erdős-Rényi graph topology.
+/// Barabási-Albert graph topology.
 /**
- * \image html erdos_renyi.png "Erdős-Rényi G(n,p) model with n = 100, p = 0.02."
- * \image latex erdos_renyi_large.png "Erdős-Rényi G(n,p) model with n = 100, p = 0.02." width=7cm
+ * \image html ba.png "Barabási-Albert network with m0 = 3, m = 2 and 100 vertices."
+ * \image latex ba_large.png "Barabási-Albert network with m0 = 3, m = 2 and 100 vertices." width=7cm
  *
- * In the Erdős-Rényi \f$ G(n,p) \f$ model (ER), a graph with \f$ n \f$ vertices is constructed by connecting vertices randomly,
- * so that each possible edge is included with probability \f$ p \f$ (independent from the presence or absence of any other edge
- * in the graph). The expected number of edges in \f$ G(n,p) \f$ is \f$ {n \choose 2} p \f$.
+ * Topology based on the Barabási-Albert (BA) model for the generation of random undirected scale-free networks. The construction of this topology consists internally of
+ * two phases:
+ * - the first m0 elements added to the network constitute a kernel of nodes connected to each other with high probability;
+ * - after the kernel is built, the next elements added to the network are connected randomly to m of the existing nodes; the probability
+ *   of connection is biased linearly towards the most connected nodes.
  *
- * In this implementation, each time an island is added to the topology each new possible bidirectional edge to and from the new island
- * is created with probability \f$ p \f$.
- *
- * @see http://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model
+ * This topology grows automatically (i.e., without the need to establish manually the connections upon island insertion).
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
+ *
+ * @see http://en.wikipedia.org/wiki/BA_model
  */
-class __PAGMO_VISIBLE erdos_renyi: public base
+class __PAGMO_VISIBLE barabasi_albert: public base
 {
 	public:
-		erdos_renyi(const double &prob = 0.01);
+		barabasi_albert(int m0 = 3, int m = 2);
 		base_ptr clone() const;
 	protected:
 		void connect(int);
 		std::string human_readable_extra() const;
 	private:
-		const double	m_prob;
-		rng_double	m_drng;
+		// Size of the kernel - the starting number of nodes.
+		const std::size_t	m_m0;
+		// Number of edges per newly-inserted node.
+		const std::size_t	m_m;
+		// Double random number generator
+		rng_double		m_drng;
+		// Integer random number generator.
+		rng_uint32		m_urng;
 };
 
 }}

@@ -41,12 +41,13 @@
 #include "src_new/topology/unconnected.h"
 #include "src_new/topology/fully_connected.h"
 #include "src_new/topology/erdos_renyi.h"
+#include "src_new/topology/barabasi_albert.h"
 
 using namespace pagmo;
 
 int main()
 {
-	topology::erdos_renyi t;
+	topology::barabasi_albert t;
 	for (int i = 0; i < 100; ++i) {
 		t.push_back(i);
 	}

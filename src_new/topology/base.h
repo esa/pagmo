@@ -97,6 +97,8 @@ class __PAGMO_VISIBLE base
 		typedef boost::graph_traits<graph_type>::vertex_descriptor v_descriptor;
 		/// Vertices size type.
 		typedef graph_type::vertices_size_type vertices_size_type;
+		/// Edges size type.
+		typedef graph_type::edges_size_type edges_size_type;
 	private:
 		// Helper functor to find an island idx inside the graph.
 		struct idx_finder
@@ -130,6 +132,7 @@ return base_ptr(new derived_topology(*this));
 		/** @name High-level graph access and manipulation methods. */
 		//@{
 		vertices_size_type get_number_of_vertices() const;
+		edges_size_type get_number_of_edges() const;
 		bool contains_vertex(int) const;
 		void push_back(int n);
 		std::vector<int> get_vertices() const;
@@ -140,6 +143,7 @@ return base_ptr(new derived_topology(*this));
 		v_iterator get_it(int) const;
 		void add_vertex(int);
 		bool are_adjacent(const v_iterator &, const v_iterator &) const;
+		std::pair<a_iterator,a_iterator> get_adjacent_vertices(const v_iterator &) const;
 		void add_edge(const v_iterator &, const v_iterator &);
 		void remove_edge(const v_iterator &, const v_iterator &);
 		void remove_all_edges();
@@ -153,7 +157,6 @@ return base_ptr(new derived_topology(*this));
 		 */
 		virtual void connect(int n) = 0;
 		//@}
-	protected:
 		virtual std::string human_readable_extra() const;
 	private:
 		graph_type m_graph;
