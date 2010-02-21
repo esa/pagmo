@@ -33,7 +33,10 @@
 
 #include "config.h"
 #include "island.h"
+#include "algorithm/base.h"
+#include "problem/base.h"
 #include "topology/base.h"
+#include "topology/unconnected.h"
 
 namespace pagmo {
 
@@ -43,25 +46,30 @@ namespace pagmo {
  */
 class __PAGMO_VISIBLE archipelago
 {
-		// Internal container of islands.
+	public:
+		/// Internal container of islands.
 		typedef std::vector<island> container_type;
-		// Archipelago size type.
+		/// Archipelago size type.
 		typedef container_type::size_type size_type;
+	private:
 		// Iterators.
 		typedef container_type::iterator iterator;
 		typedef container_type::const_iterator const_iterator;
 	public:
 		archipelago();
 		archipelago(const topology::base &);
+		archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t = topology::unconnected());
 		archipelago(const archipelago &);
 		archipelago &operator=(const archipelago &);
 		~archipelago();
 		void join() const;
 		void push_back(const island &);
+		size_type get_size() const;
 		std::string human_readable() const;
+		bool check_island(const island &) const;
+		topology::base_ptr get_topology() const;
 	private:
 		void reset_barrier();
-		void check_island(const island &) const;
 	private:
 		// Container of islands.
 		container_type				m_container;

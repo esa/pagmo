@@ -31,6 +31,8 @@
 #include "archipelago.h"
 #include "exceptions.h"
 #include "island.h"
+#include "algorithm/base.h"
+#include "problem/base.h"
 #include "topology/base.h"
 #include "topology/unconnected.h"
 
@@ -45,8 +47,18 @@ archipelago::archipelago():m_island_sync_point(),m_topology(new topology::unconn
 /// Constructor from topology.
 /**
  * Will construct an empty archipelago with provided topology (which will be deep-copied internally).
+ *
+ * @param[in] t topology that will be associated to the archipelago.
  */
 archipelago::archipelago(const topology::base &t):m_island_sync_point(),m_topology(t.clone()) {}
+
+archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t):
+	m_island_sync_point(),m_topology(t.clone())
+{
+	for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
+		push_back(island(p,a,m));
+	}
+}
 
 /// Copy constructor.
 /**
@@ -103,11 +115,21 @@ void archipelago::join() const
 	}
 }
 
+/// Add an island to the archipelago.
+/**
+ * Both the island and the archipelago will be synchronised before any operation takes place. The island will then
+ * be appended to the archipelago and connected to the existing islands via topology::base::push_back().
+ *
+ * Will fail if check_island() returns false on isl.
+ *
+ * @param[in] isl island to be added to the archipelago.
+ */
 void archipelago::push_back(const island &isl)
 {
-	join();
-	isl.join();
-	check_island(isl);
+	// NOTE: the joins are already done in check_island().
+	if (!check_island(isl)) {
+		pagmo_throw(value_error,"cannot push_back() incompatible island");
+	}
 	m_container.push_back(isl);
 	// Tell the island that it is living in an archipelago now.
 	m_container.back().m_archi = this;
@@ -117,6 +139,25 @@ void archipelago::push_back(const island &isl)
 	reset_barrier();
 }
 
+/// Get the size of the archipelago.
+/**
+ * @return the number of islands contained in the archipelago.
+ */
+archipelago::size_type archipelago::get_size() const
+{
+	join();
+	return m_container.size();
+}
+
+/// Return human readable representation of the archipelago.
+/**
+ * Will return a formatted string containing:
+ * - the number of islands,
+ * - the output of topology::base::human_readable_terse() for the topology,
+ * - the output of island::human_readable_terse() for each island.
+ *
+ * @return formatted string containing the human readable representation of the archipelago.
+ */
 std::string archipelago::human_readable() const
 {
 	join();
@@ -132,17 +173,39 @@ std::string archipelago::human_readable() const
 	return oss.str();
 }
 
-// Check an island for insertion in the archipelago. Throw if the island is not compatible.
-// Do NOT use is the archipelago has not been joined!
-void archipelago::check_island(const island &isl) const
+/// Return a copy of the topology.
+/**
+ * @return a topology::base_ptr to a clone of the internal topology.
+ */
+topology::base_ptr archipelago::get_topology() const
 {
+	join();
+	return m_topology->clone();
+}
+
+/// Check whether an island is compatible with the archipelago.
+/**
+ * Will return true if any of these conditions holds:
+ * - archipelago is empty,
+ * - the problem of the incoming island is compatible with the problems of the islands already
+ *   present in the archipelago (via problem::base::is_compatible()).
+ *
+ * Otherwise, false will be returned.
+ *
+ * @param[in] isl island which will be checked.
+ *
+ * @return true if isl is compatible with the archipelago, false otherwise.
+ */
+bool archipelago::check_island(const island &isl) const
+{
+	join();
+	isl.join();
 	// We need to perform checks only if there are other islands in the archipelago.
 	// Otherwise, any island will be allowed in.
-	if (m_container.size()) {
-		if (!isl.m_pop.problem().is_compatible(m_container[0].m_pop.problem())) {
-			pagmo_throw(value_error,"cannot push_back() incompatible island");
-		}
+	if (m_container.size() && (!isl.m_pop.problem().is_compatible(m_container[0].m_pop.problem()))) {
+		return false;
 	}
+	return true;
 }
 
 // Reset island synchronisation barrier. This method is intended as a shortcut,
@@ -156,6 +219,15 @@ void archipelago::reset_barrier()
 	}
 }
 
+/// Overload stream operator for pagmo::archipelago.
+/**
+ * Equivalent to printing archipelago::human_readable() to stream.
+ *
+ * @param[in] s stream to which the archipelago will be sent.
+ * @param[in] a archipelago to be sent to stream.
+ *
+ * @return reference to s.
+ */
 std::ostream &operator<<(std::ostream &s, const archipelago &a)
 {
 	s << a.human_readable();

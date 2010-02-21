@@ -124,11 +124,9 @@ int main()
 //	population pop(problem::golomb_ruler(13,169),10);
 
 
-	archipelago archi = archipelago(topology::barabasi_albert());
-	archi.push_back(island(problem::knapsack(values,weights,31),algorithm::ihs(1000),10));
-	archi.push_back(island(problem::knapsack(values,weights,30),algorithm::ihs(1000),10));
+	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),10000,10/*,topology::barabasi_albert()*/);
 
-	std::cout << archi;
+	//std::cout << archi;
 
 	//algorithm::ihs algo(1000000);
 
