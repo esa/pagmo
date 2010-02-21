@@ -445,7 +445,7 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 		// Compute the corresponding iterator in the fitness vector cache.
 		f_iterator f_it = m_fitness_vector_cache.begin();
 		std::advance(f_it,std::distance(m_decision_vector_cache_f.begin(),x_it));
-		pagmo_assert(f_it != m_decision_vector_cache_f.end());
+		pagmo_assert(f_it != m_fitness_vector_cache.end());
 		// Assign to the fitness vector the value in the cache.
 		f = *f_it;
 		// Move the content of the current positions to the front of the buffers, and shift everything else down
@@ -775,7 +775,7 @@ void base::compute_constraints(constraint_vector &c, const decision_vector &x) c
 		// Compute the corresponding iterator in the constraint vector cache.
 		c_iterator c_it = m_constraint_vector_cache.begin();
 		std::advance(c_it,std::distance(m_decision_vector_cache_c.begin(),x_it));
-		pagmo_assert(c_it != m_decision_vector_cache_c.end());
+		pagmo_assert(c_it != m_constraint_vector_cache.end());
 		// Assign to the fitness vector the value in the cache.
 		c = *c_it;
 		// Move the content of the current positions to the front of the buffers, and shift everything else down
