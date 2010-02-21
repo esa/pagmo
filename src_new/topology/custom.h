@@ -44,10 +44,17 @@ class __PAGMO_VISIBLE custom: public base
 {
 	public:
 		custom();
+		custom(const base &);
+		/** @name High-level graph manipulation for custom topologies. */
+		//@{
 		void add_edge(int,int);
 		void remove_edge(int,int);
 		bool are_adjacent(int,int) const;
 		void remove_all_edges();
+		void add_vertex(int);
+		void remove_vertex(int);
+		//@}
+		base_ptr clone() const;
 	protected:
 		void connect(int n);
 };

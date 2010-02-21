@@ -22,11 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/thread/barrier.hpp>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "archipelago.h"
 #include "exceptions.h"
@@ -52,6 +54,17 @@ archipelago::archipelago():m_island_sync_point(),m_topology(new topology::unconn
  */
 archipelago::archipelago(const topology::base &t):m_island_sync_point(),m_topology(t.clone()) {}
 
+/// Constructor from problem, algorithm, archipelago size, island sizes and topology.
+/**
+ * Constructs n islands of m individuals each, with assigned problem p and algorithm a, and inserts them with push_back() into the archipelago,
+ * whose topology is set to t.
+ *
+ * @param[in] p problem which will be assigned to all islands.
+ * @param[in] a algorithm which will be assigned to all islands.
+ * @param[in] n number of islands.
+ * @param[in] m number of individuals on each island.
+ * @param[in] t topology.
+ */
 archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t):
 	m_island_sync_point(),m_topology(t.clone())
 {
@@ -181,6 +194,35 @@ topology::base_ptr archipelago::get_topology() const
 {
 	join();
 	return m_topology->clone();
+}
+
+/// Set topology.
+/**
+ * A valid topology must contain all and only the island indices of the current archipelago. I.e., if the size of
+ * the archipelago is n, then the vertices list of the topology being set must contain all and only the integers between 0 and n-1.
+ *
+ * If this condition is satisfied, then the incoming topology will become the new archipelago topology. Otherwise, a value_error exception
+ * will be raised.
+ *
+ * @param[in] t new topology for the archipelago.
+ */
+void archipelago::set_topology(const topology::base &t)
+{
+	join();
+	if (m_container.size() != boost::numeric_cast<size_type>(t.get_number_of_vertices())) {
+		pagmo_throw(value_error,"invalid topology, wrong number of vertices");
+	}
+	// Get the list of vertices and order it in ascending order.
+	std::vector<int> vertices_list(t.get_vertices());
+	std::sort(vertices_list.begin(),vertices_list.end());
+	// t is a valid topology only if all and only island indices are represented in the vertices list.
+	for (std::vector<int>::size_type i = 0; i < vertices_list.size(); ++i) {
+		if (i != boost::numeric_cast<std::vector<int>::size_type>(vertices_list[i])) {
+			pagmo_throw(value_error,"invalid topology, missing island index");
+		}
+	}
+	// The topology is ok, assign it.
+	m_topology = t.clone();
 }
 
 /// Check whether an island is compatible with the archipelago.

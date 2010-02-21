@@ -142,6 +142,7 @@ return base_ptr(new derived_topology(*this));
 		//@{
 		v_iterator get_it(int) const;
 		void add_vertex(int);
+		void remove_vertex(const v_iterator &);
 		bool are_adjacent(const v_iterator &, const v_iterator &) const;
 		std::pair<a_iterator,a_iterator> get_adjacent_vertices(const v_iterator &) const;
 		void add_edge(const v_iterator &, const v_iterator &);

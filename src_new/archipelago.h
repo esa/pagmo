@@ -68,6 +68,7 @@ class __PAGMO_VISIBLE archipelago
 		std::string human_readable() const;
 		bool check_island(const island &) const;
 		topology::base_ptr get_topology() const;
+		void set_topology(const topology::base &);
 	private:
 		void reset_barrier();
 	private:

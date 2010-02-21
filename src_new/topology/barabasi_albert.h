@@ -45,8 +45,6 @@ namespace pagmo { namespace topology {
  * - after the kernel is built, the next elements added to the network are connected randomly to m of the existing nodes; the probability
  *   of connection is biased linearly towards the most connected nodes.
  *
- * This topology grows automatically (i.e., without the need to establish manually the connections upon island insertion).
- *
  * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Marek Ruciński (marek.rucinski@gmail.com)
  *

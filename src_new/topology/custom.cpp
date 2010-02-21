@@ -35,6 +35,15 @@ namespace pagmo { namespace topology {
  */
 custom::custom():base() {}
 
+/// Constructor from other topology.
+/**
+ * This constructor will copy the internal representation of any other topology (but of course not its push_back() logic).
+ * Useful to take the snapshot of an existing topology and modify it manually for prototyping/experiments.
+ *
+ * @param[in] t topology to be copied.
+ */
+custom::custom(const base &t):base(t) {}
+
 /// Check if a pair of island indices are adjacent.
 /**
  * The direction of the edge must be n -> m. Will fail if either n or m is negative, or if either n or m is not in the topology.
@@ -93,6 +102,35 @@ void custom::connect(int n)
 void custom::remove_all_edges()
 {
 	base::remove_all_edges();
+}
+
+/// Add vertex.
+/**
+ * Equivalent to base::add_vertex() (and push_back()).
+ *
+ * @param[in] n index to be added to the topology.
+ */
+void custom::add_vertex(int n)
+{
+	base::add_vertex(n);
+}
+
+/// Remove vertex.
+/**
+ * Equivalent to base::remove_vertex(). Will fail if n is negative or
+ * if n is not present inside the topology.
+ *
+ * @param[in] n index to be removed from the topology.
+ */
+void custom::remove_vertex(int n)
+{
+	base::remove_vertex(get_it(n));
+}
+
+/// Clone method.
+base_ptr custom::clone() const
+{
+	return base_ptr(new custom(*this));
 }
 
 }}

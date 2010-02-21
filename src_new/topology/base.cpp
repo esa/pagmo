@@ -192,6 +192,17 @@ void base::add_vertex(int n)
 	boost::add_vertex(island_property(boost::numeric_cast<idx_type>(n)),m_graph);
 }
 
+/// Remove a vertex.
+/**
+ * Remove vertex to which iterator points.
+ *
+ * @param[in] v_it iterator to the vertex to be removed.
+ */
+void base::remove_vertex(const v_iterator &v_it)
+{
+	boost::remove_vertex(*v_it,m_graph);
+}
+
 /// Return true if two vertices are adjacent.
 /**
  * The direction must be from *it1 to *it2.
