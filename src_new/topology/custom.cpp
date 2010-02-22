@@ -123,9 +123,9 @@ void custom::add_vertex(int n)
  *
  * @return number of adjacent vertices.
  */
-custom::edges_size_type custom::num_adjacent_vertices(int n) const
+custom::edges_size_type custom::get_num_adjacent_vertices(int n) const
 {
-	return base::num_adjacent_vertices(get_it(n));
+	return base::get_num_adjacent_vertices(get_it(n));
 }
 
 /// Remove vertex.

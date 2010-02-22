@@ -53,7 +53,7 @@ class __PAGMO_VISIBLE custom: public base
 		void remove_all_edges();
 		void add_vertex(int);
 		void remove_vertex(int);
-		edges_size_type num_adjacent_vertices(int) const;
+		edges_size_type get_num_adjacent_vertices(int) const;
 		//@}
 		base_ptr clone() const;
 	protected:

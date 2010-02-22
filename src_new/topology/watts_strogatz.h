@@ -44,6 +44,10 @@ namespace pagmo { namespace topology {
  * In this implementation the graph grows dynamically by rewiring all the connections each time an island is added. Note that up to the the first K + 1
  * insertions, the topology will be fully connected. Afterwards, the topology will be a proper Watts-Strogatz model.
  *
+ * Since the addition of a single element to the topology implies the rewiring of the whole topology, for archipelago objects of large size it is advisable
+ * to build the topology outside the archipelago specifying the number of islands it will contain, and use archipelago::set_topology() to apply it to an existing
+ * (and possibly unconnected) archipelago.
+ *
  * @see http://en.wikipedia.org/wiki/Watts_and_Strogatz_model
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
@@ -51,10 +55,13 @@ namespace pagmo { namespace topology {
 class __PAGMO_VISIBLE watts_strogatz: public base
 {
 	public:
-		watts_strogatz(int,const double &);
+		watts_strogatz(int, const double &);
+		watts_strogatz(int, int, const double &);
 		base_ptr clone() const;
 	protected:
 		void connect(int);
+	private:
+		void rewire();
 	private:
 		const std::size_t	m_k;
 		const double		m_beta;

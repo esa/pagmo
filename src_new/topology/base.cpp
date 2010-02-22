@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/johnson_all_pairs_shortest.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <iostream>
 #include <iterator>
@@ -245,7 +246,7 @@ std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const v
  *
  * @return number of adjacent vertices.
  */
-base::edges_size_type base::num_adjacent_vertices(const v_iterator &v_it) const
+base::edges_size_type base::get_num_adjacent_vertices(const v_iterator &v_it) const
 {
 	const std::pair<base::a_iterator,base::a_iterator> v = get_adjacent_vertices(v_it);
 	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
@@ -263,9 +264,10 @@ void base::add_edge(const v_iterator &it1, const v_iterator &it2)
 	if (are_adjacent(it1,it2)) {
 		pagmo_throw(value_error,"cannot add edge, vertices are already connected");
 	}
-	const bool result = boost::add_edge(*it1,*it2,m_graph).second;
-	(void)result;
-	pagmo_assert(result);
+	const std::pair<e_descriptor,bool> result = boost::add_edge(*it1,*it2,m_graph);
+	pagmo_assert(result.second);
+	boost::property_map<graph_type,boost::edge_weight_t>::type w = boost::get(boost::edge_weight,m_graph);
+	w[result.first] = 1;
 }
 
 /// Remove an edge.
@@ -336,6 +338,36 @@ base::vertices_size_type base::get_number_of_vertices() const
 base::edges_size_type base::get_number_of_edges() const
 {
 	return boost::num_edges(m_graph);
+}
+
+/// Calculate average path length.
+/**
+ * Calculate and return the average path length of the underlying graph representation using Johnson's all pairs shortest paths
+ * algorithm. All edges are given equal weight 1. If a node is unconnected, its distance from any other node will be the highest
+ * value representable by the C++ int type. The average path length is calculated as the mean value of the shortest paths between
+ * all pairs of vertices.
+ *
+ * @see http://en.wikipedia.org/wiki/Johnson's_algorithm
+ * @see http://www.boost.org/doc/libs/release/libs/graph/doc/johnson_all_pairs_shortest.html
+ *
+ * @return the average path length for the topology.
+ */
+double base::get_average_path_length() const
+{
+	// Output matrix.
+	std::vector<std::vector<int> > D(get_number_of_vertices(),std::vector<int>(get_number_of_vertices()));
+	boost::johnson_all_pairs_shortest_paths(m_graph,D);
+	double retval = 0;
+	for (std::vector<int>::size_type i = 0; i < D.size(); ++i) {
+		for (std::vector<int>::size_type j = 0; j < D[i].size(); ++j) {
+			retval += D[i][j];
+		}
+	}
+	if (get_number_of_vertices() < 2) {
+		return 0;
+	} else {
+		return retval / (static_cast<double>(get_number_of_vertices()) * (get_number_of_vertices() - 1));
+	}
 }
 
 /// Push back island index.

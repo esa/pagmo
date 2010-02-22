@@ -86,7 +86,7 @@ class __PAGMO_VISIBLE base
 		 * The graph is a directed and bidirectional adjacency list whose vertices embed an island_property class
 		 * containing the positional index of the island in the archipelago.
 		 */
-		typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::bidirectionalS,island_property> graph_type;
+		typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::bidirectionalS,island_property,boost::property<boost::edge_weight_t,int>,boost::vecS> graph_type;
 		/// Iterator over the vertices.
 		typedef boost::graph_traits<graph_type>::vertex_iterator v_iterator;
 		/// Iterator over adjacent vertices.
@@ -97,6 +97,8 @@ class __PAGMO_VISIBLE base
 		typedef boost::graph_traits<graph_type>::vertex_descriptor v_descriptor;
 		/// Vertices size type.
 		typedef graph_type::vertices_size_type vertices_size_type;
+		/// Edge descriptor.
+		typedef boost::graph_traits<graph_type>::edge_descriptor e_descriptor;
 		/// Edges size type.
 		typedef graph_type::edges_size_type edges_size_type;
 	private:
@@ -136,6 +138,7 @@ return base_ptr(new derived_topology(*this));
 		bool contains_vertex(int) const;
 		void push_back(int n);
 		std::vector<int> get_vertices() const;
+		double get_average_path_length() const;
 		//@}
 	protected:
 		/** @name Low-level graph access and manipulation methods. */
@@ -145,7 +148,7 @@ return base_ptr(new derived_topology(*this));
 		void remove_vertex(const v_iterator &);
 		bool are_adjacent(const v_iterator &, const v_iterator &) const;
 		std::pair<a_iterator,a_iterator> get_adjacent_vertices(const v_iterator &) const;
-		edges_size_type num_adjacent_vertices(const v_iterator &) const;
+		edges_size_type get_num_adjacent_vertices(const v_iterator &) const;
 		void add_edge(const v_iterator &, const v_iterator &);
 		void remove_edge(const v_iterator &, const v_iterator &);
 		void remove_all_edges();

@@ -126,9 +126,10 @@ int main()
 //	population pop(problem::golomb_ruler(13,169),10);
 
 
-	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),12,10,topology::watts_strogatz(10,.05));
+	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),1000,10/*,topology::watts_strogatz(20,1)*/);
+	archi.set_topology(topology::watts_strogatz(1000,20,1));
 	std::cout << "Done\n";
-	std::cout << *archi.get_topology();
+	std::cout << archi.get_topology()->get_average_path_length() << '\n';
 
 
 	//std::cout << archi;
