@@ -106,13 +106,26 @@ void custom::remove_all_edges()
 
 /// Add vertex.
 /**
- * Equivalent to base::add_vertex() (and push_back()).
+ * Equivalent to both base::add_vertex().
  *
  * @param[in] n index to be added to the topology.
  */
 void custom::add_vertex(int n)
 {
 	base::add_vertex(n);
+}
+
+/// Number of adjacent vertices.
+/**
+ * Adjacent vertices are those connected from the interested vertex.
+ *
+ * @param[in] n interested index.
+ *
+ * @return number of adjacent vertices.
+ */
+custom::edges_size_type custom::num_adjacent_vertices(int n) const
+{
+	return base::num_adjacent_vertices(get_it(n));
 }
 
 /// Remove vertex.

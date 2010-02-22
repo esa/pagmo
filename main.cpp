@@ -44,6 +44,7 @@
 #include "src_new/topology/custom.h"
 #include "src_new/topology/erdos_renyi.h"
 #include "src_new/topology/barabasi_albert.h"
+#include "src_new/topology/watts_strogatz.h"
 
 using namespace pagmo;
 
@@ -125,14 +126,10 @@ int main()
 //	population pop(problem::golomb_ruler(13,169),10);
 
 
-	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),10,10/*,topology::barabasi_albert()*/);
+	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),12,10,topology::watts_strogatz(10,.05));
+	std::cout << "Done\n";
 	std::cout << *archi.get_topology();
-	topology::custom c(*archi.get_topology());
-	c.add_edge(0,5);
-	c.add_vertex(11);
-	c.remove_vertex(2);
-	archi.set_topology(c);
-	std::cout << *archi.get_topology();
+
 
 	//std::cout << archi;
 

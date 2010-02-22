@@ -26,6 +26,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <typeinfo>
@@ -234,6 +235,20 @@ bool base::are_adjacent(const v_iterator &it1, const v_iterator &it2) const
 std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const v_iterator &v_it) const
 {
 	return boost::adjacent_vertices(*v_it,m_graph);
+}
+
+/// Return the number of adjacent vertices.
+/**
+ * Adjacent vertices are those connected from the interested vertex.
+ *
+ * @param[in] v_it iterator to the interested vertex.
+ *
+ * @return number of adjacent vertices.
+ */
+base::edges_size_type base::num_adjacent_vertices(const v_iterator &v_it) const
+{
+	const std::pair<base::a_iterator,base::a_iterator> v = get_adjacent_vertices(v_it);
+	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
 }
 
 /// Add an edge.

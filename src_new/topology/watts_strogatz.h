@@ -22,44 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGY_CUSTOM_H
-#define PAGMO_TOPOLOGY_CUSTOM_H
+#ifndef PAGMO_TOPOLOGY_WATTS_STROGATZ_H
+#define PAGMO_TOPOLOGY_WATTS_STROGATZ_H
+
+#include <cstddef>
 
 #include "../config.h"
+#include "../rng.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
 
-/// Custom topology.
+/// Watts-Strogatz network model.
 /**
- * This topology allows the user to manually build a topology by inserting nodes and creating connections between them. The connect() method
- * will leave new nodes unconnected. The intended use of this topology is, on one hand, to give the user the ability to create
- * quickly a custom topology without having to create another class, recompile, etc. On the other hand, by exposing high-level functions to manipulate the
- * topology using directly island indices, this class is meant to be the "base" topology class
- * for the Python bindings.
+ * \image html ws.png "Example of Watts-Strogatz model with N = 100, K = 10 and beta = 0.05."
+ * \image latex ws_large.png "Example of Watts-Strogatz model with N = 100, K = 10 and beta = 0.05." width=6cm
+ *
+ * The Watts-Strogatz model is a ring lattice network in which forward edges are rewired with random probability. Such a network
+ * has small-world properties, including short average path lengths and high clustering.
+ *
+ * In this implementation the graph grows dynamically by rewiring all the connections each time an island is added. Note that up to the the first K + 1
+ * insertions, the topology will be fully connected. Afterwards, the topology will be a proper Watts-Strogatz model.
+ *
+ * @see http://en.wikipedia.org/wiki/Watts_and_Strogatz_model
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE custom: public base
+class __PAGMO_VISIBLE watts_strogatz: public base
 {
 	public:
-		custom();
-		custom(const base &);
-		/** @name High-level graph manipulation for custom topologies. */
-		//@{
-		void add_edge(int,int);
-		void remove_edge(int,int);
-		bool are_adjacent(int,int) const;
-		void remove_all_edges();
-		void add_vertex(int);
-		void remove_vertex(int);
-		edges_size_type num_adjacent_vertices(int) const;
-		//@}
+		watts_strogatz(int,const double &);
 		base_ptr clone() const;
 	protected:
-		void connect(int n);
+		void connect(int);
+	private:
+		const std::size_t	m_k;
+		const double		m_beta;
+		rng_double		m_drng;
+		rng_uint32		m_urng;
+
 };
 
-} }
+}}
 
 #endif

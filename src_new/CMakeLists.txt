@@ -18,6 +18,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/one_way_ring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/ring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/unconnected.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/archipelago.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
