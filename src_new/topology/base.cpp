@@ -252,6 +252,53 @@ base::edges_size_type base::get_num_adjacent_vertices(const v_iterator &v_it) co
 	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
 }
 
+/// Return true if two vertices are inversely adjacent.
+/**
+ * The direction must be from *it2 to *it1.
+ *
+ * @param[in] it1 iterator to first vertex.
+ * @param[in] it2 iterator to second vertex.
+ *
+ * @return true if it exists an edge *it2 -> *it1, false otherwise.
+ */
+bool base::are_inv_adjacent(const v_iterator &it1, const v_iterator &it2) const
+{
+	// Find it1's inversely adjacent vertices.
+	const std::pair<ia_iterator,ia_iterator> ia_vertices = boost::inv_adjacent_vertices(*it1,m_graph);
+	if (std::find(ia_vertices.first,ia_vertices.second,*it2) == ia_vertices.second) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+/// Return iterator range to inversely adjcent vertices.
+/**
+ * Inversely adjacent vertices are those connecting the interested vertex.
+ *
+ * @param[in] v_it iterator to the interested vertex.
+ *
+ * @return iterator range over the inversely adjacent vertices.
+ */
+std::pair<base::ia_iterator,base::ia_iterator> base::get_inv_adjacent_vertices(const v_iterator &v_it) const
+{
+	return boost::inv_adjacent_vertices(*v_it,m_graph);
+}
+
+/// Return the number of inversely adjacent vertices.
+/**
+ * Inversely adjacent vertices are those connecting the interested vertex.
+ *
+ * @param[in] v_it iterator to the interested vertex.
+ *
+ * @return number of inversely adjacent vertices.
+ */
+base::edges_size_type base::get_num_inv_adjacent_vertices(const v_iterator &v_it) const
+{
+	const std::pair<base::ia_iterator,base::ia_iterator> v = get_inv_adjacent_vertices(v_it);
+	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
+}
+
 /// Add an edge.
 /**
  * Add an edge connecting *it1 to *it2. Will fail if are_adjacent() returns true.
@@ -347,10 +394,10 @@ base::edges_size_type base::get_number_of_edges() const
  * value representable by the C++ int type. The average path length is calculated as the mean value of the shortest paths between
  * all pairs of vertices.
  *
+ * @return the average path length for the topology.
+ *
  * @see http://en.wikipedia.org/wiki/Johnson's_algorithm
  * @see http://www.boost.org/doc/libs/release/libs/graph/doc/johnson_all_pairs_shortest.html
- *
- * @return the average path length for the topology.
  */
 double base::get_average_path_length() const
 {
