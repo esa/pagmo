@@ -42,22 +42,23 @@ namespace pagmo {
 
 /// Default constructor.
 /**
- * Will construct an empty archipelago with topology::unconnected topology.
+ * Will construct an empty archipelago with topology::unconnected topology, with point_to_point distribution_type and destination migration_direction.
  */
-archipelago::archipelago():m_island_sync_point(),m_topology(new topology::unconnected()) {}
+archipelago::archipelago():m_island_sync_point(),m_topology(new topology::unconnected()),m_dist_type(point_to_point),m_migr_dir(destination) {}
 
 /// Constructor from topology.
 /**
- * Will construct an empty archipelago with provided topology (which will be deep-copied internally).
+ * Will construct an empty archipelago with provided topology (which will be deep-copied internally), with point_to_point distribution_type and
+ * destination migration_direction.
  *
  * @param[in] t topology that will be associated to the archipelago.
  */
-archipelago::archipelago(const topology::base &t):m_island_sync_point(),m_topology(t.clone()) {}
+archipelago::archipelago(const topology::base &t):m_island_sync_point(),m_topology(t.clone()),m_dist_type(point_to_point),m_migr_dir(destination) {}
 
 /// Constructor from problem, algorithm, archipelago size, island sizes and topology.
 /**
  * Constructs n islands of m individuals each, with assigned problem p and algorithm a, and inserts them with push_back() into the archipelago,
- * whose topology is set to t.
+ * whose topology is set to t, with point_to_point distribution_type and destination migration_direction.
  *
  * @param[in] p problem which will be assigned to all islands.
  * @param[in] a algorithm which will be assigned to all islands.
@@ -66,7 +67,7 @@ archipelago::archipelago(const topology::base &t):m_island_sync_point(),m_topolo
  * @param[in] t topology.
  */
 archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t):
-	m_island_sync_point(),m_topology(t.clone())
+	m_island_sync_point(),m_topology(t.clone()),m_dist_type(point_to_point),m_migr_dir(destination)
 {
 	for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
 		push_back(island(p,a,m));
@@ -85,6 +86,8 @@ archipelago::archipelago(const archipelago &a)
 	m_container = a.m_container;
 	m_topology = a.m_topology->clone();
 	reset_barrier();
+	m_dist_type = a.m_dist_type;
+	m_migr_dir = a.m_migr_dir;
 }
 
 /// Assignment operator.
@@ -103,6 +106,8 @@ archipelago &archipelago::operator=(const archipelago &a)
 		m_container = a.m_container;
 		m_topology = a.m_topology->clone();
 		reset_barrier();
+		m_dist_type = a.m_dist_type;
+		m_migr_dir = a.m_migr_dir;
 	}
 	return *this;
 }

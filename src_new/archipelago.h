@@ -51,6 +51,22 @@ class __PAGMO_VISIBLE archipelago
 		typedef std::vector<island> container_type;
 		/// Archipelago size type.
 		typedef container_type::size_type size_type;
+		/// Distribution type for migrating individuals.
+		enum distribution_type
+		{
+			/// Individuals migrate to one of the island's neighbours.
+			point_to_point,
+			/// Individuals migrate to all the island's neighbours.
+			broadcast
+		};
+		/// Migration direction.
+		enum migration_direction
+		{
+			/// Immigrants flow is initiated by the source island.
+			source,
+			/// Immigrants flow is initiated by the destination island.
+			destination
+		};
 	private:
 		// Iterators.
 		typedef container_type::iterator iterator;
@@ -78,6 +94,10 @@ class __PAGMO_VISIBLE archipelago
 		boost::scoped_ptr<boost::barrier>	m_island_sync_point;
 		// Topology.
 		topology::base_ptr			m_topology;
+		// Distribution type.
+		distribution_type			m_dist_type;
+		// Migration direction.
+		migration_direction			m_migr_dir;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);
