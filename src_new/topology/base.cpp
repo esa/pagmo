@@ -37,6 +37,8 @@
 #include "../exceptions.h"
 #include "base.h"
 
+// TODO: harmonise docs between public an private API, and maybe rename public api to *indices instead of *vertices.
+
 namespace pagmo { namespace topology {
 
 /// Default constructor.
@@ -218,6 +220,33 @@ void base::remove_vertex(const v_iterator &v_it)
 	boost::remove_vertex(*v_it,m_graph);
 }
 
+/// Return iterator range to adjcent vertices.
+/**
+ * Adjacent vertices are those connected from the interested vertex.
+ *
+ * @param[in] v_it iterator to the interested vertex.
+ *
+ * @return iterator range over the adjacent vertices.
+ */
+std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const v_iterator &v_it) const
+{
+	return boost::adjacent_vertices(*v_it,m_graph);
+}
+
+/// Return vector of adjacent indices.
+/**
+ * Adjacent indices are those connected from the interested index.
+ *
+ * @param[in] n interested index.
+ *
+ * @return vector of adjacent indices.
+ */
+std::vector<int> base::get_adjacent_vertices(int n) const
+{
+	const std::pair<base::a_iterator,base::a_iterator> tmp = get_adjacent_vertices(get_it(n));
+	return std::vector<int>(tmp.first,tmp.second);
+}
+
 /// Return true if two vertices are adjacent.
 /**
  * The direction must be from *it1 to *it2.
@@ -236,19 +265,6 @@ bool base::are_adjacent(const v_iterator &it1, const v_iterator &it2) const
 	} else {
 		return true;
 	}
-}
-
-/// Return iterator range to adjcent vertices.
-/**
- * Adjacent vertices are those connected from the interested vertex.
- *
- * @param[in] v_it iterator to the interested vertex.
- *
- * @return iterator range over the adjacent vertices.
- */
-std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const v_iterator &v_it) const
-{
-	return boost::adjacent_vertices(*v_it,m_graph);
 }
 
 /// Check if a pair of island indices are adjacent.
@@ -279,7 +295,7 @@ base::edges_size_type base::get_num_adjacent_vertices(const v_iterator &v_it) co
 	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
 }
 
-/// Number of adjacent vertices.
+/// Return the number of adjacent vertices.
 /**
  * Adjacent vertices are those connected from the interested vertex.
  *
@@ -312,6 +328,20 @@ bool base::are_inv_adjacent(const v_iterator &it1, const v_iterator &it2) const
 	}
 }
 
+/// Return true if two indices are inversely adjacent.
+/**
+ * The direction must be from m to n.
+ *
+ * @param[in] n first index.
+ * @param[in] m second index.
+ *
+ * @return true if it exists an edge m -> n, false otherwise.
+ */
+bool base::are_inv_adjacent(int n, int m) const
+{
+	return are_inv_adjacent(get_it(n),get_it(m));
+}
+
 /// Return iterator range to inversely adjcent vertices.
 /**
  * Inversely adjacent vertices are those connecting the interested vertex.
@@ -323,6 +353,20 @@ bool base::are_inv_adjacent(const v_iterator &it1, const v_iterator &it2) const
 std::pair<base::ia_iterator,base::ia_iterator> base::get_inv_adjacent_vertices(const v_iterator &v_it) const
 {
 	return boost::inv_adjacent_vertices(*v_it,m_graph);
+}
+
+/// Return vector of inversely adjcent indices.
+/**
+ * Inversely adjacent indices are those connecting the interested index.
+ *
+ * @param[in] n interested index.
+ *
+ * @return vector of inversely adjacent indices.
+ */
+std::vector<int> base::get_inv_adjacent_vertices(int n) const
+{
+	const std::pair<base::ia_iterator,base::ia_iterator> tmp = get_inv_adjacent_vertices(get_it(n));
+	return std::vector<int>(tmp.first,tmp.second);
 }
 
 /// Return the number of inversely adjacent vertices.
@@ -337,6 +381,19 @@ base::edges_size_type base::get_num_inv_adjacent_vertices(const v_iterator &v_it
 {
 	const std::pair<base::ia_iterator,base::ia_iterator> v = get_inv_adjacent_vertices(v_it);
 	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
+}
+
+/// Return the number of inversely adjacent indices.
+/**
+ * Inversely adjacent indices are those connecting the interested index.
+ *
+ * @param[in] n interested index.
+ *
+ * @return number of inversely adjacent indices.
+ */
+base::edges_size_type base::get_num_inv_adjacent_vertices(int n) const
+{
+	return get_num_inv_adjacent_vertices(get_it(n));
 }
 
 /// Add an edge.

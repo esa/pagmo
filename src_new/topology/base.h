@@ -128,7 +128,11 @@ return base_ptr(new derived_topology(*this));
 		std::vector<int> get_vertices() const;
 		double get_average_path_length() const;
 		bool are_adjacent(int,int) const;
+		std::vector<int> get_adjacent_vertices(int) const;
 		edges_size_type get_num_adjacent_vertices(int) const;
+		bool are_inv_adjacent(int,int) const;
+		std::vector<int> get_inv_adjacent_vertices(int) const;
+		edges_size_type get_num_inv_adjacent_vertices(int) const;
 		//@}
 	protected:
 		/** @name Low-level graph access and manipulation methods. */
