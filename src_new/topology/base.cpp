@@ -145,6 +145,19 @@ std::string base::human_readable_extra() const
 
 //@}
 
+// Helper functor to find an island idx inside the graph.
+template<class GraphType, class IdxType, class VDescriptor>
+struct idx_finder
+{
+	idx_finder(const GraphType &g, const IdxType &idx):m_g(g),m_idx(idx) {}
+	bool operator()(const VDescriptor &vd) const
+	{
+		return (m_g[vd].m_idx == m_idx);
+	}
+	const GraphType 	&m_g;
+	const IdxType		&m_idx;
+};
+
 /// Get vertex iterator from island index.
 /**
  * Will throw a value_error exception if island index is not in the graph or if n is negative.
@@ -156,7 +169,7 @@ std::string base::human_readable_extra() const
 base::v_iterator base::get_it(int n) const
 {
 	const std::pair<v_iterator,v_iterator> vs = boost::vertices(m_graph);
-	const v_iterator retval = std::find_if(vs.first,vs.second,idx_finder(m_graph,boost::numeric_cast<idx_type>(n)));
+	const v_iterator retval = std::find_if(vs.first,vs.second,idx_finder<graph_type,idx_type,v_descriptor>(m_graph,boost::numeric_cast<idx_type>(n)));
 	if (retval == vs.second) {
 		pagmo_throw(value_error,"vertex is not in the graph");
 	}
@@ -238,6 +251,20 @@ std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const v
 	return boost::adjacent_vertices(*v_it,m_graph);
 }
 
+/// Check if a pair of island indices are adjacent.
+/**
+ * The direction of the edge must be n -> m. Will fail if either n or m is negative, or if either n or m is not in the topology.
+ *
+ * @param[in] n first island index.
+ * @param[in] m second island index.
+ *
+ * @return true if the two islands are connected, false otherwise.
+ */
+bool base::are_adjacent(int n, int m) const
+{
+	return are_adjacent(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
+}
+
 /// Return the number of adjacent vertices.
 /**
  * Adjacent vertices are those connected from the interested vertex.
@@ -250,6 +277,19 @@ base::edges_size_type base::get_num_adjacent_vertices(const v_iterator &v_it) co
 {
 	const std::pair<base::a_iterator,base::a_iterator> v = get_adjacent_vertices(v_it);
 	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
+}
+
+/// Number of adjacent vertices.
+/**
+ * Adjacent vertices are those connected from the interested vertex.
+ *
+ * @param[in] n interested index.
+ *
+ * @return number of adjacent vertices.
+ */
+base::edges_size_type base::get_num_adjacent_vertices(int n) const
+{
+	return get_num_adjacent_vertices(get_it(n));
 }
 
 /// Return true if two vertices are inversely adjacent.

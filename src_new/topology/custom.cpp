@@ -44,20 +44,6 @@ custom::custom():base() {}
  */
 custom::custom(const base &t):base(t) {}
 
-/// Check if a pair of island indices are adjacent.
-/**
- * The direction of the edge must be n -> m. Will fail if either n or m is negative, or if either n or m is not in the topology.
- *
- * @param[in] n first island index.
- * @param[in] m second island index.
- *
- * @return true if the two islands are connected, false otherwise.
- */
-bool custom::are_adjacent(int n, int m) const
-{
-	return base::are_adjacent(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
-}
-
 /// Add an edge.
 /**
  * Add an edge connecting index n to index m. Will fail if either n or m is negative, if either n or m is not in the topology or
@@ -113,19 +99,6 @@ void custom::remove_all_edges()
 void custom::add_vertex(int n)
 {
 	base::add_vertex(n);
-}
-
-/// Number of adjacent vertices.
-/**
- * Adjacent vertices are those connected from the interested vertex.
- *
- * @param[in] n interested index.
- *
- * @return number of adjacent vertices.
- */
-custom::edges_size_type custom::get_num_adjacent_vertices(int n) const
-{
-	return base::get_num_adjacent_vertices(get_it(n));
 }
 
 /// Remove vertex.
