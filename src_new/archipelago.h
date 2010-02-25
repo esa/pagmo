@@ -27,14 +27,20 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/barrier.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/unordered_map.hpp>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "algorithm/base.h"
 #include "config.h"
 #include "island.h"
-#include "algorithm/base.h"
+#include "population.h"
 #include "problem/base.h"
+#include "rng.h"
 #include "topology/base.h"
 #include "topology/unconnected.h"
 
@@ -47,34 +53,65 @@ namespace pagmo {
 class __PAGMO_VISIBLE archipelago
 {
 	public:
+		/// Island class must have access to internal archipelago methods.
+		friend class island;
 		/// Internal container of islands.
 		typedef std::vector<island> container_type;
 		/// Archipelago size type.
 		typedef container_type::size_type size_type;
+		/// Individual type.
+		typedef population::individual_type individual_type;
 		/// Distribution type for migrating individuals.
 		enum distribution_type
 		{
 			/// Individuals migrate to one of the island's neighbours.
-			point_to_point,
+			/**
+			 * The destination will be chosen randomly among all the possible choices.
+			 */
+			point_to_point = 0,
 			/// Individuals migrate to all the island's neighbours.
-			broadcast
+			/**
+			 * Note that in case of highly-connected topologies this options can result in high memory usage.
+			 */
+			broadcast = 1
 		};
 		/// Migration direction.
+		/**
+		 * This parameters controls how islands migrate individuals to/from their neighbours. It is a fine tuning parameter for which the default
+		 * value is appropriate for most uses.
+		 */
 		enum migration_direction
 		{
 			/// Immigrants flow is initiated by the source island.
-			source,
+			/**
+			 * With this strategy, the internal migration database stores for each island the individuals that are meant to migrate
+			 * to that island. Before each evolution, an island will check if individuals destined to it are available in the database,
+			 * and, in such case will, migrate over incoming individuals before starting evolution.
+			 */
+			source = 0,
 			/// Immigrants flow is initiated by the destination island.
-			destination
+			/**
+			 * With this strategy, the internal migration database stores for each island its best individuals. Before each evolution,
+			 * the island will get migrating individuals from those made available by the islands connecting to it.
+			 */
+			destination = 1
 		};
 	private:
 		// Iterators.
 		typedef container_type::iterator iterator;
 		typedef container_type::const_iterator const_iterator;
+		// Container for migrating individuals. This a hash map containing hash maps as values.
+		// Please NOTE carefully: in case of desination migration, item n in the outer hash map is supposed to contain a hash map with a single
+		// (n,emigrants vector) pair (in other words, containing redundantly n twice). In case of source migration, item n will contain a map of
+		// emigrants from other islands.
+		typedef boost::unordered_map<size_type,boost::unordered_map<size_type,std::vector<individual_type> > > migration_map_type;
+		// Lock type.
+		typedef boost::lock_guard<boost::mutex> lock_type;
 	public:
-		archipelago();
-		archipelago(const topology::base &);
-		archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t = topology::unconnected());
+		archipelago(distribution_type dt = point_to_point, migration_direction md = destination);
+		archipelago(const topology::base &t, distribution_type dt = point_to_point, migration_direction md = destination);
+		archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t = topology::unconnected(),
+			distribution_type dt = point_to_point, migration_direction md = destination);
 		archipelago(const archipelago &);
 		archipelago &operator=(const archipelago &);
 		~archipelago();
@@ -86,7 +123,12 @@ class __PAGMO_VISIBLE archipelago
 		topology::base_ptr get_topology() const;
 		void set_topology(const topology::base &);
 	private:
+		void pre_evolution(island &);
+		void post_evolution(island &);
 		void reset_barrier();
+		void build_immigrants_vector(std::vector<individual_type> &, const island &,
+			island &, const std::vector<individual_type> &) const;
+		void check_migr_policies() const;
 	private:
 		// Container of islands.
 		container_type				m_container;
@@ -98,6 +140,14 @@ class __PAGMO_VISIBLE archipelago
 		distribution_type			m_dist_type;
 		// Migration direction.
 		migration_direction			m_migr_dir;
+		// Migration container.
+		migration_map_type			m_migr_map;
+		// Rngs used during migration.
+		rng_double				m_drng;
+		rng_uint32				m_urng;
+		// Migration mutex.
+		boost::mutex				m_migr_mutex;
+
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const archipelago &);

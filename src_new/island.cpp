@@ -33,6 +33,7 @@
 #include <string>
 
 #include "algorithm/base.h"
+#include "archipelago.h"
 #include "problem/base.h"
 #include "exceptions.h"
 #include "island.h"
@@ -221,14 +222,14 @@ void island::int_evolver::operator()()
 		for (std::size_t i = 0; i < m_n; ++i) {
 			if (m_i->m_archi) {
 				// TODO: restore.
-				//m_i->m_a->preEvolutionCallback(*m_i);
+				m_i->m_archi->pre_evolution(*m_i);
 				//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 			}
 			// Call the evolution.
 			m_i->m_algo->evolve(m_i->m_pop);
 			if (m_i->m_archi) {
 				// TODO: restore.
-				//m_i->m_a->postEvolutionCallback(*m_i);
+				m_i->m_archi->post_evolution(*m_i);
 				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 			}
 		}
@@ -278,16 +279,17 @@ void island::t_evolver::operator()()
 	try {
 		// Synchronise start
 		if (m_i->m_archi) {
+			// TODO: restore stuff here.
 			//m_i->m_a->sync_island_start();
 		}
 		do {
 			if (m_i->m_archi) {
-				//m_i->m_a->m_top->pre_evolution(*m_i); //Call migration scheme
+				m_i->m_archi->pre_evolution(*m_i);
 				//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 			}
 			m_i->m_algo->evolve(m_i->m_pop);
 			if (m_i->m_archi) {
-				//m_i->m_a->m_top->post_evolution(*m_i); //Call migration scheme
+				m_i->m_archi->post_evolution(*m_i);
 				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 			}
 			diff = boost::posix_time::microsec_clock::local_time() - start;
