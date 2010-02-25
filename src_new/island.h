@@ -35,16 +35,17 @@
 
 #include "config.h"
 #include "algorithm/base.h"
+#include "migration/base_s_policy.h"
+#include "migration/best_s_policy.h"
 #include "population.h"
 #include "problem/base.h"
-//#include "migration/MigrationPolicy.h"
 #include "types.h"
 
 namespace pagmo
 {
 
 // Forward declaration of archipelago class, needed to make friend.
-class __PAGMO_VISIBLE archipelago;
+class archipelago;
 
 /// Island class.
 /**
@@ -66,9 +67,10 @@ class __PAGMO_VISIBLE island
 		typedef boost::lock_guard<boost::mutex> lock_type;
 	public:
 		/// The archipelago class needs access to the internals of the island.
-		friend class __PAGMO_VISIBLE archipelago;
+		friend class archipelago;
 		island(const island &);
-		island(const problem::base &, const algorithm::base &, int n = 0);
+		island(const problem::base &, const algorithm::base &, int n = 0,
+			const migration::base_s_policy &s_policy = migration::best_s_policy(1,migration::base_s_policy::absolute));
 		island &operator=(const island &);
 		~island();
 		/** @name Input/output.*/
@@ -84,7 +86,7 @@ class __PAGMO_VISIBLE island
 		bool busy() const;
 		void evolve(int n = 1);
 		void evolve_t(int);
-		std::size_t evolution_time() const;
+		std::size_t get_evolution_time() const;
 		//@}
 		/** @name Getters and setters.*/
 		//@{
@@ -110,15 +112,17 @@ class __PAGMO_VISIBLE island
 		};
 	private:
 		// Population.
-		population		m_pop;
+		population			m_pop;
 		// Algorithm.
-		algorithm::base_ptr	m_algo;
+		algorithm::base_ptr		m_algo;
 		// Archipelago that, if not null, contains the island.
-		archipelago		*m_archi;
+		archipelago			*m_archi;
 		// Counts the total time spent by the island on evolution (in milliseconds).
-		std::size_t		m_evo_time;
+		std::size_t			m_evo_time;
 		// Mutex used to control evolution synchronisation.
-		mutable boost::mutex	m_evo_mutex;
+		mutable boost::mutex		m_evo_mutex;
+		// Migration selection policy.
+		migration::base_s_policy_ptr	m_s_policy;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);

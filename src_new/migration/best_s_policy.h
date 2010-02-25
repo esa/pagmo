@@ -22,75 +22,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_BASE_H
-#define PAGMO_ALGORITHM_BASE_H
+#ifndef PAGMO_MIGRATION_BEST_S_POLICY_H
+#define PAGMO_MIGRATION_BEST_S_POLICY_H
 
-#include <boost/shared_ptr.hpp>
-#include <iostream>
-#include <string>
-#include <typeinfo>
+#include <vector>
 
 #include "../config.h"
 #include "../population.h"
-#include "../rng.h"
+#include "base_s_policy.h"
 
-namespace pagmo
-{
-/// Algorithm namespace.
+namespace pagmo { namespace migration {
+
+/// "Choose best" migration selection policy.
 /**
- * This namespace contains all the algorithms implemented in PaGMO.
- */
-namespace algorithm {
-
-/// Base algorithm class.
-class base;
-
-/// Alias for shared pointer to base algorithm.
-typedef boost::shared_ptr<base> base_ptr;
-
-/// Base algorithm class.
-/**
- * All algorithms implemented in PaGMO must derive from this base class. This base class provides each algorithm with one pagmo::rng_double
- * and one pagmo::rng_uint32 random number generators. Each algorithm must implement the base::evolve() method.
+ * This policy is to choose best individuals from the population as migrating individuals.
  *
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE base
+class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 {
 	public:
-		base();
-		/// Evolve method.
-		/**
-		 * The purpose of this method is to take a pagmo::population as input and evolve it towards the solution of the problem.
-		 *
-		 * @param[in,out] p population to be evolved.
-		 */
-		virtual void evolve(population &p) const = 0;
-		/// Clone method.
-		/**
-		 * Provided that the derived algorithm implements properly the copy constructor, virtually all implementations of this method will
-		 * look like this:
-@verbatim
-return base_ptr(new derived_algorithm(*this));
-@endverbatim
-		 *
-		 * @return algorithm::base_ptr to a copy of this.
-		 */
-		virtual base_ptr clone() const = 0;
-		virtual ~base();
-		std::string human_readable() const;
-	protected:
-		virtual std::string human_readable_extra() const;
-	protected:
-		/// Random number generator for double-precision floating point values.
-		mutable rng_double	m_drng;
-		/// Random number generator for unsigned integer values.
-		mutable rng_uint32	m_urng;
+		best_s_policy(const double &rate,  migration_rate_type = fractional);
+		base_s_policy_ptr clone() const;
+		std::vector<population::individual_type> select(const population &) const;
+
 };
 
-std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
-
-}
-}
+} }
 
 #endif

@@ -37,6 +37,7 @@
 #include "problem/base.h"
 #include "exceptions.h"
 #include "island.h"
+#include "migration/base_s_policy.h"
 #include "population.h"
 #include "types.h"
 
@@ -50,8 +51,11 @@ namespace pagmo
  * @param[in] p problem::base to which the internal population will be associated.
  * @param[in] a algorithm::base which will be associated to the island.
  * @param[in] n number of individuals in the internal population.
+ * @param[in] s_policy migration::base_s_policy for the island.
  */
-island::island(const problem::base &p, const algorithm::base &a, int n):m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0) {}
+island::island(const problem::base &p, const algorithm::base &a, int n, const migration::base_s_policy &s_policy):
+	m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_s_policy(s_policy.clone())
+{}
 
 /// Copy constructor.
 /**
@@ -84,6 +88,7 @@ island &island::operator=(const island &isl)
 		m_algo = isl.m_algo->clone();
 		m_archi = isl.m_archi;
 		m_evo_time = isl.m_evo_time;
+		m_s_policy = isl.m_s_policy->clone();
 	}
 	return *this;
 }
@@ -120,6 +125,8 @@ std::string island::human_readable_terse() const
 	join();
 	std::ostringstream oss;
 	oss << *m_algo << '\n';
+	oss << "Evolution time:\t" << m_evo_time << "\n\n";
+	oss << *m_s_policy << '\n';
 	oss << m_pop.human_readable_terse() << '\n';
 	return oss.str();
 }
@@ -137,7 +144,9 @@ std::string island::human_readable() const
 	join();
 	std::ostringstream oss;
 	oss << *m_algo << '\n';
-	oss << m_pop;
+	oss << "Evolution time:\t" << m_evo_time << "\n\n";
+	oss << *m_s_policy << '\n';
+	oss << m_pop.human_readable();
 	return oss.str();
 }
 
@@ -148,7 +157,7 @@ std::string island::human_readable() const
  *
  * @return number of milliseconds spent evolving the population.
  */
-std::size_t island::evolution_time() const
+std::size_t island::get_evolution_time() const
 {
 	join();
 	return m_evo_time;
@@ -212,8 +221,8 @@ population::size_type island::get_size() const
 // Implementation of int_evolver's juice.
 void island::int_evolver::operator()()
 {
-	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 	try {
+		const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 		// Synchronise start with all other threads
 		if (m_i->m_archi) {
 			// TODO: restore.
@@ -233,16 +242,17 @@ void island::int_evolver::operator()()
 				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 			}
 		}
+		// We must take care of potentially low-accuracy clocks, where the time difference could be negative for
+		// _really_ short evolution times. In that case do not add anything to the total evolution time.
+		const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
+		if (diff.total_milliseconds() >= 0) {
+			m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
+		}
+	// NOTE: do the catches here for exception-safety, otherwise we might not be able to unlock the mutex later.
 	} catch (const std::exception &e) {
 		std::cout << "Error during island evolution: " << e.what() << '\n';
 	} catch (...) {
 		std::cout << "Error during island evolution, unknown exception caught. :(\n";
-	}
-	// We must take care of potentially low-accuracy clocks, where the time difference could be negative for
-	// _really_ short evolution times. In that case do not add anything to the total evolution time.
-	const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
-	if (diff.total_milliseconds() >= 0) {
-		m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
 	}
 	m_i->m_evo_mutex.unlock();
 }
@@ -274,9 +284,9 @@ void island::evolve(int n)
 // Perform at least one evolution, and continue evolving until at least a certain amount of time has passed.
 void island::t_evolver::operator()()
 {
-	const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
-	boost::posix_time::time_duration diff;
 	try {
+		const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+		boost::posix_time::time_duration diff;
 		// Synchronise start
 		if (m_i->m_archi) {
 			// TODO: restore stuff here.
@@ -295,12 +305,12 @@ void island::t_evolver::operator()()
 			diff = boost::posix_time::microsec_clock::local_time() - start;
 			// Take care of negative timings.
 		} while (diff.total_milliseconds() < 0 || boost::numeric_cast<std::size_t>(diff.total_milliseconds()) < m_t);
+		m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
 	}
-	m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
 	m_i->m_evo_mutex.unlock();
 }
 

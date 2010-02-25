@@ -39,7 +39,7 @@ namespace pagmo
 {
 
 // Forward declaration of island class, needed for friendship.
-class __PAGMO_VISIBLE island;
+class island;
 
 /// Population class.
 /**
@@ -51,7 +51,7 @@ class __PAGMO_VISIBLE island;
  */
 class __PAGMO_VISIBLE population
 {
-		friend class __PAGMO_VISIBLE island;
+		friend class island;
 	public:
 		/// Individuals stored in the population.
 		/**
@@ -88,6 +88,8 @@ class __PAGMO_VISIBLE population
 		};
 		/// Population size type.
 		typedef std::vector<individual_type>::size_type size_type;
+		/// Const iterator.
+		typedef std::vector<individual_type>::const_iterator const_iterator;
 		population(const problem::base &, int n = 0);
 		population(const population &);
 		population &operator=(const population &);
@@ -100,6 +102,36 @@ class __PAGMO_VISIBLE population
 		size_type get_worst_idx() const;
 		void set_x(const size_type &, const decision_vector &);
 		size_type size() const;
+		const_iterator begin() const;
+		const_iterator end() const;
+		/// Compare individuals according to their current fitness and constraints.
+		/**
+		 * This functor is used to sort the individuals according to their current fitness-constraint vector pair.
+		 *
+		 * @see problem::base::compare_fc.
+		 */
+		struct cur_fc_comp {
+			/// Constructor from problem.
+			/**
+			 * p.compare_fc() will be used to rank the individuals.
+			 *
+			 * @param[in] p problem::base which will provide the ranking method.
+			 */
+			cur_fc_comp(const problem::base &p):m_p(p) {}
+			/// Compare individuals.
+			/**
+			 * @param[in] i1 first individual.
+			 * @param[in] i2 second individual.
+			 *
+			 * @return true if i1 is strictly better than i2, false otherwise.
+			 */
+			bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
+			{
+				return m_p.compare_fc(i1.cur_f,i1.cur_c,i2.cur_f,i2.cur_c);
+			}
+			/// Const reference to the problem that provides the ranking method.
+			const problem::base &m_p;
+		};
 	private:
 		population();
 	private:

@@ -44,7 +44,7 @@ namespace pagmo {
 namespace topology {
 
 /// Base topology class.
-class __PAGMO_VISIBLE base;
+class base;
 
 /// Alias for shared pointer to base topology.
 typedef boost::shared_ptr<base> base_ptr;

@@ -51,7 +51,7 @@ namespace pagmo
 namespace problem {
 
 /// Base problem class.
-class __PAGMO_VISIBLE base;
+class base;
 
 /// Alias for shared pointer to base problem.
 typedef boost::shared_ptr<base> base_ptr;

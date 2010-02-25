@@ -129,7 +129,7 @@ int main()
 	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),1000,10/*,topology::watts_strogatz(20,1)*/);
 	archi.set_topology(topology::watts_strogatz(1000,20,1));
 	std::cout << "Done\n";
-	std::cout << archi.get_topology()->get_average_path_length() << '\n';
+	std::cout << archi << '\n';
 
 
 	//std::cout << archi;

@@ -40,16 +40,6 @@
 
 namespace pagmo
 {
-// Function object to compare individuals according to their current fitness and constraints.
-struct cur_fc_comp {
-	cur_fc_comp(const problem::base &p):m_p(p) {}
-	bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
-	{
-		return m_p.compare_fc(i1.cur_f,i1.cur_c,i2.cur_f,i2.cur_c);
-	}
-	const problem::base &m_p;
-};
-
 /// Constructor from problem::base and number of individuals.
 /**
  * Will store a copy of the problem and will initialise the population to n randomly-generated individuals.
@@ -312,6 +302,24 @@ const population::champion_type &population::champion() const
 population::size_type population::size() const
 {
 	return m_container.size();
+}
+
+/// Iterator to the beginning of the population.
+/**
+ * @return iterator to the first individual.
+ */
+population::const_iterator population::begin() const
+{
+	return m_container.begin();
+}
+
+/// Iterator to the end of the population.
+/**
+ * @return iterator to the position one past the last individual.
+ */
+population::const_iterator population::end() const
+{
+	return m_container.end();
 }
 
 /// Overload stream operator for pagmo::population.
