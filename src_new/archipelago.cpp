@@ -58,7 +58,7 @@ void archipelago::check_migr_attributes() const
  * @param[in] dt distribution type.
  * @param[in] md migration direction.
  */
-archipelago::archipelago(distribution_type dt, migration_direction md):m_island_sync_point(),m_topology(new topology::unconnected()),
+archipelago::archipelago(distribution_type dt, migration_direction md):m_islands_sync_point(),m_topology(new topology::unconnected()),
 	m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
@@ -75,7 +75,7 @@ archipelago::archipelago(distribution_type dt, migration_direction md):m_island_
  * @param[in] md migration direction.
  */
 archipelago::archipelago(const topology::base &t, distribution_type dt, migration_direction md):
-	m_island_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
+	m_islands_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
 	check_migr_attributes();
@@ -95,7 +95,7 @@ archipelago::archipelago(const topology::base &t, distribution_type dt, migratio
  * @param[in] md migration direction.
  */
 archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t, distribution_type dt, migration_direction md):
-	m_island_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
+	m_islands_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
 	check_migr_attributes();
@@ -294,9 +294,9 @@ bool archipelago::check_island(const island &isl) const
 void archipelago::reset_barrier()
 {
 	if (m_container.size()) {
-		m_island_sync_point.reset(new boost::barrier(boost::numeric_cast<unsigned int>(m_container.size())));
+		m_islands_sync_point.reset(new boost::barrier(boost::numeric_cast<unsigned int>(m_container.size())));
 	} else {
-		m_island_sync_point.reset(0);
+		m_islands_sync_point.reset(0);
 	}
 }
 
@@ -340,10 +340,8 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 // the individuals that will migrate into the island.
 void archipelago::pre_evolution(island &isl)
 {
-//std::cout << "In pre\n";
 	// Lock the migration logic.
 	lock_type lock(m_migr_mutex);
-//std::cout << "Locked pre\n";
 	// Make sure the island belongs to the archipelago.
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
@@ -405,7 +403,6 @@ void archipelago::pre_evolution(island &isl)
 			isl.accept_immigrants(immigrants);
 		}
 	}
-//std::cout << "Done pre\n";
 }
 
 // This method will be called after each island isl has completed an evolution. Its purpose is to get individuals
@@ -413,10 +410,8 @@ void archipelago::pre_evolution(island &isl)
 // and the topology.
 void archipelago::post_evolution(island &isl)
 {
-//std::cout << "In post\n";
 	// Lock the migration logic.
 	lock_type lock(m_migr_mutex);
-//std::cout << "Locked post\n";
 	// Make sure the island belongs to the archipelago.
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
@@ -464,7 +459,6 @@ void archipelago::post_evolution(island &isl)
 			pagmo_assert(m_migr_map[isl_idx].size() <= 1);
 			m_migr_map[isl_idx][isl_idx].swap(emigrants);
 	}
-//std::cout << "Done post\n";
 }
 
 /// Run the evolution for the given number of iterations.
@@ -495,6 +489,13 @@ void archipelago::evolve_t(int t)
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve_t(t);
 	}
+}
+
+// Synchronise the start of evolution in each island so that all threads are created and initialised
+// before actually doing any computation.
+void archipelago::sync_island_start() const
+{
+	m_islands_sync_point->wait();
 }
 
 /// Overload stream operator for pagmo::archipelago.

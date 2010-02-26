@@ -270,8 +270,7 @@ void island::int_evolver::operator()()
 		const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 		// Synchronise start with all other threads
 		if (m_i->m_archi) {
-			// TODO: restore.
-			// m_i->m_a->sync_island_start();
+			m_i->m_archi->sync_island_start();
 		}
 		for (std::size_t i = 0; i < m_n; ++i) {
 			if (m_i->m_archi) {
@@ -329,12 +328,12 @@ void island::t_evolver::operator()()
 		boost::posix_time::time_duration diff;
 		// Synchronise start
 		if (m_i->m_archi) {
-			// TODO: restore stuff here.
-			//m_i->m_a->sync_island_start();
+			m_i->m_archi->sync_island_start();
 		}
 		do {
 			if (m_i->m_archi) {
 				m_i->m_archi->pre_evolution(*m_i);
+				// TODO: restore stuff here.
 				//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 			}
 			m_i->m_algo->evolve(m_i->m_pop);

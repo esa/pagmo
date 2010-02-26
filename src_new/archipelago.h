@@ -131,11 +131,12 @@ class __PAGMO_VISIBLE archipelago
 		void build_immigrants_vector(std::vector<individual_type> &, const island &,
 			island &, const std::vector<individual_type> &) const;
 		void check_migr_attributes() const;
+		void sync_island_start() const;
 	private:
 		// Container of islands.
 		container_type				m_container;
 		// A barrier used to synchronise the start time of all islands.
-		boost::scoped_ptr<boost::barrier>	m_island_sync_point;
+		boost::scoped_ptr<boost::barrier>	m_islands_sync_point;
 		// Topology.
 		topology::base_ptr			m_topology;
 		// Distribution type.
