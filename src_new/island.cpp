@@ -31,32 +31,40 @@
 #include <exception>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "algorithm/base.h"
 #include "archipelago.h"
 #include "problem/base.h"
 #include "exceptions.h"
 #include "island.h"
+#include "migration/base_r_policy.h"
 #include "migration/base_s_policy.h"
 #include "population.h"
 #include "types.h"
 
 namespace pagmo
 {
-/// Constructor from problem::base, algorithm::base, number of individuals and selection/replacement policies.
+/// Constructor from problem::base, algorithm::base, number of individuals, migration probability and selection/replacement policies.
 /**
  * Will store a copy of the problem, of the algorithm and of the policies internally, will initialise internal population to n individuals
- * and evolution time to zero. Will fail if n is negative.
+ * and evolution time to zero. Will fail if n is negative or if migration probability is not in the [0,1] range.
  *
  * @param[in] p problem::base to which the internal population will be associated.
  * @param[in] a algorithm::base which will be associated to the island.
  * @param[in] n number of individuals in the internal population.
+ * @param[in] migr_prob migration probability.
  * @param[in] s_policy migration::base_s_policy for the island.
  * @param[in] r_policy migration::base_r_policy for the island.
  */
-island::island(const problem::base &p, const algorithm::base &a, int n, const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
-{}
+island::island(const problem::base &p, const algorithm::base &a, int n, const double &migr_prob,
+	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
+	m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
+{
+	if (m_migr_prob < 0 || m_migr_prob > 1) {
+		pagmo_throw(value_error,"invalid migration probability");
+	}
+}
 
 /// Copy constructor.
 /**
@@ -89,6 +97,7 @@ island &island::operator=(const island &isl)
 		m_algo = isl.m_algo->clone();
 		m_archi = isl.m_archi;
 		m_evo_time = isl.m_evo_time;
+		m_migr_prob = isl.m_migr_prob;
 		m_s_policy = isl.m_s_policy->clone();
 		m_r_policy = isl.m_r_policy->clone();
 	}
@@ -127,7 +136,8 @@ std::string island::human_readable_terse() const
 	join();
 	std::ostringstream oss;
 	oss << *m_algo << '\n';
-	oss << "Evolution time:\t" << m_evo_time << "\n\n";
+	oss << "Evolution time: " << m_evo_time << "\n\n";
+	oss << "Migration probability: " << m_migr_prob * 100 << "%\n\n";
 	oss << *m_s_policy << '\n';
 	oss << *m_r_policy << '\n';
 	oss << m_pop.human_readable_terse() << '\n';
@@ -147,7 +157,8 @@ std::string island::human_readable() const
 	join();
 	std::ostringstream oss;
 	oss << *m_algo << '\n';
-	oss << "Evolution time:\t" << m_evo_time << "\n\n";
+	oss << "Evolution time: " << m_evo_time << "\n\n";
+	oss << "Migration probability: " << m_migr_prob * 100 << "%\n\n";
 	oss << *m_s_policy << '\n';
 	oss << *m_r_policy << '\n';
 	oss << m_pop.human_readable();
@@ -220,6 +231,46 @@ population::size_type island::get_size() const
 {
 	join();
 	return m_pop.size();
+}
+
+/// Migration probability.
+/**
+ * @return migration probability.
+ */
+double island::get_migration_probability() const
+{
+	join();
+	return m_migr_prob;
+}
+
+/// Get a copy of the selection policy.
+/**
+ * @return migration::base_s_policy_ptr to the cloned policy.
+ */
+migration::base_s_policy_ptr island::get_s_policy() const
+{
+	join();
+	return m_s_policy->clone();
+}
+
+/// Get a copy of the replacement policy.
+/**
+ * @return migration::base_r_policy_ptr to the cloned policy.
+ */
+migration::base_r_policy_ptr island::get_r_policy() const
+{
+	join();
+	return m_r_policy->clone();
+}
+
+/// Get a copy of the internal population.
+/**
+ * @return copy of the population contained in the island.
+ */
+population island::get_population() const
+{
+	join();
+	return m_pop;
 }
 
 // Implementation of int_evolver's juice.
@@ -340,6 +391,21 @@ void island::evolve_t(int t)
 		}
 	} else {
 		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
+	}
+}
+
+// Accept individuals incoming from a migration operation.
+void island::accept_immigrants(const std::vector<population::individual_type> &immigrants)
+{
+	// Make sure we are in an archipelago.
+	pagmo_assert(m_archi);
+	const std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > rep =
+		m_r_policy->select(immigrants,m_pop);
+	for (std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >::const_iterator
+		rep_it = rep.begin(); rep_it != rep.end(); ++rep_it)
+	{
+		pagmo_assert((*rep_it).first < m_pop.m_container.size() && (*rep_it).second < immigrants.size());
+		m_pop.m_container[(*rep_it).first] = immigrants[(*rep_it).second];
 	}
 }
 

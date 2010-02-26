@@ -77,7 +77,7 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	fair_r_policy::select(const std::vector<population::individual_type> &immigrants, const population &dest) const
 {
 	const population::size_type rate_limit = std::min<population::size_type>(get_n_individuals(dest),boost::numeric_cast<population::size_type>(immigrants.size()));
-	// Temporary vectors to store sorted populations.
+	// Temporary vectors to store sorted indices of the populations.
 	std::vector<population::size_type> immigrants_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(immigrants.size()));
 	std::vector<population::size_type> dest_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(dest.size()));
 	// Fill in the arrays of indices.

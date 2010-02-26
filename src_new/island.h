@@ -32,10 +32,10 @@
 #include <cstddef>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "config.h"
 #include "algorithm/base.h"
-#include "migration/base.h"
 #include "migration/base_r_policy.h"
 #include "migration/base_s_policy.h"
 #include "migration/best_s_policy.h"
@@ -60,6 +60,8 @@ class archipelago;
  * If the island belongs to an archipelago, it can exchange individuals with other islands in the archipelago. The topology of the archipelago determines
  * the connections between islands, whereas every island can define migration policies to specify how to select and replace individuals during migration.
  * The relevant policy classes are migration::base_s_policy (selection policy) and migration::base_r_policy (replacement policy).
+ * The probability of inserting migrating individuals into the island is regulated by the migration probability parameter. These migration parameters can be specified
+ * upon island construction and they are given (hopefully) reasonable default values. See the constructors for detailed information.
  *
  * The interface of this class mirrors the interface of the population class. It is hence possible to get and set individuals, get the population size,
  * access the population champion, etc. The main difference
@@ -77,6 +79,7 @@ class __PAGMO_VISIBLE island
 		friend class archipelago;
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0,
+			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy());
 		island &operator=(const island &);
@@ -102,6 +105,10 @@ class __PAGMO_VISIBLE island
 		void set_algorithm(const algorithm::base &);
 		problem::base_ptr get_problem() const;
 		population::size_type get_size() const;
+		double get_migration_probability() const;
+		migration::base_s_policy_ptr get_s_policy() const;
+		migration::base_r_policy_ptr get_r_policy() const;
+		population get_population() const;
 		//@}
 	private:
 		// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
@@ -118,6 +125,7 @@ class __PAGMO_VISIBLE island
 			island 			*m_i;
 			const std::size_t	m_t;
 		};
+		void accept_immigrants(const std::vector<population::individual_type> &);
 	private:
 		// Population.
 		population			m_pop;
@@ -129,6 +137,8 @@ class __PAGMO_VISIBLE island
 		std::size_t			m_evo_time;
 		// Mutex used to control evolution synchronisation.
 		mutable boost::mutex		m_evo_mutex;
+		// Migration probability.
+		double				m_migr_prob;
 		// Migration selection policy.
 		migration::base_s_policy_ptr	m_s_policy;
 		// Migration replacement policy.
