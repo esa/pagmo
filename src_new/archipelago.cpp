@@ -44,10 +44,10 @@
 namespace pagmo {
 
 // Check we are not using bogus values for the enums.
-void archipelago::check_migr_policies() const
+void archipelago::check_migr_attributes() const
 {
 	if (m_dist_type < 0 || m_dist_type > 1 ||m_migr_dir < 0 || m_migr_dir > 1) {
-		pagmo_throw(value_error,"invalid value for migration policy (destination and/or direction)");
+		pagmo_throw(value_error,"invalid value for migration attribute (destination and/or direction)");
 	}
 }
 
@@ -62,7 +62,7 @@ archipelago::archipelago(distribution_type dt, migration_direction md):m_island_
 	m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
-	check_migr_policies();
+	check_migr_attributes();
 }
 
 /// Constructor from topology.
@@ -78,7 +78,7 @@ archipelago::archipelago(const topology::base &t, distribution_type dt, migratio
 	m_island_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
-	check_migr_policies();
+	check_migr_attributes();
 }
 
 /// Constructor from problem, algorithm, archipelago size, island sizes and topology.
@@ -98,7 +98,7 @@ archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n
 	m_island_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
-	check_migr_policies();
+	check_migr_attributes();
 	for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
 		push_back(island(p,a,m));
 	}
@@ -392,18 +392,16 @@ void archipelago::pre_evolution(island &isl)
 				}
 			}
 	}
-	#if 0
 	//2. Insert immigrants into population.
 	if (immigrants.size()) {
 		if (m_drng() < isl.get_migration_probability()) {
-			isl.accept_migrating_individuals(immigrants);
+			isl.accept_immigrants(immigrants);
 		}
 	}
-	#endif
 }
 
 // This method will be called after each island isl has completed an evolution. Its purpose is to get individuals
-// emigrating from isl and put them at disposal of the other islands of the archipelago, according to the migration policies
+// emigrating from isl and put them at disposal of the other islands of the archipelago, according to the migration attributes
 // and the topology.
 void archipelago::post_evolution(island &isl)
 {
