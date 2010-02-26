@@ -36,8 +36,10 @@
 #include "config.h"
 #include "algorithm/base.h"
 #include "migration/base.h"
+#include "migration/base_r_policy.h"
 #include "migration/base_s_policy.h"
 #include "migration/best_s_policy.h"
+#include "migration/fair_r_policy.h"
 #include "population.h"
 #include "problem/base.h"
 #include "types.h"
@@ -75,7 +77,8 @@ class __PAGMO_VISIBLE island
 		friend class archipelago;
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0,
-			const migration::base_s_policy &s_policy = migration::best_s_policy(1,migration::absolute));
+			const migration::base_s_policy &s_policy = migration::best_s_policy(),
+			const migration::base_r_policy &r_policy = migration::fair_r_policy());
 		island &operator=(const island &);
 		~island();
 		/** @name Input/output.*/
@@ -128,6 +131,8 @@ class __PAGMO_VISIBLE island
 		mutable boost::mutex		m_evo_mutex;
 		// Migration selection policy.
 		migration::base_s_policy_ptr	m_s_policy;
+		// Migration replacement policy.
+		migration::base_r_policy_ptr	m_r_policy;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);

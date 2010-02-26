@@ -26,6 +26,8 @@
 #define PAGMO_MIGRATION_BASE_R_POLICY_H
 
 #include <boost/shared_ptr.hpp>
+#include <utility>
+#include <vector>
 
 #include "../config.h"
 #include "../population.h"
@@ -66,6 +68,20 @@ return base_ptr(new derived_policy(*this));
 		 * @return migration::base_s_policy_ptr to a copy of this.
 		 */
 		virtual base_r_policy_ptr clone() const = 0;
+		/// Assign pairs of individuals for replacement during migration.
+		/**
+		 * Note, that this method does not alter the target population, it just provides the replacement choice.
+		 * The actual replacement is done in the archipelago class.
+		 * The first element of a pair should be the index of the one from the destination population.
+		 * The second one - the index of the individual from the immigrants vector which is to replace the first one.
+		 *
+		 * \param[in] immigrants vector of incoming individuals.
+		 * \param[in] destination population into which the immigrants will be replaced.
+		 *
+		 * \return replacement assignment.
+		 */
+		virtual std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
+			select(const std::vector<population::individual_type> &immigrants, const population &destination) const = 0;
 };
 
 }}

@@ -52,9 +52,10 @@ namespace pagmo
  * @param[in] a algorithm::base which will be associated to the island.
  * @param[in] n number of individuals in the internal population.
  * @param[in] s_policy migration::base_s_policy for the island.
+ * @param[in] r_policy migration::base_r_policy for the island.
  */
-island::island(const problem::base &p, const algorithm::base &a, int n, const migration::base_s_policy &s_policy):
-	m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_s_policy(s_policy.clone())
+island::island(const problem::base &p, const algorithm::base &a, int n, const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
+	m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
 {}
 
 /// Copy constructor.
@@ -89,6 +90,7 @@ island &island::operator=(const island &isl)
 		m_archi = isl.m_archi;
 		m_evo_time = isl.m_evo_time;
 		m_s_policy = isl.m_s_policy->clone();
+		m_r_policy = isl.m_r_policy->clone();
 	}
 	return *this;
 }
@@ -127,6 +129,7 @@ std::string island::human_readable_terse() const
 	oss << *m_algo << '\n';
 	oss << "Evolution time:\t" << m_evo_time << "\n\n";
 	oss << *m_s_policy << '\n';
+	oss << *m_r_policy << '\n';
 	oss << m_pop.human_readable_terse() << '\n';
 	return oss.str();
 }
@@ -146,6 +149,7 @@ std::string island::human_readable() const
 	oss << *m_algo << '\n';
 	oss << "Evolution time:\t" << m_evo_time << "\n\n";
 	oss << *m_s_policy << '\n';
+	oss << *m_r_policy << '\n';
 	oss << m_pop.human_readable();
 	return oss.str();
 }
