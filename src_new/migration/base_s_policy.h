@@ -49,7 +49,7 @@ typedef boost::shared_ptr<base_s_policy> base_s_policy_ptr;
 
 /// Base class for selection policies for migration.
 /**
- * This class provides its subclasses with means for specifying the migration rate.
+ * This class provides its subclasses with means for specifying the emigration rate from an island.
  * The migration rate can be specified either as an absolute value (the number of individuals to migrate)
  * or as a fracion of the population size. The type of migration rate is selected upon construction.
  *
@@ -66,7 +66,7 @@ class __PAGMO_VISIBLE base_s_policy
 			/// Migration rate is interpreted as the fraction of individuals to migrate.
 			fractional = 1
 		};
-		base_s_policy(const double &rate,  migration_rate_type = fractional);
+		base_s_policy(const double &rate = 1, migration_rate_type = absolute);
 		virtual ~base_s_policy();
 		/// Clone method.
 		/**

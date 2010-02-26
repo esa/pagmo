@@ -22,33 +22,33 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_MIGRATION_BEST_S_POLICY_H
-#define PAGMO_MIGRATION_BEST_S_POLICY_H
+#ifndef PAGMO_MIGRATION_BASE_R_POLICY_H
+#define PAGMO_MIGRATION_BASE_R_POLICY_H
 
-#include <vector>
+#include <boost/shared_ptr.hpp>
 
 #include "../config.h"
-#include "../population.h"
-#include "base_s_policy.h"
 
 namespace pagmo { namespace migration {
 
-/// "Choose best" migration selection policy.
+class base_r_policy;
+
+typedef boost::shared_ptr<base_r_policy> base_r_policy_ptr;
+
+/// Base class for replacement policies for migration.
 /**
- * This policy is to choose best individuals from the population as migrating individuals.
+ * The class provides its subclasses with the basic means for determining the maximum incoming migration rate
+ * (i.e. the maximum number of individuals which are replaced each time migrating individuals arrive)
+ * in both absolute and fractional way.
  *
  * @author Marek Ruciński (marek.rucinski@gmail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE best_s_policy: public base_s_policy
+class __PAGMO_VISIBLE base_r_policy
 {
-	public:
-		best_s_policy(const double &rate = 1, migration_rate_type = absolute);
-		base_s_policy_ptr clone() const;
-		std::vector<population::individual_type> select(const population &) const;
 
 };
 
-} }
+}}
 
 #endif

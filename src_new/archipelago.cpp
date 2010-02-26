@@ -423,7 +423,7 @@ void archipelago::post_evolution(island &isl)
 		case source:
 		{
 			// Get the islands to which isl connects.
-			const std::vector<int> adj_islands(m_topology->get_inv_adjacent_vertices(boost::numeric_cast<int>(isl_idx)));
+			const std::vector<int> adj_islands(m_topology->get_adjacent_vertices(boost::numeric_cast<int>(isl_idx)));
 			if (adj_islands.size()) {
 
 			}

@@ -54,6 +54,10 @@ class archipelago;
  * and no further operations will be allowed. The method join() can be used to wait until evolution on the island has terminated. The busy() methods can be used to query the state
  * of the island.
  *
+ * If the island belongs to an archipelago, it can exchange individuals with other islands in the archipelago. The topology of the archipelago determines
+ * the connections between islands, whereas every island can define migration policies to specify how to select and replace individuals during migration.
+ * The relevant policy classes are migration::base_s_policy (selection policy) and migration::base_r_policy (replacement policy).
+ *
  * The interface of this class mirrors the interface of the population class. It is hence possible to get and set individuals, get the population size,
  * access the population champion, etc. The main difference
  * is that the methods of this class will never return references to internal members, in order to protect the internal state of the island while evolution is undergoing.

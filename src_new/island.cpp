@@ -43,9 +43,9 @@
 
 namespace pagmo
 {
-/// Constructor from problem::base, algorithm::base and number of individuals.
+/// Constructor from problem::base, algorithm::base, number of individuals and selection/replacement policies.
 /**
- * Will store a copy of the problem and of the algorithm internally, will initialise internal population to n individuals
+ * Will store a copy of the problem, of the algorithm and of the policies internally, will initialise internal population to n individuals
  * and evolution time to zero. Will fail if n is negative.
  *
  * @param[in] p problem::base to which the internal population will be associated.
