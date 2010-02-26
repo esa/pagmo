@@ -29,6 +29,7 @@
 #include <boost/thread/barrier.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 #include <iostream>
 #include <string>
@@ -87,12 +88,17 @@ class __PAGMO_VISIBLE archipelago
 			 * With this strategy, the internal migration database stores for each island the individuals that are meant to migrate
 			 * to that island. Before each evolution, an island will check if individuals destined to it are available in the database,
 			 * and, in such case will, migrate over incoming individuals before starting evolution.
+			 *
+			 * After each evolution, the island will place its candidate individuals for emigration in the database slots of the island(s) to which
+			 * it connects.
 			 */
 			source = 0,
 			/// Immigrants flow is initiated by the destination island.
 			/**
 			 * With this strategy, the internal migration database stores for each island its best individuals. Before each evolution,
 			 * the island will get migrating individuals from those made available by the islands connecting to it.
+			 *
+			 * After each evolution, the island will update its list of best individuals in the database.
 			 */
 			destination = 1
 		};
@@ -107,6 +113,10 @@ class __PAGMO_VISIBLE archipelago
 		typedef boost::unordered_map<size_type,boost::unordered_map<size_type,std::vector<individual_type> > > migration_map_type;
 		// Lock type.
 		typedef boost::lock_guard<boost::mutex> lock_type;
+		// Migration history item: (n_individuals,orig_island,dest_island) tuple.
+		typedef boost::tuple<population::size_type,size_type,size_type> migr_hist_item;
+		// Container of migration history: vector of history items.
+		typedef std::vector<migr_hist_item> migr_hist_type;
 	public:
 		archipelago(distribution_type dt = point_to_point, migration_direction md = destination);
 		archipelago(const topology::base &t, distribution_type dt = point_to_point, migration_direction md = destination);
@@ -124,12 +134,14 @@ class __PAGMO_VISIBLE archipelago
 		void set_topology(const topology::base &);
 		void evolve(int n = 1);
 		void evolve_t(int);
+		std::string dump_migr_history() const;
+		void clear_migr_history();
 	private:
 		void pre_evolution(island &);
 		void post_evolution(island &);
 		void reset_barrier();
 		void build_immigrants_vector(std::vector<individual_type> &, const island &,
-			island &, const std::vector<individual_type> &) const;
+			island &, const std::vector<individual_type> &, migr_hist_type &) const;
 		void check_migr_attributes() const;
 		void sync_island_start() const;
 	private:
@@ -150,6 +162,8 @@ class __PAGMO_VISIBLE archipelago
 		rng_uint32				m_urng;
 		// Migration mutex.
 		boost::mutex				m_migr_mutex;
+		// Migration history.
+		migr_hist_type				m_migr_hist;
 
 };
 

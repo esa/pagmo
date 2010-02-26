@@ -26,6 +26,8 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/thread/barrier.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_io.hpp>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -119,6 +121,7 @@ archipelago::archipelago(const archipelago &a)
 	m_dist_type = a.m_dist_type;
 	m_drng = a.m_drng;
 	m_urng = a.m_urng;
+	m_migr_hist = a.m_migr_hist;
 }
 
 /// Assignment operator.
@@ -142,6 +145,7 @@ archipelago &archipelago::operator=(const archipelago &a)
 		m_migr_map = a.m_migr_map;
 		m_drng = a.m_drng;
 		m_urng = a.m_urng;
+		m_migr_hist = a.m_migr_hist;
 	}
 	return *this;
 }
@@ -302,7 +306,7 @@ void archipelago::reset_barrier()
 
 // Helper function to insert a list of candidates immigrants into an immigrants vector, given the source and destination island.
 void archipelago::build_immigrants_vector(std::vector<individual_type> &immigrants, const island &src_isl,
-	island &dest_isl, const std::vector<individual_type> &candidates) const
+	island &dest_isl, const std::vector<individual_type> &candidates, migr_hist_type &h) const
 {
 	if (dest_isl.m_pop.problem() == src_isl.m_pop.problem()) {
 		// If the problem of the originating island is identical to that of destination island, then we can just
@@ -333,6 +337,12 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 			immigrants.push_back(tmp);
 		}
 	}
+	// Record the migration history.
+	h.push_back(boost::make_tuple(
+		boost::numeric_cast<population::size_type>(immigrants.size()),
+		boost::numeric_cast<size_type>(&src_isl - &m_container[0]),
+		boost::numeric_cast<size_type>(&dest_isl - &m_container[0])
+	));
 }
 
 // This method will be called by each island of the archipelago before starting evolution. Its task is
@@ -350,6 +360,8 @@ void archipelago::pre_evolution(island &isl)
 	pagmo_assert(&isl >= &m_container[0] && boost::numeric_cast<size_type>(&isl - &m_container[0]) < m_container.size());
 	// Determine the island's index in the archipelago.
 	const size_type isl_idx = boost::numeric_cast<size_type>(&isl - &m_container[0]);
+	// Migration history for this migration.
+	migr_hist_type h;
 	//1. Obtain immigrants.
 	std::vector<individual_type> immigrants;
 	switch (m_migr_dir) {
@@ -357,13 +369,12 @@ void archipelago::pre_evolution(island &isl)
 			// For source migration direction, migration map contains islands' "inboxes". Or, in other words, it contains
 			// the individuals that are destined to go into the islands. Such inboxes have been assembled previously,
 			// during a post_evolution operation.
-			// TODO:verify the above.
 			// Iterate over all the vectors of individuals provided by the different islands.
 			for (boost::unordered_map<size_type,std::vector<individual_type> >::iterator it = m_migr_map[isl_idx].begin();
 				it != m_migr_map[isl_idx].end(); ++it)
 			{
 				pagmo_assert(it->first < m_container.size());
-				build_immigrants_vector(immigrants,m_container[it->first],isl,it->second);
+				build_immigrants_vector(immigrants,m_container[it->first],isl,it->second,h);
 			}
 			// Delete stuff in the migration map.
 			m_migr_map.erase(isl_idx);
@@ -384,7 +395,7 @@ void archipelago::pre_evolution(island &isl)
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
 						pagmo_assert(m_migr_map[rn_isl_idx].size() <= 1);
-						build_immigrants_vector(immigrants,m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx]);
+						build_immigrants_vector(immigrants,m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx],h);
 						break;
 					}
 					case broadcast:
@@ -392,7 +403,7 @@ void archipelago::pre_evolution(island &isl)
 						for (std::vector<int>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
-							build_immigrants_vector(immigrants,m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx]);
+							build_immigrants_vector(immigrants,m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx],h);
 						}
 				}
 			}
@@ -401,6 +412,7 @@ void archipelago::pre_evolution(island &isl)
 	if (immigrants.size()) {
 		if (m_drng() < isl.m_migr_prob) {
 			isl.accept_immigrants(immigrants);
+			m_migr_hist.insert(m_migr_hist.end(),h.begin(),h.end());
 		}
 	}
 }
@@ -454,7 +466,7 @@ void archipelago::post_evolution(island &isl)
 			break;
 		}
 		case destination:
-			// For destination migration directio, migration map behaves like "outboxes", i.e. each is a "database of best individuals" for corresponding island.
+			// For destination migration direction, migration map behaves like "outboxes", i.e. each is a "database of best individuals" for corresponding island.
 			emigrants = isl.get_emigrants();
 			pagmo_assert(m_migr_map[isl_idx].size() <= 1);
 			m_migr_map[isl_idx][isl_idx].swap(emigrants);
@@ -496,6 +508,24 @@ void archipelago::evolve_t(int t)
 void archipelago::sync_island_start() const
 {
 	m_islands_sync_point->wait();
+}
+
+// Dump migration history.
+std::string archipelago::dump_migr_history() const
+{
+	join();
+	std::ostringstream oss;
+	for (migr_hist_type::const_iterator it = m_migr_hist.begin(); it != m_migr_hist.end(); ++it) {
+		oss << *it << '\n';
+	}
+	return oss.str();
+}
+
+// Clear migration history.
+void archipelago::clear_migr_history()
+{
+	join();
+	m_migr_hist.clear();
 }
 
 /// Overload stream operator for pagmo::archipelago.

@@ -134,6 +134,7 @@ class __PAGMO_VISIBLE island
 		archipelago				*m_archi;
 		// Counts the total time spent by the island on evolution (in milliseconds).
 		std::size_t				m_evo_time;
+		// Evolution thread.
 		boost::scoped_ptr<boost::thread>	m_evo_thread;
 		// Migration probability.
 		double					m_migr_prob;

@@ -128,11 +128,17 @@ int main()
 //	population pop(problem::golomb_ruler(13,169),10);
 
 
-	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),5,10,topology::fully_connected());
-	archi.evolve(10);
-	archi.join();
-	archi.evolve(10);
-	archi.join();
+	//archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),1000,10,topology::one_way_ring());
+	topology::one_way_ring t;
+	for (std::size_t i = 0; i < 10000; ++i) {
+		t.push_back(i);
+	}
+	return 0;
+	//archi.evolve(10);
+	//archi.join();
+	//archi.evolve(10);
+	//archi.join();
+	//std::cout << archi.dump_migr_history();
 	return 0;
 
 
