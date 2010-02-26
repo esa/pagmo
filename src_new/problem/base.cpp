@@ -933,6 +933,9 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
 /**
  * Additional problem-specific equality testing. Default implementation returns true.
  *
+ * <b>NOTE</b>: this method will be called concurrently during evolution in archipelago from multiple island objects. This implies that
+ * this method must never write anything into the problem object.
+ *
  * @param[in] p problem::base to which this will be compared.
  *
  * @return true if p satisfies the additional equality testing, false otherwise.

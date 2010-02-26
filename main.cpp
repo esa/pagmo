@@ -128,7 +128,9 @@ int main()
 //	population pop(problem::golomb_ruler(13,169),10);
 
 
-	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),2,10,topology::fully_connected());
+	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),5,10,topology::fully_connected());
+	archi.evolve(10);
+	archi.join();
 	archi.evolve(10);
 	archi.join();
 	return 0;

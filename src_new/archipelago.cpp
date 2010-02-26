@@ -318,6 +318,11 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 		for (std::vector<individual_type>::const_iterator ind_it = candidates.begin();
 			ind_it != candidates.end(); ++ind_it)
 		{
+			// Skip individual if it is not within the bounds of the problem
+			// in the destination island.
+			if (!dest_isl.m_pop.problem().verify_x(ind_it->cur_x)) {
+				continue;
+			}
 			tmp.cur_x = ind_it->cur_x;
 			dest_isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
 			dest_isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
