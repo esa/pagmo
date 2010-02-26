@@ -27,8 +27,8 @@
 #ifndef PAGMO_ISLAND_H
 #define PAGMO_ISLAND_H
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/thread.hpp>
 #include <cstddef>
 #include <iostream>
 #include <string>
@@ -72,8 +72,6 @@ class archipelago;
  */
 class __PAGMO_VISIBLE island
 {
-		// Lock type alias.
-		typedef boost::lock_guard<boost::mutex> lock_type;
 	public:
 		/// The archipelago class needs access to the internals of the island.
 		friend class archipelago;
@@ -129,21 +127,20 @@ class __PAGMO_VISIBLE island
 		std::vector<population::individual_type> get_emigrants() const;
 	private:
 		// Population.
-		population			m_pop;
+		population				m_pop;
 		// Algorithm.
-		algorithm::base_ptr		m_algo;
+		algorithm::base_ptr			m_algo;
 		// Archipelago that, if not null, contains the island.
-		archipelago			*m_archi;
+		archipelago				*m_archi;
 		// Counts the total time spent by the island on evolution (in milliseconds).
-		std::size_t			m_evo_time;
-		// Mutex used to control evolution synchronisation.
-		mutable boost::mutex		m_evo_mutex;
+		std::size_t				m_evo_time;
+		boost::scoped_ptr<boost::thread>	m_evo_thread;
 		// Migration probability.
-		double				m_migr_prob;
+		double					m_migr_prob;
 		// Migration selection policy.
-		migration::base_s_policy_ptr	m_s_policy;
+		migration::base_s_policy_ptr		m_s_policy;
 		// Migration replacement policy.
-		migration::base_r_policy_ptr	m_r_policy;
+		migration::base_r_policy_ptr		m_r_policy;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const island &);

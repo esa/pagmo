@@ -97,6 +97,7 @@ island &island::operator=(const island &isl)
 		m_algo = isl.m_algo->clone();
 		m_archi = isl.m_archi;
 		m_evo_time = isl.m_evo_time;
+		m_evo_thread.reset(0);
 		m_migr_prob = isl.m_migr_prob;
 		m_s_policy = isl.m_s_policy->clone();
 		m_r_policy = isl.m_r_policy->clone();
@@ -120,7 +121,9 @@ island::~island()
  */
 void island::join() const
 {
-	lock_type lock(m_evo_mutex);
+	if (m_evo_thread) {
+		m_evo_thread->join();
+	}
 }
 
 /// Return terse human readable representation of the island.
@@ -186,19 +189,6 @@ algorithm::base_ptr island::get_algorithm() const
 {
 	join();
 	return m_algo->clone();
-}
-
-/// Query the state of the island.
-/**
- * @return true if island is evolving, false otherwise.
- */
-bool island::busy() const
-{
-	if (!m_evo_mutex.try_lock()) {
-		return true;
-	}
-	m_evo_mutex.unlock();
-	return false;
 }
 
 /// Algorithm setter.
@@ -303,13 +293,11 @@ void island::int_evolver::operator()()
 		if (diff.total_milliseconds() >= 0) {
 			m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
 		}
-	// NOTE: do the catches here for exception-safety, otherwise we might not be able to unlock the mutex later.
 	} catch (const std::exception &e) {
 		std::cout << "Error during island evolution: " << e.what() << '\n';
 	} catch (...) {
 		std::cout << "Error during island evolution, unknown exception caught. :(\n";
 	}
-	m_i->m_evo_mutex.unlock();
 }
 
 /// Evolve island n times.
@@ -324,16 +312,12 @@ void island::int_evolver::operator()()
  */
 void island::evolve(int n)
 {
+	join();
 	const std::size_t n_evo = boost::numeric_cast<std::size_t>(n);
-	if (m_evo_mutex.try_lock()) {
-		try {
-			boost::thread(int_evolver(this,n_evo));
-		} catch (...) {
-			m_evo_mutex.unlock();
-			pagmo_throw(std::runtime_error,"failed to launch the thread");
-		}
-	} else {
-		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
+	try {
+		m_evo_thread.reset(new boost::thread(int_evolver(this,n_evo)));
+	} catch (...) {
+		pagmo_throw(std::runtime_error,"failed to launch the thread");
 	}
 }
 
@@ -367,7 +351,6 @@ void island::t_evolver::operator()()
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
 	}
-	m_i->m_evo_mutex.unlock();
 }
 
 /// Evolve island for a specified minimum amount of time.
@@ -383,16 +366,12 @@ void island::t_evolver::operator()()
  */
 void island::evolve_t(int t)
 {
+	join();
 	const std::size_t t_evo = boost::numeric_cast<std::size_t>(t);
-	if (m_evo_mutex.try_lock()) {
-		try {
-			boost::thread(t_evolver(this,t_evo));
-		} catch (...) {
-			m_evo_mutex.unlock();
-			pagmo_throw(std::runtime_error,"failed to launch the thread");
-		}
-	} else {
-		pagmo_throw(std::runtime_error,"cannot evolve while still evolving");
+	try {
+		m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo)));
+	} catch (...) {
+		pagmo_throw(std::runtime_error,"failed to launch the thread");
 	}
 }
 

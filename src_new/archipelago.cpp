@@ -462,24 +462,6 @@ void archipelago::post_evolution(island &isl)
 //std::cout << "Done post\n";
 }
 
-/// Check status of the archipelago.
-/**
- * Will iteratively called island::busy() on all islands and return true if at least one island is busy.
- * Otherwise, false will be returned.
- *
- * @return evolution status of the archipelago.
- */
-bool archipelago::busy() const
-{
-	const const_iterator it_f = m_container.end();
-	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
-		if (it->busy()) {
-			return true;
-		}
-	}
-	return false;
-}
-
 /// Run the evolution for the given number of iterations.
 /**
  * Will iteratively call island::evolve(n) on each island of the archipelago and then return.
@@ -488,9 +470,7 @@ bool archipelago::busy() const
  */
 void archipelago::evolve(int n)
 {
-	if (busy()) {
-		pagmo_throw(std::runtime_error,"cannot start evolution while evolving");
-	}
+	join();
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve(n);
@@ -505,9 +485,7 @@ void archipelago::evolve(int n)
  */
 void archipelago::evolve_t(int t)
 {
-	if (busy()) {
-		pagmo_throw(std::runtime_error,"cannot start evolution while evolving");
-	}
+	join();
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		it->evolve_t(t);
