@@ -335,8 +335,10 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 // the individuals that will migrate into the island.
 void archipelago::pre_evolution(island &isl)
 {
+//std::cout << "In pre\n";
 	// Lock the migration logic.
 	lock_type lock(m_migr_mutex);
+//std::cout << "Locked pre\n";
 	// Make sure the island belongs to the archipelago.
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
@@ -394,10 +396,11 @@ void archipelago::pre_evolution(island &isl)
 	}
 	//2. Insert immigrants into population.
 	if (immigrants.size()) {
-		if (m_drng() < isl.get_migration_probability()) {
+		if (m_drng() < isl.m_migr_prob) {
 			isl.accept_immigrants(immigrants);
 		}
 	}
+//std::cout << "Done pre\n";
 }
 
 // This method will be called after each island isl has completed an evolution. Its purpose is to get individuals
@@ -405,8 +408,10 @@ void archipelago::pre_evolution(island &isl)
 // and the topology.
 void archipelago::post_evolution(island &isl)
 {
+//std::cout << "In post\n";
 	// Lock the migration logic.
 	lock_type lock(m_migr_mutex);
+//std::cout << "Locked post\n";
 	// Make sure the island belongs to the archipelago.
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
@@ -415,7 +420,7 @@ void archipelago::post_evolution(island &isl)
 	pagmo_assert(&isl >= &m_container[0] && boost::numeric_cast<size_type>(&isl - &m_container[0]) < m_container.size());
 	// Determine the island's index in the archipelago.
 	const size_type isl_idx = boost::numeric_cast<size_type>(&isl - &m_container[0]);
-	//1. Build the vector of emigrants;
+	// Create the vector of emigrants.
 	std::vector<individual_type> emigrants;
 	switch (m_migr_dir) {
 		case source:
@@ -423,66 +428,91 @@ void archipelago::post_evolution(island &isl)
 			// Get the islands to which isl connects.
 			const std::vector<int> adj_islands(m_topology->get_adjacent_vertices(boost::numeric_cast<int>(isl_idx)));
 			if (adj_islands.size()) {
-
+				emigrants = isl.get_emigrants();
+				// Do something only if we have emigrants.
+				if (emigrants.size()) {
+					switch (m_dist_type)
+					{
+						case point_to_point:
+						{
+							// For one-to-one migration choose a random neighbour island and put immigrants to its inbox.
+							boost::uniform_int<std::vector<int>::size_type> uint(0,adj_islands.size() - 1);
+							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[uint(m_urng)]);
+							m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
+							break;
+						}
+						case broadcast:
+							// For broadcast migration put immigrants to all neighbour islands' inboxes.
+							for (std::vector<int>::size_type i = 0; i < adj_islands.size(); ++i) {
+								m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
+								.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
+								emigrants.begin(),emigrants.end());
+							}
+					}
+				}
 			}
 			break;
 		}
 		case destination:
-			;
+			// For destination migration directio, migration map behaves like "outboxes", i.e. each is a "database of best individuals" for corresponding island.
+			emigrants = isl.get_emigrants();
+			pagmo_assert(m_migr_map[isl_idx].size() <= 1);
+			m_migr_map[isl_idx][isl_idx].swap(emigrants);
+	}
+//std::cout << "Done post\n";
+}
+
+/// Check status of the archipelago.
+/**
+ * Will iteratively called island::busy() on all islands and return true if at least one island is busy.
+ * Otherwise, false will be returned.
+ *
+ * @return evolution status of the archipelago.
+ */
+bool archipelago::busy() const
+{
+	const const_iterator it_f = m_container.end();
+	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
+		if (it->busy()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/// Run the evolution for the given number of iterations.
+/**
+ * Will iteratively call island::evolve(n) on each island of the archipelago and then return.
+ *
+ * \param[in] n number of time each island will be evolved.
+ */
+void archipelago::evolve(int n)
+{
+	if (busy()) {
+		pagmo_throw(std::runtime_error,"cannot start evolution while evolving");
+	}
+	const iterator it_f = m_container.end();
+	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		it->evolve(n);
 	}
 }
 
-
-#if 0
-	//2. Store them in an appropriate place
-	if (!migrationDirection) {
-		// For migrationDirection == 0, immigrantsByIsland are "inboxes" of particular islands.
-
-		const std::vector<size_t> neighbours = topology->get_neighbours_out(_island.id());
-
-		//std::cout << "The island has " << neighbours.size() << " neigbours." << std::endl;
-
-		if (neighbours.size() > 0) {
-			immigrants = _island.getMigratingIndividuals();
-
-			//std::cout << "The island migrates " << immigrants.size() << " individuals" << std::endl;
-
-			if (immigrants.size() > 0) {
-				if (!distributionType) {
-					// For one-to-one migration choose a random neighbour island and put immigrants to its inbox
-					size_t chosenNeighbourIndex = (size_t)(rng() * neighbours.size());
-					size_t chosenNeighbour = neighbours[chosenNeighbourIndex];
-
-					//std::cout << "Randomly chosen neighbour id: " << chosenNeighbour << std::endl;
-
-					immigrantsByIsland[chosenNeighbour].insert(immigrantsByIsland[chosenNeighbour].end(), immigrants.begin(), immigrants.end());
-
-					//std::cout << "The size of the neighbour's inbox is now "  << immigrantsByIsland[chosenNeighbour].size() << std::endl;
-				} else {
-					// For broadcast migration put immigrants to all neighbour islands' inboxes
-					for (size_t i = 0; i < neighbours.size(); i++) {
-						immigrantsByIsland[neighbours[i]].insert(immigrantsByIsland[neighbours[i]].end(), immigrants.begin(), immigrants.end());
-
-						//std::cout << "The size of the inbox of a neighbour with id " << neighbours[i] << " is now " << immigrantsByIsland[neighbours[i]].size() << std::endl;
-					}
-				}
-			}
-		}
-	} else {
-		// For migrationDirection == 1, immigrantsByIsland behave like "outboxes", i.e. each is a "database of best individuals" for corresponding island
-		immigrants = _island.getMigratingIndividuals();
-
-		//std::cout << "Storing " << immigrants.size() << " individuals int the DB of the island " << _island.id() << std::endl;
-
-		immigrantsByIsland[_island.id()].swap(immigrants);
+/// Run the evolution for a minimum amount of time.
+/**
+ * Will iteratively call island::evolve_t(n) on each island of the archipelago and then return.
+ *
+ * \param[in] t amount of time to evolve each island (in miliseconds).
+ */
+void archipelago::evolve_t(int t)
+{
+	if (busy()) {
+		pagmo_throw(std::runtime_error,"cannot start evolution while evolving");
 	}
-#endif
-
-
-
-
-
-
+	const iterator it_f = m_container.end();
+	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		it->evolve_t(t);
+	}
+}
 
 /// Overload stream operator for pagmo::archipelago.
 /**

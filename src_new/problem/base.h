@@ -111,7 +111,7 @@ class __PAGMO_VISIBLE base
 		typedef boost::circular_buffer<constraint_vector> constraint_vector_cache_type;
 	public:
 		/// Capacity of the internal caches.
-		static const std::size_t cache_capacity = 5;
+		static const std::size_t cache_capacity = 0;
 		/// Problem's size type: the same as pagmo::decision_vector's size type.
 		typedef decision_vector::size_type size_type;
 		/// Fitness' size type: the same as pagmo::fitness_vector's size type.

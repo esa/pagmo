@@ -126,6 +126,7 @@ class __PAGMO_VISIBLE island
 			const std::size_t	m_t;
 		};
 		void accept_immigrants(const std::vector<population::individual_type> &);
+		std::vector<population::individual_type> get_emigrants() const;
 	private:
 		// Population.
 		population			m_pop;

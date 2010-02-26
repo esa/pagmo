@@ -329,6 +329,7 @@ void island::evolve(int n)
 		try {
 			boost::thread(int_evolver(this,n_evo));
 		} catch (...) {
+			m_evo_mutex.unlock();
 			pagmo_throw(std::runtime_error,"failed to launch the thread");
 		}
 	} else {
@@ -387,6 +388,7 @@ void island::evolve_t(int t)
 		try {
 			boost::thread(t_evolver(this,t_evo));
 		} catch (...) {
+			m_evo_mutex.unlock();
 			pagmo_throw(std::runtime_error,"failed to launch the thread");
 		}
 	} else {
@@ -407,6 +409,12 @@ void island::accept_immigrants(const std::vector<population::individual_type> &i
 		pagmo_assert((*rep_it).first < m_pop.m_container.size() && (*rep_it).second < immigrants.size());
 		m_pop.m_container[(*rep_it).first] = immigrants[(*rep_it).second];
 	}
+}
+
+// Get individuals migrating from here.
+std::vector<population::individual_type> island::get_emigrants() const
+{
+	return m_s_policy->select(m_pop);
 }
 
 /// Overload stream operator for pagmo::island.

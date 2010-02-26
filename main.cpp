@@ -50,6 +50,7 @@ using namespace pagmo;
 
 int main()
 {
+#if 0
 	topology::barabasi_albert t;
 	for (int i = 0; i < 100; ++i) {
 		t.push_back(i);
@@ -117,6 +118,7 @@ int main()
 	p2.objfun(f,lb2);
 	p2.set_lb(0,-1.234);
 	std::cout << f << '\n';
+#endif
 
 	double values[] = {1,2,3,4,5,6,7,8,9,11,15};
 	double weights[] = {4,7,9,1,2,3,5,8,6,12,17};
@@ -126,10 +128,10 @@ int main()
 //	population pop(problem::golomb_ruler(13,169),10);
 
 
-	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),1000,10/*,topology::watts_strogatz(20,1)*/);
-	archi.set_topology(topology::watts_strogatz(1000,20,1));
-	std::cout << "Done\n";
-	std::cout << archi << '\n';
+	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),1,10,topology::fully_connected());
+	archi.evolve(10);
+	archi.join();
+	return 0;
 
 
 	//std::cout << archi;

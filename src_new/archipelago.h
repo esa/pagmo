@@ -122,6 +122,9 @@ class __PAGMO_VISIBLE archipelago
 		bool check_island(const island &) const;
 		topology::base_ptr get_topology() const;
 		void set_topology(const topology::base &);
+		void evolve(int n = 1);
+		void evolve_t(int);
+		bool busy() const;
 	private:
 		void pre_evolution(island &);
 		void post_evolution(island &);
