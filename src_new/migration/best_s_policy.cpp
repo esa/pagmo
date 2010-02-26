@@ -34,11 +34,11 @@ namespace pagmo { namespace migration {
 /// Constructor from migration rate and type.
 /**
  * @param[in] rate migration rate.
- * @param[in] rate_type migration rate type.
+ * @param[in] type migration rate type.
  *
  * @see base_s_policy::base_s_policy.
  */
-best_s_policy::best_s_policy(const double &rate,  migration_rate_type rate_type):base_s_policy(rate,rate_type) {}
+best_s_policy::best_s_policy(const double &rate, rate_type type):base_s_policy(rate,type) {}
 
 /// Clone method.
 base_s_policy_ptr best_s_policy::clone() const

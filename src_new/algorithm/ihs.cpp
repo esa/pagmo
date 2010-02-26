@@ -183,7 +183,7 @@ void ihs::evolve(population &pop) const
 std::string ihs::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tgenerations:\t" << m_gen << '\n';
+	s << "\tGenerations:\t" << m_gen << '\n';
 	s << "\tphmcr:\t\t" << m_phmcr << '\n';
 	s << "\tppar_min:\t" << m_ppar_min << '\n';
 	s << "\tppar_max:\t" << m_ppar_max << '\n';

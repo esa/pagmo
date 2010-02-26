@@ -35,6 +35,7 @@
 
 #include "config.h"
 #include "algorithm/base.h"
+#include "migration/base.h"
 #include "migration/base_s_policy.h"
 #include "migration/best_s_policy.h"
 #include "population.h"
@@ -74,7 +75,7 @@ class __PAGMO_VISIBLE island
 		friend class archipelago;
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0,
-			const migration::base_s_policy &s_policy = migration::best_s_policy(1,migration::base_s_policy::absolute));
+			const migration::base_s_policy &s_policy = migration::best_s_policy(1,migration::absolute));
 		island &operator=(const island &);
 		~island();
 		/** @name Input/output.*/

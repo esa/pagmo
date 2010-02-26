@@ -23,8 +23,25 @@
  *****************************************************************************/
 
 #include "base_r_policy.h"
+#include "base.h"
 
 namespace pagmo { namespace migration {
 
+/// Constructor from migration rate and type.
+/**
+ * Default replacement policy is to allow the replacement of the 100% of the target population.
+ *
+ * @param[in] rate migration rate.
+ * @param[in] type migration rate type.
+ *
+ * @see migration::base::base().
+ */
+base_r_policy::base_r_policy(const double &rate, rate_type type):base(rate,type) {}
+
+/// Trivial destructor.
+/**
+ * No side effects.
+ */
+base_r_policy::~base_r_policy() {}
 
 }}

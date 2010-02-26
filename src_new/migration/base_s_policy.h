@@ -26,20 +26,13 @@
 #define PAGMO_MIGRATION_BASE_S_POLICY_H
 
 #include <boost/shared_ptr.hpp>
-#include <iostream>
-#include <string>
 #include <vector>
 
 #include "../config.h"
 #include "../population.h"
+#include "base.h"
 
-namespace pagmo {
-
-/// Migration policies namespace.
-/**
- * This namespace contains selection/replacement policies used during migration in the archipelago class.
- */
-namespace migration {
+namespace pagmo { namespace migration {
 
 // Base class for selection policies for migration.
 class base_s_policy;
@@ -47,26 +40,18 @@ class base_s_policy;
 /// Shared pointer to base selection policy.
 typedef boost::shared_ptr<base_s_policy> base_s_policy_ptr;
 
-/// Base class for selection policies for migration.
+/// Base class for migration selection policies.
 /**
- * This class provides its subclasses with means for specifying the emigration rate from an island.
- * The migration rate can be specified either as an absolute value (the number of individuals to migrate)
- * or as a fracion of the population size. The type of migration rate is selected upon construction.
+ * The task of a migration selection policy is to select in a population the individuals that will emigrate. The selection
+ * is performed by the pure virtual select() method.
  *
  * @author Marek Ruciński (marek.rucinski@gmail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE base_s_policy
+class __PAGMO_VISIBLE base_s_policy: public base
 {
 	public:
-		/// Type of migration rate.
-		enum migration_rate_type {
-			/// Migration rate is interpreted as the absolute number of individuals to migrate.
-			absolute = 0,
-			/// Migration rate is interpreted as the fraction of individuals to migrate.
-			fractional = 1
-		};
-		base_s_policy(const double &rate = 1, migration_rate_type = absolute);
+		base_s_policy(const double &rate = 1, rate_type type = absolute);
 		virtual ~base_s_policy();
 		/// Clone method.
 		/**
@@ -89,22 +74,7 @@ return base_ptr(new derived_policy(*this));
 		 * \return a vector containing selected individuals.
 		 */
 		virtual std::vector<population::individual_type> select(const population &pop) const = 0;
-		population::size_type get_n_individuals(const population &) const;
-		std::string human_readable() const;
-	protected:
-		virtual std::string human_readable_extra() const;
-	protected:
-		/// Migration rate.
-		/**
-		 * It will be interpreted as an integer in case of absolute rate migration type, as a floating-point value
-		 * in case of fractional migration type.
-		 */
-		double			m_rate;
-		/// Migration rate type.
-		migration_rate_type	m_rate_type;
 };
-
-std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base_s_policy &);
 
 }}
 

@@ -22,52 +22,70 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_MIGRATION_BASE_R_POLICY_H
-#define PAGMO_MIGRATION_BASE_R_POLICY_H
+#ifndef PAGMO_MIGRATION_BASE_POLICY_H
+#define PAGMO_MIGRATION_BASE_POLICY_H
 
-#include <boost/shared_ptr.hpp>
+#include <iostream>
+#include <string>
 
 #include "../config.h"
 #include "../population.h"
-#include "base.h"
 
-namespace pagmo { namespace migration {
+namespace pagmo {
 
-// Fwd declaration.
-class base_r_policy;
-
-/// Shared pointer to base replacement policy.
-typedef boost::shared_ptr<base_r_policy> base_r_policy_ptr;
-
-/// Base class for migration replacement policies.
+/// Migration policies namespace.
 /**
- * The task of a migration replacement policy is to select in a population the individuals that will replaced by immigrating individuals. The selection
- * is performed by the pure virtual select() method.
- *
- * The base::get_n_individuals() method for this class is meant to represent the maximum number of individuals in the target population
- * that can be replaced by the immigrants. How many of these will actually be replaced will depend on the specific policy implementation.
- *
- * @author Marek Ruciński (marek.rucinski@gmail.com)
- * @author Francesco Biscani (bluescarni@gmail.com)
+ * This namespace contains selection/replacement policies used during migration in the archipelago class.
  */
-class __PAGMO_VISIBLE base_r_policy: public base
+namespace migration {
+
+/// Type of migration rate.
+/**
+ * Used both by selection and replacement migration policies.
+ */
+enum rate_type
 {
-	public:
-		base_r_policy(const double &rate = 1, rate_type type = fractional);
-		virtual ~base_r_policy();
-		/// Clone method.
-		/**
-		 * Provided that the derived policy implements properly the copy constructor, virtually all implementations of this method will
-		 * look like this:
-@verbatim
-return base_ptr(new derived_policy(*this));
-@endverbatim
-		 *
-		 * @return migration::base_s_policy_ptr to a copy of this.
-		 */
-		virtual base_r_policy_ptr clone() const = 0;
+	/// Migration rate is interpreted as the absolute number of individuals to migrate.
+	absolute = 0,
+	/// Migration rate is interpreted as the fraction of individuals to migrate with respect to the orign/destination population.
+	fractional = 1
 };
 
-}}
+/// Base migration class.
+/**
+ * Embeds two properties used both in selection and replacement policies:
+ * - a migration rate type, which can be either absolute or fractional;
+ * - a migration rate, which represents:
+ *   - the absolute number of individuals selected/replaced from/in the interested population (absolute migration rate type),
+ *   - the fraction of individuals selected/replaced from/in the interested population (fractional migration rate type).
+ *
+ * The get_n_individuals() method returns the number of individuals to be selected/replaced in the given population, according to the
+ * properties above.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
+ */
+class __PAGMO_VISIBLE base
+{
+	public:
+		base(const double &, rate_type);
+		population::size_type get_n_individuals(const population &) const;
+		std::string human_readable() const;
+	protected:
+		virtual std::string human_readable_extra() const;
+	protected:
+		/// Migration rate.
+		/**
+		 * It will be interpreted as an integer in case of absolute rate migration type, as a floating-point value
+		 * in case of fractional migration type.
+		 */
+		double		m_rate;
+		/// Migration rate type.
+		rate_type	m_type;
+};
+
+std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
+
+} }
 
 #endif

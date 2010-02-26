@@ -43,7 +43,7 @@ namespace pagmo { namespace migration {
 class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 {
 	public:
-		best_s_policy(const double &rate = 1, migration_rate_type = absolute);
+		best_s_policy(const double &rate = 1, rate_type type = absolute);
 		base_s_policy_ptr clone() const;
 		std::vector<population::individual_type> select(const population &) const;
 
