@@ -35,18 +35,18 @@ namespace detail {
 
 // returns pointer to object and an indicator whether this is a
 // new entry (true) or a previous one (false)
-BOOST_ARCHIVE_DECL(shared_ptr<void>)
+BOOST_ARCHIVE_DECL(shared_ptr_helper::result_type)
 shared_ptr_helper::get_od(
-        const void * t,
+        void * od,
         const boost::serialization::extended_type_info * true_type, 
         const boost::serialization::extended_type_info * this_type
 ){
     // get void pointer to the most derived type
     // this uniquely identifies the object referred to
-    const void * od = void_downcast(
+    od = void_downcast(
         *true_type, 
         *this_type, 
-        t
+        od
     );
     if(NULL == od)
         boost::serialization::throw_exception(
@@ -61,21 +61,15 @@ shared_ptr_helper::get_od(
     if(NULL == m_pointers)
         m_pointers = new collection_type;
 
-    //shared_ptr<const void> sp(od, null_deleter()); 
-    shared_ptr<const void> sp(od, null_deleter());
-    collection_type::iterator i = m_pointers->find(sp);
-
-    if(i == m_pointers->end()){
-        std::pair<collection_type::iterator, bool> result;
-        shared_ptr<const void> sp(const_cast<void * >(od), void_deleter(true_type));
-        result = m_pointers->insert(sp);
-        assert(result.second);
-        i = result.first;
-    }
+    shared_ptr<const void> sp(od, null_deleter()); 
+    std::pair<collection_type::iterator, bool> result =
+        m_pointers->insert(
+            collection_type::value_type(od, sp)
+        );
     od = void_upcast(
         *true_type, 
         *this_type,
-        i->get()
+        result.first->first
     );
     if(NULL == od)
         boost::serialization::throw_exception(
@@ -85,11 +79,7 @@ shared_ptr_helper::get_od(
                 this_type->get_debug_info()
             )
         );
-
-    return shared_ptr<void>(
-        const_pointer_cast<void>(*i), 
-        const_cast<void *>(od)
-    );
+    return result_type(result.first, od);
 }
 
 //  #ifdef BOOST_SERIALIZATION_SHARED_PTR_132_HPP

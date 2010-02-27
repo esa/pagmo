@@ -22,15 +22,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/02/2008: Initial version by Francesco Biscani.
+#ifndef PAGMO_CONFIG_H
+#define PAGMO_CONFIG_H
 
-#ifndef PYGMO_UTILS_H
-#define PYGMO_UTILS_H
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 100000 \
+	+ __GNUC_MINOR__ * 1000 \
+	+ __GNUC_PATCHLEVEL__ * 10)
+#endif
 
-template <class T>
-inline T Py_copy_from_ctor(const T &x)
-{
-	return T(x);
-}
+#ifdef PAGMO_WIN32
+#ifdef PAGMO_DLL_EXPORT_API
+#define __PAGMO_VISIBLE __declspec(dllexport)
+#elif defined ( PAGMO_DLL_IMPORT_API )
+#define __PAGMO_VISIBLE __declspec(dllimport)
+#else
+#define __PAGMO_VISIBLE
+#endif
+#define __PAGMO_VISIBLE_FUNC __PAGMO_VISIBLE
+#else
+#define __PAGMO_VISIBLE __attribute__ ((visibility("default")))
+#define __PAGMO_VISIBLE_FUNC
+#endif
+
+/// Root PaGMO namespace.
+namespace pagmo {}
 
 #endif

@@ -32,6 +32,11 @@ namespace std{ using ::strcmp; }
 #define BOOST_SERIALIZATION_SOURCE
 #include <boost/serialization/extended_type_info.hpp>
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 namespace boost { 
 namespace serialization {
 namespace detail {
@@ -63,6 +68,11 @@ struct key_compare
 
 typedef std::multiset<const extended_type_info *, key_compare> ktmap;
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 class extended_type_info_arg : public extended_type_info
 {
     virtual bool
@@ -78,6 +88,13 @@ class extended_type_info_arg : public extended_type_info
     virtual const char * get_debug_info() const {
         return get_key();
     }
+    virtual void * construct(unsigned int /*count*/, ...) const{
+        assert(false);
+        return NULL;
+    }
+    virtual void destroy(void const * const /*p*/) const {
+        assert(false);
+    }
 public:
     extended_type_info_arg(const char * key) :
         extended_type_info(0, key)
@@ -86,6 +103,10 @@ public:
     ~extended_type_info_arg(){
     }
 };
+
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 
 } // namespace detail
 

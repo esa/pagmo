@@ -58,43 +58,6 @@
 using namespace boost::python;
 using namespace pagmo;
 
-template <class T, class C>
-static inline T *problem_getter(const C &c)
-{
-	return c.problem().clone();
-}
-
-template <class T, class C>
-static inline T *algorithm_getter(const C &c)
-{
-	return c.algorithm().clone();
-}
-
-template <class T, class C>
-static inline T *topology_getter(const C &c)
-{
-	return c.get_topology().clone();
-}
-
-/// \todo Is this really the correct way to do things??
-template <class T, class C>
-static inline T *selection_policy_getter(const C &c)
-{
-	return c.getMigrationSelectionPolicy().clone();
-}
-
-template <class T, class C>
-static inline T *replacement_policy_getter(const C &c)
-{
-	return c.getMigrationReplacementPolicy().clone();
-}
-
-template <class T, class C>
-static inline T *migration_scheme_getter(const C &c)
-{
-	return c.get_migration_scheme().clone();
-}
-
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(island_evolve_overloads, evolve, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(archipelago_evolve_overloads, evolve, 0, 1)
 
@@ -104,30 +67,15 @@ BOOST_PYTHON_MODULE(_core)
 	// Translate exceptions for this module.
 	translate_exceptions();
 
-	// Enable automatic conversion to/from python list of double/vector<double>.
+	// Enable handy automatic conversions.
 	to_tuple_mapping<std::vector<double> >();
 	from_python_sequence<std::vector<double>,variable_capacity_policy>();
-
-	// Enable automatic conversion to/from python list of double/vector<int>.
 	to_tuple_mapping<std::vector<int> >();
 	from_python_sequence<std::vector<int>,variable_capacity_policy>();
-
-        // Enable automatic conversion to/from python list of double/vector<double>.
         to_tuple_mapping<std::vector<std::vector<double> > >();
         from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
-
-	// Expose individual class.
-	class_<individual> class_ind("individual", "Individual class.", init<const problem::base &>());
-	class_ind.def(init<const problem::base &, const std::vector<double> &, const std::vector<double> &>());
-	class_ind.def(init<const problem::base &, const std::vector<double> &>());
-	class_ind.def(init<const individual &>());
-	class_ind.def("__copy__", &Py_copy_from_ctor<individual>);
-	class_ind.def("__repr__", &Py_repr_from_stream<individual>);
-	class_ind.add_property("fitness", &individual::get_fitness, "Fitness.");
-	class_ind.add_property("decision_vector", make_function(&individual::get_decision_vector, return_value_policy<copy_const_reference>()),
-		"Decision vector.");
-	class_ind.add_property("velocity", make_function(&individual::get_velocity, return_value_policy<copy_const_reference>()),
-		"Velocity.");
+	to_tuple_mapping<std::vector<std::vector<int> > >();
+	from_python_sequence<std::vector<std::vector<int> >,variable_capacity_policy>();
 
 	// Expose population class.
 	typedef const individual &(population::*pop_get_const)(int) const;
@@ -205,64 +153,4 @@ BOOST_PYTHON_MODULE(_core)
 	class_arch.def("best", &archipelago::best, "Copy of best individual.");
 	class_arch.def("max_evo_time", &archipelago::get_max_evo_time, "Maximum of total evolution times for all islands.");
 	class_arch.def("total_evo_time", &archipelago::get_total_evo_time, "Sum of total evolution times for all islands.");
-	
-	
-	// Expose Migration
-	class_<Migration> class_M("migration", "The migration parameters for archipelago.", init<>());
-	class_M.def(init<const MigrationScheme&, const MigrationPolicy&>());
-	class_M.def("__copy__", &Py_copy_from_ctor<Migration>);
-	class_M.def("__repr__", &Py_repr_from_stream<Migration>);
-
-	// Expose MigrationScheme
-	class_<MigrationScheme> class_MS("migration_scheme", "The migration scheme.", init<int, int, optional<boost::uint32_t> >());
-	class_MS.def(init<int, int, const base_topology&, optional<boost::uint32_t> >());
-	class_MS.def("__copy__", &Py_copy_from_ctor<MigrationScheme>);
-	class_MS.def("__repr__", &Py_repr_from_stream<MigrationScheme>);
-	
-	// Expose MigrationPolicy
-	class_<MigrationPolicy> class_MP("migration_policy", "The island's migration policy.", init<>());
-	class_MP.def(init<const double>());
-	class_MP.def(init<const double, const MigrationSelectionPolicy&, const MigrationReplacementPolicy&>());
-	class_MP.def("__copy__", &Py_copy_from_ctor<MigrationPolicy>);
-	class_MP.def("__repr__", &Py_repr_from_stream<MigrationPolicy>);
-	
-	
-	// Expose MigrationSelectionPolicy
-	class_<MigrationSelectionPolicy, boost::noncopyable> class_MSP("__migration_selection_policy", "A migration selection policy.", no_init);
-	
-	// Expose RandomMigrationSelectionPolicy
-	class_<RandomMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_RMSP("random_selection_policy", "A random migration selection policy.", init<optional<const boost::uint32_t> >());	
-	/*
-	 * !!!
-	 * Here and below the order of declaration of constructors is crucial !!!
-	 * If the int one is given first, RandomMigrationSelectionPolicy(1) will be interpreted as RandomMigrationSelectionPolicy(1.0) !!!
-	 * Python overloading SUCKS.
-	 * !!!
-	 */	
-	class_RMSP.def(init<const double&, optional<const boost::uint32_t> >());
-	class_RMSP.def(init<const int&, optional<const boost::uint32_t> >());
-	class_RMSP.def("__copy__", &Py_copy_from_ctor<RandomMigrationSelectionPolicy>);
-	class_RMSP.def("__repr__", &Py_repr_from_stream<RandomMigrationSelectionPolicy>);
-	// Expose ChooseBestMigrationSelectionPolicy
-	class_<ChooseBestMigrationSelectionPolicy, bases<MigrationSelectionPolicy> > class_CBMSP("choose_best_selection_policy", "A choose best migration selection policy.", init<>());	
-	class_CBMSP.def(init<const double&>());
-	class_CBMSP.def(init<const int&>());	
-	class_CBMSP.def("__copy__", &Py_copy_from_ctor<ChooseBestMigrationSelectionPolicy>);
-	class_CBMSP.def("__repr__", &Py_repr_from_stream<ChooseBestMigrationSelectionPolicy>);
-		
-	// Expose MigrationReplacementPolicy
-	class_<MigrationReplacementPolicy, boost::noncopyable> class_MRP("__migration_replacement_policy", "A migration replacement policy.", no_init);
-	
-	// Expose RandomMigrationReplacementPolicy
-	class_<RandomMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_RMRP("random_replacement_policy", "A random migration replacement policy.", init<optional<const boost::uint32_t> >());
-	class_RMRP.def(init<const double&, optional<const boost::uint32_t> >());
-	class_RMRP.def(init<const int&, optional<const boost::uint32_t> >());	
-	class_RMRP.def("__copy__", &Py_copy_from_ctor<RandomMigrationReplacementPolicy>);
-	class_RMRP.def("__repr__", &Py_repr_from_stream<RandomMigrationReplacementPolicy>);
-
-	class_<BestReplaceWorstIfBetterMigrationReplacementPolicy, bases<MigrationReplacementPolicy> > class_BRWIBMRP("best_rep_worst_replacement_policy", "A migration replacement policy where best incoming replace worst present if they are better.", init<>());
-	class_BRWIBMRP.def(init<const double&>());
-	class_BRWIBMRP.def(init<const int&>());
-	class_BRWIBMRP.def("__copy__", &Py_copy_from_ctor<BestReplaceWorstIfBetterMigrationReplacementPolicy>);
-	class_BRWIBMRP.def("__repr__", &Py_repr_from_stream<BestReplaceWorstIfBetterMigrationReplacementPolicy>);	
 }

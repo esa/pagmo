@@ -3,9 +3,6 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// boost::python::make_tuple below are for gcc 4.4 -std=c++0x compatibility
-// (Intel C++ 10 and 11 with -std=c++0x don't need the full qualification).
-
 #include <boost/python/converter/registrations.hpp>
 #include <boost/python/object/function_doc_signature.hpp>
 #include <boost/python/errors.hpp>
@@ -14,6 +11,7 @@
 #include <boost/python/tuple.hpp>
 
 #include <boost/python/detail/signature.hpp>
+
 
 #include <vector>
 
@@ -230,7 +228,7 @@ namespace boost { namespace python { namespace objects {
         {
             return str(
                 "%s %s(%s%s%s%s)"
-                % boost::python::make_tuple // workaround, see top
+                % make_tuple
                 ( ret_type
                     , f->m_name
                     , str(",").join(formal_params.slice(0,arity-n_overloads))
@@ -241,7 +239,7 @@ namespace boost { namespace python { namespace objects {
         }else{
             return str(
                 "%s(%s%s%s%s) -> %s"
-                % boost::python::make_tuple // workaround, see top
+                % make_tuple
                 ( f->m_name
                     , str(",").join(formal_params.slice(0,arity-n_overloads))
                     , n_overloads ? (n_overloads!=arity?str(" [,"):str("[ ")) : str()
@@ -253,7 +251,7 @@ namespace boost { namespace python { namespace objects {
 
         return str(
             "%s %s(%s%s%s%s) %s"
-            % boost::python::make_tuple // workaround, see top
+            % make_tuple
             ( cpp_types?ret_type:str("")
                 , f->m_name
                 , str(",").join(formal_params.slice(0,arity-n_overloads))

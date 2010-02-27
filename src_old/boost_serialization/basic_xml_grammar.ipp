@@ -16,19 +16,10 @@
 #include <algorithm>
 #include <boost/config.hpp> // BOOST_DEDUCED_TYPENAME
 
-#ifdef BOOST_MSVC
-#  pragma warning(push)
-#  pragma warning(disable : 4511 4512)
-#endif
-
 // spirit stuff
 #include <boost/spirit/core/composite/operators.hpp>
 #include <boost/spirit/core/composite/actions.hpp>
 #include <boost/spirit/core/primitives/numerics.hpp>
-
-#ifdef BOOST_MSVC
-#pragma warning(pop)
-#endif
 
 // for head_iterator test
 //#include <boost/bind.hpp> 
@@ -51,11 +42,6 @@ namespace archive {
 // template code for basic_xml_grammar of both wchar_t and char types
 
 namespace xml { // anonymous
-
-#ifdef BOOST_MSVC
-#  pragma warning(push)
-#  pragma warning(disable : 4511 4512)
-#endif
 
 template<class T>
 struct assign_impl {
@@ -81,9 +67,6 @@ struct assign_impl<std::string> {
             ++b;
         }
     }
-    assign_impl<std::string> & operator=(
-        assign_impl<std::string> & rhs
-    );
     assign_impl(std::string & t_)
         : t(t_)
     {}
@@ -167,10 +150,6 @@ struct append_lit {
     {}
 };
 
-#ifdef BOOST_MSVC
-#pragma warning(pop)
-#endif
-
 } // namespace anonymous
 
 template<class CharType>
@@ -192,12 +171,10 @@ bool basic_xml_grammar<CharType>::my_parse(
     
     CharType val;
     do{
-        BOOST_DEDUCED_TYPENAME basic_xml_grammar<CharType>::IStream::int_type
-            result = is.get();
+        val = is.get();
+        arg += val;
         if(is.fail())
             return false;
-        val = static_cast<CharType>(result);
-        arg += val;
     }
     while(val != delimiter);
     
