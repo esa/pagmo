@@ -22,23 +22,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 13/02/2008: Initial version by Francesco Biscani.
-
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
-#include <boost/python/def.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
+#include <boost/python/operators.hpp>
 #include <string>
 
-#include "../../src/GOclasses/problems/classic.h"
-#include "../../src/GOclasses/problems/base.h"
-#include "../../src/GOclasses/problems/trajectory.h"
-#include "../../src/GOclasses/problems/earth_mars_lt.h"
-#include "../../src/GOclasses/problems/earth_mars_lt2.h"
-#include "../../src/GOclasses/problems/example.h"
-#include "../../src/GOclasses/problems/twodee.h"
-#include "../../src/GOclasses/problems/sp_test.h"
+#include "../../src/problem/base.h"
+#include "../../src/problem/paraboloid.h"
+#include "../../src/types.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
@@ -49,16 +42,40 @@ template <class Problem>
 static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *name, const char *descr)
 {
 	class_<Problem,bases<problem::base> > retval(name,descr,init<const Problem &>());
-	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
-	retval.def("__repr__", &Py_repr_from_stream<Problem>);
-	retval.def("objfun", &Problem::objfun, "Objective function.");
-	//retval.def("set_lb", &Problem::set_lb, "Set lower bound.");
-	//retval.def("set_ub", &Problem::set_ub, "Set upper bound.");
-	//retval.add_property("lb", make_function(&Problem::get_lb,return_value_policy<copy_const_reference>()), &Problem::set_lb, "Lower bounds.");
-	//retval.add_property("ub", make_function(&Problem::get_ub,return_value_policy<copy_const_reference>()), &Problem::set_ub, "Upper bounds.");
-	retval.add_property("dimension", &Problem::getDimension, "Dimension.");
-	retval.add_property("id_name", &Problem::id_name, "Identification name.");
-	retval.add_property("id_object", &Problem::id_object, "Object identification name.");
+	retval.def("__copy__", &Problem::clone);
+	retval.def("__repr__", &Problem::human_readable);
+	// Dimensions.
+	retval.add_property("dimension", &Problem::get_dimension, "Global dimension.");
+	retval.add_property("i_dimension", &Problem::get_i_dimension, "Integer dimension.");
+	retval.add_property("c_dimension", &Problem::get_c_dimension, "Global constraints dimension.");
+	retval.add_property("ic_dimension", &Problem::get_ic_dimension, "Inequality constraints dimension.");
+	// Bounds.
+	typedef void (Problem::*bounds_setter)(const decision_vector &);
+	retval.add_property("lb",make_function(&Problem::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&Problem::set_lb), "Lower bounds.");
+	retval.add_property("ub",make_function(&Problem::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&Problem::set_ub), "Upper bounds.");
+	typedef void (Problem::*bounds_setter_value)(const double &, const double &);
+	typedef void (Problem::*bounds_setter_vectors)(const decision_vector &, const decision_vector &);
+	retval.def("set_bounds",bounds_setter_value(&Problem::set_bounds),"Set all bounds to the input values.");
+	retval.def("set_bounds",bounds_setter_vectors(&Problem::set_bounds),"Set bounds to the input vectors.");
+	retval.add_property("diameter",&Problem::get_diameter, "Problem's diameter.");
+	// Useful operators.
+	retval.def(self == self);
+	retval.def(self != self);
+	retval.def("is_compatible",&Problem::is_compatible,"Check compatibility with other problem.");
+	// Comparisons.
+	retval.def("compare_x",&Problem::compare_x,"Compare decision vectors.");
+	retval.def("verify_x",&Problem::verify_x,"Check if decision vector is compatible with problem.");
+	retval.def("compare_fc",&Problem::compare_fc,"Simultaneous fitness-constraint comparison.");
+	// Constraints.
+	typedef constraint_vector (Problem::*return_constraints)(const decision_vector &) const;
+	retval.def("compare_constraints",&Problem::compare_constraints,"Compare constraint vectors.");
+	retval.def("compute_constraints",return_constraints(&Problem::compute_constraints),"Compute and return constraint vector.");
+	retval.def("feasibility_x",&Problem::feasibility_x,"Determine feasibility of decision vector.");
+	retval.def("feasibility_c",&Problem::feasibility_c,"Determine feasibility of constraint vector.");
+	// Fitness.
+	typedef fitness_vector (Problem::*return_fitness)(const decision_vector &) const;
+	retval.def("objfun",return_fitness(&Problem::objfun),"Compute and return fitness vector.");
+	retval.def("compare_fitness",&Problem::compare_fitness,"Compare fitness vectors.");
 	return retval;
 }
 
@@ -66,46 +83,11 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Translate exceptions for this module.
 	translate_exceptions();
 
-	// Expose base problem::base class.
-	class_<problem::base, boost::noncopyable>("__go_problem", "Base GO problem", no_init);
+	// Expose base problem class.
+	class_<problem::base,boost::noncopyable>("__base", no_init);
 
-	// Expose problem classes.
-	// Trajectory problems from the GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt.htm)
-	// MGA Problems
-	problem_wrapper<problem::cassini1>("cassini1", "Cassini1 problem.").def(init<>());
-	problem_wrapper<problem::gtoc1>("gtoc1", "Problem associated to the first edition of the GTOC competition.").def(init<>());
-	//MGADSM Problems
-	problem_wrapper<problem::messengerfull>("messenger_full", "Messenger full problem.").def(init<>());
-	problem_wrapper<problem::messenger>("messenger", "Messenger problem.").def(init<>());
-	problem_wrapper<problem::cassini2>("cassini2", "Cassini2 problem.").def(init<>());
-	problem_wrapper<problem::rosetta>("rosetta", "Rosetta problem.").def(init<>());
-	problem_wrapper<problem::sagas>("sagas", "Sagas problem.").def(init<>());
-	problem_wrapper<problem::tandem>("tandem", "TandEM problem").def(init<const int>()).def(init<const int, const double>());
-
-	//Miscellanea Trajectory Problems
-	// MGADSM Problems
-	problem_wrapper<problem::laplace>("laplace", "Laplace problem.").def(init<const std::vector<int> &>())
-		.def("solution", &problem::laplace::solution, "Display solution relative to input decision vector.");
-	//Low-Thrust Problems
-	problem_wrapper<problem::earth_mars_lt>("earth_mars_lt", "Earth-Mars LT problem: impulsive transcription")
-		.def(init<int, double, double, double>()).def("hr",&problem::earth_mars_lt::human_readable);
-	problem_wrapper<problem::earth_mars_lt2>("earth_mars_lt2", "Earth-Mars LT problem: continuous transcription")
-                .def(init<int, double, double, double>()).def("hr",&problem::earth_mars_lt2::human_readable)
-                .def("visualize",&problem::earth_mars_lt2::visualize);
-	
-	// Classical problems.
-	problem_wrapper<problem::test>("test1", "Example problem: minimization of y = sum x_i").def(init<int>());
-	problem_wrapper<problem::example>("test2", "Example problem: minimization of y = x * x.").def(init<>());
-	problem_wrapper<problem::rastrigin>("rastrigin", "Rastrigin problem.").def(init<int>());
-	problem_wrapper<problem::schwefel>("schwefel", "Schwefel problem.").def(init<int>());
-	problem_wrapper<problem::ackley>("ackley", "Ackely problem.").def(init<int>());
-	problem_wrapper<problem::rosenbrock>("rosenbrock", "Rosenbrock problem.").def(init<int>());
-	problem_wrapper<problem::lennardjones>("lennardjones", "Lennard-Jones problem.").def(init<int>());
-	problem_wrapper<problem::levy>("levy", "Levy problem.").def(init<int>());
-	// Stochastic Programming Problems (evolutionary robotics included)
-	problem_wrapper<problem::twodee>("twodee", "Twodee problem.").def(init<int>()).def(init<int,const std::string &>());
-	problem_wrapper<problem::inventory>("inventory", "Inventory problem.").def(init<int>());
-
-	def("objfun_calls", &problem::objfun_calls, "Number of times objective functions have been called.");
-	def("reset_objfun_calls", &problem::reset_objfun_calls, "Reset to zero the number of times objective functions have been called.");
+	// Paraboloid problem.
+	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
+		.def(init<>())
+		.def(init<const decision_vector &, const decision_vector &>());
 }

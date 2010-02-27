@@ -27,24 +27,24 @@
 #include <vector>
 #include <list>
 
-#include "src_new/algorithm/ihs.h"
-#include "src_new/algorithm/monte_carlo.h"
-#include "src_new/algorithm/null.h"
-#include "src_new/archipelago.h"
-#include "src_new/island.h"
-#include "src_new/problem/golomb_ruler.h"
-#include "src_new/problem/himmelblau.h"
-#include "src_new/problem/knapsack.h"
-#include "src_new/problem/paraboloid.h"
-#include "src_new/problem/rastrigin.h"
-#include "src_new/topology/ring.h"
-#include "src_new/topology/one_way_ring.h"
-#include "src_new/topology/unconnected.h"
-#include "src_new/topology/fully_connected.h"
-#include "src_new/topology/custom.h"
-#include "src_new/topology/erdos_renyi.h"
-#include "src_new/topology/barabasi_albert.h"
-#include "src_new/topology/watts_strogatz.h"
+#include "src/algorithm/ihs.h"
+#include "src/algorithm/monte_carlo.h"
+#include "src/algorithm/null.h"
+#include "src/archipelago.h"
+#include "src/island.h"
+#include "src/problem/golomb_ruler.h"
+#include "src/problem/himmelblau.h"
+#include "src/problem/knapsack.h"
+#include "src/problem/paraboloid.h"
+#include "src/problem/rastrigin.h"
+#include "src/topology/ring.h"
+#include "src/topology/one_way_ring.h"
+#include "src/topology/unconnected.h"
+#include "src/topology/fully_connected.h"
+#include "src/topology/custom.h"
+#include "src/topology/erdos_renyi.h"
+#include "src/topology/barabasi_albert.h"
+#include "src/topology/watts_strogatz.h"
 
 using namespace pagmo;
 
@@ -128,17 +128,12 @@ int main()
 //	population pop(problem::golomb_ruler(13,169),10);
 
 
-	//archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),1000,10,topology::one_way_ring());
-	topology::one_way_ring t;
-	for (std::size_t i = 0; i < 10000; ++i) {
-		t.push_back(i);
-	}
-	return 0;
-	//archi.evolve(10);
-	//archi.join();
-	//archi.evolve(10);
-	//archi.join();
-	//std::cout << archi.dump_migr_history();
+	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),5,10,topology::one_way_ring());
+	archi.evolve(10);
+	archi.join();
+	archi.evolve(10);
+	archi.join();
+	std::cout << archi.dump_migr_history();
 	return 0;
 
 
