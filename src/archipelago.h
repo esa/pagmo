@@ -50,6 +50,7 @@ namespace pagmo {
 /// Archipelago class.
 /**
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
  */
 class __PAGMO_VISIBLE archipelago
 {
@@ -134,6 +135,7 @@ class __PAGMO_VISIBLE archipelago
 		void set_topology(const topology::base &);
 		void evolve(int n = 1);
 		void evolve_t(int);
+		bool busy() const;
 		std::string dump_migr_history() const;
 		void clear_migr_history();
 	private:

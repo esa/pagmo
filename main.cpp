@@ -130,7 +130,9 @@ int main()
 
 	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),5,10,topology::one_way_ring());
 	archi.evolve(10);
+std:: cout << "Busy? " << archi.busy() << '\n';
 	archi.join();
+std:: cout << "Busy? " << archi.busy() << '\n';
 	archi.evolve(10);
 	archi.join();
 	std::cout << archi.dump_migr_history();

@@ -503,6 +503,21 @@ void archipelago::evolve_t(int t)
 	}
 }
 
+/// Query the status of the archipelago.
+/**
+ * @return true if at least one island is evolving, false otherwise.
+ */
+bool archipelago::busy() const
+{
+	const const_iterator it_f = m_container.end();
+	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
+		if (it->busy()) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // Synchronise the start of evolution in each island so that all threads are created and initialised
 // before actually doing any computation.
 void archipelago::sync_island_start() const

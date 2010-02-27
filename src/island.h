@@ -69,6 +69,7 @@ class archipelago;
  * All getters methods will thus return copies instead of references, and all public methods will wait for an ongoing evolution to terminate before performing any action.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
  */
 class __PAGMO_VISIBLE island
 {

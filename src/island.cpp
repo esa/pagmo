@@ -395,6 +395,18 @@ std::vector<population::individual_type> island::get_emigrants() const
 	return m_s_policy->select(m_pop);
 }
 
+/// Query the status of the island.
+/**
+ * @return true if the island is evolving, false otherwise.
+ */
+bool island::busy() const
+{
+	if (!m_evo_thread) {
+		return false;
+	}
+	return m_evo_thread->joinable();
+}
+
 /// Overload stream operator for pagmo::island.
 /**
  * Equivalent to printing island::human_readable() to stream.

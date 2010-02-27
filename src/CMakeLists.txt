@@ -104,6 +104,8 @@ ENDIF(BUILD_MAIN)
 IF(BUILD_PYGMO)
 	# We need to compile the source of the Boost.Python libraries.
 	SET(PAGMO_SHARED_LIB_SRC_LIST
+		# Add the Python problem only if compiling PyGMO.
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/python.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/arg_to_python_base.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/builtin_converters.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/from_python.cpp
@@ -136,7 +138,7 @@ IF(BUILD_PYGMO)
 	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
 	# Request linking against the Python libs, in addition to our mandatory libs.
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
-	# A couple of extra definitions. The first is required when building Boost.Python,
+	# Some extra definitions. The first is required when building Boost.Python,
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
 	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1 -DBOOST_WSERIALIZATION_DYN_LINK=1 -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
 	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "${ADDITIONAL_FLAGS}")
