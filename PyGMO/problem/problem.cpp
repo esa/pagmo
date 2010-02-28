@@ -62,11 +62,11 @@ struct python_problem: problem::python, wrapper<problem::python>
 	}
 	fitness_vector py_objfun(const decision_vector &x) const
 	{
-		return this->get_override("py_objfun")(x);
+		return this->get_override("objfun_impl")(x);
 	}
 	std::string human_readable_extra() const
 	{
-		if (override f = this->get_override("py_repr_extra")) {
+		if (override f = this->get_override("human_readable_extra")) {
 			return f();
 		}
 		return problem::python::human_readable_extra();
@@ -123,8 +123,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int> >())
 		.def(init<const python_problem &>())
 		.def("__copy__",pure_virtual(&problem::python::clone))
-		.def("py_objfun",pure_virtual(&problem::python::py_objfun))
-		.def("py_repr_extra",&problem::python::human_readable_extra,&python_problem::default_human_readable_extra);
+		.def("objfun_impl",pure_virtual(&problem::python::py_objfun))
+		.def("human_readable_extra",&problem::python::human_readable_extra,&python_problem::default_human_readable_extra);
 
 	// Paraboloid problem.
 	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
