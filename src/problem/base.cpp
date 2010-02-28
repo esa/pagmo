@@ -989,6 +989,20 @@ bool base::verify_x(const decision_vector &x) const
 	return true;
 }
 
+/// Problem's blocking property.
+/**
+ * Return true if the problem blocks the asynchronous evolution of an island/archipelago, false otherwise.
+ * A blocking problem won't allow the flow of the program to continue before evolution in an island/archipelago has finished.
+ * This property is used in Python problems.
+ * Default implementation returns false.
+ *
+ * @return true if the problem is blocking, false otherwise.
+ */
+bool base::is_blocking() const
+{
+	return false;
+}
+
 // This function will round to the nearest integer the upper/lower bounds of the integer part of the problem.
 // This should be called each time bounds are set.
 void base::normalise_bounds()

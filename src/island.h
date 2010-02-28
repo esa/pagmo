@@ -96,6 +96,7 @@ class __PAGMO_VISIBLE island
 		bool busy() const;
 		void evolve(int n = 1);
 		void evolve_t(int);
+		void interrupt();
 		std::size_t get_evolution_time() const;
 		//@}
 		/** @name Getters and setters.*/

@@ -25,6 +25,7 @@
 #ifndef PAGMO_PROBLEM_PYTHON_H
 #define PAGMO_PROBLEM_PYTHON_H
 
+#include <boost/thread/mutex.hpp>
 #include <string>
 
 #include "../config.h"
@@ -41,8 +42,11 @@ class __PAGMO_VISIBLE python: public base
 		python(const decision_vector &, const decision_vector &, int, int, int, int);
 		virtual fitness_vector py_objfun(const decision_vector &) const = 0;
 		virtual std::string human_readable_extra() const;
+		bool is_blocking() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		static boost::mutex mutex;
 };
 
 } }

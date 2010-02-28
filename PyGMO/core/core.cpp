@@ -26,8 +26,14 @@
 #include <boost/python/module.hpp>
 #include <vector>
 
+#include "../../src/algorithm/base.h"
+#include "../../src/archipelago.h"
+#include "../../src/island.h"
+#include "../../src/migration/base_r_policy.h"
+#include "../../src/migration/base_s_policy.h"
 #include "../../src/population.h"
 #include "../../src/problem/base.h"
+#include "../../src/topology/base.h"
 #include "../boost_python_container_conversions.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -52,9 +58,31 @@ BOOST_PYTHON_MODULE(_core)
 	from_python_sequence<std::vector<std::vector<int> >,variable_capacity_policy>();
 
 	// Expose population class.
-	class_<population> class_pop("population", "Population class.", init<const problem::base &,optional<int> >());
-	class_pop.def(init<const population &>());
-	class_pop.def("__copy__", &Py_copy_from_ctor<population>);
-	class_pop.def("__len__", &population::size);
-	class_pop.def("__repr__", &population::human_readable);
+	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
+		.def(init<const population &>())
+		.def("__copy__", &Py_copy_from_ctor<population>)
+		.def("__len__", &population::size)
+		.def("__repr__", &population::human_readable);
+
+	// Expose island class.
+	class_<island>("island", "Island class.", init<const problem::base &, const algorithm::base &,
+		optional<int,double,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const island &>())
+		.def("__copy__", &Py_copy_from_ctor<island>)
+		.def("__len__", &island::get_size)
+		.def("__repr__", &island::human_readable)
+		.def("evolve", &island::evolve,"Evolve island n times.")
+		.def("join", &island::join,"Wait for evolution to complete.")
+		.def("busy", &island::busy,"Check if island is evolving.");
+
+	// Expose archipelago class.
+	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,
+		int,int,optional<const topology::base &,archipelago::distribution_type,archipelago::migration_direction> >())
+		.def(init<const archipelago &>())
+		.def("__copy__", &Py_copy_from_ctor<archipelago>)
+		.def("__len__", &archipelago::get_size)
+		.def("__repr__", &archipelago::human_readable)
+		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
+		.def("join", &archipelago::join,"Wait for evolution to complete.")
+		.def("busy", &archipelago::busy,"Check if archipelago is evolving.");
 }

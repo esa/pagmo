@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 #include <string>
 
 #include "../types.h"
@@ -29,6 +31,8 @@
 #include "python.h"
 
 namespace pagmo { namespace problem {
+
+boost::mutex python::mutex;
 
 python::python(int n, int ni, int nf, int nc, int nic):base(n,ni,nf,nc,nic) {}
 
@@ -38,12 +42,18 @@ python::python(const decision_vector &lb, const decision_vector &ub, int ni, int
 
 void python::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
+	boost::lock_guard<boost::mutex> lock(mutex);
 	f = py_objfun(x);
 }
 
 std::string python::human_readable_extra() const
 {
 	return base::human_readable_extra();
+}
+
+bool python::is_blocking() const
+{
+	return true;
 }
 
 } }

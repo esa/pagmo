@@ -216,7 +216,7 @@ std::string population::human_readable() const
 	std::ostringstream oss;
 	oss << human_readable_terse();
 	if (size()) {
-		oss << "List of individuals:\n";
+		oss << "\nList of individuals:\n";
 		for (size_type i = 0; i < size(); ++i) {
 			oss << '#' << i << ":\n";
 			oss << "\tDecision vector:\t\t" << m_container[i].cur_x << '\n';

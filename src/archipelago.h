@@ -136,6 +136,7 @@ class __PAGMO_VISIBLE archipelago
 		void evolve(int n = 1);
 		void evolve_t(int);
 		bool busy() const;
+		void interrupt();
 		std::string dump_migr_history() const;
 		void clear_migr_history();
 	private:

@@ -187,6 +187,14 @@ void archipelago::push_back(const island &isl)
 		pagmo_throw(value_error,"cannot push_back() incompatible island");
 	}
 	m_container.push_back(isl);
+	// Make sure the clone() method is implemented properly in the problem of the island we just inserted. This is important
+	// beacuse otherwise we get inconsistent behaviour in migration: we could be inserting a problem which is not really compatible.
+	// NOTE: if we ever implement automatic checking on clone(), this can go away.
+	if (m_container.back().m_pop.problem() != isl.m_pop.problem()) {
+		// Remove the island we just inserted.
+		m_container.pop_back();
+		pagmo_throw(value_error,"the problem's clone() method implementation does not produce a problem equal to itself: please correct it");
+	}
 	// Tell the island that it is living in an archipelago now.
 	m_container.back().m_archi = this;
 	// Insert the island in the topology.
@@ -483,8 +491,15 @@ void archipelago::evolve(int n)
 {
 	join();
 	const iterator it_f = m_container.end();
+	bool has_blocking_problem = false;
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		if (it->m_pop.problem().is_blocking()) {
+			has_blocking_problem = true;
+		}
 		it->evolve(n);
+	}
+	if (has_blocking_problem) {
+		join();
 	}
 }
 
@@ -498,8 +513,15 @@ void archipelago::evolve_t(int t)
 {
 	join();
 	const iterator it_f = m_container.end();
+	bool has_blocking_problem = false;
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		if (it->m_pop.problem().is_blocking()) {
+			has_blocking_problem = true;
+		}
 		it->evolve_t(t);
+	}
+	if (has_blocking_problem) {
+		join();
 	}
 }
 
@@ -516,6 +538,18 @@ bool archipelago::busy() const
 		}
 	}
 	return false;
+}
+
+/// Interrupt ongoing evolution.
+/**
+ * Will iteratively called island::interrupt() on all the islands of the archipelago.
+ */
+void archipelago::interrupt()
+{
+	const iterator it_f = m_container.end();
+	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		it->interrupt();
+	}
 }
 
 // Synchronise the start of evolution in each island so that all threads are created and initialised

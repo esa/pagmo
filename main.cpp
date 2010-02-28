@@ -127,6 +127,14 @@ int main()
 // 	population pop(problem::paraboloid(lb2,ub2),10);
 //	population pop(problem::golomb_ruler(13,169),10);
 
+	island isl(problem::knapsack(values,weights,31),algorithm::ihs(1000),10);
+	isl.evolve_t(10000);
+	sleep(4);
+std::cout << "foobar\n";
+	isl.interrupt();
+	std::cout << isl;
+	return 0;
+
 
 	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),5,10,topology::one_way_ring());
 	archi.evolve(10);

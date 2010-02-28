@@ -23,5 +23,5 @@
 
 from core import *
 #import algorithm, problem, topology
-import problem
+import algorithm, problem
 from copy import copy

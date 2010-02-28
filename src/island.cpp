@@ -266,8 +266,9 @@ population island::get_population() const
 // Implementation of int_evolver's juice.
 void island::int_evolver::operator()()
 {
+	boost::posix_time::ptime start;
 	try {
-		const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
+		start = boost::posix_time::microsec_clock::local_time();
 		// Synchronise start with all other threads
 		if (m_i->m_archi) {
 			m_i->m_archi->sync_island_start();
@@ -285,17 +286,25 @@ void island::int_evolver::operator()()
 				m_i->m_archi->post_evolution(*m_i);
 				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 			}
+			boost::this_thread::interruption_point();
 		}
+	} catch (const boost::thread_interrupted &) {
+		// In case of interruption, don't do anything special.
+	} catch (const std::exception &e) {
+		std::cout << "Error during island evolution: " << e.what() << '\n';
+	} catch (...) {
+		std::cout << "Error during island evolution, unknown exception caught. :(\n";
+	}
+	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
+	try {
 		// We must take care of potentially low-accuracy clocks, where the time difference could be negative for
 		// _really_ short evolution times. In that case do not add anything to the total evolution time.
 		const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
 		if (diff.total_milliseconds() >= 0) {
 			m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
 		}
-	} catch (const std::exception &e) {
-		std::cout << "Error during island evolution: " << e.what() << '\n';
 	} catch (...) {
-		std::cout << "Error during island evolution, unknown exception caught. :(\n";
+		std::cout << "Error calculating evolution time.\n";
 	}
 }
 
@@ -318,14 +327,18 @@ void island::evolve(int n)
 	} catch (...) {
 		pagmo_throw(std::runtime_error,"failed to launch the thread");
 	}
+	if (!m_archi && m_pop.problem().is_blocking()) {
+		join();
+	}
 }
 
 // Perform at least one evolution, and continue evolving until at least a certain amount of time has passed.
 void island::t_evolver::operator()()
 {
+	boost::posix_time::ptime start;
 	try {
-		const boost::posix_time::ptime start = boost::posix_time::microsec_clock::local_time();
 		boost::posix_time::time_duration diff;
+		start = boost::posix_time::microsec_clock::local_time();
 		// Synchronise start
 		if (m_i->m_archi) {
 			m_i->m_archi->sync_island_start();
@@ -341,14 +354,27 @@ void island::t_evolver::operator()()
 				m_i->m_archi->post_evolution(*m_i);
 				//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 			}
+			boost::this_thread::interruption_point();
 			diff = boost::posix_time::microsec_clock::local_time() - start;
 			// Take care of negative timings.
 		} while (diff.total_milliseconds() < 0 || boost::numeric_cast<std::size_t>(diff.total_milliseconds()) < m_t);
-		m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
+	} catch (const boost::thread_interrupted &) {
+		// In case of interruption, don't do anything special.
 	} catch (const std::exception &e) {
 		std::cout << "Error during evolution: " << e.what() << '\n';
 	} catch (...) {
 		std::cout << "Unknown exception caught. :(\n";
+	}
+	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
+	try {
+		// We must take care of potentially low-accuracy clocks, where the time difference could be negative for
+		// _really_ short evolution times. In that case do not add anything to the total evolution time.
+		const boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - start;
+		if (diff.total_milliseconds() >= 0) {
+			m_i->m_evo_time += boost::numeric_cast<std::size_t>(diff.total_milliseconds());
+		}
+	} catch (...) {
+		std::cout << "Error calculating evolution time.\n";
 	}
 }
 
@@ -371,6 +397,21 @@ void island::evolve_t(int t)
 		m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo)));
 	} catch (...) {
 		pagmo_throw(std::runtime_error,"failed to launch the thread");
+	}
+	if (!m_archi && m_pop.problem().is_blocking()) {
+		join();
+	}
+}
+
+/// Interrupt evolution.
+/**
+ * If an evolution is undergoing, it will be stopped the first time it reaches one of the internal interruption points.
+ */
+void island::interrupt()
+{
+	if (m_evo_thread) {
+std::cout << "Interrupting!!!\n";
+		m_evo_thread->interrupt();
 	}
 }
 
