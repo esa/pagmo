@@ -28,11 +28,12 @@
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
 #include <boost/python/pure_virtual.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 #include <string>
 
 #include "../../src/problem/base.h"
 #include "../../src/problem/paraboloid.h"
-#include "../../src/problem/python.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -48,34 +49,82 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	return retval;
 }
 
-struct python_problem: problem::python, wrapper<problem::python>
+struct python_problem: problem::base, wrapper<problem::base>
 {
 	python_problem(int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
-		problem::python(n,ni,nf,nc,nic),wrapper<problem::python>() {}
+		problem::base(n,ni,nf,nc,nic) {}
 	python_problem(const double &lb, const double &ub, int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
-		problem::python(lb,ub,n,ni,nf,nc,nic),wrapper<problem::python>() {}
+		problem::base(lb,ub,n,ni,nf,nc,nic) {}
 	python_problem(const decision_vector &lb, const decision_vector &ub, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
-		problem::python(lb,ub,ni,nf,nc,nic),wrapper<problem::python>() {}
+		problem::base(lb,ub,ni,nf,nc,nic) {}
+	python_problem(const problem::base &p):problem::base(p) {}
 	problem::base_ptr clone() const
 	{
 		return this->get_override("__copy__")();
 	}
+	void objfun_impl(fitness_vector &f, const decision_vector &x) const
+	{
+		// Protect simulataneous calls to the objective function.
+		boost::lock_guard<boost::mutex> lock(mutex);
+		f = py_objfun(x);
+	}
 	fitness_vector py_objfun(const decision_vector &x) const
 	{
-		return this->get_override("objfun_impl")(x);
+		return this->get_override("_objfun_impl")(x);
+	}
+	bool is_blocking() const
+	{
+		return true;
+	}
+	std::string get_typename() const
+	{
+		return this->get_override("_get_typename")();
+	}
+	bool py_equality_operator_extra(const problem::base &p) const
+	{
+		if (override f = this->get_override("_equality_operator_extra")) {
+			return f(p);
+		}
+		return problem::base::equality_operator_extra(p);
+	}
+	bool equality_operator_extra(const base &p) const
+	{
+		// During migration, we need to compare problems in different islands to check
+		// if they are identical. Protect this.
+		// NOTE: a possible solution to this is to build an "equality matrix" for problems in the archipelago, upon island insertion,
+		// thus avoiding to call this function and consult the matrix instead.
+		boost::lock_guard<boost::mutex> lock(mutex);
+		if (get_typename() != dynamic_cast<const python_problem &>(p).get_typename()) {
+			return false;
+		}
+		return py_equality_operator_extra(p);
 	}
 	std::string human_readable_extra() const
 	{
-		if (override f = this->get_override("human_readable_extra")) {
+		return py_human_readable_extra();
+	}
+	std::string py_human_readable_extra() const
+	{
+		if (override f = this->get_override("_human_readable_extra")) {
 			return f();
 		}
-		return problem::python::human_readable_extra();
+		return problem::base::human_readable_extra();
 	}
-	std::string default_human_readable_extra() const
+	bool is_compatible_extra(const problem::base &p) const
 	{
-		return this->problem::python::human_readable_extra();
+		return py_is_compatible_extra(p);
 	}
+	bool py_is_compatible_extra(const problem::base &p) const
+	{
+		if (override f = this->get_override("_is_compatible_extra")) {
+			return f(p);
+		}
+		return problem::base::is_compatible_extra(p);
+	}
+	static boost::mutex mutex;
 };
+
+boost::mutex python_problem::mutex;
 
 BOOST_PYTHON_MODULE(_problem) {
 	// Translate exceptions for this module.
@@ -87,8 +136,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	typedef void (problem::base::*bounds_setter_vectors)(const decision_vector &, const decision_vector &);
 	typedef constraint_vector (problem::base::*return_constraints)(const decision_vector &) const;
 	typedef fitness_vector (problem::base::*return_fitness)(const decision_vector &) const;
-	class_<problem::base,boost::noncopyable>("__base", no_init)
+	class_<python_problem>("_base",no_init)
+		.def(init<int,optional<int,int,int,int> >())
+		.def(init<const double &, const double &, int, optional<int,int,int,int> >())
+		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int> >())
+		.def(init<const problem::base &>())
 		.def("__repr__", &problem::base::human_readable)
+		.def("is_blocking",&problem::base::is_blocking)
+		.def("_get_typename",pure_virtual(&python_problem::get_typename))
 		// Dimensions.
 		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
 		.add_property("i_dimension", &problem::base::get_i_dimension, "Integer dimension.")
@@ -115,16 +170,13 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
 		// Fitness.
 		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
-		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.");
-
-	// Special handling for the Python problem.
-	class_<python_problem,boost::noncopyable,bases<problem::base> >("base","Base Python problem.",init<int,optional<int,int,int,int> >())
-		.def(init<const double &, const double &, int, optional<int,int,int,int> >())
-		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int> >())
-		.def(init<const python_problem &>())
-		.def("__copy__",pure_virtual(&problem::python::clone))
-		.def("objfun_impl",pure_virtual(&problem::python::py_objfun))
-		.def("human_readable_extra",&problem::python::human_readable_extra,&python_problem::default_human_readable_extra);
+		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
+		// Virtual methods that can be (re)implemented.
+		.def("__copy__",pure_virtual(&problem::base::clone))
+		.def("_objfun_impl",pure_virtual(&python_problem::py_objfun))
+		.def("_human_readable_extra",&python_problem::py_human_readable_extra)
+		.def("_equality_operator_extra",&python_problem::py_equality_operator_extra)
+		.def("_is_compatible_extra",&python_problem::py_is_compatible_extra);
 
 	// Paraboloid problem.
 	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")

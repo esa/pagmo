@@ -102,9 +102,8 @@ ENDIF(BUILD_MAIN)
 
 # Create a pagmo shared library if PyGMO is requested.
 IF(BUILD_PYGMO)
-	# We need to compile the source of the Boost.Python libraries and the Python problem.
+	# We need to compile the source of the Boost.Python libraries.
 	SET(PAGMO_SHARED_LIB_SRC_LIST
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/python.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/arg_to_python_base.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/builtin_converters.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/from_python.cpp
