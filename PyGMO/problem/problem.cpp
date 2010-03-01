@@ -28,8 +28,8 @@
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
 #include <boost/python/pure_virtual.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/python/register_ptr_to_python.hpp>
+#include <boost/utility.hpp>
 #include <string>
 
 #include "../../src/problem/base.h"
@@ -64,13 +64,11 @@ struct python_problem: problem::base, wrapper<problem::base>
 	}
 	void objfun_impl(fitness_vector &f, const decision_vector &x) const
 	{
-		// Protect simulataneous calls to the objective function.
-		boost::lock_guard<boost::mutex> lock(mutex);
 		f = py_objfun(x);
 	}
 	fitness_vector py_objfun(const decision_vector &x) const
 	{
-		return this->get_override("_objfun_impl")(x);
+		return this->get_override("objfun_impl")(x);
 	}
 	bool is_blocking() const
 	{
@@ -82,18 +80,13 @@ struct python_problem: problem::base, wrapper<problem::base>
 	}
 	bool py_equality_operator_extra(const problem::base &p) const
 	{
-		if (override f = this->get_override("_equality_operator_extra")) {
+		if (override f = this->get_override("equality_operator_extra")) {
 			return f(p);
 		}
 		return problem::base::equality_operator_extra(p);
 	}
 	bool equality_operator_extra(const base &p) const
 	{
-		// During migration, we need to compare problems in different islands to check
-		// if they are identical. Protect this.
-		// NOTE: a possible solution to this is to build an "equality matrix" for problems in the archipelago, upon island insertion,
-		// thus avoiding to call this function and consult the matrix instead.
-		boost::lock_guard<boost::mutex> lock(mutex);
 		if (get_typename() != dynamic_cast<const python_problem &>(p).get_typename()) {
 			return false;
 		}
@@ -105,7 +98,7 @@ struct python_problem: problem::base, wrapper<problem::base>
 	}
 	std::string py_human_readable_extra() const
 	{
-		if (override f = this->get_override("_human_readable_extra")) {
+		if (override f = this->get_override("human_readable_extra")) {
 			return f();
 		}
 		return problem::base::human_readable_extra();
@@ -116,21 +109,18 @@ struct python_problem: problem::base, wrapper<problem::base>
 	}
 	bool py_is_compatible_extra(const problem::base &p) const
 	{
-		if (override f = this->get_override("_is_compatible_extra")) {
+		if (override f = this->get_override("is_compatible_extra")) {
 			return f(p);
 		}
 		return problem::base::is_compatible_extra(p);
 	}
-	static boost::mutex mutex;
 };
-
-boost::mutex python_problem::mutex;
 
 BOOST_PYTHON_MODULE(_problem) {
 	// Translate exceptions for this module.
 	translate_exceptions();
 
-	// Expose base problem class, including the non-virtual methods.
+	// Expose base problem class, including the virtual methods.
 	typedef void (problem::base::*bounds_setter)(const decision_vector &);
 	typedef void (problem::base::*bounds_setter_value)(const double &, const double &);
 	typedef void (problem::base::*bounds_setter_vectors)(const decision_vector &, const decision_vector &);
@@ -143,7 +133,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("__repr__", &problem::base::human_readable)
 		.def("is_blocking",&problem::base::is_blocking)
-		.def("_get_typename",pure_virtual(&python_problem::get_typename))
+		.def("_get_typename",&python_problem::get_typename)
 		// Dimensions.
 		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
 		.add_property("i_dimension", &problem::base::get_i_dimension, "Integer dimension.")
@@ -173,13 +163,16 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
 		// Virtual methods that can be (re)implemented.
 		.def("__copy__",pure_virtual(&problem::base::clone))
-		.def("_objfun_impl",pure_virtual(&python_problem::py_objfun))
-		.def("_human_readable_extra",&python_problem::py_human_readable_extra)
-		.def("_equality_operator_extra",&python_problem::py_equality_operator_extra)
-		.def("_is_compatible_extra",&python_problem::py_is_compatible_extra);
+		.def("objfun_impl",&python_problem::py_objfun)
+		.def("human_readable_extra",&python_problem::py_human_readable_extra)
+		.def("equality_operator_extra",&python_problem::py_equality_operator_extra)
+		.def("is_compatible_extra",&python_problem::py_is_compatible_extra);
 
 	// Paraboloid problem.
 	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
 		.def(init<>())
 		.def(init<const decision_vector &, const decision_vector &>());
+
+	// Register to_python conversion from smart pointer.
+	register_ptr_to_python<problem::base_ptr>();
 }

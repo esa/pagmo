@@ -117,7 +117,6 @@ archipelago::archipelago(const archipelago &a)
 	a.join();
 	m_container = a.m_container;
 	m_topology = a.m_topology->clone();
-	reset_barrier();
 	m_dist_type = a.m_dist_type;
 	m_drng = a.m_drng;
 	m_urng = a.m_urng;
@@ -139,7 +138,6 @@ archipelago &archipelago::operator=(const archipelago &a)
 		a.join();
 		m_container = a.m_container;
 		m_topology = a.m_topology->clone();
-		reset_barrier();
 		m_dist_type = a.m_dist_type;
 		m_migr_dir = a.m_migr_dir;
 		m_migr_map = a.m_migr_map;
@@ -199,8 +197,6 @@ void archipelago::push_back(const island &isl)
 	m_container.back().m_archi = this;
 	// Insert the island in the topology.
 	m_topology->push_back(boost::numeric_cast<int>(m_container.size() - 1));
-	// Reset the barrier.
-	reset_barrier();
 }
 
 /// Get the size of the archipelago.
@@ -303,12 +299,10 @@ bool archipelago::check_island(const island &isl) const
 
 // Reset island synchronisation barrier. This method is intended as a shortcut,
 // do NOT use it if the archipelago has not been joined!
-void archipelago::reset_barrier()
+void archipelago::reset_barrier(const size_type &size)
 {
-	if (m_container.size()) {
-		m_islands_sync_point.reset(new boost::barrier(boost::numeric_cast<unsigned int>(m_container.size())));
-	} else {
-		m_islands_sync_point.reset(0);
+	if (size) {
+		m_islands_sync_point.reset(new boost::barrier(boost::numeric_cast<unsigned int>(size)));
 	}
 }
 
@@ -481,6 +475,15 @@ void archipelago::post_evolution(island &isl)
 	}
 }
 
+// Functor to count the number of island with blocking problem.
+struct archipelago::count_if_blocking
+{
+	bool operator()(const island &isl) const
+	{
+		return isl.m_pop.problem().is_blocking();
+	}
+};
+
 /// Run the evolution for the given number of iterations.
 /**
  * Will iteratively call island::evolve(n) on each island of the archipelago and then return.
@@ -490,16 +493,21 @@ void archipelago::post_evolution(island &isl)
 void archipelago::evolve(int n)
 {
 	join();
+	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
+	pagmo_assert(blocking_islands <= m_container.size());
+	reset_barrier(m_container.size() - blocking_islands);
+	// In case there are blocking islands, do not calls evolve(n) on each island, but iteratively call evolve() n times.
 	const iterator it_f = m_container.end();
-	bool has_blocking_problem = false;
-	for (iterator it = m_container.begin(); it != it_f; ++it) {
-		if (it->m_pop.problem().is_blocking()) {
-			has_blocking_problem = true;
+	if (blocking_islands) {
+		for (int i = 0; i < n; ++i) {
+			for (iterator it = m_container.begin(); it != it_f; ++it) {
+				it->evolve();
+			}
 		}
-		it->evolve(n);
-	}
-	if (has_blocking_problem) {
-		join();
+	} else {
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
+			it->evolve(n);
+		}
 	}
 }
 
@@ -512,16 +520,20 @@ void archipelago::evolve(int n)
 void archipelago::evolve_t(int t)
 {
 	join();
+	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
+	pagmo_assert(blocking_islands <= m_container.size());
+	reset_barrier(m_container.size() - blocking_islands);
 	const iterator it_f = m_container.end();
-	bool has_blocking_problem = false;
-	for (iterator it = m_container.begin(); it != it_f; ++it) {
-		if (it->m_pop.problem().is_blocking()) {
-			has_blocking_problem = true;
+	if (blocking_islands) {
+		for (int i = 0; i < 10; ++i) {
+			for (iterator it = m_container.begin(); it != it_f; ++it) {
+				it->evolve_t((t / boost::numeric_cast<int>(m_container.size())) / 10);
+			}
 		}
-		it->evolve_t(t);
-	}
-	if (has_blocking_problem) {
-		join();
+	} else {
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
+			it->evolve_t(t);
+		}
 	}
 }
 

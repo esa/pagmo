@@ -127,6 +127,7 @@ class __PAGMO_VISIBLE island
 		};
 		void accept_immigrants(const std::vector<population::individual_type> &);
 		std::vector<population::individual_type> get_emigrants() const;
+		bool is_blocking() const;
 	private:
 		// Population.
 		population				m_pop;

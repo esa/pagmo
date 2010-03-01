@@ -23,6 +23,8 @@
  *****************************************************************************/
 
 #include <boost/python/class.hpp>
+#include <boost/python/copy_const_reference.hpp>
+#include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <vector>
 
@@ -40,6 +42,11 @@
 
 using namespace boost::python;
 using namespace pagmo;
+
+static inline problem::base_ptr problem_from_pop(const population &pop)
+{
+	return pop.problem().clone();
+}
 
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
@@ -62,7 +69,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
 		.def("__len__", &population::size)
-		.def("__repr__", &population::human_readable);
+		.def("__repr__", &population::human_readable)
+		.def("problem",&problem_from_pop);
 
 	// Expose island class.
 	class_<island>("island", "Island class.", init<const problem::base &, const algorithm::base &,
@@ -72,6 +80,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__len__", &island::get_size)
 		.def("__repr__", &island::human_readable)
 		.def("evolve", &island::evolve,"Evolve island n times.")
+		.def("evolve_t", &island::evolve,"Evolve island for at least n milliseconds.")
 		.def("join", &island::join,"Wait for evolution to complete.")
 		.def("busy", &island::busy,"Check if island is evolving.");
 
@@ -83,6 +92,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__len__", &archipelago::get_size)
 		.def("__repr__", &archipelago::human_readable)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
+		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.");
 }

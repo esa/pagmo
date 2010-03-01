@@ -270,7 +270,7 @@ void island::int_evolver::operator()()
 	try {
 		start = boost::posix_time::microsec_clock::local_time();
 		// Synchronise start with all other threads
-		if (m_i->m_archi) {
+		if (m_i->m_archi && !m_i->is_blocking()) {
 			m_i->m_archi->sync_island_start();
 		}
 		for (std::size_t i = 0; i < m_n; ++i) {
@@ -322,13 +322,15 @@ void island::evolve(int n)
 {
 	join();
 	const std::size_t n_evo = boost::numeric_cast<std::size_t>(n);
-	try {
-		m_evo_thread.reset(new boost::thread(int_evolver(this,n_evo)));
-	} catch (...) {
-		pagmo_throw(std::runtime_error,"failed to launch the thread");
-	}
-	if (!m_archi && m_pop.problem().is_blocking()) {
-		join();
+	if (is_blocking()) {
+		int_evolver ev(this,n_evo);
+		ev();
+	} else {
+		try {
+			m_evo_thread.reset(new boost::thread(int_evolver(this,n_evo)));
+		} catch (...) {
+			pagmo_throw(std::runtime_error,"failed to launch the thread");
+		}
 	}
 }
 
@@ -340,7 +342,7 @@ void island::t_evolver::operator()()
 		boost::posix_time::time_duration diff;
 		start = boost::posix_time::microsec_clock::local_time();
 		// Synchronise start
-		if (m_i->m_archi) {
+		if (m_i->m_archi && !m_i->is_blocking()) {
 			m_i->m_archi->sync_island_start();
 		}
 		do {
@@ -393,13 +395,15 @@ void island::evolve_t(int t)
 {
 	join();
 	const std::size_t t_evo = boost::numeric_cast<std::size_t>(t);
-	try {
-		m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo)));
-	} catch (...) {
-		pagmo_throw(std::runtime_error,"failed to launch the thread");
-	}
-	if (!m_archi && m_pop.problem().is_blocking()) {
-		join();
+	if (is_blocking()) {
+		t_evolver ev(this,t_evo);
+		ev();
+	} else {
+		try {
+			m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo)));
+		} catch (...) {
+			pagmo_throw(std::runtime_error,"failed to launch the thread");
+		}
 	}
 }
 
@@ -446,6 +450,12 @@ bool island::busy() const
 		return false;
 	}
 	return m_evo_thread->joinable();
+}
+
+// Check if either the algorihm or the problem are blocking.
+bool island::is_blocking() const
+{
+	return (m_pop.problem().is_blocking() || m_algo->is_blocking());
 }
 
 /// Overload stream operator for pagmo::island.
