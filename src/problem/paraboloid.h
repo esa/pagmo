@@ -40,6 +40,7 @@ namespace pagmo { namespace problem {
  * \image html paraboloid.png "Two-dimensional paraboloid."
  * \image latex paraboloid.png "Two-dimensional paraboloid." width=5cm
  *
+ * This is a box-constrained continuous single-objecive problem.
  * The objective function for an N-dimensional instance of this problem is:
  * \f[
  * 	f\left(x_1,\ldots,x_N \right) = \sum_{i=1}^N x_i^2.

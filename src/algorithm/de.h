@@ -22,6 +22,9 @@ namespace pagmo { namespace algorithm {
  * The implementation provided for PaGMO derives from the code provided in the official
  * DE web site and is suitable for box-constrained continuous optimization.
  *
+ * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
+ * is performed.
+ *
  * @see http://www.icsi.berkeley.edu/~storn/code.html_for the official DE web site
  * @see http://www.springerlink.com/content/x555692233083677/ for the paper that introduces Differential Evolution
  *

@@ -277,6 +277,25 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	}
 }
 
+/// Set the velocity vector of individual at position idx.
+/**
+ * Will fail if dimension of v differs from the problem continuous dimension.
+ *
+ * @param[in] idx positional index of the individual to be set.
+ * @param[in] v velocity vector to be set for the individual at position idx.
+ */
+void population::set_v(const size_type &idx, const decision_vector &v)
+{
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid individual position");
+	}
+	if (v.size() != this->problem().get_dimension() - this->problem().get_i_dimension()) {
+		pagmo_throw(value_error,"decision vector is not compatible with problem");
+	}
+	// Set decision vector.
+	m_container[idx].cur_v = v;
+}
+
 /// Get constant reference to internal problem::base object.
 /**
  * @return const reference to internal problem::base object.

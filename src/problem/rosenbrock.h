@@ -35,7 +35,8 @@ namespace pagmo{ namespace problem {
  * \image html rosenbrock.png "Two-dimensional Rosenbrock function."
  * \image latex rosenbrock.png "Two-dimensional Rosenbrock function." width=5cm
  *
- * The objective function here is the generalised n-dimensional Rosenbrock function:
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the generalised n-dimensional Rosenbrock function:
  * \f[
  * 	F\left(x_1,\ldots,x_n\right) =
  *	\sum_{i=1}^{n-1}\left[ 100\left(x_i^2-x_{i+1}\right)^2+\left(x_i-1\right)^2\right], \quad x_i \in \left[ -5,10 \right].
