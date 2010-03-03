@@ -65,30 +65,24 @@ void de::evolve(population &pop) const
 	// mess up everything as resizing vector of vectors is tricky.
 
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
-	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy), popswap(NP,dummy);
-	std::vector<double> fit(NP);
+	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
+	std::vector<fitness_vector> fit(NP);
 	decision_vector gbX(D),gbIter(D);
-	double newfitness;		//new fitness of the mutaded candidate
-	double gbfit;			//global best fitness
+	fitness_vector newfitness;	//new fitness of the mutaded candidate
+	fitness_vector gbfit;		//global best fitness
 
 	//We extract from pop the chromosomes and fitness associated
 	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
 		popold[i] = pop.get_individual(i).cur_x;
 		popnew[i] = popold[i];
-		fit[i] = pop.get_individual(i).cur_f[0];
+		fit[i] = pop.get_individual(i).cur_f;
 	}
 
 	// Initialise the global bests
-	gbX=popold[0];
-	gbfit=fit[0];
-
-	for (size_t i = 1; i < NP; ++i) {		//the int i = 1 jumps the first member as it is already set as the best
-		if (fit[i] < gbfit) {
-			gbfit = fit[i];			// save best member ever
-			gbX = popold[i];
-		}
-	}
-	gbIter = gbX;				// save best member of generation
+	gbX=pop.champion().x;
+	gbfit=pop.champion().f;
+	// container for the best decision vector of generation
+	gbIter = gbX;
 
 	// Main DE iterations
 	size_t r1,r2,r3,r4,r5;	//indexes to the selected population members
@@ -253,12 +247,13 @@ void de::evolve(population &pop) const
 					tmp[i2] = m_drng()*(ub[i2]-lb[i2]) + lb[i2];
 				++i2;
 			}
-			newfitness = prob.objfun(tmp)[0];    /* Evaluate new vector in tmp[] */
+			newfitness = prob.objfun(tmp);    /* Evaluate new vector in tmp[] */
 			//b) how good?
-			if (newfitness <= fit[i]) {  /* improved objective function value ? */
+			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;
-				if (newfitness<gbfit) {        /* Was this a new minimum for the deme? */
+				pop.set_x(i,tmp);
+				if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
 					/* if so...*/
 					gbfit=newfitness;          /* reset gbfit to new low...*/
 					gbX=tmp;
@@ -266,7 +261,6 @@ void de::evolve(population &pop) const
 			} else {
 				popnew[i] = popold[i];
 			}
-			/* swap population arrays. New generation becomes old one */
 
 		}//End of the loop through the deme
 
@@ -274,19 +268,10 @@ void de::evolve(population &pop) const
 		gbIter = gbX;
 
 		/* swap population arrays. New generation becomes old one */
-		for (size_t i = 0; i < NP; ++i) {
-			popswap[i] = popold[i];
-			popold[i] = popnew[i];
-			popnew[i] = popswap[i];
-		}
+		std::swap(popold, popnew);
+
 
 	}//end main DE iterations
-
-	//we end by constructing the object population containing the final results
-	//WASTE OF OBJECTIVE FUNCTIONS EVALUATIONS!!!! CACHE NEEDS TO REMEMBER AT LEAST NP
-	for (population::size_type i=0;i<NP;++i){
-		pop.set_x(i,popnew[i]);
-	}
 
 }
 

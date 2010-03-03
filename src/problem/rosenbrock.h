@@ -26,6 +26,7 @@
 #define PAGMO_PROBLEM_ROSENBROCK_H
 
 #include "../types.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 

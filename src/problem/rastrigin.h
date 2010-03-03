@@ -27,6 +27,7 @@
 
 #include "../config.h"
 #include "../types.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
