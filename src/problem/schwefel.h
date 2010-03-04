@@ -32,14 +32,13 @@ namespace pagmo{ namespace problem {
 
 /// The Schwefel problem.
 /**
- * \image html schwefel.png "Two-dimensional Schwefel function."
- * \image latex schwefel.png "Two-dimensional Schwefel function." width=5cm
+ * \image html schwefel.gif "Two-dimensional Schwefel function."
+ * \image latex schwefel.gif "Two-dimensional Schwefel function." width=5cm
  *
  * This is a box-constrained continuous single-objecive problem.
  * The objective function is the generalised n-dimensional Schwefel function:
  * \f[
- * 	F\left(x_1,\ldots,x_n\right) =
- *	418.9829 n - \Sum_{i=1}^{n} x_i\sin \sqrt{|x_i|}, \quad x_i \in \left[ -500,500 \right].
+ * 	F\left(x_1,\ldots,x_n\right) = 418.9829 n - \sum_{i=1}^{n} x_i\sin \sqrt{|x_i|}, \quad x_i \in \left[ -500,500 \right].
  * \f]
  * The global minimum is in \f$x_i=1\f$, where \f$ F\left( 1,\ldots,1 \right) = 0 \f$.
  *
