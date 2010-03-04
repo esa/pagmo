@@ -83,7 +83,7 @@ archipelago::archipelago(const topology::base &t, distribution_type dt, migratio
 	check_migr_attributes();
 }
 
-/// Constructor from problem, algorithm, archipelago size, island sizes and topology.
+/// Constructor from problem, algorithm, archipelago size, island sizes, topology and migration attributes.
 /**
  * Constructs n islands of m individuals each, with assigned problem p and algorithm a, and inserts them with push_back() into the archipelago,
  * whose topology is set to t, with point_to_point distribution_type and destination migration_direction.
@@ -108,7 +108,7 @@ archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n
 
 /// Copy constructor.
 /**
- * Will synchronise a before deep-copying all its elements.
+ * Will synchronise input archipelago before deep-copying all its elements.
  *
  * @param[in] a archipelago to be copied.
  */
@@ -125,7 +125,7 @@ archipelago::archipelago(const archipelago &a)
 
 /// Assignment operator.
 /**
- * Will synchronise this and a before deep-copying all elements from a into this.
+ * Will synchronise this and the input archipelago before deep-copying all the elements into this.
  *
  * @param[in] a archipelago used for assignment.
  *
