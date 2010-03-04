@@ -27,7 +27,7 @@
 #include <vector>
 #include <list>
 
-#include "src/algorithm/ihs.h"
+#include "src/algorithm/pso.h"
 #include "src/algorithm/monte_carlo.h"
 #include "src/algorithm/null.h"
 #include "src/archipelago.h"
@@ -37,6 +37,7 @@
 #include "src/problem/knapsack.h"
 #include "src/problem/paraboloid.h"
 #include "src/problem/rastrigin.h"
+#include "src/problem/rosenbrock.h"
 #include "src/topology/ring.h"
 #include "src/topology/one_way_ring.h"
 #include "src/topology/unconnected.h"
@@ -50,119 +51,10 @@ using namespace pagmo;
 
 int main()
 {
-#if 0
-	topology::barabasi_albert t;
-	for (int i = 0; i < 100; ++i) {
-		t.push_back(i);
+	island isl = island(problem::rosenbrock(10),algorithm::pso(500),20);
+	std::cout << isl.get_population().champion().f << std::endl;
+	for (int i=0; i< 800; ++i){
+		isl.evolve();
+		std::cout << isl.get_population().champion().f << std::endl;
 	}
-	//t.push_back(4);
-	//t.push_back(5);
-	//t.push_back(6);
-	//std::cout << t << '\n';
-	//return 0;
-
-	double lb1[] = {-1,-1};
-	double ub1[] = {-1,-1};
-	std::cout << problem::paraboloid(lb1,ub1) << '\n';
-
-	std::vector<double> lb2(4,0);
-	std::vector<double> ub2(4,10);
-	problem::paraboloid p2(lb2,ub2);
-	p2.set_bounds(lb2,ub2);
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	p2.set_bounds(lb2.begin(),lb2.end(),ub2.begin(),ub2.end());
-	double lb2a[] = {-1,-1,0,1};
-	double ub2a[] = {-1,-1,1,1};
-	p2.set_bounds(lb2a,ub2a);
-	p2.set_lb(0,-4.);
-	std::list<double> ub2b(ub2.begin(),ub2.end());
-	p2.set_bounds(lb2a,lb2a + 4,ub2b.begin(),ub2b.end());
-	p2.set_bounds(lb2,ub2);
-	fitness_vector f(1);
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,ub2);
-	ub2[0] -= 1E-3;
-	lb2[0] += 1E-3;
-	p2.objfun(f,lb2);
-	p2.set_lb(0,-1.234);
-	std::cout << f << '\n';
-#endif
-
-	double values[] = {1,2,3,4,5,6,7,8,9,11,15};
-	double weights[] = {4,7,9,1,2,3,5,8,6,12,17};
-
-//  	population pop(problem::knapsack(values,weights,30),10);
-// 	population pop(problem::paraboloid(lb2,ub2),10);
-//	population pop(problem::golomb_ruler(13,169),10);
-
-	island isl(problem::knapsack(values,weights,31),algorithm::ihs(1000),10);
-	isl.evolve_t(10000);
-	sleep(4);
-std::cout << "foobar\n";
-	isl.interrupt();
-	std::cout << isl;
-	return 0;
-
-
-	archipelago archi = archipelago(problem::knapsack(values,weights,31),algorithm::ihs(1000),5,10,topology::one_way_ring());
-	archi.evolve(10);
-std:: cout << "Busy? " << archi.busy() << '\n';
-	archi.join();
-std:: cout << "Busy? " << archi.busy() << '\n';
-	archi.evolve(10);
-	archi.join();
-	std::cout << archi.dump_migr_history();
-	return 0;
-
-
-	//std::cout << archi;
-
-	//algorithm::ihs algo(1000000);
-
-	//isl.evolve_t(1000 * 10);
-	
-	//std::cout << isl;
-
-	//std::cout << pop << '\n';
-
-	//std::cout << algorithm::ihs(5) << '\n';
-
-	//algorithm::null().evolve(isl);
-
-	//std::cout << isl << '\n';
-
-
-	//std::cout << problem::paraboloid(lb2,ub2).objfun(lb2) << '\n';
 }

@@ -28,42 +28,42 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
-#include "rastrigin.h"
+#include "schwefel.h"
 
 namespace pagmo { namespace problem {
 
 /// Constructor from dimension.
 /**
- * Will construct an n dimensional Rastrigin problem.
+ * Will construct an n dimensional Schwefel problem.
  *
  * @param[in] n integer dimension of the problem.
  *
  * @see problem::base constructors.
  */
-rastrigin::rastrigin(int n):base(n)
+schwefel::schwefel(unsigned int n):base(n)
 {
 	// Set bounds.
-	set_lb(-5.12);
-	set_ub(5.12);
+	set_lb(-500);
+	set_ub(500);
 }
 
 /// Clone method.
-base_ptr rastrigin::clone() const
+base_ptr schwefel::clone() const
 {
-	return base_ptr(new rastrigin(*this));
+	return base_ptr(new schwefel(*this));
 }
 
 /// Implementation of the objective function.
-void rastrigin::objfun_impl(fitness_vector &f, const decision_vector &x) const
+void schwefel::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 1);
-	const double omega = 2.0 * boost::math::constants::pi<double>();
-	f[0] = 0;
-	const decision_vector::size_type n = x.size();
-        for (decision_vector::size_type i = 0; i < n; ++i) {
-		f[0] += x[i] * x[i] - 10.0 * std::cos(omega * x[i]);
-	}
-	f[0] += 10.0 * n;
+	std::vector<double>::size_type n = x.size();
+	double value=0;
+
+	for (std::vector<double>::size_type i=0; i<n; i++){
+		value += x[i] * sin(sqrt(fabs(x[i])));
+		}
+		f[0] = 418.9829 * n - value;
 }
 
 }}

@@ -12,7 +12,7 @@ SET(MANDATORY_LIBRARIES "")
 
 # Configuration for GCC.
 IF(CMAKE_COMPILER_IS_GNUCXX)
-        # Add to the base flags extra warnings, and set up message reporting from the compiler so that it is Eclipse-friendly.
+	# Add to the base flags extra warnings, and set up message reporting from the compiler so that it is Eclipse-friendly.
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)

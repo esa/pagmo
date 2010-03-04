@@ -1,3 +1,27 @@
+/*****************************************************************************
+ *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
+
 #ifndef PAGMO_ALGORITHM_DE_H
 #define PAGMO_ALGORITHM_DE_H
 
@@ -20,7 +44,7 @@ namespace pagmo { namespace algorithm {
  * make DE the versatile and robust tool it is today" (from the official web pages....)
  *
  * The implementation provided for PaGMO derives from the code provided in the official
- * DE web site and is suitable for box-constrained continuous optimization.
+ * DE web site and is suitable for box-constrained single-objective continuous optimization.
  *
  * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
  * is performed.
@@ -34,7 +58,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE de: public base
 {
 public:
-	de(int gen, double f, double cr, int strategy);
+	de(int gen, double f = 0.8, double cr = 0.9, int strategy = 3);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
