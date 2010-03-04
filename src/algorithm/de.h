@@ -13,11 +13,12 @@ namespace pagmo { namespace algorithm {
  * \image html de.jpg "Differential Evolution block diagram"
  * \image latex de.jpg "Differential Evolution block diagram" width=5cm
  *
- * Differential Evolution is an heuristic optimizer developed by Rainer Storn and Kenneth Price.B
- * "A breakthrough happened, when Ken came up with the idea of using vector differences for perturbing
+ * Differential Evolution is an heuristic optimizer developed by Rainer Storn and Kenneth Price.
+ *
+ * ''A breakthrough happened, when Ken came up with the idea of using vector differences for perturbing
  * the vector population. Since this seminal idea a lively discussion between Ken and Rainer and endless
  * ruminations and computer simulations on both parts yielded many substantial improvements which
- * make DE the versatile and robust tool it is today" (from the official web pages....)
+ * make DE the versatile and robust tool it is today'' (from the official web pages....)
  *
  * The implementation provided for PaGMO derives from the code provided in the official
  * DE web site and is suitable for box-constrained continuous optimization.
