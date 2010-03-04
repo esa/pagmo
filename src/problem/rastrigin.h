@@ -27,6 +27,7 @@
 
 #include "../config.h"
 #include "../types.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -35,7 +36,8 @@ namespace pagmo{ namespace problem {
  * \image html rastrigin.png "Two-dimensional Rastrigin function."
  * \image latex rastrigin.png "Two-dimensional Rastrigin function." width=5cm
  *
- * The objective function here is the generalised n-dimensional Rastrigin function:
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the generalised n-dimensional Rastrigin function:
  * \f[
  * 	F\left(x_1,\ldots,x_n\right) = 10 \cdot n + \sum_{i=1}^n x_i^2 - 10\cdot\cos\left( 2\pi \cdot x_i \right), \quad x_i \in \left[ -5.12,5.12 \right].
  * \f]

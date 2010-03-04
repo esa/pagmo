@@ -34,9 +34,7 @@
 #include "../types.h"
 #include "base.h"
 
-namespace pagmo
-{
-namespace algorithm {
+namespace pagmo { namespace algorithm {
 
 /// Improved harmony search algorithm.
 /**
@@ -87,7 +85,6 @@ class __PAGMO_VISIBLE ihs: public base
 		mutable constraint_vector	m_tmp_c;
 };
 
-}
-}
+}} //namespaces
 
 #endif

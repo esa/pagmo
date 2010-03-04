@@ -42,6 +42,7 @@ namespace pagmo { namespace problem {
  * \image html knapsack.png "Knapsack problem."
  * \image latex knapsack.png "Knapsack problem." width=3cm
  *
+ * This is a constrained integer single-objective problem.
  * Classical formulation of the 0-1 knapsack problem: given N items, each one with a weight and a monetary value, determine
  * which items to include in the knapsack so that the total weight is less than a given limit and the total value is as large as possible.
  *

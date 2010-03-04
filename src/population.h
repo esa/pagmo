@@ -130,6 +130,7 @@ class __PAGMO_VISIBLE population
 		size_type get_best_idx() const;
 		size_type get_worst_idx() const;
 		void set_x(const size_type &, const decision_vector &);
+		void set_v(const size_type &, const decision_vector &);
 		size_type size() const;
 		const_iterator begin() const;
 		const_iterator end() const;

@@ -1,4 +1,4 @@
-4/*****************************************************************************
+/*****************************************************************************
  *   Copyright (C) 2004-2009 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
@@ -22,48 +22,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <boost/math/constants/constants.hpp>
-#include <cmath>
+#ifndef PAGMO_PROBLEM_ROSENBROCK_H
+#define PAGMO_PROBLEM_ROSENBROCK_H
 
-#include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
-#include "rastrigin.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo{ namespace problem {
 
-/// Constructor from dimension.
+/// The Rosenbrock problem.
 /**
- * Will construct an n dimensional Rastrigin problem.
+ * \image html rosenbrock.png "Two-dimensional Rosenbrock function."
+ * \image latex rosenbrock.png "Two-dimensional Rosenbrock function." width=5cm
  *
- * @param[in] n integer dimension of the problem.
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the generalised n-dimensional Rosenbrock function:
+ * \f[
+ * 	F\left(x_1,\ldots,x_n\right) =
+ *	\sum_{i=1}^{n-1}\left[ 100\left(x_i^2-x_{i+1}\right)^2+\left(x_i-1\right)^2\right], \quad x_i \in \left[ -5,10 \right].
+ * \f]
+ * The global minimum is in \f$x_i=1\f$, where \f$ F\left( 1,\ldots,1 \right) = 0 \f$.
  *
- * @see problem::base constructors.
+ * @author Dario Izzo (dario.izzo@esa.int)
  */
-rastrigin::rastrigin(int n):base(n)
-{
-	// Set bounds.
-	set_lb(-5.12);
-	set_ub(5.12);
-}
 
-/// Clone method.
-base_ptr rastrigin::clone() const
+class __PAGMO_VISIBLE rosenbrock : public base
 {
-	return base_ptr(new rastrigin(*this));
-}
+	public:
+		rosenbrock(unsigned int);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
 
-/// Implementation of the objective function.
-void rastrigin::objfun_impl(fitness_vector &f, const decision_vector &x) const
-{
-	pagmo_assert(f.size() == 1);
-	const double omega = 2.0 * boost::math::constants::pi<double>();
-	f[0] = 0;
-	const decision_vector::size_type n = x.size();
-        for (decision_vector::size_type i = 0; i < n; ++i) {
-		f[0] += x[i] * x[i] - 10.0 * std::cos(omega * x[i]);
-	}
-	f[0] += 10.0 * n;
-}
+}} //namespaces
 
-}}
+#endif // ROSENBROCK_H
