@@ -28,9 +28,11 @@
 #include <boost/thread/barrier.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
+#include <cstddef>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "archipelago.h"
@@ -83,7 +85,7 @@ archipelago::archipelago(const topology::base &t, distribution_type dt, migratio
 	check_migr_attributes();
 }
 
-/// Constructor from problem, algorithm, archipelago size, island sizes and topology.
+/// Constructor from problem, algorithm, archipelago size, island sizes, topology and migration attributes.
 /**
  * Constructs n islands of m individuals each, with assigned problem p and algorithm a, and inserts them with push_back() into the archipelago,
  * whose topology is set to t, with point_to_point distribution_type and destination migration_direction.
@@ -108,7 +110,7 @@ archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n
 
 /// Copy constructor.
 /**
- * Will synchronise a before deep-copying all its elements.
+ * Will synchronise input archipelago before deep-copying all its elements.
  *
  * @param[in] a archipelago to be copied.
  */
@@ -117,7 +119,6 @@ archipelago::archipelago(const archipelago &a)
 	a.join();
 	m_container = a.m_container;
 	m_topology = a.m_topology->clone();
-	reset_barrier();
 	m_dist_type = a.m_dist_type;
 	m_drng = a.m_drng;
 	m_urng = a.m_urng;
@@ -126,7 +127,7 @@ archipelago::archipelago(const archipelago &a)
 
 /// Assignment operator.
 /**
- * Will synchronise this and a before deep-copying all elements from a into this.
+ * Will synchronise this and the input archipelago before deep-copying all the elements into this.
  *
  * @param[in] a archipelago used for assignment.
  *
@@ -139,7 +140,6 @@ archipelago &archipelago::operator=(const archipelago &a)
 		a.join();
 		m_container = a.m_container;
 		m_topology = a.m_topology->clone();
-		reset_barrier();
 		m_dist_type = a.m_dist_type;
 		m_migr_dir = a.m_migr_dir;
 		m_migr_map = a.m_migr_map;
@@ -199,8 +199,6 @@ void archipelago::push_back(const island &isl)
 	m_container.back().m_archi = this;
 	// Insert the island in the topology.
 	m_topology->push_back(boost::numeric_cast<int>(m_container.size() - 1));
-	// Reset the barrier.
-	reset_barrier();
 }
 
 /// Get the size of the archipelago.
@@ -303,12 +301,10 @@ bool archipelago::check_island(const island &isl) const
 
 // Reset island synchronisation barrier. This method is intended as a shortcut,
 // do NOT use it if the archipelago has not been joined!
-void archipelago::reset_barrier()
+void archipelago::reset_barrier(const size_type &size)
 {
-	if (m_container.size()) {
-		m_islands_sync_point.reset(new boost::barrier(boost::numeric_cast<unsigned int>(m_container.size())));
-	} else {
-		m_islands_sync_point.reset(0);
+	if (size) {
+		m_islands_sync_point.reset(new boost::barrier(boost::numeric_cast<unsigned int>(size)));
 	}
 }
 
@@ -481,6 +477,15 @@ void archipelago::post_evolution(island &isl)
 	}
 }
 
+// Functor to count the number of island with blocking problem.
+struct archipelago::count_if_blocking
+{
+	bool operator()(const island &isl) const
+	{
+		return isl.m_pop.problem().is_blocking();
+	}
+};
+
 /// Run the evolution for the given number of iterations.
 /**
  * Will iteratively call island::evolve(n) on each island of the archipelago and then return.
@@ -490,38 +495,84 @@ void archipelago::post_evolution(island &isl)
 void archipelago::evolve(int n)
 {
 	join();
-	const iterator it_f = m_container.end();
-	bool has_blocking_problem = false;
-	for (iterator it = m_container.begin(); it != it_f; ++it) {
-		if (it->m_pop.problem().is_blocking()) {
-			has_blocking_problem = true;
+	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
+	pagmo_assert(blocking_islands <= m_container.size());
+	reset_barrier(m_container.size() - blocking_islands);
+	// In case there are blocking islands, do not calls evolve(n) on each island, but iteratively call evolve() n times.
+	if (blocking_islands) {
+		// Build a vector of iterators to the islands.
+		std::vector<iterator> it_vector;
+		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
+			it_vector.push_back(it);
 		}
-		it->evolve(n);
+		for (int i = 0; i < n; ++i) {
+			// Shuffle the vector of island iterators to simulate async operations.
+			std::random_shuffle(it_vector.begin(),it_vector.end());
+			for (std::vector<iterator>::iterator it = it_vector.begin(); it != it_vector.end(); ++it) {
+				(*it)->evolve();
+			}
+		}
+	} else {
+		const iterator it_f = m_container.end();
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
+			it->evolve(n);
+		}
 	}
-	if (has_blocking_problem) {
-		join();
+}
+
+// Helper function to determine if all islands evolved for at least t milliseconds.
+template <class Vector>
+static bool all_islands_t_evolved(const Vector &v, int t)
+{
+	for (typename Vector::const_iterator it = v.begin(); it != v.end(); ++it) {
+		if (it->second < t) {
+			return false;
+		}
 	}
+	return true;
 }
 
 /// Run the evolution for a minimum amount of time.
 /**
  * Will iteratively call island::evolve_t(n) on each island of the archipelago and then return.
  *
- * \param[in] t amount of time to evolve each island (in miliseconds).
+ * \param[in] t amount of time to evolve each island (in milliseconds).
  */
 void archipelago::evolve_t(int t)
 {
 	join();
+	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
+	pagmo_assert(blocking_islands <= m_container.size());
+	reset_barrier(m_container.size() - blocking_islands);
 	const iterator it_f = m_container.end();
-	bool has_blocking_problem = false;
-	for (iterator it = m_container.begin(); it != it_f; ++it) {
-		if (it->m_pop.problem().is_blocking()) {
-			has_blocking_problem = true;
+	if (blocking_islands) {
+		// Build a vector of (iterators,evolution time) pairs.
+		std::vector<std::pair<iterator,int> > it_t_vector;
+		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
+			it_t_vector.push_back(std::make_pair(it,0));
 		}
-		it->evolve_t(t);
-	}
-	if (has_blocking_problem) {
-		join();
+		while (!all_islands_t_evolved(it_t_vector,t)) {
+			// Shuffle the vector to simulate async operations.
+			std::random_shuffle(it_t_vector.begin(),it_t_vector.end());
+			for (std::vector<std::pair<iterator,int> >::iterator it = it_t_vector.begin(); it != it_t_vector.end(); ++it) {
+				// Evolve only if island has not evolved already for the desired time.
+				if (it->second < t) {
+					// Record the initial evolution time for the island.
+					const std::size_t initial_time = it->first->m_evo_time;
+					it->first->evolve();
+					// Here we must be careful. In "normal" conditions everything is fine and dandy and evo_time will now be higher than
+					// intial time. However, if the clock is screwed, if the counter is wrapping past the numerical limit or the evolution
+					// lasted 0 milliseconds, etc. then we must detect and fix this. Policy: add one millisecond to the total evolution time for
+					// the island, so that at least we are sure we don't end up in an endless cycle.
+					const std::size_t time_diff = (it->first->m_evo_time > initial_time) ? (it->first->m_evo_time - initial_time) : 1;
+					it->second += boost::numeric_cast<int>(time_diff);
+				}
+			}
+		}
+	} else {
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
+			it->evolve_t(t);
+		}
 	}
 }
 

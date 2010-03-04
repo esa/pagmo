@@ -27,6 +27,7 @@
 
 #include <cstddef>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -73,6 +74,22 @@ class __PAGMO_VISIBLE population
 			constraint_vector	best_c;
 			/// Best fitness vector so far.
 			fitness_vector		best_f;
+			/// Human-readable representation.
+			/**
+			 * @return formatted string containing the values of the data members.
+			 */
+			std::string human_readable() const
+			{
+				std::ostringstream oss;
+				oss << "\tDecision vector:\t\t" << cur_x << '\n';
+				oss << "\tVelocity vector:\t\t" << cur_v << '\n';
+				oss << "\tConstraint vector:\t\t" << cur_c << '\n';
+				oss << "\tFitness vector:\t\t\t" << cur_f << '\n';
+				oss << "\tBest decision vector:\t\t" << best_x << '\n';
+				oss << "\tBest constraint vector:\t\t" << best_c << '\n';
+				oss << "\tBest fitness vector:\t\t" << best_f << '\n';
+				return oss.str();
+			}
 		};
 		/// Population champion.
 		/**
@@ -85,6 +102,18 @@ class __PAGMO_VISIBLE population
 			constraint_vector	c;
 			/// Fitness vector.
 			fitness_vector		f;
+			/// Human-readable representation.
+			/**
+			 * @return formatted string containing the values of the data members.
+			 */
+			std::string human_readable() const
+			{
+				std::ostringstream oss;
+				oss << "\tDecision vector:\t" << x << '\n';
+				oss << "\tConstraints vector:\t" << c << '\n';
+				oss << "\tFitness vector:\t\t" << f << '\n';
+				return oss.str();
+			}
 		};
 		/// Population size type.
 		typedef std::vector<individual_type>::size_type size_type;
@@ -151,6 +180,8 @@ class __PAGMO_VISIBLE population
 };
 
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);
+__PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::individual_type &);
+__PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::champion_type &);
 
 }
 

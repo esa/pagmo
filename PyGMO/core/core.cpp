@@ -23,6 +23,8 @@
  *****************************************************************************/
 
 #include <boost/python/class.hpp>
+#include <boost/python/copy_const_reference.hpp>
+#include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <vector>
 
@@ -40,6 +42,33 @@
 
 using namespace boost::python;
 using namespace pagmo;
+
+static inline problem::base_ptr problem_from_pop(const population &pop)
+{
+	return pop.problem().clone();
+}
+
+#define TRIVIAL_GETTER_SETTER(type1,type2,name) \
+static inline type2 get_##name(const type1 &arg) \
+{ \
+	return arg.name; \
+} \
+static inline void set_##name(type1 &arg1, const type2 &arg2) \
+{ \
+	arg1.name = arg2; \
+}
+
+TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,cur_x);
+TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,cur_v);
+TRIVIAL_GETTER_SETTER(population::individual_type,fitness_vector,cur_f);
+TRIVIAL_GETTER_SETTER(population::individual_type,constraint_vector,cur_c);
+TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,best_x);
+TRIVIAL_GETTER_SETTER(population::individual_type,fitness_vector,best_f);
+TRIVIAL_GETTER_SETTER(population::individual_type,constraint_vector,best_c);
+
+TRIVIAL_GETTER_SETTER(population::champion_type,decision_vector,x);
+TRIVIAL_GETTER_SETTER(population::champion_type,fitness_vector,f);
+TRIVIAL_GETTER_SETTER(population::champion_type,constraint_vector,c);
 
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
@@ -62,7 +91,26 @@ BOOST_PYTHON_MODULE(_core)
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
 		.def("__len__", &population::size)
-		.def("__repr__", &population::human_readable);
+		.def("__repr__", &population::human_readable)
+		.add_property("problem",&problem_from_pop)
+		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()));
+
+	// Individual and champion.
+	class_<population::individual_type>("individual","Individual class.",init<>())
+		.def("__repr__",&population::individual_type::human_readable)
+		.add_property("cur_x",&get_cur_x,&set_cur_x)
+		.add_property("cur_f",&get_cur_f,&set_cur_f)
+		.add_property("cur_c",&get_cur_c,&set_cur_c)
+		.add_property("cur_v",&get_cur_v,&set_cur_v)
+		.add_property("best_x",&get_best_x,&set_best_x)
+		.add_property("best_f",&get_best_f,&set_best_f)
+		.add_property("best_c",&get_best_c,&set_best_c);
+
+	class_<population::champion_type>("champion","Champion class.",init<>())
+		.def("__repr__",&population::champion_type::human_readable)
+		.add_property("x",&get_x,&set_x)
+		.add_property("f",&get_f,&set_f)
+		.add_property("c",&get_c,&set_c);
 
 	// Expose island class.
 	class_<island>("island", "Island class.", init<const problem::base &, const algorithm::base &,
@@ -72,8 +120,12 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__len__", &island::get_size)
 		.def("__repr__", &island::human_readable)
 		.def("evolve", &island::evolve,"Evolve island n times.")
+		.def("evolve_t", &island::evolve,"Evolve island for at least n milliseconds.")
 		.def("join", &island::join,"Wait for evolution to complete.")
-		.def("busy", &island::busy,"Check if island is evolving.");
+		.def("busy", &island::busy,"Check if island is evolving.")
+		.def("interrupt", &island::interrupt,"Interrupt evolution.")
+		.add_property("problem",&island::get_problem)
+		.add_property("algorithm",&island::get_algorithm,&island::set_algorithm);
 
 	// Expose archipelago class.
 	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,
@@ -83,6 +135,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__len__", &archipelago::get_size)
 		.def("__repr__", &archipelago::human_readable)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
+		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.");
 }

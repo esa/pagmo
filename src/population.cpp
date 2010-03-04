@@ -219,20 +219,12 @@ std::string population::human_readable() const
 		oss << "\nList of individuals:\n";
 		for (size_type i = 0; i < size(); ++i) {
 			oss << '#' << i << ":\n";
-			oss << "\tDecision vector:\t\t" << m_container[i].cur_x << '\n';
-			oss << "\tVelocity vector:\t\t" << m_container[i].cur_v << '\n';
-			oss << "\tConstraint vector:\t\t" << m_container[i].cur_c << '\n';
-			oss << "\tFitness vector:\t\t\t" << m_container[i].cur_f << '\n';
-			oss << "\tBest decision vector:\t\t" << m_container[i].best_x << '\n';
-			oss << "\tBest constraint vector:\t\t" << m_container[i].best_c << '\n';
-			oss << "\tBest fitness vector:\t\t" << m_container[i].best_f << '\n';
+			oss << m_container[i] << '\n';
 		}
 	}
 	if (m_champion.x.size()) {
 		oss << "Champion:\n";
-		oss << "\tDecision vector:\t" << m_champion.x << '\n';
-		oss << "\tConstraints vector:\t" << m_champion.c << '\n';
-		oss << "\tFitness vector:\t\t" << m_champion.f << '\n';
+		oss << m_champion << '\n';
 	} else {
 		pagmo_assert(!size());
 		oss << "No champion yet.\n";
@@ -343,7 +335,7 @@ population::const_iterator population::end() const
 
 /// Overload stream operator for pagmo::population.
 /**
- * Equivalent to printing population::human_readable() to stream.
+ * Equivalent to printing pagmo::population::human_readable() to stream.
  *
  * @param[in] s stream to which the population will be sent.
  * @param[in] pop population to be sent to stream.
@@ -353,6 +345,36 @@ population::const_iterator population::end() const
 std::ostream &operator<<(std::ostream &s, const population &pop)
 {
 	s << pop.human_readable();
+	return s;
+}
+
+/// Overload stream operator for pagmo::population::individual_type.
+/**
+ * Equivalent to printing pagmo::population::individual_type::human_readable() to stream.
+ *
+ * @param[in] s stream to which the individual will be sent.
+ * @param[in] ind individual to be sent to stream.
+ *
+ * @return reference to s.
+ */
+std::ostream &operator<<(std::ostream &s, const population::individual_type &ind)
+{
+	s << ind.human_readable();
+	return s;
+}
+
+/// Overload stream operator for pagmo::population::champion_type.
+/**
+ * Equivalent to printing pagmo::population::champion_type::human_readable() to stream.
+ *
+ * @param[in] s stream to which the champion will be sent.
+ * @param[in] champ champion to be sent to stream.
+ *
+ * @return reference to s.
+ */
+std::ostream &operator<<(std::ostream &s, const population::champion_type &champ)
+{
+	s << champ.human_readable();
 	return s;
 }
 

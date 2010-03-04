@@ -27,6 +27,7 @@
 #ifndef PAGMO_ISLAND_H
 #define PAGMO_ISLAND_H
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <cstddef>
@@ -115,6 +116,7 @@ class __PAGMO_VISIBLE island
 		struct int_evolver {
 			int_evolver(island *i, const std::size_t &n):m_i(i),m_n(n) { }
 			void operator()();
+			void juice_impl(boost::posix_time::ptime &);
 			island 			*m_i;
 			const std::size_t	m_n;
 		};
@@ -122,11 +124,13 @@ class __PAGMO_VISIBLE island
 		struct t_evolver {
 			t_evolver(island *i, const std::size_t &t):m_i(i),m_t(t) {}
 			void operator()();
+			void juice_impl(boost::posix_time::ptime &);
 			island 			*m_i;
 			const std::size_t	m_t;
 		};
 		void accept_immigrants(const std::vector<population::individual_type> &);
 		std::vector<population::individual_type> get_emigrants() const;
+		bool is_blocking() const;
 	private:
 		// Population.
 		population				m_pop;

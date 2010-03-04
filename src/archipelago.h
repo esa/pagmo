@@ -142,11 +142,12 @@ class __PAGMO_VISIBLE archipelago
 	private:
 		void pre_evolution(island &);
 		void post_evolution(island &);
-		void reset_barrier();
+		void reset_barrier(const size_type &);
 		void build_immigrants_vector(std::vector<individual_type> &, const island &,
 			island &, const std::vector<individual_type> &, migr_hist_type &) const;
 		void check_migr_attributes() const;
 		void sync_island_start() const;
+		struct count_if_blocking;
 	private:
 		// Container of islands.
 		container_type				m_container;
