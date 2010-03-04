@@ -34,12 +34,27 @@ namespace pagmo { namespace algorithm {
 /// Particle Swarm optimization
 /**
  *
- * Particle swarm optimization (PSO) is a population based stochastic optimization technique developed by Dr. Eberhart and Dr. Kennedy in 1995, inspired by social behavior of bird flocking or fish schooling.
- * PSO shares many similarities with evolutionary computation techniques such as Genetic Algorithms (GA). The system is initialized with a population of random solutions and searches for optima by updating generations. However, unlike GA, PSO has no evolution operators such as crossover and mutation. In PSO, the potential solutions, called particles, fly through the problem space by following the current optimum particles.
- * Each particle keeps track of its coordinates in the problem space which are associated with the best solution (fitness) it has achieved so far. (The fitness value is also stored.) This value is called pbest. Another "best" value that is tracked by the particle swarm optimizer is the best value, obtained so far by any particle in the neighbors of the particle. This location is called lbest. when a particle takes all the population as its topological neighbors, the best value is a global best and is called gbest.
- * The particle swarm optimization concept consists of, at each time step, changing the velocity of (accelerating) each particle toward its pbest and lbest locations (local version of PSO). Acceleration is weighted by a random term, with separate random numbers being generated for acceleration toward pbest and lbest locations.
- * In past several years, PSO has been successfully applied in many research and application areas. It is demonstrated that PSO gets better results in a faster, cheaper way compared with other methods.
- * Another reason that PSO is attractive is that there are few parameters to adjust. One version, with slight variations, works well in a wide variety of applications. Particle swarm optimization has been used for approaches that can be used across a wide range of applications, as well as for specific applications focused on a specific requirement.
+ * Particle swarm optimization (PSO) is a population based algorithm that has been proposed in the
+ * mid nineties and that is inspired by the foraging behaviour of swarms. In PSO each point has
+ * memory of the position where it achieved the best performance \f$\mathbf x^l_i\f$ and of the swarm
+ * 'champion' position \f$ \mathbf x^g \f$ and uses this information to update its position using the equation:
+ * \f[
+ *	\mathbf v_{i+1} = \omega \mathbf v_i + \eta_1 \mathbf r_1 \cdot \left( \mathbf x_i - \mathbf x^l_i \right)
+ *	+ \eta_2 \mathbf r_2 \cdot \left(  \mathbf x_i - \mathbf x^g \right)
+ * \f]
+ * \f[
+ *	\mathbf x_{i+1} = \mathbf x_i + \mathbf v_i
+ * \f]
+ *
+ * The user can specify the values for \f$\omega, \eta_1, \eta_2\f$ and the magnitude of the maximum velocity
+ * allowed. this last value is evaluated for each search direction as the product of \f$ vcoeff\f$ and the
+ * search space width along that direction. The user can also specify one of four variants:
+ *
+ * of the velocity update rule differing on the definition of the random vectors \f$r_1\f$ and \f$r_2\f$
+ * Variant 1: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_2, r_2, ..., r_2]\f$
+ * Variant 2: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_1, r_1, ..., r_1]\f$
+ * Variant 3: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{21}, r_{21}, ..., r_{2n}]\f$
+ * Variant 4: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{11}, r_{11}, ..., r_{1n}]\f$*
  *
  * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
  * is performed.

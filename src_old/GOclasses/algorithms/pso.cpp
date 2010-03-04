@@ -88,20 +88,18 @@ population pso::evolve(const population &deme) const
 	int n = deme.size();
 	int m = LB.size();
 
-	std::vector<double> dummy(m,0);							//used for initialisation purposes
+	std::vector<double> dummy(m,0);				//used for initialisation purposes
 	std::vector<std::vector<double> > X(n,dummy);
 	std::vector<std::vector<double> > V(n,dummy);
 
-	std::vector<double> fit(n);							//particle fitness
+	std::vector<double> fit(n);				//particle fitness
+	double gbfit;						//global best fitness
+	std::vector<double> gbX(m);				//global best chromosome
+	std::vector<double> lbfit(n);				//local best fitness
+	std::vector<std::vector<double> > lbX(n,dummy);		//local best chromosome
 
-	double gbfit;										//global best fitness
-	std::vector<double> gbX(m);								//global best chromosome
-
-	std::vector<double> lbfit(n);							//local best fitness
-	std::vector<std::vector<double> > lbX(n,dummy);				//local best chromosome
-
-	double vwidth;										//Width of the search space
-	std::vector<double> MINV(m),MAXV(m);						//Maximum and minumum velocity allowed
+	double vwidth;						//Width of the search space
+	std::vector<double> MINV(m),MAXV(m);			//Maximum and minumum velocity allowed
 
 	// Initialise the particle (class individual) positions, their velocities and their fitness to that of the deme
 	for ( int i = 0; i<n; i++ ) {

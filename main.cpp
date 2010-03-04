@@ -51,9 +51,9 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::rosenbrock(10),algorithm::pso(500),20);
+	island isl = island(problem::rosenbrock(100),algorithm::pso(500),20);
 	std::cout << isl.get_population().champion().f << std::endl;
-	for (int i=0; i< 800; ++i){
+	for (int i=0; i< 400; ++i){
 		isl.evolve();
 		std::cout << isl.get_population().champion().f << std::endl;
 	}

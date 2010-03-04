@@ -35,8 +35,8 @@ namespace pagmo { namespace algorithm {
  *
  * @param[in] gen number of generations.
  * @param[in] m_omega particle inertia
- * @param[in] eta1 social component of the particle
- * @param[in] eta2 cognitive component of the particle
+ * @param[in] eta1 cognitive component of the particle
+ * @param[in] eta2 social component of the particle
  * @param[in] vcoeff velocity coefficient (determining the maximum allowed particle velocity)
  * @param[in] variant algorithm variant to use
  * @throws value_error if m_omega is not in the [0,1] interval, eta1, eta2 are not in the [0,1] interval,
@@ -109,7 +109,7 @@ void pso::evolve(population &pop) const
 	std::vector<fitness_vector> fit(NP);		//particle fitness
 
 	fitness_vector gbfit;				//global best fitness
-	decision_vector gbX(D);		//global best chromosome
+	decision_vector gbX(D);				//global best chromosome
 
 	std::vector<fitness_vector> lbfit(NP);		//personal best fitness
 	std::vector<decision_vector> lbX(NP,dummy);	//personal best chromosome
@@ -136,8 +136,10 @@ void pso::evolve(population &pop) const
 	gbX=pop.champion().x;
 	gbfit=pop.champion().f;
 
-	lbX=X;			//at the first generation the local best position is the particle position
-	lbfit=fit;		//same for the fitness
+	for (int i=0; i < NP;++i){
+	lbX[i] = pop.get_individual(i).best_x;
+	lbfit[i] = pop.get_individual(i).best_f;
+	}
 
 	double r1,r2 = 0;
 	// Main PSO loop
