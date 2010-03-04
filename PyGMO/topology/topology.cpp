@@ -24,6 +24,7 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
+#include <boost/python/register_ptr_to_python.hpp>
 #include <boost/utility.hpp>
 
 #include "../../src/topology/base.h"
@@ -51,4 +52,7 @@ BOOST_PYTHON_MODULE(_topology) {
 
 	// Topologies.
 	topology_wrapper<topology::ring>("ring", "Ring topology.").def(init<>());
+
+	// Register to_python conversion from smart pointer.
+	register_ptr_to_python<topology::base_ptr>();
 }
