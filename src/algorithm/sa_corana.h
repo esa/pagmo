@@ -22,59 +22,61 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_DE_H
-#define PAGMO_ALGORITHM_DE_H
+#ifndef PAGMO_ALGORITHM_SA_CORANA_H
+#define PAGMO_ALGORITHM_SA_CORANA_H
 
 #include "../config.h"
 #include "base.h"
+#include "../problem/base.h"
 
 
 namespace pagmo { namespace algorithm {
 
-/// Differential Evolution Algorithm
+/// Simulated Annealing, Corana's version with adaptive neighbourhood
 /**
  *
- * \image html de.jpg "Differential Evolution block diagram"
- * \image latex de.jpg "Differential Evolution block diagram" width=5cm
  *
- * Differential Evolution is an heuristic optimizer developed by Rainer Storn and Kenneth Price.
+ * This version of A. CORANA, M. MARCHESI, C. MARTINI, and S. RIDELLA of the simulated annealing algorithm
+ *  is essentially an iterative random search procedure with adaptive moves along the
+ * coordinate directions. It permits uphill moves under the control of metropolis criterion, hoping to avoid the first local minima encountered.
  *
- * ''A breakthrough happened, when Ken came up with the idea of using vector differences for perturbing
- * the vector population. Since this seminal idea a lively discussion between Ken and Rainer and endless
- * ruminations and computer simulations on both parts yielded many substantial improvements which
- * make DE the versatile and robust tool it is today'' (from the official web pages....)
  *
- * The implementation provided for PaGMO derives from the code provided in the official
- * DE web site and is suitable for box-constrained single-objective continuous optimization.
+ * The implementation provided for PaGMO has been developed from scratch and subsequent call to the algorithm
+ * are equivalent to a reannealing procedure.
  *
- * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
- * is performed.
+ * This algorithm is suitable for box-constrained single-objective continuous optimization.
  *
- * @see http://www.icsi.berkeley.edu/~storn/code.html for the official DE web site
- * @see http://www.springerlink.com/content/x555692233083677/ for the paper that introduces Differential Evolution
+ * At each call of the evolve method the number of function evaluations is guaranteed to be less
+ * than the total iterations as if a point is produced out of the bounds the iteration is skipped
+ *
+ * @see http://amcg.ese.ic.ac.uk/~jgomes/lasme/SA-corana.pdf for te original paper
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
-		
-class __PAGMO_VISIBLE de: public base
+
+class __PAGMO_VISIBLE sa_corana: public base
 {
 public:
-	de(int gen, double f = 0.8, double cr = 0.9, int strategy = 2);
+	sa_corana(int niter, const double &Ts, const double &Tf, const int niterT = 1, const int niterR = 20, const double range = 1);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
 	std::string human_readable_extra() const;
 private:
-	// Number of generations.
-	const int m_gen;
-	// Weighting factor
-	const double m_f;
-	// Crossover probability
-	const double m_cr;
-	// Startegy
-	const int m_strategy;
+	// Number of iterations.
+	const int m_niter;
+	// Starting temperature
+	const double m_Ts;
+	// Final temperature
+	const double m_Tf;
+	// Number of temperature adjustments
+	const int m_niterT;
+	// Number of range adjustments
+	const int m_niterR;
+	// Starting neighbourhood size
+	const double m_range;
 };
 
 }} //namespaces
 
-#endif // DE_H
+#endif // PAGMO_ALGORITHM_SA_CORANA_H

@@ -59,8 +59,10 @@ namespace pagmo { namespace algorithm {
  * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
  * is performed.
  *
+ * The algorithm is suitable for box-constrained single-objective continuous optimization.
+ *
  * @see http://swarmintelligence.org/ for a fair descritpion of the algorithm
- * @see http://www.engr.iupui.edu/~shi/Coference/psopap4.html for the first paper on this aglorithm
+ * @see http://www.engr.iupui.edu/~shi/Coference/psopap4.html for the first paper on this algorithm
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */

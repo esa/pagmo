@@ -23,23 +23,24 @@
  *****************************************************************************/
 
 #include "de.h"
+#include "../problem/base.h"
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 
 
 namespace pagmo { namespace algorithm {
 
-/// Advanced constructor.
+/// Constructor.
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
  * @param[in] gen number of generations.
  * @param[in] f weight coefficient (dafault value is 0.8)
  * @param[in] cr crossover probability (dafault value is 0.9)
- * @param[in] strategy strategy (dafault strategy is 3: rand-to-best/1/exp)
+ * @param[in] strategy strategy (dafault strategy is 2: /rand/1/exp)
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-de::de(int gen, double f, double cr, int strategy):m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy) {
+de::de(int gen, double f, double cr, int strategy):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -93,20 +94,19 @@ void de::evolve(population &pop) const
 	}
 
 	// Some vectors used during evolution are allocated here.
-
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
-	std::vector<fitness_vector> fit(NP);
 	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness;	//new fitness of the mutaded candidate
-	fitness_vector gbfit;		//global best fitness
+	fitness_vector newfitness(1);	//new fitness of the mutaded candidate
+	fitness_vector gbfit(1);	//global best fitness
+	std::vector<fitness_vector> fit(NP,gbfit);
 
 	//We extract from pop the chromosomes and fitness associated
 	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
 		popold[i] = pop.get_individual(i).cur_x;
-		popnew[i] = popold[i];
 		fit[i] = pop.get_individual(i).cur_f;
 	}
+	popnew = popold;
 
 	// Initialise the global bests
 	gbX=pop.champion().x;

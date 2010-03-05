@@ -29,7 +29,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Advanced constructor.
+/// Constructor.
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
@@ -42,7 +42,7 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if m_omega is not in the [0,1] interval, eta1, eta2 are not in the [0,1] interval,
  * vcoeff is not in ]0,1[, variant is not one of 1 .. 4
  */
-pso::pso(int gen, double m_omega, double eta1, double eta2, double vcoeff, int variant):m_gen(gen),m_omega(m_omega),m_eta1(eta1),m_eta2(eta2),m_vcoeff(vcoeff),m_variant(variant) {
+pso::pso(int gen, double m_omega, double eta1, double eta2, double vcoeff, int variant):base(),m_gen(gen),m_omega(m_omega),m_eta1(eta1),m_eta2(eta2),m_vcoeff(vcoeff),m_variant(variant) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -89,17 +89,17 @@ void pso::evolve(population &pop) const
 	const problem::base::size_type Dc = D - prob_i_dimension;
 
 
-	//We perform some checks to determine wether the problem/population are suitable for DE
+	//We perform some checks to determine wether the problem/population are suitable for PSO
 	if ( Dc == 0 ) {
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for PSO to optimise");
 	}
 
 	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and DE is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not box constrained and PSO is not suitable to solve it");
 	}
 
 	if ( prob_f_dimension != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and DE is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not single objective and PSO is not suitable to solve it");
 	}
 
 	// Some vectors used during evolution are allocated here.
@@ -152,7 +152,7 @@ void pso::evolve(population &pop) const
 			if (m_variant==1) {
 				r1 = m_drng();
 				r2 = m_drng();
-				for (int jj = 0; jj< Dc; jj++) {
+				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
 					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r2 * (gbX[jj] - X[ii][jj]);
 				}
 			}
@@ -162,7 +162,7 @@ void pso::evolve(population &pop) const
 			/*-------with Rastrigin-------------------------------------------------------------------*/
 			if (m_variant==2) {
 				r1 = m_drng();
-				for (int jj = 0; jj< Dc; jj++) {
+				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
 					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r1 * (gbX[jj] - X[ii][jj]);
 				}
 			}
@@ -171,7 +171,7 @@ void pso::evolve(population &pop) const
 			/*-------component. This is also the version that was implemented--------------------------*/
 			/*-------in early versions of pagmo--------------------------------------------------------*/
 			if (m_variant==3) {
-				for (int jj = 0; jj< Dc; jj++) {
+				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
 					r1 = m_drng();
 					r2 = m_drng();
 					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r2 * (gbX[jj] - X[ii][jj]);
@@ -181,7 +181,7 @@ void pso::evolve(population &pop) const
 			/*-------Variant of PSO strategy 2 that has r1 randomly generated for each-----------------*/
 			/*-------component.------------------------------------------------------------------------*/
 			if (m_variant==4) {
-				for (int jj = 0; jj< Dc; jj++) {
+				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
 					r1 = m_drng();
 					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r1 * (gbX[jj] - X[ii][jj]);
 				}
@@ -189,7 +189,7 @@ void pso::evolve(population &pop) const
 
 			//We now check that the velocity does not exceed the maximum allowed per component
 			//and we perform the position update and the feasibility correction
-			for (int jj = 0; jj< Dc; jj++) {
+			for (problem::base::size_type jj = 0; jj< Dc; jj++) {
 
 				if ( V[ii][jj] > maxv[jj] )
 					V[ii][jj] = maxv[jj];
