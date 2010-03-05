@@ -93,6 +93,10 @@ void de::evolve(population &pop) const
 		pagmo_throw(value_error,"for DE at least 6 individuals in the population are needed");
 	}
 
+	// Get out if there is nothing to do.
+	if (NP == 0 || m_gen == 0) {
+		return;
+	}
 	// Some vectors used during evolution are allocated here.
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);

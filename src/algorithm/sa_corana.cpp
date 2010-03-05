@@ -23,8 +23,6 @@
  *****************************************************************************/
 
 #include "sa_corana.h"
-#include "../problem/base.h"
-#include "../population.h"
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 
@@ -45,7 +43,7 @@ namespace pagmo { namespace algorithm {
  * niterT or niterR are negative, range is not in the [0,1] interval
  */
 sa_corana::sa_corana(int niter, const double &Ts, const double &Tf, const int niterT, const int niterR, const double range):
-		base(),m_niter(niter),m_Ts(Ts),m_Tf(Tf),m_niterT(niterT),m_niterR(niterR),m_range(range)
+		base(),m_niter(niter),m_Ts(Ts),m_Tf(Tf),m_step_adj(niterT),m_bin_size(niterR),m_range(range)
 {
 	if (niter < 0) {
 		pagmo_throw(value_error,"number of iterations must be nonnegative");
@@ -79,119 +77,123 @@ base_ptr sa_corana::clone() const
 
 void sa_corana::evolve(population &pop) const {
 
-// Let's store some useful variables.
-const problem::base &prob = pop.problem();
-const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
-const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-const population::size_type NP = pop.size();
-const problem::base::size_type Dc = D - prob_i_dimension;
+	// Let's store some useful variables.
+	const problem::base &prob = pop.problem();
+	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
+	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
+	const population::size_type NP = pop.size();
+	const problem::base::size_type Dc = D - prob_i_dimension;
 
 
-//We perform some checks to determine wether the problem/population are suitable for sa_corana
-if ( Dc == 0 ) {
-	pagmo_throw(value_error,"There is no continuous part in the problem decision vector for sa_corana to optimise");
-}
+	//We perform some checks to determine wether the problem/population are suitable for sa_corana
+	if ( Dc == 0 ) {
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for sa_corana to optimise");
+	}
 
-if ( prob_c_dimension != 0 ) {
-	pagmo_throw(value_error,"The problem is not box constrained and sa_corana is not suitable to solve it");
-}
+	if ( prob_c_dimension != 0 ) {
+		pagmo_throw(value_error,"The problem is not box constrained and sa_corana is not suitable to solve it");
+	}
 
-if ( prob_f_dimension != 1 ) {
-	pagmo_throw(value_error,"The problem is not single objective and sa_corana is not suitable to solve it");
-}
+	if ( prob_f_dimension != 1 ) {
+		pagmo_throw(value_error,"The problem is not single objective and sa_corana is not suitable to solve it");
+	}
 
-//Determines the number of iteration of the outer for loop
-const size_t niterOuter = m_niter / (m_niterT * m_niterR * Dc);
-if (niterOuter == 0) {
-	pagmo_throw(value_error,"niterOuter is zero, increase niter");
-}
+	//Determines the number of temperature adjustment for the annealing procedure
+	const size_t n_T = m_niter / (m_step_adj * m_bin_size * Dc);
 
-//Starting point is the best individual
-const int bestidx = pop.get_best_idx();
-const decision_vector &x0 = pop.get_individual(bestidx).cur_x;
-const fitness_vector &fit0 = pop.get_individual(bestidx).cur_f;
-//Determines the coefficient to dcrease the temperature
-const double Tcoeff = std::pow(m_Tf/m_Ts,1.0/(double)(niterOuter));
-//Stores the current and new points
-decision_vector xNEW = x0, xOLD = xNEW;
-fitness_vector fNEW = fit0, fOLD = fNEW;
-//Stores the adaptive steps of each component (integer part included but not used)
-decision_vector Step(D,m_range);
+	// Get out if there is nothing to do.
+	if (NP == 0 || m_niter == 0) {
+		return;
+	}
 
-//Stores the number of accepted points per compnent (integer part included but not used)
-std::vector<int> acp(D,0) ;
-double ratio = 0, currentT = m_Ts, probab = 0,  r = 0;
+	if (n_T == 0) {
+		pagmo_throw(value_error,"n_T is zero, increase niter");
+	}
 
-//Main SA loops
-for (size_t jter = 0; jter < niterOuter; ++jter) {
-	for (size_t mter = 0; mter < m_niterT; ++mter) {
-		for (size_t kter = 0; kter < m_niterR; ++kter) {
-			size_t nter =  (size_t)(m_drng() * Dc);
-			for (size_t numb = 0; numb < Dc ; ++numb) {
-				nter = (nter + 1) % Dc;
-				//We modify the current point actsol by mutating its nter component within
-				//a Step that we will later adapt
-				r = 2.0 * m_drng() - 1.0; //random number in [-1,1]
-				xNEW[nter] = xOLD[nter] + r * Step[nter] * ( ub[nter] - lb[nter] );
+	//Starting point is the best individual
+	const int bestidx = pop.get_best_idx();
+	const decision_vector &x0 = pop.get_individual(bestidx).cur_x;
+	const fitness_vector &fit0 = pop.get_individual(bestidx).cur_f;
+	//Determines the coefficient to dcrease the temperature
+	const double Tcoeff = std::pow(m_Tf/m_Ts,1.0/(double)(n_T));
+	//Stores the current and new points
+	decision_vector xNEW = x0, xOLD = xNEW;
+	fitness_vector fNEW = fit0, fOLD = fNEW;
+	//Stores the adaptive steps of each component (integer part included but not used)
+	decision_vector Step(D,m_range);
 
-				// If new solution produced is infeasible ignore it
-				if ((xNEW[nter] > ub[nter]) || (xNEW[nter] < lb[nter])) {
-					xNEW[nter]=xOLD[nter];
-					continue;
-				}
-				//And we valuate the objective function for the new point
-				prob.objfun(fNEW,xNEW);
+	//Stores the number of accepted points per compnent (integer part included but not used)
+	std::vector<int> acp(D,0) ;
+	double ratio = 0, currentT = m_Ts, probab = 0,  r = 0;
 
-				// We decide wether to accept or discard the point
-				if (prob.compare_fitness(fNEW,fOLD) ) {
-					//accept
-					xOLD[nter] = xNEW[nter];
-					fOLD = fNEW;
-					acp[nter]++;	//Increase the number of accepted values
-				} else {
-					//test it with Boltzmann to decide the acceptance
-					probab = exp ( fabs(fOLD[0] - fNEW[0] )/ currentT );
+	//Main SA loops
+	for (size_t jter = 0; jter < n_T; ++jter) {
+		for (size_t mter = 0; mter < m_step_adj; ++mter) {
+			for (size_t kter = 0; kter < m_bin_size; ++kter) {
+				size_t nter =  (size_t)(m_drng() * Dc);
+				for (size_t numb = 0; numb < Dc ; ++numb) {
+					nter = (nter + 1) % Dc;
+					//We modify the current point actsol by mutating its nter component within
+					//a Step that we will later adapt
+					r = 2.0 * m_drng() - 1.0; //random number in [-1,1]
+					xNEW[nter] = xOLD[nter] + r * Step[nter] * ( ub[nter] - lb[nter] );
 
-					// we compare prob with a random probability.
-					if (probab > m_drng()) {
+					// If new solution produced is infeasible ignore it
+					if ((xNEW[nter] > ub[nter]) || (xNEW[nter] < lb[nter])) {
+						xNEW[nter]=xOLD[nter];
+						continue;
+					}
+					//And we valuate the objective function for the new point
+					prob.objfun(fNEW,xNEW);
+
+					// We decide wether to accept or discard the point
+					if (prob.compare_fitness(fNEW,fOLD) ) {
+						//accept
 						xOLD[nter] = xNEW[nter];
 						fOLD = fNEW;
 						acp[nter]++;	//Increase the number of accepted values
 					} else {
-						xNEW[nter] = xOLD[nter];
-					}
-				} // end if
-			} // end for(nter = 0; ...
-		} // end for(kter = 0; ...
+						//test it with Boltzmann to decide the acceptance
+						probab = exp ( - fabs(fOLD[0] - fNEW[0] )/ currentT );
 
-
-		// adjust the step (adaptively)
-		for (size_t iter = 0; iter < Dc; ++iter) {
-			ratio = (double)acp[iter]/(double)m_niterR;
-			acp[iter] = 0;  //reset the counter
-			if (ratio > .6) {
-				//too many acceptances, increase the step by a factor 3 maximum
-				Step[iter] = Step [iter] * (1 + 2 *(ratio - .6)/.4);
-			} else {
-				if (ratio < .4) {
-					//too few acceptance, decrease the step by a factor 3 maximum
-					Step [iter]= Step [iter] / (1 + 2 * ((.4 - ratio)/.4));
+						// we compare prob with a random probability.
+						if (probab > m_drng()) {
+							xOLD[nter] = xNEW[nter];
+							fOLD = fNEW;
+							acp[nter]++;	//Increase the number of accepted values
+						} else {
+							xNEW[nter] = xOLD[nter];
+						}
+					} // end if
+				} // end for(nter = 0; ...
+			} // end for(kter = 0; ...
+			// adjust the step (adaptively)
+			for (size_t iter = 0; iter < Dc; ++iter) {
+				ratio = (double)acp[iter]/(double)m_bin_size;
+				acp[iter] = 0;  //reset the counter
+				if (ratio > .6) {
+					//too many acceptances, increase the step by a factor 3 maximum
+					Step[iter] = Step [iter] * (1 + 2 *(ratio - .6)/.4);
+				} else {
+					if (ratio < .4) {
+						//too few acceptance, decrease the step by a factor 3 maximum
+						Step [iter]= Step [iter] / (1 + 2 * ((.4 - ratio)/.4));
+					};
 				};
-			};
-			//And if it becomes too large, reset it to its initial value
-			if ( Step[iter] > m_range ) {
-				Step [iter] = m_range;
-			};
+				//And if it becomes too large, reset it to its initial value
+				if ( Step[iter] > m_range ) {
+					Step [iter] = m_range;
+				};
+			}
 		}
+		// Cooling schedule
+		currentT *= Tcoeff;
 	}
-	// Cooling schedule
-	currentT *= Tcoeff;
-}
-if ( prob.compare_fitness(fOLD,fit0) ){
-	pop.set_x(bestidx,xOLD); //new evaluation is possible here......
-	std::transform(xOLD.begin(), xOLD.end(), pop.get_individual(bestidx).cur_x.begin(), xOLD.begin(),std::minus<double>());
-	pop.set_v(bestidx,xOLD);
-}
+	if ( prob.compare_fitness(fOLD,fit0) ){
+		pop.set_x(bestidx,xOLD); //new evaluation is possible here......
+		std::transform(xOLD.begin(), xOLD.end(), pop.get_individual(bestidx).cur_x.begin(), xOLD.begin(),std::minus<double>());
+		pop.set_v(bestidx,xOLD);
+	}
 }
 
 
@@ -205,6 +207,11 @@ std::string sa_corana::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "\tIteration:\t" << m_niter << '\n';
+	s << "\tStarting Temperature:\t" << m_Ts << '\n';
+	s << "\tFinal Temperature:\t" << m_Tf << '\n';
+	s << "\tRatio of neighbourhood over temperature adjustments:\t" << m_step_adj << '\n';
+	s << "\tSize of the bin to evaluate the acceptance rate:\t" << m_bin_size << '\n';
+	s << "\tSize of the strating range:\t" << m_range << '\n';
 	return s.str();
 }
 

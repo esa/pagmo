@@ -37,8 +37,9 @@ namespace pagmo { namespace algorithm {
  *
  *
  * This version of A. CORANA, M. MARCHESI, C. MARTINI, and S. RIDELLA of the simulated annealing algorithm
- *  is essentially an iterative random search procedure with adaptive moves along the
- * coordinate directions. It permits uphill moves under the control of metropolis criterion, hoping to avoid the first local minima encountered.
+ * is essentially an iterative random search procedure with adaptive moves along the
+ * coordinate directions. It permits uphill moves under the control of metropolis criterion,
+ * in the hope to avoid the first local minima encountered.
  *
  *
  * The implementation provided for PaGMO has been developed from scratch and subsequent call to the algorithm
@@ -49,7 +50,7 @@ namespace pagmo { namespace algorithm {
  * At each call of the evolve method the number of function evaluations is guaranteed to be less
  * than the total iterations as if a point is produced out of the bounds the iteration is skipped
  *
- * @see http://amcg.ese.ic.ac.uk/~jgomes/lasme/SA-corana.pdf for te original paper
+ * @see http://amcg.ese.ic.ac.uk/~jgomes/lasme/SA-corana.pdf for the original paper
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
@@ -57,7 +58,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE sa_corana: public base
 {
 public:
-	sa_corana(int niter, const double &Ts, const double &Tf, const int niterT = 1, const int niterR = 20, const double range = 1);
+	sa_corana(int niter, const double &Ts, const double &Tf, const int m_step_adj = 1, const int m_bin_size = 20, const double range = 1);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
@@ -69,10 +70,10 @@ private:
 	const double m_Ts;
 	// Final temperature
 	const double m_Tf;
-	// Number of temperature adjustments
-	const int m_niterT;
-	// Number of range adjustments
-	const int m_niterR;
+	// Ratio of neighbourhood adjustments over temperature adjustments
+	const int m_step_adj;
+	// Size of the bin to evaluate the acceptance rate
+	const int m_bin_size;
 	// Starting neighbourhood size
 	const double m_range;
 };

@@ -41,6 +41,7 @@
 #include "src/problem/paraboloid.h"
 #include "src/problem/rastrigin.h"
 #include "src/problem/rosenbrock.h"
+#include "src/problem/schwefel.h"
 #include "src/topology/ring.h"
 #include "src/topology/one_way_ring.h"
 #include "src/topology/unconnected.h"
@@ -54,10 +55,11 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::rosenbrock(25),algorithm::sa_corana(10000,2,0.001),20);
+	island isl = island(problem::rosenbrock(25),algorithm::de(500),20);
 	std::cout << isl.get_population().champion().f << std::endl;
-	for (int i=0; i< 50; ++i){
+	for (int i=0; i< 100; ++i){
 		isl.evolve();
 		std::cout << isl.get_population().champion().f << std::endl;
 	}
+	std::cout << isl.get_population().champion().x << std::endl;
 }

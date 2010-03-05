@@ -60,9 +60,9 @@ cs::cs(const double &range_, const double &reduxCoeff_, const double &minRange_)
 	}
 }
 
-population cs::evolve(const population &popin) const
+population cs::evolve(const population &pop) const
 {
-	const problem::base &problem = popin.problem();
+	const problem::base &pr = popin.problem();
 	if (popin.size() == 0) {
 		return population(problem,0);
 	}

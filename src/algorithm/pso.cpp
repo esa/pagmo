@@ -102,6 +102,11 @@ void pso::evolve(population &pop) const
 		pagmo_throw(value_error,"The problem is not single objective and PSO is not suitable to solve it");
 	}
 
+	// Get out if there is nothing to do.
+	if (NP == 0 || m_gen == 0) {
+		return;
+	}
+
 	// Some vectors used during evolution are allocated here.
 	std::vector<double> dummy(D,0);			//used for initialisation purposes
 	std::vector<decision_vector > X(NP,dummy);	//particle position
