@@ -166,6 +166,17 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
  */
 base::~base() {}
 
+/// Get problem's name.
+/**
+ * Default implementation will return the problem's mangled C++ name.
+ *
+ * @return name of the problem.
+ */
+std::string base::get_name() const
+{
+	return typeid(*this).name();
+}
+
 /// Lower bounds getter.
 /**
  * @return const reference to the lower bounds vector.
@@ -423,9 +434,8 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 	if (f.size() != m_f_dimension) {
 		pagmo_throw(value_error,"wrong fitness vector size when calling objective function");
 	}
-	// Make sure the decision vector is compatible with the problem.
-	if (!verify_x(x)) {
-		pagmo_throw(value_error,"incompatible decision vector when calling objective function");
+	if (x.size() != get_dimension()) {
+		pagmo_throw(value_error,"wrong decision vector size when calling objective function");
 	}
 	// Look into the cache.
 	typedef decision_vector_cache_type::iterator x_iterator;
@@ -437,6 +447,10 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 		// Make sure that the implementation of objfun_impl() in the derived class did not fuck up the dimension of the fitness vector.
 		if (f.size() != m_f_dimension) {
 			pagmo_throw(value_error,"fitness dimension was changed inside objfun_impl()");
+		}
+		// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
+		if (m_objfun_counter.is_increment_fast) {
+			++m_objfun_counter;
 		}
 		// Store the decision vector and the newly-calculated fitness in the front of the buffers.
 		m_decision_vector_cache_f.push_front(x);
@@ -459,10 +473,6 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 			++tmp_f_it;
 		}
 		pagmo_assert(tmp_f_it == f_it);
-	}
-	// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
-	if (m_objfun_counter.is_increment_fast) {
-		++m_objfun_counter;
 	}
 }
 
@@ -512,7 +522,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 /// Return human readable representation of the problem.
 /**
  * Will return a formatted string containing:
- * - problem type (in mangled C++ form),
+ * - problem's name from get_name(),
  * - dimensions,
  * - lower and upper bounds.
  *
@@ -523,7 +533,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 std::string base::human_readable() const
 {
 	std::ostringstream s;
-	s << "Problem type: " << typeid(*this).name() << '\n';
+	s << "Problem name: " << get_name() << '\n';
 	const size_type size = get_dimension();
 	s << "\tGlobal dimension:\t\t\t" << size << '\n';
 	s << "\tInteger dimension:\t\t\t" << m_i_dimension << '\n';
@@ -750,12 +760,12 @@ void base::compute_constraints_impl(constraint_vector &c, const decision_vector 
  */
 void base::compute_constraints(constraint_vector &c, const decision_vector &x) const
 {
+	if (x.size() != get_dimension() || c.size() != get_c_dimension()) {
+		pagmo_throw(value_error,"invalid constraint and/or decision vector(s) size(s) during constraint testing");
+	}
 	// Do not do anything if constraints size is 0.
 	if (!m_c_dimension) {
 		return;
-	}
-	if (!verify_x(x) || c.size() != get_c_dimension()) {
-		pagmo_throw(value_error,"invalid constraint and/or decision vector(s) during constraint testing");
 	}
 	// Look into the cache.
 	typedef decision_vector_cache_type::iterator x_iterator;

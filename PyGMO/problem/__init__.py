@@ -8,3 +8,5 @@ class base(_problem._base):
 		_problem._base.__init__(self,*args)
 	def _get_typename(self):
 		return str(type(self))
+	def get_name(self):
+		return self._get_typename()

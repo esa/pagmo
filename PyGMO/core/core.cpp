@@ -90,10 +90,13 @@ BOOST_PYTHON_MODULE(_core)
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
+		.def("__getitem__", &population::get_individual,return_value_policy<copy_const_reference>())
 		.def("__len__", &population::size)
 		.def("__repr__", &population::human_readable)
 		.add_property("problem",&problem_from_pop)
-		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()));
+		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()))
+		.def("set_x", &population::set_x,"Set decision vector of individual at position n.")
+		.def("set_v", &population::set_v,"Set velocity of individual at position n.");
 
 	// Individual and champion.
 	class_<population::individual_type>("individual","Individual class.",init<>())

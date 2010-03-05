@@ -84,7 +84,6 @@ void sa_corana::evolve(population &pop) const {
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
 
-
 	//We perform some checks to determine wether the problem/population are suitable for sa_corana
 	if ( Dc == 0 ) {
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for sa_corana to optimise");
@@ -105,7 +104,6 @@ void sa_corana::evolve(population &pop) const {
 	if (NP == 0 || m_niter == 0) {
 		return;
 	}
-
 	if (n_T == 0) {
 		pagmo_throw(value_error,"n_T is zero, increase niter");
 	}

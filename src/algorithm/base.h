@@ -79,6 +79,7 @@ return base_ptr(new derived_algorithm(*this));
 		virtual base_ptr clone() const = 0;
 		virtual ~base();
 		std::string human_readable() const;
+		virtual std::string get_name() const;
 		virtual bool is_blocking() const;
 	protected:
 		virtual std::string human_readable_extra() const;
