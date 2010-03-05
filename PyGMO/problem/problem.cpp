@@ -64,6 +64,17 @@ struct python_problem: problem::base, wrapper<problem::base>
 	{
 		return this->get_override("__copy__")();
 	}
+	std::string get_name() const
+	{
+		if (override f = this->get_override("get_name")) {
+			return f();
+		}
+		return problem::base::get_name();
+	}
+	std::string default_get_name() const
+	{
+		return this->problem::base::get_name();
+	}
 	void objfun_impl(fitness_vector &f, const decision_vector &x) const
 	{
 		f = py_objfun(x);
@@ -181,6 +192,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
 		// Virtual methods that can be (re)implemented.
 		.def("__copy__",pure_virtual(&problem::base::clone))
+		.def("get_name",&problem::base::get_name,&python_problem::default_get_name)
 		.def("_objfun_impl",&python_problem::py_objfun)
 		.def("_human_readable_extra",&python_problem::py_human_readable_extra)
 		.def("_equality_operator_extra",&python_problem::py_equality_operator_extra)

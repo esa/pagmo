@@ -341,7 +341,7 @@ class __PAGMO_VISIBLE base
 			normalise_bounds();
 		}
 		//@}
-		/** @name Dimensions getters.*/
+		/** @name Properties getters.*/
 		//@{
 		size_type get_dimension() const;
 		size_type get_i_dimension() const;
@@ -349,6 +349,7 @@ class __PAGMO_VISIBLE base
 		c_size_type get_c_dimension() const;
 		c_size_type get_ic_dimension() const;
 		double get_diameter() const;
+		virtual std::string get_name() const;
 		//@}
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;

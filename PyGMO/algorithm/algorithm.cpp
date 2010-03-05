@@ -26,6 +26,7 @@
 #include <boost/python/module.hpp>
 #include <boost/python/pure_virtual.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
+#include <string>
 
 #include "../../src/algorithm/base.h"
 #include "../../src/algorithm/ihs.h"
@@ -85,6 +86,17 @@ struct python_algorithm: algorithm::base, wrapper<algorithm::base>
 		}
 		return algorithm::base::human_readable_extra();
 	}
+	std::string get_name() const
+	{
+		if (override f = this->get_override("get_name")) {
+			return f();
+		}
+		return algorithm::base::get_name();
+	}
+	std::string default_get_name() const
+	{
+		return this->algorithm::base::get_name();
+	}
 };
 
 BOOST_PYTHON_MODULE(_algorithm) {
@@ -92,12 +104,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	translate_exceptions();
 
 	// Expose base algorithm class, including the virtual methods.
-	class_<python_algorithm>("base",init<>())
+	class_<python_algorithm>("_base",init<>())
 		.def(init<const algorithm::base &>())
 		.def("__repr__", &algorithm::base::human_readable)
 		.def("is_blocking",&algorithm::base::is_blocking)
 		// Virtual methods that can be (re)implemented.
 		.def("__copy__",pure_virtual(&algorithm::base::clone))
+		.def("get_name",&algorithm::base::get_name,&python_algorithm::default_get_name)
 		.def("evolve",&python_algorithm::py_evolve)
 		.def("_human_readable_extra",&python_algorithm::py_human_readable_extra);
 

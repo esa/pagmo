@@ -47,9 +47,20 @@ base::base():m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<
  */
 base::~base() {}
 
+/// Get algorithm's name.
+/**
+ * Default implementation will return the algorithm's mangled C++ name.
+ *
+ * @return name of the algorithm.
+ */
+std::string base::get_name() const
+{
+	return typeid(*this).name();
+}
+
 /// Return human readable representation of the algorithm.
 /**
- * Will return a formatted string containing the algorithm type (in mangled C++ form).
+ * Will return a formatted string containing the algorithm name from get_name().
  * The output of human_readable_extra() will be appended at the end of the string.
  *
  * @return string containing human readable representation of the algorithm.
@@ -57,7 +68,7 @@ base::~base() {}
 std::string base::human_readable() const
 {
 	std::ostringstream s;
-	s << "Algorithm type: " << typeid(*this).name() << '\n';
+	s << "Algorithm name: " << get_name() << '\n';
 	s << human_readable_extra();
 	return s.str();
 }

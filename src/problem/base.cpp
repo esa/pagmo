@@ -166,6 +166,17 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
  */
 base::~base() {}
 
+/// Get problem's name.
+/**
+ * Default implementation will return the problem's mangled C++ name.
+ *
+ * @return name of the problem.
+ */
+std::string base::get_name() const
+{
+	return typeid(*this).name();
+}
+
 /// Lower bounds getter.
 /**
  * @return const reference to the lower bounds vector.
@@ -511,7 +522,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 /// Return human readable representation of the problem.
 /**
  * Will return a formatted string containing:
- * - problem type (in mangled C++ form),
+ * - problem's name from get_name(),
  * - dimensions,
  * - lower and upper bounds.
  *
@@ -522,7 +533,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 std::string base::human_readable() const
 {
 	std::ostringstream s;
-	s << "Problem type: " << typeid(*this).name() << '\n';
+	s << "Problem name: " << get_name() << '\n';
 	const size_type size = get_dimension();
 	s << "\tGlobal dimension:\t\t\t" << size << '\n';
 	s << "\tInteger dimension:\t\t\t" << m_i_dimension << '\n';

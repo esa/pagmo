@@ -1,6 +1,12 @@
 # -*- coding: iso-8859-1 -*-
 from _algorithm import *
 
+class base(_algorithm._base):
+	def __init__(self):
+		_algorithm._base.__init__(self)
+	def get_name(self):
+		return str(type(self))
+
 # Helper class to ease the inclusion of scipy.optimize solvers.
 class _scipy_optimize_algorithm(object):
 	def __init__(self,solver_name,constrained = False):
