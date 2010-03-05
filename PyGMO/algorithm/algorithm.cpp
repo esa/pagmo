@@ -29,6 +29,7 @@
 
 #include "../../src/algorithm/base.h"
 #include "../../src/algorithm/ihs.h"
+#include "../../src/algorithm/monte_carlo.h"
 #include "../../src/population.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -79,7 +80,7 @@ struct python_algorithm: algorithm::base, wrapper<algorithm::base>
 	}
 	std::string py_human_readable_extra() const
 	{
-		if (override f = this->get_override("human_readable_extra")) {
+		if (override f = this->get_override("_human_readable_extra")) {
 			return f();
 		}
 		return algorithm::base::human_readable_extra();
@@ -98,13 +99,17 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		// Virtual methods that can be (re)implemented.
 		.def("__copy__",pure_virtual(&algorithm::base::clone))
 		.def("evolve",&python_algorithm::py_evolve)
-		.def("human_readable_extra",&python_algorithm::py_human_readable_extra);
+		.def("_human_readable_extra",&python_algorithm::py_human_readable_extra);
 
 	// Expose algorithms.
 	// IHS.
 	algorithm_wrapper<algorithm::ihs>("ihs","Improved harmony search.")
 		.def(init<int>())
 		.def(init<int, const double &, const double &, const double &, const double &, const double &>());
+
+	// Monte-carlo.
+	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
+		.def(init<int>());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<algorithm::base_ptr>();

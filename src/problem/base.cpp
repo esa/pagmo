@@ -423,9 +423,8 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 	if (f.size() != m_f_dimension) {
 		pagmo_throw(value_error,"wrong fitness vector size when calling objective function");
 	}
-	// Make sure the decision vector is compatible with the problem.
-	if (!verify_x(x)) {
-		pagmo_throw(value_error,"incompatible decision vector when calling objective function");
+	if (x.size() != get_dimension()) {
+		pagmo_throw(value_error,"wrong decision vector size when calling objective function");
 	}
 	// Look into the cache.
 	typedef decision_vector_cache_type::iterator x_iterator;
@@ -750,12 +749,12 @@ void base::compute_constraints_impl(constraint_vector &c, const decision_vector 
  */
 void base::compute_constraints(constraint_vector &c, const decision_vector &x) const
 {
+	if (x.size() != get_dimension() || c.size() != get_c_dimension()) {
+		pagmo_throw(value_error,"invalid constraint and/or decision vector(s) size(s) during constraint testing");
+	}
 	// Do not do anything if constraints size is 0.
 	if (!m_c_dimension) {
 		return;
-	}
-	if (!verify_x(x) || c.size() != get_c_dimension()) {
-		pagmo_throw(value_error,"invalid constraint and/or decision vector(s) during constraint testing");
 	}
 	// Look into the cache.
 	typedef decision_vector_cache_type::iterator x_iterator;
