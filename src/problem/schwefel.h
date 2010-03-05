@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,42 +22,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_PROBLEM_SCHWEFEL_H
+#define PAGMO_PROBLEM_SCHWEFEL_H
 
-#include "src/algorithm/de.h"
-#include "src/algorithm/pso.h"
-#include "src/algorithm/sa_corana.h"
-#include "src/algorithm/ihs.h"
-#include "src/algorithm/monte_carlo.h"
-#include "src/algorithm/null.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problem/golomb_ruler.h"
-#include "src/problem/himmelblau.h"
-#include "src/problem/knapsack.h"
-#include "src/problem/paraboloid.h"
-#include "src/problem/rastrigin.h"
-#include "src/problem/rosenbrock.h"
-#include "src/topology/ring.h"
-#include "src/topology/one_way_ring.h"
-#include "src/topology/unconnected.h"
-#include "src/topology/fully_connected.h"
-#include "src/topology/custom.h"
-#include "src/topology/erdos_renyi.h"
-#include "src/topology/barabasi_albert.h"
-#include "src/topology/watts_strogatz.h"
+#include "../types.h"
+#include "base.h"
 
-using namespace pagmo;
+namespace pagmo{ namespace problem {
 
-int main()
+/// The Schwefel problem.
+/**
+ * \image html schwefel.gif "Two-dimensional Schwefel function."
+ * \image latex schwefel.gif "Two-dimensional Schwefel function." width=5cm
+ *
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the generalised n-dimensional Schwefel function:
+ * \f[
+ * 	F\left(x_1,\ldots,x_n\right) = 418.9829 n - \sum_{i=1}^{n} x_i\sin \sqrt{|x_i|}, \quad x_i \in \left[ -500,500 \right].
+ * \f]
+ * The global minimum is in \f$x_i=1\f$, where \f$ F\left( 1,\ldots,1 \right) = 0 \f$.
+ *
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+
+class __PAGMO_VISIBLE schwefel : public base
 {
-	island isl = island(problem::rosenbrock(25),algorithm::sa_corana(10000,2,0.001),20);
-	std::cout << isl.get_population().champion().f << std::endl;
-	for (int i=0; i< 50; ++i){
-		isl.evolve();
-		std::cout << isl.get_population().champion().f << std::endl;
-	}
-}
+	public:
+		schwefel(unsigned int);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
+
+}} //namespaces
+
+#endif // SCHWEFEL_H

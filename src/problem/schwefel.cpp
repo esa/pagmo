@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,42 +22,48 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-#include "src/algorithm/de.h"
-#include "src/algorithm/pso.h"
-#include "src/algorithm/sa_corana.h"
-#include "src/algorithm/ihs.h"
-#include "src/algorithm/monte_carlo.h"
-#include "src/algorithm/null.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problem/golomb_ruler.h"
-#include "src/problem/himmelblau.h"
-#include "src/problem/knapsack.h"
-#include "src/problem/paraboloid.h"
-#include "src/problem/rastrigin.h"
-#include "src/problem/rosenbrock.h"
-#include "src/topology/ring.h"
-#include "src/topology/one_way_ring.h"
-#include "src/topology/unconnected.h"
-#include "src/topology/fully_connected.h"
-#include "src/topology/custom.h"
-#include "src/topology/erdos_renyi.h"
-#include "src/topology/barabasi_albert.h"
-#include "src/topology/watts_strogatz.h"
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "schwefel.h"
 
-using namespace pagmo;
+namespace pagmo { namespace problem {
 
-int main()
+/// Constructor from dimension.
+/**
+ * Will construct an n dimensional Schwefel problem.
+ *
+ * @param[in] n integer dimension of the problem.
+ *
+ * @see problem::base constructors.
+ */
+schwefel::schwefel(unsigned int n):base(n)
 {
-	island isl = island(problem::rosenbrock(25),algorithm::sa_corana(10000,2,0.001),20);
-	std::cout << isl.get_population().champion().f << std::endl;
-	for (int i=0; i< 50; ++i){
-		isl.evolve();
-		std::cout << isl.get_population().champion().f << std::endl;
-	}
+	// Set bounds.
+	set_lb(-500);
+	set_ub(500);
 }
+
+/// Clone method.
+base_ptr schwefel::clone() const
+{
+	return base_ptr(new schwefel(*this));
+}
+
+/// Implementation of the objective function.
+void schwefel::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 1);
+	std::vector<double>::size_type n = x.size();
+	double value=0;
+
+	for (std::vector<double>::size_type i=0; i<n; i++){
+		value += x[i] * sin(sqrt(fabs(x[i])));
+		}
+		f[0] = 418.9829 * n - value;
+}
+
+}}

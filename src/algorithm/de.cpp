@@ -23,23 +23,24 @@
  *****************************************************************************/
 
 #include "de.h"
+#include "../problem/base.h"
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 
 
 namespace pagmo { namespace algorithm {
 
-/// Advanced constructor.
+/// Constructor.
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
  * @param[in] gen number of generations.
- * @param[in] f weight coefficient
- * @param[in] cr crossover probability
- * @param[in] strategy maximum pitch adjustment rate.
+ * @param[in] f weight coefficient (dafault value is 0.8)
+ * @param[in] cr crossover probability (dafault value is 0.9)
+ * @param[in] strategy strategy (dafault strategy is 2: /rand/1/exp)
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-de::de(int gen, double f, double cr, int strategy):m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy) {
+de::de(int gen, double f, double cr, int strategy):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -92,25 +93,20 @@ void de::evolve(population &pop) const
 		pagmo_throw(value_error,"for DE at least 6 individuals in the population are needed");
 	}
 
-
-	// Some vectors used during evolution are allocated here. As the algorithm does not know about NP and D
-	// it does not help too much to have these as mutable members of the algorithm as they would anyway need to be resized
-	// here. Resizing introdues the risk that the same algorithm, called on different problems would
-	// mess up everything as resizing vector of vectors is tricky.
-
+	// Some vectors used during evolution are allocated here.
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
-	std::vector<fitness_vector> fit(NP);
 	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness;	//new fitness of the mutaded candidate
-	fitness_vector gbfit;		//global best fitness
+	fitness_vector newfitness(1);	//new fitness of the mutaded candidate
+	fitness_vector gbfit(1);	//global best fitness
+	std::vector<fitness_vector> fit(NP,gbfit);
 
 	//We extract from pop the chromosomes and fitness associated
 	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
 		popold[i] = pop.get_individual(i).cur_x;
-		popnew[i] = popold[i];
 		fit[i] = pop.get_individual(i).cur_f;
 	}
+	popnew = popold;
 
 	// Initialise the global bests
 	gbX=pop.champion().x;
@@ -259,7 +255,12 @@ void de::evolve(population &pop) const
 					n = (n+1)%Dc;
 				}
 			}
-			/*-------DE/rand/2/bin--------------------------------------------------------------------*/
+			/*-------DE/rand/2	for (int i = 1; i<n; i++) {		//the int i = 1 jumps the first member as it is already set as the best
+		if (fit[i] < gbfit) {
+			gbfit = fit[i];
+			gbX = X[i];
+		}
+	}/bin--------------------------------------------------------------------*/
 			else if (m_strategy == 10) {
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
@@ -281,15 +282,15 @@ void de::evolve(population &pop) const
 					tmp[i2] = boost::uniform_real<double>(lb[i2],ub[i2])(m_drng);
 				++i2;
 			}
-			newfitness = prob.objfun(tmp);    /* Evaluate new vector in tmp[] */
+			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
 			//b) how good?
 			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;
-				//As a fitness improvment occured we move the point
+				// As a fitness improvment occured we move the point
 				// and thus can evaluate a velocity
 				std::transform(tmp.begin(), tmp.end(), pop.get_individual(i).cur_x.begin(), tmp.begin(),std::minus<double>());
-				//updates x and v (hopefully cache avoids to recompute the objective function)
+				//updates x and v (cache avoids to recompute the objective function)
 				pop.set_x(i,popnew[i]);
 				pop.set_v(i,tmp);
 				if ( pop.problem().compare_fitness(newfitness,gbfit) ) {

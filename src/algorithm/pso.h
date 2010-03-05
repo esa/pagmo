@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_DE_H
-#define PAGMO_ALGORITHM_DE_H
+#ifndef PAGMO_ALGORITHM_PSO_H
+#define PAGMO_ALGORITHM_PSO_H
 
 #include "../config.h"
 #include "base.h"
@@ -31,35 +31,46 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Differential Evolution Algorithm
+/// Particle Swarm optimization
 /**
  *
- * \image html de.jpg "Differential Evolution block diagram"
- * \image latex de.jpg "Differential Evolution block diagram" width=5cm
+ * Particle swarm optimization (PSO) is a population based algorithm that has been proposed in the
+ * mid nineties and that is inspired by the foraging behaviour of swarms. In PSO each point has
+ * memory of the position where it achieved the best performance \f$\mathbf x^l_i\f$ and of the swarm
+ * 'champion' position \f$ \mathbf x^g \f$ and uses this information to update its position using the equation:
+ * \f[
+ *	\mathbf v_{i+1} = \omega \mathbf v_i + \eta_1 \mathbf r_1 \cdot \left( \mathbf x_i - \mathbf x^l_i \right)
+ *	+ \eta_2 \mathbf r_2 \cdot \left(  \mathbf x_i - \mathbf x^g \right)
+ * \f]
+ * \f[
+ *	\mathbf x_{i+1} = \mathbf x_i + \mathbf v_i
+ * \f]
  *
- * Differential Evolution is an heuristic optimizer developed by Rainer Storn and Kenneth Price.
+ * The user can specify the values for \f$\omega, \eta_1, \eta_2\f$ and the magnitude of the maximum velocity
+ * allowed. this last value is evaluated for each search direction as the product of \f$ vcoeff\f$ and the
+ * search space width along that direction. The user can also specify one of four variants:
  *
- * ''A breakthrough happened, when Ken came up with the idea of using vector differences for perturbing
- * the vector population. Since this seminal idea a lively discussion between Ken and Rainer and endless
- * ruminations and computer simulations on both parts yielded many substantial improvements which
- * make DE the versatile and robust tool it is today'' (from the official web pages....)
- *
- * The implementation provided for PaGMO derives from the code provided in the official
- * DE web site and is suitable for box-constrained single-objective continuous optimization.
+ * of the velocity update rule differing on the definition of the random vectors \f$r_1\f$ and \f$r_2\f$
+ * \li Variant 1: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_2, r_2, ..., r_2]\f$
+ * \li Variant 2: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_1, r_1, ..., r_1]\f$
+ * \li Variant 3: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{21}, r_{21}, ..., r_{2n}]\f$
+ * \li Variant 4: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{11}, r_{11}, ..., r_{1n}]\f$
  *
  * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
  * is performed.
  *
- * @see http://www.icsi.berkeley.edu/~storn/code.html for the official DE web site
- * @see http://www.springerlink.com/content/x555692233083677/ for the paper that introduces Differential Evolution
+ * The algorithm is suitable for box-constrained single-objective continuous optimization.
+ *
+ * @see http://swarmintelligence.org/ for a fair descritpion of the algorithm
+ * @see http://www.engr.iupui.edu/~shi/Coference/psopap4.html for the first paper on this algorithm
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
-		
-class __PAGMO_VISIBLE de: public base
+
+class __PAGMO_VISIBLE pso: public base
 {
 public:
-	de(int gen, double f = 0.8, double cr = 0.9, int strategy = 2);
+	pso(int gen, double omega = 0.65, double eta1 = 2.0, double eta2 = 2.0, double vcoeff = 0.2, int variant = 3);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
@@ -67,14 +78,18 @@ protected:
 private:
 	// Number of generations.
 	const int m_gen;
-	// Weighting factor
-	const double m_f;
-	// Crossover probability
-	const double m_cr;
+	// Particle Inertia
+	const double m_omega;
+	// Weight of the social component
+	const double m_eta1;
+	// Weight of the social component
+	const double m_eta2;
+	// Velocity coefficient
+	const double m_vcoeff;
 	// Startegy
-	const int m_strategy;
+	const int m_variant;
 };
 
 }} //namespaces
 
-#endif // DE_H
+#endif // PSO_H
