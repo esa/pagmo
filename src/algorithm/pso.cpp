@@ -119,14 +119,14 @@ void pso::evolve(population &pop) const
 
 
 	// Copy the particle positions, their velocities and their fitness
-	for ( int i = 0; i<NP; i++ ) {
+	for ( population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		V[i]	=	pop.get_individual(i).cur_v;
 		fit[i]	=	pop.get_individual(i).cur_f;
 	}
 
 	// Initialise the minimum and maximum velocity
-	for ( int i = 0; i<D; i++ ) {
+	for ( problem::base::size_type i = 0; i<D; i++ ) {
 		vwidth = (ub[i]-lb[i]) * m_vcoeff;
 		minv[i] = -1.0*vwidth;
 		maxv[i] = vwidth;
@@ -136,16 +136,16 @@ void pso::evolve(population &pop) const
 	gbX=pop.champion().x;
 	gbfit=pop.champion().f;
 
-	for (int i=0; i < NP;++i){
+	for (population::size_type i=0; i < NP;++i){
 	lbX[i] = pop.get_individual(i).best_x;
 	lbfit[i] = pop.get_individual(i).best_f;
 	}
 
 	double r1,r2 = 0;
 	// Main PSO loop
-	for (size_t j = 0; j < m_gen; ++j) {
+	for (int j = 0; j < m_gen; ++j) {
 		//For each particle in the swarm
-		for (int ii = 0; ii< NP; ii++) {
+		for (population::size_type ii = 0; ii< NP; ii++) {
 
 			/*-------PSO canonical--------------------------------------------------------------------*/
 			/*-------The classical PSO velocity update startegy---------------------------------------*/

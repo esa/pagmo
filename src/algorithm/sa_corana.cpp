@@ -83,7 +83,6 @@ void sa_corana::evolve(population &pop) const {
 const problem::base &prob = pop.problem();
 const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
 const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-const population::size_type NP = pop.size();
 const problem::base::size_type Dc = D - prob_i_dimension;
 
 
@@ -124,8 +123,8 @@ double ratio = 0, currentT = m_Ts, probab = 0,  r = 0;
 
 //Main SA loops
 for (size_t jter = 0; jter < niterOuter; ++jter) {
-	for (size_t mter = 0; mter < m_niterT; ++mter) {
-		for (size_t kter = 0; kter < m_niterR; ++kter) {
+	for (int mter = 0; mter < m_niterT; ++mter) {
+		for (int kter = 0; kter < m_niterR; ++kter) {
 			size_t nter =  (size_t)(m_drng() * Dc);
 			for (size_t numb = 0; numb < Dc ; ++numb) {
 				nter = (nter + 1) % Dc;
