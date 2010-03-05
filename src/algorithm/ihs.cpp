@@ -43,16 +43,7 @@ namespace pagmo
 {
 namespace algorithm {
 
-/// Simple constructor.
-/**
- * Initialises the parameters of the algorithms to "standard" values: phmcr = 0.85, ppar_min = 0.35, ppar_max = 0.99,
- * bw_min = 1E-5 and bw_max = 1.
- *
- * @param[in] gen number of generations.
-  */
-ihs::ihs(int gen):base(),m_gen(boost::numeric_cast<std::size_t>(gen)),m_phmcr(0.85),m_ppar_min(0.35),m_ppar_max(0.99),m_bw_min(1E-5),m_bw_max(1) {}
-
-/// Advanced constructor.
+/// Constructor.
 /**
  * Allows to specify in detail the parameters of the algorithm.
  *

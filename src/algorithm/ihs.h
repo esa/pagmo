@@ -59,8 +59,8 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE ihs: public base
 {
 	public:
-		ihs(int);
-		ihs(int, const double &, const double &, const double &, const double &, const double &);
+		ihs(int gen, const double &phmcr = 0.85, const double &ppar_min = 0.35, const double &ppar_max = 0.99,
+			const double &bw_min = 1E-5, const double &bw_max = 1);
 		base_ptr clone() const;
 		void evolve(population &) const;
 	protected:

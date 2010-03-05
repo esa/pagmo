@@ -117,8 +117,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Expose algorithms.
 	// IHS.
 	algorithm_wrapper<algorithm::ihs>("ihs","Improved harmony search.")
-		.def(init<int>())
-		.def(init<int, const double &, const double &, const double &, const double &, const double &>());
+		.def(init<int, optional<const double &, const double &, const double &, const double &, const double &> >());
 
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
