@@ -437,6 +437,10 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 		if (f.size() != m_f_dimension) {
 			pagmo_throw(value_error,"fitness dimension was changed inside objfun_impl()");
 		}
+		// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
+		if (m_objfun_counter.is_increment_fast) {
+			++m_objfun_counter;
+		}
 		// Store the decision vector and the newly-calculated fitness in the front of the buffers.
 		m_decision_vector_cache_f.push_front(x);
 		m_fitness_vector_cache.push_front(f);
@@ -458,10 +462,6 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 			++tmp_f_it;
 		}
 		pagmo_assert(tmp_f_it == f_it);
-	}
-	// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
-	if (m_objfun_counter.is_increment_fast) {
-		++m_objfun_counter;
 	}
 }
 

@@ -24,12 +24,14 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
+#include <boost/python/def.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
 #include <boost/python/pure_virtual.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/utility.hpp>
+#include <cstddef>
 #include <string>
 
 #include "../../src/problem/base.h"
@@ -189,6 +191,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
 		.def(init<>())
 		.def(init<const decision_vector &, const decision_vector &>());
+
+	// Function for the total number of objective function evaluations.
+	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");
+	def("reset_objfun_calls",&problem::reset_objfun_calls,"Reset the total number of calls to the objective function.");
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();
