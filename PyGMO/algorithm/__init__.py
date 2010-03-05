@@ -120,3 +120,31 @@ class scipy_slsqp(base,_scipy_optimize_algorithm):
 		new_chromosome = list(retval) + list(x0_comb)
 		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
 		return pop
+
+class scipy_anneal(base,_scipy_optimize_algorithm):
+	"""
+	Wrapper around SciPy's anneal optimiser.
+	"""
+	def __init__(self,verbose = False):
+		base.__init__(self)
+		_scipy_optimize_algorithm.__init__(self,'anneal',constrained = False)
+		self.verbose = verbose
+	def __copy__(self):
+		return scipy_anneal(self.verbose)
+	def evolve(self,pop):
+		from numpy import concatenate, array
+		prob = pop.problem
+		self._problem_checks(prob)
+		# If population is empty, just return input population.
+		if len(pop) == 0:
+			return pop
+		# Get starting params.
+		n_ec, x0, x0_comb = self._starting_params(pop)
+		# Run the optimisation.
+		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,lower = array(prob.lb,dtype=float),upper = array(prob.ub,dtype=float),
+			full_output = int(self.verbose))
+		# Set the individual's chromosome in the population and return. Conserve the integer part from the
+		# original individual.
+		new_chromosome = list(retval[0]) + list(x0_comb)
+		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		return pop
