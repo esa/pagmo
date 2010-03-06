@@ -83,7 +83,7 @@ class scipy_l_bfgs_b(base,_scipy_optimize_algorithm):
 			return pop
 		_, x0, x0_comb = self._starting_params(pop)
 		# Extract the a list of tuples representing the bounds.
-		prob_bounds = [(prob.lb[i],prob.ub[i]) for i in range(0,prob.dimension)]
+		prob_bounds = [(prob.lb[i],prob.ub[i]) for i in range(0,prob.dimension - prob.i_dimension)]
 		if self.verbose:
 			iprn = 0
 		else:
@@ -113,7 +113,7 @@ class scipy_slsqp(base,_scipy_optimize_algorithm):
 		# Get starting params.
 		n_ec, x0, x0_comb = self._starting_params(pop)
 		# Extract the a list of tuples representing the bounds.
-		prob_bounds = [(prob.lb[i],prob.ub[i]) for i in range(0,prob.dimension)]
+		prob_bounds = [(prob.lb[i],prob.ub[i]) for i in range(0,prob.dimension - prob.i_dimension)]
 		if self.verbose:
 			iprn = 1
 		else:
@@ -123,6 +123,75 @@ class scipy_slsqp(base,_scipy_optimize_algorithm):
 			f_ieqcons = lambda x: array(prob.compute_constraints(concatenate((x, x0_comb)))[n_ec:],dtype=float) * -1,bounds = prob_bounds,iprint = iprn)
 		# Set the individual's chromosome in the population and return. Conserve the integer part from the
 		# original individual.
+		new_chromosome = list(retval) + list(x0_comb)
+		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		return pop
+
+class scipy_tnc(base,_scipy_optimize_algorithm):
+	"""
+	Wrapper around SciPy's tnc optimiser.
+	"""
+	def __init__(self,verbose = False):
+		base.__init__(self)
+		_scipy_optimize_algorithm.__init__(self,'fmin_tnc',constrained = False)
+		self.verbose = verbose
+	def __copy__(self):
+		return scipy_tnc(self.verbose)
+	def evolve(self,pop):
+		from numpy import concatenate, array
+		prob = pop.problem
+		self._problem_checks(prob)
+		if len(pop) == 0:
+			return pop
+		_, x0, x0_comb = self._starting_params(pop)
+		# Extract the a list of tuples representing the bounds.
+		prob_bounds = [(prob.lb[i],prob.ub[i]) for i in range(0,prob.dimension - prob.i_dimension)]
+		if self.verbose:
+			msg = 15
+		else:
+			msg = 0
+		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,bounds = prob_bounds,approx_grad = True, messages = msg)
+		new_chromosome = list(retval[0]) + list(x0_comb)
+		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		return pop
+
+class scipy_cobyla(base,_scipy_optimize_algorithm):
+	"""
+	Wrapper around SciPy's cobyla optimiser.
+	"""
+	def __init__(self,verbose = False):
+		base.__init__(self)
+		_scipy_optimize_algorithm.__init__(self,'fmin_cobyla',constrained = True)
+		self.verbose = verbose
+	def __copy__(self):
+		return scipy_cobyla(self.verbose)
+	def evolve(self,pop):
+		from numpy import concatenate, array
+		prob = pop.problem
+		self._problem_checks(prob)
+		if len(pop) == 0:
+			return pop
+		nec, x0, x0_comb = self._starting_params(pop)
+		# We need to build a vector of functions for the constraints. COBYLA uses inequality constraints with >= 0.
+		ub = prob.ub
+		lb = prob.lb
+		f_cons = []
+		for i in range(0,nec):
+			# Each eq. constraint is converted into two ineq. constraints with different signs,
+			f_cons.append(lambda x, i = i: prob.compute_constraints(concatenate((x, x0_comb)))[i])
+			f_cons.append(lambda x, i = i: -prob.compute_constraints(concatenate((x, x0_comb)))[i])
+		for i in range(nec,prob.c_dimension):
+			# Ineq. constraints.
+			f_cons.append(lambda x, i = i: -prob.compute_constraints(concatenate((x, x0_comb)))[i])
+		for i in range(0,prob.dimension - prob.i_dimension):
+			# Box bounds implemented as inequality constraints.
+			f_cons.append(lambda x, i = i: x[i] - lb[i])
+			f_cons.append(lambda x, i = i: ub[i] - x[i])
+		if self.verbose:
+			iprn = 1
+		else:
+			iprn = 0
+		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,cons = f_cons,iprint = iprn)
 		new_chromosome = list(retval) + list(x0_comb)
 		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
 		return pop
