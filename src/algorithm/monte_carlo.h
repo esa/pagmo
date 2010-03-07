@@ -35,7 +35,8 @@ namespace pagmo { namespace algorithm {
 
 /// Monte Carlo algorithm.
 /**
- * This algorithm will simply choose random values within the problem bounds, performing a purely stochastic search.
+ * This algorithm will simply evaluate random values within the problem bounds
+ * for the number of times specified and return the best.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -46,7 +47,7 @@ class __PAGMO_VISIBLE monte_carlo: public base
 		base_ptr clone() const;
 		void evolve(population &) const;
 	private:
-		const std::size_t m_gen;
+		const std::size_t m_max_eval;
 };
 
 }}

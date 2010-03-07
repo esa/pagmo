@@ -72,7 +72,8 @@ base_ptr sa_corana::clone() const
  * Run the sa_corana algorithm for the number of iterations specified in the constructors.
  * At each accepted point velocity is also updated.
  *
- * @param[in,out] pop input/output pagmo::population to be evolved. The population champion is considered.
+ * @param[in,out] pop input/output pagmo::population to be evolved. Best member only is evolved.
+ * Velocity is evaluated at the end as difference between decision vector before and after evolution
  */
 
 void sa_corana::evolve(population &pop) const {
@@ -128,13 +129,12 @@ void sa_corana::evolve(population &pop) const {
 	for (size_t jter = 0; jter < n_T; ++jter) {
 		for (size_t mter = 0; mter < m_step_adj; ++mter) {
 			for (size_t kter = 0; kter < m_bin_size; ++kter) {
-				size_t nter =  (size_t)(m_drng() * Dc);
+				size_t nter = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t numb = 0; numb < Dc ; ++numb) {
 					nter = (nter + 1) % Dc;
 					//We modify the current point actsol by mutating its nter component within
 					//a Step that we will later adapt
-					r = 2.0 * m_drng() - 1.0; //random number in [-1,1]
-					xNEW[nter] = xOLD[nter] + r * Step[nter] * ( ub[nter] - lb[nter] );
+					xNEW[nter] = xOLD[nter] + Step[nter] * boost::uniform_real<double>(lb[nter],ub[nter])(m_drng);
 
 					// If new solution produced is infeasible ignore it
 					if ((xNEW[nter] > ub[nter]) || (xNEW[nter] < lb[nter])) {

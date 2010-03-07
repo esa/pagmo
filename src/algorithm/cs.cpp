@@ -29,8 +29,20 @@
 
 namespace pagmo { namespace algorithm {
 
-cs::cs(const double &stop_range, const double &start_range = 0.25, const double &reduction_coeff = 0.5):base(),m_stop_range(stop_range),m_start_range(start_range),
-		m_reduction_coeff(reduction_coeff)
+/// Constructor.
+/**
+ * Allows to specify in detail all the parameters of the algorithm.
+ *
+ * @param[in] max_eval Maximum number of function evaluations. The actual number might be much lower.
+ * @param[in] stop_range Stopping criteron based on the perturbation size
+ * @param[in] start_range Starting perturbation size
+ * @param[in] reduction_coeff Size reduction of the perturbation size
+ * @throws value_error if start and stop range not \f$ \in [0,1[ \f$ and not decreasing. max_eval negative
+ * reduction_coeff not \f$ \in ]0,1[\f$
+ */
+
+cs::cs(const double& max_eval, const double &stop_range, const double &start_range, const double &reduction_coeff)
+	:base(),m_max_eval(max_eval),m_stop_range(stop_range),m_start_range(start_range),m_reduction_coeff(reduction_coeff)
 {
 	if (reduction_coeff >= 1 || reduction_coeff <=0) {
 		pagmo_throw(value_error,"the reduction coefficient must be smaller than one and positive, You Fool!!");
@@ -38,8 +50,11 @@ cs::cs(const double &stop_range, const double &start_range = 0.25, const double 
 	if (start_range > 1 || start_range <= 0) {
 		pagmo_throw(value_error,"the starting range must be smaller than one and positive, You Fool!!");
 	}
-	if (stop_range > 1 || stop_range <= 0 || stop_range>range_) {
+	if (stop_range > 1 || stop_range <= 0 || stop_range>start_range) {
 		pagmo_throw(value_error,"the minimum range must be smaller than one, positive and smaller than the starting range, (o44portebat studuisse)!!");
+	}
+	if (max_eval < 0) {
+		pagmo_throw(value_error,"Maximum number of function evaluations needs to be positive");
 	}
 }
 
@@ -54,7 +69,8 @@ base_ptr cs::clone() const
  * Run the compass search algorithm for the number of iterations specified in the constructors.
  * At each accepted point velocity is also updated.
  *
- * @param[in,out] pop input/output pagmo::population to be evolved. The population champion is considered.
+ * @param[in,out] pop input/output pagmo::population to be evolved. Best member only is evolved.
+ * Velocity is evaluated at the end as difference between decision vector before and after evolution
  */
 
 void cs::evolve(population &pop) const
@@ -69,25 +85,19 @@ void cs::evolve(population &pop) const
 
 	//We perform some checks to determine wether the problem/population are suitable for sa_corana
 	if ( Dc == 0 ) {
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for sa_corana to optimise");
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for compass search to optimise");
 	}
 
 	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and sa_corana is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not box constrained and compass search is not suitable to solve it");
 	}
 
 	if ( prob_f_dimension != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and sa_corana is not suitable to solve it");
-	}
-
-	//Determines the number of temperature adjustment for the annealing procedure
-	const size_t n_T = m_niter / (m_step_adj * m_bin_size * Dc);
-	if (n_T == 0) {
-		pagmo_throw(value_error,"n_T is zero, increase niter");
+		pagmo_throw(value_error,"The problem is not single objective and compass search is not suitable to solve it");
 	}
 
 	// Get out if there is nothing to do.
-	if (NP == 0 ) {
+	if (NP == 0 || m_max_eval == 0) {
 		return;
 	}
 
@@ -97,13 +107,13 @@ void cs::evolve(population &pop) const
 	const fitness_vector &fit0 = pop.get_individual(bestidx).cur_f;
 
 	decision_vector x=x0,newx;
-	fitness_vector = f=fit0,newf;
-	size_t D = problem.getDimension();
+	fitness_vector f=fit0,newf=fit0;
 	bool flag = false;
+	int eval=0;
 
-	double newrange=range;
+	double newrange=m_start_range;
 
-	while (newrange > minRange) {
+	while (newrange > m_stop_range && eval <= m_max_eval) {
 		flag = false;
 		for (unsigned int i=0; i<Dc; i++) {
 			newx=x;
@@ -111,7 +121,7 @@ void cs::evolve(population &pop) const
 			//feasibility correction
 			if (newx[i] > ub [i]) newx[i]=ub[i];
 
-			prob.objfun(newf,newx);
+			prob.objfun(newf,newx); eval++;
 			if (prob.compare_fitness(newf,f)) {
 				f = newf;
 				x = newx;
@@ -119,22 +129,25 @@ void cs::evolve(population &pop) const
 				break; //accept
 			}
 
-			newx[i] = x[i] - newrange * (UB[i]-LB[i]);
+			newx[i] = x[i] - newrange * (ub[i]-lb[i]);
 			//feasibility correction
-			if (newx[i] < LB [i]) newx[i]=LB[i];
+			if (newx[i] < lb [i]) newx[i]=lb[i];
 
-			newf = problem.objfun(newx);
+			prob.objfun(newf,newx);
 			if (newf < f) {  //accept
 				f = newf;
 				x = newx;
+				pop.set_x(bestidx,x); //new evaluation is possible here......
 				flag=true;
 				break;
 			}
 		}
 		if (!flag) {
-			newrange *= reduxCoeff;
+			newrange *= m_reduction_coeff;
 		}
 	} //end while
+	std::transform(x.begin(), x.end(), pop.get_individual(bestidx).cur_x.begin(), x.begin(),std::minus<double>());
+	pop.set_v(bestidx,x);
 }
 
 
@@ -144,15 +157,12 @@ void cs::evolve(population &pop) const
 /**
  * Will return a formatted string displaying the parameters of the algorithm.
  */
-std::string sa_corana::human_readable_extra() const
+std::string cs::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tIteration:\t" << m_niter << '\n';
-	s << "\tStarting Temperature:\t" << m_Ts << '\n';
-	s << "\tFinal Temperature:\t" << m_Tf << '\n';
-	s << "\tRatio of neighbourhood over temperature adjustments:\t" << m_step_adj << '\n';
-	s << "\tSize of the bin to evaluate the acceptance rate:\t" << m_bin_size << '\n';
-	s << "\tSize of the strating range:\t" << m_range << '\n';
+	s << "\tStopping range:\t" << m_stop_range << '\n';
+	s << "\tStarting range:\t" << m_start_range << '\n';
+	s << "\tReduction coefficient:\t" << m_reduction_coeff << '\n';
 	return s.str();
 }
 

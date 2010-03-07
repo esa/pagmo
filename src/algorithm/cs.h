@@ -61,7 +61,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cs: public base
 {
 public:
-	cs(const double &stop_range,const double &start_range, const double &reduction_coeff);
+	cs(const double& max_eval, const double &stop_range,const double &start_range = 0.1, const double &reduction_coeff = 0.5 );
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
@@ -73,6 +73,8 @@ private:
 	const double m_start_range;
 	// Search length reduction coefficient
 	const double m_reduction_coeff;
+	// Maximum function evaluations
+	const double m_max_eval;
 
 
 };
