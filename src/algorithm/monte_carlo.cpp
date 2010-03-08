@@ -35,7 +35,7 @@
 namespace pagmo { namespace algorithm {
 
 /// Constructor from number of iterations.
-monte_carlo::monte_carlo(int n):base(),m_gen(boost::numeric_cast<std::size_t>(n)) {}
+monte_carlo::monte_carlo(int n):base(),m_max_eval(boost::numeric_cast<std::size_t>(n)) {}
 
 /// Clone method.
 base_ptr monte_carlo::clone() const
@@ -52,7 +52,7 @@ void monte_carlo::evolve(population &pop) const
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type pop_size = pop.size();
 	// Get out if there is nothing to do.
-	if (pop_size == 0 || m_gen == 0) {
+	if (pop_size == 0 || m_max_eval == 0) {
 		return;
 	}
 	// Initialise temporary decision vector, fitness vector and decision vector.
@@ -60,7 +60,7 @@ void monte_carlo::evolve(population &pop) const
 	fitness_vector tmp_f(prob.get_f_dimension());
 	constraint_vector tmp_c(prob.get_c_dimension());
 	// Main loop.
-	for (std::size_t i = 0; i < m_gen; ++i) {
+	for (std::size_t i = 0; i < m_max_eval; ++i) {
 		// Generate a random decision vector.
 		for (problem::base::size_type j = 0; j < prob_dimension - prob_i_dimension; ++j) {
 			tmp_x[j] = boost::uniform_real<double>(lb[j],ub[j])(m_drng);
