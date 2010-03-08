@@ -169,7 +169,7 @@ void ihs::evolve(population &pop) const
 
 /// Extra human readable algorithm info.
 /**
- * Will return a formatted string displaying the parameters of the algorithm.
+ * @return a formatted string displaying the parameters of the algorithm.
  */
 std::string ihs::human_readable_extra() const
 {

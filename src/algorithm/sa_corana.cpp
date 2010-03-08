@@ -123,12 +123,12 @@ void sa_corana::evolve(population &pop) const {
 
 	//Stores the number of accepted points per compnent (integer part included but not used)
 	std::vector<int> acp(D,0) ;
-	double ratio = 0, currentT = m_Ts, probab = 0,  r = 0;
+	double ratio = 0, currentT = m_Ts, probab = 0;
 
 	//Main SA loops
 	for (size_t jter = 0; jter < n_T; ++jter) {
-		for (size_t mter = 0; mter < m_step_adj; ++mter) {
-			for (size_t kter = 0; kter < m_bin_size; ++kter) {
+		for (int mter = 0; mter < m_step_adj; ++mter) {
+			for (int kter = 0; kter < m_bin_size; ++kter) {
 				size_t nter = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t numb = 0; numb < Dc ; ++numb) {
 					nter = (nter + 1) % Dc;

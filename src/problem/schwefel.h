@@ -33,7 +33,7 @@ namespace pagmo{ namespace problem {
 /// The Schwefel problem.
 /**
  * \image html schwefel.gif "Two-dimensional Schwefel function."
- * \image latex schwefel.gif "Two-dimensional Schwefel function." width=5cm
+ * \image latex schwefel.png "Two-dimensional Schwefel function." width=5cm
  *
  * This is a box-constrained continuous single-objecive problem.
  * The objective function is the generalised n-dimensional Schwefel function:
@@ -48,7 +48,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE schwefel : public base
 {
 	public:
-		schwefel(unsigned int);
+		schwefel(int);
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

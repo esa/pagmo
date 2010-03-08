@@ -333,6 +333,37 @@ population::const_iterator population::end() const
 	return m_container.end();
 }
 
+/// Order all the individuals according to their current properties.
+/**
+ * Best individuals will be placed before.
+ */
+void population::rank_current()
+{
+	rank_current(begin(),end());
+}
+
+/// Order range of individuals according to their current properties.
+/**
+ * Best individuals will be placed before.
+ *
+ * @param[in] it1 const_iterator to the begin of the range of individuals to be ranked.
+ * @param[in] it2 const_iterator to the end of the range of individuals to be ranked.
+ */
+void population::rank_current(const const_iterator &it1, const const_iterator &it2)
+{
+	container_type::iterator i1 = m_container.begin();
+	std::advance(i1,std::distance(begin(),it1));
+	container_type::iterator i2 = m_container.begin();
+	std::advance(i2,std::distance(begin(),it2));
+	if (boost::numeric_cast<container_type::size_type>(std::distance(m_container.begin(),i1)) > m_container.size() ||
+		boost::numeric_cast<container_type::size_type>(std::distance(m_container.begin(),i2)) > m_container.size() ||
+		std::distance(m_container.begin(),i1) > std::distance(m_container.begin(),i2))
+	{
+		pagmo_throw(value_error,"invalid iterator(s) while ranking population");
+	}
+	std::sort(i1,i2,cur_fc_comp(*m_prob));
+}
+
 /// Overload stream operator for pagmo::population.
 /**
  * Equivalent to printing pagmo::population::human_readable() to stream.

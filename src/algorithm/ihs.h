@@ -49,7 +49,7 @@ namespace pagmo { namespace algorithm {
  * in the evolution. A new individual is generated at every iteration, substituting the current worst individual of the population if better. This algorithm
  * will use the comparison methods provided by the problem in order to rank individuals.
  *
- * This algorithm is suitable for both continuous and combinatorial optimisation.
+ * This algorithm is suitable for continuous, constrained, mixed-integer and multi-objective optimisation.
  *
  * @see http://en.wikipedia.org/wiki/Harmony_search for an introduction on harmony search.
  * @see http://dx.doi.org/10.1016/j.amc.2006.11.033 for the paper that introduces and explains improved harmony search.

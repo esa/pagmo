@@ -42,7 +42,7 @@ namespace pagmo { namespace algorithm {
  */
 
 cs::cs(const double& max_eval, const double &stop_range, const double &start_range, const double &reduction_coeff)
-	:base(),m_max_eval(max_eval),m_stop_range(stop_range),m_start_range(start_range),m_reduction_coeff(reduction_coeff)
+	:base(),m_stop_range(stop_range),m_start_range(start_range),m_reduction_coeff(reduction_coeff),m_max_eval(max_eval)
 {
 	if (reduction_coeff >= 1 || reduction_coeff <=0) {
 		pagmo_throw(value_error,"the reduction coefficient must be smaller than one and positive, You Fool!!");
