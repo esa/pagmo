@@ -40,7 +40,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-schwefel::schwefel(unsigned int n):base(n)
+schwefel::schwefel(int n):base(n)
 {
 	// Set bounds.
 	set_lb(-500);

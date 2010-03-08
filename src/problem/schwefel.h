@@ -48,7 +48,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE schwefel : public base
 {
 	public:
-		schwefel(unsigned int);
+		schwefel(int);
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

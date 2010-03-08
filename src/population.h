@@ -162,6 +162,8 @@ class __PAGMO_VISIBLE population
 			/// Const reference to the problem that provides the ranking method.
 			const problem::base &m_p;
 		};
+		void rank_current();
+		void rank_current(const const_iterator &, const const_iterator &);
 	private:
 		population();
 	private:

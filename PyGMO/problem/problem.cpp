@@ -35,7 +35,13 @@
 #include <string>
 
 #include "../../src/problem/base.h"
+#include "../../src/problem/golomb_ruler.h"
+#include "../../src/problem/himmelblau.h"
+#include "../../src/problem/knapsack.h"
 #include "../../src/problem/paraboloid.h"
+#include "../../src/problem/rastrigin.h"
+#include "../../src/problem/rosenbrock.h"
+#include "../../src/problem/schwefel.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -203,6 +209,30 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
 		.def(init<>())
 		.def(init<const decision_vector &, const decision_vector &>());
+
+	// Rosenbrock problem.
+	problem_wrapper<problem::rosenbrock>("rosenbrock","Multi-dimensional Rosenbrock function.")
+		.def(init<int>());
+
+	// Rastrigin problem.
+	problem_wrapper<problem::rastrigin>("rastrigin","Generalised Rastrigin function.")
+		.def(init<int>());
+
+	// Golomb ruler problem.
+	problem_wrapper<problem::golomb_ruler>("golomb_ruler","Optimal Golomb ruler search. Constructor from order of the Golomb ruler and maximum distance between consecutive marks.")
+		.def(init<int,int>());
+
+	// Schwefel function.
+	problem_wrapper<problem::schwefel>("schwefel","Two-dimensional Schwefel function.")
+		.def(init<int>());
+
+	// Knapsack problem.
+	problem_wrapper<problem::knapsack>("knapsack","Classical 01 knapsack problem. Constructor from vector of values, vector of weights and maximum weight.")
+		.def(init<const std::vector<double> &, const std::vector<double> &, const double &>());
+
+	// Himmelblau's function.
+	problem_wrapper<problem::himmelblau>("himmelblau","Himmelblau's function.")
+		.def(init<>());
 
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");

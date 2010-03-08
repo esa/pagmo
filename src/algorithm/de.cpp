@@ -22,11 +22,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "de.h"
-#include "../problem/base.h"
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
+#include <string>
+#include <vector>
 
+#include "../exceptions.h"
+#include "../population.h"
+#include "../problem/base.h"
+#include "../types.h"
+#include "base.h"
+#include "de.h"
 
 namespace pagmo { namespace algorithm {
 

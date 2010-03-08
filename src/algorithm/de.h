@@ -25,7 +25,10 @@
 #ifndef PAGMO_ALGORITHM_DE_H
 #define PAGMO_ALGORITHM_DE_H
 
+#include <string>
+
 #include "../config.h"
+#include "../population.h"
 #include "base.h"
 
 
