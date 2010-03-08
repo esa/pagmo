@@ -33,7 +33,7 @@ namespace pagmo{ namespace problem {
 /// The Schwefel problem.
 /**
  * \image html schwefel.gif "Two-dimensional Schwefel function."
- * \image latex schwefel.gif "Two-dimensional Schwefel function." width=5cm
+ * \image latex schwefel.png "Two-dimensional Schwefel function." width=5cm
  *
  * This is a box-constrained continuous single-objecive problem.
  * The objective function is the generalised n-dimensional Schwefel function:
