@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #ifndef PAGMO_ALGORITHM_SGA_H
-#ifndef PAGMO_ALGORITHM_SGA_H
+#define PAGMO_ALGORITHM_SGA_H
 
 #include "../config.h"
 #include "base.h"
@@ -47,9 +47,10 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE sga: public base
 {
 public:
-	enum selection {BEST20 = 0,ROULETTE = 1};
-	enum mutation {GAUSSIAN = 0, BOUNDED = 1};
-	sga(int gen, const double &cr, const double &mut_rate, int elitism = 1, mutation mut  = BOUNDED, selection sel = ROULETTE, double mut_range = 1);
+	struct selection{ enum type {BEST20 = 0,ROULETTE = 1}; };
+	struct mutation { enum type {GAUSSIAN = 0, RANDOM = 1}; };
+	struct crossover { enum type {BINOMIAL = 0, EXPONENTIAL = 1}; };
+	sga(int gen, const double &cr, const double &m, int elitism = 1, mutation::type mut  = mutation::RANDOM, selection::type sel = selection::ROULETTE, crossover::type cro = crossover::EXPONENTIAL);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
@@ -60,15 +61,16 @@ private:
 	//Crossover rate
 	const double& m_cr;
 	//Mutation rate
-	const double& m_mut_rate;
+	const double& m_m;
 	//Elitism (number of generations after which to reinsert the best)
 	const int m_elitism;
 	//Mutation type
-	const mutation m_mut;
+	const mutation::type m_mut;
 	//Selection_type
-	const selection m_sel;
-	//Mutation range
-	const double m_mut_range;
+	const selection::type m_sel;
+	//Crossover_type
+	const crossover::type m_cro;
+
 
 };
 
