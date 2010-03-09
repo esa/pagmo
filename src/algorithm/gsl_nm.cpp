@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
+#include <exception>
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_vector.h>
 #include <new>
@@ -150,27 +151,27 @@ void gsl_nm::evolve(population &pop) const
 	// Starting point and step sizes.
 	gsl_vector *x = 0, *ss = 0;
 	// Here we start the allocations.
-	{
-		// Recast as size_t here, in order to avoid potential overflows later.
-		const std::size_t s_cont_size = boost::numeric_cast<std::size_t>(cont_size);
-		// Allocate and check the allocation results.
-		x = gsl_vector_alloc(s_cont_size);
-		ss = gsl_vector_alloc(s_cont_size);
-		s = gsl_multimin_fminimizer_alloc(type,s_cont_size);
-		// Check the allocations.
-		check_allocs(x,ss,s);
-		// Starting point comes from the best individual.
-		for (std::size_t i = 0; i < s_cont_size; ++i) {
-			gsl_vector_set(x,i,best_ind.cur_x[i]);
-		}
-		// Set initial step sizes.
-		gsl_vector_set_all(ss,m_step_size);
-		// Init the solver.
-		gsl_multimin_fminimizer_set(s,&gsl_func,x,ss);
-		// Iterate.
-		std::size_t iter = 0;
-		int status;
-		double size;
+	// Recast as size_t here, in order to avoid potential overflows later.
+	const std::size_t s_cont_size = boost::numeric_cast<std::size_t>(cont_size);
+	// Allocate and check the allocation results.
+	x = gsl_vector_alloc(s_cont_size);
+	ss = gsl_vector_alloc(s_cont_size);
+	s = gsl_multimin_fminimizer_alloc(type,s_cont_size);
+	// Check the allocations.
+	check_allocs(x,ss,s);
+	// Starting point comes from the best individual.
+	for (std::size_t i = 0; i < s_cont_size; ++i) {
+		gsl_vector_set(x,i,best_ind.cur_x[i]);
+	}
+	// Set initial step sizes.
+	gsl_vector_set_all(ss,m_step_size);
+	// Init the solver.
+	gsl_multimin_fminimizer_set(s,&gsl_func,x,ss);
+	// Iterate.
+	std::size_t iter = 0;
+	int status;
+	double size;
+	try {
 		do
 		{
 			++iter;
@@ -181,6 +182,14 @@ void gsl_nm::evolve(population &pop) const
 			size = gsl_multimin_fminimizer_size(s);
 			status = gsl_multimin_test_size(size, m_tol);
 		} while (status == GSL_CONTINUE && iter < m_max_iter);
+	} catch (const std::exception &e) {
+		// Cleanup and re-throw.
+		cleanup(x,ss,s);
+		throw e;
+	} catch (...) {
+		// Cleanup and throw.
+		cleanup(x,ss,s);
+		pagmo_throw(std::runtime_error,"unknown exception caught in gsl_nm");
 	}
 	// Free up resources.
 	cleanup(x,ss,s);
