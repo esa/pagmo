@@ -33,8 +33,9 @@
 #include "algorithm/ihs.h"
 #include "algorithm/monte_carlo.h"
 #include "algorithm/null.h"
-#include "algorithm/sa_corana.h"
 #include "algorithm/pso.h"
+#include "algorithm/sa_corana.h"
+#include "algorithm/sga.h"
 
 // GSL algorithms.
 #ifdef PAGMO_ENABLE_GSL
