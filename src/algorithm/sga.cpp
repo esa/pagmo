@@ -49,6 +49,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] m Mutation probability (of each allele)
  * @param[in] elitism The best individual is reinserted in the population each elitism generations
  * @param[in] mut Mutation type. One of sga::mutation::GAUSSIAN, sga::mutation::RANDOM
+ * @param[in] width Mutation width. When gaussian mutation is selected is the width of the mutation
  * @param[in] sel Selection type. One of sga::selection::BEST20, sga::selection::ROULETTE
  * @param[in] cro Crossover type. One of sga::crossover::BINOMIAL, sga::crossover::EXPONENTIAL
  * @param[in] mut_range Mutation rage. Specifies the width of the possible mutation with respect to
@@ -57,8 +58,8 @@ namespace pagmo { namespace algorithm {
  * elitism is <=0
  *
  */
-sga::sga(int gen, const double &cr, const double &m, int elitism, mutation::type mut, selection::type sel, crossover::type cro)
-	:base(),m_gen(gen),m_cr(cr),m_m(m),m_elitism(elitism),m_mut(mut),m_sel(sel),m_cro(cro)
+sga::sga(int gen, const double &cr, const double &m, int elitism, mutation::type mut, double width, selection::type sel, crossover::type cro)
+	:base(),m_gen(gen),m_cr(cr),m_m(m),m_elitism(elitism),m_mut(mut,width),m_sel(sel),m_cro(cro)
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -66,12 +67,16 @@ sga::sga(int gen, const double &cr, const double &m, int elitism, mutation::type
 	if (cr > 1 || cr < 0) {
 		pagmo_throw(value_error,"crossover probability must be in the [0,1] range");
 	}
-	if (m < 0 || m > 0) {
+	if (m < 0 || m > 1) {
 		pagmo_throw(value_error,"mutation probability must be in the [0,1] range");
 	}
 	if (elitism < 1) {
 		pagmo_throw(value_error,"elitisim must be greater than zero");
 	}
+	if (width <0 || width >1) {
+		pagmo_throw(value_error,"mutation width must be in the [0,1] range");
+	}
+
 }
 
 /// Clone method.
@@ -108,7 +113,7 @@ void sga::evolve(population &pop) const
 	}
 
 	if (NP < 5) {
-		pagmo_throw(value_error,"for DE at least 5 individuals in the population are needed");
+		pagmo_throw(value_error,"for SGA at least 5 individuals in the population are needed");
 	}
 
 	// Get out if there is nothing to do.
@@ -152,7 +157,7 @@ void sga::evolve(population &pop) const
 			for (int i=0;i<NP;i++) fitnessID[i]=i;
 			for (int i=0; i < (NP-1); ++i) {
 				for (int j=i+1; j<NP; ++j) {
-					if ( prob.compare_fitness(fit[i],fit[j]) ) {
+					if ( prob.compare_fitness(fit[j],fit[i]) ) {
 						//swap fitness values
 						fit[i].swap(fit[j]);
 						//swap id's
@@ -219,7 +224,7 @@ void sga::evolve(population &pop) const
 				member1 = Xnew[i];
 				//we select a mating patner different from the self (i.e. no masturbation)
 				do {
-					r1 = boost::uniform_int<int>(0,NP)(m_urng);
+					r1 = boost::uniform_int<int>(0,NP - 1)(m_urng);
 				} while ( r1 == i );
 				member2 = Xnew[r1];
 				//and we operate crossover
@@ -250,12 +255,12 @@ void sga::evolve(population &pop) const
 			} }
 
 		//3 - Mutation
-		switch (m_mut) {
+		switch (m_mut.m_type) {
 		case mutation::GAUSSIAN: {
 			boost::normal_distribution<double> dist;
 			boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > delta(m_drng,dist);
 			for (int k = 0; k < D;k++) { //for each continuous variable
-				double std = (ub[k]-lb[k])/10;
+				double std = (ub[k]-lb[k]) * m_mut.m_width;
 				for (int i = 0; i < NP;i++) { //for each individual
 					if (m_drng() < m_m) {
 						double mean = Xnew[i][k];
@@ -339,7 +344,7 @@ std::string sga::human_readable_extra() const
 	s << "\tCrossover probability (CR):\t\t" << m_cr << '\n';
 	s << "\tMutation probability (M):\t" << m_cr << '\n';
 	s << "\tElitism:\t" << m_elitism << '\n';
-	s << "\tMutation type:\t" << m_mut << '\n';
+	s << "\tMutation type:\t" << m_mut.m_type << '\n';
 	s << "\tSelection type:\t" << m_sel << '\n';
 	s << "\tCrossover type:\t" << m_cro << '\n';
 
