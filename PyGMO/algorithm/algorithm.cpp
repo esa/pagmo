@@ -28,9 +28,7 @@
 #include <boost/python/register_ptr_to_python.hpp>
 #include <string>
 
-#include "../../src/algorithm/base.h"
-#include "../../src/algorithm/ihs.h"
-#include "../../src/algorithm/monte_carlo.h"
+#include "../../src/algorithms.h"
 #include "../../src/population.h"
 #include "../exceptions.h"
 #include "../utils.h"
@@ -122,6 +120,15 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
 		.def(init<int>());
+
+	// GSL algorithms.
+	#ifdef PAGMO_ENABLE_GSL
+
+	// GSL's Nelder-Mead.
+	algorithm_wrapper<algorithm::gsl_nm>("gsl_nm","GSL Nelder-Mead simplex method.")
+		.def(init<optional<int, const double &, const double &> >());
+
+	#endif
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<algorithm::base_ptr>();

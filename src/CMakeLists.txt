@@ -4,11 +4,10 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nelder_mead.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
@@ -36,6 +35,15 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 )
+
+# Additional files for GSL support.
+IF(ENABLE_GSL)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_gsl.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/gsl.cpp
+	)
+ENDIF(ENABLE_GSL)
 
 # Boost  thread library.
 IF(UNIX)

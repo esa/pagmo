@@ -52,9 +52,21 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 # Build Option: when active the bindings to Python are compiled and linked (installation)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
-# Here we check that the Generic Astrodynamic Library GAL has been installed in the machine and if not we throw an error. 
-# We also add the compiler directive PAGMO_HAVE_GAL that must be used in the code to skip files including using the GAL headers in case
-# ENABLE_GAL build option is not selected
+# Build Option: minimisers from the GNU scientific library (GSL).
+OPTION(ENABLE_GSL "Enable support for GSL minimzers." OFF)
+
+# If GSL support is requested, look for the library.
+IF(ENABLE_GSL)
+	FIND_LIBRARY(GSL_GSL_LIBRARY NAMES gsl)
+	FIND_PATH(GSL_INCLUDE_DIR NAMES gsl/gsl_vector.h)
+	IF(NOT GSL_GSL_LIBRARY OR NOT GSL_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "GSL support was requested, but the library could not be located.")
+	ENDIF(NOT GSL_GSL_LIBRARY OR NOT GSL_INCLUDE_DIR)
+	MESSAGE(STATUS "GSL library: ${GSL_GSL_LIBRARY}")
+	MESSAGE(STATUS "GSL include dir: ${GSL_INCLUDE_DIR}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${GSL_GSL_LIBRARY})
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_GSL)
+ENDIF(ENABLE_GSL)
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
