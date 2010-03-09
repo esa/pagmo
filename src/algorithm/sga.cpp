@@ -24,8 +24,8 @@
 
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
-#include <boost/math/distributions/normal.hpp>
 #include <boost/random/variate_generator.hpp>
+#include <boost/random/normal_distribution.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <string>
 #include <vector>
@@ -147,7 +147,7 @@ void sga::evolve(population &pop) const
 	for (int j = 0; j<m_gen; j++) {
 
 		switch (m_sel) {
-		case selection::BEST20: //selects the best 20% and puts multiple copies in Xnew
+		case selection::BEST20: { //selects the best 20% and puts multiple copies in Xnew
 			//Sort the individuals according to their fitness
 			for (int i=0;i<NP;i++) fitnessID[i]=i;
 			for (int i=0; i < (NP-1); ++i) {
@@ -167,8 +167,9 @@ void sga::evolve(population &pop) const
 				selection[i] = fitnessID[i % best20];
 			}
 			break;
+		}
 
-		case selection::ROULETTE:
+		case selection::ROULETTE: {
 			//We scale all fitness values from 0 (worst) to absolute value of the best fitness
 			fitness_vector worstfit=fit[0];
 			for (int i = 1; i < NP;i++) {
@@ -200,6 +201,7 @@ void sga::evolve(population &pop) const
 				}
 			}
 			break;
+			}
 		}
 
 		//Xnew stores the new selected generation of chromosomes
@@ -249,9 +251,9 @@ void sga::evolve(population &pop) const
 
 		//3 - Mutation
 		switch (m_mut) {
-		case mutation::GAUSSIAN:
-			boost::math::normal_distribution<double> dist();
-			boost::variate_generator<boost::lagged_fibonacci19937 &, boost::math::normal_distribution<double> > delta(m_drng,dist);
+		case mutation::GAUSSIAN: {
+			boost::normal_distribution<double> dist;
+			boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > delta(m_drng,dist);
 			for (int k = 0; k < D;k++) { //for each continuous variable
 				double std = (ub[k]-lb[k])/10;
 				for (int i = 0; i < NP;i++) { //for each individual
@@ -265,7 +267,7 @@ void sga::evolve(population &pop) const
 			}
 			for (int k = Dc; k < D;k++) { //for each integer variable
 				for (int i = 0; i < NP;i++) { //for each individual
-					if (m_drng() < M) {
+					if (m_drng() < m_m) {
 						double mean = Xnew[i][k];
 						Xnew[i][k] = boost::math::iround(delta() + mean);
 						if (Xnew[i][k] > ub[k]) Xnew[i][k] = ub[k];
@@ -274,25 +276,27 @@ void sga::evolve(population &pop) const
 				}
 			}
 			break;
-		case mutation::RANDOM:
+			}
+		case mutation::RANDOM: {
 			for (int i = 0; i < NP;i++) {
 				for (int j = 0; j < Dc;j++) { //for each continuous variable
-					if (m_drng() < M) {
+					if (m_drng() < m_m) {
 						Xnew[i][j] = boost::uniform_real<double>(lb[j],ub[j])(m_drng);
 					}
 				}
 				for (int j = Dc; j < D;j++) {//for each integer variable
-					if (m_drng() < M) {
+					if (m_drng() < m_m) {
 						Xnew[i][j] = boost::uniform_int<int>(lb[j],ub[j])(m_urng);
 					}
 				}
 			}
 			break;
+			}
 		}
 
 		//4 - Evaluate Xnew
 		for (int i = 0; i < NP;i++) {
-			problem.objfun(fit[i],Xnew[i]);
+			prob.objfun(fit[i],Xnew[i]);
 			dummy = Xnew[i];
 			std::transform(dummy.begin(), dummy.end(), pop.get_individual(i).cur_x.begin(), dummy.begin(),std::minus<double>());
 			//updates x and v (cache avoids to recompute the objective function)
@@ -328,13 +332,17 @@ void sga::evolve(population &pop) const
 /**
  * Will return a formatted string displaying the parameters of the algorithm.
  */
-std::string de::human_readable_extra() const
+std::string sga::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "\tGenerations:\t" << m_gen << '\n';
-	s << "\tWeight parameter (F):\t\t" << m_f << '\n';
-	s << "\tCrossover parameter (CR):\t" << m_cr << '\n';
-	s << "\tStrategy selected:\t" << m_strategy << '\n';
+	s << "\tCrossover probability (CR):\t\t" << m_cr << '\n';
+	s << "\tMutation probability (M):\t" << m_cr << '\n';
+	s << "\tElitism:\t" << m_elitism << '\n';
+	s << "\tMutation type:\t" << m_mut << '\n';
+	s << "\tSelection type:\t" << m_sel << '\n';
+	s << "\tCrossover type:\t" << m_cro << '\n';
+
 	return s.str();
 }
 

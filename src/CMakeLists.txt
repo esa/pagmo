@@ -5,6 +5,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp

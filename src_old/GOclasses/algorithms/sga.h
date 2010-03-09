@@ -64,10 +64,10 @@ class __PAGMO_VISIBLE sga: public base
 		 * \param[in] gen Generation number
 		 * \param[in] CR Crossover rate (long chromosomes need higer rates)
 		 * \param[in] M Mutation rate
-		* \param[in] best Elitism..... every best generation best-so-far is reinserted
-		* \param[in] mutationRange If bounded mutation is selected it regulates the range within which mutation occur
-		* \param[in] mutationType (0-gaussian, 1-bounded, 2-random)
-		* \param[in] selectionType (0-20% best, 1-roulette)
+		 * \param[in] best Elitism..... every best generation best-so-far is reinserted
+		 * \param[in] mutationRange If bounded mutation is selected it regulates the range within which mutation occur
+		 * \param[in] mutationType (0-gaussian, 1-bounded, 2-random)
+		 * \param[in] selectionType (0-20% best, 1-roulette)
 		 */
 		sga(int gen, const double &CR, const double &M, int best, double mutationRange, int mutationType, int selectionType);
 		virtual population evolve(const population &) const;

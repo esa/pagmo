@@ -28,6 +28,7 @@
 #include <list>
 
 #include "src/algorithm/de.h"
+#include "src/algorithm/cs.h"
 #include "src/algorithm/pso.h"
 #include "src/algorithm/sa_corana.h"
 #include "src/algorithm/ihs.h"
@@ -55,7 +56,7 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::rosenbrock(25),algorithm::de(500),20);
+	island isl = island(problem::rosenbrock(25),algorithm::cs(10000,0.01),20);
 	std::cout << isl.get_population().champion().f << std::endl;
 	for (int i=0; i< 100; ++i){
 		isl.evolve();
