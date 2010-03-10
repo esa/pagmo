@@ -22,28 +22,21 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_errno.h>
-#include <iostream>
-
-#include "gsl.h"
+#ifndef PAGMO_GSL_INIT_H
+#define PAGMO_GSL_INIT_H
 
 namespace pagmo
 {
 
-gsl_init::gsl_init():m_init(false)
-{
-	gsl_set_error_handler(&custom_gsl_error_handler);
-	m_init = true;
-	std::cout << "GSL support initialised.\n";
-}
+void custom_gsl_error_handler(const char *, const char *, int, int);
 
-void custom_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno)
+// Initialisation class for GSL support.
+struct gsl_init
 {
-	std::cout << "WARNING: GSL reported an error, details follow.\n\n";
-	std::cout << "Reason: " << reason << '\n';
-	std::cout << "File: " << file << '\n';
-	std::cout << "Line: " << line << '\n';
-	std::cout << "GSL error code: " << gsl_errno << '\n';
-}
+	gsl_init();
+	bool m_init;
+};
 
 }
+
+#endif

@@ -25,7 +25,7 @@
 #ifndef PAGMO_ALGORITHM_BASE_GSL_H
 #define PAGMO_ALGORITHM_BASE_GSL_H
 
-#include "../gsl.h"
+#include "../gsl_init.h"
 
 namespace pagmo { namespace algorithm {
 

@@ -26,7 +26,7 @@
 #include <stdexcept>
 
 #include "../exceptions.h"
-#include "../gsl.h"
+#include "../gsl_init.h"
 #include "base_gsl.h"
 
 namespace pagmo { namespace algorithm {

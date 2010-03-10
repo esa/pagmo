@@ -56,11 +56,12 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::rosenbrock(25),algorithm::cs(10000,0.01),20);
+	island isl = island(problem::rosenbrock(25),algorithm::gsl_nm(2000,1E-8),1);
 	std::cout << isl.get_population().champion().f << std::endl;
-	for (int i=0; i< 100; ++i){
+	for (int i=0; i< 30; ++i){
 		isl.evolve();
 		std::cout << isl.get_population().champion().f << std::endl;
 	}
 	std::cout << isl.get_population().champion().x << std::endl;
+	std::cout << problem::objfun_calls() << std::endl;
 }
