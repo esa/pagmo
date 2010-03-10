@@ -27,8 +27,13 @@
 #include <vector>
 #include <list>
 
-
-#include "src/algorithms.h"
+#include "src/algorithm/de.h"
+#include "src/algorithm/cs.h"
+#include "src/algorithm/pso.h"
+#include "src/algorithm/sa_corana.h"
+#include "src/algorithm/ihs.h"
+#include "src/algorithm/monte_carlo.h"
+#include "src/algorithm/null.h"
 #include "src/archipelago.h"
 #include "src/island.h"
 #include "src/problem/golomb_ruler.h"
