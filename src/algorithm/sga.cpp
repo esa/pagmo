@@ -66,7 +66,7 @@ sga::sga(int gen, const double &cr, const double &m, int elitism, mutation::type
 	if (cr > 1 || cr < 0) {
 		pagmo_throw(value_error,"crossover probability must be in the [0,1] range");
 	}
-	if (m < 0 || m > 0) {
+	if (m < 0 || m > 1) {
 		pagmo_throw(value_error,"mutation probability must be in the [0,1] range");
 	}
 	if (elitism < 1) {
