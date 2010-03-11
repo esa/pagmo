@@ -27,8 +27,7 @@
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/utility.hpp>
 
-#include "../../src/topology/base.h"
-#include "../../src/topology/ring.h"
+#include "../../src/topologies.h"
 #include "../exceptions.h"
 #include "../utils.h"
 
