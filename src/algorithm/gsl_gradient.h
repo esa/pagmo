@@ -22,47 +22,62 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_GSL_NM_H
-#define PAGMO_ALGORITHM_GSL_NM_H
+#ifndef PAGMO_ALGORITHM_GSL_GRADIENT_H
+#define PAGMO_ALGORITHM_GSL_GRADIENT_H
 
 #include <cstddef>
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_vector.h>
+#include <string>
 
 #include "../config.h"
 #include "../population.h"
-#include "base.h"
+#include "../problem/base.h"
+#include "../types.h"
 #include "base_gsl.h"
 
 namespace pagmo { namespace algorithm {
 
-/// GSL Nelder-Mead wrapper.
+/// Wrapper for GSL minimisers with derivatives
 /**
- * Wrapper around the implementation of the Nelder-Mead simplex method available in the GNU Scientific Library (GSL).
- * The GSL function used is called gsl_multimin_fminimizer_nmsimplex2. This algorithm is suitable for continuous, unconstrained,
- * single-objective optimisation.
+ * This class can be used to build easily a wrapper around a GSL minimiser with derivatives. The gradient of the
+ * objective function will be calculated numerically via the gsl_deriv_central GSL function. The minimisation is performed
+ * by invoking the evolve_gradient() method.
  *
- * <b>Usage notes</b>: to increase the convergence of this algorithm, try increasing the number of maximum iterations.
- * Please note that this wrapper handles bounds constraints simply by flattening the out-of-bounds coordinates of the optimised
- * decision vector towards the bounds.
- *
- * @author Francesco Biscani (bluescarni@gmail.com)
+ * This class of minimisers supports single-objective, unconstrained, continuous optimisation.
  */
-class __PAGMO_VISIBLE gsl_nm: public base, base_gsl
+class __PAGMO_VISIBLE gsl_gradient: public base_gsl
 {
 	public:
-		gsl_nm(int max_iter = 100, const double &tol = 1E-6, const double &step_size = 1);
-		base_ptr clone() const;
-		void evolve(population &) const;
+		gsl_gradient(int, const double &, const double &, const double &, const double &);
 	protected:
-		std::string human_readable_extra() const;
+		void evolve_gradient(population &, const gsl_multimin_fdfminimizer_type *) const;
+		std::string hr_extra() const;
 	private:
-		static void cleanup(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
-		static void check_allocs(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
+		// Structure to feed parameters to the numerical differentiation wrapper.
+		struct objfun_numdiff_wrapper_params
+		{
+			// Pointer to the problem.
+			problem::base const		*prob;
+			// Decision vector.
+			decision_vector			x;
+			// Fitness vector.
+			fitness_vector			f;
+			// Coordinate of the gradient being computed.
+			problem::base::size_type 	coord;
+		};
+		static double objfun_numdiff_wrapper(double, void *);
+		static void objfun_numdiff_central(gsl_vector *, const problem::base &, const decision_vector &, const double &);
+		static void d_objfun_wrapper(const gsl_vector *, void *, gsl_vector *);
+		static void fd_objfun_wrapper(const gsl_vector *, void *, double *, gsl_vector *);
+		static void cleanup(gsl_vector *, gsl_multimin_fdfminimizer *);
+		static void check_allocs(gsl_vector *, gsl_multimin_fdfminimizer *);
 	private:
-		std::size_t	m_max_iter;
-		double		m_tol;
-		double		m_step_size;
+		const std::size_t	m_max_iter;
+		const double		m_grad_tol;
+		const double		m_numdiff_step_size;
+		const double		m_step_size;
+		const double		m_tol;
 };
 
 }}

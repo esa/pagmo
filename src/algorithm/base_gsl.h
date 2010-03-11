@@ -25,14 +25,20 @@
 #ifndef PAGMO_ALGORITHM_BASE_GSL_H
 #define PAGMO_ALGORITHM_BASE_GSL_H
 
+#include <gsl/gsl_vector.h>
+
 #include "../gsl_init.h"
+#include "../problem/base.h"
+#include "../types.h"
 
 namespace pagmo { namespace algorithm {
 
 /// Additional base class for GSL algorithms.
 /**
  * All GSL algorithms should derive from this class in addition to algorithm::base. This class will automatically setup
- * the GSL environment for use in PaGMO.
+ * the GSL environment for use in PaGMO, and will provide building blocks for wrapping the GSL minimisers.
+ *
+ * @see http://www.gnu.org/software/gsl/manual/html_node/Multidimensional-Minimization.html for an overview of the minimisers available in the GSL.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -40,6 +46,20 @@ class base_gsl
 {
 	public:
 		base_gsl();
+	protected:
+		/// Structure to feed parameters to the wrappers for the objective function and its derivative.
+		struct objfun_wrapper_params
+		{
+			/// Pointer to the problem.
+			problem::base const		*p;
+			/// Decision vector.
+			decision_vector			x;
+			/// Fitness vector.
+			fitness_vector			f;
+			/// Step size for the computation of the gradient.
+			double				step_size;
+		};
+		static double objfun_wrapper(const gsl_vector *, void *);
 	private:
 		static gsl_init g_init;
 };

@@ -124,9 +124,24 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// GSL algorithms.
 	#ifdef PAGMO_ENABLE_GSL
 
+	// GSL's BFGS.
+	algorithm_wrapper<algorithm::gsl_bfgs>("gsl_bfgs","GSL BFGS algorithm.")
+		.def(init<optional<int, const double &, const double &, const double &, const double &> >());
+
+	algorithm_wrapper<algorithm::gsl_bfgs2>("gsl_bfgs2","GSL BFGS2 algorithm.")
+		.def(init<optional<int, const double &, const double &, const double &, const double &> >());
+
+	// GSL's Fletcher-Reeves.
+	algorithm_wrapper<algorithm::gsl_fr>("gsl_fr","GSL Fletcher-Reeves algorithm.")
+		.def(init<optional<int, const double &, const double &, const double &, const double &> >());
+
 	// GSL's Nelder-Mead.
 	algorithm_wrapper<algorithm::gsl_nm>("gsl_nm","GSL Nelder-Mead simplex method.")
 		.def(init<optional<int, const double &, const double &> >());
+
+	// GSL's Polak-Ribiere.
+	algorithm_wrapper<algorithm::gsl_pr>("gsl_pr","GSL Polak-Ribiere algorithm.")
+		.def(init<optional<int, const double &, const double &, const double &, const double &> >());
 
 	#endif
 

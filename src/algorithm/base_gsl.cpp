@@ -22,11 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
+#include <gsl/gsl_vector.h>
 #include <stdexcept>
 
 #include "../exceptions.h"
 #include "../gsl_init.h"
+#include "../problem/base.h"
 #include "base_gsl.h"
 
 namespace pagmo { namespace algorithm {
@@ -42,6 +43,28 @@ base_gsl::base_gsl()
 	}
 }
 
+// Initialisation of the static gsl_init instance.
 gsl_init base_gsl::g_init = gsl_init();
+
+/// Objective function wrapper.
+/**
+ * @param[in] v pointer to the gsl_vector representing the decision vector.
+ * @param[in] params pointer to extra parameters for the internal function.
+ *
+ * @return the fitness of the input decision vector.
+ */
+double base_gsl::objfun_wrapper(const gsl_vector *v, void *params)
+{
+	objfun_wrapper_params *par = (objfun_wrapper_params *)params;
+	// Size of the continuous part of the problem.
+	const problem::base::size_type cont_size = par->p->get_dimension() - par->p->get_i_dimension();
+	// Fill up the continuous part of temporary storage with the contents of v.
+	for (problem::base::size_type i = 0; i < cont_size; ++i) {
+		par->x[i] = gsl_vector_get(v,i);
+	}
+	// Compute the objective function.
+	par->p->objfun(par->f,par->x);
+	return par->f[0];
+}
 
 }}

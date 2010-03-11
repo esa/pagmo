@@ -22,49 +22,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_GSL_NM_H
-#define PAGMO_ALGORITHM_GSL_NM_H
-
-#include <cstddef>
 #include <gsl/gsl_multimin.h>
-#include <gsl/gsl_vector.h>
+#include <string>
 
-#include "../config.h"
 #include "../population.h"
 #include "base.h"
-#include "base_gsl.h"
+#include "gsl_bfgs.h"
+#include "gsl_gradient.h"
 
 namespace pagmo { namespace algorithm {
 
-/// GSL Nelder-Mead wrapper.
+/// Constructor.
 /**
- * Wrapper around the implementation of the Nelder-Mead simplex method available in the GNU Scientific Library (GSL).
- * The GSL function used is called gsl_multimin_fminimizer_nmsimplex2. This algorithm is suitable for continuous, unconstrained,
- * single-objective optimisation.
+ * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
  *
- * <b>Usage notes</b>: to increase the convergence of this algorithm, try increasing the number of maximum iterations.
- * Please note that this wrapper handles bounds constraints simply by flattening the out-of-bounds coordinates of the optimised
- * decision vector towards the bounds.
- *
- * @author Francesco Biscani (bluescarni@gmail.com)
+ * @see gsl_gradient::gsl_gradient().
  */
-class __PAGMO_VISIBLE gsl_nm: public base, base_gsl
+gsl_bfgs::gsl_bfgs(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
+	base(),gsl_gradient(max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
+
+/// Clone method.
+base_ptr gsl_bfgs::clone() const
 {
-	public:
-		gsl_nm(int max_iter = 100, const double &tol = 1E-6, const double &step_size = 1);
-		base_ptr clone() const;
-		void evolve(population &) const;
-	protected:
-		std::string human_readable_extra() const;
-	private:
-		static void cleanup(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
-		static void check_allocs(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
-	private:
-		std::size_t	m_max_iter;
-		double		m_tol;
-		double		m_step_size;
-};
+	return base_ptr(new gsl_bfgs(*this));
+}
+
+/// Evolve method.
+void gsl_bfgs::evolve(population &pop) const
+{
+	evolve_gradient(pop,gsl_multimin_fdfminimizer_vector_bfgs);
+}
+
+/// Extra information in human-readable format.
+/**
+ * @return a formatted string displaying the parameters of the algorithm.
+ */
+std::string gsl_bfgs::human_readable_extra() const
+{
+	return hr_extra();
+}
 
 }}
-
-#endif
