@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,27 +22,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_PROBLEMS_H
+#define PAGMO_PROBLEMS_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
+// Header including all problems implemented in PaGMO.
 
-using namespace pagmo;
+#include "problem/base.h"
+#include "problem/golomb_ruler.h"
+#include "problem/himmelblau.h"
+#include "problem/knapsack.h"
+#include "problem/paraboloid.h"
+#include "problem/rastrigin.h"
+#include "problem/rosenbrock.h"
+#include "problem/schwefel.h"
 
-int main()
-{
-	island isl = island(problem::rosenbrock(200),algorithm::de(400),20);
-	std::cout << isl.get_population().champion().f << std::endl;
-	for (int i=0; i< 30; ++i){
-		isl.evolve();
-		std::cout << isl.get_population().champion().f << std::endl;
-	}
-	std::cout << isl.get_population().champion().x << std::endl;
-	std::cout << problem::objfun_calls() << std::endl;
-}
+#endif
