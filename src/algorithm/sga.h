@@ -40,6 +40,12 @@ namespace pagmo { namespace algorithm {
  * provide only a basic implementation of the algorithm implementing a floating point encoding (not binary)
  * and some common mutation and crossover strategies, hence the name Simple Genetic Algorithm.
  *
+ * Mutation is gaussian or random, crossover exponential or binomial and selection is tournament or
+ * best20 (i.e. 20% best of the population is selcted and reproduced 5 times).
+ *
+ * The algorithm works on single objective, box constrained problems. The mutation operator acts
+ * differently on continuous and discrete variables.
+ *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  *
  */
@@ -47,10 +53,22 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE sga: public base
 {
 public:
+	/// Selection info
 	struct selection{ enum type {BEST20 = 0,ROULETTE = 1}; };
-	struct mutation { enum type {GAUSSIAN = 0, RANDOM = 1}; };
+	/// Mutation operator info
+	struct mutation {
+		enum type {GAUSSIAN = 0, RANDOM = 1};
+		mutation(mutation::type t, double width) : m_type(t),m_width(width) {}
+		type m_type;
+		double m_width;
+	};
+
+	/// Crossover operator info
 	struct crossover { enum type {BINOMIAL = 0, EXPONENTIAL = 1}; };
-	sga(int gen, const double &cr, const double &m, int elitism = 1, mutation::type mut  = mutation::RANDOM, selection::type sel = selection::ROULETTE, crossover::type cro = crossover::EXPONENTIAL);
+	sga(int gen, const double &cr, const double &m, int elitism = 1,
+	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
+	    selection::type sel = selection::ROULETTE,
+	    crossover::type cro = crossover::EXPONENTIAL);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
@@ -64,8 +82,8 @@ private:
 	const double& m_m;
 	//Elitism (number of generations after which to reinsert the best)
 	const int m_elitism;
-	//Mutation type
-	const mutation::type m_mut;
+	//Mutation
+	const mutation m_mut;
 	//Selection_type
 	const selection::type m_sel;
 	//Crossover_type
