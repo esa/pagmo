@@ -34,14 +34,7 @@
 #include <cstddef>
 #include <string>
 
-#include "../../src/problem/base.h"
-#include "../../src/problem/golomb_ruler.h"
-#include "../../src/problem/himmelblau.h"
-#include "../../src/problem/knapsack.h"
-#include "../../src/problem/paraboloid.h"
-#include "../../src/problem/rastrigin.h"
-#include "../../src/problem/rosenbrock.h"
-#include "../../src/problem/schwefel.h"
+#include "../../src/problems.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
 #include "../utils.h"
