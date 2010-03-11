@@ -27,14 +27,7 @@
 #include <vector>
 #include <list>
 
-#include "src/algorithm/de.h"
-#include "src/algorithm/cs.h"
-#include "src/algorithm/pso.h"
-#include "src/algorithm/sa_corana.h"
-#include "src/algorithm/gsl_fr.h"
-#include "src/algorithm/ihs.h"
-#include "src/algorithm/monte_carlo.h"
-#include "src/algorithm/null.h"
+#include "src/algorithms.h"
 #include "src/archipelago.h"
 #include "src/island.h"
 #include "src/problem/golomb_ruler.h"
@@ -57,7 +50,7 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::rosenbrock(25),algorithm::gsl_fr(2000),1);
+	island isl = island(problem::rosenbrock(200),algorithm::de(400),20);
 	std::cout << isl.get_population().champion().f << std::endl;
 	for (int i=0; i< 30; ++i){
 		isl.evolve();
