@@ -59,6 +59,15 @@ IF(ENABLE_NLOPT)
 	)
 ENDIF(ENABLE_NLOPT)
 
+# Additional files for SNOPT support.
+IF(ENABLE_SNOPT)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snoptProblem_PAGMO.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snfilewrapper_PAGMO.c
+	)
+ENDIF(ENABLE_SNOPT)
+
 # Boost  thread library.
 IF(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}

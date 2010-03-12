@@ -384,6 +384,19 @@ return base_ptr(new derived_problem(*this));
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
+	protected:
+		// The following variables contain the pattern structure of the problem gradients. The default
+		// structure is full. If sparsity has to be exploited then these variales need to be defined
+		// accordingly
+		int neG;
+		std::vector<int> iGfun;
+		std::vector<int> jGvar;
+	private:
+		virtual void set_pattern();
+	public:
+		int get_neG() const {return neG;}
+		const std::vector<int>& get_iGfun() const {return iGfun;}
+		const std::vector<int>& get_jGvar() const {return jGvar;}
 	public:
 		/** @name Objective function and fitness handling.
 		 * Methods used to calculate and compare fitnesses.
