@@ -37,6 +37,8 @@
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
 
+#include "algorithm/snopt.h"
+
 // GSL algorithms.
 #ifdef PAGMO_ENABLE_GSL
 	#include "algorithm/base_gsl.h"
