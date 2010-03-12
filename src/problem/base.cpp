@@ -84,6 +84,8 @@ base::base(int n, int ni, int nf, int nc, int nic):
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
+	// Set pattern
+	set_pattern();
 }
 
 /// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
@@ -125,6 +127,8 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
+	// Set pattern
+	set_pattern();
 }
 
 /// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
@@ -158,6 +162,8 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
+	// Set pattern
+	set_pattern();
 }
 
 /// Trivial destructor.
@@ -1080,6 +1086,20 @@ std::size_t objfun_calls()
 		pagmo_throw(not_implemented_error,"fast atomic counters are not available in this version of PaGMO");
 	}
 	return (base::m_objfun_counter).get_value();
+}
+
+//Default implementation of the sparsity pattern (no sparsity)
+void base::set_pattern() {
+	//Full pattern: first row is the objectivefunction, then the equality const, then inequality const
+	int Dc = this->get_dimension() - this->get_i_dimension();
+	int Dconstraints = this->get_c_dimension() + this->get_ic_dimension();
+	neG = (Dc) * (Dconstraints + 1);
+	iGfun.resize(neG);
+	jGvar.resize(neG);
+	for (int i=0;i<neG;i++){
+		iGfun[i] = i / Dc; //integer division
+		jGvar[i] = i % Dc;
+	}
 }
 
 /// Reset to zero the total number of calls to the objective function.

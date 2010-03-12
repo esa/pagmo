@@ -2,7 +2,7 @@
 #define SNOPTPROBLEM_PAGMO
 
 #include "snopt_PAGMO.h"
-#include "../../problems/GOproblem.h"
+#include "../../problem/base.h"
 
 
 // class snoptProblem_PAGMO performs problem set-up, initialization,
@@ -64,7 +64,7 @@ protected:
   void memcpyOut( char *tcw, integer *tiw, doublereal *trw,
 		  integer tlencw, integer tleniw, integer tlenrw);
 public:
-  snoptProblem_PAGMO(const GOProblem& problem, std::vector<double> *di_comodo);
+  snoptProblem_PAGMO(const pagmo::problem::base& problem, std::vector<double> *di_comodo);
   ~snoptProblem_PAGMO();
   void increment();
   void decrement();

@@ -68,8 +68,54 @@ IF(ENABLE_GSL)
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_GSL)
 ENDIF(ENABLE_GSL)
 
+# Build Option: SNOPT optimiser
+OPTION(ENABLE_SNOPT "Enable support for SNOPT minimzer." OFF)
+
+# If SNOPT support is requested, look for the libraries.
+IF(ENABLE_SNOPT)
+	FIND_LIBRARY(SNOPT_SNOPT_LIBRARY NAMES snopt)
+	IF(NOT SNOPT_SNOPT_LIBRARY)
+		MESSAGE(FATAL_ERROR "SNOPT support was requested, but the snopt library could not be located.")
+	ENDIF(NOT SNOPT_SNOPT_LIBRARY)
+	MESSAGE(STATUS "snopt library: ${SNOPT_SNOPT_LIBRARY}")
+
+	FIND_LIBRARY(SNOPT_SNPRINT_LIBRARY NAMES snprint)
+	IF(NOT SNOPT_SNPRINT_LIBRARY)
+		MESSAGE(FATAL_ERROR "SNOPT support was requested, but the snprint library could not be located.")
+	ENDIF(NOT SNOPT_SNPRINT_LIBRARY)
+	MESSAGE(STATUS "snprint library: ${SNOPT_SNPRINT_LIBRARY}")
+
+	FIND_LIBRARY(SNOPT_BLAS_LIBRARY NAMES blas)
+	IF(NOT SNOPT_BLAS_LIBRARY)
+		MESSAGE(FATAL_ERROR "SNOPT support was requested, but the blas library could not be located.")
+	ENDIF(NOT SNOPT_BLAS_LIBRARY)
+	MESSAGE(STATUS "blas library: ${SNOPT_BLAS_LIBRARY}")
+
+	FIND_LIBRARY(SNOPT_F2C_LIBRARY NAMES f2c)
+	IF(NOT SNOPT_F2C_LIBRARY)
+		MESSAGE(FATAL_ERROR "SNOPT support was requested, but the f2c library could not be located.")
+	ENDIF(NOT SNOPT_F2C_LIBRARY)
+	MESSAGE(STATUS "f2c library: ${SNOPT_F2C_LIBRARY}")
+
+	FIND_LIBRARY(SNOPT_M_LIBRARY NAMES m)
+	IF(NOT SNOPT_M_LIBRARY)
+		MESSAGE(FATAL_ERROR "SNOPT support was requested, but the m library could not be located.")
+	ENDIF(NOT SNOPT_M_LIBRARY)
+	MESSAGE(STATUS "m library: ${SNOPT_M_LIBRARY}")
+
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_BLAS_LIBRARY} ${SNOPT_F2C_LIBRARY} ${SNOPT_M_LIBRARY})
+
+	#If gfortran is found the library is included as last in case snopt has been compiled using gfortran
+	FIND_LIBRARY(SNOPT_GFORTRAN_LIBRARY NAMES gfortran)
+	IF(SNOPT_GFORTRAN_LIBRARY)
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_GFORTRAN_LIBRARY})
+	ENDIF(SNOPT_GFORTRAN_LIBRARY)
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_SNOPT)
+ENDIF(ENABLE_SNOPT)
+
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
+INCLUDE_DIRECTORIES("/sw/include")
 
 # Some common platform switches.
 SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})

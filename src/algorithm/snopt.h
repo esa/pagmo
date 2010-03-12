@@ -32,7 +32,7 @@
 #include "snopt_cpp_wrapper/snopt_PAGMO.h"
 #include "snopt_cpp_wrapper/snfilewrapper_PAGMO.h"
 
-namespace pagmo { namespace algorithm
+namespace pagmo { namespace algorithm {
 
 class __PAGMO_VISIBLE snopt: public base
 {

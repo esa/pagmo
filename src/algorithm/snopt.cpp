@@ -52,21 +52,22 @@ static int snopt_function_(integer    *Status, integer *n,    doublereal *x,
 	//1 - We retrieve the pointer to the base problem (PaGMO) we have 'hidden' in *cu
 	pagmo::problem::base *prob;
 	prob = (pagmo::problem::base*)cu;
+	int a = prob->get_dimension();
 
 	//2 - We retrieve the pointer to the allocated memory area containing the std::vector where
 	//to copy the snopt x[] array
-	decision_vector* chromosome = (decision_vector*)ru;
+	pagmo::decision_vector* chromosome = (pagmo::decision_vector*)ru;
 	for (size_t i = 0;i < ( prob->get_dimension() - prob->get_i_dimension() );i++) (*chromosome)[i] = x[i];
 
 	//We finally assign to F[0] (the objective function) the value returned by the problem
-	fitness_vector fit;
-	try {
-		prob->objfun(fit,chromosome);
+	pagmo::fitness_vector fit(1);
+	//try {
+		prob->objfun(fit,*chromosome);
 		F[0] = fit[0];
-		}
-	catch (value_error) {
-		*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties
-	}
+	//	}
+	//catch (value_error) {
+	//	*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties
+	//}
 	return 0;
 }
 
@@ -99,17 +100,47 @@ base_ptr snopt::clone() const
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
 
-void snopt::evolve(const population &pop) const
+void snopt::evolve(population &pop) const
 {
+	// Let's store some useful variables.
+	const problem::base &prob = pop.problem();
+	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
+	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
+	const population::size_type NP = pop.size();
+	const problem::base::size_type Dc = D - prob_i_dimension;
+
+
+	//We perform some checks to determine wether the problem/population are suitable for DE
+	if ( prob_i_dimension != 0  ) {
+		pagmo_throw(value_error,"No integer part allowed yet....");
+	}
+
+	if ( Dc == 0  ) {
+		pagmo_throw(value_error,"No continuous part....");
+	}
+
+	if ( prob_c_dimension != 0 ) {
+		pagmo_throw(value_error,"The problem is not box constrained and DE is not suitable to solve it");
+	}
+
+	if ( prob_f_dimension != 1 ) {
+		pagmo_throw(value_error,"The problem is not single objective and DE is not suitable to solve it");
+	}
+
+	// Get out if there is nothing to do.
+	if (NP == 0 || m_major == 0) {
+		return;
+	}
+
 	// We allocate memory for the decision vector that will be used in the snopt_function_
-	di_comodo.resize(pop.problem().getDimension());
+	di_comodo.resize(Dc);
 
 	// We construct a SnoptProblem_PAGMO passing the pointers to the problem and the allocated
 	//memory area for the di_comodo vector
-	snoptProblem_PAGMO SnoptProblem(pop.problem(), &di_comodo);
+	snoptProblem_PAGMO SnoptProblem(prob, &di_comodo);
 
 	// Allocate and initialize;
-	integer n     =  pop.problem().getDimension();
+	integer n     =  Dc;
 
 	// Box-constrained non-linear optimization
 	integer neF   =  1;
@@ -120,13 +151,13 @@ void snopt::evolve(const population &pop) const
 	integer *jAvar = new integer[lenA];
 	doublereal *A  = new doublereal[lenA];
 
-	//Pattern structure as defined in the GOproblem
-	integer lenG   = pop.problem().get_neG();
+	//Pattern structure as defined by the problem
+	integer lenG   = prob.get_neG();
 	integer *iGfun = new integer[lenG];
 	integer *jGvar = new integer[lenG];
 	for (int i=0;i<lenG;i++){
-		iGfun[i] = pop.problem().get_iGfun()[i];
-		jGvar[i] = pop.problem().get_jGvar()[i];
+		iGfun[i] = prob.get_iGfun()[i];
+		jGvar[i] = prob.get_jGvar()[i];
 	}
 
 	//Decision vector memory allocation
@@ -152,16 +183,17 @@ void snopt::evolve(const population &pop) const
 	doublereal ObjAdd = 0;
 
 	// Set the upper and lower bounds. And The initial Guess
+	int bestidx = pop.get_best_idx();
 	for (int i = 0; i < n; i++){
-		xlow[i]   =  pop.problem().getLB()[i];
-		xupp[i]   = pop.problem().getUB()[i];
+		xlow[i]   = lb[i];
+		xupp[i]   = ub[i];
 		xstate[i] =    0;
-		x[i] = pop.extractBestIndividual().getDecisionVector()[i];
+		x[i] = pop.get_individual(bestidx).cur_x[i];
 	}
 
 	Flow[0] = -1e20; //Flow[1] = -1e20; Flow[2] = -1e20;
 	Fupp[0] =  1e20;// Fupp[1] =   4.0; Fupp[2] =  5.0;
-	F[0] = pop.extractBestIndividual().getFitness();
+	F[0] = pop.get_individual(bestidx).cur_f[0];
 
 
 	// Load the data for SnoptProblem ...
@@ -183,9 +215,9 @@ void snopt::evolve(const population &pop) const
 	// coordinate arrays (iAfun,jAvar,A) and (iGfun, jGvar).
 	SnoptProblem.computeJac    ();
 	SnoptProblem.setIntParameter( "Derivative option", 0 );
-	SnoptProblem.setIntParameter( "Major iterations limit", major_iterations);
-	SnoptProblem.setRealParameter( "Major feasibility tolerance", feasibility);
-	SnoptProblem.setRealParameter( "Major optimality tolerance", optimality);
+	SnoptProblem.setIntParameter( "Major iterations limit", m_major);
+	SnoptProblem.setRealParameter( "Major feasibility tolerance", m_feas);
+	SnoptProblem.setRealParameter( "Major optimality tolerance", m_opt);
 
 	integer Cold = 0, Basis = 1, Warm = 2;
 
@@ -193,13 +225,11 @@ void snopt::evolve(const population &pop) const
 	SnoptProblem.solve( Cold );
 
 	//Save the final point
-	std::vector<double> retval(n);
-	for (integer i=0;i<n;i++) retval[i] = x[i];
-	double fitness = F[0];
-
-	//Save the velocity (unchanged) and the old fitness
-	std::vector<double> vel = pop.extractBestIndividual().getVelocity();
-	double oldfit =  pop.extractBestIndividual().getFitness();
+	for (integer i=0;i<n;i++) di_comodo[i] = x[i];
+	decision_vector newx = di_comodo;
+	std::transform(di_comodo.begin(), di_comodo.end(), pop.get_individual(bestidx).cur_x.begin(), di_comodo.begin(),std::minus<double>());
+	pop.set_x(bestidx,newx);
+	pop.set_v(bestidx,di_comodo);
 
 	//Clean up memory allocated to call the snoptA routine
 	delete []iAfun;  delete []jAvar;  delete []A;
@@ -213,15 +243,13 @@ void snopt::evolve(const population &pop) const
 
 	delete []xnames; delete []Fnames;
 
-	//Construct the new population (same as old except best_individual if improved)
-	Population NewPop(pop);
-	if (fitness < oldfit) NewPop.replace_best(Individual(retval,vel,fitness));
-	return (NewPop);
 }
 
-void snopt_algorithm::log(std::ostream &s) const
+std::string snopt::human_readable_extra() const
 {
-	s << "SNOPT - Major Iterations: " << major_iterations << ", Feasibility: "<<feasibility<< ", Optimality: "<<optimality << std::endl;
+	std::ostringstream s;
+	s << "SNOPT - Major Iterations: " << m_major << ", Feasibility: "<<m_feas<< ", Optimality: "<<m_opt << std::endl;
+	return s.str();
 }
 
 }} //namespaces

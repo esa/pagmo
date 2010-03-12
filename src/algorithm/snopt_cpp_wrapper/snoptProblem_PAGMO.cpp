@@ -3,14 +3,14 @@
 #include <string.h>
 #include <assert.h>
 #include <iostream>
-#include "../../problems/GOproblem.h"
+#include "../../problem/base.h"
 #include "snopt_PAGMO.h"
 #include "snfilewrapper_PAGMO.h"
 #include "snoptProblem_PAGMO.h"
 
 using namespace std;
 
-snoptProblem_PAGMO::snoptProblem_PAGMO(const GOProblem& problema, std::vector<double>* di_comodo):
+snoptProblem_PAGMO::snoptProblem_PAGMO(const pagmo::problem::base& problema, pagmo::decision_vector* di_comodo):
   iSpecs(0), iSumm(0), iPrint(0), initCalled(0),cu((char *)&problema),lencu(500),ru((doublereal *)di_comodo), lenru(500)
 {
   init2zero();
