@@ -50,6 +50,8 @@
 	#include "algorithm/gsl_bfgs2.h"
 	#include "algorithm/gsl_fr.h"
 	#include "algorithm/gsl_nm.h"
+	#include "algorithm/gsl_nm2.h"
+	#include "algorithm/gsl_nm2rand.h"
 	#include "algorithm/gsl_pr.h"
 #endif
 

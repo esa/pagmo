@@ -35,8 +35,10 @@
 #include <string>
 
 #include "../exceptions.h"
+#include "../population.h"
 #include "../problem/base.h"
 #include "../types.h"
+#include "base_gsl.h"
 #include "gsl_gradient.h"
 
 namespace pagmo { namespace algorithm {
@@ -220,7 +222,7 @@ void gsl_gradient::evolve(population &pop) const
 	} catch (...) {
 		// Cleanup and throw.
 		cleanup(x,s);
-		pagmo_throw(std::runtime_error,"unknown exception caught in gsl_gradient::evolve_gradient");
+		pagmo_throw(std::runtime_error,"unknown exception caught in gsl_gradient::evolve");
 	}
 	// Free up resources.
 	cleanup(x,s);

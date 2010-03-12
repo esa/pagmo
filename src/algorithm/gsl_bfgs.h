@@ -36,6 +36,8 @@ namespace pagmo { namespace algorithm {
 /// Wrapper for the GSL BFGS algorithm.
 /**
  * @see algorithm::gsl_gradient for more information.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE gsl_bfgs: public gsl_gradient
 {

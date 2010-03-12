@@ -22,30 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
+#ifndef PAGMO_ALGORITHM_GSL_DERIVATIVE_FREE_H
+#define PAGMO_ALGORITHM_GSL_DERIVATIVE_FREE_H
 
-#include "../exceptions.h"
-#include "gsl_derivative_free.h"
-#include "gsl_nm.h"
+#include <cstddef>
+#include <gsl/gsl_multimin.h>
+#include <gsl/gsl_vector.h>
+#include <string>
+
+#include "../config.h"
+#include "../population.h"
+#include "base_gsl.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Constructor.
+/// GSL Nelder-Mead wrapper.
 /**
- * Will invoke internally the constructor from algorithm::gsl_derivative_free with the specified parameters.
+ * Wrapper around the implementation of the Nelder-Mead simplex method available in the GNU Scientific Library (GSL).
+ * The GSL function used is called gsl_multimin_fminimizer_nmsimplex.
  *
- * @see gsl_gradient::gsl_derivative_free().
+ * <b>Usage notes</b>: to increase the convergence of this algorithm, try increasing the number of maximum iterations.
+ * Please note that this wrapper handles bounds constraints simply by flattening the out-of-bounds coordinates of the optimised
+ * decision vector towards the bounds.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-gsl_nm::gsl_nm(int max_iter, const double &tol, const double &step_size):
-	gsl_derivative_free(gsl_multimin_fminimizer_nmsimplex,max_iter,tol,step_size) {}
-
-/// Clone method.
-/**
- * @return algorithm::base_ptr to a copy of this.
- */
-base_ptr gsl_nm::clone() const
+class __PAGMO_VISIBLE gsl_derivative_free: public base_gsl
 {
-	return base_ptr(new gsl_nm(*this));
-}
+	protected:
+		gsl_derivative_free(const gsl_multimin_fminimizer_type *, int, const double &, const double &);
+		std::string human_readable_extra() const;
+		void evolve(population &) const;
+	private:
+		static void cleanup(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
+		static void check_allocs(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
+	private:
+		const gsl_multimin_fminimizer_type	*m_minimiser;
+		const std::size_t			m_max_iter;
+		const double				m_tol;
+		const double				m_step_size;
+};
 
-}}
+} }
+
+#endif

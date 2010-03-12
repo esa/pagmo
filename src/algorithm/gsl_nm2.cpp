@@ -26,7 +26,7 @@
 
 #include "../exceptions.h"
 #include "gsl_derivative_free.h"
-#include "gsl_nm.h"
+#include "gsl_nm2.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -36,16 +36,16 @@ namespace pagmo { namespace algorithm {
  *
  * @see gsl_gradient::gsl_derivative_free().
  */
-gsl_nm::gsl_nm(int max_iter, const double &tol, const double &step_size):
-	gsl_derivative_free(gsl_multimin_fminimizer_nmsimplex,max_iter,tol,step_size) {}
+gsl_nm2::gsl_nm2(int max_iter, const double &tol, const double &step_size):
+	gsl_derivative_free(gsl_multimin_fminimizer_nmsimplex2,max_iter,tol,step_size) {}
 
 /// Clone method.
 /**
  * @return algorithm::base_ptr to a copy of this.
  */
-base_ptr gsl_nm::clone() const
+base_ptr gsl_nm2::clone() const
 {
-	return base_ptr(new gsl_nm(*this));
+	return base_ptr(new gsl_nm2(*this));
 }
 
 }}

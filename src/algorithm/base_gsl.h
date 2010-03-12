@@ -61,7 +61,7 @@ class base_gsl: public base
 			decision_vector			x;
 			/// Fitness vector.
 			fitness_vector			f;
-			/// Step size for the computation of the gradient.
+			/// Initial step size for the computation of the gradient
 			double				step_size;
 		};
 		static double objfun_wrapper(const gsl_vector *, void *);
