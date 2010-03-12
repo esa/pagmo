@@ -37,10 +37,10 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::snopt_toyprob(),algorithm::nlopt_cobyla(),1);
-	for (int i=0; i< 1; ++i){
+	island isl = island(problem::rosenbrock(25),algorithm::de(400),20);
+	for (int i=0; i< 10; ++i){
 		isl.evolve();
-		std::cout << isl.get_population().get_individual(0) << std::endl;
+		std::cout << isl.get_population().champion().f[0] << std::endl;
 	}
 	//std::cout << isl.get_population().champion().x << std::endl;
 	//std::cout << problem::objfun_calls() << std::endl;
