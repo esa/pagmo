@@ -36,14 +36,9 @@
 
 namespace pagmo { namespace algorithm {
 
-/// GSL Nelder-Mead wrapper.
+/// Wrapper for GSL minimisers without derivatives.
 /**
- * Wrapper around the implementation of the Nelder-Mead simplex method available in the GNU Scientific Library (GSL).
- * The GSL function used is called gsl_multimin_fminimizer_nmsimplex.
- *
- * <b>Usage notes</b>: to increase the convergence of this algorithm, try increasing the number of maximum iterations.
- * Please note that this wrapper handles bounds constraints simply by flattening the out-of-bounds coordinates of the optimised
- * decision vector towards the bounds.
+ * This class can be used to build easily a wrapper around a GSL minimiser without derivatives.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */

@@ -40,6 +40,8 @@ namespace pagmo { namespace algorithm {
  * the GSL environment for use in PaGMO, and will provide building blocks for wrapping the GSL minimisers.
  * Please note that GSL provides function minimisers, so that regardless of the comparison functions implemented in
  * problem::base, all GSL algorithms will try to minimise the objective function.
+ * Also, please note that this wrapper handles bounds constraints simply by flattening the out-of-bounds coordinates of the optimised
+ * decision vector towards the bounds.
  *
  * This class of algorithms supports single-objective, unconstrained, continuous optimisation.
  *

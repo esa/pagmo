@@ -37,8 +37,8 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::rosenbrock(25),algorithm::de(400),20);
-	for (int i=0; i< 10; ++i){
+	island isl = island(problem::rosenbrock(200),algorithm::gsl_nm2rand(8000),20);
+	for (int i=0; i< 100; ++i){
 		isl.evolve();
 		std::cout << isl.get_population().champion().f[0] << std::endl;
 	}

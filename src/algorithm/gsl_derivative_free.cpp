@@ -42,9 +42,12 @@
 
 namespace pagmo { namespace algorithm {
 
-/// fFD
+/// Constructor.
 /**
- * FDFD
+ * Allows to specify all the parameters needed to initialise a GSL minimiser without derivatives, as specified in the GSL documentation.
+ * Will fail if max_iter is negative or if at least one of the other parameters is negative.
+ *
+ * @param[in] minimiser GSL minimiser type.
  * @param[in] max_iter maximum number of iterations the algorithm will be allowed to perform.
  * @param[in] tol desired tolerance in the localisation of the minimum.
  * @param[in] step_size initial step size for the simplex.
@@ -63,6 +66,10 @@ gsl_derivative_free::gsl_derivative_free(const gsl_multimin_fminimizer_type *min
 	}
 }
 
+/// Extra information in human-readable format.
+/**
+ * @return a formatted string displaying the parameters of the algorithm.
+ */
 std::string gsl_derivative_free::human_readable_extra() const
 {
 	std::ostringstream oss;
@@ -72,6 +79,16 @@ std::string gsl_derivative_free::human_readable_extra() const
 	return oss.str();
 }
 
+/// Evolve method.
+/**
+ * The best member of the population will be used as starting point for the minimisation process. The algorithm will stop
+ * if the size of the simplex falls below the tol parameter, if the maximum number of iterations max_iter is exceeded or if
+ * the inner GSL routine call reports an error (which will be logged on std::cout). After the end of the minimisation process,
+ * the minimised decision vector will replace the best individual in the population, after being modified to fall within
+ * the problem bounds if necessary.
+ *
+ * @param[in,out] pop population to evolve.
+ */
 void gsl_derivative_free::evolve(population &pop) const
 {
 	// Do nothing if the population is empty.
