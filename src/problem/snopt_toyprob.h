@@ -22,19 +22,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_PROBLEM_SNOPT_TOYPROB_H
+#define PAGMO_PROBLEM_SNOPT_TOYPROB_H
 
-// Header including all problems implemented in PaGMO.
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
 
-#include "problem/base.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/snopt_toyprob.h"
+namespace pagmo { namespace problem {
+
+/// Test problem from SNOPT.
+/**
+ * Simple constrained minimisation test problem. Minimise
+ * \f[
+ * 	f(x,y) = y,
+ * \f]
+ * subject to
+ * <center>
+ * \f$
+ * 	\begin{array}{rcl}
+ * 		x^2 + 4y^2 &\leq & 4, \\
+ * 		\left(x - 2\right)^2 + y^2 &\leq & 5.
+ * 	\end{array}
+ * \f$
+ * </center>
+ * The solution of this problem is in \f$ \left( x,y \right) = \left( 0,-1 \right) \f$. Search bounds are set to \f$ x \in \left[ 0,10 \right] \f$ and
+ * \f$ y \in \left[ -10,10 \right] \f$ upon problem construction.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
+class __PAGMO_VISIBLE snopt_toyprob: public base
+{
+	public:
+		snopt_toyprob();
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+};
+
+}}
 
 #endif
