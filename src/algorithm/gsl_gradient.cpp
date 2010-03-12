@@ -167,7 +167,7 @@ void gsl_gradient::evolve_gradient(population &pop, const gsl_multimin_fdfminimi
 	// Integer part of the temporay decision vector must be filled with the integer part of the best individual,
 	// which will not be optimised.
 	params.x.resize(problem.get_dimension());
-	std::copy(best_ind.cur_x.begin() + cont_size, best_ind.cur_x.end(), params.x.begin());
+	std::copy(best_ind.cur_x.begin() + cont_size, best_ind.cur_x.end(), params.x.begin() + cont_size);
 	params.f.resize(1);
 	params.step_size = m_numdiff_step_size;
 	// GSL function structure.
