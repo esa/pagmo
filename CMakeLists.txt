@@ -55,6 +55,9 @@ OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimzers." OFF)
 
+# Build Option: algorithms from the NLopt library.
+OPTION(ENABLE_NLOPT "Enable support for NLopt algorithms." OFF)
+
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
 	FIND_LIBRARY(GSL_GSL_LIBRARY NAMES gsl)
@@ -67,6 +70,19 @@ IF(ENABLE_GSL)
 	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${GSL_GSL_LIBRARY})
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_GSL)
 ENDIF(ENABLE_GSL)
+
+# If NLopt support is requested, look for the library.
+IF(ENABLE_NLOPT)
+	FIND_LIBRARY(NLOPT_LIBRARY NAMES nlopt_cxx)
+	FIND_PATH(NLOPT_INCLUDE_DIR NAMES nlopt.h)
+	IF(NOT NLOPT_LIBRARY OR NOT NLOPT_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "NLopt support was requested, but the library could not be located. Please make sure that NLopt was compiled with C++ support (the library will be called 'nlopt_cxx')")
+	ENDIF(NOT NLOPT_LIBRARY OR NOT NLOPT_INCLUDE_DIR)
+	MESSAGE(STATUS "NLopt library: ${NLOPT_LIBRARY}")
+	MESSAGE(STATUS "NLopt include dir: ${NLOPT_INCLUDE_DIR}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${NLOPT_LIBRARY})
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_NLOPT)
+ENDIF(ENABLE_NLOPT)
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")

@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,26 +22,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_ALGORITHM_NLOPT_COBYLA_H
+#define PAGMO_ALGORITHM_NLOPT_COBYLA_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
+#include <nlopt.h>
 
-using namespace pagmo;
+#include "../config.h"
+#include "../population.h"
+#include "../problem/base.h"
+#include "../types.h"
+#include "base.h"
 
-int main()
+namespace pagmo { namespace algorithm {
+
+class __PAGMO_VISIBLE nlopt_cobyla: public base
 {
-	island isl = island(problem::snopt_toyprob(),algorithm::nlopt_cobyla(),1);
-	for (int i=0; i< 1; ++i){
-		isl.evolve();
-		std::cout << isl.get_population().get_individual(0) << std::endl;
-	}
-	std::cout << isl.get_population().champion().x << std::endl;
-	std::cout << problem::objfun_calls() << std::endl;
-}
+	public:
+		nlopt_cobyla();
+		base_ptr clone() const;
+		void evolve(population &) const;
+	private:
+		struct nlopt_wrapper_data
+		{
+			problem::base const		*prob;
+			decision_vector			*x;
+			fitness_vector			*f;
+			constraint_vector		*c;
+			problem::base::c_size_type	c_comp;
+		};
+		static double objfun_wrapper(int, const double *, double *, void *);
+		static double constraints_wrapper(int, const double *, double *, void *);
+};
+
+}}
+
+#endif

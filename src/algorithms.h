@@ -47,4 +47,8 @@
 	#include "algorithm/gsl_pr.h"
 #endif
 
+#ifdef PAGMO_ENABLE_NLOPT
+	#include "algorithm/nlopt_cobyla.h"
+#endif
+
 #endif

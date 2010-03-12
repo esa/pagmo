@@ -52,6 +52,13 @@ IF(ENABLE_GSL)
 	)
 ENDIF(ENABLE_GSL)
 
+# Additional files for NLopt support.
+IF(ENABLE_NLOPT)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_cobyla.cpp
+	)
+ENDIF(ENABLE_NLOPT)
+
 # Boost  thread library.
 IF(UNIX)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}

@@ -145,6 +145,15 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	#endif
 
+	// NLopt algorithms.
+	#ifdef PAGMO_ENABLE_NLOPT
+
+	// NLopt's COBYLA.
+	algorithm_wrapper<algorithm::nlopt_cobyla>("nlopt_cobyla","NLopt's COBYLA algorithm.")
+		.def(init<>());
+
+	#endif
+
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<algorithm::base_ptr>();
 }
