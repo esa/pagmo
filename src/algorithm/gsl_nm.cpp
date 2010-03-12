@@ -36,7 +36,7 @@
 #include "../population.h"
 #include "../problem/base.h"
 #include "../types.h"
-#include "base.h"
+#include "base_gsl.h"
 #include "gsl_nm.h"
 
 namespace pagmo { namespace algorithm {
@@ -71,7 +71,7 @@ inline static double gsl_nm_wrapper(const gsl_vector *v, void *params)
  * @param[in] tol desired tolerance in the localisation of the minimum.
  * @param[in] step_size initial step size for the simplex.
  */
-gsl_nm::gsl_nm(int max_iter, const double &tol, const double &step_size):m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol),m_step_size(step_size)
+gsl_nm::gsl_nm(int max_iter, const double &tol, const double &step_size):base_gsl(),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol),m_step_size(step_size)
 {
 	if (m_tol <= 0) {
 		pagmo_throw(value_error,"tolerance must be a positive number");

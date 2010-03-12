@@ -31,7 +31,6 @@
 
 #include "../config.h"
 #include "../population.h"
-#include "base.h"
 #include "base_gsl.h"
 
 namespace pagmo { namespace algorithm {
@@ -48,7 +47,7 @@ namespace pagmo { namespace algorithm {
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE gsl_nm: public base, base_gsl
+class __PAGMO_VISIBLE gsl_nm: public base_gsl
 {
 	public:
 		gsl_nm(int max_iter = 100, const double &tol = 1E-6, const double &step_size = 1);

@@ -26,7 +26,6 @@
 #include <string>
 
 #include "../population.h"
-#include "base.h"
 #include "gsl_pr.h"
 #include "gsl_gradient.h"
 
@@ -39,27 +38,12 @@ namespace pagmo { namespace algorithm {
  * @see gsl_gradient::gsl_gradient().
  */
 gsl_pr::gsl_pr(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	base(),gsl_gradient(max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
+	gsl_gradient(gsl_multimin_fdfminimizer_conjugate_pr,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
 
 /// Clone method.
 base_ptr gsl_pr::clone() const
 {
 	return base_ptr(new gsl_pr(*this));
-}
-
-/// Evolve method.
-void gsl_pr::evolve(population &pop) const
-{
-	evolve_gradient(pop,gsl_multimin_fdfminimizer_conjugate_pr);
-}
-
-/// Extra information in human-readable format.
-/**
- * @return a formatted string displaying the parameters of the algorithm.
- */
-std::string gsl_pr::human_readable_extra() const
-{
-	return hr_extra();
 }
 
 }}

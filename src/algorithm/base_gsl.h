@@ -30,19 +30,24 @@
 #include "../gsl_init.h"
 #include "../problem/base.h"
 #include "../types.h"
+#include "base.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Additional base class for GSL algorithms.
+/// Base class for GSL algorithms.
 /**
- * All GSL algorithms should derive from this class in addition to algorithm::base. This class will automatically setup
+ * All GSL algorithms should derive from this class, which will automatically setup
  * the GSL environment for use in PaGMO, and will provide building blocks for wrapping the GSL minimisers.
+ * Please note that GSL provides function minimisers, so that regardless of the comparison functions implemented in
+ * problem::base, all GSL algorithms will try to minimise the objective function.
+ *
+ * This class of algorithms supports single-objective, unconstrained, continuous optimisation.
  *
  * @see http://www.gnu.org/software/gsl/manual/html_node/Multidimensional-Minimization.html for an overview of the minimisers available in the GSL.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class base_gsl
+class base_gsl: public base
 {
 	public:
 		base_gsl();

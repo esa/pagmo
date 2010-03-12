@@ -29,7 +29,6 @@
 
 #include "../config.h"
 #include "../population.h"
-#include "base.h"
 #include "gsl_gradient.h"
 
 namespace pagmo { namespace algorithm {
@@ -38,14 +37,11 @@ namespace pagmo { namespace algorithm {
 /**
  * @see algorithm::gsl_gradient for more information.
  */
-class __PAGMO_VISIBLE gsl_bfgs: public base, public gsl_gradient
+class __PAGMO_VISIBLE gsl_bfgs: public gsl_gradient
 {
 	public:
 		gsl_bfgs(int = 100, const double & = 1E-8, const double & = 1E-8, const double & = 0.01, const double & = 1E-4);
 		base_ptr clone() const;
-		void evolve(population &) const;
-	protected:
-		std::string human_readable_extra() const;
 };
 
 }}
