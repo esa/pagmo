@@ -22,20 +22,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#include <nlopt.h>
 
-// Header including all problems implemented in PaGMO.
+#include "base_nlopt.h"
+#include "nlopt_sbplx.h"
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/snopt_toyprob.h"
+namespace pagmo { namespace algorithm {
 
-#endif
+nlopt_sbplx::nlopt_sbplx(int max_iter, const double &tol):base_nlopt(NLOPT_LN_SBPLX,false,max_iter,tol) {}
+
+base_ptr nlopt_sbplx::clone() const
+{
+	return base_ptr(new nlopt_sbplx(*this));
+}
+
+}}

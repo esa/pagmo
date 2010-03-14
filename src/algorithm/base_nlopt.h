@@ -22,20 +22,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_ALGORITHM_BASE_NLOPT_H
+#define PAGMO_ALGORITHM_BASE_NLOPT_H
 
-// Header including all problems implemented in PaGMO.
+#include <cstddef>
+#include <nlopt.h>
+#include <string>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/snopt_toyprob.h"
+#include "../config.h"
+#include "../population.h"
+#include "../problem/base.h"
+#include "../types.h"
+#include "base.h"
+
+namespace pagmo { namespace algorithm {
+
+/// Base class for wrapping NLopt's algorithms.
+class __PAGMO_VISIBLE base_nlopt: public base
+{
+	protected:
+		base_nlopt(nlopt_algorithm, bool, int, const double &);
+		void evolve(population &) const;
+		std::string human_readable_extra() const;
+	private:
+		struct nlopt_wrapper_data
+		{
+			problem::base const		*prob;
+			decision_vector			*x;
+			fitness_vector			*f;
+			constraint_vector		*c;
+			problem::base::c_size_type	c_comp;
+		};
+		static double objfun_wrapper(int, const double *, double *, void *);
+		static double constraints_wrapper(int, const double *, double *, void *);
+	private:
+		const nlopt_algorithm	m_algo;
+		const bool		m_constrained;
+		const std::size_t	m_max_iter;
+		const double		m_tol;
+};
+
+}}
 
 #endif

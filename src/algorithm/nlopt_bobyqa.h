@@ -22,20 +22,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_ALGORITHM_NLOPT_BOBYQA_H
+#define PAGMO_ALGORITHM_NLOPT_BOBYQA_H
 
-// Header including all problems implemented in PaGMO.
+#include "../config.h"
+#include "base_nlopt.h"
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/snopt_toyprob.h"
+namespace pagmo { namespace algorithm {
+
+/// Wrapper for NLopt's BOBYQA algorithm.
+class __PAGMO_VISIBLE nlopt_bobyqa: public base_nlopt
+{
+	public:
+		nlopt_bobyqa(int = 100, const double & = 1E-8);
+		base_ptr clone() const;
+};
+
+}}
 
 #endif
