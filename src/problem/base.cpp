@@ -522,7 +522,13 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 			++count2;
 		}
 	}
-	return (count1 > count2);
+	if (count1 > count2) {
+		return true;
+	} else if (count1 == count2) {
+		return std::accumulate(v_f1.begin(),v_f1.end(),0) < std::accumulate(v_f2.begin(),v_f2.end(),0);
+	} else {
+		return false;
+	}
 }
 
 /// Return human readable representation of the problem.
