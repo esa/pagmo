@@ -232,6 +232,17 @@ std::string population::human_readable() const
 	return oss.str();
 }
 
+// Update the champion with input individual, if better.
+void population::update_champion(const individual_type &ind)
+{
+	pagmo_assert(m_champion.x.size());
+	if (m_prob->compare_fc(ind.cur_f,ind.cur_c,m_champion.f,m_champion.c)) {
+		m_champion.x = ind.cur_x;
+		m_champion.f = ind.cur_f;
+		m_champion.c = ind.cur_c;
+	}
+}
+
 /// Set the decision vector of individual at position idx to x.
 /**
  * Will update best values of individual and champion if needed. Will fail if problem::base::verify_x() on x returns false.
@@ -261,12 +272,7 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	}
 	// If needed update the champion. Make sure with the assert that the champion exists. It
 	// should be guaranteed at this point.
-	pagmo_assert(m_champion.x.size());
-	if (m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_champion.f,m_champion.c)) {
-		m_champion.x = x;
-		m_champion.f = m_container[idx].cur_f;
-		m_champion.c = m_container[idx].cur_c;
-	}
+	update_champion(m_container[idx]);
 }
 
 /// Set the velocity vector of individual at position idx.

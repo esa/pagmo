@@ -31,6 +31,7 @@
 #include <cstddef>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -599,8 +600,21 @@ void archipelago::interrupt()
 {
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
-		it->interrupt();
+		try {
+			it->interrupt();
+		} catch (const std::runtime_error &) {}
 	}
+	pagmo_throw(std::runtime_error,"evolution interrupted");
+}
+
+island archipelago::get_island(int n) const
+{
+	join();
+	const size_type idx = boost::numeric_cast<size_type>(n);
+	if (idx >= m_container.size()) {
+		pagmo_throw(index_error,"invalid island index");
+	}
+	return m_container[idx];
 }
 
 // Synchronise the start of evolution in each island so that all threads are created and initialised

@@ -166,6 +166,7 @@ class __PAGMO_VISIBLE population
 		void rank_current(const const_iterator &, const const_iterator &);
 	private:
 		population();
+		void update_champion(const individual_type &);
 	private:
 		typedef std::vector<individual_type> container_type;
 		// Data members.
