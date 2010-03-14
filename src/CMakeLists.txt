@@ -24,6 +24,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosenbrock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/snopt_toyprob.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match_mo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
@@ -59,7 +61,10 @@ ENDIF(ENABLE_GSL)
 # Additional files for NLopt support.
 IF(ENABLE_NLOPT)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_nlopt.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_cobyla.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_bobyqa.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_sbplx.cpp
 	)
 ENDIF(ENABLE_NLOPT)
 

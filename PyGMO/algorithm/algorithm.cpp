@@ -158,7 +158,15 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// NLopt's COBYLA.
 	algorithm_wrapper<algorithm::nlopt_cobyla>("nlopt_cobyla","NLopt's COBYLA algorithm.")
-		.def(init<>());
+		.def(init<optional<int, const double &> >());
+
+	// NLopt's BOBYQA.
+	algorithm_wrapper<algorithm::nlopt_bobyqa>("nlopt_bobyqa","NLopt's BOBYQA algorithm.")
+		.def(init<optional<int, const double &> >());
+
+	// NLopt's Sbplx.
+	algorithm_wrapper<algorithm::nlopt_sbplx>("nlopt_sbplx","NLopt's Sbplx algorithm.")
+		.def(init<optional<int, const double &> >());
 
 	#endif
 

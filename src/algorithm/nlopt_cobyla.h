@@ -25,33 +25,17 @@
 #ifndef PAGMO_ALGORITHM_NLOPT_COBYLA_H
 #define PAGMO_ALGORITHM_NLOPT_COBYLA_H
 
-#include <nlopt.h>
-
 #include "../config.h"
-#include "../population.h"
-#include "../problem/base.h"
-#include "../types.h"
-#include "base.h"
+#include "base_nlopt.h"
 
 namespace pagmo { namespace algorithm {
 
-class __PAGMO_VISIBLE nlopt_cobyla: public base
+/// Wrapper for NLopt's COBYLA algorithm.
+class __PAGMO_VISIBLE nlopt_cobyla: public base_nlopt
 {
 	public:
-		nlopt_cobyla();
+		nlopt_cobyla(int = 100, const double & = 1E-8);
 		base_ptr clone() const;
-		void evolve(population &) const;
-	private:
-		struct nlopt_wrapper_data
-		{
-			problem::base const		*prob;
-			decision_vector			*x;
-			fitness_vector			*f;
-			constraint_vector		*c;
-			problem::base::c_size_type	c_comp;
-		};
-		static double objfun_wrapper(int, const double *, double *, void *);
-		static double constraints_wrapper(int, const double *, double *, void *);
 };
 
 }}

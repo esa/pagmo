@@ -139,6 +139,7 @@ class __PAGMO_VISIBLE archipelago
 		void interrupt();
 		std::string dump_migr_history() const;
 		void clear_migr_history();
+		island get_island(int) const;
 	private:
 		void pre_evolution(island &);
 		void post_evolution(island &);
