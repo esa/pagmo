@@ -16,7 +16,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
-	# Atomic builtins for GCC.
+	# ic builtins for GCC.
 	TRY_COMPILE(WORKING_ATOMIC_BUILTINS ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gcc_atomic_builtins_test.cpp COMPILE_DEFINITIONS ${CMAKE_CCXX_FLAGS})
 	IF(WORKING_ATOMIC_BUILTINS)
 		MESSAGE(STATUS "GCC is correctly setup to support atomic builtins.")

@@ -1092,7 +1092,7 @@ std::size_t objfun_calls()
 void base::set_pattern() {
 	//Full pattern: first row is the objectivefunction, then the equality const, then inequality const
 	int Dc = this->get_dimension() - this->get_i_dimension();
-	int Dconstraints = this->get_c_dimension() + this->get_ic_dimension();
+	int Dconstraints = this->get_c_dimension();
 	neG = (Dc) * (Dconstraints + 1);
 	iGfun.resize(neG);
 	jGvar.resize(neG);

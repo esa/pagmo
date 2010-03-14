@@ -128,19 +128,6 @@ void cs::evolve(population &pop) const
 				flag=true;
 				break; //accept
 			}
-
-			newx[i] = x[i] - newrange * (ub[i]-lb[i]);
-			//feasibility correction
-			if (newx[i] < lb [i]) newx[i]=lb[i];
-
-			prob.objfun(newf,newx);
-			if (newf < f) {  //accept
-				f = newf;
-				x = newx;
-				pop.set_x(bestidx,x); //new evaluation is possible here......
-				flag=true;
-				break;
-			}
 		}
 		if (!flag) {
 			newrange *= m_reduction_coeff;

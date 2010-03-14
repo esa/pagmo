@@ -26,6 +26,7 @@
 #include "../population.h"
 #include "../problem/base.h"
 #include "../types.h"
+#include <limits.h>
 #include "base.h"
 #include "snopt.h"
 #include "snopt_cpp_wrapper/snopt_PAGMO.h"
@@ -52,7 +53,6 @@ static int snopt_function_(integer    *Status, integer *n,    doublereal *x,
 	//1 - We retrieve the pointer to the base problem (PaGMO) we have 'hidden' in *cu
 	pagmo::problem::base *prob;
 	prob = (pagmo::problem::base*)cu;
-	int a = prob->get_dimension();
 
 	//2 - We retrieve the pointer to the allocated memory area containing the std::vector where
 	//to copy the snopt x[] array
@@ -61,13 +61,18 @@ static int snopt_function_(integer    *Status, integer *n,    doublereal *x,
 
 	//We finally assign to F[0] (the objective function) the value returned by the problem
 	pagmo::fitness_vector fit(1);
-	//try {
+	try {
 		prob->objfun(fit,*chromosome);
 		F[0] = fit[0];
-	//	}
-	//catch (value_error) {
-	//	*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties
-	//}
+		}
+	catch (value_error) {
+		*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties
+	}
+	//And to F[.] the constraint values (equality first)
+	std::vector<double> con(prob->get_c_dimension());
+	prob->compute_constraints(con, *chromosome);
+	for (int i=0;i<prob->get_c_dimension();++i) F[i+1] = con[i];
+
 	return 0;
 }
 
@@ -108,7 +113,8 @@ void snopt::evolve(population &pop) const
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
-
+	const std::vector<double>::size_type D_ineqc = prob.get_ic_dimension();
+	const std::vector<double>::size_type D_eqc = prob_c_dimension - D_ineqc;
 
 	//We perform some checks to determine wether the problem/population are suitable for DE
 	if ( prob_i_dimension != 0  ) {
@@ -117,10 +123,6 @@ void snopt::evolve(population &pop) const
 
 	if ( Dc == 0  ) {
 		pagmo_throw(value_error,"No continuous part....");
-	}
-
-	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and DE is not suitable to solve it");
 	}
 
 	if ( prob_f_dimension != 1 ) {
@@ -143,8 +145,8 @@ void snopt::evolve(population &pop) const
 	integer n     =  Dc;
 
 	// Box-constrained non-linear optimization
-	integer neF   =  1;
-	integer lenA  = 0;
+	integer neF   =  1 + prob_c_dimension;
+	integer lenA  = 1; //needs to be at least 1
 
 	//No linear part lenA = 0
 	integer *iAfun = new integer[lenA];
@@ -188,13 +190,21 @@ void snopt::evolve(population &pop) const
 		xlow[i]   = lb[i];
 		xupp[i]   = ub[i];
 		xstate[i] =    0;
-		x[i] = pop.get_individual(bestidx).cur_x[i];
+		x[i] = 1;//pop.get_individual(bestidx).cur_x[i];
 	}
 
-	Flow[0] = -1e20; //Flow[1] = -1e20; Flow[2] = -1e20;
-	Fupp[0] =  1e20;// Fupp[1] =   4.0; Fupp[2] =  5.0;
+	// Set the bounds for objective, equality and inequality constraints
+	Flow[0] = -1e20;
+	Fupp[0] = 1e20;
 	F[0] = pop.get_individual(bestidx).cur_f[0];
-
+	for (int i=0;i<D_eqc;++i) {
+		Flow[i+1] = 0;
+		Fupp[i+1] = 0;
+	}
+	for (int i=0;i<D_ineqc;++i) {
+		Flow[i+1+D_eqc] = -1e20;
+		Fupp[i+1+D_eqc] = 0;
+	}
 
 	// Load the data for SnoptProblem ...
 	char *tmp = "Toy0.out";

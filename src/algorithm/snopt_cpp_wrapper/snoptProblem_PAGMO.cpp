@@ -20,7 +20,7 @@ snoptProblem_PAGMO::snoptProblem_PAGMO(const pagmo::problem::base& problema, pag
   fortranStyleAG  = 0;
 
   //  iSpecs =  4;
-  //  iSumm  = 6; //When uncommented screen output is activated
+  iSumm  = 6; //When uncommented screen output is activated
   //  iPrint = 15;
 
   // Create temporary memory for the call to sninit_.
