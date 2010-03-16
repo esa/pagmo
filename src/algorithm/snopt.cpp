@@ -216,13 +216,16 @@ void snopt::evolve(population &pop) const
 	}
 
 	// Set the bounds for objective, equality and inequality constraints
+	// 1 - Objective function
 	Flow[0] = -std::numeric_limits<double>::max();
 	Fupp[0] = std::numeric_limits<double>::max();
 	F[0] = pop.get_individual(bestidx).cur_f[0];
+	// 2 - Equality constraints
 	for (int i=0;i<D_eqc;++i) {
 		Flow[i+1] = 0;
 		Fupp[i+1] = 0;
 	}
+	// 3 - Inequality constraints
 	for (int i=0;i<D_ineqc;++i) {
 		Flow[i+1+D_eqc] = -std::numeric_limits<double>::max();
 		Fupp[i+1+D_eqc] = 0;

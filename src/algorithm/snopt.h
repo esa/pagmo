@@ -42,8 +42,9 @@ namespace pagmo { namespace algorithm {
  * otherwise an SQP solver. We provide in PaGMO the wrappers around the libraries that
  * the user needs to have installed and licenced for in his computer.
  *
- * In order to work, PaGMO needs to find in the system the libraries: snopt, snprint, blas, f2c, m and gfortran
- * (in case the snopt libraries were compiled using gfortran)
+ * In order to interface to SNOPT succesfully, PaGMO needs to find in the system the libraries:
+ * snopt, snprint, blas, f2c, m and gfortran (in case the snopt libraries were compiled using gfortran)
+ *
  *
  * From the SNOPT User-Manual:
  *
