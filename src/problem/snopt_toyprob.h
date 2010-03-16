@@ -59,6 +59,7 @@ class __PAGMO_VISIBLE snopt_toyprob: public base
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		void set_sparsity(int &, std::vector<int>&, std::vector<int>&) const;
 };
 
 }}

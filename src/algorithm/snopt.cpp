@@ -170,13 +170,18 @@ void snopt::evolve(population &pop) const
 	integer *jAvar = new integer[lenA];
 	doublereal *A  = new doublereal[lenA];
 
-	//Pattern structure as defined by the problem
-	integer lenG   = prob.get_neG();
+
+	//Here we evaluate the sparsity pattern as defined by the problem
+	//If the problem is not re-implementing the set_sparsity function the default
+	//implementation is that of a full pattern
+	int lenG; std::vector<int> iGfun_vect, jGvar_vect;
+	prob.set_sparsity(lenG,iGfun_vect,jGvar_vect);
 	integer *iGfun = new integer[lenG];
 	integer *jGvar = new integer[lenG];
+
 	for (int i=0;i<lenG;i++){
-		iGfun[i] = prob.get_iGfun()[i];
-		jGvar[i] = prob.get_jGvar()[i];
+		iGfun[i] = iGfun_vect[i];
+		jGvar[i] = jGvar_vect[i];
 	}
 
 	//Decision vector memory allocation
@@ -224,6 +229,8 @@ void snopt::evolve(population &pop) const
 	}
 
 	// Load the data for SnoptProblem ...
+	SnoptProblem.setNeA         ( 0 );
+	SnoptProblem.setNeG         ( lenG );
 	SnoptProblem.setProblemSize( n, neF );
 	SnoptProblem.setObjective  ( ObjRow, ObjAdd );
 	SnoptProblem.setA          ( lenA, iAfun, jAvar, A );
@@ -237,16 +244,15 @@ void snopt::evolve(population &pop) const
 
 	//We set some parameters
 	if (m_screen_out) SnoptProblem.setIntParameter("Summary file",6);
-	if (m_file_out) SnoptProblem.setPrintFile  ( name.c_str() );
-	SnoptProblem.setIntParameter( "Derivative option", 0 );
-	SnoptProblem.setIntParameter( "Major iterations limit", m_major);
+	if (m_file_out)   SnoptProblem.setPrintFile   ( name.c_str() );
+	SnoptProblem.setIntParameter ( "Derivative option", 0 );
+	SnoptProblem.setIntParameter ( "Major iterations limit", m_major);
 	SnoptProblem.setRealParameter( "Major feasibility tolerance", m_feas);
 	SnoptProblem.setRealParameter( "Major optimality tolerance", m_opt);
 
-	// snopta will compute the Jacobian by finite-differences.
-	// The user has the option of calling  snJac  to define the
-	// coordinate arrays (iAfun,jAvar,A) and (iGfun, jGvar).
-	SnoptProblem.computeJac    ();
+	// If this line is uncommented it will be snopt to estimate the pattern structure of the problem
+	// if the problem has a linear part this is recommended as SNOPT improves its performances.
+	//SnoptProblem.computeJac();
 
 	integer Cold = 0, Basis = 1, Warm = 2;
 

@@ -84,8 +84,6 @@ base::base(int n, int ni, int nf, int nc, int nic):
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
-	// Set pattern
-	set_pattern();
 }
 
 /// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
@@ -127,8 +125,6 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
-	// Set pattern
-	set_pattern();
 }
 
 /// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
@@ -162,8 +158,6 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
 	normalise_bounds();
-	// Set pattern
-	set_pattern();
 }
 
 /// Trivial destructor.
@@ -1088,17 +1082,67 @@ std::size_t objfun_calls()
 	return (base::m_objfun_counter).get_value();
 }
 
-//Default implementation of the sparsity pattern (no sparsity)
-void base::set_pattern() {
-	//Full pattern: first row is the objectivefunction, then the equality const, then inequality const
-	int Dc = this->get_dimension() - this->get_i_dimension();
-	int Dconstraints = this->get_c_dimension();
-	neG = (Dc) * (Dconstraints + 1);
-	iGfun.resize(neG);
-	jGvar.resize(neG);
-	for (int i=0;i<neG;i++){
+/// Sets the sparsity pattern of the gradient (this default implementation sets the pattern to fully dense)
+/**
+ * Some solvers can make use of the sparsity of the gradient matrix \f$\mathbf G\f$. This is a matrix defined as
+ * \f$ \mathbf G_{ij} = \frac{\partial F_i}{\partial x_j}\f$ where \f$\mathbf F = [fit_1,\dots,fit_{nfit}, ceq_1,\dots,ceq_{neq}, cineq_1,\dots, cineq_{nineq}]\f$
+ * and \f$\mathbf x\f$ is the decision vector. Such a pattern is there to define the non zero entries of
+ * \f$\mathbf G\f$ so that when evaluating numerical derivatives these are the only entries considered.
+ *
+ * If the problem is known to be sparse this function needs to be reimplemented in the problem as to
+ * have a non fully dense pattern.
+ *
+ * The reimplementation may call estimate_pattern() to numerically estimates
+ * the sparsity pattern (but is not guaranteed to be globally correct)
+ */
+void base::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const{
+	//Full pattern
+	int Dc = m_lb.size() - m_i_dimension;
+	lenG = Dc * (m_c_dimension + m_f_dimension);
+	iGfun.resize(lenG);
+	jGvar.resize(lenG);
+	for (int i=0;i<lenG;i++){
 		iGfun[i] = i / Dc; //integer division
 		jGvar[i] = i % Dc;
+	}
+}
+
+/// Tries to evaluate the sparsity pattern of the problem
+/**
+ * An alternative to reimplementing the base::set_pattern() method, one could let pagmo estimate
+ * the sparsity structure of a given problem. The numerical procedure starts from a point \f$ \mathbf \x_0\f$
+ * provided by the user and perturbs \f$x_j$ locally as to detect a change in \f$F_i\f$ in which case sets
+ * (i,j) as a non zero element.
+ * You should use this procedure with caution, it is always better to manually code the sparsity pattern
+ * in set_pattern(). The procedure costs function evaluations and is not guaranteed to give
+ * a correct result if not locally around the provided point. Some constraint may be independent of \f$x_j\f$
+ * near \f$x_{0_j}\f$ but not globally, for such a discontinuous problem estimate_pattern would provide a false gradient information
+ * The function intended use is in the reimplementation of set_pattern, thuse its protected attribute
+ */
+
+
+void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const {
+	//1 - We check that the user is providing a decision vector that is of the required length
+	if (!verify_x(x0)) {
+		pagmo_throw(value_error,"Cannot estimate pattern from this decision vector: not compatible with problem");
+	}
+	int Dc = m_lb.size() - m_i_dimension;
+	fitness_vector f0(m_f_dimension),f_new(m_f_dimension); this->objfun(f0,x0);
+	constraint_vector c0(m_c_dimension),c_new(m_c_dimension); this->compute_constraints(c0,x0);
+	decision_vector x_new = x0;
+	iGfun.resize(0);jGvar.resize(0); lenG=0;
+
+	for (int j=0;j<Dc;++j){
+		x_new[j] = x0[j] + x0[j]*1e-4;
+		this->objfun(f_new,x_new);
+		this->compute_constraints(c_new,x_new);
+		for (int i=0;i<m_f_dimension;++i){
+			if (f_new[i]!=f0[i]) {iGfun.push_back(i); jGvar.push_back(j); lenG++;}
+		}
+		for (int i=0;i<m_c_dimension;++i){
+			if (c_new[i]!=c0[i]) {iGfun.push_back(i+m_f_dimension); jGvar.push_back(j); lenG++;}
+		}
+		x_new[j] = x0[j];
 	}
 }
 

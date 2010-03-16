@@ -38,10 +38,10 @@ using namespace pagmo;
 int main()
 {
 	algorithm::snopt snopt_instance(100);
-	snopt_instance.screen_output(false);
+	snopt_instance.screen_output(true);
 	snopt_instance.file_output(false);
 
-	for (int i=0; i< 100; ++i){
+	for (int i=0; i< 1; ++i){
 		island isl = island(problem::snopt_toyprob(),snopt_instance,1);
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;

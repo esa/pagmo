@@ -58,4 +58,14 @@ void snopt_toyprob::compute_constraints_impl(constraint_vector &c, const decisio
 	c[1] = (x[0] - 2) * (x[0] - 2) + x[1] * x[1] - 5;
 }
 
+/// Implementation of the sparsity structure
+void snopt_toyprob::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const
+{
+	//Initial point
+	decision_vector x0(2);
+	x0[0] = 1; x0[1] = 1;
+	//Numerical procedure
+	this->estimate_sparsity(x0, lenG, iGfun, jGvar);
+}
+
 } }
