@@ -74,8 +74,8 @@ namespace std
 	inline ostream &operator<<(ostream &os, const vector<int> &v)
 	{
 		os << '[';
-		for (std::vector<double>::size_type i = 0; i < v.size(); ++i) {
-			os << boost::lexical_cast<std::string>(v[i]);
+		for (std::vector<int>::size_type i = 0; i < v.size(); ++i) {
+			os << v[i];
 			if (i != v.size() - 1) {
 				os << ", ";
 			}
