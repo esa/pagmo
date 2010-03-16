@@ -37,8 +37,12 @@ using namespace pagmo;
 
 int main()
 {
-	island isl = island(problem::rosenbrock(20),algorithm::cs(100000,1e-12),20);
-	for (int i=0; i< 50; ++i){
+	algorithm::snopt snopt_instance(100);
+	snopt_instance.screen_output(false);
+	snopt_instance.file_output(false);
+
+	for (int i=0; i< 100; ++i){
+		island isl = island(problem::snopt_toyprob(),snopt_instance,1);
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
 	}

@@ -994,9 +994,9 @@ bool base::verify_x(const decision_vector &x) const
 		return false;
 	}
 	for (size_type i = 0; i < get_dimension(); ++i) {
-		if (x[i] < m_lb[i] || x[i] > m_ub[i]) {
-			return false;
-		}
+		//if (x[i] < m_lb[i] || x[i] > m_ub[i]) {
+		//	return false;
+		//}
 		// Check that, if this is an integer component, it is really an integer.
 		if (i >= (get_dimension() - m_i_dimension) && double_to_int::convert(x[i]) != x[i]) {
 			return false;
