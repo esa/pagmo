@@ -19,6 +19,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_fon.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_sch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/paraboloid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosenbrock.cpp

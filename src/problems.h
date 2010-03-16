@@ -32,6 +32,8 @@
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
 #include "problem/knapsack.h"
+#include "problem/nsga_ii_fon.h"
+#include "problem/nsga_ii_sch.h"
 #include "problem/paraboloid.h"
 #include "problem/rastrigin.h"
 #include "problem/rosenbrock.h"
