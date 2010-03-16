@@ -4,13 +4,14 @@
 #include <assert.h>
 #include <iostream>
 #include "../../problem/base.h"
+#include "../../algorithm/snopt.h"
 #include "snopt_PAGMO.h"
 #include "snfilewrapper_PAGMO.h"
 #include "snoptProblem_PAGMO.h"
 
 using namespace std;
 
-snoptProblem_PAGMO::snoptProblem_PAGMO(const pagmo::problem::base& problema, pagmo::decision_vector* di_comodo):
+snoptProblem_PAGMO::snoptProblem_PAGMO(const pagmo::problem::base& problema, pagmo::algorithm::snopt::preallocated_memory *di_comodo):
   iSpecs(0), iSumm(0), iPrint(0), initCalled(0),cu((char *)&problema),lencu(500),ru((doublereal *)di_comodo), lenru(500)
 {
   init2zero();
@@ -20,7 +21,7 @@ snoptProblem_PAGMO::snoptProblem_PAGMO(const pagmo::problem::base& problema, pag
   fortranStyleAG  = 0;
 
   //  iSpecs =  4;
-  //  iSumm  = 6; //When uncommented screen output is activated
+  //  if (screen) iSumm  = 6;
   //  iPrint = 15;
 
   // Create temporary memory for the call to sninit_.
@@ -386,7 +387,7 @@ void snoptProblem_PAGMO::solve( integer starttype )
   this->decrement();  //Convert array entries to C style
 }
 
-void snoptProblem_PAGMO::setPrintFile(  char aprintname[] )
+void snoptProblem_PAGMO::setPrintFile( const char aprintname[] )
 {
     assert( initCalled = 1 );
     if (iPrint != 0 ) {
@@ -493,7 +494,7 @@ void snoptProblem_PAGMO::setFNames( char *aFnames, integer anFnames )
   nFnames = anFnames;
 }
 
-void snoptProblem_PAGMO::setProbName( char *aProb )
+void snoptProblem_PAGMO::setProbName( const char *aProb )
 {
   //checkSet = checkSet+1;
   sprintf(Prob, "%8s", aProb );
