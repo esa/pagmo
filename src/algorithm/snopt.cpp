@@ -175,13 +175,27 @@ void snopt::evolve(population &pop) const
 	//If the problem is not re-implementing the set_sparsity function the default
 	//implementation is that of a full pattern
 	int lenG; std::vector<int> iGfun_vect, jGvar_vect;
-	prob.set_sparsity(lenG,iGfun_vect,jGvar_vect);
+	bool use_snopt_magic = false;
+	try
+	{
+		prob.set_sparsity(lenG,iGfun_vect,jGvar_vect);
+	} //the user did implement the sparsity in the problem
+	catch (not_implemented_error)
+	{
+		use_snopt_magic = true;
+		lenG=Dc * (1 + prob_c_dimension);
+	} //the user did not implement the sparsity in the problem
+
 	integer *iGfun = new integer[lenG];
 	integer *jGvar = new integer[lenG];
 
-	for (int i=0;i<lenG;i++){
-		iGfun[i] = iGfun_vect[i];
-		jGvar[i] = jGvar_vect[i];
+	if (!use_snopt_magic)
+	{
+		for (int i=0;i<lenG;i++)
+		{
+			iGfun[i] = iGfun_vect[i];
+			jGvar[i] = jGvar_vect[i];
+		}
 	}
 
 	//Decision vector memory allocation
@@ -253,9 +267,8 @@ void snopt::evolve(population &pop) const
 	SnoptProblem.setRealParameter( "Major feasibility tolerance", m_feas);
 	SnoptProblem.setRealParameter( "Major optimality tolerance", m_opt);
 
-	// If this line is uncommented it will be snopt to estimate the pattern structure of the problem
-	// if the problem has a linear part this is recommended as SNOPT improves its performances.
-	//SnoptProblem.computeJac();
+	//If the user did not implement the sparsity structure of the problem ...
+	if (use_snopt_magic) SnoptProblem.computeJac();
 
 	integer Cold = 0, Basis = 1, Warm = 2;
 

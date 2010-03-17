@@ -1095,22 +1095,14 @@ std::size_t objfun_calls()
  * and \f$\mathbf x\f$ is the decision vector. Such a pattern is there to define the non zero entries of
  * \f$\mathbf G\f$ so that when evaluating numerical derivatives these are the only entries considered.
  *
- * If the problem is known to be sparse this function needs to be reimplemented in the problem as to
- * have a non fully dense pattern.
+ * This function needs to be reimplemented in the problem otherwise an exeption will be thrown
+ * that can either halt a solver or be managed triggering solver specific actions.
  *
  * The reimplementation may call estimate_pattern() to numerically estimates
  * the sparsity pattern (but is not guaranteed to be globally correct)
  */
 void base::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const{
-	//Full pattern
-	int Dc = m_lb.size() - m_i_dimension;
-	lenG = Dc * (m_c_dimension + m_f_dimension);
-	iGfun.resize(lenG);
-	jGvar.resize(lenG);
-	for (int i=0;i<lenG;i++){
-		iGfun[i] = i / Dc; //integer division
-		jGvar[i] = i % Dc;
-	}
+	pagmo_throw(not_implemented_error,"Sparsity is not implemented for this problem!!");
 }
 
 /// Tries to evaluate the sparsity pattern of the problem
@@ -1128,24 +1120,29 @@ void base::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jG
 
 
 void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const {
-	//1 - We check that the user is providing a decision vector that is of the required length
+	// We check that the user is providing a decision vector that is of the required length
 	if (!verify_x(x0)) {
 		pagmo_throw(value_error,"Cannot estimate pattern from this decision vector: not compatible with problem");
 	}
-	int Dc = m_lb.size() - m_i_dimension;
-	fitness_vector f0(m_f_dimension),f_new(m_f_dimension); this->objfun(f0,x0);
-	constraint_vector c0(m_c_dimension),c_new(m_c_dimension); this->compute_constraints(c0,x0);
+	size_type Dc = m_lb.size() - m_i_dimension;
+	fitness_vector f0(m_f_dimension),f_new(m_f_dimension);
+	objfun(f0,x0);
+	constraint_vector c0(m_c_dimension),c_new(m_c_dimension);
+	compute_constraints(c0,x0);
 	decision_vector x_new = x0;
 	iGfun.resize(0);jGvar.resize(0); lenG=0;
 
-	for (int j=0;j<Dc;++j){
+	for (size_type j=0;j<Dc;++j)
+	{
 		x_new[j] = x0[j] + x0[j]*1e-4;
-		this->objfun(f_new,x_new);
-		this->compute_constraints(c_new,x_new);
-		for (int i=0;i<m_f_dimension;++i){
+		objfun(f_new,x_new);
+		compute_constraints(c_new,x_new);
+		for (size_type i=0;i<m_f_dimension;++i)
+		{
 			if (f_new[i]!=f0[i]) {iGfun.push_back(i); jGvar.push_back(j); lenG++;}
 		}
-		for (int i=0;i<m_c_dimension;++i){
+		for (size_type i=0;i<m_c_dimension;++i)
+		{
 			if (c_new[i]!=c0[i]) {iGfun.push_back(i+m_f_dimension); jGvar.push_back(j); lenG++;}
 		}
 		x_new[j] = x0[j];
