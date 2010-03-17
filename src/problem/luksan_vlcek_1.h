@@ -1,3 +1,5 @@
+
+
 /*****************************************************************************
  *   Copyright (C) 2004-2009 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
@@ -22,25 +24,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef LUKSAN_VLCEK_1_H
+#define LUKSAN_VLCEK_1_H
 
-// Header including all problems implemented in PaGMO.
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/nsga_ii_fon.h"
-#include "problem/nsga_ii_sch.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/string_match_mo.h"
-#include "problem/luksan_vlcek_1.h"
+namespace pagmo { namespace problem {
 
-#endif
+/// Test problem from the Luksan and Vlcek book.
+/**
+ * Implementation of the Example 5.1 in "Sparse and Parially Separable
+ * Test Problems for Unconstrained and Equality Constrained
+ * Optimization" by Luksan and Vlcek.
+ *
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+
+class __PAGMO_VISIBLE luksan_vlcek_1: public base
+{
+	public:
+		luksan_vlcek_1(size_t dim, double clb = 0, double cub = 0);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		void set_sparsity(int &, std::vector<int>&, std::vector<int>&) const;
+	private:
+		std::vector<double>  m_clb, m_cub;
+};
+
+}} //namespaces
+
+
+#endif // LUKSAN_VLCEK_1_H

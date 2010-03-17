@@ -17,6 +17,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_fon.cpp

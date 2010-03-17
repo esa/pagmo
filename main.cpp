@@ -42,7 +42,7 @@ int main()
 	snopt_instance.file_output(false);
 
 	for (int i=0; i< 1; ++i){
-		island isl = island(problem::rosenbrock(200),snopt_instance,1);
+		island isl = island(problem::luksan_vlcek_1(20),snopt_instance,1);
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
 	}
