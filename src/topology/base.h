@@ -49,6 +49,10 @@ class base;
 /// Alias for shared pointer to base topology.
 typedef boost::shared_ptr<base> base_ptr;
 
+// TODO: ditch island property, ditch integer interface in favour of vertices_size_type,
+// ditch custom topology since we can define it quite easily anyway.
+// Also remove the remove_vertex, make topology so that we cannot ever remove a vertex, since
+// it does not make much sense?
 /// Base topology class.
 /**
  * This class represents a topology connecting island objects in an archipelago

@@ -22,28 +22,36 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../types.h"
+#include "base.h"
+#include "branin.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo { namespace problem {
 
 /// Constructor.
-/**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
- */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+branin::branin():base(2,0,1,0,0)
 {
-	return base_ptr(new gsl_bfgs2(*this));
+	const double lb[] = {-5,0};
+	const double ub[] = {10,15};
+	set_bounds(lb,ub);
 }
 
-}}
+/// Clone method.
+base_ptr branin::clone() const
+{
+	return base_ptr(new branin(*this));
+}
+
+/// Implementation of the objective function.
+void branin::objfun_impl(fitness_vector &fv, const decision_vector &x) const
+{
+	const double x1 = x[0], x2 = x[1];
+	const double a = 1, b = 5.1 / (4 * boost::math::constants::pi<double>() * boost::math::constants::pi<double>()),
+		c = 5 / boost::math::constants::pi<double>(), d = 6, e = 10, f = 1 / (8 * boost::math::constants::pi<double>());
+	fv[0] = a * (x2 - b * x1 * x1 + c * x1 - d) * (x2 - b * x1 * x1 + c * x1 - d) + e * (1 - f) * std::cos(x1) + e;
+}
+
+} }

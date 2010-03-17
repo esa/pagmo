@@ -26,6 +26,7 @@
 #include "../population.h"
 #include "../problem/base.h"
 #include "../types.h"
+#include <limits.h>
 #include "base.h"
 #include "snopt.h"
 #include "snopt_cpp_wrapper/snopt_PAGMO.h"
@@ -52,28 +53,45 @@ static int snopt_function_(integer    *Status, integer *n,    doublereal *x,
 	//1 - We retrieve the pointer to the base problem (PaGMO) we have 'hidden' in *cu
 	pagmo::problem::base *prob;
 	prob = (pagmo::problem::base*)cu;
-	int a = prob->get_dimension();
 
 	//2 - We retrieve the pointer to the allocated memory area containing the std::vector where
 	//to copy the snopt x[] array
-	pagmo::decision_vector* chromosome = (pagmo::decision_vector*)ru;
-	for (size_t i = 0;i < ( prob->get_dimension() - prob->get_i_dimension() );i++) (*chromosome)[i] = x[i];
+	pagmo::algorithm::snopt::preallocated_memory* preallocated = (pagmo::algorithm::snopt::preallocated_memory*)ru;
+	for (size_t i = 0;i < ( prob->get_dimension() - prob->get_i_dimension() );i++) (preallocated->x)[i] = x[i];
 
-	//We finally assign to F[0] (the objective function) the value returned by the problem
-	pagmo::fitness_vector fit(1);
-	//try {
-		prob->objfun(fit,*chromosome);
-		F[0] = fit[0];
-	//	}
-	//catch (value_error) {
-	//	*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties
-	//}
+	//1 - to F[0] (the objective function) the value returned by the problem
+	try {
+		prob->objfun(preallocated->f,preallocated->x);
+		F[0] = preallocated->f[0];
+		}
+	catch (value_error) {
+		*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties
+	}
+	//2 - and to F[.] the constraint values (equalities first)
+	try{
+		prob->compute_constraints(preallocated->c, preallocated->x);
+		for (int i=0;i<prob->get_c_dimension();++i) F[i+1] = preallocated->c[i];
+	}
+	catch (value_error) {
+		*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties
+	}
+
 	return 0;
 }
 
 namespace pagmo { namespace algorithm {
-/// Constructor
-snopt::snopt(const int major,const double feas, const double opt) : m_major(major),m_feas(feas),m_opt(opt)
+
+/// Constructor.
+/**
+ * Allows to specify some of the parameters of the SNOPT solver.
+ *
+ * @param[in] major Number of major iterations (refer to SNOPT manual).
+ * @param[in] feas Feasibility tolerance (refer to SNOPT manual).
+ * @param[in] opt Optimality tolerance (refer to SNOPT manual).
+ * @throws value_error if major is not positive, and feas,opt are not in /f$ \in ]0,1[\f$
+ */
+
+snopt::snopt(const int major,const double feas, const double opt) : m_major(major),m_feas(feas),m_opt(opt),m_screen_out(false)
 {
 	if (major < 0) {
 		pagmo_throw(value_error,"number of major iterations cannot be negative");
@@ -94,7 +112,7 @@ base_ptr snopt::clone() const
 
 /// Evolve implementation.
 /**
- * Run SNOPT for the number of iterations specified in the constructors.
+ * Run SNOPT with the parameters specified in the constructor
  * At the end velocity is updated
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
@@ -108,7 +126,9 @@ void snopt::evolve(population &pop) const
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
-
+	const std::vector<double>::size_type D_ineqc = prob.get_ic_dimension();
+	const std::vector<double>::size_type D_eqc = prob_c_dimension - D_ineqc;
+	const std::string name = prob.get_name();
 
 	//We perform some checks to determine wether the problem/population are suitable for DE
 	if ( prob_i_dimension != 0  ) {
@@ -117,10 +137,6 @@ void snopt::evolve(population &pop) const
 
 	if ( Dc == 0  ) {
 		pagmo_throw(value_error,"No continuous part....");
-	}
-
-	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and DE is not suitable to solve it");
 	}
 
 	if ( prob_f_dimension != 1 ) {
@@ -133,7 +149,10 @@ void snopt::evolve(population &pop) const
 	}
 
 	// We allocate memory for the decision vector that will be used in the snopt_function_
-	di_comodo.resize(Dc);
+	di_comodo.x.resize(Dc);
+	di_comodo.c.resize(prob_c_dimension);
+	di_comodo.f.resize(prob_f_dimension);
+
 
 	// We construct a SnoptProblem_PAGMO passing the pointers to the problem and the allocated
 	//memory area for the di_comodo vector
@@ -143,21 +162,26 @@ void snopt::evolve(population &pop) const
 	integer n     =  Dc;
 
 	// Box-constrained non-linear optimization
-	integer neF   =  1;
-	integer lenA  = 0;
+	integer neF   =  1 + prob_c_dimension;
+	integer lenA  = 1; //needs to be at least 1
 
-	//No linear part lenA = 0
+	//No linear part lenA = 1
 	integer *iAfun = new integer[lenA];
 	integer *jAvar = new integer[lenA];
 	doublereal *A  = new doublereal[lenA];
 
-	//Pattern structure as defined by the problem
-	integer lenG   = prob.get_neG();
+
+	//Here we evaluate the sparsity pattern as defined by the problem
+	//If the problem is not re-implementing the set_sparsity function the default
+	//implementation is that of a full pattern
+	int lenG; std::vector<int> iGfun_vect, jGvar_vect;
+	prob.set_sparsity(lenG,iGfun_vect,jGvar_vect);
 	integer *iGfun = new integer[lenG];
 	integer *jGvar = new integer[lenG];
+
 	for (int i=0;i<lenG;i++){
-		iGfun[i] = prob.get_iGfun()[i];
-		jGvar[i] = prob.get_jGvar()[i];
+		iGfun[i] = iGfun_vect[i];
+		jGvar[i] = jGvar_vect[i];
 	}
 
 	//Decision vector memory allocation
@@ -191,14 +215,25 @@ void snopt::evolve(population &pop) const
 		x[i] = pop.get_individual(bestidx).cur_x[i];
 	}
 
-	Flow[0] = -1e20; //Flow[1] = -1e20; Flow[2] = -1e20;
-	Fupp[0] =  1e20;// Fupp[1] =   4.0; Fupp[2] =  5.0;
+	// Set the bounds for objective, equality and inequality constraints
+	// 1 - Objective function
+	Flow[0] = -std::numeric_limits<double>::max();
+	Fupp[0] = std::numeric_limits<double>::max();
 	F[0] = pop.get_individual(bestidx).cur_f[0];
-
+	// 2 - Equality constraints
+	for (int i=0;i<D_eqc;++i) {
+		Flow[i+1] = 0;
+		Fupp[i+1] = 0;
+	}
+	// 3 - Inequality constraints
+	for (int i=0;i<D_ineqc;++i) {
+		Flow[i+1+D_eqc] = -std::numeric_limits<double>::max();
+		Fupp[i+1+D_eqc] = 0;
+	}
 
 	// Load the data for SnoptProblem ...
-	char *tmp = "Toy0.out";
-	SnoptProblem.setPrintFile  ( tmp );
+	SnoptProblem.setNeA         ( 0 );
+	SnoptProblem.setNeG         ( lenG );
 	SnoptProblem.setProblemSize( n, neF );
 	SnoptProblem.setObjective  ( ObjRow, ObjAdd );
 	SnoptProblem.setA          ( lenA, iAfun, jAvar, A );
@@ -207,17 +242,20 @@ void snopt::evolve(population &pop) const
 	SnoptProblem.setF          ( F, Flow, Fupp, Fmul, Fstate );
 	SnoptProblem.setXNames     ( xnames, nxnames );
 	SnoptProblem.setFNames     ( Fnames, nFnames );
-	SnoptProblem.setProbName   ( "Toy0" );
+	SnoptProblem.setProbName   ( name.substr(17,8).c_str() ); //This is limited to be 8 characters!!!
 	SnoptProblem.setUserFun    ( snopt_function_ );
 
-	// snopta will compute the Jacobian by finite-differences.
-	// The user has the option of calling  snJac  to define the
-	// coordinate arrays (iAfun,jAvar,A) and (iGfun, jGvar).
-	SnoptProblem.computeJac    ();
-	SnoptProblem.setIntParameter( "Derivative option", 0 );
-	SnoptProblem.setIntParameter( "Major iterations limit", m_major);
+	//We set some parameters
+	if (m_screen_out) SnoptProblem.setIntParameter("Summary file",6);
+	if (m_file_out)   SnoptProblem.setPrintFile   ( name.c_str() );
+	SnoptProblem.setIntParameter ( "Derivative option", 0 );
+	SnoptProblem.setIntParameter ( "Major iterations limit", m_major);
 	SnoptProblem.setRealParameter( "Major feasibility tolerance", m_feas);
 	SnoptProblem.setRealParameter( "Major optimality tolerance", m_opt);
+
+	// If this line is uncommented it will be snopt to estimate the pattern structure of the problem
+	// if the problem has a linear part this is recommended as SNOPT improves its performances.
+	//SnoptProblem.computeJac();
 
 	integer Cold = 0, Basis = 1, Warm = 2;
 
@@ -225,11 +263,11 @@ void snopt::evolve(population &pop) const
 	SnoptProblem.solve( Cold );
 
 	//Save the final point
-	for (integer i=0;i<n;i++) di_comodo[i] = x[i];
-	decision_vector newx = di_comodo;
-	std::transform(di_comodo.begin(), di_comodo.end(), pop.get_individual(bestidx).cur_x.begin(), di_comodo.begin(),std::minus<double>());
+	for (integer i=0;i<n;i++) di_comodo.x[i] = x[i];
+	decision_vector newx = di_comodo.x;
+	std::transform(di_comodo.x.begin(), di_comodo.x.end(), pop.get_individual(bestidx).cur_x.begin(), di_comodo.x.begin(),std::minus<double>());
 	pop.set_x(bestidx,newx);
-	pop.set_v(bestidx,di_comodo);
+	pop.set_v(bestidx,di_comodo.x);
 
 	//Clean up memory allocated to call the snoptA routine
 	delete []iAfun;  delete []jAvar;  delete []A;
@@ -244,6 +282,9 @@ void snopt::evolve(population &pop) const
 	delete []xnames; delete []Fnames;
 
 }
+
+void snopt::screen_output(const bool p) {m_screen_out = p;}
+void snopt::file_output(const bool p) {m_file_out = p;}
 
 std::string snopt::human_readable_extra() const
 {

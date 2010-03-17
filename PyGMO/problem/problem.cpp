@@ -227,6 +227,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::himmelblau>("himmelblau","Himmelblau's function.")
 		.def(init<>());
 
+	// SNOPT toy problem.
+	problem_wrapper<problem::snopt_toyprob>("snopt_toyprob","SNOPT toy problem.")
+		.def(init<>());
+
+	// Branin's rcos funciotn.
+	problem_wrapper<problem::branin>("branin","Branin's rcos function.")
+		.def(init<>());
+
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");
 	def("reset_objfun_calls",&problem::reset_objfun_calls,"Reset the total number of calls to the objective function.");

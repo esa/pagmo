@@ -16,7 +16,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
-	# Atomic builtins for GCC.
+	# ic builtins for GCC.
 	TRY_COMPILE(WORKING_ATOMIC_BUILTINS ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gcc_atomic_builtins_test.cpp COMPILE_DEFINITIONS ${CMAKE_CCXX_FLAGS})
 	IF(WORKING_ATOMIC_BUILTINS)
 		MESSAGE(STATUS "GCC is correctly setup to support atomic builtins.")
@@ -55,6 +55,12 @@ OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimzers." OFF)
 
+# Build Option: algorithms from the NLopt library.
+OPTION(ENABLE_NLOPT "Enable support for NLopt algorithms." OFF)
+
+# Build Option: SNOPT optimiser
+OPTION(ENABLE_SNOPT "Enable support for SNOPT minimzer." OFF)
+
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
 	FIND_LIBRARY(GSL_GSL_LIBRARY NAMES gsl)
@@ -68,8 +74,18 @@ IF(ENABLE_GSL)
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_GSL)
 ENDIF(ENABLE_GSL)
 
-# Build Option: SNOPT optimiser
-OPTION(ENABLE_SNOPT "Enable support for SNOPT minimzer." OFF)
+# If NLopt support is requested, look for the library.
+IF(ENABLE_NLOPT)
+	FIND_LIBRARY(NLOPT_LIBRARY NAMES nlopt_cxx)
+	FIND_PATH(NLOPT_INCLUDE_DIR NAMES nlopt.h)
+	IF(NOT NLOPT_LIBRARY OR NOT NLOPT_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "NLopt support was requested, but the library could not be located. Please make sure that NLopt was compiled with C++ support (the library will be called 'nlopt_cxx')")
+	ENDIF(NOT NLOPT_LIBRARY OR NOT NLOPT_INCLUDE_DIR)
+	MESSAGE(STATUS "NLopt library: ${NLOPT_LIBRARY}")
+	MESSAGE(STATUS "NLopt include dir: ${NLOPT_INCLUDE_DIR}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${NLOPT_LIBRARY})
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_NLOPT)
+ENDIF(ENABLE_NLOPT)
 
 # If SNOPT support is requested, look for the libraries.
 IF(ENABLE_SNOPT)

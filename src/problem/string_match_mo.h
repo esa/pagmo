@@ -22,28 +22,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
+#ifndef PAGMO_PROBLEM_STRING_MATCH_MO_H
+#define PAGMO_PROBLEM_STRING_MATCH_MO_H
+
 #include <string>
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo { namespace problem {
 
-/// Constructor.
-/**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
- */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+class __PAGMO_VISIBLE string_match_mo: public base
 {
-	return base_ptr(new gsl_bfgs2(*this));
-}
+	public:
+		string_match_mo(const std::string &);
+		string_match_mo(const char *);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		//std::string human_readable_extra() const;
+	private:
+		const std::string m_str;
+};
 
-}}
+} }
+
+#endif

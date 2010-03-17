@@ -22,28 +22,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
+#include <boost/numeric/conversion/cast.hpp>
+#include <cmath>
 #include <string>
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../types.h"
+#include "base.h"
+#include "string_match_mo.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo { namespace problem {
 
-/// Constructor.
-/**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
- */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+string_match_mo::string_match_mo(const std::string &str):base(boost::numeric_cast<int>(str.size()),boost::numeric_cast<int>(str.size()),
+	boost::numeric_cast<problem::base::f_size_type>(str.size()),0,0),m_str(str)
 {
-	return base_ptr(new gsl_bfgs2(*this));
+	set_bounds(0,255);
 }
 
-}}
+string_match_mo::string_match_mo(const char *str):base(boost::numeric_cast<int>(std::string(str).size()),boost::numeric_cast<int>(std::string(str).size()),
+	boost::numeric_cast<problem::base::f_size_type>(std::string(str).size()),0,0),m_str(str)
+{
+	set_bounds(0,255);
+}
+
+base_ptr string_match_mo::clone() const
+{
+	return base_ptr(new string_match_mo(*this));
+}
+
+void string_match_mo::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	for (std::string::size_type i = 0; i < m_str.size(); ++i) {
+		f[boost::numeric_cast<problem::base::f_size_type>(i)] =
+			std::abs(static_cast<char>(x[boost::numeric_cast<size_type>(i)]) - m_str[i]);
+	}
+}
+
+} }

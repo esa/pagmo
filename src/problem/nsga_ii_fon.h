@@ -22,28 +22,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#ifndef PAGMO_PROBLEM_NSGA_II_FON_H
+#define PAGMO_PROBLEM_NSGA_II_FON_H
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo { namespace problem {
 
-/// Constructor.
+/// NSGA II FON multi-objective optimisation test problem.
 /**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
+ * @see Deb, K., et al., 2002. A fast and elitist multiobjective genetic algorithm: NSGA II. IEEE Transactions on Evolutionary Computation 6 (2), 182-197.
  */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+class __PAGMO_VISIBLE nsga_ii_fon: public base
 {
-	return base_ptr(new gsl_bfgs2(*this));
-}
+	public:
+		nsga_ii_fon();
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
 
 }}
+
+#endif

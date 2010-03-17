@@ -117,6 +117,8 @@ void cs::evolve(population &pop) const
 		flag = false;
 		for (unsigned int i=0; i<Dc; i++) {
 			newx=x;
+
+			//move up
 			newx[i] = x[i] + newrange * (ub[i]-lb[i]);
 			//feasibility correction
 			if (newx[i] > ub [i]) newx[i]=ub[i];
@@ -125,16 +127,18 @@ void cs::evolve(population &pop) const
 			if (prob.compare_fitness(newf,f)) {
 				f = newf;
 				x = newx;
+				pop.set_x(bestidx,x); //new evaluation is possible here......
 				flag=true;
 				break; //accept
 			}
 
+			//move down
 			newx[i] = x[i] - newrange * (ub[i]-lb[i]);
 			//feasibility correction
 			if (newx[i] < lb [i]) newx[i]=lb[i];
 
-			prob.objfun(newf,newx);
-			if (newf < f) {  //accept
+			prob.objfun(newf,newx); eval++;
+			if (prob.compare_fitness(newf,f)) {  //accept
 				f = newf;
 				x = newx;
 				pop.set_x(bestidx,x); //new evaluation is possible here......

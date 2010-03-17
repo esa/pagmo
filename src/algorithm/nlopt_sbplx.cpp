@@ -22,28 +22,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#include <nlopt.h>
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "base_nlopt.h"
+#include "nlopt_sbplx.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Constructor.
-/**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
- */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
+nlopt_sbplx::nlopt_sbplx(int max_iter, const double &tol):base_nlopt(NLOPT_LN_SBPLX,false,max_iter,tol) {}
 
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+base_ptr nlopt_sbplx::clone() const
 {
-	return base_ptr(new gsl_bfgs2(*this));
+	return base_ptr(new nlopt_sbplx(*this));
 }
 
 }}

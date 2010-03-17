@@ -38,21 +38,19 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Wrapper for GSL minimisers with derivatives
+/// Wrapper for GSL minimisers with derivatives.
 /**
  * This class can be used to build easily a wrapper around a GSL minimiser with derivatives. The gradient of the
- * objective function will be calculated numerically via the gsl_deriv_central GSL function. The minimisation is performed
- * by invoking the evolve_gradient() method.
+ * objective function will be calculated numerically via the gsl_deriv_central GSL function.
  *
- * This class of minimisers supports single-objective, unconstrained, continuous optimisation.
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE gsl_gradient: public base_gsl
 {
-	public:
-		gsl_gradient(int, const double &, const double &, const double &, const double &);
 	protected:
-		void evolve_gradient(population &, const gsl_multimin_fdfminimizer_type *) const;
-		std::string hr_extra() const;
+		gsl_gradient(const gsl_multimin_fdfminimizer_type *, int, const double &, const double &, const double &, const double &);
+		void evolve(population &) const;
+		std::string human_readable_extra() const;
 	private:
 		// Structure to feed parameters to the numerical differentiation wrapper.
 		struct objfun_numdiff_wrapper_params
@@ -73,11 +71,12 @@ class __PAGMO_VISIBLE gsl_gradient: public base_gsl
 		static void cleanup(gsl_vector *, gsl_multimin_fdfminimizer *);
 		static void check_allocs(gsl_vector *, gsl_multimin_fdfminimizer *);
 	private:
-		const std::size_t	m_max_iter;
-		const double		m_grad_tol;
-		const double		m_numdiff_step_size;
-		const double		m_step_size;
-		const double		m_tol;
+		const gsl_multimin_fdfminimizer_type 	*m_minimiser;
+		const std::size_t			m_max_iter;
+		const double				m_grad_tol;
+		const double				m_numdiff_step_size;
+		const double				m_step_size;
+		const double				m_tol;
 };
 
 }}

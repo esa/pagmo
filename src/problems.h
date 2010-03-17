@@ -28,12 +28,18 @@
 // Header including all problems implemented in PaGMO.
 
 #include "problem/base.h"
+#include "problem/branin.h"
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
 #include "problem/knapsack.h"
+#include "problem/nsga_ii_fon.h"
+#include "problem/nsga_ii_sch.h"
 #include "problem/paraboloid.h"
 #include "problem/rastrigin.h"
 #include "problem/rosenbrock.h"
 #include "problem/schwefel.h"
+#include "problem/snopt_toyprob.h"
+#include "problem/string_match.h"
+#include "problem/string_match_mo.h"
 
 #endif

@@ -23,27 +23,29 @@
  *****************************************************************************/
 
 #include <gsl/gsl_multimin.h>
-#include <string>
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../exceptions.h"
+#include "gsl_derivative_free.h"
+#include "gsl_nm2rand.h"
 
 namespace pagmo { namespace algorithm {
 
 /// Constructor.
 /**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
+ * Will invoke internally the constructor from algorithm::gsl_derivative_free with the specified parameters.
  *
- * @see gsl_gradient::gsl_gradient().
+ * @see gsl_gradient::gsl_derivative_free().
  */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
+gsl_nm2rand::gsl_nm2rand(int max_iter, const double &tol, const double &step_size):
+	gsl_derivative_free(gsl_multimin_fminimizer_nmsimplex2rand,max_iter,tol,step_size) {}
 
 /// Clone method.
-base_ptr gsl_bfgs2::clone() const
+/**
+ * @return algorithm::base_ptr to a copy of this.
+ */
+base_ptr gsl_nm2rand::clone() const
 {
-	return base_ptr(new gsl_bfgs2(*this));
+	return base_ptr(new gsl_nm2rand(*this));
 }
 
 }}

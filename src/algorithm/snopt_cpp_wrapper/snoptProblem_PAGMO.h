@@ -3,6 +3,7 @@
 
 #include "snopt_PAGMO.h"
 #include "../../problem/base.h"
+#include "../../algorithm/snopt.h"
 
 
 // class snoptProblem_PAGMO performs problem set-up, initialization,
@@ -64,7 +65,7 @@ protected:
   void memcpyOut( char *tcw, integer *tiw, doublereal *trw,
 		  integer tlencw, integer tleniw, integer tlenrw);
 public:
-  snoptProblem_PAGMO(const pagmo::problem::base& problem, std::vector<double> *di_comodo);
+  snoptProblem_PAGMO(const pagmo::problem::base& problem, pagmo::algorithm::snopt::preallocated_memory *di_comodo);
   ~snoptProblem_PAGMO();
   void increment();
   void decrement();
@@ -80,7 +81,7 @@ public:
   void setRealParameter( char *stropt,   doublereal  opt );
   void getRealParameter( char *stropt,   doublereal &opt );
   void solve           ( integer starttype );
-  void setPrintFile    ( char printname[] );
+  void setPrintFile    ( const char printname[] );
   void setSpecFile     ( char specname[] );
 
   // Functions that set up the problem data:
@@ -97,8 +98,10 @@ public:
 		       doublereal *Fmul, integer *Fstate );
   void setXNames     ( char *xnames, integer nxnames );
   void setFNames     ( char *Fnames, integer nFnames );
-  void setProbName   ( char *Prob );
+  void setProbName   ( const char *Prob );
   void setUserFun    ( My_fp usrfun );
+  void activate_screen_output() {iSumm = 6;}
+  void deactivate_screen_output() {iSumm = 0;}
 };
 
 #endif

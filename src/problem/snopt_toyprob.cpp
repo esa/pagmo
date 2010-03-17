@@ -22,28 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#include "base.h"
+#include "snopt_toyprob.h"
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+namespace pagmo { namespace problem {
 
-namespace pagmo { namespace algorithm {
-
-/// Constructor.
+/// Default constructor.
 /**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
+ * Search bounds are set to \f$ x \in \left[ 0,10 \right] \f$ and \f$ y \in \left[ -10,10 \right]\f$.
  */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+snopt_toyprob::snopt_toyprob():base(2,0,1,2,2)
 {
-	return base_ptr(new gsl_bfgs2(*this));
+	const double lb[] = {0,-10};
+	const double ub[] = {10,10};
+	set_lb(lb);
+	set_ub(ub);
 }
 
-}}
+/// Clone method.
+base_ptr snopt_toyprob::clone() const
+{
+	return base_ptr(new snopt_toyprob(*this));
+}
+
+/// Implementation of the objective function.
+void snopt_toyprob::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	f[0] = x[1];
+}
+
+/// Implementation of the constraint function.
+void snopt_toyprob::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+	c[0] = x[0] * x[0] + 4 * x[1] * x[1] - 4;
+	c[1] = (x[0] - 2) * (x[0] - 2) + x[1] * x[1] - 5;
+}
+
+/// Implementation of the sparsity structure
+void snopt_toyprob::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const
+{
+	//Initial point
+	decision_vector x0(2);
+	x0[0] = 1; x0[1] = 1;
+	//Numerical procedure
+	this->estimate_sparsity(x0, lenG, iGfun, jGvar);
+}
+
+} }

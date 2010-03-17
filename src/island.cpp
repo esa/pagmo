@@ -30,6 +30,7 @@
 #include <cstddef>
 #include <exception>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -438,8 +439,8 @@ void island::evolve_t(int t)
 void island::interrupt()
 {
 	if (m_evo_thread) {
-std::cout << "Interrupting!!!\n";
 		m_evo_thread->interrupt();
+		pagmo_throw(std::runtime_error,"evolution interrupted");
 	}
 }
 
@@ -455,6 +456,7 @@ void island::accept_immigrants(const std::vector<population::individual_type> &i
 	{
 		pagmo_assert((*rep_it).first < m_pop.m_container.size() && (*rep_it).second < immigrants.size());
 		m_pop.m_container[(*rep_it).first] = immigrants[(*rep_it).second];
+		m_pop.update_champion(immigrants[(*rep_it).second]);
 	}
 }
 

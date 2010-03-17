@@ -22,28 +22,58 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#ifndef PAGMO_PROBLEM_BRANIN_H
+#define PAGMO_PROBLEM_BRANIN_H
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo { namespace problem {
 
-/// Constructor.
+/// Branin rcos test function.
 /**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
+ * \image html branin.png "Branin's rcos function."
+ * \image latex branin.png "Branin's rcos function." width=5cm
  *
- * @see gsl_gradient::gsl_gradient().
+ * The Branin rcos function is a global optimization test function defined as:
+ * \f[
+ * 	f_{br}\left(x_1,x_2\right) = a \left( x_2 - bx_1^2 +cx_1 - d \right)^2 + e\left( 1 - f \right) \cos x_1 + e,
+ * \f]
+ * with
+ * \f[
+ * 	\begin{array}{rcl}
+ * 		a & = & 1, \\
+ * 		b & = & \frac{5.1}{4\pi^2}, \\
+ * 		c & = & \frac{5}{\pi}, \\
+ * 		d & = & 6, \\
+ * 		e & = & 10, \\
+ * 		f & = & \frac{1}{8\pi},
+ * 	\end{array}
+ * \f]
+ * and
+ * \f[
+ * 	\begin{array}{rcl}
+ * 		x_1 & \in & \left[ -5,10 \right ],\\
+ * 		x_2 & \in & \left[ 0,15 \right ].
+ * 	\end{array}
+ * \f]
+ * The function has three global minima, located at \f$ \left( -\pi, 12.275 \right) \f$, \f$ \left( \pi, 2.275 \right) \f$ and
+ * \f$ \left( 9.42478, 2.475 \right) \f$, where the value of the function is \f$ 0.397887 \f$.
+ *
+ * @see Branin, F. K.: A widely convergent method for finding multiple solutions of simultaneous nonlinear equations. IBM J. Res. Develop., pp. 504-522, Sept., 1972. 
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+class __PAGMO_VISIBLE branin: public base
 {
-	return base_ptr(new gsl_bfgs2(*this));
-}
+	public:
+		branin();
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
 
-}}
+} }
+
+#endif

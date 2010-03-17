@@ -22,28 +22,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#ifndef PAGMO_PROBLEM_SNOPT_TOYPROB_H
+#define PAGMO_PROBLEM_SNOPT_TOYPROB_H
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
 
-namespace pagmo { namespace algorithm {
+namespace pagmo { namespace problem {
 
-/// Constructor.
+/// Test problem from SNOPT.
 /**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
+ * Simple constrained minimisation test problem. Minimise
+ * \f[
+ * 	f(x,y) = y,
+ * \f]
+ * subject to
+ * <center>
+ * \f$
+ * 	\begin{array}{rcl}
+ * 		x^2 + 4y^2 &\leq & 4, \\
+ * 		\left(x - 2\right)^2 + y^2 &\leq & 5.
+ * 	\end{array}
+ * \f$
+ * </center>
+ * The solution of this problem is in \f$ \left( x,y \right) = \left( 0,-1 \right) \f$. Search bounds are set to \f$ x \in \left[ 0,10 \right] \f$ and
+ * \f$ y \in \left[ -10,10 \right] \f$ upon problem construction.
  *
- * @see gsl_gradient::gsl_gradient().
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+class __PAGMO_VISIBLE snopt_toyprob: public base
 {
-	return base_ptr(new gsl_bfgs2(*this));
-}
+	public:
+		snopt_toyprob();
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		void set_sparsity(int &, std::vector<int>&, std::vector<int>&) const;
+};
 
 }}
+
+#endif

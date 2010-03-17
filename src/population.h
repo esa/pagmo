@@ -115,11 +115,13 @@ class __PAGMO_VISIBLE population
 				return oss.str();
 			}
 		};
+		/// Underlying container type.
+		typedef std::vector<individual_type> container_type;
 		/// Population size type.
-		typedef std::vector<individual_type>::size_type size_type;
+		typedef container_type::size_type size_type;
 		/// Const iterator.
-		typedef std::vector<individual_type>::const_iterator const_iterator;
-		population(const problem::base &, int n = 0);
+		typedef container_type::const_iterator const_iterator;
+		population(const problem::base &, int = 0);
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
@@ -162,12 +164,10 @@ class __PAGMO_VISIBLE population
 			/// Const reference to the problem that provides the ranking method.
 			const problem::base &m_p;
 		};
-		void rank_current();
-		void rank_current(const const_iterator &, const const_iterator &);
 	private:
 		population();
+		void update_champion(const individual_type &);
 	private:
-		typedef std::vector<individual_type> container_type;
 		// Data members.
 		// Problem.
 		problem::base_ptr	m_prob;

@@ -139,9 +139,34 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::gsl_nm>("gsl_nm","GSL Nelder-Mead simplex method.")
 		.def(init<optional<int, const double &, const double &> >());
 
+	// GSL's Nelder-Mead, version 2.
+	algorithm_wrapper<algorithm::gsl_nm2>("gsl_nm2","GSL Nelder-Mead simplex method, version 2.")
+		.def(init<optional<int, const double &, const double &> >());
+
+	// GSL's Nelder-Mead, version 2 + random initial simplex.
+	algorithm_wrapper<algorithm::gsl_nm2rand>("gsl_nm2rand","GSL Nelder-Mead simplex method, version 2 with randomised initial simplex.")
+		.def(init<optional<int, const double &, const double &> >());
+
 	// GSL's Polak-Ribiere.
 	algorithm_wrapper<algorithm::gsl_pr>("gsl_pr","GSL Polak-Ribiere algorithm.")
 		.def(init<optional<int, const double &, const double &, const double &, const double &> >());
+
+	#endif
+
+	// NLopt algorithms.
+	#ifdef PAGMO_ENABLE_NLOPT
+
+	// NLopt's COBYLA.
+	algorithm_wrapper<algorithm::nlopt_cobyla>("nlopt_cobyla","NLopt's COBYLA algorithm.")
+		.def(init<optional<int, const double &> >());
+
+	// NLopt's BOBYQA.
+	algorithm_wrapper<algorithm::nlopt_bobyqa>("nlopt_bobyqa","NLopt's BOBYQA algorithm.")
+		.def(init<optional<int, const double &> >());
+
+	// NLopt's Sbplx.
+	algorithm_wrapper<algorithm::nlopt_sbplx>("nlopt_sbplx","NLopt's Sbplx algorithm.")
+		.def(init<optional<int, const double &> >());
 
 	#endif
 

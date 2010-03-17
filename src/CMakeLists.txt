@@ -15,13 +15,19 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_fon.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_sch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/paraboloid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosenbrock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/snopt_toyprob.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match_mo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
@@ -43,13 +49,26 @@ IF(ENABLE_GSL)
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_gsl.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_bfgs.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_bfgs2.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_derivative_free.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_fr.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_pr.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_gradient.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2rand.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/gsl_init.cpp
 	)
 ENDIF(ENABLE_GSL)
+
+# Additional files for NLopt support.
+IF(ENABLE_NLOPT)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_nlopt.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_cobyla.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_bobyqa.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_sbplx.cpp
+	)
+ENDIF(ENABLE_NLOPT)
 
 # Additional files for SNOPT support.
 IF(ENABLE_SNOPT)

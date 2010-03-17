@@ -22,28 +22,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#ifndef PAGMO_ALGORITHM_NLOPT_COBYLA_H
+#define PAGMO_ALGORITHM_NLOPT_COBYLA_H
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../config.h"
+#include "base_nlopt.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Constructor.
-/**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
- */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+/// Wrapper for NLopt's COBYLA algorithm.
+class __PAGMO_VISIBLE nlopt_cobyla: public base_nlopt
 {
-	return base_ptr(new gsl_bfgs2(*this));
-}
+	public:
+		nlopt_cobyla(int = 100, const double & = 1E-8);
+		base_ptr clone() const;
+};
 
 }}
+
+#endif

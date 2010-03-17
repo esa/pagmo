@@ -29,6 +29,7 @@
 #include "../gsl_init.h"
 #include "../problem/base.h"
 #include "base_gsl.h"
+#include "base.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -36,7 +37,7 @@ namespace pagmo { namespace algorithm {
 /**
  * Will make sure that the GSL environment is initialised properly.
  */
-base_gsl::base_gsl()
+base_gsl::base_gsl():base()
 {
 	if (!g_init.m_init) {
 		pagmo_throw(std::runtime_error,"GSL support could not be initialised");

@@ -22,28 +22,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
+#ifndef PAGMO_ALGORITHM_BASE_NLOPT_H
+#define PAGMO_ALGORITHM_BASE_NLOPT_H
+
+#include <cstddef>
+#include <nlopt.h>
 #include <string>
 
+#include "../config.h"
 #include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../problem/base.h"
+#include "../types.h"
+#include "base.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Constructor.
-/**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
- */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+/// Base class for wrapping NLopt's algorithms.
+class __PAGMO_VISIBLE base_nlopt: public base
 {
-	return base_ptr(new gsl_bfgs2(*this));
-}
+	protected:
+		base_nlopt(nlopt_algorithm, bool, int, const double &);
+		void evolve(population &) const;
+		std::string human_readable_extra() const;
+	private:
+		struct nlopt_wrapper_data
+		{
+			problem::base const		*prob;
+			decision_vector			*x;
+			fitness_vector			*f;
+			constraint_vector		*c;
+			problem::base::c_size_type	c_comp;
+		};
+		static double objfun_wrapper(int, const double *, double *, void *);
+		static double constraints_wrapper(int, const double *, double *, void *);
+	private:
+		const nlopt_algorithm	m_algo;
+		const bool		m_constrained;
+		const std::size_t	m_max_iter;
+		const double		m_tol;
+};
 
 }}
+
+#endif

@@ -22,28 +22,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "nsga_ii_sch.h"
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+namespace pagmo { namespace problem {
 
-namespace pagmo { namespace algorithm {
-
-/// Constructor.
-/**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
- *
- * @see gsl_gradient::gsl_gradient().
- */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+nsga_ii_sch::nsga_ii_sch():base(1,0,2,0,0)
 {
-	return base_ptr(new gsl_bfgs2(*this));
+	set_bounds(-1E3,1E3);
 }
 
-}}
+base_ptr nsga_ii_sch::clone() const
+{
+	return base_ptr(new nsga_ii_sch(*this));
+}
+
+void nsga_ii_sch::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 2 && x.size() == 1);
+	f[0] = x[0] * x[0];
+	f[1] = (x[0] - 2) * (x[0] - 2);
+}
+
+} }

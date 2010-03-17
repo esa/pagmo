@@ -22,28 +22,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <gsl/gsl_multimin.h>
-#include <string>
+#ifndef PAGMO_ALGORITHM_GSL_NM2RAND_H
+#define PAGMO_ALGORITHM_GSL_NM2RAND_H
 
-#include "../population.h"
-#include "gsl_bfgs2.h"
-#include "gsl_gradient.h"
+#include "../config.h"
+#include "gsl_derivative_free.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Constructor.
+/// Wrapper for the GSL Nelder-Mead simplex algorithm (version 2 + randomly-oriented initial simplex).
 /**
- * Will invoke internally the constructor from algorithm::gsl_gradient with the specified parameters.
+ * @see algorithm::gsl_derivative_free for more information.
  *
- * @see gsl_gradient::gsl_gradient().
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
-gsl_bfgs2::gsl_bfgs2(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_vector_bfgs2,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
-
-/// Clone method.
-base_ptr gsl_bfgs2::clone() const
+class __PAGMO_VISIBLE gsl_nm2rand: public gsl_derivative_free
 {
-	return base_ptr(new gsl_bfgs2(*this));
-}
+	public:
+		gsl_nm2rand(int max_iter = 100, const double &tol = 1E-6, const double &step_size = 1);
+		base_ptr clone() const;
+};
 
 }}
+
+#endif

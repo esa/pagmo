@@ -34,26 +34,61 @@
 
 namespace pagmo { namespace algorithm {
 
+/// SNOPT solver
+/**
+ * SNOPT is a quite popular commercial solver coded in FORTRAN77 by GILL and MURRAY.
+ * Its popularity stems from its being able to solve efficiently many different problems
+ * thanks to what many would call 'black-magic' heuristic implemented in the solver that is
+ * otherwise an SQP solver. We provide in PaGMO the wrappers around the libraries that
+ * the user needs to have installed and licenced for in his computer.
+ *
+ * In order to interface to SNOPT succesfully, PaGMO needs to find in the system the libraries:
+ * snopt, snprint, blas, f2c, m and gfortran (in case the snopt libraries were compiled using gfortran)
+ *
+ *
+ * From the SNOPT User-Manual:
+ *
+ * SNOPT is a general-purpose system for constrained optimization. It minimizes a
+ * linear or nonlinear function sub ject to bounds on the variables and sparse linear or
+ * nonlinear constraints. It is suitable for large-scale linear and quadratic programming
+ * and for linearly constrained optimization, as well as for general nonlinear programs.
+ * SNOPT ﬁnds solutions that are locally optimal, and ideally any nonlinear functions
+ * should be smooth and users should provide gradients. It is often more widely useful.
+ * For example, local optima are often global solutions, and discontinuities in the function
+ * gradients can often be tolerated if they are not too close to an optimum. Unknown
+ * gradients are estimated by ﬁnite diﬀerences.
+ *
+ * @author Dario Izzo (dario.izzo@googlemail.com)
+ *
+ */
+
 class __PAGMO_VISIBLE snopt: public base
 {
 public:
 	snopt(const int major,const double feas=1e-10, const double opt = 1e-4);
 	base_ptr clone() const;
 	void evolve(population &) const;
+	void screen_output(const bool);
+	void file_output(const bool);
+
+	//This structure contains one decision vector and one constraint vector as to allow
+	//the static snopt function not to allocate any memory.
+	struct preallocated_memory{
+		decision_vector x;
+		constraint_vector c;
+		fitness_vector f;
+	};
 protected:
 	std::string human_readable_extra() const;
 
 private:
-
 	const int m_major;
 	const double m_feas;
 	const double m_opt;
+	bool m_screen_out;
+	bool m_file_out;
 
-	//This vector is here to allow the static function snopt_function_ to call the
-	//GOProblem->objfun() without allocating memory for the chromosome. di_comodo will
-	//be resized by the evolve command and then a refernece will be passed by snopt_a to
-	//snopt_function_
-	mutable decision_vector di_comodo;
+	mutable preallocated_memory di_comodo;
 };
 
 }} //namespaces
