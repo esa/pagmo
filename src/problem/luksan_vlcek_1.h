@@ -43,7 +43,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE luksan_vlcek_1: public base
 {
 	public:
-		luksan_vlcek_1(size_t dim, double clb = 0, double cub = 0);
+		luksan_vlcek_1(size_t N, double clb = 0, double cub = 0);
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

@@ -27,9 +27,9 @@
 
 namespace pagmo { namespace problem {
 
-luksan_vlcek_1::luksan_vlcek_1(size_t dim, const double clb, const double cub):base(dim,0,1,2*(dim-2),2*(dim-2))
+luksan_vlcek_1::luksan_vlcek_1(size_t N, const double clb, const double cub):base(N,0,1,2*(N-2),2*(N-2))
 {
-	if (dim <=2)
+	if (N <=2)
 	{
 		pagmo_throw(value_error,"Problem dimension needs to be at least 3");
 	}
@@ -39,8 +39,8 @@ luksan_vlcek_1::luksan_vlcek_1(size_t dim, const double clb, const double cub):b
 	}
 	set_lb(-5);
 	set_ub(5);
-	m_clb = std::vector<double>(dim-2,clb);
-	m_cub = std::vector<double>(dim-2,cub);
+	m_clb = std::vector<double>(N-2,clb);
+	m_cub = std::vector<double>(N-2,cub);
 }
 
 /// Clone method.
@@ -75,13 +75,13 @@ void luksan_vlcek_1::compute_constraints_impl(constraint_vector &c, const decisi
 	}
 }
 
-/// Implementation of the sparsity structure
+/// Implementation of the sparsity structure: automated detection
 void luksan_vlcek_1::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const
 {
 	//Initial point
 	decision_vector x0(get_dimension(),1);
 	//Numerical procedure
-	this->estimate_sparsity(x0, lenG, iGfun, jGvar);
+	estimate_sparsity(x0, lenG, iGfun, jGvar);
 }
 
 } }
