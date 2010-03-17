@@ -26,7 +26,19 @@
 #include "luksan_vlcek_1.h"
 
 namespace pagmo { namespace problem {
-
+/// Constructor.
+/**
+ * Construct the problem from its dimension.
+ * Setting cub=clb=0 creates an instance of the original Luksan Vlcek equality constrained problem, example  5.1
+ * Using clb<cub allows the obtain a problem formulation with inequality constraints
+ *
+ * @param[in] N Problem dimension
+ * @param[in] clb lower bounds for the constraints.
+ * @param[in] cub upper bounds for the constraints.
+ * @throws value_error if N is smaller than 2, cub < clb
+ *
+ * @see L. Luksan and J. Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
+ */
 luksan_vlcek_1::luksan_vlcek_1(size_t N, const double clb, const double cub):base(N,0,1,2*(N-2),2*(N-2))
 {
 	if (N <=2)

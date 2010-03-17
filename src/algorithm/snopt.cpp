@@ -183,7 +183,7 @@ void snopt::evolve(population &pop) const
 	catch (not_implemented_error)
 	{
 		use_snopt_magic = true;
-		lenG=Dc * (1 + prob_c_dimension);
+		lenG=Dc * (1 + prob_c_dimension); //overestimate for neG
 	} //the user did not implement the sparsity in the problem
 
 	integer *iGfun = new integer[lenG];
@@ -296,7 +296,20 @@ void snopt::evolve(population &pop) const
 
 }
 
+/// Activate screen output
+/**
+ * Activate SNOPT screen output by setting iSumm to 6
+ *
+ * @param[in] p true or false
+ */
 void snopt::screen_output(const bool p) {m_screen_out = p;}
+
+/// Activate file output
+/**
+ * Activate SNOPT screen output by setting iPrint to 15 and setting the file name to the problem typeid
+ *
+ * @param[in] p true or false
+ */
 void snopt::file_output(const bool p) {m_file_out = p;}
 
 std::string snopt::human_readable_extra() const
