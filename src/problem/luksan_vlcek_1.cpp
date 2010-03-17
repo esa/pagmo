@@ -27,7 +27,7 @@
 
 namespace pagmo { namespace problem {
 
-luksan_vlcek_1::luksan_vlcek_1(size_t dim, const double clb, const double cub):base(dim,0,1,0,dim-2)
+luksan_vlcek_1::luksan_vlcek_1(size_t dim, const double clb, const double cub):base(dim,0,1,2*(dim-2),2*(dim-2))
 {
 	if (dim <=2)
 	{
@@ -53,7 +53,7 @@ base_ptr luksan_vlcek_1::clone() const
 void luksan_vlcek_1::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	f[0] = 0.;
-	for (int i=0; i<x.size()-1; i++)
+	for (pagmo::decision_vector::size_type i=0; i<x.size()-1; i++)
 	{
 		double a1 = x[i]*x[i]-x[i+1];
 		double a2 = x[i] - 1.;
@@ -64,7 +64,7 @@ void luksan_vlcek_1::objfun_impl(fitness_vector &f, const decision_vector &x) co
 /// Implementation of the constraint function.
 void luksan_vlcek_1::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	for (int i=0; i<x.size()-2; i++)
+	for (pagmo::decision_vector::size_type i=0; i<x.size()-2; i++)
 	{
 		c[2 * i] =  (3.*pow(x[i+1],3.) + 2.*x[i+2] - 5.
 		+ sin(x[i+1]-x[i+2])*sin(x[i+1]+x[i+2]) + 4.*x[i+1]

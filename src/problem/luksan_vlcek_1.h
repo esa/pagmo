@@ -1,5 +1,3 @@
-
-
 /*****************************************************************************
  *   Copyright (C) 2004-2009 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
@@ -37,7 +35,7 @@ namespace pagmo { namespace problem {
 /**
  * Implementation of the Example 5.1 in "Sparse and Parially Separable
  * Test Problems for Unconstrained and Equality Constrained
- * Optimization" by Luksan and Vlcek.
+ * Optimization" by Luksan and Vlcek. Code adapted from the Ipopt scalable problem examples
  *
  * @author Dario Izzo (dario.izzo@esa.int)
  */
