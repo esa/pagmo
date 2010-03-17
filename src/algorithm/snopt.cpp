@@ -88,9 +88,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] major Number of major iterations (refer to SNOPT manual).
  * @param[in] feas Feasibility tolerance (refer to SNOPT manual).
  * @param[in] opt Optimality tolerance (refer to SNOPT manual).
- * @throws value_error if major is not positive, and feas,opt are not in /f$ \in ]0,1[\f$
+ * @throws value_error if major is not positive, and feas,opt are not in \f$]0,1[\f$
  */
-
 snopt::snopt(const int major,const double feas, const double opt) : m_major(major),m_feas(feas),m_opt(opt),m_screen_out(false)
 {
 	if (major < 0) {
@@ -104,6 +103,7 @@ snopt::snopt(const int major,const double feas, const double opt) : m_major(majo
 	}
 
 }
+
 /// Clone method.
 base_ptr snopt::clone() const
 {

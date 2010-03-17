@@ -34,7 +34,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// SNOPT solver
+/// Wrapper for the SNOPT solver
 /**
  * SNOPT is a quite popular commercial solver coded in FORTRAN77 by GILL and MURRAY.
  * Its popularity stems from its being able to solve efficiently many different problems
@@ -65,6 +65,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE snopt: public base
 {
 public:
+
 	snopt(const int major,const double feas=1e-10, const double opt = 1e-4);
 	base_ptr clone() const;
 	void evolve(population &) const;

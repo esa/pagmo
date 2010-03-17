@@ -1098,8 +1098,12 @@ std::size_t objfun_calls()
  * This function needs to be reimplemented in the problem otherwise an exeption will be thrown
  * that can either halt a solver or be managed triggering solver specific actions.
  *
- * The reimplementation may call estimate_pattern() to numerically estimates
- * the sparsity pattern (but is not guaranteed to be globally correct)
+ * The reimplementation may call estimate_pattern() to obtain a numerical estimate for
+ * the sparsity pattern (CAUTION: this is not guaranteed to be always correct)
+ *
+ * The matrix \f$ \mathbf G\f$ needs to be represented as a sparse matrix so that if \f$G_{ij} \neq 0\f$
+ * iGfun[l] = i, jGvar[l] = j.
+ *
  */
 void base::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const{
 	pagmo_throw(not_implemented_error,"Sparsity is not implemented for this problem!!");
