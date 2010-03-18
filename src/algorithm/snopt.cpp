@@ -41,8 +41,8 @@ extern "C"{
 }
 
 
-///This is a static function that is used to wrap the snopt libraries. It has the propotype that is required
-///and uses the memory location pointed by cu to read all informations about the PaGMO problem.
+//This is a static function that is used to wrap the snopt libraries. It has the propotype that is required
+//and uses the memory location pointed by cu to read all informations about the PaGMO problem.
 static int snopt_function_(integer    *Status, integer *n,    doublereal *x,
 			   integer    *needF,  integer *neF,  doublereal *F,
 			   integer    *needG,  integer *neG,  doublereal *G,
