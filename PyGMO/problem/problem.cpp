@@ -235,6 +235,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::branin>("branin","Branin's rcos function.")
 		.def(init<>());
 
+	// Luksan Vlcek problem 1.
+	problem_wrapper<problem::luksan_vlcek_1>("luksan_vlcek_1","Luksan Vlcek problem 1.")
+		.def(init<int, optional<const double &, const double &> >());
+
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");
 	def("reset_objfun_calls",&problem::reset_objfun_calls,"Reset the total number of calls to the objective function.");

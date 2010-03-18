@@ -22,6 +22,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <vector>
+
+#include "../types.h"
 #include "base.h"
 #include "luksan_vlcek_1.h"
 
@@ -29,30 +33,30 @@ namespace pagmo { namespace problem {
 /// Constructor.
 /**
  * Construct the problem from its dimension.
- * Setting cub=clb=0 creates an instance of the original Luksan Vlcek equality constrained problem, example  5.1
- * Using clb<cub allows the obtain a problem formulation with inequality constraints
+ * Setting cub=clb=0 creates an instance of the original Luksan Vlcek equality constrained problem, example  5.1.
+ * Using clb < cub allows the obtain a problem formulation with inequality constraints.
  *
- * @param[in] N Problem dimension
+ * @param[in] N problem dimension
  * @param[in] clb lower bounds for the constraints.
  * @param[in] cub upper bounds for the constraints.
  * @throws value_error if N is smaller than 2, cub < clb
  *
  * @see L. Luksan and J. Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
  */
-luksan_vlcek_1::luksan_vlcek_1(size_t N, const double clb, const double cub):base(N,0,1,2*(N-2),2*(N-2))
+luksan_vlcek_1::luksan_vlcek_1(int N, const double &clb, const double &cub):base(N,0,1,2*(N-2),2*(N-2))
 {
-	if (N <=2)
+	if (N <= 2)
 	{
-		pagmo_throw(value_error,"Problem dimension needs to be at least 3");
+		pagmo_throw(value_error,"problem dimension needs to be at least 3");
 	}
-	if (clb >cub)
+	if (clb > cub)
 	{
 		pagmo_throw(value_error,"constraints lower bound is higher than the upper bound");
 	}
 	set_lb(-5);
 	set_ub(5);
-	m_clb = std::vector<double>(N-2,clb);
-	m_cub = std::vector<double>(N-2,cub);
+	m_clb = std::vector<double>(boost::numeric_cast<std::vector<double>::size_type>(N-2),clb);
+	m_cub = std::vector<double>(boost::numeric_cast<std::vector<double>::size_type>(N-2),cub);
 }
 
 /// Clone method.
@@ -88,7 +92,7 @@ void luksan_vlcek_1::compute_constraints_impl(constraint_vector &c, const decisi
 }
 
 /// Implementation of the sparsity structure: automated detection
-void luksan_vlcek_1::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const
+void luksan_vlcek_1::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	//Initial point
 	decision_vector x0(get_dimension(),1);

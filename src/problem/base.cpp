@@ -1105,7 +1105,11 @@ std::size_t objfun_calls()
  * iGfun[l] = i, jGvar[l] = j.
  *
  */
-void base::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const{
+void base::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+{
+	(void)lenG;
+	(void)iGfun;
+	(void)jGvar;
 	pagmo_throw(not_implemented_error,"Sparsity is not implemented for this problem!!");
 }
 
