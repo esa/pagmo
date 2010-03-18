@@ -61,6 +61,9 @@ OPTION(ENABLE_NLOPT "Enable support for NLopt algorithms." OFF)
 # Build Option: SNOPT optimiser
 OPTION(ENABLE_SNOPT "Enable support for SNOPT minimzer." OFF)
 
+# Build Option: IPOPT optimiser
+OPTION(ENABLE_IPOPT "Enable support for IPOPT minimzer." OFF)
+
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
 	FIND_LIBRARY(GSL_GSL_LIBRARY NAMES gsl)

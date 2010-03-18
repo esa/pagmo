@@ -1095,7 +1095,7 @@ std::size_t objfun_calls()
  * and \f$\mathbf x\f$ is the decision vector. Such a pattern is there to define the non zero entries of
  * \f$\mathbf G\f$ so that when evaluating numerical derivatives these are the only entries considered.
  *
- * This function needs to be reimplemented in the problem otherwise an exeption will be thrown
+ * This function needs to be reimplemented in the problem otherwise an exception will be thrown
  * that can either halt a solver or be managed triggering solver specific actions.
  *
  * The reimplementation may call estimate_pattern() to obtain a numerical estimate for
@@ -1123,7 +1123,7 @@ void base::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jG
  * in set_pattern(). The procedure costs function evaluations and is not guaranteed to give
  * a correct result if not locally around the provided point. Some constraint may be independent of \f$x_j\f$
  * near \f$x_{0_j}\f$ but not globally, for such a discontinuous problem estimate_pattern would provide a false gradient information
- * The function intended use is in the reimplementation of set_pattern, thuse its protected attribute
+ * The function intended use is in the reimplementation of set_sparsity, thuse its protected attribute
  */
 
 

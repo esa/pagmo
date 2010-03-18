@@ -18,8 +18,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_1.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_2.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_3.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_fon.cpp
@@ -79,6 +79,14 @@ IF(ENABLE_SNOPT)
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snoptProblem_PAGMO.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snfilewrapper_PAGMO.c
+	)
+ENDIF(ENABLE_SNOPT)
+
+# Additional files for IPOPT support.
+IF(ENABLE_SNOPT)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt_cpp_wrapper/ipopt_problem.cpp
 	)
 ENDIF(ENABLE_SNOPT)
 

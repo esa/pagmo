@@ -27,7 +27,7 @@
 
 #include "../config.h"
 #include "base.h"
-#include "ipopt_cpp_wrapper/IpIpoptApplication.hpp"
+#include <coin/IpIpoptApplication.hpp>
 
 
 
