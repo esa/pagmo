@@ -62,8 +62,8 @@ luksan_vlcek_1::luksan_vlcek_1(int N, const double &clb, const double &cub):base
 	}
 	set_lb(-5);
 	set_ub(5);
-	m_clb = std::vector<double>(boost::numeric_cast<std::vector<double>::size_type>(N-2),clb);
-	m_cub = std::vector<double>(boost::numeric_cast<std::vector<double>::size_type>(N-2),cub);
+	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-2),clb);
+	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-2),cub);
 }
 
 /// Clone method.

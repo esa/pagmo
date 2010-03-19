@@ -25,6 +25,8 @@
 #ifndef LUKSAN_VLCEK_2_H
 #define LUKSAN_VLCEK_2_H
 
+#include <vector>
+
 #include "../config.h"
 #include "../types.h"
 #include "base.h"
@@ -43,14 +45,15 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE luksan_vlcek_2: public base
 {
 	public:
-		luksan_vlcek_2(size_t N, double clb = 0, double cub = 0);
+		luksan_vlcek_2(int, const double & = 0, const double & = 0);
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
-		void set_sparsity(int &, std::vector<int>&, std::vector<int>&) const;
+		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
-		std::vector<double>  m_clb, m_cub;
+		std::vector<double> 	m_clb;
+		std::vector<double>	m_cub;
 };
 
 }} //namespaces

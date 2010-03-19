@@ -22,6 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/integer_traits.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+#include <stdexcept>
+#include <vector>
+
+#include "../exceptions.h"
+#include "../types.h"
 #include "base.h"
 #include "luksan_vlcek_2.h"
 
@@ -31,29 +38,32 @@ namespace pagmo { namespace problem {
 /**
  * Construct the problem from its dimension.
  * Setting cub=clb=0 creates an instance of the original Luksan Vlcek equality constrained problem, example  5.2
- * Using clb<cub allows the obtain a problem formulation with inequality constraints
+ * Using clb < cub allows the obtain a problem formulation with inequality constraints
  *
  * @param[in] N Problem dimension
  * @param[in] clb lower bounds for the constraints.
  * @param[in] cub upper bounds for the constraints.
- * @throws value_error if N is smaller than 13 and is odd, cub < clb
+ * @throws value_error if N is smaller than 14 and is odd, cub < clb
  *
  * @see L.Luksan and J.Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
  */
-luksan_vlcek_2::luksan_vlcek_2(size_t N, const double clb, const double cub):base(N+2,0,1,2*(N-7),2*(N-7))
+luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base(N+2,0,1,2*(N-7),2*(N-7))
 {
-	if (N<=13 || 2*(N/2)!=N)
-	{
-		pagmo_throw(value_error,"Problem dimension needs to be at least 3");
+	if (N > boost::integer_traits<int>::const_max - 2 || N - 7 >= boost::integer_traits<int>::const_max / 2) {
+		pagmo_throw(std::overflow_error,"overflow error");
 	}
-	if (clb >cub)
+	if (N<=13 || N % 2)
 	{
-		pagmo_throw(value_error,"N needs to be at least 14 and even.");
+		pagmo_throw(value_error,"problem dimension needs to be at least 14 and even");
+	}
+	if (clb > cub)
+	{
+		pagmo_throw(value_error,"constraints lower bound is higher than the upper bound");
 	}
 	set_lb(-5);
 	set_ub(5);
-	m_clb = std::vector<double>(N-7,clb);
-	m_cub = std::vector<double>(N-7,cub);
+	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-7),clb);
+	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-7),cub);
 }
 
 /// Clone method.
@@ -66,7 +76,7 @@ base_ptr luksan_vlcek_2::clone() const
 void luksan_vlcek_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	f[0] = 0.;
-	for (size_t i=0; i<(x.size()-2)/2; i++)
+	for (decision_vector::size_type i=0; i<(x.size()-2)/2; i++)
 	{
 		double a1 = x[2*i]*x[2*i] - x[2*i+1];
 		double a2 = x[2*i] - 1.;
@@ -81,17 +91,15 @@ void luksan_vlcek_2::objfun_impl(fitness_vector &f, const decision_vector &x) co
 /// Implementation of the constraint function.
 void luksan_vlcek_2::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	for (size_t i=0; i<(x.size()-2)-7; i++)
+	for (decision_vector::size_type i=0; i<(x.size()-2)-7; i++)
 	{
 		c[2*i] = (2.+5.*x[i+5]*x[i+5])*x[i+5] + 1.;
-		for (size_t k=std::max((size_t)0,i-5); k<=i+1; k++)
-		{
+		for (decision_vector::size_type k = (i <= 5) ? 0 : i - 5; k<=i+1; k++) {
 			c[2*i] += x[k]*(x[k]+1.);
 		}
 		c[2*i] = c[2*i] - m_cub[i];
 		c[2*i+1] = (2.+5.*x[i+5]*x[i+5])*x[i+5] + 1.;
-		for (size_t k=std::max((size_t)0,i-5); k<=i+1; k++)
-		{
+		for (decision_vector::size_type k = (i <= 5) ? 0 : i - 5; k<=i+1; k++) {
 			c[2*i+1] += x[k]*(x[k]+1.);
 		}
 		c[2*i+1] = m_clb[i] - c[2*i+1];

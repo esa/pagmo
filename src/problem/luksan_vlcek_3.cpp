@@ -50,7 +50,7 @@ namespace pagmo { namespace problem {
  */
 luksan_vlcek_3::luksan_vlcek_3(int N, const double &clb, const double &cub):base(N+2,0,1,2*2,2*2)
 {
-	if (N >= boost::integer_traits<int>::const_max - 2) {
+	if (N > boost::integer_traits<int>::const_max - 2) {
 		pagmo_throw(std::overflow_error,"overflow error");
 	}
 	if (N <= 5 || (N + 2) % 4)
