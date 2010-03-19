@@ -22,9 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/integer_traits.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <cmath>
+#include <stdexcept>
 #include <vector>
 
+#include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
 #include "luksan_vlcek_1.h"
@@ -45,6 +49,9 @@ namespace pagmo { namespace problem {
  */
 luksan_vlcek_1::luksan_vlcek_1(int N, const double &clb, const double &cub):base(N,0,1,2*(N-2),2*(N-2))
 {
+	if (N - 2 >= boost::integer_traits<int>::const_max / 2) {
+		pagmo_throw(std::overflow_error,"overflow error");
+	}
 	if (N <= 2)
 	{
 		pagmo_throw(value_error,"problem dimension needs to be at least 3");
@@ -82,12 +89,12 @@ void luksan_vlcek_1::compute_constraints_impl(constraint_vector &c, const decisi
 {
 	for (pagmo::decision_vector::size_type i=0; i<x.size()-2; i++)
 	{
-		c[2 * i] =  (3.*pow(x[i+1],3.) + 2.*x[i+2] - 5.
-		+ sin(x[i+1]-x[i+2])*sin(x[i+1]+x[i+2]) + 4.*x[i+1]
-		- x[i]*exp(x[i]-x[i+1]) - 3.) - m_cub[i];
-		c[2 * i + 1] = - (3.*pow(x[i+1],3.) + 2.*x[i+2] - 5.
-		+ sin(x[i+1]-x[i+2])*sin(x[i+1]+x[i+2]) + 4.*x[i+1]
-		- x[i]*exp(x[i]-x[i+1]) - 3.) + m_clb[i];
+		c[2 * i] =  (3.*std::pow(x[i+1],3.) + 2.*x[i+2] - 5.
+		+ std::sin(x[i+1]-x[i+2])*std::sin(x[i+1]+x[i+2]) + 4.*x[i+1]
+		- x[i]*std::exp(x[i]-x[i+1]) - 3.) - m_cub[i];
+		c[2 * i + 1] = - (3.*std::pow(x[i+1],3.) + 2.*x[i+2] - 5.
+		+ std::sin(x[i+1]-x[i+2])*std::sin(x[i+1]+x[i+2]) + 4.*x[i+1]
+		- x[i]*std::exp(x[i]-x[i+1]) - 3.) + m_clb[i];
 	}
 }
 
