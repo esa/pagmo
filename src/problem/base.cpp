@@ -1090,10 +1090,10 @@ std::size_t objfun_calls()
 
 /// Sets the sparsity pattern of the gradient (this default implementation sets the pattern to fully dense)
 /**
- * Some solvers can make use of the sparsity of the gradient matrix \f$\mathbf G\f$. This is a matrix defined as
- * \f$ \mathbf G_{ij} = \frac{\partial F_i}{\partial x_j}\f$ where \f$\mathbf F = [fit_1,\dots,fit_{nfit}, ceq_1,\dots,ceq_{neq}, cineq_1,\dots, cineq_{nineq}]\f$
- * and \f$\mathbf x\f$ is the decision vector. Such a pattern is there to define the non zero entries of
- * \f$\mathbf G\f$ so that when evaluating numerical derivatives these are the only entries considered.
+ * Some solvers can make use of the sparsity of the gradient matrix \f$ \mathbf G \f$. This is a matrix defined as
+ * \f$ \mathbf G_{ij} = \frac{\partial F_i}{\partial x_j}\f$ where \f$ \mathbf F = [fit_1,\ldots,fit_{nfit}, ceq_1,\ldots,ceq_{neq}, cineq_1,\ldots, cineq_{nineq}] \f$
+ * and \f$ \mathbf x \f$ is the decision vector. Such a pattern is there to define the non zero entries of
+ * \f$ \mathbf G \f$ so that when evaluating numerical derivatives these are the only entries considered.
  *
  * This function needs to be reimplemented in the problem otherwise an exception will be thrown
  * that can either halt a solver or be managed triggering solver specific actions.
@@ -1101,7 +1101,7 @@ std::size_t objfun_calls()
  * The reimplementation may call estimate_pattern() to obtain a numerical estimate for
  * the sparsity pattern (CAUTION: this is not guaranteed to be always correct)
  *
- * The matrix \f$ \mathbf G\f$ needs to be represented as a sparse matrix so that if \f$G_{ij} \neq 0\f$
+ * The matrix \f$ \mathbf G \f$ needs to be represented as a sparse matrix so that if \f$ G_{ij} \neq 0 \f$
  * iGfun[l] = i, jGvar[l] = j.
  *
  */
@@ -1116,13 +1116,13 @@ void base::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jG
 /// Tries to evaluate the sparsity pattern of the problem
 /**
  * An alternative to reimplementing the base::set_pattern() method, one could let pagmo estimate
- * the sparsity structure of a given problem. The numerical procedure starts from a point \f$ \mathbf \x_0\f$
- * provided by the user and perturbs \f$x_j$ locally as to detect a change in \f$F_i\f$ in which case sets
+ * the sparsity structure of a given problem. The numerical procedure starts from a point \f$ \mathbf x_0 \f$
+ * provided by the user and perturbs \f$ x_j \f$ locally as to detect a change in \f$ F_i \f$ in which case sets
  * (i,j) as a non zero element.
  * You should use this procedure with caution, it is always better to manually code the sparsity pattern
  * in set_pattern(). The procedure costs function evaluations and is not guaranteed to give
- * a correct result if not locally around the provided point. Some constraint may be independent of \f$x_j\f$
- * near \f$x_{0_j}\f$ but not globally, for such a discontinuous problem estimate_pattern would provide a false gradient information
+ * a correct result if not locally around the provided point. Some constraint may be independent of \f$ x_j \f$
+ * near \f$ x_{0_j}\f$ but not globally, for such a discontinuous problem estimate_pattern would provide a false gradient information
  * The function intended use is in the reimplementation of set_sparsity, thuse its protected attribute
  */
 
