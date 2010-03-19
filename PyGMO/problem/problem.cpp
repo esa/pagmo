@@ -239,6 +239,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::luksan_vlcek_1>("luksan_vlcek_1","Luksan Vlcek problem 1.")
 		.def(init<int, optional<const double &, const double &> >());
 
+	// Luksan Vlcek problem 2.
+	problem_wrapper<problem::luksan_vlcek_2>("luksan_vlcek_2","Luksan Vlcek problem 2.")
+		.def(init<int, optional<const double &, const double &> >());
+
+	// Luksan Vlcek problem 3.
+	problem_wrapper<problem::luksan_vlcek_3>("luksan_vlcek_3","Luksan Vlcek problem 3.")
+		.def(init<int, optional<const double &, const double &> >());
+
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");
 	def("reset_objfun_calls",&problem::reset_objfun_calls,"Reset the total number of calls to the objective function.");
