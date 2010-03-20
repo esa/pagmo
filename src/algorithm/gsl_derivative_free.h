@@ -40,6 +40,8 @@ namespace pagmo { namespace algorithm {
 /**
  * This class can be used to build easily a wrapper around a GSL minimiser without derivatives.
  *
+ * @see algorithm::base_gsl for more information.
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE gsl_derivative_free: public base_gsl

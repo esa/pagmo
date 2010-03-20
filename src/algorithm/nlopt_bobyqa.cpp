@@ -29,6 +29,10 @@
 
 namespace pagmo { namespace algorithm {
 
+/// Constructor.
+/**
+ * @see pagmo::algorithm::base_nlopt::base_nlopt()
+ */
 nlopt_bobyqa::nlopt_bobyqa(int max_iter, const double &tol):base_nlopt(NLOPT_LN_BOBYQA,false,max_iter,tol) {}
 
 base_ptr nlopt_bobyqa::clone() const

@@ -39,6 +39,17 @@
 
 namespace pagmo { namespace algorithm {
 
+/// Constructor.
+/**
+ * Will build a wrapper for the NLopt algorithm algo, specifying the maximum number of iterations allowed and the tolerance (e.g., the relative
+ * improvement of the objective function under which the algorithm will stop iterating). The user must also specify whether the chosen NLopt algorithm supports
+ * or not constrained optimisation.
+ *
+ * @param[in] algo NLopt algorithm (e.g., NLOPT_LN_COBYLA).
+ * @param[in] constrained true if the algorithm supports nonlinear constraints, false otherwise.
+ * @param[in] max_iter maximum number of iterations.
+ * @param[in] tol optimality tolerance.
+ */
 base_nlopt::base_nlopt(nlopt_algorithm algo, bool constrained, int max_iter, const double &tol):base(),
 	m_algo(algo),m_constrained(constrained),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol)
 {
@@ -150,7 +161,7 @@ void base_nlopt::evolve(population &pop) const
 		&x[0],
 		&retval,
 		-HUGE_VAL,
-		0,0,m_tol,0,boost::numeric_cast<int>(m_max_iter),0
+		m_tol,0,0,NULL,boost::numeric_cast<int>(m_max_iter),0
 	);
 std::cout << "status: " << status << '\n';
 	pop.set_x(best_ind_idx,x);

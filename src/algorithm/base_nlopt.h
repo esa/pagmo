@@ -38,6 +38,22 @@
 namespace pagmo { namespace algorithm {
 
 /// Base class for wrapping NLopt's algorithms.
+/**
+ * NLopt is a free/open-source library for nonlinear optimization, providing a common interface for a number of different free optimization
+ * routines available online as well as original implementations of various other algorithms.
+ *
+ * This class provides a common interface for NLopt algorithms. The type of algorithm that this class will wrap and the termination conditions
+ * can be specified in the constructor.
+ *
+ * The evolve() method will select the best individual from the population and will optimise its continuous part using the specified NLopt algorithm.
+ * After the optimisation, the individual will be unconditionally re-inserted in the same position in the population.
+ *
+ * All algorithms provided in NLopt are single-objective continuous minimisers.
+ *
+ * @see http://ab-initio.mit.edu/wiki/index.php/NLopt
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE base_nlopt: public base
 {
 	protected:

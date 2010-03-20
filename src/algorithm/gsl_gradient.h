@@ -43,6 +43,8 @@ namespace pagmo { namespace algorithm {
  * This class can be used to build easily a wrapper around a GSL minimiser with derivatives. The gradient of the
  * objective function will be calculated numerically via the gsl_deriv_central GSL function.
  *
+ * @see algorithm::base_gsl for more information.
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE gsl_gradient: public base_gsl

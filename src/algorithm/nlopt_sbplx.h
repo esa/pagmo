@@ -31,10 +31,25 @@
 namespace pagmo { namespace algorithm {
 
 /// Wrapper for NLopt's Sbplx algorithm.
+/**
+ * From NLopt's documentation:
+ *
+ * <EM>This is my re-implementation of Tom Rowan's "Subplex" algorithm. As Rowan expressed a preference that other implementations of
+ * his algorithm use a different name, I called my implementation "Sbplx" [...].
+ * Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of subspaces) is claimed to be much more efficient and robust
+ * than the original Nelder-Mead, while retaining the latter's facility with discontinuous objectives, and in my experience these claims
+ * seem to be true in many cases.</EM>
+ *
+ * This algorithm is a derivative-free single-objective continuous minimiser that supports box constraints.
+ *
+ * @see T. Rowan, "Functional Stability Analysis of Numerical Algorithms", Ph.D. thesis, Department of Computer Sciences, University of Texas at Austin, 1990.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE nlopt_sbplx: public base_nlopt
 {
 	public:
-		nlopt_sbplx(int = 100, const double & = 1E-8);
+		nlopt_sbplx(int = 100, const double & = 1E-6);
 		base_ptr clone() const;
 };
 

@@ -1098,7 +1098,7 @@ std::size_t objfun_calls()
  * This function needs to be reimplemented in the problem otherwise an exception will be thrown
  * that can either halt a solver or be managed triggering solver specific actions.
  *
- * The reimplementation may call estimate_pattern() to obtain a numerical estimate for
+ * The reimplementation may call estimate_sparsity() to obtain a numerical estimate for
  * the sparsity pattern (CAUTION: this is not guaranteed to be always correct)
  *
  * The matrix \f$ \mathbf G \f$ needs to be represented as a sparse matrix so that if \f$ G_{ij} \neq 0 \f$

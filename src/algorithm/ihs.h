@@ -36,6 +36,7 @@
 
 namespace pagmo { namespace algorithm {
 
+// TODO: automatic reshuffling when the population becomes too homogeneous.
 /// Improved harmony search algorithm.
 /**
  * Harmony search (HS) is a metaheuristic algorithm mimicking the improvisation process of musicians. In the process, each musician (i.e., each variable)

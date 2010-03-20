@@ -31,10 +31,17 @@
 namespace pagmo { namespace algorithm {
 
 /// Wrapper for NLopt's COBYLA algorithm.
+/**
+ * COBYLA (Constrained Optimization BY Linear Approximations) is a derivative-free single-objective continuous minimiser that supports nonlinear inequality constraints.
+ *
+ * @see M. J. D. Powell, "A direct search optimization method that models the objective and constraint functions by linear interpolation," in Advances in Optimization and Numerical Analysis, eds. S. Gomez and J.-P. Hennart (Kluwer Academic: Dordrecht, 1994), p. 51-67.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE nlopt_cobyla: public base_nlopt
 {
 	public:
-		nlopt_cobyla(int = 100, const double & = 1E-8);
+		nlopt_cobyla(int = 100, const double & = 1E-6);
 		base_ptr clone() const;
 };
 

@@ -31,10 +31,17 @@
 namespace pagmo { namespace algorithm {
 
 /// Wrapper for NLopt's BOBYQA algorithm.
+/**
+ * BOBYQA (Bound Optimization BY Quadratic Approximation) is a derivative-free single-objective continuous minimiser that supports box constraints.
+ *
+ * @see M. J. D. Powell, "The BOBYQA algorithm for bound constrained optimization without derivatives," Department of Applied Mathematics and Theoretical Physics, Cambridge England, technical report NA2009/06 (2009).
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE nlopt_bobyqa: public base_nlopt
 {
 	public:
-		nlopt_bobyqa(int = 100, const double & = 1E-8);
+		nlopt_bobyqa(int = 100, const double & = 1E-6);
 		base_ptr clone() const;
 };
 

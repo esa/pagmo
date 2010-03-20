@@ -37,15 +37,14 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::snopt snopt_instance(10000,1e-6,1e-4);
-	snopt_instance.screen_output(true);
-	snopt_instance.file_output(false);
+	//algorithm::snopt snopt_instance(10000,1e-6,1e-4);
+// 	snopt_instance.screen_output(true);
+// 	snopt_instance.file_output(false);
 
-	for (int i=0; i< 1; ++i){
-		island isl = island(problem::luksan_vlcek_1(100,0,0),snopt_instance,1);
+	island isl = island(problem::luksan_vlcek_1(4,-1E-3,1E-3),algorithm::ihs(100000,.999,.001),60);
+	for (int i=0; i< 30; ++i){
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
 	}
-	//std::cout << isl.get_population().champion().x << std::endl;
-	std::cout << problem::objfun_calls() << std::endl;
+	std::cout << isl << std::endl;
 }
