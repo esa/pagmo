@@ -130,7 +130,7 @@ void snopt::evolve(population &pop) const
 	const std::vector<double>::size_type D_eqc = prob_c_dimension - D_ineqc;
 	const std::string name = prob.get_name();
 
-	//We perform some checks to determine wether the problem/population are suitable for DE
+	//We perform some checks to determine wether the problem/population are suitable for SNOPT
 	if ( prob_i_dimension != 0  ) {
 		pagmo_throw(value_error,"No integer part allowed yet....");
 	}
@@ -140,7 +140,7 @@ void snopt::evolve(population &pop) const
 	}
 
 	if ( prob_f_dimension != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and DE is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not single objective and SNOPT is not suitable to solve it");
 	}
 
 	// Get out if there is nothing to do.

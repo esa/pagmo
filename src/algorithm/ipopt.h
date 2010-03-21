@@ -45,16 +45,21 @@ class __PAGMO_VISIBLE ipopt: public base
 {
 public:
 
-	ipopt();
+	ipopt(const int & iter, const double & tol, const double &obj_tol);
 	base_ptr clone() const;
 	void evolve(population &) const;
 
 protected:
 	std::string human_readable_extra() const;
+	void screen_output(const bool p);
 private:
-	::Ipopt::IpoptApplication app;
+	::Ipopt::SmartPtr<Ipopt::IpoptApplication> app;
+	const int m_iter;
+	const double m_tol;
+	const double m_obj_tol;
+	bool m_screen_out;
+};
 
-
-} //namespaces
+}} //namespaces
 
 #endif

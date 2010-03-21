@@ -83,12 +83,12 @@ IF(ENABLE_SNOPT)
 ENDIF(ENABLE_SNOPT)
 
 # Additional files for IPOPT support.
-IF(ENABLE_SNOPT)
+IF(ENABLE_IPOPT)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt_cpp_wrapper/ipopt_problem.cpp
 	)
-ENDIF(ENABLE_SNOPT)
+ENDIF(ENABLE_IPOPT)
 
 # Boost  thread library.
 IF(UNIX)

@@ -10,6 +10,9 @@
 #define IPOPT_PROBLEM_H
 
 #include <coin/IpTNLP.hpp>
+#include "../../population.cpp"
+#include "../../types.h"
+#include "boost/array.hpp"
 
 using namespace Ipopt;
 
@@ -19,12 +22,12 @@ class ipopt_problem : public TNLP
 {
 public:
 	/** default constructor */
-	ipopt_problem(const ::pagmo::problem::base &);
+	ipopt_problem(const pagmo::population &);
 
 	/** default destructor */
 	virtual ~ipopt_problem();
 
-	/**@name Overloaded from TNLP */
+	/**@name Overloaded from Ipopt::TNLP */
 	//@{
 	/** Method to return some info about the nlp */
 	virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
@@ -83,17 +86,21 @@ private:
    */
 	//@{
 	ipopt_problem();
-	ipopt_problem(const MyNLP&);
+	ipopt_problem(const ipopt_problem&);
 	ipopt_problem& operator=(const ipopt_problem&);
 	//@}
-	//Points to the PaGMO problem
-	const ::pagmo::problem::base *m_prob;
+	//Points to a PaGMO population
+	const ::pagmo::population m_pop;
 	//Number of non-zero entries in the Jacbian
 	int len_jac;
 	//Sparse representation of the Jacobian
-	std::vector<double> iJfun,jJvar;
-	//Sorting criteria for the iJfun, jJvar entries to achieve conatrint cache efficiency
-	bool cache_efficiency_criterion(boost::array<int,2>,boost::array<int,2>);
+	std::vector<int> iJfun,jJvar;
+	//Contains the variables that effect the objective function
+	std::vector<int> affects_obj;
+	// Internal caches used during evolution.
+	::pagmo::decision_vector dv;
+	::pagmo::fitness_vector fit;
+	::pagmo::constraint_vector con;
 };
 
 

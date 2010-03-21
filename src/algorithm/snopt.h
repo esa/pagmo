@@ -45,6 +45,7 @@ namespace pagmo { namespace algorithm {
  * In order to interface to SNOPT succesfully, PaGMO needs to find in the system the libraries:
  * snopt, snprint, blas, f2c, m and gfortran (in case the snopt libraries were compiled using gfortran)
  *
+ * CAREFUL: SNOPT works only for minimization
  *
  * From the SNOPT User-Manual:
  *
