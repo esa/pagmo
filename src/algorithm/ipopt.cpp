@@ -22,16 +22,15 @@
   *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
   *****************************************************************************/
 
-#include "../exceptions.h"
-#include "../population.h"
-#include "../problem/base.h"
-#include "../types.h"
-#include <limits.h>
-#include "base.h"
 #include "ipopt.h"
+#include "../exceptions.h"
+#include "../types.h"
+
+
 #include "ipopt_cpp_wrapper/ipopt_problem.h"
 #include <coin/IpIpoptApplication.hpp>
 #include <coin/IpSolveStatistics.hpp>
+#include <limits.h>
 
 
 namespace pagmo { namespace algorithm {
@@ -99,9 +98,11 @@ void ipopt::evolve(population &pop) const
 	SmartPtr<Ipopt::TNLP> pagmo_nlp = new ipopt_problem(pop);
 
 	// Change some options
-	app->Options()->SetNumericValue("max_iter", m_iter);
+	app->Options()->SetIntegerValue("max_iter", m_iter);
+	app->Options()->SetIntegerValue("print_level", 12);
 	app->Options()->SetNumericValue("tol", m_tol);
 	app->Options()->SetNumericValue("acceptable_obj_change_tol", m_obj_tol);
+	app->Options()->SetStringValue("hessian_approximation", "limited-memory");
 
 	// Intialize the IpoptApplication and process the options
 	ApplicationReturnStatus status;

@@ -7,32 +7,11 @@
 // Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
 
 #include "ipopt_problem.h"
-#include "../../problem/base.h"
 #include <algorithm>
 
 using namespace Ipopt;
 
-//This function is the sort criteria for the elements of the sparse matrix J. First the variables,
-//then the constraint number. i.e.
-//Before sorting:
-//iJfun = [0,3,0,0,2,1]
-//jJvar = [1,2,0,2,1,0]
-//After sorting:
-//iJfun = [0,1,0,2,0,3]
-//jJvar = [0,0,1,1,2,2]
-bool cache_efficiency_criterion(boost::array<int,2> one,boost::array<int,2> two)
-{
-	if (one[1] < two[1]) {
-		return true;
-	}
-	else {
-		if (one[1] > two[1]) return false;
-		else{ //they are equal!!! look to the other element
-			if (one[0] < two[0]) return true;
-			else return false;
-		}
-	}
-}
+
 
 
 /* Constructor. */
@@ -103,6 +82,27 @@ ipopt_problem::ipopt_problem(const ::pagmo::population &pop) : m_pop(pop)
 ipopt_problem::~ipopt_problem()
 {}
 
+//This function is the sort criteria for the elements of the sparse matrix J. First the variables,
+//then the constraint number. i.e.
+//Before sorting:
+//iJfun = [0,3,0,0,2,1]
+//jJvar = [1,2,0,2,1,0]
+//After sorting:
+//iJfun = [0,1,0,2,0,3]
+//jJvar = [0,0,1,1,2,2]
+bool ipopt_problem::cache_efficiency_criterion(boost::array<int,2> one,boost::array<int,2> two)
+{
+	if (one[1] < two[1]) {
+		return true;
+	}
+	else {
+		if (one[1] > two[1]) return false;
+		else{ //they are equal!!! look to the other element
+			if (one[0] < two[0]) return true;
+			else return false;
+		}
+	}
+}
 
 bool ipopt_problem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 				 Index& nnz_h_lag, IndexStyleEnum& index_style)
@@ -126,20 +126,20 @@ bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
 				    Index m, Number* g_l, Number* g_u)
 {
 	//Bounds on the decision vector
-	for (pagmo::problem::base::size_type i=0; i<m_pop.problem().get_dimension();++i)
+	for (pagmo::problem::base::size_type i=0; i<n;++i)
 	{
 		x_l[i] = m_pop.problem().get_lb()[i];
 		x_u[i] = m_pop.problem().get_ub()[i];
 	}
 
 	//Bounds on equality constraints
-	for (pagmo::problem::base::size_type i=0; i < (m_pop.problem().get_c_dimension()-m_pop.problem().get_ic_dimension());++i)
+	for (pagmo::problem::base::size_type i=0; i < (m-m_pop.problem().get_ic_dimension());++i)
 	{
 		g_l[i] = g_u[i] = 0.0;
 	}
 
 	//Bounds on inequality constraints
-	for (pagmo::problem::base::size_type i = ( m_pop.problem().get_c_dimension() - m_pop.problem().get_ic_dimension()); i < m_pop.problem().get_c_dimension();++i)
+	for (pagmo::problem::base::size_type i = ( m - m_pop.problem().get_ic_dimension()); i < m;++i)
 	{
 		g_l[i] = - std::numeric_limits<double>::max();
 		g_u[i] = 0.0;
@@ -172,7 +172,7 @@ bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
 bool ipopt_problem::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
 	// return the value of the objective function
-	std::copy(x,x+m_pop.problem().get_dimension(),dv.begin());
+	std::copy(x,x+n,dv.begin());
 	m_pop.problem().objfun(fit,dv);
 	obj_value = fit[0];
 	return true;
@@ -182,7 +182,7 @@ bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gr
 {
 	double central_diff;
 	const double h = 1e-8;
-	std::copy(x,x+m_pop.problem().get_dimension(),dv.begin());
+	std::copy(x,x+n,dv.begin());
 	for (pagmo::decision_vector::size_type i=0; i<dv.size();++i)
 	{
 		grad_f[i] = 0;
@@ -227,7 +227,7 @@ bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
 		double central_diff;
 		const double h = 1e-8;
 		double mem;
-		std::copy(x,x+m_pop.problem().get_dimension(),dv.begin());
+		std::copy(x,x+n,dv.begin());
 		for (int i=0;i<len_jac;++i)
 		{
 			mem = dv[jJvar[i]];

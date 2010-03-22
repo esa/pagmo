@@ -27,6 +27,8 @@
 
 #include "../config.h"
 #include "base.h"
+#include "../population.h"
+
 #include <coin/IpIpoptApplication.hpp>
 
 
@@ -45,7 +47,7 @@ class __PAGMO_VISIBLE ipopt: public base
 {
 public:
 
-	ipopt(const int & iter, const double & tol, const double &obj_tol);
+	ipopt(const int &iter, const double &tol = 1e-7, const double &obj_tol = 1e-7);
 	base_ptr clone() const;
 	void evolve(population &) const;
 

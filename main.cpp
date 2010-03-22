@@ -41,10 +41,10 @@ int main()
 // 	snopt_instance.screen_output(true);
 // 	snopt_instance.file_output(false);
 
-	island isl = island(problem::luksan_vlcek_1(4,-1E-3,1E-3),algorithm::ihs(100000,.999,.001),60);
-	for (int i=0; i< 30; ++i){
+	island isl = island(problem::snopt_toyprob(),algorithm::ipopt(100),1);
+	for (int i=0; i< 1; ++i){
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
 	}
-	std::cout << isl << std::endl;
+	//std::cout << isl << std::endl;
 }

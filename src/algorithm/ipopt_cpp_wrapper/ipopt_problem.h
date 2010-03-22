@@ -10,7 +10,7 @@
 #define IPOPT_PROBLEM_H
 
 #include <coin/IpTNLP.hpp>
-#include "../../population.cpp"
+#include "../../population.h"
 #include "../../types.h"
 #include "boost/array.hpp"
 
@@ -97,6 +97,8 @@ private:
 	std::vector<int> iJfun,jJvar;
 	//Contains the variables that effect the objective function
 	std::vector<int> affects_obj;
+	//Sorting criteria for the iJfun, jJvar entries to achieve constraint cache efficiency
+	static bool cache_efficiency_criterion(boost::array<int,2>,boost::array<int,2>);
 	// Internal caches used during evolution.
 	::pagmo::decision_vector dv;
 	::pagmo::fitness_vector fit;

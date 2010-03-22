@@ -135,6 +135,19 @@ IF(ENABLE_SNOPT)
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_SNOPT)
 ENDIF(ENABLE_SNOPT)
 
+# If IPOPT support is requested, look for the libraries.
+IF(ENABLE_IPOPT)
+	FIND_LIBRARY(IPOPT_LIBRARY NAMES ipopt)
+	FIND_PATH(IPOPT_INCLUDE_DIR NAMES coin/IpTNLP.hpp)
+	IF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "IPOPT support was requested, but the library could not be located. Please make sure that you have ipopt library and the headers installed in the default coin/ directory")
+	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
+	MESSAGE(STATUS "IPOPT library: ${IPOPT_LIBRARY}")
+	MESSAGE(STATUS "NLopt include dir: ${IPOPT_INCLUDE_DIR}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY})
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_IPOPT)
+ENDIF(ENABLE_IPOPT)
+
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
 INCLUDE_DIRECTORIES("/sw/include")
