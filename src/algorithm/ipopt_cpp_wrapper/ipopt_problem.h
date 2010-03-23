@@ -22,7 +22,7 @@ class ipopt_problem : public TNLP
 {
 public:
 	/** default constructor */
-	ipopt_problem(const pagmo::population &);
+	ipopt_problem(pagmo::population *);
 
 	/** default destructor */
 	virtual ~ipopt_problem();
@@ -90,13 +90,13 @@ private:
 	ipopt_problem& operator=(const ipopt_problem&);
 	//@}
 	//Points to a PaGMO population
-	const ::pagmo::population m_pop;
+	::pagmo::population *m_pop;
 	//Number of non-zero entries in the Jacbian
-	int len_jac;
+	::Ipopt::Index len_jac;
 	//Sparse representation of the Jacobian
-	std::vector<int> iJfun,jJvar;
+	std::vector< ::Ipopt::Index> iJfun,jJvar;
 	//Contains the variables that effect the objective function
-	std::vector<int> affects_obj;
+	std::vector< ::Ipopt::Index> affects_obj;
 	//Sorting criteria for the iJfun, jJvar entries to achieve constraint cache efficiency
 	static bool cache_efficiency_criterion(boost::array<int,2>,boost::array<int,2>);
 	// Internal caches used during evolution.

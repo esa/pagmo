@@ -37,7 +37,7 @@ namespace pagmo { namespace algorithm {
 
 /// Wrapper for the IPOPT solver
 /**
- * IPOPT
+ * IPOPT is an Interior Point Optimization solver released under the xxx licence
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  *
@@ -47,18 +47,18 @@ class __PAGMO_VISIBLE ipopt: public base
 {
 public:
 
-	ipopt(const int &iter, const double &tol = 1e-7, const double &obj_tol = 1e-7);
+	ipopt(const int &max_iter, const double &tol = 1e-4, const double &m_acceptable_obj_change_tol = 1e-4);
 	base_ptr clone() const;
 	void evolve(population &) const;
+	void screen_output(const bool p);
 
 protected:
 	std::string human_readable_extra() const;
-	void screen_output(const bool p);
+
 private:
-	::Ipopt::SmartPtr<Ipopt::IpoptApplication> app;
-	const int m_iter;
+	const int m_max_iter;
 	const double m_tol;
-	const double m_obj_tol;
+	const double m_acceptable_obj_change_tol;
 	bool m_screen_out;
 };
 

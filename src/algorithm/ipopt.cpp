@@ -35,18 +35,17 @@
 
 namespace pagmo { namespace algorithm {
 
-ipopt::ipopt(const int &iter,const double &tol, const double &obj_tol) : m_iter(iter),m_tol(tol),m_obj_tol(obj_tol),m_screen_out(false)
+ipopt::ipopt(const int &max_iter,const double &tol, const double &acceptable_obj_change_tol) : m_max_iter(max_iter),m_tol(tol),m_acceptable_obj_change_tol(acceptable_obj_change_tol),m_screen_out(false)
 {
-	if (iter < 0) {
+	if (max_iter < 0) {
 		pagmo_throw(value_error,"number of maximum iterations cannot be negative");
 	}
 	if (tol < 0 || tol > 1) {
 		pagmo_throw(value_error,"tolerance is not in ]0,1[");
 	}
-	if (obj_tol < 0 || obj_tol > 1) {
+	if (acceptable_obj_change_tol < 0 || acceptable_obj_change_tol > 1) {
 		pagmo_throw(value_error,"obj_tol is not in ]0,1[");
 	}
-	app = new ::Ipopt::IpoptApplication();
 
 }
 
@@ -90,29 +89,33 @@ void ipopt::evolve(population &pop) const
 	}
 
 	// Get out if there is nothing to do.
-	if (NP == 0 || m_iter == 0) {
+	if (NP == 0 || m_max_iter == 0) {
 		return;
 	}
 
 	//create an instance of the ipopt_problem
-	SmartPtr<Ipopt::TNLP> pagmo_nlp = new ipopt_problem(pop);
+	SmartPtr< ::Ipopt::TNLP> pagmo_nlp = new ipopt_problem(&pop);
 
-	// Change some options
-	app->Options()->SetIntegerValue("max_iter", m_iter);
-	app->Options()->SetIntegerValue("print_level", 12);
-	app->Options()->SetNumericValue("tol", m_tol);
-	app->Options()->SetNumericValue("acceptable_obj_change_tol", m_obj_tol);
-	app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+	//create an instance of the IpoptApplication
+	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication(m_screen_out,false);
+
+
+	m_app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+
+	// Termination Criteria
+	m_app->Options()->SetIntegerValue("max_iter", m_max_iter);
+	m_app->Options()->SetNumericValue("tol", m_tol);
+	m_app->Options()->SetNumericValue("acceptable_obj_change_tol", m_acceptable_obj_change_tol);
 
 	// Intialize the IpoptApplication and process the options
 	ApplicationReturnStatus status;
-	status = app->Initialize();
+	status = m_app->Initialize();
 	if (status != Solve_Succeeded) {
 		pagmo_throw(value_error, "Error during IPOPT initialization!");
 	}
 
 	// Ask Ipopt to solve the problem
-	status = app->OptimizeTNLP(pagmo_nlp);
+	status = m_app->OptimizeTNLP(pagmo_nlp);
 
 
 	//Save the final point
@@ -137,7 +140,7 @@ void ipopt::screen_output(const bool p) {m_screen_out = p;}
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "IPOPT - Max Iterations: " << m_iter << ", Tolerance: "<<m_tol<< ", Objective Function Tolerance: "<<m_obj_tol << std::endl;
+	s << "IPOPT - Max Iterations: " << m_max_iter << ", Tolerance: "<<m_tol<< ", Objective Function Tolerance: "<<m_acceptable_obj_change_tol << std::endl;
 	return s.str();
 }
 

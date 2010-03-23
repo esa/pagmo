@@ -7,40 +7,37 @@
 // Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
 
 #include "ipopt_problem.h"
-#include <algorithm>
+#include "../../exceptions.h"
 
 using namespace Ipopt;
 
-
-
-
 /* Constructor. */
-ipopt_problem::ipopt_problem(const ::pagmo::population &pop) : m_pop(pop)
+ipopt_problem::ipopt_problem(pagmo::population *pop) : m_pop(pop)
 {
 	//We size the various members
 	affects_obj.resize(0);
-	dv.resize(m_pop.problem().get_dimension());
-	fit.resize(m_pop.problem().get_f_dimension());
-	con.resize(m_pop.problem().get_c_dimension());
+	dv.resize(m_pop->problem().get_dimension());
+	fit.resize(m_pop->problem().get_f_dimension());
+	con.resize(m_pop->problem().get_c_dimension());
 
 	//We need to initialize the class members len_jac, iJfun, jJvar. We do this by first
 	//storing the information in duples, ordering using the std::sort algorithm and then assigning
 	//them to iJfun, jJvar. This is done to increase the constraint cache hits
-	int lenG;
-	std::vector<int> iGfun,jGvar;
+	::Ipopt::Index lenG;
+	std::vector< ::Ipopt::Index> iGfun,jGvar;
 	len_jac=0;
-	std::vector< boost::array<int,2> > duples(0);
-	boost::array<int,2> tmp;
+	std::vector< boost::array< ::Ipopt::Index,2> > duples(0);
+	boost::array< ::Ipopt::Index,2> tmp;
 
 
 	//If the problem has its set_sparsity implemented, store the values relevant to the constraints
 	try {
-		m_pop.problem().set_sparsity(lenG,iGfun,jGvar);
-		for (int i = 0; i<lenG; ++i)
+		m_pop->problem().set_sparsity(lenG,iGfun,jGvar);
+		for (::Ipopt::Index i = 0; i<lenG; ++i)
 		{
 			if (iGfun[i]!=0) //objective function gradient sparsity is not used by ipopt
 			{
-				tmp[0] = iGfun[i];
+				tmp[0] = iGfun[i] - 1; //HERE WAS THE UNDEBBUGGABLE!! -1 ffffffkkkkkk
 				tmp[1] = jGvar[i];
 				duples.push_back(tmp);
 				len_jac++;
@@ -57,9 +54,10 @@ ipopt_problem::ipopt_problem(const ::pagmo::population &pop) : m_pop(pop)
 	//Otherwise assume no sparsity
 	catch (not_implemented_error)
 	{
-		for (pagmo::problem::base::size_type j=0;j<m_pop.problem().get_dimension();++j)
+		for (pagmo::problem::base::size_type j=0;j<m_pop->problem().get_dimension();++j)
 		{
-			for (pagmo::problem::base::size_type i=0;i<m_pop.problem().get_c_dimension();++i)
+			affects_obj.push_back(j);
+			for (pagmo::problem::base::size_type i=0;i<m_pop->problem().get_c_dimension();++i)
 			{
 				tmp[0] = i;
 				tmp[1] = j;
@@ -72,7 +70,7 @@ ipopt_problem::ipopt_problem(const ::pagmo::population &pop) : m_pop(pop)
 	//And we finally assign the ordered duples to iJfun, jJvar
 	iJfun.resize(len_jac);
 	jJvar.resize(len_jac);
-	for (int i = 0;i<len_jac;++i)
+	for (::Ipopt::Index i = 0;i<len_jac;++i)
 	{
 		iJfun[i] = duples[i][0];
 		jJvar[i] = duples[i][1];
@@ -104,56 +102,56 @@ bool ipopt_problem::cache_efficiency_criterion(boost::array<int,2> one,boost::ar
 	}
 }
 
+
 bool ipopt_problem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
-				 Index& nnz_h_lag, IndexStyleEnum& index_style)
+                         Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
-	// The problem dimension goes here
-	n = m_pop.problem().get_dimension();
+  //Problem dimension
+  n = m_pop->problem().get_dimension();
 
-	// The number of constraints goes here.
-	m = m_pop.problem().get_c_dimension();
+  //Dimension of the constraint vector (equality and inequality)
+  m = m_pop->problem().get_c_dimension();
 
-	// Number of non zero entries in the jacobian
-	nnz_jac_g = len_jac;
+  // Number of non -zero elements in Jacobian
+  nnz_jac_g = len_jac;
 
-	// We use the standard c index style for row/col entries
-	index_style = C_STYLE;
+  // We use the standard fortran index style for row/col entries
+  index_style = C_STYLE;
 
-	return true;
+  return true;
 }
 
 bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
-				    Index m, Number* g_l, Number* g_u)
+                            Index m, Number* g_l, Number* g_u)
 {
 	//Bounds on the decision vector
-	for (pagmo::problem::base::size_type i=0; i<n;++i)
+	for (::Ipopt::Index i=0; i<n;++i)
 	{
-		x_l[i] = m_pop.problem().get_lb()[i];
-		x_u[i] = m_pop.problem().get_ub()[i];
+		x_l[i] = m_pop->problem().get_lb()[i];
+		x_u[i] = m_pop->problem().get_ub()[i];
 	}
 
 	//Bounds on equality constraints
-	for (pagmo::problem::base::size_type i=0; i < (m-m_pop.problem().get_ic_dimension());++i)
+	for (::Ipopt::Index i=0; i < (m-m_pop->problem().get_ic_dimension());++i)
 	{
 		g_l[i] = g_u[i] = 0.0;
 	}
 
 	//Bounds on inequality constraints
-	for (pagmo::problem::base::size_type i = ( m - m_pop.problem().get_ic_dimension()); i < m;++i)
+	for (::Ipopt::Index i = ( m - m_pop->problem().get_ic_dimension()); i < m;++i)
 	{
 		g_l[i] = - std::numeric_limits<double>::max();
 		g_u[i] = 0.0;
 	}
 
-
-
 	return true;
 }
 
+
 bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
-				       bool init_z, Number* z_L, Number* z_U,
-				       Index m, bool init_lambda,
-				       Number* lambda)
+                               bool init_z, Number* z_L, Number* z_U,
+                               Index m, bool init_lambda,
+                               Number* lambda)
 {
 	// Here, we assume we only have starting values for x, if you code
 	// your own NLP, you can provide starting values for the others if
@@ -163,17 +161,18 @@ bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
 	assert(init_lambda == false);
 
 	// we initialize x as the best individual of the population
-	pagmo::population::size_type bestidx = m_pop.get_best_idx();
-	std::copy(m_pop.get_individual(bestidx).cur_x.begin(),m_pop.get_individual(bestidx).cur_x.end(),x);
+	pagmo::population::size_type bestidx = m_pop->get_best_idx();
+	std::copy(m_pop->get_individual(bestidx).cur_x.begin(),m_pop->get_individual(bestidx).cur_x.end(),x);
 
 	return true;
 }
+
 
 bool ipopt_problem::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
 	// return the value of the objective function
 	std::copy(x,x+n,dv.begin());
-	m_pop.problem().objfun(fit,dv);
+	m_pop->problem().objfun(fit,dv);
 	obj_value = fit[0];
 	return true;
 }
@@ -191,10 +190,10 @@ bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gr
 	for (size_t i =0;i<affects_obj.size();++i)
 	{
 		dv[affects_obj[i]] = dv[affects_obj[i]] + h;
-		m_pop.problem().objfun(fit,dv);
+		m_pop->problem().objfun(fit,dv);
 		central_diff = fit[0];
 		dv[affects_obj[i]] = dv[affects_obj[i]] - 2*h;
-		m_pop.problem().objfun(fit,dv);
+		m_pop->problem().objfun(fit,dv);
 		central_diff = (central_diff-fit[0]) / 2 / h;
 		grad_f[affects_obj[i]] = central_diff;
 	}
@@ -206,18 +205,18 @@ bool ipopt_problem::eval_g(Index n, const Number* x, bool new_x, Index m, Number
 {
 	// return the value of the constraints: g(x)
 	std::copy(x,x+n,dv.begin());
-	m_pop.problem().compute_constraints(con,dv);
+	m_pop->problem().compute_constraints(con,dv);
 	std::copy(con.begin(),con.end(),g);
 	return true;
 }
 
 bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
-			       Index m, Index nele_jac, Index* iRow, Index *jCol,
-			       Number* values)
+                       Index m, Index nele_jac, Index* iRow, Index *jCol,
+                       Number* values)
 {
 	if (values == NULL) {
 		// return the structure of the jacobian of the constraints
-		for (int i=0;i<len_jac;++i)
+		for (Ipopt::Index i=0;i<nele_jac;++i)
 		{
 			iRow[i] = iJfun[i];
 			jCol[i] = jJvar[i];
@@ -228,14 +227,14 @@ bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
 		const double h = 1e-8;
 		double mem;
 		std::copy(x,x+n,dv.begin());
-		for (int i=0;i<len_jac;++i)
+		for (Ipopt::Index i=0;i<nele_jac;++i)
 		{
 			mem = dv[jJvar[i]];
 			dv[jJvar[i]] = dv[jJvar[i]] + h;
-			m_pop.problem().compute_constraints(con,dv);
+			m_pop->problem().compute_constraints(con,dv);
 			central_diff = con[iJfun[i]];
 			dv[jJvar[i]] = dv[jJvar[i]] - 2 * h;
-			m_pop.problem().compute_constraints(con,dv);
+			m_pop->problem().compute_constraints(con,dv);
 			central_diff = (central_diff - con[iJfun[i]])/2/h;
 			values[i] = central_diff;
 			dv[jJvar[i]] = mem;
@@ -245,14 +244,17 @@ bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
 	return true;
 }
 
-
 void ipopt_problem::finalize_solution(SolverReturn status,
-				      Index n, const Number* x, const Number* z_L, const Number* z_U,
-				      Index m, const Number* g, const Number* lambda,
-				      Number obj_value,
-				      const IpoptData* ip_data,
-				      IpoptCalculatedQuantities* ip_cq)
+                              Index n, const Number* x, const Number* z_L, const Number* z_U,
+                              Index m, const Number* g, const Number* lambda,
+                              Number obj_value,
+			      const IpoptData* ip_data,
+			      IpoptCalculatedQuantities* ip_cq)
 {
-	// here is where we would store the solution to variables, or write to a file, etc
-	// so we could use the solution.
+	for (::Ipopt::Index i=0;i<n;i++) dv[i] = x[i];
+	int bestidx = m_pop->get_best_idx();
+	pagmo::decision_vector newx = dv;
+	std::transform(dv.begin(), dv.end(), m_pop->get_individual(bestidx).cur_x.begin(), dv.begin(),std::minus<double>());
+	m_pop->set_x(bestidx,newx);
+	m_pop->set_v(bestidx,dv);
 }
