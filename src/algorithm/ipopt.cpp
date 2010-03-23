@@ -35,6 +35,19 @@
 
 namespace pagmo { namespace algorithm {
 
+/// Constructor.
+/**
+ * Allows to specify some of the parameters of the IPOPT solver.
+ *
+ * @param[in] max_iter Maximum number of major iterations (refer to IPOPT manual).
+ * @param[in] tol Desired convergence tolerance (relative). (refer to IPOPT manual).
+ * @param[in] opt "Acceptance" stopping criterion based on objective function change. If the relative
+ * change of the objective function (scaled by Max(1,|f(x)|)) is less than this value,
+ * this part of the acceptable tolerance termination is satisfied. (refer to IPOPT manual).
+ * @throws value_error if max_iter is not positive, and tol,acceptable_obj_change_tol are not in \f$]0,1[\f$
+ */
+
+
 ipopt::ipopt(const int &max_iter,const double &tol, const double &acceptable_obj_change_tol) : m_max_iter(max_iter),m_tol(tol),m_acceptable_obj_change_tol(acceptable_obj_change_tol),m_screen_out(false)
 {
 	if (max_iter < 0) {
@@ -130,7 +143,7 @@ void ipopt::evolve(population &pop) const
 
 /// Activate screen output
 /**
- * Activate IPOPT screen output at a default level
+ * Activate/Deactivate IPOPT screen output at a default level
  *
  * @param[in] p true or false
  */
