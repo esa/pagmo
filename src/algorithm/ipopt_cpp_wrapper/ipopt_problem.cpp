@@ -205,7 +205,7 @@ bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gr
 bool ipopt_problem::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
 	// return the value of the constraints: g(x)
-	std::copy(x,x+m_pop.problem().get_dimension(),dv.begin());
+	std::copy(x,x+n,dv.begin());
 	m_pop.problem().compute_constraints(con,dv);
 	std::copy(con.begin(),con.end(),g);
 	return true;

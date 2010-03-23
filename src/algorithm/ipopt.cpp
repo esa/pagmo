@@ -46,7 +46,7 @@ ipopt::ipopt(const int &iter,const double &tol, const double &obj_tol) : m_iter(
 	if (obj_tol < 0 || obj_tol > 1) {
 		pagmo_throw(value_error,"obj_tol is not in ]0,1[");
 	}
-	app = IpoptApplicationFactory();
+	app = new ::Ipopt::IpoptApplication();
 
 }
 
