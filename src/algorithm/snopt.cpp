@@ -90,7 +90,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] opt Optimality tolerance (refer to SNOPT manual).
  * @throws value_error if major is not positive, and feas,opt are not in \f$]0,1[\f$
  */
-snopt::snopt(const int major,const double feas, const double opt) : m_major(major),m_feas(feas),m_opt(opt),m_screen_out(false)
+snopt::snopt(const int major,const double feas, const double opt) : m_major(major),m_feas(feas),m_opt(opt),m_screen_out(false), m_file_out(false)
 {
 	if (major < 0) {
 		pagmo_throw(value_error,"number of major iterations cannot be negative");

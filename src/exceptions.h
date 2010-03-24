@@ -28,6 +28,10 @@
 #include "p_exceptions.h"
 
 #define pagmo_throw(ex,s) P_EX_THROW(ex,s)
-#define pagmo_assert(expr) P_EX_ASSERT(expr)
+#ifdef NDEBUG
+	#define pagmo_assert(expr)
+#else
+	#define pagmo_assert(expr) P_EX_ASSERT(expr)
+#endif
 
 #endif

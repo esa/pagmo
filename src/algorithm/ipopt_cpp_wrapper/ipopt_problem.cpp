@@ -6,6 +6,8 @@
 //
 // Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "ipopt_problem.h"
 #include "../../exceptions.h"
 
@@ -37,7 +39,7 @@ ipopt_problem::ipopt_problem(pagmo::population *pop) : m_pop(pop)
 		{
 			if (iGfun[i]!=0) //objective function gradient sparsity is not used by ipopt
 			{
-				tmp[0] = iGfun[i] - 1; //HERE WAS THE UNDEBBUGGABLE!! -1 ffffffkkkkkk
+				tmp[0] = iGfun[i] - 1; //HERE WAS THE UNDEBUGGABLE!! -1 ffffffkkkkkk
 				tmp[1] = jGvar[i];
 				duples.push_back(tmp);
 				len_jac++;
@@ -74,6 +76,7 @@ ipopt_problem::ipopt_problem(pagmo::population *pop) : m_pop(pop)
 	{
 		iJfun[i] = duples[i][0];
 		jJvar[i] = duples[i][1];
+		//std::cout << "[" << iJfun[i] << "," << jJvar[i] << "]" << std::endl;
 	}
 }
 
@@ -104,25 +107,26 @@ bool ipopt_problem::cache_efficiency_criterion(boost::array<int,2> one,boost::ar
 
 
 bool ipopt_problem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
-                         Index& nnz_h_lag, IndexStyleEnum& index_style)
+				 Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
-  //Problem dimension
-  n = m_pop->problem().get_dimension();
+	(void)nnz_h_lag; //hessian is evaluated numerically using BFGS
+	//Problem dimension
+	n = m_pop->problem().get_dimension();
 
-  //Dimension of the constraint vector (equality and inequality)
-  m = m_pop->problem().get_c_dimension();
+	//Dimension of the constraint vector (equality and inequality)
+	m = m_pop->problem().get_c_dimension();
 
-  // Number of non -zero elements in Jacobian
-  nnz_jac_g = len_jac;
+	// Number of non -zero elements in Jacobian
+	nnz_jac_g = len_jac;
 
-  // We use the standard fortran index style for row/col entries
-  index_style = C_STYLE;
+	// We use the standard fortran index style for row/col entries
+	index_style = C_STYLE;
 
-  return true;
+	return true;
 }
 
 bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
-                            Index m, Number* g_l, Number* g_u)
+				    Index m, Number* g_l, Number* g_u)
 {
 	//Bounds on the decision vector
 	for (::Ipopt::Index i=0; i<n;++i)
@@ -132,7 +136,7 @@ bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
 	}
 
 	//Bounds on equality constraints
-	for (::Ipopt::Index i=0; i < (m-m_pop->problem().get_ic_dimension());++i)
+	for (::Ipopt::Index i=0; i < boost::numeric_cast< ::Ipopt::Index>(m-m_pop->problem().get_ic_dimension());++i)
 	{
 		g_l[i] = g_u[i] = 0.0;
 	}
@@ -140,7 +144,7 @@ bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
 	//Bounds on inequality constraints
 	for (::Ipopt::Index i = ( m - m_pop->problem().get_ic_dimension()); i < m;++i)
 	{
-		g_l[i] = - std::numeric_limits<double>::max();
+		g_l[i] = - 1e20;
 		g_u[i] = 0.0;
 	}
 
@@ -149,16 +153,23 @@ bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
 
 
 bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
-                               bool init_z, Number* z_L, Number* z_U,
-                               Index m, bool init_lambda,
-                               Number* lambda)
+				       bool init_z, Number* z_L, Number* z_U,
+				       Index m, bool init_lambda,
+				       Number* lambda)
 {
 	// Here, we assume we only have starting values for x, if you code
 	// your own NLP, you can provide starting values for the others if
 	// you wish.
-	assert(init_x == true);
-	assert(init_z == false);
-	assert(init_lambda == false);
+	pagmo_assert(init_x == true);
+	pagmo_assert(init_z == false);
+	pagmo_assert(init_lambda == false);
+	pagmo_assert(n == boost::numeric_cast<Index>(m_pop->problem().get_dimension()));
+	pagmo_assert(m == boost::numeric_cast<Index>(m_pop->problem().get_c_dimension()));
+
+	// Shut off compiler warnings about unused variables. Cool, eh?
+	(void) z_L;
+	(void) z_U;
+	(void) lambda;
 
 	// we initialize x as the best individual of the population
 	pagmo::population::size_type bestidx = m_pop->get_best_idx();
@@ -170,6 +181,7 @@ bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
 
 bool ipopt_problem::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
 {
+	(void) new_x;
 	// return the value of the objective function
 	std::copy(x,x+n,dv.begin());
 	m_pop->problem().objfun(fit,dv);
@@ -179,6 +191,7 @@ bool ipopt_problem::eval_f(Index n, const Number* x, bool new_x, Number& obj_val
 
 bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
 {
+	(void) new_x;
 	double central_diff;
 	const double h = 1e-8;
 	std::copy(x,x+n,dv.begin());
@@ -203,6 +216,8 @@ bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gr
 
 bool ipopt_problem::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
 {
+	(void) new_x;
+	(void) m;
 	// return the value of the constraints: g(x)
 	std::copy(x,x+n,dv.begin());
 	m_pop->problem().compute_constraints(con,dv);
@@ -211,9 +226,12 @@ bool ipopt_problem::eval_g(Index n, const Number* x, bool new_x, Index m, Number
 }
 
 bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
-                       Index m, Index nele_jac, Index* iRow, Index *jCol,
-                       Number* values)
+			       Index m, Index nele_jac, Index* iRow, Index *jCol,
+			       Number* values)
 {
+	(void) new_x;
+	pagmo_assert(n == boost::numeric_cast<Index>(m_pop->problem().get_dimension()));
+	pagmo_assert(m == boost::numeric_cast<Index>(m_pop->problem().get_c_dimension()));
 	if (values == NULL) {
 		// return the structure of the jacobian of the constraints
 		for (Ipopt::Index i=0;i<nele_jac;++i)
@@ -245,12 +263,22 @@ bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
 }
 
 void ipopt_problem::finalize_solution(SolverReturn status,
-                              Index n, const Number* x, const Number* z_L, const Number* z_U,
-                              Index m, const Number* g, const Number* lambda,
-                              Number obj_value,
-			      const IpoptData* ip_data,
-			      IpoptCalculatedQuantities* ip_cq)
+				      Index n, const Number* x, const Number* z_L, const Number* z_U,
+				      Index m, const Number* g, const Number* lambda,
+				      Number obj_value,
+				      const IpoptData* ip_data,
+				      IpoptCalculatedQuantities* ip_cq)
 {
+	(void) status;
+	(void) z_L;
+	(void) z_U;
+	(void) m;
+	(void) g;
+	(void) lambda;
+	(void) obj_value;
+	(void) ip_data;
+	(void) ip_cq;
+
 	for (::Ipopt::Index i=0;i<n;i++) dv[i] = x[i];
 	int bestidx = m_pop->get_best_idx();
 	pagmo::decision_vector newx = dv;

@@ -41,7 +41,7 @@ int main()
 	ipopt_instance.screen_output(true);
 // 	snopt_instance.file_output(false);
 
-	island isl = island(problem::rosenbrock(50),ipopt_instance,1);
+	island isl = island(problem::luksan_vlcek_1(100,-1e-3,1e3),ipopt_instance,1);
 	for (int i=0; i< 1; ++i){
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;

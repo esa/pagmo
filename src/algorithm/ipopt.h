@@ -40,7 +40,11 @@ namespace pagmo { namespace algorithm {
  * IPOPT is an Interior Point Optimization solver released under the CPL licence. Our wrapper is
  * generic and does not use the hessian information lettitng IPOPT deal with it. Gradients and Jacobian are
  * evaluated by central differences with an arbitrary (and dangerous) 10-8 stepsize. We offer control
- * over only a few IPOPT options, should finer control be needed the wrapper code has to be modified
+ * over only a few IPOPT options, should finer control be needed the wrapper code has to be modified.
+ *
+ * IPOPT has severa lib dependencies that overlaps with SNOPT lib dependencies. Take care that you link
+ * to the correct ones, especially for the blas lib that can give problem if coming from SNOPT native source code
+ *
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  *

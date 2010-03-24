@@ -80,12 +80,9 @@ void ipopt::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
-	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
-	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
+	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_f_dimension = prob.get_f_dimension();
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
-	const std::vector<double>::size_type D_ineqc = prob.get_ic_dimension();
-	const std::vector<double>::size_type D_eqc = prob_c_dimension - D_ineqc;
 	const std::string name = prob.get_name();
 
 	//We perform some checks to determine wether the problem/population are suitable for IPOPT
@@ -107,13 +104,14 @@ void ipopt::evolve(population &pop) const
 	}
 
 	//create an instance of the ipopt_problem
-	SmartPtr< ::Ipopt::TNLP> pagmo_nlp = new ipopt_problem(&pop);
+	::Ipopt::SmartPtr< ::Ipopt::TNLP> pagmo_nlp = new ipopt_problem(&pop);
 
 	//create an instance of the IpoptApplication
-	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication(m_screen_out,false);
+	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication();
 
 
 	m_app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+	m_app->Options()->SetIntegerValue("print_level", 5);
 
 	// Termination Criteria
 	m_app->Options()->SetIntegerValue("max_iter", m_max_iter);
@@ -121,9 +119,9 @@ void ipopt::evolve(population &pop) const
 	m_app->Options()->SetNumericValue("acceptable_obj_change_tol", m_acceptable_obj_change_tol);
 
 	// Intialize the IpoptApplication and process the options
-	ApplicationReturnStatus status;
+	Ipopt::ApplicationReturnStatus status;
 	status = m_app->Initialize();
-	if (status != Solve_Succeeded) {
+	if (status != Ipopt::Solve_Succeeded) {
 		pagmo_throw(value_error, "Error during IPOPT initialization!");
 	}
 

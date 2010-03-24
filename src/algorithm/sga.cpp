@@ -133,11 +133,10 @@ void sga::evolve(population &pop) const
 	std::vector <int> selection(NP);
 
 	int tempID;
-	double temp;
 	std::vector<int> fitnessID(NP);
 
 	// Initialise the chromosomes and their fitness to that of the initial deme
-	for ( int i = 0; i<NP; i++ ) {
+	for (pagmo::population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		fit[i]	=	pop.get_individual(i).cur_f;
 	}
@@ -154,9 +153,9 @@ void sga::evolve(population &pop) const
 		switch (m_sel) {
 		case selection::BEST20: { //selects the best 20% and puts multiple copies in Xnew
 			//Sort the individuals according to their fitness
-			for (int i=0;i<NP;i++) fitnessID[i]=i;
-			for (int i=0; i < (NP-1); ++i) {
-				for (int j=i+1; j<NP; ++j) {
+			for (pagmo::population::size_type i=0; i<NP; i++) fitnessID[i]=i;
+			for (pagmo::population::size_type i=0; i < (NP-1); ++i) {
+				for (pagmo::population::size_type j=i+1; j<NP; ++j) {
 					if ( prob.compare_fitness(fit[j],fit[i]) ) {
 						//swap fitness values
 						fit[i].swap(fit[j]);
@@ -168,7 +167,7 @@ void sga::evolve(population &pop) const
 				}
 			}
 			int best20 = NP/5;
-			for ( int i=0; i < NP; ++i) {
+			for (pagmo::population::size_type i=0; i<NP; ++i) {
 				selection[i] = fitnessID[i % best20];
 			}
 			break;
@@ -177,28 +176,28 @@ void sga::evolve(population &pop) const
 		case selection::ROULETTE: {
 			//We scale all fitness values from 0 (worst) to absolute value of the best fitness
 			fitness_vector worstfit=fit[0];
-			for (int i = 1; i < NP;i++) {
+			for (pagmo::population::size_type i = 1; i < NP;i++) {
 				if (prob.compare_fitness(worstfit,fit[i])) worstfit=fit[i];
 			}
 
-			for (int i = 0; i < NP; i++) {
+			for (pagmo::population::size_type i = 0; i < NP; i++) {
 				selectionfitness[i] = fabs(worstfit[0] - fit[i][0]);
 			}
 
 			// We build and normalise the cumulative sum
 			cumsumTemp[0] = selectionfitness[0];
-			for (int i = 1; i< NP; i++) {
+			for (pagmo::population::size_type i = 1; i< NP; i++) {
 				cumsumTemp[i] = cumsumTemp[i - 1] + selectionfitness[i];
 			}
-			for (int i = 0; i < NP; i++) {
+			for (pagmo::population::size_type i = 0; i < NP; i++) {
 				cumsum[i] = cumsumTemp[i]/cumsumTemp[NP-1];
 			}
 
 			//we throw a dice and pick up the corresponding index
 			double r2;
-			for (int i = 0; i < NP; i++) {
+			for (pagmo::population::size_type i = 0; i < NP; i++) {
 				r2 = m_drng();
-				for (int j = 0; j < NP; j++) {
+				for (pagmo::population::size_type j = 0; j < NP; j++) {
 					if (cumsum[j] > r2) {
 						selection[i]=j;
 						break;
@@ -210,22 +209,22 @@ void sga::evolve(population &pop) const
 		}
 
 		//Xnew stores the new selected generation of chromosomes
-		for (int i = 0; i < NP; i++) {
+		for (pagmo::population::size_type i = 0; i < NP; i++) {
 			Xnew[i]=X[selection[i]];
 		}
 
 		//2 - Crossover
 		{
-			int r1,n,L;
+			int r1,L;
 			decision_vector  member1,member2;
 
-			for (int i=0; i< NP; i++) {
+			for (pagmo::population::size_type i=0; i< NP; i++) {
 				//for each chromosome selected i.e. in Xnew
 				member1 = Xnew[i];
 				//we select a mating patner different from the self (i.e. no masturbation)
 				do {
 					r1 = boost::uniform_int<int>(0,NP - 1)(m_urng);
-				} while ( r1 == i );
+				} while ( r1 == boost::numeric_cast<int>(i) );
 				member2 = Xnew[r1];
 				//and we operate crossover
 				switch (m_cro) {
@@ -247,7 +246,7 @@ void sga::evolve(population &pop) const
 						member1[n] = member2[n];
 						n = (n+1) % D;
 						L++;
-					}  while ( (m_drng() < m_cr) && (L < D) );
+					}  while ( (m_drng() < m_cr) && (L < boost::numeric_cast<int>(D)) );
 					break; }
 				}
 				Xnew[i] = member1;
@@ -259,9 +258,9 @@ void sga::evolve(population &pop) const
 		case mutation::GAUSSIAN: {
 			boost::normal_distribution<double> dist;
 			boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > delta(m_drng,dist);
-			for (int k = 0; k < D;k++) { //for each continuous variable
+			for (pagmo::problem::base::size_type k = 0; k < D;k++) { //for each continuous variable
 				double std = (ub[k]-lb[k]) * m_mut.m_width;
-				for (int i = 0; i < NP;i++) { //for each individual
+				for (pagmo::population::size_type i = 0; i < NP;i++) { //for each individual
 					if (m_drng() < m_m) {
 						double mean = Xnew[i][k];
 						Xnew[i][k] = (delta() * std + mean);
@@ -270,8 +269,8 @@ void sga::evolve(population &pop) const
 					}
 				}
 			}
-			for (int k = Dc; k < D;k++) { //for each integer variable
-				for (int i = 0; i < NP;i++) { //for each individual
+			for (pagmo::problem::base::size_type k = Dc; k < D;k++) { //for each integer variable
+				for (pagmo::population::size_type i = 0; i < NP;i++) { //for each individual
 					if (m_drng() < m_m) {
 						double mean = Xnew[i][k];
 						Xnew[i][k] = boost::math::iround(delta() + mean);
@@ -283,13 +282,13 @@ void sga::evolve(population &pop) const
 			break;
 			}
 		case mutation::RANDOM: {
-			for (int i = 0; i < NP;i++) {
-				for (int j = 0; j < Dc;j++) { //for each continuous variable
+			for (pagmo::population::size_type i = 0; i < NP;i++) {
+				for (pagmo::problem::base::size_type j = 0; j < Dc;j++) { //for each continuous variable
 					if (m_drng() < m_m) {
 						Xnew[i][j] = boost::uniform_real<double>(lb[j],ub[j])(m_drng);
 					}
 				}
-				for (int j = Dc; j < D;j++) {//for each integer variable
+				for (pagmo::problem::base::size_type j = Dc; j < D;j++) {//for each integer variable
 					if (m_drng() < m_m) {
 						Xnew[i][j] = boost::uniform_int<int>(lb[j],ub[j])(m_urng);
 					}
@@ -300,7 +299,7 @@ void sga::evolve(population &pop) const
 		}
 
 		//4 - Evaluate Xnew
-		for (int i = 0; i < NP;i++) {
+		for (pagmo::population::size_type i = 0; i < NP;i++) {
 			prob.objfun(fit[i],Xnew[i]);
 			dummy = Xnew[i];
 			std::transform(dummy.begin(), dummy.end(), pop.get_individual(i).cur_x.begin(), dummy.begin(),std::minus<double>());
@@ -316,7 +315,7 @@ void sga::evolve(population &pop) const
 		//5 - Reinsert best individual every m_elitism generations
 		if (j % m_elitism == 0) {
 			int worst=0;
-			for (int i = 1; i < NP;i++) {
+			for (pagmo::population::size_type i = 1; i < NP;i++) {
 				if ( prob.compare_fitness(fit[worst],fit[i]) ) worst=i;
 			}
 			Xnew[worst] = bestX;
