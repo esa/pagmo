@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,29 +22,31 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef SPACECRAFT_H
+#define SPACECRAFT_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
+namespace kep_toolbox {
 
-using namespace pagmo;
+/// Spacecraft
+/**
+ * A container for system design parameters of a spacecraft.
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
 
-int main()
+class spacecraft
 {
-	algorithm::ipopt ipopt_instance(10,1e-4,1e-4);
-	ipopt_instance.screen_output(false);
-// 	snopt_instance.file_output(false);
-
-	island isl = island(problem::cassini_1(),ipopt_instance,1);
-	for (int i=0; i< 30; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
-	}
-	//std::cout << isl << std::endl;
+public:
+	spacecraft(){}
+	spacecraft(const double &mass_, const double &thrust_, const double &isp_) : mass(mass_),thrust(thrust_),isp(isp_) {}
+	const double& get_mass() const {return mass;}
+	const double& get_thrust() const {return thrust;}
+	const double& get_isp() const {return isp;}
+private:
+	double mass;
+	double thrust;
+	double isp;
+};
 }
+
+#endif // SPACECRAFT_H

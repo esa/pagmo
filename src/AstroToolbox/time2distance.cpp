@@ -22,29 +22,79 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+/*
+%Inputs:
+%           r0:    column vector for the position (mu=1)
+%           v0:    column vector for the velocity (mu=1)
+%           rtarget: distance to be reached
+%
+%Outputs:
+%           t:     time taken to reach a given distance
+%
+%Comments:  everything works in non dimensional units
+*/
 
-// Header including all problems implemented in PaGMO.
+#include <cmath>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/nsga_ii_fon.h"
-#include "problem/nsga_ii_sch.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/string_match_mo.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
+#include "../constants.h"
+#include "Astro_Functions.h"
+#include "propagateKEP.h"
+#include "time2distance.h"
 
+using namespace std;
 
-#endif
+double time2distance(const double *r0, const double *v0, const double &rtarget)
+{
+	double temp = 0.0;
+	double E[6];
+	double r0norm = norm2(r0);
+	double a, e, E0, p, ni, Et;
+	int i;
+
+	if (r0norm < rtarget)
+	{
+		for (i=0; i<3; i++)
+			temp += r0[i]*v0[i];
+
+		IC2par(r0,v0,1,E);
+		a = E[0];
+		e = E[1];
+		E0 = E[5];
+		p = a * (1-e*e);
+		// If the solution is an ellipse
+		if (e<1)
+		{
+			double ra = a * (1+e);
+			if (rtarget>ra)
+				return -1; // NaN;
+            else // we find the anomaly where the target distance is reached
+			{
+				ni = acos((p/rtarget-1)/e);         //in 0-pi
+				Et = 2*atan(sqrt((1-e)/(1+e))*tan(ni/2)); // algebraic kepler's equation
+
+				if (temp>0)
+					return sqrt(pow(a,3))*(Et-e*sin(Et)-E0 + e*sin(E0));
+				else
+				{
+					E0 = -E0;
+					return sqrt(pow(a,3))*(Et-e*sin(Et)+E0 - e*sin(E0));
+				}
+			}
+		}
+		else // the solution is a hyperbolae
+		{
+			ni = acos((p/rtarget-1)/e);         // in 0-pi
+			Et = 2*atan(sqrt((e-1)/(e+1))*tan(ni/2)); // algebraic equivalent of kepler's equation in terms of the Gudermannian
+
+			if (temp>0) // out==1
+				return sqrt(pow((-a),3))*(e*tan(Et)-log(tan(Et/2+M_PI/4))-e*tan(E0)+log(tan(E0/2+M_PI/4)));
+			else
+			{
+				E0 = -E0;
+				return sqrt(pow((-a),3))*(e*tan(Et)-log(tan(Et/2+M_PI/4))+e*tan(E0)-log(tan(E0/2+M_PI/4)));
+			}
+		}
+	}
+	else
+			return 12;
+}

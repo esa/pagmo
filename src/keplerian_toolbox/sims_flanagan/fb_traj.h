@@ -1,0 +1,196 @@
+/*****************************************************************************
+*   Copyright (C) 2004-2009 The PaGMO development team,                     *
+*   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+*   http://apps.sourceforge.net/mediawiki/pagmo                             *
+*   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+*   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+*   act@esa.int                                                             *
+*                                                                           *
+*   This program is free software; you can redistribute it and/or modify    *
+*   it under the terms of the GNU General Public License as published by    *
+*   the Free Software Foundation; either version 2 of the License, or       *
+*   (at your option) any later version.                                     *
+*                                                                           *
+*   This program is distributed in the hope that it will be useful,         *
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+*   GNU General Public License for more details.                            *
+*                                                                           *
+*   You should have received a copy of the GNU General Public License       *
+*   along with this program; if not, write to the                           *
+*   Free Software Foundation, Inc.,                                         *
+*   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+*****************************************************************************/
+
+#ifndef FB_TRAJ_H
+#define FB_TRAJ_H
+
+#include<vector>
+#include"leg.h"
+#include"../planet.h"
+#include"sc_state.h"
+#include "../exceptions.h"
+
+namespace kep_toolbox { namespace sims_flanagan{
+/// A generic interplanetary trajectory
+
+/**
+* An interplanetary trajectory. The trajetory model is impulsive
+* implemented as introduced by Sims-Flanagan. Fly-bys are considered instantaneous and the planet::safe_radius
+* is used to calculate the fly-by feasibility. The trajectory is built by specifying a sequence of planets
+* in an std:vector container, the number of segments in each leg and a spacecraft. After that, a call to
+* init_from_full_vector specifies the specific trajectory flight-plan. Care has to be taken to respect
+* the structure of the full_vector:
+*
+* \f$ [t_0, m^i_s, \mathbf v_{\infty_s}^i, \mathbf u^i, \mathbf v_{\infty_f}^i, m^i_f, T^i] \f$.
+* The index \f$i\f$ refers to the leg.
+* \f$ t_0\f$ is the starting date in mjd2000.
+* \f$m_s\f$ is the spacecraft mass at the leg beginning (kg).
+* \f$\mathbf v_{infty_s}\f$ are the three cartesian components of the relative velocity at the leg beginning (m/s).
+* \f$\mathbf u\f$ are the 3*n_seg cartesian components of the throttles (\f$\in [0,1]\f$).
+* \f$\mathbf v_{infty_f}\f$ are the three cartesian components of the relative velocity at the leg end (m/s).
+* \f$m_f\f$ is the spacecraft mass at the leg end (kg).
+* \f$T\f$ id the leg time duration (sec).
+*
+* @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+*/
+	class fb_traj
+	{
+	    friend std::ostream &operator<<(std::ostream &s, const fb_traj &in );
+	public:
+	    /** @name Constructors*/
+	    //@{
+	    fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_);
+	    fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
+	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	    //@}
+
+	    /** @name Getters*/
+	    //@{
+	    const std::vector<double>& get_full_vector() const {return full_vector;}
+	    const std::vector<double>& get_mismatches_con() const {return mismatches_con;}
+	    const std::vector<double>& get_throttles_con() const {return throttles_con;}
+	    const std::vector<double>& get_fb_relvel_con() const {return fb_relvel_con;}
+	    const std::vector<double>& get_fb_altitude_con() const {return fb_altitude_con;}
+	    const std::vector<double>& get_fb_mass_con() const {return fb_mass_con;}
+	    const std::vector<double>& get_fb_epoch_con() const {return fb_epoch_con;}
+
+	    /// State mismatch consraints
+	    /**
+	     * Calclates the state mismathces at the mid-point of a given leg and
+	     * stores them in mismatches_con at the appropriate position
+	     */
+	    template<typename it_type>
+	    void evaluate_mismatch_con(int i, it_type output) const {
+		legs[i].get_mismatch_con(output);
+	    }
+	    
+	    /**
+	     * Calclates the state mismathces at the mid-point of each leg and stores them in mismatches_con
+	     */
+	    template<typename it_type>
+	    void evaluate_all_mismatch_con(it_type output) const {
+		for (size_t i=0; i<legs.size();i++){
+		    evaluate_mismatch_con(i, output  + 7*i);
+		}
+	    }
+
+	    //@}
+
+	    /** @name Flight-plan setters*/
+	    //@{
+
+
+	    /// Sets the trajectory flight plan from a full_vector
+	    /**
+	     * Sets the trajectory flight plan from a full_vector. The function essentially loads into the object
+	     * fb_traj the unstructured information contained in a full_vector and calculates all te different
+	     * constraints related to such a vector storing them in the class private members
+	     *
+	     * \param[in] x Full-vector encoding the trajectory flight-plan. (check full_vector for the encoding rules)
+	     */
+	    template<typename it_type, typename coding_type> 
+	    void init_from_full_vector(it_type b, it_type e, const coding_type& coding) {
+	    
+		full_vector.assign(b, e);
+		int n = coding.n_legs();
+		assert(legs.size() == n);
+		if (coding.size() != e - b) {
+		    throw_value_error("The provided vector size to init the trajectory is inconsistent.");
+		}
+	    
+		array3D start_pos, start_vel, end_pos, end_vel;
+		planets[0].get_eph(coding.leg_start_epoch(0, b), end_pos, end_vel);
+		for(int i = 0; i < n; i++){
+		    start_pos = end_pos;
+		    start_vel = end_vel;
+		    planets[i + 1].get_eph(coding.leg_end_epoch(i, b), end_pos, end_vel);
+		
+		    legs[i].set_t_i(coding.leg_start_epoch(i, b));
+		    array3D dv = coding.leg_start_velocity(i, b);
+		    std::transform(dv.begin(), dv.end(),
+				   start_vel.begin(), dv.begin(),
+				   std::plus<double>());
+		    legs[i].set_x_i(sc_state(start_pos, dv, coding.leg_start_mass(i, b)));
+		    legs[i].set_throttles_size(coding.n_segments(i));
+		    for(int j = 0; j < legs[i].get_throttles_size(); ++j)
+			legs[i].set_throttle(j, throttle(coding.segment_start_epoch(i, j, b),
+							 coding.segment_end_epoch(i, j, b),
+							 coding.segment_thrust(i, j, b)));
+		    legs[i].set_t_f(coding.leg_end_epoch(i, b));
+		
+		    dv = coding.leg_end_velocity(i, b);
+		    std::transform(dv.begin(), dv.end(),
+				   end_vel.begin(), dv.begin(),
+				   std::plus<double>());
+		    legs[i].set_x_f(sc_state(end_pos, dv, coding.leg_end_mass(i, b)));
+		}
+	    }
+
+	    const leg& get_leg(int index) const {
+		return legs[index];
+	    }
+
+	    //@}
+	private:
+	    std::vector<leg> legs;
+	    std::vector<planet> planets;
+
+	    unsigned int total_n_seg;    //This is here only for efficiency purposes of the consistency check in init_from_full_vector
+
+	    /// Contains the trajectory flight-plan
+	    /**
+	     * According to the number of legs and the number of segments in each leg, this STD vector contains
+	     * all the necessary information to actually "fly" the interplanetary trajectory. The
+	     * vector structure is as follows:
+	     * \f$ [t_0, m^i_s, \mathbf v_{\infty_s}^i, \mathbf u^i, \mathbf v_{\infty_f}^i, m^i_f, T^i] \f$.
+	     * The index \f$i\f$ refers to the leg.
+	     * \f$ t_0\f$ is the starting date in mjd2000.
+	     * \f$m_s\f$ is the spacecraft mass at the leg beginning (kg).
+	     * \f$\mathbf v_{infty_s}\f$ are the three cartesian components of the relative velocity at the leg beginning (m/s).
+	     * \f$\mathbf u\f$ are the 3*n_seg cartesian components of the throttles (\f$\in [0,1]\f$).
+	     * \f$\mathbf v_{infty_f}\f$ are the three cartesian components of the relative velocity at the leg end (m/s).
+	     * \f$m_f\f$ is the spacecraft mass at the leg end (kg).
+	     * \f$T\f$ id the leg time duration (sec).
+	     *
+	     */
+	    std::vector<double> full_vector;
+	    std::vector<double> mismatches_con;
+	    std::vector<double> throttles_con;
+	    std::vector<double> fb_relvel_con;
+	    std::vector<double> fb_altitude_con;
+	    std::vector<double> fb_mass_con;
+	    std::vector<double> fb_epoch_con;
+
+	    void evaluate_mismatch_con();
+	    void evaluate_throttles_con();
+	    void evaluate_fb_con();
+		
+	};
+	    
+	std::ostream &operator<<(std::ostream &s, const fb_traj &in );
+	    
+	}} // namespaces
+#endif // FB_TRAJ_H
+    

@@ -107,7 +107,7 @@ void ipopt::evolve(population &pop) const
 	::Ipopt::SmartPtr< ::Ipopt::TNLP> pagmo_nlp = new ipopt_problem(&pop);
 
 	//create an instance of the IpoptApplication
-	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication();
+	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication(m_screen_out,false);
 
 
 	m_app->Options()->SetStringValue("hessian_approximation", "limited-memory");

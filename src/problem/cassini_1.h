@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,29 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_PROBLEM_CASSINI_1_H
+#define PAGMO_PROBLEM_CASSINI_1_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
+#include "../AstroToolbox/mga.h"
+#include "boost/array.hpp"
 
-using namespace pagmo;
+namespace pagmo{ namespace problem {
 
-int main()
+/// Cassini MGA problem
+/**
+ * This is a rather simple six dimensional Multiple Gravity Aassist problem
+ * related to the Cassini spacecraft trajectory design problem. The spacecraft route (fly by sequence) is
+ * Earth-Venus-Venus-Earth-Jupiter and the mission objective is to minimize the total chemical \f$ \Delta V\f$
+ * to reach a highly elliptical orbit around Jupiter. At each fly-by, a chemical \f$\Delta V\f$ is allowed
+ * at the pericenter of the planetocentric hyperbola. Each interplanetary leg is otherwise ballistic.
+ * The problem is also part of the Global Trajectory Optimization database (GTOP)
+ *
+ * Cassini_1 is a box constrained single objective, continuous optimization problem of dimension six.
+ *
+ * @see http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+class __PAGMO_VISIBLE cassini_1: public base
 {
-	algorithm::ipopt ipopt_instance(10,1e-4,1e-4);
-	ipopt_instance.screen_output(false);
-// 	snopt_instance.file_output(false);
+	public:
+		cassini_1();
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		mgaproblem problem;
 
-	island isl = island(problem::cassini_1(),ipopt_instance,1);
-	for (int i=0; i< 30; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
-	}
-	//std::cout << isl << std::endl;
-}
+		//Variables used in the call to MGA
+		mutable std::vector<double> Delta_V;
+		mutable std::vector<double> rp;
+		mutable std::vector<double> t;
+};
+
+}}
+
+#endif // CASSINI_1_H

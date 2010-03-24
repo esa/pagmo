@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,29 +22,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef CONVERT_DATES_H
+#define CONVERT_DATES_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-
-using namespace pagmo;
-
-int main()
-{
-	algorithm::ipopt ipopt_instance(10,1e-4,1e-4);
-	ipopt_instance.screen_output(false);
-// 	snopt_instance.file_output(false);
-
-	island isl = island(problem::cassini_1(),ipopt_instance,1);
-	for (int i=0; i< 30; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
+namespace kep_toolbox {
+	inline double jd2mjd(const double & in){
+		return ( in - 2400000.5 );
 	}
-	//std::cout << isl << std::endl;
+	inline double jd2mjd2000(const double & in){
+		return ( in - 2451544.5 );
+	}
+	inline double mjd2jd(const double & in){
+		return ( in + 2400000.5 );
+	}
+	inline double mjd2mjd2000(const double & in){
+		return ( in - 51544 );
+	}
+	inline double mjd20002jd(const double & in){
+		return ( in + 2451544.5 );
+	}
+	inline double mjd20002mjd(const double & in){
+		return ( in + 51544 );
+	}
 }
+
+#endif // CONVERT_DATES_H

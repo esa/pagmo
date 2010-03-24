@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,29 +22,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef M2E_H
+#define M2E_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
+#include"../astro_constants.h"
+#include"../newton_raphson.h"
+#include<boost/bind.hpp>
+#include<cmath>
 
-using namespace pagmo;
-
-int main()
-{
-	algorithm::ipopt ipopt_instance(10,1e-4,1e-4);
-	ipopt_instance.screen_output(false);
-// 	snopt_instance.file_output(false);
-
-	island isl = island(problem::cassini_1(),ipopt_instance,1);
-	for (int i=0; i< 30; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
+namespace kep_toolbox {
+	inline double kepE(const double& E, const double& M, const double& eccentricity ){
+		return ( E - eccentricity*sin(E) - M );
 	}
-	//std::cout << isl << std::endl;
+	inline double d_kepE(const double& E, const double& eccentricity){
+		return ( 1 - eccentricity*cos(E) );
+	}
+	inline double m2e(const double& M, const double & eccentricity) {
+		double E = M + eccentricity * cos(M);
+		newton_raphson(E,boost::bind(kepE,_1,M, eccentricity),boost::bind(d_kepE,_1, eccentricity),100,ASTRO_TOLERANCE);
+		return (E);
+	}
+	inline double e2m(const double& E, const double & eccentricity) {
+		return (E - eccentricity * sin (E) );
+	}
 }
+#endif // M2E_H

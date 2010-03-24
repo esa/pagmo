@@ -31,6 +31,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/snopt_toyprob.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match_mo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
@@ -45,6 +46,15 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 )
+
+# Additional files for the GTOP problems
+SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Pl_Eph_An.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Lambert.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
+	)
 
 # Additional files for GSL support.
 IF(ENABLE_GSL)
