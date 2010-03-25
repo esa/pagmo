@@ -121,6 +121,8 @@ archipelago::archipelago(const archipelago &a)
 	m_container = a.m_container;
 	m_topology = a.m_topology->clone();
 	m_dist_type = a.m_dist_type;
+	m_migr_dir = a.m_migr_dir;
+	m_migr_map = a.m_migr_map;
 	m_drng = a.m_drng;
 	m_urng = a.m_urng;
 	m_migr_hist = a.m_migr_hist;
@@ -607,10 +609,9 @@ void archipelago::interrupt()
 	pagmo_throw(std::runtime_error,"evolution interrupted");
 }
 
-island archipelago::get_island(int n) const
+island archipelago::get_island(const size_type &idx) const
 {
 	join();
-	const size_type idx = boost::numeric_cast<size_type>(n);
 	if (idx >= m_container.size()) {
 		pagmo_throw(index_error,"invalid island index");
 	}

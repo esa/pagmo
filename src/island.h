@@ -76,12 +76,12 @@ class __PAGMO_VISIBLE island
 {
 	public:
 		/// The archipelago class needs access to the internals of the island.
-		friend class ::pagmo::archipelago;
+		friend class archipelago;
 		island(const island &);
-		island(const problem::base &, const algorithm::base &, int n = 0,
-			const double &migr_prob = 1,
-			const migration::base_s_policy &s_policy = migration::best_s_policy(),
-			const migration::base_r_policy &r_policy = migration::fair_r_policy());
+		island(const problem::base &, const algorithm::base &, int = 0,
+			const double & = 1,
+			const migration::base_s_policy & = migration::best_s_policy(),
+			const migration::base_r_policy & = migration::fair_r_policy());
 		island &operator=(const island &);
 		~island();
 		/** @name Input/output.*/
@@ -95,7 +95,7 @@ class __PAGMO_VISIBLE island
 		//@{
 		void join() const;
 		bool busy() const;
-		void evolve(int n = 1);
+		void evolve(int = 1);
 		void evolve_t(int);
 		void interrupt();
 		std::size_t get_evolution_time() const;
@@ -131,7 +131,7 @@ class __PAGMO_VISIBLE island
 		void accept_immigrants(const std::vector<population::individual_type> &);
 		std::vector<population::individual_type> get_emigrants() const;
 		bool is_blocking() const;
-	public:
+	private:
 		// Population.
 		population				m_pop;
 		// Algorithm.

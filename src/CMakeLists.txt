@@ -55,7 +55,7 @@ SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Lambert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
-	)
+)
 
 # Additional files for GSL support.
 IF(ENABLE_GSL)

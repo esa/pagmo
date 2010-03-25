@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/make_function.hpp>
@@ -70,6 +71,27 @@ TRIVIAL_GETTER_SETTER(population::champion_type,decision_vector,x);
 TRIVIAL_GETTER_SETTER(population::champion_type,fitness_vector,f);
 TRIVIAL_GETTER_SETTER(population::champion_type,constraint_vector,c);
 
+// Wrappers to make functions taking size_type as input take integers instead, with safety checks.
+inline static island archipelago_get_island(const archipelago &a, int n)
+{
+	return a.get_island(boost::numeric_cast<archipelago::size_type>(n));
+}
+
+inline static population::individual_type population_get_individual(const population &pop, int n)
+{
+	return pop.get_individual(boost::numeric_cast<population::size_type>(n));
+}
+
+inline static void population_set_x(population &pop, int n, const decision_vector &x)
+{
+	pop.set_x(boost::numeric_cast<population::size_type>(n),x);
+}
+
+inline static void population_set_v(population &pop, int n, const decision_vector &v)
+{
+	pop.set_v(boost::numeric_cast<population::size_type>(n),v);
+}
+
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
@@ -90,13 +112,13 @@ BOOST_PYTHON_MODULE(_core)
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
-		.def("__getitem__", &population::get_individual,return_value_policy<copy_const_reference>())
+		.def("__getitem__", &population_get_individual)
 		.def("__len__", &population::size)
 		.def("__repr__", &population::human_readable)
 		.add_property("problem",&problem_from_pop)
 		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()))
-		.def("set_x", &population::set_x,"Set decision vector of individual at position n.")
-		.def("set_v", &population::set_v,"Set velocity of individual at position n.");
+		.def("set_x", &population_set_x,"Set decision vector of individual at position n.")
+		.def("set_v", &population_set_v,"Set velocity of individual at position n.");
 
 	// Individual and champion.
 	class_<population::individual_type>("individual","Individual class.",init<>())
@@ -137,6 +159,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__copy__", &Py_copy_from_ctor<archipelago>)
 		.def("__len__", &archipelago::get_size)
 		.def("__repr__", &archipelago::human_readable)
+		.def("__getitem__", &archipelago_get_island)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
 		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
