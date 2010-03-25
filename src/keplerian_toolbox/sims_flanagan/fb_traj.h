@@ -64,35 +64,18 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
 	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
 	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	    fb_traj();
 	    //@}
 
-	    /** @name Getters*/
-	    //@{
-	    const std::vector<double>& get_full_vector() const {return full_vector;}
-	    const std::vector<double>& get_mismatches_con() const {return mismatches_con;}
-	    const std::vector<double>& get_throttles_con() const {return throttles_con;}
-	    const std::vector<double>& get_fb_relvel_con() const {return fb_relvel_con;}
-	    const std::vector<double>& get_fb_altitude_con() const {return fb_altitude_con;}
-	    const std::vector<double>& get_fb_mass_con() const {return fb_mass_con;}
-	    const std::vector<double>& get_fb_epoch_con() const {return fb_epoch_con;}
 
-	    /// State mismatch consraints
-	    /**
-	     * Calclates the state mismathces at the mid-point of a given leg and
-	     * stores them in mismatches_con at the appropriate position
-	     */
-	    template<typename it_type>
-	    void evaluate_mismatch_con(int i, it_type output) const {
-		legs[i].get_mismatch_con(output);
-	    }
-	    
 	    /**
 	     * Calclates the state mismathces at the mid-point of each leg and stores them in mismatches_con
 	     */
 	    template<typename it_type>
-	    void evaluate_all_mismatch_con(it_type output) const {
+	    void evaluate_all_mismatch_con(it_type begin, it_type end) const {
+		assert(end - begin == 7*legs.size());
 		for (size_t i=0; i<legs.size();i++){
-		    evaluate_mismatch_con(i, output  + 7*i);
+		    legs[i].get_mismatch_con(begin  + 7*i, begin + 7*(i+1));
 		}
 	    }
 
@@ -113,7 +96,6 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    template<typename it_type, typename coding_type> 
 	    void init_from_full_vector(it_type b, it_type e, const coding_type& coding) {
 	    
-		full_vector.assign(b, e);
 		int n = coding.n_legs();
 		assert(legs.size() == n);
 		if (coding.size() != e - b) {
@@ -148,6 +130,44 @@ namespace kep_toolbox { namespace sims_flanagan{
 		}
 	    }
 
+	/// Fly-by  constraints
+	/**
+	 * Calculates all the constarints related to a planetary fly-by storing them in the appropriate vectors,
+	 * and in particular a) the constraint on the relative velocity at the entrance and exit of the sphere of influence (fb_relvel_con), b) the constraint
+	 * on the fly-by altitude of the planetocentric hyperbola (fb_altitude_con), c) the consraint on the spacecraft
+	 * mass not changing during the fly-by (fb_mass_con), d) the constraint on the fly-by duration (fb_epoch_con)
+	 */
+	template<typename it_type>
+	void evaluate_fb_con(int fb_idx, it_type begin, it_type end) {
+		assert(end - begin == 2);
+
+		array3D vin,vout,vpla;
+		double emax,alfa;
+		//same relvel2
+		vpla = planets[fb_idx+1].get_velocity(legs[fb_idx].get_t_f());
+		vin = legs[fb_idx].get_x_f().get_velocity();
+		diff(vin,vin,vpla);
+		double vin2 = std::inner_product(vin.begin(), vin.end(), vin.begin(), 0);
+		vout = legs[fb_idx+1].get_x_i().get_velocity();
+		diff(vout,vout,vpla);
+		double vout2 = std::inner_product(vout.begin(), vout.end(), vout.begin(), 0);
+		begin[0] = vin2 - vout2;
+
+		//minimum altitude (when negative this constraint is satisfied)
+		emax = 1 + planets[fb_idx+1].get_safe_radius() / planets[fb_idx+1].get_mu_central_body()*vin2;
+		alfa = acos(dot(vin,vout) / vin2);
+		begin[1] = alfa - 2 * asin(1/emax);
+	}
+
+	double evaluate_leg_vinf2_i(int leg_idx) {
+		array3D vout,vpla;
+		vpla = planets[leg_idx].get_velocity(legs[leg_idx].get_t_i());
+		vout = legs[leg_idx].get_x_i().get_velocity();
+		diff(vout,vout,vpla);
+		return std::inner_product(vout.begin(), vout.end(), vout.begin(), 0.);
+	}
+
+
 	    const leg& get_leg(int index) const {
 		return legs[index];
 	    }
@@ -175,18 +195,8 @@ namespace kep_toolbox { namespace sims_flanagan{
 	     * \f$T\f$ id the leg time duration (sec).
 	     *
 	     */
-	    std::vector<double> full_vector;
-	    std::vector<double> mismatches_con;
-	    std::vector<double> throttles_con;
-	    std::vector<double> fb_relvel_con;
-	    std::vector<double> fb_altitude_con;
-	    std::vector<double> fb_mass_con;
-	    std::vector<double> fb_epoch_con;
 
-	    void evaluate_mismatch_con();
-	    void evaluate_throttles_con();
-	    void evaluate_fb_con();
-		
+
 	};
 	    
 	std::ostream &operator<<(std::ostream &s, const fb_traj &in );
