@@ -76,7 +76,7 @@ class __PAGMO_VISIBLE island
 {
 	public:
 		/// The archipelago class needs access to the internals of the island.
-		friend class ::pagmo::archipelago;
+		friend class archipelago;
 		island(const island &);
 		island(const problem::base &, const algorithm::base &, int n = 0,
 			const double &migr_prob = 1,
