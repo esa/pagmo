@@ -121,6 +121,8 @@ archipelago::archipelago(const archipelago &a)
 	m_container = a.m_container;
 	m_topology = a.m_topology->clone();
 	m_dist_type = a.m_dist_type;
+	m_migr_dir = a.m_migr_dir;
+	m_migr_map = a.m_migr_map;
 	m_drng = a.m_drng;
 	m_urng = a.m_urng;
 	m_migr_hist = a.m_migr_hist;
