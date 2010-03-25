@@ -609,10 +609,9 @@ void archipelago::interrupt()
 	pagmo_throw(std::runtime_error,"evolution interrupted");
 }
 
-island archipelago::get_island(int n) const
+island archipelago::get_island(const size_type &idx) const
 {
 	join();
-	const size_type idx = boost::numeric_cast<size_type>(n);
 	if (idx >= m_container.size()) {
 		pagmo_throw(index_error,"invalid island index");
 	}

@@ -121,10 +121,10 @@ class __PAGMO_VISIBLE archipelago
 		// Container of migration history: vector of history items.
 		typedef std::vector<migr_hist_item> migr_hist_type;
 	public:
-		archipelago(distribution_type dt = point_to_point, migration_direction md = destination);
-		archipelago(const topology::base &t, distribution_type dt = point_to_point, migration_direction md = destination);
-		archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t = topology::unconnected(),
-			distribution_type dt = point_to_point, migration_direction md = destination);
+		archipelago(distribution_type = point_to_point, migration_direction = destination);
+		archipelago(const topology::base &, distribution_type = point_to_point, migration_direction = destination);
+		archipelago(const problem::base &, const algorithm::base &, int, int, const topology::base & = topology::unconnected(),
+			distribution_type = point_to_point, migration_direction = destination);
 		archipelago(const archipelago &);
 		archipelago &operator=(const archipelago &);
 		~archipelago();
@@ -135,13 +135,13 @@ class __PAGMO_VISIBLE archipelago
 		bool check_island(const island &) const;
 		topology::base_ptr get_topology() const;
 		void set_topology(const topology::base &);
-		void evolve(int n = 1);
+		void evolve(int = 1);
 		void evolve_t(int);
 		bool busy() const;
 		void interrupt();
 		std::string dump_migr_history() const;
 		void clear_migr_history();
-		island get_island(int) const;
+		island get_island(const size_type &) const;
 	private:
 		void pre_evolution(island &);
 		void post_evolution(island &);
