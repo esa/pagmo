@@ -67,14 +67,6 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    //init total_n_seg
 	    total_n_seg = std::accumulate(n_seg.begin(),n_seg.end(), 0);
 
-	    //Allocate memory for vector and constraints
-	    full_vector = std::vector<double>(1 + 9*(sequence.size()-1) + total_n_seg * 3,0);
-	    mismatches_con = std::vector<double>(7 * (sequence.size()-1),0);
-	    throttles_con=std::vector<double>(total_n_seg,0);
-	    fb_relvel_con=std::vector<double>(sequence.size()-2,0);
-	    fb_altitude_con=std::vector<double>(sequence.size()-2,0);
-	    fb_mass_con=std::vector<double>(sequence.size()-2,0);
-	    fb_epoch_con=std::vector<double>(sequence.size()-2,0);
 	}
 
 /// Constructor.
@@ -111,14 +103,6 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    //init total_n_seg
 	    total_n_seg = std::accumulate(n_seg.begin(),n_seg.end(), 0);
 
-	    //Allocate memory for vector and constraints
-	    full_vector = std::vector<double>(1 + 9*(sequence.size()-1) + total_n_seg * 3,0);
-	    mismatches_con = std::vector<double>(7 * (sequence.size()-1),0);
-	    throttles_con=std::vector<double>(total_n_seg,0);
-	    fb_relvel_con=std::vector<double>(sequence.size()-2,0);
-	    fb_altitude_con=std::vector<double>(sequence.size()-2,0);
-	    fb_mass_con=std::vector<double>(sequence.size()-2,0);
-	    fb_epoch_con=std::vector<double>(sequence.size()-2,0);
 	}
 
 /// Constructor.
@@ -147,14 +131,6 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    //init total_n_seg
 	    total_n_seg = n_seg*(sequence.size()-1);
 
-	    //Allocate memory for vector and constraints
-	    full_vector = std::vector<double>(1 + 9*(sequence.size()-1) + total_n_seg * 3,0);
-	    mismatches_con = std::vector<double>(7 * (sequence.size()-1),0);
-	    throttles_con=std::vector<double>(total_n_seg,0);
-	    fb_relvel_con=std::vector<double>(sequence.size()-2,0);
-	    fb_altitude_con=std::vector<double>(sequence.size()-2,0);
-	    fb_mass_con=std::vector<double>(sequence.size()-2,0);
-	    fb_epoch_con=std::vector<double>(sequence.size()-2,0);
 	}
 
 /// Constructor.
@@ -173,7 +149,7 @@ namespace kep_toolbox { namespace sims_flanagan{
 	fb_traj::fb_traj(const std::vector<planet>& sequence, const unsigned int &n_seg, const double &mass_, const double &thrust_, const double &isp_) : legs(sequence.size()-1),planets(sequence){
 
 	    //check consistency of n_seg
-	    if (n_seg <=1) throw_value_error("number of segments must be >=1");
+	    if (n_seg <1) throw_value_error("number of segments must be >=1");
 
 	    //init spacecraft in all legs and allocate memory for throttles
 	    for (size_t i=0;i<sequence.size()-1;i++){
@@ -185,67 +161,8 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    //init total_n_seg
 	    total_n_seg = n_seg*(sequence.size()-1);
 
-	    //Allocate memory for vector and constraints
-	    full_vector = std::vector<double>(1 + 9*(sequence.size()-1) + total_n_seg * 3,0);
-	    mismatches_con = std::vector<double>(7 * (sequence.size()-1),0);
-	    throttles_con=std::vector<double>(total_n_seg,0);
-	    fb_relvel_con=std::vector<double>(sequence.size()-2,0);
-	    fb_altitude_con=std::vector<double>(sequence.size()-2,0);
-	    fb_mass_con=std::vector<double>(sequence.size()-2,0);
-	    fb_epoch_con=std::vector<double>(sequence.size()-2,0);
 	}
 
-	
-/// Throttles magnitude constraints
-/**
- * Calclates the throttles magnitude squared at each fb_traj segment and subtracts 1 to obtain the inequality constraint
- * \f$ |\mathbf u|^2 \le 1 \f$. The result is stored in throttles_con
- */
-	void fb_traj::evaluate_throttles_con(){
-	    assert (throttles_con.size() == total_n_seg);
-	    std::vector<double>::iterator idx = throttles_con.begin();
-	    for (size_t i = 0; i<legs.size();i++){
-		legs[i].get_throttles_con(idx, idx+(legs[i].get_throttles_size()));
-		idx += legs[i].get_throttles_size();
-	    }
-	}
-
-/// Fly-by  constraints
-/**
- * Calculates all the constarints related to a planetary fly-by storing them in the appropriate vectors,
- * and in particular a) the constraint on the relative velocity at the entrance and exit of the sphere of influence (fb_relvel_con), b) the constraint
- * on the fly-by altitude of the planetocentric hyperbola (fb_altitude_con), c) the consraint on the spacecraft
- * mass not changing during the fly-by (fb_mass_con), d) the constraint on the fly-by duration (fb_epoch_con)
- */
-
-	void fb_traj::evaluate_fb_con() {
-	    assert (legs.size() -1 == fb_relvel_con.size());
-	    assert (legs.size() -1 == fb_altitude_con.size());
-	    assert (legs.size() -1 == fb_mass_con.size());
-	    assert (legs.size() -1 == fb_epoch_con.size());
-	    array3D vin,vout,vpla;
-	    double Vin(0),Vout(0),emax,alfa;
-	    for (size_t i=0; i<legs.size() - 1;i++){
-		//fb_mass_con
-		fb_mass_con[i] = legs[i].get_x_f().get_mass() - legs[i+1].get_x_i().get_mass();
-		//same epoch
-		fb_epoch_con[i] = legs[i].get_t_f().mjd2000() - legs[i+1].get_t_i().mjd2000();
-		//same relvel2
-		vpla = planets[i+1].get_velocity(legs[i].get_t_f());
-		vin = legs[i].get_x_f().get_velocity();
-		diff(vin,vin,vpla);
-		Vin = norm(vin);
-		vout = legs[i+1].get_x_i().get_velocity();
-		diff(vout,vout,vpla);
-		Vout = norm(vout);
-		fb_relvel_con[i] = Vin-Vout;
-
-		//minimum altitude (when negative this constraint is satisfied)
-		emax = 1 + planets[i+1].get_safe_radius() / planets[i+1].get_mu_central_body()*Vout*Vout;
-		alfa = acos(dot(vin,vout) / Vin /Vout);
-		fb_altitude_con[i] = alfa - 2 * asin(1/emax);
-	    }
-	}
 
 /// Overload the stream operator for kep_toolbox::sims_flanagan::leg
 /**
@@ -259,7 +176,7 @@ namespace kep_toolbox { namespace sims_flanagan{
  */
 
 	std::ostream &operator<<(std::ostream &s, const fb_traj &in ){
-	    s << "Full Vector: " << std::endl;
+/*	    s << "Full Vector: " << std::endl;
 	    for (size_t i=0;i<in.full_vector.size();i++) s << in.full_vector[i] << " ";
 	    s << std::endl <<"Mismatches con: " << std::endl;
 	    for (size_t i=0;i<in.mismatches_con.size();i++) s << in.mismatches_con[i] << " ";
@@ -272,7 +189,7 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    s << std::endl <<"Same mass con: " << std::endl;
 	    for (size_t i=0;i<in.fb_mass_con.size();i++) s << in.fb_mass_con[i] << " ";
 	    s << std::endl <<"Same epoch con: " << std::endl;
-	    for (size_t i=0;i<in.fb_epoch_con.size();i++) s << in.fb_epoch_con[i] << " ";
+	    for (size_t i=0;i<in.fb_epoch_con.size();i++) s << in.fb_epoch_con[i] << " ";*/
 	    return s;
 	}
 

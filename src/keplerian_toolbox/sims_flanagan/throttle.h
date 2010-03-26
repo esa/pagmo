@@ -1,6 +1,10 @@
 #ifndef THROTTLE_H
 #define THROTTLE_H
 
+#include "../epoch.h"
+#include "../astro_constants.h"
+#include <numeric>
+
 namespace kep_toolbox {
 /// Objects dealing with the Sims-Flanagan low-thrus trajectory model
 /**
@@ -27,6 +31,11 @@ namespace kep_toolbox {
 	    const array3D& get_value() const {
 		return value;
 	    }
+
+	    double get_norm() const {
+		return std::sqrt(std::inner_product(value.begin(), value.end(), value.begin(), 0.));
+	    }
+
 	    
 	private:
 	    epoch start;

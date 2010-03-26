@@ -231,8 +231,9 @@ namespace kep_toolbox {
 	     * @param[out] mismatch sc_state containing the state mismatch at the mid-point
 	     */
 	    template<typename it_type>
-	    void get_mismatch_con(it_type retval) const
+	    void get_mismatch_con(it_type begin, it_type end) const
 	    {
+		assert(end - begin == 7);
 		size_t n_seg = throttles.size();
 		const int n_seg_fwd = (n_seg + 1) / 2, n_seg_back = n_seg / 2;
 
@@ -294,19 +295,52 @@ namespace kep_toolbox {
 		diff(rfwd,rfwd,rback);
 		diff(vfwd,vfwd,vback);
 
-		std::copy(rfwd.begin(), rfwd.end(), retval);
-		std::copy(vfwd.begin(), vfwd.end(), retval + 3);
-		retval[6] = mfwd - mback;
+		std::copy(rfwd.begin(), rfwd.end(), begin);
+		std::copy(vfwd.begin(), vfwd.end(), begin + 3);
+		begin[6] = mfwd - mback;
 	    }
 
-	    void get_mismatch_con(sc_state retval) const {
+	    void get_mismatch_con(sc_state retval) const
+	    {
 		array7D tmp;
-		get_mismatch_con(tmp.begin());
+		get_mismatch_con(tmp.begin(), tmp.end());
 		retval.set_state(tmp);
 	    }
+
+		//TODO: document me and pay attention to my name, I do not evaluate the real dv, I am a joke (so what?)
+	    double evaluate_dv() const
+	    {
+		double tmp = 0;
+		for (int i = 0; i < throttles.size(); ++i) {
+			tmp += (throttles[i].get_end().mjd2000() -throttles[i].get_start().mjd2000())
+			* ASTRO_DAY2SEC * throttles[i].get_norm() * sc.get_thrust() / sc.get_mass();
+		}
+		return tmp;
+	}
 		
-	    template<typename it_type>
-	    void get_throttles_con(it_type start, it_type end) const;
+
+	/// Evaluate the throttles magnitude
+	/**
+	 * This methods loops on the vector containing the throttles \f$ (x_1,y_1,z_1,x_2,y_2,z_2,...,x_n,y_n,z_n) \f$
+	 * and stores the magnitudes \f$ x_i^2 + y_i^2 + z_i^2 - 1\f$ at the locations indicated by the iterators. The
+	 * iterators must have a distance of \f$ n\f$. If the stored values are not all \f$ \le 1\f$ then the trajectory
+	 * is unfeasible.
+	 *
+	 * @param[out] start std::vector<double>iterator from the first element where to store the magnitudes
+	 * @param[out] start std::vector<double>iterator to the last+1 element where to store the magnitudes
+	 */
+	template<typename it_type>
+	void get_throttles_con(it_type start, it_type end) const {
+	    if ( (end - start) != (int)throttles.size()) {
+		throw_value_error("Iterators distance is incompatible with the throttles size");
+	    }
+	    int i=0;
+	    while(start!=end){
+		const array3D& t = throttles[i].get_value();
+		*start = std::inner_product(t.begin(), t.end(), t.begin(), -1.);
+		++i; ++start;
+	    }
+	}
 	    //@}
 	    
 	private:

@@ -32,17 +32,22 @@
 #include "src/island.h"
 #include "src/problems.h"
 #include "src/topologies.h"
+#include "src/keplerian_toolbox/planet.h"
 
 using namespace pagmo;
 
 int main()
 {
-	algorithm::ipopt ipopt_instance(10,1e-4,1e-4);
-	ipopt_instance.screen_output(false);
+	algorithm::snopt ipopt_instance(10,1e-4,1e-4);
+	ipopt_instance.screen_output(true);
 // 	snopt_instance.file_output(false);
+	problem::earth_planet prob(1,kep_toolbox::planet::MARS);
 
-	island isl = island(problem::cassini_1(),ipopt_instance,1);
-	for (int i=0; i< 30; ++i){
+	island isl = island(prob,ipopt_instance,1);
+	std::cout << prob << std::endl;
+	std::cout << isl << std::endl;
+
+	for (int i=0; i< 1; ++i){
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
 	}

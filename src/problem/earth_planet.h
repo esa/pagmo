@@ -22,30 +22,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef EARTH_PLANET_H
+#define EARTH_PLANET_H
 
-// Header including all problems implemented in PaGMO.
+#include <vector>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/nsga_ii_fon.h"
-#include "problem/nsga_ii_sch.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/string_match_mo.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/earth_planet.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
+#include "../keplerian_toolbox/codings.h"
+#include "../keplerian_toolbox/sims_flanagan/fb_traj.h"
+
+namespace pagmo { namespace problem {
+
+/// Test problem kep tool
+/**
+ *
+ *
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+
+class __PAGMO_VISIBLE earth_planet: public base
+{
+	public:
+		earth_planet(int, kep_toolbox::planet::common_name);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
+	private:
+		kep_toolbox::base_format encoding;
+		mutable kep_toolbox::sims_flanagan::fb_traj trajectory;
+		double vmax;
+		int n_segments;
+};
+
+}} //namespaces
 
 
-#endif
+#endif // EARTH_PLANET_H
