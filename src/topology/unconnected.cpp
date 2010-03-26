@@ -30,21 +30,12 @@ namespace pagmo { namespace topology {
 /// Default constructor.
 unconnected::unconnected():base() {}
 
-/// Clone method.
 base_ptr unconnected::clone() const
 {
 	return base_ptr(new unconnected(*this));
 }
 
-/// Connect implementation.
-/**
- * Will not connect the island to any other island.
- *
- * @param[in] n positional index of the island to be inserted.
- */
-void unconnected::connect(int n)
-{
-	(void)n;
-}
+void unconnected::connect(const vertices_size_type &)
+{}
 
 }}

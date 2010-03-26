@@ -33,10 +33,8 @@ namespace pagmo { namespace topology {
 /// Custom topology.
 /**
  * This topology allows the user to manually build a topology by inserting nodes and creating connections between them. The connect() method
- * will leave new nodes unconnected. The intended use of this topology is, on one hand, to give the user the ability to create
- * quickly a custom topology without having to create another class, recompile, etc. On the other hand, by exposing high-level functions to manipulate the
- * topology using directly island indices, this class is meant to be the "base" topology class
- * for the Python bindings.
+ * will leave new nodes unconnected. The intended use of this topology is to give the user the ability to create
+ * quickly a custom topology without having to create another class, recompile, etc.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -50,12 +48,11 @@ class __PAGMO_VISIBLE custom: public base
 		void add_edge(int,int);
 		void remove_edge(int,int);
 		void remove_all_edges();
-		void add_vertex(int);
-		void remove_vertex(int);
+		void add_vertex();
 		//@}
 		base_ptr clone() const;
 	protected:
-		void connect(int n);
+		void connect(const vertices_size_type &);
 };
 
 } }

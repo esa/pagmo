@@ -56,7 +56,7 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 		barabasi_albert(int m0 = 3, int m = 2);
 		base_ptr clone() const;
 	protected:
-		void connect(int);
+		void connect(const vertices_size_type &);
 		std::string human_readable_extra() const;
 	private:
 		// Size of the kernel - the starting number of nodes.

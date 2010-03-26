@@ -47,35 +47,26 @@ erdos_renyi::erdos_renyi(const double &prob):base(),m_prob(prob),m_drng(rng_gene
 	}
 }
 
-/// Clone method.
 base_ptr erdos_renyi::clone() const
 {
 	return base_ptr(new erdos_renyi(*this));
 }
 
-/// Connect method.
-void erdos_renyi::connect(int n)
+void erdos_renyi::connect(const vertices_size_type &n)
 {
-	const v_iterator it_n = get_it(n);
-	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+	for (std::pair<v_iterator,v_iterator> vertices = get_vertices(); vertices.first != vertices.second; ++vertices.first) {
 		// Connect n bidirectionally to the other nodes with probability m_prob. Also, avoid to connect n with itself.
-		if (vertices.first != it_n && m_drng() < m_prob) {
-			add_edge(it_n,vertices.first);
-			add_edge(vertices.first,it_n);
+		if (*vertices.first != n && m_drng() < m_prob) {
+			add_edge(n,*vertices.first);
+			add_edge(*vertices.first,n);
 		}
 	}
 }
 
-/// Topology-specific human readable info.
-/**
- * Will return a formatted string containing the probability of existance of an edge.
- *
- * @return string containing the probability parameter of the ER model.
- */
 std::string erdos_renyi::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "\tp: " << m_prob << '\n';
+	oss << "\tprobability: " << m_prob << '\n';
 	return oss.str();
 }
 

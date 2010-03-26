@@ -31,24 +31,18 @@ namespace pagmo { namespace topology {
 /// Default constructor.
 fully_connected::fully_connected():base() {}
 
-/// Clone method.
 base_ptr fully_connected::clone() const
 {
 	return base_ptr(new fully_connected(*this));
 }
 
-/// Connect method.
-/**
- * After each push_back(), the new island will be connected to each other island and vice-versa.
- */
-void fully_connected::connect(int n)
+void fully_connected::connect(const vertices_size_type &n)
 {
-	const v_iterator it_n = get_it(n);
-	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+	for (std::pair<v_iterator,v_iterator> vertices = get_vertices(); vertices.first != vertices.second; ++vertices.first) {
 		// Do not connect with self.
-		if (it_n != vertices.first) {
-			add_edge(it_n,vertices.first);
-			add_edge(vertices.first,it_n);
+		if (n != *vertices.first) {
+			add_edge(n,*vertices.first);
+			add_edge(*vertices.first,n);
 		}
 	}
 }

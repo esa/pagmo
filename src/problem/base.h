@@ -384,11 +384,9 @@ return base_ptr(new derived_problem(*this));
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
-	protected:
 		void estimate_sparsity(const decision_vector &, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
 	public:
 		virtual void set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
-	public:
 		/** @name Objective function and fitness handling.
 		 * Methods used to calculate and compare fitnesses.
 		 */

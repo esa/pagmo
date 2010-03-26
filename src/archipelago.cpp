@@ -201,7 +201,7 @@ void archipelago::push_back(const island &isl)
 	// Tell the island that it is living in an archipelago now.
 	m_container.back().m_archi = this;
 	// Insert the island in the topology.
-	m_topology->push_back(boost::numeric_cast<int>(m_container.size() - 1));
+	m_topology->push_back();
 }
 
 /// Get the size of the archipelago.
@@ -250,11 +250,8 @@ topology::base_ptr archipelago::get_topology() const
 
 /// Set topology.
 /**
- * A valid topology must contain all and only the island indices of the current archipelago. I.e., if the size of
- * the archipelago is n, then the vertices list of the topology being set must contain all and only the integers between 0 and n-1.
- *
- * If this condition is satisfied, then the incoming topology will become the new archipelago topology. Otherwise, a value_error exception
- * will be raised.
+ * A valid topology must contain all and only the island indices of the current archipelago. If this condition is satisfied, then the incoming topology
+ * will become the new archipelago topology. Otherwise, a value_error exception will be raised.
  *
  * @param[in] t new topology for the archipelago.
  */
@@ -263,15 +260,6 @@ void archipelago::set_topology(const topology::base &t)
 	join();
 	if (m_container.size() != boost::numeric_cast<size_type>(t.get_number_of_vertices())) {
 		pagmo_throw(value_error,"invalid topology, wrong number of vertices");
-	}
-	// Get the list of vertices and order it in ascending order.
-	std::vector<int> vertices_list(t.get_vertices());
-	std::sort(vertices_list.begin(),vertices_list.end());
-	// t is a valid topology only if all and only island indices are represented in the vertices list.
-	for (std::vector<int>::size_type i = 0; i < vertices_list.size(); ++i) {
-		if (i != boost::numeric_cast<std::vector<int>::size_type>(vertices_list[i])) {
-			pagmo_throw(value_error,"invalid topology, missing island index");
-		}
 	}
 	// The topology is ok, assign it.
 	m_topology = t.clone();
@@ -390,7 +378,7 @@ void archipelago::pre_evolution(island &isl)
 			// For destination migration direction, items in the migration map behave like "outboxes", i.e. each one is a
 			// "database of best individuals" seen in the islands of the archipelago.
 			// Get neighbours connecting into isl.
-			const std::vector<int> inv_adj_islands(m_topology->get_inv_adjacent_vertices(boost::numeric_cast<int>(isl_idx)));
+			const std::vector<topology::base::vertices_size_type> inv_adj_islands(m_topology->get_v_inv_adjacent_vertices(boost::numeric_cast<topology::base::vertices_size_type>(isl_idx)));
 			// Do something only if there are adjacent islands.
 			if (inv_adj_islands.size()) {
 				switch (m_dist_type) {
@@ -445,7 +433,7 @@ void archipelago::post_evolution(island &isl)
 		case source:
 		{
 			// Get the islands to which isl connects.
-			const std::vector<int> adj_islands(m_topology->get_adjacent_vertices(boost::numeric_cast<int>(isl_idx)));
+			const std::vector<topology::base::vertices_size_type> adj_islands(m_topology->get_v_adjacent_vertices(boost::numeric_cast<topology::base::vertices_size_type>(isl_idx)));
 			if (adj_islands.size()) {
 				emigrants = isl.get_emigrants();
 				// Do something only if we have emigrants.

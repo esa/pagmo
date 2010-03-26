@@ -37,8 +37,6 @@
 #include "../exceptions.h"
 #include "base.h"
 
-// TODO: harmonise docs between public an private API, and maybe rename public api to *indices instead of *vertices.
-
 namespace pagmo { namespace topology {
 
 /// Default constructor.
@@ -80,10 +78,21 @@ base::~base() {}
 /** @name Input/output. */
 //@{
 
+/// Get name of the topology.
+/**
+ * Default implementation will return the class' mangled C++ name.
+ *
+ * @return name of the topology.
+ */
+std::string base::get_name() const
+{
+	return typeid(*this).name();
+}
+
 /// Return terse human readable representation.
 /**
  * Will return a formatted string containing:
- * - the name of the topology, in mangled C++ form,
+ * - the output of get_name(),
  * - the number of vertices,
  * - the output of human_readable_extra().
  *
@@ -92,9 +101,9 @@ base::~base() {}
 std::string base::human_readable_terse() const
 {
 	std::ostringstream s;
-	s << "Topology type:\t" << typeid(*this).name() << '\n';
-	s << "\tNumber of vertices:\t" << boost::num_vertices(m_graph) << '\n';
-	s << "\tNumber of edges:\t" << boost::num_edges(m_graph) << '\n';
+	s << "Topology type:\t" << get_name() << '\n';
+	s << "\tNumber of vertices:\t" << get_number_of_vertices() << '\n';
+	s << "\tNumber of edges:\t" << get_number_of_edges() << '\n';
 	s << human_readable_extra() << '\n';
 	return s.str();
 }
@@ -112,15 +121,15 @@ std::string base::human_readable() const
 	std::ostringstream s;
 	s << human_readable_terse();
 	s << "Connections:\n\n";
-	std::pair<v_iterator,v_iterator> vertices = boost::vertices(m_graph);
+	std::pair<v_iterator,v_iterator> vertices = get_vertices();
 	std::pair<a_iterator,a_iterator> adj_vertices;
 	for (; vertices.first != vertices.second; ++vertices.first) {
-		adj_vertices = boost::adjacent_vertices(*vertices.first,m_graph);
-		s << m_graph[*vertices.first].m_idx;
+		adj_vertices = get_adjacent_vertices(*vertices.first);
+		s << (*vertices.first);
 		if (adj_vertices.first != adj_vertices.second) {
 			s << " -> {";
 			while (adj_vertices.first != adj_vertices.second) {
-				s << m_graph[*adj_vertices.first].m_idx;
+				s << (*adj_vertices.first);
 				++adj_vertices.first;
 				if (adj_vertices.first != adj_vertices.second) {
 					s << ' ';
@@ -147,286 +156,171 @@ std::string base::human_readable_extra() const
 
 //@}
 
-// Helper functor to find an island idx inside the graph.
-template<class GraphType, class IdxType, class VDescriptor>
-struct idx_finder
-{
-	idx_finder(const GraphType &g, const IdxType &idx):m_g(g),m_idx(idx) {}
-	bool operator()(const VDescriptor &vd) const
-	{
-		return (m_g[vd].m_idx == m_idx);
-	}
-	const GraphType 	&m_g;
-	const IdxType		&m_idx;
-};
-
-/// Get vertex iterator from island index.
-/**
- * Will throw a value_error exception if island index is not in the graph or if n is negative.
- *
- * @param[in] n island index.
- *
- * @return iterator to the graph vertex.
- */
-base::v_iterator base::get_it(int n) const
-{
-	const std::pair<v_iterator,v_iterator> vs = boost::vertices(m_graph);
-	const v_iterator retval = std::find_if(vs.first,vs.second,idx_finder<graph_type,idx_type,v_descriptor>(m_graph,boost::numeric_cast<idx_type>(n)));
-	if (retval == vs.second) {
-		pagmo_throw(value_error,"vertex is not in the graph");
-	}
-	return retval;
-}
-
-/// Check if island index n is already present in the topology.
-/**
- * Will fail if n is negative.
- *
- * @return true if island with index n is present in the topology, false otherwise.
- */
-bool base::contains_vertex(int n) const
-{
-	try {
-		(void)get_it(n);
-	} catch (const value_error &) {
-		return false;
-	}
-	return true;
-}
-
 /// Add a vertex.
 /**
- * Add vertex containing island positional index n. Will fail if n is negative or
- * if n is already present inside the topology.
- *
- * @param[in] n island positional index to be inserted into the topology.
+ * Add a new, unconnected vertex to the topology.
  */
-void base::add_vertex(int n)
+void base::add_vertex()
 {
-	if (contains_vertex(n)) {
-		pagmo_throw(value_error,"cannot add vertex, already present in topology");
+	boost::add_vertex(m_graph);
+}
+
+// Check that a vertex number does not overflow the number of vertices in the graph.
+void base::check_vertex_index(const vertices_size_type &idx) const
+{
+	if (idx >= num_vertices(m_graph)) {
+		pagmo_throw(value_error,"invalid vertex index");
 	}
-	boost::add_vertex(island_property(boost::numeric_cast<idx_type>(n)),m_graph);
 }
 
-/// Remove a vertex.
-/**
- * Remove vertex to which iterator points.
- *
- * @param[in] v_it iterator to the vertex to be removed.
- */
-void base::remove_vertex(const v_iterator &v_it)
-{
-	boost::remove_vertex(*v_it,m_graph);
-}
-
-/// Return iterator range to adjcent vertices.
+/// Return iterator range to adjacent vertices.
 /**
  * Adjacent vertices are those connected from the interested vertex.
  *
- * @param[in] v_it iterator to the interested vertex.
+ * @param[in] idx index of the interested vertex.
  *
  * @return iterator range over the adjacent vertices.
  */
-std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const v_iterator &v_it) const
+std::pair<base::a_iterator,base::a_iterator> base::get_adjacent_vertices(const vertices_size_type &idx) const
 {
-	return boost::adjacent_vertices(*v_it,m_graph);
+	check_vertex_index(idx);
+	return boost::adjacent_vertices(boost::vertex(idx,m_graph),m_graph);
 }
 
-/// Return vector of adjacent indices.
+/// Return vector of adjacent vertices.
 /**
- * Adjacent indices are those connected from the interested index.
+ * Adjacent vertices are those connected from the interested index.
  *
- * @param[in] n interested index.
+ * @param[in] idx interested index.
  *
  * @return vector of adjacent indices.
  */
-std::vector<int> base::get_adjacent_vertices(int n) const
+std::vector<base::vertices_size_type> base::get_v_adjacent_vertices(const vertices_size_type &idx) const
 {
-	const std::pair<base::a_iterator,base::a_iterator> tmp = get_adjacent_vertices(get_it(n));
-	return std::vector<int>(tmp.first,tmp.second);
+	const std::pair<base::a_iterator,base::a_iterator> tmp = get_adjacent_vertices(idx);
+	return std::vector<base::vertices_size_type>(tmp.first,tmp.second);
 }
 
 /// Return true if two vertices are adjacent.
 /**
- * The direction must be from *it1 to *it2.
+ * The direction of the edge must be n -> m. Will fail if either n or m are not in the topology.
  *
- * @param[in] it1 iterator to first vertex.
- * @param[in] it2 iterator to second vertex.
+ * @param[in] n first vertex.
+ * @param[in] m second vertex.
  *
- * @return true if it exists an edge *it1 -> *it2, false otherwise.
+ * @return true if the two vertices are connected, false otherwise.
  */
-bool base::are_adjacent(const v_iterator &it1, const v_iterator &it2) const
+bool base::are_adjacent(const vertices_size_type &n, const vertices_size_type &m) const
 {
-	// Find it1's adjacent vertices.
-	const std::pair<a_iterator,a_iterator> a_vertices = boost::adjacent_vertices(*it1,m_graph);
-	if (std::find(a_vertices.first,a_vertices.second,*it2) == a_vertices.second) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-/// Check if a pair of island indices are adjacent.
-/**
- * The direction of the edge must be n -> m. Will fail if either n or m is negative, or if either n or m is not in the topology.
- *
- * @param[in] n first island index.
- * @param[in] m second island index.
- *
- * @return true if the two islands are connected, false otherwise.
- */
-bool base::are_adjacent(int n, int m) const
-{
-	return are_adjacent(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
+	check_vertex_index(n);
+	check_vertex_index(m);
+	// Find n's adjacent vertices.
+	const std::pair<a_iterator,a_iterator> a_vertices = boost::adjacent_vertices(boost::vertex(n,m_graph),m_graph);
+	return std::find(a_vertices.first,a_vertices.second,boost::vertex(m,m_graph)) != a_vertices.second;
 }
 
 /// Return the number of adjacent vertices.
 /**
  * Adjacent vertices are those connected from the interested vertex.
  *
- * @param[in] v_it iterator to the interested vertex.
+ * @param[in] idx index of the interested vertex.
  *
  * @return number of adjacent vertices.
  */
-base::edges_size_type base::get_num_adjacent_vertices(const v_iterator &v_it) const
+base::edges_size_type base::get_num_adjacent_vertices(const vertices_size_type &idx) const
 {
-	const std::pair<base::a_iterator,base::a_iterator> v = get_adjacent_vertices(v_it);
+	const std::pair<base::a_iterator,base::a_iterator> v = get_adjacent_vertices(idx);
 	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
-}
-
-/// Return the number of adjacent vertices.
-/**
- * Adjacent vertices are those connected from the interested vertex.
- *
- * @param[in] n interested index.
- *
- * @return number of adjacent vertices.
- */
-base::edges_size_type base::get_num_adjacent_vertices(int n) const
-{
-	return get_num_adjacent_vertices(get_it(n));
 }
 
 /// Return true if two vertices are inversely adjacent.
 /**
- * The direction must be from *it2 to *it1.
+ * The direction must be m -> n. Will fail if either n or m are not in the topology.
  *
- * @param[in] it1 iterator to first vertex.
- * @param[in] it2 iterator to second vertex.
+ * @param[in] n first vertex.
+ * @param[in] m second vertex.
  *
- * @return true if it exists an edge *it2 -> *it1, false otherwise.
+ * @return true if the two vertices are inversely connected, false otherwise.
  */
-bool base::are_inv_adjacent(const v_iterator &it1, const v_iterator &it2) const
+bool base::are_inv_adjacent(const vertices_size_type &n, const vertices_size_type &m) const
 {
-	// Find it1's inversely adjacent vertices.
-	const std::pair<ia_iterator,ia_iterator> ia_vertices = boost::inv_adjacent_vertices(*it1,m_graph);
-	if (std::find(ia_vertices.first,ia_vertices.second,*it2) == ia_vertices.second) {
-		return false;
-	} else {
-		return true;
-	}
+	check_vertex_index(n);
+	check_vertex_index(m);
+	// Find n's inversely adjacent vertices.
+	const std::pair<ia_iterator,ia_iterator> ia_vertices = boost::inv_adjacent_vertices(boost::vertex(n,m_graph),m_graph);
+	return std::find(ia_vertices.first,ia_vertices.second,boost::vertex(m,m_graph)) != ia_vertices.second;
 }
 
-/// Return true if two indices are inversely adjacent.
+/// Return iterator range to inversely adjacent vertices.
 /**
- * The direction must be from m to n.
+ * Inversely adjacent vertices are those connected to the interested vertex.
  *
- * @param[in] n first index.
- * @param[in] m second index.
- *
- * @return true if it exists an edge m -> n, false otherwise.
- */
-bool base::are_inv_adjacent(int n, int m) const
-{
-	return are_inv_adjacent(get_it(n),get_it(m));
-}
-
-/// Return iterator range to inversely adjcent vertices.
-/**
- * Inversely adjacent vertices are those connecting the interested vertex.
- *
- * @param[in] v_it iterator to the interested vertex.
+ * @param[in] idx index of the interested vertex.
  *
  * @return iterator range over the inversely adjacent vertices.
  */
-std::pair<base::ia_iterator,base::ia_iterator> base::get_inv_adjacent_vertices(const v_iterator &v_it) const
+std::pair<base::ia_iterator,base::ia_iterator> base::get_inv_adjacent_vertices(const vertices_size_type &idx) const
 {
-	return boost::inv_adjacent_vertices(*v_it,m_graph);
+	check_vertex_index(idx);
+	return boost::inv_adjacent_vertices(boost::vertex(idx,m_graph),m_graph);
 }
 
-/// Return vector of inversely adjcent indices.
+/// Return vector of inversely adjacent vertices.
 /**
- * Inversely adjacent indices are those connecting the interested index.
+ * Inversely adjacent vertices are those connected to the interested index.
  *
- * @param[in] n interested index.
+ * @param[in] idx index of the interested vertex.
  *
  * @return vector of inversely adjacent indices.
  */
-std::vector<int> base::get_inv_adjacent_vertices(int n) const
+std::vector<base::vertices_size_type> base::get_v_inv_adjacent_vertices(const vertices_size_type &idx) const
 {
-	const std::pair<base::ia_iterator,base::ia_iterator> tmp = get_inv_adjacent_vertices(get_it(n));
-	return std::vector<int>(tmp.first,tmp.second);
+	const std::pair<base::ia_iterator,base::ia_iterator> tmp = get_inv_adjacent_vertices(idx);
+	return std::vector<base::vertices_size_type>(tmp.first,tmp.second);
 }
 
 /// Return the number of inversely adjacent vertices.
 /**
- * Inversely adjacent vertices are those connecting the interested vertex.
- *
- * @param[in] v_it iterator to the interested vertex.
- *
  * @return number of inversely adjacent vertices.
  */
-base::edges_size_type base::get_num_inv_adjacent_vertices(const v_iterator &v_it) const
+base::edges_size_type base::get_num_inv_adjacent_vertices(const vertices_size_type &idx) const
 {
-	const std::pair<base::ia_iterator,base::ia_iterator> v = get_inv_adjacent_vertices(v_it);
+	const std::pair<base::ia_iterator,base::ia_iterator> v = get_inv_adjacent_vertices(idx);
 	return boost::numeric_cast<edges_size_type>(std::distance(v.first,v.second));
-}
-
-/// Return the number of inversely adjacent indices.
-/**
- * Inversely adjacent indices are those connecting the interested index.
- *
- * @param[in] n interested index.
- *
- * @return number of inversely adjacent indices.
- */
-base::edges_size_type base::get_num_inv_adjacent_vertices(int n) const
-{
-	return get_num_inv_adjacent_vertices(get_it(n));
 }
 
 /// Add an edge.
 /**
- * Add an edge connecting *it1 to *it2. Will fail if are_adjacent() returns true.
+ * Add an edge connecting n to m. Will fail if are_adjacent() returns true.
  *
- * @param[in] it1 iterator to first vertex.
- * @param[in] it2 iterator to second vertex.
+ * @param[in] n index of the first vertex.
+ * @param[in] m index of the second vertex.
  */
-void base::add_edge(const v_iterator &it1, const v_iterator &it2)
+void base::add_edge(const vertices_size_type &n, const vertices_size_type &m)
 {
-	if (are_adjacent(it1,it2)) {
+	if (are_adjacent(n,m)) {
 		pagmo_throw(value_error,"cannot add edge, vertices are already connected");
 	}
-	const std::pair<e_descriptor,bool> result = boost::add_edge(*it1,*it2,m_graph);
+	const std::pair<e_descriptor,bool> result = boost::add_edge(boost::vertex(n,m_graph),boost::vertex(m,m_graph),m_graph);
 	pagmo_assert(result.second);
+	// Assign weight 1 to the edge.
 	boost::property_map<graph_type,boost::edge_weight_t>::type w = boost::get(boost::edge_weight,m_graph);
 	w[result.first] = 1;
 }
 
 /// Remove an edge.
 /**
- * Remove the edge connecting *it1 to *it2. Will fail if are_adjacent() returns false.
+ * Remove the edge connecting n to m. Will fail if are_adjacent() returns false.
  *
- * @param[in] it1 iterator to first vertex.
- * @param[in] it2 iterator to second vertex.
+ * @param[in] n index of the first vertex.
+ * @param[in] m index of the second vertex.
  */
-void base::remove_edge(const v_iterator &it1, const v_iterator &it2)
+void base::remove_edge(const vertices_size_type &n, const vertices_size_type &m)
 {
-	if (!are_adjacent(it1,it2)) {
+	if (!are_adjacent(n,m)) {
 		pagmo_throw(value_error,"cannot remove edge, vertices are not connected");
 	}
-	boost::remove_edge(*it1,*it2,m_graph);
+	boost::remove_edge(boost::vertex(n,m_graph),boost::vertex(m,m_graph),m_graph);
 }
 
 /// Remove all edges.
@@ -435,7 +329,7 @@ void base::remove_edge(const v_iterator &it1, const v_iterator &it2)
  */
 void base::remove_all_edges()
 {
-	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+	for (std::pair<v_iterator,v_iterator> vertices = get_vertices(); vertices.first != vertices.second; ++vertices.first) {
 		boost::clear_vertex(*vertices.first,m_graph);
 	}
 }
@@ -446,24 +340,9 @@ void base::remove_all_edges()
  *
  * @return begin/end iterator range for the graph.
  */
-std::pair<base::v_iterator,base::v_iterator> base::get_vertices_it() const
+std::pair<base::v_iterator,base::v_iterator> base::get_vertices() const
 {
 	return boost::vertices(m_graph);
-}
-
-/// Return list of vertex indices.
-/**
- * Return the list of island indices in the graph.
- *
- * @return vector of indices of the islands inserted in the topology.
- */
-std::vector<int> base::get_vertices() const
-{
-	std::vector<int> retval;
-	for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
-		retval.push_back(boost::numeric_cast<int>(m_graph[*vertices.first].m_idx));
-	}
-	return retval;
 }
 
 /// Get number of vertices.
@@ -499,10 +378,11 @@ base::edges_size_type base::get_number_of_edges() const
 double base::get_average_path_length() const
 {
 	// Output matrix.
-	std::vector<std::vector<int> > D(get_number_of_vertices(),std::vector<int>(get_number_of_vertices()));
+	std::vector<std::vector<int> > D(boost::numeric_cast<std::vector<std::vector<int> >::size_type>(get_number_of_vertices()),
+		std::vector<int>(boost::numeric_cast<std::vector<int>::size_type>(get_number_of_vertices())));
 	boost::johnson_all_pairs_shortest_paths(m_graph,D);
 	double retval = 0;
-	for (std::vector<int>::size_type i = 0; i < D.size(); ++i) {
+	for (std::vector<std::vector<int> >::size_type i = 0; i < D.size(); ++i) {
 		for (std::vector<int>::size_type j = 0; j < D[i].size(); ++j) {
 			retval += D[i][j];
 		}
@@ -514,17 +394,15 @@ double base::get_average_path_length() const
 	}
 }
 
-/// Push back island index.
+/// Push back vertex.
 /**
- * This method will add index n into the graph and will then call connect() to establish the connections between the newly-added node
+ * This method will add a vertex and will then call connect() to establish the connections between the newly-added node
  * and the existing nodes in the graph.
- *
- * @param[in] n index of the island to be inserted into the graph.
  */
-void base::push_back(int n)
+void base::push_back()
 {
-	add_vertex(n);
-	connect(n);
+	add_vertex();
+	connect(get_number_of_vertices() - 1);
 }
 
 /// Overload stream insertion operator for topology::base.

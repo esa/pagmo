@@ -49,18 +49,23 @@ class base;
 /// Alias for shared pointer to base topology.
 typedef boost::shared_ptr<base> base_ptr;
 
-// TODO: ditch island property, ditch integer interface in favour of vertices_size_type,
-// ditch custom topology since we can define it quite easily anyway.
-// Also remove the remove_vertex, make topology so that we cannot ever remove a vertex, since
-// it does not make much sense?
 /// Base topology class.
 /**
- * This class represents a topology connecting island objects in an archipelago
- * using a directed graph in which the vertices contain the positional index of the island inside the archipelago.
- * E.g., the first island inserted into the archipelago has index 0, the second one index 1 and so on.
+ * This class represents a topology connecting islands in an archipelago
+ * using a directed graph in which the vertices are uniquely identified by an integer index representing:
+ * - the order of creation of the vertex (i.e., the first vertex added has index 0, the second one has integer 1 and so on),
+ * - the positional index of the island in the archipelago (i.e., the first island added to the archipelago corresponds
+ *   to vertex 0, the second one to vertex 1 and so on).
  *
- * The internal implementation
- * of the graph uses the Boost graph library.
+ * The internal implementation of the graph uses the Boost graph library, and most methods of this class are thin wrappers around the corresponding
+ * Boost graph functions.
+ *
+ * The user is required to implement the connect() method, which will be called upon island insertion in an archipelago to establish the connection(s)
+ * between the newly-added island and the islands already present in the archipelago.
+ *
+ * The re-implementable methods are:
+ * - get_name(), to give a user-friendly name to the derived topology (otherwise the mangled C++ name will be used),
+ * - human_readable_extra(), to provide extra, topology-specific information when printing the topology to a stream.
  *
  * @see http://www.boost.org/doc/libs/release/libs/graph/doc/
  *
@@ -69,28 +74,14 @@ typedef boost::shared_ptr<base> base_ptr;
  */
 class __PAGMO_VISIBLE base
 {
-	public:
-		// NOTE: here it would be better to get the type out from the archipelago,
-		// but can we do that? Circular dependencies...
-		/// Typedef for island's positional index in an archipelago.
-		typedef std::vector<island>::size_type idx_type;
-	private:
-		// Bundled island property for boost graph.
-		struct island_property
-		{
-			island_property() {}
-			island_property(const idx_type &idx):m_idx(idx) {}
-			idx_type m_idx;
-		};
 	protected:
 		// Useful shortcut typedefs for graph-related types. The graph is directed and bidirectional,
 		// since we need access to both in and out edges.
 		/// Underlying graph type for the representation of the topology.
 		/**
-		 * The graph is a directed and bidirectional adjacency list whose vertices embed an island_property class
-		 * containing the positional index of the island in the archipelago.
+		 * The graph is a directed and bidirectional adjacency list.
 		 */
-		typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::bidirectionalS,island_property,boost::property<boost::edge_weight_t,int>,boost::vecS> graph_type;
+		typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::bidirectionalS,boost::no_property,boost::property<boost::edge_weight_t,int>,boost::vecS> graph_type;
 		/// Iterator over the vertices.
 		typedef boost::graph_traits<graph_type>::vertex_iterator v_iterator;
 		/// Iterator over adjacent vertices.
@@ -99,13 +90,13 @@ class __PAGMO_VISIBLE base
 		typedef graph_type::inv_adjacency_iterator ia_iterator;
 		/// Vertex descriptor.
 		typedef boost::graph_traits<graph_type>::vertex_descriptor v_descriptor;
-		/// Vertices size type.
-		typedef graph_type::vertices_size_type vertices_size_type;
 		/// Edge descriptor.
 		typedef boost::graph_traits<graph_type>::edge_descriptor e_descriptor;
+	public:
+		/// Vertices size type.
+		typedef graph_type::vertices_size_type vertices_size_type;
 		/// Edges size type.
 		typedef graph_type::edges_size_type edges_size_type;
-	public:
 		base();
 		base(const base &);
 		base &operator=(const base &);
@@ -121,49 +112,44 @@ return base_ptr(new derived_topology(*this));
 		 */
 		virtual base_ptr clone() const = 0;
 		virtual ~base();
+		virtual std::string get_name() const;
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
 		/** @name High-level graph access and manipulation methods. */
 		//@{
 		vertices_size_type get_number_of_vertices() const;
 		edges_size_type get_number_of_edges() const;
-		bool contains_vertex(int) const;
-		void push_back(int n);
-		std::vector<int> get_vertices() const;
+		void push_back();
 		double get_average_path_length() const;
-		bool are_adjacent(int,int) const;
-		std::vector<int> get_adjacent_vertices(int) const;
-		edges_size_type get_num_adjacent_vertices(int) const;
-		bool are_inv_adjacent(int,int) const;
-		std::vector<int> get_inv_adjacent_vertices(int) const;
-		edges_size_type get_num_inv_adjacent_vertices(int) const;
+		bool are_adjacent(const vertices_size_type &, const vertices_size_type &) const;
+		bool are_inv_adjacent(const vertices_size_type &,const vertices_size_type &) const;
+		std::vector<vertices_size_type> get_v_adjacent_vertices(const vertices_size_type &) const;
+		std::vector<vertices_size_type> get_v_inv_adjacent_vertices(const vertices_size_type &) const;
+		edges_size_type get_num_adjacent_vertices(const vertices_size_type &) const;
+		edges_size_type get_num_inv_adjacent_vertices(const vertices_size_type &) const;
 		//@}
 	protected:
 		/** @name Low-level graph access and manipulation methods. */
 		//@{
-		v_iterator get_it(int) const;
-		void add_vertex(int);
-		void remove_vertex(const v_iterator &);
-		bool are_adjacent(const v_iterator &, const v_iterator &) const;
-		std::pair<a_iterator,a_iterator> get_adjacent_vertices(const v_iterator &) const;
-		edges_size_type get_num_adjacent_vertices(const v_iterator &) const;
-		bool are_inv_adjacent(const v_iterator &, const v_iterator &) const;
-		std::pair<ia_iterator,ia_iterator> get_inv_adjacent_vertices(const v_iterator &) const;
-		edges_size_type get_num_inv_adjacent_vertices(const v_iterator &) const;
-		void add_edge(const v_iterator &, const v_iterator &);
-		void remove_edge(const v_iterator &, const v_iterator &);
+		void add_vertex();
+		std::pair<a_iterator,a_iterator> get_adjacent_vertices(const vertices_size_type &) const;
+		std::pair<ia_iterator,ia_iterator> get_inv_adjacent_vertices(const vertices_size_type &) const;
+		void add_edge(const vertices_size_type &, const vertices_size_type &);
+		void remove_edge(const vertices_size_type &, const vertices_size_type &);
 		void remove_all_edges();
-		std::pair<v_iterator,v_iterator> get_vertices_it() const;
+		std::pair<v_iterator,v_iterator> get_vertices() const;
 		/// Establish connections between islands during a push_back() operation.
 		/**
-		 * This method will be called by push_back() after the vertex corresponing to island index n has been added to the graph.
+		 * This method will be called by push_back() after a vertex has been added to the graph.
 		 * The purpose of this method is to connect the newly-added vertex to other vertices according to the properties of the topology.
 		 *
-		 * @param[in] n positional index of the newly-inserted island.
+		 * @param[in] idx index of the newly-added vertex.
 		 */
-		virtual void connect(int n) = 0;
+		virtual void connect(const vertices_size_type &idx) = 0;
 		//@}
 		virtual std::string human_readable_extra() const;
+	private:
+		void check_vertex_index(const vertices_size_type &) const;
 	private:
 		graph_type m_graph;
 };

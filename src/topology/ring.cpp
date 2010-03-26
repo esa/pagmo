@@ -31,18 +31,12 @@ namespace pagmo { namespace topology {
 /// Default constructor.
 ring::ring():base(),m_first(0),m_last(0) {}
 
-/// Clone method.
 base_ptr ring::clone() const
 {
 	return base_ptr(new ring(*this));
 }
 
-/// Connect method.
-/**
- * Will insert the index into the ring topology, connecting it to the first and the last indices in the topology
- * and connecting the last index in the topology to and from it.
- */
-void ring::connect(int n)
+void ring::connect(const vertices_size_type &n)
 {
 	// Store frequently-used variables.
 	const vertices_size_type t_size = get_number_of_vertices();
@@ -56,31 +50,28 @@ void ring::connect(int n)
 	case 2: {
 			pagmo_assert(n != m_first);
 			// Add connections to the only existing element.
-			const v_iterator it_first = get_it(m_first), it_n = get_it(n);
-			add_edge(it_first,it_n);
-			add_edge(it_n,it_first);
+			add_edge(m_first,n);
+			add_edge(n,m_first);
 			break;
 		}
 	case 3: {
 			// Add new connections.
-			const v_iterator it_first = get_it(m_first), it_n = get_it(n), it_last = get_it(m_last);
-			add_edge(it_last,it_n);
-			add_edge(it_n,it_last);
-			add_edge(it_first,it_n);
-			add_edge(it_n,it_first);
+			add_edge(m_last,n);
+			add_edge(n,m_last);
+			add_edge(m_first,n);
+			add_edge(n,m_first);
 			break;
 		}
 	default: {
-			const v_iterator it_first = get_it(m_first), it_n = get_it(n), it_last = get_it(m_last);
 			// In general we must change the back connection of the first,
 			// the forward connection of the current last, and add the new last
 			// with proper connections.
-			remove_edge(it_last,it_first);
-			remove_edge(it_first,it_last);
-			add_edge(it_last,it_n);
-			add_edge(it_n,it_last);
-			add_edge(it_first,it_n);
-			add_edge(it_n,it_first);
+			remove_edge(m_last,m_first);
+			remove_edge(m_first,m_last);
+			add_edge(m_last,n);
+			add_edge(n,m_last);
+			add_edge(m_first,n);
+			add_edge(n,m_first);
 		}
 	}
 	// Update the id of the last island.

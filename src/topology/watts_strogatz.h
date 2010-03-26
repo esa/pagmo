@@ -55,11 +55,10 @@ namespace pagmo { namespace topology {
 class __PAGMO_VISIBLE watts_strogatz: public base
 {
 	public:
-		watts_strogatz(int, const double &);
-		watts_strogatz(int, int, const double &);
+		watts_strogatz(int = 10, const double & = 0.05, int = 0);
 		base_ptr clone() const;
 	protected:
-		void connect(int);
+		void connect(const vertices_size_type &);
 	private:
 		void rewire();
 	private:

@@ -44,12 +44,12 @@ class __PAGMO_VISIBLE ring: public base
 		ring();
 		base_ptr clone() const;
 	protected:
-		void connect(int);
+		void connect(const vertices_size_type &);
 	private:
 		// Tracks the identifier of the first inserted vertex.
-		int	m_first;
+		vertices_size_type	m_first;
 		// Tracks the identifier of the last inserted vertex.
-		int	m_last;
+		vertices_size_type	m_last;
 };
 
 }}

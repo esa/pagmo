@@ -53,19 +53,15 @@ barabasi_albert::barabasi_albert(int m0, int m):
 	}
 }
 
-/// Clone method.
 base_ptr barabasi_albert::clone() const
 {
 	return base_ptr(new barabasi_albert(*this));
 }
 
-/// Connect method.
-void barabasi_albert::connect(int n)
+void barabasi_albert::connect(const vertices_size_type &idx)
 {
 	pagmo_assert(get_number_of_vertices() > 0);
 	const vertices_size_type prev_size = get_number_of_vertices() - 1;
-	// Get the iterator of the newly-added index.
-	const v_iterator it_n = get_it(n);
 	if (prev_size < m_m0) {
 		// If we had not built the initial m0 nodes, do it.
 		// We want to connect the newcomer island with high probability, and make sure that
@@ -75,31 +71,30 @@ void barabasi_albert::connect(int n)
 		// Flag indicating if at least 1 connection was added.
 		bool connection_added = false;
 		// Main loop.
-		for (std::pair<v_iterator,v_iterator> vertices = get_vertices_it(); vertices.first != vertices.second; ++vertices.first) {
+		for (std::pair<v_iterator,v_iterator> vertices = get_vertices(); vertices.first != vertices.second; ++vertices.first) {
 			// Do not consider the new vertex itself.
-			if (vertices.first != it_n) {
+			if (*vertices.first != idx) {
 				if (m_drng() < prob) {
 					connection_added = true;
 					// Add the connections
-					add_edge(vertices.first,it_n);
-					add_edge(it_n,vertices.first);
+					add_edge(*vertices.first,idx);
+					add_edge(idx,*vertices.first);
 				}
 			}
 		}
 		// If no connections were established and this is not the first island being inserted,
 		// establish at least one connection with a random island other than n.
 		if ((!connection_added) && (prev_size != 0)) {
-			// Get an iterator to the first vertex and advance it by a random quantity between
-			// 0 and n_vertices - 1. Repeat the procedure if by chance we end up on it_n again.
+			// Get a random vertex index between 0 and n_vertices - 1. Keep on repeating the procedure if by
+			// chance we end up on idx again.
 			boost::uniform_int<vertices_size_type> uni_int(0,get_number_of_vertices() - 1);
-			v_iterator random_it;
+			vertices_size_type rnd;
 			do {
-				random_it = get_vertices_it().first;
-				std::advance(random_it,uni_int(m_urng));
-			} while (random_it == it_n);
+				rnd = uni_int(m_urng);
+			} while (rnd == idx);
 			// Add connections to the random vertex.
-			add_edge(random_it,it_n);
-			add_edge(it_n,random_it);
+			add_edge(rnd,idx);
+			add_edge(idx,rnd);
 		}
 	} else {
 		// Let's find the current total number of edges.
@@ -111,6 +106,8 @@ void barabasi_albert::connect(int n)
 		// node.
 		boost::uniform_int<edges_size_type> uni_int(0,n_edges - 1);
 		std::size_t i = 0;
+		std::pair<v_iterator,v_iterator> vertices;
+		std::pair<a_iterator,a_iterator> adj_vertices;
 		while (i < m_m) {
 			// Here we choose a random number between 0 and n_edges - 1.
 			const edges_size_type rn = uni_int(m_urng);
@@ -119,12 +116,12 @@ void barabasi_albert::connect(int n)
 			// than rn. This is equivalent to giving a chance of connection to vertex v directly proportional to the number of edges departing from v.
 			// You can think of this process as selecting a random edge among all the existing edges and connecting to the vertex from which the
 			// selected edge departs.
-			std::pair<v_iterator,v_iterator> vertices = get_vertices_it();
+			vertices = get_vertices();
 			for (; vertices.first != vertices.second; ++vertices.first) {
 				// Do not consider it_n.
-				if (vertices.first != it_n) {
-					const std::pair<a_iterator,a_iterator> tmp = get_adjacent_vertices(vertices.first);
-					n += boost::numeric_cast<edges_size_type>(std::distance(tmp.first,tmp.second));
+				if (*vertices.first != idx) {
+					adj_vertices = get_adjacent_vertices(*vertices.first);
+					n += boost::numeric_cast<edges_size_type>(std::distance(adj_vertices.first,adj_vertices.second));
 					if (n > rn) {
 						break;
 					}
@@ -132,9 +129,9 @@ void barabasi_albert::connect(int n)
 			}
 			pagmo_assert(vertices.first != vertices.second);
 			// If the candidate was not already connected, then add it.
-			if (!are_adjacent(it_n,vertices.first)) {
-				add_edge(vertices.first,it_n);
-				add_edge(it_n,vertices.first);
+			if (!are_adjacent(idx,*vertices.first)) {
+				add_edge(*vertices.first,idx);
+				add_edge(idx,*vertices.first);
 				++i;
 			}
 		}

@@ -45,7 +45,7 @@ class __PAGMO_VISIBLE unconnected: public base
 		unconnected();
 		base_ptr clone() const;
 	protected:
-		void connect(int);
+		void connect(const vertices_size_type &);
 };
 
 } }

@@ -38,7 +38,7 @@ custom::custom():base() {}
 /// Constructor from other topology.
 /**
  * This constructor will copy the internal representation of any other topology (but of course not its push_back() logic).
- * Useful to take the snapshot of an existing topology and modify it manually for prototyping/experiments.
+ * Useful to take the snapshot of an existing topology and modify it manually.
  *
  * @param[in] t topology to be copied.
  */
@@ -54,7 +54,7 @@ custom::custom(const base &t):base(t) {}
  */
 void custom::add_edge(int n, int m)
 {
-	base::add_edge(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
+	base::add_edge(boost::numeric_cast<vertices_size_type>(n),boost::numeric_cast<vertices_size_type>(m));
 }
 
 /// Remove an edge.
@@ -67,19 +67,11 @@ void custom::add_edge(int n, int m)
  */
 void custom::remove_edge(int n, int m)
 {
-	base::remove_edge(get_it(boost::numeric_cast<idx_type>(n)),get_it(boost::numeric_cast<idx_type>(m)));
+	base::remove_edge(boost::numeric_cast<vertices_size_type>(n),boost::numeric_cast<vertices_size_type>(m));
 }
 
-/// Connect implementation.
-/**
- * This class will not automatically add any connection during push_back operations.
- *
- * @param[in] n index to be connected.
- */
-void custom::connect(int n)
-{
-	(void)n;
-}
+void custom::connect(const vertices_size_type &)
+{}
 
 /// Remove all edges.
 /**
@@ -92,28 +84,13 @@ void custom::remove_all_edges()
 
 /// Add vertex.
 /**
- * Equivalent to both base::add_vertex().
- *
- * @param[in] n index to be added to the topology.
+ * Equivalent to base::add_vertex().
  */
-void custom::add_vertex(int n)
+void custom::add_vertex()
 {
-	base::add_vertex(n);
+	base::add_vertex();
 }
 
-/// Remove vertex.
-/**
- * Equivalent to base::remove_vertex(). Will fail if n is negative or
- * if n is not present inside the topology.
- *
- * @param[in] n index to be removed from the topology.
- */
-void custom::remove_vertex(int n)
-{
-	base::remove_vertex(get_it(n));
-}
-
-/// Clone method.
 base_ptr custom::clone() const
 {
 	return base_ptr(new custom(*this));

@@ -46,7 +46,7 @@ class __PAGMO_VISIBLE fully_connected: public base
 		fully_connected();
 		base_ptr clone() const;
 	protected:
-		void connect(int);
+		void connect(const vertices_size_type &);
 };
 
 }}
