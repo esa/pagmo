@@ -39,8 +39,8 @@ namespace pagmo { namespace topology {
 
 /// Constructor from K, beta and size.
 /**
- * Build a Watts-Strogatz network model with K = k, rewiring probability beta and size n. Will fail if k is less than 2 or odd, if
- * n < k + 1 or if the beta parameter is outside the [0,1] range.
+ * Build a Watts-Strogatz network model with K = k, rewiring probability beta and size n. Will fail if k is less than 2 or odd
+ * or if the beta parameter is outside the [0,1] range.
  *
  * @param[in] k K parameter of the model.
  * @param[in] beta probability of rewiring.
@@ -56,9 +56,6 @@ watts_strogatz::watts_strogatz(int k, const double &beta, int n):
 	// Solve potential overflow.
 	if (m_k == boost::integer_traits<std::size_t>::const_max) {
 		pagmo_throw(std::overflow_error,"overflow error in Watts-Strogatz model");
-	}
-	if (size < m_k + 1) {
-		pagmo_throw(value_error,"invalid topology size, it must be greater than K");
 	}
 	if (m_beta < 0 || m_beta > 1) {
 		pagmo_throw(value_error,"the beta parameter must be in the [0,1] range");
