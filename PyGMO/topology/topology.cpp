@@ -50,7 +50,13 @@ BOOST_PYTHON_MODULE(_topology) {
 		.def("__repr__", &topology::base::human_readable);
 
 	// Topologies.
+	topology_wrapper<topology::barabasi_albert>("barabasi_albert", "Barabasi-Albert topology.").def(init<optional<int,int> >());
+	topology_wrapper<topology::erdos_renyi>("erdos_renyi", "Erdos-Renyi topology.").def(init<optional<const double &> >());
+	topology_wrapper<topology::fully_connected>("fully_connected", "Fully connected topology.").def(init<>());
 	topology_wrapper<topology::ring>("ring", "Ring topology.").def(init<>());
+	topology_wrapper<topology::one_way_ring>("one_way_ring", "One-way ring topology.").def(init<>());
+	topology_wrapper<topology::unconnected>("unconnected", "Unconnected topology.").def(init<>());
+	topology_wrapper<topology::watts_strogatz>("watts_strogatz", "Watts-Strogatz topology.").def(init<optional<int,const double &,int> >());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<topology::base_ptr>();
