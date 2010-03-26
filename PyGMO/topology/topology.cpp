@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
@@ -42,15 +43,64 @@ static inline class_<Topology,bases<topology::base> > topology_wrapper(const cha
 	return retval;
 }
 
+// Wrappers for methods taking unsinged ints with safe conversion from int.
+static inline bool topology_are_adjacent(const topology::base &t, int n, int m)
+{
+	return t.are_adjacent(boost::numeric_cast<topology::base::vertices_size_type>(n),boost::numeric_cast<topology::base::vertices_size_type>(m));
+}
+
+static inline bool topology_are_inv_adjacent(const topology::base &t, int n, int m)
+{
+	return t.are_inv_adjacent(boost::numeric_cast<topology::base::vertices_size_type>(n),boost::numeric_cast<topology::base::vertices_size_type>(m));
+}
+
+static inline std::vector<topology::base::vertices_size_type> topology_get_adjacent_vertices(const topology::base &t, int n)
+{
+	return t.get_v_adjacent_vertices(boost::numeric_cast<topology::base::vertices_size_type>(n));
+}
+
+static inline std::vector<topology::base::vertices_size_type> topology_get_inv_adjacent_vertices(const topology::base &t, int n)
+{
+	return t.get_v_inv_adjacent_vertices(boost::numeric_cast<topology::base::vertices_size_type>(n));
+}
+
+static inline topology::base::edges_size_type topology_get_num_adjacent_vertices(const topology::base &t, int n)
+{
+	return t.get_num_adjacent_vertices(boost::numeric_cast<topology::base::vertices_size_type>(n));
+}
+
+static inline topology::base::edges_size_type topology_get_num_inv_adjacent_vertices(const topology::base &t, int n)
+{
+	return t.get_num_inv_adjacent_vertices(boost::numeric_cast<topology::base::vertices_size_type>(n));
+}
+
 BOOST_PYTHON_MODULE(_topology) {
 	// Translate exceptions for this module.
 	translate_exceptions();
 
 	class_<topology::base,boost::noncopyable>("_base",no_init)
-		.def("__repr__", &topology::base::human_readable);
+		.def("__repr__", &topology::base::human_readable)
+		.add_property("number_of_vertices",&topology::base::get_number_of_vertices)
+		.add_property("number_of_edges",&topology::base::get_number_of_edges)
+		.def("get_average_path_length",&topology::base::get_average_path_length,"Calculate average path length.")
+		.def("push_back",&topology::base::push_back,"Add vertex to the topology and connect it.")
+		.def("are_adjacent",&topology_are_adjacent,"Check whether two vertices are adjacent.")
+		.def("are_inv_adjacent",&topology_are_inv_adjacent,"Check whether two vertices are inversely adjacent.")
+		.def("get_adjacent_vertices",&topology_get_adjacent_vertices,"Return list of adjacent vertices.")
+		.def("get_inv_adjacent_vertices",&topology_get_inv_adjacent_vertices,"Return list of inversely adjacent vertices.")
+		.def("get_num_adjacent_vertices",&topology_get_num_adjacent_vertices,"Return number of adjacent vertices.")
+		.def("get_num_inv_adjacent_vertices",&topology_get_num_inv_adjacent_vertices,"Return number of inversely adjacent vertices.");
 
 	// Topologies.
 	topology_wrapper<topology::barabasi_albert>("barabasi_albert", "Barabasi-Albert topology.").def(init<optional<int,int> >());
+	topology_wrapper<topology::custom>("custom", "Custom topology.")
+		.def(init<>())
+		.def(init<const topology::base &>())
+		.def("add_edge",&topology::custom::add_edge,"Add edge.")
+		.def("remove_edge",&topology::custom::remove_edge,"Remove edge.")
+		.def("remove_all_edges",&topology::custom::remove_all_edges,"Remove all edges.")
+		.def("add_vertex",&topology::custom::add_vertex,"Add vertex.");
+
 	topology_wrapper<topology::erdos_renyi>("erdos_renyi", "Erdos-Renyi topology.").def(init<optional<const double &> >());
 	topology_wrapper<topology::fully_connected>("fully_connected", "Fully connected topology.").def(init<>());
 	topology_wrapper<topology::ring>("ring", "Ring topology.").def(init<>());

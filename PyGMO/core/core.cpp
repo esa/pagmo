@@ -103,10 +103,14 @@ BOOST_PYTHON_MODULE(_core)
 	from_python_sequence<std::vector<double>,variable_capacity_policy>();
 	to_tuple_mapping<std::vector<int> >();
 	from_python_sequence<std::vector<int>,variable_capacity_policy>();
-        to_tuple_mapping<std::vector<std::vector<double> > >();
-        from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
+	to_tuple_mapping<std::vector<topology::base::vertices_size_type> >();
+	from_python_sequence<std::vector<topology::base::vertices_size_type>,variable_capacity_policy>();
+	to_tuple_mapping<std::vector<std::vector<double> > >();
+	from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
 	to_tuple_mapping<std::vector<std::vector<int> > >();
 	from_python_sequence<std::vector<std::vector<int> >,variable_capacity_policy>();
+	to_tuple_mapping<std::vector<std::vector<topology::base::vertices_size_type> > >();
+	from_python_sequence<std::vector<std::vector<topology::base::vertices_size_type> >,variable_capacity_policy>();
 
 	// Expose population class.
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
