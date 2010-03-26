@@ -385,8 +385,8 @@ void archipelago::pre_evolution(island &isl)
 					case point_to_point:
 					{
 						// Get the index of a random island connecting into isl.
-						boost::uniform_int<std::vector<int>::size_type> uint(0,inv_adj_islands.size() - 1);
-						const size_type rn_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[uint(m_urng)]);
+						boost::uniform_int<std::vector<int>::size_type> u_int(0,inv_adj_islands.size() - 1);
+						const size_type rn_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[u_int(m_urng)]);
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
 						pagmo_assert(m_migr_map[rn_isl_idx].size() <= 1);
@@ -443,8 +443,8 @@ void archipelago::post_evolution(island &isl)
 						case point_to_point:
 						{
 							// For one-to-one migration choose a random neighbour island and put immigrants to its inbox.
-							boost::uniform_int<std::vector<int>::size_type> uint(0,adj_islands.size() - 1);
-							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[uint(m_urng)]);
+							boost::uniform_int<std::vector<int>::size_type> u_int(0,adj_islands.size() - 1);
+							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[u_int(m_urng)]);
 							m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
 							break;
 						}
