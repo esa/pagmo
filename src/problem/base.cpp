@@ -1155,6 +1155,11 @@ void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<i
 		}
 		x_new[j] = x0[j];
 	}
+	std::cout << "iGfun: [";
+	for (int i=0; i<lenG; ++i) std::cout << iGfun[i] << ",";
+	std::cout << "]" << std::endl << "jGvar: [";
+	for (int i=0; i<lenG; ++i) std::cout << jGvar[i] << ",";
+	std::cout << "]";
 }
 
 /// Reset to zero the total number of calls to the objective function.

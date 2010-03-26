@@ -38,7 +38,7 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::snopt ipopt_instance(10,1e-4,1e-4);
+	algorithm::snopt ipopt_instance(10000,1e-4,1e-4);
 	ipopt_instance.screen_output(true);
 // 	snopt_instance.file_output(false);
 	problem::earth_planet prob(1,kep_toolbox::planet::MARS);

@@ -122,7 +122,7 @@ void earth_planet::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<
 	decision_vector x0(get_dimension());
 	for (pagmo::decision_vector::size_type i = 0; i<x0.size(); ++i)
 	{
-		x0[i] = (get_lb()[i] + get_ub()[i])/2;
+		x0[i] = get_lb()[i] + (get_ub()[i] - get_lb()[i]) / 2.1234;
 	}
 	//Numerical procedure
 	estimate_sparsity(x0, lenG, iGfun, jGvar);
