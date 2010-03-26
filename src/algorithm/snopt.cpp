@@ -268,7 +268,7 @@ void snopt::evolve(population &pop) const
 	SnoptProblem.setRealParameter( "Major optimality tolerance", m_opt);
 
 	//If the user did not implement the sparsity structure of the problem ...
-	if (use_snopt_magic) SnoptProblem.computeJac();
+	if (true) SnoptProblem.computeJac();
 
 	integer Cold = 0, Basis = 1, Warm = 2;
 

@@ -64,7 +64,7 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
 	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
 	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
-	    fb_traj();
+	    fb_traj() {}
 	    //@}
 
 

@@ -45,6 +45,7 @@
 #include "problem/luksan_vlcek_2.h"
 #include "problem/luksan_vlcek_3.h"
 #include "problem/cassini_1.h"
+#include "problem/earth_planet.h"
 
 
 #endif

@@ -149,7 +149,7 @@ namespace kep_toolbox { namespace sims_flanagan{
 	fb_traj::fb_traj(const std::vector<planet>& sequence, const unsigned int &n_seg, const double &mass_, const double &thrust_, const double &isp_) : legs(sequence.size()-1),planets(sequence){
 
 	    //check consistency of n_seg
-	    if (n_seg <=1) throw_value_error("number of segments must be >=1");
+	    if (n_seg <1) throw_value_error("number of segments must be >=1");
 
 	    //init spacecraft in all legs and allocate memory for throttles
 	    for (size_t i=0;i<sequence.size()-1;i++){
@@ -176,7 +176,7 @@ namespace kep_toolbox { namespace sims_flanagan{
  */
 
 	std::ostream &operator<<(std::ostream &s, const fb_traj &in ){
-	    s << "Full Vector: " << std::endl;
+/*	    s << "Full Vector: " << std::endl;
 	    for (size_t i=0;i<in.full_vector.size();i++) s << in.full_vector[i] << " ";
 	    s << std::endl <<"Mismatches con: " << std::endl;
 	    for (size_t i=0;i<in.mismatches_con.size();i++) s << in.mismatches_con[i] << " ";
@@ -189,7 +189,7 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    s << std::endl <<"Same mass con: " << std::endl;
 	    for (size_t i=0;i<in.fb_mass_con.size();i++) s << in.fb_mass_con[i] << " ";
 	    s << std::endl <<"Same epoch con: " << std::endl;
-	    for (size_t i=0;i<in.fb_epoch_con.size();i++) s << in.fb_epoch_con[i] << " ";
+	    for (size_t i=0;i<in.fb_epoch_con.size();i++) s << in.fb_epoch_con[i] << " ";*/
 	    return s;
 	}
 

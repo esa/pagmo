@@ -3,6 +3,7 @@
 
 #include "../epoch.h"
 #include "../astro_constants.h"
+#include <numeric>
 
 namespace kep_toolbox {
 /// Objects dealing with the Sims-Flanagan low-thrus trajectory model

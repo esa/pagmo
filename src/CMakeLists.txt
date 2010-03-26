@@ -55,6 +55,10 @@ SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Lambert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/epoch.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
 )
 
 # Additional files for GSL support.

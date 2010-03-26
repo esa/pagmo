@@ -82,11 +82,13 @@ earth_planet::earth_planet(int segments, planet::common_name planet_id) : base(b
 		}
 	}
 
+	set_bounds(lb_v,ub_v);
+
 	//traj_fb constructor
 	std::vector<planet> sequence;
 	sequence.push_back(planet(planet::EARTH));
 	sequence.push_back(planet(planet_id));
-	trajectory = fb_traj(sequence,segments,1000,0.05,4500);
+	trajectory = fb_traj(sequence,segments,1000,0.05,std::numeric_limits<double>::infinity());
 }
 
 /// Clone method.
@@ -117,7 +119,11 @@ void earth_planet::compute_constraints_impl(constraint_vector &c, const decision
 void earth_planet::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	//Initial point
-	decision_vector x0(get_dimension(),1);
+	decision_vector x0(get_dimension());
+	for (pagmo::decision_vector::size_type i = 0; i<x0.size(); ++i)
+	{
+		x0[i] = (get_lb()[i] + get_ub()[i])/2;
+	}
 	//Numerical procedure
 	estimate_sparsity(x0, lenG, iGfun, jGvar);
 }

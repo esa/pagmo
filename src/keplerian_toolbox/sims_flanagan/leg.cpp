@@ -22,7 +22,7 @@ namespace kep_toolbox{
  *
  */
 	std::ostream &operator<<(std::ostream &s, const leg &in ){
-	    s << "Number of segments: " << in.get_throttles_size() / 3 << std::endl;
+/*	    s << "Number of segments: " << in.get_throttles_size() / 3 << std::endl;
 	    s << "Departure date: " << in.get_t_i() << ", mjd2000: " << in.get_t_i().mjd2000() << std::endl;
 	    s << "Arrival date: " << in.get_t_f() << ", mjd2000: " << in.get_t_f().mjd2000() << std::endl;
 	    s << "Initial mass: " << in.get_x_i().get_mass() << " kg" << std::endl;
@@ -42,7 +42,7 @@ namespace kep_toolbox{
 	    std::cout << mism << std::endl;
 	    s << "Throttle magnitude constraints: ";
 	    for (size_t i=0;i< in.get_throttles_size()/3;i++) std::cout << temp[i] << " ";
-	    std::cout << std::endl;
+	    std::cout << std::endl;*/
 	    return s;
 	}
     }
