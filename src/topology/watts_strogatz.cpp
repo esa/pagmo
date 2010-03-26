@@ -37,7 +37,7 @@
 
 namespace pagmo { namespace topology {
 
-/// Constructor and K and beta parameters and size.
+/// Constructor from K, beta and size.
 /**
  * Build a Watts-Strogatz network model with K = k, rewiring probability beta and size n. Will fail if k is less than 2 or odd, if
  * n < k + 1 or if the beta parameter is outside the [0,1] range.
