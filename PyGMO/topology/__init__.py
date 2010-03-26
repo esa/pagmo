@@ -2,6 +2,9 @@
 from _topology import *
 
 def _to_networkx(self):
+	"""
+	Export topology as a networkx DiGraph.
+	"""
 	try:
 		import networkx as nx
 	except ImportError:
@@ -15,6 +18,9 @@ def _to_networkx(self):
 	return retval
 
 def _draw(self):
+	"""
+	Draw topology using the draw() command from networkx.
+	"""
 	try:
 		import networkx as nx
 	except ImportError:
