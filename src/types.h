@@ -54,6 +54,9 @@ namespace pagmo
 		boost::numeric::def_overflow_handler,boost::numeric::RoundEven<double> > double_to_int;
 }
 
+// Give the possibility to disable stream overloads with appropriate #define.
+#ifndef __PAGMO_NO_STD_VECTOR_STREAM_OVERLOADS
+
 namespace std
 {
 	/// Overload stream insertion operator for std::vector<double>.
@@ -83,6 +86,50 @@ namespace std
 		os << ']';
 		return os;
 	}
+
+	/// Overload stream insertion operator for std::vector<unsigned int>.
+	inline ostream &operator<<(ostream &os, const vector<unsigned int> &v)
+	{
+		os << '[';
+		for (std::vector<unsigned int>::size_type i = 0; i < v.size(); ++i) {
+			os << v[i];
+			if (i != v.size() - 1) {
+				os << ", ";
+			}
+		}
+		os << ']';
+		return os;
+	}
+
+	/// Overload stream insertion operator for std::vector<unsigned long int>.
+	inline ostream &operator<<(ostream &os, const vector<unsigned long int> &v)
+	{
+		os << '[';
+		for (std::vector<unsigned long int>::size_type i = 0; i < v.size(); ++i) {
+			os << v[i];
+			if (i != v.size() - 1) {
+				os << ", ";
+			}
+		}
+		os << ']';
+		return os;
+	}
+
+	/// Overload stream insertion operator for std::vector<unsigned long long int>.
+	inline ostream &operator<<(ostream &os, const vector<unsigned long long int> &v)
+	{
+		os << '[';
+		for (std::vector<unsigned long long int>::size_type i = 0; i < v.size(); ++i) {
+			os << v[i];
+			if (i != v.size() - 1) {
+				os << ", ";
+			}
+		}
+		os << ']';
+		return os;
+	}
 }
+
+#endif
 
 #endif
