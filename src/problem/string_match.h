@@ -33,6 +33,16 @@
 
 namespace pagmo { namespace problem {
 
+/// String matching problem.
+/**
+ * This problem is initialised by providing a string of arbitrary (non-null) size n, and it defines an n-dimensional single-objective integer optimisation problem
+ * in which each variable is a character in a string of length n and the objective function is given by the sum of the distances of each character in the chromosome
+ * from the corresponding correct letter in the original string.
+ *
+ * In other words, in a chromosome with fitness 0 the value of each variable is the ASCII code of the corresponding letter in the original string.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE string_match: public base
 {
 	public:
@@ -41,7 +51,7 @@ class __PAGMO_VISIBLE string_match: public base
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		//std::string human_readable_extra() const;
+		std::string human_readable_extra() const;
 	private:
 		const std::string m_str;
 };

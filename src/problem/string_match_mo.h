@@ -33,6 +33,16 @@
 
 namespace pagmo { namespace problem {
 
+/// Multi-objective string matching problem.
+/**
+ * This is the multi-objective equivalent of problem::string_match. Instead of summing all the letter distances into one single value,
+ * each distance is considered a separate objective to be optimised to zero. Hence, this integer programming problem is defined as having
+ * n dimensions both in the variables and in the objective (where n is the size of the original string).
+ *
+ * @see problem::string_match
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE string_match_mo: public base
 {
 	public:
@@ -41,7 +51,7 @@ class __PAGMO_VISIBLE string_match_mo: public base
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		//std::string human_readable_extra() const;
+		std::string human_readable_extra() const;
 	private:
 		const std::string m_str;
 };

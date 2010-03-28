@@ -32,12 +32,14 @@
 
 namespace pagmo { namespace problem {
 
+/// Constructor from C++ string.
 string_match_mo::string_match_mo(const std::string &str):base(boost::numeric_cast<int>(str.size()),boost::numeric_cast<int>(str.size()),
 	boost::numeric_cast<problem::base::f_size_type>(str.size()),0,0),m_str(str)
 {
 	set_bounds(0,255);
 }
 
+/// Constructor from C string.
 string_match_mo::string_match_mo(const char *str):base(boost::numeric_cast<int>(std::string(str).size()),boost::numeric_cast<int>(std::string(str).size()),
 	boost::numeric_cast<problem::base::f_size_type>(std::string(str).size()),0,0),m_str(str)
 {
@@ -55,6 +57,11 @@ void string_match_mo::objfun_impl(fitness_vector &f, const decision_vector &x) c
 		f[boost::numeric_cast<problem::base::f_size_type>(i)] =
 			std::abs(static_cast<char>(x[boost::numeric_cast<size_type>(i)]) - m_str[i]);
 	}
+}
+
+std::string string_match_mo::human_readable_extra() const
+{
+	return std::string("\tString: \"") + m_str + "\"";
 }
 
 } }
