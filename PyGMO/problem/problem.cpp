@@ -247,6 +247,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::luksan_vlcek_3>("luksan_vlcek_3","Luksan Vlcek problem 3.")
 		.def(init<int, optional<const double &, const double &> >());
 
+	// String matching problem.
+	problem_wrapper<problem::string_match>("string_match","String matching problem.")
+		.def(init<const std::string &>());
+
+	// String matching problem (multi-objective version).
+	problem_wrapper<problem::string_match_mo>("string_match_mo","String matching problem (multi-objective version).")
+		.def(init<const std::string &>());
+
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");
 	def("reset_objfun_calls",&problem::reset_objfun_calls,"Reset the total number of calls to the objective function.");
