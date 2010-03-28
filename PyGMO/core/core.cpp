@@ -159,6 +159,7 @@ BOOST_PYTHON_MODULE(_core)
 	// Expose archipelago class.
 	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,
 		int,int,optional<const topology::base &,archipelago::distribution_type,archipelago::migration_direction> >())
+		.def(init<optional<archipelago::distribution_type,archipelago::migration_direction> >())
 		.def(init<const archipelago &>())
 		.def("__copy__", &Py_copy_from_ctor<archipelago>)
 		.def("__len__", &archipelago::get_size)
@@ -167,5 +168,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
 		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
-		.def("busy", &archipelago::busy,"Check if archipelago is evolving.");
+		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
+		.def("push_back", &archipelago::push_back,"Append island.")
+		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
 }

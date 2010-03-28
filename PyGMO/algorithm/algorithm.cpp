@@ -113,6 +113,11 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def("_human_readable_extra",&python_algorithm::py_human_readable_extra);
 
 	// Expose algorithms.
+
+	// Null.
+	algorithm_wrapper<algorithm::null>("null","Null algorithm")
+		.def(init<>());
+
 	// IHS.
 	algorithm_wrapper<algorithm::ihs>("ihs","Improved harmony search.")
 		.def(init<int, optional<const double &, const double &, const double &, const double &, const double &> >());
