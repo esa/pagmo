@@ -193,7 +193,8 @@ bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gr
 {
 	(void) new_x;
 	double central_diff;
-	const double h = 1e-8;
+	const double h0=1e-8;
+	double h;
 	std::copy(x,x+n,dv.begin());
 	for (pagmo::decision_vector::size_type i=0; i<dv.size();++i)
 	{
@@ -202,10 +203,11 @@ bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gr
 
 	for (size_t i =0;i<affects_obj.size();++i)
 	{
-		dv[affects_obj[i]] = dv[affects_obj[i]] + h;
+		h = h0 * std::max(1.,fabs(dv[affects_obj[i]]));
+		dv[affects_obj[i]] += h;
 		m_pop->problem().objfun(fit,dv);
 		central_diff = fit[0];
-		dv[affects_obj[i]] = dv[affects_obj[i]] - 2*h;
+		dv[affects_obj[i]] -= 2*h;
 		m_pop->problem().objfun(fit,dv);
 		central_diff = (central_diff-fit[0]) / 2 / h;
 		grad_f[affects_obj[i]] = central_diff;
@@ -242,16 +244,18 @@ bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
 	}
 	else {
 		double central_diff;
-		const double h = 1e-8;
+		const double h0 = 1e-8;
+		double h;
 		double mem;
 		std::copy(x,x+n,dv.begin());
 		for (Ipopt::Index i=0;i<nele_jac;++i)
 		{
+			h = h0 * std::max(1.,fabs(dv[jJvar[i]]));
 			mem = dv[jJvar[i]];
-			dv[jJvar[i]] = dv[jJvar[i]] + h;
+			dv[jJvar[i]] += h;
 			m_pop->problem().compute_constraints(con,dv);
 			central_diff = con[iJfun[i]];
-			dv[jJvar[i]] = dv[jJvar[i]] - 2 * h;
+			dv[jJvar[i]] -= 2 * h;
 			m_pop->problem().compute_constraints(con,dv);
 			central_diff = (central_diff - con[iJfun[i]])/2/h;
 			values[i] = central_diff;

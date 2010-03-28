@@ -31,6 +31,7 @@
 #include <climits>
 #include <cstddef>
 #include <iostream>
+#include <iomanip>
 #include <iterator>
 #include <numeric>
 #include <sstream>
@@ -1142,7 +1143,12 @@ void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<i
 
 	for (size_type j=0;j<Dc;++j)
 	{
-		x_new[j] = x0[j] + x0[j]*1e-4;
+		//we perturb the component of x0 only if ub>lb, if ub=lb the variable is assumed
+		//to be 'just' a parameter ... in some problem implementations this is rather
+		//useful, but it also requires that the algorithm treat those variables accordingly (i.e.
+		//it does not allow a them to be outside the box bounds)
+		if (m_ub[j] == m_lb[j]) continue;
+		x_new[j] = x0[j] +  std::max(std::fabs(x0[j]), 1.0) * 1e-8;
 		objfun(f_new,x_new);
 		compute_constraints(c_new,x_new);
 		for (size_type i=0;i<m_f_dimension;++i)
@@ -1155,11 +1161,7 @@ void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<i
 		}
 		x_new[j] = x0[j];
 	}
-	std::cout << "iGfun: [";
-	for (int i=0; i<lenG; ++i) std::cout << iGfun[i] << ",";
-	std::cout << "]" << std::endl << "jGvar: [";
-	for (int i=0; i<lenG; ++i) std::cout << jGvar[i] << ",";
-	std::cout << "]";
+
 }
 
 /// Reset to zero the total number of calls to the objective function.
@@ -1168,5 +1170,4 @@ void reset_objfun_calls()
 	base::m_objfun_counter = atomic_counter_size_t();
 }
 
-}
-}
+}} //namespaces
