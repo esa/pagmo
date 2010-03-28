@@ -163,40 +163,20 @@ void snopt::evolve(population &pop) const
 
 	// Box-constrained non-linear optimization
 	integer neF   =  1 + prob_c_dimension;
-	integer lenA  = 1; //needs to be at least 1
 
-	//No linear part lenA = 1
+	//Memory sizing of A
+	integer lenA  = Dc * (1 + prob_c_dimension); //overestimate
 	integer *iAfun = new integer[lenA];
 	integer *jAvar = new integer[lenA];
 	doublereal *A  = new doublereal[lenA];
 
 
-	//Here we evaluate the sparsity pattern as defined by the problem
-	//If the problem is not re-implementing the set_sparsity function the default
-	//implementation is that of a full pattern
-	int lenG; std::vector<int> iGfun_vect, jGvar_vect;
-	bool use_snopt_magic = false;
-	try
-	{
-		prob.set_sparsity(lenG,iGfun_vect,jGvar_vect);
-	} //the user did implement the sparsity in the problem
-	catch (not_implemented_error)
-	{
-		use_snopt_magic = true;
-		lenG=Dc * (1 + prob_c_dimension); //overestimate for neG
-	} //the user did not implement the sparsity in the problem
-
+	//Memory sizing of G
+	int lenG =Dc * (1 + prob_c_dimension); //overestimate
 	integer *iGfun = new integer[lenG];
 	integer *jGvar = new integer[lenG];
 
-	if (!use_snopt_magic)
-	{
-		for (int i=0;i<lenG;i++)
-		{
-			iGfun[i] = iGfun_vect[i];
-			jGvar[i] = jGvar_vect[i];
-		}
-	}
+
 
 	//Decision vector memory allocation
 	doublereal *x      = new doublereal[n];
@@ -246,12 +226,12 @@ void snopt::evolve(population &pop) const
 	}
 
 	// Load the data for SnoptProblem ...
-	SnoptProblem.setNeA         ( 0 );
-	SnoptProblem.setNeG         ( lenG );
 	SnoptProblem.setProblemSize( n, neF );
-	SnoptProblem.setObjective  ( ObjRow, ObjAdd );
+	SnoptProblem.setNeG( lenG );
+	SnoptProblem.setNeA( lenA );
 	SnoptProblem.setA          ( lenA, iAfun, jAvar, A );
 	SnoptProblem.setG          ( lenG, iGfun, jGvar );
+	SnoptProblem.setObjective  ( ObjRow, ObjAdd );
 	SnoptProblem.setX          ( x, xlow, xupp, xmul, xstate );
 	SnoptProblem.setF          ( F, Flow, Fupp, Fmul, Fstate );
 	SnoptProblem.setXNames     ( xnames, nxnames );
@@ -267,13 +247,40 @@ void snopt::evolve(population &pop) const
 	SnoptProblem.setRealParameter( "Major feasibility tolerance", m_feas);
 	SnoptProblem.setRealParameter( "Major optimality tolerance", m_opt);
 
-	//If the user did not implement the sparsity structure of the problem ...
-	if (use_snopt_magic) SnoptProblem.computeJac();
-	std::cout << "iGfun: [";
-	for (int i=0; i<lenG; ++i) std::cout << iGfun[i] << ",";
-	std::cout << "]" << std::endl << "jGvar: [";
-	for (int i=0; i<lenG; ++i) std::cout << jGvar[i] << ",";
-	std::cout << "]";
+	//We set the sparsity structure
+	int neG;
+	try
+	{
+		std::vector<int> iGfun_vect, jGvar_vect;
+		prob.set_sparsity(neG,iGfun_vect,jGvar_vect);
+		for (int i=0;i < neG;i++)
+		{
+			iGfun[i] = iGfun_vect[i];
+			jGvar[i] = jGvar_vect[i];
+		}
+		SnoptProblem.setNeG( neG );
+		SnoptProblem.setNeA( 0 );
+		SnoptProblem.setG( lenG, iGfun, jGvar );
+
+	} //the user did implement the sparsity in the problem
+	catch (not_implemented_error)
+	{
+		SnoptProblem.computeJac();
+		neG = SnoptProblem.getNeG();
+	} //the user did not implement the sparsity in the problem
+
+
+	if (m_screen_out)
+	{
+		std::cout << "PaGMO 4 SNOPT:" << std::endl << std::endl;
+		std::cout << "Sparsity pattern set, NeG = " << neG << std::endl;
+		std::cout << "iGfun: [";
+		for (int i=0; i<neG-1; ++i) std::cout << iGfun[i] << ",";
+		std::cout << iGfun[neG-1] << "]" << std::endl;
+		std::cout << "jGvar: [";
+		for (int i=0; i<neG-1; ++i) std::cout << jGvar[i] << ",";
+		std::cout << jGvar[neG-1] << "]" << std::endl;
+	}
 
 	integer Cold = 0, Basis = 1, Warm = 2;
 

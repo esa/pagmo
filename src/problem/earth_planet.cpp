@@ -101,17 +101,27 @@ base_ptr earth_planet::clone() const
 void earth_planet::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	trajectory.init_from_full_vector(x.begin(),x.end(),encoding);
-	f[0] = trajectory.get_leg(0).evaluate_dv();
+	f[0] = trajectory.get_leg(0).evaluate_dv() / 1000;
 }
 
 /// Implementation of the constraint function.
 void earth_planet::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
+	// We decode the decision vector into a multiple fly-by trajectory
 	trajectory.init_from_full_vector(x.begin(),x.end(),encoding);
-	trajectory.evaluate_all_mismatch_con(c.begin(), c.begin() + 7);
-	trajectory.get_leg(0).get_throttles_con(c.begin() + 6, c.begin() + 6 + n_segments);\
 
-	c[6 + n_segments] = trajectory.evaluate_leg_vinf2_i(0) - vmax*vmax;
+	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
+	trajectory.evaluate_all_mismatch_con(c.begin(), c.begin() + 7);
+	for (int i=0; i<3; ++i) c[i]/=ASTRO_AU;
+	for (int i=3; i<6; ++i) c[i]/=ASTRO_EARTH_VELOCITY;
+
+	// We evaluate the constraints on the throttles writing on the 7th mismatch constrant (mass is off)
+	trajectory.get_leg(0).get_throttles_con(c.begin() + 6, c.begin() + 6 + n_segments);
+
+	// We evaluate the constraint on the initial launch velocity
+	c[6 + n_segments] = (trajectory.evaluate_leg_vinf2_i(0) - vmax*vmax) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
+
+	// We evaluate the linear constraint on the epochs (tf > ti)
 	c[7 + n_segments] = trajectory.get_leg(0).get_t_i().mjd2000() - trajectory.get_leg(0).get_t_f().mjd2000();
 }
 
@@ -122,7 +132,7 @@ void earth_planet::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<
 	decision_vector x0(get_dimension());
 	for (pagmo::decision_vector::size_type i = 0; i<x0.size(); ++i)
 	{
-		x0[i] = get_lb()[i] + (get_ub()[i] - get_lb()[i]) / 2.1234;
+		x0[i] = get_lb()[i] + (get_ub()[i] - get_lb()[i]) / 3.12345;
 	}
 	//Numerical procedure
 	estimate_sparsity(x0, lenG, iGfun, jGvar);

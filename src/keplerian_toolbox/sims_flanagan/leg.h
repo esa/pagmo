@@ -35,10 +35,10 @@
 #include "../exceptions.h"
 
 namespace kep_toolbox {
-/// Objects dealing with the Sims-Flanagan low-thrus trajectory model
+/// Objects dealing with the Sims-Flanagan low-thrust trajectory model
 /**
  * This namespace contains the routines that allow building and evaluating low-thrust trajectories using the
- * Sims-Flanagan type of approach.
+ * Sims-Flanagan transcription method.
  */
     namespace sims_flanagan{
 

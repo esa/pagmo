@@ -92,6 +92,7 @@ public:
   void setNeA        ( integer neA );
   void setG          ( integer lenG, integer *iGfun, integer *jGvar );
   void setNeG        ( integer neG );
+  integer getNeG        (){return neG;}
   void setX          ( doublereal *x, doublereal *xlow, doublereal *xupp,
 		       doublereal *xmul, integer *xstate );
   void setF          ( doublereal *F, doublereal *Flow, doublereal *Fupp,

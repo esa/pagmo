@@ -40,7 +40,7 @@ namespace kep_toolbox { namespace sims_flanagan{
  * Constructs a fb_traj object from a sequence of planets (planet), the number of segments, and a spacecraft.
  * It also preallocate all necessary memory to store constraints violations and the "flight-plan"
  *
- * \param[in] sequence An STL vector containing the sequence of planet from the departure
+ * \param[in] sequence An STL vector containing the sequence of planets.
  * to the trajectory final goal. (e.g. Earth-Earth-Jupiter)
  * \param[in] n_seg An STL vector containing the number of segments to be used in each trajectory leg.
  * (e.g. 10-10-10)

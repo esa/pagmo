@@ -30,14 +30,15 @@
 
 #define ASTRO_AU 149597870660.0
 #define ASTRO_MU_SUN 1.32712428e20
+#define ASTRO_EARTH_VELOCITY 29784.6905
 #define ASTRO_DEG2RAD (boost::math::constants::pi<double>()/180.0)
 #define ASTRO_RAD2DEG (180.0/boost::math::constants::pi<double>())
 #define ASTRO_DAY2SEC 86400.0 //needs to be a double
 #define ASTRO_SEC2DAY 1.157407407407407407407407407e-05
 #define ASTRO_G0 9.80665
 
-//This is used as a numerical proceure (newton-raphson or runge-kutta) stopping criteria
-#define ASTRO_TOLERANCE 1e-16
+//This is used as a numerical proceure (e.g. newton-raphson or runge-kutta) stopping criteria
+#define ASTRO_TOLERANCE 1e-12
 
 //This needs to be set to the precision of the boost date library (microseconds is default,
 //nanoseconds can be set when compiling boosts. Note that the code has not been checked in that case)
