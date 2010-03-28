@@ -121,6 +121,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
 		.def(init<int>());
 
+	// Differential evolution.
+	algorithm_wrapper<algorithm::de>("de","Differential evolution algorithm.")
+		.def(init<int,optional<const double &, const double &, int> >());
+
 	// GSL algorithms.
 	#ifdef PAGMO_ENABLE_GSL
 

@@ -62,7 +62,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE de: public base
 {
 public:
-	de(int gen, double f = 0.8, double cr = 0.9, int strategy = 2);
+	de(int, const double & = 0.8, const double & = 0.9, int = 2);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:

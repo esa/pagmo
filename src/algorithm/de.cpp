@@ -46,7 +46,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] strategy strategy (dafault strategy is 2: /rand/1/exp)
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-de::de(int gen, double f, double cr, int strategy):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy) {
+de::de(int gen, const double &f, const double &cr, int strategy):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
