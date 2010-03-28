@@ -25,6 +25,8 @@ def _draw(self):
 		import networkx as nx
 	except ImportError:
 		raise ImportError('Could not import the networkx module.')
+	if self.number_of_vertices == 0:
+		raise ValueError('Cannot draw topology with zero vertices.')
 	nx.draw(self.to_networkx())
 
 _topology._base.to_networkx = _to_networkx
