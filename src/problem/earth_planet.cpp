@@ -88,7 +88,7 @@ earth_planet::earth_planet(int segments, planet::common_name planet_id) : base(b
 	std::vector<planet> sequence;
 	sequence.push_back(planet(planet::EARTH));
 	sequence.push_back(planet(planet_id));
-	trajectory = fb_traj(sequence,segments,1000,0.05,std::numeric_limits<double>::infinity());
+	trajectory = fb_traj(sequence,segments,1000,0.2,std::numeric_limits<double>::infinity());
 }
 
 /// Clone method.

@@ -32,103 +32,102 @@
 #include "../exceptions.h"
 
 namespace kep_toolbox { namespace sims_flanagan{
+
 /// A generic interplanetary trajectory
-
 /**
-* An interplanetary trajectory. The trajetory model is impulsive
-* implemented as introduced by Sims-Flanagan. Fly-bys are considered instantaneous and the planet::safe_radius
-* is used to calculate the fly-by feasibility. The trajectory is built by specifying a sequence of planets
-* in an std:vector container, the number of segments in each leg and a spacecraft. After that, a call to
-* init_from_full_vector specifies the specific trajectory flight-plan. Care has to be taken to respect
-* the structure of the full_vector:
-*
-* \f$ [t_0, m^i_s, \mathbf v_{\infty_s}^i, \mathbf u^i, \mathbf v_{\infty_f}^i, m^i_f, T^i] \f$.
-* The index \f$i\f$ refers to the leg.
-* \f$ t_0\f$ is the starting date in mjd2000.
-* \f$m_s\f$ is the spacecraft mass at the leg beginning (kg).
-* \f$\mathbf v_{infty_s}\f$ are the three cartesian components of the relative velocity at the leg beginning (m/s).
-* \f$\mathbf u\f$ are the 3*n_seg cartesian components of the throttles (\f$\in [0,1]\f$).
-* \f$\mathbf v_{infty_f}\f$ are the three cartesian components of the relative velocity at the leg end (m/s).
-* \f$m_f\f$ is the spacecraft mass at the leg end (kg).
-* \f$T\f$ id the leg time duration (sec).
-*
-* @author Dario Izzo (dario.izzo _AT_ googlemail.com)
-*/
-	class fb_traj
-	{
-	    friend std::ostream &operator<<(std::ostream &s, const fb_traj &in );
-	public:
-	    /** @name Constructors*/
-	    //@{
-	    fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_);
-	    fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
-	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
-	    fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
-	    fb_traj() {}
-	    //@}
+ * A multiple fly-by low-thrust trajectory represented by a sequence of Sims-Flanagan legs
+ * Fly-bys are considered instantaneous and the planet::safe_radius is used to calculate the fly-by feasibility.
+ * The trajectory is built by specifying a sequence of planets
+ * in an std:vector container, the number of segments in each leg and a spacecraft. After that, a call to
+ * init_from_full_vector specifies the specific trajectory flight-plan. Care has to be taken to respect
+ * the structure of the full_vector:
+ *
+ * \f$ [t_0, m^i_s, \mathbf v_{\infty_s}^i, \mathbf u^i, \mathbf v_{\infty_f}^i, m^i_f, T^i] \f$.
+ * The index \f$i\f$ refers to the leg.
+ * \f$ t_0\f$ is the starting date in mjd2000.
+ * \f$m_s\f$ is the spacecraft mass at the leg beginning (kg).
+ * \f$\mathbf v_{infty_s}\f$ are the three cartesian components of the relative velocity at the leg beginning (m/s).
+ * \f$\mathbf u\f$ are the 3*n_seg cartesian components of the throttles (\f$\in [0,1]\f$).
+ * \f$\mathbf v_{infty_f}\f$ are the three cartesian components of the relative velocity at the leg end (m/s).
+ * \f$m_f\f$ is the spacecraft mass at the leg end (kg).
+ * \f$T\f$ id the leg time duration (sec).
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
+class fb_traj
+{
+	friend std::ostream &operator<<(std::ostream &s, const fb_traj &in );
+public:
+	/** @name Constructors*/
+	//@{
+	fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_);
+	fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
+	fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	fb_traj() {}
+	//@}
 
 
-	    /**
-	     * Calclates the state mismathces at the mid-point of each leg and stores them in mismatches_con
-	     */
-	    template<typename it_type>
-	    void evaluate_all_mismatch_con(it_type begin, it_type end) const {
+	/**
+	 * Calculates the state mismathces at the mid-point of each leg
+	 */
+	template<typename it_type>
+			void evaluate_all_mismatch_con(it_type begin, it_type end) const {
 		assert(end - begin == 7*legs.size());
 		for (size_t i=0; i<legs.size();i++){
-		    legs[i].get_mismatch_con(begin  + 7*i, begin + 7*(i+1));
+			legs[i].get_mismatch_con(begin  + 7*i, begin + 7*(i+1));
 		}
-	    }
-
-	    //@}
-
-	    /** @name Flight-plan setters*/
-	    //@{
+	}
 
 
-	    /// Sets the trajectory flight plan from a full_vector
-	    /**
+	/** @name Flight-plan setters*/
+	//@{
+
+
+	/// Sets the trajectory flight plan from a full_vector
+	/**
 	     * Sets the trajectory flight plan from a full_vector. The function essentially loads into the object
 	     * fb_traj the unstructured information contained in a full_vector and calculates all te different
 	     * constraints related to such a vector storing them in the class private members
 	     *
 	     * \param[in] x Full-vector encoding the trajectory flight-plan. (check full_vector for the encoding rules)
 	     */
-	    template<typename it_type, typename coding_type> 
-	    void init_from_full_vector(it_type b, it_type e, const coding_type& coding) {
-	    
+	template<typename it_type, typename coding_type>
+			void init_from_full_vector(it_type b, it_type e, const coding_type& coding) {
+
 		int n = coding.n_legs();
 		assert(legs.size() == n);
 		if (coding.size() != e - b) {
-		    throw_value_error("The provided vector size to init the trajectory is inconsistent.");
+			throw_value_error("The provided vector size to init the trajectory is inconsistent.");
 		}
-	    
+
 		array3D start_pos, start_vel, end_pos, end_vel;
 		planets[0].get_eph(coding.leg_start_epoch(0, b), end_pos, end_vel);
 		for(int i = 0; i < n; i++){
-		    start_pos = end_pos;
-		    start_vel = end_vel;
-		    planets[i + 1].get_eph(coding.leg_end_epoch(i, b), end_pos, end_vel);
-		
-		    legs[i].set_t_i(coding.leg_start_epoch(i, b));
-		    array3D dv = coding.leg_start_velocity(i, b);
-		    std::transform(dv.begin(), dv.end(),
-				   start_vel.begin(), dv.begin(),
-				   std::plus<double>());
-		    legs[i].set_x_i(sc_state(start_pos, dv, coding.leg_start_mass(i, b)));
-		    legs[i].set_throttles_size(coding.n_segments(i));
-		    for(int j = 0; j < legs[i].get_throttles_size(); ++j)
-			legs[i].set_throttle(j, throttle(coding.segment_start_epoch(i, j, b),
-							 coding.segment_end_epoch(i, j, b),
-							 coding.segment_thrust(i, j, b)));
-		    legs[i].set_t_f(coding.leg_end_epoch(i, b));
-		
-		    dv = coding.leg_end_velocity(i, b);
-		    std::transform(dv.begin(), dv.end(),
-				   end_vel.begin(), dv.begin(),
-				   std::plus<double>());
-		    legs[i].set_x_f(sc_state(end_pos, dv, coding.leg_end_mass(i, b)));
+			start_pos = end_pos;
+			start_vel = end_vel;
+			planets[i + 1].get_eph(coding.leg_end_epoch(i, b), end_pos, end_vel);
+
+			legs[i].set_t_i(coding.leg_start_epoch(i, b));
+			array3D dv = coding.leg_start_velocity(i, b);
+			std::transform(dv.begin(), dv.end(),
+				       start_vel.begin(), dv.begin(),
+				       std::plus<double>());
+			legs[i].set_x_i(sc_state(start_pos, dv, coding.leg_start_mass(i, b)));
+			legs[i].set_throttles_size(coding.n_segments(i));
+			for(int j = 0; j < legs[i].get_throttles_size(); ++j)
+				legs[i].set_throttle(j, throttle(coding.segment_start_epoch(i, j, b),
+								 coding.segment_end_epoch(i, j, b),
+								 coding.segment_thrust(i, j, b)));
+			legs[i].set_t_f(coding.leg_end_epoch(i, b));
+
+			dv = coding.leg_end_velocity(i, b);
+			std::transform(dv.begin(), dv.end(),
+				       end_vel.begin(), dv.begin(),
+				       std::plus<double>());
+			legs[i].set_x_f(sc_state(end_pos, dv, coding.leg_end_mass(i, b)));
 		}
-	    }
+	}
 
 	/// Fly-by  constraints
 	/**
@@ -138,7 +137,7 @@ namespace kep_toolbox { namespace sims_flanagan{
 	 * mass not changing during the fly-by (fb_mass_con), d) the constraint on the fly-by duration (fb_epoch_con)
 	 */
 	template<typename it_type>
-	void evaluate_fb_con(int fb_idx, it_type begin, it_type end) {
+			void evaluate_fb_con(int fb_idx, it_type begin, it_type end) {
 		assert(end - begin == 2);
 
 		array3D vin,vout,vpla;
@@ -168,19 +167,19 @@ namespace kep_toolbox { namespace sims_flanagan{
 	}
 
 
-	    const leg& get_leg(int index) const {
+	const leg& get_leg(int index) const {
 		return legs[index];
-	    }
+	}
 
-	    //@}
-	private:
-	    std::vector<leg> legs;
-	    std::vector<planet> planets;
+	//@}
+private:
+	std::vector<leg> legs;
+	std::vector<planet> planets;
 
-	    unsigned int total_n_seg;    //This is here only for efficiency purposes of the consistency check in init_from_full_vector
-
-	    /// Contains the trajectory flight-plan
-	    /**
+	//This is here only for efficiency purposes
+	unsigned int total_n_seg;
+	/// Contains the trajectory flight-plan
+	/**
 	     * According to the number of legs and the number of segments in each leg, this STD vector contains
 	     * all the necessary information to actually "fly" the interplanetary trajectory. The
 	     * vector structure is as follows:
@@ -197,10 +196,10 @@ namespace kep_toolbox { namespace sims_flanagan{
 	     */
 
 
-	};
-	    
-	std::ostream &operator<<(std::ostream &s, const fb_traj &in );
-	    
-	}} // namespaces
+};
+
+std::ostream &operator<<(std::ostream &s, const fb_traj &in );
+
+}} // namespaces
 #endif // FB_TRAJ_H
-    
+

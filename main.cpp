@@ -38,11 +38,11 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::snopt algo(1000,1e-4,1e-4);
+	algorithm::snopt algo(1000,1e-8,1e-4);
 	algo.screen_output(true);
 // 	algo.file_output(false);
 	//problem::earth_planet prob(1,kep_toolbox::planet::MARS);
-	problem::earth_planet prob(1,kep_toolbox::planet::MARS);
+	problem::earth_planet prob(20,kep_toolbox::planet::MARS);
 	island isl = island(prob,algo,1);
 	std::cout << prob << std::endl;
 
@@ -50,7 +50,7 @@ int main()
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f[0] << " " << problem::objfun_calls() << std::endl;
 	}
-	std::vector<double> c(9);
+	std::vector<double> c(28);
 	prob.compute_constraints(c,isl.get_population().champion().x);
 	std::cout << isl.get_population().champion().x << std::endl;
 	std::cout << c << std::endl;
