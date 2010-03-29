@@ -76,6 +76,7 @@ class __PAGMO_VISIBLE base_nlopt: public base
 		const bool		m_constrained;
 		const std::size_t	m_max_iter;
 		const double		m_tol;
+		mutable int		m_last_status;
 };
 
 }}
