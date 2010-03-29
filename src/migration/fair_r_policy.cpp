@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "../population.h"
+#include "../problem/base.h"
 #include "base_r_policy.h"
 #include "fair_r_policy.h"
 
@@ -45,31 +46,22 @@ base_r_policy_ptr fair_r_policy::clone() const
 	return base_r_policy_ptr(new fair_r_policy(*this));
 }
 
-struct dom_comp {
-	dom_comp(const population &pop):m_pop(pop) {}
-	bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
-	{
-		return m_pop.n_dominated(i1) > m_pop.n_dominated(i2);
-	}
-	const population &m_pop;
-};
-
 // Helper object used to sort arrays of indices of object placed in another container.
 template <class Container>
 struct indirect_individual_sorter
 {
-	indirect_individual_sorter(const Container &container, const population &pop):
-		m_container(container),m_pop(pop) {}
+	indirect_individual_sorter(const Container &container, const problem::base &problem):
+		m_container(container),m_problem(problem) {}
 	template <class Idx>
 	bool operator()(const Idx &idx1, const Idx &idx2) const
 	{
 		typedef typename Container::const_iterator::difference_type diff_type;
-		return dom_comp(m_pop)
+		return population::cur_fc_comp(m_problem)
 			(*(m_container.begin() + boost::numeric_cast<diff_type>(idx1)),*(m_container.begin() + boost::numeric_cast<diff_type>(idx2)));
 	}
 	// The original container.
 	const Container		&m_container;
-	const population	&m_pop;
+	const problem::base	&m_problem;
 };
 
 // Our own iota function, to fill iterator range with increasing values.
@@ -100,7 +92,7 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	// Create the result.
 	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > result;
 	for (population::size_type i = 0; i < rate_limit; ++i) {
-		if (dom_comp(dest)(
+		if (population::cur_fc_comp(dest.problem())(
 			immigrants[immigrants_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)]],
 			*(dest.begin() + dest_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)])))
 		{

@@ -125,7 +125,6 @@ class __PAGMO_VISIBLE population
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
-		const std::vector<size_type> &get_domination_list(const size_type &) const;
 		const problem::base &problem() const;
 		const champion_type &champion() const;
 		std::string human_readable_terse() const;
@@ -137,36 +136,49 @@ class __PAGMO_VISIBLE population
 		size_type size() const;
 		const_iterator begin() const;
 		const_iterator end() const;
-		size_type n_dominated(const individual_type &) const;
+		/// Compare individuals according to their current fitness and constraints.
+		/**
+		 * This functor is used to sort the individuals according to their current fitness-constraint vector pair.
+		 *
+		 * @see problem::base::compare_fc.
+		 */
+		struct cur_fc_comp {
+			/// Constructor from problem.
+			/**
+			 * p.compare_fc() will be used to rank the individuals.
+			 *
+			 * @param[in] p problem::base which will provide the ranking method.
+			 */
+			cur_fc_comp(const problem::base &p):m_p(p) {}
+			/// Compare individuals.
+			/**
+			 * @param[in] i1 first individual.
+			 * @param[in] i2 second individual.
+			 *
+			 * @return true if i1 is strictly better than i2, false otherwise.
+			 */
+			bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
+			{
+				return m_p.compare_fc(i1.cur_f,i1.cur_c,i2.cur_f,i2.cur_c);
+			}
+			/// Const reference to the problem that provides the ranking method.
+			const problem::base &m_p;
+		};
 	private:
 		population();
-		void update_champion(const size_type &);
-		void update_dom_list(const size_type &);
-		struct domination_comp {
-			domination_comp(const population &pop):m_pop(pop) {}
-			bool operator()(const individual_type &i1, const individual_type &i2) const
-			{
-				pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
-				pagmo_assert(&i2 >= &m_pop.m_container.front() && &i2 <= &m_pop.m_container.back());
-				const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
-				return m_pop.m_dom_list[idx1].size() > m_pop.m_dom_list[idx2].size();
-			}
-			const population &m_pop;
-		};
+		void update_champion(const individual_type &);
 	private:
 		// Data members.
 		// Problem.
-		problem::base_ptr			m_prob;
+		problem::base_ptr	m_prob;
 		// Container of individuals.
-		container_type				m_container;
-		// List of dominated individuals.
-		std::vector<std::vector<size_type> >	m_dom_list;
+		container_type		m_container;
 		// Population champion.
-		champion_type				m_champion;
+		champion_type		m_champion;
 		// Double precision random number generator.
-		mutable	rng_double			m_drng;
+		mutable	rng_double	m_drng;
 		// uint32 random number generator.
-		mutable	rng_uint32			m_urng;
+		mutable	rng_uint32	m_urng;
 };
 
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);

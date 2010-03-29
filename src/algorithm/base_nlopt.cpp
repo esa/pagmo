@@ -163,7 +163,7 @@ void base_nlopt::evolve(population &pop) const
 		-HUGE_VAL,
 		m_tol,0,0,NULL,boost::numeric_cast<int>(m_max_iter),0
 	);
-// std::cout << "status: " << status << '\n';
+std::cout << "status: " << status << '\n';
 	pop.set_x(best_ind_idx,x);
 }
 

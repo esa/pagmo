@@ -480,7 +480,7 @@ struct archipelago::count_if_blocking
 {
 	bool operator()(const island &isl) const
 	{
-		return isl.is_blocking();
+		return (isl.m_pop.problem().is_blocking() || isl.m_algo->is_blocking());
 	}
 };
 
