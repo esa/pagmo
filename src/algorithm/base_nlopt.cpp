@@ -58,10 +58,6 @@ base_nlopt::base_nlopt(nlopt_algorithm algo, bool constrained, int max_iter, con
 	}
 }
 
-/// Extra information in human-readable format.
-/**
- * @return a formatted string displaying the parameters of the algorithm.
- */
 std::string base_nlopt::human_readable_extra() const
 {
 	std::ostringstream oss;
@@ -101,12 +97,9 @@ double base_nlopt::constraints_wrapper(int n, const double *x, double *, void *d
 	return (*d->c)[d->c_comp];
 }
 
+// Evolve method.
 void base_nlopt::evolve(population &pop) const
 {
-	// Do nothing if the population is empty.
-	if (!pop.size()) {
-		return;
-	}
 	// Useful variables.
 	const problem::base &problem = pop.problem();
 	if (problem.get_f_dimension() != 1) {
@@ -122,6 +115,10 @@ void base_nlopt::evolve(population &pop) const
 	const problem::base::size_type cont_size = problem.get_dimension() - problem.get_i_dimension();
 	if (!cont_size) {
 		pagmo_throw(value_error,"the problem has no continuous part");
+	}
+	// Do nothing if the population is empty.
+	if (!pop.size()) {
+		return;
 	}
 	// Extract the best individual.
 	const population::size_type best_ind_idx = pop.get_best_idx();
