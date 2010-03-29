@@ -14,7 +14,7 @@ def _to_networkx(self):
 		if self.get_num_adjacent_vertices(i):
 			retval.add_edges_from([(i,n) for n in self.get_adjacent_vertices(i)])
 		else:
-			retval.add_edge((i,None))
+			retval.add_edge(i,None)
 	return retval
 
 def _draw(self):
