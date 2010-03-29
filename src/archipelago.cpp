@@ -253,16 +253,23 @@ topology::base_ptr archipelago::get_topology() const
  * A valid topology must contain all and only the island indices of the current archipelago. If this condition is satisfied, then the incoming topology
  * will become the new archipelago topology. Otherwise, a value_error exception will be raised.
  *
- * @param[in] t new topology for the archipelago.
+ * @param[in] tp new topology for the archipelago.
  */
-void archipelago::set_topology(const topology::base &t)
+void archipelago::set_topology(const topology::base &tp)
 {
 	join();
-	if (m_container.size() != boost::numeric_cast<size_type>(t.get_number_of_vertices())) {
-		pagmo_throw(value_error,"invalid topology, wrong number of vertices");
+	topology::base_ptr t = tp.clone();
+	if (m_container.size() < boost::numeric_cast<size_type>(t->get_number_of_vertices())) {
+		pagmo_throw(value_error,"invalid topology, too many vertices");
+	}
+	// Push back the missing vertices, if any.
+	for (size_type i = boost::numeric_cast<size_type>(t->get_number_of_vertices());
+		i < m_container.size(); ++i)
+	{
+		t->push_back();
 	}
 	// The topology is ok, assign it.
-	m_topology = t.clone();
+	m_topology = t;
 }
 
 /// Check whether an island is compatible with the archipelago.
@@ -468,12 +475,12 @@ void archipelago::post_evolution(island &isl)
 	}
 }
 
-// Functor to count the number of island with blocking problem.
+// Functor to count the number of island with blocking problem or algorithm.
 struct archipelago::count_if_blocking
 {
 	bool operator()(const island &isl) const
 	{
-		return isl.m_pop.problem().is_blocking();
+		return (isl.m_pop.problem().is_blocking() || isl.m_algo->is_blocking());
 	}
 };
 
