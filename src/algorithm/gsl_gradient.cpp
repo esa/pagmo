@@ -186,7 +186,7 @@ void gsl_gradient::evolve(population &pop) const
 	gsl_func.params = (void *)&params;
 	// Minimiser.
 	gsl_multimin_fdfminimizer *s = 0;
-	// This will be the xtarting point.
+	// This will be the starting point.
 	gsl_vector *x = 0;
 	// Here we start the allocations.
 	// Recast as size_t here, in order to avoid potential overflows later.

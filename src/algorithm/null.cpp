@@ -22,9 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <boost/numeric/conversion/cast.hpp>
-#include <cstddef>
-
 #include "../population.h"
 #include "null.h"
 
@@ -35,7 +32,7 @@ namespace algorithm
 {
 
 /// Default constructor.
-null::null(int n):base(),m_iterations(boost::numeric_cast<std::size_t>(n)) {}
+null::null():base() {}
 
 /// Clone method.
 base_ptr null::clone() const
@@ -48,9 +45,7 @@ base_ptr null::clone() const
  * Evolution for this algorithm will leave the population unchanged.
  */
 void null::evolve(population &) const
-{
-	for (std::size_t i = 0; i < m_iterations; ++i) {}
-}
+{}
 
 }
 

@@ -51,22 +51,19 @@ namespace pagmo { namespace algorithm {
  * @param[in] tol optimality tolerance.
  */
 base_nlopt::base_nlopt(nlopt_algorithm algo, bool constrained, int max_iter, const double &tol):base(),
-	m_algo(algo),m_constrained(constrained),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol)
+	m_algo(algo),m_constrained(constrained),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol),m_last_status(0)
 {
 	if (tol <= 0) {
 		pagmo_throw(value_error,"tolerance must be positive");
 	}
 }
 
-/// Extra information in human-readable format.
-/**
- * @return a formatted string displaying the parameters of the algorithm.
- */
 std::string base_nlopt::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << "\tmax_iter:\t\t" << m_max_iter << '\n';
 	oss << "\ttol:\t\t\t" << m_tol << '\n';
+	oss << "\tlast status:\t\t" << m_last_status << '\n';
 	return oss.str();
 }
 
@@ -100,12 +97,9 @@ double base_nlopt::constraints_wrapper(int n, const double *x, double *, void *d
 	return (*d->c)[d->c_comp];
 }
 
+// Evolve method.
 void base_nlopt::evolve(population &pop) const
 {
-	// Do nothing if the population is empty.
-	if (!pop.size()) {
-		return;
-	}
 	// Useful variables.
 	const problem::base &problem = pop.problem();
 	if (problem.get_f_dimension() != 1) {
@@ -121,6 +115,10 @@ void base_nlopt::evolve(population &pop) const
 	const problem::base::size_type cont_size = problem.get_dimension() - problem.get_i_dimension();
 	if (!cont_size) {
 		pagmo_throw(value_error,"the problem has no continuous part");
+	}
+	// Do nothing if the population is empty.
+	if (!pop.size()) {
+		return;
 	}
 	// Extract the best individual.
 	const population::size_type best_ind_idx = pop.get_best_idx();
@@ -147,7 +145,7 @@ void base_nlopt::evolve(population &pop) const
 	// Main NLopt call.
 	double retval;
 	decision_vector x(best_ind.cur_x);
-	const int status = nlopt_minimize_constrained(
+	m_last_status = nlopt_minimize_constrained(
 		m_algo,
 		boost::numeric_cast<int>(cont_size),
 		objfun_wrapper,
@@ -163,7 +161,6 @@ void base_nlopt::evolve(population &pop) const
 		-HUGE_VAL,
 		m_tol,0,0,NULL,boost::numeric_cast<int>(m_max_iter),0
 	);
-std::cout << "status: " << status << '\n';
 	pop.set_x(best_ind_idx,x);
 }
 

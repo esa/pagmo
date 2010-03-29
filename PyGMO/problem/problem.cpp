@@ -255,6 +255,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::string_match_mo>("string_match_mo","String matching problem (multi-objective version).")
 		.def(init<const std::string &>());
 
+	// Cassini_1.
+	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.")
+		.def(init<>());
+
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");
 	def("reset_objfun_calls",&problem::reset_objfun_calls,"Reset the total number of calls to the objective function.");

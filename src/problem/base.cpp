@@ -31,7 +31,6 @@
 #include <climits>
 #include <cstddef>
 #include <iostream>
-#include <iomanip>
 #include <iterator>
 #include <numeric>
 #include <sstream>

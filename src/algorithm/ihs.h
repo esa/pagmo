@@ -79,11 +79,6 @@ class __PAGMO_VISIBLE ihs: public base
 		const double			m_bw_min;
 		// Maximum distance bandwidth.
 		const double			m_bw_max;
-		// Internal caches used during evolution.
-		mutable decision_vector		m_tmp_x;
-		mutable decision_vector		m_lu_diff;
-		mutable fitness_vector		m_tmp_f;
-		mutable constraint_vector	m_tmp_c;
 };
 
 }} //namespaces
