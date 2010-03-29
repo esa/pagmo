@@ -31,6 +31,7 @@
 #include <iterator>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "problem/base.h"
 #include "exceptions.h"
@@ -47,6 +48,8 @@ namespace pagmo
  *
  * @param[in] p problem::base that will be associated to the population.
  * @param[in] n integer number of individuals in the population.
+ *
+ * @throw piranha::value_error if n is negative.
  */
 population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
@@ -57,11 +60,11 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 	const size_type size = boost::numeric_cast<size_type>(n);
 	const fitness_vector::size_type f_size = m_prob->get_f_dimension();
 	const constraint_vector::size_type c_size = m_prob->get_c_dimension();
-	const decision_vector::size_type p_size = m_prob->get_dimension(), i_size = m_prob->get_i_dimension();
-	pagmo_assert(p_size >= i_size);
+	const decision_vector::size_type p_size = m_prob->get_dimension();
 	for (size_type i = 0; i < size; ++i) {
 		// Push back an empty individual.
 		m_container.push_back(individual_type());
+		m_dom_list.push_back(std::vector<size_type>());
 		// Resize individual's elements.
 		m_container.back().cur_x.resize(p_size);
 		m_container.back().cur_v.resize(p_size);
@@ -70,37 +73,85 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 		m_container.back().best_x.resize(p_size);
 		m_container.back().best_c.resize(c_size);
 		m_container.back().best_f.resize(f_size);
-		// Initialise randomly the continuous part of the decision vector.
-		for (decision_vector::size_type i = 0; i < p_size - i_size; ++i) {
-			m_container.back().cur_x[i] = boost::uniform_real<double>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_drng);
-		}
-		// Initialise randomly the integer part of the decision vector.
-		for (decision_vector::size_type i = p_size - i_size; i < p_size; ++i) {
-			m_container.back().cur_x[i] = boost::uniform_int<int>(m_prob->get_lb()[i],m_prob->get_ub()[i])(m_urng);
-		}
-		// Initialise randomly the velocity vector.
-		for (decision_vector::size_type i = 0; i < p_size; ++i) {
-			// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
-			m_container.back().cur_v[i] = boost::uniform_real<double>(m_prob->get_lb()[i] / 2,m_prob->get_ub()[i] / 2)(m_drng);
-			// Change randomly the sign of the velocity.
-			m_container.back().cur_v[i] *= (m_drng() < .5) ? 1 : -1;
-		}
-		// Fill in the constraints part.
-		m_prob->compute_constraints(m_container.back().cur_c,m_container.back().cur_x);
-		// Compute the current fitness.
-		m_prob->objfun(m_container.back().cur_f,m_container.back().cur_x);
-		// Best decision vector is current decision vector, best fitness is current fitness, best constraints are current constraints.
-		m_container.back().best_x = m_container.back().cur_x;
-		m_container.back().best_f = m_container.back().cur_f;
-		m_container.back().best_c = m_container.back().cur_c;
+		// Initialise randomly the individual.
+		reinit(i);
 	}
-	// Calculate the champion.
-	container_type::iterator it = std::min_element(m_container.begin(),m_container.end(),cur_fc_comp(*m_prob));
-	if (it != m_container.end()) {
-		m_champion.x = it->cur_x;
-		m_champion.f = it->cur_f;
-		m_champion.c = it->cur_c;
+}
+
+// Update the domination lists.
+void population::update_dom_list(const size_type &n)
+{
+	const size_type size = m_container.size();
+	pagmo_assert(m_dom_list.size() == size && n < size);
+	// Empty the domination list of individual at position n.
+	m_dom_list[n].clear();
+	for (size_type i = 0; i < size; ++i) {
+		if (i != n) {
+			// Check if individual in position i dominates individual in position n.
+			if (m_prob->compare_fc(m_container[i].cur_f,m_container[i].cur_c,m_container[n].cur_f,m_container[n].cur_c)) {
+				// Need to update the domination list in i. If n is already present,
+				// do nothing, otherwise push_back.
+				if (std::find(m_dom_list[i].begin(),m_dom_list[i].end(),n) == m_dom_list[i].end()) {
+					m_dom_list[i].push_back(n);
+				}
+			} else {
+				// We need to erase n from the domination list, if present.
+				std::vector<size_type>::iterator it = std::find(m_dom_list[i].begin(),m_dom_list[i].end(),n);
+				if (it != m_dom_list[i].end()) {
+					m_dom_list[i].erase(it);
+				}
+			}
+			// Check if individual in position n dominates individual in position i.
+			if (m_prob->compare_fc(m_container[n].cur_f,m_container[n].cur_c,m_container[i].cur_f,m_container[i].cur_c)) {
+				m_dom_list[n].push_back(i);
+			}
+		}
 	}
+}
+
+/// Re-initialise individual at position idx.
+/**
+ * The continuous and integer parts of the chromosome will be picked randomly within the problem's bounds, the velocities
+ * will be initialised randomly so that in one tick the particles travel at most half the bounds distance. Fitness and constraints
+ * will be evaluated, and champion updated.
+ *
+ * @param[in] idx position of the individual to be re-initialised.
+ *
+ * @throw index_error if idx is not smaller than size().
+ */
+void population::reinit(const size_type &idx)
+{
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	const decision_vector::size_type p_size = m_prob->get_dimension(), i_size = m_prob->get_i_dimension();
+	// Initialise randomly the continuous part of the decision vector.
+	for (decision_vector::size_type j = 0; j < p_size - i_size; ++j) {
+		m_container[idx].cur_x[j] = boost::uniform_real<double>(m_prob->get_lb()[j],m_prob->get_ub()[j])(m_drng);
+	}
+	// Initialise randomly the integer part of the decision vector.
+	for (decision_vector::size_type j = p_size - i_size; j < p_size; ++j) {
+		m_container[idx].cur_x[j] = boost::uniform_int<int>(m_prob->get_lb()[j],m_prob->get_ub()[j])(m_urng);
+	}
+	// Initialise randomly the velocity vector.
+	for (decision_vector::size_type j = 0; j < p_size; ++j) {
+		// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
+		m_container[idx].cur_v[j] = boost::uniform_real<double>(m_prob->get_lb()[j] / 2,m_prob->get_ub()[j] / 2)(m_drng);
+		// Change randomly the sign of the velocity.
+		m_container[idx].cur_v[j] *= (m_drng() < .5) ? 1 : -1;
+	}
+	// Fill in the constraints.
+	m_prob->compute_constraints(m_container[idx].cur_c,m_container[idx].cur_x);
+	// Compute the fitness.
+	m_prob->objfun(m_container[idx].cur_f,m_container[idx].cur_x);
+	// Best decision vector is current decision vector, best fitness is current fitness, best constraints are current constraints.
+	m_container[idx].best_x = m_container[idx].cur_x;
+	m_container[idx].best_f = m_container[idx].cur_f;
+	m_container[idx].best_c = m_container[idx].cur_c;
+	// Update the champion.
+	update_champion(idx);
+	// Update the domination lists.
+	update_dom_list(idx);
 }
 
 /// Copy constructor.
@@ -109,12 +160,10 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
  *
  * @param[in] p population used to initialise this.
  */
-population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng) {}
+population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),
+	m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng) {}
 
-/// Default constructor.
-/**
- * For use only by pagmo::island.
- */
+// Default constructor. For use only by pagmo::island.
 population::population() {}
 
 /// Assignment operator.
@@ -131,6 +180,7 @@ population &population::operator=(const population &p)
 		// Perform the copies.
 		m_prob = p.m_prob->clone();
 		m_container = p.m_container;
+		m_dom_list = p.m_dom_list;
 		m_champion = p.m_champion;
 		m_drng = p.m_drng;
 		m_urng = p.m_urng;
@@ -145,18 +195,39 @@ population &population::operator=(const population &p)
  * @param idx positional index of the individual to get.
  *
  * @return const reference to the individual at position idx.
+ *
+ * @throws index_error if idx is not smaller than size().
  */
 const population::individual_type &population::get_individual(const size_type &idx) const
 {
 	if (idx >= size()) {
-		pagmo_throw(index_error,"invalid individual position");
+		pagmo_throw(index_error,"invalid index");
 	}
 	return m_container[idx];
 }
 
+/// Get domination list.
+/**
+ * Will return a vector containing the indices of the individuals dominated by the individual in position idx. Will fail if
+ * idx is not smaller than size().
+ *
+ * @param[in] idx position of the individual whose domination list will be retrieved.
+ *
+ * @return const reference to the vector containing the indices of the individuals dominated by the individual at position idx.
+ *
+ * @throws index_error if idx is not smaller than size().
+ */
+const std::vector<population::size_type> &population::get_domination_list(const size_type &idx) const
+{
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	return m_dom_list[idx];
+}
+
 /// Get position of worst individual.
 /**
- * problem::base::compare_fc() is used to rank the individuals according to their current fitnesses and constraints vectors.
+ * The worst individual is the one dominating the smallest number of other individuals in the population.
  *
  * @return the positional index of the worst individual.
  */
@@ -165,13 +236,13 @@ population::size_type population::get_worst_idx() const
 	if (!size()) {
 		pagmo_throw(value_error,"empty population, cannot compute position of worst individual");
 	}
-	container_type::const_iterator it = std::max_element(m_container.begin(),m_container.end(),cur_fc_comp(*m_prob));
+	container_type::const_iterator it = std::max_element(m_container.begin(),m_container.end(),domination_comp(*this));
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
 
 /// Get position of best individual.
 /**
- * problem::base::compare_fc() is used to rank the individuals according to their current fitnesses and constraints vectors.
+* The best individual is the one dominating the highest number of other individuals in the population.
  *
  * @return the positional index of the best individual.
  */
@@ -180,7 +251,7 @@ population::size_type population::get_best_idx() const
 	if (!size()) {
 		pagmo_throw(value_error,"empty population, cannot compute position of best individual");
 	}
-	container_type::const_iterator it = std::min_element(m_container.begin(),m_container.end(),cur_fc_comp(*m_prob));
+	container_type::const_iterator it = std::min_element(m_container.begin(),m_container.end(),domination_comp(*this));
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
 
@@ -219,7 +290,7 @@ std::string population::human_readable() const
 		oss << "\nList of individuals:\n";
 		for (size_type i = 0; i < size(); ++i) {
 			oss << '#' << i << ":\n";
-			oss << m_container[i] << '\n';
+			oss << m_container[i] << "\tDominates:\t\t\t" << m_dom_list[i] << '\n';
 		}
 	}
 	if (m_champion.x.size()) {
@@ -232,14 +303,14 @@ std::string population::human_readable() const
 	return oss.str();
 }
 
-// Update the champion with input individual, if better.
-void population::update_champion(const individual_type &ind)
+// Update the champion with individual in position idx, if better or if the champion has not been set yet.
+void population::update_champion(const size_type &idx)
 {
-	pagmo_assert(m_champion.x.size());
-	if (m_prob->compare_fc(ind.cur_f,ind.cur_c,m_champion.f,m_champion.c)) {
-		m_champion.x = ind.cur_x;
-		m_champion.f = ind.cur_f;
-		m_champion.c = ind.cur_c;
+	pagmo_assert(idx < m_container.size());
+	if (!m_champion.x.size() || m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_champion.f,m_champion.c)) {
+		m_champion.x = m_container[idx].cur_x;
+		m_champion.f = m_container[idx].cur_f;
+		m_champion.c = m_container[idx].cur_c;
 	}
 }
 
@@ -271,7 +342,9 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 		m_container[idx].best_c = m_container[idx].cur_c;
 	}
 	// Update the champion.
-	update_champion(m_container[idx]);
+	update_champion(idx);
+	// Updated domination lists.
+	update_dom_list(idx);
 }
 
 /// Set the velocity vector of individual at position idx.
@@ -336,6 +409,27 @@ population::const_iterator population::begin() const
 population::const_iterator population::end() const
 {
 	return m_container.end();
+}
+
+/// Number of dominated individuals.
+/**
+ * Get the number of individuals dominated by input individual ind.
+ *
+ * @param[in] ind input individual.
+ *
+ * @return number of individuals dominated by ind.
+ */
+population::size_type population::n_dominated(const individual_type &ind) const
+{
+	size_type retval = 0;
+	for (size_type i = 0; i < m_container.size(); ++i) {
+		if (m_prob->compare_fc(ind.cur_f,ind.cur_c,
+			m_container[i].cur_f,m_container[i].cur_c))
+		{
+			++retval;
+		}
+	}
+	return retval;
 }
 
 /// Overload stream operator for pagmo::population.

@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "../population.h"
-#include "../problem/base.h"
 #include "base_r_policy.h"
 #include "fair_r_policy.h"
 
@@ -40,7 +39,6 @@ namespace pagmo { namespace migration {
  */
 fair_r_policy::fair_r_policy(const double &rate, rate_type type):base_r_policy(rate,type) {}
 
-/// Clone method.
 base_r_policy_ptr fair_r_policy::clone() const
 {
 	return base_r_policy_ptr(new fair_r_policy(*this));
@@ -50,18 +48,18 @@ base_r_policy_ptr fair_r_policy::clone() const
 template <class Container>
 struct indirect_individual_sorter
 {
-	indirect_individual_sorter(const Container &container, const problem::base &problem):
-		m_container(container),m_problem(problem) {}
+	indirect_individual_sorter(const Container &container, const population &pop):
+		m_container(container),m_pop(pop) {}
 	template <class Idx>
 	bool operator()(const Idx &idx1, const Idx &idx2) const
 	{
 		typedef typename Container::const_iterator::difference_type diff_type;
-		return population::cur_fc_comp(m_problem)
-			(*(m_container.begin() + boost::numeric_cast<diff_type>(idx1)),*(m_container.begin() + boost::numeric_cast<diff_type>(idx2)));
+		return m_pop.n_dominated(*(m_container.begin() + boost::numeric_cast<diff_type>(idx1))) >
+			m_pop.n_dominated(*(m_container.begin() + boost::numeric_cast<diff_type>(idx2)));
 	}
 	// The original container.
 	const Container		&m_container;
-	const problem::base	&m_problem;
+	const population	&m_pop;
 };
 
 // Our own iota function, to fill iterator range with increasing values.
@@ -72,7 +70,7 @@ static inline void iota(ForwardIterator first, ForwardIterator last, T value)
 		*first = value;
 }
 
-/// Selection implementation.
+// Selection implementation.
 std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 	fair_r_policy::select(const std::vector<population::individual_type> &immigrants, const population &dest) const
 {
@@ -92,9 +90,8 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	// Create the result.
 	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > result;
 	for (population::size_type i = 0; i < rate_limit; ++i) {
-		if (population::cur_fc_comp(dest.problem())(
-			immigrants[immigrants_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)]],
-			*(dest.begin() + dest_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)])))
+		if (dest.n_dominated(immigrants[immigrants_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)]]) >
+			dest.n_dominated(*(dest.begin() + dest_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)])))
 		{
 			result.push_back(std::make_pair(dest_idx[i],immigrants_idx[i]));
 		}

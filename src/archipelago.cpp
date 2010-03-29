@@ -604,6 +604,12 @@ void archipelago::interrupt()
 	pagmo_throw(std::runtime_error,"evolution interrupted");
 }
 
+/// Island getter.
+/**
+ * @return a copy of the island at position idx.
+ *
+ * @throw value_error if idx is not less than the size of the archipelago.
+ */
 island archipelago::get_island(const size_type &idx) const
 {
 	join();

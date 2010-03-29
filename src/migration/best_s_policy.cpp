@@ -40,20 +40,28 @@ namespace pagmo { namespace migration {
  */
 best_s_policy::best_s_policy(const double &rate, rate_type type):base_s_policy(rate,type) {}
 
-/// Clone method.
 base_s_policy_ptr best_s_policy::clone() const
 {
 	return base_s_policy_ptr(new best_s_policy(*this));
 }
 
-/// Select emigrating individuals.
+// Comparison based on the number of individual dominated in the population.
+struct best_s_policy::dom_comp {
+	dom_comp(const population &pop):m_pop(pop) {}
+	bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
+	{
+		return m_pop.n_dominated(i1) > m_pop.n_dominated(i2);
+	}
+	const population &m_pop;
+};
+
 std::vector<population::individual_type> best_s_policy::select(const population &pop) const
 {
 	const population::size_type migration_rate = get_n_individuals(pop);
 	// Create a temporary array of individuals.
 	std::vector<population::individual_type> result(pop.begin(),pop.end());
 	// Sort the individuals (best go first).
-	std::sort(result.begin(),result.end(),population::cur_fc_comp(pop.problem()));
+	std::sort(result.begin(),result.end(),dom_comp(pop));
 	// Leave only desired number of elements in the result.
 	result.erase(result.begin() + migration_rate,result.end());
 	return result;
