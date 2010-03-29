@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -76,6 +77,17 @@ base_ptr ihs::clone() const
 	return base_ptr(new ihs(*this));
 }
 
+struct foo_comp
+{
+	foo_comp(const population &pop, const population::individual_type &ind):m_pop(pop),m_ind(ind) {}
+	bool operator()(const population::individual_type &ind)
+	{
+		return m_pop.problem().compare_fc(m_ind.cur_f,m_ind.cur_c,ind.cur_f,ind.cur_c);
+	}
+	const population			&m_pop;
+	const population::individual_type	&m_ind;
+};
+
 /// Evolve implementation.
 /**
  * Run the IHS algorithm for the number of generations specified in the constructors. Within each call of this method,
@@ -94,76 +106,104 @@ void ihs::evolve(population &pop) const
 	if (pop_size == 0 || m_gen == 0) {
 		return;
 	}
-	// Init temporary decision vector, and lower-upper bounds difference vector.
-	m_tmp_x.resize(prob_dimension);
-	m_lu_diff.resize(prob_dimension);
+	decision_vector lu_diff(prob_dimension);
 	for (problem::base::size_type i = 0; i < prob_dimension; ++i) {
-		m_lu_diff[i] = ub[i] - lb[i];
+		lu_diff[i] = ub[i] - lb[i];
 	}
-	// Temporary fitness vector.
-	m_tmp_f.resize(prob.get_f_dimension());
-	// Temporary constraint vector.
-	m_tmp_c.resize(prob.get_c_dimension());
 	// Int distribution to be used when picking random individuals.
 	boost::uniform_int<population::size_type> uni_int(0,pop_size - 1);
 	const double c = std::log(m_bw_min/m_bw_max) / m_gen;
+	// Temporary individual used during evolution.
+	population::individual_type tmp;
+	tmp.cur_x.resize(prob_dimension);
+	tmp.cur_f.resize(prob.get_f_dimension());
+	tmp.cur_c.resize(prob.get_c_dimension());
 	for (std::size_t g = 0; g < m_gen; ++g) {
 		const double ppar_cur = m_ppar_min + ((m_ppar_max - m_ppar_min) * g) / m_gen, bw_cur = m_bw_max * std::exp(c * g);
 		// Continuous part.
 		for (problem::base::size_type i = 0; i < prob_dimension - prob_i_dimension; ++i) {
 			if (m_drng() < m_phmcr) {
-				// m_tmp's i-th chromosome element is the one from a randomly chosen individual.
-				m_tmp_x[i] = pop.get_individual(uni_int(m_urng)).cur_x[i];
+				// tmp's i-th chromosome element is the one from a randomly chosen individual.
+				tmp.cur_x[i] = pop.get_individual(uni_int(m_urng)).cur_x[i];
 				// Do pitch adjustment with ppar_cur probability.
 				if (m_drng() < ppar_cur) {
 					// Randomly, add or subtract pitch from the current chromosome element.
 					if (m_drng() > .5) {
-						m_tmp_x[i] += m_drng() * bw_cur * m_lu_diff[i];
+						tmp.cur_x[i] += m_drng() * bw_cur * lu_diff[i];
 					} else {
-						m_tmp_x[i] -= m_drng() * bw_cur * m_lu_diff[i];
+						tmp.cur_x[i] -= m_drng() * bw_cur * lu_diff[i];
 					}
 					// Handle the case in which we added or subtracted too much and ended up out
 					// of boundaries.
-					if (m_tmp_x[i] > ub[i]) {
-						m_tmp_x[i] = ub[i];
-					} else if (m_tmp_x[i] < lb[i]) {
-						m_tmp_x[i] = lb[i];
+					if (tmp.cur_x[i] > ub[i]) {
+						tmp.cur_x[i] = ub[i];
+					} else if (tmp.cur_x[i] < lb[i]) {
+						tmp.cur_x[i] = lb[i];
 					}
 				}
 			} else {
 				// Pick randomly within the bounds.
-				m_tmp_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
+				tmp.cur_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 			}
 		}
 		for (problem::base::size_type i = prob_dimension - prob_i_dimension; i < prob_dimension; ++i) {
 			if (m_drng() < m_phmcr) {
-				m_tmp_x[i] = pop.get_individual(uni_int(m_urng)).cur_x[i];
+				tmp.cur_x[i] = pop.get_individual(uni_int(m_urng)).cur_x[i];
 				if (m_drng() < ppar_cur) {
 					if (m_drng() > .5) {
-						m_tmp_x[i] += 1;
+						tmp.cur_x[i] += double_to_int::convert(m_drng() * bw_cur * lu_diff[i]);
 					} else {
-						m_tmp_x[i] -= 1;
+						tmp.cur_x[i] -= double_to_int::convert(m_drng() * bw_cur * lu_diff[i]);
 					}
+					// TODO: correct wrapping.
 					// Wrap over in case we went past the bounds.
-					if (m_tmp_x[i] > ub[i]) {
-						m_tmp_x[i] = lb[i];
-					} else if (m_tmp_x[i] < lb[i]) {
-						m_tmp_x[i] = ub[i];
+					if (tmp.cur_x[i] > ub[i]) {
+						tmp.cur_x[i] = lb[i];
+					} else if (tmp.cur_x[i] < lb[i]) {
+						tmp.cur_x[i] = ub[i];
 					}
 				}
 			} else {
 				// Pick randomly within the bounds.
-				m_tmp_x[i] = boost::uniform_int<int>(lb[i],ub[i])(m_urng);
+				tmp.cur_x[i] = boost::uniform_int<int>(lb[i],ub[i])(m_urng);
 			}
 		}
 		// Compute fitness and constraints.
-		prob.objfun(m_tmp_f,m_tmp_x);
-		prob.compute_constraints(m_tmp_c,m_tmp_x);
+		prob.objfun(tmp.cur_f,tmp.cur_x);
+		prob.compute_constraints(tmp.cur_c,tmp.cur_x);
+
+		// Replace an individual that is dominated by the mutated one.
+// 		for (population::size_type i = 0; i < pop.size(); ++i) {
+// 			if (prob.compare_fc(tmp.cur_f,tmp.cur_c,pop.get_individual(i).cur_f,pop.get_individual(i).cur_c)) {
+// 				pop.set_x(i,tmp.cur_x);
+// 			}
+// 			if (!prob.compare_fc(pop.get_individual(i).cur_f,pop.get_individual(i).cur_c,tmp.cur_f,tmp.cur_c)) {
+// 				pop.set_x(i,tmp.cur_x);
+// 			}
+// 		}
+
 		// Locate the worst individual.
 		const population::size_type worst_idx = pop.get_worst_idx();
-		if (prob.compare_fc(m_tmp_f,m_tmp_c,pop.get_individual(worst_idx).cur_f,pop.get_individual(worst_idx).cur_c)) {
-			pop.set_x(worst_idx,m_tmp_x);
+// 		if (prob.compare_fc(m_tmp_f,m_tmp_c,pop.get_individual(worst_idx).cur_f,pop.get_individual(worst_idx).cur_c)) {
+// 			pop.set_x(worst_idx,m_tmp_x);
+// 		}
+
+
+		if (std::count_if(pop.begin(),pop.end(),foo_comp(pop,tmp)) > pop.get_domination_list(worst_idx).size()) {
+			pop.set_x(worst_idx,tmp.cur_x);
 		}
+		//if (pop.problem().compare_fc(tmp.cur_f,tmp.cur_c,pop.get_individual(worst_idx).cur_f,pop.get_individual(worst_idx).cur_c)) {
+		//	pop.set_x(worst_idx,tmp.cur_x);
+		/*} else {
+			for (population::size_type i = 0; i < pop.size(); ++i) {
+				if (prob.compare_fc(tmp.cur_f,tmp.cur_c,pop.get_individual(i).cur_f,
+					pop.get_individual(i).cur_c))
+				{
+					pop.set_x(i,tmp.cur_x);
+					break;
+				}
+			}
+		}*/
 	}
 }
 
