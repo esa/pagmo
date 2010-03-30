@@ -480,9 +480,25 @@ struct archipelago::count_if_blocking
 {
 	bool operator()(const island &isl) const
 	{
-		return isl.is_blocking();
+		return isl.is_blocking_impl();
 	}
 };
+
+// Implementation of blocking attribute.
+bool archipelago::is_blocking_impl() const
+{
+	return std::count_if(m_container.begin(),m_container.end(),count_if_blocking());
+}
+
+/// Archipelago's blocking attribute.
+/**
+ * @return true if at least one island returns true on island::is_blocking().
+ */
+bool archipelago::is_blocking() const
+{
+	join();
+	return is_blocking_impl();
+}
 
 /// Run the evolution for the given number of iterations.
 /**
@@ -493,14 +509,12 @@ struct archipelago::count_if_blocking
 void archipelago::evolve(int n)
 {
 	join();
-	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
-	pagmo_assert(blocking_islands <= m_container.size());
-	reset_barrier(m_container.size() - blocking_islands);
+	const iterator it_f = m_container.end();
 	// In case there are blocking islands, do not calls evolve(n) on each island, but iteratively call evolve() n times.
-	if (blocking_islands) {
+	if (is_blocking_impl()) {
 		// Build a vector of iterators to the islands.
 		std::vector<iterator> it_vector;
-		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
 			it_vector.push_back(it);
 		}
 		for (int i = 0; i < n; ++i) {
@@ -511,7 +525,8 @@ void archipelago::evolve(int n)
 			}
 		}
 	} else {
-		const iterator it_f = m_container.end();
+		// Reset thread barrier.
+		reset_barrier(m_container.size());
 		for (iterator it = m_container.begin(); it != it_f; ++it) {
 			it->evolve(n);
 		}
@@ -539,11 +554,8 @@ static bool all_islands_t_evolved(const Vector &v, int t)
 void archipelago::evolve_t(int t)
 {
 	join();
-	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
-	pagmo_assert(blocking_islands <= m_container.size());
-	reset_barrier(m_container.size() - blocking_islands);
 	const iterator it_f = m_container.end();
-	if (blocking_islands) {
+	if (is_blocking_impl()) {
 		// Build a vector of (iterators,evolution time) pairs.
 		std::vector<std::pair<iterator,int> > it_t_vector;
 		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
@@ -568,6 +580,7 @@ void archipelago::evolve_t(int t)
 			}
 		}
 	} else {
+		reset_barrier(m_container.size());
 		for (iterator it = m_container.begin(); it != it_f; ++it) {
 			it->evolve_t(t);
 		}

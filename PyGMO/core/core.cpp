@@ -152,6 +152,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("evolve_t", &island::evolve,"Evolve island for at least n milliseconds.")
 		.def("join", &island::join,"Wait for evolution to complete.")
 		.def("busy", &island::busy,"Check if island is evolving.")
+		.def("is_blocking", &island::is_blocking,"Check if island is blocking.")
 		.def("interrupt", &island::interrupt,"Interrupt evolution.")
 		.add_property("problem",&island::get_problem)
 		.add_property("algorithm",&island::get_algorithm,&island::set_algorithm);
@@ -168,7 +169,9 @@ BOOST_PYTHON_MODULE(_core)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
 		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
+		.def("interrupt", &archipelago::interrupt,"Interrupt evolution.")
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
 		.def("push_back", &archipelago::push_back,"Append island.")
+		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
 }
