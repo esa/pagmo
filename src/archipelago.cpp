@@ -392,7 +392,7 @@ void archipelago::pre_evolution(island &isl)
 					case point_to_point:
 					{
 						// Get the index of a random island connecting into isl.
-						boost::uniform_int<std::vector<int>::size_type> u_int(0,inv_adj_islands.size() - 1);
+						boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,inv_adj_islands.size() - 1);
 						const size_type rn_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[u_int(m_urng)]);
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
@@ -402,7 +402,7 @@ void archipelago::pre_evolution(island &isl)
 					}
 					case broadcast:
 						// For broadcast migration fetch immigrants from all neighbour islands' databases.
-						for (std::vector<int>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
+						for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
 							build_immigrants_vector(immigrants,m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx],h);
@@ -450,14 +450,14 @@ void archipelago::post_evolution(island &isl)
 						case point_to_point:
 						{
 							// For one-to-one migration choose a random neighbour island and put immigrants to its inbox.
-							boost::uniform_int<std::vector<int>::size_type> u_int(0,adj_islands.size() - 1);
+							boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,adj_islands.size() - 1);
 							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[u_int(m_urng)]);
 							m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
 							break;
 						}
 						case broadcast:
 							// For broadcast migration put immigrants to all neighbour islands' inboxes.
-							for (std::vector<int>::size_type i = 0; i < adj_islands.size(); ++i) {
+							for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < adj_islands.size(); ++i) {
 								m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
 								.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
 								emigrants.begin(),emigrants.end());
