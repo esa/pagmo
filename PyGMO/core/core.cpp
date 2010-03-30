@@ -121,6 +121,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__repr__", &population::human_readable)
 		.add_property("problem",&problem_from_pop)
 		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()))
+		.def("get_best_idx",&population::get_best_idx,"Get index of best individual.")
+		.def("get_worst_idx",&population::get_worst_idx,"Get index of worst individual.")
 		.def("set_x", &population_set_x,"Set decision vector of individual at position n.")
 		.def("set_v", &population_set_v,"Set velocity of individual at position n.");
 
@@ -155,7 +157,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("is_blocking", &island::is_blocking,"Check if island is blocking.")
 		.def("interrupt", &island::interrupt,"Interrupt evolution.")
 		.add_property("problem",&island::get_problem)
-		.add_property("algorithm",&island::get_algorithm,&island::set_algorithm);
+		.add_property("algorithm",&island::get_algorithm,&island::set_algorithm)
+		.add_property("population",&island::get_population);
 
 	// Expose archipelago class.
 	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,

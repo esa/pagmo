@@ -8,8 +8,9 @@ class base(_algorithm._base):
 		return str(type(self))
 
 # Helper class to ease the inclusion of scipy.optimize solvers.
-class _scipy_optimize_algorithm(object):
-	def __init__(self,solver_name,constrained = False):
+class _scipy_base(base):
+	def __init__(self,solver_name,constrained,maxiter,tol):
+		base.__init__(self)
 		try:
 			exec('from scipy.optimize import %s as solver' % solver_name)
 			from numpy import concatenate, array
@@ -17,6 +18,8 @@ class _scipy_optimize_algorithm(object):
 			raise ImportError('The necessary SciPy and/or NumPy classes/functions could not be imported')
 		self.solver = solver
 		self.constrained = constrained
+		self.maxiter = maxiter
+		self.tol = tol
 	# Check if problem is compatible with the algorithm.
 	def _problem_checks(self,prob):
 		if prob.f_dimension > 1:
@@ -38,21 +41,22 @@ class _scipy_optimize_algorithm(object):
 		# Number of equality constraints.
 		n_ec = pop.problem.c_dimension - pop.problem.ic_dimension
 		# Extract the continuous part of the first individual's current chromosome.
-		x0 = array(pop[0].cur_x[0:pop.problem.dimension - pop.problem.i_dimension],dtype=float)
+		x0 = array(pop[pop.get_best_idx()].cur_x[0:pop.problem.dimension - pop.problem.i_dimension],dtype=float)
 		# Combinatorial part of the chromosome (which will not be optimised).
-		x0_comb = array(pop[0].cur_x[pop.problem.dimension - pop.problem.i_dimension:],dtype=float)
+		x0_comb = array(pop[pop.get_best_idx()].cur_x[pop.problem.dimension - pop.problem.i_dimension:],dtype=float)
 		return n_ec,x0,x0_comb
+	def _human_readable_extra(self):
+		return "\tmax_iter = " + str(self.maxiter) + "\n\ttol = " + str(self.tol) + "\n"
 
-class scipy_fmin(base,_scipy_optimize_algorithm):
+class scipy_fmin(_scipy_base):
 	"""
 	Wrapper around SciPy's fmin optimiser.
 	"""
-	def __init__(self,verbose = False):
-		base.__init__(self)
-		_scipy_optimize_algorithm.__init__(self,'fmin',constrained = False)
+	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
+		_scipy_base.__init__(self,'fmin',False,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
-		return scipy_fmin(verbose = self.verbose)
+		return scipy_fmin(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate
 		prob = pop.problem
@@ -60,21 +64,20 @@ class scipy_fmin(base,_scipy_optimize_algorithm):
 		if len(pop) == 0:
 			return pop
 		_, x0, x0_comb = self._starting_params(pop)
-		retval = self.solver(lambda x: prob.objfun(concatenate((x,x0_comb)))[0],x0,disp = int(self.verbose))
+		retval = self.solver(lambda x: prob.objfun(concatenate((x,x0_comb)))[0],x0,disp = int(self.verbose),ftol = self.tol,maxiter = self.maxiter)
 		new_chromosome = list(retval) + list(x0_comb)
-		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
 
-class scipy_l_bfgs_b(base,_scipy_optimize_algorithm):
+class scipy_l_bfgs_b(_scipy_base):
 	"""
 	Wrapper around SciPy's l_bfgs_b optimiser.
 	"""
-	def __init__(self,verbose = False):
-		base.__init__(self)
-		_scipy_optimize_algorithm.__init__(self,'fmin_l_bfgs_b',constrained = False)
+	def __init__(self,maxiter = 15000,tol = 1E-5,verbose = False):
+		_scipy_base.__init__(self,'fmin_l_bfgs_b',False,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
-		return scipy_l_bfgs_b(self.verbose)
+		return scipy_l_bfgs_b(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -88,21 +91,20 @@ class scipy_l_bfgs_b(base,_scipy_optimize_algorithm):
 			iprn = 0
 		else:
 			iprn = -1
-		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,bounds = prob_bounds,approx_grad = True, iprint = iprn)
+		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,bounds = prob_bounds,approx_grad = True, iprint = iprn,pgtol = self.tol, maxfun = self.maxiter)
 		new_chromosome = list(retval[0]) + list(x0_comb)
-		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
 
-class scipy_slsqp(base,_scipy_optimize_algorithm):
+class scipy_slsqp(_scipy_base):
 	"""
 	Wrapper around SciPy's slsqp optimiser.
 	"""
-	def __init__(self,verbose = False):
-		base.__init__(self)
-		_scipy_optimize_algorithm.__init__(self,'fmin_slsqp',constrained = True)
+	def __init__(self,maxiter = 100,tol = 1E-6,verbose = False):
+		_scipy_base.__init__(self,'fmin_slsqp',True,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
-		return scipy_slsqp(self.verbose)
+		return scipy_slsqp(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -120,23 +122,23 @@ class scipy_slsqp(base,_scipy_optimize_algorithm):
 			iprn = 0
 		# Run the optimisation.
 		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,f_eqcons = lambda x: array(prob.compute_constraints(concatenate((x, x0_comb)))[0:n_ec],dtype=float),
-			f_ieqcons = lambda x: array(prob.compute_constraints(concatenate((x, x0_comb)))[n_ec:],dtype=float) * -1,bounds = prob_bounds,iprint = iprn)
+			f_ieqcons = lambda x: array(prob.compute_constraints(concatenate((x, x0_comb)))[n_ec:],dtype=float) * -1,bounds = prob_bounds,iprint = iprn,
+			iter = self.maxiter,acc = self.tol)
 		# Set the individual's chromosome in the population and return. Conserve the integer part from the
 		# original individual.
 		new_chromosome = list(retval) + list(x0_comb)
-		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
 
-class scipy_tnc(base,_scipy_optimize_algorithm):
+class scipy_tnc(_scipy_base):
 	"""
 	Wrapper around SciPy's tnc optimiser.
 	"""
-	def __init__(self,verbose = False):
-		base.__init__(self)
-		_scipy_optimize_algorithm.__init__(self,'fmin_tnc',constrained = False)
+	def __init__(self,maxiter = 15000,tol = 1E-6,verbose = False):
+		_scipy_base.__init__(self,'fmin_tnc',False,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
-		return scipy_tnc(self.verbose)
+		return scipy_tnc(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -150,21 +152,21 @@ class scipy_tnc(base,_scipy_optimize_algorithm):
 			msg = 15
 		else:
 			msg = 0
-		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,bounds = prob_bounds,approx_grad = True, messages = msg)
+		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,bounds = prob_bounds,approx_grad = True, messages = msg,
+			pgtol = self.tol, maxfun = self.maxiter)
 		new_chromosome = list(retval[0]) + list(x0_comb)
-		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
 
-class scipy_cobyla(base,_scipy_optimize_algorithm):
+class scipy_cobyla(_scipy_base):
 	"""
 	Wrapper around SciPy's cobyla optimiser.
 	"""
-	def __init__(self,verbose = False):
-		base.__init__(self)
-		_scipy_optimize_algorithm.__init__(self,'fmin_cobyla',constrained = True)
+	def __init__(self,maxiter = 1000,tol = 1E-5,verbose = False):
+		_scipy_base.__init__(self,'fmin_cobyla',True,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
-		return scipy_cobyla(self.verbose)
+		return scipy_cobyla(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -191,18 +193,17 @@ class scipy_cobyla(base,_scipy_optimize_algorithm):
 			iprn = 1
 		else:
 			iprn = 0
-		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,cons = f_cons,iprint = iprn)
+		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,cons = f_cons,iprint = iprn, maxfun = self.maxiter, rhoend = self.tol)
 		new_chromosome = list(retval) + list(x0_comb)
-		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
 
-class scipy_anneal(base,_scipy_optimize_algorithm):
+class scipy_anneal(_scipy_base):
 	"""
 	Wrapper around SciPy's anneal optimiser.
 	"""
 	def __init__(self,verbose = False):
-		base.__init__(self)
-		_scipy_optimize_algorithm.__init__(self,'anneal',constrained = False)
+		_scipy_base.__init__(self,'anneal',constrained = False)
 		self.verbose = verbose
 	def __copy__(self):
 		return scipy_anneal(self.verbose)
