@@ -227,8 +227,7 @@ std::string archipelago::human_readable() const
 {
 	join();
 	std::ostringstream oss;
-	oss << "Archipelago\n";
-	oss << "===========\n\n";
+	oss << "-= Archipelago =-\n\n";
 	oss << "Number of islands:\t" << m_container.size() << "\n\n";
 	oss << m_topology->human_readable_terse() << '\n';
 	for (size_type i = 0; i < m_container.size(); ++i) {
@@ -250,8 +249,9 @@ topology::base_ptr archipelago::get_topology() const
 
 /// Set topology.
 /**
- * A valid topology must contain all and only the island indices of the current archipelago. If this condition is satisfied, then the incoming topology
- * will become the new archipelago topology. Otherwise, a value_error exception will be raised.
+ * A valid topology must contain only island indices smaller than the size of the archipelago. If this condition is satisfied, then the incoming topology
+ * will become the new archipelago topology (after calling push_back() a number of times necessary to fill in the island indices missing in the topology).
+ * Otherwise, a value_error exception will be raised.
  *
  * @param[in] tp new topology for the archipelago.
  */
@@ -475,7 +475,7 @@ void archipelago::post_evolution(island &isl)
 	}
 }
 
-// Functor to count the number of island with blocking problem or algorithm.
+// Functor to count the number of blocking islands.
 struct archipelago::count_if_blocking
 {
 	bool operator()(const island &isl) const
@@ -572,9 +572,9 @@ void archipelago::evolve_t(int t)
 					it->first->evolve();
 					// Here we must be careful. In "normal" conditions everything is fine and dandy and evo_time will now be higher than
 					// intial time. However, if the clock is screwed, if the counter is wrapping past the numerical limit or the evolution
-					// lasted 0 milliseconds, etc. then we must detect and fix this. Policy: add one millisecond to the total evolution time for
+					// lasted 0 milliseconds, etc. then we must detect and fix this. Policy: add one second to the total evolution time for
 					// the island, so that at least we are sure we don't end up in an endless cycle.
-					const std::size_t time_diff = (it->first->m_evo_time > initial_time) ? (it->first->m_evo_time - initial_time) : 1;
+					const std::size_t time_diff = (it->first->m_evo_time > initial_time) ? (it->first->m_evo_time - initial_time) : 1000;
 					it->second += boost::numeric_cast<int>(time_diff);
 				}
 			}

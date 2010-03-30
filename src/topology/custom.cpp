@@ -82,15 +82,6 @@ void custom::remove_all_edges()
 	base::remove_all_edges();
 }
 
-/// Add vertex.
-/**
- * Equivalent to base::add_vertex().
- */
-void custom::add_vertex()
-{
-	base::add_vertex();
-}
-
 base_ptr custom::clone() const
 {
 	return base_ptr(new custom(*this));
