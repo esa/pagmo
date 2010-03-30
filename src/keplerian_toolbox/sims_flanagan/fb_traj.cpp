@@ -47,27 +47,27 @@ namespace kep_toolbox { namespace sims_flanagan{
  * \param[in] sc_ A spacecraft object containing details on the system engineering of the spacecraft.
  */
 
-	fb_traj::fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_) : legs(sequence.size()-1),planets(sequence){
-	    //check consistency between sequence size and n_seg size
-	    if (sequence.size() -1 != n_seg.size()){
+fb_traj::fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_) : legs(sequence.size()-1),planets(sequence){
+	//check consistency between sequence size and n_seg size
+	if (sequence.size() -1 != n_seg.size()){
 		throw_value_error("Inconsistency between planet sequence length and number of n_seg provided ");
-	    }
-	    //check consistency of n_seg
-	    for (unsigned int i=0;i<n_seg.size();i++){
+	}
+	//check consistency of n_seg
+	for (unsigned int i=0;i<n_seg.size();i++){
 		if (n_seg[i] <=1) throw_value_error("number of segments must be >=1");
-	    }
+	}
 
-	    //init spacecraft in all legs and allocate memory for throttles
-	    for (unsigned int i=0;i<n_seg.size();i++){
+	//init spacecraft in all legs and allocate memory for throttles
+	for (unsigned int i=0;i<n_seg.size();i++){
 		legs[i].set_spacecraft(sc_);
 		legs[i].set_throttles_size(n_seg[i]);
 		legs[i].set_mu(sequence[i].get_mu_central_body());
-	    }
-
-	    //init total_n_seg
-	    total_n_seg = std::accumulate(n_seg.begin(),n_seg.end(), 0);
-
 	}
+
+	//init total_n_seg
+	total_n_seg = std::accumulate(n_seg.begin(),n_seg.end(), 0);
+
+}
 
 /// Constructor.
 /**
@@ -83,27 +83,27 @@ namespace kep_toolbox { namespace sims_flanagan{
  * \param[in] is_ The propulsion system specific impulse (sec)
  */
 
-	fb_traj::fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_) : legs(sequence.size()-1),planets(sequence){
-	    //check consistency between sequence size and n_seg size
-	    if (sequence.size() -1 != n_seg.size()){
+fb_traj::fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_) : legs(sequence.size()-1),planets(sequence){
+	//check consistency between sequence size and n_seg size
+	if (sequence.size() -1 != n_seg.size()){
 		throw_value_error("Inconsistency between planet sequence length and number of n_seg provided ");
-	    }
-	    //check consistency of n_seg
-	    for (unsigned int i=0;i<n_seg.size();i++){
+	}
+	//check consistency of n_seg
+	for (unsigned int i=0;i<n_seg.size();i++){
 		if (n_seg[i] <=1) throw_value_error("number of segments must be >=1");
-	    }
+	}
 
-	    //init spacecraft in all legs and allocate memory for throttles
-	    for (unsigned int i=0;i<n_seg.size();i++){
+	//init spacecraft in all legs and allocate memory for throttles
+	for (unsigned int i=0;i<n_seg.size();i++){
 		legs[i].set_spacecraft(spacecraft(mass_,thrust_,isp_));
 		legs[i].set_throttles_size(n_seg[i]);
 		legs[i].set_mu(sequence[0].get_mu_central_body());
-	    }
-
-	    //init total_n_seg
-	    total_n_seg = std::accumulate(n_seg.begin(),n_seg.end(), 0);
-
 	}
+
+	//init total_n_seg
+	total_n_seg = std::accumulate(n_seg.begin(),n_seg.end(), 0);
+
+}
 
 /// Constructor.
 /**
@@ -116,22 +116,22 @@ namespace kep_toolbox { namespace sims_flanagan{
  * \param[in] sc_ A spacecraft object containing details on the system engineering of the spacecraft.
  */
 
-	fb_traj::fb_traj(const std::vector<planet>& sequence, const unsigned int &n_seg, const spacecraft &sc_) : legs(sequence.size()-1),planets(sequence){
+fb_traj::fb_traj(const std::vector<planet>& sequence, const unsigned int &n_seg, const spacecraft &sc_) : legs(sequence.size()-1),planets(sequence){
 
-	    //check consistency of n_seg
-	    if (n_seg < 1) throw_value_error("number of segments must be >=1");
+	//check consistency of n_seg
+	if (n_seg < 1) throw_value_error("number of segments must be >=1");
 
-	    //init spacecraft in all legs and allocate memory for throttles
-	    for (size_t i=0;i<sequence.size()-1;i++){
+	//init spacecraft in all legs and allocate memory for throttles
+	for (size_t i=0;i<sequence.size()-1;i++){
 		legs[i].set_spacecraft(sc_);
 		legs[i].set_throttles_size(n_seg);
 		legs[i].set_mu(sequence[i].get_mu_central_body()) ;
-	    }
-
-	    //init total_n_seg
-	    total_n_seg = n_seg*(sequence.size()-1);
-
 	}
+
+	//init total_n_seg
+	total_n_seg = n_seg*(sequence.size()-1);
+
+}
 
 /// Constructor.
 /**
@@ -146,22 +146,22 @@ namespace kep_toolbox { namespace sims_flanagan{
  * \param[in] is_ The propulsion system specific impulse (sec)
  */
 
-	fb_traj::fb_traj(const std::vector<planet>& sequence, const unsigned int &n_seg, const double &mass_, const double &thrust_, const double &isp_) : legs(sequence.size()-1),planets(sequence){
+fb_traj::fb_traj(const std::vector<planet>& sequence, const unsigned int &n_seg, const double &mass_, const double &thrust_, const double &isp_) : legs(sequence.size()-1),planets(sequence){
 
-	    //check consistency of n_seg
-	    if (n_seg <1) throw_value_error("number of segments must be >=1");
+	//check consistency of n_seg
+	if (n_seg <1) throw_value_error("number of segments must be >=1");
 
-	    //init spacecraft in all legs and allocate memory for throttles
-	    for (size_t i=0;i<sequence.size()-1;i++){
+	//init spacecraft in all legs and allocate memory for throttles
+	for (size_t i=0;i<sequence.size()-1;i++){
 		legs[i].set_spacecraft(spacecraft(mass_,thrust_,isp_));
 		legs[i].set_throttles_size(n_seg);
 		legs[i].set_mu(sequence[0].get_mu_central_body());
-	    }
-
-	    //init total_n_seg
-	    total_n_seg = n_seg*(sequence.size()-1);
-
 	}
+
+	//init total_n_seg
+	total_n_seg = n_seg*(sequence.size()-1);
+
+}
 
 
 /// Overload the stream operator for kep_toolbox::sims_flanagan::leg
@@ -175,8 +175,8 @@ namespace kep_toolbox { namespace sims_flanagan{
  *
  */
 
-	std::ostream &operator<<(std::ostream &s, const fb_traj &in ){
-/*	    s << "Full Vector: " << std::endl;
+std::ostream &operator<<(std::ostream &s, const fb_traj &in ){
+	/*	    s << "Full Vector: " << std::endl;
 	    for (size_t i=0;i<in.full_vector.size();i++) s << in.full_vector[i] << " ";
 	    s << std::endl <<"Mismatches con: " << std::endl;
 	    for (size_t i=0;i<in.mismatches_con.size();i++) s << in.mismatches_con[i] << " ";
@@ -190,8 +190,8 @@ namespace kep_toolbox { namespace sims_flanagan{
 	    for (size_t i=0;i<in.fb_mass_con.size();i++) s << in.fb_mass_con[i] << " ";
 	    s << std::endl <<"Same epoch con: " << std::endl;
 	    for (size_t i=0;i<in.fb_epoch_con.size();i++) s << in.fb_epoch_con[i] << " ";*/
-	    return s;
-	}
+	return s;
+}
 
 
-    }} //namespaces
+}} //namespaces

@@ -48,18 +48,3 @@ namespace kep_toolbox{
     }
 } //namespaces
 
-/// Initialize a leg
-/**
- * Initialize a leg assuming that the user has or will initialize separately the spacecraft
- * and the central body gravity parameter. The throttles are provided via two iterators pointing
- * to the beginning and to the end of a sequence of doubles containing the cartesian components
- * \f$ (x_1,y_1,z_1,x_2,y_2,z_2,...) \f$ of the throttles \f$ x_i,y_i,z_i \in [0,1]\f$. Needs to have dimension \f$ 3n \f$.
- *
- * \param[in] epoch_i Inital epoch for the leg
- * \param[in] state_i Initial sc_state (spacecraft state)
- * \param[in] throttles_start STL vector iterator pointing to the beginning of a cartesian throttle sequence. Throttles are numbers between 0 and 1.
- * \param[in] throttles_end STL vector iterator pointing to the end+1 of a cartesian throttle sequence. Throttles are numbers between 0 and 1.
- * \param[in] epoch_f Final epoch for the leg. Needs to be later than epoch_i
- * \param[in] state_f Final sc_state (spacecraft state)
- */
-

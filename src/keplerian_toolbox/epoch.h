@@ -30,7 +30,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
-/// Objects dealing with keplerian motion
+/// Keplerian Toolbox
 /**
  * This namespace contains astrodynamics and space flight mechanics routines that are related to
  * keplerian motions or models.
@@ -39,9 +39,10 @@ namespace kep_toolbox {
 
 /// epoch class.
 /**
- * This class defines and contain a non-gregorian date (i.e. a date expressed in julian form). It also provides the user with an
+ * This class defines and contains a non-gregorian date (i.e. a date expressed in julian form). It also provides the user with an
  * interface to boost gregorian dates (see boost documentation at http://www.boost.org/doc/libs/1_42_0/doc/html/date_time.html)
- * using the posix time. Best performance is achieved  the class perform all calculations in modified Julian date 2000.
+ * using the posix time.
+ * To achieve higher performance the date is defined in MJD2000 (double) as a private member
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
@@ -64,7 +65,7 @@ public:
     epoch(const boost::gregorian::greg_year &year, const boost::gregorian::greg_month &month, const boost::gregorian::greg_day &day);
     epoch(const boost::posix_time::ptime& posix_time);
 
-    /** @name Getters */
+    /** @name Computing non-gregorian dates */
     //@{
     double mjd2000 () const;
     double jd () const;
