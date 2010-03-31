@@ -227,8 +227,7 @@ std::string archipelago::human_readable() const
 {
 	join();
 	std::ostringstream oss;
-	oss << "Archipelago\n";
-	oss << "===========\n\n";
+	oss << "-= Archipelago =-\n\n";
 	oss << "Number of islands:\t" << m_container.size() << "\n\n";
 	oss << m_topology->human_readable_terse() << '\n';
 	for (size_type i = 0; i < m_container.size(); ++i) {
@@ -250,8 +249,9 @@ topology::base_ptr archipelago::get_topology() const
 
 /// Set topology.
 /**
- * A valid topology must contain all and only the island indices of the current archipelago. If this condition is satisfied, then the incoming topology
- * will become the new archipelago topology. Otherwise, a value_error exception will be raised.
+ * A valid topology must contain only island indices smaller than the size of the archipelago. If this condition is satisfied, then the incoming topology
+ * will become the new archipelago topology (after calling push_back() a number of times necessary to fill in the island indices missing in the topology).
+ * Otherwise, a value_error exception will be raised.
  *
  * @param[in] tp new topology for the archipelago.
  */
@@ -392,7 +392,7 @@ void archipelago::pre_evolution(island &isl)
 					case point_to_point:
 					{
 						// Get the index of a random island connecting into isl.
-						boost::uniform_int<std::vector<int>::size_type> u_int(0,inv_adj_islands.size() - 1);
+						boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,inv_adj_islands.size() - 1);
 						const size_type rn_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[u_int(m_urng)]);
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
@@ -402,7 +402,7 @@ void archipelago::pre_evolution(island &isl)
 					}
 					case broadcast:
 						// For broadcast migration fetch immigrants from all neighbour islands' databases.
-						for (std::vector<int>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
+						for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
 							build_immigrants_vector(immigrants,m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx],h);
@@ -450,14 +450,14 @@ void archipelago::post_evolution(island &isl)
 						case point_to_point:
 						{
 							// For one-to-one migration choose a random neighbour island and put immigrants to its inbox.
-							boost::uniform_int<std::vector<int>::size_type> u_int(0,adj_islands.size() - 1);
+							boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,adj_islands.size() - 1);
 							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[u_int(m_urng)]);
 							m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
 							break;
 						}
 						case broadcast:
 							// For broadcast migration put immigrants to all neighbour islands' inboxes.
-							for (std::vector<int>::size_type i = 0; i < adj_islands.size(); ++i) {
+							for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < adj_islands.size(); ++i) {
 								m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
 								.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
 								emigrants.begin(),emigrants.end());
@@ -475,14 +475,30 @@ void archipelago::post_evolution(island &isl)
 	}
 }
 
-// Functor to count the number of island with blocking problem or algorithm.
+// Functor to count the number of blocking islands.
 struct archipelago::count_if_blocking
 {
 	bool operator()(const island &isl) const
 	{
-		return isl.is_blocking();
+		return isl.is_blocking_impl();
 	}
 };
+
+// Implementation of blocking attribute.
+bool archipelago::is_blocking_impl() const
+{
+	return std::count_if(m_container.begin(),m_container.end(),count_if_blocking());
+}
+
+/// Archipelago's blocking attribute.
+/**
+ * @return true if at least one island returns true on island::is_blocking().
+ */
+bool archipelago::is_blocking() const
+{
+	join();
+	return is_blocking_impl();
+}
 
 /// Run the evolution for the given number of iterations.
 /**
@@ -493,14 +509,12 @@ struct archipelago::count_if_blocking
 void archipelago::evolve(int n)
 {
 	join();
-	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
-	pagmo_assert(blocking_islands <= m_container.size());
-	reset_barrier(m_container.size() - blocking_islands);
+	const iterator it_f = m_container.end();
 	// In case there are blocking islands, do not calls evolve(n) on each island, but iteratively call evolve() n times.
-	if (blocking_islands) {
+	if (is_blocking_impl()) {
 		// Build a vector of iterators to the islands.
 		std::vector<iterator> it_vector;
-		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
 			it_vector.push_back(it);
 		}
 		for (int i = 0; i < n; ++i) {
@@ -511,7 +525,8 @@ void archipelago::evolve(int n)
 			}
 		}
 	} else {
-		const iterator it_f = m_container.end();
+		// Reset thread barrier.
+		reset_barrier(m_container.size());
 		for (iterator it = m_container.begin(); it != it_f; ++it) {
 			it->evolve(n);
 		}
@@ -539,11 +554,8 @@ static bool all_islands_t_evolved(const Vector &v, int t)
 void archipelago::evolve_t(int t)
 {
 	join();
-	const size_type blocking_islands = boost::numeric_cast<size_type>(std::count_if(m_container.begin(),m_container.end(),count_if_blocking()));
-	pagmo_assert(blocking_islands <= m_container.size());
-	reset_barrier(m_container.size() - blocking_islands);
 	const iterator it_f = m_container.end();
-	if (blocking_islands) {
+	if (is_blocking_impl()) {
 		// Build a vector of (iterators,evolution time) pairs.
 		std::vector<std::pair<iterator,int> > it_t_vector;
 		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
@@ -560,14 +572,15 @@ void archipelago::evolve_t(int t)
 					it->first->evolve();
 					// Here we must be careful. In "normal" conditions everything is fine and dandy and evo_time will now be higher than
 					// intial time. However, if the clock is screwed, if the counter is wrapping past the numerical limit or the evolution
-					// lasted 0 milliseconds, etc. then we must detect and fix this. Policy: add one millisecond to the total evolution time for
+					// lasted 0 milliseconds, etc. then we must detect and fix this. Policy: add one second to the total evolution time for
 					// the island, so that at least we are sure we don't end up in an endless cycle.
-					const std::size_t time_diff = (it->first->m_evo_time > initial_time) ? (it->first->m_evo_time - initial_time) : 1;
+					const std::size_t time_diff = (it->first->m_evo_time > initial_time) ? (it->first->m_evo_time - initial_time) : 1000;
 					it->second += boost::numeric_cast<int>(time_diff);
 				}
 			}
 		}
 	} else {
+		reset_barrier(m_container.size());
 		for (iterator it = m_container.begin(); it != it_f; ++it) {
 			it->evolve_t(t);
 		}

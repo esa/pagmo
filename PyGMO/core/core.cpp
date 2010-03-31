@@ -121,6 +121,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__repr__", &population::human_readable)
 		.add_property("problem",&problem_from_pop)
 		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()))
+		.def("get_best_idx",&population::get_best_idx,"Get index of best individual.")
+		.def("get_worst_idx",&population::get_worst_idx,"Get index of worst individual.")
 		.def("set_x", &population_set_x,"Set decision vector of individual at position n.")
 		.def("set_v", &population_set_v,"Set velocity of individual at position n.");
 
@@ -152,9 +154,11 @@ BOOST_PYTHON_MODULE(_core)
 		.def("evolve_t", &island::evolve,"Evolve island for at least n milliseconds.")
 		.def("join", &island::join,"Wait for evolution to complete.")
 		.def("busy", &island::busy,"Check if island is evolving.")
+		.def("is_blocking", &island::is_blocking,"Check if island is blocking.")
 		.def("interrupt", &island::interrupt,"Interrupt evolution.")
 		.add_property("problem",&island::get_problem)
-		.add_property("algorithm",&island::get_algorithm,&island::set_algorithm);
+		.add_property("algorithm",&island::get_algorithm,&island::set_algorithm)
+		.add_property("population",&island::get_population);
 
 	// Expose archipelago class.
 	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,
@@ -168,7 +172,9 @@ BOOST_PYTHON_MODULE(_core)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
 		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
+		.def("interrupt", &archipelago::interrupt,"Interrupt evolution.")
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
 		.def("push_back", &archipelago::push_back,"Append island.")
+		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
 }

@@ -48,15 +48,21 @@ namespace pagmo { namespace algorithm {
  */
 
 
-ipopt::ipopt(const int &max_iter,const double &tol, const double &acceptable_obj_change_tol) : m_max_iter(max_iter),m_tol(tol),m_acceptable_obj_change_tol(acceptable_obj_change_tol),m_screen_out(false)
+ipopt::ipopt(const int &max_iter,const double &constr_viol_tol, const double &dual_inf_tol, const double &compl_inf_tol) :
+		m_max_iter(max_iter),m_constr_viol_tol(constr_viol_tol),
+		m_dual_inf_tol(dual_inf_tol), m_compl_inf_tol(compl_inf_tol),
+		m_screen_out(false)
 {
 	if (max_iter < 0) {
 		pagmo_throw(value_error,"number of maximum iterations cannot be negative");
 	}
-	if (tol < 0 || tol > 1) {
+	if (constr_viol_tol < 0) {
 		pagmo_throw(value_error,"tolerance is not in ]0,1[");
 	}
-	if (acceptable_obj_change_tol < 0 || acceptable_obj_change_tol > 1) {
+	if (dual_inf_tol < 0) {
+		pagmo_throw(value_error,"obj_tol is not in ]0,1[");
+	}
+	if (compl_inf_tol < 0) {
 		pagmo_throw(value_error,"obj_tol is not in ]0,1[");
 	}
 
@@ -113,10 +119,16 @@ void ipopt::evolve(population &pop) const
 	m_app->Options()->SetStringValue("hessian_approximation", "limited-memory");
 	m_app->Options()->SetIntegerValue("print_level", 5);
 
-	// Termination Criteria
+	// Termination Criteria 1: iterations
 	m_app->Options()->SetIntegerValue("max_iter", m_max_iter);
-	m_app->Options()->SetNumericValue("tol", m_tol);
-	m_app->Options()->SetNumericValue("acceptable_obj_change_tol", m_acceptable_obj_change_tol);
+
+	// Termination Criteria 2: tolerance
+	m_app->Options()->SetNumericValue("tol", 1.);
+	m_app->Options()->SetNumericValue("dual_inf_tol", m_dual_inf_tol);
+	m_app->Options()->SetNumericValue("constr_viol_tol", m_constr_viol_tol);
+	m_app->Options()->SetNumericValue("compl_inf_tol", m_compl_inf_tol);
+
+
 
 	// Intialize the IpoptApplication and process the options
 	Ipopt::ApplicationReturnStatus status;
@@ -151,7 +163,7 @@ void ipopt::screen_output(const bool p) {m_screen_out = p;}
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "IPOPT - Max Iterations: " << m_max_iter << ", Tolerance: "<<m_tol<< ", Objective Function Tolerance: "<<m_acceptable_obj_change_tol << std::endl;
+	//s << "IPOPT - Max Iterations: " << m_max_iter << ", Tolerance: "<<m_tol<< ", Objective Function Tolerance: "<<m_acceptable_obj_change_tol << std::endl;
 	return s.str();
 }
 

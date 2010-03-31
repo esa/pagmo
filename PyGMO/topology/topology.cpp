@@ -98,8 +98,7 @@ BOOST_PYTHON_MODULE(_topology) {
 		.def(init<const topology::base &>())
 		.def("add_edge",&topology::custom::add_edge,"Add edge.")
 		.def("remove_edge",&topology::custom::remove_edge,"Remove edge.")
-		.def("remove_all_edges",&topology::custom::remove_all_edges,"Remove all edges.")
-		.def("add_vertex",&topology::custom::add_vertex,"Add vertex.");
+		.def("remove_all_edges",&topology::custom::remove_all_edges,"Remove all edges.");
 
 	topology_wrapper<topology::erdos_renyi>("erdos_renyi", "Erdos-Renyi topology.").def(init<optional<const double &> >());
 	topology_wrapper<topology::fully_connected>("fully_connected", "Fully connected topology.").def(init<>());

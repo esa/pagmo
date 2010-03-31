@@ -54,7 +54,7 @@ class __PAGMO_VISIBLE ipopt: public base
 {
 public:
 
-	ipopt(const int &max_iter, const double &tol = 1e-4, const double &m_acceptable_obj_change_tol = 1e-4);
+	ipopt(const int &max_iter, const double &constr_viol_tol = 1e-10, const double &dual_inf_tol = 1e-1, const double & compl_inf_tol = 1e-5);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool p);
@@ -64,8 +64,9 @@ protected:
 
 private:
 	const int m_max_iter;
-	const double m_tol;
-	const double m_acceptable_obj_change_tol;
+	const double m_constr_viol_tol;
+	const double m_dual_inf_tol;
+	const double m_compl_inf_tol;
 	bool m_screen_out;
 };
 

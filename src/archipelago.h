@@ -142,6 +142,7 @@ class __PAGMO_VISIBLE archipelago
 		std::string dump_migr_history() const;
 		void clear_migr_history();
 		island get_island(const size_type &) const;
+		bool is_blocking() const;
 	private:
 		void pre_evolution(island &);
 		void post_evolution(island &);
@@ -151,6 +152,7 @@ class __PAGMO_VISIBLE archipelago
 		void check_migr_attributes() const;
 		void sync_island_start() const;
 		struct count_if_blocking;
+		bool is_blocking_impl() const;
 	private:
 		// Container of islands.
 		container_type				m_container;
