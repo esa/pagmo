@@ -264,11 +264,21 @@ population island::get_population() const
 	return m_pop;
 }
 
+// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
+struct island::int_evolver {
+	int_evolver(island *i, const std::size_t &n, bool blocking):m_i(i),m_n(n),m_blocking(blocking) { }
+	void operator()();
+	void juice_impl(boost::posix_time::ptime &);
+	island 			*m_i;
+	const std::size_t	m_n;
+	const bool		m_blocking;
+};
+
 void island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 {
 	start = boost::posix_time::microsec_clock::local_time();
-	// Synchronise start with all other threads
-	if (m_i->m_archi && !m_i->is_blocking()) {
+	// Synchronise start with all other threads if we are not blocking and we are in an archi.
+	if (m_i->m_archi && !m_blocking) {
 		m_i->m_archi->sync_island_start();
 	}
 	for (std::size_t i = 0; i < m_n; ++i) {
@@ -285,7 +295,7 @@ void island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 			//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		}
 		// If we are running in a separate thread, set the interruption point.
-		if (!m_i->is_blocking()) {
+		if (!m_blocking) {
 			boost::this_thread::interruption_point();
 		}
 	}
@@ -295,7 +305,7 @@ void island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 void island::int_evolver::operator()()
 {
 	boost::posix_time::ptime start;
-	if (m_i->is_blocking()) {
+	if (m_blocking) {
 		juice_impl(start);
 	} else {
 		try {
@@ -335,24 +345,34 @@ void island::evolve(int n)
 {
 	join();
 	const std::size_t n_evo = boost::numeric_cast<std::size_t>(n);
-	if (is_blocking()) {
-		int_evolver ev(this,n_evo);
+	if (is_blocking_impl() || (m_archi && m_archi->is_blocking_impl())) {
+		int_evolver ev(this,n_evo,true);
 		ev();
 	} else {
 		try {
-			m_evo_thread.reset(new boost::thread(int_evolver(this,n_evo)));
+			m_evo_thread.reset(new boost::thread(int_evolver(this,n_evo,false)));
 		} catch (...) {
 			pagmo_throw(std::runtime_error,"failed to launch the thread");
 		}
 	}
 }
 
+// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.
+struct island::t_evolver {
+	t_evolver(island *i, const std::size_t &t, bool blocking):m_i(i),m_t(t),m_blocking(blocking) {}
+	void operator()();
+	void juice_impl(boost::posix_time::ptime &);
+	island 			*m_i;
+	const std::size_t	m_t;
+	const bool		m_blocking;
+};
+
 void island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 {
 	boost::posix_time::time_duration diff;
 	start = boost::posix_time::microsec_clock::local_time();
-	// Synchronise start
-	if (m_i->m_archi && !m_i->is_blocking()) {
+	// Synchronise start.
+	if (m_i->m_archi && !m_blocking) {
 		m_i->m_archi->sync_island_start();
 	}
 	do {
@@ -367,7 +387,7 @@ void island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 			//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		}
 		// If we are running in a separate thread, set the interruption point.
-		if (!m_i->is_blocking()) {
+		if (!m_blocking) {
 			boost::this_thread::interruption_point();
 		}
 		diff = boost::posix_time::microsec_clock::local_time() - start;
@@ -379,7 +399,7 @@ void island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 void island::t_evolver::operator()()
 {
 	boost::posix_time::ptime start;
-	if (m_i->is_blocking()) {
+	if (m_blocking) {
 		juice_impl(start);
 	} else {
 		try {
@@ -420,12 +440,12 @@ void island::evolve_t(int t)
 {
 	join();
 	const std::size_t t_evo = boost::numeric_cast<std::size_t>(t);
-	if (is_blocking()) {
-		t_evolver ev(this,t_evo);
+	if (is_blocking_impl() || (m_archi && m_archi->is_blocking_impl())) {
+		t_evolver ev(this,t_evo,true);
 		ev();
 	} else {
 		try {
-			m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo)));
+			m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo,false)));
 		} catch (...) {
 			pagmo_throw(std::runtime_error,"failed to launch the thread");
 		}
@@ -479,10 +499,20 @@ bool island::busy() const
 	return m_evo_thread->joinable();
 }
 
-// Check if either the algorihm or the problem are blocking.
-bool island::is_blocking() const
+// Blocking attribute implementation.
+bool island::is_blocking_impl() const
 {
 	return (m_pop.problem().is_blocking() || m_algo->is_blocking());
+}
+
+/// Check if the island is blocking.
+/**
+ * @return true if either the algorihm or the problem are blocking.
+ */
+bool island::is_blocking() const
+{
+	join();
+	return is_blocking_impl();
 }
 
 /// Overload stream operator for pagmo::island.

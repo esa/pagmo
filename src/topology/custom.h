@@ -48,7 +48,6 @@ class __PAGMO_VISIBLE custom: public base
 		void add_edge(int,int);
 		void remove_edge(int,int);
 		void remove_all_edges();
-		void add_vertex();
 		//@}
 		base_ptr clone() const;
 	protected:
