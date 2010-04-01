@@ -37,16 +37,15 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor.
 /**
- * Allows to specify some of the parameters of the IPOPT solver.
+ * Allows to specify some of the parameters of the IPOPT solver. The algorithm stopping criteria will
+ * be 1) if the number of iteration exceeds max_iter 2) the three tolerances are met
  *
  * @param[in] max_iter Maximum number of major iterations (refer to IPOPT manual).
- * @param[in] tol Desired convergence tolerance (relative). (refer to IPOPT manual).
- * @param[in] opt "Acceptance" stopping criterion based on objective function change. If the relative
- * change of the objective function (scaled by Max(1,|f(x)|)) is less than this value,
- * this part of the acceptable tolerance termination is satisfied. (refer to IPOPT manual).
- * @throws value_error if max_iter is not positive, and tol,acceptable_obj_change_tol are not in \f$]0,1[\f$
+ * @param[in] constr_viol_tol Constraint violation tolerance
+ * @param[in] dual_inf_tol Dual infeasibility tolerance
+ * @param[in] compl_inf_tol Complementary feasibility tolerance
+ * @throws value_error if max_iter or tolerances are negative
  */
-
 
 ipopt::ipopt(const int &max_iter,const double &constr_viol_tol, const double &dual_inf_tol, const double &compl_inf_tol) :
 		m_max_iter(max_iter),m_constr_viol_tol(constr_viol_tol),
@@ -77,7 +76,7 @@ base_ptr ipopt::clone() const
 /// Evolve implementation.
 /**
  * Run IPOPT with the parameters specified in the constructor
- * At the end velocity is updated
+ * At the end, the velocity is updated
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
@@ -149,11 +148,17 @@ void ipopt::evolve(population &pop) const
  */
 void ipopt::screen_output(const bool p) {m_screen_out = p;}
 
-
+/// Extra human readable algorithm info.
+/**
+ * @return a formatted string displaying the parameters of the algorithm.
+ */
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "IPOPT - Max Iterations: " << m_max_iter << ", Constraint violation tol: "<< m_constr_viol_tol << ", Dual Infeasibility tol: "<< m_dual_inf_tol << ", Complementarity Infeasibility tol: "<< m_compl_inf_tol << std::endl;
+	s << "IPOPT - Max Iterations: " << m_max_iter << std::endl;
+	s << "Constraint violation tol: "<< m_constr_viol_tol << std::endl;
+	s << "Dual Infeasibility tol: "<< m_dual_inf_tol << std::endl;
+	s << "Complementarity Infeasibility tol: "<< m_compl_inf_tol << std::endl;
 	return s.str();
 }
 

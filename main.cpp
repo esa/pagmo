@@ -38,8 +38,8 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::ipopt algo(1000,1e-10,1.,1e-6);
-	algo.screen_output(true);
+	algorithm::nlopt_cobyla algo(100,1e-10);
+	//algo.screen_output(true);
 	//algo.file_output(true);
 	//problem::earth_planet prob(1,kep_toolbox::planet::MARS);
 	problem::earth_planet prob(10,kep_toolbox::planet::MARS);
