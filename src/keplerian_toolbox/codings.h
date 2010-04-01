@@ -15,7 +15,7 @@ namespace kep_toolbox {
     class cartesian_coding_tag {};
     
     /**
-     * @brief An istance of this class represents a format which
+     * @brief An instance of this class represents a format which
      * can be used to read the chromosome. In order to read some
      * data from the chromosome, instead of having to somehow know
      * in what position the data is and read the appropriate
@@ -590,6 +590,6 @@ namespace kep_toolbox {
 	std::vector<double> departure_arc_times_m;
 	std::vector<double> arrival_arc_times_m;
     };
-};
+}
 
 #endif

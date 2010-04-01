@@ -139,16 +139,6 @@ void ipopt::evolve(population &pop) const
 
 	// Ask Ipopt to solve the problem
 	status = m_app->OptimizeTNLP(pagmo_nlp);
-
-
-	//Save the final point
-	//for (integer i=0;i<n;i++) di_comodo.x[i] = x[i];
-	//decision_vector newx = di_comodo.x;
-	//std::transform(di_comodo.x.begin(), di_comodo.x.end(), pop.get_individual(bestidx).cur_x.begin(), di_comodo.x.begin(),std::minus<double>());
-	//pop.set_x(bestidx,newx);
-	//pop.set_v(bestidx,di_comodo.x);
-
-
 }
 
 /// Activate screen output
@@ -163,7 +153,7 @@ void ipopt::screen_output(const bool p) {m_screen_out = p;}
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	//s << "IPOPT - Max Iterations: " << m_max_iter << ", Tolerance: "<<m_tol<< ", Objective Function Tolerance: "<<m_acceptable_obj_change_tol << std::endl;
+	s << "IPOPT - Max Iterations: " << m_max_iter << ", Constraint violation tol: "<< m_constr_viol_tol << ", Dual Infeasibility tol: "<< m_dual_inf_tol << ", Complementarity Infeasibility tol: "<< m_compl_inf_tol << std::endl;
 	return s.str();
 }
 
