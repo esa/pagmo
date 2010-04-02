@@ -22,55 +22,64 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef IPOPT_H
-#define IPOPT_H
+#ifndef PAGMO_ALGORITHM_MBH_H
+#define PAGMO_ALGORITHM_MBH_H
+
+#include <string>
 
 #include "../config.h"
-#include "base.h"
 #include "../population.h"
-
-#include <coin/IpIpoptApplication.hpp>
-
+#include "base.h"
 
 
 namespace pagmo { namespace algorithm {
 
-/// Wrapper for the IPOPT solver
+/// Monotonic Basin Hopping (generalized)
 /**
- * IPOPT is an Interior Point Optimization solver released under the CPL licence. Our wrapper is
- * generic and does not use the hessian information letting IPOPT deal with it. Gradients and Jacobian are
- * evaluated by central differences with a stepsize of 10-8 stepsize. We offer control
- * over only a few IPOPT options, take care in particular of the dual_inf_tol as the hessian_approximation,
- * limited_memory option (i.e. hessian is not provided by the user) makes the dual_inf to remain quite high.
  *
- * IPOPT has severa lib dependencies that overlaps with SNOPT lib dependencies. Take care that you link
- * to the correct ones, especially for the blas lib that can give problem if coming from SNOPT native source code
+ * \image html mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape".
+ * \image latex mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape". width=5cm
  *
+ * Monotonic basin hopping, or simply, basin hopping, is an algorithm rooted in the idea of transforming each
+ * the objective function at \f$\mathbf x\f$ into the local minima found starting from \f$\mathbf x\f$
+ * This simple idea allowed a substantial increase of efficiency in solving problems, such as the Lennard-Jones
+ * cluster or the MGA-DSM interplanetary trajectory problem that are conjectured to have a so-called funnel structure.
+ *
+ * In PaGMO we provide an original generalization of the method to operate on pagmo::population and using any pagmo::algorithm.
+ * The pseudo code of the generalized version is:
+@verbatim
+> Select a pagmo::population
+> Select a pagmo::algorithm
+> while i < stop_criteria
+> > Evolve the population using the algorithm
+> > Increment i if the champion is not improved
+> > i = 0 if a better champion is found
+> > Perturb the population in a selected neighbourhood
+@endverbatim
+ *
+ *
+ * @see http://arxiv.org/pdf/cond-mat/9803344 for the paper inroducing the basin hopping idea for a Lennard-Jones cluster optimization
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
- *
  */
-
-class __PAGMO_VISIBLE ipopt: public base
+		
+class __PAGMO_VISIBLE mbh: public base
 {
 public:
-
-	ipopt(const int &max_iter, const double &constr_viol_tol = 1e-8, const double &dual_inf_tol = 1e-8, const double & compl_inf_tol = 1e-8);
+	mbh(base local, int stop = 50, double perturb = 5e-2);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void screen_output(const bool p);
-
 protected:
 	std::string human_readable_extra() const;
-
 private:
-	const int m_max_iter;
-	const double m_constr_viol_tol;
-	const double m_dual_inf_tol;
-	const double m_compl_inf_tol;
-	bool m_screen_out;
+	base_ptr m_local;
+	// Consecutive non improving iterations
+	const int m_stop;
+	// Perturbation of the population
+	const double m_perturb;
+
 };
 
 }} //namespaces
 
-#endif
+#endif // PAGMO_ALGORITHM_MBH_H

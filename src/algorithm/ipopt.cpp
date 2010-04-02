@@ -37,26 +37,31 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor.
 /**
- * Allows to specify some of the parameters of the IPOPT solver.
+ * Allows to specify some of the parameters of the IPOPT solver. The algorithm stopping criteria will
+ * be 1) if the number of iteration exceeds max_iter 2) the three tolerances are met
  *
  * @param[in] max_iter Maximum number of major iterations (refer to IPOPT manual).
- * @param[in] tol Desired convergence tolerance (relative). (refer to IPOPT manual).
- * @param[in] opt "Acceptance" stopping criterion based on objective function change. If the relative
- * change of the objective function (scaled by Max(1,|f(x)|)) is less than this value,
- * this part of the acceptable tolerance termination is satisfied. (refer to IPOPT manual).
- * @throws value_error if max_iter is not positive, and tol,acceptable_obj_change_tol are not in \f$]0,1[\f$
+ * @param[in] constr_viol_tol Constraint violation tolerance
+ * @param[in] dual_inf_tol Dual infeasibility tolerance
+ * @param[in] compl_inf_tol Complementary feasibility tolerance
+ * @throws value_error if max_iter or tolerances are negative
  */
 
-
-ipopt::ipopt(const int &max_iter,const double &tol, const double &acceptable_obj_change_tol) : m_max_iter(max_iter),m_tol(tol),m_acceptable_obj_change_tol(acceptable_obj_change_tol),m_screen_out(false)
+ipopt::ipopt(const int &max_iter,const double &constr_viol_tol, const double &dual_inf_tol, const double &compl_inf_tol) :
+		m_max_iter(max_iter),m_constr_viol_tol(constr_viol_tol),
+		m_dual_inf_tol(dual_inf_tol), m_compl_inf_tol(compl_inf_tol),
+		m_screen_out(false)
 {
 	if (max_iter < 0) {
 		pagmo_throw(value_error,"number of maximum iterations cannot be negative");
 	}
-	if (tol < 0 || tol > 1) {
+	if (constr_viol_tol < 0) {
 		pagmo_throw(value_error,"tolerance is not in ]0,1[");
 	}
-	if (acceptable_obj_change_tol < 0 || acceptable_obj_change_tol > 1) {
+	if (dual_inf_tol < 0) {
+		pagmo_throw(value_error,"obj_tol is not in ]0,1[");
+	}
+	if (compl_inf_tol < 0) {
 		pagmo_throw(value_error,"obj_tol is not in ]0,1[");
 	}
 
@@ -71,7 +76,7 @@ base_ptr ipopt::clone() const
 /// Evolve implementation.
 /**
  * Run IPOPT with the parameters specified in the constructor
- * At the end velocity is updated
+ * At the end, the velocity is updated
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
@@ -113,10 +118,16 @@ void ipopt::evolve(population &pop) const
 	m_app->Options()->SetStringValue("hessian_approximation", "limited-memory");
 	m_app->Options()->SetIntegerValue("print_level", 5);
 
-	// Termination Criteria
+	// Termination Criteria 1: iterations
 	m_app->Options()->SetIntegerValue("max_iter", m_max_iter);
-	m_app->Options()->SetNumericValue("tol", m_tol);
-	m_app->Options()->SetNumericValue("acceptable_obj_change_tol", m_acceptable_obj_change_tol);
+
+	// Termination Criteria 2: tolerance
+	m_app->Options()->SetNumericValue("tol", 1.);
+	m_app->Options()->SetNumericValue("dual_inf_tol", m_dual_inf_tol);
+	m_app->Options()->SetNumericValue("constr_viol_tol", m_constr_viol_tol);
+	m_app->Options()->SetNumericValue("compl_inf_tol", m_compl_inf_tol);
+
+
 
 	// Intialize the IpoptApplication and process the options
 	Ipopt::ApplicationReturnStatus status;
@@ -127,16 +138,6 @@ void ipopt::evolve(population &pop) const
 
 	// Ask Ipopt to solve the problem
 	status = m_app->OptimizeTNLP(pagmo_nlp);
-
-
-	//Save the final point
-	//for (integer i=0;i<n;i++) di_comodo.x[i] = x[i];
-	//decision_vector newx = di_comodo.x;
-	//std::transform(di_comodo.x.begin(), di_comodo.x.end(), pop.get_individual(bestidx).cur_x.begin(), di_comodo.x.begin(),std::minus<double>());
-	//pop.set_x(bestidx,newx);
-	//pop.set_v(bestidx,di_comodo.x);
-
-
 }
 
 /// Activate screen output
@@ -147,11 +148,17 @@ void ipopt::evolve(population &pop) const
  */
 void ipopt::screen_output(const bool p) {m_screen_out = p;}
 
-
+/// Extra human readable algorithm info.
+/**
+ * @return a formatted string displaying the parameters of the algorithm.
+ */
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "IPOPT - Max Iterations: " << m_max_iter << ", Tolerance: "<<m_tol<< ", Objective Function Tolerance: "<<m_acceptable_obj_change_tol << std::endl;
+	s << "IPOPT - Max Iterations: " << m_max_iter << std::endl;
+	s << "Constraint violation tol: "<< m_constr_viol_tol << std::endl;
+	s << "Dual Infeasibility tol: "<< m_dual_inf_tol << std::endl;
+	s << "Complementarity Infeasibility tol: "<< m_compl_inf_tol << std::endl;
 	return s.str();
 }
 

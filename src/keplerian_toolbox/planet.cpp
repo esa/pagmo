@@ -43,7 +43,7 @@ namespace kep_toolbox{
 	    initialize_planet(planet::VENUS);
 	else if(name == "EARTH")
 	    initialize_planet(planet::EARTH);
-	else if(name == "MARs")
+	else if(name == "MARS")
 	    initialize_planet(planet::MARS);
 	else if(name == "JUPITER")
 	    initialize_planet(planet::JUPITER);
