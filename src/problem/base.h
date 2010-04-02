@@ -118,9 +118,9 @@ class __PAGMO_VISIBLE base
 		typedef fitness_vector::size_type f_size_type;
 		/// Constraints' size type: the same as pagmo::constraint_vector's size type.
 		typedef constraint_vector::size_type c_size_type;
-		base(int, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
-		base(const double &, const double &, int, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
-		base(const decision_vector &, const decision_vector &, int ni = 0, int nf = 1, int nc = 0, int nic = 0);
+		base(int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
+		base(const double &, const double &, int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
+		base(const decision_vector &, const decision_vector &, int = 0, int = 1, int = 0, int = 0, const double & = 0);
 		/// Constructor from raw arrays, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
 		/**
 		 * Lower and upper bounds are initialised with the content of two arrays of size N.
@@ -134,16 +134,21 @@ class __PAGMO_VISIBLE base
 		 * @param[in] nf dimension of the fitness vector of the problem.
 		 * @param[in] nc global number of constraints.
 		 * @param[in] nic number of inequality constraints.
+		 * @param[in] c_tol constraints tolerance.
 		 */
 		template <std::size_t N>
-		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1, int nc = 0, int nic = 0):
+		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+			m_c_tol(c_tol),
 			m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 			m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 		{
+			if (c_tol < 0) {
+				pagmo_throw(value_error,"constraints tolerance must be non-negative");
+			}
 			if (!m_f_dimension) {
 				pagmo_throw(value_error,"fitness dimension must be strictly positive");
 			}
@@ -177,16 +182,21 @@ class __PAGMO_VISIBLE base
 		 * @param[in] nf dimension of the fitness vector of the problem.
 		 * @param[in] nc global number of constraints.
 		 * @param[in] nic number of inequality constraints.
+		 * @param[in] c_tol constraints tolerance.
 		 */
 		template <class Iterator1, class Iterator2>
-		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
+		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+			m_c_tol(c_tol),
 			m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 			m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 		{
+			if (c_tol < 0) {
+				pagmo_throw(value_error,"constraints tolerance must be non-negative");
+			}
 			if (!m_f_dimension) {
 				pagmo_throw(value_error,"fitness dimension must be strictly positive");
 			}
@@ -348,6 +358,7 @@ class __PAGMO_VISIBLE base
 		f_size_type get_f_dimension() const;
 		c_size_type get_c_dimension() const;
 		c_size_type get_ic_dimension() const;
+		double get_c_tol() const;
 		double get_diameter() const;
 		virtual std::string get_name() const;
 		//@}
@@ -385,6 +396,7 @@ return base_ptr(new derived_problem(*this));
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 		void estimate_sparsity(const decision_vector &, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
+		bool test_constraint(const constraint_vector &, const c_size_type &) const;
 	public:
 		virtual void set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
 		/** @name Objective function and fitness handling.
@@ -444,6 +456,8 @@ return base_ptr(new derived_problem(*this));
 		decision_vector				m_lb;
 		// Upper bounds.
 		decision_vector				m_ub;
+		// Tolerance for constraints analysis.
+		const double				m_c_tol;
 		// Decision vector cache for fitness.
 		mutable decision_vector_cache_type	m_decision_vector_cache_f;
 		// Fitness vector cache.

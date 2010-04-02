@@ -52,12 +52,10 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 
 struct python_problem: problem::base, wrapper<problem::base>
 {
-	python_problem(int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
-		problem::base(n,ni,nf,nc,nic) {}
-	python_problem(const double &lb, const double &ub, int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
-		problem::base(lb,ub,n,ni,nf,nc,nic) {}
-	python_problem(const decision_vector &lb, const decision_vector &ub, int ni = 0, int nf = 1, int nc = 0, int nic = 0):
-		problem::base(lb,ub,ni,nf,nc,nic) {}
+	python_problem(int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
+		problem::base(n,ni,nf,nc,nic,c_tol) {}
+	python_problem(const decision_vector &lb, const decision_vector &ub, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
+		problem::base(lb,ub,ni,nf,nc,nic,c_tol) {}
 	python_problem(const problem::base &p):problem::base(p) {}
 	problem::base_ptr clone() const
 	{
@@ -155,8 +153,8 @@ BOOST_PYTHON_MODULE(_problem) {
 	typedef constraint_vector (problem::base::*return_constraints)(const decision_vector &) const;
 	typedef fitness_vector (problem::base::*return_fitness)(const decision_vector &) const;
 	class_<python_problem>("_base",no_init)
-		.def(init<int,optional<int,int,int,int> >())
-		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int> >())
+		.def(init<int,optional<int,int,int,int,const double &> >())
+		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int, const double &> >())
 		.def(init<const problem::base &>())
 		.def("__repr__", &problem::base::human_readable)
 		.def("is_blocking",&problem::base::is_blocking)
@@ -167,6 +165,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("i_dimension", &problem::base::get_i_dimension, "Integer dimension.")
 		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
 		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
+		// Constraints tolerance.
+		.add_property("c_tol", &problem::base::get_c_tol, "Tolerance used in constraints analysis.")
 		// Bounds.
 		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
 		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")

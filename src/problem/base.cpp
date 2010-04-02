@@ -60,15 +60,20 @@ atomic_counter_size_t base::m_objfun_counter(0);
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
+ * @param[in] c_tol constraints tolerance.
  */
-base::base(int n, int ni, int nf, int nc, int nic):
+base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+	m_c_tol(c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 {
+	if (c_tol < 0) {
+		pagmo_throw(value_error,"constraints tolerance must be non-negative");
+	}
 	if (n <= 0 || !nf || ni > n || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
 	}
@@ -98,15 +103,20 @@ base::base(int n, int ni, int nf, int nc, int nic):
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
+ * @param[in] c_tol constraints tolerance.
  */
-base::base(const double &l_value, const double &u_value, int n, int ni, int nf, int nc, int nic):
+base::base(const double &l_value, const double &u_value, int n, int ni, int nf, int nc, int nic, const double &c_tol):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+	m_c_tol(c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 {
+	if (c_tol < 0) {
+		pagmo_throw(value_error,"constraints tolerance must be non-negative");
+	}
 	if (n <= 0 || !nf || ni > n || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
 	}
@@ -138,15 +148,20 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
+ * @param[in] c_tol constraints tolerance.
  */
-base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf, int nc, int nic):
+base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf, int nc, int nic, const double &c_tol):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+	m_c_tol(c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
 {
+	if (c_tol < 0) {
+		pagmo_throw(value_error,"constraints tolerance must be non-negative");
+	}
 	if (!nf || m_i_dimension > lb.size() || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
 	}
@@ -381,6 +396,15 @@ base::c_size_type base::get_c_dimension() const
 base::c_size_type base::get_ic_dimension() const
 {
 	return m_ic_dimension;
+}
+
+/// Return constraints tolerance.
+/**
+ * @return tolerance used in constraints analysis.
+ */
+double base::get_c_tol() const
+{
+	return m_c_tol;
 }
 
 /// Get the diameter of the problem.
@@ -720,14 +744,14 @@ bool base::compare_fc_impl(const fitness_vector &f1, const constraint_vector &c1
 	if (!test1 && test2) {
 		return false;
 	}
-	// At this point, either they both satisfy or they do not.
+	// At this point, either they are both feasible or they are not.
 	if (test1) {
 		pagmo_assert(test2);
-		// If they satisfy, compare fitnesses and return.
+		// If they are feasible, compare fitnesses and return.
 		return compare_fitness_impl(f1,f2);
 	} else {
 		pagmo_assert(!test2);
-		// If they do not satisfy, compare constraints and return.
+		// If they are not feasible, compare constraints and return.
 		return compare_constraints_impl(c1,c2);
 	}
 }
@@ -843,6 +867,21 @@ bool base::feasibility_x(const decision_vector &x) const
 	return feasibility_c(m_tmp_c1);
 }
 
+/// Test i-th constraint of c (using tolerance information).
+/**
+ * @return true if the constraint is satisfied, false otherwise.
+ */
+bool base::test_constraint(const constraint_vector &c, const c_size_type &i) const
+{
+	pagmo_assert(i < m_c_dimension);
+	if (i < m_c_dimension - m_ic_dimension) {
+		// Equality constraint testing.
+		return (std::abs(c[i]) <= m_c_tol);
+	} else {
+		return c[i] <= m_c_tol;
+	}
+}
+
 /// Test feasibility of constraint vector.
 /**
  * This method will return true if all constraints are satisfied, false otherwise.
@@ -857,15 +896,8 @@ bool base::feasibility_c(const constraint_vector &c) const
 		pagmo_throw(value_error,"invalid size for constraint vector");
 	}
 	pagmo_assert(m_c_dimension >= m_ic_dimension);
-	// Test the equality constraints.
-	for (c_size_type i = 0; i < m_c_dimension - m_ic_dimension; ++i) {
-		if (c[i] != 0) {
-			return false;
-		}
-	}
-	// Test the inequality constraints.
-	for (c_size_type i = m_c_dimension - m_ic_dimension; i < m_c_dimension; ++i) {
-		if (c[i] > 0) {
+	for (c_size_type i = 0; i < m_c_dimension; ++i) {
+		if (!test_constraint(c,i)) {
 			return false;
 		}
 	}
@@ -912,10 +944,10 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
 	double norm1 = 0, norm2 = 0;
 	// Equality constraints.
 	for (c_size_type i = 0; i < m_c_dimension - m_ic_dimension; ++i) {
-		if (c1[i] == 0) {
+		if (test_constraint(c1,i)) {
 			++count1;
 		}
-		if (c2[i] == 0) {
+		if (test_constraint(c2,i)) {
 			++count2;
 		}
 		norm1 += std::abs(c1[i]) * std::abs(c1[i]);
@@ -923,12 +955,12 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
 	}
 	// Inequality constraints.
 	for (c_size_type i = m_c_dimension - m_ic_dimension; i < m_c_dimension; ++i) {
-		if (c1[i] <= 0) {
+		if (test_constraint(c1,i)) {
 			++count1;
 		} else {
 			norm1 += c1[i] * c1[i];
 		}
-		if (c2[i] <= 0) {
+		if (test_constraint(c2,i)) {
 			++count2;
 		} else {
 			norm2 += c2[i] * c2[i];
@@ -1125,8 +1157,6 @@ void base::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jG
  * near \f$ x_{0_j}\f$ but not globally, for such a discontinuous problem estimate_pattern would provide a false gradient information
  * The function intended use is in the reimplementation of set_sparsity, thuse its protected attribute
  */
-
-
 void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const {
 	// We check that the user is providing a decision vector that is of the required length
 	if (!verify_x(x0)) {
