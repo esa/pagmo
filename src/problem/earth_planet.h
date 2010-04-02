@@ -45,7 +45,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE earth_planet: public base
 {
 	public:
-		earth_planet(int, kep_toolbox::planet::common_name);
+		earth_planet(int, kep_toolbox::planet::common_name, const double & = 1E-9);
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

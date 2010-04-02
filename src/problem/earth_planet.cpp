@@ -41,7 +41,7 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-earth_planet::earth_planet(int segments, planet::common_name planet_id) : base(base_format(1,segments,1000).size(), 0, 1, 6 + segments + 1 +1, segments+2),
+earth_planet::earth_planet(int segments, planet::common_name planet_id, const double &ctol) : base(base_format(1,segments,1000).size(), 0, 1, 6 + segments + 1 +1, segments+2,ctol),
  encoding(1,segments,1000), vmax(3000),n_segments(segments)
 {
 	std::vector<double> lb_v(get_dimension());
