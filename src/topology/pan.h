@@ -31,6 +31,13 @@ namespace pagmo { namespace topology {
 
 /// Pan graph topology.
 /**
+ * \image html pan_graph.png "Pan graph topologies."
+ * \image latex pan_graph.png "Pan graph topologies." width=5cm
+ *
+ * The n-pan graph is the graph obtained by joining a cycle graph (i.e., a topology::ring topology) to a singleton graph with a bridge.
+ * This implementation has bidirectional edges in the ring and a single edge towards the singleton, so that communication can flow from
+ * the ring to the singleton, but not vice-versa. The index of the singleton vertex is always 0.
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE pan: public base
