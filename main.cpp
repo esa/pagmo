@@ -38,8 +38,8 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::nlopt_cobyla algo(100,1e-10);
-	//algo.screen_output(true);
+	algorithm::ipopt algo(1000,1e-10,1e-2,1e-10);
+	algo.screen_output(true);
 	//algo.file_output(true);
 	//problem::earth_planet prob(1,kep_toolbox::planet::MARS);
 	problem::earth_planet prob(10,kep_toolbox::planet::MARS);
@@ -49,10 +49,10 @@ int main()
 
 	for (int i=0; i< 1; ++i){
 		isl.evolve(); isl.join();
-		std::cout << isl.get_population().get_individual(0).best_f << " " << problem::objfun_calls() << std::endl;
+		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
 	}
 	std::vector<double> c(18);
-	prob.compute_constraints(c,isl.get_population().get_individual(0).cur_x);
-	std::cout << isl.get_population().get_individual(0).cur_x << std::endl;
+	prob.compute_constraints(c,isl.get_population().champion().x);
+	std::cout << isl.get_population().champion().x << std::endl;
 	std::cout << c << std::endl;
 }

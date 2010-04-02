@@ -44,12 +44,12 @@ namespace pagmo { namespace algorithm {
  * @param[in] stop number of consecutive step allowed without any improvement
  * @param[in] perturb At the end of one iteration of mbh, each chromosome of each population individual
  * will be perturbed by +-perturb*(ub - lb)
- * @throws value_error if stop is not positive or perturb is not in ]0,1]
+ * @throws value_error if stop is negative or perturb is not in ]0,1]
  */
 mbh::mbh(base local, int, stop, double perturb):base(),m_stop(stop),m_perturb(perturb)
 {
 	m_local = local.clone();
-	if (stop <= 0) {
+	if (stop < 0) {
 		pagmo_throw(value_error,"number of consecutive step allowed without any improvement needs to be positive");
 	}
 	if (perturb <= 0 || perturb > 1) {
@@ -79,247 +79,38 @@ void mbh::evolve(population &pop) const
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
 
-
-	//We perform some checks to determine wether the problem/population are suitable for DE
-	if ( Dc == 0 ) {
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for DE to optimise");
-	}
-
-	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and DE is not suitable to solve it");
-	}
-
-	if ( prob_f_dimension != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and DE is not suitable to solve it");
-	}
-
-	if (NP < 6) {
-		pagmo_throw(value_error,"for DE at least 6 individuals in the population are needed");
-	}
-
 	// Get out if there is nothing to do.
-	if (NP == 0 || m_gen == 0) {
+	if (stop == 0 || NP == 0) {
 		return;
 	}
-	// Some vectors used during evolution are allocated here.
-	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
-	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
-	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness(1);	//new fitness of the mutaded candidate
-	fitness_vector gbfit(1);	//global best fitness
-	std::vector<fitness_vector> fit(NP,gbfit);
 
-	//We extract from pop the chromosomes and fitness associated
-	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
-		popold[i] = pop.get_individual(i).cur_x;
-		fit[i] = pop.get_individual(i).cur_f;
-	}
-	popnew = popold;
+	// Init the best chromosome, fitness
+	decision_vector best = pop.champion().x;
+	fitness_vector current = pop.champion().f;
 
-	// Initialise the global bests
-	gbX=pop.champion().x;
-	gbfit=pop.champion().f;
-	// container for the best decision vector of generation
-	gbIter = gbX;
+	int i = 0;
 
-	// Main DE iterations
-	size_t r1,r2,r3,r4,r5;	//indexes to the selected population members
-	for (int gen = 0; gen < m_gen; ++gen) {
-		//Start of the loop through the deme
-		for (size_t i = 0; i < NP; ++i) {
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 2 !!!     */
-				r1 = boost::uniform_int<int>(0,NP-1)(m_urng);
-			} while (r1==i);
+	//mbh main loop
 
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 3 !!!     */
-				r2 = boost::uniform_int<int>(0,NP-1)(m_urng);
-			} while ((r2==i) || (r2==r1));
-
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 4 !!!     */
-				r3 = boost::uniform_int<int>(0,NP-1)(m_urng);
-			} while ((r3==i) || (r3==r1) || (r3==r2));
-
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 5 !!!     */
-				r4 = boost::uniform_int<int>(0,NP-1)(m_urng);
-			} while ((r4==i) || (r4==r1) || (r4==r2) || (r4==r3));
-
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 6 !!!     */
-				r5 = boost::uniform_int<int>(0,NP-1)(m_urng);
-			} while ((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
-
-
-			/*-------DE/best/1/exp--------------------------------------------------------------------*/
-			/*-------Our oldest strategy but still not bad. However, we have found several------------*/
-			/*-------optimization problems where misconvergence occurs.-------------------------------*/
-			if (m_strategy == 1) { /* strategy DE0 (not in our paper) */
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
-				do {
-					tmp[n] = gbIter[n] + m_f*(popold[r2][n]-popold[r3][n]);
-					n = (n+1)%Dc;
-					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
-			}
-
-			/*-------DE/rand/1/exp-------------------------------------------------------------------*/
-			/*-------This is one of my favourite strategies. It works especially well when the-------*/
-			/*-------"gbIter[]"-schemes experience misconvergence. Try e.g. m_f=0.7 and m_cr=0.5---------*/
-			/*-------as a first guess.---------------------------------------------------------------*/
-			else if (m_strategy == 2) { /* strategy DE1 in the techreport */
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
-				do {
-					tmp[n] = popold[r1][n] + m_f*(popold[r2][n]-popold[r3][n]);
-					n = (n+1)%Dc;
-					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
-			}
-
-			/*-------DE/rand-to-best/1/exp-----------------------------------------------------------*/
-			/*-------This strategy seems to be one of the best strategies. Try m_f=0.85 and m_cr=1.------*/
-			/*-------If you get misconvergence try to increase NP. If this doesn't help you----------*/
-			/*-------should play around with all three control variables.----------------------------*/
-			else if (m_strategy == 3) { /* similiar to DE2 but generally better */
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
-				do {
-					tmp[n] = tmp[n] + m_f*(gbIter[n] - tmp[n]) + m_f*(popold[r1][n]-popold[r2][n]);
-					n = (n+1)%Dc;
-					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
-			}
-			/*-------DE/best/2/exp is another powerful strategy worth trying--------------------------*/
-			else if (m_strategy == 4) {
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
-				do {
-					tmp[n] = gbIter[n] +
-						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
-					n = (n+1)%Dc;
-					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
-			}
-			/*-------DE/rand/2/exp seems to be a robust optimizer for many functions-------------------*/
-			else if (m_strategy == 5) {
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
-				do {
-					tmp[n] = popold[r5][n] +
-						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
-					n = (n+1)%Dc;
-					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
-			}
-
-			/*=======Essentially same strategies but BINOMIAL CROSSOVER===============================*/
-
-			/*-------DE/best/1/bin--------------------------------------------------------------------*/
-			else if (m_strategy == 6) {
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
-				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = gbIter[n] + m_f*(popold[r2][n]-popold[r3][n]);
-					}
-					n = (n+1)%Dc;
-				}
-			}
-			/*-------DE/rand/1/bin-------------------------------------------------------------------*/
-			else if (m_strategy == 7) {
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
-				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = popold[r1][n] + m_f*(popold[r2][n]-popold[r3][n]);
-					}
-					n = (n+1)%Dc;
-				}
-			}
-			/*-------DE/rand-to-best/1/bin-----------------------------------------------------------*/
-			else if (m_strategy == 8) {
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
-				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = tmp[n] + m_f*(gbIter[n] - tmp[n]) + m_f*(popold[r1][n]-popold[r2][n]);
-					}
-					n = (n+1)%Dc;
-				}
-			}
-			/*-------DE/best/2/bin--------------------------------------------------------------------*/
-			else if (m_strategy == 9) {
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
-				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = gbIter[n] +
-							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
-					}
-					n = (n+1)%Dc;
-				}
-			}
-			/*-------DE/rand/2	for (int i = 1; i<n; i++) {		//the int i = 1 jumps the first member as it is already set as the best
-		if (fit[i] < gbfit) {
-			gbfit = fit[i];
-			gbX = X[i];
+	while (i<stop){
+		pop = m_local.evolve(pop); i++;
+		if (prob.compare_fitness(pop.champion().f),current){
+			i = 0;
+			best = pop[0].getDecisionVector();
 		}
-	}/bin--------------------------------------------------------------------*/
-			else if (m_strategy == 10) {
-				tmp = popold[i];
-				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
-				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = popold[r5][n] +
-							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
-					}
-					n = (n+1)%Dc;
-				}
-			}
+		//perturb the population
+
+  49                 for (size_t i=0;i<deme.problem().getDimension();i++){
+
+  50                         current[i] = best[i] + (drng()*2 -1)*perturb*(ub[i]-lb[i]);
+
+  51                         if (current[i] > ub[i]) current[i] = ub[i] - drng() * perturb*(ub[i]-lb[i]);
+
+  52                         if (current[i] < lb[i]) current[i] = lb[i] + drng() * perturb*(ub[i]-lb[i]);;
+
+  53                 }
 
 
-			/*=======Trial mutation now in tmp[]. force feasibility and how good this choice really was.==================*/
-			// a) feasibility
-			size_t i2 = 0;
-			while (i2<Dc) {
-				if ((tmp[i2] < lb[i2]) || (tmp[i2] > ub[i2]))
-					tmp[i2] = boost::uniform_real<double>(lb[i2],ub[i2])(m_drng);
-				++i2;
-			}
-			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
-			//b) how good?
-			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
-				fit[i]=newfitness;
-				popnew[i] = tmp;
-				// As a fitness improvment occured we move the point
-				// and thus can evaluate a velocity
-				std::transform(tmp.begin(), tmp.end(), pop.get_individual(i).cur_x.begin(), tmp.begin(),std::minus<double>());
-				//updates x and v (cache avoids to recompute the objective function)
-				pop.set_x(i,popnew[i]);
-				pop.set_v(i,tmp);
-				if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
-					/* if so...*/
-					gbfit=newfitness;          /* reset gbfit to new low...*/
-					gbX=tmp;
-				}
-			} else {
-				popnew[i] = popold[i];
-			}
-
-		}//End of the loop through the deme
-
-		/* Save best population member of current iteration */
-		gbIter = gbX;
-
-		/* swap population arrays. New generation becomes old one */
-		std::swap(popold, popnew);
-
-
-	}//end main DE iterations
 
 }
 
@@ -329,7 +120,7 @@ void mbh::evolve(population &pop) const
 /**
  * Will return a formatted string displaying the parameters of the algorithm.
  */
-std::string de::human_readable_extra() const
+std::string mbh::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "\tGenerations:\t" << m_gen << '\n';

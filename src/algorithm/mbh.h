@@ -72,7 +72,7 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
-	base m_local;
+	base_ptr m_local;
 	// Consecutive non improving iterations
 	const int m_stop;
 	// Perturbation of the population
