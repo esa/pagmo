@@ -22,19 +22,26 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGIES_H
-#define PAGMO_TOPOLOGIES_H
+#ifndef PAGMO_TOPOLOGY_PAN_H
+#define PAGMO_TOPOLOGY_PAN_H
 
-// Header including all topologies implemented in PaGMO.
+#include "base.h"
 
-#include "topology/barabasi_albert.h"
-#include "topology/custom.h"
-#include "topology/erdos_renyi.h"
-#include "topology/fully_connected.h"
-#include "topology/one_way_ring.h"
-#include "topology/pan.h"
-#include "topology/ring.h"
-#include "topology/unconnected.h"
-#include "topology/watts_strogatz.h"
+namespace pagmo { namespace topology {
+
+/// Pan graph topology.
+/**
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
+class __PAGMO_VISIBLE pan: public base
+{
+	public:
+		pan();
+		base_ptr clone() const;
+	protected:
+		void connect(const vertices_size_type &);
+};
+
+}}
 
 #endif

@@ -22,19 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGIES_H
-#define PAGMO_TOPOLOGIES_H
+#include "base.h"
+#include "pan.h"
 
-// Header including all topologies implemented in PaGMO.
+namespace pagmo { namespace topology {
 
-#include "topology/barabasi_albert.h"
-#include "topology/custom.h"
-#include "topology/erdos_renyi.h"
-#include "topology/fully_connected.h"
-#include "topology/one_way_ring.h"
-#include "topology/pan.h"
-#include "topology/ring.h"
-#include "topology/unconnected.h"
-#include "topology/watts_strogatz.h"
+/// Constructor.
+pan::pan():base() {}
 
-#endif
+base_ptr pan::clone() const
+{
+	return base_ptr(new pan(*this));
+}
+
+void pan::connect(const vertices_size_type &n)
+{
+	switch(n)
+	{
+		case 0:
+			break;
+		case 1:
+			// Add connection from the newly added node to the zeroth.
+			add_edge(1,0);
+			break;
+		case 2:
+			add_edge(1,2);
+			add_edge(2,1);
+			break;
+		case 3:
+			add_edge(2,3);
+			add_edge(3,2);
+			add_edge(1,3);
+			add_edge(3,1);
+			break;
+		default:
+			remove_edge(n - 1,1);
+			remove_edge(1,n - 1);
+			add_edge(n - 1,n);
+			add_edge(n,n - 1);
+			add_edge(1,n);
+			add_edge(n,1);
+	}
+}
+
+}}
