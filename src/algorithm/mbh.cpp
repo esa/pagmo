@@ -115,7 +115,7 @@ void mbh::evolve(population &pop) const
 			for (int k=0; k < Dc; ++k)
 			{
 				dummy = pop.get_individual(j).best_x[k];
-				width = (ub[k]-lb[k]) * m_perturb;
+				width = (ub[k]-lb[k]) * m_perturb / 2;
 				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_drng);
 				dummy = pop.get_individual(j).cur_v[k];
 				tmp_v[k] = boost::uniform_real<double>(dummy-width,dummy+width)(m_drng);
@@ -124,7 +124,7 @@ void mbh::evolve(population &pop) const
 			for (int k=Dc; k < D; ++k)
 			{
 				dummy = pop.get_individual(j).best_x[k];
-				width = (ub[k]-lb[k]) * m_perturb;
+				width = (ub[k]-lb[k]) * m_perturb / 2;
 				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
 				dummy = pop.get_individual(j).cur_v[k];
 				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
@@ -150,7 +150,7 @@ void mbh::screen_output(const bool p) {m_screen_out = p;}
 std::string mbh::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tSelected algorithm:\t\t\t" << typeid(*m_local).name() << '\n';
+	s << "\tSelected sub-algorithm:\t\t\t" << typeid(*m_local).name() << '\n';
 	s << "\tConsecutive not improving iterations:\t" << m_stop << '\n';
 	s << "\tPerturbation width:\t\t\t" << m_perturb << '\n';
 	return s.str();

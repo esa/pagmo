@@ -27,65 +27,76 @@
 
 /*! \mainpage PaGMO (Parallel Global Multiobjective Optimizer)
 \section intro_sec Introduction 
-PaGMO is an implementation of the island model paradigm to parallelize global and local optimization algorithms using multiple threads (tested to up to 10000 threads). It provides a set of C++ classes
+PaGMO is a generalization of the island model paradigm to parallelize global and local optimization algorithms using multiple threads (tested to up to 10000 threads). It provides a set of C++ classes
 and their exposition in Python language as to allow the user to solve, in a parallel fashion, global optimization tasks in the form: \n\n
 <center>
-  \f$
-    \begin{array}{rl}
-    \mbox{find:} & \mathbf x \in R^n \\
-    \mbox{to minimize:} & \mathbf f(\mathbf x, \mathbf s) \\
-    \mbox{subject to:} & \mathbf {lb} \le \mathbf x \le \mathbf {ub}
-    \end{array}
-  \f$
+	\f$
+	\begin{array}{rl}
+	\mbox{find:} & \mathbf x \in R^n \times N^m \\
+	\mbox{to minimize:}	& \mathbf f(\mathbf x, \mathbf s) \\
+	\mbox{subject to:}	& \mathbf {lb} \le \mathbf x \le \mathbf {ub} \\
+				& \mathbf c(\mathbf x) = \mathbf 0 \\
+				& \mathbf c_{in}(\mathbf x) \le \mathbf 0
+	\end{array}
+	\f$
 </center>\n\n
 
 \section algorithms Algorithms currently implemented in PaGMO
 
-A number of algorithms are already implemented in PaGMO and thus immediately available after installation. The user can implement his own algorithms only in C++ and recompiling the code
- 
-- A simple genetic algorithm (SGA)
-- Differential Evolution (DE)
-- Particle Swarm Optimization (PSO)
-- Multiple Particle Swarm optimization (MPSO)
-- Adaptive Neighbourhood Simulated Annealing (AN-SA)
-- Improved Harmony Search (IHS)
-- Nelder-Mead (NM)
-- Compass Search (CS)
+A number of algorithms are already implemented in PaGMO and thus immediately
+available after installation. The user can implement his own algorithms both in C++
+and directly in Python. Check the algorithm documentation to verify whether a particolar problem class
+can be fed to it (i.e. box-constrained or mixed integer etc.)
 
-In the next future, the inclusion of the following algorithms is being discussed: SNOPT, IPOPT, Basin-Hopping, Simulated Annealing.
- 
+- A simple genetic algorithm (pagmo::algorithm::sga)
+- Differential Evolution (pagmo::algorithm::de)
+- Particle Swarm Optimization (pagmo::algorithm::pso)
+- Adaptive Neighbourhood Simulated Annealing (pagmo::algorithm::sa_corana)
+- Improved Harmony Search (pagmo::algorithm::ihs)
+- Compass Search (pagmo::algorithm::cs)
+- Monotonic Basin Hopping (pagmo::algorithm::mbh)
+- Multistart (pagmo::algorithm::ms)
+- Monte-Carlo (pagmo::algorithm::monte_carlo)
+
+Other algorithm are available via third parties libraries, and can be included activating the respective
+options in ccmake, in particular:
+
+- GSL library (open-source) -- includes Nelder-Mead, BFGS and more
+- NLOPT library (open-source) -- includes bobyqa, cobyla and more
+- IPOPT library (open-source) -- includes IPOPT, see pagmo::algorithm::ipopt
+- SNOPT library (commercial) -- includes SNOPT, see pagmo::algorithm::snopt
+
+When working only in Python the scipy algorithms are available too
+
 \section problems Problems currently implemented in PaGMO
 
-A number of GO problems are already implemented in PaGMO and thus immediately available after installation. The user can implement his own problems only in C++ and recompiling the code.
+A number of global otimization problems are already implemented in PaGMO and thus
+immediately available after installation. The user can implement his own problems both in C++ or
+directly in Python.
 
 - Classical Test Problems
- - Continuous and box bounded
-  - Ackley
+ - Continuous, box bounded
+  - Paraboloid
   - Rastrigin
   - Rosenbrock
+  - Schwefel
   - Griewank
   - Lennard-Jones
   - Levy
+  - HimmelBlau
+ - Continuous, constrained
+  - From Luksan-Vlcek book (3 problems)
+  - Toy-problem from SNOPT manual
+ - Integer Programming
+  - Golomb Ruler
+  - Knapsack Problem
+ - Multi-objective, continuous, box-constrained
+  - The SCH and FON problems from nsga-II
  - Stochastic, continuous and box bounded
-  - Inventory Problem
+  - xxx
 - Engineering Problems
-  - Interplanetary Trajectories (from the GTOP database)
-   - MGA type of problems
-    - GTOC1 
-    - Cassini1
-   - MGA-DSM type of problems
-    - Messenger, MessengerFull
-    - Cassini2
-    - TandEM
-    - Laplace
-    - Rosetta
-   - Low-Thrust type of problems
-    - Earth-Mars (Impulsive Transcription)
-    - Earth-Mars (Constant-Thrust Transcription)
-  - Evolutionary Robotics Problems
-    - Twodee (requires thrid-party console application)
-    - Marsrover (requires third-party console application)
-
+  - All problems from the GTOP database
+  - An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
 
 \section install Installation guide
 

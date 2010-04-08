@@ -37,15 +37,16 @@ namespace pagmo { namespace algorithm {
 /// Monotonic Basin Hopping (generalized)
 /**
  *
- * \image html mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape".
- * \image latex mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape". width=5cm
+ * \image html mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape."
+ * \image latex mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape." width=5cm
  *
  * Monotonic basin hopping, or simply, basin hopping, is an algorithm rooted in the idea of transforming each
  * the objective function at \f$\mathbf x\f$ into the local minima found starting from \f$\mathbf x\f$
  * This simple idea allowed a substantial increase of efficiency in solving problems, such as the Lennard-Jones
  * cluster or the MGA-DSM interplanetary trajectory problem that are conjectured to have a so-called funnel structure.
  *
- * In PaGMO we provide an original generalization of the method to operate on pagmo::population and using any pagmo::algorithm.
+ * In PaGMO we provide an original generalization of the method that operates on any pagmo::population using any pagmo::algorithm.
+ * When a population containing a single individual is used and coupled with a local optimizer, the original method is recovered.
  * The pseudo code of the generalized version is:
 @verbatim
 > Select a pagmo::population
