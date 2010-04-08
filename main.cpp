@@ -32,27 +32,24 @@
 #include "src/island.h"
 #include "src/problems.h"
 #include "src/topologies.h"
-#include "src/keplerian_toolbox/planet.h"
+#include "src/topologies.h"
+#include "src/problem/base.h"
 
 using namespace pagmo;
 
 int main()
 {
-	algorithm::ipopt algo(1000,1e-10,1e-2,1e-10);
-	algo.screen_output(true);
-	//algo.file_output(true);
-	//problem::earth_planet prob(1,kep_toolbox::planet::MARS);
-	problem::earth_planet prob(10,kep_toolbox::planet::MARS);
-	island isl = island(prob,algo,1);
+	algorithm::ipopt algo(30,1.,1.,1e-8);
+	algorithm::mbh algo2(algo,50,0.05);
+	algo2.screen_output(false);
+	problem::cassini_1 prob;
+	island isl = island(prob,algo2,1);
 	std::cout << prob << std::endl;
+	std::cout << algo2 << std::endl;
 
-
-	for (int i=0; i< 1; ++i){
+	for (int i=0; i< 20; ++i){
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
 	}
-	std::vector<double> c(18);
-	prob.compute_constraints(c,isl.get_population().champion().x);
-	std::cout << isl.get_population().champion().x << std::endl;
-	std::cout << c << std::endl;
+	return 0;
 }

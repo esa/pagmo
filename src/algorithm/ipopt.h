@@ -43,6 +43,10 @@ namespace pagmo { namespace algorithm {
  * over only a few IPOPT options, take care in particular of the dual_inf_tol as the hessian_approximation,
  * limited_memory option (i.e. hessian is not provided by the user) makes the dual_inf to remain quite high.
  *
+ * CAREFUL:
+ *	1 - IPOPT works only for minimization.
+ *	2 - The final solution is guaranteed to be within the box constraints by forcing it after the ipopt call
+ *
  * IPOPT has severa lib dependencies that overlaps with SNOPT lib dependencies. Take care that you link
  * to the correct ones, especially for the blas lib that can give problem if coming from SNOPT native source code
  *

@@ -36,6 +36,7 @@
 #include "algorithm/pso.h"
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
+#include "algorithm/mbh.h"
 
 
 // SNOPT algorithm.

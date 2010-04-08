@@ -327,7 +327,9 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 		pagmo_throw(index_error,"invalid individual position");
 	}
 	if (!m_prob->verify_x(x)) {
+		std::cout << x << std::endl;
 		pagmo_throw(value_error,"decision vector is not compatible with problem");
+
 	}
 	// Set decision vector.
 	m_container[idx].cur_x = x;

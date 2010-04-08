@@ -66,9 +66,10 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mbh: public base
 {
 public:
-	mbh(base local, int stop = 50, double perturb = 5e-2);
+	mbh(const algorithm::base &, int stop = 50, double perturb = 5e-2);
 	base_ptr clone() const;
 	void evolve(population &) const;
+	void screen_output(const bool);
 protected:
 	std::string human_readable_extra() const;
 private:
@@ -77,6 +78,8 @@ private:
 	const int m_stop;
 	// Perturbation of the population
 	const double m_perturb;
+	// Activate screen output
+	bool m_screen_out;
 
 };
 
