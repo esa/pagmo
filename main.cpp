@@ -39,11 +39,11 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::snopt algo(50,1e-8,1e-8);
+	algorithm::snopt algo(500,1e-8,1e-8);
 	algo.screen_output(false);
-	algorithm::mbh algo2(algo,50,0.01);
+	algorithm::mbh algo2(algo,2000,0.3);
 	algo2.screen_output(true);
-	problem::levy5 prob(100);
+	problem::messenger_full prob;
 	island isl = island(prob,algo2,1);
 	std::cout << prob << std::endl;
 	std::cout << algo2 << std::endl;

@@ -36,6 +36,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match_mo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
@@ -56,10 +57,14 @@ SET(PAGMO_LIB_SRC_LIST
 # Additional files for the GTOP problems
 SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/misc4Tandem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Pl_Eph_An.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Lambert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/time2distance.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/epoch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp

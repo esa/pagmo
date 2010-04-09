@@ -31,7 +31,7 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 # Configuration for MSVC.
 IF(MSVC)
-	MESSAGE(STATUS "Enabling MSVC atomic builtins.")
+	MESSAGE(STATUS "Enabling MSVC atomic builtins")
 	ADD_DEFINITIONS(-D_PAGMO_MSVC_ATOMIC_BUILTINS)
 ENDIF(MSVC)
 

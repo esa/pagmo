@@ -26,7 +26,6 @@
 #define MGA_DSM_H
 
 #include <vector>
-
 #include "mga.h"
 
 class mgadsmproblem {
@@ -59,11 +58,11 @@ public:
 		}
 	}
 	const size_t size;
-	int type;							//problem type
+	int type;						//problem type
 	std::vector<int> sequence;				//fly-by sequence (ex: 3,2,3,3,5,is Earth-Venus-Earth-Earth-Jupiter)
-	double e;							//insertion e (only in case total_DV_orbit_insertion)
-	double rp;							//insertion rp in km (only in case total_DV_orbit_insertion)
-	customobject asteroid;			//asteroid data (in case fly-by sequence has a final number = 10)
+	double e;						//insertion e (only in case total_DV_orbit_insertion)
+	double rp;						//insertion rp in km (only in case total_DV_orbit_insertion)
+	customobject asteroid;					//asteroid data (in case fly-by sequence has a final number = 10)
 	double AUdist;						//Distance to reach in AUs (only in case of time2AUs)
 	double DVtotal;						//Total DV allowed in km/s (only in case of time2AUs)
 	double DVonboard;					//Total DV on the spacecraft in km/s (only in case of time2AUs)

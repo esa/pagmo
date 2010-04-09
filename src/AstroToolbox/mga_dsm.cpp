@@ -23,8 +23,6 @@
  *****************************************************************************/
 
 #include <cmath>
-
-#include "../constants.h"
 #include "Astro_Functions.h"
 #include "Lambert.h"
 #include "mga_dsm.h"
