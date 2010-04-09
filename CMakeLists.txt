@@ -14,9 +14,11 @@ SET(MANDATORY_LIBRARIES "")
 IF(CMAKE_COMPILER_IS_GNUCXX)
 	# Add to the base flags extra warnings, and set up message reporting from the compiler so that it is Eclipse-friendly.
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0")
+	# Additional flags to turn off some GCC warnings that in practice clutter the compilation output.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-field-initializers -fno-strict-aliasing -Wno-deprecated")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
-	# ic builtins for GCC.
+	# Atomic builtins for GCC.
 	TRY_COMPILE(WORKING_ATOMIC_BUILTINS ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gcc_atomic_builtins_test.cpp COMPILE_DEFINITIONS ${CMAKE_CCXX_FLAGS})
 	IF(WORKING_ATOMIC_BUILTINS)
 		MESSAGE(STATUS "GCC is correctly setup to support atomic builtins.")
@@ -53,7 +55,7 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: minimisers from the GNU scientific library (GSL).
-OPTION(ENABLE_GSL "Enable support for GSL minimzers." OFF)
+OPTION(ENABLE_GSL "Enable support for GSL minimzers (requires GSL >= 1.13)." OFF)
 
 # Build Option: algorithms from the NLopt library.
 OPTION(ENABLE_NLOPT "Enable support for NLopt algorithms." OFF)
@@ -67,14 +69,27 @@ OPTION(ENABLE_IPOPT "Enable support for IPOPT minimzer." OFF)
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
 	FIND_LIBRARY(GSL_GSL_LIBRARY NAMES gsl)
-	FIND_PATH(GSL_INCLUDE_DIR NAMES gsl/gsl_vector.h)
+	FIND_PATH(GSL_INCLUDE_DIR NAMES gsl/gsl_version.h)
 	IF(NOT GSL_GSL_LIBRARY OR NOT GSL_INCLUDE_DIR)
 		MESSAGE(FATAL_ERROR "GSL support was requested, but the library could not be located.")
 	ENDIF(NOT GSL_GSL_LIBRARY OR NOT GSL_INCLUDE_DIR)
 	MESSAGE(STATUS "GSL library: ${GSL_GSL_LIBRARY}")
 	MESSAGE(STATUS "GSL include dir: ${GSL_INCLUDE_DIR}")
+	MESSAGE(STATUS "Running the GSL version checker.")
+	TRY_RUN(SUFFICIENT_GSL_VERSION_RUN SUFFICIENT_GSL_VERSION_COMPILE ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gsl_version.cpp
+		COMPILE_DEFINITIONS "${CMAKE_CCXX_FLAGS} -I\"${CMAKE_SOURCE_DIR}/external_headers\" -I\"${GSL_INCLUDE_DIR}\"" RUN_OUTPUT_VARIABLE SUFFICIENT_GSL_VERSION_OUTPUT)
+	MESSAGE(STATUS "GSL version checker output: ${SUFFICIENT_GSL_VERSION_OUTPUT}")
+	IF(NOT SUFFICIENT_GSL_VERSION_COMPILE)
+		MESSAGE(FATAL_ERROR "Error compiling the GSL version checker.")
+	ENDIF(NOT SUFFICIENT_GSL_VERSION_COMPILE)
+	IF(NOT ${SUFFICIENT_GSL_VERSION_RUN} EQUAL 0)
+		MESSAGE(FATAL_ERROR "Error running the GSL version checker: either the GSL version is < 1.13 or your GSL installation is broken.")
+	ELSE(NOT ${SUFFICIENT_GSL_VERSION_RUN} EQUAL 0)
+		MESSAGE(STATUS "GSL version is fine.")
+	ENDIF(NOT ${SUFFICIENT_GSL_VERSION_RUN} EQUAL 0)
 	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${GSL_GSL_LIBRARY})
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_GSL)
+	INCLUDE_DIRECTORIES("${GSL_INCLUDE_DIR}")
 ENDIF(ENABLE_GSL)
 
 # If NLopt support is requested, look for the library.
@@ -88,6 +103,7 @@ IF(ENABLE_NLOPT)
 	MESSAGE(STATUS "NLopt include dir: ${NLOPT_INCLUDE_DIR}")
 	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${NLOPT_LIBRARY})
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_NLOPT)
+	INCLUDE_DIRECTORIES("${NLOPT_INCLUDE_DIR}")
 ENDIF(ENABLE_NLOPT)
 
 # If SNOPT support is requested, look for the libraries.
@@ -138,19 +154,20 @@ ENDIF(ENABLE_SNOPT)
 # If IPOPT support is requested, look for the libraries.
 IF(ENABLE_IPOPT)
 	FIND_LIBRARY(IPOPT_LIBRARY NAMES ipopt)
+	FIND_LIBRARY(LAPACK_LIBRARY NAMES lapack)
 	FIND_PATH(IPOPT_INCLUDE_DIR NAMES coin/IpTNLP.hpp)
-	IF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
-		MESSAGE(FATAL_ERROR "IPOPT support was requested, but the library could not be located. Please make sure that you have ipopt library and the headers installed in the default coin/ directory")
-	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
+	IF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR OR NOT LAPACK_LIBRARY)
+		MESSAGE(FATAL_ERROR "IPOPT support was requested, but (one of) the libraries could not be located. Please make sure that you have ipopt library and the headers installed in the default coin/ directory")
+	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR OR NOT LAPACK_LIBRARY)
 	MESSAGE(STATUS "IPOPT library: ${IPOPT_LIBRARY}")
-	MESSAGE(STATUS "NLopt include dir: ${IPOPT_INCLUDE_DIR}")
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} lapack)
+	MESSAGE(STATUS "IPOPT include dir: ${IPOPT_INCLUDE_DIR}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARY})
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_IPOPT)
+	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 ENDIF(ENABLE_IPOPT)
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
-INCLUDE_DIRECTORIES("/sw/include")
 
 # Some common platform switches.
 SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
