@@ -26,6 +26,7 @@
 #include <boost/python/enum.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
+#include <boost/utility.hpp>
 
 #include "../../src/migration.h"
 #include "../exceptions.h"
@@ -33,11 +34,19 @@
 using namespace boost::python;
 using namespace pagmo;
 
-template <class MPolicy>
-static inline class_<MPolicy> migration_policy_wrapper(const char *name, const char *descr)
+template <class MSPolicy>
+static inline class_<MSPolicy,bases<migration::base_s_policy> > migration_s_policy_wrapper(const char *name, const char *descr)
 {
-	class_<MPolicy> retval(name,descr,init<const MPolicy &>());
-	retval.def("__copy__", &MPolicy::clone);
+	class_<MSPolicy,bases<migration::base_s_policy> > retval(name,descr,init<const MSPolicy &>());
+	retval.def("__copy__", &MSPolicy::clone);
+	return retval;
+}
+
+template <class MRPolicy>
+static inline class_<MRPolicy,bases<migration::base_r_policy> > migration_r_policy_wrapper(const char *name, const char *descr)
+{
+	class_<MRPolicy,bases<migration::base_r_policy> > retval(name,descr,init<const MRPolicy &>());
+	retval.def("__copy__", &MRPolicy::clone);
 	return retval;
 }
 
@@ -52,18 +61,24 @@ BOOST_PYTHON_MODULE(_migration) {
 
 	// Expose migration selection policies.
 
+	// Base.
+	class_<migration::base_s_policy,boost::noncopyable>("base_s_policy",no_init);
+
 	// Best selection policy.
-	migration_policy_wrapper<migration::best_s_policy>("best_s_policy","Best migration selection policy.")
+	migration_s_policy_wrapper<migration::best_s_policy>("best_s_policy","Best migration selection policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
 
 	// Expose migration replacement policies.	
 
+	// Base.
+	class_<migration::base_r_policy,boost::noncopyable>("base_r_policy",no_init);
+
 	// Fair replacement policy.
-	migration_policy_wrapper<migration::fair_r_policy>("fair_r_policy","Fair migration replacement policy.")
+	migration_r_policy_wrapper<migration::fair_r_policy>("fair_r_policy","Fair migration replacement policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
 
 	// Random replacement policy.
-	migration_policy_wrapper<migration::random_r_policy>("random_r_policy","Random migration replacement policy.")
+	migration_r_policy_wrapper<migration::random_r_policy>("random_r_policy","Random migration replacement policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
 
 	// Register to_python conversion from smart pointer.

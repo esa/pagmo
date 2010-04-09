@@ -177,6 +177,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
 		.def("push_back", &archipelago::push_back,"Append island.")
 		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
+		.def("dump_migr_history", &archipelago::dump_migr_history)
+		.def("clear_migr_history", &archipelago::clear_migr_history)
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
 
 	// Archipelago's migration strategies.
