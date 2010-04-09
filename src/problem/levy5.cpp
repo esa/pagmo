@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,35 +22,59 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "levy5.h"
 
-using namespace pagmo;
+namespace pagmo { namespace problem {
 
-int main()
+/// Constructor from dimension.
+/**
+ * Will construct an n dimensional Levy problem.
+ *
+ * @param[in] n integer dimension of the problem.
+ *
+ * @see problem::base constructors.
+ */
+levy5::levy5(int n):base(n)
 {
-	algorithm::snopt algo(50,1e-8,1e-8);
-	algo.screen_output(false);
-	algorithm::mbh algo2(algo,50,0.01);
-	algo2.screen_output(true);
-	problem::levy5 prob(100);
-	island isl = island(prob,algo2,1);
-	std::cout << prob << std::endl;
-	std::cout << algo2 << std::endl;
-
-	for (int i=0; i< 1; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
+	// Set bounds.
+	set_lb(-100);
+	set_ub(100);
 }
+
+/// Clone method.
+base_ptr levy5::clone() const
+{
+	return base_ptr(new levy5(*this));
+}
+
+/// Implementation of the objective function.
+void levy5::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 1);
+	decision_vector::size_type n = x.size();
+	double isum = 0.0;
+	double jsum = 0.0;
+	double ret;
+
+	for ( decision_vector::size_type j=0; j<n; j+=2 ) {
+		for ( int i=1; i<=5; i++ ) {
+			isum += (double)(i) * cos((double)(i-1)*x[j] + (double)(i));
+			jsum += (double)(i) * cos((double)(i+1)*x[j+1] + (double)(i));
+		}
+	}
+
+	ret = isum*jsum;
+	for ( decision_vector::size_type j=0; j<n; j+=2 )
+		ret += pow(x[j]+1.42513,2) + pow(x[j+1]+0.80032,2);
+
+	f[0] = ret;
+
+}
+
+}} //namespaces

@@ -43,10 +43,10 @@ namespace pagmo { namespace algorithm {
  * @param[in] local pagmo::algorithm to use as 'local' optimization method
  * @param[in] stop number of consecutive step allowed without any improvement
  * @param[in] perturb At the end of one iteration of mbh, each chromosome of each population individual
- * will be perturbed by +-perturb*(ub - lb)
+ * will be perturbed by +-perturb*(ub - lb), the same for the velocity. The integer part is treated the same way.
  * @throws value_error if stop is negative or perturb is not in ]0,1]
  */
-mbh::mbh(base local, int, stop, double perturb):base(),m_stop(stop),m_perturb(perturb)
+mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(perturb)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -74,47 +74,74 @@ void mbh::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
-	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
+	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
 
 	// Get out if there is nothing to do.
-	if (stop == 0 || NP == 0) {
+	if (m_stop == 0 || NP == 0) {
 		return;
 	}
 
-	// Init the best chromosome, fitness
-	decision_vector best = pop.champion().x;
-	fitness_vector current = pop.champion().f;
+	// Some dummies and temporary variables
+	decision_vector tmp_x(D), tmp_v(D);
+	double dummy, width;
+
+	// Init the best chromosome and reset counter
+	decision_vector best_x = pop.champion().x;
 
 	int i = 0;
 
 	//mbh main loop
 
-	while (i<stop){
-		pop = m_local.evolve(pop); i++;
-		if (prob.compare_fitness(pop.champion().f),current){
+	while (i<m_stop){
+		//1. Evolve population with selected algorithm
+		m_local->evolve(pop); i++;
+
+		//2. Reset counter if champion is improved
+		if (pop.champion().x != best_x) {
+			if (m_screen_out)
+			{
+				std::cout << "Improved after: " << i << "\tBest-so-far: " << pop.champion().f <<std::endl;
+			}
 			i = 0;
-			best = pop[0].getDecisionVector();
+			best_x = pop.champion().x;
+			}
+
+		//3. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
+		for (int j =0; j < NP; ++j)
+		{
+			for (int k=0; k < Dc; ++k)
+			{
+				dummy = pop.get_individual(j).best_x[k];
+				width = (ub[k]-lb[k]) * m_perturb / 2;
+				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_drng);
+				dummy = pop.get_individual(j).cur_v[k];
+				tmp_v[k] = boost::uniform_real<double>(dummy-width,dummy+width)(m_drng);
+			}
+
+			for (int k=Dc; k < D; ++k)
+			{
+				dummy = pop.get_individual(j).best_x[k];
+				width = (ub[k]-lb[k]) * m_perturb / 2;
+				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
+				dummy = pop.get_individual(j).cur_v[k];
+				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
+			}
+			pop.set_x(j,tmp_x);
+			pop.set_v(j,tmp_v);
 		}
-		//perturb the population
-
-  49                 for (size_t i=0;i<deme.problem().getDimension();i++){
-
-  50                         current[i] = best[i] + (drng()*2 -1)*perturb*(ub[i]-lb[i]);
-
-  51                         if (current[i] > ub[i]) current[i] = ub[i] - drng() * perturb*(ub[i]-lb[i]);
-
-  52                         if (current[i] < lb[i]) current[i] = lb[i] + drng() * perturb*(ub[i]-lb[i]);;
-
-  53                 }
-
-
-
+	}
 }
 
-
+/// Activate screen output
+/**
+ * Activate MBH screen output
+ *
+ * @param[in] p true or false
+ */
+void mbh::screen_output(const bool p) {m_screen_out = p;}
 
 /// Extra human readable algorithm info.
 /**
@@ -123,10 +150,9 @@ void mbh::evolve(population &pop) const
 std::string mbh::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tGenerations:\t" << m_gen << '\n';
-	s << "\tWeight parameter (F):\t\t" << m_f << '\n';
-	s << "\tCrossover parameter (CR):\t" << m_cr << '\n';
-	s << "\tStrategy selected:\t" << m_strategy << '\n';
+	s << "\tSelected sub-algorithm:\t\t\t" << typeid(*m_local).name() << '\n';
+	s << "\tConsecutive not improving iterations:\t" << m_stop << '\n';
+	s << "\tPerturbation width:\t\t\t" << m_perturb << '\n';
 	return s.str();
 }
 

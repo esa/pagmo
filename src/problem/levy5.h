@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,35 +22,32 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_PROBLEM_LEVY5_H
+#define PAGMO_PROBLEM_LEVY5_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+#include "../types.h"
+#include "base.h"
 
-using namespace pagmo;
+namespace pagmo{ namespace problem {
 
-int main()
+/// The Levy5 problem.
+/**
+ *
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the generalised n-dimensional Levy5 function:
+ *
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+
+class __PAGMO_VISIBLE levy5 : public base
 {
-	algorithm::snopt algo(50,1e-8,1e-8);
-	algo.screen_output(false);
-	algorithm::mbh algo2(algo,50,0.01);
-	algo2.screen_output(true);
-	problem::levy5 prob(100);
-	island isl = island(prob,algo2,1);
-	std::cout << prob << std::endl;
-	std::cout << algo2 << std::endl;
+	public:
+		levy5(int);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
 
-	for (int i=0; i< 1; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
-}
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_LEVY_H

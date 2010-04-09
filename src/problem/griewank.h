@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,35 +22,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_PROBLEM_GRIEWANK_H
+#define PAGMO_PROBLEM_GRIEWANK_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+#include "../types.h"
+#include "base.h"
 
-using namespace pagmo;
+namespace pagmo{ namespace problem {
 
-int main()
+/// The Griewank problem.
+/**
+ * \image html griewank.jpg "Two-dimensional Griewank function."
+ * \image latex griewank.jpg "Two-dimensional Griewank function." width=5cm
+ *
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the generalised n-dimensional Griewank function:
+ * \f[
+ * 	F\left(x_1,\ldots,x_n\right) = \sum_{i=1}^n x_i^2 / 4000 - \prod_{i=1}^n\cos\frac{x_i}{\sqrt{i}}, \quad x_i \in \left[ -600,600 \right].
+ * \f]
+ * The global minimum is in \f$x_i=0\f$, where \f$ F\left( 0,\ldots,0 \right) = 0 \f$.
+ *
+ * @see http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO.htm
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+
+class __PAGMO_VISIBLE griewank : public base
 {
-	algorithm::snopt algo(50,1e-8,1e-8);
-	algo.screen_output(false);
-	algorithm::mbh algo2(algo,50,0.01);
-	algo2.screen_output(true);
-	problem::levy5 prob(100);
-	island isl = island(prob,algo2,1);
-	std::cout << prob << std::endl;
-	std::cout << algo2 << std::endl;
+	public:
+		griewank(int);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
 
-	for (int i=0; i< 1; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
-}
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_GRIEWANK_H

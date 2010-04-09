@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,35 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "griewank.h"
 
-using namespace pagmo;
+namespace pagmo { namespace problem {
 
-int main()
+/// Constructor from dimension.
+/**
+ * Will construct an n dimensional Griewank problem.
+ *
+ * @param[in] n integer dimension of the problem.
+ *
+ * @see problem::base constructors.
+ */
+griewank::griewank(int n):base(n)
 {
-	algorithm::snopt algo(50,1e-8,1e-8);
-	algo.screen_output(false);
-	algorithm::mbh algo2(algo,50,0.01);
-	algo2.screen_output(true);
-	problem::levy5 prob(100);
-	island isl = island(prob,algo2,1);
-	std::cout << prob << std::endl;
-	std::cout << algo2 << std::endl;
-
-	for (int i=0; i< 1; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
+	// Set bounds.
+	set_lb(-600);
+	set_ub(600);
 }
+
+/// Clone method.
+base_ptr griewank::clone() const
+{
+	return base_ptr(new griewank(*this));
+}
+
+/// Implementation of the objective function.
+void griewank::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 1);
+	decision_vector::size_type n = x.size();
+	double fr=4000.0;
+	double retval = 0.0;
+	double p = 1.0;
+
+	for (decision_vector::size_type i=0; i<n; i++){ retval += x[i]*x[i];}
+	for (decision_vector::size_type i=0; i<n; i++){ p *= cos(x[i]/sqrt(i+1));}
+	f[0] = (retval/fr - p + 1);
+}
+
+}} //namespaces

@@ -328,6 +328,7 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	}
 	if (!m_prob->verify_x(x)) {
 		pagmo_throw(value_error,"decision vector is not compatible with problem");
+
 	}
 	// Set decision vector.
 	m_container[idx].cur_x = x;

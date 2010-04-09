@@ -287,6 +287,10 @@ void ipopt_problem::finalize_solution(SolverReturn status,
 	int bestidx = m_pop->get_best_idx();
 	pagmo::decision_vector newx = dv;
 	std::transform(dv.begin(), dv.end(), m_pop->get_individual(bestidx).cur_x.begin(), dv.begin(),std::minus<double>());
+	for (int i=0;i<n;i++)
+	{
+		newx[i] = std::min(std::max(m_pop->problem().get_lb()[i],newx[i]),m_pop->problem().get_ub()[i]);
+	}
 	m_pop->set_x(bestidx,newx);
 	m_pop->set_v(bestidx,dv);
 }

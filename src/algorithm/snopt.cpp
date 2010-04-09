@@ -287,10 +287,15 @@ void snopt::evolve(population &pop) const
 	//HERE WE CALL snoptA routine!!!!!
 	SnoptProblem.solve( Cold );
 
-	//Save the final point
-	for (integer i=0;i<n;i++) di_comodo.x[i] = x[i];
+	//Save the final point making sure it is within the linear bounds
+	std::copy(x,x+n,di_comodo.x.begin());
 	decision_vector newx = di_comodo.x;
 	std::transform(di_comodo.x.begin(), di_comodo.x.end(), pop.get_individual(bestidx).cur_x.begin(), di_comodo.x.begin(),std::minus<double>());
+	for (integer i=0;i<n;i++)
+	{
+		newx[i] = std::min(std::max(lb[i],newx[i]),ub[i]);
+	}
+
 	pop.set_x(bestidx,newx);
 	pop.set_v(bestidx,di_comodo.x);
 
