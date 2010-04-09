@@ -36,7 +36,6 @@
 
 #include <cmath>
 
-#include "../constants.h"
 #include "Astro_Functions.h"
 #include "propagateKEP.h"
 #include "time2distance.h"

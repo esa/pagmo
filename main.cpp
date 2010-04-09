@@ -43,7 +43,7 @@ int main()
 	algo.screen_output(false);
 	algorithm::mbh algo2(algo,2000,0.3);
 	algo2.screen_output(true);
-	problem::cassini_1 prob;
+	problem::messenger_full prob;
 	island isl = island(prob,algo2,1);
 	std::cout << prob << std::endl;
 	std::cout << algo2 << std::endl;
