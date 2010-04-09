@@ -42,7 +42,7 @@ namespace pagmo { namespace algorithm {
  * @throws value_error niter is non positive, Ts is greater than Tf, Ts is non positive, Tf is non positive,
  * niterT or niterR are negative, range is not in the [0,1] interval
  */
-sa_corana::sa_corana(int niter, const double &Ts, const double &Tf, const int niterT, const int niterR, const double range):
+sa_corana::sa_corana(int niter, const double &Ts, const double &Tf, int niterT, int niterR, const double &range):
 		base(),m_niter(niter),m_Ts(Ts),m_Tf(Tf),m_step_adj(niterT),m_bin_size(niterR),m_range(range)
 {
 	if (niter < 0) {

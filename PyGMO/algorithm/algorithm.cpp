@@ -129,6 +129,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::de>("de","Differential evolution algorithm.")
 		.def(init<int,optional<const double &, const double &, int> >());
 
+	// ASA.
+	algorithm_wrapper<algorithm::sa_corana>("sa_corana","Simulated annealing, Corana's version with adaptive neighbourhood.")
+		.def(init<int, const double &, const double &, optional<int,int,const double &> >());
+
 	// GSL algorithms.
 	#ifdef PAGMO_ENABLE_GSL
 

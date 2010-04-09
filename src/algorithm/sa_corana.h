@@ -32,7 +32,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Simulated Annealing, Corana's version with adaptive neighbourhood
+/// Simulated Annealing, Corana's version with adaptive neighbourhood.
 /**
  *
  *
@@ -58,7 +58,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE sa_corana: public base
 {
 public:
-	sa_corana(int niter, const double &Ts, const double &Tf, const int m_step_adj = 1, const int m_bin_size = 20, const double range = 1);
+	sa_corana(int niter, const double &Ts, const double &Tf, int m_step_adj = 1, int m_bin_size = 20, const double &range = 1);
 	base_ptr clone() const;
 	void evolve(population &) const;
 protected:
