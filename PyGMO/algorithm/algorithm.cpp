@@ -31,7 +31,6 @@
 #include "../../src/algorithms.h"
 #include "../../src/population.h"
 #include "../exceptions.h"
-#include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;
@@ -115,7 +114,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Expose algorithms.
 
 	// Null.
-	algorithm_wrapper<algorithm::null>("null","Null algorithm")
+	algorithm_wrapper<algorithm::null>("null","Null algorithm.")
 		.def(init<>());
 
 	// IHS.
