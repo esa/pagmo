@@ -37,7 +37,6 @@
 #include "../../src/problems.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
-#include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;

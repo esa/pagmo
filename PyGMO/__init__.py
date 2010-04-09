@@ -22,5 +22,5 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from core import *
-import algorithm, problem, topology
+import algorithm, migration, problem, topology
 from copy import copy

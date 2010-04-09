@@ -30,7 +30,6 @@
 
 #include "../../src/topologies.h"
 #include "../exceptions.h"
-#include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;
