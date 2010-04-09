@@ -78,6 +78,7 @@
 
 #include "Astro_Functions.h"
 #include "Lambert.h"
+#include "../exceptions.h"
 
 using namespace std;
 
@@ -105,8 +106,7 @@ void LambertI (const double *r1_in, const double *r2_in, double t, const double 
 
 	if (t <= 0)
 	{
-		cout << "ERROR in Lambert Solver: Negative Time in input." << endl;
-		return;
+		pagmo_throw(value_error,"ERROR in Lambert Solver: Negative Time in input.");
 	}
 
 	for (i = 0; i < 3; i++)

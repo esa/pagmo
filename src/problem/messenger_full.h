@@ -40,9 +40,11 @@ namespace pagmo{ namespace problem {
  * resemble the Messenger spacecraft mission profile. The problem is transcribed as an MGA-DSM
  * problem allowing one chemical manouvre per trajectory leg.
  * Fly-by sequence is Earth-Venus-Venus-Mercury-Mercury-Mercury-Mercury.
+ * The problem is also part of the Global Trajectory Optimization database (GTOP)
  *
  * messenger_full is a box constrained single objective, continuous optimization problem of dimension 26.
  *
+ * @see http://www.esa.int/gsp/ACT/inf/op/globopt/MessengerFull.html
  * @see http://www.nasa.gov/mission_pages/messenger/timeline/index.html
  * @author Dario Izzo (dario.izzo@esa.int)
  */

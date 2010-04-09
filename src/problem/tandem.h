@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,35 +22,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_PROBLEM_TANDEM_H
+#define PAGMO_PROBLEM_TANDEM_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
+#include "../AstroToolbox/mga_dsm.h"
+#include "../AstroToolbox/misc4Tandem.h"
+#include "boost/array.hpp"
 
-using namespace pagmo;
+namespace pagmo{ namespace problem {
 
-int main()
+/// TandEM problem
+/**
+ *
+ * @see http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+class __PAGMO_VISIBLE tandem: public base
 {
-	algorithm::ipopt algo(500,1.,1.,1.);
-	algo.screen_output(false);
-	algorithm::mbh algo2(algo,200,0.05);
-	algo2.screen_output(true);
-	problem::tandem prob(6);
-	island isl = island(prob,algo2,1);
-	std::cout << prob << std::endl;
-	std::cout << algo2 << std::endl;
+	public:
+		tandem(const int problemid = 6, const double tof_ = -1);
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
+	private:
+		mgadsmproblem problem;
+		const double tof;
+		mutable vector<double> copy_of_x;
 
-	for (int i=0; i< 1; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
-}
+};
+
+}}
+
+#endif // PAGMO_PROBLEM_TANDEM_H

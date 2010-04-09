@@ -37,6 +37,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match_mo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp

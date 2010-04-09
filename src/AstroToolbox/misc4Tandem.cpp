@@ -15,10 +15,11 @@
 
 //The following data refer to the Launcher Atlas501 performances as given by NASA
  static const double x_atl[9] = {2.5,3,3.5,4,4.5,5,5.5,5.75,6};
- static const double y_atl[13] = {-40, -30,-29,-28.5, -20, -10, 0, 10, 20,28.5,29,30, 40};
- static const double data_atl[13][9] = {
-	{0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0},
+ static const double y_atl[15] = {-90,-40, -30,-29,-28.5, -20, -10, 0, 10, 20,28.5,29,30, 40, 90};
+ static const double data_atl[15][9] = {
+	{1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1},
+	{1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0},
+	{10.0,10.0,10.0,10.0,10.0,10.0,10.0,10.0,10.0},
 	{1160,1100,1010,930,830,740,630,590,550},
 	{2335.0	,2195.0,2035.0,1865.0,1675.0,1480.0,1275.0,1175.0,1075.0},
 	{2335.0	,2195.0,2035.0,1865.0,1675.0,1480.0,1275.0,1175.0,1075.0},
@@ -28,16 +29,17 @@
 	{2335.0	,2195.0,2035.0,1865.0,1675.0,1480.0,1275.0,1175.0,1075.0},
 	{2335.0	,2195.0,2035.0,1865.0,1675.0,1480.0,1275.0,1175.0,1075.0},
 	{1160,1100,1010,930,830,740,630,590,550},
-	{0,0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0,0}
-	};
+	{10.0,10.0,10.0,10.0,10.0,10.0,10.0,10.0,10.0},
+	{1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0},
+	{1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1}
+};
 
 //The following data refer to the Launcher Soyuz-Fregat performances as given by ESOC. The data here and consider
 // an elaborated five impulse strategy to exploit the launcher performances as much as possible.
 static const double x_sf[5] = {1,2,3,4,5};
 static const double y_sf[15] = {-90, -65, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 65, 90};
 static const double data_sf[15][5] = {
-	{0.00000,0.00000,0.00000,0.00000,0.00000},
+	{1e-3,1e-3,1e-3,1e-3,1e-3},
 	{100.00000,100.00000,100.00000,100.00000,100.00000},
 	{1830.50000,1815.90000,1737.70000,1588.00000,1344.30000},
 	{1910.80000,1901.90000,1819.00000,1636.40000,1369.30000},
@@ -51,7 +53,7 @@ static const double data_sf[15][5] = {
 	{1886.90000,1882.20000,1801.00000,1614.60000,1350.50000},
 	{1805.90000,1796.00000,1722.70000,1571.60000,1327.60000},
 	{100.00000,100.00000,100.00000,100.00000,100.00000},
-	{0.00000,0.00000,0.00000,0.00000,0.00000}
+	{1e-3,1e-3,1e-3,1e-3,1e-3}
 	};
 
 int xant(const double &x) {
@@ -111,8 +113,8 @@ double interp2A5(const double &VINF, const double &declination) {
     double retval;
     int v_indx=xantA5(VINF);
     int dec_indx=yantA5(declination);
-    if ((VINF<2.5)||(VINF>6)) return 0;
-    if (fabs(declination)>40) return 0;
+    if ((VINF<2.5)||(VINF>6)) return 0;\
+    if (fabs(declination)>=90) return 0;
 
     double dx = x_atl[v_indx+1]-x_atl[v_indx];
     double dydx = dx * (y_atl[dec_indx+1]-y_atl[dec_indx]);
