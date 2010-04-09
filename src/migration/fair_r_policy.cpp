@@ -62,14 +62,6 @@ struct indirect_individual_sorter
 	const population	&m_pop;
 };
 
-// Our own iota function, to fill iterator range with increasing values.
-template <class ForwardIterator, class T>
-static inline void iota(ForwardIterator first, ForwardIterator last, T value)
-{
-	for (; first != last; ++first, ++value)
-		*first = value;
-}
-
 // Selection implementation.
 std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 	fair_r_policy::select(const std::vector<population::individual_type> &immigrants, const population &dest) const
