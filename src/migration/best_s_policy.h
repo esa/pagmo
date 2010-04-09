@@ -29,6 +29,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "base.h"
 #include "base_s_policy.h"
 
 namespace pagmo { namespace migration {

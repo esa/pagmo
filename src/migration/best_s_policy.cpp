@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "../population.h"
+#include "base.h"
 #include "base_s_policy.h"
 #include "best_s_policy.h"
 

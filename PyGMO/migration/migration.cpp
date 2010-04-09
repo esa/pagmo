@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <boost/python/class.hpp>
+#include <boost/python/enum.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 
@@ -44,21 +45,26 @@ BOOST_PYTHON_MODULE(_migration) {
 	// Translate exceptions for this module.
 	translate_exceptions();
 
+	// Migration rate type enum.
+	enum_<migration::rate_type>("rate_type")
+		.value("absolute",migration::absolute)
+		.value("fractional",migration::fractional);
+
 	// Expose migration selection policies.
 
 	// Best selection policy.
 	migration_policy_wrapper<migration::best_s_policy>("best_s_policy","Best migration selection policy.")
-		.def(init<>());
+		.def(init<optional<const double &, migration::rate_type> >());
 
 	// Expose migration replacement policies.	
 
 	// Fair replacement policy.
 	migration_policy_wrapper<migration::fair_r_policy>("fair_r_policy","Fair migration replacement policy.")
-		.def(init<>());
+		.def(init<optional<const double &, migration::rate_type> >());
 
 	// Random replacement policy.
 	migration_policy_wrapper<migration::random_r_policy>("random_r_policy","Random migration replacement policy.")
-		.def(init<>());
+		.def(init<optional<const double &, migration::rate_type> >());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<migration::base_s_policy_ptr>();

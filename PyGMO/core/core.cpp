@@ -25,6 +25,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
+#include <boost/python/enum.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <vector>
@@ -177,4 +178,13 @@ BOOST_PYTHON_MODULE(_core)
 		.def("push_back", &archipelago::push_back,"Append island.")
 		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
+
+	// Archipelago's migration strategies.
+	enum_<archipelago::distribution_type>("distribution_type")
+		.value("point_to_point",archipelago::point_to_point)
+		.value("broadcast",archipelago::broadcast);
+
+	enum_<archipelago::migration_direction>("migration_direction")
+		.value("source",archipelago::source)
+		.value("destination",archipelago::destination);
 }

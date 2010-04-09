@@ -29,13 +29,20 @@
 
 #include "../population.h"
 #include "../rng.h"
+#include "base.h"
 #include "base_r_policy.h"
 #include "random_r_policy.h"
 
 namespace pagmo { namespace migration {
 
 /// Constructor.
-random_r_policy::random_r_policy():base_r_policy(),m_urng(rng_generator::get<rng_uint32>()) {}
+/**
+ * @param[in] rate migration rate.
+ * @param[in] type migration rate type.
+ *
+ * @see base_r_policy::base_r_policy.
+ */
+random_r_policy::random_r_policy(const double &rate, rate_type type):base_r_policy(rate,type),m_urng(rng_generator::get<rng_uint32>()) {}
 
 base_r_policy_ptr random_r_policy::clone() const
 {

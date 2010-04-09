@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "../population.h"
+#include "base.h"
 #include "base_r_policy.h"
 #include "fair_r_policy.h"
 
@@ -35,7 +36,10 @@ namespace pagmo { namespace migration {
 
 /// Constructor from rate and rate type.
 /**
- * @see base_r_policy::base_r_policy().
+ * @param[in] rate migration rate.
+ * @param[in] type migration rate type.
+ *
+ * @see base_r_policy::base_r_policy.
  */
 fair_r_policy::fair_r_policy(const double &rate, rate_type type):base_r_policy(rate,type) {}
 
