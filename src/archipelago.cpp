@@ -629,7 +629,10 @@ island archipelago::get_island(const size_type &idx) const
 	if (idx >= m_container.size()) {
 		pagmo_throw(index_error,"invalid island index");
 	}
-	return m_container[idx];
+	island retval(m_container[idx]);
+	// The island is no more in an archipelago.
+	retval.m_archi = 0;
+	return retval;
 }
 
 // Synchronise the start of evolution in each island so that all threads are created and initialised
