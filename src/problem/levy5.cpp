@@ -60,7 +60,7 @@ void levy5::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	decision_vector::size_type n = x.size();
 	double isum = 0.0;
 	double jsum = 0.0;
-	double ret;
+	f[0] = 0;
 
 	for ( decision_vector::size_type j=0; j<n; j+=2 ) {
 		for ( int i=1; i<=5; i++ ) {
@@ -69,11 +69,9 @@ void levy5::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		}
 	}
 
-	ret = isum*jsum;
+	f[0] = isum*jsum;
 	for ( decision_vector::size_type j=0; j<n; j+=2 )
-		ret += pow(x[j]+1.42513,2) + pow(x[j+1]+0.80032,2);
-
-	f[0] = ret;
+		f[0] += pow(x[j] + 1.42513,2) + pow(x[j+1] + 0.80032,2);
 
 }
 

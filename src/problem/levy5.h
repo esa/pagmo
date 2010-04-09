@@ -34,7 +34,18 @@ namespace pagmo{ namespace problem {
 /**
  *
  * This is a box-constrained continuous single-objecive problem.
- * The objective function is the generalised n-dimensional Levy5 function:
+ * The objective function is the generalised n-dimensional Levy5 function. This, in two dimensions,
+ * can be written as:
+ *
+ * \f[
+ * 	F\left(x,y) = \sum_{i=1}^5 i\cos[(i-1)x + i]\sum_{j=1}^5 j\cos[(j+1)x + j] +
+	(x+1.42513)^2 + (y+0.00832)^2, x,y \in \left[ -100,100 \right].
+ * \f]
+ *
+ * The global minimum in two dimension is in \f$x=-1.30685, y=-1.424845\f$, where \f$ F = -176.1375 \f$. The function
+ * is here implemented as fully scalable so that it can be instantiated in any dimension.
+ *
+ * @see http://arxiv.org/pdf/physics/0402085
  *
  * @author Dario Izzo (dario.izzo@esa.int)
  */
