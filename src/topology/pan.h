@@ -25,6 +25,7 @@
 #ifndef PAGMO_TOPOLOGY_PAN_H
 #define PAGMO_TOPOLOGY_PAN_H
 
+#include "../config.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
