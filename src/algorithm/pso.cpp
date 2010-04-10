@@ -207,10 +207,10 @@ void pso::evolve(population &pop) const
 
 				//feasibility correction
 				if (X[ii][jj] < lb[jj])
-					X[ii][jj] = boost::uniform_real<double>(lb[ii],ub[ii])(m_drng);
+					X[ii][jj] = boost::uniform_real<double>(lb[jj],ub[jj])(m_drng);
 
 				else if (X[ii][jj] > ub[jj])
-					X[ii][jj] = boost::uniform_real<double>(lb[ii],ub[ii])(m_drng);
+					X[ii][jj] = boost::uniform_real<double>(lb[jj],ub[jj])(m_drng);
 			}
 
 			//We evaluate here the new individual fitness as to be able to update the global best in real time
