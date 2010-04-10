@@ -73,6 +73,7 @@ public:
 	pso(int gen, double omega = 0.65, double eta1 = 2.0, double eta2 = 2.0, double vcoeff = 0.2, int variant = 3);
 	base_ptr clone() const;
 	void evolve(population &) const;
+	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:

@@ -230,6 +230,11 @@ void pso::evolve(population &pop) const
 	} // end of main PSO loop
 }
 
+/// Algorithm name
+std::string pso::get_name() const
+{
+	return "Particle Swarm optimization";
+}
 
 
 /// Extra human readable algorithm info.
