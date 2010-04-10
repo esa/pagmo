@@ -106,6 +106,7 @@ BOOST_PYTHON_MODULE(_topology) {
 	topology_wrapper<topology::unconnected>("unconnected", "Unconnected topology.").def(init<>());
 	topology_wrapper<topology::watts_strogatz>("watts_strogatz", "Watts-Strogatz topology.").def(init<optional<int,const double &,int> >());
 	topology_wrapper<topology::pan>("pan", "Pan graph topology.").def(init<>());
+	topology_wrapper<topology::rim>("rim", "Wheel rim topology.").def(init<>());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<topology::base_ptr>();

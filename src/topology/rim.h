@@ -22,20 +22,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGIES_H
-#define PAGMO_TOPOLOGIES_H
+#ifndef PAGMO_TOPOLOGY_RIM_H
+#define PAGMO_TOPOLOGY_RIM_H
 
-// Header including all topologies implemented in PaGMO.
+#include "../config.h"
+#include "base.h"
 
-#include "topology/barabasi_albert.h"
-#include "topology/custom.h"
-#include "topology/erdos_renyi.h"
-#include "topology/fully_connected.h"
-#include "topology/one_way_ring.h"
-#include "topology/pan.h"
-#include "topology/rim.h"
-#include "topology/ring.h"
-#include "topology/unconnected.h"
-#include "topology/watts_strogatz.h"
+namespace pagmo { namespace topology {
+
+/// Wheel rim topology.
+/**
+ * \image html pan_graph.png "Pan graph topologies."
+ * \image latex pan_graph.png "Pan graph topologies." width=5cm
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
+class __PAGMO_VISIBLE rim: public base
+{
+	public:
+		rim();
+		base_ptr clone() const;
+	protected:
+		void connect(const vertices_size_type &);
+};
+
+}}
 
 #endif

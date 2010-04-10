@@ -22,20 +22,69 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGIES_H
-#define PAGMO_TOPOLOGIES_H
+#include "../exceptions.h"
+#include "base.h"
+#include "rim.h"
 
-// Header including all topologies implemented in PaGMO.
+namespace pagmo { namespace topology {
 
-#include "topology/barabasi_albert.h"
-#include "topology/custom.h"
-#include "topology/erdos_renyi.h"
-#include "topology/fully_connected.h"
-#include "topology/one_way_ring.h"
-#include "topology/pan.h"
-#include "topology/rim.h"
-#include "topology/ring.h"
-#include "topology/unconnected.h"
-#include "topology/watts_strogatz.h"
+rim::rim():base() {}
 
-#endif
+base_ptr rim::clone() const
+{
+	return base_ptr(new rim(*this));
+}
+
+void rim::connect(const vertices_size_type &)
+{
+	// Store frequently-used variables.
+	const vertices_size_type t_size = get_number_of_vertices();
+	pagmo_assert(t_size != 0);
+	switch (t_size) {
+	case 1: {
+			// If the topology was empty, do not do anything.
+			break;
+		}
+	case 2: {
+			add_edge(0,1);
+			add_edge(1,0);
+			break;
+		}
+	case 3: {
+			// Add edge to the center.
+			add_edge(0,2);
+			add_edge(2,0);
+			// Add 1-2 connection.
+			add_edge(1,2);
+			add_edge(2,1);
+			break;
+		}
+	case 4: {
+			// Add edge to the center.
+			add_edge(0,3);
+			add_edge(3,0);
+			// Add 1-3 and 3-2 connections.
+			add_edge(1,3);
+			add_edge(3,1);
+			add_edge(2,3);
+			add_edge(3,2);
+			break;
+		}
+	default: {
+			// Add edge to the center.
+			add_edge(0,t_size - 1);
+			add_edge(t_size - 1,0);
+			// Remove connection (previous last)-first.
+			remove_edge(t_size - 2,1);
+			remove_edge(1,t_size - 2);
+			// Add connection (previous last)-(new last).
+			add_edge(t_size - 2,t_size - 1);
+			add_edge(t_size - 1,t_size - 2);
+			// Add connection (new last)-(first).
+			add_edge(t_size - 1,1);
+			add_edge(1,t_size - 1);
+		}
+	}
+}
+
+}}
