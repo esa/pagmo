@@ -154,12 +154,16 @@ void cs::evolve(population &pop) const
 	pop.set_v(bestidx,x);
 }
 
-
+/// Algorithm name
+std::string cs::get_name() const
+{
+	return "Compass Search";
+}
 
 
 /// Extra human readable algorithm info.
 /**
- * Will return a formatted string displaying the parameters of the algorithm.
+ * @return a formatted string displaying the parameters of the algorithm.
  */
 std::string cs::human_readable_extra() const
 {

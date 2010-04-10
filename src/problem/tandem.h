@@ -30,12 +30,24 @@
 #include "base.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
-#include "boost/array.hpp"
 
 namespace pagmo{ namespace problem {
 
 /// TandEM problem
 /**
+ * This interplanetary trajectory problem has 25 different instances, depending on the fly-by sequence adopted.
+ * The mission data are taken from a joint ESA/NASA working group that performed, together with industrial partners
+ * a preliminary trajectory design during the first months of 2009.
+ * Please refer to http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm to select the proper instance. A default
+ * choice is 6, which corrsponds to an EVEES fly-by sequence. The possibility of adding one additional constraint
+ * on the time-of-flight is given. If such a constraint is specified the components x[4]-x[7] are no longer time of flights
+ * but they represent the percentage of the remaining time of flight to be used in one leg.
+ *
+ * The problem is transcribed as an MGA-DSM problem allowing one chemical manouvre per trajectory leg.
+ * The objective function is defined as \f$ f = -\log(m_f)\f$ where \f$m_f\f$ is the final spacecraft mass.
+ * The problem is also part of the Global Trajectory Optimization database (GTOP)
+ *
+ * tandem is a box constrained single objective, continuous optimization problem of dimension 18.
  *
  * @see http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm
  * @author Dario Izzo (dario.izzo@esa.int)

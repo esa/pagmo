@@ -110,9 +110,9 @@ void mbh::evolve(population &pop) const
 			}
 
 		//3. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
-		for (int j =0; j < NP; ++j)
+		for (population::size_type j =0; j < NP; ++j)
 		{
-			for (int k=0; k < Dc; ++k)
+			for (decision_vector::size_type k=0; k < Dc; ++k)
 			{
 				dummy = pop.get_individual(j).best_x[k];
 				width = (ub[k]-lb[k]) * m_perturb / 2;
@@ -121,7 +121,7 @@ void mbh::evolve(population &pop) const
 				tmp_v[k] = boost::uniform_real<double>(dummy-width,dummy+width)(m_drng);
 			}
 
-			for (int k=Dc; k < D; ++k)
+			for (decision_vector::size_type k=Dc; k < D; ++k)
 			{
 				dummy = pop.get_individual(j).best_x[k];
 				width = (ub[k]-lb[k]) * m_perturb / 2;
@@ -137,21 +137,30 @@ void mbh::evolve(population &pop) const
 
 /// Activate screen output
 /**
- * Activate MBH screen output
+ * Activate screen output. Everytime a new champion is found the following information is printed
+ * on the screen: Number of consecutive non improving iterations, best fitness
  *
  * @param[in] p true or false
  */
 void mbh::screen_output(const bool p) {m_screen_out = p;}
 
+
+/// Algorithm name
+std::string mbh::get_name() const
+{
+	return "Generalized Monotonic Basin Hopping";
+}
+
+
 /// Extra human readable algorithm info.
 /**
- * Will return a formatted string displaying the parameters of the algorithm.
+ * @return a formatted string displaying the parameters of the algorithm.
  */
 std::string mbh::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tSelected sub-algorithm:\t\t\t" << typeid(*m_local).name() << '\n';
-	s << "\tConsecutive not improving iterations:\t" << m_stop << '\n';
+	s << "\tSelected sub-algorithm:\t\t\t" << m_local->get_name() << '\n';
+	s << "\tAllowed not improving iterations:\t" << m_stop << '\n';
 	s << "\tPerturbation width:\t\t\t" << m_perturb << '\n';
 	return s.str();
 }

@@ -60,8 +60,8 @@ const int sequence[5] = {1,1,1,1,1};
 /// Constructor
 /**
 * Instantiates one of the possible TandEM problems
-* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used (default is EVVEJ). Check http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
-* \param[in] tof_ (in years) This is a number setting the constraint on the total time of flight (10 from the GTOP database). If -1 an unconstrained problem is instantiated
+* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used (default is EVEES). Check http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
+* \param[in] tof_ (in years) This is a number setting the constraint on the total time of flight (10 from the GTOP database). If -1 (default) an unconstrained problem is instantiated
 */
 tandem::tandem(const int probid, const double tof_):base(18), problem(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(tof_),copy_of_x(18)
 {
@@ -160,7 +160,14 @@ void tandem::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = -log(m_final);
 }
 
-/// Implementation of the sparsity structure
+/// Implementation of the sparsity structure.
+/**
+ * This is necessary and cannot be left to the automatic algorithm implemented in problem::base
+ * as the numerical difficulties introduced by the objective function definition through a logarithm
+ * makes automated detection unreliable (e.g. also SNOPT algorithm fails).
+ * CLearly, as the problem is box constrained no sarsity is present.
+ */
+
 void tandem::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	lenG=18;

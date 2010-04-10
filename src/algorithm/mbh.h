@@ -71,6 +71,7 @@ public:
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
+	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:

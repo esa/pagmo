@@ -55,4 +55,16 @@ void messenger_full::objfun_impl(fitness_vector &f, const decision_vector &x) co
 	MGA_DSM(x, problem,f[0]);
 }
 
+/// Implementation of the sparsity structure.
+void messenger_full::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+{
+	lenG=26;
+	iGfun.resize(26);
+	jGvar.resize(26);
+	for (int i = 0; i<lenG; ++i)
+	{
+		iGfun[i] = 0;
+		jGvar[i] = i;
+	}
+}
 }}

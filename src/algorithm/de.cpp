@@ -325,11 +325,16 @@ void de::evolve(population &pop) const
 
 }
 
+/// Algorithm name
+std::string de::get_name() const
+{
+	return "Differential Evolution";
+}
 
 
 /// Extra human readable algorithm info.
 /**
- * Will return a formatted string displaying the parameters of the algorithm.
+ * @return a formatted string displaying the parameters of the algorithm.
  */
 std::string de::human_readable_extra() const
 {

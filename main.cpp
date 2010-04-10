@@ -39,14 +39,13 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::ipopt algo(500,1.,1.,1.);
-	algo.screen_output(false);
-	algorithm::mbh algo2(algo,200,0.05);
-	algo2.screen_output(true);
-	problem::tandem prob(6);
-	island isl = island(prob,algo2,1);
+	algorithm::pso algo2(500);
+	algorithm::mbh algo(algo2,200,0.05);
+	algo.screen_output(true);
+	problem::messenger prob;
+	island isl = island(prob,algo,20);
 	std::cout << prob << std::endl;
-	std::cout << algo2 << std::endl;
+	std::cout << algo << std::endl;
 
 	for (int i=0; i< 1; ++i){
 		isl.evolve(); isl.join();

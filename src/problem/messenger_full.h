@@ -55,6 +55,7 @@ class __PAGMO_VISIBLE messenger_full: public base
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		mgadsmproblem problem;
 

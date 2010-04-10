@@ -74,6 +74,7 @@ public:
 	void evolve(population &) const;
 	void screen_output(const bool);
 	void file_output(const bool);
+	std::string get_name() const;
 
 	//This structure contains one decision vector and one constraint vector as to allow
 	//the static snopt function not to allocate any memory.

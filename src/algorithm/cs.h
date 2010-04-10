@@ -66,6 +66,7 @@ public:
 	cs(const double& max_eval, const double &stop_range,const double &start_range = 0.1, const double &reduction_coeff = 0.5 );
 	base_ptr clone() const;
 	void evolve(population &) const;
+	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:

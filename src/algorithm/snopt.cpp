@@ -329,6 +329,17 @@ void snopt::screen_output(const bool p) {m_screen_out = p;}
  */
 void snopt::file_output(const bool p) {m_file_out = p;}
 
+/// Algorithm name
+std::string snopt::get_name() const
+{
+	return "SNOPT";
+}
+
+
+/// Extra human readable algorithm info.
+/**
+ * @return a formatted string displaying the parameters of the algorithm.
+ */
 std::string snopt::human_readable_extra() const
 {
 	std::ostringstream s;

@@ -65,6 +65,7 @@ public:
 	de(int, const double & = 0.8, const double & = 0.9, int = 2);
 	base_ptr clone() const;
 	void evolve(population &) const;
+	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:
