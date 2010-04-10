@@ -71,8 +71,6 @@ public:
 	mutable std::vector<double*> r;// = std::vector<double*>(n);
 	mutable std::vector<double*> v;// = std::vector<double*>(n);
 	mutable std::vector<double> DV;// = std::vector<double>(n+1);
-	// Temporary variable to hold the Vinf at the flybys.
-	mutable std::vector<double>	vrelin_vec;
 };
 
 
