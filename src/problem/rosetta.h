@@ -37,7 +37,8 @@ namespace pagmo{ namespace problem {
 /**
  *
  * The problem is transcribed as an MGA-DSM problem allowing one chemical manouvre per trajectory leg.
- * The objective function is defined
+ * The objective function is defined as the total \f$\Delta V\f$ necessary to randezvous with the comet
+ * 67P/Churyumov-Gerasimenko.
  *
  * rosetta is a box constrained single objective, continuous optimization problem of dimension 22.
  * The problem is also part of the Global Trajectory Optimization database (GTOP)

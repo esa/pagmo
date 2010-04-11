@@ -48,7 +48,7 @@ available after installation. The user can implement his own algorithms both in 
 and directly in Python. Check the algorithm documentation to verify whether a particolar problem class
 can be fed to it (i.e. box-constrained or mixed integer etc.)
 
-- A simple genetic algorithm (pagmo::algorithm::sga)
+- A Simple Genetic Algorithm (pagmo::algorithm::sga)
 - Differential Evolution (pagmo::algorithm::de)
 - Particle Swarm Optimization (pagmo::algorithm::pso)
 - Adaptive Neighbourhood Simulated Annealing (pagmo::algorithm::sa_corana)
@@ -76,27 +76,17 @@ directly in Python.
 
 - Classical Test Problems
  - Continuous, box bounded
-  - Paraboloid
-  - Rastrigin
-  - Rosenbrock
-  - Schwefel
-  - Griewank
-  - Lennard-Jones
-  - Levy
-  - HimmelBlau
+  - Paraboloid, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, HimmelBlau
  - Continuous, constrained
-  - From Luksan-Vlcek book (3 problems)
-  - Toy-problem from SNOPT manual
+  - From Luksan-Vlcek book (3 problems also in the original IPOPT dist.), Toy-problem from SNOPT manual
  - Integer Programming
-  - Golomb Ruler
-  - Knapsack Problem
+  - Golomb Ruler, Knapsack Problem
  - Multi-objective, continuous, box-constrained
   - The SCH and FON problems from nsga-II
  - Stochastic, continuous and box bounded
   - xxx
 - Engineering Problems
-  - All problems from the GTOP database
-  - An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
+  - All problems from the GTOP database, An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
 
 \section install Installation guide
 

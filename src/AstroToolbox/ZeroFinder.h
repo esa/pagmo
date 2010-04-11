@@ -28,7 +28,7 @@
 #define NUMERATOR(dab,dcb,fa,fb,fc) fb*(dab*fc*(fc-fb)-fa*dcb*(fa-fb))
 #define DENOMINATOR(fa,fb,fc) (fc-fb)*(fa-fb)*(fa-fc)
 
-/// Namespace
+
 namespace ZeroFinder
 {
 

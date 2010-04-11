@@ -22,45 +22,53 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_MESSENGER_H
-#define PAGMO_PROBLEM_MESSENGER_H
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-#include "../config.h"
+#include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
-#include "../AstroToolbox/mga_dsm.h"
+#include "ackley.h"
 
+namespace pagmo { namespace problem {
 
-namespace pagmo{ namespace problem {
-
-/// Messenger MGA-DSM Problem (reduced version)
+/// Constructor from dimension.
 /**
+ * Will construct an n dimensional Schwefel problem.
  *
- * An interplanetary trajectory transfer transcribed as an MGA-DSM problem allowing one chemical manouvre per trajectory leg.
- * The objective function is defined as total \f$\Delta V\f$ (km/sec) for a Mercury randevouz and
- * the considered fly-by sequence is Earth-Earth-Venus-Venus-Mercury and corresponds to the first
- * part of the real Messenger fly-by sequence.
+ * @param[in] n integer dimension of the problem.
  *
- * messenger is a box constrained single objective, continuous optimization problem of dimension 18.
- * The problem is also part of the Global Trajectory Optimization database (GTOP)
-
- * @see http://www.esa.int/gsp/ACT/inf/op/globopt/MessengerFull.html
- * @see http://www.nasa.gov/mission_pages/messenger/timeline/index.html
- * @author Dario Izzo (dario.izzo@esa.int)
+ * @see problem::base constructors.
  */
-class __PAGMO_VISIBLE messenger: public base
+ackley::ackley(int n):base(n)
 {
-	public:
-		messenger();
-		base_ptr clone() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
-	private:
-		mgadsmproblem problem;
+	// Set bounds.
+	set_lb(-15);
+	set_ub(30);
+}
 
-};
+/// Clone method.
+base_ptr ackley::clone() const
+{
+	return base_ptr(new ackley(*this));
+}
+
+/// Implementation of the objective function.
+void ackley::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 1);
+	std::vector<double>::size_type n = x.size();
+	double value=0;
+
+	double omega = 2.0 * M_PI;
+	double s1=0.0, s2=0.0;
+	double nepero=exp(1.0);
+
+	for (int i=0; i<n; i++){
+		s1 += x[i]*x[i];
+		s2 += cos(omega*x[i]);
+	}
+	f[0] = -20*exp(-0.2 * sqrt(1.0/n * s1))-exp(1.0/n*s2)+ 20 + nepero;
+}
 
 }}
-
-#endif // PAGMO_PROBLEM_MESSENGER_H

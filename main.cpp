@@ -39,10 +39,10 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::pso algo2(1000);
+	algorithm::snopt algo2(100);
 	algorithm::mbh algo(algo2,10,0.05);
 	algo.screen_output(true);
-	problem::messenger prob;
+	problem::ackley prob(100);
 	island isl = island(prob,algo,10);
 	std::cout << prob << std::endl;
 	std::cout << algo << std::endl;

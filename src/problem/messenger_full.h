@@ -33,16 +33,15 @@
 
 namespace pagmo{ namespace problem {
 
-/// Messenger problem (dufficult version, e.g. messenger_full)
+/// Messenger MGA-DSM Problem (full version)
 /**
- * This is a rather complex interplanetary trajectory problem that is related to the mission
- * Messenger (NASA). Fly-by sequence, spacecraft mass, objective and other parameter are set as to
- * resemble the Messenger spacecraft mission profile. The problem is transcribed as an MGA-DSM
- * problem allowing one chemical manouvre per trajectory leg.
- * Fly-by sequence is Earth-Venus-Venus-Mercury-Mercury-Mercury-Mercury.
- * The problem is also part of the Global Trajectory Optimization database (GTOP)
+ * An interplanetary trajectory transfer transcribed as an MGA-DSM problem allowing one chemical manouvre per trajectory leg.
+ * The objective function is defined as total \f$\Delta V\f$ (km/sec) for a Mercury Orbit Insertion (e=0.75,rp=2640 km) and
+ * the considered fly-by sequence is Earth-Venus-Venus-Mercury-Mercury-Mercury-Mercury corresponding to the 
+ * the real Messenger fly-by sequence except a first missing Earth fly-by).
  *
  * messenger_full is a box constrained single objective, continuous optimization problem of dimension 26.
+ * The problem is also part of the Global Trajectory Optimization database (GTOP)
  *
  * @see http://www.esa.int/gsp/ACT/inf/op/globopt/MessengerFull.html
  * @see http://www.nasa.gov/mission_pages/messenger/timeline/index.html

@@ -38,7 +38,7 @@ namespace pagmo{ namespace problem {
  * can be written as:
  *
  * \f[
- * 	F\left(x,y) = \sum_{i=1}^5 i\cos[(i-1)x + i]\sum_{j=1}^5 j\cos[(j+1)x + j] +
+ * 	F(x,y) = \sum_{i=1}^5 i\cos[(i-1)x + i]\sum_{j=1}^5 j\cos[(j+1)x + j] +
 	(x+1.42513)^2 + (y+0.00832)^2, x,y \in \left[ -100,100 \right].
  * \f]
  *

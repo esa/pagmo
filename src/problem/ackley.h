@@ -22,52 +22,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_TANDEM_H
-#define PAGMO_PROBLEM_TANDEM_H
+#ifndef PAGMO_PROBLEM_ACKLEY_H
+#define PAGMO_PROBLEM_ACKLEY_H
 
-#include "../config.h"
 #include "../types.h"
 #include "base.h"
-#include "../AstroToolbox/mga_dsm.h"
-#include "../AstroToolbox/misc4Tandem.h"
 
 namespace pagmo{ namespace problem {
 
-/// TandEM problem
+/// The Ackley problem.
 /**
- * This interplanetary trajectory transfer has 25 different instances, depending on the fly-by sequence adopted.
- * The mission data are taken from those used by a joint ESA/NASA working group that performed, together with industrial partners
- * a preliminary trajectory design for the TandEM mission during the first months of 2009.
- * Please refer to http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm to select the proper instance. A default
- * choice is 6, which corrsponds to an EVEES fly-by sequence. The possibility of adding one additional constraint
- * on the time-of-flight is given. If such a constraint is specified the components x[4]-x[7] are no longer time of flights
- * but they represent the percentage of the remaining time of flight to be used in one leg. Thus the linear constraint
- * on the time of flight is automatically transformed into a box constraint.
+ * \image html ackley.gif "Two-dimensional Ackley function."
+ * \image latex ackley.gif "Two-dimensional Ackley function." width=5cm
  *
- * The problem is transcribed as an MGA-DSM problem allowing one chemical manouvre per trajectory leg.
- * The objective function is defined as \f$ f = -\log(m_f)\f$ where \f$m_f\f$ is the final spacecraft mass.
- * The problem is also part of the Global Trajectory Optimization database (GTOP)
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the n-dimensional Ackley function:
+ * \f[
+ * 	F\left(x_1,\ldots,x_n\right) = 20 + e - 20e^{-\frac 15 \sqrt{\frac 1n \sum_{i=1}^n x_i^2}} - e^{\frac 1n \sum_{i=1}^n \cos(2\pi x_i)}, \quad x_i \in \left[ -15,30 \right].
+ * \f]
+ * The global minimum is in \f$x_i=0\f$, where \f$ F\left( 0,\ldots,0 \right) = 0 \f$.
  *
- * tandem is a box constrained single objective, continuous optimization problem of dimension 18.
- *
- * @see http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm
  * @author Dario Izzo (dario.izzo@esa.int)
  */
-class __PAGMO_VISIBLE tandem: public base
+
+class __PAGMO_VISIBLE ackley : public base
 {
 	public:
-		tandem(const int problemid = 6, const double tof_ = -1);
+		ackley(int);
 		base_ptr clone() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
-	private:
-		mgadsmproblem problem;
-		const double tof;
-		mutable vector<double> copy_of_x;
-
 };
 
-}}
+}} //namespaces
 
-#endif // PAGMO_PROBLEM_TANDEM_H
+#endif // SCHWEFEL_H
