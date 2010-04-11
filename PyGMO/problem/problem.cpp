@@ -254,12 +254,16 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::string_match_mo>("string_match_mo","String matching problem (multi-objective version).")
 		.def(init<const std::string &>());
 
-	// Cassini_1.
+	// Cassini 1.
 	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.")
 		.def(init<>());
 
 	// Messenger full.
 	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.")
+		.def(init<>());
+
+	// Cassini 2.
+	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.")
 		.def(init<>());
 
 	// Function for the total number of objective function evaluations.
