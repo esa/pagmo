@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,34 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#include "gtoc_1.h"
+#include "../AstroToolbox/mga.h"
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+namespace pagmo { namespace problem {
 
-using namespace pagmo;
-
-int main()
+/// Problem Constructor
+/**
+ * @see problem::base constructors.
+ */
+gtoc_1::gtoc_1():base(8),Delta_V(8),rp(6),t(8)
 {
-	algorithm::snopt algo2(500);
-	algorithm::mbh algo(algo2,200,1.);
-	algo.screen_output(true);
-	problem::sagas prob;
-	island isl = island(prob,algo,20);
-	std::cout << prob << std::endl;
-	std::cout << algo << std::endl;
+	// Set bounds.
+	const double lb[8] = {3000,14,14,14,14,100,366,300};
+	const double ub[8] = {10000,2000,2000,2000,2000,9000,9000,9000};
+	set_bounds(lb,lb+8,ub,ub+8);
 
-	for (int i=0; i< 20; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
+	//Defining the problem data up the problem parameters
+	problem.type = asteroid_impact;
+	problem.mass = 1500.0;				// Satellite initial mass [Kg]
+	problem.Isp = 2500.0;               // Satellite specific impulse [s]
+	problem.DVlaunch = 2.5;				// Launcher DV in km/s
+
+	int sequence_[8] = {3,2,3,2,3,5,6,10}; // sequence of planets
+	vector<int> sequence(8);
+	problem.sequence.insert(problem.sequence.begin(), sequence_, sequence_+8);
+
+	const int rev_[8] = {0,0,0,0,0,0,1,0}; // sequence of clockwise legs
+	vector<int> rev(8);
+	problem.rev_flag.insert(problem.rev_flag.begin(), rev_, rev_+8);
+
+	problem.asteroid.keplerian[0] = 2.5897261;    // Asteroid data
+	problem.asteroid.keplerian[1] = 0.2734625;
+	problem.asteroid.keplerian[2] = 6.40734;
+	problem.asteroid.keplerian[3] = 128.34711;
+	problem.asteroid.keplerian[4] = 264.78691;
+	problem.asteroid.keplerian[5] = 320.479555;
+	problem.asteroid.epoch = 53600;
 }
+
+/// Clone method.
+base_ptr gtoc_1::clone() const
+{
+	return base_ptr(new gtoc_1(*this));
+}
+
+/// Implementation of the objective function.
+void gtoc_1::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	MGA(x,problem,rp,Delta_V,f[0]);
+}
+
+}}

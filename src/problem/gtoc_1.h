@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,34 +22,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_PROBLEM_GTOC_1_H
+#define PAGMO_PROBLEM_GTOC_1_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
+#include "../AstroToolbox/mga.h"
 
-using namespace pagmo;
+namespace pagmo{ namespace problem {
 
-int main()
+/// GTOC_1 MGA problem
+/**
+ * This problem draws inspiration from the first edition of the Global Trajectory Optimisation Competition (GTOC1)
+ * It is an 8 dimensional MGA problem with a rather long fly-by sequence including mainly Earth and Venus. The final target
+ * is the asteroid TW229. The objective of the mission is to maximise the change in sami-major axis of the
+ * asteroid orbit following an anaelastic impact of the spacecraft with the asteroid.
+ *
+ * The problem is also part of the Global Trajectory Optimization database (GTOP)
+ *
+ * gtoc_1 is a box constrained single objective, continuous optimization problem of dimension eight.
+ *
+ * @see http://www.esa.int/gsp/ACT/inf/op/globopt/evevejsa.htm
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+class __PAGMO_VISIBLE gtoc_1: public base
 {
-	algorithm::snopt algo2(500);
-	algorithm::mbh algo(algo2,200,1.);
-	algo.screen_output(true);
-	problem::sagas prob;
-	island isl = island(prob,algo,20);
-	std::cout << prob << std::endl;
-	std::cout << algo << std::endl;
+	public:
+		gtoc_1();
+		base_ptr clone() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		mgaproblem problem;
 
-	for (int i=0; i< 20; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
-}
+		//Variables used in the call to MGA
+		mutable std::vector<double> Delta_V;
+		mutable std::vector<double> rp;
+		mutable std::vector<double> t;
+};
+
+}}
+
+#endif // PAGMO_PROBLEM_GTOC_1_H

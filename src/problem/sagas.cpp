@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,34 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#include "sagas.h"
+#include "../AstroToolbox/mga_dsm.h"
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+namespace pagmo { namespace problem {
 
-using namespace pagmo;
+const int sequence[3] = {3, 3, 5};
 
-int main()
+/// Constructor
+/**
+* Instantiates the rosetta problem*/
+sagas::sagas():base(12), problem(time2AUs,sequence,3,0,0,0,0,0)
 {
-	algorithm::snopt algo2(500);
-	algorithm::mbh algo(algo2,200,1.);
-	algo.screen_output(true);
-	problem::sagas prob;
-	island isl = island(prob,algo,20);
-	std::cout << prob << std::endl;
-	std::cout << algo << std::endl;
+	//Setting the objective parameters
+	problem.AUdist = 50.0;
+	problem.DVtotal = 6.782;
+	problem.DVonboard = 1.782;
 
-	for (int i=0; i< 20; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
+	const double lb[12] = {7000, 0, 0, 0, 50, 300, 0.01, 0.01, 1.05, 8, -M_PI, -M_PI};
+	const double ub[12] = {9100, 7, 1, 1, 2000, 2000, 0.9, 0.9 ,7 ,500 ,M_PI,M_PI};
+	set_bounds(lb,lb+12,ub,ub+12);
 }
+
+/// Clone method.
+base_ptr sagas::clone() const
+{
+	return base_ptr(new sagas(*this));
+}
+
+/// Implementation of the objective function.
+void sagas::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	MGA_DSM(x, problem,f[0]);
+}
+
+/// Implementation of the sparsity structure.
+/**
+ * No sparsity present (box-constrained problem).
+ */
+
+void sagas::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+{
+	lenG=12;
+	iGfun.resize(lenG);
+	jGvar.resize(lenG);
+	for (int i = 0; i<lenG; ++i)
+	{
+		iGfun[i] = 0;
+		jGvar[i] = i;
+	}
+}
+
+}} //namespaces
