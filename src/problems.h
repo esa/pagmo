@@ -40,6 +40,7 @@
 #include "problem/schwefel.h"
 #include "problem/griewank.h"
 #include "problem/levy5.h"
+#include "problem/lennard_jones.h"
 #include "problem/ackley.h"
 #include "problem/snopt_toyprob.h"
 #include "problem/string_match.h"

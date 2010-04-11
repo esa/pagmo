@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,34 +22,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
+#ifndef PAGMO_PROBLEM_LENNARD_JONES_H
+#define PAGMO_PROBLEM_LENNARD_JONES_H
+
 #include <vector>
-#include <list>
+#include "../types.h"
+#include "base.h"
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+namespace pagmo{ namespace problem {
 
-using namespace pagmo;
+/// The Lennard-Jones problem.
+/**
+ * \image html lennardjones.jpg "Minimum energy onfiguration with 38 atoms."
+ * \image latex lennardjones.jpg "Minimum energy onfiguration with 38 atoms." width=5cm
+ *
+ * This is a box-constrained continuous single-objecive problem. Depending on the number of
+ * atoms, the global optima will be different. In the link below a database containing all
+ * putative global optima is given.
+ *
+ * @see http://physchem.ox.ac.uk/~doye/jon/structures/LJ/tables.150.html
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
 
-int main()
+class __PAGMO_VISIBLE lennard_jones : public base
 {
-	algorithm::pso algo2(500);
-	algorithm::mbh algo(algo2,10,0.1);
-	algo.screen_output(true);
-	problem::lennard_jones prob(30);
-	island isl = island(prob,algo,20);
-	std::cout << prob << std::endl;
-	std::cout << algo << std::endl;
+	public:
+		lennard_jones(int);
+		base_ptr clone() const;
+	private:
+		static double r(const int& atom, const int& coord, const std::vector <double>& x);
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
 
-	for (int i=0; i< 20; ++i){
-		isl.evolve(); isl.join();
-		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-	}
-	return 0;
-}
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_LENNARD_JONES_H

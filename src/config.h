@@ -76,7 +76,7 @@ directly in Python.
 
 - Classical Test Problems
  - Continuous, box bounded
-  - Paraboloid, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, HimmelBlau
+  - Paraboloid, Ackley, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, HimmelBlau
  - Continuous, constrained
   - From Luksan-Vlcek book (3 problems also in the original IPOPT dist.), Toy-problem from SNOPT manual
  - Integer Programming
