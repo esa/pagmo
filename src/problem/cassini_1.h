@@ -29,7 +29,7 @@
 #include "../types.h"
 #include "base.h"
 #include "../AstroToolbox/mga.h"
-#include "boost/array.hpp"
+
 
 namespace pagmo{ namespace problem {
 
