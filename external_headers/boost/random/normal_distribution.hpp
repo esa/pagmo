@@ -39,14 +39,14 @@ public:
 
   explicit normal_distribution(const result_type& mean_arg = result_type(0),
                                const result_type& sigma_arg = result_type(1))
-    : _mean(mean_arg), _sigma(sigma_arg), _valid(false)
+    : _mean(mean_arg), _sigma(sigma_arg), _r1(0), _r2(0), _cached_rho(0), _valid(false)
   {
     assert(_sigma >= result_type(0));
   }
 
   // compiler-generated copy constructor is NOT fine, need to purge cache
   normal_distribution(const normal_distribution& other)
-    : _mean(other._mean), _sigma(other._sigma), _valid(false)
+    : _mean(other._mean), _sigma(other._sigma), _r1(0), _r2(0), _cached_rho(0), _valid(false)
   {
   }
 

@@ -57,6 +57,8 @@ namespace pagmo
  * @param[in] migr_prob migration probability.
  * @param[in] s_policy migration::base_s_policy for the island.
  * @param[in] r_policy migration::base_r_policy for the island.
+ *
+ * @throws pagmo::value_error if migration probability is outside the [0,1] range.
  */
 island::island(const problem::base &p, const algorithm::base &a, int n, const double &migr_prob,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
@@ -77,6 +79,27 @@ island::island(const island &isl)
 {
 	// Do it like this so that we can synchronise isl before poking into its internals.
 	operator=(isl);
+}
+
+/// Constructor from population.
+/**
+ * Will construct an island containing the given population and algorithm.
+ *
+ * @param[in] pop population that will be contained in the island.
+ * @param[in] a algorithm::base which will be associated to the island.
+ * @param[in] migr_prob migration probability.
+ * @param[in] s_policy migration::base_s_policy for the island.
+ * @param[in] r_policy migration::base_r_policy for the island.
+ *
+ * @throws pagmo::value_error if migration probability is outside the [0,1] range.
+ */
+island::island(const population &pop, const algorithm::base &a, const double &migr_prob,
+	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
+	m_pop(pop),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
+{
+	if (m_migr_prob < 0 || m_migr_prob > 1) {
+		pagmo_throw(value_error,"invalid migration probability");
+	}
 }
 
 /// Assignment operator.

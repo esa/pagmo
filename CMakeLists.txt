@@ -55,16 +55,16 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: minimisers from the GNU scientific library (GSL).
-OPTION(ENABLE_GSL "Enable support for GSL minimzers (requires GSL >= 1.13)." OFF)
+OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
 
 # Build Option: algorithms from the NLopt library.
-OPTION(ENABLE_NLOPT "Enable support for NLopt algorithms." OFF)
+OPTION(ENABLE_NLOPT "Enable support for NLopt minimisers." OFF)
 
 # Build Option: SNOPT optimiser
-OPTION(ENABLE_SNOPT "Enable support for SNOPT minimzer." OFF)
+OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 
 # Build Option: IPOPT optimiser
-OPTION(ENABLE_IPOPT "Enable support for IPOPT minimzer." OFF)
+OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
