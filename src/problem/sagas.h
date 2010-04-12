@@ -43,7 +43,7 @@ namespace pagmo{ namespace problem {
  * The problem is also part of the Global Trajectory Optimization database (GTOP)
 
  * @see http://www.springerlink.com/content/c3v465224u680893/
- * @see http://www.esa.int/gsp/ACT/inf/op/globopt/ededmdededa.htm
+ * @see http://www.esa.int/gsp/ACT/inf/op/globopt/ededj.htm
  * @author Dario Izzo (dario.izzo@esa.int)
  */
 class __PAGMO_VISIBLE sagas: public base

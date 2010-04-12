@@ -39,15 +39,15 @@ using namespace pagmo;
 
 int main()
 {
-	algorithm::snopt algo2(500);
-	algorithm::mbh algo(algo2,200,1.);
+	algorithm::sa_corana algo2(10000,10,0.073);
+	algorithm::mbh algo(algo2,200,0.1);
 	algo.screen_output(true);
-	problem::sagas prob;
-	island isl = island(prob,algo,20);
+	problem::tandem prob(6,10);
+	island isl = island(prob,algo2,20);
 	std::cout << prob << std::endl;
-	std::cout << algo << std::endl;
+	std::cout << algo2 << std::endl;
 
-	for (int i=0; i< 20; ++i){
+	for (int i=0; i< 200; ++i){
 		isl.evolve(); isl.join();
 		std::cout << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
 	}

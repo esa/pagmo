@@ -119,9 +119,9 @@ void sa_corana::evolve(population &pop) const {
 	decision_vector xNEW = x0, xOLD = xNEW;
 	fitness_vector fNEW = fit0, fOLD = fNEW;
 	//Stores the adaptive steps of each component (integer part included but not used)
-	decision_vector Step(D,m_range);
+	decision_vector step(D,m_range);
 
-	//Stores the number of accepted points per compnent (integer part included but not used)
+	//Stores the number of accepted points per component (integer part included but not used)
 	std::vector<int> acp(D,0) ;
 	double ratio = 0, currentT = m_Ts, probab = 0;
 
@@ -133,8 +133,8 @@ void sa_corana::evolve(population &pop) const {
 				for (size_t numb = 0; numb < Dc ; ++numb) {
 					nter = (nter + 1) % Dc;
 					//We modify the current point actsol by mutating its nter component within
-					//a Step that we will later adapt
-					xNEW[nter] = xOLD[nter] + Step[nter] * boost::uniform_real<double>(lb[nter],ub[nter])(m_drng);
+					//a step that we will later adapt
+					xNEW[nter] = xOLD[nter] + boost::uniform_real<double>(-1,1)(m_drng) * step[nter] * (ub[nter]-lb[nter]);
 
 					// If new solution produced is infeasible ignore it
 					if ((xNEW[nter] > ub[nter]) || (xNEW[nter] < lb[nter])) {
@@ -152,7 +152,7 @@ void sa_corana::evolve(population &pop) const {
 						acp[nter]++;	//Increase the number of accepted values
 					} else {
 						//test it with Boltzmann to decide the acceptance
-						probab = exp ( - fabs(fOLD[0] - fNEW[0] )/ currentT );
+						probab = exp ( - fabs(fOLD[0] - fNEW[0] ) / currentT );
 
 						// we compare prob with a random probability.
 						if (probab > m_drng()) {
@@ -171,16 +171,16 @@ void sa_corana::evolve(population &pop) const {
 				acp[iter] = 0;  //reset the counter
 				if (ratio > .6) {
 					//too many acceptances, increase the step by a factor 3 maximum
-					Step[iter] = Step [iter] * (1 + 2 *(ratio - .6)/.4);
+					step[iter] = step [iter] * (1 + 2 *(ratio - .6)/.4);
 				} else {
 					if (ratio < .4) {
 						//too few acceptance, decrease the step by a factor 3 maximum
-						Step [iter]= Step [iter] / (1 + 2 * ((.4 - ratio)/.4));
+						step [iter]= step [iter] / (1 + 2 * ((.4 - ratio)/.4));
 					};
 				};
 				//And if it becomes too large, reset it to its initial value
-				if ( Step[iter] > m_range ) {
-					Step [iter] = m_range;
+				if ( step[iter] > m_range ) {
+					step [iter] = m_range;
 				};
 			}
 		}
