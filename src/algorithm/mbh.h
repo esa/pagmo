@@ -37,8 +37,8 @@ namespace pagmo { namespace algorithm {
 /// Monotonic Basin Hopping (generalized)
 /**
  *
- * \image html mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape."
- * \image latex mbh.png "A schematic diagram illustrating the eﬀects of the basin hopping transformation on a one dimensional landscape." width=5cm
+ * \image html mbh.png "A schematic diagram illustrating the effects of the basin hopping transformation on a one dimensional landscape."
+ * \image latex mbh.png "A schematic diagram illustrating the effects of the basin hopping transformation on a one dimensional landscape." width=5cm
  *
  * Monotonic basin hopping, or simply, basin hopping, is an algorithm rooted in the idea of transforming each
  * the objective function at \f$\mathbf x\f$ into the local minima found starting from \f$\mathbf x\f$

@@ -81,6 +81,10 @@ class __PAGMO_VISIBLE island
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
+		island(const population &, const algorithm::base &,
+			const double & = 1,
+			const migration::base_s_policy & = migration::best_s_policy(),
+			const migration::base_r_policy & = migration::fair_r_policy());
 		island &operator=(const island &);
 		~island();
 		/** @name Input/output.*/

@@ -146,7 +146,9 @@ BOOST_PYTHON_MODULE(_core)
 
 	// Expose island class.
 	class_<island>("island", "Island class.", init<const problem::base &, const algorithm::base &,
-		optional<int,double,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const population &, const algorithm::base &,
+		optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const island &>())
 		.def("__copy__", &Py_copy_from_ctor<island>)
 		.def("__len__", &island::get_size)
