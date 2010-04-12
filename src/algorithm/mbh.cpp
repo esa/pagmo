@@ -88,8 +88,10 @@ void mbh::evolve(population &pop) const
 	decision_vector tmp_x(D), tmp_v(D);
 	double dummy, width;
 
-	// Init the best chromosome and reset counter
-	decision_vector best_x = pop.champion().x;
+	// Init the best fitness and constraint vector
+	fitness_vector best_f = pop.get_individual(pop.get_best_idx()).cur_f;
+	constraint_vector best_c = pop.get_individual(pop.get_best_idx()).cur_c;
+	population best_pop(pop);
 
 	int i = 0;
 
@@ -99,39 +101,53 @@ void mbh::evolve(population &pop) const
 		//1. Evolve population with selected algorithm
 		m_local->evolve(pop); i++;
 
-		//2. Reset counter if champion is improved
-		if (pop.champion().x != best_x) {
+		//2. Reset counter if improved
+		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
+		{
 			if (m_screen_out)
 			{
-				std::cout << "Improved after: " << i << "\tBest-so-far: " << pop.champion().f <<std::endl;
+				std::cout << "Improved after: " << i << "\tBest-so-far: " << pop.get_individual(pop.get_best_idx()).cur_f <<std::endl;
 			}
 			i = 0;
-			best_x = pop.champion().x;
+			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
+			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
+			//update best population
+			for (population::size_type j=0; j<pop.size();++j)
+			{
+				best_pop.set_x(j,pop.get_individual(j).cur_x);
+				best_pop.set_v(j,pop.get_individual(j).cur_v);
 			}
+		}
 
 		//3. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
 		for (population::size_type j =0; j < NP; ++j)
 		{
 			for (decision_vector::size_type k=0; k < Dc; ++k)
 			{
-				dummy = pop.get_individual(j).best_x[k];
+				dummy = best_pop.get_individual(j).best_x[k];
 				width = (ub[k]-lb[k]) * m_perturb / 2;
 				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_drng);
-				dummy = pop.get_individual(j).cur_v[k];
+				dummy = best_pop.get_individual(j).cur_v[k];
 				tmp_v[k] = boost::uniform_real<double>(dummy-width,dummy+width)(m_drng);
 			}
 
 			for (decision_vector::size_type k=Dc; k < D; ++k)
 			{
-				dummy = pop.get_individual(j).best_x[k];
+				dummy = best_pop.get_individual(j).best_x[k];
 				width = (ub[k]-lb[k]) * m_perturb / 2;
 				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
-				dummy = pop.get_individual(j).cur_v[k];
+				dummy = best_pop.get_individual(j).cur_v[k];
 				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
 			}
 			pop.set_x(j,tmp_x);
 			pop.set_v(j,tmp_v);
 		}
+	}
+	//on exit set the population to the best one (discard perturbations)
+	for (population::size_type j=0; j<pop.size();++j)
+	{
+		pop.set_x(j,best_pop.get_individual(j).cur_x);
+		pop.set_v(j,best_pop.get_individual(j).cur_v);
 	}
 }
 
