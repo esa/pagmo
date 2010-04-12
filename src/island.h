@@ -108,6 +108,8 @@ class __PAGMO_VISIBLE island
 		//@{
 		algorithm::base_ptr get_algorithm() const;
 		void set_algorithm(const algorithm::base &);
+		void set_x(population::size_type, const decision_vector &);
+		void set_v(population::size_type, const decision_vector &);
 		problem::base_ptr get_problem() const;
 		population::size_type get_size() const;
 		double get_migration_probability() const;

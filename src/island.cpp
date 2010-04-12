@@ -215,6 +215,32 @@ algorithm::base_ptr island::get_algorithm() const
 	return m_algo->clone();
 }
 
+/// Sets a decision vector
+/**
+ * Assigns a decision vector to the i-th individual of the island population
+ *
+ * @param[in] i individual
+ * @param[in] x decision_vector
+ */
+void island::set_x(population::size_type i, const decision_vector &x)
+{
+	join();
+	m_pop.set_x(i,x);
+}
+
+/// Sets a velocity vector
+/**
+ * Assigns a velocity vector to the i-th individual of the island population
+ *
+ * @param[in] i individual
+ * @param[in] x velocity_vector
+ */
+void island::set_v(population::size_type i, const decision_vector &v)
+{
+	join();
+	m_pop.set_v(i,v);
+}
+
 /// Algorithm setter.
 /**
  * The input algorithm will be cloned.
