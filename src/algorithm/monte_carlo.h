@@ -46,7 +46,9 @@ class __PAGMO_VISIBLE monte_carlo: public base
 		monte_carlo(int);
 		base_ptr clone() const;
 		void evolve(population &) const;
+		std::string get_name() const;
 	private:
+		std::string human_readable_extra() const;
 		const std::size_t m_max_eval;
 };
 

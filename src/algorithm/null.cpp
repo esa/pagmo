@@ -47,6 +47,10 @@ base_ptr null::clone() const
 void null::evolve(population &) const
 {}
 
+/// Algorithm name
+std::string null::get_name() const
+{
+	return "Null Algorithm";
 }
 
-}
+}}

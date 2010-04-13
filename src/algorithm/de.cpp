@@ -339,10 +339,10 @@ std::string de::get_name() const
 std::string de::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tGenerations:\t" << m_gen << '\n';
-	s << "\tWeight parameter (F):\t\t" << m_f << '\n';
-	s << "\tCrossover parameter (CR):\t" << m_cr << '\n';
-	s << "\tStrategy selected:\t" << m_strategy << '\n';
+	s << "Generations:" << m_gen << ' ';
+	s << "Weight parameter (F): " << m_f << ' ';
+	s << "Crossover parameter (CR): " << m_cr << ' ';
+	s << "Strategy selected:" << m_strategy << ' ';
 	return s.str();
 }
 

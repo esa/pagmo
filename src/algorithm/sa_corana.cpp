@@ -195,7 +195,11 @@ void sa_corana::evolve(population &pop) const {
 }
 
 
-
+/// Algorithm name
+std::string sa_corana::get_name() const
+{
+	return "Simulated Annealing (Corana's)";
+}
 
 /// Extra human readable algorithm info.
 /**
@@ -204,12 +208,12 @@ void sa_corana::evolve(population &pop) const {
 std::string sa_corana::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tIteration:\t" << m_niter << '\n';
-	s << "\tStarting Temperature:\t" << m_Ts << '\n';
-	s << "\tFinal Temperature:\t" << m_Tf << '\n';
-	s << "\tRatio of neighbourhood over temperature adjustments:\t" << m_step_adj << '\n';
-	s << "\tSize of the bin to evaluate the acceptance rate:\t" << m_bin_size << '\n';
-	s << "\tSize of the strating range:\t" << m_range << '\n';
+	s << "Iteration:" << m_niter << ' ';
+	s << "Starting Temperature:" << m_Ts << ' ';
+	s << "Final Temperature:" << m_Tf << ' ';
+	s << "Ratio of neighbourhood over temperature adjustments:" << m_step_adj << ' ';
+	s << "Size of the bin to evaluate the acceptance rate:" << m_bin_size << ' ';
+	s << "Size of the strating range:" << m_range << ' ';
 	return s.str();
 }
 

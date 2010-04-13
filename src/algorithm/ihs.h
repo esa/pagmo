@@ -64,6 +64,7 @@ class __PAGMO_VISIBLE ihs: public base
 			const double &bw_min = 1E-5, const double &bw_max = 1);
 		base_ptr clone() const;
 		void evolve(population &) const;
+		std::string get_name() const;
 	protected:
 		std::string human_readable_extra() const;
 	private:

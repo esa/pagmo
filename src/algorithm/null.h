@@ -46,6 +46,7 @@ class __PAGMO_VISIBLE null:public base
 		null();
 		base_ptr clone() const;
 		void evolve(population &) const;
+		std::string get_name() const;
 };
 
 }

@@ -148,6 +148,12 @@ void ipopt::evolve(population &pop) const
  */
 void ipopt::screen_output(const bool p) {m_screen_out = p;}
 
+/// Algorithm name
+std::string ipopt::get_name() const
+{
+	return "IPOPT";
+}
+
 /// Extra human readable algorithm info.
 /**
  * @return a formatted string displaying the parameters of the algorithm.
@@ -155,10 +161,10 @@ void ipopt::screen_output(const bool p) {m_screen_out = p;}
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "IPOPT - Max Iterations: " << m_max_iter << std::endl;
-	s << "Constraint violation tol: "<< m_constr_viol_tol << std::endl;
-	s << "Dual Infeasibility tol: "<< m_dual_inf_tol << std::endl;
-	s << "Complementarity Infeasibility tol: "<< m_compl_inf_tol << std::endl;
+	s << "Max Iterations:" << m_max_iter;
+	s << "Constraint violation tol:"<< m_constr_viol_tol;
+	s << "Dual Infeasibility tol:"<< m_dual_inf_tol;
+	s << "Complementarity Infeasibility tol:"<< m_compl_inf_tol;
 	return s.str();
 }
 

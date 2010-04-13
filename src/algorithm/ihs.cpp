@@ -169,6 +169,13 @@ void ihs::evolve(population &pop) const
 	}
 }
 
+
+/// Algorithm name
+std::string ihs::get_name() const
+{
+	return "Improved Harmony Search";
+}
+
 /// Extra human readable algorithm info.
 /**
  * @return a formatted string displaying the parameters of the algorithm.
@@ -176,12 +183,12 @@ void ihs::evolve(population &pop) const
 std::string ihs::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tGenerations:\t" << m_gen << '\n';
-	s << "\tphmcr:\t\t" << m_phmcr << '\n';
-	s << "\tppar_min:\t" << m_ppar_min << '\n';
-	s << "\tppar_max:\t" << m_ppar_max << '\n';
-	s << "\tbw_min:\t\t" << m_bw_min << '\n';
-	s << "\tbw_max:\t\t" << m_bw_max << '\n';
+	s << "Generations:" << m_gen << ' ';
+	s << "phmcr:" << m_phmcr << ' ';
+	s << "ppar_min:" << m_ppar_min << ' ';
+	s << "ppar_max:" << m_ppar_max << ' ';
+	s << "bw_min:" << m_bw_min << ' ';
+	s << "bw_max:" << m_bw_max << ' ';
 	return s.str();
 }
 

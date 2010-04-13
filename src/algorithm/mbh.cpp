@@ -167,7 +167,6 @@ std::string mbh::get_name() const
 	return "Generalized Monotonic Basin Hopping";
 }
 
-
 /// Extra human readable algorithm info.
 /**
  * @return a formatted string displaying the parameters of the algorithm.
@@ -175,9 +174,9 @@ std::string mbh::get_name() const
 std::string mbh::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tSelected sub-algorithm:\t\t\t" << m_local->get_name() << '\n';
-	s << "\tAllowed not improving iterations:\t" << m_stop << '\n';
-	s << "\tPerturbation width:\t\t\t" << m_perturb << '\n';
+	s << "Selected sub-algorithm:" << m_local->get_name() << ' ';
+	s << "Allowed not improving iterations:" << m_stop << ' ';
+	s << "Perturbation width:" << m_perturb << ' ';
 	return s.str();
 }
 

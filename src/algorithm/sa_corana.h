@@ -61,6 +61,7 @@ public:
 	sa_corana(int niter, const double &Ts, const double &Tf, int m_step_adj = 1, int m_bin_size = 20, const double &range = 1);
 	base_ptr clone() const;
 	void evolve(population &) const;
+	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:

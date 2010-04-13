@@ -68,7 +68,7 @@ std::string base::get_name() const
 std::string base::human_readable() const
 {
 	std::ostringstream s;
-	s << "Algorithm name: " << get_name() << '\n';
+	s << get_name() << " - ";
 	s << human_readable_extra();
 	return s.str();
 }

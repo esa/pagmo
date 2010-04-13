@@ -79,4 +79,21 @@ void monte_carlo::evolve(population &pop) const
 	}
 }
 
+/// Algorithm name
+std::string monte_carlo::get_name() const
+{
+	return "Monte Carlo";
+}
+
+/// Extra human readable algorithm info.
+/**
+ * @return a formatted string displaying the parameters of the algorithm.
+ */
+std::string monte_carlo::human_readable_extra() const
+{
+	std::ostringstream s;
+	s << "Number of evaluations:" << m_max_eval;
+	return s.str();
+}
+
 }}

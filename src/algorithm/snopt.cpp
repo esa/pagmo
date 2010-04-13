@@ -343,7 +343,7 @@ std::string snopt::get_name() const
 std::string snopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "SNOPT - Major Iterations: " << m_major << ", Feasibility: "<<m_feas<< ", Optimality: "<<m_opt << std::endl;
+	s << "Major Iterations:" << m_major << " Feasibility: "<<m_feas<< " Optimality: "<<m_opt << std::endl;
 	return s.str();
 }
 

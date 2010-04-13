@@ -71,6 +71,7 @@ public:
 	    crossover::type cro = crossover::EXPONENTIAL);
 	base_ptr clone() const;
 	void evolve(population &) const;
+	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:

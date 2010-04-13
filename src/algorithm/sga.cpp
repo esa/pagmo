@@ -330,7 +330,11 @@ void sga::evolve(population &pop) const
 	} // end of main SGA loop
 }
 
-
+/// Algorithm name
+std::string sga::get_name() const
+{
+	return "A Simple Genetic Algorithm";
+}
 
 /// Extra human readable algorithm info.
 /**
@@ -339,13 +343,13 @@ void sga::evolve(population &pop) const
 std::string sga::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "\tGenerations:\t" << m_gen << '\n';
-	s << "\tCrossover probability (CR):\t\t" << m_cr << '\n';
-	s << "\tMutation probability (M):\t" << m_cr << '\n';
-	s << "\tElitism:\t" << m_elitism << '\n';
-	s << "\tMutation type:\t" << m_mut.m_type << '\n';
-	s << "\tSelection type:\t" << m_sel << '\n';
-	s << "\tCrossover type:\t" << m_cro << '\n';
+	s << "Generations:" << m_gen << ' ';
+	s << "Crossover probability (CR):" << m_cr << ' ';
+	s << "Mutation probability (M):" << m_cr << ' ';
+	s << "Elitism:" << m_elitism << ' ';
+	s << "Mutation type:" << m_mut.m_type << ' ';
+	s << "Selection type:" << m_sel << ' ';
+	s << "Crossover type:" << m_cro << ' ';
 
 	return s.str();
 }
