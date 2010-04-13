@@ -343,13 +343,13 @@ std::string sga::get_name() const
 std::string sga::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "Generations:" << m_gen << ' ';
-	s << "Crossover probability (CR):" << m_cr << ' ';
-	s << "Mutation probability (M):" << m_cr << ' ';
-	s << "Elitism:" << m_elitism << ' ';
-	s << "Mutation type:" << m_mut.m_type << ' ';
-	s << "Selection type:" << m_sel << ' ';
-	s << "Crossover type:" << m_cro << ' ';
+	s << "gen:" << m_gen << ' ';
+	s << "CR:" << m_cr << ' ';
+	s << "M:" << m_cr << ' ';
+	s << "elitism:" << m_elitism << ' ';
+	s << "mutation type:" << m_mut.m_type << ' ';
+	s << "selection type:" << m_sel << ' ';
+	s << "crossover type:" << m_cro << ' ';
 
 	return s.str();
 }

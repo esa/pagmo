@@ -124,7 +124,7 @@ void mbh::evolve(population &pop) const
 		{
 			for (decision_vector::size_type k=0; k < Dc; ++k)
 			{
-				dummy = best_pop.get_individual(j).best_x[k];
+				dummy = best_pop.get_individual(j).cur_x[k];
 				width = (ub[k]-lb[k]) * m_perturb / 2;
 				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_drng);
 				dummy = best_pop.get_individual(j).cur_v[k];
@@ -133,7 +133,7 @@ void mbh::evolve(population &pop) const
 
 			for (decision_vector::size_type k=Dc; k < D; ++k)
 			{
-				dummy = best_pop.get_individual(j).best_x[k];
+				dummy = best_pop.get_individual(j).cur_x[k];
 				width = (ub[k]-lb[k]) * m_perturb / 2;
 				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
 				dummy = best_pop.get_individual(j).cur_v[k];
@@ -174,9 +174,9 @@ std::string mbh::get_name() const
 std::string mbh::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "Selected sub-algorithm:" << m_local->get_name() << ' ';
-	s << "Allowed not improving iterations:" << m_stop << ' ';
-	s << "Perturbation width:" << m_perturb << ' ';
+	s << "algorithm:" << m_local->get_name() << ' ';
+	s << "stop:" << m_stop << ' ';
+	s << "perturb:" << m_perturb << ' ';
 	return s.str();
 }
 

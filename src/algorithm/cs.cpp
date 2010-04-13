@@ -168,9 +168,9 @@ std::string cs::get_name() const
 std::string cs::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "Stopping range:" << m_stop_range << ' ';
-	s << "Starting range:" << m_start_range << ' ';
-	s << "Reduction coefficient:" << m_reduction_coeff;
+	s << "stop_range:" << m_stop_range << ' ';
+	s << "start_range:" << m_start_range << ' ';
+	s << "reduction_coeff:" << m_reduction_coeff;
 	return s.str();
 }
 

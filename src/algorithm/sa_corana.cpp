@@ -208,12 +208,12 @@ std::string sa_corana::get_name() const
 std::string sa_corana::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "Iteration:" << m_niter << ' ';
-	s << "Starting Temperature:" << m_Ts << ' ';
-	s << "Final Temperature:" << m_Tf << ' ';
-	s << "Ratio of neighbourhood over temperature adjustments:" << m_step_adj << ' ';
-	s << "Size of the bin to evaluate the acceptance rate:" << m_bin_size << ' ';
-	s << "Size of the strating range:" << m_range << ' ';
+	s << "niter:" << m_niter << ' ';
+	s << "Ts:" << m_Ts << ' ';
+	s << "Tf:" << m_Tf << ' ';
+	s << "step_adj:" << m_step_adj << ' ';
+	s << "bin_size:" << m_bin_size << ' ';
+	s << "range:" << m_range << ' ';
 	return s.str();
 }
 

@@ -92,7 +92,7 @@ std::string monte_carlo::get_name() const
 std::string monte_carlo::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "Number of evaluations:" << m_max_eval;
+	s << "max_eval:" << m_max_eval;
 	return s.str();
 }
 

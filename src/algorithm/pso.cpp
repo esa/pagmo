@@ -244,11 +244,11 @@ std::string pso::get_name() const
 std::string pso::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "Generations:" << m_gen << ' ';
-	s << "Particles inertia (omega):" << m_omega << ' ';
-	s << "Social Component (eta1):" << m_eta1 << ' ';
-	s << "Cognitive Component (eta2):" << m_eta2 << ' ';
-	s << "Algorithm variant:" << m_variant << ' ';
+	s << "gen:" << m_gen << ' ';
+	s << "omega:" << m_omega << ' ';
+	s << "eta1:" << m_eta1 << ' ';
+	s << "eta2:" << m_eta2 << ' ';
+	s << "variant:" << m_variant << ' ';
 	return s.str();
 }
 
