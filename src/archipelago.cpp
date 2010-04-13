@@ -204,6 +204,24 @@ void archipelago::push_back(const island &isl)
 	m_topology->push_back();
 }
 
+/// Set island algorithm.
+/**
+ * Set algorithm of island number idx to a.
+ *
+ * @param[in] idx island index.
+ * @param[in] a algorithm to be set.
+ *
+ * @throws pagmo::index_error if index is not smaller than archipelago size.
+ */
+void archipelago::set_algorithm(const size_type &idx, const algorithm::base &a)
+{
+	join();
+	if (idx >= m_container.size()) {
+		pagmo_throw(index_error,"invalid island index");
+	}
+	m_container[idx].set_algorithm(a);
+}
+
 /// Get the size of the archipelago.
 /**
  * @return the number of islands contained in the archipelago.

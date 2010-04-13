@@ -129,6 +129,7 @@ class __PAGMO_VISIBLE archipelago
 		archipelago &operator=(const archipelago &);
 		~archipelago();
 		void join() const;
+		void set_algorithm(const size_type &, const algorithm::base &);
 		void push_back(const island &);
 		size_type get_size() const;
 		std::string human_readable() const;

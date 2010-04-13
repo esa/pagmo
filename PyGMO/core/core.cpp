@@ -78,6 +78,11 @@ inline static island archipelago_get_island(const archipelago &a, int n)
 	return a.get_island(boost::numeric_cast<archipelago::size_type>(n));
 }
 
+inline static void archipelago_set_algorithm(archipelago &archi, int n, const algorithm::base &a)
+{
+	archi.set_algorithm(boost::numeric_cast<archipelago::size_type>(n),a);
+}
+
 inline static population::individual_type population_get_individual(const population &pop, int n)
 {
 	return pop.get_individual(boost::numeric_cast<population::size_type>(n));
@@ -178,6 +183,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("interrupt", &archipelago::interrupt,"Interrupt evolution.")
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
 		.def("push_back", &archipelago::push_back,"Append island.")
+		.def("set_algorithm", &archipelago_set_algorithm,"Set algorithm on island.")
 		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.def("dump_migr_history", &archipelago::dump_migr_history)
 		.def("clear_migr_history", &archipelago::clear_migr_history)
