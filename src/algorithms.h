@@ -37,7 +37,7 @@
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
 #include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+//#include "algorithm/ms.h"
 
 
 // SNOPT algorithm.

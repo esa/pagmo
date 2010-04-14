@@ -35,8 +35,8 @@ const int sequence[6] = {3, 2, 2, 3, 5, 6};
 * Instantiates the cassini_2 problem*/
 cassini_2::cassini_2():base(22), problem(total_DV_rndv,sequence,6,0,0,0,0,0)
 {
-	const double lb[22] = {-750, 3, 0, 0, 100, 100, 30, 400, 800, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.15, 1.7, -M_PI, -M_PI, -M_PI, -M_PI};
-	const double ub[22] = {780,  5, 1, 1, 400, 500, 300, 1600, 2200, 0.9, 0.9, 0.9, 0.9, 0.9, 6, 6, 6.5, 291, M_PI, M_PI, M_PI, M_PI};
+	const double lb[22] = {-1000, 3, 0, 0, 100, 100, 30, 400, 800, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.15, 1.7, -M_PI, -M_PI, -M_PI, -M_PI};
+	const double ub[22] = {0,  5, 1, 1, 400, 500, 300, 1600, 2200, 0.9, 0.9, 0.9, 0.9, 0.9, 6, 6, 6.5, 291, M_PI, M_PI, M_PI, M_PI};
 	set_bounds(lb,lb+22,ub,ub+22);
 }
 

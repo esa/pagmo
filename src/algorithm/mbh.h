@@ -73,6 +73,7 @@ class __PAGMO_VISIBLE mbh: public base
 {
 public:
 	mbh(const algorithm::base &, int stop = 50, double perturb = 5e-2);
+	mbh(const algorithm::base &, int stop, std::vector<double> perturb);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
@@ -84,7 +85,7 @@ private:
 	// Consecutive non improving iterations
 	const int m_stop;
 	// Perturbation of the population
-	const double m_perturb;
+	mutable std::vector<double> m_perturb;
 	// Activate screen output
 	bool m_screen_out;
 

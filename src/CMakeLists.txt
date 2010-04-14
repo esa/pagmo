@@ -10,7 +10,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
+#	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
