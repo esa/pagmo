@@ -143,6 +143,7 @@ class __PAGMO_VISIBLE population
 		const_iterator end() const;
 		size_type n_dominated(const individual_type &) const;
 		void reinit(const size_type &);
+		void reinit();
 	private:
 		population();
 		void update_champion(const size_type &);

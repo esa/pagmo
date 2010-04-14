@@ -79,21 +79,20 @@ int main()
 1.557300412042473159e+00,1.741399754610104100e+00,
 1.578846812880740913e+00,1.569549219255385708e+00};
 
-	algorithm::snopt algo2(10000,1e-14,1e-14);
-	//algo2.screen_output(false);
-	algorithm::mbh algo(algo2,200,0.01);
+	algorithm::nlopt_sbplx algo2(5000, 1e-4);
+	algorithm::mbh algo3(algo2,20,0.01);
+	//algo3.screen_output(true);
+	algorithm::ms algo(algo3,200);
 	algo.screen_output(true);
 	problem::messenger_full prob;
 
 	std::vector<double> lb0(lb,lb+26);
 	std::vector<double> ub0(ub,ub+26);
 	prob.set_bounds(lb0,ub0);
-	island isl = island(prob,algo,1);
+	island isl = island(prob,algo,20);
 	std::cout << prob << std::endl;
 	std::cout << algo << std::endl;
 
-	std::vector<double> x0(x,x+26);
-	isl.set_x(0,x0);
 
 	for (int i=0; i< 20; ++i){
 		//isl.set_algorithm(algorithm::sa_corana(10000,(isl.get_population().champion().f[0]-9),0.1));

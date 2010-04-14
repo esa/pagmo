@@ -51,11 +51,16 @@ namespace pagmo { namespace algorithm {
 @verbatim
 > Select a pagmo::population
 > Select a pagmo::algorithm
+> Store best individual
 > while i < stop_criteria
-> > Evolve the population using the algorithm
-> > Increment i if the champion is not improved
-> > i = 0 if a better champion is found
 > > Perturb the population in a selected neighbourhood
+> > Evolve the population using the algorithm
+> > if the best individual is improved (according to the problem::compare_fc criteria)
+> > > increment i
+> > > update best individual
+> > else
+> > > i = 0
+
 @endverbatim
  *
  *

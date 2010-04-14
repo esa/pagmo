@@ -98,28 +98,8 @@ void mbh::evolve(population &pop) const
 	//mbh main loop
 
 	while (i<m_stop){
-		//1. Evolve population with selected algorithm
-		m_local->evolve(pop); i++;
 
-		//2. Reset counter if improved
-		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
-		{
-			if (m_screen_out)
-			{
-				std::cout << "Improved after: " << i << "\tBest-so-far: " << pop.get_individual(pop.get_best_idx()).cur_f <<std::endl;
-			}
-			i = 0;
-			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
-			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
-			//update best population
-			for (population::size_type j=0; j<pop.size();++j)
-			{
-				best_pop.set_x(j,pop.get_individual(j).cur_x);
-				best_pop.set_v(j,pop.get_individual(j).cur_v);
-			}
-		}
-
-		//3. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
+		//1. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
 		for (population::size_type j =0; j < NP; ++j)
 		{
 			for (decision_vector::size_type k=0; k < Dc; ++k)
@@ -142,6 +122,30 @@ void mbh::evolve(population &pop) const
 			pop.set_x(j,tmp_x);
 			pop.set_v(j,tmp_v);
 		}
+
+		//2. Evolve population with selected algorithm
+		m_local->evolve(pop); i++;
+		if (m_screen_out)
+		{
+			std::cout << i << ". " << "\tBest: " << pop.get_individual(pop.get_best_idx()).cur_f << "\tChampion: " << pop.champion().f << std::endl;
+		}
+
+		//3. Reset counter if improved
+		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
+		{
+
+			i = 0;
+			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
+			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
+			//update best population
+			for (population::size_type j=0; j<pop.size();++j)
+			{
+				best_pop.set_x(j,pop.get_individual(j).cur_x);
+				best_pop.set_v(j,pop.get_individual(j).cur_v);
+			}
+		}
+
+
 	}
 	//on exit set the population to the best one (discard perturbations)
 	for (population::size_type j=0; j<pop.size();++j)
