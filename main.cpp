@@ -48,23 +48,25 @@ double x[22] = {-779.45156677047862, 3.2540570452459043, 0.52689731549926921,
      1.0500032115842122, 1.3066951686999049, 69.81346649423962,
       -1.5907330914593276, -1.9595633249627791, -1.5547363420059905,
        -1.5134315210520082};
-	algorithm::sa_corana algo2(10000, 1e-3,1e-4,1,20,1e-6);
-	algorithm::mbh algo(algo2,500,1e-7);
+	algorithm::nlopt_sbplx algo2(10000, 1e-4);
+	algorithm::mbh algo(algo2,50,0.1);
 	algo.screen_output(true);
-	problem::cassini_2 prob;
+	int seq[5] = {3,2,2,3,5};
+	problem::laplace prob(std::vector<int>(seq,seq+5));
 
 	island isl = island(prob,algo,20);
 	std::cout << prob << std::endl;
 	std::cout << algo << std::endl;
 	std::vector<double> x0(x,x+22);
-	isl.set_x(0,x0);
+	//isl.set_x(0,x0);
 
-	for (int i=0; i< 20; ++i){
+	for (int i=0; i< 1; ++i){
 		//isl.set_algorithm(algorithm::sa_corana(10000,(isl.get_population().champion().f[0]-9),0.1));
 		isl.evolve(); isl.join();
 		std::cout << i << " - " << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
 		std::cout << isl.get_population().champion().x <<std::endl;
 	}
+	std::cout << prob.pretty(isl.get_population().champion().x);
 
 	return 0;
 }

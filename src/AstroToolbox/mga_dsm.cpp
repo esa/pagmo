@@ -354,7 +354,7 @@ int MGA_DSM(
 		//copy previous output velocity to current input velocity
 		inter_pl_in_v[0] = inter_pl_out_v[0]; inter_pl_in_v[1] = inter_pl_out_v[1]; inter_pl_in_v[2] = inter_pl_out_v[2];
 
-		intermediate_block(t, problem, r, v, i_count, inter_pl_in_v,DV, inter_pl_out_v);
+		problem.vrelin_vec[i_count] = intermediate_block(t, problem, r, v, i_count, inter_pl_in_v,DV, inter_pl_out_v);
 	}
 
 	//copy previous output velocity to current input velocity
