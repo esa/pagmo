@@ -28,6 +28,7 @@
 
 namespace pagmo { namespace problem {
 
+/// Fly bys considered
 const int Data[24][5] = {
 	{3,2,2,2,6},
 	{3,2,2,3,6},
@@ -55,6 +56,7 @@ const int Data[24][5] = {
 	{3,3,4,5,6}
 };
 
+/// Dummy sequence (unused)
 const int sequence[5] = {1,1,1,1,1};
 
 /// Constructor

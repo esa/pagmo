@@ -233,7 +233,7 @@ void island::set_x(population::size_type i, const decision_vector &x)
  * Assigns a velocity vector to the i-th individual of the island population
  *
  * @param[in] i individual
- * @param[in] x velocity_vector
+ * @param[in] v velocity_vector
  */
 void island::set_v(population::size_type i, const decision_vector &v)
 {

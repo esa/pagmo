@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,49 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <climits>
-#include <iostream>
-#include <vector>
-#include <list>
+#ifndef PAGMO_ALGORITHM_MS_H
+#define PAGMO_ALGORITHM_MS_H
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/topologies.h"
-#include "src/problem/base.h"
+#include <string>
 
-using namespace pagmo;
+#include "../config.h"
+#include "../population.h"
+#include "base.h"
 
-int main()
+
+namespace pagmo { namespace algorithm {
+
+/// Multistart
+/**
+ *
+ * The name of this algorithm says it all!!
+ * It runs the same algorithm over and over on a random initial population. At the end, the champion will
+ * keep memory of the luckiest run. The psuedo algorithm is as follow:
+
+@verbatim
+> Select a pagmo::population
+> Select a pagmo::algorithm
+> Store best individual
+> Until termination:
+> > Reset the population
+> > evolve the population with the pagmo::algorithm
+@endverbatim
+ *
+ *
+ * @author Dario Izzo (dario.izzo@googlemail.com)
+ */
+
+class __PAGMO_VISIBLE ms: public base
 {
+public:
+	ms(const algorithm::base &, int);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	void screen_output(const bool);
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	base_ptr m_algorithm;
+	int m_starts;
+	bool m_screen_out;
 
-double x[22] = {-779.45156677047862, 3.2540570452459043, 0.52689731549926921,
- 0.38285203950839292, 167.55049483170021, 424.23381445972808,
-  53.310310073616151, 589.77169016660821, 2199.9939278768511,
-   0.7755487837508489, 0.53666875224363364, 0.010546794232542851,
-    0.014653697948643706, 0.6594344155776396, 1.3505009019745324,
-     1.0500032115842122, 1.3066951686999049, 69.81346649423962,
-      -1.5907330914593276, -1.9595633249627791, -1.5547363420059905,
-       -1.5134315210520082};
-	algorithm::sa_corana algo2(10000, 1e-3,1e-4,1,20,1e-6);
-	algorithm::mbh algo(algo2,500,1e-7);
-	algo.screen_output(true);
-	problem::cassini_2 prob;
+};
 
-	island isl = island(prob,algo,20);
-	std::cout << prob << std::endl;
-	std::cout << algo << std::endl;
-	std::vector<double> x0(x,x+22);
-	isl.set_x(0,x0);
+}} //namespaces
 
-	for (int i=0; i< 20; ++i){
-		//isl.set_algorithm(algorithm::sa_corana(10000,(isl.get_population().champion().f[0]-9),0.1));
-		isl.evolve(); isl.join();
-		std::cout << i << " - " << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-		std::cout << isl.get_population().champion().x <<std::endl;
-	}
-
-	return 0;
-}
+#endif // PAGMO_ALGORITHM_MS_H
