@@ -27,6 +27,7 @@
 
 // Header including all algorithms implemented in PaGMO.
 
+// Heuristics
 #include "algorithm/base.h"
 #include "algorithm/cs.h"
 #include "algorithm/de.h"
@@ -36,8 +37,10 @@
 #include "algorithm/pso.h"
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
+
+// Hyper-heuristics
 #include "algorithm/mbh.h"
-//#include "algorithm/ms.h"
+#include "algorithm/ms.h"
 
 
 // SNOPT algorithm.
