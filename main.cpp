@@ -40,33 +40,33 @@ using namespace pagmo;
 int main()
 {
 
-double x[22] = {-779.45156677047862, 3.2540570452459043, 0.52689731549926921,
- 0.38285203950839292, 167.55049483170021, 424.23381445972808,
-  53.310310073616151, 589.77169016660821, 2199.9939278768511,
-   0.7755487837508489, 0.53666875224363364, 0.010546794232542851,
-    0.014653697948643706, 0.6594344155776396, 1.3505009019745324,
-     1.0500032115842122, 1.3066951686999049, 69.81346649423962,
-      -1.5907330914593276, -1.9595633249627791, -1.5547363420059905,
-       -1.5134315210520082};
-	algorithm::nlopt_sbplx algo2(10000, 1e-4);
-	algorithm::mbh algo(algo2,50,0.1);
-	algo.screen_output(true);
-	int seq[5] = {3,2,2,3,5};
-	problem::laplace prob(std::vector<int>(seq,seq+5));
+double x0[18] = {7.989524780452492,
+  0.003342373570327,
+  0.000496070510171,
+  0.000346679181235,
+  0.165742122481179,
+  0.338886393991666,
+  1.178529078662072,
+  1.833511408569831,
+  0.000567891315758,
+  0.000035449302839,
+  0.000551417113788,
+  0.000109624792157,
+  0.001050001381673,
+  0.001100314679903,
+  0.001050000003226,
+ -0.001160960328461,
+ -0.001683679517514,
+ -0.002036102777034};
 
-	island isl = island(prob,algo,20);
-	std::cout << prob << std::endl;
-	std::cout << algo << std::endl;
-	std::vector<double> x0(x,x+22);
-	//isl.set_x(0,x0);
 
-	for (int i=0; i< 1; ++i){
-		//isl.set_algorithm(algorithm::sa_corana(10000,(isl.get_population().champion().f[0]-9),0.1));
-		isl.evolve(); isl.join();
-		std::cout << i << " - " << isl.get_population().champion().f << " " << problem::objfun_calls() << std::endl;
-		std::cout << isl.get_population().champion().x <<std::endl;
-	}
-	std::cout << prob.pretty(isl.get_population().champion().x);
+
+	std::vector<double> x(x0,x0+18);
+	for (int i=0;i<18;++i) x[i] *= 1000;
+	problem::tandem prob(6);
+	std::cout << prob.pretty(x);
+
+
 
 	return 0;
 }

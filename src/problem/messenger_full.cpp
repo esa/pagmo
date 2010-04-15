@@ -24,6 +24,7 @@
 
 #include "messenger_full.h"
 #include "../AstroToolbox/mga_dsm.h"
+#include "../keplerian_toolbox/epoch.h"
 
 namespace pagmo { namespace problem {
 
@@ -53,6 +54,52 @@ base_ptr messenger_full::clone() const
 void messenger_full::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	MGA_DSM(x, problem,f[0]);
+}
+
+std::string messenger_full::pretty(const std::vector<double> &x) const
+{
+	double obj = 0;
+	MGA_DSM(x, problem, obj);
+	std::ostringstream s;
+	s.precision(15);
+	s << std::scientific;
+	const size_t seq_size = (x.size() + 2) / 4;
+	pagmo_assert((x.size() + 2) % 4 == 0 && seq_size >= 2);
+	pagmo_assert(problem.sequence.size() == seq_size);
+	s << "Flyby sequence:\t\t\t";
+	for (size_t i = 0; i < seq_size; ++i) {
+		s << problem.sequence[i];
+	}
+	s << '\n';
+	s << "Departure epoch (mjd2000):\t" << x[0] << '\n';
+	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(x[0],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Vinf polar components:\t\t";
+	for (size_t i = 0; i < 3; ++i) {
+		s << x[i + 1] << ' ';
+	}
+	s << '\n';
+	double totaltime = 0;
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		s << "Leg time of flight:\t\t" << x[i + 4] << '\n';
+		totaltime += x[i + 4];
+	}
+	s << "Total time of flight:\t\t" << totaltime << '\n';
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Flyby radius:\t\t\t" << x[i + 2 * (seq_size + 1)] << '\n';
+	}
+	totaltime=x[0];
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+	totaltime += x[i + 4];
+		s << "Flyby date:\t\t\t" << ::kep_toolbox::epoch(totaltime,::kep_toolbox::epoch::MJD2000) << '\n';
+	}
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Vinf at flyby:\t\t\t" << std::sqrt(problem.vrelin_vec[i]) << '\n';
+	}
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		s << "dsm" << i+1 << ":\t\t\t\t" << problem.DV[i+1] << '\n';
+	}
+	s << "Final DV:\t\t\t" << problem.DV.back() << '\n';
+	return s.str();
 }
 
 /// Implementation of the sparsity structure.

@@ -25,6 +25,7 @@
 #include "tandem.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
+#include "../keplerian_toolbox/epoch.h"
 
 namespace pagmo { namespace problem {
 
@@ -160,6 +161,65 @@ void tandem::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	sumDVvec=sumDVvec+0.165; //losses for 3 swgbys + insertion
 	m_final = m_initial * exp(-sumDVvec/Isp/g0*1000);
 	f[0] = -log(m_final);
+}
+
+std::string tandem::pretty(const std::vector<double> &x) const
+{
+	double obj=0;
+	std::vector<double> printablex;
+	if (tof!=-1) { //constrained problem
+		//Here we copy the chromosome into a new vector and we transform its time percentages into days
+		copy_of_x = x;
+		copy_of_x[4] = x[4]*365.25*tof;
+		copy_of_x[5] = x[5]*(365.25*tof-copy_of_x[4]);
+		copy_of_x[6] = x[6]*(365.25*tof-copy_of_x[4]-copy_of_x[5]);
+		copy_of_x[7] = x[7]*(365.25*tof-copy_of_x[4]-copy_of_x[5]-copy_of_x[6]);
+		MGA_DSM(copy_of_x, problem, obj);
+		printablex=copy_of_x;
+	} else {	//unconstrained problem
+		MGA_DSM(x, problem, obj);
+		printablex=x;
+	}
+	std::ostringstream s;
+	s.precision(15);
+	s << std::scientific;
+	const size_t seq_size = (x.size() + 2) / 4;
+	pagmo_assert((x.size() + 2) % 4 == 0 && seq_size >= 2);
+	pagmo_assert(problem.sequence.size() == seq_size);
+	s << "Flyby sequence:\t\t\t";
+	for (size_t i = 0; i < seq_size; ++i) {
+		s << problem.sequence[i];
+	}
+	s << '\n';
+	s << "Departure epoch (mjd2000):\t" << printablex[0] << '\n';
+	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(printablex[0],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Vinf polar components:\t\t";
+	for (size_t i = 0; i < 3; ++i) {
+		s << printablex[i + 1] << ' ';
+	}
+	s << '\n';
+	double totaltime = 0;
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		s << "Leg time of flight:\t\t" << printablex[i + 4] << '\n';
+		totaltime += printablex[i + 4];
+	}
+	s << "Total time of flight:\t\t" << totaltime << '\n';
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Flyby radius:\t\t\t" << printablex[i + 2 * (seq_size + 1)] << '\n';
+	}
+	totaltime=printablex[0];
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+	totaltime += printablex[i + 4];
+		s << "Flyby date:\t\t\t" << ::kep_toolbox::epoch(totaltime,::kep_toolbox::epoch::MJD2000) << '\n';
+	}
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Vinf at flyby:\t\t\t" << std::sqrt(problem.vrelin_vec[i]) << '\n';
+	}
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		s << "dsm" << i+1 << ":\t\t\t\t" << problem.DV[i+1] << '\n';
+	}
+	s << "Final DV:\t\t\t" << problem.DV.back() << '\n';
+	return s.str();
 }
 
 /// Implementation of the sparsity structure.
