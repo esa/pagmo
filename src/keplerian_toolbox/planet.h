@@ -53,7 +53,7 @@ namespace kep_toolbox{
                 * \param[in] ref_epoch epoch to which the elements are referred to
                 * \param[in] elem A STL vector containing the keplerian parameters (a,e,i,Om,om,M). AU and degrees are assumed
                 * \param[in] mu_central_body The gravitational parameter of the attracting body (SI units)
-                * \param[in] radius The epoch to which the mean anomaly is referred to
+		* \param[in] radius radius of the planet (SI units)
                 * \param[in] mu_self The gravitational parameter of the planet (SI units)
                 */
         planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double & radius, const double &mu_self);

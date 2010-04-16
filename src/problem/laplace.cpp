@@ -119,7 +119,7 @@ void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	s << std::scientific;
 	const size_t seq_size = (x.size() + 2) / 4;
 	pagmo_assert((x.size() + 2) % 4 == 0 && seq_size >= 2);
-	pagmo_assert(mgadsm->sequence.size() == seq_size);
+	pagmo_assert(problem->sequence.size() == seq_size);
 	s << "Flyby sequence:        ";
 	for (size_t i = 0; i < seq_size; ++i) {
 		s << problem->sequence[i];

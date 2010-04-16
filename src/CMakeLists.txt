@@ -48,6 +48,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
