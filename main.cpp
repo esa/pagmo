@@ -4472,15 +4472,17 @@ int main()
 		//define the asteroid elements
 		elem[0] = ast_data[j][1] * ASTRO_AU;
 		elem[1] = ast_data[j][2];
-		for (int i = 2;i<6;++i) elem[i] = ast_data[j][i+1] * ASTRO_DEG2RAD;
-
-		//changing from JPL to PaGMO format
+		elem[2] = ast_data[j][3] * ASTRO_DEG2RAD;
 		elem[3] = ast_data[j][5] * ASTRO_DEG2RAD;
 		elem[4] = ast_data[j][4] * ASTRO_DEG2RAD;
-		when = ast_data[j][0];
+		elem[5] = ast_data[j][6] * ASTRO_DEG2RAD;
+		when    = ast_data[j][0];
 
+		//instantiate the asteroid
 		epoch = ::kep_toolbox::epoch(when,::kep_toolbox::epoch::MJD);
 		::kep_toolbox::planet target(epoch,elem,ASTRO_MU_SUN,200.0,100.0);
+
+		//build the problem
 		pagmo::problem::sample_return prob(target);
 		std::cout << "Computing Asteroid ID: " << j << std::endl;
 
