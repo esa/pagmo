@@ -54,7 +54,7 @@ sample_return::sample_return(::kep_toolbox::planet asteroid):base(12), m_target(
 	//convert to JPL unit format .... (check mgadsm)
 	m_leg1.asteroid.keplerian[0] /= ASTRO_AU;
 	m_leg2.asteroid.keplerian[0] /= ASTRO_AU;
-	for (int i = 4;i<6;++i)
+	for (int i = 2;i<6;++i)
 	{
 		m_leg1.asteroid.keplerian[i] *= ASTRO_RAD2DEG;
 		m_leg2.asteroid.keplerian[i] *= ASTRO_RAD2DEG;
@@ -77,12 +77,12 @@ void sample_return::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
 	std::copy(x.begin()+6,x.begin()+12,x_leg2.begin());
 	//We account for the waiting time
-	x_leg2[0] += x_leg1[0] + x_leg1[6];
+	x_leg2[0] += x_leg1[0] + x_leg1[4];
 	double dummy = 0;
 	MGA_DSM(x_leg1, m_leg1, dummy);
 	MGA_DSM(x_leg2, m_leg2, dummy);
 	f[0] = m_leg1.DV[0] + m_leg1.DV[1] + m_leg1.DV[2] +
-		m_leg2.DV[0] + m_leg2.DV[1] + std::max(0.0,4.5 - m_leg2.DV[2]);
+		m_leg2.DV[0] + m_leg2.DV[1] + std::max(0.0,m_leg2.DV[2] - 4.5);
 
 }
 
@@ -95,7 +95,7 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
 	std::copy(x.begin()+6,x.begin()+12,x_leg2.begin());
 	//We account for the waiting time
-	x_leg2[0] += x_leg1[0] + x_leg1[5];
+	x_leg2[0] += x_leg1[0] + x_leg1[4];
 	double dummy = 0;
 	MGA_DSM(x_leg1, m_leg1, dummy);
 	MGA_DSM(x_leg2, m_leg2, dummy);
