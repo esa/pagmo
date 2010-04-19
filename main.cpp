@@ -4464,11 +4464,11 @@ int main()
 	ofstream myfile;
 	myfile.open ("out.pagmo");
 
-	int n_multistarts = 1;
+	int n_multistarts = 5;
 
 	pagmo::algorithm::sa_corana algo1(10000,1,0.01);
 	pagmo::algorithm::de algo2(500,0.8,0.8,3);
-	pagmo::algorithm::nlopt_sbplx algo3(500,1e-4);
+	pagmo::algorithm::nlopt_sbplx algo3(1000,1e-4);
 
 	for (int j=0; j<4406; ++j)
 	{
@@ -4488,10 +4488,10 @@ int main()
 		//build the problem
 		pagmo::problem::sample_return prob(target);
 		std::cout << "Computing Asteroid ID: " << j << std::endl;
-		double x0[12] = {16029.354130430316, 4.9325329758517453,0.99635001411936808, 0.50005642026253949, 200, 0.001, 5,0.70000804927993199, 0.37788188027225694, 0.50246789340015319,78.853032721841018, 0.0010000000000816704};
-		std::vector<double> x(x0,x0+12);
-		std::vector<double> f(1);
-		prob.objfun(f,x);
+		//double x0[12] = {16029.354130430316, 4.9325329758517453,0.99635001411936808, 0.50005642026253949, 200, 0.001, 5,0.70000804927993199, 0.37788188027225694, 0.50246789340015319,78.853032721841018, 0.0010000000000816704};
+		//std::vector<double> x(x0,x0+12);
+		//std::vector<double> f(1);
+		//prob.objfun(f,x);
 
 		for (int k=0;k<n_multistarts;++k){
 			std::cout << "\tTrial N.: " << k << std::endl;
@@ -4504,7 +4504,8 @@ int main()
 			a.push_back(pagmo::island(prob,algo1,20));
 			a.push_back(pagmo::island(prob,algo2,20));
 
-			a.evolve_t(20000);
+			a.evolve_t(10000);
+			std::cout << a.get_island(0).get_population().champion().f << std::endl;
 			std::vector<double> x = a.get_island(0).get_population().champion().x;
 			double time = x[4] + x[6] + x[10];
 			myfile << "[" << j << "] " << "[" << time << "] " << a.get_island(0).get_population().champion().f << " " << a.get_island(0).get_population().champion().x << std::endl;
