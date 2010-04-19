@@ -34,6 +34,7 @@
 #include "src/problems.h"
 #include "src/topologies.h"
 #include "src/archipelago.h"
+#include "src/migration.h"
 #include "src/problem/base.h"
 #include"src/keplerian_toolbox/keplerian_toolbox.h"
 
@@ -4491,7 +4492,7 @@ int main()
 		for (int k=0;k<n_multistarts;++k){
 			std::cout << "\tTrial N.: " << k << std::endl;
 			a = pagmo::archipelago(pagmo::topology::rim());
-			a.push_back(pagmo::island(prob,algo3,20));
+			a.push_back(pagmo::island(prob,algo3,20,1.,pagmo::migration::best_s_policy(),pagmo::migration::random_r_policy()));
 			a.push_back(pagmo::island(prob,algo1,20));
 			a.push_back(pagmo::island(prob,algo2,20));
 			a.push_back(pagmo::island(prob,algo1,20));
@@ -4499,10 +4500,7 @@ int main()
 			a.push_back(pagmo::island(prob,algo1,20));
 			a.push_back(pagmo::island(prob,algo2,20));
 
-			for (int i=0;i<50;++i)
-			{
-				a.evolve();
-			}
+			a.evolve_t(20000);
 			std::vector<double> x = a.get_island(0).get_population().champion().x;
 			double time = x[4] + x[6] + x[10];
 			myfile << "[" << j << "] " << "[" << time << "] " << a.get_island(0).get_population().champion().f << " " << a.get_island(0).get_population().champion().x << std::endl;
