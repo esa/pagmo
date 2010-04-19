@@ -4488,6 +4488,10 @@ int main()
 		//build the problem
 		pagmo::problem::sample_return prob(target);
 		std::cout << "Computing Asteroid ID: " << j << std::endl;
+		double x0[12] = {16029.354130430316, 4.9325329758517453,0.99635001411936808, 0.50005642026253949, 200, 0.001, 5,0.70000804927993199, 0.37788188027225694, 0.50246789340015319,78.853032721841018, 0.0010000000000816704};
+		std::vector<double> x(x0,x0+12);
+		std::vector<double> f(1);
+		prob.objfun(f,x);
 
 		for (int k=0;k<n_multistarts;++k){
 			std::cout << "\tTrial N.: " << k << std::endl;

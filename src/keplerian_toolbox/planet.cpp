@@ -32,6 +32,7 @@ namespace kep_toolbox{
 	if (mu_self_ < 0) {
 	    throw_value_error("The gravitational parameter of the planet needs to be positive number");
 	}
+	mean_motion = sqrt(mu_central_body / pow(keplerian_elements[0],3));
     }
 
     planet::planet(const std::string& name) :
@@ -140,7 +141,7 @@ namespace kep_toolbox{
         }
 	    break;
 	}
-	time_coefficient = sqrt(mu_central_body / pow(keplerian_elements[0],3));
+	mean_motion = sqrt(mu_central_body / pow(keplerian_elements[0],3));
     }
     
     void planet::get_eph(const epoch& when, array3D &r, array3D &v) const{
@@ -148,7 +149,7 @@ namespace kep_toolbox{
 	    double elements[6];
 	    std::copy(keplerian_elements.begin(), keplerian_elements.end(), elements);
 	    double dt = (when.mjd2000() - ref_mjd2000) * ASTRO_DAY2SEC;
-	    elements[5] += time_coefficient * dt;
+	    elements[5] += mean_motion * dt;
 	    elements[5] = m2e(elements[5],elements[1]);
 	    par2ic(elements, mu_central_body, cached_r, cached_v);
 	    cached_epoch = when;
@@ -173,7 +174,9 @@ namespace kep_toolbox{
     array6D planet::get_elements(const epoch& when) const{
 	array6D elements(keplerian_elements);
 	double dt = (when.mjd2000() - ref_mjd2000) * ASTRO_DAY2SEC;
-	elements[5] += time_coefficient * dt;
+	elements[5] += mean_motion * dt;
+	elements[5] = fmod(elements[5],2*M_PI);
+	if (elements[5] < 0) elements[5] = 2*M_PI + elements[5];
 	return ( elements );
     }
 
