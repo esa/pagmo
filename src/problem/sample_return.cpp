@@ -105,18 +105,25 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 	s << "Escape velocity:\t\t" << m_leg1.DV[0] << '\n';
 	s << "dsm1 epoch:\t\t\t" << ::kep_toolbox::epoch(x[0] + x[5]*x[4],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "dsm1 magnitude\t\t\t" << m_leg1.DV[1] << " \n";
-	s << "Asteroid arrival epoch: \t" << ::kep_toolbox::epoch(x[0] + x[5],::kep_toolbox::epoch::MJD2000) << '\n';
-	s << "Breaking manouvre:\t\t" << m_leg1.DV[2] << '\n';
+	s << "Asteroid arrival epoch: \t" << ::kep_toolbox::epoch(x[0] + x[4],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Breaking manouvre:\t\t" << m_leg1.DV[2] << '\n' << std::endl;
 
-	s << "Departure epoch (mjd2000):\t" << x[0] + x[5] + x[6] << '\n';
-	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(x[0] + x[5] + x[6],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Departure epoch (mjd2000):\t" << x[0] + x[4] + x[6] << '\n';
+	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(x[0] + x[4] + x[6],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "Escape velocity:\t\t" << m_leg2.DV[0] << '\n';
-	s << "dsm2 epoch:\t\t\t" << ::kep_toolbox::epoch(x[0]+x[5]+x[6]+x[11]*x[10],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "dsm2 epoch:\t\t\t" << ::kep_toolbox::epoch(x[0]+x[4]+x[6]+x[11]*x[10],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "dsm2 magnitude\t\t\t" << m_leg2.DV[1] << " \n";
-	s << "Earth arrival epoch: \t\t" << ::kep_toolbox::epoch(x[0]+x[5]+x[6]+x[11],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Earth arrival epoch: \t\t" << ::kep_toolbox::epoch(x[0]+x[4]+x[6]+x[10],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "Arrival Vinf:\t\t\t" << m_leg2.DV[2] << '\n';
+	s << "Total time of flight:\t\t" << x[4]+x[6]+x[10] << '\n' << std::endl;
 
-	s << "Total time of flight:\t\t" << x[0]+x[5]+x[6]+x[11] << '\n';
+	s << "Earth-ephemerides at departure:\t\t" << m_leg1.r[0][0] << " " << m_leg1.r[0][1] << " " << m_leg1.r[0][2] << std::endl;
+	s << "Asteroid-ephemerides at arrival:\t" << m_leg1.r[1][0] << " " << m_leg1.r[1][1] << " " << m_leg1.r[1][2] << std::endl;
+	s << "Asteroid-ephemerides at departure:\t" << m_leg2.r[0][0] << " " << m_leg2.r[0][1] << " " << m_leg2.r[0][2] << std::endl;
+	s << "Earth-ephemerides at arrival:\t\t" << m_leg2.r[1][0] << " " << m_leg2.r[1][1] << " " << m_leg2.r[1][2] << std::endl;
+
+
+
 	return s.str();
 }
 
