@@ -42,7 +42,7 @@ sample_return::sample_return(::kep_toolbox::planet asteroid):base(12), m_target(
 	::kep_toolbox::epoch start_lw(2020,1,1);
 	::kep_toolbox::epoch end_lw(2050,1,1);
 	const double lb[12] = {start_lw.mjd2000(),0,0,0,5  ,0.001,  5 ,0,0,0,5,0.001};
-	const double ub[12] = {end_lw.mjd2000()  ,6,1,1,200,0.999,  30,6,1,1,200,0.999};
+	const double ub[12] = {end_lw.mjd2000()  ,6,1,1,200,0.999,  100,6,1,1,200,0.999};
 	set_bounds(lb,lb+12,ub,ub+12);
 
 	for (int i = 0;i<6;++i)
