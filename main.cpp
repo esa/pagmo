@@ -4463,6 +4463,8 @@ int main()
 	ofstream myfile;
 	myfile.open ("out.pagmo");
 
+	int n_multistarts = 1;
+
 	pagmo::algorithm::sa_corana algo1(10000,1,0.01);
 	pagmo::algorithm::de algo2(500,0.8,0.8,3);
 	pagmo::algorithm::nlopt_sbplx algo3(500,1e-4);
@@ -4486,7 +4488,7 @@ int main()
 		pagmo::problem::sample_return prob(target);
 		std::cout << "Computing Asteroid ID: " << j << std::endl;
 
-		for (int k=0;k<5;++k){
+		for (int k=0;k<n_multistarts;++k){
 			std::cout << "\tTrial N.: " << k << std::endl;
 			a = pagmo::archipelago(pagmo::topology::rim());
 			a.push_back(pagmo::island(prob,algo3,20));
