@@ -42,7 +42,7 @@ sample_return::sample_return(::kep_toolbox::planet asteroid):base(12), m_target(
 	::kep_toolbox::epoch start_lw(2020,1,1);
 	::kep_toolbox::epoch end_lw(2050,1,1);
 	const double lb[12] = {start_lw.mjd2000(),0,0,0,5  ,0.001,  5 ,0,0,0,5,0.001};
-	const double ub[12] = {end_lw.mjd2000()  ,6,1,1,200,0.999,  30,6,1,1,200,0.999};
+	const double ub[12] = {end_lw.mjd2000()  ,6,1,1,200,0.999,  100,6,1,1,200,0.999};
 	set_bounds(lb,lb+12,ub,ub+12);
 
 	for (int i = 0;i<6;++i)
@@ -54,7 +54,7 @@ sample_return::sample_return(::kep_toolbox::planet asteroid):base(12), m_target(
 	//convert to JPL unit format .... (check mgadsm)
 	m_leg1.asteroid.keplerian[0] /= ASTRO_AU;
 	m_leg2.asteroid.keplerian[0] /= ASTRO_AU;
-	for (int i = 4;i<6;++i)
+	for (int i = 2;i<6;++i)
 	{
 		m_leg1.asteroid.keplerian[i] *= ASTRO_RAD2DEG;
 		m_leg2.asteroid.keplerian[i] *= ASTRO_RAD2DEG;
@@ -77,12 +77,12 @@ void sample_return::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
 	std::copy(x.begin()+6,x.begin()+12,x_leg2.begin());
 	//We account for the waiting time
-	x_leg2[0] += x_leg1[0] + x_leg1[6];
+	x_leg2[0] += x_leg1[0] + x_leg1[4];
 	double dummy = 0;
 	MGA_DSM(x_leg1, m_leg1, dummy);
 	MGA_DSM(x_leg2, m_leg2, dummy);
 	f[0] = m_leg1.DV[0] + m_leg1.DV[1] + m_leg1.DV[2] +
-		m_leg2.DV[0] + m_leg2.DV[1] + std::max(0.0,4.5 - m_leg2.DV[2]);
+		m_leg2.DV[0] + m_leg2.DV[1] + std::max(0.0,m_leg2.DV[2] - 4.5);
 
 }
 
@@ -95,7 +95,7 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
 	std::copy(x.begin()+6,x.begin()+12,x_leg2.begin());
 	//We account for the waiting time
-	x_leg2[0] += x_leg1[0] + x_leg1[5];
+	x_leg2[0] += x_leg1[0] + x_leg1[4];
 	double dummy = 0;
 	MGA_DSM(x_leg1, m_leg1, dummy);
 	MGA_DSM(x_leg2, m_leg2, dummy);
@@ -105,18 +105,25 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 	s << "Escape velocity:\t\t" << m_leg1.DV[0] << '\n';
 	s << "dsm1 epoch:\t\t\t" << ::kep_toolbox::epoch(x[0] + x[5]*x[4],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "dsm1 magnitude\t\t\t" << m_leg1.DV[1] << " \n";
-	s << "Asteroid arrival epoch: \t" << ::kep_toolbox::epoch(x[0] + x[5],::kep_toolbox::epoch::MJD2000) << '\n';
-	s << "Breaking manouvre:\t\t" << m_leg1.DV[2] << '\n';
+	s << "Asteroid arrival epoch: \t" << ::kep_toolbox::epoch(x[0] + x[4],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Breaking manouvre:\t\t" << m_leg1.DV[2] << '\n' << std::endl;
 
-	s << "Departure epoch (mjd2000):\t" << x[0] + x[5] + x[6] << '\n';
-	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(x[0] + x[5] + x[6],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Departure epoch (mjd2000):\t" << x[0] + x[4] + x[6] << '\n';
+	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(x[0] + x[4] + x[6],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "Escape velocity:\t\t" << m_leg2.DV[0] << '\n';
-	s << "dsm2 epoch:\t\t\t" << ::kep_toolbox::epoch(x[0]+x[5]+x[6]+x[11]*x[10],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "dsm2 epoch:\t\t\t" << ::kep_toolbox::epoch(x[0]+x[4]+x[6]+x[11]*x[10],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "dsm2 magnitude\t\t\t" << m_leg2.DV[1] << " \n";
-	s << "Earth arrival epoch: \t\t" << ::kep_toolbox::epoch(x[0]+x[5]+x[6]+x[11],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Earth arrival epoch: \t\t" << ::kep_toolbox::epoch(x[0]+x[4]+x[6]+x[10],::kep_toolbox::epoch::MJD2000) << '\n';
 	s << "Arrival Vinf:\t\t\t" << m_leg2.DV[2] << '\n';
+	s << "Total time of flight:\t\t" << x[4]+x[6]+x[10] << '\n' << std::endl;
 
-	s << "Total time of flight:\t\t" << x[0]+x[5]+x[6]+x[11] << '\n';
+	s << "Earth-ephemerides at departure:\t\t" << m_leg1.r[0][0] << " " << m_leg1.r[0][1] << " " << m_leg1.r[0][2] << std::endl;
+	s << "Asteroid-ephemerides at arrival:\t" << m_leg1.r[1][0] << " " << m_leg1.r[1][1] << " " << m_leg1.r[1][2] << std::endl;
+	s << "Asteroid-ephemerides at departure:\t" << m_leg2.r[0][0] << " " << m_leg2.r[0][1] << " " << m_leg2.r[0][2] << std::endl;
+	s << "Earth-ephemerides at arrival:\t\t" << m_leg2.r[1][0] << " " << m_leg2.r[1][1] << " " << m_leg2.r[1][2] << std::endl;
+
+
+
 	return s.str();
 }
 

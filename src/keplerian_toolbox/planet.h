@@ -139,7 +139,8 @@ namespace kep_toolbox{
         /**
          * \param[in] when Epoch in which orbital elements are required
          *
-         * @return a boost array containing the planet elements in epoch (SI Units) (a,e,i,Om,om,M)
+	 * @return a boost array containing the planet elements in epoch (SI Units) (a,e,i,Om,om,M). Mean anomaly is
+	 * returned in range 0,2*pi
          */
         //@}
 
@@ -150,7 +151,7 @@ namespace kep_toolbox{
 	void initialize_planet(planet::common_name name);
 
 	array6D keplerian_elements;
-	double time_coefficient;
+	double mean_motion;
         double ref_mjd2000;
         double radius;
         double safe_radius;
