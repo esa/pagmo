@@ -70,10 +70,12 @@ planet_mpcorb::planet_mpcorb(const std::string& name)
 				tmp.append(&line[mpcorb_format[7][0]],mpcorb_format[7][1]);
 				boost::algorithm::trim(tmp);
 				build_planet(epoch,elem,ASTRO_MU_SUN,100,100,100,tmp);
+				mpcorbfile.close();
 				break;
 			}
 		}
 		if (mpcorbfile.eof()) {
+			mpcorbfile.close();
 			throw_value_error("Could not find minor planet in MPCORB.DAT");
 		}
 	}
@@ -105,6 +107,7 @@ planet_mpcorb::planet_mpcorb(int row)
 		} while (!mpcorbfile.eof() && !((i-1)==row));
 
 		if (mpcorbfile.eof()) {
+			mpcorbfile.close();
 			throw_value_error("Could not find row in MPCORB.DAT");
 		}
 		//to lowercase
@@ -135,6 +138,7 @@ planet_mpcorb::planet_mpcorb(int row)
 		tmp.append(&line[mpcorb_format[7][0]],mpcorb_format[7][1]);
 		boost::algorithm::trim(tmp);
 		build_planet(epoch,elem,ASTRO_MU_SUN,100,100,100,tmp);
+		mpcorbfile.close();
 	}
 
 }
