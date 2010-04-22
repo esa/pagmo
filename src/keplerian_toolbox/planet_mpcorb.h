@@ -22,25 +22,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEPLERIAN_TOOLBOX_H
-#define KEPLERIAN_TOOLBOX_H
+#ifndef PLANET_MPCORB_H
+#define PLANET_MPCORB_H
 
-#include"epoch.h"
 #include"planet.h"
-#include"planet_ss.h"
-#include"planet_mpcorb.h"
-#include"core_functions/array3D_operations.h"
-#include"core_functions/convert_anomalies.h"
-#include"core_functions/convert_dates.h"
-#include"core_functions/ic2par.h"
-#include"core_functions/par2ic.h"
-#include"core_functions/kepler_equations.h"
-#include"core_functions/par2ic.h"
-#include"core_functions/propagate_lagrangian.h"
-#include"sims_flanagan/fb_traj.h"
-#include"sims_flanagan/leg.h"
-#include"sims_flanagan/sc_state.h"
-#include"sims_flanagan/throttle.h"
-#include"astro_constants.h"
+#
 
-#endif // KEPLERIAN_TOOLBOX_H
+namespace kep_toolbox{
+
+/// Minor Planet (keplerian)
+/**
+ * This class derives from the planet class and allow to instantiate planets of
+ * from the MPCORB database using their names.
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
+
+class planet_mpcorb : public planet
+{
+public:
+	/**
+	 * Construct a minor planet from its common name (e.g. EROS). Requires the file MPCORB.DAT
+	 * is present in the current directory
+	 * \param[in] name a string naming a minor planet (e.g. "eros" or "tu126" or "Apohis"). Case is ignored.
+	 *		partial names are matched to the first occurrence.
+	 * \throws value_error if MPCORB.DAT is not found or name is not found in the file.
+	 */
+	planet_mpcorb(const std::string& name);
+
+	/**
+	 * Construct a minor planet from the row number in the MPCORB.DAT file counted from the
+	 * first line containing an asetroid (i.e. line 0 is Ceres)
+	 * \param[in] row integer indicating the row.
+	 * \throws value_error if MPCORB.DAT is not found or row exceeds the asteroids in the file
+	 */
+	planet_mpcorb(int row);
+private:
+	static inline int packed_date2number(char c);
+};
+
+
+} /// End of namespace kep_toolbox
+#endif // PLANET_MPCORB_H

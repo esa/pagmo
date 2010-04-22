@@ -78,7 +78,8 @@ SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/time2distance.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_ss.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_ss.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_mpcorb.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/epoch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
