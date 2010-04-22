@@ -44,7 +44,7 @@ namespace kep_toolbox {
      * end velocity expressed in cartesian coodinates in km/s relative to the planet
      * leg end epoch expressed in MJD2000
      *
-     * Mass is not controlled by the chromosome, and is considered fixed for
+     * Mass is not controllclass cartesian_coding_tag {};ed by the chromosome, and is considered fixed for
      * the whole trajectory.
      */
     class base_format : public cartesian_coding_tag {
@@ -226,7 +226,7 @@ namespace kep_toolbox {
 	 * @returns the spacecraft mass in kg at the beginning of leg leg_n
 	 */
 	template<typename it_type>
-	double leg_start_mass(int leg_n, it_type begin) const {
+	double leg_start_mass(int, it_type) const {
 	    return mass_m;
 	}
 
@@ -499,46 +499,46 @@ namespace kep_toolbox {
 	 * @returns the number of legs in the trajectory
 	 */
 	int n_legs() const {
-	    return n_thrusts_m.size();
+		return n_thrusts_m.size();
 	}
-	    
+
 	/**
 	 * @returns the number of variables of the chromosome
 	 * which represents the trajectory
 	 */
 	int size() const {
-	    return leg_start(n_thrusts_m.size());
+		return leg_start(n_thrusts_m.size());
 	}
 
 	
-    protected:
+	protected:
 	/**
 	 * @param leg_n the index of the leg
 	 * @returns the number of variables used to represent the leg
 	 */
 	int leg_size(int leg_n) const {
-	    return (n_thrusts_m[leg_n] + 2) * 3 + 2;
+		return (n_thrusts_m[leg_n] + 2) * 3 + 2;
 	}
 	
 	int leg_start(int leg_n) const {
-	    return std::accumulate(n_thrusts_m.begin(), n_thrusts_m.begin() + leg_n, 0) * 3 + 8 * leg_n + 2;
+		return std::accumulate(n_thrusts_m.begin(), n_thrusts_m.begin() + leg_n, 0) * 3 + 8 * leg_n + 2;
 	}
 	
 	std::vector<int> n_thrusts_m;
-    };
+	};
 
 
 
 
 
 
-    /**
-     * Same as the mass format, but forces the engines to be off for a
-     * fixed amount of time before the end of each leg
-     */
-    template<typename base_format_type>
-    class coast_arcs : public base_format_type {
-    public:
+	/**
+	* Same as the mass format, but forces the engines to be off for a
+	* fixed amount of time before the end of each leg
+	*/
+	template<typename base_format_type>
+	class coast_arcs : public base_format_type {
+	public:
 	
 	/**
 	 * @param days the number of days where the engines must be

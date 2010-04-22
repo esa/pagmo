@@ -375,7 +375,7 @@ public:
 	double evaluate_dv() const
 	{
 		double tmp = 0;
-		for (int i = 0; i < throttles.size(); ++i)
+		for (std::vector<double>::size_type i = 0; i < throttles.size(); ++i)
 		{
 			tmp += (throttles[i].get_end().mjd2000() -throttles[i].get_start().mjd2000())
 			       * ASTRO_DAY2SEC * throttles[i].get_norm() * sc.get_thrust() / sc.get_mass();

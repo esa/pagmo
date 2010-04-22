@@ -70,7 +70,7 @@ static int snopt_function_(integer    *Status, integer *n,    doublereal *x,
 	//2 - and to F[.] the constraint values (equalities first)
 	try{
 		prob->compute_constraints(preallocated->c, preallocated->x);
-		for (int i=0;i<prob->get_c_dimension();++i) F[i+1] = preallocated->c[i];
+		for (pagmo::problem::base::size_type i=0;i<prob->get_c_dimension();++i) F[i+1] = preallocated->c[i];
 	}
 	catch (value_error) {
 		*Status = -1; //signals to snopt that the evaluation of the objective function had numerical difficulties

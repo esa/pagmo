@@ -22,24 +22,31 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEPLERIAN_TOOLBOX_H
-#define KEPLERIAN_TOOLBOX_H
+#ifndef PLANET_SS_H
+#define PLANET_SS_H
 
-#include"epoch.h"
 #include"planet.h"
-#include"planet_ss.h"
-#include"core_functions/array3D_operations.h"
-#include"core_functions/convert_anomalies.h"
-#include"core_functions/convert_dates.h"
-#include"core_functions/ic2par.h"
-#include"core_functions/par2ic.h"
-#include"core_functions/kepler_equations.h"
-#include"core_functions/par2ic.h"
-#include"core_functions/propagate_lagrangian.h"
-#include"sims_flanagan/fb_traj.h"
-#include"sims_flanagan/leg.h"
-#include"sims_flanagan/sc_state.h"
-#include"sims_flanagan/throttle.h"
-#include"astro_constants.h"
 
-#endif // KEPLERIAN_TOOLBOX_H
+namespace kep_toolbox{
+
+/// Solar System Planet (keplerian)
+/**
+ * This class derives from the planet class and allow to instantiate planets of
+ * the solar system by referring to their common names.
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
+
+class planet_ss : public planet
+{
+public:
+	/**
+	 * Construct a planet from its common name (e.g. VENUS)
+	 * \param[in] name a string describing a planet
+	 */
+	planet_ss(const std::string& name);
+};
+
+
+} /// End of namespace kep_toolbox
+#endif // PLANET_SS_H

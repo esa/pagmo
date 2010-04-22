@@ -60,10 +60,10 @@ class fb_traj
 public:
 	/** @name Constructors*/
 	//@{
-	fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_);
-	fb_traj(const std::vector<planet>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
-	fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
-	fb_traj(const std::vector<planet>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	fb_traj(const std::vector<planet*>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_);
+	fb_traj(const std::vector<planet*>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	fb_traj(const std::vector<planet*>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
+	fb_traj(const std::vector<planet*>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
 	fb_traj() {}
 	//@}
 
@@ -102,11 +102,11 @@ public:
 		}
 
 		array3D start_pos, start_vel, end_pos, end_vel;
-		planets[0].get_eph(coding.leg_start_epoch(0, b), end_pos, end_vel);
+		planets[0]->get_eph(coding.leg_start_epoch(0, b), end_pos, end_vel);
 		for(int i = 0; i < n; i++){
 			start_pos = end_pos;
 			start_vel = end_vel;
-			planets[i + 1].get_eph(coding.leg_end_epoch(i, b), end_pos, end_vel);
+			planets[i + 1]->get_eph(coding.leg_end_epoch(i, b), end_pos, end_vel);
 
 			legs[i].set_t_i(coding.leg_start_epoch(i, b));
 			array3D dv = coding.leg_start_velocity(i, b);
@@ -143,7 +143,7 @@ public:
 		array3D vin,vout,vpla;
 		double emax,alfa;
 		//same relvel2
-		vpla = planets[fb_idx+1].get_velocity(legs[fb_idx].get_t_f());
+		vpla = planets[fb_idx+1]->get_velocity(legs[fb_idx].get_t_f());
 		vin = legs[fb_idx].get_x_f().get_velocity();
 		diff(vin,vin,vpla);
 		double vin2 = std::inner_product(vin.begin(), vin.end(), vin.begin(), 0);
@@ -153,14 +153,14 @@ public:
 		begin[0] = vin2 - vout2;
 
 		//minimum altitude (when negative this constraint is satisfied)
-		emax = 1 + planets[fb_idx+1].get_safe_radius() / planets[fb_idx+1].get_mu_central_body()*vin2;
+		emax = 1 + planets[fb_idx+1]->get_safe_radius() / planets[fb_idx+1]->get_mu_central_body()*vin2;
 		alfa = acos(dot(vin,vout) / vin2);
 		begin[1] = alfa - 2 * asin(1/emax);
 	}
 
 	double evaluate_leg_vinf2_i(int leg_idx) {
 		array3D vout,vpla;
-		vpla = planets[leg_idx].get_velocity(legs[leg_idx].get_t_i());
+		vpla = planets[leg_idx]->get_velocity(legs[leg_idx].get_t_i());
 		vout = legs[leg_idx].get_x_i().get_velocity();
 		diff(vout,vout,vpla);
 		return std::inner_product(vout.begin(), vout.end(), vout.begin(), 0.);
@@ -174,7 +174,7 @@ public:
 	//@}
 private:
 	std::vector<leg> legs;
-	std::vector<planet> planets;
+	std::vector<planet*> planets;
 
 	//This is here only for efficiency purposes
 	unsigned int total_n_seg;
