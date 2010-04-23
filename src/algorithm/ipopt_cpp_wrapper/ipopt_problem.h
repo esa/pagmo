@@ -1,10 +1,26 @@
-// Copyright (C) 2004, 2006 International Business Machines and others.
-// All Rights Reserved.
-// This code is published under the Common Public License.
-//
-// $Id: MyNLP.hpp 949 2007-03-27 00:41:26Z andreasw $
-//
-// Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
+/*****************************************************************************
+ *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
 #ifndef IPOPT_PROBLEM_H
 #define IPOPT_PROBLEM_H
@@ -52,9 +68,9 @@ public:
 	virtual bool eval_g(Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Index m, Ipopt::Number* g);
 
 	/** Method to return:
-   *   1) The structure of the jacobian (if "values" is NULL)
-   *   2) The values of the jacobian (if "values" is not NULL)
-   */
+	 *   1) The structure of the jacobian (if "values" is NULL)
+	 *   2) The values of the jacobian (if "values" is not NULL)
+	 */
 	virtual bool eval_jac_g(Ipopt::Index n, const Ipopt::Number* x, bool new_x,
 				Ipopt::Index m, Ipopt::Index nele_jac, Ipopt::Index* iRow, Ipopt::Index *jCol,
 				Ipopt::Number* values);
@@ -73,16 +89,8 @@ public:
 	//@}
 
 private:
-	/**@name Methods to block default compiler methods.
-   * The compiler automatically generates the following three methods.
-   *  Since the default compiler implementation is generally not what
-   *  you want (for all but the most simple classes), we usually 
-   *  put the declarations of these methods in the private section
-   *  and never implement them. This prevents the compiler from
-   *  implementing an incorrect "default" behavior without us
-   *  knowing. (See Scott Meyers book, "Effective C++")
-   *  
-   */
+	/** @name Methods to block default compiler methods.
+	 */
 	//@{
 	ipopt_problem();
 	ipopt_problem(const ipopt_problem&);
