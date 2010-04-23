@@ -67,7 +67,7 @@ OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 
 # Build Option: build executable for the examples
-OPTION(COMPILE_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
+OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
 
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
@@ -230,7 +230,7 @@ IF(BUILD_PYGMO)
 			${WIN_PKG_ROOT}/console/FreeImagePlus.dll
 			DESTINATION .
 		)
-                INSTALL(FILES
+		INSTALL(FILES
 			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcm90.dll
 			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcr90.dll
 			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcp90.dll
@@ -251,9 +251,8 @@ IF(BUILD_MAIN)
 	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
 ENDIF(BUILD_MAIN)
 
-IF(COMPILE_EXAMPLES)
-	ADD_EXECUTABLE(hm_2_asteroids examples/hm_2_asteroids.cpp)
-	TARGET_LINK_LIBRARIES(hm_2_asteroids pagmo_static ${MANDATORY_LIBRARIES})
-ENDIF(COMPILE_EXAMPLES)
+IF(BUILD_EXAMPLES)
+	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/examples")
+ENDIF(BUILD_EXAMPLES)
 
 INCLUDE(CPack)

@@ -74,6 +74,7 @@ public:
 	template<typename it_type>
 			void evaluate_all_mismatch_con(it_type begin, it_type end) const {
 		assert(end - begin == 7*legs.size());
+		(void) end;
 		for (size_t i=0; i<legs.size();i++){
 			legs[i].get_mismatch_con(begin  + 7*i, begin + 7*(i+1));
 		}
@@ -115,7 +116,7 @@ public:
 				       std::plus<double>());
 			legs[i].set_x_i(sc_state(start_pos, dv, coding.leg_start_mass(i, b)));
 			legs[i].set_throttles_size(coding.n_segments(i));
-			for(int j = 0; j < legs[i].get_throttles_size(); ++j)
+			for(size_t j = 0; j < legs[i].get_throttles_size(); ++j)
 				legs[i].set_throttle(j, throttle(coding.segment_start_epoch(i, j, b),
 								 coding.segment_end_epoch(i, j, b),
 								 coding.segment_thrust(i, j, b)));

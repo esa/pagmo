@@ -176,6 +176,7 @@ fb_traj::fb_traj(const std::vector<planet*>& sequence, const unsigned int &n_seg
  */
 
 std::ostream &operator<<(std::ostream &s, const fb_traj &in ){
+	(void)in;
 	/*	    s << "Full Vector: " << std::endl;
 	    for (size_t i=0;i<in.full_vector.size();i++) s << in.full_vector[i] << " ";
 	    s << std::endl <<"Mismatches con: " << std::endl;

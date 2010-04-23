@@ -170,6 +170,11 @@ bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
 	(void) z_L;
 	(void) z_U;
 	(void) lambda;
+	(void) n;
+	(void) init_x;
+	(void) init_z;
+	(void) m;
+	(void) init_lambda;
 
 	// we initialize x as the best individual of the population
 	pagmo::population::size_type bestidx = m_pop->get_best_idx();
@@ -232,6 +237,7 @@ bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
 			       Number* values)
 {
 	(void) new_x;
+	(void) m;
 	pagmo_assert(n == boost::numeric_cast<Index>(m_pop->problem().get_dimension()));
 	pagmo_assert(m == boost::numeric_cast<Index>(m_pop->problem().get_c_dimension()));
 	if (values == NULL) {

@@ -69,44 +69,46 @@ public:
 	}
 
 	std::vector<int> leg_end_velocity_i(int leg_n) const {
-	    int index = leg_start(leg_n) + 3 * (n_thrusts_m[leg_n] + 1);
-	    return std::vector<int>(boost::counting_iterator<int>(index),
-				    boost::counting_iterator<int>(index + 3));
+		int index = leg_start(leg_n) + 3 * (n_thrusts_m[leg_n] + 1);
+		return std::vector<int>(boost::counting_iterator<int>(index),
+					boost::counting_iterator<int>(index + 3));
 	}
 
 	std::vector<int> segment_thrust_i(int leg_n, int thrust_n) const {
-	    assert(thrust_n < n_thrusts_m[leg_n]);
-	    int index = leg_start(leg_n) + 3 * (thrust_n + 1);
-	    return std::vector<int>(boost::counting_iterator<int>(index),
-				    boost::counting_iterator<int>(index + 3));
+		assert(thrust_n < n_thrusts_m[leg_n]);
+		int index = leg_start(leg_n) + 3 * (thrust_n + 1);
+		return std::vector<int>(boost::counting_iterator<int>(index),
+					boost::counting_iterator<int>(index + 3));
 	}
 
 	std::vector<int> leg_start_epoch_i(int leg_n) const {
-	    return std::vector<int>(1, leg_start(leg_n) - 1);
+		return std::vector<int>(1, leg_start(leg_n) - 1);
 	}
 
 	std::vector<int> leg_end_epoch_i(int leg_n) const {
-	    return leg_start_epoch_i(leg_n + 1);
+		return leg_start_epoch_i(leg_n + 1);
 	}
 
 	std::vector<int> segment_start_epoch_i(int leg_n, int segment_n) const {
-	(void) segment_n;
-	    std::vector<int> indexes(2);
-	    indexes[0] = leg_start(leg_n) - 1;
-	    indexes[1] = leg_start(leg_n + 1) - 1;
-	    return indexes;
+		(void) segment_n;
+		std::vector<int> indexes(2);
+		indexes[0] = leg_start(leg_n) - 1;
+		indexes[1] = leg_start(leg_n + 1) - 1;
+		return indexes;
 	}
 
 	std::vector<int> segment_end_epoch_i(int leg_n, int segment_n) const {
-	    return segment_start_epoch_i(leg_n, segment_n);
+		return segment_start_epoch_i(leg_n, segment_n);
 	}
 
 	std::vector<int> leg_start_mass_i(int leg_n) const {
-	    return std::vector<int>(0);
+		(void)leg_n;
+		return std::vector<int>(0);
 	}
 
 	std::vector<int> leg_end_mass_i(int leg_n) const {
-	    return std::vector<int>(0);
+		(void)leg_n;
+		return std::vector<int>(0);
 	}
 
 	std::vector<int> leg_i(int leg_n) const {
@@ -123,12 +125,11 @@ public:
 	 */
 	template<typename it_type>
 	array3D leg_start_velocity(int leg_n, it_type begin) const {
-	    array3D x;
-	    std::vector<int> indexes(leg_start_velocity_i(leg_n));
-	    for(int i = 0; i < indexes.size(); ++i)
+		array3D x;
+		std::vector<int> indexes(leg_start_velocity_i(leg_n));
+		for(size_t i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]] * 1000.;
-
-	    return x;
+		return x;
 	}
 
 	/**
@@ -140,7 +141,7 @@ public:
 	array3D leg_end_velocity(int leg_n, it_type begin) const {
 	    array3D x;
 	    std::vector<int> indexes(leg_end_velocity_i(leg_n));
-	    for(int i = 0; i < indexes.size(); ++i)
+	    for(size_t i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]] * 1000.;
 
 	    return x;
@@ -189,7 +190,7 @@ public:
 	    assert(segment_n < n_thrusts_m[leg_n]);
 	    array3D x;
 	    std::vector<int> indexes(segment_thrust_i(leg_n, segment_n));
-	    for(int i = 0; i < indexes.size(); ++i)
+	    for(size_t i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]];
 
 	    return x;
@@ -238,7 +239,9 @@ public:
 	 */
 	template<typename it_type>
 	double leg_end_mass(int leg_n, it_type begin) const {
-	    return mass_m;
+		(void)leg_n;
+		(void) begin;
+		return mass_m;
 	}
 
 	/**
@@ -330,18 +333,19 @@ public:
 	}
 
 	std::vector<int> leg_end_epoch_i(int leg_n) const {
-	    return leg_start_epoch_i(leg_n + 1);
+		return leg_start_epoch_i(leg_n + 1);
 	}
 
 	std::vector<int> segment_start_epoch_i(int leg_n, int segment_n) const {
-	    std::vector<int> indexes(2);
-	    indexes[0] = leg_start(leg_n) - 2;
-	    indexes[1] = leg_start(leg_n + 1) - 2;
-	    return indexes;
+		(void)segment_n;
+		std::vector<int> indexes(2);
+		indexes[0] = leg_start(leg_n) - 2;
+		indexes[1] = leg_start(leg_n + 1) - 2;
+		return indexes;
 	}
 
 	std::vector<int> segment_end_epoch_i(int leg_n, int segment_n) const {
-	    return segment_start_epoch_i(leg_n, segment_n);
+		return segment_start_epoch_i(leg_n, segment_n);
 	}
 
 	std::vector<int> leg_start_mass_i(int leg_n) const {

@@ -101,15 +101,15 @@ void snoptProblem_PAGMO::userDataSet()
   if ( lenA   == -1 ) errMsgExit( "lenA" );
   if ( lenG   == -1 ) errMsgExit( "lenG" );
 
-  if ( neA > 0 & iAfun == 0 ) errMsgExit( "iAfun" );
-  if ( neA > 0 & jAvar == 0 ) errMsgExit( "jAvar" );
-  if ( neA > 0 & A     == 0 ) errMsgExit( "A"     );
+  if ( (neA > 0) && (iAfun == 0) ) errMsgExit( "iAfun" );
+  if ( (neA > 0) && (jAvar == 0) ) errMsgExit( "jAvar" );
+  if ( neA > 0 && A == 0 ) errMsgExit( "A"     );
 
-  if ( neG > 0 & iGfun == 0 ) errMsgExit( "iGfun" );
-  if ( neG > 0 & jGvar == 0 ) errMsgExit( "jGvar" );
+  if ( neG > 0 && iGfun == 0 ) errMsgExit( "iGfun" );
+  if ( neG > 0 && jGvar == 0 ) errMsgExit( "jGvar" );
 }
 
-void snoptProblem_PAGMO::errMsgExit( char *var )
+void snoptProblem_PAGMO::errMsgExit( const char *var )
 {
   cerr << "****************************************************\n";
   cerr << "Error: " << var << " must be set prior to call to " << endl
@@ -122,7 +122,7 @@ void snoptProblem_PAGMO::setMemory()
 {
   int memoryGuess;
   memoryGuess = this->snmema(mincw, miniw, minrw);
-  if ( mincw > lencw | miniw > leniw | minrw > lenrw ) {
+  if ( mincw > lencw || miniw > leniw || minrw > lenrw ) {
     // Reallocate memory while retaining the values set in sninit_
     this->realloc( mincw, miniw, minrw );
     // Save the lengths of the new work arrays.
@@ -248,7 +248,7 @@ void snoptProblem_PAGMO::computeJac()
   //Ensures all user data has been initialized.
   userDataSet();
   this->snmema( mincw, miniw, minrw );
-  if ( mincw > lencw | miniw > leniw | minrw > lenrw ) {
+  if ( mincw > lencw || miniw > leniw || minrw > lenrw ) {
     // Reallocate memory while retaining the values set in sninit_
     this->realloc( mincw, miniw, minrw );
     // Save the lengths of the new work arrays.
@@ -305,54 +305,47 @@ void snoptProblem_PAGMO::setParameter( char *stropt )
 void snoptProblem_PAGMO::getParameter( char *stroptin, char *stroptout )
 {
   assert( initCalled == 1 );
-
-  integer iPrt = 0;
-  integer iSum = 0;
   integer stroptin_len  = strlen(stroptin);
   integer stroptout_len = strlen(stroptout);
   sngetc_( stroptin, stroptout, &inform, cw, &lencw, iw, &leniw,
 	   rw, &lenrw, stroptin_len, stroptout_len, 8*500 );
 }
 
-void snoptProblem_PAGMO::setIntParameter( char *stropt, integer opt )
+void snoptProblem_PAGMO::setIntParameter( const char *stropt, integer opt )
 {
   assert( initCalled == 1 );
 
   integer iPrt   = 0; // suppresses printing
   integer iSum   = 0;
   integer stropt_len = strlen(stropt);
-  snseti_( stropt, &opt, &iPrt, &iSum, &inform,
+  snseti_( (char*)(void*)stropt, &opt, &iPrt, &iSum, &inform,
 	   cw, &lencw, iw, &leniw, rw, &lenrw, stropt_len, 8*500 );
 }
 
-void snoptProblem_PAGMO::getIntParameter( char *stropt, integer &opt )
+void snoptProblem_PAGMO::getIntParameter( const char *stropt, integer &opt )
 {
   assert( initCalled == 1 );
-  integer iPrt = 0;
-  integer iSum = 0;
   integer stropt_len = strlen(stropt);
-  sngeti_( stropt, &opt, &inform, cw, &lencw, iw, &leniw,
+  sngeti_( (char*)(void*)stropt, &opt, &inform, cw, &lencw, iw, &leniw,
 	   rw, &lenrw, stropt_len, 8*500 );
 }
 
-void snoptProblem_PAGMO::setRealParameter( char *stropt, doublereal opt )
+void snoptProblem_PAGMO::setRealParameter( const char *stropt, doublereal opt )
 {
   assert( initCalled == 1 );
 
   integer iPrt   = 0; // suppresses printing
   integer iSum   = 0;
   integer stropt_len = strlen(stropt);
-  snsetr_( stropt, &opt, &iPrt, &iSum, &inform,
+  snsetr_( (char*)(void*)stropt, &opt, &iPrt, &iSum, &inform,
 	   cw, &lencw, iw, &leniw, rw, &lenrw, stropt_len, 8*500 );
 }
 
-void snoptProblem_PAGMO::getRealParameter( char *stropt, doublereal &opt )
+void snoptProblem_PAGMO::getRealParameter( const char *stropt, doublereal &opt )
 {
   assert( initCalled == 1 );
-  integer iPrt = 0; // suppresses printing
-  integer iSum = 0;
   integer stropt_len = strlen(stropt);
-  sngetr_( stropt, &opt, &inform, cw, &lencw, iw, &leniw,
+  sngetr_( (char*)(void*)stropt, &opt, &inform, cw, &lencw, iw, &leniw,
 	   rw, &lenrw, stropt_len, 8*500 );
 }
 
@@ -362,7 +355,7 @@ void snoptProblem_PAGMO::solve( integer starttype )
   //Ensures all user data initialized.
   userDataSet();
   //Unlike snjac_ we also need neA and neG to be set.
-  if ( neA == -1 | neG == -1 ) {
+  if ( neA == -1 || neG == -1 ) {
     cerr << "Warning: neA and neG must be set before calling"
          << "snoptProblem_PAGMO::solve()\n";
     exit(1);

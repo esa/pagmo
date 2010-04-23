@@ -260,6 +260,7 @@ public:
 			void get_mismatch_con(it_type begin, it_type end) const
 	{
 		assert(end - begin == 7);
+		(void)end;
 		size_t n_seg = throttles.size();
 		const int n_seg_fwd = (n_seg + 1) / 2, n_seg_back = n_seg / 2;
 

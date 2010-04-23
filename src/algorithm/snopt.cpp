@@ -50,6 +50,16 @@ static int snopt_function_(integer    *Status, integer *n,    doublereal *x,
 			   integer    *iu,    integer *leniu,
 			   doublereal *ru,    integer *lenru )
 {
+	(void)n;
+	(void)needF;
+	(void)neF;
+	(void)needG;
+	(void)neG;
+	(void)G;
+	(void)lencu;
+	(void)iu;
+	(void)leniu;
+	(void)lenru;
 	//1 - We retrieve the pointer to the base problem (PaGMO) we have 'hidden' in *cu
 	pagmo::problem::base *prob;
 	prob = (pagmo::problem::base*)cu;
@@ -202,7 +212,7 @@ void snopt::evolve(population &pop) const
 
 	// Set the upper and lower bounds. And The initial Guess
 	int bestidx = pop.get_best_idx();
-	for (int i = 0; i < n; i++){
+	for (pagmo::problem::base::size_type i = 0; i < Dc; i++){
 		xlow[i]   = lb[i];
 		xupp[i]   = ub[i];
 		xstate[i] =    0;
@@ -215,12 +225,12 @@ void snopt::evolve(population &pop) const
 	Fupp[0] = std::numeric_limits<double>::max();
 	F[0] = pop.get_individual(bestidx).cur_f[0];
 	// 2 - Equality constraints
-	for (int i=0;i<D_eqc;++i) {
+	for (pagmo::problem::base::size_type i=0;i<D_eqc;++i) {
 		Flow[i+1] = 0;
 		Fupp[i+1] = 0;
 	}
 	// 3 - Inequality constraints
-	for (int i=0;i<D_ineqc;++i) {
+	for (pagmo::problem::base::size_type i=0;i<D_ineqc;++i) {
 		Flow[i+1+D_eqc] = -std::numeric_limits<double>::max();
 		Fupp[i+1+D_eqc] = 0;
 	}
@@ -282,7 +292,7 @@ void snopt::evolve(population &pop) const
 		std::cout << jGvar[neG-1] << "]" << std::endl;
 	}
 
-	integer Cold = 0, Basis = 1, Warm = 2;
+	integer Cold = 0;
 
 	//HERE WE CALL snoptA routine!!!!!
 	SnoptProblem.solve( Cold );
