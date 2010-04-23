@@ -33,7 +33,8 @@ namespace kep_toolbox{
 /// Minor Planet (keplerian)
 /**
  * This class derives from the planet class and allow to instantiate planets of
- * from the MPCORB database using their names.
+ * from the MPCORB database using their names or row id. The file MPCORB.DAT is searched
+ * in the current directory.
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
@@ -45,7 +46,8 @@ public:
 	 * Construct a minor planet from its common name (e.g. EROS). Requires the file MPCORB.DAT
 	 * is present in the current directory
 	 * \param[in] name a string naming a minor planet (e.g. "eros" or "tu126" or "Apohis"). Case is ignored.
-	 *		partial names are matched to the first occurrence.
+	 *		WARNING: partial names are matched to the first occurrence. So care needs to be taken that
+			the string used actually uniquely defines the desired minor planet.
 	 * \throws value_error if MPCORB.DAT is not found or name is not found in the file.
 	 */
 	planet_mpcorb(const std::string& name);

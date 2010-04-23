@@ -28,13 +28,13 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "src/algorithms.h"
-#include "src/archipelago.h"
-#include "src/island.h"
-#include "src/problems.h"
-#include "src/topologies.h"
-#include "src/migration.h"
-#include "src/keplerian_toolbox/keplerian_toolbox.h"
+#include "../src/algorithms.h"
+#include "../src/archipelago.h"
+#include "../src/island.h"
+#include "../src/problems.h"
+#include "../src/topologies.h"
+#include "../src/migration.h"
+#include "../src/keplerian_toolbox/keplerian_toolbox.h"
 
 using namespace pagmo;
 using namespace kep_toolbox;
@@ -44,24 +44,25 @@ WARNING: This example requires the file MPCORB.DAT to be placed in the same dire
 the executable. Such a file is freely downloadable from the internet and contains
 all the information on the minor plantes needed to define their physical properties.
 
-PROBLEM DESCRITPION: in this example we solve a large number of different instances of the
+PROBLEM DESCRITPION: A Human Mission to Asteroids. In this example we solve a large number of different instances of the
 pagmo::problem::sample_return. In particular we solve one instance for each minor planet in the database.
 A filter is put on the semi-major axis as the entire database contains 500.000 objects that could make the CPU busy
 for weeks with not much use. During the optimization we output on screen the current asteroid and
 the objective function found in a particular multistart. All results are stored in out.pagmo file
+The best asteroids found are suitable for a human mission in the 2020-2050 farme.
 
 OPTIMIZATION STRATEGY: we use an archipelago with seven islands having populations evolved with differential
 evolution, simulated annealing and either compass search or nlopt_sbplx, according to the option specified in ccmake.
 The topology is arim with the local optimizer at the center.
 
-CPU TIME: the example opens 7 threads and completes, with the default parameters, on 2*quad core architecture
-in roughly one hour.
+CPU TIME: the example opens 7 threads and needs to perform a large number of optimization tasks, so it does
+occupy the machine CPUs for a long time (days) according to the pruning level adopted
 */
 
 int main()
 {
 	//Number of multistart to be done per asteroid
-	int n_multistart = 5;
+	int n_multistart = 1;
 
 	//Open the output file
 	ofstream myfile;
@@ -69,7 +70,7 @@ int main()
 
 	algorithm::sa_corana algo1(10000,1,0.01);
 	algorithm::de algo2(500,0.8,0.8,3);
-#ifndef DPAGMO_ENABLE_NLOPT
+#ifdef DPAGMO_ENABLE_NLOPT
 	algorithm::nlopt_sbplx algo3(500,1e-4);
 #else
 	algorithm::cs algo3(500,0.0001,0.1);
@@ -84,7 +85,7 @@ int main()
 
 			//Pruning based on the asteroid elements
 			array6D elem = target.get_elements(kep_toolbox::epoch(0,kep_toolbox::epoch::MJD2000));
-			if (elem[0] / ASTRO_AU < 1.2) {
+			if (elem[0] / ASTRO_AU < 1.8) {
 
 				//build the problem
 				problem::sample_return prob(target);
@@ -114,8 +115,5 @@ int main()
 			return 0;
 		}
 	}
-
-
-
 	return 0;
 }

@@ -66,6 +66,9 @@ OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 # Build Option: IPOPT optimiser
 OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 
+# Build Option: build executable for the examples
+OPTION(COMPILE_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
+
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
 	FIND_LIBRARY(GSL_GSL_LIBRARY NAMES gsl)
@@ -247,5 +250,10 @@ IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
 	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
 ENDIF(BUILD_MAIN)
+
+IF(COMPILE_EXAMPLES)
+	ADD_EXECUTABLE(hm_2_asteroids examples/hm_2_asteroids.cpp)
+	TARGET_LINK_LIBRARIES(hm_2_asteroids pagmo_static ${MANDATORY_LIBRARIES})
+ENDIF(COMPILE_EXAMPLES)
 
 INCLUDE(CPack)

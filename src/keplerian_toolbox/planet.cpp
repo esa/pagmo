@@ -74,6 +74,8 @@ array6D planet::get_elements(const epoch& when) const{
 	return ( elements );
 }
 
+std::string planet::get_name() const {return m_name;}
+
 }
 std::ostream &kep_toolbox::operator<<(std::ostream &s, const kep_toolbox::planet &body) {
 	s << "Planet Name: " << body.m_name << std::endl;

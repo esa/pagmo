@@ -130,8 +130,10 @@ public:
 	 * @return a boost array containing the planet elements in epoch (SI Units) (a,e,i,Om,om,M). Mean anomaly is
 	 * returned in range 0,2*pi
 	 */
-
 	array6D get_elements(const epoch& when) const;
+
+	/// Returns the planet name
+	std::string get_name() const;
 
 	//@}
 
