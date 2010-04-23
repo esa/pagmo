@@ -31,9 +31,8 @@ namespace pagmo { namespace problem {
 
 /// Constructor
 /**
-* Instantiates one of the possible TandEM problems
-* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used (default is EVEES). Check http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
-* \param[in] tof_ (in years) This is a number setting the constraint on the total time of flight (10 from the GTOP database). If -1 (default) an unconstrained problem is instantiated
+* Instantiates a Laplace problem
+* \param[in] seq contains the fly-by sequence (e.g. 3,2,3,3,5 for Earth-Venus,Earth-Earth-Jupiter)
 */
 laplace::laplace(const std::vector<int> &seq):base(-10000.0,10000.0,4*seq.size() - 2), problem(0)
 {
@@ -82,6 +81,10 @@ laplace::laplace(const std::vector<int> &seq):base(-10000.0,10000.0,4*seq.size()
 	}
 }
 
+/// Copy constructor (needed for a deep copy of the object)
+/**
+ * \param[in] other a laplace problem
+ */
 laplace::laplace(const laplace &other):base(other),problem(new mgadsmproblem(*(other.problem))) {}
 
 /// Clone method.
@@ -105,9 +108,14 @@ void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = std::max<double>(f[0],f[0] + 0.2 / 30 * delta);
 }
 
-/// Prints the chromosome in a pretty way!!!
+/// Outputs a stream with the trajectory data
 /**
- Outputs to screen the trajectory data in a humar readable format.
+ * While the chromosome contains all necessary information to describe a trajectory, mission analysits
+ * often require a different set of data to evaluate its use. This method outputs a stream with
+ * information on the trajectory that is otherwise 'hidden' in the chromosome
+ *
+ * \param[in] x chromosome representing the trajectory in the optimization process
+ * \returns an std::string with launch dates, DV magnitues and other information on the trajectory
  */
 
  std::string laplace::pretty(const std::vector<double> &x) const

@@ -77,6 +77,17 @@ array6D planet::get_elements(const epoch& when) const{
 std::string planet::get_name() const {return m_name;}
 
 }
+
+/// Overload the stream operator for kep_toolbox::planet
+/**
+ * Streams out the planet object in a human readable format
+ *
+ * \param[in] s stream to which the planet will be sent
+ * \param[in] body planet to be sent to stream
+ *
+ * \return reference to s
+ *
+ */
 std::ostream &kep_toolbox::operator<<(std::ostream &s, const kep_toolbox::planet &body) {
 	s << "Planet Name: " << body.m_name << std::endl;
 	s << "Own gravity parameter: " << body.mu_self << std::endl;

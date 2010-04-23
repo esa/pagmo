@@ -86,6 +86,16 @@ void sample_return::objfun_impl(fitness_vector &f, const decision_vector &x) con
 
 }
 
+/// Outputs a stream with the trajectory data
+/**
+ * While the chromosome contains all necessary information to describe a trajectory, mission analysits
+ * often require a different set of data to evaluate its use. This method outputs a stream with
+ * information on the trajectory that is otherwise 'hidden' in the chromosome
+ *
+ * \param[in] x chromosome representing the trajectory in the optimization process
+ * \returns an std::string with launch dates, DV magnitues and other information on the trajectory
+ */
+
 std::string sample_return::pretty(const std::vector<double> &x) const
 {
 	std::ostringstream s;

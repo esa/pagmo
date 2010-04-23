@@ -36,8 +36,8 @@ namespace pagmo{ namespace problem {
 
 /// Human mission to asteroids.
  /**
- * \image html orion.gif "Artist visualization of the ORION concpet."
- * \image latex ackley.gif "Artist visualization of the ORION concpet." width=5cm
+ * \image html orion.jpg "Artist visualization of the ORION concpet."
+ * \image latex orion.jpg "Artist visualization of the ORION concpet." width=5cm
  * The interplanetary trajectory for a human mission to asteroids is here transcribed
  * into a global optimization problem. Box-constrained single-objective, continuous. The mission profile chosen is that
  * of an Earth-DSM-Asteroid, waiting time on the asteroid, Asteroid-DSM-Earth. The arrival hyperbolic

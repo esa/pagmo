@@ -52,8 +52,6 @@ namespace pagmo { namespace algorithm {
  * @param[in] width Mutation width. When gaussian mutation is selected is the width of the mutation
  * @param[in] sel Selection type. One of sga::selection::BEST20, sga::selection::ROULETTE
  * @param[in] cro Crossover type. One of sga::crossover::BINOMIAL, sga::crossover::EXPONENTIAL
- * @param[in] mut_range Mutation rage. Specifies the width of the possible mutation with respect to
- * the search space width
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1]\f$, mutation probability is not \f$ \in [0,1]\f$,
  * elitism is <=0
  *

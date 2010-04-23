@@ -34,21 +34,27 @@ using namespace boost::posix_time;
 
 /// Constructor.
 /**
+ * Constructs an epoch initializing its mjd2000 with the default double constructor
+ */
+epoch::epoch() {}
+
+/// Constructor.
+/**
 * Constructs an epoch from a non-gregorian date.
 * \param[in] epoch_in A double indicating the non-gregorian date
 * \param[in] epoch_type One of [epoch::MJD2000, epoch::MJD, epoch::JD]
 */
 epoch::epoch(const double &epoch_in, type epoch_type):mjd2000_m(epoch_in){
-    switch (epoch_type) {
-    case MJD2000 :
-        break;
-    case MJD :
-        mjd2000_m = mjd2mjd2000(epoch_in);
-        break;
-    case JD :
-        mjd2000_m = jd2mjd2000(epoch_in);
-        break;
-    }
+	switch (epoch_type) {
+	case MJD2000 :
+		break;
+	case MJD :
+		mjd2000_m = mjd2mjd2000(epoch_in);
+		break;
+	case JD :
+		mjd2000_m = jd2mjd2000(epoch_in);
+		break;
+	}
 }
 
 /// Constructor.
@@ -146,7 +152,7 @@ ptime epoch::get_posix_time() const{
 /**
 * Sets the epoch to a particular posix_time.
 *
-* \param[in] ptime containing the posix time
+* \param[in] posix_time containing the posix time
 *
 */
 void epoch::set_posix_time(const boost::posix_time::ptime& posix_time){
@@ -157,16 +163,15 @@ void epoch::set_posix_time(const boost::posix_time::ptime& posix_time){
 
 /// Overload the stream operator for kep_toolbox::epoch
 /**
-* Streams out a date in the format 2000-Jan-01 00:12:30.123457
-*
-*
-* \param[in] s stream to which the epoch will be sent
-* \param[in] epoch_in epoch to be sent to stream
-*
-* \return reference to s
-*
-*/
-std::ostream &kep_toolbox::operator<<(std::ostream &stream, const kep_toolbox::epoch &now) {
-    stream << now.get_posix_time();
-    return stream;
+ * Streams out a date in the format 2000-Jan-01 00:12:30.123457
+ *
+ * \param[in] s stream to which the epoch will be sent
+ * \param[in] now epoch to be sent to stream
+ *
+ * \return reference to s
+ *
+ */
+std::ostream &kep_toolbox::operator<<(std::ostream &s, const kep_toolbox::epoch &now) {
+	s << now.get_posix_time();
+	return s;
 }

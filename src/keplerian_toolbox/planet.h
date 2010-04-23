@@ -52,8 +52,9 @@ public:
 		* \param[in] ref_epoch epoch to which the elements are referred to
 		* \param[in] elem A STL vector containing the keplerian parameters (a,e,i,Om,om,M). AU and degrees are assumed
 		* \param[in] mu_central_body The gravitational parameter of the attracting body (SI units)
-		* \param[in] radius radius of the planet (SI units)
 		* \param[in] mu_self The gravitational parameter of the planet (SI units)
+		* \param[in] radius radius of the planet (SI units)
+		* \param[in] safe_radius mimimual distance that is safe during a fly-by of the planet (SI units)
 		* \param[in] name C++ string containing the planet name. Default value is "Unknown"
 		*/
 	planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double &radius, const double &safe_radius, const std::string &name = "Unknown");
@@ -138,8 +139,19 @@ public:
 	//@}
 
 protected:
+	/// Builds the planet assiging all values to members
+	/**
+	* Constructs a planet from its elements and its phyisical parameters
+	* \param[in] ref_epoch epoch to which the elements are referred to
+	* \param[in] elem A STL vector containing the keplerian parameters (a,e,i,Om,om,M). AU and degrees are assumed
+	* \param[in] mu_central_body The gravitational parameter of the attracting body (SI units)
+	* \param[in] mu_self The gravitational parameter of the planet (SI units)
+	* \param[in] radius radius of the planet (SI units)
+	* \param[in] safe_radius mimimual distance that is safe during a fly-by of the planet (SI units)
+	* \param[in] name C++ string containing the planet name. Default value is "Unknown"
+	*/
 	void build_planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double & radius, const double & safe_radius, const std::string &name = "Unknown");
-	planet() {};
+	planet() {}
 private:
 	array6D keplerian_elements;
 	double mean_motion;
@@ -157,16 +169,6 @@ private:
 
 };
 
-/// Overload the stream operator for kep_toolbox::planet
-/**
-     * Streams out the planet object in a human readable format
-     *
-     * \param[in] s stream to which the planet will be sent
-     * \param[in] body planet to be sent to stream
-     *
-     * \return reference to s
-     *
-     */
-std::ostream &operator<<(std::ostream & s, const planet &body);
+std::ostream &operator<<(std::ostream &s, const planet &body);
 } /// End of namespace kep_toolbox
 #endif // PLANET_H

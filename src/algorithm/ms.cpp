@@ -40,11 +40,9 @@ namespace pagmo { namespace algorithm {
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
- * @param[in] local pagmo::algorithm to use as 'local' optimization method
- * @param[in] stop number of consecutive step allowed without any improvement
- * @param[in] perturb At the end of one iteration of mbh, each chromosome of each population individual
- * will be perturbed by +-perturb*(ub - lb), the same for the velocity. The integer part is treated the same way.
- * @throws value_error if stop is negative or perturb is not in ]0,1]
+ * @param[in] algorithm pagmo::algorithm for the multistarts
+ * @param[in] starts number of multistarts
+ * @throws value_error if starts is negative
  */
 ms::ms(const algorithm::base &algorithm, int starts):base(),m_starts(starts)
 {
