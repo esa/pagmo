@@ -125,7 +125,7 @@ class __PAGMO_VISIBLE population
 		typedef container_type::size_type size_type;
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
-		population(const problem::base &, int = 0);
+		explicit population(const problem::base &, int = 0);
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;

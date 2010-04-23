@@ -79,9 +79,9 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	iota(dest_idx.begin(),dest_idx.end(),population::size_type(0));
 	// Sort the arrays of indices.
 	// From best to worst.
-	std::sort(immigrants_idx.begin(),immigrants_idx.end(),indirect_individual_sorter<std::vector<population::individual_type> >(immigrants,dest.problem()));
+	std::sort(immigrants_idx.begin(),immigrants_idx.end(),indirect_individual_sorter<std::vector<population::individual_type> >(immigrants,dest));
 	// From worst to best.
-	std::sort(dest_idx.begin(),dest_idx.end(),indirect_individual_sorter<population>(dest,dest.problem()));
+	std::sort(dest_idx.begin(),dest_idx.end(),indirect_individual_sorter<population>(dest,dest));
 	std::reverse(dest_idx.begin(),dest_idx.end());
 	// Create the result.
 	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > result;

@@ -77,11 +77,11 @@ class __PAGMO_VISIBLE island
 		/// The archipelago class needs access to the internals of the island.
 		friend class archipelago;
 		island(const island &);
-		island(const problem::base &, const algorithm::base &, int = 0,
+		explicit island(const problem::base &, const algorithm::base &, int = 0,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
-		island(const population &, const algorithm::base &,
+		explicit island(const population &, const algorithm::base &,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
