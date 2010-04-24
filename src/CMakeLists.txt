@@ -193,10 +193,10 @@ IF(NOT MINGW)
 	)
 ENDIF(NOT MINGW)
 
-# Create a pagmo_static library if main or tests are requested.
-IF(BUILD_MAIN OR ENABLE_TESTS)
+# Create a pagmo_static library if main or tests or examples are requested.
+IF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
-ENDIF(BUILD_MAIN OR ENABLE_TESTS)
+ENDIF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 
 # Add main if requested.
 IF(BUILD_MAIN)
