@@ -28,6 +28,7 @@
 // Global header including the whole public interface to PaGMO.
 
 #include "algorithms.h"
+#include "archipelago.h"
 #include "exceptions.h"
 #include "island.h"
 #include "migration.h"
