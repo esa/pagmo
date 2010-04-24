@@ -439,6 +439,10 @@ const problem::base &population::problem() const
  */
 const population::champion_type &population::champion() const
 {
+	if (!m_champion.x.size()) {
+		pagmo_assert(!size());
+		pagmo_throw(value_error,"champion has not been determined yet");
+	}
 	return m_champion;
 }
 
