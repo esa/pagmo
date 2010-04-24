@@ -135,4 +135,11 @@ std::ostream &operator<<(std::ostream &s, const base &p)
 	return s;
 }
 
+/// Destructor.
+/**
+ * No side effects.
+ */
+base::~base()
+{}
+
 }}

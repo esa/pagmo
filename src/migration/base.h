@@ -71,6 +71,7 @@ class __PAGMO_VISIBLE base
 		base(const double &, rate_type);
 		population::size_type get_n_individuals(const population &) const;
 		std::string human_readable() const;
+		virtual ~base();
 	protected:
 		virtual std::string human_readable_extra() const;
 	protected:
