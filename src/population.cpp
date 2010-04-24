@@ -109,6 +109,18 @@ void population::update_dom_list(const size_type &n)
 	}
 }
 
+// Init randomly the velocity of the individual in position idx.
+void population::init_velocity(const size_type &idx)
+{
+	const decision_vector::size_type p_size = m_prob->get_dimension();
+	for (decision_vector::size_type j = 0; j < p_size; ++j) {
+		// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
+		m_container[idx].cur_v[j] = boost::uniform_real<double>(m_prob->get_lb()[j] / 2,m_prob->get_ub()[j] / 2)(m_drng);
+		// Change randomly the sign of the velocity.
+		m_container[idx].cur_v[j] *= (m_drng() < .5) ? 1 : -1;
+	}
+}
+
 /// Re-initialise individual at position idx.
 /**
  * The continuous and integer parts of the chromosome will be picked randomly within the problem's bounds, the velocities
@@ -134,12 +146,7 @@ void population::reinit(const size_type &idx)
 		m_container[idx].cur_x[j] = boost::uniform_int<int>(m_prob->get_lb()[j],m_prob->get_ub()[j])(m_urng);
 	}
 	// Initialise randomly the velocity vector.
-	for (decision_vector::size_type j = 0; j < p_size; ++j) {
-		// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
-		m_container[idx].cur_v[j] = boost::uniform_real<double>(m_prob->get_lb()[j] / 2,m_prob->get_ub()[j] / 2)(m_drng);
-		// Change randomly the sign of the velocity.
-		m_container[idx].cur_v[j] *= (m_drng() < .5) ? 1 : -1;
-	}
+	init_velocity(idx);
 	// Fill in the constraints.
 	m_prob->compute_constraints(m_container[idx].cur_c,m_container[idx].cur_x);
 	// Compute the fitness.
@@ -346,6 +353,44 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	update_champion(idx);
 	// Updated domination lists.
 	update_dom_list(idx);
+}
+
+/// Append individual with given decision vector.
+/**
+ * A new individual with decision vector x will be appended at the end of the population.
+ * Velocity will be initialised randomly (as described in reinit()).
+ *
+ * @param[in] x decision vector of the individual to be appended.
+ */
+void population::push_back(const decision_vector &x)
+{
+	if (!m_prob->verify_x(x)) {
+		pagmo_throw(value_error,"decision vector is not compatible with problem");
+
+	}
+	// Store sizes temporarily.
+	const fitness_vector::size_type f_size = m_prob->get_f_dimension();
+	const constraint_vector::size_type c_size = m_prob->get_c_dimension();
+	const decision_vector::size_type p_size = m_prob->get_dimension();
+	// Push back an empty individual.
+	m_container.push_back(individual_type());
+	m_dom_list.push_back(std::vector<size_type>());
+	// Resize individual's elements.
+	m_container.back().cur_x.resize(p_size);
+	m_container.back().cur_v.resize(p_size);
+	m_container.back().cur_c.resize(c_size);
+	m_container.back().cur_f.resize(f_size);
+	m_container.back().best_x.resize(p_size);
+	m_container.back().best_c.resize(c_size);
+	m_container.back().best_f.resize(f_size);
+	// Set the individual.
+	set_x(m_container.size() - 1,x);
+	// Initialise randomly the velocity vector.
+	init_velocity(m_container.size() - 1);
+	// Force update best values with current ones.
+	m_container.back().best_x = m_container.back().cur_x;
+	m_container.back().best_c = m_container.back().cur_c;
+	m_container.back().best_f = m_container.back().cur_f;
 }
 
 /// Set the velocity vector of individual at position idx.

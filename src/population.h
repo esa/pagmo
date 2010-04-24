@@ -138,6 +138,7 @@ class __PAGMO_VISIBLE population
 		size_type get_worst_idx() const;
 		void set_x(const size_type &, const decision_vector &);
 		void set_v(const size_type &, const decision_vector &);
+		void push_back(const decision_vector &);
 		size_type size() const;
 		const_iterator begin() const;
 		const_iterator end() const;
@@ -145,6 +146,7 @@ class __PAGMO_VISIBLE population
 		void reinit(const size_type &);
 	private:
 		population();
+		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
 		void update_dom_list(const size_type &);
 		struct domination_comp {
