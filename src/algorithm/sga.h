@@ -54,17 +54,33 @@ class __PAGMO_VISIBLE sga: public base
 {
 public:
 	/// Selection info
-	struct selection{ enum type {BEST20 = 0,ROULETTE = 1}; };
+	struct selection {
+		/// Selection type, best 20% or roulette
+		enum type {BEST20 = 0,ROULETTE = 1};
+	};
 	/// Mutation operator info
 	struct mutation {
+		/// Mutation type, gaussian or random
 		enum type {GAUSSIAN = 0, RANDOM = 1};
+		/// Constructor
+		/**
+		 * \param[in] t the mutation type
+		 * \param[in] width the width of the gaussian bell in case of a gaussian mutation. The
+		 *		parameter is otherwise ignored. width is a percentage with respect to the
+		 *		ub[i]-lb[i] width.
+		 */
 		mutation(mutation::type t, double width) : m_type(t),m_width(width) {}
+		/// Mutation type
 		type m_type;
+		/// Mutation width
 		double m_width;
 	};
 
 	/// Crossover operator info
-	struct crossover { enum type {BINOMIAL = 0, EXPONENTIAL = 1}; };
+	struct crossover {
+		/// Crossover type, binomial or exponential
+		enum type {BINOMIAL = 0, EXPONENTIAL = 1};
+	};
 	sga(int gen, const double &cr, const double &m, int elitism = 1,
 	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
 	    selection::type sel = selection::ROULETTE,

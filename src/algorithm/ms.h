@@ -22,54 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PAGMO_ALGORITHM_MS_H
+#define PAGMO_ALGORITHM_MS_H
 
-// Header including all algorithms implemented in PaGMO.
+#include <string>
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/ihs.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+#include "../config.h"
+#include "../population.h"
+#include "base.h"
 
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
+namespace pagmo { namespace algorithm {
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
+/// Multistart
+/**
+ *
+ * The name of this algorithm says it all!!
+ * It runs the same algorithm over and over on a random initial population. At the end, the champion will
+ * keep memory of the luckiest run. The psuedo algorithm is as follow:
 
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
+@verbatim
+> Select a pagmo::population
+> Select a pagmo::algorithm
+> Store best individual
+> Until termination:
+> > Reset the population
+> > evolve the population with the pagmo::algorithm
+@endverbatim
+ *
+ *
+ * @author Dario Izzo (dario.izzo@googlemail.com)
+ */
 
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-#endif
+class __PAGMO_VISIBLE ms: public base
+{
+public:
+	ms(const algorithm::base &, int);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	void screen_output(const bool);
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	base_ptr m_algorithm;
+	int m_starts;
+	bool m_screen_out;
 
-#endif
+};
+
+}} //namespaces
+
+#endif // PAGMO_ALGORITHM_MS_H

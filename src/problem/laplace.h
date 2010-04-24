@@ -22,43 +22,60 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef EARTH_PLANET_H
-#define EARTH_PLANET_H
+#ifndef PAGMO_PROBLEM_LAPLACE_H
+#define PAGMO_PROBLEM_LAPLACE_H
 
-#include <vector>
+#include <boost/scoped_ptr.hpp>
 
 #include "../config.h"
 #include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/codings.h"
-#include "../keplerian_toolbox/sims_flanagan/fb_traj.h"
+#include "../AstroToolbox/mga_dsm.h"
+#include "../AstroToolbox/misc4Tandem.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo{ namespace problem {
 
-/// Test problem kep tool
+/// Laplace problem
 /**
+ * \image html laplace.jpg "Laplace: a jupiter mission"
+ * \image latex laplace.jpg "Laplace: a jupiter mission" width=5cm
+ *
+ * Laplace is a Jupiter mission proposed as a candidate mission for the Cosmic Vision 2015-2025
+ * and has been one of the mission concepts selected by the SSAC in October 2007 for an Assessment
+ * study. The SSAC had decided that an Outer Planet mission should be one of the L-class
+ * mission candidates for the first slice of the Cosmic Vision plan, and recommended that
+ * both Laplace and Tandem concepts should be studied initially, with a decision on which
+ * one to pursue to take place following a better definition of the mission's characteristics.
+ *
+ * In early February 2009 ESA and NASA jointly announced that the Europa-Jupiter
+ * System Mission, or Laplace, would be the candidate for the first L mission,
+ * with a possible launch date in 2020.
+ *
+ * We transcribe here Laplace interplanetary trajectory transfer problem as an MGA-DSM
+ * problem leaving to the user the possibility to specify the fly-by sequence.
+ * This creates a problem of dimension \f$6 + 4(n-1)\f$, where \f$n\f$ is the number of
+ * trajectory legs. Objective function is the total DV with a 200m/s penalty per month past the 8yr
+ * of flight time.
  *
  *
+ * @see http://sci.esa.int/science-e/www/area/index.cfm?fareaid=107
  * @author Dario Izzo (dario.izzo@esa.int)
  */
-
-class __PAGMO_VISIBLE earth_planet: public base
+class __PAGMO_VISIBLE laplace: public base
 {
 	public:
-		earth_planet(int, std::string, const double & = 1E-9);
+		laplace(const std::vector <int> &);
+		laplace(const laplace &);
 		base_ptr clone() const;
+
+		std::string pretty(const std::vector<double> &x) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
-		kep_toolbox::base_format encoding;
-		mutable kep_toolbox::sims_flanagan::fb_traj trajectory;
-		double vmax;
-		int n_segments;
+		boost::scoped_ptr<mgadsmproblem> problem;
 };
 
-}} //namespaces
+}}
 
-
-#endif // EARTH_PLANET_H
+#endif // PAGMO_PROBLEM_LAPLACE_H

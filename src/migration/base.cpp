@@ -74,7 +74,7 @@ base::base(const double &rate, rate_type type):m_rate(rate),m_type(type)
  */
 population::size_type base::get_n_individuals(const population &pop) const
 {
-	population::size_type retval;
+	population::size_type retval = 0;
 	switch (m_type) {
 		case absolute:
 			retval = boost::numeric_cast<population::size_type>(m_rate);

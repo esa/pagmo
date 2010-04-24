@@ -9,47 +9,47 @@
 
 namespace kep_toolbox {
 
-    /**
-     * indicates that the variables are stored in a cartesian format
-     */
-    class cartesian_coding_tag {};
-    
-    /**
-     * @brief An instance of this class represents a format which
-     * can be used to read the chromosome. In order to read some
-     * data from the chromosome, instead of having to somehow know
-     * in what position the data is and read the appropriate
-     * variable, you can just ask this class for the data,
-     * whithout having to know its location or the format used to
-     * express it. For example, to read the start epoch of leg
-     * number 2, you could use, given the vector x
-     *
-     * @code
-     coding.leg_start_epoch(2, x.begin());
-     * @endcode
-     *
-     * This allows you to build a trajectory without having to
-     * know which position, the various elements have, which
-     * format and which physical units are used to express
-     * them. More importantly, it allows to change all of that
-     * without having to modify the code which handles the
-     * trajectories.
-     *
-     * The base_format class represents the following chromosome format
-     *
-     * starting epoch expressed in MJD2000
-     * then for each leg:
-     * start velocity expressed in cartesian coodinates in km/s relative to the planet
-     * all the impulses expressed in cartesian coordinates as a fraction of the maximum allowed impulse
-     * end velocity expressed in cartesian coodinates in km/s relative to the planet
-     * leg end epoch expressed in MJD2000
-     *
-     * Mass is not controlled by the chromosome, and is considered fixed for
-     * the whole trajectory.
-     */
-    class base_format : public cartesian_coding_tag {
-	    
-    public:
+/**
+ * indicates that the variables are stored in a cartesian format
+ */
+class cartesian_coding_tag {};
+
+/**
+* @brief An instance of this class represents a format which
+ * can be used to read the chromosome. In order to read some
+ * data from the chromosome, instead of having to somehow know
+ * in what position the data is and read the appropriate
+ * variable, you can just ask this class for the data,
+ * whithout having to know its location or the format used to
+ * express it. For example, to read the start epoch of leg
+ * number 2, you could use, given the vector x
+ *
+ * @verbatim
+coding.leg_start_epoch(2, x.begin());
+ * @endverbatim
+ *
+ * This allows you to build a trajectory without having to
+ * know which position, the various elements have, which
+ * format and which physical units are used to express
+ * them. More importantly, it allows to change all of that
+ * without having to modify the code which handles the
+ * trajectories.
+ *
+ * The base_format class represents the following chromosome format
+ *
+ * starting epoch expressed in MJD2000
+ * then for each leg:
+ * start velocity expressed in cartesian coodinates in km/s relative to the planet
+ * all the impulses expressed in cartesian coordinates as a fraction of the maximum allowed impulse
+ * end velocity expressed in cartesian coodinates in km/s relative to the planet
+ * leg end epoch expressed in MJD2000
+ *
+ * Mass is not in the chromosome, and is considered fixed for the whole trajectory.
+ */
+class base_format : public cartesian_coding_tag {
+
+public:
+	/// Constructor.
 	/**
 	 * @param n_legs The number of legs in the trajectory
 	 * @param n_thrust The number of thrusts in each leg (which is assumed to be the same for all the legs)
@@ -58,54 +58,57 @@ namespace kep_toolbox {
 	template<typename it_type>
 	base_format(it_type begin, it_type end, double mass)
 	    : n_thrusts_m(begin, end), mass_m(mass) {}
-	    
+
 	base_format(int n_legs, int n_segments, double mass)
 	    : n_thrusts_m(n_legs, n_segments), mass_m(mass) {}
-	    
+
 	std::vector<int> leg_start_velocity_i(int leg_n) const {
 	    int index = leg_start(leg_n);
 	    return std::vector<int>(boost::counting_iterator<int>(index),
 				    boost::counting_iterator<int>(index + 3));
 	}
-	
+
 	std::vector<int> leg_end_velocity_i(int leg_n) const {
-	    int index = leg_start(leg_n) + 3 * (n_thrusts_m[leg_n] + 1);
-	    return std::vector<int>(boost::counting_iterator<int>(index),
-				    boost::counting_iterator<int>(index + 3));
+		int index = leg_start(leg_n) + 3 * (n_thrusts_m[leg_n] + 1);
+		return std::vector<int>(boost::counting_iterator<int>(index),
+					boost::counting_iterator<int>(index + 3));
 	}
-	
+
 	std::vector<int> segment_thrust_i(int leg_n, int thrust_n) const {
-	    assert(thrust_n < n_thrusts_m[leg_n]);
-	    int index = leg_start(leg_n) + 3 * (thrust_n + 1);
-	    return std::vector<int>(boost::counting_iterator<int>(index),
-				    boost::counting_iterator<int>(index + 3));
+		assert(thrust_n < n_thrusts_m[leg_n]);
+		int index = leg_start(leg_n) + 3 * (thrust_n + 1);
+		return std::vector<int>(boost::counting_iterator<int>(index),
+					boost::counting_iterator<int>(index + 3));
 	}
 
 	std::vector<int> leg_start_epoch_i(int leg_n) const {
-	    return std::vector<int>(1, leg_start(leg_n) - 1);
+		return std::vector<int>(1, leg_start(leg_n) - 1);
 	}
-	
+
 	std::vector<int> leg_end_epoch_i(int leg_n) const {
-	    return leg_start_epoch_i(leg_n + 1);
+		return leg_start_epoch_i(leg_n + 1);
 	}
-	
+
 	std::vector<int> segment_start_epoch_i(int leg_n, int segment_n) const {
-	    std::vector<int> indexes(2);
-	    indexes[0] = leg_start(leg_n) - 1;
-	    indexes[1] = leg_start(leg_n + 1) - 1;
-	    return indexes;
+		(void) segment_n;
+		std::vector<int> indexes(2);
+		indexes[0] = leg_start(leg_n) - 1;
+		indexes[1] = leg_start(leg_n + 1) - 1;
+		return indexes;
 	}
-	
+
 	std::vector<int> segment_end_epoch_i(int leg_n, int segment_n) const {
-	    return segment_start_epoch_i(leg_n, segment_n);
+		return segment_start_epoch_i(leg_n, segment_n);
 	}
-	    
+
 	std::vector<int> leg_start_mass_i(int leg_n) const {
-	    return std::vector<int>(0);
+		(void)leg_n;
+		return std::vector<int>(0);
 	}
 
 	std::vector<int> leg_end_mass_i(int leg_n) const {
-	    return std::vector<int>(0);
+		(void)leg_n;
+		return std::vector<int>(0);
 	}
 
 	std::vector<int> leg_i(int leg_n) const {
@@ -114,7 +117,7 @@ namespace kep_toolbox {
 				    boost::counting_iterator<int>(index + leg_size(leg_n) + 1));
 
 	}
-	    
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -122,14 +125,13 @@ namespace kep_toolbox {
 	 */
 	template<typename it_type>
 	array3D leg_start_velocity(int leg_n, it_type begin) const {
-	    array3D x;
-	    std::vector<int> indexes(leg_start_velocity_i(leg_n));
-	    for(int i = 0; i < indexes.size(); ++i)
+		array3D x;
+		std::vector<int> indexes(leg_start_velocity_i(leg_n));
+		for(size_t i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]] * 1000.;
-		
-	    return x;
+		return x;
 	}
-	    
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -139,12 +141,12 @@ namespace kep_toolbox {
 	array3D leg_end_velocity(int leg_n, it_type begin) const {
 	    array3D x;
 	    std::vector<int> indexes(leg_end_velocity_i(leg_n));
-	    for(int i = 0; i < indexes.size(); ++i)
+	    for(size_t i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]] * 1000.;
-		
+
 	    return x;
 	}
-	    
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -164,7 +166,7 @@ namespace kep_toolbox {
 	epoch leg_end_epoch(int leg_n, it_type begin) const {
 	    return leg_start_epoch(leg_n + 1, begin);
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -175,7 +177,7 @@ namespace kep_toolbox {
 	    return (leg_end_epoch(leg_n, begin).mjd2000() -
 		    leg_start_epoch(leg_n, begin).mjd2000()) * 60. * 60. * 24.;
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param segment_n the index of the segment
@@ -188,12 +190,12 @@ namespace kep_toolbox {
 	    assert(segment_n < n_thrusts_m[leg_n]);
 	    array3D x;
 	    std::vector<int> indexes(segment_thrust_i(leg_n, segment_n));
-	    for(int i = 0; i < indexes.size(); ++i)
+	    for(size_t i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]];
-		
+
 	    return x;
 	}
-	    
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param segment_n the index of the segment
@@ -226,7 +228,7 @@ namespace kep_toolbox {
 	 * @returns the spacecraft mass in kg at the beginning of leg leg_n
 	 */
 	template<typename it_type>
-	double leg_start_mass(int leg_n, it_type begin) const {
+	double leg_start_mass(int, it_type) const {
 	    return mass_m;
 	}
 
@@ -237,7 +239,9 @@ namespace kep_toolbox {
 	 */
 	template<typename it_type>
 	double leg_end_mass(int leg_n, it_type begin) const {
-	    return mass_m;
+		(void)leg_n;
+		(void) begin;
+		return mass_m;
 	}
 
 	/**
@@ -258,7 +262,7 @@ namespace kep_toolbox {
 	int n_legs() const {
 	    return n_thrusts_m.size();
 	}
-	    
+
 	/**
 	 * @returns the number of variables of the chromosome
 	 * which represents the trajectory
@@ -268,7 +272,7 @@ namespace kep_toolbox {
 	}
 
 
-	    
+
     private:
 	/**
 	 * @param leg_n the index of the leg
@@ -277,11 +281,11 @@ namespace kep_toolbox {
 	int leg_size(int leg_n) const {
 	    return (n_thrusts_m[leg_n] + 2) * 3 + 1;
 	}
-	
+
 	int leg_start(int leg_n) const {
 	    return std::accumulate(n_thrusts_m.begin(), n_thrusts_m.begin() + leg_n, 0) * 3 + 7 * leg_n + 1;
 	}
-	    
+
 	std::vector<int> n_thrusts_m;
 	double mass_m;
     };
@@ -303,46 +307,47 @@ namespace kep_toolbox {
 	template<typename it_type>
 	mass_format(it_type begin, it_type end)
 	    : n_thrusts_m(begin, end) {}
-	
-	
+
+
 	std::vector<int> leg_start_velocity_i(int leg_n) const {
 	    int index = leg_start(leg_n);
 	    return std::vector<int>(boost::counting_iterator<int>(index),
 				    boost::counting_iterator<int>(index + 3));
 	}
-	
+
 	std::vector<int> leg_end_velocity_i(int leg_n) const {
 	    int index = leg_start(leg_n) + 3 * (n_thrusts_m[leg_n] + 1);
 	    return std::vector<int>(boost::counting_iterator<int>(index),
 				    boost::counting_iterator<int>(index + 3));
 	}
-	
+
 	std::vector<int> segment_thrust_i(int leg_n, int thrust_n) const {
 	    assert(thrust_n < n_thrusts_m[leg_n]);
 	    int index = leg_start(leg_n) + 3 * (thrust_n + 1);
 	    return std::vector<int>(boost::counting_iterator<int>(index),
 				    boost::counting_iterator<int>(index + 3));
 	}
-	
+
 	std::vector<int> leg_start_epoch_i(int leg_n) const {
 	    return std::vector<int>(1, leg_start(leg_n) - 2);
 	}
-	
+
 	std::vector<int> leg_end_epoch_i(int leg_n) const {
-	    return leg_start_epoch_i(leg_n + 1);
+		return leg_start_epoch_i(leg_n + 1);
 	}
-	
+
 	std::vector<int> segment_start_epoch_i(int leg_n, int segment_n) const {
-	    std::vector<int> indexes(2);
-	    indexes[0] = leg_start(leg_n) - 2;
-	    indexes[1] = leg_start(leg_n + 1) - 2;
-	    return indexes;
+		(void)segment_n;
+		std::vector<int> indexes(2);
+		indexes[0] = leg_start(leg_n) - 2;
+		indexes[1] = leg_start(leg_n + 1) - 2;
+		return indexes;
 	}
-	
+
 	std::vector<int> segment_end_epoch_i(int leg_n, int segment_n) const {
-	    return segment_start_epoch_i(leg_n, segment_n);
+		return segment_start_epoch_i(leg_n, segment_n);
 	}
-	
+
 	std::vector<int> leg_start_mass_i(int leg_n) const {
 	    return std::vector<int>(1, leg_start(leg_n) - 1);
 	}
@@ -357,7 +362,7 @@ namespace kep_toolbox {
 				    boost::counting_iterator<int>(index + leg_size(leg_n) + 2));
 
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -369,10 +374,10 @@ namespace kep_toolbox {
 	    std::vector<int> indexes(leg_start_velocity_i(leg_n));
 	    for(int i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]] * 1000.;
-		
+
 	    return x;
 	}
-	    
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -384,10 +389,10 @@ namespace kep_toolbox {
 	    std::vector<int> indexes(leg_end_velocity_i(leg_n));
 	    for(int i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]] * 1000.;
-		
+
 	    return x;
 	}
-	    
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -397,7 +402,7 @@ namespace kep_toolbox {
 	epoch leg_start_epoch(int leg_n, it_type begin) const {
 	    return epoch(begin[leg_start(leg_n) - 2], epoch::MJD2000);
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -407,7 +412,7 @@ namespace kep_toolbox {
 	epoch leg_end_epoch(int leg_n, it_type begin) const {
 	    return leg_start_epoch(leg_n + 1, begin);
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param begin an iterator pointing at the beginning of the chromosome
@@ -418,7 +423,7 @@ namespace kep_toolbox {
 	    return (leg_end_epoch(leg_n, begin).mjd2000() -
 		    leg_start_epoch(leg_n, begin).mjd2000()) * 60. * 60. * 24.;
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param segment_n the index of the segment
@@ -433,10 +438,10 @@ namespace kep_toolbox {
 	    std::vector<int> indexes(segment_thrust_i(leg_n, segment_n));
 	    for(int i = 0; i < indexes.size(); ++i)
 		x[i] = begin[indexes[i]];
-		
+
 	    return x;
 	}
-	    
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param segment_n the index of the segment
@@ -482,7 +487,7 @@ namespace kep_toolbox {
 	double leg_end_mass(int leg_n, it_type begin) const {
 	    return leg_start_mass((leg_n + 1), begin);
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @returns the number of segments in leg leg_n
@@ -490,56 +495,56 @@ namespace kep_toolbox {
 	int n_segments(int leg_n) const {
 	    return n_thrusts_m[leg_n];
 	}
-	
+
 	const std::vector<int>& n_segments() const {
 	    return n_thrusts_m;
 	}
-	
+
 	/**
 	 * @returns the number of legs in the trajectory
 	 */
 	int n_legs() const {
-	    return n_thrusts_m.size();
+		return n_thrusts_m.size();
 	}
-	    
+
 	/**
 	 * @returns the number of variables of the chromosome
 	 * which represents the trajectory
 	 */
 	int size() const {
-	    return leg_start(n_thrusts_m.size());
+		return leg_start(n_thrusts_m.size());
 	}
 
-	
-    protected:
+
+	protected:
 	/**
 	 * @param leg_n the index of the leg
 	 * @returns the number of variables used to represent the leg
 	 */
 	int leg_size(int leg_n) const {
-	    return (n_thrusts_m[leg_n] + 2) * 3 + 2;
+		return (n_thrusts_m[leg_n] + 2) * 3 + 2;
 	}
-	
+
 	int leg_start(int leg_n) const {
-	    return std::accumulate(n_thrusts_m.begin(), n_thrusts_m.begin() + leg_n, 0) * 3 + 8 * leg_n + 2;
+		return std::accumulate(n_thrusts_m.begin(), n_thrusts_m.begin() + leg_n, 0) * 3 + 8 * leg_n + 2;
 	}
-	
+
 	std::vector<int> n_thrusts_m;
-    };
+	};
 
 
 
 
 
 
-    /**
-     * Same as the mass format, but forces the engines to be off for a
-     * fixed amount of time before the end of each leg
-     */
-    template<typename base_format_type>
-    class coast_arcs : public base_format_type {
-    public:
-	
+	/**
+	* Same as the mass format, but forces the engines to be off for a
+	* fixed amount of time before the end of each leg
+	*/
+	template<typename base_format_type>
+	class coast_arcs : public base_format_type {
+	public:
+
 	/**
 	 * @param days the number of days where the engines must be
 	 * switched off
@@ -557,7 +562,7 @@ namespace kep_toolbox {
 	    assert(base_format_type::n_legs() == departure_arc_times_m.size());
 	    assert(base_format_type::n_legs() == arrival_arc_times_m.size());
 	}
-	
+
 	/**
 	 * @param leg_n the index of the leg
 	 * @param segment_n the index of the segment

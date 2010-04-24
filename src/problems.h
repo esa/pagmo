@@ -56,6 +56,8 @@
 #include "problem/messenger.h"
 #include "problem/messenger_full.h"
 #include "problem/tandem.h"
+#include "problem/laplace.h"
+#include "problem/sample_return.h"
 #include "problem/earth_planet.h"
 
 

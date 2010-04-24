@@ -1,10 +1,26 @@
-// Copyright (C) 2004, 2006 International Business Machines and others.
-// All Rights Reserved.
-// This code is published under the Common Public License.
-//
-// $Id: MyNLP.cpp 1241 2008-05-29 23:05:26Z andreasw $
-//
-// Authors:  Carl Laird, Andreas Waechter     IBM    2004-11-05
+/*****************************************************************************
+ *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -106,8 +122,8 @@ bool ipopt_problem::cache_efficiency_criterion(boost::array<int,2> one,boost::ar
 }
 
 
-bool ipopt_problem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
-				 Index& nnz_h_lag, IndexStyleEnum& index_style)
+bool ipopt_problem::get_nlp_info(Ipopt::Index& n, Ipopt::Index& m, Ipopt::Index& nnz_jac_g,
+				 Ipopt::Index& nnz_h_lag, IndexStyleEnum& index_style)
 {
 	(void)nnz_h_lag; //hessian is evaluated numerically using BFGS
 	//Problem dimension
@@ -125,8 +141,8 @@ bool ipopt_problem::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g,
 	return true;
 }
 
-bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
-				    Index m, Number* g_l, Number* g_u)
+bool ipopt_problem::get_bounds_info(Ipopt::Index n, Ipopt::Number* x_l, Ipopt::Number* x_u,
+					Ipopt::Index m, Ipopt::Number* g_l, Ipopt::Number* g_u)
 {
 	//Bounds on the decision vector
 	for (::Ipopt::Index i=0; i<n;++i)
@@ -152,10 +168,10 @@ bool ipopt_problem::get_bounds_info(Index n, Number* x_l, Number* x_u,
 }
 
 
-bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
-				       bool init_z, Number* z_L, Number* z_U,
-				       Index m, bool init_lambda,
-				       Number* lambda)
+bool ipopt_problem::get_starting_point(Ipopt::Index n, bool init_x, Ipopt::Number* x,
+					bool init_z, Ipopt::Number* z_L, Ipopt::Number* z_U,
+					Ipopt::Index m, bool init_lambda,
+					Ipopt::Number* lambda)
 {
 	// Here, we assume we only have starting values for x, if you code
 	// your own NLP, you can provide starting values for the others if
@@ -170,6 +186,11 @@ bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
 	(void) z_L;
 	(void) z_U;
 	(void) lambda;
+	(void) n;
+	(void) init_x;
+	(void) init_z;
+	(void) m;
+	(void) init_lambda;
 
 	// we initialize x as the best individual of the population
 	pagmo::population::size_type bestidx = m_pop->get_best_idx();
@@ -179,7 +200,7 @@ bool ipopt_problem::get_starting_point(Index n, bool init_x, Number* x,
 }
 
 
-bool ipopt_problem::eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
+bool ipopt_problem::eval_f(Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number& obj_value)
 {
 	(void) new_x;
 	// return the value of the objective function
@@ -189,7 +210,7 @@ bool ipopt_problem::eval_f(Index n, const Number* x, bool new_x, Number& obj_val
 	return true;
 }
 
-bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
+bool ipopt_problem::eval_grad_f(Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Number* grad_f)
 {
 	(void) new_x;
 	double central_diff;
@@ -216,7 +237,7 @@ bool ipopt_problem::eval_grad_f(Index n, const Number* x, bool new_x, Number* gr
 	return true;
 }
 
-bool ipopt_problem::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
+bool ipopt_problem::eval_g(Ipopt::Index n, const Ipopt::Number* x, bool new_x, Ipopt::Index m, Ipopt::Number* g)
 {
 	(void) new_x;
 	(void) m;
@@ -227,11 +248,12 @@ bool ipopt_problem::eval_g(Index n, const Number* x, bool new_x, Index m, Number
 	return true;
 }
 
-bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
-			       Index m, Index nele_jac, Index* iRow, Index *jCol,
-			       Number* values)
+bool ipopt_problem::eval_jac_g(Ipopt::Index n, const Ipopt::Number* x, bool new_x,
+				Ipopt::Index m, Ipopt::Index nele_jac, Ipopt::Index* iRow, Ipopt::Index *jCol,
+				Ipopt::Number* values)
 {
 	(void) new_x;
+	(void) m;
 	pagmo_assert(n == boost::numeric_cast<Index>(m_pop->problem().get_dimension()));
 	pagmo_assert(m == boost::numeric_cast<Index>(m_pop->problem().get_c_dimension()));
 	if (values == NULL) {
@@ -266,12 +288,12 @@ bool ipopt_problem::eval_jac_g(Index n, const Number* x, bool new_x,
 	return true;
 }
 
-void ipopt_problem::finalize_solution(SolverReturn status,
-				      Index n, const Number* x, const Number* z_L, const Number* z_U,
-				      Index m, const Number* g, const Number* lambda,
-				      Number obj_value,
-				      const IpoptData* ip_data,
-				      IpoptCalculatedQuantities* ip_cq)
+void ipopt_problem::finalize_solution(Ipopt::SolverReturn status,
+				       Ipopt::Index n, const Ipopt::Number* x, const Ipopt::Number* z_L, const Ipopt::Number* z_U,
+				       Ipopt::Index m, const Ipopt::Number* g, const Ipopt::Number* lambda,
+				       Ipopt::Number obj_value,
+				       const Ipopt::IpoptData* ip_data,
+				       Ipopt::IpoptCalculatedQuantities* ip_cq)
 {
 	(void) status;
 	(void) z_L;

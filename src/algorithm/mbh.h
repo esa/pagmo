@@ -51,11 +51,16 @@ namespace pagmo { namespace algorithm {
 @verbatim
 > Select a pagmo::population
 > Select a pagmo::algorithm
+> Store best individual
 > while i < stop_criteria
-> > Evolve the population using the algorithm
-> > Increment i if the champion is not improved
-> > i = 0 if a better champion is found
 > > Perturb the population in a selected neighbourhood
+> > Evolve the population using the algorithm
+> > if the best individual is improved (according to the problem::compare_fc criteria)
+> > > increment i
+> > > update best individual
+> > else
+> > > i = 0
+
 @endverbatim
  *
  *
@@ -68,6 +73,7 @@ class __PAGMO_VISIBLE mbh: public base
 {
 public:
 	mbh(const algorithm::base &, int stop = 50, double perturb = 5e-2);
+	mbh(const algorithm::base &, int stop, std::vector<double> perturb);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
@@ -79,7 +85,7 @@ private:
 	// Consecutive non improving iterations
 	const int m_stop;
 	// Perturbation of the population
-	const double m_perturb;
+	mutable std::vector<double> m_perturb;
 	// Activate screen output
 	bool m_screen_out;
 

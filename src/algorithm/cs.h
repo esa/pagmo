@@ -63,7 +63,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cs: public base
 {
 public:
-	cs(const double& max_eval, const double &stop_range,const double &start_range = 0.1, const double &reduction_coeff = 0.5 );
+	cs(const int& max_eval, const double &stop_range,const double &start_range = 0.1, const double &reduction_coeff = 0.5 );
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

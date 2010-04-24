@@ -260,6 +260,7 @@ public:
 			void get_mismatch_con(it_type begin, it_type end) const
 	{
 		assert(end - begin == 7);
+		(void)end;
 		size_t n_seg = throttles.size();
 		const int n_seg_fwd = (n_seg + 1) / 2, n_seg_back = n_seg / 2;
 
@@ -375,7 +376,7 @@ public:
 	double evaluate_dv() const
 	{
 		double tmp = 0;
-		for (int i = 0; i < throttles.size(); ++i)
+		for (std::vector<double>::size_type i = 0; i < throttles.size(); ++i)
 		{
 			tmp += (throttles[i].get_end().mjd2000() -throttles[i].get_start().mjd2000())
 			       * ASTRO_DAY2SEC * throttles[i].get_norm() * sc.get_thrust() / sc.get_mass();

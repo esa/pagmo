@@ -41,7 +41,7 @@ namespace pagmo { namespace algorithm {
  * reduction_coeff not \f$ \in ]0,1[\f$
  */
 
-cs::cs(const double& max_eval, const double &stop_range, const double &start_range, const double &reduction_coeff)
+cs::cs(const int& max_eval, const double &stop_range, const double &start_range, const double &reduction_coeff)
 	:base(),m_stop_range(stop_range),m_start_range(start_range),m_reduction_coeff(reduction_coeff),m_max_eval(max_eval)
 {
 	if (reduction_coeff >= 1 || reduction_coeff <=0) {
@@ -168,6 +168,7 @@ std::string cs::get_name() const
 std::string cs::human_readable_extra() const
 {
 	std::ostringstream s;
+	s << "max_eval:" << m_max_eval << ' ';
 	s << "stop_range:" << m_stop_range << ' ';
 	s << "start_range:" << m_start_range << ' ';
 	s << "reduction_coeff:" << m_reduction_coeff;

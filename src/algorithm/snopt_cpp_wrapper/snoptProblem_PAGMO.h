@@ -36,10 +36,9 @@ protected:
   //***********************************************************
   //***********************************************************
   void userDataSet();
-  void errMsgExit( char *var );
+  void errMsgExit( const char *var );
 
   integer    inform, fortranStyleObj, fortranStyleAG;
-  integer    initCalled;
   integer    minrw, miniw, mincw;
   integer    lenrw, leniw, lencw;
   doublereal *rw;
@@ -47,6 +46,7 @@ protected:
   char       *cw;
 
   integer    iSpecs, iSumm, iPrint;
+  integer    initCalled;
   char       specname[200], printname[200];
   integer    spec_len, prnt_len;
 
@@ -76,10 +76,10 @@ public:
   void init();
   void setParameter    ( char *stroptin );
   void getParameter    ( char *stroptin, char *stroptout );
-  void setIntParameter ( char *stropt,   integer     opt );
-  void getIntParameter ( char *stropt,   integer    &opt );
-  void setRealParameter( char *stropt,   doublereal  opt );
-  void getRealParameter( char *stropt,   doublereal &opt );
+  void setIntParameter ( const char *stropt,   integer     opt );
+  void getIntParameter ( const char *stropt,   integer    &opt );
+  void setRealParameter( const char *stropt,   doublereal  opt );
+  void getRealParameter( const char *stropt,   doublereal &opt );
   void solve           ( integer starttype );
   void setPrintFile    ( const char printname[] );
   void setSpecFile     ( char specname[] );

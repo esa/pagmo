@@ -35,9 +35,29 @@ namespace pagmo{ namespace problem {
 
 /// TandEM problem
 /**
- * This interplanetary trajectory transfer has 25 different instances, depending on the fly-by sequence adopted.
+ * \image html tandem.jpg "Encedalus orbiting around Saturn"
+ * \image latex tandem.jpg "Encedalus orbiting around Saturn" width=5cm
+ *
+ * TandEM primary goals are to understand the atmosphere, surface and interior,
+ * to determine the chemistry, and to derive constraints on the origin and evolution of
+ * Titan and of the saturnian system as a whole, with an emphasis on Enceladus.
+ *
+ * TandEM had been proposed as an L-class candidate mission for the Cosmic Vision 2015-2025
+ * programme in response to the Call for Proposals issued by ESA in March 2007,
+ * and has been one of the mission concepts selected by the SSAC in October 2007
+ * for an Assessment study. The SSAC had decided that an Outer Planet mission should be one
+ * of the L-class mission candidates for the first slice of the Cosmic Vision plan,
+ * and recommended that both TandEM and Laplace (a mission to the Jupiter system)
+ * concepts should be studied initially, with a decision on which one to pursue to take place
+ * following a better definition of the mission's characteristics.
+
+ * In early February 2009 ESA and NASA jointly announced that the Europa-Jupiter System Mission,
+ * or Laplace (see problem::laplace), would be the candidate for the first L mission.
+ *
+ * We transcribe here TandEM interplanetary trajectory transfer problem as an MGA-DSM
+ * problem and we allow to instanciate 25 different types, depending on the fly-by sequence adopted.
  * The mission data are taken from those used by a joint ESA/NASA working group that performed, together with industrial partners
- * a preliminary trajectory design for the TandEM mission during the first months of 2009.
+ * a preliminary trajectory design for the TandEM mission during the first months of 2008.
  * Please refer to http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm to select the proper instance. A default
  * choice is 6, which corrsponds to an EVEES fly-by sequence. The possibility of adding one additional constraint
  * on the time-of-flight is given. If such a constraint is specified the components x[4]-x[7] are no longer time of flights
@@ -58,6 +78,7 @@ class __PAGMO_VISIBLE tandem: public base
 	public:
 		tandem(const int problemid = 6, const double tof_ = -1);
 		base_ptr clone() const;
+		std::string pretty(const std::vector<double> &x) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;

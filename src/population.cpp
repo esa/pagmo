@@ -121,6 +121,18 @@ void population::init_velocity(const size_type &idx)
 	}
 }
 
+/// Re-initialise all individuals
+/**
+ * @see population::reinit(const size_type &).
+ */
+void population::reinit()
+{
+	for (size_type i = 0; i < size(); ++i)
+	{
+		reinit(i);
+	}
+}
+
 /// Re-initialise individual at position idx.
 /**
  * The continuous and integer parts of the chromosome will be picked randomly within the problem's bounds, the velocities

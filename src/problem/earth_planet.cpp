@@ -33,7 +33,7 @@
 #include "base.h"
 #include "earth_planet.h"
 #include "../keplerian_toolbox/codings.h"
-#include "../keplerian_toolbox/planet.h"
+#include "../keplerian_toolbox/planet_ss.h"
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;
@@ -41,7 +41,7 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-earth_planet::earth_planet(int segments, planet::common_name planet_id, const double &ctol) : base(base_format(1,segments,1000).size(), 0, 1, 6 + segments + 1 +1, segments+2,ctol),
+earth_planet::earth_planet(int segments, std::string target, const double &ctol) : base(base_format(1,segments,1000).size(), 0, 1, 6 + segments + 1 +1, segments+2,ctol),
  encoding(1,segments,1000), vmax(3000),n_segments(segments)
 {
 	std::vector<double> lb_v(get_dimension());
@@ -85,9 +85,9 @@ earth_planet::earth_planet(int segments, planet::common_name planet_id, const do
 	set_bounds(lb_v,ub_v);
 
 	//traj_fb constructor
-	std::vector<planet> sequence;
-	sequence.push_back(planet(planet::EARTH));
-	sequence.push_back(planet(planet_id));
+	std::vector<planet*> sequence;
+	sequence.push_back(new planet_ss("earth"));
+	sequence.push_back(new planet_ss(target));
 	trajectory = fb_traj(sequence,segments,1000,0.05,std::numeric_limits<double>::infinity());
 }
 

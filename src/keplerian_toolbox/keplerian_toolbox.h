@@ -22,54 +22,25 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef KEPLERIAN_TOOLBOX_H
+#define KEPLERIAN_TOOLBOX_H
 
-// Header including all algorithms implemented in PaGMO.
+#include"epoch.h"
+#include"planet.h"
+#include"planet_ss.h"
+#include"planet_mpcorb.h"
+#include"core_functions/array3D_operations.h"
+#include"core_functions/convert_anomalies.h"
+#include"core_functions/convert_dates.h"
+#include"core_functions/ic2par.h"
+#include"core_functions/par2ic.h"
+#include"core_functions/kepler_equations.h"
+#include"core_functions/par2ic.h"
+#include"core_functions/propagate_lagrangian.h"
+#include"sims_flanagan/fb_traj.h"
+#include"sims_flanagan/leg.h"
+#include"sims_flanagan/sc_state.h"
+#include"sims_flanagan/throttle.h"
+#include"astro_constants.h"
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/ihs.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
-
-
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
-
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
-
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
-
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-#endif
-
-#endif
+#endif // KEPLERIAN_TOOLBOX_H

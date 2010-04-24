@@ -22,6 +22,7 @@ namespace kep_toolbox{
  *
  */
 	std::ostream &operator<<(std::ostream &s, const leg &in ){
+	(void)in;
 /*	    s << "Number of segments: " << in.get_throttles_size() / 3 << std::endl;
 	    s << "Departure date: " << in.get_t_i() << ", mjd2000: " << in.get_t_i().mjd2000() << std::endl;
 	    s << "Arrival date: " << in.get_t_f() << ", mjd2000: " << in.get_t_f().mjd2000() << std::endl;

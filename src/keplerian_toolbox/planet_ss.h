@@ -22,54 +22,31 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PLANET_SS_H
+#define PLANET_SS_H
 
-// Header including all algorithms implemented in PaGMO.
+#include"planet.h"
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/ihs.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
+namespace kep_toolbox{
 
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+/// Solar System Planet (keplerian)
+/**
+ * This class derives from the planet class and allow to instantiate planets of
+ * the solar system by referring to their common names.
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
+
+class planet_ss : public planet
+{
+public:
+	/**
+	 * Construct a planet from its common name (e.g. VENUS)
+	 * \param[in] name a string describing a planet
+	 */
+	planet_ss(const std::string& name);
+};
 
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
-
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
-
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
-
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-#endif
-
-#endif
+} /// End of namespace kep_toolbox
+#endif // PLANET_SS_H

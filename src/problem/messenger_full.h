@@ -52,6 +52,8 @@ class __PAGMO_VISIBLE messenger_full: public base
 	public:
 		messenger_full();
 		base_ptr clone() const;
+		std::string pretty(const std::vector<double> &x) const;
+
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;

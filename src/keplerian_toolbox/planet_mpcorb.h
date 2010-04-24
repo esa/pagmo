@@ -22,54 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PLANET_MPCORB_H
+#define PLANET_MPCORB_H
 
-// Header including all algorithms implemented in PaGMO.
+#include"planet.h"
+#
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/ihs.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
+namespace kep_toolbox{
 
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+/// Minor Planet (keplerian)
+/**
+ * This class derives from the planet class and allow to instantiate planets of
+ * from the MPCORB database using their names or row id. The file MPCORB.DAT is searched
+ * in the current directory.
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
+
+class planet_mpcorb : public planet
+{
+public:
+	/**
+	 * Construct a minor planet from its common name (e.g. EROS). Requires the file MPCORB.DAT
+	 * is present in the current directory
+	 * \param[in] name a string naming a minor planet (e.g. "eros" or "tu126" or "Apohis"). Case is ignored.
+	 *		WARNING: partial names are matched to the first occurrence. So care needs to be taken that
+			the string used actually uniquely defines the desired minor planet.
+	 * \throws value_error if MPCORB.DAT is not found or name is not found in the file.
+	 */
+	planet_mpcorb(const std::string& name);
+
+	/**
+	 * Construct a minor planet from the row number in the MPCORB.DAT file counted from the
+	 * first line containing an asetroid (i.e. line 0 is Ceres)
+	 * \param[in] row integer indicating the row.
+	 * \throws value_error if MPCORB.DAT is not found or row exceeds the asteroids in the file
+	 */
+	planet_mpcorb(int row);
+private:
+	static inline int packed_date2number(char c);
+};
 
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
-
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
-
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
-
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-#endif
-
-#endif
+} /// End of namespace kep_toolbox
+#endif // PLANET_MPCORB_H

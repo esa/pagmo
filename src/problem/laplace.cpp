@@ -22,35 +22,90 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "cassini_2.h"
+#include "laplace.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
 #include "../keplerian_toolbox/epoch.h"
 
 namespace pagmo { namespace problem {
 
-const int sequence[6] = {3, 2, 2, 3, 5, 6};
-
 /// Constructor
 /**
-* Instantiates the cassini_2 problem*/
-cassini_2::cassini_2():base(22), problem(total_DV_rndv,sequence,6,0,0,0,0,0)
+* Instantiates a Laplace problem
+* \param[in] seq contains the fly-by sequence (e.g. 3,2,3,3,5 for Earth-Venus,Earth-Earth-Jupiter)
+*/
+laplace::laplace(const std::vector<int> &seq):base(-10000.0,10000.0,4*seq.size() - 2), problem(0)
 {
-	const double lb[22] = {-1000, 3, 0, 0, 100, 100, 30, 400, 800, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.15, 1.7, -M_PI, -M_PI, -M_PI, -M_PI};
-	const double ub[22] = {0,  5, 1, 1, 400, 500, 300, 1600, 2200, 0.9, 0.9, 0.9, 0.9, 0.9, 6, 6, 6.5, 291, M_PI, M_PI, M_PI, M_PI};
-	set_bounds(lb,lb+22,ub,ub+22);
+	if (seq.size() < 2)
+	{
+		pagmo_throw(value_error,"fly-by sequence must contain at least two planets!! Earth and Jupiter");
+	}
+	if (seq[0]!=3)
+	{
+		pagmo_throw(value_error,"Starting planet must be the Erath (3) for the Laplace mission");
+	}
+	if (seq.back()!=5)
+	{
+		pagmo_throw(value_error,"Final planet must be the Jupiter (5) for the Laplace mission");
+	}
+	//Set the sequence as defined by the user
+	problem.reset(new mgadsmproblem(orbit_insertion,&seq[0],seq.size(),0,0,0,.97,4 * 71492.0));
+	// Set the bounds.
+	set_lb(0,5475.0);
+	set_ub(0,9132.0);
+	set_lb(1,0.1);
+	set_ub(1,3.5);
+	set_lb(2,0.0);
+	set_ub(2,1.0);
+	set_lb(3,0.0);
+	set_ub(3,1.0);
+	for (size_t i = 0; i < seq.size() - 1; ++i)
+	{
+		set_lb(i+4,20);
+		set_ub(i+4,2500);
+	}
+	for (size_t i = 0; i < seq.size() - 1; ++i)
+	{
+		set_lb(i+3+seq.size(),0.01);
+		set_ub(i+3+seq.size(),0.99);
+	}
+	for (size_t i = 0; i < seq.size() - 2; ++i)
+	{
+		set_lb(i+2*(seq.size()+ 1),1.05);
+		set_ub(i+2*(seq.size()+ 1),100);
+	}
+	for (size_t i = 0; i < seq.size() - 2; ++i)
+	{
+		set_lb(i+3*seq.size(),-M_PI);
+		set_ub(i+3*seq.size(),M_PI);
+	}
 }
 
+/// Copy constructor (needed for a deep copy of the object)
+/**
+ * \param[in] other a laplace problem
+ */
+laplace::laplace(const laplace &other):base(other),problem(new mgadsmproblem(*(other.problem))) {}
+
 /// Clone method.
-base_ptr cassini_2::clone() const
+base_ptr laplace::clone() const
 {
-	return base_ptr(new cassini_2(*this));
+	return base_ptr(new laplace(*this));
 }
 
 /// Implementation of the objective function.
-void cassini_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
+void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	MGA_DSM(x, problem,f[0]);
+	f[0] = 0;
+	MGA_DSM(x, *problem, f[0]);
+	const size_t sequence_size = (x.size() + 2) / 4;
+	double totaltime = 0;
+	for (size_t i = 0; i < sequence_size - 1 ; ++i) {
+		totaltime += x[i + 4];
+	}
+	const double delta = totaltime - 8 * 365.25;
+	// Penalise trajectory longer than 8 years by 200 meters/s per month.
+	f[0] = std::max<double>(f[0],f[0] + 0.2 / 30 * delta);
 }
 
 /// Outputs a stream with the trajectory data
@@ -63,62 +118,59 @@ void cassini_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
  * \returns an std::string with launch dates, DV magnitues and other information on the trajectory
  */
 
-std::string cassini_2::pretty(const std::vector<double> &x) const
+ std::string laplace::pretty(const std::vector<double> &x) const
 {
 	double obj = 0;
-	MGA_DSM(x, problem, obj);
+	MGA_DSM(x, *problem, obj);
 	std::ostringstream s;
 	s.precision(15);
 	s << std::scientific;
 	const size_t seq_size = (x.size() + 2) / 4;
 	pagmo_assert((x.size() + 2) % 4 == 0 && seq_size >= 2);
-	pagmo_assert(problem.sequence.size() == seq_size);
-	s << "Flyby sequence:\t\t\t";
+	pagmo_assert(problem->sequence.size() == seq_size);
+	s << "Flyby sequence:        ";
 	for (size_t i = 0; i < seq_size; ++i) {
-		s << problem.sequence[i];
+		s << problem->sequence[i];
 	}
 	s << '\n';
-	s << "Departure epoch (mjd2000):\t" << x[0] << '\n';
-	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(x[0],::kep_toolbox::epoch::MJD2000) << '\n';
-	s << "Vinf polar components:\t\t";
+	s << "Departure epoch (mjd2000):     " << x[0] << '\n';
+	s << "Departure epoch:     " << ::kep_toolbox::epoch(x[0],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Vinf polar components: ";
 	for (size_t i = 0; i < 3; ++i) {
 		s << x[i + 1] << ' ';
 	}
 	s << '\n';
 	double totaltime = 0;
 	for (size_t i = 0; i < seq_size - 1; ++i) {
-		s << "Leg time of flight:\t\t" << x[i + 4] << '\n';
+		s << "Leg time of flight:    " << x[i + 4] << '\n';
 		totaltime += x[i + 4];
 	}
-	s << "Total time of flight:\t\t" << totaltime << '\n';
+	s << "Total time of flight:  " << totaltime << '\n';
 	for (size_t i = 0; i < seq_size - 2; ++i) {
-		s << "Flyby radius:\t\t\t" << x[i + 2 * (seq_size + 1)] << '\n';
-	}
-	totaltime=x[0];
-	for (size_t i = 0; i < seq_size - 2; ++i) {
-	totaltime += x[i + 4];
-		s << "Flyby date:\t\t\t" << ::kep_toolbox::epoch(totaltime,::kep_toolbox::epoch::MJD2000) << '\n';
+		s << "Flyby radius:          " << x[i + 2 * (seq_size + 1)] << '\n';
 	}
 	for (size_t i = 0; i < seq_size - 2; ++i) {
-		s << "Vinf at flyby:\t\t\t" << std::sqrt(problem.vrelin_vec[i]) << '\n';
+		s << "Vinf at flyby:         " << std::sqrt(problem->vrelin_vec[i]) << '\n';
 	}
 	for (size_t i = 0; i < seq_size - 1; ++i) {
-		s << "dsm" << i+1 << ":\t\t\t\t" << problem.DV[i+1] << '\n';
+		s << "dsm" << i+1 << ":         " << problem->DV[i+1] << '\n';
 	}
-	s << "Final DV:\t\t\t" << problem.DV.back() << '\n';
 	return s.str();
 }
 
 /// Implementation of the sparsity structure.
 /**
- * No sparsity present (box-constrained problem).
+ * This is necessary and cannot be left to the automatic algorithm implemented in problem::base
+ * as the numerical difficulties introduced by the objective function definition through a logarithm
+ * makes automated detection unreliable (e.g. also SNOPT algorithm fails).
+ * CLearly, as the problem is box constrained no sarsity is present.
  */
 
-void cassini_2::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+void laplace::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
-	lenG=22;
-	iGfun.resize(22);
-	jGvar.resize(22);
+	lenG=(4*problem->sequence.size()-2);
+	iGfun.resize(lenG);
+	jGvar.resize(lenG);
 	for (int i = 0; i<lenG; ++i)
 	{
 		iGfun[i] = 0;

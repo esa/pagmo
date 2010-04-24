@@ -49,38 +49,37 @@ namespace kep_toolbox {
 class epoch {
 public:
 
-    /** Types of non gregorian dates supported. Julian Date (JD) is the number of days passed since
-    * January 1, 4713 BC at noon. Modified Julian Date (MJD) is the number of days passed since
-    * November 17, 1858 at midnight. The Modified Julian Date 2000 (MJD2000) is the number of days passed since
-    * Juanuary 1, 2000 at midnight.
-    */
-    enum type {MJD2000, MJD, JD};
+	/** Types of non gregorian dates supported. Julian Date (JD) is the number of days passed since
+	 * January 1, 4713 BC at noon. Modified Julian Date (MJD) is the number of days passed since
+	 * November 17, 1858 at midnight. The Modified Julian Date 2000 (MJD2000) is the number of days passed since
+	* Juanuary 1, 2000 at midnight.
+	*/
+	enum type {MJD2000, MJD, JD};
 
-    /// Constructor.
-    /**
-    * Constructs an epoch initializing the mjd2000 with the default double constructor
-    */
-    epoch(){}
-    epoch(const double &epoch_in, type epoch_type = MJD2000);
-    epoch(const boost::gregorian::greg_year &year, const boost::gregorian::greg_month &month, const boost::gregorian::greg_day &day);
-    epoch(const boost::posix_time::ptime& posix_time);
+	/** @name Constructors */
+	//@{
+	epoch();
+	epoch(const double &epoch_in, type epoch_type = MJD2000);
+	epoch(const boost::gregorian::greg_year &year, const boost::gregorian::greg_month &month, const boost::gregorian::greg_day &day);
+	epoch(const boost::posix_time::ptime& posix_time);
+	//@}
 
-    /** @name Computing non-gregorian dates */
-    //@{
-    double mjd2000 () const;
-    double jd () const;
-    double mjd () const;
-    //@}
+	/** @name Computing non-gregorian dates */
+	//@{
+	double mjd2000 () const;
+	double jd () const;
+	double mjd () const;
+	//@}
 
-    /** @name Interface to boost::posix_time::ptime */
-    //@{
-    boost::posix_time::ptime get_posix_time() const;
-    void set_posix_time(const boost::posix_time::ptime&);
-    //@}
+	/** @name Interface to boost::posix_time::ptime */
+	//@{
+	boost::posix_time::ptime get_posix_time() const;
+	void set_posix_time(const boost::posix_time::ptime&);
+	//@}
 
 private:
-    /// the modified julian date 2000 stored in a double
-    double mjd2000_m;
+	/// the modified julian date 2000 stored in a double
+	double mjd2000_m;
 };
 std::ostream &operator<<(std::ostream &s, const epoch &epoch_in );
 } // end of namespace kep_toolbox

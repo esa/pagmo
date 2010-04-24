@@ -25,9 +25,11 @@
 #include "tandem.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
+#include "../keplerian_toolbox/epoch.h"
 
 namespace pagmo { namespace problem {
 
+/// Fly bys considered
 const int Data[24][5] = {
 	{3,2,2,2,6},
 	{3,2,2,3,6},
@@ -55,12 +57,13 @@ const int Data[24][5] = {
 	{3,3,4,5,6}
 };
 
+/// Dummy sequence (unused)
 const int sequence[5] = {1,1,1,1,1};
 
 /// Constructor
 /**
 * Instantiates one of the possible TandEM problems
-* \param[in] problemid This is an integer number from 1 to 24 encoding the fly-by sequence to be used (default is EVEES). Check http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
+* \param[in] probid This is an integer number from 1 to 24 encoding the fly-by sequence to be used (default is EVEES). Check http://www.esa.int/gsp/ACT/inf/op/globopt/TandEM.htm for more information
 * \param[in] tof_ (in years) This is a number setting the constraint on the total time of flight (10 from the GTOP database). If -1 (default) an unconstrained problem is instantiated
 */
 tandem::tandem(const int probid, const double tof_):base(18), problem(orbit_insertion,sequence,5,0,0,0,0.98531407996358,80330.0), tof(tof_),copy_of_x(18)
@@ -160,12 +163,80 @@ void tandem::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = -log(m_final);
 }
 
+/// Outputs a stream of the trajectory data
+/**
+ * While the chromosome contains all necessary information to describe a trajectory, mission analysits
+ * often require a different set of data to understand a trajectory. This method outputs a stream with
+ * information on the trajectory that is otherwise 'hidden' in the chromosome
+ *
+ * \param[in] x chromosome representing the trajectory in the optimization process
+ * \returns an std::string with launch dates, DV magnitues and other information on the trajectory
+ */
+std::string tandem::pretty(const std::vector<double> &x) const
+{
+	double obj=0;
+	std::vector<double> printablex;
+	if (tof!=-1) { //constrained problem
+		//Here we copy the chromosome into a new vector and we transform its time percentages into days
+		copy_of_x = x;
+		copy_of_x[4] = x[4]*365.25*tof;
+		copy_of_x[5] = x[5]*(365.25*tof-copy_of_x[4]);
+		copy_of_x[6] = x[6]*(365.25*tof-copy_of_x[4]-copy_of_x[5]);
+		copy_of_x[7] = x[7]*(365.25*tof-copy_of_x[4]-copy_of_x[5]-copy_of_x[6]);
+		MGA_DSM(copy_of_x, problem, obj);
+		printablex=copy_of_x;
+	} else {	//unconstrained problem
+		MGA_DSM(x, problem, obj);
+		printablex=x;
+	}
+	std::ostringstream s;
+	s.precision(15);
+	s << std::scientific;
+	const size_t seq_size = (x.size() + 2) / 4;
+	pagmo_assert((x.size() + 2) % 4 == 0 && seq_size >= 2);
+	pagmo_assert(problem.sequence.size() == seq_size);
+	s << "Flyby sequence:\t\t\t";
+	for (size_t i = 0; i < seq_size; ++i) {
+		s << problem.sequence[i];
+	}
+	s << '\n';
+	s << "Departure epoch (mjd2000):\t" << printablex[0] << '\n';
+	s << "Departure epoch:\t\t" << ::kep_toolbox::epoch(printablex[0],::kep_toolbox::epoch::MJD2000) << '\n';
+	s << "Vinf polar components:\t\t";
+	for (size_t i = 0; i < 3; ++i) {
+		s << printablex[i + 1] << ' ';
+	}
+	s << '\n';
+	double totaltime = 0;
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		s << "Leg time of flight:\t\t" << printablex[i + 4] << '\n';
+		totaltime += printablex[i + 4];
+	}
+	s << "Total time of flight:\t\t" << totaltime << '\n';
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Flyby radius:\t\t\t" << printablex[i + 2 * (seq_size + 1)] << '\n';
+	}
+	totaltime=printablex[0];
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+	totaltime += printablex[i + 4];
+		s << "Flyby date:\t\t\t" << ::kep_toolbox::epoch(totaltime,::kep_toolbox::epoch::MJD2000) << '\n';
+	}
+	for (size_t i = 0; i < seq_size - 2; ++i) {
+		s << "Vinf at flyby:\t\t\t" << std::sqrt(problem.vrelin_vec[i]) << '\n';
+	}
+	for (size_t i = 0; i < seq_size - 1; ++i) {
+		s << "dsm" << i+1 << ":\t\t\t\t" << problem.DV[i+1] << '\n';
+	}
+	s << "Final DV:\t\t\t" << problem.DV.back() << '\n';
+	return s.str();
+}
+
 /// Implementation of the sparsity structure.
 /**
  * This is necessary and cannot be left to the automatic algorithm implemented in problem::base
  * as the numerical difficulties introduced by the objective function definition through a logarithm
  * makes automated detection unreliable (e.g. also SNOPT algorithm fails).
- * CLearly, as the problem is box constrained no sarsity is present.
+ * Clearly, as the problem is box constrained no sarsity is present.
  */
 
 void tandem::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const

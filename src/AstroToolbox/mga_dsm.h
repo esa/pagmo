@@ -34,14 +34,14 @@ public:
 	mgadsmproblem(int t, const int *seq, const size_t &size_, const double &AUdist_, const double &DVtotal_, const double &DVonboard_,
 		const double &e_, const double &rp_):
 		size(size_),type(t),sequence(seq,seq + size),e(e_),rp(rp_),AUdist(AUdist_),DVtotal(DVtotal_),
-		DVonboard(DVonboard_),r(size),v(size),DV(size + 1) {
+		DVonboard(DVonboard_),r(size),v(size),DV(size + 1),vrelin_vec(size-2) {
 		for (size_t i = 0; i < size; ++i) {
 			r[i] = new double[3];
 			v[i] = new double[3];
 		}
 	}
 	mgadsmproblem(const mgadsmproblem &m):size(m.size),type(m.type),sequence(m.sequence),e(m.e),rp(m.rp),asteroid(m.asteroid),
-		AUdist(m.AUdist),DVtotal(m.DVtotal),DVonboard(m.DVonboard),r(m.size),v(m.size),DV(m.DV) {
+		AUdist(m.AUdist),DVtotal(m.DVtotal),DVonboard(m.DVonboard),r(m.size),v(m.size),DV(m.DV),vrelin_vec(m.vrelin_vec) {
 		for (size_t i = 0; i < size; ++i) {
 			r[i] = new double[3];
 			v[i] = new double[3];
@@ -68,9 +68,10 @@ public:
 	double DVonboard;					//Total DV on the spacecraft in km/s (only in case of time2AUs)
 
 	//Pre-allocated memory, in order to remove allocation of heap space in MGA_DSM calls
-	mutable std::vector<double*> r;// = std::vector<double*>(n);
-	mutable std::vector<double*> v;// = std::vector<double*>(n);
-	mutable std::vector<double> DV;// = std::vector<double>(n+1);
+	mutable std::vector<double*> r;		// = std::vector<double*>(n);
+	mutable std::vector<double*> v;		// = std::vector<double*>(n);
+	mutable std::vector<double> DV;		// = std::vector<double>(n+1);
+	mutable std::vector<double> vrelin_vec;	// = std::vector<double>(n+1);
 };
 
 

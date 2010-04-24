@@ -125,7 +125,7 @@ class __PAGMO_VISIBLE population
 		typedef container_type::size_type size_type;
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
-		population(const problem::base &, int = 0);
+		explicit population(const problem::base &, int = 0);
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
@@ -144,6 +144,7 @@ class __PAGMO_VISIBLE population
 		const_iterator end() const;
 		size_type n_dominated(const individual_type &) const;
 		void reinit(const size_type &);
+		void reinit();
 	private:
 		population();
 		void init_velocity(const size_type &);

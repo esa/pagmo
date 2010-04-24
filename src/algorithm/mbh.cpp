@@ -38,23 +38,48 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor.
 /**
- * Allows to specify in detail all the parameters of the algorithm.
+ * Specify an mbh algorithm with uniform neighbourhoods
  *
  * @param[in] local pagmo::algorithm to use as 'local' optimization method
  * @param[in] stop number of consecutive step allowed without any improvement
- * @param[in] perturb At the end of one iteration of mbh, each chromosome of each population individual
- * will be perturbed by +-perturb*(ub - lb), the same for the velocity. The integer part is treated the same way.
- * @throws value_error if stop is negative or perturb is not in ]0,1]
+ * @param[in] perturb At the end of one iteration of mbh, each chromosome of each individual
+ * will be perturbed within +-perturb, the same for the velocity. The integer part is treated the same way.
+ * @throws value_error if stop is negative or perturb is negative
  */
-mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(perturb)
+mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb)
 {
 	m_local = local.clone();
 	if (stop < 0) {
 		pagmo_throw(value_error,"number of consecutive step allowed without any improvement needs to be positive");
 	}
-	if (perturb <= 0 || perturb > 1) {
-		pagmo_throw(value_error,"perturb must be in ]0,1]");
+	if (perturb < 0) {
+		pagmo_throw(value_error,"perturb must be positive");
 	}
+}
+
+/// Constructor.
+/**
+ * Allows to specify in detail all the parameters of the algorithm.
+ *
+ * @param[in] local pagmo::algorithm to use as 'local' optimization method
+ * @param[in] stop number of consecutive step allowed without any improvement
+ * @param[in] perturb At the end of one iteration of mbh, the i-th chromosome of each individual
+ * will be perturbed within +-perturb[i], the same for the velocity. The integer part is treated the same way.
+ * @throws value_error if stop is negative or perturb[i] is negative
+ */
+mbh::mbh(const algorithm::base & local, int stop, std::vector<double> perturb):base(),m_stop(stop),m_perturb(perturb)
+{
+	m_local = local.clone();
+	if (stop < 0) {
+		pagmo_throw(value_error,"number of consecutive step allowed without any improvement needs to be positive");
+	}
+	for (size_t i=0;i<perturb.size();++i)
+	{
+		if (perturb[i] < 0 ) {
+			pagmo_throw(value_error,"perturb[.] must be positive");
+		}
+	}
+	if (perturb.size()==0) pagmo_throw(value_error,"perturbation vector appears empty!!");
 }
 
 /// Clone method.
@@ -79,6 +104,19 @@ void mbh::evolve(population &pop) const
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
 
+	//Check if the perturbation vector has size 1, in which case it fills up the whole vector with
+	//the same number
+	if (m_perturb.size()==1)
+	{
+		for (problem::base::size_type i=1;i<D;++i) m_perturb.push_back(m_perturb[0]);
+	}
+
+	//Check that the perturbation vector size equals the size of the problem
+	if (m_perturb.size()!=D)
+	{
+		pagmo_throw(value_error,"perturbation vector size does not match the problem size");
+	}
+
 	// Get out if there is nothing to do.
 	if (m_stop == 0 || NP == 0) {
 		return;
@@ -98,16 +136,42 @@ void mbh::evolve(population &pop) const
 	//mbh main loop
 
 	while (i<m_stop){
-		//1. Evolve population with selected algorithm
-		m_local->evolve(pop); i++;
 
-		//2. Reset counter if improved
+		//1. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
+		for (population::size_type j =0; j < NP; ++j)
+		{
+			for (decision_vector::size_type k=0; k < Dc; ++k)
+			{
+				dummy = best_pop.get_individual(j).cur_x[k];
+				width = m_perturb[k];
+				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_drng);
+				dummy = best_pop.get_individual(j).cur_v[k];
+				tmp_v[k] = boost::uniform_real<double>(dummy-width,dummy+width)(m_drng);
+			}
+
+			for (decision_vector::size_type k=Dc; k < D; ++k)
+			{
+				dummy = best_pop.get_individual(j).cur_x[k];
+				width = m_perturb[k];
+				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
+				dummy = best_pop.get_individual(j).cur_v[k];
+				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
+			}
+			pop.set_x(j,tmp_x);
+			pop.set_v(j,tmp_v);
+		}
+
+		//2. Evolve population with selected algorithm
+		m_local->evolve(pop); i++;
+		if (m_screen_out)
+		{
+			std::cout << i << ". " << "\tBest: " << pop.get_individual(pop.get_best_idx()).cur_f << "\tChampion: " << pop.champion().f << std::endl;
+		}
+
+		//3. Reset counter if improved
 		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
 		{
-			if (m_screen_out)
-			{
-				std::cout << "Improved after: " << i << "\tBest-so-far: " << pop.get_individual(pop.get_best_idx()).cur_f <<std::endl;
-			}
+
 			i = 0;
 			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
 			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
@@ -119,29 +183,7 @@ void mbh::evolve(population &pop) const
 			}
 		}
 
-		//3. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
-		for (population::size_type j =0; j < NP; ++j)
-		{
-			for (decision_vector::size_type k=0; k < Dc; ++k)
-			{
-				dummy = best_pop.get_individual(j).cur_x[k];
-				width = (ub[k]-lb[k]) * m_perturb / 2;
-				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_drng);
-				dummy = best_pop.get_individual(j).cur_v[k];
-				tmp_v[k] = boost::uniform_real<double>(dummy-width,dummy+width)(m_drng);
-			}
 
-			for (decision_vector::size_type k=Dc; k < D; ++k)
-			{
-				dummy = best_pop.get_individual(j).cur_x[k];
-				width = (ub[k]-lb[k]) * m_perturb / 2;
-				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
-				dummy = best_pop.get_individual(j).cur_v[k];
-				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
-			}
-			pop.set_x(j,tmp_x);
-			pop.set_v(j,tmp_v);
-		}
 	}
 	//on exit set the population to the best one (discard perturbations)
 	for (population::size_type j=0; j<pop.size();++j)

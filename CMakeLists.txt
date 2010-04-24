@@ -71,6 +71,9 @@ OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 # Build option: enable test set.
 OPTION(ENABLE_TESTS "Build test set." ON)
 
+# Build Option: build executable for the examples
+OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
+
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
 	FIND_LIBRARY(GSL_GSL_LIBRARY NAMES gsl)
@@ -232,7 +235,7 @@ IF(BUILD_PYGMO)
 			${WIN_PKG_ROOT}/console/FreeImagePlus.dll
 			DESTINATION .
 		)
-                INSTALL(FILES
+		INSTALL(FILES
 			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcm90.dll
 			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcr90.dll
 			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcp90.dll
@@ -256,5 +259,9 @@ ENDIF(BUILD_MAIN)
 IF(ENABLE_TESTS)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/tests")
 ENDIF(ENABLE_TESTS)
+
+IF(BUILD_EXAMPLES)
+	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/examples")
+ENDIF(BUILD_EXAMPLES)
 
 INCLUDE(CPack)
