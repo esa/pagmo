@@ -35,8 +35,8 @@ namespace pagmo { namespace topology {
 
 /// Watts-Strogatz network model.
 /**
- * \image html ws.png "Example of Watts-Strogatz model with N = 100, K = 10 and beta = 0.05."
- * \image latex ws_large.png "Example of Watts-Strogatz model with N = 100, K = 10 and beta = 0.05." width=6cm
+ * \image html ws.png "Example of Watts-Strogatz model with N = 20, K = 4 and beta = 0.1."
+ * \image latex ws.png "Example of Watts-Strogatz model with N = 20, K = 4 and beta = 0.1." width=8cm
  *
  * The Watts-Strogatz model is a ring lattice network in which forward edges are rewired with random probability. Such a network
  * has small-world properties, including short average path lengths and high clustering.

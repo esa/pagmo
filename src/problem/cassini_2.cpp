@@ -33,7 +33,8 @@ const int sequence[6] = {3, 2, 2, 3, 5, 6};
 
 /// Constructor
 /**
-* Instantiates the cassini_2 problem*/
+ * Instantiates the cassini_2 problem
+ */
 cassini_2::cassini_2():base(22), problem(total_DV_rndv,sequence,6,0,0,0,0,0)
 {
 	const double lb[22] = {-1000, 3, 0, 0, 100, 100, 30, 400, 800, 0.01, 0.01, 0.01, 0.01, 0.01, 1.05, 1.05, 1.15, 1.7, -M_PI, -M_PI, -M_PI, -M_PI};
@@ -62,7 +63,6 @@ void cassini_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
  * \param[in] x chromosome representing the trajectory in the optimization process
  * \returns an std::string with launch dates, DV magnitues and other information on the trajectory
  */
-
 std::string cassini_2::pretty(const std::vector<double> &x) const
 {
 	double obj = 0;
@@ -113,7 +113,6 @@ std::string cassini_2::pretty(const std::vector<double> &x) const
 /**
  * No sparsity present (box-constrained problem).
  */
-
 void cassini_2::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	lenG=22;

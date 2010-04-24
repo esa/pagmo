@@ -33,7 +33,7 @@ namespace pagmo{ namespace problem {
 /// The Ackley problem.
 /**
  * \image html ackley.gif "Two-dimensional Ackley function."
- * \image latex ackley.gif "Two-dimensional Ackley function." width=5cm
+ * \image latex ackley.png "Two-dimensional Ackley function." width=5cm
  *
  * This is a box-constrained continuous single-objecive problem.
  * The objective function is the n-dimensional Ackley function:

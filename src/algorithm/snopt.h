@@ -52,14 +52,14 @@ namespace pagmo { namespace algorithm {
  * From the SNOPT User-Manual:
  *
  * SNOPT is a general-purpose system for constrained optimization. It minimizes a
- * linear or nonlinear function sub ject to bounds on the variables and sparse linear or
+ * linear or nonlinear function subject to bounds on the variables and sparse linear or
  * nonlinear constraints. It is suitable for large-scale linear and quadratic programming
  * and for linearly constrained optimization, as well as for general nonlinear programs.
- * SNOPT ﬁnds solutions that are locally optimal, and ideally any nonlinear functions
+ * SNOPT finds solutions that are locally optimal, and ideally any nonlinear functions
  * should be smooth and users should provide gradients. It is often more widely useful.
  * For example, local optima are often global solutions, and discontinuities in the function
  * gradients can often be tolerated if they are not too close to an optimum. Unknown
- * gradients are estimated by ﬁnite diﬀerences.
+ * gradients are estimated by finite differences.
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  *
