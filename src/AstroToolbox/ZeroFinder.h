@@ -32,9 +32,9 @@
 namespace ZeroFinder
 {
 	
-	/// Class for one dimensional functions
+	//// Class for one dimensional functions
 	//  with some parameters
-	/**  The ()-operator with one double argument
+	/*  The ()-operator with one double argument
 	 *  has to be overloaded for a derived class
 	 *  The return value is the ordinate computed for
 	 *  the abscissa-argument.

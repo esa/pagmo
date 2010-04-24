@@ -46,7 +46,7 @@ and their exposition in Python language as to allow the user to solve, in a para
 A number of algorithms are already implemented in PaGMO and thus immediately
 available after installation. The user can implement his own algorithms both in C++
 and directly in Python. Check the algorithm documentation to verify whether a particolar problem class
-can be fed to it (i.e. box-constrained or mixed integer etc.)
+can be fed to it (i.e. box-constrained or mixed integer etc.):
 
 - A Simple Genetic Algorithm (pagmo::algorithm::sga)
 - Differential Evolution (pagmo::algorithm::de)
@@ -61,12 +61,12 @@ can be fed to it (i.e. box-constrained or mixed integer etc.)
 Other algorithm are available via third parties libraries, and can be included activating the respective
 options in ccmake, in particular:
 
-- GSL library (open-source) -- includes Nelder-Mead, BFGS and more
-- NLOPT library (open-source) -- includes bobyqa, cobyla and more
+- GSL library (open-source) -- includes Nelder-Mead, BFGS and more, see pagmo::algorithm::base_gsl
+- NLOPT library (open-source) -- includes bobyqa, cobyla and more, see pagmo::algorithm::base_nlopt
 - IPOPT library (open-source) -- includes IPOPT, see pagmo::algorithm::ipopt
 - SNOPT library (commercial) -- includes SNOPT, see pagmo::algorithm::snopt
 
-When working only in Python the scipy algorithms are available too
+When working only in Python the scipy algorithms are available too.
 
 \section problems Problems currently implemented in PaGMO
 
