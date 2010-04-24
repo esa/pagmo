@@ -32,8 +32,11 @@ namespace pagmo { namespace topology {
 
 /// Wheel rim topology.
 /**
- * \image html pan_graph.png "Pan graph topologies."
- * \image latex pan_graph.png "Pan graph topologies." width=5cm
+ * \image html rim.png "Wheel rim topology with 7 nodes."
+ * \image latex rim.png "Wheel rim topology with 7 nodes." width=5cm
+ *
+ * A wheel rim topology is a bidirectional ring topology with an additional node in the middle,
+ * fully connected to all the nodes in the ring. The first node created is the central one.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */

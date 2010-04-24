@@ -28,6 +28,7 @@
 
 namespace pagmo { namespace topology {
 
+/// Default constructor.
 rim::rim():base() {}
 
 base_ptr rim::clone() const
