@@ -120,7 +120,7 @@ return base_ptr(new derived_topology(*this));
 		vertices_size_type get_number_of_vertices() const;
 		edges_size_type get_number_of_edges() const;
 		void push_back();
-		double get_average_path_length() const;
+		double get_average_shortest_path_length() const;
 		bool are_adjacent(const vertices_size_type &, const vertices_size_type &) const;
 		bool are_inv_adjacent(const vertices_size_type &,const vertices_size_type &) const;
 		std::vector<vertices_size_type> get_v_adjacent_vertices(const vertices_size_type &) const;

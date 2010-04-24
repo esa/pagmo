@@ -146,7 +146,7 @@ class __PAGMO_VISIBLE population
 		void reinit(const size_type &);
 		void reinit();
 	private:
-		population();
+		explicit population();
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
 		void update_dom_list(const size_type &);

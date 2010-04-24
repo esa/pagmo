@@ -121,9 +121,9 @@ class __PAGMO_VISIBLE archipelago
 		// Container of migration history: vector of history items.
 		typedef std::vector<migr_hist_item> migr_hist_type;
 	public:
-		archipelago(distribution_type = point_to_point, migration_direction = destination);
-		archipelago(const topology::base &, distribution_type = point_to_point, migration_direction = destination);
-		archipelago(const problem::base &, const algorithm::base &, int, int, const topology::base & = topology::unconnected(),
+		explicit archipelago(distribution_type = point_to_point, migration_direction = destination);
+		explicit archipelago(const topology::base &, distribution_type = point_to_point, migration_direction = destination);
+		explicit archipelago(const problem::base &, const algorithm::base &, int, int, const topology::base & = topology::unconnected(),
 			distribution_type = point_to_point, migration_direction = destination);
 		archipelago(const archipelago &);
 		archipelago &operator=(const archipelago &);

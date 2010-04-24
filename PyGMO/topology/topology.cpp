@@ -81,7 +81,7 @@ BOOST_PYTHON_MODULE(_topology) {
 		.def("__repr__", &topology::base::human_readable)
 		.add_property("number_of_vertices",&topology::base::get_number_of_vertices)
 		.add_property("number_of_edges",&topology::base::get_number_of_edges)
-		.def("get_average_path_length",&topology::base::get_average_path_length,"Calculate average path length.")
+		.def("get_average_shortest_path_length",&topology::base::get_average_shortest_path_length,"Calculate average shortest path length.")
 		.def("push_back",&topology::base::push_back,"Add vertex to the topology and connect it.")
 		.def("are_adjacent",&topology_are_adjacent,"Check whether two vertices are adjacent.")
 		.def("are_inv_adjacent",&topology_are_inv_adjacent,"Check whether two vertices are inversely adjacent.")

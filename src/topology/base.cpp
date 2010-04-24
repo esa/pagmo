@@ -375,7 +375,7 @@ base::edges_size_type base::get_number_of_edges() const
  * @see http://en.wikipedia.org/wiki/Johnson's_algorithm
  * @see http://www.boost.org/doc/libs/release/libs/graph/doc/johnson_all_pairs_shortest.html
  */
-double base::get_average_path_length() const
+double base::get_average_shortest_path_length() const
 {
 	// Output matrix.
 	std::vector<std::vector<int> > D(boost::numeric_cast<std::vector<std::vector<int> >::size_type>(get_number_of_vertices()),
