@@ -188,9 +188,13 @@ IF(NOT MINGW)
 	)
 ENDIF(NOT MINGW)
 
-# Create a pagmo_static library if main is requested.
-IF(BUILD_MAIN)
+# Create a pagmo_static library if main or tests are requested.
+IF(BUILD_MAIN OR ENABLE_TESTS)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
+ENDIF(BUILD_MAIN OR ENABLE_TESTS)
+
+# Add main if requested.
+IF(BUILD_MAIN)
 	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "-DBOOST_THREAD_BUILD_LIB")
 ENDIF(BUILD_MAIN)
 

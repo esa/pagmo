@@ -130,7 +130,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("get_best_idx",&population::get_best_idx,"Get index of best individual.")
 		.def("get_worst_idx",&population::get_worst_idx,"Get index of worst individual.")
 		.def("set_x", &population_set_x,"Set decision vector of individual at position n.")
-		.def("set_v", &population_set_v,"Set velocity of individual at position n.");
+		.def("set_v", &population_set_v,"Set velocity of individual at position n.")
+		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.");
 
 	// Individual and champion.
 	class_<population::individual_type>("individual","Individual class.",init<>())

@@ -1,5 +1,7 @@
 PROJECT(PaGMO)
 
+ENABLE_TESTING()
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 # Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
@@ -13,7 +15,7 @@ SET(MANDATORY_LIBRARIES "")
 # Configuration for GCC.
 IF(CMAKE_COMPILER_IS_GNUCXX)
 	# Add to the base flags extra warnings, and set up message reporting from the compiler so that it is Eclipse-friendly.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0 -Wnon-virtual-dtor")
 	# Additional flags to turn off some GCC warnings that in practice clutter the compilation output.
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-field-initializers -fno-strict-aliasing -Wno-deprecated")
 	# Suggested for multithreaded code.
@@ -47,11 +49,11 @@ IF(COMMAND CMAKE_POLICY)
     CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND CMAKE_POLICY)
 
-# Provides build options to CMake
-# Build Option: when active the file main.cpp is built and linked to the PaGMO static library
+# Provides build options to CMake.
+# Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
-# Build Option: when active the bindings to Python are compiled and linked (installation)
+# Build Option: when active the bindings to Python are compiled and linked (installation).
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: minimisers from the GNU scientific library (GSL).
@@ -60,11 +62,14 @@ OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OF
 # Build Option: algorithms from the NLopt library.
 OPTION(ENABLE_NLOPT "Enable support for NLopt minimisers." OFF)
 
-# Build Option: SNOPT optimiser
+# Build Option: SNOPT optimiser.
 OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 
-# Build Option: IPOPT optimiser
+# Build Option: IPOPT optimiser.
 OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
+
+# Build option: enable test set.
+OPTION(ENABLE_TESTS "Build test set." ON)
 
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
@@ -247,5 +252,9 @@ IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
 	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
 ENDIF(BUILD_MAIN)
+
+IF(ENABLE_TESTS)
+	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/tests")
+ENDIF(ENABLE_TESTS)
 
 INCLUDE(CPack)

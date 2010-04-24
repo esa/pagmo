@@ -1,0 +1,3 @@
+ADD_EXECUTABLE(test_001 test_001.cpp)
+TARGET_LINK_LIBRARIES(test_001 ${MANDATORY_LIBRARIES} pagmo_static)
+ADD_TEST(test_001 test_001)
