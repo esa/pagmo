@@ -233,7 +233,7 @@ std::string tandem::pretty(const std::vector<double> &x) const
 
 /// Implementation of the sparsity structure.
 /**
- * This is necessary and cannot be left to the automatic algorithm implemented in problem::base
+ * This implementation does not make use of problem::base::estimate_sparsity
  * as the numerical difficulties introduced by the objective function definition through a logarithm
  * makes automated detection unreliable (e.g. also SNOPT algorithm fails).
  * Clearly, as the problem is box constrained no sarsity is present.

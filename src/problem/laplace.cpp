@@ -160,12 +160,8 @@ void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 /// Implementation of the sparsity structure.
 /**
- * This is necessary and cannot be left to the automatic algorithm implemented in problem::base
- * as the numerical difficulties introduced by the objective function definition through a logarithm
- * makes automated detection unreliable (e.g. also SNOPT algorithm fails).
- * CLearly, as the problem is box constrained no sarsity is present.
+ * No sparsity present (box-constrained problem).
  */
-
 void laplace::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	lenG=(4*problem->sequence.size()-2);

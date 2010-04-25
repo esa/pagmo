@@ -32,9 +32,22 @@
 
 namespace kep_toolbox {
 
-    template<class vettore3D>
-    void propagate_lagrangian(vettore3D& r0, vettore3D& v0, const double &t, const double &mu)
-    {
+/// Lagrangian propagation
+/**
+ * This template function propagates an initial state for a time t assuming a central body and a keplerian
+ * motion. Lagrange coefficients are used as basic numerical technique. All units systems can be used, as long
+ * as the input parameters are all expressed in the same system.
+ *
+ * \param[in,out] r0 initial position vector. On output contains the propagated position. (r0[1],r0[2],r0[3] need to be preallocated, suggested template type is boost::array<double,3))
+ * \param[in,out] v0 initial velocity vector. On output contains the propagated velocity. (v0[1],v0[2],v0[3] need to be preallocated, suggested template type is boost::array<double,3))
+ * \param[in] t propagation time
+ * \param[in] mu central body gravitational parameter
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
+template<class vettore3D>
+		void propagate_lagrangian(vettore3D& r0, vettore3D& v0, const double &t, const double &mu)
+{
 	double R = sqrt(r0[0]*r0[0] + r0[1]*r0[1] + r0[2]*r0[2]);
 	double V = sqrt(v0[0]*v0[0] + v0[1]*v0[1] + v0[2]*v0[2]);
 	double energy = (V*V/2 - mu/R);
@@ -45,42 +58,42 @@ namespace kep_toolbox {
 	double sigma0 = (r0[0]*v0[0] + r0[1]*v0[1] + r0[2]*v0[2]) / sqrt(mu);
 
 	if (a > 0){	//Solve Kepler's equation with Newton-Raphson, elliptical case
-	    sqrta = sqrt(a);
-	    double DM = sqrt(mu / pow(a,3)) * t;
-	    double DE = DM;
+		sqrta = sqrt(a);
+		double DM = sqrt(mu / pow(a,3)) * t;
+		double DE = DM;
 
-	    //Solve Kepler Equation for ellipses in DE (eccentric anomaly difference)
-	    newton_raphson(DE,boost::bind(kepDE,_1,DM,sigma0,sqrta,a,R),boost::bind(d_kepDE,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
-	    double r = a + (R - a) * cos(DE) + sigma0 * sqrta * sin(DE);
+		//Solve Kepler Equation for ellipses in DE (eccentric anomaly difference)
+		newton_raphson(DE,boost::bind(kepDE,_1,DM,sigma0,sqrta,a,R),boost::bind(d_kepDE,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
+		double r = a + (R - a) * cos(DE) + sigma0 * sqrta * sin(DE);
 
-	    //Lagrange coefficients
-	    F  = 1 - a / R * (1 - cos(DE));
-	    G  = a * sigma0 / sqrt(mu) * (1 - cos(DE)) + R * sqrt(a / mu) * sin(DE);
-	    Ft = -sqrt(mu * a) / (r * R) * sin(DE);
-	    Gt = 1 - a / r * (1 - cos(DE));
+		//Lagrange coefficients
+		F  = 1 - a / R * (1 - cos(DE));
+		G  = a * sigma0 / sqrt(mu) * (1 - cos(DE)) + R * sqrt(a / mu) * sin(DE);
+		Ft = -sqrt(mu * a) / (r * R) * sin(DE);
+		Gt = 1 - a / r * (1 - cos(DE));
 	}
 	else{	//Solve Kepler's equation with Newton-Raphson, hyperbolic case
-	    sqrta = sqrt(-a);
-	    double DN = sqrt(-mu / pow(a,3)) * t;
-	    double DH = 0.; // TODO: find a better initial guess
+		sqrta = sqrt(-a);
+		double DN = sqrt(-mu / pow(a,3)) * t;
+		double DH = 0.; // TODO: find a better initial guess
 
-	    //Solve Kepler Equation for hyperbolae in DH (hyperbolic anomaly difference)
-	    newton_raphson(DH,boost::bind(kepDH,_1,DN,sigma0,sqrta,a,R),boost::bind(d_kepDH,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
-	    double r = a + (R - a) * cosh(DH) + sigma0 * sqrta * sinh(DH);
-	    
-	    //Lagrange coefficients
-	    F  = 1 - a / R * (1 - cosh(DH));
-	    G  = a * sigma0 / sqrt(mu) * (1 - cosh(DH)) + R * sqrt(-a / mu) * sinh(DH);
-	    Ft = -sqrt(-mu * a) / (r * R) * sinh(DH);
-	    Gt = 1 - a / r * (1 - cosh(DH));
+		//Solve Kepler Equation for hyperbolae in DH (hyperbolic anomaly difference)
+		newton_raphson(DH,boost::bind(kepDH,_1,DN,sigma0,sqrta,a,R),boost::bind(d_kepDH,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
+		double r = a + (R - a) * cosh(DH) + sigma0 * sqrta * sinh(DH);
+
+		//Lagrange coefficients
+		F  = 1 - a / R * (1 - cosh(DH));
+		G  = a * sigma0 / sqrt(mu) * (1 - cosh(DH)) + R * sqrt(-a / mu) * sinh(DH);
+		Ft = -sqrt(-mu * a) / (r * R) * sinh(DH);
+		Gt = 1 - a / r * (1 - cosh(DH));
 	}
 
 	double temp[3] = {r0[0],r0[1],r0[2]};
 	for (int i=0;i<3;i++){
-	    r0[i] = F * r0[i] + G * v0[i];
-	    v0[i] = Ft * temp[i] + Gt * v0[i];
+		r0[i] = F * r0[i] + G * v0[i];
+		v0[i] = Ft * temp[i] + Gt * v0[i];
 	}
-    }
+}
 }
 
 #endif // PROPAGATE_LAGRANGIAN_H
