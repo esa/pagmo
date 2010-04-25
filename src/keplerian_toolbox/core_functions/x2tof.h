@@ -46,7 +46,7 @@ namespace kep_toolbox {
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
-inline sdouble x2tof(const double &x,const double &s,const double &c,const int &lw)
+inline double x2tof(const double &x,const double &s,const double &c,const int &lw)
 {
 	double am,a,alfa,beta;
 
