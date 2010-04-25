@@ -3,8 +3,8 @@
 
 #include <numeric>
 #include <boost/iterator/counting_iterator.hpp>
-#include "astro_constants.h"
-#include "epoch.h"
+#include "../astro_constants.h"
+#include "../epoch.h"
 
 
 namespace kep_toolbox {

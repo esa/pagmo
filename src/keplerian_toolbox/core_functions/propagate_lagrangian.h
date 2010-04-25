@@ -26,7 +26,7 @@
 #define PROPAGATE_LAGRANGIAN_H
 
 #include"../astro_constants.h"
-#include"../newton_raphson.h"
+#include"../numerics/newton_raphson.h"
 #include"kepler_equations.h"
 #include<boost/bind.hpp>
 

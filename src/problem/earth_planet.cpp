@@ -32,7 +32,7 @@
 #include "../types.h"
 #include "base.h"
 #include "earth_planet.h"
-#include "../keplerian_toolbox/codings.h"
+#include "../keplerian_toolbox/sims_flanagan/codings.h"
 #include "../keplerian_toolbox/planet_ss.h"
 
 using namespace kep_toolbox;

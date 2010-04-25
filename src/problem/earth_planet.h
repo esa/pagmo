@@ -30,7 +30,7 @@
 #include "../config.h"
 #include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/codings.h"
+#include "../keplerian_toolbox/sims_flanagan/codings.h"
 #include "../keplerian_toolbox/sims_flanagan/fb_traj.h"
 
 namespace pagmo { namespace problem {

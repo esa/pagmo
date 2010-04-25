@@ -22,28 +22,63 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef M2E_H
-#define M2E_H
+#ifndef REGULA_FALSI_H
+#define REGULA_FALSI_H
+#include <math.h>
 
-#include"../astro_constants.h"
-#include"../numerics/newton_raphson.h"
-#include<boost/bind.hpp>
-#include<cmath>
+namespace kep_toolbox
+{
+	/// Regula-Falsi method
+	/**
+	 * Standard implementation of the Regula-Falsi method to solve a non-linear equation
+	 *
+	 * \param[in] a Starting point 1
+	 * \param[in] a Starting point 2
+	 * \param[in] F equation to be solved in the form F = 0. Needs to be callable as F(x)
+	 *
+	 * @author Dario Izzo (dario.izzo@esa.int)
+	 */
+	template <class my_float, class my_function>
+			int regula_falsi(my_float &a, my_float &b, my_function F,
+				   int max_loop, const double& accuracy)
 
-namespace kep_toolbox {
-	inline double kepE(const double& E, const double& M, const double& eccentricity ){
-		return ( E - eccentricity*sin(E) - M );
+{
+	int n=0;
+	double c=0;
+	double Fa=(F)(a);
+	double Fb=(F)(b);
+	double Fc=Fa;
+	while(n<max_loop){
+		if(std::min(fabs(Fb),fabs(Fa))<accuracy) break; //Equation solved within accuracy
+		c=(a*Fb-b*Fa)/(Fb-Fa);
+		Fc = (F)(c);
+		n++;
+		if(Fa*Fc<0.0) {
+			b=c;
+			Fb=Fc;
+		}
+		else {
+			a=c;
+			Fa=Fc;
+		}
 	}
-	inline double d_kepE(const double& E, const double& eccentricity){
-		return ( 1 - eccentricity*cos(E) );
-	}
-	inline double m2e(const double& M, const double & eccentricity) {
-		double E = M + eccentricity * cos(M);
-		newton_raphson(E,boost::bind(kepE,_1,M, eccentricity),boost::bind(d_kepE,_1, eccentricity),100,ASTRO_TOLERANCE);
-		return (E);
-	}
-	inline double e2m(const double& E, const double & eccentricity) {
-		return (E - eccentricity * sin (E) );
-	}
+	a=c;
+	b=c;
+	return n;
 }
-#endif // M2E_H
+}
+
+/* Main program to test the method
+double func_1(double x) // root is 1.85792
+{return (cosh(x) + cos(x) - 3.0); }
+
+int main()
+{
+	double a = 1; double b=3; int iter;
+	iter = ::kep_toolbox::regula_falsi(a,b,func_1,100,1e-4);
+	std::cout << a << " " << b << " " << iter << std::endl;
+	return 0;
+}
+*/
+
+#endif // REGULA_FALSI_H

@@ -25,10 +25,19 @@
 #ifndef NEWTON_RAPHSON_H
 #define NEWTON_RAPHSON_H
 #include <math.h>
-#include <boost/bind.hpp>
 
 namespace kep_toolbox
 {
+	/// Newton-Raphson method
+	/**
+	 * Standard implementation of the Newton-Raphson method to solve a non-linear equation
+	 *
+	 * \param[in] x Starting point
+	 * \param[in] F equation to be solved in the form F = 0. Needs to be callable as F(x)
+	 * \param[in] dF derivative of F with respect to x.  Needs to be callable as dF(x)
+	 *
+	 * @author Dario Izzo (dario.izzo@esa.int)
+	 */
 	template <class my_float, class my_functionA, class my_functionB>
 			int newton_raphson(my_float &x, my_functionA F, my_functionB dF,
 				   int max_loop, const double& accuracy)
