@@ -1131,7 +1131,7 @@ std::size_t objfun_calls()
  * This function might be used by specific solvers in order to speed-up
  * the computation of numerical derivatives. Please refer to the
  * solver-specific documentation in order to see if and how this method
- * is used."
+ * is used.
  *
  * The reimplementation may call estimate_sparsity() to obtain a numerical estimate for
  * the sparsity pattern (CAUTION: this is not guaranteed to be always correct)
