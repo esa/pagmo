@@ -81,6 +81,10 @@ BOOST_PYTHON_MODULE(_migration) {
 	migration_r_policy_wrapper<migration::random_r_policy>("random_r_policy","Random migration replacement policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
 
+	// Worst replacement policy.
+	migration_r_policy_wrapper<migration::worst_r_policy>("worst_r_policy","Worst migration replacement policy.")
+		.def(init<optional<const double &, migration::rate_type> >());
+
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<migration::base_s_policy_ptr>();
 	register_ptr_to_python<migration::base_r_policy_ptr>();

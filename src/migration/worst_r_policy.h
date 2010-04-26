@@ -22,17 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_MIGRATION_H
-#define PAGMO_MIGRATION_H
+#ifndef PAGMO_MIGRATION_WORST_R_POLICY_H
+#define PAGMO_MIGRATION_WORST_R_POLICY_H
 
-// Header including all migration classes implemented in PaGMO.
+#include <utility>
+#include <vector>
 
-#include "migration/base.h"  
-#include "migration/base_r_policy.h"
-#include "migration/base_s_policy.h"
-#include "migration/best_s_policy.h"
-#include "migration/fair_r_policy.h"
-#include "migration/random_r_policy.h"
-#include "migration/worst_r_policy.h"
+#include "../config.h"
+#include "../population.h"
+#include "base.h"
+#include "base_r_policy.h"
+
+namespace pagmo { namespace migration {
+
+/// Worst replacement policy.
+/**
+ * Best individuals from the incoming population will forcefully replace the worst individuals in the
+ * target population.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
+class __PAGMO_VISIBLE worst_r_policy: public base_r_policy
+{
+	public:
+		worst_r_policy(const double &rate = 1, rate_type type = fractional);
+		base_r_policy_ptr clone() const;
+		std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
+			select(const std::vector<population::individual_type> &, const population &) const;
+};
+
+}}
 
 #endif
