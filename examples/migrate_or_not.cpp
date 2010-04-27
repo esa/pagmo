@@ -51,10 +51,10 @@ double std_dev(archipelago a, double mean) {
 int main()
 {
 	//1 - We instantiate the problems
-	problem::levy5 prob1(10);
-	problem::griewank prob2(10);
-	problem::ackley prob3(10);
-	problem::rastrigin prob4(10);
+	problem::levy5 prob1(30);
+	problem::griewank prob2(30);
+	problem::ackley prob3(30);
+	problem::rastrigin prob4(30);
 
 	//2 - We instantiate the algorithms
 	algorithm::de algo1(100);
@@ -89,7 +89,7 @@ int main()
 				for (int i=0; i<20; ++i) {
 					a.push_back(island(*prob[pr],*algo[al],20));
 				}
-				a.evolve(10);
+				a.evolve_t(1000);
 				a.join();
 				std::cout << "No topology:\t" << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
 			}
@@ -99,7 +99,7 @@ int main()
 				for (int i=0; i<20; ++i) {
 					a.push_back(island(*prob[pr],*algo[al],20));
 				}
-				a.evolve(10);
+				a.evolve_t(1000);
 				a.join();
 				std::cout << "Ring topology:\t" << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl << std::endl;
 			}
