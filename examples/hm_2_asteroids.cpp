@@ -27,13 +27,9 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <string>
 
-#include "../src/algorithms.h"
-#include "../src/archipelago.h"
-#include "../src/island.h"
-#include "../src/problems.h"
-#include "../src/topologies.h"
-#include "../src/migration.h"
+#include "../src/pagmo.h"
 #include "../src/keplerian_toolbox/keplerian_toolbox.h"
 
 using namespace pagmo;
@@ -66,7 +62,8 @@ int main()
 
 	//Open the output file
 	ofstream myfile;
-	myfile.open ("out.pagmo");
+	myfile.open((std::string("pagmo_") +
+		boost::lexical_cast<std::string>(rng_generator::get<rng_uint32>()()) + ".out").c_str());
 
 	algorithm::sa_corana algo1(10000,1,0.01);
 	algorithm::de algo2(500,0.8,0.8,3);

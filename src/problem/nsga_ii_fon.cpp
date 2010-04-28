@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <cmath>
+#include <string>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -50,4 +51,9 @@ void nsga_ii_fon::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		1 / std::sqrt(3)) - (x[2] + 1 / std::sqrt(3)) * (x[2] + 1 / std::sqrt(3)));
 }
 
-} }
+std::string nsga_ii_fon::get_name() const
+{
+	return "NSGA-II FON";
+}
+
+}}

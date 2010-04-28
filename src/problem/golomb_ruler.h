@@ -26,6 +26,7 @@
 #define PAGMO_PROBLEM_GOLOMB_RULER_H
 
 #include <cstddef>
+#include <string>
 
 #include "../config.h"
 #include "../types.h"
@@ -56,6 +57,7 @@ class __PAGMO_VISIBLE golomb_ruler: public base
 	public:
 		golomb_ruler(int,int);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;

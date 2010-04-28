@@ -25,6 +25,8 @@
 #ifndef PAGMO_TOPOLOGY_ONE_WAY_RING_H
 #define PAGMO_TOPOLOGY_ONE_WAY_RING_H
 
+#include <string>
+
 #include "../config.h"
 #include "base.h"
 
@@ -43,6 +45,7 @@ class __PAGMO_VISIBLE one_way_ring: public base
 	public:
 		one_way_ring();
 		base_ptr clone() const;
+		std::string get_name() const;;
 	protected:
 		void connect(const vertices_size_type &);
 	private:

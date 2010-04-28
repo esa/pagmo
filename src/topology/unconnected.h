@@ -25,6 +25,8 @@
 #ifndef PAGMO_TOPOLOGY_UNCONNECTED_H
 #define PAGMO_TOPOLOGY_UNCONNECTED_H
 
+#include <string>
+
 #include "../config.h"
 #include "base.h"
 
@@ -44,6 +46,7 @@ class __PAGMO_VISIBLE unconnected: public base
 	public:
 		unconnected();
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void connect(const vertices_size_type &);
 };

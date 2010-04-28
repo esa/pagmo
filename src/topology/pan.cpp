@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "base.h"
 #include "pan.h"
 
@@ -65,4 +67,9 @@ void pan::connect(const vertices_size_type &n)
 	}
 }
 
-}}
+std::string pan::get_name() const
+{
+	return "Pan graph";
+}
+
+}} //namespaces

@@ -54,6 +54,7 @@ class __PAGMO_VISIBLE erdos_renyi: public base
 	public:
 		erdos_renyi(const double &prob = 0.01);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void connect(const vertices_size_type &);
 		std::string human_readable_extra() const;

@@ -24,6 +24,8 @@
 
 // 01/02/10 Created by Francesco Biscani.
 
+#include <string>
+
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
@@ -62,6 +64,11 @@ void paraboloid::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for (size_type i = 0; i < size; ++i) {
 		f[0] += x[i] * x[i];
 	}
+}
+
+std::string paraboloid::get_name() const
+{
+	return "Paraboloid";
 }
 
 }}

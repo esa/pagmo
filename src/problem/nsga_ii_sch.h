@@ -25,6 +25,8 @@
 #ifndef PAGMO_PROBLEM_NSGA_II_SCH_H
 #define PAGMO_PROBLEM_NSGA_II_SCH_H
 
+#include <string>
+
 #include "../config.h"
 #include "../types.h"
 #include "base.h"
@@ -40,6 +42,7 @@ class __PAGMO_VISIBLE nsga_ii_sch: public base
 	public:
 		nsga_ii_sch();
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 };

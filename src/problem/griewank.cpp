@@ -67,4 +67,9 @@ void griewank::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = (retval/fr - p + 1);
 }
 
+std::string griewank::get_name() const
+{
+	return "Griewank";
+}
+
 }} //namespaces

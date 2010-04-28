@@ -82,6 +82,7 @@ class __PAGMO_VISIBLE knapsack: public base
 			verify_init();
 		}
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;

@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "base.h"
 #include "unconnected.h"
 
@@ -38,4 +40,9 @@ base_ptr unconnected::clone() const
 void unconnected::connect(const vertices_size_type &)
 {}
 
-}}
+std::string unconnected::get_name() const
+{
+	return "Unconnected";
+}
+
+}} //namespaces

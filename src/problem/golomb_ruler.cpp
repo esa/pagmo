@@ -31,6 +31,8 @@
 #include <iterator>
 #include <typeinfo>
 
+#include <string>
+
 #include "../exceptions.h"
 #include "base.h"
 #include "golomb_ruler.h"
@@ -140,6 +142,11 @@ void golomb_ruler::compute_marks_and_dist(const decision_vector &x) const
 			m_tmp_dist.push_back(tmp);
 		}
 	}
+}
+
+std::string golomb_ruler::get_name() const
+{
+	return "Golomb ruler";
 }
 
 }}

@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "messenger_full.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../keplerian_toolbox/epoch.h"
@@ -124,4 +126,10 @@ void messenger_full::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vecto
 		jGvar[i] = i;
 	}
 }
+
+std::string messenger_full::get_name() const
+{
+	return "Messenger full";
+}
+
 }}

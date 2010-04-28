@@ -25,6 +25,8 @@
 #ifndef PAGMO_PROBLEM_BRANIN_H
 #define PAGMO_PROBLEM_BRANIN_H
 
+#include <string>
+
 #include "../config.h"
 #include "../types.h"
 #include "base.h"
@@ -70,6 +72,7 @@ class __PAGMO_VISIBLE branin: public base
 	public:
 		branin();
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 };

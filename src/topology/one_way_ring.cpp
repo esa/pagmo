@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "../exceptions.h"
 #include "base.h"
 #include "one_way_ring.h"
@@ -65,4 +67,9 @@ void one_way_ring::connect(const vertices_size_type &n)
 	m_last = n;
 }
 
-}}
+std::string one_way_ring::get_name() const
+{
+	return "One way ring";
+}
+
+}} //namespaces

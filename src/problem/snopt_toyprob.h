@@ -25,6 +25,8 @@
 #ifndef PAGMO_PROBLEM_SNOPT_TOYPROB_H
 #define PAGMO_PROBLEM_SNOPT_TOYPROB_H
 
+#include <string>
+
 #include "../config.h"
 #include "../types.h"
 #include "base.h"
@@ -56,6 +58,7 @@ class __PAGMO_VISIBLE snopt_toyprob: public base
 	public:
 		snopt_toyprob();
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;

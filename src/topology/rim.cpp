@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "../exceptions.h"
 #include "base.h"
 #include "rim.h"
@@ -88,4 +90,9 @@ void rim::connect(const vertices_size_type &)
 	}
 }
 
-}}
+std::string rim::get_name() const
+{
+	return "Rim";
+}
+
+}} //namespaces

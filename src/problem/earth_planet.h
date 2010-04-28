@@ -25,6 +25,7 @@
 #ifndef EARTH_PLANET_H
 #define EARTH_PLANET_H
 
+#include <string>
 #include <vector>
 
 #include "../config.h"
@@ -47,6 +48,7 @@ class __PAGMO_VISIBLE earth_planet: public base
 	public:
 		earth_planet(int, std::string, const double & = 1E-9);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;

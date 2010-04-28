@@ -27,7 +27,9 @@
 #include <cstddef>
 #include <iterator>
 #include <sstream>
+#include <string>
 #include <utility>
+
 
 #include "../exceptions.h"
 #include "../rng.h"
@@ -152,4 +154,9 @@ std::string barabasi_albert::human_readable_extra() const
 	return oss.str();
 }
 
-}}
+std::string barabasi_albert::get_name() const
+{
+	return "Barabasi-Albert";
+}
+
+}} //namespaces

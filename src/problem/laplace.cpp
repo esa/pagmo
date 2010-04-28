@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "laplace.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
@@ -172,6 +174,11 @@ void laplace::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> 
 		iGfun[i] = 0;
 		jGvar[i] = i;
 	}
+}
+
+std::string laplace::get_name() const
+{
+	return "Laplace";
 }
 
 }} //namespaces

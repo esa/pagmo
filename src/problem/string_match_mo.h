@@ -49,6 +49,7 @@ class __PAGMO_VISIBLE string_match_mo: public base
 		string_match_mo(const std::string &);
 		string_match_mo(const char *);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;

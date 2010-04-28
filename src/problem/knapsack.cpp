@@ -126,5 +126,10 @@ void knapsack::verify_init() const
 	}
 }
 
+std::string knapsack::get_name() const
+{
+	return "Knapsack";
+}
+
 }
 }

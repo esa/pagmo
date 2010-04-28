@@ -28,6 +28,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
 #include <exception>
+#include <string>
 #include <utility>
 
 #include "../exceptions.h"
@@ -153,4 +154,9 @@ void watts_strogatz::connect(const vertices_size_type &n)
 	}
 }
 
-}}
+std::string watts_strogatz::get_name() const
+{
+	return "Watts-Strogatz";
+}
+
+}} //namespaces

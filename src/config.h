@@ -99,11 +99,15 @@ To install PaGMO from source code you will need git and cmake, ccmake installed 
 
 \image html ccmake.png
 - Build PaGMO: \code make \endcode
+- Test PaGMO (if tests are enabled in ccmake): \code make test\endcode
 - Install PaGMO: \code make install \endcode
 
 \section PyGMO Interactive python session
 
-Our suggestion in using PaGMO is to activate the option PyGMO and, after installation, start an interactive session with ipython. In the image below you see an example on how to solve the 100 dimensional ackley problem using a ring topology parallel evolution of 8 island using differential evolution
+Our suggestion in using PaGMO is to activate the option PyGMO and, after installation, start an
+interactive session with ipython. In the image below you see an example on how to solve the 100
+dimensional pagmo::problem::schwefel using a pagmo::topology::ring evolution of 8 island (20 individuals each)
+using pagmo::algorithm::de (Differential Evolution) in a 4 CPU machine.
 
 \image html ipython.png
 */

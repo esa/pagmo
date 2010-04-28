@@ -25,6 +25,7 @@
 #ifndef LUKSAN_VLCEK_2_H
 #define LUKSAN_VLCEK_2_H
 
+#include <string>
 #include <vector>
 
 #include "../config.h"
@@ -47,6 +48,7 @@ class __PAGMO_VISIBLE luksan_vlcek_2: public base
 	public:
 		luksan_vlcek_2(int, const double & = 0, const double & = 0);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;

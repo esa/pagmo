@@ -25,6 +25,7 @@
 #include <boost/integer_traits.hpp>
 #include <cmath>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "../exceptions.h"
@@ -106,4 +107,9 @@ void luksan_vlcek_3::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vecto
 	estimate_sparsity(x0, lenG, iGfun, jGvar);
 }
 
-} }
+std::string luksan_vlcek_3::get_name() const
+{
+	return "Luksan-Vlcek_3";
+}
+
+}}

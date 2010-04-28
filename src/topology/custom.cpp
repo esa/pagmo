@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <string>
 
 #include "base.h"
 #include "custom.h"
@@ -87,4 +88,9 @@ base_ptr custom::clone() const
 	return base_ptr(new custom(*this));
 }
 
-}}
+std::string custom::get_name() const
+{
+	return "Custom";
+}
+
+}} //namespaces

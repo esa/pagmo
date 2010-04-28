@@ -25,6 +25,8 @@
 #ifndef PAGMO_TOPOLOGY_FULLY_CONNECTED_H
 #define PAGMO_TOPOLOGY_FULLY_CONNECTED_H
 
+#include <string>
+
 #include "../config.h"
 #include "base.h"
 
@@ -45,6 +47,7 @@ class __PAGMO_VISIBLE fully_connected: public base
 	public:
 		fully_connected();
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void connect(const vertices_size_type &);
 };

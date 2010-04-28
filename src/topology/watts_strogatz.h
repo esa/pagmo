@@ -26,6 +26,7 @@
 #define PAGMO_TOPOLOGY_WATTS_STROGATZ_H
 
 #include <cstddef>
+#include <string>
 
 #include "../config.h"
 #include "../rng.h"
@@ -57,6 +58,7 @@ class __PAGMO_VISIBLE watts_strogatz: public base
 	public:
 		watts_strogatz(int = 10, const double & = 0.05, int = 0);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void connect(const vertices_size_type &);
 	private:

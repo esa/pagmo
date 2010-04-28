@@ -24,6 +24,7 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <cmath>
+#include <string>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -69,6 +70,11 @@ void ackley::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		s2 += cos(omega*x[i]);
 	}
 	f[0] = -20*exp(-0.2 * sqrt(1.0/n * s1))-exp(1.0/n*s2)+ 20 + nepero;
+}
+
+std::string ackley::get_name() const
+{
+	return "Ackley";
 }
 
 }}

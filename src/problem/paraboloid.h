@@ -28,6 +28,7 @@
 #define PAGMO_PROBLEM_PARABOLOID_H
 
 #include <cstddef>
+#include <string>
 
 #include "../config.h"
 #include "../types.h"
@@ -67,6 +68,7 @@ class __PAGMO_VISIBLE paraboloid: public base
 		paraboloid(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2):base(start1,end1,start2,end2) {}
 		paraboloid(const decision_vector &, const decision_vector &);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 };

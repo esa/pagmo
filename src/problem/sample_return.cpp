@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "sample_return.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
@@ -152,6 +154,11 @@ void sample_return::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector
 		iGfun[i] = 0;
 		jGvar[i] = i;
 	}
+}
+
+std::string sample_return::get_name() const
+{
+	return "Sample return";
 }
 
 }} //namespaces

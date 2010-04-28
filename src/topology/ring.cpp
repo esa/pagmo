@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "../exceptions.h"
 #include "base.h"
 #include "ring.h"
@@ -78,5 +80,10 @@ void ring::connect(const vertices_size_type &n)
 	m_last = n;
 }
 
-}}
+std::string ring::get_name() const
+{
+	return "Ring";
+}
+
+}} //namespaces
 

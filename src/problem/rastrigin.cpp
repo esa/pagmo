@@ -24,6 +24,7 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <cmath>
+#include <string>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -60,10 +61,15 @@ void rastrigin::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	const double omega = 2.0 * boost::math::constants::pi<double>();
 	f[0] = 0;
 	const decision_vector::size_type n = x.size();
-        for (decision_vector::size_type i = 0; i < n; ++i) {
+	for (decision_vector::size_type i = 0; i < n; ++i) {
 		f[0] += x[i] * x[i] - 10.0 * std::cos(omega * x[i]);
 	}
 	f[0] += 10.0 * n;
+}
+
+std::string rastrigin::get_name() const
+{
+	return "Rastrigin";
 }
 
 }}

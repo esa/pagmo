@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include <boost/integer_traits.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <cmath>
@@ -138,4 +140,9 @@ void earth_planet::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<
 	estimate_sparsity(x0, lenG, iGfun, jGvar);
 }
 
-} }
+std::string earth_planet::get_name() const
+{
+	return "Earth-Planet";
+}
+
+}}

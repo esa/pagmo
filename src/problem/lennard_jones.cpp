@@ -24,6 +24,7 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <cmath>
+#include <string>
 #include <vector>
 
 #include "../exceptions.h"
@@ -107,6 +108,11 @@ void lennard_jones::objfun_impl(fitness_vector &f, const decision_vector &x) con
 		}
 	}
 	f[0] = 4 * f[0];
+}
+
+std::string lennard_jones::get_name() const
+{
+	return "Lennard-Jones";
 }
 
 }}//namespaces

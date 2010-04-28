@@ -24,6 +24,7 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <cmath>
+#include <string>
 
 #include "../types.h"
 #include "base.h"
@@ -54,4 +55,9 @@ void branin::objfun_impl(fitness_vector &fv, const decision_vector &x) const
 	fv[0] = a * (x2 - b * x1 * x1 + c * x1 - d) * (x2 - b * x1 * x1 + c * x1 - d) + e * (1 - f) * std::cos(x1) + e;
 }
 
-} }
+std::string branin::get_name() const
+{
+	return "Branin";
+}
+
+}}

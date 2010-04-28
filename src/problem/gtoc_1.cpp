@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "gtoc_1.h"
 #include "../AstroToolbox/mga.h"
 
@@ -71,6 +73,11 @@ base_ptr gtoc_1::clone() const
 void gtoc_1::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	MGA(x,problem,rp,Delta_V,f[0]);
+}
+
+std::string gtoc_1::get_name() const
+{
+	return "GTOC_1";
 }
 
 }}

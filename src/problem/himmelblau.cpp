@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "base.h"
 #include "himmelblau.h"
 
@@ -42,6 +44,11 @@ void himmelblau::objfun_impl(fitness_vector &f, const decision_vector &xv) const
 	pagmo_assert(f.size() == 1 && xv.size() == get_dimension());
 	const double x = xv[0], y = xv[1];
 	f[0] = ((x * x + y - 11) * (x * x + y - 11) + (x + y * y - 7) * (x + y * y - 7));
+}
+
+std::string himmelblau::get_name() const
+{
+	return "Himmelblau";
 }
 
 }}

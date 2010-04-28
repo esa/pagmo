@@ -26,6 +26,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <cmath>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "../exceptions.h"
@@ -105,6 +106,11 @@ void luksan_vlcek_1::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vecto
 	decision_vector x0(get_dimension(),1);
 	//Numerical procedure
 	estimate_sparsity(x0, lenG, iGfun, jGvar);
+}
+
+std::string luksan_vlcek_1::get_name() const
+{
+	return "Luksan-Vlcek_1";
 }
 
 } }

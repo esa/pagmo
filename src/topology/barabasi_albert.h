@@ -55,6 +55,7 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 	public:
 		barabasi_albert(int m0 = 3, int m = 2);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void connect(const vertices_size_type &);
 		std::string human_readable_extra() const;

@@ -63,4 +63,9 @@ std::string string_match::human_readable_extra() const
 	return std::string("\tString: \"") + m_str + "\"";
 }
 
+std::string string_match::get_name() const
+{
+	return "String match";
+}
+
 } }

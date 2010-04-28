@@ -25,6 +25,8 @@
 #ifndef PAGMO_PROBLEM_LEVY5_H
 #define PAGMO_PROBLEM_LEVY5_H
 
+#include <string>
+
 #include "../types.h"
 #include "base.h"
 
@@ -55,6 +57,7 @@ class __PAGMO_VISIBLE levy5 : public base
 	public:
 		levy5(int);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 };

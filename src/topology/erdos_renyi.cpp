@@ -70,4 +70,9 @@ std::string erdos_renyi::human_readable_extra() const
 	return oss.str();
 }
 
-}}
+std::string erdos_renyi::get_name() const
+{
+	return "Erdos-Renyi";
+}
+
+}} //namespaces

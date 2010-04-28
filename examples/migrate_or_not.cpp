@@ -48,8 +48,28 @@ double std_dev(archipelago a, double mean) {
 	return sqrt(retval / a.get_size());
 }
 
+void print_row(std::ostream &f, const std::string &topo_name, const double &mean, const double &dev)
+{
+	f << topo_name << " & " << mean << " & " << dev << "\\\\";
+}
+
 int main()
 {
+	//Open the output file
+	ofstream myfile;
+	myfile.open((std::string("pagmo_") +
+		boost::lexical_cast<std::string>(rng_generator::get<rng_uint32>()()) + ".tex").c_str());
+
+	myfile << "\\documentclass{article}\n";
+	myfile << "\\usepackage{xtab}\n";
+	myfile << "\\begin{document}";
+	myfile << "\\begin{xtabular}{lll}\n";
+
+	//0 - Experiment parameters
+	int number_of_islands = 20;
+	int number_of_individuals = 20;
+	int evolution_time = 1000;
+
 	//1 - We instantiate the problems
 	problem::levy5 prob1(30);
 	problem::griewank prob2(30);
@@ -61,6 +81,13 @@ int main()
 	algorithm::sga algo2(100,0.8,0.05,1);
 	algorithm::sa_corana algo3(2000,1,0.001);
 	algorithm::pso algo4(100);
+	algorithm::ihs algo5(2000);
+
+	//b - We instantiate the topologies
+	topology::unconnected topo1;
+	topology::ring topo2;
+	topology::fully_connected topo3;
+	topology::watts_strogatz topo4;
 
 	//3 - We build a container of algorithms
 	std::vector<algorithm::base_ptr> algo;
@@ -68,6 +95,7 @@ int main()
 	algo.push_back(algo2.clone());
 	algo.push_back(algo3.clone());
 	algo.push_back(algo4.clone());
+	algo.push_back(algo5.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
@@ -76,34 +104,36 @@ int main()
 	prob.push_back(prob3.clone());
 	prob.push_back(prob4.clone());
 
-	for (int pr=0; pr<4;++pr) {
+	//5 - And a container of topologies
+	std::vector<topology::base_ptr> topo;
+	topo.push_back(topo1.clone());
+	topo.push_back(topo2.clone());
+	topo.push_back(topo3.clone());
+	topo.push_back(topo4.clone());
+
+	for (unsigned int pr=0; pr<prob.size();++pr) {
 		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;
 
-		for (int al =0; al<4; ++al) {
+		for (unsigned int al =0; al<algo.size(); ++al) {
 			std::cout << *algo[al] << '\n' << '\n';
 			std::cout << "\t\tMean" << "\t\tStd Deviation" << std::endl;
+			myfile << "\\hline\n" << "\\multicolumn{3}{c}{" << prob[pr]->get_name() << ", " << algo[al]->get_name() << "}" << "\\\\ \n \\hline\n";
 
-			//We start with an unconnected topology (i.e. no migration)
-			{
-				archipelago a = pagmo::archipelago(topology::unconnected());
-				for (int i=0; i<20; ++i) {
-					a.push_back(island(*prob[pr],*algo[al],20));
+			for (unsigned int to=0; to<topo.size(); ++to) {
+
+				archipelago a = pagmo::archipelago(*topo[to]);
+				for (int i=0; i<number_of_islands; ++i) {
+					a.push_back(island(*prob[pr],*algo[al],number_of_individuals));
 				}
-				a.evolve_t(1000);
+				a.evolve_t(evolution_time);
 				a.join();
-				std::cout << "No topology:\t" << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
-			}
-			//We repeat with ring topology
-			{
-				archipelago a = pagmo::archipelago(topology::ring());
-				for (int i=0; i<20; ++i) {
-					a.push_back(island(*prob[pr],*algo[al],20));
-				}
-				a.evolve_t(1000);
-				a.join();
-				std::cout << "Ring topology:\t" << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl << std::endl;
+				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
+				print_row(myfile,topo[to]->get_name(),mean(a),std_dev(a,mean(a)));
 			}
 		}
 	}
+
+	myfile << "\\end{xtabular}\n";
+	myfile << "\\end{document}";
 	return 0;
 }

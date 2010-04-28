@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
 #include <utility>
 
 #include "fully_connected.h"
@@ -47,4 +48,9 @@ void fully_connected::connect(const vertices_size_type &n)
 	}
 }
 
-}}
+std::string fully_connected::get_name() const
+{
+	return "Fully connected";
+}
+
+}} //namespaces

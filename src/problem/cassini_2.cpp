@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "cassini_2.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
@@ -123,6 +125,11 @@ void cassini_2::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int
 		iGfun[i] = 0;
 		jGvar[i] = i;
 	}
+}
+
+std::string cassini_2::get_name() const
+{
+	return "Cassini 2";
 }
 
 }} //namespaces

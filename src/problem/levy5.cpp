@@ -24,6 +24,7 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <cmath>
+#include <string>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -73,6 +74,11 @@ void levy5::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for ( decision_vector::size_type j=0; j<n; j+=2 )
 		f[0] += pow(x[j] + 1.42513,2) + pow(x[j+1] + 0.80032,2);
 
+}
+
+std::string levy5::get_name() const
+{
+	return "Levy5";
 }
 
 }} //namespaces

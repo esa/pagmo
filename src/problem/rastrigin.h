@@ -25,6 +25,8 @@
 #ifndef PAGMO_PROBLEM_RASTRIGIN_H
 #define PAGMO_PROBLEM_RASTRIGIN_H
 
+#include <string>
+
 #include "../config.h"
 #include "../types.h"
 #include "base.h"
@@ -51,6 +53,7 @@ class __PAGMO_VISIBLE rastrigin: public base
 	public:
 		rastrigin(int);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 };

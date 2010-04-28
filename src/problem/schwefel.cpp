@@ -24,6 +24,7 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <cmath>
+#include <string>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -64,6 +65,11 @@ void schwefel::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		value += x[i] * sin(sqrt(fabs(x[i])));
 		}
 		f[0] = 418.9829 * n - value;
+}
+
+std::string schwefel::get_name() const
+{
+	return "Schwefel";
 }
 
 }}

@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "base.h"
 #include "snopt_toyprob.h"
 
@@ -68,4 +70,9 @@ void snopt_toyprob::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector
 	this->estimate_sparsity(x0, lenG, iGfun, jGvar);
 }
 
-} }
+std::string snopt_toyprob::get_name() const
+{
+	return "SNOPT toy problem";
+}
+
+}}

@@ -26,6 +26,7 @@
 #define PAGMO_PROBLEM_LAPLACE_H
 
 #include <boost/scoped_ptr.hpp>
+#include <string>
 
 #include "../config.h"
 #include "../types.h"
@@ -67,7 +68,7 @@ class __PAGMO_VISIBLE laplace: public base
 		laplace(const std::vector <int> &);
 		laplace(const laplace &);
 		base_ptr clone() const;
-
+		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

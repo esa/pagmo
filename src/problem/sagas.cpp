@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "sagas.h"
 #include "../AstroToolbox/mga_dsm.h"
 
@@ -71,6 +73,11 @@ void sagas::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &j
 		iGfun[i] = 0;
 		jGvar[i] = i;
 	}
+}
+
+std::string sagas::get_name() const
+{
+	return "Sagas";
 }
 
 }} //namespaces

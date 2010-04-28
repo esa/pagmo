@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -59,6 +60,11 @@ void rosenbrock::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for (decision_vector::size_type i=0; i<n-1; ++i){
 		f[0] += 100 * (x[i]*x[i] -x[i+1])*(x[i]*x[i] -x[i+1]) + (x[i]-1)*(x[i]-1);
 	}
+}
+
+std::string rosenbrock::get_name() const
+{
+	return "Rosenbrock";
 }
 
 }}

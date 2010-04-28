@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <string>
+
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
@@ -46,4 +48,9 @@ void nsga_ii_sch::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[1] = (x[0] - 2) * (x[0] - 2);
 }
 
-} }
+std::string nsga_ii_sch::get_name() const
+{
+	return "NSGA-II SCH";
+}
+
+}}

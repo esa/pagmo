@@ -25,7 +25,9 @@
 #ifndef PAGMO_PROBLEM_LENNARD_JONES_H
 #define PAGMO_PROBLEM_LENNARD_JONES_H
 
+#include <string>
 #include <vector>
+
 #include "../types.h"
 #include "base.h"
 
@@ -49,6 +51,7 @@ class __PAGMO_VISIBLE lennard_jones : public base
 	public:
 		lennard_jones(int);
 		base_ptr clone() const;
+		std::string get_name() const;
 	private:
 		static double r(const int& atom, const int& coord, const std::vector <double>& x);
 	protected:
