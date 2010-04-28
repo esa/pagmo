@@ -71,10 +71,10 @@ int main()
 	int evolution_time = 1000;
 
 	//1 - We instantiate the problems
-	problem::levy5 prob1(30);
-	problem::griewank prob2(30);
-	problem::ackley prob3(30);
-	problem::rastrigin prob4(30);
+	problem::cassini_1 prob1;
+	problem::griewank prob2(50);
+	problem::ackley prob3(50);
+	problem::rastrigin prob4(50);
 
 	//2 - We instantiate the algorithms
 	algorithm::de algo1(100);
@@ -114,16 +114,20 @@ int main()
 	for (unsigned int pr=0; pr<prob.size();++pr) {
 		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;
 
-		for (unsigned int al =0; al<algo.size(); ++al) {
-			std::cout << *algo[al] << '\n' << '\n';
+		for (unsigned int al =0; al<algo.size()+1; ++al) {
+			const std::string algo_name = ((al==algo.size()) ? std::string("Coop") : algo[al]->get_name());
+			std::cout << algo_name << '\n' << '\n';
 			std::cout << "\t\tMean" << "\t\tStd Deviation" << std::endl;
-			myfile << "\\hline\n" << "\\multicolumn{3}{c}{" << prob[pr]->get_name() << ", " << algo[al]->get_name() << "}" << "\\\\ \n \\hline\n";
+			myfile << "\\hline\n" << "\\multicolumn{3}{c}{" << prob[pr]->get_name() << ", " << algo_name << "}" << "\\\\ \n \\hline\n";
 
 			for (unsigned int to=0; to<topo.size(); ++to) {
 
 				archipelago a = pagmo::archipelago(*topo[to]);
 				for (int i=0; i<number_of_islands; ++i) {
-					a.push_back(island(*prob[pr],*algo[al],number_of_individuals));
+					if (al == algo.size())
+						a.push_back(island(*prob[pr],*algo[i%al],number_of_individuals));
+					else
+						a.push_back(island(*prob[pr],*algo[al],number_of_individuals));
 				}
 				a.evolve_t(evolution_time);
 				a.join();
