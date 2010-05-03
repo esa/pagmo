@@ -157,7 +157,7 @@ ptime epoch::get_posix_time() const{
 */
 void epoch::set_posix_time(const boost::posix_time::ptime& posix_time){
     
-    mjd2000_m = epoch::epoch(posix_time).mjd2000();
+    mjd2000_m = epoch(posix_time).mjd2000();
 }
 } // end of namespace kep_toolbox
 

@@ -64,7 +64,7 @@ planet_ss::planet_ss(const std::string& name)
 	case (3): {
 			double E[6] = {9.9998805e-01 * ASTRO_AU, 1.6716812e-02, 8.8543531e-04 * ASTRO_DEG2RAD, 1.7540648e+02 * ASTRO_DEG2RAD, 2.8761578e+02 * ASTRO_DEG2RAD, 2.5760684e+02 * ASTRO_DEG2RAD};
 			std::copy(E, E + 6, keplerian_elements_.begin());
-			mjd2000 = epoch::epoch(54000.0,epoch::MJD).mjd2000();
+			mjd2000 = epoch(54000.0,epoch::MJD).mjd2000();
 			radius_ = 6378000;
 			safe_radius_ = radius_*1.1;
 			mu_self_ = 398600.4418e9;

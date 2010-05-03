@@ -49,8 +49,8 @@ sample_return::sample_return(::kep_toolbox::planet asteroid):base(12), m_target(
 
 	for (int i = 0;i<6;++i)
 	{
-		m_leg1.asteroid.keplerian[i] = m_target.get_elements(::kep_toolbox::epoch::epoch(0))[i];
-		m_leg2.asteroid.keplerian[i] = m_target.get_elements(::kep_toolbox::epoch::epoch(0))[i];
+		m_leg1.asteroid.keplerian[i] = m_target.get_elements(::kep_toolbox::epoch(0))[i];
+		m_leg2.asteroid.keplerian[i] = m_target.get_elements(::kep_toolbox::epoch(0))[i];
 	}
 
 	//convert to JPL unit format .... (check mgadsm)
