@@ -80,10 +80,13 @@ archipelago::archipelago(distribution_type dt, migration_direction md):m_islands
  * @param[in] md migration direction.
  */
 archipelago::archipelago(const topology::base &t, distribution_type dt, migration_direction md):
-	m_islands_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
+	m_islands_sync_point(),m_topology(),m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
+	// NOTE: we cannot set the topology in the initialiser list directly,
+	// since we do not know if the topology is suitable. Set it here.
 	check_migr_attributes();
+	set_topology(t);
 }
 
 /// Constructor from problem, algorithm, archipelago size, island sizes, topology and migration attributes.
@@ -100,13 +103,16 @@ archipelago::archipelago(const topology::base &t, distribution_type dt, migratio
  * @param[in] md migration direction.
  */
 archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t, distribution_type dt, migration_direction md):
-	m_islands_sync_point(),m_topology(t.clone()),m_dist_type(dt),m_migr_dir(md),
+	m_islands_sync_point(),m_topology(new topology::unconnected()),m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
 	check_migr_attributes();
 	for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
 		push_back(island(p,a,m));
 	}
+	// Set topology after pushing back, so that it is possible to give an already-built topology to the constructor
+	// without everything blowing up.
+	set_topology(t);
 }
 
 /// Copy constructor.
