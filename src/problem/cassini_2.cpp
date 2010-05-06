@@ -31,7 +31,7 @@
 
 namespace pagmo { namespace problem {
 
-const int sequence[6] = {3, 2, 2, 3, 5, 6};
+const int cassini_2::sequence[6] = {3, 2, 2, 3, 5, 6};
 
 /// Constructor
 /**
