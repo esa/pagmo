@@ -173,6 +173,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,
 		int,int,optional<const topology::base &,archipelago::distribution_type,archipelago::migration_direction> >())
 		.def(init<optional<archipelago::distribution_type,archipelago::migration_direction> >())
+		.def(init<const topology::base &, optional<archipelago::distribution_type,archipelago::migration_direction> >())
 		.def(init<const archipelago &>())
 		.def("__copy__", &Py_copy_from_ctor<archipelago>)
 		.def("__len__", &archipelago::get_size)
