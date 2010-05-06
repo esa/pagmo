@@ -86,6 +86,8 @@ class __PAGMO_VISIBLE tandem: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
+		static const int Data[24][5];
+		static const int sequence[5];
 		mgadsmproblem problem;
 		const double tof;
 		mutable vector<double> copy_of_x;

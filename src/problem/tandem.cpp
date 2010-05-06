@@ -32,7 +32,7 @@
 namespace pagmo { namespace problem {
 
 /// Fly bys considered
-const int Data[24][5] = {
+const int tandem::Data[24][5] = {
 	{3,2,2,2,6},
 	{3,2,2,3,6},
 	{3,2,2,4,6},
@@ -60,7 +60,7 @@ const int Data[24][5] = {
 };
 
 /// Dummy sequence (unused)
-const int sequence[5] = {1,1,1,1,1};
+const int tandem::sequence[5] = {1,1,1,1,1};
 
 /// Constructor
 /**
