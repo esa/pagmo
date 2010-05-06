@@ -30,11 +30,12 @@
 
 namespace pagmo { namespace problem {
 
+const int messenger_full::sequence[7] = {3, 2, 2, 1, 1, 1, 1};
+
 /// Problem Constructor
 /**
  * @see problem::base constructors.
  */
-const int sequence[7] = {3, 2, 2, 1, 1, 1, 1};
 messenger_full::messenger_full():base(26),problem(orbit_insertion,sequence,7,0,0,0,0.704,2440 + 200)
 {
 	// Set bounds.

@@ -29,7 +29,7 @@
 
 namespace pagmo { namespace problem {
 
-const int sequence[3] = {3, 3, 5};
+const int sagas::sequence[3] = {3, 3, 5};
 
 /// Constructor
 /**

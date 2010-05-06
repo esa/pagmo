@@ -30,7 +30,7 @@
 
 namespace pagmo { namespace problem {
 
-const int sequence[5] = {3,3,2,2,1};
+const int messenger::sequence[5] = {3,3,2,2,1};
 
 /// Constructor
 /**

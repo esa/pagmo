@@ -30,7 +30,7 @@
 
 namespace pagmo { namespace problem {
 
-const int sequence[6] = {3, 3, 4, 3, 3, 10};
+const int rosetta::sequence[6] = {3, 3, 4, 3, 3, 10};
 
 /// Constructor
 /**

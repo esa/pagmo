@@ -60,6 +60,7 @@ class __PAGMO_VISIBLE messenger: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
+		static const int sequence[5];
 		mgadsmproblem problem;
 
 };
