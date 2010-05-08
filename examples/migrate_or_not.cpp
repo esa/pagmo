@@ -68,7 +68,8 @@ int main()
 	//0 - Experiment parameters
 	int number_of_islands = 20;
 	int number_of_individuals = 20;
-	int evolution_time = 1000;
+	//int evolution_time = 1000;
+	int number_of_migrations = 20;
 
 	//1 - We instantiate the problems
 	problem::cassini_1 prob1;
@@ -129,7 +130,7 @@ int main()
 					else
 						a.push_back(island(*prob[pr],*algo[al],number_of_individuals));
 				}
-				a.evolve_t(evolution_time);
+				a.evolve(number_of_migrations);
 				a.join();
 				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
 				print_row(myfile,topo[to]->get_name(),mean(a),std_dev(a,mean(a)));
