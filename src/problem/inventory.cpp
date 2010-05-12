@@ -22,44 +22,59 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#include "../population.h"
+#include "../rng.h"
+#include "../types.h"
+#include "base.h"
+#include "inventory.h"
 
-// Header including all problems implemented in PaGMO.
+namespace pagmo
+{
+namespace problem {
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/nsga_ii_fon.h"
-#include "problem/nsga_ii_sch.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/string_match_mo.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
+inventory::inventory(int sample_size):base(1),m_seed(rng_generator::get<rng_uint32>()()),
+	m_sample_size(sample_size),m_drng(m_seed)
+{
+	set_lb(0.0);
+	set_ub(100.0);
+}
 
+base_ptr inventory::clone() const
+{
+	return base_ptr(new inventory(*this));
+}
 
-#endif
+void inventory::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	m_drng.seed(m_seed);
+
+	const double c=1.0,b=1.5,h=0.1;
+	double retval=0;
+	for (size_t i = 0; i<m_sample_size; ++i) {
+		double d = m_drng() * 100;
+		retval += c * x[0] + b * std::max<double>(d-x[0],0.0) + h * std::max<double>(x[0] - d, 0.0);
+	}
+	f[0] = retval / m_sample_size;
+}
+
+bool inventory::equality_operator_extra(const base &other) const
+{
+	return false;
+	/*return (m_d == dynamic_cast<const inventory *>(&other)->m_d && m_sample_size ==
+		dynamic_cast<const inventory *>(&other)->m_sample_size);*/
+}
+
+void inventory::pre_evolution(population &pop) const
+{
+	m_seed = rng_generator::get<rng_uint32>()();
+// 	for (size_t i = 0; i<m_sample_size; ++i) {
+// 		m_d[i] = m_drng() * 100;
+// 	}
+	//Re-evaluate the population with respect to the new seed (Internal Sampling Method)
+	for (population::size_type i = 0; i<pop.size(); ++i) {
+		pop.set_x(i,pop.get_individual(i).cur_x);
+	}
+}
+
+}
+}

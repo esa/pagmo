@@ -43,6 +43,9 @@
 
 namespace pagmo
 {
+// Fwd declarations.
+class population;
+class island;
 
 /// Problem namespace.
 /**
@@ -386,12 +389,11 @@ return base_ptr(new derived_problem(*this));
 		bool verify_x(const decision_vector &) const;
 		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 		virtual bool is_blocking() const;
+		virtual void pre_evolution(population &) const;
+		virtual void post_evolution(population &) const;
 	protected:
-		//virtual void pre_evolution(island &) const;
-		//virtual void post_evolution(island &) const;
 		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
-		virtual bool is_compatible_extra(const base &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;

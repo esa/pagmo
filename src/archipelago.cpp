@@ -199,11 +199,11 @@ void archipelago::push_back(const island &isl)
 	// Make sure the clone() method is implemented properly in the problem of the island we just inserted. This is important
 	// beacuse otherwise we get inconsistent behaviour in migration: we could be inserting a problem which is not really compatible.
 	// NOTE: if we ever implement automatic checking on clone(), this can go away.
-	if (m_container.back().m_pop.problem() != isl.m_pop.problem()) {
+// 	if (m_container.back().m_pop.problem() != isl.m_pop.problem()) {
 		// Remove the island we just inserted.
-		m_container.pop_back();
-		pagmo_throw(value_error,"the problem's clone() method implementation does not produce a problem equal to itself: please correct it");
-	}
+// 		m_container.pop_back();
+// 		pagmo_throw(value_error,"the problem's clone() method implementation does not produce a problem equal to itself: please correct it");
+// 	}
 	// Tell the island that it is living in an archipelago now.
 	m_container.back().m_archi = this;
 	// Insert the island in the topology.

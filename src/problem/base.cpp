@@ -40,6 +40,7 @@
 
 #include "../atomic_counters/atomic_counters.h"
 #include "../exceptions.h"
+#include "../population.h"
 #include "../types.h"
 #include "base.h"
 
@@ -593,15 +594,10 @@ std::string base::human_readable_extra() const
 /// Equality operator.
 /**
  * The following conditions will be tested, in order:
- * - problems are of the same type,
- * - problems have the same global, integer and constraints dimension,
- * - lower and upper bounds are equal,
+ * - return value of is_compatible(),
  * - return value of equality_operator_extra().
  *
  * If any of the conditions above is false, then the return value will also be false. Otherwise return value will be true.
- *
- * It is expected that, barring problems implying some form of stochasticity, two equal problems will produce the same fitness and constraint
- * vectors, given the same decision vector.
  *
  * @param[in] p problem::base to which this will be compared.
  *
@@ -609,16 +605,8 @@ std::string base::human_readable_extra() const
  */
 bool base::operator==(const base &p) const
 {
-	const size_type size = get_dimension();
-	if (typeid(*this) != typeid(p) || size != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension ||
-		m_c_dimension != p.m_c_dimension || m_ic_dimension != p.m_ic_dimension)
-	{
+	if (!is_compatible(p)) {
 		return false;
-	}
-	for (size_t i = 0; i < size; ++i) {
-		if (m_lb[i] != p.m_lb[i] || m_ub[i] != p.m_ub[i]) {
-			return false;
-		}
 	}
 	return equality_operator_extra(p);
 }
@@ -633,8 +621,7 @@ bool base::operator==(const base &p) const
  *
  * The following conditions will be tested, in order:
  * - problems are of the same type,
- * - problems have the same global, integer and constraints dimension,
- * - return value of is_compatible_extra().
+ * - problems have the same global, integer and constraints dimension.
  *
  * If any of the conditions above is false, then the return value will also be false. Otherwise return value will be true.
  *
@@ -649,20 +636,7 @@ bool base::is_compatible(const base &p) const
 	{
 		return false;
 	}
-	return is_compatible_extra(p);
-}
-
-/// Extra requirements for compatibility.
-/**
- * Default implementation will return the output of equality_operator_extra().
- *
- * @param[in] p problem::base to which this will be compared.
- *
- * @return the output of equality_operator_extra().
- */
-bool base::is_compatible_extra(const base &p) const
-{
-	return equality_operator_extra(p);
+	return true;
 }
 
 /// Compare decision vectors.
@@ -1194,6 +1168,24 @@ void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<i
 		x_new[j] = x0[j];
 	}
 
+}
+
+/// Pre-evolution hook.
+/**
+ * Default implementation will do nothing.
+ */
+void base::pre_evolution(population &pop) const
+{
+	(void)pop;
+}
+
+/// Post-evolution hook.
+/**
+ * Default implementation will do nothing.
+ */
+void base::post_evolution(population &pop) const
+{
+	(void)pop;
 }
 
 /// Reset to zero the total number of calls to the objective function.
