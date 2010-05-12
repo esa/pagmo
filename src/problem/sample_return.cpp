@@ -37,7 +37,8 @@ static const int AE[2] = {10,3};
 
 /// Constructor
 /**
-* Instantiates the sample_return problem*/
+ * Instantiates the sample_return problem
+ */
 sample_return::sample_return(::kep_toolbox::planet asteroid):base(12), m_target(asteroid),
 	 m_leg1(total_DV_rndv,EA,2,0,0,0,0,0), m_leg2(total_DV_rndv,AE,2,0,0,0,0,0),x_leg1(6),x_leg2(6)
 {
@@ -143,7 +144,6 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 /**
  * No sparsity present (box-constrained problem).
  */
-
 void sample_return::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	lenG=12;

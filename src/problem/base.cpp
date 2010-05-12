@@ -983,7 +983,7 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
  * Additional problem-specific equality testing. Default implementation returns true.
  *
  * <b>NOTE</b>: this method will be called concurrently during evolution in archipelago from multiple island objects. This implies that
- * this method must never write anything into the problem object.
+ * this method must be thread-safe (e.g., writing anything into the problem object is not allowed).
  *
  * @param[in] p problem::base to which this will be compared.
  *
@@ -1145,7 +1145,7 @@ void base::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jG
 	(void)lenG;
 	(void)iGfun;
 	(void)jGvar;
-	pagmo_throw(not_implemented_error,"Sparsity is not implemented for this problem!!");
+	pagmo_throw(not_implemented_error,"sparsity is not implemented for this problem");
 }
 
 /// Tries to evaluate the sparsity pattern of the problem
@@ -1163,7 +1163,7 @@ void base::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jG
 void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const {
 	// We check that the user is providing a decision vector that is of the required length
 	if (!verify_x(x0)) {
-		pagmo_throw(value_error,"Cannot estimate pattern from this decision vector: not compatible with problem");
+		pagmo_throw(value_error,"cannot estimate pattern from this decision vector: not compatible with problem");
 	}
 	size_type Dc = m_lb.size() - m_i_dimension;
 	fitness_vector f0(m_f_dimension),f_new(m_f_dimension);
