@@ -26,7 +26,7 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 
-#define limit 100
+#define limit 20
 
 namespace pagmo { namespace algorithm {
 
@@ -113,19 +113,19 @@ void bee_colony::evolve(population &pop) const
 	double r = 0;
 	// Main ABC loop
 	for (int j = 0; j < m_gen; ++j) {
-
 		//Send employed bees
 		for (population::size_type ii = 0; ii< NP; ii++) {
 			r = m_drng();
 			int param2change = r*D;  //randomly determine the parameter to change
 
 			r = m_drng();
-			population::size_type neighbour = (int) r*NP; //randomly chose a solution to be used to produce a mutant solution of solution ii
+			population::size_type neighbour = (int) (r*NP); //randomly chose a solution to be used to produce a mutant solution of solution ii
 
 			while(neighbour == ii) { //randomly selected solution must be different from ii
 				r = m_drng();
-				neighbour = (int) r*NP;
+				neighbour = (int) (r*NP);
 			}
+
 			
 			for(population::size_type i=0; i<D; i++) {
 				temp_solution[i] = X[ii][i]; //copy local solution into temp_solution
@@ -179,11 +179,11 @@ void bee_colony::evolve(population &pop) const
 				int param2change = r*D;  //randomly determine the parameter to change
 
 				r = m_drng();
-				population::size_type neighbour = (int) r*NP; //randomly chose a solution to be used to produce a mutant solution of solution ii
+				population::size_type neighbour = (int) (r*NP); //randomly chose a solution to be used to produce a mutant solution of solution ii
 
 				while(neighbour == ii) { //randomly selected solution must be different from ii
 					r = m_drng();
-					neighbour = (int) r*NP;
+					neighbour = (int) (r*NP);
 				}
 				
 				for(population::size_type i=0; i<D; i++) {

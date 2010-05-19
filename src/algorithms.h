@@ -37,6 +37,7 @@
 #include "algorithm/pso.h"
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
+#include "algorithm/bee_colony.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

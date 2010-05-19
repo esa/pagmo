@@ -66,10 +66,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 20;
-	int number_of_individuals = 20;
+	int number_of_islands = 30;
+	int number_of_individuals = 125;
 	//int evolution_time = 1000;
-	int number_of_migrations = 20;
+	int number_of_migrations = 1;
 
 	//1 - We instantiate the problems
 	problem::griewank prob1(10);
@@ -79,9 +79,9 @@ int main()
 	problem::schwefel prob5(10);
 
 	//2 - We instantiate the algorithms
-	algorithm::sga algo1(100,0.8,0.05,1);
-	algorithm::pso algo2(100);
-	algorithm::bee_colony algo3(100);
+	algorithm::sga algo1(500,0.95,0.1);
+	algorithm::pso algo2(500);
+	algorithm::bee_colony algo3(500);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
