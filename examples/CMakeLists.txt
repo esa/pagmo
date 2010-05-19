@@ -1,4 +1,6 @@
 ADD_EXECUTABLE(hm_2_asteroids hm_2_asteroids.cpp)
 ADD_EXECUTABLE(migrate_or_not migrate_or_not.cpp)
+ADD_EXECUTABLE(test_bee test_bee.cpp)
 TARGET_LINK_LIBRARIES(hm_2_asteroids ${MANDATORY_LIBRARIES} pagmo_static)
 TARGET_LINK_LIBRARIES(migrate_or_not ${MANDATORY_LIBRARIES} pagmo_static)
+TARGET_LINK_LIBRARIES(test_bee ${MANDATORY_LIBRARIES} pagmo_static)
