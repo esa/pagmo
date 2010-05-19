@@ -132,7 +132,7 @@ void bee_colony::evolve(population &pop) const
 			}
 
 			r = m_drng();
-			double selected_phi = m_phi*r; //randomly chose a phi value
+			double selected_phi = m_phi*(r-0.5)*2; //randomly chose a phi value
 
 			temp_solution[param2change] = X[ii][param2change] + selected_phi * (X[ii][param2change] - X[neighbour][param2change]);
 
@@ -176,6 +176,7 @@ void bee_colony::evolve(population &pop) const
 			r = m_drng();
 			if (r<probability[ii]) { //chose a food source depending on its probability to bee chosen
 				t++;
+				r = m_drng();
 				int param2change = r*D;  //randomly determine the parameter to change
 
 				r = m_drng();
@@ -191,7 +192,7 @@ void bee_colony::evolve(population &pop) const
 				}
 
 				r = m_drng();
-				double selected_phi = m_phi*r; //randomly chose a phi value
+				double selected_phi = m_phi*(r-0.5)*2; //randomly chose a phi value
 
 				temp_solution[param2change] = X[ii][param2change] + selected_phi * (X[ii][param2change] - X[neighbour][param2change]);
 
