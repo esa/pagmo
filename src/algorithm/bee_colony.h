@@ -31,14 +31,16 @@
 
 namespace pagmo { namespace algorithm {
 
- /*	
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
- */
+ /*
+  * The Artificial Bee Colony (ABC) algorithm is a swarm based meta-heuristic algorithm based on the behaviour of bees
+  * @see http://www.scholarpedia.org/article/Artificial_bee_colony_algorithm
+  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+  */
 
 class __PAGMO_VISIBLE bee_colony: public base
 {
 public:
-	bee_colony(int gen, double onlooker_fraction=0.5, int scout_number = 1, double phi = 1.0);
+	bee_colony(int gen, double onlooker_fraction=0.5, int scouts_number = 1, int limit = 20, double phi = 1.0);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -48,7 +50,8 @@ private:
 	// Number of generations.
 	const int m_gen;
 	const double m_onlooker_fraction;
-	const int m_scout_number;
+	const int m_scouts_number;
+	const int m_limit;
 	const double m_phi;
 };
 

@@ -26,7 +26,6 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 
-#define limit 20
 
 namespace pagmo { namespace algorithm {
 
@@ -36,11 +35,12 @@ namespace pagmo { namespace algorithm {
  *
  * @param[in] gen number of generations.
  * @param[in] onlooker_fraction fraction of onlooker bees
- * @param[in] scout_number number of scout bees 
- * @param[in] phi define the random range when looking for neighbours  
+ * @param[in] scouts_number number of scout bees 
+ * @param[in] limit number of tries a source of food is dropped if no better mutant solution is found
+ * @param[in] phi define the random range where looking for neighbours  
  * @throws value_error if onlooker fraction is not in the [0,1] interval and ///scout_number > population_size
  */
-bee_colony::bee_colony(int gen, double onlooker_fraction, int scout_number, double phi):base(),m_gen(gen),m_onlooker_fraction(onlooker_fraction),m_scout_number(scout_number),m_phi(phi) {
+bee_colony::bee_colony(int gen, double onlooker_fraction, int scouts_number, int limit, double phi):base(),m_gen(gen),m_onlooker_fraction(onlooker_fraction),m_scouts_number(scouts_number), m_limit(limit), m_phi(phi) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -70,42 +70,33 @@ void bee_colony::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
-	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
+	const problem::base::size_type D = prob.get_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type NP = pop.size();
-	const problem::base::size_type Dc = D - prob_i_dimension;
-
-
-	//We perform some checks to determine wether the problem/population are suitable for PSO
-	if ( Dc == 0 ) {
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for PSO to optimise");
-	}
-
-	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and PSO is not suitable to solve it");
-	}
-
-	if ( prob_f_dimension != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and PSO is not suitable to solve it");
-	}
+	const population::size_type n_employers = (int) (pop.size() * (1-m_onlooker_fraction)); //number of employed bees
+	const population::size_type n_onlookers = pop.size() - n_employers; //number of onlooker bees
+	
+	population::size_type scouts_number = m_scouts_number;
+	//number of scout bees must be in the range [1,n_employers]
+	if (scouts_number <=0) scouts_number = 1;
+	if (scouts_number >= n_employers) scouts_number = n_employers;
 
 	// Get out if there is nothing to do.
-	if (NP == 0 || m_gen == 0) {
+	if (n_employers == 0 || m_gen == 0) {
 		return;
 	}
 
 	// Some vectors used during evolution are allocated here.
-	std::vector<double> dummy(D,0);			//used for initialisation purposes
-	std::vector<decision_vector > X(NP,dummy);	//set of food sources
-	std::vector<fitness_vector> fit(NP);		//food sources fitness
+	std::vector<double> dummy(D,0);				//used for initialisation purposes
+	std::vector<decision_vector > X(n_employers,dummy);	//set of food sources
+	std::vector<fitness_vector> fit(n_employers);		//food sources fitness
 
 	decision_vector temp_solution(D,0);
 
-	std::vector<int> trial(NP,0);
+	std::vector<int> trial(n_employers,0);
 
 
 	// Copy the particle positions, their velocities and their fitness
-	for ( population::size_type i = 0; i<NP; i++ ) {
+	for ( population::size_type i = 0; i<n_employers; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		fit[i]	=	pop.get_individual(i).cur_f;		
 	}
@@ -114,16 +105,16 @@ void bee_colony::evolve(population &pop) const
 	// Main ABC loop
 	for (int j = 0; j < m_gen; ++j) {
 		//Send employed bees
-		for (population::size_type ii = 0; ii< NP; ii++) {
+		for (population::size_type ii = 0; ii< n_employers; ii++) {
 			r = m_drng();
 			int param2change = r*D;  //randomly determine the parameter to change
 
 			r = m_drng();
-			population::size_type neighbour = (int) (r*NP); //randomly chose a solution to be used to produce a mutant solution of solution ii
+			population::size_type neighbour = (int) (r*n_employers); //randomly chose a solution to be used to produce a mutant solution of solution ii
 
 			while(neighbour == ii) { //randomly selected solution must be different from ii
 				r = m_drng();
-				neighbour = (int) (r*NP);
+				neighbour = (int) (r*n_employers);
 			}
 
 			
@@ -150,29 +141,30 @@ void bee_colony::evolve(population &pop) const
 				trial[ii] = 0;
 			}
 			else {
-				trial[ii]++; //if the solution can't be improved incrase its the trial counter
+				trial[ii]++; //if the solution can't be improved incrase its  trial counter
 			}
 		} //End of loop on the population members
 
 		//Send onlooker bees
      		double maxfit;
      		maxfit = fitness_magnitude(fit[0]);
-  		for (population::size_type jj=1; jj<NP; jj++)
+  		for (population::size_type jj=1; jj<n_employers; jj++)
         	{
            		if (fitness_magnitude(fit[jj])>maxfit)
            		maxfit = fitness_magnitude(fit[jj]);
         	}
 
-		double probability[NP]; 
+		//Calculate probability for an onlooker bee to chose a food source 
+		double probability[n_employers]; 
 
-		for (population::size_type jj=0; jj<NP; jj++)
+		for (population::size_type jj=0; jj<n_employers; jj++)
         	{
          		probability[jj] = ( 0.9* (fitness_magnitude(fit[jj]) / maxfit) ) +0.1;
         	}
 		
 		population::size_type t = 0;
 		population::size_type ii= 0;
-		while(t < NP) {
+		while(t < n_onlookers) {
 			r = m_drng();
 			if (r<probability[ii]) { //chose a food source depending on its probability to bee chosen
 				t++;
@@ -180,11 +172,11 @@ void bee_colony::evolve(population &pop) const
 				int param2change = r*D;  //randomly determine the parameter to change
 
 				r = m_drng();
-				population::size_type neighbour = (int) (r*NP); //randomly chose a solution to be used to produce a mutant solution of solution ii
+				population::size_type neighbour = (int) (r*n_employers); //randomly chose a solution to be used to produce a mutant solution of solution ii
 
 				while(neighbour == ii) { //randomly selected solution must be different from ii
 					r = m_drng();
-					neighbour = (int) (r*NP);
+					neighbour = (int) (r*n_employers);
 				}
 				
 				for(population::size_type i=0; i<D; i++) {
@@ -214,25 +206,27 @@ void bee_colony::evolve(population &pop) const
 				}
 			}
 			ii++;
-			if (ii==NP-1) ii=0;
+			if (ii==n_employers-1) ii=0;
 		}
 
 		//Send scout bees
-		int maxtrialindex = 0;
-		for (population::size_type ii=1; ii<NP; ii++)
-		{
-			 if (trial[ii] > trial[maxtrialindex])
-			 maxtrialindex = ii;
-		}
-		if(trial[maxtrialindex] >= limit)
-		{
-			//select a new random solution
-			for(problem::base::size_type jj = 0; jj < D; jj++) {
-				r = m_drng();
-				X[maxtrialindex][jj] = r*(ub[jj]-lb[jj]) + lb[jj];
+		for(population::size_type t=0; t < scouts_number; t++) {
+			int maxtrialindex = 0;
+			for (population::size_type ii=1; ii<n_employers; ii++)
+			{
+				 if (trial[ii] > trial[maxtrialindex])
+				 	maxtrialindex = ii;
 			}
-			trial[maxtrialindex] = 0;
-			pop.set_x(maxtrialindex,X[maxtrialindex]);
+			if(trial[maxtrialindex] >= m_limit)
+			{
+				//select a new random solution
+				for(problem::base::size_type jj = 0; jj < D; jj++) {
+					r = m_drng();
+					X[maxtrialindex][jj] = r*(ub[jj]-lb[jj]) + lb[jj];
+				}
+				trial[maxtrialindex] = 0;
+				pop.set_x(maxtrialindex,X[maxtrialindex]);
+			}
 		}
 
 
@@ -266,10 +260,10 @@ std::string bee_colony::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	//s << "omega:" << m_omega << ' ';
-	//s << "eta1:" << m_eta1 << ' ';
-	//s << "eta2:" << m_eta2 << ' ';
-	//s << "variant:" << m_variant << ' ';
+	s << "onlooker_fraction:" << m_onlooker_fraction << ' ';
+	s << "scouts_number:" << m_scouts_number << ' ';
+	s << "limit:" << m_limit << ' ';
+	s << "phi:" << m_phi << ' ';
 	return s.str();
 }
 
