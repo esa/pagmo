@@ -44,7 +44,8 @@ namespace problem {
  * This problem is a generalization of the simple inventory problem so-called of the "news-vendor",
  * widely used to introduce the main tools and techniques of stochastic programming in general
  * Assume you are a newsvendor and each week, for the next \f$ N\f$ weeks, you need to decide how many
- * journals to order (indicated with the decision variable  \f$ x_i \f$). The weekly journal demand is unknown to you and is indicated with the variable \f$d_i\f$. The cost of
+ * journals to order (indicated with the decision variable  \f$ x_i \f$). The weekly journal demand is
+ * unknown to you and is indicated with the variable \f$d_i\f$. The cost of
  * ordering journals before the week starts is \f$ c\f$, the cost of ordering journals during the week
  * (in order to meet an unforeseen demand) is \f$ b \f$ and the cost of having to hold unsold journals
  * is \f$ h \f$. The inventory level of journals will be defined by the succession:

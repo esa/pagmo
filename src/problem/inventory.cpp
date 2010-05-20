@@ -30,11 +30,11 @@
 
 namespace pagmo { namespace problem {
 
-inventory::inventory(int weeks,int sample_size):base(weeks),m_seed(rng_generator::get<rng_uint32>()()),
-m_sample_size(sample_size),m_weeks(weeks),m_drng(m_seed)
+inventory::inventory(int weeks,int sample_size):base(weeks),m_seed(rng_generator::get<rng_uint32>()())
+,m_weeks(weeks),m_sample_size(sample_size),m_drng(m_seed)
 {
 	set_lb(0.0);
-	set_ub(100.0);
+	set_ub(200.0);
 }
 
 base_ptr inventory::clone() const
@@ -61,6 +61,7 @@ void inventory::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 bool inventory::equality_operator_extra(const base &other) const
 {
+	(void) other;
 	return false;
 }
 
