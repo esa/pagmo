@@ -59,6 +59,8 @@ void inventory::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = retval / m_sample_size;
 }
 
+//This function tells pagmo to always re-evaluate individuals when considering individuals coming from
+//other islands
 bool inventory::equality_operator_extra(const base &other) const
 {
 	(void) other;
