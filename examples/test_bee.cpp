@@ -81,7 +81,7 @@ int main()
 	//2 - We instantiate the algorithms
 	algorithm::sga algo1(500,0.95,0.1);
 	algorithm::pso algo2(500);
-	algorithm::bee_colony algo3(500);
+	algorithm::bee_colony algo3(500,25);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;

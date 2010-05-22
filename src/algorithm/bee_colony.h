@@ -22,17 +22,24 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_BEECOLONY_H
-#define PAGMO_ALGORITHM_BEECOLONY_H
+#ifndef PAGMO_ALGORITHM_BEE_COLONY_H
+#define PAGMO_ALGORITHM_BEE_COLONY_H
 
 #include "../config.h"
 #include "base.h"
+#include "../population.h"
+#include <string>
+
 
 
 namespace pagmo { namespace algorithm {
 
  /*
-  * The Artificial Bee Colony (ABC) algorithm is a swarm based meta-heuristic algorithm based on the behaviour of bees
+  * \image html bee.jpg "Bee"
+  * \image latex bee.jpg  "Bee" width=3cm
+  * The Artificial Bee Colony (ABC) algorithm is a swarm based meta-heuristic algorithm based on the behaviour of bees.
+  * At each call of the evolve method a number of function evaluations equal to 2 * iter * pop.size() is performed.
+  * @see http://mf.erciyes.edu.tr/abc/pub/ABC.C
   * @see http://www.scholarpedia.org/article/Artificial_bee_colony_algorithm
   * @author Andrea Mambrini (andrea.mambrini@gmail.com)
   */
@@ -40,7 +47,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE bee_colony: public base
 {
 public:
-	bee_colony(int gen, double onlooker_fraction=0.5, int scouts_number = 1, int limit = 20, double phi = 1.0);
+	bee_colony(int iter, int limit = 20);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -48,11 +55,8 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	// Number of generations.
-	const int m_gen;
-	const double m_onlooker_fraction;
-	const int m_scouts_number;
+	const int m_iter;
 	const int m_limit;
-	const double m_phi;
 };
 
 }} //namespaces

@@ -23,6 +23,14 @@
  *****************************************************************************/
 
 #include "bee_colony.h"
+#include <string>
+#include <vector>
+
+#include "../exceptions.h"
+#include "../population.h"
+#include "../problem/base.h"
+#include "../types.h"
+
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 
@@ -33,20 +41,17 @@ namespace pagmo { namespace algorithm {
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
- * @param[in] gen number of generations.
- * @param[in] onlooker_fraction fraction of onlooker bees
- * @param[in] scouts_number number of scout bees 
+ * @param[in] iter number of iterations.
  * @param[in] limit number of tries a source of food is dropped if no better mutant solution is found
- * @param[in] phi define the random range where looking for neighbours  
- * @throws value_error if onlooker fraction is not in the [0,1] interval and ///scout_number > population_size
+ * @throws value_error if number of iterations or limit are negative
  */
-bee_colony::bee_colony(int gen, double onlooker_fraction, int scouts_number, int limit, double phi):base(),m_gen(gen),m_onlooker_fraction(onlooker_fraction),m_scouts_number(scouts_number), m_limit(limit), m_phi(phi) {
-	if (gen < 0) {
-		pagmo_throw(value_error,"number of generations must be nonnegative");
+bee_colony::bee_colony(int iter, int limit):base(),m_iter(iter), m_limit(limit) {
+	if (iter < 0) {
+		pagmo_throw(value_error,"number of iterations must be nonnegative");
 	}
 
-	if (onlooker_fraction < 0 || onlooker_fraction > 1) {
-		pagmo_throw(value_error,"the fraction of onlooker bees must be in the [0,1] range");
+	if (limit < 0) {
+		pagmo_throw(value_error,"limit value must be nonnegative");
 	}
 
 }
@@ -56,8 +61,6 @@ base_ptr bee_colony::clone() const
 {
 	return base_ptr(new bee_colony(*this));
 }
-
-double fitness_magnitude(fitness_vector fit);
 
 /// Evolve implementation.
 /**
@@ -72,66 +75,71 @@ void bee_colony::evolve(population &pop) const
 	const problem::base &prob = pop.problem();
 	const problem::base::size_type D = prob.get_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type n_employers = (int) (pop.size() * (1-m_onlooker_fraction)); //number of employed bees
-	const population::size_type n_onlookers = pop.size() - n_employers; //number of onlooker bees
-	
-	population::size_type scouts_number = m_scouts_number;
-	//number of scout bees must be in the range [1,n_employers]
-	if (scouts_number <=0) scouts_number = 1;
-	if (scouts_number >= n_employers) scouts_number = n_employers;
+	const population::size_type NP = (int) pop.size();
 
+	//We perform some checks to determine wether the problem/population are suitable for ABC
+	if ( D - prob.get_i_dimension() == 0 ) {
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for ABC to optimise");
+	}
+
+	if ( prob.get_f_dimension() != 1 ) {
+		pagmo_throw(value_error,"The problem is not single objective and ABC is not suitable to solve it");
+	}
+
+
+	
 	// Get out if there is nothing to do.
-	if (n_employers == 0 || m_gen == 0) {
+	if (NP == 0 || m_iter == 0) {
 		return;
 	}
 
 	// Some vectors used during evolution are allocated here.
-	std::vector<double> dummy(D,0);				//used for initialisation purposes
-	std::vector<decision_vector > X(n_employers,dummy);	//set of food sources
-	std::vector<fitness_vector> fit(n_employers);		//food sources fitness
+	decision_vector dummy(D,0);			//used for initialisation purposes
+	std::vector<decision_vector > X(NP,dummy);	//set of food sources
+	std::vector<fitness_vector> fit(NP);		//food sources fitness
 
 	decision_vector temp_solution(D,0);
 
-	std::vector<int> trial(n_employers,0);
+	std::vector<int> trial(NP,0);
 
+	std::vector<double> probability(NP);
+
+	population::size_type neighbour = 0;
+
+	int param2change = 0;
+
+	double r = 0;
 
 	// Copy the particle positions, their velocities and their fitness
-	for ( population::size_type i = 0; i<n_employers; i++ ) {
+	for ( population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		fit[i]	=	pop.get_individual(i).cur_f;		
 	}
 
-	double r = 0;
 	// Main ABC loop
-	for (int j = 0; j < m_gen; ++j) {
+	for (int j = 0; j < m_iter; ++j) {
 		//Send employed bees
-		for (population::size_type ii = 0; ii< n_employers; ii++) {
-			r = m_drng();
-			int param2change = r*D;  //randomly determine the parameter to change
-
-			r = m_drng();
-			population::size_type neighbour = (int) (r*n_employers); //randomly chose a solution to be used to produce a mutant solution of solution ii
-
-			while(neighbour == ii) { //randomly selected solution must be different from ii
-				r = m_drng();
-				neighbour = (int) (r*n_employers);
+		for (population::size_type ii = 0; ii< NP; ++ii) {
+			param2change = boost::uniform_int<int>(0,D-1)(m_urng); 
+			do{
+				neighbour = boost::uniform_int<int>(0,NP-1)(m_urng); //randomly chose a solution to be used to produce a mutant solution of solution ii
 			}
+			while(neighbour == ii); //randomly selected solution must be different from ii
 
 			
-			for(population::size_type i=0; i<D; i++) {
+			for(population::size_type i=0; i<D; ++i) {
 				temp_solution[i] = X[ii][i]; //copy local solution into temp_solution
 			}
 
-			r = m_drng();
-			double selected_phi = m_phi*(r-0.5)*2; //randomly chose a phi value
-
-			temp_solution[param2change] = X[ii][param2change] + selected_phi * (X[ii][param2change] - X[neighbour][param2change]);
+			temp_solution[param2change] = X[ii][param2change] + boost::uniform_real<double>(-1,1)(m_drng) * (X[ii][param2change] - X[neighbour][param2change]);
 
 			/*if generated parameter value is out of boundaries, it is shifted onto the boundaries*/
-        		if ((temp_solution[param2change])<lb[param2change]) 
+        		if ((temp_solution[param2change])<lb[param2change]) {
            			temp_solution[param2change] = lb[param2change];
-        		if ((temp_solution[param2change])>ub[param2change]) 
-          			temp_solution[param2change] = ub[param2change];	
+			}
+        		if ((temp_solution[param2change])>ub[param2change]) {
+          			temp_solution[param2change] = ub[param2change];
+			}
 
 			//if the new solution is better than the old one replace it with the mutant one and reset its trial counter 
 			if(prob.compare_fitness(prob.objfun(temp_solution), fit[ii])) {
@@ -147,86 +155,77 @@ void bee_colony::evolve(population &pop) const
 
 		//Send onlooker bees
      		double maxfit;
-     		maxfit = fitness_magnitude(fit[0]);
-  		for (population::size_type jj=1; jj<n_employers; jj++)
+     		maxfit = fit[0][0];
+  		for (population::size_type jj=1; jj<NP; ++jj)
         	{
-           		if (fitness_magnitude(fit[jj])>maxfit)
-           		maxfit = fitness_magnitude(fit[jj]);
+           		if (fit[jj][0]>maxfit)
+           		maxfit = fit[jj][0];
         	}
 
 		//Calculate probability for an onlooker bee to chose a food source 
-		double probability[n_employers]; 
-
-		for (population::size_type jj=0; jj<n_employers; jj++)
+		for (population::size_type jj=0; jj<NP; ++jj)
         	{
-         		probability[jj] = ( 0.9* (fitness_magnitude(fit[jj]) / maxfit) ) +0.1;
+         		probability[jj] = ( 0.9* (fit[jj][0] / maxfit) ) +0.1;
         	}
 		
 		population::size_type t = 0;
 		population::size_type ii= 0;
-		while(t < n_onlookers) {
+		while(t < NP) {
 			r = m_drng();
 			if (r<probability[ii]) { //chose a food source depending on its probability to bee chosen
 				t++;
-				r = m_drng();
-				int param2change = r*D;  //randomly determine the parameter to change
-
-				r = m_drng();
-				population::size_type neighbour = (int) (r*n_employers); //randomly chose a solution to be used to produce a mutant solution of solution ii
-
-				while(neighbour == ii) { //randomly selected solution must be different from ii
-					r = m_drng();
-					neighbour = (int) (r*n_employers);
+				param2change = boost::uniform_int<int>(0,D-1)(m_urng); 
+				do{
+					neighbour = boost::uniform_int<int>(0,NP-1)(m_urng); //randomly chose a solution to be used to produce a mutant solution of solution ii
 				}
+				while(neighbour == ii); //randomly selected solution must be different from ii
+
 				
-				for(population::size_type i=0; i<D; i++) {
+				for(population::size_type i=0; i<D; ++i) {
 					temp_solution[i] = X[ii][i]; //copy local solution into temp_solution
 				}
 
-				r = m_drng();
-				double selected_phi = m_phi*(r-0.5)*2; //randomly chose a phi value
-
-				temp_solution[param2change] = X[ii][param2change] + selected_phi * (X[ii][param2change] - X[neighbour][param2change]);
+				temp_solution[param2change] = X[ii][param2change] + boost::uniform_real<double>(-1,1)(m_drng) * (X[ii][param2change] - X[neighbour][param2change]);
 
 				/*if generated parameter value is out of boundaries, it is shifted onto the boundaries*/
-				if ((temp_solution[param2change])<lb[param2change]) 
+				if ((temp_solution[param2change])<lb[param2change]) {
 					temp_solution[param2change] = lb[param2change];
-				if ((temp_solution[param2change])>ub[param2change]) 
-					temp_solution[param2change] = ub[param2change];	
+				}
+				if ((temp_solution[param2change])>ub[param2change]) {
+					temp_solution[param2change] = ub[param2change];
+				}
 
 				//if the new solution is better than the old one replace it with the mutant one and reset its trial counter 
 				if(prob.compare_fitness(prob.objfun(temp_solution), fit[ii])) {
 					X[ii][param2change] = temp_solution[param2change];
 					pop.set_x(ii,X[ii]);
 					prob.objfun(fit[ii], X[ii]); //update the fitness vector
-				trial[ii] = 0;
+					trial[ii] = 0;
 				}
 				else {
-					trial[ii]++; //if the solution can't be improved incrase its the trial counter
+					trial[ii]++; //if the solution can't be improved incrase its  trial counter
 				}
 			}
 			ii++;
-			if (ii==n_employers-1) ii=0;
+			if (ii==NP-1) ii=0;
 		}
 
 		//Send scout bees
-		for(population::size_type t=0; t < scouts_number; t++) {
-			int maxtrialindex = 0;
-			for (population::size_type ii=1; ii<n_employers; ii++)
-			{
-				 if (trial[ii] > trial[maxtrialindex])
-				 	maxtrialindex = ii;
+		int maxtrialindex = 0;
+		for (population::size_type ii=1; ii<NP; ++ii)
+		{
+			 if (trial[ii] > trial[maxtrialindex]) {
+				maxtrialindex = ii;
+			 }
+		}
+		if(trial[maxtrialindex] >= m_limit)
+		{
+			//select a new random solution
+			for(problem::base::size_type jj = 0; jj < D; ++jj) {
+				X[maxtrialindex][jj] = boost::uniform_real<double>(lb[jj],ub[jj])(m_drng);
 			}
-			if(trial[maxtrialindex] >= m_limit)
-			{
-				//select a new random solution
-				for(problem::base::size_type jj = 0; jj < D; jj++) {
-					r = m_drng();
-					X[maxtrialindex][jj] = r*(ub[jj]-lb[jj]) + lb[jj];
-				}
-				trial[maxtrialindex] = 0;
-				pop.set_x(maxtrialindex,X[maxtrialindex]);
-			}
+			trial[maxtrialindex] = 0;
+			pop.set_x(maxtrialindex,X[maxtrialindex]);
 		}
 
 
@@ -234,15 +233,6 @@ void bee_colony::evolve(population &pop) const
 
 	} // end of main ABC loop
 	
-}
-
-double fitness_magnitude(fitness_vector fit) {
-	int size = sizeof(fit)/sizeof(double);
-	double magnitude = 0;
-	for(int i=0; i < size; i++) {
-		magnitude += fit[i]*fit[i];
-	}
-	return sqrt(magnitude);
 }
 
 /// Algorithm name
@@ -259,11 +249,8 @@ std::string bee_colony::get_name() const
 std::string bee_colony::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "gen:" << m_gen << ' ';
-	s << "onlooker_fraction:" << m_onlooker_fraction << ' ';
-	s << "scouts_number:" << m_scouts_number << ' ';
+	s << "iter:" << m_iter << ' ';
 	s << "limit:" << m_limit << ' ';
-	s << "phi:" << m_phi << ' ';
 	return s.str();
 }
 
