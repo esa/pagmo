@@ -285,6 +285,7 @@ public:
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
         ctx_.set_current_filename(pos_.get_file().c_str());
 #endif
+        iter_ctx->emitted_lines = (unsigned int)(-1);   // force #line directive
     }
 
 // get the next preprocessed token
@@ -418,6 +419,7 @@ pp_iterator_functor<ContextT>::returned_from_include()
         iter_ctx = ctx.pop_iteration_context();
 
         must_emit_line_directive = true;
+        iter_ctx->emitted_lines = (unsigned int)(-1);   // force #line directive
         seen_newline = true;
 
     // restore current file position
@@ -433,6 +435,7 @@ pp_iterator_functor<ContextT>::returned_from_include()
         ctx.set_current_filename(real_filename.c_str());
 #endif 
         ctx.set_current_directory(iter_ctx->real_filename.c_str());
+        ctx.set_current_relative_filename(iter_ctx->real_relative_filename.c_str());
 
     // ensure the integrity of the #if/#endif stack
     // report unbalanced #if/#endif now to make it possible to recover properly
@@ -735,16 +738,22 @@ pp_iterator_functor<ContextT>::emit_line_directive()
 
 typename ContextT::position_type pos = act_token.get_position();
 
+//     if (must_emit_line_directive && 
+//         iter_ctx->emitted_lines+1 == act_pos.get_line() &&
+//         iter_ctx->filename == act_pos.get_file())
+//     {
+//         must_emit_line_directive = false;
+//         return false;
+//     }
+
     if (must_emit_line_directive || 
-        iter_ctx->emitted_lines != act_pos.get_line()) 
+        iter_ctx->emitted_lines+1 != act_pos.get_line()) 
     {
     // unput the current token
         pending_queue.push_front(act_token);
         pos.set_line(act_pos.get_line());
 
-        if (!must_emit_line_directive &&
-            iter_ctx->emitted_lines+1 == act_pos.get_line()) 
-        {
+        if (iter_ctx->emitted_lines+2 == act_pos.get_line()) {
         // prefer to output a single newline instead of the #line directive
 //             whitespace.shift_tokens(T_NEWLINE);
             act_token = result_type(T_NEWLINE, "\n", pos);
@@ -752,48 +761,52 @@ typename ContextT::position_type pos = act_token.get_position();
         else {
         // account for the newline emitted here
             act_pos.set_line(act_pos.get_line()-1);
-            iter_ctx->emitted_lines = act_pos.get_line();
+            iter_ctx->emitted_lines = act_pos.get_line()-1;
 
-        // the #line directive has to be pushed back into the pending queue in 
-        // reverse order
+        token_sequence_type pending;
 
-        // unput the complete #line directive in reverse order
-        std::string file("\"");
-        boost::filesystem::path filename(
-            wave::util::create_path(act_pos.get_file().c_str()));
+            if (!ctx.get_hooks().emit_line_directive(ctx, pending, act_token))
+            {
+            unsigned int column = 6;
 
-            using wave::util::impl::escape_lit;
-            file += escape_lit(wave::util::native_file_string(filename)) + "\"";
+                // the hook did not generate anything, emit default #line
+                pos.set_column(1);
+                pending.push_back(result_type(T_PP_LINE, "#line", pos));
 
-        // 21 is the max required size for a 64 bit integer represented as a 
-        // string
-        char buffer[22];
+                pos.set_column(column);      // account for '#line'
+                pending.push_back(result_type(T_SPACE, " ", pos));
 
-            using namespace std;    // for some systems sprintf is in namespace std
-            sprintf (buffer, "%d", pos.get_line());
+            // 21 is the max required size for a 64 bit integer represented as a 
+            // string
+            char buffer[22];
 
-        // adjust the generated column numbers accordingly
-        // #line<space>number<space>filename<newline>
-        unsigned int filenamelen = (unsigned int)file.size();
-        unsigned int column = 7 + (unsigned int)strlen(buffer) + filenamelen;
+                using namespace std;    // for some systems sprintf is in namespace std
+                sprintf (buffer, "%d", pos.get_line());
 
-            pos.set_line(pos.get_line() - 1);         // adjust line number
+                pos.set_column(++column);                 // account for ' '
+                pending.push_back(result_type(T_INTLIT, buffer, pos));
+                pos.set_column(column += (unsigned int)strlen(buffer)); // account for <number>
+                pending.push_back(result_type(T_SPACE, " ", pos));
+                pos.set_column(++column);                 // account for ' '
 
-            pos.set_column(column);
-            pending_queue.push_front(result_type(T_GENERATEDNEWLINE, "\n", pos));
-            pos.set_column(column -= filenamelen);    // account for filename
-            pending_queue.push_front(result_type(T_STRINGLIT, file.c_str(), pos));
-            pos.set_column(--column);                 // account for ' '
-            pending_queue.push_front(result_type(T_SPACE, " ", pos));
-            pos.set_column(column -= (unsigned int)strlen(buffer)); // account for <number>
-            pending_queue.push_front(result_type(T_INTLIT, buffer, pos));
-            pos.set_column(--column);                 // account for ' '
-            pending_queue.push_front(result_type(T_SPACE, " ", pos));
+            std::string file("\"");
+            boost::filesystem::path filename(
+                wave::util::create_path(act_pos.get_file().c_str()));
 
-        // return the #line token itself
-//             whitespace.shift_tokens(T_PP_LINE);
-            pos.set_column(1);
-            act_token = result_type(T_PP_LINE, "#line", pos);
+                using wave::util::impl::escape_lit;
+                file += escape_lit(wave::util::native_file_string(filename)) + "\"";
+
+                pending.push_back(result_type(T_STRINGLIT, file.c_str(), pos));
+                pos.set_column(column += (unsigned int)file.size());    // account for filename
+                pending.push_back(result_type(T_GENERATEDNEWLINE, "\n", pos));
+            }
+
+        // if there is some replacement text, insert it into the pending queue
+            if (!pending.empty()) {
+                pending_queue.splice(pending_queue.begin(), pending);
+                act_token = pending_queue.front();
+                pending_queue.pop_front();
+            }
         }
 
         must_emit_line_directive = false;     // we are now in sync
@@ -855,30 +868,6 @@ token_id id = token_id(*iter_ctx->first);
 ///////////////////////////////////////////////////////////////////////////////
 namespace impl {
 
-    template <typename ContextT, typename IteratorT>
-    bool next_token_is_pp_directive(ContextT &ctx, IteratorT &it, IteratorT const &end)
-    {
-        using namespace boost::wave;
-
-        token_id id = T_UNKNOWN;
-        for (/**/; it != end; ++it) {
-            id = token_id(*it);
-            if (!IS_CATEGORY(id, WhiteSpaceTokenType))
-                break;          // skip leading whitespace
-            if (IS_CATEGORY(id, EOLTokenType))
-                break;          // do not enter a new line
-
-            // this token get's skipped
-#if BOOST_WAVE_USE_DEPRECIATED_PREPROCESSING_HOOKS != 0
-            ctx.get_hooks().skipped_token(*it);   
-#else
-            ctx.get_hooks().skipped_token(ctx.derived(), *it);
-#endif
-        }
-        BOOST_ASSERT(it == end || id != T_UNKNOWN);
-        return it != end && IS_CATEGORY(id, PPTokenType);
-    }
-
     // call 'found_directive' preprocessing hook
     template <typename ContextT>
     bool call_found_directive_hook(ContextT& ctx, 
@@ -905,14 +894,39 @@ namespace impl {
 #endif
     }
 
-    // verify that there is'nt anything significant left on the line
+    template <typename ContextT, typename IteratorT>
+    bool next_token_is_pp_directive(ContextT &ctx, IteratorT &it, IteratorT const &end)
+    {
+        using namespace boost::wave;
+
+        token_id id = T_UNKNOWN;
+        for (/**/; it != end; ++it) {
+            id = token_id(*it);
+            if (!IS_CATEGORY(id, WhiteSpaceTokenType))
+                break;          // skip leading whitespace
+            if (IS_CATEGORY(id, EOLTokenType) || IS_CATEGORY(id, EOFTokenType))
+                break;          // do not enter a new line
+            if (T_CPPCOMMENT == id ||
+                context_policies::util::ccomment_has_newline(*it)) 
+            {
+                break;
+            }
+
+            // this token gets skipped
+            call_skipped_token_hook(ctx, *it);
+        }
+        BOOST_ASSERT(it == end || id != T_UNKNOWN);
+        return it != end && IS_CATEGORY(id, PPTokenType);
+    }
+
+    // verify that there isn't anything significant left on the line
     template <typename ContextT, typename IteratorT>
     bool pp_is_last_on_line(ContextT &ctx, IteratorT &it, IteratorT const &end,
         bool call_hook = true)
     {
         using namespace boost::wave;
 
-        // this token get's skipped
+        // this token gets skipped
         if (call_hook)
             call_skipped_token_hook(ctx, *it);
 
@@ -931,7 +945,7 @@ namespace impl {
             if (!IS_CATEGORY(id, WhiteSpaceTokenType))
                 break;
 
-            // this token get's skipped
+            // this token gets skipped
             if (call_hook)
                 call_skipped_token_hook(ctx, *it);
         }
@@ -1255,7 +1269,28 @@ lexer_type it = iter_ctx->first;
             }
             else if (ctx.get_if_block_status()) {
             // report invalid pp directive
-                on_illformed((*it).get_value());  
+                impl::skip_to_eol(ctx, it, iter_ctx->last);
+                seen_newline = true;
+
+                string_type str(boost::wave::util::impl::as_string<string_type>(
+                    iter_ctx->first, it));
+
+            token_sequence_type faulty_line;
+
+                for (/**/; iter_ctx->first != it; ++iter_ctx->first)
+                    faulty_line.push_back(*iter_ctx->first);
+
+                token_sequence_type pending;
+                if (ctx.get_hooks().found_unknown_directive(ctx, faulty_line, pending))
+                {
+                // if there is some replacement text, insert it into the pending queue
+                    if (!pending.empty())
+                        pending_queue.splice(pending_queue.begin(), pending);
+                    return true;
+                }
+
+                // default behavior is to throw an exception
+                on_illformed(str);
             }
         }
 
@@ -1536,8 +1571,8 @@ fs::path native_path(wave::util::create_path(file_path));
 
     // preprocess the opened file
     boost::shared_ptr<base_iteration_context_type> new_iter_ctx (
-        new iteration_context_type(ctx, native_path_str.c_str(), 
-            act_pos, boost::wave::enable_prefer_pp_numbers(ctx.get_language())));
+        new iteration_context_type(ctx, native_path_str.c_str(), act_pos, 
+            boost::wave::enable_prefer_pp_numbers(ctx.get_language())));
 
     // call the include policy trace function
 #if BOOST_WAVE_USE_DEPRECIATED_PREPROCESSING_HOOKS != 0
@@ -1549,9 +1584,11 @@ fs::path native_path(wave::util::create_path(file_path));
 #endif
 
     // store current file position
+        iter_ctx->real_relative_filename = ctx.get_current_relative_filename().c_str();
         iter_ctx->filename = act_pos.get_file();
         iter_ctx->line = act_pos.get_line();
         iter_ctx->if_block_depth = ctx.get_if_block_depth();
+        iter_ctx->emitted_lines = (unsigned int)(-1);   // force #line directive
 
     // push the old iteration context onto the stack and continue with the new
         ctx.push_iteration_context(act_pos, iter_ctx);
@@ -1565,6 +1602,9 @@ fs::path native_path(wave::util::create_path(file_path));
         std::string real_filename(rfp.string());
         ctx.set_current_filename(real_filename.c_str());
 #endif 
+
+        ctx.set_current_relative_filename(dir_path.c_str());
+        iter_ctx->real_relative_filename = dir_path.c_str();
 
         act_pos.set_line(iter_ctx->line);
         act_pos.set_column(0);
@@ -2399,7 +2439,7 @@ const_tree_iterator_t last = make_ref_transform_iterator(end, get_value);
     token_sequence_type pending;
     if (interpret_pragma(expanded, pending)) {
     // if there is some replacement text, insert it into the pending queue
-        if (pending.size() > 0)
+        if (!pending.empty())
             pending_queue.splice(pending_queue.begin(), pending);
         return true;        // this #pragma was successfully recognized
     }

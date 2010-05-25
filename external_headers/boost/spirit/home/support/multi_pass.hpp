@@ -17,9 +17,11 @@
 
 //  Input policies
 #include <boost/spirit/home/support/iterators/detail/input_iterator_policy.hpp>
+#include <boost/spirit/home/support/iterators/detail/buffering_input_iterator_policy.hpp>
 #include <boost/spirit/home/support/iterators/detail/istream_policy.hpp>
 #include <boost/spirit/home/support/iterators/detail/lex_input_policy.hpp>
 #include <boost/spirit/home/support/iterators/detail/split_functor_input_policy.hpp>
+#include <boost/spirit/home/support/iterators/detail/functor_input_policy.hpp>
 
 //  Checking policies
 #include <boost/spirit/home/support/iterators/detail/buf_id_check_policy.hpp>

@@ -51,12 +51,12 @@ namespace boost { namespace spirit { namespace iterator_policies
 
             void swap(unique& x)
             {
-                spirit::detail::swap(buf_id, x.buf_id);
+                boost::swap(buf_id, x.buf_id);
             }
 
             // called to verify that everything is ok.
             template <typename MultiPass>
-            static void check(MultiPass const& mp) 
+            static void docheck(MultiPass const& mp) 
             {
                 if (mp.buf_id != mp.shared()->shared_buf_id)
                     boost::throw_exception(illegal_backtracking());

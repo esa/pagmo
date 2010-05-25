@@ -179,7 +179,7 @@ namespace boost { namespace spirit { namespace qi
         {
             lookup->for_each(f);
         }
-        
+
         template <typename Str>
         value_type& at(Str const& str)
         {
@@ -263,7 +263,7 @@ public:
 
             template <typename Iterator>
             adder const&
-            operator()(Iterator const& first, Iterator const& last, T const& val = T()) const
+            operator()(Iterator const& first, Iterator const& last, T const& val) const
             {
                 sym.lookup->add(first, last, val);
                 return *this;
@@ -361,7 +361,7 @@ public:
         typedef has_modifier<Modifiers, tag::char_code_base<tag::no_case> > no_case;
         typedef reference<symbols<Char, T, Lookup, Filter> > reference_;
         typedef no_case_filter<
-            typename spirit::detail::get_encoding<
+            typename spirit::detail::get_encoding_with_case<
                 Modifiers
               , char_encoding::standard
               , no_case::value>::type>

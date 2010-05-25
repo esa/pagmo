@@ -48,7 +48,7 @@ namespace detail {
 // checks for objects
 
 template<class T>
-void inline check_object_level(){
+inline void check_object_level(){
     typedef 
         BOOST_DEDUCED_TYPENAME mpl::greater_equal<
             serialization::implementation_level<T>,
@@ -61,7 +61,7 @@ void inline check_object_level(){
 }
 
 template<class T>
-void inline check_object_versioning(){
+inline void check_object_versioning(){
     typedef 
         BOOST_DEDUCED_TYPENAME mpl::or_<
             BOOST_DEDUCED_TYPENAME mpl::greater<
@@ -79,7 +79,7 @@ void inline check_object_versioning(){
 }
 
 template<class T>
-void inline check_object_tracking(){
+inline void check_object_tracking(){
     // presume it has already been determined that
     // T is not a const
     BOOST_STATIC_ASSERT(! boost::is_const<T>::value);
@@ -101,7 +101,7 @@ void inline check_object_tracking(){
 // checks for pointers
 
 template<class T>
-void inline check_pointer_level(){
+inline void check_pointer_level(){
     // we should only invoke this once we KNOW that T
     // has been used as a pointer!!
     typedef 
@@ -149,7 +149,7 @@ void inline check_pointer_tracking(){
 }
 
 template<class T>
-void inline check_const_loading(){
+inline void check_const_loading(){
     typedef
         BOOST_DEDUCED_TYPENAME mpl::or_<
             BOOST_DEDUCED_TYPENAME boost::serialization::is_wrapper<T>,

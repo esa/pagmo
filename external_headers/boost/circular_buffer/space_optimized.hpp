@@ -1260,11 +1260,7 @@ private:
                 ensure_reserve(new_capacity, new_size));
         }
 #if BOOST_CB_ENABLE_DEBUG
-# if BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(70190006))
         this->invalidate_iterators_except(end());
-# else
-        invalidate_iterators_except(end());
-# endif
 #endif
     }
 
@@ -1284,11 +1280,7 @@ private:
         circular_buffer<T, Alloc>::set_capacity(
             ensure_reserve(new_capacity, size()));
 #if BOOST_CB_ENABLE_DEBUG
-# if BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(70190006))
         this->invalidate_iterators_except(end());
-# else
-        invalidate_iterators_except(end());
-# endif
 #endif
     }
 

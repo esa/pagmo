@@ -455,7 +455,7 @@ struct load_pointer_type {
     };
 
     template<class T>
-    static const basic_pointer_iserializer * register_type(Archive &ar, T & /*t*/){
+    static const basic_pointer_iserializer * register_type(Archive &ar, const T & /*t*/){
         // there should never be any need to load an abstract polymorphic 
         // class pointer.  Inhibiting code generation for this
         // permits abstract base classes to be used - note: exception
@@ -472,30 +472,32 @@ struct load_pointer_type {
     template<class T>
     static T * pointer_tweak(
         const boost::serialization::extended_type_info & eti,
-        void * t,
-        T &
+        void const * const t,
+        const T &
     ) {
         // tweak the pointer back to the base class
         return static_cast<T *>(
-            boost::serialization::void_upcast(
-                eti,
-                boost::serialization::singleton<
-                    BOOST_DEDUCED_TYPENAME 
-                    boost::serialization::type_info_implementation<T>::type
-                >::get_const_instance(),
-                t
+            const_cast<void *>(
+                boost::serialization::void_upcast(
+                    eti,
+                    boost::serialization::singleton<
+                        BOOST_DEDUCED_TYPENAME 
+                        boost::serialization::type_info_implementation<T>::type
+                    >::get_const_instance(),
+                    t
+                )
             )
         );
     }
 
     template<class T>
-    static void load(Archive & /* ar */ , T & /* t */){
+    static void check_load(T & /* t */){
         check_pointer_level<T>();
         check_pointer_tracking<T>();
     }
 
     static const basic_pointer_iserializer *
-        find(const boost::serialization::extended_type_info & type){
+    find(const boost::serialization::extended_type_info & type){
         return static_cast<const basic_pointer_iserializer *>(
             archive_serializer_map<Archive>::find(type)
         );
@@ -503,10 +505,14 @@ struct load_pointer_type {
 
     template<class Tptr>
     static void invoke(Archive & ar, Tptr & t){
-        load(ar, *t);
+        check_load(*t);
         const basic_pointer_iserializer * bpis_ptr = register_type(ar, *t);
         const basic_pointer_iserializer * newbpis_ptr = ar.load_pointer(
-            * reinterpret_cast<void **>(&t),
+            // note major hack here !!!
+            // I tried every way to convert Tptr &t (where Tptr might
+            // include const) to void * &.  This is the only way
+            // I could make it work. RR
+            (void * & )t,
             bpis_ptr,
             find
         );

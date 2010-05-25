@@ -570,7 +570,7 @@
 
                     /// \param expr An expression
                     /// \return \c e
-                    #ifdef BOOST_HAS_DECLTYPE
+                    #ifndef BOOST_NO_DECLTYPE
                     result_type
                     #else
                     typename impl::expr_param 
@@ -609,7 +609,7 @@
                     /// \param e An expression
                     /// \pre <tt>matches\<Expr,not_\>::::value</tt> is \c true.
                     /// \return \c e
-                    #ifdef BOOST_HAS_DECLTYPE
+                    #ifndef BOOST_NO_DECLTYPE
                     result_type
                     #else
                     typename impl::expr_param 

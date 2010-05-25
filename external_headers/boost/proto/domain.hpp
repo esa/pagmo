@@ -80,6 +80,7 @@ namespace boost { namespace proto
         struct domain
           : Generator
         {
+            typedef Generator proto_generator;
             typedef Grammar proto_grammar;
 
             /// INTERNAL ONLY

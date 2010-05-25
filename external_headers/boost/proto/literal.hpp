@@ -45,6 +45,10 @@ namespace boost { namespace proto
             typedef typename detail::term_traits<T>::reference        reference;
             typedef typename detail::term_traits<T>::const_reference  const_reference;
 
+            literal()
+              : base_type(terminal_type::make(T()))
+            {}
+
             template<typename U>
             literal(U &u)
               : base_type(terminal_type::make(u))
@@ -60,7 +64,7 @@ namespace boost { namespace proto
               : base_type(terminal_type::make(u.get()))
             {}
 
-            using base_type::operator =;
+            BOOST_PROTO_EXTENDS_USING_ASSIGN(literal)
 
             reference get()
             {

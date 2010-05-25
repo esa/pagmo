@@ -112,17 +112,6 @@ struct python_problem: problem::base, wrapper<problem::base>
 		}
 		return problem::base::human_readable_extra();
 	}
-	bool is_compatible_extra(const problem::base &p) const
-	{
-		return py_is_compatible_extra(p);
-	}
-	bool py_is_compatible_extra(const problem::base &p) const
-	{
-		if (override f = this->get_override("_is_compatible_extra")) {
-			return f(p);
-		}
-		return problem::base::is_compatible_extra(p);
-	}
 	void compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 	{
 		if (this->get_override("_compute_constraints_impl")) {
@@ -194,7 +183,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_objfun_impl",&python_problem::py_objfun)
 		.def("_human_readable_extra",&python_problem::py_human_readable_extra)
 		.def("_equality_operator_extra",&python_problem::py_equality_operator_extra)
-		.def("_is_compatible_extra",&python_problem::py_is_compatible_extra)
 		.def("_compute_constraints_impl",&python_problem::py_compute_constraints_impl);
 
 	// Paraboloid problem.

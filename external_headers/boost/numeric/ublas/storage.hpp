@@ -1598,13 +1598,13 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
         BOOST_UBLAS_INLINE
-        void swap(self_type rhs) {
+        void swap(self_type& rhs) {
             self_type tmp(rhs);
             rhs = *this;
             *this = tmp;
         }
         BOOST_UBLAS_INLINE
-        friend void swap(self_type lhs, self_type rhs) {
+        friend void swap(self_type& lhs, self_type& rhs) {
             lhs.swap(rhs);
         }
 
@@ -1770,13 +1770,13 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
         BOOST_UBLAS_INLINE
-        void swap(self_type rhs) {
+        void swap(self_type& rhs) {
             self_type tmp(rhs);
             rhs = *this;
             *this = tmp;
         }
         BOOST_UBLAS_INLINE
-        friend void swap(self_type lhs, self_type rhs) {
+        friend void swap(self_type& lhs, self_type& rhs) {
             lhs.swap(rhs);
         }
 

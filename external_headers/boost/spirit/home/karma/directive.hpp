@@ -10,6 +10,8 @@
 #pragma once
 #endif
 
+#include <boost/spirit/home/karma/directive/encoding.hpp>
+
 ///////////////////////////////////////////////////////////////////////////////
 //  directives related to alignment 
 //  left_align[...], right_align[...], center[...]
@@ -37,6 +39,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include <boost/spirit/home/karma/directive/verbatim.hpp>
 #include <boost/spirit/home/karma/directive/delimit.hpp>
+#include <boost/spirit/home/karma/directive/no_delimit.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 //  repeat directives

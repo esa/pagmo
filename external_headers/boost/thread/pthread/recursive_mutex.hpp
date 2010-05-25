@@ -7,6 +7,7 @@
 
 #include <pthread.h>
 #include <boost/utility.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/thread/exceptions.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/thread_time.hpp>
@@ -42,18 +43,18 @@ namespace boost
             int const init_attr_res=pthread_mutexattr_init(&attr);
             if(init_attr_res)
             {
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             int const set_attr_res=pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_RECURSIVE);
             if(set_attr_res)
             {
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             
             int const res=pthread_mutex_init(&m,&attr);
             if(res)
             {
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             BOOST_VERIFY(!pthread_mutexattr_destroy(&attr));
         }
@@ -111,32 +112,32 @@ namespace boost
             int const init_attr_res=pthread_mutexattr_init(&attr);
             if(init_attr_res)
             {
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             int const set_attr_res=pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_RECURSIVE);
             if(set_attr_res)
             {
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             
             int const res=pthread_mutex_init(&m,&attr);
             if(res)
             {
                 BOOST_VERIFY(!pthread_mutexattr_destroy(&attr));
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             BOOST_VERIFY(!pthread_mutexattr_destroy(&attr));
 #else
             int const res=pthread_mutex_init(&m,NULL);
             if(res)
             {
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             int const res2=pthread_cond_init(&cond,NULL);
             if(res2)
             {
                 BOOST_VERIFY(!pthread_mutex_destroy(&m));
-                throw thread_resource_error();
+                boost::throw_exception(thread_resource_error());
             }
             is_locked=false;
             count=0;

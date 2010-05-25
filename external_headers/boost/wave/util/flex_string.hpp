@@ -2535,10 +2535,10 @@ operator<<(
 // Graphics makes no representations about the suitability of this software for 
 // any purpose. It is provided "as is" without express or implied warranty.
 // 
-// Copyright © 1997-1999
+// Copyright (c) 1997-1999
 // Silicon Graphics Computer Systems, Inc.
 // 
-// Copyright © 1994
+// Copyright (c) 1994
 // Hewlett-Packard Company 
 
 template <typename E, class T, class A, class S>

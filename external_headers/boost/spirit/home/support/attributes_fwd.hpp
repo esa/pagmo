@@ -15,6 +15,21 @@
 namespace boost { namespace spirit { namespace traits
 {
     ///////////////////////////////////////////////////////////////////////////
+    // Determine if T is a proxy
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename T, typename Enable = void>
+    struct is_proxy;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Retrieve the attribute type to use from the given type
+    //
+    // This is needed to extract the correct attribute type from proxy classes
+    // as utilized in FUSION_ADAPT_CLASS
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Attribute, typename Enable = void>
+    struct attribute_type;
+
+    ///////////////////////////////////////////////////////////////////////////
     // Determines how we pass attributes to semantic actions. This
     // may be specialized. By default, all attributes are wrapped in
     // a fusion sequence, because the attribute has to be treated as being
@@ -30,7 +45,7 @@ namespace boost { namespace spirit { namespace traits
 
     ///////////////////////////////////////////////////////////////////////////
     // Sometimes the user needs to transform the attribute types for certain
-    // attributes. This template can be used as a customization point, where 
+    // attributes. This template can be used as a customization point, where
     // the user is able specify specific transformation rules for any attribute
     // type.
     ///////////////////////////////////////////////////////////////////////////
@@ -102,7 +117,7 @@ namespace boost { namespace spirit { namespace result_of
     template <typename Exposed, typename Transformed>
     struct pre_transform;
 
-    template <typename T> 
+    template <typename T>
     struct optional_value;
 
     template <typename Container>

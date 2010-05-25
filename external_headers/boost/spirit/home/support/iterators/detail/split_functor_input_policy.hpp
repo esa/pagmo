@@ -75,8 +75,8 @@ namespace boost { namespace spirit { namespace iterator_policies
             void swap(unique&) {}
 
             // get the next token
-            template <typename ValueType, typename MultiPass>
-            static ValueType const& get_input(MultiPass& mp)
+            template <typename MultiPass>
+            static typename MultiPass::reference get_input(MultiPass& mp)
             {
                 value_type& curtok = mp.shared()->curtok;
                 using namespace split_functor_input_is_valid_test_;
@@ -126,7 +126,7 @@ namespace boost { namespace spirit { namespace iterator_policies
 
             void swap(unique& x)
             {
-                spirit::detail::swap(ftor, x.ftor);
+                boost::swap(ftor, x.ftor);
             }
 
         public:
@@ -138,8 +138,8 @@ namespace boost { namespace spirit { namespace iterator_policies
 
         public:
             // get the next token
-            template <typename ValueType, typename MultiPass>
-            static ValueType const& get_input(MultiPass& mp)
+            template <typename MultiPass>
+            static typename MultiPass::reference get_input(MultiPass& mp)
             {
                 value_type& curtok = mp.shared()->curtok;
                 using namespace split_functor_input_is_valid_test_;

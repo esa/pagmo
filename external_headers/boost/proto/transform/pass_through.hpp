@@ -67,7 +67,7 @@
                 /// \param e An expression
                 /// \return \c e
                 /// \throw nothrow
-                #ifdef BOOST_HAS_DECLTYPE
+                #ifndef BOOST_NO_DECLTYPE
                 result_type
                 #else
                 typename pass_through_impl::expr_param 

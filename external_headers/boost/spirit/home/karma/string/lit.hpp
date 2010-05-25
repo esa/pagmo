@@ -197,12 +197,12 @@ namespace boost { namespace spirit { namespace karma
       , Modifiers>
     {
         static bool const lower = 
-            has_modifier<Modifiers, tag::char_code<tag::lower, CharEncoding> >::value;
+            has_modifier<Modifiers, tag::char_code_base<tag::lower> >::value;
         static bool const upper = 
-            has_modifier<Modifiers, tag::char_code<tag::upper, CharEncoding> >::value;
+            has_modifier<Modifiers, tag::char_code_base<tag::upper> >::value;
 
         typedef any_string<
-            typename spirit::detail::get_encoding<
+            typename spirit::detail::get_encoding_with_case<
                 Modifiers, CharEncoding, lower || upper>::type
           , typename detail::get_casetag<Modifiers, lower || upper>::type
         > result_type;
@@ -227,7 +227,7 @@ namespace boost { namespace spirit { namespace karma
         typedef typename add_const<T>::type const_string;
         typedef literal_string<
             const_string
-          , typename spirit::detail::get_encoding<
+          , typename spirit::detail::get_encoding_with_case<
                 Modifiers, unused_type, lower || upper>::type
           , typename detail::get_casetag<Modifiers, lower || upper>::type
           , true
@@ -248,14 +248,14 @@ namespace boost { namespace spirit { namespace karma
       , Modifiers>
     {
         static bool const lower = 
-            has_modifier<Modifiers, tag::char_code<tag::lower, CharEncoding> >::value;
+            has_modifier<Modifiers, tag::char_code_base<tag::lower> >::value;
         static bool const upper = 
-            has_modifier<Modifiers, tag::char_code<tag::upper, CharEncoding> >::value;
+            has_modifier<Modifiers, tag::char_code_base<tag::upper> >::value;
 
         typedef typename add_const<A0>::type const_string;
         typedef literal_string<
             const_string
-          , typename spirit::detail::get_encoding<
+          , typename spirit::detail::get_encoding_with_case<
                 Modifiers, unused_type, lower || upper>::type
           , typename detail::get_casetag<Modifiers, lower || upper>::type
           , false

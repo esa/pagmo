@@ -43,13 +43,13 @@ namespace boost { namespace xpressive { namespace detail
         friend struct xpressive::match_results<BidiIter>;
         typedef list<xpressive::match_results<BidiIter> > base_type;
 
-        using base_type::iterator;
-        using base_type::const_iterator;
-        using base_type::pointer;
-        using base_type::const_pointer;
-        using base_type::reference;
-        using base_type::const_reference;
-        using base_type::size_type;
+        typedef typename base_type::iterator iterator;
+        typedef typename base_type::const_iterator const_iterator;
+        typedef typename base_type::pointer pointer;
+        typedef typename base_type::const_pointer const_pointer;
+        typedef typename base_type::reference reference;
+        typedef typename base_type::const_reference const_reference;
+        typedef typename base_type::size_type size_type;
         using base_type::begin;
         using base_type::end;
         using base_type::size;

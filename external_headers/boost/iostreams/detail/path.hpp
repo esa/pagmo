@@ -48,7 +48,7 @@ public:
 
     // Constructor taking a boost::filesystem::path or boost::filesystem::wpath
     template<typename Path>
-    explicit path(const Path& p)
+    explicit path(const Path& p, typename Path::external_string_type* = 0)
     {
         typedef typename Path::external_string_type string_type;
         init(p, boost::type<string_type>());

@@ -23,6 +23,7 @@
 #define BOOST_ARCHIVE_SOURCE
 #define BOOST_SERIALIZATION_SOURCE
 
+#include <boost/archive/detail/decl.hpp>
 #include <boost/archive/basic_archive.hpp>
 #include <boost/archive/detail/basic_oserializer.hpp>
 #include <boost/archive/detail/basic_pointer_oserializer.hpp>

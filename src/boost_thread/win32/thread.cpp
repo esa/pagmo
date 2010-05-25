@@ -17,6 +17,7 @@
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
 #include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/thread/detail/tss_hooks.hpp>
 #include <boost/date_time/posix_time/conversion.hpp>
 
@@ -188,7 +189,7 @@ namespace boost
         uintptr_t const new_thread=_beginthreadex(0,0,&thread_start_function,thread_info.get(),CREATE_SUSPENDED,&thread_info->id);
         if(!new_thread)
         {
-            throw thread_resource_error();
+            boost::throw_exception(thread_resource_error());
         }
         intrusive_ptr_add_ref(thread_info.get());
         thread_info->thread_handle=(detail::win32::handle)(new_thread);

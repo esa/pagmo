@@ -136,6 +136,7 @@ public:
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
       , current_filename(fname)
 #endif 
+      , current_relative_filename(fname)
       , macros(*this_())
       , language(language_support(
                       support_cpp 
@@ -228,16 +229,22 @@ public:
             has_params, is_predefined, pos, parameters, definition); 
     }
     template <typename StringT>
-    bool remove_macro_definition(StringT const &name, 
-            bool even_predefined = false)
+    bool remove_macro_definition(StringT const& undefname, bool even_predefined = false)
     { 
+        // strip leading and trailing whitespace
+        string_type name = util::to_string<string_type>(undefname);
+        typename string_type::size_type pos = name.find_first_not_of(" \t");
+        if (pos != string_type::npos) {
+            typename string_type::size_type endpos = name.find_last_not_of(" \t");
+            name = name.substr(pos, endpos-pos+1);
+        }
+
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
         // ensure this gets removed from the list of include guards as well
         includes.remove_pragma_once_header(
             util::to_string<std::string>(name));
 #endif
-        return macros.remove_macro(util::to_string<string_type>(name), 
-            macros.get_main_pos(), even_predefined); 
+        return macros.remove_macro(name, macros.get_main_pos(), even_predefined); 
     }
     void reset_macro_definitions() 
         { macros.reset_macromap(); macros.init_predefined_macros(); }
@@ -417,6 +424,11 @@ public:
     }
 #endif 
 
+    void set_current_relative_filename(char const *real_name)
+        { current_relative_filename = real_name; }
+    std::string const &get_current_relative_filename() const 
+        { return current_relative_filename; }
+
 #if BOOST_WAVE_SERIALIZATION != 0
 public:
     BOOST_STATIC_CONSTANT(unsigned int, version = 0x10);
@@ -502,6 +514,7 @@ private:
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
     std::string current_filename;       // real name of current preprocessed file
 #endif 
+    std::string current_relative_filename;        // real relative name of current preprocessed file
 
     boost::wave::util::if_block_stack ifblocks;   // conditional compilation contexts
     boost::wave::util::include_paths includes;    // lists of include directories to search

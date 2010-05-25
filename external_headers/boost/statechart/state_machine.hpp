@@ -423,22 +423,21 @@ class state_machine : noncopyable
       terminate_impl( false );
     }
 
+    void post_event( const event_base_ptr_type & pEvent )
+    {
+      post_event_impl( pEvent );
+    }
+
+    void post_event( const event_base & evt )
+    {
+      post_event_impl( evt );
+    }
+
   public:
     //////////////////////////////////////////////////////////////////////////
     // The following declarations should be protected.
     // They are only public because many compilers lack template friends.
     //////////////////////////////////////////////////////////////////////////
-    void post_event( const event_base_ptr_type & pEvent )
-    {
-      BOOST_ASSERT( get_pointer( pEvent ) != 0 );
-      eventQueue_.push_back( pEvent );
-    }
-
-    void post_event( const event_base & evt )
-    {
-      post_event( evt.intrusive_from_this() );
-    }
-
     template<
       class HistoryContext,
       detail::orthogonal_position_type orthogonalPosition >
@@ -514,6 +513,17 @@ class state_machine : noncopyable
     typedef mpl::bool_< false > shallow_history;
     typedef mpl::bool_< false > deep_history;
     typedef mpl::bool_< false > inherited_deep_history;
+
+    void post_event_impl( const event_base_ptr_type & pEvent )
+    {
+      BOOST_ASSERT( get_pointer( pEvent ) != 0 );
+      eventQueue_.push_back( pEvent );
+    }
+
+    void post_event_impl( const event_base & evt )
+    {
+      post_event_impl( evt.intrusive_from_this() );
+    }
 
     detail::reaction_result react_impl(
       const event_base_type &,

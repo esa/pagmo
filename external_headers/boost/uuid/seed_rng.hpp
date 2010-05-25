@@ -75,6 +75,7 @@ public:
     //BOOST_STATIC_CONSTANT(unsigned int, max_value = UINT_MAX);
 
 public:
+    // note: rd_ intentionally left uninitialized
     seed_rng()
         : rd_index_(5)
         , random_(std::fopen( "/dev/urandom", "rb" ))
@@ -111,6 +112,7 @@ public:
 private:
     static unsigned int * sha1_random_digest_state_()
     {
+        // intentionally left uninitialized
         static unsigned int state[ 5 ];
         return state;
     }
@@ -143,6 +145,7 @@ private:
         }
 
         {
+            // intentionally left uninitialized
             unsigned char buffer[ 20 ];
 
             if(random_)
@@ -156,6 +159,7 @@ private:
         }
 
         {
+            // *p is intentionally left uninitialized
             unsigned int * p = new unsigned int;
 
             sha.process_bytes( (unsigned char const*)p, sizeof( *p ) );
