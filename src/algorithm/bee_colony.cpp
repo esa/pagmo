@@ -116,6 +116,10 @@ void bee_colony::evolve(population &pop) const
 
 	decision_vector::size_type param2change = 0;
 
+	std::vector<double> selectionfitness(NP), cumsum(NP), cumsumTemp(NP);
+	std::vector <population::size_type> selection(NP);
+
+
 	double r = 0;
 
 	// Copy the particle positions, their velocities and their fitness
@@ -169,66 +173,76 @@ void bee_colony::evolve(population &pop) const
 		} //End of loop on the population members
 
 		//2 - Send onlooker bees
-		double maxfit = fit[0][0];
-		for (population::size_type jj=1; jj<NP; ++jj)
-		{
-			if (fit[jj][0]>maxfit)
-				maxfit = fit[jj][0];
+		//We scale all fitness values from 0 (worst) to absolute value of the best fitness
+		fitness_vector worstfit=fit[0];
+		for (pagmo::population::size_type i = 1; i < NP;i++) {
+			if (prob.compare_fitness(worstfit,fit[i])) worstfit=fit[i];
 		}
 
-		//Calculate probability for an onlooker bee to chose a food source
-		for (population::size_type jj=0; jj<NP; ++jj)
-		{
-			probability[jj] = ( 0.9* (fit[jj][0] / maxfit) ) +0.1;
+		for (pagmo::population::size_type i = 0; i < NP; i++) {
+			selectionfitness[i] = fabs(worstfit[0] - fit[i][0]) + 1.;
 		}
 
-		population::size_type t = 0;
-		population::size_type ii= 0;
-		while(t < NP) {
+		// We build and normalise the cumulative sum
+		cumsumTemp[0] = selectionfitness[0];
+		for (pagmo::population::size_type i = 1; i< NP; i++) {
+			cumsumTemp[i] = cumsumTemp[i - 1] + selectionfitness[i];
+		}
+		for (pagmo::population::size_type i = 0; i < NP; i++) {
+			cumsum[i] = cumsumTemp[i]/cumsumTemp[NP-1];
+		}
+
+		for (pagmo::population::size_type i = 0; i < NP; i++) {
 			r = m_drng();
-			if (r<probability[ii]) { //chose a food source depending on its probability to bee chosen
-				t++;
-				//selects a random component (only of the continuous part) of the decision vector
-				param2change = boost::uniform_int<decision_vector::size_type>(0,Dc-1)(m_urng);
-				//randomly chose a solution to be used to produce a mutant solution of solution ii
-				//randomly selected solution must be different from ii
-				do{
-					neighbour = boost::uniform_int<population::size_type>(0,NP-1)(m_urng);
-				}
-				while(neighbour == ii);
-
-				//copy local solution into temp_solution (also integer part)
-				for(population::size_type i=0; i<D; ++i) {
-					temp_solution[i] = X[ii][i];
-				}
-
-				//mutate temp_solution
-				temp_solution[param2change] = X[ii][param2change] + boost::uniform_real<double>(-1,1)(m_drng) * (X[ii][param2change] - X[neighbour][param2change]);
-
-				/*if generated parameter value is out of boundaries, it is shifted onto the boundaries*/
-				if (temp_solution[param2change]<lb[param2change]) {
-					temp_solution[param2change] = lb[param2change];
-				}
-				if (temp_solution[param2change]>ub[param2change]) {
-					temp_solution[param2change] = ub[param2change];
-				}
-
-				//Calling void prob.objfun(fitness_vector,decision_vector) is more efficient as no memory allocation occur
-				//A call to fitness_vector prob.objfun(decision_vector) allocates memory for the return value.
-				prob.objfun(fnew,temp_solution);
-				//If the new solution is better than the old one replace it with the mutant one and reset its trial counter
-				if(prob.compare_fitness(fnew, fit[ii])) {
-					X[ii][param2change] = temp_solution[param2change];
-					pop.set_x(ii,X[ii]);
-					prob.objfun(fit[ii], X[ii]); //update the fitness vector
-					trial[ii] = 0;
-				}
-				else {
-					trial[ii]++; //if the solution can't be improved incrase its  trial counter
+			for (pagmo::population::size_type j = 0; j < NP; j++) {
+				if (cumsum[j] > r) {
+					selection[i]=j;
+					break;
 				}
 			}
-			ii++;
-			if (ii==NP-1) ii=0;
+		}
+
+		for(pagmo::population::size_type t = 0; t < NP; ++t) {
+			r = m_drng();
+			pagmo::population::size_type ii = selection[t];
+			//selects a random component (only of the continuous part) of the decision vector
+			param2change = boost::uniform_int<decision_vector::size_type>(0,Dc-1)(m_urng);
+			//randomly chose a solution to be used to produce a mutant solution of solution ii
+			//randomly selected solution must be different from ii
+			do{
+				neighbour = boost::uniform_int<population::size_type>(0,NP-1)(m_urng);
+			}
+			while(neighbour == ii);
+
+			//copy local solution into temp_solution (also integer part)
+			for(population::size_type i=0; i<D; ++i) {
+				temp_solution[i] = X[ii][i];
+			}
+
+			//mutate temp_solution
+			temp_solution[param2change] = X[ii][param2change] + boost::uniform_real<double>(-1,1)(m_drng) * (X[ii][param2change] - X[neighbour][param2change]);
+
+			/*if generated parameter value is out of boundaries, it is shifted onto the boundaries*/
+			if (temp_solution[param2change]<lb[param2change]) {
+				temp_solution[param2change] = lb[param2change];
+			}
+			if (temp_solution[param2change]>ub[param2change]) {
+				temp_solution[param2change] = ub[param2change];
+			}
+
+			//Calling void prob.objfun(fitness_vector,decision_vector) is more efficient as no memory allocation occur
+			//A call to fitness_vector prob.objfun(decision_vector) allocates memory for the return value.
+			prob.objfun(fnew,temp_solution);
+			//If the new solution is better than the old one replace it with the mutant one and reset its trial counter
+			if(prob.compare_fitness(fnew, fit[ii])) {
+				X[ii][param2change] = temp_solution[param2change];
+				pop.set_x(ii,X[ii]);
+				prob.objfun(fit[ii], X[ii]); //update the fitness vector
+				trial[ii] = 0;
+			}
+			else {
+				trial[ii]++; //if the solution can't be improved incrase its  trial counter
+			}
 		}
 
 		//3 - Send scout bees
