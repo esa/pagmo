@@ -100,7 +100,7 @@ void de::evolve(population &pop) const
 	}
 
 	// Get out if there is nothing to do.
-	if (NP == 0 || m_gen == 0) {
+	if (m_gen == 0) {
 		return;
 	}
 	// Some vectors used during evolution are allocated here.

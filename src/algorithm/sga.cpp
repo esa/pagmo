@@ -179,7 +179,7 @@ void sga::evolve(population &pop) const
 			}
 
 			for (pagmo::population::size_type i = 0; i < NP; i++) {
-				selectionfitness[i] = fabs(worstfit[0] - fit[i][0]);
+				selectionfitness[i] = fabs(worstfit[0] - fit[i][0]) + 1.;
 			}
 
 			// We build and normalise the cumulative sum

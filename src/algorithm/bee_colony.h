@@ -34,15 +34,24 @@
 
 namespace pagmo { namespace algorithm {
 
- /*
-  * \image html bee.jpg "Bee"
-  * \image latex bee.jpg  "Bee" width=3cm
-  * The Artificial Bee Colony (ABC) algorithm is a swarm based meta-heuristic algorithm based on the behaviour of bees.
-  * At each call of the evolve method a number of function evaluations equal to 2 * iter * pop.size() is performed.
-  * @see http://mf.erciyes.edu.tr/abc/pub/ABC.C
-  * @see http://www.scholarpedia.org/article/Artificial_bee_colony_algorithm
-  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
-  */
+/// The Artificial Bee Colony Solver (ABC)
+/**
+ * \image html bee.jpg "Bee"
+ * \image latex bee.jpg  "Bee" width=3cm
+ * The Artificial Bee Colony (ABC) algorithm is a meta-heuristic algorithm inspired by the
+ * behaviour of bees.
+ *
+ * At each call of the evolve method a number of function evaluations equal
+ * to 2 * iter * pop.size() is performed.
+ *
+ * NOTE: when called on mixed-integer problems ABC treats the integer part as fixed and optimizes
+ * the continuous part.
+ *
+ * @see http://mf.erciyes.edu.tr/abc/pub/ABC.C
+ * @see http://www.scholarpedia.org/article/Artificial_bee_colony_algorithm
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
 
 class __PAGMO_VISIBLE bee_colony: public base
 {
