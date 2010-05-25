@@ -34,6 +34,7 @@
 #include <cstddef>
 #include <string>
 
+#include "../../src/exceptions.h"
 #include "../../src/problems.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
@@ -77,7 +78,11 @@ struct python_problem: problem::base, wrapper<problem::base>
 	}
 	fitness_vector py_objfun(const decision_vector &x) const
 	{
-		return this->get_override("_objfun_impl")(x);
+		if (override f = this->get_override("_objfun_impl")) {
+			return f(x);
+		}
+		pagmo_throw(not_implemented_error,"objective function has not been implemented");
+		return fitness_vector();
 	}
 	bool is_blocking() const
 	{
@@ -96,6 +101,7 @@ struct python_problem: problem::base, wrapper<problem::base>
 	}
 	bool equality_operator_extra(const base &p) const
 	{
+		// NOTE: here the dynamic cast is safe because in base equality we already checked the C++ type.
 		if (get_typename() != dynamic_cast<const python_problem &>(p).get_typename()) {
 			return false;
 		}

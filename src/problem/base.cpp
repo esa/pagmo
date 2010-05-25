@@ -51,10 +51,10 @@ namespace problem {
 // Initialisation of static objective function calls counter.
 atomic_counter_size_t base::m_objfun_counter(0);
 
-/// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
+/// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 /**
  * n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
- * Lower and upper bounds are set to 0 and 1 respectively.
+ * Lower and upper bounds are set to 0 and 1 respectively. Constraints tolerance must be positive.
  *
  * @param[in] n global dimension of the problem.
  * @param[in] ni dimension of the combinatorial part of the problem.
@@ -92,10 +92,10 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol):
 	normalise_bounds();
 }
 
-/// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
+/// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 /**
  * l_value must not be greater than u_value, n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
- * Lower and upper bounds are set to l_value and u_value respectively.
+ * Lower and upper bounds are set to l_value and u_value respectively. Constraints tolerance must be positive.
  *
  * @param[in] l_value value for all lower bounds.
  * @param[in] u_value value for all upper bounds.
@@ -138,10 +138,11 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
 	normalise_bounds();
 }
 
-/// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
+/// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 /**
  * Will fail if ni is negative or greater than lb.size(), if nf is not positive, if the sizes of the lower/upper bounds are zero or not identical, if
  * any lower bound is greater than the corresponding upper bound. nc and nic must be positive and nic must be in the [0,nc] range.
+ * Constraints tolerance must be positive.
  *
  * @param[in] lb lower bounds for the problem.
  * @param[in] ub upper bounds for the problem.
@@ -957,7 +958,7 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
  * Additional problem-specific equality testing. Default implementation returns true.
  *
  * <b>NOTE</b>: this method will be called concurrently during evolution in archipelago from multiple island objects. This implies that
- * this method must be thread-safe (e.g., writing anything into the problem object is not allowed).
+ * this method must be thread-safe (e.g., unprotected writes into the problem object are not allowed).
  *
  * @param[in] p problem::base to which this will be compared.
  *
@@ -1016,7 +1017,7 @@ bool base::verify_x(const decision_vector &x) const
 /**
  * Return true if the problem blocks the asynchronous evolution of an island/archipelago, false otherwise.
  * A blocking problem won't allow the flow of the program to continue before evolution in an island/archipelago has finished.
- * This property is used in Python problems.
+ * This property is used, for instance, in Python problems.
  * Default implementation returns false.
  *
  * @return true if the problem is blocking, false otherwise.
@@ -1108,7 +1109,7 @@ std::size_t objfun_calls()
  * is used.
  *
  * The reimplementation may call estimate_sparsity() to obtain a numerical estimate for
- * the sparsity pattern (CAUTION: this is not guaranteed to be always correct)
+ * the sparsity pattern (CAUTION: this is not guaranteed to be always correct).
  *
  * The matrix \f$ \mathbf G \f$ needs to be represented as a sparse matrix so that if \f$ G_{ij} \neq 0 \f$
  * iGfun[l] = i, jGvar[l] = j.
@@ -1172,7 +1173,10 @@ void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<i
 
 /// Pre-evolution hook.
 /**
+ * This method will be called by the island objects before every optimisation run, and can be used to alter the island's population before evolution takes place.
  * Default implementation will do nothing.
+ *
+ * @param[in,out] pop pagmo::population belonging to the island calling this method.
  */
 void base::pre_evolution(population &pop) const
 {
@@ -1181,7 +1185,10 @@ void base::pre_evolution(population &pop) const
 
 /// Post-evolution hook.
 /**
+ * This method will be called by the island objects after every optimisation run, and can be used to alter the island's population after evolution took place.
  * Default implementation will do nothing.
+ *
+ * @param[in,out] pop pagmo::population belonging to the island calling this method.
  */
 void base::post_evolution(population &pop) const
 {
