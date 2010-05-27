@@ -192,7 +192,35 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_human_readable_extra",&python_problem::py_human_readable_extra)
 		.def("_equality_operator_extra",&python_problem::py_equality_operator_extra)
 		.def("_compute_constraints_impl",&python_problem::py_compute_constraints_impl);
+	
+	// Ackley problem.
+	problem_wrapper<problem::ackley>("ackley","Ackley function.")
+		.def(init<int>());
 
+	// Griewank problem.
+	problem_wrapper<problem::griewank>("griewank","Griewank function.")
+		.def(init<int>());
+
+	// GTOC problem.
+	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC problem.")
+		.def(init<>());
+	
+	// Inventory problem.
+	problem_wrapper<problem::inventory>("inventory","Inventory problem.")
+		.def(init<int, int>());
+	
+	// Laplace problem.
+	problem_wrapper<problem::laplace>("laplace","Laplace problem.")
+		.def(init< const std::vector<int> &>());
+	
+	// Lennard Jones problem.
+	problem_wrapper<problem::lennard_jones>("lennard_jones","Lennard Jones problem.")
+		.def(init<int>());
+	
+	// Levy5 problem.
+	problem_wrapper<problem::levy5>("levy5","Levy5 problem.")
+		.def(init<int>());
+	
 	// Paraboloid problem.
 	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
 		.def(init<>())
@@ -201,7 +229,23 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Rosenbrock problem.
 	problem_wrapper<problem::rosenbrock>("rosenbrock","Multi-dimensional Rosenbrock function.")
 		.def(init<int>());
-
+	
+	// NSGA-II fon problem.
+	problem_wrapper<problem::nsga_ii_fon>("nsga_ii_fon","NSGA-II FON problem.")
+		.def(init<>());
+	
+	// NSGA-II sch problem.
+	problem_wrapper<problem::nsga_ii_sch>("nsga_ii_sch","NSGA-II SCH problem.")
+		.def(init<>());
+	
+	// Rosetta problem.
+	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.")
+		.def(init<>());
+	
+	// Sagas problem.
+	problem_wrapper<problem::sagas>("sagas","Sagas problem.")
+		.def(init<>());
+	
 	// Rastrigin problem.
 	problem_wrapper<problem::rastrigin>("rastrigin","Generalised Rastrigin function.")
 		.def(init<int>());
@@ -261,6 +305,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Cassini 2.
 	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.")
 		.def(init<>());
+	
+	// Tandem.
+	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
+		.def(init< optional<int, double> >());
 
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");

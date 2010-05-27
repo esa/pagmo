@@ -120,15 +120,38 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// IHS.
 	algorithm_wrapper<algorithm::ihs>("ihs","Improved harmony search.")
 		.def(init<int, optional<const double &, const double &, const double &, const double &, const double &> >());
+	
+	// CS.
+	algorithm_wrapper<algorithm::cs>("cs","Compass search solver.")
+		.def(init<const int &, const double &, optional<const double &, const double &> >());
 
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
 		.def(init<int>());
 
+	// Artificial Bee Colony Optimization (ABC).
+	algorithm_wrapper<algorithm::bee_colony>("bee_colony","Artificial Bee Colony optimization (ABC) algorithm.")
+		.def(init<int,optional<int> >());
+	
+	// Monotonic Basin Hopping.
+	algorithm_wrapper<algorithm::mbh>("mbh","Monotonic Basin Hopping.")
+		.def(init<const algorithm::base &,optional<int, double> >());
+	
+	// Multistart.
+	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
+		.def(init<const algorithm::base &, int >());
+	
+	// Particle Swarm Optimization.
+	algorithm_wrapper<algorithm::pso>("pso","Particle swarm optimization.")
+		.def(init<int,optional<double, double, double, double, int> >());
+	
+	// Simple Genetic Algorithm.
+	algorithm_wrapper<algorithm::sga>("sga","Simple Genetic Algorithm.")
+		.def(init<int, const double &, const double &, optional<int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
+	
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de","Differential evolution algorithm.")
 		.def(init<int,optional<const double &, const double &, int> >());
-
 	// ASA.
 	algorithm_wrapper<algorithm::sa_corana>("sa_corana","Simulated annealing, Corana's version with adaptive neighbourhood.")
 		.def(init<int, const double &, const double &, optional<int,int,const double &> >());
@@ -142,7 +165,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	algorithm_wrapper<algorithm::gsl_bfgs2>("gsl_bfgs2","GSL BFGS2 algorithm.")
 		.def(init<optional<int, const double &, const double &, const double &, const double &> >());
-
+	
 	// GSL's Fletcher-Reeves.
 	algorithm_wrapper<algorithm::gsl_fr>("gsl_fr","GSL Fletcher-Reeves algorithm.")
 		.def(init<optional<int, const double &, const double &, const double &, const double &> >());
@@ -180,6 +203,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::nlopt_sbplx>("nlopt_sbplx","NLopt's Sbplx algorithm.")
 		.def(init<optional<int, const double &> >());
 
+	#endif
+
+	// Snopt solver.
+	#ifdef PAGMO_ENABLE_SNOPT
+	algorithm_wrapper<algorithm::snopt>("snopt","Snopt solver.")
+		.def(init<int, optional<double, double> >());
+	
 	#endif
 
 	// Register to_python conversion from smart pointer.
