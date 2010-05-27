@@ -19,7 +19,7 @@
 #include <boost/mpl/if.hpp>
 
 #include <boost/spirit/home/karma/generator.hpp>
-#include <boost/spirit/home/karma/stream/ostream_iterator.hpp>
+#include <boost/spirit/home/support/iterators/ostream_iterator.hpp>
 #include <boost/spirit/home/support/unused.hpp>
 
 namespace boost { namespace spirit { namespace karma { namespace detail 
@@ -323,6 +323,34 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         }
     };
 
+    template <typename Buffering, typename Counting, typename Tracking>
+    struct disabling_output_iterator : Buffering, Counting, Tracking
+    {
+        typedef Buffering buffering_policy;
+        typedef Counting counting_policy;
+        typedef Tracking tracking_policy;
+
+        disabling_output_iterator() : do_output(true) {}
+        disabling_output_iterator(disabling_output_iterator const& rhs) 
+          : buffering_policy(rhs), counting_policy(rhs), tracking_policy(rhs)
+          , do_output(rhs.do_output)
+        {}
+
+        template <typename T>
+        bool output(T const& value) 
+        { 
+            if (!do_output) 
+                return false;
+
+            this->counting_policy::output(value);
+            this->tracking_policy::output(value);
+            return this->buffering_policy::output(value);
+        }
+
+        bool do_output;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename OutputIterator, typename Properties, typename Derived>
     struct make_output_iterator
     {
@@ -335,22 +363,25 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         enum { properties = Properties::value };
 
         typedef typename mpl::if_c<
-            properties & generator_properties::tracking ? true : false
+            (properties & generator_properties::tracking) ? true : false
           , position_policy, no_position_policy
         >::type tracking_type;
 
         typedef typename mpl::if_c<
-            properties & generator_properties::buffering ? true : false
+            (properties & generator_properties::buffering) ? true : false
           , buffering_policy<most_derived_type>, no_buffering_policy
         >::type buffering_type;
 
         typedef typename mpl::if_c<
-            properties & generator_properties::counting ? true : false
+            (properties & generator_properties::counting) ? true : false
           , counting_policy<most_derived_type>, no_counting_policy
         >::type counting_type;
 
-        typedef output_iterator_base<
-            buffering_type, counting_type, tracking_type> type;
+        typedef typename mpl::if_c<
+            (properties & generator_properties::disabling) ? true : false
+          , disabling_output_iterator<buffering_type, counting_type, tracking_type>
+          , output_iterator_base<buffering_type, counting_type, tracking_type>
+        >::type type;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -368,7 +399,6 @@ namespace boost { namespace spirit { namespace karma { namespace detail
     template <typename OutputIterator, typename Properties, typename Derived>
     class output_iterator 
       : public make_output_iterator<OutputIterator, Properties, Derived>::type
-      , boost::noncopyable
     {
     private:
         // base iterator type
@@ -383,24 +413,24 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         typedef void reference;
 
         explicit output_iterator(OutputIterator& sink_)
-          : sink(sink_)
+          : sink(&sink_)
         {}
         output_iterator(output_iterator const& rhs)
-          : base_iterator(rhs), boost::noncopyable(), sink(rhs.sink)
+          : base_iterator(rhs), sink(rhs.sink)
         {}
 
         output_iterator& operator*() { return *this; }
         output_iterator& operator++() 
         { 
             if (!this->base_iterator::has_buffer())
-                ++sink;           // increment only if not buffering
+                ++(*sink);           // increment only if not buffering
             return *this; 
         } 
         output_iterator operator++(int) 
         {
             if (!this->base_iterator::has_buffer()) {
                 output_iterator t(*this);
-                ++sink; 
+                ++(*sink); 
                 return t; 
             }
             return *this;
@@ -415,7 +445,7 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         void operator=(T const& value) 
         { 
             if (this->base_iterator::output(value))
-                *sink = value; 
+                *(*sink) = value; 
         }
 #if defined(BOOST_MSVC)
 #pragma warning (pop)
@@ -426,11 +456,7 @@ namespace boost { namespace spirit { namespace karma { namespace detail
 
     protected:
         // this is the wrapped user supplied output iterator
-        OutputIterator& sink;
-
-    private:
-        // suppress warning about assignment operator not being generated
-        output_iterator& operator=(output_iterator const&);
+        OutputIterator* sink;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -450,11 +476,11 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         output_iterator(base_iterator_type& sink)
           : base_type(sink) {}
 
-        ostream_type& get_ostream() { return this->sink.get_ostream(); }
-        ostream_type const& get_ostream() const { return this->sink.get_ostream(); }
+        ostream_type& get_ostream() { return (*this->sink).get_ostream(); }
+        ostream_type const& get_ostream() const { return (*this->sink).get_ostream(); }
 
         // expose good bit of underlying stream object
-        bool good() const { return this->sink.get_ostream().good(); }
+        bool good() const { return (*this->sink).get_ostream().good(); }
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -543,6 +569,26 @@ namespace boost { namespace spirit { namespace karma { namespace detail
         buffer_sink<OutputIterator> buffer_data;    // for buffering
         buffer_sink<OutputIterator>* prev_buffer;   // previous buffer in chain
         bool enabled;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    //  Helper class for exception safe disabling of output
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename OutputIterator>
+    struct disable_output
+    {
+        disable_output(OutputIterator& sink_)
+          : sink(sink_), prev_do_output(sink.do_output)
+        {
+            sink.do_output = false;
+        }
+        ~disable_output()
+        {
+            sink.do_output = prev_do_output;
+        }
+
+        OutputIterator& sink;
+        bool prev_do_output;
     };
 
     ///////////////////////////////////////////////////////////////////////////

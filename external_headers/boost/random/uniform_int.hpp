@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_int.hpp 58649 2010-01-02 21:23:17Z steven_watanabe $
+ * $Id: uniform_int.hpp 60755 2010-03-22 00:45:06Z steven_watanabe $
  *
  * Revision history
  *  2001-04-08  added min<max assertion (N. Becker)
@@ -29,15 +29,30 @@
 
 namespace boost {
 
-// uniform integer distribution on [min, max]
+/**
+ * The distribution function uniform_int models a \random_distribution.
+ * On each invocation, it returns a random integer value uniformly
+ * distributed in the set of integer numbers {min, min+1, min+2, ..., max}.
+ *
+ * The template parameter IntType shall denote an integer-like value type.
+ */
 template<class IntType = int>
 class uniform_int
 {
 public:
   typedef IntType input_type;
   typedef IntType result_type;
-  typedef typename make_unsigned<result_type>::type range_type;
 
+  /// \cond hide_private_members
+  typedef typename make_unsigned<result_type>::type range_type;
+  /// \endcond
+
+  /**
+   * Constructs a uniform_int object. @c min and @c max are
+   * the parameters of the distribution.
+   *
+   * Requires: min <= max
+   */
   explicit uniform_int(IntType min_arg = 0, IntType max_arg = 9)
     : _min(min_arg), _max(max_arg)
   {
@@ -49,7 +64,13 @@ public:
     init();
   }
 
+  /**
+   * Returns: The "min" parameter of the distribution
+   */
   result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _min; }
+  /**
+   * Returns: The "max" parameter of the distribution
+   */
   result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _max; }
   void reset() { }
   
@@ -93,6 +114,15 @@ public:
 #endif
 
 private:
+
+#ifdef BOOST_MSVC
+#pragma warning(push)
+// disable division by zero warning, since we can't
+// actually divide by zero.
+#pragma warning(disable:4723)
+#endif
+
+  /// \cond hide_private_members
   template<class Engine>
   static result_type generate(Engine& eng, result_type min_value, result_type /*max_value*/, range_type range)
   {
@@ -248,10 +278,16 @@ private:
     }
   }
 
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
+
   void init()
   {
     _range = random::detail::subtract<result_type>()(_max, _min);
   }
+
+  /// \endcond
 
   // The result_type may be signed or unsigned, but the _range is always
   // unsigned.

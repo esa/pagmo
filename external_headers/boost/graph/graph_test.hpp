@@ -17,6 +17,8 @@
 #include <boost/graph/isomorphism.hpp>
 #include <boost/graph/copy.hpp>
 #include <boost/graph/graph_utility.hpp> // for connects
+#include <boost/range.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 
 // UNDER CONSTRUCTION 
@@ -151,7 +153,7 @@ namespace boost {
       typedef typename graph_traits<Graph>::vertex_iterator v_iter;
       std::pair<v_iter, v_iter> p = vertices(g);
       BOOST_CHECK(num_vertices(g) == vertex_set.size());
-      v_size_t n = std::distance(p.first, p.second);
+      v_size_t n = (size_t)std::distance(p.first, p.second);
       BOOST_CHECK(n == num_vertices(g));
       for (; p.first != p.second; ++p.first) {
         vertex_t v = *p.first;
@@ -171,7 +173,7 @@ namespace boost {
       BOOST_CHECK(m == num_edges(g));
       for (; p.first != p.second; ++p.first) {
         edge_t e = *p.first;
-        BOOST_CHECK(any_if(edge_set, connects(source(e, g), target(e, g), g)));
+        BOOST_CHECK(find_if(edge_set, connects(source(e, g), target(e, g), g)) != boost::end(edge_set));
         BOOST_CHECK(container_contains(vertex_set, source(e, g)) == true);
         BOOST_CHECK(container_contains(vertex_set, target(e, g)) == true);
       }
@@ -196,8 +198,8 @@ namespace boost {
         for (k = vertex_set.begin(); k != vertex_set.end(); ++k) {
           p = edge(*j, *k, g);
           if (p.second == true)
-            BOOST_CHECK(any_if(edge_set, 
-              connects(source(p.first, g), target(p.first, g), g)) == true);
+            BOOST_CHECK(find_if(edge_set, 
+              connects(source(p.first, g), target(p.first, g), g)) != boost::end(edge_set));
         }
     }
 

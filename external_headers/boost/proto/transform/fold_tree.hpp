@@ -21,25 +21,22 @@ namespace boost { namespace proto
     namespace detail
     {
         template<typename Tag>
-        struct has_tag : transform<has_tag<Tag> >
+        struct has_tag
         {
             template<typename Expr, typename State, typename Data, typename EnableIf = Tag>
             struct impl
-              : transform_impl<Expr, State, Data>
             {
                 typedef mpl::false_ result_type;
             };
 
             template<typename Expr, typename State, typename Data>
             struct impl<Expr, State, Data, typename Expr::proto_tag>
-              : transform_impl<Expr, State, Data>
             {
                 typedef mpl::true_ result_type;
             };
 
             template<typename Expr, typename State, typename Data>
             struct impl<Expr &, State, Data, typename Expr::proto_tag>
-              : transform_impl<Expr &, State, Data>
             {
                 typedef mpl::true_ result_type;
             };
@@ -97,11 +94,17 @@ namespace boost { namespace proto
           : fold<
                 Sequence
               , State0
-              , detail::fold_tree_<
-                    typename remove_reference<Expr>::type::proto_tag
-                  , Fun
-                >
+              , detail::fold_tree_<typename Expr::proto_tag, Fun>
             >::template impl<Expr, State, Data>
+        {};
+
+        template<typename Expr, typename State, typename Data>
+        struct impl<Expr &, State, Data>
+          : fold<
+                Sequence
+              , State0
+              , detail::fold_tree_<typename Expr::proto_tag, Fun>
+            >::template impl<Expr &, State, Data>
         {};
     };
 
@@ -146,11 +149,17 @@ namespace boost { namespace proto
           : reverse_fold<
                 Sequence
               , State0
-              , detail::reverse_fold_tree_<
-                    typename remove_reference<Expr>::type::proto_tag
-                  , Fun
-                >
+              , detail::reverse_fold_tree_<typename Expr::proto_tag, Fun>
             >::template impl<Expr, State, Data>
+        {};
+
+        template<typename Expr, typename State, typename Data>
+        struct impl<Expr &, State, Data>
+          : reverse_fold<
+                Sequence
+              , State0
+              , detail::reverse_fold_tree_<typename Expr::proto_tag, Fun>
+            >::template impl<Expr &, State, Data>
         {};
     };
 

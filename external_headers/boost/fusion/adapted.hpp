@@ -13,5 +13,6 @@
 #include <boost/fusion/adapted/array.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/adapted/struct.hpp>
+#include <boost/fusion/adapted/class.hpp>
 
 #endif

@@ -97,20 +97,22 @@ struct base_iteration_context
 public:
     base_iteration_context(ContextT& ctx_,
             BOOST_WAVE_STRINGTYPE const &fname, std::size_t if_block_depth = 0)   
-    :   real_filename(fname), filename(fname), line(1), emitted_lines(1), 
-        if_block_depth(if_block_depth), ctx(ctx_) 
+    :   real_filename(fname), real_relative_filename(fname), filename(fname), 
+        line(1), emitted_lines(0), if_block_depth(if_block_depth), ctx(ctx_) 
     {}
     base_iteration_context(ContextT& ctx_, 
             IteratorT const &first_, IteratorT const &last_, 
             BOOST_WAVE_STRINGTYPE const &fname, std::size_t if_block_depth = 0)
-    :   first(first_), last(last_), real_filename(fname), filename(fname), 
-        line(1), emitted_lines(1), if_block_depth(if_block_depth), ctx(ctx_) 
+    :   first(first_), last(last_), real_filename(fname), 
+        real_relative_filename(fname), filename(fname), 
+        line(1), emitted_lines(0), if_block_depth(if_block_depth), ctx(ctx_) 
     {}
 
 // the actual input stream
     IteratorT first;            // actual input stream position 
     IteratorT last;             // end of input stream
     BOOST_WAVE_STRINGTYPE real_filename;  // real name of the current file
+    BOOST_WAVE_STRINGTYPE real_relative_filename;  // real relative name of the current file
     BOOST_WAVE_STRINGTYPE filename;       // actual processed file
     unsigned int line;                    // line counter of underlying stream
     unsigned int emitted_lines;           // count of emitted newlines

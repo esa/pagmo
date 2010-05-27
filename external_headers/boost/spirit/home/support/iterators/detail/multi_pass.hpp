@@ -17,15 +17,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace detail
 {
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename T>
-    inline void swap(T& t1, T& t2)
-    {
-        using std::swap;
-        using boost::spirit::swap;
-        swap(t1, t2);
-    }
-
 #if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     ///////////////////////////////////////////////////////////////////////////
     //  Meta-function to generate a std::iterator<> base class for multi_pass. 
@@ -69,8 +60,8 @@ namespace boost { namespace spirit { namespace detail
         template <typename MultiPass, typename TokenType>
         static void advance_input(MultiPass& mp);
 
-        template <typename TokenType, typename MultiPass>
-        static TokenType const& get_input(MultiPass& mp);
+        template <typename MultiPass>
+        static typename MultiPass::reference get_input(MultiPass& mp);
 
         template <typename MultiPass>
         static bool input_at_eof(MultiPass const& mp);
@@ -130,7 +121,7 @@ namespace boost { namespace spirit { namespace detail
         void swap(default_checking_policy&) {}
 
         template <typename MultiPass>
-        static void check(MultiPass const&) {}
+        static void docheck(MultiPass const&) {}
 
         template <typename MultiPass>
         static void clear_queue(MultiPass&) {}

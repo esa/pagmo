@@ -296,10 +296,10 @@ basic_iarchive_impl::register_type(
         <= 
         boost::integer_traits<class_id_type>::const_max
     );
-    class_id_type id(static_cast<class_id_type>(
+    class_id_type cid(static_cast<class_id_type>(
         cobject_info_set.size()
     ));
-    cobject_type co(id, bis);
+    cobject_type co(cid, bis);
     std::pair<cobject_info_set_type::const_iterator, bool>
         result = cobject_info_set.insert(co);
 
@@ -307,12 +307,12 @@ basic_iarchive_impl::register_type(
         cobject_id_vector.push_back(cobject_id(bis));
         assert(cobject_info_set.size() == cobject_id_vector.size());
     }
-    id = result.first->m_class_id;
+    cid = result.first->m_class_id;
     // borland complains without this minor hack
-    const int tid = id;
+    const int tid = cid;
     cobject_id & coid = cobject_id_vector[tid];
     coid.bpis_ptr = bis.get_bpis_ptr();
-    return id;
+    return cid;
 }
 
 void

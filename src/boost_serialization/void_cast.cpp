@@ -284,6 +284,10 @@ void_caster::recursive_unregister() const {
     void_cast_detail::set_type::iterator it;
     for(it = s.begin(); it != s.end();){
         const void_caster * vc = *it;
+        if(vc == this){
+            s.erase(it++);
+        }
+        else
         if(vc->m_parent == this){
             s.erase(it);
             delete vc;

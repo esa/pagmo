@@ -559,7 +559,7 @@
                     Tag
                   , Domain
                   , A0 const
-                >::type
+                >::type const
                 operator ()(A0 const &a0) const
                 {
                     return proto::detail::make_expr_<
@@ -630,7 +630,7 @@
                 /// \param sequence A Fusion Forward Sequence
                 /// \return <tt>proto::unpack_expr\<Tag, Domain\>(sequence)</tt>
                 template<typename Sequence>
-                typename result_of::unpack_expr<Tag, Domain, Sequence const>::type
+                typename result_of::unpack_expr<Tag, Domain, Sequence const>::type const
                 operator ()(Sequence const &sequence) const
                 {
                     return proto::detail::unpack_expr_<
@@ -665,7 +665,7 @@
                 };
 
                 template<typename Sequence>
-                typename proto::result_of::unpack_expr<Tag, Domain, Sequence const>::type
+                typename proto::result_of::unpack_expr<Tag, Domain, Sequence const>::type const
                 operator ()(Sequence const &sequence) const
                 {
                     return proto::detail::unpack_expr_<
@@ -1058,7 +1058,7 @@
             Tag
           , Domain
             BOOST_PP_ENUM_TRAILING_PARAMS(N, const A)
-        >::type
+        >::type const
         operator ()(BOOST_PP_ENUM_BINARY_PARAMS(N, const A, &a)) const
         {
             return proto::detail::make_expr_<

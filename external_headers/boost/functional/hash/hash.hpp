@@ -44,7 +44,7 @@ namespace boost
     std::size_t hash_value(wchar_t);
 #endif
     
-#if defined(BOOST_HAS_LONG_LONG)
+#if !defined(BOOST_NO_LONG_LONG)
     std::size_t hash_value(boost::long_long_type);
     std::size_t hash_value(boost::ulong_long_type);
 #endif
@@ -174,7 +174,7 @@ namespace boost
     }
 #endif
 
-#if defined(BOOST_HAS_LONG_LONG)
+#if !defined(BOOST_NO_LONG_LONG)
     inline std::size_t hash_value(boost::long_long_type v)
     {
         return hash_detail::hash_value_signed(v);
@@ -408,7 +408,7 @@ namespace boost
     BOOST_HASH_SPECIALIZE_REF(std::wstring)
 #endif
 
-#if defined(BOOST_HAS_LONG_LONG)
+#if !defined(BOOST_NO_LONG_LONG)
     BOOST_HASH_SPECIALIZE(boost::long_long_type)
     BOOST_HASH_SPECIALIZE(boost::ulong_long_type)
 #endif

@@ -542,7 +542,7 @@
                     /// \pre <tt>matches\<Expr, terminal\<T\> \>::::value</tt> is \c true.
                     /// \return \c e
                     /// \throw nothrow
-                    #ifdef BOOST_HAS_DECLTYPE
+                    #ifndef BOOST_NO_DECLTYPE
                     result_type
                     #else
                     typename impl::expr_param
@@ -612,7 +612,7 @@
                     /// \pre <tt>matches\<Expr, nullary_expr\<Tag, T\> \>::::value</tt> is \c true.
                     /// \return \c e
                     /// \throw nothrow
-                    #ifdef BOOST_HAS_DECLTYPE
+                    #ifndef BOOST_NO_DECLTYPE
                     result_type
                     #else
                     typename impl::expr_param

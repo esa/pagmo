@@ -220,8 +220,10 @@ namespace boost { namespace numeric { namespace ublas {
         static
         BOOST_UBLAS_INLINE
         real_type norm_1 (const_reference t) {
-            return type_traits<real_type>::type_abs (self_type::real (t)) +
-                   type_traits<real_type>::type_abs (self_type::imag (t));
+            return self_type::type_abs (t);
+            // original computation has been replaced because a complex number should behave like a scalar type
+            // return type_traits<real_type>::type_abs (self_type::real (t)) +
+            //       type_traits<real_type>::type_abs (self_type::imag (t));
         }
         static
         BOOST_UBLAS_INLINE
@@ -231,8 +233,10 @@ namespace boost { namespace numeric { namespace ublas {
         static
         BOOST_UBLAS_INLINE
         real_type norm_inf (const_reference t) {
-            return (std::max) (type_traits<real_type>::type_abs (self_type::real (t)),
-                             type_traits<real_type>::type_abs (self_type::imag (t)));
+            return self_type::type_abs (t);
+            // original computation has been replaced because a complex number should behave like a scalar type
+            // return (std::max) (type_traits<real_type>::type_abs (self_type::real (t)),
+            //                 type_traits<real_type>::type_abs (self_type::imag (t)));
         }
 
         static

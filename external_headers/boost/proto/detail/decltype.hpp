@@ -35,7 +35,7 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/proto/repeat.hpp>
 
-#ifdef BOOST_HAS_DECLTYPE
+#ifndef BOOST_NO_DECLTYPE
 # define BOOST_PROTO_DECLTYPE_(EXPR, TYPE) typedef decltype(EXPR) TYPE;
 #else
 # define BOOST_PROTO_DECLTYPE_NESTED_TYPEDEF_TPL_(NESTED, EXPR)                                     \

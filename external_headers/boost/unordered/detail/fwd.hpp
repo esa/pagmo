@@ -31,7 +31,7 @@
 // G = Grouped/Ungrouped
 // E = Key Extractor
 
-#if defined(BOOST_HAS_RVALUE_REFS) && defined(BOOST_HAS_VARIADIC_TMPL)
+#if !defined(BOOST_NO_RVALUE_REFERENCES) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
 #   if defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)
         // STLport doesn't have std::forward.
 #   else
@@ -731,6 +731,7 @@ namespace boost { namespace unordered_detail {
 
     // Iterator Access
 
+#if !defined(__clang__)
     class iterator_access
     {
     public:
@@ -741,6 +742,28 @@ namespace boost { namespace unordered_detail {
             return it.base_;
         }
     };
+#else
+    class iterator_access
+    {
+    public:
+        // Note: we access Iterator::base here, rather than in the function
+        // signature to work around a bug in the friend support of an
+        // early version of clang.
+
+        template <class Iterator>
+        struct base
+        {
+            typedef BOOST_DEDUCED_TYPENAME Iterator::base type;
+        };
+    
+        template <class Iterator>
+        static BOOST_DEDUCED_TYPENAME base<Iterator>::type const&
+            get(Iterator const& it)
+        {
+            return it.base_;
+        }
+    };
+#endif
 
     // Iterators
 

@@ -1,4 +1,4 @@
-//Copyright (c) 2006-2009 Emil Dotchevski and Reverge Studios, Inc.
+//Copyright (c) 2006-2010 Emil Dotchevski and Reverge Studios, Inc.
 
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -47,7 +47,7 @@ boost
 
     template <class Tag,class T>
     inline
-    char const *
+    std::string
     error_info<Tag,T>::
     tag_typeid_name() const
         {
@@ -131,6 +131,9 @@ boost
             mutable std::string diagnostic_info_str_;
             mutable int count_;
 
+            error_info_container_impl( error_info_container_impl const & );
+            error_info_container_impl & operator=( error_info_container const & );
+
             void
             add_ref() const
                 {
@@ -143,21 +146,46 @@ boost
                 if( !--count_ )
                     delete this;
                 }
+
+            refcount_ptr<error_info_container>
+            clone() const
+                {
+                refcount_ptr<error_info_container> p;
+                error_info_container_impl * c=new error_info_container_impl;
+                p.adopt(c);
+                c->info_ = info_;
+                return p;
+                }
+            };
+
+        template <class E,class Tag,class T>
+        inline
+        E const &
+        set_info( E const & x, error_info<Tag,T> const & v )
+            {
+            typedef error_info<Tag,T> error_info_tag_t;
+            shared_ptr<error_info_tag_t> p( new error_info_tag_t(v) );
+            exception_detail::error_info_container * c=x.data_.get();
+            if( !c )
+                x.data_.adopt(c=new exception_detail::error_info_container_impl);
+            c->set(p,BOOST_EXCEPTION_STATIC_TYPEID(error_info_tag_t));
+            return x;
+            }
+
+        template <class T>
+        struct
+        derives_boost_exception
+            {
+            enum e { value = (sizeof(dispatch_boost_exception((T*)0))==sizeof(large_size)) };
             };
         }
 
     template <class E,class Tag,class T>
     inline
-    E const &
+    typename enable_if<exception_detail::derives_boost_exception<E>,E const &>::type
     operator<<( E const & x, error_info<Tag,T> const & v )
         {
-        typedef error_info<Tag,T> error_info_tag_t;
-        shared_ptr<error_info_tag_t> p( new error_info_tag_t(v) );
-        exception_detail::error_info_container * c=x.data_.get();
-        if( !c )
-            x.data_.adopt(c=new exception_detail::error_info_container_impl);
-        c->set(p,BOOST_EXCEPTION_STATIC_TYPEID(error_info_tag_t));
-        return x;
+        return exception_detail::set_info(x,v);
         }
     }
 

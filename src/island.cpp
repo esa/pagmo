@@ -331,18 +331,18 @@ void island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 		m_i->m_archi->sync_island_start();
 	}
 	for (std::size_t i = 0; i < m_n; ++i) {
+		// Call pre-evolve hooks.
 		if (m_i->m_archi) {
-			// TODO: restore.
 			m_i->m_archi->pre_evolution(*m_i);
-			//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 		}
+		m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 		// Call the evolution.
 		m_i->m_algo->evolve(m_i->m_pop);
+		// Post-evolve hooks.
 		if (m_i->m_archi) {
-			// TODO: restore.
 			m_i->m_archi->post_evolution(*m_i);
-			//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		}
+		m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		// If we are running in a separate thread, set the interruption point.
 		if (!m_blocking) {
 			boost::this_thread::interruption_point();
@@ -427,14 +427,13 @@ void island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 	do {
 		if (m_i->m_archi) {
 			m_i->m_archi->pre_evolution(*m_i);
-			// TODO: restore stuff here.
-			//m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 		}
+		m_i->m_pop.problem().pre_evolution(m_i->m_pop);
 		m_i->m_algo->evolve(m_i->m_pop);
 		if (m_i->m_archi) {
 			m_i->m_archi->post_evolution(*m_i);
-			//m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		}
+		m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		// If we are running in a separate thread, set the interruption point.
 		if (!m_blocking) {
 			boost::this_thread::interruption_point();

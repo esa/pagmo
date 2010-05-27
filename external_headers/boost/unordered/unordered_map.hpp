@@ -19,7 +19,7 @@
 #include <boost/unordered/detail/equivalent.hpp>
 #include <boost/unordered/detail/unique.hpp>
 
-#if !defined(BOOST_HAS_RVALUE_REFS)
+#if defined(BOOST_NO_RVALUE_REFERENCES)
 #include <boost/unordered/detail/move.hpp>
 #endif
 
@@ -159,7 +159,7 @@ namespace boost
 
         ~unordered_map() {}
 
-#if defined(BOOST_HAS_RVALUE_REFS)
+#if !defined(BOOST_NO_RVALUE_REFERENCES)
         unordered_map(unordered_map&& other)
           : table_(other.table_, boost::unordered_detail::move_tag())
         {
@@ -367,6 +367,11 @@ namespace boost
         iterator erase(const_iterator first, const_iterator last)
         {
             return iterator(table_.erase_range(get(first), get(last)));
+        }
+
+        void quick_erase(const_iterator position)
+        {
+            table_.erase(get(position));
         }
 
         void erase_return_void(const_iterator position)
@@ -699,7 +704,7 @@ namespace boost
 
         ~unordered_multimap() {}
 
-#if defined(BOOST_HAS_RVALUE_REFS)
+#if !defined(BOOST_NO_RVALUE_REFERENCES)
         unordered_multimap(unordered_multimap&& other)
           : table_(other.table_, boost::unordered_detail::move_tag())
         {
@@ -905,6 +910,11 @@ namespace boost
         iterator erase(const_iterator first, const_iterator last)
         {
             return iterator(table_.erase_range(get(first), get(last)));
+        }
+
+        void quick_erase(const_iterator position)
+        {
+            table_.erase(get(position));
         }
 
         void erase_return_void(const_iterator position)

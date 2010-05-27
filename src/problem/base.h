@@ -43,6 +43,9 @@
 
 namespace pagmo
 {
+// Fwd declarations.
+class population;
+class island;
 
 /// Problem namespace.
 /**
@@ -66,7 +69,8 @@ typedef boost::shared_ptr<base> base_ptr;
  * - the number of inequality constraints (never exceeding the total number of constraints),
  * - a constraint computation function,
  * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
- * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function.
+ * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function,
+ * - a constraints tolerance.
  *
  * All dimensions are invariant in the life cycle of a problem object.
  *
@@ -75,19 +79,19 @@ typedef boost::shared_ptr<base> base_ptr;
  * constants defined in the C++ standard "climits" header file). All bounds setting functions will make sure that the following conditions are
  * respected:
  * - lower bounds are not greater than upper bounds,
- * - the bounds of the integer part of the problem are integer and they are in the allowed range.
+ * - the bounds of the integer part of the problem are integer and they are within the allowed range.
  *
  * If the first condition is not met, an error will be raised. If the second condition is not met, the bounds will be set to the extremes
- * of the allowed range and rounded to the nearest integer as necessary. After that, an error will be generated in order to alert the user.
+ * of the allowed range and/or rounded to the nearest integer as necessary. After that, an error will be generated in order to alert the user.
  *
  * All problems implemented in PaGMO must derive from this base class and implement the following pure virtual methods:
  * - the clone() method, i.e., the polymorphic copy constructor,
  * - the objfun_impl() method, i.e., the implementation of the objective function, which computes the fitness vector associated to a decision vector.
  *
  * Additionally, the following virtual protected methods can be reimplemented in derived classes:
+ * - get_name(), for specifying a string identifier for the problem type,
  * - human_readable_extra(), for providing extra output when printing the problem to stream,
  * - equality_operator_extra(), for providing additional criterions when testing for equality between two problems,
- * - is_compatible_extra(), for providing additional criterions when testing for compatibility between two problems,
  * - compare_fitness_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
  *   than the second one, false otherwise),
  * - compute_constraints_impl(), to calculate the constraint vector associated to a decision vector,
@@ -96,8 +100,7 @@ typedef boost::shared_ptr<base> base_ptr;
  *
  * Please note that while a problem is intended to provide methods for ranking decision and constraint vectors, such methods are not to be used
  * mandatorily by an algorithm: each algorithm can decide to use its own ranking schemes during an optimisation. The ranking methods provided
- * by the problem are necessarily used instead during the migration of decision vectors from one island to the other while using a migration policy
- * that, e.g., substitutes the worst individual of the island with the incoming individual.
+ * by the problem are always used instead during the migration of decision vectors from one island to the other.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -121,12 +124,13 @@ class __PAGMO_VISIBLE base
 		base(int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
 		base(const double &, const double &, int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
 		base(const decision_vector &, const decision_vector &, int = 0, int = 1, int = 0, int = 0, const double & = 0);
-		/// Constructor from raw arrays, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
+		/// Constructor from raw arrays, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 		/**
 		 * Lower and upper bounds are initialised with the content of two arrays of size N.
 		 * Construction will fail if at least one lower bound is greater than the corresponding upper bound, if N is zero,
 		 * if integer dimension is either negative or greater than the global dimension, if fitness dimension is not positive,
-		 * if constraints dimensions are negative or if inequality constraints dimension is greater than global constraints dimension.
+		 * if constraints dimensions are negative, if inequality constraints dimension is greater than global constraints dimension, or
+		 * if constraints tolerance is negative.
 		 *
 		 * @param[in] v1 lower bounds for the problem.
 		 * @param[in] v2 upper bounds for the problem.
@@ -167,12 +171,13 @@ class __PAGMO_VISIBLE base
 			// Normalise bounds.
 			normalise_bounds();
 		}
-		/// Constructor from iterators, integer dimension, fitness dimension, global constraints dimension and inequality constraints dimension.
+		/// Constructor from iterators, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 		/**
 		 * Lower bounds are initialised with the content in the range [start1,end1[, upper bounds with the content in the range [start2,end2[.
 		 * Construction will fail if the ranges have different or null sizes, if at least one lower bound is greater than the corresponding upper bound,
 		 * if integer dimension is either negative or greater than the global dimension, if fitness dimension is not positive,
-		 * if constraints dimensions are negative or if inequality constraints dimension is greater than global constraints dimension.
+		 * if constraints dimensions are negative, if inequality constraints dimension is greater than global constraints dimension or
+		 * if constraints tolerance is negative.
 		 *
 		 * @param[in] start1 iterator to the beginning of the lower bounds sequence.
 		 * @param[in] end1 iterator to the end of the lower bounds sequence.
@@ -386,12 +391,11 @@ return base_ptr(new derived_problem(*this));
 		bool verify_x(const decision_vector &) const;
 		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 		virtual bool is_blocking() const;
+		virtual void pre_evolution(population &) const;
+		virtual void post_evolution(population &) const;
 	protected:
-		//virtual void pre_evolution(island &) const;
-		//virtual void post_evolution(island &) const;
 		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
-		virtual bool is_compatible_extra(const base &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;

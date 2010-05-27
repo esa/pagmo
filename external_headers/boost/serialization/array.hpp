@@ -134,8 +134,6 @@ void serialize(Archive& ar, boost::array<T,N>& a, const unsigned int /* version 
   ar & boost::serialization::make_nvp("elems",a.elems);
 }
 
-
-
 } } // end namespace boost::serialization
 
 #ifdef __BORLANDC__

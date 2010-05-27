@@ -121,9 +121,9 @@ public:
 
     explicit newline_filter(int target) : flags_(target)
     {
-        if ( target != newline::posix &&
-             target != newline::dos &&
-             target != newline::mac )
+        if ( target != iostreams::newline::posix &&
+             target != iostreams::newline::dos &&
+             target != iostreams::newline::mac )
         {
             boost::throw_exception(std::logic_error("bad flags"));
         }
@@ -227,12 +227,12 @@ private:
         using iostreams::newline::CR;
         using iostreams::newline::LF;
 
-        switch (flags_ & newline::platform_mask) {
-        case newline::posix:
+        switch (flags_ & iostreams::newline::platform_mask) {
+        case iostreams::newline::posix:
             return LF;
-        case newline::mac:
+        case iostreams::newline::mac:
             return CR;
-        case newline::dos:
+        case iostreams::newline::dos:
             if (flags_ & f_has_LF) {
                 flags_ &= ~f_has_LF;
                 return LF;
@@ -252,14 +252,14 @@ private:
         using iostreams::newline::LF;
 
         bool success = false;
-        switch (flags_ & newline::platform_mask) {
-        case newline::posix:
+        switch (flags_ & iostreams::newline::platform_mask) {
+        case iostreams::newline::posix:
             success = boost::iostreams::put(dest, LF);
             break;
-        case newline::mac:
+        case iostreams::newline::mac:
             success = boost::iostreams::put(dest, CR);
             break;
-        case newline::dos:
+        case iostreams::newline::dos:
             if ((flags_ & f_has_LF) != 0) {
                 if ((success = boost::iostreams::put(dest, LF)))
                     flags_ &= ~f_has_LF;

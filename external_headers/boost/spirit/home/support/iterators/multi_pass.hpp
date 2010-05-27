@@ -99,13 +99,13 @@ namespace boost { namespace spirit
 
         void swap(multi_pass& x)
         {
-            spirit::detail::swap(this->member, x.member);
+            boost::swap(this->member, x.member);
             this->policies_base_type::swap(x);
         }
 
         reference operator*() const
         {
-            policies_base_type::check(*this);
+            policies_base_type::docheck(*this);
             return policies_base_type::dereference(*this);
         }
         pointer operator->() const
@@ -115,7 +115,7 @@ namespace boost { namespace spirit
 
         multi_pass& operator++()
         {
-            policies_base_type::check(*this);
+            policies_base_type::docheck(*this);
             policies_base_type::increment(*this);
             return *this;
         }
@@ -155,6 +155,23 @@ namespace boost { namespace spirit
             return policies_base_type::less_than(*this, y);
         }
 
+        bool operator!=(multi_pass const& y)
+        {
+            return !(*this == y);
+        }
+        bool operator>(multi_pass const& y)
+        {
+            return y < *this;
+        }
+        bool operator>=(multi_pass const& y)
+        {
+            return !(*this < y);
+        }
+        bool operator<=(multi_pass const& y)
+        {
+            return !(y < *this);
+        }
+
         // allow access to base member
         shared_data_type* shared() const { return this->member; }
 
@@ -164,35 +181,6 @@ namespace boost { namespace spirit
             return (0 == this->member) || policies_base_type::is_eof(*this);
         }
     };
-
-
-    template <typename T, typename Policies>
-    inline bool 
-    operator!=(multi_pass<T, Policies> const& x, multi_pass<T, Policies> const& y)
-    {
-        return !(x == y);
-    }
-
-    template <typename T, typename Policies>
-    inline bool 
-    operator>(multi_pass<T, Policies> const& x, multi_pass<T, Policies> const& y)
-    {
-        return y < x;
-    }
-
-    template <typename T, typename Policies>
-    inline bool 
-    operator>=(multi_pass<T, Policies> const& x, multi_pass<T, Policies> const& y)
-    {
-        return !(x < y);
-    }
-
-    template <typename T, typename Policies>
-    inline bool 
-    operator<=(multi_pass<T, Policies> const& x, multi_pass<T, Policies> const& y)
-    {
-        return !(y < x);
-    }
 
     ///////////////////////////////////////////////////////////////////////////
     //  Generator function

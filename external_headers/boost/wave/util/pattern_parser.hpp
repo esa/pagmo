@@ -37,7 +37,8 @@ namespace util {
     {
         pattern_and(CharT pattern_, unsigned long pattern_mask_ = 0UL)
         :   pattern(pattern_), 
-            pattern_mask((0UL != pattern_mask_) ? pattern_mask_ : pattern_)
+            pattern_mask((0UL != pattern_mask_) ? 
+                pattern_mask_ : (unsigned long)pattern_)
         {}
 
         template <typename T>

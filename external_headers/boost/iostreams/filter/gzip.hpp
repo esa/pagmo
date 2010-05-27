@@ -32,6 +32,7 @@
 #include <boost/iostreams/detail/adapter/range_adapter.hpp>
 #include <boost/iostreams/detail/char_traits.hpp>
 #include <boost/iostreams/detail/ios.hpp> // failure.
+#include <boost/iostreams/detail/error.hpp>
 #include <boost/iostreams/operations.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
@@ -531,10 +532,11 @@ private:
         {
             if (offset_) {
                 putback_[--offset_] = c;
-                return true;
             } else {
-                return boost::iostreams::putback(src_, c);
+                boost::throw_exception(
+                    boost::iostreams::detail::bad_putback());
             }
+            return true;
         }
         void putback(const string_type& s)
         {

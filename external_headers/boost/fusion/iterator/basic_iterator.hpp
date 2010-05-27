@@ -95,11 +95,16 @@ namespace boost { namespace fusion
 
         template <typename It1, typename It2>
         struct distance
-          : mpl::minus<
-                typename It2::index
-              , typename It1::index
-            >
-        {};
+        {
+            typedef mpl::minus<typename It2::index, typename It1::index> type;
+
+            static
+            type
+            call(It1 const&, It2 const&)
+            {
+                return type();
+            }
+        };
 
         template <typename It1, typename It2>
         struct equal_to

@@ -18,7 +18,6 @@
 
 #include <string>
 #include <ostream>
-#include <boost/cstdint.hpp>
 #include <cstddef> // size_t
 
 #include <boost/config.hpp>
@@ -28,6 +27,8 @@ namespace std{
 } // namespace std
 #endif
 
+#include <boost/cstdint.hpp>
+#include <boost/integer_traits.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
@@ -108,7 +109,14 @@ private:
     virtual void save(const unsigned long t){
         ArchiveImplementation::save(t);
     }
-    #if !defined(BOOST_NO_INTRINSIC_INT64_T)
+    #if defined(BOOST_HAS_LONG_LONG)
+    virtual void save(const boost::long_long_type t){
+        ArchiveImplementation::save(t);
+    }
+    virtual void save(const boost::ulong_long_type t){
+        ArchiveImplementation::save(t);
+    }
+    #elif defined(BOOST_HAS_MS_INT64)
     virtual void save(const boost::int64_t t){
         ArchiveImplementation::save(t);
     }

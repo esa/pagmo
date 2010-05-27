@@ -634,77 +634,70 @@ namespace boost { namespace numeric { namespace ublas {
         }
     };
 
+    /** introduce anonymous namespace to make following functions
+     * local to the current compilation unit.
+     */
+    namespace {
+
     template<class T>
     T
     ZeroElement (T);
     template<>
-    BOOST_UBLAS_INLINE
     float
     ZeroElement (float) {
         return 0.f;
     }
     template<>
-    BOOST_UBLAS_INLINE
     double
     ZeroElement (double) {
         return 0.;
     }
     template<>
-    BOOST_UBLAS_INLINE
     vector<float>
     ZeroElement (vector<float>) {
         return zero_vector<float> ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     vector<double>
     ZeroElement (vector<double>) {
         return zero_vector<double> ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<float>
     ZeroElement (matrix<float>) {
         return zero_matrix<float> ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<double>
     ZeroElement (matrix<double>) {
         return zero_matrix<double> ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     std::complex<float>
     ZeroElement (std::complex<float>) {
         return std::complex<float> (0.f);
     }
     template<>
-    BOOST_UBLAS_INLINE
     std::complex<double>
     ZeroElement (std::complex<double>) {
         return std::complex<double> (0.);
     }
     template<>
-    BOOST_UBLAS_INLINE
     vector<std::complex<float> >
     ZeroElement (vector<std::complex<float> >) {
         return zero_vector<std::complex<float> > ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     vector<std::complex<double> >
     ZeroElement (vector<std::complex<double> >) {
         return zero_vector<std::complex<double> > ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<std::complex<float> >
     ZeroElement (matrix<std::complex<float> >) {
         return zero_matrix<std::complex<float> > ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<std::complex<double> >
     ZeroElement (matrix<std::complex<double> >) {
         return zero_matrix<std::complex<double> > ();
@@ -714,49 +707,41 @@ namespace boost { namespace numeric { namespace ublas {
     T
     OneElement (T);
     template<>
-    BOOST_UBLAS_INLINE
     float
     OneElement (float) {
         return 1.f;
     }
     template<>
-    BOOST_UBLAS_INLINE
     double
     OneElement (double) {
         return 1.;
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<float>
     OneElement (matrix<float>) {
         return identity_matrix<float> ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<double>
     OneElement (matrix<double>) {
         return identity_matrix<double> ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     std::complex<float>
     OneElement (std::complex<float>) {
         return std::complex<float> (1.f);
     }
     template<>
-    BOOST_UBLAS_INLINE
     std::complex<double>
     OneElement (std::complex<double>) {
         return std::complex<double> (1.);
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<std::complex<float> >
     OneElement (matrix<std::complex<float> >) {
         return identity_matrix<std::complex<float> > ();
     }
     template<>
-    BOOST_UBLAS_INLINE
     matrix<std::complex<double> >
     OneElement (matrix<std::complex<double> >) {
         return identity_matrix<std::complex<double> > ();
@@ -908,7 +893,6 @@ namespace boost { namespace numeric { namespace ublas {
         }
     };
 
-    BOOST_UBLAS_INLINE
     void concept_checks () {
 
         // Allow tests to be group to keep down compiler storage requirement
@@ -1548,6 +1532,8 @@ namespace boost { namespace numeric { namespace ublas {
         function_requires< LinearOperatorConcept<std::complex<float>, vector<std::complex<float> >, matrix<std::complex<float> > > >();
 #endif
     }
+
+    } // end of anonymous namespace
 
 }}}
 

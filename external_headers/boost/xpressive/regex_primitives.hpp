@@ -566,7 +566,7 @@ public:
         return this->proto_base();
     }
 
-    using base_type::operator =;
+    BOOST_PROTO_EXTENDS_USING_ASSIGN_NON_DEPENDENT(mark_tag)
 };
 
 // This macro is used when declaring mark_tags that are global because

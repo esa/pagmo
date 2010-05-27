@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <boost/spirit/home/support/multi_pass_wrapper.hpp>
+#include <boost/swap.hpp>
 
 namespace boost { namespace spirit {
 
@@ -18,6 +19,7 @@ namespace boost { namespace spirit {
     {
         // input policies
         struct input_iterator;
+        struct buffering_input_iterator;
         struct istream;
         struct lex_input;
         struct functor_input;
@@ -40,13 +42,13 @@ namespace boost { namespace spirit {
 #if defined(BOOST_SPIRIT_DEBUG)
         template<typename Ownership = ref_counted
           , typename Checking = buf_id_check
-          , typename Input = input_iterator
+          , typename Input = buffering_input_iterator
           , typename Storage = split_std_deque>
         struct default_policy;
 #else
         template<typename Ownership = ref_counted
           , typename Checking = no_check
-          , typename Input = input_iterator
+          , typename Input = buffering_input_iterator
           , typename Storage = split_std_deque>
         struct default_policy;
 #endif
@@ -58,11 +60,6 @@ namespace boost { namespace spirit {
 
     template <typename T, typename Policies>
     void swap(multi_pass<T, Policies> &x, multi_pass<T, Policies> &y);
-
-    namespace detail 
-    {
-        template <typename T> void swap(T& t1, T& t2);
-    }
 
 }} // namespace boost::spirit
 

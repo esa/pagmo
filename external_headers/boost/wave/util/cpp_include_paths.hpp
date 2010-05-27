@@ -57,11 +57,9 @@ struct bidirectional_map
 {
     typedef std::pair<FromType, ToType> value_type;
 
-// _MSC_FULL_VER == 160020506 || 160021003 detects the VC10 Beta 1 and 2 
-// compilers
 #if defined(BOOST_NO_POINTER_TO_MEMBER_TEMPLATE_PARAMETERS) || \
-    (defined(BOOST_MSVC) && ((BOOST_MSVC < 1300) || \
-        (_MSC_FULL_VER == 160020506 || _MSC_FULL_VER == 160021003))) || \
+    (defined(BOOST_MSVC) && \
+        ( (BOOST_MSVC < 1300) || (BOOST_MSVC == 1600) )) || \
     (defined(BOOST_INTEL_CXX_VERSION) && \
         (defined(_MSC_VER) && (BOOST_INTEL_CXX_VERSION <= 700))) 
 
@@ -401,6 +399,42 @@ include_paths::find_include_file (std::string &s, std::string &dir,
 ///////////////////////////////////////////////////////////////////////////////
 //  Set current directory from a given file name
 
+inline bool
+as_relative_to(boost::filesystem::path const& path, 
+    boost::filesystem::path const& base, boost::filesystem::path& result) 
+{
+    if (path.has_root_path()) {
+        if (path.root_path() == base.root_path()) 
+            return as_relative_to(path.relative_path(), base.relative_path(), result);
+
+        result = path;    // that's our result
+    } 
+    else {
+        if (base.has_root_path()) {
+            // cannot find relative path from a relative path and a rooted base
+            return false;
+        } 
+        else {
+            typedef boost::filesystem::path::const_iterator path_iterator;
+            path_iterator path_it = path.begin();
+            path_iterator base_it = base.begin();
+            while (path_it != path.end() && base_it != base.end() ) {
+                if (*path_it != *base_it) 
+                    break;
+                ++path_it; ++base_it;
+            }
+
+            for (/**/; base_it != base.end(); ++base_it)
+                result /= "..";
+
+            for (/**/; path_it != path.end(); ++path_it)
+                result /= *path_it;
+        }
+    }
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 inline
 void include_paths::set_current_directory(char const *path_)
 {
@@ -409,12 +443,16 @@ void include_paths::set_current_directory(char const *path_)
     fs::path filepath (create_path(path_));
     fs::path filename = fs::complete(filepath, current_dir);
     if (fs::exists(filename) && fs::is_directory(filename)) {
+        current_rel_dir.clear();
+        if (!as_relative_to(filepath, current_dir, current_rel_dir))
+            current_rel_dir = filepath;
         current_dir = filename;
-        current_rel_dir = filepath;
     }
     else {
+        current_rel_dir.clear();
+        if (!as_relative_to(branch_path(filepath), current_dir, current_rel_dir))
+            current_rel_dir = branch_path(filepath);
         current_dir = branch_path(filename);
-        current_rel_dir = branch_path(filepath);
     }
 }
 

@@ -34,6 +34,7 @@
 #include <boost/mpl/not.hpp>
 #include <boost/mpl/bool.hpp>
 
+#include <boost/serialization/extended_type_info.hpp> // for guid_defined only
 #include <boost/serialization/static_warning.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/force_include.hpp>
@@ -114,6 +115,10 @@ ptr_serialization_support<Archive,Serializable>::instantiate()
         Archive::is_loading()
     );
 }
+
+// Note INTENTIONAL usage of anonymous namespace in header.
+// This was made this way so that export.hpp could be included
+// in other headers.  This is still under study.
 
 namespace {
 

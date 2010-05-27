@@ -35,14 +35,14 @@ using namespace kep_toolbox;
 int main()
 {
 
-	algorithm::sa_corana algo(10000,10,0.001);
-	problem::levy5 prob(10);
-	archipelago a(prob,algo,2,20,::pagmo::topology::ring());
-	std::cout << algo << std::endl;
-	std::cout << "To solve:" << '\n' << prob << std::endl;
-	for (int i = 0; i<200; ++i) {
-		a.evolve();
-		std::cout << a.get_island(0).get_population().champion().f << std::endl;
+	algorithm::de algo(1);
+	problem::inventory prob(2,1000000);
+	island isl(prob,algo,20);
+	for (int i = 1; i< 20; ++i) {
+		isl.evolve();
+		isl.join();
+		std::cout << isl.get_population().get_individual(isl.get_population().get_best_idx()).cur_f << isl.get_population().get_individual(isl.get_population().get_best_idx()).cur_x << std::endl;
 	}
+
 	return 0;
 }

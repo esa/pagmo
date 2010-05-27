@@ -41,17 +41,29 @@ basic_serializer_map::insert(const basic_serializer * bs){
     // attempt to insert serializer into it's map
     const std::pair<map_type::iterator, bool> result =
         m_map.insert(bs);
+    // the following is commented out - rather than being just
+    // deleted as a reminder not to try this.
+
+    // At first it seemed like a good idea.  It enforced the
+    // idea that a type be exported from at most one code module
+    // (DLL or mainline).  This would enforce a "one definition rule" 
+    // across code modules. This seems a good idea to me.  
+    // But it seems that it's just too hard for many users to implement.
+
+    // Ideally, I would like to make this exception a warning -
+    // but there isn't anyway to do that.
+
     // if this fails, it's because it's been instantiated
     // in multiple modules - DLLS - a recipe for problems.
     // So trap this here
-    if(!result.second){
-        boost::serialization::throw_exception(
-            archive_exception(
-                archive_exception::multiple_code_instantiation,
-                bs->get_debug_info()
-            )
-        );
-    }
+    // if(!result.second){
+    //     boost::serialization::throw_exception(
+    //         archive_exception(
+    //             archive_exception::multiple_code_instantiation,
+    //             bs->get_debug_info()
+    //         )
+    //     );
+    // }
     return true;
 }
 
