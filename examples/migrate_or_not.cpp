@@ -91,6 +91,7 @@ int main()
 	algorithm::sa_corana algo3(2000,1,0.001);
 	algorithm::pso algo4(100);
 	algorithm::ihs algo5(2000);
+	algorithm::bee_colony algo6(50);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
@@ -105,6 +106,7 @@ int main()
 	algo.push_back(algo3.clone());
 	algo.push_back(algo4.clone());
 	algo.push_back(algo5.clone());
+	algo.push_back(algo6.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
