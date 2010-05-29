@@ -343,7 +343,7 @@ std::string sga::human_readable_extra() const
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
 	s << "CR:" << m_cr << ' ';
-	s << "M:" << m_cr << ' ';
+	s << "M:" << m_m << ' ';
 	s << "elitism:" << m_elitism << ' ';
 	s << "mutation type:" << m_mut.m_type << ' ';
 	s << "selection type:" << m_sel << ' ';

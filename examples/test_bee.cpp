@@ -66,10 +66,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 30;
+	int number_of_islands = 4;
 	int number_of_individuals = 125;
 	//int evolution_time = 1000;
-	int number_of_migrations = 1;
+	int number_of_migrations = 4;
 
 	//1 - We instantiate the problems
 	problem::griewank prob1(10);
@@ -81,19 +81,26 @@ int main()
 	//2 - We instantiate the algorithms
 	algorithm::sga algo1(500,0.95,0.1);
 	algorithm::pso algo2(500);
-	algorithm::bee_colony algo3(500,25);
+	algorithm::bee_colony algo3(500);
+	algorithm::de algo4(500);
+	algorithm::ihs algo5(500);
+	algorithm::sa_corana algo6(500,1,0.001);
+	
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
-	//topology::ring topo2;
-	//topology::fully_connected topo3;
-	//topology::watts_strogatz topo4;
+	topology::ring topo2;
+	topology::fully_connected topo3;
+	topology::watts_strogatz topo4;
 
 	//3 - We build a container of algorithms
 	std::vector<algorithm::base_ptr> algo;
 	algo.push_back(algo1.clone());
 	algo.push_back(algo2.clone());
 	algo.push_back(algo3.clone());
+	algo.push_back(algo4.clone());
+	algo.push_back(algo5.clone());
+	algo.push_back(algo6.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
@@ -106,9 +113,9 @@ int main()
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
 	topo.push_back(topo1.clone());
-	//topo.push_back(topo2.clone());
-	//topo.push_back(topo3.clone());
-	//topo.push_back(topo4.clone());
+	topo.push_back(topo2.clone());
+	topo.push_back(topo3.clone());
+	topo.push_back(topo4.clone());
 
 	for (unsigned int pr=0; pr<prob.size();++pr) {
 		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;

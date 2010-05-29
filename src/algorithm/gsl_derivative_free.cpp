@@ -73,9 +73,9 @@ gsl_derivative_free::gsl_derivative_free(const gsl_multimin_fminimizer_type *min
 std::string gsl_derivative_free::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "\tmax_iter:\t\t" << m_max_iter << '\n';
-	oss << "\ttol:\t\t\t" << m_tol << '\n';
-	oss << "\tstep_size:\t\t" << m_step_size << '\n';
+	oss << "max_iter:" << m_max_iter << ' ';
+	oss << "tol:" << m_tol << ' ';
+	oss << "step_size:" << m_step_size << ' ';
 	return oss.str();
 }
 

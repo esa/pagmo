@@ -94,9 +94,9 @@ private:
 	//Number of generations
 	const int m_gen;
 	//Crossover rate
-	const double& m_cr;
+	const double m_cr;
 	//Mutation rate
-	const double& m_m;
+		const double m_m;
 	//Elitism (number of generations after which to reinsert the best)
 	const int m_elitism;
 	//Mutation

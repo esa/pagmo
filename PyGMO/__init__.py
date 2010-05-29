@@ -28,19 +28,18 @@ from copy import copy
 def run_test():
 	from PyGMO import problem, algorithm, island
 	from numpy import mean, std
-	prob_list = [problem.schwefel(10),problem.rastrigin(10),problem.rosenbrock(10)]
-	algo_list = [algorithm.de(500,0.8,0.8,2),algorithm.sa_corana(10000,1,0.1),
-		algorithm.ihs(10000)]
-	for algo in algo_list:
-		print('Testing algorithm: ' + str(algo))
-		for prob in prob_list:
-			print('\tTesting problem: ' + str(type(prob)) + ', Dimension: ' + str(prob.dimension))
+	prob_list = [problem.schwefel(10),problem.rastrigin(10),problem.rosenbrock(10), problem.ackley(10)]
+	algo_list = [algorithm.pso(500), algorithm.de(500,0.8,0.8),algorithm.sa_corana(10000,1,0.1), algorithm.ihs(500), algorithm.gsl_nm(500,0.5,0.5), algorithm.sga(500, 0.8, 0.1), algorithm.cs(500, 0.1, 0.25) ]
+	for prob in prob_list:
+		print('Testing problem: ' + str(type(prob)) + ', Dimension: ' + str(prob.dimension))
+		for algo in algo_list:
+			print('        Testing algorithm: ' + str(algo))
 			best = []
 			for i in range(0,100):
 				isl = island(prob,algo,20)
 				isl.evolve(1)
 				isl.join()
 				best.append(isl.population.champion.f)
-			print('\t\tBest:\t' + str(min(best)))
-			print('\t\tMean:\t' + str(mean(best)))
-			print('\t\tStd:\t' + str(std(best)))
+			print('                Best:\t' + str(min(best)))
+			print('                Mean:\t' + str(mean(best)))
+			print('                Std:\t' + str(std(best)))
