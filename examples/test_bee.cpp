@@ -67,7 +67,7 @@ int main()
 
 	//0 - Experiment parameters
 	int number_of_islands = 4;
-	int number_of_individuals = 125;
+	int number_of_individuals = 20;
 	//int evolution_time = 1000;
 	int number_of_migrations = 4;
 
@@ -85,6 +85,7 @@ int main()
 	algorithm::de algo4(500);
 	algorithm::ihs algo5(500);
 	algorithm::sa_corana algo6(500,1,0.001);
+	algorithm::firefly algo7(500);
 	
 
 	//b - We instantiate the topologies
@@ -101,6 +102,7 @@ int main()
 	algo.push_back(algo4.clone());
 	algo.push_back(algo5.clone());
 	algo.push_back(algo6.clone());
+	algo.push_back(algo7.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
@@ -118,11 +120,11 @@ int main()
 	topo.push_back(topo4.clone());
 
 	for (unsigned int pr=0; pr<prob.size();++pr) {
-		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;
+		std::cout << std::endl << "\nProblem: " << prob[pr]->get_name() << std::endl;
 
 		for (unsigned int al =0; al<algo.size()+1; ++al) {
 			const std::string algo_name = ((al==algo.size()) ? std::string("Coop") : algo[al]->get_name());
-			std::cout << algo_name << '\n' << '\n';
+			std::cout << '\n' << algo_name << '\n' << '\n';
 			std::cout << "\t\tMean" << "\t\tStd Deviation" << std::endl;
 			myfile << "\\hline\n" << "\\multicolumn{3}{c}{" << prob[pr]->get_name() << ", " << algo_name << "}" << "\\\\ \n \\hline\n";
 

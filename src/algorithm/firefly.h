@@ -22,56 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PAGMO_ALGORITHM_FIREFLY_H
+#define PAGMO_ALGORITHM_FIREFLY_H
 
-// Header including all algorithms implemented in PaGMO.
-
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/ihs.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-#include "algorithm/bee_colony.h"
-#include "algorithm/firefly.h"
-
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+#include "../config.h"
+#include "base.h"
+#include "../population.h"
+#include <string>
 
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
+namespace pagmo { namespace algorithm {
 
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
+/// The Firefly algorithm(FA)
+/**
+ * The firefly algorithm (FA) is a metaheuristic algorithm, inspired by the flashing behaviour of fireflies.
+ *
+ * At each call of the evolve method a number of function evaluations equal
+ * to iter * pop.size() is performed.
+ *
+ * NOTE: when called on mixed-integer problems ABC treats the integer part as fixed and optimizes
+ * the continuous part.
+ *
+ * @see http://arxiv.org/abs/1003.1466
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
 
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-#endif
+class __PAGMO_VISIBLE firefly: public base
+{
+public:
+	firefly(int iter, double alpha = 0.01, double beta = 1.0, double gamma = 1.0);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	const int m_iter;
+	const double m_alpha;
+	const double m_beta;
+	const double m_gamma;
 
-#endif
+};
+
+}} //namespaces
+
+#endif // FIREFLY_H
