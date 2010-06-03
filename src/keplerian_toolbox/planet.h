@@ -29,6 +29,7 @@
 #include "epoch.h"
 #include <vector>
 #include <string>
+#include <boost/lexical_cast.hpp>
 
 namespace kep_toolbox{
 
@@ -169,6 +170,62 @@ private:
 
 };
 
+/**
+ * @brief loads a data file of planets or asteroids formatted
+ * according to the GTOC2 data file, and writes it to a
+ * planet output iterator
+ *
+ * an example usage is
+ @code
+    std::ifstream data("data");
+    std::vector<planet> asteroids;
+    load_asteroids(data, std::back_inserter(asteroids));
+ @endcode
+ * the vector asteroids should now contain one "planet" for each line in the file
+ */
+template<typename output_iterator>
+void load_GTOC2_asteroids(std::istream& is, output_iterator out)
+{
+    while(is.good()) {
+	std::string line;
+	std::string word;
+	std::stringstream ss;
+	if(!getline(is, line).good())
+	    break;
+	if(line.empty())
+	    continue;
+	
+	ss << line;
+	ss >> word;
+	int id = boost::lexical_cast<int>(word);
+	ss >> word;
+	double a = boost::lexical_cast<double>(word);
+	ss >> word;
+	double e = boost::lexical_cast<double>(word);
+	ss >> word;
+	double i = boost::lexical_cast<double>(word);
+	ss >> word;
+	double LAN = boost::lexical_cast<double>(word);
+	ss >> word;
+	double argperi = boost::lexical_cast<double>(word);
+	ss >> word;
+	double M = boost::lexical_cast<double>(word);
+	ss >> word;
+	double date = boost::lexical_cast<double>(word);
+	ss >> word;
+	int group = boost::lexical_cast<int>(word);
+
+	// argperi and LAN should have switched positions
+	array6D elem = {a, e, i, argperi, LAN, M};
+	*out = planet(epoch(date), elem, ASTRO_MU_SUN,
+		      std::numeric_limits<double>::quiet_NaN(), // the body gravitational parameter, undefined
+		      std::numeric_limits<double>::quiet_NaN(), // the body radius, undefined
+		      std::numeric_limits<double>::quiet_NaN(), // the body safe radius, undefined
+		      "Asteroid");
+	++out;
+    }
+}
+    
 std::ostream &operator<<(std::ostream &s, const planet &body);
 } /// End of namespace kep_toolbox
 #endif // PLANET_H
