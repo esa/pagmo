@@ -22,50 +22,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_FIREFLY_H
-#define PAGMO_ALGORITHM_FIREFLY_H
+#ifndef PAGMO_PROBLEM_MICHALEWICZ_H
+#define PAGMO_PROBLEM_MICHALEWICZ_H
 
-#include "../config.h"
-#include "base.h"
-#include "../population.h"
 #include <string>
 
+#include "../types.h"
+#include "base.h"
 
+namespace pagmo{ namespace problem {
 
-namespace pagmo { namespace algorithm {
-
-/// The Firefly algorithm(FA)
+/// The Michalewicz problem.
 /**
- * The firefly algorithm (FA) is a metaheuristic algorithm, inspired by the flashing behaviour of fireflies.
+ * \image html michalewicz.jpg "Two-dimensional Michalewicz function."
+ * \image latex michalewicz.jpg "Two-dimensional Michalewicz function." width=5cm
  *
- * At each call of the evolve method a number of function evaluations equal
- * to iter * pop.size() is performed.
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the  n-dimensional Michalewicz function:
+ * \f[
+ * 	F \left(x_1,\ldots,x_n\right) = \sum_{i=1}^n sin(x_i) \left[sin \left(\frac{i x_i^2}{\pi} \right) \right]^2m, \quad x_i \in \left[ 0,\pi \right].
+ * \f]
+ * Several global minima, one local minimum (ex: \fm=10, n=5 f(x) = -4.687658\f).
  *
- * NOTE: when called on mixed-integer problems Firefly treats the integer part as fixed and optimizes
- * the continuous part.
- *
- * @see http://arxiv.org/abs/1003.1466
- *
+ * @see http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page2376.htm
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
 
-class __PAGMO_VISIBLE firefly: public base
+class __PAGMO_VISIBLE michalewicz : public base
 {
-public:
-	firefly(int iter, double alpha = 0.01, double beta = 1.0, double gamma = 0.8);
-	base_ptr clone() const;
-	void evolve(population &) const;
-	std::string get_name() const;
-protected:
-	std::string human_readable_extra() const;
-private:
-	const int m_iter;
-	const double m_alpha;
-	const double m_beta;
-	const double m_gamma;
-
+	public:
+		michalewicz(int n,int m = 10);
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		double m_pi;
+		int m_m;
 };
 
 }} //namespaces
 
-#endif // FIREFLY_H
+#endif // PAGMO_PROBLEM_MICHALEWICZ_H

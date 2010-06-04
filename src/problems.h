@@ -60,6 +60,7 @@
 #include "problem/laplace.h"
 #include "problem/sample_return.h"
 #include "problem/earth_planet.h"
-
+#include "problem/michalewicz.h"
+#include "problem/dejong.h"
 
 #endif

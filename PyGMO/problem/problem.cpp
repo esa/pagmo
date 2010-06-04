@@ -200,6 +200,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Griewank problem.
 	problem_wrapper<problem::griewank>("griewank","Griewank function.")
 		.def(init<int>());
+	
+	// De Jong's problem.
+	problem_wrapper<problem::dejong>("dejong","De Jong's function.")
+		.def(init<int>());
+	
+	// michalewicz's problem.
+	problem_wrapper<problem::michalewicz>("michalewicz","Michalewicz's function.")
+		.def(init<int, optional<int> >());
 
 	// GTOC problem.
 	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC problem.")

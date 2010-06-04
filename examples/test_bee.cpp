@@ -77,6 +77,8 @@ int main()
 	problem::rosenbrock  prob3(10);
 	problem::ackley prob4(10);
 	problem::schwefel prob5(10);
+	problem::michalewicz prob6(10);
+	problem::dejong prob7(10);
 
 	//2 - We instantiate the algorithms
 	algorithm::sga algo1(500,0.95,0.1);
@@ -111,6 +113,8 @@ int main()
 	prob.push_back(prob3.clone());
 	prob.push_back(prob4.clone());
 	prob.push_back(prob5.clone());
+	prob.push_back(prob6.clone());
+	prob.push_back(prob7.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;

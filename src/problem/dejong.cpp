@@ -22,50 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_FIREFLY_H
-#define PAGMO_ALGORITHM_FIREFLY_H
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-#include "../config.h"
+#include "../exceptions.h"
+#include "../types.h"
 #include "base.h"
-#include "../population.h"
-#include <string>
+#include "dejong.h"
 
+namespace pagmo { namespace problem {
 
-
-namespace pagmo { namespace algorithm {
-
-/// The Firefly algorithm(FA)
+/// Constructor from dimension.
 /**
- * The firefly algorithm (FA) is a metaheuristic algorithm, inspired by the flashing behaviour of fireflies.
+ * Will construct an n dimensional De Jong's problem.
  *
- * At each call of the evolve method a number of function evaluations equal
- * to iter * pop.size() is performed.
+ * @param[in] n integer dimension of the problem.
  *
- * NOTE: when called on mixed-integer problems Firefly treats the integer part as fixed and optimizes
- * the continuous part.
- *
- * @see http://arxiv.org/abs/1003.1466
- *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @see problem::base constructors.
  */
+dejong::dejong(int n):base(n) {
+	set_lb(-5.12);
+	set_ub(5.12);
+}
 
-class __PAGMO_VISIBLE firefly: public base
+/// Clone method.
+base_ptr dejong::clone() const {
+	return base_ptr(new dejong(*this));
+}
+
+/// Implementation of the objective function.
+void dejong::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-public:
-	firefly(int iter, double alpha = 0.01, double beta = 1.0, double gamma = 0.8);
-	base_ptr clone() const;
-	void evolve(population &) const;
-	std::string get_name() const;
-protected:
-	std::string human_readable_extra() const;
-private:
-	const int m_iter;
-	const double m_alpha;
-	const double m_beta;
-	const double m_gamma;
+	pagmo_assert(f.size() == 1);
+	decision_vector::size_type n = x.size();
+	double retval = 0.0;
 
-};
+	for (decision_vector::size_type i=0; i<n; i++){
+		retval += x[i]*x[i];
+	}
+	f[0] = retval;
+}
+
+std::string dejong::get_name() const
+{
+	return "De Jong";
+}
 
 }} //namespaces
-
-#endif // FIREFLY_H

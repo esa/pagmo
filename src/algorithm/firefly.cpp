@@ -58,8 +58,8 @@ firefly::firefly(int iter, double alpha, double beta, double gamma):base(),m_ite
 	if (beta < 0 || beta > 1) {
 		pagmo_throw(value_error,"beta should be in [0,1]");
 	}
-	if (gamma < 0) {
-		pagmo_throw(value_error,"gamma should be greater than 0");
+	if (gamma < 0 || gamma > 1) {
+		pagmo_throw(value_error,"gamma should be in [0,1] intervall");
 	}
 }
 
@@ -86,7 +86,7 @@ void firefly::evolve(population &pop) const
 
 	//We perform some checks to determine wether the problem/population are suitable for Firefly
 	if ( Dc == 0 ) {
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for ABC to optimise");
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for Firefly to optimise");
 	}
 
 	if ( prob.get_f_dimension() != 1 ) {
@@ -123,6 +123,23 @@ void firefly::evolve(population &pop) const
 		fit[i]	=	pop.get_individual(i).cur_f;
 	}
 	
+	//Find maximum distance between individuals
+	double r_max = 0;
+	double r_temp = 0;
+	for (population::size_type ii = 0; ii< NP; ++ii) {
+		for (population::size_type jj = 0; jj< NP; ++jj) {
+			for(problem::base::size_type k=0; k < Dc; ++k) {
+				r_temp += (X[ii][k] - X[jj][k])*(X[ii][k]-X[jj][k]);
+			}
+			r_temp = sqrt(r_temp);
+			if (r_temp > r_max) {
+				r_max = r_temp;
+			}
+		}
+	}
+
+	double newgamma = m_gamma / r_max;
+
 
 	// Main Firefly loop
 	for (int j = 0; j < m_iter; ++j) {
@@ -130,7 +147,7 @@ void firefly::evolve(population &pop) const
 		//Find the best firefly
 		best_firefly = 0;
 		best_fitness = fit[0];
-		for(population::size_type i=0; i < NP; ++i) {
+		for(population::size_type i=1; i < NP; ++i) {
 			if(prob.compare_fitness(fit[i], best_fitness)) {
 				best_fitness = fit[i];
 				best_firefly = i;
@@ -149,11 +166,11 @@ void firefly::evolve(population &pop) const
 					r = sqrt(r);  //distance between X[ii] and X[jj]
 
 
-					b = m_beta * exp( -1 * m_gamma * r); //calculate attractiveness
+					b = m_beta * exp( -1 * newgamma * r*r); //calculate attractiveness
 
 					//Move the firefly ii torwards jj
 					for(problem::base::size_type k=0; k < Dc; ++k) {
-						X[ii][k] = (1-b) * X[ii][k] + b * X[jj][k] + boost::uniform_real<double>(-m_alpha,m_alpha)(m_drng);
+						X[ii][k] = (1-b) * X[ii][k] + b * X[jj][k] + boost::uniform_real<double>(lb[k]*m_alpha,m_alpha*ub[k])(m_drng);
 						
 						//check constraints
 						if (X[ii][k] < lb[k]) {
@@ -168,9 +185,11 @@ void firefly::evolve(population &pop) const
 					prob.objfun(fit[ii], X[ii]);
 				}
 			}
+
 			//Best firefly moves randomly
+			/*
 			for(problem::base::size_type k=0; k < Dc; ++k) {
-				X[best_firefly][k] = X[best_firefly][k] + boost::uniform_real<double>(-m_alpha,m_alpha)(m_drng);
+				X[best_firefly][k] = X[best_firefly][k] + boost::uniform_real<double>(lb[k]*m_alpha,m_alpha*ub[k])(m_drng);
 				
 				//check constraints
 				if (X[best_firefly][k] < lb[k]) {
@@ -182,6 +201,7 @@ void firefly::evolve(population &pop) const
 			}
 			pop.set_x(best_firefly,X[best_firefly]);
 			prob.objfun(fit[best_firefly], X[best_firefly]);
+			*/
 		}
 	} // end of main Firefly loop
 

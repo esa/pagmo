@@ -133,6 +133,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::bee_colony>("bee_colony","Artificial Bee Colony optimization (ABC) algorithm.")
 		.def(init<int,optional<int> >());
 	
+	// Firefly (FA).
+	algorithm_wrapper<algorithm::firefly>("firefly","Firefly optimization algorithm.")
+		.def(init<int,optional<double, double, double> >());
+	
 	// Monotonic Basin Hopping.
 	algorithm_wrapper<algorithm::mbh>("mbh","Monotonic Basin Hopping.")
 		.def(init<const algorithm::base &,optional<int, double> >());
