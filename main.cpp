@@ -27,7 +27,9 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include"src/pagmo.h"
+
+#include "src/pagmo.h"
+#include "src/keplerian_toolbox/keplerian_toolbox.h"
 
 using namespace pagmo;
 using namespace kep_toolbox;
@@ -35,14 +37,7 @@ using namespace kep_toolbox;
 int main()
 {
 
-	algorithm::de algo(1);
-	problem::inventory prob(2,1000000);
-	island isl(prob,algo,20);
-	for (int i = 1; i< 20; ++i) {
-		isl.evolve();
-		isl.join();
-		std::cout << isl.get_population().get_individual(isl.get_population().get_best_idx()).cur_f << isl.get_population().get_individual(isl.get_population().get_best_idx()).cur_x << std::endl;
-	}
+	std::cout << asteroid_gtoc2(910) << std::endl;
 
 	return 0;
 }

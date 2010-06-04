@@ -29,6 +29,7 @@
 #include"planet.h"
 #include"planet_ss.h"
 #include"planet_mpcorb.h"
+#include"asteroid_gtoc2.h"
 #include"core_functions/array3D_operations.h"
 #include"core_functions/convert_anomalies.h"
 #include"core_functions/convert_dates.h"

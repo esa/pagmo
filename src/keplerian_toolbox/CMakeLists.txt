@@ -22,10 +22,10 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/../../external_headers")
 # Keplerian_toolbox lib source files.
 SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/epoch.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/planet.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sims_flanagan/leg.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sims_flanagan/fb_traj.cpp
-    )
+	${CMAKE_CURRENT_SOURCE_DIR}/planet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sims_flanagan/leg.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sims_flanagan/fb_traj.cpp
+	)
 
 ADD_LIBRARY(keplerian_toolbox_static STATIC ${PAGMO_LIB_SRC_LIST})
 
