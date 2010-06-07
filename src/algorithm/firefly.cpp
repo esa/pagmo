@@ -46,7 +46,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] alpha define the width of the random vector
  * @param[in] beta define the maximum attractiveness
  * @param[in] gamma define the absorption coefficent
- * @throws value_error if number of iterations or limit are negative
+ * @throws value_error if number of iterations is negativo or alpha, beta and gamma are not in [0,1]
  */
 firefly::firefly(int iter, double alpha, double beta, double gamma):base(),m_iter(iter), m_alpha(alpha), m_beta(beta), m_gamma(gamma) {
 	if (iter < 0) {
@@ -186,22 +186,6 @@ void firefly::evolve(population &pop) const
 				}
 			}
 
-			//Best firefly moves randomly
-			/*
-			for(problem::base::size_type k=0; k < Dc; ++k) {
-				X[best_firefly][k] = X[best_firefly][k] + boost::uniform_real<double>(lb[k]*m_alpha,m_alpha*ub[k])(m_drng);
-				
-				//check constraints
-				if (X[best_firefly][k] < lb[k]) {
-					X[best_firefly][k] = lb[k];
-				}			
-				if (X[best_firefly][k] > ub[k]) {
-					X[best_firefly][k] = ub[k];
-				}
-			}
-			pop.set_x(best_firefly,X[best_firefly]);
-			prob.objfun(fit[best_firefly], X[best_firefly]);
-			*/
 		}
 	} // end of main Firefly loop
 

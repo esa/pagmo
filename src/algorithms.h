@@ -39,6 +39,7 @@
 #include "algorithm/sga.h"
 #include "algorithm/bee_colony.h"
 #include "algorithm/firefly.h"
+#include "algorithm/cross_entropy.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

@@ -66,10 +66,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 4;
-	int number_of_individuals = 20;
+	int number_of_islands = 5;
+	int number_of_individuals = 50;
 	//int evolution_time = 1000;
-	int number_of_migrations = 4;
+	int number_of_migrations = 1;
 
 	//1 - We instantiate the problems
 	problem::griewank prob1(10);
@@ -88,6 +88,7 @@ int main()
 	algorithm::ihs algo5(500);
 	algorithm::sa_corana algo6(500,1,0.001);
 	algorithm::firefly algo7(500);
+	algorithm::cross_entropy algo8(500);
 	
 
 	//b - We instantiate the topologies
@@ -99,12 +100,13 @@ int main()
 	//3 - We build a container of algorithms
 	std::vector<algorithm::base_ptr> algo;
 	algo.push_back(algo1.clone());
-	algo.push_back(algo2.clone());
+//	algo.push_back(algo2.clone());
 	algo.push_back(algo3.clone());
-	algo.push_back(algo4.clone());
-	algo.push_back(algo5.clone());
-	algo.push_back(algo6.clone());
-	algo.push_back(algo7.clone());
+//	algo.push_back(algo4.clone());
+//	algo.push_back(algo5.clone());
+//	algo.push_back(algo6.clone());
+//	algo.push_back(algo7.clone());
+	algo.push_back(algo8.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
@@ -119,9 +121,9 @@ int main()
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
 	topo.push_back(topo1.clone());
-	topo.push_back(topo2.clone());
-	topo.push_back(topo3.clone());
-	topo.push_back(topo4.clone());
+	//topo.push_back(topo2.clone());
+//	topo.push_back(topo3.clone());
+//	topo.push_back(topo4.clone());
 
 	for (unsigned int pr=0; pr<prob.size();++pr) {
 		std::cout << std::endl << "\nProblem: " << prob[pr]->get_name() << std::endl;

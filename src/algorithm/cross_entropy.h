@@ -22,45 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_FIREFLY_H
-#define PAGMO_ALGORITHM_FIREFLY_H
+#ifndef PAGMO_ALGORITHM_CROSS_ENTROPY_H
+#define PAGMO_ALGORITHM_CROSS_ENTROPY_H
 
 #include "../config.h"
 #include "base.h"
 #include "../population.h"
+#include "../types.h"
 #include <string>
 
 
 
 namespace pagmo { namespace algorithm {
 
-/// The Firefly algorithm(FA)
+/// The Cross Entropy method (CE)
 /**
- * The firefly algorithm (FA) is a metaheuristic algorithm, inspired by the flashing behaviour of fireflies.
+ * The cross-entropy (CE) method attributed to Reuven Rubinstein is a general Monte Carlo approach to combinatorial and continuous multi-extremal optimization and importance sampling.
  *
  * At each call of the evolve method a number of function evaluations equal
  * to iter * pop.size() is performed.
  *
- * NOTE: when called on mixed-integer problems Firefly treats the integer part as fixed and optimizes
- * the continuous part.
- *
- * The algorithm used is the one provided in the first paper attached with 2 differences:
- *
- * \f[ \gamma ]\f is calculated with the adaptive method explained in the second paper attached (Equation 3)
- * The attactiveness is calculated as \f[ \beta = \beta_0 \exp(-\gamma r) ]\f
- *
- * These modifications make the algorithm perform better on all the test problems we experimented.
- *
- * @see http://arxiv.org/abs/1003.1466
- * @see http://www.springerlink.com/content/au3w21311g465007/
+ * @see http://ie.technion.ac.il/CE/files/Misc/tutorial.pdf
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
 
-class __PAGMO_VISIBLE firefly: public base
+class __PAGMO_VISIBLE cross_entropy: public base
 {
 public:
-	firefly(int iter, double alpha = 0.01, double beta = 1.0, double gamma = 0.8);
+	cross_entropy(int iter, double fraction_elite = 0.1);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -68,12 +58,11 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	const int m_iter;
-	const double m_alpha;
-	const double m_beta;
-	const double m_gamma;
-
+	const double m_fraction_elite;
+	static decision_vector	calculate_mean(std::vector<decision_vector>);
+	static decision_vector calculate_std(std::vector<decision_vector>, decision_vector);
 };
 
 }} //namespaces
 
-#endif // FIREFLY_H
+#endif // CROSS_ENTROY_H

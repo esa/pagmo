@@ -5,6 +5,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cross_entropy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
