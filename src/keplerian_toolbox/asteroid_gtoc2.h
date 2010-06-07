@@ -29,22 +29,36 @@
 
 namespace kep_toolbox{
 
-/// Solar System Planet (keplerian)
+/// A GTOC2 asteroid
 /**
- * This class derives from the planet class and allow to instantiate planets of
- * the solar system by referring to their common names.
+ * This class derives from the planet class and allow to instantiate asteroids
+ *  from the Global Trajectory Optimization Competition (GTOC) 2nd edition
  *
+ * @see http://www.esa.int/gsp/ACT/mad/op/GTOC/index.htm
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
 
 class asteroid_gtoc2 : public planet
 {
 public:
+	/// Constructor
 	/**
-	 * Construct a planet from its common name (e.g. VENUS)
+	 * Construct from a consecutive id from 0 to 910 (Earth). The order is that of the original
+	 * data file from JPL
+	 * Group 1:   0 - 95
+	 * Group 2:  96 - 271
+	 * Group 3: 272 - 571
+	 * Group 4: 572 - 909
+	 * Earth:   910
 	 * \param[in] name a string describing a planet
 	 */
 	asteroid_gtoc2(const int &);
+
+	/// Getter
+	/**
+	 * Gets the group id of the asteroid as defined in the original JPL data file
+	 *
+	 */
 	int get_group() const;
 private:
 	int m_group;
