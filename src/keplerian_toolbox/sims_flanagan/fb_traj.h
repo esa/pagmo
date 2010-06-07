@@ -88,7 +88,7 @@ public:
 	/// Sets the trajectory flight plan from a full_vector
 	/**
 	     * Sets the trajectory flight plan from a full_vector. The function essentially loads into the object
-	     * fb_traj the unstructured information contained in a full_vector and calculates all te different
+	     * fb_traj the unstructured information contained in a full_vector and calculates all the different
 	     * constraints related to such a vector storing them in the class private members
 	     *
 	     * \param[in] x Full-vector encoding the trajectory flight-plan. (check full_vector for the encoding rules)

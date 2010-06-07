@@ -32,10 +32,11 @@ namespace kep_toolbox{
 /// A GTOC2 asteroid
 /**
  * This class derives from the planet class and allow to instantiate asteroids
- *  from the Global Trajectory Optimization Competition (GTOC) 2nd edition
+ * from the Global Trajectory Optimization Competition (GTOC) 2nd edition
  *
  * @see http://www.esa.int/gsp/ACT/mad/op/GTOC/index.htm
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 
 class asteroid_gtoc2 : public planet

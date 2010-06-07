@@ -5,44 +5,47 @@
 #include "../astro_constants.h"
 #include <numeric>
 
-namespace kep_toolbox {
-/// Objects dealing with the Sims-Flanagan low-thrus trajectory model
+namespace kep_toolbox { namespace sims_flanagan{
+
+/// A single throttle
 /**
- * This namespace contains the routines that allow building and evaluating low-thrust trajectories using the
- * Sims-Flanagan type of approach.
+ * This class models a single throttle in the Sims-Flanagan model. It essentialy contains the cartesian
+ * components of one throttle (non dimensional impulse)
+ *impulse
+ * @author David di Lorenzo
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
-    namespace sims_flanagan{
 
-	class throttle {
-	public:
-	    throttle() {}
-	    
-	    throttle(epoch _start, epoch _end, const array3D& _value)
-		: start(_start), end(_end), value(_value) {}
+class throttle {
+public:
+	throttle() {}
 
-	    epoch get_start() const {
-		return start;
-	    }
-	    
-	    epoch get_end() const {
-		return end;
-	    }
+	throttle(epoch _start, epoch _end, const array3D& _value)
+		: m_start(_start), m_end(_end), m_value(_value) {}
 
-	    const array3D& get_value() const {
-		return value;
-	    }
+	epoch get_start() const {
+		return m_start;
+	}
 
-	    double get_norm() const {
-		return std::sqrt(std::inner_product(value.begin(), value.end(), value.begin(), 0.));
-	    }
+	epoch get_end() const {
+		return m_end;
+	}
 
-	    
-	private:
-	    epoch start;
-	    epoch end;
-	    array3D value;
-	};
-    };
+	const array3D& get_value() const {
+		return m_value;
+	}
+
+	double get_norm() const {
+		return std::sqrt(std::inner_product(m_value.begin(), m_value.end(), m_value.begin(), 0.));
+	}
+
+
+private:
+	epoch m_start;
+	epoch m_end;
+	array3D m_value;
 };
+
+}} //namespaces
 
 #endif

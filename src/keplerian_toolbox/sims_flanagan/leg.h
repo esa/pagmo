@@ -25,12 +25,12 @@
 #ifndef LEG_H
 #define LEG_H
 
-#include<vector>
-#include"../spacecraft.h"
-#include"../core_functions/array3D_operations.h"
-#include"../core_functions/propagate_lagrangian.h"
-#include"sc_state.h"
-#include"../epoch.h"
+#include <vector>
+#include "../spacecraft.h"
+#include "../core_functions/array3D_operations.h"
+#include "../core_functions/propagate_lagrangian.h"
+#include "sc_state.h"
+#include "../epoch.h"
 #include "throttle.h"
 #include "../exceptions.h"
 
@@ -49,9 +49,9 @@ namespace sims_flanagan{
  * The leg achieves to transfer a given spacecraft from an initial to a final state in the
  * time given (and can be considered as feasible) whenever the method evaluate_mismatch
  * returns all zeros and the method get_throttles_con returns all values less than zero.
- * Different impulses are coded by 'throttles'. These represent
+ * Th sequence of different impulses is represented by the class throttles. These represent
  * the cartesian components \f$ \mathbf x = (x_1,y_1,z_1) \f$ of a normalized \f$ \Delta V \f$ and are thus
- * numbers in the range \f$ \in [0,1] \f$ that need to satisfy the constraint \f$|\mathbf x| \le 1\f$
+ * numbers that need to satisfy the constraint \f$|\mathbf x| \le 1\f$
  *
  * \image html sims_flanagan_leg.png "Visualization of a feasible leg (Earth-Mars)"
  * \image latex sims_flanagan_leg.png "Visualization of a feasible leg (Earth-Mars)" width=5cm
@@ -65,23 +65,21 @@ class leg
 public:
 	/// Constructor.
 	/**
-	 * Constructs a leg without initialising any of its members. This constructor needs to
-	 * be followed by a call to the setters to initialize all of its contents and is provided only
-	 * to allow other classes to call a default constructor for this class.
+	 * Default constructor.
 	 */
 	leg() {}
 
 	/// Initialize a leg
 	/**
-	 * Initialize a leg assuming that the user has or will initialize separately the spacecraft
-	 * and the central body gravity parameter. The throttles are provided via two iterators pointing
-	 * to the beginning and to the end of a sequence of doubles containing the cartesian components
-	 * \f$ (x_1,y_1,z_1,x_2,y_2,z_2,...) \f$ of the throttles \f$ x_i,y_i,z_i \in [0,1]\f$. Needs to have dimension \f$ 3n \f$.
+	 * Initialize a leg assuming that the user has or will initialize separately the spacecraft.
+	 * The throttles are provided via two iterators pointing
+	 * to the beginning and to the end of a throttle sequence. Each throttle is assumed to be represented
+	 * in cartesian coordinates: \f$ x_i,y_i,z_i \in [0,1]\f$.
 	 *
 	 * \param[in] epoch_i Inital epoch
 	 * \param[in] state_i Initial sc_state (spacecraft state)
-	 * \param[in] throttles_start iterator pointing to the beginning of a cartesian throttle sequence. Throttles are numbers between 0 and 1.
-	 * \param[in] throttles_end iterator pointing to the end+1 of a cartesian throttle sequence. Throttles are numbers between 0 and 1.
+	 * \param[in] throttles_start iterator pointing to the beginning of a cartesian throttle sequence.
+	 * \param[in] throttles_end iterator pointing to the end+1 of a cartesian throttle sequence.
 	 * \param[in] epoch_f Final epoch. Needs to be later than epoch_i
 	 * \param[in] state_f Final sc_state (spacecraft state)
 	 * \param[in] mu_ Primary body gravitational constant
@@ -250,7 +248,7 @@ public:
 	/**
 	 * This is the main method of the class leg as it performs the orbital propagation from the initial sc_state, and
 	 * accounting for all the throttles, up to a mid-point. The same is done starting from the final sc_state up to
-	 * the same mid-point. The difference between the obtained values is then recorded at the memory location pointd by the iterators
+	 * the same mid-point. The difference between the obtained values is then recorded at the memory location pointed by the iterators
 	* If not all zero the leg is unfeasible. The values stored are \f$\mathbf r, \mathbf v, m\f$
 	 *
 	 * @param[in] begin iterator pointing to the beginning of the memory where the mismatches will be stored
@@ -332,8 +330,7 @@ public:
 	 * This method overloads the same method using iterators but the mismatch values are stored
 	 * in a sc_state object
 	 *
-	 * @param[in] begin iterator pointing to the beginning of the memory where the mismatches will be stored
-	 * @param[in] begin iterator pointing to the end of the memory where the mismatches will be stored
+	 * @param[in] retval the state mismatch structured as a spacecraft state
 	 */
 	void get_mismatch_con(sc_state& retval) const
 	{
@@ -353,7 +350,7 @@ public:
 	 * @param[out] start std::vector<double>iterator to the last+1 element where to store the magnitudes
 	 */
 	template<typename it_type>
-			void get_throttles_con(it_type start, it_type end) const {
+		void get_throttles_con(it_type start, it_type end) const {
 		if ( (end - start) != (int)throttles.size()) {
 			throw_value_error("Iterators distance is incompatible with the throttles size");
 		}
