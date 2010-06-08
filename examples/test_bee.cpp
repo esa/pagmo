@@ -67,18 +67,18 @@ int main()
 
 	//0 - Experiment parameters
 	int number_of_islands = 5;
-	int number_of_individuals = 50;
+	int number_of_individuals = 100;
 	//int evolution_time = 1000;
 	int number_of_migrations = 1;
 
 	//1 - We instantiate the problems
-	problem::griewank prob1(10);
+	problem::griewank prob7(10);
 	problem::rastrigin prob2(10);
 	problem::rosenbrock  prob3(10);
 	problem::ackley prob4(10);
 	problem::schwefel prob5(10);
 	problem::michalewicz prob6(10);
-	problem::dejong prob7(10);
+	problem::dejong prob1(10);
 
 	//2 - We instantiate the algorithms
 	algorithm::sga algo1(500,0.95,0.1);
@@ -88,7 +88,7 @@ int main()
 	algorithm::ihs algo5(500);
 	algorithm::sa_corana algo6(500,1,0.001);
 	algorithm::firefly algo7(500);
-	algorithm::cross_entropy algo8(500);
+	algorithm::cross_entropy algo8(500, 0.1);
 	
 
 	//b - We instantiate the topologies

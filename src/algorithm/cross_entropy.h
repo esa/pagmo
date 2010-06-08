@@ -50,7 +50,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cross_entropy: public base
 {
 public:
-	cross_entropy(int iter, double fraction_elite = 0.1);
+	cross_entropy(int iter, double fraction_elite = 0.1, double alpha = 0.8, double beta = 0.9);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -59,6 +59,8 @@ protected:
 private:
 	const int m_iter;
 	const double m_fraction_elite;
+	const double m_alpha;
+	const double m_beta;
 	static decision_vector	calculate_mean(std::vector<decision_vector>);
 	static decision_vector calculate_std(std::vector<decision_vector>, decision_vector);
 };

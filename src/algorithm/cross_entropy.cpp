@@ -45,8 +45,11 @@ namespace pagmo { namespace algorithm {
  *
  * @param[in] iter number of iterations
  * @param[in] fraction_elite the fraction of samples to be considered elite
- */
-cross_entropy::cross_entropy(int iter, double fraction_elite):base(),m_iter(iter),m_fraction_elite(fraction_elite) {
+ * @param[in] alpha mean smothing factor
+ * @param[in] beta standard deviation smothing factor
+ * 
+ * */
+cross_entropy::cross_entropy(int iter, double fraction_elite, double alpha, double beta):base(),m_iter(iter),m_fraction_elite(fraction_elite),m_alpha(alpha),m_beta(beta) {
 }
 
 /// Clone method.
@@ -98,8 +101,10 @@ void cross_entropy::evolve(population &pop) const
 	std::vector<decision_vector> X(NP,dummy);	    //set of individuals
 	std::vector<decision_vector> temp_X(Nelite,dummy);  //set of individuals
 	std::vector<std::pair<fitness_vector,int> > fit(NP); 	    //set of individual's fitness
-	decision_vector population_mean(Dc,0);   	    //population's mean value
+	decision_vector population_mean(Dc,0);   	    //population's mean
+	decision_vector tmp_population_mean(Dc,0);   	    //population's mean
 	decision_vector population_std(Dc,0);               //population's standard deviation
+	decision_vector tmp_population_std(Dc,0);               //population's standard deviation
 
 	// Get population and fitness
 	for ( population::size_type i = 0; i<NP; i++ ) {
@@ -110,7 +115,7 @@ void cross_entropy::evolve(population &pop) const
 
 	population_mean = calculate_mean(X);
 	population_std = calculate_std(X, population_mean);
-
+	
 	//Main CE loop
 	for(int t = 0; t < m_iter; ++t) {
 		for(population::size_type i = 0; i < NP; ++i) {
@@ -124,7 +129,6 @@ void cross_entropy::evolve(population &pop) const
 				if (X[i][k] > ub[k]) {
 					X[i][k] = ub[k];
 				}
-
 			}
 			pop.set_x(i,X[i]);
 			prob.objfun(fit[i].first, X[i]);
@@ -134,12 +138,20 @@ void cross_entropy::evolve(population &pop) const
 
 		//get the best Nelite individuals according to the fitness
 		for(population::size_type i = 0; i < Nelite; ++i) {
-			temp_X[i] = X[fit[NP-i-1].second];
+			temp_X[i] = X[fit[i].second];
 		}
 
 		//calculate mean and std on these best individuals
-		population_mean = calculate_mean(temp_X);
-		population_std = calculate_std(temp_X, population_mean);
+		tmp_population_mean = calculate_mean(temp_X);
+		tmp_population_std = calculate_std(temp_X, population_mean);
+		
+		double beta = m_beta - m_beta * pow((1.0 - 1.0/t),7);
+		
+		//smooth mean and standard deviation with old ones
+		for(problem::base::size_type k=0; k < Dc; ++k) {
+			population_mean[k] = m_alpha * tmp_population_mean[k] + (1-m_alpha)*population_mean[k];
+			population_std[k] = beta * tmp_population_std[k] + (1-beta)*population_std[k];
+		}
 	}
 	
 }
