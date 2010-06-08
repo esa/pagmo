@@ -1,0 +1,1 @@
+/usr/bin/c++    -Wall -Wextra -Wdisabled-optimization -fmessage-length=0 -Wnon-virtual-dtor -Wno-missing-field-initializers -fno-strict-aliasing -Wno-deprecated -pthread -O3 -DNDEBUG   CMakeFiles/migrate_or_not.dir/migrate_or_not.o  -o migrate_or_not -rdynamic -lpthread ../src/libpagmo_static.a 

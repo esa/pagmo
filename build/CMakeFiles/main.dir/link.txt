@@ -1,0 +1,1 @@
+/usr/bin/c++    -Wall -Wextra -Wdisabled-optimization -fmessage-length=0 -Wnon-virtual-dtor -Wno-missing-field-initializers -fno-strict-aliasing -Wno-deprecated -pthread -O3 -DNDEBUG   CMakeFiles/main.dir/main.o  -o main -rdynamic src/libpagmo_static.a -lpthread 
