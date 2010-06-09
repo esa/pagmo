@@ -40,7 +40,7 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 
 gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg, objective obj):
-	base(12 * n_seg + 15,0,1,7 * 4 + n_seg * 4 + 1, n_seg * 4 + 1, 1E-9),
+	base(12 * n_seg + 15,0,1,7 * 4 + n_seg * 4 + 1, n_seg * 4 + 1, 1E-6),
 	m_n_seg(n_seg),m_spacecraft(1500.,.1,4000.),m_obj(obj)
 {
 	if (n_seg <= 0) {
@@ -169,6 +169,7 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 			c[7 * i + j] /= ASTRO_AU;
 			c[7 * i + j + 3] /= ASTRO_EARTH_VELOCITY;
 		}
+		c[7*i+6] /=1500;
 	}
 	// Throttles constraints.
 	for (int i = 0; i < 4; ++i) {
