@@ -35,6 +35,7 @@
 #define ASTRO_RAD2DEG (180.0/*boost::math::constants::pi<double>()*/ /M_PI)
 #define ASTRO_DAY2SEC 86400.0 //needs to be a double
 #define ASTRO_SEC2DAY 1.157407407407407407407407407e-05
+#define ASTRO_DAY2YEAR (1. / 365.25)
 #define ASTRO_G0 9.80665
 
 //This is used as a numerical proceure (e.g. newton-raphson or runge-kutta) stopping criteria

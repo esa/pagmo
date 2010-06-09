@@ -67,7 +67,7 @@ int main()
 
 	algorithm::sa_corana algo1(10000,1,0.01);
 	algorithm::de algo2(500,0.8,0.8,3);
-#ifdef DPAGMO_ENABLE_NLOPT
+#ifdef PAGMO_ENABLE_NLOPT
 	algorithm::nlopt_sbplx algo3(500,1e-4);
 #else
 	algorithm::cs algo3(500,0.0001,0.1);

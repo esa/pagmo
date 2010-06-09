@@ -246,7 +246,7 @@ void snopt::evolve(population &pop) const
 	SnoptProblem.setF          ( F, Flow, Fupp, Fmul, Fstate );
 	SnoptProblem.setXNames     ( xnames, nxnames );
 	SnoptProblem.setFNames     ( Fnames, nFnames );
-	SnoptProblem.setProbName   ( name.substr(17,8).c_str() ); //This is limited to be 8 characters!!!
+	SnoptProblem.setProbName   ( name.c_str() ); //This is limited to be 8 characters!!!
 	SnoptProblem.setUserFun    ( snopt_function_ );
 
 	//We set some parameters

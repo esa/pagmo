@@ -41,6 +41,7 @@
 #include"sims_flanagan/fb_traj.h"
 #include"sims_flanagan/leg.h"
 #include"sims_flanagan/sc_state.h"
+#include"sims_flanagan/spacecraft.h"
 #include"sims_flanagan/throttle.h"
 #include"astro_constants.h"
 
