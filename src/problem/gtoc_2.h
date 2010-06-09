@@ -35,13 +35,24 @@
 
 namespace pagmo { namespace problem {
 
+
+/// GTOC_2 Low-Thrust Multiple Asteroid Randezvous Problem
+/**
+ * This is the problem given by Jet Propulsion Laboratories as the 2nd Global Trajectory
+ * Optimization Competition. It is transcribed assembling 4 Sims-Flanagan trajectories legs
+ *
+ * @see http://www.esa.int/gsp/ACT/inf/op/globopt/evevejsa.htm
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
 class __PAGMO_VISIBLE gtoc_2: public base
 {
 	public:
-		gtoc_2(int, int, int, int, int = 10);
+		enum objective {MASS,TIME,MASS_TIME};
+		gtoc_2(int, int, int, int, int = 10, objective = MASS_TIME);
 		base_ptr clone() const;
-// 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
+//		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 		std::string get_name() const;
+;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
@@ -62,6 +73,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 		std::vector<kep_toolbox::asteroid_gtoc2>		m_asteroids;
 		mutable std::vector<kep_toolbox::sims_flanagan::leg>	m_legs;
 		const kep_toolbox::spacecraft				m_spacecraft;
+		objective						m_obj;
 };
 
 } } // namespaces

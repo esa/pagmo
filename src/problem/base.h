@@ -40,6 +40,7 @@
 #include "../config.h"
 #include "../exceptions.h"
 #include "../types.h"
+#include "../rng.h"
 
 namespace pagmo
 {
@@ -400,6 +401,7 @@ return base_ptr(new derived_problem(*this));
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 		void estimate_sparsity(const decision_vector &, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
+		void estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
 		bool test_constraint(const constraint_vector &, const c_size_type &) const;
 	public:
 		virtual void set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;

@@ -39,9 +39,9 @@ using namespace kep_toolbox::sims_flanagan;
 
 namespace pagmo { namespace problem {
 
-gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg):
+gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg, objective obj):
 	base(12 * n_seg + 15,0,1,7 * 4 + n_seg * 4 + 1, n_seg * 4 + 1, 1E-9),
-	m_n_seg(n_seg),m_spacecraft(1500.,.1,4000.)
+	m_n_seg(n_seg),m_spacecraft(1500.,.1,4000.),m_obj(obj)
 {
 	if (n_seg <= 0) {
 		pagmo_throw(value_error,"invalid number of segments");
@@ -76,14 +76,14 @@ gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg):
 	for (int i = 0; i < 3; ++i) {
 		// Flight time.
 		lb_v.push_back(5);
-		ub_v.push_back(1800);
+		ub_v.push_back(3600);
 		// Waiting time.
 		lb_v.push_back(90);
 		ub_v.push_back(500);
 	}
 	// Final transfer time.
 	lb_v.push_back(5);
-	ub_v.push_back(1000);
+	ub_v.push_back(3600);
 	// Masses.
 	for (int i = 0; i < 4; ++i) {
 		lb_v.push_back(500);
@@ -110,7 +110,16 @@ base_ptr gtoc_2::clone() const
 void gtoc_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	// Objective function is m_f / t_f.
-	f[0] = x[11] / (std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR);
+	switch (m_obj){
+		case MASS:
+			f[0] = - x[11];
+			break;
+		case TIME:
+			f[0] = (std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR);
+			break;
+		case MASS_TIME:
+			f[0] = - x[11] / (std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR);
+	}
 }
 
 
@@ -170,16 +179,10 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 }
 
 /// Implementation of the sparsity structure: automated detection
-// void gtoc_2::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+//void gtoc_2::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 // {
-// 	//Initial point
-// 	decision_vector x0(get_dimension());
-// 	for (pagmo::decision_vector::size_type i = 0; i<x0.size(); ++i)
-// 	{
-// 		x0[i] = get_lb()[i] + (get_ub()[i] - get_lb()[i]) / 3.12345;
-// 	}
-// 	//Numerical procedure
-// 	estimate_sparsity(x0, lenG, iGfun, jGvar);
+//	//Numerical procedure
+//	estimate_sparsity(lenG, iGfun, jGvar);
 // }
 
 std::string gtoc_2::get_name() const

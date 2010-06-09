@@ -51,10 +51,10 @@ int main()
 
 	//Set the Turin solution epochs
  	decision_vector tmp = pop.get_individual(0).cur_x;
- 	tmp[0] = 59870; tmp[1] = 60283 - 59870; tmp[2] = 60373 - 60283;
+	tmp[0] = 59870; tmp[1] = 60283 - 59870; tmp[2] = 60373 - 60283;
  	tmp[3] = 61979 - 60373; tmp[4] = 62069 - 61979; tmp[5] = 62647 - 62069;
- 	tmp[6] = 62737 - 62647; tmp [7] = 63196 - 62737;
- 	//tmp[8] = 1300; tmp[9] = 1100; tmp[10]= 900; tmp[11] = 700;
+	tmp[6] = 62737 - 62647; tmp [7] = 63196 - 62737;
+	tmp[8] = 1400; tmp[9] = 1200; tmp[10]= 1100; tmp[11] = 1000;
  	pop.set_x(0, tmp);
 
 	//Instantiate the algorithm

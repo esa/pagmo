@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/random/uniform_real.hpp>
 #include <boost/ref.hpp>
 #include <cmath>
 #include <climits>
@@ -1123,7 +1124,7 @@ void base::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jG
 	pagmo_throw(not_implemented_error,"sparsity is not implemented for this problem");
 }
 
-/// Tries to evaluate the sparsity pattern of the problem
+/// Heuristics to estimate the sparsity pattern of the problem
 /**
  * An alternative to reimplementing the base::set_pattern() method, one could let pagmo estimate
  * the sparsity structure of a given problem. The numerical procedure starts from a point \f$ \mathbf x_0 \f$
@@ -1163,6 +1164,57 @@ void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<i
 			if (f_new[i]!=f0[i]) {iGfun.push_back(i); jGvar.push_back(j); lenG++;}
 		}
 		for (size_type i=0;i<m_c_dimension;++i)
+		{
+			if (c_new[i]!=c0[i]) {iGfun.push_back(i+m_f_dimension); jGvar.push_back(j); lenG++;}
+		}
+		x_new[j] = x0[j];
+	}
+
+}
+
+/// Heuristics to estimate the sparsity pattern of the problem
+/**
+ * An alternative to reimplementing the base::set_pattern() method, one can let pagmo estimate
+ * the sparsity structure of a given problem. This numerical procedure starts from a random point \f$ \mathbf x_0 \f$
+ * provided by the user and perturbs \f$ x_j \f$ globally within the bounds as to detect a change in \f$ F_i \f$
+ * in which case sets(i,j) as a non zero element.
+ * You should use this procedure with caution, it is always better to manually code the sparsity pattern
+ * in set_pattern(). The procedure costs function evaluations and is not guaranteed to give
+ * a correct result. The function intended use is in the reimplementation of set_sparsity, thuse its protected attribute
+ */
+void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const {
+
+	size_type Dc = m_lb.size() - m_i_dimension;
+	fitness_vector f0(m_f_dimension),f_new(m_f_dimension);
+	decision_vector x0(Dc);
+	// Double precision random number generator.
+	rng_double	drng(rng_generator::get<rng_double>());
+
+	for (decision_vector::size_type i = 0; i<Dc;++i) {
+		x0[i] = boost::uniform_real<double>(m_lb[i],m_ub[i])(drng);
+	}
+
+	objfun(f0,x0);
+	constraint_vector c0(m_c_dimension),c_new(m_c_dimension);
+	compute_constraints(c0,x0);
+	decision_vector x_new = x0;
+	iGfun.resize(0);jGvar.resize(0); lenG=0;
+
+	for (decision_vector::size_type j=0;j<Dc;++j)
+	{
+		//we perturb the component of x0 only if ub>lb, if ub=lb the variable is assumed
+		//to be 'just' a parameter ... in some problem implementations this is rather
+		//useful, but it also requires that the algorithm treat those variables accordingly (i.e.
+		//it does not allow a them to be outside the box bounds)
+		if (m_ub[j] == m_lb[j]) continue;
+		x_new[j] = boost::uniform_real<double>(m_lb[j],m_ub[j])(drng);
+		objfun(f_new,x_new);
+		compute_constraints(c_new,x_new);
+		for (fitness_vector::size_type i=0;i<m_f_dimension;++i)
+		{
+			if (f_new[i]!=f0[i]) {iGfun.push_back(i); jGvar.push_back(j); lenG++;}
+		}
+		for (constraint_vector::size_type i=0;i<m_c_dimension;++i)
 		{
 			if (c_new[i]!=c0[i]) {iGfun.push_back(i+m_f_dimension); jGvar.push_back(j); lenG++;}
 		}
