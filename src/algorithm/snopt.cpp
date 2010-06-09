@@ -254,8 +254,10 @@ void snopt::evolve(population &pop) const
 	if (m_file_out)   SnoptProblem.setPrintFile   ( name.c_str() );
 	SnoptProblem.setIntParameter ( "Derivative option", 0 );
 	SnoptProblem.setIntParameter ( "Major iterations limit", m_major);
+	SnoptProblem.setIntParameter ( "Iterations limit",100000);
 	SnoptProblem.setRealParameter( "Major feasibility tolerance", m_feas);
 	SnoptProblem.setRealParameter( "Major optimality tolerance", m_opt);
+
 
 	//We set the sparsity structure
 	int neG;
