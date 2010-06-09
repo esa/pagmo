@@ -67,5 +67,7 @@ int main()
 	//Solve the problem
 	isl.evolve();
 
+	std::cout << isl << '\n';
+
 	return 0;
 }

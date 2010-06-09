@@ -141,9 +141,6 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 		// Throttles.
 		for (int j = 0; j < m_n_seg; ++j) {
 			m_legs[i].set_throttle(j,get_nth_throttle(j,x.begin() + 15 + 3 * i * m_n_seg,start,end));
-// std::cout << get_nth_throttle(j,x.begin() + 15 + 3 * i * m_n_seg,start,end).get_start().mjd() << '\n';
-// std::cout << get_nth_throttle(j,x.begin() + 15 + 3 * i * m_n_seg,start,end).get_end().mjd() << '\n';
-// std::cout << get_nth_throttle(j,x.begin() + 15 + 3 * i * m_n_seg,start,end).get_norm() << '\n';
 		}
 		// Final state.
 		m_asteroids[i + 1].get_eph(end,r,v);
@@ -170,7 +167,6 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 	}
 	// Vinf constraint.
 	c.back() = (x[12] * x[12] + x[13] * x[13] + x[14] * x[14] - 3.5 * 3.5) / (ASTRO_EARTH_VELOCITY * ASTRO_EARTH_VELOCITY) * 1000000;
-//std::cout << c << '\n';
 }
 
 /// Implementation of the sparsity structure: automated detection
