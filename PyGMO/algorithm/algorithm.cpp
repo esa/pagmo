@@ -208,7 +208,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Snopt solver.
 	#ifdef PAGMO_ENABLE_SNOPT
 	algorithm_wrapper<algorithm::snopt>("snopt","Snopt solver.")
-		.def(init<int, optional<double, double> >());
+		.def(init<int, optional<double, double> >())
+		.def("screen_output",&algorithm::snopt::screen_output);
 	
 	#endif
 

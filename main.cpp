@@ -37,7 +37,7 @@ using namespace kep_toolbox;
 int main()
 {
 
-	problem::gtoc_2 prob(815,300,110,47,10);
+	problem::luksan_vlcek_1 prob(10);
 
 	population pop(prob,1);
 // 	decision_vector tmp = pop.get_individual(0).cur_x;
@@ -49,7 +49,7 @@ int main()
 	algorithm::snopt algo(1000,1E-9,1E-9);
 	algo.screen_output(true);
 	
-	island isl(pop,algorithm::mbh(algo));
+	island isl(pop,algo);
 
 	//std::cout << prob << std::endl;
 
