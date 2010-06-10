@@ -62,5 +62,6 @@
 #include "problem/earth_planet.h"
 #include "problem/michalewicz.h"
 #include "problem/dejong.h"
+#include "problem/tsp.h"
 
 #endif
