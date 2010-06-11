@@ -73,6 +73,7 @@ int main()
 	algorithm::cs algo3(500,0.0001,0.1);
 #endif
 
+	double Tmax = 600;
 	int i=0;
 	while(true) {
 		try {
@@ -85,7 +86,7 @@ int main()
 			if (elem[0] / ASTRO_AU < 1.8) {
 
 				//build the problem
-				problem::sample_return prob(target,600);
+				problem::sample_return prob(target,Tmax);
 
 				for (int k=0;k<n_multistart;++k){
 					std::cout << "\tTarget is: " << target.get_name() << ", Trial: " << k << std::endl;
@@ -103,7 +104,7 @@ int main()
 
 					//log
 					std::vector<double> x = a.get_island(0).get_population().champion().x;
-					double time = x[4] + x[6] + x[10];
+					double time = x[4] * Tmax + x[6] + x[10] * (1 - x[4]) * Tmax;
 					myfile << "[" << target.get_name() << "] %" << "[" << time << "] " << a.get_island(0).get_population().champion().f << " " << a.get_island(0).get_population().champion().x << std::endl;
 				}
 			}
