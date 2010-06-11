@@ -49,7 +49,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE sample_return: public base
 {
 	public:
-		sample_return(::kep_toolbox::planet asteroid);
+		sample_return(::kep_toolbox::planet asteroid, const double &Tmax = 600);
 		base_ptr clone() const;
 		std::string pretty(const std::vector<double> &x) const;
 		std::string get_name() const;
@@ -57,11 +57,12 @@ class __PAGMO_VISIBLE sample_return: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
-		const ::kep_toolbox::planet m_target;
-		mutable mgadsmproblem m_leg1;
-		mutable mgadsmproblem m_leg2;
-		mutable std::vector<double> x_leg1;
-		mutable std::vector<double> x_leg2;
+		const ::kep_toolbox::planet	m_target;
+		mutable mgadsmproblem		m_leg1;
+		mutable mgadsmproblem		m_leg2;
+		mutable std::vector<double>	x_leg1;
+		mutable std::vector<double>	x_leg2;
+		const double			m_Tmax;
 
 };
 

@@ -39,8 +39,25 @@ using namespace kep_toolbox::sims_flanagan;
 
 namespace pagmo { namespace problem {
 
+/// Problem Constructor
+/**
+ * Constructs a gtoc_2 problem from an asteroid sequence
+ *
+ * @param[in] ast1 id of the first asteroid to visit
+ * @param[in] ast2 id of the second asteroid to visit
+ * @param[in] ast3 id of the third asteroid to visit
+ * @param[in] ast4 id of the fourth asteroid to visit
+ * @param[in] n_seg number of segments to be used per leg
+ * @param[in] obj objective function in the enum {MASS,TIME,MASS_TIME}
+ *
+ * @throws value_error if the one or more asteroid belongs to the same group or if the
+ * selected number of segments is negative
+ *
+ * @see problem::base constructors.
+ */
+
 gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg, objective obj):
-	base(12 * n_seg + 15,0,1,7 * 4 + n_seg * 4 + 1, n_seg * 4 + 1, 1E-6),
+	base(12 * n_seg + 15,0,1,7 * 4 + n_seg * 4 + 1, n_seg * 4 + 1, 1E-3),
 	m_n_seg(n_seg),m_spacecraft(1500.,.1,4000.),m_obj(obj)
 {
 	if (n_seg <= 0) {
@@ -79,14 +96,14 @@ gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg, objective obj)
 		ub_v.push_back(3600);
 		// Waiting time.
 		lb_v.push_back(90);
-		ub_v.push_back(500);
+		ub_v.push_back(90);
 	}
 	// Final transfer time.
 	lb_v.push_back(5);
 	ub_v.push_back(3600);
 	// Masses.
 	for (int i = 0; i < 4; ++i) {
-		lb_v.push_back(500);
+		lb_v.push_back(100);
 		ub_v.push_back(1500);
 	}
 	// Vinf cartesian km/s.
@@ -198,5 +215,23 @@ std::string gtoc_2::human_readable_extra() const {
 	oss << std::endl;
 	return oss.str();
 }
+
+std::string gtoc_2::pretty(const std::vector<double> &x) const
+{
+	std::ostringstream s;
+	//We start by filling up the m_legs with the correct information
+	constraint_vector c(this->get_c_dimension());
+	this->compute_constraints_impl(c,x);
+	s << "Final Mass: " << x[11] << " Kg" << std::endl;
+	s << "Total Time: "  << std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR << " Years" << std::endl;
+	s << "Objective Function: " << x[11] / ( std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR )  << " Kg/Years" << std::endl;
+	for (int i=0; i<4;++i) s << this->m_legs[i] << std::endl;
+	s << std::endl;
+
+	return s.str();
+}
+
+
+
 
 }} // namespaces

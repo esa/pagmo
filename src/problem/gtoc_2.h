@@ -47,11 +47,14 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE gtoc_2: public base
 {
 	public:
+		/// The objective function can be defined as final mass, final time or mass/time
 		enum objective {MASS,TIME,MASS_TIME};
+		/// Constructor
 		gtoc_2(int, int, int, int, int = 10, objective = MASS_TIME);
 		base_ptr clone() const;
-//		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
+		//void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 		std::string get_name() const;
+		std::string pretty(const std::vector<double> &x) const;
 ;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

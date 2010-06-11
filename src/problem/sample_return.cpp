@@ -39,13 +39,13 @@ static const int AE[2] = {10,3};
 /**
  * Instantiates the sample_return problem
  */
-sample_return::sample_return(::kep_toolbox::planet asteroid):base(12), m_target(asteroid),
-	 m_leg1(total_DV_rndv,EA,2,0,0,0,0,0), m_leg2(total_DV_rndv,AE,2,0,0,0,0,0),x_leg1(6),x_leg2(6)
+sample_return::sample_return(::kep_toolbox::planet asteroid, const double &Tmax):base(12), m_target(asteroid),
+	 m_leg1(total_DV_rndv,EA,2,0,0,0,0,0), m_leg2(total_DV_rndv,AE,2,0,0,0,0,0),x_leg1(6),x_leg2(6),m_Tmax(Tmax)
 {
 	::kep_toolbox::epoch start_lw(2020,1,1);
-	::kep_toolbox::epoch end_lw(2050,1,1);
-	const double lb[12] = {start_lw.mjd2000(),0,0,0,5  ,0.001,  5 ,0,0,0,5,0.001};
-	const double ub[12] = {end_lw.mjd2000()  ,6,1,1,200,0.999,  100,6,1,1,200,0.999};
+	::kep_toolbox::epoch end_lw(2035,1,1);
+	const double lb[12] = {start_lw.mjd2000(),0  ,0,0,0.1  ,0.001, 20 ,0,0,0,0.1   ,0.001};
+	const double ub[12] = {end_lw.mjd2000()  ,5.5,1,1,0.7, 0.999, 50  ,6,1,1,1     ,0.999};
 	set_bounds(lb,lb+12,ub,ub+12);
 
 	for (int i = 0;i<6;++i)
@@ -79,13 +79,17 @@ void sample_return::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	//We split the decision vector in the two legs
 	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
 	std::copy(x.begin()+6,x.begin()+12,x_leg2.begin());
+
+	x_leg1[4] = x_leg1[4] * m_Tmax;
+	x_leg2[4] = (m_Tmax - x_leg1[4] - x_leg2[0]) * x_leg2[4];
+
 	//We account for the waiting time
 	x_leg2[0] += x_leg1[0] + x_leg1[4];
 	double dummy = 0;
 	MGA_DSM(x_leg1, m_leg1, dummy);
 	MGA_DSM(x_leg2, m_leg2, dummy);
 	f[0] = m_leg1.DV[0] + m_leg1.DV[1] + m_leg1.DV[2] +
-		m_leg2.DV[0] + m_leg2.DV[1] + std::max(0.0,m_leg2.DV[2] - 4.5);
+		m_leg2.DV[0] + m_leg2.DV[1] + std::max(0.0,m_leg2.DV[2] - 5.5);
 
 }
 

@@ -1154,7 +1154,7 @@ void base::estimate_sparsity(const decision_vector &x0, int& lenG, std::vector<i
 		//we perturb the component of x0 only if ub>lb, if ub=lb the variable is assumed
 		//to be 'just' a parameter ... in some problem implementations this is rather
 		//useful, but it also requires that the algorithm treat those variables accordingly (i.e.
-		//it does not allow a them to be outside the box bounds)
+		//it does not allow them to be outside the box bounds)
 		if (m_ub[j] == m_lb[j]) continue;
 		x_new[j] = x0[j] +  std::max(std::fabs(x0[j]), 1.0) * 1e-8;
 		objfun(f_new,x_new);
@@ -1205,7 +1205,7 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 		//we perturb the component of x0 only if ub>lb, if ub=lb the variable is assumed
 		//to be 'just' a parameter ... in some problem implementations this is rather
 		//useful, but it also requires that the algorithm treat those variables accordingly (i.e.
-		//it does not allow a them to be outside the box bounds)
+		//it does not allow them to go outside the box bounds)
 		if (m_ub[j] == m_lb[j]) continue;
 		x_new[j] = boost::uniform_real<double>(m_lb[j],m_ub[j])(drng);
 		objfun(f_new,x_new);

@@ -85,7 +85,7 @@ int main()
 			if (elem[0] / ASTRO_AU < 1.8) {
 
 				//build the problem
-				problem::sample_return prob(target);
+				problem::sample_return prob(target,600);
 
 				for (int k=0;k<n_multistart;++k){
 					std::cout << "\tTarget is: " << target.get_name() << ", Trial: " << k << std::endl;

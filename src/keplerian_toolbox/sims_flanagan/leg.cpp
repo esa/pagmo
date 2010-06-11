@@ -7,8 +7,7 @@
 #include <vector>
 #include <numeric>
 
-namespace kep_toolbox{
-    namespace sims_flanagan{
+namespace kep_toolbox{ namespace sims_flanagan{
 
 
 /// Overload the stream operator for kep_toolbox::sims_flanagan::leg
@@ -21,31 +20,31 @@ namespace kep_toolbox{
  * \return reference to s
  *
  */
-	std::ostream &operator<<(std::ostream &s, const leg &in ){
-	(void)in;
-/*	    s << "Number of segments: " << in.get_throttles_size() / 3 << std::endl;
-	    s << "Departure date: " << in.get_t_i() << ", mjd2000: " << in.get_t_i().mjd2000() << std::endl;
-	    s << "Arrival date: " << in.get_t_f() << ", mjd2000: " << in.get_t_f().mjd2000() << std::endl;
-	    s << "Initial mass: " << in.get_x_i().get_mass() << " kg" << std::endl;
-	    s << "Final mass: " << in.get_x_f().get_mass() << " kg" << std::endl;
-	    s << "Absolute velocity at departure: " << norm(in.get_x_i().get_velocity()) << " m/s" << std::endl;
-	    s << "Absolute velocity at arrival: " << norm(in.get_x_f().get_velocity()) << " m/s" << std::endl;
+std::ostream &operator<<(std::ostream &s, const leg &in ){
 
-	    s << std::endl << "Throttles values: " << std::endl;
-	    for (size_t i=0;i<in.get_throttles_size()/3;i++) {
+	s << "Number of segments: " << in.throttles.size() << std::endl;
+	s << "Departure date: " << in.get_t_i() << ", mjd2000: " << in.get_t_i().mjd2000() << std::endl;
+	s << "Arrival date: " << in.get_t_f() << ", mjd2000: " << in.get_t_f().mjd2000() << std::endl;
+	s << "Initial mass: " << in.get_x_i().get_mass() << " kg" << std::endl;
+	s << "Final mass: " << in.get_x_f().get_mass() << " kg" << std::endl;
+	s << "Absolute velocity at departure: " << norm(in.get_x_i().get_velocity()) << " m/s" << std::endl;
+	s << "Absolute velocity at arrival: " << norm(in.get_x_f().get_velocity()) << " m/s" << std::endl;
+
+	s << std::endl << "Throttles values: " << std::endl;
+	for (size_t i=0; i<in.get_throttles_size(); i++) {
 		s << "\t\t\t" << in.throttles[i].get_value()[0] << " " << in.throttles[i].get_value()[1] << " " << in.throttles[i].get_value()[2] << std::endl;
-	    }
-
-	    std::vector<double> temp(in.get_throttles_size()/3);
-	    in.get_throttles_con(temp.begin(), temp.end());
-	    sc_state mism; in.get_mismatch_con(mism);
-	    s << std::endl << "Mismatch at the midpoint: ";
-	    std::cout << mism << std::endl;
-	    s << "Throttle magnitude constraints: ";
-	    for (size_t i=0;i< in.get_throttles_size()/3;i++) std::cout << temp[i] << " ";
-	    std::cout << std::endl;*/
-	    return s;
 	}
-    }
-} //namespaces
+
+	std::vector<double> temp(in.get_throttles_size());
+	in.get_throttles_con(temp.begin(), temp.end());
+	sc_state mism; in.get_mismatch_con(mism);
+	s << std::endl << "Mismatch at the midpoint: ";
+	s << mism.get_position() << " " << mism.get_velocity() << " " << mism.get_mass() << std::endl;
+	s << "Throttle magnitude constraints: ";
+	for (size_t i=0;i< in.get_throttles_size();i++) s << temp[i] << " ";
+	s << std::endl;
+	return s;
+}
+
+}} //namespaces
 
