@@ -104,7 +104,7 @@ int main()
 
 					//log
 					std::vector<double> x = a.get_island(0).get_population().champion().x;
-					double time = x[4] * Tmax + x[6] + x[10] * (1 - x[4]) * Tmax;
+					double time = x[4] * Tmax + x[6] + x[10] * ((1 - x[4]) * Tmax - x[6]);
 					myfile << "[" << target.get_name() << "] %" << "[" << time << "] " << a.get_island(0).get_population().champion().f << " " << a.get_island(0).get_population().champion().x << std::endl;
 				}
 			}
