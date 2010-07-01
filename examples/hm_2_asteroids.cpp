@@ -111,6 +111,9 @@ int main()
 		} catch (value_error) {
 			std::cout << "The End!!!" << std::endl;
 			return 0;
+		} catch (boost::bad_lexical_cast) {
+			// An empty line might be present in MPCORB.DAT.
+			++i; //(next line!!)
 		}
 	}
 	return 0;

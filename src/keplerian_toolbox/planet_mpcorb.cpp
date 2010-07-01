@@ -118,7 +118,12 @@ planet_mpcorb::planet_mpcorb(int row)
 			tmp.clear();
 			tmp.append(&line[mpcorb_format[i][0]],mpcorb_format[i][1]);
 			boost::algorithm::trim(tmp);
-			elem[i] = boost::lexical_cast<double>(tmp);
+			try {
+				elem[i] = boost::lexical_cast<double>(tmp);
+			} catch (boost::bad_lexical_cast) {
+				std::cout << "Could not construct planet_mpcorb("<< row << "). Empty line?\n";
+				throw boost::bad_lexical_cast();
+			}
 		}
 		// Converting orbital elements to the dictatorial PaGMO units.
 		elem[0] *= ASTRO_AU;
