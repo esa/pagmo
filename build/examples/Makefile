@@ -170,6 +170,34 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+examples/CMakeFiles/demo_serialization.dir/rule:
+	cd /home/dante/pagmo/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/demo_serialization.dir/rule
+.PHONY : examples/CMakeFiles/demo_serialization.dir/rule
+
+# Convenience name for target.
+demo_serialization: examples/CMakeFiles/demo_serialization.dir/rule
+.PHONY : demo_serialization
+
+# fast build rule for target.
+demo_serialization/fast:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/build
+.PHONY : demo_serialization/fast
+
+# Convenience name for target.
+examples/CMakeFiles/example_polymorphic_serialization.dir/rule:
+	cd /home/dante/pagmo/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/example_polymorphic_serialization.dir/rule
+.PHONY : examples/CMakeFiles/example_polymorphic_serialization.dir/rule
+
+# Convenience name for target.
+example_polymorphic_serialization: examples/CMakeFiles/example_polymorphic_serialization.dir/rule
+.PHONY : example_polymorphic_serialization
+
+# fast build rule for target.
+example_polymorphic_serialization/fast:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/build
+.PHONY : example_polymorphic_serialization/fast
+
+# Convenience name for target.
 examples/CMakeFiles/hm_2_asteroids.dir/rule:
 	cd /home/dante/pagmo/build && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/hm_2_asteroids.dir/rule
 .PHONY : examples/CMakeFiles/hm_2_asteroids.dir/rule
@@ -210,6 +238,36 @@ test_bee: examples/CMakeFiles/test_bee.dir/rule
 test_bee/fast:
 	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/test_bee.dir/build.make examples/CMakeFiles/test_bee.dir/build
 .PHONY : test_bee/fast
+
+# target to build an object file
+demo_serialization.o:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/demo_serialization.o
+.PHONY : demo_serialization.o
+
+# target to preprocess a source file
+demo_serialization.i:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/demo_serialization.i
+.PHONY : demo_serialization.i
+
+# target to generate assembly for a file
+demo_serialization.s:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/demo_serialization.s
+.PHONY : demo_serialization.s
+
+# target to build an object file
+example_polymorphic_serialization.o:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/example_polymorphic_serialization.o
+.PHONY : example_polymorphic_serialization.o
+
+# target to preprocess a source file
+example_polymorphic_serialization.i:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/example_polymorphic_serialization.i
+.PHONY : example_polymorphic_serialization.i
+
+# target to generate assembly for a file
+example_polymorphic_serialization.s:
+	cd /home/dante/pagmo/build && $(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/example_polymorphic_serialization.s
+.PHONY : example_polymorphic_serialization.s
 
 # target to build an object file
 hm_2_asteroids.o:
@@ -262,7 +320,9 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... demo_serialization"
 	@echo "... edit_cache"
+	@echo "... example_polymorphic_serialization"
 	@echo "... hm_2_asteroids"
 	@echo "... install"
 	@echo "... install/local"
@@ -274,6 +334,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... test_bee"
+	@echo "... demo_serialization.o"
+	@echo "... demo_serialization.i"
+	@echo "... demo_serialization.s"
+	@echo "... example_polymorphic_serialization.o"
+	@echo "... example_polymorphic_serialization.i"
+	@echo "... example_polymorphic_serialization.s"
 	@echo "... hm_2_asteroids.o"
 	@echo "... hm_2_asteroids.i"
 	@echo "... hm_2_asteroids.s"

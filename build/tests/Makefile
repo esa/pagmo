@@ -183,6 +183,20 @@ test_001/fast:
 	cd /home/dante/pagmo/build && $(MAKE) -f tests/CMakeFiles/test_001.dir/build.make tests/CMakeFiles/test_001.dir/build
 .PHONY : test_001/fast
 
+# Convenience name for target.
+tests/CMakeFiles/test_serialization.dir/rule:
+	cd /home/dante/pagmo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/CMakeFiles/test_serialization.dir/rule
+.PHONY : tests/CMakeFiles/test_serialization.dir/rule
+
+# Convenience name for target.
+test_serialization: tests/CMakeFiles/test_serialization.dir/rule
+.PHONY : test_serialization
+
+# fast build rule for target.
+test_serialization/fast:
+	cd /home/dante/pagmo/build && $(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/build
+.PHONY : test_serialization/fast
+
 # target to build an object file
 test_001.o:
 	cd /home/dante/pagmo/build && $(MAKE) -f tests/CMakeFiles/test_001.dir/build.make tests/CMakeFiles/test_001.dir/test_001.o
@@ -197,6 +211,21 @@ test_001.i:
 test_001.s:
 	cd /home/dante/pagmo/build && $(MAKE) -f tests/CMakeFiles/test_001.dir/build.make tests/CMakeFiles/test_001.dir/test_001.s
 .PHONY : test_001.s
+
+# target to build an object file
+test_serialization.o:
+	cd /home/dante/pagmo/build && $(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/test_serialization.o
+.PHONY : test_serialization.o
+
+# target to preprocess a source file
+test_serialization.i:
+	cd /home/dante/pagmo/build && $(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/test_serialization.i
+.PHONY : test_serialization.i
+
+# target to generate assembly for a file
+test_serialization.s:
+	cd /home/dante/pagmo/build && $(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/test_serialization.s
+.PHONY : test_serialization.s
 
 # Help Target
 help:
@@ -214,9 +243,13 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... test_001"
+	@echo "... test_serialization"
 	@echo "... test_001.o"
 	@echo "... test_001.i"
 	@echo "... test_001.s"
+	@echo "... test_serialization.o"
+	@echo "... test_serialization.i"
+	@echo "... test_serialization.s"
 .PHONY : help
 
 

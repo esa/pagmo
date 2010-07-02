@@ -287,6 +287,45 @@ test_001/fast:
 .PHONY : test_001/fast
 
 #=============================================================================
+# Target rules for targets named test_serialization
+
+# Build rule for target.
+test_serialization: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_serialization
+.PHONY : test_serialization
+
+# fast build rule for target.
+test_serialization/fast:
+	$(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/build
+.PHONY : test_serialization/fast
+
+#=============================================================================
+# Target rules for targets named demo_serialization
+
+# Build rule for target.
+demo_serialization: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 demo_serialization
+.PHONY : demo_serialization
+
+# fast build rule for target.
+demo_serialization/fast:
+	$(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/build
+.PHONY : demo_serialization/fast
+
+#=============================================================================
+# Target rules for targets named example_polymorphic_serialization
+
+# Build rule for target.
+example_polymorphic_serialization: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 example_polymorphic_serialization
+.PHONY : example_polymorphic_serialization
+
+# fast build rule for target.
+example_polymorphic_serialization/fast:
+	$(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/build
+.PHONY : example_polymorphic_serialization/fast
+
+#=============================================================================
 # Target rules for targets named hm_2_asteroids
 
 # Build rule for target.
@@ -364,6 +403,9 @@ help:
 	@echo "... _problem"
 	@echo "... _topology"
 	@echo "... test_001"
+	@echo "... test_serialization"
+	@echo "... demo_serialization"
+	@echo "... example_polymorphic_serialization"
 	@echo "... hm_2_asteroids"
 	@echo "... migrate_or_not"
 	@echo "... test_bee"

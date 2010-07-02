@@ -111,7 +111,7 @@ src/preinstall:
 src/CMakeFiles/pagmo.dir/all:
 	$(MAKE) -f src/CMakeFiles/pagmo.dir/build.make src/CMakeFiles/pagmo.dir/depend
 	$(MAKE) -f src/CMakeFiles/pagmo.dir/build.make src/CMakeFiles/pagmo.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52
 	@echo "Built target pagmo"
 .PHONY : src/CMakeFiles/pagmo.dir/all
 
@@ -121,7 +121,7 @@ all: src/CMakeFiles/pagmo.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/pagmo.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 53
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 52
 	$(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/pagmo.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
 .PHONY : src/CMakeFiles/pagmo.dir/rule
@@ -146,7 +146,7 @@ clean: src/CMakeFiles/pagmo.dir/clean
 src/CMakeFiles/pagmo_static.dir/all:
 	$(MAKE) -f src/CMakeFiles/pagmo_static.dir/build.make src/CMakeFiles/pagmo_static.dir/depend
 	$(MAKE) -f src/CMakeFiles/pagmo_static.dir/build.make src/CMakeFiles/pagmo_static.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
 	@echo "Built target pagmo_static"
 .PHONY : src/CMakeFiles/pagmo_static.dir/all
 
@@ -223,7 +223,7 @@ PyGMO/algorithm/preinstall:
 PyGMO/algorithm/CMakeFiles/_algorithm.dir/all: src/CMakeFiles/pagmo.dir/all
 	$(MAKE) -f PyGMO/algorithm/CMakeFiles/_algorithm.dir/build.make PyGMO/algorithm/CMakeFiles/_algorithm.dir/depend
 	$(MAKE) -f PyGMO/algorithm/CMakeFiles/_algorithm.dir/build.make PyGMO/algorithm/CMakeFiles/_algorithm.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  97
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  96
 	@echo "Built target _algorithm"
 .PHONY : PyGMO/algorithm/CMakeFiles/_algorithm.dir/all
 
@@ -233,7 +233,7 @@ all: PyGMO/algorithm/CMakeFiles/_algorithm.dir/all
 
 # Build rule for subdir invocation for target.
 PyGMO/algorithm/CMakeFiles/_algorithm.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 54
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 53
 	$(MAKE) -f CMakeFiles/Makefile2 PyGMO/algorithm/CMakeFiles/_algorithm.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
 .PHONY : PyGMO/algorithm/CMakeFiles/_algorithm.dir/rule
@@ -283,7 +283,7 @@ all: PyGMO/core/CMakeFiles/_core.dir/all
 
 # Build rule for subdir invocation for target.
 PyGMO/core/CMakeFiles/_core.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 53
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 52
 	$(MAKE) -f CMakeFiles/Makefile2 PyGMO/core/CMakeFiles/_core.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
 .PHONY : PyGMO/core/CMakeFiles/_core.dir/rule
@@ -333,7 +333,7 @@ all: PyGMO/migration/CMakeFiles/_migration.dir/all
 
 # Build rule for subdir invocation for target.
 PyGMO/migration/CMakeFiles/_migration.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 53
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 52
 	$(MAKE) -f CMakeFiles/Makefile2 PyGMO/migration/CMakeFiles/_migration.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
 .PHONY : PyGMO/migration/CMakeFiles/_migration.dir/rule
@@ -373,7 +373,7 @@ PyGMO/problem/preinstall:
 PyGMO/problem/CMakeFiles/_problem.dir/all: src/CMakeFiles/pagmo.dir/all
 	$(MAKE) -f PyGMO/problem/CMakeFiles/_problem.dir/build.make PyGMO/problem/CMakeFiles/_problem.dir/depend
 	$(MAKE) -f PyGMO/problem/CMakeFiles/_problem.dir/build.make PyGMO/problem/CMakeFiles/_problem.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  98
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  97
 	@echo "Built target _problem"
 .PHONY : PyGMO/problem/CMakeFiles/_problem.dir/all
 
@@ -383,7 +383,7 @@ all: PyGMO/problem/CMakeFiles/_problem.dir/all
 
 # Build rule for subdir invocation for target.
 PyGMO/problem/CMakeFiles/_problem.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 54
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 53
 	$(MAKE) -f CMakeFiles/Makefile2 PyGMO/problem/CMakeFiles/_problem.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
 .PHONY : PyGMO/problem/CMakeFiles/_problem.dir/rule
@@ -433,7 +433,7 @@ all: PyGMO/topology/CMakeFiles/_topology.dir/all
 
 # Build rule for subdir invocation for target.
 PyGMO/topology/CMakeFiles/_topology.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 53
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 52
 	$(MAKE) -f CMakeFiles/Makefile2 PyGMO/topology/CMakeFiles/_topology.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
 .PHONY : PyGMO/topology/CMakeFiles/_topology.dir/rule
@@ -456,10 +456,12 @@ clean: PyGMO/topology/CMakeFiles/_topology.dir/clean
 
 # Convenience name for "all" pass in the directory.
 tests/all: tests/CMakeFiles/test_001.dir/all
+tests/all: tests/CMakeFiles/test_serialization.dir/all
 .PHONY : tests/all
 
 # Convenience name for "clean" pass in the directory.
 tests/clean: tests/CMakeFiles/test_001.dir/clean
+tests/clean: tests/CMakeFiles/test_serialization.dir/clean
 .PHONY : tests/clean
 
 # Convenience name for "preinstall" pass in the directory.
@@ -502,15 +504,54 @@ clean: tests/CMakeFiles/test_001.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target tests/CMakeFiles/test_serialization.dir
+
+# All Build rule for target.
+tests/CMakeFiles/test_serialization.dir/all: src/CMakeFiles/pagmo_static.dir/all
+	$(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/depend
+	$(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles  98
+	@echo "Built target test_serialization"
+.PHONY : tests/CMakeFiles/test_serialization.dir/all
+
+# Include target in all.
+all: tests/CMakeFiles/test_serialization.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+tests/CMakeFiles/test_serialization.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 44
+	$(MAKE) -f CMakeFiles/Makefile2 tests/CMakeFiles/test_serialization.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
+.PHONY : tests/CMakeFiles/test_serialization.dir/rule
+
+# Convenience name for target.
+test_serialization: tests/CMakeFiles/test_serialization.dir/rule
+.PHONY : test_serialization
+
+# clean rule for target.
+tests/CMakeFiles/test_serialization.dir/clean:
+	$(MAKE) -f tests/CMakeFiles/test_serialization.dir/build.make tests/CMakeFiles/test_serialization.dir/clean
+.PHONY : tests/CMakeFiles/test_serialization.dir/clean
+
+# clean rule for target.
+clean: tests/CMakeFiles/test_serialization.dir/clean
+.PHONY : clean
+
+#=============================================================================
 # Directory level rules for directory examples
 
 # Convenience name for "all" pass in the directory.
+examples/all: examples/CMakeFiles/demo_serialization.dir/all
+examples/all: examples/CMakeFiles/example_polymorphic_serialization.dir/all
 examples/all: examples/CMakeFiles/hm_2_asteroids.dir/all
 examples/all: examples/CMakeFiles/migrate_or_not.dir/all
 examples/all: examples/CMakeFiles/test_bee.dir/all
 .PHONY : examples/all
 
 # Convenience name for "clean" pass in the directory.
+examples/clean: examples/CMakeFiles/demo_serialization.dir/clean
+examples/clean: examples/CMakeFiles/example_polymorphic_serialization.dir/clean
 examples/clean: examples/CMakeFiles/hm_2_asteroids.dir/clean
 examples/clean: examples/CMakeFiles/migrate_or_not.dir/clean
 examples/clean: examples/CMakeFiles/test_bee.dir/clean
@@ -519,6 +560,76 @@ examples/clean: examples/CMakeFiles/test_bee.dir/clean
 # Convenience name for "preinstall" pass in the directory.
 examples/preinstall:
 .PHONY : examples/preinstall
+
+#=============================================================================
+# Target rules for target examples/CMakeFiles/demo_serialization.dir
+
+# All Build rule for target.
+examples/CMakeFiles/demo_serialization.dir/all: src/CMakeFiles/pagmo_static.dir/all
+	$(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/depend
+	$(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles 
+	@echo "Built target demo_serialization"
+.PHONY : examples/CMakeFiles/demo_serialization.dir/all
+
+# Include target in all.
+all: examples/CMakeFiles/demo_serialization.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+examples/CMakeFiles/demo_serialization.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 43
+	$(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/demo_serialization.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
+.PHONY : examples/CMakeFiles/demo_serialization.dir/rule
+
+# Convenience name for target.
+demo_serialization: examples/CMakeFiles/demo_serialization.dir/rule
+.PHONY : demo_serialization
+
+# clean rule for target.
+examples/CMakeFiles/demo_serialization.dir/clean:
+	$(MAKE) -f examples/CMakeFiles/demo_serialization.dir/build.make examples/CMakeFiles/demo_serialization.dir/clean
+.PHONY : examples/CMakeFiles/demo_serialization.dir/clean
+
+# clean rule for target.
+clean: examples/CMakeFiles/demo_serialization.dir/clean
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target examples/CMakeFiles/example_polymorphic_serialization.dir
+
+# All Build rule for target.
+examples/CMakeFiles/example_polymorphic_serialization.dir/all: src/CMakeFiles/pagmo_static.dir/all
+	$(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/depend
+	$(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/build
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/dante/pagmo/build/CMakeFiles 
+	@echo "Built target example_polymorphic_serialization"
+.PHONY : examples/CMakeFiles/example_polymorphic_serialization.dir/all
+
+# Include target in all.
+all: examples/CMakeFiles/example_polymorphic_serialization.dir/all
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+examples/CMakeFiles/example_polymorphic_serialization.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 43
+	$(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/example_polymorphic_serialization.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dante/pagmo/build/CMakeFiles 0
+.PHONY : examples/CMakeFiles/example_polymorphic_serialization.dir/rule
+
+# Convenience name for target.
+example_polymorphic_serialization: examples/CMakeFiles/example_polymorphic_serialization.dir/rule
+.PHONY : example_polymorphic_serialization
+
+# clean rule for target.
+examples/CMakeFiles/example_polymorphic_serialization.dir/clean:
+	$(MAKE) -f examples/CMakeFiles/example_polymorphic_serialization.dir/build.make examples/CMakeFiles/example_polymorphic_serialization.dir/clean
+.PHONY : examples/CMakeFiles/example_polymorphic_serialization.dir/clean
+
+# clean rule for target.
+clean: examples/CMakeFiles/example_polymorphic_serialization.dir/clean
+.PHONY : clean
 
 #=============================================================================
 # Target rules for target examples/CMakeFiles/hm_2_asteroids.dir
