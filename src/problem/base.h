@@ -40,6 +40,13 @@
 #include "../config.h"
 #include "../exceptions.h"
 #include "../types.h"
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 namespace pagmo
 {
@@ -447,6 +454,27 @@ return base_ptr(new derived_problem(*this));
 			}
 		}
 	private:
+		friend class boost::serialization::access;
+  	template<class Archive>
+  	void serialize(Archive &ar, const unsigned int version){
+  	  std::cout << "de-/serializing base problem " << version << std::endl;
+  	  ar & const_cast<size_type &>(m_i_dimension);
+  	  ar & const_cast<f_size_type &>(m_f_dimension);
+  	  ar & const_cast<c_size_type &>(m_c_dimension);
+  	  ar & const_cast<c_size_type &>(m_ic_dimension);
+			ar & m_lb;
+			ar & m_ub;
+  	  ar & const_cast<double &>(m_c_tol);
+			//ar & m_decision_vector_cache_f;
+			//ar & m_fitness_vector_cache;
+			//ar & m_decision_vector_cache_c;
+			//ar & m_constraint_vector_cache;
+			ar & m_tmp_f1;
+			ar & m_tmp_f2;
+			ar & m_tmp_c1;
+			ar & m_tmp_c2;
+			ar & m_objfun_counter;
+  	}  
 		// Data members.
 		// Size of the integer part of the problem.
 		const size_type				m_i_dimension;

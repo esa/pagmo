@@ -25,7 +25,7 @@
 #ifndef PAGMO_ALGORITHM_BASE_H
 #define PAGMO_ALGORITHM_BASE_H
 
-#include <boost/shared_ptr.hpp>
+
 #include <iostream>
 #include <string>
 #include <typeinfo>
@@ -33,6 +33,13 @@
 #include "../config.h"
 #include "../population.h"
 #include "../rng.h"
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 namespace pagmo
 {
@@ -56,7 +63,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE base
-{
+{    
 	public:
 		base();
 		/// Evolve method.
@@ -88,7 +95,17 @@ return base_ptr(new derived_algorithm(*this));
 		mutable rng_double	m_drng;
 		/// Random number generator for unsigned integer values.
 		mutable rng_uint32	m_urng;
+  private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version){
+      std::cout << "de-/serializing base algorithm " << version << std::endl;
+			ar & m_drng;
+			ar & m_urng; 
+    }
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(base)
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 

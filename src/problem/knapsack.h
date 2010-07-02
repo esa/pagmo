@@ -92,6 +92,16 @@ class __PAGMO_VISIBLE knapsack: public base
 	private:
 		void verify_init() const;
 	private:
+		private:
+		friend class boost::serialization::access;
+	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+	    std::cout << "de-/serializing knapsack problem " << version << std::endl;
+	    ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::vector<double> &>(m_values);
+			ar & const_cast<std::vector<double> &>(m_weights);
+			ar & const_cast<double &>(m_max_weight);
+		}
 		const std::vector<double>	m_values;
 		const std::vector<double>	m_weights;
 		const double			m_max_weight;

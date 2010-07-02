@@ -27,6 +27,8 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
 /// Generic atomic counter class.
 /**
@@ -139,6 +141,14 @@ class atomic_counter_generic
 		/// Fast type-trait for arithmetics.
 		static const bool is_arithmetics_fast = false;
 	private:
+		friend class boost::serialization::access;
+ 	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+		  std::cout << "de-/serializing generic atomic_counter " << version << std::endl;
+		  ar & m_value;
+		  ar & m_mutex;
+ 		}
+
 		/// Internal value.
 		IntType					m_value;
 		/// Mutex.

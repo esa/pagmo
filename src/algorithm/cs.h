@@ -70,6 +70,16 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int version){
+    std::cout << "de-/serializing cs algorithm " << version << std::endl;
+    ar & boost::serialization::base_object<base>(*this);
+    ar & const_cast<double &>(m_stop_range);
+    ar & const_cast<double &>(m_start_range);
+    ar & const_cast<double &>(m_reduction_coeff);
+    ar & const_cast<double &>(m_max_eval);
+  }  
 	// Stopping search length
 	const double m_stop_range;
 	// Starting search length
@@ -78,8 +88,6 @@ private:
 	const double m_reduction_coeff;
 	// Maximum function evaluations
 	const double m_max_eval;
-
-
 };
 
 }} //namespaces

@@ -25,6 +25,8 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
 /// Atomic counter class for GCC >= 4.1.
 /**
@@ -124,13 +126,20 @@ class atomic_counter_gcc_41
 		/// Fast type-trait for arithmetics.
 		static const bool is_arithmetics_fast = true;
 	private:
+		friend class boost::serialization::access;
+ 	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+		  std::cout << "de-/serializing atomic_counter for gcc " << version << std::endl;
+		  ar & m_value;
+ 		}
+
 		/// Internal value.
 		/**
 		 * Declared mutable because atomic_counter_gcc_41::get_value needs to perform the operation
 		 * this + 0 in order to fetch safely the current m_value with GCC's atomic builtins.
 		 */
 		mutable IntType m_value;
-};
+	};
 
 #endif
  

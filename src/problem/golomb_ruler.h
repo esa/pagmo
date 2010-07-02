@@ -65,6 +65,16 @@ class __PAGMO_VISIBLE golomb_ruler: public base
 	private:
 		void compute_marks_and_dist(const decision_vector &) const;
 	private:
+		friend class boost::serialization::access;
+	  template<class Archive>
+	  void serialize(Archive &ar, const unsigned int version){
+    	std::cout << "de-/serializing golomb_ruler problem " << version << std::endl;
+    	ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_max_length);
+			ar & m_tmp_x;
+			ar & m_tmp_marks;
+			ar & m_tmp_dist;
+		}
 		const std::size_t	m_max_length;
 		mutable decision_vector	m_tmp_x;
 		mutable decision_vector	m_tmp_marks;

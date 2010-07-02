@@ -30,6 +30,8 @@
 #include "../config.h"
 #include "../population.h"
 #include "base.h"
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 
 namespace pagmo { namespace algorithm {
@@ -81,6 +83,16 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+  template<class Archive>
+	void serialize(Archive &ar, const unsigned int version){
+    std::cout << "de-/serializing mbh algorithm " << version << std::endl;
+    ar & boost::serialization::base_object<base>(*this);
+    ar & m_local;
+    ar & const_cast<int &>(m_stop);
+    ar & m_perturb;
+    ar & m_screen_out;
+  }
 	base_ptr m_local;
 	// Consecutive non improving iterations
 	const int m_stop;

@@ -69,6 +69,17 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int version){
+    std::cout << "de-/serializing ipopt algorithm " << version << std::endl;
+    ar & boost::serialization::base_object<base>(*this);
+    ar & const_cast<int &>(m_max_iter);
+    ar & const_cast<double &>(m_constr_viol_tol);
+    ar & const_cast<double &>(m_dual_inf_tol);
+    ar & const_cast<double &>(m_compl_inf_tol);
+    ar & m_screen_out;
+  }  
 	const int m_max_iter;
 	const double m_constr_viol_tol;
 	const double m_dual_inf_tol;

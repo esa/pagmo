@@ -65,10 +65,18 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
-	base_ptr m_algorithm;
+	friend class boost::serialization::access;
+  template<class Archive>
+	void serialize(Archive &ar, const unsigned int version){
+    std::cout << "de-/serializing ms algorithm " << version << std::endl;
+    ar & boost::serialization::base_object<base>(*this);
+    ar & m_algorithm;
+    ar & const_cast<int &>(m_starts);
+    ar & m_screen_out;
+  }
+	boost::shared_ptr<base> m_algorithm;
 	int m_starts;
 	bool m_screen_out;
-
 };
 
 }} //namespaces

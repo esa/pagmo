@@ -26,7 +26,8 @@
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <windows.h>
-
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 /// Atomic counter class for Visual Studio C++.
 /**
  * Will use MSVC's atomic builtins.
@@ -115,7 +116,13 @@ class atomic_counter_msvc_long
 		/// Fast type-trait for arithmetics.
 		static const bool is_arithmetics_fast = true;
 	private:
-		/// Internal value.
+		friend class boost::serialization::access;
+ 	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+		  std::cout << "de-/serializing generic atomic_counter " << version << std::endl;
+		  ar & m_value;	
+ 		}
+  	/// Internal value.
 		/**
 		 * Declared mutable because atomic_counter_msvc_long::get_value needs to perform the operation
 		 * this + 0 in order to fetch safely the current m_value with MSVC's atomic builtins.

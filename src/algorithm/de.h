@@ -31,7 +31,6 @@
 #include "../population.h"
 #include "base.h"
 
-
 namespace pagmo { namespace algorithm {
 
 /// Differential Evolution Algorithm
@@ -72,6 +71,16 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+  friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int version){
+    std::cout << "de-/serializing de algorithm " << version << std::endl;
+    ar & boost::serialization::base_object<base>(*this);
+    ar & const_cast<int &>(m_gen);
+    ar & const_cast<double &>(m_f);
+    ar & const_cast<double &>(m_cr);
+    ar & const_cast<int &>(m_strategy);
+  }
 	// Number of generations.
 	const int m_gen;
 	// Weighting factor

@@ -77,6 +77,18 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int version){
+    std::cout << "de-/serializing pso algorithm " << version << std::endl;
+    ar & boost::serialization::base_object<base>(*this);
+    ar & const_cast<int &>(m_gen);
+    ar & const_cast<double &>(m_omega);
+    ar & const_cast<double &>(m_eta1);
+    ar & const_cast<double &>(m_eta2);
+    ar & const_cast<double &>(m_vcoeff);
+    ar & const_cast<int &>(m_variant);
+  }  
 	// Number of generations.
 	const int m_gen;
 	// Particle Inertia

@@ -86,6 +86,17 @@ class __PAGMO_VISIBLE tandem: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
+		friend class boost::serialization::access;
+	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+	    std::cout << "de-/serializing tandem problem " << version << std::endl;
+	    ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<int (&)[24][5]>(Data);
+			ar & const_cast<int (&)[5]>(sequence);
+			ar & problem;
+			ar & const_cast<double &>(tof);
+			ar & copy_of_x;
+		}
 		static const int Data[24][5];
 		static const int sequence[5];
 		mgadsmproblem problem;

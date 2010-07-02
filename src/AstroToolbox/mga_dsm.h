@@ -72,6 +72,25 @@ public:
 	mutable std::vector<double*> v;		// = std::vector<double*>(n);
 	mutable std::vector<double> DV;		// = std::vector<double>(n+1);
 	mutable std::vector<double> vrelin_vec;	// = std::vector<double>(n+1);
+private:
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version){
+		std::cout << "de-/serializing mgadsmproblem " << version << std::endl;
+		ar & const_cast<size_t &>(size);
+		ar & type;
+		ar & sequence;
+		ar & e;
+		ar & rp;
+		ar & asteroid;
+		ar & AUdist;
+		ar & DVtotal;
+		ar & DVonboard;
+		//ar & r;
+		//ar & v;
+		ar & DV;
+		ar & vrelin_vec;
+	}
 };
 
 

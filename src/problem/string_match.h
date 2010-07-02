@@ -54,6 +54,13 @@ class __PAGMO_VISIBLE string_match: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
 	private:
+		friend class boost::serialization::access;
+	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+	    std::cout << "de-/serializing string_match problem " << version << std::endl;
+	    ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::string &>(m_str);
+		}
 		const std::string m_str;
 };
 

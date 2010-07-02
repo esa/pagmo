@@ -1,3 +1,6 @@
 ADD_EXECUTABLE(test_001 test_001.cpp)
+ADD_EXECUTABLE(test_serialization test_serialization.cpp)
 TARGET_LINK_LIBRARIES(test_001 ${MANDATORY_LIBRARIES} pagmo_static)
+TARGET_LINK_LIBRARIES(test_serialization ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_TEST(test_001 test_001)
+ADD_TEST(test_serialization test_serialization)

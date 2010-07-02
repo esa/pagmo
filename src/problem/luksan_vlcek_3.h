@@ -54,6 +54,14 @@ class __PAGMO_VISIBLE luksan_vlcek_3: public base
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
+		friend class boost::serialization::access;
+	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+	    std::cout << "de-/serializing luksan_vlcek_3 problem " << version << std::endl;
+	    ar & boost::serialization::base_object<base>(*this);
+			ar & m_clb;
+			ar & m_cub;
+		}
 		std::vector<double>	m_clb;
 		std::vector<double>	m_cub;
 };

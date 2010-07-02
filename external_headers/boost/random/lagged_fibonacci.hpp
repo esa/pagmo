@@ -30,6 +30,8 @@
 #include <boost/random/detail/config.hpp>
 #include <boost/random/detail/seed.hpp>
 #include <boost/random/detail/pass_through_engine.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
 namespace boost {
 namespace random {
@@ -487,6 +489,14 @@ public:
 #endif
 
 private:
+	friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int version){
+    std::cout << "de-/serializing random number generator for double-precision floating point values. " << version << std::endl;
+ 	  ar & i; 
+	  ar & x; 
+	  ar & _modulus; 
+  }
   /// \cond hide_private_members
   void fill();
   /// \endcond

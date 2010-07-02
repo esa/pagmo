@@ -58,6 +58,14 @@ class __PAGMO_VISIBLE rosetta: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
+		friend class boost::serialization::access;
+	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+	    std::cout << "de-/serializing rosetta problem " << version << std::endl;
+	    ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<int &>(sequence);
+			ar & problem;
+		}
 		static const int sequence[6];
 		mgadsmproblem problem;
 

@@ -65,6 +65,18 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int version){
+    std::cout << "Serializing cs algorithm " << version << std::endl;
+    ar & boost::serialization::base_object<base>(*this);
+    ar & const_cast<int &>(m_niter);
+    ar & const_cast<double &>(m_Ts);
+    ar & const_cast<double &>(m_Tf);
+    ar & const_cast<int &>(m_step_adj);
+    ar & const_cast<int &>(m_bin_size);
+    ar & const_cast<double &>(m_range);
+  }  
 	// Number of iterations.
 	const int m_niter;
 	// Starting temperature

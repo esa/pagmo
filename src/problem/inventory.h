@@ -71,6 +71,16 @@ class __PAGMO_VISIBLE inventory: public base
 		void pre_evolution(population &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
+		friend class boost::serialization::access;
+	  template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+	    std::cout << "de-/serializing inventory problem " << version << std::endl;
+	    ar & boost::serialization::base_object<base>(*this);
+			ar & m_seed;
+			ar & m_weeks;
+			ar & m_sample_size;
+			ar & m_drng;
+		}
 		mutable int			m_seed;
 		int				m_weeks;
 		std::size_t			m_sample_size;
