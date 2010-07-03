@@ -43,26 +43,17 @@ class planet_mpcorb : public planet
 {
 public:
 	/**
-	 * Construct a minor planet from its common name (e.g. EROS). Requires the file MPCORB.DAT
-	 * is present in the current directory
-	 * \param[in] name a string naming a minor planet (e.g. "eros" or "tu126" or "Apohis"). Case is ignored.
-	 *		WARNING: partial names are matched to the first occurrence. So care needs to be taken that
-			the string used actually uniquely defines the desired minor planet.
+	 * Construct a minor planet from a line of the MPCORB.DAT file
+	 * \param[in] name a string containing one line of MPCORB.DAT
 	 * \throws value_error if MPCORB.DAT is not found or name is not found in the file.
 	 */
 	planet_mpcorb(const std::string& name);
 
-	/**
-	 * Construct a minor planet from the row number in the MPCORB.DAT file counted from the
-	 * first line containing an asetroid (i.e. line 0 is Ceres)
-	 * \param[in] row integer indicating the row.
-	 * \throws value_error if MPCORB.DAT is not found or row exceeds the asteroids in the file
-	 */
-	planet_mpcorb(int row);
 private:
 	static inline int packed_date2number(char c);
 };
 
 
 } /// End of namespace kep_toolbox
+
 #endif // PLANET_MPCORB_H

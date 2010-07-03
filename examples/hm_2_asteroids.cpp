@@ -74,12 +74,23 @@ int main()
 #endif
 
 	double Tmax = 600;
-	int i=0;
-	while(true) {
+	
+	//Opening the MPCORB.DAT file
+	std::ifstream mpcorbfile("MPCORB.DAT");
+	std::string line;
+	if (!mpcorbfile) {
+		throw_value_error("Could not find MPCORB.DAT is it in the current directory?");
+	}
+	
+	//Skipping the first lines
+	do {
+		std::getline(mpcorbfile,line);
+	} while (!boost::algorithm::find_first(line,"-----------------"));
+	
+	while(!mpcorbfile.eof()) {
 		try {
-			planet_mpcorb target(i);
-			++i; //(next line!!)
-
+			std::getline(mpcorbfile,line);
+			planet_mpcorb target(line);
 
 			//Pruning based on the asteroid elements
 			array6D elem = target.get_elements(kep_toolbox::epoch(0,kep_toolbox::epoch::MJD2000));
@@ -112,9 +123,10 @@ int main()
 			std::cout << "The End!!!" << std::endl;
 			return 0;
 		} catch (boost::bad_lexical_cast) {
-			// An empty line might be present in MPCORB.DAT.
-			++i; //(next line!!)
+			// An empty line might be present in MPCORB.DAT
 		}
 	}
+	//close file
+	mpcorbfile.close();
 	return 0;
 }
