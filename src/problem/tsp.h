@@ -62,14 +62,13 @@ class __PAGMO_VISIBLE tsp: public base
 {
 	public:
 		tsp(const std::vector<std::vector<double> > &);
+		//tsp(std::ifstream &);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
-	private:
-		void verify_init() const;
 	private:
 		const std::vector<std::vector<double> >	m_weights;
 };

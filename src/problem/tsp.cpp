@@ -44,7 +44,6 @@ namespace pagmo { namespace problem {
 tsp::tsp(const std::vector<std::vector<double> > &weights):
 	base(boost::numeric_cast<int>(weights[0].size()),boost::numeric_cast<int>(weights[0].size()),1,1,1,0),
 	m_weights(weights) {
-
 	set_lb(0);
 	set_ub(weights[0].size()); //number of nodes in the graph
 }
