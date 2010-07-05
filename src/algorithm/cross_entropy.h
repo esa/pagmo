@@ -63,8 +63,9 @@ private:
 	const double m_beta;
 	static decision_vector	calculate_mean(std::vector<decision_vector>);
 	static decision_vector calculate_std(std::vector<decision_vector>, decision_vector);
+	static bool compare_function(std::pair<fitness_vector,int>, std::pair<fitness_vector,int>);
 };
 
 }} //namespaces
 
-#endif // CROSS_ENTROY_H
+#endif // CROSS_ENTROPY_H

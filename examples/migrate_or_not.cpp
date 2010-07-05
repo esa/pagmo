@@ -74,10 +74,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 20;
+	int number_of_islands = 4;
 	int number_of_individuals = 20;
 	//int evolution_time = 1000;
-	int number_of_migrations = 20;
+	int number_of_migrations = 1;
 
 	/*
 	std::vector<double> r1;
@@ -95,9 +95,9 @@ int main()
 
 	//1 - We instantiate the problems
 	problem::cassini_1 prob1;
-	problem::griewank prob2(50);
-	problem::ackley prob3(50);
-	problem::rastrigin prob4(50);
+	problem::griewank prob2(5);
+	problem::ackley prob3(5);
+	problem::rastrigin prob4(5);
 	//problem::tsp prob5(weights);
 
 	//2 - We instantiate the algorithms
@@ -107,6 +107,7 @@ int main()
 	algorithm::pso algo4(100);
 	algorithm::ihs algo5(2000);
 	algorithm::bee_colony algo6(50);
+	algorithm::cross_entropy algo7(2);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
@@ -116,12 +117,13 @@ int main()
 
 	//3 - We build a container of algorithms
 	std::vector<algorithm::base_ptr> algo;
-	algo.push_back(algo1.clone());
-	algo.push_back(algo2.clone());
-	algo.push_back(algo3.clone());
+	//algo.push_back(algo1.clone());
+	//algo.push_back(algo2.clone());
+	//algo.push_back(algo3.clone());
 	algo.push_back(algo4.clone());
-	algo.push_back(algo5.clone());
+	//algo.push_back(algo5.clone());
 	algo.push_back(algo6.clone());
+	algo.push_back(algo7.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;

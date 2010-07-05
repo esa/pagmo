@@ -39,6 +39,7 @@
 
 namespace pagmo { namespace algorithm {
 
+	problem::base *prob;
 /// Constructor.
 /**
  * Allows to specify in detail all the parameters of the algorithm.
@@ -49,7 +50,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] beta standard deviation smothing factor
  * 
  * */
-cross_entropy::cross_entropy(int iter, double fraction_elite, double alpha, double beta):base(),m_iter(iter),m_fraction_elite(fraction_elite),m_alpha(alpha),m_beta(beta) {
+cross_entropy::cross_entropy(int iter, double fraction_elite, double alpha, double beta):base(),m_iter(iter),m_fraction_elite(fraction_elite),m_alpha(alpha),m_beta(beta){
+	//prob = NULL;
 }
 
 /// Clone method.
@@ -68,18 +70,18 @@ base_ptr cross_entropy::clone() const
 void cross_entropy::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	const problem::base &prob = pop.problem();
-	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), D = prob.get_dimension(), Dc = D - prob_i_dimension, prob_c_dimension = prob.get_c_dimension();
-	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type NP = (int) pop.size();
+	prob = const_cast<problem::base*>(&(pop.problem()));
+	const problem::base::size_type prob_i_dimension = prob->get_i_dimension(), D = prob->get_dimension(), Dc = D - prob_i_dimension, prob_c_dimension = prob->get_c_dimension();
+	const decision_vector &lb = prob->get_lb(), &ub = prob->get_ub();
+	const population::size_type NP = pop.size();
 	const population::size_type Nelite = boost::numeric_cast<population::size_type>(ceil(m_fraction_elite * NP));
 
-	//We perform some checks to determine wether the problem/population are suitable for Firefly
+	//We perform some checks to determine whether the problem/population are suitable for Cross Entropy
 	if ( Dc == 0 ) {
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for CE to optimise");
 	}
 
-	if ( prob.get_f_dimension() != 1 ) {
+	if ( prob->get_f_dimension() != 1 ) {
 		pagmo_throw(value_error,"The problem is not single objective and CE is not suitable to solve it");
 	}
 
@@ -131,10 +133,10 @@ void cross_entropy::evolve(population &pop) const
 				}
 			}
 			pop.set_x(i,X[i]);
-			prob.objfun(fit[i].first, X[i]);
+			prob->objfun(fit[i].first, X[i]);
 		}
 		//sort the fitness vector
-		std::sort(fit.begin(), fit.end());
+		std::sort(fit.begin(), fit.end(), compare_function);
 
 		//get the best Nelite individuals according to the fitness
 		for(population::size_type i = 0; i < Nelite; ++i) {
@@ -155,12 +157,15 @@ void cross_entropy::evolve(population &pop) const
 	}
 	
 }
+bool cross_entropy::compare_function(std::pair<fitness_vector,int> a, std::pair<fitness_vector,int>  b) {
+	return prob->compare_fitness(a.first,b.first);
+}
 
 //Calculate the mean vector of a vector calculating the mean of each component
 decision_vector cross_entropy::calculate_mean(std::vector<decision_vector> X) {
 	decision_vector mean_vector(X[0].size(), 0);
-	for(problem::base::size_type k = 0; k < X[0].size(); ++k) {
-		for(population::size_type i = 0; i < X.size(); ++i) {
+	for(decision_vector::size_type k = 0; k < X[0].size(); ++k) {
+		for(std::vector<decision_vector>::size_type i = 0; i < X.size(); ++i) {
 			mean_vector[k] += X[i][k];
 		}
 		mean_vector[k] /= X.size();
@@ -171,8 +176,8 @@ decision_vector cross_entropy::calculate_mean(std::vector<decision_vector> X) {
 //Calculate the standard deviation vector of a vector calculating the standard deviation of each component
 decision_vector cross_entropy::calculate_std(std::vector<decision_vector> X, decision_vector mean_vector) {
 	decision_vector std_vector(X[0].size(), 0);
-	for(problem::base::size_type k = 0; k < X[0].size(); ++k) {
-		for(population::size_type i = 0; i < X.size(); ++i) {
+	for(decision_vector::size_type k = 0; k < X[0].size(); ++k) {
+		for(std::vector<decision_vector>::size_type i = 0; i < X.size(); ++i) {
 			std_vector[k] += (X[i][k] - mean_vector[k]) * (X[i][k] - mean_vector[k]);
 		}
 		std_vector[k] /= X.size();
