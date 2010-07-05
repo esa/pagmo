@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_KNAPSACK_H
-#define PAGMO_PROBLEM_KNAPSACK_H
+#ifndef PAGMO_PROBLEM_TSP_H
+#define PAGMO_PROBLEM_TSP_H
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>

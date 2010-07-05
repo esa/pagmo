@@ -48,6 +48,17 @@ tsp::tsp(const std::vector<std::vector<double> > &weights):
 	set_ub(weights[0].size()); //number of nodes in the graph
 }
 
+/**
+ * Read the weight matrix from file
+ * @param[in] ifile file containing the weights matrix
+ */
+
+/*
+tsp::tsp(std::ifstream &ifile){
+	base(boost::numeric_cast<int>(2),boost::numeric_cast<int>(2),1,1,1,0);
+}*/
+ 
+
 /// Clone method.
 base_ptr tsp::clone() const
 {
@@ -58,7 +69,7 @@ base_ptr tsp::clone() const
 void tsp::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 1);
-	pagmo_assert(x.size() == get_dimension() && x.size() == m_values.size());
+	pagmo_assert(x.size() == get_dimension() && x.size() == weights[0].size());
 	f[0] = 0;
 	for (size_type i = 1; i < get_dimension(); ++i) {
 			f[0] += m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])];
@@ -73,7 +84,7 @@ void tsp::objfun_impl(fitness_vector &f, const decision_vector &x) const
 void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
 	std::set<int> nodes;
-	pagmo_assert(c.size() == 1 && x.size() == m_values.size());
+	pagmo_assert(c.size() == 1 && x.size() == weights[0].size());
 	for (size_type i = 0; i < get_dimension(); ++i) {
 		nodes.insert(boost::numeric_cast<int>(x[i]));
 	}

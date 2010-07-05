@@ -79,11 +79,26 @@ int main()
 	//int evolution_time = 1000;
 	int number_of_migrations = 20;
 
+	/*
+	std::vector<double> r1;
+	r1.push_back(10);
+	r1.push_back(5.3);
+	std::vector<double> r2;
+	r2.push_back(4);
+	r2.push_back(1.5);
+	std::vector<std::vector<double> > weights;
+	weights.push_back(r1);
+	weights.push_back(r2);
+	*/
+
+
+
 	//1 - We instantiate the problems
 	problem::cassini_1 prob1;
 	problem::griewank prob2(50);
 	problem::ackley prob3(50);
 	problem::rastrigin prob4(50);
+	//problem::tsp prob5(weights);
 
 	//2 - We instantiate the algorithms
 	algorithm::de algo1(100);
@@ -114,6 +129,7 @@ int main()
 	prob.push_back(prob2.clone());
 	prob.push_back(prob3.clone());
 	prob.push_back(prob4.clone());
+	//prob.push_back(prob5.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
