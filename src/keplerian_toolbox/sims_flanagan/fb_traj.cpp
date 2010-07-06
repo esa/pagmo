@@ -24,6 +24,7 @@
 
 #include "fb_traj.h"
 #include "../astro_constants.h"
+#include <algorithm>
 #include <vector>
 #include <numeric>
 #include <boost/array.hpp>

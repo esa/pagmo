@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 from _algorithm import *
 
 class base(_algorithm._base):
@@ -46,7 +46,7 @@ class _scipy_base(base):
 		x0_comb = array(pop[pop.get_best_idx()].cur_x[pop.problem.dimension - pop.problem.i_dimension:],dtype=float)
 		return n_ec,x0,x0_comb
 	def _human_readable_extra(self):
-		return "\tmax_iter = " + str(self.maxiter) + "\n\ttol = " + str(self.tol) + "\n"
+		return "max_iter = " + str(self.maxiter) + ", tol = " + str(self.tol) + "\n"
 
 class scipy_fmin(_scipy_base):
 	"""
@@ -105,6 +105,8 @@ class scipy_slsqp(_scipy_base):
 		self.verbose = verbose
 	def __copy__(self):
 		return scipy_slsqp(self.maxiter,self.tol,self.verbose)
+	def get_name(self):
+		return 'fmin_slsqp'
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
