@@ -132,10 +132,10 @@ void gtoc_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 			f[0] = - x[11];
 			break;
 		case TIME:
-			f[0] = (std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR);
+			f[0] = (std::accumulate(x.begin() + 1,x.begin() + 8,0.) * ASTRO_DAY2YEAR);
 			break;
 		case MASS_TIME:
-			f[0] = - x[11] / (std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR);
+			f[0] = - x[11] / (std::accumulate(x.begin() + 1,x.begin() + 8,0.) * ASTRO_DAY2YEAR);
 	}
 }
 
@@ -150,8 +150,8 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 	// Build legs.
 	for (int i = 0; i < 4; ++i) {
 		// Calculate start-end leg epochs.
-		epoch start(std::accumulate(x.begin(),x.begin() + 2 * i + 1, 0),epoch::MJD),
-			end(std::accumulate(x.begin(),x.begin() + 2 * i + 2, 0),epoch::MJD);
+		epoch start(std::accumulate(x.begin(),x.begin() + 2 * i + 1, 0.),epoch::MJD),
+			end(std::accumulate(x.begin(),x.begin() + 2 * i + 2, 0.),epoch::MJD);
 		// Set leg's start-end epochs.
 		m_legs[i].set_t_i(start);
 		m_legs[i].set_t_f(end);
@@ -223,8 +223,8 @@ std::string gtoc_2::pretty(const std::vector<double> &x) const
 	constraint_vector c(this->get_c_dimension());
 	this->compute_constraints_impl(c,x);
 	s << "Final Mass: " << x[11] << " Kg" << std::endl;
-	s << "Total Time: "  << std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR << " Years" << std::endl;
-	s << "Objective Function: " << x[11] / ( std::accumulate(x.begin() + 1,x.begin() + 8,0) * ASTRO_DAY2YEAR )  << " Kg/Years" << std::endl;
+	s << "Total Time: "  << std::accumulate(x.begin() + 1,x.begin() + 8,0.) * ASTRO_DAY2YEAR << " Years" << std::endl;
+	s << "Objective Function: " << x[11] / ( std::accumulate(x.begin() + 1,x.begin() + 8,0.) * ASTRO_DAY2YEAR )  << " Kg/Years" << std::endl;
 	for (int i=0; i<4;++i) s << this->m_legs[i] << std::endl;
 	s << std::endl;
 
