@@ -107,7 +107,7 @@ int main()
 	algorithm::pso algo4(100);
 	algorithm::ihs algo5(2000);
 	algorithm::bee_colony algo6(50);
-	algorithm::cross_entropy algo7(2);
+	algorithm::cross_entropy algo7(50);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;

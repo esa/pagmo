@@ -38,8 +38,35 @@
 
 
 namespace pagmo { namespace algorithm {
+class CompareFitness: std::binary_function<std::pair<fitness_vector,int> , std::pair<fitness_vector,int> , bool>
+{
+	population *pop;
+	population::size_type pSize;
 
-	problem::base *prob;
+	public: 
+		CompareFitness(population &p) {
+			pop = &p;
+			pSize = pop->size();
+		}
+		bool operator()(const std::pair<fitness_vector,int> &a, const std::pair<fitness_vector,int> &b) const {
+			int a_score = 0;
+			int b_score = 0;
+			fitness_vector tmp_fit;
+
+			for(population::size_type i = 0; i < pSize; ++i) {
+				tmp_fit = pop->get_individual(i).cur_f;
+				if(pop->problem().compare_fitness(a.first, tmp_fit)) {
+					a_score++;
+				}
+				if(pop->problem().compare_fitness(b.first, tmp_fit)) {
+					b_score++;
+				}
+			}
+
+			return (a > b);
+		}
+};
+
 /// Constructor.
 /**
  * Allows to specify in detail all the parameters of the algorithm.
@@ -70,9 +97,9 @@ base_ptr cross_entropy::clone() const
 void cross_entropy::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	prob = const_cast<problem::base*>(&(pop.problem()));
-	const problem::base::size_type prob_i_dimension = prob->get_i_dimension(), D = prob->get_dimension(), Dc = D - prob_i_dimension, prob_c_dimension = prob->get_c_dimension();
-	const decision_vector &lb = prob->get_lb(), &ub = prob->get_ub();
+	const problem::base &prob = pop.problem();
+	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), D = prob.get_dimension(), Dc = D - prob_i_dimension, prob_c_dimension = prob.get_c_dimension();
+	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = pop.size();
 	const population::size_type Nelite = boost::numeric_cast<population::size_type>(ceil(m_fraction_elite * NP));
 
@@ -81,7 +108,7 @@ void cross_entropy::evolve(population &pop) const
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for CE to optimise");
 	}
 
-	if ( prob->get_f_dimension() != 1 ) {
+	if ( prob.get_f_dimension() != 1 ) {
 		pagmo_throw(value_error,"The problem is not single objective and CE is not suitable to solve it");
 	}
 
@@ -133,10 +160,11 @@ void cross_entropy::evolve(population &pop) const
 				}
 			}
 			pop.set_x(i,X[i]);
-			prob->objfun(fit[i].first, X[i]);
+			prob.objfun(fit[i].first, X[i]);
 		}
 		//sort the fitness vector
-		std::sort(fit.begin(), fit.end(), compare_function);
+		CompareFitness comp(pop);
+		std::sort(fit.begin(), fit.end(), comp);
 
 		//get the best Nelite individuals according to the fitness
 		for(population::size_type i = 0; i < Nelite; ++i) {
@@ -156,9 +184,6 @@ void cross_entropy::evolve(population &pop) const
 		}
 	}
 	
-}
-bool cross_entropy::compare_function(std::pair<fitness_vector,int> a, std::pair<fitness_vector,int>  b) {
-	return prob->compare_fitness(a.first,b.first);
 }
 
 //Calculate the mean vector of a vector calculating the mean of each component
@@ -204,5 +229,7 @@ std::string cross_entropy::human_readable_extra() const
 	s << "fraction_elite:" << m_fraction_elite << ' ';
 	return s.str();
 }
+
+
 
 }} //namespaces
