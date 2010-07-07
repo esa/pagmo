@@ -25,6 +25,14 @@
 #ifndef PAGMO_POPULATION_H
 #define PAGMO_POPULATION_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <iostream>
 #include <sstream>
@@ -33,6 +41,7 @@
 
 #include "config.h"
 #include "problem/base.h"
+#include "problems.h"
 #include "rng.h"
 #include "types.h"
 
@@ -64,6 +73,19 @@ class __PAGMO_VISIBLE population
 		 * keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
 		 */
 		struct individual_type {
+			friend class boost::serialization::access;
+			template<class Archive>
+			void serialize(Archive &ar, const unsigned int version){
+				std::cout << "de-/serializing individual_type " << version << std::endl;
+				ar & cur_x;
+				ar & cur_v;
+				ar & cur_c;
+				ar & cur_f;
+				ar & best_x;
+				ar & best_c;
+				ar & best_f;
+			}  
+
 			/// Current decision vector.
 			decision_vector		cur_x;
 			/// Current velocity vector.
@@ -100,6 +122,14 @@ class __PAGMO_VISIBLE population
 		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
 		 */
 		struct champion_type {
+			friend class boost::serialization::access;
+			template<class Archive>
+			void serialize(Archive &ar, const unsigned int version){
+				std::cout << "de-/serializing champion_type " << version << std::endl;
+				ar & x;
+				ar & c;
+				ar & f;
+			}  
 			/// Decision vector.
 			decision_vector		x;
 			/// Constraint vector.
@@ -162,6 +192,18 @@ class __PAGMO_VISIBLE population
 			const population &m_pop;
 		};
 	private:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+		    std::cout << "de-/serializing population " << version << std::endl;
+			ar.register_type(static_cast<problem::cassini_1 *>(NULL));
+			ar & m_prob;		    
+			ar & m_container;
+			ar & m_dom_list;
+			ar & m_champion;
+			ar & m_drng;
+			ar & m_urng;
+		}  
 		// Data members.
 		// Problem.
 		problem::base_ptr			m_prob;

@@ -32,6 +32,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
@@ -508,6 +509,8 @@ return base_ptr(new derived_problem(*this));
 		// Objective function calls counter.
 		static atomic_counter_size_t		m_objfun_counter;
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(base);
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 

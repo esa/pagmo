@@ -184,6 +184,19 @@ void restore_cassini_2(problem::cassini_2 & prob, const char* filename)
     ia >> prob;
 }
 
+void save_population(const population & pop, const char* filename)
+{
+    std::ofstream ofs( filename );
+    boost::archive::text_oarchive oa( ofs );
+    oa << pop;
+}
+void restore_population(population & pop, const char* filename)
+{
+    std::ifstream ifs( filename );
+    boost::archive::text_iarchive ia( ifs );
+    ia >> pop;
+}
+
 int main()
 {
 	std::string fileName = "test.txt";
@@ -313,6 +326,17 @@ int main()
 	//restoring the algoirhm de1 into a different object
 	restore_cassini_2(cassini_2_dest, fileName.c_str());
 	std::cout << "cassini_2 problem retrieved form archive: " << cassini_2_dest << '\n';
+
+	// Testing the serialization of the population class
+	population population_source = population(cassini_1_source,1);
+	population population_dest = population(cassini_1_source,2);
+	std::cout << "Inital population: " << population_dest << '\n';
+	//saving algorithm de1 into a text archive 
+	save_population(population_source, fileName.c_str());
+	//restoring the algoirhm de1 into a different object
+	restore_population(population_dest, fileName.c_str());
+	std::cout << "cassini_2 problem retrieved form archive: " << population_dest << '\n';
+
 
 	return 0;
 
