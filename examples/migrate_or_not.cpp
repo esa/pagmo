@@ -74,10 +74,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 4;
-	int number_of_individuals = 20;
+	int number_of_islands = 5;
+	int number_of_individuals = 25;
 	//int evolution_time = 1000;
-	int number_of_migrations = 1;
+	int number_of_migrations = 5;
 
 	/*
 	std::vector<double> r1;
@@ -95,9 +95,9 @@ int main()
 
 	//1 - We instantiate the problems
 	problem::cassini_1 prob1;
-	problem::griewank prob2(5);
-	problem::ackley prob3(5);
-	problem::rastrigin prob4(5);
+	problem::griewank prob2(10);
+	problem::ackley prob3(10);
+	problem::rastrigin prob4(10);
 	//problem::tsp prob5(weights);
 
 	//2 - We instantiate the algorithms
@@ -107,7 +107,7 @@ int main()
 	algorithm::pso algo4(100);
 	algorithm::ihs algo5(2000);
 	algorithm::bee_colony algo6(50);
-	algorithm::cross_entropy algo7(50);
+	algorithm::cross_entropy algo7(100,0.3);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
@@ -127,7 +127,7 @@ int main()
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
-	prob.push_back(prob1.clone());
+	//prob.push_back(prob1.clone());
 	prob.push_back(prob2.clone());
 	prob.push_back(prob3.clone());
 	prob.push_back(prob4.clone());

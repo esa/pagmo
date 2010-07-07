@@ -173,14 +173,14 @@ void cross_entropy::evolve(population &pop) const
 
 		//calculate mean and std on these best individuals
 		tmp_population_mean = calculate_mean(temp_X);
-		tmp_population_std = calculate_std(temp_X, population_mean);
+		tmp_population_std = calculate_std(temp_X, tmp_population_mean);
 		
-		double beta = m_beta - m_beta * pow((1.0 - 1.0/t),7);
+		double beta = m_beta - m_beta * pow((1.0 - 1.0/(t+1)),7);
 		
 		//smooth mean and standard deviation with old ones
 		for(problem::base::size_type k=0; k < Dc; ++k) {
-			population_mean[k] = m_alpha * tmp_population_mean[k] + (1-m_alpha)*population_mean[k];
-			population_std[k] = beta * tmp_population_std[k] + (1-beta)*population_std[k];
+			population_mean[k] = m_alpha * tmp_population_mean[k] + (1-m_alpha) * population_mean[k];
+			population_std[k] = beta * tmp_population_std[k] + (1-beta) * population_std[k];
 		}
 	}
 	
@@ -189,6 +189,7 @@ void cross_entropy::evolve(population &pop) const
 //Calculate the mean vector of a vector calculating the mean of each component
 decision_vector cross_entropy::calculate_mean(std::vector<decision_vector> X) {
 	decision_vector mean_vector(X[0].size(), 0);
+
 	for(decision_vector::size_type k = 0; k < X[0].size(); ++k) {
 		for(std::vector<decision_vector>::size_type i = 0; i < X.size(); ++i) {
 			mean_vector[k] += X[i][k];
@@ -203,7 +204,6 @@ decision_vector cross_entropy::calculate_std(std::vector<decision_vector> X, dec
 	decision_vector std_vector(X[0].size(), 0);
 	for(decision_vector::size_type k = 0; k < X[0].size(); ++k) {
 		for(std::vector<decision_vector>::size_type i = 0; i < X.size(); ++i) {
-			std_vector[k] += (X[i][k] - mean_vector[k]) * (X[i][k] - mean_vector[k]);
 		}
 		std_vector[k] /= X.size();
 		std_vector[k]  = sqrt(std_vector[k]);
