@@ -46,6 +46,7 @@ int main()
 	tmp [7] = 63196 - 62737;
 	tmp[8] = 1300; tmp[9] = 1100; tmp[10]= 900; tmp[11] = 700;
 	pop.set_x(0, tmp);
+#ifdef PAGMO_ENABLE_SNOPT
 	algorithm::snopt algo(1000,1E-9,1E-9);
 	algo.screen_output(true);
 	
@@ -56,6 +57,7 @@ int main()
 	isl.evolve();isl.join();
 
 	std::cout << prob.pretty(isl.get_population().champion().x) << std::endl;
+#endif
 
 	return 0;
 }

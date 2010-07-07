@@ -92,7 +92,8 @@ void restore_sga(algorithm::sga &alg, const char* filename)
     ia >> alg;
 }
 
-/*void save_ipopt(const algorithm::ipopt &alg, const char* filename)
+#ifdef PAGMO_ENABLE_IPOPT
+void save_ipopt(const algorithm::ipopt &alg, const char* filename)
 {
     std::ofstream ofs( filename );
     boost::archive::text_oarchive oa( ofs );
@@ -103,7 +104,8 @@ void restore_ipopt(algorithm::ipopt &alg, const char* filename)
     std::ifstream ifs( filename );
     boost::archive::text_iarchive ia( ifs );
     ia >> alg;
-}*/
+}
+#endif
 
 void save_schwefel(const problem::schwefel & prob, const char* filename)
 {
@@ -180,7 +182,7 @@ int main()
 
 	// Algorithm DE
  	algorithm::de de_source = algorithm::de(500,.8,.9,2);
-  algorithm::de de_dest = algorithm::de(600,.6,.7,1);
+    algorithm::de de_dest = algorithm::de(600,.6,.7,1);
 	std::cout << "Init. de algorithm: " << de_dest;
 	//saving algorithm de1 into a text archive 
 	save_de(de_source, fileName.c_str());
@@ -189,8 +191,8 @@ int main()
 	std::cout << "Rtrv. de algorithm: " << de_dest << endl << endl;
 
 	// Algorithm PSO
-  algorithm::pso pso_source = algorithm::pso(10,.65,2,2,.2,3);
-  algorithm::pso pso_dest = algorithm::pso(15,.75,3,3,.4,2);
+    algorithm::pso pso_source = algorithm::pso(10,.65,2,2,.2,3);
+    algorithm::pso pso_dest = algorithm::pso(15,.75,3,3,.4,2);
 	std::cout << "Init. pso algorithm: " << pso_dest;
 	//saving algorithm pso_source into a text archive 
 	save_pso(pso_source, fileName.c_str());
@@ -199,8 +201,8 @@ int main()
 	std::cout << "Rtrv. pso algorithm: " << pso_dest << endl << endl;
 
 	// Algorithm CS
-  algorithm::cs cs_source = algorithm::cs(1,.01,.1,.1);
-  algorithm::cs cs_dest = algorithm::cs(99,.09);
+    algorithm::cs cs_source = algorithm::cs(1,.01,.1,.1);
+    algorithm::cs cs_dest = algorithm::cs(99,.09);
 	std::cout << "Init. cs algorithm: " << cs_dest;
 	//saving algorithm cs_source into a text archive 
 	save_cs(cs_source, fileName.c_str());
@@ -209,8 +211,8 @@ int main()
 	std::cout << "Rtrv. cs algorithm: " << cs_dest << endl << endl;
 
 	// Algorithm SGA
-  algorithm::sga sga_source = algorithm::sga(10,.65,.2);
-  algorithm::sga sga_dest = algorithm::sga(15,.75,.3);
+    algorithm::sga sga_source = algorithm::sga(10,.65,.2);
+    algorithm::sga sga_dest = algorithm::sga(15,.75,.3);
 	std::cout << "Init. sga algorithm: " << sga_dest;
 	//saving algorithm sga_source into a text archive 
 	save_sga(sga_source, fileName.c_str());
@@ -218,16 +220,17 @@ int main()
 	restore_sga(sga_dest, fileName.c_str());
 	std::cout << "Rtrv. sga algorithm: " << sga_dest << endl << endl;
 
-	// Algorithm IPOPT (uncomment if you have installed ipopt)
- /* algorithm::ipopt ipopt_source = algorithm::ipopt(100);
-  algorithm::ipopt ipopt_dest = algorithm::ipopt(5);
+#ifdef PAGMO_ENABLE_IPOPT
+    // Algorithm IPOPT
+    algorithm::ipopt ipopt_source = algorithm::ipopt(100);
+    algorithm::ipopt ipopt_dest = algorithm::ipopt(5);
 	std::cout << "Init. ipopt algorithm: " << ipopt_dest;
 	//saving algorithm ipopt_source into a text archive 
 	save_ipopt(ipopt_source_source, fileName.c_str());
 	//restoring the algoirhm ipopt_source into a different object
 	restore_ipopt(ipopt_dest, fileName.c_str());
 	std::cout << "Rtrv. ipopt algorithm: " << ipopt_dest << endl << endl;
-*/
+#endif
 
 
 	/////
