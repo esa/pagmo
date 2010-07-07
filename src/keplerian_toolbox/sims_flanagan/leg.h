@@ -26,7 +26,7 @@
 #define LEG_H
 
 #include <vector>
-#include "../spacecraft.h"
+#include "spacecraft.h"
 #include "../core_functions/array3D_operations.h"
 #include "../core_functions/propagate_lagrangian.h"
 #include "sc_state.h"

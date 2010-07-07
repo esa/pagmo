@@ -25,6 +25,7 @@
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/def.hpp>
+#include <boost/python/enum.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
@@ -201,10 +202,20 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::griewank>("griewank","Griewank function.")
 		.def(init<int>());
 
-	// GTOC problem.
-	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC problem.")
+	// GTOC1 problem.
+	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.")
 		.def(init<>());
-	
+
+	// GTOC2 problem.
+	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC problem.")
+		.def(init<int,int,int,int,optional<int,problem::gtoc_2::objective> >());
+
+	// GTOC2's objectives enum.
+	enum_<problem::gtoc_2::objective>("gtoc2_objective")
+		.value("MASS",problem::gtoc_2::MASS)
+		.value("TIME",problem::gtoc_2::TIME)
+		.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
+
 	// Inventory problem.
 	problem_wrapper<problem::inventory>("inventory","Inventory problem.")
 		.def(init<int, int>());

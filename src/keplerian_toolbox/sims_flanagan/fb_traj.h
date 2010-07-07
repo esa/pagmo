@@ -25,10 +25,12 @@
 #ifndef FB_TRAJ_H
 #define FB_TRAJ_H
 
-#include<vector>
-#include"leg.h"
-#include"../planet.h"
-#include"sc_state.h"
+#include <functional>
+#include <vector>
+
+#include "leg.h"
+#include "../planet.h"
+#include "sc_state.h"
 #include "../exceptions.h"
 
 namespace kep_toolbox { namespace sims_flanagan{

@@ -27,6 +27,7 @@
 
 //#include<boost/math/constants/constants.hpp>
 #include<boost/array.hpp>
+#include <boost/lexical_cast.hpp>
 
 #define ASTRO_AU 149597870660.0
 #define ASTRO_MU_SUN 1.32712428e20
@@ -35,6 +36,7 @@
 #define ASTRO_RAD2DEG (180.0/*boost::math::constants::pi<double>()*/ /M_PI)
 #define ASTRO_DAY2SEC 86400.0 //needs to be a double
 #define ASTRO_SEC2DAY 1.157407407407407407407407407e-05
+#define ASTRO_DAY2YEAR (1. / 365.25)
 #define ASTRO_G0 9.80665
 
 //This is used as a numerical proceure (e.g. newton-raphson or runge-kutta) stopping criteria
@@ -49,4 +51,20 @@ typedef boost::array<double,3> array3D;
 typedef boost::array<double,6> array6D;
 typedef boost::array<double,7> array7D;
 
+namespace std
+{
+	/// Overload stream insertion operator for array3D
+	inline ostream &operator<<(ostream &os, const array3D &v)
+	{
+		os << '[';
+		for (array3D::size_type i = 0; i < 3; ++i) {
+			os << boost::lexical_cast<std::string>(v[i]);
+			if (i != v.size() - 1) {
+				os << ", ";
+			}
+		}
+		os << ']';
+		return os;
+	}
+}
 #endif // ASTRO_CONSTANTS_H

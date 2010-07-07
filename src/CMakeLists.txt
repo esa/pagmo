@@ -44,6 +44,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_1.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sagas.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosetta.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger.cpp

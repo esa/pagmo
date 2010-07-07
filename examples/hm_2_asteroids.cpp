@@ -67,25 +67,37 @@ int main()
 
 	algorithm::sa_corana algo1(10000,1,0.01);
 	algorithm::de algo2(500,0.8,0.8,3);
-#ifdef DPAGMO_ENABLE_NLOPT
+#ifdef PAGMO_ENABLE_NLOPT
 	algorithm::nlopt_sbplx algo3(500,1e-4);
 #else
 	algorithm::cs algo3(500,0.0001,0.1);
 #endif
 
-	int i=0;
-	while(true) {
+	double Tmax = 600;
+	
+	//Opening the MPCORB.DAT file
+	std::ifstream mpcorbfile("MPCORB.DAT");
+	std::string line;
+	if (!mpcorbfile) {
+		throw_value_error("Could not find MPCORB.DAT is it in the current directory?");
+	}
+	
+	//Skipping the first lines
+	do {
+		std::getline(mpcorbfile,line);
+	} while (!boost::algorithm::find_first(line,"-----------------"));
+	
+	while(!mpcorbfile.eof()) {
 		try {
-			planet_mpcorb target(i);
-			++i; //(next line!!)
-
+			std::getline(mpcorbfile,line);
+			planet_mpcorb target(line);
 
 			//Pruning based on the asteroid elements
 			array6D elem = target.get_elements(kep_toolbox::epoch(0,kep_toolbox::epoch::MJD2000));
 			if (elem[0] / ASTRO_AU < 1.8) {
 
 				//build the problem
-				problem::sample_return prob(target);
+				problem::sample_return prob(target,Tmax);
 
 				for (int k=0;k<n_multistart;++k){
 					std::cout << "\tTarget is: " << target.get_name() << ", Trial: " << k << std::endl;
@@ -103,14 +115,18 @@ int main()
 
 					//log
 					std::vector<double> x = a.get_island(0).get_population().champion().x;
-					double time = x[4] + x[6] + x[10];
+					double time = x[4] * Tmax + x[6] + x[10] * ((1 - x[4]) * Tmax - x[6]);
 					myfile << "[" << target.get_name() << "] %" << "[" << time << "] " << a.get_island(0).get_population().champion().f << " " << a.get_island(0).get_population().champion().x << std::endl;
 				}
 			}
 		} catch (value_error) {
 			std::cout << "The End!!!" << std::endl;
 			return 0;
+		} catch (boost::bad_lexical_cast) {
+			// An empty line might be present in MPCORB.DAT
 		}
 	}
+	//close file
+	mpcorbfile.close();
 	return 0;
 }
