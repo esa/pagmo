@@ -91,7 +91,6 @@ void restore_sga(algorithm::sga &alg, const char* filename)
     boost::archive::text_iarchive ia( ifs );
     ia >> alg;
 }
-
 #ifdef PAGMO_ENABLE_IPOPT
 void save_ipopt(const algorithm::ipopt &alg, const char* filename)
 {
@@ -159,7 +158,7 @@ void restore_knapsack(problem::knapsack & prob, const char* filename)
     ia >> prob;
 }
 
-/*void save_tandem(const problem::tandem & prob, const char* filename)
+void save_tandem(const problem::tandem & prob, const char* filename)
 {
     std::ofstream ofs( filename );
     boost::archive::text_oarchive oa( ofs );
@@ -170,8 +169,20 @@ void restore_tandem(problem::tandem & prob, const char* filename)
     std::ifstream ifs( filename );
     boost::archive::text_iarchive ia( ifs );
     ia >> prob;
-}*/
+}
 
+void save_cassini_2(const problem::cassini_2 & prob, const char* filename)
+{
+    std::ofstream ofs( filename );
+    boost::archive::text_oarchive oa( ofs );
+    oa << prob;
+}
+void restore_cassini_2(problem::cassini_2 & prob, const char* filename)
+{
+    std::ifstream ifs( filename );
+    boost::archive::text_iarchive ia( ifs );
+    ia >> prob;
+}
 
 int main()
 {
@@ -221,8 +232,8 @@ int main()
 	std::cout << "Rtrv. sga algorithm: " << sga_dest << endl << endl;
 
 #ifdef PAGMO_ENABLE_IPOPT
-    // Algorithm IPOPT
-    algorithm::ipopt ipopt_source = algorithm::ipopt(100);
+	// Algorithm IPOPT
+	algorithm::ipopt ipopt_source = algorithm::ipopt(100);
     algorithm::ipopt ipopt_dest = algorithm::ipopt(5);
 	std::cout << "Init. ipopt algorithm: " << ipopt_dest;
 	//saving algorithm ipopt_source into a text archive 
@@ -276,8 +287,6 @@ int main()
 	values_2[2] = 22;
 	values_2[1] = 33;
 	values_2[0] = 65;
-
-
 	problem::knapsack knapsack_source =  problem::knapsack(values_1,weights_1,6);
 	problem::knapsack knapsack_dest =  problem::knapsack(values_2,weights_2,100);
 	std::cout << "Initial knapsack problem: " << knapsack_dest << '\n';
@@ -287,9 +296,6 @@ int main()
 	restore_knapsack(knapsack_dest, fileName.c_str());
 	std::cout << "knapsack problem retrieved form archive: " << knapsack_dest << '\n';
 
-/*
-	// Still a few issues with this type of problem as it uses the mgadsmproblem class from the AstroToolbox, which has as members vectors of pointers: r and v representing the planetary positions and velocities, which are initialized in the constructor. As far as I checked serializing vectors of pointers to primitives is not supported even though the documentation would suggest so, but maybe I am missing something, so I sent another email to the boost email list perhaps there is workaround. Otherwise, I will have to split the serialize method into save and load and initilize the vectors at load.
-
 	problem::tandem tandem_source =  problem::tandem();
 	problem::tandem tandem_dest =  problem::tandem();
 	std::cout << "Initial tandem problem: " << tandem_dest << '\n';
@@ -298,7 +304,16 @@ int main()
 	//restoring the algoirhm de1 into a different object
 	restore_tandem(tandem_dest, fileName.c_str());
 	std::cout << "tandem problem retrieved form archive: " << tandem_dest << '\n';
-*/
+
+	problem::cassini_2 cassini_2_source =  problem::cassini_2();
+	problem::cassini_2 cassini_2_dest =  problem::cassini_2();
+	std::cout << "Inital cassini_2 problem: " << cassini_2_dest << '\n';
+	//saving algorithm de1 into a text archive 
+	save_cassini_2(cassini_2_source, fileName.c_str());
+	//restoring the algoirhm de1 into a different object
+	restore_cassini_2(cassini_2_dest, fileName.c_str());
+	std::cout << "cassini_2 problem retrieved form archive: " << cassini_2_dest << '\n';
+
 	return 0;
 
 }

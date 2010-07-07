@@ -58,11 +58,11 @@ class __PAGMO_VISIBLE cassini_2: public base
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
+		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing cassini_2 problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<int &>(sequence);
+			std::cout << "de-/serializing cassini_2 problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+			//[DS] "sequence" array is static constant so it doesn't need serialization
 			ar & problem;
 		}
 		static const int sequence[6];
