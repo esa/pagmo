@@ -75,7 +75,7 @@ public:
 private:
 	friend class boost::serialization::access;
 	template<class Archive>
-	void serialize(Archive &ar, const unsigned int version){
+	void serialize(Archive &ar, const unsigned int version) {
 		std::cout << "de-/serializing mgadsmproblem " << version << std::endl;
 		ar & const_cast<size_t &>(size);
 		ar & type;
@@ -86,10 +86,47 @@ private:
 		ar & AUdist;
 		ar & DVtotal;
 		ar & DVonboard;
-		//ar & r;
-		//ar & v;
 		ar & DV;
 		ar & vrelin_vec;
+		boost::serialization::split_member(ar, *this, version);	// spliting the serialization into save/load to handle "r" and "v" vectors of pointers
+	}
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const {
+	    std::cout << "serializing mgadsmproblem " << version << std::endl; 	
+		double r_values[6][3];
+		double v_values[6][3];
+
+		for (int i = 0; i < (int)size; ++i) {
+			for(int j = 0; j < 3; ++j){
+				r_values[(size_t)i][j] = r[i][j];
+			}
+		}
+		for (int i = 0; i < (int)size; ++i) {		
+			for(int j = 0; j < 3; ++j){
+				v_values[(size_t)i][j] = v[i][j];
+			}
+		}	
+		ar << r_values;
+		ar << v_values;
+	}
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version) {
+		std::cout << "deserializing mgadsmproblem " << version << std::endl;
+		double r_values[6][3];
+		double v_values[6][3];
+		ar >> r_values;
+		ar >> v_values;
+
+		for (int i = 0; i < (int)size; ++i) {
+			for(int j = 0; j < 3; ++j){
+				r[(size_t)i][j] = r_values[i][j];
+			}
+		}
+		for (int i = 0; i < (int)size; ++i) {
+			for(int j = 0; j < 3; ++j){
+				v[(size_t)i][j] = v_values[i][j];
+			}
+		}
 	}
 };
 

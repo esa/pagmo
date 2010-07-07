@@ -32,6 +32,7 @@
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
+#include <boost/serialization/split_member.hpp>
 
 using namespace std;
 
@@ -46,9 +47,9 @@ using namespace std;
 struct customobject
 {
 	friend class boost::serialization::access;
-  template<class Archive>
+	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing customobject " << version << std::endl;
+		std::cout << "de-/serializing customobject " << version << std::endl;
 		ar & keplerian;
 		ar & epoch;
 		ar & mu;
@@ -61,9 +62,9 @@ struct customobject
 
 struct mgaproblem {
 	friend class boost::serialization::access;
-  template<class Archive>
+	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing customobject " << version << std::endl;
+		std::cout << "de-/serializing mgaproblem " << version << std::endl;
 		ar & type;
 		ar & sequence;
 		ar & rev_flag;
