@@ -38,32 +38,17 @@
 
 
 namespace pagmo { namespace algorithm {
-class CompareFitness: std::binary_function<std::pair<fitness_vector,int> , std::pair<fitness_vector,int> , bool>
+class CompareFitness: std::binary_function<std::pair<population::individual_type,int> , std::pair<population::individual_type,int> , bool>
 {
 	population *pop;
-	population::size_type pSize;
-
+	
 	public: 
 		CompareFitness(population &p) {
 			pop = &p;
-			pSize = pop->size();
 		}
-		bool operator()(const std::pair<fitness_vector,int> &a, const std::pair<fitness_vector,int> &b) const {
-			int a_score = 0;
-			int b_score = 0;
-			fitness_vector tmp_fit;
 
-			for(population::size_type i = 0; i < pSize; ++i) {
-				tmp_fit = pop->get_individual(i).cur_f;
-				if(pop->problem().compare_fitness(a.first, tmp_fit)) {
-					a_score++;
-				}
-				if(pop->problem().compare_fitness(b.first, tmp_fit)) {
-					b_score++;
-				}
-			}
-
-			return (a > b);
+		bool operator()(const std::pair<population::individual_type,int> &a, const std::pair<population::individual_type,int> &b) const {
+			return (pop->n_dominated(a.first) > pop->n_dominated(b.first));
 		}
 };
 
@@ -126,20 +111,20 @@ void cross_entropy::evolve(population &pop) const
 	}
 
 	// Some vectors used during evolution are allocated here.
-	decision_vector dummy(D,0);			    //used for initialisation purposes
-	std::vector<decision_vector> X(NP,dummy);	    //set of individuals
-	std::vector<decision_vector> temp_X(Nelite,dummy);  //set of individuals
-	std::vector<std::pair<fitness_vector,int> > fit(NP); 	    //set of individual's fitness
-	decision_vector population_mean(Dc,0);   	    //population's mean
-	decision_vector tmp_population_mean(Dc,0);   	    //population's mean
-	decision_vector population_std(Dc,0);               //population's standard deviation
-	decision_vector tmp_population_std(Dc,0);               //population's standard deviation
+	decision_vector dummy(D,0);			    				    //used for initialisation purposes
+	std::vector<decision_vector> X(NP,dummy);	    				    //set of solutions
+	std::vector<decision_vector> temp_X(Nelite,dummy);				    //set of elite solutions
+	std::vector<std::pair<population::individual_type,int> > individuals(NP); 	    //set of individuals
+	decision_vector population_mean(Dc,0);   					    //population's mean
+	decision_vector tmp_population_mean(Dc,0);   	    				    //tmp population's mean
+	decision_vector population_std(Dc,0);               				    //population's standard deviation
+	decision_vector tmp_population_std(Dc,0);               			    //tmp population's standard deviation
 
-	// Get population and fitness
+	// Get population
 	for ( population::size_type i = 0; i<NP; i++ ) {
-		X[i]	       =	pop.get_individual(i).cur_x;
-		fit[i].first   =	pop.get_individual(i).cur_f;
-		fit[i].second  =	i;
+		X[i]	   	       =	pop.get_individual(i).cur_x;
+		individuals[i].first   =	pop.get_individual(i);
+		individuals[i].second  =	i;
 	}
 
 	population_mean = calculate_mean(X);
@@ -160,15 +145,14 @@ void cross_entropy::evolve(population &pop) const
 				}
 			}
 			pop.set_x(i,X[i]);
-			prob.objfun(fit[i].first, X[i]);
 		}
-		//sort the fitness vector
+		//sort the individuals vector
 		CompareFitness comp(pop);
-		std::sort(fit.begin(), fit.end(), comp);
+		std::sort(individuals.begin(), individuals.end(), comp);
 
-		//get the best Nelite individuals according to the fitness
+		//get the best Nelite individuals according to the number of dominated individuals
 		for(population::size_type i = 0; i < Nelite; ++i) {
-			temp_X[i] = X[fit[i].second];
+			temp_X[i] = X[individuals[i].second];
 		}
 
 		//calculate mean and std on these best individuals
@@ -204,6 +188,7 @@ decision_vector cross_entropy::calculate_std(std::vector<decision_vector> X, dec
 	decision_vector std_vector(X[0].size(), 0);
 	for(decision_vector::size_type k = 0; k < X[0].size(); ++k) {
 		for(std::vector<decision_vector>::size_type i = 0; i < X.size(); ++i) {
+			std_vector[k] += (X[i][k] - mean_vector[k]) * (X[i][k] - mean_vector[k]);
 		}
 		std_vector[k] /= X.size();
 		std_vector[k]  = sqrt(std_vector[k]);

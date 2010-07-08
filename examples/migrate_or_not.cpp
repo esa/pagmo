@@ -95,9 +95,10 @@ int main()
 
 	//1 - We instantiate the problems
 	problem::cassini_1 prob1;
-	problem::griewank prob2(10);
-	problem::ackley prob3(10);
-	problem::rastrigin prob4(10);
+	problem::griewank prob2(5);
+	problem::ackley prob3(5);
+	problem::rastrigin prob4(5);
+	problem::michalewicz prob5(5);
 	//problem::tsp prob5(weights);
 
 	//2 - We instantiate the algorithms
@@ -131,7 +132,7 @@ int main()
 	prob.push_back(prob2.clone());
 	prob.push_back(prob3.clone());
 	prob.push_back(prob4.clone());
-	//prob.push_back(prob5.clone());
+	prob.push_back(prob5.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
