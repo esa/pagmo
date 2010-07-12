@@ -40,7 +40,7 @@ namespace kep_toolbox {
  * \param[in] x Battin's variable
  * \param[in] s half perimeter of the triangle defined by r1,r2
  * \param[in] c chord defined by the r1,r2 triangle
- * \param[in] lw switch between long and short way solutions
+ * \param[in] lw switch between long and short way solutions (when lw=1 the long way solution sselected)
  *
  * \see Battin "Introduction to the Mahematics and Methods of Astrodynamic"
  *
