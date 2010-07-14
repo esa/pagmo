@@ -37,6 +37,7 @@
 #include"core_functions/par2ic.h"
 #include"core_functions/kepler_equations.h"
 #include"core_functions/lambert_2d.h"
+#include"core_functions/lambert_3d.h"
 #include"core_functions/par2ic.h"
 #include"core_functions/propagate_lagrangian.h"
 #include"sims_flanagan/fb_traj.h"

@@ -41,18 +41,19 @@ namespace kep_toolbox {
  * \param[in] s half perimeter of the triangle defined by r1,r2
  * \param[in] c chord defined by the r1,r2 triangle
  * \param[in] lw switch between long and short way solutions (when lw=1 the long way solution sselected)
+ * \param[in] N multiple revolutions (default is 0)
  *
  * \see Battin "Introduction to the Mahematics and Methods of Astrodynamic"
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
-inline double x2tof(const double &x,const double &s,const double &c,const int &lw)
+inline double x2tof(const double &x,const double &s,const double &c,const int &lw, const int &N = 0)
 {
 	double am,a,alfa,beta;
 
 	am = s/2;
 	a = am/(1-x*x);
-	if (x < 1)	//ellpise
+	if (x < 1)	//ellipse
 	{
 		beta = 2 * asin (sqrt((s - c)/(2*a)));
 		if (lw) beta = -beta;
@@ -67,7 +68,7 @@ inline double x2tof(const double &x,const double &s,const double &c,const int &l
 
 	if (a > 0)
 	{
-		return (a * sqrt (a)* ( (alfa - sin(alfa)) - (beta - sin(beta)) ));
+		return (a * sqrt (a)* ( (alfa - sin(alfa)) - (beta - sin(beta)) + 2*M_PI*N));
 	}
 	else
 	{

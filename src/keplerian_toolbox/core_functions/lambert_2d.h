@@ -37,35 +37,43 @@
 
 namespace kep_toolbox {
 
-inline double tof_curve_ix(const double& ix,const double& s,const double& c,const double& tof,const int &lw){
-	return ( log( kep_toolbox::x2tof(exp(ix)-1,s,c,lw) )-log(tof) );
+inline double tof_curve(const double& ix,const double& s,const double& c,const double& tof,const int &lw){
+	return ( log( kep_toolbox::x2tof(exp(ix)-1,s,c,lw,0) )-log(tof) );
 }
+
+inline double tof_curve_multi_rev(const double& ix,const double& s,const double& c,const double& tof,const int &lw, const int &N){
+	return ( kep_toolbox::x2tof(atan(ix) * 2 / M_PI,s,c,lw,N) - tof);
+}
+
+
 
 /// Lambert solver (2 dimensional)
 /**
- * This function solves the Lambert's problem in its 'minimal' two-dimensional formulation.
+ * This function solves a Lambert problem in its 'minimal' two-dimensional formulation.
  * It makes use of the Battin's variable \f$x$\f and the 'Izzo' plane to rectify
- * the time of flight curves (e.g. log(x+1),log(tof)).
+ * the time of flight curves (i.e. [log(x+1),log(tof)] and [tan(x*pi/2),tof] for the mutirev case)
+ *
+ * \param[out] vr1 radial component of the velocity at r1
+ * \param[out] vt1 tangential component of the velocity at r1
+ * \param[out] vr2 radial component of the velocity at r2
+ * \param[out] vt2 tangential component of the velocity at r2
+ * \param[out] a semi major axis of the solution (negative is hyperbolae)
+ * \param[out] p parameter of the solution (p = a * (1-e^2))
  *
  * \param[in] s semi perimeter of the triangle formed by r1=1,r2
  * \param[in] c chord joining r1=1 and r2
  * \param[in] tof time of flight in units R=r1, MU=1.
  * \param[in] lw when 1 the transfer with theta > pi is selected
- *
- * \param[out] a semi major axis of the solution (negative is hyperbolae)
- * \param[out] p parameter of the solution (p = a * (1-e^2))
- * \param[out] vr1 radial component of the velocity at r1
- * \param[out] vt1 tangential component of the velocity at r1
- * \param[out] vr2 radial component of the velocity at r2
- * \param[out] vt2 tangential component of the velocity at r2
+ * \param[in] N number of revolutions (no multirev is default)
+ * \param[in] branch selects the right or left branch of the tof curve when N>0 (default is the left branch)
  *
  * \return number of iterations to solve the tof equation. If 50, regula falsi algorithm has not converged
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
 
-inline int lambert_2d(const double &s,const double &c, const double &tof, const int &lw,
-		      double &a, double &p, double &vr1, double &vt1, double &vr2, double &vt2) {
+inline int lambert_2d(double &vr1, double &vt1, double &vr2, double &vt2, double &a, double &p,
+			const double &s,const double &c, const double &tof, const int &lw, const int &N=0, const char &branch = 'l') {
 
 	//Sanity checks
 	if (tof <= 0) {
@@ -74,6 +82,10 @@ inline int lambert_2d(const double &s,const double &c, const double &tof, const 
 
 	if (c > s) {
 		throw_value_error("Chord needs to be at least twice the semiperimeter");
+	}
+
+	if ( branch!='l' && branch!='r' ) {
+		throw_value_error("Select either 'r' or 'l' branch for multiple revolutions");
 	}
 
 	//0 - Some geometry
@@ -85,19 +97,28 @@ inline int lambert_2d(const double &s,const double &c, const double &tof, const 
 
 	int retval;
 
-	//We represent the time of flght curves in the "Izzo" axes. That is log(1+x) vs log(tof)
-	//In this representation the curves are almost straight lines for all geometries and numerics
-	//is much stable.
-
 	//1 - We solve the tof equation
-	double ia = log(1 - .5233);
-	double ib = log(1 + .5233);
-	retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve_ix,_1,s,c,tof,lw), 50,ASTRO_TOLERANCE);
+	double x;
+	if (N==0) { //no multi-rev
+		double ia = log(1 - .5233);
+		double ib = log(1 + .5233);
+		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve,_1,s,c,tof,lw), 50,ASTRO_TOLERANCE);
+		x = exp(ia)-1;
+	}
+	else {	//multiple revolutions solution
+		//left branch by default
+		double ia = tan(-.5234 * M_PI/2);
+		double ib = tan(-.2234 * M_PI/2);
+		//if the right branch is selected, the initial guess changes
+		if (branch=='r') {
+			ia = tan(.7234 * M_PI/2);
+			ib = tan(.5234 * M_PI/2);
+		}
+		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve_multi_rev,_1,s,c,tof,lw,N), 50,ASTRO_TOLERANCE);
+		x = atan(ia) * 2 /M_PI;
+	}
 
-	//2 - We recover the Battin's variable
-	double x = exp(ia)-1;
-
-	//3 - Using the Battin variable we get all our outputs
+	//3 - Using the Battin variable we recover all our outputs
 	a = am/(1 - x*x);
 
 	double beta,alfa,eta2,eta,psi,sigma1;

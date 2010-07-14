@@ -32,6 +32,6 @@ ADD_LIBRARY(keplerian_toolbox_static STATIC ${PAGMO_LIB_SRC_LIST})
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
-	TARGET_LINK_LIBRARIES(main keplerian_toolbox_static)
+	TARGET_LINK_LIBRARIES(main keplerian_toolbox_static pagmo)
 ENDIF(BUILD_MAIN)
 
