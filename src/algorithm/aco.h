@@ -22,58 +22,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PAGMO_ALGORITHM_ACO_H
+#define PAGMO_ALGORITHM_ACO_H
 
-// Header including all algorithms implemented in PaGMO.
-
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/ihs.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-#include "algorithm/bee_colony.h"
-#include "algorithm/firefly.h"
-#include "algorithm/cross_entropy.h"
-#include "algorithm/aco.h"
-
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+#include "../config.h"
+#include "base.h"
+#include "../problem/base.h"
 
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
+namespace pagmo { namespace algorithm {
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
+/// Ant Colony Optimization (ACO)
+/**
+ * Ant colony optimization (ACO) is a population-based metaheuristic that can be used to find approximate solutions to difficult combinatorial optimization problems. 
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ *
+ * @see http://www.scholarpedia.org/article/Ant_colony_optimization
+ */
 
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
+class __PAGMO_VISIBLE aco: public base
+{
+public:
+	aco(int iter, double rho = 0.2);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	static void deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho);
+	static void selection_probability(std::vector<fitness_vector> probability, std::vector<int> &selection, const pagmo::problem::base &prob, population::size_type NP);
+	// Number of iterations
+	const double m_iter;
+	const double m_rho;
+};
 
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-#endif
+}} //namespaces
 
-#endif
+#endif // PAGMO_ALGORITHM_ACO_H
