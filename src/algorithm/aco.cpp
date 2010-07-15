@@ -32,6 +32,7 @@
 #include "../exceptions.h"
 #include "../population.h"
 #include "../problem/base.h"
+#include "../problem/base_aco.h"
 #include "../types.h"
 
 
@@ -72,13 +73,20 @@ base_ptr aco::clone() const
 void aco::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	const problem::base &prob = pop.problem();
-	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), D = prob.get_dimension(), prob_c_dimension = prob.get_c_dimension();
+	problem::base_aco &prob = const_cast<problem::base_aco &>(dynamic_cast<const problem::base_aco &>(pop.problem()));
+	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP =  pop.size();
-	const std::vector<decision_vector>::size_type nComponents = boost::numeric_cast<std::vector<decision_vector>::size_type>(ub[0]-lb[0]); ///fix here
 
-	//We perform some checks to determine wether the problem/population are suitable for Firefly
+	double max_size = 0;
+	for(problem::base::size_type i = 0; i < prob_i_dimension; ++i) {
+		if(max_size < (ub[i] - lb[i])) {
+			max_size = ub[i] - lb[i];
+		}
+	}
+	const std::vector<decision_vector>::size_type nComponents = boost::numeric_cast<std::vector<decision_vector>::size_type>(max_size); 
+
+	//We perform some checks to determine wether the problem/population are suitable for ACO
 	if (prob_i_dimension == 0 ) {
 		pagmo_throw(value_error,"There is no integer part in the problem decision vector for Firefly to optimise");
 	}
@@ -101,20 +109,24 @@ void aco::evolve(population &pop) const
 	}
 
 	// Some vectors used during evolution are allocated here.
-	decision_vector dummy(D,0);			//used for initialisation purposes
+	decision_vector dummy(prob_i_dimension,0);			//used for initialisation purposes
 	std::vector<decision_vector > X(NP,dummy);	//set of ant partial solutions
 	std::vector<fitness_vector> fit(NP);		//set of ant solutions fitness
 
-	fitness_vector tempA(D,0);
+	fitness_vector tempA(prob_i_dimension,0);	//used for initialisation purpouses
 	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
 	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
 	std::vector<std::vector<std::vector<fitness_vector> > > T(prob_i_dimension, tempC); //pheromone trail matrix 
+	std::vector<std::vector<std::vector<fitness_vector> > > eta(prob_i_dimension, tempC); //pheromone trail matrix 
 
 	// Copy the solutions and their fitness
 	for ( population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		fit[i]	=	pop.get_individual(i).cur_f;
 	}
+
+	// Get heuristic information
+	prob.get_heuristic_information_matrix(eta);	
 
 
 	//Create pheromone paths using actual solutions
@@ -138,13 +150,15 @@ void aco::evolve(population &pop) const
 		selection_probability(Ttemp, selection, pop.problem(),NP);
 
 		for(population::size_type n=0; n < NP; ++n) {
-			X[n][0] = selection[n] / nComponents;
+			X[n][0] = selection[n] / nComponents + lb[0];
 		}
-
+	
+		//go ahead with all the other components
 		for(problem::base::size_type k = 1; k < prob_i_dimension; ++k) {
 			for(population::size_type n = 0; n < NP; ++n) {
 				std::vector<int> sel(1,0);
 				selection_probability(T[k][X[n][k-1]], sel, pop.problem(),NP);
+				X[n][k] = sel[0] + lb[k];
 			}
 		}
 		for(population::size_type n=0; n < NP; ++n) {
@@ -160,7 +174,7 @@ void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> 
 	//evaporation
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < T.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < T[0].size(); ++i) {
-			for(std::vector<fitness_vector>::size_type  j = 0; k < T[0][0].size(); ++j) {
+			for(std::vector<fitness_vector>::size_type  j = 0; j < T[0][0].size(); ++j) {
 				T[k][i][j][0] = (1-rho) * T[k][i][j][0];
 			}
 		}
@@ -168,7 +182,7 @@ void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> 
 
 	//Deposit pheromone according to current solutions
 	for (decision_vector::size_type i = 0; i < X.size(); ++i) {
-		T[i][boost::numeric_cast<int>(X[i])][boost::numeric_cast<int>(X[i+1])][0] += fit[0]; 
+		T[i][boost::numeric_cast<int>(X[i])][boost::numeric_cast<int>(X[i+1])][0] += rho*fit[0]; 
 	}
 }
 

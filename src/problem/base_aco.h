@@ -22,47 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_PROBLEM_BASE_ACO_H
+#define PAGMO_PROBLEM_BASE_ACO_H
 
-// Header including all problems implemented in PaGMO.
+#include "base.h"
+#include <vector>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/knapsack.h"
-#include "problem/nsga_ii_fon.h"
-#include "problem/nsga_ii_sch.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/string_match_mo.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/tsp.h"
-#include "problem/base_aco.h"
+namespace pagmo{ namespace problem {
 
-#endif
+/// Base ACO.
+/**
+ *
+ * All the problems that can be solved using Ant Colony Optimization should extend this class
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE base_aco : public base
+{
+	public:
+		base_aco(int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
+
+		//write heuristic information matrix on T
+		void get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta);
+		
+		//check if a partial solution x is feasible. x.size() is less than problem length. It checks whether there is
+		//at least one solution having x as a prefix that is feasible.
+		bool check_partial_feasibility(decision_vector x); 
+};
+
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_BASE_ACO_H

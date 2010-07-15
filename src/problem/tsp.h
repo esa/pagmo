@@ -32,7 +32,7 @@
 
 #include "../config.h"
 #include "../types.h"
-#include "base.h"
+#include "base_aco.h"
 
 namespace pagmo { namespace problem {
 
@@ -58,7 +58,7 @@ namespace pagmo { namespace problem {
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
-class __PAGMO_VISIBLE tsp: public base
+class __PAGMO_VISIBLE tsp: public base_aco
 {
 	public:
 		tsp(const std::vector<std::vector<double> > &);
