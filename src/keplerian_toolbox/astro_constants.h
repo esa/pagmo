@@ -42,6 +42,9 @@
 //This is used as a numerical proceure (e.g. newton-raphson or runge-kutta or regula-falsi) stopping criteria
 #define ASTRO_TOLERANCE 1e-12
 
+//This is used in the Lambert Problem and in the solution of kepler equation
+#define ASTRO_MAX_ITER 50
+
 //This needs to be set to the precision of the boost date library (microseconds is default,
 //nanoseconds can be set when compiling boosts. Note that the code has not been checked in that case)
 #define BOOST_DATE_PRECISION 1e-6

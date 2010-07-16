@@ -43,6 +43,7 @@ namespace kep_toolbox
 				   int max_loop, const double& accuracy)
 	{
 		my_float term;
+		double start = x;
 		//main iteration
 		do
 		{

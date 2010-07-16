@@ -58,7 +58,7 @@ namespace kep_toolbox {
  *case this function does not detect it. Reaching a maximum number of iteration in the regula falsi
  *method is an indicator that no solution exists.
  *
- *NOTE 2: the function work in all units as long as fed with consistent ones
+ *NOTE 2: the function works in all units as long as fed with consistent ones
  *
  * @see kep_toolbox::lambert_2d
  *
@@ -106,7 +106,10 @@ inline int lambert_3d (vettore3D &v1, vettore3D &v2, double &a, double &p,
 	array3D ir1,it1,ir2,it2,ih;
 	vers(ir1,r1);
 	vers(ir2,r2);
-	(lw ? cross(ih,ir2,ir1) : cross(ih,ir1,ir2));
+	(lw ? cross(ih,ir2,ir1) : cross(ih,ir1,ir2));     //here is the singularity: as when ir1||ir2 this plane is not defined!!
+	if (ih[0]+ih[1]+ih[2] == 0) {
+		throw_value_error("lambert problem is singular in 3D as the transfer angle is 180*n degrees");
+	}
 	vers(ih,ih);
 	cross(it1,ir1,ih);
 	cross(it2,ir2,ih);

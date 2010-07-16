@@ -30,7 +30,7 @@ namespace kep_toolbox
 {
 	/// Regula-Falsi method
 	/**
-	 * Standard implementation of the Regula-Falsi method to solve a non-linear equation
+	 * Simple implementation of the Regula-Falsi method for zero finding.
 	 *
 	 * \param[in] a Starting point 1
 	 * \param[in] a Starting point 2
@@ -49,18 +49,14 @@ namespace kep_toolbox
 	double Fb=(F)(b);
 	double Fc=Fa;
 	while(n<max_loop){
-		if(std::min(fabs(Fb),fabs(Fa))<accuracy) break; //Equation solved within accuracy
+		if(fabs(Fc)<accuracy) break; //Equation solved within accuracy
 		c=(a*Fb-b*Fa)/(Fb-Fa);
 		Fc = (F)(c);
 		n++;
-		if(Fa*Fc<0.0) {
-			b=c;
-			Fb=Fc;
-		}
-		else {
-			a=c;
-			Fa=Fc;
-		}
+		a = b;
+		Fa=Fb;
+		b = c;
+		Fb=Fc;
 	}
 	a=c;
 	b=c;

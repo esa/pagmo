@@ -29,6 +29,8 @@
 #include<cmath>
 #include <boost/math/special_functions/acosh.hpp>
 #include <boost/math/special_functions/asinh.hpp>
+#include <boost/math/tools/roots.hpp>
+
 
 #include"../numerics/regula_falsi.h"
 #include"../astro_constants.h"
@@ -100,9 +102,10 @@ inline int lambert_2d(double &vr1, double &vt1, double &vr2, double &vt2, double
 	//1 - We solve the tof equation
 	double x;
 	if (N==0) { //no multi-rev
-		double ia = log(1 - .5233);
-		double ib = log(1 + .5233);
-		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve,_1,s,c,tof,lw), 50,ASTRO_TOLERANCE);
+		double ia = log(1 - .5);
+		double ib = log(1 + .5);
+		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve,_1,s,c,tof,lw), ASTRO_MAX_ITER,1e-9);
+
 		x = exp(ia)-1;
 	}
 	else {	//multiple revolutions solution
@@ -114,7 +117,7 @@ inline int lambert_2d(double &vr1, double &vt1, double &vr2, double &vt2, double
 			ia = tan(.7234 * M_PI/2);
 			ib = tan(.5234 * M_PI/2);
 		}
-		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve_multi_rev,_1,s,c,tof,lw,N), 50,ASTRO_TOLERANCE);
+		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve_multi_rev,_1,s,c,tof,lw,N), ASTRO_MAX_ITER,1e-9);
 		x = atan(ia) * 2 /M_PI;
 	}
 
