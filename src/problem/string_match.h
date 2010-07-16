@@ -25,6 +25,11 @@
 #ifndef PAGMO_PROBLEM_STRING_MATCH_H
 #define PAGMO_PROBLEM_STRING_MATCH_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
@@ -55,10 +60,10 @@ class __PAGMO_VISIBLE string_match: public base
 		std::string human_readable_extra() const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
+		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing string_match problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
+			std::cout << "de-/serializing string_match problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::string &>(m_str);
 		}
 		const std::string m_str;

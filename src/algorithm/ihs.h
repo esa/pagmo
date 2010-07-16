@@ -25,6 +25,11 @@
 #ifndef PAGMO_ALGORITHM_IHS_H
 #define PAGMO_ALGORITHM_IHS_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
+
 #include <cstddef>
 #include <iostream>
 #include <string>
@@ -68,18 +73,18 @@ class __PAGMO_VISIBLE ihs: public base
 	protected:
 		std::string human_readable_extra() const;
 	private:
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version){
-      std::cout << "de-/serializing ihs algorithm " << version << std::endl;
-      ar & boost::serialization::base_object<base>(*this);
-      ar & const_cast<std::size_t &>(m_gen);
-      ar & const_cast<double &>(m_phmcr);
-      ar & const_cast<double &>(m_ppar_min);
-      ar & const_cast<double &>(m_ppar_max);
-      ar & const_cast<double &>(m_bw_min);
-      ar & const_cast<double &>(m_bw_max);
-    }
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing ihs algorithm " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_gen);
+			ar & const_cast<double &>(m_phmcr);
+			ar & const_cast<double &>(m_ppar_min);
+			ar & const_cast<double &>(m_ppar_max);
+			ar & const_cast<double &>(m_bw_min);
+			ar & const_cast<double &>(m_bw_max);
+		}
 		// Number of generations.
 		const std::size_t		m_gen;
 		// Rate of choosing from memory (i.e., from population).

@@ -25,6 +25,11 @@
 #ifndef PAGMO_PROBLEM_GOLOMB_RULER_H
 #define PAGMO_PROBLEM_GOLOMB_RULER_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 
@@ -66,10 +71,10 @@ class __PAGMO_VISIBLE golomb_ruler: public base
 		void compute_marks_and_dist(const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
-	  void serialize(Archive &ar, const unsigned int version){
-    	std::cout << "de-/serializing golomb_ruler problem " << version << std::endl;
-    	ar & boost::serialization::base_object<base>(*this);
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing golomb_ruler problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_max_length);
 			ar & m_tmp_x;
 			ar & m_tmp_marks;

@@ -25,6 +25,10 @@
 #ifndef PAGMO_PROBLEM_INVENTORY_H
 #define PAGMO_PROBLEM_INVENTORY_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -72,10 +76,10 @@ class __PAGMO_VISIBLE inventory: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
+		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing inventory problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
+			std::cout << "de-/serializing inventory problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 			ar & m_seed;
 			ar & m_weeks;
 			ar & m_sample_size;

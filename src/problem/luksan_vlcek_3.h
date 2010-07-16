@@ -25,6 +25,11 @@
 #ifndef LUKSAN_VLCEK_3_H
 #define LUKSAN_VLCEK_3_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 #include <vector>
 

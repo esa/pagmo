@@ -25,13 +25,18 @@
 #ifndef PAGMO_ALGORITHM_MBH_H
 #define PAGMO_ALGORITHM_MBH_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 #include <string>
 
 #include "../config.h"
 #include "../population.h"
 #include "base.h"
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+
 
 
 namespace pagmo { namespace algorithm {
@@ -84,15 +89,15 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-  template<class Archive>
+	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing mbh algorithm " << version << std::endl;
-    ar & boost::serialization::base_object<base>(*this);
-    ar & m_local;
-    ar & const_cast<int &>(m_stop);
-    ar & m_perturb;
-    ar & m_screen_out;
-  }
+		std::cout << "de-/serializing mbh algorithm " << version << std::endl;
+		ar & boost::serialization::base_object<base>(*this);
+		ar & m_local;
+		ar & const_cast<int &>(m_stop);
+		ar & m_perturb;
+		ar & m_screen_out;
+	}
 	base_ptr m_local;
 	// Consecutive non improving iterations
 	const int m_stop;

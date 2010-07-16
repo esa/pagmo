@@ -25,6 +25,11 @@
 #ifndef LUKSAN_VLCEK_2_H
 #define LUKSAN_VLCEK_2_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 #include <vector>
 
@@ -55,10 +60,10 @@ class __PAGMO_VISIBLE luksan_vlcek_2: public base
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
+		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing luksan_vlcek_2 problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
+			std::cout << "de-/serializing luksan_vlcek_2 problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 			ar & m_clb;
 			ar & m_cub;
 		}

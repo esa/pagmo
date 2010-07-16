@@ -25,6 +25,10 @@
 #ifndef PAGMO_PROBLEM_CASSINI_2_H
 #define PAGMO_PROBLEM_CASSINI_2_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"

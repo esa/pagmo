@@ -36,8 +36,6 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/version.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
@@ -95,14 +93,14 @@ return base_ptr(new derived_algorithm(*this));
 		mutable rng_double	m_drng;
 		/// Random number generator for unsigned integer values.
 		mutable rng_uint32	m_urng;
-  private:
-    friend class boost::serialization::access;
-    template<class Archive>
-    void serialize(Archive &ar, const unsigned int version){
-      std::cout << "de-/serializing base algorithm " << version << std::endl;
+  	private:
+    	friend class boost::serialization::access;
+    	template<class Archive>
+    	void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing base algorithm " << version << std::endl;
 			ar & m_drng;
 			ar & m_urng; 
-    }
+    	}
 };
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(base)

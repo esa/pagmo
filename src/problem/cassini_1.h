@@ -25,6 +25,11 @@
 #ifndef PAGMO_PROBLEM_CASSINI_1_H
 #define PAGMO_PROBLEM_CASSINI_1_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
@@ -59,10 +64,10 @@ class __PAGMO_VISIBLE cassini_1: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
+		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing cassini_1 problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
+			std::cout << "de-/serializing cassini_1 problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
 			ar & Delta_V;
 			ar & rp;

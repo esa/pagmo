@@ -25,6 +25,11 @@
 #ifndef PAGMO_ALGORITHM_MS_H
 #define PAGMO_ALGORITHM_MS_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
@@ -66,14 +71,14 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-  template<class Archive>
+	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing ms algorithm " << version << std::endl;
-    ar & boost::serialization::base_object<base>(*this);
-    ar & m_algorithm;
-    ar & const_cast<int &>(m_starts);
-    ar & m_screen_out;
-  }
+		std::cout << "de-/serializing ms algorithm " << version << std::endl;
+		ar & boost::serialization::base_object<base>(*this);
+		ar & m_algorithm;
+		ar & const_cast<int &>(m_starts);
+		ar & m_screen_out;
+	}
 	boost::shared_ptr<base> m_algorithm;
 	int m_starts;
 	bool m_screen_out;

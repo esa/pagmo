@@ -25,6 +25,10 @@
 #ifndef PAGMO_ALGORITHM_MONTE_CARLO_H
 #define PAGMO_ALGORITHM_MONTE_CARLO_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
 #include <cstddef>
 
 #include "../config.h"
@@ -49,12 +53,12 @@ class __PAGMO_VISIBLE monte_carlo: public base
 		std::string get_name() const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
-	  void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing monte_carlo algorithm " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
-	    ar & const_cast<std::size_t &>(m_max_eval);
- 		}  
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing monte_carlo algorithm " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_max_eval);
+		}  
 		std::string human_readable_extra() const;
 		const std::size_t m_max_eval;
 };

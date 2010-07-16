@@ -25,6 +25,10 @@
 #ifndef PAGMO_PROBLEM_NSGA_II_FON_H
 #define PAGMO_PROBLEM_NSGA_II_FON_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
@@ -47,10 +51,10 @@ class __PAGMO_VISIBLE nsga_ii_fon: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
+		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing nsga_ii_fon problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
+			std::cout << "de-/serializing nsga_ii_fon problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 		}
 };
 

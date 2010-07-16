@@ -49,11 +49,11 @@ class __PAGMO_VISIBLE null:public base
 		std::string get_name() const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
-	  void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing null algorithm " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
-	  }  
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing null algorithm " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+		}  
 };
 
 }

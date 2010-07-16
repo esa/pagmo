@@ -25,6 +25,11 @@
 #ifndef PAGMO_ALGORITHM_SGA_H
 #define PAGMO_ALGORITHM_SGA_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
+
 #include "../config.h"
 #include "base.h"
 #include "../problem/base.h"
@@ -60,6 +65,13 @@ public:
 	};
 	/// Mutation operator info
 	struct mutation {
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing mutation structure " << version << std::endl;
+			ar & m_type;
+			ar & m_width;
+		}
 		/// Mutation type, gaussian or random
 		enum type {GAUSSIAN = 0, RANDOM = 1};
 		/// Constructor
@@ -73,14 +85,7 @@ public:
 		/// Mutation type
 		type m_type;
 		/// Mutation width
-		double m_width;
-		friend class boost::serialization::access;
-	  template<class Archive>
-	  void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing mutation structure " << version << std::endl;
-	    ar & m_type;
-	    ar & m_width;
-	  }  
+		double m_width;		
 	};
 
 	/// Crossover operator info
@@ -99,18 +104,18 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-  template<class Archive>
-  void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing sga algorithm " << version << std::endl;
-    ar & boost::serialization::base_object<base>(*this);
-    ar & const_cast<int &>(m_gen);
-    ar & const_cast<double &>(m_cr);
-    ar & const_cast<double &>(m_m);
-    ar & const_cast<int &>(m_elitism);
-    ar & const_cast<mutation &>(m_mut);
-    ar & const_cast<selection::type &>(m_sel);
-    ar & const_cast<crossover::type &>(m_cro);
-  }  
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version){
+		std::cout << "de-/serializing sga algorithm " << version << std::endl;
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_cr);
+		ar & const_cast<double &>(m_m);
+		ar & const_cast<int &>(m_elitism);
+		ar & const_cast<mutation &>(m_mut);
+		ar & const_cast<selection::type &>(m_sel);
+		ar & const_cast<crossover::type &>(m_cro);
+	}  
 	//Number of generations
 	const int m_gen;
 	//Crossover rate

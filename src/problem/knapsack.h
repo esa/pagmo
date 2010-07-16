@@ -25,7 +25,12 @@
 #ifndef PAGMO_PROBLEM_KNAPSACK_H
 #define PAGMO_PROBLEM_KNAPSACK_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -92,12 +97,11 @@ class __PAGMO_VISIBLE knapsack: public base
 	private:
 		void verify_init() const;
 	private:
-		private:
 		friend class boost::serialization::access;
-	  template<class Archive>
+		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing knapsack problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
+			std::cout << "de-/serializing knapsack problem " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::vector<double> &>(m_values);
 			ar & const_cast<std::vector<double> &>(m_weights);
 			ar & const_cast<double &>(m_max_weight);

@@ -25,6 +25,11 @@
 #ifndef PAGMO_ALGORITHM_BEE_COLONY_H
 #define PAGMO_ALGORITHM_BEE_COLONY_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
+
 #include "../config.h"
 #include "base.h"
 #include "../population.h"
@@ -64,13 +69,13 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-  template<class Archive>
-  void serialize(Archive &ar, const unsigned int version){
-    std::cout << "Serializing cs algorithm " << version << std::endl;
-    ar & boost::serialization::base_object<base>(*this);
-    ar & const_cast<int &>(m_iter);
-    ar & const_cast<int &>(m_limit);   
-  }  
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version){
+		std::cout << "Serializing cs algorithm " << version << std::endl;
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_iter);
+		ar & const_cast<int &>(m_limit);   
+	}  
 	// Number of generations.
 	const int m_iter;
 	const int m_limit;

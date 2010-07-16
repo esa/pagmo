@@ -25,6 +25,10 @@
 #ifndef PAGMO_ALGORITHM_DE_H
 #define PAGMO_ALGORITHM_DE_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
@@ -71,16 +75,16 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
-  friend class boost::serialization::access;
-  template<class Archive>
-  void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing de algorithm " << version << std::endl;
-    ar & boost::serialization::base_object<base>(*this);
-    ar & const_cast<int &>(m_gen);
-    ar & const_cast<double &>(m_f);
-    ar & const_cast<double &>(m_cr);
-    ar & const_cast<int &>(m_strategy);
-  }
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version){
+		std::cout << "de-/serializing de algorithm " << version << std::endl;
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_f);
+		ar & const_cast<double &>(m_cr);
+		ar & const_cast<int &>(m_strategy);
+	}
 	// Number of generations.
 	const int m_gen;
 	// Weighting factor
