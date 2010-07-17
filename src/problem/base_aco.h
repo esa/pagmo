@@ -44,11 +44,11 @@ class __PAGMO_VISIBLE base_aco : public base
 		base_aco(int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
 
 		//write heuristic information matrix on T
-		void get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta);
+		virtual void get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const;
 		
 		//check if a partial solution x is feasible. x.size() is less than problem length. It checks whether there is
 		//at least one solution having x as a prefix that is feasible.
-		bool check_partial_feasibility(decision_vector x); 
+		virtual bool check_partial_feasibility(const decision_vector x) const; 
 };
 
 }} //namespaces

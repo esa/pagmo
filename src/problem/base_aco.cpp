@@ -29,7 +29,7 @@ namespace pagmo { namespace problem {
 base_aco::base_aco(int n, int ni, int nf, int nc, int nic, const double &c_tol):base(n,ni,nf,nc,nic,c_tol){};
 
 //the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
-void base_aco::get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) {
+void base_aco::get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const {
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; eta[0].size(); ++i) {
 			for(std::vector<fitness_vector>::size_type  j = 0; j < eta[0][0].size(); ++j) {
@@ -45,8 +45,8 @@ void base_aco::get_heuristic_information_matrix(std::vector<std::vector<std::vec
 }
 
 
-bool base_aco::check_partial_feasibility(decision_vector x){
-	x=x; //to avoid the  unused parameter ‘x’ warning by compiler
+bool base_aco::check_partial_feasibility(const decision_vector x) const{
+	(void)x; //to avoid the  unused parameter ‘x’ warning by compiler
 	return true;
 }
 

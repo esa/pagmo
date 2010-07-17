@@ -73,7 +73,7 @@ base_ptr aco::clone() const
 void aco::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	problem::base_aco &prob = const_cast<problem::base_aco &>(dynamic_cast<const problem::base_aco &>(pop.problem()));
+	const problem::base_aco &prob = dynamic_cast<const problem::base_aco &>(pop.problem());
 	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP =  pop.size();
