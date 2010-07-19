@@ -31,7 +31,6 @@
 #include "aco.h"
 #include "../exceptions.h"
 #include "../population.h"
-#include "../problem/base.h"
 #include "../problem/base_aco.h"
 #include "../types.h"
 
@@ -126,8 +125,7 @@ void aco::evolve(population &pop) const
 	}
 
 	// Get heuristic information
-	prob.get_heuristic_information_matrix(eta);	
-
+	prob.get_heuristic_information_matrix(eta);
 
 	//Create pheromone paths using actual solutions
 	for ( population::size_type i = 0; i<NP; i++ ) {
@@ -141,13 +139,17 @@ void aco::evolve(population &pop) const
 		//Select first node
 		std::vector<int> selection(NP,0);
 		std::vector<fitness_vector> Ttemp(nComponents*nComponents,tempA);
+		std::vector<fitness_vector> etaTemp(nComponents*nComponents,tempA);
+		std::vector<bool> fComponentsTemp(nComponents*nComponents,true);
+		std::vector<bool> fComponents(nComponents);
 		for(std::vector<fitness_vector>::size_type i = 0; i < nComponents; ++i) {
 			for(std::vector<fitness_vector>::size_type j = 0; j < nComponents; ++j) {
 				Ttemp[i*j] = T[0][i][j];
+				etaTemp[i*j] = eta[0][i][j];
 			}
 		}
 
-		selection_probability(Ttemp, selection, pop.problem(),NP);
+		selection_probability(Ttemp, fComponentsTemp, etaTemp, selection, pop.problem(),NP);
 
 		for(population::size_type n=0; n < NP; ++n) {
 			X[n][0] = selection[n] / nComponents + lb[0];
@@ -156,8 +158,9 @@ void aco::evolve(population &pop) const
 		//go ahead with all the other components
 		for(problem::base::size_type k = 1; k < prob_i_dimension; ++k) {
 			for(population::size_type n = 0; n < NP; ++n) {
+				feasible_components(fComponents, prob, X[n], lb[k], ub[k]);
 				std::vector<int> sel(1,0);
-				selection_probability(T[k][X[n][k-1]], sel, pop.problem(),NP);
+				selection_probability(T[k][X[n][k-1]], fComponents, eta[k][X[n][k-1]], sel, pop.problem(),NP);
 				X[n][k] = sel[0] + lb[k];
 			}
 		}
@@ -168,6 +171,21 @@ void aco::evolve(population &pop) const
 		}
 	} // end of main ACO loop
 
+}
+
+void aco::feasible_components(std::vector<bool> fComponents, const pagmo::problem::base_aco &prob, decision_vector &X, double lb, double ub) {
+	decision_vector tmpX;
+	for(pagmo::problem::base::size_type i = 0; i < X.size(); ++i) {
+		tmpX.push_back(X[i]);
+	}
+	tmpX.push_back(0);
+	int i = 0;
+	for (int n = boost::numeric_cast<int>(lb); i+n < ub; ++i) {
+		tmpX[X.size()] = i+n;
+		if (prob.check_partial_feasibility(tmpX)) {
+			fComponents[i] = true;
+		}
+	}
 }
 
 void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho) {
@@ -187,18 +205,26 @@ void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> 
 }
 
 //return a random integers according to the fitness probability vector in the selection vector
-void aco::selection_probability(std::vector<fitness_vector> probability, std::vector<int> &selection, const pagmo::problem::base &prob, population::size_type NP) {
+void aco::selection_probability(std::vector<fitness_vector> probability, std::vector<bool> fComponents, std::vector<fitness_vector> eta, std::vector<int> &selection, const pagmo::problem::base &prob, population::size_type NP) {
 		std::vector<fitness_vector>::size_type pSize = probability.size();
 		std::vector<double> selectionfitness(pSize), cumsum(pSize), cumsumTemp(pSize);
 		double r = 0;
 
 		fitness_vector worstfit=probability[0];
+		fitness_vector tmpFit = probability[0];
 		for (std::vector<fitness_vector>::size_type i = 0; i < pSize; ++i) {
-			if (prob.compare_fitness(worstfit,probability[0])) worstfit=probability[0];
+			tmpFit = probability[i];
+			tmpFit[0] *= eta[i][0];
+			if (prob.compare_fitness(worstfit,tmpFit)) worstfit=tmpFit;
 		}
 
 		for (std::vector<fitness_vector>::size_type i = 0; i < pSize; ++i) {
-			selectionfitness[i] = fabs(worstfit[0] - probability[i][0]) + 1.;
+			if(fComponents[i]) {
+				selectionfitness[i] = fabs(worstfit[0] - eta[i][0]*probability[i][0]) + 1.;
+			}
+			else {
+				selectionfitness[i] = 0;
+			}
 		}
 
 		// We build and normalise the cumulative sum

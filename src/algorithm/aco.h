@@ -26,8 +26,9 @@
 #define PAGMO_ALGORITHM_ACO_H
 
 #include "../config.h"
+#include "../types.h"
 #include "base.h"
-#include "../problem/base.h"
+#include "../problem/base_aco.h"
 
 
 namespace pagmo { namespace algorithm {
@@ -52,7 +53,8 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	static void deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho);
-	static void selection_probability(std::vector<fitness_vector> probability, std::vector<int> &selection, const pagmo::problem::base &prob, population::size_type NP);
+	static void selection_probability(std::vector<fitness_vector> probability, std::vector<bool> fComponents, std::vector<fitness_vector> eta, std::vector<int> &selection, const pagmo::problem::base &prob, population::size_type NP);
+	static void feasible_components(std::vector<bool> fComponents,const pagmo::problem::base_aco &prob, decision_vector &X, double lb, double ub);
 	// Number of iterations
 	const double m_iter;
 	const double m_rho;

@@ -57,6 +57,32 @@ tsp::tsp(const std::vector<std::vector<double> > &weights):
 tsp::tsp(std::ifstream &ifile){
 	base(boost::numeric_cast<int>(2),boost::numeric_cast<int>(2),1,1,1,0);
 }*/
+
+void tsp::get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const {
+	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < eta.size(); ++k) {
+		for(std::vector<std::vector<fitness_vector> >::size_type i=0; eta[0].size(); ++i) {
+			for(std::vector<fitness_vector>::size_type  j = 0; j < eta[0][0].size(); ++j) {
+					eta[k][i][j][0] = m_weights[i][j];
+			}
+		}
+	}
+
+}
+
+bool tsp::check_partial_feasibility(const decision_vector x) const{
+	std::set<int> nodes;
+	int node;
+	for (size_type i = 0; i < x.size(); ++i) {
+		node = boost::numeric_cast<int>(x[i]);
+		if (node < get_lb()[i] || node > get_ub()[i]) {
+			return false;
+		}
+		else {
+			nodes.insert(node);
+		}
+	}
+	return nodes.size() == x.size();
+}
  
 
 /// Clone method.
@@ -84,9 +110,17 @@ void tsp::objfun_impl(fitness_vector &f, const decision_vector &x) const
 void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
 	std::set<int> nodes;
+	int node;
 	pagmo_assert(c.size() == 1 && x.size() == m_weights[0].size());
 	for (size_type i = 0; i < get_dimension(); ++i) {
-		nodes.insert(boost::numeric_cast<int>(x[i]));
+		node = boost::numeric_cast<int>(x[i]);
+		if (node < get_lb()[i] || node > get_ub()[i]) {
+			c[0] = 1;
+			return;
+		}
+		else {
+			nodes.insert(node);
+		}
 	}
 	if (nodes.size() == get_dimension()) {
 		c[0] = -1;

@@ -64,6 +64,8 @@ class __PAGMO_VISIBLE tsp: public base_aco
 		tsp(const std::vector<std::vector<double> > &);
 		//tsp(std::ifstream &);
 		base_ptr clone() const;
+		void get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const;
+		bool check_partial_feasibility(const decision_vector x) const;
 		std::string get_name() const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
