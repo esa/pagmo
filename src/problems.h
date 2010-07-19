@@ -62,5 +62,17 @@
 #include "problem/sample_return.h"
 #include "problem/earth_planet.h"
 
+// routine that registers the derived types of the the problem class needed for casting after deserializing the base_ptr
+#define REGISTER_PROBLEM_SERIALIZATIONS()                       \
+ar.template register_type<problem::branin>();					\
+ar.template register_type<problem::cassini_2>();				\
+ar.template register_type<problem::cassini_1>();				\
+ar.template register_type<problem::himmelblau>();				\
+ar.template register_type<problem::messenger>();				\
+ar.template register_type<problem::messenger_full>();			\
+ar.template register_type<problem::nsga_ii_fon>();				\
+ar.template register_type<problem::nsga_ii_sch>();				\
+ar.template register_type<problem::rosetta>();					\
+ar.template register_type<problem::sagas>();			
 
 #endif

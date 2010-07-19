@@ -196,14 +196,14 @@ class __PAGMO_VISIBLE population
 		template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
 		    std::cout << "de-/serializing population " << version << std::endl;
-			ar.register_type(static_cast<problem::cassini_1 *>(NULL));
+			REGISTER_PROBLEM_SERIALIZATIONS();
 			ar & m_prob;		    
 			ar & m_container;
 			ar & m_dom_list;
 			ar & m_champion;
 			ar & m_drng;
 			ar & m_urng;
-		}  
+		}
 		// Data members.
 		// Problem.
 		problem::base_ptr			m_prob;
