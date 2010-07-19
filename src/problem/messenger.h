@@ -67,9 +67,11 @@ class __PAGMO_VISIBLE messenger: public base
 		friend class boost::serialization::access;
 	  template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing messenger problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<int &>(sequence);
+	    	std::cout << "de-/serializing messenger problem " << version << std::endl;
+	    	ar & boost::serialization::base_object<base>(*this);
+			for(int i=0;i<5;i++) {
+				ar & const_cast<int &>(sequence[i]);
+			}
 			ar & problem;
 		} 
 		static const int sequence[5];

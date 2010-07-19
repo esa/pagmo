@@ -66,9 +66,11 @@ class __PAGMO_VISIBLE rosetta: public base
 		friend class boost::serialization::access;
 	  template<class Archive>
 		void serialize(Archive &ar, const unsigned int version){
-	    std::cout << "de-/serializing rosetta problem " << version << std::endl;
-	    ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<int &>(sequence);
+	    	std::cout << "de-/serializing rosetta problem " << version << std::endl;
+	    	ar & boost::serialization::base_object<base>(*this);
+			for(int i=0;i<6;i++) {
+				ar & const_cast<int &>(sequence[i]);
+			}
 			ar & problem;
 		}
 		static const int sequence[6];
