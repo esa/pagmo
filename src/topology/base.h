@@ -25,7 +25,17 @@
 #ifndef PAGMO_TOPOLOGY_BASE_H
 #define PAGMO_TOPOLOGY_BASE_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/adj_list_serialize.hpp>
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <string>
@@ -151,6 +161,12 @@ return base_ptr(new derived_topology(*this));
 	private:
 		void check_vertex_index(const vertices_size_type &) const;
 	private:
+    	friend class boost::serialization::access;
+    	template<class Archive>
+    	void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing base topology " << version << std::endl;
+			ar & m_graph;	
+    	}
 		graph_type m_graph;
 };
 

@@ -25,6 +25,11 @@
 #ifndef PAGMO_MIGRATION_FAIR_R_POLICY_H
 #define PAGMO_MIGRATION_FAIR_R_POLICY_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <utility>
 #include <vector>
 
@@ -52,6 +57,13 @@ class __PAGMO_VISIBLE fair_r_policy: public base_r_policy
 		base_r_policy_ptr clone() const;
 		std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 			select(const std::vector<population::individual_type> &, const population &) const;
+	private:	
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing base_r_policy migration " << version << std::endl;
+			ar & boost::serialization::base_object<base_r_policy>(*this);
+		}
 };
 
 }}

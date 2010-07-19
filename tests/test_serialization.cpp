@@ -40,6 +40,7 @@
 
 using namespace pagmo;
 
+
 void save_de(const algorithm::de &alg, const char* filename)
 {
     std::ofstream ofs( filename );
@@ -197,6 +198,58 @@ void restore_population(population & pop, const char* filename)
     ia >> pop;
 }
 
+void save_migration1(const migration::fair_r_policy & policy, const char* filename)
+{
+    std::ofstream ofs( filename );
+    boost::archive::text_oarchive oa( ofs );
+    oa << policy;
+}
+void restore_migration1(migration::fair_r_policy & policy, const char* filename)
+{
+    std::ifstream ifs( filename );
+    boost::archive::text_iarchive ia( ifs );
+    ia >> policy;
+}
+
+void save_migration2(const migration::worst_r_policy & policy, const char* filename)
+{
+    std::ofstream ofs( filename );
+    boost::archive::text_oarchive oa( ofs );
+    oa << policy;
+}
+void restore_migration2(migration::worst_r_policy & policy, const char* filename)
+{
+    std::ifstream ifs( filename );
+    boost::archive::text_iarchive ia( ifs );
+    ia >> policy;
+}
+
+void save_topology1(const topology::erdos_renyi & topo, const char* filename)
+{
+    std::ofstream ofs( filename );
+    boost::archive::text_oarchive oa( ofs );
+    oa << topo;
+}
+void restore_topology1(topology::erdos_renyi & topo, const char* filename)
+{
+    std::ifstream ifs( filename );
+    boost::archive::text_iarchive ia( ifs );
+    ia >> topo;
+}
+
+void save_topology2(const topology::watts_strogatz & topo, const char* filename)
+{
+    std::ofstream ofs( filename );
+    boost::archive::text_oarchive oa( ofs );
+    oa << topo;
+}
+void restore_topology2(topology::watts_strogatz & topo, const char* filename)
+{
+    std::ifstream ifs( filename );
+    boost::archive::text_iarchive ia( ifs );
+    ia >> topo;
+}
+
 int main()
 {
 	std::string fileName = "test.txt";
@@ -337,6 +390,42 @@ int main()
 	restore_population(population_dest, fileName.c_str());
 	std::cout << "cassini_2 problem retrieved form archive: " << population_dest << '\n';
 
+
+	migration::fair_r_policy migration_source1 = migration::fair_r_policy();
+	migration::fair_r_policy migration_dest1 = migration::fair_r_policy();
+	std::cout << "Inital topology: " << migration_dest1 << '\n';
+	//saving algorithm de1 into a text archive 
+	save_migration1(migration_source1, fileName.c_str());
+	//restoring the algoirhm de1 into a different object
+	restore_migration1(migration_dest1, fileName.c_str());
+	std::cout << "topology retrieved form archive: " << migration_dest1 << '\n';
+
+	migration::worst_r_policy migration_source2 = migration::worst_r_policy();
+	migration::worst_r_policy migration_dest2 = migration::worst_r_policy();
+	std::cout << "Inital topology: " << migration_dest2 << '\n';
+	//saving algorithm de1 into a text archive 
+	save_migration2(migration_source2, fileName.c_str());
+	//restoring the algoirhm de1 into a different object
+	restore_migration2(migration_dest2, fileName.c_str());
+	std::cout << "topology retrieved form archive: " << migration_dest2 << '\n';
+
+	topology::erdos_renyi topology_source1 = topology::erdos_renyi(0.01);
+	topology::erdos_renyi topology_dest1 = topology::erdos_renyi(0.02);
+	std::cout << "Inital topology: " << topology_dest1 << '\n';
+	//saving algorithm de1 into a text archive 
+	save_topology1(topology_source1, fileName.c_str());
+	//restoring the algoirhm de1 into a different object
+	restore_topology1(topology_dest1, fileName.c_str());
+	std::cout << "topology retrieved form archive: " << topology_dest1 << '\n';
+
+	topology::watts_strogatz topology_source2 = topology::watts_strogatz(10,0.05,0);
+	topology::watts_strogatz topology_dest2 = topology::watts_strogatz(10,0.03,0);
+	std::cout << "Inital topology: " << topology_dest2 << '\n';
+	//saving algorithm de1 into a text archive 
+	save_topology2(topology_source2, fileName.c_str());
+	//restoring the algoirhm de1 into a different object
+	restore_topology2(topology_dest2, fileName.c_str());
+	std::cout << "topology retrieved form archive: " << topology_dest2 << '\n';
 
 	return 0;
 

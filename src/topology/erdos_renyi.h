@@ -25,6 +25,12 @@
 #ifndef PAGMO_TOPOLOGY_ERDOS_RENYI_H
 #define PAGMO_TOPOLOGY_ERDOS_RENYI_H
 
+
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
@@ -59,6 +65,14 @@ class __PAGMO_VISIBLE erdos_renyi: public base
 		void connect(const vertices_size_type &);
 		std::string human_readable_extra() const;
 	private:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing erdos_renyi topology " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<double &>(m_prob);
+			ar & m_drng;
+		}  
 		const double	m_prob;
 		rng_double	m_drng;
 };

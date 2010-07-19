@@ -25,7 +25,12 @@
 #ifndef PAGMO_MIGRATION_BASE_S_POLICY_H
 #define PAGMO_MIGRATION_BASE_S_POLICY_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <vector>
 
 #include "../config.h"
@@ -76,6 +81,13 @@ return base_ptr(new derived_policy(*this));
 		 * \return a vector containing selected individuals.
 		 */
 		virtual std::vector<population::individual_type> select(const population &pop) const = 0;
+	private:	
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing base_s_policy migration " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }}

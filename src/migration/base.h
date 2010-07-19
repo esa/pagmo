@@ -25,6 +25,11 @@
 #ifndef PAGMO_MIGRATION_BASE_POLICY_H
 #define PAGMO_MIGRATION_BASE_POLICY_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <iostream>
 #include <string>
 
@@ -83,7 +88,17 @@ class __PAGMO_VISIBLE base
 		double		m_rate;
 		/// Migration rate type.
 		rate_type	m_type;
+	private:
+    	friend class boost::serialization::access;
+    	template<class Archive>
+    	void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing base migration " << version << std::endl;
+			ar & m_rate;
+			ar & m_type; 
+    	}
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(base)
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 

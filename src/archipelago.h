@@ -25,7 +25,15 @@
 #ifndef PAGMO_ARCHIPELAGO_H
 #define PAGMO_ARCHIPELAGO_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/thread/barrier.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
@@ -155,6 +163,20 @@ class __PAGMO_VISIBLE archipelago
 		struct count_if_blocking;
 		bool is_blocking_impl() const;
 	private:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+		    std::cout << "de-/serializing archipelago " << version << std::endl;			
+			//ar & m_container; needs serialization of the Island class first			
+			ar & m_topology;
+			ar & m_dist_type;
+			ar & m_migr_dir;
+			ar & m_migr_map;
+			ar & m_drng;
+			ar & m_urng;
+			ar & m_migr_mutex;
+			ar & m_migr_hist;
+		}  
 		// Container of islands.
 		container_type				m_container;
 		// A barrier used to synchronise the start time of all islands.

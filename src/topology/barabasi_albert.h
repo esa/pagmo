@@ -25,6 +25,11 @@
 #ifndef PAGMO_TOPOLOGY_BARABASI_ALBERT_H
 #define PAGMO_TOPOLOGY_BARABASI_ALBERT_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 
@@ -60,6 +65,16 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 		void connect(const vertices_size_type &);
 		std::string human_readable_extra() const;
 	private:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing barabasi_albert topology " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_m0);
+			ar & const_cast<std::size_t &>(m_m);
+			ar & m_drng;
+			ar & m_urng;
+		}  
 		// Size of the kernel - the starting number of nodes.
 		const std::size_t	m_m0;
 		// Number of edges per newly-inserted node.

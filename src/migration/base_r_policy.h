@@ -25,7 +25,12 @@
 #ifndef PAGMO_MIGRATION_BASE_R_POLICY_H
 #define PAGMO_MIGRATION_BASE_R_POLICY_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <utility>
 #include <vector>
 
@@ -96,6 +101,13 @@ return base_ptr(new derived_policy(*this));
 		{
 			for (; first != last; ++first, ++value)
 				*first = value;
+		}
+	private:	
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing base_r_policy migration " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
 		}
 };
 

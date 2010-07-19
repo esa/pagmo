@@ -25,6 +25,11 @@
 #ifndef PAGMO_TOPOLOGY_UNCONNECTED_H
 #define PAGMO_TOPOLOGY_UNCONNECTED_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
@@ -48,6 +53,12 @@ class __PAGMO_VISIBLE unconnected: public base
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing unconnected topology " << version << std::endl;
+			ar & boost::serialization::base_object<base>(*this);
+		}
 		void connect(const vertices_size_type &);
 };
 
