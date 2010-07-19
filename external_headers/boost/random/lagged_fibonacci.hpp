@@ -489,17 +489,10 @@ public:
 #endif
 
 private:
-	friend class boost::serialization::access;
-  template<class Archive>
-  void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing random number generator for double-precision floating point values. " << version << std::endl;
- 	  ar & i; 
-	  ar & x; 
-	  ar & _modulus; 
-  }
   /// \cond hide_private_members
   void fill();
   /// \endcond
+public:
   unsigned int i;
   RealType x[long_lag];
   RealType _modulus;

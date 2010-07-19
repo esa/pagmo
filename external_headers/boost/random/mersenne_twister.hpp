@@ -220,13 +220,6 @@ public:
 #endif
 
 private:
-	friend class boost::serialization::access;
-  template<class Archive>
-  void serialize(Archive &ar, const unsigned int version){
-    std::cout << "de-/serializing random number generator for unsigned integer values. " << version << std::endl;
-	  ar & i; 
-	  ar & x; 
-  }
   /// \cond hide_private_members
   // returns x(i-n+index), where index is in 0..n-1
   UIntType compute(unsigned int index) const
@@ -242,7 +235,7 @@ private:
   //  x(i-k) ... x(i) x(i+1) ... x(i-k+n-1) x(i-k-n) ... x[i(i-k-1)]
   // The goal is to always have x(i-n) ... x(i-1) available for
   // operator== and save/restore.
-
+public:
   UIntType x[2*n]; 
   int i;
 };
