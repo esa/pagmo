@@ -64,7 +64,7 @@ base_ptr aco::clone() const
 
 /// Evolve implementation.
 /**
- * Run the Firefly algorithm for the number of generations specified in the constructors.
+ * Run the ACO algorithm for the number of generations specified in the constructors.
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
@@ -73,7 +73,7 @@ void aco::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base_aco &prob = dynamic_cast<const problem::base_aco &>(pop.problem());
-	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension();
+	const problem::base::size_type prob_i_dimension = prob.get_i_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP =  pop.size();
 
@@ -87,15 +87,11 @@ void aco::evolve(population &pop) const
 
 	//We perform some checks to determine wether the problem/population are suitable for ACO
 	if (prob_i_dimension == 0 ) {
-		pagmo_throw(value_error,"There is no integer part in the problem decision vector for Firefly to optimise");
+		pagmo_throw(value_error,"There is no integer part in the problem decision vector for ACO to optimise");
 	}
 
 	if ( prob.get_f_dimension() != 1 ) {
 		pagmo_throw(value_error,"The problem is not single objective and ACO is not suitable to solve it");
-	}
-
-	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and ACO is not suitable to solve it");
 	}
 
 	if (NP < 2) {
@@ -108,7 +104,7 @@ void aco::evolve(population &pop) const
 	}
 
 	// Some vectors used during evolution are allocated here.
-	decision_vector dummy(prob_i_dimension,0);			//used for initialisation purposes
+	decision_vector dummy(prob_i_dimension,0);	//used for initialisation purposes
 	std::vector<decision_vector > X(NP,dummy);	//set of ant partial solutions
 	std::vector<fitness_vector> fit(NP);		//set of ant solutions fitness
 
@@ -116,7 +112,7 @@ void aco::evolve(population &pop) const
 	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
 	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
 	std::vector<std::vector<std::vector<fitness_vector> > > T(prob_i_dimension, tempC); //pheromone trail matrix 
-	std::vector<std::vector<std::vector<fitness_vector> > > eta(prob_i_dimension, tempC); //pheromone trail matrix 
+	std::vector<std::vector<std::vector<fitness_vector> > > eta(prob_i_dimension, tempC); //heuristic information matrix 
 
 	// Copy the solutions and their fitness
 	for ( population::size_type i = 0; i<NP; i++ ) {
@@ -124,7 +120,7 @@ void aco::evolve(population &pop) const
 		fit[i]	=	pop.get_individual(i).cur_f;
 	}
 
-	// Get heuristic information
+	// Get heuristic information for the problem
 	prob.get_heuristic_information_matrix(eta);
 
 	//Create pheromone paths using actual solutions
@@ -136,12 +132,16 @@ void aco::evolve(population &pop) const
 	// Main ACO loop
 	for (int t = 0; t < m_iter; ++t) {
 
-		//Select first node
-		std::vector<int> selection(NP,0);
+		std::vector<int> selection(NP,0); //next node selection for each individual
+
 		std::vector<fitness_vector> Ttemp(nComponents,tempA);
 		std::vector<fitness_vector> etaTemp(nComponents,tempA);
 		std::vector<bool> fComponentsTemp(nComponents,true);
 		std::vector<bool> fComponents(nComponents);
+
+		//Select first node
+		// Since the first node doesn't have a predecessor we create new T and eta vector for each first vector i
+		// summing over all the j each T[i][j] 
 		for(std::vector<fitness_vector>::size_type i = 0; i < nComponents; ++i) {
 			for(std::vector<fitness_vector>::size_type j = 0; j < nComponents; ++j) {
 				Ttemp[i][0] += T[0][i][j][0];
@@ -166,16 +166,17 @@ void aco::evolve(population &pop) const
 		}
 		for(population::size_type n=0; n < NP; ++n) {
 			pop.set_x(n,X[n]);
-			for (int i = 0; i < 4; ++i) {
-				std::cout << X[n][i] << " ";
-			}
-			std::cout << std::endl;
 			prob.objfun(fit[n], X[n]);
 			deposit_pheromone(T,X[n],fit[n], m_rho);
 		}
 	} // end of main ACO loop
 }
 
+/*
+ * given a partial decision vector of size X.size() that has just the first xSize components filled (it means that the rest of the vector is not relevant)
+ * write a fComonents boolean vector where fComponents[i] is true if X[xSize] =  "ith possible value for the component xSize" make
+ * the vector X feasible (according to the first xSize+1 components)
+ */
 void aco::feasible_components(std::vector<bool> &fComponents, const pagmo::problem::base_aco &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub) {
 	decision_vector tmpX(xSize+1,0);
 	for(pagmo::problem::base::size_type i = 0; i < xSize; ++i) {
@@ -193,6 +194,10 @@ void aco::feasible_components(std::vector<bool> &fComponents, const pagmo::probl
 	}
 }
 
+/*
+ * Deposit pherormone on the trail. Pheromone is represented as the fitness of a solution. Each individual deposit an amount of pheromone
+ * on its path (its solution) equal to the fitness of its solution
+ */
 void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho) {
 	//evaporation
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < T.size(); ++k) {

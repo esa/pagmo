@@ -42,7 +42,7 @@ namespace pagmo { namespace problem {
  * @param[in] weights matrix of weights.
  */
 tsp::tsp(const std::vector<std::vector<double> > &weights):
-	base_aco(boost::numeric_cast<int>(weights[0].size()),boost::numeric_cast<int>(weights[0].size()),1,0,0,0),
+	base_aco(boost::numeric_cast<int>(weights[0].size()),boost::numeric_cast<int>(weights[0].size()),1,1,0,0),
 	m_weights(weights) {
 	set_lb(0);
 	set_ub(weights[0].size()-1); //number of nodes in the graph -1 (we count from 0)
@@ -55,9 +55,12 @@ tsp::tsp(const std::vector<std::vector<double> > &weights):
 
 /*
 tsp::tsp(std::ifstream &ifile){
-	base(boost::numeric_cast<int>(2),boost::numeric_cast<int>(2),1,1,1,0);
+//TO IMPLEMENT
 }*/
 
+/** For tsp eta[k][i][j] represents the cost of having the node j in position k of the path and the node i in position k+1. 
+ *  this represents the weight of the edg between i and j (distance from city i and j) and doesn't depends from k.
+ */
 void tsp::get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const {
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < eta[0].size(); ++i) {
@@ -68,7 +71,9 @@ void tsp::get_heuristic_information_matrix(std::vector<std::vector<std::vector<f
 	}
 
 }
-
+/*
+ * Using a set check if the same node appears two times in the solution. In that case the solution is not feasible
+ */
 bool tsp::check_partial_feasibility(const decision_vector x) const{
 	std::set<int> nodes;
 	int node;
@@ -123,7 +128,7 @@ void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector &
 		}
 	}
 	if (nodes.size() == get_dimension()) {
-		c[0] = -1;
+		c[0] = 0;
 	}
 	else {
 		c[0] = 1;
