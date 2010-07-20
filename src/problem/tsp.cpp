@@ -42,10 +42,10 @@ namespace pagmo { namespace problem {
  * @param[in] weights matrix of weights.
  */
 tsp::tsp(const std::vector<std::vector<double> > &weights):
-	base_aco(boost::numeric_cast<int>(weights[0].size()),boost::numeric_cast<int>(weights[0].size()),1,1,1,0),
+	base_aco(boost::numeric_cast<int>(weights[0].size()),boost::numeric_cast<int>(weights[0].size()),1,0,0,0),
 	m_weights(weights) {
 	set_lb(0);
-	set_ub(weights[0].size()); //number of nodes in the graph
+	set_ub(weights[0].size()-1); //number of nodes in the graph -1 (we count from 0)
 }
 
 /**
@@ -60,7 +60,7 @@ tsp::tsp(std::ifstream &ifile){
 
 void tsp::get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const {
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < eta.size(); ++k) {
-		for(std::vector<std::vector<fitness_vector> >::size_type i=0; eta[0].size(); ++i) {
+		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < eta[0].size(); ++i) {
 			for(std::vector<fitness_vector>::size_type  j = 0; j < eta[0][0].size(); ++j) {
 					eta[k][i][j][0] = m_weights[i][j];
 			}
@@ -100,7 +100,7 @@ void tsp::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for (size_type i = 1; i < get_dimension(); ++i) {
 			f[0] += m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])];
 	}
-	f[0] += m_weights[boost::numeric_cast<int>(x[get_dimension()-1])][1];
+	f[0] += m_weights[boost::numeric_cast<int>(x[get_dimension()-1])][boost::numeric_cast<int>(x[0])];
 }
 
 /// Re-implement constraint computation,

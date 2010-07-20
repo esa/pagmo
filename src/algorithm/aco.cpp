@@ -83,7 +83,7 @@ void aco::evolve(population &pop) const
 			max_size = ub[i] - lb[i];
 		}
 	}
-	const std::vector<decision_vector>::size_type nComponents = boost::numeric_cast<std::vector<decision_vector>::size_type>(max_size); 
+	const std::vector<decision_vector>::size_type nComponents = boost::numeric_cast<std::vector<decision_vector>::size_type>(max_size) + 1; 
 
 	//We perform some checks to determine wether the problem/population are suitable for ACO
 	if (prob_i_dimension == 0 ) {
@@ -112,7 +112,7 @@ void aco::evolve(population &pop) const
 	std::vector<decision_vector > X(NP,dummy);	//set of ant partial solutions
 	std::vector<fitness_vector> fit(NP);		//set of ant solutions fitness
 
-	fitness_vector tempA(prob_i_dimension,0);	//used for initialisation purpouses
+	fitness_vector tempA(prob.get_f_dimension(),0);	//used for initialisation purpouses
 	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
 	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
 	std::vector<std::vector<std::vector<fitness_vector> > > T(prob_i_dimension, tempC); //pheromone trail matrix 
@@ -138,52 +138,57 @@ void aco::evolve(population &pop) const
 
 		//Select first node
 		std::vector<int> selection(NP,0);
-		std::vector<fitness_vector> Ttemp(nComponents*nComponents,tempA);
-		std::vector<fitness_vector> etaTemp(nComponents*nComponents,tempA);
-		std::vector<bool> fComponentsTemp(nComponents*nComponents,true);
+		std::vector<fitness_vector> Ttemp(nComponents,tempA);
+		std::vector<fitness_vector> etaTemp(nComponents,tempA);
+		std::vector<bool> fComponentsTemp(nComponents,true);
 		std::vector<bool> fComponents(nComponents);
 		for(std::vector<fitness_vector>::size_type i = 0; i < nComponents; ++i) {
 			for(std::vector<fitness_vector>::size_type j = 0; j < nComponents; ++j) {
-				Ttemp[i*j] = T[0][i][j];
-				etaTemp[i*j] = eta[0][i][j];
+				Ttemp[i][0] += T[0][i][j][0];
+				etaTemp[i][0] += eta[0][i][j][0];
 			}
 		}
 
-		selection_probability(Ttemp, fComponentsTemp, etaTemp, selection, pop.problem(),NP);
+		selection_probability(Ttemp, fComponentsTemp, etaTemp, selection, pop.problem());
 
 		for(population::size_type n=0; n < NP; ++n) {
-			X[n][0] = selection[n] / nComponents + lb[0];
+			X[n][0] = selection[n] + lb[0];
 		}
 	
 		//go ahead with all the other components
 		for(problem::base::size_type k = 1; k < prob_i_dimension; ++k) {
 			for(population::size_type n = 0; n < NP; ++n) {
-				feasible_components(fComponents, prob, X[n], lb[k], ub[k]);
+				feasible_components(fComponents, prob, X[n], k, lb[k], ub[k]);
 				std::vector<int> sel(1,0);
-				selection_probability(T[k][X[n][k-1]], fComponents, eta[k][X[n][k-1]], sel, pop.problem(),NP);
+				selection_probability(T[k][X[n][k-1]], fComponents, eta[k][X[n][k-1]], sel, pop.problem());
 				X[n][k] = sel[0] + lb[k];
 			}
 		}
 		for(population::size_type n=0; n < NP; ++n) {
 			pop.set_x(n,X[n]);
+			for (int i = 0; i < 4; ++i) {
+				std::cout << X[n][i] << " ";
+			}
+			std::cout << std::endl;
 			prob.objfun(fit[n], X[n]);
 			deposit_pheromone(T,X[n],fit[n], m_rho);
 		}
 	} // end of main ACO loop
-
 }
 
-void aco::feasible_components(std::vector<bool> fComponents, const pagmo::problem::base_aco &prob, decision_vector &X, double lb, double ub) {
-	decision_vector tmpX;
-	for(pagmo::problem::base::size_type i = 0; i < X.size(); ++i) {
-		tmpX.push_back(X[i]);
+void aco::feasible_components(std::vector<bool> &fComponents, const pagmo::problem::base_aco &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub) {
+	decision_vector tmpX(xSize+1,0);
+	for(pagmo::problem::base::size_type i = 0; i < xSize; ++i) {
+		tmpX[i] = X[i];
 	}
-	tmpX.push_back(0);
 	int i = 0;
-	for (int n = boost::numeric_cast<int>(lb); i+n < ub; ++i) {
-		tmpX[X.size()] = i+n;
+	for (int n = boost::numeric_cast<int>(lb); i+n <= ub; ++i) {
+		tmpX[xSize] = i+n;
 		if (prob.check_partial_feasibility(tmpX)) {
 			fComponents[i] = true;
+		}
+		else {
+			fComponents[i] = false;
 		}
 	}
 }
@@ -205,17 +210,16 @@ void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> 
 }
 
 //return a random integers according to the fitness probability vector in the selection vector
-void aco::selection_probability(std::vector<fitness_vector> probability, std::vector<bool> fComponents, std::vector<fitness_vector> eta, std::vector<int> &selection, const pagmo::problem::base &prob, population::size_type NP) {
+void aco::selection_probability(std::vector<fitness_vector> &probability, std::vector<bool> &fComponents, std::vector<fitness_vector> &eta, std::vector<int> &selection, const pagmo::problem::base &prob) {
 		std::vector<fitness_vector>::size_type pSize = probability.size();
 		std::vector<double> selectionfitness(pSize), cumsum(pSize), cumsumTemp(pSize);
 		double r = 0;
 
-		fitness_vector worstfit=probability[0];
-		fitness_vector tmpFit = probability[0];
+		fitness_vector worstfit(1, probability[0][0]);
+		fitness_vector tmpFit(1, probability[0][0]);
 		for (std::vector<fitness_vector>::size_type i = 0; i < pSize; ++i) {
-			tmpFit = probability[i];
-			tmpFit[0] *= eta[i][0];
-			if (prob.compare_fitness(worstfit,tmpFit)) worstfit=tmpFit;
+			tmpFit[0] = probability[i][0] * eta[i][0];
+			if (prob.compare_fitness(worstfit,tmpFit)) worstfit[0]=tmpFit[0];
 		}
 
 		for (std::vector<fitness_vector>::size_type i = 0; i < pSize; ++i) {
@@ -232,13 +236,13 @@ void aco::selection_probability(std::vector<fitness_vector> probability, std::ve
 		for (std::vector<fitness_vector>::size_type i = 1; i< pSize; i++) {
 			cumsumTemp[i] = cumsumTemp[i - 1] + selectionfitness[i];
 		}
-		for (pagmo::population::size_type i = 0; i < NP; i++) {
-			cumsum[i] = cumsumTemp[i]/cumsumTemp[NP-1];
+		for (pagmo::population::size_type i = 0; i < pSize; i++) {
+			cumsum[i] = cumsumTemp[i]/cumsumTemp[pSize-1];
 		}
 
 		for (std::vector<double>::size_type i = 0; i < selection.size(); i++) {
 			r = rng_generator::get<rng_double>()();
-			for (pagmo::population::size_type j = 0; j < NP; j++) {
+			for (pagmo::population::size_type j = 0; j < pSize; j++) {
 				if (cumsum[j] > r) {
 					selection[i] = j;
 					break;

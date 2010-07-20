@@ -25,6 +25,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include"../src/pagmo.h"
@@ -56,6 +57,20 @@ double std_dev(archipelago a, double mean) {
 	return sqrt(retval / a.get_size());
 }
 
+std::string getSolutions(archipelago a) {
+	std::ostringstream sol;
+	int solSize = a.get_island(0).get_population().champion().x.size();
+	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
+		sol << "island " << i << ": (";
+		for(int j = 0; j < solSize; ++j) {
+			sol << a.get_island(i).get_population().champion().x[j] << ",";
+		}
+		sol << ")" << std::endl;
+	}	
+	return sol.str();
+}
+
+
 void print_row(std::ostream &f, const std::string &topo_name, const double &mean, const double &dev)
 {
 	f << topo_name << " & " << mean << " & " << dev << "\\\\";
@@ -74,10 +89,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 5;
-	int number_of_individuals = 25;
+	int number_of_islands = 1;
+	int number_of_individuals = 10;
 	//int evolution_time = 1000;
-	int number_of_migrations = 5;
+	int number_of_migrations = 1;
 
 	/*
 	std::vector<double> r1;
@@ -90,7 +105,25 @@ int main()
 	weights.push_back(r1);
 	weights.push_back(r2);
 	*/
-
+	
+	std::vector<double> tmp(4,0);
+	std::vector<std::vector<double> > w(4,tmp);
+	w[0][0] = 0;
+	w[0][1] = 1;
+	w[0][2] = 100;
+	w[0][3] = 1;
+	w[1][0] = 1;
+	w[1][1] = 0;
+	w[1][2] = 1;
+	w[1][3] = 100;
+	w[2][0] = 100;
+	w[2][1] = 1;
+	w[2][2] = 0;
+	w[2][3] = 1;
+	w[3][0] = 1;
+	w[3][1] = 100;
+	w[3][2] = 1;
+	w[3][3] = 0;
 
 
 	//1 - We instantiate the problems
@@ -99,7 +132,7 @@ int main()
 	problem::ackley prob3(5);
 	problem::rastrigin prob4(5);
 	problem::michalewicz prob5(5);
-	//problem::tsp prob5(weights);
+	problem::tsp prob6(w);
 
 	//2 - We instantiate the algorithms
 	algorithm::de algo1(100);
@@ -109,6 +142,7 @@ int main()
 	algorithm::ihs algo5(2000);
 	algorithm::bee_colony algo6(50);
 	algorithm::cross_entropy algo7(100,0.3);
+	algorithm::aco algo8(10);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
@@ -121,25 +155,26 @@ int main()
 	//algo.push_back(algo1.clone());
 	//algo.push_back(algo2.clone());
 	//algo.push_back(algo3.clone());
-	algo.push_back(algo4.clone());
+	//algo.push_back(algo4.clone());
 	//algo.push_back(algo5.clone());
-	algo.push_back(algo6.clone());
-	algo.push_back(algo7.clone());
+	//algo.push_back(algo6.clone());
+	//algo.push_back(algo7.clone());
+	algo.push_back(algo8.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
 	//prob.push_back(prob1.clone());
-	prob.push_back(prob2.clone());
-	prob.push_back(prob3.clone());
-	prob.push_back(prob4.clone());
-	prob.push_back(prob5.clone());
+	//prob.push_back(prob2.clone());
+	//prob.push_back(prob3.clone());
+	//prob.push_back(prob4.clone());
+	prob.push_back(prob6.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
 	topo.push_back(topo1.clone());
-	topo.push_back(topo2.clone());
-	topo.push_back(topo3.clone());
-	topo.push_back(topo4.clone());
+	//topo.push_back(topo2.clone());
+	//topo.push_back(topo3.clone());
+	//topo.push_back(topo4.clone());
 
 	for (unsigned int pr=0; pr<prob.size();++pr) {
 		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;
@@ -161,7 +196,7 @@ int main()
 				}
 				a.evolve(number_of_migrations);
 				a.join();
-				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
+				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << a.get_island(0).get_population().champion().human_readable() << std::endl;
 				print_row(myfile,topo[to]->get_name(),mean(a),std_dev(a,mean(a)));
 			}
 		}
