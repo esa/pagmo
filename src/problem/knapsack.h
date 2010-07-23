@@ -32,7 +32,7 @@
 
 #include "../config.h"
 #include "../types.h"
-#include "base.h"
+#include "base_aco.h"
 
 namespace pagmo { namespace problem {
 
@@ -62,7 +62,7 @@ namespace pagmo { namespace problem {
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE knapsack: public base
+class __PAGMO_VISIBLE knapsack: public base_aco
 {
 	public:
 		knapsack(const std::vector<double> &, const std::vector<double> &, const double &);
@@ -83,6 +83,8 @@ class __PAGMO_VISIBLE knapsack: public base
 		}
 		base_ptr clone() const;
 		std::string get_name() const;
+		void get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const;
+		bool check_partial_feasibility(const decision_vector x) const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;

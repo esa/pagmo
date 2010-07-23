@@ -89,10 +89,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 1;
+	int number_of_islands = 3;
 	int number_of_individuals = 25;
 	//int evolution_time = 1000;
-	int number_of_migrations = 1;
+	int number_of_migrations = 3;
 
 	/*
 	std::vector<double> r1;
@@ -136,8 +136,8 @@ int main()
 	weights[0] = 10;
 	weights[1] = 10;
 	weights[2] = 1;
-	weights[2] = 2;
-	weights[2] = 3;
+	weights[3] = 2;
+	weights[4] = 3;
 
 	double max_weight = 11;
 
@@ -185,7 +185,7 @@ int main()
 	//prob.push_back(prob3.clone());
 	//prob.push_back(prob4.clone());
 	prob.push_back(prob6.clone());
-	//prob.push_back(prob7.clone());
+	prob.push_back(prob7.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
@@ -214,7 +214,10 @@ int main()
 				}
 				a.evolve(number_of_migrations);
 				a.join();
-				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl << a.get_island(0).get_population().champion().human_readable() << std::endl;
+				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
+				for(int i = 0; i < number_of_islands; ++i) {
+					std::cout << "Island " << i << std::endl << a.get_island(i).get_population().champion().human_readable() << std::endl;					
+				}
 				print_row(myfile,topo[to]->get_name(),mean(a),std_dev(a,mean(a)));
 			}
 		}

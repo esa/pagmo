@@ -45,7 +45,7 @@ namespace pagmo { namespace problem {
  * @param[in] max_weight maximum weight.
  */
 knapsack::knapsack(const std::vector<double> &values, const std::vector<double> &weights, const double &max_weight):
-	base(boost::numeric_cast<int>(values.size()),boost::numeric_cast<int>(values.size()),1,1,1),
+	base_aco(boost::numeric_cast<int>(values.size()),boost::numeric_cast<int>(values.size()),1,1,1,0),
 	m_values(values),m_weights(weights),m_max_weight(max_weight)
 {
 	verify_init();
@@ -125,6 +125,32 @@ void knapsack::verify_init() const
 		}
 	}
 }
+
+//We use as heuristic information the ration value/weight. Higher is it, better is the path
+//and since knapsack is a maximization problem the probability for the edge to be chosen is higher
+void knapsack::get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const {
+	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < eta.size(); ++k) {
+		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < eta[0].size(); ++i) {
+			for(std::vector<fitness_vector>::size_type  j = 0; j < eta[0][0].size(); ++j) {
+					eta[k][i][j][0] = m_values[i] / m_weights[i];
+			}
+		}
+	}
+}
+
+bool knapsack::check_partial_feasibility(const decision_vector x) const {
+	double tot_weight = 0;
+	for (problem::base::size_type i = 0; i < x.size(); ++i) {
+		if(boost::numeric_cast<int>(x[i]) == 1) {
+			tot_weight += m_weights[i];
+			if (tot_weight > m_max_weight) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 
 std::string knapsack::get_name() const
 {
