@@ -37,56 +37,75 @@ namespace pagmo { namespace problem {
 
 /// Constructor from vectors and maximum weight.
 /**
- * Initialize weights of the edges from the matrix.
+ * Initialize weights of the edges (city distances) from the matrix.
  *
- * @param[in] weights matrix of weights.
+ * @param[in] weights matrix of distances between cities.
  */
 tsp::tsp(const std::vector<std::vector<double> > &weights):
 	base_aco(boost::numeric_cast<int>(weights[0].size()),boost::numeric_cast<int>(weights[0].size()),1,1,0,0),
 	m_weights(weights) {
+	
+	//Check weights matrix
+	for(problem::base_aco::size_type i = 0; i < m_weights.size(); ++i) {
+		if (m_weights[i].size() != m_weights.size()) {
+			pagmo_throw(value_error,"Weights matrix must be a square matrix!");		
+		}
+		if(m_weights[i][i] != 0) {
+			pagmo_throw(value_error,"Weights matrix must have 0's on the diagonal!");
+		}
+		for (problem::base_aco::size_type j = 0; j < m_weights[i].size(); ++j) {
+			if(m_weights[i][j] != m_weights[j][i]) {
+				pagmo_throw(value_error,"Weights matrix must be a simmetric matrix!");	
+			}
+		}
+	}
+
 	set_lb(0);
 	set_ub(weights[0].size()-1); //number of nodes in the graph -1 (we count from 0)
+	set_heuristic_information_matrix();
 }
 
-/**
- * Read the weight matrix from file
- * @param[in] ifile file containing the weights matrix
- */
-
-/*
-tsp::tsp(std::ifstream &ifile){
-//TO IMPLEMENT
-}*/
 
 /** For tsp eta[k][i][j] represents the cost of having the node j in position k of the path and the node i in position k+1. 
- *  this represents the weight of the edg between i and j (distance from city i and j) and doesn't depends from k.
+ *  this represents the weight of the edge between i and j (distance from city i and j) and doesn't depends from k.
  */
-void tsp::get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const {
-	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < eta.size(); ++k) {
-		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < eta[0].size(); ++i) {
-			for(std::vector<fitness_vector>::size_type  j = 0; j < eta[0][0].size(); ++j) {
-					eta[k][i][j][0] = m_weights[i][j];
+void tsp::set_heuristic_information_matrix() {
+	create_eta();
+	
+	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
+		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
+			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {
+					m_eta[k][i][j][0] = m_weights[i][j];
 			}
 		}
 	}
 
 }
 /*
- * Using a set check if the same node appears two times in the solution. In that case the solution is not feasible
+ * Chek if a node appears two times in the solution. In that case the solution is not feasible
  */
 bool tsp::check_partial_feasibility(const decision_vector x) const{
-	std::set<int> nodes;
-	int node;
-	for (size_type i = 0; i < x.size(); ++i) {
-		node = boost::numeric_cast<int>(x[i]);
-		if (node < get_lb()[i] || node > get_ub()[i]) {
+	if (x.size() > get_i_dimension()) {
+		return false;
+	}
+
+	m_tmpDecisionVector = x;
+	sort(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end());
+	int component = boost::numeric_cast<int>(m_tmpDecisionVector[0]);
+	if (component < get_lb()[0] || component > get_ub()[0]) {
+		return false;
+	}
+
+	for(problem::base_aco::size_type i = 1; i < m_tmpDecisionVector.size(); ++i) {
+		component = boost::numeric_cast<int>(m_tmpDecisionVector[i]);
+		if (boost::numeric_cast<int>(m_tmpDecisionVector[i-1]) == component) {
 			return false;
 		}
-		else {
-			nodes.insert(node);
+		if (component < get_lb()[i] || component > get_ub()[i]) {
+			return false;
 		}
 	}
-	return nodes.size() == x.size();
+	return true;
 }
  
 
@@ -114,20 +133,7 @@ void tsp::objfun_impl(fitness_vector &f, const decision_vector &x) const
 //the nodes have been selected
 void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	std::set<int> nodes;
-	int node;
-	pagmo_assert(c.size() == 1 && x.size() == m_weights[0].size());
-	for (size_type i = 0; i < get_dimension(); ++i) {
-		node = boost::numeric_cast<int>(x[i]);
-		if (node < get_lb()[i] || node > get_ub()[i]) {
-			c[0] = 1;
-			return;
-		}
-		else {
-			nodes.insert(node);
-		}
-	}
-	if (nodes.size() == get_dimension()) {
+	if (check_partial_feasibility(x)) {
 		c[0] = 0;
 	}
 	else {

@@ -34,7 +34,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_fon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_sch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/paraboloid.cpp
@@ -57,8 +56,9 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp

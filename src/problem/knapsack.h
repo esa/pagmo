@@ -83,7 +83,6 @@ class __PAGMO_VISIBLE knapsack: public base_aco
 		}
 		base_ptr clone() const;
 		std::string get_name() const;
-		void get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const;
 		bool check_partial_feasibility(const decision_vector x) const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
@@ -93,6 +92,7 @@ class __PAGMO_VISIBLE knapsack: public base_aco
 		std::string human_readable_extra() const;
 	private:
 		void verify_init() const;
+		void set_heuristic_information_matrix();
 	private:
 		const std::vector<double>	m_values;
 		const std::vector<double>	m_weights;

@@ -112,16 +112,13 @@ void aco::evolve(population &pop) const
 	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
 	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
 	std::vector<std::vector<std::vector<fitness_vector> > > T(prob_i_dimension, tempC); //pheromone trail matrix 
-	std::vector<std::vector<std::vector<fitness_vector> > > eta(prob_i_dimension, tempC); //heuristic information matrix 
+	std::vector<std::vector<std::vector<fitness_vector> > > eta = prob.get_heuristic_information_matrix(); //heuristic information matrix 
 
 	// Copy the solutions and their fitness
 	for ( population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		fit[i]	=	pop.get_individual(i).cur_f;
 	}
-
-	// Get heuristic information for the problem
-	prob.get_heuristic_information_matrix(eta);
 
 	//Create pheromone paths using actual solutions
 	for ( population::size_type i = 0; i<NP; i++ ) {

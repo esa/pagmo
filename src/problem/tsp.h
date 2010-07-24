@@ -62,9 +62,7 @@ class __PAGMO_VISIBLE tsp: public base_aco
 {
 	public:
 		tsp(const std::vector<std::vector<double> > &);
-		//tsp(std::ifstream &);
 		base_ptr clone() const;
-		void get_heuristic_information_matrix(std::vector<std::vector<std::vector<fitness_vector> > > &eta) const;
 		bool check_partial_feasibility(const decision_vector x) const;
 		std::string get_name() const;
 	protected:
@@ -73,6 +71,8 @@ class __PAGMO_VISIBLE tsp: public base_aco
 		std::string human_readable_extra() const;
 	private:
 		const std::vector<std::vector<double> >	m_weights;
+		void set_heuristic_information_matrix();
+		mutable decision_vector m_tmpDecisionVector;
 };
 
 }

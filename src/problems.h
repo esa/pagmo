@@ -31,7 +31,6 @@
 #include "problem/branin.h"
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
-#include "problem/knapsack.h"
 #include "problem/nsga_ii_fon.h"
 #include "problem/nsga_ii_sch.h"
 #include "problem/paraboloid.h"
@@ -62,7 +61,8 @@
 #include "problem/earth_planet.h"
 #include "problem/michalewicz.h"
 #include "problem/dejong.h"
-#include "problem/tsp.h"
 #include "problem/base_aco.h"
+#include "problem/tsp.h"
+#include "problem/knapsack.h"
 
 #endif
