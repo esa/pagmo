@@ -22,50 +22,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_PROBLEM_FON_H
+#define PAGMO_PROBLEM_FON_H
 
-// Header including all problems implemented in PaGMO.
+#include <string>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/nsga_ii_fon.h"
-#include "problem/nsga_ii_sch.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/string_match_mo.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
+#include "../types.h"
+#include "base.h"
 
-#endif
+namespace pagmo{ namespace problem {
+
+/// Fonseca and Fleming's study
+/**
+ *
+ * This is a box-constrained continuous three-dimension multi-objecive problem.
+ * \f[
+ * 	F_1 \left(x\right) = 1 - \exp(-\sum_{i=1}^3 (x_i - 1 / \sqrt(3))^2
+ * \f]
+ * \f[
+ * 	F_2 \left(x\right) = 1 - \exp(-\sum_{i=1}^3 (x_i + 1 / \sqrt(3))^2  x \in \left[ -4,4 \right].
+ * \f]
+ * The optimal solutions (minimization problem) are \f$ x_1 = x_2 = x_3 \in \left[-1/ \sqrt(3) , +1/ \sqrt(3)  \right] \f$
+ *
+ * @see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.55.5395&rep=rep1&type=ps
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE fon : public base
+{
+	public:
+		fon();
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
+
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_FON_H
