@@ -63,19 +63,19 @@ class __PAGMO_VISIBLE tsp: public base_aco
 	public:
 		tsp(const std::vector<std::vector<double> > &);
 		base_ptr clone() const;
-		bool check_partial_feasibility(const decision_vector x) const;
+		bool check_partial_feasibility(const decision_vector &x) const;
 		std::string get_name() const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
+		//CR - Why this was private and not protected? any reasons?
+		void set_heuristic_information_matrix();
 	private:
 		const std::vector<std::vector<double> >	m_weights;
-		void set_heuristic_information_matrix();
 		mutable decision_vector m_tmpDecisionVector;
 };
 
-}
-}
+}} //namespaces
 
 #endif

@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -42,8 +43,7 @@ namespace pagmo { namespace problem {
  * @param[in] weights matrix of distances between cities.
  */
 tsp::tsp(const std::vector<std::vector<double> > &weights):
-	base_aco(boost::numeric_cast<int>(weights[0].size()),boost::numeric_cast<int>(weights[0].size()),1,1,0,0),
-	m_weights(weights) {
+	base_aco(boost::numeric_cast<int>(weights[0].size()),1,0), m_weights(weights) {
 	
 	//Check weights matrix
 	for(problem::base_aco::size_type i = 0; i < m_weights.size(); ++i) {
@@ -70,7 +70,6 @@ tsp::tsp(const std::vector<std::vector<double> > &weights):
  *  this represents the weight of the edge between i and j (distance from city i and j) and doesn't depends from k.
  */
 void tsp::set_heuristic_information_matrix() {
-	create_eta();
 	
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
@@ -84,28 +83,19 @@ void tsp::set_heuristic_information_matrix() {
 /*
  * Chek if a node appears two times in the solution. In that case the solution is not feasible
  */
-bool tsp::check_partial_feasibility(const decision_vector x) const{
+bool tsp::check_partial_feasibility(const decision_vector &x) const{
 	if (x.size() > get_i_dimension()) {
-		return false;
+		pagmo_throw(value_error,"Invalid chromosome length for partial feasibility check.");
 	}
 
 	m_tmpDecisionVector = x;
-	sort(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end());
-	int component = boost::numeric_cast<int>(m_tmpDecisionVector[0]);
-	if (component < get_lb()[0] || component > get_ub()[0]) {
-		return false;
-	}
+	//CR - without explicit std:: you are relying in headers somewhere that by lchance have a
+	//deprcated using std!! Added include algorithm in the beginning too....
+	std::sort(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end());
 
-	for(problem::base_aco::size_type i = 1; i < m_tmpDecisionVector.size(); ++i) {
-		component = boost::numeric_cast<int>(m_tmpDecisionVector[i]);
-		if (boost::numeric_cast<int>(m_tmpDecisionVector[i-1]) == component) {
-			return false;
-		}
-		if (component < get_lb()[i] || component > get_ub()[i]) {
-			return false;
-		}
-	}
-	return true;
+	// The checks on the bounds are not necessary? Also std algorithms are always faster
+	return 	std::unique(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end()) == m_tmpDecisionVector.end();
+
 }
  
 

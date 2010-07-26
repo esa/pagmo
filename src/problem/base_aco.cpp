@@ -26,32 +26,37 @@
 
 namespace pagmo { namespace problem {
 
-	base_aco::base_aco(int n, int ni, int nf, int nc, int nic, const double &c_tol):base(n,ni,nf,nc,nic,c_tol){
+	base_aco::base_aco(int n, int nc, int nic):base(n,n,1,nc,nic,0.){
+		//allocates the memory for eta.
+		create_heuristic_information_matrix();
 	};
 
-	//the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
+//the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
 void base_aco::set_heuristic_information_matrix() {
-	create_eta(); //That has to be called at the begining of the method overloading set_heuristic_information_matrix !!!!
 
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
 			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {
+				// CR - Qui crediamo sia sbagliato. Non stai assumendo che il lower bound sia sempre zero?
+				// Non dovresti scrivere (get_ub()[k] - get_lb()[k])? O almeno cosi sembra essere in
+				// create_heuristic_information_matrix. Non dovrebbe esserci <= ?
 				if(i<get_ub()[k] && j < get_ub()[k+1]) {
 					m_eta[k][i][j][0] = 1;
 				}
 				else {
-					m_eta[k][i][j][0] = 0;
+					//CR - This is just not a number as there is no edge in the graph!!!!
+					m_eta[k][i][j][0] = std::numeric_limits<double>::quiet_NaN();
 				}
 			}
 		}
 	}
 }
 
-const std::vector<std::vector<std::vector<fitness_vector> > > base_aco::get_heuristic_information_matrix() const {
+const std::vector<std::vector<std::vector<fitness_vector> > > &base_aco::get_heuristic_information_matrix() const {
 	return m_eta;
 }
 
-void base_aco::create_eta() {
+void base_aco::create_heuristic_information_matrix() {
 	double max_size = 0;
 	for(problem::base::size_type i = 0; i < get_i_dimension(); ++i) {
 		if(max_size < (get_ub()[i] - get_lb()[i])) {
@@ -63,6 +68,7 @@ void base_aco::create_eta() {
 	fitness_vector tempA(get_f_dimension(),0);	//used for initialisation purpouses
 	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
 	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
+	//CR - E questa mo a che serve????!?!?!?!?!?!??
 	std::vector<std::vector<std::vector<fitness_vector> > > T(get_i_dimension(), tempC); //pheromone trail matrix 
 	std::vector<std::vector<std::vector<fitness_vector> > > eta(get_i_dimension(), tempC); //heuristic information matrix 
 	m_eta = eta;
@@ -70,7 +76,7 @@ void base_aco::create_eta() {
 
 
 
-bool base_aco::check_partial_feasibility(const decision_vector x) const{
+bool base_aco::check_partial_feasibility(const decision_vector &x) const{
 	(void)x; //to avoid the  unused parameter ‘x’ warning by compiler
 	return true;
 }

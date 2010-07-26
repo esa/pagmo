@@ -83,7 +83,7 @@ class __PAGMO_VISIBLE knapsack: public base_aco
 		}
 		base_ptr clone() const;
 		std::string get_name() const;
-		bool check_partial_feasibility(const decision_vector x) const;
+		bool check_partial_feasibility(const decision_vector &x) const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
