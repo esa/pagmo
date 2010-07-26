@@ -59,6 +59,9 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/fon.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/pol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
