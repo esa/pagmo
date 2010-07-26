@@ -35,6 +35,7 @@
 #include <string>
 
 #include "../../src/exceptions.h"
+#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../../src/problems.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
@@ -320,6 +321,11 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Tandem.
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
 		.def(init< optional<int, double> >());
+
+	// Human mission to asteroids.
+	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
+		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
+		.def("get_delta_v",&problem::sample_return::get_delta_v);
 
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");

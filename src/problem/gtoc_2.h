@@ -65,7 +65,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 		kep_toolbox::sims_flanagan::throttle get_nth_throttle(int n, Iterator it, const kep_toolbox::epoch &start, const kep_toolbox::epoch &end) const
 		{
 			Iterator n_it = it + 3 * n;
-			array3D tmp = {{ *n_it, *(n_it + 1), *(n_it + 2)}};
+			kep_toolbox::array3D tmp = {{ *n_it, *(n_it + 1), *(n_it + 2)}};
 			const double seg_duration = (end.mjd() - start.mjd()) / m_n_seg;
 			return kep_toolbox::sims_flanagan::throttle(kep_toolbox::epoch(start.mjd() + seg_duration * n,kep_toolbox::epoch::MJD),
 				kep_toolbox::epoch(start.mjd() + seg_duration * (n + 1),kep_toolbox::epoch::MJD),

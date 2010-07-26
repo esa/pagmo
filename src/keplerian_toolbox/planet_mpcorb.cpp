@@ -40,18 +40,26 @@ planet_mpcorb::planet_mpcorb(const std::string& line)
 	tmp.clear();
 	tmp.append(&linecopy[mpcorb_format[6][0]],mpcorb_format[6][1]);
 	boost::algorithm::trim(tmp);
-	boost::gregorian::greg_year anno = packed_date2number(tmp[0]) * 100 + boost::lexical_cast<int>(std::string(&tmp[1],&tmp[3]));
-	boost::gregorian::greg_month mese = packed_date2number(tmp[3]);
-	boost::gregorian::greg_day giorno = packed_date2number(tmp[4]);
-	epoch epoch(anno,mese,giorno);
+	kep_toolbox::epoch epoch(packed_date2epoch(tmp));
+
 	// Record asteroid name.
 	tmp.clear();
 	tmp.append(&linecopy[mpcorb_format[7][0]],mpcorb_format[7][1]);
 	boost::algorithm::trim(tmp);
 	build_planet(epoch,elem,ASTRO_MU_SUN,100,100,100,tmp);
-
 }
 
+
+epoch planet_mpcorb::packed_date2epoch(std::string in) {
+	if (in.size()!=5) {
+		throw_value_error("mpcorb data format requires 5 characters.");
+	}
+	boost::algorithm::to_lower(in);
+	boost::gregorian::greg_year anno = packed_date2number(in[0]) * 100 + boost::lexical_cast<int>(std::string(&in[1],&in[3]));
+	boost::gregorian::greg_month mese = packed_date2number(in[3]);
+	boost::gregorian::greg_day giorno = packed_date2number(in[4]);
+	return epoch(anno,mese,giorno);
+}
 // Convert mpcorb packed dates convention into number. (lower case assumed)
 // TODO: check locale ASCII.
 int planet_mpcorb::packed_date2number(char c)

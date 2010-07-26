@@ -28,11 +28,13 @@
 #include <boost/python/enum.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
+#include <boost/python/operators.hpp>
 #include <vector>
 
 #include "../../src/algorithm/base.h"
 #include "../../src/archipelago.h"
 #include "../../src/island.h"
+#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../../src/migration/base_r_policy.h"
 #include "../../src/migration/base_s_policy.h"
 #include "../../src/population.h"
@@ -117,6 +119,22 @@ BOOST_PYTHON_MODULE(_core)
 	from_python_sequence<std::vector<std::vector<int> >,variable_capacity_policy>();
 	to_tuple_mapping<std::vector<std::vector<topology::base::vertices_size_type> > >();
 	from_python_sequence<std::vector<std::vector<topology::base::vertices_size_type> >,variable_capacity_policy>();
+	// TODO: move this to kep toolbox exposition once it exists.
+	to_tuple_mapping<kep_toolbox::array6D>();
+	from_python_sequence<kep_toolbox::array6D,fixed_size_policy>();
+	to_tuple_mapping<kep_toolbox::array3D>();
+	from_python_sequence<kep_toolbox::array3D,fixed_size_policy>();
+	enum_<kep_toolbox::epoch::type>("epoch_type")
+		.value("MJD", kep_toolbox::epoch::MJD)
+		.value("MJD2000", kep_toolbox::epoch::MJD2000)
+		.value("JD", kep_toolbox::epoch::JD);
+	class_<kep_toolbox::epoch>("epoch","Epoch class.",init<const double &,kep_toolbox::epoch::type>())
+		.def(repr(self));
+	class_<kep_toolbox::planet>("planet","Planet class.",init<const kep_toolbox::epoch&, const kep_toolbox::array6D&, const double &, const double &, const double &, const double &, optional<const std::string &> >())
+		.def(repr(self));
+	class_<kep_toolbox::planet_mpcorb,bases<kep_toolbox::planet> >("planet_mpcorb","Planet MPCORB class.",init<const std::string &>())
+		.def("packed_date2epoch",&kep_toolbox::planet_mpcorb::packed_date2epoch)
+		.staticmethod("packed_date2epoch");
 
 	// Expose population class.
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())

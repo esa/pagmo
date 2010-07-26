@@ -39,7 +39,7 @@ static const int AE[2] = {10,3};
 /**
  * Instantiates the sample_return problem
  */
-sample_return::sample_return(::kep_toolbox::planet asteroid, const double &Tmax):base(12), m_target(asteroid),
+sample_return::sample_return(const ::kep_toolbox::planet &asteroid, const double &Tmax):base(12), m_target(asteroid),
 	 m_leg1(total_DV_rndv,EA,2,0,0,0,0,0), m_leg2(total_DV_rndv,AE,2,0,0,0,0,0),x_leg1(6),x_leg2(6),m_Tmax(Tmax)
 {
 	::kep_toolbox::epoch start_lw(2020,1,1);
@@ -111,6 +111,10 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 	//We split the decision vector in the two legs
 	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
 	std::copy(x.begin()+6,x.begin()+12,x_leg2.begin());
+
+	x_leg1[4] = x_leg1[4] * m_Tmax;
+	x_leg2[4] = (m_Tmax - x_leg1[4] - x_leg2[0]) * x_leg2[4];
+
 	//We account for the waiting time
 	x_leg2[0] += x_leg1[0] + x_leg1[4];
 	double dummy = 0;
@@ -142,6 +146,25 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 
 
 	return s.str();
+}
+
+std::vector<double> sample_return::get_delta_v(const std::vector<double> &x) const {
+	//We split the decision vector in the two legs
+	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
+	std::copy(x.begin()+6,x.begin()+12,x_leg2.begin());
+
+	x_leg1[4] = x_leg1[4] * m_Tmax;
+	x_leg2[4] = (m_Tmax - x_leg1[4] - x_leg2[0]) * x_leg2[4];
+
+	//We account for the waiting time
+	x_leg2[0] += x_leg1[0] + x_leg1[4];
+	double dummy = 0;
+	MGA_DSM(x_leg1, m_leg1, dummy);
+	MGA_DSM(x_leg2, m_leg2, dummy);
+	std::vector<double> retval;
+	for (int i=0;i<3;++i) retval.push_back(m_leg1.DV[i]);
+	for (int i=0;i<3;++i) retval.push_back(m_leg2.DV[i]);
+	return retval;
 }
 
 /// Implementation of the sparsity structure.
