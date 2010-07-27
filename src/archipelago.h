@@ -57,8 +57,6 @@ class __PAGMO_VISIBLE archipelago
 	public:
 		/// Island class must have access to internal archipelago methods.
 		friend class island;
-		friend class island::t_evolver;
-		friend class island::int_evolver;
 		/// Internal container of islands.
 		typedef std::vector<island> container_type;
 		/// Archipelago size type.

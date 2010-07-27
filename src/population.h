@@ -40,7 +40,7 @@ namespace pagmo
 {
 
 // Forward declaration of island class, needed for friendship.
-class island;
+class base_island;
 
 /// Population class.
 /**
@@ -56,7 +56,7 @@ class island;
  */
 class __PAGMO_VISIBLE population
 {
-		friend class island;
+		friend class base_island;
 	public:
 		/// Individuals stored in the population.
 		/**
