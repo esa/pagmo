@@ -45,11 +45,6 @@ inline void ae_translator(const assertion_error &ae)
 	PyErr_SetString(PyExc_AssertionError, ae.what());
 }
 
-inline void re_translator(const std::runtime_error &re)
-{
-	PyErr_SetString(PyExc_RuntimeError, re.what());
-}
-
 inline void nie_translator(const not_implemented_error &nie)
 {
 	PyErr_SetString(PyExc_NotImplementedError, nie.what());
@@ -89,7 +84,6 @@ inline void translate_p_exceptions()
 	boost::python::register_exception_translator<value_error>(ve_translator);
 	boost::python::register_exception_translator<type_error>(te_translator);
 	boost::python::register_exception_translator<assertion_error>(ae_translator);
-	boost::python::register_exception_translator<std::runtime_error>(re_translator);
 	boost::python::register_exception_translator<not_implemented_error>(nie_translator);
 	boost::python::register_exception_translator<memory_error>(me_translator);
 	boost::python::register_exception_translator<zero_division_error>(zde_translator);

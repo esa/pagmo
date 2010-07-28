@@ -25,7 +25,9 @@
 #ifndef PAGMO_BASE_ISLAND_H
 #define PAGMO_BASE_ISLAND_H
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
 #include <cstddef>
 #include <iostream>
 #include <string>
@@ -38,20 +40,6 @@
 #include "population.h"
 #include "problem/base.h"
 #include "types.h"
-
-#include <boost/scoped_ptr.hpp>
-#include <boost/thread/thread.hpp>
-#include <iostream>
-#include <string>
-
-#include "base_island.h"
-#include "config.h"
-#include "algorithm/base.h"
-#include "migration/base_r_policy.h"
-#include "migration/base_s_policy.h"
-#include "migration/best_s_policy.h"
-#include "migration/fair_r_policy.h"
-#include "problem/base.h"
 
 namespace pagmo
 {
@@ -102,6 +90,7 @@ class __PAGMO_VISIBLE base_island
 			const migration::base_s_policy &,
 			const migration::base_r_policy &);
 		base_island &operator=(const base_island &);
+		virtual base_island_ptr clone() const = 0;
 		virtual ~base_island();
 		//@}
 		/** @name Input/output.*/
@@ -119,7 +108,8 @@ class __PAGMO_VISIBLE base_island
 		void evolve(int = 1);
 		void evolve_t(int);
 		void interrupt();
-		/// Island's blocking attribute.
+		std::size_t get_evolution_time() const;
+		/// Island's thread safety attribute.
 		/**
 		 * This method should return false if both these conditions hold: 
 		 *
@@ -135,9 +125,12 @@ class __PAGMO_VISIBLE base_island
 		 *
 		 * @return island's thread blocking attribute.
 		 */
-		virtual bool is_blocking() const = 0;
-		std::size_t get_evolution_time() const;
+		virtual bool is_thread_blocking() const = 0;
+	protected:
+		/// Method that implements the evolution of the population.
+		virtual void perform_evolution(const algorithm::base &, population &) const = 0;
 		//@}
+	public:
 		/** @name Getters and setters.*/
 		//@{
 		algorithm::base_ptr get_algorithm() const;
@@ -154,12 +147,11 @@ class __PAGMO_VISIBLE base_island
 	private:
 		void accept_immigrants(const std::vector<population::individual_type> &);
 		std::vector<population::individual_type> get_emigrants() const;
-		bool is_blocking_impl() const;
 		// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
 		struct int_evolver;
 		// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.
 		struct t_evolver;
-	private:
+	protected:
 		// Population.
 		population				m_pop;
 		// Algorithm.

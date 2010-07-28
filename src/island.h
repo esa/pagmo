@@ -22,14 +22,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 04/01/2009: Initial version by Francesco Biscani.
-
 #ifndef PAGMO_ISLAND_H
 #define PAGMO_ISLAND_H
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/thread/thread.hpp>
-#include <iostream>
 #include <string>
 
 #include "base_island.h"
@@ -39,6 +34,7 @@
 #include "migration/base_s_policy.h"
 #include "migration/best_s_policy.h"
 #include "migration/fair_r_policy.h"
+#include "population.h"
 #include "problem/base.h"
 
 namespace pagmo
@@ -64,13 +60,16 @@ class __PAGMO_VISIBLE island: public base_island
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
 		island &operator=(const island &);
-		~island();
+		base_island_ptr clone() const;
 		/** @name Evolution.
 		 * Methods related to island evolution.
 		 */
 		//@{
-		bool is_blocking() const;
+		bool is_thread_blocking() const;
+	protected:
+		void perform_evolution(const algorithm::base &, population &) const;
 		//@}
+	public:
 		/** @name Input/output.*/
 		//@{
 		std::string get_name() const;

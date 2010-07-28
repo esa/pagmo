@@ -135,7 +135,7 @@ const  std::vector<double>& lambert_problem::get_p() const
  *
  * \return the maximum number of revolutions. The number of solutions to the problem will be Nmax*2 +1
  */
-const int lambert_problem::get_Nmax() const
+int lambert_problem::get_Nmax() const
 {
 	return m_Nmax;
 }

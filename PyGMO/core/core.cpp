@@ -29,14 +29,19 @@
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
+#include <boost/python/register_ptr_to_python.hpp>
+#include <stdexcept>
 #include <vector>
 
 #include "../../src/algorithm/base.h"
 #include "../../src/archipelago.h"
+#include "../../src/base_island.h"
 #include "../../src/island.h"
 #include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../../src/migration/base_r_policy.h"
 #include "../../src/migration/base_s_policy.h"
+#include "../../src/migration/best_s_policy.h"
+#include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
 #include "../../src/problem/base.h"
 #include "../../src/topology/base.h"
@@ -75,7 +80,7 @@ TRIVIAL_GETTER_SETTER(population::champion_type,fitness_vector,f);
 TRIVIAL_GETTER_SETTER(population::champion_type,constraint_vector,c);
 
 // Wrappers to make functions taking size_type as input take integers instead, with safety checks.
-inline static island archipelago_get_island(const archipelago &a, int n)
+inline static base_island_ptr archipelago_get_island(const archipelago &a, int n)
 {
 	return a.get_island(boost::numeric_cast<archipelago::size_type>(n));
 }
@@ -99,6 +104,68 @@ inline static void population_set_v(population &pop, int n, const decision_vecto
 {
 	pop.set_v(boost::numeric_cast<population::size_type>(n),v);
 }
+
+struct python_island: base_island, wrapper<base_island>
+{
+		explicit python_island(const problem::base &p, const algorithm::base &a, int n = 0,
+			const double &prob = 1,
+			const migration::base_s_policy &s = migration::best_s_policy(),
+			const migration::base_r_policy &r = migration::fair_r_policy()):
+			base_island(p,a,n,prob,s,r)
+		{}
+		explicit python_island(const population &pop, const algorithm::base &a,
+			const double &prob = 1,
+			const migration::base_s_policy &s = migration::best_s_policy(),
+			const migration::base_r_policy & r= migration::fair_r_policy()):
+			base_island(pop,a,prob,s,r)
+		{}
+		python_island(const base_island &isl):base_island(isl)
+		{}
+		base_island_ptr clone() const
+		{
+			if (override f = this->get_override("__copy__")) {
+				return f();
+			}
+			pagmo_throw(not_implemented_error,"island cloning has not been implemented");
+			return base_island_ptr();
+		}
+		std::string get_name() const
+		{
+			if (override f = this->get_override("get_name")) {
+				return f();
+			}
+			return base_island::get_name();
+		}
+		std::string default_get_name() const
+		{
+			return this->base_island::get_name();
+		}
+		bool is_thread_blocking() const
+		{
+			if (override f = this->get_override("is_thread_blocking")) {
+				return f();
+			}
+			pagmo_throw(not_implemented_error,"island's thread blocking property has not been implemented");
+			return true;
+		}
+		population py_perform_evolution(const algorithm::base &a, const population &pop) const
+		{
+			if (override f = this->get_override("_perform_evolution")) {
+				const population retval = f(a,pop);
+				if (pop.problem() != retval.problem()) {
+					pagmo_throw(std::runtime_error,"island's _perform_evolution method modified the population's problem, please check the implementation");
+				}
+				return retval;
+			}
+			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
+			return pop;
+		}
+	protected:
+		void perform_evolution(const algorithm::base &a, population &pop) const
+		{
+			pop = py_perform_evolution(a,pop);
+		}
+};
 
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
@@ -168,24 +235,34 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("f",&get_f,&set_f)
 		.add_property("c",&get_c,&set_c);
 
-	// Expose island class.
-	class_<island>("island", "Island class.", init<const problem::base &, const algorithm::base &,
-		optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const population &, const algorithm::base &,
-		optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const island &>())
-		.def("__copy__", &Py_copy_from_ctor<island>)
-		.def("__len__", &island::get_size)
-		.def("__repr__", &island::human_readable)
-		.def("evolve", &island::evolve,"Evolve island n times.")
-		.def("evolve_t", &island::evolve_t,"Evolve island for at least n milliseconds.")
-		.def("join", &island::join,"Wait for evolution to complete.")
-		.def("busy", &island::busy,"Check if island is evolving.")
-		.def("is_blocking", &island::is_blocking,"Check if island is blocking.")
-		.def("interrupt", &island::interrupt,"Interrupt evolution.")
-		.add_property("problem",&island::get_problem)
-		.add_property("algorithm",&island::get_algorithm,&island::set_algorithm)
-		.add_property("population",&island::get_population);
+	// Base island class.
+	class_<python_island>("_base_island",no_init)
+		.def(init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const base_island &>())
+		.def("__copy__", &base_island::clone)
+		.def("__len__", &base_island::get_size)
+		.def("__repr__", &base_island::human_readable)
+		.def("evolve", &base_island::evolve,"Evolve island n times.")
+		.def("evolve_t", &base_island::evolve_t,"Evolve island for at least n milliseconds.")
+		.def("join", &base_island::join,"Wait for evolution to complete.")
+		.def("busy", &base_island::busy,"Check if island is evolving.")
+		.def("is_thread_blocking", &base_island::is_thread_blocking,"Check if island is thread blocking.")
+		.def("interrupt", &base_island::interrupt,"Interrupt evolution.")
+		.def("get_name", &base_island::get_name,&python_island::default_get_name)
+		.def("_perform_evolution",&python_island::py_perform_evolution)
+		.add_property("problem",&base_island::get_problem)
+		.add_property("algorithm",&base_island::get_algorithm,&island::set_algorithm)
+		.add_property("population",&base_island::get_population);
+
+	// Local island class.
+	class_<island,bases<base_island> >("island", "Local island class.",no_init)
+		.def(init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const island &>());
+
+	// Register to_python conversion from smart pointer.
+	register_ptr_to_python<base_island_ptr>();
 
 	// Expose archipelago class.
 	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,
