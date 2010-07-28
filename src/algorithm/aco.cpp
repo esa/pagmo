@@ -206,8 +206,9 @@ void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> 
 	}
 
 	//Deposit pheromone according to current solutions
-	for (decision_vector::size_type i = 0; i < X.size(); ++i) {
-		T[i][boost::numeric_cast<int>(X[i])][boost::numeric_cast<int>(X[i+1])][0] += rho*fit[0]; 
+	T[0][boost::numeric_cast<int>(X[0])][boost::numeric_cast<int>(X[1])][0] += rho*fit[0]; 
+	for (decision_vector::size_type i = 1; i < X.size(); ++i) {
+		T[i-1][boost::numeric_cast<int>(X[i-1])][boost::numeric_cast<int>(X[i])][0] += rho*fit[0]; 
 	}
 }
 
