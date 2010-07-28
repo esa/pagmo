@@ -130,6 +130,9 @@ void knapsack::verify_init() const
 //We use as heuristic information the ration value/weight. Higher is it, better is the path
 //and since knapsack is a maximization problem the probability for the edge to be chosen is higher
 void knapsack::set_heuristic_information_matrix() {
+	//allocates the memory for eta.
+	create_heuristic_information_matrix();
+	
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
 			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {

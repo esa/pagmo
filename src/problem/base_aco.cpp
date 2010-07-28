@@ -25,22 +25,24 @@
 #include "base_aco.h"
 
 namespace pagmo { namespace problem {
-
+	
+	/**
+	 * @param[in] n integer dimension of the problem.
+	 * @param[in] nc global constraints dimension
+	 * @param[in] nic inequality constraints dimension
+	 */
 	base_aco::base_aco(int n, int nc, int nic):base(n,n,1,nc,nic,0.){
-		//allocates the memory for eta.
-		create_heuristic_information_matrix();
 	};
 
 //the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
 void base_aco::set_heuristic_information_matrix() {
+	//allocates the memory for eta.
+	create_heuristic_information_matrix();  //that MUST be called at the begining of each set_heuristic_information_matrix implementation!
 
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
 			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {
-				// CR - Qui crediamo sia sbagliato. Non stai assumendo che il lower bound sia sempre zero?
-				// Non dovresti scrivere (get_ub()[k] - get_lb()[k])? O almeno cosi sembra essere in
-				// create_heuristic_information_matrix. Non dovrebbe esserci <= ?
-				if(i<get_ub()[k] && j < get_ub()[k+1]) {
+				if(i <= get_ub()[k] - get_lb()[k] && j <= get_ub()[k+1] - get_lb()[k+1]) {
 					m_eta[k][i][j][0] = 1;
 				}
 				else {
@@ -68,8 +70,6 @@ void base_aco::create_heuristic_information_matrix() {
 	fitness_vector tempA(get_f_dimension(),0);	//used for initialisation purpouses
 	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
 	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
-	//CR - E questa mo a che serve????!?!?!?!?!?!??
-	std::vector<std::vector<std::vector<fitness_vector> > > T(get_i_dimension(), tempC); //pheromone trail matrix 
 	std::vector<std::vector<std::vector<fitness_vector> > > eta(get_i_dimension(), tempC); //heuristic information matrix 
 	m_eta = eta;
 }

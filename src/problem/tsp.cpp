@@ -70,7 +70,9 @@ tsp::tsp(const std::vector<std::vector<double> > &weights):
  *  this represents the weight of the edge between i and j (distance from city i and j) and doesn't depends from k.
  */
 void tsp::set_heuristic_information_matrix() {
-	
+	//allocates the memory for eta.
+	create_heuristic_information_matrix();
+
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
 			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {

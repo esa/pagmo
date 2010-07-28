@@ -89,10 +89,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 3;
-	int number_of_individuals = 25;
+	int number_of_islands = 1;
+	int number_of_individuals = 15;
 	//int evolution_time = 1000;
-	int number_of_migrations = 3;
+	int number_of_migrations = 1;
 
 	/*
 	std::vector<double> r1;
@@ -190,9 +190,9 @@ int main()
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
 	topo.push_back(topo1.clone());
-	topo.push_back(topo2.clone());
-	topo.push_back(topo3.clone());
-	topo.push_back(topo4.clone());
+	//topo.push_back(topo2.clone());
+	//topo.push_back(topo3.clone());
+	//topo.push_back(topo4.clone());
 
 	for (unsigned int pr=0; pr<prob.size();++pr) {
 		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;

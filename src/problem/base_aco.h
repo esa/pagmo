@@ -33,15 +33,15 @@ namespace pagmo{ namespace problem {
 /// Base ACO.
 /**
  *
- * CR - More documentation is needed here. In particular what is m_eta? How should a user know? WHat
- * is check_partial_feasibility working? All that a user need to know in order to be able to use the calss goes here
+ * All integer optimization problems must extend this class in order to be solved by Ant Colony Optimization.
  *
- * CR Example: m_eta[k][i][j] represents the cost of having the j-th value in position k of the chromosome
+ * m_eta is the heuristic information matrix. It represent an a priori knowledge on the problem and has to be set in problem implementation.
+ * m_eta[k][i][j] represents the cost of having the j-th value in position k of the chromosome
  * and the i-th value in position k+1. This type of info can later used by the algorithm to guide the optimization.
- * For example in the algorithm::aco it makes the ant prefer clever steps.....
- *
- *
- * All the problems that can be solved using Ant Colony Optimization should extend this class
+ * For example in the algorithm::aco it makes the ant prefer clever steps. In fact the probability for a particular step to be chosen
+ * is proportional to the the product between the m_eta value of that step (heuristic information) and the amount of pheromone left
+ * by previous ants on that step.
+ * 
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
@@ -49,29 +49,36 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE base_aco : public base
 {
 	public:
-		//CR - being limited to integer programming single objective, global dim = int dim, ctol does not make sense
-		//and nf = 1. The way you implemented it was highly risky as allowing n to be different to ni. Also the default values you
-		//used did not make any sense
 		base_aco(int, int = 0, int = 0);
-		//check if a partial solution x is feasible. x.size() is less than problem length. It checks whether there is
-		//at least one solution having x as a prefix that is feasible.
 
-		//CR - const. ref. otherwise you waste memory allocation!!!
+		/**
+		 * Checks if a partial solution x is feasible. x.size() may be less than problem length.
+		 * @returns true if there is at least one solution having x as a prefix that is feasible. False otherwise
+		 */
 		virtual bool check_partial_feasibility(const decision_vector &x) const;
 
-		// CR - All public and protected members need to be documented properly example:
-		/// Gets the heuristic information matrix
 		/**
+		 * Gets the heuristic information matrix
 		 * @returns const reference to m_eta: the heuristic information matrix
 		 */
+		const std::vector<std::vector<std::vector<fitness_vector> > > &get_heuristic_information_matrix() const;
 
-		 //CR - virtual de che? 2- perche allochi memoria????!?!?!?!?!? Ritorna const ref.
-		const std::vector<std::vector<std::vector<fitness_vector> > > &get_heuristic_information_matrix() const;	
 	protected:
-		// CR - consistency in names is important
+		/**
+		 * Set the heuristic information matrix. This should be overridden by subclasses to set the proper heuristic information
+		 * matrix for the problem
+		 */
 		virtual void set_heuristic_information_matrix();
+
+		/**
+		 * The heuristic information matrix
+		 */
 		std::vector<std::vector<std::vector<fitness_vector> > > m_eta;
-	private: // CR - questi metodi non vengono usati nella classe derivata dunque private.
+		
+		/**
+		 * Allocate memory for the heuristic information matrix. That must be 
+		 * called at the begining of each set_heuristic_information_matrix() implementation
+		 */
 		void create_heuristic_information_matrix();
 };
 

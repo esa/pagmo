@@ -69,7 +69,6 @@ class __PAGMO_VISIBLE tsp: public base_aco
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
-		//CR - Why this was private and not protected? any reasons?
 		void set_heuristic_information_matrix();
 	private:
 		const std::vector<std::vector<double> >	m_weights;
