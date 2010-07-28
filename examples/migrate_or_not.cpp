@@ -190,9 +190,9 @@ int main()
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
 	topo.push_back(topo1.clone());
-	//topo.push_back(topo2.clone());
-	//topo.push_back(topo3.clone());
-	//topo.push_back(topo4.clone());
+	topo.push_back(topo2.clone());
+	topo.push_back(topo3.clone());
+	topo.push_back(topo4.clone());
 
 	for (unsigned int pr=0; pr<prob.size();++pr) {
 		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;
