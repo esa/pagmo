@@ -492,7 +492,6 @@ private:
   /// \cond hide_private_members
   void fill();
   /// \endcond
-public:
   unsigned int i;
   RealType x[long_lag];
   RealType _modulus;

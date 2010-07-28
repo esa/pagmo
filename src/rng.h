@@ -32,29 +32,10 @@
 #include <boost/cstdint.hpp>
 #include <boost/random/lagged_fibonacci.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-
-
-namespace boost {
-//Non-intrusive serailization for the random number generators
-template<class Archive>
-void serialize(Archive &ar, boost::random::mersenne_twister<uint32_t,32,624,397,31,0x9908b0df,11,7,0x9d2c5680,15,0xefc60000,18, 3346425566U> & mt, const unsigned int version){
-	std::cout << "de-/serializing random number generator for unsigned integer values. " << version << std::endl;
-	ar & mt.i; 
-	ar & mt.x; 
-}
-template<class Archive>
-void serialize(Archive & ar, boost::random::lagged_fibonacci_01<double, 48, 607, 273> & lgf, const unsigned int version)
-{
-	std::cout << "de-/serializing random number generator for double-precision floating point values. " << version << std::endl;
-	ar & lgf.i; 
-	ar & lgf.x; 
-	ar & lgf._modulus; 
-}
-
-} // namespace boost
 
 namespace pagmo
 {
@@ -62,13 +43,47 @@ namespace pagmo
 /**
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
  */
-typedef boost::mt19937 rng_uint32;
+class rng_uint32: public boost::mt19937 {
+		friend class boost::serialization::access;
+	public:
+		rng_uint32():boost::mt19937() {}
+		rng_uint32(const result_type &n):boost::mt19937(n) {}
+		rng_uint32 &operator=(const rng_uint32 &rng)
+		{
+			boost::mt19937::operator=(rng);
+			return *this;
+		}
+	private:
+		template<class Archive>
+		void save(Archive &, const unsigned int) const
+		{}
+		template<class Archive>
+		void load(Archive &, const unsigned int);
+		BOOST_SERIALIZATION_SPLIT_MEMBER()
+};
 
 /// This rng returns a double in the [0,1[ range.
 /**
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
  */
-typedef boost::lagged_fibonacci607 rng_double;
+class rng_double: public boost::lagged_fibonacci607 {
+		friend class boost::serialization::access;
+	public:
+		rng_double():boost::lagged_fibonacci607() {}
+		rng_double(const boost::uint32_t &n):boost::lagged_fibonacci607(n) {}
+		rng_double &operator=(const rng_double &rng)
+		{
+			boost::lagged_fibonacci607::operator=(rng);
+			return *this;
+		}
+	private:
+		template<class Archive>
+		void save(Archive &, const unsigned int) const
+		{}
+		template<class Archive>
+		void load(Archive &, const unsigned int);
+		BOOST_SERIALIZATION_SPLIT_MEMBER()
+};
 
 /// Generic thread-safe generator of pseudo-random number generators.
 /**
@@ -103,6 +118,18 @@ class rng_generator {
 		static boost::mutex	m_mutex;
 		static rng_uint32	m_seeder;
 };
+
+template <class Archive>
+inline void rng_uint32::load(Archive &, const unsigned int)
+{
+	*this = rng_generator::get<rng_uint32>();
+}
+
+template <class Archive>
+inline void rng_double::load(Archive &, const unsigned int)
+{
+	*this = rng_generator::get<rng_double>();
+}
 
 }
 

@@ -235,7 +235,6 @@ private:
   //  x(i-k) ... x(i) x(i+1) ... x(i-k+n-1) x(i-k-n) ... x[i(i-k-1)]
   // The goal is to always have x(i-n) ... x(i-1) available for
   // operator== and save/restore.
-public:
   UIntType x[2*n]; 
   int i;
 };
