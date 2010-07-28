@@ -91,11 +91,8 @@ bool tsp::check_partial_feasibility(const decision_vector &x) const{
 	}
 
 	m_tmpDecisionVector = x;
-	//CR - without explicit std:: you are relying in headers somewhere that by lchance have a
-	//deprcated using std!! Added include algorithm in the beginning too....
 	std::sort(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end());
 
-	// The checks on the bounds are not necessary? Also std algorithms are always faster
 	return 	std::unique(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end()) == m_tmpDecisionVector.end();
 
 }

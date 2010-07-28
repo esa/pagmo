@@ -89,10 +89,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 1;
+	int number_of_islands = 3;
 	int number_of_individuals = 15;
 	//int evolution_time = 1000;
-	int number_of_migrations = 1;
+	int number_of_migrations = 3;
 
 	/*
 	std::vector<double> r1;

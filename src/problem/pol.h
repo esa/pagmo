@@ -38,7 +38,6 @@ namespace pagmo{ namespace problem {
  * This is a box-constrained continuous three-dimension multi-objecive problem.
  * \f[
  * 	F_1 \left(x\right) = 1 + (A_1 - B_1)^2 + (A_2 - B_2)^2
- *
  *      F_2 \left(x\right) = (x_1 + 3)^2 + (x_2+1)^2  x \in \left[ -\pi,\pi \right].
  *
  *      A_1 = 0.5 \sin(1) - 2 \cos(1) + \sin(2) -1.5 \cos(2)
@@ -49,7 +48,6 @@ namespace pagmo{ namespace problem {
  *
  *      B_2 = 1.5 \sin(x_1) - \cos(x_1) + 2 \sin(x_2) - 0.5 \cos(x_2)
  * \f]
- * The optimal solutions (minimization problem) are \f$ x_1 = x_2 = x_3 \in \left[-1/ \sqrt(3) , +1/ \sqrt(3)  \right] \f$
  *
  * @see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.18.4257&rep=rep1&type=pdf
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)

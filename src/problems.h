@@ -67,5 +67,6 @@
 #include "problem/sch.h"
 #include "problem/fon.h"
 #include "problem/pol.h"
+#include "problem/kur.h"
 
 #endif
