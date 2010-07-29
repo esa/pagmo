@@ -27,7 +27,7 @@
 
 namespace kep_toolbox {
 	inline double kepDE(const double& DE, const double& DM, const double& sigma0, const double& sqrta, const double& a, const double& R){
-	    return ( (DE - DM + sigma0 / sqrta * (1 - cos(DE)) - (1 - R / a) * sin(DE)));
+		return ( (DE - DM + sigma0 / sqrta * (1 - cos(DE)) - (1 - R / a) * sin(DE)));
 	}
 
 	inline double d_kepDE(const double& DE, const double& sigma0, const double& sqrta, const double& a, const double& R){

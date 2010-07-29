@@ -38,6 +38,7 @@
 
 #include "archipelago.h"
 #include "algorithm/base.h"
+#include "base_island.h"
 #include "exceptions.h"
 #include "island.h"
 #include "population.h"
@@ -176,8 +177,19 @@ void archipelago::join() const
 {
 	const const_iterator it_f = m_container.end();
 	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
-		it->join();
+		(*it)->join();
 	}
+}
+
+archipelago::size_type archipelago::locate_island(const base_island &isl) const
+{
+	const_iterator it = m_container.begin();
+	for (; it != m_container.end(); ++it) {
+		if (&(*(*it)) == &isl) {
+			break;
+		}
+	}
+	return std::distance(m_container.begin(),it);
 }
 
 /// Add an island to the archipelago.
@@ -189,13 +201,13 @@ void archipelago::join() const
  *
  * @param[in] isl island to be added to the archipelago.
  */
-void archipelago::push_back(const island &isl)
+void archipelago::push_back(const base_island &isl)
 {
 	// NOTE: the joins are already done in check_island().
 	if (!check_island(isl)) {
 		pagmo_throw(value_error,"cannot push_back() incompatible island");
 	}
-	m_container.push_back(isl);
+	m_container.push_back(isl.clone());
 	// Make sure the clone() method is implemented properly in the problem of the island we just inserted. This is important
 	// beacuse otherwise we get inconsistent behaviour in migration: we could be inserting a problem which is not really compatible.
 	// NOTE: if we ever implement automatic checking on clone(), this can go away.
@@ -205,7 +217,7 @@ void archipelago::push_back(const island &isl)
 // 		pagmo_throw(value_error,"the problem's clone() method implementation does not produce a problem equal to itself: please correct it");
 // 	}
 	// Tell the island that it is living in an archipelago now.
-	m_container.back().m_archi = this;
+	m_container.back()->m_archi = this;
 	// Insert the island in the topology.
 	m_topology->push_back();
 }
@@ -225,7 +237,7 @@ void archipelago::set_algorithm(const size_type &idx, const algorithm::base &a)
 	if (idx >= m_container.size()) {
 		pagmo_throw(index_error,"invalid island index");
 	}
-	m_container[idx].set_algorithm(a);
+	m_container[idx]->set_algorithm(a);
 }
 
 /// Get the size of the archipelago.
@@ -256,7 +268,7 @@ std::string archipelago::human_readable() const
 	oss << m_topology->human_readable_terse() << '\n';
 	for (size_type i = 0; i < m_container.size(); ++i) {
 		oss << "Island index: #" << i << "\n\n";
-		oss << m_container[i].human_readable_terse() << '\n';
+		oss << m_container[i]->human_readable_terse() << '\n';
 	}
 	return oss.str();
 }
@@ -309,13 +321,13 @@ void archipelago::set_topology(const topology::base &tp)
  *
  * @return true if isl is compatible with the archipelago, false otherwise.
  */
-bool archipelago::check_island(const island &isl) const
+bool archipelago::check_island(const base_island &isl) const
 {
 	join();
 	isl.join();
 	// We need to perform checks only if there are other islands in the archipelago.
 	// Otherwise, any island will be allowed in.
-	if (m_container.size() && (!isl.m_pop.problem().is_compatible(m_container[0].m_pop.problem()))) {
+	if (m_container.size() && (!isl.m_pop.problem().is_compatible(m_container[0]->m_pop.problem()))) {
 		return false;
 	}
 	return true;
@@ -331,8 +343,8 @@ void archipelago::reset_barrier(const size_type &size)
 }
 
 // Helper function to insert a list of candidates immigrants into an immigrants vector, given the source and destination island.
-void archipelago::build_immigrants_vector(std::vector<individual_type> &immigrants, const island &src_isl,
-	island &dest_isl, const std::vector<individual_type> &candidates, migr_hist_type &h) const
+void archipelago::build_immigrants_vector(std::vector<individual_type> &immigrants, const base_island &src_isl,
+	base_island &dest_isl, const std::vector<individual_type> &candidates, migr_hist_type &h) const
 {
 	if (dest_isl.m_pop.problem() == src_isl.m_pop.problem()) {
 		// If the problem of the originating island is identical to that of destination island, then we can just
@@ -366,15 +378,15 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 	// Record the migration history.
 	h.push_back(boost::make_tuple(
 		boost::numeric_cast<population::size_type>(immigrants.size()),
-		boost::numeric_cast<size_type>(&src_isl - &m_container[0]),
-		boost::numeric_cast<size_type>(&dest_isl - &m_container[0])
+		locate_island(src_isl),
+		locate_island(dest_isl)
 	));
 }
 
 // This method will be called by each island of the archipelago before starting evolution. Its task is
 // to select from the other islands, according to the topology and the migration/distribution type and direction,
 // the individuals that will migrate into the island.
-void archipelago::pre_evolution(island &isl)
+void archipelago::pre_evolution(base_island &isl)
 {
 	// Lock the migration logic.
 	lock_type lock(m_migr_mutex);
@@ -382,10 +394,9 @@ void archipelago::pre_evolution(island &isl)
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
 	pagmo_assert(m_container.size());
-	// Make sure the island is somewhere after the beignning of the container and within it.
-	pagmo_assert(&isl >= &m_container[0] && boost::numeric_cast<size_type>(&isl - &m_container[0]) < m_container.size());
 	// Determine the island's index in the archipelago.
-	const size_type isl_idx = boost::numeric_cast<size_type>(&isl - &m_container[0]);
+	const size_type isl_idx = locate_island(isl);
+	pagmo_assert(isl_idx < m_container.size());
 	// Migration history for this migration.
 	migr_hist_type h;
 	//1. Obtain immigrants.
@@ -400,7 +411,7 @@ void archipelago::pre_evolution(island &isl)
 				it != m_migr_map[isl_idx].end(); ++it)
 			{
 				pagmo_assert(it->first < m_container.size());
-				build_immigrants_vector(immigrants,m_container[it->first],isl,it->second,h);
+				build_immigrants_vector(immigrants,*m_container[it->first],isl,it->second,h);
 			}
 			// Delete stuff in the migration map.
 			m_migr_map.erase(isl_idx);
@@ -421,7 +432,7 @@ void archipelago::pre_evolution(island &isl)
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
 						pagmo_assert(m_migr_map[rn_isl_idx].size() <= 1);
-						build_immigrants_vector(immigrants,m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx],h);
+						build_immigrants_vector(immigrants,*m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx],h);
 						break;
 					}
 					case broadcast:
@@ -429,7 +440,7 @@ void archipelago::pre_evolution(island &isl)
 						for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
-							build_immigrants_vector(immigrants,m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx],h);
+							build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx],h);
 						}
 				}
 			}
@@ -446,7 +457,7 @@ void archipelago::pre_evolution(island &isl)
 // This method will be called after each island isl has completed an evolution. Its purpose is to get individuals
 // emigrating from isl and put them at disposal of the other islands of the archipelago, according to the migration attributes
 // and the topology.
-void archipelago::post_evolution(island &isl)
+void archipelago::post_evolution(base_island &isl)
 {
 	// Lock the migration logic.
 	lock_type lock(m_migr_mutex);
@@ -454,10 +465,9 @@ void archipelago::post_evolution(island &isl)
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
 	pagmo_assert(m_container.size());
-	// Make sure the island is somewhere after the beignning of the container and within it.
-	pagmo_assert(&isl >= &m_container[0] && boost::numeric_cast<size_type>(&isl - &m_container[0]) < m_container.size());
 	// Determine the island's index in the archipelago.
-	const size_type isl_idx = boost::numeric_cast<size_type>(&isl - &m_container[0]);
+	const size_type isl_idx = locate_island(isl);
+	pagmo_assert(isl_idx < m_container.size());
 	// Create the vector of emigrants.
 	std::vector<individual_type> emigrants;
 	switch (m_migr_dir) {
@@ -502,9 +512,9 @@ void archipelago::post_evolution(island &isl)
 // Functor to count the number of blocking islands.
 struct archipelago::count_if_blocking
 {
-	bool operator()(const island &isl) const
+	bool operator()(const base_island_ptr &ptr) const
 	{
-		return isl.is_blocking_impl();
+		return ptr->is_thread_blocking();
 	}
 };
 
@@ -545,14 +555,14 @@ void archipelago::evolve(int n)
 			// Shuffle the vector of island iterators to simulate async operations.
 			std::random_shuffle(it_vector.begin(),it_vector.end());
 			for (std::vector<iterator>::iterator it = it_vector.begin(); it != it_vector.end(); ++it) {
-				(*it)->evolve();
+				(*(*it))->evolve();
 			}
 		}
 	} else {
 		// Reset thread barrier.
 		reset_barrier(m_container.size());
 		for (iterator it = m_container.begin(); it != it_f; ++it) {
-			it->evolve(n);
+			(*it)->evolve(n);
 		}
 	}
 }
@@ -592,13 +602,13 @@ void archipelago::evolve_t(int t)
 				// Evolve only if island has not evolved already for the desired time.
 				if (it->second < t) {
 					// Record the initial evolution time for the island.
-					const std::size_t initial_time = it->first->m_evo_time;
-					it->first->evolve();
+					const std::size_t initial_time = (*it->first)->m_evo_time;
+					(*it->first)->evolve();
 					// Here we must be careful. In "normal" conditions everything is fine and dandy and evo_time will now be higher than
 					// intial time. However, if the clock is screwed, if the counter is wrapping past the numerical limit or the evolution
 					// lasted 0 milliseconds, etc. then we must detect and fix this. Policy: add one second to the total evolution time for
 					// the island, so that at least we are sure we don't end up in an endless cycle.
-					const std::size_t time_diff = (it->first->m_evo_time > initial_time) ? (it->first->m_evo_time - initial_time) : 1000;
+					const std::size_t time_diff = ((*it->first)->m_evo_time > initial_time) ? ((*it->first)->m_evo_time - initial_time) : 1000;
 					it->second += boost::numeric_cast<int>(time_diff);
 				}
 			}
@@ -606,7 +616,7 @@ void archipelago::evolve_t(int t)
 	} else {
 		reset_barrier(m_container.size());
 		for (iterator it = m_container.begin(); it != it_f; ++it) {
-			it->evolve_t(t);
+			(*it)->evolve_t(t);
 		}
 	}
 }
@@ -619,7 +629,7 @@ bool archipelago::busy() const
 {
 	const const_iterator it_f = m_container.end();
 	for (const_iterator it = m_container.begin(); it != it_f; ++it) {
-		if (it->busy()) {
+		if ((*it)->busy()) {
 			return true;
 		}
 	}
@@ -635,7 +645,7 @@ void archipelago::interrupt()
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
 		try {
-			it->interrupt();
+			(*it)->interrupt();
 		} catch (const std::runtime_error &) {}
 	}
 	pagmo_throw(std::runtime_error,"evolution interrupted");
@@ -647,15 +657,15 @@ void archipelago::interrupt()
  *
  * @throw value_error if idx is not less than the size of the archipelago.
  */
-island archipelago::get_island(const size_type &idx) const
+base_island_ptr archipelago::get_island(const size_type &idx) const
 {
 	join();
 	if (idx >= m_container.size()) {
 		pagmo_throw(index_error,"invalid island index");
 	}
-	island retval(m_container[idx]);
+	base_island_ptr retval = m_container[idx]->clone();
 	// The island is no more in an archipelago.
-	retval.m_archi = 0;
+	retval->m_archi = 0;
 	return retval;
 }
 

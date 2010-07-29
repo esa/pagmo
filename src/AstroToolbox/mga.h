@@ -34,8 +34,6 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/split_member.hpp>
 
-using namespace std;
-
 // problem types
 #define orbit_insertion          0 // Tandem
 #define total_DV_orbit_insertion 1 // Cassini 1
@@ -76,8 +74,8 @@ struct mgaproblem {
 		ar & DVlaunch;
 	}
 	int type;							//problem type
-	vector<int> sequence;				//fly-by sequence (ex: 3,2,3,3,5,is Earth-Venus-Earth-Earth-Jupiter)
-	vector<int> rev_flag;				//vector of flags for clockwise legs
+	std::vector<int> sequence;				//fly-by sequence (ex: 3,2,3,3,5,is Earth-Venus-Earth-Earth-Jupiter)
+	std::vector<int> rev_flag;				//vector of flags for clockwise legs
 	double e;							//insertion e (only in case total_DV_orbit_insertion)
 	double rp;							//insertion rp in km (only in case total_DV_orbit_insertion)
 	customobject asteroid;				//asteroid data (in case fly-by sequence has a final number = 10)
@@ -88,10 +86,10 @@ struct mgaproblem {
 
 int MGA( 
 		 //INPUTS
-		 vector<double>,
+		 std::vector<double>,
 		 mgaproblem, 
 		
 		 //OUTPUTS
-		 vector <double>&, vector<double>&, double&); 
+		 std::vector <double>&, std::vector<double>&, double&); 
 
 #endif

@@ -25,10 +25,14 @@
 #ifndef PROPAGATE_LAGRANGIAN_H
 #define PROPAGATE_LAGRANGIAN_H
 
+#include<boost/bind.hpp>
+#include <boost/math/tools/roots.hpp>
+
 #include"../astro_constants.h"
 #include"../numerics/newton_raphson.h"
 #include"kepler_equations.h"
-#include<boost/bind.hpp>
+
+
 
 namespace kep_toolbox {
 
@@ -42,6 +46,10 @@ namespace kep_toolbox {
  * \param[in,out] v0 initial velocity vector. On output contains the propagated velocity. (v0[1],v0[2],v0[3] need to be preallocated, suggested template type is boost::array<double,3))
  * \param[in] t propagation time
  * \param[in] mu central body gravitational parameter
+ *
+ * NOTE: The solver used for the kepler equation is a derivative free solver from the boost libraries. In the case
+ * of hyperbolae, as the initial guess is rather poor it fails whenever the semimajor-axis is too small (e.g. a=0.03 in
+ * non dimensional units). These cases however are rarely interesting.
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
@@ -57,13 +65,18 @@ template<class vettore3D>
 
 	double sigma0 = (r0[0]*v0[0] + r0[1]*v0[1] + r0[2]*v0[2]) / sqrt(mu);
 
-	if (a > 0){	//Solve Kepler's equation with Newton-Raphson, elliptical case
+	if (a > 0){	//Solve Kepler's equation, elliptical case
 		sqrta = sqrt(a);
 		double DM = sqrt(mu / pow(a,3)) * t;
 		double DE = DM;
 
 		//Solve Kepler Equation for ellipses in DE (eccentric anomaly difference)
-		newton_raphson(DE,boost::bind(kepDE,_1,DM,sigma0,sqrta,a,R),boost::bind(d_kepDE,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
+		//newton_raphson(DE,boost::bind(kepDE,_1,DM,sigma0,sqrta,a,R),boost::bind(d_kepDE,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
+		std::pair<double, double> result;
+		boost::uintmax_t iter = ASTRO_MAX_ITER;
+		boost::math::tools::eps_tolerance<double> tol(64);
+		result = boost::math::tools::bracket_and_solve_root(boost::bind(kepDE,_1,DM,sigma0,sqrta,a,R),DM,2.0,true,tol,iter);
+		DE = (result.first + result.second) / 2;
 		double r = a + (R - a) * cos(DE) + sigma0 * sqrta * sin(DE);
 
 		//Lagrange coefficients
@@ -72,13 +85,18 @@ template<class vettore3D>
 		Ft = -sqrt(mu * a) / (r * R) * sin(DE);
 		Gt = 1 - a / r * (1 - cos(DE));
 	}
-	else{	//Solve Kepler's equation with Newton-Raphson, hyperbolic case
+	else{	//Solve Kepler's equation, hyperbolic case
 		sqrta = sqrt(-a);
 		double DN = sqrt(-mu / pow(a,3)) * t;
-		double DH = 0.; // TODO: find a better initial guess
+		double DH = DN; // TODO: find a better initial guess
 
 		//Solve Kepler Equation for hyperbolae in DH (hyperbolic anomaly difference)
-		newton_raphson(DH,boost::bind(kepDH,_1,DN,sigma0,sqrta,a,R),boost::bind(d_kepDH,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
+		//newton_raphson(DH,boost::bind(kepDH,_1,DN,sigma0,sqrta,a,R),boost::bind(d_kepDH,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
+		std::pair<double, double> result;
+		boost::uintmax_t iter = ASTRO_MAX_ITER;
+		boost::math::tools::eps_tolerance<double> tol(64);
+		result = boost::math::tools::bracket_and_solve_root(boost::bind(kepDH,_1,DN,sigma0,sqrta,a,R),DH,2.0,true,tol,iter);
+		DH = (result.first + result.second) / 2;
 		double r = a + (R - a) * cosh(DH) + sigma0 * sqrta * sinh(DH);
 
 		//Lagrange coefficients

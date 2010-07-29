@@ -61,7 +61,7 @@ int main()
 	int n_multistart = 1;
 
 	//Open the output file
-	ofstream myfile;
+	std::ofstream myfile;
 	myfile.open((std::string("pagmo_") +
 		boost::lexical_cast<std::string>(rng_generator::get<rng_uint32>()()) + ".out").c_str());
 
@@ -111,12 +111,12 @@ int main()
 					a.push_back(pagmo::island(prob,algo2,20));
 					a.evolve_t(10000);
 					a.join();
-					std::cout << "\tBest:" << a.get_island(0).get_population().champion().f << std::endl;
+					std::cout << "\tBest:" << a.get_island(0)->get_population().champion().f << std::endl;
 
 					//log
-					std::vector<double> x = a.get_island(0).get_population().champion().x;
+					std::vector<double> x = a.get_island(0)->get_population().champion().x;
 					double time = x[4] * Tmax + x[6] + x[10] * ((1 - x[4]) * Tmax - x[6]);
-					myfile << "[" << target.get_name() << "] %" << "[" << time << "] " << a.get_island(0).get_population().champion().f << " " << a.get_island(0).get_population().champion().x << std::endl;
+					myfile << "[" << target.get_name() << "] %" << "[" << time << "] " << a.get_island(0)->get_population().champion().f << " " << a.get_island(0)->get_population().champion().x << std::endl;
 				}
 			}
 		} catch (value_error) {

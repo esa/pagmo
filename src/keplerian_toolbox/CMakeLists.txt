@@ -23,6 +23,7 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/../../external_headers")
 SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/epoch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/planet.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/lambert_problem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sims_flanagan/leg.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sims_flanagan/fb_traj.cpp
 	)

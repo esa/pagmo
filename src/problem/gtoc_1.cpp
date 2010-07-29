@@ -47,11 +47,11 @@ gtoc_1::gtoc_1():base(8),Delta_V(8),rp(6),t(8)
 	problem.DVlaunch = 2.5;				// Launcher DV in km/s
 
 	int sequence_[8] = {3,2,3,2,3,5,6,10}; // sequence of planets
-	vector<int> sequence(8);
+	std::vector<int> sequence(8);
 	problem.sequence.insert(problem.sequence.begin(), sequence_, sequence_+8);
 
 	const int rev_[8] = {0,0,0,0,0,0,1,0}; // sequence of clockwise legs
-	vector<int> rev(8);
+	std::vector<int> rev(8);
 	problem.rev_flag.insert(problem.rev_flag.begin(), rev_, rev_+8);
 
 	problem.asteroid.keplerian[0] = 2.5897261;    // Asteroid data

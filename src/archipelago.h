@@ -45,8 +45,8 @@
 #include <vector>
 
 #include "algorithm/base.h"
+#include "base_island.h"
 #include "config.h"
-#include "island.h"
 #include "population.h"
 #include "problem/base.h"
 #include "rng.h"
@@ -63,12 +63,10 @@ namespace pagmo {
 class __PAGMO_VISIBLE archipelago
 {
 	public:
-		/// Island class must have access to internal archipelago methods.
-		friend class island;
-		friend class island::t_evolver;
-		friend class island::int_evolver;
+		/// Base island class must have access to internal archipelago methods.
+		friend class base_island;
 		/// Internal container of islands.
-		typedef std::vector<island> container_type;
+		typedef std::vector<base_island_ptr> container_type;
 		/// Archipelago size type.
 		typedef container_type::size_type size_type;
 		/// Individual type.
@@ -138,10 +136,10 @@ class __PAGMO_VISIBLE archipelago
 		~archipelago();
 		void join() const;
 		void set_algorithm(const size_type &, const algorithm::base &);
-		void push_back(const island &);
+		void push_back(const base_island &);
 		size_type get_size() const;
 		std::string human_readable() const;
-		bool check_island(const island &) const;
+		bool check_island(const base_island &) const;
 		topology::base_ptr get_topology() const;
 		void set_topology(const topology::base &);
 		void evolve(int = 1);
@@ -150,18 +148,19 @@ class __PAGMO_VISIBLE archipelago
 		void interrupt();
 		std::string dump_migr_history() const;
 		void clear_migr_history();
-		island get_island(const size_type &) const;
+		base_island_ptr get_island(const size_type &) const;
 		bool is_blocking() const;
 	private:
-		void pre_evolution(island &);
-		void post_evolution(island &);
+		void pre_evolution(base_island &);
+		void post_evolution(base_island &);
 		void reset_barrier(const size_type &);
-		void build_immigrants_vector(std::vector<individual_type> &, const island &,
-			island &, const std::vector<individual_type> &, migr_hist_type &) const;
+		void build_immigrants_vector(std::vector<individual_type> &, const base_island &,
+			base_island &, const std::vector<individual_type> &, migr_hist_type &) const;
 		void check_migr_attributes() const;
 		void sync_island_start() const;
 		struct count_if_blocking;
 		bool is_blocking_impl() const;
+		size_type locate_island(const base_island &) const;
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>

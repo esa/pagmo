@@ -31,6 +31,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
 #include <string>
+#include <vector>
 
 #include "../config.h"
 #include "../types.h"
@@ -104,7 +105,7 @@ class __PAGMO_VISIBLE tandem: public base
 		static const int sequence[5]; // are declared as static consts
 		mgadsmproblem problem;
 		const double tof;
-		mutable vector<double> copy_of_x;
+		mutable std::vector<double> copy_of_x;
 
 };
 
