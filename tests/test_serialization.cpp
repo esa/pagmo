@@ -265,7 +265,7 @@ int main()
 	save_de(de_source, fileName.c_str());
 	//restoring the algoirhm de1 into a different object
 	restore_de(de_dest, fileName.c_str());
-	std::cout << "Rtrv. de algorithm: " << de_dest << endl << endl;
+	std::cout << "Rtrv. de algorithm: " << de_dest << "\n\n";
 
 	// Algorithm PSO
     algorithm::pso pso_source = algorithm::pso(10,.65,2,2,.2,3);
@@ -275,7 +275,7 @@ int main()
 	save_pso(pso_source, fileName.c_str());
 	//restoring the algoirhm pso_source into a different object
 	restore_pso(pso_dest, fileName.c_str());
-	std::cout << "Rtrv. pso algorithm: " << pso_dest << endl << endl;
+	std::cout << "Rtrv. pso algorithm: " << pso_dest << "\n\n";
 
 	// Algorithm CS
     algorithm::cs cs_source = algorithm::cs(1,.01,.1,.1);
@@ -285,7 +285,7 @@ int main()
 	save_cs(cs_source, fileName.c_str());
 	//restoring the algoirhm cs_source into a different object
 	restore_cs(cs_dest, fileName.c_str());
-	std::cout << "Rtrv. cs algorithm: " << cs_dest << endl << endl;
+	std::cout << "Rtrv. cs algorithm: " << cs_dest << "\n\n";
 
 	// Algorithm SGA
     algorithm::sga sga_source = algorithm::sga(10,.65,.2);
@@ -295,7 +295,7 @@ int main()
 	save_sga(sga_source, fileName.c_str());
 	//restoring the algoirhm sga_source into a different object
 	restore_sga(sga_dest, fileName.c_str());
-	std::cout << "Rtrv. sga algorithm: " << sga_dest << endl << endl;
+	std::cout << "Rtrv. sga algorithm: " << sga_dest << "\n\n";
 
 #ifdef PAGMO_ENABLE_IPOPT
 	// Algorithm IPOPT
@@ -306,7 +306,7 @@ int main()
 	save_ipopt(ipopt_source_source, fileName.c_str());
 	//restoring the algoirhm ipopt_source into a different object
 	restore_ipopt(ipopt_dest, fileName.c_str());
-	std::cout << "Rtrv. ipopt algorithm: " << ipopt_dest << endl << endl;
+	std::cout << "Rtrv. ipopt algorithm: " << ipopt_dest << "\n\n";
 #endif
 
 
