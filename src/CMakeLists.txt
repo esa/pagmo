@@ -199,6 +199,45 @@ IF(NOT MINGW)
 	)
 ENDIF(NOT MINGW)
 
+# Boost MPI library.
+SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/broadcast.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/communicator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/computation_tree.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/content_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/environment.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/exception.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/graph_communicator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/group.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/intercommunicator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_cache.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/point_to_point.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/request.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/text_skeleton_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/timer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/collectives.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/datatypes.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/documentation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/exception.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/module.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/py_communicator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/py_environment.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/py_exception.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/py_nonblocking.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/py_request.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/py_timer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/request_with_value.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/serialize.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/skeleton_and_content.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/status.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/python/utility.hpp
+)
+
 # Create a pagmo_static library if main or tests or examples are requested.
 IF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
