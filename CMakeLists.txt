@@ -68,11 +68,31 @@ OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 # Build Option: IPOPT optimiser.
 OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 
+# Build Option: support for MPI clustering.
+OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
+
 # Build option: enable test set.
 OPTION(ENABLE_TESTS "Build test set." ON)
 
 # Build Option: build executable for the examples
 OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
+
+IF(ENABLE_MPI)
+	INCLUDE(FindMPI)
+	IF(NOT MPI_FOUND)
+		MESSAGE(FATAL_ERROR "MPI support was requested, but the MPI environment was not detected. Please check your setup.")
+	ENDIF(NOT MPI_FOUND)
+	MESSAGE(STATUS "MPI libraries: ${MPI_LIBRARIES}")
+	MESSAGE(STATUS "MPI include path: ${MPI_INCLUDE_PATH}")
+	MESSAGE(STATUS "MPI compile flags: ${MPI_COMPILE_FLAGS}")
+	MESSAGE(STATUS "MPI link flags: ${MPI_LINK_FLAGS}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${MPI_LIBRARIES})
+	INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
+	SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_COMPILE_FLAGS}")
+ENDIF(ENABLE_MPI)
 
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
