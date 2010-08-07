@@ -25,6 +25,13 @@
 #ifndef PAGMO_BASE_ISLAND_H
 #define PAGMO_BASE_ISLAND_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
@@ -33,8 +40,11 @@
 #include <string>
 #include <vector>
 
+
 #include "config.h"
+#include "algorithms.h"
 #include "algorithm/base.h"
+#include "migration.h"
 #include "migration/base_r_policy.h"
 #include "migration/base_s_policy.h"
 #include "population.h"
@@ -152,6 +162,21 @@ class __PAGMO_VISIBLE base_island
 		// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.
 		struct t_evolver;
 	protected:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+		    std::cout << "de-/serializing base_island " << version << std::endl;
+			REGISTER_ALGORITHM_SERIALIZATIONS();
+			REGISTER_MIGRATION_POLICY_SERIALIZATIONS();
+			ar & m_pop;		    
+			ar & m_algo;
+			ar & m_archi;
+			ar & m_evo_time;
+			ar & m_migr_prob;
+			ar & m_s_policy;
+			ar & m_r_policy;
+			ar & m_evo_thread;
+		}
 		// Population.
 		population				m_pop;
 		// Algorithm.

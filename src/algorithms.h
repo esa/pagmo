@@ -73,4 +73,16 @@
 	#include "algorithm/nlopt_sbplx.h"
 #endif
 
+// routine that registers the derived types of the the algorithm class needed for casting after deserializing the base_ptr
+#define REGISTER_ALGORITHM_SERIALIZATIONS()				\
+ar.template register_type<algorithm::cs>();				\
+ar.template register_type<algorithm::de>();				\
+ar.template register_type<algorithm::ihs>();			\
+ar.template register_type<algorithm::monte_carlo>();	\
+ar.template register_type<algorithm::null>();			\
+ar.template register_type<algorithm::pso>();			\
+ar.template register_type<algorithm::sa_corana>();		\
+ar.template register_type<algorithm::sga>();			\
+ar.template register_type<algorithm::bee_colony>();				
+
 #endif
