@@ -25,6 +25,11 @@
 #ifndef PAGMO_ALGORITHM_NLOPT_SBPLX_H
 #define PAGMO_ALGORITHM_NLOPT_SBPLX_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
+
 #include "../config.h"
 #include "base_nlopt.h"
 
@@ -51,6 +56,13 @@ class __PAGMO_VISIBLE nlopt_sbplx: public base_nlopt
 	public:
 		nlopt_sbplx(int = 100, const double & = 1E-6);
 		base_ptr clone() const;
+	private:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int version){
+			std::cout << "de-/serializing nlopt_sbplx algorithm " << version << std::endl;
+			ar & boost::serialization::base_object<base_nlopt>(*this);	
+		}  
 };
 
 }}
