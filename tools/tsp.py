@@ -142,17 +142,21 @@ class MainWindow(QtGui.QMainWindow):
         self.save = QtGui.QAction('Save graph', self)
         self.load = QtGui.QAction('Load graph', self)
         self.loadPath = QtGui.QAction('Load path', self)
+        self.solve = QtGui.QAction('Solve problem', self)
         self.connect(self.save, QtCore.SIGNAL('triggered()'), save)
         self.connect(self.load, QtCore.SIGNAL('triggered()'), load)
         self.connect(self.loadPath, QtCore.SIGNAL('triggered()'), loadPath)
+        self.connect(self.solve, QtCore.SIGNAL('triggered()'), solve)
 
         self.saveButton = self.addToolBar('Save graph')
         self.loadButton = self.addToolBar('Load graph')
         self.loadPathButton = self.addToolBar('Load path')
+        self.solveButton = self.addToolBar('Solve problem')
 
         self.saveButton.addAction(self.save)
         self.loadButton.addAction(self.load)
         self.loadPathButton.addAction(self.loadPath)
+        self.solveButton.addAction(self.solve)
 
 def save():
 	dialog = QtGui.QFileDialog()
@@ -172,13 +176,17 @@ def loadPath():
 	ifile = open(fileName,'r')
 	highlightPath(ifile)
 
+def solve():
+	solve_problem(generateAdjMatrix(nodeList))
+
 def generateAdjMatrix(nodeList):
 	length = len(nodeList)
 	matrix = [[noEdge for col in range(length)] for row in range(length)]
 	for node in nodeList:
+		matrix[node.id][node.id] = 0
 		for edge in node.edgeList:
 			matrix[edge.source.id][edge.dest.id] = edge.weight
-	print matrix
+			matrix[edge.dest.id][edge.source.id] = edge.weight
 	return matrix
 
 def writeMatrixToFile(ofile,matrix):
@@ -201,6 +209,28 @@ def fromFileToMatrix(ifile):
 			if not(weight == noEdge):
 				edge = Edge(nodeList[i],nodeList[j])
 				edge.weight = weight
+
+def solve_problem(matrix):
+	from PyGMO import problem, algorithm, island
+	prob = problem.tsp(matrix)
+	algo = algorithm.aco(20)
+	isl = island(prob,algo,40)
+	isl.evolve(1)
+	isl.join()
+	global nodeList
+	path = isl.population.champion.x
+	print "Optimal path: " + str(path)
+	print "Path weight: "  + str(isl.population.champion.f[0])
+	for i in range(len(nodeList)):
+		for edge in nodeList[int(path[i])].edgeList:
+			if edge.source.id == nodeList[int(path[i])].id and edge.dest.id == nodeList[int(path[ (i+1)%len(path) ])].id:
+				edge.isThick = 1
+				break
+			if edge.dest.id == nodeList[int(path[i])].id and edge.source.id == nodeList[int(path[ (i+1)%len(path) ])].id:
+				edge.isThick = 1
+				break
+
+
 def highlightPath(ifile): #highlight the optimal path. The file conteins an ordered list of nodes to visit
 	global nodeList
 	path = []

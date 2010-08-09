@@ -126,15 +126,14 @@ void aco::evolve(population &pop) const
 	}
 
 
+	std::vector<int> selection(NP,0); //next node selection for each individual
+	std::vector<fitness_vector> Ttemp(nComponents,tempA);
+	std::vector<fitness_vector> etaTemp(nComponents,tempA);
+	std::vector<bool> fComponentsTemp(nComponents,true);
+	std::vector<bool> fComponents(nComponents);
+
 	// Main ACO loop
 	for (int t = 0; t < m_iter; ++t) {
-
-		std::vector<int> selection(NP,0); //next node selection for each individual
-
-		std::vector<fitness_vector> Ttemp(nComponents,tempA);
-		std::vector<fitness_vector> etaTemp(nComponents,tempA);
-		std::vector<bool> fComponentsTemp(nComponents,true);
-		std::vector<bool> fComponents(nComponents);
 
 		//Select first node
 		// Since the first node doesn't have a predecessor we create new T and eta vector for each first vector i

@@ -314,6 +314,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.")
 		.def(init<>());
 	
+	// Traveling salesman problem
+	problem_wrapper<problem::tsp>("tsp","Traveling salesman problem")
+		.def(init<const std::vector<std::vector<double> > &>());
+	
 	// Tandem.
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
 		.def(init< optional<int, double> >());
