@@ -41,6 +41,7 @@
 #include "algorithm/firefly.h"
 #include "algorithm/cross_entropy.h"
 #include "algorithm/aco.h"
+#include "algorithm/nsga2.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

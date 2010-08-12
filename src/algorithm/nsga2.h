@@ -45,11 +45,6 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE nsga2: public base
 {
 public:
-	/// Selection info
-	struct selection {
-		/// Selection type, best 20% or roulette
-		enum type {BEST20 = 0,ROULETTE = 1};
-	};
 	/// Mutation operator info
 	struct mutation {
 		/// Mutation type, gaussian or random
@@ -73,9 +68,8 @@ public:
 		/// Crossover type, binomial or exponential
 		enum type {BINOMIAL = 0, EXPONENTIAL = 1};
 	};
-	nsga2(int gen, const double &cr, const double &m, int elitism = 1,
+	nsga2(int gen, const double &cr, const double &m,
 	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
-	    selection::type sel = selection::ROULETTE,
 	    crossover::type cro = crossover::EXPONENTIAL);
 	base_ptr clone() const;
 	void evolve(population &) const;
@@ -89,12 +83,8 @@ private:
 	const double m_cr;
 	//Mutation rate
 		const double m_m;
-	//Elitism (number of generations after which to reinsert the best)
-	const int m_elitism;
 	//Mutation
 	const mutation m_mut;
-	//Selection_type
-	const selection::type m_sel;
 	//Crossover_type
 	const crossover::type m_cro;
 
