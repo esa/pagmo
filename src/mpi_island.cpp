@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/mpi.hpp>
 #include <string>
 
 #include "algorithm/base.h"
@@ -39,8 +40,8 @@ namespace pagmo
 /**
  * @see pagmo::base_island constructors.
  */
-mpi_island::mpi_island(const problem::base &p, const algorithm::base &a, int n, const double &migr_prob,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy, int processor):
+mpi_island::mpi_island(const problem::base &p, const algorithm::base &a, int n, int processor, const double &migr_prob,
+	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
 	base_island(p,a,n,migr_prob,s_policy,r_policy)
 {
 	processor_id = processor;
@@ -59,8 +60,8 @@ mpi_island::mpi_island(const mpi_island &isl):base_island(isl)
 /**
  * @see pagmo::base_island constructors.
  */
-mpi_island::mpi_island(const population &pop, const algorithm::base &a, const double &migr_prob,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy, int processor):
+mpi_island::mpi_island(const population &pop, const algorithm::base &a, int processor, const double &migr_prob,
+	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
 	base_island(pop,a,migr_prob,s_policy,r_policy)
 {
 	processor_id = processor;
@@ -86,7 +87,21 @@ bool mpi_island::is_thread_blocking() const
 
 void mpi_island::perform_evolution(const algorithm::base &algo, population &pop) const
 {
-	algo.evolve(pop);
+	boost::mpi::communicator world;
+	if (world.rank() == 0) {
+		world.send(processor_id,1,pop);
+	}	
+	if (world.rank() == processor_id) {
+		std::cout << "evolving island " << processor_id << " on process " << world.rank() << "." << std::endl;
+		world.recv(0,1,pop);
+		algo.evolve(pop);		
+		world.send(0,2,pop);
+	}
+	if (world.rank() == 0) {
+		std::cout << "received evolved population from island on process " << processor_id  << std::endl;
+		world.recv(processor_id,2,pop);
+	}
+
 }
 
 std::string mpi_island::get_name() const

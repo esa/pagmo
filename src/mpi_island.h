@@ -22,13 +22,17 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ISLAND_H
-#define PAGMO_ISLAND_H
+#ifndef PAGMO_MPI_ISLAND_H
+#define PAGMO_MPI_ISLAND_H
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/mpi/environment.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/vector.hpp>
@@ -47,27 +51,24 @@
 namespace pagmo
 {
 
-/// Local island class.
+/// mpi island class.
 /**
  * This island class will launch evolutions using local threads.
  *
- * @author Francesco Biscani (bluescarni@gmail.com)
- * @author Marek Ruciński (marek.rucinski@gmail.com)
+ * @author Dante Stroe (dante.stroe@gmail.com)
  */
 class __PAGMO_VISIBLE mpi_island: public base_island
 {
 	public:
 		mpi_island(const mpi_island &);
-		explicit mpi_island(const problem::base &, const algorithm::base &, int = 0,
+		explicit mpi_island(const problem::base &, const algorithm::base &, int = 0, int = 0,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
-			const migration::base_r_policy & = migration::fair_r_policy(),
-			int = 0);
-		explicit mpi_island(const population &, const algorithm::base &,
+			const migration::base_r_policy & = migration::fair_r_policy());
+		explicit mpi_island(const population &, const algorithm::base &, int = 0,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
-			const migration::base_r_policy & = migration::fair_r_policy(),
-			int = 0);
+			const migration::base_r_policy & = migration::fair_r_policy());
 		mpi_island &operator=(const mpi_island &);
 		base_island_ptr clone() const;
 		/** @name Evolution.

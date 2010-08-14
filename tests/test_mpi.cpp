@@ -37,45 +37,33 @@
 #include "../src/pagmo.h"
 #include "test_functions.h"
 
-using namespace pagmo;
-
-struct std_calculator {
-	std_calculator(const double &mean):m_mean(mean) {}
-	typedef double result_type;
-	double operator()(const double &x) const
-	{
-		return (m_mean - x) * (m_mean - x);
-	}
-	const double m_mean;
-};
-
-typedef boost::transform_iterator<std_calculator,std::vector<double>::iterator> std_iterator;
-
 int main(int argc, char* argv[])
 {
 	boost::mpi::environment env(argc, argv);
-	algorithm::de de = algorithm::de(500,.8,.8,2);
-	const std::vector<problem::base_ptr> probs(get_test_problems());
+	boost::mpi::communicator world;
+	pagmo::algorithm::de de = pagmo::algorithm::de(500,.8,.8,2);
+	const std::vector<pagmo::problem::base_ptr> probs(pagmo::get_test_problems());
 	std::cout << "Testing algorithm: " << de << '\n';
-	for (std::vector<problem::base_ptr>::const_iterator it = probs.begin(); it != probs.end(); ++it) {
+	
+	for (std::vector<pagmo::problem::base_ptr>::const_iterator it = probs.begin(); it != probs.end(); ++it)
+	{
 		std::cout << "\tTesting problem: " << (**it) << '\n';
 		std::vector<double> champs;
-		for (int i = 0; i < 100; ++i) {
-			mpi_island isl(**it,de,20,1);
-			isl.evolve(1);
-			isl.join();
-			champs.push_back(isl.get_population().champion().f[0]);
+		pagmo::archipelago a = pagmo::archipelago(pagmo::topology::rim());
+			
+		a.push_back(pagmo::mpi_island(**it,de,20,1));
+		a.push_back(pagmo::mpi_island(**it,de,20,2));		
+		a.push_back(pagmo::mpi_island(**it,de,20,3));
+				
+		a.evolve(10);
+		a.join();
+	
+	
+		if (world.rank() == 0)
+		{
+			std::cout << a.get_island(0)->get_population().champion().f << " " << a.get_island(0)->get_population().champion().x << std::endl;
 		}
-		std::cout << "\t\tBest:\t" << boost::lexical_cast<std::string>(*std::min_element(champs.begin(),champs.end())) << '\n';
-		const double mean = std::accumulate(champs.begin(),champs.end(),double(0.)) / champs.size();
-		std::cout << "\t\tMean:\t" << boost::lexical_cast<std::string>(mean) << '\n';
-		std::cout << "\t\tStd:\t" <<  boost::lexical_cast<std::string>(std::sqrt(
-			std::accumulate(
-				std_iterator(champs.begin(),std_calculator(mean)),
-				std_iterator(champs.end(),std_calculator(mean)),
-				double(0.)
-			) / champs.size())
-		) << '\n';
+
 	}
 	return 0;
 }

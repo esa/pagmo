@@ -29,9 +29,11 @@
 
 #include "algorithms.h"
 #include "archipelago.h"
+#include "base_island.h"
 #include "exceptions.h"
 #include "island.h"
 #include "migration.h"
+#include "mpi_island.h"
 #include "population.h"
 #include "problems.h"
 #include "rng.h"
