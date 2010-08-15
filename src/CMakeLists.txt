@@ -64,6 +64,11 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/fon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/pol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/kur.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt1.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt4.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt6.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp

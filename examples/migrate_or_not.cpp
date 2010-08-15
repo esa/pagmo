@@ -90,7 +90,7 @@ int main()
 
 	//0 - Experiment parameters
 	int number_of_islands = 1;
-	int number_of_individuals = 15;
+	int number_of_individuals = 100;
 	//int evolution_time = 1000;
 	int number_of_migrations = 1;
 
@@ -154,6 +154,11 @@ int main()
 	problem::fon prob9;
 	problem::pol prob10;
 	problem::kur prob11;
+	problem::zdt1 prob12;
+	problem::zdt2 prob13;
+	problem::zdt3 prob14;
+	problem::zdt4 prob15;
+	problem::zdt6 prob16;
 
 	//2 - We instantiate the algorithms
 	algorithm::de algo1(100);
@@ -192,10 +197,15 @@ int main()
 	//prob.push_back(prob4.clone());
 	//prob.push_back(prob6.clone());
 	//prob.push_back(prob7.clone());
-	prob.push_back(prob8.clone());
-	prob.push_back(prob9.clone());
-	prob.push_back(prob10.clone());
-	prob.push_back(prob11.clone());
+	//prob.push_back(prob8.clone());
+	//prob.push_back(prob9.clone());
+	//prob.push_back(prob10.clone());
+	//prob.push_back(prob11.clone());
+	//prob.push_back(prob12.clone());
+	//prob.push_back(prob13.clone());
+	//prob.push_back(prob14.clone());
+	prob.push_back(prob15.clone());
+	prob.push_back(prob16.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
