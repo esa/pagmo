@@ -23,6 +23,8 @@
  *****************************************************************************/
 
 #include <algorithm>
+#include <boost/mpi/environment.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/thread/barrier.hpp>
@@ -41,6 +43,7 @@
 #include "base_island.h"
 #include "exceptions.h"
 #include "island.h"
+#include "mpi_island.h"
 #include "population.h"
 #include "problem/base.h"
 #include "rng.h"
@@ -102,14 +105,35 @@ archipelago::archipelago(const topology::base &t, distribution_type dt, migratio
  * @param[in] t topology.
  * @param[in] dt distribution type.
  * @param[in] md migration direction.
+ * @param[in] is_parallel boolean value, that if true creates an aprchipelago that uses mpi_island objects instead of local islands (default to false)
  */
-archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t, distribution_type dt, migration_direction md):
+archipelago::archipelago(const problem::base &p, const algorithm::base &a, int n, int m, const topology::base &t, distribution_type dt, migration_direction md, bool is_parallel):
 	m_islands_sync_point(),m_topology(new topology::unconnected()),m_dist_type(dt),m_migr_dir(md),
 	m_migr_map(),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()),m_migr_mutex()
 {
 	check_migr_attributes();
-	for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
-		push_back(island(p,a,m));
+	if (is_parallel) {
+		#ifdef PAGMO_ENABLE_MPI
+			boost::mpi::communicator world;
+			// in case the number of processors is smaller than the number of islands, the islands are assigned to each processor in a round-robin manner
+			if (world.size() < n) {				
+				for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
+					push_back(mpi_island(p,a,m,((int)i + 1)%world.size()));
+				}
+			}
+			else {
+				for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
+					push_back(mpi_island(p,a,m,(int)i + 1));
+				}
+			}
+		#else
+			pagmo_throw(value_error,"PAGMO has not been built/configured with MPI support");
+		#endif
+	}
+	else {
+		for (size_type i = 0; i < boost::numeric_cast<size_type>(n); ++i) {
+			push_back(island(p,a,m));
+		}
 	}
 	// Set topology after pushing back, so that it is possible to give an already-built topology to the constructor
 	// without everything blowing up.
