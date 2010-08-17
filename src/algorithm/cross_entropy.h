@@ -39,6 +39,9 @@ namespace pagmo { namespace algorithm {
 /**
  * The cross-entropy (CE) method attributed to Reuven Rubinstein is a general Monte Carlo approach to combinatorial and continuous multi-extremal optimization and importance sampling.
  *
+ * NOTE: when called on mixed-integer problems CE treats the integer part as fixed and optimizes
+ * the continuous part.
+ *
  * At each call of the evolve method a number of function evaluations equal
  * to iter * pop.size() is performed.
  *

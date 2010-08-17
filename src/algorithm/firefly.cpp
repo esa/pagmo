@@ -46,7 +46,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] alpha define the width of the random vector
  * @param[in] beta define the maximum attractiveness
  * @param[in] gamma define the absorption coefficent
- * @throws value_error if number of iterations is negativo or alpha, beta and gamma are not in [0,1]
+ * @throws value_error if number of iterations is negative or alpha, beta and gamma are not in [0,1]
  */
 firefly::firefly(int iter, double alpha, double beta, double gamma):base(),m_iter(iter), m_alpha(alpha), m_beta(beta), m_gamma(gamma) {
 	if (iter < 0) {

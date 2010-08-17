@@ -89,10 +89,10 @@ int main()
 	myfile << "\\begin{xtabular}{lll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 1;
-	int number_of_individuals = 100;
+	int number_of_islands = 3;
+	int number_of_individuals = 20;
 	//int evolution_time = 1000;
-	int number_of_migrations = 1;
+	int number_of_migrations = 2;
 
 	/*
 	std::vector<double> r1;
@@ -170,6 +170,7 @@ int main()
 	algorithm::cross_entropy algo7(100,0.3);
 	algorithm::aco algo8(10);
 	algorithm::nsga2 algo9(250,0.9,0.3);
+	algorithm::firefly algo10(50);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
@@ -185,16 +186,18 @@ int main()
 	//algo.push_back(algo4.clone());
 	//algo.push_back(algo5.clone());
 	//algo.push_back(algo6.clone());
-	//algo.push_back(algo7.clone());
+	algo.push_back(algo7.clone());
 	//algo.push_back(algo8.clone());
-	algo.push_back(algo9.clone());
+	//algo.push_back(algo9.clone());
+	//algo.push_back(algo10.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
-	//prob.push_back(prob1.clone());
+	prob.push_back(prob1.clone());
 	//prob.push_back(prob2.clone());
 	//prob.push_back(prob3.clone());
 	//prob.push_back(prob4.clone());
+	prob.push_back(prob5.clone());
 	//prob.push_back(prob6.clone());
 	//prob.push_back(prob7.clone());
 	//prob.push_back(prob8.clone());
@@ -204,8 +207,8 @@ int main()
 	//prob.push_back(prob12.clone());
 	//prob.push_back(prob13.clone());
 	//prob.push_back(prob14.clone());
-	prob.push_back(prob15.clone());
-	prob.push_back(prob16.clone());
+	//prob.push_back(prob15.clone());
+	//prob.push_back(prob16.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;

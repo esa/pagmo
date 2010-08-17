@@ -45,7 +45,7 @@ namespace pagmo { namespace algorithm {
  *
  * @param[in] iter number of iterations.
  * @param[in] rho evaporation rate
- * @throws value_error if number of iterations is negativ
+ * @throws value_error if number of iterations is negative or rho isn't in the [0,1] range.
  */
 aco::aco(int iter, double rho):base(),m_iter(iter),m_rho(rho) {
 	if (iter < 0) {

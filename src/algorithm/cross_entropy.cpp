@@ -38,6 +38,8 @@
 
 
 namespace pagmo { namespace algorithm {
+
+//This is a comparator used in the sort function to sort individuals by the number of other individuals dominated
 class CompareFitness: std::binary_function<std::pair<population::individual_type,int> , std::pair<population::individual_type,int> , bool>
 {
 	population *pop;

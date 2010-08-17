@@ -35,7 +35,12 @@ namespace pagmo { namespace algorithm {
 
 /// Ant Colony Optimization (ACO)
 /**
- * Ant colony optimization (ACO) is a population-based metaheuristic that can be used to find approximate solutions to difficult combinatorial optimization problems. 
+ * \image html ant.jpg "Ant Colony Optimization"
+ * \image latex ant.jpg  "Ant Colony Optimization" width=3cm
+ * Ant colony optimization (ACO) is a population-based metaheuristic that can be used to find approximate solutions to difficult combinatorial optimization problems. This implementation of ACO works on any constrained integer problem that extends the base_aco problem.
+ *
+ * NOTE: when called on mixed-integer problems ACO treats the continuous part as fixed and optimizes
+ * the integer part.
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  *

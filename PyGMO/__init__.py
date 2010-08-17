@@ -31,7 +31,7 @@ def run_test():
 	#prob_list = [problem.schwefel(10),problem.rastrigin(10),problem.rosenbrock(10), problem.ackley(10)]
 	prob_list = [problem.himmelblau(), problem.schwefel(10), problem.rastrigin(20), problem.griewank(5), problem.rosenbrock(4), problem.dejong(3), problem.michalewicz(5)]
 	prob_optimum = [0, 0, 0, 0, 0, 0, -4.687]
-	algo_list = [algorithm.pso(1000), algorithm.de(1000,0.8,0.8),algorithm.sa_corana(10000,1,0.1), algorithm.ihs(1000), algorithm.gsl_nm(1000,0.5,0.5), algorithm.cs(1000, 0.1, 0.25), algorithm.bee_colony(1000), algorithm.firefly(1000) ]
+	#algo_list = [algorithm.pso(1000), algorithm.de(1000,0.8,0.8),algorithm.sa_corana(250,1,0.1), algorithm.ihs(1000), algorithm.gsl_nm(1000,0.5,0.5), algorithm.cs(1000, 0.1, 0.25), algorithm.bee_colony(1000), algorithm.firefly(1000) ]
 	algo_list = [algorithm.bee_colony(250), algorithm.firefly(250) ]
 	for j in range(0,len(prob_list)):
 		print('Testing problem: ' + str(type(prob_list[j])) + ', Dimension: ' + str(prob_list[j].dimension))
@@ -39,7 +39,7 @@ def run_test():
 			print('        Testing algorithm: ' + str(algo))
 			best = []
 			best_x = []
-			for i in range(0,100):
+			for i in range(0,5):
 				isl = island(prob_list[j],algo,40)
 				isl.evolve(1)
 				isl.join()

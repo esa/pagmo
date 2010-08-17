@@ -39,12 +39,18 @@
 #include "nsga2.h"
 
 namespace pagmo { namespace algorithm {
+
+//Used in std::sort to compare individuals according to a specific component of the fitness
 class CompareFitness: std::binary_function<std::pair<decision_vector,int> , std::pair<decision_vector,int>, bool>
 {
 	const pagmo::problem::base *prob;
 	int n;
 	
 	public: 
+		/**
+		* @param[in] p a reference to the problem
+		* @param[in] component the component according to which we want to compare the fitness
+		**/
 		CompareFitness(const pagmo::problem::base &p, int component) {
 			prob = &p;
 			n = component;
@@ -54,11 +60,16 @@ class CompareFitness: std::binary_function<std::pair<decision_vector,int> , std:
 			return (prob->objfun(a.first) < prob->objfun(b.first));
 		}
 };
+
+//Used in std::sort to compare individuals according to their crowding distance value
 class CompareDistance: std::binary_function<int , int, bool>
 {
 	const std::vector<int> *I;
 	
 	public: 
+		/**
+		* @param[in] distances a reference to the crowding distances vector
+		**/
 		CompareDistance(const std::vector<int> &distances) {
 			I = &distances;
 		}
@@ -77,7 +88,7 @@ class CompareDistance: std::binary_function<int , int, bool>
  * @param[in] mut Mutation type. One of sga::mutation::GAUSSIAN, sga::mutation::RANDOM
  * @param[in] width Mutation width. When gaussian mutation is selected is the width of the mutation
  * @param[in] cro Crossover type. One of sga::crossover::BINOMIAL, sga::crossover::EXPONENTIAL
- * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1]\f$, mutation probability is not \f$ \in [0,1]\f$,
+ * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1]\f$, mutation probability or mutation width is not \f$ \in [0,1]\f $,
  *
  */
 nsga2::nsga2(int gen, const double &cr, const double &m, mutation::type mut, double width, crossover::type cro)
@@ -106,8 +117,7 @@ base_ptr nsga2::clone() const
 
 /// Evolve implementation.
 /**
- * Run the simple genetic algorithm for the number of generations specified in the constructors.
- * At each improvment velocity is also updated.
+ * Run the NSGA-II algorithm for the number of generations specified in the constructors.
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
@@ -122,13 +132,13 @@ void nsga2::evolve(population &pop) const
 	const problem::base::size_type Dc = D - Di;
 
 
-	//We perform some checks to determine wether the problem/population are suitable for SGA
+	//We perform some checks to determine wether the problem/population are suitable for NSGA-II
 	if ( prob_c_dimension != 0 ) {
 		pagmo_throw(value_error,"The problem is not box constrained and SGA is not suitable to solve it");
 	}
 
 	if (NP < 5) {
-		pagmo_throw(value_error,"for SGA at least 5 individuals in the population are needed");
+		pagmo_throw(value_error,"for NSGA-II at least 5 individuals in the population are needed");
 	}
 
 	// Get out if there is nothing to do.
@@ -139,7 +149,7 @@ void nsga2::evolve(population &pop) const
 	decision_vector dummy(D,0);			//used for initialisation purposes
 	std::vector<decision_vector > X(NP,dummy), Xnew(NP,dummy), P(2*NP, dummy);
 
-	// Initialise the chromosomes and their fitness to that of the initial deme
+	// Initialise the chromosomes and the Xnew vector.
 	for (pagmo::population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		Xnew[i]	=	pop.get_individual(i).cur_x;
@@ -160,7 +170,7 @@ void nsga2::evolve(population &pop) const
 			//for each chromosome selected i.e. in Xnew
 			member1 = Xnew[i];
 			do {
-			//we select a mating patner different from the self (i.e. no masturbatiDistance	do {
+			//we select a mating patner different from the self (i.e. no masturbation allowed)
 				r1 = boost::uniform_int<int>(0,NP - 1)(m_urng);
 			} while ( r1 == boost::numeric_cast<int>(i) );
 			member2 = Xnew[r1];
@@ -329,7 +339,7 @@ void nsga2::evolve(population &pop) const
 /// Algorithm name
 std::string nsga2::get_name() const
 {
-	return "Nondominated Sorting Genetic Algorithm II";
+	return "Nondominated Sorting Genetic Algorithm II (NSGA-II)";
 }
 
 /// Extra human readable algorithm info.

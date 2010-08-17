@@ -34,9 +34,10 @@ namespace pagmo { namespace algorithm {
 
 /// Nondominated Sorting genetic algorithm II (NSGA-II)
 /**
- * NSGA-II is a nondominated-sorting based multiobjective evolutionary algorithm.
+ * NSGA-II is a nondominated-sorting based multiobjective evolutionary algorithm. It genererates offspring with crossover and mutation and select the next
+ * generation according to nondominated-sorting and crowding distance comparison.
  *
- * The algorithm works on multi objective problems.
+ * The algorithm works on continious box-constrained multi objective problems.
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  *
