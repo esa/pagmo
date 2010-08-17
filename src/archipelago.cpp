@@ -96,7 +96,8 @@ archipelago::archipelago(const topology::base &t, distribution_type dt, migratio
 /// Constructor from problem, algorithm, archipelago size, island sizes, topology and migration attributes.
 /**
  * Constructs n islands of m individuals each, with assigned problem p and algorithm a, and inserts them with push_back() into the archipelago,
- * whose topology is set to t, with point_to_point distribution_type and destination migration_direction.
+ * whose topology is set to t, with point_to_point distribution_type and destination migration_direction. The constructor can also create 
+ * mpi_islands that make use of a distributed environment is the is_parallel attribute is set to "true".
  *
  * @param[in] p problem which will be assigned to all islands.
  * @param[in] a algorithm which will be assigned to all islands.

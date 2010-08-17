@@ -55,10 +55,11 @@ int main(int argc, char* argv[])
 		a.push_back(pagmo::mpi_island(**it,de,20,2));		
 		a.push_back(pagmo::mpi_island(**it,de,20,3));
 				
+		//the evolution method of the archipelago is also called on all processors, the filtering of the computation of the evolution of each island being done at the "mpi_island" class level (perform_evolution method).
 		a.evolve(10);
 		a.join();
 	
-	
+		// The results of the evolutions are aggregated only on the root processor (plus we only want to print the results once)
 		if (world.rank() == 0)
 		{
 			std::cout << a.get_island(0)->get_population().champion().f << " " << a.get_island(0)->get_population().champion().x << std::endl;

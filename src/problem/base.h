@@ -108,6 +108,28 @@ typedef boost::shared_ptr<base> base_ptr;
  * mandatorily by an algorithm: each algorithm can decide to use its own ranking schemes during an optimisation. The ranking methods provided
  * by the problem are always used instead during the migration of decision vectors from one island to the other.
  *
+ * \section Serialization
+ * The problem classes are serialized for the purpose of using transmitting their corresponding objects over a distributed environment , as being part of the population class.
+ * Serializing a derived problem requires that the needed serialization libraries be declared in the header of the derived class. 
+ * Virtually all the derived problem classes need to have the following declared in their header files:
+@verbatim
+	friend class boost::serialization::access;
+	template<class Archive>
+@endverbatim
+ * Each derived class must implement implicitly, in its header file, the serialize method, which must contain the pointer to the base class like:
+@verbatim
+	ar & boost::serialization::base_object<base>(*this);
+@endverbatim
+ * and the rest of the attributes simply as archive members: 
+@verbatim
+	ar & attribute_name;
+@endverbatim
+ * In order to be able to identify the dervied problem class when deserializing an object declared as a base_pointer, the derived problem class needs to be registered. This is done by registering the class in the "pagmo/src/problems.h", in the REGISTER_PROBLEM_SERIALIZATIONS() routine.
+ * Notes: 
+ *			- "const" attributes need to be cast as constants in the serialize method using const_cast
+ *			- attributes that that are not primitives, need be a serialized type as well
+ *			- pointers to primitives cannot be serialized (in this case one can split the serialize method into save/load methods and store the values, that the pointers refer to, into temporary variables which are serialized insted - see boost serialize documentation on the topic if needed)
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE base

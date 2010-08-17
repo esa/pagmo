@@ -85,18 +85,27 @@ bool mpi_island::is_thread_blocking() const
 	return (m_pop.problem().is_blocking() || m_algo->is_blocking());
 }
 
+// Method that perform the actual evolution for the island population, and is used to distribute the computation load over multiple processors
 void mpi_island::perform_evolution(const algorithm::base &algo, population &pop) const
 {
 	boost::mpi::communicator world;
+	// In case an island has been assigned an inexistant processor we throw an error
+	if (processor_id >= world.size()) {
+		pagmo_throw(value_error,"invalid processor assigned to islands");
+	}
+	// in case the processor is the root processor then we send the population that needs to evolve to the corresponding island
 	if (world.rank() == 0) {
 		world.send(processor_id,1,pop);
-	}	
+		std::cout << "sent island " << processor_id << " to process " << world.rank() << "." << std::endl;
+	}
+	// The processor assined to the island now receives the population from the root algorithm and runs the evolution and sends back the evolved island populations to the root processor
 	if (world.rank() == processor_id) {
 		std::cout << "evolving island " << processor_id << " on process " << world.rank() << "." << std::endl;
 		world.recv(0,1,pop);
 		algo.evolve(pop);		
 		world.send(0,2,pop);
 	}
+	// the root processor now receives the evolved island populations and moves on
 	if (world.rank() == 0) {
 		std::cout << "received evolved population from island on process " << processor_id  << std::endl;
 		world.recv(processor_id,2,pop);
