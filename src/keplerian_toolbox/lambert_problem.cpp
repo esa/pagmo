@@ -25,7 +25,7 @@
 #include "lambert_problem.h"
 #include "core_functions/array3D_operations.h"
 #include "core_functions/lambert_find_N.h"
-#include "core_functions/lambert_3D.h"
+#include "core_functions/lambert_3d.h"
 
 namespace kep_toolbox {
 
