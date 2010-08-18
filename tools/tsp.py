@@ -16,7 +16,7 @@ class Node(QtGui.QGraphicsItem):
 	def __init__(self,parent = None):
 		QtGui.QGraphicsItem.__init__(self,parent)
 		self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-		self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+		#self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
     		self.setCacheMode(QtGui.QGraphicsItem.DeviceCoordinateCache)
      		self.setZValue(-1)
 		self.edgeList = []
@@ -63,7 +63,7 @@ class Edge(QtGui.QGraphicsItem):
 		self.dest = destNode
 		sourceNode.addEdge(self)
 		destNode.addEdge(self)
-		self.adjust()
+		#self.adjust()
 		self.arrowsize = 10
 		self.weight = 0
 		self.isThick = 0
@@ -119,8 +119,7 @@ class Edge(QtGui.QGraphicsItem):
 		return QtCore.QRectF(self.sourcePoint, QtCore.QSizeF(self.dest.x() - self.source.x(), self.dest.y() - self.source.y())).normalized().adjusted(-extra, -extra, extra, extra)
 	def mousePressEvent(self,event): #right click to an edge -> edit edge's weight
 		widget = QtGui.QWidget()
-		dialog = QtGui.QInputDialog()
-		self.weight = float(dialog.getText(widget,"Weight", "Edge's weight")[0])
+		self.weight = float(QtGui.QInputDialog.getText(widget,"Weight", "Edge's weight")[0])
 
 
 class GraphScene(QtGui.QGraphicsScene):
@@ -141,40 +140,43 @@ class MainWindow(QtGui.QMainWindow):
 
         self.save = QtGui.QAction('Save graph', self)
         self.load = QtGui.QAction('Load graph', self)
-        self.loadPath = QtGui.QAction('Load path', self)
         self.solve = QtGui.QAction('Solve problem', self)
         self.connect(self.save, QtCore.SIGNAL('triggered()'), save)
         self.connect(self.load, QtCore.SIGNAL('triggered()'), load)
-        self.connect(self.loadPath, QtCore.SIGNAL('triggered()'), loadPath)
         self.connect(self.solve, QtCore.SIGNAL('triggered()'), solve)
 
         self.saveButton = self.addToolBar('Save graph')
         self.loadButton = self.addToolBar('Load graph')
-        self.loadPathButton = self.addToolBar('Load path')
         self.solveButton = self.addToolBar('Solve problem')
 
         self.saveButton.addAction(self.save)
         self.loadButton.addAction(self.load)
-        self.loadPathButton.addAction(self.loadPath)
         self.solveButton.addAction(self.solve)
 
 def save():
-	dialog = QtGui.QFileDialog()
-	fileName = dialog.getSaveFileName()
+	fileName = QtGui.QFileDialog().getSaveFileName()
 	ofile = open(fileName,'w')
 	writeMatrixToFile(ofile, generateAdjMatrix(nodeList))
 
 def load():
-	dialog = QtGui.QFileDialog()
-	fileName = dialog.getOpenFileName()
+	fileName = QtGui.QFileDialog.getOpenFileName()
 	ifile = open(fileName,'r')
 	fromFileToMatrix(ifile)
 	
-def loadPath():
-	dialog = QtGui.QFileDialog()
-	fileName = dialog.getOpenFileName()
-	ifile = open(fileName,'r')
-	highlightPath(ifile)
+#This could be use to delete a node. Actually the interface still doesn't allow to do that. 
+#It is also necessary to edit the generateAdjMatrix function to manage the case in which some node has been deleted
+def deleteNode(node):
+	global nodeList
+	for edge in node.edgeList:
+		list = []
+		if (edge.source.id == node.id):
+			list = edge.dest.edgeList
+		else:
+			list = edge.source.edgeList
+		for e in list:
+			if ((e.source.id == node.id) or (e.dest.id == node.id)):
+					edge.dest.edgeList.remove(e)
+	nodeList.remove(node)
 
 def solve():
 	solve_problem(generateAdjMatrix(nodeList))
