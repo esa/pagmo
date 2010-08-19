@@ -122,11 +122,16 @@ a.push_back(pagmo::mpi_island(problem,algorithm,no_individuals,processor_id));
 @endverbatim
 	, where processor_id is an integer that represents the rank of the processor to which that particular island is assigned to.
 	An archipelago with n mpi_islands can also be created by using the archipelago constructor, and setting the is_parallel attribute to "true" (default is "false"):
-@verbatime
+@verbatim
 pagmo::archipelago b = pagmo::archipelago(problem, algorithm, n, n_indiv, topology, migration, direction, true)
 @endverbatim
 	, where "n" represents the number of islands of the archipelago, and the "is_parallel" is the boolean value that needs to be set to "true" in order to make use of the MPI environment. In case the number of islands is larger than the number of processors available, then the the computations of the islands' evoutions, are assigned to the processors in a round-robin manner.
 	Note that the program must be treated as an MPI program (running on multiple processes/ors). While the initialization of the archipelago needs to be done on all processors, and the evolution of the islands called on all processors (the process filtering being done by the exposed "perform_evolution method" of the mpi_island class) other parts of the code like printing the results needs to be done onl  on the root process (the one with rank 0). An example can be found with the test_mpi.cpp program located in the "tests" folder.
+	Testing: Once the pagmo base code, along with C++ MPI problem have been compiled, one can test their implementation by first starting the mpd deamon (on a single machine if it's tested with multiple processes on a single computer, or on all the machines that are being used). To run the problem one needs to execute
+@verbatim
+mpirun -np number_of_processes (-hostfile hostfilename)./mpi_program_executable
+@endverbatim
+, where the hostfile is used to specify the available machines in the case where the program is tested on multiple nodes instead of just one.
 */
 
 #ifdef __GNUC__

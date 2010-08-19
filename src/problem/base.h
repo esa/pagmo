@@ -124,7 +124,11 @@ typedef boost::shared_ptr<base> base_ptr;
 @verbatim
 	ar & attribute_name;
 @endverbatim
- * In order to be able to identify the dervied problem class when deserializing an object declared as a base_pointer, the derived problem class needs to be registered. This is done by registering the class in the "pagmo/src/problems.h", in the REGISTER_PROBLEM_SERIALIZATIONS() routine.
+ * In order to be able to identify the dervied problem class when deserializing an object declared as a base_pointer, the derived problem class needs to be registered. In the case where your derived problem class has a default constructor, this is done by registering the class in the "pagmo/src/problems.h", in the REGISTER_PROBLEM_SERIALIZATIONS() routine, by adding:
+@verbatim
+ar.template register_type<problem::derived_problem>();
+@endverbatim
+ * In the case where the derived problem does not have a default constructor, the serialization functions "load_construct_data" and "save_construct_data" need to be overriden. This done by invoking the non-default constructor in-place (in the load_construct_data) to initilize the memory (Examples can be found in the implemented problems or in the Boost Serialization libraray unde "Non-default constructor" section).W
  * Notes: 
  *			- "const" attributes need to be cast as constants in the serialize method using const_cast
  *			- attributes that that are not primitives, need be a serialized type as well
