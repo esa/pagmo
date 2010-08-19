@@ -66,6 +66,23 @@ class __PAGMO_VISIBLE luksan_vlcek_1: public base
 		std::vector<double>	m_cub;
 };
 
+template<class Archive>
+inline void save_construct_data( Archive & ar, const luksan_vlcek_1 *t, const unsigned int /*file_version*/) {
+    // save data required to construct instance
+	int n;
+	n = t->get_dimension();
+    ar << n;
+}
+
+template<class Archive>
+inline void load_construct_data( Archive & ar, luksan_vlcek_1 *t, const unsigned int /*file_version*/) {
+    // retrieve data from archive required to construct new instance
+    int n;
+    ar >> n;
+    // invoke inplace constructor to initialize instance of my_class
+    ::new(t)luksan_vlcek_1(n);
+}
+
 }} //namespaces
 
 

@@ -64,15 +64,30 @@
 
 // routine that registers the derived types of the the problem class needed for casting after deserializing the base_ptr
 #define REGISTER_PROBLEM_SERIALIZATIONS()                       \
+ar.template register_type<problem::ackley>();					\
 ar.template register_type<problem::branin>();					\
 ar.template register_type<problem::cassini_2>();				\
 ar.template register_type<problem::cassini_1>();				\
+ar.template register_type<problem::griewank>();					\
 ar.template register_type<problem::himmelblau>();				\
+ar.template register_type<problem::inventory>();				\
+ar.template register_type<problem::levy5>();					\
 ar.template register_type<problem::messenger>();				\
 ar.template register_type<problem::messenger_full>();			\
 ar.template register_type<problem::nsga_ii_fon>();				\
 ar.template register_type<problem::nsga_ii_sch>();				\
+ar.template register_type<problem::luksan_vlcek_1>();			\
+ar.template register_type<problem::luksan_vlcek_2>();			\
+ar.template register_type<problem::luksan_vlcek_3>();			\
+ar.template register_type<problem::paraboloid>();				\
+ar.template register_type<problem::string_match>();				\
+ar.template register_type<problem::string_match_mo>();			\
+ar.template register_type<problem::rastrigin>();				\
+ar.template register_type<problem::rosenbrock>();				\
 ar.template register_type<problem::rosetta>();					\
-ar.template register_type<problem::sagas>();			
+ar.template register_type<problem::sagas>();					\
+ar.template register_type<problem::schwefel>();					\
+ar.template register_type<problem::snopt_toyprob>();			\
+ar.template register_type<problem::tandem>();			
 
 #endif

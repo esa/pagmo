@@ -66,8 +66,26 @@ class __PAGMO_VISIBLE string_match: public base
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::string &>(m_str);
 		}
+	public:
 		const std::string m_str;
 };
+
+template<class Archive>
+inline void save_construct_data( Archive & ar, const string_match *t, const unsigned int /*file_version*/) {
+    // save data required to construct instance
+	std::string str;
+	str = t->m_str;
+    ar << str;
+}
+
+template<class Archive>
+inline void load_construct_data( Archive & ar, string_match *t, const unsigned int /*file_version*/) {
+    // retrieve data from archive required to construct new instance
+    std::string str;
+    ar >> str;
+    // invoke inplace constructor to initialize instance of my_class
+    ::new(t)string_match(str);
+}
 
 } }
 

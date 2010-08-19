@@ -37,7 +37,7 @@ inline std::vector<problem::base_ptr> get_test_problems()
 {
 	// Create the vector of problems.
 	std::vector<problem::base_ptr> probs;
-	probs.push_back(problem::base_ptr(new problem::cassini_1()));
+	probs.push_back(problem::base_ptr(new problem::schwefel(10)));
 	return probs;
 }
 
