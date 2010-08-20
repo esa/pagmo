@@ -56,8 +56,7 @@ class __PAGMO_VISIBLE luksan_vlcek_1: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing luksan_vlcek_1 problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_clb;
 			ar & m_cub;

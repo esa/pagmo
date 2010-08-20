@@ -56,8 +56,7 @@ class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 		struct dom_comp;
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing best_s_policy migration " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base_s_policy>(*this);
 		}
 };

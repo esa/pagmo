@@ -51,8 +51,7 @@ class __PAGMO_VISIBLE nlopt_bobyqa: public base_nlopt
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing nlopt_bobyqa algorithm " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base_nlopt>(*this);	
 		}  
 };

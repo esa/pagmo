@@ -164,8 +164,7 @@ class __PAGMO_VISIBLE base_island
 	protected:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-		    std::cout << "de-/serializing base_island " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			REGISTER_ALGORITHM_SERIALIZATIONS();
 			REGISTER_MIGRATION_POLICY_SERIALIZATIONS();
 			ar & m_pop;		    

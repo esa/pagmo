@@ -70,8 +70,7 @@ class __PAGMO_VISIBLE snopt_toyprob: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing snopt_toyprob problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 		}
 };

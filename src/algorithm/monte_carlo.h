@@ -54,8 +54,7 @@ class __PAGMO_VISIBLE monte_carlo: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing monte_carlo algorithm " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_max_eval);
 		}  

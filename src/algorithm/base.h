@@ -118,8 +118,7 @@ return base_ptr(new derived_algorithm(*this));
   	private:
     	friend class boost::serialization::access;
     	template<class Archive>
-    	void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing base algorithm " << version << std::endl;
+    	void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & m_drng;
 			ar & m_urng; 
     	}

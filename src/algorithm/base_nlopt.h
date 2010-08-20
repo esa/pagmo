@@ -78,8 +78,7 @@ class __PAGMO_VISIBLE base_nlopt: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing base_nlopt algorithm " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<bool &>(m_constrained);
 			ar & const_cast<std::size_t &>(m_max_iter);

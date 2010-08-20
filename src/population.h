@@ -75,8 +75,7 @@ class __PAGMO_VISIBLE population
 		struct individual_type {
 			friend class boost::serialization::access;
 			template<class Archive>
-			void serialize(Archive &ar, const unsigned int version){
-				std::cout << "de-/serializing individual_type " << version << std::endl;
+			void serialize(Archive &ar, const unsigned int /*version*/){
 				ar & cur_x;
 				ar & cur_v;
 				ar & cur_c;
@@ -124,8 +123,7 @@ class __PAGMO_VISIBLE population
 		struct champion_type {
 			friend class boost::serialization::access;
 			template<class Archive>
-			void serialize(Archive &ar, const unsigned int version){
-				std::cout << "de-/serializing champion_type " << version << std::endl;
+			void serialize(Archive &ar, const unsigned int /*version*/){
 				ar & x;
 				ar & c;
 				ar & f;
@@ -194,8 +192,7 @@ class __PAGMO_VISIBLE population
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-		    std::cout << "de-/serializing population " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			REGISTER_PROBLEM_SERIALIZATIONS();
 			ar & m_prob;		    
 			ar & m_container;

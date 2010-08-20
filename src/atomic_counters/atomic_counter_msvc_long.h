@@ -118,8 +118,7 @@ class atomic_counter_msvc_long
 	private:
 		friend class boost::serialization::access;
  	  template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-		  std::cout << "de-/serializing generic atomic_counter " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 		  ar & m_value;	
  		}
   	/// Internal value.

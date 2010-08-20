@@ -71,8 +71,7 @@ class __PAGMO_VISIBLE watts_strogatz: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing watts_strogatz topology " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_k);
 			ar & const_cast<double &>(m_beta);

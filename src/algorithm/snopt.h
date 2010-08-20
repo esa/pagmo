@@ -87,8 +87,7 @@ public:
 		constraint_vector c;
 		fitness_vector f;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing preallocated_memory structure " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & x;
 			ar & c;
 			ar & f;
@@ -100,8 +99,7 @@ protected:
 private:
 	friend class boost::serialization::access;
 	template<class Archive>
-	void serialize(Archive &ar, const unsigned int version){
-		std::cout << "de-/serializing snopt algorithm " << version << std::endl;
+	void serialize(Archive &ar, const unsigned int /*version*/){
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_major);
 		ar & const_cast<double &>(m_feas);

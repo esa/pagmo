@@ -164,9 +164,8 @@ class __PAGMO_VISIBLE archipelago
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-		    std::cout << "de-/serializing archipelago " << version << std::endl;			
-			//ar & m_container; needs serialization of the Island class first			
+		void serialize(Archive &ar, const unsigned int /*version*/){			
+			ar & m_container;
 			ar & m_topology;
 			ar & m_dist_type;
 			ar & m_migr_dir;

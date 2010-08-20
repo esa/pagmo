@@ -61,8 +61,7 @@ class __PAGMO_VISIBLE string_match: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing string_match problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::string &>(m_str);
 		}

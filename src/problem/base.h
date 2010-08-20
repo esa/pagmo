@@ -482,8 +482,7 @@ return base_ptr(new derived_problem(*this));
 	private:
         friend class boost::serialization::access;
       	template<class Archive>
-      	void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing base problem " << version << std::endl;
+      	void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & const_cast<size_type &>(m_i_dimension);
 			ar & const_cast<f_size_type &>(m_f_dimension);
 			ar & const_cast<c_size_type &>(m_c_dimension);

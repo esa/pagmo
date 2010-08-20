@@ -57,8 +57,7 @@ class __PAGMO_VISIBLE worst_r_policy: public base_r_policy
 	private:	
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing worst_r_policy migration " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base_r_policy>(*this);
 		}
 };
