@@ -48,9 +48,9 @@ class CompareFitness: std::binary_function<std::pair<decision_vector,int> , std:
 	
 	public: 
 		/**
-		* @param[in] p a reference to the problem
-		* @param[in] component the component according to which we want to compare the fitness
-		**/
+		 * @param[in] p a reference to the problem
+		 * @param[in] component the component according to which we want to compare the fitness
+		 */
 		CompareFitness(const pagmo::problem::base &p, int component) {
 			prob = &p;
 			n = component;
@@ -69,7 +69,7 @@ class CompareDistance: std::binary_function<int , int, bool>
 	public: 
 		/**
 		* @param[in] distances a reference to the crowding distances vector
-		**/
+		*/
 		CompareDistance(const std::vector<int> &distances) {
 			I = &distances;
 		}
@@ -88,7 +88,7 @@ class CompareDistance: std::binary_function<int , int, bool>
  * @param[in] mut Mutation type. One of sga::mutation::GAUSSIAN, sga::mutation::RANDOM
  * @param[in] width Mutation width. When gaussian mutation is selected is the width of the mutation
  * @param[in] cro Crossover type. One of sga::crossover::BINOMIAL, sga::crossover::EXPONENTIAL
- * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1]\f$, mutation probability or mutation width is not \f$ \in [0,1]\f $,
+ * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1]\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
  *
  */
 nsga2::nsga2(int gen, const double &cr, const double &m, mutation::type mut, double width, crossover::type cro)

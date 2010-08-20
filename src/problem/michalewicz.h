@@ -42,7 +42,7 @@ namespace pagmo{ namespace problem {
  * \f[
  * 	F \left(x_1,\ldots,x_n\right) = \sum_{i=1}^n sin(x_i) \left[sin \left(\frac{i x_i^2}{\pi} \right) \right]^2m, \quad x_i \in \left[ 0,\pi \right].
  * \f]
- * Several global minima, one local minimum (ex: \fm=10, n=5 f(x) = -4.687658\f).
+ * Several global minima, one local minimum (ex: \f$ m=10, n=5 f(x) = -4.687658\f$).
  *
  * @see http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page2376.htm
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)

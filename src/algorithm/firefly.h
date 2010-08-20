@@ -46,8 +46,8 @@ namespace pagmo { namespace algorithm {
  *
  * The algorithm used is the one provided in the first paper attached with 2 differences:
  *
- * \f[ \gamma ]\f is calculated with the adaptive method explained in the second paper attached (Equation 3)
- * The attactiveness is calculated as \f[ \beta = \beta_0 \exp(-\gamma r) ]\f
+ * \f$ \gamma \f$ is calculated with the adaptive method explained in the second paper attached (Equation 3)
+ * The attactiveness is calculated as \f$ \beta = \beta_0 \exp(-\gamma r) \f$
  *
  * These modifications make the algorithm perform better on all the test problems we experimented.
  *
@@ -76,4 +76,4 @@ private:
 
 }} //namespaces
 
-#endif // FIREFLY_H
+#endif // PAGMO_ALGORITHM_FIREFLY_H
