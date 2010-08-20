@@ -154,7 +154,7 @@ class MainWindow(QtGui.QMainWindow):
         self.solveButton.addAction(self.solve)
 
 def save():
-	fileName = QtGui.QFileDialog().getSaveFileName()
+	fileName = QtGui.QFileDialog.getSaveFileName()
 	ofile = open(fileName,'w')
 	writeMatrixToFile(ofile, generateAdjMatrix(nodeList))
 
