@@ -42,7 +42,7 @@ namespace pagmo{ namespace problem {
  * \f[
  * 	F \left(x_1,\ldots,x_n\right) = \sum_{i=1}^n sin(x_i) x_i^2, \quad x_i \in \left[ -5.12,5.12 \right].
  * \f]
- * Global local minimum \fx_i = 0\f.
+ * Global local minimum \f$ x_i = 0 \f$.
  *
  * @see http://www.geatbx.com/docu/fcnindex-01.html#P89_3085
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)

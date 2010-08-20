@@ -37,9 +37,12 @@ namespace pagmo{ namespace problem {
  *
  * This is a box-constrained continuous 30-dimension multi-objecive problem.
  * \f[
- *	g\left(x\right) = 1 + 9 \left[\left(\sum_{i=2}^30 x_i \right) / \left( n-1 \right)\right]^{0.25}
+ *	g\left(x\right) = 1 + 9 \left[\left(\sum_{i=2}^{10} x_i \right) / \left( n-1 \right)\right]^{0.25}
+ * \f]
+ * \f[
  * 	F_1 \left(x\right) = 1 - \exp(-4 x_1) \sin^6(6 \pi \ x_1)
- *
+ * \f]
+ * \f[
  *      F_2 \left(x\right) = g(x) \left[ 1 - (f_1(x) / g(x))^2  \right]  x \in \left[ 0,1 \right].
  *
  * \f]

@@ -186,22 +186,22 @@ int main()
 	//algo.push_back(algo4.clone());
 	//algo.push_back(algo5.clone());
 	//algo.push_back(algo6.clone());
-	algo.push_back(algo7.clone());
+	//algo.push_back(algo7.clone());
 	//algo.push_back(algo8.clone());
-	//algo.push_back(algo9.clone());
+	algo.push_back(algo9.clone());
 	//algo.push_back(algo10.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
-	prob.push_back(prob1.clone());
+	//prob.push_back(prob1.clone());
 	//prob.push_back(prob2.clone());
 	//prob.push_back(prob3.clone());
 	//prob.push_back(prob4.clone());
-	prob.push_back(prob5.clone());
+	//prob.push_back(prob5.clone());
 	//prob.push_back(prob6.clone());
 	//prob.push_back(prob7.clone());
-	//prob.push_back(prob8.clone());
-	//prob.push_back(prob9.clone());
+	prob.push_back(prob8.clone());
+	prob.push_back(prob9.clone());
 	//prob.push_back(prob10.clone());
 	//prob.push_back(prob11.clone());
 	//prob.push_back(prob12.clone());

@@ -69,6 +69,7 @@ public:
 		/// Crossover type, binomial or exponential
 		enum type {BINOMIAL = 0, EXPONENTIAL = 1};
 	};
+
 	nsga2(int gen, const double &cr, const double &m,
 	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
 	    crossover::type cro = crossover::EXPONENTIAL);

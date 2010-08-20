@@ -37,12 +37,12 @@ namespace pagmo{ namespace problem {
  *
  * This is a box-constrained continuous one dimension multi-objecive problem.
  * \f[
- * 	F_1 \left(x\right) = x^2
+ * 	F_1 \left( x\right) = x^2
  * \f]
  * \f[
- * 	F_2 \left(x\right) = (x-2)^2  x \in \left[ -10^3,10^3 \right].
+ * 	F_2 \left( x\right) = (x-2)^2  x \in \left[ -10^3,10^3 \right].
  * \f]
- * The optimal solutions (minimization problem) are x \in \left[0,2\right]
+ * The optimal solutions (minimization problem) are \f$ x \in \left[0,2\right] \f$
  *
  * @see http://portal.acm.org/citation.cfm?id=657079
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)

@@ -37,10 +37,10 @@ namespace pagmo{ namespace problem {
  *
  * This is a box-constrained continuous three-dimension multi-objecive problem.
  * \f[
- * 	F_1 \left(x\right) = \sum_{i=1}^3 (-10 \exp(-0.2 \sqrt{x_i^2 + x_{i+1}^2))
- *
+ * 	F_1 \left(x\right) = \sum_{i=1}^3 \left(-10 \exp \left(-0.2 \sqrt{x_i^2 + x_{i+1}^2}\right) \right)
+ * \f]
+ * \f[
  *      F_2 \left(x\right) = \sum_{i=1}^3 (|x_i|^{0.8} + 5 \sin(x_i^3)  x \in \left[ -5,5 \right].
- *
  * \f]
  *
  * @see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.18.4257&rep=rep1&type=pdf

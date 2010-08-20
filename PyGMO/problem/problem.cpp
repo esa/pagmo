@@ -238,14 +238,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::rosenbrock>("rosenbrock","Multi-dimensional Rosenbrock function.")
 		.def(init<int>());
 	
-	// NSGA-II fon problem.
-	problem_wrapper<problem::nsga_ii_fon>("nsga_ii_fon","NSGA-II FON problem.")
-		.def(init<>());
-	
-	// NSGA-II sch problem.
-	problem_wrapper<problem::nsga_ii_sch>("nsga_ii_sch","NSGA-II SCH problem.")
-		.def(init<>());
-	
 	// Rosetta problem.
 	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.")
 		.def(init<>());
@@ -321,6 +313,34 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Tandem.
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
 		.def(init< optional<int, double> >());
+	
+	// SCH
+	problem_wrapper<problem::sch>("sch","Shaffer's study problem.")
+		.def(init<>());
+	// FON
+	problem_wrapper<problem::fon>("fon","Fonseca and Fleming's study problem.")
+		.def(init<>());
+	// POL
+	problem_wrapper<problem::pol>("pol","Poloni's study problem.")
+		.def(init<>());
+	// KUR
+	problem_wrapper<problem::kur>("kur","Kursawe's study problem.")
+		.def(init<>());
+	// ZDT1
+	problem_wrapper<problem::zdt1>("zdt1","ZDT1")
+		.def(init<>());
+	// ZDT2
+	problem_wrapper<problem::zdt2>("zdt2","ZDT2")
+		.def(init<>());
+	// ZDT3
+	problem_wrapper<problem::zdt3>("zdt1","ZDT3")
+		.def(init<>());
+	// ZDT4
+	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
+		.def(init<>());
+	// ZDT6
+	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
+		.def(init<>());
 
 	// Function for the total number of objective function evaluations.
 	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");

@@ -38,8 +38,11 @@ namespace pagmo{ namespace problem {
  * This is a box-constrained continuous 30-dimension multi-objecive problem.
  * \f[
  *	g\left(x\right) = 91 + \sum_{i=2}^{10} \left[x_i^2 - 10 \cos \left(4\pi x_i \right) \right]
+ * \f]
+ * \f[
  * 	F_1 \left(x\right) = x_1
- *
+ * \f]
+ * \f[
  *      F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} \right]  x_1 \in [0,1], x_i \in \left[ -5,5 \right] i=2, \cdots, 10.
  *
  * \f]
