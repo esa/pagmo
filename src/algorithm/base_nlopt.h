@@ -25,6 +25,10 @@
 #ifndef PAGMO_ALGORITHM_BASE_NLOPT_H
 #define PAGMO_ALGORITHM_BASE_NLOPT_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <nlopt.h>
 #include <string>
@@ -72,6 +76,15 @@ class __PAGMO_VISIBLE base_nlopt: public base
 		static double objfun_wrapper(int, const double *, double *, void *);
 		static double constraints_wrapper(int, const double *, double *, void *);
 	private:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int /*version*/){
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<bool &>(m_constrained);
+			ar & const_cast<std::size_t &>(m_max_iter);
+			ar & const_cast<double &>(m_tol);
+			ar & m_last_status;
+		}  
 		const nlopt_algorithm	m_algo;
 		const bool		m_constrained;
 		const std::size_t	m_max_iter;

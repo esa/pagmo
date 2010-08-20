@@ -43,7 +43,7 @@ using namespace kep_toolbox;
 double mean(archipelago a) {
 	double retval = 0;
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
-		retval += a.get_island(i).get_population().champion().f[0];
+		retval += a.get_island(i)->get_population().champion().f[0];
 	}
 	return retval / a.get_size();
 }
@@ -51,7 +51,7 @@ double mean(archipelago a) {
 double std_dev(archipelago a, double mean) {
 	double retval = 0;
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
-		retval += pow((a.get_island(i).get_population().champion().f[0] - mean),2);
+		retval += pow((a.get_island(i)->get_population().champion().f[0] - mean),2);
 	}
 	return sqrt(retval / a.get_size());
 }
@@ -64,7 +64,7 @@ void print_row(std::ostream &f, const std::string &topo_name, const double &mean
 int main()
 {
 	//Open the output file
-	ofstream myfile;
+	std::ofstream myfile;
 	myfile.open((std::string("pagmo_") +
 		boost::lexical_cast<std::string>(rng_generator::get<rng_uint32>()()) + ".tex").c_str());
 

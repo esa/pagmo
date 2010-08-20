@@ -25,6 +25,8 @@
 #ifndef PLANET_MPCORB_H
 #define PLANET_MPCORB_H
 
+#include <string>
+
 #include"planet.h"
 
 
@@ -47,10 +49,11 @@ public:
 	 * \param[in] name a string containing one line of MPCORB.DAT
 	 * \throws value_error if MPCORB.DAT is not found or name is not found in the file.
 	 */
-	planet_mpcorb(const std::string& name);
+	planet_mpcorb(const std::string &line);
+	static epoch packed_date2epoch(std::string);
 
 private:
-	static inline int packed_date2number(char c);
+	static int packed_date2number(char c);
 };
 
 

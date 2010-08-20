@@ -72,8 +72,7 @@ class __PAGMO_VISIBLE golomb_ruler: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing golomb_ruler problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_max_length);
 			ar & m_tmp_x;

@@ -28,7 +28,8 @@
 #include <boost/typeof/typeof.hpp>
 #include <boost/utility/result_of.hpp>
 #include <cmath>
-
+#include <boost/mpi/environment.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -50,8 +51,9 @@ struct std_calculator {
 
 typedef boost::transform_iterator<std_calculator,std::vector<double>::iterator> std_iterator;
 
-int main()
+int main(int argc, char* argv[])
 {
+	boost::mpi::environment env(argc, argv);
 	algorithm::de de = algorithm::de(500,.8,.8,2);
 	const std::vector<problem::base_ptr> probs(get_test_problems());
 	std::cout << "Testing algorithm: " << de << '\n';
@@ -59,7 +61,7 @@ int main()
 		std::cout << "\tTesting problem: " << (**it) << '\n';
 		std::vector<double> champs;
 		for (int i = 0; i < 100; ++i) {
-			island isl(**it,de,20);
+			mpi_island isl(**it,de,20,1);
 			isl.evolve(1);
 			isl.join();
 			champs.push_back(isl.get_population().champion().f[0]);

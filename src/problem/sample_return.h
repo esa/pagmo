@@ -49,9 +49,10 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE sample_return: public base
 {
 	public:
-		sample_return(::kep_toolbox::planet asteroid, const double &Tmax = 600);
+		sample_return(const ::kep_toolbox::planet &asteroid, const double &Tmax = 600);
 		base_ptr clone() const;
 		std::string pretty(const std::vector<double> &x) const;
+		std::vector<double> get_delta_v(const std::vector<double> &x) const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

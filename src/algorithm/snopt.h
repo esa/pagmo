@@ -25,6 +25,10 @@
 #ifndef PAGMO_ALGORITHM_SNOPT_H
 #define PAGMO_ALGORITHM_SNOPT_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
 
 #include "../config.h"
 #include "base.h"
@@ -82,11 +86,28 @@ public:
 		decision_vector x;
 		constraint_vector c;
 		fitness_vector f;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int /*version*/){
+			ar & x;
+			ar & c;
+			ar & f;
+		}  		
 	};
 protected:
 	std::string human_readable_extra() const;
 
 private:
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int /*version*/){
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_major);
+		ar & const_cast<double &>(m_feas);
+		ar & const_cast<double &>(m_opt);
+		ar & m_screen_out;
+		ar & m_file_out;
+		ar & di_comodo;
+	}  
 	const int m_major;
 	const double m_feas;
 	const double m_opt;

@@ -67,8 +67,7 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing barabasi_albert topology " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_m0);
 			ar & const_cast<std::size_t &>(m_m);

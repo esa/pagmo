@@ -63,8 +63,7 @@ class __PAGMO_VISIBLE cassini_2: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing cassini_2 problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			//[DS] "sequence" array is static constant so it doesn't need serialization
 			ar & problem;

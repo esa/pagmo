@@ -77,19 +77,41 @@ class __PAGMO_VISIBLE inventory: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing inventory problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_seed;
 			ar & m_weeks;
 			ar & m_sample_size;
 			ar & m_drng;
 		}
+	private: // save_construct_data needs to be able to access these attributes
 		mutable int			m_seed;
+	public:
 		int				m_weeks;
 		std::size_t			m_sample_size;
+	private:
 		mutable rng_double		m_drng;
 };
+
+template<class Archive>
+inline void save_construct_data( Archive & ar, const inventory *t, const unsigned int /*file_version*/) {
+    // save data required to construct instance
+	int weeks,sample_size;
+	weeks = t->m_weeks;
+	sample_size = t->m_sample_size;
+    ar << weeks;
+    ar << sample_size;
+}
+
+template<class Archive>
+inline void load_construct_data( Archive & ar, inventory *t, const unsigned int /*file_version*/) {
+    // retrieve data from archive required to construct new instance
+    int weeks,sample_size;
+    ar >> weeks;
+    ar >> sample_size;
+    // invoke inplace constructor to initialize instance of my_class
+    ::new(t)inventory(weeks,sample_size);
+}
 
 }
 }

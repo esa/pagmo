@@ -64,8 +64,7 @@ class __PAGMO_VISIBLE sagas: public base
 	private:
 		friend class boost::serialization::access;
 	  template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-		    std::cout << "de-/serializing sagas problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 		    ar & boost::serialization::base_object<base>(*this);
 			for(int i=0;i<3;i++) {
 				ar & const_cast<int &>(sequence[i]);

@@ -58,7 +58,29 @@ typedef boost::shared_ptr<base> base_ptr;
  * All algorithms implemented in PaGMO must derive from this base class. This base class provides each algorithm with one pagmo::rng_double
  * and one pagmo::rng_uint32 random number generators. Each algorithm must implement the base::evolve() method.
  *
- * @author Francesco Biscani (bluescarni@gmail.com)
+ * \section Serialization
+ * The algorithm classes are serialized for the purpose of using transmitting their corresponding objects over a distributed environment.
+ * Serializing a derived algorithm requires that the needed serialization libraries be declared in their header of the derived class. 
+ * Virtually all the derived algorithm classes need to have the following declared in the header files:
+@verbatim
+	friend class boost::serialization::access;
+	template<class Archive>
+@endverbatim
+ * Each derived class must implement implicitly, in its header file, the serialize method, which must contain the pointer to the base class like:
+@verbatim
+	ar & boost::serialization::base_object<base>(*this);
+@endverbatim
+ * and the rest of the attributes simply as archive members: 
+@verbatim
+	ar & attribute_name;
+@endverbatim
+ * In order to be able to identify the dervied class from a base_pointer the derived class needs to be registered. This is done by registering the class in the "pagmo/src/algorithms.h", in the REGISTER_ALGORITHM_SERIALIZATIONS() routine.
+ * Notes: 
+ *			- "const" attributes need to be cast as constants in the serialize method using const_cast
+ *			- attributes that that are not primitives, need be a serialized type as well
+ *			- pointers to primitives cannot be serialized (in this case one can split the serialize method into save/load methods and store the values, that the pointers refer to, into temporary variables which are serialized insted - see boost serialize documentation on the topic if needed)
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com) 
  */
 class __PAGMO_VISIBLE base
 {    
@@ -96,8 +118,7 @@ return base_ptr(new derived_algorithm(*this));
   	private:
     	friend class boost::serialization::access;
     	template<class Archive>
-    	void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing base algorithm " << version << std::endl;
+    	void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & m_drng;
 			ar & m_urng; 
     	}

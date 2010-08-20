@@ -128,8 +128,7 @@ class atomic_counter_gcc_41
 	private:
 		friend class boost::serialization::access;
  	  template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-		  std::cout << "de-/serializing atomic_counter for gcc " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 		  ar & m_value;
  		}
 

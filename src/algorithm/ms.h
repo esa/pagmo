@@ -72,8 +72,7 @@ protected:
 private:
 	friend class boost::serialization::access;
 	template<class Archive>
-	void serialize(Archive &ar, const unsigned int version){
-		std::cout << "de-/serializing ms algorithm " << version << std::endl;
+	void serialize(Archive &ar, const unsigned int /*version*/){
 		ar & boost::serialization::base_object<base>(*this);
 		ar & m_algorithm;
 		ar & const_cast<int &>(m_starts);

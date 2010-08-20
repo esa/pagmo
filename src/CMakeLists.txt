@@ -65,7 +65,9 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/unconnected.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/archipelago.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/mpi_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 )
@@ -198,6 +200,31 @@ IF(NOT MINGW)
 	)
 ENDIF(NOT MINGW)
 
+# Boost MPI library.
+IF(ENABLE_MPI)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/broadcast.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/communicator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/computation_tree.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/content_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/environment.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/exception.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/graph_communicator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/group.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/intercommunicator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_cache.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_iarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_iarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/point_to_point.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/request.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/text_skeleton_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/timer.cpp
+	)
+ENDIF(ENABLE_MPI)
+
 # Create a pagmo_static library if main or tests or examples are requested.
 IF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
@@ -248,7 +275,7 @@ IF(BUILD_PYGMO)
 	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
 	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1 -DBOOST_WSERIALIZATION_DYN_LINK=1 -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
 	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "${ADDITIONAL_FLAGS}")
-	
+
 	INSTALL(TARGETS pagmo
 		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
 		LIBRARY DESTINATION ${LIB_INSTALL_PATH}

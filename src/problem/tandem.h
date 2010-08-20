@@ -31,6 +31,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
 #include <string>
+#include <vector>
 
 #include "../config.h"
 #include "../types.h"
@@ -93,8 +94,7 @@ class __PAGMO_VISIBLE tandem: public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version) {
-			std::cout << "de-/serializing tandem problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/) {
 			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
 			ar & const_cast<double &>(tof);
@@ -104,7 +104,7 @@ class __PAGMO_VISIBLE tandem: public base
 		static const int sequence[5]; // are declared as static consts
 		mgadsmproblem problem;
 		const double tof;
-		mutable vector<double> copy_of_x;
+		mutable std::vector<double> copy_of_x;
 
 };
 

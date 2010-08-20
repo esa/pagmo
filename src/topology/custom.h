@@ -62,8 +62,7 @@ class __PAGMO_VISIBLE custom: public base
 	protected:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing custom topology " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 		}  
 		void connect(const vertices_size_type &);

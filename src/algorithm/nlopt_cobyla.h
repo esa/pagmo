@@ -25,6 +25,11 @@
 #ifndef PAGMO_ALGORITHM_NLOPT_COBYLA_H
 #define PAGMO_ALGORITHM_NLOPT_COBYLA_H
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/version.hpp>
+
 #include "../config.h"
 #include "base_nlopt.h"
 
@@ -43,6 +48,12 @@ class __PAGMO_VISIBLE nlopt_cobyla: public base_nlopt
 	public:
 		nlopt_cobyla(int = 100, const double & = 1E-6);
 		base_ptr clone() const;
+	private:
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int /*version*/){
+			ar & boost::serialization::base_object<base_nlopt>(*this);	
+		}  
 };
 
 }}

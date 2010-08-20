@@ -90,7 +90,7 @@ void LambertI (const double *r1_in, const double *r2_in, double t, const double 
 	r2_mod = 0.0,    // R2 module
 	dot_prod = 0.0, // dot product
 	c,		        // non-dimensional chord
-	s,		        // non dimesnional semi-perimeter
+	s,		        // non dimensional semi-perimeter
 	am,		        // minimum energy ellipse semi major axis
 	lambda,	        //lambda parameter defined in Battin's Book
 	x,x1,x2,y1,y2,x_new=0,y_new,err,alfa,beta,psi,eta,eta2,sigma1,vr1,vt1,vt2,vr2,R=0.0;

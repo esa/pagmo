@@ -62,11 +62,27 @@ class __PAGMO_VISIBLE ackley : public base
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing ackley problem " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & boost::serialization::base_object<base>(*this);
 		}
 };
+
+template<class Archive>
+inline void save_construct_data( Archive & ar, const ackley *t, const unsigned int /*file_version*/) {
+    // save data required to construct instance
+	int n;
+	n = t->get_dimension();
+    ar << n;
+}
+
+template<class Archive>
+inline void load_construct_data( Archive & ar, ackley *t, const unsigned int /*file_version*/) {
+    // retrieve data from archive required to construct new instance
+    int n;
+    ar >> n;
+    // invoke inplace constructor to initialize instance of my_class
+    ::new(t)ackley(n);
+}
 
 }} //namespaces
 

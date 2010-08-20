@@ -67,8 +67,7 @@ public:
 	struct mutation {
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive &ar, const unsigned int version){
-			std::cout << "de-/serializing mutation structure " << version << std::endl;
+		void serialize(Archive &ar, const unsigned int /*version*/){
 			ar & m_type;
 			ar & m_width;
 		}
@@ -105,8 +104,7 @@ protected:
 private:
 	friend class boost::serialization::access;
 	template<class Archive>
-	void serialize(Archive &ar, const unsigned int version){
-		std::cout << "de-/serializing sga algorithm " << version << std::endl;
+	void serialize(Archive &ar, const unsigned int /*version*/){
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<double &>(m_cr);
