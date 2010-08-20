@@ -38,14 +38,20 @@ namespace pagmo{ namespace problem {
  * This is a box-constrained continuous three-dimension multi-objecive problem.
  * \f[
  * 	F_1 \left(x\right) = 1 + (A_1 - B_1)^2 + (A_2 - B_2)^2
+ * \f]
+ * \f[
  *      F_2 \left(x\right) = (x_1 + 3)^2 + (x_2+1)^2  x \in \left[ -\pi,\pi \right].
- *
+ * \f]
+ * \f[
  *      A_1 = 0.5 \sin(1) - 2 \cos(1) + \sin(2) -1.5 \cos(2)
- *
+ * \f]
+ * \f[
  *      A_2 = 1.5 \sin(1) - \cos(1) + 2 \sin(2) - 0.5 \cos(2)
- *
+ * \f]
+ * \f[
  *      B_1 = 0.5 \sin(x_1) - 2 \cos(x_1) + \sin(x_2) - 1.5 \cos(x_2)
- *
+ * \f]
+ * \f[
  *      B_2 = 1.5 \sin(x_1) - \cos(x_1) + 2 \sin(x_2) - 0.5 \cos(x_2)
  * \f]
  *

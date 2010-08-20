@@ -39,9 +39,7 @@ namespace pagmo { namespace problem {
  */
 fon::fon():base(3,0,2)
 {
-	// Set bounds.
-	set_lb(-4);
-	set_ub(4);
+	set_bounds(-4,4);
 }
 
 /// Clone method.
@@ -53,18 +51,11 @@ base_ptr fon::clone() const
 /// Implementation of the objective function.
 void fon::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	pagmo_assert(f.size() == 2);
-	pagmo_assert(x.size() == 3);
-
-	f[0] = 0;
-	f[1] = 0;
-
-	for (decision_vector::size_type i=0; i<3; ++i){ 
-		f[0] += (x[i] - 1 / sqrt(3))*(x[i] - 1 / sqrt(3));
-		f[1] += (x[i] + 1 / sqrt(3))*(x[i] + 1 / sqrt(3));
-	}
-	f[0] = 1 - exp(f[0]);
-	f[1] = 1 - exp(f[1]);
+	pagmo_assert(f.size() == 2 && x.size() == 3);
+	f[0] = 1 - std::exp(-(x[0] - 1 / std::sqrt(3)) * (x[0] - 1 / std::sqrt(3)) - (x[1] - 1 / std::sqrt(3)) * (x[1] -
+		1 / std::sqrt(3)) - (x[2] - 1 / std::sqrt(3)) * (x[2] - 1 / std::sqrt(3)));
+	f[1] = 1 - std::exp(-(x[0] + 1 / std::sqrt(3)) * (x[0] + 1 / std::sqrt(3)) - (x[1] + 1 / std::sqrt(3)) * (x[1] +
+		1 / std::sqrt(3)) - (x[2] + 1 / std::sqrt(3)) * (x[2] + 1 / std::sqrt(3)));
 }
 
 std::string fon::get_name() const

@@ -39,11 +39,8 @@ namespace pagmo { namespace problem {
  */
 sch::sch():base(1,0,2)
 {
-	// Set bounds.
-	set_lb(-1000);
-	set_ub(1000);
+	set_bounds(-1000,1000);
 }
-
 /// Clone method.
 base_ptr sch::clone() const
 {
@@ -53,9 +50,7 @@ base_ptr sch::clone() const
 /// Implementation of the objective function.
 void sch::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	pagmo_assert(f.size() == 2);
-	pagmo_assert(x.size() == 1);
-
+	pagmo_assert(f.size() == 2 && x.size() == 1);
 	f[0] = x[0]*x[0];
 	f[1] = (x[0]-2) * (x[0]-2);
 }

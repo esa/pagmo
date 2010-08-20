@@ -44,6 +44,7 @@ namespace pagmo{ namespace problem {
  * \f]
  * Global local minimum \f$ x_i = 0\f$.
  *
+ *
  * @see http://www.geatbx.com/docu/fcnindex-01.html#P89_3085
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */

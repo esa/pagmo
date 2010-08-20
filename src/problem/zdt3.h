@@ -37,9 +37,12 @@ namespace pagmo{ namespace problem {
  *
  * This is a box-constrained continuous 30-dimension multi-objecive problem.
  * \f[
- *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^30 x_i \right) / \left( n-1 \right)
+ *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{30} x_i \right) / \left( n-1 \right)
+ * \f]
+ * \f[
  * 	F_1 \left(x\right) = x_1
- *
+ * \f]
+ * \f[
  *      F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} - x_1/g(x) \sin(10 \pi x_1) \right]  x \in \left[ 0,1 \right].
  *
  * \f]

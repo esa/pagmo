@@ -75,7 +75,6 @@ base_ptr firefly::clone() const
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
-
 void firefly::evolve(population &pop) const
 {
 	// Let's store some useful variables.

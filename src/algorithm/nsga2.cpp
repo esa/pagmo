@@ -78,18 +78,17 @@ class CompareDistance: std::binary_function<int , int, bool>
 			return (I->at(a) > I->at(b));
 		}
 };
-/// Constructor.
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
  * @param[in] gen Number of generations to evolve.
  * @param[in] cr Crossover probability (of each allele if binomial crossover)
  * @param[in] m Mutation probability (of each allele)
- * @param[in] mut Mutation type. One of sga::mutation::GAUSSIAN, sga::mutation::RANDOM
+ * @param[in] mut Mutation type. One of nsga2::mutation::GAUSSIAN, nsga2::mutation::RANDOM
  * @param[in] width Mutation width. When gaussian mutation is selected is the width of the mutation
- * @param[in] cro Crossover type. One of sga::crossover::BINOMIAL, sga::crossover::EXPONENTIAL
+ * @param[in] cro Crossover type. One of nsga2::crossover::BINOMIAL, nsga2::crossover::EXPONENTIAL
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1]\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
- *
+
  */
 nsga2::nsga2(int gen, const double &cr, const double &m, mutation::type mut, double width, crossover::type cro)
 	:base(),m_gen(gen),m_cr(cr),m_m(m),m_mut(mut,width),m_cro(cro)
