@@ -46,6 +46,14 @@ using namespace std;
 
 struct customobject
 {
+	customobject()
+	{
+		for (int i = 0; i < 6; ++i) {
+			keplerian[i] = 0;
+		}
+		epoch = 0;
+		mu = 0;
+	}
 	friend class boost::serialization::access;
 	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version){
@@ -61,6 +69,7 @@ struct customobject
 
 
 struct mgaproblem {
+	mgaproblem():type(0),e(0),rp(0),Isp(0),mass(0),DVlaunch(0) {}
 	friend class boost::serialization::access;
 	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version){

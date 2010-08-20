@@ -30,7 +30,7 @@
 
 class mgadsmproblem {
 public:
-	mgadsmproblem():size(0) {};
+	mgadsmproblem():size(0),type(0),e(0),rp(0),AUdist(0),DVtotal(0),DVonboard(0) {};
 	mgadsmproblem(int t, const int *seq, const size_t &size_, const double &AUdist_, const double &DVtotal_, const double &DVonboard_,
 		const double &e_, const double &rp_):
 		size(size_),type(t),sequence(seq,seq + size),e(e_),rp(rp_),AUdist(AUdist_),DVtotal(DVtotal_),
@@ -38,6 +38,10 @@ public:
 		for (size_t i = 0; i < size; ++i) {
 			r[i] = new double[3];
 			v[i] = new double[3];
+			for (size_t j = 0; j < 3; ++j) {
+				r[i][j] = 0;
+				v[i][j] = 0;
+			}
 		}
 	}
 	mgadsmproblem(const mgadsmproblem &m):size(m.size),type(m.type),sequence(m.sequence),e(m.e),rp(m.rp),asteroid(m.asteroid),
@@ -92,10 +96,9 @@ private:
 	}
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const {
-	    std::cout << "serializing mgadsmproblem " << version << std::endl; 	
-		double r_values[6][3];
-		double v_values[6][3];
-
+	    std::cout << "serializing mgadsmproblem " << version << std::endl;
+		std::vector<std::vector<double> > r_values(size,std::vector<double>(3));
+		std::vector<std::vector<double> > v_values(size,std::vector<double>(3));
 		for (int i = 0; i < (int)size; ++i) {
 			for(int j = 0; j < 3; ++j){
 				r_values[(size_t)i][j] = r[i][j];
@@ -105,15 +108,15 @@ private:
 			for(int j = 0; j < 3; ++j){
 				v_values[(size_t)i][j] = v[i][j];
 			}
-		}	
+		}
 		ar << r_values;
 		ar << v_values;
 	}
 	template<class Archive>
 	void load(Archive & ar, const unsigned int version) {
 		std::cout << "deserializing mgadsmproblem " << version << std::endl;
-		double r_values[6][3];
-		double v_values[6][3];
+		std::vector<std::vector<double> > r_values;
+		std::vector<std::vector<double> > v_values;
 		ar >> r_values;
 		ar >> v_values;
 
