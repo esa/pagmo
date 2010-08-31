@@ -27,15 +27,16 @@
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
-#include <boost/mpi/environment.hpp>
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/string.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/vector.hpp>
+
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <set>
 #include <string>
 
 #include "base_island.h"
@@ -59,13 +60,14 @@ namespace pagmo
  */
 class __PAGMO_VISIBLE mpi_island: public base_island
 {
+		typedef boost::lock_guard<boost::mutex> lock_type;
 	public:
 		mpi_island(const mpi_island &);
-		explicit mpi_island(const problem::base &, const algorithm::base &, int = 0, int = 0,
+		explicit mpi_island(const problem::base &, const algorithm::base &, int = 0,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
-		explicit mpi_island(const population &, const algorithm::base &, int = 0,
+		explicit mpi_island(const population &, const algorithm::base &,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
@@ -80,8 +82,6 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 		void perform_evolution(const algorithm::base &, population &) const;
 		//@}
 	public:
-		// the id of the processor that will perform the evolution of the island object
-		int processor_id;
 		/** @name Input/output.*/
 		//@{
 		std::string get_name() const;
@@ -90,9 +90,14 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 		friend class boost::serialization::access;
 		template<class Archive>
 		void serialize(Archive &ar, const unsigned int /*version*/){
-			ar & boost::serialization::base_object<base_island>(*this);			
-			ar & processor_id;
+			ar & boost::serialization::base_object<base_island>(*this);
 		}
+		static void init_processors();
+		static int acquire_processor();
+		static void release_processor(int);
+	private:
+		static boost::mutex				m_mutex;
+		static boost::scoped_ptr<std::set<int> >	m_available_processors;
 };
 
 }

@@ -197,7 +197,8 @@ population &population::operator=(const population &p)
 {
 	if (this != &p) {
 		// Perform the copies.
-		m_prob = p.m_prob->clone();
+		problem::base_ptr tmp_prob(p.m_prob->clone());
+		m_prob.swap(tmp_prob);
 		m_container = p.m_container;
 		m_dom_list = p.m_dom_list;
 		m_champion = p.m_champion;

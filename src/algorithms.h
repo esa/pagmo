@@ -43,13 +43,12 @@
 #include "algorithm/mbh.h"
 #include "algorithm/ms.h"
 
-
 // SNOPT algorithm.
 #ifdef PAGMO_ENABLE_SNOPT
 	#include "algorithm/snopt.h"
 #endif
 
-// SNOPT algorithm.
+// IPOPT algorithm.
 #ifdef PAGMO_ENABLE_IPOPT
 	#include "algorithm/ipopt.h"
 #endif
@@ -74,6 +73,7 @@
 #endif
 
 // routine that registers the derived types of the the algorithm class needed for casting after deserializing the base_ptr
+#if 0
 #define REGISTER_ALGORITHM_SERIALIZATIONS()				\
 ar.template register_type<algorithm::cs>();				\
 ar.template register_type<algorithm::de>();				\
@@ -84,5 +84,8 @@ ar.template register_type<algorithm::pso>();			\
 ar.template register_type<algorithm::sa_corana>();		\
 ar.template register_type<algorithm::sga>();			\
 ar.template register_type<algorithm::bee_colony>();				
+#endif
+
+#define REGISTER_ALGORITHM_SERIALIZATIONS()
 
 #endif

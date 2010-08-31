@@ -48,9 +48,9 @@ int main(int argc, char* argv[])
 	for (std::vector<pagmo::problem::base_ptr>::const_iterator it = probs.begin(); it != probs.end(); ++it)
 	{
 		std::cout << "\tTesting problem: " << (**it) << '\n';
-		// In the current implementation the islands and archipelago are initialized on each processor
+		std::vector<double> champs;
 		pagmo::archipelago a = pagmo::archipelago(pagmo::topology::rim());
-
+			
 		a.push_back(pagmo::mpi_island(**it,de,20,1));
 		a.push_back(pagmo::mpi_island(**it,de,20,2));		
 		a.push_back(pagmo::mpi_island(**it,de,20,3));
@@ -64,19 +64,6 @@ int main(int argc, char* argv[])
 		{
 			std::cout << a.get_island(0)->get_population().champion().f << " " << a.get_island(0)->get_population().champion().x << std::endl;
 		}
-
-
-		// Testing the archipelago constructor that creates 3 mpi_islands by passing the true value to the "is_parallel" constructor attribute
-		pagmo::archipelago b = pagmo::archipelago(**it, de, 3, 20, pagmo::topology::rim(), pagmo::archipelago::point_to_point, pagmo::archipelago::destination, true);		
-
-		b.evolve(10);
-		b.join();
-
-		if (world.rank() == 0)
-		{
-			std::cout << b.get_island(0)->get_population().champion().f << " " << b.get_island(0)->get_population().champion().x << std::endl;
-		}
-
 
 	}
 	return 0;

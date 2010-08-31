@@ -67,7 +67,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/archipelago.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/mpi_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 )
@@ -200,7 +199,7 @@ IF(NOT MINGW)
 	)
 ENDIF(NOT MINGW)
 
-# Boost MPI library.
+# Boost MPI library and PaGMO MPI bits.
 IF(ENABLE_MPI)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/broadcast.cpp
@@ -222,6 +221,8 @@ IF(ENABLE_MPI)
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/request.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/text_skeleton_oarchive.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/timer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/mpi_environment.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/mpi_island.cpp
 	)
 ENDIF(ENABLE_MPI)
 

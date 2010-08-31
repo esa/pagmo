@@ -28,12 +28,29 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 #include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
 #include "../population.h"
 #include "base.h"
+
+namespace pagmo { namespace algorithm {
+
+class de;
+
+}}
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+void save_construct_data(Archive &, const pagmo::algorithm::de *, const unsigned int);
+
+template <class Archive>
+inline void load_construct_data(Archive &, pagmo::algorithm::de *, const unsigned int);
+
+}}
 
 namespace pagmo { namespace algorithm {
 
@@ -76,6 +93,10 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
+	template <class Archive>
+	friend void boost::serialization::save_construct_data(Archive &, const de *, const unsigned int);
+	template <class Archive>
+	friend void boost::serialization::load_construct_data(Archive &, de *, const unsigned int);
 	template<class Archive>
 	void serialize(Archive &ar, const unsigned int /*version*/){
 		ar & boost::serialization::base_object<base>(*this);
@@ -94,6 +115,38 @@ private:
 	const int m_strategy;
 };
 
+}}
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+inline void save_construct_data(Archive &ar, const pagmo::algorithm::de *a, const unsigned int)
+{
+	// Save data required to construct instance.
+	ar << a->m_gen;
+	ar << a->m_f;
+	ar << a->m_cr;
+	ar << a->m_strategy;
+}
+
+template <class Archive>
+inline void load_construct_data(Archive &ar, pagmo::algorithm::de *a, const unsigned int)
+{
+	// Retrieve data from archive required to construct new instance.
+	int gen;
+	double f;
+	double cr;
+	int strategy;
+	ar >> gen;
+	ar >> f;
+	ar >> cr;
+	ar >> strategy;
+	// Invoke inplace constructor to initialize instance of the algorithm.
+	::new(a)pagmo::algorithm::de(gen,f,cr,strategy);
+}
+
 }} //namespaces
+
+BOOST_CLASS_EXPORT_GUID(pagmo::algorithm::de, "pagmo_algorithm_de");
 
 #endif // DE_H

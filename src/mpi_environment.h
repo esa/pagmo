@@ -22,26 +22,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PAGMO_H
-#define PAGMO_PAGMO_H
+#ifndef PAGMO_MPI_ENVIRONMENT_H
+#define PAGMO_MPI_ENVIRONMENT_H
 
-// Global header including the whole public interface to PaGMO.
+#include <boost/mpi/environment.hpp>
+#include <boost/utility.hpp>
 
-#include "algorithms.h"
-#include "archipelago.h"
-#include "base_island.h"
-#include "exceptions.h"
-#include "island.h"
-#include "migration.h"
-#include "population.h"
-#include "problems.h"
-#include "rng.h"
-#include "topologies.h"
-#include "types.h"
+#include "config.h"
 
-#ifdef PAGMO_ENABLE_MPI
-	#include "mpi_environment.h"
-	#include "mpi_island.h"
-#endif
+namespace pagmo
+{
+
+class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
+{
+	public:
+		mpi_environment();
+		~mpi_environment();
+	private:
+		void listen();
+	private:
+		boost::scoped_ptr<boost::mpi::environment> m_environment;
+};
+
+}
 
 #endif

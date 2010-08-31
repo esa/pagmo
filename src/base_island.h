@@ -169,12 +169,12 @@ class __PAGMO_VISIBLE base_island
 			REGISTER_MIGRATION_POLICY_SERIALIZATIONS();
 			ar & m_pop;		    
 			ar & m_algo;
-			ar & m_archi;
+			//ar & m_archi;
 			ar & m_evo_time;
 			ar & m_migr_prob;
 			ar & m_s_policy;
 			ar & m_r_policy;
-			ar & m_evo_thread;
+			//ar & m_evo_thread;
 		}
 		// Population.
 		population				m_pop;
