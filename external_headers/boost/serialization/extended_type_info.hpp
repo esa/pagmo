@@ -23,9 +23,9 @@
 #include <cstddef> // NULL
 #include <boost/config.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/serialization/config.hpp>
 #include <boost/mpl/bool.hpp>
 
+#include <boost/serialization/config.hpp>
 #include <boost/config/abi_prefix.hpp> // must be the last header
 #ifdef BOOST_MSVC
 #  pragma warning(push)
@@ -62,8 +62,8 @@ protected:
     // common functionality for all type_info replacement
     // systems.  Hence, make these protected
     extended_type_info(
-    	const unsigned int type_info_key,
-    	const char * key
+        const unsigned int type_info_key,
+        const char * key
     );
     // account for bogus gcc warning
     #if defined(__GNUC__)

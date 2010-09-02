@@ -45,8 +45,8 @@
         typedef BOOST_PP_TUPLE_ELEM(ATTRIBUTE_TUPEL_SIZE, 0, ATTRIBUTE) lvalue; \
         typedef BOOST_PP_TUPLE_ELEM(ATTRIBUTE_TUPEL_SIZE, 1, ATTRIBUTE) rvalue; \
                                                                                 \
-        class_member_proxy(BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ)& obj)\
-          : obj(obj)                                                            \
+        class_member_proxy(BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ)& o)  \
+          : obj(o)                                                              \
         {}                                                                      \
                                                                                 \
         template<class Arg>                                                     \
@@ -63,6 +63,9 @@
         }                                                                       \
                                                                                 \
         BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ)& obj;                   \
+                                                                                \
+    private:                                                                    \
+        class_member_proxy& operator= (class_member_proxy const&);              \
     };                                                                          \
                                                                                 \
     template<                                                                   \

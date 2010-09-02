@@ -922,4 +922,4 @@ struct has_trivial_destructor_after_move_to_moved
 }  //namespace interprocess {
 }  //namespace boost {
 
-#endif	//#ifndef BOOST_MOVE_HPP
+#endif  //#ifndef BOOST_MOVE_HPP

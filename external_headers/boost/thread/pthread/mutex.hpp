@@ -27,10 +27,11 @@
 
 namespace boost
 {
-    class mutex:
-        boost::noncopyable
+    class mutex
     {
     private:
+        mutex(mutex const&);
+        mutex& operator=(mutex const&);        
         pthread_mutex_t m;
     public:
         mutex()
@@ -48,7 +49,11 @@ namespace boost
         
         void lock()
         {
-            BOOST_VERIFY(!pthread_mutex_lock(&m));
+            int const res=pthread_mutex_lock(&m);
+            if(res)
+            {
+                boost::throw_exception(lock_error(res));
+            }
         }
 
         void unlock()
@@ -59,7 +64,11 @@ namespace boost
         bool try_lock()
         {
             int const res=pthread_mutex_trylock(&m);
-            BOOST_ASSERT(!res || res==EBUSY);
+            if(res && (res!=EBUSY))
+            {
+                boost::throw_exception(lock_error(res));
+            }
+            
             return !res;
         }
 
@@ -75,9 +84,11 @@ namespace boost
 
     typedef mutex try_mutex;
 
-    class timed_mutex:
-        boost::noncopyable
+    class timed_mutex
     {
+    private:
+        timed_mutex(timed_mutex const&);
+        timed_mutex& operator=(timed_mutex const&);        
     private:
         pthread_mutex_t m;
 #ifndef BOOST_PTHREAD_HAS_TIMEDLOCK

@@ -13,6 +13,7 @@
 
 #include <boost/spirit/home/support/unused.hpp>
 #include <boost/spirit/home/qi/nonterminal/rule.hpp>
+#include <boost/spirit/home/qi/nonterminal/debug_handler_state.hpp>
 #include <boost/spirit/home/qi/operator/expect.hpp>
 #include <boost/function.hpp>
 #include <boost/fusion/include/at.hpp>
@@ -22,13 +23,6 @@
 
 namespace boost { namespace spirit { namespace qi
 {
-    enum debug_handler_state
-    {
-        pre_parse
-      , successful_parse
-      , failed_parse
-    };
-
     template <
         typename Iterator, typename Context
       , typename Skipper, typename F>
@@ -78,12 +72,11 @@ namespace boost { namespace spirit { namespace qi
         std::string rule_name;
     };
 
-    template <
-        typename Iterator, typename T0, typename T1, typename T2
-      , typename F>
-    void debug(rule<Iterator, T0, T1, T2>& r, F f)
+    template <typename Iterator
+      , typename T1, typename T2, typename T3, typename T4, typename F>
+    void debug(rule<Iterator, T1, T2, T3, T4>& r, F f)
     {
-        typedef rule<Iterator, T0, T1, T2> rule_type;
+        typedef rule<Iterator, T1, T2, T3, T4> rule_type;
 
         typedef
             debug_handler<
@@ -92,15 +85,30 @@ namespace boost { namespace spirit { namespace qi
               , typename rule_type::skipper_type
               , F>
         debug_handler;
-        r.f = debug_handler(r.f, f. r.name());
+        r.f = debug_handler(r.f, f, r.name());
     }
 
     struct simple_trace;
 
-    template <typename Iterator, typename T0, typename T1, typename T2>
-    void debug(rule<Iterator, T0, T1, T2>& r)
+    namespace detail 
     {
-        typedef rule<Iterator, T0, T1, T2> rule_type;
+        // This class provides an extra level of indirection through a
+        // template to produce the simple_trace type. This way, the use
+        // of simple_trace below is hidden behind a dependent type, so
+        // that compilers eagerly type-checking template definitions
+        // won't complain that simple_trace is incomplete.
+        template<typename T>
+        struct get_simple_trace 
+        {
+            typedef simple_trace type;
+        };
+    }
+
+    template <typename Iterator
+      , typename T1, typename T2, typename T3, typename T4>
+    void debug(rule<Iterator, T1, T2, T3, T4>& r)
+    {
+        typedef rule<Iterator, T1, T2, T3, T4> rule_type;
 
         typedef
             debug_handler<
@@ -109,17 +117,21 @@ namespace boost { namespace spirit { namespace qi
               , typename rule_type::skipper_type
               , simple_trace>
         debug_handler;
-        r.f = debug_handler(r.f, simple_trace(), r.name());
+
+        typedef typename qi::detail::get_simple_trace<Iterator>::type trace;
+        r.f = debug_handler(r.f, trace(), r.name());
     }
 
 }}}
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Utility macro for easy enabling of rule and grammar debugging
-#if defined(BOOST_SPIRIT_DEBUG)
-#define BOOST_SPIRIT_DEBUG_NODE(r)  r.name(#r); debug(r)
-#else
-#define BOOST_SPIRIT_DEBUG_NODE(r)
+#if !defined(BOOST_SPIRIT_DEBUG_NODE)
+  #if defined(BOOST_SPIRIT_DEBUG) || defined(BOOST_SPIRIT_QI_DEBUG)
+    #define BOOST_SPIRIT_DEBUG_NODE(r)  r.name(#r); debug(r)
+  #else
+    #define BOOST_SPIRIT_DEBUG_NODE(r)  r.name(#r);
+  #endif
 #endif
 
 #endif

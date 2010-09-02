@@ -14,7 +14,7 @@
 #include <boost/spirit/home/qi/domain.hpp>
 #include <boost/spirit/home/qi/detail/assign_to.hpp>
 #include <boost/spirit/home/support/unused.hpp>
-#include <boost/spirit/home/support/attributes.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
 #include <boost/variant.hpp>
 #include <boost/mpl/bool.hpp>
 
@@ -59,8 +59,8 @@ namespace boost { namespace spirit { namespace qi { namespace detail
             // return true if the parser succeeds
             return call(component, 
                 mpl::and_<
-                    spirit::traits::not_is_variant<Attribute>,
-                    spirit::traits::not_is_optional<Attribute> 
+                    spirit::traits::not_is_variant<Attribute, qi::domain>,
+                    spirit::traits::not_is_optional<Attribute, qi::domain> 
                 >());
         }
 

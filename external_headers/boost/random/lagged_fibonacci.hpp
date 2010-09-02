@@ -30,8 +30,6 @@
 #include <boost/random/detail/config.hpp>
 #include <boost/random/detail/seed.hpp>
 #include <boost/random/detail/pass_through_engine.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 
 namespace boost {
 namespace random {

@@ -3,7 +3,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-// (C) Copyright 2007-8 Anthony Williams
+// (C) Copyright 2007-10 Anthony Williams
 
 #include "timespec.hpp"
 #include "pthread_mutex_scoped_lock.hpp"
@@ -48,8 +48,8 @@ namespace boost
         pthread_mutex_t internal_mutex;
         pthread_cond_t cond;
 
-        condition_variable_any(condition_variable&);
-        condition_variable_any& operator=(condition_variable&);
+        condition_variable_any(condition_variable_any&);
+        condition_variable_any& operator=(condition_variable_any&);
 
     public:
         condition_variable_any()

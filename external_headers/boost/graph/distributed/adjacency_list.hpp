@@ -989,7 +989,7 @@ namespace boost {
       }
 
       typename graph_traits<base_type>::out_edge_iterator ei, ei_end;
-      for (tie(ei, ei_end) = out_edges(v.local, bg); ei != ei_end; ++ei)
+      for (boost::tie(ei, ei_end) = out_edges(v.local, bg); ei != ei_end; ++ei)
       {
         if (target(*ei, g.base()) == u.local
             // TBD: deal with parallel edges properly && *ei == e
@@ -2098,7 +2098,7 @@ namespace boost {
 
       if (src.owner == process_id(process_group_)) {
         base_out_edge_iterator ei, ei_end;
-        for (tie(ei, ei_end) = out_edges(src.local, base());
+        for (boost::tie(ei, ei_end) = out_edges(src.local, base());
              ei != ei_end; ++ei) {
           // TBD: can't check the descriptor here, because it could
           // have changed if we're allowing the removal of
@@ -2140,7 +2140,7 @@ namespace boost {
       // Remove the edge from the out-edge list, if it is there
       {
         base_out_edge_iterator ei, ei_end;
-        for (tie(ei, ei_end) = out_edges(local_vertex.local, base());
+        for (boost::tie(ei, ei_end) = out_edges(local_vertex.local, base());
              ei != ei_end; ++ei) {
           // TBD: can't check the descriptor here, because it could
           // have changed if we're allowing the removal of
@@ -2890,7 +2890,7 @@ namespace boost {
 
     typename PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(directedS)
         ::out_edge_iterator ei, ei_end;
-    for (tie(ei, ei_end) = out_edges(u, g); ei != ei_end; ++ei) {
+    for (boost::tie(ei, ei_end) = out_edges(u, g); ei != ei_end; ++ei) {
       if (target(*ei, g) == v) return std::make_pair(*ei, true);
     }
     return std::make_pair(edge_descriptor(), false);
@@ -2912,13 +2912,13 @@ namespace boost {
     // must be local
     if (u.owner == process_id(g.process_group())) {
       typename PBGL_DISTRIB_ADJLIST_TYPE::out_edge_iterator ei, ei_end;
-      for (tie(ei, ei_end) = out_edges(u, g); ei != ei_end; ++ei) {
+      for (boost::tie(ei, ei_end) = out_edges(u, g); ei != ei_end; ++ei) {
         if (target(*ei, g) == v) return std::make_pair(*ei, true);
       }
       return std::make_pair(edge_descriptor(), false);
     } else if (v.owner == process_id(g.process_group())) {
       typename PBGL_DISTRIB_ADJLIST_TYPE::in_edge_iterator ei, ei_end;
-      for (tie(ei, ei_end) = in_edges(v, g); ei != ei_end; ++ei) {
+      for (boost::tie(ei, ei_end) = in_edges(v, g); ei != ei_end; ++ei) {
         if (source(*ei, g) == u) return std::make_pair(*ei, true);
       }
       return std::make_pair(edge_descriptor(), false);

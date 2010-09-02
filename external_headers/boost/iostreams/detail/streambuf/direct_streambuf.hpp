@@ -121,6 +121,7 @@ void direct_streambuf<T, Tr>::open
     init_output(category());
     setg(0, 0, 0);
     setp(0, 0);
+    this->set_needs_close();
 }
 
 template<typename T, typename Tr>

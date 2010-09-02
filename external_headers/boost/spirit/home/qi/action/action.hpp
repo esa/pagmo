@@ -13,7 +13,7 @@
 
 #include <boost/spirit/home/qi/meta_compiler.hpp>
 #include <boost/spirit/home/qi/parser.hpp>
-#include <boost/spirit/home/support/attributes.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
 #include <boost/spirit/home/support/argument.hpp>
 #include <boost/spirit/home/support/context.hpp>
 #include <boost/spirit/home/support/unused.hpp>
@@ -53,13 +53,23 @@ namespace boost { namespace spirit { namespace qi
             typedef traits::make_attribute<attr_type, Attribute> make_attribute;
 
             // create an attribute if one is not supplied
-            typename make_attribute::type attr = make_attribute::call(attr_);
+            typedef traits::transform_attribute<
+                typename make_attribute::type, attr_type, domain> transform;
 
+            typename make_attribute::type made_attr = make_attribute::call(attr_);
+            typename transform::type attr = transform::pre(made_attr);
+
+            Iterator save = first;
             if (subject.parse(first, last, context, skipper, attr))
             {
                 // call the function, passing the attribute, the context.
                 // The client can return false to fail parsing.
-                return traits::action_dispatch<Subject>()(f, attr, context);
+                if (traits::action_dispatch<Subject>()(f, attr, context))
+                    return true;
+
+                // reset iterators if semantic action failed the match 
+                // retrospectively
+                first = save;
             }
             return false;
         }

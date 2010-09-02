@@ -48,6 +48,7 @@
         (1)TEMPLATE_PARAMS_SEQ,                                                 \
         (1)NAME_SEQ,                                                            \
         struct_tag,                                                             \
+        0,                                                                      \
         BOOST_PP_CAT(BOOST_FUSION_ADAPT_CLASS_FILLER_0 ATTRIBUTES,_END),        \
         BOOST_FUSION_ADAPT_CLASS_C)
 
@@ -56,6 +57,16 @@
         (0),                                                                    \
         (0)(NAME),                                                              \
         struct_tag,                                                             \
+        0,                                                                      \
+        BOOST_PP_CAT(BOOST_FUSION_ADAPT_CLASS_FILLER_0 ATTRIBUTES,_END),        \
+        BOOST_FUSION_ADAPT_CLASS_C)
+
+#define BOOST_FUSION_ADAPT_CLASS_AS_VIEW(NAME, ATTRIBUTES)                      \
+    BOOST_FUSION_ADAPT_STRUCT_BASE(                                             \
+        (0),                                                                    \
+        (0)(NAME),                                                              \
+        struct_tag,                                                             \
+        1,                                                                      \
         BOOST_PP_CAT(BOOST_FUSION_ADAPT_CLASS_FILLER_0 ATTRIBUTES,_END),        \
         BOOST_FUSION_ADAPT_CLASS_C)
 

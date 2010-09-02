@@ -173,7 +173,7 @@ namespace hohberg_detail {
 #endif
 
     if (a == b) {
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 2
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 2
       std::cerr << local(a) << '@' << owner(a) << std::endl;
 #endif
       return a;
@@ -186,7 +186,7 @@ namespace hohberg_detail {
       if (*last == b) { swap(a,b); break; }
 
       if (last == first) {
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 2
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 2
         std::cerr << local(*first) << '@' << owner(*first) << std::endl;
 #endif
         return *first;
@@ -205,7 +205,7 @@ namespace hohberg_detail {
       else --last;
     }
 
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 2
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 2
     std::cerr << local(*last) << '@' << owner(*last) << std::endl;
 #endif
     // We've found b; it's the infimum.
@@ -715,7 +715,7 @@ start_naming_phase(Vertex alpha, const Graph& g, edges_size_type offset)
     } else if (edata.is_tree_edge) {
       has_more_children_to_name = true;
     }
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 2
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 2
     std::cerr << "M[" << local(source(e, g)) << '@' << owner(source(e, g))
               << " -> " << local(target(e, g)) << '@' << owner(target(e, g))
               << "] = ";
@@ -747,7 +747,7 @@ hohberg_vertex_processor<Graph>::echo_phase(Vertex alpha, const Graph& g)
   if (parent != graph_traits<Graph>::null_vertex()) {
     Edge edge_to_parent;
 
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 1
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 1
      std::cerr << local(alpha) << '@' << owner(alpha) << " echo: parent = "
                << local(parent) << '@' << owner(parent) << ", eta = "
                << local(eta) << '@' << owner(eta) << ", Gamma = ";
@@ -759,7 +759,7 @@ hohberg_vertex_processor<Graph>::echo_phase(Vertex alpha, const Graph& g)
       if (target(e, g) == parent && parent == eta) {
         edge_to_parent = e;
         if (find(bicomp.begin(), bicomp.end(), alpha) == bicomp.end()) {
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 1
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 1
           std::cerr << local(alpha) << '@' << owner(alpha) << ' ';
 #endif
           bicomp.push_back(alpha);
@@ -777,7 +777,7 @@ hohberg_vertex_processor<Graph>::echo_phase(Vertex alpha, const Graph& g)
             ++pos;
             if (pos != edata.msg.path_or_bicomp.end()
                 && find(bicomp.begin(), bicomp.end(), *pos) == bicomp.end()) {
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 1
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 1
               std::cerr << local(*pos) << '@' << owner(*pos) << ' ';
 #endif
               bicomp.push_back(*pos);
@@ -787,7 +787,7 @@ hohberg_vertex_processor<Graph>::echo_phase(Vertex alpha, const Graph& g)
           for (path_iterator i = edata.msg.path_or_bicomp.begin();
                i != edata.msg.path_or_bicomp.end(); ++i) {
             if (find(bicomp.begin(), bicomp.end(), *i) == bicomp.end()) {
-#if defined(PBGL_HOHBERG_DEBUG) and PBGL_HOHBERG_DEBUG > 1
+#if defined(PBGL_HOHBERG_DEBUG) && PBGL_HOHBERG_DEBUG > 1
               std::cerr << local(*i) << '@' << owner(*i) << ' ';
 #endif
               bicomp.push_back(*i);

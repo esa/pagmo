@@ -28,10 +28,10 @@ namespace boost { namespace program_options {
         , unregistered(false) 
         , case_insensitive(false)
         {}
-        basic_option(const std::string& string_key, 
-               const std::vector< std::string> &value)
-        : string_key(string_key)
-        , value(value)
+        basic_option(const std::string& xstring_key, 
+               const std::vector< std::string> &xvalue)
+        : string_key(xstring_key)
+        , value(xvalue)
         , unregistered(false)
         , case_insensitive(false)
         {}

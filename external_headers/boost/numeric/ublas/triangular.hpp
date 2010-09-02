@@ -57,7 +57,23 @@ namespace boost { namespace numeric { namespace ublas {
         }
     }
 
-    // Array based triangular matrix class
+    /** \brief A triangular matrix of values of type \c T.
+     *
+     * For a \f$(n \times n )\f$-dimensional lower triangular matrix and if \f$0 \leq i < n\f$, \f$0 \leq j < n\f$ and \f$i>j\f$ holds, 
+     * \f$m_{i,j}=0\f$. Furthermore if \f$m_{i,i}=1\f$, the matrix is called unit lower triangular.
+     *
+     * For a \f$(n \times n )\f$-dimensional upper triangular matrix and if \f$0 \leq i < n\f$, \f$0 \leq j < n\f$ and \f$i<j\f$ holds, 
+     * \f$m_{i,j}=0\f$. Furthermore if \f$m_{i,i}=1\f$, the matrix is called unit upper triangular.
+     *
+     * The default storage for triangular matrices is packed. Orientation and storage can also be specified. 
+     * Default is \c row_major and and unbounded_array. It is \b not required by the storage to initialize 
+     * elements of the matrix.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam TRI the type of the triangular matrix. It can either be \c lower or \c upper. Default is \c lower
+     * \tparam L the storage organization. It can be either \c row_major or \c column_major. Default is \c row_major
+     * \tparam A the type of Storage array. Default is \c unbounded_array
+     */
     template<class T, class TRI, class L, class A>
     class triangular_matrix:
         public matrix_container<triangular_matrix<T, TRI, L, A> > {

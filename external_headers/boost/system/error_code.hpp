@@ -202,18 +202,18 @@ namespace boost
 
     //  predefined error categories  -----------------------------------------//
 
-    BOOST_SYSTEM_DECL const error_category &  get_system_category();
-    BOOST_SYSTEM_DECL const error_category &  get_generic_category();
+    BOOST_SYSTEM_DECL const error_category &  system_category();
+    BOOST_SYSTEM_DECL const error_category &  generic_category();
 
-    static const error_category &  system_category = get_system_category();
-    static const error_category &  generic_category = get_generic_category();
-    
+    //  deprecated synonyms --------------------------------------------------//
+
 # ifndef BOOST_SYSTEM_NO_DEPRECATED
-    //  deprecated synonyms
-    inline const error_category &  get_posix_category() { return get_generic_category(); }
-    static const error_category &  posix_category = get_generic_category();
-    static const error_category &  errno_ecat     = get_generic_category();
-    static const error_category &  native_ecat    = get_system_category();
+    inline const error_category &  get_system_category() { return system_category(); }
+    inline const error_category &  get_generic_category() { return generic_category(); }
+    inline const error_category &  get_posix_category() { return generic_category(); }
+    static const error_category &  posix_category = generic_category();
+    static const error_category &  errno_ecat     = generic_category();
+    static const error_category &  native_ecat    = system_category();
 # endif
 
     //  class error_condition  -----------------------------------------------//
@@ -225,7 +225,7 @@ namespace boost
     public:
 
       // constructors:
-      error_condition() : m_val(0), m_cat(&get_generic_category()) {}
+      error_condition() : m_val(0), m_cat(&generic_category()) {}
       error_condition( int val, const error_category & cat ) : m_val(val), m_cat(&cat) {}
 
       template <class ErrorConditionEnum>
@@ -254,7 +254,7 @@ namespace boost
       void clear()
       {
         m_val = 0;
-        m_cat = &get_generic_category();
+        m_cat = &generic_category();
       }
 
       // observers:
@@ -312,7 +312,7 @@ namespace boost
     public:
 
       // constructors:
-      error_code() : m_val(0), m_cat(&get_system_category()) {}
+      error_code() : m_val(0), m_cat(&system_category()) {}
       error_code( int val, const error_category & cat ) : m_val(val), m_cat(&cat) {}
 
       template <class ErrorCodeEnum>
@@ -340,7 +340,7 @@ namespace boost
       void clear()
       {
         m_val = 0;
-        m_cat = &get_system_category();
+        m_cat = &system_category();
       }
 
       // observers:
@@ -473,11 +473,11 @@ namespace boost
     {
       //  explicit conversion:
       inline error_code make_error_code( errc_t e )
-        { return error_code( e, get_generic_category() ); }
+        { return error_code( e, generic_category() ); }
 
       //  implicit conversion:
       inline error_condition make_error_condition( errc_t e )
-        { return error_condition( e, get_generic_category() ); }
+        { return error_condition( e, generic_category() ); }
     }
 
     //  error_category default implementation  -------------------------------//

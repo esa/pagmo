@@ -41,8 +41,8 @@ namespace boost { namespace fusion { namespace detail
     template <typename F, typename T>
     struct replacer_if
     {
-        replacer_if(F f, T const& new_value)
-            : f(f), new_value(new_value) {}
+        replacer_if(F in_f, T const& in_new_value)
+            : f(in_f), new_value(in_new_value) {}
 
         template<typename Params>
         struct result;

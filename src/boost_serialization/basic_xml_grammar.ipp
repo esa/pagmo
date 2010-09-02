@@ -181,7 +181,7 @@ bool basic_xml_grammar<CharType>::my_parse(
 ) const {
     if(is.fail()){
         boost::serialization::throw_exception(
-            archive_exception(archive_exception::stream_error)
+            archive_exception(archive_exception::input_stream_error)
         );
     }
     
@@ -321,7 +321,7 @@ basic_xml_grammar<CharType>::basic_xml_grammar(){
         str_p(BOOST_ARCHIVE_XML_CLASS_ID()) >> NameTail
         >> Eq 
         >> L'"'
-        >> int_p [xml::assign_object(rv.class_id.t)]
+        >> int_p [xml::assign_object(rv.class_id)]
         >> L'"'
       ;
 
@@ -334,7 +334,7 @@ basic_xml_grammar<CharType>::basic_xml_grammar(){
         >> Eq 
         >> L'"'
         >> L'_'
-        >> uint_p [xml::assign_object(rv.object_id.t)]
+        >> uint_p [xml::assign_object(rv.object_id)]
         >> L'"'
     ;
         
@@ -372,7 +372,7 @@ basic_xml_grammar<CharType>::basic_xml_grammar(){
         str_p(BOOST_ARCHIVE_XML_VERSION())
         >> Eq
         >> L'"'
-        >> uint_p [xml::assign_object(rv.version.t)]
+        >> uint_p [xml::assign_object(rv.version)]
         >> L'"'
     ;
 

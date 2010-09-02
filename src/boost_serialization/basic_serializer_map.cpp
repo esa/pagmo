@@ -94,7 +94,10 @@ basic_serializer_map::find(
     const basic_serializer_arg bs(eti);
     map_type::const_iterator it;
     it = m_map.find(& bs);
-    assert(it != m_map.end());
+    if(it == m_map.end()){
+        assert(false);
+        return 0;
+    }
     return *it;
 }
 

@@ -94,7 +94,7 @@ public:
     { }
 
     inline undirected_graph(undirected_graph const& x)
-        : m_graph(x), m_num_vertices(x.m_num_vertices), m_num_edges(x.m_num_edges)
+        : m_graph(x.m_graph), m_num_vertices(x.m_num_vertices), m_num_edges(x.m_num_edges)
         , m_max_vertex_index(x.m_max_vertex_index), m_max_edge_index(x.m_max_edge_index)
     { }
 
@@ -199,7 +199,7 @@ public:
         // find all edges, (u, v)
         std::vector<edge_descriptor> edges;
         out_edge_iterator i, i_end;
-        for(tie(i, i_end) = boost::out_edges(u, m_graph); i != i_end; ++i) {
+        for(boost::tie(i, i_end) = boost::out_edges(u, m_graph); i != i_end; ++i) {
             if(boost::target(*i, m_graph) == v) {
                 edges.push_back(*i);
             }
@@ -226,7 +226,7 @@ public:
 
     void renumber_vertex_indices() {
         vertex_iterator i, i_end;
-        tie(i, i_end) = vertices(m_graph);
+        boost::tie(i, i_end) = vertices(m_graph);
         m_max_vertex_index = renumber_vertex_indices(i, i_end, 0);
     }
 
@@ -245,7 +245,7 @@ public:
 
     void renumber_edge_indices() {
         edge_iterator i, end;
-        tie(i, end) = edges(m_graph);
+        boost::tie(i, end) = edges(m_graph);
         m_max_edge_index = renumber_edge_indices(i, end, 0);
     }
 

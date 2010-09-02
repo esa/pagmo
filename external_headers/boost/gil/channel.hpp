@@ -155,6 +155,8 @@ struct scoped_channel_value {
     typedef const value_type*       const_pointer;
     BOOST_STATIC_CONSTANT(bool, is_mutable=channel_traits<BaseChannelValue>::is_mutable);
 
+    typedef BaseChannelValue base_channel_t;
+
     static value_type min_value() { return MinVal::apply(); }
     static value_type max_value() { return MaxVal::apply(); }
 
@@ -365,7 +367,7 @@ class packed_channel_reference<BitField,FirstBit,NumBits,false>
     typedef detail::packed_channel_reference_base<packed_channel_reference<BitField,FirstBit,NumBits,false>,BitField,NumBits,false> parent_t;
     friend class packed_channel_reference<BitField,FirstBit,NumBits,true>;
 
-    static const BitField channel_mask = parent_t::max_val<<FirstBit;
+    static const BitField channel_mask = static_cast< BitField >( parent_t::max_val ) << FirstBit;
     void operator=(const packed_channel_reference&);
 public:
     typedef const packed_channel_reference<BitField,FirstBit,NumBits,false> const_reference;
@@ -389,7 +391,7 @@ class packed_channel_reference<BitField,FirstBit,NumBits,true>
     typedef detail::packed_channel_reference_base<packed_channel_reference<BitField,FirstBit,NumBits,true>,BitField,NumBits,true> parent_t;
     friend class packed_channel_reference<BitField,FirstBit,NumBits,false>;
 
-    static const BitField channel_mask = parent_t::max_val<<FirstBit;
+    static const BitField channel_mask = static_cast< BitField >( parent_t::max_val ) << FirstBit;
 public:
     typedef const packed_channel_reference<BitField,FirstBit,NumBits,false> const_reference;
     typedef const packed_channel_reference<BitField,FirstBit,NumBits,true>  mutable_reference;
@@ -408,7 +410,7 @@ public:
     unsigned first_bit() const { return FirstBit; }
 
     integer_t get()                               const { return integer_t((this->get_data()&channel_mask) >> FirstBit); }
-    void set_unsafe(integer_t value)              const { this->set_data((this->get_data() & ~channel_mask) | (value<<FirstBit)); }
+    void set_unsafe(integer_t value)              const { this->set_data((this->get_data() & ~channel_mask) | (( static_cast< BitField >( value )<<FirstBit))); }
 private:
     void set_from_reference(const BitField& other_bits) const { this->set_data((this->get_data() & ~channel_mask) | (other_bits & channel_mask)); }
 };
@@ -490,7 +492,7 @@ public:
 
     integer_t get() const { 
         const BitField channel_mask = parent_t::max_val<<_first_bit;
-        return (this->get_data()&channel_mask) >> _first_bit; 
+        return ( static_cast< integer_t >( this->get_data()&channel_mask ) >> _first_bit );
     }
 };
 
@@ -525,7 +527,7 @@ public:
 
     integer_t get() const { 
         const BitField channel_mask = parent_t::max_val<<_first_bit;
-        return (this->get_data()&channel_mask) >> _first_bit; 
+        return ( static_cast< integer_t >( this->get_data()&channel_mask ) >> _first_bit );
     }
     void set_unsafe(integer_t value) const { 
         const BitField channel_mask = parent_t::max_val<<_first_bit;

@@ -93,7 +93,7 @@ public:
         this->detail_common_oarchive::save_override(t, 0);
     }
 
-   // special treatment for name-value pairs.
+    // special treatment for name-value pairs.
     typedef detail::common_oarchive<Archive> detail_common_oarchive;
     template<class T>
     void save_override(

@@ -54,13 +54,13 @@ struct planar_pixel_reference;
 template <typename ChannelPtr, typename ColorSpace>
 struct planar_pixel_iterator : public iterator_facade<planar_pixel_iterator<ChannelPtr,ColorSpace>,
                                                       pixel<typename std::iterator_traits<ChannelPtr>::value_type,layout<ColorSpace> >,
-                                                      random_access_traversal_tag,
+                                                      std::random_access_iterator_tag,
                                                       const planar_pixel_reference<typename std::iterator_traits<ChannelPtr>::reference,ColorSpace> >,
                                public detail::homogeneous_color_base<ChannelPtr,layout<ColorSpace>,mpl::size<ColorSpace>::value > {
 private:
     typedef iterator_facade<planar_pixel_iterator<ChannelPtr,ColorSpace>,
                             pixel<typename std::iterator_traits<ChannelPtr>::value_type,layout<ColorSpace> >,
-                            random_access_traversal_tag,
+                            std::random_access_iterator_tag,
                             const planar_pixel_reference<typename std::iterator_traits<ChannelPtr>::reference,ColorSpace> > parent_t;
     typedef detail::homogeneous_color_base<ChannelPtr,layout<ColorSpace>,mpl::size<ColorSpace>::value> color_base_parent_t;
     typedef typename std::iterator_traits<ChannelPtr>::value_type channel_t;
@@ -184,7 +184,7 @@ inline std::ptrdiff_t memunit_step(const planar_pixel_iterator<IC,C>&) { return 
 
 template <typename IC, typename C>
 inline std::ptrdiff_t memunit_distance(const planar_pixel_iterator<IC,C>& p1, const planar_pixel_iterator<IC,C>& p2) { 
-    return memunit_distance(at_c<0>(p1),at_c<0>(p2)); 
+    return memunit_distance(gil::at_c<0>(p1),gil::at_c<0>(p2)); 
 }
 
 template <typename IC>

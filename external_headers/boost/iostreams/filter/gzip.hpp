@@ -247,27 +247,23 @@ public:
     template<typename Sink>
     void close(Sink& snk, BOOST_IOS::openmode m)
     {
-        if (m == BOOST_IOS::out) {
-            try {
+        try {
+            // Close zlib compressor.
+            base_type::close(snk, m);
 
-                // Close zlib compressor.
-                base_type::close(snk, BOOST_IOS::out);
-
+            if (m == BOOST_IOS::out) {
                 if (flags_ & f_header_done) {
 
                     // Write final fields of gzip file format.
                     write_long(this->crc(), snk);
                     write_long(this->total_in(), snk);
                 }
-
-            } catch (...) {
-                close_impl();
-                throw;
             }
+        } catch(...) {
             close_impl();
-        } else {
-            close_impl();
+            throw;
         }
+        close_impl();
     }
 private:
     static gzip_params normalize_params(gzip_params p);
@@ -275,12 +271,23 @@ private:
     std::streamsize read_string(char* s, std::streamsize n, std::string& str);
 
     template<typename Sink>
-    static void write_long(long n, Sink& next)
+    static void write_long(long n, Sink& next, boost::mpl::true_)
     {
         boost::iostreams::put(next, static_cast<char>(0xFF & n));
         boost::iostreams::put(next, static_cast<char>(0xFF & (n >> 8)));
         boost::iostreams::put(next, static_cast<char>(0xFF & (n >> 16)));
         boost::iostreams::put(next, static_cast<char>(0xFF & (n >> 24)));
+    }
+    template<typename Sink>
+    static void write_long(long n, Sink& next, boost::mpl::false_)
+    {
+    }
+    template<typename Sink>
+    static void write_long(long n, Sink& next)
+    {
+        typedef typename category_of<Sink>::type category;
+        typedef is_convertible<category, output> can_write;
+        write_long(n, next, can_write());
     }
 
     void close_impl()
@@ -398,11 +405,57 @@ private:
 public:
     typedef char char_type;
     struct category
-        : multichar_input_filter_tag,
+        : dual_use,
+          filter_tag,
+          multichar_tag,
           closable_tag
         { };
     basic_gzip_decompressor( int window_bits = gzip::default_window_bits,
                              int buffer_size = default_device_buffer_size );
+
+    template<typename Sink>
+    std::streamsize write(Sink& snk, const char_type* s, std::streamsize n)
+    {
+        std::streamsize result = 0;
+        while(result < n) {
+            if(state_ == s_start) {
+                state_ = s_header;
+                header_.reset();
+                footer_.reset();
+            }
+            if (state_ == s_header) {
+                int c = s[result++];
+                header_.process(c);
+                if (header_.done())
+                    state_ = s_body;
+            } else if (state_ == s_body) {
+                try {
+                    std::streamsize amt = 
+                        base_type::write(snk, s + result, n - result);
+                    result += amt;
+                    if (!this->eof()) {
+                        break;
+                    } else {
+                        state_ = s_footer;
+                    }
+                } catch (const zlib_error& e) {
+                    boost::throw_exception(gzip_error(e));
+                }
+            } else { // state_ == s_footer
+                if (footer_.done()) {
+                    if (footer_.crc() != this->crc())
+                        boost::throw_exception(gzip_error(gzip::bad_crc));
+
+                    base_type::close(snk, BOOST_IOS::out);
+                    state_ = s_start;
+                } else {
+                    int c = s[result++];
+                    footer_.process(c);
+                }
+            }
+        }
+        return result;
+    }
 
     template<typename Source>
     std::streamsize read(Source& src, char_type* s, std::streamsize n)
@@ -476,15 +529,27 @@ public:
     }
 
     template<typename Source>
-    void close(Source& src)
+    void close(Source& src, BOOST_IOS::openmode m)
     {
         try {
-            base_type::close(src, BOOST_IOS::in);
+            base_type::close(src, m);
         } catch (const zlib_error& e) {
             state_ = s_start;
-            header_.reset();
-            footer_.reset();
             boost::throw_exception(gzip_error(e));
+        }
+        if (m == BOOST_IOS::out) {
+            if (state_ == s_start || state_ == s_header)
+                boost::throw_exception(gzip_error(gzip::bad_header));
+            else if (state_ == s_body)
+                boost::throw_exception(gzip_error(gzip::bad_footer));
+            else if (state_ == s_footer) {
+                if (!footer_.done())
+                    boost::throw_exception(gzip_error(gzip::bad_footer));
+                else if(footer_.crc() != this->crc())
+                    boost::throw_exception(gzip_error(gzip::bad_crc));
+            } else {
+                assert(!"Bad state");
+            }
         }
         state_ = s_start;
     }

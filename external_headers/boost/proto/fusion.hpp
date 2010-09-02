@@ -728,6 +728,12 @@ namespace boost { namespace mpl
     {
         typedef fusion::fusion_sequence_tag type;
     };
+
+    template<typename Tag, typename Args, long Arity>
+    struct sequence_tag< proto::basic_expr<Tag, Args, Arity> >
+    {
+        typedef fusion::fusion_sequence_tag type;
+    };
 }} 
 
 #if BOOST_MSVC

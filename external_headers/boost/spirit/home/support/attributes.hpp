@@ -38,6 +38,7 @@
 #include <boost/mpl/deref.hpp>
 #include <boost/mpl/distance.hpp>
 #include <boost/mpl/or.hpp>
+#include <boost/mpl/has_xxx.hpp>
 #include <boost/proto/proto_fwd.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/variant.hpp>
@@ -49,7 +50,7 @@
 namespace boost { namespace spirit { namespace traits
 {
     ///////////////////////////////////////////////////////////////////////////
-    // This file deals with attribute related functions and metafunctions
+    // This file deals with attribute related functions and meta-functions
     // including generalized attribute transformation utilities for Spirit
     // components.
     ///////////////////////////////////////////////////////////////////////////
@@ -67,19 +68,19 @@ namespace boost { namespace spirit { namespace traits
         >::type>
       : mpl::true_ {};
 
-    template <typename T>
+    template <typename T, typename Domain>
     struct not_is_variant
       : mpl::true_
     {};
 
-    template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-    struct not_is_variant<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+    template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Domain>
+    struct not_is_variant<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Domain>
       : mpl::false_
     {};
 
-    template <typename T>
-    struct not_is_variant<boost::optional<T> >
-      : not_is_variant<T>
+    template <typename T, typename Domain>
+    struct not_is_variant<boost::optional<T>, Domain>
+      : not_is_variant<T, Domain>
     {};
 
     // we treat every type as if it where the variant (as this meta function is
@@ -100,7 +101,8 @@ namespace boost { namespace spirit { namespace traits
     namespace detail
     {
         //  A component is compatible to a given Attribute type if the
-        //  Attribute is the same as the expected type of the component
+        //  Attribute is the same as the expected type of the component or if 
+        //  it is convertible to the expected type.
         template <typename Expected, typename Attribute>
         struct attribute_is_compatible
           : is_convertible<Attribute, Expected>
@@ -117,7 +119,8 @@ namespace boost { namespace spirit { namespace traits
         {};
     }
 
-    template <typename Expected, typename Attribute, typename IsNotVariant = mpl::false_>
+    template <typename Attribute, typename Expected
+      , typename IsNotVariant = mpl::false_, typename Enable = void>
     struct compute_compatible_component_variant
       : mpl::or_<
             traits::detail::attribute_is_compatible<Expected, Attribute>
@@ -128,8 +131,14 @@ namespace boost { namespace spirit { namespace traits
               , mpl::false_> >
     {};
 
-    template <typename Expected, typename Variant>
-    struct compute_compatible_component_variant<Expected, Variant, mpl::false_>
+    namespace detail
+    {
+        BOOST_MPL_HAS_XXX_TRAIT_DEF(types)
+    }
+
+    template <typename Variant, typename Expected>
+    struct compute_compatible_component_variant<Variant, Expected, mpl::false_
+      , typename enable_if<detail::has_types<Variant> >::type>
     {
         typedef typename traits::variant_type<Variant>::type variant_type;
         typedef typename variant_type::types types;
@@ -151,33 +160,56 @@ namespace boost { namespace spirit { namespace traits
         typedef typename
             mpl::eval_if<type, mpl::deref<iter>, mpl::identity<unused_type> >::type
         compatible_type;
+
+        // return whether the given type is compatible with the Expected type 
+        static bool is_compatible(int which)
+        {
+            return which == distance::value;
+        }
     };
 
-    template <typename Expected, typename Attribute>
+    template <typename Expected, typename Attribute, typename Domain>
     struct compute_compatible_component
-      : compute_compatible_component_variant<Expected, Attribute
-          , typename spirit::traits::not_is_variant<Attribute>::type> {};
+      : compute_compatible_component_variant<Attribute, Expected
+          , typename spirit::traits::not_is_variant<Attribute, Domain>::type> {};
 
-    template <typename Expected>
-    struct compute_compatible_component<Expected, unused_type>
+    template <typename Expected, typename Domain>
+    struct compute_compatible_component<Expected, unused_type, Domain>
       : mpl::false_ {};
 
-    template <typename Attribute>
-    struct compute_compatible_component<unused_type, Attribute>
+    template <typename Attribute, typename Domain>
+    struct compute_compatible_component<unused_type, Attribute, Domain>
       : mpl::false_ {};
 
-    template <>
-    struct compute_compatible_component<unused_type, unused_type>
+    template <typename Domain>
+    struct compute_compatible_component<unused_type, unused_type, Domain>
       : mpl::false_ {};
 
     ///////////////////////////////////////////////////////////////////////////
+    // return the type currently stored in the given variant
+    template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+    struct variant_which<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+    {
+        static int call(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& v)
+        {
+            return v.which();
+        }
+    };
+
     template <typename T>
+    int which(T const& v)
+    {
+        return variant_which<T>::call(v);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename T, typename Domain>
     struct not_is_optional
       : mpl::true_
     {};
 
-    template <typename T>
-    struct not_is_optional<boost::optional<T> >
+    template <typename T, typename Domain>
+    struct not_is_optional<boost::optional<T>, Domain>
       : mpl::false_
     {};
 
@@ -197,7 +229,7 @@ namespace boost { namespace spirit { namespace traits
     ///////////////////////////////////////////////////////////////////////////
     // attribute_not_unused
     //
-    // An mpl metafunction class that determines whether a component's
+    // An mpl meta-function class that determines whether a component's
     // attribute is not unused.
     ///////////////////////////////////////////////////////////////////////////
     template <typename Context, typename Iterator = unused_type>
@@ -497,192 +529,30 @@ namespace boost { namespace spirit { namespace traits
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    // transform_attribute
+    //  transform_attribute
     //
-    // Sometimes the user needs to transform the attribute types for certain
-    // attributes. This template can be used as a customization point, where
-    // the user is able specify specific transformation rules for any attribute
-    // type.
+    //  Sometimes the user needs to transform the attribute types for certain
+    //  attributes. This template can be used as a customization point, where
+    //  the user is able specify specific transformation rules for any attribute
+    //  type.
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Exposed, typename Transformed>
-    struct default_transform_attribute
-    {
-        typedef Transformed type;
-
-        static Transformed pre(Exposed& val) { return Transformed(); }
-
-        static void post(Exposed& val, Transformed const& attr)
-        {
-            assign_to(attr, val);
-        }
-
-        // fail() will be called by Qi rule's if the rhs failed parsing
-        static void fail(Exposed&) {}
-    };
-
-    // handle case where no transformation is required as the types are the same
-    template <typename Attribute>
-    struct default_transform_attribute<Attribute, Attribute>
-    {
-        typedef Attribute& type;
-        static Attribute& pre(Attribute& val) { return val; }
-        static void post(Attribute&, Attribute const&) {}
-        static void fail(Attribute&) {}
-    };
-
-    template <typename Exposed, typename Transformed>
-    struct proxy_transform_attribute
-    {
-        typedef Transformed type;
-
-        static Transformed pre(Exposed& val) { return Transformed(val); }
-        static void post(Exposed& val, Transformed const& attr) { /* no-op */ }
-
-        // fail() will be called by Qi rule's if the rhs failed parsing
-        static void fail(Exposed&) {}
-    };
-
-    // handle case where no transformation is required as the types are the same
-    template <typename Attribute>
-    struct proxy_transform_attribute<Attribute, Attribute>
-    {
-        typedef Attribute& type;
-        static Attribute& pre(Attribute& val) { return val; }
-        static void post(Attribute&, Attribute const&) {}
-        static void fail(Attribute&) {}
-    };
-
-    template <typename Exposed, typename Transformed, typename Enable/* = void*/>
-    struct transform_attribute
-      : default_transform_attribute<Exposed, Transformed> {};
-
-    template <typename Exposed, typename Transformed>
-    struct transform_attribute<Exposed, Transformed,
-        typename enable_if<
-                    mpl::and_<
-                        mpl::not_<is_const<Exposed> >,
-                        mpl::not_<is_reference<Exposed> >,
-                        is_proxy<Transformed>
-                    >
-                  >::type>
-            : proxy_transform_attribute<Exposed, Transformed> {};
-
-    template <typename Exposed, typename Transformed>
-    struct transform_attribute<Exposed const, Transformed>
-    {
-        typedef Transformed type;
-        static Transformed pre(Exposed const& val) { return Transformed(val); }
-        // Karma only, no post() and no fail() required
-    };
-
-    template <typename Exposed, typename Transformed>
-    struct transform_attribute<optional<Exposed>, Transformed,
-        typename disable_if<is_same<optional<Exposed>, Transformed> >::type>
-    {
-        typedef Transformed& type;
-        static Transformed& pre(optional<Exposed>& val)
-        {
-            if (!val)
-                val = Transformed();
-            return boost::get<Transformed>(val);
-        }
-        static void post(optional<Exposed>&, Transformed const&) {}
-        static void fail(optional<Exposed>& val)
-        {
-             val = none_t();    // leave optional uninitialized if rhs failed
-        }
-    };
-
-    template <typename Attribute>
-    struct transform_attribute<Attribute const, Attribute>
-    {
-        typedef Attribute const& type;
-        static Attribute const& pre(Attribute const& val) { return val; }
-        // Karma only, no post() and no fail() required
-    };
-
-    // reference types need special handling
-    template <typename Exposed, typename Transformed>
-    struct transform_attribute<Exposed&, Transformed>
-      : transform_attribute<Exposed, Transformed>
-    {};
-
-    template <typename Attribute>
-    struct transform_attribute<Attribute&, Attribute>
-    {
-        typedef Attribute& type;
-        static Attribute& pre(Attribute& val) { return val; }
-        static void post(Attribute&, Attribute const&) {}
-        static void fail(Attribute&) {}
-    };
-
-    template <typename Attribute>
-    struct transform_attribute<Attribute const&, Attribute>
-      : transform_attribute<Attribute const, Attribute>
-    {};
-
-    // unused_type needs some special handling as well
-    template <>
-    struct transform_attribute<unused_type, unused_type>
-    {
-        typedef unused_type type;
-        static unused_type pre(unused_type) { return unused; }
-        static void post(unused_type, unused_type) {}
-        static void fail(unused_type) {}
-    };
-
-    template <>
-    struct transform_attribute<unused_type const, unused_type>
-      : transform_attribute<unused_type, unused_type>
-    {};
-
-    template <typename Attribute>
-    struct transform_attribute<unused_type, Attribute>
-      : transform_attribute<unused_type, unused_type>
-    {};
-
-    template <typename Attribute>
-    struct transform_attribute<unused_type const, Attribute>
-      : transform_attribute<unused_type, unused_type>
-    {};
-
-    template <typename Attribute>
-    struct transform_attribute<Attribute, unused_type>
-      : transform_attribute<unused_type, unused_type>
-    {};
-
-    template <typename Attribute>
-    struct transform_attribute<Attribute const, unused_type>
-      : transform_attribute<unused_type, unused_type>
-    {};
+    template <typename Exposed, typename Transformed, typename Domain
+      , typename Enable/* = void*/>
+    struct transform_attribute;
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Transformed, typename Exposed>
-    typename spirit::result_of::pre_transform<Exposed, Transformed>::type
+    template <typename Domain, typename Transformed, typename Exposed>
+    typename spirit::result_of::pre_transform<Exposed, Transformed, Domain>::type
     pre_transform(Exposed& attr BOOST_PROTO_DISABLE_IF_IS_CONST(Exposed))
     {
-        return transform_attribute<Exposed, Transformed>::pre(attr);
+        return transform_attribute<Exposed, Transformed, Domain>::pre(attr);
     }
 
-    template <typename Transformed, typename Exposed>
-    typename spirit::result_of::pre_transform<Exposed const, Transformed>::type
+    template <typename Domain, typename Transformed, typename Exposed>
+    typename spirit::result_of::pre_transform<Exposed const, Transformed, Domain>::type
     pre_transform(Exposed const& attr)
     {
-        return transform_attribute<Exposed const, Transformed>::pre(attr);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Exposed, typename Transformed>
-    void post_transform(Exposed& dest, Transformed const& attr)
-    {
-        return transform_attribute<Exposed, Transformed>::post(dest, attr);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Exposed, typename Transformed>
-    void fail_transform(Exposed& dest, Transformed const&)
-    {
-        return transform_attribute<Exposed, Transformed>::fail(dest);
+        return transform_attribute<Exposed const, Transformed, Domain>::pre(attr);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -918,36 +788,9 @@ namespace boost { namespace spirit { namespace traits
     {
     }
 
-    template <typename Out, typename T>
-    void print_attribute(Out& out, T const& val);
-
+    ///////////////////////////////////////////////////////////////////////////
     namespace detail
     {
-        // for stl container data types
-        template <typename Out, typename T>
-        void print_attribute_impl(Out& out, T const& val, mpl::true_)
-        {
-            out << '[';
-            if (!val.empty())
-            {
-                for (typename T::const_iterator i = val.begin(); i != val.end(); ++i)
-                {
-                    if (i != val.begin())
-                        out << ", ";
-                    print_attribute(out, *i);
-                }
-
-            }
-            out << ']';
-        }
-
-        // for non-fusion data types
-        template <typename Out, typename T>
-        void print_attribute_impl2(Out& out, T const& val, mpl::false_)
-        {
-            out << val;
-        }
-
         template <typename Out>
         struct print_fusion_sequence
         {
@@ -970,36 +813,180 @@ namespace boost { namespace spirit { namespace traits
             mutable bool is_first;
         };
 
+        // print elements in a variant
+        template <typename Out>
+        struct print_visitor : static_visitor<>
+        {
+            print_visitor(Out& out) : out(out) {}
+
+            template <typename T>
+            void operator()(T const& val) const
+            {
+                print_attribute(out, val);
+            }
+
+            Out& out;
+        };
+    }
+
+    template <typename Out, typename T, typename Enable>
+    struct print_attribute_debug
+    {
+        // for plain data types
+        template <typename T_>
+        static void call_impl3(Out& out, T_ const& val, mpl::false_)
+        {
+            out << val;
+        }
+
         // for fusion data types
-        template <typename Out, typename T>
-        void print_attribute_impl2(Out& out, T const& val, mpl::true_)
+        template <typename T_>
+        static void call_impl3(Out& out, T_ const& val, mpl::true_)
         {
             out << '[';
-            fusion::for_each(val, print_fusion_sequence<Out>(out));
+            fusion::for_each(val, detail::print_fusion_sequence<Out>(out));
             out << ']';
         }
 
-        // for non-stl container data types
-        template <typename Out, typename T>
-        void print_attribute_impl(Out& out, T const& val, mpl::false_)
+        // non-stl container
+        template <typename T_>
+        static void call_impl2(Out& out, T_ const& val, mpl::false_)
         {
-            print_attribute_impl2(out, val, fusion::traits::is_sequence<T>());
+            call_impl3(out, val, fusion::traits::is_sequence<T_>());
         }
-    }
 
+        // stl container
+        template <typename T_>
+        static void call_impl2(Out& out, T_ const& val, mpl::true_)
+        {
+            out << '[';
+            if (!traits::is_empty(val))
+            {
+                bool first = true;
+                typename container_iterator<T_ const>::type iend = traits::end(val);
+                for (typename container_iterator<T_ const>::type i = traits::begin(val); 
+                     !traits::compare(i, iend); traits::next(i))
+                {
+                    if (!first)
+                        out << ", ";
+                    first = false;
+                    print_attribute(out, traits::deref(i));
+                }
+            }
+            out << ']';
+        }
+
+        // for variant types
+        template <typename T_>
+        static void call_impl(Out& out, T_ const& val, mpl::false_)
+        {
+            apply_visitor(detail::print_visitor<Out>(out), val);
+        }
+
+        // for non-variant types
+        template <typename T_>
+        static void call_impl(Out& out, T_ const& val, mpl::true_)
+        {
+            call_impl2(out, val, is_container<T_>());
+        }
+
+        // main entry point
+        static void call(Out& out, T const& val)
+        {
+            call_impl(out, val, not_is_variant<T>());
+        }
+    };
+
+    template <typename Out, typename T>
+    struct print_attribute_debug<Out, boost::optional<T> >
+    {
+        static void call(Out& out, T const& val)
+        {
+            if (val)
+                print_attribute(out, *val);
+            else
+                out << "<empty>";
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Out, typename T>
     inline void print_attribute(Out& out, T const& val)
     {
-        detail::print_attribute_impl(out, val, is_container<T>());
+        print_attribute_debug<Out, T>::call(out, val);
+    }
+
+    template <typename Out>
+    inline void print_attribute(Out& out, unused_type)
+    {
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // generate debug output for lookahead token (character) stream
+    namespace detail
+    {
+        struct token_printer_debug_for_chars
+        {
+            template<typename Out, typename Char>
+            static void print(Out& o, Char c)
+            {
+                using namespace std;    // allow for ADL to find the proper iscntrl
+
+                if (c == static_cast<Char>('\a'))
+                    o << "\\a";
+                else if (c == static_cast<Char>('\b'))
+                    o << "\\b";
+                else if (c == static_cast<Char>('\f'))
+                    o << "\\f";
+                else if (c == static_cast<Char>('\n'))
+                    o << "\\n";
+                else if (c == static_cast<Char>('\r'))
+                    o << "\\r";
+                else if (c == static_cast<Char>('\t'))
+                    o << "\\t";
+                else if (c == static_cast<Char>('\v'))
+                    o << "\\v";
+                else if (c < 127 && iscntrl(c))
+                    o << "\\" << std::oct << static_cast<int>(c);
+                else
+                    o << static_cast<char>(c);
+            }
+        };
+
+        // for token types where the comparison with char constants wouldn't work
+        struct token_printer_debug
+        {
+            template<typename Out, typename T>
+            static void print(Out& o, T const& val)
+            {
+                o << val;
+            }
+        };
+    }
+
+    template <typename T, typename Enable>
+    struct token_printer_debug
+      : mpl::if_<
+            mpl::and_<
+                is_convertible<T, char>, is_convertible<char, T> >
+          , detail::token_printer_debug_for_chars
+          , detail::token_printer_debug>::type
+    {};
+
+    template <typename Out, typename T>
+    inline void print_token(Out& out, T const& val)
+    {
+        // allow to customize the token printer routine
+        token_printer_debug<T>::print(out, val);
     }
 }}}
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace result_of
 {
-    template <typename Exposed, typename Transformed>
+    template <typename Exposed, typename Transformed, typename Domain>
     struct pre_transform
-      : traits::transform_attribute<Exposed, Transformed>
+      : traits::transform_attribute<Exposed, Transformed, Domain>
     {};
 }}}
 

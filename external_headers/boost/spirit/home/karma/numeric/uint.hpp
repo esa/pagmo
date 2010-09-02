@@ -12,6 +12,8 @@
 
 #include <limits>
 #include <boost/config.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/not.hpp>
 
 #include <boost/spirit/home/support/common_terminals.hpp>
 #include <boost/spirit/home/support/string_traits.hpp>
@@ -236,7 +238,10 @@ namespace boost { namespace spirit { namespace karma
             Radix == 2 || Radix == 8 || Radix == 10 || Radix == 16,
             not_supported_radix, ());
 
-        BOOST_SPIRIT_ASSERT_MSG(!std::numeric_limits<T>::is_signed,
+        BOOST_SPIRIT_ASSERT_MSG( 
+            // the following is a workaround for STLPort, where the simpler
+            // `!std::numeric_limits<T>::is_signed` wouldn't compile
+            mpl::not_<mpl::bool_<std::numeric_limits<T>::is_signed> >::value,
             signed_unsigned_mismatch, ());
 
         // int has a Attribute attached
@@ -250,7 +255,7 @@ namespace boost { namespace spirit { namespace karma
                 return false;       // fail if it's an uninitialized optional
 
             return uint_inserter<Radix, CharEncoding, Tag>::
-                        call(sink, traits::extract_from(attr, context)) &&
+                        call(sink, traits::extract_from<T>(attr, context)) &&
                    delimit_out(sink, d);      // always do post-delimiting
         }
 
@@ -286,7 +291,7 @@ namespace boost { namespace spirit { namespace karma
       : primitive_generator<literal_uint_generator<T, CharEncoding, Tag, Radix
           , no_attribute> >
     {
-        template <typename Context, typename Unused>
+        template <typename Context, typename Unused = unused_type>
         struct attribute
           : mpl::if_c<no_attribute, unused_type, T>
         {};
@@ -299,7 +304,10 @@ namespace boost { namespace spirit { namespace karma
             Radix == 2 || Radix == 8 || Radix == 10 || Radix == 16,
             not_supported_radix, ());
 
-        BOOST_SPIRIT_ASSERT_MSG(!std::numeric_limits<T>::is_signed,
+        BOOST_SPIRIT_ASSERT_MSG(
+            // the following is a workaround for STLPort, where the simpler
+            // `!std::numeric_limits<T>::is_signed wouldn't` compile
+            mpl::not_<mpl::bool_<std::numeric_limits<T>::is_signed> >::value,
             signed_unsigned_mismatch, ());
 
         // A uint(1U) which additionally has an associated attribute emits
@@ -310,8 +318,9 @@ namespace boost { namespace spirit { namespace karma
         bool generate(OutputIterator& sink, Context& context
           , Delimiter const& d, Attribute const& attr) const
         {
+            typedef typename attribute<Context>::type attribute_type;
             if (!traits::has_optional_value(attr) || 
-                n_ != traits::extract_from(attr, context))
+                n_ != traits::extract_from<attribute_type>(attr, context))
             {
                 return false;
             }

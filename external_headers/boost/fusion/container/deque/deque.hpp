@@ -68,7 +68,7 @@ namespace boost { namespace fusion {
             {}
 
         template<typename Sequence>
-            deque(Sequence const& seq, typename disable_if<is_convertible<Sequence, T0> >::type* dummy = 0)
+            deque(Sequence const& seq, typename disable_if<is_convertible<Sequence, T0> >::type* /*dummy*/ = 0)
             : base(base::from_iterator(fusion::begin(seq)))
             {}
 

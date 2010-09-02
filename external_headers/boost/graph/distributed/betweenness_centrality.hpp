@@ -1701,7 +1701,7 @@ central_point_dominance(const Graph& g, CentralityMap centrality
   // Find max centrality
   centrality_type max_centrality(0);
   vertex_iterator v, v_end;
-  for (tie(v, v_end) = vertices(g); v != v_end; ++v) {
+  for (boost::tie(v, v_end) = vertices(g); v != v_end; ++v) {
     max_centrality = (max)(max_centrality, get(centrality, *v));
   }
 
@@ -1710,7 +1710,7 @@ central_point_dominance(const Graph& g, CentralityMap centrality
 
   // Compute central point dominance
   centrality_type sum(0);
-  for (tie(v, v_end) = vertices(g); v != v_end; ++v) {
+  for (boost::tie(v, v_end) = vertices(g); v != v_end; ++v) {
     sum += (max_centrality - get(centrality, *v));
   }
 

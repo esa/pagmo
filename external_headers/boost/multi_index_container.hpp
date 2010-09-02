@@ -1124,7 +1124,7 @@ struct version<
   boost::multi_index_container<Value,IndexSpecifierList,Allocator>
 >
 {
-  BOOST_STATIC_CONSTANT(unsigned int,value=2);
+  BOOST_STATIC_CONSTANT(int,value=2);
 };
 } /* namespace serialization */
 #endif

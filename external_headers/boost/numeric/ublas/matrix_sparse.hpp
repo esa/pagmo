@@ -246,8 +246,24 @@ namespace boost { namespace numeric { namespace ublas {
 
 #endif
 
-
-    // Index map based sparse matrix class
+   /** \brief Index map based sparse matrix of values of type \c T
+    *
+    * This class represents a matrix by using a \c key to value mapping. The default type is
+    * \code template<class T, class L = row_major, class A =  map_std<std::size_t, T> > class mapped_matrix; \endcode
+    * So, by default a STL map container is used to associate keys and values. The key is computed depending on 
+    * the layout type \c L as \code key = layout_type::element(i, size1_, j, size2_); \endcode
+    * which means \code key = (i*size2+j) \endcode for a row major matrix.
+    * Limitations: The matrix size must not exceed \f$(size1*size2) < \f$ \code std::limits<std::size_t> \endcode. 
+    * The \ref find1() and \ref find2() operations have a complexity of at least \f$\mathcal{O}(log(nnz))\f$, depending
+    * on the efficiency of \c std::lower_bound on the key set of the map.
+    * Orientation and storage can also be specified, otherwise a row major orientation is used. 
+    * It is \b not required by the storage to initialize elements of the matrix. By default, the orientation is \c row_major. 
+    *
+    * \sa fwd.hpp, storage_sparse.hpp
+    *
+    * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+    * \tparam L the storage organization. It can be either \c row_major or \c column_major. By default it is \c row_major
+    */
     template<class T, class L, class A>
     class mapped_matrix:
         public matrix_container<mapped_matrix<T, L, A> > {

@@ -61,8 +61,8 @@ archive_exception::archive_exception(
     case array_size_too_short:
         m_msg = "array size too short";
         break;
-    case stream_error:
-        m_msg = "stream error";
+    case input_stream_error:
+        m_msg = "input stream error";
         break;
     case invalid_class_name:
         m_msg = "class name too long";
@@ -74,7 +74,8 @@ archive_exception::archive_exception(
         m_msg += (NULL != e2) ? e2 : "?";
         break;
     case unsupported_class_version:
-        m_msg = "class version";
+        m_msg = "class version ";
+        m_msg += (NULL != e1) ? e1 : "<unknown class>";
         break;
     case other_exception:
         // if get here - it indicates a derived exception 
@@ -87,6 +88,9 @@ archive_exception::archive_exception(
             m_msg += " - ";
             m_msg += e1;
         }    
+        break;
+    case output_stream_error:
+        m_msg = "output stream error";
         break;
     default:
         assert(false);

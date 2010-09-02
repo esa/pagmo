@@ -75,8 +75,8 @@ boost
             void
             release()
                 {
-                if( px_ )
-                    px_->release();
+                if( px_ && px_->release() )
+                    px_=0;
                 }
             };
         }
@@ -134,7 +134,7 @@ boost
 
     class exception;
 
-    template <class>
+    template <class T>
     class shared_ptr;
 
     namespace
@@ -150,7 +150,7 @@ boost
             virtual shared_ptr<error_info_base> get( type_info_ const & ) const = 0;
             virtual void set( shared_ptr<error_info_base> const &, type_info_ const & ) = 0;
             virtual void add_ref() const = 0;
-            virtual void release() const = 0;
+            virtual bool release() const = 0;
             virtual refcount_ptr<exception_detail::error_info_container> clone() const = 0;
 
             protected:

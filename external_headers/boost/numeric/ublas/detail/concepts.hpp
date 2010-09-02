@@ -499,7 +499,7 @@ namespace boost { namespace numeric { namespace ublas {
 
         void constraints () {
             function_requires< VectorConcept<vector_type> >();
-        	function_requires< DefaultConstructible<vector_type> >();
+            function_requires< DefaultConstructible<vector_type> >();
             function_requires< Mutable_VectorExpressionConcept<vector_type> >();
             size_type n (0);
             value_type t = value_type ();
@@ -580,7 +580,7 @@ namespace boost { namespace numeric { namespace ublas {
 
         void constraints () {
             function_requires< MatrixConcept<matrix_type> >();
-        	function_requires< DefaultConstructible<matrix_type> >();
+            function_requires< DefaultConstructible<matrix_type> >();
             function_requires< Mutable_MatrixExpressionConcept<matrix_type> >();
             size_type n (0);
             value_type t = value_type ();
@@ -905,8 +905,8 @@ namespace boost { namespace numeric { namespace ublas {
 #define INTERNAL_EXPRESSION
 #endif
 
-	// TODO enable this for development
-	// #define VIEW_CONCEPTS
+        // TODO enable this for development
+        // #define VIEW_CONCEPTS
 
         // Element value type for tests
         typedef float T;
@@ -980,7 +980,7 @@ namespace boost { namespace numeric { namespace ublas {
 #endif
 
 #ifdef VIEW_CONCEPTS
-	// read only vectors
+        // read only vectors
         {
            typedef vector_view<T> container_model;
            function_requires< RandomAccessContainerConcept<container_model> >();

@@ -15,7 +15,7 @@
 
 #include <boost/detail/iterator.hpp>
 #include <boost/spirit/home/support/unused.hpp>
-#include <boost/spirit/home/support/attributes.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
 #include <boost/spirit/home/support/char_encoding/ascii.hpp>
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -411,8 +411,10 @@ namespace boost { namespace spirit { namespace qi { namespace detail
         if (it == last)                                                         \
             break;                                                              \
         ch = *it;                                                               \
-        if (!radix_check::is_valid(ch) || !extractor::call(ch, count, val))     \
+        if (!radix_check::is_valid(ch))                                         \
             break;                                                              \
+        if (!extractor::call(ch, count, val))                                   \
+            return false;                                                       \
         ++it;                                                                   \
         ++count;                                                                \
     /**/

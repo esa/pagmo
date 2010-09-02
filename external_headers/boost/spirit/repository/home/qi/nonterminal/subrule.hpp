@@ -20,7 +20,7 @@
 #include <boost/spirit/home/qi/nonterminal/detail/parser_binder.hpp>
 #include <boost/spirit/home/support/argument.hpp>
 #include <boost/spirit/home/support/assert_msg.hpp>
-#include <boost/spirit/home/support/attributes.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
 #include <boost/spirit/home/support/info.hpp>
 #include <boost/spirit/home/support/unused.hpp>
 #include <boost/spirit/home/support/nonterminal/extract_param.hpp>
@@ -202,7 +202,8 @@ namespace boost { namespace spirit { namespace repository { namespace qi
             // do down-stream transformation, provides attribute for 
             // rhs parser
             typedef traits::transform_attribute<
-                typename make_attribute::type, subrule_attr_type> transform;
+                typename make_attribute::type, subrule_attr_type, domain> 
+            transform;
 
             typename make_attribute::type made_attr = make_attribute::call(attr);
             typename transform::type attr_ = transform::pre(made_attr);
@@ -255,7 +256,8 @@ namespace boost { namespace spirit { namespace repository { namespace qi
             // do down-stream transformation, provides attribute for 
             // rhs parser
             typedef traits::transform_attribute<
-                typename make_attribute::type, subrule_attr_type> transform;
+                typename make_attribute::type, subrule_attr_type, domain> 
+            transform;
 
             typename make_attribute::type made_attr = make_attribute::call(attr);
             typename transform::type attr_ = transform::pre(made_attr);

@@ -70,7 +70,7 @@ basic_text_iprimitive<IStream>::load_binary(
         
     if(is.fail())
         boost::serialization::throw_exception(
-            archive_exception(archive_exception::stream_error)
+            archive_exception(archive_exception::input_stream_error)
         );
     // convert from base64 to binary
     typedef BOOST_DEDUCED_TYPENAME
