@@ -37,26 +37,11 @@
 #include "serialization.h"
 #include "types.h"
 
-// Forward declarations.
-namespace pagmo {
-
-class population;
-class base_island;
-
-}
-
-namespace boost { namespace serialization {
-
-template <class Archive>
-void save_construct_data(Archive &, const pagmo::population *, const unsigned int);
-
-template <class Archive>
-inline void load_construct_data(Archive &, pagmo::population *, const unsigned int);
-
-}}
-
 namespace pagmo
 {
+
+// Forward declaration for friendship.
+class base_island;
 
 /// Population class.
 /**
@@ -197,10 +182,6 @@ class __PAGMO_VISIBLE population
 		};
 	private:
 		friend class boost::serialization::access;
-		template <class Archive>
-		friend void boost::serialization::save_construct_data(Archive &, const population *, const unsigned int);
-		template <class Archive>
-		friend void boost::serialization::load_construct_data(Archive &, population *, const unsigned int);
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
