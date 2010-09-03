@@ -25,14 +25,6 @@
 #ifndef PAGMO_MPI_ISLAND_H
 #define PAGMO_MPI_ISLAND_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/vector.hpp>
-
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
@@ -48,6 +40,7 @@
 #include "migration/fair_r_policy.h"
 #include "population.h"
 #include "problem/base.h"
+#include "serialization.h"
 
 namespace pagmo
 {
@@ -99,6 +92,8 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 		static boost::mutex				m_mutex;
 		static boost::scoped_ptr<std::set<int> >	m_available_processors;
 };
+
+// TODO: serialization stuff.
 
 }
 

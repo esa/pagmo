@@ -35,6 +35,10 @@
 #include "population.h"
 #include "mpi_environment.h"
 
+#include <sstream>
+#include <string>
+#include "serialization.h"
+
 namespace pagmo
 {
 
@@ -81,12 +85,20 @@ std::cout << "received shutdown signal " << world.rank() << '\n';
 		}
 		// Query and catch, if any, the payload to be evolved.
 		if (world.iprobe(0,0)) {
+			std::string payload;
 std::cout << "slave receiving " << world.rank() << '\n';
-			world.recv(0,0,tmp);
+			world.recv(0,0,payload);
+			std::stringstream ss1(payload);
+			boost::archive::text_iarchive ia(ss1);
+			ia >> tmp;
 std::cout << "slave received " << world.rank() << '\n';
 			tmp.second->evolve(*tmp.first);
 std::cout << "slave sending " << world.rank() << '\n';
-			world.send(0,0,tmp);
+			std::stringstream ss2;
+			boost::archive::text_oarchive oa(ss2);
+			oa << tmp;
+			payload = ss2.str();
+			world.send(0,0,payload);
 std::cout << "slave sent " << world.rank() << '\n';
 		}
 		// Sleep a bit if there is nothing to do.

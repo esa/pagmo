@@ -41,6 +41,12 @@
 #include "population.h"
 #include "problem/base.h"
 
+
+
+#include <sstream>
+
+#include "serialization.h"
+
 namespace pagmo
 {
 
@@ -101,20 +107,25 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 	boost::scoped_ptr<boost::mpi::communicator> world(0);
 	int processor;
 	{
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << tmp;
+		std::string payload(ss.str());
 		lock_type lock(m_mutex);
 		world.reset(new boost::mpi::communicator());
 		processor = acquire_processor();
 std::cout << "master sending " << processor << '\n';
-		world->send(processor,0,tmp);
+		world->send(processor,0,payload);
 std::cout << "master sent " << processor << "\n";
 	}
+	std::string ret_payload;
 	while (true) {
 		{
 			lock_type lock(m_mutex);
 std::cout << "master quering " << processor << '\n';
 			if (world->iprobe(processor,0)) {
 std::cout << "master receiving " << processor << '\n';
-				world->recv(processor,0,tmp);
+				world->recv(processor,0,ret_payload);
 std::cout << "master received " << processor << '\n';
 				release_processor(processor);
 				break;
@@ -122,6 +133,9 @@ std::cout << "master received " << processor << '\n';
 		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	}
+	std::stringstream ss(ret_payload);
+	boost::archive::text_iarchive ia(ss);
+	ia >> tmp;
 	pop = *tmp.first;
 }
 

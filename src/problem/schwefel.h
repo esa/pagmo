@@ -25,22 +25,15 @@
 #ifndef PAGMO_PROBLEM_SCHWEFEL_H
 #define PAGMO_PROBLEM_SCHWEFEL_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <string>
 
+#include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
-namespace boost { namespace serialization {
-
-}} // namespace ...
-
-namespace pagmo{ namespace problem {
-
-
+namespace pagmo { namespace problem {
 
 /// The Schwefel problem.
 /**
@@ -60,36 +53,25 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE schwefel : public base
 {
 	public:
-		schwefel(int);
+		schwefel(int = 1);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+std::cout << "doing\n";
+std::cout << "dimension: " << get_dimension() << '\n';
 			ar & boost::serialization::base_object<base>(*this);
+std::cout << "done\n";
 		}
 };
 
-template<class Archive>
-inline void save_construct_data( Archive & ar, const schwefel *t, const unsigned int /*file_version*/) {
-    // save data required to construct instance
-	int n;
-	n = t->get_dimension();
-    ar << n;
-}
+}}
 
-template<class Archive>
-inline void load_construct_data( Archive & ar, schwefel *t, const unsigned int /*file_version*/) {
-    // retrieve data from archive required to construct new instance
-    int n;
-    ar >> n;
-    // invoke inplace constructor to initialize instance of my_class
-    ::new(t)schwefel(n);
-}
-
-}} //namespaces
+BOOST_CLASS_EXPORT_GUID(pagmo::problem::schwefel, "pagmo_problem_schwefel");
 
 #endif // SCHWEFEL_H

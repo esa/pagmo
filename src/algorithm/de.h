@@ -25,32 +25,12 @@
 #ifndef PAGMO_ALGORITHM_DE_H
 #define PAGMO_ALGORITHM_DE_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
-
-namespace pagmo { namespace algorithm {
-
-class de;
-
-}}
-
-namespace boost { namespace serialization {
-
-template <class Archive>
-void save_construct_data(Archive &, const pagmo::algorithm::de *, const unsigned int);
-
-template <class Archive>
-inline void load_construct_data(Archive &, pagmo::algorithm::de *, const unsigned int);
-
-}}
 
 namespace pagmo { namespace algorithm {
 
@@ -81,11 +61,11 @@ namespace pagmo { namespace algorithm {
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
-		
+
 class __PAGMO_VISIBLE de: public base
 {
 public:
-	de(int, const double & = 0.8, const double & = 0.9, int = 2);
+	de(int = 1, const double & = 0.8, const double & = 0.9, int = 2);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -94,16 +74,15 @@ protected:
 private:
 	friend class boost::serialization::access;
 	template <class Archive>
-	friend void boost::serialization::save_construct_data(Archive &, const de *, const unsigned int);
-	template <class Archive>
-	friend void boost::serialization::load_construct_data(Archive &, de *, const unsigned int);
-	template<class Archive>
-	void serialize(Archive &ar, const unsigned int /*version*/){
+	void serialize(Archive &ar, const unsigned int)
+	{
+std::cout << "doing de\n";
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<double &>(m_f);
 		ar & const_cast<double &>(m_cr);
 		ar & const_cast<int &>(m_strategy);
+std::cout << "done de\n";
 	}
 	// Number of generations.
 	const int m_gen;
@@ -116,36 +95,6 @@ private:
 };
 
 }}
-
-namespace boost { namespace serialization {
-
-template <class Archive>
-inline void save_construct_data(Archive &ar, const pagmo::algorithm::de *a, const unsigned int)
-{
-	// Save data required to construct instance.
-	ar << a->m_gen;
-	ar << a->m_f;
-	ar << a->m_cr;
-	ar << a->m_strategy;
-}
-
-template <class Archive>
-inline void load_construct_data(Archive &ar, pagmo::algorithm::de *a, const unsigned int)
-{
-	// Retrieve data from archive required to construct new instance.
-	int gen;
-	double f;
-	double cr;
-	int strategy;
-	ar >> gen;
-	ar >> f;
-	ar >> cr;
-	ar >> strategy;
-	// Invoke inplace constructor to initialize instance of the algorithm.
-	::new(a)pagmo::algorithm::de(gen,f,cr,strategy);
-}
-
-}} //namespaces
 
 BOOST_CLASS_EXPORT_GUID(pagmo::algorithm::de, "pagmo_algorithm_de");
 

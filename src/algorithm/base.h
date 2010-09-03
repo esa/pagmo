@@ -25,7 +25,6 @@
 #ifndef PAGMO_ALGORITHM_BASE_H
 #define PAGMO_ALGORITHM_BASE_H
 
-
 #include <iostream>
 #include <string>
 #include <typeinfo>
@@ -33,11 +32,7 @@
 #include "../config.h"
 #include "../population.h"
 #include "../rng.h"
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
+#include "../serialization.h"
 
 namespace pagmo
 {
@@ -76,9 +71,9 @@ typedef boost::shared_ptr<base> base_ptr;
 @endverbatim
  * In order to be able to identify the dervied class from a base_pointer the derived class needs to be registered. This is done by registering the class in the "pagmo/src/algorithms.h", in the REGISTER_ALGORITHM_SERIALIZATIONS() routine.
  * Notes: 
- *			- "const" attributes need to be cast as constants in the serialize method using const_cast
- *			- attributes that that are not primitives, need be a serialized type as well
- *			- pointers to primitives cannot be serialized (in this case one can split the serialize method into save/load methods and store the values, that the pointers refer to, into temporary variables which are serialized insted - see boost serialize documentation on the topic if needed)
+ * - "const" attributes need to be cast as constants in the serialize method using const_cast
+ * - attributes that that are not primitives, need be a serialized type as well
+ * - pointers to primitives cannot be serialized (in this case one can split the serialize method into save/load methods and store the values, that the pointers refer to, into temporary variables which are serialized insted - see boost serialize documentation on the topic if needed)
  *
  * @author Francesco Biscani (bluescarni@gmail.com) 
  */
@@ -115,20 +110,21 @@ return base_ptr(new derived_algorithm(*this));
 		mutable rng_double	m_drng;
 		/// Random number generator for unsigned integer values.
 		mutable rng_uint32	m_urng;
-  	private:
-    	friend class boost::serialization::access;
-    	template<class Archive>
-    	void serialize(Archive &ar, const unsigned int /*version*/){
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & m_drng;
 			ar & m_urng; 
-    	}
+		}
 };
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(base)
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 
 }
 }
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::base);
 
 #endif

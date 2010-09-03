@@ -22,31 +22,24 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-// 26/12/08 Created by Francesco Biscani.
+#ifndef PAGMO_SERIALIZATION_H
+#define PAGMO_SERIALIZATION_H
 
-#ifndef PAGMO_ATOMIC_COUNTERS_H
-#define PAGMO_ATOMIC_COUNTERS_H
-
-#if defined ( _PAGMO_GCC_ATOMIC_BUILTINS )
-
-#include "atomic_counter_gcc_41.h"
-
-typedef atomic_counter_gcc_41<size_t> atomic_counter_size_t;
-
-#elif defined ( _PAGMO_MSVC_ATOMIC_BUILTINS )
-
-#include "atomic_counter_msvc_long.h"
-
-// TODO: here for win64 bit we probably need another counter altogether and another #ifdef, since
-// MSVC's atomic builtins operate on 32bit and 64bit with different naming conventions.
-typedef atomic_counter_msvc_long atomic_counter_size_t;
-
-#else
-
-#include "atomic_counter_generic.h"
-
-typedef atomic_counter_generic<size_t> atomic_counter_size_t;
-
-#endif
+// Headers needed for serialization purposes.
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/graph/adj_list_serialize.hpp>
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 
 #endif

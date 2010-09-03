@@ -29,63 +29,47 @@
 
 // Heuristics
 #include "algorithm/base.h"
-#include "algorithm/cs.h"
+// #include "algorithm/cs.h"
 #include "algorithm/de.h"
-#include "algorithm/ihs.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-#include "algorithm/bee_colony.h"
+// #include "algorithm/ihs.h"
+// #include "algorithm/monte_carlo.h"
+// #include "algorithm/null.h"
+// #include "algorithm/pso.h"
+// #include "algorithm/sa_corana.h"
+// #include "algorithm/sga.h"
+// #include "algorithm/bee_colony.h"
 
 // Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+// #include "algorithm/mbh.h"
+// #include "algorithm/ms.h"
 
 // SNOPT algorithm.
 #ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
+// 	#include "algorithm/snopt.h"
 #endif
 
 // IPOPT algorithm.
 #ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
+// 	#include "algorithm/ipopt.h"
 #endif
 
 // GSL algorithms.
 #ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
+// 	#include "algorithm/base_gsl.h"
+// 	#include "algorithm/gsl_bfgs.h"
+// 	#include "algorithm/gsl_bfgs2.h"
+// 	#include "algorithm/gsl_fr.h"
+// 	#include "algorithm/gsl_nm.h"
+// 	#include "algorithm/gsl_nm2.h"
+// 	#include "algorithm/gsl_nm2rand.h"
+// 	#include "algorithm/gsl_pr.h"
 #endif
 
 // NLopt algorithms.
 #ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
+// 	#include "algorithm/nlopt_bobyqa.h"
+// 	#include "algorithm/nlopt_cobyla.h"
+// 	#include "algorithm/nlopt_sbplx.h"
 #endif
-
-// routine that registers the derived types of the the algorithm class needed for casting after deserializing the base_ptr
-#if 0
-#define REGISTER_ALGORITHM_SERIALIZATIONS()				\
-ar.template register_type<algorithm::cs>();				\
-ar.template register_type<algorithm::de>();				\
-ar.template register_type<algorithm::ihs>();			\
-ar.template register_type<algorithm::monte_carlo>();	\
-ar.template register_type<algorithm::null>();			\
-ar.template register_type<algorithm::pso>();			\
-ar.template register_type<algorithm::sa_corana>();		\
-ar.template register_type<algorithm::sga>();			\
-ar.template register_type<algorithm::bee_colony>();				
-#endif
-
-#define REGISTER_ALGORITHM_SERIALIZATIONS()
 
 #endif

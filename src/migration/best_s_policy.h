@@ -25,15 +25,11 @@
 #ifndef PAGMO_MIGRATION_BEST_S_POLICY_H
 #define PAGMO_MIGRATION_BEST_S_POLICY_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <vector>
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 #include "base_s_policy.h"
 
@@ -55,12 +51,15 @@ class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 	private:
 		struct dom_comp;
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base_s_policy>(*this);
 		}
 };
 
 } }
+
+BOOST_CLASS_EXPORT_GUID(pagmo::migration::best_s_policy, "pagmo_migration_best_s_policy");
 
 #endif

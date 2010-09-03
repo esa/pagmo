@@ -25,16 +25,12 @@
 #ifndef PAGMO_MIGRATION_BASE_S_POLICY_H
 #define PAGMO_MIGRATION_BASE_S_POLICY_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/version.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <vector>
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace migration {
@@ -83,12 +79,15 @@ return base_ptr(new derived_policy(*this));
 		virtual std::vector<population::individual_type> select(const population &pop) const = 0;
 	private:	
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 		}
 };
 
 }}
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::migration::base_s_policy);
 
 #endif

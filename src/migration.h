@@ -32,14 +32,7 @@
 #include "migration/base_s_policy.h"
 #include "migration/best_s_policy.h"
 #include "migration/fair_r_policy.h"
-#include "migration/random_r_policy.h"
-#include "migration/worst_r_policy.h"
-
-#define REGISTER_MIGRATION_POLICY_SERIALIZATIONS()				\
-ar.template register_type<migration::best_s_policy>();			\
-ar.template register_type<migration::fair_r_policy>();			\
-ar.template register_type<migration::random_r_policy>();		\
-ar.template register_type<migration::worst_r_policy>();
-
+// #include "migration/random_r_policy.h"
+// #include "migration/worst_r_policy.h"
 
 #endif

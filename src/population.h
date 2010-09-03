@@ -25,14 +25,6 @@
 #ifndef PAGMO_POPULATION_H
 #define PAGMO_POPULATION_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/assume_abstract.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <iostream>
 #include <sstream>
@@ -41,15 +33,30 @@
 
 #include "config.h"
 #include "problem/base.h"
-#include "problems.h"
 #include "rng.h"
+#include "serialization.h"
 #include "types.h"
+
+// Forward declarations.
+namespace pagmo {
+
+class population;
+class base_island;
+
+}
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+void save_construct_data(Archive &, const pagmo::population *, const unsigned int);
+
+template <class Archive>
+inline void load_construct_data(Archive &, pagmo::population *, const unsigned int);
+
+}}
 
 namespace pagmo
 {
-
-// Forward declaration of island class, needed for friendship.
-class base_island;
 
 /// Population class.
 /**
@@ -73,9 +80,9 @@ class __PAGMO_VISIBLE population
 		 * keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
 		 */
 		struct individual_type {
-			friend class boost::serialization::access;
-			template<class Archive>
-			void serialize(Archive &ar, const unsigned int /*version*/){
+			template <class Archive>
+			void serialize(Archive &ar, const unsigned int)
+			{
 				ar & cur_x;
 				ar & cur_v;
 				ar & cur_c;
@@ -84,7 +91,6 @@ class __PAGMO_VISIBLE population
 				ar & best_c;
 				ar & best_f;
 			}  
-
 			/// Current decision vector.
 			decision_vector		cur_x;
 			/// Current velocity vector.
@@ -121,9 +127,9 @@ class __PAGMO_VISIBLE population
 		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
 		 */
 		struct champion_type {
-			friend class boost::serialization::access;
-			template<class Archive>
-			void serialize(Archive &ar, const unsigned int /*version*/){
+			template <class Archive>
+			void serialize(Archive &ar, const unsigned int)
+			{
 				ar & x;
 				ar & c;
 				ar & f;
@@ -174,7 +180,7 @@ class __PAGMO_VISIBLE population
 		void reinit(const size_type &);
 		void reinit();
 	private:
-		explicit population();
+		population();
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
 		void update_dom_list(const size_type &);
@@ -191,15 +197,26 @@ class __PAGMO_VISIBLE population
 		};
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
-			REGISTER_PROBLEM_SERIALIZATIONS();
-			ar & m_prob;		    
+		template <class Archive>
+		friend void boost::serialization::save_construct_data(Archive &, const population *, const unsigned int);
+		template <class Archive>
+		friend void boost::serialization::load_construct_data(Archive &, population *, const unsigned int);
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+std::cout << "2\n";
+			ar & m_prob;
+std::cout << "3\n";
 			ar & m_container;
+std::cout << "4\n";
 			ar & m_dom_list;
+std::cout << "5\n";
 			ar & m_champion;
+std::cout << "6\n";
 			ar & m_drng;
+std::cout << "7\n";
 			ar & m_urng;
+std::cout << "8\n";
 		}
 		// Data members.
 		// Problem.
@@ -221,5 +238,27 @@ __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::champion_type &);
 
 }
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+inline void save_construct_data(Archive &ar, const pagmo::population *pop, const unsigned int)
+{
+	// Save data required to construct instance.
+	pagmo::problem::base_ptr prob = pop->problem().clone();
+	ar << prob;
+}
+
+template <class Archive>
+inline void load_construct_data(Archive &ar, pagmo::population *pop, const unsigned int)
+{
+	// Retrieve data from archive required to construct new instance.
+	pagmo::problem::base_ptr prob;
+	ar >> prob;
+	// Invoke inplace constructor to initialize instance of the algorithm.
+	::new(pop)pagmo::population(*prob);
+}
+
+}} //namespaces
 
 #endif
