@@ -64,6 +64,6 @@ class __PAGMO_VISIBLE fair_r_policy: public base_r_policy
 
 }}
 
-BOOST_CLASS_EXPORT_GUID(pagmo::migration::fair_r_policy, "pagmo_migration_fair_r_policy");
+BOOST_CLASS_EXPORT(pagmo::migration::fair_r_policy);
 
 #endif

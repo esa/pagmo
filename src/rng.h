@@ -32,6 +32,8 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <sstream>
+#include <string>
 
 #include "serialization.h"
 
@@ -58,11 +60,24 @@ class rng_uint32: public boost::mt19937 {
 		rng_uint32(const result_type &n):boost::mt19937(n) {}
 		// Default generated copy ctor and assignment are fine.
 	private:
+		// Serialization exploits the fact that the state of Boost RNGs
+		// can be sent/received to/from standard streams.
 		template <class Archive>
-		void save(Archive &, const unsigned int) const
-		{}
+		void save(Archive &ar, const unsigned int) const
+		{
+			std::stringstream ss;
+			ss << *static_cast<boost::mt19937 const *>(this);
+			std::string tmp(ss.str());
+			ar << tmp;
+		}
 		template <class Archive>
-		void load(Archive &, const unsigned int);
+		void load(Archive &ar, const unsigned int)
+		{
+			std::string tmp;
+			ar >> tmp;
+			std::stringstream ss(tmp);
+			ss >> *static_cast<boost::mt19937 *>(this);
+		}
 		BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
@@ -85,11 +100,22 @@ class rng_double: public boost::lagged_fibonacci607 {
 		rng_double(const boost::uint32_t &n):boost::lagged_fibonacci607(n) {}
 		// Default generated copy ctor and assignment are fine.
 	private:
-		template<class Archive>
-		void save(Archive &, const unsigned int) const
-		{}
-		template<class Archive>
-		void load(Archive &, const unsigned int);
+		template <class Archive>
+		void save(Archive &ar, const unsigned int) const
+		{
+			std::stringstream ss;
+			ss << *static_cast<boost::lagged_fibonacci607 const *>(this);
+			std::string tmp(ss.str());
+			ar << tmp;
+		}
+		template <class Archive>
+		void load(Archive &ar, const unsigned int)
+		{
+			std::string tmp;
+			ar >> tmp;
+			std::stringstream ss(tmp);
+			ss >> *static_cast<boost::lagged_fibonacci607 *>(this);
+		}
 		BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
@@ -126,19 +152,6 @@ class rng_generator {
 		static boost::mutex	m_mutex;
 		static rng_uint32	m_seeder;
 };
-
-// These load methods will randomly initialise the generators.
-template <class Archive>
-inline void rng_uint32::load(Archive &, const unsigned int)
-{
-	*this = rng_generator::get<rng_uint32>();
-}
-
-template <class Archive>
-inline void rng_double::load(Archive &, const unsigned int)
-{
-	*this = rng_generator::get<rng_double>();
-}
 
 }
 

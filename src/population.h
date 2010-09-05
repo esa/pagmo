@@ -185,19 +185,12 @@ class __PAGMO_VISIBLE population
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-std::cout << "2\n";
 			ar & m_prob;
-std::cout << "3\n";
 			ar & m_container;
-std::cout << "4\n";
 			ar & m_dom_list;
-std::cout << "5\n";
 			ar & m_champion;
-std::cout << "6\n";
 			ar & m_drng;
-std::cout << "7\n";
 			ar & m_urng;
-std::cout << "8\n";
 		}
 		// Data members.
 		// Problem.

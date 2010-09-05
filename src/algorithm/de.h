@@ -76,13 +76,11 @@ private:
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
-std::cout << "doing de\n";
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<double &>(m_f);
 		ar & const_cast<double &>(m_cr);
 		ar & const_cast<int &>(m_strategy);
-std::cout << "done de\n";
 	}
 	// Number of generations.
 	const int m_gen;
@@ -96,6 +94,6 @@ std::cout << "done de\n";
 
 }}
 
-BOOST_CLASS_EXPORT_GUID(pagmo::algorithm::de, "pagmo_algorithm_de");
+BOOST_CLASS_EXPORT(pagmo::algorithm::de);
 
 #endif // DE_H

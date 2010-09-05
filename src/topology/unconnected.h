@@ -60,6 +60,6 @@ class __PAGMO_VISIBLE unconnected: public base
 
 } }
 
-BOOST_CLASS_EXPORT_GUID(pagmo::topology::unconnected, "pagmo_topology_unconnected");
+BOOST_CLASS_EXPORT(pagmo::topology::unconnected);
 
  #endif

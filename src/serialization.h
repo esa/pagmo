@@ -36,10 +36,59 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/split_free.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+
+// Serialization of circular buffer.
+#include <boost/circular_buffer.hpp>
+
+namespace boost { namespace serialization {
+
+template <class Archive, class T>
+void save(Archive &ar, const boost::circular_buffer<T> &cb, unsigned int)
+{
+	// Let's first save capacity and size.
+	typedef typename boost::circular_buffer<T>::capacity_type capacity_type;
+	typedef typename boost::circular_buffer<T>::size_type size_type;
+	capacity_type capacity = cb.capacity();
+	ar << capacity;
+	size_type size = cb.size();
+	ar << size;
+	// Save the content.
+	for (size_type i = 0; i < size; ++i) {
+		ar << cb[i];
+	}
+}
+
+template <class Archive, class T>
+void load(Archive &ar, boost::circular_buffer<T> &cb, unsigned int)
+{
+	typedef typename boost::circular_buffer<T>::capacity_type capacity_type;
+	typedef typename boost::circular_buffer<T>::size_type size_type;
+	// Restore capacity.
+	capacity_type capacity;
+	ar >> capacity;
+	cb.set_capacity(capacity);
+	// Restore size.
+	size_type size;
+	ar >> size;
+	cb.resize(size);
+	// Restore elements.
+	for (size_type i = 0; i < size; ++i) {
+		ar >> cb[i];
+	}
+}
+
+template <class Archive, class T>
+void serialize(Archive &ar, boost::circular_buffer<T> &cb, const unsigned int file_version)
+{
+	split_free(ar, cb, file_version);
+}
+
+}}
 
 #endif

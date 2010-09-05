@@ -477,38 +477,21 @@ return base_ptr(new derived_problem(*this));
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-std::cout << "doing base problem\n";
-			// NOTE: we do not serialize the caches.
-std::cout << m_i_dimension << '\n';
 			ar & const_cast<size_type &>(m_i_dimension);
-std::cout << m_i_dimension << '\n';
-std::cout << "a\n";
-std::cout << m_f_dimension << '\n';
 			ar & const_cast<f_size_type &>(m_f_dimension);
-std::cout << m_f_dimension << '\n';
-std::cout << "b\n";
 			ar & const_cast<c_size_type &>(m_c_dimension);
-std::cout << "c\n";
 			ar & const_cast<c_size_type &>(m_ic_dimension);
-std::cout << "d\n";
-std::cout << m_lb.size() << '\n';
 			ar & m_lb;
-std::cout << m_lb.size() << '\n';
-std::cout << "e\n";
-std::cout << m_ub.size() << '\n';
 			ar & m_ub;
-std::cout << m_ub.size() << '\n';
-std::cout << "f\n";
 			ar & const_cast<double &>(m_c_tol);
-std::cout << "g\n";
+			ar & m_decision_vector_cache_f;
+			ar & m_fitness_vector_cache;
+			ar & m_decision_vector_cache_c;
+			ar & m_constraint_vector_cache;
 			ar & m_tmp_f1;
-std::cout << "h\n";
 			ar & m_tmp_f2;
-std::cout << "i\n";
 			ar & m_tmp_c1;
-std::cout << "l\n";
 			ar & m_tmp_c2;
-std::cout << "done base problem\n";
 		}  
 		// Data members.
 		// Size of the integer part of the problem.

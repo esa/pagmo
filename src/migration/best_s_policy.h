@@ -60,6 +60,6 @@ class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 
 } }
 
-BOOST_CLASS_EXPORT_GUID(pagmo::migration::best_s_policy, "pagmo_migration_best_s_policy");
+BOOST_CLASS_EXPORT(pagmo::migration::best_s_policy);
 
 #endif

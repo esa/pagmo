@@ -33,23 +33,23 @@ using namespace pagmo;
 
 int main()
 {
-	std::ofstream ofs("schwefel.txt");
-	boost::archive::binary_oarchive oa(ofs);
-	population pop(problem::schwefel(10),1);
-	oa << pop;
-	ofs.close();
-	std::ifstream ifs("schwefel.txt");
-	boost::archive::binary_iarchive ia(ifs);
-	ia >> pop;
-	std::cout << pop << '\n';
-	return 0;
+// 	std::ofstream ofs("schwefel.txt");
+// 	boost::archive::binary_oarchive oa(ofs);
+// 	population pop(problem::schwefel(10),1);
+// 	oa << pop;
+// 	ofs.close();
+// 	std::ifstream ifs("schwefel.txt");
+// 	boost::archive::binary_iarchive ia(ifs);
+// 	ia >> pop;
+// 	std::cout << pop << '\n';
+// 	return 0;
 
-// 	mpi_environment env;
-// 	archipelago a = archipelago(topology::ring());
-// 	for (int i = 1; i < boost::mpi::communicator().size(); ++i) {
-// 		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(50),10));
-// 	}
-// 	a.evolve(2);
-// 	a.join();
-// std::cout << "finished evolving\n";
+	mpi_environment env;
+	archipelago a = archipelago(topology::ring());
+	for (int i = 1; i < boost::mpi::communicator().size(); ++i) {
+		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(50),10));
+	}
+	a.evolve(2);
+	a.join();
+std::cout << "finished evolving\n";
 }

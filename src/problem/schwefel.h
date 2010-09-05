@@ -63,15 +63,12 @@ class __PAGMO_VISIBLE schwefel : public base
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-std::cout << "doing\n";
-std::cout << "dimension: " << get_dimension() << '\n';
 			ar & boost::serialization::base_object<base>(*this);
-std::cout << "done\n";
 		}
 };
 
 }}
 
-BOOST_CLASS_EXPORT_GUID(pagmo::problem::schwefel, "pagmo_problem_schwefel");
+BOOST_CLASS_EXPORT(pagmo::problem::schwefel);
 
 #endif // SCHWEFEL_H

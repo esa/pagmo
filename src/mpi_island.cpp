@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -29,6 +31,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -40,12 +43,6 @@
 #include "migration/base_s_policy.h"
 #include "population.h"
 #include "problem/base.h"
-
-
-
-#include <sstream>
-
-#include "serialization.h"
 
 namespace pagmo
 {
