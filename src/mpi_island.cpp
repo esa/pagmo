@@ -35,6 +35,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "algorithm/base.h"
 #include "base_island.h"
@@ -106,19 +107,22 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << out;
-		std::string buffer(ss.str());
+		// Copy the content of the stream to a char vector.
+		const std::string buffer_str(ss.str());
+		std::vector<char> buffer_char(buffer_str.begin(),buffer_str.end());
 		// Cast needed to safely convert to an MPI data type.
-		size = boost::numeric_cast<int>(buffer.size());
+		size = boost::numeric_cast<int>(buffer_char.size());
+		// Lock down.
 		lock_type lock(m_mutex);
 		processor = acquire_processor();
 std::cout << "master sending size " << processor << '\n';
 		MPI_Send(static_cast<void *>(&size),1,MPI_INT,processor,0,MPI_COMM_WORLD);
 std::cout << "master sent size " << processor << '\n';
 std::cout << "master sending payload " << processor << '\n';
-		MPI_Send(static_cast<void *>(&buffer[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD);
+		MPI_Send(static_cast<void *>(&buffer_char[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD);
 std::cout << "master sent payload " << processor << '\n';
 	}
-	std::string buffer;
+	std::vector<char> buffer_char;
 	while (true) {
 		{
 			lock_type lock(m_mutex);
@@ -129,9 +133,9 @@ std::cout << "master receiving size " << processor << '\n';
 				MPI_Recv(static_cast<void *>(&size),1,MPI_INT,processor,0,MPI_COMM_WORLD,&status);
 std::cout << "master received size " << processor << '\n';
 				// Prepare buffer.
-				buffer.resize(boost::numeric_cast<std::string::size_type>(size),0);
+				buffer_char.resize(boost::numeric_cast<std::vector<char>::size_type>(size),0);
 std::cout << "master receiving payload " << processor << '\n';
-				MPI_Recv(static_cast<void *>(&buffer[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD,&status);
+				MPI_Recv(static_cast<void *>(&buffer_char[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD,&status);
 std::cout << "master received payload " << processor << '\n';
 				release_processor(processor);
 				break;
@@ -139,7 +143,8 @@ std::cout << "master received payload " << processor << '\n';
 		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	}
-	std::stringstream ss(buffer);
+	const std::string buffer_str(buffer_char.begin(),buffer_char.end());
+	std::stringstream ss(buffer_str);
 	boost::archive::text_iarchive ia(ss);
 	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
 	ia >> in;

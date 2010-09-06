@@ -34,6 +34,7 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "exceptions.h"
 #include "algorithm/base.h"
@@ -96,17 +97,20 @@ std::cout << "received shutdown signal " << rank << '\n';
 std::cout << "slave receiving size " << rank << '\n';
 			MPI_Recv(static_cast<void *>(&size),1,MPI_INT,0,0,MPI_COMM_WORLD,&status);
 std::cout << "slave received size " << rank << '\n';
-			// Prepare the string.
-			std::string buffer(boost::numeric_cast<std::string::size_type>(size),0);
+			// Prepare the vector of chars.
+			std::vector<char> buffer_char1(boost::numeric_cast<std::vector<char>::size_type>(size),0);
 std::cout << "slave receiving payload " << rank << '\n';
 			// Receive the payload.
-			MPI_Recv(static_cast<void *>(&buffer[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD,&status);
+			MPI_Recv(static_cast<void *>(&buffer_char1[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD,&status);
 std::cout << "slave received payload " << rank << '\n';
+			// Build the string from the vector.
+			const std::string buffer_str1(buffer_char1.begin(),buffer_char1.end());
 			// Unpickle the payload.
 			std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
-			std::stringstream ss1(buffer);
+			std::stringstream ss1(buffer_str1);
 			boost::archive::text_iarchive ia(ss1);
 			ia >> in;
+			// Actually perform the evolution.
 			in.second->evolve(*in.first);
 			std::stringstream ss2;
 			boost::archive::text_oarchive oa(ss2);
@@ -114,19 +118,21 @@ std::cout << "slave received payload " << rank << '\n';
 			const algorithm::base_ptr out_algo = in.second->clone();
 			const std::pair<const boost::shared_ptr<population>, const algorithm::base_ptr> out(out_pop,out_algo);
 			oa << out;
-			buffer = ss2.str();
+			const std::string buffer_str2(ss2.str());
+			std::vector<char> buffer_char2(buffer_str2.begin(),buffer_str2.end());
 			// Send the size.
-			size = boost::numeric_cast<int>(buffer.size());
+			size = boost::numeric_cast<int>(buffer_char2.size());
 std::cout << "slave sending size " << rank << '\n';
 			MPI_Send(static_cast<void *>(&size),1,MPI_INT,0,0,MPI_COMM_WORLD);
 std::cout << "slave sent size " << rank << '\n';
 			// Send the string.
 std::cout << "slave sending payload " << rank << '\n';
-			MPI_Send(static_cast<void *>(&buffer[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD);
+			MPI_Send(static_cast<void *>(&buffer_char2[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD);
 std::cout << "slave sent payload " << rank << '\n';
+		} else {
+			// Sleep a bit if there is nothing to do.
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 		}
-		// Sleep a bit if there is nothing to do.
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	}
 	// Destroy the MPI environment before exiting.
 	m_environment.reset(0);
