@@ -44,6 +44,7 @@ packed_archive_isend(MPI_Comm comm, int dest, int tag,
                      const packed_oarchive& ar,
                      MPI_Request* out_requests, int num_out_requests)
 {
+  (void)num_out_requests;
   assert(num_out_requests >= 2);
   const void* size = &ar.size();
   BOOST_MPI_CHECK_RESULT(MPI_Isend,
@@ -63,6 +64,7 @@ packed_archive_isend(MPI_Comm comm, int dest, int tag,
                      const packed_iarchive& ar,
                      MPI_Request* out_requests, int num_out_requests)
 {
+  (void)num_out_requests;
   assert(num_out_requests >= 2);
 
   const void* size = &ar.size();
