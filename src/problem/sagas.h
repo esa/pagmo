@@ -25,16 +25,13 @@
 #ifndef PAGMO_PROBLEM_SAGAS_H
 #define PAGMO_PROBLEM_SAGAS_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../AstroToolbox/mga_dsm.h"
+#include "base.h"
 
 
 namespace pagmo{ namespace problem {
@@ -63,12 +60,10 @@ class __PAGMO_VISIBLE sagas: public base
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
-		    ar & boost::serialization::base_object<base>(*this);
-			for(int i=0;i<3;i++) {
-				ar & const_cast<int &>(sequence[i]);
-			}
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
 		}
 		static const int sequence[3];
@@ -77,5 +72,7 @@ class __PAGMO_VISIBLE sagas: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::problem::sagas);
 
 #endif // PAGMO_PROBLEM_SAGAS_H

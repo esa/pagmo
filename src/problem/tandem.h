@@ -25,19 +25,15 @@
 #ifndef PAGMO_PROBLEM_TANDEM_H
 #define PAGMO_PROBLEM_TANDEM_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -93,8 +89,9 @@ class __PAGMO_VISIBLE tandem: public base
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/) {
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
 			ar & const_cast<double &>(tof);
@@ -109,5 +106,7 @@ class __PAGMO_VISIBLE tandem: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::problem::tandem);
 
 #endif // PAGMO_PROBLEM_TANDEM_H

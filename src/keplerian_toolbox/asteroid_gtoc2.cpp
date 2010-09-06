@@ -961,4 +961,9 @@ int asteroid_gtoc2::get_group() const {
 	return m_group;
 }
 
+planet_ptr asteroid_gtoc2::clone() const
+{
+	return planet_ptr(new asteroid_gtoc2(*this));
+}
+
 } //namespace

@@ -25,17 +25,13 @@
 #ifndef PAGMO_PROBLEM_KNAPSACK_H
 #define PAGMO_PROBLEM_KNAPSACK_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -70,6 +66,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE knapsack: public base
 {
 	public:
+		knapsack();
 		knapsack(const std::vector<double> &, const std::vector<double> &, const double &);
 		/// Constructor from raw arrays and maximum weight.
 		/**
@@ -98,8 +95,9 @@ class __PAGMO_VISIBLE knapsack: public base
 		void verify_init() const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::vector<double> &>(m_values);
 			ar & const_cast<std::vector<double> &>(m_weights);
@@ -112,5 +110,7 @@ class __PAGMO_VISIBLE knapsack: public base
 
 }
 }
+
+BOOST_CLASS_EXPORT(pagmo::problem::knapsack);
 
 #endif

@@ -54,8 +54,7 @@ struct customobject
 	}
 	friend class boost::serialization::access;
 	template<class Archive>
-	void serialize(Archive &ar, const unsigned int version){
-		std::cout << "de-/serializing customobject " << version << std::endl;
+	void serialize(Archive &ar, const unsigned int){
 		ar & keplerian;
 		ar & epoch;
 		ar & mu;
@@ -70,8 +69,7 @@ struct mgaproblem {
 	mgaproblem():type(0),e(0),rp(0),Isp(0),mass(0),DVlaunch(0) {}
 	friend class boost::serialization::access;
 	template<class Archive>
-	void serialize(Archive &ar, const unsigned int version){
-		std::cout << "de-/serializing mgaproblem " << version << std::endl;
+	void serialize(Archive &ar, const unsigned int){
 		ar & type;
 		ar & sequence;
 		ar & rev_flag;

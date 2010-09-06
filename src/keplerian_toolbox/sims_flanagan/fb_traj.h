@@ -62,11 +62,13 @@ class fb_traj
 public:
 	/** @name Constructors*/
 	//@{
-	fb_traj(const std::vector<planet*>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_);
-	fb_traj(const std::vector<planet*>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
-	fb_traj(const std::vector<planet*>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
-	fb_traj(const std::vector<planet*>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
-	fb_traj() {}
+	fb_traj(const std::vector<planet_ptr>& sequence, const std::vector<int>& n_seg, const spacecraft &sc_);
+	fb_traj(const std::vector<planet_ptr>& sequence, const std::vector<int>& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	fb_traj(const std::vector<planet_ptr>& sequence, const unsigned int& n_seg, const spacecraft &sc_);
+	fb_traj(const std::vector<planet_ptr>& sequence, const unsigned int& n_seg, const double &mass_, const double &thrust_, const double &isp_);
+	fb_traj():total_n_seg(0) {}
+	fb_traj(const fb_traj &);
+	fb_traj &operator=(const fb_traj &);
 	//@}
 
 
@@ -177,7 +179,7 @@ public:
 	//@}
 private:
 	std::vector<leg> legs;
-	std::vector<planet*> planets;
+	std::vector<planet_ptr> planets;
 
 	//This is here only for efficiency purposes
 	unsigned int total_n_seg;
@@ -197,8 +199,14 @@ private:
 	     * \f$T\f$ id the leg time duration (sec).
 	     *
 	     */
-
-
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & legs;
+		ar & planets;
+		ar & total_n_seg;
+	}
 };
 
 std::ostream &operator<<(std::ostream &s, const fb_traj &in );

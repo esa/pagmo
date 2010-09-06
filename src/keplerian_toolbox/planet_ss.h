@@ -25,6 +25,7 @@
 #ifndef PLANET_SS_H
 #define PLANET_SS_H
 
+#include "../serialization.h"
 #include"planet.h"
 
 namespace kep_toolbox{
@@ -44,9 +45,20 @@ public:
 	 * Construct a planet from its common name (e.g. VENUS)
 	 * \param[in] name a string describing a planet
 	 */
-	planet_ss(const std::string& name);
+	planet_ss(const std::string & = "earth");
+	planet_ptr clone() const;
+private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<planet>(*this);
+	}
 };
 
 
 } /// End of namespace kep_toolbox
+
+BOOST_CLASS_EXPORT(kep_toolbox::planet_ss);
+
 #endif // PLANET_SS_H

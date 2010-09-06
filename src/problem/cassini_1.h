@@ -25,18 +25,13 @@
 #ifndef PAGMO_PROBLEM_CASSINI_1_H
 #define PAGMO_PROBLEM_CASSINI_1_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../AstroToolbox/mga.h"
-
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -64,8 +59,9 @@ class __PAGMO_VISIBLE cassini_1: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){			
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
 			ar & Delta_V;
@@ -73,13 +69,14 @@ class __PAGMO_VISIBLE cassini_1: public base
 			ar & t;
 		}
 		mgaproblem problem;
-
-		//Variables used in the call to MGA
+		// Variables used in the call to MGA.
 		mutable std::vector<double> Delta_V;
 		mutable std::vector<double> rp;
 		mutable std::vector<double> t;
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::problem::cassini_1);
 
 #endif // CASSINI_1_H

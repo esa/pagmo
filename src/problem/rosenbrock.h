@@ -25,12 +25,9 @@
 #ifndef PAGMO_PROBLEM_ROSENBROCK_H
 #define PAGMO_PROBLEM_ROSENBROCK_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -55,36 +52,22 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE rosenbrock : public base
 {
 	public:
-		rosenbrock(unsigned int);
+		rosenbrock(int = 1);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 		}
 };
 
-template<class Archive>
-inline void save_construct_data( Archive & ar, const rosenbrock *t, const unsigned int /*file_version*/) {
-    // save data required to construct instance
-	unsigned int n;
-	n = t->get_dimension();
-    ar << n;
-}
-
-template<class Archive>
-inline void load_construct_data( Archive & ar, rosenbrock *t, const unsigned int /*file_version*/) {
-    // retrieve data from archive required to construct new instance
-    unsigned int n;
-    ar >> n;
-    // invoke inplace constructor to initialize instance of my_class
-    ::new(t)rosenbrock(n);
-}
-
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::problem::rosenbrock);
 
 #endif // ROSENBROCK_H

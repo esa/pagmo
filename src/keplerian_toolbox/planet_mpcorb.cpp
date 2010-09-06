@@ -1,5 +1,5 @@
 #include<fstream>
-#include"boost/algorithm/string.hpp"
+#include<boost/algorithm/string.hpp>
 
 #include"planet_mpcorb.h"
 #include"exceptions.h"
@@ -65,6 +65,11 @@ epoch planet_mpcorb::packed_date2epoch(std::string in) {
 int planet_mpcorb::packed_date2number(char c)
 {
 	return static_cast<int>(c) - (boost::algorithm::is_alpha()(c) ? 87 : 48);
+}
+
+planet_ptr planet_mpcorb::clone() const
+{
+	return planet_ptr(new planet_mpcorb(*this));
 }
 
 } //namespace

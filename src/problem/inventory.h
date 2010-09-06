@@ -25,10 +25,6 @@
 #ifndef PAGMO_PROBLEM_INVENTORY_H
 #define PAGMO_PROBLEM_INVENTORY_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -36,6 +32,7 @@
 #include "../config.h"
 #include "../population.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -68,7 +65,7 @@ namespace problem {
 class __PAGMO_VISIBLE inventory: public base
 {
 	public:
-		inventory(int weeks,int sample_size);
+		inventory(int = 4,int = 10);
 		base_ptr clone() const;
 	protected:
 		bool equality_operator_extra(const base &) const;
@@ -76,8 +73,9 @@ class __PAGMO_VISIBLE inventory: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_seed;
 			ar & m_weeks;
@@ -93,27 +91,9 @@ class __PAGMO_VISIBLE inventory: public base
 		mutable rng_double		m_drng;
 };
 
-template<class Archive>
-inline void save_construct_data( Archive & ar, const inventory *t, const unsigned int /*file_version*/) {
-    // save data required to construct instance
-	int weeks,sample_size;
-	weeks = t->m_weeks;
-	sample_size = t->m_sample_size;
-    ar << weeks;
-    ar << sample_size;
+}
 }
 
-template<class Archive>
-inline void load_construct_data( Archive & ar, inventory *t, const unsigned int /*file_version*/) {
-    // retrieve data from archive required to construct new instance
-    int weeks,sample_size;
-    ar >> weeks;
-    ar >> sample_size;
-    // invoke inplace constructor to initialize instance of my_class
-    ::new(t)inventory(weeks,sample_size);
-}
-
-}
-}
+BOOST_CLASS_EXPORT(pagmo::problem::inventory);
 
 #endif //PAGMO_PROBLEM_INVENTORY_H

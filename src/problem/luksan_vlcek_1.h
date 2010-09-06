@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -46,7 +47,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE luksan_vlcek_1: public base
 {
 	public:
-		luksan_vlcek_1(int, const double & = -10, const double & = 10);
+		luksan_vlcek_1(int = 3, const double & = -10, const double & = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -55,8 +56,9 @@ class __PAGMO_VISIBLE luksan_vlcek_1: public base
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_clb;
 			ar & m_cub;
@@ -65,24 +67,8 @@ class __PAGMO_VISIBLE luksan_vlcek_1: public base
 		std::vector<double>	m_cub;
 };
 
-template<class Archive>
-inline void save_construct_data( Archive & ar, const luksan_vlcek_1 *t, const unsigned int /*file_version*/) {
-    // save data required to construct instance
-	int n;
-	n = t->get_dimension();
-    ar << n;
-}
-
-template<class Archive>
-inline void load_construct_data( Archive & ar, luksan_vlcek_1 *t, const unsigned int /*file_version*/) {
-    // retrieve data from archive required to construct new instance
-    int n;
-    ar >> n;
-    // invoke inplace constructor to initialize instance of my_class
-    ::new(t)luksan_vlcek_1(n);
-}
-
 }} //namespaces
 
+BOOST_CLASS_EXPORT(pagmo::problem::luksan_vlcek_1);
 
 #endif // LUKSAN_VLCEK_1_H

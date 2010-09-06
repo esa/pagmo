@@ -25,17 +25,13 @@
 #ifndef PAGMO_PROBLEM_MESSENGER_FULL_H
 #define PAGMO_PROBLEM_MESSENGER_FULL_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../AstroToolbox/mga_dsm.h"
-#include "boost/array.hpp"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -65,12 +61,10 @@ class __PAGMO_VISIBLE messenger_full: public base
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		friend class boost::serialization::access;
-	  template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
-	    	ar & boost::serialization::base_object<base>(*this);
-			for(int i=0;i<7;i++) {
-				ar & const_cast<int &>(sequence[i]);
-			}			
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
 		}
 		static const int sequence[7];
@@ -79,5 +73,7 @@ class __PAGMO_VISIBLE messenger_full: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::problem::messenger_full);
 
 #endif // PAGMO_PROBLEM_MESSENGER_FULL_H

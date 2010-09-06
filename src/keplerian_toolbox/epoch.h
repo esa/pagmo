@@ -30,6 +30,8 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
+#include "../serialization.h"
+
 /// Keplerian Toolbox
 /**
  * This namespace contains astrodynamics and space flight mechanics routines that are related to
@@ -78,6 +80,12 @@ public:
 	//@}
 
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & mjd2000_m;
+	}
 	/// the modified julian date 2000 stored in a double
 	double mjd2000_m;
 };

@@ -87,9 +87,9 @@ earth_planet::earth_planet(int segments, std::string target, const double &ctol)
 	set_bounds(lb_v,ub_v);
 
 	//traj_fb constructor
-	std::vector<planet*> sequence;
-	sequence.push_back(new planet_ss("earth"));
-	sequence.push_back(new planet_ss(target));
+	std::vector<planet_ptr> sequence;
+	sequence.push_back(planet_ptr(new planet_ss("earth")));
+	sequence.push_back(planet_ptr(new planet_ss(target)));
 	trajectory = fb_traj(sequence,segments,1000,0.05,std::numeric_limits<double>::infinity());
 }
 

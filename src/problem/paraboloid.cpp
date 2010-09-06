@@ -31,16 +31,16 @@
 #include "base.h"
 #include "paraboloid.h"
 
-double lb[] = {-1};
-double ub[] = {1};
-
 namespace pagmo { namespace problem {
+
+static const double paraboloid_default_lb[1] = {-1};
+static const double paraboloid_default_ub[1] = {1};
 
 /// Default constructor.
 /**
  * Will construct a one-dimensional problem with bounds [-1,1].
  */
-paraboloid::paraboloid():base(lb,ub) {}
+paraboloid::paraboloid():base(paraboloid_default_lb,paraboloid_default_ub) {}
 
 /// Constructor from lower/upper bounds.
 /**

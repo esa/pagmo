@@ -80,7 +80,6 @@ private:
 	friend class boost::serialization::access;
 	template<class Archive>
 	void serialize(Archive &ar, const unsigned int version) {
-		std::cout << "de-/serializing mgadsmproblem " << version << std::endl;
 		ar & const_cast<size_t &>(size);
 		ar & type;
 		ar & sequence;
@@ -95,8 +94,7 @@ private:
 		boost::serialization::split_member(ar, *this, version);	// spliting the serialization into save/load to handle "r" and "v" vectors of pointers
 	}
 	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const {
-	    std::cout << "serializing mgadsmproblem " << version << std::endl;
+	void save(Archive & ar, const unsigned int) const {
 		std::vector<std::vector<double> > r_values(size,std::vector<double>(3));
 		std::vector<std::vector<double> > v_values(size,std::vector<double>(3));
 		for (int i = 0; i < (int)size; ++i) {
@@ -113,8 +111,7 @@ private:
 		ar << v_values;
 	}
 	template<class Archive>
-	void load(Archive & ar, const unsigned int version) {
-		std::cout << "deserializing mgadsmproblem " << version << std::endl;
+	void load(Archive & ar, const unsigned int) {
 		std::vector<std::vector<double> > r_values;
 		std::vector<std::vector<double> > v_values;
 		ar >> r_values;

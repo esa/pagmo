@@ -123,4 +123,9 @@ planet_ss::planet_ss(const std::string& name)
 	build_planet(epoch(mjd2000,epoch::MJD2000),keplerian_elements_,mu_central_body_,mu_self_,radius_,safe_radius_,lower_case_name);
 }
 
+planet_ptr planet_ss::clone() const
+{
+	return planet_ptr(new planet_ss(*this));
+}
+
 } //namespace

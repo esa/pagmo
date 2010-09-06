@@ -231,7 +231,4 @@ std::string gtoc_2::pretty(const std::vector<double> &x) const
 	return s.str();
 }
 
-
-
-
 }} // namespaces

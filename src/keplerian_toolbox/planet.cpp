@@ -74,6 +74,12 @@ array6D planet::get_elements(const epoch& when) const{
 	return ( elements );
 }
 
+/// Destructor.
+/**
+ * No side effects.
+ */
+planet::~planet() {}
+
 std::string planet::get_name() const {return m_name;}
 
 }
