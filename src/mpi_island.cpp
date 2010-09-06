@@ -26,6 +26,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
@@ -99,38 +100,46 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 	const boost::shared_ptr<population> pop_copy(new population(pop));
 	const algorithm::base_ptr algo_copy = algo.clone();
 	const std::pair<const boost::shared_ptr<population>, const algorithm::base_ptr> out(pop_copy,algo_copy);
-	// Actually build the communicator after acquiring the lock, for peace of mind with possible
-	// multi-thread issues in the underlying MPI implementation.
-	boost::scoped_ptr<boost::mpi::communicator> world(0);
-	int processor;
+	MPI_Status status;
+	int processor, flag, size;
 	{
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << out;
-		const std::string payload(ss.str());
+		std::string buffer(ss.str());
+		// Cast needed to safely convert to an MPI data type.
+		size = boost::numeric_cast<int>(buffer.size());
 		lock_type lock(m_mutex);
-		world.reset(new boost::mpi::communicator());
 		processor = acquire_processor();
-std::cout << "master sending " << processor << '\n';
-		world->send(processor,0,payload);
-std::cout << "master sent " << processor << "\n";
+std::cout << "master sending size " << processor << '\n';
+		MPI_Send(static_cast<void *>(&size),1,MPI_INT,processor,0,MPI_COMM_WORLD);
+std::cout << "master sent size " << processor << '\n';
+std::cout << "master sending payload " << processor << '\n';
+		MPI_Send(static_cast<void *>(&buffer[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD);
+std::cout << "master sent payload " << processor << '\n';
 	}
-	std::string ret_payload;
+	std::string buffer;
 	while (true) {
 		{
 			lock_type lock(m_mutex);
 std::cout << "master quering " << processor << '\n';
-			if (world->iprobe(processor,0)) {
-std::cout << "master receiving " << processor << '\n';
-				world->recv(processor,0,ret_payload);
-std::cout << "master received " << processor << '\n';
+			MPI_Iprobe(processor,0,MPI_COMM_WORLD,&flag,&status);
+			if (flag) {
+std::cout << "master receiving size " << processor << '\n';
+				MPI_Recv(static_cast<void *>(&size),1,MPI_INT,processor,0,MPI_COMM_WORLD,&status);
+std::cout << "master received size " << processor << '\n';
+				// Prepare buffer.
+				buffer.resize(boost::numeric_cast<std::string::size_type>(size),0);
+std::cout << "master receiving payload " << processor << '\n';
+				MPI_Recv(static_cast<void *>(&buffer[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD,&status);
+std::cout << "master received payload " << processor << '\n';
 				release_processor(processor);
 				break;
 			}
 		}
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	}
-	std::stringstream ss(ret_payload);
+	std::stringstream ss(buffer);
 	boost::archive::text_iarchive ia(ss);
 	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
 	ia >> in;

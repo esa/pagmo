@@ -27,6 +27,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <cstdlib>
@@ -60,48 +61,69 @@ std::cout << "hello I'm the master\n";
 
 mpi_environment::~mpi_environment()
 {
+	int rank, numtasks;
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
 std::cout << "shutting down\n";
-	boost::mpi::communicator world;
 	// In theory this should never be called by the slaves.
-	pagmo_assert(!world.rank());
-	for (int i = 1; i < world.size(); ++i) {
+	pagmo_assert(!rank);
+	for (int i = 1; i < numtasks; ++i) {
 		// Send the shutdown signal to all slaves.
-		world.send(i,1);
+		MPI_Send(0,0,MPI_CHAR,i,2,MPI_COMM_WORLD);
 	}
 std::cout << "shut down\n";
 }
 
 void mpi_environment::listen()
 {
-	boost::mpi::communicator world;
+	MPI_Status status;
+	int flag, rank;
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	while (true) {
 		// Query and catch, if any, the shutdown message.
-		if (world.iprobe(0,1)) {
-std::cout << "seen shutdown signal " << world.rank() << '\n';
-			world.recv(0,1);
-std::cout << "received shutdown signal " << world.rank() << '\n';
+		MPI_Iprobe(0,2,MPI_COMM_WORLD,&flag,&status);
+		if (flag) {
+std::cout << "seen shutdown signal " << rank << '\n';
+			MPI_Recv(0,0,MPI_CHAR,0,2,MPI_COMM_WORLD,&status);
+std::cout << "received shutdown signal " << rank << '\n';
 			break;
 		}
 		// Query and catch, if any, the payload to be evolved.
-		if (world.iprobe(0,0)) {
+		MPI_Iprobe(0,0,MPI_COMM_WORLD,&flag,&status);
+		if (flag) {
+			// First receive the size.
+			int size;
+std::cout << "slave receiving size " << rank << '\n';
+			MPI_Recv(static_cast<void *>(&size),1,MPI_INT,0,0,MPI_COMM_WORLD,&status);
+std::cout << "slave received size " << rank << '\n';
+			// Prepare the string.
+			std::string buffer(boost::numeric_cast<std::string::size_type>(size),0);
+std::cout << "slave receiving payload " << rank << '\n';
+			// Receive the payload.
+			MPI_Recv(static_cast<void *>(&buffer[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD,&status);
+std::cout << "slave received payload " << rank << '\n';
+			// Unpickle the payload.
 			std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
-			std::string payload;
-std::cout << "slave receiving " << world.rank() << '\n';
-			world.recv(0,0,payload);
-			std::stringstream ss1(payload);
+			std::stringstream ss1(buffer);
 			boost::archive::text_iarchive ia(ss1);
 			ia >> in;
-std::cout << "slave received " << world.rank() << '\n';
 			in.second->evolve(*in.first);
-std::cout << "slave sending " << world.rank() << '\n';
 			std::stringstream ss2;
 			boost::archive::text_oarchive oa(ss2);
 			const boost::shared_ptr<population> out_pop(new population(*in.first));
 			const algorithm::base_ptr out_algo = in.second->clone();
 			const std::pair<const boost::shared_ptr<population>, const algorithm::base_ptr> out(out_pop,out_algo);
 			oa << out;
-			world.send(0,0,ss2.str());
-std::cout << "slave sent " << world.rank() << '\n';
+			buffer = ss2.str();
+			// Send the size.
+			size = boost::numeric_cast<int>(buffer.size());
+std::cout << "slave sending size " << rank << '\n';
+			MPI_Send(static_cast<void *>(&size),1,MPI_INT,0,0,MPI_COMM_WORLD);
+std::cout << "slave sent size " << rank << '\n';
+			// Send the string.
+std::cout << "slave sending payload " << rank << '\n';
+			MPI_Send(static_cast<void *>(&buffer[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD);
+std::cout << "slave sent payload " << rank << '\n';
 		}
 		// Sleep a bit if there is nothing to do.
 		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
