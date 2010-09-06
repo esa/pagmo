@@ -2,16 +2,16 @@
 SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
@@ -110,10 +110,10 @@ ENDIF(ENABLE_GSL)
 # Additional files for NLopt support.
 IF(ENABLE_NLOPT)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_nlopt.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_cobyla.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_bobyqa.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_sbplx.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_nlopt.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_cobyla.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_bobyqa.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_sbplx.cpp
 	)
 ENDIF(ENABLE_NLOPT)
 

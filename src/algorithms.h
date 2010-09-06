@@ -29,19 +29,19 @@
 
 // Heuristics
 #include "algorithm/base.h"
-// #include "algorithm/cs.h"
+#include "algorithm/cs.h"
 #include "algorithm/de.h"
-// #include "algorithm/ihs.h"
-// #include "algorithm/monte_carlo.h"
-// #include "algorithm/null.h"
-// #include "algorithm/pso.h"
-// #include "algorithm/sa_corana.h"
-// #include "algorithm/sga.h"
-// #include "algorithm/bee_colony.h"
+#include "algorithm/ihs.h"
+#include "algorithm/monte_carlo.h"
+#include "algorithm/null.h"
+#include "algorithm/pso.h"
+#include "algorithm/sa_corana.h"
+#include "algorithm/sga.h"
+#include "algorithm/bee_colony.h"
 
 // Hyper-heuristics
-// #include "algorithm/mbh.h"
-// #include "algorithm/ms.h"
+#include "algorithm/mbh.h"
+#include "algorithm/ms.h"
 
 // SNOPT algorithm.
 #ifdef PAGMO_ENABLE_SNOPT
@@ -67,9 +67,9 @@
 
 // NLopt algorithms.
 #ifdef PAGMO_ENABLE_NLOPT
-// 	#include "algorithm/nlopt_bobyqa.h"
-// 	#include "algorithm/nlopt_cobyla.h"
-// 	#include "algorithm/nlopt_sbplx.h"
+	#include "algorithm/nlopt_bobyqa.h"
+	#include "algorithm/nlopt_cobyla.h"
+	#include "algorithm/nlopt_sbplx.h"
 #endif
 
 #endif

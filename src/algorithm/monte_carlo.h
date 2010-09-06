@@ -25,14 +25,11 @@
 #ifndef PAGMO_ALGORITHM_MONTE_CARLO_H
 #define PAGMO_ALGORITHM_MONTE_CARLO_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
 #include <cstddef>
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace algorithm {
@@ -47,14 +44,15 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE monte_carlo: public base
 {
 	public:
-		monte_carlo(int);
+		monte_carlo(int = 1);
 		base_ptr clone() const;
 		void evolve(population &) const;
 		std::string get_name() const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_max_eval);
 		}  
@@ -63,5 +61,7 @@ class __PAGMO_VISIBLE monte_carlo: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::monte_carlo);
 
 #endif

@@ -26,6 +26,7 @@
 #define PAGMO_ALGORITHM_NULL_H
 
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo
@@ -49,8 +50,9 @@ class __PAGMO_VISIBLE null:public base
 		std::string get_name() const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 		}  
 };
@@ -58,5 +60,7 @@ class __PAGMO_VISIBLE null:public base
 }
 
 }
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::null);
 
 #endif

@@ -25,15 +25,10 @@
 #ifndef PAGMO_ALGORITHM_CS_H
 #define PAGMO_ALGORITHM_CS_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
-
 #include "../config.h"
-#include "base.h"
 #include "../problem/base.h"
-
+#include "../serialization.h"
+#include "base.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -68,7 +63,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cs: public base
 {
 public:
-	cs(const int& max_eval, const double &stop_range,const double &start_range = 0.1, const double &reduction_coeff = 0.5 );
+	cs(const int& max_eval = 1, const double &stop_range = 0.01,const double &start_range = 0.1, const double &reduction_coeff = 0.5 );
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -76,8 +71,9 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive &ar, const unsigned int /*version*/){
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<double &>(m_stop_range);
 		ar & const_cast<double &>(m_start_range);
@@ -95,5 +91,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::cs);
 
 #endif // PAGMO_ALGORITHM_CS_H

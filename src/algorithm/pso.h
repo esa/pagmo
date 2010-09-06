@@ -25,12 +25,8 @@
 #ifndef PAGMO_ALGORITHM_PSO_H
 #define PAGMO_ALGORITHM_PSO_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/base_object.hpp>
-
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
 
 
@@ -75,7 +71,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pso: public base
 {
 public:
-	pso(int gen, double omega = 0.65, double eta1 = 2.0, double eta2 = 2.0, double vcoeff = 0.2, int variant = 3);
+	pso(int gen = 1, double omega = 0.65, double eta1 = 2.0, double eta2 = 2.0, double vcoeff = 0.2, int variant = 3);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -83,8 +79,9 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive &ar, const unsigned int /*version*/){
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<double &>(m_omega);
@@ -108,5 +105,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::pso);
 
 #endif // PSO_H

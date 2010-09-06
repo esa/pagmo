@@ -25,15 +25,10 @@
 #ifndef PAGMO_ALGORITHM_SGA_H
 #define PAGMO_ALGORITHM_SGA_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
-
 #include "../config.h"
-#include "base.h"
 #include "../problem/base.h"
-
+#include "../serialization.h"
+#include "base.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -92,7 +87,7 @@ public:
 		/// Crossover type, binomial or exponential
 		enum type {BINOMIAL = 0, EXPONENTIAL = 1};
 	};
-	sga(int gen, const double &cr, const double &m, int elitism = 1,
+	sga(int gen  = 1, const double &cr = .5, const double &m = .5, int elitism = 1,
 	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
 	    selection::type sel = selection::ROULETTE,
 	    crossover::type cro = crossover::EXPONENTIAL);
@@ -103,8 +98,9 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive &ar, const unsigned int /*version*/){
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<double &>(m_cr);
@@ -117,9 +113,9 @@ private:
 	//Number of generations
 	const int m_gen;
 	//Crossover rate
-	const double& m_cr;
+	const double m_cr;
 	//Mutation rate
-	const double& m_m;
+	const double m_m;
 	//Elitism (number of generations after which to reinsert the best)
 	const int m_elitism;
 	//Mutation
@@ -131,5 +127,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::sga);
 
 #endif // PAGMO_ALGORITHM_SGA_H

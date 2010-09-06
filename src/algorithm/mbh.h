@@ -25,17 +25,13 @@
 #ifndef PAGMO_ALGORITHM_MBH_H
 #define PAGMO_ALGORITHM_MBH_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include <string>
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
+#include "cs.h"
 
 
 
@@ -79,7 +75,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mbh: public base
 {
 public:
-	mbh(const algorithm::base &, int stop = 50, double perturb = 5e-2);
+	mbh(const algorithm::base & = cs(), int stop = 50, double perturb = 5e-2);
 	mbh(const algorithm::base &, int stop, std::vector<double> perturb);
 	base_ptr clone() const;
 	void evolve(population &) const;
@@ -89,8 +85,9 @@ protected:
 	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive &ar, const unsigned int /*version*/){
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & m_local;
 		ar & const_cast<int &>(m_stop);
@@ -108,5 +105,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::mbh);
 
 #endif // PAGMO_ALGORITHM_MBH_H
