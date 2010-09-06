@@ -74,7 +74,6 @@ std::cout << "shut down\n";
 void mpi_environment::listen()
 {
 	boost::mpi::communicator world;
-	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
 	while (true) {
 		// Query and catch, if any, the shutdown message.
 		if (world.iprobe(0,1)) {
@@ -85,6 +84,7 @@ std::cout << "received shutdown signal " << world.rank() << '\n';
 		}
 		// Query and catch, if any, the payload to be evolved.
 		if (world.iprobe(0,0)) {
+			std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
 			std::string payload;
 std::cout << "slave receiving " << world.rank() << '\n';
 			world.recv(0,0,payload);
@@ -100,8 +100,7 @@ std::cout << "slave sending " << world.rank() << '\n';
 			const algorithm::base_ptr out_algo = in.second->clone();
 			const std::pair<const boost::shared_ptr<population>, const algorithm::base_ptr> out(out_pop,out_algo);
 			oa << out;
-			payload = ss2.str();
-			world.send(0,0,payload);
+			world.send(0,0,ss2.str());
 std::cout << "slave sent " << world.rank() << '\n';
 		}
 		// Sleep a bit if there is nothing to do.

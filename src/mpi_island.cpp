@@ -107,7 +107,7 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << out;
-		std::string payload(ss.str());
+		const std::string payload(ss.str());
 		lock_type lock(m_mutex);
 		world.reset(new boost::mpi::communicator());
 		processor = acquire_processor();
