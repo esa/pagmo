@@ -74,7 +74,7 @@ std::cout << "shut down\n";
 void mpi_environment::listen()
 {
 	boost::mpi::communicator world;
-	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> tmp;
+	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
 	while (true) {
 		// Query and catch, if any, the shutdown message.
 		if (world.iprobe(0,1)) {
@@ -90,13 +90,16 @@ std::cout << "slave receiving " << world.rank() << '\n';
 			world.recv(0,0,payload);
 			std::stringstream ss1(payload);
 			boost::archive::text_iarchive ia(ss1);
-			ia >> tmp;
+			ia >> in;
 std::cout << "slave received " << world.rank() << '\n';
-			tmp.second->evolve(*tmp.first);
+			in.second->evolve(*in.first);
 std::cout << "slave sending " << world.rank() << '\n';
 			std::stringstream ss2;
 			boost::archive::text_oarchive oa(ss2);
-			oa << tmp;
+			const boost::shared_ptr<population> out_pop(new population(*in.first));
+			const algorithm::base_ptr out_algo = in.second->clone();
+			const std::pair<const boost::shared_ptr<population>, const algorithm::base_ptr> out(out_pop,out_algo);
+			oa << out;
 			payload = ss2.str();
 			world.send(0,0,payload);
 std::cout << "slave sent " << world.rank() << '\n';

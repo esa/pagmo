@@ -96,9 +96,9 @@ bool mpi_island::is_thread_blocking() const
 // Method that perform the actual evolution for the island population, and is used to distribute the computation load over multiple processors
 void mpi_island::perform_evolution(const algorithm::base &algo, population &pop) const
 {
-	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> tmp;
-	tmp.first.reset(new population(pop));
-	tmp.second = algo.clone();
+	const boost::shared_ptr<population> pop_copy(new population(pop));
+	const algorithm::base_ptr algo_copy = algo.clone();
+	const std::pair<const boost::shared_ptr<population>, const algorithm::base_ptr> out(pop_copy,algo_copy);
 	// Actually build the communicator after acquiring the lock, for peace of mind with possible
 	// multi-thread issues in the underlying MPI implementation.
 	boost::scoped_ptr<boost::mpi::communicator> world(0);
@@ -106,7 +106,7 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 	{
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
-		oa << tmp;
+		oa << out;
 		std::string payload(ss.str());
 		lock_type lock(m_mutex);
 		world.reset(new boost::mpi::communicator());
@@ -132,8 +132,9 @@ std::cout << "master received " << processor << '\n';
 	}
 	std::stringstream ss(ret_payload);
 	boost::archive::text_iarchive ia(ss);
-	ia >> tmp;
-	pop = *tmp.first;
+	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
+	ia >> in;
+	pop = *in.first;
 }
 
 std::string mpi_island::get_name() const
