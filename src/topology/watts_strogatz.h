@@ -25,16 +25,12 @@
 #ifndef PAGMO_TOPOLOGY_WATTS_STROGATZ_H
 #define PAGMO_TOPOLOGY_WATTS_STROGATZ_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 
 #include "../config.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -68,10 +64,10 @@ class __PAGMO_VISIBLE watts_strogatz: public base
 		void connect(const vertices_size_type &);
 	private:
 		void rewire();
-	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_k);
 			ar & const_cast<double &>(m_beta);
@@ -82,9 +78,10 @@ class __PAGMO_VISIBLE watts_strogatz: public base
 		const double		m_beta;
 		rng_double		m_drng;
 		rng_uint32		m_urng;
-
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::topology::watts_strogatz);
 
 #endif

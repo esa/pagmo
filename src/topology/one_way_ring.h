@@ -25,15 +25,10 @@
 #ifndef PAGMO_TOPOLOGY_ONE_WAY_RING_H
 #define PAGMO_TOPOLOGY_ONE_WAY_RING_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -56,8 +51,9 @@ class __PAGMO_VISIBLE one_way_ring: public base
 		void connect(const vertices_size_type &);
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_first;
 			ar & m_last;
@@ -69,5 +65,7 @@ class __PAGMO_VISIBLE one_way_ring: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::topology::one_way_ring);
 
 #endif

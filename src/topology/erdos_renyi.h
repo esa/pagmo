@@ -26,15 +26,11 @@
 #define PAGMO_TOPOLOGY_ERDOS_RENYI_H
 
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -66,8 +62,9 @@ class __PAGMO_VISIBLE erdos_renyi: public base
 		std::string human_readable_extra() const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<double &>(m_prob);
 			ar & m_drng;
@@ -77,5 +74,7 @@ class __PAGMO_VISIBLE erdos_renyi: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::topology::erdos_renyi);
 
 #endif

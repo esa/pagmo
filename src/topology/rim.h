@@ -25,14 +25,10 @@
 #ifndef PAGMO_TOPOLOGY_RIM_H
 #define PAGMO_TOPOLOGY_RIM_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/version.hpp>
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -54,14 +50,18 @@ class __PAGMO_VISIBLE rim: public base
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
+		void connect(const vertices_size_type &);
+	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 		}
-		void connect(const vertices_size_type &);
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::topology::rim);
 
 #endif

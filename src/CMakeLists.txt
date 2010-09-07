@@ -52,17 +52,17 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/erdos_renyi.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/fully_connected.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/one_way_ring.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/pan.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/rim.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/erdos_renyi.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/fully_connected.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/one_way_ring.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/pan.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/rim.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/ring.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/unconnected.cpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/archipelago.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp

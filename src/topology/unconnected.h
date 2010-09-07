@@ -49,13 +49,14 @@ class __PAGMO_VISIBLE unconnected: public base
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
+		void connect(const vertices_size_type &);
+	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
 		}
-		void connect(const vertices_size_type &);
 };
 
 } }

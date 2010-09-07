@@ -25,16 +25,12 @@
 #ifndef PAGMO_TOPOLOGY_BARABASI_ALBERT_H
 #define PAGMO_TOPOLOGY_BARABASI_ALBERT_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/version.hpp>
 #include <cstddef>
 #include <string>
 
 #include "../config.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -66,8 +62,9 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 		std::string human_readable_extra() const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::size_t &>(m_m0);
 			ar & const_cast<std::size_t &>(m_m);
@@ -85,5 +82,7 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::topology::barabasi_albert);
 
 #endif
