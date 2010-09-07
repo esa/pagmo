@@ -120,17 +120,17 @@ ENDIF(ENABLE_NLOPT)
 # Additional files for SNOPT support.
 IF(ENABLE_SNOPT)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snoptProblem_PAGMO.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snfilewrapper_PAGMO.c
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snoptProblem_PAGMO.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/snopt_cpp_wrapper/snfilewrapper_PAGMO.c
 	)
 ENDIF(ENABLE_SNOPT)
 
 # Additional files for IPOPT support.
 IF(ENABLE_IPOPT)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt_cpp_wrapper/ipopt_problem.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt_cpp_wrapper/ipopt_problem.cpp
 	)
 ENDIF(ENABLE_IPOPT)
 

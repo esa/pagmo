@@ -25,14 +25,11 @@
 #ifndef PAGMO_ALGORITHM_SNOPT_H
 #define PAGMO_ALGORITHM_SNOPT_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/version.hpp>
-
 #include "../config.h"
-#include "base.h"
 #include "../problem/base.h"
+#include "../serialization.h"
+#include "../types.h"
+#include "base.h"
 #include "snopt_cpp_wrapper/snopt_PAGMO.h"
 #include "snopt_cpp_wrapper/snfilewrapper_PAGMO.h"
 
@@ -73,7 +70,7 @@ class __PAGMO_VISIBLE snopt: public base
 {
 public:
 
-	snopt(const int major,const double feas=1e-10, const double opt = 1e-4);
+	snopt(const int major = 100,const double feas=1e-10, const double opt = 1e-4);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
@@ -86,20 +83,22 @@ public:
 		decision_vector x;
 		constraint_vector c;
 		fitness_vector f;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & x;
 			ar & c;
 			ar & f;
-		}  		
+		}
 	};
 protected:
 	std::string human_readable_extra() const;
 
 private:
 	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive &ar, const unsigned int /*version*/){
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_major);
 		ar & const_cast<double &>(m_feas);
@@ -118,5 +117,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::snopt);
 
 #endif

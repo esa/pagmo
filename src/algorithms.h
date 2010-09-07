@@ -45,12 +45,12 @@
 
 // SNOPT algorithm.
 #ifdef PAGMO_ENABLE_SNOPT
-// 	#include "algorithm/snopt.h"
+	#include "algorithm/snopt.h"
 #endif
 
 // IPOPT algorithm.
 #ifdef PAGMO_ENABLE_IPOPT
-// 	#include "algorithm/ipopt.h"
+	#include "algorithm/ipopt.h"
 #endif
 
 // GSL algorithms.

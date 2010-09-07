@@ -22,17 +22,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef IPOPT_H
-#define IPOPT_H
-
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/base_object.hpp>
+#ifndef PAGMO_ALGORITHM_IPOPT_H
+#define PAGMO_ALGORITHM_IPOPT_H
 
 #include "../config.h"
-#include "base.h"
 #include "../population.h"
+#include "../serialization.h"
+#include "base.h"
 
 #include <coin/IpIpoptApplication.hpp>
 
@@ -64,7 +60,7 @@ class __PAGMO_VISIBLE ipopt: public base
 {
 public:
 
-	ipopt(const int &max_iter, const double &constr_viol_tol = 1e-8, const double &dual_inf_tol = 1e-8, const double & compl_inf_tol = 1e-8);
+	ipopt(const int &max_iter = 100, const double &constr_viol_tol = 1e-8, const double &dual_inf_tol = 1e-8, const double & compl_inf_tol = 1e-8);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool p);
@@ -75,8 +71,9 @@ protected:
 
 private:
 	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive &ar, const unsigned int /*version*/){
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_max_iter);
 		ar & const_cast<double &>(m_constr_viol_tol);
@@ -92,5 +89,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::ipopt);
 
 #endif
