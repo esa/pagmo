@@ -33,6 +33,7 @@
 #include "../config.h"
 #include "../population.h"
 #include "../problem/base.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base_gsl.h"
 
@@ -50,9 +51,16 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE gsl_gradient: public base_gsl
 {
 	protected:
-		gsl_gradient(const gsl_multimin_fdfminimizer_type *, int, const double &, const double &, const double &, const double &);
+		gsl_gradient(int, const double &, const double &, const double &, const double &);
 		void evolve(population &) const;
 		std::string human_readable_extra() const;
+		/// Selected minimiser.
+		/**
+		 * This function will return a pointer to the GSL minimiser selected by the derived class.
+		 *
+		 * @return pointer to a GSL minimiser with derivatives.
+		 */
+		virtual const gsl_multimin_fdfminimizer_type *get_gsl_minimiser_ptr() const = 0;
 	private:
 		// Structure to feed parameters to the numerical differentiation wrapper.
 		struct objfun_numdiff_wrapper_params
@@ -73,14 +81,26 @@ class __PAGMO_VISIBLE gsl_gradient: public base_gsl
 		static void cleanup(gsl_vector *, gsl_multimin_fdfminimizer *);
 		static void check_allocs(gsl_vector *, gsl_multimin_fdfminimizer *);
 	private:
-		const gsl_multimin_fdfminimizer_type 	*m_minimiser;
-		const std::size_t			m_max_iter;
-		const double				m_grad_tol;
-		const double				m_numdiff_step_size;
-		const double				m_step_size;
-		const double				m_tol;
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base_gsl>(*this);
+			ar & const_cast<std::size_t &>(m_max_iter);
+			ar & const_cast<double &>(m_grad_tol);
+			ar & const_cast<double &>(m_numdiff_step_size);
+			ar & const_cast<double &>(m_step_size);
+			ar & const_cast<double &>(m_tol);
+		}
+		const std::size_t	m_max_iter;
+		const double		m_grad_tol;
+		const double		m_numdiff_step_size;
+		const double		m_step_size;
+		const double		m_tol;
 };
 
 }}
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::gsl_gradient);
 
 #endif

@@ -55,14 +55,14 @@
 
 // GSL algorithms.
 #ifdef PAGMO_ENABLE_GSL
-// 	#include "algorithm/base_gsl.h"
-// 	#include "algorithm/gsl_bfgs.h"
-// 	#include "algorithm/gsl_bfgs2.h"
-// 	#include "algorithm/gsl_fr.h"
-// 	#include "algorithm/gsl_nm.h"
-// 	#include "algorithm/gsl_nm2.h"
-// 	#include "algorithm/gsl_nm2rand.h"
-// 	#include "algorithm/gsl_pr.h"
+	#include "algorithm/base_gsl.h"
+	#include "algorithm/gsl_bfgs.h"
+	#include "algorithm/gsl_bfgs2.h"
+	#include "algorithm/gsl_fr.h"
+	#include "algorithm/gsl_nm.h"
+	#include "algorithm/gsl_nm2.h"
+	#include "algorithm/gsl_nm2rand.h"
+	#include "algorithm/gsl_pr.h"
 #endif
 
 // NLopt algorithms.

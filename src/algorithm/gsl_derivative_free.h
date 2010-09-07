@@ -32,6 +32,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base_gsl.h"
 
 namespace pagmo { namespace algorithm {
@@ -47,19 +48,36 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE gsl_derivative_free: public base_gsl
 {
 	protected:
-		gsl_derivative_free(const gsl_multimin_fminimizer_type *, int, const double &, const double &);
+		gsl_derivative_free(int, const double &, const double &);
 		std::string human_readable_extra() const;
 		void evolve(population &) const;
+		/// Selected minimiser.
+		/**
+		 * This function will return a pointer to the GSL minimiser selected by the derived class.
+		 *
+		 * @return pointer to a GSL minimiser without derivatives.
+		 */
+		virtual const gsl_multimin_fminimizer_type *get_gsl_minimiser_ptr() const = 0;
 	private:
 		static void cleanup(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
 		static void check_allocs(gsl_vector *, gsl_vector *, gsl_multimin_fminimizer *);
 	private:
-		const gsl_multimin_fminimizer_type	*m_minimiser;
-		const std::size_t			m_max_iter;
-		const double				m_tol;
-		const double				m_step_size;
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base_gsl>(*this);
+			ar & const_cast<std::size_t &>(m_max_iter);
+			ar & const_cast<double &>(m_tol);
+			ar & const_cast<double &>(m_step_size);
+		}
+		const std::size_t	m_max_iter;
+		const double		m_tol;
+		const double		m_step_size;
 };
 
 } }
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::gsl_derivative_free);
 
 #endif

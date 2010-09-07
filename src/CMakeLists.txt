@@ -93,17 +93,17 @@ SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 # Additional files for GSL support.
 IF(ENABLE_GSL)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_gsl.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_bfgs.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_bfgs2.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_derivative_free.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_fr.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_pr.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_gradient.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2rand.cpp
-# 		${CMAKE_CURRENT_SOURCE_DIR}/gsl_init.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base_gsl.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_bfgs.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_bfgs2.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_derivative_free.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_fr.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_pr.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_gradient.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2rand.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/gsl_init.cpp
 	)
 ENDIF(ENABLE_GSL)
 
