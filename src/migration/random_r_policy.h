@@ -25,17 +25,13 @@
 #ifndef PAGMO_MIGRATION_RANDOM_R_POLICY_H
 #define PAGMO_MIGRATION_RANDOM_R_POLICY_H
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 #include <utility>
 #include <vector>
 
 #include "../config.h"
 #include "../population.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 #include "base_r_policy.h"
 
@@ -58,8 +54,9 @@ class __PAGMO_VISIBLE random_r_policy: public base_r_policy
 			select(const std::vector<population::individual_type> &, const population &) const;
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
 			ar & boost::serialization::base_object<base_r_policy>(*this);
 			ar & m_urng;
 		}
@@ -67,5 +64,7 @@ class __PAGMO_VISIBLE random_r_policy: public base_r_policy
 };
 
 } }
+
+BOOST_CLASS_EXPORT(pagmo::migration::random_r_policy);
 
 #endif
