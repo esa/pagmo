@@ -26,6 +26,7 @@
 #define PAGMO_MPI_ENVIRONMENT_H
 
 #include <boost/mpi/environment.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <boost/utility.hpp>
 
 #include "config.h"
