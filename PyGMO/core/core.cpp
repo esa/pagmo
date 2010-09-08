@@ -26,10 +26,12 @@
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/enum.hpp>
+#include <boost/python/extract.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
+#include <boost/python/tuple.hpp>
 #include <stdexcept>
 #include <vector>
 
@@ -167,6 +169,33 @@ struct python_island: base_island, wrapper<base_island>
 		}
 };
 
+struct population_pickle_suite : boost::python::pickle_suite
+{
+	static boost::python::tuple getinitargs(const population &pop)
+	{
+		return boost::python::make_tuple(pop.problem().clone());
+	}
+	static boost::python::tuple getstate(const population &pop)
+	{
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << pop;
+		return boost::python::make_tuple(ss.str());
+	}
+	static void setstate(population &pop, boost::python::tuple state)
+	{
+		if (len(state) != 1)
+		{
+			PyErr_SetObject(PyExc_ValueError,("expected 1-item tuple in call to __setstate__; got %s" % state).ptr());
+			throw_error_already_set();
+		}
+		const std::string str = extract<std::string>(state[0]);
+		std::stringstream ss(str);
+		boost::archive::text_iarchive ia(ss);
+		ia >> pop;
+	}
+};
+
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
@@ -217,7 +246,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("get_worst_idx",&population::get_worst_idx,"Get index of worst individual.")
 		.def("set_x", &population_set_x,"Set decision vector of individual at position n.")
 		.def("set_v", &population_set_v,"Set velocity of individual at position n.")
-		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.");
+		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.")
+		.def_pickle(population_pickle_suite());
 
 	// Individual and champion.
 	class_<population::individual_type>("individual","Individual class.",init<>())
@@ -228,13 +258,15 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("cur_v",&get_cur_v,&set_cur_v)
 		.add_property("best_x",&get_best_x,&set_best_x)
 		.add_property("best_f",&get_best_f,&set_best_f)
-		.add_property("best_c",&get_best_c,&set_best_c);
+		.add_property("best_c",&get_best_c,&set_best_c)
+		.def_pickle(generic_pickle_suite<population::individual_type>());
 
 	class_<population::champion_type>("champion","Champion class.",init<>())
 		.def("__repr__",&population::champion_type::human_readable)
 		.add_property("x",&get_x,&set_x)
 		.add_property("f",&get_f,&set_f)
-		.add_property("c",&get_c,&set_c);
+		.add_property("c",&get_c,&set_c)
+		.def_pickle(generic_pickle_suite<population::champion_type>());
 
 	// Base island class.
 	class_<python_island>("_base_island",no_init)
