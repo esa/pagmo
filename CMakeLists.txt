@@ -7,7 +7,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 
 INCLUDE(CheckCXXCompilerFlag)
-INCLUDE(CheckTypeSize)
 INCLUDE(PaGMOCPackSetup)
 
 # Initialise (empty) list of libraries to link against.
@@ -81,6 +80,50 @@ OPTION(ENABLE_TESTS "Build test set." ON)
 # Build Option: build executable for the examples
 OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
 
+# Flags needed when using static PaGMO library.
+SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_LIB")
+# Flags needed when using dynamic PaGMO library.
+SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+# Flags needed when building static PaGMO library.
+SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_LIB")
+# Flags needed when building dynamic PaGMO library.
+SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+
+# Let's include Boost's headers.
+INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
+
+# Some common platform switches.
+SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+IF(UNIX)
+	# Install path for libraries.
+	SET(LIB_INSTALL_PATH "lib")
+	# NOTICE: use FindThreads library from CMake here instead?
+	# If we are in Unix, let's require pthread.
+	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
+	IF(NOT PTHREAD_LIBRARY)
+		MESSAGE(FATAL_ERROR "POSIX thread library not found, please install it or specify manually where it is located.")
+	ENDIF(NOT PTHREAD_LIBRARY)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
+	# Enable the pthread flag in Unix only if the compiler is GNU.
+	IF(CMAKE_COMPILER_IS_GNUCXX)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ELSE(UNIX)
+	IF(NOT WIN32)
+		MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
+	ENDIF(NOT WIN32)
+	SET(LIB_INSTALL_PATH .)
+	SET(PAGMO_INSTALL_PREFIX "${PAGMO_INSTALL_PREFIX} ${PAGMO_VERSION}")
+	ADD_DEFINITIONS(-DPAGMO_WIN32)
+	IF(MINGW)
+		# Linker and compiler flags needed for the support of multithread applications.
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} -mthreads")
+		SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS_INIT} -mthreads")
+		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} -mthreads")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
+	ENDIF(MINGW)
+ENDIF(UNIX)
+
 IF(ENABLE_MPI)
 	INCLUDE(FindMPI)
 	IF(NOT MPI_FOUND)
@@ -97,6 +140,10 @@ IF(ENABLE_MPI)
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_COMPILE_FLAGS}")
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_MPI)
+	SET(STATIC_LIB_PAGMO_USE_FLAGS "${STATIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_STATIC_LINK")
+	SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "${DYNAMIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_DYN_LINK")
+	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_STATIC_LINK")
+	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "${DYNAMIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_DYN_LINK")
 ENDIF(ENABLE_MPI)
 
 # If GSL support is requested, look for the library.
@@ -201,49 +248,13 @@ IF(ENABLE_IPOPT)
 	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 ENDIF(ENABLE_IPOPT)
 
-# Let's include Boost's headers.
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
-
-# Some common platform switches.
-SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-IF(UNIX)
-	# Install path for libraries.
-	SET(LIB_INSTALL_PATH "lib")
-	# NOTICE: use FindThreads library from CMake here instead?
-	# If we are in Unix, let's require pthread.
-	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
-	IF(NOT PTHREAD_LIBRARY)
-		MESSAGE(FATAL_ERROR "POSIX thread library not found, please install it or specify manually where it is located.")
-	ENDIF(NOT PTHREAD_LIBRARY)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
-	# Enable the pthread flag in Unix only if the compiler is GNU.
-	IF(CMAKE_COMPILER_IS_GNUCXX)
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-	ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-ELSE(UNIX)
-	IF(NOT WIN32)
-		MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
-	ENDIF(NOT WIN32)
-	SET(LIB_INSTALL_PATH .)
-	SET(PAGMO_INSTALL_PREFIX "${PAGMO_INSTALL_PREFIX} ${PAGMO_VERSION}")
-	ADD_DEFINITIONS(-DPAGMO_WIN32)
-	IF(MINGW)
-		# Linker and compiler flags needed for the support of multithread applications.
-		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} -mthreads")
-		SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS_INIT} -mthreads")
-		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} -mthreads")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
-	ENDIF(MINGW)
-ENDIF(UNIX)
-
-CHECK_TYPE_SIZE("void *" POINTER_SIZE)
-MESSAGE(STATUS "Pointer size = ${POINTER_SIZE}")
-
 IF(BUILD_PYGMO)
 	INCLUDE(PaGMOPythonSetup)
 ENDIF(BUILD_PYGMO)
 
+# Add the directory for the PaGMO library.
 ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
+
 IF(BUILD_PYGMO)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO")
 	IF(WIN32)
@@ -276,6 +287,9 @@ IF(BUILD_PYGMO)
 		)
 	ENDIF(WIN32)
 ENDIF(BUILD_PYGMO)
+
+# From now on all targets will use the static PaGMO library. Add the relevant flags.
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_LIB_PAGMO_USE_FLAGS}")
 
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
