@@ -197,11 +197,12 @@ BOOST_PYTHON_MODULE(_core)
 		.value("JD", kep_toolbox::epoch::JD);
 	class_<kep_toolbox::epoch>("epoch","Epoch class.",init<const double &,kep_toolbox::epoch::type>())
 		.def(repr(self));
-	class_<kep_toolbox::planet>("planet","Planet class.",init<const kep_toolbox::epoch&, const kep_toolbox::array6D&, const double &, const double &, const double &, const double &, optional<const std::string &> >())
-		.def(repr(self));
-	class_<kep_toolbox::planet_mpcorb,bases<kep_toolbox::planet> >("planet_mpcorb","Planet MPCORB class.",init<const std::string &>())
-		.def("packed_date2epoch",&kep_toolbox::planet_mpcorb::packed_date2epoch)
-		.staticmethod("packed_date2epoch");
+	// TODO: need to do proper exposition as base class here.
+// 	class_<kep_toolbox::planet>("planet","Planet class.",init<const kep_toolbox::epoch&, const kep_toolbox::array6D&, const double &, const double &, const double &, const double &, optional<const std::string &> >())
+// 		.def(repr(self));
+// 	class_<kep_toolbox::planet_mpcorb,bases<kep_toolbox::planet> >("planet_mpcorb","Planet MPCORB class.",init<const std::string &>())
+// 		.def("packed_date2epoch",&kep_toolbox::planet_mpcorb::packed_date2epoch)
+// 		.staticmethod("packed_date2epoch");
 
 	// Expose population class.
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())

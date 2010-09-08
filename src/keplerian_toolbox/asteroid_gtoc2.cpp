@@ -950,9 +950,9 @@ asteroid_gtoc2::asteroid_gtoc2(const int & astid)
 	}
 	array6D elem = {{gtoc2_asteroids_data[astid][1] * ASTRO_AU, gtoc2_asteroids_data[astid][2], gtoc2_asteroids_data[astid][3] * ASTRO_DEG2RAD, gtoc2_asteroids_data[astid][4] * ASTRO_DEG2RAD, gtoc2_asteroids_data[astid][5] * ASTRO_DEG2RAD, gtoc2_asteroids_data[astid][6] * ASTRO_DEG2RAD}};
 	build_planet(epoch(gtoc2_asteroids_data[astid][7],epoch::MJD), elem, ASTRO_MU_SUN,
-		std::numeric_limits<double>::quiet_NaN(), // the body gravitational parameter, undefined
-		std::numeric_limits<double>::quiet_NaN(), // the body radius, undefined
-		std::numeric_limits<double>::quiet_NaN(), // the body safe radius, undefined
+		0, // the body gravitational parameter, undefined
+		0, // the body radius, undefined
+		0, // the body safe radius, undefined
 		boost::lexical_cast<std::string>(gtoc2_asteroids_data[astid][0]));
 	m_group = gtoc2_asteroids_data[astid][8];
 }

@@ -24,7 +24,6 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
-#include <boost/python/def.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
@@ -37,16 +36,21 @@
 #include "../../src/exceptions.h"
 #include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../../src/problems.h"
+#include "../../src/serialization.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
+#include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;
 
+// Wrapper to expose problems.
 template <class Problem>
 static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *name, const char *descr)
 {
 	class_<Problem,bases<problem::base> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def_pickle(generic_pickle_suite<Problem>());
 	return retval;
 }
 
@@ -138,6 +142,12 @@ struct python_problem: problem::base, wrapper<problem::base>
 		pagmo_assert(f);
 		return f(x);
 	}
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<problem::base>(*this);
+		ar & boost::serialization::base_object<wrapper<problem::base> >(*this);
+	}
 };
 
 BOOST_PYTHON_MODULE(_problem) {
@@ -193,7 +203,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_objfun_impl",&python_problem::py_objfun)
 		.def("_human_readable_extra",&python_problem::py_human_readable_extra)
 		.def("_equality_operator_extra",&python_problem::py_equality_operator_extra)
-		.def("_compute_constraints_impl",&python_problem::py_compute_constraints_impl);
+		.def("_compute_constraints_impl",&python_problem::py_compute_constraints_impl)
+		.def_pickle(python_class_pickle_suite<python_problem>());
 	
 	// Ackley problem.
 	problem_wrapper<problem::ackley>("ackley","Ackley function.")
@@ -204,8 +215,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<int>());
 
 	// GTOC1 problem.
-	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.")
-		.def(init<>());
+	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.");
 
 	// GTOC2 problem.
 	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC problem.")
@@ -235,7 +245,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	
 	// Paraboloid problem.
 	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
-		.def(init<>())
 		.def(init<const decision_vector &, const decision_vector &>());
 
 	// Rosenbrock problem.
@@ -243,20 +252,16 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<int>());
 	
 	// NSGA-II fon problem.
-	problem_wrapper<problem::nsga_ii_fon>("nsga_ii_fon","NSGA-II FON problem.")
-		.def(init<>());
+	problem_wrapper<problem::nsga_ii_fon>("nsga_ii_fon","NSGA-II FON problem.");
 	
 	// NSGA-II sch problem.
-	problem_wrapper<problem::nsga_ii_sch>("nsga_ii_sch","NSGA-II SCH problem.")
-		.def(init<>());
+	problem_wrapper<problem::nsga_ii_sch>("nsga_ii_sch","NSGA-II SCH problem.");
 	
 	// Rosetta problem.
-	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.")
-		.def(init<>());
+	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
 	
 	// Sagas problem.
-	problem_wrapper<problem::sagas>("sagas","Sagas problem.")
-		.def(init<>());
+	problem_wrapper<problem::sagas>("sagas","Sagas problem.");
 	
 	// Rastrigin problem.
 	problem_wrapper<problem::rastrigin>("rastrigin","Generalised Rastrigin function.")
@@ -275,16 +280,13 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const std::vector<double> &, const std::vector<double> &, const double &>());
 
 	// Himmelblau's function.
-	problem_wrapper<problem::himmelblau>("himmelblau","Himmelblau's function.")
-		.def(init<>());
+	problem_wrapper<problem::himmelblau>("himmelblau","Himmelblau's function.");
 
 	// SNOPT toy problem.
-	problem_wrapper<problem::snopt_toyprob>("snopt_toyprob","SNOPT toy problem.")
-		.def(init<>());
+	problem_wrapper<problem::snopt_toyprob>("snopt_toyprob","SNOPT toy problem.");
 
 	// Branin's rcos funciotn.
-	problem_wrapper<problem::branin>("branin","Branin's rcos function.")
-		.def(init<>());
+	problem_wrapper<problem::branin>("branin","Branin's rcos function.");
 
 	// Luksan Vlcek problem 1.
 	problem_wrapper<problem::luksan_vlcek_1>("luksan_vlcek_1","Luksan Vlcek problem 1.")
@@ -302,21 +304,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::string_match>("string_match","String matching problem.")
 		.def(init<const std::string &>());
 
-	// String matching problem (multi-objective version).
-	problem_wrapper<problem::string_match_mo>("string_match_mo","String matching problem (multi-objective version).")
-		.def(init<const std::string &>());
-
 	// Cassini 1.
-	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.")
-		.def(init<>());
+	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
 
 	// Messenger full.
-	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.")
-		.def(init<>());
+	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
 
 	// Cassini 2.
-	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.")
-		.def(init<>());
+	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
 	
 	// Tandem.
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
@@ -326,10 +321,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
 		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
 		.def("get_delta_v",&problem::sample_return::get_delta_v);
-
-	// Function for the total number of objective function evaluations.
-	def("objfun_calls",&problem::objfun_calls,"Return the total number of calls to the objective function.");
-	def("reset_objfun_calls",&problem::reset_objfun_calls,"Reset the total number of calls to the objective function.");
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();

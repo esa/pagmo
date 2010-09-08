@@ -30,7 +30,9 @@
 
 #include "../../src/algorithms.h"
 #include "../../src/population.h"
+#include "../../src/serialization.h"
 #include "../exceptions.h"
+#include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;
@@ -43,12 +45,15 @@ static inline population evolve_copy(const algorithm::base &a, const population 
 	return pop_copy;
 }
 
+// Wrapper to expose algorithms.
 template <class Algorithm>
 static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
 {
 	class_<Algorithm,bases<algorithm::base> > retval(name,descr,init<const Algorithm &>());
+	retval.def(init<>());
 	retval.def("__copy__", &Algorithm::clone);
 	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(generic_pickle_suite<Algorithm>());
 	return retval;
 }
 
@@ -94,6 +99,12 @@ struct python_algorithm: algorithm::base, wrapper<algorithm::base>
 	{
 		return this->algorithm::base::get_name();
 	}
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<algorithm::base>(*this);
+		ar & boost::serialization::base_object<wrapper<algorithm::base> >(*this);
+	}
 };
 
 BOOST_PYTHON_MODULE(_algorithm) {
@@ -109,13 +120,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def("__copy__",pure_virtual(&algorithm::base::clone))
 		.def("get_name",&algorithm::base::get_name,&python_algorithm::default_get_name)
 		.def("evolve",&python_algorithm::py_evolve)
-		.def("_human_readable_extra",&python_algorithm::py_human_readable_extra);
+		.def("_human_readable_extra",&python_algorithm::py_human_readable_extra)
+		.def_pickle(python_class_pickle_suite<python_algorithm>());
 
 	// Expose algorithms.
 
 	// Null.
-	algorithm_wrapper<algorithm::null>("null","Null algorithm.")
-		.def(init<>());
+	algorithm_wrapper<algorithm::null>("null","Null algorithm.");
 
 	// IHS.
 	algorithm_wrapper<algorithm::ihs>("ihs","Improved harmony search.")

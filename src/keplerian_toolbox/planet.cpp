@@ -23,6 +23,10 @@ planet::planet(const epoch& ref_epoch, const array6D& orbital_elements_, const d
 	if (mu_self_ <= 0) {
 		throw_value_error("The gravitational parameter of the planet needs to be strictly positive");
 	}
+	for (int i = 0; i < 6; ++i) {
+		cached_r[i] = 0;
+		cached_v[i] = 0;
+	}
 	planet::build_planet(ref_epoch, orbital_elements_, mu_central_body_, mu_self_, radius_, safe_radius_, name_);
 }
 
@@ -35,12 +39,11 @@ void planet::build_planet(const epoch& ref_epoch, const array6D& orbital_element
 	mu_self = mu_self_;
 	mu_central_body = mu_central_body_;
 	m_name = name_;
-	cached_epoch = std::numeric_limits<double>::quiet_NaN();
 	mean_motion = sqrt(mu_central_body / pow(keplerian_elements[0],3));
 }
 
 void planet::get_eph(const epoch& when, array3D &r, array3D &v) const{
-	if(when.mjd2000() != cached_epoch.mjd2000()) {
+	if(when.mjd2000() != cached_epoch.mjd2000() || cached_epoch.mjd2000() == 0) {
 		double elements[6];
 		std::copy(keplerian_elements.begin(), keplerian_elements.end(), elements);
 		double dt = (when.mjd2000() - ref_mjd2000) * ASTRO_DAY2SEC;
