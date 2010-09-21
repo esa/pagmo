@@ -217,21 +217,50 @@ void base_island::join() const
 	}
 }
 
+/// Island's thread safety attribute.
+/**
+ * This method will return true if both the population's problem's problem::base::is_thread_safe() method and the algorithm's algorithm::base::is_thread_safe() method return true,
+ * false otherwise.
+ *
+ * @return island's thread safety attribute.
+ */
+bool base_island::is_thread_safe() const
+{
+	// NOTE: here we want to join just the stand-alone island. If the island is in an archipelago,
+	// this method can be called only by the archipelago itself.
+	if (!m_archi) {
+		join();
+	}
+	return (m_pop.problem().is_thread_safe() && m_algo->is_thread_safe());
+}
+
+/// Island's blocking attribute (synchronised).
+/**
+ * @return is_blocking_impl() after calling join().
+ */
+bool base_island::is_blocking() const
+{
+	if (!m_archi) {
+		join();
+	}
+	return is_blocking_impl();
+}
+
 // Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
 struct base_island::int_evolver {
-	int_evolver(base_island *i, const std::size_t &n, bool blocking):m_i(i),m_n(n),m_blocking(blocking) { }
+	int_evolver(base_island *i, const std::size_t &n, bool use_thread):m_i(i),m_n(n),m_use_thread(use_thread) {}
 	void operator()();
 	void juice_impl(boost::posix_time::ptime &);
 	base_island 		*m_i;
 	const std::size_t	m_n;
-	const bool		m_blocking;
+	const bool		m_use_thread;
 };
 
 void base_island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 {
 	start = boost::posix_time::microsec_clock::local_time();
-	// Synchronise start with all other threads if we are not blocking and we are in an archi.
-	if (m_i->m_archi && !m_blocking) {
+	// Synchronise start with all other threads if we are running in separate thread and we are in an archi.
+	if (m_i->m_archi && m_use_thread) {
 		m_i->m_archi->sync_island_start();
 	}
 	for (std::size_t i = 0; i < m_n; ++i) {
@@ -248,7 +277,7 @@ void base_island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 		}
 		m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		// If we are running in a separate thread, set the interruption point.
-		if (!m_blocking) {
+		if (m_use_thread) {
 			boost::this_thread::interruption_point();
 		}
 	}
@@ -258,9 +287,7 @@ void base_island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 void base_island::int_evolver::operator()()
 {
 	boost::posix_time::ptime start;
-	if (m_blocking) {
-		juice_impl(start);
-	} else {
+	if (m_use_thread) {
 		try {
 			juice_impl(start);
 		} catch (const boost::thread_interrupted &) {
@@ -270,6 +297,8 @@ void base_island::int_evolver::operator()()
 		} catch (...) {
 			std::cout << "Error during island evolution, unknown exception caught. :(\n";
 		}
+	} else {
+		juice_impl(start);
 	}
 	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
 	try {
@@ -287,7 +316,9 @@ void base_island::int_evolver::operator()()
 /// Evolve island n times.
 /**
  * Call the internal algorithm's algorithm::base::evolve() method n times on the internal population, using an island-specific
- * mechanism for the actual execution of the code. During evolution, the island is locked down and no actions on it are possible,
+ * mechanism for the actual execution of the code.
+ *
+ * During evolution, the island is locked down and no actions on it are possible,
  * but the flow of the rest of the program might continue without waiting for all evolutions to finish. To explicitly block the program until all evolution runs
  * have been performed on the island, call the join() method.
  *
@@ -296,13 +327,18 @@ void base_island::int_evolver::operator()()
 void base_island::evolve(int n)
 {
 	join();
+	const bool blocking = is_blocking_impl();
 	const std::size_t n_evo = boost::numeric_cast<std::size_t>(n);
-	if (is_thread_blocking() || (m_archi && m_archi->is_blocking_impl())) {
-		int_evolver ev(this,n_evo,true);
+	if (!is_thread_safe() || (m_archi && !m_archi->is_thread_safe_impl())) {
+		int_evolver ev(this,n_evo,false);
 		ev();
 	} else {
 		try {
-			m_evo_thread.reset(new boost::thread(int_evolver(this,n_evo,false)));
+			m_evo_thread.reset(new boost::thread(int_evolver(this,n_evo,true)));
+			// Wait for thread to return, if island is not in an archipelago and it is blocking.
+			if (!m_archi && blocking) {
+				join();
+			}
 		} catch (...) {
 			pagmo_throw(std::runtime_error,"failed to launch the thread");
 		}
@@ -311,12 +347,12 @@ void base_island::evolve(int n)
 
 // Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.
 struct base_island::t_evolver {
-	t_evolver(base_island *i, const std::size_t &t, bool blocking):m_i(i),m_t(t),m_blocking(blocking) {}
+	t_evolver(base_island *i, const std::size_t &t, bool use_thread):m_i(i),m_t(t),m_use_thread(use_thread) {}
 	void operator()();
 	void juice_impl(boost::posix_time::ptime &);
 	base_island 		*m_i;
 	const std::size_t	m_t;
-	const bool		m_blocking;
+	const bool		m_use_thread;
 };
 
 void base_island::t_evolver::juice_impl(boost::posix_time::ptime &start)
@@ -324,7 +360,7 @@ void base_island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 	boost::posix_time::time_duration diff;
 	start = boost::posix_time::microsec_clock::local_time();
 	// Synchronise start.
-	if (m_i->m_archi && !m_blocking) {
+	if (m_i->m_archi && m_use_thread) {
 		m_i->m_archi->sync_island_start();
 	}
 	do {
@@ -338,7 +374,7 @@ void base_island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 		}
 		m_i->m_pop.problem().post_evolution(m_i->m_pop);
 		// If we are running in a separate thread, set the interruption point.
-		if (!m_blocking) {
+		if (m_use_thread) {
 			boost::this_thread::interruption_point();
 		}
 		diff = boost::posix_time::microsec_clock::local_time() - start;
@@ -350,9 +386,7 @@ void base_island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 void base_island::t_evolver::operator()()
 {
 	boost::posix_time::ptime start;
-	if (m_blocking) {
-		juice_impl(start);
-	} else {
+	if (m_use_thread) {
 		try {
 			juice_impl(start);
 		} catch (const boost::thread_interrupted &) {
@@ -362,6 +396,8 @@ void base_island::t_evolver::operator()()
 		} catch (...) {
 			std::cout << "Unknown exception caught. :(\n";
 		}
+	} else {
+		juice_impl(start);
 	}
 	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
 	try {
@@ -378,11 +414,11 @@ void base_island::t_evolver::operator()()
 
 /// Evolve island for a specified minimum amount of time.
 /**
- * Open a thread and call the internal algorithm's algorithm::base::evolve() method on the population at least once, and keep calling it until at least t milliseconds
- * ("wall clock" time) have elapsed. Will fail if t is negative.
+ * Call the internal algorithm's algorithm::base::evolve() method on the population at least once, and keep calling it until at least t milliseconds
+ * (in "wall clock" time) have elapsed. Will fail if t is negative.
  *
- * This method will return as soon as it has started the first evolution run. During evolution, the island is locked down and no actions on it are possible,
- * but the flow of the rest of the program can continue without waiting for all evolutions to finish. To explicitly block the program until all evolution runs
+ * During evolution, the island is locked down and no actions on it are possible,
+ * but the flow of the rest of the program might continue without waiting for all evolutions to finish. To explicitly block the program until all evolution runs
  * have been performed on the island, call the join() method.
  *
  * @param[in] t minimum evolution time in milliseconds.
@@ -391,12 +427,17 @@ void base_island::evolve_t(int t)
 {
 	join();
 	const std::size_t t_evo = boost::numeric_cast<std::size_t>(t);
-	if (is_thread_blocking() || (m_archi && m_archi->is_blocking_impl())) {
-		t_evolver ev(this,t_evo,true);
+	const bool blocking = is_blocking_impl();
+	if (!is_thread_safe() || (m_archi && !m_archi->is_thread_safe_impl())) {
+		t_evolver ev(this,t_evo,false);
 		ev();
 	} else {
 		try {
-			m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo,false)));
+			m_evo_thread.reset(new boost::thread(t_evolver(this,t_evo,true)));
+			// Wait for thread to return, if island is not in an archipelago and it is blocking.
+			if (!m_archi && blocking) {
+				join();
+			}
 		} catch (...) {
 			pagmo_throw(std::runtime_error,"failed to launch the thread");
 		}
@@ -405,13 +446,14 @@ void base_island::evolve_t(int t)
 
 /// Interrupt evolution.
 /**
- * If an evolution is undergoing, it will be stopped the first time it reaches one of the internal interruption points.
+ * If an evolution is undergoing, the evolution will be stopped the first time the flow reaches one of the internal interruption points.
+ * The method will block until the interruption point has been reached.
  */
 void base_island::interrupt()
 {
 	if (m_evo_thread) {
 		m_evo_thread->interrupt();
-		pagmo_throw(std::runtime_error,"evolution interrupted");
+		join();
 	}
 }
 
@@ -424,7 +466,7 @@ bool base_island::busy() const
 	if (!m_evo_thread) {
 		return false;
 	}
-	return m_evo_thread->joinable();
+	return (!m_evo_thread->timed_join(boost::posix_time::milliseconds(1)));
 }
 
 /// Return the total evolution time in milliseconds.

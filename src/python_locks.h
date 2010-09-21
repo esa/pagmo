@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 2 of the License, or       *
+ *   the Free Software Foundation; either version 3 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,70 +22,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <string>
+#ifndef PAGMO_PYTHON_LOCKS_H
+#define PAGMO_PYTHON_LOCKS_H
 
-#include "algorithm/base.h"
-#include "base_island.h"
-#include "island.h"
-#include "migration/base_r_policy.h"
-#include "migration/base_s_policy.h"
-#include "population.h"
-#include "problem/base.h"
+#include <Python.h>
+#include <boost/thread/thread.hpp>
+#include <boost/utility.hpp>
 
-namespace pagmo
+namespace pagmo {
+
+class gil_state_lock: private boost::noncopyable
 {
+	public:
+		gil_state_lock();
+		~gil_state_lock();
+	private:
+		const boost::thread::id		m_cur_thread_id;
+		PyGILState_STATE		m_gstate;
+		static const boost::thread::id	m_main_thread_id;
+};
 
-/// Constructor from problem::base, algorithm::base, number of individuals, migration probability and selection/replacement policies.
-/**
- * @see pagmo::base_island constructors.
- */
-island::island(const problem::base &p, const algorithm::base &a, int n, const double &migr_prob,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(p,a,n,migr_prob,s_policy,r_policy)
-{}
-
-/// Copy constructor.
-/**
- * @see pagmo::base_island constructors.
- */
-island::island(const island &isl):base_island(isl)
-{}
-
-/// Constructor from population.
-/**
- * @see pagmo::base_island constructors.
- */
-island::island(const population &pop, const algorithm::base &a, const double &migr_prob,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(pop,a,migr_prob,s_policy,r_policy)
-{}
-
-/// Assignment operator.
-island &island::operator=(const island &isl)
+class gil_releaser: private boost::noncopyable
 {
-	base_island::operator=(isl);
-	return *this;
+	public:
+		gil_releaser();
+		~gil_releaser();
+	private:
+		PyThreadState *m_thread_state;
+};
+
 }
 
-base_island_ptr island::clone() const
-{
-	return base_island_ptr(new island(*this));
-}
-
-// Blocking attribute implementation.
-bool island::is_blocking_impl() const
-{
-	return false;
-}
-
-void island::perform_evolution(const algorithm::base &algo, population &pop) const
-{
-	algo.evolve(pop);
-}
-
-std::string island::get_name() const
-{
-	return "Local thread island";
-}
-
-}
+#endif

@@ -30,6 +30,7 @@
 #include <boost/tuple/tuple_io.hpp>
 #include <cstddef>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -183,6 +184,8 @@ void archipelago::join() const
 
 archipelago::size_type archipelago::locate_island(const base_island &isl) const
 {
+	// TODO: iterate and increase a size type instead of using distance(), which returns a signed int.
+	// Also, assert the island is actually found here?
 	const_iterator it = m_container.begin();
 	for (; it != m_container.end(); ++it) {
 		if (&(*(*it)) == &isl) {
@@ -514,24 +517,53 @@ struct archipelago::count_if_blocking
 {
 	bool operator()(const base_island_ptr &ptr) const
 	{
-		return ptr->is_thread_blocking();
+		return ptr->is_blocking();
 	}
 };
 
 // Implementation of blocking attribute.
 bool archipelago::is_blocking_impl() const
 {
+	// Make sure we do not overflow.
+	boost::numeric_cast<std::iterator_traits<const_iterator>::difference_type>(m_container.size());
 	return std::count_if(m_container.begin(),m_container.end(),count_if_blocking());
 }
 
 /// Archipelago's blocking attribute.
 /**
- * @return true if at least one island returns true on island::is_blocking().
+ * @return true if at least one island's base_island::is_blocking() method returns true.
  */
 bool archipelago::is_blocking() const
 {
 	join();
 	return is_blocking_impl();
+}
+
+// Functor to count the number of thread-safe islands.
+struct archipelago::count_if_thread_safe
+{
+	bool operator()(const base_island_ptr &ptr) const
+	{
+		return ptr->is_thread_safe();
+	}
+};
+
+// Implementation of thread-safe attribute.
+bool archipelago::is_thread_safe_impl() const
+{
+	// Make sure we do not overflow.
+	boost::numeric_cast<std::iterator_traits<const_iterator>::difference_type>(m_container.size());
+	return std::count_if(m_container.begin(),m_container.end(),count_if_thread_safe());
+}
+
+/// Archipelago's thread safety attribute.
+/**
+ * @return true if at least one island's base_island::is_thread_safe() method returns true.
+ */
+bool archipelago::is_thread_safe() const
+{
+	join();
+	return is_thread_safe();
 }
 
 /// Run the evolution for the given number of iterations.
@@ -544,8 +576,13 @@ void archipelago::evolve(int n)
 {
 	join();
 	const iterator it_f = m_container.end();
-	// In case there are blocking islands, do not calls evolve(n) on each island, but iteratively call evolve() n times.
-	if (is_blocking_impl()) {
+	if (is_thread_safe_impl()) {
+		// Reset thread barrier.
+		reset_barrier(m_container.size());
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
+			(*it)->evolve(n);
+		}
+	} else {
 		// Build a vector of iterators to the islands.
 		std::vector<iterator> it_vector;
 		for (iterator it = m_container.begin(); it != it_f; ++it) {
@@ -558,12 +595,10 @@ void archipelago::evolve(int n)
 				(*(*it))->evolve();
 			}
 		}
-	} else {
-		// Reset thread barrier.
-		reset_barrier(m_container.size());
-		for (iterator it = m_container.begin(); it != it_f; ++it) {
-			(*it)->evolve(n);
-		}
+	}
+	// If the archipelago is blocking, wait for evolutions to finish.
+	if (is_blocking_impl()) {
+		join();
 	}
 }
 
@@ -589,7 +624,12 @@ void archipelago::evolve_t(int t)
 {
 	join();
 	const iterator it_f = m_container.end();
-	if (is_blocking_impl()) {
+	if (is_thread_safe_impl()) {
+		reset_barrier(m_container.size());
+		for (iterator it = m_container.begin(); it != it_f; ++it) {
+			(*it)->evolve_t(t);
+		}
+	} else {
 		// Build a vector of (iterators,evolution time) pairs.
 		std::vector<std::pair<iterator,int> > it_t_vector;
 		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
@@ -613,11 +653,10 @@ void archipelago::evolve_t(int t)
 				}
 			}
 		}
-	} else {
-		reset_barrier(m_container.size());
-		for (iterator it = m_container.begin(); it != it_f; ++it) {
-			(*it)->evolve_t(t);
-		}
+	}
+	// If the archipelago is blocking, wait for evolutions to finish.
+	if (is_blocking_impl()) {
+		join();
 	}
 }
 
@@ -644,11 +683,8 @@ void archipelago::interrupt()
 {
 	const iterator it_f = m_container.end();
 	for (iterator it = m_container.begin(); it != it_f; ++it) {
-		try {
-			(*it)->interrupt();
-		} catch (const std::runtime_error &) {}
+		(*it)->interrupt();
 	}
-	pagmo_throw(std::runtime_error,"evolution interrupted");
 }
 
 /// Island getter.

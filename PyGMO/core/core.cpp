@@ -30,6 +30,7 @@
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
+#include <boost/python/pure_virtual.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/python/tuple.hpp>
 #include <stdexcept>
@@ -38,6 +39,7 @@
 #include "../../src/algorithm/base.h"
 #include "../../src/archipelago.h"
 #include "../../src/base_island.h"
+// NOTE: here probably we need to re-put python island for the future.
 #include "../../src/island.h"
 #include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../../src/migration/base_r_policy.h"
@@ -45,11 +47,14 @@
 #include "../../src/migration/best_s_policy.h"
 #include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
+#include "../../src/python_locks.h"
 #include "../../src/problem/base.h"
 #include "../../src/topology/base.h"
 #include "../boost_python_container_conversions.h"
 #include "../exceptions.h"
 #include "../utils.h"
+//#include "python_island.h"
+#include "python_base_island.h"
 
 using namespace boost::python;
 using namespace pagmo;
@@ -107,92 +112,35 @@ inline static void population_set_v(population &pop, int n, const decision_vecto
 	pop.set_v(boost::numeric_cast<population::size_type>(n),v);
 }
 
-struct python_island: base_island, wrapper<base_island>
-{
-		explicit python_island(const problem::base &p, const algorithm::base &a, int n = 0,
-			const double &prob = 1,
-			const migration::base_s_policy &s = migration::best_s_policy(),
-			const migration::base_r_policy &r = migration::fair_r_policy()):
-			base_island(p,a,n,prob,s,r)
-		{}
-		explicit python_island(const population &pop, const algorithm::base &a,
-			const double &prob = 1,
-			const migration::base_s_policy &s = migration::best_s_policy(),
-			const migration::base_r_policy & r= migration::fair_r_policy()):
-			base_island(pop,a,prob,s,r)
-		{}
-		python_island(const base_island &isl):base_island(isl)
-		{}
-		base_island_ptr clone() const
-		{
-			if (override f = this->get_override("__copy__")) {
-				return f();
-			}
-			pagmo_throw(not_implemented_error,"island cloning has not been implemented");
-			return base_island_ptr();
-		}
-		std::string get_name() const
-		{
-			if (override f = this->get_override("get_name")) {
-				return f();
-			}
-			return base_island::get_name();
-		}
-		std::string default_get_name() const
-		{
-			return this->base_island::get_name();
-		}
-		bool is_thread_blocking() const
-		{
-			if (override f = this->get_override("is_thread_blocking")) {
-				return f();
-			}
-			pagmo_throw(not_implemented_error,"island's thread blocking property has not been implemented");
-			return true;
-		}
-		population py_perform_evolution(const algorithm::base &a, const population &pop) const
-		{
-			if (override f = this->get_override("_perform_evolution")) {
-				const population retval = f(a,pop);
-				if (pop.problem() != retval.problem()) {
-					pagmo_throw(std::runtime_error,"island's _perform_evolution method modified the population's problem, please check the implementation");
-				}
-				return retval;
-			}
-			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
-			return pop;
-		}
-	protected:
-		void perform_evolution(const algorithm::base &a, population &pop) const
-		{
-			pop = py_perform_evolution(a,pop);
-		}
-};
-
 struct population_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const population &pop)
 	{
+		gil_state_lock lock;
 		return boost::python::make_tuple(pop.problem().clone());
 	}
 	static boost::python::tuple getstate(const population &pop)
 	{
+		gil_state_lock lock;
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << pop;
-		return boost::python::make_tuple(ss.str());
+		return boost::python::make_tuple(ss.str(),pop.problem().clone());
 	}
 	static void setstate(population &pop, boost::python::tuple state)
 	{
-		if (len(state) != 1)
+		gil_state_lock lock;
+		if (len(state) != 2)
 		{
-			PyErr_SetObject(PyExc_ValueError,("expected 1-item tuple in call to __setstate__; got %s" % state).ptr());
+			PyErr_SetObject(PyExc_ValueError,("expected 2-item tuple in call to __setstate__; got %s" % state).ptr());
 			throw_error_already_set();
 		}
 		const std::string str = extract<std::string>(state[0]);
 		std::stringstream ss(str);
 		boost::archive::text_iarchive ia(ss);
 		ia >> pop;
+		const problem::base_ptr prob = boost::python::extract<problem::base_ptr>(state[1]);
+		population_access::get_problem_ptr(pop) = prob->clone();
 	}
 };
 
@@ -268,29 +216,33 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("c",&get_c,&set_c)
 		.def_pickle(generic_pickle_suite<population::champion_type>());
 
-	// Base island class.
-	class_<python_island>("_base_island",no_init)
-		.def(init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+	// Base island class for Python implementation.
+	class_<python_base_island>("_base_island",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const base_island &>())
-		.def("__copy__", &base_island::clone)
+		.def(init<const python_base_island &>())
+		.def("__repr__",&base_island::human_readable)
 		.def("__len__", &base_island::get_size)
-		.def("__repr__", &base_island::human_readable)
 		.def("evolve", &base_island::evolve,"Evolve island n times.")
 		.def("evolve_t", &base_island::evolve_t,"Evolve island for at least n milliseconds.")
 		.def("join", &base_island::join,"Wait for evolution to complete.")
 		.def("busy", &base_island::busy,"Check if island is evolving.")
-		.def("is_thread_blocking", &base_island::is_thread_blocking,"Check if island is thread blocking.")
+		.def("is_thread_safe", &base_island::is_thread_safe,"Check if island is thread-safe.")
+		.def("is_blocking", &base_island::is_blocking,"Check if island is blocking.")
 		.def("interrupt", &base_island::interrupt,"Interrupt evolution.")
-		.def("get_name", &base_island::get_name,&python_island::default_get_name)
-		.def("_perform_evolution",&python_island::py_perform_evolution)
 		.add_property("problem",&base_island::get_problem)
 		.add_property("algorithm",&base_island::get_algorithm,&island::set_algorithm)
-		.add_property("population",&base_island::get_population);
+		.add_property("population",&base_island::get_population)
+		.add_property("s_policy",&base_island::get_s_policy)
+		.add_property("r_policy",&base_island::get_r_policy)
+		.add_property("migration_probability",&base_island::get_migration_probability)
+		// Virtual methods.
+		.def("__copy__",pure_virtual(&base_island::clone))
+		.def("get_name", &base_island::get_name,&python_base_island::default_get_name)
+		.def("_perform_evolution",&python_base_island::py_perform_evolution);
+		// TODO: serialization.
 
 	// Local island class.
-	class_<island,bases<base_island> >("island", "Local island class.",no_init)
-		.def(init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+	class_<island,bases<base_island> >("island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const island &>());
 
@@ -314,6 +266,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
 		.def("push_back", &archipelago::push_back,"Append island.")
 		.def("set_algorithm", &archipelago_set_algorithm,"Set algorithm on island.")
+		.def("is_thread_safe", &archipelago::is_thread_safe,"Check if archipelago is thread_safe.")
 		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.def("dump_migr_history", &archipelago::dump_migr_history)
 		.def("clear_migr_history", &archipelago::clear_migr_history)

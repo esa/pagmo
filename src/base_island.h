@@ -54,12 +54,11 @@ typedef boost::shared_ptr<base_island> base_island_ptr;
 /// Base island class.
 /**
  * This class incorporates a pagmo::population and a pagmo::algorithm::base used to evolve the population. Each time the evolve() (or evolve_t()) method is called,
- * a derived island class will execute the algorithm's evolve method on the population. The actual mechanism of launching the evolve method (e.g., by opening a local thread) is defined in the
- * derived class.
- * While evolution is undergoing, the island is locked down
- * and no further operations will be allowed. The method join() can be used to wait until evolution on the island has terminated. The busy() methods can be used to query the state
- * of the island.
+ * a derived island class will execute the algorithm's evolve method on the population. The actual mechanism of launching the evolve method is defined in the
+ * derived class - see \ref evolution_details "below" for more details. While evolution is undergoing, the island is locked down and no further operations will be allowed. The method join() can be used to wait until
+ * evolution on the island has terminated. The busy() methods can be used to query the state of the island.
  *
+ * The island can either exist as a stand-alone object or as a component of an archipelago.
  * If the island belongs to an archipelago, it can exchange individuals with other islands in the archipelago. The topology of the archipelago determines
  * the connections between islands, whereas every island can define migration policies to specify how to select and replace individuals during migration.
  * The relevant policy classes are migration::base_s_policy (selection policy) and migration::base_r_policy (replacement policy).
@@ -70,6 +69,18 @@ typedef boost::shared_ptr<base_island> base_island_ptr;
  * access the population champion, etc. The main difference
  * is that the methods of this class will never return references to internal members, in order to protect the internal state of the island while evolution is undergoing.
  * All getters methods will thus return copies instead of references, and all public methods will wait for an ongoing evolution to terminate before performing any action.
+ *
+ * \section evolution_details Implementation of the evolution methods
+ *
+ * When one of the evolution methods (evolve() or evolve_t()) is launched, the following sequence of events takes place:
+ * - if the is_thread_safe() method returns true and the island either is stand-alone or belongs to an archipelago for which archipelago::is_thread_safe() also returns true:
+ *   - a local thread is opened and the perform_evolution() method is called from the new thread using as arguments the population and the algorithm stored in the island;
+ *   - if the is_blocking() method returns true and the island is stand-alone:
+ *     - execution will block until the evolution has concluded;
+ *   - else:
+ *     - the evolution method will return while the actual evolution is running in the separate thread;
+ * - else:
+ *   - the perform_evolution() method is called from the main thread.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Marek Ruciński (marek.rucinski@gmail.com)
@@ -110,24 +121,16 @@ class __PAGMO_VISIBLE base_island
 		void evolve_t(int);
 		void interrupt();
 		std::size_t get_evolution_time() const;
-		/// Island's thread safety attribute.
-		/**
-		 * This method should return false if both these conditions hold: 
-		 *
-		 * - multiple island evolutions can run concurrently,
-		 * - the flow of the program can progress after one or multiple evolutions are started asynchronously and running in the background.
-		 *
-		 * This method is used by the pagmo::archipelago class when deciding how to schedule the evolutions of the
-		 * individual islands.
-		 *
-		 * Example: an island which launches evolutions using threads in shared memory is not blocking if and only if both its algorithm and its problem are thread-safe.
-		 * Conversely, if an island launches evolutions via external processes, the thread-safety of algorithm and problem will not matter,
-		 * as the evolution will take place in a separate process, and the island will then never be blocking.
-		 *
-		 * @return island's thread blocking attribute.
-		 */
-		virtual bool is_thread_blocking() const = 0;
+		bool is_thread_safe() const;
+		bool is_blocking() const;
 	protected:
+		/// Island blocking attribute.
+		/**
+		 * This method should return true if a thread-safe stand-alone island must block the flow of the program until the evolution thread has finished, false otherwise.
+		 *
+		 * @return island blocking attribute.
+		 */
+		virtual bool is_blocking_impl() const = 0;
 		/// Method that implements the evolution of the population.
 		virtual void perform_evolution(const algorithm::base &, population &) const = 0;
 		//@}
@@ -160,6 +163,7 @@ class __PAGMO_VISIBLE base_island
 			// TODO: here we probably need to split load/save, take care of evo_thread,
 			// set the archi pointer when (de)serializing from archipelago, etc. Also, consider
 			// relation to save/load constructor data in island and mpi_island.
+			// Also, remember to join!
 			ar & m_pop;
 			ar & m_algo;
 			//ar & m_archi;

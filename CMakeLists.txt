@@ -88,6 +88,9 @@ SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DY
 SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_LIB")
 # Flags needed when building dynamic PaGMO library.
 SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+# NOTE: for Boost Python we are only interested in the dynamic linking, which, according to its config.hpp, is automatically
+# selected if nothing else is specified. Hence, we do not need to set anything specific, apart from the -DBOOST_PYTHON_SOURCE
+# definition in src/CMakelists.txt.
 
 # Let's include Boost's headers.
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")

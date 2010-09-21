@@ -102,8 +102,7 @@ return base_ptr(new derived_algorithm(*this));
 		virtual ~base();
 		std::string human_readable() const;
 		virtual std::string get_name() const;
-		virtual bool is_blocking() const;
-	protected:
+		virtual bool is_thread_safe() const;
 		virtual std::string human_readable_extra() const;
 	protected:
 		/// Random number generator for double-precision floating point values.

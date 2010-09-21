@@ -89,10 +89,9 @@ base_island_ptr mpi_island::clone() const
 	return base_island_ptr(new mpi_island(*this));
 }
 
-// Thread safety attribute implementation.
-bool mpi_island::is_thread_blocking() const
+bool mpi_island::is_blocking_impl() const
 {
-	return (m_pop.problem().is_blocking() || m_algo->is_blocking());
+	return false;
 }
 
 // Method that perform the actual evolution for the island population, and is used to distribute the computation load over multiple processors

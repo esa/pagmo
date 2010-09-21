@@ -66,12 +66,12 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 			const migration::base_r_policy & = migration::fair_r_policy());
 		mpi_island &operator=(const mpi_island &);
 		base_island_ptr clone() const;
+	protected:
 		/** @name Evolution.
 		 * Methods related to island evolution.
 		 */
 		//@{
-		bool is_thread_blocking() const;
-	protected:
+		bool is_blocking_impl() const;
 		void perform_evolution(const algorithm::base &, population &) const;
 		//@}
 	public:

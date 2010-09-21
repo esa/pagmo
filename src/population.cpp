@@ -41,6 +41,12 @@
 
 namespace pagmo
 {
+
+problem::base_ptr &population_access::get_problem_ptr(population &pop)
+{
+	return pop.m_prob;
+}
+
 /// Constructor from problem::base and number of individuals.
 /**
  * Will store a copy of the problem and will initialise the population to n randomly-generated individuals.

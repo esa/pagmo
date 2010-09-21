@@ -409,17 +409,17 @@ return base_ptr(new derived_problem(*this));
 		 */
 		virtual base_ptr clone() const = 0;
 		std::string human_readable() const;
+		virtual std::string human_readable_extra() const;
 		bool operator==(const base &) const;
 		bool operator!=(const base &) const;
 		bool is_compatible(const base &) const;
 		bool compare_x(const decision_vector &, const decision_vector &) const;
 		bool verify_x(const decision_vector &) const;
 		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
-		virtual bool is_blocking() const;
+		virtual bool is_thread_safe() const;
 		virtual void pre_evolution(population &) const;
 		virtual void post_evolution(population &) const;
 	protected:
-		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;

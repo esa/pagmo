@@ -247,6 +247,7 @@ IF(BUILD_PYGMO)
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/str.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/tuple.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/wrapper.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/python_locks.cpp
 	)
 	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
 	# Request linking against the Python libs, in addition to our mandatory libs.

@@ -40,8 +40,9 @@
 namespace pagmo
 {
 
-// Forward declaration for friendship.
+// Forward declarations.
 class base_island;
+class population_access;
 
 /// Population class.
 /**
@@ -58,6 +59,7 @@ class base_island;
 class __PAGMO_VISIBLE population
 {
 		friend class base_island;
+		friend class population_access;
 	public:
 		/// Individuals stored in the population.
 		/**
@@ -211,6 +213,11 @@ __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::individual_type &);
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::champion_type &);
 
+struct population_access
+{
+	static problem::base_ptr &get_problem_ptr(population &);
+};
+
 }
 
 namespace boost { namespace serialization {
@@ -229,7 +236,7 @@ inline void load_construct_data(Archive &ar, pagmo::population *pop, const unsig
 	// Retrieve data from archive required to construct new instance.
 	pagmo::problem::base_ptr prob;
 	ar >> prob;
-	// Invoke inplace constructor to initialize instance of the algorithm.
+	// Invoke inplace constructor to initialize instance of the population.
 	::new(pop)pagmo::population(*prob);
 }
 

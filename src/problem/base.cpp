@@ -1006,18 +1006,16 @@ bool base::verify_x(const decision_vector &x) const
 	return true;
 }
 
-/// Problem's blocking property.
+/// Problem's thread safety property.
 /**
- * Return true if the problem blocks the asynchronous evolution of an island/archipelago, false otherwise.
- * A blocking problem won't allow the flow of the program to continue before evolution in an island/archipelago has finished.
- * This property is used, for instance, in Python problems.
- * Default implementation returns false.
+ * Return true if the problem is thread-safe.
+ * Default implementation returns true.
  *
- * @return true if the problem is blocking, false otherwise.
+ * @return true if the problem is thread-safe, false otherwise.
  */
-bool base::is_blocking() const
+bool base::is_thread_safe() const
 {
-	return false;
+	return true;
 }
 
 // This function will round to the nearest integer the upper/lower bounds of the integer part of the problem.
