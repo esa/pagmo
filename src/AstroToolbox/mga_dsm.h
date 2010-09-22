@@ -107,8 +107,8 @@ private:
 				v_values[(size_t)i][j] = v[i][j];
 			}
 		}
-		ar << r_values;
-		ar << v_values;
+		ar << static_cast<const std::vector<std::vector<double> > &>(r_values);
+		ar << static_cast<const std::vector<std::vector<double> > &>(v_values);
 	}
 	template<class Archive>
 	void load(Archive & ar, const unsigned int) {
