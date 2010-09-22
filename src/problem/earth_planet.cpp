@@ -25,6 +25,7 @@
 #include <string>
 
 #include <boost/integer_traits.hpp>
+#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <cmath>
 #include <stdexcept>
@@ -90,7 +91,7 @@ earth_planet::earth_planet(int segments, std::string target, const double &ctol)
 	std::vector<planet_ptr> sequence;
 	sequence.push_back(planet_ptr(new planet_ss("earth")));
 	sequence.push_back(planet_ptr(new planet_ss(target)));
-	trajectory = fb_traj(sequence,segments,1000,0.05,std::numeric_limits<double>::infinity());
+	trajectory = fb_traj(sequence,segments,1000,0.05,boost::numeric::bounds<double>::highest());
 }
 
 /// Clone method.

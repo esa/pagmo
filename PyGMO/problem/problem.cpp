@@ -227,6 +227,10 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
 		.def("get_delta_v",&problem::sample_return::get_delta_v);
 
+	// Earth-planet problem.
+	problem_wrapper<problem::earth_planet>("earth_planet","Earth-planet low-thrust problem.")
+		.def(init< optional<int, std::string, const double &> >());
+
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();
 }
