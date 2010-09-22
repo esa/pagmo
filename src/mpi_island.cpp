@@ -97,6 +97,7 @@ bool mpi_island::is_blocking_impl() const
 // Method that perform the actual evolution for the island population, and is used to distribute the computation load over multiple processors
 void mpi_island::perform_evolution(const algorithm::base &algo, population &pop) const
 {
+	// Create copy of data to be transmitted - will use a std::pair for packing everything in a single object.
 	const boost::shared_ptr<population> pop_copy(new population(pop));
 	const algorithm::base_ptr algo_copy = algo.clone();
 	const std::pair<const boost::shared_ptr<population>, const algorithm::base_ptr> out(pop_copy,algo_copy);

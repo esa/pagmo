@@ -188,9 +188,6 @@ void population::reinit(const size_type &idx)
 population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),
 	m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng) {}
 
-// Default constructor. For use only by pagmo::island.
-population::population() {}
-
 /// Assignment operator.
 /**
  * Performs a deep copy of all the elements of p into this.
@@ -202,9 +199,11 @@ population::population() {}
 population &population::operator=(const population &p)
 {
 	if (this != &p) {
+		pagmo_assert(m_prob && p.m_prob);
 		// Perform the copies.
-		problem::base_ptr tmp_prob(p.m_prob->clone());
-		m_prob.swap(tmp_prob);
+		if (*m_prob != p.problem()) {
+			pagmo_throw(value_error,"cannot assign population with different problem");
+		}
 		m_container = p.m_container;
 		m_dom_list = p.m_dom_list;
 		m_champion = p.m_champion;

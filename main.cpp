@@ -52,7 +52,7 @@ int main()
 	mpi_environment env;
 	archipelago a = archipelago(topology::ring());
 	for (int i = 1; i < boost::mpi::communicator().size(); ++i) {
-		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(50),10));
+		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(500),10));
 	}
 	a.evolve(2);
 	a.join();

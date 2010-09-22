@@ -76,12 +76,9 @@ base_island::base_island(const problem::base &p, const algorithm::base &a, int n
  *
  * @param[in] isl island to be copied.
  */
-base_island::base_island(const base_island &isl)
+base_island::base_island(const base_island &isl):m_pop(isl.get_population())
 {
-	// Make sure isl is joined.
-	isl.join();
-	// Copy over content.
-	m_pop = isl.m_pop;
+	// Population has already been done and get_population() above already called join().
 	m_algo = isl.m_algo->clone();
 	m_archi = isl.m_archi;
 	m_evo_time = isl.m_evo_time;
