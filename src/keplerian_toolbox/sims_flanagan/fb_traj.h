@@ -32,6 +32,7 @@
 #include "../planet.h"
 #include "sc_state.h"
 #include "../exceptions.h"
+#include "../../serialization.h"
 
 namespace kep_toolbox { namespace sims_flanagan{
 
