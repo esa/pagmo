@@ -171,7 +171,7 @@ fb_traj::fb_traj(const std::vector<planet_ptr>& sequence, const unsigned int &n_
  *
  * @param[in] other source of the copy
  */
-fb_traj::fb_traj(const fb_traj &other):legs(other.legs)
+fb_traj::fb_traj(const fb_traj &other):legs(other.legs),total_n_seg(other.total_n_seg)
 {
 	for (std::vector<planet_ptr>::size_type i = 0; i < other.planets.size(); ++i) {
 		planets.push_back(other.planets[i]->clone());
