@@ -71,6 +71,10 @@ namespace pagmo
 class __PAGMO_VISIBLE mpi_island: public base_island
 {
 		typedef boost::lock_guard<boost::mutex> lock_type;
+		template <class Archive>
+		friend void boost::serialization::save_construct_data(Archive &, const pagmo::mpi_island *, const unsigned int);
+		template <class Archive>
+		friend void boost::serialization::load_construct_data(Archive &, pagmo::mpi_island *, const unsigned int);
 	public:
 		mpi_island(const mpi_island &);
 		explicit mpi_island(const problem::base &, const algorithm::base &, int = 0,
