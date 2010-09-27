@@ -34,9 +34,9 @@ using namespace boost::posix_time;
 
 /// Constructor.
 /**
- * Constructs an epoch initializing its mjd2000 with the default double constructor
+ * Constructs an epoch initializing its mjd2000 to 0
  */
-epoch::epoch() {}
+epoch::epoch():mjd2000_m(0) {}
 
 /// Constructor.
 /**

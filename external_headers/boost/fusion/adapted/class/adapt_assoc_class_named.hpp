@@ -17,7 +17,7 @@
     BOOST_FUSION_ADAPT_STRUCT_DEFINE_PROXY_TYPE_IMPL(                           \
         WRAPPED_TYPE,(0)NAMESPACE_SEQ,NAME)                                     \
                                                                                 \
-    BOOST_FUSION_ADAPT_ASSOC_CLASS(                                             \
+    BOOST_FUSION_ADAPT_ASSOC_CLASS_AS_VIEW(                                     \
         BOOST_FUSION_ADAPT_STRUCT_NAMESPACE_DECLARATION((0)NAMESPACE_SEQ)NAME,  \
         ATTRIBUTES)
 

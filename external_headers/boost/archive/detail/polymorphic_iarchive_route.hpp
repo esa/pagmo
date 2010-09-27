@@ -71,10 +71,10 @@ private:
     ){
         return ArchiveImplementation::load_pointer(t, bpis_ptr, finder);
     }
-    virtual void set_library_version(version_type archive_library_version){
+    virtual void set_library_version(library_version_type archive_library_version){
         ArchiveImplementation::set_library_version(archive_library_version);
     }
-    virtual unsigned int get_library_version() const{
+    virtual library_version_type get_library_version() const{
         return ArchiveImplementation::get_library_version();
     }
     virtual unsigned int get_flags() const {

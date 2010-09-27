@@ -53,8 +53,8 @@ namespace boost { namespace program_options {
     class BOOST_PROGRAM_OPTIONS_DECL variable_value {
     public:
         variable_value() : m_defaulted(false) {}
-        variable_value(const boost::any& v, bool defaulted) 
-        : v(v), m_defaulted(defaulted) 
+        variable_value(const boost::any& xv, bool xdefaulted) 
+        : v(xv), m_defaulted(xdefaulted) 
         {}
 
         /** If stored value if of type T, returns that value. Otherwise,

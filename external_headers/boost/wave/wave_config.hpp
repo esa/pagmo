@@ -403,15 +403,14 @@ namespace boost { namespace wave
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Set up dll import/export options
-#if defined(BOOST_HAS_DECLSPEC) && \
-    (defined(BOOST_WAVE_DYN_LINK) || defined(BOOST_ALL_DYN_LINK)) && \
+#if (defined(BOOST_WAVE_DYN_LINK) || defined(BOOST_ALL_DYN_LINK)) && \
     !defined(BOOST_WAVE_STATIC_LINK)
     
 #if defined(BOOST_WAVE_SOURCE)
-#define BOOST_WAVE_DECL __declspec(dllexport)
+#define BOOST_WAVE_DECL BOOST_SYMBOL_EXPORT 
 #define BOOST_WAVE_BUILD_DLL
 #else
-#define BOOST_WAVE_DECL __declspec(dllimport)
+#define BOOST_WAVE_DECL BOOST_SYMBOL_IMPORT 
 #endif
 
 #endif // building a shared library

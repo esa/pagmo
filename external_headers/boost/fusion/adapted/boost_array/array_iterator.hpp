@@ -26,7 +26,7 @@ namespace boost { namespace fusion
         : iterator_facade<array_iterator<Array, Pos>, random_access_traversal_tag>
     {
         BOOST_MPL_ASSERT_RELATION(Pos, >=, 0);
-        BOOST_MPL_ASSERT_RELATION(Pos, <=, Array::static_size);
+        BOOST_MPL_ASSERT_RELATION(Pos, <=, static_cast<int>(Array::static_size));
 
         typedef mpl::int_<Pos> index;
         typedef Array array_type;

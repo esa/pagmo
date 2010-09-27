@@ -28,6 +28,11 @@
 #include <boost/fusion/functional/adapter/limits.hpp>
 #include <boost/fusion/functional/adapter/detail/access.hpp>
 
+#if defined (BOOST_MSVC)
+#  pragma warning(push)
+#  pragma warning (disable: 4512) // assignment operator could not be generated.
+#endif
+
 
 namespace boost { namespace fusion
 {
@@ -68,6 +73,10 @@ namespace boost { namespace fusion
     #include BOOST_PP_ITERATE() 
 
 }}
+
+#if defined (BOOST_MSVC)
+#  pragma warning(pop)
+#endif
 
 namespace boost 
 {

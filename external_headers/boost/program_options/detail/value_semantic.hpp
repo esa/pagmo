@@ -143,9 +143,9 @@ namespace boost { namespace program_options {
                    a validator for class T, we use it even
                    when parsing vector<T>.  */
                 boost::any a;
-                std::vector<std::basic_string<charT> > v;
-                v.push_back(s[i]);
-                validate(a, v, (T*)0, 0);                
+                std::vector<std::basic_string<charT> > cv;
+                cv.push_back(s[i]);
+                validate(a, cv, (T*)0, 0);                
                 tv->push_back(boost::any_cast<T>(a));
             }
             catch(const bad_lexical_cast& /*e*/) {

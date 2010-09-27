@@ -43,13 +43,12 @@
 #include "algorithm/mbh.h"
 #include "algorithm/ms.h"
 
-
 // SNOPT algorithm.
 #ifdef PAGMO_ENABLE_SNOPT
 	#include "algorithm/snopt.h"
 #endif
 
-// SNOPT algorithm.
+// IPOPT algorithm.
 #ifdef PAGMO_ENABLE_IPOPT
 	#include "algorithm/ipopt.h"
 #endif

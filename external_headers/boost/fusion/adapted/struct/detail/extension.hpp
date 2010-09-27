@@ -20,7 +20,7 @@ namespace boost { namespace fusion
     struct fusion_sequence_tag;
 
     struct assoc_struct_category
-      : bidirectional_traversal_tag, associative_tag
+      : random_access_traversal_tag, associative_tag
     {};
 
     namespace extension
@@ -33,11 +33,15 @@ namespace boost { namespace fusion
         template<typename Seq, int N>
         struct struct_member_name;
 
+        template<typename Seq>
+        struct struct_size;
+
+        template<typename Seq>
+        struct struct_is_view;
+
         template<typename Seq, int N>
         struct struct_assoc_key;
 
-        template<typename Seq>
-        struct struct_size;
     }
 }}
 

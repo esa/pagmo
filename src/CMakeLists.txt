@@ -40,7 +40,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/snopt_toyprob.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match_mo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_1.cpp
@@ -152,66 +151,73 @@ ENDIF(UNIX)
 
 # Boost serialization library.
 SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/archive_exception.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_serializer_map.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/void_cast.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_archive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_iprimitive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_wiarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/shared_ptr_helper.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_archive_exception.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_oprimitive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_woarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/stl_port.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_grammar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iserializer.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_iarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_iarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_oarchive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_oarchive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oserializer.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_archive.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_no_rtti.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_iserializer.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_grammar.ipp
-	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_typeid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_oserializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_serializer_map.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_iprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_oprimitive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_archive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_typeid.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_no_rtti.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/stl_port.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/void_cast.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/archive_exception.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_grammar.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_iarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_oarchive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_archive_exception.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/shared_ptr_helper.cpp
 )
 
-# Disable UTF-8 serialization in MinGW, since the latest stable version does not support it.
-IF(NOT MINGW)
+# Boost MPI library and PaGMO MPI bits.
+IF(ENABLE_MPI)
+	ADD_DEFINITIONS(-DBOOST_MPI_SOURCE)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_wiprimitive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_woprimitive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_wiarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_woarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/utf8_codecvt_facet.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wgrammar.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_wiarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_woarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/codecvt_null.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/broadcast.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/communicator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/computation_tree.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/content_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/environment.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/exception.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/graph_communicator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/group.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/intercommunicator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_cache.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_iarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_iarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/point_to_point.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/request.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/text_skeleton_oarchive.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/timer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/mpi_environment.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/mpi_island.cpp
 	)
-ENDIF(NOT MINGW)
+ENDIF(ENABLE_MPI)
 
 # Create a pagmo_static library if main or tests or examples are requested.
 IF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
+	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS}")
 ENDIF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
-
-# Add main if requested.
-IF(BUILD_MAIN)
-	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "-DBOOST_THREAD_BUILD_LIB")
-ENDIF(BUILD_MAIN)
 
 # Create a pagmo shared library if PyGMO is requested.
 IF(BUILD_PYGMO)
+	ADD_DEFINITIONS(-DBOOST_PYTHON_SOURCE)
 	# We need to compile the source of the Boost.Python libraries.
 	SET(PAGMO_SHARED_LIB_SRC_LIST
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/arg_to_python_base.cpp
@@ -242,15 +248,13 @@ IF(BUILD_PYGMO)
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/str.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/tuple.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_python/wrapper.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/python_locks.cpp
 	)
 	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
 	# Request linking against the Python libs, in addition to our mandatory libs.
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})
-	# Some extra definitions. The first is required when building Boost.Python,
-	# the second is to signal the preprocessor that we are building PyGMO (used, e.g., in exceptions.h).
-	SET(ADDITIONAL_FLAGS "-DBOOST_PYTHON_SOURCE -DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1 -DBOOST_WSERIALIZATION_DYN_LINK=1 -DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API")
-	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "${ADDITIONAL_FLAGS}")
-
+	# Add the definitions needed when building the PaGMO DLL.
+	SET_TARGET_PROPERTIES(pagmo PROPERTIES COMPILE_FLAGS "-DPAGMO_BUILD_PYGMO -DPAGMO_DLL_EXPORT_API ${DYNAMIC_LIB_PAGMO_BUILD_FLAGS}")
 	INSTALL(TARGETS pagmo
 		RUNTIME DESTINATION ${LIB_INSTALL_PATH}
 		LIBRARY DESTINATION ${LIB_INSTALL_PATH}

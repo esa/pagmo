@@ -32,6 +32,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <sstream>
+#include <string>
+
+#include "serialization.h"
 
 namespace pagmo
 {
@@ -39,13 +43,81 @@ namespace pagmo
 /**
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
  */
-typedef boost::mt19937 rng_uint32;
+class rng_uint32: public boost::mt19937 {
+		friend class boost::serialization::access;
+	public:
+		/// Return value of the generator.
+		typedef boost::mt19937::result_type result_type;
+		/// Default constructor.
+		/**
+		 * Will invoke the base default constructor.
+		 */
+		rng_uint32():boost::mt19937() {}
+		/// Constructor from unsigned integer.
+		/**
+		 * Will invoke the corresponding base constructor.
+		 */
+		rng_uint32(const result_type &n):boost::mt19937(n) {}
+		// Default generated copy ctor and assignment are fine.
+	private:
+		// Serialization exploits the fact that the state of Boost RNGs
+		// can be sent/received to/from standard streams.
+		template <class Archive>
+		void save(Archive &ar, const unsigned int) const
+		{
+			std::stringstream ss;
+			ss << *static_cast<boost::mt19937 const *>(this);
+			std::string tmp(ss.str());
+			ar << tmp;
+		}
+		template <class Archive>
+		void load(Archive &ar, const unsigned int)
+		{
+			std::string tmp;
+			ar >> tmp;
+			std::stringstream ss(tmp);
+			ss >> *static_cast<boost::mt19937 *>(this);
+		}
+		BOOST_SERIALIZATION_SPLIT_MEMBER();
+};
 
 /// This rng returns a double in the [0,1[ range.
 /**
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
  */
-typedef boost::lagged_fibonacci607 rng_double;
+class rng_double: public boost::lagged_fibonacci607 {
+		friend class boost::serialization::access;
+	public:
+		/// Default constructor.
+		/**
+		 * Will invoke the base default constructor.
+		 */
+		rng_double():boost::lagged_fibonacci607() {}
+		/// Constructor from unsigned integer.
+		/**
+		 * Will invoke the corresponding base constructor.
+		 */
+		rng_double(const boost::uint32_t &n):boost::lagged_fibonacci607(n) {}
+		// Default generated copy ctor and assignment are fine.
+	private:
+		template <class Archive>
+		void save(Archive &ar, const unsigned int) const
+		{
+			std::stringstream ss;
+			ss << *static_cast<boost::lagged_fibonacci607 const *>(this);
+			std::string tmp(ss.str());
+			ar << tmp;
+		}
+		template <class Archive>
+		void load(Archive &ar, const unsigned int)
+		{
+			std::string tmp;
+			ar >> tmp;
+			std::stringstream ss(tmp);
+			ss >> *static_cast<boost::lagged_fibonacci607 *>(this);
+		}
+		BOOST_SERIALIZATION_SPLIT_MEMBER();
+};
 
 /// Generic thread-safe generator of pseudo-random number generators.
 /**

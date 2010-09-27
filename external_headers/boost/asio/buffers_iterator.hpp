@@ -15,19 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 #include <cstddef>
 #include <boost/assert.hpp>
-#include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
 #include <boost/iterator.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/add_const.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
 #include <boost/asio/buffer.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -205,6 +202,15 @@ public:
   /// Addition operator.
   friend buffers_iterator operator+(const buffers_iterator& iter,
       std::ptrdiff_t difference)
+  {
+    buffers_iterator tmp(iter);
+    tmp.advance(difference);
+    return tmp;
+  }
+
+  /// Addition operator.
+  friend buffers_iterator operator+(std::ptrdiff_t difference,
+      const buffers_iterator& iter)
   {
     buffers_iterator tmp(iter);
     tmp.advance(difference);

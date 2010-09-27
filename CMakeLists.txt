@@ -6,7 +6,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 # Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 
-INCLUDE(CheckTypeSize)
+INCLUDE(CheckCXXCompilerFlag)
 INCLUDE(PaGMOCPackSetup)
 
 # Initialise (empty) list of libraries to link against.
@@ -14,28 +14,31 @@ SET(MANDATORY_LIBRARIES "")
 
 # Configuration for GCC.
 IF(CMAKE_COMPILER_IS_GNUCXX)
-	# Add to the base flags extra warnings, and set up message reporting from the compiler so that it is Eclipse-friendly.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdisabled-optimization -fmessage-length=0 -Wnon-virtual-dtor")
-	# Additional flags to turn off some GCC warnings that in practice clutter the compilation output.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-field-initializers -fno-strict-aliasing -Wno-deprecated")
+	CHECK_CXX_COMPILER_FLAG(-fmessage-length=0 GNUCXX_MESSAGE_LENGTH)
+	IF(GNUCXX_MESSAGE_LENGTH)
+		MESSAGE(STATUS "Enabling '-fmessage-length=0' compiler flag.")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+	ENDIF(GNUCXX_MESSAGE_LENGTH)
+	CHECK_CXX_COMPILER_FLAG(-Wnon-virtual-dtor GNUCXX_VIRTUAL_DTOR)
+	IF(GNUCXX_VIRTUAL_DTOR)
+		MESSAGE(STATUS "Enabling '-Wnon-virtual-dtor' compiler flag.")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor")
+	ENDIF(GNUCXX_VIRTUAL_DTOR)
+	CHECK_CXX_COMPILER_FLAG(-Wno-deprecated GNUCXX_NO_DEPRECATED)
+	IF(GNUCXX_NO_DEPRECATED)
+		MESSAGE(STATUS "Enabling '-Wno-deprecated' compiler flag.")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
+	ENDIF(GNUCXX_NO_DEPRECATED)
+	CHECK_CXX_COMPILER_FLAG(-Wno-ignored-qualifiers GNUCXX_IGNORED_QUALIFIERS)
+	IF(GNUCXX_IGNORED_QUALIFIERS)
+		MESSAGE(STATUS "Enabling '-Wno-ignored-qualifiers' compiler flag.")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
+	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
+	# Add to the base flags extra warnings. Also, additional flags to turn off some GCC warnings that in practice clutter the compilation output.
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
-	# Atomic builtins for GCC.
-	TRY_COMPILE(WORKING_ATOMIC_BUILTINS ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gcc_atomic_builtins_test.cpp COMPILE_DEFINITIONS ${CMAKE_CCXX_FLAGS})
-	IF(WORKING_ATOMIC_BUILTINS)
-		MESSAGE(STATUS "GCC is correctly setup to support atomic builtins.")
-		ADD_DEFINITIONS(-D_PAGMO_GCC_ATOMIC_BUILTINS)
-	ELSE(WORKING_ATOMIC_BUILTINS)
-		MESSAGE(STATUS "Either this GCC version does not support atomic builtins or the CXXFLAGS are not properly set to enable them.")
-		MESSAGE(STATUS "Please note that atomic builtins are supported from version 4.1.0 of GCC and need an appropriate '-march' flag (e.g., at least '-march=i486' on x86 architectures).")
-	ENDIF(WORKING_ATOMIC_BUILTINS)
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-
-# Configuration for MSVC.
-IF(MSVC)
-	MESSAGE(STATUS "Enabling MSVC atomic builtins.")
-	ADD_DEFINITIONS(-D_PAGMO_MSVC_ATOMIC_BUILTINS)
-ENDIF(MSVC)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
@@ -68,11 +71,83 @@ OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 # Build Option: IPOPT optimiser.
 OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 
+# Build Option: support for MPI clustering.
+OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
+
 # Build option: enable test set.
 OPTION(ENABLE_TESTS "Build test set." ON)
 
 # Build Option: build executable for the examples
 OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
+
+# Flags needed when using static PaGMO library.
+SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_LIB")
+# Flags needed when using dynamic PaGMO library.
+SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+# Flags needed when building static PaGMO library.
+SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_LIB")
+# Flags needed when building dynamic PaGMO library.
+SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+# NOTE: for Boost Python we are only interested in the dynamic linking, which, according to its config.hpp, is automatically
+# selected if nothing else is specified. Hence, we do not need to set anything specific, apart from the -DBOOST_PYTHON_SOURCE
+# definition in src/CMakelists.txt.
+
+# Let's include Boost's headers.
+INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
+
+# Some common platform switches.
+SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+IF(UNIX)
+	# Install path for libraries.
+	SET(LIB_INSTALL_PATH "lib")
+	# NOTICE: use FindThreads library from CMake here instead?
+	# If we are in Unix, let's require pthread.
+	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
+	IF(NOT PTHREAD_LIBRARY)
+		MESSAGE(FATAL_ERROR "POSIX thread library not found, please install it or specify manually where it is located.")
+	ENDIF(NOT PTHREAD_LIBRARY)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
+	# Enable the pthread flag in Unix only if the compiler is GNU.
+	IF(CMAKE_COMPILER_IS_GNUCXX)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ELSE(UNIX)
+	IF(NOT WIN32)
+		MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
+	ENDIF(NOT WIN32)
+	SET(LIB_INSTALL_PATH .)
+	SET(PAGMO_INSTALL_PREFIX "${PAGMO_INSTALL_PREFIX} ${PAGMO_VERSION}")
+	ADD_DEFINITIONS(-DPAGMO_WIN32)
+	IF(MINGW)
+		# Linker and compiler flags needed for the support of multithread applications.
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} -mthreads")
+		SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS_INIT} -mthreads")
+		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} -mthreads")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
+	ENDIF(MINGW)
+ENDIF(UNIX)
+
+IF(ENABLE_MPI)
+	INCLUDE(FindMPI)
+	IF(NOT MPI_FOUND)
+		MESSAGE(FATAL_ERROR "MPI support was requested, but the MPI environment was not detected. Please check your setup.")
+	ENDIF(NOT MPI_FOUND)
+	MESSAGE(STATUS "MPI libraries: ${MPI_LIBRARIES}")
+	MESSAGE(STATUS "MPI include path: ${MPI_INCLUDE_PATH}")
+	MESSAGE(STATUS "MPI compile flags: ${MPI_COMPILE_FLAGS}")
+	MESSAGE(STATUS "MPI link flags: ${MPI_LINK_FLAGS}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${MPI_LIBRARIES})
+	INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
+	SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_COMPILE_FLAGS}")
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_MPI)
+	SET(STATIC_LIB_PAGMO_USE_FLAGS "${STATIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_STATIC_LINK")
+	SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "${DYNAMIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_DYN_LINK")
+	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_STATIC_LINK")
+	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "${DYNAMIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_DYN_LINK")
+ENDIF(ENABLE_MPI)
 
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)
@@ -176,49 +251,13 @@ IF(ENABLE_IPOPT)
 	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 ENDIF(ENABLE_IPOPT)
 
-# Let's include Boost's headers.
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
-
-# Some common platform switches.
-SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-IF(UNIX)
-	# Install path for libraries.
-	SET(LIB_INSTALL_PATH "lib")
-	# NOTICE: use FindThreads library from CMake here instead?
-	# If we are in Unix, let's require pthread.
-	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
-	IF(NOT PTHREAD_LIBRARY)
-		MESSAGE(FATAL_ERROR "POSIX thread library not found, please install it or specify manually where it is located.")
-	ENDIF(NOT PTHREAD_LIBRARY)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
-	# Enable the pthread flag in Unix only if the compiler is GNU.
-	IF(CMAKE_COMPILER_IS_GNUCXX)
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-	ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-ELSE(UNIX)
-	IF(NOT WIN32)
-		MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
-	ENDIF(NOT WIN32)
-	SET(LIB_INSTALL_PATH .)
-	SET(PAGMO_INSTALL_PREFIX "${PAGMO_INSTALL_PREFIX} ${PAGMO_VERSION}")
-	ADD_DEFINITIONS(-DPAGMO_WIN32)
-	IF(MINGW)
-		# Linker and compiler flags needed for the support of multithread applications.
-		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} -mthreads")
-		SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS_INIT} -mthreads")
-		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} -mthreads")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
-	ENDIF(MINGW)
-ENDIF(UNIX)
-
-CHECK_TYPE_SIZE("void *" POINTER_SIZE)
-MESSAGE(STATUS "Pointer size = ${POINTER_SIZE}")
-
 IF(BUILD_PYGMO)
 	INCLUDE(PaGMOPythonSetup)
 ENDIF(BUILD_PYGMO)
 
+# Add the directory for the PaGMO library.
 ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
+
 IF(BUILD_PYGMO)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO")
 	IF(WIN32)
@@ -251,6 +290,9 @@ IF(BUILD_PYGMO)
 		)
 	ENDIF(WIN32)
 ENDIF(BUILD_PYGMO)
+
+# From now on all targets will use the static PaGMO library. Add the relevant flags.
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_LIB_PAGMO_USE_FLAGS}")
 
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)

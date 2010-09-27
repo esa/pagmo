@@ -16,7 +16,7 @@
 #include <boost/spirit/home/support/unused.hpp>
 #include <boost/spirit/home/support/info.hpp>
 #include <boost/spirit/home/support/common_terminals.hpp>
-#include <boost/spirit/home/support/attributes.hpp>
+#include <boost/spirit/home/karma/detail/attributes.hpp>
 #include <boost/spirit/home/support/auxiliary/attr_cast.hpp>
 
 namespace boost { namespace spirit
@@ -76,7 +76,8 @@ namespace boost { namespace spirit { namespace karma
           , Attribute const& attr) const
         {
             typedef traits::transform_attribute<
-                Attribute const, transformed_attribute_type> transform;
+                Attribute const, transformed_attribute_type, domain> 
+            transform;
 
             return compile<karma::domain>(subject).generate(
                 sink, ctx, d, transform::pre(attr));

@@ -363,7 +363,7 @@ eager_dijkstra_shortest_paths
 
   // Initialize local portion of property maps
   typename graph_traits<DistributedGraph>::vertex_iterator ui, ui_end;
-  for (tie(ui, ui_end) = vertices(g); ui != ui_end; ++ui) {
+  for (boost::tie(ui, ui_end) = vertices(g); ui != ui_end; ++ui) {
     put(distance, *ui, inf);
     put(predecessor, *ui, *ui);
   }

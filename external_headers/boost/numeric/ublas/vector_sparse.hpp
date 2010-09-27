@@ -260,7 +260,22 @@ namespace boost { namespace numeric { namespace ublas {
 #endif
 
 
-    // Index map based sparse vector class
+    /** \brief Index map based sparse vector
+     *
+     * A sparse vector of values of type T of variable size. The sparse storage type A can be 
+     * \c std::map<size_t, T> or \c map_array<size_t, T>. This means that only non-zero elements
+     * are effectively stored.
+     *
+     * For a \f$n\f$-dimensional sparse vector,  and 0 <= i < n the non-zero elements \f$v_i\f$ 
+     * are mapped to consecutive elements of the associative container, i.e. for elements 
+     * \f$k = v_{i_1}\f$ and \f$k + 1 = v_{i_2}\f$ of the container, holds \f$i_1 < i_2\f$.
+     *
+     * Supported parameters for the adapted array are \c map_array<std::size_t, T> and 
+     * \c map_std<std::size_t, T>. The latter is equivalent to \c std::map<std::size_t, T>.
+     *
+     * \tparam T the type of object stored in the vector (like double, float, complex, etc...)
+     * \tparam A the type of Storage array
+     */
     template<class T, class A>
     class mapped_vector:
         public vector_container<mapped_vector<T, A> > {
@@ -755,8 +770,29 @@ namespace boost { namespace numeric { namespace ublas {
     const typename mapped_vector<T, A>::value_type mapped_vector<T, A>::zero_ = value_type/*zero*/();
 
 
-    // Compressed array based sparse vector class
     // Thanks to Kresimir Fresl for extending this to cover different index bases.
+    
+    /** \brief Compressed array based sparse vector
+     *
+     * a sparse vector of values of type T of variable size. The non zero values are stored as 
+     * two seperate arrays: an index array and a value array. The index array is always sorted 
+     * and there is at most one entry for each index. Inserting an element can be time consuming.
+     * If the vector contains a few zero entries, then it is better to have a normal vector.
+     * If the vector has a very high dimension with a few non-zero values, then this vector is
+     * very memory efficient (at the cost of a few more computations).
+     *
+     * For a \f$n\f$-dimensional compressed vector and \f$0 \leq i < n\f$ the non-zero elements 
+     * \f$v_i\f$ are mapped to consecutive elements of the index and value container, i.e. for 
+     * elements \f$k = v_{i_1}\f$ and \f$k + 1 = v_{i_2}\f$ of these containers holds \f$i_1 < i_2\f$.
+     *
+     * Supported parameters for the adapted array (indices and values) are \c unbounded_array<> ,
+     * \c bounded_array<> and \c std::vector<>.
+     *
+     * \tparam T the type of object stored in the vector (like double, float, complex, etc...)
+     * \tparam IB the index base of the compressed vector. Default is 0. Other supported value is 1
+     * \tparam IA the type of adapted array for indices. Default is \c unbounded_array<std::size_t>
+     * \tparam TA the type of adapted array for values. Default is unbounded_array<T>
+     */
     template<class T, std::size_t IB, class IA, class TA>
     class compressed_vector:
         public vector_container<compressed_vector<T, IB, IA, TA> > {
@@ -1374,9 +1410,29 @@ namespace boost { namespace numeric { namespace ublas {
     template<class T, std::size_t IB, class IA, class TA>
     const typename compressed_vector<T, IB, IA, TA>::value_type compressed_vector<T, IB, IA, TA>::zero_ = value_type/*zero*/();
 
-
-    // Coordimate array based sparse vector class
     // Thanks to Kresimir Fresl for extending this to cover different index bases.
+
+    /** \brief Coordimate array based sparse vector
+     *
+     * a sparse vector of values of type \c T of variable size. The non zero values are stored 
+     * as two seperate arrays: an index array and a value array. The arrays may be out of order 
+     * with multiple entries for each vector element. If there are multiple values for the same 
+     * index the sum of these values is the real value. It is way more efficient for inserting values
+     * than a \c compressed_vector but less memory efficient. Also linearly parsing a vector can 
+     * be longer in specific cases than a \c compressed_vector.
+     *
+     * For a n-dimensional sorted coordinate vector and \f$ 0 \leq i < n\f$ the non-zero elements 
+     * \f$v_i\f$ are mapped to consecutive elements of the index and value container, i.e. for 
+     * elements \f$k = v_{i_1}\f$ and \f$k + 1 = v_{i_2}\f$ of these containers holds \f$i_1 < i_2\f$.
+     *
+     * Supported parameters for the adapted array (indices and values) are \c unbounded_array<> ,
+     * \c bounded_array<> and \c std::vector<>.
+     *
+     * \tparam T the type of object stored in the vector (like double, float, complex, etc...)
+     * \tparam IB the index base of the compressed vector. Default is 0. Other supported value is 1
+     * \tparam IA the type of adapted array for indices. Default is \c unbounded_array<std::size_t>
+     * \tparam TA the type of adapted array for values. Default is unbounded_array<T>
+     */
     template<class T, std::size_t IB, class IA, class TA>
     class coordinate_vector:
         public vector_container<coordinate_vector<T, IB, IA, TA> > {

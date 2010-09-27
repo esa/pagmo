@@ -110,6 +110,28 @@ dimensional pagmo::problem::schwefel using a pagmo::topology::ring evolution of 
 using pagmo::algorithm::de (Differential Evolution) in a 4 CPU machine.
 
 \image html ipython.png
+
+\section PyGMO MPI implementation 
+
+The current MPI implementation works with C++ programs that make use of the pagmo libraries. In order to be able to run your solver on multiple processor you need to have a working version of MPI installed on your system. Any of the following MPI distribution should be compatibale with boost and implictly PAGMO:
+OPENMPI, MPICH2, LAM/MPI. On debian systems the installation of these distributions is as simple as "sudo apt-get install mpich2"/"sudo apt-get install openmpi"
+	Notes for solving approximation problems with PAGMO problems using MPI:
+	The main difference is that in this case the archipelago are created using "mpi_islands" objects instead of "island", as follows:
+@verbatim
+a.push_back(pagmo::mpi_island(problem,algorithm,no_individuals,processor_id));
+@endverbatim
+	, where processor_id is an integer that represents the rank of the processor to which that particular island is assigned to.
+	An archipelago with n mpi_islands can also be created by using the archipelago constructor, and setting the is_parallel attribute to "true" (default is "false"):
+@verbatim
+pagmo::archipelago b = pagmo::archipelago(problem, algorithm, n, n_indiv, topology, migration, direction, true)
+@endverbatim
+	, where "n" represents the number of islands of the archipelago, and the "is_parallel" is the boolean value that needs to be set to "true" in order to make use of the MPI environment. In case the number of islands is larger than the number of processors available, then the the computations of the islands' evoutions, are assigned to the processors in a round-robin manner.
+	Note that the program must be treated as an MPI program (running on multiple processes/ors). While the initialization of the archipelago needs to be done on all processors, and the evolution of the islands called on all processors (the process filtering being done by the exposed "perform_evolution method" of the mpi_island class) other parts of the code like printing the results needs to be done onl  on the root process (the one with rank 0). An example can be found with the test_mpi.cpp program located in the "tests" folder.
+	Testing: Once the pagmo base code, along with C++ MPI problem have been compiled, one can test their implementation by first starting the mpd deamon (on a single machine if it's tested with multiple processes on a single computer, or on all the machines that are being used). To run the problem one needs to execute
+@verbatim
+mpirun -np number_of_processes (-hostfile hostfilename)./mpi_program_executable
+@endverbatim
+, where the hostfile is used to specify the available machines in the case where the program is tested on multiple nodes instead of just one.
 */
 
 #ifdef __GNUC__

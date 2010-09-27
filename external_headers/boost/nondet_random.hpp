@@ -5,7 +5,7 @@
  * accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * $Id: nondet_random.hpp 60755 2010-03-22 00:45:06Z steven_watanabe $
+ * $Id: nondet_random.hpp 62347 2010-05-31 16:44:36Z steven_watanabe $
  *
  * Revision history
  *  2000-02-18  Portability fixes (thanks to Beman Dawes)
@@ -62,7 +62,7 @@ namespace boost {
  * pseudo-device, which blocks on reads if the entropy pool has no more
  * random bits available.
  *
- * <b>Inplementation Note for Windows</b>
+ * <b>Implementation Note for Windows</b>
  *
  * On the Windows operating system, token is interpreted as the name
  * of a cryptographic service provider.  By default \random_device uses

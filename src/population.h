@@ -34,13 +34,15 @@
 #include "config.h"
 #include "problem/base.h"
 #include "rng.h"
+#include "serialization.h"
 #include "types.h"
 
 namespace pagmo
 {
 
-// Forward declaration of island class, needed for friendship.
+// Forward declarations.
 class base_island;
+class population_access;
 
 /// Population class.
 /**
@@ -57,6 +59,7 @@ class base_island;
 class __PAGMO_VISIBLE population
 {
 		friend class base_island;
+		friend class population_access;
 	public:
 		/// Individuals stored in the population.
 		/**
@@ -64,6 +67,17 @@ class __PAGMO_VISIBLE population
 		 * keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
 		 */
 		struct individual_type {
+			template <class Archive>
+			void serialize(Archive &ar, const unsigned int)
+			{
+				ar & cur_x;
+				ar & cur_v;
+				ar & cur_c;
+				ar & cur_f;
+				ar & best_x;
+				ar & best_c;
+				ar & best_f;
+			}  
 			/// Current decision vector.
 			decision_vector		cur_x;
 			/// Current velocity vector.
@@ -100,6 +114,13 @@ class __PAGMO_VISIBLE population
 		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
 		 */
 		struct champion_type {
+			template <class Archive>
+			void serialize(Archive &ar, const unsigned int)
+			{
+				ar & x;
+				ar & c;
+				ar & f;
+			}  
 			/// Decision vector.
 			decision_vector		x;
 			/// Constraint vector.
@@ -146,7 +167,6 @@ class __PAGMO_VISIBLE population
 		void reinit(const size_type &);
 		void reinit();
 	private:
-		explicit population();
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
 		void update_dom_list(const size_type &);
@@ -162,6 +182,17 @@ class __PAGMO_VISIBLE population
 			const population &m_pop;
 		};
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & m_prob;
+			ar & m_container;
+			ar & m_dom_list;
+			ar & m_champion;
+			ar & m_drng;
+			ar & m_urng;
+		}
 		// Data members.
 		// Problem.
 		problem::base_ptr			m_prob;
@@ -181,6 +212,33 @@ __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::individual_type &);
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::champion_type &);
 
+struct population_access
+{
+	static problem::base_ptr &get_problem_ptr(population &);
+};
+
 }
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+inline void save_construct_data(Archive &ar, const pagmo::population *pop, const unsigned int)
+{
+	// Save data required to construct instance.
+	pagmo::problem::base_ptr prob = pop->problem().clone();
+	ar << prob;
+}
+
+template <class Archive>
+inline void load_construct_data(Archive &ar, pagmo::population *pop, const unsigned int)
+{
+	// Retrieve data from archive required to construct new instance.
+	pagmo::problem::base_ptr prob;
+	ar >> prob;
+	// Invoke inplace constructor to initialize instance of the population.
+	::new(pop)pagmo::population(*prob);
+}
+
+}} //namespaces
 
 #endif

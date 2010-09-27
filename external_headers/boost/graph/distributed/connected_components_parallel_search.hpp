@@ -306,7 +306,7 @@ namespace boost { namespace graph { namespace distributed {
     BGL_FORALL_VERTICES_T(v, g, Graph) put(c, v, max_component);
 
     vertex_iterator current, end;
-    tie(current, end) = vertices(g);
+    boost::tie(current, end) = vertices(g);
 
     cc_ps_detail::component_value_allocator<component_value_type> cva(process_id(pg), num_processes(pg));
     cc_ps_detail::collision_map<component_value_type> collisions;

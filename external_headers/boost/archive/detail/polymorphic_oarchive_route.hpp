@@ -138,7 +138,7 @@ private:
         ArchiveImplementation::save(t);
     }
     #endif
-    virtual unsigned int get_library_version() const{
+    virtual library_version_type get_library_version() const{
         return ArchiveImplementation::get_library_version();
     }
     virtual unsigned int get_flags() const {

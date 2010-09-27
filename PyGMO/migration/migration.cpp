@@ -30,6 +30,7 @@
 
 #include "../../src/migration.h"
 #include "../exceptions.h"
+#include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;
@@ -38,7 +39,9 @@ template <class MSPolicy>
 static inline class_<MSPolicy,bases<migration::base_s_policy> > migration_s_policy_wrapper(const char *name, const char *descr)
 {
 	class_<MSPolicy,bases<migration::base_s_policy> > retval(name,descr,init<const MSPolicy &>());
+	retval.def(init<>());
 	retval.def("__copy__", &MSPolicy::clone);
+	retval.def_pickle(generic_pickle_suite<MSPolicy>());
 	return retval;
 }
 
@@ -46,7 +49,9 @@ template <class MRPolicy>
 static inline class_<MRPolicy,bases<migration::base_r_policy> > migration_r_policy_wrapper(const char *name, const char *descr)
 {
 	class_<MRPolicy,bases<migration::base_r_policy> > retval(name,descr,init<const MRPolicy &>());
+	retval.def(init<>());
 	retval.def("__copy__", &MRPolicy::clone);
+	retval.def_pickle(generic_pickle_suite<MRPolicy>());
 	return retval;
 }
 

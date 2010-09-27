@@ -44,7 +44,6 @@
 #include "problem/ackley.h"
 #include "problem/snopt_toyprob.h"
 #include "problem/string_match.h"
-#include "problem/string_match_mo.h"
 #include "problem/luksan_vlcek_1.h"
 #include "problem/luksan_vlcek_2.h"
 #include "problem/luksan_vlcek_3.h"
@@ -61,6 +60,5 @@
 #include "problem/laplace.h"
 #include "problem/sample_return.h"
 #include "problem/earth_planet.h"
-
 
 #endif

@@ -161,6 +161,14 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
         }
 
 #if defined(BOOST_SPIRIT_DEBUG)
+#if BOOST_WORKAROUND(BOOST_MSVC, == 1600)
+        // workaround for MSVC10 which has problems copying a default 
+        // constructed iterator_range
+        token& operator= (token const& rhs)
+        {
+            return *this;
+        }
+#endif
         std::pair<Iterator, Iterator> matched_;
 #endif
 
@@ -352,7 +360,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
         {
             if (this != &rhs) 
             {
-                this->base_type::operator=(rhs);
+                this->base_type::operator=(static_cast<base_type const&>(rhs));
                 if (this->id_ != boost::lexer::npos && this->id_ != 0) 
                     value_ = rhs.value_;
             }
@@ -532,6 +540,23 @@ namespace boost { namespace spirit { namespace traits
 
             iterpair_type const& ip = get<iterpair_type>(t.value());
             attr = attribute_type(t.id(), get<iterpair_type>(t.value()));
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Overload debug output for a single token, this integrates lexer tokens 
+    // with Qi's simple_trace debug facilities
+    template <typename Iterator, typename Attribute, typename HasState>
+    struct token_printer_debug<lex::lexertl::token<Iterator, Attribute, HasState> >
+    {
+        typedef lex::lexertl::token<Iterator, Attribute, HasState> token_type;
+
+        template <typename Out>
+        static void print(Out& out, token_type const& val) 
+        {
+            out << '<';
+            spirit::traits::print_token(out, val.value());
+            out << '>';
         }
     };
 

@@ -65,7 +65,7 @@ namespace serialization {
 template<typename T>
 struct version<boost::multi_index::detail::serialization_version<T> >
 {
-  BOOST_STATIC_CONSTANT(unsigned int,value=version<T>::value);
+  BOOST_STATIC_CONSTANT(int,value=version<T>::value);
 };
 } /* namespace serialization */
 #endif

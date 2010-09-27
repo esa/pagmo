@@ -15,6 +15,7 @@
 
 #include <boost/graph/parallel/algorithm.hpp>
 #include <boost/graph/parallel/process_group.hpp>
+#include <math.h>
 
 namespace boost {
 
@@ -59,7 +60,7 @@ namespace boost {
           if (permute_vertices) 
               generate_permutation_vector(gen, vertexPermutation, n);
 
-          int SCALE = int(floor(log2(n)));
+          int SCALE = int(floor(log(double(n))/log(2.)));
           boost::uniform_01<RandomGenerator> prob(gen);
       
           std::map<value_type, bool> edge_map;
@@ -69,7 +70,7 @@ namespace boost {
               edges_size_type tossed = 0;
               do {
                   vertices_size_type u, v;
-                  tie(u, v) = generate_edge(this->gen, n, SCALE, a, b, c, d);
+                  boost::tie(u, v) = generate_edge(this->gen, n, SCALE, a, b, c, d);
 
                   if (permute_vertices) {
                       u = vertexPermutation[u];

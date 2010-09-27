@@ -31,6 +31,8 @@
 #include "../../src/algorithms.h"
 #include "../../src/population.h"
 #include "../exceptions.h"
+#include "../utils.h"
+#include "python_base.h"
 
 using namespace boost::python;
 using namespace pagmo;
@@ -43,79 +45,38 @@ static inline population evolve_copy(const algorithm::base &a, const population 
 	return pop_copy;
 }
 
+// Wrapper to expose algorithms.
 template <class Algorithm>
 static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
 {
 	class_<Algorithm,bases<algorithm::base> > retval(name,descr,init<const Algorithm &>());
-	retval.def("__copy__", &Algorithm::clone);
+	retval.def(init<>());
 	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(generic_pickle_suite<Algorithm>());
 	return retval;
 }
-
-struct python_algorithm: algorithm::base, wrapper<algorithm::base>
-{
-	python_algorithm():algorithm::base() {}
-	python_algorithm(const algorithm::base &p):algorithm::base(p) {}
-	algorithm::base_ptr clone() const
-	{
-		return this->get_override("__copy__")();
-	}
-	void evolve(population &p) const
-	{
-		p = py_evolve(p);
-	}
-	population py_evolve(const population &p) const
-	{
-		return this->get_override("evolve")(p);
-	}
-	bool is_blocking() const
-	{
-		return true;
-	}
-	std::string human_readable_extra() const
-	{
-		return py_human_readable_extra();
-	}
-	std::string py_human_readable_extra() const
-	{
-		if (override f = this->get_override("_human_readable_extra")) {
-			return f();
-		}
-		return algorithm::base::human_readable_extra();
-	}
-	std::string get_name() const
-	{
-		if (override f = this->get_override("get_name")) {
-			return f();
-		}
-		return algorithm::base::get_name();
-	}
-	std::string default_get_name() const
-	{
-		return this->algorithm::base::get_name();
-	}
-};
 
 BOOST_PYTHON_MODULE(_algorithm) {
 	// Translate exceptions for this module.
 	translate_exceptions();
 
 	// Expose base algorithm class, including the virtual methods.
-	class_<python_algorithm>("_base",init<>())
-		.def(init<const algorithm::base &>())
-		.def("__repr__", &algorithm::base::human_readable)
-		.def("is_blocking",&algorithm::base::is_blocking)
+	class_<algorithm::python_base>("_base",init<>())
+		.def(init<const algorithm::python_base &>())
+		.def("__repr__",&algorithm::base::human_readable)
+		.def("is_thread_safe",&algorithm::base::is_thread_safe)
 		// Virtual methods that can be (re)implemented.
 		.def("__copy__",pure_virtual(&algorithm::base::clone))
-		.def("get_name",&algorithm::base::get_name,&python_algorithm::default_get_name)
-		.def("evolve",&python_algorithm::py_evolve)
-		.def("_human_readable_extra",&python_algorithm::py_human_readable_extra);
+		.def("get_name", &algorithm::base::get_name, &algorithm::python_base::default_get_name)
+		// NOTE: This needs special treatment because its prototype changes in the wrapper.
+		.def("evolve",&algorithm::python_base::py_evolve)
+		.def("human_readable_extra", &algorithm::base::human_readable_extra, &algorithm::python_base::default_human_readable_extra)
+		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
 	// Expose algorithms.
 
 	// Null.
-	algorithm_wrapper<algorithm::null>("null","Null algorithm.")
-		.def(init<>());
+	algorithm_wrapper<algorithm::null>("null","Null algorithm.");
 
 	// IHS.
 	algorithm_wrapper<algorithm::ihs>("ihs","Improved harmony search.")

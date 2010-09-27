@@ -188,7 +188,7 @@ inline void xsi_named_mutex::priv_close()
 
 inline void xsi_named_mutex::lock()
 {
-	if(!xsi::simple_sem_op(m_semid, -1)){
+   if(!xsi::simple_sem_op(m_semid, -1)){
       error_info err = system_error_code();
       throw interprocess_exception(err);
    }

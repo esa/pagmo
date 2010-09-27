@@ -31,6 +31,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -41,12 +42,12 @@ namespace pagmo { namespace problem {
  * \image html paraboloid.png "Two-dimensional paraboloid."
  * \image latex paraboloid.png "Two-dimensional paraboloid." width=5cm
  *
- * This is a box-constrained continuous single-objecive problem.
+ * This is a box-constrained continuous single-objecive problem, also known as "sphere function", "sphere model" and "De Jong's function 1". 
  * The objective function for an N-dimensional instance of this problem is:
  * \f[
  * 	f\left(x_1,\ldots,x_N \right) = \sum_{i=1}^N x_i^2.
  * \f]
- * Useful for testing/benchmarking purposes.
+ * The only and global minimum is in the origin. Useful for testing/benchmarking purposes.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
@@ -71,8 +72,17 @@ class __PAGMO_VISIBLE paraboloid: public base
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::problem::paraboloid);
 
 #endif

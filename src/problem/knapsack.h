@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -65,6 +66,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE knapsack: public base
 {
 	public:
+		knapsack();
 		knapsack(const std::vector<double> &, const std::vector<double> &, const double &);
 		/// Constructor from raw arrays and maximum weight.
 		/**
@@ -92,6 +94,15 @@ class __PAGMO_VISIBLE knapsack: public base
 	private:
 		void verify_init() const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::vector<double> &>(m_values);
+			ar & const_cast<std::vector<double> &>(m_weights);
+			ar & const_cast<double &>(m_max_weight);
+		}
 		const std::vector<double>	m_values;
 		const std::vector<double>	m_weights;
 		const double			m_max_weight;
@@ -99,5 +110,7 @@ class __PAGMO_VISIBLE knapsack: public base
 
 }
 }
+
+BOOST_CLASS_EXPORT(pagmo::problem::knapsack);
 
 #endif

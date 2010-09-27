@@ -43,26 +43,6 @@
 
 namespace boost
 {
-#if !defined( BOOST_EXCEPTION_DISABLE )
-    namespace
-    exception_detail
-    {
-        template <class E>
-        void
-        throw_exception_( E const & x, char const * current_function, char const * file, int line )
-        {
-            throw_exception(
-                set_info(
-                    set_info(
-                        set_info(
-                            enable_error_info(x),
-                            throw_function(current_function)),
-                        throw_file(file)),
-                    throw_line(line)));
-        }
-    }
-#endif
-
 #ifdef BOOST_NO_EXCEPTIONS
 
 void throw_exception( std::exception const & e ); // user defined
@@ -86,6 +66,26 @@ template<class E> BOOST_ATTRIBUTE_NORETURN inline void throw_exception( E const 
 
 #endif
 
+#if !defined( BOOST_EXCEPTION_DISABLE )
+    namespace
+    exception_detail
+    {
+        template <class E>
+        BOOST_ATTRIBUTE_NORETURN
+        void
+        throw_exception_( E const & x, char const * current_function, char const * file, int line )
+        {
+            boost::throw_exception(
+                set_info(
+                    set_info(
+                        set_info(
+                            enable_error_info(x),
+                            throw_function(current_function)),
+                        throw_file(file)),
+                    throw_line(line)));
+        }
+    }
+#endif
 } // namespace boost
 
 #endif // #ifndef BOOST_THROW_EXCEPTION_HPP_INCLUDED

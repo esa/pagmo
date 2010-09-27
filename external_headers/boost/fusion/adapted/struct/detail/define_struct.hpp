@@ -17,6 +17,7 @@
 #include <boost/fusion/adapted/struct/detail/namespace.hpp>
 #include <boost/preprocessor/inc.hpp>
 #include <boost/preprocessor/if.hpp>
+#include <boost/preprocessor/expr_if.hpp>
 #include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/logical/not.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
@@ -42,7 +43,7 @@
 #define BOOST_FUSION_DEFINE_STRUCT_ASSIGN_FILLER_I(                             \
     R, ATTRIBUTE_TUPEL_SIZE, I_, ATTRIBUTE)                                     \
                                                                                 \
-    BOOST_PP_IF(                                                                \
+    BOOST_PP_EXPR_IF(                                                           \
         I_,                                                                     \
         typedef typename                                                        \
             boost::fusion::result_of::next<                                     \
@@ -50,9 +51,8 @@
             >::type                                                             \
         BOOST_PP_CAT(I,I_);                                                     \
         BOOST_PP_CAT(I,I_) BOOST_PP_CAT(i,I_)=                                  \
-            boost::fusion::next(BOOST_PP_CAT(i,BOOST_PP_DEC(I_)));,             \
-        BOOST_PP_EMPTY()                                                        \
-        )                                                                       \
+                boost::fusion::next(BOOST_PP_CAT(i,BOOST_PP_DEC(I_)));          \
+    )                                                                           \
                                                                                 \
     BOOST_PP_TUPLE_ELEM(ATTRIBUTE_TUPEL_SIZE,1,ATTRIBUTE)=                      \
         boost::fusion::deref(BOOST_PP_CAT(i,I_));

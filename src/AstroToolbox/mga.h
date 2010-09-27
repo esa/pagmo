@@ -27,6 +27,12 @@
 
 #include <vector>
 #include "Pl_Eph_An.h"
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/split_member.hpp>
 
 // problem types
 #define orbit_insertion          0 // Tandem
@@ -38,6 +44,21 @@
 
 struct customobject
 {
+	customobject()
+	{
+		for (int i = 0; i < 6; ++i) {
+			keplerian[i] = 0;
+		}
+		epoch = 0;
+		mu = 0;
+	}
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int){
+		ar & keplerian;
+		ar & epoch;
+		ar & mu;
+	}
 	double keplerian[6];
 	double epoch;
 	double mu;
@@ -45,6 +66,20 @@ struct customobject
 
 
 struct mgaproblem {
+	mgaproblem():type(0),e(0),rp(0),Isp(0),mass(0),DVlaunch(0) {}
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int){
+		ar & type;
+		ar & sequence;
+		ar & rev_flag;
+		ar & e;
+		ar & rp;
+		ar & asteroid;
+		ar & Isp;
+		ar & mass;
+		ar & DVlaunch;
+	}
 	int type;							//problem type
 	std::vector<int> sequence;				//fly-by sequence (ex: 3,2,3,3,5,is Earth-Venus-Earth-Earth-Jupiter)
 	std::vector<int> rev_flag;				//vector of flags for clockwise legs

@@ -37,7 +37,7 @@ namespace pagmo { namespace algorithm {
  * @see gsl_gradient::gsl_derivative_free().
  */
 gsl_nm2::gsl_nm2(int max_iter, const double &tol, const double &step_size):
-	gsl_derivative_free(gsl_multimin_fminimizer_nmsimplex2,max_iter,tol,step_size) {}
+	gsl_derivative_free(max_iter,tol,step_size) {}
 
 /// Clone method.
 /**
@@ -46,6 +46,11 @@ gsl_nm2::gsl_nm2(int max_iter, const double &tol, const double &step_size):
 base_ptr gsl_nm2::clone() const
 {
 	return base_ptr(new gsl_nm2(*this));
+}
+
+const gsl_multimin_fminimizer_type *gsl_nm2::get_gsl_minimiser_ptr() const
+{
+	return gsl_multimin_fminimizer_nmsimplex2;
 }
 
 }}

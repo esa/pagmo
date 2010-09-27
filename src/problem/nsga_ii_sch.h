@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -45,8 +46,17 @@ class __PAGMO_VISIBLE nsga_ii_sch: public base
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+	 		ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }}
+
+BOOST_CLASS_EXPORT(pagmo::problem::nsga_ii_sch);
 
 #endif

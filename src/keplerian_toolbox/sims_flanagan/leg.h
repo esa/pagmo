@@ -33,6 +33,7 @@
 #include "../epoch.h"
 #include "throttle.h"
 #include "../exceptions.h"
+#include "../../serialization.h"
 
 namespace kep_toolbox {
 /// Sims-Flanagan transcription of low-thrust trajectories
@@ -67,7 +68,7 @@ public:
 	/**
 	 * Default constructor.
 	 */
-	leg() {}
+	leg():t_i(),x_i(),throttles(),t_f(),x_f(),sc(),mu(0) {}
 
 	/// Initialize a leg
 	/**
@@ -382,6 +383,18 @@ public:
 	}
 
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & t_i;
+		ar & x_i;
+		ar & throttles;
+		ar & t_f;
+		ar & x_f;
+		ar & sc;
+		ar & mu;
+	}
 	epoch t_i;
 	sc_state x_i;
 	std::vector<throttle> throttles;

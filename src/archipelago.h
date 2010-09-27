@@ -142,6 +142,7 @@ class __PAGMO_VISIBLE archipelago
 		void clear_migr_history();
 		base_island_ptr get_island(const size_type &) const;
 		bool is_blocking() const;
+		bool is_thread_safe() const;
 	private:
 		void pre_evolution(base_island &);
 		void post_evolution(base_island &);
@@ -152,8 +153,25 @@ class __PAGMO_VISIBLE archipelago
 		void sync_island_start() const;
 		struct count_if_blocking;
 		bool is_blocking_impl() const;
+		struct count_if_thread_safe;
+		bool is_thread_safe_impl() const;
 		size_type locate_island(const base_island &) const;
 	private:
+		// TODO: serialization
+// 		friend class boost::serialization::access;
+// 		template <class Archive>
+// 		void serialize(Archive &ar, const unsigned int)
+// 		{
+// 			ar & m_container;
+// 			ar & m_topology;
+// 			ar & m_dist_type;
+// 			ar & m_migr_dir;
+// 			ar & m_migr_map;
+// 			ar & m_drng;
+// 			ar & m_urng;
+// 			ar & m_migr_mutex;
+// 			ar & m_migr_hist;
+// 		}
 		// Container of islands.
 		container_type				m_container;
 		// A barrier used to synchronise the start time of all islands.

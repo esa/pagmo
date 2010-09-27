@@ -41,8 +41,8 @@ namespace boost { namespace fusion
         typedef Sequence sequence_type;
         typedef mpl_iterator<Pos> first_type;
 
-        explicit nview_iterator(Sequence& seq)
-          : seq(seq) {}
+        explicit nview_iterator(Sequence& in_seq)
+          : seq(in_seq) {}
 
         Sequence& seq;
 

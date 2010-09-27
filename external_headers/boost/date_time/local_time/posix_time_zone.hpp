@@ -5,7 +5,7 @@
  * Subject to the Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2010-01-10 14:17:23 -0500 (Sun, 10 Jan 2010) $
+ * $Date: 2010-06-10 13:24:38 -0400 (Thu, 10 Jun 2010) $
  */
 
 #include <string>
@@ -79,9 +79,7 @@ namespace local_time{
     typedef boost::tokenizer<char_separator_type,
                              typename string_type::const_iterator,
                              string_type> tokenizer_type;
-    typedef typename boost::tokenizer<char_separator_type,
-                             typename string_type::const_iterator,
-                             string_type>::iterator tokenizer_iterator_type;
+    typedef typename tokenizer_type::iterator tokenizer_iterator_type;
 
     //! Construct from a POSIX time zone string
     posix_time_zone_base(const string_type& s) :
@@ -101,11 +99,20 @@ namespace local_time{
 #endif
       char_separator_type sep(sep_chars);
       tokenizer_type tokens(s, sep);
-      tokenizer_iterator_type it = tokens.begin();
+      tokenizer_iterator_type it = tokens.begin(), end = tokens.end();
+      if (it == end)
+        BOOST_THROW_EXCEPTION(std::invalid_argument("Could not parse time zone name"));
       calc_zone(*it++);
-      if(has_dst_){
-        string_type tmp_str = *it++;
-        calc_rules(tmp_str, *it);
+      if(has_dst_)
+      {
+        if (it == end)
+          BOOST_THROW_EXCEPTION(std::invalid_argument("Could not parse DST begin time"));
+        string_type dst_begin = *it++;
+
+        if (it == end)
+          BOOST_THROW_EXCEPTION(std::invalid_argument("Could not parse DST end time"));
+        string_type dst_end = *it;
+        calc_rules(dst_begin, dst_end);
       }
     }
     virtual ~posix_time_zone_base() {};

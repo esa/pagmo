@@ -47,7 +47,8 @@ namespace boost
             while(!pred()) wait(m);
         }
 
-        bool timed_wait(unique_lock<mutex>& m,boost::system_time const& wait_until);
+        inline bool timed_wait(unique_lock<mutex>& m,
+                               boost::system_time const& wait_until);
         bool timed_wait(unique_lock<mutex>& m,xtime const& wait_until)
         {
             return timed_wait(m,system_time(wait_until));

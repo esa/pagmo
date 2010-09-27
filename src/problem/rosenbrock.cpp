@@ -39,7 +39,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-rosenbrock::rosenbrock(unsigned int n):base(n)
+rosenbrock::rosenbrock(int n):base(n)
 {
 	// Set bounds.
 	set_lb(-5.0);

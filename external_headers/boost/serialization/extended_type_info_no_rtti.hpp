@@ -32,6 +32,7 @@
 #include <boost/serialization/factory.hpp>
 #include <boost/serialization/throw_exception.hpp>
 
+#include <boost/serialization/config.hpp>
 // hijack serialization access
 #include <boost/serialization/access.hpp>
 

@@ -22,6 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 #include <gsl/gsl_vector.h>
 #include <stdexcept>
 
@@ -33,19 +35,27 @@
 
 namespace pagmo { namespace algorithm {
 
+// Static mutex.
+boost::mutex base_gsl::m_mutex;
+
+const gsl_init &base_gsl::get_init()
+{
+	// Protect from simultaneous access.
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+	static const gsl_init retval;
+	return retval;
+}
+
 /// Default constructor.
 /**
  * Will make sure that the GSL environment is initialised properly.
  */
 base_gsl::base_gsl():base()
 {
-	if (!g_init.m_init) {
+	if (!get_init().m_init) {
 		pagmo_throw(std::runtime_error,"GSL support could not be initialised");
 	}
 }
-
-// Initialisation of the static gsl_init instance.
-gsl_init base_gsl::g_init = gsl_init();
 
 /// Objective function wrapper.
 /**

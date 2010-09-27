@@ -111,7 +111,7 @@ namespace boost { namespace fusion
         typename add_reference<
             typename mpl::at<types, I>::type
         >::type
-        at_impl(I index)
+        at_impl(I /*index*/)
         {
             return vec.at_impl(mpl::int_<I::value>());
         }
@@ -122,7 +122,7 @@ namespace boost { namespace fusion
                 typename mpl::at<types, I>::type
             >::type
         >::type
-        at_impl(I index) const
+        at_impl(I /*index*/) const
         {
             return vec.at_impl(mpl::int_<I::value>());
         }

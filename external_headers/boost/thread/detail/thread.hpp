@@ -3,10 +3,12 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-// (C) Copyright 2007-8 Anthony Williams
+// (C) Copyright 2007-10 Anthony Williams
  
 #include <boost/thread/exceptions.hpp>
+#ifndef BOOST_NO_IOSTREAM
 #include <ostream>
+#endif
 #include <boost/thread/detail/move.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/xtime.hpp>
@@ -113,14 +115,13 @@ namespace boost
 
         void release_handle();
         
-        mutable boost::mutex thread_info_mutex;
         detail::thread_data_ptr thread_info;
 
         void start_thread();
         
         explicit thread(detail::thread_data_ptr data);
 
-        detail::thread_data_ptr get_thread_info() const;
+        detail::thread_data_ptr get_thread_info BOOST_PREVENT_MACRO_SUBSTITUTION () const;
 
 #ifndef BOOST_NO_RVALUE_REFERENCES
         template<typename F>
@@ -147,7 +148,7 @@ namespace boost
 #endif
         struct dummy;
     public:
-#ifdef __SUNPRO_CC 
+#if BOOST_WORKAROUND(__SUNPRO_CC, < 0x5100)
         thread(const volatile thread&); 
 #endif 
         thread();
@@ -157,7 +158,7 @@ namespace boost
 #ifdef BOOST_MSVC
         template <class F>
         explicit thread(F f,typename disable_if<boost::is_convertible<F&,detail::thread_move_t<F> >, dummy* >::type=0):
-            thread_info(make_thread_info(f))
+            thread_info(make_thread_info(static_cast<F&&>(f)))
         {
             start_thread();
         }
@@ -217,7 +218,7 @@ namespace boost
             x->thread_info.reset();
         }
        
-#ifdef __SUNPRO_CC 
+#if BOOST_WORKAROUND(__SUNPRO_CC, < 0x5100)
         thread& operator=(thread x) 
         { 
             swap(x); 
@@ -394,7 +395,7 @@ namespace boost
             thread_data(thread_data_)
         {}
         friend class thread;
-        friend id this_thread::get_id();
+        friend id BOOST_THREAD_DECL this_thread::get_id();
     public:
         id():
             thread_data()
@@ -430,6 +431,8 @@ namespace boost
             return !(thread_data<y.thread_data);
         }
 
+#ifndef BOOST_NO_IOSTREAM
+#ifndef BOOST_NO_MEMBER_TEMPLATE_FRIENDS
         template<class charT, class traits>
         friend std::basic_ostream<charT, traits>& 
         operator<<(std::basic_ostream<charT, traits>& os, const id& x)
@@ -443,7 +446,33 @@ namespace boost
                 return os<<"{Not-any-thread}";
             }
         }
+#else
+        template<class charT, class traits>
+        std::basic_ostream<charT, traits>& 
+        print(std::basic_ostream<charT, traits>& os)
+        {
+            if(thread_data)
+            {
+                return os<<thread_data;
+            }
+            else
+            {
+                return os<<"{Not-any-thread}";
+            }
+        }
+
+#endif
+#endif
     };
+
+#if !defined(BOOST_NO_IOSTREAM) && defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
+    template<class charT, class traits>
+    std::basic_ostream<charT, traits>& 
+    operator<<(std::basic_ostream<charT, traits>& os, const thread::id& x)
+    {
+        return x.print(os);
+    }
+#endif
 
     inline bool thread::operator==(const thread& other) const
     {

@@ -81,6 +81,7 @@ basic_binary_oprimitive<Archive, Elem, Tr>::save(const wchar_t * ws)
     this->This()->save(l);
     save_binary(ws, l * sizeof(wchar_t) / sizeof(char));
 }
+#endif
 
 #ifndef BOOST_NO_STD_WSTRING
 template<class Archive, class Elem, class Tr>
@@ -91,7 +92,6 @@ basic_binary_oprimitive<Archive, Elem, Tr>::save(const std::wstring &ws)
     this->This()->save(l);
     save_binary(ws.data(), l * sizeof(wchar_t) / sizeof(char));
 }
-#endif
 #endif
 
 template<class Archive, class Elem, class Tr>

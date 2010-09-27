@@ -84,18 +84,16 @@ std::string base::human_readable_extra() const
 	return std::string();
 }
 
-/// Algorithm's blocking property.
+/// Algorithm's thread safety property.
 /**
- * Return true if the algorithm blocks the asynchronous evolution of an island/archipelago, false otherwise.
- * A blocking algorithm won't allow the flow of the program to continue before evolution in an island/archipelago has finished.
- * This property is used in Python problems.
- * Default implementation returns false.
+ * Return true if the algorithm is thread-safe.
+ * Default implementation returns true.
  *
- * @return true if the algorithm is blocking, false otherwise.
+ * @return true if the algorithm is thread-safe, false otherwise.
  */
-bool base::is_blocking() const
+bool base::is_thread_safe() const
 {
-	return false;
+	return true;
 }
 
 /// Overload stream operator for algorithm::base.

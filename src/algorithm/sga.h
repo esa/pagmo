@@ -26,9 +26,9 @@
 #define PAGMO_ALGORITHM_SGA_H
 
 #include "../config.h"
-#include "base.h"
 #include "../problem/base.h"
-
+#include "../serialization.h"
+#include "base.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -60,6 +60,12 @@ public:
 	};
 	/// Mutation operator info
 	struct mutation {
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive &ar, const unsigned int /*version*/){
+			ar & m_type;
+			ar & m_width;
+		}
 		/// Mutation type, gaussian or random
 		enum type {GAUSSIAN = 0, RANDOM = 1};
 		/// Constructor
@@ -73,7 +79,7 @@ public:
 		/// Mutation type
 		type m_type;
 		/// Mutation width
-		double m_width;
+		double m_width;		
 	};
 
 	/// Crossover operator info
@@ -81,7 +87,7 @@ public:
 		/// Crossover type, binomial or exponential
 		enum type {BINOMIAL = 0, EXPONENTIAL = 1};
 	};
-	sga(int gen, const double &cr, const double &m, int elitism = 1,
+	sga(int gen  = 1, const double &cr = .5, const double &m = .5, int elitism = 1,
 	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
 	    selection::type sel = selection::ROULETTE,
 	    crossover::type cro = crossover::EXPONENTIAL);
@@ -91,12 +97,25 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_cr);
+		ar & const_cast<double &>(m_m);
+		ar & const_cast<int &>(m_elitism);
+		ar & const_cast<mutation &>(m_mut);
+		ar & const_cast<selection::type &>(m_sel);
+		ar & const_cast<crossover::type &>(m_cro);
+	}  
 	//Number of generations
 	const int m_gen;
 	//Crossover rate
-	const double& m_cr;
+	const double m_cr;
 	//Mutation rate
-	const double& m_m;
+	const double m_m;
 	//Elitism (number of generations after which to reinsert the best)
 	const int m_elitism;
 	//Mutation
@@ -105,10 +124,10 @@ private:
 	const selection::type m_sel;
 	//Crossover_type
 	const crossover::type m_cro;
-
-
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::algorithm::sga);
 
 #endif // PAGMO_ALGORITHM_SGA_H

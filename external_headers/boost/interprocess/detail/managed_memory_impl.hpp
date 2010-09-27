@@ -673,7 +673,7 @@ class basic_managed_memory_impl
    template<class T>
    typename allocator<T>::type
       get_allocator()
-   {   return mp_header->get_allocator<T>(); }
+   {   return mp_header->BOOST_NESTED_TEMPLATE get_allocator<T>(); }
 
    //!This is the default deleter to delete types T
    //!from this managed segment.
@@ -688,7 +688,7 @@ class basic_managed_memory_impl
    template<class T>
    typename deleter<T>::type
       get_deleter()
-   {   return mp_header->get_deleter<T>(); }
+   {   return mp_header->BOOST_NESTED_TEMPLATE get_deleter<T>(); }
 
    /// @cond
    //!Tries to find a previous named allocation address. Returns a memory

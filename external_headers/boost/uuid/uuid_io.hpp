@@ -32,11 +32,20 @@ template <typename ch, typename char_traits>
     std::basic_ostream<ch, char_traits>& operator<<(std::basic_ostream<ch, char_traits> &os, uuid const& u)
 {
     io::ios_flags_saver flags_saver(os);
-    io::ios_width_saver width_saver(os);
     io::basic_ios_fill_saver<ch, char_traits> fill_saver(os);
 
     const typename std::basic_ostream<ch, char_traits>::sentry ok(os);
     if (ok) {
+        const std::streamsize width = os.width(0);
+        const std::streamsize uuid_width = 36;
+        const std::ios_base::fmtflags flags = os.flags();
+        const typename std::basic_ios<ch, char_traits>::char_type fill = os.fill();
+        if (flags & (std::ios_base::right | std::ios_base::internal)) {
+            for (std::streamsize i=uuid_width; i<width; i++) {
+                os << fill;
+            }
+        }
+
         os << std::hex;
         os.fill(os.widen('0'));
 
@@ -48,6 +57,14 @@ template <typename ch, typename char_traits>
                 os << os.widen('-');
             }
         }
+        
+        if (flags & std::ios_base::left) {
+            for (std::streamsize i=uuid_width; i<width; i++) {
+                os << fill;
+            }
+        }
+        
+        os.width(0); //used the width so reset it
     }
     return os;
 }
@@ -109,6 +126,68 @@ template <typename ch, typename char_traits>
     }
     return is;
 }
+
+namespace detail {
+inline char to_char(size_t i) {
+    if (i <= 9) {
+        return static_cast<char>('0' + i);
+    } else {
+        return static_cast<char>('a' + (i-10));
+    }
+}
+
+inline wchar_t to_wchar(size_t i) {
+    if (i <= 9) {
+        return static_cast<wchar_t>(L'0' + i);
+    } else {
+        return static_cast<wchar_t>(L'a' + (i-10));
+    }
+}
+
+} // namespace detail
+
+inline std::string to_string(uuid const& u)
+{
+    std::string result;
+    result.reserve(36);
+
+    std::size_t i=0;
+    for (uuid::const_iterator it_data = u.begin(); it_data!=u.end(); ++it_data, ++i) {
+        const size_t hi = ((*it_data) >> 4) & 0x0F;
+        result += detail::to_char(hi);
+
+        const size_t lo = (*it_data) & 0x0F;
+        result += detail::to_char(lo);
+
+        if (i == 3 || i == 5 || i == 7 || i == 9) {
+            result += '-';
+        }
+    }
+    return result;
+}
+
+#ifndef BOOST_NO_STD_WSTRING
+inline std::wstring to_wstring(uuid const& u)
+{
+    std::wstring result;
+    result.reserve(36);
+
+    std::size_t i=0;
+    for (uuid::const_iterator it_data = u.begin(); it_data!=u.end(); ++it_data, ++i) {
+        const size_t hi = ((*it_data) >> 4) & 0x0F;
+        result += detail::to_wchar(hi);
+
+        const size_t lo = (*it_data) & 0x0F;
+        result += detail::to_wchar(lo);
+
+        if (i == 3 || i == 5 || i == 7 || i == 9) {
+            result += L'-';
+        }
+    }
+    return result;
+}
+
+#endif
 
 }} //namespace boost::uuids
 

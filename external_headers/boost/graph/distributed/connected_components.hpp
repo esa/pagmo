@@ -366,7 +366,7 @@ namespace boost { namespace graph { namespace distributed {
       // Build adjacency list for all roots
       BGL_FORALL_VERTICES_T(v, g, DistributedGraph) {
         std::vector<vertex_descriptor>& my_adj = adj[get(p, v)];
-        for (tie(av1, av2) = adjacent_vertices(v, g);
+        for (boost::tie(av1, av2) = adjacent_vertices(v, g);
              av1 != av2; ++av1) {
           if (get(owner, *av1) != id) my_adj.push_back(*av1);
         }

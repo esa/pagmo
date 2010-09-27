@@ -37,8 +37,10 @@
 #include <boost/cstdint.hpp>
 #include <algorithm>
 #include <boost/config.hpp> // for static assert
-#include <boost/mpl/bool.hpp>
+#ifndef BOOST_UUID_NO_TYPE_TRAITS
 #include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/integral_constant.hpp>
+#endif
 
 #if defined(_MSC_VER)
 #pragma warning(push) // Save warning settings.
@@ -202,14 +204,15 @@ inline std::size_t hash_value(uuid const& u) /* throw() */
 
 }} //namespace boost::uuids
 
+#ifndef BOOST_UUID_NO_TYPE_TRAITS
 // type traits specializations
 namespace boost {
 
 template <>
-struct is_pod<uuids::uuid> : mpl::true_
-{};
+struct is_pod<uuids::uuid> : true_type {};
 
 } // namespace boost
+#endif
 
 #if defined(_MSC_VER)
 #pragma warning(pop) // Restore warnings to previous state.

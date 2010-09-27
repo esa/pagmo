@@ -39,7 +39,6 @@
 #include <typeinfo>
 #include <vector>
 
-#include "../atomic_counters/atomic_counters.h"
 #include "../exceptions.h"
 #include "../population.h"
 #include "../types.h"
@@ -48,9 +47,6 @@
 namespace pagmo
 {
 namespace problem {
-
-// Initialisation of static objective function calls counter.
-atomic_counter_size_t base::m_objfun_counter(0);
 
 /// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 /**
@@ -474,10 +470,6 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 		// Make sure that the implementation of objfun_impl() in the derived class did not fuck up the dimension of the fitness vector.
 		if (f.size() != m_f_dimension) {
 			pagmo_throw(value_error,"fitness dimension was changed inside objfun_impl()");
-		}
-		// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
-		if (m_objfun_counter.is_increment_fast) {
-			++m_objfun_counter;
 		}
 		// Store the decision vector and the newly-calculated fitness in the front of the buffers.
 		m_decision_vector_cache_f.push_front(x);
@@ -1014,18 +1006,16 @@ bool base::verify_x(const decision_vector &x) const
 	return true;
 }
 
-/// Problem's blocking property.
+/// Problem's thread safety property.
 /**
- * Return true if the problem blocks the asynchronous evolution of an island/archipelago, false otherwise.
- * A blocking problem won't allow the flow of the program to continue before evolution in an island/archipelago has finished.
- * This property is used, for instance, in Python problems.
- * Default implementation returns false.
+ * Return true if the problem is thread-safe.
+ * Default implementation returns true.
  *
- * @return true if the problem is blocking, false otherwise.
+ * @return true if the problem is thread-safe, false otherwise.
  */
-bool base::is_blocking() const
+bool base::is_thread_safe() const
 {
-	return false;
+	return true;
 }
 
 // This function will round to the nearest integer the upper/lower bounds of the integer part of the problem.
@@ -1081,20 +1071,6 @@ std::ostream &operator<<(std::ostream &s, const base &p)
 {
 	s << p.human_readable();
 	return s;
-}
-
-/// Return the total number of calls to the objective function.
-/**
- * The number is a static global variable that gets incremented each time base::objfun() is called.
- *
- * @return total number of objective function calls in all implemented problems.
- */
-std::size_t objfun_calls()
-{
-	if (!base::m_objfun_counter.is_increment_fast) {
-		pagmo_throw(not_implemented_error,"fast atomic counters are not available in this version of PaGMO");
-	}
-	return (base::m_objfun_counter).get_value();
 }
 
 /// Sets the sparsity pattern of the gradient
@@ -1245,12 +1221,6 @@ void base::pre_evolution(population &pop) const
 void base::post_evolution(population &pop) const
 {
 	(void)pop;
-}
-
-/// Reset to zero the total number of calls to the objective function.
-void reset_objfun_calls()
-{
-	base::m_objfun_counter = atomic_counter_size_t();
 }
 
 }} //namespaces

@@ -72,10 +72,10 @@ base_island_ptr island::clone() const
 	return base_island_ptr(new island(*this));
 }
 
-// Thread safety attribute implementation.
-bool island::is_thread_blocking() const
+// Blocking attribute implementation.
+bool island::is_blocking_impl() const
 {
-	return (m_pop.problem().is_blocking() || m_algo->is_blocking());
+	return false;
 }
 
 void island::perform_evolution(const algorithm::base &algo, population &pop) const

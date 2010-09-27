@@ -24,6 +24,14 @@ namespace boost {
 namespace container {
 namespace containers_detail {
 
+template<class T>
+const T &max_value(const T &a, const T &b)
+{  return a > b ? a : b;   }
+
+template<class T>
+const T &min_value(const T &a, const T &b)
+{  return a < b ? a : b;   }
+
 template <class SizeType>
 SizeType
    get_next_capacity(const SizeType max_size
@@ -43,14 +51,6 @@ SizeType
 
    return max_size;
 }
-
-template<class T>
-const T &max_value(const T &a, const T &b)
-{  return a > b ? a : b;   }
-
-template<class T>
-const T &min_value(const T &a, const T &b)
-{  return a < b ? a : b;   }
 
 template<class SmartPtr>
 struct smart_ptr_type

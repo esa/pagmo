@@ -31,7 +31,7 @@ namespace boost { namespace fusion
                 >::type type;
 
                 static type
-                call(First const& first, Last const& last)
+                call(First const& /*first*/, Last const& /*last*/)
                 {
                     return type();
                 }
