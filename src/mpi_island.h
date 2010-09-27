@@ -42,6 +42,23 @@
 #include "problem/base.h"
 #include "serialization.h"
 
+// Forward declarations.
+namespace pagmo {
+
+class mpi_island;
+
+}
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+void save_construct_data(Archive &, const pagmo::mpi_island *, const unsigned int);
+
+template <class Archive>
+inline void load_construct_data(Archive &, pagmo::mpi_island *, const unsigned int);
+
+}}
+
 namespace pagmo
 {
 
@@ -81,8 +98,10 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 		//@}
 	private:
 		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			// Join is already done in base_island.
 			ar & boost::serialization::base_object<base_island>(*this);
 		}
 		static void init_processors();
@@ -93,8 +112,34 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 		static boost::scoped_ptr<std::set<int> >	m_available_processors;
 };
 
-// TODO: serialization stuff.
-
 }
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+inline void save_construct_data(Archive &ar, const pagmo::mpi_island *isl, const unsigned int)
+{
+	// Save data required to construct instance.
+	pagmo::problem::base_ptr prob = isl->m_pop.problem().clone();
+	pagmo::algorithm::base_ptr algo = isl->m_algo->clone();
+	ar << prob;
+	ar << algo;
+}
+
+template <class Archive>
+inline void load_construct_data(Archive &ar, pagmo::mpi_island *isl, const unsigned int)
+{
+	// Retrieve data from archive required to construct new instance.
+	pagmo::problem::base_ptr prob;
+	pagmo::algorithm::base_ptr algo;
+	ar >> prob;
+	ar >> algo;
+	// Invoke inplace constructor to initialize instance of the algorithm.
+	::new(isl)pagmo::mpi_island(*prob,*algo);
+}
+
+}} //namespaces
+
+BOOST_CLASS_EXPORT(pagmo::mpi_island);
 
 #endif

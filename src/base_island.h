@@ -158,20 +158,28 @@ class __PAGMO_VISIBLE base_island
 	protected:
 		friend class boost::serialization::access;
 		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
+		void serialize(Archive &ar, const unsigned int version)
 		{
-			// TODO: here we probably need to split load/save, take care of evo_thread,
-			// set the archi pointer when (de)serializing from archipelago, etc. Also, consider
-			// relation to save/load constructor data in island and mpi_island.
-			// Also, remember to join!
+			// Sync the island before doing anything.
+			join();
+			// TODO: Also, consider relation to save/load constructor data in island and mpi_island.
 			ar & m_pop;
 			ar & m_algo;
-			//ar & m_archi;
 			ar & m_evo_time;
 			ar & m_migr_prob;
 			ar & m_s_policy;
 			ar & m_r_policy;
-			//ar & m_evo_thread;
+			boost::serialization::split_member(ar, *this, version);
+		}
+		template <class Archive>
+		void save(Archive &, const unsigned int) const
+		{}
+		template <class Archive>
+		void load(Archive &, const unsigned int)
+		{
+			// Upon loading we are going to set the archi pointer and the evo thread to 0.
+			m_archi = 0;
+			m_evo_thread.reset(0);
 		}
 		// Population.
 		population				m_pop;

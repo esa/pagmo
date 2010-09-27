@@ -144,6 +144,36 @@ struct population_pickle_suite : boost::python::pickle_suite
 	}
 };
 
+template <class Island>
+struct island_pickle_suite : boost::python::pickle_suite
+{
+	static boost::python::tuple getinitargs(const Island &isl)
+	{
+		return boost::python::make_tuple(isl.get_problem(),isl.get_algorithm());
+	}
+	static boost::python::tuple getstate(const Island &isl)
+	{
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << isl;
+		return boost::python::make_tuple(ss.str(),isl.get_algorithm());
+	}
+	static void setstate(Island &isl, boost::python::tuple state)
+	{
+		if (len(state) != 2)
+		{
+			PyErr_SetObject(PyExc_ValueError,("expected 2-item tuple in call to __setstate__; got %s" % state).ptr());
+			throw_error_already_set();
+		}
+		const std::string str = extract<std::string>(state[0]);
+		std::stringstream ss(str);
+		boost::archive::text_iarchive ia(ss);
+		ia >> isl;
+		const algorithm::base_ptr algo = boost::python::extract<algorithm::base_ptr>(state[1]);
+		isl.set_algorithm(*algo);
+	}
+};
+
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
@@ -238,13 +268,14 @@ BOOST_PYTHON_MODULE(_core)
 		// Virtual methods.
 		.def("__copy__",pure_virtual(&base_island::clone))
 		.def("get_name", &base_island::get_name,&python_base_island::default_get_name)
-		.def("_perform_evolution",&python_base_island::py_perform_evolution);
-		// TODO: serialization.
+		.def("_perform_evolution",&python_base_island::py_perform_evolution)
+		.def_pickle(python_class_pickle_suite<python_base_island>());
 
 	// Local island class.
 	class_<island,bases<base_island> >("island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const island &>());
+		.def(init<const island &>())
+		.def_pickle(island_pickle_suite<island>());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<base_island_ptr>();
