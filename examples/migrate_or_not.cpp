@@ -27,7 +27,16 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include"../src/pagmo.h"
+#include "../src/keplerian_toolbox/keplerian_toolbox.h"
+#include"../src/algorithms.h"
+#include"../src/archipelago.h"
+#include"../src/island.h"
+#include"../src/problem/ackley.h"
+#include"../src/problem/cassini_1.h"
+#include"../src/problem/griewank.h"
+#include"../src/problem/rastrigin.h"
+#include"../src/topologies.h"
+
 
 /**
 DESCRITPION: This example tests several algorithms, topologies and problems and prints out a latex

@@ -29,8 +29,16 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 
-#include "../src/pagmo.h"
 #include "../src/keplerian_toolbox/keplerian_toolbox.h"
+#include"../src/algorithm/nlopt_sbplx.h"
+#include"../src/algorithm/sa_corana.h"
+#include"../src/algorithm/de.h"
+#include"../src/algorithm/cs.h"
+#include"../src/archipelago.h"
+#include"../src/island.h"
+#include"../src/problem/sample_return.h"
+#include"../src/topologies.h"
+#include"../src/migration/random_r_policy.h"
 
 using namespace pagmo;
 using namespace kep_toolbox;

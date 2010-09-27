@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "../src/pagmo.h"
+#include "../src/problem/schwefel.h"
 
 namespace pagmo
 {
