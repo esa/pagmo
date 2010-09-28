@@ -61,7 +61,6 @@ lambert_problem::lambert_problem(const array3D &r1, const array3D &r2, const dou
 	m_Nmax = lambert_find_N(m_s,m_c,tof/T,m_lw);
 
 	// 4 - computing all solutions
-	double a,p;
 	m_v1.resize(m_Nmax * 2 +1);
 	m_v2.resize(m_Nmax * 2 +1);
 	m_iters.resize(m_Nmax * 2 +1);
@@ -75,7 +74,7 @@ lambert_problem::lambert_problem(const array3D &r1, const array3D &r2, const dou
 		m_iters[1+2*i] = lambert_3d(m_v1[1+2*i],m_v2[1+2*i],m_a[1+2*i],m_p[1+2*i],r1,r2,tof,mu,m_lw,i+1,'l');
 		m_iters[2+2*i] = lambert_3d(m_v1[2+2*i],m_v2[2+2*i],m_a[2+2*i],m_p[2+2*i],r1,r2,tof,mu,m_lw,i+1,'r');
 	}
-	for (int i=0;i<m_iters.size();++i){
+	for (std::vector<int>::size_type i=0;i<m_iters.size();++i){
 		if (m_iters[i] == ASTRO_MAX_ITER) m_has_converged = false;
 	}
 }
