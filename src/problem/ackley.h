@@ -67,6 +67,6 @@ class __PAGMO_VISIBLE ackley : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::problem::ackley);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::ackley);
 
 #endif

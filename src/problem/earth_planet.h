@@ -73,6 +73,6 @@ class __PAGMO_VISIBLE earth_planet: public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::problem::earth_planet);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::earth_planet);
 
 #endif // EARTH_PLANET_H

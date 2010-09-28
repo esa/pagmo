@@ -72,6 +72,6 @@ class __PAGMO_VISIBLE rosetta: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::problem::rosetta);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::rosetta);
 
 #endif // PAGMO_PROBLEM_ROSETTA_H

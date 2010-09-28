@@ -72,3 +72,5 @@ std::string cassini_1::get_name() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cassini_1);

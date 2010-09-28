@@ -78,3 +78,5 @@ void inventory::pre_evolution(population &pop) const
 
 }
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::inventory);

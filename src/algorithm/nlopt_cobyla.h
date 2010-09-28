@@ -55,6 +55,6 @@ class __PAGMO_VISIBLE nlopt_cobyla: public base_nlopt
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::nlopt_cobyla);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_cobyla);
 
 #endif

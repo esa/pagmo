@@ -27,12 +27,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "src/mpi_environment.h"
-#include "src/mpi_island.h"
-#include "src/archipelago.h"
-#include "src/topology/ring.h"
-#include "src/problem/schwefel.h"
-#include "src/algorithm/de.h"
+#include "src/pagmo.h"
 
 using namespace pagmo;
 

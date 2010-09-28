@@ -90,6 +90,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::ipopt);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::ipopt);
 
 #endif

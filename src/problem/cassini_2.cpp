@@ -133,3 +133,5 @@ std::string cassini_2::get_name() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cassini_2);

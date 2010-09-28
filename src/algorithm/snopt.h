@@ -118,6 +118,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::snopt);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::snopt);
 
 #endif

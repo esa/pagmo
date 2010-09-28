@@ -83,6 +83,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::ms);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::ms);
 
 #endif // PAGMO_ALGORITHM_MS_H

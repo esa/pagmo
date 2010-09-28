@@ -57,6 +57,6 @@ class __PAGMO_VISIBLE nsga_ii_fon: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::problem::nsga_ii_fon);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::nsga_ii_fon);
 
 #endif

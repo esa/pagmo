@@ -89,3 +89,5 @@ std::string island::get_name() const
 }
 
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::island);

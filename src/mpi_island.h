@@ -144,6 +144,6 @@ inline void load_construct_data(Archive &ar, pagmo::mpi_island *isl, const unsig
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::mpi_island);
+BOOST_CLASS_EXPORT_KEY(pagmo::mpi_island);
 
 #endif

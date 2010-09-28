@@ -59,6 +59,6 @@ class __PAGMO_VISIBLE gsl_bfgs2: public gsl_gradient
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::gsl_bfgs2);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_bfgs2);
 
 #endif

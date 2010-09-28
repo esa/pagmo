@@ -66,6 +66,6 @@ class __PAGMO_VISIBLE ring: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::topology::ring);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::ring);
 
 #endif

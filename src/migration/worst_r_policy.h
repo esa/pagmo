@@ -61,6 +61,6 @@ class __PAGMO_VISIBLE worst_r_policy: public base_r_policy
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::migration::worst_r_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::worst_r_policy);
 
 #endif

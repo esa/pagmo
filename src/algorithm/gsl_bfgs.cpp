@@ -52,3 +52,5 @@ const gsl_multimin_fdfminimizer_type *gsl_bfgs::get_gsl_minimiser_ptr() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_bfgs);

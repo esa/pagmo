@@ -92,7 +92,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 
 } } // namespaces
 
-BOOST_CLASS_EXPORT(pagmo::problem::gtoc_2);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc_2);
 
 #endif
 

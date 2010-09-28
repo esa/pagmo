@@ -63,6 +63,6 @@ class __PAGMO_VISIBLE pan: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::topology::pan);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::pan);
 
 #endif

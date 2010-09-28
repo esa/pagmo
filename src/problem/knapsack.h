@@ -111,6 +111,6 @@ class __PAGMO_VISIBLE knapsack: public base
 }
 }
 
-BOOST_CLASS_EXPORT(pagmo::problem::knapsack);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::knapsack);
 
 #endif

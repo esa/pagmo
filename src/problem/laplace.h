@@ -86,6 +86,6 @@ class __PAGMO_VISIBLE laplace: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::problem::laplace);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::laplace);
 
 #endif // PAGMO_PROBLEM_LAPLACE_H

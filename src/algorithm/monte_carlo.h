@@ -62,6 +62,6 @@ class __PAGMO_VISIBLE monte_carlo: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::monte_carlo);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::monte_carlo);
 
 #endif

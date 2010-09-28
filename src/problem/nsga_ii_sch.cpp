@@ -54,3 +54,5 @@ std::string nsga_ii_sch::get_name() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::nsga_ii_sch);

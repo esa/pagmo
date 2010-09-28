@@ -62,6 +62,6 @@ class __PAGMO_VISIBLE fully_connected: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::topology::fully_connected);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::fully_connected);
 
 #endif

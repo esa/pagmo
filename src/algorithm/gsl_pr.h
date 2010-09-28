@@ -59,6 +59,6 @@ class __PAGMO_VISIBLE gsl_pr: public gsl_gradient
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::gsl_pr);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_pr);
 
 #endif

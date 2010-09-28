@@ -61,6 +61,6 @@ class __PAGMO_VISIBLE null:public base
 
 }
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::null);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::null);
 
 #endif

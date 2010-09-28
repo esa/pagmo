@@ -353,3 +353,5 @@ std::string sga::human_readable_extra() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sga);

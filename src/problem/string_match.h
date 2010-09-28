@@ -68,6 +68,6 @@ class __PAGMO_VISIBLE string_match: public base
 
 } }
 
-BOOST_CLASS_EXPORT(pagmo::problem::string_match);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::string_match);
 
 #endif

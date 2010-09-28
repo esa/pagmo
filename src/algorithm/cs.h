@@ -92,6 +92,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::cs);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cs);
 
 #endif // PAGMO_ALGORITHM_CS_H

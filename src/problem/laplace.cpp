@@ -184,3 +184,5 @@ std::string laplace::get_name() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::laplace);

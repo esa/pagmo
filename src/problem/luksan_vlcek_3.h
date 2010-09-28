@@ -69,6 +69,6 @@ class __PAGMO_VISIBLE luksan_vlcek_3: public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::problem::luksan_vlcek_3);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::luksan_vlcek_3);
 
 #endif // LUKSAN_VLCEK_3_H

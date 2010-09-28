@@ -54,3 +54,5 @@ const gsl_multimin_fminimizer_type *gsl_nm2::get_gsl_minimiser_ptr() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm2);

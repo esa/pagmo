@@ -149,3 +149,5 @@ std::string knapsack::get_name() const
 
 }
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::knapsack);

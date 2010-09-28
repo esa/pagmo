@@ -81,6 +81,6 @@ class __PAGMO_VISIBLE sample_return: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::problem::sample_return);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::sample_return);
 
 #endif // PAGMO_SAMPLE_RETURN_H

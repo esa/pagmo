@@ -72,6 +72,6 @@ class __PAGMO_VISIBLE cassini_2: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::problem::cassini_2);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::cassini_2);
 
 #endif // PAGMO_PROBLEM_CASSINI_2_H

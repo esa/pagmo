@@ -83,6 +83,6 @@ class __PAGMO_VISIBLE paraboloid: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::problem::paraboloid);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::paraboloid);
 
 #endif

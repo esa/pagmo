@@ -63,6 +63,6 @@ class __PAGMO_VISIBLE nlopt_sbplx: public base_nlopt
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::nlopt_sbplx);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_sbplx);
 
 #endif

@@ -82,6 +82,6 @@ class __PAGMO_VISIBLE watts_strogatz: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::topology::watts_strogatz);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::watts_strogatz);
 
 #endif

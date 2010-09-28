@@ -78,3 +78,5 @@ std::string ackley::get_name() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::ackley);

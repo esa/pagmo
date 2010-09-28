@@ -57,6 +57,6 @@ class __PAGMO_VISIBLE gsl_nm2: public gsl_derivative_free
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::gsl_nm2);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_nm2);
 
 #endif

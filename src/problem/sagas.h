@@ -73,6 +73,6 @@ class __PAGMO_VISIBLE sagas: public base
 
 }}
 
-BOOST_CLASS_EXPORT(pagmo::problem::sagas);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::sagas);
 
 #endif // PAGMO_PROBLEM_SAGAS_H

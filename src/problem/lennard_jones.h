@@ -67,6 +67,6 @@ class __PAGMO_VISIBLE lennard_jones : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::problem::lennard_jones);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::lennard_jones);
 
 #endif // PAGMO_PROBLEM_LENNARD_JONES_H

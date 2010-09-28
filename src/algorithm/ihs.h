@@ -97,6 +97,6 @@ class __PAGMO_VISIBLE ihs: public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::ihs);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::ihs);
 
 #endif

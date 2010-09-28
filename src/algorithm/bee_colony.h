@@ -79,6 +79,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::bee_colony);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::bee_colony);
 
 #endif // BEECOLONY_H

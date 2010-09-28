@@ -232,3 +232,5 @@ std::string gtoc_2::pretty(const std::vector<double> &x) const
 }
 
 }} // namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::gtoc_2);

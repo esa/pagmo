@@ -94,6 +94,6 @@ class __PAGMO_VISIBLE inventory: public base
 }
 }
 
-BOOST_CLASS_EXPORT(pagmo::problem::inventory);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::inventory);
 
 #endif //PAGMO_PROBLEM_INVENTORY_H

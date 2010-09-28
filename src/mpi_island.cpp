@@ -197,3 +197,5 @@ void mpi_island::release_processor(int n)
 }
 
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::mpi_island);
