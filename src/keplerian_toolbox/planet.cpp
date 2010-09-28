@@ -23,7 +23,7 @@ planet::planet(const epoch& ref_epoch, const array6D& orbital_elements_, const d
 	if (mu_self_ <= 0) {
 		throw_value_error("The gravitational parameter of the planet needs to be strictly positive");
 	}
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		cached_r[i] = 0;
 		cached_v[i] = 0;
 	}
