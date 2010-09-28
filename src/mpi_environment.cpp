@@ -75,6 +75,11 @@ std::cout << "shutting down\n";
 std::cout << "shut down\n";
 }
 
+int mpi_environment::size() const
+{
+	return boost::mpi::communicator().size();
+}
+
 void mpi_environment::listen()
 {
 	MPI_Status status;

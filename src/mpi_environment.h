@@ -39,6 +39,7 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 	public:
 		mpi_environment();
 		~mpi_environment();
+		int size() const;
 	private:
 		void listen();
 	private:

@@ -22,8 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <boost/mpi/environment.hpp>
-#include <boost/mpi/communicator.hpp>
 #include <iostream>
 #include <fstream>
 
@@ -46,7 +44,7 @@ int main()
 
 	mpi_environment env;
 	archipelago a = archipelago(topology::ring());
-	for (int i = 1; i < boost::mpi::communicator().size(); ++i) {
+	for (int i = 1; i < env.size(); ++i) {
 		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(500),10));
 	}
 	a.evolve(2);
