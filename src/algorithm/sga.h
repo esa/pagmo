@@ -60,26 +60,28 @@ public:
 	};
 	/// Mutation operator info
 	struct mutation {
-		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive &ar, const unsigned int /*version*/){
-			ar & m_type;
-			ar & m_width;
-		}
-		/// Mutation type, gaussian or random
-		enum type {GAUSSIAN = 0, RANDOM = 1};
-		/// Constructor
-		/**
-		 * \param[in] t the mutation type
-		 * \param[in] width the width of the gaussian bell in case of a gaussian mutation. The
-		 *		parameter is otherwise ignored. width is a percentage with respect to the
-		 *		ub[i]-lb[i] width.
-		 */
-		mutation(mutation::type t, double width) : m_type(t),m_width(width) {}
-		/// Mutation type
-		type m_type;
-		/// Mutation width
-		double m_width;		
+			/// Mutation type, gaussian or random
+			enum type {GAUSSIAN = 0, RANDOM = 1};
+			/// Constructor
+			/**
+			* \param[in] t the mutation type
+			* \param[in] width the width of the gaussian bell in case of a gaussian mutation. The
+			*		parameter is otherwise ignored. width is a percentage with respect to the
+			*		ub[i]-lb[i] width.
+			*/
+			mutation(mutation::type t, double width) : m_type(t),m_width(width) {}
+			/// Mutation type
+			type m_type;
+			/// Mutation width
+			double m_width;
+		private:
+			friend class boost::serialization::access;
+			template <class Archive>
+			void serialize(Archive &ar, const unsigned int)
+			{
+				ar & m_type;
+				ar & m_width;
+			}
 	};
 
 	/// Crossover operator info

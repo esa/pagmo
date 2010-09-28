@@ -27,7 +27,7 @@
 
 /*! \mainpage PaGMO (Parallel Global Multiobjective Optimizer)
 \section intro_sec Introduction 
-PaGMO is a generalization of the island model paradigm to parallelize global and local optimization algorithms using multiple threads (tested to up to 10000 threads). It provides a set of C++ classes
+PaGMO is a generalization of the island model paradigm to parallelize global and local optimization algorithms using multiple threads/processes. It provides a set of C++ classes
 and their exposition in Python language as to allow the user to solve, in a parallel fashion, global optimization tasks in the form: \n\n
 <center>
 	\f$
@@ -59,14 +59,14 @@ can be fed to it (i.e. box-constrained or mixed integer etc.):
 - Monte-Carlo (pagmo::algorithm::monte_carlo)
 
 Other algorithm are available via third parties libraries, and can be included activating the respective
-options in ccmake, in particular:
+options in CMake, in particular:
 
 - GSL library (open-source) -- includes Nelder-Mead, BFGS and more, see pagmo::algorithm::base_gsl
-- NLOPT library (open-source) -- includes bobyqa, cobyla and more, see pagmo::algorithm::base_nlopt
+- NLOPT library (open-source) -- includes BOBYQA, COBYLA and more, see pagmo::algorithm::base_nlopt
 - IPOPT library (open-source) -- includes IPOPT, see pagmo::algorithm::ipopt
 - SNOPT library (commercial) -- includes SNOPT, see pagmo::algorithm::snopt
 
-When working only in Python the scipy algorithms are available too.
+When working only in Python the SciPy algorithms from the 'optimize module' are available too (see http://docs.scipy.org/doc/scipy/reference/optimize.html).
 
 \section problems Problems currently implemented in PaGMO
 
@@ -76,7 +76,7 @@ directly in Python.
 
 - Classical Test Problems
  - Continuous, box bounded
-  - Paraboloid, Ackley, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, HimmelBlau
+  - Paraboloid, Ackley, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, Himmelblau
  - Continuous, constrained
   - From Luksan-Vlcek book (3 problems also in the original IPOPT dist.), Toy-problem from SNOPT manual
  - Integer Programming
@@ -86,21 +86,23 @@ directly in Python.
  - Stochastic, continuous and box bounded
   - xxx
 - Engineering Problems
-  - All problems from the GTOP database, An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
+  - All problems from the GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt.htm) and An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
 
 \section install Installation guide
 
-To install PaGMO from source code you will need git and cmake, ccmake installed in your system.
+To install PaGMO from source code you will need git and CMake installed in your system. On Unix systems:
 
 - Clone the PaGMO git repository on your local machine: \code git clone git://pagmo.git.sourceforge.net/gitroot/pagmo/pagmo \endcode
 - Create a build directory in your pagmo directory and move there: \code cd pagmo \endcode \code mkdir build \endcode \code cd build \endcode
-- Run cmake to configure your makefile (or project): \code ccmake ../ \endcode
-- In ccmake, press c to configure, then (see figure below) select the options that are desired (e.g. compile the main file?, compile  PyGMO?) press c to configure again and then g to generate the makefile. Selecting the option PyGMO you will also build the python version of the code. In this case make sure you have python installed. Cmake will try to locate the current installation directory of your python and install there the code.
+- Run ccmake to configure your makefile (or project): \code ccmake ../ \endcode
+- In ccmake, press c to configure, then (see figure below) select the options that are desired (e.g. compile the main file?, compile  PyGMO?) press c to configure again and then g to generate the makefile. Selecting the option PyGMO you will also build the python version of the code. In this case make sure you have python installed. CMake will try to locate the current installation directory of your python and install there the code.
 
 \image html ccmake.png
 - Build PaGMO: \code make \endcode
 - Test PaGMO (if tests are enabled in ccmake): \code make test\endcode
 - Install PaGMO: \code make install \endcode
+
+On Windows systems, the procedure is analogous (you will likely use the Windows CMake GUI instead of ccmake).
 
 \section PyGMO Interactive python session
 
@@ -111,27 +113,11 @@ using pagmo::algorithm::de (Differential Evolution) in a 4 CPU machine.
 
 \image html ipython.png
 
-\section PyGMO MPI implementation 
+\section mpi_intro MPI support
 
-The current MPI implementation works with C++ programs that make use of the pagmo libraries. In order to be able to run your solver on multiple processor you need to have a working version of MPI installed on your system. Any of the following MPI distribution should be compatibale with boost and implictly PAGMO:
-OPENMPI, MPICH2, LAM/MPI. On debian systems the installation of these distributions is as simple as "sudo apt-get install mpich2"/"sudo apt-get install openmpi"
-	Notes for solving approximation problems with PAGMO problems using MPI:
-	The main difference is that in this case the archipelago are created using "mpi_islands" objects instead of "island", as follows:
-@verbatim
-a.push_back(pagmo::mpi_island(problem,algorithm,no_individuals,processor_id));
-@endverbatim
-	, where processor_id is an integer that represents the rank of the processor to which that particular island is assigned to.
-	An archipelago with n mpi_islands can also be created by using the archipelago constructor, and setting the is_parallel attribute to "true" (default is "false"):
-@verbatim
-pagmo::archipelago b = pagmo::archipelago(problem, algorithm, n, n_indiv, topology, migration, direction, true)
-@endverbatim
-	, where "n" represents the number of islands of the archipelago, and the "is_parallel" is the boolean value that needs to be set to "true" in order to make use of the MPI environment. In case the number of islands is larger than the number of processors available, then the the computations of the islands' evoutions, are assigned to the processors in a round-robin manner.
-	Note that the program must be treated as an MPI program (running on multiple processes/ors). While the initialization of the archipelago needs to be done on all processors, and the evolution of the islands called on all processors (the process filtering being done by the exposed "perform_evolution method" of the mpi_island class) other parts of the code like printing the results needs to be done onl  on the root process (the one with rank 0). An example can be found with the test_mpi.cpp program located in the "tests" folder.
-	Testing: Once the pagmo base code, along with C++ MPI problem have been compiled, one can test their implementation by first starting the mpd deamon (on a single machine if it's tested with multiple processes on a single computer, or on all the machines that are being used). To run the problem one needs to execute
-@verbatim
-mpirun -np number_of_processes (-hostfile hostfilename)./mpi_program_executable
-@endverbatim
-, where the hostfile is used to specify the available machines in the case where the program is tested on multiple nodes instead of just one.
+By default PaGMO parallelizes the optimization process by opening multiple local threads of execution, and hence the parallelism is confined to a single machine. For use in cluster
+environments, PaGMO can employ MPI (Message Passing Interface) to distribute the workload among multiple machines. Detailed instructions on how to enable and use the MPI support in PaGMO
+can be found in \ref mpi_support "this page".
 */
 
 #ifdef __GNUC__

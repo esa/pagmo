@@ -66,79 +66,85 @@ class __PAGMO_VISIBLE population
 		 * Individuals store the current decision and velocity vectors, the current constraint vector and the current fitness vector. They also
 		 * keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
 		 */
-		struct individual_type {
-			template <class Archive>
-			void serialize(Archive &ar, const unsigned int)
-			{
-				ar & cur_x;
-				ar & cur_v;
-				ar & cur_c;
-				ar & cur_f;
-				ar & best_x;
-				ar & best_c;
-				ar & best_f;
-			}  
-			/// Current decision vector.
-			decision_vector		cur_x;
-			/// Current velocity vector.
-			decision_vector		cur_v;
-			/// Current constraint vector.
-			constraint_vector	cur_c;
-			/// Current fitness vector.
-			fitness_vector		cur_f;
-			/// Best decision vector so far.
-			decision_vector		best_x;
-			/// Best constraint vector so far.
-			constraint_vector	best_c;
-			/// Best fitness vector so far.
-			fitness_vector		best_f;
-			/// Human-readable representation.
-			/**
-			 * @return formatted string containing the values of the data members.
-			 */
-			std::string human_readable() const
-			{
-				std::ostringstream oss;
-				oss << "\tDecision vector:\t\t" << cur_x << '\n';
-				oss << "\tVelocity vector:\t\t" << cur_v << '\n';
-				oss << "\tConstraint vector:\t\t" << cur_c << '\n';
-				oss << "\tFitness vector:\t\t\t" << cur_f << '\n';
-				oss << "\tBest decision vector:\t\t" << best_x << '\n';
-				oss << "\tBest constraint vector:\t\t" << best_c << '\n';
-				oss << "\tBest fitness vector:\t\t" << best_f << '\n';
-				return oss.str();
-			}
+		struct individual_type
+		{
+				/// Current decision vector.
+				decision_vector		cur_x;
+				/// Current velocity vector.
+				decision_vector		cur_v;
+				/// Current constraint vector.
+				constraint_vector	cur_c;
+				/// Current fitness vector.
+				fitness_vector		cur_f;
+				/// Best decision vector so far.
+				decision_vector		best_x;
+				/// Best constraint vector so far.
+				constraint_vector	best_c;
+				/// Best fitness vector so far.
+				fitness_vector		best_f;
+				/// Human-readable representation.
+				/**
+				* @return formatted string containing the values of the data members.
+				*/
+				std::string human_readable() const
+				{
+					std::ostringstream oss;
+					oss << "\tDecision vector:\t\t" << cur_x << '\n';
+					oss << "\tVelocity vector:\t\t" << cur_v << '\n';
+					oss << "\tConstraint vector:\t\t" << cur_c << '\n';
+					oss << "\tFitness vector:\t\t\t" << cur_f << '\n';
+					oss << "\tBest decision vector:\t\t" << best_x << '\n';
+					oss << "\tBest constraint vector:\t\t" << best_c << '\n';
+					oss << "\tBest fitness vector:\t\t" << best_f << '\n';
+					return oss.str();
+				}
+			private:
+				friend class boost::serialization::access;
+				template <class Archive>
+				void serialize(Archive &ar, const unsigned int)
+				{
+					ar & cur_x;
+					ar & cur_v;
+					ar & cur_c;
+					ar & cur_f;
+					ar & best_x;
+					ar & best_c;
+					ar & best_f;
+				}
 		};
 		/// Population champion.
 		/**
 		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
 		 */
-		struct champion_type {
-			template <class Archive>
-			void serialize(Archive &ar, const unsigned int)
-			{
-				ar & x;
-				ar & c;
-				ar & f;
-			}  
-			/// Decision vector.
-			decision_vector		x;
-			/// Constraint vector.
-			constraint_vector	c;
-			/// Fitness vector.
-			fitness_vector		f;
-			/// Human-readable representation.
-			/**
-			 * @return formatted string containing the values of the data members.
-			 */
-			std::string human_readable() const
-			{
-				std::ostringstream oss;
-				oss << "\tDecision vector:\t" << x << '\n';
-				oss << "\tConstraints vector:\t" << c << '\n';
-				oss << "\tFitness vector:\t\t" << f << '\n';
-				return oss.str();
-			}
+		struct champion_type
+		{
+				/// Decision vector.
+				decision_vector		x;
+				/// Constraint vector.
+				constraint_vector	c;
+				/// Fitness vector.
+				fitness_vector		f;
+				/// Human-readable representation.
+				/**
+				* @return formatted string containing the values of the data members.
+				*/
+				std::string human_readable() const
+				{
+					std::ostringstream oss;
+					oss << "\tDecision vector:\t" << x << '\n';
+					oss << "\tConstraints vector:\t" << c << '\n';
+					oss << "\tFitness vector:\t\t" << f << '\n';
+					return oss.str();
+				}
+			private:
+				friend class boost::serialization::access;
+				template <class Archive>
+				void serialize(Archive &ar, const unsigned int)
+				{
+					ar & x;
+					ar & c;
+					ar & f;
+				}
 		};
 		/// Underlying container type.
 		typedef std::vector<individual_type> container_type;

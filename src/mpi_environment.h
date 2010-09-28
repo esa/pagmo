@@ -31,6 +31,10 @@
 
 #include "config.h"
 
+/*!
+\page mpi_support MPI support in PaGMO
+*/
+
 namespace pagmo
 {
 

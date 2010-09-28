@@ -102,6 +102,16 @@ class __PAGMO_VISIBLE base_island
 			const migration::base_s_policy &,
 			const migration::base_r_policy &);
 		base_island &operator=(const base_island &);
+		/// Clone method.
+		/**
+		 * Provided that the derived island implements properly the copy constructor, virtually all implementations of this method will
+		 * look like this:
+		 * \code
+		 * return base_ptr(new derived_island(*this));
+		 * \endcode
+		 *
+		 * @return pagmo::base_island_ptr to a copy of this.
+		 */
 		virtual base_island_ptr clone() const = 0;
 		virtual ~base_island();
 		//@}
@@ -156,6 +166,23 @@ class __PAGMO_VISIBLE base_island
 		// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.
 		struct t_evolver;
 	protected:
+		/// Population.
+		population				m_pop;
+		/// Algorithm.
+		algorithm::base_ptr			m_algo;
+		/// Pointer that, if not null, points to the archipelago containing the island.
+		archipelago				*m_archi;
+		/// Total time spent by the island on evolution (in milliseconds).
+		std::size_t				m_evo_time;
+		/// Migration probability.
+		double					m_migr_prob;
+		/// Migration selection policy.
+		migration::base_s_policy_ptr		m_s_policy;
+		/// Migration replacement policy.
+		migration::base_r_policy_ptr		m_r_policy;
+		/// Evolution thread.
+		boost::scoped_ptr<boost::thread>	m_evo_thread;
+	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int version)
@@ -181,22 +208,6 @@ class __PAGMO_VISIBLE base_island
 			m_archi = 0;
 			m_evo_thread.reset(0);
 		}
-		// Population.
-		population				m_pop;
-		// Algorithm.
-		algorithm::base_ptr			m_algo;
-		// Archipelago that, if not null, contains the island.
-		archipelago				*m_archi;
-		// Counts the total time spent by the island on evolution (in milliseconds).
-		std::size_t				m_evo_time;
-		// Migration probability.
-		double					m_migr_prob;
-		// Migration selection policy.
-		migration::base_s_policy_ptr		m_s_policy;
-		// Migration replacement policy.
-		migration::base_r_policy_ptr		m_r_policy;
-		// Evolution thread.
-		boost::scoped_ptr<boost::thread>	m_evo_thread;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base_island &);
