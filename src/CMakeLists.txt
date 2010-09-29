@@ -4,6 +4,10 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cross_entropy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
@@ -31,9 +35,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_fon.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/nsga_ii_sch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/paraboloid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosenbrock.cpp
@@ -52,6 +53,20 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/fon.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/pol.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/kur.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt1.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt4.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt6.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp

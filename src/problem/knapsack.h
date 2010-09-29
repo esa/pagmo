@@ -33,7 +33,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "base.h"
+#include "base_aco.h"
 
 namespace pagmo { namespace problem {
 
@@ -63,7 +63,7 @@ namespace pagmo { namespace problem {
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE knapsack: public base
+class __PAGMO_VISIBLE knapsack: public base_aco
 {
 	public:
 		knapsack();
@@ -85,6 +85,7 @@ class __PAGMO_VISIBLE knapsack: public base
 		}
 		base_ptr clone() const;
 		std::string get_name() const;
+		bool check_partial_feasibility(const decision_vector &x) const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
@@ -93,6 +94,7 @@ class __PAGMO_VISIBLE knapsack: public base
 		std::string human_readable_extra() const;
 	private:
 		void verify_init() const;
+		void set_heuristic_information_matrix();
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

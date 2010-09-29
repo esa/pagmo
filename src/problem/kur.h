@@ -22,54 +22,54 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_PROBLEM_KUR_H
+#define PAGMO_PROBLEM_KUR_H
 
-// Header including all problems implemented in PaGMO.
+#include <string>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+#include "../config.h"
+#include "../serialization.h"
+#include "../types.h"
+#include "base.h"
 
-#endif
+namespace pagmo{ namespace problem {
+
+/// Kursawe's study
+/**
+ *
+ * This is a box-constrained continuous three-dimension multi-objecive problem.
+ * \f[
+ * 	F_1 \left(x\right) = \sum_{i=1}^3 \left(-10 \exp \left(-0.2 \sqrt{x_i^2 + x_{i+1}^2}\right) \right)
+ * \f]
+ * \f[
+ *      F_2 \left(x\right) = \sum_{i=1}^3 (|x_i|^{0.8} + 5 \sin(x_i^3)  x \in \left[ -5,5 \right].
+ * \f]
+ *
+ * @see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.18.4257&rep=rep1&type=pdf
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE kur : public base
+{
+	public:
+		kur();
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
+};
+
+}} //namespaces
+
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::kur);
+
+#endif // PAGMO_PROBLEM_KUR_H
+

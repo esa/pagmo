@@ -22,54 +22,53 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_ALGORITHM_CROSS_ENTROPY_H
+#define PAGMO_ALGORITHM_CROSS_ENTROPY_H
 
-// Header including all problems implemented in PaGMO.
+#include "../config.h"
+#include "base.h"
+#include "../population.h"
+#include "../types.h"
+#include <string>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
 
-#endif
+
+namespace pagmo { namespace algorithm {
+
+/// The Cross Entropy method (CE)
+/**
+ * The cross-entropy (CE) method attributed to Reuven Rubinstein is a general Monte Carlo approach to combinatorial and continuous multi-extremal optimization and importance sampling.
+ *
+ * NOTE: when called on mixed-integer problems CE treats the integer part as fixed and optimizes
+ * the continuous part.
+ *
+ * At each call of the evolve method a number of function evaluations equal
+ * to iter * pop.size() is performed.
+ *
+ * @see http://ie.technion.ac.il/CE/files/Misc/tutorial.pdf
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE cross_entropy: public base
+{
+public:
+	cross_entropy(int iter, double fraction_elite = 0.1, double alpha = 0.8, double beta = 0.9);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	const int m_iter;
+	const double m_fraction_elite;
+	const double m_alpha;
+	const double m_beta;
+	static decision_vector	calculate_mean(std::vector<decision_vector>);
+	static decision_vector calculate_std(std::vector<decision_vector>, decision_vector);
+	static bool compare_function(std::pair<fitness_vector,int>, std::pair<fitness_vector,int>);
+};
+
+}} //namespaces
+
+#endif // CROSS_ENTROPY_H

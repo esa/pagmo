@@ -118,6 +118,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Griewank problem.
 	problem_wrapper<problem::griewank>("griewank","Griewank function.")
 		.def(init<int>());
+	
+	// De Jong's problem.
+	problem_wrapper<problem::dejong>("dejong","De Jong's function.")
+		.def(init<int>());
+	
+	// michalewicz's problem.
+	problem_wrapper<problem::michalewicz>("michalewicz","Michalewicz's function.")
+		.def(init<int, optional<int> >());
 
 	// GTOC1 problem.
 	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.");
@@ -155,12 +163,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Rosenbrock problem.
 	problem_wrapper<problem::rosenbrock>("rosenbrock","Multi-dimensional Rosenbrock function.")
 		.def(init<int>());
-	
-	// NSGA-II fon problem.
-	problem_wrapper<problem::nsga_ii_fon>("nsga_ii_fon","NSGA-II FON problem.");
-	
-	// NSGA-II sch problem.
-	problem_wrapper<problem::nsga_ii_sch>("nsga_ii_sch","NSGA-II SCH problem.");
 	
 	// Rosetta problem.
 	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
@@ -218,9 +220,41 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Cassini 2.
 	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
 	
+	// Traveling salesman problem
+	problem_wrapper<problem::tsp>("tsp","Traveling salesman problem")
+		.def(init<const std::vector<std::vector<double> > &>());
+	
 	// Tandem.
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
 		.def(init< optional<int, double> >());
+	
+	// SCH
+	problem_wrapper<problem::sch>("sch","Shaffer's study problem.")
+		.def(init<>());
+	// FON
+	problem_wrapper<problem::fon>("fon","Fonseca and Fleming's study problem.")
+		.def(init<>());
+	// POL
+	problem_wrapper<problem::pol>("pol","Poloni's study problem.")
+		.def(init<>());
+	// KUR
+	problem_wrapper<problem::kur>("kur","Kursawe's study problem.")
+		.def(init<>());
+	// ZDT1
+	problem_wrapper<problem::zdt1>("zdt1","ZDT1")
+		.def(init<>());
+	// ZDT2
+	problem_wrapper<problem::zdt2>("zdt2","ZDT2")
+		.def(init<>());
+	// ZDT3
+	problem_wrapper<problem::zdt3>("zdt1","ZDT3")
+		.def(init<>());
+	// ZDT4
+	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
+		.def(init<>());
+	// ZDT6
+	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
+		.def(init<>());
 
 	// Human mission to asteroids.
 	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")

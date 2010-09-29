@@ -22,41 +22,56 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_NSGA_II_FON_H
-#define PAGMO_PROBLEM_NSGA_II_FON_H
+#include <cmath>
 
-#include <string>
-
-#include "../config.h"
-#include "../serialization.h"
+#include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
+#include "zdt4.h"
 
 namespace pagmo { namespace problem {
 
-/// NSGA II FON multi-objective optimisation test problem.
 /**
- * @see Deb, K., et al., 2002. A fast and elitist multiobjective genetic algorithm: NSGA II. IEEE Transactions on Evolutionary Computation 6 (2), 182-197.
+ * Will construct ZDT3.
+ *
+ * @see problem::base constructors.
  */
-class __PAGMO_VISIBLE nsga_ii_fon: public base
+zdt4::zdt4():base(10,0,2)
 {
-	public:
-		nsga_ii_fon();
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-	private:
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-		}
-};
+	// Set bounds.
+	set_lb(-5.0);
+	set_ub(5.0);
+	set_lb(0,0.0);
+	set_ub(0,1.0);
+	m_pi = 4*atan(1.0);
+}
 
+/// Clone method.
+base_ptr zdt4::clone() const
+{
+	return base_ptr(new zdt4(*this));
+}
+
+/// Implementation of the objective function.
+void zdt4::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 2);
+	pagmo_assert(x.size() == 10);
+
+	double g = 91;
+
+	f[0] = x[0];
+
+	for(problem::base::size_type i = 2; i < 10; ++i) {
+		g += x[i]*x[i] - 10 * cos(4 * m_pi * x[i]);
+	}
+	
+	f[1] = g * ( 1 - sqrt(x[0]/g));
+	
+}
+
+std::string zdt4::get_name() const
+{
+	return "ZDT4";
+}
 }}
-
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::nsga_ii_fon);
-
-#endif

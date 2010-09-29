@@ -22,54 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_ALGORITHM_ACO_H
+#define PAGMO_ALGORITHM_ACO_H
 
-// Header including all problems implemented in PaGMO.
+#include "../config.h"
+#include "../types.h"
+#include "base.h"
+#include "../problem/base_aco.h"
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
 
-#endif
+namespace pagmo { namespace algorithm {
+
+/// Ant Colony Optimization (ACO)
+/**
+ * \image html ant.png "Ant Colony Optimization"
+ * \image latex ant.png  "Ant Colony Optimization" width=3cm
+ * Ant colony optimization (ACO) is a population-based metaheuristic that can be used to find approximate solutions to difficult combinatorial optimization problems. This implementation of ACO works on any constrained integer problem that extends the base_aco problem.
+ *
+ * NOTE: when called on mixed-integer problems ACO treats the continuous part as fixed and optimizes
+ * the integer part.
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ *
+ * @see http://www.scholarpedia.org/article/Ant_colony_optimization
+ */
+
+class __PAGMO_VISIBLE aco: public base
+{
+public:
+	aco(int iter, double rho = 0.2);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	static void deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho);
+	static void selection_probability(std::vector<fitness_vector> &probability, std::vector<bool> &fComponents, std::vector<fitness_vector> &eta, std::vector<int> &selection, const pagmo::problem::base &prob);
+	static void feasible_components(std::vector<bool> &fComponents,const pagmo::problem::base_aco &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub);
+	// Number of iterations
+	const double m_iter;
+	const double m_rho;
+};
+
+}} //namespaces
+
+#endif // PAGMO_ALGORITHM_ACO_H

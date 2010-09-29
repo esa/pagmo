@@ -22,54 +22,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_PROBLEM_DEJONG_H
+#define PAGMO_PROBLEM_DEJONG_H
 
-// Header including all problems implemented in PaGMO.
+#include <string>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+#include "../types.h"
+#include "base.h"
 
-#endif
+namespace pagmo{ namespace problem {
+
+/// The De Jong's problem.
+/**
+ * \image html dejong.gif "Two-dimensional De Jong's function."
+ * \image latex dejong.gif "Two-dimensional De Jong's function." width=5cm
+ *
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the  n-dimensional De Jong's function:
+ * \f[
+ * 	F \left(x_1,\ldots,x_n\right) = \sum_{i=1}^n sin(x_i) x_i^2, \quad x_i \in \left[ -5.12,5.12 \right].
+ * \f]
+ * Global local minimum \f$ x_i = 0\f$.
+ *
+ *
+ * @see http://www.geatbx.com/docu/fcnindex-01.html#P89_3085
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE dejong : public base
+{
+	public:
+		dejong(int n);
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+};
+
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_MICHALEWICZ_H

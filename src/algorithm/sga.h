@@ -118,6 +118,7 @@ private:
 	const double m_cr;
 	//Mutation rate
 	const double m_m;
+
 	//Elitism (number of generations after which to reinsert the best)
 	const int m_elitism;
 	//Mutation

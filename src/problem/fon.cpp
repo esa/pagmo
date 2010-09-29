@@ -22,54 +22,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-// Header including all problems implemented in PaGMO.
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "fon.h"
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+namespace pagmo { namespace problem {
 
-#endif
+/**
+ * Will construct Fonseca and Fleming's study problem.
+ *
+ * @see problem::base constructors.
+ */
+fon::fon():base(3,0,2)
+{
+	set_bounds(-4,4);
+}
+
+/// Clone method.
+base_ptr fon::clone() const
+{
+	return base_ptr(new fon(*this));
+}
+
+/// Implementation of the objective function.
+void fon::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 2 && x.size() == 3);
+	f[0] = 1 - std::exp(-(x[0] - 1 / std::sqrt(3)) * (x[0] - 1 / std::sqrt(3)) - (x[1] - 1 / std::sqrt(3)) * (x[1] -
+		1 / std::sqrt(3)) - (x[2] - 1 / std::sqrt(3)) * (x[2] - 1 / std::sqrt(3)));
+	f[1] = 1 - std::exp(-(x[0] + 1 / std::sqrt(3)) * (x[0] + 1 / std::sqrt(3)) - (x[1] + 1 / std::sqrt(3)) * (x[1] +
+		1 / std::sqrt(3)) - (x[2] + 1 / std::sqrt(3)) * (x[2] + 1 / std::sqrt(3)));
+}
+
+std::string fon::get_name() const
+{
+	return "Fonseca and Fleming's study";
+}
+
+}} //namespaces

@@ -38,6 +38,10 @@
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
 #include "algorithm/bee_colony.h"
+#include "algorithm/firefly.h"
+#include "algorithm/cross_entropy.h"
+#include "algorithm/aco.h"
+#include "algorithm/nsga2.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

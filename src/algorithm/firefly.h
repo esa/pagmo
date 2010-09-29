@@ -22,41 +22,58 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_NSGA_II_SCH_H
-#define PAGMO_PROBLEM_NSGA_II_SCH_H
-
-#include <string>
+#ifndef PAGMO_ALGORITHM_FIREFLY_H
+#define PAGMO_ALGORITHM_FIREFLY_H
 
 #include "../config.h"
-#include "../serialization.h"
-#include "../types.h"
 #include "base.h"
+#include "../population.h"
+#include <string>
 
-namespace pagmo { namespace problem {
 
-/// NSGA II SCH multi-objective optimisation test problem.
+
+namespace pagmo { namespace algorithm {
+
+/// The Firefly algorithm(FA)
 /**
- * @see Deb, K., et al., 2002. A fast and elitist multiobjective genetic algorithm: NSGA II. IEEE Transactions on Evolutionary Computation 6 (2), 182-197.
+ * The firefly algorithm (FA) is a metaheuristic algorithm, inspired by the flashing behaviour of fireflies.
+ *
+ * At each call of the evolve method a number of function evaluations equal
+ * to iter * pop.size() is performed.
+ *
+ * NOTE: when called on mixed-integer problems Firefly treats the integer part as fixed and optimizes
+ * the continuous part.
+ *
+ * The algorithm used is the one provided in the first paper attached with 2 differences:
+ *
+ * \f$ \gamma \f$ is calculated with the adaptive method explained in the second paper attached (Equation 3)
+ * The attactiveness is calculated as \f$ \beta = \beta_0 \exp(-\gamma r) \f$
+ *
+ * These modifications make the algorithm perform better on all the test problems we experimented.
+ *
+ * @see http://arxiv.org/abs/1003.1466
+ * @see http://www.springerlink.com/content/au3w21311g465007/
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
-class __PAGMO_VISIBLE nsga_ii_sch: public base
+
+class __PAGMO_VISIBLE firefly: public base
 {
-	public:
-		nsga_ii_sch();
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-	private:
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-	 		ar & boost::serialization::base_object<base>(*this);
-		}
+public:
+	firefly(int iter, double alpha = 0.01, double beta = 1.0, double gamma = 0.8);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	const int m_iter;
+	const double m_alpha;
+	const double m_beta;
+	const double m_gamma;
+
 };
 
-}}
+}} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::nsga_ii_sch);
-
-#endif
+#endif // PAGMO_ALGORITHM_FIREFLY_H

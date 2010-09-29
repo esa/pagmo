@@ -22,54 +22,52 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#include <cmath>
 
-// Header including all problems implemented in PaGMO.
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "kur.h"
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+namespace pagmo { namespace problem {
 
-#endif
+/**
+ * Will construct Kursawe's study problem.
+ *
+ * @see problem::base constructors.
+ */
+kur::kur():base(3,0,2)
+{
+	// Set bounds.
+	set_lb(-5.0);
+	set_ub(5.0);
+}
+
+/// Clone method.
+base_ptr kur::clone() const
+{
+	return base_ptr(new kur(*this));
+}
+
+/// Implementation of the objective function.
+void kur::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 2);
+	pagmo_assert(x.size() == 3);
+
+	f[0] = 0;
+	f[1] = 0;
+
+	f[0] += -10 * exp( -0.2 * sqrt(x[0]*x[0] - x[1]*x[1]));
+	f[1] += pow(x[0],0.8) + 5 * sin(pow(x[0],3));
+	for(problem::base::size_type i = 1; i < 3; ++i) {
+		f[0] += -10 * exp( -0.2 * sqrt(x[i-1]*x[i-1] - x[i]*x[i]));
+		f[1] += pow(x[i],0.8) + 5 * sin(pow(x[i],3));
+	}
+}
+
+std::string kur::get_name() const
+{
+	return "Kursawe's study";
+}
+}}

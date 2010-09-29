@@ -22,54 +22,45 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_PROBLEM_MICHALEWICZ_H
+#define PAGMO_PROBLEM_MICHALEWICZ_H
 
-// Header including all problems implemented in PaGMO.
+#include <string>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+#include "../types.h"
+#include "base.h"
 
-#endif
+namespace pagmo{ namespace problem {
+
+/// The Michalewicz problem.
+/**
+ * \image html michalewicz.jpg "Two-dimensional Michalewicz function."
+ * \image latex michalewicz.jpg "Two-dimensional Michalewicz function." width=5cm
+ *
+ * This is a box-constrained continuous single-objecive problem.
+ * The objective function is the  n-dimensional Michalewicz function:
+ * \f[
+ * 	F \left(x_1,\ldots,x_n\right) = \sum_{i=1}^n sin(x_i) \left[sin \left(\frac{i x_i^2}{\pi} \right) \right]^2m, \quad x_i \in \left[ 0,\pi \right].
+ * \f]
+ * Several global minima, one local minimum (ex: \f$ m=10, n=5 f(x) = -4.687658\f$).
+ *
+ * @see http://www-optima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO_files/Page2376.htm
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE michalewicz : public base
+{
+	public:
+		michalewicz(int n,int m = 10);
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		double m_pi;
+		int m_m;
+};
+
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_MICHALEWICZ_H

@@ -22,54 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#include <cmath>
 
-// Header including all problems implemented in PaGMO.
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "zdt3.h"
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+namespace pagmo { namespace problem {
 
-#endif
+/**
+ * Will construct ZDT3.
+ *
+ * @see problem::base constructors.
+ */
+zdt3::zdt3():base(30,0,2)
+{
+	// Set bounds.
+	set_lb(0.0);
+	set_ub(1.0);
+	m_pi = 4*atan(1.0);
+}
+
+/// Clone method.
+base_ptr zdt3::clone() const
+{
+	return base_ptr(new zdt3(*this));
+}
+
+/// Implementation of the objective function.
+void zdt3::objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+	pagmo_assert(f.size() == 2);
+	pagmo_assert(x.size() == 30);
+
+	double g = 0;
+
+	f[0] = x[0];
+
+	for(problem::base::size_type i = 2; i < 30; ++i) {
+		g += x[i];
+	}
+	g = 1 + (9 * g) / 29;
+	
+	f[1] = g * ( 1 - sqrt(x[0]/g) - x[0]/g * sin(10 * m_pi * x[0]));
+	
+}
+
+std::string zdt3::get_name() const
+{
+	return "ZDT3";
+}
+}}

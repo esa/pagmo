@@ -22,37 +22,62 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <string>
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
-#include "nsga_ii_sch.h"
+#include "pol.h"
 
 namespace pagmo { namespace problem {
 
-nsga_ii_sch::nsga_ii_sch():base(1,0,2,0,0)
+/**
+ * Will construct Fonseca and Fleming's study problem.
+ *
+ * @see problem::base constructors.
+ */
+pol::pol():base(2,0,2)
 {
-	set_bounds(-1E3,1E3);
+	// Set bounds.
+	set_lb(-std::atan(1.0f) * 4.0f); //-PI
+	set_ub(std::atan(1.0f) * 4.0f); //PI
 }
 
-base_ptr nsga_ii_sch::clone() const
+/// Clone method.
+base_ptr pol::clone() const
 {
-	return base_ptr(new nsga_ii_sch(*this));
+	return base_ptr(new pol(*this));
 }
 
-void nsga_ii_sch::objfun_impl(fitness_vector &f, const decision_vector &x) const
+/// Implementation of the objective function.
+void pol::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	pagmo_assert(f.size() == 2 && x.size() == 1);
-	f[0] = x[0] * x[0];
-	f[1] = (x[0] - 2) * (x[0] - 2);
+	pagmo_assert(f.size() == 2);
+	pagmo_assert(x.size() == 2);
+
+	f[0] = 0;
+	f[1] = 0;
+
+	double a1 = 0.5 * sin(1) - 2 * cos(1) + sin(2) - 1.5 * cos(2);
+ 
+	double a2 = 1.5 * sin(1) - cos(1) + 2 * sin(2) - 0.5 * cos(2);
+ 
+        double b1 = 0.5 * sin(x[0]) - 2 * cos(x[0]) + sin(x[1]) - 1.5 * cos(x[1]);
+ 
+  	double b2 = 1.5 * sin(x[0]) - cos(x[0]) + 2 * sin(x[1]) - 0.5 * cos(x[1]);
+
+	f[0] = 1 + (a1-b1)*(a1-b1) + (a2-b2)*(a2-b2);
+	f[1] = (x[0]+3)*(x[0]+3) + (x[1]+1)*(x[1]+1);
 }
 
-std::string nsga_ii_sch::get_name() const
+std::string pol::get_name() const
 {
-	return "NSGA-II SCH";
+	return "Poloni's study";
 }
 
-}}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::nsga_ii_sch);
+}} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::pol);
+

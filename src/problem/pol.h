@@ -22,54 +22,53 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_PROBLEM_POL_H
+#define PAGMO_PROBLEM_POL_H
 
-// Header including all problems implemented in PaGMO.
+#include <string>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+#include "../types.h"
+#include "base.h"
 
-#endif
+namespace pagmo{ namespace problem {
+
+/// Poloni's study
+/**
+ *
+ * This is a box-constrained continuous three-dimension multi-objecive problem.
+ * \f[
+ * 	F_1 \left(x\right) = 1 + (A_1 - B_1)^2 + (A_2 - B_2)^2
+ * \f]
+ * \f[
+ *      F_2 \left(x\right) = (x_1 + 3)^2 + (x_2+1)^2  x \in \left[ -\pi,\pi \right].
+ * \f]
+ * \f[
+ *      A_1 = 0.5 \sin(1) - 2 \cos(1) + \sin(2) -1.5 \cos(2)
+ * \f]
+ * \f[
+ *      A_2 = 1.5 \sin(1) - \cos(1) + 2 \sin(2) - 0.5 \cos(2)
+ * \f]
+ * \f[
+ *      B_1 = 0.5 \sin(x_1) - 2 \cos(x_1) + \sin(x_2) - 1.5 \cos(x_2)
+ * \f]
+ * \f[
+ *      B_2 = 1.5 \sin(x_1) - \cos(x_1) + 2 \sin(x_2) - 0.5 \cos(x_2)
+ * \f]
+ *
+ * @see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.18.4257&rep=rep1&type=pdf
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE pol : public base
+{
+	public:
+		pol();
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+};
+
+}} //namespaces
+
+#endif // PAGMO_PROBLEM_POL_H

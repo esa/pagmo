@@ -23,39 +23,56 @@
  *****************************************************************************/
 
 #include <cmath>
-#include <string>
 
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
-#include "nsga_ii_fon.h"
+#include "zdt6.h"
 
 namespace pagmo { namespace problem {
 
-nsga_ii_fon::nsga_ii_fon():base(3,0,2,0,0)
+/**
+ * Will construct ZDT6.
+ *
+ * @see problem::base constructors.
+ */
+zdt6::zdt6():base(10,0,2)
 {
-	set_bounds(-4,4);
+	// Set bounds.
+	set_lb(0.0);
+	set_ub(1.0);
+	m_pi = 4*atan(1.0);
 }
 
-base_ptr nsga_ii_fon::clone() const
+/// Clone method.
+base_ptr zdt6::clone() const
 {
-	return base_ptr(new nsga_ii_fon(*this));
+	return base_ptr(new zdt6(*this));
 }
 
-void nsga_ii_fon::objfun_impl(fitness_vector &f, const decision_vector &x) const
+/// Implementation of the objective function.
+void zdt6::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	pagmo_assert(f.size() == 2 && x.size() == 3);
-	f[0] = 1 - std::exp(-(x[0] - 1 / std::sqrt(3)) * (x[0] - 1 / std::sqrt(3)) - (x[1] - 1 / std::sqrt(3)) * (x[1] -
-		1 / std::sqrt(3)) - (x[2] - 1 / std::sqrt(3)) * (x[2] - 1 / std::sqrt(3)));
-	f[1] = 1 - std::exp(-(x[0] + 1 / std::sqrt(3)) * (x[0] + 1 / std::sqrt(3)) - (x[1] + 1 / std::sqrt(3)) * (x[1] +
-		1 / std::sqrt(3)) - (x[2] + 1 / std::sqrt(3)) * (x[2] + 1 / std::sqrt(3)));
+	pagmo_assert(f.size() == 2);
+	pagmo_assert(x.size() == 10);
+
+	double g = 0;
+
+	f[0] = 1 - exp(-4*x[0])*pow(sin(6*m_pi*x[0]),6);
+
+	for(problem::base::size_type i = 2; i < 10; ++i) {
+		g += x[i];
+	}
+	g = 1 + (9 * g) / 9;
+	
+	f[1] = g * ( 1 - (f[0]/g)*(f[0]/g));
+	
 }
 
-std::string nsga_ii_fon::get_name() const
+std::string zdt6::get_name() const
 {
-	return "NSGA-II FON";
+	return "ZDT6";
 }
-
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::nsga_ii_fon);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::nsga_ii_sch);
