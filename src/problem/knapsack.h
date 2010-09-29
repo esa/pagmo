@@ -82,6 +82,7 @@ class __PAGMO_VISIBLE knapsack: public base_aco
 			m_values(values,values + N),m_weights(weights,weights + N),m_max_weight(max_weight)
 		{
 			verify_init();
+			set_heuristic_information_matrix();
 		}
 		base_ptr clone() const;
 		std::string get_name() const;

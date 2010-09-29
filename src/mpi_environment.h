@@ -33,11 +33,20 @@
 
 /*!
 \page mpi_support MPI support in PaGMO
+PaGMO can be configured to use MPI to dispatch parallel optimisation instances to computers participating in a cluster.
+\section mpi_requirements Requirements
+The requirements to enable and use MPI support in PaGMO are the following:
+
+- foo
+- bar
+
+
 */
 
 namespace pagmo
 {
 
+/// MPI environment class.
 class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 {
 	public:
