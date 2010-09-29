@@ -61,6 +61,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE tsp: public base_aco
 {
 	public:
+		tsp();
 		tsp(const std::vector<std::vector<double> > &);
 		base_ptr clone() const;
 		bool check_partial_feasibility(const decision_vector &x) const;
@@ -71,7 +72,7 @@ class __PAGMO_VISIBLE tsp: public base_aco
 		std::string human_readable_extra() const;
 		void set_heuristic_information_matrix();
 	private:
-		const std::vector<std::vector<double> >	m_weights;
+		std::vector<std::vector<double> > m_weights;
 		mutable decision_vector m_tmpDecisionVector;
 };
 

@@ -41,15 +41,16 @@ static const double knapsack_default_max_weight = 100;
 
 /// Default constructor.
 /**
- * Will construct a problem of dimension 5, with values = [1,2,3,4,5], weights = [10,40,30,50,20] and maximum weight = 100.
+ * Initialises the problem with the following default parameters:
+ * - values: {1,2,3,4,5}
+ * - weights: {10,40,30,50,20}
+ * - max_weight: 100
  */
-knapsack::knapsack():base(5,5,1,1,1),
+knapsack::knapsack():base_aco(boost::numeric_cast<int>(5),1,1),
 	m_values(knapsack_default_values,knapsack_default_values + 5),
 	m_weights(knapsack_default_weights,knapsack_default_weights + 5),
 	m_max_weight(knapsack_default_max_weight)
-{
-	verify_init();
-}
+{}
 
 /// Constructor from vectors and maximum weight.
 /**

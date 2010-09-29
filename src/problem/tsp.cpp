@@ -36,6 +36,38 @@
 
 namespace pagmo { namespace problem {
 
+static const double default_weights[5][5] = {
+	{0,1,2,3,4},
+	{1,0,2.236067,4,4.123105},
+	{2,2.236067,0,3.605551,6},
+	{3,4,3.605551,0,5},
+	{4,4.123105,6,5,0}
+};
+
+/// Default constructor.
+/**
+ * This constructor will build a TSP instance with 5 cities in the following positions:
+ *
+ * - city 1: (0,0)
+ * - city 2: (1,0)
+ * - city 3: (0,2)
+ * - city 4: (-3,0)
+ * - city 5: (0,-4)
+ */
+tsp::tsp():base_aco(5,1,0)
+{
+	m_weights.resize(5);
+	for (int i = 0; i < 5; ++i) {
+		m_weights[i].resize(5);
+		for (int j = 0; j < 5; ++j) {
+			m_weights[i][j] = default_weights[i][j];
+		}
+	}
+	set_lb(0);
+	set_ub(4); //number of nodes in the graph -1 (we count from 0)
+	set_heuristic_information_matrix();
+}
+
 /// Constructor from vectors and maximum weight.
 /**
  * Initialize weights of the edges (city distances) from the matrix.

@@ -42,10 +42,9 @@ namespace pagmo { namespace problem {
  * @see problem::base constructors.
  */
 michalewicz::michalewicz(int n, int m):base(n), m_m(m) {
-	m_pi = 4.0f * std::atan(1.0f);
 	// Set bounds.
 	set_lb(0);
-	set_ub(m_pi); //pi
+	set_ub(boost::math::constants::pi<double>()); //pi
 }
 
 /// Clone method.
@@ -61,7 +60,7 @@ void michalewicz::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	double retval = 0.0;
 
 	for (decision_vector::size_type i=0; i<n; i++){
-		retval -= sin(x[i]) * pow(sin((i+1)*x[i]*x[i]/m_pi) , 2*m_m);
+		retval -= sin(x[i]) * pow(sin((i+1)*x[i]*x[i]/boost::math::constants::pi<double>()) , 2*m_m);
 	}
 	f[0] = retval;
 }

@@ -50,7 +50,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE aco: public base
 {
 public:
-	aco(int iter, double rho = 0.2);
+	aco(int iter = 1, double rho = 0.2);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

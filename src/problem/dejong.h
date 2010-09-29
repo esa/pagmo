@@ -52,7 +52,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE dejong : public base
 {
 	public:
-		dejong(int n);
+		dejong(int n = 1);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:

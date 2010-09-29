@@ -51,13 +51,12 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE michalewicz : public base
 {
 	public:
-		michalewicz(int n,int m = 10);
+		michalewicz(int n = 1,int m = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
-		double m_pi;
 		int m_m;
 };
 

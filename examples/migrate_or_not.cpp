@@ -29,14 +29,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include "../src/keplerian_toolbox/keplerian_toolbox.h"
-#include"../src/algorithms.h"
-#include"../src/archipelago.h"
-#include"../src/island.h"
-#include"../src/problem/ackley.h"
-#include"../src/problem/cassini_1.h"
-#include"../src/problem/griewank.h"
-#include"../src/problem/rastrigin.h"
-#include"../src/topologies.h"
+#include "../src/pagmo.h"
 
 
 /**
@@ -68,11 +61,11 @@ double std_dev(archipelago a, double mean) {
 
 std::string getSolutions(archipelago a) {
 	std::ostringstream sol;
-	int solSize = a.get_island(0).get_population().champion().x.size();
+	int solSize = a.get_island(0)->get_population().champion().x.size();
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
 		sol << "island " << i << ": (";
 		for(int j = 0; j < solSize; ++j) {
-			sol << a.get_island(i).get_population().champion().x[j] << ",";
+			sol << a.get_island(i)->get_population().champion().x[j] << ",";
 		}
 		sol << ")" << std::endl;
 	}	
@@ -248,7 +241,7 @@ int main()
 				a.join();
 				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
 				for(int i = 0; i < number_of_islands; ++i) {
-					std::cout << "Island " << i << std::endl << a.get_island(i).get_population().champion().human_readable() << std::endl;					
+					std::cout << "Island " << i << std::endl << a.get_island(i)->get_population().champion().human_readable() << std::endl;					
 				}
 				print_row(myfile,topo[to]->get_name(),mean(a),std_dev(a,mean(a)));
 			}

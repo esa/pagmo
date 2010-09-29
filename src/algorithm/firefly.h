@@ -60,7 +60,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE firefly: public base
 {
 public:
-	firefly(int iter, double alpha = 0.01, double beta = 1.0, double gamma = 0.8);
+	firefly(int iter = 1, double alpha = 0.01, double beta = 1.0, double gamma = 0.8);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
