@@ -42,8 +42,8 @@ static const double knapsack_default_max_weight = 100;
 /// Default constructor.
 /**
  * Initialises the problem with the following default parameters:
- * - values: {1,2,3,4,5}
- * - weights: {10,40,30,50,20}
+ * - values: [1,2,3,4,5]
+ * - weights: [10,40,30,50,20]
  * - max_weight: 100
  */
 knapsack::knapsack():base_aco(boost::numeric_cast<int>(5),1,1),
@@ -147,7 +147,7 @@ void knapsack::verify_init() const
 	}
 }
 
-//We use as heuristic information the ration value/weight. Higher is it, better is the path
+//We use as heuristic information the ratio value/weight. Higher is it, better is the path
 //and since knapsack is a maximization problem the probability for the edge to be chosen is higher
 void knapsack::set_heuristic_information_matrix() {
 	//allocates the memory for eta.
@@ -156,8 +156,8 @@ void knapsack::set_heuristic_information_matrix() {
 	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
 		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
 			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {
-					// Division by zero here is avoided by verify_init.
-					m_eta[k][i][j][0] = m_values[i] / m_weights[i];
+				// Division by zero here is avoided by verify_init.
+				m_eta[k][i][j][0] = m_values[i] / m_weights[i];
 			}
 		}
 	}

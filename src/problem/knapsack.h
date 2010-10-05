@@ -58,6 +58,9 @@ namespace pagmo { namespace problem {
  *
  * In PaGMO's terminology, this problem has global and integer dimensions equal to N, fitness dimension equal to 1, global and inequality constraints
  * dimensions equal to 1.
+ * 
+ * NOTE: this problem calls the virtual function base_aco::set_heuristic_information_matrix() in its constructor, hence it is advisable *not* to
+ * use this class as a base for another class. See http://www.artima.com/cppsource/nevercall.html for a discusssion.
  *
  * @see http://en.wikipedia.org/wiki/Knapsack_problem
  *

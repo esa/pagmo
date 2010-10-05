@@ -22,33 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEPLERIAN_TOOLBOX_H
-#define KEPLERIAN_TOOLBOX_H
+#ifndef ASTEROID_GTOC5_H
+#define ASTEROID_GTOC5_H
 
-#include"epoch.h"
-#include"planet.h"
-#include"planet_ss.h"
-#include"planet_mpcorb.h"
-#include"asteroid_gtoc2.h"
-#include"asteroid_gtoc5.h"
-#include"lambert_problem.h"
-#include"core_functions/array3D_operations.h"
-#include"core_functions/convert_anomalies.h"
-#include"core_functions/convert_dates.h"
-#include"core_functions/ic2par.h"
-#include"core_functions/par2ic.h"
-#include"core_functions/kepler_equations.h"
-#include"core_functions/lambert_2d.h"
-#include"core_functions/lambert_3d.h"
-#include"core_functions/lambert_find_N.h"
-#include"core_functions/par2ic.h"
-#include"core_functions/propagate_lagrangian.h"
-#include"lambert_problem.h"
-#include"sims_flanagan/fb_traj.h"
-#include"sims_flanagan/leg.h"
-#include"sims_flanagan/sc_state.h"
-#include"sims_flanagan/spacecraft.h"
-#include"sims_flanagan/throttle.h"
-#include"astro_constants.h"
+#include "../serialization.h"
+#include "planet.h"
 
-#endif // KEPLERIAN_TOOLBOX_H
+namespace kep_toolbox{
+
+/// A GTOC5 asteroid
+/**
+ * This class derives from the planet class and allow to instantiate asteroids
+ * from the Global Trajectory Optimization Competition (GTOC) 5th edition
+ *
+ * @see http://www.esa.int/gsp/ACT/mad/op/GTOC/index.htm
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
+
+class asteroid_gtoc5 : public planet
+{
+public:
+	/// Constructor
+	/**
+	 * Construct from a consecutive id from 1 to 7076 (Earth). The order is that of the original
+	 * data file from Russio
+	 * Asteroid: 1 - 7075
+	 * Earth: 7076
+	 * \param[in] name a string describing a planet
+	 */
+	asteroid_gtoc5(const int & = 7076);
+
+	planet_ptr clone() const;
+private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<planet>(*this);
+	}
+};
+
+
+} /// End of namespace kep_toolbox
+
+BOOST_CLASS_EXPORT(kep_toolbox::asteroid_gtoc5);
+
+#endif //ASTEROID_GTOC5_H

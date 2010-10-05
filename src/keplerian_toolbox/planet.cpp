@@ -1,3 +1,5 @@
+#include <boost/lexical_cast.hpp>
+
 #include "planet.h"
 #include"core_functions/ic2par.h"
 #include"core_functions/par2ic.h"
@@ -99,17 +101,17 @@ std::string planet::get_name() const {return m_name;}
  */
 std::ostream &kep_toolbox::operator<<(std::ostream &s, const kep_toolbox::planet &body) {
 	s << "Planet Name: " << body.m_name << std::endl;
-	s << "Own gravity parameter: " << body.mu_self << std::endl;
-	s << "Central body gravity parameter: " << body.mu_central_body << std::endl;
-	s << "Planet radius: " << body.radius << std::endl;
+	s << "Own gravity parameter: " << boost::lexical_cast<std::string>(body.mu_self) << std::endl;
+	s << "Central body gravity parameter: " << boost::lexical_cast<std::string>(body.mu_central_body) << std::endl;
+	s << "Planet radius: " << boost::lexical_cast<std::string>(body.radius) << std::endl;
 	s << "Planet keplerian elements: "<<std::endl;
 	array6D elem = body.get_elements(epoch(body.ref_mjd2000));
-	s << "Semi major axis (AU): " << elem[0] / ASTRO_AU << std::endl;
-	s << "Eccentricity: " << elem[1] << std::endl;
-	s << "Inclination (deg.): " << elem[2] * ASTRO_RAD2DEG << std::endl;
-	s << "Big Omega (deg.): " << elem[3] * ASTRO_RAD2DEG << std::endl;
-	s << "Small omega (deg.): " << elem[4] * ASTRO_RAD2DEG << std::endl;
-	s << "Mean anomaly (deg.): " << elem[5] * ASTRO_RAD2DEG << std::endl;
+	s << "Semi major axis (AU): " << boost::lexical_cast<std::string>(elem[0] / ASTRO_AU) << std::endl;
+	s << "Eccentricity: " << boost::lexical_cast<std::string>(elem[1]) << std::endl;
+	s << "Inclination (deg.): " << boost::lexical_cast<std::string>(elem[2] * ASTRO_RAD2DEG) << std::endl;
+	s << "Big Omega (deg.): " << boost::lexical_cast<std::string>(elem[3] * ASTRO_RAD2DEG) << std::endl;
+	s << "Small omega (deg.): " << boost::lexical_cast<std::string>(elem[4] * ASTRO_RAD2DEG) << std::endl;
+	s << "Mean anomaly (deg.): " << boost::lexical_cast<std::string>(elem[5] * ASTRO_RAD2DEG) << std::endl;
 	s << "Elements reference epoch: " << epoch(body.ref_mjd2000) << std::endl;
 	return s;
 }

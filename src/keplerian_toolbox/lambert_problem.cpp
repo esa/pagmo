@@ -85,7 +85,7 @@ lambert_problem::lambert_problem(const array3D &r1, const array3D &r2, const dou
  *
  * \return true if all solutions have converged
  */
-const bool& lambert_problem::is_reliable() const
+bool lambert_problem::is_reliable() const
 {
 	return m_has_converged;
 }
