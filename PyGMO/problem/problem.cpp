@@ -265,13 +265,17 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::earth_planet>("earth_planet","Earth-planet low-thrust problem.")
 		.def(init< optional<int, std::string, const double &> >());
 
-	// Earth-GTOC5.
-	problem_wrapper<problem::gtoc5_launch>("gtoc5_launch","Earth-GTOC5 asteroid rendez-vous low-thrust problem.")
+	// GTOC5 launch.
+	problem_wrapper<problem::gtoc5_launch>("gtoc5_launch","GTOC5 launch phase.")
 		.def(init< optional<int, int, const double &> >());
 
-	// GTOC5-GTOC5 randez-vouz.
-	problem_wrapper<problem::gtoc5_rendezvous>("gtoc5_rendezvous","GTOC5-GTOC5 asteroid rendez-vous low-thrust problem.")
+	// GTOC5 randez-vouz.
+	problem_wrapper<problem::gtoc5_rendezvous>("gtoc5_rendezvous","GTOC5 rendezvous phase.")
 		.def(init< optional<int, int, int, const double &, const double &, const double &> >());
+
+	// GTOC5 flyby.
+	problem_wrapper<problem::gtoc5_flyby>("gtoc5_flyby","GTOC5 flyby phase.")
+		.def(init< optional<int, int, int, int, const double &, const double &, const double &> >());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();

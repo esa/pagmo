@@ -48,7 +48,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE gtoc5_launch: public base
 {
 	public:
-		gtoc5_launch(int = 10, int = 1, const double & = 1E-9);
+		gtoc5_launch(int = 10, int = 1, const double & = 1E-5);
 		base_ptr clone() const;
 		std::string get_name() const;
 		std::string pretty(const decision_vector &) const;

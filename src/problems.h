@@ -56,6 +56,7 @@
 #include "problem/tandem.h"
 #include "problem/laplace.h"
 #include "problem/sample_return.h"
+#include "problem/gtoc5_flyby.h"
 #include "problem/gtoc5_launch.h"
 #include "problem/gtoc5_rendezvous.h"
 #include "problem/earth_planet.h"

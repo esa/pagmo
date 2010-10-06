@@ -51,16 +51,22 @@ int main()
 // 	a.join();
 // std::cout << "finished evolving\n";
 
-	int n_segments = 10;
+	int n_segments = 5;
 // 	problem::gtoc5_gtoc5_asteroid prob(n_segments,1,2,57023,3500,1E-5);
-	problem::earth_gtoc5_asteroid prob(n_segments,1,1E-5);
+	problem::gtoc5_flyby prob(n_segments,1,1,2);
 	const double pert_epoch = 400;
 	const double pert_nondim = 1E-1;
 	const double pert_mass = 200;
-	std::vector<double> perturb(3 * n_segments + 5,pert_nondim);
-	perturb.front() = pert_epoch;
-	perturb.back() = pert_epoch;
-	perturb[perturb.size() - 2] = pert_mass;
+	const double pert_vinf = 3000;
+	std::vector<double> perturb(n_segments * 6 + 8,pert_nondim);
+	perturb[0] = pert_epoch;
+	perturb[1] = pert_epoch;
+	perturb[2] = pert_epoch;
+	perturb[3] = pert_mass;
+	perturb[4] = pert_mass;
+	perturb[5] = pert_vinf;
+	perturb[6] = pert_vinf;
+	perturb[7] = pert_vinf;
 	
 	algorithm::snopt algo_snopt(1000);
 	algorithm::mbh algo(algo_snopt,20,perturb);
@@ -69,4 +75,5 @@ int main()
 	isl.evolve(1);
 	isl.join();
 	std::cout << prob.pretty(isl.get_population().champion().x) << '\n';
+	std::cout << prob.feasibility_x(isl.get_population().champion().x) << '\n';
 }

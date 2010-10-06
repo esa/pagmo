@@ -47,7 +47,7 @@ namespace pagmo { namespace problem {
 /// Constructor.
 
 gtoc5_rendezvous::gtoc5_rendezvous(int segments, int source, int target, const double &lb_epoch, const double  &initial_mass, const double &ctol):
-	base(segments * 3 + 3, 0, 1, 7 + segments + 2, segments + 2,ctol),
+	base(segments * 3 + 3, 0, 1, 7 + segments, segments,ctol),
 	m_n_segments(segments),m_source(source),m_target(target),m_lb_epoch(lb_epoch),m_initial_mass(initial_mass)
 {
 	std::vector<double> lb_v(get_dimension());
@@ -57,9 +57,9 @@ gtoc5_rendezvous::gtoc5_rendezvous(int segments, int source, int target, const d
 	lb_v[0] = m_lb_epoch;
 	ub_v[0] = m_lb_epoch + 356.25 * 10;
 
-	// End (MJD)
-	lb_v.back() = m_lb_epoch;
-	ub_v.back() = m_lb_epoch + 356.25 * 15;
+	// Leg duration.
+	lb_v.back() = 10;
+	ub_v.back() = 365.25 * 4;
 
 	// I Throttles
 	for (int i = 1; i < segments * 3 + 1; ++i)
@@ -95,7 +95,7 @@ void gtoc5_rendezvous::compute_constraints_impl(constraint_vector &c, const deci
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back(),epoch::MJD);
+	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back() + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
 	m_source.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
@@ -108,9 +108,6 @@ void gtoc5_rendezvous::compute_constraints_impl(constraint_vector &c, const deci
 	c[6] /= m_leg.get_spacecraft().get_mass();
 	// We evaluate the constraints on the throttles writing on the 7th mismatch constrant (mass is off)
 	m_leg.get_throttles_con(c.begin() + 7, c.begin() + 7 + m_n_segments);
-	// We evaluate the linear constraint on the epochs (tf > ti)
-	c[7 + m_n_segments] = x.front() - x.back();
-	c[8 + m_n_segments] = x.back() - x.front() - 365.25 * 5;
 }
 
 /// Implementation of the sparsity structure: automated detection
@@ -128,14 +125,14 @@ void gtoc5_rendezvous::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vec
 
 std::string gtoc5_rendezvous::get_name() const
 {
-	return "GTOC5-GTOC5-Asteroid";
+	return "GTOC5 Rendezvous phase";
 }
 
 std::string gtoc5_rendezvous::pretty(const decision_vector &x) const
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back(),epoch::MJD);
+	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back() + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
 	m_source.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);

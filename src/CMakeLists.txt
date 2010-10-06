@@ -51,6 +51,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_rendezvous.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp

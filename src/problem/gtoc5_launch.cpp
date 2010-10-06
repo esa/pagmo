@@ -47,7 +47,7 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-gtoc5_launch::gtoc5_launch(int segments, int target, const double &ctol) : base(segments * 3 + 5, 0, 1, 7 + segments + 2, segments + 2,ctol),
+gtoc5_launch::gtoc5_launch(int segments, int target, const double &ctol) : base(segments * 3 + 5, 0, 1, 7 + segments, segments,ctol),
  m_n_segments(segments),m_earth(),m_target(target)
 {
 	std::vector<double> lb_v(get_dimension());
@@ -57,11 +57,12 @@ gtoc5_launch::gtoc5_launch(int segments, int target, const double &ctol) : base(
 	lb_v[0] = 57023;
 	ub_v[0] = 61041;
 
-	// End (MJD)
-	lb_v.back() = 57023;
-	ub_v.back() = 61041 + 15 * 365.25;
+	// Leg duration in days
+	lb_v.back() = 100;
+	ub_v.back() = 365.25 * 5;
 
-	// Start Velocity orientation (magnitude fixed to 5 km/s) -> sphere picking.
+	// Start Velocity orientation (magnitude fixed to 5 km/s)
+	// Dario: questa e' una cagnata!!!
 	lb_v[1] = -10;
 	lb_v[2] = -10;
 	ub_v[1] = 10;
@@ -101,7 +102,7 @@ void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back(),epoch::MJD);
+	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back() + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
 	m_earth.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
@@ -118,9 +119,6 @@ void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision
 	c[6] /= m_leg.get_spacecraft().get_mass();
 	// We evaluate the constraints on the throttles writing on the 7th mismatch constrant (mass is off)
 	m_leg.get_throttles_con(c.begin() + 7, c.begin() + 7 + m_n_segments);
-	// We evaluate the linear constraint on the epochs (tf > ti)
-	c[7 + m_n_segments] = x.front() - x.back();
-	c[8 + m_n_segments] = x.back() - x.front() - 365.25 * 5;
 }
 
 /// Implementation of the sparsity structure: automated detection
@@ -138,14 +136,14 @@ void gtoc5_launch::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<
 
 std::string gtoc5_launch::get_name() const
 {
-	return "Earth-GTOC5-Asteroid";
+	return "GTOC5 Launch phase";
 }
 
 std::string gtoc5_launch::pretty(const decision_vector &x) const
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back(),epoch::MJD);
+	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back() + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
 	m_earth.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
