@@ -29,6 +29,7 @@
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <cmath>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -46,7 +47,7 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-earth_gtoc5_asteroid::earth_gtoc5_asteroid(int segments, int target, const double &ctol) : base(segments * 3 + 6, 0, 1, 7 + segments + 1, segments + 1,ctol),
+earth_gtoc5_asteroid::earth_gtoc5_asteroid(int segments, int target, const double &ctol) : base(segments * 3 + 5, 0, 1, 7 + segments + 1, segments + 1,ctol),
  m_n_segments(segments),m_earth(),m_target(target)
 {
 	std::vector<double> lb_v(get_dimension());
@@ -61,10 +62,10 @@ earth_gtoc5_asteroid::earth_gtoc5_asteroid(int segments, int target, const doubl
 	ub_v.back() = 61041 + 15 * 365.25;
 
 	// Start Velocity orientation (magnitude fixed to 5 km/s) -> sphere picking.
-	lb_v[1] = 0;
-	lb_v[2] = 0;
-	ub_v[1] = 1;
-	ub_v[2] = 1;
+	lb_v[1] = -10;
+	lb_v[2] = -10;
+	ub_v[1] = 10;
+	ub_v[2] = 10;
 
 	// I Throttles
 	for (int i = 3; i < segments * 3 + 3; ++i)
@@ -78,6 +79,9 @@ earth_gtoc5_asteroid::earth_gtoc5_asteroid(int segments, int target, const doubl
 	ub_v[get_dimension() - 2] = 4000;
 
 	set_bounds(lb_v,ub_v);
+	
+	// Set spacecraft.
+	m_leg.set_spacecraft(kep_toolbox::spacecraft(4000,0.3,3000));
 }
 
 /// Clone method.
@@ -89,7 +93,7 @@ base_ptr earth_gtoc5_asteroid::clone() const
 /// Implementation of the objective function.
 void earth_gtoc5_asteroid::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	f[0] = x[get_dimension() - 2];
+	f[0] = -x[get_dimension() - 2];
 }
 
 /// Implementation of the constraint function.
@@ -101,21 +105,18 @@ void earth_gtoc5_asteroid::compute_constraints_impl(constraint_vector &c, const 
 	array3D v0, r0, vf, rf;
 	m_earth.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
-	const double theta = 2 * boost::math::constants::pi<double>() * x[1], phi = std::acos(2 * x[2] - 1);
+	const double theta = x[1], phi = x[2];
 	v0[0] += 5000 * std::cos(theta) * std::sin(phi);
 	v0[1] += 5000 * std::sin(theta) * std::sin(phi);
 	v0[2] += 5000 * std::cos(phi);
-	
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,4000),x.begin() + 3, x.end() - 3,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
+	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
 
 	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
 	m_leg.get_mismatch_con(c.begin(), c.begin() + 7);
 	for (int i=0; i<3; ++i) c[i]/=ASTRO_AU;
 	for (int i=3; i<6; ++i) c[i]/=ASTRO_EARTH_VELOCITY;
-
 	// We evaluate the constraints on the throttles writing on the 7th mismatch constrant (mass is off)
 	m_leg.get_throttles_con(c.begin() + 7, c.begin() + 7 + m_n_segments);
-
 	// We evaluate the linear constraint on the epochs (tf > ti)
 	c[7 + m_n_segments] = x.back() - x.front();
 }
@@ -136,6 +137,25 @@ void earth_gtoc5_asteroid::set_sparsity(int &lenG, std::vector<int> &iGfun, std:
 std::string earth_gtoc5_asteroid::get_name() const
 {
 	return "Earth-GTOC5-Asteroid";
+}
+
+std::string earth_gtoc5_asteroid::pretty(const decision_vector &x) const
+{
+	using namespace kep_toolbox;
+	// We set the leg.
+	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back(),epoch::MJD);
+	array3D v0, r0, vf, rf;
+	m_earth.get_eph(epoch_i,r0,v0);
+	m_target.get_eph(epoch_f,rf,vf);
+	const double theta = x[1], phi = x[2];
+	v0[0] += 5000 * std::cos(theta) * std::sin(phi);
+	v0[1] += 5000 * std::sin(theta) * std::sin(phi);
+	v0[2] += 5000 * std::cos(phi);
+	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
+	
+	std::ostringstream oss;
+	oss << m_leg << '\n' << m_earth << '\n' << m_target << '\n';
+	return oss.str();
 }
 
 }}

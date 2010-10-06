@@ -42,12 +42,21 @@ int main()
 // 	std::cout << pop << '\n';
 // 	return 0;
 
-	mpi_environment env;
-	archipelago a = archipelago(topology::ring());
-	for (int i = 1; i < env.size(); ++i) {
-		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(500),10));
-	}
-	a.evolve(2);
-	a.join();
-std::cout << "finished evolving\n";
+	//mpi_environment env;
+// 	archipelago a = archipelago(topology::ring());
+// 	for (int i = 1; i < env.size(); ++i) {
+// 		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(500),10));
+// 	}
+// 	a.evolve(2);
+// 	a.join();
+// std::cout << "finished evolving\n";
+
+	problem::earth_gtoc5_asteroid prob;
+std::cout << prob << '\n';
+	algorithm::snopt algo(10000);
+	algo.screen_output(true);
+	island isl(prob,algo,1);
+	isl.evolve(1);
+	isl.join();
+	std::cout << prob.pretty(isl.get_population().champion().x) << '\n';
 }

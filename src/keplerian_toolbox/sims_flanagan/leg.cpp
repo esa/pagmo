@@ -29,6 +29,8 @@ std::ostream &operator<<(std::ostream &s, const leg &in ){
 	s << "Final mass: " << in.get_x_f().get_mass() << " kg" << std::endl;
 	s << "Absolute velocity at departure: " << norm(in.get_x_i().get_velocity()) << " m/s" << std::endl;
 	s << "Absolute velocity at arrival: " << norm(in.get_x_f().get_velocity()) << " m/s" << std::endl;
+	s << "State at departure: " << in.get_x_i() << std::endl;
+	s << "State at arrival: " << in.get_x_f() << std::endl;
 
 	s << std::endl << "Throttles values: " << std::endl;
 	for (size_t i=0; i<in.get_throttles_size(); i++) {

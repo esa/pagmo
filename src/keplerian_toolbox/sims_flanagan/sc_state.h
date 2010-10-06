@@ -25,6 +25,8 @@
 #ifndef SC_STATE_H
 #define SC_STATE_H
 
+#include <boost/lexical_cast.hpp>
+
 #include "../../serialization.h"
 #include "../astro_constants.h"
 
@@ -127,9 +129,9 @@ private:
 	double mass;
 };
 inline std::ostream &operator<<(std::ostream &s, const sc_state &in ){
-	for (int i=0;i<3;i++) s << in.get_position()[i] << " ";
-	for (int i=0;i<3;i++) s << in.get_velocity()[i] << " ";
-	s << in.get_mass();
+	for (int i=0;i<3;i++) s << boost::lexical_cast<std::string>(in.get_position()[i]) << " ";
+	for (int i=0;i<3;i++) s << boost::lexical_cast<std::string>(in.get_velocity()[i]) << " ";
+	s << boost::lexical_cast<std::string>(in.get_mass());
 	return s;
 }
 }} //Namespaces

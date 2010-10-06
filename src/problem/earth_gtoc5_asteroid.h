@@ -51,6 +51,7 @@ class __PAGMO_VISIBLE earth_gtoc5_asteroid: public base
 		earth_gtoc5_asteroid(int = 10, int = 1, const double & = 1E-9);
 		base_ptr clone() const;
 		std::string get_name() const;
+		std::string pretty(const decision_vector &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;

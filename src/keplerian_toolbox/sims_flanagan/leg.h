@@ -120,10 +120,10 @@ public:
 					const epoch& epoch_f, const sc_state& state_f,
 					double mu_, typename boost::enable_if<boost::is_same<typename std::iterator_traits<it_type>::value_type,double> >::type * = 0)
 	{
-		if (epoch_f.mjd2000() <= epoch_i.mjd2000())
-		{
-			throw_value_error("Final epoch is before initial epoch");
-		}
+// 		if (epoch_f.mjd2000() <= epoch_i.mjd2000())
+// 		{
+// 			throw_value_error("Final epoch is before initial epoch");
+// 		}
 		if (std::distance(throttles_start,throttles_end) % 3 || std::distance(throttles_start,throttles_end) <= 0) {
 			throw_value_error("The length of the throttles list must be positive and a multiple of 3");
 		}
@@ -321,7 +321,8 @@ public:
 			current_time_fwd = manouver_time;
 
 			for (int j=0;j<3;j++)
-				dv[j] = max_thrust / mfwd * thrust_duration * throttles[i].get_value()[j];
+
+			dv[j] = max_thrust / mfwd * thrust_duration * throttles[i].get_value()[j];
 			norm_dv = norm(dv);
 			sum(vfwd,vfwd,dv);
 			mfwd *= exp( -norm_dv/isp/ASTRO_G0 );
