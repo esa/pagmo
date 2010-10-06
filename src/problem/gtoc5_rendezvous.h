@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_EARTH_GTOC5_ASTEROID_H
-#define PAGMO_EARTH_GTOC5_ASTEROID_H
+#ifndef PAGMO_GTOC5_RENDEZVOUS_H
+#define PAGMO_GTOC5_RENDEZVOUS_H
 
 #include <string>
 #include <vector>
@@ -31,9 +31,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "../keplerian_toolbox/asteroid_gtoc5.h"
-#include "../keplerian_toolbox/sims_flanagan/codings.h"
-#include "../keplerian_toolbox/sims_flanagan/fb_traj.h"
+#include "../keplerian_toolbox/keplerian_toolbox.h"
 #include "base.h"
 
 namespace pagmo { namespace problem {
@@ -45,15 +43,14 @@ namespace pagmo { namespace problem {
  * @author Dario Izzo (dario.izzo@esa.int)
  */
 
-class __PAGMO_VISIBLE earth_gtoc5_asteroid: public base
+class __PAGMO_VISIBLE gtoc5_rendezvous: public base
 {
 	public:
-		earth_gtoc5_asteroid(int = 10, int = 1, const double & = 1E-9);
+		gtoc5_rendezvous(int = 10, int = 1, int = 2, const double & = 57023, const double & = 4000, const double & = 1E-9);
 		base_ptr clone() const;
 		std::string get_name() const;
 		std::string pretty(const decision_vector &) const;
 	protected:
-// 		bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
@@ -64,18 +61,22 @@ class __PAGMO_VISIBLE earth_gtoc5_asteroid: public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_n_segments;
-			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_earth);
+			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_source);
 			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_target);
+			ar & const_cast<double &>(m_lb_epoch);
+			ar & const_cast<double &>(m_initial_mass);
 			ar & m_leg;
 		}
 		int 						m_n_segments;
-		const kep_toolbox::asteroid_gtoc5 		m_earth;
+		const kep_toolbox::asteroid_gtoc5 		m_source;
 		const kep_toolbox::asteroid_gtoc5 		m_target;
+		const double					m_lb_epoch;
+		const double					m_initial_mass;
 		mutable kep_toolbox::sims_flanagan::leg		m_leg;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::earth_gtoc5_asteroid);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc5_rendezvous);
 
-#endif // EARTH_GTOC5_ASTEROID_H
+#endif // GTOC5_GTOC5_ASTEROID_H

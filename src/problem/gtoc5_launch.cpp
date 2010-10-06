@@ -36,7 +36,8 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
-#include "gtoc5_gtoc5_asteroid.h"
+#include "gtoc5_launch.h"
+#include "../keplerian_toolbox/sims_flanagan/codings.h"
 #include "../keplerian_toolbox/astro_constants.h"
 #include "../keplerian_toolbox/asteroid_gtoc5.h"
 
@@ -46,23 +47,28 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-gtoc5_gtoc5_asteroid::gtoc5_gtoc5_asteroid(int segments, int source, int target, const double &lb_epoch, const double  &initial_mass, const double &ctol):
-	base(segments * 3 + 3, 0, 1, 7 + segments + 2, segments + 2,ctol),
-	m_n_segments(segments),m_source(source),m_target(target),m_lb_epoch(lb_epoch),m_initial_mass(initial_mass)
+gtoc5_launch::gtoc5_launch(int segments, int target, const double &ctol) : base(segments * 3 + 5, 0, 1, 7 + segments + 2, segments + 2,ctol),
+ m_n_segments(segments),m_earth(),m_target(target)
 {
 	std::vector<double> lb_v(get_dimension());
 	std::vector<double> ub_v(get_dimension());
 
 	// Start (MJD).
-	lb_v[0] = m_lb_epoch;
-	ub_v[0] = m_lb_epoch + 356.25 * 10;
+	lb_v[0] = 57023;
+	ub_v[0] = 61041;
 
 	// End (MJD)
-	lb_v.back() = m_lb_epoch;
-	ub_v.back() = m_lb_epoch + 356.25 * 15;
+	lb_v.back() = 57023;
+	ub_v.back() = 61041 + 15 * 365.25;
+
+	// Start Velocity orientation (magnitude fixed to 5 km/s) -> sphere picking.
+	lb_v[1] = -10;
+	lb_v[2] = -10;
+	ub_v[1] = 10;
+	ub_v[2] = 10;
 
 	// I Throttles
-	for (int i = 1; i < segments * 3 + 1; ++i)
+	for (int i = 3; i < segments * 3 + 3; ++i)
 	{
 		lb_v[i] = -1;
 		ub_v[i] = 1;
@@ -70,36 +76,40 @@ gtoc5_gtoc5_asteroid::gtoc5_gtoc5_asteroid(int segments, int source, int target,
 
 	// Final mass.
 	lb_v[get_dimension() - 2] = 500;
-	ub_v[get_dimension() - 2] = m_initial_mass;
+	ub_v[get_dimension() - 2] = 4000;
 
 	set_bounds(lb_v,ub_v);
 	
 	// Set spacecraft.
-	m_leg.set_spacecraft(kep_toolbox::spacecraft(m_initial_mass,0.3,3000));
+	m_leg.set_spacecraft(kep_toolbox::spacecraft(4000,0.3,3000));
 }
 
 /// Clone method.
-base_ptr gtoc5_gtoc5_asteroid::clone() const
+base_ptr gtoc5_launch::clone() const
 {
-	return base_ptr(new gtoc5_gtoc5_asteroid(*this));
+	return base_ptr(new gtoc5_launch(*this));
 }
 
 /// Implementation of the objective function.
-void gtoc5_gtoc5_asteroid::objfun_impl(fitness_vector &f, const decision_vector &x) const
+void gtoc5_launch::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	f[0] = -x[get_dimension() - 2];
 }
 
 /// Implementation of the constraint function.
-void gtoc5_gtoc5_asteroid::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
 	using namespace kep_toolbox;
 	// We set the leg.
 	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back(),epoch::MJD);
 	array3D v0, r0, vf, rf;
-	m_source.get_eph(epoch_i,r0,v0);
+	m_earth.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 1, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
+	const double theta = x[1], phi = x[2];
+	v0[0] += 5000 * std::cos(theta) * std::sin(phi);
+	v0[1] += 5000 * std::sin(theta) * std::sin(phi);
+	v0[2] += 5000 * std::cos(phi);
+	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
 
 	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
 	m_leg.get_mismatch_con(c.begin(), c.begin() + 7);
@@ -114,7 +124,7 @@ void gtoc5_gtoc5_asteroid::compute_constraints_impl(constraint_vector &c, const 
 }
 
 /// Implementation of the sparsity structure: automated detection
-void gtoc5_gtoc5_asteroid::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+void gtoc5_launch::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	//Initial point
 	decision_vector x0(get_dimension());
@@ -126,49 +136,30 @@ void gtoc5_gtoc5_asteroid::set_sparsity(int &lenG, std::vector<int> &iGfun, std:
 	estimate_sparsity(x0, lenG, iGfun, jGvar);
 }
 
-std::string gtoc5_gtoc5_asteroid::get_name() const
+std::string gtoc5_launch::get_name() const
 {
-	return "GTOC5-GTOC5-Asteroid";
+	return "Earth-GTOC5-Asteroid";
 }
 
-std::string gtoc5_gtoc5_asteroid::pretty(const decision_vector &x) const
+std::string gtoc5_launch::pretty(const decision_vector &x) const
 {
 	using namespace kep_toolbox;
 	// We set the leg.
 	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back(),epoch::MJD);
 	array3D v0, r0, vf, rf;
-	m_source.get_eph(epoch_i,r0,v0);
+	m_earth.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 1, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
+	const double theta = x[1], phi = x[2];
+	v0[0] += 5000 * std::cos(theta) * std::sin(phi);
+	v0[1] += 5000 * std::sin(theta) * std::sin(phi);
+	v0[2] += 5000 * std::cos(phi);
+	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
 	
 	std::ostringstream oss;
-	oss << m_leg << '\n' << m_source << '\n' << m_target << '\n';
+	oss << m_leg << '\n' << m_earth << '\n' << m_target << '\n';
 	return oss.str();
 }
 
-// Do just the norm.
-// bool earth_gtoc5_asteroid::compare_constraints_impl(const constraint_vector &c1, const constraint_vector &c2) const
-// {
-// 	pagmo_assert(c1.size() == c2.size() && c1.size() == m_c_dimension);
-// 	// L2 norm of constraints mismatches.
-// 	double norm1 = 0, norm2 = 0;
-// 	// Equality constraints.
-// 	for (c_size_type i = 0; i < get_c_dimension() - get_ic_dimension(); ++i) {
-// 		norm1 += std::abs(c1[i]) * std::abs(c1[i]);
-// 		norm2 += std::abs(c2[i]) * std::abs(c2[i]);
-// 	}
-// 	// Inequality constraints.
-// 	for (c_size_type i = get_c_dimension() - get_ic_dimension(); i < get_c_dimension(); ++i) {
-// 		if (!test_constraint(c1,i)) {
-// 			norm1 += c1[i] * c1[i];
-// 		}
-// 		if (!test_constraint(c2,i)) {
-// 			norm2 += c2[i] * c2[i];
-// 		}
-// 	}
-// 	return (norm1 < norm2);
-// }
-
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::gtoc5_gtoc5_asteroid);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::gtoc5_launch);
