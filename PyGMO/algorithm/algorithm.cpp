@@ -104,7 +104,9 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	// Monotonic Basin Hopping.
 	algorithm_wrapper<algorithm::mbh>("mbh","Monotonic Basin Hopping.")
-		.def(init<const algorithm::base &,optional<int, double> >());
+		.def(init<const algorithm::base &,optional<int, double> >())
+		.def(init<const algorithm::base &,optional<int, const std::vector<double> &> >())
+		.def("screen_output",&algorithm::mbh::screen_output);
 	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")

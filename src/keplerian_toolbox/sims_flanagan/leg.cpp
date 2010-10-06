@@ -21,7 +21,7 @@ namespace kep_toolbox{ namespace sims_flanagan{
  *
  */
 std::ostream &operator<<(std::ostream &s, const leg &in ){
-
+	s << std::setprecision(15);
 	s << "Number of segments: " << in.throttles.size() << std::endl;
 	s << "Departure date: " << in.get_t_i() << ", mjd2000: " << in.get_t_i().mjd2000() << std::endl;
 	s << "Arrival date: " << in.get_t_f() << ", mjd2000: " << in.get_t_f().mjd2000() << std::endl;

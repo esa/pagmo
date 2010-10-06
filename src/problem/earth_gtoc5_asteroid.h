@@ -53,6 +53,7 @@ class __PAGMO_VISIBLE earth_gtoc5_asteroid: public base
 		std::string get_name() const;
 		std::string pretty(const decision_vector &) const;
 	protected:
+// 		bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;

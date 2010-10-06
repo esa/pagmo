@@ -67,7 +67,7 @@ mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(
  * will be perturbed within +-perturb[i], the same for the velocity. The integer part is treated the same way.
  * @throws value_error if stop is negative or perturb[i] is negative
  */
-mbh::mbh(const algorithm::base & local, int stop, std::vector<double> perturb):base(),m_stop(stop),m_perturb(perturb)
+mbh::mbh(const algorithm::base & local, int stop, const std::vector<double> &perturb):base(),m_stop(stop),m_perturb(perturb)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -171,10 +171,12 @@ void mbh::evolve(population &pop) const
 		//3. Reset counter if improved
 		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
 		{
-
 			i = 0;
 			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
 			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
+			if (m_screen_out) {
+				std::cout << "New solution accepted. Constraints vector: " << best_c << '\n';
+			}
 			//update best population
 			for (population::size_type j=0; j<pop.size();++j)
 			{

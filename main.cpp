@@ -51,9 +51,19 @@ int main()
 // 	a.join();
 // std::cout << "finished evolving\n";
 
-	problem::earth_gtoc5_asteroid prob;
-std::cout << prob << '\n';
-	algorithm::snopt algo(10000);
+	int n_segments = 10;
+// 	problem::gtoc5_gtoc5_asteroid prob(n_segments,1,2,57023,3500,1E-5);
+	problem::earth_gtoc5_asteroid prob(n_segments,1,1E-5);
+	const double pert_epoch = 400;
+	const double pert_nondim = 1E-1;
+	const double pert_mass = 200;
+	std::vector<double> perturb(3 * n_segments + 5,pert_nondim);
+	perturb.front() = pert_epoch;
+	perturb.back() = pert_epoch;
+	perturb[perturb.size() - 2] = pert_mass;
+	
+	algorithm::snopt algo_snopt(1000);
+	algorithm::mbh algo(algo_snopt,20,perturb);
 	algo.screen_output(true);
 	island isl(prob,algo,1);
 	isl.evolve(1);

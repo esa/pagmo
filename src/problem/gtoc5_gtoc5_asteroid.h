@@ -22,56 +22,61 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEMS_H
-#define PAGMO_PROBLEMS_H
+#ifndef PAGMO_GTOC5_GTOC5_ASTEROID_H
+#define PAGMO_GTOC5_GTOC5_ASTEROID_H
 
-// Header including all problems implemented in PaGMO.
+#include <string>
+#include <vector>
 
-#include "problem/base.h"
-#include "problem/branin.h"
-#include "problem/golomb_ruler.h"
-#include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
-#include "problem/rastrigin.h"
-#include "problem/rosenbrock.h"
-#include "problem/schwefel.h"
-#include "problem/griewank.h"
-#include "problem/levy5.h"
-#include "problem/lennard_jones.h"
-#include "problem/ackley.h"
-#include "problem/snopt_toyprob.h"
-#include "problem/string_match.h"
-#include "problem/luksan_vlcek_1.h"
-#include "problem/luksan_vlcek_2.h"
-#include "problem/luksan_vlcek_3.h"
-#include "problem/cassini_1.h"
-#include "problem/cassini_2.h"
-#include "problem/gtoc_1.h"
-#include "problem/gtoc_2.h"
-#include "problem/inventory.h"
-#include "problem/sagas.h"
-#include "problem/rosetta.h"
-#include "problem/messenger.h"
-#include "problem/messenger_full.h"
-#include "problem/tandem.h"
-#include "problem/laplace.h"
-#include "problem/sample_return.h"
-#include "problem/earth_gtoc5_asteroid.h"
-#include "problem/gtoc5_gtoc5_asteroid.h"
-#include "problem/earth_planet.h"
-#include "problem/michalewicz.h"
-#include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/tsp.h"
-#include "problem/knapsack.h"
-#include "problem/sch.h"
-#include "problem/fon.h"
-#include "problem/pol.h"
-#include "problem/kur.h"
-#include "problem/zdt1.h"
-#include "problem/zdt2.h"
-#include "problem/zdt3.h"
-#include "problem/zdt4.h"
-#include "problem/zdt6.h"
+#include "../config.h"
+#include "../serialization.h"
+#include "../types.h"
+#include "../keplerian_toolbox/keplerian_toolbox.h"
+#include "base.h"
 
-#endif
+namespace pagmo { namespace problem {
+
+/// Test problem kep tool
+/**
+ *
+ *
+ * @author Dario Izzo (dario.izzo@esa.int)
+ */
+
+class __PAGMO_VISIBLE gtoc5_gtoc5_asteroid: public base
+{
+	public:
+		gtoc5_gtoc5_asteroid(int = 10, int = 1, int = 2, const double & = 57023, const double & = 4000, const double & = 1E-9);
+		base_ptr clone() const;
+		std::string get_name() const;
+		std::string pretty(const decision_vector &) const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_n_segments;
+			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_source);
+			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_target);
+			ar & const_cast<double &>(m_lb_epoch);
+			ar & const_cast<double &>(m_initial_mass);
+			ar & m_leg;
+		}
+		int 						m_n_segments;
+		const kep_toolbox::asteroid_gtoc5 		m_source;
+		const kep_toolbox::asteroid_gtoc5 		m_target;
+		const double					m_lb_epoch;
+		const double					m_initial_mass;
+		mutable kep_toolbox::sims_flanagan::leg		m_leg;
+};
+
+}} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc5_gtoc5_asteroid);
+
+#endif // GTOC5_GTOC5_ASTEROID_H
