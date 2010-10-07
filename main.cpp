@@ -51,6 +51,7 @@ int main()
 // 	a.join();
 // std::cout << "finished evolving\n";
 
+	mpi_environment env;
 	int n_segments = 10;
 	algorithm::snopt algo(1000);
 	const double pert_epoch = 1000;
@@ -68,10 +69,8 @@ int main()
 	algo2.screen_output(true);
 	algorithm::ms algo3(algo2,5);
         archipelago a;
-        for (int i = 1; i < 7056; ++i) {
-		if (i == 6931) {
-			a.push_back(island(problem::gtoc5_launch(n_segments,i),algo3,1));
-		}
+        for (int i = 1; i < 25; ++i) {
+		a.push_back(mpi_island(problem::gtoc5_launch(n_segments,i),algo3,1));
 	}
         a.evolve(1);
         a.join();
