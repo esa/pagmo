@@ -66,7 +66,8 @@ BOOST_PYTHON_MODULE(_kep_toolbox) {
 	// Base planet class.
 	class_<kep_toolbox::planet,boost::noncopyable>("_planet",no_init)
 		.def("get_eph",&planet_get_eph)
-		.def(repr(self));
+		.def(repr(self))
+		.def("get_elements",&kep_toolbox::planet::get_elements);
 	
 	// Solar system planet.
 	class_<kep_toolbox::asteroid_gtoc5,bases<kep_toolbox::planet> >("asteroid_gtoc5",init<optional<const int &> >());
