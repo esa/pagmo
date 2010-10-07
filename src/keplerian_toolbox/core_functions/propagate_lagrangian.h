@@ -56,6 +56,9 @@ namespace kep_toolbox {
 template<class vettore3D>
 		void propagate_lagrangian(vettore3D& r0, vettore3D& v0, const double &t, const double &mu)
 {
+		vettore3D r0_copy = r0, v0_copy = v0;
+	try {
+
 	double R = sqrt(r0[0]*r0[0] + r0[1]*r0[1] + r0[2]*r0[2]);
 	double V = sqrt(v0[0]*v0[0] + v0[1]*v0[1] + v0[2]*v0[2]);
 	double energy = (V*V/2 - mu/R);
@@ -110,6 +113,15 @@ template<class vettore3D>
 	for (int i=0;i<3;i++){
 		r0[i] = F * r0[i] + G * v0[i];
 		v0[i] = Ft * temp[i] + Gt * v0[i];
+	}
+	
+	} catch (...) {
+		std::cout << "Propagate lagrangian failed!\n";
+		std::cout << r0_copy << '\n';
+		std::cout << v0_copy << '\n';
+		std::cout << t << '\n';
+		std::cout << mu << '\n';
+		std::exit(1);
 	}
 }
 }

@@ -51,8 +51,8 @@ int main()
 // 	a.join();
 // std::cout << "finished evolving\n";
 
-	int n_segments = 5;
-	problem::gtoc5_launch prob(n_segments,1);
+	int n_segments = 10;
+	algorithm::snopt algo(1000);
 	const double pert_epoch = 1000;
 	const double pert_nondim = 1E-1;
 	const double pert_mass = 200;
@@ -64,13 +64,15 @@ int main()
 	perturb[3] = pert_vinf;
 	perturb[4] = pert_vinf;
 	perturb[5] = pert_mass;
-	
-	algorithm::snopt algo_snopt(1000);
-	algorithm::mbh algo(algo_snopt,20,perturb);
-	algo.screen_output(true);
-	island isl(prob,algo,1);
-	isl.evolve(1);
-	isl.join();
-	std::cout << prob.pretty(isl.get_population().champion().x) << '\n';
-	std::cout << prob.feasibility_x(isl.get_population().champion().x) << '\n';
+	algorithm::mbh algo2(algo,20,perturb);
+	algo2.screen_output(true);
+	algorithm::ms algo3(algo2,5);
+        archipelago a;
+        for (int i = 1; i < 7056; ++i) {
+		if (i == 6931) {
+			a.push_back(island(problem::gtoc5_launch(n_segments,i),algo3,1));
+		}
+	}
+        a.evolve(1);
+        a.join();
 }

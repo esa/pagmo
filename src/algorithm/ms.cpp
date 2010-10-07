@@ -52,6 +52,9 @@ ms::ms(const algorithm::base &algorithm, int starts):base(),m_starts(starts)
 	}
 }
 
+/// Copy constructor (deep copy).
+ms::ms(const ms &other):m_algorithm(other.m_algorithm->clone()),m_starts(other.m_starts),m_screen_out(other.m_screen_out) {}
+
 /// Clone method.
 base_ptr ms::clone() const
 {

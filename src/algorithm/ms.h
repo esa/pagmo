@@ -60,6 +60,7 @@ class __PAGMO_VISIBLE ms: public base
 {
 public:
 	ms(const algorithm::base & = de(), int = 1);
+	ms(const ms &);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
