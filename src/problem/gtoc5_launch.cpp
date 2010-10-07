@@ -62,17 +62,17 @@ gtoc5_launch::gtoc5_launch(int segments, int target, const double &ctol) :
 	lb_v[1] = 30;
 	ub_v[1] = 365.25 * 5;
 
+	// Final mass.
+	lb_v[2] = 500;
+	ub_v[2] = 4000;
+
 	// Start Velocity
-	lb_v[2] = -5000;
 	lb_v[3] = -5000;
 	lb_v[4] = -5000;
-	ub_v[2] = 5000;
+	lb_v[5] = -5000;
 	ub_v[3] = 5000;
 	ub_v[4] = 5000;
-
-	// Final mass.
-	lb_v[5] = 500;
-	ub_v[5] = 4000;
+	ub_v[5] = 5000;
 
 	// I Throttles
 	for (int i = 6; i < segments * 3 + 6; ++i)
@@ -97,7 +97,7 @@ base_ptr gtoc5_launch::clone() const
 /// Implementation of the objective function.
 void gtoc5_launch::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	f[0] = -x[5];
+	f[0] = -x[2];
 }
 
 /// Implementation of the constraint function.
@@ -110,10 +110,10 @@ void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision
 	m_earth.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
 
-	v0[0] += x[2];
-	v0[1] += x[3];
-	v0[2] += x[4];
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 6, x.end(),epoch_f,sc_state(rf,vf,x[5]),ASTRO_MU_SUN);
+	v0[0] += x[3];
+	v0[1] += x[4];
+	v0[2] += x[5];
+	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 6, x.end(),epoch_f,sc_state(rf,vf,x[2]),ASTRO_MU_SUN);
 
 	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
 	m_leg.get_mismatch_con(c.begin(), c.begin() + 7);
@@ -122,7 +122,7 @@ void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision
 	c[6] /= m_leg.get_spacecraft().get_mass();
 	// We evaluate the constraints on the throttles writing on the 7th mismatch constrant (mass is off)
 	m_leg.get_throttles_con(c.begin() + 7, c.begin() + 7 + m_n_segments);
-	c[7 + m_n_segments] = (x[2]*x[2] + x[3]*x[3] * x[4]*x[4] - 25000000) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
+	c[7 + m_n_segments] = (x[3]*x[3] + x[4]*x[4] * x[5]*x[5] - 25000000) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
 }
 
 /// Implementation of the sparsity structure: automated detection

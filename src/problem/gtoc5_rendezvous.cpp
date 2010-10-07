@@ -58,20 +58,21 @@ gtoc5_rendezvous::gtoc5_rendezvous(int segments, int source, int target, const d
 	ub_v[0] = m_lb_epoch + 356.25 * 10;
 
 	// Leg duration.
-	lb_v.back() = 10;
-	ub_v.back() = 365.25 * 4;
+	lb_v[1] = 10;
+	ub_v[1] = 365.25 * 4;
+
+	// Final mass.
+	lb_v[2] = 500;
+	ub_v[2] = m_initial_mass;
 
 	// I Throttles
-	for (int i = 1; i < segments * 3 + 1; ++i)
+	for (int i = 3; i < segments * 3 + 3; ++i)
 	{
 		lb_v[i] = -1;
 		ub_v[i] = 1;
 	}
 
-	// Final mass.
-	lb_v[get_dimension() - 2] = 500;
-	ub_v[get_dimension() - 2] = m_initial_mass;
-
+	//Copying the lb,ub vector into the problems bounds
 	set_bounds(lb_v,ub_v);
 	
 	// Set spacecraft.
@@ -87,7 +88,7 @@ base_ptr gtoc5_rendezvous::clone() const
 /// Implementation of the objective function.
 void gtoc5_rendezvous::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	f[0] = -x[get_dimension() - 2];
+	f[0] = -x[2];
 }
 
 /// Implementation of the constraint function.
@@ -95,11 +96,11 @@ void gtoc5_rendezvous::compute_constraints_impl(constraint_vector &c, const deci
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back() + x[0],epoch::MJD);
+	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
 	m_source.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 1, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
+	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end(),epoch_f,sc_state(rf,vf,x[2]),ASTRO_MU_SUN);
 
 	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
 	m_leg.get_mismatch_con(c.begin(), c.begin() + 7);
@@ -132,12 +133,12 @@ std::string gtoc5_rendezvous::pretty(const decision_vector &x) const
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x.back() + x[0],epoch::MJD);
+	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
 	m_source.get_eph(epoch_i,r0,v0);
 	m_target.get_eph(epoch_f,rf,vf);
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 1, x.end() - 2,epoch_f,sc_state(rf,vf,x[get_dimension() - 2]),ASTRO_MU_SUN);
-	
+	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end(),epoch_f,sc_state(rf,vf,x[2]),ASTRO_MU_SUN);
+
 	std::ostringstream oss;
 	oss << m_leg << '\n' << m_source << '\n' << m_target << '\n';
 	return oss.str();

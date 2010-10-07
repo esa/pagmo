@@ -73,6 +73,7 @@ gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const 
 	lb_v[4] = 500;
 	ub_v[4] = m_initial_mass;
 
+	// Velocity at fly-by
 	for (int i = 5; i < 8; ++i) {
 		lb_v[i] = -15000;
 		ub_v[i] = 15000;
