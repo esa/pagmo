@@ -69,8 +69,8 @@ int main()
 	//algo2.screen_output(true);
 	algorithm::ms algo3(algo2,5);
         archipelago a;
-	std::cout << "First 23 problems instantiated\n";
-        for (int i = 1; i < 24; ++i) {
+	std::cout << "First 2000 problems instantiated\n";
+        for (int i = 1; i < 2001; ++i) {
 		a.push_back(mpi_island(problem::gtoc5_launch(n_segments,i),algo3,1));
 	}
         a.evolve(1);
