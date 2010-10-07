@@ -52,21 +52,18 @@ int main()
 // std::cout << "finished evolving\n";
 
 	int n_segments = 5;
-// 	problem::gtoc5_gtoc5_asteroid prob(n_segments,1,2,57023,3500,1E-5);
-	problem::gtoc5_flyby prob(n_segments,1,1,2);
-	const double pert_epoch = 400;
+	problem::gtoc5_launch prob(n_segments,1);
+	const double pert_epoch = 1000;
 	const double pert_nondim = 1E-1;
 	const double pert_mass = 200;
-	const double pert_vinf = 3000;
-	std::vector<double> perturb(n_segments * 6 + 8,pert_nondim);
+	const double pert_vinf = 1000;
+	std::vector<double> perturb(n_segments*3 + 6,pert_nondim);
 	perturb[0] = pert_epoch;
 	perturb[1] = pert_epoch;
-	perturb[2] = pert_epoch;
-	perturb[3] = pert_mass;
-	perturb[4] = pert_mass;
-	perturb[5] = pert_vinf;
-	perturb[6] = pert_vinf;
-	perturb[7] = pert_vinf;
+	perturb[2] = pert_vinf;
+	perturb[3] = pert_vinf;
+	perturb[4] = pert_vinf;
+	perturb[5] = pert_mass;
 	
 	algorithm::snopt algo_snopt(1000);
 	algorithm::mbh algo(algo_snopt,20,perturb);

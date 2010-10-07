@@ -77,4 +77,4 @@ class __PAGMO_VISIBLE gtoc5_launch: public base
 
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc5_launch);
 
-#endif // EARTH_GTOC5_ASTEROID_H
+#endif // EARTH_GTOC5_LAUNCH_H

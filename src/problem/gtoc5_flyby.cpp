@@ -138,7 +138,7 @@ void gtoc5_flyby::compute_constraints_impl(constraint_vector &c, const decision_
 	m_leg2.get_throttles_con(c.begin() + 14 + m_n_segments, c.begin() + 14 + 2 * m_n_segments);
 	
 	// Minimum flyby speed = 0.4 km/s.
-	c[14 + 2 * m_n_segments] = 160000. - (x[5] * x[5] + x[6] * x[6] + x[7] * x[7]);
+	c[14 + 2 * m_n_segments] = (160000. - (x[5] * x[5] + x[6] * x[6] + x[7] * x[7])) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
 }
 
 /// Implementation of the sparsity structure: automated detection
