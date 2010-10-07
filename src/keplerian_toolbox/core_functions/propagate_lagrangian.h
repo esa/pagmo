@@ -121,7 +121,6 @@ template<class vettore3D>
 		std::cout << v0_copy << '\n';
 		std::cout << t << '\n';
 		std::cout << mu << '\n';
-		std::exit(1);
 	}
 }
 }
