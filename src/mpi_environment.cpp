@@ -53,11 +53,11 @@ mpi_environment::mpi_environment():m_environment(new boost::mpi::environment(mpi
 	if (world.rank()) {
 		// If this is a slave, it will have to stop here, listen for jobs, execute them, and exit()
 		// when signalled to do so.
-std::cout << "hello I'm slave rank " << world.rank() << '\n';
+// std::cout << "hello I'm slave rank " << world.rank() << '\n';
 		listen();
 	}
 	// If this is the root node, just finish the construction.
-std::cout << "hello I'm the master\n";
+// std::cout << "hello I'm the master\n";
 }
 
 mpi_environment::~mpi_environment()
@@ -65,14 +65,14 @@ mpi_environment::~mpi_environment()
 	int rank, numtasks;
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
-std::cout << "shutting down\n";
+// std::cout << "shutting down\n";
 	// In theory this should never be called by the slaves.
 	pagmo_assert(!rank);
 	for (int i = 1; i < numtasks; ++i) {
 		// Send the shutdown signal to all slaves.
 		MPI_Send(0,0,MPI_CHAR,i,2,MPI_COMM_WORLD);
 	}
-std::cout << "shut down\n";
+// std::cout << "shut down\n";
 }
 
 int mpi_environment::size() const
@@ -89,9 +89,9 @@ void mpi_environment::listen()
 		// Query and catch, if any, the shutdown message.
 		MPI_Iprobe(0,2,MPI_COMM_WORLD,&flag,&status);
 		if (flag) {
-std::cout << "seen shutdown signal " << rank << '\n';
+// std::cout << "seen shutdown signal " << rank << '\n';
 			MPI_Recv(0,0,MPI_CHAR,0,2,MPI_COMM_WORLD,&status);
-std::cout << "received shutdown signal " << rank << '\n';
+// std::cout << "received shutdown signal " << rank << '\n';
 			break;
 		}
 		// Query and catch, if any, the payload to be evolved.
@@ -99,15 +99,15 @@ std::cout << "received shutdown signal " << rank << '\n';
 		if (flag) {
 			// First receive the size.
 			int size;
-std::cout << "slave receiving size " << rank << '\n';
+// std::cout << "slave receiving size " << rank << '\n';
 			MPI_Recv(static_cast<void *>(&size),1,MPI_INT,0,0,MPI_COMM_WORLD,&status);
-std::cout << "slave received size " << rank << '\n';
+// std::cout << "slave received size " << rank << '\n';
 			// Prepare the vector of chars.
 			std::vector<char> buffer_char1(boost::numeric_cast<std::vector<char>::size_type>(size),0);
-std::cout << "slave receiving payload " << rank << '\n';
+// std::cout << "slave receiving payload " << rank << '\n';
 			// Receive the payload.
 			MPI_Recv(static_cast<void *>(&buffer_char1[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD,&status);
-std::cout << "slave received payload " << rank << '\n';
+// std::cout << "slave received payload " << rank << '\n';
 			// Build the string from the vector.
 			const std::string buffer_str1(buffer_char1.begin(),buffer_char1.end());
 			// Unpickle the payload.
@@ -127,13 +127,13 @@ std::cout << "slave received payload " << rank << '\n';
 			std::vector<char> buffer_char2(buffer_str2.begin(),buffer_str2.end());
 			// Send the size.
 			size = boost::numeric_cast<int>(buffer_char2.size());
-std::cout << "slave sending size " << rank << '\n';
+// std::cout << "slave sending size " << rank << '\n';
 			MPI_Send(static_cast<void *>(&size),1,MPI_INT,0,0,MPI_COMM_WORLD);
-std::cout << "slave sent size " << rank << '\n';
+// std::cout << "slave sent size " << rank << '\n';
 			// Send the string.
-std::cout << "slave sending payload " << rank << '\n';
+// std::cout << "slave sending payload " << rank << '\n';
 			MPI_Send(static_cast<void *>(&buffer_char2[0]),size,MPI_CHAR,0,1,MPI_COMM_WORLD);
-std::cout << "slave sent payload " << rank << '\n';
+// std::cout << "slave sent payload " << rank << '\n';
 		} else {
 			// Sleep a bit if there is nothing to do.
 			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
@@ -141,7 +141,7 @@ std::cout << "slave sent payload " << rank << '\n';
 	}
 	// Destroy the MPI environment before exiting.
 	m_environment.reset(0);
-std::cout << "alright, exiting\n";
+// std::cout << "alright, exiting\n";
 	std::exit(0);
 }
 

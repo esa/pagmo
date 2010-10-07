@@ -115,28 +115,28 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 		// Lock down.
 		lock_type lock(m_mutex);
 		processor = acquire_processor();
-std::cout << "master sending size " << processor << '\n';
+// std::cout << "master sending size " << processor << '\n';
 		MPI_Send(static_cast<void *>(&size),1,MPI_INT,processor,0,MPI_COMM_WORLD);
-std::cout << "master sent size " << processor << '\n';
-std::cout << "master sending payload " << processor << '\n';
+// std::cout << "master sent size " << processor << '\n';
+// std::cout << "master sending payload " << processor << '\n';
 		MPI_Send(static_cast<void *>(&buffer_char[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD);
-std::cout << "master sent payload " << processor << '\n';
+// std::cout << "master sent payload " << processor << '\n';
 	}
 	std::vector<char> buffer_char;
 	while (true) {
 		{
 			lock_type lock(m_mutex);
-std::cout << "master quering " << processor << '\n';
+// std::cout << "master quering " << processor << '\n';
 			MPI_Iprobe(processor,0,MPI_COMM_WORLD,&flag,&status);
 			if (flag) {
-std::cout << "master receiving size " << processor << '\n';
+// std::cout << "master receiving size " << processor << '\n';
 				MPI_Recv(static_cast<void *>(&size),1,MPI_INT,processor,0,MPI_COMM_WORLD,&status);
-std::cout << "master received size " << processor << '\n';
+// std::cout << "master received size " << processor << '\n';
 				// Prepare buffer.
 				buffer_char.resize(boost::numeric_cast<std::vector<char>::size_type>(size),0);
-std::cout << "master receiving payload " << processor << '\n';
+// std::cout << "master receiving payload " << processor << '\n';
 				MPI_Recv(static_cast<void *>(&buffer_char[0]),size,MPI_CHAR,processor,1,MPI_COMM_WORLD,&status);
-std::cout << "master received payload " << processor << '\n';
+// std::cout << "master received payload " << processor << '\n';
 				release_processor(processor);
 				break;
 			}

@@ -44,7 +44,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] starts number of multistarts
  * @throws value_error if starts is negative
  */
-ms::ms(const algorithm::base &algorithm, int starts):base(),m_starts(starts)
+ms::ms(const algorithm::base &algorithm, int starts):base(),m_starts(starts),m_screen_out(false)
 {
 	m_algorithm = algorithm.clone();
 	if (starts < 0) {
