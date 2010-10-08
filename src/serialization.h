@@ -43,8 +43,11 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
 
-// Serialization of circular buffer.
+// Serialization of circular buffer, unordered map.
+// TODO: serialize the functors.. allocator, Hash, Pred, etc.
 #include <boost/circular_buffer.hpp>
+#include <boost/unordered_map.hpp>
+#include <utility>
 
 namespace boost { namespace serialization {
 
@@ -84,9 +87,44 @@ void load(Archive &ar, boost::circular_buffer<T> &cb, unsigned int)
 }
 
 template <class Archive, class T>
-void serialize(Archive &ar, boost::circular_buffer<T> &cb, const unsigned int file_version)
+void serialize(Archive &ar, boost::circular_buffer<T> &cb, const unsigned int version)
 {
-	split_free(ar, cb, file_version);
+	split_free(ar, cb, version);
+}
+
+template <class Archive, class Key, class Mapped, class Hash, class Pred, class Alloc>
+void save(Archive &ar, const boost::unordered_map<Key,Mapped,Hash,Pred,Alloc> &um, unsigned int)
+{
+	typedef typename boost::unordered_map<Key,Mapped,Hash,Pred,Alloc>::size_type size_type;
+	typedef typename boost::unordered_map<Key,Mapped,Hash,Pred,Alloc>::const_iterator const_iterator;
+	// Save size.
+	const size_type size = um.size();
+	ar << size;
+	for (const_iterator it = um.begin(); it != um.end(); ++it) {
+		ar << *it;
+	}
+}
+
+template <class Archive, class Key, class Mapped, class Hash, class Pred, class Alloc>
+void load(Archive &ar, boost::unordered_map<Key,Mapped,Hash,Pred,Alloc> &um, unsigned int)
+{
+	typedef typename boost::unordered_map<Key,Mapped,Hash,Pred,Alloc>::size_type size_type;
+	// Empty the map.
+	um.clear();
+	// Recover size.
+	size_type size;
+	ar >> size;
+	for (size_type i = 0; i < size; ++i) {
+		std::pair<Key, Mapped> value;
+		ar >> value;
+		um[value.first] = value.second;
+	}
+}
+
+template <class Archive, class Key, class Mapped, class Hash, class Pred, class Alloc>
+void serialize(Archive &ar, boost::unordered_map<Key,Mapped,Hash,Pred,Alloc> &um, unsigned int version)
+{
+	split_free(ar, um, version);
 }
 
 }}
