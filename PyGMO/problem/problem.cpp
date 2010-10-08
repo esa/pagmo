@@ -269,6 +269,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::gtoc5_launch>("gtoc5_launch","GTOC5 launch phase.")
 		.def(init< optional<int, int, problem::gtoc5_launch::objective, const double &> >());
 
+	enum_<problem::gtoc5_launch::objective>("gtoc5_launch_objective")
+		.value("MASS",problem::gtoc5_launch::MASS)
+		.value("TIME",problem::gtoc5_launch::TIME);
+
 	// GTOC5 randez-vouz.
 	problem_wrapper<problem::gtoc5_rendezvous>("gtoc5_rendezvous","GTOC5 rendezvous phase.")
 		.def(init< optional<int, int, int, const double &, const double &, const double &> >());
