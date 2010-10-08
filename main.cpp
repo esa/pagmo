@@ -51,13 +51,13 @@ int main()
 
 	algorithm::mbh algo2(algo,20,perturb);
 	algorithm::ms algo3(algo2,5);
-	algo3.screen_output(true);
+	//algo2.screen_output(true);
 
 	// Outer loop.
 	int cur_id = 1;
-	for (int i = 1; i <= 1; ++i) {
+	for (int i = 1; i <= 25; ++i) {
 		archipelago a;
-		for (int j = 0; j < 1; ++j) {
+		for (int j = 0; j < 283; ++j) {
 			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::TIME),algo3,5));
 		}
 		a.evolve(1);
@@ -69,9 +69,9 @@ int main()
 	}
 
 	cur_id = 1;
-	for (int i = 1; i <= 1; ++i) {
+	for (int i = 1; i <= 25; ++i) {
 		archipelago a;
-		for (int j = 0; j < 1; ++j) {
+		for (int j = 0; j < 283; ++j) {
 			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::MASS),algo3,5));
 		}
 		a.evolve(1);
