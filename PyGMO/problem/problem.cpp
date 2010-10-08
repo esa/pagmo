@@ -267,7 +267,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// GTOC5 launch.
 	problem_wrapper<problem::gtoc5_launch>("gtoc5_launch","GTOC5 launch phase.")
-		.def(init< optional<int, int, const double &> >());
+		.def(init< optional<int, int, problem::gtoc5_launch::objective, const double &> >());
 
 	// GTOC5 randez-vouz.
 	problem_wrapper<problem::gtoc5_rendezvous>("gtoc5_rendezvous","GTOC5 rendezvous phase.")

@@ -78,40 +78,26 @@ void ms::evolve(population &pop) const
 		return;
 	}
 
-	// Init the best fitness and constraint vector
-	fitness_vector best_f = pop.get_individual(pop.get_best_idx()).cur_f;
-	constraint_vector best_c = pop.get_individual(pop.get_best_idx()).cur_c;
-	population best_pop(pop);
+	// Local population used in the algorithm iterations.
+	population working_pop(pop);
 
 	//ms main loop
 	for (int i=0; i< m_starts; ++i)
 	{
-		pop.reinit();
-		m_algorithm->evolve(pop);
+		working_pop.reinit();
+		m_algorithm->evolve(working_pop);
+		if (working_pop.problem().compare_fc(working_pop.get_individual(working_pop.get_best_idx()).cur_f,working_pop.get_individual(working_pop.get_best_idx()).cur_c,
+			pop.get_individual(pop.get_worst_idx()).cur_f,pop.get_individual(pop.get_worst_idx()).cur_c
+		) )
+		{
+			//update best population replacing its worst individual with the good one just produced.
+			pop.set_x(pop.get_worst_idx(),working_pop.get_individual(working_pop.get_best_idx()).cur_x);
+			pop.set_v(pop.get_worst_idx(),working_pop.get_individual(working_pop.get_best_idx()).cur_v);
+		}
 		if (m_screen_out)
 		{
-			std::cout << i << ". " << "\tBest: " << pop.get_individual(pop.get_best_idx()).cur_f << "\tChampion: " << pop.champion().f << std::endl;
+			std::cout << i << ". " << "\tCurrent iteration best: " << working_pop.get_individual(working_pop.get_best_idx()).cur_f << "\tOverall champion: " << pop.champion().f << std::endl;
 		}
-
-		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
-		{
-			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
-			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
-
-			//update best population
-			for (population::size_type j=0; j<pop.size();++j)
-			{
-				best_pop.set_x(j,pop.get_individual(j).cur_x);
-				best_pop.set_v(j,pop.get_individual(j).cur_v);
-			}
-
-		}
-	}
-	//on exit set the population to the best one of the multistarts
-	for (population::size_type j=0; j<pop.size();++j)
-	{
-		pop.set_x(j,best_pop.get_individual(j).cur_x);
-		pop.set_v(j,best_pop.get_individual(j).cur_v);
 	}
 }
 

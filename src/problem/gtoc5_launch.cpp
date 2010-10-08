@@ -47,9 +47,9 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-gtoc5_launch::gtoc5_launch(int segments, int target, const double &ctol) :
+gtoc5_launch::gtoc5_launch(int segments, int target, objective obj, const double &ctol) :
 	base(segments * 3 + 6, 0, 1, 7 + segments + 1, segments + 1,ctol),
-	m_n_segments(segments),m_earth(),m_target(target)
+	m_n_segments(segments),m_earth(),m_target(target),m_obj(obj)
 {
 	std::vector<double> lb_v(get_dimension());
 	std::vector<double> ub_v(get_dimension());
@@ -60,7 +60,7 @@ gtoc5_launch::gtoc5_launch(int segments, int target, const double &ctol) :
 
 	// Leg duration in days
 	lb_v[1] = 30;
-	ub_v[1] = 365.25 * 5;
+	ub_v[1] = 365.25 * 3;
 
 	// Final mass.
 	lb_v[2] = 500;
@@ -97,7 +97,11 @@ base_ptr gtoc5_launch::clone() const
 /// Implementation of the objective function.
 void gtoc5_launch::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	f[0] = -x[2];
+	if (m_obj == MASS) {
+		f[0] = -x[2] / m_leg.get_spacecraft().get_mass();
+	} else {
+		f[0] = x[1] / 365.25;
+	}
 }
 
 /// Implementation of the constraint function.

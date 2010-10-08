@@ -173,6 +173,13 @@ struct island_pickle_suite : boost::python::pickle_suite
 	}
 };
 
+static inline void archipelago_load_from_string(archipelago &a, const std::string &s)
+{
+	std::stringstream ss(s);
+	boost::archive::text_iarchive ia(ss);
+	ia >> a;
+}
+
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
@@ -267,6 +274,7 @@ BOOST_PYTHON_MODULE(_core)
 		int,int,optional<const topology::base &,archipelago::distribution_type,archipelago::migration_direction> >())
 		.def(init<optional<archipelago::distribution_type,archipelago::migration_direction> >())
 		.def(init<const topology::base &, optional<archipelago::distribution_type,archipelago::migration_direction> >())
+		.def(init<archipelago::distribution_type, archipelago::migration_direction>())
 		.def(init<const archipelago &>())
 		.def("__copy__", &Py_copy_from_ctor<archipelago>)
 		.def("__len__", &archipelago::get_size)
@@ -283,6 +291,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.def("dump_migr_history", &archipelago::dump_migr_history)
 		.def("clear_migr_history", &archipelago::clear_migr_history)
+		.def("load_from_string", &archipelago_load_from_string)
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
 
 	// Archipelago's migration strategies.

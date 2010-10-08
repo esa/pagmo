@@ -31,33 +31,54 @@ using namespace pagmo;
 
 int main()
 {
+	mpi_environment env;
+
 	int n_segments = 10;
+
 	algorithm::snopt algo(1000);
+
 	const double pert_epoch = 1000;
 	const double pert_nondim = 1E-1;
 	const double pert_mass = 200;
 	const double pert_vinf = 1000;
-	std::vector<double> perturb(n_segments * 3 + 3,pert_nondim);
+	std::vector<double> perturb(n_segments * 3 + 6,pert_nondim);
 	perturb[0] = pert_epoch;
 	perturb[1] = pert_epoch;
 	perturb[2] = pert_mass;
-	/*perturb[2] = pert_vinf;
 	perturb[3] = pert_vinf;
 	perturb[4] = pert_vinf;
-	perturb[5] = pert_mass;*/
+	perturb[5] = pert_vinf;
+
 	algorithm::mbh algo2(algo,20,perturb);
-	algo2.screen_output(true);
-	problem::gtoc5_rendezvous prob(n_segments,3589,5340,60000,4000);
-	island isl(prob,algo2,1);
-	isl.evolve();
-	isl.join();
-	//algo2.screen_output(true);
-	//algorithm::ms algo3(algo2,5);
-	//archipelago a;
-	//std::cout << "First 2000 problems instantiated\n";
-	//for (int i = 1; i < 2001; ++i) {
-	//	a.push_back(island(problem::gtoc5_launch(n_segments,i),algo3,1));
-	//}
-	//a.evolve(1);
-	//a.join();
+	algorithm::ms algo3(algo2,5);
+	algo3.screen_output(true);
+
+	// Outer loop.
+	int cur_id = 1;
+	for (int i = 1; i <= 1; ++i) {
+		archipelago a;
+		for (int j = 0; j < 1; ++j) {
+			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::TIME),algo3,5));
+		}
+		a.evolve(1);
+		a.join();
+		std::ofstream ofs((std::string("time_") + boost::lexical_cast<std::string>(cur_id)).c_str());
+		boost::archive::text_oarchive oa(ofs);
+		oa << static_cast<const archipelago &>(a);
+		cur_id += 283;
+	}
+
+	cur_id = 1;
+	for (int i = 1; i <= 1; ++i) {
+		archipelago a;
+		for (int j = 0; j < 1; ++j) {
+			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::MASS),algo3,5));
+		}
+		a.evolve(1);
+		a.join();
+		std::ofstream ofs((std::string("mass_") + boost::lexical_cast<std::string>(cur_id)).c_str());
+		boost::archive::text_oarchive oa(ofs);
+		oa << static_cast<const archipelago &>(a);
+		cur_id += 283;
+	}
 }
