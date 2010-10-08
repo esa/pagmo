@@ -31,48 +31,33 @@ using namespace pagmo;
 
 int main()
 {
-// 	std::ofstream ofs("schwefel.txt");
-// 	boost::archive::binary_oarchive oa(ofs);
-// 	population pop(problem::schwefel(10),1);
-// 	oa << pop;
-// 	ofs.close();
-// 	std::ifstream ifs("schwefel.txt");
-// 	boost::archive::binary_iarchive ia(ifs);
-// 	ia >> pop;
-// 	std::cout << pop << '\n';
-// 	return 0;
-
-	//mpi_environment env;
-// 	archipelago a = archipelago(topology::ring());
-// 	for (int i = 1; i < env.size(); ++i) {
-// 		a.push_back(mpi_island(problem::schwefel(300),algorithm::de(500),10));
-// 	}
-// 	a.evolve(2);
-// 	a.join();
-// std::cout << "finished evolving\n";
-
-	mpi_environment env;
 	int n_segments = 10;
 	algorithm::snopt algo(1000);
 	const double pert_epoch = 1000;
 	const double pert_nondim = 1E-1;
 	const double pert_mass = 200;
 	const double pert_vinf = 1000;
-	std::vector<double> perturb(n_segments*3 + 6,pert_nondim);
+	std::vector<double> perturb(n_segments * 3 + 3,pert_nondim);
 	perturb[0] = pert_epoch;
 	perturb[1] = pert_epoch;
-	perturb[2] = pert_vinf;
+	perturb[2] = pert_mass;
+	/*perturb[2] = pert_vinf;
 	perturb[3] = pert_vinf;
 	perturb[4] = pert_vinf;
-	perturb[5] = pert_mass;
+	perturb[5] = pert_mass;*/
 	algorithm::mbh algo2(algo,20,perturb);
+	algo2.screen_output(true);
+	problem::gtoc5_rendezvous prob(n_segments,3589,5340,60000,4000);
+	island isl(prob,algo2,1);
+	isl.evolve();
+	isl.join();
 	//algo2.screen_output(true);
-	algorithm::ms algo3(algo2,5);
-        archipelago a;
-	std::cout << "First 2000 problems instantiated\n";
-        for (int i = 1; i < 2001; ++i) {
-		a.push_back(mpi_island(problem::gtoc5_launch(n_segments,i),algo3,1));
-	}
-        a.evolve(1);
-        a.join();
+	//algorithm::ms algo3(algo2,5);
+	//archipelago a;
+	//std::cout << "First 2000 problems instantiated\n";
+	//for (int i = 1; i < 2001; ++i) {
+	//	a.push_back(island(problem::gtoc5_launch(n_segments,i),algo3,1));
+	//}
+	//a.evolve(1);
+	//a.join();
 }

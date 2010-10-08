@@ -54,6 +54,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_rendezvous.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
