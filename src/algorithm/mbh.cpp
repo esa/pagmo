@@ -83,7 +83,7 @@ mbh::mbh(const algorithm::base & local, int stop, const std::vector<double> &per
 }
 
 /// Copy constructor.
-mbh::mbh(const mbh &algo):m_local(algo.m_local->clone()),m_stop(algo.m_stop),m_perturb(algo.m_perturb),m_screen_out(algo.m_screen_out)
+mbh::mbh(const mbh &algo):base(algo),m_local(algo.m_local->clone()),m_stop(algo.m_stop),m_perturb(algo.m_perturb),m_screen_out(algo.m_screen_out)
 {}
 
 /// Clone method.
