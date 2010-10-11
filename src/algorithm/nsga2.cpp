@@ -323,6 +323,7 @@ void nsga2::evolve(population &pop) const
 		CompareDistance comp_dist(I);
 		std::sort(F[last_front].begin(), F[last_front].end(), comp_dist); //sort the last front that fits using the crowded-comparison operator
 
+		{
 		pagmo::population::size_type i = 0;
 		std::vector<int>::size_type  j = 0;
 		while(i < NP) { //set the new population, selecting the best fronts and the best individuals of the last front that fits
@@ -331,6 +332,7 @@ void nsga2::evolve(population &pop) const
 				++i;
 			}
 			++j;
+		}
 		}
 	} // end of main SGA loop
 }

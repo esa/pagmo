@@ -81,7 +81,7 @@ class __PAGMO_VISIBLE knapsack: public base_aco
 		 * @param[in] max_weight maximum weight.
 		 */
 		template <std::size_t N>
-		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base(boost::numeric_cast<int>(N),boost::numeric_cast<int>(N),1,1,1),
+		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base_aco(boost::numeric_cast<int>(N),1,1),
 			m_values(values,values + N),m_weights(weights,weights + N),m_max_weight(max_weight)
 		{
 			verify_init();
