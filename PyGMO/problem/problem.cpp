@@ -53,6 +53,8 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	class_<Problem,bases<problem::base> > retval(name,descr,init<const Problem &>());
 	retval.def(init<>());
 	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	return retval;
 }
 

@@ -173,13 +173,6 @@ struct island_pickle_suite : boost::python::pickle_suite
 	}
 };
 
-static inline void archipelago_load_from_string(archipelago &a, const std::string &s)
-{
-	std::stringstream ss(s);
-	boost::archive::text_iarchive ia(ss);
-	ia >> a;
-}
-
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
@@ -214,6 +207,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("set_x", &population_set_x,"Set decision vector of individual at position n.")
 		.def("set_v", &population_set_v,"Set velocity of individual at position n.")
 		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.")
+		.def("cpp_loads", &py_cpp_loads<population>)
+		.def("cpp_dumps", &py_cpp_dumps<population>)
 		.def_pickle(population_pickle_suite());
 
 	// Individual and champion.
@@ -226,6 +221,8 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("best_x",&get_best_x,&set_best_x)
 		.add_property("best_f",&get_best_f,&set_best_f)
 		.add_property("best_c",&get_best_c,&set_best_c)
+		.def("cpp_loads", &py_cpp_loads<population::individual_type>)
+		.def("cpp_dumps", &py_cpp_dumps<population::individual_type>)
 		.def_pickle(generic_pickle_suite<population::individual_type>());
 
 	class_<population::champion_type>("champion","Champion class.",init<>())
@@ -233,6 +230,8 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("x",&get_x,&set_x)
 		.add_property("f",&get_f,&set_f)
 		.add_property("c",&get_c,&set_c)
+		.def("cpp_loads", &py_cpp_loads<population::champion_type>)
+		.def("cpp_dumps", &py_cpp_dumps<population::champion_type>)
 		.def_pickle(generic_pickle_suite<population::champion_type>());
 
 	// Base island class for Python implementation.
@@ -264,6 +263,8 @@ BOOST_PYTHON_MODULE(_core)
 	class_<island,bases<base_island> >("island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const island &>())
+		.def("cpp_loads", &py_cpp_loads<island>)
+		.def("cpp_dumps", &py_cpp_dumps<island>)
 		.def_pickle(island_pickle_suite<island>());
 
 	// Register to_python conversion from smart pointer.
@@ -291,7 +292,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.def("dump_migr_history", &archipelago::dump_migr_history)
 		.def("clear_migr_history", &archipelago::clear_migr_history)
-		.def("load_from_string", &archipelago_load_from_string)
+		.def("cpp_loads", &py_cpp_loads<archipelago>)
+		.def("cpp_dumps", &py_cpp_dumps<archipelago>)
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
 
 	// Archipelago's migration strategies.

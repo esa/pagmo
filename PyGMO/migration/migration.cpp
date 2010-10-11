@@ -42,6 +42,8 @@ static inline class_<MSPolicy,bases<migration::base_s_policy> > migration_s_poli
 	retval.def(init<>());
 	retval.def("__copy__", &MSPolicy::clone);
 	retval.def_pickle(generic_pickle_suite<MSPolicy>());
+	retval.def("cpp_loads", &py_cpp_loads<MSPolicy>);
+	retval.def("cpp_dumps", &py_cpp_dumps<MSPolicy>);
 	return retval;
 }
 
@@ -52,6 +54,8 @@ static inline class_<MRPolicy,bases<migration::base_r_policy> > migration_r_poli
 	retval.def(init<>());
 	retval.def("__copy__", &MRPolicy::clone);
 	retval.def_pickle(generic_pickle_suite<MRPolicy>());
+	retval.def("cpp_loads", &py_cpp_loads<MRPolicy>);
+	retval.def("cpp_dumps", &py_cpp_dumps<MRPolicy>);
 	return retval;
 }
 
