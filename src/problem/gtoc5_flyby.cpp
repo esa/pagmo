@@ -63,14 +63,14 @@ gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const 
 
 	// Target (MJD) transfer time in days
 	lb_v[2] = 10;
-	ub_v[2] = 356.25 * 3;
+	ub_v[2] = 356.25 * 2;
 
 	// Mass at source
-	lb_v[3] = 500;
+	lb_v[3] = 100;
 	ub_v[3] = m_initial_mass;
 
 	// Mass at flyby
-	lb_v[4] = 500;
+	lb_v[4] = 100;
 	ub_v[4] = m_initial_mass;
 
 	// Velocity at fly-by

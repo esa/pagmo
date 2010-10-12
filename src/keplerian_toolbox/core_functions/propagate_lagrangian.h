@@ -116,11 +116,11 @@ template<class vettore3D>
 	}
 	
 	} catch (...) {
-		std::cout << "Propagate lagrangian failed!\n";
-		std::cout << r0_copy << '\n';
-		std::cout << v0_copy << '\n';
-		std::cout << t << '\n';
-		std::cout << mu << '\n';
+		//std::cout << "Propagate lagrangian failed!\n";
+		//std::cout << r0_copy << '\n';
+		//std::cout << v0_copy << '\n';
+		//std::cout << t << '\n';
+		//std::cout << mu << '\n';
 	}
 }
 }

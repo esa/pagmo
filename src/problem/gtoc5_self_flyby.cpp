@@ -58,7 +58,7 @@ gtoc5_self_flyby::gtoc5_self_flyby(int segments, int ast_id, const double &mjd, 
 	ub_v[0] = 200;
 
 	// Mass at fly-by
-	lb_v[1] = 500;
+	lb_v[1] = 100;
 	ub_v[1] = m_initial_mass;
 
 	// Velocity at fly-by

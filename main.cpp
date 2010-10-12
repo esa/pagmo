@@ -35,7 +35,7 @@ using namespace pagmo;
 
 static std::ofstream output_file("results.txt");
 
-static const int n_proc = 48;
+static const int n_proc = 16;
 
 static std::vector<kep_toolbox::asteroid_gtoc5> gtoc_data;
 
@@ -109,7 +109,7 @@ static void attempt_last_fb_and_log(std::vector<double> start_mjd, std::vector<d
 	perturb[2] = pert_vinf;
 	perturb[3] = pert_vinf;
 	perturb[4] = pert_vinf;
-	algorithm::mbh algo2(algo,20,perturb);
+	algorithm::mbh algo2(algo,10,perturb);
 	archipelago a;
 	std::cout << cur_sequence.back() << ',' << start_mass.back() << ',' << start_mjd.back() << '\n';
 	for (unsigned i = 0; i < 16; ++i) {
@@ -133,12 +133,18 @@ static void attempt_last_fb_and_log(std::vector<double> start_mjd, std::vector<d
 	output_file << cur_sequence << '\n';
 	output_file << start_mass << '\n';
 	output_file << start_mjd << '\n';
+	output_file.flush();
 }
 
 static void recursive_step(std::vector<double> start_mjd, std::vector<double> start_mass, std::vector<int> cur_sequence)
 {
 	std::cout << "Current sequence: " << cur_sequence << '\n';
-
+	std::cout << "Current masses: " << start_mass << '\n';
+	std::cout << "Current epochs: [0,";
+	for (int i=1; i< start_mjd.size(); ++i){
+		std::cout << start_mjd[i] - start_mjd[i-1]<< ',';
+	}
+	std::cout << "]\n";
 	//1 - Locate next plausible targets (max n_proc)
 	std::vector<int> top_choices = get_top_candidates(cur_sequence);
 	if (top_choices.size() == 0) {
@@ -166,11 +172,11 @@ static void recursive_step(std::vector<double> start_mjd, std::vector<double> st
 	algorithm::mbh algo2(algo,20,perturb);
 	algorithm::ms algo3(algo2,5);
 	for (unsigned i = 0; i < top_choices.size(); ++i) {
-		problem::gtoc5_flyby prob(n_segments,cur_sequence.back(),cur_sequence.back(),top_choices[i],start_mjd.back(),start_mass.back(),problem::gtoc5_flyby::MASS);
+		problem::gtoc5_flyby prob(n_segments,cur_sequence.back(),cur_sequence.back(),top_choices[i],start_mjd.back(),start_mass.back(),problem::gtoc5_flyby::TIME);
 		a.push_back(mpi_island(prob,algo3,5));
 	}
-// 	a.evolve(1);
-// 	a.join();
+ 	a.evolve(1);
+ 	a.join();
 	std::vector<std::pair<int,mpi_island> > bah;
 	for (unsigned i = 0; i < top_choices.size(); ++i) {
 		// Strip unfeasbile solutions
@@ -197,7 +203,7 @@ static void recursive_step(std::vector<double> start_mjd, std::vector<double> st
 
 	// 4 - For each feasible solution, check DV/T limits and either start new recursive_step or stop
 	for (unsigned i = 0; i < bah.size(); ++i) {
-		const double final_mass = bah[i].second.get_population().champion().x[4];
+		const double final_mass = bah[i].second.get_population().champion().x[4] - 40;
 		const double final_time = bah[i].second.get_population().champion().x[0] + bah[i].second.get_population().champion().x[1] + bah[i].second.get_population().champion().x[2] - start_mjd[0];
 		if (final_mass < 350 || final_time > 365.25 * 16) {
 			attempt_last_fb_and_log(start_mjd,start_mass,cur_sequence);
@@ -219,12 +225,16 @@ int main()
 	for (int i = 1; i <= 7075; ++i) {
 		gtoc_data.push_back(kep_toolbox::asteroid_gtoc5(i));
 	}
-
 	// Starting asteroid id.
-	std::vector<int> start_sequence(1,5249);
+	std::vector<int> start_sequence(1,7076);
 	// Starting mjd.
-	std::vector<double> start_mjd(1,58890.282931514834 + 356.5346936499468);
-	std::vector<double> start_mass(1,3985.4461077866031 - 40);
+	std::vector<double> start_mjd(1,58890.282931514834);
+	std::vector<double> start_mass(1,4000);
+	// Starting asteroid id.
+	start_sequence.push_back(5249);
+	// Starting mjd.
+	start_mjd.push_back(58890.282931514834 + 356.5346936499468);
+	start_mass.push_back(3985.4461077866031 - 40);
 
 	recursive_step(start_mjd,start_mass,start_sequence);
 	
