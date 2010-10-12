@@ -279,9 +279,17 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::gtoc5_rendezvous>("gtoc5_rendezvous","GTOC5 rendezvous phase.")
 		.def(init< optional<int, int, int, const double &, const double &, const double &> >());
 
+	enum_<problem::gtoc5_flyby::objective>("gtoc5_flyby_objective")
+		.value("MASS",problem::gtoc5_flyby::MASS)
+		.value("TIME",problem::gtoc5_flyby::TIME);
+
 	// GTOC5 flyby.
 	problem_wrapper<problem::gtoc5_flyby>("gtoc5_flyby","GTOC5 flyby phase.")
-		.def(init< optional<int, int, int, int, const double &, const double &, const double &> >());
+		.def(init< optional<int, int, int, int, const double &, const double &, problem::gtoc5_flyby::objective, const double &> >());
+
+	// GTOC5 self flyby.
+	problem_wrapper<problem::gtoc5_self_flyby>("gtoc5_self_flyby","GTOC5 self flyby phase.")
+		.def(init< optional<int, int, const double &, const double &, const double &> >());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();

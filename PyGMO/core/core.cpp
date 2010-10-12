@@ -294,7 +294,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("clear_migr_history", &archipelago::clear_migr_history)
 		.def("cpp_loads", &py_cpp_loads<archipelago>)
 		.def("cpp_dumps", &py_cpp_dumps<archipelago>)
-		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology);
+		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology)
+		.def_pickle(generic_pickle_suite<archipelago>());
 
 	// Archipelago's migration strategies.
 	enum_<archipelago::distribution_type>("distribution_type")

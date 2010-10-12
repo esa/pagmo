@@ -55,7 +55,7 @@ gtoc5_self_flyby::gtoc5_self_flyby(int segments, int ast_id, const double &mjd, 
 
 	// Flyby (MJD) transfer time in days
 	lb_v[0] = 5;
-	ub_v[0] = 356.25;
+	ub_v[0] = 200;
 
 	// Mass at fly-by
 	lb_v[1] = 500;
@@ -63,8 +63,8 @@ gtoc5_self_flyby::gtoc5_self_flyby(int segments, int ast_id, const double &mjd, 
 
 	// Velocity at fly-by
 	for (int i = 2; i < 5; ++i) {
-		lb_v[i] = -3000;
-		ub_v[i] = 3000;
+		lb_v[i] = -1500;
+		ub_v[i] = 1500;
 	}
 
 	// I Throttles

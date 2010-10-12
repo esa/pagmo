@@ -46,7 +46,11 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE gtoc5_flyby: public base
 {
 	public:
-		gtoc5_flyby(int = 10, int = 1, int = 2, int = 3, const double & = 57023, const double & = 4000, const double & = 1E-5);
+		enum objective {
+			MASS,
+			TIME
+		};
+		gtoc5_flyby(int = 10, int = 1, int = 2, int = 3, const double & = 57023, const double & = 4000, objective = MASS, const double & = 1E-5);
 		base_ptr clone() const;
 		std::string get_name() const;
 		std::string pretty(const decision_vector &) const;
@@ -66,6 +70,7 @@ class __PAGMO_VISIBLE gtoc5_flyby: public base
 			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_target);
 			ar & const_cast<double &>(m_lb_epoch);
 			ar & const_cast<double &>(m_initial_mass);
+			ar & const_cast<objective &>(m_obj);
 			ar & m_leg1;
 			ar & m_leg2;
 		}
@@ -75,6 +80,7 @@ class __PAGMO_VISIBLE gtoc5_flyby: public base
 		const kep_toolbox::asteroid_gtoc5 		m_target;
 		const double					m_lb_epoch;
 		const double					m_initial_mass;
+		const objective					m_obj;
 		mutable kep_toolbox::sims_flanagan::leg		m_leg1;
 		mutable kep_toolbox::sims_flanagan::leg		m_leg2;
 };
