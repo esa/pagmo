@@ -57,7 +57,7 @@ gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const 
 	lb_v[0] = m_lb_epoch;
 	ub_v[0] = m_lb_epoch + 200;
 
-	// Flyby (MJD) transfer time in days
+	// Flyby (days) transfer time in days
 	lb_v[1] = 10;
 	ub_v[1] = 200;
 
@@ -65,18 +65,18 @@ gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const 
 	lb_v[2] = 10;
 	ub_v[2] = 356.25 * 2;
 
-	// Mass at source
+	// Mass at fly-by
 	lb_v[3] = 100;
 	ub_v[3] = m_initial_mass;
 
-	// Mass at flyby
+	// Mass at target
 	lb_v[4] = 100;
 	ub_v[4] = m_initial_mass;
 
 	// Velocity at fly-by
 	for (int i = 5; i < 8; ++i) {
-		lb_v[i] = -500;
-		ub_v[i] = 500;
+		lb_v[i] = -1000;
+		ub_v[i] = 1000;
 	}
 
 	// I Throttles
