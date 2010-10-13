@@ -97,7 +97,7 @@ static inline bool optimized_ranker(const std::pair<int,mpi_island> &a, const st
 		(b.second.get_population().champion().x[1] + b.second.get_population().champion().x[2]);
 }
 
-static void attempt_last_fb_and_log(std::vector<double> start_mjd, std::vector<double> start_mass, std::vector<int> cur_sequence)
+static void attempt_last_fb_and_log(std::vector<double> mjd_vector, std::vector<double> mass_vector, std::vector<int> seq_vector)
 {
 	std::cout << "Attempting final flyby\n";
 	int n_segments = 5;
@@ -111,9 +111,9 @@ static void attempt_last_fb_and_log(std::vector<double> start_mjd, std::vector<d
 	perturb[4] = pert_vinf;
 	algorithm::mbh algo2(algo,10,perturb);
 	archipelago a;
-	std::cout << cur_sequence.back() << ',' << start_mass.back() << ',' << start_mjd.back() << '\n';
+	std::cout << seq_vector.back() << ',' << mass_vector.back() << ',' << mjd_vector.back() << '\n';
 	for (unsigned i = 0; i < 16; ++i) {
-		problem::gtoc5_self_flyby prob(n_segments,cur_sequence.back(),start_mjd.back(),start_mass.back());
+		problem::gtoc5_self_flyby prob(n_segments,seq_vector.back(),mjd_vector.back(),mass_vector.back());
 		a.push_back(island(prob,algo2,1));
 	}
 	a.evolve(1);
@@ -124,37 +124,37 @@ static void attempt_last_fb_and_log(std::vector<double> start_mjd, std::vector<d
 	}
 	if (i < 16) {
 		std::cout << "Final flyby succeeded\n";
-		cur_sequence.push_back(cur_sequence.back());
-		start_mass.push_back(a.get_island(i)->get_population().champion().x[1]);
-		start_mjd.push_back(a.get_island(i)->get_population().champion().x[0] + start_mjd.back());
+		seq_vector.push_back(seq_vector.back());
+		mass_vector.push_back(a.get_island(i)->get_population().champion().x[1]);
+		mjd_vector.push_back(a.get_island(i)->get_population().champion().x[0] + mjd_vector.back());
 	} else {
 		std::cout << "Final flyby failed\n";
 	}
-	output_file << cur_sequence << '\n';
-	output_file << start_mass << '\n';
-	output_file << start_mjd << '\n';
+	output_file << seq_vector << '\n';
+	output_file << mass_vector << '\n';
+	output_file << mjd_vector << '\n';
 	output_file.flush();
 }
 
-static void recursive_step(std::vector<double> start_mjd, std::vector<double> start_mass, std::vector<int> cur_sequence)
+static void recursive_step(std::vector<double> mjd_vector, std::vector<double> mass_vector, std::vector<int> seq_vector)
 {
-	std::cout << "Current sequence: " << cur_sequence << '\n';
-	std::cout << "Current masses: " << start_mass << '\n';
+	std::cout << "Current sequence: " << seq_vector << '\n';
+	std::cout << "Current masses: " << mass_vector << '\n';
 	std::cout << "Current epochs: [0,";
-	for (int i=1; i< start_mjd.size(); ++i){
-		std::cout << start_mjd[i] - start_mjd[i-1]<< ',';
+	for (int i=1; i< mjd_vector.size(); ++i){
+		std::cout << (mjd_vector[i] - mjd_vector[i-1]) / 365.25 << ',';
 	}
 	std::cout << "]\n";
-	//1 - Locate next plausible targets (max n_proc)
-	std::vector<int> top_choices = get_top_candidates(cur_sequence);
+
+	//1 - Locate next n_proc plausible targets according to Edelbaum criteria
+	std::vector<int> top_choices = get_top_candidates(seq_vector);
+	std::cout << "Top choices Edelbaum: " << top_choices << '\n';
 	if (top_choices.size() == 0) {
-		attempt_last_fb_and_log(start_mjd,start_mass,cur_sequence);
+		attempt_last_fb_and_log(mjd_vector,mass_vector,seq_vector);
 		return;
 	}
 
-	std::cout << "Top choices Edelbaum: " << top_choices << '\n';
-
-	//2 - Optimize all trajectories to plausible targets
+	//2 - Optimize globally all trajectories to plausible targets
 	archipelago a;
 	// create the algorithms
 	int n_segments = 5;
@@ -172,7 +172,7 @@ static void recursive_step(std::vector<double> start_mjd, std::vector<double> st
 	algorithm::mbh algo2(algo,20,perturb);
 	algorithm::ms algo3(algo2,5);
 	for (unsigned i = 0; i < top_choices.size(); ++i) {
-		problem::gtoc5_flyby prob(n_segments,cur_sequence.back(),cur_sequence.back(),top_choices[i],start_mjd.back(),start_mass.back(),problem::gtoc5_flyby::TIME);
+		problem::gtoc5_flyby prob(n_segments,seq_vector.back(),seq_vector.back(),top_choices[i],mjd_vector.back(),mass_vector.back(),problem::gtoc5_flyby::TIME);
 		a.push_back(mpi_island(prob,algo3,5));
 	}
  	a.evolve(1);
@@ -184,9 +184,9 @@ static void recursive_step(std::vector<double> start_mjd, std::vector<double> st
 			bah.push_back(std::make_pair(top_choices[i],*dynamic_cast<mpi_island *>(a.get_island(i).get())));
 		}
 	}
-	// If there are no feasbile solutions DEAD END!
+	// If there are no feasible solutions DEAD END!
 	if (bah.size() == 0) {
-		attempt_last_fb_and_log(start_mjd,start_mass,cur_sequence);
+		attempt_last_fb_and_log(mjd_vector,mass_vector,seq_vector);
 		return;
 	}
 
@@ -204,15 +204,15 @@ static void recursive_step(std::vector<double> start_mjd, std::vector<double> st
 	// 4 - For each feasible solution, check DV/T limits and either start new recursive_step or stop
 	for (unsigned i = 0; i < bah.size(); ++i) {
 		const double final_mass = bah[i].second.get_population().champion().x[4] - 40;
-		const double final_time = bah[i].second.get_population().champion().x[0] + bah[i].second.get_population().champion().x[1] + bah[i].second.get_population().champion().x[2] - start_mjd[0];
-		if (final_mass < 350 || final_time > 365.25 * 16) {
-			attempt_last_fb_and_log(start_mjd,start_mass,cur_sequence);
+		const double final_mjd = bah[i].second.get_population().champion().x[0] + bah[i].second.get_population().champion().x[1] + bah[i].second.get_population().champion().x[2];
+		if (final_mass < 350 || (final_mjd - mjd_vector[0]) > 365.25 * 16) {
+			attempt_last_fb_and_log(mjd_vector,mass_vector,seq_vector);
 			return;
 		} else {
-			start_mjd.push_back(final_time + start_mjd[0]);
-			start_mass.push_back(final_mass);
-			cur_sequence.push_back(bah[i].first);
-			recursive_step(start_mjd,start_mass,cur_sequence);
+			mjd_vector.push_back(final_mjd);
+			mass_vector.push_back(final_mass);
+			seq_vector.push_back(bah[i].first);
+			recursive_step(mjd_vector,mass_vector,seq_vector);
 		}
 	}
 }
@@ -225,65 +225,16 @@ int main()
 	for (int i = 1; i <= 7075; ++i) {
 		gtoc_data.push_back(kep_toolbox::asteroid_gtoc5(i));
 	}
-	// Starting asteroid id.
+	// Earth
 	std::vector<int> start_sequence(1,7076);
-	// Starting mjd.
-	std::vector<double> start_mjd(1,58890.282931514834);
-	std::vector<double> start_mass(1,4000);
-	// Starting asteroid id.
-	start_sequence.push_back(5249);
-	// Starting mjd.
-	start_mjd.push_back(58890.282931514834 + 356.5346936499468);
-	start_mass.push_back(3985.4461077866031 - 40);
+	std::vector<double> mjd_vector(1,58890.282931514834);
+	std::vector<double> mass_vector(1,4000);
 
-	recursive_step(start_mjd,start_mass,start_sequence);
-	
-// 	int n_segments = 10;
-// 
-// 	algorithm::snopt algo(1000);
-// 
-// 	const double pert_epoch = 1000;
-// 	const double pert_nondim = 1E-1;
-// 	const double pert_mass = 200;
-// 	const double pert_vinf = 1000;
-// 	std::vector<double> perturb(n_segments * 3 + 6,pert_nondim);
-// 	perturb[0] = pert_epoch;
-// 	perturb[1] = pert_epoch;
-// 	perturb[2] = pert_mass;
-// 	perturb[3] = pert_vinf;
-// 	perturb[4] = pert_vinf;
-// 	perturb[5] = pert_vinf;
-// 
-// 	algorithm::mbh algo2(algo,20,perturb);
-// 	algorithm::ms algo3(algo2,5);
-// 	//algo2.screen_output(true);
-// 
-// 	// Outer loop.
-// 	int cur_id = 1;
-// 	for (int i = 1; i <= 25; ++i) {
-// 		archipelago a;
-// 		for (int j = 0; j < 283; ++j) {
-// 			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::TIME),algo3,5));
-// 		}
-// 		a.evolve(1);
-// 		a.join();
-// 		std::ofstream ofs((std::string("time_") + boost::lexical_cast<std::string>(cur_id)).c_str());
-// 		boost::archive::text_oarchive oa(ofs);
-// 		oa << static_cast<const archipelago &>(a);
-// 		cur_id += 283;
-// 	}
-// 
-// 	cur_id = 1;
-// 	for (int i = 1; i <= 25; ++i) {
-// 		archipelago a;
-// 		for (int j = 0; j < 283; ++j) {
-// 			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::MASS),algo3,5));
-// 		}
-// 		a.evolve(1);
-// 		a.join();
-// 		std::ofstream ofs((std::string("mass_") + boost::lexical_cast<std::string>(cur_id)).c_str());
-// 		boost::archive::text_oarchive oa(ofs);
-// 		oa << static_cast<const archipelago &>(a);
-// 		cur_id += 283;
-// 	}
+	// First Asteroid
+	start_sequence.push_back(5249);
+	mjd_vector.push_back(58890.282931514834 + 356.5346936499468);
+	mass_vector.push_back(3985.4461077866031 - 40);
+
+	//Start Recursion
+	recursive_step(mjd_vector,mass_vector,start_sequence);
 }
