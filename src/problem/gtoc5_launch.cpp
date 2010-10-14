@@ -126,7 +126,7 @@ void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision
 	c[6] /= m_leg.get_spacecraft().get_mass();
 	// We evaluate the constraints on the throttles writing on the 7th mismatch constrant (mass is off)
 	m_leg.get_throttles_con(c.begin() + 7, c.begin() + 7 + m_n_segments);
-	c[7 + m_n_segments] = (x[3]*x[3] + x[4]*x[4] * x[5]*x[5] - 25000000) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
+	c[7 + m_n_segments] = (x[3]*x[3] + x[4]*x[4] + x[5]*x[5] - 25000000) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
 }
 
 /// Implementation of the sparsity structure: automated detection
