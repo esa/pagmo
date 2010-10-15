@@ -281,11 +281,12 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	enum_<problem::gtoc5_flyby::objective>("gtoc5_flyby_objective")
 		.value("MASS",problem::gtoc5_flyby::MASS)
+		.value("FINAL_EPOCH",problem::gtoc5_flyby::FINAL_EPOCH)
 		.value("TIME",problem::gtoc5_flyby::TIME);
 
 	// GTOC5 flyby.
 	problem_wrapper<problem::gtoc5_flyby>("gtoc5_flyby","GTOC5 flyby phase.")
-		.def(init< optional<int, int, int, int, const double &, const double &, problem::gtoc5_flyby::objective, const double &> >());
+		.def(init< optional<int, int, int, int, const double &, const double &, problem::gtoc5_flyby::objective, const double &, const double &> >());
 
 	// GTOC5 self flyby.
 	problem_wrapper<problem::gtoc5_self_flyby>("gtoc5_self_flyby","GTOC5 self flyby phase.")

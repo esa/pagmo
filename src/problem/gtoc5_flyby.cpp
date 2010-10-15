@@ -46,7 +46,7 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const double &lb_epoch, const double  &initial_mass, objective obj, const double &ctol):
+gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const double &lb_epoch, const double  &initial_mass, objective obj, const double & tof_ub, const double &ctol):
 	base(segments * 6 + 8, 0, 1, 14 + 2 * segments + 1, 2 * segments + 1,ctol),
 	m_n_segments(segments),m_source(source),m_flyby(flyby),m_target(target),m_lb_epoch(lb_epoch),m_initial_mass(initial_mass),m_obj(obj)
 {
@@ -57,13 +57,13 @@ gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const 
 	lb_v[0] = m_lb_epoch;
 	ub_v[0] = m_lb_epoch + 200;
 
-	// Flyby (days) transfer time in days
-	lb_v[1] = 10;
-	ub_v[1] = 200;
+	// Flyby days fraction
+	lb_v[1] = 0.01;
+	ub_v[1] = 0.9;
 
-	// Target (MJD) transfer time in days
-	lb_v[2] = 10;
-	ub_v[2] = 356.25 * 2;
+	// Total transfer time in days
+	lb_v[2] = 100;
+	ub_v[2] = 365.25 * tof_ub;
 
 	// Mass at fly-by
 	lb_v[3] = 100;
@@ -104,8 +104,10 @@ void gtoc5_flyby::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	if (m_obj == MASS) {
 		f[0] = -x[4];
+	} else if (m_obj == TIME) {
+		f[0] = x[2];
 	} else {
-		f[0] = x[1] + x[2];
+		f[0] = x[0] + x[2];
 	}
 }
 
@@ -114,7 +116,7 @@ void gtoc5_flyby::compute_constraints_impl(constraint_vector &c, const decision_
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_source(x[0],epoch::MJD), epoch_flyby(x[0] + x[1],epoch::MJD), epoch_target(x[0] + x[1] + x[2],epoch::MJD);
+	const epoch epoch_source(x[0],epoch::MJD), epoch_flyby(x[0] + x[1]*x[2],epoch::MJD), epoch_target(x[0] + x[2],epoch::MJD);
 	array3D v_source, r_source, v_flyby, r_flyby, v_target, r_target;
 	m_source.get_eph(epoch_source,r_source,v_source);
 	m_flyby.get_eph(epoch_flyby,r_flyby,v_flyby);

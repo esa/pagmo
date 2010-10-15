@@ -48,9 +48,10 @@ class __PAGMO_VISIBLE gtoc5_flyby: public base
 	public:
 		enum objective {
 			MASS,
-			TIME
+			TIME,
+			FINAL_EPOCH
 		};
-		gtoc5_flyby(int = 10, int = 1, int = 2, int = 3, const double & = 57023, const double & = 4000, objective = MASS, const double & = 1E-5);
+		gtoc5_flyby(int = 10, int = 1, int = 2, int = 3, const double & = 57023, const double & = 4000, objective = MASS, const double &tof_ub = 3, const double & = 1E-5);
 		base_ptr clone() const;
 		std::string get_name() const;
 		std::string pretty(const decision_vector &) const;
