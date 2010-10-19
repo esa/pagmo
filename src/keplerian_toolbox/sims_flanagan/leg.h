@@ -326,6 +326,8 @@ public:
 			norm_dv = norm(dv);
 			sum(vfwd,vfwd,dv);
 			mfwd *= exp( -norm_dv/isp/ASTRO_G0 );
+			//Temporary solution to the creation of NaNs when mass gets too small (i.e. 0)
+			if (mfwd < 1) mfwd=1;
 		}
 
 		//Final state
