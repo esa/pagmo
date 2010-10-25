@@ -53,6 +53,8 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	class_<Problem,bases<problem::base> > retval(name,descr,init<const Problem &>());
 	retval.def(init<>());
 	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	return retval;
 }
 
@@ -267,15 +269,28 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// GTOC5 launch.
 	problem_wrapper<problem::gtoc5_launch>("gtoc5_launch","GTOC5 launch phase.")
-		.def(init< optional<int, int, const double &> >());
+		.def(init< optional<int, int, problem::gtoc5_launch::objective, const double &> >());
+
+	enum_<problem::gtoc5_launch::objective>("gtoc5_launch_objective")
+		.value("MASS",problem::gtoc5_launch::MASS)
+		.value("TIME",problem::gtoc5_launch::TIME);
 
 	// GTOC5 randez-vouz.
 	problem_wrapper<problem::gtoc5_rendezvous>("gtoc5_rendezvous","GTOC5 rendezvous phase.")
 		.def(init< optional<int, int, int, const double &, const double &, const double &> >());
 
+	enum_<problem::gtoc5_flyby::objective>("gtoc5_flyby_objective")
+		.value("MASS",problem::gtoc5_flyby::MASS)
+		.value("FINAL_EPOCH",problem::gtoc5_flyby::FINAL_EPOCH)
+		.value("TIME",problem::gtoc5_flyby::TIME);
+
 	// GTOC5 flyby.
 	problem_wrapper<problem::gtoc5_flyby>("gtoc5_flyby","GTOC5 flyby phase.")
-		.def(init< optional<int, int, int, int, const double &, const double &, const double &> >());
+		.def(init< optional<int, int, int, int, const double &, const double &, problem::gtoc5_flyby::objective, const double &, const double &> >());
+
+	// GTOC5 self flyby.
+	problem_wrapper<problem::gtoc5_self_flyby>("gtoc5_self_flyby","GTOC5 self flyby phase.")
+		.def(init< optional<int, int, const double &, const double &, const double &> >());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();

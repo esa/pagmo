@@ -46,37 +46,37 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const double &lb_epoch, const double  &initial_mass, const double &ctol):
+gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const double &lb_epoch, const double  &initial_mass, objective obj, const double & tof_ub, const double &ctol):
 	base(segments * 6 + 8, 0, 1, 14 + 2 * segments + 1, 2 * segments + 1,ctol),
-	m_n_segments(segments),m_source(source),m_flyby(flyby),m_target(target),m_lb_epoch(lb_epoch),m_initial_mass(initial_mass)
+	m_n_segments(segments),m_source(source),m_flyby(flyby),m_target(target),m_lb_epoch(lb_epoch),m_initial_mass(initial_mass),m_obj(obj)
 {
 	std::vector<double> lb_v(get_dimension());
 	std::vector<double> ub_v(get_dimension());
 
 	// Source (MJD).
 	lb_v[0] = m_lb_epoch;
-	ub_v[0] = m_lb_epoch + 356.25 * 10;
+	ub_v[0] = m_lb_epoch + 200;
 
-	// Flyby (MJD) transfer time in days
-	lb_v[1] = 10;
-	ub_v[1] = 356.25 * 4;
+	// Flyby days fraction
+	lb_v[1] = 0.001;
+	ub_v[1] = 0.99;
 
-	// Target (MJD) transfer time in days
+	// Total transfer time in days
 	lb_v[2] = 10;
-	ub_v[2] = 356.25 * 4;
+	ub_v[2] = 365.25 * tof_ub;
 
-	// Mass at source
-	lb_v[3] = 500;
+	// Mass at fly-by
+	lb_v[3] = 5;
 	ub_v[3] = m_initial_mass;
 
-	// Mass at flyby
-	lb_v[4] = 500;
+	// Mass at target
+	lb_v[4] = 5;
 	ub_v[4] = m_initial_mass;
 
 	// Velocity at fly-by
 	for (int i = 5; i < 8; ++i) {
-		lb_v[i] = -15000;
-		ub_v[i] = 15000;
+		lb_v[i] = -2000;
+		ub_v[i] = 2000;
 	}
 
 	// I Throttles
@@ -102,7 +102,13 @@ base_ptr gtoc5_flyby::clone() const
 /// Implementation of the objective function.
 void gtoc5_flyby::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	f[0] = -x[4];
+	if (m_obj == MASS) {
+		f[0] = -x[4];
+	} else if (m_obj == TIME) {
+		f[0] = x[2];
+	} else {
+		f[0] = x[0] + x[2];
+	}
 }
 
 /// Implementation of the constraint function.
@@ -110,7 +116,7 @@ void gtoc5_flyby::compute_constraints_impl(constraint_vector &c, const decision_
 {
 	using namespace kep_toolbox;
 	// We set the leg.
-	const epoch epoch_source(x[0],epoch::MJD), epoch_flyby(x[0] + x[1],epoch::MJD), epoch_target(x[0] + x[1] + x[2],epoch::MJD);
+	const epoch epoch_source(x[0],epoch::MJD), epoch_flyby(x[0] + x[1]*x[2],epoch::MJD), epoch_target(x[0] + x[2],epoch::MJD);
 	array3D v_source, r_source, v_flyby, r_flyby, v_target, r_target;
 	m_source.get_eph(epoch_source,r_source,v_source);
 	m_flyby.get_eph(epoch_flyby,r_flyby,v_flyby);
@@ -120,7 +126,7 @@ void gtoc5_flyby::compute_constraints_impl(constraint_vector &c, const decision_
 	m_target.get_eph(epoch_target,r_target,v_target);
 	m_leg1.set_leg(epoch_source,sc_state(r_source,v_source,m_leg1.get_spacecraft().get_mass()),x.begin() + 8, x.begin() + 8 + m_n_segments * 3,
 		epoch_flyby,sc_state(r_flyby,v_flyby,x[3]),ASTRO_MU_SUN);
-	m_leg2.set_leg(epoch_flyby,sc_state(r_flyby,v_flyby,x[3]),x.begin() + 8 + m_n_segments * 3, x.end(),
+	m_leg2.set_leg(epoch_flyby,sc_state(r_flyby,v_flyby,x[3] - 1),x.begin() + 8 + m_n_segments * 3, x.end(),
 		epoch_target,sc_state(r_target,v_target,x[4]),ASTRO_MU_SUN);
 
 	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
@@ -139,7 +145,7 @@ void gtoc5_flyby::compute_constraints_impl(constraint_vector &c, const decision_
 	m_leg2.get_throttles_con(c.begin() + 14 + m_n_segments, c.begin() + 14 + 2 * m_n_segments);
 	
 	// Minimum flyby speed = 0.4 km/s.
-	c[14 + 2 * m_n_segments] = (160000. - (x[5] * x[5] + x[6] * x[6] + x[7] * x[7])) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
+	c[14 + 2 * m_n_segments] = (160000. - (x[5] * x[5] + x[6] * x[6] + x[7] * x[7])) / 160000.;
 }
 
 /// Implementation of the sparsity structure: automated detection
@@ -163,7 +169,7 @@ std::string gtoc5_flyby::get_name() const
 std::string gtoc5_flyby::pretty(const decision_vector &x) const
 {
 	using namespace kep_toolbox;
-
+	// We set the leg.
 	const epoch epoch_source(x[0],epoch::MJD), epoch_flyby(x[0] + x[1],epoch::MJD), epoch_target(x[0] + x[1] + x[2],epoch::MJD);
 	array3D v_source, r_source, v_flyby, r_flyby, v_target, r_target;
 	m_source.get_eph(epoch_source,r_source,v_source);
@@ -174,7 +180,7 @@ std::string gtoc5_flyby::pretty(const decision_vector &x) const
 	m_target.get_eph(epoch_target,r_target,v_target);
 	m_leg1.set_leg(epoch_source,sc_state(r_source,v_source,m_leg1.get_spacecraft().get_mass()),x.begin() + 8, x.begin() + 8 + m_n_segments * 3,
 		epoch_flyby,sc_state(r_flyby,v_flyby,x[3]),ASTRO_MU_SUN);
-	m_leg2.set_leg(epoch_flyby,sc_state(r_flyby,v_flyby,x[3]),x.begin() + 8 + m_n_segments * 3, x.end(),
+	m_leg2.set_leg(epoch_flyby,sc_state(r_flyby,v_flyby,x[3] - 1),x.begin() + 8 + m_n_segments * 3, x.end(),
 		epoch_target,sc_state(r_target,v_target,x[4]),ASTRO_MU_SUN);
 
 	std::ostringstream oss;

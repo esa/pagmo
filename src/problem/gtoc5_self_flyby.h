@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_GTOC5_FLYBY_H
-#define PAGMO_GTOC5_FLYBY_H
+#ifndef PAGMO_GTOC5_SELF_FLYBY_H
+#define PAGMO_GTOC5_SELF_FLYBY_H
 
 #include <string>
 #include <vector>
@@ -43,15 +43,10 @@ namespace pagmo { namespace problem {
  * @author Dario Izzo (dario.izzo@esa.int)
  */
 
-class __PAGMO_VISIBLE gtoc5_flyby: public base
+class __PAGMO_VISIBLE gtoc5_self_flyby: public base
 {
 	public:
-		enum objective {
-			MASS,
-			TIME,
-			FINAL_EPOCH
-		};
-		gtoc5_flyby(int = 10, int = 1, int = 2, int = 3, const double & = 57023, const double & = 4000, objective = MASS, const double &tof_ub = 3, const double & = 1E-5);
+		gtoc5_self_flyby(int = 5, int = 1,const double & = 57023, const double & mass = 4000, const double & = 1E-5);
 		base_ptr clone() const;
 		std::string get_name() const;
 		std::string pretty(const decision_vector &) const;
@@ -66,28 +61,20 @@ class __PAGMO_VISIBLE gtoc5_flyby: public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_n_segments;
-			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_source);
-			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_flyby);
-			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_target);
-			ar & const_cast<double &>(m_lb_epoch);
+			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_ast);
+			ar & const_cast<double &>(m_mjd);
 			ar & const_cast<double &>(m_initial_mass);
-			ar & const_cast<objective &>(m_obj);
-			ar & m_leg1;
-			ar & m_leg2;
+			ar & m_leg;
 		}
 		int 						m_n_segments;
-		const kep_toolbox::asteroid_gtoc5 		m_source;
-		const kep_toolbox::asteroid_gtoc5 		m_flyby;
-		const kep_toolbox::asteroid_gtoc5 		m_target;
-		const double					m_lb_epoch;
+		const kep_toolbox::asteroid_gtoc5 		m_ast;
+		const double					m_mjd;
 		const double					m_initial_mass;
-		const objective					m_obj;
-		mutable kep_toolbox::sims_flanagan::leg		m_leg1;
-		mutable kep_toolbox::sims_flanagan::leg		m_leg2;
+		mutable kep_toolbox::sims_flanagan::leg		m_leg;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc5_flyby);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc5_self_flyby);
 
-#endif // GTOC5_FLYBY
+#endif // PAGMO_GTOC5_SELF_FLYBY_H

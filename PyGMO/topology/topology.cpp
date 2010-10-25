@@ -41,6 +41,8 @@ static inline class_<Topology,bases<topology::base> > topology_wrapper(const cha
 	class_<Topology,bases<topology::base> > retval(name,descr,init<const Topology &>());
 	retval.def(init<>());
 	retval.def_pickle(generic_pickle_suite<Topology>());
+	retval.def("cpp_loads", &py_cpp_loads<Topology>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Topology>);
 	retval.def("__copy__", &Topology::clone);
 	return retval;
 }

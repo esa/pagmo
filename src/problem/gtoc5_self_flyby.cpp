@@ -36,8 +36,7 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
-#include "gtoc5_launch.h"
-#include "../keplerian_toolbox/sims_flanagan/codings.h"
+#include "gtoc5_self_flyby.h"
 #include "../keplerian_toolbox/astro_constants.h"
 #include "../keplerian_toolbox/asteroid_gtoc5.h"
 
@@ -47,90 +46,83 @@ using namespace kep_toolbox::sims_flanagan;
 namespace pagmo { namespace problem {
 /// Constructor.
 
-gtoc5_launch::gtoc5_launch(int segments, int target, objective obj, const double &ctol) :
-	base(segments * 3 + 6, 0, 1, 7 + segments + 1, segments + 1,ctol),
-	m_n_segments(segments),m_earth(),m_target(target),m_obj(obj)
+gtoc5_self_flyby::gtoc5_self_flyby(int segments, int ast_id, const double &mjd, const double  &initial_mass, const double &ctol):
+	base(segments * 3 + 5, 0, 1, 7 + segments + 1, segments + 1,ctol),
+	m_n_segments(segments),m_ast(ast_id),m_mjd(mjd),m_initial_mass(initial_mass)
 {
 	std::vector<double> lb_v(get_dimension());
 	std::vector<double> ub_v(get_dimension());
 
-	// Start (MJD).
-	lb_v[0] = 57023;
-	ub_v[0] = 61041;
+	// Flyby (MJD) transfer time in days
+	lb_v[0] = 5;
+	ub_v[0] = 200;
 
-	// Leg duration in days
-	lb_v[1] = 30;
-	ub_v[1] = 365.25 * 3;
+	// Mass at fly-by
+	lb_v[1] = 100;
+	ub_v[1] = m_initial_mass;
 
-	// Final mass.
-	lb_v[2] = 500;
-	ub_v[2] = 4000;
-
-	// Start Velocity
-	lb_v[3] = -5000;
-	lb_v[4] = -5000;
-	lb_v[5] = -5000;
-	ub_v[3] = 5000;
-	ub_v[4] = 5000;
-	ub_v[5] = 5000;
+	// Velocity at fly-by
+	for (int i = 2; i < 5; ++i) {
+		lb_v[i] = -1500;
+		ub_v[i] = 1500;
+	}
 
 	// I Throttles
-	for (int i = 6; i < segments * 3 + 6; ++i)
+	for (int i = 5; i < segments * 3 + 5; ++i)
 	{
 		lb_v[i] = -1;
 		ub_v[i] = 1;
 	}
 
-	//Copying the lb,ub vector into the problems bounds
 	set_bounds(lb_v,ub_v);
 	
-	// Set GTOC5 spacecraft.
-	m_leg.set_spacecraft(kep_toolbox::spacecraft(4000,0.3,3000));
+	// Set spacecraft.
+	m_leg.set_spacecraft(kep_toolbox::spacecraft(m_initial_mass,0.3,3000));
 }
 
 /// Clone method.
-base_ptr gtoc5_launch::clone() const
+base_ptr gtoc5_self_flyby::clone() const
 {
-	return base_ptr(new gtoc5_launch(*this));
+	return base_ptr(new gtoc5_self_flyby(*this));
 }
 
 /// Implementation of the objective function.
-void gtoc5_launch::objfun_impl(fitness_vector &f, const decision_vector &x) const
+void gtoc5_self_flyby::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	if (m_obj == MASS) {
-		f[0] = -x[2] / m_leg.get_spacecraft().get_mass();
-	} else {
-		f[0] = x[1] / 365.25;
-	}
+	f[0] = x[0];   //Time of Flight
 }
 
 /// Implementation of the constraint function.
-void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+void gtoc5_self_flyby::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
 	using namespace kep_toolbox;
-	// 1 - We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
-	array3D v0, r0, vf, rf;
-	m_earth.get_eph(epoch_i,r0,v0);
-	m_target.get_eph(epoch_f,rf,vf);
+	// We set the leg.
+	const epoch epoch_source(m_mjd,epoch::MJD), epoch_target(m_mjd + x[0],epoch::MJD);
+	array3D v_source, r_source, v_target, r_target;
+	m_ast.get_eph(epoch_source,r_source,v_source);
+	m_ast.get_eph(epoch_target,r_target,v_target);
+	v_target[0] += x[2];
+	v_target[1] += x[3];
+	v_target[2] += x[4];
+	m_leg.set_leg(epoch_source,sc_state(r_source,v_source,m_leg.get_spacecraft().get_mass()),x.begin() + 5, x.begin() + 5 + m_n_segments * 3,
+		epoch_target,sc_state(r_target,v_target,x[1]),ASTRO_MU_SUN);
 
-	v0[0] += x[3];
-	v0[1] += x[4];
-	v0[2] += x[5];
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 6, x.end(),epoch_f,sc_state(rf,vf,x[2]),ASTRO_MU_SUN);
 
 	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
 	m_leg.get_mismatch_con(c.begin(), c.begin() + 7);
 	for (int i=0; i<3; ++i) c[i]/=ASTRO_AU;
 	for (int i=3; i<6; ++i) c[i]/=ASTRO_EARTH_VELOCITY;
 	c[6] /= m_leg.get_spacecraft().get_mass();
+
 	// We evaluate the constraints on the throttles writing on the 7th mismatch constrant (mass is off)
 	m_leg.get_throttles_con(c.begin() + 7, c.begin() + 7 + m_n_segments);
-	c[7 + m_n_segments] = (x[3]*x[3] + x[4]*x[4] + x[5]*x[5] - 25000000) / ASTRO_EARTH_VELOCITY / ASTRO_EARTH_VELOCITY;
+	
+	// Minimum flyby speed = 0.4 km/s.
+	c[7 + m_n_segments] = (160000. - (x[2] * x[2] + x[3] * x[3] + x[4] * x[4]));
 }
 
 /// Implementation of the sparsity structure: automated detection
-void gtoc5_launch::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+void gtoc5_self_flyby::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
 	//Initial point
 	decision_vector x0(get_dimension());
@@ -142,30 +134,30 @@ void gtoc5_launch::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<
 	estimate_sparsity(x0, lenG, iGfun, jGvar);
 }
 
-std::string gtoc5_launch::get_name() const
+std::string gtoc5_self_flyby::get_name() const
 {
-	return "GTOC5 Launch phase";
+	return "GTOC5 Flyby phase";
 }
 
-std::string gtoc5_launch::pretty(const decision_vector &x) const
+std::string gtoc5_self_flyby::pretty(const decision_vector &x) const
 {
 	using namespace kep_toolbox;
-	// 1 - We set the leg.
-	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
-	array3D v0, r0, vf, rf;
-	m_earth.get_eph(epoch_i,r0,v0);
-	m_target.get_eph(epoch_f,rf,vf);
-
-	v0[0] += x[2];
-	v0[1] += x[3];
-	v0[2] += x[4];
-	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 6, x.end(),epoch_f,sc_state(rf,vf,x[5]),ASTRO_MU_SUN);
+	// We set the leg.
+	const epoch epoch_source(m_mjd,epoch::MJD), epoch_target(m_mjd + x[0],epoch::MJD);
+	array3D v_source, r_source, v_target, r_target;
+	m_ast.get_eph(epoch_source,r_source,v_source);
+	m_ast.get_eph(epoch_target,r_target,v_target);
+	v_target[0] += x[2];
+	v_target[1] += x[3];
+	v_target[2] += x[4];
+	m_leg.set_leg(epoch_source,sc_state(r_source,v_source,m_leg.get_spacecraft().get_mass()),x.begin() + 5, x.begin() + 5 + m_n_segments * 3,
+		epoch_target,sc_state(r_target,v_target,x[1]),ASTRO_MU_SUN);
 
 	std::ostringstream oss;
-	oss << m_leg << '\n' << m_earth << '\n' << m_target << '\n';
+	oss << m_leg << '\n' << m_ast << '\n';
 	return oss.str();
 }
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::gtoc5_launch);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::gtoc5_self_flyby);

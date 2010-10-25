@@ -53,6 +53,8 @@ static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const 
 	retval.def(init<>());
 	retval.def("evolve", &evolve_copy);
 	retval.def_pickle(generic_pickle_suite<Algorithm>());
+	retval.def("cpp_loads", &py_cpp_loads<Algorithm>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Algorithm>);
 	return retval;
 }
 
