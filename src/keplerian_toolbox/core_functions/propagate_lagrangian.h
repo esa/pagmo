@@ -115,8 +115,9 @@ template<class vettore3D>
 		v0[i] = Ft * temp[i] + Gt * v0[i];
 	}
 	
-	} catch (...) {
+	} catch (const std::exception& e) {
 		std::cout << "Propagate lagrangian failed!\n";
+		std::cout << e.what() << '\n';
 		std::cout << r0_copy << '\n';
 		std::cout << v0_copy << '\n';
 		std::cout << t << '\n';
