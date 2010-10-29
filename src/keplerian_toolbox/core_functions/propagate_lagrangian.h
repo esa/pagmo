@@ -26,7 +26,7 @@
 #define PROPAGATE_LAGRANGIAN_H
 
 #include<boost/bind.hpp>
-#include <boost/math/tools/roots.hpp>
+#include<boost/math/tools/roots.hpp>
 
 #include"../astro_constants.h"
 #include"../numerics/newton_raphson.h"
@@ -78,7 +78,7 @@ template<class vettore3D>
 		std::pair<double, double> result;
 		boost::uintmax_t iter = ASTRO_MAX_ITER;
 		boost::math::tools::eps_tolerance<double> tol(64);
-		result = boost::math::tools::bracket_and_solve_root(boost::bind(kepDE,_1,DM,sigma0,sqrta,a,R),DM,2.0,true,tol,iter);
+                result = boost::math::tools::bracket_and_solve_root(boost::bind(kepDE,_1,DM,sigma0,sqrta,a,R),DE,2.0,true,tol,iter);
 		DE = (result.first + result.second) / 2;
 		double r = a + (R - a) * cos(DE) + sigma0 * sqrta * sin(DE);
 
@@ -91,7 +91,7 @@ template<class vettore3D>
 	else{	//Solve Kepler's equation, hyperbolic case
 		sqrta = sqrt(-a);
 		double DN = sqrt(-mu / pow(a,3)) * t;
-		double DH = DN; // TODO: find a better initial guess
+		double DH = 1; // TODO: find a better initial guess
 
 		//Solve Kepler Equation for hyperbolae in DH (hyperbolic anomaly difference)
 		//newton_raphson(DH,boost::bind(kepDH,_1,DN,sigma0,sqrta,a,R),boost::bind(d_kepDH,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);

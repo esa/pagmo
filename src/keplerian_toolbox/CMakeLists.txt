@@ -12,12 +12,12 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 	ADD_DEFINITIONS(-D_REENTRANT)
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
+# Initialise (empty) list of libraries to link against.
+SET(MANDATORY_LIBRARIES "")
+
 # Provides build options to CMake
 # Build Option: when active the file main.cpp is built and linked to the PaGMO static library
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
-
-# Let's include Boost's headers.
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/../../external_headers")
 
 # Keplerian_toolbox lib source files.
 SET(PAGMO_LIB_SRC_LIST
@@ -37,6 +37,6 @@ ADD_LIBRARY(keplerian_toolbox_static STATIC ${PAGMO_LIB_SRC_LIST})
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
-	TARGET_LINK_LIBRARIES(main keplerian_toolbox_static)
+        TARGET_LINK_LIBRARIES(main keplerian_toolbox_static boost_serialization.so)
 ENDIF(BUILD_MAIN)
 
