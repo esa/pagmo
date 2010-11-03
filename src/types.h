@@ -55,7 +55,7 @@ namespace pagmo
 }
 
 // Give the possibility to disable stream overloads with appropriate #define.
-#ifndef __PAGMO_NO_STD_VECTOR_STREAM_OVERLOADS
+#ifndef PAGMO_NO_STD_VECTOR_STREAM_OVERLOADS
 
 namespace std
 {

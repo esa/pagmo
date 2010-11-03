@@ -22,7 +22,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from core import *
-import algorithm, migration, problem, topology, kep_toolbox
+import algorithm, migration, problem, topology
 from copy import copy
 
 def run_test():
