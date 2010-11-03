@@ -32,7 +32,7 @@
 #include "../../src/config.h"
 #include "../../src/exceptions.h"
 #include "../../src/problem/base.h"
-#include "../../src/python_locks.h"
+#include "../../src/py_lock.h"
 #include "../../src/serialization.h"
 #include "../../src/types.h"
 #include "../utils.h"
@@ -66,7 +66,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		python_base(const base &p):base(p) {}
 		base_ptr clone() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			base_ptr retval = this->get_override("__copy__")();
 			if (!retval) {
 				pagmo_throw(std::runtime_error,"problem's __copy__() method returns a NULL pointer, please check the implementation");
@@ -80,7 +80,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		std::string get_name() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("get_name")) {
 				return f();
 			}
@@ -92,7 +92,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		std::string human_readable_extra() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("human_readable_extra")) {
 				return f();
 			}
@@ -104,7 +104,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		fitness_vector py_objfun(const decision_vector &x) const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("_objfun_impl")) {
 				return f(x);
 			}
@@ -112,7 +112,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		std::string get_typename() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("_get_typename")) {
 				return f();
 			}
@@ -120,7 +120,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		bool py_equality_operator_extra(const base &p) const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("_equality_operator_extra")) {
 				return f(p);
 			}
@@ -128,7 +128,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		constraint_vector py_compute_constraints_impl(const decision_vector &x) const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			boost::python::override f = this->get_override("_compute_constraints_impl");
 			pagmo_assert(f);
 			return f(x);
@@ -148,7 +148,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		void compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (this->get_override("_compute_constraints_impl")) {
 				// If the function is overridden, use it.
 				c = py_compute_constraints_impl(x);

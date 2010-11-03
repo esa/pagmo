@@ -39,7 +39,7 @@
 #include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
 #include "../../src/problem/base.h"
-#include "../../src/python_locks.h"
+#include "../../src/py_lock.h"
 #include "../../src/serialization.h"
 #include "../utils.h"
 
@@ -83,7 +83,7 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		base_island_ptr clone() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			base_island_ptr retval = this->get_override("__copy__")();
 			if (!retval) {
 				pagmo_throw(std::runtime_error,"island's __copy__() method returns a NULL pointer, please check the implementation");
@@ -92,7 +92,7 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		std::string get_name() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("get_name")) {
 				return f();
 			}
@@ -104,7 +104,7 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		population py_perform_evolution(algorithm::base_ptr a_ptr, const population &pop) const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("_perform_evolution")) {
 				return f(a_ptr,pop);
 			}

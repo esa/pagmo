@@ -32,7 +32,7 @@
 #include "../../src/config.h"
 #include "../../src/exceptions.h"
 #include "../../src/population.h"
-#include "../../src/python_locks.h"
+#include "../../src/py_lock.h"
 #include "../../src/serialization.h"
 #include "../utils.h"
 
@@ -46,7 +46,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		python_base(const base &p):base(p) {}
 		base_ptr clone() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			base_ptr retval = this->get_override("__copy__")();
 			if (!retval) {
 				pagmo_throw(std::runtime_error,"algorithms's __copy__() method returns a NULL pointer, please check the implementation");
@@ -55,7 +55,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		std::string human_readable_extra() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("human_readable_extra")) {
 				return f();
 			}
@@ -67,7 +67,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		}
 		std::string get_name() const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("get_name")) {
 				return f();
 			}
@@ -90,7 +90,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		// Changed implementations from Python.
 		population py_evolve(const population &p) const
 		{
-			gil_state_lock lock;
+			py_lock lock;
 			if (boost::python::override f = this->get_override("evolve")) {
 				const population retval = f(p);
 				return retval;

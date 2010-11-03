@@ -37,7 +37,7 @@
 #include <sstream>
 #include <string>
 
-#include "../src/python_locks.h"
+#include "../src/py_lock.h"
 
 template <class T>
 inline T Py_copy_from_ctor(const T &x)
@@ -61,12 +61,12 @@ struct generic_pickle_suite : boost::python::pickle_suite
 	{
 		// NOTE: I _think_ this is needed here, as we are (maybe?) going to use the Python interpreter
 		// through Boost Python. In any case, better safe than sorry.
-		pagmo::gil_state_lock lock;
+		pagmo::py_lock lock;
 		return boost::python::make_tuple();
 	}
 	static boost::python::tuple getstate(const T &x)
 	{
-		pagmo::gil_state_lock lock;
+		pagmo::py_lock lock;
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << x;
@@ -74,7 +74,7 @@ struct generic_pickle_suite : boost::python::pickle_suite
 	}
 	static void setstate(T &x, boost::python::tuple state)
 	{
-		pagmo::gil_state_lock lock;
+		pagmo::py_lock lock;
 		using namespace boost::python;
 		if (len(state) != 1)
 		{
@@ -93,12 +93,12 @@ struct python_class_pickle_suite: boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const T &)
 	{
-		pagmo::gil_state_lock lock;
+		pagmo::py_lock lock;
 		return boost::python::make_tuple();
 	}
 	static boost::python::tuple getstate(boost::python::object obj)
 	{
-		pagmo::gil_state_lock lock;
+		pagmo::py_lock lock;
 		T const &x = boost::python::extract<T const &>(obj)();
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
@@ -107,7 +107,7 @@ struct python_class_pickle_suite: boost::python::pickle_suite
 	}
 	static void setstate(boost::python::object obj, boost::python::tuple state)
 	{
-		pagmo::gil_state_lock lock;
+		pagmo::py_lock lock;
 		using namespace boost::python;
 		T &x = extract<T &>(obj)();
 		if (len(state) != 2)

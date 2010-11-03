@@ -46,7 +46,7 @@
 #include "../../src/migration/best_s_policy.h"
 #include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
-#include "../../src/python_locks.h"
+#include "../../src/py_lock.h"
 #include "../../src/problem/base.h"
 #include "../../src/topology/base.h"
 #include "../boost_python_container_conversions.h"
@@ -115,12 +115,12 @@ struct population_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const population &pop)
 	{
-		gil_state_lock lock;
+		py_lock lock;
 		return boost::python::make_tuple(pop.problem().clone());
 	}
 	static boost::python::tuple getstate(const population &pop)
 	{
-		gil_state_lock lock;
+		py_lock lock;
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << pop;
@@ -128,7 +128,7 @@ struct population_pickle_suite : boost::python::pickle_suite
 	}
 	static void setstate(population &pop, boost::python::tuple state)
 	{
-		gil_state_lock lock;
+		py_lock lock;
 		if (len(state) != 2)
 		{
 			PyErr_SetObject(PyExc_ValueError,("expected 2-item tuple in call to __setstate__; got %s" % state).ptr());
