@@ -59,6 +59,9 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 # Build Option: when active the bindings to Python are compiled and linked (installation).
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
+# Build Option: when active the keplerian toolbox and GTOP database problems are built.
+OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable support for the keplerian_toolbox." OFF)
+
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
 
@@ -126,6 +129,11 @@ ELSE(UNIX)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
 	ENDIF(MINGW)
 ENDIF(UNIX)
+
+IF(ENABLE_KEPLERIAN_TOOLBOX)
+        ADD_DEFINITIONS(-DKEP_TOOLBOX_ENABLE_SERIALIZATION)
+        ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
+ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
 
 IF(ENABLE_MPI)
 	INCLUDE(FindMPI)

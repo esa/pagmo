@@ -36,7 +36,10 @@
 #include "../epoch.h"
 #include "throttle.h"
 #include "../exceptions.h"
-#include "../../serialization.h"
+
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+#include "../serialization.h"
+#endif
 
 namespace kep_toolbox {
 /// Sims-Flanagan transcription of low-thrust trajectories
@@ -422,6 +425,7 @@ public:
 	}
 
 private:
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -434,6 +438,7 @@ private:
 		ar & sc;
 		ar & mu;
 	}
+#endif
 	epoch t_i;
 	sc_state x_i;
 	std::vector<throttle> throttles;

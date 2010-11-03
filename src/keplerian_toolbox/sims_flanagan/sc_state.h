@@ -27,7 +27,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../../serialization.h"
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+#include "../serialization.h"
+#endif
+
 #include "../astro_constants.h"
 
 namespace kep_toolbox {
@@ -116,6 +119,7 @@ public:
 	void set_mass(const double& mass_){ mass = mass_; }
 	//@}
 private:
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -124,6 +128,7 @@ private:
 		ar & velocity;
 		ar & mass;
 	}
+#endif
 	array3D position;
 	array3D velocity;
 	double mass;

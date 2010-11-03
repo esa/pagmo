@@ -41,23 +41,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/snopt_toyprob.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_1.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/sagas.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosetta.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_rendezvous.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
@@ -89,27 +73,45 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 )
 
-# Additional files for the GTOP problems
-SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/misc4Tandem.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Pl_Eph_An.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Lambert.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/time2distance.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_ss.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_mpcorb.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc5.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/epoch.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/lambert_problem.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
-)
+# Additional files for the GTOP problems and keplerian toolbox.
+IF(ENABLE_KEPLERIAN_TOOLBOX)
+        SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_1.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_2.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/sagas.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/rosetta.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_rendezvous.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/misc4Tandem.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Pl_Eph_An.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/PowSwingByInv.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Lambert.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/time2distance.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_ss.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_mpcorb.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc2.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc5.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/epoch.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/lambert_problem.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
+        )
+ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
 
 # Additional files for GSL support.
 IF(ENABLE_GSL)

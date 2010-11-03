@@ -91,7 +91,8 @@ template<class vettore3D>
 	else{	//Solve Kepler's equation, hyperbolic case
 		sqrta = sqrt(-a);
 		double DN = sqrt(-mu / pow(a,3)) * t;
-		double DH = 1; // TODO: find a better initial guess
+                double DH;
+                t > 0 ? DH = 1 : DH = -1; // TODO: find a better initial guess. I tried with 0 and D (both have numercial problems and result in exceptions)
 
 		//Solve Kepler Equation for hyperbolae in DH (hyperbolic anomaly difference)
 		//newton_raphson(DH,boost::bind(kepDH,_1,DN,sigma0,sqrta,a,R),boost::bind(d_kepDH,_1,sigma0,sqrta,a,R),100,ASTRO_TOLERANCE);
@@ -116,12 +117,13 @@ template<class vettore3D>
 	}
 	
 	} catch (const std::exception& e) {
-		std::cout << "Propagate lagrangian failed!\n";
-		std::cout << e.what() << '\n';
-		std::cout << r0_copy << '\n';
-		std::cout << v0_copy << '\n';
-		std::cout << t << '\n';
-		std::cout << mu << '\n';
+                std::cout << "Numerical failiure in propagate_lagrangian.h!\n";
+                std::cout << "Exception thrown: " << e.what() << '\n';
+                std::cout << "Input data to propagate_lagrangian.h: " << std::endl;
+                std::cout << "r0: " << r0_copy << '\n';
+                std::cout << "v0: " << v0_copy << '\n';
+                std::cout << "t: " << t << '\n';
+                std::cout << "mu: " << mu << '\n';
 	}
 }
 }

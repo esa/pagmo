@@ -3,7 +3,10 @@
 
 #include <numeric>
 
-#include "../../serialization.h"
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+#include "../serialization.h"
+#endif
+
 #include "../astro_constants.h"
 #include "../epoch.h"
 
@@ -47,6 +50,7 @@ public:
 
 
 private:
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -55,11 +59,12 @@ private:
 		ar & m_end;
 		ar & m_value;
 	}
+#endif
 	epoch m_start;
 	epoch m_end;
 	array3D m_value;
 };
 
-}} //namespaces
+}} //Namespaces
 
 #endif

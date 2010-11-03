@@ -35,13 +35,16 @@
 #include <string>
 
 #include "../../src/exceptions.h"
-#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../../src/problems.h"
 #include "../../src/serialization.h"
 #include "../../src/types.h"
 #include "../exceptions.h"
 #include "../utils.h"
 #include "python_base.h"
+
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
+        #include "../../src/keplerian_toolbox/keplerian_toolbox.h"
+#endif
 
 using namespace boost::python;
 using namespace pagmo;
@@ -129,27 +132,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::michalewicz>("michalewicz","Michalewicz's function.")
 		.def(init<int, optional<int> >());
 
-	// GTOC1 problem.
-	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.");
+        // Inventory problem.
+        problem_wrapper<problem::inventory>("inventory","Inventory problem.")
+                .def(init<int, int>());
 
-	// GTOC2 problem.
-	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC problem.")
-		.def(init<int,int,int,int,optional<int,problem::gtoc_2::objective> >());
-
-	// GTOC2's objectives enum.
-	enum_<problem::gtoc_2::objective>("gtoc2_objective")
-		.value("MASS",problem::gtoc_2::MASS)
-		.value("TIME",problem::gtoc_2::TIME)
-		.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
-
-	// Inventory problem.
-	problem_wrapper<problem::inventory>("inventory","Inventory problem.")
-		.def(init<int, int>());
-	
-	// Laplace problem.
-	problem_wrapper<problem::laplace>("laplace","Laplace problem.")
-		.def(init< const std::vector<int> &>());
-	
 	// Lennard Jones problem.
 	problem_wrapper<problem::lennard_jones>("lennard_jones","Lennard Jones problem.")
 		.def(init<int>());
@@ -165,12 +151,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Rosenbrock problem.
 	problem_wrapper<problem::rosenbrock>("rosenbrock","Multi-dimensional Rosenbrock function.")
 		.def(init<int>());
-	
-	// Rosetta problem.
-	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
-	
-	// Sagas problem.
-	problem_wrapper<problem::sagas>("sagas","Sagas problem.");
 	
 	// Rastrigin problem.
 	problem_wrapper<problem::rastrigin>("rastrigin","Generalised Rastrigin function.")
@@ -213,22 +193,9 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::string_match>("string_match","String matching problem.")
 		.def(init<const std::string &>());
 
-	// Cassini 1.
-	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
-
-	// Messenger full.
-	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
-
-	// Cassini 2.
-	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
-	
-	// Traveling salesman problem
+        // Traveling salesman problem
 	problem_wrapper<problem::tsp>("tsp","Traveling salesman problem")
 		.def(init<const std::vector<std::vector<double> > &>());
-	
-	// Tandem.
-	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
-		.def(init< optional<int, double> >());
 	
 	// SCH
 	problem_wrapper<problem::sch>("sch","Shaffer's study problem.")
@@ -258,6 +225,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
 		.def(init<>());
 
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Human mission to asteroids.
 	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
 		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
@@ -291,6 +259,43 @@ BOOST_PYTHON_MODULE(_problem) {
 	// GTOC5 self flyby.
 	problem_wrapper<problem::gtoc5_self_flyby>("gtoc5_self_flyby","GTOC5 self flyby phase.")
 		.def(init< optional<int, int, const double &, const double &, const double &> >());
+
+        // GTOC1 problem.
+        problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.");
+
+        // GTOC2 problem.
+        problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC problem.")
+                .def(init<int,int,int,int,optional<int,problem::gtoc_2::objective> >());
+
+        // GTOC2's objectives enum.
+        enum_<problem::gtoc_2::objective>("gtoc2_objective")
+                .value("MASS",problem::gtoc_2::MASS)
+                .value("TIME",problem::gtoc_2::TIME)
+                .value("MASS_TIME",problem::gtoc_2::MASS_TIME);
+
+        // Laplace problem.
+        problem_wrapper<problem::laplace>("laplace","Laplace problem.")
+                .def(init< const std::vector<int> &>());
+
+        // Cassini 1.
+        problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
+
+        // Messenger full.
+        problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
+
+        // Cassini 2.
+        problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
+
+        // Rosetta problem.
+        problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
+
+        // Sagas problem.
+        problem_wrapper<problem::sagas>("sagas","Sagas problem.");
+
+        // Tandem.
+        problem_wrapper<problem::tandem>("tandem","Tandem problem.")
+                .def(init< optional<int, double> >());
+#endif
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();

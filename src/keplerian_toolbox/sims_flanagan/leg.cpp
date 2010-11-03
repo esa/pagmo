@@ -3,7 +3,7 @@
 #include "../astro_constants.h"
 #include "../core_functions/array3D_operations.h"
 #include "../core_functions/propagate_lagrangian.h"
-#include"../../exceptions.h"
+#include"../exceptions.h"
 #include <vector>
 #include <numeric>
 

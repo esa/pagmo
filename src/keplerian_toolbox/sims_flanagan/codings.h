@@ -5,7 +5,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include "../astro_constants.h"
 #include "../epoch.h"
-#include "../../serialization.h"
+#include "../serialization.h"
 
 
 namespace kep_toolbox {

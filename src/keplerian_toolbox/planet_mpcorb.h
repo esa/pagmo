@@ -27,7 +27,10 @@
 
 #include <string>
 
-#include "../serialization.h"
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+#include "serialization.h"
+#endif
+
 #include "planet.h"
 
 
@@ -55,18 +58,22 @@ public:
 	static epoch packed_date2epoch(std::string);
 
 private:
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<planet>(*this);
 	}
+#endif
 	static int packed_date2number(char c);
 };
 
 
 } /// End of namespace kep_toolbox
 
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 BOOST_CLASS_EXPORT(kep_toolbox::planet_mpcorb);
+#endif
 
 #endif // PLANET_MPCORB_H

@@ -30,7 +30,10 @@
 #include <string>
 #include <vector>
 
-#include "../serialization.h"
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+#include "serialization.h"
+#endif
+
 #include "astro_constants.h"
 #include "epoch.h"
 
@@ -165,6 +168,7 @@ protected:
 	void build_planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double & radius, const double & safe_radius, const std::string &name = "Unknown");
 	planet() {};
 private:
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -181,6 +185,7 @@ private:
 		ar & cached_v;
 		ar & m_name;
 	}
+#endif
 	array6D keplerian_elements;
 	double mean_motion;
 	double ref_mjd2000;
@@ -200,6 +205,8 @@ private:
 std::ostream &operator<<(std::ostream &s, const planet &body);
 } /// End of namespace kep_toolbox
 
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(kep_toolbox::planet);
+#endif
 
 #endif // PLANET_H

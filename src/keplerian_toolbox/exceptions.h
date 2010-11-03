@@ -7,7 +7,6 @@
 inline void throw_value_error(std::string s) {
     pagmo_throw(value_error, s);
 }
-
 #else
 
 class kep_toolbox_error : public std::exception {
@@ -29,6 +28,6 @@ private:
 inline void throw_value_error(std::string s) {
     throw kep_toolbox_error(s);
 }
-#endif
+#endif // USE_PAGMO
 
-#endif
+#endif // KEPLERIAN_TOOLBOX_EXCEPTIONS_H

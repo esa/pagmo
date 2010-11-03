@@ -25,7 +25,10 @@
 #ifndef ASTEROID_GTOC2_H
 #define ASTEROID_GTOC2_H
 
-#include "../serialization.h"
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+#include "serialization.h"
+#endif
+
 #include "planet.h"
 
 namespace kep_toolbox{
@@ -64,6 +67,7 @@ public:
 	int get_group() const;
 	planet_ptr clone() const;
 private:
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -71,12 +75,13 @@ private:
 		ar & boost::serialization::base_object<planet>(*this);
 		ar & m_group;
 	}
+#endif
 	int m_group;
 };
+} // Namespaces
 
-
-} /// End of namespace kep_toolbox
-
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
 BOOST_CLASS_EXPORT(kep_toolbox::asteroid_gtoc2);
+#endif
 
 #endif //ASTEROID_GTOC2_H

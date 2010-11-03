@@ -32,7 +32,10 @@
 #include "../planet.h"
 #include "sc_state.h"
 #include "../exceptions.h"
-#include "../../serialization.h"
+
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+#include "../serialization.h"
+#endif
 
 namespace kep_toolbox { namespace sims_flanagan{
 
@@ -198,14 +201,17 @@ private:
 	     * \f$T\f$ id the leg time duration (sec).
 	     *
 	     */
-	friend class boost::serialization::access;
+
+#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+        friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & legs;
 		ar & planets;
 		ar & total_n_seg;
-	}
+        }
+#endif
 };
 
 std::ostream &operator<<(std::ostream &s, const fb_traj &in );
