@@ -30,24 +30,17 @@ class py_island(base_island):
 			return
 		conn.send(tmp)
 		conn.close()
-	def _perform_evolution(self,algo,pop):
-		print('here')
-		return algo.evolve(pop)
-		# -----------
-		try:
-			parent_conn, child_conn = _mp.Pipe()
-			process = _mp.Process(target = py_island._process_target, args = (child_conn,algo,pop))
-			process.start()
-			retval = parent_conn.recv()
-			# After receiving the data wait for the process to exit cleanly.
-			process.join()
-			if isinstance(retval,Exception):
-				raise retval
-			elif isinstance(retval,type(pop)):
-				return retval
-			else:
-				raise RuntimeError('Slave process returned unknown type: %s' % str(type(retval)))
-		except Exception as e:
-			print('Island\'s evolution method raised an exception:')
-			print(e)
-			raise RuntimeError('Evolution interrupted')
+	def _start_evolution(self,algo,pop):
+		print('starting evo')
+		self.__parent_conn, self.__child_conn = _mp.Pipe()
+		self.__process = _mp.Process(target = py_island._process_target, args = (self.__child_conn,algo,pop))
+		self.__process.start()
+		print('evo started')
+	def _check_evolution_status(self):
+		print('check %d' % (not self.__process.is_alive()))
+		return not self.__process.is_alive()
+	def _get_evolved_population(self):
+		print('returning pop')
+		retval = self.__parent_conn.recv()
+		self.__process.join()
+		return retval

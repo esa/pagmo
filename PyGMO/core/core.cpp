@@ -256,7 +256,9 @@ BOOST_PYTHON_MODULE(_core)
 		// Virtual methods.
 		.def("__copy__",pure_virtual(&base_island::clone))
 		.def("get_name", &base_island::get_name,&python_base_island::default_get_name)
-		.def("_perform_evolution",&python_base_island::py_perform_evolution)
+		.def("_start_evolution",&python_base_island::py_start_evolution)
+		.def("_check_evolution_status",&python_base_island::py_check_evolution_status)
+		.def("_get_evolved_population",&python_base_island::py_get_evolved_population)
 		.def_pickle(python_class_pickle_suite<python_base_island>());
 
 	// Local island class.
@@ -305,4 +307,6 @@ BOOST_PYTHON_MODULE(_core)
 	enum_<archipelago::migration_direction>("migration_direction")
 		.value("source",archipelago::source)
 		.value("destination",archipelago::destination);
+
+	PyEval_InitThreads();
 }

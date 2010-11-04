@@ -25,7 +25,9 @@
 #ifndef PAGMO_PYTHON_BASE_ISLAND_H
 #define PAGMO_PYTHON_BASE_ISLAND_H
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/python/class.hpp>
+#include <boost/thread/thread.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -102,13 +104,42 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		{
 			return this->base_island::get_name();
 		}
-		population py_perform_evolution(algorithm::base_ptr a_ptr, const population &pop) const
+// 		population py_perform_evolution(algorithm::base_ptr a_ptr, const population &pop) const
+// 		{
+// 			py_lock lock;
+// 			if (boost::python::override f = this->get_override("_perform_evolution")) {
+// 				return f(a_ptr,pop);
+// 			}
+// 			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
+// 		}
+		void py_start_evolution(algorithm::base_ptr a_ptr, const population &pop) const
 		{
+// std::cout << "start evo\n";
 			py_lock lock;
-			if (boost::python::override f = this->get_override("_perform_evolution")) {
-				return f(a_ptr,pop);
+// std::cout << "lock acquired\n";
+			if (boost::python::override f = this->get_override("_start_evolution")) {
+				f(a_ptr,pop);
+				return;
 			}
-			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
+			pagmo_throw(not_implemented_error,"island's _start_evolution method has not been implemented");
+		}
+		bool py_check_evolution_status() const
+		{
+// std::cout << "check evo\n";
+			py_lock lock;
+			if (boost::python::override f = this->get_override("_check_evolution_status")) {
+				return f();
+			}
+			pagmo_throw(not_implemented_error,"island's _check_evolution_status method has not been implemented");
+		}
+		population py_get_evolved_population() const
+		{
+// std::cout << "get evo\n";
+			py_lock lock;
+			if (boost::python::override f = this->get_override("_get_evolved_population")) {
+				return f();
+			}
+			pagmo_throw(not_implemented_error,"island's _get_evolved_population method has not been implemented");
 		}
 	protected:
 		// An island implemented in Python is always blocking.
@@ -118,7 +149,12 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
-			pop = py_perform_evolution(a.clone(),pop);
+			//pop = py_perform_evolution(a.clone(),pop);
+			py_start_evolution(a.clone(),pop);
+			while (!py_check_evolution_status()) {
+				boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+			}
+			pop = py_get_evolved_population();
 		}
 	private:
 		template <class Archive>
