@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/pure_virtual.hpp>
@@ -59,6 +60,8 @@ static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const 
 }
 
 BOOST_PYTHON_MODULE(_algorithm) {
+	// Initialise Python thread support.
+	PyEval_InitThreads();
 	// Translate exceptions for this module.
 	translate_exceptions();
 

@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/python/class.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/module.hpp>
@@ -60,6 +61,8 @@ static inline class_<MRPolicy,bases<migration::base_r_policy> > migration_r_poli
 }
 
 BOOST_PYTHON_MODULE(_migration) {
+	// Initialise Python thread support.
+	PyEval_InitThreads();
 	// Translate exceptions for this module.
 	translate_exceptions();
 

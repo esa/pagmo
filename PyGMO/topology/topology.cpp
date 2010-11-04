@@ -79,6 +79,8 @@ static inline topology::base::edges_size_type topology_get_num_inv_adjacent_vert
 }
 
 BOOST_PYTHON_MODULE(_topology) {
+	// Initialise Python thread support.
+	PyEval_InitThreads();
 	// Translate exceptions for this module.
 	translate_exceptions();
 
