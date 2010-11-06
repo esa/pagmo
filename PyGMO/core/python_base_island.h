@@ -104,19 +104,9 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		{
 			return this->base_island::get_name();
 		}
-// 		population py_perform_evolution(algorithm::base_ptr a_ptr, const population &pop) const
-// 		{
-// 			py_lock lock;
-// 			if (boost::python::override f = this->get_override("_perform_evolution")) {
-// 				return f(a_ptr,pop);
-// 			}
-// 			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
-// 		}
 		void py_start_evolution(algorithm::base_ptr a_ptr, const population &pop) const
 		{
-// std::cout << "start evo\n";
 			py_lock lock;
-// std::cout << "lock acquired\n";
 			if (boost::python::override f = this->get_override("_start_evolution")) {
 				f(a_ptr,pop);
 				return;
@@ -125,7 +115,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		bool py_check_evolution_status() const
 		{
-// std::cout << "check evo\n";
 			py_lock lock;
 			if (boost::python::override f = this->get_override("_check_evolution_status")) {
 				return f();
@@ -134,7 +123,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		population py_get_evolved_population() const
 		{
-// std::cout << "get evo\n";
 			py_lock lock;
 			if (boost::python::override f = this->get_override("_get_evolved_population")) {
 				return f();

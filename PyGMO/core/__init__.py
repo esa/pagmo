@@ -24,17 +24,20 @@ class py_island(base_island):
 	def _process_target(conn,a,p):
 		try:
 			tmp = a.evolve(p)
-		except Exception as e:
-			conn.send(e)
+			conn.send(tmp)
 			conn.close()
-			return
-		conn.send(tmp)
-		conn.close()
+		except:
+			conn.send(0)
+			conn.close()
 	def _start_evolution(self,algo,pop):
 		print('starting evo')
+		print('z')
 		self.__parent_conn, self.__child_conn = _mp.Pipe()
+		print('a')
 		self.__process = _mp.Process(target = py_island._process_target, args = (self.__child_conn,algo,pop))
+		print('b')
 		self.__process.start()
+		print('c')
 		print('evo started')
 	def _check_evolution_status(self):
 		print('check %d' % (not self.__process.is_alive()))
@@ -43,4 +46,6 @@ class py_island(base_island):
 		print('returning pop')
 		retval = self.__parent_conn.recv()
 		self.__process.join()
+		if isinstance(retval,int):
+			raise RuntimeError()
 		return retval
