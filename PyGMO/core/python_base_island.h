@@ -25,6 +25,7 @@
 #ifndef PAGMO_PYTHON_BASE_ISLAND_H
 #define PAGMO_PYTHON_BASE_ISLAND_H
 
+#include <Python.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/python/class.hpp>
 #include <boost/thread/thread.hpp>
@@ -66,6 +67,22 @@ namespace pagmo {
 
 class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::python::wrapper<base_island>
 {
+		// RAII gil releaser.
+		class scoped_gil_release
+		{
+			public:
+				scoped_gil_release()
+				{
+					m_thread_state = PyEval_SaveThread();
+				}
+				~scoped_gil_release()
+				{
+					PyEval_RestoreThread(m_thread_state);
+					m_thread_state = NULL;
+				}
+			private:
+				PyThreadState *m_thread_state;
+		};
 	public:
 		explicit python_base_island(const problem::base &prob, const algorithm::base &algo, int n = 0,
 			const double &migr_prob = 1,
@@ -77,7 +94,13 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
 			base_island(pop,algo,migr_prob,s_policy,r_policy) {}
+		// NOTE: why is this necessary?
 		python_base_island(const base_island &isl):base_island(isl) {}
+		~python_base_island()
+		{
+			// Call the re-implemented join().
+			python_base_island::join();
+		}
 		python_base_island &operator=(const python_base_island &other)
 		{
 			base_island::operator=(other);
@@ -128,6 +151,14 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 				return f();
 			}
 			pagmo_throw(not_implemented_error,"island's _get_evolved_population method has not been implemented");
+		}
+		// We need to reimplement this so that before attempting the thread
+		// join we release the GIL. Otherwise, joining will block every other operation in the
+		// separate threads calling from Python.
+		void join() const
+		{
+			scoped_gil_release release;
+			base_island::join();
 		}
 	protected:
 		// An island implemented in Python is never blocking: evolution goes into separate process.

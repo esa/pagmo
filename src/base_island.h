@@ -125,7 +125,7 @@ class __PAGMO_VISIBLE base_island
 		 * Methods related to island evolution.
 		 */
 		//@{
-		void join() const;
+		virtual void join() const;
 		bool busy() const;
 		void evolve(int = 1);
 		void evolve_t(int);

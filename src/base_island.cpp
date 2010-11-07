@@ -22,7 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <Python.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/thread/thread.hpp>
@@ -139,11 +138,11 @@ base_island &base_island::operator=(const base_island &isl)
 
 /// Destructor.
 /**
- * Will call join() internally. No other side effects.
+ * Will call base_island::join() (the default implementation) internally. No other side effects.
  */
 base_island::~base_island()
 {
-	join();
+	base_island::join();
 }
 
 /// Return a string identifying the island's type.
@@ -204,32 +203,15 @@ std::string base_island::human_readable() const
 	return oss.str();
 }
 
-class ScopedGILRelease
-{
-// C & D -------------------------------------------------------------------------------------------
-public:
-    inline ScopedGILRelease()
-    {
-        m_thread_state = PyEval_SaveThread();
-    }
-
-    inline ~ScopedGILRelease()
-    {
-        PyEval_RestoreThread(m_thread_state);
-        m_thread_state = NULL;
-    }
-
-private:
-    PyThreadState * m_thread_state;
-};
-
 /// Join island.
 /**
- * Will block the flow of the program until any ongoing evolution has terminated.
+ * This method is intended to block the flow of the program until any ongoing evolution has terminated.
+ * The default implementation will join on the internal thread object if an evolution is ongoing,
+ * otherwise it will be a no-op.
+ * Re-implementation of this method should always call the default implementation.
  */
 void base_island::join() const
 {
-	ScopedGILRelease scoped;
 	if (m_evo_thread) {
 		m_evo_thread->join();
 	}

@@ -18,3 +18,11 @@ class py_test(base):
 		return py_test()
 	def _objfun_impl(self,x):
 		return (x[0] * x[0],)
+
+class py_broken(base):
+	def __init__(self):
+		super(py_broken,self).__init__(1)
+	def __copy__(self):
+		return py_broken()
+	def _objfun_impl(self,x):
+		return (float('NaN'),)
