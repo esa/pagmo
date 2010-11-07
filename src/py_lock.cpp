@@ -31,16 +31,16 @@ namespace pagmo {
 
 boost::recursive_mutex py_lock::m_mutex;
 
-py_lock::py_lock():m_lock(m_mutex),m_thread_state(0)
+py_lock::py_lock():/*m_lock(m_mutex),*/m_thread_state(0)
 {
-	m_thread_state = PyEval_SaveThread();
+// 	m_thread_state = PyEval_SaveThread();
 	m_gstate = PyGILState_Ensure();
 }
 
 py_lock::~py_lock()
 {
 	PyGILState_Release(m_gstate);
-	PyEval_RestoreThread(m_thread_state);
+// 	PyEval_RestoreThread(m_thread_state);
 }
 
 }

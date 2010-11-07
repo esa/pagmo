@@ -130,14 +130,13 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			pagmo_throw(not_implemented_error,"island's _get_evolved_population method has not been implemented");
 		}
 	protected:
-		// An island implemented in Python is always blocking.
+		// An island implemented in Python is never blocking: evolution goes into separate process.
 		bool is_blocking_impl() const
 		{
-			return true;
+			return false;
 		}
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
-			//pop = py_perform_evolution(a.clone(),pop);
 			py_start_evolution(a.clone(),pop);
 			while (!py_check_evolution_status()) {
 				boost::this_thread::sleep(boost::posix_time::milliseconds(100));

@@ -73,11 +73,6 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 			}
 			return retval;
 		}
-		bool is_thread_safe() const
-		{
-			// TODO: this will become true with proper island support.
-			return false;
-		}
 		std::string get_name() const
 		{
 			py_lock lock;

@@ -10,3 +10,11 @@ class base(_problem._base):
 		return str(type(self))
 	def get_name(self):
 		return self._get_typename()
+
+class py_test(base):
+	def __init__(self):
+		super(py_test,self).__init__(1)
+	def __copy__(self):
+		return py_test()
+	def _objfun_impl(self,x):
+		return (x[0] * x[0],)

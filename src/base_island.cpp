@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/thread/thread.hpp>
@@ -203,12 +204,32 @@ std::string base_island::human_readable() const
 	return oss.str();
 }
 
+class ScopedGILRelease
+{
+// C & D -------------------------------------------------------------------------------------------
+public:
+    inline ScopedGILRelease()
+    {
+        m_thread_state = PyEval_SaveThread();
+    }
+
+    inline ~ScopedGILRelease()
+    {
+        PyEval_RestoreThread(m_thread_state);
+        m_thread_state = NULL;
+    }
+
+private:
+    PyThreadState * m_thread_state;
+};
+
 /// Join island.
 /**
  * Will block the flow of the program until any ongoing evolution has terminated.
  */
 void base_island::join() const
 {
+	ScopedGILRelease scoped;
 	if (m_evo_thread) {
 		m_evo_thread->join();
 	}

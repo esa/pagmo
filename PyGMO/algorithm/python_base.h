@@ -77,12 +77,6 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		{
 			return this->base::get_name();
 		}
-		bool is_thread_safe() const
-		{
-			// All calls re-implementable from Python are protected by a mutex and hence thread-safe.
-			// TODO: correct this to make it match with the comment above :)
-			return false;
-		}
 		void evolve(population &p) const
 		{
 			p = py_evolve(p);
