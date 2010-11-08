@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from _core import *
+import multiprocessing as _mp
 
 class base_island(_core._base_island):
 	def __init__(self,*args):
@@ -27,7 +28,6 @@ class py_island(base_island):
 		except:
 			conn.send(0)
 	def _start_evolution(self,algo,pop):
-		import multiprocessing as _mp
 		self.__parent_conn, self.__child_conn = _mp.Pipe()
 		self.__process = _mp.Process(target = py_island._process_target, args = (self.__child_conn,algo,pop))
 		self.__process.start()
