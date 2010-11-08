@@ -54,6 +54,7 @@ void serialize(Archive &, boost::python::wrapper<T> &, const unsigned int)
 
 }}
 
+// Generic pickle suite for C++ classes with default constructor.
 template <class T>
 struct generic_pickle_suite : boost::python::pickle_suite
 {
@@ -88,6 +89,8 @@ struct generic_pickle_suite : boost::python::pickle_suite
 	}
 };
 
+// Generic pickle suite for C++ classes with default constructor extensible from Python.
+// Difference from above is that we need to take care of handling the derived class' dict.
 template <class T>
 struct python_class_pickle_suite: boost::python::pickle_suite
 {

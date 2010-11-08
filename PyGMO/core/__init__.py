@@ -21,8 +21,11 @@ class py_island(base_island):
 		return retval
 	@staticmethod
 	def _process_target(conn,a,p):
-		tmp = a.evolve(p)
-		conn.send(tmp)
+		try:
+			tmp = a.evolve(p)
+			conn.send(tmp)
+		except:
+			conn.send(0)
 	def _start_evolution(self,algo,pop):
 		import multiprocessing as _mp
 		self.__parent_conn, self.__child_conn = _mp.Pipe()
@@ -38,4 +41,6 @@ class py_island(base_island):
 		del self.__parent_conn
 		del self.__child_conn
 		del self.__process
+		if isinstance(retval,int):
+			raise RuntimeError()
 		return retval

@@ -149,10 +149,12 @@ struct island_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const Island &isl)
 	{
+		py_lock lock;
 		return boost::python::make_tuple(isl.get_problem(),isl.get_algorithm());
 	}
 	static boost::python::tuple getstate(const Island &isl)
 	{
+		py_lock lock;
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << isl;
@@ -160,6 +162,7 @@ struct island_pickle_suite : boost::python::pickle_suite
 	}
 	static void setstate(Island &isl, boost::python::tuple state)
 	{
+		py_lock lock;
 		if (len(state) != 2)
 		{
 			PyErr_SetObject(PyExc_ValueError,("expected 2-item tuple in call to __setstate__; got %s" % state).ptr());
@@ -262,7 +265,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("_start_evolution",&python_base_island::py_start_evolution)
 		.def("_check_evolution_status",&python_base_island::py_check_evolution_status)
 		.def("_get_evolved_population",&python_base_island::py_get_evolved_population)
-		.def_pickle(python_class_pickle_suite<python_base_island>());
+		.def_pickle(python_base_island_pickle_suite());
 
 	// Local island class.
 	class_<island,bases<base_island> >("island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())

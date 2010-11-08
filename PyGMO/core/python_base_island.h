@@ -188,6 +188,48 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 };
 
+struct python_base_island_pickle_suite : boost::python::pickle_suite
+{
+	static boost::python::tuple getinitargs(const python_base_island &isl)
+	{
+		pagmo::py_lock lock;
+		return boost::python::make_tuple(isl.get_problem(),isl.get_algorithm());
+	}
+	static boost::python::tuple getstate(boost::python::object obj)
+	{
+		pagmo::py_lock lock;
+		std::stringstream ss;
+		const python_base_island &isl = boost::python::extract<python_base_island const &>(obj)();
+		boost::archive::text_oarchive oa(ss);
+		oa << isl;
+		return boost::python::make_tuple(obj.attr("__dict__"),ss.str(),isl.get_algorithm());
+	}
+	static void setstate(boost::python::object obj, boost::python::tuple state)
+	{
+		pagmo::py_lock lock;
+		if (len(state) != 3)
+		{
+			PyErr_SetObject(PyExc_ValueError,("expected 3-item tuple in call to __setstate__; got %s" % state).ptr());
+			boost::python::throw_error_already_set();
+		}
+		// Restore the object's __dict__.
+		boost::python::dict d = boost::python::extract<boost::python::dict>(obj.attr("__dict__"))();
+		d.update(state[0]);
+		// Restore the internal state of the C++ object.
+		python_base_island &isl = boost::python::extract<python_base_island &>(obj)();
+		const std::string str = boost::python::extract<std::string>(state[1]);
+		std::stringstream ss(str);
+		boost::archive::text_iarchive ia(ss);
+		ia >> isl;
+		const algorithm::base_ptr algo = boost::python::extract<algorithm::base_ptr>(state[2]);
+		isl.set_algorithm(*algo);
+	}
+	static bool getstate_manages_dict()
+	{
+		return true;
+	}
+};
+
 }
 
 namespace boost { namespace serialization {
