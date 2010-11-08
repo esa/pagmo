@@ -22,7 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <Python.h>
 #include <boost/python/class.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/module.hpp>
@@ -30,7 +29,6 @@
 #include <boost/utility.hpp>
 
 #include "../../src/migration.h"
-#include "../exceptions.h"
 #include "../utils.h"
 
 using namespace boost::python;
@@ -61,10 +59,7 @@ static inline class_<MRPolicy,bases<migration::base_r_policy> > migration_r_poli
 }
 
 BOOST_PYTHON_MODULE(_migration) {
-	// Initialise Python thread support.
-	PyEval_InitThreads();
-	// Translate exceptions for this module.
-	translate_exceptions();
+	common_module_init();
 
 	// Migration rate type enum.
 	enum_<migration::rate_type>("rate_type")

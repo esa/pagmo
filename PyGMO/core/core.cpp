@@ -22,7 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <Python.h>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
@@ -34,7 +33,6 @@
 #include <boost/python/pure_virtual.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/python/tuple.hpp>
-#include <stdexcept>
 #include <vector>
 
 #include "../../src/algorithm/base.h"
@@ -51,7 +49,6 @@
 #include "../../src/problem/base.h"
 #include "../../src/topology/base.h"
 #include "../boost_python_container_conversions.h"
-#include "../exceptions.h"
 #include "../utils.h"
 //#include "python_island.h"
 #include "python_base_island.h"
@@ -180,10 +177,7 @@ struct island_pickle_suite : boost::python::pickle_suite
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
-	// Initialise Python thread support.
-	PyEval_InitThreads();
-	// Translate exceptions for this module.
-	translate_exceptions();
+	common_module_init();
 
 	// Enable handy automatic conversions.
 	to_tuple_mapping<std::vector<double> >();

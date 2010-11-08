@@ -22,7 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <Python.h>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/enum.hpp>
@@ -39,7 +38,6 @@
 #include "../../src/problems.h"
 #include "../../src/serialization.h"
 #include "../../src/types.h"
-#include "../exceptions.h"
 #include "../utils.h"
 #include "python_base.h"
 
@@ -63,10 +61,7 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 }
 
 BOOST_PYTHON_MODULE(_problem) {
-	// Initialise Python thread support.
-	PyEval_InitThreads();
-	// Translate exceptions for this module.
-	translate_exceptions();
+	common_module_init();
 
 	// Expose base problem class, including the virtual methods.
 	typedef void (problem::base::*bounds_setter)(const decision_vector &);

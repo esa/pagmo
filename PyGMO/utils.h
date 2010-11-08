@@ -27,6 +27,7 @@
 #ifndef PYGMO_UTILS_H
 #define PYGMO_UTILS_H
 
+#include <Python.h>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/serialization/serialization.hpp>
@@ -34,10 +35,13 @@
 #include <boost/python/dict.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/tuple.hpp>
+#include <csignal>
 #include <sstream>
 #include <string>
 
 #include "../src/py_lock.h"
+#include "../src/py_sig_handler.h"
+#include "exceptions.h"
 
 template <class T>
 inline T Py_copy_from_ctor(const T &x)
@@ -148,6 +152,16 @@ inline std::string py_cpp_dumps(const T &x)
 	boost::archive::text_oarchive oa(ss);
 	oa << x;
 	return ss.str();
+}
+
+inline void common_module_init()
+{
+	// Initialise Python thread support.
+	PyEval_InitThreads();
+	// Set custom handler for SIGINT.
+	PyOS_setsig(SIGINT,&pagmo::py_sig_handler);
+	// Translate exceptions for this module.
+	translate_exceptions();
 }
 
 #endif
