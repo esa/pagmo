@@ -25,6 +25,8 @@
 // 30/01/10 Created by Francesco Biscani.
 
 #include <algorithm>
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/ref.hpp>
@@ -1025,6 +1027,23 @@ void base::normalise_bounds()
 	pagmo_assert(m_lb.size() >= m_i_dimension);
 	// Flag to be set if we had to fix the bounds.
 	bool bounds_fixed = false;
+	for (size_type i = 0; i < m_lb.size() - m_i_dimension; ++i) {
+		// Handle NaNs: if either lower/upper bound(s) are NaN, replace with 0 and 1 respectively.
+		if (boost::math::isnan(m_lb[i]) || boost::math::isnan(m_ub[i])) {
+			m_lb[i] = 0;
+			m_ub[i] = 1;
+			bounds_fixed = true;
+		}
+		// +-Infs are replaced by the highest/lowest values representable by double.
+		if (boost::math::isinf(m_lb[i])) {
+			m_lb[i] = (m_lb[i] > 0) ? boost::numeric::bounds<double>::highest() : boost::numeric::bounds<double>::lowest();
+			bounds_fixed = true;
+		}
+		if (boost::math::isinf(m_ub[i])) {
+			m_ub[i] = (m_ub[i] > 0) ? boost::numeric::bounds<double>::highest() : boost::numeric::bounds<double>::lowest();
+			bounds_fixed = true;
+		}
+	}
 	for (size_type i = m_lb.size() - m_i_dimension; i < m_lb.size(); ++i) {
 		// First let's make sure that integer bounds are in the allowed range.
 		if (m_lb[i] < INT_MIN) {
@@ -1054,7 +1073,7 @@ void base::normalise_bounds()
 		}
 	}
 	if (bounds_fixed) {
-		pagmo_throw(value_error,"the integer bounds were either over/under-flowing or they were not integer, and they had to be adjusted");
+		pagmo_throw(value_error,"problem bounds were invalid and had to be fixed");
 	}
 }
 
@@ -1164,7 +1183,7 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 	fitness_vector f0(m_f_dimension),f_new(m_f_dimension);
 	decision_vector x0(Dc);
 	// Double precision random number generator.
-	rng_double	drng(rng_generator::get<rng_double>());
+	rng_double drng(rng_generator::get<rng_double>());
 
 	for (decision_vector::size_type i = 0; i<Dc;++i) {
 		x0[i] = boost::uniform_real<double>(m_lb[i],m_ub[i])(drng);
