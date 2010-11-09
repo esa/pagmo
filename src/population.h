@@ -42,7 +42,7 @@ namespace pagmo
 
 // Forward declarations.
 class base_island;
-class population_access;
+struct population_access;
 
 /// Population class.
 /**
@@ -59,7 +59,7 @@ class population_access;
 class __PAGMO_VISIBLE population
 {
 		friend class base_island;
-		friend class population_access;
+		friend struct population_access;
 	public:
 		/// Individuals stored in the population.
 		/**

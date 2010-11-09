@@ -12,6 +12,10 @@ class base(_problem._base):
 		return self._get_typename()
 
 class py_test(base):
+	"""
+	Minimal test problem implemented purely in Python. Objective function
+	is De Jong's unidimensional sphere function.
+	"""
 	def __init__(self):
 		super(py_test,self).__init__(1)
 	def __copy__(self):

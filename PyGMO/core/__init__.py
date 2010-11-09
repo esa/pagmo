@@ -11,8 +11,13 @@ class base_island(_core._base_island):
 	def get_name(self):
 		return str(type(self))
 
+# This is the function that will be called by the separate process
+# spawned from py_island.
 def _process_target(conn,a,p):
 	try:
+		# NOTE: here we have to override the default signal handler for SIGINT, othwerise
+		# pressing CTRL-C in the Python interpreter while evolution is undergoing in separate
+		# processes would kill those processes too.
 		_signal.signal(_signal.SIGINT,lambda signum,frame: None)
 		tmp = a.evolve(p)
 		conn.send(tmp)
