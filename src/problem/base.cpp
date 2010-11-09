@@ -1164,7 +1164,7 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 	fitness_vector f0(m_f_dimension),f_new(m_f_dimension);
 	decision_vector x0(Dc);
 	// Double precision random number generator.
-	rng_double	drng(rng_generator::get<rng_double>());
+	rng_double drng(rng_generator::get<rng_double>());
 
 	for (decision_vector::size_type i = 0; i<Dc;++i) {
 		x0[i] = boost::uniform_real<double>(m_lb[i],m_ub[i])(drng);
