@@ -65,6 +65,7 @@ inline void load_construct_data(Archive &, pagmo::python_base_island *, const un
 
 namespace pagmo {
 
+// Base island class for re-implementation from Python.
 class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::python::wrapper<base_island>
 {
 		// RAII gil releaser.
@@ -166,6 +167,18 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		{
 			return false;
 		}
+		// Important NOTE: here we implement the evolution using a polling mechanism:
+		// - start the evolution with py_start_evolution,
+		// - monitor the evolution every .1s using py_check_evolution_status,
+		// - fetch the evolved population with py_get_evolved_population.
+		// Additionally, we lock every call to methods re-implemented from Python (here and everywhere else)
+		// not only with a Python-thread-safe GIL lock (PyGILState_* functions) but also with a shared mutex
+		// from the Boost libraries. We do this to add an additional layer to prevent potential thread-safety
+		// issues within Python. See for instance here:
+		// http://stackoverflow.com/questions/1359795/error-while-using-multiprocessing-module-in-a-python-daemon
+		// Apparently, starting processes from multiple Python threads is not thread-safe (!): by adding an additional
+		// shared mutex we make sure each function within out framework is called in an atomic way - i.e., no other
+		// functions from the framework are executed concurrently from separate threads.
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
 			py_start_evolution(a.clone(),pop);

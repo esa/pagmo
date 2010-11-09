@@ -39,9 +39,8 @@ class py_lock: private boost::noncopyable
 		py_lock();
 		~py_lock();
 	private:
+		lock_type			m_lock;
 		PyGILState_STATE		m_gstate;
-// 		lock_type			m_lock;
-		PyThreadState			*m_thread_state;
 		static boost::recursive_mutex	m_mutex;
 };
 
