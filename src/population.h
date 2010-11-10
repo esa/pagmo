@@ -25,11 +25,8 @@
 #ifndef PAGMO_POPULATION_H
 #define PAGMO_POPULATION_H
 
-#include <boost/lexical_cast.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <cstddef>
 #include <iostream>
-#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -63,51 +60,6 @@ class __PAGMO_VISIBLE population
 {
 		friend class base_island;
 		friend struct population_access;
-		// These two are custom functions for the serialization of vector of doubles that handle also inf and NaN.
-		template <class Archive>
-		static void custom_vector_double_save(Archive &ar, const std::vector<double> &v, const unsigned int)
-		{
-			const std::vector<double>::size_type size = v.size();
-			// Save size.
-			ar << size;
-			// Save elements.
-			std::string tmp;
-			for (std::vector<double>::size_type i = 0; i < size; ++i) {
-				if (boost::math::isnan(v[i])) {
-					tmp = "nan";
-				} else if (boost::math::isinf(v[i])) {
-					if (v[i] > 0) {
-						tmp = "inf";
-					} else {
-						tmp = "-inf";
-					}
-				} else {
-					tmp = boost::lexical_cast<std::string>(v[i]);
-				}
-				ar << tmp;
-			}
-		}
-		template <class Archive>
-		static void custom_vector_double_load(Archive &ar, std::vector<double> &v, const unsigned int)
-		{
-			std::vector<double>::size_type size = 0;
-			// Load size.
-			ar >> size;
-			v.resize(size);
-			std::string tmp;
-			for (std::vector<double>::size_type i = 0; i < size; ++i) {
-				ar >> tmp;
-				if (tmp == "nan") {
-					v[i] = std::numeric_limits<double>::quiet_NaN();
-				} else if (tmp == "inf") {
-					v[i] = std::numeric_limits<double>::infinity();
-				} else if (tmp == "-inf") {
-					v[i] = -std::numeric_limits<double>::infinity();
-				} else {
-					v[i] = boost::lexical_cast<double>(tmp);
-				}
-			}
-		}
 	public:
 		/// Individuals stored in the population.
 		/**

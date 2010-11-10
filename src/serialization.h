@@ -31,6 +31,8 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/graph/adj_list_serialize.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
@@ -42,36 +44,90 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+#include <limits>
 
 // Serialization of circular buffer, unordered map.
 // TODO: serialize the functors.. allocator, Hash, Pred, etc.
 #include <boost/circular_buffer.hpp>
 #include <boost/unordered_map.hpp>
+#include <string>
 #include <utility>
+#include <vector>
+
+namespace pagmo {
+
+// These two are custom functions for the serialization of vector of doubles that handle also inf and NaN.
+template <class Archive>
+void custom_vector_double_save(Archive &ar, const std::vector<double> &v, const unsigned int)
+{
+	const std::vector<double>::size_type size = v.size();
+	// Save size.
+	ar << size;
+	// Save elements.
+	std::string tmp;
+	for (std::vector<double>::size_type i = 0; i < size; ++i) {
+		if (boost::math::isnan(v[i])) {
+			tmp = "nan";
+		} else if (boost::math::isinf(v[i])) {
+			if (v[i] > 0) {
+				tmp = "inf";
+			} else {
+				tmp = "-inf";
+			}
+		} else {
+			tmp = boost::lexical_cast<std::string>(v[i]);
+		}
+		ar << tmp;
+	}
+}
+
+template <class Archive>
+void custom_vector_double_load(Archive &ar, std::vector<double> &v, const unsigned int)
+{
+	std::vector<double>::size_type size = 0;
+	// Load size.
+	ar >> size;
+	v.resize(size);
+	std::string tmp;
+	for (std::vector<double>::size_type i = 0; i < size; ++i) {
+		ar >> tmp;
+		if (tmp == "nan") {
+			v[i] = std::numeric_limits<double>::quiet_NaN();
+		} else if (tmp == "inf") {
+			v[i] = std::numeric_limits<double>::infinity();
+		} else if (tmp == "-inf") {
+			v[i] = -std::numeric_limits<double>::infinity();
+		} else {
+			v[i] = boost::lexical_cast<double>(tmp);
+		}
+	}
+}
+
+}
 
 namespace boost { namespace serialization {
 
-template <class Archive, class T>
-void save(Archive &ar, const boost::circular_buffer<T> &cb, unsigned int)
+template <class Archive>
+void save(Archive &ar, const boost::circular_buffer<std::vector<double> > &cb, unsigned int version)
 {
 	// Let's first save capacity and size.
-	typedef typename boost::circular_buffer<T>::capacity_type capacity_type;
-	typedef typename boost::circular_buffer<T>::size_type size_type;
+	typedef typename boost::circular_buffer<std::vector<double> >::capacity_type capacity_type;
+	typedef typename boost::circular_buffer<std::vector<double> >::size_type size_type;
 	capacity_type capacity = cb.capacity();
 	ar << capacity;
 	size_type size = cb.size();
 	ar << size;
 	// Save the content.
 	for (size_type i = 0; i < size; ++i) {
-		ar << cb[i];
+		pagmo::custom_vector_double_save(ar,cb[i],version);
 	}
 }
 
-template <class Archive, class T>
-void load(Archive &ar, boost::circular_buffer<T> &cb, unsigned int)
+template <class Archive>
+void load(Archive &ar, boost::circular_buffer<std::vector<double> > &cb, unsigned int version)
 {
-	typedef typename boost::circular_buffer<T>::capacity_type capacity_type;
-	typedef typename boost::circular_buffer<T>::size_type size_type;
+	typedef typename boost::circular_buffer<std::vector<double> >::capacity_type capacity_type;
+	typedef typename boost::circular_buffer<std::vector<double> >::size_type size_type;
 	// Restore capacity.
 	capacity_type capacity;
 	ar >> capacity;
@@ -82,7 +138,7 @@ void load(Archive &ar, boost::circular_buffer<T> &cb, unsigned int)
 	cb.resize(size);
 	// Restore elements.
 	for (size_type i = 0; i < size; ++i) {
-		ar >> cb[i];
+		pagmo::custom_vector_double_load(ar,cb[i],version);
 	}
 }
 
