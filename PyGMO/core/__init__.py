@@ -1,7 +1,22 @@
 # -*- coding: utf-8 -*-
 from _core import *
-import multiprocessing as _mp
+import threading as _threading
 import signal as _signal
+import os as _os
+
+_orig_signal = _signal.getsignal(_signal.SIGINT)
+_main_pid = _os.getpid()
+
+# Alternative signal handler which ignores sigint if called from a child process.
+def _sigint_handler(signum,frame):
+	import os
+	if os.getpid() == _main_pid:
+		_orig_signal(signum,frame)
+
+_signal.signal(_signal.SIGINT,_sigint_handler)
+
+# Global lock used when starting processes.
+_rlock = _threading.RLock()
 
 class base_island(_core._base_island):
 	def __init__(self,*args):
@@ -13,18 +28,14 @@ class base_island(_core._base_island):
 
 # This is the function that will be called by the separate process
 # spawned from py_island.
-def _process_target(conn,a,p):
+def _process_target(q,a,p):
 	try:
-		# NOTE: here we have to override the default signal handler for SIGINT, othwerise
-		# pressing CTRL-C in the Python interpreter while evolution is undergoing in separate
-		# processes would kill those processes too.
-		_signal.signal(_signal.SIGINT,lambda signum,frame: None)
 		tmp = a.evolve(p)
-		conn.send(tmp)
+		q.put(tmp)
 	except BaseException as e:
 		print('Exception caught during evolution:')
 		print(e)
-		conn.send(0)
+		q.put(0)
 
 class py_island(base_island):
 	from PyGMO import migration as _migr
@@ -36,25 +47,20 @@ class py_island(base_island):
 	def __copy__(self):
 		retval = py_island(None,self.algorithm,self.population,None,self.migration_probability,self.s_policy,self.r_policy)
 		return retval
-	def _start_evolution(self,algo,pop):
-		self.__parent_conn, self.__child_conn = _mp.Pipe()
-		self.__process = _mp.Process(target = _process_target, args = (self.__child_conn,algo,pop))
-		self.__process.start()
-	def _check_evolution_status(self):
-		return not self.__process.is_alive()
-	def _get_evolved_population(self):
+	def _perform_evolution(self,algo,pop):
 		try:
-			retval = self.__parent_conn.recv()
+			import multiprocessing as mp
+			q = mp.Queue()
+			# Apparently creating/starting processes is _not_ thread safe:
+			# http://stackoverflow.com/questions/1359795/error-while-using-multiprocessing-module-in-a-python-daemon
+			# Protect with a global lock.
+			with _rlock:
+				process = mp.Process(target = _process_target, args = (q,algo,pop))
+				process.start()
+			retval = q.get()
+			if isinstance(retval,int):
+				raise RuntimeError()
+			return retval
 		except BaseException as e:
-			print('Exception caught while receiving object:')
 			print(e)
-			retval = 0
-		# Cleanup.
-		self.__parent_conn.close()
-		self.__child_conn.close()
-		del self.__parent_conn
-		del self.__child_conn
-		del self.__process
-		if isinstance(retval,int):
 			raise RuntimeError()
-		return retval

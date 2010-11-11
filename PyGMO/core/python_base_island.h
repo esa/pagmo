@@ -128,31 +128,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		{
 			return this->base_island::get_name();
 		}
-		void py_start_evolution(algorithm::base_ptr a_ptr, const population &pop) const
-		{
-			py_lock lock;
-			if (boost::python::override f = this->get_override("_start_evolution")) {
-				f(a_ptr,pop);
-				return;
-			}
-			pagmo_throw(not_implemented_error,"island's _start_evolution method has not been implemented");
-		}
-		bool py_check_evolution_status() const
-		{
-			py_lock lock;
-			if (boost::python::override f = this->get_override("_check_evolution_status")) {
-				return f();
-			}
-			pagmo_throw(not_implemented_error,"island's _check_evolution_status method has not been implemented");
-		}
-		population py_get_evolved_population() const
-		{
-			py_lock lock;
-			if (boost::python::override f = this->get_override("_get_evolved_population")) {
-				return f();
-			}
-			pagmo_throw(not_implemented_error,"island's _get_evolved_population method has not been implemented");
-		}
 		// We need to reimplement this so that before attempting the thread
 		// join we release the GIL. Otherwise, joining will block every other operation in the
 		// separate threads calling from Python.
@@ -161,31 +136,23 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			scoped_gil_release release;
 			base_island::join();
 		}
+		population py_perform_evolution(algorithm::base_ptr a, const population &pop) const
+		{
+			py_lock lock;
+			if (boost::python::override f = this->get_override("_perform_evolution")) {
+				return f(a,pop);
+			}
+			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
+		}
 	protected:
 		// An island implemented in Python is never blocking: evolution goes into separate process.
 		bool is_blocking_impl() const
 		{
 			return false;
 		}
-		// Important NOTE: here we implement the evolution using a polling mechanism:
-		// - start the evolution with py_start_evolution,
-		// - monitor the evolution every .1s using py_check_evolution_status,
-		// - fetch the evolved population with py_get_evolved_population.
-		// Additionally, we lock every call to methods re-implemented from Python (here and everywhere else)
-		// not only with a Python-thread-safe GIL lock (PyGILState_* functions) but also with a shared mutex
-		// from the Boost libraries. We do this to add an additional layer to prevent potential thread-safety
-		// issues within Python. See for instance here:
-		// http://stackoverflow.com/questions/1359795/error-while-using-multiprocessing-module-in-a-python-daemon
-		// Apparently, starting processes from multiple Python threads is not thread-safe (!): by adding an additional
-		// shared mutex we make sure each function within out framework is called in an atomic way - i.e., no other
-		// functions from the framework are executed concurrently from separate threads.
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
-			py_start_evolution(a.clone(),pop);
-			while (!py_check_evolution_status()) {
-				boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-			}
-			pop = py_get_evolved_population();
+			pop = py_perform_evolution(a.clone(),population(pop));
 		}
 	private:
 		template <class Archive>

@@ -23,15 +23,12 @@
  *****************************************************************************/
 
 #include <Python.h>
-#include <boost/thread/recursive_mutex.hpp>
 
 #include "py_lock.h"
 
 namespace pagmo {
 
-boost::recursive_mutex py_lock::m_mutex;
-
-py_lock::py_lock():m_lock(m_mutex),m_gstate(PyGILState_Ensure())
+py_lock::py_lock():m_gstate(PyGILState_Ensure())
 {}
 
 py_lock::~py_lock()

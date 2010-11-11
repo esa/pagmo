@@ -40,7 +40,6 @@
 #include <string>
 
 #include "../src/py_lock.h"
-#include "../src/py_sig_handler.h"
 #include "exceptions.h"
 
 template <class T>
@@ -158,8 +157,6 @@ inline void common_module_init()
 {
 	// Initialise Python thread support.
 	PyEval_InitThreads();
-	// Set custom handler for SIGINT.
-	PyOS_setsig(SIGINT,&pagmo::py_sig_handler);
 	// Translate exceptions for this module.
 	translate_exceptions();
 }

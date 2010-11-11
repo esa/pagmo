@@ -26,22 +26,17 @@
 #define PAGMO_PY_LOCK_H
 
 #include <Python.h>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/recursive_mutex.hpp>
 #include <boost/utility.hpp>
 
 namespace pagmo {
 
 class py_lock: private boost::noncopyable
 {
-		typedef boost::lock_guard<boost::recursive_mutex> lock_type;
 	public:
 		py_lock();
 		~py_lock();
 	private:
-		lock_type			m_lock;
 		PyGILState_STATE		m_gstate;
-		static boost::recursive_mutex	m_mutex;
 };
 
 }
