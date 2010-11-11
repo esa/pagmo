@@ -80,23 +80,45 @@ OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
 # Build option: enable test set.
 OPTION(ENABLE_TESTS "Build test set." ON)
 
+# Build option: enable test set.
+OPTION(ENABLE_SYSTEM_BOOST "Use system-wide Boost libraries." OFF)
+
 # Build Option: build executable for the examples
 OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
 
-# Flags needed when using static PaGMO library.
-SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_LIB")
-# Flags needed when using dynamic PaGMO library.
 SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
-# Flags needed when building static PaGMO library.
-SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_LIB")
-# Flags needed when building dynamic PaGMO library.
-SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
-# NOTE: for Boost Python we are only interested in the dynamic linking, which, according to its config.hpp, is automatically
-# selected if nothing else is specified. Hence, we do not need to set anything specific, apart from the -DBOOST_PYTHON_SOURCE
-# definition in src/CMakelists.txt.
-
-# Let's include Boost's headers.
-INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
+IF(ENABLE_SYSTEM_BOOST)
+	# NOTE: for system Boost, we are always going to use the system DLLs.
+	SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
+	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
+	SET(REQUIRED_BOOST_LIBS serialization thread)
+	IF(BUILD_PYGMO)
+		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
+	ENDIF(BUILD_PYGMO)
+	IF(ENABLE_MPI)
+		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} mpi)
+	ENDIF(ENABLE_MPI)
+	MESSAGE(STATUS "Required Boost libraries: ${REQUIRED_BOOST_LIBS}")
+	FIND_PACKAGE(Boost 1.40.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
+	MESSAGE(STATUS "Detected Boost version: ${Boost_VERSION}")
+	# Include system Boost headers.
+	MESSAGE(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
+	MESSAGE(STATUS "Boost libraries: ${Boost_LIBRARIES}")
+	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+	# Whatever we do, we need serialization and threads.
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${Boost_THREAD_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
+ELSE(ENABLE_SYSTEM_BOOST)
+	# NOTE: for the shipped Boost, we will need to compile the relevant libraries.
+	SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_LIB")
+	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_LIB")
+	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+	# NOTE: for Boost Python we are only interested in the dynamic linking, which, according to its config.hpp, is automatically
+	# selected if nothing else is specified. Hence, we do not need to set anything specific, apart from the -DBOOST_PYTHON_SOURCE
+	# definition in src/CMakelists.txt.
+	# Let's include our own Boost headers.
+	INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
+ENDIF(ENABLE_SYSTEM_BOOST)
 
 # Some common platform switches.
 SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
@@ -151,10 +173,16 @@ IF(ENABLE_MPI)
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} ${MPI_LINK_FLAGS}")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_COMPILE_FLAGS}")
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_MPI)
-	SET(STATIC_LIB_PAGMO_USE_FLAGS "${STATIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_STATIC_LINK")
 	SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "${DYNAMIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_DYN_LINK")
-	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_STATIC_LINK")
 	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "${DYNAMIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_DYN_LINK")
+	IF(ENABLE_SYSTEM_BOOST)
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${Boost_MPI_LIBRARY})
+		SET(STATIC_LIB_PAGMO_USE_FLAGS "${STATIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_DYN_LINK")
+		SET(STATIC_LIB_PAGMO_BUILD_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_DYN_LINK")
+	ELSE(ENABLE_SYSTEM_BOOST)
+		SET(STATIC_LIB_PAGMO_USE_FLAGS "${STATIC_LIB_PAGMO_USE_FLAGS} -DBOOST_MPI_STATIC_LINK")
+		SET(STATIC_LIB_PAGMO_BUILD_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS} -DBOOST_MPI_STATIC_LINK")
+	ENDIF(ENABLE_SYSTEM_BOOST)
 ENDIF(ENABLE_MPI)
 
 # If GSL support is requested, look for the library.
