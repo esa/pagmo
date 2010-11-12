@@ -45,7 +45,6 @@
 #include "../../src/migration/best_s_policy.h"
 #include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
-#include "../../src/py_lock.h"
 #include "../../src/problem/base.h"
 #include "../../src/topology/base.h"
 #include "../boost_python_container_conversions.h"
@@ -113,12 +112,10 @@ struct population_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const population &pop)
 	{
-		py_lock lock;
 		return boost::python::make_tuple(pop.problem().clone());
 	}
 	static boost::python::tuple getstate(const population &pop)
 	{
-		py_lock lock;
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << pop;
@@ -126,7 +123,6 @@ struct population_pickle_suite : boost::python::pickle_suite
 	}
 	static void setstate(population &pop, boost::python::tuple state)
 	{
-		py_lock lock;
 		if (len(state) != 2)
 		{
 			PyErr_SetObject(PyExc_ValueError,("expected 2-item tuple in call to __setstate__; got %s" % state).ptr());
@@ -146,12 +142,10 @@ struct island_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const Island &isl)
 	{
-		py_lock lock;
 		return boost::python::make_tuple(isl.get_problem(),isl.get_algorithm());
 	}
 	static boost::python::tuple getstate(const Island &isl)
 	{
-		py_lock lock;
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << isl;
@@ -159,7 +153,6 @@ struct island_pickle_suite : boost::python::pickle_suite
 	}
 	static void setstate(Island &isl, boost::python::tuple state)
 	{
-		py_lock lock;
 		if (len(state) != 2)
 		{
 			PyErr_SetObject(PyExc_ValueError,("expected 2-item tuple in call to __setstate__; got %s" % state).ptr());
@@ -254,7 +247,7 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("r_policy",&base_island::get_r_policy)
 		.add_property("migration_probability",&base_island::get_migration_probability)
 		// Virtual methods.
-		.def("__copy__",pure_virtual(&base_island::clone))
+		.def("__copy__",&python_base_island::clone)
 		.def("get_name", &base_island::get_name,&python_base_island::default_get_name)
 		.def("_perform_evolution",&python_base_island::py_perform_evolution)
 		.def_pickle(python_base_island_pickle_suite());

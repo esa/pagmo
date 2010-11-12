@@ -109,7 +109,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		base_island_ptr clone() const
 		{
-			py_lock lock;
 			base_island_ptr retval = this->get_override("__copy__")();
 			if (!retval) {
 				pagmo_throw(std::runtime_error,"island's __copy__() method returns a NULL pointer, please check the implementation");
@@ -118,7 +117,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		std::string get_name() const
 		{
-			py_lock lock;
 			if (boost::python::override f = this->get_override("get_name")) {
 				return f();
 			}
@@ -138,7 +136,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		population py_perform_evolution(algorithm::base_ptr a, const population &pop) const
 		{
-			py_lock lock;
 			if (boost::python::override f = this->get_override("_perform_evolution")) {
 				return f(a,pop);
 			}
@@ -152,6 +149,9 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
+			// This function originates from a thread started in C++. Let's make sure that we can call
+			// the Python interpreter from it, using a lock.
+			py_lock lock;
 			pop = py_perform_evolution(a.clone(),population(pop));
 		}
 	private:
@@ -172,12 +172,10 @@ struct python_base_island_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const python_base_island &isl)
 	{
-		pagmo::py_lock lock;
 		return boost::python::make_tuple(isl.get_problem(),isl.get_algorithm());
 	}
 	static boost::python::tuple getstate(boost::python::object obj)
 	{
-		pagmo::py_lock lock;
 		std::stringstream ss;
 		const python_base_island &isl = boost::python::extract<python_base_island const &>(obj)();
 		boost::archive::text_oarchive oa(ss);
@@ -186,7 +184,6 @@ struct python_base_island_pickle_suite : boost::python::pickle_suite
 	}
 	static void setstate(boost::python::object obj, boost::python::tuple state)
 	{
-		pagmo::py_lock lock;
 		if (len(state) != 3)
 		{
 			PyErr_SetObject(PyExc_ValueError,("expected 3-item tuple in call to __setstate__; got %s" % state).ptr());
