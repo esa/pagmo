@@ -247,7 +247,7 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("r_policy",&base_island::get_r_policy)
 		.add_property("migration_probability",&base_island::get_migration_probability)
 		// Virtual methods.
-		.def("__copy__",&python_base_island::clone)
+		.def("__copy__",pure_virtual(&base_island::clone))
 		.def("get_name", &base_island::get_name,&python_base_island::default_get_name)
 		.def("_perform_evolution",&python_base_island::py_perform_evolution)
 		.def_pickle(python_base_island_pickle_suite());
