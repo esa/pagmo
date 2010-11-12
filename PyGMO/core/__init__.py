@@ -52,12 +52,15 @@ class py_island(base_island):
 			import multiprocessing as mp
 			q = mp.Queue()
 			# Apparently creating/starting processes is _not_ thread safe:
+			# http://bugs.python.org/issue1731717
 			# http://stackoverflow.com/questions/1359795/error-while-using-multiprocessing-module-in-a-python-daemon
 			# Protect with a global lock.
 			with _rlock:
 				process = mp.Process(target = _process_target, args = (q,algo,pop))
 				process.start()
 			retval = q.get()
+			with _rlock:
+				process.join()
 			if isinstance(retval,int):
 				raise RuntimeError()
 			return retval
