@@ -58,11 +58,11 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<base>
 {
 	public:
-		python_base(int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
+		explicit python_base(int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			base(n,ni,nf,nc,nic,c_tol) {}
-		python_base(const decision_vector &lb, const decision_vector &ub, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
+		explicit python_base(const decision_vector &lb, const decision_vector &ub, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			base(lb,ub,ni,nf,nc,nic,c_tol) {}
-		python_base(const base &p):base(p) {}
+		explicit python_base(const base &p):base(p) {}
 		base_ptr clone() const
 		{
 			base_ptr retval = this->get_override("__copy__")();

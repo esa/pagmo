@@ -42,7 +42,6 @@
 #include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
 #include "../../src/problem/base.h"
-#include "../../src/py_lock.h"
 #include "../../src/serialization.h"
 #include "../utils.h"
 
@@ -89,14 +88,15 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			base_island(prob,algo,n,migr_prob,s_policy,r_policy) {}
+			base_island(prob,algo,n,migr_prob,s_policy,r_policy),m_gstate() {}
 		explicit python_base_island(const population &pop, const algorithm::base &algo,
 			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			base_island(pop,algo,migr_prob,s_policy,r_policy) {}
+			base_island(pop,algo,migr_prob,s_policy,r_policy),m_gstate() {}
+		python_base_island(const python_base_island &isl):base_island(isl),m_gstate() {}
 		// NOTE: why is this necessary?
-		python_base_island(const base_island &isl):base_island(isl) {}
+		explicit python_base_island(const base_island &isl):base_island(isl),m_gstate() {}
 		~python_base_island()
 		{
 			// Call the re-implemented join().
@@ -149,11 +149,19 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
-			// This function originates from a thread started in C++. Let's make sure that we can call
-			// the Python interpreter from it, using a lock.
-			py_lock lock;
-			pop = py_perform_evolution(a.clone(),population(pop));
+			pop = py_perform_evolution(a.clone(),pop);
 		}
+		void thread_entry()
+		{
+			m_gstate = PyGILState_Ensure();
+		}
+		void thread_exit()
+		{
+			PyGILState_Release(m_gstate);
+			m_gstate = PyGILState_STATE();
+		}
+	private:
+		PyGILState_STATE m_gstate;
 	private:
 		template <class Archive>
 		friend void boost::serialization::save_construct_data(Archive &, const python_base_island *, const unsigned int);

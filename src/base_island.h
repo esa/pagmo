@@ -143,6 +143,8 @@ class __PAGMO_VISIBLE base_island
 		virtual bool is_blocking_impl() const = 0;
 		/// Method that implements the evolution of the population.
 		virtual void perform_evolution(const algorithm::base &, population &) const = 0;
+		virtual void thread_entry();
+		virtual void thread_exit();
 		//@}
 	public:
 		/** @name Getters and setters.*/
@@ -165,6 +167,9 @@ class __PAGMO_VISIBLE base_island
 		struct int_evolver;
 		// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.
 		struct t_evolver;
+		// RAII threads hook object.
+		struct raii_thread_hook;
+		friend struct raii_thread_hook;
 	protected:
 		/// Population.
 		population				m_pop;

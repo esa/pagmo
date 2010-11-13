@@ -281,9 +281,6 @@ IF(BUILD_PYGMO)
 			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/wrapper.cpp
 		)
 	ENDIF(ENABLE_SYSTEM_BOOST)
-	SET(PAGMO_SHARED_LIB_SRC_LIST
-		${CMAKE_CURRENT_SOURCE_DIR}/py_lock.cpp
-	)
 	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
 	# Request linking against the Python libs, in addition to our mandatory libs.
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})

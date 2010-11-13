@@ -246,6 +246,36 @@ bool base_island::is_blocking() const
 	return is_blocking_impl();
 }
 
+/// Thread entry hook.
+/**
+ * This method will be called before any other operation takes place in the threads spawned during
+ * evolution. Default implementation is a no-op.
+ */
+void base_island::thread_entry()
+{}
+
+/// Thread exit hook.
+/**
+ * This method will be called after any other operation has taken place in the threads spawned during
+ * evolution. Default implementation is a no-op.
+ */
+void base_island::thread_exit()
+{}
+
+// RAII class to call thread hooks in base_island.
+struct base_island::raii_thread_hook
+{
+	raii_thread_hook(base_island *ptr):m_ptr(ptr)
+	{
+		m_ptr->thread_entry();
+	}
+	~raii_thread_hook()
+	{
+		m_ptr->thread_exit();
+	}
+	base_island *m_ptr;
+};
+
 // Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
 struct base_island::int_evolver {
 	int_evolver(base_island *i, const std::size_t &n, bool use_thread):m_i(i),m_n(n),m_use_thread(use_thread) {}
@@ -263,6 +293,7 @@ void base_island::int_evolver::juice_impl(boost::posix_time::ptime &start)
 	if (m_i->m_archi && m_use_thread) {
 		m_i->m_archi->sync_island_start();
 	}
+	const raii_thread_hook hook(m_i);
 	for (std::size_t i = 0; i < m_n; ++i) {
 		// Call pre-evolve hooks.
 		if (m_i->m_archi) {
@@ -363,6 +394,7 @@ void base_island::t_evolver::juice_impl(boost::posix_time::ptime &start)
 	if (m_i->m_archi && m_use_thread) {
 		m_i->m_archi->sync_island_start();
 	}
+	const raii_thread_hook hook(m_i);
 	do {
 		if (m_i->m_archi) {
 			m_i->m_archi->pre_evolution(*m_i);

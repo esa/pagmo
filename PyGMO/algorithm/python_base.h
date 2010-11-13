@@ -42,7 +42,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 {
 	public:
 		python_base():base() {}
-		python_base(const base &p):base(p) {}
+		explicit python_base(const base &p):base(p) {}
 		base_ptr clone() const
 		{
 			base_ptr retval = this->get_override("__copy__")();
