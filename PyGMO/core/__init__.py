@@ -16,7 +16,7 @@ def _sigint_handler(signum,frame):
 _signal.signal(_signal.SIGINT,_sigint_handler)
 
 # Global lock used when starting processes.
-_rlock = _threading.RLock()
+_process_lock = _threading.Lock()
 
 class base_island(_core._base_island):
 	def __init__(self,*args):
@@ -55,12 +55,50 @@ class py_island(base_island):
 			# http://bugs.python.org/issue1731717
 			# http://stackoverflow.com/questions/1359795/error-while-using-multiprocessing-module-in-a-python-daemon
 			# Protect with a global lock.
-			with _rlock:
+			with _process_lock:
 				process = mp.Process(target = _process_target, args = (q,algo,pop))
 				process.start()
 			retval = q.get()
-			with _rlock:
+			with _process_lock:
 				process.join()
+			if isinstance(retval,int):
+				raise RuntimeError()
+			return retval
+		except BaseException as e:
+			print(e)
+			raise RuntimeError()
+
+# This is the function that will be called by the task client
+# in ipy_island.
+def _maptask_target(a,p):
+	try:
+		return a.evolve(p)
+	except BaseException as e:
+		print('Exception caught during evolution:')
+		print(e)
+		return 0
+
+class ipy_island(base_island):
+	from PyGMO import migration as _migr
+	def __init__(self,prob, algo, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
+		if pop is None:
+			super(ipy_island,self).__init__(prob,algo,n,migr_prob,s_policy,r_policy)
+		else:
+			super(ipy_island,self).__init__(pop,algo,migr_prob,s_policy,r_policy)
+	def __copy__(self):
+		retval = ipy_island(None,self.algorithm,self.population,None,self.migration_probability,self.s_policy,self.r_policy)
+		return retval
+	def _perform_evolution(self,algo,pop):
+		try:
+			from IPython.kernel.client import TaskClient, MapTask
+			# Create task client.
+			tc = TaskClient()
+			# Create the task.
+			mt = MapTask(_maptask_target,args = (algo,pop))
+			# Run the task.
+			task_id = tc.run(mt)
+			# Get retval.
+			retval = tc.get_task_result(task_id,block = True)
 			if isinstance(retval,int):
 				raise RuntimeError()
 			return retval
