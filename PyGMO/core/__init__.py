@@ -67,6 +67,8 @@ class py_island(base_island):
 		except BaseException as e:
 			print(e)
 			raise RuntimeError()
+	def get_name(self):
+		return "Python island"
 
 # This is the function that will be called by the task client
 # in ipy_island.
@@ -105,3 +107,5 @@ class ipy_island(base_island):
 		except BaseException as e:
 			print(e)
 			raise RuntimeError()
+	def get_name(self):
+		return "Parallel IPython island"
