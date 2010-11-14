@@ -186,6 +186,8 @@ archipelago::size_type archipelago::locate_island(const base_island &isl) const
 {
 	// TODO: iterate and increase a size type instead of using distance(), which returns a signed int.
 	// Also, assert the island is actually found here?
+	// TODO: also, this can be optimized with a hash table, if needed: build it at the beginning
+	// of the evolution, and destroy it at the end.
 	const_iterator it = m_container.begin();
 	for (; it != m_container.end(); ++it) {
 		if (&(*(*it)) == &isl) {
@@ -211,14 +213,6 @@ void archipelago::push_back(const base_island &isl)
 		pagmo_throw(value_error,"cannot push_back() incompatible island");
 	}
 	m_container.push_back(isl.clone());
-	// Make sure the clone() method is implemented properly in the problem of the island we just inserted. This is important
-	// beacuse otherwise we get inconsistent behaviour in migration: we could be inserting a problem which is not really compatible.
-	// NOTE: if we ever implement automatic checking on clone(), this can go away.
-// 	if (m_container.back().m_pop.problem() != isl.m_pop.problem()) {
-		// Remove the island we just inserted.
-// 		m_container.pop_back();
-// 		pagmo_throw(value_error,"the problem's clone() method implementation does not produce a problem equal to itself: please correct it");
-// 	}
 	// Tell the island that it is living in an archipelago now.
 	m_container.back()->m_archi = this;
 	// Insert the island in the topology.
@@ -349,34 +343,28 @@ void archipelago::reset_barrier(const size_type &size)
 void archipelago::build_immigrants_vector(std::vector<individual_type> &immigrants, const base_island &src_isl,
 	base_island &dest_isl, const std::vector<individual_type> &candidates, migr_hist_type &h) const
 {
-	if (dest_isl.m_pop.problem() == src_isl.m_pop.problem()) {
-		// If the problem of the originating island is identical to that of destination island, then we can just
-		// append the immigrants.
-		immigrants.insert(immigrants.end(),candidates.begin(),candidates.end());
-	} else {
-		// If the problems are not identical, then we need to re-evaluate the incoming individuals according
-		// to dest_isl's problem.
-		individual_type tmp;
-		tmp.cur_v.resize(dest_isl.m_pop.problem().get_dimension());
-		tmp.cur_f.resize(dest_isl.m_pop.problem().get_f_dimension());
-		tmp.cur_c.resize(dest_isl.m_pop.problem().get_c_dimension());
-		for (std::vector<individual_type>::const_iterator ind_it = candidates.begin();
-			ind_it != candidates.end(); ++ind_it)
-		{
-			// Skip individual if it is not within the bounds of the problem
-			// in the destination island.
-			if (!dest_isl.m_pop.problem().verify_x(ind_it->cur_x)) {
-				continue;
-			}
-			tmp.cur_x = ind_it->cur_x;
-			dest_isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
-			dest_isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
-			// Set the best properties to the current ones.
-			tmp.best_x = tmp.cur_x;
-			tmp.best_f = tmp.cur_f;
-			tmp.best_c = tmp.cur_c;
-			immigrants.push_back(tmp);
+	// We always re-evaluate the incoming individuals according
+	// to dest_isl's problem.
+	individual_type tmp;
+	tmp.cur_v.resize(dest_isl.m_pop.problem().get_dimension());
+	tmp.cur_f.resize(dest_isl.m_pop.problem().get_f_dimension());
+	tmp.cur_c.resize(dest_isl.m_pop.problem().get_c_dimension());
+	for (std::vector<individual_type>::const_iterator ind_it = candidates.begin();
+		ind_it != candidates.end(); ++ind_it)
+	{
+		// Skip individual if it is not within the bounds of the problem
+		// in the destination island.
+		if (!dest_isl.m_pop.problem().verify_x(ind_it->cur_x)) {
+			continue;
 		}
+		tmp.cur_x = ind_it->cur_x;
+		dest_isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
+		dest_isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
+		// Set the best properties to the current ones.
+		tmp.best_x = tmp.cur_x;
+		tmp.best_f = tmp.cur_f;
+		tmp.best_c = tmp.cur_c;
+		immigrants.push_back(tmp);
 	}
 	// Record the migration history.
 	h.push_back(boost::make_tuple(

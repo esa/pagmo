@@ -148,6 +148,8 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 	boost::archive::text_iarchive ia(ss);
 	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
 	ia >> in;
+	// NOTE: implement via population::swap (to be written) in order to avoid
+	// extra copying?
 	pop = *in.first;
 }
 

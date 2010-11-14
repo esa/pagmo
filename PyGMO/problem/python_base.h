@@ -107,13 +107,6 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 			}
 			pagmo_throw(not_implemented_error,"the '_get_typename' method has not been implemented");
 		}
-		bool py_equality_operator_extra(const base &p) const
-		{
-			if (boost::python::override f = this->get_override("_equality_operator_extra")) {
-				return f(p);
-			}
-			return base::equality_operator_extra(p);
-		}
 		constraint_vector py_compute_constraints_impl(const decision_vector &x) const
 		{
 			boost::python::override f = this->get_override("_compute_constraints_impl");
@@ -124,14 +117,6 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		void objfun_impl(fitness_vector &f, const decision_vector &x) const
 		{
 			f = py_objfun(x);
-		}
-		bool equality_operator_extra(const base &p) const
-		{
-			// NOTE: here the dynamic cast is safe because in base equality we already checked the C++ type.
-			if (get_typename() != dynamic_cast<const python_base &>(p).get_typename()) {
-				return false;
-			}
-			return py_equality_operator_extra(p);
 		}
 		void compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 		{
