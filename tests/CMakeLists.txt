@@ -1,3 +1,3 @@
-ADD_EXECUTABLE(test_001 test_001.cpp)
-TARGET_LINK_LIBRARIES(test_001 ${MANDATORY_LIBRARIES} pagmo_static)
-ADD_TEST(test_001 test_001)
+ADD_EXECUTABLE(local_torture_test local_torture_test.cpp)
+TARGET_LINK_LIBRARIES(local_torture_test ${MANDATORY_LIBRARIES} pagmo_static)
+ADD_TEST(local_torture_test local_torture_test)
