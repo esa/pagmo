@@ -69,3 +69,5 @@ std::string dejong::get_name() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::dejong);

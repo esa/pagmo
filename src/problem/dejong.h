@@ -27,6 +27,7 @@
 
 #include <string>
 
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -58,8 +59,16 @@ class __PAGMO_VISIBLE dejong : public base
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }} //namespaces
 
-#endif // PAGMO_PROBLEM_MICHALEWICZ_H
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::dejong);
+
+#endif
