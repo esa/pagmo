@@ -73,7 +73,7 @@ class scipy_l_bfgs_b(_scipy_base):
 	"""
 	Wrapper around SciPy's l_bfgs_b optimiser.
 	"""
-	def __init__(self,maxiter = 15000,tol = 1E-5,verbose = False):
+	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin_l_bfgs_b',False,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
@@ -136,7 +136,7 @@ class scipy_tnc(_scipy_base):
 	"""
 	Wrapper around SciPy's tnc optimiser.
 	"""
-	def __init__(self,maxiter = 15000,tol = 1E-6,verbose = False):
+	def __init__(self,maxiter = 100,tol = 1E-6,verbose = False):
 		_scipy_base.__init__(self,'fmin_tnc',False,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
@@ -164,7 +164,7 @@ class scipy_cobyla(_scipy_base):
 	"""
 	Wrapper around SciPy's cobyla optimiser.
 	"""
-	def __init__(self,maxiter = 1000,tol = 1E-5,verbose = False):
+	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin_cobyla',True,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
@@ -204,11 +204,11 @@ class scipy_anneal(_scipy_base):
 	"""
 	Wrapper around SciPy's anneal optimiser.
 	"""
-	def __init__(self,verbose = False):
-		_scipy_base.__init__(self,'anneal',constrained = False)
+	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
+		_scipy_base.__init__(self,'anneal',False,maxiter,tol)
 		self.verbose = verbose
 	def __copy__(self):
-		return scipy_anneal(self.verbose)
+		return scipy_anneal(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -220,7 +220,7 @@ class scipy_anneal(_scipy_base):
 		n_ec, x0, x0_comb = self._starting_params(pop)
 		# Run the optimisation.
 		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,lower = array(prob.lb,dtype=float),upper = array(prob.ub,dtype=float),
-			full_output = int(self.verbose))
+			full_output = int(self.verbose), maxiter = self.maxiter, feps = self.tol)
 		# Set the individual's chromosome in the population and return. Conserve the integer part from the
 		# original individual.
 		new_chromosome = list(retval[0]) + list(x0_comb)

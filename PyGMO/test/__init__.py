@@ -24,8 +24,22 @@
 import unittest as _ut
 
 class _serialization_test(_ut.TestCase):
-	def __init__(self):
-		_ut.TestCase.__init__(self)
+	def __test_impl(self,types):
+		for t in types:
+			tmp = t()
+			dump1 = tmp.cpp_dumps()
+			tmp.cpp_loads(dump1)
+			dump2 = tmp.cpp_dumps()
+			self.assertEqual(dump1,dump2)
+	def test_problems(self):
+		from PyGMO import problem
+		types = filter(lambda t: not isinstance(t(),problem.base),[problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(problem))])
+		self.__test_impl(types)
+	def test_algorithms(self):
+		from PyGMO import algorithm
+		types = filter(lambda t: not isinstance(t(),algorithm.base),[algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))])
+		self.__test_impl(types)
 
 def run_full_test_suite():
-	pass
+	suite = _ut.TestLoader().loadTestsFromTestCase(_serialization_test)
+	_ut.TextTestRunner(verbosity=2).run(suite)

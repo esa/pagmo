@@ -82,12 +82,10 @@ class __PAGMO_VISIBLE inventory: public base
 			ar & m_sample_size;
 			ar & m_drng;
 		}
-	private: // save_construct_data needs to be able to access these attributes
+	private:
 		mutable int			m_seed;
-	public:
 		int				m_weeks;
 		std::size_t			m_sample_size;
-	private:
 		mutable rng_double		m_drng;
 };
 
