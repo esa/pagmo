@@ -188,8 +188,8 @@ void gsl_gradient::evolve(population &pop) const
 	const std::size_t s_cont_size = boost::numeric_cast<std::size_t>(cont_size);
 	// Allocate and check the allocation results.
 	x = gsl_vector_alloc(s_cont_size);
-	pagmo_assert(minimiser);
 	const gsl_multimin_fdfminimizer_type *minimiser = get_gsl_minimiser_ptr();
+	pagmo_assert(minimiser);
 	s = gsl_multimin_fdfminimizer_alloc(minimiser,s_cont_size);
 	// Check the allocations.
 	check_allocs(x,s);
