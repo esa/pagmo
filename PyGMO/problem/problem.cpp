@@ -88,6 +88,9 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("set_bounds",bounds_setter_value(&problem::base::set_bounds),"Set all bounds to the input values.")
 		.def("set_bounds",bounds_setter_vectors(&problem::base::set_bounds),"Set bounds to the input vectors.")
 		.add_property("diameter",&problem::base::get_diameter, "Problem's diameter.")
+		// Useful operators.
+		.def(self == self)
+		.def(self != self)
 		.def("is_compatible",&problem::base::is_compatible,"Check compatibility with other problem.")
 		// Comparisons.
 		.def("compare_x",&problem::base::compare_x,"Compare decision vectors.")
@@ -107,6 +110,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base::get_typename)
 		.def("_objfun_impl",&problem::python_base::py_objfun)
+		.def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
 		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 	

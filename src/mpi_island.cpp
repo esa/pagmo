@@ -141,7 +141,7 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 				break;
 			}
 		}
-		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}
 	const std::string buffer_str(buffer_char.begin(),buffer_char.end());
 	std::stringstream ss(buffer_str);

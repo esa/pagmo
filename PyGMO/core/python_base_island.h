@@ -149,7 +149,12 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
-			pop = py_perform_evolution(a.clone(),pop);
+			population retval(py_perform_evolution(a.clone(),pop));
+			// Check that the implementation of the evolve method in Python did not screw up the problem.
+			if (pop.problem() != retval.problem()) {
+				pagmo_throw(std::runtime_error,"the island's perform_evolution method returned a population whose problem is inconsistent with that of the input population");
+			}
+			pop = retval;
 		}
 		void thread_entry()
 		{

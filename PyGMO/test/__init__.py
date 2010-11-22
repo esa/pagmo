@@ -23,6 +23,7 @@
 
 import unittest as _ut
 
+# This class will test that the C++ serialization methods (cpp_loads and cpp_dumps) are consistent.
 class _serialization_test(_ut.TestCase):
 	def __test_impl(self,types):
 		for t in types:
@@ -41,5 +42,8 @@ class _serialization_test(_ut.TestCase):
 		self.__test_impl(types)
 
 def run_full_test_suite():
+	"""
+	Run the complete test suite for PyGMO.
+	"""
 	suite = _ut.TestLoader().loadTestsFromTestCase(_serialization_test)
 	_ut.TextTestRunner(verbosity=2).run(suite)

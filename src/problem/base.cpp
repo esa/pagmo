@@ -587,6 +587,26 @@ std::string base::human_readable_extra() const
 	return std::string();
 }
 
+/// Equality operator.
+/**
+ * The following conditions will be tested, in order:
+ * - return value of is_compatible(),
+ * - return value of equality_operator_extra().
+ *
+ * If any of the conditions above is false, then the return value will also be false. Otherwise return value will be true.
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return true if this is equal to p, false otherwise.
+ */
+bool base::operator==(const base &p) const
+{
+	if (!is_compatible(p)) {
+		return false;
+	}
+	return equality_operator_extra(p);
+}
+
 /// Compatibility operator.
 /**
  * The concept of compatibility is used within the archipelago class: all islands must contain mutually-compatible problems. The rationale
@@ -927,6 +947,33 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
 }
 
 //@}
+
+/// Extra requirements for equality.
+/**
+ * Additional problem-specific equality testing. Default implementation returns true.
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return true if p satisfies the additional equality testing, false otherwise.
+ */
+bool base::equality_operator_extra(const base &p) const
+{
+	(void)p;
+	return true;
+}
+
+/// Inequality operator.
+/**
+ * Equivalent to the negation of equality operator.
+ *
+ * @param[in] p problem::base to which this will be compared.
+ *
+ * @return !(*this == p).
+ */
+bool base::operator!=(const base &p) const
+{
+	return !(*this == p);
+}
 
 /// Verify compatibility of decision vector x with problem.
 /**

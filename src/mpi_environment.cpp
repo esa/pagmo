@@ -136,7 +136,7 @@ void mpi_environment::listen()
 // std::cout << "slave sent payload " << rank << '\n';
 		} else {
 			// Sleep a bit if there is nothing to do.
-			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 		}
 	}
 	// Destroy the MPI environment before exiting.
