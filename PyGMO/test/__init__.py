@@ -27,10 +27,11 @@ import unittest as _ut
 class _serialization_test(_ut.TestCase):
 	def __test_impl(self,types):
 		for t in types:
-			tmp = t()
-			dump1 = tmp.cpp_dumps()
-			tmp.cpp_loads(dump1)
-			dump2 = tmp.cpp_dumps()
+			tmp1 = t()
+			dump1 = tmp1.cpp_dumps()
+			tmp2 = t()
+			tmp2.cpp_loads(dump1)
+			dump2 = tmp2.cpp_dumps()
 			self.assertEqual(dump1,dump2)
 	def test_problems(self):
 		from PyGMO import problem
