@@ -42,9 +42,33 @@ class _serialization_test(_ut.TestCase):
 		types = filter(lambda t: not isinstance(t(),algorithm.base),[algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))])
 		self.__test_impl(types)
 
+# This class will stress the py_island class with highly concurrent simple evolutions.
+class _py_island_torture_test(_ut.TestCase):
+	def test_cpp(self):
+		# Test with algo and prob implemented in C++.
+		from PyGMO import py_island, archipelago, topology, algorithm, problem
+		prob = problem.dejong(1)
+		algo = algorithm.de(5)
+		a = archipelago(topology.ring())
+		for i in range(0,100):
+			a.push_back(py_island(prob,algo,n = 20))
+		a.evolve(10)
+		a.join()
+	def test_python(self):
+		# Test with problem implemented in Python.
+		from PyGMO import py_island, archipelago, topology, algorithm, problem
+		prob = problem.py_test()
+		algo = algorithm.de(5)
+		a = archipelago(topology.ring())
+		for i in range(0,100):
+			a.push_back(py_island(prob,algo,n = 20))
+		a.evolve(10)
+		a.join()
+
 def run_full_test_suite():
 	"""
 	Run the complete test suite for PyGMO.
 	"""
-	suite = _ut.TestLoader().loadTestsFromTestCase(_serialization_test)
+	from PyGMO import test
+	suite = _ut.TestLoader().loadTestsFromModule(test)
 	_ut.TextTestRunner(verbosity=2).run(suite)
