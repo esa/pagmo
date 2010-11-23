@@ -37,8 +37,6 @@
 #include "../../src/algorithm/base.h"
 #include "../../src/archipelago.h"
 #include "../../src/base_island.h"
-// NOTE: here probably we need to re-put python island for the future.
-#include "../../src/island.h"
 #include "../../src/migration/base_r_policy.h"
 #include "../../src/migration/base_s_policy.h"
 #include "../../src/migration/best_s_policy.h"
@@ -48,8 +46,8 @@
 #include "../../src/topology/base.h"
 #include "../boost_python_container_conversions.h"
 #include "../utils.h"
-//#include "python_island.h"
 #include "python_base_island.h"
+#include "python_island.h"
 
 using namespace boost::python;
 using namespace pagmo;
@@ -256,14 +254,15 @@ BOOST_PYTHON_MODULE(_core)
 		.def_pickle(python_base_island_pickle_suite());
 
 	// Local island class.
-	class_<island,bases<base_island> >("island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+	class_<python_island,bases<base_island> >("local_island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const island &>())
-		.def("__copy__", &Py_copy_from_ctor<island>)
-		.def("__deepcopy__", &Py_deepcopy_from_ctor<island>)
-		.def("cpp_loads", &py_cpp_loads<island>)
-		.def("cpp_dumps", &py_cpp_dumps<island>)
-		.def_pickle(island_pickle_suite<island>());
+		.def(init<const python_island &>())
+		.def("__copy__", &Py_copy_from_ctor<python_island>)
+		.def("__deepcopy__", &Py_deepcopy_from_ctor<python_island>)
+		.def("cpp_loads", &py_cpp_loads<python_island>)
+		.def("cpp_dumps", &py_cpp_dumps<python_island>)
+		.def("is_pythonic", &python_island::is_pythonic)
+		.def_pickle(island_pickle_suite<python_island>());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<base_island_ptr>();
