@@ -47,6 +47,12 @@ inline T Py_copy_from_ctor(const T &x)
 	return T(x);
 }
 
+template <class T>
+inline T Py_deepcopy_from_ctor(const T &x, boost::python::dict)
+{
+	return T(x);
+}
+
 // Serialization for python wrapper.
 namespace boost { namespace serialization {
 

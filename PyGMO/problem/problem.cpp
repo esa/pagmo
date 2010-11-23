@@ -28,7 +28,6 @@
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
-#include <boost/python/pure_virtual.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/utility.hpp>
 #include <cstddef>
@@ -54,6 +53,8 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 {
 	class_<Problem,bases<problem::base> > retval(name,descr,init<const Problem &>());
 	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
 	retval.def_pickle(generic_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
@@ -105,7 +106,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
 		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
 		// Virtual methods that can be (re)implemented.
-		.def("__copy__", pure_virtual(&problem::base::clone))
 		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base::get_typename)

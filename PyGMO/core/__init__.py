@@ -25,6 +25,9 @@ class base_island(_core._base_island):
 		_core._base_island.__init__(self,*args)
 	def get_name(self):
 		return str(type(self))
+	def __get_deepcopy__(self):
+		from copy import deepcopy
+		return deepcopy(self)
 
 # This is the function that will be called by the separate process
 # spawned from py_island.
@@ -44,9 +47,6 @@ class py_island(base_island):
 			super(py_island,self).__init__(prob,algo,n,migr_prob,s_policy,r_policy)
 		else:
 			super(py_island,self).__init__(pop,algo,migr_prob,s_policy,r_policy)
-	def __copy__(self):
-		retval = py_island(None,self.algorithm,self.population,None,self.migration_probability,self.s_policy,self.r_policy)
-		return retval
 	def _perform_evolution(self,algo,pop):
 		try:
 			import multiprocessing as mp
@@ -87,9 +87,6 @@ class ipy_island(base_island):
 			super(ipy_island,self).__init__(prob,algo,n,migr_prob,s_policy,r_policy)
 		else:
 			super(ipy_island,self).__init__(pop,algo,migr_prob,s_policy,r_policy)
-	def __copy__(self):
-		retval = ipy_island(None,self.algorithm,self.population,None,self.migration_probability,self.s_policy,self.r_policy)
-		return retval
 	def _perform_evolution(self,algo,pop):
 		try:
 			from IPython.kernel.client import TaskClient, MapTask

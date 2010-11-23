@@ -8,6 +8,9 @@ class base(_problem._base):
 		_problem._base.__init__(self,*args)
 	def _get_typename(self):
 		return str(type(self))
+	def __get_deepcopy__(self):
+		from copy import deepcopy
+		return deepcopy(self)
 	def get_name(self):
 		return self._get_typename()
 
@@ -18,8 +21,6 @@ class py_test(base):
 	"""
 	def __init__(self):
 		super(py_test,self).__init__(1)
-	def __copy__(self):
-		return py_test()
 	def _objfun_impl(self,x):
 		return (x[0] * x[0],)
 
@@ -30,10 +31,6 @@ class py_test(base):
 		#import numpy
 		#self.set_bounds([PyKEP.epoch_from_string('2020-06-01 00:00:00').mjd2000(),30],
 			#[PyKEP.epoch_from_string('2021-06-01 00:00:00').mjd2000(),1000])
-	#def __copy__(self):
-		#retval = apophis_impact()
-		#retval.set_bounds(self.lb,self.ub)
-		#return retval
 	#def _objfun_impl(self,x):
 		#import PyKEP
 		#from numpy import array, dot

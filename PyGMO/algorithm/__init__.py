@@ -6,6 +6,9 @@ class base(_algorithm._base):
 		_algorithm._base.__init__(self)
 	def get_name(self):
 		return str(type(self))
+	def __get_deepcopy__(self):
+		from copy import deepcopy
+		return deepcopy(self)
 
 # Helper class to ease the inclusion of scipy.optimize solvers.
 class _scipy_base(base):
@@ -55,8 +58,6 @@ class scipy_fmin(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_fmin(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate
 		prob = pop.problem
@@ -76,8 +77,6 @@ class scipy_l_bfgs_b(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin_l_bfgs_b',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_l_bfgs_b(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -103,8 +102,6 @@ class scipy_slsqp(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-6,verbose = False):
 		_scipy_base.__init__(self,'fmin_slsqp',True,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_slsqp(self.maxiter,self.tol,self.verbose)
 	def get_name(self):
 		return 'fmin_slsqp'
 	def evolve(self,pop):
@@ -139,8 +136,6 @@ class scipy_tnc(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-6,verbose = False):
 		_scipy_base.__init__(self,'fmin_tnc',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_tnc(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -167,8 +162,6 @@ class scipy_cobyla(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin_cobyla',True,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_cobyla(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -207,8 +200,6 @@ class scipy_anneal(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'anneal',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_anneal(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem

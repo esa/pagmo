@@ -30,7 +30,6 @@
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
-#include <boost/python/pure_virtual.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/python/tuple.hpp>
 #include <vector>
@@ -190,6 +189,7 @@ BOOST_PYTHON_MODULE(_core)
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
+		.def("__deepcopy__", &Py_deepcopy_from_ctor<population>)
 		.def("__getitem__", &population_get_individual)
 		.def("__len__", &population::size)
 		.def("__repr__", &population::human_readable)
@@ -207,6 +207,8 @@ BOOST_PYTHON_MODULE(_core)
 	// Individual and champion.
 	class_<population::individual_type>("individual","Individual class.",init<>())
 		.def("__repr__",&population::individual_type::human_readable)
+		.def("__copy__", &Py_copy_from_ctor<population::individual_type>)
+		.def("__deepcopy__", &Py_deepcopy_from_ctor<population::individual_type>)
 		.add_property("cur_x",&get_cur_x,&set_cur_x)
 		.add_property("cur_f",&get_cur_f,&set_cur_f)
 		.add_property("cur_c",&get_cur_c,&set_cur_c)
@@ -220,6 +222,8 @@ BOOST_PYTHON_MODULE(_core)
 
 	class_<population::champion_type>("champion","Champion class.",init<>())
 		.def("__repr__",&population::champion_type::human_readable)
+		.def("__copy__", &Py_copy_from_ctor<population::champion_type>)
+		.def("__deepcopy__", &Py_deepcopy_from_ctor<population::champion_type>)
 		.add_property("x",&get_x,&set_x)
 		.add_property("f",&get_f,&set_f)
 		.add_property("c",&get_c,&set_c)
@@ -247,7 +251,6 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("r_policy",&base_island::get_r_policy)
 		.add_property("migration_probability",&base_island::get_migration_probability)
 		// Virtual methods.
-		.def("__copy__",pure_virtual(&base_island::clone))
 		.def("get_name", &base_island::get_name,&python_base_island::default_get_name)
 		.def("_perform_evolution",&python_base_island::py_perform_evolution)
 		.def_pickle(python_base_island_pickle_suite());
@@ -256,6 +259,8 @@ BOOST_PYTHON_MODULE(_core)
 	class_<island,bases<base_island> >("island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const island &>())
+		.def("__copy__", &Py_copy_from_ctor<island>)
+		.def("__deepcopy__", &Py_deepcopy_from_ctor<island>)
 		.def("cpp_loads", &py_cpp_loads<island>)
 		.def("cpp_dumps", &py_cpp_dumps<island>)
 		.def_pickle(island_pickle_suite<island>());
@@ -271,6 +276,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def(init<archipelago::distribution_type, archipelago::migration_direction>())
 		.def(init<const archipelago &>())
 		.def("__copy__", &Py_copy_from_ctor<archipelago>)
+		.def("__deepcopy__", &Py_deepcopy_from_ctor<archipelago>)
 		.def("__len__", &archipelago::get_size)
 		.def("__repr__", &archipelago::human_readable)
 		.def("__getitem__", &archipelago_get_island)

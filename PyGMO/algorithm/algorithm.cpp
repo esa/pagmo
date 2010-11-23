@@ -24,7 +24,6 @@
 
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
-#include <boost/python/pure_virtual.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <string>
 
@@ -50,6 +49,8 @@ static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const 
 {
 	class_<Algorithm,bases<algorithm::base> > retval(name,descr,init<const Algorithm &>());
 	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Algorithm>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Algorithm>);
 	retval.def("evolve", &evolve_copy);
 	retval.def_pickle(generic_pickle_suite<Algorithm>());
 	retval.def("cpp_loads", &py_cpp_loads<Algorithm>);
@@ -66,7 +67,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def("__repr__",&algorithm::base::human_readable)
 		.def("is_thread_safe",&algorithm::base::is_thread_safe)
 		// Virtual methods that can be (re)implemented.
-		.def("__copy__",pure_virtual(&algorithm::base::clone))
 		.def("get_name", &algorithm::base::get_name, &algorithm::python_base::default_get_name)
 		// NOTE: This needs special treatment because its prototype changes in the wrapper.
 		.def("evolve",&algorithm::python_base::py_evolve)

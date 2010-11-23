@@ -109,9 +109,9 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		base_island_ptr clone() const
 		{
-			base_island_ptr retval = this->get_override("__copy__")();
+			base_island_ptr retval = this->get_override("__get_deepcopy__")();
 			if (!retval) {
-				pagmo_throw(std::runtime_error,"island's __copy__() method returns a NULL pointer, please check the implementation");
+				pagmo_throw(std::runtime_error,"island's __get_deepcopy__() method returns a NULL pointer, please check the implementation");
 			}
 			return retval;
 		}
@@ -166,8 +166,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			m_gstate = PyGILState_STATE();
 		}
 	private:
-		PyGILState_STATE m_gstate;
-	private:
 		template <class Archive>
 		friend void boost::serialization::save_construct_data(Archive &, const python_base_island *, const unsigned int);
 		template <class Archive>
@@ -179,6 +177,8 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			ar & boost::serialization::base_object<base_island>(*this);
 			ar & boost::serialization::base_object<boost::python::wrapper<base_island> >(*this);
 		}
+		// The only data member is the GIL state variable.
+		PyGILState_STATE m_gstate;
 };
 
 struct python_base_island_pickle_suite : boost::python::pickle_suite

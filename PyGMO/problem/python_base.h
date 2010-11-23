@@ -65,9 +65,9 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		explicit python_base(const base &p):base(p) {}
 		base_ptr clone() const
 		{
-			base_ptr retval = this->get_override("__copy__")();
+			base_ptr retval = this->get_override("__get_deepcopy__")();
 			if (!retval) {
-				pagmo_throw(std::runtime_error,"problem's __copy__() method returns a NULL pointer, please check the implementation");
+				pagmo_throw(std::runtime_error,"problem's __get_deepcopy__() method returns a NULL pointer, please check the implementation");
 			}
 			return retval;
 		}
