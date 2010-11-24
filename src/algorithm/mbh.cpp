@@ -46,7 +46,7 @@ namespace pagmo { namespace algorithm {
  * will be perturbed within +-perturb, the same for the velocity. The integer part is treated the same way.
  * @throws value_error if stop is negative or perturb is negative
  */
-mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb),m_screen_out(false)
+mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb),m_screen_out(false)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -67,7 +67,7 @@ mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(
  * will be perturbed within +-perturb[i], the same for the velocity. The integer part is treated the same way.
  * @throws value_error if stop is negative or perturb[i] is negative
  */
-mbh::mbh(const algorithm::base & local, int stop, const std::vector<double> &perturb):base(),m_stop(stop),m_perturb(perturb),m_screen_out(false)
+mbh::mbh(const base & local, int stop, const std::vector<double> &perturb):base(),m_stop(stop),m_perturb(perturb),m_screen_out(false)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -213,6 +213,26 @@ void mbh::screen_output(const bool p) {m_screen_out = p;}
 std::string mbh::get_name() const
 {
 	return "Generalized Monotonic Basin Hopping";
+}
+
+/// Get a copy of the internal local algorithm.
+/**
+ * @return algorithm::base_ptr to a copy of the internal local algorithm.
+ */
+base_ptr mbh::get_algorithm() const
+{
+	return m_local->clone();
+}
+
+/// Set algorithm.
+/**
+ * A copy of the input algorithm will be set as the internal local algorithm.
+ * 
+ * @param[in] algo algorithm to be set as local algorithm.
+ */
+void mbh::set_algorithm(const base &algo)
+{
+	m_local = algo.clone();
 }
 
 /// Extra human readable algorithm info.

@@ -44,7 +44,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] starts number of multistarts
  * @throws value_error if starts is negative
  */
-ms::ms(const algorithm::base &algorithm, int starts):base(),m_starts(starts),m_screen_out(false)
+ms::ms(const base &algorithm, int starts):base(),m_starts(starts),m_screen_out(false)
 {
 	m_algorithm = algorithm.clone();
 	if (starts < 0) {
@@ -115,6 +115,26 @@ void ms::screen_output(const bool p) {m_screen_out = p;}
 std::string ms::get_name() const
 {
 	return "Multi-start";
+}
+
+/// Get a copy of the internal algorithm.
+/**
+ * @return algorithm::base_ptr to a copy of the internal algorithm.
+ */
+base_ptr ms::get_algorithm() const
+{
+	return m_algorithm->clone();
+}
+
+/// Set algorithm.
+/**
+ * A copy of the input algorithm will be set as the internal algorithm.
+ * 
+ * @param[in] algo algorithm to be set for multistart.
+ */
+void ms::set_algorithm(const base &algo)
+{
+	m_algorithm = algo.clone();
 }
 
 /// Extra human readable algorithm info.

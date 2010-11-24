@@ -59,12 +59,14 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE ms: public base
 {
 public:
-	ms(const algorithm::base & = de(), int = 1);
+	ms(const base & = de(), int = 1);
 	ms(const ms &);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
 	std::string get_name() const;
+	base_ptr get_algorithm() const;
+	void set_algorithm(const base &);
 protected:
 	std::string human_readable_extra() const;
 private:

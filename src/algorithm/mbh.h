@@ -75,13 +75,15 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mbh: public base
 {
 public:
-	mbh(const algorithm::base & = cs(), int stop = 50, double perturb = 5e-2);
-	mbh(const algorithm::base &, int stop, const std::vector<double> &perturb);
+	mbh(const base & = cs(), int stop = 50, double perturb = 5e-2);
+	mbh(const base &, int stop, const std::vector<double> &perturb);
 	mbh(const mbh &);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
 	std::string get_name() const;
+	base_ptr get_algorithm() const;
+	void set_algorithm(const base &);
 protected:
 	std::string human_readable_extra() const;
 private:
