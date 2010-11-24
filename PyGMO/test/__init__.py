@@ -22,10 +22,17 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import unittest as _ut
+from PyGMO import problem as _prob
+from PyGMO import algorithm as _algo
+from PyGMO import core as _core
 
-# This class will test that the C++ serialization methods (cpp_loads and cpp_dumps) are consistent.
+_prob_list = [_prob.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(_prob))]
+_algo_list = [_algo.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(_algo))]
+_isl_list = [_core.local_island,_core.py_island]
+
 class _serialization_test(_ut.TestCase):
-	def __test_impl(self,types):
+	# Test for the consistency of the C++ part of the serialization.
+	def __cpp_test_impl(self,types):
 		for t in types:
 			tmp1 = t()
 			dump1 = tmp1.cpp_dumps()
@@ -33,14 +40,22 @@ class _serialization_test(_ut.TestCase):
 			tmp2.cpp_loads(dump1)
 			dump2 = tmp2.cpp_dumps()
 			self.assertEqual(dump1,dump2)
-	def test_problems(self):
+	def test_cpp_problems(self):
 		from PyGMO import problem
-		types = filter(lambda t: not isinstance(t(),problem.base),[problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(problem))])
-		self.__test_impl(types)
-	def test_algorithms(self):
+		types = filter(lambda t: not isinstance(t(),problem.base),_prob_list)
+		self.__cpp_test_impl(types)
+	def test_cpp_algorithms(self):
 		from PyGMO import algorithm
-		types = filter(lambda t: not isinstance(t(),algorithm.base),[algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))])
-		self.__test_impl(types)
+		types = filter(lambda t: not isinstance(t(),algorithm.base),_algo_list)
+		self.__cpp_test_impl(types)
+	#def test_pickle(self):
+		#from PyGMO import archipelago
+		#import pickle
+		#for isl in _isl_list:
+			#for prob in _prob_list:
+				#for algo in _algo_list:
+					#a = archipelago(prob(),algo(),1,1)
+					#pickle.loads(pickle.dumps(a))
 
 # This class will stress the py_island class with highly concurrent simple evolutions.
 class _py_island_torture_test(_ut.TestCase):
@@ -51,7 +66,7 @@ class _py_island_torture_test(_ut.TestCase):
 		algo = algorithm.de(5)
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(prob,algo,n = 20))
+			a.push_back(py_island(prob,algo,n = 6))
 		a.evolve(10)
 		a.join()
 	def test_python(self):
@@ -61,7 +76,7 @@ class _py_island_torture_test(_ut.TestCase):
 		algo = algorithm.de(5)
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(prob,algo,n = 20))
+			a.push_back(py_island(prob,algo,n = 6))
 		a.evolve(10)
 		a.join()
 
