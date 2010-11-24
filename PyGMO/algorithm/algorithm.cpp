@@ -25,6 +25,7 @@
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
+#include <sstream>
 #include <string>
 
 #include "../../src/algorithms.h"
@@ -55,6 +56,65 @@ static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const 
 	retval.def_pickle(generic_pickle_suite<Algorithm>());
 	retval.def("cpp_loads", &py_cpp_loads<Algorithm>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Algorithm>);
+	return retval;
+}
+
+// Meta-algorithms need specialised pickle suites, as they contains pointers to classes that can be implemented in Python.
+template <class Algorithm>
+struct meta_algorithm_pickle_suite : boost::python::pickle_suite
+{
+	static boost::python::tuple getinitargs(const Algorithm &)
+	{
+		return boost::python::make_tuple();
+	}
+	static boost::python::tuple getstate(const Algorithm &algo)
+	{
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << algo;
+		return boost::python::make_tuple(ss.str(),algo.get_algorithm());
+	}
+	static void setstate(Algorithm &algo, boost::python::tuple state)
+	{
+		if (len(state) != 2)
+		{
+			PyErr_SetObject(PyExc_ValueError,("expected 2-item tuple in call to __setstate__; got %s" % state).ptr());
+			throw_error_already_set();
+		}
+		const std::string str = extract<std::string>(state[0]);
+		std::stringstream ss(str);
+		boost::archive::text_iarchive ia(ss);
+		ia >> algo;
+		const algorithm::base_ptr internal_algo = boost::python::extract<algorithm::base_ptr>(state[1]);
+		algo.set_algorithm(*internal_algo);
+	}
+};
+
+template <>
+inline class_<algorithm::ms,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
+{
+	class_<algorithm::ms,bases<algorithm::base> > retval(name,descr,init<const algorithm::ms &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<algorithm::ms>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<algorithm::ms>);
+	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(meta_algorithm_pickle_suite<algorithm::ms>());
+	retval.def("cpp_loads", &py_cpp_loads<algorithm::ms>);
+	retval.def("cpp_dumps", &py_cpp_dumps<algorithm::ms>);
+	return retval;
+}
+
+template <>
+inline class_<algorithm::mbh,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
+{
+	class_<algorithm::mbh,bases<algorithm::base> > retval(name,descr,init<const algorithm::mbh &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<algorithm::mbh>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<algorithm::mbh>);
+	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(meta_algorithm_pickle_suite<algorithm::mbh>());
+	retval.def("cpp_loads", &py_cpp_loads<algorithm::mbh>);
+	retval.def("cpp_dumps", &py_cpp_dumps<algorithm::mbh>);
 	return retval;
 }
 
@@ -106,11 +166,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::mbh>("mbh","Monotonic Basin Hopping.")
 		.def(init<const algorithm::base &,optional<int, double> >())
 		.def(init<const algorithm::base &,optional<int, const std::vector<double> &> >())
+		.add_property("algorithm",&algorithm::mbh::get_algorithm,&algorithm::mbh::set_algorithm)
 		.def("screen_output",&algorithm::mbh::screen_output);
 	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
-		.def(init<const algorithm::base &, int >());
+		.def(init<const algorithm::base &, int>())
+		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm);
 	
 	// Particle Swarm Optimization.
 	algorithm_wrapper<algorithm::pso>("pso","Particle swarm optimization.")
