@@ -32,11 +32,13 @@
 #include <boost/python/operators.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/python/tuple.hpp>
+#include <sstream>
 #include <vector>
 
 #include "../../src/algorithm/base.h"
 #include "../../src/archipelago.h"
 #include "../../src/base_island.h"
+#include "../../src/exceptions.h"
 #include "../../src/migration/base_r_policy.h"
 #include "../../src/migration/base_s_policy.h"
 #include "../../src/migration/best_s_policy.h"
@@ -151,9 +153,40 @@ struct island_pickle_suite : boost::python::pickle_suite
 		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << isl;
-		return boost::python::make_tuple(ss.str(),isl.get_algorithm());
+		return boost::python::make_tuple(ss.str(),isl.get_algorithm(),isl.get_population());
 	}
 	static void setstate(Island &isl, boost::python::tuple state)
+	{
+		if (len(state) != 3)
+		{
+			PyErr_SetObject(PyExc_ValueError,("expected 3-item tuple in call to __setstate__; got %s" % state).ptr());
+			throw_error_already_set();
+		}
+		const std::string str = extract<std::string>(state[0]);
+		std::stringstream ss(str);
+		boost::archive::text_iarchive ia(ss);
+		ia >> isl;
+		const algorithm::base_ptr algo = boost::python::extract<algorithm::base_ptr>(state[1]);
+		isl.set_algorithm(*algo);
+		const population pop = boost::python::extract<population>(state[2]);
+		isl.set_population(pop);
+	}
+};
+
+struct archipelago_pickle_suite : boost::python::pickle_suite
+{
+	static boost::python::tuple getinitargs(const archipelago &)
+	{
+		return boost::python::make_tuple();
+	}
+	static boost::python::tuple getstate(const archipelago &archi)
+	{
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << archi;
+		return boost::python::make_tuple(ss.str(),archi.get_islands());
+	}
+	static void setstate(archipelago &archi, boost::python::tuple state)
 	{
 		if (len(state) != 2)
 		{
@@ -163,9 +196,13 @@ struct island_pickle_suite : boost::python::pickle_suite
 		const std::string str = extract<std::string>(state[0]);
 		std::stringstream ss(str);
 		boost::archive::text_iarchive ia(ss);
-		ia >> isl;
-		const algorithm::base_ptr algo = boost::python::extract<algorithm::base_ptr>(state[1]);
-		isl.set_algorithm(*algo);
+		ia >> archi;
+		// Recover seaparately the islands.
+		const std::vector<base_island_ptr> islands = extract<std::vector<base_island_ptr> >(state[1]);
+		pagmo_assert(islands.size() == archi.get_size());
+		for (std::vector<base_island_ptr>::size_type i = 0; i < islands.size(); ++i) {
+			archi.set_island(i,*islands[i]);
+		}
 	}
 };
 
@@ -246,8 +283,6 @@ BOOST_PYTHON_MODULE(_core)
 		.def("evolve_t", &base_island::evolve_t,"Evolve island for at least n milliseconds.")
 		.def("join", &base_island::join,"Wait for evolution to complete.")
 		.def("busy", &base_island::busy,"Check if island is evolving.")
-		.def("is_thread_safe", &base_island::is_thread_safe,"Check if island is thread-safe.")
-		.def("is_blocking", &base_island::is_blocking,"Check if island is blocking.")
 		.def("interrupt", &base_island::interrupt,"Interrupt evolution.")
 		.add_property("problem",&base_island::get_problem)
 		.add_property("algorithm",&base_island::get_algorithm,&island::set_algorithm)
@@ -295,14 +330,12 @@ BOOST_PYTHON_MODULE(_core)
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
 		.def("push_back", &archipelago::push_back,"Append island.")
 		.def("set_algorithm", &archipelago_set_algorithm,"Set algorithm on island.")
-		.def("is_thread_safe", &archipelago::is_thread_safe,"Check if archipelago is thread_safe.")
-		.def("is_blocking", &archipelago::is_blocking,"Check if archipelago is blocking.")
 		.def("dump_migr_history", &archipelago::dump_migr_history)
 		.def("clear_migr_history", &archipelago::clear_migr_history)
 		.def("cpp_loads", &py_cpp_loads<archipelago>)
 		.def("cpp_dumps", &py_cpp_dumps<archipelago>)
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology)
-		.def_pickle(generic_pickle_suite<archipelago>());
+		.def_pickle(archipelago_pickle_suite());
 
 	// Archipelago's migration strategies.
 	enum_<archipelago::distribution_type>("distribution_type")

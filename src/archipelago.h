@@ -145,8 +145,6 @@ class __PAGMO_VISIBLE archipelago
 		void set_island(const size_type &, const base_island &);
 		std::vector<base_island_ptr> get_islands() const;
 		base_island_ptr get_island(const size_type &) const;
-		bool is_blocking() const;
-		bool is_thread_safe() const;
 	private:
 		void pre_evolution(base_island &);
 		void post_evolution(base_island &);
@@ -155,10 +153,6 @@ class __PAGMO_VISIBLE archipelago
 			base_island &, const std::vector<individual_type> &, migr_hist_type &) const;
 		void check_migr_attributes() const;
 		void sync_island_start() const;
-		struct count_if_blocking;
-		bool is_blocking_impl() const;
-		struct count_if_thread_safe;
-		bool is_thread_safe_impl() const;
 		size_type locate_island(const base_island &) const;
 		bool destruction_checks() const;
 	private:

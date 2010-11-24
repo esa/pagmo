@@ -26,10 +26,15 @@
 #define PAGMO_PYTHON_BASE_ISLAND_H
 
 #include <Python.h>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/python/class.hpp>
-#include <boost/thread/thread.hpp>
+#include <boost/python/class.hpp> // For pickle suite.
+#include <boost/python/dict.hpp>
+#include <boost/python/errors.hpp>
+#include <boost/python/object.hpp>
+#include <boost/python/tuple.hpp>
+#include <boost/python/extract.hpp>
+#include <boost/python/wrapper.hpp>
 #include <stdexcept>
+#include <sstream>
 #include <string>
 
 #include "../../src/algorithm/base.h"
@@ -109,6 +114,7 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		base_island_ptr clone() const
 		{
+			join();
 			base_island_ptr retval = this->get_override("__get_deepcopy__")();
 			if (!retval) {
 				pagmo_throw(std::runtime_error,"island's __get_deepcopy__() method returns a NULL pointer, please check the implementation");
@@ -117,6 +123,7 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		std::string get_name() const
 		{
+			join();
 			if (boost::python::override f = this->get_override("get_name")) {
 				return f();
 			}
@@ -142,11 +149,6 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
 		}
 	protected:
-		// An island implemented in Python is never blocking: evolution goes into separate process.
-		bool is_blocking_impl() const
-		{
-			return false;
-		}
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
 			population retval(py_perform_evolution(a.clone(),pop));
@@ -189,30 +191,36 @@ struct python_base_island_pickle_suite : boost::python::pickle_suite
 	}
 	static boost::python::tuple getstate(boost::python::object obj)
 	{
-		std::stringstream ss;
 		const python_base_island &isl = boost::python::extract<python_base_island const &>(obj)();
+		std::stringstream ss;
 		boost::archive::text_oarchive oa(ss);
 		oa << isl;
-		return boost::python::make_tuple(obj.attr("__dict__"),ss.str(),isl.get_algorithm());
+		return boost::python::make_tuple(obj.attr("__dict__"),ss.str(),isl.get_algorithm(),isl.get_population());
 	}
 	static void setstate(boost::python::object obj, boost::python::tuple state)
 	{
-		if (len(state) != 3)
+		if (len(state) != 4)
 		{
-			PyErr_SetObject(PyExc_ValueError,("expected 3-item tuple in call to __setstate__; got %s" % state).ptr());
+			PyErr_SetObject(PyExc_ValueError,("expected 4-item tuple in call to __setstate__; got %s" % state).ptr());
 			boost::python::throw_error_already_set();
 		}
+		python_base_island &isl = boost::python::extract<python_base_island &>(obj)();
 		// Restore the object's __dict__.
 		boost::python::dict d = boost::python::extract<boost::python::dict>(obj.attr("__dict__"))();
 		d.update(state[0]);
 		// Restore the internal state of the C++ object.
-		python_base_island &isl = boost::python::extract<python_base_island &>(obj)();
 		const std::string str = boost::python::extract<std::string>(state[1]);
 		std::stringstream ss(str);
 		boost::archive::text_iarchive ia(ss);
 		ia >> isl;
+		// Restore separately the algorithm and the population.
+		// NOTE: here (and elsewhere in similar situations) we could avoid the need to deal separately with population and/or algorithm:
+		// as long as we are not dealing with Python-extended objects, we are sure that C++ serialization is enough. Optimize like this
+		// in case serialization eventually turns out to be a bottleneck.
 		const algorithm::base_ptr algo = boost::python::extract<algorithm::base_ptr>(state[2]);
 		isl.set_algorithm(*algo);
+		const population pop = boost::python::extract<population>(state[3]);
+		isl.set_population(pop);
 	}
 	static bool getstate_manages_dict()
 	{
@@ -224,26 +232,16 @@ struct python_base_island_pickle_suite : boost::python::pickle_suite
 
 namespace boost { namespace serialization {
 
+// Do no need to save any data, will use fake problem and algorithm for pointer initialization.
 template <class Archive>
-inline void save_construct_data(Archive &ar, const pagmo::python_base_island *isl, const unsigned int)
-{
-	// Save data required to construct instance.
-	pagmo::problem::base_ptr prob = isl->m_pop.problem().clone();
-	pagmo::algorithm::base_ptr algo = isl->m_algo->clone();
-	ar << prob;
-	ar << algo;
-}
+inline void save_construct_data(Archive &, const pagmo::python_base_island *, const unsigned int)
+{}
 
 template <class Archive>
-inline void load_construct_data(Archive &ar, pagmo::python_base_island *isl, const unsigned int)
+inline void load_construct_data(Archive &, pagmo::python_base_island *isl, const unsigned int)
 {
-	// Retrieve data from archive required to construct new instance.
-	pagmo::problem::base_ptr prob;
-	pagmo::algorithm::base_ptr algo;
-	ar >> prob;
-	ar >> algo;
 	// Invoke inplace constructor to initialize instance of the island.
-	::new(isl)pagmo::python_base_island(*prob,*algo);
+	::new(isl)pagmo::python_base_island(pagmo::problem::island_init(),pagmo::algorithm::island_init());
 }
 
 }} //namespaces

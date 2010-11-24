@@ -89,11 +89,6 @@ base_island_ptr mpi_island::clone() const
 	return base_island_ptr(new mpi_island(*this));
 }
 
-bool mpi_island::is_blocking_impl() const
-{
-	return false;
-}
-
 // Method that perform the actual evolution for the island population, and is used to distribute the computation load over multiple processors
 void mpi_island::perform_evolution(const algorithm::base &algo, population &pop) const
 {

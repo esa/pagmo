@@ -416,7 +416,6 @@ return base_ptr(new derived_problem(*this));
 		bool compare_x(const decision_vector &, const decision_vector &) const;
 		bool verify_x(const decision_vector &) const;
 		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
-		virtual bool is_thread_safe() const;
 		virtual void pre_evolution(population &) const;
 		virtual void post_evolution(population &) const;
 	protected:

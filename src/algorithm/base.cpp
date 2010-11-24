@@ -84,18 +84,6 @@ std::string base::human_readable_extra() const
 	return std::string();
 }
 
-/// Algorithm's thread safety property.
-/**
- * Return true if the algorithm is thread-safe.
- * Default implementation returns true.
- *
- * @return true if the algorithm is thread-safe, false otherwise.
- */
-bool base::is_thread_safe() const
-{
-	return true;
-}
-
 /// Overload stream operator for algorithm::base.
 /**
  * Equivalent to printing base::human_readable() to stream.

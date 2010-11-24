@@ -1005,18 +1005,6 @@ bool base::verify_x(const decision_vector &x) const
 	return true;
 }
 
-/// Problem's thread safety property.
-/**
- * Return true if the problem is thread-safe.
- * Default implementation returns true.
- *
- * @return true if the problem is thread-safe, false otherwise.
- */
-bool base::is_thread_safe() const
-{
-	return true;
-}
-
 // This function will round to the nearest integer the upper/lower bounds of the integer part of the problem.
 // This should be called each time bounds are set.
 void base::normalise_bounds()

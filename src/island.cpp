@@ -72,12 +72,6 @@ base_island_ptr island::clone() const
 	return base_island_ptr(new island(*this));
 }
 
-// Blocking attribute implementation.
-bool island::is_blocking_impl() const
-{
-	return false;
-}
-
 void island::perform_evolution(const algorithm::base &algo, population &pop) const
 {
 	algo.evolve(pop);

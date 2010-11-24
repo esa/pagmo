@@ -84,7 +84,6 @@ class __PAGMO_VISIBLE island: public base_island
 		 * Methods related to island evolution.
 		 */
 		//@{
-		bool is_blocking_impl() const;
 		void perform_evolution(const algorithm::base &, population &) const;
 		//@}
 	public:

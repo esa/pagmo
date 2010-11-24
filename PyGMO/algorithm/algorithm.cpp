@@ -125,7 +125,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	class_<algorithm::python_base>("_base",init<>())
 		.def(init<const algorithm::python_base &>())
 		.def("__repr__",&algorithm::base::human_readable)
-		.def("is_thread_safe",&algorithm::base::is_thread_safe)
 		// Virtual methods that can be (re)implemented.
 		.def("get_name", &algorithm::base::get_name, &algorithm::python_base::default_get_name)
 		// NOTE: This needs special treatment because its prototype changes in the wrapper.

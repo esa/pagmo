@@ -22,7 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/thread/barrier.hpp>
@@ -34,7 +33,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "archipelago.h"
@@ -512,60 +510,6 @@ void archipelago::post_evolution(base_island &isl)
 	}
 }
 
-// Functor to count the number of blocking islands.
-struct archipelago::count_if_blocking
-{
-	bool operator()(const base_island_ptr &ptr) const
-	{
-		return ptr->is_blocking();
-	}
-};
-
-// Implementation of blocking attribute.
-bool archipelago::is_blocking_impl() const
-{
-	// Make sure we do not overflow.
-	boost::numeric_cast<std::iterator_traits<const_iterator>::difference_type>(m_container.size());
-	return std::count_if(m_container.begin(),m_container.end(),count_if_blocking());
-}
-
-/// Archipelago's blocking attribute.
-/**
- * @return true if at least one island's base_island::is_blocking() method returns true.
- */
-bool archipelago::is_blocking() const
-{
-	join();
-	return is_blocking_impl();
-}
-
-// Functor to count the number of thread-safe islands.
-struct archipelago::count_if_thread_safe
-{
-	bool operator()(const base_island_ptr &ptr) const
-	{
-		return ptr->is_thread_safe();
-	}
-};
-
-// Implementation of thread-safe attribute.
-bool archipelago::is_thread_safe_impl() const
-{
-	// Make sure we do not overflow.
-	boost::numeric_cast<std::iterator_traits<const_iterator>::difference_type>(m_container.size());
-	return std::count_if(m_container.begin(),m_container.end(),count_if_thread_safe());
-}
-
-/// Archipelago's thread safety attribute.
-/**
- * @return true if at least one island's base_island::is_thread_safe() method returns true.
- */
-bool archipelago::is_thread_safe() const
-{
-	join();
-	return is_thread_safe();
-}
-
 /// Run the evolution for the given number of iterations.
 /**
  * Will iteratively call island::evolve(n) on each island of the archipelago and then return.
@@ -576,42 +520,11 @@ void archipelago::evolve(int n)
 {
 	join();
 	const iterator it_f = m_container.end();
-	if (is_thread_safe_impl()) {
-		// Reset thread barrier.
-		reset_barrier(m_container.size());
-		for (iterator it = m_container.begin(); it != it_f; ++it) {
-			(*it)->evolve(n);
-		}
-	} else {
-		// Build a vector of iterators to the islands.
-		std::vector<iterator> it_vector;
-		for (iterator it = m_container.begin(); it != it_f; ++it) {
-			it_vector.push_back(it);
-		}
-		for (int i = 0; i < n; ++i) {
-			// Shuffle the vector of island iterators to simulate async operations.
-			std::random_shuffle(it_vector.begin(),it_vector.end());
-			for (std::vector<iterator>::iterator it = it_vector.begin(); it != it_vector.end(); ++it) {
-				(*(*it))->evolve();
-			}
-		}
+	// Reset thread barrier.
+	reset_barrier(m_container.size());
+	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		(*it)->evolve(n);
 	}
-	// If the archipelago is blocking, wait for evolutions to finish.
-	if (is_blocking_impl()) {
-		join();
-	}
-}
-
-// Helper function to determine if all islands evolved for at least t milliseconds.
-template <class Vector>
-static bool all_islands_t_evolved(const Vector &v, int t)
-{
-	for (typename Vector::const_iterator it = v.begin(); it != v.end(); ++it) {
-		if (it->second < t) {
-			return false;
-		}
-	}
-	return true;
 }
 
 /// Run the evolution for a minimum amount of time.
@@ -624,39 +537,9 @@ void archipelago::evolve_t(int t)
 {
 	join();
 	const iterator it_f = m_container.end();
-	if (is_thread_safe_impl()) {
-		reset_barrier(m_container.size());
-		for (iterator it = m_container.begin(); it != it_f; ++it) {
-			(*it)->evolve_t(t);
-		}
-	} else {
-		// Build a vector of (iterators,evolution time) pairs.
-		std::vector<std::pair<iterator,int> > it_t_vector;
-		for (iterator it = m_container.begin(); it != m_container.end(); ++it) {
-			it_t_vector.push_back(std::make_pair(it,0));
-		}
-		while (!all_islands_t_evolved(it_t_vector,t)) {
-			// Shuffle the vector to simulate async operations.
-			std::random_shuffle(it_t_vector.begin(),it_t_vector.end());
-			for (std::vector<std::pair<iterator,int> >::iterator it = it_t_vector.begin(); it != it_t_vector.end(); ++it) {
-				// Evolve only if island has not evolved already for the desired time.
-				if (it->second < t) {
-					// Record the initial evolution time for the island.
-					const std::size_t initial_time = (*it->first)->m_evo_time;
-					(*it->first)->evolve();
-					// Here we must be careful. In "normal" conditions everything is fine and dandy and evo_time will now be higher than
-					// intial time. However, if the clock is screwed, if the counter is wrapping past the numerical limit or the evolution
-					// lasted 0 milliseconds, etc. then we must detect and fix this. Policy: add one second to the total evolution time for
-					// the island, so that at least we are sure we don't end up in an endless cycle.
-					const std::size_t time_diff = ((*it->first)->m_evo_time > initial_time) ? ((*it->first)->m_evo_time - initial_time) : 1000;
-					it->second += boost::numeric_cast<int>(time_diff);
-				}
-			}
-		}
-	}
-	// If the archipelago is blocking, wait for evolutions to finish.
-	if (is_blocking_impl()) {
-		join();
+	reset_barrier(m_container.size());
+	for (iterator it = m_container.begin(); it != it_f; ++it) {
+		(*it)->evolve_t(t);
 	}
 }
 

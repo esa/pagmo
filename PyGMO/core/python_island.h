@@ -113,10 +113,6 @@ class __PAGMO_VISIBLE python_island: public island
 			base_island::join();
 		}
 	protected:
-		bool is_blocking_impl() const
-		{
-			return false;
-		}
 		void thread_entry()
 		{
 			if (is_pythonic()) {
@@ -165,25 +161,13 @@ class __PAGMO_VISIBLE python_island: public island
 namespace boost { namespace serialization {
 
 template <class Archive>
-inline void save_construct_data(Archive &ar, const pagmo::python_island *isl, const unsigned int)
-{
-	// Save data required to construct instance.
-	pagmo::problem::base_ptr prob = isl->m_pop.problem().clone();
-	pagmo::algorithm::base_ptr algo = isl->m_algo->clone();
-	ar << prob;
-	ar << algo;
-}
+inline void save_construct_data(Archive &, const pagmo::python_island *, const unsigned int)
+{}
 
 template <class Archive>
-inline void load_construct_data(Archive &ar, pagmo::python_island *isl, const unsigned int)
+inline void load_construct_data(Archive &, pagmo::python_island *isl, const unsigned int)
 {
-	// Retrieve data from archive required to construct new instance.
-	pagmo::problem::base_ptr prob;
-	pagmo::algorithm::base_ptr algo;
-	ar >> prob;
-	ar >> algo;
-	// Invoke inplace constructor to initialize instance of the island.
-	::new(isl)pagmo::python_island(*prob,*algo);
+	::new(isl)pagmo::python_island(pagmo::problem::island_init(),pagmo::algorithm::island_init());
 }
 
 }} //namespaces

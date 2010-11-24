@@ -72,15 +72,8 @@ typedef boost::shared_ptr<base_island> base_island_ptr;
  *
  * \section evolution_details Implementation of the evolution methods
  *
- * When one of the evolution methods (evolve() or evolve_t()) is launched, the following sequence of events takes place:
- * - if the is_thread_safe() method returns true and the island either is stand-alone or belongs to an archipelago for which archipelago::is_thread_safe() also returns true:
- *   - a local thread is opened and the perform_evolution() method is called from the new thread using as arguments the population and the algorithm stored in the island;
- *   - if the is_blocking() method returns true and the island is stand-alone:
- *     - execution will block until the evolution has concluded;
- *   - else:
- *     - the evolution method will return while the actual evolution is running in the separate thread;
- * - else:
- *   - the perform_evolution() method is called from the main thread.
+ * When one of the evolution methods (evolve() or evolve_t()) is launched,
+ * a local thread is opened and the perform_evolution() method is called from the new thread using as arguments the population and the algorithm stored in the island.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Marek Ruciński (marek.rucinski@gmail.com)
@@ -131,16 +124,7 @@ class __PAGMO_VISIBLE base_island
 		void evolve_t(int);
 		void interrupt();
 		std::size_t get_evolution_time() const;
-		bool is_thread_safe() const;
-		bool is_blocking() const;
 	protected:
-		/// Island blocking attribute.
-		/**
-		 * This method should return true if a thread-safe stand-alone island must block the flow of the program until the evolution thread has finished, false otherwise.
-		 *
-		 * @return island blocking attribute.
-		 */
-		virtual bool is_blocking_impl() const = 0;
 		/// Method that implements the evolution of the population.
 		virtual void perform_evolution(const algorithm::base &, population &) const = 0;
 		virtual void thread_entry();
@@ -159,6 +143,7 @@ class __PAGMO_VISIBLE base_island
 		migration::base_s_policy_ptr get_s_policy() const;
 		migration::base_r_policy_ptr get_r_policy() const;
 		population get_population() const;
+		void set_population(const population &);
 		//@}
 	private:
 		void accept_immigrants(const std::vector<population::individual_type> &);
@@ -216,6 +201,40 @@ class __PAGMO_VISIBLE base_island
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base_island &);
+
+// Fake problem and algorithm used in the (de)serialization of island pointers.
+namespace problem
+{
+
+class island_init: public base
+{
+	public:
+		island_init():base(1) {}
+		base_ptr clone() const
+		{
+			return base_ptr(new island_init(*this));
+		}
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const {}
+};
+
+}
+
+namespace algorithm
+{
+
+class island_init: public base
+{
+	public:
+		island_init():base() {}
+		base_ptr clone() const
+		{
+			return base_ptr(new island_init(*this));
+		}
+		void evolve(population &) const {}
+};
+
+}
 
 }
 

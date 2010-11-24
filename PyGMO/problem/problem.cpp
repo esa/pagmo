@@ -74,7 +74,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int, const double &> >())
 		.def(init<const problem::base &>())
 		.def("__repr__", &problem::base::human_readable)
-		.def("is_thread_safe",&problem::base::is_thread_safe)
 		// Dimensions.
 		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
 		.add_property("f_dimension", &problem::base::get_f_dimension, "Fitness dimension.")
