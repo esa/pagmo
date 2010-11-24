@@ -36,11 +36,11 @@ int main()
 	for (int i = 0; i < env.size() - 1; ++i) {
 		a.push_back(mpi_island(prob,algo,1));
 	}
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 100; ++i) {
 		a.evolve(1);
 		a.join();
 	}
-	a.evolve(10);
+	a.evolve(100);
 	a.join();
 	return 0;
 }
