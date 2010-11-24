@@ -168,6 +168,7 @@ archipelago &archipelago::operator=(const archipelago &a)
 archipelago::~archipelago()
 {
 	join();
+	pagmo_assert(destruction_checks());
 }
 
 /// Wait until evolution on each island has terminated.
@@ -337,6 +338,17 @@ void archipelago::reset_barrier(const size_type &size)
 	if (size) {
 		m_islands_sync_point.reset(new boost::barrier(boost::numeric_cast<unsigned int>(size)));
 	}
+}
+
+// Return true if all islands in the archipelago have a m_archi pointer to this and the shared pointer count is 1, false otherwise. Used for debugging.
+bool archipelago::destruction_checks() const
+{
+	for (size_type i = 0; i < get_size(); ++i) {
+		if (m_container[i].use_count() != 1 || m_container[i]->m_archi != this) {
+			return false;
+		}
+	}
+	return true;
 }
 
 // Helper function to insert a list of candidates immigrants into an immigrants vector, given the source and destination island.
@@ -677,9 +689,11 @@ void archipelago::interrupt()
 
 /// Island getter.
 /**
+ * @param[in] idx index of the desired island.
+ * 
  * @return a copy of the island at position idx.
  *
- * @throw value_error if idx is not less than the size of the archipelago.
+ * @throw index_error if idx is not less than the size of the archipelago.
  */
 base_island_ptr archipelago::get_island(const size_type &idx) const
 {
@@ -690,6 +704,44 @@ base_island_ptr archipelago::get_island(const size_type &idx) const
 	base_island_ptr retval = m_container[idx]->clone();
 	// The island is no more in an archipelago.
 	retval->m_archi = 0;
+	return retval;
+}
+
+/// Island setter.
+/**
+ * @param[in] idx index of the island to be set.
+ * @param[in] isl pagmo::island to be copied in the archipelago at the specified position.
+ *
+ * @throw index_error if idx is not less than the size of the archipelago.
+ * @throw value_error if archipelago::check_island(isl) returns false.
+ */
+void archipelago::set_island(const size_type &idx, const base_island &isl)
+{
+	join();
+	if (idx >= m_container.size()) {
+		pagmo_throw(index_error,"invalid island index");
+	}
+	if (!check_island(isl)) {
+		pagmo_throw(value_error,"cannot set incompatible island");
+	}
+	m_container[idx] = isl.clone();
+	// Tell the island that it is living in an archipelago now.
+	m_container[idx]->m_archi = this;
+}
+
+/// Get vector of islands in the archipelago.
+/**
+ * @return vector of pagmo::base_island_ptr to copies of the islands contained in the archipelago.
+ */
+std::vector<base_island_ptr> archipelago::get_islands() const
+{
+	join();
+	std::vector<base_island_ptr> retval;
+	for (size_type i = 0; i < get_size(); ++i) {
+		retval.push_back(m_container[i]->clone());
+		// The island is no more in an archipelago.
+		retval.back()->m_archi = 0;
+	}
 	return retval;
 }
 

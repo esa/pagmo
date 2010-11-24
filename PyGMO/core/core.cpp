@@ -85,6 +85,11 @@ inline static base_island_ptr archipelago_get_island(const archipelago &a, int n
 	return a.get_island(boost::numeric_cast<archipelago::size_type>(n));
 }
 
+inline static void archipelago_set_island(archipelago &a, int n, const base_island &isl)
+{
+	a.set_island(boost::numeric_cast<archipelago::size_type>(n),isl);
+}
+
 inline static void archipelago_set_algorithm(archipelago &archi, int n, const algorithm::base &a)
 {
 	archi.set_algorithm(boost::numeric_cast<archipelago::size_type>(n),a);
@@ -182,6 +187,8 @@ BOOST_PYTHON_MODULE(_core)
 	from_python_sequence<std::vector<std::vector<int> >,variable_capacity_policy>();
 	to_tuple_mapping<std::vector<std::vector<topology::base::vertices_size_type> > >();
 	from_python_sequence<std::vector<std::vector<topology::base::vertices_size_type> >,variable_capacity_policy>();
+	to_tuple_mapping<std::vector<base_island_ptr> >();
+	from_python_sequence<std::vector<base_island_ptr>,variable_capacity_policy>();
 
 	// Expose population class.
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
@@ -279,6 +286,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__len__", &archipelago::get_size)
 		.def("__repr__", &archipelago::human_readable)
 		.def("__getitem__", &archipelago_get_island)
+		.def("__setitem__", &archipelago_set_island)
+		.def("get_islands", &archipelago::get_islands)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
 		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
 		.def("join", &archipelago::join,"Wait for evolution to complete.")

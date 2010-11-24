@@ -142,6 +142,8 @@ class __PAGMO_VISIBLE archipelago
 		void interrupt();
 		std::string dump_migr_history() const;
 		void clear_migr_history();
+		void set_island(const size_type &, const base_island &);
+		std::vector<base_island_ptr> get_islands() const;
 		base_island_ptr get_island(const size_type &) const;
 		bool is_blocking() const;
 		bool is_thread_safe() const;
@@ -158,6 +160,7 @@ class __PAGMO_VISIBLE archipelago
 		struct count_if_thread_safe;
 		bool is_thread_safe_impl() const;
 		size_type locate_island(const base_island &) const;
+		bool destruction_checks() const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
