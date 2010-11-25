@@ -36,9 +36,7 @@ def _process_target(q,a,p):
 		tmp = a.evolve(p)
 		q.put(tmp)
 	except BaseException as e:
-		print('Exception caught during evolution:')
-		print(e)
-		q.put(0)
+		q.put(e)
 
 class py_island(base_island):
 	from PyGMO import migration as _migr
@@ -61,10 +59,11 @@ class py_island(base_island):
 			retval = q.get()
 			with _process_lock:
 				process.join()
-			if isinstance(retval,int):
-				raise RuntimeError()
+			if isinstance(retval,BaseException):
+				raise retval
 			return retval
 		except BaseException as e:
+			print('Exception caught during evolution:')
 			print(e)
 			raise RuntimeError()
 	def get_name(self):
@@ -76,11 +75,13 @@ def _maptask_target(a,p):
 	try:
 		return a.evolve(p)
 	except BaseException as e:
-		print('Exception caught during evolution:')
-		print(e)
-		return 0
+		return e
 
 class ipy_island(base_island):
+	# NOTE: when using ipython island, on quitting IPython there might be a warning message
+	# reporting an exception being ignored. This seems to be a problem in the foolscap library:
+	# http://foolscap.lothar.com/trac/ticket/147
+	# Hopefully it will be fixed in the next versions of the library.
 	from PyGMO import migration as _migr
 	def __init__(self,prob, algo, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
 		if pop is None:
@@ -98,10 +99,11 @@ class ipy_island(base_island):
 			task_id = tc.run(mt)
 			# Get retval.
 			retval = tc.get_task_result(task_id,block = True)
-			if isinstance(retval,int):
-				raise RuntimeError()
+			if isinstance(retval,BaseException):
+				raise retval
 			return retval
 		except BaseException as e:
+			print('Exception caught during evolution:')
 			print(e)
 			raise RuntimeError()
 	def get_name(self):
