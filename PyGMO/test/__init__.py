@@ -23,9 +23,9 @@
 
 import unittest as _ut
 
-# This class will test that the C++ serialization methods (cpp_loads and cpp_dumps) are consistent.
 class _serialization_test(_ut.TestCase):
-	def __test_impl(self,types):
+	# Test for the consistency of the C++ part of the serialization.
+	def __cpp_test_impl(self,types):
 		for t in types:
 			tmp1 = t()
 			dump1 = tmp1.cpp_dumps()
@@ -33,37 +33,63 @@ class _serialization_test(_ut.TestCase):
 			tmp2.cpp_loads(dump1)
 			dump2 = tmp2.cpp_dumps()
 			self.assertEqual(dump1,dump2)
-	def test_problems(self):
-		from PyGMO import problem
-		types = filter(lambda t: not isinstance(t(),problem.base),[problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(problem))])
-		self.__test_impl(types)
-	def test_algorithms(self):
-		from PyGMO import algorithm
-		types = filter(lambda t: not isinstance(t(),algorithm.base),[algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))])
-		self.__test_impl(types)
+	def test_cpp_problems(self):
+		from PyGMO import problem, problem_list
+		types = filter(lambda t: not isinstance(t(),problem.base),problem_list)
+		self.__cpp_test_impl(types)
+	def test_cpp_algorithms(self):
+		from PyGMO import algorithm, algorithm_list
+		types = filter(lambda t: not isinstance(t(),algorithm.base),algorithm_list)
+		self.__cpp_test_impl(types)
+	#def test_pickle(self):
+		#from PyGMO import archipelago
+		#import pickle
+		#for isl in _isl_list:
+			#for prob in _prob_list:
+				#for algo in _algo_list:
+					#a = archipelago(prob(),algo(),1,1)
+					#pickle.loads(pickle.dumps(a))
 
 # This class will stress the py_island class with highly concurrent simple evolutions.
 class _py_island_torture_test(_ut.TestCase):
-	def test_cpp(self):
+	def test_cpp_cpp(self):
 		# Test with algo and prob implemented in C++.
 		from PyGMO import py_island, archipelago, topology, algorithm, problem
 		prob = problem.dejong(1)
 		algo = algorithm.de(5)
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(prob,algo,n = 20))
+			a.push_back(py_island(prob,algo,n = 6))
 		a.evolve(10)
 		a.join()
-	def test_python(self):
-		# Test with problem implemented in Python.
+	def test_cpp_python(self):
+		# Test with C++ algo, Python prob.
 		from PyGMO import py_island, archipelago, topology, algorithm, problem
 		prob = problem.py_test()
 		algo = algorithm.de(5)
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(prob,algo,n = 20))
+			a.push_back(py_island(prob,algo,n = 6))
 		a.evolve(10)
 		a.join()
+	def test_python_python(self):
+		# Test with Python algo and problem prob.
+		from PyGMO import py_island, archipelago, topology, algorithm, problem
+		prob = problem.py_test()
+		algo = algorithm.py_test(5)
+		a = archipelago(topology.ring())
+		for i in range(0,100):
+			a.push_back(py_island(prob,algo,n = 6))
+		a.evolve(10)
+		a.join()
+
+def run_serialization_test_suite():
+	"""
+	Run the serialization test suite.
+	"""
+	from PyGMO import test
+	suite = _ut.TestLoader().loadTestsFromTestCase(_serialization_test)
+	_ut.TextTestRunner(verbosity = 2).run(suite)
 
 def run_full_test_suite():
 	"""
