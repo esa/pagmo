@@ -12,6 +12,13 @@ INCLUDE(PaGMOCPackSetup)
 # Initialise (empty) list of libraries to link against.
 SET(MANDATORY_LIBRARIES "")
 
+# Look for the math library and if found set it as mandatory
+FIND_LIBRARY(SYSTEM_M_LIBRARY NAMES m)
+IF(SYSTEM_M_LIBRARY)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SYSTEM_M_LIBRARY})
+	MESSAGE(STATUS "m library found: ${SYSTEM_M_LIBRARY}")
+ENDIF(SYSTEM_M_LIBRARY)
+
 # Configuration for GCC.
 IF(CMAKE_COMPILER_IS_GNUCXX)
 	CHECK_CXX_COMPILER_FLAG(-fmessage-length=0 GNUCXX_MESSAGE_LENGTH)
@@ -81,7 +88,7 @@ OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
 OPTION(ENABLE_TESTS "Build test set." ON)
 
 # Build option: enable test set.
-OPTION(ENABLE_SYSTEM_BOOST "Use system-wide Boost libraries." OFF)
+OPTION(ENABLE_SYSTEM_BOOST "Use system-wide Boost libraries." ON)
 
 # Build Option: build executable for the examples
 OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
@@ -253,22 +260,8 @@ IF(ENABLE_SNOPT)
 	ENDIF(NOT SNOPT_F2C_LIBRARY)
 	MESSAGE(STATUS "f2c library: ${SNOPT_F2C_LIBRARY}")
 
-	FIND_LIBRARY(SNOPT_M_LIBRARY NAMES m)
-	IF(NOT SNOPT_M_LIBRARY)
-		MESSAGE(FATAL_ERROR "SNOPT support was requested, but the m library could not be located.")
-	ENDIF(NOT SNOPT_M_LIBRARY)
-	MESSAGE(STATUS "m library: ${SNOPT_M_LIBRARY}")
-
 	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_BLAS_LIBRARY} ${SNOPT_F2C_LIBRARY} ${SNOPT_M_LIBRARY})
 
-	#If gfortran is found the library is included as last in case snopt has been compiled using gfortran
-	FIND_LIBRARY(SNOPT_GFORTRAN_LIBRARY NAMES gfortran)
-	IF(SNOPT_GFORTRAN_LIBRARY)
-		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_GFORTRAN_LIBRARY})
-		MESSAGE(STATUS "gfortran library was found, linking in.")
-	ELSE(SNOPT_GFORTRAN_LIBRARY)
-		MESSAGE(STATUS "gfortran library was not found.")
-	ENDIF(SNOPT_GFORTRAN_LIBRARY)
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_SNOPT)
 ENDIF(ENABLE_SNOPT)
 
@@ -276,13 +269,29 @@ ENDIF(ENABLE_SNOPT)
 IF(ENABLE_IPOPT)
 	FIND_LIBRARY(IPOPT_LIBRARY NAMES ipopt)
 	FIND_LIBRARY(LAPACK_LIBRARY NAMES lapack)
+	FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
+	FIND_LIBRARY(COINMETIS_LIBRARY NAMES coinmetis)
+	FIND_LIBRARY(COINMUMPS_LIBRARY NAMES coinmumps)
+	FIND_LIBRARY(DL_LIBRARY NAMES dl)
 	FIND_PATH(IPOPT_INCLUDE_DIR NAMES coin/IpTNLP.hpp)
-	IF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR OR NOT LAPACK_LIBRARY)
-		MESSAGE(FATAL_ERROR "IPOPT support was requested, but (one of) the libraries could not be located. Please make sure that you have ipopt library and the headers installed in the default coin/ directory")
-	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR OR NOT LAPACK_LIBRARY)
+
 	MESSAGE(STATUS "IPOPT library: ${IPOPT_LIBRARY}")
 	MESSAGE(STATUS "IPOPT include dir: ${IPOPT_INCLUDE_DIR}")
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARY})
+	MESSAGE(STATUS "lapack library: ${LAPACK_LIBRARY}")
+	MESSAGE(STATUS "coin hsl library: ${COINHSL_LIBRARY}")
+	MESSAGE(STATUS "coin metis library: ${COINMETIS_LIBRARY}")
+	MESSAGE(STATUS "coin mumps library: ${COINMUMPS_LIBRARY}")
+	MESSAGE(STATUS "dl library: ${DL_LIBRARY}")
+
+	IF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
+		MESSAGE(STATUS "Linear Solver for IPOPT could not be detected. I tried with HSL and MUMPS. You need to link manually the library if necessary")
+	ENDIF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
+
+	IF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "IPOPT support was requested, but ipopt library and headers could not be located. Please make sure that the linker can find the ipopt library and headers. The headers are assumed to be installed in a in coin/ directory")
+	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
+
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARY} ${COINHSL_LIBRARY} ${DL_LIBRARY})
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_IPOPT)
 	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 ENDIF(ENABLE_IPOPT)

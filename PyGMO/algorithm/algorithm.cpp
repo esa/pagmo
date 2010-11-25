@@ -244,6 +244,14 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def("screen_output",&algorithm::snopt::screen_output);
 	
 	#endif
+		
+	// Ipopt solver.
+	#ifdef PAGMO_ENABLE_IPOPT
+	algorithm_wrapper<algorithm::ipopt>("ipopt","Ipopt solver.")
+		.def(init<int, optional<double, double,double> >())
+		.def("screen_output",&algorithm::ipopt::screen_output);
+	
+	#endif	
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<algorithm::base_ptr>();

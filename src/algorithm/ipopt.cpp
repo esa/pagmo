@@ -161,9 +161,9 @@ std::string ipopt::get_name() const
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "max_iter:" << m_max_iter;
-	s << "constr_viol_tol:"<< m_constr_viol_tol;
-	s << "dual_inf_tol:"<< m_dual_inf_tol;
+	s << "max_iter:" << m_max_iter << " ";
+	s << "constr_viol_tol:"<< m_constr_viol_tol<<" ";
+	s << "dual_inf_tol:"<< m_dual_inf_tol<<" ";
 	s << "compl_inf_tol:"<< m_compl_inf_tol;
 	return s.str();
 }
