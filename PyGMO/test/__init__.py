@@ -22,13 +22,6 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 import unittest as _ut
-from PyGMO import problem as _prob
-from PyGMO import algorithm as _algo
-from PyGMO import core as _core
-
-_prob_list = [_prob.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(_prob))]
-_algo_list = [_algo.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(_algo))]
-_isl_list = [_core.local_island,_core.py_island]
 
 class _serialization_test(_ut.TestCase):
 	# Test for the consistency of the C++ part of the serialization.
@@ -41,12 +34,12 @@ class _serialization_test(_ut.TestCase):
 			dump2 = tmp2.cpp_dumps()
 			self.assertEqual(dump1,dump2)
 	def test_cpp_problems(self):
-		from PyGMO import problem
-		types = filter(lambda t: not isinstance(t(),problem.base),_prob_list)
+		from PyGMO import problem, problem_list
+		types = filter(lambda t: not isinstance(t(),problem.base),problem_list)
 		self.__cpp_test_impl(types)
 	def test_cpp_algorithms(self):
-		from PyGMO import algorithm
-		types = filter(lambda t: not isinstance(t(),algorithm.base),_algo_list)
+		from PyGMO import algorithm, algorithm_list
+		types = filter(lambda t: not isinstance(t(),algorithm.base),algorithm_list)
 		self.__cpp_test_impl(types)
 	#def test_pickle(self):
 		#from PyGMO import archipelago
@@ -59,7 +52,7 @@ class _serialization_test(_ut.TestCase):
 
 # This class will stress the py_island class with highly concurrent simple evolutions.
 class _py_island_torture_test(_ut.TestCase):
-	def test_cpp(self):
+	def test_cpp_cpp(self):
 		# Test with algo and prob implemented in C++.
 		from PyGMO import py_island, archipelago, topology, algorithm, problem
 		prob = problem.dejong(1)
@@ -69,8 +62,8 @@ class _py_island_torture_test(_ut.TestCase):
 			a.push_back(py_island(prob,algo,n = 6))
 		a.evolve(10)
 		a.join()
-	def test_python(self):
-		# Test with problem implemented in Python.
+	def test_cpp_python(self):
+		# Test with C++ algo, Python prob.
 		from PyGMO import py_island, archipelago, topology, algorithm, problem
 		prob = problem.py_test()
 		algo = algorithm.de(5)
@@ -79,6 +72,24 @@ class _py_island_torture_test(_ut.TestCase):
 			a.push_back(py_island(prob,algo,n = 6))
 		a.evolve(10)
 		a.join()
+	def test_python_python(self):
+		# Test with Python algo and problem prob.
+		from PyGMO import py_island, archipelago, topology, algorithm, problem
+		prob = problem.py_test()
+		algo = algorithm.py_test(5)
+		a = archipelago(topology.ring())
+		for i in range(0,100):
+			a.push_back(py_island(prob,algo,n = 6))
+		a.evolve(10)
+		a.join()
+
+def run_serialization_test_suite():
+	"""
+	Run the serialization test suite.
+	"""
+	from PyGMO import test
+	suite = _ut.TestLoader().loadTestsFromTestCase(_serialization_test)
+	_ut.TextTestRunner(verbosity = 2).run(suite)
 
 def run_full_test_suite():
 	"""

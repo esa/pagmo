@@ -74,3 +74,7 @@ class py_test(base):
 		#print('Final mass: ' + str(m))
 		#print('Starting date: ' + str(PyKEP.epoch(x[0])))
 		#print('Arrival date: ' + str(PyKEP.epoch(x[0] + x[1])))
+
+def _get_problem_list():
+	from PyGMO import problem
+	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(problem))]

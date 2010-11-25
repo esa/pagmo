@@ -243,3 +243,13 @@ class scipy_anneal(_scipy_base):
 		new_chromosome = list(retval[0]) + list(x0_comb)
 		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
 		return pop
+
+def _get_algorithm_list():
+	from PyGMO import algorithm
+	# Try importing SciPy and NumPy.
+	try:
+		import scipy, numpy
+		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))]
+	except ImportError as e:
+		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
+	return algorithm_list

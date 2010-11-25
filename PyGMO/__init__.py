@@ -23,7 +23,9 @@
 
 from core import *
 import algorithm, migration, problem, topology, test
-from copy import copy
+
+problem_list = problem._get_problem_list()
+algorithm_list = algorithm._get_algorithm_list()
 
 def run_test():
 	from PyGMO import problem, algorithm, island
