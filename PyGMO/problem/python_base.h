@@ -62,7 +62,6 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 			base(n,ni,nf,nc,nic,c_tol) {}
 		explicit python_base(const decision_vector &lb, const decision_vector &ub, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			base(lb,ub,ni,nf,nc,nic,c_tol) {}
-		explicit python_base(const base &p):base(p) {}
 		base_ptr clone() const
 		{
 			base_ptr retval = this->get_override("__get_deepcopy__")();

@@ -32,6 +32,7 @@
 #include <boost/python/operators.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/python/tuple.hpp>
+#include <boost/utility.hpp> // For boost::noncopyable.
 #include <sstream>
 #include <vector>
 
@@ -274,7 +275,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def_pickle(generic_pickle_suite<population::champion_type>());
 
 	// Base island class for Python implementation.
-	class_<python_base_island>("_base_island",init<const algorithm::base &, const problem::base &, optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+	class_<python_base_island, boost::noncopyable>("_base_island",init<const algorithm::base &, const problem::base &, optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const algorithm::base &, const population &, optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def("__repr__",&base_island::human_readable)
 		.def("__len__", &base_island::get_size)

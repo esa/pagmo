@@ -70,9 +70,8 @@ BOOST_PYTHON_MODULE(_problem) {
 	typedef void (problem::base::*bounds_setter_vectors)(const decision_vector &, const decision_vector &);
 	typedef constraint_vector (problem::base::*return_constraints)(const decision_vector &) const;
 	typedef fitness_vector (problem::base::*return_fitness)(const decision_vector &) const;
-	class_<problem::python_base>("_base",init<int,optional<int,int,int,int,const double &> >())
+	class_<problem::python_base, boost::noncopyable>("_base",init<int,optional<int,int,int,int,const double &> >())
 		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int, const double &> >())
-		.def(init<const problem::base &>())
 		.def("__repr__", &problem::base::human_readable)
 		// Dimensions.
 		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")

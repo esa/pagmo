@@ -25,6 +25,7 @@
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
+#include <boost/utility.hpp>
 #include <sstream>
 #include <string>
 
@@ -122,8 +123,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	common_module_init();
 
 	// Expose base algorithm class, including the virtual methods.
-	class_<algorithm::python_base>("_base",init<>())
-		.def(init<const algorithm::python_base &>())
+	class_<algorithm::python_base, boost::noncopyable>("_base",init<>())
 		.def("__repr__",&algorithm::base::human_readable)
 		// Virtual methods that can be (re)implemented.
 		.def("get_name", &algorithm::base::get_name, &algorithm::python_base::default_get_name)
