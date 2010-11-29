@@ -33,7 +33,7 @@ int main()
 	archipelago a;
 	a.set_topology(topology::ring());
 	for (int i = 0; i < 10; ++i) {
-		a.push_back(island(prob,algo,1));
+		a.push_back(island(algo,prob,1));
 	}
 	for (int i = 0; i < 1000; ++i) {
 		a.evolve(1);

@@ -123,7 +123,7 @@ class __PAGMO_VISIBLE archipelago
 	public:
 		explicit archipelago(distribution_type = point_to_point, migration_direction = destination);
 		explicit archipelago(const topology::base &, distribution_type = point_to_point, migration_direction = destination);
-		explicit archipelago(const problem::base &, const algorithm::base &, int, int, const topology::base & = topology::unconnected(),
+		explicit archipelago(const algorithm::base &, const problem::base &, int, int, const topology::base & = topology::unconnected(),
 			distribution_type = point_to_point, migration_direction = destination);
 		archipelago(const archipelago &);
 		archipelago &operator=(const archipelago &);

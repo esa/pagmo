@@ -69,11 +69,11 @@ class __PAGMO_VISIBLE island: public base_island
 {
 	public:
 		island(const island &);
-		explicit island(const problem::base &, const algorithm::base &, int = 0,
+		explicit island(const algorithm::base &, const problem::base &, int = 0,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
-		explicit island(const population &, const algorithm::base &,
+		explicit island(const algorithm::base &, const population &,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
@@ -113,22 +113,22 @@ template <class Archive>
 inline void save_construct_data(Archive &ar, const pagmo::island *isl, const unsigned int)
 {
 	// Save data required to construct instance.
-	pagmo::problem::base_ptr prob = isl->m_pop.problem().clone();
 	pagmo::algorithm::base_ptr algo = isl->m_algo->clone();
-	ar << prob;
+	pagmo::problem::base_ptr prob = isl->m_pop.problem().clone();
 	ar << algo;
+	ar << prob;
 }
 
 template <class Archive>
 inline void load_construct_data(Archive &ar, pagmo::island *isl, const unsigned int)
 {
 	// Retrieve data from archive required to construct new instance.
-	pagmo::problem::base_ptr prob;
 	pagmo::algorithm::base_ptr algo;
-	ar >> prob;
+	pagmo::problem::base_ptr prob;
 	ar >> algo;
+	ar >> prob;
 	// Invoke inplace constructor to initialize instance of the algorithm.
-	::new(isl)pagmo::island(*prob,*algo);
+	::new(isl)pagmo::island(*algo,*prob);
 }
 
 }} //namespaces

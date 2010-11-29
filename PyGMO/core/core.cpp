@@ -146,7 +146,7 @@ struct island_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const Island &isl)
 	{
-		return boost::python::make_tuple(isl.get_problem(),isl.get_algorithm());
+		return boost::python::make_tuple(isl.get_algorithm(),isl.get_problem());
 	}
 	static boost::python::tuple getstate(const Island &isl)
 	{
@@ -274,9 +274,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def_pickle(generic_pickle_suite<population::champion_type>());
 
 	// Base island class for Python implementation.
-	class_<python_base_island>("_base_island",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const python_base_island &>())
+	class_<python_base_island>("_base_island",init<const algorithm::base &, const problem::base &, optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const algorithm::base &, const population &, optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def("__repr__",&base_island::human_readable)
 		.def("__len__", &base_island::get_size)
 		.def("evolve", &base_island::evolve,"Evolve island n times.")
@@ -296,8 +295,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def_pickle(python_base_island_pickle_suite());
 
 	// Local island class.
-	class_<python_island,bases<base_island> >("local_island", "Local island class.",init<const problem::base &, const algorithm::base &,optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const population &, const algorithm::base &,optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+	class_<python_island,bases<base_island> >("local_island", "Local island class.",init<const algorithm::base &, const problem::base &, optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const algorithm::base &, const population &, optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const python_island &>())
 		.def("__copy__", &Py_copy_from_ctor<python_island>)
 		.def("__deepcopy__", &Py_deepcopy_from_ctor<python_island>)
@@ -310,7 +309,7 @@ BOOST_PYTHON_MODULE(_core)
 	register_ptr_to_python<base_island_ptr>();
 
 	// Expose archipelago class.
-	class_<archipelago>("archipelago", "Archipelago class.", init<const problem::base &, const algorithm::base &,
+	class_<archipelago>("archipelago", "Archipelago class.", init<const algorithm::base &, const problem::base &,
 		int,int,optional<const topology::base &,archipelago::distribution_type,archipelago::migration_direction> >())
 		.def(init<optional<archipelago::distribution_type,archipelago::migration_direction> >())
 		.def(init<const topology::base &, optional<archipelago::distribution_type,archipelago::migration_direction> >())

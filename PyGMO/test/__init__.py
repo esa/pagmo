@@ -59,7 +59,7 @@ class _py_island_torture_test(_ut.TestCase):
 		algo = algorithm.de(5)
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(prob,algo,n = 6))
+			a.push_back(py_island(algo,prob,n = 6))
 		a.evolve(10)
 		a.join()
 	def test_cpp_python(self):
@@ -69,7 +69,7 @@ class _py_island_torture_test(_ut.TestCase):
 		algo = algorithm.de(5)
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(prob,algo,n = 6))
+			a.push_back(py_island(algo,prob,n = 6))
 		a.evolve(10)
 		a.join()
 	def test_python_python(self):
@@ -79,7 +79,7 @@ class _py_island_torture_test(_ut.TestCase):
 		algo = algorithm.py_test(5)
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(prob,algo,n = 6))
+			a.push_back(py_island(algo,prob,n = 6))
 		a.evolve(10)
 		a.join()
 

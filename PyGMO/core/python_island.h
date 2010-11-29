@@ -82,16 +82,16 @@ class __PAGMO_VISIBLE python_island: public island
 				PyThreadState *m_thread_state;
 		};
 	public:
-		explicit python_island(const problem::base &prob, const algorithm::base &algo, int n = 0,
+		explicit python_island(const algorithm::base &algo, const problem::base &prob, int n = 0,
 			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			island(prob,algo,n,migr_prob,s_policy,r_policy),m_gstate() {}
-		explicit python_island(const population &pop, const algorithm::base &algo,
+			island(algo,prob,n,migr_prob,s_policy,r_policy),m_gstate() {}
+		explicit python_island(const algorithm::base &algo, const population &pop,
 			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			island(pop,algo,migr_prob,s_policy,r_policy),m_gstate() {}
+			island(algo,pop,migr_prob,s_policy,r_policy),m_gstate() {}
 		python_island(const python_island &isl):island(isl),m_gstate() {}
 		~python_island()
 		{
@@ -167,7 +167,7 @@ inline void save_construct_data(Archive &, const pagmo::python_island *, const u
 template <class Archive>
 inline void load_construct_data(Archive &, pagmo::python_island *isl, const unsigned int)
 {
-	::new(isl)pagmo::python_island(pagmo::problem::island_init(),pagmo::algorithm::island_init());
+	::new(isl)pagmo::python_island(pagmo::algorithm::island_init(),pagmo::problem::island_init());
 }
 
 }} //namespaces

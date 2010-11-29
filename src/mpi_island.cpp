@@ -56,9 +56,18 @@ boost::scoped_ptr<std::set<int> > mpi_island::m_available_processors;
 /**
  * @see pagmo::base_island constructors.
  */
-mpi_island::mpi_island(const problem::base &p, const algorithm::base &a, int n, const double &migr_prob,
+mpi_island::mpi_island(const algorithm::base &a, const problem::base &p, int n, const double &migr_prob,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(p,a,n,migr_prob,s_policy,r_policy)
+	base_island(a,p,n,migr_prob,s_policy,r_policy)
+{}
+
+/// Constructor from population.
+/**
+ * @see pagmo::base_island constructors.
+ */
+mpi_island::mpi_island(const algorithm::base &a, const population &pop, const double &migr_prob,
+	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
+	base_island(a,pop,migr_prob,s_policy,r_policy)
 {}
 
 /// Copy constructor.
@@ -66,15 +75,6 @@ mpi_island::mpi_island(const problem::base &p, const algorithm::base &a, int n, 
  * @see pagmo::base_island constructors.
  */
 mpi_island::mpi_island(const mpi_island &isl):base_island(isl)
-{}
-
-/// Constructor from population.
-/**
- * @see pagmo::base_island constructors.
- */
-mpi_island::mpi_island(const population &pop, const algorithm::base &a, const double &migr_prob,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(pop,a,migr_prob,s_policy,r_policy)
 {}
 
 /// Assignment operator.

@@ -40,11 +40,11 @@ def _process_target(q,a,p):
 
 class py_island(base_island):
 	from PyGMO import migration as _migr
-	def __init__(self,prob, algo, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
+	def __init__(self, algo, prob, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
 		if pop is None:
-			super(py_island,self).__init__(prob,algo,n,migr_prob,s_policy,r_policy)
+			super(py_island,self).__init__(algo,prob,n,migr_prob,s_policy,r_policy)
 		else:
-			super(py_island,self).__init__(pop,algo,migr_prob,s_policy,r_policy)
+			super(py_island,self).__init__(algo,pop,migr_prob,s_policy,r_policy)
 	def _perform_evolution(self,algo,pop):
 		try:
 			import multiprocessing as mp
@@ -83,11 +83,11 @@ class ipy_island(base_island):
 	# http://foolscap.lothar.com/trac/ticket/147
 	# Hopefully it will be fixed in the next versions of the library.
 	from PyGMO import migration as _migr
-	def __init__(self,prob, algo, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
+	def __init__(self, algo, prob, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
 		if pop is None:
-			super(ipy_island,self).__init__(prob,algo,n,migr_prob,s_policy,r_policy)
+			super(ipy_island,self).__init__(algo,prob,n,migr_prob,s_policy,r_policy)
 		else:
-			super(ipy_island,self).__init__(pop,algo,migr_prob,s_policy,r_policy)
+			super(ipy_island,self).__init__(algo,pop,migr_prob,s_policy,r_policy)
 	def _perform_evolution(self,algo,pop):
 		try:
 			from IPython.kernel.client import TaskClient, MapTask

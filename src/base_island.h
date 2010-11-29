@@ -86,11 +86,11 @@ class __PAGMO_VISIBLE base_island
 		/** @name Ctors, dtor and assignment operator.*/
 		//@{
 		base_island(const base_island &);
-		explicit base_island(const problem::base &, const algorithm::base &, int,
+		explicit base_island(const algorithm::base &, const problem::base &, int,
 			const double &,
 			const migration::base_s_policy &,
 			const migration::base_r_policy &);
-		explicit base_island(const population &, const algorithm::base &,
+		explicit base_island(const algorithm::base &, const population &,
 			const double &,
 			const migration::base_s_policy &,
 			const migration::base_r_policy &);
@@ -156,10 +156,10 @@ class __PAGMO_VISIBLE base_island
 		struct raii_thread_hook;
 		friend struct raii_thread_hook;
 	protected:
-		/// Population.
-		population				m_pop;
 		/// Algorithm.
 		algorithm::base_ptr			m_algo;
+		/// Population.
+		population				m_pop;
 		/// Pointer that, if not null, points to the archipelago containing the island.
 		archipelago				*m_archi;
 		/// Total time spent by the island on evolution (in milliseconds).
@@ -180,8 +180,8 @@ class __PAGMO_VISIBLE base_island
 			// Sync the island before doing anything.
 			join();
 			// TODO: Also, consider relation to save/load constructor data in island and mpi_island.
-			ar & m_pop;
 			ar & m_algo;
+			ar & m_pop;
 			ar & m_evo_time;
 			ar & m_migr_prob;
 			ar & m_s_policy;

@@ -89,16 +89,16 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 				PyThreadState *m_thread_state;
 		};
 	public:
-		explicit python_base_island(const problem::base &prob, const algorithm::base &algo, int n = 0,
+		explicit python_base_island(const algorithm::base &algo, const problem::base &prob, int n = 0,
 			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			base_island(prob,algo,n,migr_prob,s_policy,r_policy),m_gstate() {}
-		explicit python_base_island(const population &pop, const algorithm::base &algo,
+			base_island(algo,prob,n,migr_prob,s_policy,r_policy),m_gstate() {}
+		explicit python_base_island(const algorithm::base &algo, const population &pop,
 			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			base_island(pop,algo,migr_prob,s_policy,r_policy),m_gstate() {}
+			base_island(algo,pop,migr_prob,s_policy,r_policy),m_gstate() {}
 		python_base_island(const python_base_island &isl):base_island(isl),m_gstate() {}
 		// NOTE: why is this necessary?
 		explicit python_base_island(const base_island &isl):base_island(isl),m_gstate() {}
@@ -187,7 +187,7 @@ struct python_base_island_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const python_base_island &isl)
 	{
-		return boost::python::make_tuple(isl.get_problem(),isl.get_algorithm());
+		return boost::python::make_tuple(isl.get_algorithm(),isl.get_problem());
 	}
 	static boost::python::tuple getstate(boost::python::object obj)
 	{
@@ -241,7 +241,7 @@ template <class Archive>
 inline void load_construct_data(Archive &, pagmo::python_base_island *isl, const unsigned int)
 {
 	// Invoke inplace constructor to initialize instance of the island.
-	::new(isl)pagmo::python_base_island(pagmo::problem::island_init(),pagmo::algorithm::island_init());
+	::new(isl)pagmo::python_base_island(pagmo::algorithm::island_init(),pagmo::problem::island_init());
 }
 
 }} //namespaces

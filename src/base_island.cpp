@@ -52,8 +52,8 @@ namespace pagmo
  * Will store a copy of the problem, of the algorithm and of the policies internally, will initialise internal population to n individuals
  * and evolution time to zero. Will fail if n is negative or if migration probability is not in the [0,1] range.
  *
- * @param[in] p problem::base to which the internal population will be associated.
  * @param[in] a algorithm::base which will be associated to the island.
+ * @param[in] p problem::base to which the internal population will be associated.
  * @param[in] n number of individuals in the internal population.
  * @param[in] migr_prob migration probability.
  * @param[in] s_policy migration::base_s_policy for the island.
@@ -61,9 +61,9 @@ namespace pagmo
  *
  * @throws pagmo::value_error if migration probability is outside the [0,1] range.
  */
-base_island::base_island(const problem::base &p, const algorithm::base &a, int n, const double &migr_prob,
+base_island::base_island(const algorithm::base &a, const problem::base &p, int n, const double &migr_prob,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	m_pop(p,n),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
+	m_algo(a.clone()),m_pop(p,n),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
 {
 	if (m_migr_prob < 0 || m_migr_prob > 1) {
 		pagmo_throw(value_error,"invalid migration probability");
@@ -92,17 +92,17 @@ base_island::base_island(const base_island &isl):m_pop(isl.get_population())
 /**
  * Will construct an island containing the given population and algorithm.
  *
- * @param[in] pop population that will be contained in the island.
  * @param[in] a algorithm::base which will be associated to the island.
+ * @param[in] pop population that will be contained in the island.
  * @param[in] migr_prob migration probability.
  * @param[in] s_policy migration::base_s_policy for the island.
  * @param[in] r_policy migration::base_r_policy for the island.
  *
  * @throws pagmo::value_error if migration probability is outside the [0,1] range.
  */
-base_island::base_island(const population &pop, const algorithm::base &a, const double &migr_prob,
+base_island::base_island(const algorithm::base &a, const population &pop, const double &migr_prob,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	m_pop(pop),m_algo(a.clone()),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
+	m_algo(a.clone()),m_pop(pop),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
 {
 	if (m_migr_prob < 0 || m_migr_prob > 1) {
 		pagmo_throw(value_error,"invalid migration probability");
@@ -124,8 +124,8 @@ base_island &base_island::operator=(const base_island &isl)
 		join();
 		isl.join();
 		// Copy over content.
-		m_pop = isl.m_pop;
 		m_algo = isl.m_algo->clone();
+		m_pop = isl.m_pop;
 		m_archi = isl.m_archi;
 		m_evo_time = isl.m_evo_time;
 		m_migr_prob = isl.m_migr_prob;
