@@ -35,6 +35,10 @@ class py_test(base):
 			if prob.compare_fc(tmp_f,tmp_c,worst.cur_f,worst.cur_c):
 				pop.set_x(worst_idx,tmp_x)
 		return pop
+	def get_name(self):
+		return "Monte Carlo (Python)"
+	def human_readable_extra(self):
+		return "n_iter=" + str(self.__n_iter)
 
 # Helper class to ease the inclusion of scipy.optimize solvers.
 class _scipy_base(base):

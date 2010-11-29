@@ -170,9 +170,9 @@ std::string base_island::human_readable_terse() const
 {
 	join();
 	std::ostringstream oss;
-	oss << "Island type: " << get_name() << '\n';
-	oss << *m_algo << '\n';
-	oss << "Evolution time: " << m_evo_time << "\n\n";
+	oss << "Island type: " << get_name() << "\n\n";
+	oss << *m_algo << "\n\n";
+	oss << "Evolution time: " << m_evo_time << " milliseconds\n\n";
 	oss << "Migration probability: " << m_migr_prob * 100 << "%\n\n";
 	oss << *m_s_policy << '\n';
 	oss << *m_r_policy << '\n';
@@ -193,9 +193,9 @@ std::string base_island::human_readable() const
 {
 	join();
 	std::ostringstream oss;
-	oss << "Island type: " << get_name() << '\n';
-	oss << *m_algo << '\n';
-	oss << "Evolution time: " << m_evo_time << "\n\n";
+	oss << "Island type: " << get_name() << "\n\n";
+	oss << *m_algo << "\n\n";
+	oss << "Evolution time: " << m_evo_time << " milliseconds\n\n";
 	oss << "Migration probability: " << m_migr_prob * 100 << "%\n\n";
 	oss << *m_s_policy << '\n';
 	oss << *m_r_policy << '\n';
