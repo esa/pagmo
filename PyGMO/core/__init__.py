@@ -18,6 +18,9 @@ _signal.signal(_signal.SIGINT,_sigint_handler)
 # Global lock used when starting processes.
 _process_lock = _threading.Lock()
 
+# Raw C++ base island class.
+_base_island = _core._base_island
+
 class base_island(_core._base_island):
 	def __init__(self,*args):
 		if len(args) == 0:
@@ -29,6 +32,72 @@ class base_island(_core._base_island):
 		from copy import deepcopy
 		return deepcopy(self)
 
+def _generic_island_ctor(self,*args,**kwargs):
+	"""Generic island constructor.
+	
+	Unnamed arguments:
+	1. algorithm
+	2. problem or population
+	3. number of individuals (optional and valid only if 2. is a problem, defaults to 0 if not specified)
+	
+	Keyword arguments:
+	migr_prob -- migration probability (defaults to 1)
+	s_policy -- migration selection policy (defaults to 'best selection' policy)
+	r_policy -- migration replacement policy (defaults to 'fair replacement' policy)
+	
+	"""
+	from PyGMO.algorithm import _base as _base_algorithm, base as base_algorithm
+	from PyGMO.problem import _base as _base_problem, base as base_problem
+	from PyGMO.migration import best_s_policy, fair_r_policy, _base_s_policy, _base_r_policy
+	if len(args) < 2 or len(args) > 3:
+		raise ValueError("Unnamed arguments list must have either 2 or three elements, but %d elements were found instead." % (len(args),))
+	if not isinstance(args[0],_base_algorithm):
+		raise TypeError("The first unnamed argument must be an algorithm.")
+	ctor_args = [args[0]]
+	if isinstance(args[1],_base_problem):
+		ctor_args.append(args[1])
+		if len(args) == 3:
+			if not isinstance(args[2],int):
+				raise TypeError("Please provide an integer for the number of individuals in the island.")
+			ctor_args.append(args[2])
+		else:
+			ctor_args.append(0)
+	elif isinstance(args[1],population):
+		if len(args) == 3:
+			raise ValueError("When the second unnamed argument is a population, there cannot be a third unnamed argument.")
+		ctor_args.append(args[1])
+	else:
+		raise TypeError("The second unnamed argument must be either a problem or a population.")
+	ctor_args.append(kwargs.pop('migr_prob',1.))
+	if not isinstance(ctor_args[-1],float):
+		raise TypeError("Migration probability must be a float.")
+	ctor_args.append(kwargs.pop('s_policy',best_s_policy()))
+	if not isinstance(ctor_args[-1],_base_s_policy):
+		raise TypeError("s_policy must be a migration selection policy.")
+	ctor_args.append(kwargs.pop('r_policy',fair_r_policy()))
+	if not isinstance(ctor_args[-1],_base_r_policy):
+		raise TypeError("r_policy must be a migration replacement policy.")
+	if isinstance(self,base_island):
+		super(type(self),self).__init__(*ctor_args)
+	elif isinstance(self,_base_island):
+		self.__original_init__(*ctor_args)
+	else:
+		assert(self is None)
+		n_pythonic_items = 0
+		if isinstance(args[0],base_algorithm):
+			n_pythonic_items += 1
+		if isinstance(args[1],base_problem):
+			n_pythonic_items += 1
+		elif isinstance(args[1],population) and isinstance(args[1].problem,base_problem):
+			n_pythonic_items += 1
+		if n_pythonic_items > 0:
+			return py_island(*args,**kwargs)
+		else:
+			return local_island(*args,**kwargs)
+
+local_island.__original_init__ = local_island.__init__
+local_island.__init__ = _generic_island_ctor
+
 # This is the function that will be called by the separate process
 # spawned from py_island.
 def _process_target(q,a,p):
@@ -39,12 +108,13 @@ def _process_target(q,a,p):
 		q.put(e)
 
 class py_island(base_island):
-	from PyGMO import migration as _migr
-	def __init__(self, algo, prob, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
-		if pop is None:
-			super(py_island,self).__init__(algo,prob,n,migr_prob,s_policy,r_policy)
-		else:
-			super(py_island,self).__init__(algo,pop,migr_prob,s_policy,r_policy)
+	"""Python island.
+	
+	This island will launch evolutions using the multiprocessing module, available since Python 2.6.
+	Each evolution is transparently dispatched to a Python interpreter in a separate process.
+
+	"""
+	__init__ = _generic_island_ctor
 	def _perform_evolution(self,algo,pop):
 		try:
 			import multiprocessing as mp
@@ -67,7 +137,7 @@ class py_island(base_island):
 			print(e)
 			raise RuntimeError()
 	def get_name(self):
-		return "Python island"
+		return "Python multiprocessing island"
 
 # This is the function that will be called by the task client
 # in ipy_island.
@@ -78,16 +148,20 @@ def _maptask_target(a,p):
 		return e
 
 class ipy_island(base_island):
+	"""Parallel IPython island.
+	
+	This island will launch evolutions using IPython's MapTask interface. The evolution will be dispatched
+	to IPython engines that, depending on the configuration of IPython/ipcluster, can reside either on the
+	local machine or on other remote machines.
+	
+	See: http://ipython.scipy.org/doc/stable/html/parallel/index.html
+	
+	"""
 	# NOTE: when using ipython island, on quitting IPython there might be a warning message
 	# reporting an exception being ignored. This seems to be a problem in the foolscap library:
 	# http://foolscap.lothar.com/trac/ticket/147
 	# Hopefully it will be fixed in the next versions of the library.
-	from PyGMO import migration as _migr
-	def __init__(self, algo, prob, pop = None, n = 0, migr_prob = 1., s_policy = _migr.best_s_policy(), r_policy = _migr.fair_r_policy()):
-		if pop is None:
-			super(ipy_island,self).__init__(algo,prob,n,migr_prob,s_policy,r_policy)
-		else:
-			super(ipy_island,self).__init__(algo,pop,migr_prob,s_policy,r_policy)
+	__init__ = _generic_island_ctor
 	def _perform_evolution(self,algo,pop):
 		try:
 			from IPython.kernel.client import TaskClient, MapTask
@@ -108,3 +182,10 @@ class ipy_island(base_island):
 			raise RuntimeError()
 	def get_name(self):
 		return "Parallel IPython island"
+
+def island(*args,**kwargs):
+	return _generic_island_ctor(None,*args,**kwargs)
+
+island.__doc__ = '\n'.join(['Island factory function.\n\nThis function will return an instance of an island object\nbuilt according to the following rule: '+
+	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof py_island will be returned; '+
+	'otherwise, an instance of\nlocal_island will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')[1:]])

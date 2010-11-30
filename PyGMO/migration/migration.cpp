@@ -71,7 +71,7 @@ BOOST_PYTHON_MODULE(_migration) {
 	// Expose migration selection policies.
 
 	// Base.
-	class_<migration::base_s_policy,boost::noncopyable>("base_s_policy",no_init);
+	class_<migration::base_s_policy,boost::noncopyable>("_base_s_policy",no_init);
 
 	// Best selection policy.
 	migration_s_policy_wrapper<migration::best_s_policy>("best_s_policy","Best migration selection policy.")
@@ -80,7 +80,7 @@ BOOST_PYTHON_MODULE(_migration) {
 	// Expose migration replacement policies.	
 
 	// Base.
-	class_<migration::base_r_policy,boost::noncopyable>("base_r_policy",no_init);
+	class_<migration::base_r_policy,boost::noncopyable>("_base_r_policy",no_init);
 
 	// Fair replacement policy.
 	migration_r_policy_wrapper<migration::fair_r_policy>("fair_r_policy","Fair migration replacement policy.")

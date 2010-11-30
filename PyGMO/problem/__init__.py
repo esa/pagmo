@@ -1,6 +1,9 @@
 # -*- coding: iso-8859-1 -*-
 from _problem import *
 
+# Raw C++ base class.
+_base = _problem._base
+
 class base(_problem._base):
 	def __init__(self,*args):
 		if len(args) == 0:

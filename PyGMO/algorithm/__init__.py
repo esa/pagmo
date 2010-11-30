@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from _algorithm import *
 
+# Raw C++ base class.
+_base = _algorithm._base
+
 class base(_algorithm._base):
 	def __init__(self):
 		_algorithm._base.__init__(self)
