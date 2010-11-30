@@ -24,72 +24,75 @@
 import unittest as _ut
 
 class _serialization_test(_ut.TestCase):
-	# Test for the consistency of the C++ part of the serialization.
-	def __cpp_test_impl(self,types):
-		for t in types:
-			tmp1 = t()
-			dump1 = tmp1.cpp_dumps()
-			tmp2 = t()
-			tmp2.cpp_loads(dump1)
-			dump2 = tmp2.cpp_dumps()
-			self.assertEqual(dump1,dump2)
-	def test_cpp_problems(self):
-		from PyGMO import problem, problem_list
-		types = filter(lambda t: not isinstance(t(),problem.base),problem_list)
-		self.__cpp_test_impl(types)
-	def test_cpp_algorithms(self):
-		from PyGMO import algorithm, algorithm_list
-		types = filter(lambda t: not isinstance(t(),algorithm.base),algorithm_list)
-		self.__cpp_test_impl(types)
 	def test_pickle(self):
 		from PyGMO import archipelago, island_list, problem_list, algorithm_list
 		import pickle
+		print('')
 		for isl in island_list:
 			for prob in problem_list:
 				for algo in algorithm_list:
-					print(type(prob()),type(algo()))
+					print(isl,type(prob()),type(algo()))
 					a = archipelago()
 					a.push_back(isl(algo(),prob(),20))
 					a.push_back(isl(algo(),prob(),20))
 					pickle.loads(pickle.dumps(a))
 
-# This class will stress the py_island class with highly concurrent simple evolutions.
-class _py_island_torture_test(_ut.TestCase):
-	def test_cpp_cpp(self):
-		# Test with algo and prob implemented in C++.
-		from PyGMO import py_island, archipelago, topology, algorithm, problem
-		prob = problem.dejong(1)
-		algo = algorithm.de(5)
+# This class will stress the island and archipelago classes with highly concurrent simple evolutions.
+class _island_torture_test(_ut.TestCase):
+	def __test_impl(self,isl_type,algo,prob):
+		from PyGMO import archipelago, topology
 		a = archipelago(topology.ring())
 		for i in range(0,100):
-			a.push_back(py_island(algo,prob,n = 6))
+			a.push_back(isl_type(algo,prob,6))
 		a.evolve(10)
 		a.join()
-	def test_cpp_python(self):
-		# Test with C++ algo, Python prob.
-		from PyGMO import py_island, archipelago, topology, algorithm, problem
-		prob = problem.py_test()
-		algo = algorithm.de(5)
-		a = archipelago(topology.ring())
-		for i in range(0,100):
-			a.push_back(py_island(algo,prob,n = 6))
-		a.evolve(10)
-		a.join()
-	def test_python_python(self):
-		# Test with Python algo and problem prob.
-		from PyGMO import py_island, archipelago, topology, algorithm, problem
-		prob = problem.py_test()
-		algo = algorithm.py_test(5)
-		a = archipelago(topology.ring())
-		for i in range(0,100):
-			a.push_back(py_island(algo,prob,n = 6))
-		a.evolve(10)
-		a.join()
+	def test_local_island(self):
+		from PyGMO import local_island, algorithm, problem
+		isl_type = local_island
+		algo_list = [algorithm.py_test(1), algorithm.de(5)]
+		prob_list = [problem.py_test(), problem.dejong(1)]
+		for algo in algo_list:
+			for prob in prob_list:
+				self.__test_impl(isl_type,algo,prob)
+	def test_py_island(self):
+		from PyGMO import py_island, algorithm, problem
+		isl_type = py_island
+		algo_list = [algorithm.py_test(1), algorithm.de(5)]
+		prob_list = [problem.py_test(), problem.dejong(1)]
+		for algo in algo_list:
+			for prob in prob_list:
+				self.__test_impl(isl_type,algo,prob)
+	def test_ipy_island(self):
+		from PyGMO import ipy_island, algorithm, problem
+		try:
+			from IPython.kernel import client
+			mec = client.MultiEngineClient()
+			if len(mec) == 0:
+				raise RuntimeError()
+		except ImportError as ie:
+			return
+		except BaseException as e:
+			print('There is a problem with parallel IPython setup. The error message is:')
+			print(e)
+			print('Tests for ipy_island will not be run.')
+			return
+		isl_type = ipy_island
+		algo_list = [algorithm.py_test(1), algorithm.de(5)]
+		prob_list = [problem.py_test(), problem.dejong(1)]
+		for algo in algo_list:
+			for prob in prob_list:
+				self.__test_impl(isl_type,algo,prob)
 
 def run_serialization_test_suite():
 	"""Run the serialization test suite."""
 	from PyGMO import test
 	suite = _ut.TestLoader().loadTestsFromTestCase(_serialization_test)
+	_ut.TextTestRunner(verbosity = 2).run(suite)
+
+def run_island_torture_test_suite():
+	"""Run the island torture test suite."""
+	from PyGMO import test
+	suite = _ut.TestLoader().loadTestsFromTestCase(_island_torture_test)
 	_ut.TextTestRunner(verbosity = 2).run(suite)
 
 def run_full_test_suite():
