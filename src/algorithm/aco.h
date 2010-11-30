@@ -26,10 +26,10 @@
 #define PAGMO_ALGORITHM_ACO_H
 
 #include "../config.h"
+#include "../problem/base_aco.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
-#include "../problem/base_aco.h"
-
 
 namespace pagmo { namespace algorithm {
 
@@ -60,11 +60,21 @@ private:
 	static void deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho);
 	static void selection_probability(std::vector<fitness_vector> &probability, std::vector<bool> &fComponents, std::vector<fitness_vector> &eta, std::vector<int> &selection, const pagmo::problem::base &prob);
 	static void feasible_components(std::vector<bool> &fComponents,const pagmo::problem::base_aco &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub);
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<double &>(m_iter);
+		ar & const_cast<double &>(m_rho);
+	}
 	// Number of iterations
 	const double m_iter;
 	const double m_rho;
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco);
 
 #endif // PAGMO_ALGORITHM_ACO_H

@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base_aco.h"
 
@@ -72,10 +73,20 @@ class __PAGMO_VISIBLE tsp: public base_aco
 		std::string human_readable_extra() const;
 		void set_heuristic_information_matrix();
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_weights;
+			ar & m_tmpDecisionVector;
+		}
 		std::vector<std::vector<double> > m_weights;
 		mutable decision_vector m_tmpDecisionVector;
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp);
 
 #endif

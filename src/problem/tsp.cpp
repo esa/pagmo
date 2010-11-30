@@ -182,3 +182,5 @@ std::string tsp::get_name() const
 
 }
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp);

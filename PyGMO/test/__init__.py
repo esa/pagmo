@@ -41,14 +41,17 @@ class _serialization_test(_ut.TestCase):
 		from PyGMO import algorithm, algorithm_list
 		types = filter(lambda t: not isinstance(t(),algorithm.base),algorithm_list)
 		self.__cpp_test_impl(types)
-	#def test_pickle(self):
-		#from PyGMO import archipelago
-		#import pickle
-		#for isl in _isl_list:
-			#for prob in _prob_list:
-				#for algo in _algo_list:
-					#a = archipelago(prob(),algo(),1,1)
-					#pickle.loads(pickle.dumps(a))
+	def test_pickle(self):
+		from PyGMO import archipelago, island_list, problem_list, algorithm_list
+		import pickle
+		for isl in island_list:
+			for prob in problem_list:
+				for algo in algorithm_list:
+					print(type(prob()),type(algo()))
+					a = archipelago()
+					a.push_back(isl(algo(),prob(),20))
+					a.push_back(isl(algo(),prob(),20))
+					pickle.loads(pickle.dumps(a))
 
 # This class will stress the py_island class with highly concurrent simple evolutions.
 class _py_island_torture_test(_ut.TestCase):
@@ -84,17 +87,13 @@ class _py_island_torture_test(_ut.TestCase):
 		a.join()
 
 def run_serialization_test_suite():
-	"""
-	Run the serialization test suite.
-	"""
+	"""Run the serialization test suite."""
 	from PyGMO import test
 	suite = _ut.TestLoader().loadTestsFromTestCase(_serialization_test)
 	_ut.TextTestRunner(verbosity = 2).run(suite)
 
 def run_full_test_suite():
-	"""
-	Run the complete test suite for PyGMO.
-	"""
+	"""Run the complete test suite for PyGMO."""
 	from PyGMO import test
 	suite = _ut.TestLoader().loadTestsFromModule(test)
 	_ut.TextTestRunner(verbosity = 2).run(suite)

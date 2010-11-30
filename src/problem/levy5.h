@@ -56,7 +56,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE levy5 : public base
 {
 	public:
-		levy5(int = 1);
+		levy5(int = 2);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:

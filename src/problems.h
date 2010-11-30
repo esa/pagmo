@@ -31,7 +31,6 @@
 #include "problem/branin.h"
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
-#include "problem/paraboloid.h"
 #include "problem/rastrigin.h"
 #include "problem/rosenbrock.h"
 #include "problem/schwefel.h"

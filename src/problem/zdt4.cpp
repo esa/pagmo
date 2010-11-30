@@ -32,7 +32,7 @@
 namespace pagmo { namespace problem {
 
 /**
- * Will construct ZDT3.
+ * Will construct ZDT4.
  *
  * @see problem::base constructors.
  */
@@ -75,3 +75,5 @@ std::string zdt4::get_name() const
 	return "ZDT4";
 }
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::zdt4);

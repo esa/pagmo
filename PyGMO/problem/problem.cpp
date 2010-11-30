@@ -140,10 +140,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::levy5>("levy5","Levy5 problem.")
 		.def(init<int>());
 	
-	// Paraboloid problem.
-	problem_wrapper<problem::paraboloid>("paraboloid","Multi-dimensional paraboloid miminisation.")
-		.def(init<const decision_vector &, const decision_vector &>());
-
 	// Rosenbrock problem.
 	problem_wrapper<problem::rosenbrock>("rosenbrock","Multi-dimensional Rosenbrock function.")
 		.def(init<int>());

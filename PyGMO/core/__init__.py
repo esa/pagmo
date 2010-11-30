@@ -189,3 +189,12 @@ def island(*args,**kwargs):
 island.__doc__ = '\n'.join(['Island factory function.\n\nThis function will return an instance of an island object\nbuilt according to the following rule: '+
 	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof py_island will be returned; '+
 	'otherwise, an instance of\nlocal_island will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')[1:]])
+
+def _get_island_list():
+	from PyGMO import core
+	names = filter(lambda n: not n.startswith('_') and not n.startswith('base') and n.endswith('_island'),dir(core))
+	try:
+		from IPython.kernel.client import TaskClient, MapTask
+	except ImportError:
+		names = filter(lambda n: n != 'ipy_island',names)
+	return [core.__dict__[n] for n in names]

@@ -22,10 +22,11 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 from core import *
-import algorithm, migration, problem, topology, test
+import core, algorithm, migration, problem, topology, test
 
 problem_list = problem._get_problem_list()
 algorithm_list = algorithm._get_algorithm_list()
+island_list = core._get_island_list()
 
 def run_test():
 	from PyGMO import problem, algorithm, island

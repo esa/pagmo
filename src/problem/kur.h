@@ -68,7 +68,6 @@ class __PAGMO_VISIBLE kur : public base
 
 }} //namespaces
 
-
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::kur);
 
 #endif // PAGMO_PROBLEM_KUR_H

@@ -33,7 +33,7 @@
 namespace pagmo { namespace problem {
 
 /**
- * Will construct Fonseca and Fleming's study problem.
+ * Will construct Poloni's study problem.
  *
  * @see problem::base constructors.
  */
@@ -80,4 +80,3 @@ std::string pol::get_name() const
 }} //namespaces
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::pol);
-

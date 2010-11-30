@@ -74,7 +74,6 @@ class __PAGMO_VISIBLE zdt6 : public base
 
 }} //namespaces
 
-
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::zdt6);
 
 #endif // PAGMO_PROBLEM_ZDT6_H

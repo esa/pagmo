@@ -71,3 +71,5 @@ std::string kur::get_name() const
 	return "Kursawe's study";
 }
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::kur);

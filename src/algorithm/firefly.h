@@ -25,16 +25,16 @@
 #ifndef PAGMO_ALGORITHM_FIREFLY_H
 #define PAGMO_ALGORITHM_FIREFLY_H
 
-#include "../config.h"
-#include "base.h"
-#include "../population.h"
 #include <string>
 
-
+#include "../config.h"
+#include "../population.h"
+#include "../serialization.h"
+#include "base.h"
 
 namespace pagmo { namespace algorithm {
 
-/// The Firefly algorithm(FA)
+/// The Firefly algorithm
 /**
  * The firefly algorithm (FA) is a metaheuristic algorithm, inspired by the flashing behaviour of fireflies.
  *
@@ -67,13 +67,24 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_iter);
+		ar & const_cast<double &>(m_alpha);
+		ar & const_cast<double &>(m_beta);
+		ar & const_cast<double &>(m_gamma);
+	}
 	const int m_iter;
 	const double m_alpha;
 	const double m_beta;
 	const double m_gamma;
-
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::firefly);
 
 #endif // PAGMO_ALGORITHM_FIREFLY_H

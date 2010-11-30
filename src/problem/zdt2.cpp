@@ -73,3 +73,5 @@ std::string zdt2::get_name() const
 	return "ZDT2";
 }
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::zdt2);
