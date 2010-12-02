@@ -155,6 +155,7 @@ class __PAGMO_VISIBLE archipelago
 		void sync_island_start() const;
 		size_type locate_island(const base_island &) const;
 		bool destruction_checks() const;
+		void reevaluate_immigrants(std::vector<individual_type> &, const base_island &) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

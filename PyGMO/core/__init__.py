@@ -157,7 +157,7 @@ class ipy_island(base_island):
 	See: http://ipython.scipy.org/doc/stable/html/parallel/index.html
 	
 	"""
-	# NOTE: when using ipython island, on quitting IPython there might be a warning message
+	# NOTE: when using an IPython island, on quitting IPython there might be a warning message
 	# reporting an exception being ignored. This seems to be a problem in the foolscap library:
 	# http://foolscap.lothar.com/trac/ticket/147
 	# Hopefully it will be fixed in the next versions of the library.

@@ -353,12 +353,6 @@ bool archipelago::destruction_checks() const
 void archipelago::build_immigrants_vector(std::vector<individual_type> &immigrants, const base_island &src_isl,
 	base_island &dest_isl, const std::vector<individual_type> &candidates, migr_hist_type &h) const
 {
-	// We always re-evaluate the incoming individuals according
-	// to dest_isl's problem.
-	individual_type tmp;
-	tmp.cur_v.resize(dest_isl.m_pop.problem().get_dimension());
-	tmp.cur_f.resize(dest_isl.m_pop.problem().get_f_dimension());
-	tmp.cur_c.resize(dest_isl.m_pop.problem().get_c_dimension());
 	for (std::vector<individual_type>::const_iterator ind_it = candidates.begin();
 		ind_it != candidates.end(); ++ind_it)
 	{
@@ -367,14 +361,7 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 		if (!dest_isl.m_pop.problem().verify_x(ind_it->cur_x)) {
 			continue;
 		}
-		tmp.cur_x = ind_it->cur_x;
-		dest_isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
-		dest_isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
-		// Set the best properties to the current ones.
-		tmp.best_x = tmp.cur_x;
-		tmp.best_f = tmp.cur_f;
-		tmp.best_c = tmp.cur_c;
-		immigrants.push_back(tmp);
+		immigrants.push_back(*ind_it);
 	}
 	// Record the migration history.
 	h.push_back(boost::make_tuple(
@@ -384,13 +371,30 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 	));
 }
 
+// Re-evaluate vector of immigrants before insertion into destination island.
+void archipelago::reevaluate_immigrants(std::vector<individual_type> &immigrants, const base_island &isl) const
+{
+	individual_type tmp;
+	tmp.cur_v.resize(isl.m_pop.problem().get_dimension());
+	tmp.cur_f.resize(isl.m_pop.problem().get_f_dimension());
+	tmp.cur_c.resize(isl.m_pop.problem().get_c_dimension());
+	for (std::vector<individual_type>::iterator ind_it = immigrants.begin(); ind_it != immigrants.end(); ++ind_it) {
+		tmp.cur_x = ind_it->cur_x;
+		isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
+		isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
+		// Set the best properties to the current ones.
+		tmp.best_x = tmp.cur_x;
+		tmp.best_f = tmp.cur_f;
+		tmp.best_c = tmp.cur_c;
+		*ind_it = tmp;
+	}
+}
+
 // This method will be called by each island of the archipelago before starting evolution. Its task is
 // to select from the other islands, according to the topology and the migration/distribution type and direction,
 // the individuals that will migrate into the island.
 void archipelago::pre_evolution(base_island &isl)
 {
-	// Lock the migration logic.
-	lock_type lock(m_migr_mutex);
 	// Make sure the island belongs to the archipelago.
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
@@ -404,6 +408,8 @@ void archipelago::pre_evolution(base_island &isl)
 	std::vector<individual_type> immigrants;
 	switch (m_migr_dir) {
 		case source:
+		{
+			lock_type lock(m_migr_mutex);
 			// For source migration direction, migration map contains islands' "inboxes". Or, in other words, it contains
 			// the individuals that are destined to go into the islands. Such inboxes have been assembled previously,
 			// during a post_evolution operation.
@@ -417,6 +423,7 @@ void archipelago::pre_evolution(base_island &isl)
 			// Delete stuff in the migration map.
 			m_migr_map.erase(isl_idx);
 			break;
+		}
 		case destination:
 			// For destination migration direction, items in the migration map behave like "outboxes", i.e. each one is a
 			// "database of best individuals" seen in the islands of the archipelago.
@@ -427,6 +434,7 @@ void archipelago::pre_evolution(base_island &isl)
 				switch (m_dist_type) {
 					case point_to_point:
 					{
+						lock_type lock(m_migr_mutex);
 						// Get the index of a random island connecting into isl.
 						boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,inv_adj_islands.size() - 1);
 						const size_type rn_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[u_int(m_urng)]);
@@ -437,19 +445,31 @@ void archipelago::pre_evolution(base_island &isl)
 						break;
 					}
 					case broadcast:
+					{
+						lock_type lock(m_migr_mutex);
 						// For broadcast migration fetch immigrants from all neighbour islands' databases.
 						for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
 							build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx],h);
 						}
+					}
 				}
 			}
 	}
 	//2. Insert immigrants into population.
 	if (immigrants.size()) {
-		if (m_drng() < isl.m_migr_prob) {
+		double next_rng;
+		{
+			lock_type lock(m_migr_mutex);
+			next_rng = m_drng();
+		}
+		if (next_rng < isl.m_migr_prob) {
+			// We always re-evaluate the incoming individuals according
+			// to destination island's problem.
+			reevaluate_immigrants(immigrants,isl);
 			isl.accept_immigrants(immigrants);
+			lock_type lock(m_migr_mutex);
 			m_migr_hist.insert(m_migr_hist.end(),h.begin(),h.end());
 		}
 	}
@@ -460,8 +480,6 @@ void archipelago::pre_evolution(base_island &isl)
 // and the topology.
 void archipelago::post_evolution(base_island &isl)
 {
-	// Lock the migration logic.
-	lock_type lock(m_migr_mutex);
 	// Make sure the island belongs to the archipelago.
 	pagmo_assert(isl.m_archi == this);
 	// Make sure the archipelago is not empty.
@@ -484,6 +502,7 @@ void archipelago::post_evolution(base_island &isl)
 					{
 						case point_to_point:
 						{
+							lock_type lock(m_migr_mutex);
 							// For one-to-one migration choose a random neighbour island and put immigrants to its inbox.
 							boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,adj_islands.size() - 1);
 							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[u_int(m_urng)]);
@@ -491,22 +510,28 @@ void archipelago::post_evolution(base_island &isl)
 							break;
 						}
 						case broadcast:
+						{
+							lock_type lock(m_migr_mutex);
 							// For broadcast migration put immigrants to all neighbour islands' inboxes.
 							for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < adj_islands.size(); ++i) {
 								m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
-								.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
-								emigrants.begin(),emigrants.end());
+									.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
+									emigrants.begin(),emigrants.end());
 							}
+						}
 					}
 				}
 			}
 			break;
 		}
 		case destination:
+		{
 			// For destination migration direction, migration map behaves like "outboxes", i.e. each is a "database of best individuals" for corresponding island.
 			emigrants = isl.get_emigrants();
+			lock_type lock(m_migr_mutex);
 			pagmo_assert(m_migr_map[isl_idx].size() <= 1);
 			m_migr_map[isl_idx][isl_idx].swap(emigrants);
+		}
 	}
 }
 
