@@ -25,9 +25,14 @@
 #ifndef PAGMO_MPI_ENVIRONMENT_H
 #define PAGMO_MPI_ENVIRONMENT_H
 
-#include <boost/mpi/environment.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/utility.hpp>
+#include <mpi.h>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "config.h"
 
@@ -52,11 +57,44 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 	public:
 		mpi_environment();
 		~mpi_environment();
-		int size() const;
+		static bool is_multithread();
+		static int get_size();
+		static int get_rank();
+		template <class T>
+		static void recv(T &retval, int source)
+		{
+			MPI_Status status;
+			// First receive the size.
+			int size;
+			MPI_Recv(static_cast<void *>(&size),1,MPI_INT,source,0,MPI_COMM_WORLD,&status);
+			// Prepare the vector of chars.
+			std::vector<char> buffer_char(boost::numeric_cast<std::vector<char>::size_type>(size),0);
+			// Receive the payload.
+			MPI_Recv(static_cast<void *>(&buffer_char[0]),size,MPI_CHAR,source,1,MPI_COMM_WORLD,&status);
+			// Build the string from the vector.
+			const std::string buffer_str(buffer_char.begin(),buffer_char.end());
+			// Unpickle the payload.
+			std::stringstream ss(buffer_str);
+			boost::archive::text_iarchive ia(ss);
+			ia >> retval;
+		}
+		template <class T>
+		static void send(const T &payload, int destination)
+		{
+			std::stringstream ss;
+			boost::archive::text_oarchive oa(ss);
+			oa << payload;
+			const std::string buffer_str(ss.str());
+			std::vector<char> buffer_char(buffer_str.begin(),buffer_str.end());
+			// Send the size.
+			int size = boost::numeric_cast<int>(buffer_char.size());
+			MPI_Send(static_cast<void *>(&size),1,MPI_INT,destination,0,MPI_COMM_WORLD);
+			// Send the string.
+			MPI_Send(static_cast<void *>(&buffer_char[0]),size,MPI_CHAR,destination,1,MPI_COMM_WORLD);
+		}
+		static bool iprobe(int);
 	private:
 		void listen();
-	private:
-		boost::scoped_ptr<boost::mpi::environment> m_environment;
 };
 
 }
