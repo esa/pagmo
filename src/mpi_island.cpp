@@ -148,6 +148,8 @@ void mpi_island::init_processors()
 
 int mpi_island::acquire_processor()
 {
+	// Make sure we are not called with the mutex not locked.
+	pagmo_assert(!m_mutex.try_lock());
 	init_processors();
 	if (m_available_processors->empty()) {
 		pagmo_throw(std::runtime_error,"no more processors are available");
@@ -159,6 +161,7 @@ int mpi_island::acquire_processor()
 
 void mpi_island::release_processor(int n)
 {
+	pagmo_assert(!m_mutex.try_lock());
 	init_processors();
 	if (n <= 0 || n >= mpi_environment::get_size()) {
 		pagmo_throw(std::runtime_error,"invalid processor id: the value is either non-positive or exceeding the size of the MPI world");
