@@ -72,7 +72,7 @@ class _island_torture_test(_ut.TestCase):
 		except ImportError as ie:
 			return
 		except BaseException as e:
-			print('There is a problem with parallel IPython setup. The error message is:')
+			print('\nThere is a problem with parallel IPython setup. The error message is:')
 			print(e)
 			print('Tests for ipy_island will not be run.')
 			return

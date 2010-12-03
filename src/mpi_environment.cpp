@@ -101,7 +101,7 @@ void mpi_environment::listen()
 		}
 		// Perform the evolution.
 		payload.second->evolve(*payload.first);
-		// Send back to the master the evolved payload.
+		// Send back to the master the evolved population.
 		send(payload.first,0);
 	}
 	// Destroy the MPI environment before exiting.
