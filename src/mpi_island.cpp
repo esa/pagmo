@@ -104,7 +104,7 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 		processor = acquire_processor();
 		mpi_environment::send(out,processor);
 	}
-	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> in;
+	boost::shared_ptr<population> in;
 	if (mpi_environment::is_multithread()) {
 		mpi_environment::recv(in,processor);
 		lock_type lock(m_mutex);
@@ -124,7 +124,7 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 	}
 	// NOTE: implement via population::swap (to be written) in order to avoid
 	// extra copying?
-	pop = *in.first;
+	pop = *in;
 }
 
 std::string mpi_island::get_name() const
