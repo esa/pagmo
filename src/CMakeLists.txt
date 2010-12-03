@@ -202,30 +202,6 @@ IF(NOT ENABLE_SYSTEM_BOOST)
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_archive_exception.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/shared_ptr_helper.cpp
 	)
-	# Boost MPI library.
-	IF(ENABLE_MPI)
-		ADD_DEFINITIONS(-DBOOST_MPI_SOURCE)
-		SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/broadcast.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/communicator.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/computation_tree.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/content_oarchive.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/environment.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/exception.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/graph_communicator.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/group.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/intercommunicator.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_cache.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/mpi_datatype_oarchive.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_iarchive.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_oarchive.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_iarchive.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/packed_skeleton_oarchive.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/point_to_point.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/request.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_mpi/text_skeleton_oarchive.cpp
-		)
-	ENDIF(ENABLE_MPI)
 ENDIF(NOT ENABLE_SYSTEM_BOOST)
 
 # PaGMO MPI bits
