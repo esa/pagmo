@@ -25,8 +25,11 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/condition_variable.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
+#include <list>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -44,7 +47,10 @@
 namespace pagmo
 {
 
-boost::mutex mpi_island::m_mutex;
+boost::mutex mpi_island::m_proc_mutex;
+boost::condition_variable mpi_island::m_proc_cond;
+boost::mutex mpi_island::m_mpi_mutex;
+std::list<mpi_island const *> mpi_island::m_queue;
 boost::scoped_ptr<std::set<int> > mpi_island::m_available_processors;
 
 /// Constructor from problem::base, algorithm::base, number of individuals, migration probability and selection/replacement policies.
@@ -87,41 +93,34 @@ base_island_ptr mpi_island::clone() const
 // Method that perform the actual evolution for the island population, and is used to distribute the computation load over multiple processors
 void mpi_island::perform_evolution(const algorithm::base &algo, population &pop) const
 {
-	int processor;
 	// Create copy of data to be transmitted - will use a std::pair for packing everything in a single object.
 	const boost::shared_ptr<population> pop_copy(new population(pop));
 	const algorithm::base_ptr algo_copy = algo.clone();
 	const std::pair<boost::shared_ptr<population>,algorithm::base_ptr> out(pop_copy,algo_copy);
+	const int processor = acquire_processor();
 	if (mpi_environment::is_multithread()) {
-		{
-			lock_type lock(m_mutex);
-			processor = acquire_processor();
-		}
 		mpi_environment::send(out,processor);
 	} else {
-		// Lock down.
-		lock_type lock(m_mutex);
-		processor = acquire_processor();
+		// Lock down MPI mutex before sending.
+		boost::lock_guard<boost::mutex> lock(m_mpi_mutex);
 		mpi_environment::send(out,processor);
 	}
 	boost::shared_ptr<population> in;
 	if (mpi_environment::is_multithread()) {
 		mpi_environment::recv(in,processor);
-		lock_type lock(m_mutex);
-		release_processor(processor);
 	} else {
 		while (true) {
 			{
-				lock_type lock(m_mutex);
+				boost::lock_guard<boost::mutex> lock(m_mpi_mutex);
 				if (mpi_environment::iprobe(processor)) {
 					mpi_environment::recv(in,processor);
-					release_processor(processor);
 					break;
 				}
 			}
 			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 		}
 	}
+	release_processor(processor);
 	// NOTE: implement via population::swap (to be written) in order to avoid
 	// extra copying?
 	pop = *in;
@@ -134,6 +133,8 @@ std::string mpi_island::get_name() const
 
 void mpi_island::init_processors()
 {
+	// Make sure we are not called with the mutex not locked.
+	pagmo_assert(!m_proc_mutex.try_lock());
 	if (!m_available_processors) {
 		m_available_processors.reset(new std::set<int>());
 		if (mpi_environment::get_size() < 2) {
@@ -146,31 +147,42 @@ void mpi_island::init_processors()
 	}
 }
 
-int mpi_island::acquire_processor()
+int mpi_island::acquire_processor() const
 {
-	// Make sure we are not called with the mutex not locked.
-	pagmo_assert(!m_mutex.try_lock());
+	// Lock down before doing anything else.
+	boost::unique_lock<boost::mutex> lock(m_proc_mutex);
 	init_processors();
-	if (m_available_processors->empty()) {
-		pagmo_throw(std::runtime_error,"no more processors are available");
+	if (m_available_processors->empty() || !m_queue.empty()) {
+		// Put self at the end of the queue.
+		m_queue.push_back(this);
+		while (*m_queue.begin() != this || m_available_processors->empty()) {
+			m_proc_cond.wait(lock);
+		}
+		// this reached the head of the queue and there are available processors: pop it
+		// from the head and proceed.
+		m_queue.pop_front();
 	}
+	pagmo_assert(!m_available_processors->empty());
 	const int retval = *m_available_processors->begin();
 	m_available_processors->erase(m_available_processors->begin());
 	return retval;
 }
 
-void mpi_island::release_processor(int n)
+void mpi_island::release_processor(int n) const
 {
-	pagmo_assert(!m_mutex.try_lock());
-	init_processors();
-	if (n <= 0 || n >= mpi_environment::get_size()) {
-		pagmo_throw(std::runtime_error,"invalid processor id: the value is either non-positive or exceeding the size of the MPI world");
+	{
+		boost::lock_guard<boost::mutex> lock(m_proc_mutex);
+		init_processors();
+		if (n <= 0 || n >= mpi_environment::get_size()) {
+			pagmo_throw(std::runtime_error,"invalid processor id: the value is either non-positive or exceeding the size of the MPI world");
+		}
+		if (m_available_processors->find(n) != m_available_processors->end()) {
+			pagmo_throw(std::runtime_error,"trying to release a processor which was never acquired");
+		}
+		// Re-insert the processor in the pool of available processors.
+		m_available_processors->insert(n);
 	}
-	if (m_available_processors->find(n) != m_available_processors->end()) {
-		pagmo_throw(std::runtime_error,"trying to release a processor which was never acquired");
-	}
-	// Re-insert the processor in the pool of available processors.
-	m_available_processors->insert(n);
+	m_proc_cond.notify_all();
 }
 
 }

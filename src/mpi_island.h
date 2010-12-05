@@ -26,8 +26,9 @@
 #define PAGMO_MPI_ISLAND_H
 
 #include <boost/scoped_ptr.hpp>
-#include <boost/thread/locks.hpp>
+#include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
+#include <list>
 #include <set>
 #include <string>
 
@@ -70,7 +71,6 @@ namespace pagmo
  */
 class __PAGMO_VISIBLE mpi_island: public base_island
 {
-		typedef boost::lock_guard<boost::mutex> lock_type;
 		template <class Archive>
 		friend void boost::serialization::save_construct_data(Archive &, const pagmo::mpi_island *, const unsigned int);
 		template <class Archive>
@@ -108,11 +108,14 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 			ar & boost::serialization::base_object<base_island>(*this);
 		}
 		static void init_processors();
-		static int acquire_processor();
-		static void release_processor(int);
+		int acquire_processor() const;
+		void release_processor(int) const;
 	private:
-		static boost::mutex				m_mutex;
+		static boost::mutex				m_proc_mutex;
+		static boost::condition_variable		m_proc_cond;
+		static boost::mutex				m_mpi_mutex;
 		static boost::scoped_ptr<std::set<int> >	m_available_processors;
+		static std::list<mpi_island const *>		m_queue;
 };
 
 }

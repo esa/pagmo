@@ -63,6 +63,7 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 		template <class T>
 		static void recv(T &retval, int source)
 		{
+			check_init();
 			MPI_Status status;
 			// First receive the size.
 			int size;
@@ -81,6 +82,7 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 		template <class T>
 		static void send(const T &payload, int destination)
 		{
+			check_init();
 			std::stringstream ss;
 			boost::archive::text_oarchive oa(ss);
 			oa << payload;
@@ -94,7 +96,10 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 		}
 		static bool iprobe(int);
 	private:
-		void listen();
+		static void listen();
+		static void check_init();
+		static bool	m_initialised;
+		static bool	m_multithread;
 };
 
 }

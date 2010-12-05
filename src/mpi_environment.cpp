@@ -25,6 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include <cstdlib>
 #include <mpi.h>
+#include <stdexcept>
 #include <utility>
 
 #include "exceptions.h"
@@ -35,16 +36,29 @@
 namespace pagmo
 {
 
+bool mpi_environment::m_initialised = false;
+bool mpi_environment::m_multithread = false;
+
 mpi_environment::mpi_environment()
 {
+	if (m_initialised) {
+		pagmo_throw(std::runtime_error,"cannot re-initialise the MPI environment");
+	}
+	m_initialised = true;
 	int thread_level_provided;
 	MPI_Init_thread(NULL,NULL,MPI_THREAD_MULTIPLE,&thread_level_provided);
+	if (thread_level_provided >= MPI_THREAD_MULTIPLE) {
+		m_multithread = true;
+	}
 	if (get_rank()) {
 		// If this is a slave, it will have to stop here, listen for jobs, execute them, and exit()
 		// when signalled to do so.
 		listen();
 	}
-	// If this is the root node, just finish the construction.
+	// If this is the root node, it will need to be able to call MPI from multiple threads.
+	if (thread_level_provided < MPI_THREAD_SERIALIZED) {
+		pagmo_throw(std::runtime_error,"the master node must support at least the MPI_THREAD_SERIALIZED thread level");
+	}
 }
 
 mpi_environment::~mpi_environment()
@@ -59,8 +73,16 @@ mpi_environment::~mpi_environment()
 	MPI_Finalize();
 }
 
+void mpi_environment::check_init()
+{
+	if (!m_initialised) {
+		pagmo_throw(std::runtime_error,"MPI environment has not been initialised");
+	}
+}
+
 bool mpi_environment::iprobe(int source)
 {
+	check_init();
 	MPI_Status status;
 	int flag;
 	MPI_Iprobe(source,0,MPI_COMM_WORLD,&flag,&status);
@@ -69,6 +91,7 @@ bool mpi_environment::iprobe(int source)
 
 int mpi_environment::get_size()
 {
+	check_init();
 	int retval;
 	MPI_Comm_size(MPI_COMM_WORLD,&retval);
 	return retval;
@@ -76,6 +99,7 @@ int mpi_environment::get_size()
 
 int mpi_environment::get_rank()
 {
+	check_init();
 	int retval;
 	MPI_Comm_rank(MPI_COMM_WORLD,&retval);
 	return retval;
@@ -83,9 +107,8 @@ int mpi_environment::get_rank()
 
 bool mpi_environment::is_multithread()
 {
-	int thread_level_provided;
-	MPI_Query_thread(&thread_level_provided);
-	return (thread_level_provided >= MPI_THREAD_MULTIPLE);
+	check_init();
+	return m_multithread;
 }
 
 void mpi_environment::listen()
