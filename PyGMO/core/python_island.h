@@ -97,10 +97,12 @@ class __PAGMO_VISIBLE python_island: public island
 		{
 			// Call the re-implemented join().
 			python_island::join();
+			pagmo_assert(m_gstate == PyGILState_STATE());
 		}
 		python_island &operator=(const python_island &other)
 		{
 			island::operator=(other);
+			pagmo_assert(m_gstate == PyGILState_STATE());
 			return *this;
 		}
 		base_island_ptr clone() const

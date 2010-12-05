@@ -72,7 +72,8 @@ namespace pagmo {
 // Base island class for re-implementation from Python.
 class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::python::wrapper<base_island>
 {
-		// RAII gil releaser.
+		// RAII gil releaser. See:
+		// http://wiki.python.org/moin/boost.python/HowTo#MultithreadingSupportformyfunction
 		class scoped_gil_release
 		{
 			public:
@@ -104,10 +105,12 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		{
 			// Call the re-implemented join().
 			python_base_island::join();
+			pagmo_assert(m_gstate == PyGILState_STATE());
 		}
 		python_base_island &operator=(const python_base_island &other)
 		{
 			base_island::operator=(other);
+			pagmo_assert(m_gstate == PyGILState_STATE());
 			return *this;
 		}
 		base_island_ptr clone() const
@@ -158,6 +161,8 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		}
 		void thread_entry()
 		{
+			// PyGILState_* functions from PYthon >= 2.3. See:
+			// http://docs.python.org/c-api/init.html
 			m_gstate = PyGILState_Ensure();
 		}
 		void thread_exit()
