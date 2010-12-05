@@ -126,6 +126,10 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 	pop = *in;
 }
 
+/// Return a string identifying the island's type.
+/**
+ * @return the string "MPI island".
+ */
 std::string mpi_island::get_name() const
 {
 	return "MPI island";
@@ -137,9 +141,7 @@ void mpi_island::init_processors()
 	pagmo_assert(!m_proc_mutex.try_lock());
 	if (!m_available_processors) {
 		m_available_processors.reset(new std::set<int>());
-		if (mpi_environment::get_size() < 2) {
-			pagmo_throw(std::runtime_error,"the size of the MPI world must be at least 2");
-		}
+		pagmo_assert(mpi_environment::get_size() >= 2);
 		// Fill in the available processors (the root processor is excluded).
 		for (int i = 1; i < mpi_environment::get_size(); ++i) {
 			m_available_processors->insert(i);

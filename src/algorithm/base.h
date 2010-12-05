@@ -54,7 +54,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * and one pagmo::rng_uint32 random number generators. Each algorithm must implement the base::evolve() method.
  *
  * \section Serialization
- * The algorithm classes are serialized for the purpose of using transmitting their corresponding objects over a distributed environment.
+ * The algorithm classes are serialized for the purpose of being transmitted over a distributed environment.
  * Serializing a derived algorithm requires that the needed serialization libraries be declared in their header of the derived class. 
  * Virtually all the derived algorithm classes need to have the following declared in the header files:
 @verbatim

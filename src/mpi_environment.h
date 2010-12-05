@@ -39,19 +39,118 @@
 /*!
 \page mpi_support MPI support in PaGMO
 PaGMO can be configured to use MPI to dispatch parallel optimisation instances to computers participating in a cluster.
+
+@author Francesco Biscani (bluescarni@gmail.com)
+@author Dante Stroe (dante.stroe@gmail.com)
+
 \section mpi_requirements Requirements
-The requirements to enable and use MPI support in PaGMO are the following:
+In order to enable and use MPI support in PaGMO a standard-compliant MPI implementation (e.g., Open MPI, MPICH2, etc.) must be available
+on all systems participating to the cluster. PaGMO uses basic MPI 1.2 calls such as MPI_Recv, MPI_Send etc., and does not employ any function
+specific to MPI 2.x.
 
-- foo
-- bar
+For best performance, the root node of the MPI cluster (i.e., the node where mpiexec/mpirun is launched) should have a thread-safe
+MPI implementation. This means that a call to MPI_Query_thread should ideally return MPI_THREAD_MULTIPLE. It is possible to run PaGMO
+also if MPI_Query_thread returns MPI_THREAD_SERIALIZED, but in this case there will be a performance penalty. With any lesser level of thread
+support in the root node, PaGMO will refuse to operate in MPI mode.
 
+@see http://www.fz-juelich.de/jsc/juropa/www3/MPI_Query_thread.html
 
+In a PaGMO MPI cluster, problem, population and algorithm instances are sent from the master node to the slave nodes where the optimisation process
+takes place. In order for the objects to be sent over the network, they need to be serializable. Serialization for all classes shipped with PaGMO is
+already implemented. The writer of new PaGMO classes will need to make sure that her own classes are serializable. General instructions are available
+in the \ref serialization "serialization page".
+
+Additionally, it must always kept in mind that when working with MPI each processor is living inside a separate process: aside from the objects serialized
+and dispatched around in the cluster, there is no other form of communication. For instance, problems or algorithms employing a shared memory state
+(e.g., static class members) must be carefully treated during serialization in order to provide to the remote processes all the information needed
+for the optimisation process.
+\section mpi_compilation Compilation
+In order to compile PaGMO with MPI support, just enable the ENABLE_MPI option in CMake. The build system should automatically detect your MPI implementation
+and configure the build accordingly. In case of issues, you can explictly specify the location of you MPI libraries and headers by manipulating the relevant
+CMake variables.
+\section mpi_model PaGMO's MPI model
+MPI support in PaGMO is implemented via the pagmo::mpi_island and pagmo::mpi_environment classes. The pagmo::mpi_environment class is used just for initialisation purposes,
+and an instance of it should be created at the very beginning of any MPI-enabled PaGMO main() function.
+
+The pagmo::mpi_island class is an island class deriving from pagmo::base_island that can be operated exactly like any other island class (e.g., pagmo::island):
+it can be created and operated stand-alone, or inserted in a pagmo::archipelago. Different types of islands can exist in the same pagmo::archipelago, so that it is
+possible to mix MPI islands with islands of different kind.
+
+At the beginning of a PaGMO MPI main() execution, a list of available processors is created. The list contains the integers from 1 to N - 1, where N is the size
+of the MPI world (from which it follows that it is not possible to use PaGMO with an MPI world of size less than 2). In the PaGMO model, the process with rank 0
+is tasked with the dispatch and coordination of jobs and does not perform any optimization process.
+
+Whenever an evolution method is called from from a pagmo::mpi_island, the island will check the list of available processors and, if a processor is available, will
+erase the processor ID from the list and dispatch the evolution to that processor. At the end of the evolution, the island retrieves the payload and adds the processor ID back
+to the list of available processors.
+
+Whenever the number of MPI islands is at least equal to the MPI world size, it might happen that one or more islands are not able to acquire any processor at the beginning of
+the evolution, all the processors being busy. In such case a fair priority queue is created, and the islands waiting for a processor to be released are added to the
+end of the queue. Whenever a processor is released, the queue is notified and the first island in the queue acquires the processor and procedes as above.
+\section mpi_example MPI example
+The following simple example shows how to create and use MPI islands in a PaGMO C++ main().
+\code
+// Include the global PaGMO header.
+#include "pagmo.h"
+
+using namespace pagmo;
+
+int main()
+{
+	// Initialise the MPI environment.
+	mpi_environment env;
+	// Create a problem and an algorithm.
+	problem::dejong prob(10);
+	algorithm::monte_carlo algo(100);
+	// Create an archipelago of 10 MPI islands.
+	archipelago a;
+	a.set_topology(topology::ring());
+	for (int i = 0; i < 10; ++i) {
+		a.push_back(mpi_island(algo,prob,1));
+	}
+	// Evolve the archipelago 10 times.
+	a.evolve(10);
+	a.join();
+	return 0;
+}
+\endcode
+The code is exactly the same as it would be for use with pagmo::island instances, the only difference being the creation of a pagmo::mpi_environment at the very beginning.
+\section mpi_execution Executing MPI programs
+An MPI-enabled PaGMO executable can be executed just like any MPI executable. The following instructions assume that
+the MPI environment is from Open MPI; different MPI implementations might need slightly different setup (e.g., MPICH2
+requires a daemon to be running for dispatching MPI jobs).
+\subsection local_mpi_execution Local execution
+Local MPI execution is a simple way to verify that the MPI program is working correctly. As the name implies,
+all jobs will be started on the local machine.
+
+Assuming the name of the executable is 'main', local MPI execution can be launched with:
+\verbatim
+$ mpiexec -n 10 ./main
+\endverbatim
+where the argument to the
+\verbatim
+-n
+\endverbatim
+parameter is the MPI world size (i.e., the number of MPI jobs that
+will be launched concurrently - in this case 10).
+\subsection cluster_mpi_execution Execution in a cluster
+Once it has been verified that local execution works as expected, the next step is to run the MPI-enabled
+PaGMO executable in a cluster. Again, the setup is the same needed for any MPI executable. Namely:
+  - exactly the same executable should be present on all nodes of the cluster;
+  - the MPI executable should reside in the same path on all nodes;
+  - any resource needed by the executable (e.g., files) should be available at the same location
+    on all nodes.
 */
 
 namespace pagmo
 {
 
 /// MPI environment class.
+/**
+ * <b>NOTE</b>: this class is available only if PaGMO was compiled with MPI support.
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ */
 class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 {
 	public:

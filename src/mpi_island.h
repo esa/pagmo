@@ -65,8 +65,13 @@ namespace pagmo
 
 /// MPI island class.
 /**
- * This island class will dispatch evolutions to participants to an MPI cluster.
+ * This island class will dispatch evolutions to participants to an MPI cluster. This class can be used like any other island class,
+ * the only difference being that before calling any evolution a pagmo::mpi_environment instance must have been created.
+ * More information about the MPI support in PaGMO is available in \ref mpi_support "this page".
+ * 
+ * <b>NOTE</b>: this class is available only if PaGMO was compiled with MPI support.
  *
+ * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Dante Stroe (dante.stroe@gmail.com)
  */
 class __PAGMO_VISIBLE mpi_island: public base_island
@@ -88,17 +93,9 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 		mpi_island &operator=(const mpi_island &);
 		base_island_ptr clone() const;
 	protected:
-		/** @name Evolution.
-		 * Methods related to island evolution.
-		 */
-		//@{
 		void perform_evolution(const algorithm::base &, population &) const;
-		//@}
 	public:
-		/** @name Input/output.*/
-		//@{
 		std::string get_name() const;
-		//@}
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

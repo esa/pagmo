@@ -59,18 +59,24 @@ mpi_environment::mpi_environment()
 	if (thread_level_provided < MPI_THREAD_SERIALIZED) {
 		pagmo_throw(std::runtime_error,"the master node must support at least the MPI_THREAD_SERIALIZED thread level");
 	}
+	// World sizes less than 2 are not allowed.
+	if (get_size() < 2) {
+		pagmo_throw(std::runtime_error,"the size of the MPI world must be at least 2");
+	}
 }
 
 mpi_environment::~mpi_environment()
 {
 	// In theory this should never be called by the slaves.
 	pagmo_assert(!get_rank());
+	pagmo_assert(m_initialised);
 	std::pair<boost::shared_ptr<population>,algorithm::base_ptr> shutdown_payload;
 	for (int i = 1; i < get_size(); ++i) {
 		// Send the shutdown signal to all slaves.
 		send(shutdown_payload,i);
 	}
 	MPI_Finalize();
+	m_initialised = false;
 }
 
 void mpi_environment::check_init()

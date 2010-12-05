@@ -120,6 +120,11 @@ environments, PaGMO can employ MPI (Message Passing Interface) to distribute the
 can be found in \ref mpi_support "this page".
 */
 
+/*!
+\page serialization Serialization
+blah
+*/
+
 #ifdef __GNUC__
 #define GCC_VERSION (__GNUC__ * 100000 \
 	+ __GNUC_MINOR__ * 1000 \
