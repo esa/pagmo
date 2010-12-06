@@ -136,10 +136,27 @@ will be launched concurrently - in this case 10).
 \subsection cluster_mpi_execution Execution in a cluster
 Once it has been verified that local execution works as expected, the next step is to run the MPI-enabled
 PaGMO executable in a cluster. Again, the setup is the same needed for any MPI executable. Namely:
+
   - exactly the same executable should be present on all nodes of the cluster;
   - the MPI executable should reside in the same path on all nodes;
   - any resource needed by the executable (e.g., files) should be available at the same location
     on all nodes.
+
+To run the executable on the cluster, a hostfile will be needed. A hostfile is a plain text file describing
+the machine participating in the cluster. A sample sample hostfile is the following:
+\verbatim
+sophia.estec.esa.int slots=8
+ursula.estec.esa.int slots=8
+\endverbatim
+For each line, the first entry is the name (or IP address) of a computer participating in the cluster, the second
+entry is the number of jobs that can be run on that machine. Typically the slots number will be equal to the number
+of CPUs on the computer.
+
+Once the hostfile has been created, the MPI executable can be launched with the command:
+\verbatim
+$ mpiexec -n 10 -hostfile hfile.txt ./main
+\endverbatim
+where hfile.txt is your hostfile.
 */
 
 namespace pagmo
@@ -147,6 +164,10 @@ namespace pagmo
 
 /// MPI environment class.
 /**
+ * This class is used to initialise the PaGMO MPI environment: an instance of this class should be created
+ * before using any MPI feature in PaGMO. Apart from this kind of usage, regular users should never need to
+ * access any method from this class. See the \ref mpi_support "MPI page" for a usage example.
+ * 
  * <b>NOTE</b>: this class is available only if PaGMO was compiled with MPI support.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
@@ -159,6 +180,14 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 		static bool is_multithread();
 		static int get_size();
 		static int get_rank();
+		/// Receive MPI payload.
+		/**
+		 * Receive an instance of class T from the processor with ID source and store it into retval.
+		 * This method is thread-safe only if mpi_environment::is_multithread returns true.
+		 * 
+		 * @param[out] retval instance of class T that will contain the payload.
+		 * @param[in] source rank of the processor from which the message will be received.
+		 */
 		template <class T>
 		static void recv(T &retval, int source)
 		{
@@ -178,6 +207,14 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 			boost::archive::text_iarchive ia(ss);
 			ia >> retval;
 		}
+		/// Send MPI payload.
+		/**
+		 * Send an instance of class T to the processor with ID destination.
+		 * This method is thread-safe only if mpi_environment::is_multithread returns true.
+		 * 
+		 * @param[in] retval instance of class T that will be sent to destination.
+		 * @param[in] source rank of the processor to which the message will be sent.
+		 */
 		template <class T>
 		static void send(const T &payload, int destination)
 		{

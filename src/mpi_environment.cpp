@@ -39,6 +39,15 @@ namespace pagmo
 bool mpi_environment::m_initialised = false;
 bool mpi_environment::m_multithread = false;
 
+/// Default constructor.
+/**
+ * Initialises the MPI environment with MPI_Init_thread. pagmo::mpi_environment objects should be created only in the main
+ * thread of execution.
+ * 
+ * @throws std::runtime_error if another instance of this class has already been created,
+ * or if the MPI implementation does not support at least the MPI_THREAD_SERIALIZED thread level and this is the root node,
+ * or if the world size is not at least 2.
+ */
 mpi_environment::mpi_environment()
 {
 	if (m_initialised) {
@@ -56,7 +65,7 @@ mpi_environment::mpi_environment()
 		listen();
 	}
 	// If this is the root node, it will need to be able to call MPI from multiple threads.
-	if (thread_level_provided < MPI_THREAD_SERIALIZED) {
+	if (thread_level_provided < MPI_THREAD_SERIALIZED && get_rank() == 0) {
 		pagmo_throw(std::runtime_error,"the master node must support at least the MPI_THREAD_SERIALIZED thread level");
 	}
 	// World sizes less than 2 are not allowed.
@@ -65,6 +74,10 @@ mpi_environment::mpi_environment()
 	}
 }
 
+/// Destructor.
+/**
+ * Will call MPI_Finalize().
+ */
 mpi_environment::~mpi_environment()
 {
 	// In theory this should never be called by the slaves.
@@ -86,6 +99,16 @@ void mpi_environment::check_init()
 	}
 }
 
+/// Probe for message.
+/**
+ * This method is thread-safe only if mpi_environment::is_multithread returns true.
+ * 
+ * @param[in] source rank of the processor that will be probed.
+ * 
+ * @return true if source sent a message to this process.
+ * 
+ * @throws std::runtime_error if the MPI environment has not been initialised.
+ */
 bool mpi_environment::iprobe(int source)
 {
 	check_init();
@@ -95,6 +118,14 @@ bool mpi_environment::iprobe(int source)
 	return flag;
 }
 
+/// MPI world size.
+/**
+ * This method is thread-safe only if mpi_environment::is_multithread returns true.
+ * 
+ * @return the MPI world size.
+ * 
+ * @throws std::runtime_error if the MPI environment has not been initialised.
+ */
 int mpi_environment::get_size()
 {
 	check_init();
@@ -103,6 +134,14 @@ int mpi_environment::get_size()
 	return retval;
 }
 
+/// MPI rank.
+/**
+ * This method is thread-safe only if mpi_environment::is_multithread returns true.
+ * 
+ * @return the MPI rank of the process.
+ * 
+ * @throws std::runtime_error if the MPI environment has not been initialised.
+ */
 int mpi_environment::get_rank()
 {
 	check_init();
@@ -111,6 +150,15 @@ int mpi_environment::get_rank()
 	return retval;
 }
 
+/// Thread-safety of the MPI implementation.
+/**
+ * This method is always thread-safe.
+ * 
+ * @return true if the MPI implementation of this process is completely thred-safe (i.e., the
+ * MPI implementation supports MPI_THREAD_MULTIPLE).
+ * 
+ * @throws std::runtime_error if the MPI environment has not been initialised.
+ */
 bool mpi_environment::is_multithread()
 {
 	check_init();
