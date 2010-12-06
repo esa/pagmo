@@ -62,7 +62,6 @@ class __PAGMO_VISIBLE string_match: public base
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<std::string &>(m_str);
 		}
-	public:
 		const std::string m_str;
 };
 

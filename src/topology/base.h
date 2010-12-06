@@ -104,9 +104,9 @@ class __PAGMO_VISIBLE base
 		/**
 		 * Provided that the derived topology implements properly the copy constructor, virtually all implementations of this method will
 		 * look like this:
-@verbatim
-return base_ptr(new derived_topology(*this));
-@endverbatim
+		 * @code
+		 * return base_ptr(new derived_topology(*this));
+		 * @endcode
 		 *
 		 * @return topology::base_ptr to a copy of this.
 		 */
