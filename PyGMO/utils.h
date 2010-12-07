@@ -33,6 +33,7 @@
 #include <boost/serialization/serialization.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/dict.hpp>
+#include <boost/python/docstring_options.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/tuple.hpp>
 #include <csignal>
@@ -150,12 +151,13 @@ inline std::string py_cpp_dumps(const T &x)
 	return ss.str();
 }
 
-inline void common_module_init()
-{
-	// Initialise Python thread support.
-	PyEval_InitThreads();
-	// Translate exceptions for this module.
-	translate_exceptions();
-}
+#define common_module_init() \
+/* Initialise Python thread support. */ \
+PyEval_InitThreads(); \
+/* Translate exceptions for this module. */ \
+translate_exceptions(); \
+/* Disable docstring C++ signature. */ \
+boost::python::docstring_options doc_options; \
+doc_options.disable_signatures();
 
 #endif
