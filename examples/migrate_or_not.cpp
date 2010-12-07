@@ -233,9 +233,9 @@ int main()
 				archipelago a = pagmo::archipelago(*topo[to]);
 				for (int i=0; i<number_of_islands; ++i) {
 					if (al == algo.size())
-						a.push_back(island(*prob[pr],*algo[i%al],number_of_individuals));
+						a.push_back(island(*algo[i%al],*prob[pr],number_of_individuals));
 					else
-						a.push_back(island(*prob[pr],*algo[al],number_of_individuals));
+						a.push_back(island(*algo[al],*prob[pr],number_of_individuals));
 				}
 				a.evolve(number_of_migrations);
 				a.join();
