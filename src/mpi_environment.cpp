@@ -76,7 +76,7 @@ mpi_environment::mpi_environment()
 
 /// Destructor.
 /**
- * Will call MPI_Finalize().
+ * Will send a shutdown signal to all processes with nonzero rank and call MPI_Finalize().
  */
 mpi_environment::~mpi_environment()
 {
@@ -105,7 +105,7 @@ void mpi_environment::check_init()
  * 
  * @param[in] source rank of the processor that will be probed.
  * 
- * @return true if source sent a message to this process.
+ * @return true if source sent a message to this process, false otherwise.
  * 
  * @throws std::runtime_error if the MPI environment has not been initialised.
  */
@@ -155,7 +155,7 @@ int mpi_environment::get_rank()
  * This method is always thread-safe.
  * 
  * @return true if the MPI implementation of this process is completely thred-safe (i.e., the
- * MPI implementation supports MPI_THREAD_MULTIPLE).
+ * MPI implementation supports MPI_THREAD_MULTIPLE), false for any other MPI thread level.
  * 
  * @throws std::runtime_error if the MPI environment has not been initialised.
  */
