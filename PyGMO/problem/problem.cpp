@@ -252,41 +252,41 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::gtoc5_self_flyby>("gtoc5_self_flyby","GTOC5 self flyby phase.")
 		.def(init< optional<int, int, const double &, const double &, const double &> >());
 
-        // GTOC1 problem.
-        problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.");
+	// GTOC1 problem.
+	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC1 problem.");
 
-        // GTOC2 problem.
-        problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC problem.")
-                .def(init<int,int,int,int,optional<int,problem::gtoc_2::objective> >());
+	// GTOC2 problem.
+	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC problem.")
+		.def(init<int,int,int,int,optional<int,problem::gtoc_2::objective> >());
 
-        // GTOC2's objectives enum.
-        enum_<problem::gtoc_2::objective>("gtoc2_objective")
-                .value("MASS",problem::gtoc_2::MASS)
-                .value("TIME",problem::gtoc_2::TIME)
-                .value("MASS_TIME",problem::gtoc_2::MASS_TIME);
+	// GTOC2's objectives enum.
+	enum_<problem::gtoc_2::objective>("gtoc2_objective")
+		.value("MASS",problem::gtoc_2::MASS)
+		.value("TIME",problem::gtoc_2::TIME)
+		.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
 
-        // Laplace problem.
-        problem_wrapper<problem::laplace>("laplace","Laplace problem.")
-                .def(init< const std::vector<int> &>());
+	// Laplace problem.
+	problem_wrapper<problem::laplace>("laplace","Laplace problem.")
+		.def(init< const std::vector<int> &>());
 
-        // Cassini 1.
-        problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
+	// Cassini 1.
+	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
 
-        // Messenger full.
-        problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
+	// Messenger full.
+	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
 
-        // Cassini 2.
-        problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
+	// Cassini 2.
+	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
 
-        // Rosetta problem.
-        problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
+	// Rosetta problem.
+	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
 
-        // Sagas problem.
-        problem_wrapper<problem::sagas>("sagas","Sagas problem.");
+	// Sagas problem.
+	problem_wrapper<problem::sagas>("sagas","Sagas problem.");
 
-        // Tandem.
-        problem_wrapper<problem::tandem>("tandem","Tandem problem.")
-                .def(init< optional<int, double> >());
+	// Tandem.
+	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
+		.def(init< optional<int, double> >());
 #endif
 
 	// Register to_python conversion from smart pointer.

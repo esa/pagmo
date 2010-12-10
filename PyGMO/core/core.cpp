@@ -323,8 +323,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__getitem__", &archipelago_get_island)
 		.def("__setitem__", &archipelago_set_island)
 		.def("get_islands", &archipelago::get_islands)
-		.def("evolve", &archipelago::evolve,"Evolve archipelago n times.")
-		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least n milliseconds.")
+		.def("evolve", &archipelago::evolve,"Evolve archipelago *n* times.",boost::python::args("n"))
+		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least *n* milliseconds.",boost::python::args("n"))
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
 		.def("interrupt", &archipelago::interrupt,"Interrupt evolution.")
 		.def("busy", &archipelago::busy,"Check if archipelago is evolving.")
@@ -332,9 +332,17 @@ BOOST_PYTHON_MODULE(_core)
 		.def("set_algorithm", &archipelago_set_algorithm,"Set algorithm on island.")
 		.def("dump_migr_history", &archipelago::dump_migr_history)
 		.def("clear_migr_history", &archipelago::clear_migr_history)
-		.def("cpp_loads", &py_cpp_loads<archipelago>)
-		.def("cpp_dumps", &py_cpp_dumps<archipelago>)
-		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology)
+		.def("cpp_loads", &py_cpp_loads<archipelago>,
+			"Load C++ serialized representation from string *str*.\n\n"
+			":Parameters:\n"
+			"  str: string\n",
+			boost::python::args("str"))
+		.def("cpp_dumps", &py_cpp_dumps<archipelago>,
+			"Dump C++ serialized representation.\n\n"
+			":Returns:\n"
+			"   string representing the serialized C++ representation\n"
+		)
+		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology,"Topology property.")
 		.def_pickle(archipelago_pickle_suite());
 
 	// Archipelago's migration strategies.

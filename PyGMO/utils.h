@@ -158,6 +158,6 @@ PyEval_InitThreads(); \
 translate_exceptions(); \
 /* Disable docstring C++ signature. */ \
 boost::python::docstring_options doc_options; \
-doc_options.disable_signatures();
+doc_options.disable_cpp_signatures();
 
 #endif

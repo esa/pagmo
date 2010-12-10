@@ -4,6 +4,9 @@ import threading as _threading
 import signal as _signal
 import os as _os
 
+__doc__ = 'PyGMO core module.'
+__all__ = ['archipelago','base_island','champion','distribution_type','individual','ipy_island','island','local_island','migration_direction','population','py_island']
+
 _orig_signal = _signal.getsignal(_signal.SIGINT)
 _main_pid = _os.getpid()
 
@@ -189,6 +192,8 @@ def island(*args,**kwargs):
 island.__doc__ = '\n'.join(['Island factory function.\n\nThis function will return an instance of an island object\nbuilt according to the following rule: '+
 	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof py_island will be returned; '+
 	'otherwise, an instance of\nlocal_island will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')[1:]])
+
+del s
 
 def _get_island_list():
 	from PyGMO import core
