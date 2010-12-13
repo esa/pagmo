@@ -445,13 +445,13 @@ fitness_vector base::objfun(const decision_vector &x) const
 
 /// Write fitness of pagmo::decision_vector into pagmo::fitness_vector.
 /**
- * Will call objfun_impl() internally. Will fail if f's size is different from the fitness dimension
- * or if verify_x() on x returns false.
- *
+ * Will call objfun_impl() internally.
  * The implementation internally uses a caching mechanism, so that recently-computed quantities are remembered and re-used when appropriate.
  *
  * @param[out] f fitness vector to which x's fitness will be written.
  * @param[in] x decision vector whose fitness will be calculated.
+ * 
+ * @throws value_error if f's and/or x's dimensions are different from the corresponding dimensions of the problem.
  */
 void base::objfun(fitness_vector &f, const decision_vector &x) const
 {

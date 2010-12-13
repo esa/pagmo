@@ -69,7 +69,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * - the total number of constraints,
  * - the number of inequality constraints (never exceeding the total number of constraints),
  * - a constraint computation function,
- * - an objective function that take as input a decision vector and returns a vector of fitnesses,
+ * - an objective function that takes as input a decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function,
  * - a constraints tolerance.
  *
