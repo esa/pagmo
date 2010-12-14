@@ -67,7 +67,7 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." OFF)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: when active the keplerian toolbox and GTOP database problems are built.
-OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable support for the keplerian_toolbox." OFF)
+OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable compilation of the keplerian_toolbox and related GO problems." OFF)
 
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
@@ -99,19 +99,24 @@ IF(ENABLE_SYSTEM_BOOST)
 	SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
 	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
 	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
+
+	# Setting the boost libraries needed for PaGMO
 	SET(REQUIRED_BOOST_LIBS serialization thread)
 	IF(BUILD_PYGMO)
 		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
 	ENDIF(BUILD_PYGMO)
+	IF(ENABLE_KEPLERIAN_TOOLBOX)
+		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} date_time)
+	ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
 	MESSAGE(STATUS "Required Boost libraries: ${REQUIRED_BOOST_LIBS}")
+
 	FIND_PACKAGE(Boost 1.40.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
 	MESSAGE(STATUS "Detected Boost version: ${Boost_VERSION}")
 	# Include system Boost headers.
 	MESSAGE(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 	MESSAGE(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-	# Whatever we do, we need serialization and threads.
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${Boost_THREAD_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${Boost_LIBRARIES})
 ELSE(ENABLE_SYSTEM_BOOST)
 	# NOTE: for the shipped Boost, we will need to compile the relevant libraries.
 	SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_LIB")
@@ -358,7 +363,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_LIB_PAGMO_USE_FLAGS}")
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
-	TARGET_LINK_LIBRARIES(main  ${MANDATORY_LIBRARIES} pagmo_static)
+	TARGET_LINK_LIBRARIES(main ${MANDATORY_LIBRARIES} pagmo_static)
 ENDIF(BUILD_MAIN)
 
 IF(ENABLE_TESTS)
