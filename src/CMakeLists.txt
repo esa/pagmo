@@ -109,6 +109,7 @@ IF(ENABLE_KEPLERIAN_TOOLBOX)
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/lambert_problem.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/core_functions/jorba.c
 	)
 ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
 
@@ -171,6 +172,7 @@ IF(NOT ENABLE_SYSTEM_BOOST)
 			${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_pe.cpp
 		)
 	ENDIF(UNIX)
+
 	# Boost serialization library.
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_archive.cpp
