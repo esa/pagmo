@@ -36,17 +36,17 @@ class base_island(_core._base_island):
 		return deepcopy(self)
 
 def _generic_island_ctor(self,*args,**kwargs):
-	"""Generic island constructor.
+	"""Unnamed arguments:
 	
-	Unnamed arguments:
-	1. algorithm
-	2. problem or population
-	3. number of individuals (optional and valid only if 2. is a problem, defaults to 0 if not specified)
+		#. algorithm
+		#. problem or population
+		#. number of individuals (optional and valid only if the second argument is a problem, defaults to 0 if not specified)
 	
 	Keyword arguments:
-	migr_prob -- migration probability (defaults to 1)
-	s_policy -- migration selection policy (defaults to 'best selection' policy)
-	r_policy -- migration replacement policy (defaults to 'fair replacement' policy)
+	
+		* *migr_prob* -- migration probability (defaults to 1)
+		* *s_policy* -- migration selection policy (defaults to 'best selection' policy)
+		* *r_policy* -- migration replacement policy (defaults to 'fair replacement' policy)
 	
 	"""
 	from PyGMO.algorithm import _base as _base_algorithm, base as base_algorithm
@@ -190,8 +190,8 @@ def island(*args,**kwargs):
 	return _generic_island_ctor(None,*args,**kwargs)
 
 island.__doc__ = '\n'.join(['Island factory function.\n\nThis function will return an instance of an island object\nbuilt according to the following rule: '+
-	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof py_island will be returned; '+
-	'otherwise, an instance of\nlocal_island will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')[1:]])
+	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof :class:`py_island` will be returned; '+
+	'otherwise, an instance of\n:class:`local_island` will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')])
 
 del s
 
