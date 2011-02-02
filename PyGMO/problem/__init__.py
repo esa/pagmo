@@ -26,6 +26,58 @@ class py_test(base):
 		super(py_test,self).__init__(1)
 	def _objfun_impl(self,x):
 		return (x[0] * x[0],)
+		
+
+
+class py_earth_mars(base):
+	"""
+	This is a PaGMO.problem object that represents a low-thrust transfer between Earth and Mars.
+	"""
+	def __init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf=3,nseg=10):
+		"""The constructor first calls the base class constructor and assignes values to data members"""
+		super(py_earth_mars,self).__init__(6 + nseg*3,0,1,8 + nseg,nseg+1,1e-7)
+		try:
+			import PyKEP
+			self.__earth = PyKEP.planet_ss('earth')
+			self.__mars = PyKEP.planet_ss('mars')
+			self.__sc = PyKEP.sims_flanagan.spacecraft(mass,Tmax,Isp)
+			self.__Vinf = Vinf*1000
+			self.__leg = PyKEP.sims_flanagan.leg()
+			self.__leg.set_mu(PyKEP.MU_SUN)
+			self.__leg.set_sc(self.__sc)
+			self.__nseg = nseg
+			self.set_bounds([0,60,self.__sc.mass/10,-self.__Vinf,-self.__Vinf,-self.__Vinf] + [-1] * 3 *nseg,[3000,1500,self.__sc.mass,self.__Vinf,self.__Vinf,self.__Vinf] + [1] * 3 * nseg)
+		except ImportError:
+			raise ImportError('PyKEP is needed to instantiate an earth_mass')
+	def _objfun_impl(self,x):
+		return (-x[2],)
+	def _compute_constraints_impl(self,x):
+		import PyKEP
+		start = PyKEP.epoch(x[0])
+		end = PyKEP.epoch(x[0] + x[1])
+		r,v = self.__earth.eph(start)
+		v_list = list(v)
+		v_list[0] += x[3]
+		v_list[1] += x[4]
+		v_list[2] += x[5]
+		x0 = PyKEP.sims_flanagan.sc_state(r,v_list,self.__sc.mass)
+		r,v = self.__mars.eph(end)
+		xe = PyKEP.sims_flanagan.sc_state(r, v ,x[2])
+		self.__leg.set(start,x0,x[-3 * self.__nseg:],end,xe)
+		v_inf_con = (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.__Vinf * self.__Vinf) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+		retval = list(self.__leg.mismatch_constraints() + self.__leg.throttles_constraints()) + [v_inf_con]
+		retval[0] /= PyKEP.AU
+		retval[1] /= PyKEP.AU
+		retval[2] /= PyKEP.AU
+		retval[3] /= PyKEP.EARTH_VELOCITY
+		retval[4] /= PyKEP.EARTH_VELOCITY
+		retval[5] /= PyKEP.EARTH_VELOCITY
+		retval[6] /= self.__sc.mass
+		return retval
+	def high_fidelity(self,state):
+		self.__leg.high_fidelity(state)
+
+
 
 #class apophis_impact(base):
 	#def __init__(self):
