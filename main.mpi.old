@@ -31,24 +31,54 @@ using namespace pagmo;
 
 int main()
 {
-// This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
-// see what othert parameters do
- pagmo::algorithm::de algo(500,0.8,0.8,3);
+	mpi_environment env;
 
- //This instantiate a 20 dimensional Schwefel problem
- pagmo::problem::schwefel prob(20);
+	int n_segments = 10;
 
- //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
- //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
- pagmo::island isl = island(algo,prob,20);
+	algorithm::snopt algo(1000);
 
- //This prints on screen the instantiated Schwefel problem
- std::cout << prob << std::endl;
+	const double pert_epoch = 1000;
+	const double pert_nondim = 1E-1;
+	const double pert_mass = 200;
+	const double pert_vinf = 1000;
+	std::vector<double> perturb(n_segments * 3 + 6,pert_nondim);
+	perturb[0] = pert_epoch;
+	perturb[1] = pert_epoch;
+	perturb[2] = pert_mass;
+	perturb[3] = pert_vinf;
+	perturb[4] = pert_vinf;
+	perturb[5] = pert_vinf;
 
- //Evolution is here started
- for (int i=0; i< 20; ++i){
-   isl.evolve(); isl.join();
-   std::cout << isl.get_population().champion().f[0] << " " << std::endl;
- }
- return 0;
+	algorithm::mbh algo2(algo,20,perturb);
+	algorithm::ms algo3(algo2,5);
+	//algo2.screen_output(true);
+
+	// Outer loop.
+	int cur_id = 1;
+	for (int i = 1; i <= 25; ++i) {
+		archipelago a;
+		for (int j = 0; j < 283; ++j) {
+			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::TIME),algo3,5));
+		}
+		a.evolve(1);
+		a.join();
+		std::ofstream ofs((std::string("time_") + boost::lexical_cast<std::string>(cur_id)).c_str());
+		boost::archive::text_oarchive oa(ofs);
+		oa << static_cast<const archipelago &>(a);
+		cur_id += 283;
+	}
+
+	cur_id = 1;
+	for (int i = 1; i <= 25; ++i) {
+		archipelago a;
+		for (int j = 0; j < 283; ++j) {
+			a.push_back(mpi_island(problem::gtoc5_launch(n_segments,cur_id + j,problem::gtoc5_launch::MASS),algo3,5));
+		}
+		a.evolve(1);
+		a.join();
+		std::ofstream ofs((std::string("mass_") + boost::lexical_cast<std::string>(cur_id)).c_str());
+		boost::archive::text_oarchive oa(ofs);
+		oa << static_cast<const archipelago &>(a);
+		cur_id += 283;
+	}
 }
