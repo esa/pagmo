@@ -51,10 +51,10 @@ namespace std{
 
 #include <boost/archive/basic_streambuf_locale_saver.hpp>
 #include <boost/archive/archive_exception.hpp>
-#include <boost/archive/detail/auto_link_archive.hpp>
 #include <boost/mpl/placeholders.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 #include <boost/serialization/array.hpp>
+#include <boost/archive/detail/auto_link_archive.hpp>
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
 namespace boost { 
@@ -162,7 +162,7 @@ basic_binary_iprimitive<Archive, Elem, Tr>::load_binary(
     );
     if(scount != s)
         boost::serialization::throw_exception(
-            archive_exception(archive_exception::stream_error)
+            archive_exception(archive_exception::input_stream_error)
         );
     // note: an optimizer should eliminate the following for char files
     assert(count % sizeof(Elem) <= boost::integer_traits<std::streamsize>::const_max);
@@ -176,7 +176,7 @@ basic_binary_iprimitive<Archive, Elem, Tr>::load_binary(
         scount = m_sb.sgetn(& t, 1);
         if(scount != 1)
             boost::serialization::throw_exception(
-                archive_exception(archive_exception::stream_error)
+                archive_exception(archive_exception::input_stream_error)
             );
         std::memcpy(static_cast<char*>(address) + (count - s), &t, s);
     }

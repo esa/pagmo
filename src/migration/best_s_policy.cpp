@@ -69,3 +69,5 @@ std::vector<population::individual_type> best_s_policy::select(const population 
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::best_s_policy);

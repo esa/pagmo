@@ -44,13 +44,16 @@ namespace pagmo { namespace algorithm {
  * @param[in] starts number of multistarts
  * @throws value_error if starts is negative
  */
-ms::ms(const algorithm::base &algorithm, int starts):base(),m_starts(starts)
+ms::ms(const base &algorithm, int starts):base(),m_starts(starts),m_screen_out(false)
 {
 	m_algorithm = algorithm.clone();
 	if (starts < 0) {
 		pagmo_throw(value_error,"number of multistarts needs to be larger than zero");
 	}
 }
+
+/// Copy constructor (deep copy).
+ms::ms(const ms &other):base(other),m_algorithm(other.m_algorithm->clone()),m_starts(other.m_starts),m_screen_out(other.m_screen_out) {}
 
 /// Clone method.
 base_ptr ms::clone() const
@@ -75,40 +78,26 @@ void ms::evolve(population &pop) const
 		return;
 	}
 
-	// Init the best fitness and constraint vector
-	fitness_vector best_f = pop.get_individual(pop.get_best_idx()).cur_f;
-	constraint_vector best_c = pop.get_individual(pop.get_best_idx()).cur_c;
-	population best_pop(pop);
+	// Local population used in the algorithm iterations.
+	population working_pop(pop);
 
 	//ms main loop
 	for (int i=0; i< m_starts; ++i)
 	{
-		pop.reinit();
-		m_algorithm->evolve(pop);
+		working_pop.reinit();
+		m_algorithm->evolve(working_pop);
+		if (working_pop.problem().compare_fc(working_pop.get_individual(working_pop.get_best_idx()).cur_f,working_pop.get_individual(working_pop.get_best_idx()).cur_c,
+			pop.get_individual(pop.get_worst_idx()).cur_f,pop.get_individual(pop.get_worst_idx()).cur_c
+		) )
+		{
+			//update best population replacing its worst individual with the good one just produced.
+			pop.set_x(pop.get_worst_idx(),working_pop.get_individual(working_pop.get_best_idx()).cur_x);
+			pop.set_v(pop.get_worst_idx(),working_pop.get_individual(working_pop.get_best_idx()).cur_v);
+		}
 		if (m_screen_out)
 		{
-			std::cout << i << ". " << "\tBest: " << pop.get_individual(pop.get_best_idx()).cur_f << "\tChampion: " << pop.champion().f << std::endl;
+			std::cout << i << ". " << "\tCurrent iteration best: " << working_pop.get_individual(working_pop.get_best_idx()).cur_f << "\tOverall champion: " << pop.champion().f << std::endl;
 		}
-
-		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
-		{
-			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
-			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
-
-			//update best population
-			for (population::size_type j=0; j<pop.size();++j)
-			{
-				best_pop.set_x(j,pop.get_individual(j).cur_x);
-				best_pop.set_v(j,pop.get_individual(j).cur_v);
-			}
-
-		}
-	}
-	//on exit set the population to the best one of the multistarts
-	for (population::size_type j=0; j<pop.size();++j)
-	{
-		pop.set_x(j,best_pop.get_individual(j).cur_x);
-		pop.set_v(j,best_pop.get_individual(j).cur_v);
 	}
 }
 
@@ -128,6 +117,26 @@ std::string ms::get_name() const
 	return "Multi-start";
 }
 
+/// Get a copy of the internal algorithm.
+/**
+ * @return algorithm::base_ptr to a copy of the internal algorithm.
+ */
+base_ptr ms::get_algorithm() const
+{
+	return m_algorithm->clone();
+}
+
+/// Set algorithm.
+/**
+ * A copy of the input algorithm will be set as the internal algorithm.
+ * 
+ * @param[in] algo algorithm to be set for multistart.
+ */
+void ms::set_algorithm(const base &algo)
+{
+	m_algorithm = algo.clone();
+}
+
 /// Extra human readable algorithm info.
 /**
  * @return a formatted string displaying the parameters of the algorithm.
@@ -141,3 +150,5 @@ std::string ms::human_readable_extra() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::ms);

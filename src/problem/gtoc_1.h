@@ -28,9 +28,10 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../AstroToolbox/mga.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -57,8 +58,17 @@ class __PAGMO_VISIBLE gtoc_1: public base
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & problem;
+			ar & Delta_V;
+			ar & rp;
+			ar & t;
+		}
 		mgaproblem problem;
-
 		//Variables used in the call to MGA
 		mutable std::vector<double> Delta_V;
 		mutable std::vector<double> rp;
@@ -66,5 +76,7 @@ class __PAGMO_VISIBLE gtoc_1: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc_1);
 
 #endif // PAGMO_PROBLEM_GTOC_1_H

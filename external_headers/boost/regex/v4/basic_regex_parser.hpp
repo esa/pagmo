@@ -1906,7 +1906,9 @@ bool basic_regex_parser<charT, traits>::parse_perl_extension()
    m_has_case_change = false;
    charT name_delim;
    int mark_reset = m_mark_reset;
+   int max_mark = m_max_mark;
    m_mark_reset = -1;
+   m_max_mark = m_mark_count;
    int v;
    //
    // select the actual extension used:
@@ -2536,6 +2538,7 @@ option_group_jump:
       m_mark_count = m_max_mark;
    }
    m_mark_reset = mark_reset;
+   m_max_mark = max_mark;
 
 
    if(markid > 0)

@@ -1,0 +1,72 @@
+diff --git a/external_headers/boost/algorithm/string/detail/find_format_store.hpp b/external_headers/boost/algorithm/string/detail/find_format_store.hpp
+index 24fe374..4872c5a 100644
+--- a/external_headers/boost/algorithm/string/detail/find_format_store.hpp
++++ b/external_headers/boost/algorithm/string/detail/find_format_store.hpp
+@@ -71,7 +71,7 @@ namespace boost {
+             };
+ 
+             template<typename InputT, typename FindResultT>
+-            bool check_find_result(InputT& Input, FindResultT& FindResult)
++            bool check_find_result(InputT&, FindResultT& FindResult)
+             {
+                 typedef BOOST_STRING_TYPENAME 
+                     range_const_iterator<InputT>::type input_iterator_type; 
+diff --git a/external_headers/boost/archive/shared_ptr_helper.hpp b/external_headers/boost/archive/shared_ptr_helper.hpp
+index a1e252a..b37a0bb 100644
+--- a/external_headers/boost/archive/shared_ptr_helper.hpp
++++ b/external_headers/boost/archive/shared_ptr_helper.hpp
+@@ -127,7 +127,7 @@ public:
+     template<class T>
+     struct non_polymorphic {
+         static const boost::serialization::extended_type_info * 
+-        get_object_identifier(T & t){
++        get_object_identifier(T &){
+             return & boost::serialization::singleton<
+                 BOOST_DEDUCED_TYPENAME 
+                 boost::serialization::type_info_implementation<T>::type
+diff --git a/external_headers/boost/pending/property_serialize.hpp b/external_headers/boost/pending/property_serialize.hpp
+index ff2623f..be15201 100644
+--- a/external_headers/boost/pending/property_serialize.hpp
++++ b/external_headers/boost/pending/property_serialize.hpp
+@@ -22,7 +22,7 @@ namespace boost {
+   template<class Archive, class Tag, class T, class Base>
+   void 
+   serialize(Archive& ar, property<Tag, T, Base>& prop, 
+-            const unsigned int version) 
++            const unsigned int) 
+   {
+     ar & serialization::make_nvp( "property_base" , boost::serialization::base_object<Base>(prop) );
+     ar & serialization::make_nvp( "property_value" , prop.m_value );
+diff --git a/src/boost_mpi/point_to_point.cpp b/src/boost_mpi/point_to_point.cpp
+index dd0d9bc..82770a3 100644
+--- a/src/boost_mpi/point_to_point.cpp
++++ b/src/boost_mpi/point_to_point.cpp
+@@ -44,6 +44,7 @@ packed_archive_isend(MPI_Comm comm, int dest, int tag,
+                      const packed_oarchive& ar,
+                      MPI_Request* out_requests, int num_out_requests)
+ {
++  (void)num_out_requests;
+   assert(num_out_requests >= 2);
+   const void* size = &ar.size();
+   BOOST_MPI_CHECK_RESULT(MPI_Isend,
+@@ -63,6 +64,7 @@ packed_archive_isend(MPI_Comm comm, int dest, int tag,
+                      const packed_iarchive& ar,
+                      MPI_Request* out_requests, int num_out_requests)
+ {
++  (void)num_out_requests;
+   assert(num_out_requests >= 2);
+ 
+   const void* size = &ar.size();
+diff --git a/src/boost_serialization/codecvt_null.cpp b/src/boost_serialization/codecvt_null.cpp
+index b6c06bd..1b3f1c4 100644
+--- a/src/boost_serialization/codecvt_null.cpp
++++ b/src/boost_serialization/codecvt_null.cpp
+@@ -47,7 +47,7 @@ codecvt_null<wchar_t>::do_out(
+ 
+ BOOST_WARCHIVE_DECL(std::codecvt_base::result)
+ codecvt_null<wchar_t>::do_in(
+-    std::mbstate_t & state,
++    std::mbstate_t &,
+     const char * first1, 
+     const char * last1, 
+     const char * & next1,

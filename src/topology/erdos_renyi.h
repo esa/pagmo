@@ -25,10 +25,12 @@
 #ifndef PAGMO_TOPOLOGY_ERDOS_RENYI_H
 #define PAGMO_TOPOLOGY_ERDOS_RENYI_H
 
+
 #include <string>
 
 #include "../config.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -59,10 +61,20 @@ class __PAGMO_VISIBLE erdos_renyi: public base
 		void connect(const vertices_size_type &);
 		std::string human_readable_extra() const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<double &>(m_prob);
+			ar & m_drng;
+		}  
 		const double	m_prob;
 		rng_double	m_drng;
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::erdos_renyi);
 
 #endif

@@ -51,7 +51,7 @@ struct operator_arrow_proxy<T&>
    // This function is needed for MWCW and BCC, which won't call operator->
    // again automatically per 13.3.1.2 para 8
 //   operator T*() const { return &m_value; }
-   mutable T &m_value;
+   T &m_value;
 };
 
 template <class Iterator, class UnaryFunction>

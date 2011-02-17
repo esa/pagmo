@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -51,13 +52,22 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE rastrigin: public base
 {
 	public:
-		rastrigin(int);
+		rastrigin(int = 1);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::rastrigin);
 
 #endif

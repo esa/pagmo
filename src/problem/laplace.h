@@ -25,14 +25,14 @@
 #ifndef PAGMO_PROBLEM_LAPLACE_H
 #define PAGMO_PROBLEM_LAPLACE_H
 
-#include <boost/scoped_ptr.hpp>
 #include <string>
+#include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../AstroToolbox/mga_dsm.h"
-#include "../AstroToolbox/misc4Tandem.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -64,9 +64,9 @@ namespace pagmo{ namespace problem {
  */
 class __PAGMO_VISIBLE laplace: public base
 {
+		static const int default_sequence[5];
 	public:
-		laplace(const std::vector <int> &);
-		laplace(const laplace &);
+		laplace(const std::vector<int> & = std::vector<int>(default_sequence,default_sequence + 5));
 		base_ptr clone() const;
 		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;
@@ -74,9 +74,18 @@ class __PAGMO_VISIBLE laplace: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
-		boost::scoped_ptr<mgadsmproblem> problem;
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & problem;
+		}
+		mgadsmproblem problem;
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::laplace);
 
 #endif // PAGMO_PROBLEM_LAPLACE_H

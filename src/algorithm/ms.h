@@ -29,7 +29,9 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
+#include "de.h"
 
 
 namespace pagmo { namespace algorithm {
@@ -57,20 +59,33 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE ms: public base
 {
 public:
-	ms(const algorithm::base &, int);
+	ms(const base & = de(), int = 1);
+	ms(const ms &);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
 	std::string get_name() const;
+	base_ptr get_algorithm() const;
+	void set_algorithm(const base &);
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & m_algorithm;
+		ar & m_starts;
+		ar & m_screen_out;
+	}
 	base_ptr m_algorithm;
 	int m_starts;
 	bool m_screen_out;
-
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::ms);
 
 #endif // PAGMO_ALGORITHM_MS_H

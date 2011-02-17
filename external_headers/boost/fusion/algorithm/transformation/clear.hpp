@@ -22,7 +22,7 @@ namespace boost { namespace fusion
 
     template <typename Sequence>
     inline typename result_of::clear<Sequence const>::type
-    clear(Sequence const& seq)
+    clear(Sequence const& /*seq*/)
     {
         return vector0<>();
     }

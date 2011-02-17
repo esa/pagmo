@@ -30,6 +30,11 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
+// Serialization code
+#include "serialization.h"
+// Serialization code (END)
+
+
 /// Keplerian Toolbox
 /**
  * This namespace contains astrodynamics and space flight mechanics routines that are related to
@@ -51,8 +56,8 @@ public:
 
 	/** Types of non gregorian dates supported. Julian Date (JD) is the number of days passed since
 	 * January 1, 4713 BC at noon. Modified Julian Date (MJD) is the number of days passed since
-	 * November 17, 1858 at midnight. The Modified Julian Date 2000 (MJD2000) is the number of days passed since
-	* Juanuary 1, 2000 at midnight.
+	 * November 17, 1858 at 00:00 am. The Modified Julian Date 2000 (MJD2000) is the number of days passed since
+	* Juanuary 1, 2000 at 00:00am.
 	*/
 	enum type {MJD2000, MJD, JD};
 
@@ -78,10 +83,27 @@ public:
 	//@}
 
 private:
+
+// Serialization code
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & mjd2000_m;
+	}
+// Serialization code (END)
+
 	/// the modified julian date 2000 stored in a double
 	double mjd2000_m;
 };
+
 std::ostream &operator<<(std::ostream &s, const epoch &epoch_in );
+
+epoch epoch_from_string(const std::string date);
+
+epoch epoch_from_iso_string(const std::string date);
+
+
 } // end of namespace kep_toolbox
 
 #endif // KEPLERIAN_TOOLBOX_EPOCH_H

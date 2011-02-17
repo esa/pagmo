@@ -34,7 +34,6 @@ gsl_init::gsl_init():m_init(false)
 {
 	gsl_set_error_handler(&custom_gsl_error_handler);
 	m_init = true;
-	std::cout << "GSL support initialised.\n";
 }
 
 void custom_gsl_error_handler(const char *reason, const char *file, int line, int gsl_errno)

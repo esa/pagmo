@@ -29,6 +29,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace algorithm {
@@ -43,15 +44,24 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE monte_carlo: public base
 {
 	public:
-		monte_carlo(int);
+		monte_carlo(int = 1);
 		base_ptr clone() const;
 		void evolve(population &) const;
 		std::string get_name() const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_max_eval);
+		}  
 		std::string human_readable_extra() const;
 		const std::size_t m_max_eval;
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::monte_carlo);
 
 #endif

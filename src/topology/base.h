@@ -33,7 +33,7 @@
 #include <vector>
 
 #include "../config.h"
-#include "../island.h"
+#include "../serialization.h"
 
 namespace pagmo {
 
@@ -104,9 +104,9 @@ class __PAGMO_VISIBLE base
 		/**
 		 * Provided that the derived topology implements properly the copy constructor, virtually all implementations of this method will
 		 * look like this:
-@verbatim
-return base_ptr(new derived_topology(*this));
-@endverbatim
+		 * @code
+		 * return base_ptr(new derived_topology(*this));
+		 * @endcode
 		 *
 		 * @return topology::base_ptr to a copy of this.
 		 */
@@ -150,6 +150,12 @@ return base_ptr(new derived_topology(*this));
 		virtual std::string human_readable_extra() const;
 	private:
 		void check_vertex_index(const vertices_size_type &) const;
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & m_graph;
+		}
 	private:
 		graph_type m_graph;
 };
@@ -157,5 +163,7 @@ return base_ptr(new derived_topology(*this));
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 
 }}
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::topology::base);
 
 #endif

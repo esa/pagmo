@@ -31,6 +31,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace migration {
@@ -97,8 +98,17 @@ return base_ptr(new derived_policy(*this));
 			for (; first != last; ++first, ++value)
 				*first = value;
 		}
+	private:	
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }}
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::migration::base_r_policy);
 
 #endif

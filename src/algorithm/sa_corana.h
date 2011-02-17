@@ -26,9 +26,8 @@
 #define PAGMO_ALGORITHM_SA_CORANA_H
 
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
-#include "../problem/base.h"
-
 
 namespace pagmo { namespace algorithm {
 
@@ -58,13 +57,25 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE sa_corana: public base
 {
 public:
-	sa_corana(int niter, const double &Ts, const double &Tf, int m_step_adj = 1, int m_bin_size = 20, const double &range = 1);
+	sa_corana(int niter = 1, const double &Ts = 10, const double &Tf = .1, int m_step_adj = 1, int m_bin_size = 20, const double &range = 1);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_niter);
+		ar & const_cast<double &>(m_Ts);
+		ar & const_cast<double &>(m_Tf);
+		ar & const_cast<int &>(m_step_adj);
+		ar & const_cast<int &>(m_bin_size);
+		ar & const_cast<double &>(m_range);
+	}  
 	// Number of iterations.
 	const int m_niter;
 	// Starting temperature
@@ -80,5 +91,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sa_corana);
 
 #endif // PAGMO_ALGORITHM_SA_CORANA_H

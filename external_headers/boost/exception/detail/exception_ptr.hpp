@@ -73,12 +73,14 @@ boost
         exception_ptr
         get_bad_alloc()
             {
-            static exception_ptr e = boost::copy_exception(
-                bad_alloc_() <<
-                throw_function("boost::current_exception()") <<
+            bad_alloc_ ba;
+            exception_detail::clone_impl<bad_alloc_> c(ba);
+            c <<
+                throw_function(BOOST_CURRENT_FUNCTION) <<
                 throw_file(__FILE__) <<
-                throw_line(__LINE__) );
-            return e;
+                throw_line(__LINE__);
+            static exception_ptr ep(new exception_detail::clone_impl<bad_alloc_>(c));
+            return ep;
             }
 
         template <int Dummy>

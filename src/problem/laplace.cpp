@@ -22,21 +22,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <string>
 
-#include "laplace.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
+#include "../exceptions.h"
 #include "../keplerian_toolbox/epoch.h"
+#include "laplace.h"
 
 namespace pagmo { namespace problem {
 
-/// Constructor
-/**
-* Instantiates a Laplace problem
-* \param[in] seq contains the fly-by sequence (e.g. 3,2,3,3,5 for Earth-Venus,Earth-Earth-Jupiter)
-*/
-laplace::laplace(const std::vector<int> &seq):base(-10000.0,10000.0,4*seq.size() - 2), problem(0)
+static inline int laplace_get_dimension(const std::vector<int> &seq)
 {
 	if (seq.size() < 2)
 	{
@@ -44,14 +41,25 @@ laplace::laplace(const std::vector<int> &seq):base(-10000.0,10000.0,4*seq.size()
 	}
 	if (seq[0]!=3)
 	{
-		pagmo_throw(value_error,"Starting planet must be the Erath (3) for the Laplace mission");
+		pagmo_throw(value_error,"Starting planet must be the Earth (3) for the Laplace mission");
 	}
 	if (seq.back()!=5)
 	{
-		pagmo_throw(value_error,"Final planet must be the Jupiter (5) for the Laplace mission");
+		pagmo_throw(value_error,"Final planet must be Jupiter (5) for the Laplace mission");
 	}
-	//Set the sequence as defined by the user
-	problem.reset(new mgadsmproblem(orbit_insertion,&seq[0],seq.size(),0,0,0,.97,4 * 71492.0));
+	return boost::numeric_cast<int>(4*seq.size() - 2);
+}
+
+const int laplace::default_sequence[5] = {3,2,3,3,5};
+
+/// Constructor
+/**
+* Instantiates a Laplace problem
+* \param[in] seq contains the fly-by sequence (e.g. 3,2,3,3,5 for Earth-Venus,Earth-Earth-Jupiter)
+*/
+laplace::laplace(const std::vector<int> &seq):base(-10000.0,10000.0,laplace_get_dimension(seq)),
+	problem(orbit_insertion,&seq[0],seq.size(),0,0,0,.97,4 * 71492.0)                              
+{
 	// Set the bounds.
 	set_lb(0,5475.0);
 	set_ub(0,9132.0);
@@ -83,12 +91,6 @@ laplace::laplace(const std::vector<int> &seq):base(-10000.0,10000.0,4*seq.size()
 	}
 }
 
-/// Copy constructor (needed for a deep copy of the object)
-/**
- * \param[in] other a laplace problem
- */
-laplace::laplace(const laplace &other):base(other),problem(new mgadsmproblem(*(other.problem))) {}
-
 /// Clone method.
 base_ptr laplace::clone() const
 {
@@ -99,7 +101,7 @@ base_ptr laplace::clone() const
 void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	f[0] = 0;
-	MGA_DSM(x, *problem, f[0]);
+	MGA_DSM(x, problem, f[0]);
 	const size_t sequence_size = (x.size() + 2) / 4;
 	double totaltime = 0;
 	for (size_t i = 0; i < sequence_size - 1 ; ++i) {
@@ -123,16 +125,16 @@ void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
  std::string laplace::pretty(const std::vector<double> &x) const
 {
 	double obj = 0;
-	MGA_DSM(x, *problem, obj);
+	MGA_DSM(x, problem, obj);
 	std::ostringstream s;
 	s.precision(15);
 	s << std::scientific;
 	const size_t seq_size = (x.size() + 2) / 4;
 	pagmo_assert((x.size() + 2) % 4 == 0 && seq_size >= 2);
-	pagmo_assert(problem->sequence.size() == seq_size);
+	pagmo_assert(problem.sequence.size() == seq_size);
 	s << "Flyby sequence:        ";
 	for (size_t i = 0; i < seq_size; ++i) {
-		s << problem->sequence[i];
+		s << problem.sequence[i];
 	}
 	s << '\n';
 	s << "Departure epoch (mjd2000):     " << x[0] << '\n';
@@ -152,10 +154,10 @@ void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		s << "Flyby radius:          " << x[i + 2 * (seq_size + 1)] << '\n';
 	}
 	for (size_t i = 0; i < seq_size - 2; ++i) {
-		s << "Vinf at flyby:         " << std::sqrt(problem->vrelin_vec[i]) << '\n';
+		s << "Vinf at flyby:         " << std::sqrt(problem.vrelin_vec[i]) << '\n';
 	}
 	for (size_t i = 0; i < seq_size - 1; ++i) {
-		s << "dsm" << i+1 << ":         " << problem->DV[i+1] << '\n';
+		s << "dsm" << i+1 << ":         " << problem.DV[i+1] << '\n';
 	}
 	return s.str();
 }
@@ -166,7 +168,7 @@ void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
  */
 void laplace::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
 {
-	lenG=(4*problem->sequence.size()-2);
+	lenG=(4*problem.sequence.size()-2);
 	iGfun.resize(lenG);
 	jGvar.resize(lenG);
 	for (int i = 0; i<lenG; ++i)
@@ -182,3 +184,5 @@ std::string laplace::get_name() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::laplace);

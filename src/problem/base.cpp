@@ -25,6 +25,8 @@
 // 30/01/10 Created by Francesco Biscani.
 
 #include <algorithm>
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/ref.hpp>
@@ -39,7 +41,6 @@
 #include <typeinfo>
 #include <vector>
 
-#include "../atomic_counters/atomic_counters.h"
 #include "../exceptions.h"
 #include "../population.h"
 #include "../types.h"
@@ -48,9 +49,6 @@
 namespace pagmo
 {
 namespace problem {
-
-// Initialisation of static objective function calls counter.
-atomic_counter_size_t base::m_objfun_counter(0);
 
 /// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 /**
@@ -447,13 +445,13 @@ fitness_vector base::objfun(const decision_vector &x) const
 
 /// Write fitness of pagmo::decision_vector into pagmo::fitness_vector.
 /**
- * Will call objfun_impl() internally. Will fail if f's size is different from the fitness dimension
- * or if verify_x() on x returns false.
- *
+ * Will call objfun_impl() internally.
  * The implementation internally uses a caching mechanism, so that recently-computed quantities are remembered and re-used when appropriate.
  *
  * @param[out] f fitness vector to which x's fitness will be written.
  * @param[in] x decision vector whose fitness will be calculated.
+ * 
+ * @throws value_error if f's and/or x's dimensions are different from the corresponding dimensions of the problem.
  */
 void base::objfun(fitness_vector &f, const decision_vector &x) const
 {
@@ -474,10 +472,6 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 		// Make sure that the implementation of objfun_impl() in the derived class did not fuck up the dimension of the fitness vector.
 		if (f.size() != m_f_dimension) {
 			pagmo_throw(value_error,"fitness dimension was changed inside objfun_impl()");
-		}
-		// Actually do the increment only if we have fast incrementing capabilities in m_objfun_counter.
-		if (m_objfun_counter.is_increment_fast) {
-			++m_objfun_counter;
 		}
 		// Store the decision vector and the newly-calculated fitness in the front of the buffers.
 		m_decision_vector_cache_f.push_front(x);
@@ -958,9 +952,6 @@ bool base::compare_constraints_impl(const constraint_vector &c1, const constrain
 /**
  * Additional problem-specific equality testing. Default implementation returns true.
  *
- * <b>NOTE</b>: this method will be called concurrently during evolution in archipelago from multiple island objects. This implies that
- * this method must be thread-safe (e.g., unprotected writes into the problem object are not allowed).
- *
  * @param[in] p problem::base to which this will be compared.
  *
  * @return true if p satisfies the additional equality testing, false otherwise.
@@ -1014,20 +1005,6 @@ bool base::verify_x(const decision_vector &x) const
 	return true;
 }
 
-/// Problem's blocking property.
-/**
- * Return true if the problem blocks the asynchronous evolution of an island/archipelago, false otherwise.
- * A blocking problem won't allow the flow of the program to continue before evolution in an island/archipelago has finished.
- * This property is used, for instance, in Python problems.
- * Default implementation returns false.
- *
- * @return true if the problem is blocking, false otherwise.
- */
-bool base::is_blocking() const
-{
-	return false;
-}
-
 // This function will round to the nearest integer the upper/lower bounds of the integer part of the problem.
 // This should be called each time bounds are set.
 void base::normalise_bounds()
@@ -1035,6 +1012,23 @@ void base::normalise_bounds()
 	pagmo_assert(m_lb.size() >= m_i_dimension);
 	// Flag to be set if we had to fix the bounds.
 	bool bounds_fixed = false;
+	for (size_type i = 0; i < m_lb.size() - m_i_dimension; ++i) {
+		// Handle NaNs: if either lower/upper bound(s) are NaN, replace with 0 and 1 respectively.
+		if (boost::math::isnan(m_lb[i]) || boost::math::isnan(m_ub[i])) {
+			m_lb[i] = 0;
+			m_ub[i] = 1;
+			bounds_fixed = true;
+		}
+		// +-Infs are replaced by the highest/lowest values representable by double.
+		if (boost::math::isinf(m_lb[i])) {
+			m_lb[i] = (m_lb[i] > 0) ? boost::numeric::bounds<double>::highest() : boost::numeric::bounds<double>::lowest();
+			bounds_fixed = true;
+		}
+		if (boost::math::isinf(m_ub[i])) {
+			m_ub[i] = (m_ub[i] > 0) ? boost::numeric::bounds<double>::highest() : boost::numeric::bounds<double>::lowest();
+			bounds_fixed = true;
+		}
+	}
 	for (size_type i = m_lb.size() - m_i_dimension; i < m_lb.size(); ++i) {
 		// First let's make sure that integer bounds are in the allowed range.
 		if (m_lb[i] < INT_MIN) {
@@ -1064,7 +1058,7 @@ void base::normalise_bounds()
 		}
 	}
 	if (bounds_fixed) {
-		pagmo_throw(value_error,"the integer bounds were either over/under-flowing or they were not integer, and they had to be adjusted");
+		pagmo_throw(value_error,"problem bounds were invalid and had to be fixed");
 	}
 }
 
@@ -1081,20 +1075,6 @@ std::ostream &operator<<(std::ostream &s, const base &p)
 {
 	s << p.human_readable();
 	return s;
-}
-
-/// Return the total number of calls to the objective function.
-/**
- * The number is a static global variable that gets incremented each time base::objfun() is called.
- *
- * @return total number of objective function calls in all implemented problems.
- */
-std::size_t objfun_calls()
-{
-	if (!base::m_objfun_counter.is_increment_fast) {
-		pagmo_throw(not_implemented_error,"fast atomic counters are not available in this version of PaGMO");
-	}
-	return (base::m_objfun_counter).get_value();
 }
 
 /// Sets the sparsity pattern of the gradient
@@ -1188,7 +1168,7 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 	fitness_vector f0(m_f_dimension),f_new(m_f_dimension);
 	decision_vector x0(Dc);
 	// Double precision random number generator.
-	rng_double	drng(rng_generator::get<rng_double>());
+	rng_double drng(rng_generator::get<rng_double>());
 
 	for (decision_vector::size_type i = 0; i<Dc;++i) {
 		x0[i] = boost::uniform_real<double>(m_lb[i],m_ub[i])(drng);
@@ -1245,12 +1225,6 @@ void base::pre_evolution(population &pop) const
 void base::post_evolution(population &pop) const
 {
 	(void)pop;
-}
-
-/// Reset to zero the total number of calls to the objective function.
-void reset_objfun_calls()
-{
-	base::m_objfun_counter = atomic_counter_size_t();
 }
 
 }} //namespaces

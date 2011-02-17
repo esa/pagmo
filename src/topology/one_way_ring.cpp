@@ -73,3 +73,5 @@ std::string one_way_ring::get_name() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::one_way_ring);

@@ -90,11 +90,18 @@ namespace iteration_context_policies {
 }   // namespace iteration_context_policies
 
 ///////////////////////////////////////////////////////////////////////////////
-//  
+//  Base class for iteration contexts
 template <typename ContextT, typename IteratorT>
 struct base_iteration_context 
 {
-public:
+    enum file_type
+    {
+        // this iteration context handles ...
+        main_file,      // ... the main preprocessed file
+        system_header,  // ... a header file included used #include  <>
+        user_header     // ... a header file included using #include ""
+    };
+
     base_iteration_context(ContextT& ctx_,
             BOOST_WAVE_STRINGTYPE const &fname, std::size_t if_block_depth = 0)   
     :   real_filename(fname), real_relative_filename(fname), filename(fname), 
@@ -102,7 +109,8 @@ public:
     {}
     base_iteration_context(ContextT& ctx_, 
             IteratorT const &first_, IteratorT const &last_, 
-            BOOST_WAVE_STRINGTYPE const &fname, std::size_t if_block_depth = 0)
+            BOOST_WAVE_STRINGTYPE const &fname, std::size_t if_block_depth = 0,
+            file_type type = main_file)
     :   first(first_), last(last_), real_filename(fname), 
         real_relative_filename(fname), filename(fname), 
         line(1), emitted_lines(0), if_block_depth(if_block_depth), ctx(ctx_) 
@@ -118,6 +126,7 @@ public:
     unsigned int emitted_lines;           // count of emitted newlines
     std::size_t if_block_depth; // depth of #if block recursion
     ContextT& ctx;              // corresponding context<> object
+    file_type type;             // the type of the handled file
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,12 +143,14 @@ struct iteration_context
     typedef IteratorT iterator_type;
     typedef typename IteratorT::token_type::position_type position_type;
 
+    typedef base_iteration_context<ContextT, IteratorT> base_type;
     typedef iteration_context<ContextT, IteratorT, InputPolicyT> self_type;
 
     iteration_context(ContextT& ctx, BOOST_WAVE_STRINGTYPE const &fname, 
             position_type const &act_pos, 
-            boost::wave::language_support language_) 
-    :   base_iteration_context<ContextT, IteratorT>(ctx, fname)
+            boost::wave::language_support language_,
+            typename base_type::file_type type = base_type::main_file) 
+    :   base_iteration_context<ContextT, IteratorT>(ctx, fname, type)
     {
         InputPolicyT::template inner<self_type>::init_iterators(
             *this, act_pos, language_);

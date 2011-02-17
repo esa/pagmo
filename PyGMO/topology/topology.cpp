@@ -29,7 +29,7 @@
 #include <boost/utility.hpp>
 
 #include "../../src/topologies.h"
-#include "../exceptions.h"
+#include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;
@@ -38,7 +38,12 @@ template <class Topology>
 static inline class_<Topology,bases<topology::base> > topology_wrapper(const char *name, const char *descr)
 {
 	class_<Topology,bases<topology::base> > retval(name,descr,init<const Topology &>());
-	retval.def("__copy__", &Topology::clone);
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Topology>);
+	retval.def_pickle(generic_pickle_suite<Topology>());
+	retval.def("cpp_loads", &py_cpp_loads<Topology>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Topology>);
 	return retval;
 }
 
@@ -74,8 +79,7 @@ static inline topology::base::edges_size_type topology_get_num_inv_adjacent_vert
 }
 
 BOOST_PYTHON_MODULE(_topology) {
-	// Translate exceptions for this module.
-	translate_exceptions();
+	common_module_init();
 
 	class_<topology::base,boost::noncopyable>("_base",no_init)
 		.def("__repr__", &topology::base::human_readable)
@@ -93,20 +97,19 @@ BOOST_PYTHON_MODULE(_topology) {
 	// Topologies.
 	topology_wrapper<topology::barabasi_albert>("barabasi_albert", "Barabasi-Albert topology.").def(init<optional<int,int> >());
 	topology_wrapper<topology::custom>("custom", "Custom topology.")
-		.def(init<>())
 		.def(init<const topology::base &>())
 		.def("add_edge",&topology::custom::add_edge,"Add edge.")
 		.def("remove_edge",&topology::custom::remove_edge,"Remove edge.")
 		.def("remove_all_edges",&topology::custom::remove_all_edges,"Remove all edges.");
 
 	topology_wrapper<topology::erdos_renyi>("erdos_renyi", "Erdos-Renyi topology.").def(init<optional<const double &> >());
-	topology_wrapper<topology::fully_connected>("fully_connected", "Fully connected topology.").def(init<>());
-	topology_wrapper<topology::ring>("ring", "Ring topology.").def(init<>());
-	topology_wrapper<topology::one_way_ring>("one_way_ring", "One-way ring topology.").def(init<>());
-	topology_wrapper<topology::unconnected>("unconnected", "Unconnected topology.").def(init<>());
+	topology_wrapper<topology::fully_connected>("fully_connected", "Fully connected topology.");
+	topology_wrapper<topology::ring>("ring", "Ring topology.");
+	topology_wrapper<topology::one_way_ring>("one_way_ring", "One-way ring topology.");
+	topology_wrapper<topology::unconnected>("unconnected", "Unconnected topology.");
 	topology_wrapper<topology::watts_strogatz>("watts_strogatz", "Watts-Strogatz topology.").def(init<optional<int,const double &,int> >());
-	topology_wrapper<topology::pan>("pan", "Pan graph topology.").def(init<>());
-	topology_wrapper<topology::rim>("rim", "Wheel rim topology.").def(init<>());
+	topology_wrapper<topology::pan>("pan", "Pan graph topology.");
+	topology_wrapper<topology::rim>("rim", "Wheel rim topology.");
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<topology::base_ptr>();

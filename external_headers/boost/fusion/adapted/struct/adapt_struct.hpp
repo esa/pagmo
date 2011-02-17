@@ -38,13 +38,14 @@
 
 #define BOOST_FUSION_ADAPT_STRUCT_C(TEMPLATE_PARAMS_SEQ, NAME_SEQ, I, ATTRIBUTE)\
     BOOST_FUSION_ADAPT_STRUCT_C_BASE(                                           \
-        TEMPLATE_PARAMS_SEQ,NAME_SEQ,I,BOOST_PP_EMPTY(),ATTRIBUTE,2)
+        TEMPLATE_PARAMS_SEQ,NAME_SEQ,I,BOOST_PP_EMPTY,ATTRIBUTE,2)
 
 #define BOOST_FUSION_ADAPT_TPL_STRUCT(TEMPLATE_PARAMS_SEQ,NAME_SEQ, ATTRIBUTES) \
     BOOST_FUSION_ADAPT_STRUCT_BASE(                                             \
         (1)TEMPLATE_PARAMS_SEQ,                                                 \
         (1)NAME_SEQ,                                                            \
         struct_tag,                                                             \
+        0,                                                                      \
         BOOST_PP_CAT(BOOST_FUSION_ADAPT_STRUCT_FILLER_0 ATTRIBUTES,_END),       \
         BOOST_FUSION_ADAPT_STRUCT_C)
 
@@ -53,6 +54,16 @@
         (0),                                                                    \
         (0)(NAME),                                                              \
         struct_tag,                                                             \
+        0,                                                                      \
+        BOOST_PP_CAT(BOOST_FUSION_ADAPT_STRUCT_FILLER_0 ATTRIBUTES,_END),       \
+        BOOST_FUSION_ADAPT_STRUCT_C)
+
+#define BOOST_FUSION_ADAPT_STRUCT_AS_VIEW(NAME, ATTRIBUTES)                     \
+    BOOST_FUSION_ADAPT_STRUCT_BASE(                                             \
+        (0),                                                                    \
+        (0)(NAME),                                                              \
+        struct_tag,                                                             \
+        1,                                                                      \
         BOOST_PP_CAT(BOOST_FUSION_ADAPT_STRUCT_FILLER_0 ATTRIBUTES,_END),       \
         BOOST_FUSION_ADAPT_STRUCT_C)
 

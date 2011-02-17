@@ -25,11 +25,12 @@
 #ifndef PAGMO_ALGORITHM_BEE_COLONY_H
 #define PAGMO_ALGORITHM_BEE_COLONY_H
 
-#include "../config.h"
-#include "base.h"
-#include "../population.h"
 #include <string>
 
+#include "../config.h"
+#include "../population.h"
+#include "../serialization.h"
+#include "base.h"
 
 
 namespace pagmo { namespace algorithm {
@@ -56,18 +57,28 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE bee_colony: public base
 {
 public:
-	bee_colony(int iter, int limit = 20);
+	bee_colony(int iter = 1, int limit = 20);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_iter);
+		ar & const_cast<int &>(m_limit);   
+	}  
 	// Number of generations.
 	const int m_iter;
 	const int m_limit;
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::bee_colony);
 
 #endif // BEECOLONY_H

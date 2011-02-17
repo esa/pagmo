@@ -25,10 +25,12 @@
 #ifndef PAGMO_ALGORITHM_BASE_GSL_H
 #define PAGMO_ALGORITHM_BASE_GSL_H
 
+#include <boost/thread/mutex.hpp>
 #include <gsl/gsl_vector.h>
 
 #include "../gsl_init.h"
 #include "../problem/base.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -60,17 +62,24 @@ class base_gsl: public base
 		struct objfun_wrapper_params
 		{
 			/// Pointer to the problem.
-			problem::base const		*p;
+			problem::base const	*p;
 			/// Decision vector.
-			decision_vector			x;
+			decision_vector		x;
 			/// Fitness vector.
-			fitness_vector			f;
+			fitness_vector		f;
 			/// Initial step size for the computation of the gradient
-			double				step_size;
+			double			step_size;
 		};
 		static double objfun_wrapper(const gsl_vector *, void *);
 	private:
-		static gsl_init g_init;
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
+		static const gsl_init &get_init();
+		static boost::mutex m_mutex;
 };
 
 }}

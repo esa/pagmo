@@ -39,9 +39,9 @@ namespace pagmo
 /**
  * @see pagmo::base_island constructors.
  */
-island::island(const problem::base &p, const algorithm::base &a, int n, const double &migr_prob,
+island::island(const algorithm::base &a, const problem::base &p, int n, const double &migr_prob,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(p,a,n,migr_prob,s_policy,r_policy)
+	base_island(a,p,n,migr_prob,s_policy,r_policy)
 {}
 
 /// Copy constructor.
@@ -55,9 +55,9 @@ island::island(const island &isl):base_island(isl)
 /**
  * @see pagmo::base_island constructors.
  */
-island::island(const population &pop, const algorithm::base &a, const double &migr_prob,
+island::island(const algorithm::base &a, const population &pop, const double &migr_prob,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(pop,a,migr_prob,s_policy,r_policy)
+	base_island(a,pop,migr_prob,s_policy,r_policy)
 {}
 
 /// Assignment operator.
@@ -72,12 +72,6 @@ base_island_ptr island::clone() const
 	return base_island_ptr(new island(*this));
 }
 
-// Thread safety attribute implementation.
-bool island::is_thread_blocking() const
-{
-	return (m_pop.problem().is_blocking() || m_algo->is_blocking());
-}
-
 void island::perform_evolution(const algorithm::base &algo, population &pop) const
 {
 	algo.evolve(pop);
@@ -89,3 +83,5 @@ std::string island::get_name() const
 }
 
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::island);

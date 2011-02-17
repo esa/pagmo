@@ -179,7 +179,7 @@ void sga::evolve(population &pop) const
 			}
 
 			for (pagmo::population::size_type i = 0; i < NP; i++) {
-				selectionfitness[i] = fabs(worstfit[0] - fit[i][0]) + 1.;
+				selectionfitness[i] = fabs(worstfit[0] - fit[i][0]);
 			}
 
 			// We build and normalise the cumulative sum
@@ -343,7 +343,7 @@ std::string sga::human_readable_extra() const
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
 	s << "CR:" << m_cr << ' ';
-	s << "M:" << m_cr << ' ';
+	s << "M:" << m_m << ' ';
 	s << "elitism:" << m_elitism << ' ';
 	s << "mutation type:" << m_mut.m_type << ' ';
 	s << "selection type:" << m_sel << ' ';
@@ -353,3 +353,5 @@ std::string sga::human_readable_extra() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sga);

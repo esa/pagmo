@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 
 namespace pagmo {
 
@@ -83,6 +84,14 @@ class __PAGMO_VISIBLE base
 		double		m_rate;
 		/// Migration rate type.
 		rate_type	m_type;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+				ar & m_rate;
+				ar & m_type;
+		}
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);

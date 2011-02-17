@@ -189,6 +189,7 @@ void indirect_streambuf<T, Tr, Alloc, Mode>::open
     if (can_write() && buffer_size > 1)
         flags_ |= f_output_buffered;
     this->set_true_eof(false);
+    this->set_needs_close();
 }
 
 template<typename T, typename Tr, typename Alloc, typename Mode>

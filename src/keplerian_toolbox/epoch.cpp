@@ -22,11 +22,14 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
 *****************************************************************************/
 
-#include "epoch.h"
-#include "core_functions/convert_dates.h"
+
 #include <iostream>
 #include <iomanip>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 #include "astro_constants.h"
+#include "epoch.h"
+#include "core_functions/convert_dates.h"
 
 namespace kep_toolbox {
 using namespace boost::gregorian;
@@ -34,9 +37,9 @@ using namespace boost::posix_time;
 
 /// Constructor.
 /**
- * Constructs an epoch initializing its mjd2000 with the default double constructor
+ * Constructs an epoch initializing its mjd2000 to 0
  */
-epoch::epoch() {}
+epoch::epoch():mjd2000_m(0) {}
 
 /// Constructor.
 /**
@@ -159,6 +162,35 @@ void epoch::set_posix_time(const boost::posix_time::ptime& posix_time){
     
     mjd2000_m = epoch(posix_time).mjd2000();
 }
+
+/// Returns an epoch constructed from a delimited string containing a date
+/**
+ *  Builds an epoch from a delimited string. Excess digits in fractional seconds will be dropped. Ex: "1:02:03.123456999" => "1:02:03.123456".
+ *  This behavior depends on the precision defined in astro_constant.h used to compile
+ * 
+ * Example: 
+ * 	std::string ts("2002-01-20 23:59:54.003");
+ * 	epoch e(epoch_from_string(ts))
+ *
+ */
+epoch epoch_from_string(const std::string date) {
+	return epoch(boost::posix_time::ptime(boost::posix_time::time_from_string(date)));
+}
+
+/// Returns an epoch constructed from a non delimited iso string containing a date
+/**
+ *  Builds an epoch from a non delimited iso string containing a date.
+ * 
+ * Example: 
+ * 	std::string ts("20020131T235959");
+ * 	epoch e(epoch_from_iso_string(ts))
+ *
+ */
+epoch epoch_from_iso_string(const std::string date) {
+	return epoch(boost::posix_time::ptime(boost::posix_time::from_iso_string(date)));
+}
+
+
 } // end of namespace kep_toolbox
 
 /// Overload the stream operator for kep_toolbox::epoch

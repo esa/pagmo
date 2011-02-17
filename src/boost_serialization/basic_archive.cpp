@@ -53,15 +53,17 @@ BOOST_ARCHIVE_SIGNATURE(){
 // 2 - made address tracking optional
 // 3 - numerous changes - can't guarentee compatibility with previous versions
 // 4 - Boost 1.34
-//     added register_version to properly support versioning for collections 
+//     added item_version to properly support versioning for collections 
 // 5 - Boost 1.36
 //     changed serialization of collections: adding version even for primitive
 //     types caused backwards compatibility breaking change in 1.35
 // 6 - Boost 1.41, serializing collection sizes as std::size_t
+// 7 - separated version_type into library_version_type and class_version_type
+//     changed version_type to be stored as 8 bits.
 
-BOOST_ARCHIVE_DECL(version_type)
+BOOST_ARCHIVE_DECL(library_version_type)
 BOOST_ARCHIVE_VERSION(){
-    return version_type(7);
+    return library_version_type(7);
 }
 
 } // namespace archive

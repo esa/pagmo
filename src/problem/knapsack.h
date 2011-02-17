@@ -31,8 +31,9 @@
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
+#include "base_aco.h"
 
 namespace pagmo { namespace problem {
 
@@ -57,14 +58,18 @@ namespace pagmo { namespace problem {
  *
  * In PaGMO's terminology, this problem has global and integer dimensions equal to N, fitness dimension equal to 1, global and inequality constraints
  * dimensions equal to 1.
+ * 
+ * NOTE: this problem calls the virtual function base_aco::set_heuristic_information_matrix() in its constructor, hence it is advisable *not* to
+ * use this class as a base for another class. See http://www.artima.com/cppsource/nevercall.html for a discusssion.
  *
  * @see http://en.wikipedia.org/wiki/Knapsack_problem
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE knapsack: public base
+class __PAGMO_VISIBLE knapsack: public base_aco
 {
 	public:
+		knapsack();
 		knapsack(const std::vector<double> &, const std::vector<double> &, const double &);
 		/// Constructor from raw arrays and maximum weight.
 		/**
@@ -76,13 +81,15 @@ class __PAGMO_VISIBLE knapsack: public base
 		 * @param[in] max_weight maximum weight.
 		 */
 		template <std::size_t N>
-		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base(boost::numeric_cast<int>(N),boost::numeric_cast<int>(N),1,1,1),
+		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base_aco(boost::numeric_cast<int>(N),1,1),
 			m_values(values,values + N),m_weights(weights,weights + N),m_max_weight(max_weight)
 		{
 			verify_init();
+			set_heuristic_information_matrix();
 		}
 		base_ptr clone() const;
 		std::string get_name() const;
+		bool check_partial_feasibility(const decision_vector &x) const;
 	protected:
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
@@ -91,7 +98,17 @@ class __PAGMO_VISIBLE knapsack: public base
 		std::string human_readable_extra() const;
 	private:
 		void verify_init() const;
+		void set_heuristic_information_matrix();
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::vector<double> &>(m_values);
+			ar & const_cast<std::vector<double> &>(m_weights);
+			ar & const_cast<double &>(m_max_weight);
+		}
 		const std::vector<double>	m_values;
 		const std::vector<double>	m_weights;
 		const double			m_max_weight;
@@ -99,5 +116,7 @@ class __PAGMO_VISIBLE knapsack: public base
 
 }
 }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::knapsack);
 
 #endif

@@ -25,13 +25,25 @@
 #ifndef PLANET_H
 #define PLANET_H
 
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
+#include <string>
+#include <vector>
+
+// Serialization code
+#include "serialization.h"
+// Serialization code (END)
+
 #include "astro_constants.h"
 #include "epoch.h"
-#include <vector>
-#include <string>
-#include <boost/lexical_cast.hpp>
 
 namespace kep_toolbox{
+
+// Forward declaration.
+class planet;
+
+typedef boost::shared_ptr<planet> planet_ptr;
+
 
 /// A Generic Planet
 /**
@@ -59,7 +71,10 @@ public:
 		* \param[in] name C++ string containing the planet name. Default value is "Unknown"
 		*/
 	planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double &radius, const double &safe_radius, const std::string &name = "Unknown");
-
+	planet():mean_motion(0),ref_mjd2000(0), radius(0), safe_radius(0), mu_self(0), mu_central_body(0) {};
+	/// Polymorphic copy constructor.
+	virtual planet_ptr clone() const;
+	virtual ~planet();
 	/** @name Getters */
 	//@{
 	/// Gets the planet position and velocity
@@ -125,7 +140,7 @@ public:
 
 	array3D get_velocity(const epoch& when) const;
 
-	/// Returns the planet orbital elements (a,e,i,Om,om,M)
+	/// Returns the planet orbital elements at a given epoch (a,e,i,Om,om,M)
 	/**
 	 * \param[in] when Epoch in which orbital elements are required
 	 *
@@ -133,7 +148,14 @@ public:
 	 * returned in range 0,2*pi
 	 */
 	array6D get_elements(const epoch& when) const;
-
+	
+	/// Returns the planet orbital elements at the reference epoch (a,e,i,Om,om,M)
+	/**
+	 * @return a boost array containing the planet elements in epoch (SI Units) (a,e,i,Om,om,M). Mean anomaly is
+	 * returned in range 0,2*pi
+	 */
+	array6D get_elements() const;
+	
 	/// Returns the planet name
 	std::string get_name() const;
 
@@ -152,8 +174,25 @@ protected:
 	* \param[in] name C++ string containing the planet name. Default value is "Unknown"
 	*/
 	void build_planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double & radius, const double & safe_radius, const std::string &name = "Unknown");
-	planet() {}
 private:
+// Serialization code
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & keplerian_elements;
+		ar & mean_motion;
+		ar & ref_mjd2000;
+		ar & radius;
+		ar & safe_radius;
+		ar & mu_self;
+		ar & mu_central_body;
+		ar & cached_epoch;
+		ar & cached_r;
+		ar & cached_v;
+		ar & m_name;
+	}
+// Serialization code (END)
 	array6D keplerian_elements;
 	double mean_motion;
 	double ref_mjd2000;
@@ -172,4 +211,9 @@ private:
 
 std::ostream &operator<<(std::ostream &s, const planet &body);
 } /// End of namespace kep_toolbox
+
+// Serialization code
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(kep_toolbox::planet);
+// Serialization code (END)
+
 #endif // PLANET_H

@@ -47,9 +47,9 @@
             typedef mpl::int_<1> type;
             #endif
             #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x570))
-            BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+            BOOST_STATIC_CONSTANT(int, value = 1);
             #else
-            BOOST_STATIC_CONSTANT(unsigned int, value = type::value);
+            BOOST_STATIC_CONSTANT(int, value = type::value);
             #endif
         };
         // don't track shared pointers

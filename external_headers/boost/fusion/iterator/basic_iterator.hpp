@@ -122,8 +122,8 @@ namespace boost { namespace fusion
           : seq(it.seq)
         {}
 
-        basic_iterator(Seq& seq, int)
-          : seq(&seq)
+        basic_iterator(Seq& in_seq, int)
+          : seq(&in_seq)
         {}
 
         template<typename OtherSeq>

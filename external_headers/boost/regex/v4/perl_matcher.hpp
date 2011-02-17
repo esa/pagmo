@@ -336,7 +336,7 @@ struct recursion_info
 {
    typedef typename Results::value_type value_type;
    typedef typename value_type::iterator iterator;
-   int id;
+   int idx;
    const re_syntax_base* preturn_address;
    Results results;
    repeater_count<iterator>* repeater_stack;
@@ -366,7 +366,7 @@ public:
       BidiIterator l_base)
       :  m_result(what), base(first), last(end), 
          position(first), backstop(l_base), re(e), traits_inst(e.get_traits()), 
-         m_independent(false), next_count(&rep_obj), rep_obj(&next_count), recursion_stack_position(0)
+         m_independent(false), next_count(&rep_obj), rep_obj(&next_count)
    {
       construct_init(e, f);
    }
@@ -468,9 +468,9 @@ private:
    // matching flags in use:
    match_flag_type m_match_flags;
    // how many states we have examined so far:
-   boost::uintmax_t state_count;
+   std::ptrdiff_t state_count;
    // max number of states to examine before giving up:
-   boost::uintmax_t max_state_count;
+   std::ptrdiff_t max_state_count;
    // whether we should ignore case or not:
    bool icase;
    // set to true when (position == last), indicates that we may have a partial match:
@@ -488,8 +488,7 @@ private:
    // the bitmask to use when determining whether a match_any matches a newline or not:
    unsigned char match_any_mask;
    // recursion information:
-   recursion_info<results_type> recursion_stack[50];
-   unsigned recursion_stack_position;
+   std::vector<recursion_info<results_type> > recursion_stack;
 
 #ifdef BOOST_REGEX_NON_RECURSIVE
    //
@@ -523,7 +522,7 @@ private:
    void push_repeater_count(int i, repeater_count<BidiIterator>** s);
    void push_single_repeat(std::size_t c, const re_repeat* r, BidiIterator last_position, int state_id);
    void push_non_greedy_repeat(const re_syntax_base* ps);
-   void push_recursion(int id, const re_syntax_base* p, results_type* presults);
+   void push_recursion(int idx, const re_syntax_base* p, results_type* presults);
    void push_recursion_pop();
 
    // pointer to base of stack:

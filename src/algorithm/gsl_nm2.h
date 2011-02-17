@@ -25,7 +25,10 @@
 #ifndef PAGMO_ALGORITHM_GSL_NM2_H
 #define PAGMO_ALGORITHM_GSL_NM2_H
 
+#include <gsl/gsl_multimin.h>
+
 #include "../config.h"
+#include "../serialization.h"
 #include "gsl_derivative_free.h"
 
 namespace pagmo { namespace algorithm {
@@ -41,8 +44,19 @@ class __PAGMO_VISIBLE gsl_nm2: public gsl_derivative_free
 	public:
 		gsl_nm2(int max_iter = 100, const double &tol = 1E-6, const double &step_size = 1);
 		base_ptr clone() const;
+	protected:
+		const gsl_multimin_fminimizer_type *get_gsl_minimiser_ptr() const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<gsl_derivative_free>(*this);
+		}
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_nm2);
 
 #endif

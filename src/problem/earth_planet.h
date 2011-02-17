@@ -29,10 +29,11 @@
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../keplerian_toolbox/sims_flanagan/codings.h"
 #include "../keplerian_toolbox/sims_flanagan/fb_traj.h"
+#include "base.h"
 
 namespace pagmo { namespace problem {
 
@@ -46,7 +47,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE earth_planet: public base
 {
 	public:
-		earth_planet(int, std::string, const double & = 1E-9);
+		earth_planet(int = 10, std::string = "mars", const double & = 1E-9);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -54,6 +55,16 @@ class __PAGMO_VISIBLE earth_planet: public base
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & encoding;
+			ar & trajectory;
+			ar & vmax;
+			ar & n_segments;
+		}
 		kep_toolbox::base_format encoding;
 		mutable kep_toolbox::sims_flanagan::fb_traj trajectory;
 		double vmax;
@@ -62,5 +73,6 @@ class __PAGMO_VISIBLE earth_planet: public base
 
 }} //namespaces
 
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::earth_planet);
 
 #endif // EARTH_PLANET_H

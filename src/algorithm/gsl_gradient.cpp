@@ -48,22 +48,17 @@ namespace pagmo { namespace algorithm {
  * Allows to specify all the parameters needed to initialise a GSL minimiser with derivatives, as specified in the GSL documentation.
  * Will fail if max_iter is negative or if at least one of the other parameters is negative.
  *
- * @param[in] minimiser GSL minimiser type.
  * @param[in] max_iter maximum number of iterations allowed.
  * @param[in] grad_tol tolerance when testing the norm of the gradient as stopping criterion.
  * @param[in] numdiff_step_size step size for the numerical computation of the gradient.
  * @param[in] tol accuracy of the line minimisation.
  * @param[in] step_size size of the first trial step.
  */
-gsl_gradient::gsl_gradient(const gsl_multimin_fdfminimizer_type *minimiser,
-	int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
+gsl_gradient::gsl_gradient(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
 	base_gsl(),
-	m_minimiser(minimiser),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_grad_tol(grad_tol),m_numdiff_step_size(numdiff_step_size),
+	m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_grad_tol(grad_tol),m_numdiff_step_size(numdiff_step_size),
 	m_step_size(step_size),m_tol(tol)
 {
-	if (!minimiser) {
-		pagmo_throw(value_error,"no minimiser specified");
-	}
 	if (step_size <= 0) {
 		pagmo_throw(value_error,"step size must be positive");
 	}
@@ -193,7 +188,9 @@ void gsl_gradient::evolve(population &pop) const
 	const std::size_t s_cont_size = boost::numeric_cast<std::size_t>(cont_size);
 	// Allocate and check the allocation results.
 	x = gsl_vector_alloc(s_cont_size);
-	s = gsl_multimin_fdfminimizer_alloc(m_minimiser,s_cont_size);
+	const gsl_multimin_fdfminimizer_type *minimiser = get_gsl_minimiser_ptr();
+	pagmo_assert(minimiser);
+	s = gsl_multimin_fdfminimizer_alloc(minimiser,s_cont_size);
 	// Check the allocations.
 	check_allocs(x,s);
 	// Fill in the starting point (from the best individual).

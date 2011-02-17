@@ -26,42 +26,42 @@ namespace boost { namespace numeric { namespace ublas {
 
     template < class T >
     class c_array_view
-	: public storage_array< c_array_view<T> > {
+        : public storage_array< c_array_view<T> > {
     private:
-	typedef c_array_view<T> self_type;
-	typedef T * pointer;
+        typedef c_array_view<T> self_type;
+        typedef T * pointer;
 
     public:
-	// TODO: think about a const pointer
-	typedef const pointer array_type;
+        // TODO: think about a const pointer
+        typedef const pointer array_type;
 
-	typedef std::size_t size_type;
-	typedef std::ptrdiff_t difference_type;
+        typedef std::size_t size_type;
+        typedef std::ptrdiff_t difference_type;
 
-	typedef T value_type;
-	typedef const T  &const_reference;
-	typedef const T  *const_pointer;
+        typedef T value_type;
+        typedef const T  &const_reference;
+        typedef const T  *const_pointer;
 
         typedef const_pointer const_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	//
-	// typedefs required by vector concept
-	//
+        //
+        // typedefs required by vector concept
+        //
 
-	typedef dense_tag  storage_category;
+        typedef dense_tag  storage_category;
         typedef const vector_reference<const self_type>    const_closure_type;
 
-	c_array_view(size_type size, array_type data) :
-	    size_(size), data_(data)
-	{}
+        c_array_view(size_type size, array_type data) :
+            size_(size), data_(data)
+        {}
 
-	~c_array_view()
-	{}
+        ~c_array_view()
+        {}
 
-	//
-	// immutable methods of container concept
-	//
+        //
+        // immutable methods of container concept
+        //
 
         BOOST_UBLAS_INLINE
         size_type size () const {
@@ -93,8 +93,8 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
     private:
-	size_type  size_;
-	array_type data_;
+        size_type  size_;
+        array_type data_;
     };
 
 
@@ -133,14 +133,14 @@ namespace boost { namespace numeric { namespace ublas {
         // ISSUE require type consistency check
         // is_convertable (IA::size_type, TA::size_type)
         typedef typename boost::remove_cv<typename vector_view_traits<JA>::value_type>::type index_type;
-	// for compatibility, should be removed some day ...
+        // for compatibility, should be removed some day ...
         typedef index_type size_type;
         // size_type for the data arrays.
         typedef typename vector_view_traits<JA>::size_type array_size_type;
         typedef typename vector_view_traits<JA>::difference_type difference_type;
         typedef const value_type & const_reference;
 
-	// do NOT define reference type, because class is read only
+        // do NOT define reference type, because class is read only
         // typedef value_type & reference;
 
         typedef IA rowptr_array_type;
@@ -149,93 +149,93 @@ namespace boost { namespace numeric { namespace ublas {
         typedef const matrix_reference<const self_type> const_closure_type;
         typedef matrix_reference<self_type> closure_type;
 
-	// FIXME: define a corresponding temporary type
+        // FIXME: define a corresponding temporary type
         // typedef compressed_vector<T, IB, IA, TA> vector_temporary_type;
 
-	// FIXME: define a corresponding temporary type
+        // FIXME: define a corresponding temporary type
         // typedef self_type matrix_temporary_type;
 
         typedef sparse_tag storage_category;
         typedef typename L::orientation_category orientation_category;
 
-	//
-	// private types for internal use
-	//
+        //
+        // private types for internal use
+        //
 
     private:
-	typedef typename vector_view_traits<index_array_type>::const_iterator const_subiterator_type;
+        typedef typename vector_view_traits<index_array_type>::const_iterator const_subiterator_type;
 
-	//
+        //
         // Construction and destruction
-	//
+        //
     private:
-	/// private default constructor because data must be filled by caller
+        /// private default constructor because data must be filled by caller
         BOOST_UBLAS_INLINE
         compressed_matrix_view () { }
 
     public:
-	BOOST_UBLAS_INLINE
+        BOOST_UBLAS_INLINE
         compressed_matrix_view (index_type n_rows, index_type n_cols, array_size_type nnz
-				, const rowptr_array_type & iptr
-				, const index_array_type & jptr
-				, const value_array_type & values):
+                                , const rowptr_array_type & iptr
+                                , const index_array_type & jptr
+                                , const value_array_type & values):
             matrix_expression<self_type> (),
             size1_ (n_rows), size2_ (n_cols), 
             nnz_ (nnz),
             index1_data_ (iptr), 
-	    index2_data_ (jptr), 
-	    value_data_ (values) {
+            index2_data_ (jptr), 
+            value_data_ (values) {
             storage_invariants ();
         }
 
-	BOOST_UBLAS_INLINE
-	compressed_matrix_view(const compressed_matrix_view& o) :
-	    size1_(size1_), size2_(size2_),
-	    nnz_(nnz_),
-	    index1_data_(index1_data_),
-	    index2_data_(index2_data_),
-	    value_data_(value_data_)
-	{}
+        BOOST_UBLAS_INLINE
+        compressed_matrix_view(const compressed_matrix_view& o) :
+            size1_(size1_), size2_(size2_),
+            nnz_(nnz_),
+            index1_data_(index1_data_),
+            index2_data_(index2_data_),
+            value_data_(value_data_)
+        {}
 
-	//
-	// implement immutable iterator types
-	//
+        //
+        // implement immutable iterator types
+        //
 
-	class const_iterator1 {};
-	class const_iterator2 {};
+        class const_iterator1 {};
+        class const_iterator2 {};
 
-	typedef reverse_iterator_base1<const_iterator1> const_reverse_iterator1;
+        typedef reverse_iterator_base1<const_iterator1> const_reverse_iterator1;
         typedef reverse_iterator_base2<const_iterator2> const_reverse_iterator2;
 
-	//
-	// implement all read only methods for the matrix expression concept
-	// 
+        //
+        // implement all read only methods for the matrix expression concept
+        // 
 
-	//! return the number of rows 
-	index_type size1() const {
-	    return size1_;
-	}
+        //! return the number of rows 
+        index_type size1() const {
+            return size1_;
+        }
 
-	//! return the number of columns
-	index_type size2() const {
-	    return size2_;
-	}
+        //! return the number of columns
+        index_type size2() const {
+            return size2_;
+        }
 
-	//! return value at position (i,j)
-	value_type operator()(index_type i, index_type j) const {
-	    const_pointer p = find_element(i,j);
-	    if (!p) {
-		return zero_;
-	    } else {
-		return *p;
-	    }
-	}
-	
+        //! return value at position (i,j)
+        value_type operator()(index_type i, index_type j) const {
+            const_pointer p = find_element(i,j);
+            if (!p) {
+                return zero_;
+            } else {
+                return *p;
+            }
+        }
+        
 
     private:
-	//
-	// private helper functions
-	//
+        //
+        // private helper functions
+        //
 
         const_pointer find_element (index_type i, index_type j) const {
             index_type element1 (layout_type::index_M (i, j));
@@ -244,22 +244,22 @@ namespace boost { namespace numeric { namespace ublas {
             const array_size_type itv      = zero_based( index1_data_[element1] );
             const array_size_type itv_next = zero_based( index1_data_[element1+1] );
 
-	    const_subiterator_type it_start = boost::next(vector_view_traits<index_array_type>::begin(index2_data_),itv);
-	    const_subiterator_type it_end = boost::next(vector_view_traits<index_array_type>::begin(index2_data_),itv_next);
+            const_subiterator_type it_start = boost::next(vector_view_traits<index_array_type>::begin(index2_data_),itv);
+            const_subiterator_type it_end = boost::next(vector_view_traits<index_array_type>::begin(index2_data_),itv_next);
             const_subiterator_type it = find_index_in_row(it_start, it_end, element2) ;
-	    
+            
             if (it == it_end || *it != k_based (element2))
                 return 0;
             return &value_data_ [it - vector_view_traits<index_array_type>::begin(index2_data_)];
         }
 
-	const_subiterator_type find_index_in_row(const_subiterator_type it_start
-						 , const_subiterator_type it_end
-						 , index_type index) const {
-	    return std::lower_bound( it_start
-				     , it_end
-				     , k_based (index) );
-	}
+        const_subiterator_type find_index_in_row(const_subiterator_type it_start
+                                                 , const_subiterator_type it_end
+                                                 , index_type index) const {
+            return std::lower_bound( it_start
+                                     , it_end
+                                     , k_based (index) );
+        }
 
 
     private:
@@ -301,13 +301,13 @@ namespace boost { namespace numeric { namespace ublas {
     template<class L, std::size_t IB, class IA, class JA, class TA  >
     compressed_matrix_view<L,IB,IA,JA,TA>
     make_compressed_matrix_view(typename vector_view_traits<JA>::value_type n_rows
-				, typename vector_view_traits<JA>::value_type n_cols
-				, typename vector_view_traits<JA>::size_type nnz
-				, const IA & ia
-				, const JA & ja
-				, const TA & ta) {
+                                , typename vector_view_traits<JA>::value_type n_cols
+                                , typename vector_view_traits<JA>::size_type nnz
+                                , const IA & ia
+                                , const JA & ja
+                                , const TA & ta) {
 
-	return compressed_matrix_view<L,IB,IA,JA,TA>(n_rows, n_cols, nnz, ia, ja, ta);
+        return compressed_matrix_view<L,IB,IA,JA,TA>(n_rows, n_cols, nnz, ia, ja, ta);
 
     }
 

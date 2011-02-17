@@ -30,8 +30,8 @@
 
 namespace pagmo { namespace problem {
 
-inventory::inventory(int weeks,int sample_size):base(weeks),m_seed(rng_generator::get<rng_uint32>()())
-,m_weeks(weeks),m_sample_size(sample_size),m_drng(m_seed)
+inventory::inventory(int weeks,int sample_size):base(weeks),m_seed(rng_generator::get<rng_uint32>()()),
+	m_weeks(weeks),m_sample_size(sample_size),m_drng(m_seed)
 {
 	set_lb(0.0);
 	set_ub(200.0);
@@ -61,9 +61,8 @@ void inventory::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 //This function tells pagmo to always re-evaluate individuals when considering individuals coming from
 //other islands
-bool inventory::equality_operator_extra(const base &other) const
+bool inventory::equality_operator_extra(const base &) const
 {
-	(void) other;
 	return false;
 }
 
@@ -79,3 +78,5 @@ void inventory::pre_evolution(population &pop) const
 
 }
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::inventory);

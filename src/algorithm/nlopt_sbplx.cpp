@@ -41,3 +41,5 @@ base_ptr nlopt_sbplx::clone() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_sbplx);

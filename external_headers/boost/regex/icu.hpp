@@ -27,6 +27,10 @@
 #include <boost/mpl/int_fwd.hpp>
 #include <bitset>
 
+#ifdef BOOST_MSVC
+#pragma warning (push)
+#pragma warning (disable: 4251)
+#endif
 
 namespace boost{
 
@@ -1014,6 +1018,10 @@ inline U_NAMESPACE_QUALIFIER UnicodeString u32regex_replace(const U_NAMESPACE_QU
 }
 
 } // namespace boost.
+
+#ifdef BOOST_MSVC
+#pragma warning (pop)
+#endif
 
 #include <boost/regex/v4/u32regex_iterator.hpp>
 #include <boost/regex/v4/u32regex_token_iterator.hpp>

@@ -38,7 +38,7 @@ namespace pagmo { namespace algorithm {
  * @see gsl_gradient::gsl_gradient().
  */
 gsl_pr::gsl_pr(int max_iter, const double &grad_tol, const double &numdiff_step_size, const double &step_size, const double &tol):
-	gsl_gradient(gsl_multimin_fdfminimizer_conjugate_pr,max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
+	gsl_gradient(max_iter,grad_tol,numdiff_step_size,step_size,tol) {}
 
 /// Clone method.
 base_ptr gsl_pr::clone() const
@@ -46,4 +46,11 @@ base_ptr gsl_pr::clone() const
 	return base_ptr(new gsl_pr(*this));
 }
 
+const gsl_multimin_fdfminimizer_type *gsl_pr::get_gsl_minimiser_ptr() const
+{
+	return gsl_multimin_fdfminimizer_conjugate_pr;
+}
+
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_pr);

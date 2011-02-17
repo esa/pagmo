@@ -24,11 +24,16 @@ namespace boost{ namespace math{
 namespace detail
 {
 
+struct big_int_type
+{
+   operator boost::uintmax_t()const;
+};
+
 template <class T>
 struct largest_cbrt_int_type
 {
    typedef typename mpl::if_<
-      boost::is_convertible<boost::uintmax_t, T>,
+      boost::is_convertible<big_int_type, T>,
       boost::uintmax_t,
       unsigned int
    >::type type;
@@ -153,7 +158,8 @@ template <class T, class Policy>
 inline typename tools::promote_args<T>::type cbrt(T z, const Policy& pol)
 {
    typedef typename tools::promote_args<T>::type result_type;
-   return detail::cbrt_imp(result_type(z), pol);
+   typedef typename policies::evaluation<result_type, Policy>::type value_type;
+   return static_cast<result_type>(detail::cbrt_imp(value_type(z), pol));
 }
 
 template <class T>

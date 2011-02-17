@@ -32,6 +32,7 @@
 #include "../config.h"
 #include "../population.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -64,12 +65,23 @@ namespace problem {
 class __PAGMO_VISIBLE inventory: public base
 {
 	public:
-		inventory(int weeks,int sample_size);
+		inventory(int = 4,int = 10);
 		base_ptr clone() const;
 	protected:
 		bool equality_operator_extra(const base &) const;
 		void pre_evolution(population &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_seed;
+			ar & m_weeks;
+			ar & m_sample_size;
+			ar & m_drng;
+		}
 	private:
 		mutable int			m_seed;
 		int				m_weeks;
@@ -79,5 +91,7 @@ class __PAGMO_VISIBLE inventory: public base
 
 }
 }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::inventory);
 
 #endif //PAGMO_PROBLEM_INVENTORY_H

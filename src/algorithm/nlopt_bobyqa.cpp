@@ -41,3 +41,5 @@ base_ptr nlopt_bobyqa::clone() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_bobyqa);

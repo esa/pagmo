@@ -5,6 +5,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include "../astro_constants.h"
 #include "../epoch.h"
+#include "../serialization.h"
 
 
 namespace kep_toolbox {
@@ -284,6 +285,13 @@ public:
 
 	int leg_start(int leg_n) const {
 	    return std::accumulate(n_thrusts_m.begin(), n_thrusts_m.begin() + leg_n, 0) * 3 + 7 * leg_n + 1;
+	}
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & n_thrusts_m;
+		ar & mass_m;
 	}
 
 	std::vector<int> n_thrusts_m;

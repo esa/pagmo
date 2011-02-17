@@ -31,6 +31,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -60,7 +61,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE ihs: public base
 {
 	public:
-		ihs(int gen, const double &phmcr = 0.85, const double &ppar_min = 0.35, const double &ppar_max = 0.99,
+		ihs(int gen = 1, const double &phmcr = 0.85, const double &ppar_min = 0.35, const double &ppar_max = 0.99,
 			const double &bw_min = 1E-5, const double &bw_max = 1);
 		base_ptr clone() const;
 		void evolve(population &) const;
@@ -68,6 +69,18 @@ class __PAGMO_VISIBLE ihs: public base
 	protected:
 		std::string human_readable_extra() const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_gen);
+			ar & const_cast<double &>(m_phmcr);
+			ar & const_cast<double &>(m_ppar_min);
+			ar & const_cast<double &>(m_ppar_max);
+			ar & const_cast<double &>(m_bw_min);
+			ar & const_cast<double &>(m_bw_max);
+		}
 		// Number of generations.
 		const std::size_t		m_gen;
 		// Rate of choosing from memory (i.e., from population).
@@ -83,5 +96,7 @@ class __PAGMO_VISIBLE ihs: public base
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::ihs);
 
 #endif

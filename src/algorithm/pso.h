@@ -26,6 +26,7 @@
 #define PAGMO_ALGORITHM_PSO_H
 
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
 
 
@@ -86,6 +87,20 @@ public:
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_omega);
+		ar & const_cast<double &>(m_eta1);
+		ar & const_cast<double &>(m_eta2);
+		ar & const_cast<double &>(m_vcoeff);
+		ar & const_cast<int &>(m_variant);
+		ar & const_cast<int &>(m_neighb_type);
+		ar & const_cast<int &>(m_neighb_param);
+	}  
 	// Number of generations
 	const int m_gen;
 	// Particle Inertia weight, or alternatively the constriction coefficient
@@ -105,5 +120,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pso);
 
 #endif // PSO_H

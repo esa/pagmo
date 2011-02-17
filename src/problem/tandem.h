@@ -29,10 +29,11 @@
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -87,8 +88,17 @@ class __PAGMO_VISIBLE tandem: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
-		static const int Data[24][5];
-		static const int sequence[5];
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & problem;
+			ar & const_cast<double &>(tof);
+			ar & copy_of_x;
+		}
+		static const int Data[24][5]; // [DS] These two arrays are not serialized as they 
+		static const int sequence[5]; // are declared as static consts
 		mgadsmproblem problem;
 		const double tof;
 		mutable std::vector<double> copy_of_x;
@@ -96,5 +106,7 @@ class __PAGMO_VISIBLE tandem: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tandem);
 
 #endif // PAGMO_PROBLEM_TANDEM_H

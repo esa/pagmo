@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -46,7 +47,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE luksan_vlcek_1: public base
 {
 	public:
-		luksan_vlcek_1(int, const double & = -10, const double & = 10);
+		luksan_vlcek_1(int = 3, const double & = -10, const double & = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -54,11 +55,20 @@ class __PAGMO_VISIBLE luksan_vlcek_1: public base
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_clb;
+			ar & m_cub;
+		}
 		std::vector<double>	m_clb;
 		std::vector<double>	m_cub;
 };
 
 }} //namespaces
 
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::luksan_vlcek_1);
 
 #endif // LUKSAN_VLCEK_1_H

@@ -9,18 +9,16 @@
 #ifndef BOOST_PROTO_DEBUG_HPP_EAN_12_31_2006
 #define BOOST_PROTO_DEBUG_HPP_EAN_12_31_2006
 
-#include <boost/preprocessor/iteration/local.hpp>
-#include <boost/preprocessor/repetition/repeat.hpp>
-#include <boost/preprocessor/stringize.hpp>
 #include <iomanip>
 #include <iostream>
 #include <typeinfo>
+#include <boost/preprocessor/stringize.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/proto/proto_fwd.hpp>
-#include <boost/proto/expr.hpp>
 #include <boost/proto/traits.hpp>
 #include <boost/proto/matches.hpp>
-#include <boost/proto/detail/dont_care.hpp>
+#include <boost/proto/fusion.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 
 namespace boost { namespace proto
 {
@@ -111,6 +109,8 @@ namespace boost { namespace proto
         /// purposes.
         struct display_expr
         {
+            BOOST_PROTO_CALLABLE()
+
             typedef void result_type;
 
             /// \param sout  The \c ostream to which the expression tree
@@ -126,48 +126,39 @@ namespace boost { namespace proto
 
             /// \brief Pretty-print the current node in a Proto expression
             /// tree.
-            template<typename Tag, typename Args>
-            void operator()(proto::expr<Tag, Args, 0> const &expr) const
+            template<typename Expr>
+            void operator()(Expr const &expr) const
             {
-                using namespace hidden_detail_;
-                this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ")
-                    << Tag() << "(" << proto::value(expr) << ")\n";
-                this->first_ = false;
-            }
-
-        #define BOOST_PROTO_CHILD(Z, N, DATA)                                                       \
-            display(proto::child_c<N>(expr));                                                       \
-            /**/
-
-        #define BOOST_PP_LOCAL_MACRO(N)                                                             \
-            /** \overload */                                                                        \
-            template<typename Tag, typename Args>                                                   \
-            void operator()(proto::expr<Tag, Args, N> const &expr) const                            \
-            {                                                                                       \
-                using namespace hidden_detail_;                                                     \
-                this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ")                 \
-                    << Tag() << "(\n";                                                              \
-                display_expr display(this->sout_, this->depth_ + 4);                                \
-                BOOST_PP_REPEAT(N, BOOST_PROTO_CHILD, _)                                            \
-                this->sout_ << std::setw(this->depth_) << "" << ")\n";                              \
-                this->first_ = false;                                                               \
-            }                                                                                       \
-            /**/
-
-        #define BOOST_PP_LOCAL_LIMITS (1, BOOST_PROTO_MAX_ARITY)
-        #include BOOST_PP_LOCAL_ITERATE()
-        #undef BOOST_PROTO_CHILD
-
-            /// \overload
-            ///
-            template<typename T>
-            void operator()(T const &t) const
-            {
-                (*this)(t.proto_base());
+                this->impl(expr, mpl::long_<arity_of<Expr>::value>());
             }
 
         private:
+            display_expr(display_expr const &);
             display_expr &operator =(display_expr const &);
+
+            template<typename Expr>
+            void impl(Expr const &expr, mpl::long_<0>) const
+            {
+                using namespace hidden_detail_;
+                typedef typename tag_of<Expr>::type tag;
+                this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ");
+                this->sout_ << tag() << "(" << proto::value(expr) << ")\n";
+                this->first_ = false;
+            }
+
+            template<typename Expr, typename Arity>
+            void impl(Expr const &expr, Arity) const
+            {
+                using namespace hidden_detail_;
+                typedef typename tag_of<Expr>::type tag;
+                this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ");
+                this->sout_ << tag() << "(\n";
+                display_expr display(this->sout_, this->depth_ + 4);
+                fusion::for_each(expr, display);
+                this->sout_ << std::setw(this->depth_) << "" << ")\n";
+                this->first_ = false;
+            }
+
             int depth_;
             mutable bool first_;
             std::ostream &sout_;

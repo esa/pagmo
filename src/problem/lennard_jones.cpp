@@ -116,3 +116,5 @@ std::string lennard_jones::get_name() const
 }
 
 }}//namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::lennard_jones);

@@ -240,7 +240,7 @@ namespace boost {
                 m_Match(Other.m_Match),
                 m_Next(Other.m_Next),
                 m_End(Other.m_End),
-                m_bEof(false)
+                m_bEof(Other.m_bEof)
             {}
 
             //! Constructor

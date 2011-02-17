@@ -60,7 +60,7 @@ void string_match::objfun_impl(fitness_vector &f, const decision_vector &x) cons
 
 std::string string_match::human_readable_extra() const
 {
-	return std::string("\tString: \"") + m_str + "\"";
+	return std::string("\tString: \"") + m_str + "\"\n";
 }
 
 std::string string_match::get_name() const
@@ -69,3 +69,5 @@ std::string string_match::get_name() const
 }
 
 } }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::string_match);

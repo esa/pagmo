@@ -277,8 +277,8 @@ public:
                 lexer_type(), 
                 pos_.get_file().c_str()
             )), 
-        seen_newline(true), must_emit_line_directive(false),
-        act_pos(ctx_.get_main_pos()),
+        seen_newline(true), skipped_newline(false), 
+        must_emit_line_directive(false), act_pos(ctx_.get_main_pos()),
         whitespace(boost::wave::need_insert_whitespace(ctx.get_language()))
     {
         act_pos.set_file(pos_.get_file());
@@ -1572,7 +1572,9 @@ fs::path native_path(wave::util::create_path(file_path));
     // preprocess the opened file
     boost::shared_ptr<base_iteration_context_type> new_iter_ctx (
         new iteration_context_type(ctx, native_path_str.c_str(), act_pos, 
-            boost::wave::enable_prefer_pp_numbers(ctx.get_language())));
+            boost::wave::enable_prefer_pp_numbers(ctx.get_language()),
+            is_system ? base_iteration_context_type::system_header :
+                base_iteration_context_type::user_header));
 
     // call the include policy trace function
 #if BOOST_WAVE_USE_DEPRECIATED_PREPROCESSING_HOOKS != 0

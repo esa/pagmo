@@ -1882,6 +1882,110 @@ get(edge_index_t, const BOOST_DISTRIB_CSR_GRAPH_TYPE& g,
   return k.idx;
 }
 
+/* Common traits for getting vertex_bundle and edge_bundle maps */
+
+namespace detail {
+  template <typename Graph, typename T> struct get_bundles;
+
+  template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS, typename T>
+  class get_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE, T> {
+    typedef BOOST_DISTRIB_CSR_GRAPH_TYPE Graph;
+    typedef typename Graph::process_group_type process_group_type;
+
+    // Extract the global property map for our key type.
+    typedef typename property_map<Graph, vertex_global_t>::const_type vertex_global_map;
+    typedef typename property_traits<vertex_global_map>::value_type vertex_locator;
+    typedef typename property_map<Graph, edge_global_t>::const_type edge_global_map;
+    typedef typename property_traits<edge_global_map>::value_type edge_locator;
+
+    // Build the local property map
+    typedef bundle_property_map<std::vector<VertexProperty>,
+                                typename vertex_locator::second_type,
+                                VertexProperty,
+                                T> vertex_local_pmap;
+
+    // Build the local const property map
+    typedef bundle_property_map<const std::vector<VertexProperty>,
+                                typename vertex_locator::second_type,
+                                VertexProperty,
+                                const T> vertex_local_const_pmap;
+
+    // Build the local property map
+    typedef bundle_property_map<std::vector<EdgeProperty>,
+                                typename edge_locator::second_type,
+                                EdgeProperty,
+                                T> edge_local_pmap;
+
+    // Build the local const property map
+    typedef bundle_property_map<const std::vector<EdgeProperty>,
+                                typename edge_locator::second_type,
+                                EdgeProperty,
+                                const T> edge_local_const_pmap;
+
+  public:
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, vertex_global_map, vertex_local_pmap> vertex_map_type;
+
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, vertex_global_map, vertex_local_const_pmap> vertex_map_const_type;
+
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, edge_global_map, edge_local_pmap> edge_map_type;
+
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, edge_global_map, edge_local_const_pmap> edge_map_const_type;
+
+  };
+
+  template <typename Graph> struct get_full_bundles;
+
+  template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
+  class get_full_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE> { // For vertex_bundle_t and edge_bundle_t
+    typedef BOOST_DISTRIB_CSR_GRAPH_TYPE Graph;
+    typedef typename Graph::process_group_type process_group_type;
+
+    // Extract the global property map for our key type.
+    typedef typename property_map<Graph, vertex_global_t>::const_type vertex_global_map;
+    typedef typename property_traits<vertex_global_map>::value_type vertex_locator;
+    typedef typename property_map<Graph, edge_global_t>::const_type edge_global_map;
+    typedef typename property_traits<edge_global_map>::value_type edge_locator;
+
+    // Build the local property maps
+    typedef typename property_map<typename Graph::base_type, vertex_bundle_t>::type vertex_local_pmap;
+    typedef typename property_map<typename Graph::base_type, vertex_bundle_t>::const_type vertex_local_const_pmap;
+    typedef typename property_map<typename Graph::base_type, edge_bundle_t>::type edge_local_pmap;
+    typedef typename property_map<typename Graph::base_type, edge_bundle_t>::const_type edge_local_const_pmap;
+
+  public:
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, vertex_global_map, vertex_local_pmap> vertex_map_type;
+
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, vertex_global_map, vertex_local_const_pmap> vertex_map_const_type;
+
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, edge_global_map, edge_local_pmap> edge_map_type;
+
+    typedef ::boost::parallel::distributed_property_map<
+              process_group_type, edge_global_map, edge_local_const_pmap> edge_map_const_type;
+
+  };
+}
+
+template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
+struct property_map<BOOST_DISTRIB_CSR_GRAPH_TYPE, vertex_bundle_t>
+{
+  typedef typename detail::get_full_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE>::vertex_map_type type;
+  typedef typename detail::get_full_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE>::vertex_map_const_type const_type;
+};
+
+template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS>
+struct property_map<BOOST_DISTRIB_CSR_GRAPH_TYPE, edge_bundle_t>
+{
+  typedef typename detail::get_full_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE>::edge_map_type type;
+  typedef typename detail::get_full_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE>::edge_map_const_type const_type;
+};
+
 // -----------------------------------------------------------------
 // Bundled Properties
 template<BOOST_DISTRIB_CSR_GRAPH_TEMPLATE_PARMS, typename T, typename Bundle>
@@ -1890,39 +1994,20 @@ class property_map<BOOST_DISTRIB_CSR_GRAPH_TYPE, T Bundle::*>
   typedef BOOST_DISTRIB_CSR_GRAPH_TYPE Graph;
   typedef typename Graph::process_group_type process_group_type;
 
-  // Determine which locator map to use (vertex or edge)
-  typedef typename mpl::if_<detail::is_vertex_bundle<VertexProperty,
-                                                     EdgeProperty,
-                                                     Bundle>,
-                            vertex_global_t, edge_global_t>::type global_t;
-
-  // Extract the global property map for our key type.
-  typedef typename property_map<Graph, global_t>::const_type global_map;
-  typedef typename property_traits<global_map>::value_type locator;
-
-  // Determine which bundle type we are using
-  typedef typename mpl::if_<detail::is_vertex_bundle<VertexProperty,
-                                                     EdgeProperty,
-                                                     Bundle>,
-                            VertexProperty, EdgeProperty>::type bundle_t;
-
 public:
-  // Build the local property map
-  typedef bundle_property_map<std::vector<bundle_t>,
-                              typename locator::second_type,
-                              bundle_t,
-                              T> local_pmap;
+  typedef typename mpl::if_<detail::is_vertex_bundle<VertexProperty,
+                                                     EdgeProperty,
+                                                     Bundle>,
+                            typename detail::get_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE, T>::vertex_map_type,
+                            typename detail::get_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE, T>::edge_map_type>
+          ::type type;
 
-  // Build the local const property map
-  typedef bundle_property_map<const std::vector<bundle_t>,
-                              typename locator::second_type,
-                              bundle_t,
-                              const T> local_const_pmap;
-  typedef ::boost::parallel::distributed_property_map<
-            process_group_type, global_map, local_pmap> type;
-
-  typedef ::boost::parallel::distributed_property_map<
-            process_group_type, global_map, local_const_pmap> const_type;
+  typedef typename mpl::if_<detail::is_vertex_bundle<VertexProperty,
+                                                     EdgeProperty,
+                                                     Bundle>,
+                            typename detail::get_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE, T>::vertex_map_const_type,
+                            typename detail::get_bundles<BOOST_DISTRIB_CSR_GRAPH_TYPE, T>::edge_map_const_type>
+          ::type const_type;
 };
 
 namespace detail {
@@ -1991,7 +2076,6 @@ get(T Bundle::* p, BOOST_DISTRIB_CSR_GRAPH_TYPE& g)
 {
   typedef BOOST_DISTRIB_CSR_GRAPH_TYPE Graph;
   typedef typename property_map<Graph, T Bundle::*>::type result_type;
-  typedef typename property_map<Graph, T Bundle::*>::local_pmap local_pmap;
 
   // Resolver
   typedef typename property_traits<result_type>::value_type value_type;
@@ -2017,8 +2101,6 @@ get(T Bundle::* p, const BOOST_DISTRIB_CSR_GRAPH_TYPE& g)
 {
   typedef BOOST_DISTRIB_CSR_GRAPH_TYPE Graph;
   typedef typename property_map<Graph, T Bundle::*>::const_type result_type;
-  typedef typename property_map<Graph, T Bundle::*>::local_const_pmap
-    local_pmap;
 
   // Resolver
   typedef typename property_traits<result_type>::value_type value_type;

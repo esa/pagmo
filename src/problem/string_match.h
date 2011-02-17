@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -47,16 +48,25 @@ class __PAGMO_VISIBLE string_match: public base
 {
 	public:
 		string_match(const std::string &);
-		string_match(const char *);
+		string_match(const char * = "Can we use it for space?");
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::string &>(m_str);
+		}
 		const std::string m_str;
 };
 
 } }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::string_match);
 
 #endif

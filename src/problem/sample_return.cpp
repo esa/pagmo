@@ -39,7 +39,7 @@ static const int AE[2] = {10,3};
 /**
  * Instantiates the sample_return problem
  */
-sample_return::sample_return(const ::kep_toolbox::planet &asteroid, const double &Tmax):base(12), m_target(asteroid),
+sample_return::sample_return(const ::kep_toolbox::planet &asteroid, const double &Tmax):base(12), m_target(asteroid.clone()),
 	 m_leg1(total_DV_rndv,EA,2,0,0,0,0,0), m_leg2(total_DV_rndv,AE,2,0,0,0,0,0),x_leg1(6),x_leg2(6),m_Tmax(Tmax)
 {
 	::kep_toolbox::epoch start_lw(2020,1,1);
@@ -50,8 +50,8 @@ sample_return::sample_return(const ::kep_toolbox::planet &asteroid, const double
 
 	for (int i = 0;i<6;++i)
 	{
-		m_leg1.asteroid.keplerian[i] = m_target.get_elements(::kep_toolbox::epoch(0))[i];
-		m_leg2.asteroid.keplerian[i] = m_target.get_elements(::kep_toolbox::epoch(0))[i];
+		m_leg1.asteroid.keplerian[i] = m_target->get_elements(::kep_toolbox::epoch(0))[i];
+		m_leg2.asteroid.keplerian[i] = m_target->get_elements(::kep_toolbox::epoch(0))[i];
 	}
 
 	//convert to JPL unit format .... (check mgadsm)
@@ -189,3 +189,5 @@ std::string sample_return::get_name() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::sample_return);

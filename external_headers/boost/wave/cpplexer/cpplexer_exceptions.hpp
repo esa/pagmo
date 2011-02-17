@@ -128,7 +128,7 @@ namespace util {
 
 ///////////////////////////////////////////////////////////////////////////////
 //  cpplexer_exception, the base class for all specific C++ lexer exceptions 
-class cpplexer_exception
+class BOOST_SYMBOL_VISIBLE cpplexer_exception
 :   public std::exception
 {
 public:
@@ -160,7 +160,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 // lexing_exception error
-class lexing_exception :
+class BOOST_SYMBOL_VISIBLE lexing_exception :
     public cpplexer_exception
 {
 public:

@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -63,8 +64,17 @@ class __PAGMO_VISIBLE snopt_toyprob: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int>&, std::vector<int>&) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::snopt_toyprob);
 
 #endif

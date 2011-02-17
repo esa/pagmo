@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -49,15 +50,23 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE lennard_jones : public base
 {
 	public:
-		lennard_jones(int);
+		lennard_jones(int = 3);
 		base_ptr clone() const;
 		std::string get_name() const;
-	private:
-		static double r(const int& atom, const int& coord, const std::vector <double>& x);
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		static double r(const int& atom, const int& coord, const std::vector <double>& x);
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::lennard_jones);
 
 #endif // PAGMO_PROBLEM_LENNARD_JONES_H

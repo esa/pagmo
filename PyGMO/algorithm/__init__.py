@@ -1,11 +1,47 @@
 # -*- coding: utf-8 -*-
 from _algorithm import *
 
+# Raw C++ base class.
+_base = _algorithm._base
+
 class base(_algorithm._base):
 	def __init__(self):
 		_algorithm._base.__init__(self)
 	def get_name(self):
 		return str(type(self))
+	def __get_deepcopy__(self):
+		from copy import deepcopy
+		return deepcopy(self)
+
+class py_test(base):
+	"""
+	Simple Monte Carlo algorithm.
+	"""
+	def __init__(self,n_iter = 10):
+		base.__init__(self)
+		self.__n_iter = n_iter
+	def evolve(self,pop):
+		if len(pop) == 0:
+			return pop
+		prob = pop.problem
+		dim, cont_dim = prob.dimension, prob.dimension - prob.i_dimension
+		lb, ub = prob.lb, prob.ub
+		import random
+		for _ in range(self.__n_iter):
+			tmp_cont = [random.uniform(lb[i],ub[i]) for i in range(cont_dim)]
+			tmp_int = [float(random.randint(lb[i],ub[i])) for i in range(cont_dim,dim)]
+			tmp_x = tmp_cont + tmp_int
+			tmp_f = prob.objfun(tmp_x)
+			tmp_c = prob.compute_constraints(tmp_x)
+			worst_idx = pop.get_worst_idx()
+			worst = pop[worst_idx]
+			if prob.compare_fc(tmp_f,tmp_c,worst.cur_f,worst.cur_c):
+				pop.set_x(worst_idx,tmp_x)
+		return pop
+	def get_name(self):
+		return "Monte Carlo (Python)"
+	def human_readable_extra(self):
+		return "n_iter=" + str(self.__n_iter)
 
 # Helper class to ease the inclusion of scipy.optimize solvers.
 class _scipy_base(base):
@@ -55,8 +91,6 @@ class scipy_fmin(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_fmin(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate
 		prob = pop.problem
@@ -73,11 +107,9 @@ class scipy_l_bfgs_b(_scipy_base):
 	"""
 	Wrapper around SciPy's l_bfgs_b optimiser.
 	"""
-	def __init__(self,maxiter = 15000,tol = 1E-5,verbose = False):
+	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin_l_bfgs_b',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_l_bfgs_b(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -103,8 +135,6 @@ class scipy_slsqp(_scipy_base):
 	def __init__(self,maxiter = 100,tol = 1E-6,verbose = False):
 		_scipy_base.__init__(self,'fmin_slsqp',True,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_slsqp(self.maxiter,self.tol,self.verbose)
 	def get_name(self):
 		return 'fmin_slsqp'
 	def evolve(self,pop):
@@ -136,11 +166,9 @@ class scipy_tnc(_scipy_base):
 	"""
 	Wrapper around SciPy's tnc optimiser.
 	"""
-	def __init__(self,maxiter = 15000,tol = 1E-6,verbose = False):
+	def __init__(self,maxiter = 100,tol = 1E-6,verbose = False):
 		_scipy_base.__init__(self,'fmin_tnc',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_tnc(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -164,11 +192,9 @@ class scipy_cobyla(_scipy_base):
 	"""
 	Wrapper around SciPy's cobyla optimiser.
 	"""
-	def __init__(self,maxiter = 1000,tol = 1E-5,verbose = False):
+	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
 		_scipy_base.__init__(self,'fmin_cobyla',True,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_cobyla(self.maxiter,self.tol,self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -204,11 +230,9 @@ class scipy_anneal(_scipy_base):
 	"""
 	Wrapper around SciPy's anneal optimiser.
 	"""
-	def __init__(self,verbose = False):
-		_scipy_base.__init__(self,'anneal',constrained = False)
+	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
+		_scipy_base.__init__(self,'anneal',False,maxiter,tol)
 		self.verbose = verbose
-	def __copy__(self):
-		return scipy_anneal(self.verbose)
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -220,9 +244,19 @@ class scipy_anneal(_scipy_base):
 		n_ec, x0, x0_comb = self._starting_params(pop)
 		# Run the optimisation.
 		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,lower = array(prob.lb,dtype=float),upper = array(prob.ub,dtype=float),
-			full_output = int(self.verbose))
+			full_output = int(self.verbose), maxiter = self.maxiter, feps = self.tol)
 		# Set the individual's chromosome in the population and return. Conserve the integer part from the
 		# original individual.
 		new_chromosome = list(retval[0]) + list(x0_comb)
 		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
 		return pop
+
+def _get_algorithm_list():
+	from PyGMO import algorithm
+	# Try importing SciPy and NumPy.
+	try:
+		import scipy, numpy
+		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))]
+	except ImportError as e:
+		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
+	return algorithm_list

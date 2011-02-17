@@ -21,37 +21,71 @@
 # Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+import core, algorithm, migration, problem, topology, test
+
+__doc__ = 'PyGMO is a pretty cool guy. eh kills aleins and doesnt afraid of anything...'
+__all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
+
+# For convenience, bring all core classes into the root namespace when importing *.
 from core import *
-import algorithm, migration, problem, topology
-from copy import copy
+__all__ += filter(lambda name: not name.startswith('_'),dir(core))
+
+problem_list = problem._get_problem_list()
+algorithm_list = algorithm._get_algorithm_list()
+island_list = core._get_island_list()
 
 def run_test():
 	from PyGMO import problem, algorithm, island
 	from numpy import mean, std
-	
-	prob_list = [problem.schwefel(10),problem.rastrigin(10),problem.rosenbrock(10),problem.griewank(10),problem.cassini_1(),problem.messenger_full()]
-#	prob_list = [ problem.cassini_1(), problem.messenger_full() ]
+	number_of_islands = 5
+	number_of_individuals = 30
+	number_of_generations = 250
 
-#	algo_list = [algorithm.de(500,0.8,0.8,2),algorithm.sa_corana(10000,1,0.1),
-#		algorithm.ihs(10000),algorithm.pso(500),algorithm.pso(500,0.65,2.0,2.0,0.2,1)]
-	algo_list = [
-#		algorithm.pso(500, 0.7298, 2.05, 2.05, 1.0, 5, 1),	# constriction coeff + gbest
-		algorithm.pso(500),					# constriction coeff + lbest-2
-#		algorithm.pso(500, 0.7298, 2.05, 2.05, 1.0, 5, 3),	# constriction coeff + von
-		algorithm.pso(500, 0.7298, 2.05, 2.05, 1.0, 6, 3),	# FIPS + von
-#		algorithm.pso(500, 0.65,   2.0,  2.0,  0.2, 1)		# original + gbest
-		]
-	
-	for algo in algo_list:
-		print('Testing algorithm: ' + str(algo))
-		for prob in prob_list:
-			print('\tTesting problem: ' + str(type(prob)) + ', Dimension: ' + str(prob.dimension))
+	prob_list = [problem.himmelblau(), problem.schwefel(10), problem.rastrigin(20), problem.griewank(5), problem.rosenbrock(4), problem.dejong(3), problem.michalewicz(5)]
+
+	#Known solutions to the optimization problems
+	prob_optimum = [0, 0, 0, 0, 0, 0, -4.687]
+
+	algo_list = [algorithm.pso(number_of_generations), algorithm.de(number_of_generations,0.8,0.8),algorithm.sa_corana(number_of_generations,1,0.1), algorithm.ihs(number_of_generations), algorithm.cs(number_of_generations, 0.1, 0.25), algorithm.bee_colony(number_of_generations), algorithm.firefly(number_of_generations) ]
+
+	for j in range(0,len(prob_list)):
+		print('Testing problem: ' + str(type(prob_list[j])) + ', Dimension: ' + str(prob_list[j].dimension))
+		for algo in algo_list:
+			print('        Testing algorithm: ' + str(algo))
 			best = []
-			for i in range(0,100):
-				isl = island(prob,algo,20)
+			best_x = []
+			for i in range(0,number_of_islands):
+				isl = island(prob_list[j],algo,number_of_individuals)
 				isl.evolve(1)
 				isl.join()
 				best.append(isl.population.champion.f)
-			print('\t\tBest:\t' + str(min(best)))
-			print('\t\tMean:\t' + str(mean(best)))
-			print('\t\tStd:\t' + str(std(best)))
+				best_x.append(isl.population.champion.x)
+			print('                Best:\t' + str(min(best)[0] - prob_optimum[j]))
+			print('                Mean:\t' + str(mean(best) - prob_optimum[j]))
+			print('                Std:\t' + str(std(best)))
+
+def test_aco():
+	from PyGMO import problem, algorithm, island
+	from numpy import mean, std
+	number_of_islands = 5
+	number_of_individuals = 30
+	number_of_generations = 50
+	w = [ [0,1,100,1], [1,0,1,100], [100,1,0,1], [1, 100, 1, 0]]
+	prob_list = [problem.tsp(w)]
+	algo_list = [algorithm.aco(number_of_generations)]
+	for j in range(0,len(prob_list)):
+		print('Testing problem: ' + str(type(prob_list[j])) + ', Dimension: ' + str(prob_list[j].dimension))
+		for algo in algo_list:
+			print('        Testing algorithm: ' + str(algo))
+			best = []
+			best_x = []
+			for i in range(0,number_of_islands):
+				isl = island(prob_list[j],algo,number_of_individuals)
+				isl.evolve(1)
+				isl.join()
+				best.append(isl.population.champion.f)
+				best_x.append(isl.population.champion.x)
+				print('                Best fitness:\t' + str(best[i]))
+				print('                Best solution:\t' + str(best_x[i]))
+
+

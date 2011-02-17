@@ -41,6 +41,12 @@
 
 namespace pagmo
 {
+
+problem::base_ptr &population_access::get_problem_ptr(population &pop)
+{
+	return pop.m_prob;
+}
+
 /// Constructor from problem::base and number of individuals.
 /**
  * Will store a copy of the problem and will initialise the population to n randomly-generated individuals.
@@ -180,10 +186,8 @@ void population::reinit(const size_type &idx)
  * @param[in] p population used to initialise this.
  */
 population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),
-	m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng) {}
-
-// Default constructor. For use only by pagmo::island.
-population::population() {}
+	m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng)
+{}
 
 /// Assignment operator.
 /**
@@ -196,6 +200,7 @@ population::population() {}
 population &population::operator=(const population &p)
 {
 	if (this != &p) {
+		pagmo_assert(m_prob && p.m_prob);
 		// Perform the copies.
 		m_prob = p.m_prob->clone();
 		m_container = p.m_container;

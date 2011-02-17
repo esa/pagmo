@@ -25,10 +25,12 @@
 #ifndef PAGMO_ALGORITHM_GSL_BFGS2_H
 #define PAGMO_ALGORITHM_GSL_BFGS2_H
 
+#include <gsl/gsl_multimin.h>
 #include <string>
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "gsl_gradient.h"
 
 namespace pagmo { namespace algorithm {
@@ -44,8 +46,19 @@ class __PAGMO_VISIBLE gsl_bfgs2: public gsl_gradient
 	public:
 		gsl_bfgs2(int = 100, const double & = 1E-8, const double & = 1E-8, const double & = 0.01, const double & = 0.1);
 		base_ptr clone() const;
+	protected:
+		const gsl_multimin_fdfminimizer_type *get_gsl_minimiser_ptr() const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<gsl_gradient>(*this);
+		}
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_bfgs2);
 
 #endif

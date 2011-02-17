@@ -68,8 +68,11 @@ std::string base::get_name() const
 std::string base::human_readable() const
 {
 	std::ostringstream s;
-	s << get_name() << " - ";
-	s << human_readable_extra();
+	s << "Algorithm name: " << get_name();
+	const std::string tmp(human_readable_extra());
+	if (tmp.size()) {
+		s << " - " << tmp;
+	}
 	return s.str();
 }
 
@@ -82,20 +85,6 @@ std::string base::human_readable() const
 std::string base::human_readable_extra() const
 {
 	return std::string();
-}
-
-/// Algorithm's blocking property.
-/**
- * Return true if the algorithm blocks the asynchronous evolution of an island/archipelago, false otherwise.
- * A blocking algorithm won't allow the flow of the program to continue before evolution in an island/archipelago has finished.
- * This property is used in Python problems.
- * Default implementation returns false.
- *
- * @return true if the algorithm is blocking, false otherwise.
- */
-bool base::is_blocking() const
-{
-	return false;
 }
 
 /// Overload stream operator for algorithm::base.

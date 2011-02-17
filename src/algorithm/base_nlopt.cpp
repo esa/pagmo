@@ -144,6 +144,8 @@ void base_nlopt::evolve(population &pop) const
 	}
 	// Main NLopt call.
 	double retval;
+	// This is a dummy variable not used.
+	std::vector<double> xtol_abs(boost::numeric_cast<std::vector<double>::size_type>(cont_size));
 	decision_vector x(best_ind.cur_x);
 	m_last_status = nlopt_minimize_constrained(
 		m_algo,
@@ -159,7 +161,7 @@ void base_nlopt::evolve(population &pop) const
 		&x[0],
 		&retval,
 		-HUGE_VAL,
-		m_tol,0,0,NULL,boost::numeric_cast<int>(m_max_iter),0
+		m_tol,0,0,&xtol_abs[0],boost::numeric_cast<int>(m_max_iter),0
 	);
 	pop.set_x(best_ind_idx,x);
 }

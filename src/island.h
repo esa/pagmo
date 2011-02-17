@@ -36,6 +36,24 @@
 #include "migration/fair_r_policy.h"
 #include "population.h"
 #include "problem/base.h"
+#include "serialization.h"
+
+// Forward declarations.
+namespace pagmo {
+
+class island;
+
+}
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+void save_construct_data(Archive &, const pagmo::island *, const unsigned int);
+
+template <class Archive>
+inline void load_construct_data(Archive &, pagmo::island *, const unsigned int);
+
+}}
 
 namespace pagmo
 {
@@ -51,22 +69,21 @@ class __PAGMO_VISIBLE island: public base_island
 {
 	public:
 		island(const island &);
-		explicit island(const problem::base &, const algorithm::base &, int = 0,
+		explicit island(const algorithm::base &, const problem::base &, int = 0,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
-		explicit island(const population &, const algorithm::base &,
+		explicit island(const algorithm::base &, const population &,
 			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
 		island &operator=(const island &);
 		base_island_ptr clone() const;
+	protected:
 		/** @name Evolution.
 		 * Methods related to island evolution.
 		 */
 		//@{
-		bool is_thread_blocking() const;
-	protected:
 		void perform_evolution(const algorithm::base &, population &) const;
 		//@}
 	public:
@@ -74,8 +91,48 @@ class __PAGMO_VISIBLE island: public base_island
 		//@{
 		std::string get_name() const;
 		//@}
+	private:
+		template <class Archive>
+		friend void boost::serialization::save_construct_data(Archive &, const island *, const unsigned int);
+		template <class Archive>
+		friend void boost::serialization::load_construct_data(Archive &, island *, const unsigned int);
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			// Join will be done here already.
+			ar & boost::serialization::base_object<base_island>(*this);
+		}
 };
 
 }
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+inline void save_construct_data(Archive &ar, const pagmo::island *isl, const unsigned int)
+{
+	// Save data required to construct instance.
+	pagmo::algorithm::base_ptr algo = isl->m_algo->clone();
+	pagmo::problem::base_ptr prob = isl->m_pop.problem().clone();
+	ar << algo;
+	ar << prob;
+}
+
+template <class Archive>
+inline void load_construct_data(Archive &ar, pagmo::island *isl, const unsigned int)
+{
+	// Retrieve data from archive required to construct new instance.
+	pagmo::algorithm::base_ptr algo;
+	pagmo::problem::base_ptr prob;
+	ar >> algo;
+	ar >> prob;
+	// Invoke inplace constructor to initialize instance of the algorithm.
+	::new(isl)pagmo::island(*algo,*prob);
+}
+
+}} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::island);
 
 #endif

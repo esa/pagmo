@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -49,6 +50,14 @@ class __PAGMO_VISIBLE ring: public base
 	protected:
 		void connect(const vertices_size_type &);
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_first;
+			ar & m_last;
+		}
 		// Tracks the identifier of the first inserted vertex.
 		vertices_size_type	m_first;
 		// Tracks the identifier of the last inserted vertex.
@@ -56,5 +65,7 @@ class __PAGMO_VISIBLE ring: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::ring);
 
 #endif

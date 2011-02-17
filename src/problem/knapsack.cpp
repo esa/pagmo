@@ -35,6 +35,26 @@
 
 namespace pagmo { namespace problem {
 
+static const double knapsack_default_values[5] = {1,2,3,4,5};
+static const double knapsack_default_weights[5] = {10,40,30,50,20};
+static const double knapsack_default_max_weight = 100;
+
+/// Default constructor.
+/**
+ * Initialises the problem with the following default parameters:
+ * - values: [1,2,3,4,5]
+ * - weights: [10,40,30,50,20]
+ * - max_weight: 100
+ */
+knapsack::knapsack():base_aco(boost::numeric_cast<int>(5),1,1),
+	m_values(knapsack_default_values,knapsack_default_values + 5),
+	m_weights(knapsack_default_weights,knapsack_default_weights + 5),
+	m_max_weight(knapsack_default_max_weight)
+{
+	verify_init();
+	set_heuristic_information_matrix();
+}
+
 /// Constructor from vectors and maximum weight.
 /**
  * Initialise the values and weights of the items from vectors, and maximum weight to max_weight. Will fail if max_weight is negative,
@@ -45,10 +65,11 @@ namespace pagmo { namespace problem {
  * @param[in] max_weight maximum weight.
  */
 knapsack::knapsack(const std::vector<double> &values, const std::vector<double> &weights, const double &max_weight):
-	base(boost::numeric_cast<int>(values.size()),boost::numeric_cast<int>(values.size()),1,1,1),
+	base_aco(boost::numeric_cast<int>(values.size()),1,1),
 	m_values(values),m_weights(weights),m_max_weight(max_weight)
 {
 	verify_init();
+	set_heuristic_information_matrix();
 }
 
 /// Clone method.
@@ -116,15 +137,45 @@ std::string knapsack::human_readable_extra() const
 // Verify that sane values have been input during construction.
 void knapsack::verify_init() const
 {
-	if (m_values.size() != m_weights.size() || m_max_weight < 0) {
+	if (m_values.size() != m_weights.size() || m_max_weight <= 0) {
 		pagmo_throw(value_error,"invalid value(s) in construction of the knapsack problem");
 	}
 	for (std::vector<double>::size_type i = 0; i < m_values.size(); ++i) {
-		if (m_values[i] < 0 || m_weights[i] < 0) {
+		if (m_values[i] <= 0 || m_weights[i] <=  0) {
 			pagmo_throw(value_error,"invalid value(s) in construction of the knapsack problem");
 		}
 	}
 }
+
+//We use as heuristic information the ratio value/weight. Higher is it, better is the path
+//and since knapsack is a maximization problem the probability for the edge to be chosen is higher
+void knapsack::set_heuristic_information_matrix() {
+	//allocates the memory for eta.
+	create_heuristic_information_matrix();
+	
+	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
+		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
+			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {
+				// Division by zero here is avoided by verify_init.
+				m_eta[k][i][j][0] = m_values[i] / m_weights[i];
+			}
+		}
+	}
+}
+
+bool knapsack::check_partial_feasibility(const decision_vector &x) const {
+	double tot_weight = 0;
+	for (problem::base::size_type i = 0; i < x.size(); ++i) {
+		if(boost::numeric_cast<int>(x[i]) == 1) {
+			tot_weight += m_weights[i];
+			if (tot_weight > m_max_weight) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 
 std::string knapsack::get_name() const
 {
@@ -133,3 +184,5 @@ std::string knapsack::get_name() const
 
 }
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::knapsack);

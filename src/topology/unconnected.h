@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -49,8 +50,17 @@ class __PAGMO_VISIBLE unconnected: public base
 		std::string get_name() const;
 	protected:
 		void connect(const vertices_size_type &);
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 } }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::unconnected);
 
  #endif

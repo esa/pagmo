@@ -23,6 +23,7 @@
 #include <boost/preprocessor/seq/seq.hpp>
 #include <boost/preprocessor/tuple/eat.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/mpl/bool.hpp>
 #include <boost/mpl/tag.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
@@ -116,7 +117,7 @@
             static type                                                         \
             call(Seq& seq)                                                      \
             {                                                                   \
-                return seq.PREFIX                                               \
+                return seq.PREFIX()                                             \
                     BOOST_PP_TUPLE_ELEM(ATTRIBUTE_TUPEL_SIZE, 1, ATTRIBUTE);    \
             }                                                                   \
         };                                                                      \
@@ -141,7 +142,12 @@
     };
 
 #define BOOST_FUSION_ADAPT_STRUCT_BASE(                                         \
-    TEMPLATE_PARAMS_SEQ,NAME_SEQ,TAG,ATTRIBUTES_SEQ,ATTRIBUTES_CALLBACK)        \
+    TEMPLATE_PARAMS_SEQ,                                                        \
+    NAME_SEQ,                                                                   \
+    TAG,                                                                        \
+    IS_VIEW,                                                                    \
+    ATTRIBUTES_SEQ,                                                             \
+    ATTRIBUTES_CALLBACK)                                                        \
                                                                                 \
 namespace boost                                                                 \
 {                                                                               \
@@ -169,6 +175,16 @@ namespace boost                                                                 
             >                                                                   \
             struct struct_size<BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ)> \
               : mpl::int_<BOOST_PP_SEQ_SIZE(ATTRIBUTES_SEQ)>                    \
+            {};                                                                 \
+                                                                                \
+            template<                                                           \
+                BOOST_FUSION_ADAPT_STRUCT_UNPACK_TEMPLATE_PARAMS(               \
+                    TEMPLATE_PARAMS_SEQ)                                        \
+            >                                                                   \
+            struct struct_is_view<                                              \
+                BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ)                 \
+            >                                                                   \
+              : mpl::BOOST_PP_IF(IS_VIEW,true_,false_)                          \
             {};                                                                 \
         }                                                                       \
     }                                                                           \

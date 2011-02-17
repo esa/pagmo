@@ -27,6 +27,7 @@
 
 #include <string>
 
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -51,13 +52,22 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE griewank : public base
 {
 	public:
-		griewank(int);
+		griewank(int = 1);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::griewank);
 
 #endif // PAGMO_PROBLEM_GRIEWANK_H

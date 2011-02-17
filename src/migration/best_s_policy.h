@@ -29,6 +29,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 #include "base_s_policy.h"
 
@@ -49,9 +50,16 @@ class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 		std::vector<population::individual_type> select(const population &) const;
 	private:
 		struct dom_comp;
-
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base_s_policy>(*this);
+		}
 };
 
 } }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::best_s_policy);
 
 #endif

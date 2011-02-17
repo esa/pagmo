@@ -393,7 +393,6 @@ public:
       std::swap(m_subs, that.m_subs);
       std::swap(m_named_subs, that.m_named_subs);
       std::swap(m_last_closed_paren, that.m_last_closed_paren);
-      std::swap(m_is_singular, that.m_is_singular);
       if(m_is_singular)
       {
          if(!that.m_is_singular)
@@ -412,6 +411,7 @@ public:
          std::swap(m_base, that.m_base);
          std::swap(m_null, that.m_null);
       }
+      std::swap(m_is_singular, that.m_is_singular);
    }
    bool operator==(const match_results& that)const
    {
@@ -457,7 +457,7 @@ public:
    void BOOST_REGEX_CALL set_second(BidiIterator i, size_type pos, bool m = true, bool escape_k = false)
    {
       if(pos)
-         m_last_closed_paren = pos;
+         m_last_closed_paren = static_cast<int>(pos);
       pos += 2;
       BOOST_ASSERT(m_subs.size() > pos);
       m_subs[pos].second = i;

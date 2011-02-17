@@ -93,3 +93,5 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::worst_r_policy);

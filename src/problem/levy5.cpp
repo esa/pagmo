@@ -43,6 +43,9 @@ namespace pagmo { namespace problem {
  */
 levy5::levy5(int n):base(n)
 {
+	if (n < 2) {
+		pagmo_throw(value_error,"the Levy5 problem's dimension must be at least 2");
+	}
 	// Set bounds.
 	set_lb(-100);
 	set_ub(100);
@@ -82,3 +85,5 @@ std::string levy5::get_name() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::levy5);

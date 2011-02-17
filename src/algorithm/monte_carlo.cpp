@@ -97,3 +97,5 @@ std::string monte_carlo::human_readable_extra() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::monte_carlo);

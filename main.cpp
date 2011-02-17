@@ -24,38 +24,31 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "src/pagmo.h"
-#include "src/keplerian_toolbox/keplerian_toolbox.h"
 
 using namespace pagmo;
-using namespace kep_toolbox;
 
 int main()
 {
+// This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
+// see what othert parameters do
+ pagmo::algorithm::de algo(500,0.8,0.8,3);
 
-	problem::gtoc_2 prob(815,300,110,47,10);
+ //This instantiate a 20 dimensional Schwefel problem
+ pagmo::problem::cassini_1 prob;
 
-	population pop(prob,1);
-	decision_vector tmp = pop.get_individual(0).cur_x;
-	tmp[0] = 59870; tmp[1] = 60283 - 59870;
-	tmp[3] = 61979 - 60373; tmp[5] = 62647 - 62069;
-	tmp [7] = 63196 - 62737;
-	tmp[8] = 1300; tmp[9] = 1100; tmp[10]= 900; tmp[11] = 700;
-	pop.set_x(0, tmp);
-	algorithm::snopt algo(1000,1E-9,1E-9);
-	algo.screen_output(true);
-	
-	island isl(pop,algo);
+ //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
+ //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
+ pagmo::island isl = island(algo,prob,20);
 
-	//std::cout << prob << std::endl;
+ //This prints on screen the instantiated Schwefel problem
+ std::cout << prob << std::endl;
 
-	isl.evolve();isl.join();
-
-	std::cout << prob.pretty(isl.get_population().champion().x) << std::endl;
-
-	return 0;
+ //Evolution is here started
+ for (int i=0; i< 200; ++i){
+   isl.evolve(); isl.join();
+   std::cout << isl.get_population().champion().f[0] << " " << std::endl;
+ }
+ return 0;
 }

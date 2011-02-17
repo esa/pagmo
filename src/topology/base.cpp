@@ -101,9 +101,9 @@ std::string base::get_name() const
 std::string base::human_readable_terse() const
 {
 	std::ostringstream s;
-	s << "Topology type:\t" << get_name() << '\n';
-	s << "\tNumber of vertices:\t" << get_number_of_vertices() << '\n';
-	s << "\tNumber of edges:\t" << get_number_of_edges() << '\n';
+	s << "Topology type: " << get_name() << '\n';
+	s << "\tNumber of vertices: " << get_number_of_vertices() << '\n';
+	s << "\tNumber of edges: " << get_number_of_edges() << '\n';
 	s << human_readable_extra() << '\n';
 	return s.str();
 }

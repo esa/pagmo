@@ -29,8 +29,8 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
-
 
 namespace pagmo { namespace algorithm {
 
@@ -61,17 +61,27 @@ namespace pagmo { namespace algorithm {
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
-		
+
 class __PAGMO_VISIBLE de: public base
 {
 public:
-	de(int, const double & = 0.8, const double & = 0.9, int = 2);
+	de(int = 1, const double & = 0.8, const double & = 0.9, int = 2);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_f);
+		ar & const_cast<double &>(m_cr);
+		ar & const_cast<int &>(m_strategy);
+	}
 	// Number of generations.
 	const int m_gen;
 	// Weighting factor
@@ -82,6 +92,8 @@ private:
 	const int m_strategy;
 };
 
-}} //namespaces
+}}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::de);
 
 #endif // DE_H

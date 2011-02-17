@@ -103,13 +103,10 @@ public:
     void close(BOOST_IOS::openmode which, Device* dev)
     { any_impl::close(t_, dev, which); }
 
-    bool flush( BOOST_IOSTREAMS_BASIC_STREAMBUF(char_type,
-                BOOST_IOSTREAMS_CHAR_TRAITS(char_type))* sb )
-    { 
-        bool result = any_impl::flush(t_, sb);
-        if (sb && sb->BOOST_IOSTREAMS_PUBSYNC() == -1)
-            result = false;
-        return result;
+    template<typename Device>
+    bool flush( Device* dev )
+    {
+        return any_impl::flush(t_, dev);
     }
 
     template<typename Locale> // Avoid dependency on <locale>

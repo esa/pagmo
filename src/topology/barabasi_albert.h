@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -60,6 +61,16 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 		void connect(const vertices_size_type &);
 		std::string human_readable_extra() const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_m0);
+			ar & const_cast<std::size_t &>(m_m);
+			ar & m_drng;
+			ar & m_urng;
+		}  
 		// Size of the kernel - the starting number of nodes.
 		const std::size_t	m_m0;
 		// Number of edges per newly-inserted node.
@@ -71,5 +82,7 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::barabasi_albert);
 
 #endif

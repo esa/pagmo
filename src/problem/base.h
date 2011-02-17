@@ -36,11 +36,10 @@
 #include <iterator>
 #include <string>
 
-#include "../atomic_counters/atomic_counters.h"
 #include "../config.h"
 #include "../exceptions.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "../rng.h"
 
 namespace pagmo
 {
@@ -62,6 +61,7 @@ typedef boost::shared_ptr<base> base_ptr;
 
 /// Base problem class.
 /**
+ * \section Introduction
  * This class represents a box-bounded, multiobjective, mixed-integer, constrained optimisation problem defined by:
  * - a global dimension, i.e., the number of dimensions of the global search space,
  * - the dimension of the integral (or combinatorial) part of the problem,
@@ -69,7 +69,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * - the total number of constraints,
  * - the number of inequality constraints (never exceeding the total number of constraints),
  * - a constraint computation function,
- * - an objective function that take as input a mixed-integer decision vector and returns a vector of fitnesses,
+ * - an objective function that takes as input a decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function,
  * - a constraints tolerance.
  *
@@ -103,12 +103,36 @@ typedef boost::shared_ptr<base> base_ptr;
  * mandatorily by an algorithm: each algorithm can decide to use its own ranking schemes during an optimisation. The ranking methods provided
  * by the problem are always used instead during the migration of decision vectors from one island to the other.
  *
+ * \section Serialization
+ * The problem classes are serialized for the purpose of transmitting their corresponding objects over a distributed environment, as being part of the population class.
+ * Serializing a derived problem requires that the needed serialization libraries be declared in the header of the derived class. 
+ * Virtually all the derived problem classes need to have the following declared in their header files:
+@verbatim
+	friend class boost::serialization::access;
+	template<class Archive>
+@endverbatim
+ * Each derived class must implement implicitly, in its header file, the serialize method, which must contain the pointer to the base class like:
+@verbatim
+	ar & boost::serialization::base_object<base>(*this);
+@endverbatim
+ * and the rest of the attributes simply as archive members: 
+@verbatim
+	ar & attribute_name;
+@endverbatim
+ * In order to be able to identify the dervied problem class when deserializing an object declared as a base_pointer, the derived problem class needs to be registered. In the case where your derived problem class has a default constructor, this is done by registering the class in the "pagmo/src/problems.h", in the REGISTER_PROBLEM_SERIALIZATIONS() routine, by adding:
+@verbatim
+ar.template register_type<problem::derived_problem>();
+@endverbatim
+ * In the case where the derived problem does not have a default constructor, the serialization functions "load_construct_data" and "save_construct_data" need to be overriden. This done by invoking the non-default constructor in-place (in the load_construct_data) to initilize the memory (Examples can be found in the implemented problems or in the Boost Serialization libraray unde "Non-default constructor" section).W
+ * Notes: 
+ * - "const" attributes need to be cast as constants in the serialize method using const_cast
+ * - attributes that that are not primitives, need be a serialized type as well
+ * - pointers to primitives cannot be serialized (in this case one can split the serialize method into save/load methods and store the values, that the pointers refer to, into temporary variables which are serialized insted - see boost serialize documentation on the topic if needed)
+ *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE base
 {
-		friend std::size_t __PAGMO_VISIBLE_FUNC objfun_calls();
-		friend void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
 		// Underlying containers used for caching decision and fitness vectors.
 		typedef boost::circular_buffer<decision_vector> decision_vector_cache_type;
 		typedef boost::circular_buffer<fitness_vector> fitness_vector_cache_type;
@@ -385,17 +409,16 @@ return base_ptr(new derived_problem(*this));
 		 */
 		virtual base_ptr clone() const = 0;
 		std::string human_readable() const;
+		virtual std::string human_readable_extra() const;
 		bool operator==(const base &) const;
 		bool operator!=(const base &) const;
 		bool is_compatible(const base &) const;
 		bool compare_x(const decision_vector &, const decision_vector &) const;
 		bool verify_x(const decision_vector &) const;
 		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
-		virtual bool is_blocking() const;
 		virtual void pre_evolution(population &) const;
 		virtual void post_evolution(population &) const;
 	protected:
-		virtual std::string human_readable_extra() const;
 		virtual bool equality_operator_extra(const base &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		virtual bool compare_constraints_impl(const constraint_vector &, const constraint_vector &) const;
@@ -449,6 +472,26 @@ return base_ptr(new derived_problem(*this));
 			}
 		}
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & const_cast<size_type &>(m_i_dimension);
+			ar & const_cast<f_size_type &>(m_f_dimension);
+			ar & const_cast<c_size_type &>(m_c_dimension);
+			ar & const_cast<c_size_type &>(m_ic_dimension);
+			ar & m_lb;
+			ar & m_ub;
+			ar & const_cast<double &>(m_c_tol);
+			ar & m_decision_vector_cache_f;
+			ar & m_fitness_vector_cache;
+			ar & m_decision_vector_cache_c;
+			ar & m_constraint_vector_cache;
+			ar & m_tmp_f1;
+			ar & m_tmp_f2;
+			ar & m_tmp_c1;
+			ar & m_tmp_c2;
+		}  
 		// Data members.
 		// Size of the integer part of the problem.
 		const size_type				m_i_dimension;
@@ -478,16 +521,13 @@ return base_ptr(new derived_problem(*this));
 		// Temporary storage used during constraints satisfaction testing and constraints comparison.
 		mutable constraint_vector		m_tmp_c1;
 		mutable constraint_vector		m_tmp_c2;
-		// Objective function calls counter.
-		static atomic_counter_size_t		m_objfun_counter;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 
-std::size_t __PAGMO_VISIBLE_FUNC objfun_calls();
-void __PAGMO_VISIBLE_FUNC reset_objfun_calls();
+}
+}
 
-}
-}
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base);
 
 #endif

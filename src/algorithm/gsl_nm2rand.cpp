@@ -37,7 +37,7 @@ namespace pagmo { namespace algorithm {
  * @see gsl_gradient::gsl_derivative_free().
  */
 gsl_nm2rand::gsl_nm2rand(int max_iter, const double &tol, const double &step_size):
-	gsl_derivative_free(gsl_multimin_fminimizer_nmsimplex2rand,max_iter,tol,step_size) {}
+	gsl_derivative_free(max_iter,tol,step_size) {}
 
 /// Clone method.
 /**
@@ -48,4 +48,11 @@ base_ptr gsl_nm2rand::clone() const
 	return base_ptr(new gsl_nm2rand(*this));
 }
 
+const gsl_multimin_fminimizer_type *gsl_nm2rand::get_gsl_minimiser_ptr() const
+{
+	return gsl_multimin_fminimizer_nmsimplex2rand;
+}
+
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm2rand);

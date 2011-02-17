@@ -27,7 +27,11 @@
 
 #include <string>
 
-#include"planet.h"
+// Serialization code
+#include "serialization.h"
+// Serialization code (END)
+
+#include "planet.h"
 
 
 namespace kep_toolbox{
@@ -45,18 +49,32 @@ class planet_mpcorb : public planet
 {
 public:
 	/**
-	 * Construct a minor planet from a line of the MPCORB.DAT file
+	 * Construct a minor planet from a line of the MPCORB.DAT file. Default value is the MPCORB.DAT line
+	 * for the dwarf planet Ceres.
 	 * \param[in] name a string containing one line of MPCORB.DAT
-	 * \throws value_error if MPCORB.DAT is not found or name is not found in the file.
 	 */
-	planet_mpcorb(const std::string &line);
+	planet_mpcorb(const std::string & = "00001    3.34  0.12 K107N 113.41048   72.58976   80.39321   10.58682  0.0791382  0.21432817   2.7653485  0 MPO110568  6063  94 1802-2006 0.61 M-v 30h MPCW       0000      (1) Ceres              20061025");
+	planet_ptr clone() const;
 	static epoch packed_date2epoch(std::string);
 
 private:
+// Serialization code
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<planet>(*this);
+	}
+// Serialization code (END)
+
 	static int packed_date2number(char c);
 };
 
 
 } /// End of namespace kep_toolbox
+
+// Serialization code
+BOOST_CLASS_EXPORT(kep_toolbox::planet_mpcorb);
+// Serialization code (END)
 
 #endif // PLANET_MPCORB_H

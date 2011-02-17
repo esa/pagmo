@@ -56,6 +56,7 @@
 #include "boost/mpl/eval_if.hpp"
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/bool.hpp"
+#include "boost/mpl/not.hpp"
 #include "boost/mpl/empty.hpp"
 #include "boost/mpl/find_if.hpp"
 #include "boost/mpl/front.hpp"
@@ -698,6 +699,9 @@ public: // internal visitor interfaces
         ::boost::detail::variant::move_swap( operand, other );
     }
 
+private:
+    swap_with& operator=(const swap_with&);
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -758,6 +762,9 @@ public: // visitor interfaces
         // ...and compare lhs and rhs contents:
         return Comp()(lhs_content, rhs_content);
     }
+
+private:
+    comparer& operator=(const comparer&);
 
 };
 

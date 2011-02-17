@@ -34,13 +34,15 @@
 #include "config.h"
 #include "problem/base.h"
 #include "rng.h"
+#include "serialization.h"
 #include "types.h"
 
 namespace pagmo
 {
 
-// Forward declaration of island class, needed for friendship.
+// Forward declarations.
 class base_island;
+struct population_access;
 
 /// Population class.
 /**
@@ -57,67 +59,120 @@ class base_island;
 class __PAGMO_VISIBLE population
 {
 		friend class base_island;
+		friend struct population_access;
 	public:
 		/// Individuals stored in the population.
 		/**
 		 * Individuals store the current decision and velocity vectors, the current constraint vector and the current fitness vector. They also
 		 * keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
 		 */
-		struct individual_type {
-			/// Current decision vector.
-			decision_vector		cur_x;
-			/// Current velocity vector.
-			decision_vector		cur_v;
-			/// Current constraint vector.
-			constraint_vector	cur_c;
-			/// Current fitness vector.
-			fitness_vector		cur_f;
-			/// Best decision vector so far.
-			decision_vector		best_x;
-			/// Best constraint vector so far.
-			constraint_vector	best_c;
-			/// Best fitness vector so far.
-			fitness_vector		best_f;
-			/// Human-readable representation.
-			/**
-			 * @return formatted string containing the values of the data members.
-			 */
-			std::string human_readable() const
-			{
-				std::ostringstream oss;
-				oss << "\tDecision vector:\t\t" << cur_x << '\n';
-				oss << "\tVelocity vector:\t\t" << cur_v << '\n';
-				oss << "\tConstraint vector:\t\t" << cur_c << '\n';
-				oss << "\tFitness vector:\t\t\t" << cur_f << '\n';
-				oss << "\tBest decision vector:\t\t" << best_x << '\n';
-				oss << "\tBest constraint vector:\t\t" << best_c << '\n';
-				oss << "\tBest fitness vector:\t\t" << best_f << '\n';
-				return oss.str();
-			}
+		struct individual_type
+		{
+				/// Current decision vector.
+				decision_vector		cur_x;
+				/// Current velocity vector.
+				decision_vector		cur_v;
+				/// Current constraint vector.
+				constraint_vector	cur_c;
+				/// Current fitness vector.
+				fitness_vector		cur_f;
+				/// Best decision vector so far.
+				decision_vector		best_x;
+				/// Best constraint vector so far.
+				constraint_vector	best_c;
+				/// Best fitness vector so far.
+				fitness_vector		best_f;
+				/// Human-readable representation.
+				/**
+				* @return formatted string containing the values of the data members.
+				*/
+				std::string human_readable() const
+				{
+					std::ostringstream oss;
+					oss << "\tDecision vector:\t\t" << cur_x << '\n';
+					oss << "\tVelocity vector:\t\t" << cur_v << '\n';
+					oss << "\tConstraint vector:\t\t" << cur_c << '\n';
+					oss << "\tFitness vector:\t\t\t" << cur_f << '\n';
+					oss << "\tBest decision vector:\t\t" << best_x << '\n';
+					oss << "\tBest constraint vector:\t\t" << best_c << '\n';
+					oss << "\tBest fitness vector:\t\t" << best_f << '\n';
+					return oss.str();
+				}
+			private:
+				friend class boost::serialization::access;
+				template <class Archive>
+				void save(Archive &ar, const unsigned int version) const
+				{
+					custom_vector_double_save(ar,cur_x,version);
+					custom_vector_double_save(ar,cur_v,version);
+					custom_vector_double_save(ar,cur_c,version);
+					custom_vector_double_save(ar,cur_f,version);
+					custom_vector_double_save(ar,best_x,version);
+					custom_vector_double_save(ar,best_c,version);
+					custom_vector_double_save(ar,best_f,version);
+				}
+				template <class Archive>
+				void load(Archive &ar, const unsigned int version)
+				{
+					custom_vector_double_load(ar,cur_x,version);
+					custom_vector_double_load(ar,cur_v,version);
+					custom_vector_double_load(ar,cur_c,version);
+					custom_vector_double_load(ar,cur_f,version);
+					custom_vector_double_load(ar,best_x,version);
+					custom_vector_double_load(ar,best_c,version);
+					custom_vector_double_load(ar,best_f,version);
+				}
+				template <class Archive>
+				void serialize(Archive &ar, const unsigned int version)
+				{
+					boost::serialization::split_member(ar,*this,version);
+				}
 		};
 		/// Population champion.
 		/**
 		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
 		 */
-		struct champion_type {
-			/// Decision vector.
-			decision_vector		x;
-			/// Constraint vector.
-			constraint_vector	c;
-			/// Fitness vector.
-			fitness_vector		f;
-			/// Human-readable representation.
-			/**
-			 * @return formatted string containing the values of the data members.
-			 */
-			std::string human_readable() const
-			{
-				std::ostringstream oss;
-				oss << "\tDecision vector:\t" << x << '\n';
-				oss << "\tConstraints vector:\t" << c << '\n';
-				oss << "\tFitness vector:\t\t" << f << '\n';
-				return oss.str();
-			}
+		struct champion_type
+		{
+				/// Decision vector.
+				decision_vector		x;
+				/// Constraint vector.
+				constraint_vector	c;
+				/// Fitness vector.
+				fitness_vector		f;
+				/// Human-readable representation.
+				/**
+				* @return formatted string containing the values of the data members.
+				*/
+				std::string human_readable() const
+				{
+					std::ostringstream oss;
+					oss << "\tDecision vector:\t" << x << '\n';
+					oss << "\tConstraints vector:\t" << c << '\n';
+					oss << "\tFitness vector:\t\t" << f << '\n';
+					return oss.str();
+				}
+			private:
+				friend class boost::serialization::access;
+				template <class Archive>
+				void save(Archive &ar, const unsigned int version) const
+				{
+					custom_vector_double_save(ar,x,version);
+					custom_vector_double_save(ar,c,version);
+					custom_vector_double_save(ar,f,version);
+				}
+				template <class Archive>
+				void load(Archive &ar, const unsigned int version)
+				{
+					custom_vector_double_load(ar,x,version);
+					custom_vector_double_load(ar,c,version);
+					custom_vector_double_load(ar,f,version);
+				}
+				template <class Archive>
+				void serialize(Archive &ar, const unsigned int version)
+				{
+					boost::serialization::split_member(ar,*this,version);
+				}
 		};
 		/// Underlying container type.
 		typedef std::vector<individual_type> container_type;
@@ -146,7 +201,6 @@ class __PAGMO_VISIBLE population
 		void reinit(const size_type &);
 		void reinit();
 	private:
-		explicit population();
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
 		void update_dom_list(const size_type &);
@@ -162,6 +216,17 @@ class __PAGMO_VISIBLE population
 			const population &m_pop;
 		};
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & m_prob;
+			ar & m_container;
+			ar & m_dom_list;
+			ar & m_champion;
+			ar & m_drng;
+			ar & m_urng;
+		}
 		// Data members.
 		// Problem.
 		problem::base_ptr			m_prob;
@@ -181,6 +246,33 @@ __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::individual_type &);
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::champion_type &);
 
+struct population_access
+{
+	static problem::base_ptr &get_problem_ptr(population &);
+};
+
 }
+
+namespace boost { namespace serialization {
+
+template <class Archive>
+inline void save_construct_data(Archive &ar, const pagmo::population *pop, const unsigned int)
+{
+	// Save data required to construct instance.
+	pagmo::problem::base_ptr prob = pop->problem().clone();
+	ar << prob;
+}
+
+template <class Archive>
+inline void load_construct_data(Archive &ar, pagmo::population *pop, const unsigned int)
+{
+	// Retrieve data from archive required to construct new instance.
+	pagmo::problem::base_ptr prob;
+	ar >> prob;
+	// Invoke inplace constructor to initialize instance of the population.
+	::new(pop)pagmo::population(*prob);
+}
+
+}} //namespaces
 
 #endif

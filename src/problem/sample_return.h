@@ -28,11 +28,11 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
-#include "base.h"
 #include "../keplerian_toolbox/keplerian_toolbox.h"
 #include "../AstroToolbox/mga_dsm.h"
-
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
@@ -49,7 +49,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE sample_return: public base
 {
 	public:
-		sample_return(const ::kep_toolbox::planet &asteroid, const double &Tmax = 600);
+		sample_return(const ::kep_toolbox::planet &asteroid = ::kep_toolbox::planet_mpcorb(), const double &Tmax = 600);
 		base_ptr clone() const;
 		std::string pretty(const std::vector<double> &x) const;
 		std::vector<double> get_delta_v(const std::vector<double> &x) const;
@@ -58,7 +58,19 @@ class __PAGMO_VISIBLE sample_return: public base
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
-		const ::kep_toolbox::planet	m_target;
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_target;
+			ar & m_leg1;
+			ar & m_leg2;
+			ar & x_leg1;
+			ar & x_leg2;
+			ar & const_cast<double &>(m_Tmax);
+		}
+		::kep_toolbox::planet_ptr	m_target;
 		mutable mgadsmproblem		m_leg1;
 		mutable mgadsmproblem		m_leg2;
 		mutable std::vector<double>	x_leg1;
@@ -68,5 +80,7 @@ class __PAGMO_VISIBLE sample_return: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::sample_return);
 
 #endif // PAGMO_SAMPLE_RETURN_H

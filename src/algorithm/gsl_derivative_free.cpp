@@ -47,17 +47,13 @@ namespace pagmo { namespace algorithm {
  * Allows to specify all the parameters needed to initialise a GSL minimiser without derivatives, as specified in the GSL documentation.
  * Will fail if max_iter is negative or if at least one of the other parameters is negative.
  *
- * @param[in] minimiser GSL minimiser type.
  * @param[in] max_iter maximum number of iterations the algorithm will be allowed to perform.
  * @param[in] tol desired tolerance in the localisation of the minimum.
  * @param[in] step_size initial step size for the simplex.
  */
-gsl_derivative_free::gsl_derivative_free(const gsl_multimin_fminimizer_type *minimiser, int max_iter, const double &tol, const double &step_size):
-	base_gsl(),m_minimiser(minimiser),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol),m_step_size(step_size)
+gsl_derivative_free::gsl_derivative_free(int max_iter, const double &tol, const double &step_size):
+	base_gsl(),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol),m_step_size(step_size)
 {
-	if (!minimiser) {
-		pagmo_throw(value_error,"no minimiser specified");
-	}
 	if (step_size <= 0) {
 		pagmo_throw(value_error,"step size must be positive");
 	}
@@ -73,9 +69,9 @@ gsl_derivative_free::gsl_derivative_free(const gsl_multimin_fminimizer_type *min
 std::string gsl_derivative_free::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "\tmax_iter:\t\t" << m_max_iter << '\n';
-	oss << "\ttol:\t\t\t" << m_tol << '\n';
-	oss << "\tstep_size:\t\t" << m_step_size << '\n';
+	oss << "max_iter:" << m_max_iter << ' ';
+	oss << "tol:" << m_tol << ' ';
+	oss << "step_size:" << m_step_size << ' ';
 	return oss.str();
 }
 
@@ -134,7 +130,9 @@ void gsl_derivative_free::evolve(population &pop) const
 	// Allocate and check the allocation results.
 	x = gsl_vector_alloc(s_cont_size);
 	ss = gsl_vector_alloc(s_cont_size);
-	s = gsl_multimin_fminimizer_alloc(m_minimiser,s_cont_size);
+	const gsl_multimin_fminimizer_type *minimiser = get_gsl_minimiser_ptr();
+	pagmo_assert(minimiser);
+	s = gsl_multimin_fminimizer_alloc(minimiser,s_cont_size);
 	// Check the allocations.
 	check_allocs(x,ss,s);
 	// Starting point comes from the best individual.

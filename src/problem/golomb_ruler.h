@@ -29,6 +29,7 @@
 #include <string>
 
 #include "../config.h"
+#include "../serialization.h"
 #include "../types.h"
 #include "base.h"
 
@@ -55,7 +56,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE golomb_ruler: public base
 {
 	public:
-		golomb_ruler(int,int);
+		golomb_ruler(int = 5,int = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -65,6 +66,16 @@ class __PAGMO_VISIBLE golomb_ruler: public base
 	private:
 		void compute_marks_and_dist(const decision_vector &) const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_max_length);
+			ar & m_tmp_x;
+			ar & m_tmp_marks;
+			ar & m_tmp_dist;
+		}
 		const std::size_t	m_max_length;
 		mutable decision_vector	m_tmp_x;
 		mutable decision_vector	m_tmp_marks;
@@ -72,5 +83,7 @@ class __PAGMO_VISIBLE golomb_ruler: public base
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::golomb_ruler);
 
 #endif

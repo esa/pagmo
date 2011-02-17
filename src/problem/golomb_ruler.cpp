@@ -150,3 +150,5 @@ std::string golomb_ruler::get_name() const
 }
 
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::golomb_ruler);

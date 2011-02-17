@@ -35,7 +35,8 @@ public:
     struct category
         : public seekable_device_tag,
           public closable_tag,
-          public localizable_tag
+          public localizable_tag,
+          public flushable_tag
         { };
     basic_file( const std::string& path,
                 BOOST_IOS::openmode mode =
@@ -55,6 +56,7 @@ public:
                    BOOST_IOS::in | BOOST_IOS::out );
     bool is_open() const;
     void close();
+    bool flush();
 #ifndef BOOST_IOSTREAMS_NO_LOCALE
     void imbue(const std::locale& loc) { pimpl_->file_.pubimbue(loc);  }
 #endif
@@ -105,12 +107,14 @@ struct basic_file_sink : private basic_file<Ch> {
     struct category
         : output_seekable,
           device_tag,
-          closable_tag
+          closable_tag,
+          flushable_tag
         { };
     using basic_file<Ch>::write;
     using basic_file<Ch>::seek;
     using basic_file<Ch>::is_open;
     using basic_file<Ch>::close;
+    using basic_file<Ch>::flush;
     basic_file_sink( const std::string& path,
                      BOOST_IOS::openmode mode = BOOST_IOS::out )
         : basic_file<Ch>(path, mode & ~BOOST_IOS::in, BOOST_IOS::out)
@@ -173,6 +177,10 @@ bool basic_file<Ch>::is_open() const { return pimpl_->file_.is_open(); }
 
 template<typename Ch>
 void basic_file<Ch>::close() { pimpl_->file_.close(); }
+
+template<typename Ch>
+bool basic_file<Ch>::flush()
+{ return pimpl_->file_.BOOST_IOSTREAMS_PUBSYNC() == 0; }
 
 //----------------------------------------------------------------------------//
 

@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
 #include "base_r_policy.h"
 
@@ -49,8 +50,17 @@ class __PAGMO_VISIBLE worst_r_policy: public base_r_policy
 		base_r_policy_ptr clone() const;
 		std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 			select(const std::vector<population::individual_type> &, const population &) const;
+	private:	
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base_r_policy>(*this);
+		}
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::worst_r_policy);
 
 #endif

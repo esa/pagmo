@@ -292,7 +292,7 @@ template <class charT, class Traits, class Alloc>
 inline u32regex_token_iterator<typename std::basic_string<charT, Traits, Alloc>::const_iterator> make_u32regex_token_iterator(const std::basic_string<charT, Traits, Alloc>& p, const u32regex& e, int submatch = 0, regex_constants::match_flag_type m = regex_constants::match_default)
 {
    typedef typename std::basic_string<charT, Traits, Alloc>::const_iterator iter_type;
-   return u32regex_token_iterator<iter_type>(p.begin(), p.end(), e, m);
+   return u32regex_token_iterator<iter_type>(p.begin(), p.end(), e, submatch, m);
 }
 inline u32regex_token_iterator<const UChar*> make_u32regex_token_iterator(const U_NAMESPACE_QUALIFIER UnicodeString& s, const u32regex& e, int submatch = 0, regex_constants::match_flag_type m = regex_constants::match_default)
 {

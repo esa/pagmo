@@ -1,6 +1,6 @@
 //
-// bind_handler.hpp
-// ~~~~~~~~~~~~~~~~
+// detail/bind_handler.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~~
 //
 // Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
@@ -15,10 +15,11 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
+#include <boost/asio/detail/config.hpp>
 #include <boost/asio/detail/handler_alloc_helpers.hpp>
 #include <boost/asio/detail/handler_invoke_helpers.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -36,7 +37,7 @@ public:
 
   void operator()()
   {
-    handler_(arg1_);
+    handler_(static_cast<const Arg1&>(arg1_));
   }
 
   void operator()() const
@@ -93,7 +94,8 @@ public:
 
   void operator()()
   {
-    handler_(arg1_, arg2_);
+    handler_(static_cast<const Arg1&>(arg1_),
+        static_cast<const Arg2&>(arg2_));
   }
 
   void operator()() const
@@ -153,7 +155,9 @@ public:
 
   void operator()()
   {
-    handler_(arg1_, arg2_, arg3_);
+    handler_(static_cast<const Arg1&>(arg1_),
+        static_cast<const Arg2&>(arg2_),
+        static_cast<const Arg3&>(arg3_));
   }
 
   void operator()() const
@@ -217,7 +221,10 @@ public:
 
   void operator()()
   {
-    handler_(arg1_, arg2_, arg3_, arg4_);
+    handler_(static_cast<const Arg1&>(arg1_),
+        static_cast<const Arg2&>(arg2_),
+        static_cast<const Arg3&>(arg3_),
+        static_cast<const Arg4&>(arg4_));
   }
 
   void operator()() const
@@ -288,7 +295,11 @@ public:
 
   void operator()()
   {
-    handler_(arg1_, arg2_, arg3_, arg4_, arg5_);
+    handler_(static_cast<const Arg1&>(arg1_),
+        static_cast<const Arg2&>(arg2_),
+        static_cast<const Arg3&>(arg3_),
+        static_cast<const Arg4&>(arg4_),
+        static_cast<const Arg5&>(arg5_));
   }
 
   void operator()() const

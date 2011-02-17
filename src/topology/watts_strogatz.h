@@ -30,6 +30,7 @@
 
 #include "../config.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 
 namespace pagmo { namespace topology {
@@ -63,14 +64,24 @@ class __PAGMO_VISIBLE watts_strogatz: public base
 		void connect(const vertices_size_type &);
 	private:
 		void rewire();
-	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<std::size_t &>(m_k);
+			ar & const_cast<double &>(m_beta);
+			ar & m_drng;
+			ar & m_urng;
+		}
 		const std::size_t	m_k;
 		const double		m_beta;
 		rng_double		m_drng;
 		rng_uint32		m_urng;
-
 };
 
 }}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::watts_strogatz);
 
 #endif

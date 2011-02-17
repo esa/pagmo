@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "../population.h"
 #include "../rng.h"
+#include "../serialization.h"
 #include "base.h"
 #include "base_r_policy.h"
 
@@ -52,9 +53,18 @@ class __PAGMO_VISIBLE random_r_policy: public base_r_policy
 		std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 			select(const std::vector<population::individual_type> &, const population &) const;
 	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base_r_policy>(*this);
+			ar & m_urng;
+		}
 		mutable rng_uint32 m_urng;
 };
 
 } }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::random_r_policy);
 
 #endif

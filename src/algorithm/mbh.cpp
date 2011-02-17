@@ -46,7 +46,7 @@ namespace pagmo { namespace algorithm {
  * will be perturbed within +-perturb, the same for the velocity. The integer part is treated the same way.
  * @throws value_error if stop is negative or perturb is negative
  */
-mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb)
+mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb),m_screen_out(false)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -67,7 +67,7 @@ mbh::mbh(const algorithm::base & local, int stop, double perturb):base(),m_stop(
  * will be perturbed within +-perturb[i], the same for the velocity. The integer part is treated the same way.
  * @throws value_error if stop is negative or perturb[i] is negative
  */
-mbh::mbh(const algorithm::base & local, int stop, std::vector<double> perturb):base(),m_stop(stop),m_perturb(perturb)
+mbh::mbh(const base & local, int stop, const std::vector<double> &perturb):base(),m_stop(stop),m_perturb(perturb),m_screen_out(false)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -81,6 +81,10 @@ mbh::mbh(const algorithm::base & local, int stop, std::vector<double> perturb):b
 	}
 	if (perturb.size()==0) pagmo_throw(value_error,"perturbation vector appears empty!!");
 }
+
+/// Copy constructor.
+mbh::mbh(const mbh &algo):base(algo),m_local(algo.m_local->clone()),m_stop(algo.m_stop),m_perturb(algo.m_perturb),m_screen_out(algo.m_screen_out)
+{}
 
 /// Clone method.
 base_ptr mbh::clone() const
@@ -165,16 +169,18 @@ void mbh::evolve(population &pop) const
 		m_local->evolve(pop); i++;
 		if (m_screen_out)
 		{
-			std::cout << i << ". " << "\tBest: " << pop.get_individual(pop.get_best_idx()).cur_f << "\tChampion: " << pop.champion().f << std::endl;
+			std::cout << i << ". " << "\tLocal solution: " << pop.get_individual(pop.get_best_idx()).cur_f << "\tGlobal best: " << best_f << std::endl;
 		}
 
 		//3. Reset counter if improved
 		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
 		{
-
 			i = 0;
 			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
 			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
+			if (m_screen_out) {
+				std::cout << "New solution accepted. Constraints vector: " << best_c << '\n';
+			}
 			//update best population
 			for (population::size_type j=0; j<pop.size();++j)
 			{
@@ -209,6 +215,26 @@ std::string mbh::get_name() const
 	return "Generalized Monotonic Basin Hopping";
 }
 
+/// Get a copy of the internal local algorithm.
+/**
+ * @return algorithm::base_ptr to a copy of the internal local algorithm.
+ */
+base_ptr mbh::get_algorithm() const
+{
+	return m_local->clone();
+}
+
+/// Set algorithm.
+/**
+ * A copy of the input algorithm will be set as the internal local algorithm.
+ * 
+ * @param[in] algo algorithm to be set as local algorithm.
+ */
+void mbh::set_algorithm(const base &algo)
+{
+	m_local = algo.clone();
+}
+
 /// Extra human readable algorithm info.
 /**
  * @return a formatted string displaying the parameters of the algorithm.
@@ -223,3 +249,5 @@ std::string mbh::human_readable_extra() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::mbh);

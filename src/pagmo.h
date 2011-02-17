@@ -29,6 +29,7 @@
 
 #include "algorithms.h"
 #include "archipelago.h"
+#include "base_island.h"
 #include "exceptions.h"
 #include "island.h"
 #include "migration.h"
@@ -37,5 +38,10 @@
 #include "rng.h"
 #include "topologies.h"
 #include "types.h"
+
+#ifdef PAGMO_ENABLE_MPI
+	#include "mpi_environment.h"
+	#include "mpi_island.h"
+#endif
 
 #endif

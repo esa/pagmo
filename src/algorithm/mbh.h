@@ -29,7 +29,10 @@
 
 #include "../config.h"
 #include "../population.h"
+#include "../serialization.h"
 #include "base.h"
+#include "cs.h"
+
 
 
 namespace pagmo { namespace algorithm {
@@ -72,15 +75,28 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mbh: public base
 {
 public:
-	mbh(const algorithm::base &, int stop = 50, double perturb = 5e-2);
-	mbh(const algorithm::base &, int stop, std::vector<double> perturb);
+	mbh(const base & = cs(), int stop = 50, double perturb = 5e-2);
+	mbh(const base &, int stop, const std::vector<double> &perturb);
+	mbh(const mbh &);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	void screen_output(const bool);
 	std::string get_name() const;
+	base_ptr get_algorithm() const;
+	void set_algorithm(const base &);
 protected:
 	std::string human_readable_extra() const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & m_local;
+		ar & const_cast<int &>(m_stop);
+		ar & m_perturb;
+		ar & m_screen_out;
+	}
 	base_ptr m_local;
 	// Consecutive non improving iterations
 	const int m_stop;
@@ -92,5 +108,7 @@ private:
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::mbh);
 
 #endif // PAGMO_ALGORITHM_MBH_H

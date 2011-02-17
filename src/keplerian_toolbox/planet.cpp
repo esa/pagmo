@@ -1,3 +1,5 @@
+#include <boost/lexical_cast.hpp>
+
 #include "planet.h"
 #include"core_functions/ic2par.h"
 #include"core_functions/par2ic.h"
@@ -23,7 +25,17 @@ planet::planet(const epoch& ref_epoch, const array6D& orbital_elements_, const d
 	if (mu_self_ <= 0) {
 		throw_value_error("The gravitational parameter of the planet needs to be strictly positive");
 	}
+	for (int i = 0; i < 3; ++i) {
+		cached_r[i] = 0;
+		cached_v[i] = 0;
+	}
 	planet::build_planet(ref_epoch, orbital_elements_, mu_central_body_, mu_self_, radius_, safe_radius_, name_);
+}
+
+
+planet_ptr planet::clone() const
+{
+	return planet_ptr(new planet(*this));
 }
 
 void planet::build_planet(const epoch& ref_epoch, const array6D& orbital_elements_, const double & mu_central_body_, const double &mu_self_, const double & radius_, const double & safe_radius_, const std::string &name_)
@@ -35,12 +47,11 @@ void planet::build_planet(const epoch& ref_epoch, const array6D& orbital_element
 	mu_self = mu_self_;
 	mu_central_body = mu_central_body_;
 	m_name = name_;
-	cached_epoch = std::numeric_limits<double>::quiet_NaN();
 	mean_motion = sqrt(mu_central_body / pow(keplerian_elements[0],3));
 }
 
 void planet::get_eph(const epoch& when, array3D &r, array3D &v) const{
-	if(when.mjd2000() != cached_epoch.mjd2000()) {
+	if(when.mjd2000() != cached_epoch.mjd2000() || cached_epoch.mjd2000() == 0) {
 		double elements[6];
 		std::copy(keplerian_elements.begin(), keplerian_elements.end(), elements);
 		double dt = (when.mjd2000() - ref_mjd2000) * ASTRO_DAY2SEC;
@@ -74,6 +85,16 @@ array6D planet::get_elements(const epoch& when) const{
 	return ( elements );
 }
 
+array6D planet::get_elements() const{
+	return ( keplerian_elements );
+}
+
+/// Destructor.
+/**
+ * No side effects.
+ */
+planet::~planet() {}
+
 std::string planet::get_name() const {return m_name;}
 
 }
@@ -90,17 +111,17 @@ std::string planet::get_name() const {return m_name;}
  */
 std::ostream &kep_toolbox::operator<<(std::ostream &s, const kep_toolbox::planet &body) {
 	s << "Planet Name: " << body.m_name << std::endl;
-	s << "Own gravity parameter: " << body.mu_self << std::endl;
-	s << "Central body gravity parameter: " << body.mu_central_body << std::endl;
-	s << "Planet radius: " << body.radius << std::endl;
+	s << "Own gravity parameter: " << boost::lexical_cast<std::string>(body.mu_self) << std::endl;
+	s << "Central body gravity parameter: " << boost::lexical_cast<std::string>(body.mu_central_body) << std::endl;
+	s << "Planet radius: " << boost::lexical_cast<std::string>(body.radius) << std::endl;
 	s << "Planet keplerian elements: "<<std::endl;
 	array6D elem = body.get_elements(epoch(body.ref_mjd2000));
-	s << "Semi major axis (AU): " << elem[0] / ASTRO_AU << std::endl;
-	s << "Eccentricity: " << elem[1] << std::endl;
-	s << "Inclination (deg.): " << elem[2] * ASTRO_RAD2DEG << std::endl;
-	s << "Big Omega (deg.): " << elem[3] * ASTRO_RAD2DEG << std::endl;
-	s << "Small omega (deg.): " << elem[4] * ASTRO_RAD2DEG << std::endl;
-	s << "Mean anomaly (deg.): " << elem[5] * ASTRO_RAD2DEG << std::endl;
+	s << "Semi major axis (AU): " << boost::lexical_cast<std::string>(elem[0] / ASTRO_AU) << std::endl;
+	s << "Eccentricity: " << boost::lexical_cast<std::string>(elem[1]) << std::endl;
+	s << "Inclination (deg.): " << boost::lexical_cast<std::string>(elem[2] * ASTRO_RAD2DEG) << std::endl;
+	s << "Big Omega (deg.): " << boost::lexical_cast<std::string>(elem[3] * ASTRO_RAD2DEG) << std::endl;
+	s << "Small omega (deg.): " << boost::lexical_cast<std::string>(elem[4] * ASTRO_RAD2DEG) << std::endl;
+	s << "Mean anomaly (deg.): " << boost::lexical_cast<std::string>(elem[5] * ASTRO_RAD2DEG) << std::endl;
 	s << "Elements reference epoch: " << epoch(body.ref_mjd2000) << std::endl;
 	return s;
 }

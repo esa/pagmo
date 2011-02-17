@@ -122,7 +122,7 @@ void bee_colony::evolve(population &pop) const
 
 	double r = 0;
 
-	// Copy the particle positions, their velocities and their fitness
+	// Copy the food sources position and their fitness
 	for ( population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 		fit[i]	=	pop.get_individual(i).cur_f;
@@ -290,3 +290,5 @@ std::string bee_colony::human_readable_extra() const
 }
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::bee_colony);

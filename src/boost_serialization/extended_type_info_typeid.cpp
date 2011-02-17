@@ -72,7 +72,7 @@ extended_type_info_typeid_0::is_equal(
 
 BOOST_SERIALIZATION_DECL(BOOST_PP_EMPTY())
 extended_type_info_typeid_0::extended_type_info_typeid_0(
-	const char * key
+    const char * key
 ) :
     extended_type_info(EXTENDED_TYPE_INFO_TYPE_KEY, key),
     m_ti(NULL)
