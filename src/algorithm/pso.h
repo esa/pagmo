@@ -50,45 +50,58 @@ namespace pagmo { namespace algorithm {
  * allowed. this last value is evaluated for each search direction as the product of \f$ vcoeff\f$ and the
  * search space width along that direction. The user can also specify one of four variants:
  *
- * of the velocity update rule differing on the definition of the random vectors \f$r_1\f$ and \f$r_2\f$
- * \li Variant 1: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_2, r_2, ..., r_2]\f$
- * \li Variant 2: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_1, r_1, ..., r_1]\f$
- * \li Variant 3: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{21}, r_{21}, ..., r_{2n}]\f$
- * \li Variant 4: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{11}, r_{11}, ..., r_{1n}]\f$
+ * the velocity update rule differing on the definition of the random vectors \f$r_1\f$ and \f$r_2\f$
+ * \li Variant 1: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{21}, r_{21}, ..., r_{2n}]\f$
+ * \li Variant 2: \f$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]\f$, \f$\mathbf r_2 = [r_{11}, r_{11}, ..., r_{1n}]\f$
+ * \li Variant 3: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_2, r_2, ..., r_2]\f$
+ * \li Variant 4: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_1, r_1, ..., r_1]\f$
+ *
+ * \li Variant 5: \f$\mathbf r_1 = [r_1, r_1, ..., r_1]\f$, \f$\mathbf r_2 = [r_1, r_1, ..., r_1]\f$
  *
  * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
  * is performed.
- *
+ * 
  * The algorithm is suitable for box-constrained single-objective continuous optimization.
- *
- * @see http://swarmintelligence.org/ for a fair descritpion of the algorithm
+ * 
+ * @see http://www.particleswarm.info/ for a repository of information related to PSO
+ * @see http://dx.doi.org/10.1007/s11721-007-0002-0 for a recent survey
  * @see http://www.engr.iupui.edu/~shi/Coference/psopap4.html for the first paper on this algorithm
- *
+ * 
  * @author Dario Izzo (dario.izzo@googlemail.com)
+ * @author Luis Simoes (luis.f.m.simoes@gmail.com)
  */
 
 class __PAGMO_VISIBLE pso: public base
 {
 public:
-	pso(int gen, double omega = 0.65, double eta1 = 2.0, double eta2 = 2.0, double vcoeff = 0.2, int variant = 3);
+	pso(int gen, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 1.0, int variant = 5, int neighb_type = 2, int neighb_param = 4 );
 	base_ptr clone() const;
 	void evolve(population &) const;
+	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob ) const;
+	void initialize_topology__gbest( const population &pop, decision_vector &gbX, fitness_vector &gbfit, std::vector< std::vector<int> > &neighb ) const;
+	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
+	void initialize_topology__von( std::vector< std::vector<int> > &neighb ) const;
+	void initialize_topology__randomly_varying( std::vector< std::vector<int> > &neighb ) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:
-	// Number of generations.
+	// Number of generations
 	const int m_gen;
-	// Particle Inertia
+	// Particle Inertia weight, or alternatively the constriction coefficient
 	const double m_omega;
-	// Weight of the social component
+	// magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
 	const double m_eta1;
-	// Weight of the social component
+	// magnitude of the force, applied to the particle's velocity, in the direction of the best position in its neighborhood
 	const double m_eta2;
-	// Velocity coefficient
+	// Velocity coefficient: velocity values will range in [ - var_range * m_vcoeff, var_range * m_vcoeff ]
 	const double m_vcoeff;
-	// Startegy
+	// Velocity update formula
 	const int m_variant;
+	// Swarm topology
+	const int m_neighb_type;
+	// parameterization of the swarm topology
+	const int m_neighb_param;
 };
 
 }} //namespaces

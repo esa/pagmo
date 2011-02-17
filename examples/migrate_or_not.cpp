@@ -80,6 +80,7 @@ int main()
 	int number_of_migrations = 20;
 
 	//1 - We instantiate the problems
+	problem::messenger_full prob0;
 	problem::cassini_1 prob1;
 	problem::griewank prob2(50);
 	problem::ackley prob3(50);
@@ -89,9 +90,12 @@ int main()
 	algorithm::de algo1(100);
 	algorithm::sga algo2(100,0.8,0.05,1);
 	algorithm::sa_corana algo3(2000,1,0.001);
-	algorithm::pso algo4(100);
-	algorithm::ihs algo5(2000);
-	algorithm::bee_colony algo6(50);
+	algorithm::ihs algo4(2000);
+	algorithm::bee_colony algo5(50);
+	algorithm::pso algo6(100);					// constriction coeff + lbest-2
+	algorithm::pso algo7(100, 0.7298, 2.05, 2.05, 1.0, 5, 3);	// constriction coeff + von
+	algorithm::pso algo8(100, 0.7298, 2.05, 2.05, 1.0, 6, 3);	// FIPS + von
+	algorithm::pso algo9(100, 0.65,   2.0,  2.0,  0.2, 1, 1);	// original + gbest
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
@@ -107,9 +111,14 @@ int main()
 	algo.push_back(algo4.clone());
 	algo.push_back(algo5.clone());
 	algo.push_back(algo6.clone());
+	algo.push_back(algo4.clone());
+	algo.push_back(algo7.clone());
+	algo.push_back(algo8.clone());
+	algo.push_back(algo9.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
+	prob.push_back(prob0.clone());
 	prob.push_back(prob1.clone());
 	prob.push_back(prob2.clone());
 	prob.push_back(prob3.clone());

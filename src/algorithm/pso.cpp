@@ -25,6 +25,9 @@
 #include "pso.h"
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
+#include <vector>
+#include <cmath>
+#include <iostream>
 
 
 namespace pagmo { namespace algorithm {
@@ -33,37 +36,46 @@ namespace pagmo { namespace algorithm {
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
- * @param[in] gen number of generations.
- * @param[in] m_omega particle inertia
- * @param[in] eta1 cognitive component of the particle
- * @param[in] eta2 social component of the particle
+ * @param[in] gen number of generations
+ * @param[in] m_omega particles' inertia weight, or alternatively, the constriction coefficient (usage depends on the variant used)
+ * @param[in] eta1 magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
+ * @param[in] eta2 magnitude of the force, applied to the particle's velocity, in the direction of the best position in its neighborhood
  * @param[in] vcoeff velocity coefficient (determining the maximum allowed particle velocity)
  * @param[in] variant algorithm variant to use
+ * @param[in] neighb_type swarm topology to use
+ * @param[in] neighb_param parameterization of the swarm topology (value semantics dependant on the value set in neighb_type)
  * @throws value_error if m_omega is not in the [0,1] interval, eta1, eta2 are not in the [0,1] interval,
- * vcoeff is not in ]0,1[, variant is not one of 1 .. 4
+ * vcoeff is not in ]0,1], variant is not one of 1 .. 6, neighb_type is not one of 1 .. 4
  */
-pso::pso(int gen, double m_omega, double eta1, double eta2, double vcoeff, int variant):base(),m_gen(gen),m_omega(m_omega),m_eta1(eta1),m_eta2(eta2),m_vcoeff(vcoeff),m_variant(variant) {
+pso::pso(int gen, double omega, double eta1, double eta2, double vcoeff, int variant, int neighb_type, int neighb_param):base(),m_gen(gen),m_omega(omega),m_eta1(eta1),m_eta2(eta2),m_vcoeff(vcoeff),m_variant(variant),m_neighb_type(neighb_type),m_neighb_param(neighb_param) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
-
+	
 	if (m_omega < 0 || m_omega > 1) {
-		pagmo_throw(value_error,"the particles inertia must be in the [0,1] range");
+		if( variant < 5 )
+			// variants using Inertia weight
+			pagmo_throw(value_error,"the particles' inertia must be in the [0,1] range");
+		else
+			// variants using Constriction coefficient
+			pagmo_throw(value_error,"the particles' constriction coefficient must be in the [0,1] range");
 	}
-
+	
 	if (eta1 < 0 || eta2 < 0 || eta1 > 4 || eta2 > 4) {
 		pagmo_throw(value_error,"the eta parameters must be in the [0,1] range");
+	}	// CHECK: message differs from code; where's the source for this rule?
+	
+	if (vcoeff <= 0 || vcoeff > 1) {
+		pagmo_throw(value_error,"fraction of variables' range in which velocity may vary should be in ]0,1]");
 	}
-
-	if (vcoeff <= 0 || vcoeff >= 1) {
-		pagmo_throw(value_error,"algorithm variant must be one of 1 ... 4");
+	
+	if (variant < 1 || variant > 6) {
+		pagmo_throw(value_error,"algorithm variant must be one of 1 ... 6");
 	}
-
-	if (variant < 1 || variant > 4) {
-		pagmo_throw(value_error,"algorithm variant must be one of 1 ... 4");
+	
+	if (neighb_type < 1 || neighb_type > 4) {
+		pagmo_throw(value_error,"swarm topology variant must be one of 1 ... 4");
 	}
-
-
 }
 
 /// Clone method.
@@ -72,163 +84,432 @@ base_ptr pso::clone() const
 	return base_ptr(new pso(*this));
 }
 
+
 /// Evolve implementation.
 /**
  * Run the PSO algorithm for the number of generations specified in the constructors.
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
-
 void pso::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	const problem::base &prob = pop.problem();
-	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
-	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type NP = pop.size();
-	const problem::base::size_type Dc = D - prob_i_dimension;
-
-
+	const problem::base             &prob = pop.problem();
+	const problem::base::size_type   D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
+	const problem::base::size_type   Dc = D - prob_i_dimension;
+	const decision_vector           &lb = prob.get_lb(), &ub = prob.get_ub();
+	const population::size_type      swarm_size = pop.size();
+	
+	
 	//We perform some checks to determine wether the problem/population are suitable for PSO
-	if ( Dc == 0 ) {
+	if( Dc == 0 ){
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for PSO to optimise");
 	}
-
-	if ( prob_c_dimension != 0 ) {
+	
+	if( prob_c_dimension != 0 ){
 		pagmo_throw(value_error,"The problem is not box constrained and PSO is not suitable to solve it");
 	}
-
-	if ( prob_f_dimension != 1 ) {
+	
+	if( prob_f_dimension != 1 ){
 		pagmo_throw(value_error,"The problem is not single objective and PSO is not suitable to solve it");
 	}
-
+	
 	// Get out if there is nothing to do.
-	if (NP == 0 || m_gen == 0) {
+	if (swarm_size == 0 || m_gen == 0) {
 		return;
 	}
-
+	
 	// Some vectors used during evolution are allocated here.
-	std::vector<double> dummy(D,0);			//used for initialisation purposes
-	std::vector<decision_vector > X(NP,dummy);	//particle position
-	std::vector<decision_vector > V(NP,dummy);	//particle velocity
-	std::vector<fitness_vector> fit(NP);		//particle fitness
-
-	fitness_vector gbfit;				//global best fitness
-	decision_vector gbX(D);				//global best chromosome
-
-	std::vector<fitness_vector> lbfit(NP);		//personal best fitness
-	std::vector<decision_vector> lbX(NP,dummy);	//personal best chromosome
-	decision_vector minv(D),maxv(D);		//Maximum and minumum velocity allowed
-
-	double vwidth;					//Temporary variable
-
-
-	// Copy the particle positions, their velocities and their fitness
-	for ( population::size_type i = 0; i<NP; i++ ) {
-		X[i]	=	pop.get_individual(i).cur_x;
-		V[i]	=	pop.get_individual(i).cur_v;
-		fit[i]	=	pop.get_individual(i).cur_f;
-	}
-
+	std::vector<double> dummy(D,0);				// used for initialisation purposes
+	
+	std::vector<decision_vector>  X(swarm_size,dummy);	// particles' current positions
+	std::vector<fitness_vector>   fit(swarm_size);		// particles' current fitness values
+	
+	std::vector<decision_vector > V(swarm_size,dummy);	// particles' velocities
+	
+	std::vector<decision_vector> lbX(swarm_size,dummy);	// particles' previous best positions
+	std::vector<fitness_vector>  lbfit(swarm_size);		// particles' fitness values at their previous best positions
+	
+	
+	std::vector< std::vector<int> > neighb(swarm_size);	// swarm topology (iterators over indexes of each particle's neighbors in the swarm)
+	decision_vector                 best_neighb(D);		// search space position of particles' best neighbor
+	fitness_vector                  best_neighb_fit;	// fitness at the search space position best_neighb
+	
+	
+	decision_vector minv(D), maxv(D);			// Maximum and minumum velocity allowed
+	
+	double vwidth;						// Temporary variable
+	double new_x;						// Temporary variable
+	
+	population::size_type    p;		// for iterating over particles
+	population::size_type    n;		// for iterating over particles's neighbours
+	problem::base::size_type d;		// for iterating over problem dimensions
+	
+	
 	// Initialise the minimum and maximum velocity
-	for ( problem::base::size_type i = 0; i<D; i++ ) {
-		vwidth = (ub[i]-lb[i]) * m_vcoeff;
-		minv[i] = -1.0*vwidth;
-		maxv[i] = vwidth;
+	for( d = 0; d < Dc; d++ ){
+		vwidth  = ( ub[d] - lb[d] ) * m_vcoeff;
+		minv[d] = -1.0 * vwidth;
+		maxv[d] = vwidth;
 	}
-
-	// Initialise the global and local bests
-	gbX=pop.champion().x;
-	gbfit=pop.champion().f;
-
-	for (population::size_type i=0; i < NP;++i){
-	lbX[i] = pop.get_individual(i).best_x;
-	lbfit[i] = pop.get_individual(i).best_f;
+	
+	// Copy the particle positions, their velocities and their fitness
+	for( p = 0; p < swarm_size; p++ ){
+		X[p]   = pop.get_individual(p).cur_x;
+		V[p]   = pop.get_individual(p).cur_v;
+		fit[p] = pop.get_individual(p).cur_f;
 	}
-
-	double r1,r2 = 0;
-	// Main PSO loop
-	for (int j = 0; j < m_gen; ++j) {
-		//For each particle in the swarm
-		for (population::size_type ii = 0; ii< NP; ii++) {
-
-			/*-------PSO canonical--------------------------------------------------------------------*/
-			/*-------The classical PSO velocity update startegy---------------------------------------*/
-			if (m_variant==1) {
-				r1 = m_drng();
-				r2 = m_drng();
-				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
-					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r2 * (gbX[jj] - X[ii][jj]);
-				}
-			}
-
-			/*-------PSO canonical with equal random weights of social and cognitive components-------*/
-			/*-------In our experience few problems benefit a lot from having r1=r2. You may check----*/
-			/*-------with Rastrigin-------------------------------------------------------------------*/
-			if (m_variant==2) {
-				r1 = m_drng();
-				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
-					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r1 * (gbX[jj] - X[ii][jj]);
-				}
-			}
-
-			/*-------Variant of PSO strategy 1 that has r1 and r2 randomly generated for each----------*/
-			/*-------component. This is also the version that was implemented--------------------------*/
-			/*-------in early versions of pagmo--------------------------------------------------------*/
-			if (m_variant==3) {
-				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
+	
+	// Initialise particles' previous best positions
+	for( p = 0; p < swarm_size; p++ ){
+		lbX[p]   = pop.get_individual(p).best_x;
+		lbfit[p] = pop.get_individual(p).best_f;
+	}
+	
+	// Initialize the Swarm's topology
+	switch( m_neighb_type ){
+		case 1:  initialize_topology__gbest( pop, best_neighb, best_neighb_fit, neighb ); break;
+		case 3:  initialize_topology__von( neighb ); break;
+		case 4:  initialize_topology__randomly_varying( neighb ); break;
+		case 2:
+		default: initialize_topology__lbest( neighb );
+	}
+	
+	
+	// auxiliary varibables specific to the Fully Informed Particle Swarm variant
+	double acceleration_coefficient = m_eta1 + m_eta2;
+	double sum_forces;
+	
+	double r1 = 0.0;
+	double r2 = 0.0;
+	
+	/* --- Main PSO loop ---
+	 */
+	// For each generation
+	for( int g = 0; g < m_gen; ++g ){
+		
+		// For each particle in the swarm
+		for( p = 0; p < swarm_size; p++ ){
+			
+			// identify the current particle's best neighbour
+			// . not needed if m_neighb_type == 1 (gbest): best_neighb directly tracked in this function
+			// . not needed if m_variant == 6 (FIPS): all neighbours are considered, no need to identify the best one
+			if( m_neighb_type != 1 && m_variant != 6)
+				best_neighb = particle__get_best_neighbor( p, neighb, lbX, lbfit, prob );
+				
+			
+			/*-------PSO canonical (with inertia weight) ---------------------------------------------*/
+			/*-------Original algorithm used in PaGMO paper-------------------------------------------*/
+			if( m_variant == 1 ){
+				for( d = 0; d < Dc; d++ ){
 					r1 = m_drng();
 					r2 = m_drng();
-					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r2 * (gbX[jj] - X[ii][jj]);
+					V[p][d] = m_omega * V[p][d] + m_eta1 * r1 * (lbX[p][d] - X[p][d]) + m_eta2 * r2 * (best_neighb[d] - X[p][d]);
 				}
 			}
-
-			/*-------Variant of PSO strategy 2 that has r1 randomly generated for each-----------------*/
-			/*-------component.------------------------------------------------------------------------*/
-			if (m_variant==4) {
-				for (problem::base::size_type jj = 0; jj< Dc; jj++) {
+			
+			/*-------PSO canonical (with inertia weight) ---------------------------------------------*/
+			/*-------and with equal random weights of social and cognitive components-----------------*/
+			/*-------Check with Rastrigin-------------------------------------------------------------*/
+			else if( m_variant == 2 ){
+				for( d = 0; d < Dc; d++ ){
 					r1 = m_drng();
-					V[ii][jj] = m_omega * V[ii][jj] + m_eta1 * r1 * (lbX[ii][jj] - X[ii][jj]) + m_eta2 * r1 * (gbX[jj] - X[ii][jj]);
+					V[p][d] = m_omega * V[p][d] + m_eta1 * r1 * (lbX[p][d] - X[p][d]) + m_eta2 * r1 * (best_neighb[d] - X[p][d]);
 				}
 			}
-
-			//We now check that the velocity does not exceed the maximum allowed per component
-			//and we perform the position update and the feasibility correction
-			for (problem::base::size_type jj = 0; jj< Dc; jj++) {
-
-				if ( V[ii][jj] > maxv[jj] )
-					V[ii][jj] = maxv[jj];
-
-				else if ( V[ii][jj] < minv[jj] )
-					V[ii][jj] = minv[jj];
-
-				//update position
-				X[ii][jj] = X[ii][jj] + V[ii][jj];
-
-				//feasibility correction
-				if (X[ii][jj] < lb[jj])
-					X[ii][jj] = boost::uniform_real<double>(lb[jj],ub[jj])(m_drng);
-
-				else if (X[ii][jj] > ub[jj])
-					X[ii][jj] = boost::uniform_real<double>(lb[jj],ub[jj])(m_drng);
-			}
-
-			//We evaluate here the new individual fitness as to be able to update the global best in real time
-			prob.objfun(fit[ii],X[ii]);
-			//update local and global best
-			if ( prob.compare_fitness(fit[ii],lbfit[ii])) {
-				lbfit[ii] = fit[ii];	//local best
-				lbX[ii] = X[ii];
-				pop.set_x(ii,X[ii]);
-				pop.set_v(ii,V[ii]);
-				if ( prob.compare_fitness(fit[ii],gbfit) ) {
-					gbfit = fit[ii];	//global best
-					gbX = X[ii];
+			
+			/*-------PSO variant (commonly mistaken in literature for the canonical)----------------*/
+			/*-------Same random number for all components------------------------------------------*/
+			else if( m_variant == 3 ){
+				r1 = m_drng();
+				r2 = m_drng();
+				for( d = 0; d < Dc; d++ ){
+					V[p][d] = m_omega * V[p][d] + m_eta1 * r1 * (lbX[p][d] - X[p][d]) + m_eta2 * r2 * (best_neighb[d] - X[p][d]);
 				}
 			}
+			
+			/*-------PSO variant (commonly mistaken in literature for the canonical)----------------*/
+			/*-------Same random number for all components------------------------------------------*/
+			/*-------and with equal random weights of social and cognitive components---------------*/
+			else if( m_variant == 4 ){
+				r1 = m_drng();
+				for( d = 0; d < Dc; d++ ){
+					V[p][d] = m_omega * V[p][d] + m_eta1 * r1 * (lbX[p][d] - X[p][d]) + m_eta2 * r1 * (best_neighb[d] - X[p][d]);
+				}
+			}
+			
+			/*-------PSO variant with constriction coefficients------------------------------------*/
+			/*  ''Clerc's analysis of the iterative system led him to propose a strategy for the
+			 *  placement of "constriction coefficients" on the terms of the formulas; these
+			 *  coefficients controlled the convergence of the particle and allowed an elegant and
+			 *  well-explained method for preventing explosion, ensuring convergence, and
+			 *  eliminating the arbitrary Vmax parameter. The analysis also takes the guesswork
+			 *  out of setting the values of phi_1 and phi_2.''
+			 *  ''this is the canonical particle swarm algorithm of today.''
+			 *  [Poli et al., 2007] http://dx.doi.org/10.1007/s11721-007-0002-0
+			 *  [Clerc and Kennedy, 2002] http://dx.doi.org/10.1109/4235.985692
+			 *  
+			 *  This being the canonical PSO of today, this variant is set as the default in PaGMO.
+			 *-------------------------------------------------------------------------------------*/
+			else if( m_variant == 5 ){
+				for( d = 0; d < Dc; d++ ){
+					r1 = m_drng();
+					r2 = m_drng();
+					V[p][d] = m_omega * ( V[p][d] + m_eta1 * r1 * (lbX[p][d] - X[p][d]) + m_eta2 * r2 * (best_neighb[d] - X[p][d]) );
+				}
+			}
+			
+			/*-------Fully Informed Particle Swarm-------------------------------------------------*/
+			/*  ''Whereas in the traditional algorithm each particle is affected by its own
+			 *  previous performance and the single best success found in its neighborhood, in
+			 *  Mendes' fully informed particle swarm (FIPS), the particle is affected by all its
+			 *  neighbors, sometimes with no influence from its own previous success.'' 
+			 *  ''With good parameters, FIPS appears to find better solutions in fewer iterations
+			 *  than the canonical algorithm, but it is much more dependent on the population topology.''
+			 *  [Poli et al., 2007] http://dx.doi.org/10.1007/s11721-007-0002-0
+			 *  [Mendes et al., 2004] http://dx.doi.org/10.1109/TEVC.2004.826074
+			 *-------------------------------------------------------------------------------------*/
+			else if( m_variant == 6 ){
+				for( d = 0; d < Dc; d++ ){
+					sum_forces = 0.0;
+					for( n = 0; n < neighb[p].size(); n++ )
+						sum_forces += m_drng() * acceleration_coefficient * ( lbX[ neighb[p][n] ][d] - X[p][d] );
+					
+					V[p][d] = m_omega * ( V[p][d] + sum_forces / neighb[p].size() );
+				}
+			}
+			
+			// We now check that the velocity does not exceed the maximum allowed per component
+			// and we perform the position update and the feasibility correction
+			for( d = 0; d < Dc; d++ ){
+				
+				if( V[p][d] > maxv[d] )
+					V[p][d] = maxv[d];
+				
+				else if( V[p][d] < minv[d] )
+					V[p][d] = minv[d];
+				
+				// update position
+				new_x = X[p][d] + V[p][d];
+				
+				// feasibility correction
+				// (velocity updated to that which would have taken the previous position
+				// to the newly corrected feasible position)
+				if( new_x < lb[d] ){
+					new_x = lb[d];
+					V[p][d] = 0.0;
+//					new_x = boost::uniform_real<double>(lb[d],ub[d])(m_drng);
+//					V[p][d] = new_x - X[p][d];
+				}
+				else if( new_x > ub[d] ){
+					new_x = ub[d];
+					V[p][d] = 0.0;
+//					new_x = boost::uniform_real<double>(lb[d],ub[d])(m_drng);
+//					V[p][d] = new_x - X[p][d];
+				}
+				
+				X[p][d] = new_x;
+			}
+			
+			// We evaluate here the new individual fitness as to be able to update the global best in real time
+			prob.objfun( fit[p], X[p] );
+			
+			if( prob.compare_fitness( fit[p], lbfit[p] ) ){
+				// update the particle's previous best position
+				lbfit[p] = fit[p];
+				lbX[p] = X[p];
+				
+				// update the best position observed so far by any particle in the swarm
+				// (only performed if swarm topology is gbest)
+				if( m_neighb_type == 1 && prob.compare_fitness( fit[p], best_neighb_fit ) ){
+					best_neighb     = X[p];
+					best_neighb_fit = fit[p];
+				}
+			}
+		
 		} //End of loop on the population members
 	} // end of main PSO loop
+	
+	
+	// copy particles' positions & velocities back to the main population
+	for( p = 0; p < swarm_size; p++ ){
+		pop.set_x( p, lbX[p] );		// sets: cur_x, cur_f, best_x, best_f
+		pop.set_x( p, X[p] );		// sets: cur_x, cur_f
+		pop.set_v( p, V[p] );		// sets: cur_v
+	}
 }
+
+
+/**
+ *  @brief Get information on the best position already visited by any of a particle's neighbours
+ *  
+ *  @param[in] pidx index to the particle under consideration
+ *  @param[in] neighb definition of the swarm's topology
+ *  @param[in] lbX particles' previous best positions
+ *  @param[in] lbfit particles' fitness values at their previous best positions
+ *  @param[in] prob problem undergoing optimization
+ *  @return best position already visited by any of the considered particle's neighbours
+ */
+decision_vector pso::particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob ) const
+{
+	population::size_type  nidx, bnidx;		// neighbour index; best neighbour index
+	
+	switch( m_neighb_type ){
+		case 1: // { gbest }
+			// ERROR: execution should not reach this point, as the global best position is not tracked using the neighb vector
+			pagmo_throw(value_error,"particle__get_best_neighbor() invoked while using a gbest swarm topology");
+			break;
+/*		case 4: // { randomly varying }
+			// TO DO: - pick the best particle out of neighb_param randomly chosen in the swarm
+			//        - side effect: p_neighb is rewritten and is available outside (FIPS will use it)
+			break;
+ */		case 2: // { lbest }
+		case 3: // { von }
+		default:
+			// iterate over indexes of the particle's neighbours, and identify the best
+			bnidx = neighb[pidx][0];
+			for( nidx = 1; nidx < neighb[pidx].size(); nidx++ )
+				if( prob.compare_fitness( lbfit[ neighb[pidx][nidx] ], lbfit[ bnidx ] ) )
+					bnidx = neighb[pidx][nidx];
+			return lbX[bnidx];
+	}
+}
+
+
+/**
+ *  @brief Defines the Swarm topology as a fully connected graph, where particles are influenced by all other particles in the swarm
+ *  
+ *  ''The earliest reported particle swarm version [3], [4] used a kind of
+ *  topology that is known as gbest. The source of social influence on each
+ *  particle was the best performing individual in the entire population. This
+ *  is equivalent to a sociogram or social network where every individual is
+ *  connected to every other one." \n
+ *  ''The gbest topology (i.e., the biggest neighborhood possible) has often
+ *  been shown to converge on optima more quickly than lbest, but gbest is also
+ *  more susceptible to the attraction of local optima since the population
+ *  rushes unanimously toward the first good solution found.'' \n
+ *  [Kennedy and Mendes, 2006] http://dx.doi.org/10.1109/TSMCC.2006.875410
+ *  
+ *  @param[in] pop pagmo::population being evolved
+ *  @param[out] gbX best search space position already visited by the swarm
+ *  @param[out] gbfit best fitness value in the swarm
+ *  @param[out] neighb definition of the swarm's topology
+ */
+void pso::initialize_topology__gbest( const population &pop, decision_vector &gbX, fitness_vector &gbfit, std::vector< std::vector<int> > &neighb ) const
+{
+	// The best position already visited by the swarm will be tracked in pso::evolve() as particles are evaluated.
+	// Here we define the initial values of the variables that will do that tracking.
+	gbX   = pop.champion().x;
+	gbfit = pop.champion().f;
+	
+	/* The usage of a gbest swarm topology along with a FIPS (fully informed particle swarm) velocity update formula
+	 * is discouraged. However, because a user might still configure such a setup, we must ensure FIPS has access to
+	 * the list of indices of particles' neighbours:
+	 */
+	if( m_variant == 6 ){
+		unsigned int i;
+		for( i = 0; i < neighb.size(); i++ )
+			neighb[0].push_back( i );
+		for( i = 1; i < neighb.size(); i++ )
+			neighb[i] = neighb[0];
+	}
+}
+
+
+/**
+ *  @brief Defines the Swarm topology as a ring, where particles are influenced by their immediate neighbors to either side
+ *  
+ *  "The L-best-k topology consists of n nodes arranged in a ring, in which
+ *  node i is connected to each node in {(i+j) mod n : j = +-1,+-2, . . . ,+-k}." \n
+ *  [Mohais et al., 2005] http://dx.doi.org/10.1007/11589990_80
+ *  
+ *  @param[out] neighb definition of the swarm's topology
+ */
+void pso::initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const
+{
+	int swarm_size = neighb.size();
+	int pidx;		// for iterating over particles
+	int nidx, j;	// for iterating over particles' neighbours
+	
+	int radius = m_neighb_param / 2;
+	
+	for( pidx = 0; pidx < swarm_size; pidx++ ){
+		for( j = -radius; j <= radius; j++ ){
+			if( j == 0 ) j++;
+			nidx = (pidx + j) % swarm_size;
+			if( nidx < 0 ) nidx = swarm_size + nidx;
+			neighb[pidx].push_back( nidx );
+		}
+	}
+}
+
+
+/*! @brief Von Neumann neighborhood
+ *  (increments on particles' lattice coordinates that produce the coordinates of their neighbors)
+ *  
+ *  The von Neumann neighbourhood of a point is the points at a Hamming distance of 1.
+ *  
+ *  - http://en.wikipedia.org/wiki/Von_Neumann_neighborhood
+ *  - http://mathworld.wolfram.com/vonNeumannNeighborhood.html
+ *  - http://en.wikibooks.org/wiki/Cellular_Automata/Neighborhood
+ */
+const int	vonNeumann_neighb_diff[4][2] = { {-1,0}, {1,0}, {0,-1}, {0,1} };
+
+/**
+ *  @brief Arranges particles in a lattice, where each interacts with its immediate 4 neighbors to the N, S, E and W.
+ *  
+ *  ''The population is arranged in a rectangular matrix, for instance, 5 x 4
+ *  in a population of 20 individuals, and each individual is connected to
+ *  the individuals above, below and on both of its sides, wrapping the edges'' \n
+ *  [Kennedy and Mendes, 2006] http://dx.doi.org/10.1109/TSMCC.2006.875410
+ *  
+ *  ''Given a population of size n, the von Neumann neighborhood was
+ *  configured into r rows and c columns, where r is the smallest integer
+ *  less than or equal to sqrt(n) that evenly divides n and c = n / r'' \n
+ *  [Mohais et al., 2005] http://dx.doi.org/10.1007/11589990_80 \n
+ *  (there's an error in the description above: "smallest integer" should
+ *  instead be "highest integer")
+ *  
+ *  @param[out] neighb definition of the swarm's topology
+ */
+void pso::initialize_topology__von( std::vector< std::vector<int> > &neighb ) const
+{
+	int swarm_size = neighb.size();
+	int	cols, rows;		// lattice structure
+	int	pidx, nidx;		// particle and neighbour indices, in the swarm and neighbourhood vectors
+	int	p_x, p_y;		// particle's coordinates in the lattice
+	int	n_x, n_y;		// particle neighbor's coordinates in the lattice
+	
+	rows = std::sqrt( swarm_size );
+	while( swarm_size % rows != 0 )
+		rows -= 1;
+	cols = swarm_size / rows;
+	
+	for( pidx = 0; pidx < swarm_size; pidx++ ){
+		p_x = pidx % cols;
+		p_y = pidx / cols;
+		
+		for( nidx = 0; nidx < 4; nidx++ ){
+			n_x = ( p_x + vonNeumann_neighb_diff[nidx][0] ) % cols;  if( n_x < 0 ) n_x = cols + n_x;	// sign of remainder(%) in a division when at least one of the operands is negative is compiler implementation specific. The 'if' here ensures the same behaviour across compilers
+			n_y = ( p_y + vonNeumann_neighb_diff[nidx][1] ) % rows;  if( n_y < 0 ) n_y = rows + n_y;
+			
+			neighb[pidx].push_back( n_y * cols + n_x );
+		}
+	}
+}
+
+
+/**
+ *  @brief Arranges particles in a random graph of fixed degree, that changes over time
+ *  
+ *  @param[out] neighb definition of the swarm's topology
+ */
+void pso::initialize_topology__randomly_varying( std::vector< std::vector<int> > &neighb ) const
+{
+	return;
+}
+
+
 
 /// Algorithm name
 std::string pso::get_name() const
@@ -249,6 +530,9 @@ std::string pso::human_readable_extra() const
 	s << "eta1:" << m_eta1 << ' ';
 	s << "eta2:" << m_eta2 << ' ';
 	s << "variant:" << m_variant << ' ';
+	s << "topology:" << m_neighb_type << ' ';
+	if( m_neighb_type == 2 || m_neighb_type == 4 )
+		s << "topology param.:" << m_neighb_param << ' ';
 	return s.str();
 }
 

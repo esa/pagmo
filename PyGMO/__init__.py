@@ -28,9 +28,20 @@ from copy import copy
 def run_test():
 	from PyGMO import problem, algorithm, island
 	from numpy import mean, std
-	prob_list = [problem.schwefel(10),problem.rastrigin(10),problem.rosenbrock(10)]
-	algo_list = [algorithm.de(500,0.8,0.8,2),algorithm.sa_corana(10000,1,0.1),
-		algorithm.ihs(10000)]
+	
+	prob_list = [problem.schwefel(10),problem.rastrigin(10),problem.rosenbrock(10),problem.griewank(10),problem.cassini_1(),problem.messenger_full()]
+#	prob_list = [ problem.cassini_1(), problem.messenger_full() ]
+
+#	algo_list = [algorithm.de(500,0.8,0.8,2),algorithm.sa_corana(10000,1,0.1),
+#		algorithm.ihs(10000),algorithm.pso(500),algorithm.pso(500,0.65,2.0,2.0,0.2,1)]
+	algo_list = [
+#		algorithm.pso(500, 0.7298, 2.05, 2.05, 1.0, 5, 1),	# constriction coeff + gbest
+		algorithm.pso(500),					# constriction coeff + lbest-2
+#		algorithm.pso(500, 0.7298, 2.05, 2.05, 1.0, 5, 3),	# constriction coeff + von
+		algorithm.pso(500, 0.7298, 2.05, 2.05, 1.0, 6, 3),	# FIPS + von
+#		algorithm.pso(500, 0.65,   2.0,  2.0,  0.2, 1)		# original + gbest
+		]
+	
 	for algo in algo_list:
 		print('Testing algorithm: ' + str(algo))
 		for prob in prob_list:
