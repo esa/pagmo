@@ -30,9 +30,9 @@
 #include <string>
 #include <vector>
 
-#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+// Serialization code
 #include "serialization.h"
-#endif
+// Serialization code (END)
 
 #include "astro_constants.h"
 #include "epoch.h"
@@ -71,6 +71,7 @@ public:
 		* \param[in] name C++ string containing the planet name. Default value is "Unknown"
 		*/
 	planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double &radius, const double &safe_radius, const std::string &name = "Unknown");
+	planet():mean_motion(0),ref_mjd2000(0), radius(0), safe_radius(0), mu_self(0), mu_central_body(0) {};
 	/// Polymorphic copy constructor.
 	virtual planet_ptr clone() const;
 	virtual ~planet();
@@ -173,9 +174,8 @@ protected:
 	* \param[in] name C++ string containing the planet name. Default value is "Unknown"
 	*/
 	void build_planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double & radius, const double & safe_radius, const std::string &name = "Unknown");
-	planet() {};
 private:
-#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+// Serialization code
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -192,7 +192,7 @@ private:
 		ar & cached_v;
 		ar & m_name;
 	}
-#endif
+// Serialization code (END)
 	array6D keplerian_elements;
 	double mean_motion;
 	double ref_mjd2000;
@@ -212,8 +212,8 @@ private:
 std::ostream &operator<<(std::ostream &s, const planet &body);
 } /// End of namespace kep_toolbox
 
-#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+// Serialization code
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(kep_toolbox::planet);
-#endif
+// Serialization code (END)
 
 #endif // PLANET_H

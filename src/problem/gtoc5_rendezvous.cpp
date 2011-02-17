@@ -76,7 +76,7 @@ gtoc5_rendezvous::gtoc5_rendezvous(int segments, int source, int target, const d
 	set_bounds(lb_v,ub_v);
 	
 	// Set spacecraft.
-	m_leg.set_spacecraft(kep_toolbox::spacecraft(m_initial_mass,0.3,3000));
+	m_leg.set_spacecraft(kep_toolbox::sims_flanagan::spacecraft(m_initial_mass,0.3,3000));
 }
 
 /// Clone method.

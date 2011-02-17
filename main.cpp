@@ -36,7 +36,7 @@ int main()
  pagmo::algorithm::de algo(500,0.8,0.8,3);
 
  //This instantiate a 20 dimensional Schwefel problem
- pagmo::problem::schwefel prob(20);
+ pagmo::problem::cassini_1 prob;
 
  //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
  //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
@@ -46,7 +46,7 @@ int main()
  std::cout << prob << std::endl;
 
  //Evolution is here started
- for (int i=0; i< 20; ++i){
+ for (int i=0; i< 200; ++i){
    isl.evolve(); isl.join();
    std::cout << isl.get_population().champion().f[0] << " " << std::endl;
  }

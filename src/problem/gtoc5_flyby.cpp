@@ -89,8 +89,8 @@ gtoc5_flyby::gtoc5_flyby(int segments, int source, int flyby, int target, const 
 	set_bounds(lb_v,ub_v);
 	
 	// Set spacecraft.
-	m_leg1.set_spacecraft(kep_toolbox::spacecraft(m_initial_mass,0.3,3000));
-	m_leg2.set_spacecraft(kep_toolbox::spacecraft(m_initial_mass,0.3,3000));
+	m_leg1.set_spacecraft(kep_toolbox::sims_flanagan::spacecraft(m_initial_mass,0.3,3000));
+	m_leg2.set_spacecraft(kep_toolbox::sims_flanagan::spacecraft(m_initial_mass,0.3,3000));
 }
 
 /// Clone method.

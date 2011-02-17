@@ -79,14 +79,14 @@ class __PAGMO_VISIBLE gtoc_2: public base
 			ar & const_cast<int &>(m_n_seg);
 			ar & m_asteroids;
 			ar & m_legs;
-			ar & const_cast<kep_toolbox::spacecraft &>(m_spacecraft);
+			ar & const_cast<kep_toolbox::sims_flanagan::spacecraft &>(m_spacecraft);
 			ar & m_obj;
 		}
 	private:
 		const int						m_n_seg;
 		std::vector<kep_toolbox::asteroid_gtoc2>		m_asteroids;
 		mutable std::vector<kep_toolbox::sims_flanagan::leg>	m_legs;
-		const kep_toolbox::spacecraft				m_spacecraft;
+		const kep_toolbox::sims_flanagan::spacecraft		m_spacecraft;
 		objective						m_obj;
 };
 

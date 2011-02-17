@@ -38,9 +38,9 @@
 #include "throttle.h"
 #include "../exceptions.h"
 
-#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+// Serialization code
 #include "../serialization.h"
-#endif
+// Serialization code (END)
 
 namespace kep_toolbox {
 /// Sims-Flanagan transcription of low-thrust trajectories
@@ -71,11 +71,30 @@ class leg
 	friend std::ostream &operator<<(std::ostream &s, const leg &in );
 
 public:
+	std::string human_readable() const;
 	/// Constructor.
 	/**
-	* Default constructor.
+	* Default constructor. Constructs a meaningless leg that will need to be properly initialized
+	* using the various setters....
 	*/
-	leg():t_i(),x_i(),throttles(),t_f(),x_f(),sc(),mu(0),m_hf(false),m_tol(-10) {}
+	leg():t_i(),x_i(),throttles(),t_f(),x_f(),m_sc(),m_mu(0),m_hf(false),m_tol(-10) {}
+
+	/// Constructs the leg from epochs, sc_states and cartesian components of throttles
+	/**
+	* Constructs entirely a leg assuming high fidelity propagation switched off.
+	*
+	* \param[in] epoch_i Inital epoch
+	* \param[in] state_i Initial sc_state (spacecraft state)
+	* \param[in] thrott sequence of doubles (\f$ x_1,y_1,z_1, ..., x_N,y_N,z_N \f$) representing the cartesian components of the throttles
+	* \param[in] state_f Final sc_state (spacecraft state)
+	* \param[in] sc Spacecraft object
+	* \param[in] mu Primary body gravitational constant
+	*
+	*/
+	leg(const epoch& epoch_i, const sc_state& state_i, const std::vector<double>& thrott,
+	    const epoch& epoch_f, const sc_state& state_f, const spacecraft& sc, const double mu):m_sc(sc),m_hf(false),m_tol(-10) {
+		set_leg(epoch_i, state_i,thrott.begin(),thrott.end(),epoch_f, state_f,mu);
+	}
 
 	/// Initialize a leg
 	/**
@@ -114,7 +133,7 @@ public:
 		{
 			throw_value_error("Gravitational constant is less or equal to zero");
 		}
-		mu = mu_;
+		m_mu = mu_;
 	}
 	
 	/// Initialize a leg
@@ -154,7 +173,7 @@ public:
 		{
 			throw_value_error("Gravitational constant is less or equal to zero");
 		}
-		mu = mu_;
+		m_mu = mu_;
 
 		t_i = epoch_i;
 		x_i=state_i;
@@ -170,6 +189,12 @@ public:
 		}
 	}
 
+	/// Initialize a leg
+	void set_leg(const epoch& epoch_i, const sc_state& state_i,const std::vector<double>& thrott,
+		     const epoch& epoch_f, const sc_state& state_f) {
+		set_leg(epoch_i, state_i,thrott.begin(),thrott.end(),epoch_f, state_f,m_mu);
+	}
+
 	/** @name Setters*/
 	//@{
 
@@ -180,9 +205,9 @@ public:
 	* low-thrust propulsion system used needs to be available. This is provided by the object
 	* spacecraft private member of the class and can be set using this setter.
 	*
-	* \param[in] sc_ The spacecraft object
+	* \param[in] sc The spacecraft object
 	*/
-	void set_spacecraft(const spacecraft &sc_) { sc = sc_; }
+	void set_spacecraft(const spacecraft &sc) { m_sc = sc; }
 
 	/// Sets the leg's primary body gravitational parameter
 	/**
@@ -191,7 +216,7 @@ public:
 	*
 	* \param[in] mu_ The gravitational parameter
 	*/
-	void set_mu(const double &mu_) { mu = mu_; }
+	void set_mu(const double &mu_) { m_mu = mu_; }
 
 	/// Sets the throttles
 	/**
@@ -265,7 +290,9 @@ public:
 	*
 	* @return sc const reference to spacecraft object
 	*/
-	const spacecraft& get_spacecraft() const { return sc; }
+	const spacecraft& get_spacecraft() const { return m_sc; }
+
+	double get_mu() const { return m_mu; }
 
 	/// Gets the throttle vector size
 	/**
@@ -308,6 +335,7 @@ public:
 	* @return const reference to the initial sc_state
 	*/
 	const sc_state& get_x_i() const {return x_i;}
+	bool get_high_fidelity() const { return m_hf; }
 	//@}
 
 	/** @name Leg Feasibility*/
@@ -344,8 +372,8 @@ protected:
 		const int n_seg_fwd = (n_seg + 1) / 2, n_seg_back = n_seg / 2;
 
 		//Aux variables
-		double max_thrust = sc.get_thrust();
-		double isp = sc.get_isp();
+		double max_thrust = m_sc.get_thrust();
+		double isp = m_sc.get_isp();
 		double norm_dv;
 		array3D dv;
 
@@ -361,7 +389,7 @@ protected:
 						  throttles[i].get_start().mjd2000()) * ASTRO_DAY2SEC;
 			double manouver_time = (throttles[i].get_start().mjd2000() +
 						throttles[i].get_end().mjd2000()) / 2. * ASTRO_DAY2SEC;
-			propagate_lagrangian(rfwd, vfwd, manouver_time - current_time_fwd, mu);
+			propagate_lagrangian(rfwd, vfwd, manouver_time - current_time_fwd, m_mu);
 			current_time_fwd = manouver_time;
 
 			for (int j=0;j<3;j++){
@@ -388,7 +416,7 @@ protected:
 			double manouver_time = (throttles[throttles.size() - i - 1].get_start().mjd2000() +
 						throttles[throttles.size() - i - 1].get_end().mjd2000()) / 2. * ASTRO_DAY2SEC;
 			// manouver_time - current_time_back is negative, so this should propagate backwards
-			propagate_lagrangian(rback, vback, manouver_time - current_time_back, mu);
+			propagate_lagrangian(rback, vback, manouver_time - current_time_back, m_mu);
 			current_time_back = manouver_time;
 
 			for (int j=0;j<3;j++){
@@ -400,7 +428,7 @@ protected:
 		}
 
 		// finally, we propagate from current_time_fwd to current_time_back with a keplerian motion
-		propagate_lagrangian(rfwd, vfwd, current_time_back - current_time_fwd, mu);
+		propagate_lagrangian(rfwd, vfwd, current_time_back - current_time_fwd, m_mu);
 
 		//Return the mismatch
 		diff(rfwd,rfwd,rback);
@@ -421,8 +449,8 @@ protected:
 		const int n_seg_fwd = (n_seg + 1) / 2, n_seg_back = n_seg / 2;
 
 		//Aux variables
-		double max_thrust = sc.get_thrust();
-		double veff = sc.get_isp()*ASTRO_G0;
+		double max_thrust = m_sc.get_thrust();
+		double veff = m_sc.get_isp()*ASTRO_G0;
 		array3D thrust;
 
 		//Initial state
@@ -438,7 +466,7 @@ protected:
 			for (int j=0;j<3;j++){
 				thrust[j] = max_thrust * throttles[i].get_value()[j];
 			}
-			propagate_taylor(rfwd,vfwd,mfwd,thrust,thrust_duration,mu,veff,m_tol,m_tol);
+			propagate_taylor(rfwd,vfwd,mfwd,thrust,thrust_duration,m_mu,veff,m_tol,m_tol);
 		}
 
 		//Final state
@@ -453,7 +481,7 @@ protected:
 			for (int j=0;j<3;j++){
 				thrust[j] = max_thrust * throttles[throttles.size() - i - 1].get_value()[j];
 			}
-			propagate_taylor(rback,vback,mback,thrust,-thrust_duration,mu,veff,m_tol,m_tol);
+			propagate_taylor(rback,vback,mback,thrust,-thrust_duration,m_mu,veff,m_tol,m_tol);
 		}
 
 		//Return the mismatch
@@ -519,13 +547,13 @@ public:
 		for (std::vector<double>::size_type i = 0; i < throttles.size(); ++i)
 		{
 			tmp += (throttles[i].get_end().mjd2000() -throttles[i].get_start().mjd2000())
-					* ASTRO_DAY2SEC * throttles[i].get_norm() * sc.get_thrust() / sc.get_mass();
+					* ASTRO_DAY2SEC * throttles[i].get_norm() * m_sc.get_thrust() / m_sc.get_mass();
 		}
 		return tmp;
 	}
 
 private:
-#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+// Serialization code
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -535,24 +563,24 @@ private:
 			ar & throttles;
 			ar & t_f;
 			ar & x_f;
-			ar & sc;
-			ar & mu;
+			ar & m_sc;
+			ar & m_mu;
 			ar & m_hf;
 			ar & m_tol;
 		}
-#endif
+// Serialization code (END)
 		epoch t_i;
 		sc_state x_i;
 		std::vector<throttle> throttles;
 		epoch t_f;
 		sc_state x_f;
-		spacecraft sc;
-		double mu;
+		spacecraft m_sc;
+		double m_mu;
 		bool m_hf;
 		int m_tol;
 	};
 
-	std::ostream &operator<<(std::ostream &s, const leg &in );
+std::ostream &operator<<(std::ostream &s, const leg &in );
 
 }} //namespaces
 #endif // LEG_H

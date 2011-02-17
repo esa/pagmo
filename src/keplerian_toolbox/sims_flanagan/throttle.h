@@ -2,10 +2,11 @@
 #define THROTTLE_H
 
 #include <numeric>
+#include<iostream>
 
-#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+// Serialization code
 #include "../serialization.h"
-#endif
+// Serialization code (END)
 
 #include "../astro_constants.h"
 #include "../epoch.h"
@@ -29,14 +30,14 @@ public:
 		m_value[2] = 0;
 	}
 
-	throttle(epoch _start, epoch _end, const array3D& _value)
+	throttle(const epoch &_start, const epoch &_end, const array3D& _value)
 		: m_start(_start), m_end(_end), m_value(_value) {}
 
-	epoch get_start() const {
+	const epoch& get_start() const {
 		return m_start;
 	}
 
-	epoch get_end() const {
+	const epoch& get_end() const {
 		return m_end;
 	}
 
@@ -44,13 +45,22 @@ public:
 		return m_value;
 	}
 
+	void set_start(const epoch &e) {m_start=e;}
+	void set_end(const epoch &e) {m_end=e;}
+	void set_value(const array3D& e) {m_value=e;}
+
 	double get_norm() const {
 		return std::sqrt(std::inner_product(m_value.begin(), m_value.end(), m_value.begin(), 0.));
 	}
-
-
+	std::string human_readable() const {
+		std::ostringstream s;
+		s << "start = " << m_start << std::endl;
+		s << "value = " << m_value << std::endl;
+		s << "end = " << m_end;
+		return s.str();
+	}
 private:
-#ifdef KEP_TOOLBOX_ENABLE_SERIALIZATION
+// Serialization code
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -59,7 +69,7 @@ private:
 		ar & m_end;
 		ar & m_value;
 	}
-#endif
+// Serialization code (END)
 	epoch m_start;
 	epoch m_end;
 	array3D m_value;

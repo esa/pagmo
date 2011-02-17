@@ -85,7 +85,7 @@ gtoc5_launch::gtoc5_launch(int segments, int target, objective obj, const double
 	set_bounds(lb_v,ub_v);
 	
 	// Set GTOC5 spacecraft.
-	m_leg.set_spacecraft(kep_toolbox::spacecraft(4000,0.3,3000));
+	m_leg.set_spacecraft(kep_toolbox::sims_flanagan::spacecraft(4000,0.3,3000));
 }
 
 /// Clone method.
