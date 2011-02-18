@@ -84,101 +84,49 @@ int main()
 	std::ofstream myfile;
 	myfile.open((std::string("pagmo_") +
 		boost::lexical_cast<std::string>(rng_generator::get<rng_uint32>()()) + ".tex").c_str());
-
+	myfile << std::setprecision(5);
 	myfile << "\\documentclass{article}\n";
 	myfile << "\\usepackage{xtab}\n";
-	myfile << "\\begin{document}";
-	myfile << "\\begin{xtabular}{lll}\n";
+	myfile << "\\usepackage{rotating}\n";
+	myfile << "\\begin{document}\n";
+	myfile << "\\begin{sidewaystable}\n";
+	myfile << "\\begin{xtabular}{l|ll|ll|ll|ll|ll|ll}\n";
 
 	//0 - Experiment parameters
-	int number_of_islands = 3;
+	int number_of_islands = 8;
 	int number_of_individuals = 20;
-	//int evolution_time = 1000;
-	int number_of_migrations = 2;
-
-	/*
-	std::vector<double> r1;
-	r1.push_back(10);
-	r1.push_back(5.3);
-	std::vector<double> r2;
-	r2.push_back(4);
-	r2.push_back(1.5);
-	std::vector<std::vector<double> > weights;
-	weights.push_back(r1);
-	weights.push_back(r2);
-	*/
-	
-	std::vector<double> tmp(4,0);
-	std::vector<std::vector<double> > w(4,tmp);
-	w[0][0] = 0;
-	w[0][1] = 1;
-	w[0][2] = 100;
-	w[0][3] = 1;
-	w[1][0] = 1;
-	w[1][1] = 0;
-	w[1][2] = 1;
-	w[1][3] = 100;
-	w[2][0] = 100;
-	w[2][1] = 1;
-	w[2][2] = 0;
-	w[2][3] = 1;
-	w[3][0] = 1;
-	w[3][1] = 100;
-	w[3][2] = 1;
-	w[3][3] = 0;
-	
-	std::vector<double> values(5,0);
-	values[0] = 3;
-	values[1] = 7;
-	values[2] = 5;
-	values[3] = 3;
-	values[4] = 5;
-
-	std::vector<double> weights(5,0);
-	weights[0] = 10;
-	weights[1] = 10;
-	weights[2] = 1;
-	weights[3] = 2;
-	weights[4] = 3;
-
-	double max_weight = 11;
+	int function_evaluations = 100;
+	int number_of_migrations = 1;
 
 
 	//1 - We instantiate the problems
-	problem::messenger_full prob0;
-	problem::cassini_1 prob1;
-	problem::griewank prob2(5);
-	problem::ackley prob3(5);
-	problem::rastrigin prob4(5);
-	problem::michalewicz prob5(5);
-	problem::tsp prob6(w);
-	problem::knapsack prob7(values, weights, max_weight);
-	problem::sch prob8;
-	problem::fon prob9;
-	problem::pol prob10;
-	problem::kur prob11;
-	problem::zdt1 prob12;
-	problem::zdt2 prob13;
-	problem::zdt3 prob14;
-	problem::zdt4 prob15;
-	problem::zdt6 prob16;
+	problem::griewank prob1(10);
+	problem::ackley prob2(10);
+	problem::rastrigin prob3(10);
+	problem::rosenbrock prob4(10);
+	problem::schwefel prob5(10);
+	problem::levy5 prob6(10);
+	problem::cassini_1 prob7;
+	problem::cassini_2 prob8;
+	problem::messenger_full prob9;
+	problem::rosetta prob10;
+
 
 	//2 - We instantiate the algorithms
-	algorithm::de algo1(100);
-	algorithm::sga algo2(100,0.8,0.05,1);
-	algorithm::sa_corana algo3(2000,1,0.001);
-	algorithm::ihs algo4(2000);
-	algorithm::bee_colony algo5(50);
-	algorithm::pso algo6(100);					// constriction coeff + lbest-2
-	algorithm::pso algo7(100, 0.7298, 2.05, 2.05, 1.0, 5, 3);	// constriction coeff + von
-	algorithm::pso algo8(100, 0.7298, 2.05, 2.05, 1.0, 6, 3);	// FIPS + von
-	algorithm::pso algo9(100, 0.65,   2.0,  2.0,  0.2, 1, 1);	// original + gbest
+	int gen = function_evaluations/number_of_individuals/number_of_migrations;
+	algorithm::de algo1(gen);
+	algorithm::sga algo2(gen,0.8,0.05,1);
+	algorithm::sa_corana algo3(function_evaluations/number_of_migrations,1,0.001);
+	algorithm::ihs algo4(function_evaluations/number_of_migrations);
+	algorithm::bee_colony algo5(gen/2);
+	algorithm::pso algo6(gen);
 
 	//b - We instantiate the topologies
 	topology::unconnected topo1;
-	topology::ring topo2;
-	topology::fully_connected topo3;
-	topology::watts_strogatz topo4;
+	topology::fully_connected topo2;
+	topology::ring topo3;
+
+//	topology::watts_strogatz topo4;
 
 	//3 - We build a container of algorithms
 	std::vector<algorithm::base_ptr> algo;
@@ -188,56 +136,57 @@ int main()
 	algo.push_back(algo4.clone());
 	algo.push_back(algo5.clone());
 	algo.push_back(algo6.clone());
-	algo.push_back(algo4.clone());
-	algo.push_back(algo7.clone());
-	algo.push_back(algo8.clone());
-	algo.push_back(algo9.clone());
 
 	//4 - And a container of problems
 	std::vector<problem::base_ptr> prob;
-	prob.push_back(prob0.clone());
 	prob.push_back(prob1.clone());
 	prob.push_back(prob2.clone());
 	prob.push_back(prob3.clone());
 	prob.push_back(prob4.clone());
+	prob.push_back(prob5.clone());
+	prob.push_back(prob6.clone());
+	prob.push_back(prob7.clone());
+	prob.push_back(prob8.clone());
+	prob.push_back(prob9.clone());
+	prob.push_back(prob10.clone());
 
 	//5 - And a container of topologies
 	std::vector<topology::base_ptr> topo;
 	topo.push_back(topo1.clone());
-	//topo.push_back(topo2.clone());
-	//topo.push_back(topo3.clone());
-	//topo.push_back(topo4.clone());
+	topo.push_back(topo2.clone());
+	topo.push_back(topo3.clone());
+
+
+	for (unsigned int al =0; al<algo.size(); ++al) {
+		myfile  << " & \\multicolumn{2}{c}{" << algo[al]->get_name() << "} ";
+	}
+	myfile << "\\\\";
+	std::cout << std::setprecision(5);
 
 	for (unsigned int pr=0; pr<prob.size();++pr) {
-		std::cout << std::endl << "Problem: " << prob[pr]->get_name() << std::endl;
-
-		for (unsigned int al =0; al<algo.size(); ++al) {
-			const std::string algo_name = ((al==algo.size()) ? std::string("Coop") : algo[al]->get_name());
-			std::cout << algo_name << '\n' << '\n';
-			std::cout << "\t\tMean" << "\t\tStd Deviation" << std::endl;
-			myfile << "\\hline\n" << "\\multicolumn{3}{c}{" << prob[pr]->get_name() << ", " << algo_name << "}" << "\\\\ \n \\hline\n";
-
-			for (unsigned int to=0; to<topo.size(); ++to) {
-
-				archipelago a = pagmo::archipelago(*topo[to]);
+		std::cout << std::endl << "Problem: " << prob[pr]->get_name()<<std::endl;
+		myfile << "\\hline\n" << "\\multicolumn{13}{c}{" << prob[pr]->get_name() << "}" <<  std::endl;
+		myfile << std::endl << " \\\\ \\hline" << std::endl;
+		for (unsigned int to=0; to<topo.size(); ++to) {
+			myfile << topo[to]->get_name();
+			std::cout << topo[to]->get_name() << std::endl;
+			for (unsigned int al =0; al<algo.size(); ++al) {
+			pagmo::archipelago a = pagmo::archipelago(*topo[to]);
 				for (int i=0; i<number_of_islands; ++i) {
-					if (al == algo.size())
-						a.push_back(island(*algo[i%al],*prob[pr],number_of_individuals));
-					else
-						a.push_back(island(*algo[al],*prob[pr],number_of_individuals));
+					a.push_back(island(*algo[al],*prob[pr],number_of_individuals));
 				}
 				a.evolve(number_of_migrations);
 				a.join();
-				std::cout << topo[to]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
-				for(int i = 0; i < number_of_islands; ++i) {
-					std::cout << "Island " << i << std::endl << a.get_island(i)->get_population().champion().human_readable() << std::endl;					
-				}
-				print_row(myfile,topo[to]->get_name(),mean(a),std_dev(a,mean(a)));
+				myfile << " & " << mean(a) << " & " << std_dev(a,mean(a));
+				std::cout << algo[al]->get_name() << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
 			}
+			myfile << "\\\\" << std::endl;
 		}
 	}
 
+	myfile << "\\hline\n";
 	myfile << "\\end{xtabular}\n";
+	myfile << "\\end{sidewaystable}\n";
 	myfile << "\\end{document}";
 	return 0;
 }

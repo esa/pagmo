@@ -109,6 +109,7 @@ IF(ENABLE_KEPLERIAN_TOOLBOX)
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/lambert_problem.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/spacecraft.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/core_functions/jorba.c
 	)
 ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
