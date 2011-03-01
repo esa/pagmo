@@ -7,7 +7,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 
 INCLUDE(CheckCXXCompilerFlag)
-INCLUDE(PaGMOCPackSetup)
 
 # Initialise (empty) list of libraries to link against.
 SET(MANDATORY_LIBRARIES "")
@@ -87,52 +86,36 @@ OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
 # Build option: enable test set.
 OPTION(ENABLE_TESTS "Build test set." ON)
 
-# Build option: enable test set.
-OPTION(ENABLE_SYSTEM_BOOST "Use system-wide Boost libraries." ON)
-MARK_AS_ADVANCED(ENABLE_SYSTEM_BOOST)
-
 # Build Option: build executable for the examples
-OPTION(BUILD_EXAMPLES "Creates executables for all scripts in folder examples" OFF)
+OPTION(BUILD_EXAMPLES "Build examples." OFF)
 
 SET(DYNAMIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
-IF(ENABLE_SYSTEM_BOOST)
-	# NOTE: for system Boost, we are always going to use the system DLLs.
-	SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
-	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
-	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
+# NOTE: for system Boost, we are always going to use the system DLLs.
+SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
+SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
+SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
 
-	# Setting the boost libraries needed for PaGMO
-	SET(REQUIRED_BOOST_LIBS serialization thread)
-	IF(BUILD_PYGMO)
-		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
-	ENDIF(BUILD_PYGMO)
-	IF(ENABLE_KEPLERIAN_TOOLBOX)
-		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} date_time)
-	ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
-	MESSAGE(STATUS "Required Boost libraries: ${REQUIRED_BOOST_LIBS}")
+# Setting the boost libraries needed for PaGMO
+SET(REQUIRED_BOOST_LIBS serialization thread)
+IF(BUILD_PYGMO)
+	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
+ENDIF(BUILD_PYGMO)
+IF(ENABLE_KEPLERIAN_TOOLBOX)
+	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} date_time)
+ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+MESSAGE(STATUS "Required Boost libraries: ${REQUIRED_BOOST_LIBS}")
 
-	FIND_PACKAGE(Boost 1.42.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
-	MESSAGE(STATUS "Detected Boost version: ${Boost_VERSION}")
-	# Include system Boost headers.
-	MESSAGE(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
-	MESSAGE(STATUS "Boost libraries: ${Boost_LIBRARIES}")
-	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-	SET(MANDATORY_BOOST_LIBS ${Boost_THREAD_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
-	IF(ENABLE_KEPLERIAN_TOOLBOX)
-		SET(MANDATORY_BOOST_LIBS ${MANDATORY_BOOST_LIBS} ${Boost_DATE_TIME_LIBRARY})
-	ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${MANDATORY_BOOST_LIBS})
-ELSE(ENABLE_SYSTEM_BOOST)
-	# NOTE: for the shipped Boost, we will need to compile the relevant libraries.
-	SET(STATIC_LIB_PAGMO_USE_FLAGS "-DBOOST_THREAD_USE_LIB")
-	SET(STATIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_LIB")
-	SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_THREAD_BUILD_DLL -DBOOST_SERIALIZATION_DYN_LINK=1")
-	# NOTE: for Boost Python we are only interested in the dynamic linking, which, according to its config.hpp, is automatically
-	# selected if nothing else is specified. Hence, we do not need to set anything specific, apart from the -DBOOST_PYTHON_SOURCE
-	# definition in src/CMakelists.txt.
-	# Let's include our own Boost headers.
-	INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/external_headers")
-ENDIF(ENABLE_SYSTEM_BOOST)
+FIND_PACKAGE(Boost 1.42.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
+MESSAGE(STATUS "Detected Boost version: ${Boost_VERSION}")
+# Include system Boost headers.
+MESSAGE(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
+MESSAGE(STATUS "Boost libraries: ${Boost_LIBRARIES}")
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+SET(MANDATORY_BOOST_LIBS ${Boost_THREAD_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
+IF(ENABLE_KEPLERIAN_TOOLBOX)
+	SET(MANDATORY_BOOST_LIBS ${MANDATORY_BOOST_LIBS} ${Boost_DATE_TIME_LIBRARY})
+ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${MANDATORY_BOOST_LIBS})
 
 # Some common platform switches.
 SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
@@ -331,35 +314,6 @@ ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
 
 IF(BUILD_PYGMO)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO")
-	IF(WIN32)
-		SET(WIN_PKG_ROOT ${CMAKE_SOURCE_DIR}/windows_package)
-		# Copy license file into windows package directory and install it.
-		CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/COPYING" "${WIN_PKG_ROOT}/license.txt")
-		CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/README" "${WIN_PKG_ROOT}/readme.txt")
-		INSTALL(FILES "${WIN_PKG_ROOT}/license.txt" "${WIN_PKG_ROOT}/readme.txt" DESTINATION .)
-		# Install Console.
-		INSTALL(FILES
-			${WIN_PKG_ROOT}/console/Console.exe
-			${WIN_PKG_ROOT}/console/FreeImage.dll
-			${WIN_PKG_ROOT}/console/console.chm
-			${WIN_PKG_ROOT}/console/console.xml
-			${WIN_PKG_ROOT}/console/ConsoleHook.dll
-			${WIN_PKG_ROOT}/console/FreeImagePlus.dll
-			DESTINATION .
-		)
-		INSTALL(FILES
-			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcm90.dll
-			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcr90.dll
-			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/msvcp90.dll
-			${WIN_PKG_ROOT}/console/Microsoft.VC90.CRT/Microsoft.VC90.CRT.manifest
-			DESTINATION Microsoft.VC90.CRT
-		)
-		# Install IPython profile file.
-		INSTALL(FILES
-			${CMAKE_SOURCE_DIR}/extras/ipy_profile_pygmo.py
-			DESTINATION .
-		)
-	ENDIF(WIN32)
 ENDIF(BUILD_PYGMO)
 
 # From now on all targets will use the static PaGMO library. Add the relevant flags.
@@ -378,5 +332,3 @@ ENDIF(ENABLE_TESTS)
 IF(BUILD_EXAMPLES)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/examples")
 ENDIF(BUILD_EXAMPLES)
-
-INCLUDE(CPack)

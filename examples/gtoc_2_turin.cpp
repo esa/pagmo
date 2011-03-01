@@ -64,7 +64,7 @@ int main()
 	algo.screen_output(true);
 	
 	//Create the island  
-	island isl(pop,algo);
+	island isl(algo,pop);
 
 	//Solve the problem
 	isl.evolve();

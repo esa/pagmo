@@ -158,55 +158,6 @@ IF(ENABLE_IPOPT)
 	)
 ENDIF(ENABLE_IPOPT)
 
-# Boost compiled libraries.
-IF(NOT ENABLE_SYSTEM_BOOST)
-	# Boost  thread library.
-	IF(UNIX)
-		SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/once.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/pthread/thread.cpp
-		)
-	ELSE(UNIX)
-		SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/thread.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_dll.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_thread/win32/tss_pe.cpp
-		)
-	ENDIF(UNIX)
-
-	# Boost serialization library.
-	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_archive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_iserializer.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_oserializer.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_iserializer.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_pointer_oserializer.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_serializer_map.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_iprimitive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_text_oprimitive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/basic_xml_archive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_iarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/binary_oarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_typeid.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/extended_type_info_no_rtti.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_iarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/polymorphic_oarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/stl_port.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_iarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/text_oarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/void_cast.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/archive_exception.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_grammar.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_iarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_oarchive.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/xml_archive_exception.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/boost_serialization/shared_ptr_helper.cpp
-	)
-ENDIF(NOT ENABLE_SYSTEM_BOOST)
-
 # PaGMO MPI bits
 IF(ENABLE_MPI)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
@@ -223,42 +174,7 @@ ENDIF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 
 # Create a pagmo shared library if PyGMO is requested.
 IF(BUILD_PYGMO)
-	IF(ENABLE_SYSTEM_BOOST)
-		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${Boost_PYTHON_LIBRARY})
-	ELSE(ENABLE_SYSTEM_BOOST)
-		ADD_DEFINITIONS(-DBOOST_PYTHON_SOURCE)
-		# We need to compile the source of the Boost.Python libraries.
-		SET(PAGMO_SHARED_LIB_SRC_LIST
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/arg_to_python_base.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/builtin_converters.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/from_python.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/registry.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/converter/type_id.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/class.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/enum.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/function.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/function_doc_signature.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/inheritance.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/iterator.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/life_support.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/pickle_support.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object/stl_iterator.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/dict.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/errors.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/exec.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/import.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/list.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/long.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/module.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/numeric.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object_operators.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/object_protocol.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/slice.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/str.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/tuple.cpp
-			${CMAKE_CURRENT_SOURCE_DIR}/boost_python/wrapper.cpp
-		)
-	ENDIF(ENABLE_SYSTEM_BOOST)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${Boost_PYTHON_LIBRARY})
 	ADD_LIBRARY(pagmo SHARED ${PAGMO_SHARED_LIB_SRC_LIST} ${PAGMO_LIB_SRC_LIST})
 	# Request linking against the Python libs, in addition to our mandatory libs.
 	TARGET_LINK_LIBRARIES(pagmo ${MANDATORY_LIBRARIES} ${PYTHON_LIBRARY})

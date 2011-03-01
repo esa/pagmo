@@ -23,8 +23,6 @@
  *****************************************************************************/
 
 #include <iostream>
-#include <fstream>
-
 #include "src/pagmo.h"
 
 using namespace pagmo;
@@ -35,19 +33,20 @@ int main()
 // see what othert parameters do
  pagmo::algorithm::de algo(500,0.8,0.8,3);
 
- //This instantiate a 20 dimensional Schwefel problem
- pagmo::problem::cassini_1 prob;
+ //This instantiate a 50 dimensional Rosenbrock problem
+ pagmo::problem::rosenbrock prob(50);
 
  //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
  //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
  pagmo::island isl = island(algo,prob,20);
 
- //This prints on screen the instantiated Schwefel problem
+ //This prints on screen the instantiated Rosenbrock problem
  std::cout << prob << std::endl;
 
- //Evolution is here started
+ //Evolution is here started on the single island instantiated
  for (int i=0; i< 200; ++i){
-   isl.evolve(); isl.join();
+   isl.evolve();
+   isl.join();
    std::cout << isl.get_population().champion().f[0] << " " << std::endl;
  }
  return 0;
