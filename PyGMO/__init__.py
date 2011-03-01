@@ -47,7 +47,7 @@ def run_test():
 	for prob in prob_list:
 		print('\nTesting problem: ' + str(type(prob)) + ', Dimension: ' + str(prob.dimension))
 		for algo in algo_list:
-			print('                ' + str(algo))
+			print(' ' + str(algo))
 			best = []
 			best_x = []
 			for i in range(0,number_of_trials):
@@ -56,9 +56,9 @@ def run_test():
 				isl.join()
 				best.append(isl.population.champion.f)
 				best_x.append(isl.population.champion.x)
-			print('                Best:\t' + str(min(best)[0]))
-			print('                Mean:\t' + str(mean(best)))
-			print('                Std:\t' + str(std(best)))
+			print(' Best:\t' + str(min(best)[0]))
+			print(' Mean:\t' + str(mean(best)))
+			print(' Std:\t' + str(std(best)))
 
 def test_aco():
 	from PyGMO import problem, algorithm, island
