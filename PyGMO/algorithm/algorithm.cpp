@@ -26,6 +26,7 @@
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/utility.hpp>
+#include <boost/python/enum.hpp>
 #include <sstream>
 #include <string>
 
@@ -132,6 +133,19 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def("human_readable_extra", &algorithm::base::human_readable_extra, &algorithm::python_base::default_human_readable_extra)
 		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
+	// Exposing enums
+	enum_<algorithm::sga::mutation::type>("_mutation_type")
+		.value("RANDOM", algorithm::sga::mutation::RANDOM)
+		.value("GAUSSIAN", algorithm::sga::mutation::GAUSSIAN);
+	
+	enum_<algorithm::sga::crossover::type>("_crossover_type")
+		.value("BINOMIAL", algorithm::sga::crossover::BINOMIAL)
+		.value("EXPONENTIAL", algorithm::sga::crossover::EXPONENTIAL);
+		
+	enum_<algorithm::sga::selection::type>("_selection_type")
+		.value("BEST20", algorithm::sga::selection::BEST20)
+		.value("ROULETTE", algorithm::sga::selection::ROULETTE);
+		
 	// Expose algorithms.
 
 	// Null.
@@ -179,7 +193,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	// Simple Genetic Algorithm.
 	algorithm_wrapper<algorithm::sga>("sga","Simple Genetic Algorithm.")
-		.def(init<int, const double &, const double &, optional<int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
+		.def(init<int, optional<const double &, const double &, int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
 	
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de","Differential evolution algorithm.")

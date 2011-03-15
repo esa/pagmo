@@ -4,6 +4,11 @@ from _algorithm import *
 # Raw C++ base class.
 _base = _algorithm._base
 
+# Renaming and placing the enums
+_algorithm.sga.crossover = _algorithm._crossover_type
+_algorithm.sga.selection = _algorithm._selection_type
+_algorithm.sga.mutation = _algorithm._mutation_type
+
 class base(_algorithm._base):
 	def __init__(self):
 		_algorithm._base.__init__(self)

@@ -89,8 +89,8 @@ public:
 		/// Crossover type, binomial or exponential
 		enum type {BINOMIAL = 0, EXPONENTIAL = 1};
 	};
-	sga(int gen  = 1, const double &cr = .5, const double &m = .5, int elitism = 1,
-	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
+	sga(int gen  = 1, const double &cr = .95, const double &m = .02, int elitism = 1,
+	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.1,
 	    selection::type sel = selection::ROULETTE,
 	    crossover::type cro = crossover::EXPONENTIAL);
 	base_ptr clone() const;

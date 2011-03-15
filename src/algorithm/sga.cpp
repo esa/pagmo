@@ -345,9 +345,39 @@ std::string sga::human_readable_extra() const
 	s << "CR:" << m_cr << ' ';
 	s << "M:" << m_m << ' ';
 	s << "elitism:" << m_elitism << ' ';
-	s << "mutation type:" << m_mut.m_type << ' ';
-	s << "selection type:" << m_sel << ' ';
-	s << "crossover type:" << m_cro << ' ';
+	s << "mutation:";
+	switch (m_mut.m_type) {
+		case mutation::RANDOM: {
+		      s << "RANDOM "; 
+		      break;
+		      }
+		case mutation::GAUSSIAN: {
+		      s << "GAUSSIAN (" << m_mut.m_width << ") "; 
+		      break;
+		      }
+	}
+	s << "selection:";
+	switch (m_sel) {
+		case selection::BEST20: {
+		      s << "BEST20 "; 
+		      break;
+		      }
+		case selection::ROULETTE: {
+		      s << "ROULETTE "; 
+		      break;
+		      }
+	}
+	s << "crossover:";
+	switch (m_cro) {
+		case crossover::EXPONENTIAL: {
+		      s << "EXPONENTIAL "; 
+		      break;
+		      }
+		case crossover::BINOMIAL: {
+		      s << "BINOMIAL "; 
+		      break;
+		      }
+	}
 
 	return s.str();
 }
