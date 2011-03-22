@@ -124,7 +124,11 @@ archipelago::archipelago(const algorithm::base &a, const problem::base &p, int n
 archipelago::archipelago(const archipelago &a)
 {
 	a.join();
-	m_container = a.m_container;
+	// Deep copy from islands pointers.
+	for (size_type i = 0; i < a.m_container.size(); ++i) {
+		m_container.push_back(a.m_container[i]->clone());
+		m_container.back()->m_archi = this;
+	}
 	m_topology = a.m_topology->clone();
 	m_dist_type = a.m_dist_type;
 	m_migr_dir = a.m_migr_dir;
@@ -147,7 +151,12 @@ archipelago &archipelago::operator=(const archipelago &a)
 	if (this != &a) {
 		join();
 		a.join();
-		m_container = a.m_container;
+		m_container.clear();
+		// Deep copy from islands pointers.
+		for (size_type i = 0; i < a.m_container.size(); ++i) {
+			m_container.push_back(a.m_container[i]->clone());
+			m_container.back()->m_archi = this;
+		}
 		m_topology = a.m_topology->clone();
 		m_dist_type = a.m_dist_type;
 		m_migr_dir = a.m_migr_dir;
