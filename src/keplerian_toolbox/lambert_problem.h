@@ -32,6 +32,7 @@
 // Serialization code
 #include "serialization.h"
 // Serialization code (END)
+#include "config.h"
 
 
 
@@ -58,7 +59,7 @@ namespace kep_toolbox {
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
 
-class lambert_problem
+class __KEP_TOOL_VISIBLE lambert_problem
 {
 	static const array3D default_r1;
 	static const array3D default_r2;
@@ -110,7 +111,7 @@ private:
 	bool m_has_converged;
 
 };
-std::ostream &operator<<(std::ostream &, const lambert_problem &);
+__KEP_TOOL_VISIBLE std::ostream &operator<<(std::ostream &, const lambert_problem &);
 } //namespaces
 
 #endif // KEPLERIAN_TOOLBOX_LAMBERT_PROBLEM_H

@@ -32,6 +32,7 @@
 
 // Serialization code
 #include "serialization.h"
+#include "config.h"
 // Serialization code (END)
 
 #include "astro_constants.h"
@@ -55,7 +56,7 @@ typedef boost::shared_ptr<planet> planet_ptr;
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
 
-class planet
+class __KEP_TOOL_VISIBLE planet
 {
 	friend std::ostream &operator<<(std::ostream &, const planet &);
 public:
@@ -107,7 +108,7 @@ public:
 	 *
 	 * @return const reference to radius (SI Units)
 	 */
-	const double& get_radius() const {return radius;}
+	double get_radius() const {return radius;}
 
 	/// Getter for the planet safe-radius
 	/**
@@ -117,7 +118,7 @@ public:
 	 *
 	 * @return const reference to safe_radius (SI Units)
 	 */
-	const double& get_safe_radius() const {return safe_radius;}
+	double get_safe_radius() const {return safe_radius;}
 
 	//@}
 
@@ -158,6 +159,9 @@ public:
 	
 	/// Returns the planet name
 	std::string get_name() const;
+
+	/// Returns the reference epoch
+	epoch get_ref_epoch() const {return epoch(ref_mjd2000);}
 
 	//@}
 
@@ -209,7 +213,7 @@ private:
 
 };
 
-std::ostream &operator<<(std::ostream &s, const planet &body);
+__KEP_TOOL_VISIBLE std::ostream &operator<<(std::ostream &s, const planet &body);
 } /// End of namespace kep_toolbox
 
 // Serialization code
