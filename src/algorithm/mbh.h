@@ -75,7 +75,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mbh: public base
 {
 public:
-	mbh(const base & = cs(), int stop = 50, double perturb = 5e-2);
+	mbh(const base & = cs(), int stop = 5, double perturb = 5e-2);
 	mbh(const base &, int stop, const std::vector<double> &perturb);
 	mbh(const mbh &);
 	base_ptr clone() const;

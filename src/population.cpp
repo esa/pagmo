@@ -94,7 +94,7 @@ void population::update_dom_list(const size_type &n)
 	for (size_type i = 0; i < size; ++i) {
 		if (i != n) {
 			// Check if individual in position i dominates individual in position n.
-			if (m_prob->compare_fc(m_container[i].cur_f,m_container[i].cur_c,m_container[n].cur_f,m_container[n].cur_c)) {
+			if (m_prob->compare_fc(m_container[i].best_f,m_container[i].best_c,m_container[n].best_f,m_container[n].best_c)) {
 				// Need to update the domination list in i. If n is already present,
 				// do nothing, otherwise push_back.
 				if (std::find(m_dom_list[i].begin(),m_dom_list[i].end(),n) == m_dom_list[i].end()) {
@@ -108,7 +108,7 @@ void population::update_dom_list(const size_type &n)
 				}
 			}
 			// Check if individual in position n dominates individual in position i.
-			if (m_prob->compare_fc(m_container[n].cur_f,m_container[n].cur_c,m_container[i].cur_f,m_container[i].cur_c)) {
+			if (m_prob->compare_fc(m_container[n].best_f,m_container[n].best_c,m_container[i].best_f,m_container[i].best_c)) {
 				m_dom_list[n].push_back(i);
 			}
 		}
@@ -331,10 +331,10 @@ std::string population::human_readable() const
 void population::update_champion(const size_type &idx)
 {
 	pagmo_assert(idx < m_container.size());
-	if (!m_champion.x.size() || m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_champion.f,m_champion.c)) {
-		m_champion.x = m_container[idx].cur_x;
-		m_champion.f = m_container[idx].cur_f;
-		m_champion.c = m_container[idx].cur_c;
+	if (!m_champion.x.size() || m_prob->compare_fc(m_container[idx].best_f,m_container[idx].best_c,m_champion.f,m_champion.c)) {
+		m_champion.x = m_container[idx].best_x;
+		m_champion.f = m_container[idx].best_f;
+		m_champion.c = m_container[idx].best_c;
 	}
 }
 
@@ -490,8 +490,8 @@ population::size_type population::n_dominated(const individual_type &ind) const
 {
 	size_type retval = 0;
 	for (size_type i = 0; i < m_container.size(); ++i) {
-		if (m_prob->compare_fc(ind.cur_f,ind.cur_c,
-			m_container[i].cur_f,m_container[i].cur_c))
+		if (m_prob->compare_fc(ind.best_f,ind.best_c,
+			m_container[i].best_f,m_container[i].best_c))
 		{
 			++retval;
 		}

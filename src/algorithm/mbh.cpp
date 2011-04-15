@@ -43,8 +43,9 @@ namespace pagmo { namespace algorithm {
  * @param[in] local pagmo::algorithm to use as 'local' optimization method
  * @param[in] stop number of consecutive step allowed without any improvement
  * @param[in] perturb At the end of one iteration of mbh, each chromosome of each individual
- * will be perturbed within +-perturb, the same for the velocity. The integer part is treated the same way.
- * @throws value_error if stop is negative or perturb is negative
+ * will be perturbed within +-perturb*(ub-lb), the same for the velocity. The integer part is treated the same way.
+ * rounding to the floor
+ * @throws value_error if stop is negative or perturb is not in [0,1]
  */
 mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb),m_screen_out(false)
 {
@@ -52,7 +53,7 @@ mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_per
 	if (stop < 0) {
 		pagmo_throw(value_error,"number of consecutive step allowed without any improvement needs to be positive");
 	}
-	if (perturb < 0) {
+	if ((perturb < 0) || (perturb > 1)) {
 		pagmo_throw(value_error,"perturb must be positive");
 	}
 }
@@ -64,8 +65,9 @@ mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_per
  * @param[in] local pagmo::algorithm to use as 'local' optimization method
  * @param[in] stop number of consecutive step allowed without any improvement
  * @param[in] perturb At the end of one iteration of mbh, the i-th chromosome of each individual
- * will be perturbed within +-perturb[i], the same for the velocity. The integer part is treated the same way.
- * @throws value_error if stop is negative or perturb[i] is negative
+ * will be perturbed within +-perturb[i]*(ub[i]-lb[i]), the same for the velocity. The integer part is treated the same way 
+ * rounding to the floor
+ * @throws value_error if stop is negative or perturb[i] is not in [0,1]
  */
 mbh::mbh(const base & local, int stop, const std::vector<double> &perturb):base(),m_stop(stop),m_perturb(perturb),m_screen_out(false)
 {
@@ -75,8 +77,8 @@ mbh::mbh(const base & local, int stop, const std::vector<double> &perturb):base(
 	}
 	for (size_t i=0;i<perturb.size();++i)
 	{
-		if (perturb[i] < 0 ) {
-			pagmo_throw(value_error,"perturb[.] must be positive");
+		if ((perturb[i] < 0 ) || (perturb[i] > 1 )) {
+			pagmo_throw(value_error,"perturb[.] must be in [0,1]");
 		}
 	}
 	if (perturb.size()==0) pagmo_throw(value_error,"perturbation vector appears empty!!");
@@ -131,8 +133,8 @@ void mbh::evolve(population &pop) const
 	double dummy, width;
 
 	// Init the best fitness and constraint vector
-	fitness_vector best_f = pop.get_individual(pop.get_best_idx()).cur_f;
-	constraint_vector best_c = pop.get_individual(pop.get_best_idx()).cur_c;
+	fitness_vector best_f = pop.get_individual(pop.get_best_idx()).best_f;
+	constraint_vector best_c = pop.get_individual(pop.get_best_idx()).best_c;
 	population best_pop(pop);
 
 	int i = 0;
@@ -146,20 +148,20 @@ void mbh::evolve(population &pop) const
 		{
 			for (decision_vector::size_type k=0; k < Dc; ++k)
 			{
-				dummy = best_pop.get_individual(j).cur_x[k];
+				dummy = best_pop.get_individual(j).best_x[k];
 				width = m_perturb[k];
-				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_drng);
+				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width*(ub[k]-lb[k]),lb[k]),std::min(dummy+width*(ub[k]-lb[k]),ub[k]))(m_drng);
 				dummy = best_pop.get_individual(j).cur_v[k];
-				tmp_v[k] = boost::uniform_real<double>(dummy-width,dummy+width)(m_drng);
+				tmp_v[k] = boost::uniform_real<double>(dummy-width*(ub[k]-lb[k]),dummy+width*(ub[k]-lb[k]))(m_drng);
 			}
 
 			for (decision_vector::size_type k=Dc; k < D; ++k)
 			{
-				dummy = best_pop.get_individual(j).cur_x[k];
+				dummy = best_pop.get_individual(j).best_x[k];
 				width = m_perturb[k];
-				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
+				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-std::floor(width*(ub[k]-lb[k])),lb[k]),std::min(dummy+std::floor(width*(ub[k]-lb[k])),ub[k]))(m_urng);
 				dummy = best_pop.get_individual(j).cur_v[k];
-				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-width,lb[k]),std::min(dummy+width,ub[k]))(m_urng);
+				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-std::floor(width*(ub[k]-lb[k])),lb[k]),std::min(dummy+std::floor(width*(ub[k]-lb[k])),ub[k]))(m_urng);
 			}
 			pop.set_x(j,tmp_x);
 			pop.set_v(j,tmp_v);
@@ -169,22 +171,22 @@ void mbh::evolve(population &pop) const
 		m_local->evolve(pop); i++;
 		if (m_screen_out)
 		{
-			std::cout << i << ". " << "\tLocal solution: " << pop.get_individual(pop.get_best_idx()).cur_f << "\tGlobal best: " << best_f << std::endl;
+			std::cout << i << ". " << "\tLocal solution: " << pop.get_individual(pop.get_best_idx()).best_f << "\tGlobal best: " << best_f << std::endl;
 		}
 
 		//3. Reset counter if improved
-		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).cur_f,pop.get_individual(pop.get_best_idx()).cur_c,best_f,best_c) )
+		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).best_f,pop.get_individual(pop.get_best_idx()).best_c,best_f,best_c) )
 		{
 			i = 0;
-			best_f = pop.get_individual(pop.get_best_idx()).cur_f;
-			best_c = pop.get_individual(pop.get_best_idx()).cur_c;
+			best_f = pop.get_individual(pop.get_best_idx()).best_f;
+			best_c = pop.get_individual(pop.get_best_idx()).best_c;
 			if (m_screen_out) {
 				std::cout << "New solution accepted. Constraints vector: " << best_c << '\n';
 			}
 			//update best population
 			for (population::size_type j=0; j<pop.size();++j)
 			{
-				best_pop.set_x(j,pop.get_individual(j).cur_x);
+				best_pop.set_x(j,pop.get_individual(j).best_x);
 				best_pop.set_v(j,pop.get_individual(j).cur_v);
 			}
 		}
@@ -194,7 +196,7 @@ void mbh::evolve(population &pop) const
 	//on exit set the population to the best one (discard perturbations)
 	for (population::size_type j=0; j<pop.size();++j)
 	{
-		pop.set_x(j,best_pop.get_individual(j).cur_x);
+		pop.set_x(j,best_pop.get_individual(j).best_x);
 		pop.set_v(j,best_pop.get_individual(j).cur_v);
 	}
 }

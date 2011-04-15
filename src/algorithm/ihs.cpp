@@ -152,6 +152,10 @@ void ihs::evolve(population &pop) const
 		prob.compute_constraints(tmp.cur_c,tmp.cur_x);
 		// Locate the worst individual.
 		const population::size_type worst_idx = pop.get_worst_idx();
+		// We need to set the best values to use the n_dominated method which is based on comparing the best (since March 2011)
+		tmp.best_f = tmp.cur_f;
+		tmp.best_x = tmp.cur_x;
+		tmp.best_c = tmp.cur_c;
 		// If the new individual dominates at least as many individuals as the worst in the population, use it.
 		if (pop.n_dominated(tmp) >= pop.get_domination_list(worst_idx).size()) {
 			pop.set_x(worst_idx,tmp.cur_x);
