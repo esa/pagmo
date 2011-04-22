@@ -105,6 +105,7 @@ BOOST_PYTHON_MODULE(_topology) {
 	topology_wrapper<topology::erdos_renyi>("erdos_renyi", "Erdos-Renyi topology.").def(init<optional<const double &> >());
 	topology_wrapper<topology::fully_connected>("fully_connected", "Fully connected topology.");
 	topology_wrapper<topology::ring>("ring", "Ring topology.");
+	topology_wrapper<topology::hypercube>("hypercube", "Hypercube topology.");
 	topology_wrapper<topology::one_way_ring>("one_way_ring", "One-way ring topology.");
 	topology_wrapper<topology::unconnected>("unconnected", "Unconnected topology.");
 	topology_wrapper<topology::watts_strogatz>("watts_strogatz", "Watts-Strogatz topology.").def(init<optional<int,const double &,int> >());

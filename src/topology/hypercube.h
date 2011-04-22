@@ -22,21 +22,43 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGIES_H
-#define PAGMO_TOPOLOGIES_H
+#ifndef PAGMO_TOPOLOGY_HYPERCUBE_H
+#define PAGMO_TOPOLOGY_HYPERCUBE_H
 
-// Header including all topologies implemented in PaGMO.
+#include <string>
 
-#include "topology/barabasi_albert.h"
-#include "topology/custom.h"
-#include "topology/erdos_renyi.h"
-#include "topology/fully_connected.h"
-#include "topology/one_way_ring.h"
-#include "topology/pan.h"
-#include "topology/rim.h"
-#include "topology/ring.h"
-#include "topology/hypercube.h"
-#include "topology/unconnected.h"
-#include "topology/watts_strogatz.h"
+#include "../config.h"
+#include "../serialization.h"
+#include "base.h"
+
+namespace pagmo { namespace topology {
+
+/// Hypercube topology.
+/**
+ * TODO
+ *
+ * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Marek Ruciński (marek.rucinski@gmail.com)
+ */
+class __PAGMO_VISIBLE hypercube: public base
+{
+	public:
+		hypercube();
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void connect(const vertices_size_type &);
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
+};
+
+}}
+
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::hypercube);
 
 #endif
