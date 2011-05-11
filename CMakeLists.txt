@@ -117,18 +117,16 @@ IF(ENABLE_KEPLERIAN_TOOLBOX)
 ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
 SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${MANDATORY_BOOST_LIBS})
 
+# Initial thread setup.
+FIND_PACKAGE(Threads REQUIRED)
+MESSAGE(STATUS "Thread library: ${CMAKE_THREAD_LIBS_INIT}")
+SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 # Some common platform switches.
 SET(PAGMO_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 IF(UNIX)
 	# Install path for libraries.
 	SET(LIB_INSTALL_PATH "lib")
-	# NOTICE: use FindThreads library from CMake here instead?
-	# If we are in Unix, let's require pthread.
-	FIND_LIBRARY(PTHREAD_LIBRARY pthread)
-	IF(NOT PTHREAD_LIBRARY)
-		MESSAGE(FATAL_ERROR "POSIX thread library not found, please install it or specify manually where it is located.")
-	ENDIF(NOT PTHREAD_LIBRARY)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} pthread)
 	# Enable the pthread flag in Unix only if the compiler is GNU.
 	IF(CMAKE_COMPILER_IS_GNUCXX)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -297,7 +295,7 @@ IF(ENABLE_IPOPT)
 		MESSAGE(FATAL_ERROR "IPOPT support was requested, but ipopt library and headers could not be located. Please make sure that the linker can find the ipopt library and headers. The headers are assumed to be installed in a in coin/ directory")
 	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
 
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARIES} ${COINHSL_LIBRARY} ${DL_LIBRARY})
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARIES} ${DL_LIBRARY})
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_IPOPT)
 	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} ${LAPACK_LINKER_FLAGS}")

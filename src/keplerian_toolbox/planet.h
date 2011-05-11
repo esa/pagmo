@@ -217,7 +217,7 @@ __KEP_TOOL_VISIBLE std::ostream &operator<<(std::ostream &s, const planet &body)
 } /// End of namespace kep_toolbox
 
 // Serialization code
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(kep_toolbox::planet);
+BOOST_CLASS_EXPORT_KEY(kep_toolbox::planet);
 // Serialization code (END)
 
 #endif // PLANET_H

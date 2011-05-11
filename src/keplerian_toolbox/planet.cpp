@@ -97,7 +97,7 @@ planet::~planet() {}
 
 std::string planet::get_name() const {return m_name;}
 
-}
+} // End namespace.
 
 /// Overload the stream operator for kep_toolbox::planet
 /**
@@ -125,3 +125,5 @@ std::ostream &kep_toolbox::operator<<(std::ostream &s, const kep_toolbox::planet
 	s << "Elements reference epoch: " << epoch(body.ref_mjd2000) << std::endl;
 	return s;
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(kep_toolbox::planet);

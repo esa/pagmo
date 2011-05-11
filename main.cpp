@@ -34,7 +34,7 @@ int main()
  pagmo::algorithm::de algo(500,0.8,0.8,3);
 
  //This instantiate a 50 dimensional Rosenbrock problem
- pagmo::problem::rosenbrock prob(50);
+ pagmo::problem::rosenbrock prob(10);
 
  //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
  //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
