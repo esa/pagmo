@@ -1227,4 +1227,19 @@ void base::post_evolution(population &pop) const
 	(void)pop;
 }
 
+/// Reset internal caches.
+/**
+ * This method will reset the internal caches used when (re)evaluating decision vectors for fitnesses and/or constraints.
+ * It should be called whenever a modification to the internal state of the problem makes the cached values invalid (e.g.,
+ * changing the seed in a stochastic optimization problem might change the way decision vectors are evaluated, thus
+ * rendering invalid previously-calculated values).
+ */
+void base::reset_caches() const
+{
+	m_decision_vector_cache_f = decision_vector_cache_type(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity));
+	m_fitness_vector_cache = fitness_vector_cache_type(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity));
+	m_decision_vector_cache_c = decision_vector_cache_type(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity));
+	m_constraint_vector_cache = constraint_vector_cache_type(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity));
+}
+
 }} //namespaces

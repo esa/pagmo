@@ -435,6 +435,7 @@ return base_ptr(new derived_problem(*this));
 		fitness_vector objfun(const decision_vector &) const;
 		void objfun(fitness_vector &, const decision_vector &) const;
 		bool compare_fitness(const fitness_vector &, const fitness_vector &) const;
+		void reset_caches() const;
 	protected:
 		virtual bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.
