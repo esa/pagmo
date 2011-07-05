@@ -59,6 +59,11 @@
 #include "problem/zdt4.h"
 #include "problem/zdt6.h"
 
+// GSL problems.
+#ifdef PAGMO_ENABLE_GSL
+	#include "problem/spheres.h"
+#endif
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
         #include "problem/cassini_1.h"
         #include "problem/cassini_2.h"

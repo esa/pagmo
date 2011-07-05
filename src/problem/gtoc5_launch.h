@@ -38,7 +38,7 @@
 
 namespace pagmo { namespace problem {
 
-/// Test problem kep tool
+/// Launch phase of the GTOC5 roblem
 /**
  *
  *

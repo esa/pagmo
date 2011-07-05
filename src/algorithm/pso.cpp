@@ -62,8 +62,8 @@ pso::pso(int gen, double omega, double eta1, double eta2, double vcoeff, int var
 	}
 	
 	if (eta1 < 0 || eta2 < 0 || eta1 > 4 || eta2 > 4) {
-		pagmo_throw(value_error,"the eta parameters must be in the [0,1] range");
-	}	// CHECK: message differs from code; where's the source for this rule?
+		pagmo_throw(value_error,"the eta parameters must be in the [0,4] range");
+	}
 	
 	if (vcoeff <= 0 || vcoeff > 1) {
 		pagmo_throw(value_error,"fraction of variables' range in which velocity may vary should be in ]0,1]");
@@ -76,7 +76,9 @@ pso::pso(int gen, double omega, double eta1, double eta2, double vcoeff, int var
 	if (neighb_type < 1 || neighb_type > 4) {
 		pagmo_throw(value_error,"swarm topology variant must be one of 1 ... 4");
 	}
+	// And neighb param???
 }
+
 
 /// Clone method.
 base_ptr pso::clone() const
@@ -120,7 +122,7 @@ void pso::evolve(population &pop) const
 	}
 	
 	// Some vectors used during evolution are allocated here.
-	std::vector<double> dummy(D,0);				// used for initialisation purposes
+	std::vector<double> dummy(Dc,0);				// used for initialisation purposes
 	
 	std::vector<decision_vector>  X(swarm_size,dummy);	// particles' current positions
 	std::vector<fitness_vector>   fit(swarm_size);		// particles' current fitness values
@@ -132,11 +134,11 @@ void pso::evolve(population &pop) const
 	
 	
 	std::vector< std::vector<int> > neighb(swarm_size);	// swarm topology (iterators over indexes of each particle's neighbors in the swarm)
-	decision_vector                 best_neighb(D);		// search space position of particles' best neighbor
+	decision_vector                 best_neighb(Dc);	// search space position of particles' best neighbor
 	fitness_vector                  best_neighb_fit;	// fitness at the search space position best_neighb
 	
 	
-	decision_vector minv(D), maxv(D);			// Maximum and minumum velocity allowed
+	decision_vector minv(Dc), maxv(Dc);			// Maximum and minumum velocity allowed
 	
 	double vwidth;						// Temporary variable
 	double new_x;						// Temporary variable

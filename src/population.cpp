@@ -361,7 +361,14 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	// Update current constraints vector.
 	m_prob->compute_constraints(m_container[idx].cur_c,x);
 	// If needed, update the best decision, fitness and constraint vectors for the individual.
-	if (m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_container[idx].best_f,m_container[idx].best_c)) {
+	// NOTE: we update the bests in two cases:
+	// - the bests are empty, meaning they are not defined and we are being called by push_back()
+	// - the bests are defined, but they are worse than the currents.
+	pagmo_assert((!m_container[idx].best_x.size() && !m_container[idx].best_f.size()) ||
+		(m_container[idx].best_x.size() && m_container[idx].best_f.size()));
+	if (!m_container[idx].best_x.size() ||
+		m_prob->compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_container[idx].best_f,m_container[idx].best_c))
+	{
 		m_container[idx].best_x = m_container[idx].cur_x;
 		m_container[idx].best_f = m_container[idx].cur_f;
 		m_container[idx].best_c = m_container[idx].cur_c;
@@ -397,17 +404,12 @@ void population::push_back(const decision_vector &x)
 	m_container.back().cur_v.resize(p_size);
 	m_container.back().cur_c.resize(c_size);
 	m_container.back().cur_f.resize(f_size);
-	m_container.back().best_x.resize(p_size);
-	m_container.back().best_c.resize(c_size);
-	m_container.back().best_f.resize(f_size);
+	// NOTE: do not allocate space for bests, as they are not defined yet. set_x will take
+	// care of it.
 	// Set the individual.
 	set_x(m_container.size() - 1,x);
 	// Initialise randomly the velocity vector.
 	init_velocity(m_container.size() - 1);
-	// Force update best values with current ones.
-	m_container.back().best_x = m_container.back().cur_x;
-	m_container.back().best_c = m_container.back().cur_c;
-	m_container.back().best_f = m_container.back().cur_f;
 }
 
 /// Set the velocity vector of individual at position idx.
@@ -458,6 +460,18 @@ const population::champion_type &population::champion() const
 population::size_type population::size() const
 {
 	return m_container.size();
+}
+
+/// Clear population.
+/**
+ * Will clear the container of individuals, the domination lists and the champion. The problem and random unmber generators
+ * are left untouched.
+ */
+void population::clear()
+{
+	m_container.clear();
+	m_dom_list.clear();
+	m_champion = champion_type();
 }
 
 /// Iterator to the beginning of the population.

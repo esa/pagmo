@@ -289,6 +289,14 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init< optional<int, double> >());
 #endif
 
+#ifdef PAGMO_ENABLE_GSL
+	// Spheres Problems
+	problem_wrapper<problem::spheres>("spheres", "Spheres problem, a neurocontroller for the MIT test-bed")
+		.def(init< optional<int,int,double,unsigned int> >())
+		.def("post_evaluate", &problem::spheres::post_evaluate)
+		.def("simulate", &problem::spheres::simulate);
+#endif
+
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<problem::base_ptr>();
 }

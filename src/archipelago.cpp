@@ -391,7 +391,9 @@ void archipelago::reevaluate_immigrants(std::vector<individual_type> &immigrants
 		tmp.cur_x = ind_it->cur_x;
 		isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
 		isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
-		// Set the best properties to the current ones.
+		// Set the best properties to the current ones. (TODO: maybe here one could
+		// reevaluate the old best in the new environment and keep it if still better than the 
+		// reevaluated current ...... discuss!!
 		tmp.best_x = tmp.cur_x;
 		tmp.best_f = tmp.cur_f;
 		tmp.best_c = tmp.cur_c;

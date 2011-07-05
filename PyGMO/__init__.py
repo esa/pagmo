@@ -84,4 +84,3 @@ def test_aco():
 				print('                Best fitness:\t' + str(best[i]))
 				print('                Best solution:\t' + str(best_x[i]))
 
-
