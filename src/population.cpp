@@ -119,12 +119,33 @@ void population::update_dom_list(const size_type &n)
 void population::init_velocity(const size_type &idx)
 {
 	const decision_vector::size_type p_size = m_prob->get_dimension();
+	double width = 0;
 	for (decision_vector::size_type j = 0; j < p_size; ++j) {
-		// Initialise velocities so that in one tick the particles travel at most half the bounds distance.
-		m_container[idx].cur_v[j] = boost::uniform_real<double>(m_prob->get_lb()[j] / 2,m_prob->get_ub()[j] / 2)(m_drng);
+		// Initialise velocities so that in one tick the particles travel
+		// at most half the bounds distance.
+		width = (m_prob->get_ub()[j] - m_prob->get_lb()[j]) / 2;
+		m_container[idx].cur_v[j] = boost::uniform_real<double>(-width,width)(m_drng);
 		// Change randomly the sign of the velocity.
 		m_container[idx].cur_v[j] *= (m_drng() < .5) ? 1 : -1;
 	}
+}
+
+double population::mean_velocity() const {
+	const population::size_type pop_size(m_container.size());
+	if (pop_size == 0) {
+		pagmo_throw(zero_division_error,"Population has no individuals, no mean velocity can be computed.");
+	}
+	double ret=0, tmp;
+	const decision_vector::size_type p_size = m_prob->get_dimension();
+
+	for (population::size_type i = 0; i<pop_size; ++i) {
+		tmp = 0;
+		for (decision_vector::size_type j = 0; j < p_size; ++j) {
+			tmp += m_container[i].cur_v[j]*m_container[i].cur_v[j];
+		}
+		ret += std::sqrt(tmp);
+	}
+	return (ret / pop_size);
 }
 
 /// Re-initialise all individuals

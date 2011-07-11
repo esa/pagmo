@@ -29,12 +29,13 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
-#include "base.h"
+#include "base_stochastic.h"
 #include "spheres.h"
 
 static const int nr_input = 8;
 static const int nr_output = 3;
 static const int nr_spheres = 3;
+static const int nr_eq = 9;
 static const double target_distance2 = 0.25;
 static const double target_distance = 0.5;
 
@@ -98,58 +99,33 @@ void quat_dyn(double dq[4], const double q[4], const double w[3]) {
 	dq[3] = -0.5 * (q[0]*w[0] + q[1]*w[1] + q[2]*w[2]);
 }
 
-//This function evaluates the fitness of a given spheres configuration ....
-double single_fitness( const std::vector<double> &y ) {
-	double	fit = 0.0;
-	double	diff[3][2];
-	int	nn;
 
-	// for each sphere
-	for( int s1 = 0; s1 < nr_spheres; s1++ ){
-		// for each partner
-		nn = 0;
-		for( int s2 = 0; s2 < nr_spheres; s2++ ){
-			if (s1==s2) continue;
-			// compute the relative position vector norm
-			for( int i = 0; i < 3; i++ ) {
-				diff[i][nn] = y[ s1*3 + i ] - y[ s2*3 + i ];
-			}
-			// and add |L² - R²| to the fitness
-			fit += std::abs(target_distance2 - (diff[0][nn]*diff[0][nn] + diff[1][nn]*diff[1][nn] + diff[2][nn]*diff[2][nn]));
-			nn++;
-		}
-	}
-	return (fit/2);
-}
 
 namespace pagmo { namespace problem {
 
 spheres::spheres(int n_evaluations, int n_hidden_neurons,
 		 double numerical_precision, unsigned int seed) :
-	base((nr_input + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * nr_output),
+	base_stochastic((nr_input + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * nr_output, seed),
 	m_ffnn(nr_input,n_hidden_neurons,nr_output), m_n_evaluations(n_evaluations),
 	m_n_hidden_neurons(n_hidden_neurons), m_numerical_precision(numerical_precision),
-	m_ic(9), m_drng(seed), m_seed(seed) {
+	m_ic(nr_eq) {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
 	set_lb(-1);
 	set_ub(1);
 	// We then instantiate the ode integrator system using gsl
-	m_sys = {ode_func,NULL,9,&m_ffnn};
-	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-3,m_numerical_precision,m_numerical_precision);
+	m_sys = {ode_func,NULL,nr_eq,&m_ffnn};
+	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-6,m_numerical_precision,0.0);
 }
 
 spheres::spheres(const spheres &other):
-	base((nr_input + 1) * other.m_ffnn.m_n_hidden + (other.m_ffnn.m_n_hidden + 1) * nr_output),
+	base_stochastic(other),
 	m_ffnn(other.m_ffnn),
 	m_n_evaluations(other.m_n_evaluations),m_n_hidden_neurons(other.m_n_hidden_neurons),
-	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic),
-	m_drng(other.m_drng),m_seed(other.m_seed)
+	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic)
 {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
-	set_lb(-1);
-	set_ub(1);
-	m_sys = {ode_func,NULL,9,&m_ffnn};
-	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-2,m_numerical_precision,0.0);
+	m_sys = {ode_func,NULL,nr_eq,&m_ffnn};
+	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-6,m_numerical_precision,0.0);
 }
 
 spheres::~spheres(){
@@ -160,6 +136,49 @@ spheres::~spheres(){
 base_ptr spheres::clone() const
 {
 	return base_ptr(new spheres(*this));
+}
+
+//This function evaluates the fitness of a given spheres configuration ....
+double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural_net) const {
+	double	fit = 0.0;
+	double	context[8], vel_f[3];
+	int	k;
+
+	// for each sphere
+
+
+
+	for( int i = 0; i < nr_spheres; i++ ){	// i - is the sphere counter 0 .. 1 .. 2 ..
+		k = 0;
+
+		// we now load in context the perceived data (as decoded from the world state y)
+		for( int n = 1; n <= nr_spheres - 1; n++ ){				// consider the vector from each other sphere
+			for( int j = 0; j < 3; j++ ){				// consider each component from the vectors
+				context[k++] = y[i*3 + j] - y[ (i*3 + j + n*3) % 9 ];
+			}
+		}
+
+		// context now contains the relative position vectors (6 components) in the absolute frame
+		// we write, on the last two components of context, the norms of these relative positions
+		context[6] = context[0]*context[0] + context[1]*context[1] + context[2]*context[2];
+		context[7] = context[3]*context[3] + context[4]*context[4] + context[5]*context[5];
+
+		//We evaluate the output from the neural net
+		neural_net.eval(vel_f, context);
+		vel_f[0] = vel_f[0] * 2 * 0.3 - 0.3;
+		vel_f[1] = vel_f[1] * 2 * 0.3 - 0.3;
+		vel_f[2] = vel_f[2] * 2 * 0.3 - 0.3;
+
+		//first add |L² - R²| to the fitness
+		double temp = std::abs(target_distance2 - context[6]);
+		fit += temp;
+		temp = std::abs(target_distance2 - context[7]);
+		fit += temp;
+
+		// and then the final velocity
+		fit += norm2(vel_f);
+	}
+	return (fit / 2);
 }
 
 int spheres::ode_func( double t, const double y[], double f[], void *params ) {
@@ -180,10 +199,9 @@ int spheres::ode_func( double t, const double y[], double f[], void *params ) {
 		k = 0;
 
 		// we now load in context the perceived data (as decoded from the world state y)
-		for( int n = 0; n < nr_spheres; n++ ){				// consider the vector from each other sphere
-			if (i==n) continue;
-			for( int j = 0; j < 3; j++ ){
-				context[k++] = y[i*3 + j] - y[n*3 + j];
+		for( int n = 1; n <= nr_spheres - 1; n++ ){				// consider the vector from each other sphere
+			for( int j = 0; j < 3; j++ ){				// consider each component from the vectors
+				context[k++] = y[i*3 + j] - y[ (i*3 + j + n*3) % 9 ];
 			}
 		}
 
@@ -196,9 +214,9 @@ int spheres::ode_func( double t, const double y[], double f[], void *params ) {
 		ptr_ffnn->eval(out, context);
 
 		//Here we set the dynamics transforming the nn output [0,1] in desired velocities [-0/3,0.3]
-		f[i*3] = out[0]* 0.3*2 - 0.3;
-		f[i*3+1] = out[1]* 0.3*2 - 0.3;
-		f[i*3+2] = out[2]* 0.3*2 - 0.3;
+		f[i*3] = out[0] * 0.3*2 - 0.3;
+		f[i*3+1] = out[1] * 0.3*2 - 0.3;
+		f[i*3+2] = out[2] * 0.3*2 - 0.3;
 
 	}
 	return GSL_SUCCESS;
@@ -262,11 +280,10 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 		for (int i=0; i<9; ++i) {
 			m_ic[i] = (m_drng()*2 - 1);
 		}
-
 		// Integrate the system
 		double t0 = 0.0;
 		double tf = 50.0;
-		gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-6);
+		//gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-6);
 		int status = gsl_odeiv2_driver_apply( m_gsl_drv_pntr, &t0, tf, &m_ic[0] );
 		// Not sure if this help or what it does ....
 		gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
@@ -274,7 +291,7 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 			printf ("ERROR: gsl_odeiv2_driver_apply returned value = %d\n", status);
 			break;
 		}
-		f[0] += single_fitness(m_ic);
+		f[0] += single_fitness(m_ic,m_ffnn);
 
 	}
 	f[0] /= m_n_evaluations;
@@ -301,15 +318,15 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 		// Integrate the system
 		double t0 = 0.0;
 		double tf = 50.0;
-		gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-4);
+		//gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-6);
 		int status = gsl_odeiv2_driver_apply( m_gsl_drv_pntr, &t0, tf, &m_ic[0] );
 		// Not sure if this help or what it does ....
-		gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
+		//gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
 		if( status != GSL_SUCCESS ){
 			printf ("ERROR: gsl_odeiv2_driver_apply returned value = %d\n", status);
 			break;
 		}
-		one_row[9] = single_fitness(m_ic);
+		one_row[9] = single_fitness(m_ic,m_ffnn);
 		ret[count] = one_row;
 	}
 	// sorting by fitness
@@ -325,7 +342,7 @@ std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, co
 	m_ffnn.set_weights(x);
 	// Integrate the system
 	double ti, t0=0;
-	double tf = 100.0;
+	double tf = 70.0;
 
 	// pushing back the initial conditions
 	one_row[0] = 0.0;
@@ -345,31 +362,33 @@ std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, co
 		}
 	}
 	//Not sure if this help or what it does ....
-	gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
+	//gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
 	return ( ret );
 }
 
 
 void spheres::post_evolution(population &pop) const {
 	// We make sure not to use cached values referring to old seeds
-	pop.problem().reset_caches();
+//	pop.problem().reset_caches();
 	// We make a copy of the population
-	population pop_copy = population(pop);
+//	population pop_copy = population(pop);
 
-//	//Change seed.
-	++m_seed;
-//	//Population is re-evaluated wrt to new seed, memory is preserved.
-	pop.clear();
+//	// We change the problem's seed.
+//	++m_seed;
+//	//Population is re-evaluated wrt to new seed, the memory of each individual (best_x) is preserved.
+//	pop.clear();
 
-	for (population::size_type i = 0; i < pop_copy.size(); ++i) {
+//	for (population::size_type i = 0; i < pop_copy.size(); ++i) {
 //		//Set as current the old best, re-evaluated with new seed.
-		pop.push_back(pop_copy.get_individual(i).best_x);
+//		pop.push_back(pop_copy.get_individual(i).best_x);
 //		//Set as current the old current, re-evaluated with new seed. The old best
 //		//will be retained, if still better.
-		pop.set_x(i,pop_copy.get_individual(i).cur_x);
-		pop.set_v(i,pop_copy.get_individual(i).cur_v);
-	}
+//		pop.set_x(i,pop_copy.get_individual(i).cur_x);
+//		pop.set_v(i,pop_copy.get_individual(i).cur_v);
+//	}
 	//TODO find a way to retain champion information.
 }
 } //namespace problem
 } //namespace pagmo
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::spheres);

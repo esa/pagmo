@@ -201,6 +201,7 @@ class __PAGMO_VISIBLE population
 		void reinit(const size_type &);
 		void reinit();
 		void clear();
+		double mean_velocity() const;
 	private:
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);

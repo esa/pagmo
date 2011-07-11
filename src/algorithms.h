@@ -35,6 +35,7 @@
 #include "algorithm/monte_carlo.h"
 #include "algorithm/null.h"
 #include "algorithm/pso.h"
+#include "algorithm/pso_generational.h"
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
 #include "algorithm/bee_colony.h"

@@ -71,7 +71,6 @@ def visualize(self,world_states):
 
 		time_lbl.text = "t = " + str(world_states[i,0])
 		r_lbl.text = "r12: " + str(dr[0]) + "\n" + "r13: " + str(dr[1]) + "\n" + "r23: "+ str(dr[2])
-		print world_states[i,0]
 		v.rate(50)
 
 	scene.visible = False

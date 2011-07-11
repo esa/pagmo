@@ -53,8 +53,13 @@ namespace pagmo { namespace algorithm {
  * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
  * is performed.
  *
- * NOTE: when called on mixed-integer problems de treats the integer part as fixed and optimizes
+ * NOTE: when called on mixed-integer problems DE treats the integer part as fixed and optimizes
  * the continuous part.
+ *
+ * NOTE2: when called on stochastic optimization problems, DE changes the seed
+ * at the end of each generation.
+ *
+ * NOTE3: the velocity is also updated along DE whenever a new chromosome is accepted.
  *
  * @see http://www.icsi.berkeley.edu/~storn/code.html for the official DE web site
  * @see http://www.springerlink.com/content/x555692233083677/ for the paper that introduces Differential Evolution

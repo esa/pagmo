@@ -3,6 +3,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cross_entropy.cpp
@@ -40,9 +41,10 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/snopt_toyprob.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp

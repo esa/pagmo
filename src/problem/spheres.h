@@ -32,32 +32,34 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "base.h"
+#include "base_stochastic.h"
 #include "../rng.h"
 
 namespace pagmo { namespace problem {
 
-/// Evolutionary Neuro-Controller for Spheres
+/// Evolutionary Neuro-Controller for the MIT Spheres
 /**
  *
- * \image html spheres.gif "Two-dimensional Schwefel function."
- * \image latex spheres.png "Two-dimensional Schwefel function." width=5cm
+ * \image html spheres.jpg "The MIT spheres test-bed on board of the ISS."
+ * \image latex spheres.jpg "The MIT spheres test-bed on boeard of the ISS." width=5cm
  *
  * This problem (a stochastic optimization problem) aims at 'evolving' an artificial neural network
  * able to steer the positions of three satellites representing the SPHERES MIT test-bed
- * on-board of the ISS
+ * on-board of the ISS. It requies GSL libraries and thus it is compiled only if the
+ * relative option is activated.
  *
  * The objective function is the average over multiple runs of the following fitness
  * \f[
- * 	F = |L^2+ r_{12}^2| + |L^2+ r_{13}^2| + |L^2+ r_{23}^2|
+ * 	F = |L^2 - r_{12}^2| + |L^2 - r_{13}^2| + |L^2 - r_{23}^2| + |v_1^2| + |v_2^2| + |v_3^2|
  * \f]
  *
- * rewarding simulations where the spheres are driven by the neurocontroller to a triangular configuration in space
+ * rewarding neurocontrollers that drive the spheres towards a triangular configuration in space
+ * with zero absolute velocity
  *
  * @author Dario Izzo (dario.izzo@esa.int)
  */
 
-class __PAGMO_VISIBLE spheres: public base
+class __PAGMO_VISIBLE spheres: public base_stochastic
 {
 	static int ode_func( double t, const double y[], double f[], void *params );
 	public:
@@ -144,18 +146,17 @@ class __PAGMO_VISIBLE spheres: public base
 				std::vector<double> m_weights;
 				mutable std::vector<double> m_hidden;
 		};
-
+		double single_fitness( const std::vector<double> &, const ffnn& ) const;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_stochastic>(*this);
 			ar & m_ffnn;
 			ar & m_n_evaluations;
 			ar & m_n_hidden_neurons;
 			ar & const_cast<double &>(m_numerical_precision);
 			ar & m_ic;
-			ar & m_drng;
 		}
 		gsl_odeiv2_driver*				m_gsl_drv_pntr;
 		gsl_odeiv2_system				m_sys;
@@ -163,10 +164,7 @@ class __PAGMO_VISIBLE spheres: public base
 		int 						m_n_evaluations;
 		int 						m_n_hidden_neurons;
 		const double					m_numerical_precision;
-		mutable std::vector<double>			m_ic;
-		mutable rng_double				m_drng;
-		mutable unsigned int				m_seed;
-		
+		mutable std::vector<double>			m_ic;	
 };
 
 }} //namespaces

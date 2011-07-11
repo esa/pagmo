@@ -84,10 +84,10 @@ directly in Python.
  - Multi-objective, continuous, box-constrained
   - The SCH and FON problems from nsga-II
  - Stochastic, continuous and box bounded
-  - xxx
+  - A simple inventory problem
 - Engineering Problems
   - All problems from the GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt.htm) and An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
-
+  - Spheres. A problem of neurocontroller evolution applied to the MIT SPHERE test-bed on board the ISS
 \section install Installation guide
 
 To install PaGMO from source code you will need git and CMake installed in your system. On Unix systems:

@@ -29,7 +29,7 @@
 
 #include "../exceptions.h"
 #include "../population.h"
-#include "../problem/base.h"
+#include "../problem/base_stochastic.h"
 #include "../types.h"
 #include "base.h"
 #include "de.h"
@@ -292,8 +292,9 @@ void de::evolve(population &pop) const
 					tmp[i2] = boost::uniform_real<double>(lb[i2],ub[i2])(m_drng);
 				++i2;
 			}
-			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
+
 			//b) how good?
+			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
 			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;
@@ -320,6 +321,33 @@ void de::evolve(population &pop) const
 		/* swap population arrays. New generation becomes old one */
 		std::swap(popold, popnew);
 
+		//If the problem is stochastic, we change the seed and re-evaluate the entire population
+		//we do nothing otherwise
+		try
+		{
+			// We check at run type for the problem type and change the seed ...
+			dynamic_cast<const pagmo::problem::base_stochastic*>(&prob)->change_seed();
+			// So ... the problem IS stochastic and we thus reset the cache and clear pop
+			prob.reset_caches();
+			pagmo::population pop_tmp(pop);
+			pop.clear();
+			// We then re-evaluate the whole population trying to be cache efficient!!
+			for (size_t i = 0; i < NP; ++i){
+				prob.objfun(fit[i], popold[i]);
+				pop.push_back(popold[i]);
+				//std::transform(&popold[i], &popold[i]+D+1, &popnew[i], tmp.begin(),std::minus<double>());
+				pop.set_v(i,pop_tmp.get_individual(i).cur_v);
+				//re-initialize global bests ...
+				gbX=pop.champion().x;
+				gbfit=pop.champion().f;
+				// container for the best decision vector of generation
+				gbIter = gbX;
+			}
+		}
+		catch (const std::bad_cast& e)
+		{
+		// do nothing if the problem is not stochastic .....
+		}
 
 	}//end main DE iterations
 

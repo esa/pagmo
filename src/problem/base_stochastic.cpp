@@ -22,51 +22,18 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include "src/pagmo.h"
+#include "base_stochastic.h"
+#include "../serialization.h"
 
-using namespace pagmo;
+namespace pagmo { namespace problem {
 
-int main()
-{
-
-// This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
-// see what othert parameters do
-//pagmo::algorithm::de algo(1,0.8,0.92,2);
-pagmo::algorithm::pso_generational algo(1,0.7298,2.05,2.05,0.05);
-
-//This instantiates the spheres problem
-pagmo::problem::spheres prob(5,10,1e-6,rand());
-
-std::cout << "Initializing ...." << std::endl;
-
-// This instantiates a population
-pagmo::population pop_temp(prob,512);
-
-prob.set_bounds(-10,10);
-
-pagmo::population pop(prob);
-
-pagmo::decision_vector v(123,0);
-for (int i =0; i<512; ++i) {
-	pop.push_back(pop_temp.get_individual(i).cur_x);
-	pop.set_v(i,v);
+base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_seed(seed), m_drng(seed) {
 }
 
-
-
-island isl(algo,pop);
-
-
-// //Evolution is here started on the single island instantiated
-for (int i=0; i< 1000; ++i){
-   std::cout << i << " " << isl.get_population().champion().f[0] << "\t" << isl.get_population().mean_velocity() << std::endl;
-   isl.evolve();
-   isl.join();
-
- }
-
- std::cout << "and the winner is ......" << "\n" << isl.get_population().champion().x << std::endl;
-
-return 0;
+void base_stochastic::change_seed() const {
+	m_seed = rand();
 }
+
+}} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::base_stochastic);
