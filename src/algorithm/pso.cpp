@@ -22,12 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "pso.h"
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <vector>
 #include <cmath>
 #include <iostream>
+
+#include "pso.h"
+#include "../problem/base_stochastic.h"
 
 
 namespace pagmo { namespace algorithm {
@@ -121,10 +123,10 @@ void pso::evolve(population &pop) const
 		return;
 	}
 
-	// Redirect to the generational version in case needed .....
+	// Redirect to the generational version in case the problem is stochastic .....
 	try
 	{
-		dynamic_cast<const pagmo::problem::base_stochastic*>(&prob)->change_seed();
+		dynamic_cast<const pagmo::problem::base_stochastic*>(&prob);
 		pagmo_throw(value_error,"You are trying to solve a stochastic optimization problem, if you want a PSO, then the generational version of PSO is appropriate....");
 	}
 	catch (const std::bad_cast& e)

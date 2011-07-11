@@ -365,29 +365,6 @@ std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, co
 	//gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
 	return ( ret );
 }
-
-
-void spheres::post_evolution(population &pop) const {
-	// We make sure not to use cached values referring to old seeds
-//	pop.problem().reset_caches();
-	// We make a copy of the population
-//	population pop_copy = population(pop);
-
-//	// We change the problem's seed.
-//	++m_seed;
-//	//Population is re-evaluated wrt to new seed, the memory of each individual (best_x) is preserved.
-//	pop.clear();
-
-//	for (population::size_type i = 0; i < pop_copy.size(); ++i) {
-//		//Set as current the old best, re-evaluated with new seed.
-//		pop.push_back(pop_copy.get_individual(i).best_x);
-//		//Set as current the old current, re-evaluated with new seed. The old best
-//		//will be retained, if still better.
-//		pop.set_x(i,pop_copy.get_individual(i).cur_x);
-//		pop.set_v(i,pop_copy.get_individual(i).cur_v);
-//	}
-	//TODO find a way to retain champion information.
-}
 } //namespace problem
 } //namespace pagmo
 

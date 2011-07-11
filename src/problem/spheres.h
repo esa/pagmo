@@ -110,15 +110,7 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		std::vector<std::vector<double> > simulate(const decision_vector & x, const std::vector<double> &ic, int N) const;
 		base_ptr clone() const;
 
-		/// Post_evolution function
-		/**
-		 * This function changes the seeds of the random number generator member of the class so that
-		 * any successive fitness evaluation will be made with respect to different initial conditions. It
-		 * also re-evaluate the whole population with respect to the new seed
-		 *
-		 * @param[in] pop chromosome encoding the neural network
-		 */
-		void post_evolution(population &pop) const;
+
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
