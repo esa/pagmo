@@ -131,6 +131,7 @@ IF(ENABLE_GSL)
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2rand.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/spheres.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/spheres_q.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/gsl_init.cpp
 	)
 ENDIF(ENABLE_GSL)

@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_SPHERES_H
-#define PAGMO_SPHERES_H
+#ifndef PAGMO_SPHERES_Q_H
+#define PAGMO_SPHERES_Q_H
 
 #include <string>
 #include <vector>
@@ -37,7 +37,7 @@
 
 namespace pagmo { namespace problem {
 
-/// Evolutionary Neuro-Controller for the MIT Spheres (perception-action defined in the absolute frame)
+/// Evolutionary Neuro-Controller for the MIT Spheres (perception-action defined in the body frame)
 /**
  *
  * \image html spheres.jpg "The MIT spheres test-bed on board of the ISS."
@@ -56,16 +56,14 @@ namespace pagmo { namespace problem {
  * rewarding neurocontrollers that drive the spheres towards a triangular configuration in space
  * with zero absolute velocity.
  *
- * NOTE: the dynamical model of the spheres is here that of point masses. As a consequence, each sphere
- * perception and action (sensing and actuating) must be defined with respect to a reference frame absolute
- * orientation. This seemingly small detail brings to an important bias in learning (i.e. the final triangle
- * is always achieved with the same absolute orientation!!!). in pagmo::problem::spheres_q such a bias is removed
- * by defining perception and action in the sphere's body frame.
+ * NOTE: the dynamical model of the spheres is here that of six-degrees of freedom bodies. With respect
+ * to pagmo::problem::spheres, this requires the intorduction of quaternion dynamics, hence the
+ * name spheres_q (q is the classical letter to indicate a quaternion)
  *
  * @author Dario Izzo (dario.izzo@esa.int)
  */
 
-class __PAGMO_VISIBLE spheres: public base_stochastic
+class __PAGMO_VISIBLE spheres_q: public base_stochastic
 {
 	static int ode_func( double t, const double y[], double f[], void *params );
 	public:
@@ -78,19 +76,19 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		 * @param[in] ode_prec precision requested to adapt the ode-solver step size
 		 * @param[in] seed seed used to produce all random initial conditions
 		 */
-		spheres(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-3, unsigned int seed = 0);
+		spheres_q(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-3, unsigned int seed = 0);
 
 		/// Copy Constructor
 		/**
 		 * Necessary to properly handle the gsl variables (pointers!!!)
 		 */
-		spheres(const spheres &);
+		spheres_q(const spheres_q &);
 
 		/// Destructor
 		/**
 		 * Necessary to properly clear memory allocated by gsl routines
 		 */
-		~spheres();
+		~spheres_q();
 
 		/// Post evaluation of the neural controller
 		/**
@@ -167,6 +165,6 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::spheres);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::spheres_q);
 
-#endif // PAGMO_SPHERES_H
+#endif // PAGMO_SPHERES_Q_H

@@ -25,13 +25,13 @@
 #include "../population.h"
 #include "../rng.h"
 #include "../types.h"
-#include "base.h"
+#include "base_stochastic.h"
 #include "inventory.h"
 
 namespace pagmo { namespace problem {
 
-inventory::inventory(int weeks,int sample_size):base(weeks),m_seed(rng_generator::get<rng_uint32>()()),
-	m_weeks(weeks),m_sample_size(sample_size),m_drng(m_seed)
+inventory::inventory(int weeks,int sample_size, unsigned int seed) : base_stochastic(weeks,seed),
+	m_weeks(weeks),m_sample_size(sample_size)
 {
 	set_lb(0.0);
 	set_ub(200.0);
@@ -59,24 +59,7 @@ void inventory::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = retval / m_sample_size;
 }
 
-//This function tells pagmo to always re-evaluate individuals when considering individuals coming from
-//other islands
-bool inventory::equality_operator_extra(const base &) const
-{
-	return false;
-}
 
-void inventory::pre_evolution(population &pop) const
-{
-	m_seed = rng_generator::get<rng_uint32>()();
-
-	//Re-evaluate the population with respect to the new seed (Internal Sampling Method)
-	for (population::size_type i = 0; i<pop.size(); ++i) {
-		pop.set_x(i,pop.get_individual(i).cur_x);
-	}
-}
-
-}
-}
+}} //namespaces
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::inventory);

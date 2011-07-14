@@ -34,6 +34,7 @@
 #include "../exceptions.h"
 #include "../population.h"
 #include "../problem/base.h"
+#include "../problem/base_stochastic.h"
 #include "../types.h"
 #include "base.h"
 #include "sga.h"
@@ -325,6 +326,32 @@ void sga::evolve(population &pop) const
 			pop.set_v(worst,dummy);
 		}
 		X = Xnew;
+
+		//6  If the problem is stochastic, we change the seed and re-evaluate the entire population
+		//we do nothing otherwise
+		try
+		{
+			// We check at run type for the problem type and change the seed ...
+			dynamic_cast<const pagmo::problem::base_stochastic*>(&prob)->change_seed();
+
+			// So ... the problem IS stochastic and we thus reset the cache and clear pop
+			prob.reset_caches();
+			pagmo::population pop_tmp(pop);
+			pop.clear();
+
+			// We then re-evaluate the whole population trying to be cache efficient!!
+			for (size_t i = 0; i < NP; ++i){
+				prob.objfun(fit[i], X[i]);
+				pop.push_back(X[i]);
+				pop.set_v(i,pop_tmp.get_individual(i).cur_v);
+			}
+			// And the bestX to properly implement elitism
+			prob.objfun(bestfit, bestX);
+		}
+		catch (const std::bad_cast& e)
+		{
+		// do nothing if the problem is not stochastic .....
+		}
 	} // end of main SGA loop
 }
 

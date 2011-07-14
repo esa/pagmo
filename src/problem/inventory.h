@@ -34,7 +34,7 @@
 #include "../rng.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "base.h"
+#include "base_stochastic.h"
 
 namespace pagmo
 {
@@ -62,14 +62,25 @@ namespace problem {
  *
  * @author Dario Izzo (dario.izzo@esa.int)
  */
-class __PAGMO_VISIBLE inventory: public base
+class __PAGMO_VISIBLE inventory: public base_stochastic
 {
 	public:
-		inventory(int = 4,int = 10);
+		/// Constructor from weeks, sample size and random seed
+		/**
+		 * Given the numer of weeks (i.e. prolem dimension), the sample size to
+		 * approximate the expected value and a starting random seed, we contruct
+		 * the inventory prolem
+		 *
+		 * @param[in] weeks integer dimension of the problem corresponding to the numer of weeks
+		 * to plan the inventory for.
+		 * @param[in] sample_size integer dimension of the sample used to approximate the expected value
+		 * @param[in] seed unsigned integer used as starting random seed to build the pseudorandom sequences used to
+		 * generate the sample
+		 * @see problem::base constructors.
+		 */
+		inventory(int weeks = 4,int sample_size = 10, unsigned int seed = 0);
 		base_ptr clone() const;
 	protected:
-		bool equality_operator_extra(const base &) const;
-		void pre_evolution(population &) const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
@@ -77,16 +88,13 @@ class __PAGMO_VISIBLE inventory: public base
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & m_seed;
 			ar & m_weeks;
 			ar & m_sample_size;
-			ar & m_drng;
 		}
 	private:
-		mutable int			m_seed;
 		int				m_weeks;
 		std::size_t			m_sample_size;
-		mutable rng_double		m_drng;
+
 };
 
 }

@@ -22,13 +22,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "pso_generational.h"
-#include "../problems.h"
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <vector>
 #include <cmath>
 #include <iostream>
+
+#include "pso_generational.h"
+#include "../problems.h"
+#include "../problem/base_stochastic.h"
+
 
 
 namespace pagmo { namespace algorithm {
@@ -306,12 +309,14 @@ void pso_generational::evolve(population &pop) const
 					V[p][d] = 0.0;
 //					new_x = boost::uniform_real<double>(lb[d],ub[d])(m_drng);
 //					V[p][d] = new_x - X[p][d];
+//					V[p][d] = 0;
 				}
 				else if( new_x > ub[d] ){
 					new_x = ub[d];
 					V[p][d] = 0.0;
 //					new_x = boost::uniform_real<double>(lb[d],ub[d])(m_drng);
 //					V[p][d] = new_x - X[p][d];
+//					V[p][d] = 0;
 				}
 				X[p][d] = new_x;
 			}

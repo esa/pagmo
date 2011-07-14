@@ -29,44 +29,26 @@ using namespace pagmo;
 
 int main()
 {
-
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
 // see what othert parameters do
-//pagmo::algorithm::de algo(1,0.8,0.92,2);
-pagmo::algorithm::pso_generational algo(1,0.7298,2.05,2.05,0.05);
+pagmo::algorithm::de algo(500,0.8,0.8,3);
 
-//This instantiates the spheres problem
-pagmo::problem::spheres prob(5,10,1e-6,rand());
+//This instantiate a 50 dimensional Rosenbrock problem
+pagmo::problem::rosenbrock prob(10);
 
-std::cout << "Initializing ...." << std::endl;
+//This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
+//with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
+pagmo::island isl = island(algo,prob,20);
 
-// This instantiates a population
-pagmo::population pop_temp(prob,512);
+//This prints on screen the instantiated Rosenbrock problem
+std::cout << prob << std::endl;
 
-prob.set_bounds(-10,10);
-
-pagmo::population pop(prob);
-
-pagmo::decision_vector v(123,0);
-for (int i =0; i<512; ++i) {
-	pop.push_back(pop_temp.get_individual(i).cur_x);
-	pop.set_v(i,v);
+//Evolution is here started on the single island instantiated
+for (int i=0; i< 200; ++i){
+	isl.evolve();
+	isl.join();
+	std::cout << isl.get_population().champion().f[0] << " " << std::endl;
 }
-
-
-
-island isl(algo,pop);
-
-
-// //Evolution is here started on the single island instantiated
-for (int i=0; i< 1000; ++i){
-   std::cout << i << " " << isl.get_population().champion().f[0] << "\t" << isl.get_population().mean_velocity() << std::endl;
-   isl.evolve();
-   isl.join();
-
- }
-
- std::cout << "and the winner is ......" << "\n" << isl.get_population().champion().x << std::endl;
 
 return 0;
 }

@@ -30,12 +30,12 @@
 #include "../types.h"
 #include "../population.h"
 #include "base_stochastic.h"
-#include "spheres.h"
+#include "spheres_q.h"
 
 static const int nr_input = 8;
 static const int nr_output = 3;
 static const int nr_spheres = 3;
-static const int nr_eq = 9;
+static const int nr_eq = 21;
 static const double target_distance2 = 0.25;
 static const double target_distance = 0.5;
 
@@ -99,11 +99,9 @@ static void quat_dyn(double dq[4], const double q[4], const double w[3]) {
 	dq[3] = -0.5 * (q[0]*w[0] + q[1]*w[1] + q[2]*w[2]);
 }
 
-
-
 namespace pagmo { namespace problem {
 
-spheres::spheres(int n_evaluations, int n_hidden_neurons,
+spheres_q::spheres_q(int n_evaluations, int n_hidden_neurons,
 		 double numerical_precision, unsigned int seed) :
 	base_stochastic((nr_input + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * nr_output, seed),
 	m_ffnn(nr_input,n_hidden_neurons,nr_output), m_n_evaluations(n_evaluations),
@@ -117,7 +115,7 @@ spheres::spheres(int n_evaluations, int n_hidden_neurons,
 	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-6,m_numerical_precision,0.0);
 }
 
-spheres::spheres(const spheres &other):
+spheres_q::spheres_q(const spheres_q &other):
 	base_stochastic(other),
 	m_ffnn(other.m_ffnn),
 	m_n_evaluations(other.m_n_evaluations),m_n_hidden_neurons(other.m_n_hidden_neurons),
@@ -128,42 +126,44 @@ spheres::spheres(const spheres &other):
 	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-6,m_numerical_precision,0.0);
 }
 
-spheres::~spheres(){
+spheres_q::~spheres_q(){
 	gsl_odeiv2_driver_free(m_gsl_drv_pntr);
 }
 
 /// Clone method.
-base_ptr spheres::clone() const
+base_ptr spheres_q::clone() const
 {
-	return base_ptr(new spheres(*this));
+	return base_ptr(new spheres_q(*this));
 }
 
 //This function evaluates the fitness of a given spheres configuration ....
-double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural_net) const {
+double spheres_q::single_fitness( const std::vector<double> &y, const ffnn& neural_net) const {
 	double	fit = 0.0;
-	double	context[8], vel_f[3];
+	double	context[8], vel_f[3], C[3][3];
 	int	k;
 
-	// for each sphere
-
-
-
+	// For each sphere
 	for( int i = 0; i < nr_spheres; i++ ){	// i - is the sphere counter 0 .. 1 .. 2 ..
 		k = 0;
 
-		// we now load in context the perceived data (as decoded from the world state y)
+		// We now load in context the perceived data (as decoded from the world state y)
 		for( int n = 1; n <= nr_spheres - 1; n++ ){				// consider the vector from each other sphere
 			for( int j = 0; j < 3; j++ ){				// consider each component from the vectors
 				context[k++] = y[i*3 + j] - y[ (i*3 + j + n*3) % 9 ];
 			}
 		}
 
-		// context now contains the relative position vectors (6 components) in the absolute frame
+		// Context now contains the relative position vectors (6 components) in the absolute frame
 		// we write, on the last two components of context, the norms of these relative positions
 		context[6] = context[0]*context[0] + context[1]*context[1] + context[2]*context[2];
 		context[7] = context[3]*context[3] + context[4]*context[4] + context[5]*context[5];
 
-		//We evaluate the output from the neural net
+		// We put the perception in body axis
+		q2C(C,&y[9 + i*4]);
+		matrix_transformation(&context[0],C);
+		matrix_transformation(&context[3],C);
+
+		//We evaluate the output from the neural net (no need to rotate back in this case)
 		neural_net.eval(vel_f, context);
 		vel_f[0] = vel_f[0] * 2 * 0.3 - 0.3;
 		vel_f[1] = vel_f[1] * 2 * 0.3 - 0.3;
@@ -181,7 +181,7 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 	return (fit / 2);
 }
 
-int spheres::ode_func( double t, const double y[], double f[], void *params ) {
+int spheres_q::ode_func( double t, const double y[], double f[], void *params ) {
 
 	// Here we recover the neural network
 	ffnn	*ptr_ffnn = (ffnn*)params;
@@ -193,7 +193,8 @@ int spheres::ode_func( double t, const double y[], double f[], void *params ) {
 
 	// Here are some counters
 	int  k;
-
+	// and the rotation matrix
+	double C[3][3];
 
 	for( int i = 0; i < nr_spheres; i++ ){	// i - is the sphere counter 0 .. 1 .. 2 ..
 		k = 0;
@@ -210,28 +211,42 @@ int spheres::ode_func( double t, const double y[], double f[], void *params ) {
 		context[6] = context[0]*context[0] + context[1]*context[1] + context[2]*context[2];
 		context[7] = context[3]*context[3] + context[4]*context[4] + context[5]*context[5];
 
+		// We put the perception in body axis
+		q2C(C,&y[9 + i*4]);
+		matrix_transformation(&context[0],C);
+		matrix_transformation(&context[3],C);
+
 		//We evaluate the output from the neural net
 		ptr_ffnn->eval(out, context);
+		out[0] = out[0] * 0.3 * 2 - 0.3;
+		out[1] = out[1] * 0.3 * 2 - 0.3;
+		out[2] = out[2] * 0.3 * 2 - 0.3;
 
-		//Here we set the dynamics transforming the nn output [0,1] in desired velocities [-0/3,0.3]
-		f[i*3] = out[0] * 0.3 * 2 - 0.3;
-		f[i*3+1] = out[1] * 0.3 * 2 - 0.3;
-		f[i*3+2] = out[2] * 0.3 * 2 - 0.3;
+		// We transform back from body axis to absolute reference
+		matrix_inv_transformation(&out[0],C);
+
+		// Here we set the dynamics of positions ...
+		f[i*3] = out[0];
+		f[i*3+1] = out[1];
+		f[i*3+2] = out[2];
+
+		// ... and quaternion
+		f[9+i*4] = 0; f[10+i*4] = 0; f[11+i*4] = 0; f[12+i*4] = 0;
 
 	}
 	return GSL_SUCCESS;
 }
 
-spheres::ffnn::ffnn(const unsigned int n_inputs, const unsigned int n_hidden,const unsigned int n_outputs) :
+spheres_q::ffnn::ffnn(const unsigned int n_inputs, const unsigned int n_hidden,const unsigned int n_outputs) :
 	m_n_inputs(n_inputs), m_n_hidden(n_hidden), m_n_outputs(n_outputs),
 	m_weights((n_inputs + 1) * n_hidden + (n_hidden + 1) * n_outputs), m_hidden(n_hidden)
 {}
 
-void spheres::ffnn::set_weights(const std::vector<double> &weights) {
+void spheres_q::ffnn::set_weights(const std::vector<double> &weights) {
 	m_weights = weights;
 }
 
-void spheres::ffnn::eval(double out[], const double in[]) const {
+void spheres_q::ffnn::eval(double out[], const double in[]) const {
 	// Offset for the weights to the output nodes
 	unsigned int offset = m_n_hidden * (m_n_inputs + 1);
 
@@ -267,19 +282,38 @@ void spheres::ffnn::eval(double out[], const double in[]) const {
 	}
 }
 
-void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
+void spheres_q::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 	f[0]=0;
+
 	// Make sure the pseudorandom sequence will always be the same
 	m_drng.seed(m_seed);
+
 	// Set the ffnn weights
 	m_ffnn.set_weights(x);
+
 	// Loop over the number of repetitions
 	for (int count=0;count<m_n_evaluations;++count) {
+
 		// Creates the initial conditions at random
 		// Position starts in a [-2,2] box
 		for (int i=0; i<9; ++i) {
 			m_ic[i] = (m_drng()*4 - 2);
 		}
+
+		// randomly initialize Spheres' quaternion using the equations in
+		// http://planning.cs.uiuc.edu/node198.html
+		for( int it = 0; it< nr_spheres; ++it) {
+			double u1 = m_drng();
+			double u2 = m_drng();
+			double u3 = m_drng();
+			double radice = sqrt(1-u1);
+			m_ic[9 + 4*it] = radice*sin(2*u2*M_PI);
+			m_ic[10 + 4*it] = radice*cos(2*u2*M_PI);
+			radice = sqrt(u1);
+			m_ic[11 + 4*it] = radice*sin(2*u3*M_PI);
+			m_ic[12 + 4*it] = radice*cos(2*u3*M_PI);
+		}
+
 		// Integrate the system
 		double t0 = 0.0;
 		double tf = 50.0;
@@ -297,10 +331,10 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 	f[0] /= m_n_evaluations;
 }
 
-static bool my_sort_function (std::vector<double> i,std::vector<double> j) { return (i[9] < j[9]); }
+static bool my_sort_function (std::vector<double> i,std::vector<double> j) { return (i[nr_eq] < j[nr_eq]); }
 
-std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector & x, int N, unsigned int seed) const {
-	std::vector<double> one_row(10,0.0);
+std::vector<std::vector<double> > spheres_q::post_evaluate(const decision_vector & x, int N, unsigned int seed) const {
+	std::vector<double> one_row(nr_eq+1,0.0);
 	std::vector<std::vector<double> > ret(N,one_row);
 	// Make sure the pseudorandom sequence will always be the same
 	m_drng.seed(seed);
@@ -315,6 +349,25 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 			one_row[i] = m_ic[i];
 		}
 
+		// randomly initialize Spheres' quaternion using the equations in
+		// http://planning.cs.uiuc.edu/node198.html
+		for( int it = 0; it< nr_spheres; ++it) {
+			double u1 = m_drng();
+			double u2 = m_drng();
+			double u3 = m_drng();
+			double radice = sqrt(1-u1);
+			m_ic[9 + 4*it] = radice*sin(2*u2*M_PI);
+			m_ic[10 + 4*it] = radice*cos(2*u2*M_PI);
+			radice = sqrt(u1);
+			m_ic[11 + 4*it] = radice*sin(2*u3*M_PI);
+			m_ic[12 + 4*it] = radice*cos(2*u3*M_PI);
+			one_row[9+ 4*it] = m_ic[9 + 4*it];
+			one_row[10+ 4*it] = m_ic[10 + 4*it];
+			one_row[11+ 4*it] = m_ic[11 + 4*it];
+			one_row[12+ 4*it] = m_ic[12 + 4*it];
+		}
+
+
 		// Integrate the system
 		double t0 = 0.0;
 		double tf = 50.0;
@@ -326,7 +379,7 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 			printf ("ERROR: gsl_odeiv2_driver_apply returned value = %d\n", status);
 			break;
 		}
-		one_row[9] = single_fitness(m_ic,m_ffnn);
+		one_row[nr_eq] = single_fitness(m_ic,m_ffnn);
 		ret[count] = one_row;
 	}
 	// sorting by fitness
@@ -334,9 +387,9 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 	return ( ret );
 }
 
-std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, const std::vector<double> &ic, int N) const {
+std::vector<std::vector<double> > spheres_q::simulate(const decision_vector &x, const std::vector<double> &ic, int N) const {
 	std::vector<double> y0(ic);
-	std::vector<double> one_row(10,0.0);
+	std::vector<double> one_row(nr_eq+1,0.0);
 	std::vector<std::vector<double> > ret;
 	// Set the ffnn weights
 	m_ffnn.set_weights(x);
@@ -368,4 +421,4 @@ std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, co
 } //namespace problem
 } //namespace pagmo
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::spheres);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::spheres_q);

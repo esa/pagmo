@@ -112,6 +112,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 	
+
 	// Ackley problem.
 	problem_wrapper<problem::ackley>("ackley","Ackley function.")
 		.def(init<int>());
@@ -128,9 +129,9 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::michalewicz>("michalewicz","Michalewicz's function.")
 		.def(init<int, optional<int> >());
 
-        // Inventory problem.
-        problem_wrapper<problem::inventory>("inventory","Inventory problem.")
-                .def(init<int, int>());
+	// Inventory problem.
+	problem_wrapper<problem::inventory>("inventory","Inventory problem.")
+		.def(init<int, int>());
 
 	// Lennard Jones problem.
 	problem_wrapper<problem::lennard_jones>("lennard_jones","Lennard Jones problem.")
@@ -185,7 +186,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::string_match>("string_match","String matching problem.")
 		.def(init<const std::string &>());
 
-        // Traveling salesman problem
+	// Traveling salesman problem
 	problem_wrapper<problem::tsp>("tsp","Traveling salesman problem")
 		.def(init<const std::vector<std::vector<double> > &>());
 	
@@ -291,10 +292,15 @@ BOOST_PYTHON_MODULE(_problem) {
 
 #ifdef PAGMO_ENABLE_GSL
 	// Spheres Problems
-	problem_wrapper<problem::spheres>("spheres", "Spheres problem, a neurocontroller for the MIT test-bed")
+	problem_wrapper<problem::spheres>("spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
 		.def(init< optional<int,int,double,unsigned int> >())
 		.def("post_evaluate", &problem::spheres::post_evaluate)
 		.def("simulate", &problem::spheres::simulate);
+
+	problem_wrapper<problem::spheres_q>("spheres_q", "Spheres problem, a neurocontroller for the MIT test-bed (body-axis perception-action)")
+		.def(init< optional<int,int,double,unsigned int> >())
+		.def("post_evaluate", &problem::spheres_q::post_evaluate)
+		.def("simulate", &problem::spheres_q::simulate);
 #endif
 
 	// Register to_python conversion from smart pointer.

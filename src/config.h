@@ -51,6 +51,7 @@ can be fed to it (i.e. box-constrained or mixed integer etc.):
 - A Simple Genetic Algorithm (pagmo::algorithm::sga)
 - Differential Evolution (pagmo::algorithm::de)
 - Particle Swarm Optimization (pagmo::algorithm::pso)
+- Particle Swarm Optimization (generational version) (pagmo::algorithm::pso_generational)
 - Adaptive Neighbourhood Simulated Annealing (pagmo::algorithm::sa_corana)
 - Improved Harmony Search (pagmo::algorithm::ihs)
 - Compass Search (pagmo::algorithm::cs)
@@ -87,7 +88,7 @@ directly in Python.
   - A simple inventory problem
 - Engineering Problems
   - All problems from the GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt.htm) and An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
-  - Spheres. A problem of neurocontroller evolution applied to the MIT SPHERE test-bed on board the ISS
+  - Spheres (pagmo::problem::spheres, pagmo::problem::spheres_q). Two problems of neurocontroller evolution for the MIT SPHERE test-bed on board the ISS
 \section install Installation guide
 
 To install PaGMO from source code you will need git and CMake installed in your system. On Unix systems:
