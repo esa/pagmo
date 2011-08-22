@@ -293,7 +293,7 @@ BOOST_PYTHON_MODULE(_problem) {
 #ifdef PAGMO_ENABLE_GSL
 	// Spheres Problems
 	problem_wrapper<problem::spheres>("spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
-		.def(init< optional<int,int,double,unsigned int> >())
+		.def(init< optional<int,int,double,unsigned int, bool> >())
 		.def("post_evaluate", &problem::spheres::post_evaluate)
 		.def("simulate", &problem::spheres::simulate);
 

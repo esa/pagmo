@@ -39,76 +39,18 @@ static const int nr_eq = 9;
 static const double target_distance2 = 0.25;
 static const double target_distance = 0.5;
 
-
-static double norm(double v[3]) {
-	return(std::sqrt(v[0]*v[0] + v[1]*v[1] +v[2]*v[2]));
-}
-
 static double norm2(double v[3]) {
 	return(v[0]*v[0] + v[1]*v[1] +v[2]*v[2]);
 }
 
-static void versify(double v[3]) {
-	double V = norm(v);
-	if  (V<=0) printf("Warning zero norm vector passed to versify");
-	v[0] = v[0] / V;
-	v[1] = v[1] / V;
-	v[2] = v[2] / V;
-}
-
-static void cross_vector(double vout[3], const double vin1[3], const double vin2[3]) {
-	vout[0] = vin1[1]*vin2[2] - vin1[2]*vin2[1];
-	vout[1] = vin1[2]*vin2[0] - vin1[0]*vin2[2];
-	vout[2] = vin1[0]*vin2[1] - vin1[1]*vin2[0];
-}
-
-static void q2C(double Cout[3][3], const double q[4]) {
-	Cout[0][0] = 1. - 2. * (q[1]*q[1]+q[2]*q[2]);
-	Cout[1][1] = 1. - 2. * (q[0]*q[0]+q[2]*q[2]);
-	Cout[2][2] = 1. - 2. * (q[1]*q[1]+q[0]*q[0]);
-	Cout[0][1] = 2. * (q[0]*q[1] + q[2]*q[3]);
-	Cout[0][2] = 2. * (q[0]*q[2] - q[1]*q[3]);
-	Cout[1][0] = 2. * (q[0]*q[1] - q[2]*q[3]);
-	Cout[1][2] = 2. * (q[1]*q[2] + q[0]*q[3]);
-	Cout[2][0] = 2. * (q[2]*q[0] + q[1]*q[3]);
-	Cout[2][1] = 2. * (q[2]*q[1] - q[0]*q[3]);
-}
-
-static void matrix_transformation(double vout[3], const double R[3][3]) {
-	int i;
-	double vout_cp[3];
-	vout_cp[0] = vout[0]; vout_cp[1] = vout[1]; vout_cp[2] = vout[2];
-	for (i=0;i<3;++i) {
-		vout[i] = R[i][0] * vout_cp[0] + R[i][1] * vout_cp[1] + R[i][2] * vout_cp[2];
-	}
-}
-
-static void matrix_inv_transformation(double vout[3], const double R[3][3]) {
-	int i;
-	double vout_cp[3];
-	vout_cp[0] = vout[0]; vout_cp[1] = vout[1]; vout_cp[2] = vout[2];
-	for (i=0;i<3;++i) {
-		vout[i] = R[0][i] * vout_cp[0] + R[1][i] * vout_cp[1] + R[2][i] * vout_cp[2];
-	}
-}
-
-static void quat_dyn(double dq[4], const double q[4], const double w[3]) {
-	dq[0] = 0.5 * (q[1]*w[2] - q[2]*w[1] + q[3]*w[0]);
-	dq[1] = 0.5 * (q[2]*w[0] - q[0]*w[2] + q[3]*w[1]);
-	dq[2] = 0.5 * (q[0]*w[1] - q[1]*w[0] + q[3]*w[2]);
-	dq[3] = -0.5 * (q[0]*w[0] + q[1]*w[1] + q[2]*w[2]);
-}
-
-
-
 namespace pagmo { namespace problem {
 
 spheres::spheres(int n_evaluations, int n_hidden_neurons,
-		 double numerical_precision, unsigned int seed) :
-	base_stochastic((nr_input + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * nr_output, seed),
+		 double numerical_precision, unsigned int seed, bool symmetric) :
+	base_stochastic((nr_input/(int(symmetric)+1) + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * nr_output, seed),
 	m_ffnn(nr_input,n_hidden_neurons,nr_output), m_n_evaluations(n_evaluations),
 	m_n_hidden_neurons(n_hidden_neurons), m_numerical_precision(numerical_precision),
-	m_ic(nr_eq) {
+	m_ic(nr_eq), m_symm(symmetric) {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
 	set_lb(-1);
 	set_ub(1);
@@ -121,7 +63,7 @@ spheres::spheres(const spheres &other):
 	base_stochastic(other),
 	m_ffnn(other.m_ffnn),
 	m_n_evaluations(other.m_n_evaluations),m_n_hidden_neurons(other.m_n_hidden_neurons),
-	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic)
+	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic), m_symm(other.m_symm)
 {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
 	m_sys = {ode_func,NULL,nr_eq,&m_ffnn};
@@ -145,15 +87,12 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 	int	k;
 
 	// for each sphere
-
-
-
 	for( int i = 0; i < nr_spheres; i++ ){	// i - is the sphere counter 0 .. 1 .. 2 ..
 		k = 0;
 
 		// we now load in context the perceived data (as decoded from the world state y)
-		for( int n = 1; n <= nr_spheres - 1; n++ ){				// consider the vector from each other sphere
-			for( int j = 0; j < 3; j++ ){				// consider each component from the vectors
+		for( int n = 1; n <= nr_spheres - 1; n++ ){		// consider the vector from each other sphere
+			for( int j = 0; j < 3; j++ ){			// consider each component from the vectors
 				context[k++] = y[i*3 + j] - y[ (i*3 + j + n*3) % 9 ];
 			}
 		}
@@ -174,15 +113,14 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 		fit += temp;
 		temp = std::abs(target_distance2 - context[7]);
 		fit += temp;
-
-		// and then the final velocity
-		fit += norm2(vel_f);
+		// and we add the final velocity violation (two times since we will divide by two later)
+		fit += 2 * sqrt((norm2(vel_f)));
 	}
-	return (fit / 2);
+	return (fit/2);
 }
 
 int spheres::ode_func( double t, const double y[], double f[], void *params ) {
-
+	(void)t;
 	// Here we recover the neural network
 	ffnn	*ptr_ffnn = (ffnn*)params;
 
@@ -236,11 +174,11 @@ void spheres::ffnn::eval(double out[], const double in[]) const {
 	unsigned int offset = m_n_hidden * (m_n_inputs + 1);
 
 	// -- PROCESS CONTEXT USING THE NEURAL NETWORK --
-	for( int i = 0; i < m_n_hidden; i++ ){
+	for( unsigned int i = 0; i < m_n_hidden; i++ ){
 		// Set the bias (the first weight to the i'th hidden node)
 		m_hidden[i] = m_weights[i * (m_n_inputs + 1)];
 
-		for( int j = 0; j < m_n_inputs; j++ ){
+		for( unsigned int  j = 0; j < m_n_inputs; j++ ){
 			// Compute the weight number
 			int ji = i * (m_n_inputs + 1) + (j + 1);
 			// Add the weighted input
@@ -252,11 +190,11 @@ void spheres::ffnn::eval(double out[], const double in[]) const {
 	}
 
 	// generate values for the output nodes
-	for( int i = 0; i < m_n_outputs; i++ ){
+	for( unsigned int  i = 0; i < m_n_outputs; i++ ){
 		// add the bias (weighted by the first weight to the i^th output node
 		out[i] = m_weights[offset + i * (m_n_hidden + 1)];
 
-		for( int j = 0; j < m_n_hidden; j++ ){
+		for( unsigned int  j = 0; j < m_n_hidden; j++ ){
 			// compute the weight number
 			int ji = offset + i * (m_n_hidden + 1) + (j + 1);
 			// add the weighted input
@@ -271,8 +209,8 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 	f[0]=0;
 	// Make sure the pseudorandom sequence will always be the same
 	m_drng.seed(m_seed);
-	// Set the ffnn weights
-	m_ffnn.set_weights(x);
+	// Set the ffnn weights from x, by accounting for symmetries in neurons weights
+	set_nn_weights(x);
 	// Loop over the number of repetitions
 	for (int count=0;count<m_n_evaluations;++count) {
 		// Creates the initial conditions at random
@@ -305,7 +243,7 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 	// Make sure the pseudorandom sequence will always be the same
 	m_drng.seed(seed);
 	// Set the ffnn weights
-	m_ffnn.set_weights(x);
+	set_nn_weights(x);
 	// Loop over the number of repetitions
 	for (int count=0;count<N;++count) {
 		// Creates the initial conditions at random
@@ -334,12 +272,50 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 	return ( ret );
 }
 
+void spheres::set_nn_weights(const decision_vector &x) const {
+	switch (m_symm) {
+		case true: {//symmetric weigths activated
+			int w = 0;
+			for(int h = 0; h < m_ffnn.m_n_hidden; h++)
+			{
+				int start_index = h * 5; // (nr_input/2+1)
+				int i = 0;
+				// bias, dx1, dy1, dz1
+				for(int j = 0; j < 4; j++)
+				{
+					m_ffnn.m_weights[w] = x[start_index+j]; w++;
+				}
+				// dx2, dy2, dz2
+				for(int j = 1; j <= 3; j++)
+				{
+					m_ffnn.m_weights[w] = x[start_index+j]; w++;
+				}
+				// distance 1
+				m_ffnn.m_weights[w] = x[start_index+4]; w++;
+				// distance 2
+				m_ffnn.m_weights[w] = x[start_index+4]; w++;
+			}
+			int ind = 0;
+			for(int ww = w; ww < m_ffnn.m_weights.size(); ww++)
+			{
+				m_ffnn.m_weights[ww] = x[(nr_input/2+1)*m_ffnn.m_n_hidden+ind];
+				ind++;
+			}
+			break;
+		}
+		case false: {//no symmetric weights
+			m_ffnn.m_weights = x;
+			break;
+		}
+	}
+}
+
 std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, const std::vector<double> &ic, int N) const {
 	std::vector<double> y0(ic);
 	std::vector<double> one_row(10,0.0);
 	std::vector<std::vector<double> > ret;
 	// Set the ffnn weights
-	m_ffnn.set_weights(x);
+	set_nn_weights(x);
 	// Integrate the system
 	double ti, t0=0;
 	double tf = 70.0;

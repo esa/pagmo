@@ -62,32 +62,54 @@ static void cross_vector(double vout[3], const double vin1[3], const double vin2
 	vout[2] = vin1[0]*vin2[1] - vin1[1]*vin2[0];
 }
 
-static void q2C(double Cout[3][3], const double q[4]) {
-	Cout[0][0] = 1. - 2. * (q[1]*q[1]+q[2]*q[2]);
-	Cout[1][1] = 1. - 2. * (q[0]*q[0]+q[2]*q[2]);
-	Cout[2][2] = 1. - 2. * (q[1]*q[1]+q[0]*q[0]);
-	Cout[0][1] = 2. * (q[0]*q[1] + q[2]*q[3]);
-	Cout[0][2] = 2. * (q[0]*q[2] - q[1]*q[3]);
-	Cout[1][0] = 2. * (q[0]*q[1] - q[2]*q[3]);
-	Cout[1][2] = 2. * (q[1]*q[2] + q[0]*q[3]);
-	Cout[2][0] = 2. * (q[2]*q[0] + q[1]*q[3]);
-	Cout[2][1] = 2. * (q[2]*q[1] - q[0]*q[3]);
+/* efficient, robust conversion from any quaternion — whether unit, nonunit, or even zero — to
+ * a 3×3 rotation matrix. Taken from http://en.wikipedia.org/wiki/Rotation_matrix#Quaternion
+ */
+void q2C( double Cout[3][3], const double q[4] )
+{
+#define x	q[0]
+#define y	q[1]
+#define z	q[2]
+#define w	q[3]
+
+	double Nq = w*w + x*x + y*y + z*z;
+	double s  = ( (Nq > 0.0) ? (2.0 / Nq) : (0.0) );
+	double X  = x * s;
+	double Y  = y * s;
+	double Z  = z * s;
+
+	Cout[0][0] = 1.0 - (y*Y + z*Z);
+	Cout[0][1] =        x*Y - w*Z;
+	Cout[0][2] =        x*Z + w*Y;
+
+	Cout[1][0] =        x*Y + w*Z;
+	Cout[1][1] = 1.0 - (x*X + z*Z);
+	Cout[1][2] =        y*Z - w*X;
+
+	Cout[2][0] =        x*Z - w*Y;
+	Cout[2][1] =        y*Z + w*X;
+	Cout[2][2] = 1.0 - (x*X + y*Y);
+
+#undef w
+#undef x
+#undef y
+#undef z
 }
 
+//row by column matrix multiplication
 static void matrix_transformation(double vout[3], const double R[3][3]) {
-	int i;
 	double vout_cp[3];
 	vout_cp[0] = vout[0]; vout_cp[1] = vout[1]; vout_cp[2] = vout[2];
-	for (i=0;i<3;++i) {
+	for (int i=0;i<3;++i) {
 		vout[i] = R[i][0] * vout_cp[0] + R[i][1] * vout_cp[1] + R[i][2] * vout_cp[2];
 	}
 }
 
+//column by row matrix multiplication
 static void matrix_inv_transformation(double vout[3], const double R[3][3]) {
-	int i;
 	double vout_cp[3];
 	vout_cp[0] = vout[0]; vout_cp[1] = vout[1]; vout_cp[2] = vout[2];
-	for (i=0;i<3;++i) {
+	for (int i=0;i<3;++i) {
 		vout[i] = R[0][i] * vout_cp[0] + R[1][i] * vout_cp[1] + R[2][i] * vout_cp[2];
 	}
 }
@@ -147,8 +169,8 @@ double spheres_q::single_fitness( const std::vector<double> &y, const ffnn& neur
 		k = 0;
 
 		// We now load in context the perceived data (as decoded from the world state y)
-		for( int n = 1; n <= nr_spheres - 1; n++ ){				// consider the vector from each other sphere
-			for( int j = 0; j < 3; j++ ){				// consider each component from the vectors
+		for( int n = 1; n <= nr_spheres - 1; n++ ){		// consider the vector from each other sphere
+			for( int j = 0; j < 3; j++ ){			// consider each component from the vectors
 				context[k++] = y[i*3 + j] - y[ (i*3 + j + n*3) % 9 ];
 			}
 		}
@@ -176,7 +198,7 @@ double spheres_q::single_fitness( const std::vector<double> &y, const ffnn& neur
 		fit += temp;
 
 		// and then the final velocity
-		fit += norm2(vel_f);
+		//fit += norm2(vel_f);
 	}
 	return (fit / 2);
 }
@@ -200,8 +222,8 @@ int spheres_q::ode_func( double t, const double y[], double f[], void *params ) 
 		k = 0;
 
 		// we now load in context the perceived data (as decoded from the world state y)
-		for( int n = 1; n <= nr_spheres - 1; n++ ){				// consider the vector from each other sphere
-			for( int j = 0; j < 3; j++ ){				// consider each component from the vectors
+		for( int n = 1; n <= nr_spheres - 1; n++ ){		// consider the vector from each other sphere
+			for( int j = 0; j < 3; j++ ){			// consider each component from the vectors
 				context[k++] = y[i*3 + j] - y[ (i*3 + j + n*3) % 9 ];
 			}
 		}
@@ -231,6 +253,9 @@ int spheres_q::ode_func( double t, const double y[], double f[], void *params ) 
 		f[i*3+2] = out[2];
 
 		// ... and quaternion
+//		double wd[3], tmp[8]={0.1,0.03,-1.4,0.2,0.09,0.1,0.02,-0.4};
+//		ptr_ffnn->eval(wd,tmp);
+//		quat_dyn(&f[9+i*4],&y[9+i*4],wd);
 		f[9+i*4] = 0; f[10+i*4] = 0; f[11+i*4] = 0; f[12+i*4] = 0;
 
 	}
@@ -251,11 +276,11 @@ void spheres_q::ffnn::eval(double out[], const double in[]) const {
 	unsigned int offset = m_n_hidden * (m_n_inputs + 1);
 
 	// -- PROCESS CONTEXT USING THE NEURAL NETWORK --
-	for( int i = 0; i < m_n_hidden; i++ ){
+	for( unsigned int i = 0; i < m_n_hidden; i++ ){
 		// Set the bias (the first weight to the i'th hidden node)
 		m_hidden[i] = m_weights[i * (m_n_inputs + 1)];
 
-		for( int j = 0; j < m_n_inputs; j++ ){
+		for( unsigned int j = 0; j < m_n_inputs; j++ ){
 			// Compute the weight number
 			int ji = i * (m_n_inputs + 1) + (j + 1);
 			// Add the weighted input
@@ -267,11 +292,11 @@ void spheres_q::ffnn::eval(double out[], const double in[]) const {
 	}
 
 	// generate values for the output nodes
-	for( int i = 0; i < m_n_outputs; i++ ){
+	for( unsigned int i = 0; i < m_n_outputs; i++ ){
 		// add the bias (weighted by the first weight to the i^th output node
 		out[i] = m_weights[offset + i * (m_n_hidden + 1)];
 
-		for( int j = 0; j < m_n_hidden; j++ ){
+		for( unsigned int j = 0; j < m_n_hidden; j++ ){
 			// compute the weight number
 			int ji = offset + i * (m_n_hidden + 1) + (j + 1);
 			// add the weighted input
@@ -414,8 +439,6 @@ std::vector<std::vector<double> > spheres_q::simulate(const decision_vector &x, 
 			break;
 		}
 	}
-	//Not sure if this help or what it does ....
-	//gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
 	return ( ret );
 }
 } //namespace problem

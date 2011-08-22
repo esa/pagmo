@@ -32,7 +32,7 @@ using namespace pagmo;
 int archi_best_idx(archipelago archi) {
 	double min = archi.get_island(0)->get_population().champion().f[0];
 	int idx=0;
-	for (int i=1;i<archi.get_size();++i) {
+	for (size_t i=1;i<archi.get_size();++i) {
 		double cur = archi.get_island(i)->get_population().champion().f[0];
 		if (cur < min) {
 			min=cur;
@@ -47,15 +47,16 @@ int main()
 {
 // EXPERIMENT SET-UP //
 		const int n_isl = 8;
-		const int pop_size = 1024;
-		const int n_eval = 1;
-		const int n_gen = 30000;
+		const int pop_size = 512;
+		const int n_eval = 5;
+		const int n_gen = 5000;
 // END OF EXPERIMENT SET-UP //
 
 // Buffer
 std::vector<double> buff;
 // We instantiate a PSO algorithm capable of coping with stochastic prolems
-algorithm::pso_generational algo(1,0.7298,2.05,2.05,0.03);
+algorithm::pso_generational algo(1,0.7298,2.05,2.05,0.05);
+
 
 
 // This instantiates the spheres problem
@@ -67,7 +68,7 @@ archipelago archi = archipelago(topology::fully_connected());
 
 for (int j=0;j<n_isl; ++j) {
 
-	problem::spheres_q prob(n_eval,15,1e-2,rand());
+	problem::spheres prob(n_eval,10,1e-6,rand(), true);
 	// This instantiates a population within the original bounds (-1,1)
 	population pop_temp(prob,pop_size);
 

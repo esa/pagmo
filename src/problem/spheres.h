@@ -57,10 +57,11 @@ namespace pagmo { namespace problem {
  * with zero absolute velocity.
  *
  * NOTE: the dynamical model of the spheres is here that of point masses. As a consequence, each sphere
- * perception and action (sensing and actuating) must be defined with respect to a reference frame absolute
- * orientation. This seemingly small detail brings to an important bias in learning (i.e. the final triangle
- * is always achieved with the same absolute orientation!!!). in pagmo::problem::spheres_q such a bias is removed
- * by defining perception and action in the sphere's body frame.
+ * perception and action (sensing and actuating) must be defined with respect to a reference frame that is known
+ * by all spheres (a star-tracker would give this information). This seemingly small detail brings
+ * to an important bias in learning (i.e. the final triangle is always achieved with the same absolute
+ * orientation!!!). In pagmo::problem::spheres_q such a bias is removed by defining perception and action
+ * in the sphere's body frame.
  *
  * @author Dario Izzo (dario.izzo@esa.int)
  */
@@ -77,8 +78,10 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		 * @param[in] n_hidden number of hidden neurons in the neural net
 		 * @param[in] ode_prec precision requested to adapt the ode-solver step size
 		 * @param[in] seed seed used to produce all random initial conditions
+		 * @param[in] symmetric a boolean value that, if true, indicates that the neural network
+		 * does not distinguish among permutations of its input values due to sphere ID exchange.
 		 */
-		spheres(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-3, unsigned int seed = 0);
+		spheres(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-3, unsigned int seed = 0, bool symmetric = false);
 
 		/// Copy Constructor
 		/**
@@ -144,6 +147,7 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 				std::vector<double> m_weights;
 				mutable std::vector<double> m_hidden;
 		};
+		void set_nn_weights(const decision_vector& x) const;
 		double single_fitness( const std::vector<double> &, const ffnn& ) const;
 		friend class boost::serialization::access;
 		template <class Archive>
@@ -163,6 +167,7 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		int 						m_n_hidden_neurons;
 		const double					m_numerical_precision;
 		mutable std::vector<double>			m_ic;	
+		bool						m_symm;
 };
 
 }} //namespaces
