@@ -113,8 +113,14 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 		fit += temp;
 		temp = std::abs(target_distance2 - context[7]);
 		fit += temp;
-		// and we add the final velocity violation (two times since we will divide by two later)
-		fit += 2 * sqrt((norm2(vel_f)));
+
+		//and we add the final velocity violation (two times since we will divide by two later)
+		fit += 2 *(norm2(vel_f));
+
+		//and we keep them on the box [-1 -1]
+		if (std::abs(y[i*3])>1) fit += std::abs(y[i*3]);
+		if (std::abs(y[i*3+1])>1) fit += std::abs(y[i*3+1]);
+		if (std::abs(y[i*3+2])>1) fit += std::abs(y[i*3+2]);
 	}
 	return (fit/2);
 }
@@ -214,10 +220,16 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 	// Loop over the number of repetitions
 	for (int count=0;count<m_n_evaluations;++count) {
 		// Creates the initial conditions at random
-		// Position starts in a [-2,2] box
-		for (int i=0; i<9; ++i) {
-			m_ic[i] = (m_drng()*4 - 2);
+		// Positions starts in a [-2,2] box
+		for (int i=0; i<6; ++i) {
+			m_ic[i] = (m_drng()*2 - 1);
 		}
+
+		// Centered around the origin
+		m_ic[6] = - (m_ic[0] + m_ic[3]);
+		m_ic[7] = - (m_ic[1] + m_ic[4]);
+		m_ic[8] = - (m_ic[2] + m_ic[5]);
+
 		// Integrate the system
 		double t0 = 0.0;
 		double tf = 50.0;
@@ -247,15 +259,23 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 	// Loop over the number of repetitions
 	for (int count=0;count<N;++count) {
 		// Creates the initial conditions at random
+
 		// Position starts in a [-1,1] box (evolution is in [-2,2])
-		for (int i=0; i<9; ++i) {
+		for (int i=0; i<6; ++i) {
 			m_ic[i] = (m_drng()*2 - 1);
+		}
+		// Centered around the origin
+		m_ic[6] = - (m_ic[0] + m_ic[3]);
+		m_ic[7] = - (m_ic[1] + m_ic[4]);
+		m_ic[8] = - (m_ic[2] + m_ic[5]);
+
+		for (int i=0; i<9; ++i) {
 			one_row[i] = m_ic[i];
 		}
 
 		// Integrate the system
 		double t0 = 0.0;
-		double tf = 50.0;
+		double tf = 100.0;
 		//gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-6);
 		int status = gsl_odeiv2_driver_apply( m_gsl_drv_pntr, &t0, tf, &m_ic[0] );
 		// Not sure if this help or what it does ....

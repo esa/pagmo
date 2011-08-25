@@ -49,7 +49,7 @@ int main()
 		const int n_isl = 8;
 		const int pop_size = 512;
 		const int n_eval = 5;
-		const int n_gen = 5000;
+		const int n_gen = 10000;
 // END OF EXPERIMENT SET-UP //
 
 // Buffer
@@ -68,7 +68,7 @@ archipelago archi = archipelago(topology::fully_connected());
 
 for (int j=0;j<n_isl; ++j) {
 
-	problem::spheres prob(n_eval,10,1e-6,rand(), true);
+	problem::spheres prob(n_eval,10,1e-6,rand(), false);
 	// This instantiates a population within the original bounds (-1,1)
 	population pop_temp(prob,pop_size);
 
