@@ -119,31 +119,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 			pagmo_assert(f);
 			return f(x);
 		}
-		population py_pre_evolution(const population &pop) const
-		{
-			if (boost::python::override f = this->get_override("pre_evolution")) {
-				return f(pop);
-			} else {
-				return pop;
-			}
-		}
-		population py_post_evolution(const population &pop) const
-		{
-			if (boost::python::override f = this->get_override("post_evolution")) {
-				return f(pop);
-			} else {
-				return pop;
-			}
-		}
 	protected:
-		void pre_evolution(population &pop) const
-		{
-			pop = py_pre_evolution(pop);
-		}
-		void post_evolution(population &pop) const
-		{
-			pop = py_post_evolution(pop);
-		}
 		void objfun_impl(fitness_vector &f, const decision_vector &x) const
 		{
 			f = py_objfun(x);
