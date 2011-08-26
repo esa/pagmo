@@ -118,9 +118,9 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 		fit += 2 *(norm2(vel_f));
 
 		//and we keep them on the box [-1 -1]
-		if (std::abs(y[i*3])>1) fit += std::abs(y[i*3]);
-		if (std::abs(y[i*3+1])>1) fit += std::abs(y[i*3+1]);
-		if (std::abs(y[i*3+2])>1) fit += std::abs(y[i*3+2]);
+		if (std::abs(y[i*3]) > 1)   fit += std::abs(y[i*3]);
+		if (std::abs(y[i*3+1]) > 1) fit += std::abs(y[i*3+1]);
+		if (std::abs(y[i*3+2]) > 1) fit += std::abs(y[i*3+2]);
 	}
 	return (fit/2);
 }
@@ -222,7 +222,7 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 		// Creates the initial conditions at random
 		// Positions starts in a [-2,2] box
 		for (int i=0; i<6; ++i) {
-			m_ic[i] = (m_drng()*2 - 1);
+			m_ic[i] = (m_drng()*4 - 2);
 		}
 
 		// Centered around the origin
@@ -232,7 +232,7 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 
 		// Integrate the system
 		double t0 = 0.0;
-		double tf = 50.0;
+		double tf = 100.0;
 		//gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-6);
 		int status = gsl_odeiv2_driver_apply( m_gsl_drv_pntr, &t0, tf, &m_ic[0] );
 		// Not sure if this help or what it does ....

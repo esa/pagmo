@@ -6,12 +6,13 @@ class py_pl2pl(base):
 	and a target planet (default is mars). The spacecraft is described
 	by its starting mass (mass) its engine specific impulse (Isp) and its engine maximum thrust (Tmax). The
 	Sims-Flanagan model is used to describe a trajectory. A variable number of segments (nseg) can be used
-	An initial velocity with respect to the Earth is allowed (Vinf) assumed to be given by the launcher
+	An initial velocity with respect to the Earth is allowed (Vinf_0) assumed to be given by the launcher
+	A final velocity wrt the target planet is also allowed (Vinf_f)
 	The method high_fidelity allows to use a continuous thrust model rather than impulses
 	"""
 
-	def __init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=0,nseg=10,departure = None, target = None):
-		"""__init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf=3,nseg=10,departure = earth, target = mars)"""
+	def __init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=0,nseg=10,departure = None, target = None, optimise4mass = False):
+		"""__init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=0,nseg=10,departure = erath, target = mars)"""
 		try:
 			import PyKEP
 		except ImportError:
@@ -31,24 +32,48 @@ class py_pl2pl(base):
 		self.__leg.set_mu(PyKEP.MU_SUN)
 		self.__leg.set_spacecraft(self.__sc)
 		self.__nseg = nseg
-		self.set_bounds([0,60,self.__sc.mass/10,-self.__Vinf_0,-self.__Vinf_0,-self.__Vinf_0,-self.__Vinf_f,-self.__Vinf_f,-self.__Vinf_f] + [-1] * 3 *nseg,[3000,1500,self.__sc.mass,self.__Vinf_0,self.__Vinf_0,self.__Vinf_0,self.__Vinf_f,self.__Vinf_f,self.__Vinf_f] + [1] * 3 * nseg)
+		self.set_bounds([0,10,self.__sc.mass/10,-abs(self.__Vinf_0),-abs(self.__Vinf_0),-abs(self.__Vinf_0),-abs(self.__Vinf_f),-abs(self.__Vinf_f),-abs(self.__Vinf_f)] + [-1] * 3 *nseg,[3000,1500,self.__sc.mass,abs(self.__Vinf_0),abs(self.__Vinf_0),abs(self.__Vinf_0),abs(self.__Vinf_f),abs(self.__Vinf_f),abs(self.__Vinf_f)] + [1] * 3 * nseg)
+		self.__optimise4mass = optimise4mass
 	def _objfun_impl(self,x):
-		return (-x[2],)
+		if (self.__optimise4mass):
+			return (-x[2],)
+		else:
+			return(x[1],)
 	def _compute_constraints_impl(self,x):
 		import PyKEP
 		start = PyKEP.epoch(x[0])
 		end = PyKEP.epoch(x[0] + x[1])
+
+		#Computing starting spaceraft state
 		r,v = self.__departure.eph(start)
 		v_list = list(v)
 		v_list[0] += x[3]
 		v_list[1] += x[4]
 		v_list[2] += x[5]
 		x0 = PyKEP.sims_flanagan.sc_state(r,v_list,self.__sc.mass)
+
+		#Computing ending spaceraft state
 		r,v = self.__target.eph(end)
-		xe = PyKEP.sims_flanagan.sc_state(r, v ,x[2])
+		v_list = list(v)
+		v_list[0] += x[6]
+		v_list[1] += x[7]
+		v_list[2] += x[8]
+		xe = PyKEP.sims_flanagan.sc_state(r, v_list ,x[2])
+
+		#Building the SF leg
 		self.__leg.set(start,x0,x[-3 * self.__nseg:],end,xe)
-		v_inf_con_0 = (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.__Vinf_0 * self.__Vinf_0) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
-		v_inf_con_f = (x[6] * x[6] + x[7] * x[7] + x[8] * x[8] - self.__Vinf_f * self.__Vinf_f) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+
+		#Computing Vinf constraints (careful here, the weights do count)
+		if (self.__Vinf_0 >= 0):
+			v_inf_con_0 =   (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.__Vinf_0 * self.__Vinf_0) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+		else:
+			v_inf_con_0 = - 100 * (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.__Vinf_0 * self.__Vinf_0) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+		if (self.__Vinf_f >= 0):
+			v_inf_con_f =   (x[6] * x[6] + x[7] * x[7] + x[8] * x[8] - self.__Vinf_f * self.__Vinf_f) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+		else:
+			v_inf_con_f = - 100 *(x[6] * x[6] + x[7] * x[7] + x[8] * x[8] - self.__Vinf_f * self.__Vinf_f) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+
+		#Setting all constraints
 		retval = list(self.__leg.mismatch_constraints() + self.__leg.throttles_constraints()) + [v_inf_con_0] + [v_inf_con_f]
 		retval[0] /= PyKEP.AU
 		retval[1] /= PyKEP.AU
