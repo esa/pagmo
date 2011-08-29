@@ -63,7 +63,8 @@ class py_pl2pl(base):
 		#Building the SF leg
 		self.__leg.set(start,x0,x[-3 * self.__nseg:],end,xe)
 
-		#Computing Vinf constraints (careful here, the weights do count)
+		#Computing Vinf constraints (careful here, the weights do count). In case of a larger than constarint
+		#a factor of 100 has been added
 		if (self.__Vinf_0 >= 0):
 			v_inf_con_0 =   (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.__Vinf_0 * self.__Vinf_0) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
 		else:

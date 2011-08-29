@@ -10,11 +10,15 @@ from _base_class import base
 # Import PyGMO classes and methods imlemented in pure python (i.e. not exposed via boost)
 
 
-from _spheres import visualize as _visualize
-from _spheres_q import visualize as _visualize_q
-spheres.visualize = _visualize
-spheres_q.visualize = _visualize_q
 
+# PyGMO handling of the GSL option
+try:
+	from _spheres import visualize as _visualize
+	from _spheres_q import visualize as _visualize_q
+	spheres.visualize = _visualize
+	spheres_q.visualize = _visualize_q
+except:
+	print "PyGMO was compiled without GSL support activated .... some problems are not imported"
 
 
 from _pl2pl import py_pl2pl
