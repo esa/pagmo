@@ -117,7 +117,7 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 		//and we add the final velocity violation (two times since we will divide by two later)
 		fit += 2 *(norm2(vel_f));
 
-		//and we keep them on the box [-1 -1]
+		//and we keep them within the box [-1 -1]
 		if (std::abs(y[i*3]) > 1)   fit += std::abs(y[i*3]);
 		if (std::abs(y[i*3+1]) > 1) fit += std::abs(y[i*3+1]);
 		if (std::abs(y[i*3+2]) > 1) fit += std::abs(y[i*3+2]);
