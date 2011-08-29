@@ -16,7 +16,7 @@ int main()
 	}
 	if (boost::lexical_cast<int>(v[0]) < 1) {
 		return -1;
-	} else if (boost::lexical_cast<int>(v[0]) == 1 && boost::lexical_cast<int>(v[1]) < 13) {
+	} else if (boost::lexical_cast<int>(v[0]) == 1 && boost::lexical_cast<int>(v[1]) < 15) {
 		return -1;
 	}
 	return 0;
