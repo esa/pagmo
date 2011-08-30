@@ -203,3 +203,50 @@ def _get_island_list():
 	except ImportError:
 		names = filter(lambda n: n != 'ipy_island',names)
 	return [core.__dict__[n] for n in names]
+
+def _generic_archi_ctor(self,*args,**kwargs):
+	"""
+	Unnamed arguments (optional):
+
+		#. algorithm
+		#. problem
+		#. number of islands
+		#  number individual in the population
+
+	Keyword arguments:
+
+		* *topology* -- migration topology (defaults to unconnected)
+		* *distribution_type* -- distribution_type (defaults to distribution_type.point_to_point)
+		* *migration_direction* -- migration_direction (defaults to migration_direction.destination)
+	"""
+
+	from PyGMO import topology, algorithm,problem
+	if not((len(args)==4) or (len(args)==0)):
+		raise ValueError("Unnamed arguments list, when present, must be of length 4, but %d elements were found instead" % (len(args),))
+
+	#Append everything in the same list of constructor arguments
+	ctor_args = []
+	for i in args:
+		ctor_args.append(i)
+	ctor_args.append(kwargs.pop('topology', topology.unconnected()))
+	ctor_args.append(kwargs.pop('distribution_type', distribution_type.point_to_point)) #point-to-point is default
+	ctor_args.append(kwargs.pop('migration_direction', migration_direction.destination)) #destination is default
+
+	#Constructs an empty archipelago with no islands using the C++ constructor
+	self.__original_init__(*ctor_args[-3:])
+
+	#We now push back the correct island type if required
+	if (len(args))==4:
+		if not isinstance(args[0],algorithm._base):
+			raise TypeError("The first unnamed argument must be an algorithm")
+		if not isinstance(args[1],problem._base):
+			raise TypeError("The second unnamed argument must be a problem")
+		if not isinstance(args[2],int):
+			raise TypeError("The third unnamed argument must be an integer (i.e. number of islands)")
+		if not isinstance(args[3],int):
+			raise TypeError("The fourth unnamed argument must be an integer (i.e. population size)")
+		for n in range(args[2]):
+			self.push_back(island(args[0],args[1],args[3]))
+
+archipelago.__original_init__ = archipelago.__init__
+archipelago.__init__ = _generic_archi_ctor

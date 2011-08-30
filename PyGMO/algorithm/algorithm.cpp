@@ -166,7 +166,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Artificial Bee Colony Optimization (ABC).
 	algorithm_wrapper<algorithm::bee_colony>("bee_colony","Artificial Bee Colony optimization (ABC) algorithm.")
 		.def(init<int,optional<int> >());
-	
+
 	// Ant Colony Optimization (ACO).
 	algorithm_wrapper<algorithm::aco>("aco","Ant Colony Optimization (ACO) algorithm.")
 		.def(init<int,optional<double> >());
