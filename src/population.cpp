@@ -125,8 +125,6 @@ void population::init_velocity(const size_type &idx)
 		// at most half the bounds distance.
 		width = (m_prob->get_ub()[j] - m_prob->get_lb()[j]) / 2;
 		m_container[idx].cur_v[j] = boost::uniform_real<double>(-width,width)(m_drng);
-		// Change randomly the sign of the velocity.
-		m_container[idx].cur_v[j] *= (m_drng() < .5) ? 1 : -1;
 	}
 }
 
@@ -446,7 +444,7 @@ void population::set_v(const size_type &idx, const decision_vector &v)
 		pagmo_throw(index_error,"invalid individual position");
 	}
 	if (v.size() != this->problem().get_dimension()) {
-		pagmo_throw(value_error,"decision vector is not compatible with problem");
+		pagmo_throw(value_error,"velocity vector is not compatible with problem");
 	}
 	// Set decision vector.
 	m_container[idx].cur_v = v;

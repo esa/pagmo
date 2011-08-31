@@ -1,6 +1,10 @@
-The core module
+The core Module
 ===============
 
-.. automodule:: PyGMO.core
-   :members:
-   :inherited-members:
+.. toctree::
+   :maxdepth: 1
+   
+   individual
+   population
+   island
+   archipelago

@@ -159,6 +159,7 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 			ar & m_n_hidden_neurons;
 			ar & const_cast<double &>(m_numerical_precision);
 			ar & m_ic;
+			ar & m_symm;
 		}
 		gsl_odeiv2_driver*				m_gsl_drv_pntr;
 		gsl_odeiv2_system				m_sys;

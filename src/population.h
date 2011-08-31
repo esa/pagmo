@@ -51,7 +51,7 @@ struct population_access;
  * ever appeared in the population. Methods are offered to get and manipulate the single individuals.
  *
  * Additionally, the population class holds for each individual I a "domination list", constituted by the list of individuals (identified by their positional index
- * in the population) which are dominated by I. Individual I1 is dominated by individual I2 if problem::base::compare_fc on the fitness and constraints vectors
+ * in the population) which I dominates. Individual I1 is dominated by individual I2 if problem::base::compare_fc on the fitness and constraints vectors
  * of I1 and I2 respectively returns true. The best individual in the population is the one dominating the highest number of individuals.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)

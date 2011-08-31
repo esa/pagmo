@@ -211,7 +211,7 @@ def _generic_archi_ctor(self,*args,**kwargs):
 		#. algorithm
 		#. problem
 		#. number of islands
-		#  number individual in the population
+		#. number individual in the population
 
 	Keyword arguments:
 
