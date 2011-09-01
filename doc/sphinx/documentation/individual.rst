@@ -1,7 +1,7 @@
-Individuals
-===========
+Individual and Champion
+=======================
 
-.. class:: individual()
+.. class:: PyGMO.individual()
 
    This class represents the concept of an *individual*. In PyGMO, an *individual* is the solution to some optimization
    problem, enriched with some memory of its past (this usually records the best position so far occupied in the solution
@@ -44,10 +44,10 @@ Individuals
       Velocity of an *individual* (that is the difference in cur_x between generations). This information is crucial in algorithms such as Particle Swarm Optimization (PSO), but it gets, by default, updated also by other algorithms.
 
 
-.. class:: champion()
+.. class:: PyGMO.champion()
 
    This class represents the concept of a *champion*, i.e. the best among a set of individuals. Differently from
-   an :class:`individual` a *champion* does not have memory, nor a velocity. Similarly from the class :class:`individual` the user rarely constructs or manipulate 
+   an :class:`PyGMO.individual` a *champion* does not have memory, nor a velocity. Similarly from the class :class:`PyGMO.individual` the user rarely constructs or manipulate 
    objects from this class as these actions are performed by other classes that also ensure the information 
    contained in a *champion* is consistent (i.e. it actually is the best in a set of individuals, etc. )
 

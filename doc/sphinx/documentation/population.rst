@@ -1,11 +1,11 @@
-A Population
+Population
 ============
 
-.. class:: population
+.. class:: PyGMO.population
 
-   This class represents the concept of a *population* as a collection of :class:`individual` evaluated w.r.t. a :class:`problem`.
+   This class represents the concept of a *population* as a collection of :class:`PyGMO.individual` evaluated w.r.t. a :class:`PyGMO.problem`.
    A *population* in PyGMO makes sure that all the individuals it contains are consistent w.r.t. the problem and it constantly keeps
-   its :class:`champion` updated. Also, the *population*, keeps constantly updated the domination list, that
+   its :class:`PyGMO.champion` updated. Also, the *population*, keeps constantly updated the domination list, that
    is a list containing, per individual I, the individuals that I dominates (only useful for multiobjective optimization)
    From an evolutionary point of view one can see the *population* as a set of individuals
    living in an environment (the :class:`problem`) which defines their fitness values
@@ -41,9 +41,9 @@ A Population
       Appends the :class:`individual` having chromosme x to the population, if compatible with the :class:`problem`. Its velocity
       is initialized at random, its memory is set equal to the current position.
 
-      NOTE: There is no way to push_back into a *population* directly an :class:`individual`.
+      NOTE: There is no way to push_back into a *population* directly an :class:`PyGMO.individual`
       This design choice was made as there would be no way to ensure efficiently that the information contained
-      in the :class:`individual` is consistent (if not by wasting one function evaluation) with the :class:`problem` defining the *population*
+      in the :class:`PyGMO.individual` is consistent (if not by wasting one function evaluation) with the :class:`PyGMO.problem` defining the *population*
 
       .. code-block:: python
 
@@ -54,7 +54,7 @@ A Population
 
    .. method:: set_x((int)idx, (list) x)
 
-      Sets the chromosome of the :class:`individual` with index idx in the population to x. Updates autatically the memory and 
+      Sets the chromosome of the :class:`PyGMO.individual` with index idx in the population to x. Updates autatically the memory and 
       the *population* :class:`champion`
 
       .. code-block:: python
@@ -66,7 +66,7 @@ A Population
 
    .. method:: set_v((int)idx, (list) v)
 
-      Sets the velocity of the :class:`individual` with index idx in the population to v
+      Sets the velocity of the :class:`PyGMO.individual` with index idx in the population to v
 
       .. code-block:: python
 
@@ -88,12 +88,12 @@ A Population
 
    .. method:: get_best_idx()
 
-      Returns the index of the best :class:`individual` in a *population*. The best :class:`individual` is the one dominating the most
+      Returns the index of the best :class:`PyGMO.individual` in a *population*. The best :class:`PyGMO.individual` is the one dominating the most
       number of individuals
 
    .. method:: get_worst_idx()
 
-      Returns the index of the worst :class:`individual` in a *population*. The best :class:`individual` is the one dominating the least
+      Returns the index of the worst :class:`PyGMO.individual` in a *population*. The worst :class:`PyGMO.individual` is the one dominating the least
       number of individuals
 
       .. code-block:: python
@@ -105,7 +105,7 @@ A Population
          worst_guy = pop.get_worst_idx()
 
    .. method:: mean_velocity()
-
+ 
       Evaluates the *population* mean velocity
 
       .. code-block:: python
@@ -116,14 +116,16 @@ A Population
          v = pop.mean_velocity()
 
    .. attribute:: champion
+      :noindex:
 
-      Returns a copy of the *population* :class:`champion` 
+      Returns a copy of the *population* :class:`PyGMO.champion` 
 
    .. attribute:: problem
+      :noindex:
 
       Returns a copy of the :class:`problem` in the *population*
 
-      NOTE: since it is only a copy that is returned it is impossible to set the bounds of a problem in a population
+      NOTE: since it is only a copy that is returned, it is impossible to modify a problem in a population
       directly. The following code is thus WRONG as it changes the bounds of an instance of the problem that is created
       on the fly and then destroyed
 
@@ -136,8 +138,3 @@ A Population
          ub = list(prob.ub)
          lb[0]=-10
          pop.problem.set_bounds(lb,ub) #This line is completely uneffective ...
-
-
- 
-
-
