@@ -1,6 +1,9 @@
 Island and Archipelago
 ======================
 
+NOTE: There are two different types of islands in PyGMO. The PyGMO.local_island and the PyGMO.py_island. The need for two different
+types of island is purely technical (it is necessary to give the user the possibility of implementing the problem or the algorithm in python directly) and the user needs not to know any details. We will thus here document only one class that we call island and that, in reality, is a helper function returning automatically the correct object type. 
+
 .. class:: PyGMO.island()
 
    At the core of the PyGMO implementation of the generalized asynchronous island model is this class: the *island*.
@@ -107,11 +110,11 @@ Island and Archipelago
 
    .. attribute:: problem
 
-      The :class:`PyGMO.problem`. Cannot be set or modified via its methods.
+      A copy of the :class:`PyGMO.problem` in the :class:`PyGMO.population`. Cannot be set or modified via its methods.
 
    .. attribute:: migration_probability
 
-      The probability that migration occur at the end of each evolution. Cannot be set
+      The probability that migration occur at the end of each evolution. Cannot be set (maybe in future versions)
 
 
 

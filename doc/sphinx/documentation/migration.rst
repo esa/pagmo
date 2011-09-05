@@ -5,127 +5,171 @@ The algorithm
 -------------
 
 Migration, in PyGMO, happens asynchronously in each :class:`PyGMO.island` between calls of the evolve() method 
-and only when the islands are insterted in a :class:`PyGMO.archipelago`. The 
+of the  :class:`PyGMO.archipelago` where the :class:`PyGMO.island` has been pushed back. The 
 algorithm is rather complex and the user does not need to know/understand its details as PyGMO sets defaults values for all
 of its many parameters. These are:
 
-* Migration Rate - Default is 1
+Migration Rate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- This parameter defines the number of individuals that are selected from each island for migration. 
- To Migration Rate is set by the 's_policy' and 'r_policy' kwarg in the island constructor. This can be done by specifying
- the number of individuals that need to migrate (migration.rate_type.absolute) or the fraction of the population individuals
- (migration.rate_type.fractional)
+Default value: 1
 
- .. code-block:: python
+This parameter defines the number of individuals that are selected from each :class:`PyGMO.island` for *migration* as well as
+the number of migrants that will be considered for insertion in each :class:`PyGMO.island`.
+To Migration Rate is set by the 's_policy' and 'r_policy' kwarg in the :class:`PyGMO.island` constructor. This can be done by specifying
+the absolute number of individuals (migration.rate_type.absolute) or the fraction of the :class:`PyGMO.population` individuals
+(migration.rate_type.fractional)
 
-      from PyGMO import *
-      prob = problem.schwefel(15)
-      algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
-      selection = migration.best_s_policy(0.25,migration.rate_type.fractional)
-      replacement = migration.fair_r_policy(0.25,migration.rate_type.fractional)
-      isl = island(algo,prob,s_policy = selection, r_policy = replacement)
+.. code-block:: python
 
-* Migration Direction - Default is 'destination'
+   from PyGMO import *
+   prob = problem.schwefel(15)
+   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   selection = migration.best_s_policy(0.25,migration.rate_type.fractional)
+   replacement = migration.fair_r_policy(0.25,migration.rate_type.fractional)
+   isl = island(algo,prob,s_policy = selection, r_policy = replacement)
 
- In PyGMO the asynchronous migration is implemented by keeping a migration database on each island. Then one of the following
- options can be followed:
+Migration Direction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- * 'destination': The internal migration database stores, for each island, the individuals that are meant to migrate
-   from that island. Before each evolution, the island will get migrating individuals from those made available
-   by the islands connecting to it. After each evolution, the island will update its list of best individuals in the database.
+Default value: migration_direction.source
 
- * 'source': The internal migration database stores for each island the individuals that are meant to migrate
-   to that island. Before each evolution, an island will check if individuals destined to it are available in the database,
-   and, in such case will, migrate over incoming individuals before starting evolution.
-   After each evolution, the island will place its candidate individuals for emigration in the database slots of the island(s) to which
-   it connects.
+In PyGMO the asynchronous *migration* is implemented by keeping a migrants database on each island. Then one of the following
+options can be followed:
 
- The migration direction is set by the 'migration_direction' kwarg in the archipelago constructor
+* 'destination': The internal migrants database stores, for each :class:`PyGMO.island`, the individuals that are meant to migrate from that island. Before each evolution, the :class:`PyGMO.island` will get migrating individuals from those made available by the islands connecting to it. After each evolution, the :class:`PyGMO.island` will update its list of best individuals in the database.
 
-      .. code-block:: python
+* 'source': The internal migrants database stores for each :class:`PyGMO.island` the individuals that are meant to migrate to that :class:`PyGMO.island`. Before each evolution, an :class:`PyGMO.island` will check if individuals destined to it are available in the database, and, in such case will, migrate over incoming individuals before starting evolution.
+After each evolution, the :class:`PyGMO.island` will place its candidate individuals for emigration in the database slots of the island(s) to which
+it connects.
 
-         from PyGMO import *
-         prob = problem.schwefel(15)
-         algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
-         direction = migration_direction.source
-         archi = archipelago(migration_direction = direction)
+The *migration* direction is set by the 'migration_direction' kwarg in the :class:`PyGMO.archipelago` constructor
+
+.. code-block:: python
+
+   from PyGMO import *
+   prob = problem.schwefel(15)   
+   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   direction = migration_direction.source
+   archi = archipelago(migration_direction = direction)
  
-* Migration Distribution Type - Default is 'point to point'
+Migration Distribution Type 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- When migration happens one has to decide which of the connected islands contributes to the event. This is decided
- by the distribution type that can be one of the following:
+Default value: distribution_type.point_to_point
 
- * 'point to point': only one of the neighbourghing islands, selected at random, is sending (or receiving) the individuals
+When *migration* happens one has to decide which of the connected islands contributes to the event. This is decided
+by the distribution type that can be one of the following:
 
- * 'broadcast': all neighbourghing islands are sending (or receiving) the individuals
+* 'point to point': only one of the neighbourghing islands, selected at random, is sending (or receiving) the individuals
 
- The migration distribution type is set by the 'distribution_type' kwarg in the archipelago constructor
+* 'broadcast': all neighbourghing islands are sending (or receiving) the individuals
 
-      .. code-block:: python
+The migration distribution type is set by the 'distribution_type' kwarg in the :class:`PyGMO.archipelago` constructor
 
-         from PyGMO import *
-         prob = problem.schwefel(15)
-         algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
-         distribution = distribution_type.broadcast
-         archi = archipelago(distribution_type = distribution)
+.. code-block:: python
 
-* Migration Selection Policy - Default is 'best_s_policy'
+   from PyGMO import *
+   prob = problem.schwefel(15)
+   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   distribution = distribution_type.broadcast
+   archi = archipelago(distribution_type = distribution)
 
- The selection policy is the object responsible to choose out of a population the individuals that will migrate. All
- selection policies derive from the same base class and currently a few are implemented:
+Migration Selection Policy
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- * 'migration.best_s_policy': simply selects the best individuals
+Default value: migration.best_s_policy(1)
 
- The selection policy is set by the 's_policy' kwarg in the island constructor
+The selection policy is the object responsible to choose out of a :class:`PyGMO.population` the individuals that will migrate. All selection policies derive from the same base class and currently a few are implemented:
 
-      .. code-block:: python
+* 'migration.best_s_policy': simply selects the best individuals
 
-         from PyGMO import *
-         prob = problem.schwefel(15)
-         algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
-         best2 = migration.best_s_policy(2) # two individuals will be selected as the best
-         isl = island(algo,prob,s_policy = best2)
+The selection policy is set by the 's_policy' kwarg in the :class:`PyGMO.island` constructor
 
-* Migration Replacement Policy - Default is 'fair_r_policy'
+.. code-block:: python
 
- The replacement policy is the object responsible to substitute the individuals in a population with the
- migrants. All replacement policies derive from the same base class and currently a few are implemented:
+   from PyGMO import *
+   prob = problem.schwefel(15)
+   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   best2 = migration.best_s_policy(2) # two individuals will be selected as the best
+   isl = island(algo,prob,s_policy = best2)
 
- * 'migration.fair_r_policy': simply replaces the worst individuals in the island  with the best of the incoming migrants. This is subject to the added condition that the migrants are better.
+Migration Replacement Policy
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- * 'migration.random_r_policy': replaces random individuals in the island with random incoming migrants
+Default value: migration.fair_r_policy(1)
 
- * 'migration.worst_r_policy': replaces the worst individuals in the island with the best of the incoming migrants.
+The replacement policy is the object responsible to substitute the individuals in a population with the
+migrants. All replacement policies derive from the same base class and currently a few are implemented:
 
- The replacement policy is set by the 'r_policy' kwarg in the island constructor
+* 'migration.fair_r_policy': simply replaces the worst individuals in the island  with the best of the incoming migrants. This is subject to the added condition that the migrants are better.
 
-      .. code-block:: python
+* 'migration.random_r_policy': replaces random individuals in the island with random incoming migrants
 
-         from PyGMO import *
-         prob = problem.schwefel(15)
-         algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
-         random4 = migration.random_policy(4) # four individuals will be selected at random 
-					      # from the migrants and will replace random individuals
-         isl = island(algo,prob,s_policy = best2)
+* 'migration.worst_r_policy': replaces the worst individuals in the island with the best of the incoming migrants.
+
+The replacement policy is set by the 'r_policy' kwarg in the island constructor
+
+.. code-block:: python
+
+   from PyGMO import *
+   prob = problem.schwefel(15)
+   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   random4 = migration.random_policy(4) # four individuals will be selected at random 
+		 		        # from the migrants and will replace random individuals
+   isl = island(algo,prob,s_policy = best2)
 
 
-* Migration Probability - Default is 1
+Migration Probability
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
- The migration probability determines whether migration occurs at all between calls of the evolve() method. 
- It is set by the 'migr_prob' kwarg of the island constructor.
+Default value: 1
 
-      .. code-block:: python
+The migration probability determines whether migration occurs at all between calls of the evolve() method. 
+It is set by the 'migr_prob' kwarg of the island constructor.
 
-         from PyGMO import *
-         prob = problem.schwefel(15)
-         algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
-         p = 0.5
-         isl = island(algo,prob,migr_prob = p)
+.. code-block:: python
 
-* Migration Topology (i.e. which island is connected to which island) - Default is 'unconnected'
+   from PyGMO import *
+   prob = problem.schwefel(15)
+   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   p = 0.5
+   isl = island(algo,prob,migr_prob = p)
 
+Migration Topology
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Default value: migration.unconnected()
+
+The migration topology determines which island will be connected to which island. It also takes care that when an island is pushed back into an
+archipelago, the topological properties of the resulting new connectivity graph are left unchanged.
+It is set by the 'topology' kwarg in the archipelago constructor
+
+.. code-block:: python
+
+   from PyGMO import *
+   prob = problem.schwefel(15)
+   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   topo = topology.ring()
+   archi = archipelago(algo,prob,topology = topo)
 
 The Classes
 ---------------------
 
+.. class:: PyGMO.migration.best_s_policy([n=1, type = migration.rate_type.absolute])
+
+   A selection policy that selects the n best :class:`PyGMO.individual` in
+   the :class:`PyGMO.island`'s :class:`PyGMO.population`. If type is migration.rate_type.fractional then n, in [0,1], is interpreted
+   as the fraction of the population to be selected. This class is used exclusively in the :class:`PyGMO.island` 
+   constructor as a possible kwarg for the key 's_policy'
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.griewank(5)
+      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      best2 = migration.best_s_policy(2)
+      best50pc = migration.best_s_policy(0.5,migration.rate_type.fractional)
+      isl1 = island(algo,prob,10,best2)  #2 of the best individuals will migrate
+      isl2 = island(algo,prob,32,best50pc) #50% of 32 (i.e. 16) best individuals will migrate
   
