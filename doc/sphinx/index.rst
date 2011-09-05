@@ -31,6 +31,7 @@ via the asynchronous, generalized island model
 PyGMO is interfaced with SciPy optimization algorithms, NLOPT algorithms, SNOPT, IPOPT and, hopefully .... more to come.
 
 Contents:
+=========
 
 .. toctree::
    :maxdepth: 2

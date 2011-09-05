@@ -3,9 +3,10 @@ PyGMO Documentation
 ===================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    individual 
    population
+   migration
    island
    
