@@ -5,18 +5,22 @@ The algorithm
 -------------
 
 Migration, in PyGMO, happens asynchronously in each :class:`PyGMO.island` between calls of the evolve() method 
-of the  :class:`PyGMO.archipelago` where the :class:`PyGMO.island` has been pushed back. The 
-algorithm is rather complex and the user does not need to know/understand its details as PyGMO sets defaults values for all
-of its many parameters. These are:
+of the  :class:`PyGMO.archipelago` where the :class:`PyGMO.island` has been pushed back. Each islands maintains a 
+database of outgoing (or incoming) migrants. The various databases are used before evolution to replace
+some :class:`PyGMO.individual` in the :class:`PyGMO.island` and are then updated after evolution with the
+new selected migrants.
 
-Migration Rate
+The algorithm is rather complex and the user does not need to know/understand its details as PyGMO sets defaults
+values for all of its many parameters. These are:
+
+Migration Rates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Default value: 1
 
-This parameter defines the number of individuals that are selected from each :class:`PyGMO.island` for *migration* as well as
+These parameters defines the number of individuals that are selected from each :class:`PyGMO.island` for *migration* as well as
 the number of migrants that will be considered for insertion in each :class:`PyGMO.island`.
-To Migration Rate is set by the 's_policy' and 'r_policy' kwarg in the :class:`PyGMO.island` constructor. This can be done by specifying
+To Migration Rates are set by the 's_policy' and 'r_policy' kwarg in the :class:`PyGMO.island` constructor. This can be done by specifying
 the absolute number of individuals (migration.rate_type.absolute) or the fraction of the :class:`PyGMO.population` individuals
 (migration.rate_type.fractional)
 
@@ -25,14 +29,14 @@ the absolute number of individuals (migration.rate_type.absolute) or the fractio
    from PyGMO import *
    prob = problem.schwefel(15)
    algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
-   selection = migration.best_s_policy(0.25,migration.rate_type.fractional)
+   selection = migration.best_s_policy(0.10,migration.rate_type.fractional)
    replacement = migration.fair_r_policy(0.25,migration.rate_type.fractional)
    isl = island(algo,prob,s_policy = selection, r_policy = replacement)
 
 Migration Direction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Default value: migration_direction.source
+Default value: migration_direction.destination
 
 In PyGMO the asynchronous *migration* is implemented by keeping a migrants database on each island. Then one of the following
 options can be followed:
@@ -103,7 +107,7 @@ The replacement policy is the object responsible to substitute the individuals i
 migrants. All replacement policies derive from the same base class and currently a few are implemented:
 
 * 'migration.fair_r_policy': simply replaces the worst individuals in the island  with the best of the incoming migrants. This is subject to the added condition that the migrants are better.
-
+only
 * 'migration.random_r_policy': replaces random individuals in the island with random incoming migrants
 
 * 'migration.worst_r_policy': replaces the worst individuals in the island with the best of the incoming migrants.
@@ -170,6 +174,95 @@ The Classes
       algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
       best2 = migration.best_s_policy(2)
       best50pc = migration.best_s_policy(0.5,migration.rate_type.fractional)
-      isl1 = island(algo,prob,10,best2)  #2 of the best individuals will migrate
-      isl2 = island(algo,prob,32,best50pc) #50% of 32 (i.e. 16) best individuals will migrate
+      isl1 = island(algo,prob,10,s_policy = best2)  #2 of the best individuals will migrate
+      isl2 = island(algo,prob,32,s_policy = best50pc) #50% of 32 (i.e. 16) best individuals will migrate
+  
+.. class:: PyGMO.migration.fair_r_policy([n=1, type = migration.rate_type.absolute])
+
+   A replacement policy that replaces the worst n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s
+   :class:`PyGMO.population` with the best n migrants. Each replacement takes place if and only if
+   the migrant is considered better. If type is migration.rate_type.fractional then n, in [0,1], is interpreted
+   as the fraction of the population to be replaced. This class is used exclusively in the :class:`PyGMO.island` 
+   constructor as a possible kwarg for the key 'r_policy'
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.griewank(5)
+      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      fair2 = migration.fair_r_policy(2)
+      fair20pc = migration.fair_r_policy(0.2,migration.rate_type.fractional)
+      isl1 = island(algo,prob,10,r_policy = fair2)  #2 of the worst individuals will be considered for replacement
+      isl2 = island(algo,prob,100,r_policy = fair20pc) #20% of 100 (i.e. 20) worst individuals will be considered for replacement
+
+.. class:: PyGMO.migration.random_r_policy([n=1, type = migration.rate_type.absolute])
+
+   A replacement policy that replaces n random :class:`PyGMO.individual` in the :class:`PyGMO.island`'s
+   :class:`PyGMO.population` with random n migrants. If type is migration.rate_type.fractional then n, in [0,1], is interpreted
+   as the fraction of the population to be replaced. This class is used exclusively in the :class:`PyGMO.island` 
+   constructor as a possible kwarg for the key 'r_policy'
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.griewank(5)
+      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      random2 = migration.random_r_policy(2)
+      isl = island(algo,prob,10,r_policy = random2)  #2 random individuals will be replaced with random migrants
+
+.. class:: PyGMO.migration.worst_r_policy([n=1, type = migration.rate_type.absolute])
+
+   A replacement policy that replaces the n worst :class:`PyGMO.individual` in the :class:`PyGMO.island`'s
+   :class:`PyGMO.population` with the best n migrants. If type is migration.rate_type.fractional then n, in [0,1], is interpreted
+   as the fraction of the population to be replaced. This class is used exclusively in the :class:`PyGMO.island` 
+   constructor as a possible kwarg for the key 'r_policy'
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.griewank(5)
+      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      worst2 = migration.worst_r_policy(2)
+      isl = island(algo,prob,10,r_policy = worst2)  #the 2 worst individuals will be replaced by the best mogrants
+
+.. class:: PyGMO.distribution_type
+
+   This class attributes are be used to set the kwarg 'distribution_type' of the :class:`PyGMO.archipelago` constructor kwarg 'migration_direction' to
+   define whether the migrants will be distributed to one of the neighbouring island chosen at random or to all
+   of them
+
+   .. attribute:: PyGMO.distribution_type.point_to_point
+
+      Migrants are distributed to one of neighbouring :class:`PyGMO.island` selected at random
+
+   .. attribute:: PyGMO.distribution_type.broadcast
+
+      Migrants are distributed to all neighbouring :class:`PyGMO.island` 
+
+.. class:: PyGMO.migration_direction
+
+   This class attributes are be used to set the kwarg 'migration_direction' of the :class:`PyGMO.archipelago` constructor kwarg 'migration_direction' to
+   define whether the migrant databases will contain the incoming or the outgoing individuals.
+
+   .. attribute:: PyGMO.migration_direction.destination
+
+      Migrant database contains outgoing individuals
+
+   .. attribute:: PyGMO.migration_direction.source
+
+      Migrant database contains incoming individuals
+
+.. class:: PyGMO.migration.rate_type
+
+      This class attributes are used to set the second arg in the various selection and replacement policies 
+      (:class:`PyGMO.migration.best_s_policy`, :class:`PyGMO.migration.fair_r_policy`, 
+      :class:`PyGMO.migration.worst_r_policy`, :class:`PyGMO.migration.random_r_policy`)
+
+   .. attribute:: PyGMO.migration.rate_type.absolute
+
+      The number of migrants is specified as an absolute number
+
+   .. attribute:: PyGMO.migration.rate_type.fractional
+
+      The number of migrants is specified as fraction of the :class:`PyGMO.population` size
   

@@ -1,5 +1,5 @@
 ===================
-PyGMO Documentation
+User Documentation
 ===================
 
 .. toctree::
@@ -8,5 +8,6 @@ PyGMO Documentation
    individual 
    population
    migration
+   topology
    island
    
