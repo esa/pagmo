@@ -48,7 +48,7 @@ namespace pagmo { namespace migration {
 class __PAGMO_VISIBLE random_r_policy: public base_r_policy
 {
 	public:
-		random_r_policy(const double &rate = 1, rate_type type = fractional);
+		random_r_policy(const double &rate = 1, rate_type type = absolute);
 		base_r_policy_ptr clone() const;
 		std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 			select(const std::vector<population::individual_type> &, const population &) const;
