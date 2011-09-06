@@ -72,15 +72,28 @@ def _generic_island_ctor(self,*args,**kwargs):
 		ctor_args.append(args[1])
 	else:
 		raise TypeError("The second unnamed argument must be either a problem or a population.")
-	ctor_args.append(kwargs.pop('migr_prob',1.))
+	
+	if 'migr_prob' in kwargs:
+		ctor_args.append(kwargs['migr_prob'])
+	else:
+		ctor_args.append(1.)
 	if not isinstance(ctor_args[-1],float):
 		raise TypeError("Migration probability must be a float.")
-	ctor_args.append(kwargs.pop('s_policy',best_s_policy()))
+
+	if 's_policy' in kwargs:
+		ctor_args.append(kwargs['s_policy'])
+	else:
+		ctor_args.append(best_s_policy())
 	if not isinstance(ctor_args[-1],_base_s_policy):
 		raise TypeError("s_policy must be a migration selection policy.")
-	ctor_args.append(kwargs.pop('r_policy',fair_r_policy()))
+
+	if 'r_policy' in kwargs:
+		ctor_args.append(kwargs['r_policy'])
+	else:
+		ctor_args.append(fair_r_policy())
 	if not isinstance(ctor_args[-1],_base_r_policy):
 		raise TypeError("r_policy must be a migration replacement policy.")
+
 	if isinstance(self,base_island):
 		super(type(self),self).__init__(*ctor_args)
 	elif isinstance(self,_base_island):
@@ -229,7 +242,7 @@ def _generic_archi_ctor(self,*args,**kwargs):
 	ctor_args = []
 	for i in args:
 		ctor_args.append(i)
-	ctor_args.append(kwargs.pop('topology', topology.unconnected()))
+	ctor_args.append(kwargs.pop('topology', topology.unconnected())) #unconnected is default
 	ctor_args.append(kwargs.pop('distribution_type', distribution_type.point_to_point)) #point-to-point is default
 	ctor_args.append(kwargs.pop('migration_direction', migration_direction.destination)) #destination is default
 
