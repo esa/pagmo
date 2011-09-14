@@ -326,7 +326,7 @@ void de::evolve(population &pop) const
 		try
 		{
 			// We check at run type for the problem type and change the seed ...
-			dynamic_cast<const pagmo::problem::base_stochastic*>(&prob)->change_seed();
+			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).change_seed();
 			// So ... the problem IS stochastic and we thus reset the cache and clear pop
 			prob.reset_caches();
 			pagmo::population pop_tmp(pop);
