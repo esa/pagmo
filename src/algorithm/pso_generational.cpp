@@ -325,7 +325,7 @@ void pso_generational::evolve(population &pop) const
 		// Change problem seed if the problem is a stochastic optimization
 		try
 		{
-			dynamic_cast<const pagmo::problem::base_stochastic*>(&prob)->change_seed();
+			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).change_seed();
 		}
 		catch (const std::bad_cast& e)
 		{
