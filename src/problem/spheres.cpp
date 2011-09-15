@@ -55,7 +55,8 @@ spheres::spheres(int n_evaluations, int n_hidden_neurons,
 	set_lb(-1);
 	set_ub(1);
 	// We then instantiate the ode integrator system using gsl
-	m_sys = {ode_func,NULL,nr_eq,&m_ffnn};
+	gsl_odeiv2_system sys = {ode_func,NULL,nr_eq,&m_ffnn};
+	m_sys = sys;
 	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-6,m_numerical_precision,0.0);
 }
 
@@ -66,7 +67,8 @@ spheres::spheres(const spheres &other):
 	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic), m_symm(other.m_symm)
 {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
-	m_sys = {ode_func,NULL,nr_eq,&m_ffnn};
+	gsl_odeiv2_system sys = {ode_func,NULL,nr_eq,&m_ffnn};
+	m_sys = sys;
 	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-6,m_numerical_precision,0.0);
 }
 
