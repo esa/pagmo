@@ -6,7 +6,7 @@ types of island is purely technical (it is necessary to give the user the possib
 and the user needs not to know any details. We will thus here document only one class that we call
 island and that, in reality, is a helper function returning automatically the correct object type. 
 
-.. class:: PyGMO.island()
+.. class:: PyGMO.island
 
    At the core of the PyGMO implementation of the generalized asynchronous island model is this class: the *island*.
    An island, in PyGMO, contains a :class:`PyGMO.population` and a :class:`PyGMO.algorithm` and is the object responsible
@@ -118,5 +118,10 @@ island and that, in reality, is a helper function returning automatically the co
 
       The probability that migration occur at the end of each evolution. Cannot be set (maybe in future versions)
 
+.. class:: PyGMO.archipelago
+
+   Probably the most important object in all PyGMO. An *Archipelago* is the container for :class:`PyGMO.island` 
+   and is responsible to run the asynchronous island model. The solutions exchange among :class:`PyGMO.island` is done
+   following the routes allowed by the underlying topology
 
 

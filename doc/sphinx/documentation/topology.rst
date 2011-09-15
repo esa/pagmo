@@ -58,7 +58,7 @@ The user will mainly use these classes in the following way:
 
       Uses Python networx module to draw the topology in a graphic window
 
-.. class:: PyGMO.topology.pan()
+.. class:: PyGMO.topology.pan
 
    Islands are connected in a ring, except island No. 0 that is connected to the ring only receiving migrants. This
    topology was first conceived to have global optimization happening on the outer ring while using some local optimizer
@@ -70,7 +70,7 @@ The user will mainly use these classes in the following way:
 
       Uses Python networx module to draw the topology in a graphic window
 
-.. class:: PyGMO.topology.rim()
+.. class:: PyGMO.topology.rim
 
    Islands are connected in a ring and they all are also connected to the No.0 island.
 
@@ -90,19 +90,22 @@ The user will mainly use these classes in the following way:
 
       Uses Python networx module to draw the topology in a graphic window
 
-.. class:: PyGMO.topology.watts_strogatz([(int) K=10, (double)beta=0.1, (int)size=0])
+.. class:: PyGMO.topology.watts_strogatz
 
-   The Watts-Strogatz topology is a ring lattice network (with K neighbours, K/2 on each side) in which forward
-   edges are rewired with random probability beta. Such a network has small-world properties, 
+   The Watts-Strogatz topology is a ring lattice network in which forward
+   edges are rewired with random probability. Such a network has small-world properties, 
    including short average path
    lengths and high clustering. When the push_back method is used all the connections 
-   are rewired. Note that up to the the first K + 1
-   insertions, the topology will be fully connected. Afterwards, the topology will be a proper
-   Watts-Strogatz model. Since the addition of a single element to the topology implies the
-   rewiring of the whole topology, for archipelago objects of large size it is advisable
-   to build a topology object outside the archipelago and then assign it to the archipelago
+   are rewired. 
 
    `Watts-Strogatz topology in wikipedia <http://en.wikipedia.org/wiki/Watts_and_Strogatz_model>`_
+
+   .. method:: PyGMO.topology.watts_strogatz.__init__([(int) K=10, (double)beta=0.1, (int)size=0])
+
+      Builds a Watts_strogatz topology with K neighbours (K/2 on each side) in which forward
+      edges are rewired with random probability beta. Since the addition of a single element to the topology implies the
+      rewiring of the whole topology, for archipelago objects of large size it is advisable
+      to build a topology object outside the archipelago and then assign it to the archipelago
 
    .. image:: ../images/watts_strogatz.png
 
@@ -110,9 +113,13 @@ The user will mainly use these classes in the following way:
 
       Uses Python networx module to draw the topology in a graphic window
 
-.. class:: PyGMO.topology.erdos_reny([(double)p = 0.01)
+.. class:: PyGMO.topology.erdos_reny
 
-   A random graph with a probability of p for each biderectional link
+   A random graph
+
+   .. method:: PyGMO.topology.erdos_reny.__init__([(double)p = 0.01)
+
+      Builds a random graph with a probability of p for each bidirectional link
 
    .. image:: ../images/erdos.png
 
@@ -122,12 +129,18 @@ The user will mainly use these classes in the following way:
 
 .. class:: PyGMO.topology.barabasi_albert([(int)m0=3, (int)m=2])
 
-   Topology based on the Barabási-Albert (BA) model for the generation of random undirected
-   scale-free networks. The construction of this topology consists internally of two phases:
+   Topology based on the Barabási-Albert (BA) model
 
-   * The first m0 elements added to the network constitute a kernel of nodes connected to each other with high probability;
+   .. method:: PyGMO.topology.barabasi_albert.__init__([(int)m0=3, (int)m=2])
+
+      Constructs a Barabasi-Albert topology. The construction consists internally of two phases:
+
+      * The first m0 elements added to the network constitute a kernel of nodes connected to each other
+        with high probability;
  
-   * After the kernel is built, the next elements added to the network are connected randomly to m of the existing nodes; the probability of connection is biased linearly towards the most connected nodes.
+      * After the kernel is built, the next elements added to the network
+        are connected randomly to m of the existing nodes; the probability of connection 
+        is biased linearly towards the most connected nodes.
 
    .. image:: ../images/ba.png
 
@@ -158,6 +171,8 @@ The user will mainly use these classes in the following way:
    .. method:: PyGMO.topology.custom.draw()
 
       Uses Python networx module to draw the topology in a graphic window
+
+   Example: 
 
    .. code-block:: python
 
