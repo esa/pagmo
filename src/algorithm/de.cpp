@@ -265,12 +265,7 @@ void de::evolve(population &pop) const
 					n = (n+1)%Dc;
 				}
 			}
-			/*-------DE/rand/2	for (int i = 1; i<n; i++) {		//the int i = 1 jumps the first member as it is already set as the best
-		if (fit[i] < gbfit) {
-			gbfit = fit[i];
-			gbX = X[i];
-		}
-	}/bin--------------------------------------------------------------------*/
+			/*-------DE/rand/2/bin--------------------------------------------------------------------*/
 			else if (m_strategy == 10) {
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
@@ -320,34 +315,6 @@ void de::evolve(population &pop) const
 
 		/* swap population arrays. New generation becomes old one */
 		std::swap(popold, popnew);
-
-		//If the problem is stochastic, we change the seed and re-evaluate the entire population
-		//we do nothing otherwise
-		try
-		{
-			// We check at run type for the problem type and change the seed ...
-			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).change_seed();
-			// So ... the problem IS stochastic and we thus reset the cache and clear pop
-			prob.reset_caches();
-			pagmo::population pop_tmp(pop);
-			pop.clear();
-			// We then re-evaluate the whole population trying to be cache efficient!!
-			for (size_t i = 0; i < NP; ++i){
-				prob.objfun(fit[i], popold[i]);
-				pop.push_back(popold[i]);
-				//std::transform(&popold[i], &popold[i]+D+1, &popnew[i], tmp.begin(),std::minus<double>());
-				pop.set_v(i,pop_tmp.get_individual(i).cur_v);
-				//re-initialize global bests ...
-				gbX=pop.champion().x;
-				gbfit=pop.champion().f;
-				// container for the best decision vector of generation
-				gbIter = gbX;
-			}
-		}
-		catch (const std::bad_cast& e)
-		{
-		// do nothing if the problem is not stochastic .....
-		}
 
 	}//end main DE iterations
 

@@ -12,7 +12,7 @@ island and that, in reality, is a helper function returning automatically the co
    An island, in PyGMO, contains a :class:`PyGMO.population` and a :class:`PyGMO.algorithm` and is the object responsible
    to launch the thread that applies the :class:`PyGMO.algorithm` to evolve the :class:`PyGMO.population`
 
-   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.population)pop[ , migr_prob=1., s_policy = PyGMO.migration., r_policy=])
+   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.population)pop [, migr_prob=1., s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
 
       Constructs an island from a population. The population will be evolved by algo. Migration occurs with
       probability migr_prob at the end of each evolution if the *island* belongs to a :class:`PyGMO.archipelago`
@@ -25,7 +25,7 @@ island and that, in reality, is a helper function returning automatically the co
          pop = population(prob,20)
          isl = island(algo,pop)
 
-   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.problem)prob, (int)N[ , migr_prob=1.])
+   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.problem)prob, (int)N [, migr_prob=1., s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
 
       Constructs an island directly from a problem. The resulting population (of size N) will be evolved by algo. 
       Migration occurs with probability migr_prob at the end of each evolution if the *island* belongs to an :class:`PyGMO.archipelago`
@@ -37,11 +37,11 @@ island and that, in reality, is a helper function returning automatically the co
          algo = algorithm.de(10) #instantiates differential evolution with default params and 10 generations
          isl = island(algo,prob,20)
 
-   .. method:: PyGMO.island.evolve(int(n))
+   .. method:: PyGMO.island.evolve((int)n)
   
       Evolves the :class:`PyGMO.population` in the *island* performing n calls to :class:`PyGMO.algorithm`.
       At the end of each call migration occur with probability migr_prob if the *island*  belongs to a :class:`PyGMO.archipelago`.
-      Evolution happens in the background on a new thread while the program flows continues.
+      Evolution happens in the background on a dedicated thread while the program flows continues.
       
       .. code-block:: python
 
@@ -120,8 +120,84 @@ island and that, in reality, is a helper function returning automatically the co
 
 .. class:: PyGMO.archipelago
 
-   Probably the most important object in all PyGMO. An *Archipelago* is the container for :class:`PyGMO.island` 
-   and is responsible to run the asynchronous island model. The solutions exchange among :class:`PyGMO.island` is done
+   Probably the most important object in all PyGMO. An *Archipelago* is a container of :class:`PyGMO.island` 
+   and is responsible to start the asynchronous island model. The solutions exchange among :class:`PyGMO.island` is done
    following the routes allowed by the underlying topology
 
+   .. method:: PyGMO.archipelago.__init__([topology = unconnected(), distribution_type = point_to_point, migration_direction = destination])
 
+      Constructs an empty *archipelago* from a topology (defaults to :class:`PyGMO.topology.unconnected()`)
+      a distribution type (defaults to :class:`PyGMO.distribution_type.point_to_point`) and a migration
+      direction (defaults to :class:`PyGMO.migration_direction.destination`)
+
+      .. code-block:: python
+
+         from PyGMO import *
+	 archi = archipelago()                            #constructs an empty archipelago with an unconnected topology
+         archi = archipelago(topology = topology.ring())  #constructs an empty archipelago with a ring topology
+
+   .. method:: PyGMO.archipelago.__init__((PyGMO.algorithm)algo, (PyGMO.problem)prob, (int)n_isl, (int)n_ind, [topology = unconnected(), distribution_type = point_to_point, migration_direction = destination])
+
+      Constructs an empty *archipelago* from a topology (defaults to :class:`PyGMO.topology.unconnected()`)
+      a distribution type (defaults to :class:`PyGMO.distribution_type.point_to_point`) and a migration
+      direction (defaults to :class:`PyGMO.migration_direction.destination`). 
+      It then pushes back into the archipelago n_isl :class:`PyGMO.island` constructed using defaults values for the kwargs
+      and (algo,prob,n_ind) as args.
+
+      .. code-block:: python
+
+         from PyGMO import *
+	 prob = problem.grewank(30)
+	 algo = algorithm.bee_colony(50)
+         archi = archipelago(algo,prob,8,20)    #constructs an archipelago having 8 islands with populations
+                                                #of 20 individuals. All islands have a copy of the bee_colony solver
+                                                #and a copy of the griewank(30) problem
+
+   .. method:: PyGMO.archipelago.evolve((int)n)
+  
+      Calls the method :class:`PyGMO.island.evolve` (n) on all the :class:`PyGMO.island` of the *archipelago*. 
+      In other words, it starts the asynchronous generalized island model that is at the core of PyGMO.
+      
+      .. code-block:: python
+
+         from PyGMO import *
+         prob = problem.schwefel(15)
+         algo = algorithm.de(500)                 #instantiates differential evolution with default
+                                                  #params and 100 generations
+         archi = archipelago(algo,prob,8,20)
+         archi.evolve(10)                         #starts the asynchronous generalized island model. 
+                                                  #each of the 8 islands will call algo 10 times and try to migrate in between calls
+ 
+   .. method:: PyGMO.archipelago.push_back((PyGMO.island) isl)
+
+     Pushes back isl in the archipelago taking also to also update the topological links between islands.
+     This method also checks that the island inserted is compatible with the other islands present in the archipelago
+     (i.e. it contains a :class`PyGMO.population` with a :class`PyGMO.problem that is compatible)
+
+   .. method:: PyGMO.archipelago.join()
+
+     Joins all threads (if still present) started by the  :class:`PyGMO.archipelago`. In other words it waits
+     for evolution to have finished.
+
+     .. code-block:: python
+
+         from PyGMO import *
+         prob = problem.schwefel(15)
+         algo = algorithm.de(500)                 #instantiates differential evolution with default
+                                                  #params and 100 generations
+         archi = archipelago(algo,prob,8,20)
+         archi.evolve(10)                         #starts the asynchronous generalized island model. 
+         archi.join()                             #waits for it to finish
+	 [isl.population.champion.f for isl in archi] #builds a list with the best fittnesses found
+
+   .. method:: PyGMO.archipelago.busy()
+
+      Returns True if evolution is ongoing in the *archipelago*.    
+
+   .. method:: PyGMO.archipelago.interrupt()
+
+      Halts evolution at the first occasion in all islands.  
+
+ 
+
+                   

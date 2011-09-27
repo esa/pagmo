@@ -56,7 +56,10 @@ The *migration* direction is set by the 'migration_direction' kwarg in the :clas
    algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
    direction = migration_direction.source
    archi = archipelago(migration_direction = direction)
- 
+
+
+.. _distribution_type_label:
+
 Migration Distribution Type 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -244,7 +244,7 @@ void mbh::set_algorithm(const base &algo)
 std::string mbh::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "algorithm:" << m_local->get_name() << ' ';
+	s << "algorithm: " << m_local->get_name() << ' ';
 	s << "stop:" << m_stop << ' ';
 	s << "perturb:" << m_perturb << ' ';
 	return s.str();

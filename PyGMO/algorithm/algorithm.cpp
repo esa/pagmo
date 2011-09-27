@@ -124,12 +124,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	common_module_init();
 
 	// Expose base algorithm class, including the virtual methods.
-	class_<algorithm::python_base, boost::noncopyable>("_base",init<>())
+	class_<algorithm::python_base, boost::noncopyable>("_base", "All algorithms derive from this class. It cannot be instantiated", init<>())
 		.def("__repr__",&algorithm::base::human_readable)
 		// Virtual methods that can be (re)implemented.
 		.def("get_name", &algorithm::base::get_name, &algorithm::python_base::default_get_name)
 		// NOTE: This needs special treatment because its prototype changes in the wrapper.
-		.def("evolve",&algorithm::python_base::py_evolve)
+		.def("evolve",&algorithm::python_base::py_evolve, "Returns the evolved population")
 		.def("human_readable_extra", &algorithm::base::human_readable_extra, &algorithm::python_base::default_human_readable_extra)
 		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
@@ -153,7 +153,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// IHS.
 	algorithm_wrapper<algorithm::ihs>("ihs","Improved harmony search.")
-		.def(init<int, optional<const double &, const double &, const double &, const double &, const double &> >());
+		.def(init<optional<int, const double &, const double &, const double &, const double &, const double &> >());
 	
 	// CS.
 	algorithm_wrapper<algorithm::cs>("cs","Compass search solver.")
@@ -165,7 +165,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Artificial Bee Colony Optimization (ABC).
 	algorithm_wrapper<algorithm::bee_colony>("bee_colony","Artificial Bee Colony optimization (ABC) algorithm.")
-		.def(init<int,optional<int> >());
+		.def(init<optional<int,int> >());
 
 	// Ant Colony Optimization (ACO).
 	algorithm_wrapper<algorithm::aco>("aco","Ant Colony Optimization (ACO) algorithm.")
@@ -177,34 +177,36 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	// Monotonic Basin Hopping.
 	algorithm_wrapper<algorithm::mbh>("mbh","Monotonic Basin Hopping.")
-		.def(init<const algorithm::base &,optional<int, double> >())
-		.def(init<const algorithm::base &,optional<int, const std::vector<double> &> >())
+		.def(init<optional<const algorithm::base &,int, double> >())
+		.def(init<optional<const algorithm::base &,int, const std::vector<double> &> >())
 		.add_property("algorithm",&algorithm::mbh::get_algorithm,&algorithm::mbh::set_algorithm)
 		.def("screen_output",&algorithm::mbh::screen_output);
 	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
 		.def(init<const algorithm::base &, int>())
-		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm);
+		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm)
+		.def("screen_output",&algorithm::ms::screen_output);
 	
-	// Particle Swarm Optimization.
-	algorithm_wrapper<algorithm::pso>("pso","Particle swarm optimization.")
-		.def(init<int,optional<double, double, double, double, int, int, int> >());
+	// Particle Swarm Optimization (Steady state)
+	algorithm_wrapper<algorithm::pso>("pso", "Particle Swarm Optimization (steady-state)")
+		.def(init<optional<int,double, double, double, double, int, int, int> >());
 
 	// Particle Swarm Optimization (generational)
-	algorithm_wrapper<algorithm::pso_generational>("pso_gen","Particle swarm optimization. Generational version (can cope with stochastic prolems)")
-		.def(init<int,optional<double, double, double, double, int, int, int> >());
+	algorithm_wrapper<algorithm::pso_generational>("pso_gen", "Particle Swarm Optimization (generational)")
+		.def(init<optional<int,double, double, double, double, int, int, int> >());
 	
 	// Simple Genetic Algorithm.
-	algorithm_wrapper<algorithm::sga>("sga","Simple Genetic Algorithm.")
+	algorithm_wrapper<algorithm::sga>("sga", "A simple genetic algorithm (generational)")
 		.def(init<int, optional<const double &, const double &, int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
 	
 	// Differential evolution.
-	algorithm_wrapper<algorithm::de>("de","Differential evolution algorithm.")
-		.def(init<int,optional<const double &, const double &, int> >());
-	// ASA.
+	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
+		.def(init<optional<int,const double &, const double &, int> >());
+		
+	// Simulated annealing, Corana's version.
 	algorithm_wrapper<algorithm::sa_corana>("sa_corana","Simulated annealing, Corana's version with adaptive neighbourhood.")
-		.def(init<int, const double &, const double &, optional<int,int,const double &> >());
+		.def(init<optional<int, const double &, const double &, int,int,const double &> >());
 
 	// GSL algorithms.
 	#ifdef PAGMO_ENABLE_GSL

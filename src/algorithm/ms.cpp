@@ -144,8 +144,8 @@ void ms::set_algorithm(const base &algo)
 std::string ms::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "algorithm:" << m_algorithm->get_name() << ' ';
-	s << "starts:" << m_starts << ' ';
+	s << "algorithm: " << m_algorithm->get_name() << ' ';
+	s << "iter:" << m_starts << ' ';
 	return s.str();
 }
 

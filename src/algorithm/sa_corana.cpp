@@ -208,10 +208,10 @@ std::string sa_corana::get_name() const
 std::string sa_corana::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "niter:" << m_niter << ' ';
+	s << "iter:" << m_niter << ' ';
 	s << "Ts:" << m_Ts << ' ';
 	s << "Tf:" << m_Tf << ' ';
-	s << "step_adj:" << m_step_adj << ' ';
+	s << "steps:" << m_step_adj << ' ';
 	s << "bin_size:" << m_bin_size << ' ';
 	s << "range:" << m_range << ' ';
 	return s.str();

@@ -42,7 +42,7 @@ namespace pagmo { namespace algorithm {
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
- * @param[in] iter number of iterations.
+ * @param[in] gen number of generations (2 * pop.size() function evaluations per generation).
  * @param[in] limit number of tries after which a source of food is dropped if not improved
  * @throws value_error if number of iterations or limit are negative
  */

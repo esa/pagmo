@@ -43,7 +43,7 @@ namespace pagmo { namespace algorithm {
  * behaviour of bees.
  *
  * At each call of the evolve method a number of function evaluations equal
- * to 2 * iter * pop.size() is performed.
+ * to 2 * gen * pop.size() is performed.
  *
  * NOTE: when called on mixed-integer problems ABC treats the integer part as fixed and optimizes
  * the continuous part.
@@ -57,7 +57,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE bee_colony: public base
 {
 public:
-	bee_colony(int iter = 1, int limit = 20);
+	bee_colony(int gen = 1, int limit = 20);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

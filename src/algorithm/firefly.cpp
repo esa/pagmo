@@ -42,14 +42,14 @@ namespace pagmo { namespace algorithm {
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
- * @param[in] iter number of iterations.
+ * @param[in] gen number of iterations.
  * @param[in] alpha define the width of the random vector
  * @param[in] beta define the maximum attractiveness
  * @param[in] gamma define the absorption coefficent
  * @throws value_error if number of iterations is negative or alpha, beta and gamma are not in [0,1]
  */
-firefly::firefly(int iter, double alpha, double beta, double gamma):base(),m_iter(iter), m_alpha(alpha), m_beta(beta), m_gamma(gamma) {
-	if (iter < 0) {
+firefly::firefly(int gen, double alpha, double beta, double gamma):base(),m_iter(gen), m_alpha(alpha), m_beta(beta), m_gamma(gamma) {
+	if (gen < 0) {
 		pagmo_throw(value_error,"number of iterations must be nonnegative");
 	}
 	if (alpha < 0 || alpha > 1) {

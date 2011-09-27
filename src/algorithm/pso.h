@@ -75,7 +75,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pso: public base
 {
 public:
-	pso(int gen=100, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4 );
+	pso(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4 );
 	base_ptr clone() const;
 	void evolve(population &) const;
 	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob ) const;

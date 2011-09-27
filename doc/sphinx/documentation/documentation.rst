@@ -10,4 +10,6 @@ User Documentation
    migration
    topology
    island
+   algorithms
+   problems
    

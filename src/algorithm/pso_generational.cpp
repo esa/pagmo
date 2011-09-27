@@ -326,6 +326,38 @@ void pso_generational::evolve(population &pop) const
 		try
 		{
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).change_seed();
+			prob.reset_caches();
+			pop.clear();
+
+			// Re-evaluate wrt new seed
+			for( p = 0; p < swarm_size; p++ ){
+				// We evaluate here the new individual fitness
+				prob.objfun( fit[p], X[p] );
+				// We re-evaluate the fitness of the particle memory
+				prob.objfun( lbfit[p], lbX[p] );
+
+				// We update the memory
+				if( prob.compare_fitness( fit[p], lbfit[p] ) ){
+					// update the particle's previous best position
+					lbfit[p] = fit[p];
+					lbX[p] = X[p];
+
+					// update the best position observed so far by any particle in the swarm
+					// (only performed if swarm topology is gbest)
+					if( m_neighb_type == 1 && prob.compare_fitness( fit[p], best_neighb_fit ) ){
+						best_neighb     = X[p];
+						best_neighb_fit = fit[p];
+					}
+				}
+				///Set as current the old best, re-evaluated with new seed.
+				pop.push_back(lbX[p]);
+				//Set as current the old current, re-evaluated with new seed. The old best
+				//will be retained, if still better.
+				pop.set_x(p,X[p]);
+				pop.set_v(p,V[p]);
+
+			}
+		  
 		}
 		catch (const std::bad_cast& e)
 		{
@@ -333,37 +365,7 @@ void pso_generational::evolve(population &pop) const
 		}
 
 
-		prob.reset_caches();
-		pop.clear();
 
-		// Re-evaluate wrt new seed
-		for( p = 0; p < swarm_size; p++ ){
-			// We evaluate here the new individual fitness
-			prob.objfun( fit[p], X[p] );
-			// We re-evaluate the fitness of the particle memory
-			prob.objfun( lbfit[p], lbX[p] );
-
-			// We update the memory
-			if( prob.compare_fitness( fit[p], lbfit[p] ) ){
-				// update the particle's previous best position
-				lbfit[p] = fit[p];
-				lbX[p] = X[p];
-
-				// update the best position observed so far by any particle in the swarm
-				// (only performed if swarm topology is gbest)
-				if( m_neighb_type == 1 && prob.compare_fitness( fit[p], best_neighb_fit ) ){
-					best_neighb     = X[p];
-					best_neighb_fit = fit[p];
-				}
-			}
-			///Set as current the old best, re-evaluated with new seed.
-			pop.push_back(lbX[p]);
-			//Set as current the old current, re-evaluated with new seed. The old best
-			//will be retained, if still better.
-			pop.set_x(p,X[p]);
-			pop.set_v(p,V[p]);
-
-		}
 	} // end of main PSO loop
 }
 
