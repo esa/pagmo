@@ -31,8 +31,8 @@ and can be easily mixed (also with your newly invented algorithms) to build a su
 via the asynchronous, generalized island model.
 
 PyGMO can be used to solve constrained, unconstrained, single objective, multiple objective, contiuous, mixed int 
-optimization problem, or to perform research on novel algorithms and paradigms and easily copmare them to state of the art
-implementation of established ones.
+optimization problem, or to perform research on novel algorithms and paradigms and easily compare them to state of the art
+implementations of established ones.
 
 PyGMO is interfaced with SciPy optimization algorithms, NLOPT algorithms, SNOPT, IPOPT and, hopefully .... more to come.
 
