@@ -28,7 +28,7 @@ the absolute number of individuals (migration.rate_type.absolute) or the fractio
 
    from PyGMO import *
    prob = problem.schwefel(15)
-   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
    selection = migration.best_s_policy(0.10,migration.rate_type.fractional)
    replacement = migration.fair_r_policy(0.25,migration.rate_type.fractional)
    isl = island(algo,prob,s_policy = selection, r_policy = replacement)
@@ -53,7 +53,7 @@ The *migration* direction is set by the 'migration_direction' kwarg in the :clas
 
    from PyGMO import *
    prob = problem.schwefel(15)   
-   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
    direction = migration_direction.source
    archi = archipelago(migration_direction = direction)
 
@@ -78,7 +78,7 @@ The migration distribution type is set by the 'distribution_type' kwarg in the :
 
    from PyGMO import *
    prob = problem.schwefel(15)
-   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
    distribution = distribution_type.broadcast
    archi = archipelago(distribution_type = distribution)
 
@@ -97,7 +97,7 @@ The selection policy is set by the 's_policy' kwarg in the :class:`PyGMO.island`
 
    from PyGMO import *
    prob = problem.schwefel(15)
-   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
    best2 = migration.best_s_policy(2) # two individuals will be selected as the best
    isl = island(algo,prob,s_policy = best2)
 
@@ -121,7 +121,7 @@ The replacement policy is set by the 'r_policy' kwarg in the island constructor
 
    from PyGMO import *
    prob = problem.schwefel(15)
-   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
    random4 = migration.random_policy(4) # four individuals will be selected at random 
 		 		        # from the migrants and will replace random individuals
    isl = island(algo,prob,s_policy = best2)
@@ -139,7 +139,7 @@ It is set by the 'migr_prob' kwarg of the island constructor.
 
    from PyGMO import *
    prob = problem.schwefel(15)
-   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
    p = 0.5
    isl = island(algo,prob,migr_prob = p)
 
@@ -156,7 +156,7 @@ It is set by the 'topology' kwarg in the archipelago constructor
 
    from PyGMO import *
    prob = problem.schwefel(15)
-   algo = algorithm.de(100) #instantiates differential evolution with default params and 100 generations
+   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
    topo = topology.ring()
    archi = archipelago(algo,prob,topology = topo)
 
@@ -174,7 +174,7 @@ The Classes
 
       from PyGMO import *
       prob = problem.griewank(5)
-      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      algo = algorithm.abc(gen = 10) #instantiates artificial bee colony with default params and 10 generations
       best2 = migration.best_s_policy(2)
       best50pc = migration.best_s_policy(0.5,migration.rate_type.fractional)
       isl1 = island(algo,prob,10,s_policy = best2)  #2 of the best individuals will migrate
@@ -192,7 +192,7 @@ The Classes
 
       from PyGMO import *
       prob = problem.griewank(5)
-      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      algo = algorithm.bee_colony(10) #instantiates artificial bee colony with default params and 10 generations
       fair2 = migration.fair_r_policy(2)
       fair20pc = migration.fair_r_policy(0.2,migration.rate_type.fractional)
       isl1 = island(algo,prob,10,r_policy = fair2)  #2 of the worst individuals will be considered for replacement
@@ -209,7 +209,7 @@ The Classes
 
       from PyGMO import *
       prob = problem.griewank(5)
-      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      algo = algorithm.bee_colony(gen = 10) #instantiates artificial bee colony with default params and 10 generations
       random2 = migration.random_r_policy(2)
       isl = island(algo,prob,10,r_policy = random2)  #2 random individuals will be replaced with random migrants
 
@@ -224,7 +224,7 @@ The Classes
 
       from PyGMO import *
       prob = problem.griewank(5)
-      algo = algorithm.abc(10) #instantiates artificial bee colony with default params and 10 generations
+      algo = algorithm.bee_colony(gen = 10) #instantiates artificial bee colony with default params and 10 generations
       worst2 = migration.worst_r_policy(2)
       isl = island(algo,prob,10,r_policy = worst2)  #the 2 worst individuals will be replaced by the best mogrants
 

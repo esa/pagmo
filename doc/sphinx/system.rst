@@ -1,7 +1,7 @@
 Preparing your system to compile PyGMO
 ======================================
 
-Compiling under a Unix System
+Unix System
 -----------------------------
 
 We assume you have root access to your unix machine and a working python installation. As PyGMO has some dependencies, you will need to install
@@ -24,7 +24,7 @@ Other packages are actually optional and they will enhance PyGMO functionalities
 These packages need to be compiled in such a way as to allow PyGMO 1) to find them 2) tho use them.
 See the dedicated pages on how to make sure this happens.
 
-Compiling under Windows
+Windows
 -----------------------
 
 Whoa, Whoa why would you want to do such a crazy crazy thing???? Anyway you need to

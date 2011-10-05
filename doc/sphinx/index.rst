@@ -36,8 +36,8 @@ implementations of established ones.
 
 PyGMO is interfaced with SciPy optimization algorithms, NLOPT algorithms, SNOPT, IPOPT and, hopefully .... more to come.
 
-Contents:
-=========
+Install
+=======
 
 .. toctree::
    :maxdepth: 2
@@ -45,14 +45,21 @@ Contents:
    system
    downloading
    installation
+
+Documentation
+=============
+
+.. toctree::
+   :maxdepth: 2
+
    documentation/documentation
+
+Credits
+=======
+
+.. toctree::
+   :maxdepth: 2
+
    credits
    
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

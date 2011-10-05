@@ -13,7 +13,7 @@ The user will mainly use these classes in the following way:
 
   from PyGMO import *
   prob = problem.lennard_jones(5)
-  algo = algorithm.de(10) #instantiates artificial bee colony with default params and 10 generations
+  algo = algorithm.de(gen = 10) #instantiates artificial bee colony with default params and 10 generations
   topo = topology.ring() #defines a ring topology
   archi = archipelago(algo,prob,8,20,topology=topo) #connects 8 islands in a ring topology
   archi.topology.draw() #requires networkx to be installed
@@ -178,7 +178,7 @@ The user will mainly use these classes in the following way:
 
       from PyGMO import *
       prob = problem.lennard_jones(5)
-      algo = algorithm.de(10)     #instantiates artificial bee colony with default params and 10 generations
+      algo = algorithm.de(gen = 10)     #instantiates artificial bee colony with default params and 10 generations
       topo = topology.custom()    #builds a custom topology
       for i in range(30):
            topo.push_back()       #Now we have an unconnected topology of 30 vertices
