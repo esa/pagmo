@@ -16,8 +16,7 @@ class py_pl2pl(base):
 		try:
 			import PyKEP
 		except ImportError:
-			print("Error while trying 'import PyKEP': is PyKEP installed?")
-			raise
+			raise ImportError("Error while trying 'import PyKEP': is PyKEP installed?")
 		if departure is None:
 			departure = PyKEP.planet_ss('earth')
 		if target is None:
