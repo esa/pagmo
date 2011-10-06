@@ -1,5 +1,4 @@
-from base import base
-
+from _base import base
 
 # Helper class to ease the inclusion of scipy.optimize solvers.
 class _scipy_base(base):
@@ -85,7 +84,7 @@ class scipy_l_bfgs_b(_scipy_base):
 	"""
 	Wrapper around SciPy's fmin_l_bfgs_b optimiser (uses L-BFGS-B algorithm)
 	"""
-	def __init__(self, maxfun = 15000, m = 10, factr = 10000000.0, pgtol = 1.0000000000000001e-05, epsilon = 1e-08, screen_output = False):
+	def __init__(self, maxfun = 1, m = 10, factr = 10000000.0, pgtol = 1.0000000000000001e-05, epsilon = 1e-08, screen_output = False):
 		"""
 		Constructs a L-BFGS-B algorithm (using the scipy fmin_l_bfgs_b optimiser)
 
@@ -144,7 +143,7 @@ class scipy_slsqp(_scipy_base):
 	"""
 	Wrapper around SciPy's slsqp optimiser.
 	"""
-	def __init__(self,maxiter = 100,acc = 1E-6,epsilon = 1.4901161193847656e-08, screen_output = False):
+	def __init__(self,maxiter = 1,acc = 1E-6,epsilon = 1.4901161193847656e-08, screen_output = False):
 		"""
 		Constructs a Sequential Least SQuares Programming algorithm
 
@@ -196,9 +195,34 @@ class scipy_tnc(_scipy_base):
 	"""
 	Wrapper around SciPy's tnc optimiser.
 	"""
-	def __init__(self,maxiter = 100,tol = 1E-6,verbose = False):
-		_scipy_base.__init__(self,'fmin_tnc',False,maxiter,tol)
-		self.verbose = verbose
+	def __init__(self, maxfun = 15000, xtol = -1, ftol = -1, pgtol = 1e-05, epsilon = 1e-08, screen_output = False):
+		"""
+		Constructs a Truncated Newton Method algorithm
+
+		NOTE: gradient is numerically approximated
+
+		USAGE: algorithm.scipy_tnc(maxfun = 1, xtol = -1, ftol = -1, pgtol = 1e-05, epsilon = 1e-08, screen_output = False)
+
+		* maxfun: Maximum number of function evaluation.
+		* xtol: Precision goal for the value of x in the stopping criterion 
+		        (after applying x scaling factors). If xtol < 0.0, xtol is set to 
+		        sqrt(machine_precision). Defaults to -1.
+		* ftol: Precision goal for the value of f in the stoping criterion.
+		        If ftol < 0.0, ftol is set to 0.0 defaults to -1.
+		* pgtol: Precision goal for the value of the projected gradient in the
+		         stopping criterion (after applying x scaling factors). If pgtol
+		         < 0.0, pgtol is set to 1e-2 * sqrt(accuracy). 
+		         Setting it to 0.0 is not recommended. Defaults to -1.
+		* epsilon: The stepsize in a finite difference approximation for the objfun
+		* screen_output: Set to True to print iterations
+		"""
+		_scipy_base.__init__(self,'fmin_tnc',False)
+		self.maxfun = maxfun
+		self.xtol = xtol
+		self.ftol = ftol
+		self.pgtol = pgtol
+		self.epsilon = epsilon
+		self.screen_output = screen_output
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
@@ -208,22 +232,40 @@ class scipy_tnc(_scipy_base):
 		_, x0, x0_comb = self._starting_params(pop)
 		# Extract the a list of tuples representing the bounds.
 		prob_bounds = [(prob.lb[i],prob.ub[i]) for i in range(0,prob.dimension - prob.i_dimension)]
-		if self.verbose:
+		if self.screen_output:
 			msg = 15
 		else:
 			msg = 0
-		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,bounds = prob_bounds,approx_grad = True, messages = msg,
-			pgtol = self.tol, maxfun = self.maxiter)
+		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,bounds = prob_bounds,approx_grad = True, messages = msg, 
+                            maxfun = self.maxfun, xtol = self.xtol, ftol = self.ftol, pgtol = self.pgtol, epsilon = self.epsilon)
 		new_chromosome = list(retval[0]) + list(x0_comb)
 		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
+	def get_name(self):
+		return "Truncated Newton Method (SciPy)"
+	def human_readable_extra(self):
+		return "maxfun = " + str(self.maxfun) + ", xtol = " + str(self.xtol) + ", ftol = " + str(self.ftol) + ", pgtol = " +str(self.pgtol) + ", epsilon = " +str(self.epsilon)
+
 
 class scipy_cobyla(_scipy_base):
 	"""
 	Wrapper around SciPy's cobyla optimiser.
 	"""
-	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
-		_scipy_base.__init__(self,'fmin_cobyla',True,maxiter,tol)
+	def __init__(self,maxfun = 1,rhoend = 1E-5,screen_output = False):
+		"""
+		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm
+
+		NOTE: equality constraints are transformed into two inequality constraints automatically
+
+		USAGE: algorithm.scipy_cobyla(maxfun = 1,rhoend = 1E-5,screen_output = False)
+
+		* maxfun: Maximum number of function evaluations.
+		* rhoend: Final accuracy in the optimization (not precisely guaranteed). This is a lower bound on the size of the trust region.
+		* screen_output: Set to True to print iterations
+		"""
+		_scipy_base.__init__(self,'fmin_cobyla',True)
+		self.maxfun = maxfun
+		self.rhoend = rhoend
 		self.verbose = verbose
 	def evolve(self,pop):
 		from numpy import concatenate, array
@@ -247,22 +289,39 @@ class scipy_cobyla(_scipy_base):
 			# Box bounds implemented as inequality constraints.
 			f_cons.append(lambda x, i = i: x[i] - lb[i])
 			f_cons.append(lambda x, i = i: ub[i] - x[i])
-		if self.verbose:
+		if self.screen_output:
 			iprn = 1
 		else:
 			iprn = 0
-		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,cons = f_cons,iprint = iprn, maxfun = self.maxiter, rhoend = self.tol)
+		retval = self.solver(lambda x: array(prob.objfun(concatenate((x,x0_comb))),dtype=float),x0,cons = f_cons,iprint = iprn, maxfun = self.maxfun, rhoend = self.rhoend)
 		new_chromosome = list(retval) + list(x0_comb)
 		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
+	def get_name(self):
+		return "Constrained Optimization BY Linear Approximation (SciPy)"
+	def human_readable_extra(self):
+		return "maxfun = " + str(self.maxfun) + ", rhoend = " + str(self.rhoend)
 
 class scipy_anneal(_scipy_base):
 	"""
 	Wrapper around SciPy's anneal optimiser.
 	"""
-	def __init__(self,maxiter = 100,tol = 1E-5,verbose = False):
-		_scipy_base.__init__(self,'anneal',False,maxiter,tol)
-		self.verbose = verbose
+	def __init__(self, schedule = 'fast', screen_output = False, T0 = None, Tf = 9.9999999999999998e-13, maxfun = 100, maxaccept = None, maxiter = 400, boltzmann = 1.0, learn_rate = 0.5, feps = 9.9999999999999995e-07, quench = 1.0, m = 1.0, n = 1.0, dwell = 50)
+		_scipy_base.__init__(self,'anneal',False)
+		self.schedule = schedule
+		self.T0 = T0
+		self.Tf = Tf
+		self.maxfun = maxiter
+		self.maxaccept = maxaccept
+		self.maxiter = maxiter
+		self.boltzmann = boltzmann
+		self.learn_rate = learn_rate
+		self.feps = feps
+		self.quench = quench
+		self.m = m
+		self.n = n
+		self.dwell = dwell
+		self.screen_output = screen_output
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem
