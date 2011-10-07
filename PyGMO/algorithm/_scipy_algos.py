@@ -306,12 +306,12 @@ class scipy_anneal(_scipy_base):
 	"""
 	Wrapper around SciPy's anneal optimiser.
 	"""
-	def __init__(self, schedule = 'fast', screen_output = False, T0 = None, Tf = 9.9999999999999998e-13, maxfun = 100, maxaccept = None, maxiter = 400, boltzmann = 1.0, learn_rate = 0.5, feps = 9.9999999999999995e-07, quench = 1.0, m = 1.0, n = 1.0, dwell = 50)
+	def __init__(self, schedule = 'fast', screen_output = False, T0 = None, Tf = 9.9999999999999998e-13, maxfun = 100, maxaccept = None, maxiter = 400, boltzmann = 1.0, learn_rate = 0.5, feps = 9.9999999999999995e-07, quench = 1.0, m = 1.0, n = 1.0, dwell = 50):
 		_scipy_base.__init__(self,'anneal',False)
 		self.schedule = schedule
 		self.T0 = T0
 		self.Tf = Tf
-		self.maxfun = maxiter
+		self.maxfun = maxfun
 		self.maxaccept = maxaccept
 		self.maxiter = maxiter
 		self.boltzmann = boltzmann
@@ -333,7 +333,10 @@ class scipy_anneal(_scipy_base):
 		n_ec, x0, x0_comb = self._starting_params(pop)
 		# Run the optimisation.
 		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,lower = array(prob.lb,dtype=float),upper = array(prob.ub,dtype=float),
-			full_output = int(self.verbose), maxiter = self.maxiter, feps = self.tol)
+			full_output = int(self.verbose), schedule = self.schedule, T0 = self.T0, Tf = self.Tf, maxfun = self.maxfun
+                                  , maxaccept = self.maxaccept, maxiter = self.maxiter, boltzmann = self.boltzmann, learn_rate = self.learn_rate
+                                  , feps = self.feps, quench = self.quench, m = self.m, n = self.n
+                                  , dwell = self.dwell, screen_output = self.screen_output)
 		# Set the individual's chromosome in the population and return. Conserve the integer part from the
 		# original individual.
 		new_chromosome = list(retval[0]) + list(x0_comb)
