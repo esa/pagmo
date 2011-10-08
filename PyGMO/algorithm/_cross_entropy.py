@@ -4,11 +4,11 @@ class py_cross_entropy(base):
        """
        Cross-Entropy algorithm (Python)
        """
-       def __init__(self, gen = 1, elite = 0.5, scale = 0.05):
+       def __init__(self, gen = 500, elite = 0.5, scale = 0.05, screen_output = False):
 	      """
               Constructs a Cross-Entropy Algorithm (Python)
 		
-              USAGE: algorithm.py_cross_entropy(gen = 1, elite = 0.5, scale = 0.05)
+              USAGE: algorithm.py_cross_entropy(gen = 1, elite = 0.5, scale = 0.05, screen_output = False))
 		
               NOTE: A multivariate normal distribution is used. 
 		    The first sample is centered around the population champion. 
@@ -17,6 +17,7 @@ class py_cross_entropy(base):
               * gen: number of generations
               * elite: fraction of the population considered as elite (in (0,1])
               * scale: scaling factor for the estimated covariance matrix
+              * screen_output: activates screen_output (output at each generation)
               """
               try:
 			import numpy as np
@@ -27,6 +28,7 @@ class py_cross_entropy(base):
               self.__gen = gen
               self.__elite = elite
               self.__scale = scale
+              self.__screen_output = screen_output
               np.random.seed()
 
        def evolve(self,pop):
@@ -58,11 +60,11 @@ class py_cross_entropy(base):
                # Let's start the algorithm                  
                mu = matrix(pop.champion.x)
                
-               for _ in range(self.__gen):
+               for i in range(self.__gen):
                        y = self.__extract_elite(pop,n_ind__elite)		#y = array, [[chrom],fitness] * n_ind__elite
                        C = self.__estimate_covariance(y,mu) * self.__scale      #C = matrix, D x D
                        mu = self.__calculate_mean(y)                            #mu = matrix, D x 1
-                       self.__new_generation(pop,mu,C,prob.lb,prob.ub)
+                       self.__new_generation(i,pop,mu,C,prob.lb,prob.ub,y)
                return pop
 
        def __extract_elite(self,pop,N):
@@ -91,9 +93,9 @@ class py_cross_entropy(base):
                        mu = mu + x[i][0]
                return (mu.T / len(x))
 
-       def __new_generation(self,pop,mu,C,lb,ub):
+       def __new_generation(self,gen,pop,mu,C,lb,ub,y):
 	       from numpy.random import multivariate_normal,random
-	       from numpy import array
+	       from numpy import array,std
                np = len(pop)
                newpop = multivariate_normal(array(mu.T)[0],C,[np])
                for row in range(newpop.shape[0]):
@@ -104,9 +106,12 @@ class py_cross_entropy(base):
                                        newpop[row,col] = lb[col] + random()*(ub[col]-lb[col])
                for i in range(np):
                        pop.set_x(i,newpop[i])
+               if self.__screen_output:
+               		 elite_std = std([std([r[0,i] for r in [l[0] for l in y ]]) for i in range(len(lb))])
+               		 if not(gen%20):
+               		        print "\nGen.\tChampion\tHighest\t\tLowest\t\tStd"
+                         print "%d\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]),elite_std)
                return
-	
-
        def get_name(self):
                return "Cross Entropy (Python)"
        def human_readable_extra(self):
