@@ -51,6 +51,12 @@ const gsl_multimin_fdfminimizer_type *gsl_fr::get_gsl_minimiser_ptr() const
 	return gsl_multimin_fdfminimizer_conjugate_fr;
 }
 
+/// Algorithm name
+std::string gsl_fr::get_name() const
+{
+	return "Fletcher-Reeves conjugate gradient (GSL)";
+}
+
 }}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_fr);

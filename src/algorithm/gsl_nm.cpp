@@ -53,6 +53,12 @@ const gsl_multimin_fminimizer_type *gsl_nm::get_gsl_minimiser_ptr() const
 	return gsl_multimin_fminimizer_nmsimplex;
 }
 
+/// Algorithm name
+std::string gsl_nm::get_name() const
+{
+	return "Nelder-Mead simplex (GSL)";
+}
+
 }}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm);

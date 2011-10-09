@@ -4,31 +4,67 @@ Algorithms
 A Quick Look
 ------------
 
-Algorithms in PyGMO are constructed and then used to evolve a population via their evolve method. The user can
-implement his own algorithm in Python (in which case they need to derive from :class:`PyGMO.algorithm.base`)
+Algorithms in PyGMO are objects, constructed and then used to optimize a problem via their evolve method. The user can
+implement his own algorithm in Python (in which case they need to derive from :class:`PyGMO.algorithm.base`), but we
+also provide a number of algorithms that are considered useful for general purposes. Each algorithm can be associated only to
+problems of certain types: (Continuous, Integer or Mixed Integer)-(Constrained, Unconstrained)-(Single, Multi-objective).
 
-================================== ========================================= =============== ============== ================ ===========================================
-Common Name                        Name in PyGMO                             Chromosome      Constraints    Fitness          Comments
-================================== ========================================= =============== ============== ================ ===========================================
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de`               Continuous      Unconstrained  Single-objective 
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`              Continuous      Unconstrained  Single-objective 
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`          Continuous      Unconstrained  Single-objective also problems deriving from base_stochastic
-Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`              Continuous      Unconstrained  Single-objective 
-Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`        Continuous      Unconstrained  Single-objective 
-Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`       Continuous      Unconstrained  Single-objective 
-Firefly Optimization (FF)          :class:`PyGMO.algorithm.firefly`          Continuous      Unconstrained  Single-objective 
-Monotonic Basin Hopping (MBH)      :class:`PyGMO.algorithm.mbh`                    N/A            N/A              N/A       
-Multistart (MS)                    :class:`PyGMO.algorithm.ms`                     N/A            N/A              N/A       
-Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`              Mixed-Int       Unconstrained  Single-objective 
-Compass Search (CS)                :class:`PyGMO.algorithm.cs`               Continuous      Unconstrained  Single-objective  
-Monte Carlo (MC)                   :class:`PyGMO.algorithm.monte_carlo`      Mixed-Int       Constrained    Single-objective  
-Monte Carlo (MC)                   :class:`PyGMO.algorithm.py_example`       Mixed-Int       Constrained    Single-objective 
-Ant Colony optimization (ACO)      :class:`PyGMO.algorithm.aco`                    Int       Unconstrained  Single-objective only problems deriving from base_aco
-Cross-Entropy Method (CE)          :class:`PyGMO.algorithm.py_cross_entropy` Continuous      Unconstrained  Single-objective 
-Nelder-Mead simplex                :class:`PyGMO.algorithm.scipy_fmin`       Continuous      Unconstrained  Single-objective requires scipy module installed
-L-BFGS-B                           :class:`PyGMO.algorithm.scipy_l_bfgs_b`   Continuous      Unconstrained  Single-objective requires scipy module installed
-Sequential Least SQuares Prog.     :class:`PyGMO.algorithm.scipy_slsqp`      Continuous      Constrained    Single-objective requires scipy module installed
-================================== ========================================= =============== ============== ================ ===========================================
+
+Heuristic Optimization
+^^^^^^^^^^^^^^^^^^^^^^
+================================== ========================================= =============== ===========================================
+Common Name                        Name in PyGMO                             Type            Comments
+================================== ========================================= =============== ===========================================
+Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S 
+Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      steady-state
+Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      generational (also problems deriving from base_stochastic)
+Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                   C-U-S 
+Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
+Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
+Cross-Entropy Method (CE)          :class:`PyGMO.algorithm.py_cross_entropy`      C-U-S      Written in Python
+Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
+Monte Carlo Search (MC)            :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
+Monte Carlo Search (MC)            :class:`PyGMO.algorithm.py_example`           MI-C-S      Written in Python
+NSGA-II	                                                                                     Coming soon!!! (under testing)
+Covariance Matrix Adaptation-ES 	                                                     Coming soon!!! (under testing) 
+Ant Colony Optimization                                                                      Planned
+================================== ========================================= =============== ===========================================
+
+Meta-algorithms 
+^^^^^^^^^^^^^^^
+================================== ========================================= =============== ===========================================
+Common Name                        Name in PyGMO                             Type            Comments
+================================== ========================================= =============== ===========================================
+Monotonic Basin Hopping (MBH)      :class:`PyGMO.algorithm.mbh`                    N/A          
+Multistart (MS)                    :class:`PyGMO.algorithm.ms`                     N/A      
+Penalty Function (PF)                                                                        Planned 
+Augmented Lagrangian (AL)                                                                    Planned
+================================== ========================================= =============== ===========================================
+
+Local optimization 
+^^^^^^^^^^^^^^^^^^
+================================== ========================================= =============== =====================================================================
+Common Name                        Name in PyGMO                             Type            Comments
+================================== ========================================= =============== =====================================================================
+Compass Search (CS)                :class:`PyGMO.algorithm.cs`                    C-U-S 
+Nelder-Mead simplex                :class:`PyGMO.algorithm.scipy_fmin`            C-U-S      SciPy required. Minimization assumed
+Nelder-Mead simplex                :class:`PyGMO.algorithm.gsl_nm`                C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
+Nelder-Mead simplex variant 2      :class:`PyGMO.algorithm.gsl_nm2`               C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
+Nelder-Mead simplex variant 2r     :class:`PyGMO.algorithm.gsl_nm2rand`           C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
+Subplex (a Nelder-Mead variant)    :class:`PyGMO.algorithm.nlopt_sbplx`           C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
+L-BFGS-B                           :class:`PyGMO.algorithm.scipy_l_bfgs_b`        C-U-S      SciPy required. Minimization assumed
+BFGS                               :class:`PyGMO.algorithm.gsl_bfgs2`             C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
+BFGS 2                             :class:`PyGMO.algorithm.gsl_bfgs`              C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
+Sequential Least SQuares Prog.     :class:`PyGMO.algorithm.scipy_slsqp`           C-C-S      SciPy required. Minimization assumed
+Truncated Newton Method            :class:`PyGMO.algorithm.scipy_tnc`             C-U-S      SciPy required. Minimization assumed
+Conjugate Gradient (fr)            :class:`PyGMO.algorithm.gsl_fr`                C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
+Conjugate Gradient (pr)            :class:`PyGMO.algorithm.gsl_pr`                C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
+COBYLA                             :class:`PyGMO.algorithm.scipy_cobyla`          C-C-S      SciPy required. Minimization assumed
+COBYLA                             :class:`PyGMO.algorithm.nlopt_cobyla`          C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
+BOBYQA                             :class:`PyGMO.algorithm.nlopt_bobyqa`          C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
+SNOPT                              :class:`PyGMO.algorithm.snopt`                 C-C-S      Requires PyGMO to be compiled with snopt option. Minimization assumed
+IPOPT                              :class:`PyGMO.algorithm.ipopt`                 C-C-S      Requires PyGMO to be compiled with ipopt option. Minimization assumed
+================================== ========================================= =============== =====================================================================
 
 Detailed Documentation
 ----------------------
@@ -86,10 +122,6 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.bee_colony.__init__
 
-.. autoclass:: PyGMO.algorithm.firefly(*args)
-
-   .. automethod:: PyGMO.algorithm.firefly.__init__
-
 .. autoclass:: PyGMO.algorithm.ms
 
    .. automethod:: PyGMO.algorithm.ms.__init__
@@ -145,3 +177,59 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.scipy_slsqp
 
    .. automethod:: PyGMO.algorithm.scipy_slsqp.__init__
+
+.. autoclass:: PyGMO.algorithm.scipy_tnc
+
+   .. automethod:: PyGMO.algorithm.scipy_tnc.__init__
+
+.. autoclass:: PyGMO.algorithm.scipy_cobyla
+
+   .. automethod:: PyGMO.algorithm.scipy_cobyla.__init__
+
+.. autoclass:: PyGMO.algorithm.nlopt_cobyla
+
+   .. automethod:: PyGMO.algorithm.nlopt_cobyla.__init__
+
+.. autoclass:: PyGMO.algorithm.nlopt_bobyqa
+
+   .. automethod:: PyGMO.algorithm.nlopt_bobyqa.__init__
+
+.. autoclass:: PyGMO.algorithm.nlopt_sbplx
+
+   .. automethod:: PyGMO.algorithm.nlopt_sbplx.__init__
+
+.. autoclass:: PyGMO.algorithm.gsl_nm2rand
+
+   .. automethod:: PyGMO.algorithm.gsl_nm2rand.__init__
+
+.. autoclass:: PyGMO.algorithm.gsl_nm2
+
+   .. automethod:: PyGMO.algorithm.gsl_nm2.__init__
+
+.. autoclass:: PyGMO.algorithm.gsl_nm
+
+   .. automethod:: PyGMO.algorithm.gsl_nm.__init__
+
+.. autoclass:: PyGMO.algorithm.gsl_pr
+
+   .. automethod:: PyGMO.algorithm.gsl_pr.__init__
+
+.. autoclass:: PyGMO.algorithm.gsl_fr
+
+   .. automethod:: PyGMO.algorithm.gsl_fr.__init__
+
+.. autoclass:: PyGMO.algorithm.gsl_bfgs2
+
+   .. automethod:: PyGMO.algorithm.gsl_bfgs2.__init__
+
+.. autoclass:: PyGMO.algorithm.gsl_bfgs
+
+   .. automethod:: PyGMO.algorithm.gsl_bfgs.__init__
+
+.. autoclass:: PyGMO.algorithm.snopt
+
+   .. automethod:: PyGMO.algorithm.snopt.__init__
+
+.. autoclass:: PyGMO.algorithm.ipopt
+
+   .. automethod:: PyGMO.algorithm.ipopt.__init__

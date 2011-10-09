@@ -44,6 +44,7 @@ class __PAGMO_VISIBLE gsl_nm2rand: public gsl_derivative_free
 	public:
 		gsl_nm2rand(int max_iter = 100, const double &tol = 1E-6, const double &step_size = 1);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		const gsl_multimin_fminimizer_type *get_gsl_minimiser_ptr() const;
 	private:

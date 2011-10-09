@@ -39,6 +39,11 @@ base_ptr nlopt_bobyqa::clone() const
 {
 	return base_ptr(new nlopt_bobyqa(*this));
 }
+/// Algorithm name
+std::string nlopt_bobyqa::get_name() const
+{
+	return "BOBYQA (NLOPT)";
+}
 
 }}
 

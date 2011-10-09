@@ -51,6 +51,12 @@ const gsl_multimin_fdfminimizer_type *gsl_pr::get_gsl_minimiser_ptr() const
 	return gsl_multimin_fdfminimizer_conjugate_pr;
 }
 
+/// Algorithm name
+std::string gsl_pr::get_name() const
+{
+	return "Polak-Ribiere conjugate gradient (GSL)";
+}
+
 }}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_pr);

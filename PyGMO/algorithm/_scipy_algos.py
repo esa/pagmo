@@ -43,7 +43,7 @@ class scipy_fmin(_scipy_base):
 	"""
 	def __init__(self, maxiter=1, xtol=0.0001, ftol=0.0001, maxfun=None, full_output=0, disp=0, retall=0):
 		"""
-		Constructs a Nelder-Mead Simplex algorithm (using the scipy fmin optimiser)
+		Constructs a Nelder-Mead Simplex algorithm (SciPy)
 
 		USAGE: algorithm.scipy_fmin(maxiter=1, xtol=0.0001, ftol=0.0001, maxfun=None, full_output=0, disp=0, retall=0)
 
@@ -86,7 +86,7 @@ class scipy_l_bfgs_b(_scipy_base):
 	"""
 	def __init__(self, maxfun = 1, m = 10, factr = 10000000.0, pgtol = 1.0000000000000001e-05, epsilon = 1e-08, screen_output = False):
 		"""
-		Constructs a L-BFGS-B algorithm (using the scipy fmin_l_bfgs_b optimiser)
+		Constructs a L-BFGS-B algorithm (SciPy)
 
 		NOTE: gradient is numerically approximated
 
@@ -197,7 +197,7 @@ class scipy_tnc(_scipy_base):
 	"""
 	def __init__(self, maxfun = 15000, xtol = -1, ftol = -1, pgtol = 1e-05, epsilon = 1e-08, screen_output = False):
 		"""
-		Constructs a Truncated Newton Method algorithm
+		Constructs a Truncated Newton Method algorithm (SciPy)
 
 		NOTE: gradient is numerically approximated
 
@@ -253,7 +253,7 @@ class scipy_cobyla(_scipy_base):
 	"""
 	def __init__(self,maxfun = 1,rhoend = 1E-5,screen_output = False):
 		"""
-		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm
+		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm (SciPy)
 
 		NOTE: equality constraints are transformed into two inequality constraints automatically
 
@@ -302,45 +302,77 @@ class scipy_cobyla(_scipy_base):
 	def human_readable_extra(self):
 		return "maxfun = " + str(self.maxfun) + ", rhoend = " + str(self.rhoend)
 
-class scipy_anneal(_scipy_base):
-	"""
-	Wrapper around SciPy's anneal optimiser.
-	"""
-	def __init__(self, schedule = 'fast', screen_output = False, T0 = None, Tf = 9.9999999999999998e-13, maxfun = 10000, maxaccept = None, maxiter = 100000, boltzmann = 1.0, learn_rate = 0.5, feps = 9.9999999999999995e-07, quench = 1.0, m = 1.0, n = 1.0, dwell = 50):
-		_scipy_base.__init__(self,'anneal',False)
-		self.schedule = schedule
-		self.T0 = T0
-		self.Tf = Tf
-		self.maxfun = maxfun
-		self.maxaccept = maxaccept
-		self.maxiter = maxiter
-		self.boltzmann = boltzmann
-		self.learn_rate = learn_rate
-		self.feps = feps
-		self.quench = quench
-		self.m = m
-		self.n = n
-		self.dwell = dwell
-		self.screen_output = screen_output
-	def evolve(self,pop):
-		from numpy import concatenate, array
-		prob = pop.problem
-		self._problem_checks(prob)
-		# If population is empty, just return input population.
-		if len(pop) == 0:
-			return pop
-		# Get starting params.
-		n_ec, x0, x0_comb = self._starting_params(pop)
-		# Run the optimisation.
-		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,lower = array(prob.lb,dtype=float),upper = array(prob.ub,dtype=float)
-			          , full_output = int(self.screen_output), schedule = self.schedule, T0 = self.T0, Tf = self.Tf, maxeval = self.maxfun
-                                  , maxaccept = self.maxaccept, maxiter = self.maxiter, boltzmann = self.boltzmann, learn_rate = self.learn_rate
-                                  , feps = self.feps, quench = self.quench, m = self.m, n = self.n
-                                  , dwell = self.dwell)
-		# Set the individual's chromosome in the population and return. Conserve the integer part from the
-		# original individual.
-		new_chromosome = list(retval[0]) + list(x0_comb)
-		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
-		return pop
+
+#This algorithm suck at the moment and thus I will not include it
+
+
+#class scipy_anneal(_scipy_base):
+#	"""
+#	Wrapper around SciPy's anneal optimiser.
+#	"""
+#	def __init__(self, schedule = 'fast', screen_output = False, T0 = None, Tf = 9.9999999999999998e-13, maxfun = 1000000, maxaccept = None, maxiter = 100000, boltzmann #= 1.0, learn_rate = 0.5, feps = 9.9999999999999995e-07, dwell = 5):
+#		"""
+#		Constructs a Simulate Annealing algorithm
+#
+#		USAGE: algorithm.scipy_anneal(maxiter = 100000, T0 = None, Tf = 9.9999999999999998e-13, schedule = 'fast', 
+#		                              maxfun = 1000000, maxaccept = None, boltzmann = 1.0, learn_rate = 0.5,
+#		                              feps = 9.9999999999999995e-07, dwell = 50, screen_output = False)
+#
+#		NOTE: it is not guaranteed that the objective function will be only called with
+#		      chrmosomes within the bounds 
+#
+#		* maxiter: Maximum cooling iterations
+#		* T0: Starting temperature
+#		* Tf: End Temperature
+#		* schedule: Annealing schedule one of 'fast', 'cauchy', 'boltzmann'
+#		* maxfun: Maximum function evaluations
+#		* maxaccept: Maximum change to accept
+#		* boltzmann: Boltzmann constant in acceptance test
+#                             (increase for less stringent test at each temperature).
+#		* learn_rate: Scale constant for adjusting guesses
+#		* feps: Stopping relative error tolerance for the function value in
+#                        last four coolings.
+#		* dwell: The number of times to search the space at each temperature.
+#		* screen_output: Set to True to print iterations
+#		"""
+#
+#		_scipy_base.__init__(self,'anneal',False)
+#		self.schedule = schedule
+#		self.T0 = T0
+#		self.Tf = Tf
+#		self.maxfun = maxfun
+#		self.maxaccept = maxaccept
+#		self.maxiter = maxiter
+#		self.boltzmann = boltzmann
+#		self.learn_rate = learn_rate
+#		self.feps = feps
+#		self.dwell = dwell
+#	def evolve(self,pop):
+#		from numpy import concatenate, array
+#		prob = pop.problem
+#		self._problem_checks(prob)
+#		# If population is empty, just return input population.
+#		if len(pop) == 0:
+#			return pop
+#		# Get starting params.
+#		n_ec, x0, x0_comb = self._starting_params(pop)
+#		# Run the optimisation.
+#		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,lower = array(prob.lb,dtype=float),upper = array(prob.ub,dtype=float)
+#			          , full_output = int(self.screen_output), schedule = self.schedule, T0 = self.T0, Tf = self.Tf, maxeval = self.maxfun
+#                                 , maxaccept = self.maxaccept, maxiter = self.maxiter, boltzmann = self.boltzmann, learn_rate = self.learn_rate
+#                                  , feps = self.feps, dwell = self.dwell)
+#		# Set the individual's chromosome in the population and return. Conserve the integer part from the
+#		# original individual.
+#		new_chromosome = list(retval[0]) + list(x0_comb)
+#		pop.set_x(0,self._check_new_chromosome(new_chromosome,prob))
+#		return pop
+#	def get_name(self):
+#		return "Simulated Annealing (SciPy)"
+#	def human_readable_extra(self):
+#		return ("maxiter = " + str(self.maxiter) + ", T0 = " + str(self.T0) + ", Tf = " + str(self.Tf) + ", schedule = " + self.schedule
+#		                    + ", maxfun = " + str(self.maxfun) + ", maxaccept = " + str(self.maxaccept) + ", boltzmann = " + str(self.boltzmann)
+#		                    + ", learn_rate = " + str(self.learn_rate) + ", feps = " + str(self.feps) + ", dwell = " + str(self.dwell)
+
+		                    
 		
 

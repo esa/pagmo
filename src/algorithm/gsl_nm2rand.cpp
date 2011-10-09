@@ -53,6 +53,12 @@ const gsl_multimin_fminimizer_type *gsl_nm2rand::get_gsl_minimiser_ptr() const
 	return gsl_multimin_fminimizer_nmsimplex2rand;
 }
 
+/// Algorithm name
+std::string gsl_nm2rand::get_name() const
+{
+	return "Nelder-Mead simplex (GSL, version 2 + randomly-oriented initial simplex)";
+}
+
 }}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm2rand);

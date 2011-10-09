@@ -46,6 +46,7 @@ class __PAGMO_VISIBLE gsl_fr: public gsl_gradient
 	public:
 		gsl_fr(int = 100, const double & = 1E-8, const double & = 1E-8, const double & = 0.01, const double & = 1E-4);
 		base_ptr clone() const;
+		std::string get_name() const;
 	protected:
 		const gsl_multimin_fdfminimizer_type *get_gsl_minimiser_ptr() const;
 	private:

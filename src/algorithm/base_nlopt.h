@@ -70,6 +70,7 @@ class __PAGMO_VISIBLE base_nlopt: public base
 			constraint_vector		*c;
 			problem::base::c_size_type	c_comp;
 		};
+		int get_last_status() const;
 		static double objfun_wrapper(int, const double *, double *, void *);
 		static double constraints_wrapper(int, const double *, double *, void *);
 	private:

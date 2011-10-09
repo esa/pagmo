@@ -40,6 +40,12 @@ base_ptr nlopt_cobyla::clone() const
 	return base_ptr(new nlopt_cobyla(*this));
 }
 
+/// Algorithm name
+std::string nlopt_cobyla::get_name() const
+{
+	return "COBYLA (NLOPT)";
+}
+
 }}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_cobyla);

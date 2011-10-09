@@ -51,6 +51,12 @@ const gsl_multimin_fdfminimizer_type *gsl_bfgs2::get_gsl_minimiser_ptr() const
 	return gsl_multimin_fdfminimizer_vector_bfgs2;
 }
 
+/// Algorithm name
+std::string gsl_bfgs2::get_name() const
+{
+	return "BFGS2 (GSL)";
+}
+
 }}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_bfgs2);

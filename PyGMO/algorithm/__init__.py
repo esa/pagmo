@@ -12,6 +12,18 @@ _algorithm.sga.crossover = _algorithm._crossover_type
 _algorithm.sga.selection = _algorithm._selection_type
 _algorithm.sga.mutation = _algorithm._mutation_type
 
+#Creating the list of algorithms
+def _get_algorithm_list():
+	import _algorithm as algorithm
+	# Try importing SciPy and NumPy.
+	try:
+		import scipy, numpy
+		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))]
+	except ImportError as e:
+		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
+	return algorithm_list
+
+# Redefining the constructors of all algorithms to obtain good documentation and to allow kwargs
 def _de_ctor(self,**kwargs):
 	"""
 	Constructs a Differential Evolution algorithm:
@@ -210,26 +222,26 @@ def _bee_colony_ctor(self,**kwargs):
 bee_colony._orig_init = bee_colony.__init__
 bee_colony.__init__ = _bee_colony_ctor
 
-def _firefly_ctor(self,**kwargs):
-	"""
-	Constructs a Firefly Algorithm
-	
-	USAGE: algorithm.firefly(gen = 1, alpha = 0.01, beta = 1.0, gamma = 0.8)
-	
-	* gen: number of 'generations' 
-	* alpha: width of the random vector (in [0,1])
-	* beta: maximum attractiveness (in [0,1])
-	* gamma: absorption coefficient (in [0,1])
-	"""
-	# We set the defaults or the kwargs
-	arg_list=[]
-	arg_list.append(kwargs.pop('gen', 1))
-	arg_list.append(kwargs.pop('alpha', 20))
-	arg_list.append(kwargs.pop('beta', 20))
-	arg_list.append(kwargs.pop('gamma', 20))
-	self._orig_init(*arg_list)
-firefly._orig_init = firefly.__init__
-firefly.__init__ = _firefly_ctor
+#def _firefly_ctor(self,**kwargs):
+#	"""
+#	Constructs a Firefly Algorithm
+#	
+#	USAGE: algorithm.firefly(gen = 1, alpha = 0.01, beta = 1.0, gamma = 0.8)
+#	
+#	* gen: number of 'generations' 
+#	* alpha: width of the random vector (in [0,1])
+#	* beta: maximum attractiveness (in [0,1])
+#	* gamma: absorption coefficient (in [0,1])
+#	"""
+#	# We set the defaults or the kwargs
+#	arg_list=[]
+#	arg_list.append(kwargs.pop('gen', 1))
+#	arg_list.append(kwargs.pop('alpha', 20))
+#	arg_list.append(kwargs.pop('beta', 20))
+#	arg_list.append(kwargs.pop('gamma', 20))
+#	self._orig_init(*arg_list)
+#firefly._orig_init = firefly.__init__
+#firefly.__init__ = _firefly_ctor
 
 def _ms_ctor(self,**kwargs):
 	"""
@@ -342,12 +354,213 @@ def _monte_carlo_ctor(self,**kwargs):
 monte_carlo._orig_init = monte_carlo.__init__
 monte_carlo.__init__ = _monte_carlo_ctor
 
-def _get_algorithm_list():
-	from PyGMO import algorithm
-	# Try importing SciPy and NumPy.
-	try:
-		import scipy, numpy
-		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))]
-	except ImportError as e:
-		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
-	return algorithm_list
+#NLOPT algorithms (only if PyGMO has been compiled woth nlopt option activated)
+if "nlopt" in str(_get_algorithm_list()):
+	def _nlopt_bobyqa_ctor(self,**kwargs):
+		"""
+		Constructs a BOBYQA algorithm (Bound Optimization BY Quadratic Approximation) (NLOPT)
+	
+		USAGE: algorithm.nlopt_bobyqa(maxiter = 100, tol = 1e-6);
+	
+		* maxiter: maximum number of iterations
+		* tol: tolerance to achieve to stop the algorithm
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('tol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_bobyqa._orig_init = nlopt_bobyqa.__init__
+	nlopt_bobyqa.__init__ = _nlopt_bobyqa_ctor
+
+	def _nlopt_sbplx_ctor(self,**kwargs):
+		"""
+		Constructs a Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of subspaces) (NLOPT)
+	
+		USAGE: algorithm.nlopt_sbplx(maxiter = 100, tol = 1e-6);
+	
+		* maxiter: maximum number of iterations
+		* tol: tolerance to achieve to stop the algorithm
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('tol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_sbplx._orig_init = nlopt_sbplx.__init__
+	nlopt_sbplx.__init__ = _nlopt_sbplx_ctor
+
+	def _nlopt_cobyla_ctor(self,**kwargs):
+		"""
+		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm (NLOPT)
+	
+		USAGE: algorithm.nlopt_cobyla(maxiter = 100, tol = 1e-6);
+	
+		* maxiter: maximum number of iterations
+		* tol: tolerance to achieve to stop the algorithm
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('tol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_cobyla._orig_init = nlopt_cobyla.__init__
+	nlopt_cobyla.__init__ = _nlopt_cobyla_ctor
+
+#GSL algorithms (only if PyGMO has been compiled with gsl option activated)
+if "gsl" in str(_get_algorithm_list()):
+	def _gsl_bfgs_ctor(self,**kwargs):
+		"""
+		Constructs a BFGS Algorithm (GSL)
+	
+		USAGE: algorithm.gsl_bfgs(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+	
+		* maxiter: maximum number of iterations
+		* stepsize: size of the first trial step.
+		* tol: accuracy of the line minimisation.
+		* gradstepsize: step size for the numerical computation of the gradient.
+		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('gradtol', 1e-4))
+		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('tol', 1e-8))
+		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		self._orig_init(*arg_list)
+	gsl_bfgs._orig_init = gsl_bfgs.__init__
+	gsl_bfgs.__init__ = _gsl_bfgs_ctor
+
+	def _gsl_bfgs2_ctor(self,**kwargs):
+		"""
+		Constructs a BFGS2 Algorithm (GSL)
+
+		NOTE: in GSL, BFGS2 is a more efficient version of BFGS
+	
+		USAGE: algorithm.gsl_bfgs2(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+	
+		* maxiter: maximum number of iterations
+		* stepsize: size of the first trial step.
+		* tol: accuracy of the line minimisation.
+		* gradstepsize: step size for the numerical computation of the gradient.
+		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('gradtol', 1e-4))
+		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('tol', 1e-8))
+		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		self._orig_init(*arg_list)
+	gsl_bfgs2._orig_init = gsl_bfgs2.__init__
+	gsl_bfgs2.__init__ = _gsl_bfgs2_ctor
+
+	def _gsl_fr_ctor(self,**kwargs):
+		"""
+		Constructs a Fletcher-Reeves conjugate gradient (GSL)
+	
+		USAGE: algorithm.gsl_fr(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+	
+		* maxiter: maximum number of iterations
+		* stepsize: size of the first trial step.
+		* tol: accuracy of the line minimisation.
+		* gradstepsize: step size for the numerical computation of the gradient.
+		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('gradtol', 1e-4))
+		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('tol', 1e-8))
+		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		self._orig_init(*arg_list)
+	gsl_fr._orig_init = gsl_fr.__init__
+	gsl_fr.__init__ = _gsl_fr_ctor
+
+	def _gsl_pr_ctor(self,**kwargs):
+		"""
+		Constructs a Polak-Ribiere conjugate gradient (GSL)
+
+		USAGE: algorithm.gsl_pr2(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+	
+		* maxiter: maximum number of iterations
+		* stepsize: size of the first trial step.
+		* tol: accuracy of the line minimisation.
+		* gradstepsize: step size for the numerical computation of the gradient.
+		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('gradtol', 1e-4))
+		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('tol', 1e-8))
+		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		self._orig_init(*arg_list)
+	gsl_pr._orig_init = gsl_pr.__init__
+	gsl_pr.__init__ = _gsl_pr_ctor
+
+	def _gsl_nm_ctor(self,**kwargs):
+		"""
+		Constructs a Nelder-Mead Algorithm (GSL)
+
+		USAGE: algorithm.gsl_nm(maxiter = 100, stepsize = 1e-8, tol = 1e-8);
+	
+		* maxiter: maximum number of iterations
+		* stepsize: size of the first trial step.
+		* tol: accuracy of the line minimisation.
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('tol', 1e-8))
+		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		self._orig_init(*arg_list)
+	gsl_nm._orig_init = gsl_nm.__init__
+	gsl_nm.__init__ = _gsl_nm_ctor
+
+	def _gsl_nm2_ctor(self,**kwargs):
+		"""
+		Constructs a Nelder-Mead algorithm (Variant2) (GSL)
+
+		USAGE: algorithm.gsl_nm2(maxiter = 100, stepsize = 1e-8, tol = 1e-8);
+	
+		* maxiter: maximum number of iterations
+		* stepsize: size of the first trial step.
+		* tol: accuracy of the line minimisation.
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('tol', 1e-8))
+		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		self._orig_init(*arg_list)
+	gsl_nm2._orig_init = gsl_nm2.__init__
+	gsl_nm2.__init__ = _gsl_nm2_ctor
+
+	def _gsl_nm2rand_ctor(self,**kwargs):
+		"""
+		Constructs a Nelder-Mead algorithm (Variant2 + randomly oriented initial simplex) (GSL)
+
+		USAGE: algorithm.gsl_nm2rand(maxiter = 100, stepsize = 1e-8, tol = 1e-8);
+	
+		* maxiter: maximum number of iterations
+		* stepsize: size of the first trial step.
+		* tol: accuracy of the line minimisation.
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('tol', 1e-8))
+		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		self._orig_init(*arg_list)
+	gsl_nm2rand._orig_init = gsl_nm2rand.__init__
+	gsl_nm2rand.__init__ = _gsl_nm2rand_ctor
+
+
+	
+	
+

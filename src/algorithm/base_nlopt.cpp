@@ -61,9 +61,8 @@ base_nlopt::base_nlopt(nlopt_algorithm algo, bool constrained, int max_iter, con
 std::string base_nlopt::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "\tmax_iter:\t\t" << m_max_iter << '\n';
-	oss << "\ttol:\t\t\t" << m_tol << '\n';
-	oss << "\tlast status:\t\t" << m_last_status << '\n';
+	oss << "max_iter: " << m_max_iter << ' ';
+	oss << "tol: " << m_tol;
 	return oss.str();
 }
 
@@ -80,6 +79,12 @@ double base_nlopt::objfun_wrapper(int n, const double *x, double *, void *data)
 	d->prob->objfun(*d->f,*d->x);
 	// Return the fitness.
 	return (*d->f)[0];
+}
+
+// Gets the status value returned by the last algoritmic call
+int base_nlopt::get_last_status() const
+{
+	return m_last_status;
 }
 
 // Constraint function wrapper.

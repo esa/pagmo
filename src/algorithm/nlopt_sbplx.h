@@ -25,6 +25,8 @@
 #ifndef PAGMO_ALGORITHM_NLOPT_SBPLX_H
 #define PAGMO_ALGORITHM_NLOPT_SBPLX_H
 
+#include <string>
+
 #include "../config.h"
 #include "../serialization.h"
 #include "base_nlopt.h"
@@ -52,6 +54,7 @@ class __PAGMO_VISIBLE nlopt_sbplx: public base_nlopt
 	public:
 		nlopt_sbplx(int = 100, const double & = 1E-6);
 		base_ptr clone() const;
+		std::string get_name() const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
