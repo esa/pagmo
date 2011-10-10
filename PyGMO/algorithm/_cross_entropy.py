@@ -73,7 +73,6 @@ class py_cross_entropy(base):
                x = [[matrix(ind.best_x), ind.best_f[0]] for ind in pop]
                                                #x[i][0]: i-th chromosome (matrix)
                                                #x[i][1]: i-th fitness (scalar)
-               x = array(x)
                x = sorted(x,key=lambda row: row[1])
                return x[:N]
 
