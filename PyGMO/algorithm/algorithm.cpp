@@ -180,13 +180,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<const algorithm::base &,int, double> >())
 		.def(init<optional<const algorithm::base &,int, const std::vector<double> &> >())
 		.add_property("algorithm",&algorithm::mbh::get_algorithm,&algorithm::mbh::set_algorithm)
-		.def("screen_output",&algorithm::mbh::screen_output);
+		.add_property("screen_output",&algorithm::mbh::get_screen_output,&algorithm::mbh::set_screen_output);
 	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
 		.def(init<const algorithm::base &, int>())
 		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm)
-		.def("screen_output",&algorithm::ms::screen_output);
+		.add_property("screen_output",&algorithm::ms::get_screen_output,&algorithm::ms::set_screen_output);
 	
 	// Particle Swarm Optimization (Steady state)
 	algorithm_wrapper<algorithm::pso>("pso", "Particle Swarm Optimization (steady-state)")
@@ -261,7 +261,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	#ifdef PAGMO_ENABLE_SNOPT
 	algorithm_wrapper<algorithm::snopt>("snopt","Snopt solver.")
 		.def(init<int, optional<double, double> >())
-		.def("screen_output",&algorithm::snopt::screen_output);
+		.add_property("screen_output",&algorithm::snopt::get_screen_output,&algorithm::snopt::set_screen_output);
 	
 	#endif
 		
@@ -269,7 +269,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	#ifdef PAGMO_ENABLE_IPOPT
 	algorithm_wrapper<algorithm::ipopt>("ipopt","Ipopt solver.")
 		.def(init<int, optional<double, double,double> >())
-		.def("screen_output",&algorithm::ipopt::screen_output);
+		.add_property("screen_output",&algorithm::ipopt::get_screen_output,&algorithm::ipopt::set_screen_output);
 	
 	#endif	
 

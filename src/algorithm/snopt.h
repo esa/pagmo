@@ -73,7 +73,8 @@ public:
 	snopt(const int major = 100,const double feas=1e-10, const double opt = 1e-4);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void screen_output(const bool);
+	void set_screen_output(const bool);
+	bool get_screen_output() const;
 	void file_output(const bool);
 	std::string get_name() const;
 

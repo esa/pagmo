@@ -140,13 +140,21 @@ void ipopt::evolve(population &pop) const
 	status = m_app->OptimizeTNLP(pagmo_nlp);
 }
 
-/// Activate screen output
+/// Sets screen output
 /**
- * Activate/Deactivate IPOPT screen output at a default level
+ * Sets IPOPT screen output at a default level
  *
  * @param[in] p true or false
  */
-void ipopt::screen_output(const bool p) {m_screen_out = p;}
+void ipopt::set_screen_output(const bool p) {m_screen_out = p;}
+
+/// Gets screen output
+/**
+ * Gest IPOPT screen output level
+ *
+ * @param[out] boolean 
+ */
+bool ipopt::get_screen_output() const {return m_screen_out;}
 
 /// Algorithm name
 std::string ipopt::get_name() const
@@ -161,7 +169,7 @@ std::string ipopt::get_name() const
 std::string ipopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "max_iter:" << m_max_iter << " ";
+	s << "major_iter:" << m_max_iter << " ";
 	s << "constr_viol_tol:"<< m_constr_viol_tol<<" ";
 	s << "dual_inf_tol:"<< m_dual_inf_tol<<" ";
 	s << "compl_inf_tol:"<< m_compl_inf_tol;

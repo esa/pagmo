@@ -126,9 +126,9 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.ms.__init__
 
-   .. method:: PyGMO.algorithm.ms.screen_output((bool) active)
+   .. attribute:: PyGMO.algorithm.ms.screen_output
 
-      Activates screen output. Suggested only when no parallel optimization are performed.
+      When True, the algorithms produces output on screen 
 
    .. attribute:: PyGMO.algorithm.ms.algorithm
 
@@ -138,9 +138,9 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.mbh.__init__
 
-   .. method:: PyGMO.algorithm.mbh.screen_output((bool) active)
+   .. attribute:: PyGMO.algorithm.mbh.screen_output
 
-      Activates screen output. Suggested only when no parallel optimization are performed.
+      When True, the algorithms produces output on screen 
 
    .. attribute:: PyGMO.algorithm.mbh.algorithm
 
@@ -182,9 +182,17 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.scipy_tnc.__init__
 
+   .. attribute:: PyGMO.algorithm.scipy_tnc.screen_output
+
+      When True, the algorithms produces output on screen 
+
 .. autoclass:: PyGMO.algorithm.scipy_cobyla
 
    .. automethod:: PyGMO.algorithm.scipy_cobyla.__init__
+
+   .. attribute:: PyGMO.algorithm.scipy_cobyla.screen_output
+
+      When True, the algorithms produces output on screen 
 
 .. autoclass:: PyGMO.algorithm.nlopt_cobyla
 
@@ -230,6 +238,15 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.snopt.__init__
 
+   .. attribute:: PyGMO.algorithm.snopt.screen_output
+
+      When True, the algorithms produces output on screen 
+
 .. autoclass:: PyGMO.algorithm.ipopt
 
-   .. automethod:: PyGMO.algorithm.ipopt.__init__
+   .. automethod:: PyGMO.algorithm.ipopt.__init
+
+   .. attribute:: PyGMO.algorithm.ipopt.screen_output
+
+      When True, the algorithms produces output on screen 
+

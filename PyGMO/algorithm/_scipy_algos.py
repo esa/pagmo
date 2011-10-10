@@ -143,7 +143,7 @@ class scipy_slsqp(_scipy_base):
 	"""
 	Wrapper around SciPy's slsqp optimiser.
 	"""
-	def __init__(self,maxiter = 1,acc = 1E-6,epsilon = 1.4901161193847656e-08, screen_output = False):
+	def __init__(self,max_iter = 100,acc = 1E-8,epsilon = 1.4901161193847656e-08, screen_output = False):
 		"""
 		Constructs a Sequential Least SQuares Programming algorithm
 
@@ -151,7 +151,7 @@ class scipy_slsqp(_scipy_base):
 
 		USAGE: algorithm.scipy_slsqp(maxiter = 100,acc = 1E-6,epsilon = 1.4901161193847656e-08, screen_output = False))
 
-		* maxiter: The maximum number of iterations.
+		* max_iter: The maximum number of iterations.
 		* acc: Requested accuracy.
 		* epsilon: The step size for finite-difference derivative estimates.
 		* screen_output: Set to True to print iterations
@@ -251,22 +251,22 @@ class scipy_cobyla(_scipy_base):
 	"""
 	Wrapper around SciPy's cobyla optimiser.
 	"""
-	def __init__(self,maxfun = 1,rhoend = 1E-5,screen_output = False):
+	def __init__(self,max_fun = 1,rho_end = 1E-5,screen_output = False):
 		"""
 		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm (SciPy)
 
 		NOTE: equality constraints are transformed into two inequality constraints automatically
 
-		USAGE: algorithm.scipy_cobyla(maxfun = 1,rhoend = 1E-5,screen_output = False)
+		USAGE: algorithm.scipy_cobyla(max_fun = 1,rho_end = 1E-5,screen_output = False)
 
 		* maxfun: Maximum number of function evaluations.
 		* rhoend: Final accuracy in the optimization (not precisely guaranteed). This is a lower bound on the size of the trust region.
 		* screen_output: Set to True to print iterations
 		"""
 		_scipy_base.__init__(self,'fmin_cobyla',True)
-		self.maxfun = maxfun
-		self.rhoend = rhoend
-		self.verbose = verbose
+		self.max_fun = max_fun
+		self.rho_end = rho_end
+		self.screen_output = screen_output
 	def evolve(self,pop):
 		from numpy import concatenate, array
 		prob = pop.problem

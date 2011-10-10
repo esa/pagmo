@@ -201,14 +201,23 @@ void mbh::evolve(population &pop) const
 	}
 }
 
-/// Activate screen output
+/// Sets screen output
 /**
- * Activate screen output. Everytime a new champion is found the following information is printed
+ * Sets screen output. When true, everytime a new champion is found the following information is printed
  * on the screen: Number of consecutive non improving iterations, best fitness
  *
  * @param[in] p true or false
  */
-void mbh::screen_output(const bool p) {m_screen_out = p;}
+void mbh::set_screen_output(const bool p) {m_screen_out = p;}
+
+/// Gets screen output
+/**
+ * Gets screen output. When true, everytime a new champion is found the following information is printed
+ * on the screen: Number of consecutive non improving iterations, best fitness
+ *
+ * @param[out] boolean
+ */
+bool mbh::get_screen_output() const {return m_screen_out;}
 
 
 /// Algorithm name

@@ -295,7 +295,7 @@ def _cs_ctor(self,**kwargs):
 	USAGE: algorithm.cs(max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5);
 	
 
-	* max_iter: maximum number of function evaluations
+	* max_eval: maximum number of function evaluations
 	* stop_range: when the range is reduced to a value smaller than stop_range cs stops
 	* start_range: starting range (non-dimensional wrt ub-lb)
 	* reduction_coeff: the range is multiplied by reduction_coeff whenever no improvment is made
@@ -360,14 +360,14 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a BOBYQA algorithm (Bound Optimization BY Quadratic Approximation) (NLOPT)
 	
-		USAGE: algorithm.nlopt_bobyqa(maxiter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_bobyqa(max_iter = 100, tol = 1e-6);
 	
-		* maxiter: maximum number of iterations
+		* max_iter: maximum number of iterations
 		* tol: tolerance to achieve to stop the algorithm
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('max_iter', 100))
 		arg_list.append(kwargs.pop('tol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_bobyqa._orig_init = nlopt_bobyqa.__init__
@@ -377,14 +377,14 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of subspaces) (NLOPT)
 	
-		USAGE: algorithm.nlopt_sbplx(maxiter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_sbplx(max_iter = 100, tol = 1e-6);
 	
-		* maxiter: maximum number of iterations
+		* max_iter: maximum number of iterations
 		* tol: tolerance to achieve to stop the algorithm
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('max_iter', 100))
 		arg_list.append(kwargs.pop('tol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_sbplx._orig_init = nlopt_sbplx.__init__
@@ -394,14 +394,14 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm (NLOPT)
 	
-		USAGE: algorithm.nlopt_cobyla(maxiter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_cobyla(max_iter = 100, tol = 1e-6);
 	
-		* maxiter: maximum number of iterations
+		* max_iter: maximum number of iterations
 		* tol: tolerance to achieve to stop the algorithm
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('max_iter', 100))
 		arg_list.append(kwargs.pop('tol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_cobyla._orig_init = nlopt_cobyla.__init__
@@ -413,21 +413,21 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		Constructs a BFGS Algorithm (GSL)
 	
-		USAGE: algorithm.gsl_bfgs(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+		USAGE: algorithm.gsl_bfgs(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001);
 	
-		* maxiter: maximum number of iterations
-		* stepsize: size of the first trial step.
+		* max_iter: maximum number of iterations
+		* step_size: size of the first trial step.
 		* tol: accuracy of the line minimisation.
-		* gradstepsize: step size for the numerical computation of the gradient.
-		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		* grad_step_size: step size for the numerical computation of the gradient.
+		* grad_tol: tolerance when testing the norm of the gradient as stopping criterion.
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
-		arg_list.append(kwargs.pop('gradtol', 1e-4))
-		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('grad_tol', 1e-4))
+		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
 		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		arg_list.append(kwargs.pop('step_size', 1e-8))
 		self._orig_init(*arg_list)
 	gsl_bfgs._orig_init = gsl_bfgs.__init__
 	gsl_bfgs.__init__ = _gsl_bfgs_ctor
@@ -438,21 +438,21 @@ if "gsl" in str(_get_algorithm_list()):
 
 		NOTE: in GSL, BFGS2 is a more efficient version of BFGS
 	
-		USAGE: algorithm.gsl_bfgs2(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+		USAGE: algorithm.gsl_bfgs2(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001);
 	
-		* maxiter: maximum number of iterations
-		* stepsize: size of the first trial step.
+		* max_iter: maximum number of iterations
+		* step_size: size of the first trial step.
 		* tol: accuracy of the line minimisation.
-		* gradstepsize: step size for the numerical computation of the gradient.
-		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		* grad_step_size: step size for the numerical computation of the gradient.
+		* grad_tol: tolerance when testing the norm of the gradient as stopping criterion.
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
-		arg_list.append(kwargs.pop('gradtol', 1e-4))
-		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('grad_tol', 1e-4))
+		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
 		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		arg_list.append(kwargs.pop('step_size', 1e-8))
 		self._orig_init(*arg_list)
 	gsl_bfgs2._orig_init = gsl_bfgs2.__init__
 	gsl_bfgs2.__init__ = _gsl_bfgs2_ctor
@@ -461,21 +461,21 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		Constructs a Fletcher-Reeves conjugate gradient (GSL)
 	
-		USAGE: algorithm.gsl_fr(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+		USAGE: algorithm.gsl_fr(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001);
 	
-		* maxiter: maximum number of iterations
-		* stepsize: size of the first trial step.
+		* max_iter: maximum number of iterations
+		* step_size: size of the first trial step.
 		* tol: accuracy of the line minimisation.
-		* gradstepsize: step size for the numerical computation of the gradient.
-		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		* grad_step_size: step size for the numerical computation of the gradient.
+		* grad_tol: tolerance when testing the norm of the gradient as stopping criterion.
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
-		arg_list.append(kwargs.pop('gradtol', 1e-4))
-		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('grad_tol', 1e-4))
+		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
 		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		arg_list.append(kwargs.pop('step_size', 1e-8))
 		self._orig_init(*arg_list)
 	gsl_fr._orig_init = gsl_fr.__init__
 	gsl_fr.__init__ = _gsl_fr_ctor
@@ -484,21 +484,21 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		Constructs a Polak-Ribiere conjugate gradient (GSL)
 
-		USAGE: algorithm.gsl_pr2(maxiter = 100, stepsize = 1e-8, tol = 1e-8, gradstepsize = 0.01, gradtol = 0.0001);
+		USAGE: algorithm.gsl_pr2(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001);
 	
-		* maxiter: maximum number of iterations
-		* stepsize: size of the first trial step.
+		* max_iter: maximum number of iterations
+		* step_size: size of the first trial step.
 		* tol: accuracy of the line minimisation.
-		* gradstepsize: step size for the numerical computation of the gradient.
-		* gradtol: tolerance when testing the norm of the gradient as stopping criterion.
+		* grad_step_size: step size for the numerical computation of the gradient.
+		* grad_tol: tolerance when testing the norm of the gradient as stopping criterion.
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
-		arg_list.append(kwargs.pop('gradtol', 1e-4))
-		arg_list.append(kwargs.pop('gradstepsze', 1e-2))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('grad_tol', 1e-4))
+		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
 		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		arg_list.append(kwargs.pop('step_size', 1e-8))
 		self._orig_init(*arg_list)
 	gsl_pr._orig_init = gsl_pr.__init__
 	gsl_pr.__init__ = _gsl_pr_ctor
@@ -507,17 +507,17 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		Constructs a Nelder-Mead Algorithm (GSL)
 
-		USAGE: algorithm.gsl_nm(maxiter = 100, stepsize = 1e-8, tol = 1e-8);
+		USAGE: algorithm.gsl_nm(max_iter = 100, step_size = 1e-8, tol = 1e-8);
 	
-		* maxiter: maximum number of iterations
-		* stepsize: size of the first trial step.
+		* max_iter: maximum number of iterations
+		* step_size: size of the first trial step.
 		* tol: accuracy of the line minimisation.
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('max_iter', 100))
 		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		arg_list.append(kwargs.pop('step_size', 1e-8))
 		self._orig_init(*arg_list)
 	gsl_nm._orig_init = gsl_nm.__init__
 	gsl_nm.__init__ = _gsl_nm_ctor
@@ -526,17 +526,17 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		Constructs a Nelder-Mead algorithm (Variant2) (GSL)
 
-		USAGE: algorithm.gsl_nm2(maxiter = 100, stepsize = 1e-8, tol = 1e-8);
+		USAGE: algorithm.gsl_nm2(max_iter = 100, step_size = 1e-8, tol = 1e-8);
 	
-		* maxiter: maximum number of iterations
-		* stepsize: size of the first trial step.
+		* max_iter: maximum number of iterations
+		* step_size: size of the first trial step.
 		* tol: accuracy of the line minimisation.
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('max_iter', 100))
 		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		arg_list.append(kwargs.pop('step_size', 1e-8))
 		self._orig_init(*arg_list)
 	gsl_nm2._orig_init = gsl_nm2.__init__
 	gsl_nm2.__init__ = _gsl_nm2_ctor
@@ -545,20 +545,68 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		Constructs a Nelder-Mead algorithm (Variant2 + randomly oriented initial simplex) (GSL)
 
-		USAGE: algorithm.gsl_nm2rand(maxiter = 100, stepsize = 1e-8, tol = 1e-8);
+		USAGE: algorithm.gsl_nm2rand(max_iter = 100, step_size = 1e-8, tol = 1e-8);
 	
-		* maxiter: maximum number of iterations
-		* stepsize: size of the first trial step.
+		* max_iter: maximum number of iterations
+		* step_size: size of the first trial step.
 		* tol: accuracy of the line minimisation.
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('maxiter', 100))
+		arg_list.append(kwargs.pop('max_iter', 100))
 		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('stepsize', 1e-8))
+		arg_list.append(kwargs.pop('step_size', 1e-8))
 		self._orig_init(*arg_list)
 	gsl_nm2rand._orig_init = gsl_nm2rand.__init__
 	gsl_nm2rand.__init__ = _gsl_nm2rand_ctor
+
+#IPOPT algorithm (only if PyGMO has been compiled with the ipopt option activated)
+if "ipopt" in str(_get_algorithm_list()):
+	def _ipopt_ctor(self,**kwargs):
+		"""
+		Constructs an Interior Point OPTimization Algorithm (IPOPT)
+	
+		USAGE: algorithm.ipopt(major_iter = 100, constr_viol_tol = 1e-08, dual_inf_tol = 1e-08, compl_inf_tol = 1e-08, screen_output = False);
+	
+		* major_iter: Maximum number of major iterations
+		* constr_viol_tol: Constraint violation tolerance
+		* dual_inf_tol: Dual infeasibility tolerance
+		* compl_inf_tol: Complementary feasibility tolerance
+		* screen_output: Activates output on screen
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('major_iter', 100))
+		arg_list.append(kwargs.pop('constr_viol_tol', 1e-8))
+		arg_list.append(kwargs.pop('dual_inf_tol', 1e-8))
+		arg_list.append(kwargs.pop('compl_inf_tol', 1e-8))
+		self._orig_init(*arg_list)
+		self.screen_output = kwargs.pop('screen_output', False)
+	ipopt._orig_init = ipopt.__init__
+	ipopt.__init__ = _ipopt_ctor
+
+#SNOPT algorithm (only if PyGMO has been compiled with the snopt option activated)
+if "snopt" in str(_get_algorithm_list()):
+	def _snopt_ctor(self,**kwargs):
+		"""
+		Constructs SNOPT Algorithm
+	
+		USAGE: algorithm.snopt(major_iter = 100, feas_tol = 1e-6, opt_tol = 1e-6, screen_output = False);
+	
+		* major_iter: Maximum number of major iterations
+		* feas_tol: Feasibility tolerance
+		* opt_tol: Optimality tolerance
+		* screen_output: Activates output on screen
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('major_iter', 100))
+		arg_list.append(kwargs.pop('feas_tol', 1e-8))
+		arg_list.append(kwargs.pop('opt_tol', 1e-8))
+		self._orig_init(*arg_list)
+		self.screen_output = kwargs.pop('screen_output', False)
+	snopt._orig_init = snopt.__init__
+	snopt.__init__ = _snopt_ctor
 
 
 	

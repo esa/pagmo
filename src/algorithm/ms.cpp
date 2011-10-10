@@ -101,14 +101,23 @@ void ms::evolve(population &pop) const
 	}
 }
 
-/// Activate screen output
+/// Sets screen output
 /**
- * Activate screen output. Everytime a new champion is found the following information is printed
+ * Sets screen output. When True, everytime a new champion is found the following information is printed
  * on the screen: Number of iterations, best fitness
  *
  * @param[in] p true or false
  */
-void ms::screen_output(const bool p) {m_screen_out = p;}
+void ms::set_screen_output(const bool p) {m_screen_out = p;}
+
+/// Gets screen output
+/**
+ * Gets screen output. When True, everytime a new champion is found the following information is printed
+ * on the screen: Number of iterations, best fitness
+ *
+ * @param[out] boolean
+ */
+bool ms::get_screen_output() const {return m_screen_out;}
 
 
 /// Algorithm name

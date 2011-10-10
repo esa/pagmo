@@ -63,7 +63,8 @@ public:
 	ipopt(const int &max_iter = 100, const double &constr_viol_tol = 1e-8, const double &dual_inf_tol = 1e-8, const double & compl_inf_tol = 1e-8);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void screen_output(const bool p);
+	void set_screen_output(const bool p);
+	bool get_screen_output() const;
 	std::string get_name() const;
 
 protected:

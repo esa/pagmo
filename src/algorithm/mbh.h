@@ -80,7 +80,8 @@ public:
 	mbh(const mbh &);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void screen_output(const bool);
+	void set_screen_output(const bool);
+	bool get_screen_output() const;
 	std::string get_name() const;
 	base_ptr get_algorithm() const;
 	void set_algorithm(const base &);

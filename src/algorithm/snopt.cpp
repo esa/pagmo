@@ -325,13 +325,21 @@ void snopt::evolve(population &pop) const
 
 }
 
-/// Activate screen output
+/// Sets screen output
 /**
- * Activate SNOPT screen output by setting iSumm to 6
+ * Sets SNOPT screen output by setting iSumm to 6
  *
  * @param[in] p true or false
  */
-void snopt::screen_output(const bool p) {m_screen_out = p;}
+void snopt::set_screen_output(const bool p) {m_screen_out = p;}
+
+/// Gets screen output
+/**
+ * Gets SNOPT screen output 
+ *
+ * @param[out] boolean
+ */
+bool snopt::get_screen_output() const {return m_screen_out;}
 
 /// Activate file output
 /**
@@ -355,7 +363,7 @@ std::string snopt::get_name() const
 std::string snopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "major:" << m_major << " feas: "<<m_feas<< " opt: "<<m_opt << std::endl;
+	s << "major_iter:" << m_major << " feas_tol: "<<m_feas<< " opt_tol: "<<m_opt << std::endl;
 	return s.str();
 }
 
