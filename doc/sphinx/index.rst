@@ -44,6 +44,14 @@ Documentation
 
    documentation/documentation
 
+Examples
+=============
+
+.. toctree::
+   :maxdepth: 2
+
+   examples
+
 Credits
 =======
 
