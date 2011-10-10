@@ -292,15 +292,15 @@ BOOST_PYTHON_MODULE(_problem) {
 
 #ifdef PAGMO_ENABLE_GSL
 	// Spheres Problems
-	problem_wrapper<problem::spheres>("spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
+	problem_wrapper<problem::spheres>("mit_spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
 		.def(init< optional<int,int,double,unsigned int, bool> >())
 		.def("post_evaluate", &problem::spheres::post_evaluate)
 		.def("simulate", &problem::spheres::simulate);
 
-	problem_wrapper<problem::spheres_q>("spheres_q", "Spheres problem, a neurocontroller for the MIT test-bed (body-axis perception-action)")
-		.def(init< optional<int,int,double,unsigned int> >())
-		.def("post_evaluate", &problem::spheres_q::post_evaluate)
-		.def("simulate", &problem::spheres_q::simulate);
+	//problem_wrapper<problem::spheres_q>("spheres_q", "Spheres problem, a neurocontroller for the MIT test-bed (body-axis perception-action)")
+	//	.def(init< optional<int,int,double,unsigned int> >())
+	//	.def("post_evaluate", &problem::spheres_q::post_evaluate)
+	//	.def("simulate", &problem::spheres_q::simulate);
 #endif
 
 	// Register to_python conversion from smart pointer.
