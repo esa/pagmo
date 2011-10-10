@@ -126,7 +126,7 @@ void pso::evolve(population &pop) const
 	// Redirect to the generational version in case the problem is stochastic .....
 	try
 	{
-		dynamic_cast<const pagmo::problem::base_stochastic*>(&prob);
+		dynamic_cast<const pagmo::problem::base_stochastic&>(prob);
 		pagmo_throw(value_error,"You are trying to solve a stochastic optimization problem, if you want a PSO, then the generational version of PSO is appropriate....");
 	}
 	catch (const std::bad_cast& e)
