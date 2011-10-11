@@ -149,7 +149,7 @@ class scipy_slsqp(_scipy_base):
 
 		NOTE: gradient is numerically approximated
 
-		USAGE: algorithm.scipy_slsqp(maxiter = 100,acc = 1E-6,epsilon = 1.4901161193847656e-08, screen_output = False))
+		USAGE: algorithm.scipy_slsqp(max_iter = 100,acc = 1E-6,epsilon = 1.49e-08, screen_output = False))
 
 		* max_iter: The maximum number of iterations.
 		* acc: Requested accuracy.
@@ -158,7 +158,7 @@ class scipy_slsqp(_scipy_base):
 		"""
 
 		_scipy_base.__init__(self,'fmin_slsqp',True)
-		self.maxiter = maxiter
+		self.max_iter = max_iter
 		self.acc = acc
 		self.epsilon = epsilon
 		self.screen_output = screen_output
@@ -182,7 +182,7 @@ class scipy_slsqp(_scipy_base):
 		# Run the optimisation.
 		retval = self.solver(lambda x: prob.objfun(concatenate((x, x0_comb)))[0],x0,f_eqcons = lambda x: array(prob.compute_constraints(concatenate((x, x0_comb)))[0:n_ec],dtype=float),
 			f_ieqcons = lambda x: array(prob.compute_constraints(concatenate((x, x0_comb)))[n_ec:],dtype=float) * -1,bounds = prob_bounds,iprint = iprn,
-			iter = self.maxiter,acc = self.acc, epsilon = self.epsilon)
+			iter = self.max_iter,acc = self.acc, epsilon = self.epsilon)
 		# Set the individual's chromosome in the population and return. Conserve the integer part from the
 		# original individual.
 		new_chromosome = list(retval) + list(x0_comb)
