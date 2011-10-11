@@ -11,10 +11,10 @@ from _base_class import base
 
 # PyGMO handling of the GSL compile option
 try:
-	from _spheres import visualize as _visualize
-	from _spheres_q import visualize as _visualize_q
-	spheres.visualize = _visualize
-	spheres_q.visualize = _visualize_q
+	from _mit_spheres import visualize as _visualize
+	#from _spheres_q import visualize as _visualize_q
+	mit_spheres.visualize = _visualize
+	#spheres_q.visualize = _visualize_q
 except:
 	print "PyGMO was compiled without GSL support activated .... some problems are not imported"
 
