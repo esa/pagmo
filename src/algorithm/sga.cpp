@@ -257,24 +257,23 @@ void sga::evolve(population &pop) const
 		case mutation::GAUSSIAN: {
 			boost::normal_distribution<double> dist;
 			boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > delta(m_drng,dist);
-			for (pagmo::problem::base::size_type k = 0; k < D;k++) { //for each continuous variable
+			for (pagmo::problem::base::size_type k = 0; k < Dc;k++) { //for each continuous variable
 				double std = (ub[k]-lb[k]) * m_mut.m_width;
 				for (pagmo::population::size_type i = 0; i < NP;i++) { //for each individual
 					if (m_drng() < m_m) {
 						double mean = Xnew[i][k];
-						Xnew[i][k] = (delta() * std + mean);
-						if (Xnew[i][k] > ub[k]) Xnew[i][k] = ub[k];
-						if (Xnew[i][k] < lb[k]) Xnew[i][k] = lb[k];
+						double tmp = (delta() * std + mean);
+						if ( (tmp < ub[k]) &&  (tmp > lb[k]) ) Xnew[i][k] = tmp;
 					}
 				}
 			}
 			for (pagmo::problem::base::size_type k = Dc; k < D;k++) { //for each integer variable
+				double std = (ub[k]-lb[k]) * m_mut.m_width;
 				for (pagmo::population::size_type i = 0; i < NP;i++) { //for each individual
 					if (m_drng() < m_m) {
 						double mean = Xnew[i][k];
-						Xnew[i][k] = boost::math::iround(delta() + mean);
-						if (Xnew[i][k] > ub[k]) Xnew[i][k] = ub[k];
-						if (Xnew[i][k] < lb[k]) Xnew[i][k] = lb[k];
+						double tmp = boost::math::iround(delta() * std + mean);
+						if ( (tmp < ub[k]) &&  (tmp > lb[k]) ) Xnew[i][k] = tmp;
 					}
 				}
 			}
@@ -302,7 +301,7 @@ void sga::evolve(population &pop) const
 			prob.objfun(fit[i],Xnew[i]);
 			dummy = Xnew[i];
 			std::transform(dummy.begin(), dummy.end(), pop.get_individual(i).cur_x.begin(), dummy.begin(),std::minus<double>());
-			//updates x and v (cache avoids to recompute the objective function)
+			//updates x and v (cache avoids to recompute the objective function and constraints)
 			pop.set_x(i,Xnew[i]);
 			pop.set_v(i,dummy);
 			if (prob.compare_fitness(fit[i], bestfit)) {
