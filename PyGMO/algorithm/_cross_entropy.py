@@ -61,7 +61,7 @@ class py_cross_entropy(base):
                mu = matrix(pop.champion.x)
                
                for i in range(self.__gen):
-                       y = self.__extract_elite(pop,n_ind__elite)		#y = array, [[chrom],fitness] * n_ind__elite
+                       y = self.__extract_elite(pop,n_ind__elite)		#y = array, [[chrom],rank] * n_ind__elite
                        C = self.__estimate_covariance(y,mu) * self.__scale      #C = matrix, D x D
                        mu = self.__calculate_mean(y)                            #mu = matrix, D x 1
                        self.__new_generation(i,pop,mu,C,prob.lb,prob.ub,y)
@@ -70,10 +70,10 @@ class py_cross_entropy(base):
        def __extract_elite(self,pop,N):
 	       from numpy import matrix, array
                # We transform the population into an easier to manipulate pythonic structure
-               x = [[matrix(ind.best_x), ind.best_f[0]] for ind in pop]
+               x = [[matrix(ind.best_x), len(pop.get_domination_list(idx))] for idx,ind in enumerate(pop)]
                                                #x[i][0]: i-th chromosome (matrix)
                                                #x[i][1]: i-th fitness (scalar)
-               x = sorted(x,key=lambda row: row[1])
+               x = sorted(x,key=lambda row: row[1], reverse=True)
                return x[:N]
 
        def __estimate_covariance(self,y,mu):
