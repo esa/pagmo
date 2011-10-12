@@ -95,8 +95,11 @@ class py_cross_entropy(base):
        def __new_generation(self,gen,pop,mu,C,lb,ub,y):
 	       from numpy.random import multivariate_normal,random
 	       from numpy import array,std
+	       from numpy.linalg import norm
                np = len(pop)
-               newpop = multivariate_normal(array(mu.T)[0],C,[np])
+               newpop = multivariate_normal([0]*len(lb),C,[np])
+               for i,f in enumerate(newpop):
+		       	newpop[i] = f + mu.T #also to try f + pop[i].best_x
                for row in range(newpop.shape[0]):
                        for col in range(newpop.shape[1]):
                                if newpop[row,col] > ub[col]:
@@ -106,7 +109,7 @@ class py_cross_entropy(base):
                for i in range(np):
                        pop.set_x(i,newpop[i])
                if self.__screen_output:
-               		 elite_std = std([std([r[0,i] for r in [l[0] for l in y ]]) for i in range(len(lb))])
+               		 elite_std = norm([std([r[0,i] for r in [l[0] for l in y ]]) for i in range(len(lb))])
                		 if not(gen%20):
                		        print "\nGen.\tChampion\tHighest\t\tLowest\t\tStd"
                          print "%d\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]),elite_std)
