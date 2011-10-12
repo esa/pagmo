@@ -1,4 +1,4 @@
-from _base_class import base
+from _base import base
 
 class py_pl2pl(base):
 	"""

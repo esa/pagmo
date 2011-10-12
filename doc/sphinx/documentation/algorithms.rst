@@ -18,7 +18,7 @@ Common Name                        Name in PyGMO                             Typ
 Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S 
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      steady-state
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      generational (also problems deriving from base_stochastic)
-Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                   C-U-S 
+Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
 Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
 Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
 Cross-Entropy Method (CE)          :class:`PyGMO.algorithm.py_cross_entropy`      C-U-S      Written in Python

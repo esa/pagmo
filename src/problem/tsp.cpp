@@ -169,8 +169,9 @@ void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector &
 std::string tsp::human_readable_extra() const
 {
 	std::ostringstream oss;
+	oss << "\nWeights Matrix: " << std::endl;
 	for(problem::base::size_type i=0; i < m_weights[0].size(); ++i) {
-		oss << "Weights: " << m_weights[i] << '\n';
+		oss << "\t\t" << m_weights[i] << std::endl;
 	}
 	return oss.str();
 }

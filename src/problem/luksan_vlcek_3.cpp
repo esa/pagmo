@@ -33,6 +33,14 @@
 #include "base.h"
 #include "luksan_vlcek_3.h"
 
+static int __check__(int N){
+	if (N < 8 || (N) % 4)
+	{
+		pagmo_throw(value_error,"problem dimension N needs to be at least 8 and a multiple of 4");
+	}
+	return N;
+}
+
 namespace pagmo { namespace problem {
 
 /// Constructor.
@@ -49,15 +57,8 @@ namespace pagmo { namespace problem {
  *
  * @see L.Luksan and J.Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
  */
-luksan_vlcek_3::luksan_vlcek_3(int N, const double &clb, const double &cub):base(N+2,0,1,2*2,2*2)
+luksan_vlcek_3::luksan_vlcek_3(int N, const double &clb, const double &cub):base(__check__(N),0,1,2*2,2*2)
 {
-	if (N > boost::integer_traits<int>::const_max - 2) {
-		pagmo_throw(std::overflow_error,"overflow error");
-	}
-	if (N <= 5 || (N + 2) % 4)
-	{
-		pagmo_throw(value_error,"problem dimension N needs to be at least 6 and N + 2 must be a multiple of 4");
-	}
 	if (clb > cub)
 	{
 		pagmo_throw(value_error,"constraints lower bound is higher than the upper bound");

@@ -69,7 +69,7 @@ Let us try to solve, again, the 50-dimensional Schwefel problem.
 .. code-block:: python
 
    from PyGMO import *
-   prob = problem.schwefel(50)
+   prob = problem.schwefel(dim = 50)
    algo = []
    for i in range(1,9):
        algo.append(algorithm.de(gen=500,variant=i))

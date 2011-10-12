@@ -33,6 +33,17 @@
 #include "base.h"
 #include "luksan_vlcek_2.h"
 
+static int __check__(int N){
+	if (N - 5 >= boost::integer_traits<int>::const_max / 2) {
+		pagmo_throw(std::overflow_error,"overflow error");
+	}
+	if (N<16 || N % 2)
+	{
+		pagmo_throw(value_error,"problem dimension needs to be at least 16 and even");
+	}
+	return N;
+}
+
 namespace pagmo { namespace problem {
 
 /// Constructor.
@@ -44,27 +55,21 @@ namespace pagmo { namespace problem {
  * @param[in] N Problem dimension
  * @param[in] clb lower bounds for the constraints.
  * @param[in] cub upper bounds for the constraints.
- * @throws value_error if N is smaller than 14 and is odd, cub < clb
+ * @throws value_error if N is smaller than 16 and is odd, cub < clb
  *
  * @see L.Luksan and J.Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
  */
-luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base(N+2,0,1,2*(N-7),2*(N-7))
+luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base(__check__(N),0,1,2*(__check__(N)-5),2*(__check__(N)-5))
 {
-	if (N > boost::integer_traits<int>::const_max - 2 || N - 7 >= boost::integer_traits<int>::const_max / 2) {
-		pagmo_throw(std::overflow_error,"overflow error");
-	}
-	if (N<=13 || N % 2)
-	{
-		pagmo_throw(value_error,"problem dimension needs to be at least 14 and even");
-	}
+
 	if (clb > cub)
 	{
 		pagmo_throw(value_error,"constraints lower bound is higher than the upper bound");
 	}
 	set_lb(-5);
 	set_ub(5);
-	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-7),clb);
-	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-7),cub);
+	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-5),clb);
+	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-5),cub);
 }
 
 /// Clone method.

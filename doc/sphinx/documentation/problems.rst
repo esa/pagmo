@@ -18,6 +18,7 @@ Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
 Rastrigin                          :class:`PyGMO.problem.rastrigin`
 Schwefel                           :class:`PyGMO.problem.schwefel`
 De Jong                            :class:`PyGMO.problem.dejong`
+De Jong                            :class:`PyGMO.problem.py_example`         Implemented directly in Python
 Griewank                           :class:`PyGMO.problem.griewank`
 Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
 Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
@@ -48,8 +49,8 @@ Common Name                        Name in PyGMO                             Com
 Luksan Vlcek 1                     :class:`PyGMO.problem.luksan_vlcek_1`
 Luksan Vlcek 2                     :class:`PyGMO.problem.luksan_vlcek_2`
 Luksan Vlcek 3                     :class:`PyGMO.problem.luksan_vlcek_3`
-Planet to Planet LT Transfer       :class:`PyGMO.problem.py_pl2pl`           Requires PyKEP
-SNOPT ToyProblem                   :class:`PyGMO.problem.snopt_toyprob`      
+Planet to Planet LT Transfer       :class:`PyGMO.problem.py_pl2pl`           Requires PyKEP. Implemented in Python
+SNOPT Toy-Problem                  :class:`PyGMO.problem.snopt_toyprob`      
 ================================== ========================================= ===========================================
 
 Box-Constrained Integer Single-Objective
@@ -66,7 +67,7 @@ Constrained Integer Single-Objective
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
 Golomb Ruler                       :class:`PyGMO.problem.golomb_ruler`
-Travelling Salesman                :class:`PyGMO.problem.tsp`
+Traveling Salesman                 :class:`PyGMO.problem.tsp`
 Knapsack                           :class:`PyGMO.problem.knapsack`
 ================================== ========================================= ===========================================
 
@@ -84,3 +85,18 @@ mit_spheres                        :class:`PyGMO.problem.mit_spheres`
 Detailed Documentation
 ----------------------
 
+.. autoclass:: PyGMO.problem.ackley
+
+   .. automethod:: PyGMO.problem.ackley.__init__
+
+.. autoclass:: PyGMO.problem.rosenbrock
+
+   .. automethod:: PyGMO.problem.rosenbrock.__init__
+
+.. autoclass:: PyGMO.problem.string_match
+
+   .. automethod:: PyGMO.problem.string_match.__init__
+
+   .. method:: PyGMO.problem.pretty(x)
+ 
+      Returns a string decoding the chromosome
