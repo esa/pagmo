@@ -27,6 +27,7 @@
 
 #include <string>
 
+
 #include "../config.h"
 #include "base.h"
 #include "../population.h"
@@ -63,7 +64,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cross_entropy: public base
 {
 public:
-	cross_entropy(unsigned int gen = 500, double elite = 0.5, double scale = 0.05, bool screen_output = False);
+	cross_entropy(int gen = 500, double elite = 0.5, double scale = 0.05, bool screen_output = False);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

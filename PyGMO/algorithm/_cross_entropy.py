@@ -62,7 +62,7 @@ class py_cross_entropy(base):
 
 	       for i in range(self.__gen):
 		       y = self.__extract_elite(pop,n_ind__elite)		#y = array, [[chrom],rank] * n_ind__elite
-		       C = self.__estimate_covariance(y,mu) * self.__scale      #C = matrix, D x D
+		       C = self.__estimate_covariance(y,mu)*self.__scale		        #C = matrix, D x D
 		       mu = self.__calculate_mean(y)                            #mu = matrix, D x 1
 		       self.__new_generation(i,pop,mu,C,prob.lb,prob.ub,y)
 	       return pop
@@ -107,7 +107,8 @@ class py_cross_entropy(base):
 			       elif newpop[row,col] < lb[col]:
 				       newpop[row,col] = lb[col] + random()*(ub[col]-lb[col])
 	       for i in range(np):
-		       pop.set_x(i,newpop[i])
+	       	       idx = pop.get_worst_idx()
+		       pop.set_x(idx,newpop[i])
 	       if self.__screen_output:
 			 elite_std = norm([std([r[0,i] for r in [l[0] for l in y ]]) for i in range(len(lb))])
 			 if not(gen%20):

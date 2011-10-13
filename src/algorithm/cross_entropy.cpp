@@ -33,6 +33,7 @@
 #include "../population.h"
 #include "../problem/base.h"
 #include "../types.h"
+#include "../Eigen/Dense"
 
 
 
@@ -43,14 +44,17 @@ namespace pagmo { namespace algorithm {
 /**
  * Allows to specify in detail all the parameters of the algorithm.
  *
- * @param[in] iter number of iterations
- * @param[in] fraction_elite the fraction of samples to be considered elite
- * @param[in] alpha mean smothing factor
- * @param[in] beta standard deviation smothing factor
+ * @param[in] gen number of generations
+ * @param[in] elite the fraction of samples to be considered elite
+ * @param[in] scale multiplication coefficient for the generated points
+ * @param[in] screen_output activates output to screen
+ * @throws value_error if number of generations is < 1 or elite outside [0,1]
  * 
  * */
-cross_entropy::cross_entropy(int iter, double fraction_elite, double alpha, double beta):base(),m_iter(iter),m_fraction_elite(fraction_elite),m_alpha(alpha),m_beta(beta){
-	//prob = NULL;
+cross_entropy::cross_entropy(int gen, double elite, double scale , bool screen_output);:base(),m_gen(boost::numeric_cast<std::size_t>(gen)),m_elite(elite),m_scale(scale),m_screen_output(screen_output){
+	if (gen < 1 || elite < 0 || elite > 1) {
+		pagmo_throw(value_error,"number of generation must be > 0 and elite must be in [0,1]");
+	}
 }
 
 /// Clone method.
@@ -73,7 +77,7 @@ void cross_entropy::evolve(population &pop) const
 	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), D = prob.get_dimension(), Dc = D - prob_i_dimension, prob_c_dimension = prob.get_c_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = pop.size();
-	const population::size_type Nelite = boost::numeric_cast<population::size_type>(ceil(m_fraction_elite * NP));
+	const population::size_type n_elite = boost::numeric_cast<population::size_type>(m_elite * NP);
 
 	//We perform some checks to determine whether the problem/population are suitable for Cross Entropy
 	if ( Dc == 0 ) {
@@ -97,15 +101,56 @@ void cross_entropy::evolve(population &pop) const
 		return;
 	}
 
-	// Some vectors used during evolution are allocated here.
-	decision_vector dummy(D,0);			    				    //used for initialisation purposes
-	std::vector<decision_vector> X(NP,dummy);	    				    //set of solutions
-	std::vector<decision_vector> temp_X(Nelite,dummy);				    //set of elite solutions
-	std::vector<std::pair<population::individual_type,int> > individuals(NP); 	    //set of individuals
-	decision_vector population_mean(Dc,0);   					    //population's mean
-	decision_vector tmp_population_mean(Dc,0);   	    				    //tmp population's mean
-	decision_vector population_std(Dc,0);               				    //population's standard deviation
-	decision_vector tmp_population_std(Dc,0);               			    //tmp population's standard deviation
+	if (n_elite < 1) {
+		pagmo_throw(value_error,"The population elite contains no individuals ..... maybe increase the elite parameter?");
+	}
+
+	using namespace Eigen;
+	// We allocate the memory necessary for the multivariate random vector generation
+	MatrixXd C(Dc,Dc);					//Covariance Matrix
+	LLT<MatrixXd> llt(Dc);					//Cholesky Factorization
+	VectorXd mu(Dc), tmp(Dc);				//Mean and temp vector
+	std::vector<VectorXd> elite(n_elite,mu)			//Container of the elite chromosomes
+	std::vector<population::size_tpye> elite_idx(n_elite)	//Container of the indexes in pop of the elite
+
+	// Start from the champion as the mean
+	for (problem::base::size_type i=0;i<Dc;++i){
+		mu[i] = pop.champion.x[i];
+	}
+
+	// Main loop
+	for (std::size_t g = 0; g < m_gen; ++g) {
+		// 1 - We extract the elite from this generation
+		elite_idx = pop.get_best_idx(n_elite);
+		for ( population::size_type i = 0; i<n_elite; i++ ) { 
+			for (problem::base::size_type j=0;j<Dc;++j){
+				elite[i][j] = pop[elite_idx[i]].best_x[j];
+			}
+			
+		}
+
+		// 2 - We evaluate the Covariance Matrix as least square estimator of the elite (with mean mu)
+		tmp = (elite[0] - mu);
+		C = tmp*tmp.transpose();
+		for ( population::size_type i = 1; i<n_elite; i++ ) { 
+			tmp = (elite[i] - mu);
+			C = C + tmp*tmp.transpose();
+		}
+
+		// 3 - We compute the new elite mean
+		mu = elite[0];
+		for ( population::size_type i = 1; i<n_elite; i++ ) { 
+			mu = mu + elite[i];
+		}     
+		mu = mu / n_elite;
+
+		// 4 - We generate a new generation    
+		llt.compute(C);
+		C = 
+	}
+	
+
+
 
 	// Get population
 	for ( population::size_type i = 0; i<NP; i++ ) {
