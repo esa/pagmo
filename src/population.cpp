@@ -298,6 +298,44 @@ population::size_type population::get_best_idx() const
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
 
+struct pair_order
+{
+	pair_order(const population &pop):m_pop(pop) {}
+	bool operator()(const population::size_type &i1, const population::size_type &i2) const
+	{
+		return m_pop.get_domination_list(i1).size() > m_pop.get_domination_list(i2).size();
+	}
+	const population &m_pop;
+};
+
+/// Get positions of N best individuals.
+/**
+* The best individuals are the one dominating the highest number of other individuals
+ * in the population.
+ *
+ * @return a std::vector of positional indexes of the best N individuals.
+ * @throws value_error if N is larger than the population size or the population is empty
+ */
+std::vector<population::size_type> population::get_best_idx(const population::size_type& N) const
+{
+	if (!size()) {
+		pagmo_throw(value_error,"empty population, cannot compute position of best individual");
+	}
+	if (N > size()) {
+		pagmo_throw(value_error,"Best N individuals requested, but population has size smaller than N");
+	}
+		std::vector<population::size_type> retval;
+	retval.reserve(size());
+	for (population::size_type i=0; i<size(); ++i){
+		retval.push_back(i);
+	}
+	pair_order po(*this);
+	std::sort(retval.begin(),retval.end(),po);
+	retval.resize(N);
+	return retval;
+}
+
+
 /// Return terse human-readable representation.
 /**
  * Will return a formatted string displaying:
@@ -513,7 +551,8 @@ population::const_iterator population::end() const
 
 /// Number of dominated individuals.
 /**
- * Get the number of individuals dominated by input individual ind.
+ * Get the number of individuals in pop dominated by an input individual ind
+ * If ind belongs to pop it is more efficient to use get_domination_list().size()
  *
  * @param[in] ind input individual.
  *
@@ -531,7 +570,6 @@ population::size_type population::n_dominated(const individual_type &ind) const
 	}
 	return retval;
 }
-
 /// Overload stream operator for pagmo::population.
 /**
  * Equivalent to printing pagmo::population::human_readable() to stream.

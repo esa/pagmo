@@ -229,6 +229,11 @@ BOOST_PYTHON_MODULE(_core)
 	from_python_sequence<std::vector<base_island_ptr>,variable_capacity_policy>();
 
 	// Expose population class.
+
+	typedef population::size_type (population::*get_best_1_idx)() const;
+	typedef std::vector<population::size_type> (population::*get_best_N_idx)(const population::size_type& N) const;
+
+
 	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
@@ -239,7 +244,8 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("problem",&problem_from_pop)
 		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()))
 		.def("get_domination_list",&population::get_domination_list,return_value_policy<copy_const_reference>(), "Get the domination list for an indivdual")
-		.def("get_best_idx",&population::get_best_idx,"Get index of best individual.")
+		.def("get_best_idx",get_best_1_idx(&population::get_best_idx),"Get index of best individual.")
+		.def("get_best_idx",get_best_N_idx(&population::get_best_idx),"Get index of best N individual.")
 		.def("get_worst_idx",&population::get_worst_idx,"Get index of worst individual.")
 		.def("set_x", &population_set_x,"Set decision vector of individual at position n.")
 		.def("set_v", &population_set_v,"Set velocity of individual at position n.")

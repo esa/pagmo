@@ -190,6 +190,7 @@ class __PAGMO_VISIBLE population
 		std::string human_readable_terse() const;
 		std::string human_readable() const;
 		size_type get_best_idx() const;
+		std::vector<size_type> get_best_idx(const size_type & N) const;
 		size_type get_worst_idx() const;
 		void set_x(const size_type &, const decision_vector &);
 		void set_v(const size_type &, const decision_vector &);
