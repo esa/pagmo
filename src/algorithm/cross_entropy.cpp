@@ -39,21 +39,6 @@
 
 namespace pagmo { namespace algorithm {
 
-//This is a comparator used in the sort function to sort individuals by the number of other individuals dominated
-class CompareFitness: std::binary_function<std::pair<population::individual_type,int> , std::pair<population::individual_type,int> , bool>
-{
-	population *pop;
-	
-	public: 
-		CompareFitness(population &p) {
-			pop = &p;
-		}
-
-		bool operator()(const std::pair<population::individual_type,int> &a, const std::pair<population::individual_type,int> &b) const {
-			return (pop->n_dominated(a.first) > pop->n_dominated(b.first));
-		}
-};
-
 /// Constructor.
 /**
  * Allows to specify in detail all the parameters of the algorithm.
@@ -201,7 +186,7 @@ decision_vector cross_entropy::calculate_std(std::vector<decision_vector> X, dec
 /// Algorithm name
 std::string cross_entropy::get_name() const
 {
-	return "Cross Entropy method";
+	return "Cross Entropy Study";
 }
 
 

@@ -25,50 +25,69 @@
 #ifndef PAGMO_ALGORITHM_CROSS_ENTROPY_H
 #define PAGMO_ALGORITHM_CROSS_ENTROPY_H
 
+#include <string>
+
 #include "../config.h"
 #include "base.h"
 #include "../population.h"
 #include "../types.h"
-#include <string>
+#include "../serialization.h"
+
 
 
 
 namespace pagmo { namespace algorithm {
 
-/// The Cross Entropy method (CE)
+/// A Cross Entropy Study (CE)
 /**
- * The cross-entropy (CE) method attributed to Reuven Rubinstein is a general Monte Carlo approach to combinatorial and continuous multi-extremal optimization and importance sampling.
+ * The cross-entropy (CE) method attributed to Reuven Rubinstein is a general Monte Carlo
+ * approach to combinatorial and continuous multi-extremal optimization and importance sampling.
  *
- * NOTE: when called on mixed-integer problems CE treats the integer part as fixed and optimizes
+ * It is similar to CMA-ES in many ways and the version here implemented is original with PaGMO developer
+ * and can be considered a 'study' on sampling methods
+ *
+ * NOTE1: when called on mixed-integer problems CE treats the integer part as fixed and optimizes
  * the continuous part.
  *
- * At each call of the evolve method a number of function evaluations equal
+ * NOTE2: at each call of the evolve method a number of function evaluations equal
  * to iter * pop.size() is performed.
+ *
+ * NOTE3: The Covariance Matrix is evaluated considering the average vector mu of the previous iteration
+ * (not the current one) importing one of the key ideas of CMA-ES into this algorithm
  *
  * @see http://ie.technion.ac.il/CE/files/Misc/tutorial.pdf
  *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 
 class __PAGMO_VISIBLE cross_entropy: public base
 {
 public:
-	cross_entropy(int iter, double fraction_elite = 0.1, double alpha = 0.8, double beta = 0.9);
+	cross_entropy(unsigned int gen = 500, double elite = 0.5, double scale = 0.05, bool screen_output = False);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
 private:
-	const int m_iter;
-	const double m_fraction_elite;
-	const double m_alpha;
-	const double m_beta;
-	static decision_vector	calculate_mean(std::vector<decision_vector>);
-	static decision_vector calculate_std(std::vector<decision_vector>, decision_vector);
-	static bool compare_function(std::pair<fitness_vector,int>, std::pair<fitness_vector,int>);
+	friend class boost::serialization::access;
+		template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<std::size_t &>(m_gen);
+		ar & const_cast<double &>(m_elite);
+		ar & const_cast<double &>(m_scale);
+		ar & const_cast<bool &>(m_screen_output);
+	}
+	const std::size_t m_gen;
+	const double m_elite;
+	const double m_scale;
+	const bool m_screen_output;
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cross_entropy);
 
 #endif // CROSS_ENTROPY_H

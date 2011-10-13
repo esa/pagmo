@@ -1,12 +1,16 @@
 # PaGMO lib source files.
 SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/archipelago.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cross_entropy.cpp
+#	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cross_entropy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
@@ -68,10 +72,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/hypercube.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/unconnected.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/archipelago.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 )
 
@@ -131,7 +131,7 @@ IF(ENABLE_GSL)
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/gsl_nm2rand.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/spheres.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/spheres_q.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/spheres_q.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/gsl_init.cpp
 	)
 ENDIF(ENABLE_GSL)
