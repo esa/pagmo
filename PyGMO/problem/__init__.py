@@ -360,7 +360,7 @@ def _tsp_ctor(self,matrix = [[0,1,2],[1,0,5],[2,5,0]]):
 	"""
 	Constructs a Travelling Salesman problem (Constrained Integer Single-Objective)
 	
-	USAGE: problem.tsp(matrix = [])
+	USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0])
 	
 	* matrix: inter-city distances (symmetric matrix)
 	"""
@@ -371,3 +371,74 @@ def _tsp_ctor(self,matrix = [[0,1,2],[1,0,5],[2,5,0]]):
 	self._orig_init(*arg_list)
 tsp._orig_init = tsp.__init__
 tsp.__init__ = _tsp_ctor
+
+def _knapsack_ctor(self,values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], max_weight = 100):
+	"""
+	Constructs a 0-1 Knapsack Problem (Constrained Integer Single-Objective)
+	
+	USAGE: problem.knapsack(values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], max_weight = 100)
+	
+	* values: raw array of values
+	* weights: raw array of weights
+	* max_weight: maximum weight
+	"""
+	
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(values)
+	arg_list.append(weights)
+	arg_list.append(max_weight)
+	self._orig_init(*arg_list)
+knapsack._orig_init = knapsack.__init__
+knapsack.__init__ = _knapsack_ctor
+
+def _inventory_ctor(self, weeks = 4, sample_size = 10, seed = 0):
+	"""
+	Constructs an Inventory Problem (Stochastic Objective Function)
+	
+	NOTE: see www2.isye.gatech.edu/people/faculty/Alex_Shapiro/SPbook.pdf
+	
+	USAGE: problem.inventory(weeks = 4, sample_size = 10, seed = 0):
+	
+	* week: dimension of the problem corresponding to the numer of weeks
+	                 to plan the inventory for.
+	* sample_size: dimension of the sample used to approximate the expected value
+	* seed: integer used as starting random seed to build the 
+	                 pseudorandom sequences used to generate the sample
+	"""
+	
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(weeks)
+	arg_list.append(sample_size)
+	arg_list.append(seed)
+	self._orig_init(*arg_list)
+inventory._orig_init = inventory.__init__
+inventory.__init__ = _inventory_ctor
+
+def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
+	"""
+	Construct a Neurocontroller Evolution problem that seeks to drive three point masses to form a triangle
+	This problem was used to design a contorller for the MIT SPHERES test bed on boear the ISS
+	
+	USAGE: problem.mit_spheres(sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
+	
+	* sample_size: number of initial conditions the neurocontroller is tested from
+	* n_hidden: number of hidden  for the feed-forward neural network
+	* ode_prec: relative numerical precision of neurons the ODE integrator
+	* seed: integer used as starting random seed to build the pseudorandom sequences used to generate the sample
+	* symmetric: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
+	* simulation_time: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
+"""
+	
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(sample_size)
+	arg_list.append(n_hidden)
+	arg_list.append(ode_prec)
+	arg_list.append(seed)
+	arg_list.append(symmetric)
+	arg_list.append(simulation_time)
+	self._orig_init(*arg_list)
+mit_spheres._orig_init = mit_spheres.__init__
+mit_spheres.__init__ = _mit_spheres_ctor

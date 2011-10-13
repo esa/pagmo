@@ -1,4 +1,7 @@
 def visualize(self,world_states):
+	"""
+	
+	"""
 	# If Vpython is not detected this method throws an excpetion
 	try:
 		import visual as v

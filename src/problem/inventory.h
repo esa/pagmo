@@ -79,8 +79,10 @@ class __PAGMO_VISIBLE inventory: public base_stochastic
 		 * @see problem::base constructors.
 		 */
 		inventory(int weeks = 4,int sample_size = 10, unsigned int seed = 0);
+    		std::string get_name() const;
 		base_ptr clone() const;
 	protected:
+		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;

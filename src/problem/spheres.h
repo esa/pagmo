@@ -80,8 +80,10 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		 * @param[in] seed seed used to produce all random initial conditions
 		 * @param[in] symmetric a boolean value that, if true, indicates that the neural network
 		 * does not distinguish among permutations of its input values due to sphere ID exchange.
-		 */
-		spheres(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-3, unsigned int seed = 0, bool symmetric = false);
+		 * @param[in] sim_time Time after wich the fitness is evaluated in the simualtion
+
+*/
+		spheres(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-3, unsigned int seed = 0, bool symmetric = false, double sim_time = 50.0);
 
 		/// Copy Constructor
 		/**
@@ -117,11 +119,13 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		 * @return A vector containing, for each time, a vector of [t, states]
 		 */
 		std::vector<std::vector<double> > simulate(const decision_vector & x, const std::vector<double> &ic, int N) const;
+    		std::string get_name() const;
 		base_ptr clone() const;
 
 
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		std::string human_readable_extra() const;
 	private:
 		// Class representing a feed forward neural network
 		class ffnn {
@@ -160,6 +164,7 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 			ar & const_cast<double &>(m_numerical_precision);
 			ar & m_ic;
 			ar & m_symm;
+			ar & m_sim_time;
 		}
 		gsl_odeiv2_driver*				m_gsl_drv_pntr;
 		gsl_odeiv2_system				m_sys;
@@ -169,6 +174,7 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		const double					m_numerical_precision;
 		mutable std::vector<double>			m_ic;	
 		bool						m_symm;
+		double						m_sim_time;
 };
 
 }} //namespaces
