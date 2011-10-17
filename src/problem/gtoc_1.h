@@ -57,6 +57,7 @@ class __PAGMO_VISIBLE gtoc_1: public base
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

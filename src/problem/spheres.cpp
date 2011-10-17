@@ -46,11 +46,11 @@ static double norm2(double v[3]) {
 namespace pagmo { namespace problem {
 
 spheres::spheres(int n_evaluations, int n_hidden_neurons,
-		 double numerical_precision, unsigned int seed, bool symmetric) :
+		 double numerical_precision, unsigned int seed, bool symmetric, double sim_time) :
 	base_stochastic((nr_input/(int(symmetric)+1) + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * nr_output, seed),
 	m_ffnn(nr_input,n_hidden_neurons,nr_output), m_n_evaluations(n_evaluations),
 	m_n_hidden_neurons(n_hidden_neurons), m_numerical_precision(numerical_precision),
-	m_ic(nr_eq), m_symm(symmetric) {
+	m_ic(nr_eq), m_symm(symmetric), m_sim_time(sim_time) {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
 	set_lb(-1);
 	set_ub(1);
@@ -64,7 +64,7 @@ spheres::spheres(const spheres &other):
 	base_stochastic(other),
 	m_ffnn(other.m_ffnn),
 	m_n_evaluations(other.m_n_evaluations),m_n_hidden_neurons(other.m_n_hidden_neurons),
-	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic), m_symm(other.m_symm)
+	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic), m_symm(other.m_symm), m_sim_time(other.m_sim_time)
 {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
 	gsl_odeiv2_system sys = {ode_func,NULL,nr_eq,&m_ffnn};
@@ -234,7 +234,7 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 
 		// Integrate the system
 		double t0 = 0.0;
-		double tf = 100.0;
+		double tf = m_sim_time;
 		//gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-6);
 		int status = gsl_odeiv2_driver_apply( m_gsl_drv_pntr, &t0, tf, &m_ic[0] );
 		// Not sure if this help or what it does ....
@@ -264,7 +264,7 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 
 		// Position starts in a [-1,1] box (evolution is in [-2,2])
 		for (int i=0; i<6; ++i) {
-			m_ic[i] = (m_drng()*2 - 1);
+		m_ic[i] = (m_drng()*2 - 1);
 		}
 		// Centered around the origin
 		m_ic[6] = - (m_ic[0] + m_ic[3]);
@@ -277,7 +277,7 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 
 		// Integrate the system
 		double t0 = 0.0;
-		double tf = 100.0;
+		double tf = m_sim_time;
 		//gsl_odeiv2_driver_set_hmin (m_gsl_drv_pntr, 1e-6);
 		int status = gsl_odeiv2_driver_apply( m_gsl_drv_pntr, &t0, tf, &m_ic[0] );
 		// Not sure if this help or what it does ....
@@ -340,7 +340,7 @@ std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, co
 	set_nn_weights(x);
 	// Integrate the system
 	double ti, t0=0;
-	double tf = 70.0;
+	double tf = m_sim_time;
 
 	// pushing back the initial conditions
 	one_row[0] = 0.0;
@@ -363,6 +363,28 @@ std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, co
 	//gsl_odeiv2_driver_reset (m_gsl_drv_pntr);
 	return ( ret );
 }
+
+std::string spheres::get_name() const
+{
+	return "MIT SPHERES - Neurocontroller Evolution";
+}
+
+/// Extra human readable info for the problem.
+/**
+ * Will return a formatted string containing the values vector, the weights vectors and the max weight.
+ */
+std::string spheres::human_readable_extra() const
+{
+	std::ostringstream oss;
+	oss << "\n\tSample Size: " << m_n_evaluations << '\n';
+	oss << "\tHidden Neurons: " << m_n_hidden_neurons << '\n';
+	oss << "\tODE precision: " << m_numerical_precision << '\n';
+	oss << "\tSeed: " << m_seed << '\n';
+	oss << "\tSymmetric Weights: " << m_symm << '\n';
+	oss << "\tSimulation time: " << m_sim_time << '\n';
+	return oss.str();
+}
+
 } //namespace problem
 } //namespace pagmo
 

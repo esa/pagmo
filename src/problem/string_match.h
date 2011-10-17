@@ -51,6 +51,7 @@ class __PAGMO_VISIBLE string_match: public base
 		string_match(const char * = "Can we use it for space?");
 		base_ptr clone() const;
 		std::string get_name() const;
+		std::string pretty(const decision_vector &x) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;

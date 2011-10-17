@@ -59,6 +59,23 @@ void inventory::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = retval / m_sample_size;
 }
 
+/// Extra human readable info for the problem.
+/**
+ * Will return a formatted string containing the values vector, the weights vectors and the max weight.
+ */
+std::string inventory::human_readable_extra() const
+{
+	std::ostringstream oss;
+	oss << "\n\tWeeks: " << m_weeks << '\n';
+	oss << "\tSample Size: " << m_sample_size << '\n';
+	oss << "\tSeed: " << m_seed << '\n';
+	return oss.str();
+}
+
+std::string inventory::get_name() const
+{
+	return "Inventory";
+}
 
 }} //namespaces
 

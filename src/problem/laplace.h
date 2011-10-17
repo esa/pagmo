@@ -72,7 +72,7 @@ class __PAGMO_VISIBLE laplace: public base
 		std::string pretty(const std::vector<double> &x) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
+		//void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

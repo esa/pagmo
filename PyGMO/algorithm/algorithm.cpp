@@ -159,6 +159,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::cs>("cs","Compass search solver.")
 		.def(init<const int &, const double &, optional<const double &, const double &> >());
 
+	// Cross-Entropy Study
+	algorithm_wrapper<algorithm::cross_entropy>("cross_entropy","Cross-Entropy Study solver")
+		.def(init<optional<int, double, double, bool> >());
+
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
 		.def(init<int>());

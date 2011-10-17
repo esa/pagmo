@@ -51,7 +51,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 		/// The objective function can be defined as final mass, final time or mass/time
 		enum objective {MASS,TIME,MASS_TIME};
 		/// Constructor
-		gtoc_2(int = 0, int = 96, int = 272, int = 572, int = 10, objective = MASS_TIME);
+		gtoc_2(int = 815, int = 300, int = 110, int = 47, int = 10, objective = MASS_TIME);
 		base_ptr clone() const;
 		//void set_sparsity(int &, std::vector<int> &, std::vector<int> &) const;
 		std::string get_name() const;

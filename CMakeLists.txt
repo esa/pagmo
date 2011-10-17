@@ -66,7 +66,7 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." OFF)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: when active the keplerian toolbox and GTOP database problems are built.
-OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable compilation of the keplerian_toolbox and related GO problems." OFF)
+OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable the GTOP database problems (interplanetary transfers)." ON)
 
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
@@ -266,26 +266,48 @@ ENDIF(ENABLE_SNOPT)
 
 # If IPOPT support is requested, look for the libraries.
 IF(ENABLE_IPOPT)
-	SETUP_BLAS_FOR_PAGMO()
-
-	# IPOPT needs LAPACK. Note that LAPACK needs Fortran support, which has already been activated in SETUP_BLAS_FOR_PAGMO().
-	FIND_PACKAGE(LAPACK REQUIRED)
-
+	#We look for ipopt libraries and headers
 	FIND_LIBRARY(IPOPT_LIBRARY NAMES ipopt)
-	FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
-	FIND_LIBRARY(COINMETIS_LIBRARY NAMES coinmetis)
-	FIND_LIBRARY(COINMUMPS_LIBRARY NAMES coinmumps)
-	FIND_LIBRARY(DL_LIBRARY NAMES dl)
 	FIND_PATH(IPOPT_INCLUDE_DIR NAMES coin/IpTNLP.hpp)
-
 	MESSAGE(STATUS "IPOPT library: ${IPOPT_LIBRARY}")
 	MESSAGE(STATUS "IPOPT include dir: ${IPOPT_INCLUDE_DIR}")
+	IF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "IPOPT support was requested, but ipopt library and headers could not be located. Please make sure that the linker can find the ipopt library and headers. The headers are assumed to be installed in a in coin/ directory")
+	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
+
+	#We set BLAS, LAPACK and -ldl
+	SETUP_BLAS_FOR_PAGMO()
+
+	#Note that LAPACK needs Fortran support, which has already been activated in SETUP_BLAS_FOR_PAGMO().
+	FIND_PACKAGE(LAPACK REQUIRED)
 	MESSAGE(STATUS "lapack libraries: ${LAPACK_LIBRARIES}")
 	MESSAGE(STATUS "lapack linker flags: ${LAPACK_LINKER_FLAGS}")
-	MESSAGE(STATUS "coin hsl library: ${COINHSL_LIBRARY}")
-	MESSAGE(STATUS "coin metis library: ${COINMETIS_LIBRARY}")
-	MESSAGE(STATUS "coin mumps library: ${COINMUMPS_LIBRARY}")
+	FIND_LIBRARY(DL_LIBRARY NAMES dl)
 	MESSAGE(STATUS "dl library: ${DL_LIBRARY}")
+	IF(NOT DL_LIBRARY)
+		MESSAGE(FATAL_ERROR "IPOPT support was requested, but dl library could not be found.")
+	ENDIF(NOT DL_LIBRARY)
+
+	FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
+	IF(COINHSL_LIBRARY)
+		MESSAGE(STATUS "COINHSL Library Found ... linking it in")
+		MESSAGE(STATUS "coin hsl library: ${COINHSL_LIBRARY}")
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINHSL_LIBRARY})
+	ENDIF(COINHSL_LIBRARY)
+
+	FIND_LIBRARY(COINMETIS_LIBRARY NAMES coinmetis)
+	IF(COINMETIS_LIBRARY)
+		MESSAGE(STATUS "COINMETIS Library Found ... linking it in")
+		MESSAGE(STATUS "coin metis library: ${COINMETIS_LIBRARY}")
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMETIS_LIBRARY})
+	ENDIF(COINMETIS_LIBRARY)
+
+	FIND_LIBRARY(COINMUMPS_LIBRARY NAMES coinmumps)
+	IF(COINMUMPS_LIBRARY)
+		MESSAGE(STATUS "COINMUMPS Library Found ... linking it in")
+		MESSAGE(STATUS "coin mumps library: ${COINMUMPS_LIBRARY}")
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMUMPS_LIBRARY})
+	ENDIF(COINMUMPS_LIBRARY)
 
 	IF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
 		MESSAGE(STATUS "Linear Solver for IPOPT could not be detected. I tried with HSL and MUMPS. You need to link manually the library if necessary")

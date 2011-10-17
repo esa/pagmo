@@ -149,7 +149,8 @@ class scipy_slsqp(_scipy_base):
 
 		NOTE: gradient is numerically approximated
 
-		USAGE: algorithm.scipy_slsqp(max_iter = 100,acc = 1E-6,epsilon = 1.4901161193847656e-08, screen_output = False))
+		USAGE: algorithm.scipy_slsqp(max_iter = 100,acc = 1E-6,epsilon = 1.49e-08, screen_output = False))
+
 
 		* max_iter: The maximum number of iterations.
 		* acc: Requested accuracy.
