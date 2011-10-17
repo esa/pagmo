@@ -259,7 +259,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// GTOC2 problem.
 	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
-		.def(init<int,int,int,int,optional<int,problem::gtoc_2::objective> >());
+		.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
 
 	// GTOC2's objectives enum.
 	enum_<problem::gtoc_2::objective>("_gtoc_2_objective")

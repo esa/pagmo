@@ -66,7 +66,7 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." OFF)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: when active the keplerian toolbox and GTOP database problems are built.
-OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable compilation of the keplerian_toolbox and related GO problems." OFF)
+OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable the GTOP database problems (interplanetary transfers)." ON)
 
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)

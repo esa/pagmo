@@ -1,5 +1,7 @@
 from _base import base
 
+
+
 class py_pl2pl(base):
 	"""
 	This problem represents a low-thrust transfer between a departure planet (default is the earth)
@@ -12,7 +14,23 @@ class py_pl2pl(base):
 	"""
 
 	def __init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=0,nseg=10,departure = None, target = None, optimise4mass = False):
-		"""__init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=0,nseg=10,departure = erath, target = mars)"""
+		"""
+		Constructs a low-thrust transfer between a departure planet and a target planet (Constrained Continuous Single-Objective)
+
+		NOTE: An impulsive transcription is used to transform into an NLP the Optimal Control Problem 
+	      
+		USAGE: problem.py_pl2pl(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=0,nseg=10,departure = PyKEP.planet_ss('earth'), target = PyKEP.planet_ss('mars'))
+
+		* mass: spacecraft mass at departure [kg]
+		* Tmax: maximum allowed thrust [N]
+		* Isp: spacecarft engine specific impulse [Isp]
+		* Vinf_0: allowed maximum starting velocity [km/s]
+		* Vinf_f: allowed maximum arrival velocity [km/s]
+			  (if negative it is interpreted as a minimum arrival velocity)
+		* nseg: number of segments used for the impulsive transcription
+		* departure: departure planet (a PyKEP planet)
+		* target: arrival planet (a PyKEP planet)
+		"""
 		try:
 			import PyKEP
 		except ImportError:

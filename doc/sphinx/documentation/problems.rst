@@ -24,6 +24,14 @@ Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
 Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
 Himmelblau                         :class:`PyGMO.problem.himmelblau`         Bi-dimensional problem
 Michalewicz                        :class:`PyGMO.problem.michalewicz`
+Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
+Cassini 2                          :class:`PyGMO.problem.cassini_2`          Requires the GTOP database option active
+Rosetta                            :class:`PyGMO.problem.rosetta`            Requires the GTOP database option active
+Tandem                             :class:`PyGMO.problem.tandem`             Requires the GTOP database option active
+Laplace                            :class:`PyGMO.problem.tandem`             Requires the GTOP database option active
+Messenger (Full Problem)           :class:`PyGMO.problem.messenger_full`     Requires the GTOP database option active
+GTOC1                              :class:`PyGMO.problem.gtoc_1`             Requires the GTOP database option active
+Sagas                              :class:`PyGMO.problem.sagas`              Requires the GTOP database option active
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Multi-Objective
@@ -51,6 +59,7 @@ Luksan Vlcek 2                     :class:`PyGMO.problem.luksan_vlcek_2`
 Luksan Vlcek 3                     :class:`PyGMO.problem.luksan_vlcek_3`
 Planet to Planet LT Transfer       :class:`PyGMO.problem.py_pl2pl`           Requires PyKEP. Implemented in Python
 SNOPT Toy-Problem                  :class:`PyGMO.problem.snopt_toyprob`      
+GTOC2 (Full Problem)               :class:`PyGMO.problem.gtoc_2`             Requires the GTOP database option active
 ================================== ========================================= ===========================================
 
 Box-Constrained Integer Single-Objective
@@ -221,4 +230,43 @@ Detailed Documentation
       Requires VPython installed. It opens a graphical display and animate the motion of the three SPHERES
       as desribed by the world_state tuple (output from the simulate method)
 
+.. autoclass:: PyGMO.problem.cassini_1
+
+   .. automethod:: PyGMO.problem.cassini_1.__init__
+
+.. autoclass:: PyGMO.problem.cassini_2
+
+   .. automethod:: PyGMO.problem.cassini_2.__init__
+
+.. autoclass:: PyGMO.problem.messenger_full
+
+   .. automethod:: PyGMO.problem.messenger_full.__init__
+
+.. autoclass:: PyGMO.problem.rosetta
+
+   .. automethod:: PyGMO.problem.rosetta.__init__
+
+.. autoclass:: PyGMO.problem.laplace
+
+   .. automethod:: PyGMO.problem.laplace.__init__
+
+.. autoclass:: PyGMO.problem.tandem
+
+   .. automethod:: PyGMO.problem.tandem.__init__
+
+.. autoclass:: PyGMO.problem.gtoc_1
+
+   .. automethod:: PyGMO.problem.gtoc_1.__init__
+
+.. autoclass:: PyGMO.problem.gtoc_2
+
+   .. automethod:: PyGMO.problem.gtoc_2.__init__
+
+.. autoclass:: PyGMO.problem.py_pl2pl
+
+   .. automethod:: PyGMO.problem.py_pl2pl.__init__
+
+.. autoclass:: PyGMO.problem.sagas
+
+   .. automethod:: PyGMO.problem.sagas.__init__
       

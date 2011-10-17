@@ -4,6 +4,13 @@ from _problem import *
 from _example import py_example
 from _pl2pl import py_pl2pl
 
+# If GTOP database support is active import interplanetary trajectory problems
+
+#try:
+from _gtop import *
+#except:
+	#print "PyGMO was compiled without the GTOP database support activated .... interplanetary trajectory problems are not imported"
+
 # If GSL support is active import mit_sphere
 try:
 	from _mit_spheres import visualize as _visualize
