@@ -255,7 +255,7 @@ int MGA(vector<double> t,	// it is the vector which provides time in modified ju
 		for (i_count = 0; i_count < 3 ; i_count++)
 			dot_prod += Dum_Vec[i_count] * v[n-1][i_count];
 
-		obj_funct = 2000000 - (final_mass)* fabs(dot_prod);
+		obj_funct = - (final_mass)* fabs(dot_prod);
 	}
 
 
