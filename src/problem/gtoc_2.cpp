@@ -210,7 +210,7 @@ std::string gtoc_2::get_name() const
 
 std::string gtoc_2::human_readable_extra() const {
 	std::ostringstream oss;
-	oss << "\tAsteroid Sequence:\t\t\t";
+	oss << "\n\tAsteroid Sequence:\t\t\t";
 	for (int i =1 ; i< 5; ++i ) oss << m_asteroids[i].get_name() << " ";
 	oss << std::endl;
 	return oss.str();

@@ -47,6 +47,11 @@ static inline int laplace_get_dimension(const std::vector<int> &seq)
 	{
 		pagmo_throw(value_error,"Final planet must be Jupiter (5) for the Laplace mission");
 	}
+	for (size_t i=0; i< seq.size(); ++i) {
+		if ((seq[i] >= 7) || (seq[i] <= 0)) {
+			pagmo_throw(value_error,"Planet sequence must contains numbers from 1 to 6");
+		}
+	}
 	return boost::numeric_cast<int>(4*seq.size() - 2);
 }
 
@@ -166,17 +171,17 @@ void laplace::objfun_impl(fitness_vector &f, const decision_vector &x) const
 /**
  * No sparsity present (box-constrained problem).
  */
-void laplace::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
-{
-	lenG=(4*problem.sequence.size()-2);
-	iGfun.resize(lenG);
-	jGvar.resize(lenG);
-	for (int i = 0; i<lenG; ++i)
-	{
-		iGfun[i] = 0;
-		jGvar[i] = i;
-	}
-}
+//void laplace::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vector<int> &jGvar) const
+//{
+//	lenG=(4*problem.sequence.size()-2);
+//	iGfun.resize(lenG);
+//	jGvar.resize(lenG);
+//	for (int i = 0; i<lenG; ++i)
+//	{
+//		iGfun[i] = 0;
+//		jGvar[i] = i;
+//	}
+//}
 
 std::string laplace::get_name() const
 {

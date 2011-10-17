@@ -93,7 +93,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * - get_name(), for specifying a string identifier for the problem type,
  * - human_readable_extra(), for providing extra output when printing the problem to stream,
  * - equality_operator_extra(), for providing additional criterions when testing for equality between two problems,
- * - compare_fitness_impl(), to reimplement the function that compares two fitness vectors (reurning true if the first vector is strictly better
+ * - compare_fitness_impl(), to reimplement the function that compares two fitness vectors (returning true if the first vector is strictly better
  *   than the second one, false otherwise),
  * - compute_constraints_impl(), to calculate the constraint vector associated to a decision vector,
  * - compare_constraints_impl(), to compare two constraint vectors,
