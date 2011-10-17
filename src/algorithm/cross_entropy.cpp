@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <string>
+#include <iomanip>
 #include <vector>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -115,16 +116,17 @@ void cross_entropy::evolve(population &pop) const
 	using namespace Eigen;
 	// We allocate the memory necessary for the multivariate random vector generation
 	MatrixXd C(Dc,Dc);					//Covariance Matrix
-	MatrixXd U(Dc,Dc);					//Upper Triangular Cholesky
+	MatrixXd U(Dc,Dc);					//Upper Triangular Cholesky Factorization of C
 	LLT<MatrixXd> llt(Dc);					//Cholesky Factorization
-	VectorXd mu(Dc), tmp(Dc);				//Mean and a temp vector
+	VectorXd mu(Dc), tmp(Dc), variation(Dc);		//Mean and a temp vector
 	std::vector<VectorXd> elite(n_elite,mu);		//Container of the elite chromosomes
-	std::vector<population::size_type> elite_idx(n_elite);	//Container of the indexes in pop of the elite
-	decision_vector dumb(Dc);
+	std::vector<VectorXd> newgen(NP,mu);			//Container of the new generation
+	std::vector<population::size_type> elite_idx(n_elite);	//Container of the elite indexes in pop
+	decision_vector dumb(Dc);				//This is used to copy teh VectorXd into a decision_vector
 
-	boost::normal_distribution<double> normal(0,1);
+	boost::normal_distribution<double> normal(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > normally_distributed_number(m_drng,normal);
-	boost::uniform_real<double> uniform(0,1);
+	boost::uniform_real<double> uniform(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > randomly_distributed_number(m_drng,uniform);
 
 
@@ -137,10 +139,10 @@ std::cout << "Elite dim: " << n_elite << std::endl<< std::endl;
 
 	// Main loop
 	for (std::size_t g = 0; g < m_gen; ++g) {
-		// 1 - We extract the elite from this generation (NOTE: we use best_x)
+		// 1 - We extract the elite from this generation (NOTE: we use best_f to rank)
 		elite_idx = pop.get_best_idx(n_elite);
-		for ( population::size_type i = 0; i<n_elite; i++ ) { 
-			for (problem::base::size_type j=0;j<Dc;++j){
+		for ( population::size_type i = 0; i<n_elite; ++i ) { 
+			for ( problem::base::size_type j=0; j<Dc; ++j ){
 				elite[i][j] = pop.get_individual(elite_idx[i]).best_x[j];
 			}
 		}
@@ -148,52 +150,70 @@ std::cout << "Elite dim: " << n_elite << std::endl<< std::endl;
 		// 2 - We evaluate the Covariance Matrix as least square estimator of the elite (with mean mu)
 		tmp = (elite[0] - mu);
 		C = tmp*tmp.transpose();
-		for ( population::size_type i = 1; i<n_elite; i++ ) { 
+		for ( population::size_type i = 1; i<n_elite; ++i ) { 
 			tmp = (elite[i] - mu);
 			C = C + tmp*tmp.transpose();
 		}
-		C = C * (m_scale/n_elite);
-std::cout << "C: " << C << std::endl<< std::endl;
+		C = C / n_elite;
+std::cout << "C: " << std::endl << C << std::endl<< std::endl;
 
-		// 3 - We compute the new elite mean
+		// 3 - We compute the new elite mean (it will not be used before next iteration)
 		mu = elite[0];
-		for ( population::size_type i = 1; i<n_elite; i++ ) { 
+		for ( population::size_type i = 1; i<n_elite; ++i ) { 
 			mu = mu + elite[i];
 		}
 		mu = mu / n_elite;
+	
 
 std::cout << "Elite Mean: " << mu.transpose() << std::endl;
 
 		// 4 - We sample a new generation
+		C = C * m_scale;
 		llt.compute(C);
 		U = llt.matrixU();
 
 
-std::cout << "Upper Triangular: " << U << std::endl  << std::endl ;
-		for (population::size_type i = 0; i<NP; i++ ) {
+//std::cout << "Upper Triangular: " << U << std::endl  << std::endl ;
+//std::cout << "Identity: " << (U.transpose()*U - C).norm() << std::endl  << std::endl ;
+
+		for (population::size_type i = 0; i<NP; ++i ) {
 			// 4a - We generate a random vector normally distributed with zero mean and unit variance
 			for (problem::base::size_type j=0;j<Dc;++j){
 				tmp[j] = normally_distributed_number();
 			}
 			// 4b - We use Cholesky Triangular form to map the vector into our space
 
-			tmp =  U.transpose()*tmp;
-std::cout << "Variation: " << tmp.transpose() << std::endl;
-			tmp = tmp+mu;
+			variation =  U.transpose()*tmp;
+std::cout << "Variation: " << variation.transpose() << std::endl;
+			newgen[i] = variation + mu;
 
 
 			// 4c - If generated point is outside the bounds ... fixit!!
 			size_t i2 = 0;
 			while (i2<Dc) {
-				if ((tmp[i2] < lb[i2]) || (tmp[i2] > ub[i2]))
-					tmp[i2] = lb[i2] + randomly_distributed_number()*(ub[i2]-lb[i2]);
+				if ((newgen[i][i2] < lb[i2]) || (newgen[i][i2] > ub[i2]))
+					newgen[i][i2] = lb[i2] + randomly_distributed_number()*(ub[i2]-lb[i2]);
 				++i2;
 			}
-
+		}
+		// 5 - We reinsert
+		for (population::size_type i = 0; i<NP; ++i ) {
 			for (problem::base::size_type j=0;j<Dc;++j){
-				dumb[j] = tmp[j];
+					dumb[j] = newgen[i][j];
 			}
-			pop.set_x(i,dumb);
+			population::size_type idx = pop.get_worst_idx();
+			pop.set_x(idx,dumb);
+std::cout << "New Fitness: " << pop.get_individual(idx).cur_f[0] << std::endl;			
+		}
+		
+		// 6 - We print on screen if required
+		if (m_screen_output) {
+			if (!(g%20))
+				std::cout << std::endl << std::left << std::setw(20) <<"Gen." << std::setw(20) << "Champion " << std::setw(20) << "Best " << std::setw(20) << "Worst" << std::setw(20) << "Variation" << std::endl; 
+				
+			std::cout << std::left << std::setprecision(14) << std::setw(20) << g << std::setw(20)<< pop.champion().f[0] << std::setw(20) << 
+					pop.get_individual(pop.get_best_idx()).best_f[0] << std::setw(20) << 
+					pop.get_individual(pop.get_worst_idx()).best_f[0] << std::setw(20) << variation.norm() << std::endl;
 		}
 	}
 
