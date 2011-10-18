@@ -62,8 +62,8 @@ class py_cross_entropy(base):
 
 	       for i in range(self.__gen):
 		       y = self.__extract_elite(pop,n_ind__elite)		#y = array, [[chrom],rank] * n_ind__elite
-		       C = self.__estimate_covariance(y,mu)*self.__scale		        #C = matrix, D x D
-		       mu = self.__calculate_mean(y)                            #mu = matrix, D x 1
+		       C = self.__estimate_covariance(y,mu)*self.__scale	#C = matrix, D x D
+		       mu = self.__calculate_mean(y)				#mu = matrix, D x 1
 		       self.__new_generation(i,pop,mu,C,prob.lb,prob.ub,y)
 	       return pop
 

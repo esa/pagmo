@@ -19,6 +19,23 @@ pathto("_static/logo.png", 1) }}" border="0" alt="py4sci"/></a>
 {{ super() }}
 {% endblock %}
 
+{% block sidebarlogo %}
+
+<h3>Download/Install</h3>
+<p> Get PyGMO from our <a href="http://sourceforge.net/scm/?type=git&group_id=238743">git repo</a>
+(hosted by Sourceforge)</p>
+<p> We use CMake as our build system. Activate the PyGMO option and create the makefile </p>
+<p> Then sudo make install (but will it work?)</p>
+<h3>Report a Bug</h3>
+<p> Go to our <a href="http://sourceforge.net/tracker/?group_id=238743&atid=1133009"> bugtracker </a>
+</p>
+
+{% endblock %}
+
+{% block sidebartoc %}{% endblock %}
+{% block sidebarsourcelink %}{% endblock %}
+
+
 {# put the sidebar before the body #}
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
 {% block sidebar2 %}{% endblock %}
