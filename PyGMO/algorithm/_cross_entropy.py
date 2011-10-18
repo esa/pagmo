@@ -32,10 +32,14 @@ class py_cross_entropy(base):
 	      np.random.seed()
 
        def evolve(self,pop):
-	       from numpy import matrix
+	       from numpy import matrix,array
+	       from numpy.random import multivariate_normal,random,normal
+	       from numpy.linalg import norm, cholesky
 
 	       # Let's rename some variables
 	       prob = pop.problem
+	       lb = prob.lb
+	       ub = prob.ub
 	       dim, cont_dim, int_dim, c_dim = prob.dimension, prob.dimension - prob.i_dimension, prob.i_dimension, prob.c_dimension
 
 	       # And perform checks on the problem type
@@ -49,73 +53,70 @@ class py_cross_entropy(base):
 		       raise ValueError("The chromosome has an integer part .... this version of cross_entropy is not able to deal with it")
 
 	       # We then check that the elite is not empty
-	       n_ind__elite = int(len(pop) * self.__elite)
-	       if n_ind__elite == 0:
+	       n_elite = int(len(pop) * self.__elite)
+	       if n_elite == 0:
 		       raise ValueError("Elite contains no individuals ..... maybe increase the elite parameter?")
 
 	       # If the incoming population is empty ... do nothing
-	       if len(pop) == 0:
+	       np = len(pop)
+	       if np == 0:
 		       return population
 
 	       # Let's start the algorithm
 	       mu = matrix(pop.champion.x)
+	       C = matrix([[0]*n_elite]*n_elite)
+	       variation = array([[0.0]*dim]*np)
+	       newpop = array([[0.0]*dim]*np)
 
-	       for i in range(self.__gen):
-		       y = self.__extract_elite(pop,n_ind__elite)		#y = array, [[chrom],rank] * n_ind__elite
-		       C = self.__estimate_covariance(y,mu)*self.__scale	#C = matrix, D x D
-		       mu = self.__calculate_mean(y)				#mu = matrix, D x 1
-		       self.__new_generation(i,pop,mu,C,prob.lb,prob.ub,y)
+	       for gen in range(self.__gen):
+		       #1 - We extract the elite	       	       
+		       elite = [matrix(pop[idx].best_x) for idx in pop.get_best_idx(n_elite)]
+
+		       #2 - We estimate the covariance matrix
+		       C = (elite[0]-mu).T*(elite[0]-mu)
+		       for i in range(1,n_elite):
+		       		C = C + (elite[i]-mu).T*(elite[i]-mu)
+		       C = C / n_elite
+		       C = C*self.__scale
+
+		       #3 - We calculate the new elite mean
+		       mu = elite[0]
+		       for i in range(1,n_elite):
+		       		mu = mu + elite[i]
+		       mu = mu.T / n_elite	
+
+		       #self.__new_generation(gen,pop,mu,C,lb,ub,elite)
+
+		       #4 - We generate the new sample  
+		       #variation = multivariate_normal([0]*dim,C,[np]) 
+		       U = cholesky(C)
+		       for i in range(np):
+		       		y = normal(0,1,[dim,1])
+		       		variation[i] = (U*y).T 
+		       for i,d_mu in enumerate(variation):
+		       		newpop[i] = mu.T + d_mu
+
+		       #5 - We fix it within the bounds
+		       for row in range(newpop.shape[0]):
+			       for col in range(newpop.shape[1]):
+				       if newpop[row,col] > ub[col]:
+					       newpop[row,col] = lb[col] + random()*(ub[col]-lb[col])
+				       elif newpop[row,col] < lb[col]:
+					       newpop[row,col] = lb[col] + random()*(ub[col]-lb[col])
+
+		       #6 - And perform reinsertion
+		       for i in range(np):
+	       	      		idx = pop.get_worst_idx()
+		       		pop.set_x(idx,newpop[i])
+
+		       #7 - We print to screen if necessary
+		       if self.__screen_output:
+		       		if not(gen%20):
+		       			print "\nGen.\tChampion\tHighest\t\tLowest\t\tVariation"
+		       		print "%d\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]), norm(d_mu))
 	       return pop
-
-       def __extract_elite(self,pop,N):
-	       from numpy import matrix, array
-	       # We transform the population into an easier to manipulate pythonic structure
-	       x = [[matrix(ind.best_x), len(pop.get_domination_list(idx))] for idx,ind in enumerate(pop)]
-					       #x[i][0]: i-th chromosome (matrix)
-					       #x[i][1]: i-th fitness (scalar)
-	       x = sorted(x,key=lambda row: row[1], reverse=True)
-	       return x[:N]
-
-       def __estimate_covariance(self,y,mu):
-	       from numpy import matrix
-	       D = y[0][0].size
-	       C = matrix([[0]*D]*D)
-	       for i in range(len(y)):
-		       C = C + (y[i][0]-mu).T*(y[i][0]-mu)
-	       return (C / len(y))
-
-       def __calculate_mean(self,x):
-	       from numpy import matrix
-	       D = x[0][0].size
-	       mu = matrix([[0]*D])
-	       for i in range(len(x)):
-		       mu = mu + x[i][0]
-	       return (mu.T / len(x))
-
-       def __new_generation(self,gen,pop,mu,C,lb,ub,y):
-	       from numpy.random import multivariate_normal,random
-	       from numpy import array,std
-	       from numpy.linalg import norm
-	       np = len(pop)
-	       newpop = multivariate_normal([0]*len(lb),C,[np])
-	       for i,f in enumerate(newpop):
-			newpop[i] = f + mu.T #also to try f + pop[i].best_x
-			print "Variation: " + str(norm(f))
-	       for row in range(newpop.shape[0]):
-		       for col in range(newpop.shape[1]):
-			       if newpop[row,col] > ub[col]:
-				       newpop[row,col] = lb[col] + random()*(ub[col]-lb[col])
-			       elif newpop[row,col] < lb[col]:
-				       newpop[row,col] = lb[col] + random()*(ub[col]-lb[col])
-	       for i in range(np):
-	       	       idx = pop.get_worst_idx()
-		       pop.set_x(idx,newpop[i])
-	       if self.__screen_output:
-			 elite_std = norm([std([r[0,i] for r in [l[0] for l in y ]]) for i in range(len(lb))])
-			 if not(gen%20):
-				print "\nGen.\tChampion\tHighest\t\tLowest\t\tStd"
-			 print "%d\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]),elite_std)
-	       return
+	       
+ 
        def get_name(self):
 	       return "Cross Entropy (Python)"
        def human_readable_extra(self):
