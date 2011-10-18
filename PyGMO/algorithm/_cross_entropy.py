@@ -100,6 +100,7 @@ class py_cross_entropy(base):
 	       newpop = multivariate_normal([0]*len(lb),C,[np])
 	       for i,f in enumerate(newpop):
 			newpop[i] = f + mu.T #also to try f + pop[i].best_x
+			print "Variation: " + str(norm(f))
 	       for row in range(newpop.shape[0]):
 		       for col in range(newpop.shape[1]):
 			       if newpop[row,col] > ub[col]:

@@ -1,6 +1,9 @@
 Quick Start
 ===========
 
+For a more advanced use of PyGMO, please refer to our :ref:`PyGMOtutorials`, 
+or :ref:`PyGMOexamples`.
+
 On one CPU
 -------------------------------
 

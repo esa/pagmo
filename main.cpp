@@ -31,7 +31,7 @@ int main()
 {
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
 // see what othert parameters do
-pagmo::algorithm::cross_entropy algo(500,0.5,1,true);
+pagmo::algorithm::cross_entropy algo(5,1,0.05,true);
 
 //This instantiate a 50 dimensional Rosenbrock problem
 pagmo::problem::dejong prob(10);
@@ -42,6 +42,8 @@ pagmo::island isl = island(algo,prob,20);
 
 //This prints on screen the instantiated Rosenbrock problem
 std::cout << prob << std::endl;
+
+std::cout << isl.get_population().champion().f[0] << " " << std::endl;
 
 //Evolution is here started on the single island instantiated
 for (int i=0; i< 1; ++i){

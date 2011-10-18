@@ -132,7 +132,7 @@ void cross_entropy::evolve(population &pop) const
 
 	// We start from the champion as the mean
 	for (problem::base::size_type i=0;i<Dc;++i){
-		mu[i] = pop.champion().x[i];
+		mu(i) = pop.champion().x[i];
 	}
 std::cout << "Starting Mean: " << mu.transpose() << std::endl;
 std::cout << "Elite dim: " << n_elite << std::endl<< std::endl;
@@ -143,32 +143,36 @@ std::cout << "Elite dim: " << n_elite << std::endl<< std::endl;
 		elite_idx = pop.get_best_idx(n_elite);
 		for ( population::size_type i = 0; i<n_elite; ++i ) { 
 			for ( problem::base::size_type j=0; j<Dc; ++j ){
-				elite[i][j] = pop.get_individual(elite_idx[i]).best_x[j];
+				elite[i](j) = pop.get_individual(elite_idx[i]).best_x[j];
 			}
 		}
 
 		// 2 - We evaluate the Covariance Matrix as least square estimator of the elite (with mean mu)
 		tmp = (elite[0] - mu);
+//std::cout << "elite: " << elite[0].transpose() << std::endl;
+//std::cout << "mean: " << mu.transpose() << std::endl;
+//std::cout << "tmp: " << tmp.transpose() << std::endl;
 		C = tmp*tmp.transpose();
 		for ( population::size_type i = 1; i<n_elite; ++i ) { 
 			tmp = (elite[i] - mu);
-			C = C + tmp*tmp.transpose();
+			C += tmp*tmp.transpose();
+			std::cout << "C: " << std::endl << C << std::endl<< std::endl;
 		}
 		C = C / n_elite;
-std::cout << "C: " << std::endl << C << std::endl<< std::endl;
+//std::cout << "C: " << std::endl << C << std::endl<< std::endl;
 
-		// 3 - We compute the new elite mean (it will not be used before next iteration)
+		// 3 - We compute the new elite mean
 		mu = elite[0];
 		for ( population::size_type i = 1; i<n_elite; ++i ) { 
-			mu = mu + elite[i];
+			mu += elite[i];
 		}
-		mu = mu / n_elite;
+		mu /= n_elite;
 	
 
 std::cout << "Elite Mean: " << mu.transpose() << std::endl;
 
 		// 4 - We sample a new generation
-		C = C * m_scale;
+		C *= m_scale;
 		llt.compute(C);
 		U = llt.matrixU();
 
@@ -184,26 +188,26 @@ std::cout << "Elite Mean: " << mu.transpose() << std::endl;
 			// 4b - We use Cholesky Triangular form to map the vector into our space
 
 			variation =  U.transpose()*tmp;
-std::cout << "Variation: " << variation.transpose() << std::endl;
+std::cout << "Variation: " << variation.norm() << std::endl;
 			newgen[i] = variation + mu;
 
 
 			// 4c - If generated point is outside the bounds ... fixit!!
 			size_t i2 = 0;
 			while (i2<Dc) {
-				if ((newgen[i][i2] < lb[i2]) || (newgen[i][i2] > ub[i2]))
-					newgen[i][i2] = lb[i2] + randomly_distributed_number()*(ub[i2]-lb[i2]);
+				if ((newgen[i](i2) < lb[i2]) || (newgen[i](i2) > ub[i2]))
+					newgen[i](i2) = lb[i2] + randomly_distributed_number()*(ub[i2]-lb[i2]);
 				++i2;
 			}
 		}
 		// 5 - We reinsert
 		for (population::size_type i = 0; i<NP; ++i ) {
 			for (problem::base::size_type j=0;j<Dc;++j){
-					dumb[j] = newgen[i][j];
+					dumb[j] = newgen[i](j);
 			}
 			population::size_type idx = pop.get_worst_idx();
 			pop.set_x(idx,dumb);
-std::cout << "New Fitness: " << pop.get_individual(idx).cur_f[0] << std::endl;			
+//std::cout << "New Fitness: " << pop.get_individual(idx).cur_f[0] << std::endl;
 		}
 		
 		// 6 - We print on screen if required
