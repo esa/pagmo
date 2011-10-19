@@ -4,11 +4,11 @@ class py_cross_entropy(base):
        """
        Cross-Entropy algorithm (Python)
        """
-       def __init__(self, gen = 500, elite = 0.5, scale = 0.05, screen_output = False):
+       def __init__(self, gen = 500, elite = 0.5, scale = 0.05, variant=1, screen_output = False):
 	      """
 	      Constructs a Cross-Entropy Algorithm (Python)
 
-	      USAGE: algorithm.py_cross_entropy(gen = 1, elite = 0.5, scale = 0.05, screen_output = False))
+	      USAGE: algorithm.py_cross_entropy(gen = 1, elite = 0.5, scale = 0.2, variant=1, screen_output = False))
 
 	      NOTE: A multivariate normal distribution is used.
 		    The first sample is centered around the population champion.
@@ -17,6 +17,9 @@ class py_cross_entropy(base):
 	      * gen: number of generations
 	      * elite: fraction of the population considered as elite (in (0,1])
 	      * scale: scaling factor for the estimated covariance matrix
+	      * variant: algoritmic variant to use (one of [1,2])
+		       1. 'Canonical' - Covariance Matrix is evaluated as sum (x_(i+1)-mu_i)^T (x_(i+1)-mu_i)
+		       2. 'Dario's' - Covariance Matrix is evaluated as   sum (x_(i+1)-mu_i^T)^T (x_(i+1)-mu_i^T)
 	      * screen_output: activates screen_output (output at each generation)
 	      """
 	      try:
@@ -29,12 +32,13 @@ class py_cross_entropy(base):
 	      self.__elite = elite
 	      self.__scale = scale
 	      self.__screen_output = screen_output
+	      self.__variant = variant
 	      np.random.seed()
 
        def evolve(self,pop):
 	       from numpy import matrix,array
 	       from numpy.random import multivariate_normal,random,normal
-	       from numpy.linalg import norm, cholesky
+	       from numpy.linalg import norm, cholesky, LinAlgError
 
 	       # Let's rename some variables
 	       prob = pop.problem
@@ -69,32 +73,39 @@ class py_cross_entropy(base):
 	       newpop = array([[0.0]*dim]*np)
 
 	       for gen in range(self.__gen):
-		       #1 - We extract the elite	       	       
+
+		       #1 - We extract the elite from this generation (NOTE: we use best_f to rank)	       	       
 		       elite = [matrix(pop[idx].best_x) for idx in pop.get_best_idx(n_elite)]
 
-		       #2 - We estimate the covariance matrix
-		       C = (elite[0]-mu).T*(elite[0]-mu)
-		       for i in range(1,n_elite):
-		       		C = C + (elite[i]-mu).T*(elite[i]-mu)
+		       #2 - We evaluate the Covariance Matrix 
+		       if self.__variant==1:
+		       		# as least square estimator of the elite (with mean mu)
+		       		C = (elite[0]-mu).T*(elite[0]-mu)
+		       		for i in range(1,n_elite):
+		       			C = C + (elite[i]-mu).T*(elite[i]-mu)
+	               if self.__variant==2:
+	               		# using Dario's method
+	       	       		mu = mu.T
+		       		C = (elite[0]-mu).T*(elite[0]-mu)
+		       		for i in range(1,n_elite):
+		       			C = C + (elite[i]-mu).T*(elite[i]-mu)
 		       C = C / n_elite
-		       C = C*self.__scale
-
-		       #3 - We calculate the new elite mean
+		       
+		       #3 - We compute the new elite mean
 		       mu = elite[0]
 		       for i in range(1,n_elite):
 		       		mu = mu + elite[i]
-		       mu = mu.T / n_elite	
-
-		       #self.__new_generation(gen,pop,mu,C,lb,ub,elite)
+		       mu = mu / n_elite	
 
 		       #4 - We generate the new sample  
-		       #variation = multivariate_normal([0]*dim,C,[np]) 
-		       U = cholesky(C)
-		       for i in range(np):
-		       		y = normal(0,1,[dim,1])
-		       		variation[i] = (U*y).T 
+		       variation = multivariate_normal([0]*dim,C,[np]) 
+		       #U = cholesky(C)		
+		       #for i in range(np):
+		       	#	y = normal(0,1,[dim,1])
+		       	#	variation[i] = (U*y).T 
 		       for i,d_mu in enumerate(variation):
-		       		newpop[i] = mu.T + d_mu
+		       		newpop[i] = mu + d_mu * self.__scale
+		       	
 
 		       #5 - We fix it within the bounds
 		       for row in range(newpop.shape[0]):
@@ -120,4 +131,4 @@ class py_cross_entropy(base):
        def get_name(self):
 	       return "Cross Entropy (Python)"
        def human_readable_extra(self):
-	       return "gen=" + str(self.__gen) + " elite fraction=" + str(self.__elite) + " covariance scaling=" + str(self.__scale)
+	       return "gen=" + str(self.__gen) + " elite fraction=" + str(self.__elite) + " covariance scaling=" + str(self.__scale) + " variant=" + str(self.__variant)

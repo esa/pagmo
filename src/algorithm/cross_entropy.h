@@ -44,16 +44,13 @@ namespace pagmo { namespace algorithm {
  * The cross-entropy (CE) method attributed to Reuven Rubinstein is a general Monte Carlo
  * approach to combinatorial and continuous multi-extremal optimization and importance sampling.
  *
- * It is similar to CMA-ES in many ways and the version here implemented is original with PaGMO developer
+ * It is similar to CMA-ES in many ways and the variant "Dario's" here implemented is original with PaGMO
  * and can be considered a 'study' on sampling methods
  *
- * NOTE1: when called on mixed-integer problems CE treats the integer part as fixed and optimizes
- * the continuous part.
- *
- * NOTE2: at each call of the evolve method a number of function evaluations equal
+ * NOTE1: at each call of the evolve method a number of function evaluations equal
  * to iter * pop.size() is performed.
  *
- * NOTE3: The Covariance Matrix is evaluated considering the average vector mu of the previous iteration
+ * NOTE2: The Covariance Matrix is evaluated considering the average vector mu of the previous iteration
  * (not the current one) importing one of the key ideas of CMA-ES into this algorithm
  *
  * @see http://ie.technion.ac.il/CE/files/Misc/tutorial.pdf
@@ -64,10 +61,12 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cross_entropy: public base
 {
 public:
-	cross_entropy(int gen = 500, double elite = 0.5, double scale = 0.05, bool screen_output = false);
+	cross_entropy(int gen = 500, double elite = 0.5, double scale = 0.2, int variant = 1, bool screen_output = false);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
+	void set_screen_output(const bool p);
+	bool get_screen_output() const;
 protected:
 	std::string human_readable_extra() const;
 private:
@@ -79,12 +78,14 @@ private:
 		ar & const_cast<std::size_t &>(m_gen);
 		ar & const_cast<double &>(m_elite);
 		ar & const_cast<double &>(m_scale);
-		ar & const_cast<bool &>(m_screen_output);
+		ar & const_cast<int &>(m_variant);
+		ar & m_screen_output;
 	}
 	const std::size_t m_gen;
 	const double m_elite;
 	const double m_scale;
-	const bool m_screen_output;
+	const int m_variant;
+	bool m_screen_output;
 };
 
 }} //namespaces

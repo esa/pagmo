@@ -161,7 +161,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Cross-Entropy Study
 	algorithm_wrapper<algorithm::cross_entropy>("cross_entropy","Cross-Entropy Study solver")
-		.def(init<optional<int, double, double, bool> >());
+		.def(init<optional<int, double, double, int, bool> >())
+		.add_property("screen_output",&algorithm::cross_entropy::get_screen_output,&algorithm::cross_entropy::set_screen_output);
 
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")

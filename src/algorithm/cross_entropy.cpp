@@ -50,15 +50,21 @@ namespace pagmo { namespace algorithm {
  * @param[in] gen number of generations
  * @param[in] elite the fraction of samples to be considered elite
  * @param[in] scale multiplication coefficient for the generated points
+ * @param[in] variant algoritmic variant to use (one of [1,2])
+		       1. 'Canonical' - Covariance Matrix is evaluated as sum (x_(i+1)-mu_i)^T (x_(i+1)-mu_i)
+		       2. 'Dario's' - Covariance Matrix is evaluated as   sum (x_(i+1)-mu_i^T)^T (x_(i+1)-mu_i^T)
  * @param[in] screen_output activates output to screen
  * @throws value_error if number of generations is < 1 or elite outside [0,1]
  * 
  * */
-cross_entropy::cross_entropy(int gen, double elite, double scale, bool screen_output):base(),
+cross_entropy::cross_entropy(int gen, double elite, double scale, int variant, bool screen_output):base(),
 			m_gen(boost::numeric_cast<std::size_t>(gen)),m_elite(elite),
-			m_scale(scale),m_screen_output(screen_output) {
+			m_scale(scale), m_variant(variant), m_screen_output(screen_output) {
 	if (gen < 1 || elite < 0 || elite > 1) {
 		pagmo_throw(value_error,"number of generation must be > 0 and elite must be in [0,1]");
+	}
+	if (variant<1 || variant>2){
+		pagmo_throw(value_error,"variant must be one of [1,2]");
 	}
 }
 /// Clone method.
@@ -134,8 +140,6 @@ void cross_entropy::evolve(population &pop) const
 	for (problem::base::size_type i=0;i<Dc;++i){
 		mu(i) = pop.champion().x[i];
 	}
-std::cout << "Starting Mean: " << mu.transpose() << std::endl;
-std::cout << "Elite dim: " << n_elite << std::endl<< std::endl;
 
 	// Main loop
 	for (std::size_t g = 0; g < m_gen; ++g) {
@@ -147,20 +151,33 @@ std::cout << "Elite dim: " << n_elite << std::endl<< std::endl;
 			}
 		}
 
-		// 2 - We evaluate the Covariance Matrix as least square estimator of the elite (with mean mu)
-		tmp = (elite[0] - mu);
-//std::cout << "elite: " << elite[0].transpose() << std::endl;
-//std::cout << "mean: " << mu.transpose() << std::endl;
-//std::cout << "tmp: " << tmp.transpose() << std::endl;
-		C = tmp*tmp.transpose();
-		for ( population::size_type i = 1; i<n_elite; ++i ) { 
-			tmp = (elite[i] - mu);
-			C += tmp*tmp.transpose();
-			std::cout << "C: " << std::endl << C << std::endl<< std::endl;
+		// 2 - We estimate the Covariance Matrix 
+		if (m_variant==1) { //as least square estimator of the elite (with mean mu)
+			tmp = (elite[0] - mu);
+			C = tmp*tmp.transpose();
+			for ( population::size_type i = 1; i<n_elite; ++i ) { 
+				tmp = (elite[i] - mu);
+				C += tmp*tmp.transpose();
+			}
+		}
+		else if (m_variant==2) { //Using Dario's approach
+			for (problem::base::size_type row = 0; row < Dc; ++row) {
+				for (problem::base::size_type col = 0; col < Dc; ++col) {
+					C(row,col) = elite[0](col) - mu(row);
+				}
+			}
+			C = C.transpose()*C;
+			for ( population::size_type i = 1; i<n_elite; ++i ) {
+				for (problem::base::size_type row = 0; row < Dc; ++row) {
+					for (problem::base::size_type col = 0; col < Dc; ++col) {
+						U(row,col) = elite[i](col) - mu(row);
+					}
+				}
+				C += U.transpose()*U;
+			}
 		}
 		C = C / n_elite;
-//std::cout << "C: " << std::endl << C << std::endl<< std::endl;
-
+		
 		// 3 - We compute the new elite mean
 		mu = elite[0];
 		for ( population::size_type i = 1; i<n_elite; ++i ) { 
@@ -168,28 +185,19 @@ std::cout << "Elite dim: " << n_elite << std::endl<< std::endl;
 		}
 		mu /= n_elite;
 	
-
-std::cout << "Elite Mean: " << mu.transpose() << std::endl;
-
 		// 4 - We sample a new generation
-		C *= m_scale;
 		llt.compute(C);
 		U = llt.matrixU();
-
-
-//std::cout << "Upper Triangular: " << U << std::endl  << std::endl ;
-//std::cout << "Identity: " << (U.transpose()*U - C).norm() << std::endl  << std::endl ;
 
 		for (population::size_type i = 0; i<NP; ++i ) {
 			// 4a - We generate a random vector normally distributed with zero mean and unit variance
 			for (problem::base::size_type j=0;j<Dc;++j){
 				tmp[j] = normally_distributed_number();
 			}
-			// 4b - We use Cholesky Triangular form to map the vector into our space
+			// 4b - We use Cholesky Triangular form to generate multivariate normaldistribution (note that our matrix is not positive definite)
 
 			variation =  U.transpose()*tmp;
-std::cout << "Variation: " << variation.norm() << std::endl;
-			newgen[i] = variation + mu;
+			newgen[i] = mu + variation * m_scale;
 
 
 			// 4c - If generated point is outside the bounds ... fixit!!
@@ -207,13 +215,13 @@ std::cout << "Variation: " << variation.norm() << std::endl;
 			}
 			population::size_type idx = pop.get_worst_idx();
 			pop.set_x(idx,dumb);
-//std::cout << "New Fitness: " << pop.get_individual(idx).cur_f[0] << std::endl;
 		}
 		
 		// 6 - We print on screen if required
 		if (m_screen_output) {
 			if (!(g%20))
-				std::cout << std::endl << std::left << std::setw(20) <<"Gen." << std::setw(20) << "Champion " << std::setw(20) << "Best " << std::setw(20) << "Worst" << std::setw(20) << "Variation" << std::endl; 
+				std::cout << std::endl << std::left << std::setw(20) <<"Gen." << std::setw(20) << "Champion " << 
+				        std::setw(20) << "Best " << std::setw(20) << "Worst" << std::setw(20) << "Variation" << std::endl; 
 				
 			std::cout << std::left << std::setprecision(14) << std::setw(20) << g << std::setw(20)<< pop.champion().f[0] << std::setw(20) << 
 					pop.get_individual(pop.get_best_idx()).best_f[0] << std::setw(20) << 
@@ -222,6 +230,22 @@ std::cout << "Variation: " << variation.norm() << std::endl;
 	}
 
 }
+
+/// Sets screen output
+/**
+ * Sets CES screen output at a default level
+ *
+ * @param[in] p true or false
+ */
+void cross_entropy::set_screen_output(const bool p) {m_screen_output = p;}
+
+/// Gets screen output
+/**
+ * Gets CES screen output level
+ *
+ * @param[out] boolean 
+ */
+bool cross_entropy::get_screen_output() const {return m_screen_output;}
 
 /// Algorithm name
 std::string cross_entropy::get_name() const
@@ -239,7 +263,8 @@ std::string cross_entropy::human_readable_extra() const
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
 	s << "elite fraction:" << m_elite << ' ';
-	s << "covariance scaling:" << m_scale << ' ';
+	s << "scaling:" << m_scale << ' ';
+	s << "variant:" << m_variant << ' ';
 	return s.str();
 }
 
