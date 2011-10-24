@@ -38,7 +38,7 @@ using namespace pagmo;
 using namespace kep_toolbox;
 
 /*
-In this example we instantiate a problen of the type gtoc_2 using the asteroid sequence which was used by the Turin team
+In this example we instantiate a problenm of the type gtoc_2 using the asteroid sequence which was used by the Turin team
 to win the 2nd edition of the global trajectory optimization competition (http://www.esa.int/gsp/ACT/mad/op/GTOC/index.htm), later we define
 a starting guess containing the epochs taken from the winning solution and we solve the problem.
 */
@@ -61,7 +61,7 @@ int main()
 
 	//Instantiate the algorithm
 	algorithm::snopt algo(1000,1E-9,1E-9);
-	algo.screen_output(true);
+	algo.set_screen_output(true);
 	
 	//Create the island  
 	island isl(algo,pop);

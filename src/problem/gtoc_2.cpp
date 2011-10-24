@@ -95,8 +95,8 @@ gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg, objective obj)
 		lb_v.push_back(5);
 		ub_v.push_back(3600);
 		// Waiting time.
-		lb_v.push_back(90);
-		ub_v.push_back(90);
+		lb_v.push_back(90.0);
+		ub_v.push_back(90.0000001);
 	}
 	// Final transfer time.
 	lb_v.push_back(5);
