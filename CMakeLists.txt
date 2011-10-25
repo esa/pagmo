@@ -67,7 +67,9 @@ OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: when active the keplerian toolbox and GTOP database problems are built.
 OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable the GTOP database problems (interplanetary transfers)." ON)
-
+IF(ENABLE_KEPLERIAN_TOOLBOX)
+        ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
+ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
 
@@ -137,7 +139,6 @@ ELSE(UNIX)
 	ENDIF(NOT WIN32)
 	SET(LIB_INSTALL_PATH .)
 	SET(PAGMO_INSTALL_PREFIX "${PAGMO_INSTALL_PREFIX} ${PAGMO_VERSION}")
-	ADD_DEFINITIONS(-DPAGMO_WIN32)
 	IF(MINGW)
 		# Linker and compiler flags needed for the support of multithread applications.
 		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} -mthreads")
@@ -147,10 +148,7 @@ ELSE(UNIX)
 	ENDIF(MINGW)
 ENDIF(UNIX)
 
-IF(ENABLE_KEPLERIAN_TOOLBOX)
-        ADD_DEFINITIONS(-DKEP_TOOLBOX_ENABLE_SERIALIZATION)
-        ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
-ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+
 
 # BLAS setup for PaGMO.
 SET(BLAS_IS_SETUP FALSE)
@@ -200,7 +198,7 @@ IF(ENABLE_GSL)
 	ENDIF(NOT GSL_GSL_LIBRARY OR NOT GSL_INCLUDE_DIR)
 	MESSAGE(STATUS "Running the GSL version checker.")
 	TRY_RUN(SUFFICIENT_GSL_VERSION_RUN SUFFICIENT_GSL_VERSION_COMPILE ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gsl_version.cpp
-		COMPILE_DEFINITIONS "${CMAKE_CCXX_FLAGS} -I\"${CMAKE_SOURCE_DIR}/external_headers\" -I\"${GSL_INCLUDE_DIR}\"" RUN_OUTPUT_VARIABLE SUFFICIENT_GSL_VERSION_OUTPUT)
+		COMPILE_DEFINITIONS "${CMAKE_CCXX_FLAGS} -I\"${Boost_INCLUDE_DIRS}\" -I\"${GSL_INCLUDE_DIR}\"" RUN_OUTPUT_VARIABLE SUFFICIENT_GSL_VERSION_OUTPUT)
 	MESSAGE(STATUS "GSL version checker output: ${SUFFICIENT_GSL_VERSION_OUTPUT}")
 	IF(NOT SUFFICIENT_GSL_VERSION_COMPILE)
 		MESSAGE(FATAL_ERROR "Error compiling the GSL version checker.")
@@ -275,49 +273,61 @@ IF(ENABLE_IPOPT)
 		MESSAGE(FATAL_ERROR "IPOPT support was requested, but ipopt library and headers could not be located. Please make sure that the linker can find the ipopt library and headers. The headers are assumed to be installed in a in coin/ directory")
 	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
 
-	#We set BLAS, LAPACK and -ldl
-	SETUP_BLAS_FOR_PAGMO()
+	IF(UNIX)
+		#We set BLAS, LAPACK and -ldl
+		SETUP_BLAS_FOR_PAGMO()
 
-	#Note that LAPACK needs Fortran support, which has already been activated in SETUP_BLAS_FOR_PAGMO().
-	FIND_PACKAGE(LAPACK REQUIRED)
-	MESSAGE(STATUS "lapack libraries: ${LAPACK_LIBRARIES}")
-	MESSAGE(STATUS "lapack linker flags: ${LAPACK_LINKER_FLAGS}")
-	FIND_LIBRARY(DL_LIBRARY NAMES dl)
-	MESSAGE(STATUS "dl library: ${DL_LIBRARY}")
-	IF(NOT DL_LIBRARY)
-		MESSAGE(FATAL_ERROR "IPOPT support was requested, but dl library could not be found.")
-	ENDIF(NOT DL_LIBRARY)
+		#Note that LAPACK needs Fortran support, which has already been activated in SETUP_BLAS_FOR_PAGMO().
+		FIND_PACKAGE(LAPACK REQUIRED)
+		MESSAGE(STATUS "lapack libraries: ${LAPACK_LIBRARIES}")
+		MESSAGE(STATUS "lapack linker flags: ${LAPACK_LINKER_FLAGS}")
+		FIND_LIBRARY(DL_LIBRARY NAMES dl)
+		MESSAGE(STATUS "dl library: ${DL_LIBRARY}")
+		IF(NOT DL_LIBRARY)
+			MESSAGE(FATAL_ERROR "IPOPT support was requested, but dl library could not be found.")
+		ENDIF(NOT DL_LIBRARY)
 
-	FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
-	IF(COINHSL_LIBRARY)
-		MESSAGE(STATUS "COINHSL Library Found ... linking it in")
-		MESSAGE(STATUS "coin hsl library: ${COINHSL_LIBRARY}")
-		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINHSL_LIBRARY})
-	ENDIF(COINHSL_LIBRARY)
+		FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
+		IF(COINHSL_LIBRARY)
+			MESSAGE(STATUS "COINHSL Library Found ... linking it in")
+			MESSAGE(STATUS "coin hsl library: ${COINHSL_LIBRARY}")
+			SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINHSL_LIBRARY})
+		ENDIF(COINHSL_LIBRARY)
 
-	FIND_LIBRARY(COINMETIS_LIBRARY NAMES coinmetis)
-	IF(COINMETIS_LIBRARY)
-		MESSAGE(STATUS "COINMETIS Library Found ... linking it in")
-		MESSAGE(STATUS "coin metis library: ${COINMETIS_LIBRARY}")
-		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMETIS_LIBRARY})
-	ENDIF(COINMETIS_LIBRARY)
+		FIND_LIBRARY(COINMETIS_LIBRARY NAMES coinmetis)
+		IF(COINMETIS_LIBRARY)
+			MESSAGE(STATUS "COINMETIS Library Found ... linking it in")
+			MESSAGE(STATUS "coin metis library: ${COINMETIS_LIBRARY}")
+			SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMETIS_LIBRARY})
+		ENDIF(COINMETIS_LIBRARY)
 
-	FIND_LIBRARY(COINMUMPS_LIBRARY NAMES coinmumps)
-	IF(COINMUMPS_LIBRARY)
-		MESSAGE(STATUS "COINMUMPS Library Found ... linking it in")
-		MESSAGE(STATUS "coin mumps library: ${COINMUMPS_LIBRARY}")
-		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMUMPS_LIBRARY})
-	ENDIF(COINMUMPS_LIBRARY)
+		FIND_LIBRARY(COINMUMPS_LIBRARY NAMES coinmumps)
+		IF(COINMUMPS_LIBRARY)
+			MESSAGE(STATUS "COINMUMPS Library Found ... linking it in")
+			MESSAGE(STATUS "coin mumps library: ${COINMUMPS_LIBRARY}")
+			SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMUMPS_LIBRARY})
+		ENDIF(COINMUMPS_LIBRARY)
 
-	IF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
-		MESSAGE(STATUS "Linear Solver for IPOPT could not be detected. I tried with HSL and MUMPS. You need to link manually the library if necessary")
-	ENDIF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
+		IF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
+			MESSAGE(STATUS "Linear Solver for IPOPT could not be detected. I tried with HSL and MUMPS. You need to link manually the library if necessary")
+		ENDIF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARIES} ${DL_LIBRARY})
+	
+	ELSE(UNIX)
+		IF(NOT WIN32)
+			MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
+		ENDIF(NOT WIN32)
+		#If the platform is windows we just point to the ipopt precompiled dll wihch contains everything
+		#The flag HAVE_CONFIG_H is activated as to include the config_ipopt.h header
+		ADD_DEFINITIONS(-DHAVE_CONFIG_H)
+		MESSAGE(STATUS "Windows is detected for ipopt linking you probably need to link manually to the libs")
+		FIND_LIBRARY(COIN_BLAS_LIBRARY NAMES coinblas)
+		FIND_LIBRARY(COIN_LAPACK_LIBRARY NAMES coinlapack)
+		FIND_LIBRARY(COIN_MUMPS_LIBRARY NAMES coinmumps)
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${COIN_MUMPS_LIBRARY} ${COIN_BLAS_LIBRARY} ${COIN_LAPACK_LIBRARY} -lgfortran -lpthread)
 
-	IF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
-		MESSAGE(FATAL_ERROR "IPOPT support was requested, but ipopt library and headers could not be located. Please make sure that the linker can find the ipopt library and headers. The headers are assumed to be installed in a in coin/ directory")
-	ENDIF(NOT IPOPT_LIBRARY OR NOT IPOPT_INCLUDE_DIR)
-
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARIES} ${DL_LIBRARY})
+	ENDIF(UNIX)
+			
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_IPOPT)
 	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} ${LAPACK_LINKER_FLAGS}")
@@ -325,14 +335,13 @@ IF(ENABLE_IPOPT)
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} ${LAPACK_LINKER_FLAGS}")
 ENDIF(ENABLE_IPOPT)
 
-IF(BUILD_PYGMO)
-	INCLUDE(PaGMOPythonSetup)
-ENDIF(BUILD_PYGMO)
+
 
 # Add the directory for the PaGMO library.
 ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
 
 IF(BUILD_PYGMO)
+	INCLUDE(PaGMOPythonSetup)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO")
 ENDIF(BUILD_PYGMO)
 

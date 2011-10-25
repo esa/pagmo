@@ -63,7 +63,7 @@
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL
 	#include "problem/spheres.h"
-	#include "problem/spheres_q.h"
+//	#include "problem/spheres_q.h"
 #endif
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX

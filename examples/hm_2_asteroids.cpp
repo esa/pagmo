@@ -30,7 +30,11 @@
 #include <string>
 
 #include "../src/keplerian_toolbox/keplerian_toolbox.h"
-#include"../src/algorithm/nlopt_sbplx.h"
+#ifdef PAGMO_ENABLE_NLOPT
+	#include"../src/algorithm/nlopt_sbplx.h"
+#else
+	#include"../src/algorithm/cs.h"
+#endif
 #include"../src/algorithm/sa_corana.h"
 #include"../src/algorithm/de.h"
 #include"../src/algorithm/cs.h"

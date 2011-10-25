@@ -49,9 +49,11 @@ def _generic_island_ctor(self,*args,**kwargs):
 		* *r_policy* -- migration replacement policy (defaults to 'fair replacement' policy)
 	
 	"""
-	from PyGMO.algorithm import _base as _base_algorithm, base as base_algorithm
-	from PyGMO.problem import _base as _base_problem, base as base_problem
-	from PyGMO.migration import best_s_policy, fair_r_policy, _base_s_policy, _base_r_policy
+	from PyGMO.algorithm._algorithm import _base as _base_algorithm
+	from PyGMO.algorithm import base as base_algorithm
+	from PyGMO.problem._problem import _base as _base_problem
+	from PyGMO.problem import base as base_problem
+	from PyGMO.migration._migration import best_s_policy, fair_r_policy, _base_s_policy, _base_r_policy
 	
 	if len(args) < 2 or len(args) > 3:
 		raise ValueError("Unnamed arguments list must have either 2 or three elements, but %d elements were found instead." % (len(args),))

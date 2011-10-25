@@ -29,7 +29,6 @@
 #include <iostream>
 
 #include "pso_generational.h"
-#include "../problems.h"
 #include "../problem/base_stochastic.h"
 
 
