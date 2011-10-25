@@ -535,6 +535,7 @@ void pso_generational::initialize_topology__von( std::vector< std::vector<int> >
  */
 void pso_generational::initialize_topology__randomly_varying( std::vector< std::vector<int> > &neighb ) const
 {
+	(void)neighb;
 	return;
 }
 

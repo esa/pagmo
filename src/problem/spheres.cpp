@@ -298,10 +298,9 @@ void spheres::set_nn_weights(const decision_vector &x) const {
 	switch (m_symm) {
 		case true: {//symmetric weigths activated
 			int w = 0;
-			for(int h = 0; h < m_ffnn.m_n_hidden; h++)
+			for(unsigned int h = 0; h < m_ffnn.m_n_hidden; h++)
 			{
 				int start_index = h * 5; // (nr_input/2+1)
-				int i = 0;
 				// bias, dx1, dy1, dz1
 				for(int j = 0; j < 4; j++)
 				{
@@ -318,7 +317,7 @@ void spheres::set_nn_weights(const decision_vector &x) const {
 				m_ffnn.m_weights[w] = x[start_index+4]; w++;
 			}
 			int ind = 0;
-			for(int ww = w; ww < m_ffnn.m_weights.size(); ww++)
+			for(unsigned int ww = w; ww < m_ffnn.m_weights.size(); ww++)
 			{
 				m_ffnn.m_weights[ww] = x[(nr_input/2+1)*m_ffnn.m_n_hidden+ind];
 				ind++;

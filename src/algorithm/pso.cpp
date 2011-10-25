@@ -521,6 +521,7 @@ void pso::initialize_topology__von( std::vector< std::vector<int> > &neighb ) co
  */
 void pso::initialize_topology__randomly_varying( std::vector< std::vector<int> > &neighb ) const
 {
+	(void)neighb;
 	return;
 }
 

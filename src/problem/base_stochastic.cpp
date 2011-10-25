@@ -27,7 +27,7 @@
 
 namespace pagmo { namespace problem {
 
-base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_seed(seed), m_drng(seed) {
+base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_seed(seed) {
 }
 
 void base_stochastic::change_seed() const {
