@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
-#include <nlopt.h>
+#include <nlopt.hpp>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -45,12 +45,12 @@ namespace pagmo { namespace algorithm {
  * improvement of the objective function under which the algorithm will stop iterating). The user must also specify whether the chosen NLopt algorithm supports
  * or not constrained optimisation.
  *
- * @param[in] algo NLopt algorithm (e.g., NLOPT_LN_COBYLA).
+ * @param[in] algo NLopt algorithm (e.g., nlopt::LN_COBYLA).
  * @param[in] constrained true if the algorithm supports nonlinear constraints, false otherwise.
  * @param[in] max_iter maximum number of iterations.
  * @param[in] tol optimality tolerance.
  */
-base_nlopt::base_nlopt(nlopt_algorithm algo, bool constrained, int max_iter, const double &tol):base(),
+base_nlopt::base_nlopt(nlopt::algorithm algo, bool constrained, int max_iter, const double &tol):base(),
 	m_algo(algo),m_constrained(constrained),m_max_iter(boost::numeric_cast<std::size_t>(max_iter)),m_tol(tol),m_last_status(0)
 {
 	if (tol <= 0) {
@@ -67,18 +67,16 @@ std::string base_nlopt::human_readable_extra() const
 }
 
 // Objective function wrapper.
-double base_nlopt::objfun_wrapper(int n, const double *x, double *, void *data)
+double base_nlopt::objfun_wrapper(const std::vector<double> &x, std::vector<double> &grad, void* data)
 {
+	pagmo_assert(grad.size()==0);
+	(void)grad;
 	nlopt_wrapper_data *d = (nlopt_wrapper_data *)data;
-	const problem::base::size_type cont_size = boost::numeric_cast<problem::base::size_type>(n);
-	pagmo_assert(cont_size == d->prob->get_dimension() - d->prob->get_i_dimension());
 	pagmo_assert(d->f->size() == 1);
-	// Copy over the decision vector in the data structure.
-	std::copy(x,x + cont_size,d->x->begin());
 	// Calculate the objective function.
-	d->prob->objfun(*d->f,*d->x);
+	d->prob->objfun(d->f,x);
 	// Return the fitness.
-	return (*d->f)[0];
+	return (d->f)[0];
 }
 
 // Gets the status value returned by the last algoritmic call
@@ -88,18 +86,16 @@ int base_nlopt::get_last_status() const
 }
 
 // Constraint function wrapper.
-double base_nlopt::constraints_wrapper(int n, const double *x, double *, void *datum)
+double base_nlopt::constraints_wrapper(const std::vector<double> &x, std::vector<double> &grad, void* data)
 {
-	nlopt_wrapper_data *d = (nlopt_wrapper_data *)datum;
-	const problem::base::size_type cont_size = boost::numeric_cast<problem::base::size_type>(n);
-	pagmo_assert(cont_size == d->prob->get_dimension() - d->prob->get_i_dimension());
+	pagmo_assert(grad.size()==0);
+	(void)grad;
+	nlopt_wrapper_data *d = (nlopt_wrapper_data *)data;
 	pagmo_assert(d->c->size() == d->prob->get_c_dimension());
-	// Copy over the decision vector in the data structure.
-	std::copy(x,x + cont_size,d->x->begin());
 	// Calculate the constraints.
-	d->prob->compute_constraints(*d->c,*d->x);
+	d->prob->compute_constraints(d->c,x);
 	// Return the constraints component.
-	return (*d->c)[d->c_comp];
+	return (d->c)[d->c_comp];
 }
 
 // Evolve method.
@@ -110,10 +106,8 @@ void base_nlopt::evolve(population &pop) const
 	if (problem.get_f_dimension() != 1) {
 		pagmo_throw(value_error,"this algorithm does not support multi-objective optimisation");
 	}
-	const problem::base::c_size_type c_size = problem.get_ic_dimension();
-	if (problem.get_c_dimension() != c_size) {
-		pagmo_throw(value_error,"this algorithm does not support equality constraints");
-	}
+	const problem::base::c_size_type c_size = problem.get_c_dimension();
+	const problem::base::c_size_type ec_size = problem.get_c_dimension() - problem.get_ic_dimension();
 	if (problem.get_c_dimension() && !m_constrained) {
 		pagmo_throw(value_error,"this algorithm does not support constraints");
 	}
@@ -125,50 +119,48 @@ void base_nlopt::evolve(population &pop) const
 	if (!pop.size()) {
 		return;
 	}
-	// Extract the best individual.
+	// Extract the best individual and set the inital point
 	const population::size_type best_ind_idx = pop.get_best_idx();
 	const population::individual_type &best_ind = pop.get_individual(best_ind_idx);
-	// Structure to pass data to the objective function.
+	decision_vector x0(best_ind.cur_x);
+	
+	// Structure to pass data to the objective function wrapper.
 	nlopt_wrapper_data data_objfun;
 	decision_vector objfun_x(problem.get_dimension());
-	// Copy over the integer part.
-	std::copy(best_ind.cur_x.begin() + cont_size, best_ind.cur_x.end(), objfun_x.begin() + cont_size);
-	fitness_vector objfun_f(1);
+	fitness_vector objfun_f(1),f(1);
 	data_objfun.prob = &problem;
-	data_objfun.x = &objfun_x;
-	data_objfun.f = &objfun_f;
-	// Structure to pass data to the constraint functions.
+	data_objfun.x = objfun_x;
+	data_objfun.f = objfun_f;
+	
+	// Structure to pass data to the constraint function wrapper.
 	std::vector<nlopt_wrapper_data> data_constrfun(boost::numeric_cast<std::vector<nlopt_wrapper_data>::size_type>(c_size));
 	decision_vector constrfun_x(problem.get_dimension());
 	constraint_vector constrfun_c(c_size);
 	for (problem::base::c_size_type i = 0; i < c_size; ++i) {
 		data_constrfun[i].prob = &problem;
-		data_constrfun[i].x = &constrfun_x;
-		data_constrfun[i].c = &constrfun_c;
+		data_constrfun[i].x = constrfun_x;
+		data_constrfun[i].c = constrfun_c;
 		data_constrfun[i].c_comp = i;
 	}
+
+	// Empty vector for the gradients
+	std::vector<double> grad();
+	
 	// Main NLopt call.
-	double retval;
-	// This is a dummy variable not used.
-	std::vector<double> xtol_abs(boost::numeric_cast<std::vector<double>::size_type>(cont_size));
-	decision_vector x(best_ind.cur_x);
-	m_last_status = nlopt_minimize_constrained(
-		m_algo,
-		boost::numeric_cast<int>(cont_size),
-		objfun_wrapper,
-		(void *)&data_objfun,
-		boost::numeric_cast<int>(c_size),
-		constraints_wrapper,
-		(void *)&data_constrfun[0],
-		sizeof(nlopt_wrapper_data),
-		&problem.get_lb()[0],
-		&problem.get_ub()[0],
-		&x[0],
-		&retval,
-		-HUGE_VAL,
-		m_tol,0,0,&xtol_abs[0],boost::numeric_cast<int>(m_max_iter),0
-	);
-	pop.set_x(best_ind_idx,x);
+	nlopt::opt opt(m_algo, problem.get_dimension());
+	opt.set_lower_bounds(problem.get_lb());
+	opt.set_upper_bounds(problem.get_ub());
+	opt.set_min_objective(objfun_wrapper, &data_objfun);
+	for (problem::base::c_size_type i =0; i<ec_size; ++i) {
+		opt.add_equality_constraint(constraints_wrapper, &data_constrfun[i], 1e-8);
+	}
+	for (problem::base::c_size_type i =ec_size; i<c_size; ++i) {
+		opt.add_inequality_constraint(constraints_wrapper, &data_constrfun[i], 1e-8);
+	}
+
+	nlopt::result result;
+	result = opt.optimize(x0, f[0]);
+	pop.set_x(best_ind_idx,x0);
 }
 
 }}

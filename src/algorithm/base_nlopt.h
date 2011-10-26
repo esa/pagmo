@@ -26,7 +26,7 @@
 #define PAGMO_ALGORITHM_BASE_NLOPT_H
 
 #include <cstddef>
-#include <nlopt.h>
+#include <nlopt.hpp>
 #include <string>
 
 #include "../config.h"
@@ -58,34 +58,34 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE base_nlopt: public base
 {
 	protected:
-		base_nlopt(nlopt_algorithm, bool, int, const double &);
+		base_nlopt(nlopt::algorithm, bool, int, const double &);
 		void evolve(population &) const;
 		std::string human_readable_extra() const;
 	private:
 		struct nlopt_wrapper_data
 		{
 			problem::base const		*prob;
-			decision_vector			*x;
-			fitness_vector			*f;
-			constraint_vector		*c;
+			decision_vector			x;
+			fitness_vector			f;
+			constraint_vector		c;
 			problem::base::c_size_type	c_comp;
 		};
 		int get_last_status() const;
-		static double objfun_wrapper(int, const double *, double *, void *);
-		static double constraints_wrapper(int, const double *, double *, void *);
+		static double objfun_wrapper(const std::vector<double> &, std::vector<double> &, void*);
+		static double constraints_wrapper(const std::vector<double> &, std::vector<double> &, void*);
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<nlopt_algorithm &>(m_algo);
+			ar & const_cast<nlopt::algorithm &>(m_algo);
 			ar & const_cast<bool &>(m_constrained);
 			ar & const_cast<std::size_t &>(m_max_iter);
 			ar & const_cast<double &>(m_tol);
 			ar & m_last_status;
 		}  
-		const nlopt_algorithm	m_algo;
+		const nlopt::algorithm	m_algo;
 		const bool		m_constrained;
 		const std::size_t	m_max_iter;
 		const double		m_tol;
