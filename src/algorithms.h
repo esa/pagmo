@@ -75,6 +75,8 @@
 	#include "algorithm/nlopt_bobyqa.h"
 	#include "algorithm/nlopt_cobyla.h"
 	#include "algorithm/nlopt_sbplx.h"
+	#include "algorithm/nlopt_slsqp.h"
+	#include "algorithm/nlopt_mma.h"
 #endif
 
 #endif

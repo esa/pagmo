@@ -33,7 +33,7 @@ namespace pagmo { namespace algorithm {
 /**
  * @see pagmo::algorithm::base_nlopt::base_nlopt()
  */
-nlopt_cobyla::nlopt_cobyla(int max_iter, const double &tol):base_nlopt(nlopt::LN_COBYLA,true,max_iter,tol) {}
+nlopt_cobyla::nlopt_cobyla(int max_iter, const double &ftol, const double &xtol):base_nlopt(nlopt::LN_COBYLA,true,false,max_iter,ftol,xtol) {}
 
 base_ptr nlopt_cobyla::clone() const
 {

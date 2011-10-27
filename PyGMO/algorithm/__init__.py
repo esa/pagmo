@@ -363,15 +363,17 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a BOBYQA algorithm (Bound Optimization BY Quadratic Approximation) (NLOPT)
 	
-		USAGE: algorithm.nlopt_bobyqa(max_iter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_bobyqa(max_iter = 100, ftol = 1e-6, xtol = 1e-6);
 	
-		* max_iter: maximum number of iterations
-		* tol: tolerance to achieve to stop the algorithm
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
 		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-6))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_bobyqa._orig_init = nlopt_bobyqa.__init__
 	nlopt_bobyqa.__init__ = _nlopt_bobyqa_ctor
@@ -380,15 +382,17 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of subspaces) (NLOPT)
 	
-		USAGE: algorithm.nlopt_sbplx(max_iter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_sbplx(max_iter = 100, ftol = 1e-6, xtol = 1e-6);
 	
-		* max_iter: maximum number of iterations
-		* tol: tolerance to achieve to stop the algorithm
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
 		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-6))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_sbplx._orig_init = nlopt_sbplx.__init__
 	nlopt_sbplx.__init__ = _nlopt_sbplx_ctor
@@ -397,18 +401,58 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm (NLOPT)
 	
-		USAGE: algorithm.nlopt_cobyla(max_iter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_cobyla(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
 	
-		* max_iter: maximum number of iterations
-		* tol: tolerance to achieve to stop the algorithm
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
 		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-6))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_cobyla._orig_init = nlopt_cobyla.__init__
 	nlopt_cobyla.__init__ = _nlopt_cobyla_ctor
+
+	def _nlopt_mma_ctor(self,**kwargs):
+		"""
+		Constructs a Method of Moving Asymptotes (MMA) algorithm (NLOPT)
+
+		USAGE: algorithm.nlopt_mma(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
+
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_mma._orig_init = nlopt_mma.__init__
+	nlopt_mma.__init__ = _nlopt_mma_ctor
+
+	def _nlopt_slsqp_ctor(self,**kwargs):
+		"""
+		Constructs a Sequential Least SQuares Programming algorithm (SLSQP) algorithm (NLOPT)
+
+		USAGE: algorithm.nlopt_slsqp(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
+
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_slsqp._orig_init = nlopt_slsqp.__init__
+	nlopt_slsqp.__init__ = _nlopt_slsqp_ctor
 
 #GSL algorithms (only if PyGMO has been compiled with gsl option activated)
 if "gsl" in str(_get_algorithm_list()):

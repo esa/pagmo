@@ -33,7 +33,7 @@ namespace pagmo { namespace algorithm {
 /**
  * @see pagmo::algorithm::base_nlopt::base_nlopt()
  */
-nlopt_bobyqa::nlopt_bobyqa(int max_iter, const double &tol):base_nlopt(nlopt::LN_BOBYQA,false,max_iter,tol) {}
+nlopt_bobyqa::nlopt_bobyqa(int max_iter, const double &ftol, const double &xtol):base_nlopt(nlopt::LN_BOBYQA,false,false,max_iter,ftol,xtol) {}
 
 base_ptr nlopt_bobyqa::clone() const
 {

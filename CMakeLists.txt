@@ -223,10 +223,10 @@ ENDIF(ENABLE_GSL)
 
 # If NLopt support is requested, look for the library.
 IF(ENABLE_NLOPT)
-	FIND_LIBRARY(NLOPT_LIBRARY NAMES nlopt_cxx)
-	FIND_PATH(NLOPT_INCLUDE_DIR NAMES nlopt.h)
+	FIND_LIBRARY(NLOPT_LIBRARY NAMES nlopt)
+	FIND_PATH(NLOPT_INCLUDE_DIR NAMES nlopt.hpp)
 	IF(NOT NLOPT_LIBRARY OR NOT NLOPT_INCLUDE_DIR)
-		MESSAGE(FATAL_ERROR "NLopt support was requested, but the library could not be located. Please make sure that NLopt was compiled with C++ support (the library will be called 'nlopt_cxx')")
+		MESSAGE(FATAL_ERROR "NLopt support was requested, but the library could not be located. The library should be called 'libnlopt')")
 	ENDIF(NOT NLOPT_LIBRARY OR NOT NLOPT_INCLUDE_DIR)
 	MESSAGE(STATUS "NLopt library: ${NLOPT_LIBRARY}")
 	MESSAGE(STATUS "NLopt include dir: ${NLOPT_INCLUDE_DIR}")

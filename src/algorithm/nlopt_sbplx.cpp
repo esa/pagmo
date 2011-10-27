@@ -33,7 +33,7 @@ namespace pagmo { namespace algorithm {
 /**
  * @see pagmo::algorithm::base_nlopt::base_nlopt()
  */
-nlopt_sbplx::nlopt_sbplx(int max_iter, const double &tol):base_nlopt(nlopt::LN_SBPLX,false,max_iter,tol) {}
+nlopt_sbplx::nlopt_sbplx(int max_iter, const double &ftol, const double &xtol):base_nlopt(nlopt::LN_SBPLX,false,false,max_iter,ftol,xtol) {}
 
 base_ptr nlopt_sbplx::clone() const
 {

@@ -53,12 +53,12 @@ namespace pagmo { namespace algorithm {
  *
  * @see http://ab-initio.mit.edu/wiki/index.php/NLopt
  *
- * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Francesco Biscani (bluescarni@gmail.com), Dario Izzo(dario.izzo@googlemail.com)
  */
 class __PAGMO_VISIBLE base_nlopt: public base
 {
 	protected:
-		base_nlopt(nlopt::algorithm, bool, int, const double &);
+		base_nlopt(nlopt::algorithm, bool, bool, int, const double &, const double &);
 		void evolve(population &) const;
 		std::string human_readable_extra() const;
 	private:
@@ -66,6 +66,7 @@ class __PAGMO_VISIBLE base_nlopt: public base
 		{
 			problem::base const		*prob;
 			decision_vector			x;
+			decision_vector			dx;
 			fitness_vector			f;
 			constraint_vector		c;
 			problem::base::c_size_type	c_comp;
@@ -81,15 +82,17 @@ class __PAGMO_VISIBLE base_nlopt: public base
 			ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<nlopt::algorithm &>(m_algo);
 			ar & const_cast<bool &>(m_constrained);
+			ar & const_cast<bool &>(m_only_ineq);
 			ar & const_cast<std::size_t &>(m_max_iter);
-			ar & const_cast<double &>(m_tol);
-			ar & m_last_status;
-		}  
+			ar & const_cast<double &>(m_ftol);
+			ar & const_cast<double &>(m_xtol);
+		}
 		const nlopt::algorithm	m_algo;
 		const bool		m_constrained;
+		const bool		m_only_ineq;
 		const std::size_t	m_max_iter;
-		const double		m_tol;
-		mutable int		m_last_status;
+		const double		m_ftol;
+		const double		m_xtol;
 };
 
 }}

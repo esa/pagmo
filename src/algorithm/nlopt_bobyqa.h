@@ -42,7 +42,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE nlopt_bobyqa: public base_nlopt
 {
 	public:
-		nlopt_bobyqa(int = 100, const double & = 1E-6);
+		nlopt_bobyqa(int = 100, const double & = 1E-6, const double & = 1E-6);
 		base_ptr clone() const;
 		std::string get_name() const;
 	private:
