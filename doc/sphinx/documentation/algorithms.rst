@@ -56,12 +56,14 @@ L-BFGS-B                           :class:`PyGMO.algorithm.scipy_l_bfgs_b`      
 BFGS                               :class:`PyGMO.algorithm.gsl_bfgs2`             C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
 BFGS 2                             :class:`PyGMO.algorithm.gsl_bfgs`              C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
 Sequential Least SQuares Prog.     :class:`PyGMO.algorithm.scipy_slsqp`           C-C-S      SciPy required. Minimization assumed
+Sequential Least SQuares Prog.     :class:`PyGMO.algorithm.nlopt_slsqp`           C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
 Truncated Newton Method            :class:`PyGMO.algorithm.scipy_tnc`             C-U-S      SciPy required. Minimization assumed
 Conjugate Gradient (fr)            :class:`PyGMO.algorithm.gsl_fr`                C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
 Conjugate Gradient (pr)            :class:`PyGMO.algorithm.gsl_pr`                C-U-S      Requires PyGMO to be compiled with GSL option. Minimization assumed
 COBYLA                             :class:`PyGMO.algorithm.scipy_cobyla`          C-C-S      SciPy required. Minimization assumed
 COBYLA                             :class:`PyGMO.algorithm.nlopt_cobyla`          C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
 BOBYQA                             :class:`PyGMO.algorithm.nlopt_bobyqa`          C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
+Method of Moving Asymptotes        :class:`PyGMO.algorithm.nlopt_mma`             C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
 SNOPT                              :class:`PyGMO.algorithm.snopt`                 C-C-S      Requires PyGMO to be compiled with snopt option. Minimization assumed
 IPOPT                              :class:`PyGMO.algorithm.ipopt`                 C-C-S      Requires PyGMO to be compiled with ipopt option. Minimization assumed
 ================================== ========================================= =============== =====================================================================
@@ -205,6 +207,14 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.nlopt_sbplx
 
    .. automethod:: PyGMO.algorithm.nlopt_sbplx.__init__
+
+.. autoclass:: PyGMO.algorithm.nlopt_mma
+
+   .. automethod:: PyGMO.algorithm.nlopt_mma.__init__
+
+.. autoclass:: PyGMO.algorithm.nlopt_slsqp
+
+   .. automethod:: PyGMO.algorithm.nlopt_slsqp.__init__
 
 .. autoclass:: PyGMO.algorithm.gsl_nm2rand
 

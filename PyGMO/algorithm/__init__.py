@@ -85,9 +85,12 @@ def _pso_ctor(self,**kwargs):
 		1. gbest neighbourhood topology (fully connected)
 		2. lbest neighbourhood topology (ring)
 		3. Von-Neumann neighbourhood topology (square lattice)
-		4. Randomly-varying neighbourhood topology (not yet implemented)
-	* neighb_param: in the lbest topology defines how many links 
-		are there in the ring (half to the right and half to the left)
+		4. Randomly-varying neighbourhood topology
+	* neighb_param: if the lbest topology is selected, it represents each particle's indegree
+		(also outdegree) in the swarm topology. Particles have neighbours up
+		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
+		The minimum outdegree is 1 (the particle always connects back to itself).
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -130,9 +133,12 @@ def _pso_gen_ctor(self,**kwargs):
 		1. gbest neighbourhood topology (fully connected)
 		2. lbest neighbourhood topology (ring)
 		3. Von-Neumann neighbourhood topology (square lattice)
-		4. Randomly-varying neighbourhood topology (not yet implemented)
-	* neighb_param: in the lbest topology defines how many links 
-		are there in the ring (half to the right and half to the left)
+		4. Randomly-varying neighbourhood topology
+	* neighb_param: if the lbest topology is selected, it represents each particle's indegree
+		(also outdegree) in the swarm topology. Particles have neighbours up
+		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
+		The minimum outdegree is 1 (the particle always connects back to itself).
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]

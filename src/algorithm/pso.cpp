@@ -45,7 +45,11 @@ namespace pagmo { namespace algorithm {
  * @param[in] vcoeff velocity coefficient (determining the maximum allowed particle velocity)
  * @param[in] variant algorithm variant to use
  * @param[in] neighb_type swarm topology to use
- * @param[in] neighb_param parameterization of the swarm topology (value semantics dependant on the value set in neighb_type)
+ * @param[in] neighb_param if the lbest topology is selected (neighb_type=2), it represents each particle's indegree
+ * (also outdegree) in the swarm topology. Particles have neighbours up
+ * to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+ * is selected (neighb_type=4), neighb_param represents each particle's maximum outdegree in the swarm topology.
+ * The minimum outdegree is 1 (the particle always connects back to itself).
  * @throws value_error if m_omega is not in the [0,1] interval, eta1, eta2 are not in the [0,1] interval,
  * vcoeff is not in ]0,1], variant is not one of 1 .. 6, neighb_type is not one of 1 .. 4
  */
@@ -147,9 +151,9 @@ void pso::evolve(population &pop) const
 	
 	std::vector< std::vector<int> > neighb(swarm_size);	// swarm topology (iterators over indexes of each particle's neighbors in the swarm)
 	
-	decision_vector                 best_neighb(Dc);	// search space position of particles' best neighbor
-	fitness_vector                  best_fit;			// fitness at the best found search space position (tracked only when using topologies 1 or 4)
-	bool							best_fit_improved;	// flag indicating whether the best solution's fitness improved (tracked only when using topologies 1 or 4)
+	decision_vector best_neighb(Dc);			// search space position of particles' best neighbor
+	fitness_vector best_fit;				// fitness at the best found search space position (tracked only when using topologies 1 or 4)
+	bool best_fit_improved;					// flag indicating whether the best solution's fitness improved (tracked only when using topologies 1 or 4)
 	
 	
 	decision_vector minv(Dc), maxv(Dc);			// Maximum and minimum velocity allowed
@@ -187,8 +191,8 @@ void pso::evolve(population &pop) const
 		case 1:  initialize_topology__gbest( pop, best_neighb, best_fit, neighb ); break;
 		case 3:  initialize_topology__von( neighb ); break;
 		case 4:  initialize_topology__adaptive_random( neighb );
-		         best_fit = pop.champion().f;	// need to track improvements in best found fitness, to know when to rewire
-		         break;
+			best_fit = pop.champion().f;	// need to track improvements in best found fitness, to know when to rewire
+			break;
 		case 2:
 		default: initialize_topology__lbest( neighb );
 	}

@@ -46,10 +46,15 @@ namespace pagmo { namespace algorithm {
  * @param[in] vcoeff velocity coefficient (determining the maximum allowed particle velocity)
  * @param[in] variant algorithm variant to use
  * @param[in] neighb_type swarm topology to use
- * @param[in] neighb_param parameterization of the swarm topology (value semantics dependant on the value set in neighb_type)
+ * @param[in] neighb_param if the lbest topology is selected (neighb_type=2), it represents each particle's indegree
+ * (also outdegree) in the swarm topology. Particles have neighbours up
+ * to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+ * is selected (neighb_type=4), neighb_param represents each particle's maximum outdegree in the swarm topology.
+ * The minimum outdegree is 1 (the particle always connects back to itself).
  * @throws value_error if m_omega is not in the [0,1] interval, eta1, eta2 are not in the [0,1] interval,
  * vcoeff is not in ]0,1], variant is not one of 1 .. 6, neighb_type is not one of 1 .. 4
  */
+
 pso_generational::pso_generational(int gen, double omega, double eta1, double eta2, double vcoeff, int variant, int neighb_type, int neighb_param):base(),m_gen(gen),m_omega(omega),m_eta1(eta1),m_eta2(eta2),m_vcoeff(vcoeff),m_variant(variant),m_neighb_type(neighb_type),m_neighb_param(neighb_param) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -137,8 +142,10 @@ void pso_generational::evolve(population &pop) const
 
 
 	std::vector< std::vector<int> > neighb(swarm_size);	// swarm topology (iterators over indexes of each particle's neighbors in the swarm)
-	decision_vector                 best_neighb(Dc);	// search space position of particles' best neighbor
-	fitness_vector                  best_neighb_fit;	// fitness at the search space position best_neighb
+
+	decision_vector best_neighb(Dc);			// search space position of particles' best neighbor
+	fitness_vector best_fit;				// fitness at the best found search space position (tracked only when using topologies 1 or 4)
+	bool best_fit_improved;					// flag indicating whether the best solution's fitness improved (tracked only when using topologies 1 or 4)
 
 
 	decision_vector minv(Dc), maxv(Dc);			// Maximum and minumum velocity allowed
@@ -173,9 +180,11 @@ void pso_generational::evolve(population &pop) const
 
 	// Initialize the Swarm's topology
 	switch( m_neighb_type ){
-		case 1:  initialize_topology__gbest( pop, best_neighb, best_neighb_fit, neighb ); break;
+		case 1:  initialize_topology__gbest( pop, best_neighb, best_fit, neighb ); break;
 		case 3:  initialize_topology__von( neighb ); break;
-		case 4:  initialize_topology__randomly_varying( neighb ); break;
+		case 4:  initialize_topology__adaptive_random( neighb );
+			best_fit = pop.champion().f;	// need to track improvements in best found fitness, to know when to rewire
+			break;
 		case 2:
 		default: initialize_topology__lbest( neighb );
 	}
@@ -192,6 +201,8 @@ void pso_generational::evolve(population &pop) const
 	 */
 	// For each generation
 	for( int g = 0; g < m_gen; ++g ){
+
+		best_fit_improved = false;
 
 		// Update Velocity
 		for( p = 0; p < swarm_size; p++ ){
@@ -343,9 +354,10 @@ void pso_generational::evolve(population &pop) const
 
 					// update the best position observed so far by any particle in the swarm
 					// (only performed if swarm topology is gbest)
-					if( m_neighb_type == 1 && prob.compare_fitness( fit[p], best_neighb_fit ) ){
-						best_neighb     = X[p];
-						best_neighb_fit = fit[p];
+					if( ( m_neighb_type == 1 || m_neighb_type == 4 ) && prob.compare_fitness( fit[p], best_fit ) ){
+						best_neighb = X[p];
+						best_fit    = fit[p];
+						best_fit_improved = true;
 					}
 				}
 				///Set as current the old best, re-evaluated with new seed.
@@ -356,7 +368,10 @@ void pso_generational::evolve(population &pop) const
 				pop.set_v(p,V[p]);
 
 			}
-		  
+
+		// reset swarm topology if no improvement was observed in the best found fitness value
+		if( m_neighb_type == 4 && !best_fit_improved )
+			initialize_topology__adaptive_random( neighb );
 		}
 		catch (const std::bad_cast& e)
 		{
@@ -388,12 +403,9 @@ decision_vector pso_generational::particle__get_best_neighbor( population::size_
 			// ERROR: execution should not reach this point, as the global best position is not tracked using the neighb vector
 			pagmo_throw(value_error,"particle__get_best_neighbor() invoked while using a gbest swarm topology");
 			break;
-/*		case 4: // { randomly varying }
-			// TO DO: - pick the best particle out of neighb_param randomly chosen in the swarm
-			//        - side effect: p_neighb is rewritten and is available outside (FIPS will use it)
-			break;
- */		case 2: // { lbest }
+		case 2: // { lbest }
 		case 3: // { von }
+		case 4: // { adaptive random }
 		default:
 			// iterate over indexes of the particle's neighbours, and identify the best
 			bnidx = neighb[pidx][0];
@@ -412,7 +424,7 @@ decision_vector pso_generational::particle__get_best_neighbor( population::size_
  *  topology that is known as gbest. The source of social influence on each
  *  particle was the best performing individual in the entire population. This
  *  is equivalent to a sociogram or social network where every individual is
- *  connected to every other one." \n
+ *  connected to every other one.'' \n
  *  ''The gbest topology (i.e., the biggest neighborhood possible) has often
  *  been shown to converge on optima more quickly than lbest, but gbest is also
  *  more susceptible to the attraction of local optima since the population
@@ -448,9 +460,12 @@ void pso_generational::initialize_topology__gbest( const population &pop, decisi
 /**
  *  @brief Defines the Swarm topology as a ring, where particles are influenced by their immediate neighbors to either side
  *
- *  "The L-best-k topology consists of n nodes arranged in a ring, in which
- *  node i is connected to each node in {(i+j) mod n : j = +-1,+-2, . . . ,+-k}." \n
+ *  ''The L-best-k topology consists of n nodes arranged in a ring, in which
+ *  node i is connected to each node in {(i+j) mod n : j = +-1,+-2, . . . ,+-k}.'' \n
  *  [Mohais et al., 2005] http://dx.doi.org/10.1007/11589990_80
+ *
+ *  neighb_param represents each particle's indegree (also outdegree) in the swarm topology.
+ *	Particles have neighbours up to a radius of k = neighb_param / 2 in the ring.
  *
  *  @param[out] neighb definition of the swarm's topology
  */
@@ -476,7 +491,7 @@ void pso_generational::initialize_topology__lbest( std::vector< std::vector<int>
 /*! @brief Von Neumann neighborhood
  *  (increments on particles' lattice coordinates that produce the coordinates of their neighbors)
  *
- *  The von Neumann neighbourhood of a point is the points at a Hamming distance of 1.
+ *  The von Neumann neighbourhood of a point includes all the points at a Hamming distance of 1.
  *
  *  - http://en.wikipedia.org/wiki/Von_Neumann_neighborhood
  *  - http://mathworld.wolfram.com/vonNeumannNeighborhood.html
@@ -529,16 +544,51 @@ void pso_generational::initialize_topology__von( std::vector< std::vector<int> >
 
 
 /**
- *  @brief Arranges particles in a random graph of fixed degree, that changes over time
+ *  @brief Arranges particles in a random graph having a parameterized maximum outdegree; the graph changes adaptively over time
+ *
+ *	''At the very beginning, and after each unsuccessful iteration (no
+ *	improvement of the best known fitness value), the graph of the information
+ *	links is modified: each particle informs at random K particles (the same
+ *	particle may be chosen several times), and informs itself. The parameter K
+ *	is usually set to 3. It means that each particle informs at less one
+ *	particle (itself), and at most K+1 particles (including itself). It also
+ *	means that each particle can be informed by any number of particles between
+ *	1 and S. However, the distribution of the possible number of "informants"
+ *	is not uniform. On average, a particle is often informed by about K others,
+ *	but it may be informed by a much larger number of particles with a small
+ *	probability'' \n
+ *  [Maurice Clerc, 2011] Standard Particle Swarm Optimisation, From 2006 to 2011 \n
+ *	http://clerc.maurice.free.fr/pso/SPSO_descriptions.pdf
+ *
+ *  neighb_param represents each particle's maximum outdegree in the swarm topology.
+ *	The minimum outdegree is 1 (the particle always connects back to itself).
  *
  *  @param[out] neighb definition of the swarm's topology
  */
-void pso_generational::initialize_topology__randomly_varying( std::vector< std::vector<int> > &neighb ) const
+void pso_generational::initialize_topology__adaptive_random( std::vector< std::vector<int> > &neighb ) const
 {
-	(void)neighb;
-	return;
-}
+	int swarm_size = neighb.size();
+	int pidx;		// for iterating over particles
+	int nidx, j;	// for iterating over particles being connected to
 
+	// clear previously defined topology
+	for( pidx = 0; pidx < swarm_size; pidx++ )
+		neighb[pidx].clear();
+
+	// define new topology
+	for( pidx = 0; pidx < swarm_size; pidx++ ){
+
+		// the particle always connects back to itself, thus guaranteeing a minimum indegree of 1
+		neighb[pidx].push_back( pidx );
+
+		for( j = 1; j < m_neighb_param; j++ ){
+			nidx = m_drng() * swarm_size;
+			neighb[nidx].push_back( pidx );
+			// No check performed to see whether pidx is already in neighb[nidx],
+			// leading to a performance penalty in particle__get_best_neighbor() when it occurs.
+		}
+	}
+}
 
 
 /// Algorithm name
