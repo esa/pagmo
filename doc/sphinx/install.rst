@@ -69,6 +69,7 @@ CMake 2.8.6, Python 2.7, Boost 1.47.0 and MinGW with Msys 1.0.11 (all installed 
  c) the boost serialization library
  d) the boost python library
  e) the boost thread library
+* You need to place the minGW ibraries libgfortran-3.dll, libquadmath-0.dll and pthreadGC2 in the core directory.
 
 * If the option GSL is activated you need to provide the GSL libraries, in particular 
 	a) libgslcblas.a b) libgsl.a c) the include dir of gsl. We have compiled gsl-1.15 using msys 1.0.11 configure make install
@@ -81,3 +82,8 @@ CMake 2.8.6, Python 2.7, Boost 1.47.0 and MinGW with Msys 1.0.11 (all installed 
   a) libcoinblas.a b) libcoinlapack.a c) libcoinmumps.a d) libipopt.a e) The include dir of ipopt.
   We have compiled Ipopt 3.10.1 using msys 1.0.11 and the usual config make install procedure ..... 
   (MUMPS is used as linear solver) and later linked to the static libraries created in lib/.
+  
+* If the option NLOPT is activated you need to tell CMake explicitly where to find NLOPT and in particular
+  a) nlopt-0.dll b) nlopt.h and nlopt.hhp. We downloaded the already available Windows binaries for NLOPT 2.2.3
+  
+  

@@ -222,74 +222,74 @@ BOOST_PYTHON_MODULE(_problem) {
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
-	//problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
-	//	.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
-	//	.def("get_delta_v",&problem::sample_return::get_delta_v);
+	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
+		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
+		.def("get_delta_v",&problem::sample_return::get_delta_v);
 
 	// Earth-planet problem.
 	//problem_wrapper<problem::earth_planet>("earth_planet","Earth-planet low-thrust problem.")
-	//	.def(init< optional<int, std::string, const double &> >());
+		//.def(init< optional<int, std::string, const double &> >());
 
 	// GTOC5 launch.
 	//problem_wrapper<problem::gtoc5_launch>("gtoc5_launch","GTOC5 launch phase.")
-	//	.def(init< optional<int, int, problem::gtoc5_launch::objective, const double &> >());
+		//.def(init< optional<int, int, problem::gtoc5_launch::objective, const double &> >());
 
-	// enum_<problem::gtoc5_launch::objective>("gtoc5_launch_objective")
-	//	.value("MASS",problem::gtoc5_launch::MASS)
-	//	.value("TIME",problem::gtoc5_launch::TIME);
+	//enum_<problem::gtoc5_launch::objective>("gtoc5_launch_objective")
+		//.value("MASS",problem::gtoc5_launch::MASS)
+		//.value("TIME",problem::gtoc5_launch::TIME);
 
 	// GTOC5 randez-vouz.
 	//problem_wrapper<problem::gtoc5_rendezvous>("gtoc5_rendezvous","GTOC5 rendezvous phase.")
-	//	.def(init< optional<int, int, int, const double &, const double &, const double &> >());
+		//.def(init< optional<int, int, int, const double &, const double &, const double &> >());
 
-	// enum_<problem::gtoc5_flyby::objective>("gtoc5_flyby_objective")
-	//	.value("MASS",problem::gtoc5_flyby::MASS)
-	//	.value("FINAL_EPOCH",problem::gtoc5_flyby::FINAL_EPOCH)
-	//	.value("TIME",problem::gtoc5_flyby::TIME);
+	//enum_<problem::gtoc5_flyby::objective>("gtoc5_flyby_objective")
+		//.value("MASS",problem::gtoc5_flyby::MASS)
+		//.value("FINAL_EPOCH",problem::gtoc5_flyby::FINAL_EPOCH)
+		//.value("TIME",problem::gtoc5_flyby::TIME);
 
 	// GTOC5 flyby.
 	//problem_wrapper<problem::gtoc5_flyby>("gtoc5_flyby","GTOC5 flyby phase.")
-	//	.def(init< optional<int, int, int, int, const double &, const double &, problem::gtoc5_flyby::objective, const double &, const double &> >());
+		//.def(init< optional<int, int, int, int, const double &, const double &, problem::gtoc5_flyby::objective, const double &, const double &> >());
 
 	// GTOC5 self flyby.
 	//problem_wrapper<problem::gtoc5_self_flyby>("gtoc5_self_flyby","GTOC5 self flyby phase.")
-	//	.def(init< optional<int, int, const double &, const double &, const double &> >());
+		//.def(init< optional<int, int, const double &, const double &, const double &> >());
 
 	// GTOC1 problem.
-	//problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC 1 problem (chemical approximation).");
+	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC 1 problem (chemical approximation).");
 
 	// GTOC2 problem.
-	//problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
-		//.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
+	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
+		.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
 
 	// GTOC2's objectives enum.
-	//enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
-	//	.value("MASS",problem::gtoc_2::MASS)
-	//	.value("TIME",problem::gtoc_2::TIME)
-	//	.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
+	enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
+		.value("MASS",problem::gtoc_2::MASS)
+		.value("TIME",problem::gtoc_2::TIME)
+		.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
 
 	// Laplace problem.
-	//problem_wrapper<problem::laplace>("laplace","Laplace problem.")
-	//	.def(init< const std::vector<int> &>());
+	problem_wrapper<problem::laplace>("laplace","Laplace problem.")
+		.def(init< const std::vector<int> &>());
 
 	// Cassini 1.
-	//problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
+	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
 
 	// Messenger full.
-	//problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
+	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
 
 	// Cassini 2.
-	//problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
+	problem_wrapper<problem::cassini_2>("cassini_2","Cassini 2 interplanetary trajectory problem.");
 
 	// Rosetta problem.
-	//problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
+	problem_wrapper<problem::rosetta>("rosetta","Rosetta problem.");
 
 	// Sagas problem.
-	//problem_wrapper<problem::sagas>("sagas","Sagas problem.");
+	problem_wrapper<problem::sagas>("sagas","Sagas problem.");
 
 	// Tandem.
-	//problem_wrapper<problem::tandem>("tandem","Tandem problem.")
-	//	.def(init< optional<int, double> >());
+	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
+		.def(init< optional<int, double> >());
 #endif
 
 #ifdef PAGMO_ENABLE_GSL
