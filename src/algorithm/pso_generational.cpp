@@ -202,8 +202,6 @@ void pso_generational::evolve(population &pop) const
 	// For each generation
 	for( int g = 0; g < m_gen; ++g ){
 
-		best_fit_improved = false;
-
 		// Update Velocity
 		for( p = 0; p < swarm_size; p++ ){
 
@@ -332,6 +330,8 @@ void pso_generational::evolve(population &pop) const
 			}
 		}
 
+
+
 		// Change problem seed if the problem is a stochastic optimization
 		try
 		{
@@ -339,47 +339,64 @@ void pso_generational::evolve(population &pop) const
 			prob.reset_caches();
 			pop.clear();
 
-			// Re-evaluate wrt new seed
+			// Re-evaluate wrt new seed the particle position and memory
 			for( p = 0; p < swarm_size; p++ ){
 				// We evaluate here the new individual fitness
 				prob.objfun( fit[p], X[p] );
 				// We re-evaluate the fitness of the particle memory
 				prob.objfun( lbfit[p], lbX[p] );
-
-				// We update the memory
-				if( prob.compare_fitness( fit[p], lbfit[p] ) ){
-					// update the particle's previous best position
-					lbfit[p] = fit[p];
-					lbX[p] = X[p];
-
-					// update the best position observed so far by any particle in the swarm
-					// (only performed if swarm topology is gbest)
-					if( ( m_neighb_type == 1 || m_neighb_type == 4 ) && prob.compare_fitness( fit[p], best_fit ) ){
-						best_neighb = X[p];
-						best_fit    = fit[p];
-						best_fit_improved = true;
-					}
-				}
-				///Set as current the old best, re-evaluated with new seed.
+				///We now set the cleared pop. cur_x is the best_x, re-evaluated with new seed.
 				pop.push_back(lbX[p]);
-				//Set as current the old current, re-evaluated with new seed. The old best
-				//will be retained, if still better.
 				pop.set_x(p,X[p]);
 				pop.set_v(p,V[p]);
-
+			}
+			//UPDATE BEST_FIT and BEST to acount for the new seed
+			best_fit = fit[0];
+			best_neighb = X[0];
+			for( p = 1; p < swarm_size; p++ ){
+				if( prob.compare_fitness( fit[p], best_fit ) ){
+					best_fit = fit[p];
+					best_neighb = X[p];
+				}
 			}
 
-		// reset swarm topology if no improvement was observed in the best found fitness value
-		if( m_neighb_type == 4 && !best_fit_improved )
-			initialize_topology__adaptive_random( neighb );
 		}
 		catch (const std::bad_cast& e)
 		{
-		// do nothing otherwise .....
+			//Only evaluate new position
+			for( p = 0; p < swarm_size; p++ ){
+				// We evaluate here the new individual fitness
+				prob.objfun( fit[p], X[p] );
+				pop.set_x(p,X[p]);
+				pop.set_v(p,V[p]);
+			}
 		}
 
 
 
+		// We update the particles memory if a better point has been reached
+		best_fit_improved = false;
+		for( p = 0; p < swarm_size; p++ ){
+			if( prob.compare_fitness( fit[p], lbfit[p] ) ){
+				// update the particle's previous best position
+				lbfit[p] = fit[p];
+				lbX[p] = X[p];
+
+				// update the best position observed so far by any particle in the swarm
+				// (only performed if swarm topology is gbest or random varying)
+				if( ( m_neighb_type == 1 || m_neighb_type == 4 ) && prob.compare_fitness( fit[p], best_fit ) ){
+					best_neighb = X[p];
+					best_fit    = fit[p];
+					best_fit_improved = true;
+				}
+			}
+		}
+
+		// reset swarm topology if no improvement was observed in the best found fitness value
+		if( m_neighb_type == 4 && !best_fit_improved )
+		{
+			initialize_topology__adaptive_random( neighb );
+		}
 	} // end of main PSO loop
 }
 
