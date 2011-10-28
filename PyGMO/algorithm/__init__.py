@@ -441,6 +441,37 @@ if "nlopt" in str(_get_algorithm_list()):
 	nlopt_mma._orig_init = nlopt_mma.__init__
 	nlopt_mma.__init__ = _nlopt_mma_ctor
 
+	def _nlopt_auglag_ctor(self,**kwargs):
+		"""
+		Constructs an Augmented agrangian Algotihm (NLOPT)
+
+		USAGE: algorithm.nlopt_mma(l_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, l_max_iter = 100, l_ftol = 1e-6, l_xtol = 1e-6)
+
+		* l_algo_id: auxiliary (local) optimizer id
+			1: SBPLX
+			2: COBYLA
+			3: BOBYQA
+			4: Low Storage BFGS
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		* l_max_iter: stop-criteria for the local optimizer (number of iterations)
+		* l_ftol: stop-criteria for the local optimizer (absolute on the obj-fun)
+		* l_xtol: stop-criteria for the local optimizer (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('l_algo_id', 1))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(kwargs.pop('l_max_iter', 100))
+		arg_list.append(kwargs.pop('l_ftol', 1e-6))
+		arg_list.append(kwargs.pop('l_xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_auglag._orig_init = nlopt_auglag.__init__
+	nlopt_auglag.__init__ = _nlopt_auglag_ctor
+
 	def _nlopt_slsqp_ctor(self,**kwargs):
 		"""
 		Constructs a Sequential Least SQuares Programming algorithm (SLSQP) algorithm (NLOPT)
