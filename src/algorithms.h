@@ -39,7 +39,7 @@
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
 #include "algorithm/bee_colony.h"
-#include "algorithm/firefly.h"
+//#include "algorithm/firefly.h"
 #include "algorithm/cross_entropy.h"
 #include "algorithm/aco.h"
 #include "algorithm/nsga2.h"
@@ -77,6 +77,7 @@
 	#include "algorithm/nlopt_sbplx.h"
 	#include "algorithm/nlopt_slsqp.h"
 	#include "algorithm/nlopt_mma.h"
+	#include "algorithm/nlopt_aug_lag.h"
 #endif
 
 #endif

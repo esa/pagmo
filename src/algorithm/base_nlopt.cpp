@@ -47,7 +47,7 @@ namespace pagmo { namespace algorithm {
  *
  * @param[in] algo NLopt algorithm (e.g., nlopt::LN_COBYLA).
  * @param[in] constrained true if the algorithm supports nonlinear constraints, false otherwise.
- * @param[in] gradient true if the algorithm is not gradient-free
+ * @param[in] only_ineq true if the algorithm only support inequality constraints
  * @param[in] max_iter stop-criteria (number of iterations)
  * @param[in] ftol stop-criteria (absolute on the obj-fun)
  * @param[in] xtol stop-criteria (absolute on the chromosome)
@@ -58,6 +58,9 @@ base_nlopt::base_nlopt(nlopt::algorithm algo, bool constrained, bool only_ineq, 
 	if ( (ftol <= 0) || (xtol <= 0) ) {
 		pagmo_throw(value_error,"tolerances must be positive");
 	}
+	//Dummy init for m_opt
+	nlopt::opt opt(algo,1);
+	m_opt = opt;
 }
 
 std::string base_nlopt::human_readable_extra() const
@@ -187,24 +190,32 @@ void base_nlopt::evolve(population &pop) const
 
 	// Main NLopt call.
 	nlopt::opt opt(m_algo, problem.get_dimension());
-	opt.set_lower_bounds(problem.get_lb());
-	opt.set_upper_bounds(problem.get_ub());
-	opt.set_min_objective(objfun_wrapper, &data_objfun);
+	m_opt = opt;
+	// Sets local optimizer for aug_lag methods, do nothing otherwise
+	set_local(problem.get_dimension());
+	m_opt.set_lower_bounds(problem.get_lb());
+	m_opt.set_upper_bounds(problem.get_ub());
+	m_opt.set_min_objective(objfun_wrapper, &data_objfun);
 	for (problem::base::c_size_type i =0; i<ec_size; ++i) {
-		opt.add_equality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol());
+		m_opt.add_equality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol());
 	}
 	for (problem::base::c_size_type i =ec_size; i<c_size; ++i) {
-		opt.add_inequality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol());
+		m_opt.add_inequality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol());
 	}
 
-	opt.set_ftol_abs(m_ftol);
-	opt.set_xtol_abs(m_xtol);
+	m_opt.set_ftol_abs(m_ftol);
+	m_opt.set_xtol_abs(m_xtol);
+	m_opt.set_maxeval(m_max_iter);
 
 	nlopt::result result;
 	double dummy;
 	decision_vector x0(best_ind.cur_x);
-	result = opt.optimize(x0, dummy);
+	result = m_opt.optimize(x0, dummy);
 	pop.set_x(best_ind_idx,x0);
 }
 
+void base_nlopt::set_local(size_t d) const
+{
+	(void)d;
+}
 }}

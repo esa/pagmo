@@ -74,6 +74,7 @@ class __PAGMO_VISIBLE base_nlopt: public base
 		int get_last_status() const;
 		static double objfun_wrapper(const std::vector<double> &, std::vector<double> &, void*);
 		static double constraints_wrapper(const std::vector<double> &, std::vector<double> &, void*);
+		virtual void set_local(size_t d) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
@@ -88,6 +89,9 @@ class __PAGMO_VISIBLE base_nlopt: public base
 			ar & const_cast<double &>(m_xtol);
 		}
 		const nlopt::algorithm	m_algo;
+	protected:
+		mutable nlopt::opt	m_opt;
+	private:
 		const bool		m_constrained;
 		const bool		m_only_ineq;
 		const std::size_t	m_max_iter;

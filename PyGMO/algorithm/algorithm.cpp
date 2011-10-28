@@ -268,6 +268,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::nlopt_mma>("nlopt_mma","NLopt's MMA algorithm.")
 		.def(init<optional<int, const double &, const double &> >());
 
+	// NLopt's Aumented Lagrangian.
+	algorithm_wrapper<algorithm::nlopt_aug_lag>("nlopt_auglag","NLopt's Augmented agrangian algorithm.")
+		.def(init<optional<int, int, const double &, const double &,int, const double &, const double &> >());
+
 	#endif
 
 	// Snopt solver.
