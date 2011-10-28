@@ -31,13 +31,25 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor.
 /**
+ * Allows to specify some of the parameters of the IPOPT solver. The algorithm stopping criteria will
+ * be 1) if the number of iteration exceeds max_iter 2) the three tolerances are met
+ *
+ * @param[in] aux_algo_id Auxiliary algorithm (1=SPBLX, 2=COBYLA, 3=BOBYQA, 4=LBFGS)
+ * @param[in] max_iter stop-criteria (number of iterations)
+ * @param[in] ftol stop-criteria (absolute on the obj-fun)
+ * @param[in] xtol stop-criteria (absolute on the chromosome)
+ * @param[in] aux_max_iter stop-criteria for the auxiliary algorithm (number of iterations)
+ * @param[in] aux_ftol stop-criteria for the auxiliary algorithm (number of iterations)
+ * @param[in] aux_xtol stop-criteria for the auxiliary algorithm (number of iterations)
+ * @throws value_error if max_iter or tolerances are negative
+ *
  * @see pagmo::algorithm::base_nlopt::base_nlopt()
  */
-nlopt_aug_lag::nlopt_aug_lag(int l_algo_id, int max_iter, const double &ftol, const double &xtol, int l_max_iter, const double &l_ftol, const double &l_xtol):base_nlopt(nlopt::AUGLAG,true,false,max_iter,ftol,xtol), m_l_algo_id(l_algo_id), m_l_max_iter(l_max_iter), m_l_ftol(l_ftol), m_l_xtol(l_xtol) {
-	if ( (l_ftol <= 0) || (l_xtol <= 0) ) {
+nlopt_aug_lag::nlopt_aug_lag(int aux_algo_id, int max_iter, const double &ftol, const double &xtol, int aux_max_iter, const double &aux_ftol, const double &aux_xtol):base_nlopt(nlopt::AUGLAG,true,false,max_iter,ftol,xtol), m_aux_algo_id(aux_algo_id), m_aux_max_iter(aux_max_iter), m_aux_ftol(aux_ftol), m_aux_xtol(aux_xtol) {
+	if ( (aux_ftol <= 0) || (aux_xtol <= 0) ) {
 		pagmo_throw(value_error,"tolerances for the local optimizer must be positive");
 	}
-	if ((l_algo_id >4)||(l_algo_id<1)) {
+	if ((aux_algo_id >4)||(aux_algo_id<1)) {
 		pagmo_throw(value_error,"local algorithm id must be one of 1.2.3.4");
 	}
 }
@@ -49,33 +61,33 @@ base_ptr nlopt_aug_lag::clone() const
 
 /// Set the local optimizer
 void nlopt_aug_lag::set_local(size_t d) const{
-	nlopt::opt l_opt(nlopt::LN_SBPLX,1);
-	switch(m_l_algo_id)
+	nlopt::opt aux_opt(nlopt::LN_SBPLX,1);
+	switch(m_aux_algo_id)
 	{
 		case 1:
-			l_opt = nlopt::opt(nlopt::LN_SBPLX,d);
+			aux_opt = nlopt::opt(nlopt::LN_SBPLX,d);
 		break;
 		case 2:
-			l_opt= nlopt::opt(nlopt::LN_COBYLA,d);
+			aux_opt= nlopt::opt(nlopt::LN_COBYLA,d);
 		break;
 		case 3:
-			l_opt = nlopt::opt(nlopt::LN_BOBYQA,d);
+			aux_opt = nlopt::opt(nlopt::LN_BOBYQA,d);
 		break;
 		case 4:
-			l_opt = nlopt::opt(nlopt::LD_LBFGS,d);
+			aux_opt = nlopt::opt(nlopt::LD_LBFGS,d);
 		break;
 	}
-	l_opt.set_ftol_abs(m_l_ftol);
-	l_opt.set_xtol_abs(m_l_xtol);
-	l_opt.set_maxeval(m_l_max_iter);
-	m_opt.set_local_optimizer(l_opt);
+	aux_opt.set_ftol_abs(m_aux_ftol);
+	aux_opt.set_xtol_abs(m_aux_xtol);
+	aux_opt.set_maxeval(m_aux_max_iter);
+	m_opt.set_local_optimizer(aux_opt);
 }
 
 /// Algorithm name
 std::string nlopt_aug_lag::get_name() const
 {
 	std::string local;
-	switch(m_l_algo_id)
+	switch(m_aux_algo_id)
 	{
 		case 1:
 			local = "sbplx";

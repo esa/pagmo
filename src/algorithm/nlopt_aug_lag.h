@@ -33,30 +33,23 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Wrapper for NLopt's Slsqp algorithm.
+/// Wrapper for NLopt's Augmented Lagrangian algorithm.
 /**
  * From NLopt's documentation:
  *
- * <EM>The algorithm optimizes successive second-order (quadratic/least-squares) approximations
- * of the objective function (via BFGS updates), with first-order (affine) approximations of the
- * constraints. The Fortran code was obtained from the SciPy project, who are responsible for
- * obtaining permission to distribute it under a free-software (3-clause BSD) license.
- * The code was modified for inclusion in NLopt by S. G. Johnson in 2010,  .... since roundoff
- * errors sometimes pushed SLSQP's parameters slightly outside the
- * bound constraints (not allowed by NLopt), we added checks to force the parameters within the
- * bounds. We fixed a bug in the LSEI subroutine (use of uninitialized variables) for the case
- * where the number of equality constraints equals the dimension of the problem. The LSQ
- * subroutine was modified to handle infinite lower/upper bounds (in which case those constraints
- * are omitted).</EM>
+ * <EM>This method combines the objective function and the nonlinear inequality/equality constraints (if any)
+ * in to a single function: essentially, the objective plus a "penalty" for any violated constraints.
+ * This modified objective function is then passed to another optimization algorithm with no nonlinear
+ * constraints [the auxiliary algorithm]. If the constraints are violated by the solution of this sub-problem, then the size
+ * of the penalties is increased and the process is repeated; eventually, the process must converge
+ * to the desired solution (if it exists).</EM>
  *
- * The inclusion in PaGMO required to write central difference code for the automated, numercal evaluation
- * of gradients. the rest was left unchaged
+ * The inclusion in PaGMO required to give a fixed choice forthe auxiliary algorithms as nlopt interface is
+ * too different from pagmo's to allow pagmo algorithm being passed as auxiliaries.
  *
- * NOTE: Because the SLSQP code uses dense-matrix methods (ordinary BFGS, not low-storage BFGS), it requires O(n2) storage and O(n3) time in n dimensions, which makes it less practical for optimizing more than a few thousand parameters.</EM>
+ * This algorithm is a single-objective continuous minimiser that supports any type of constraints
  *
- * This algorithm is a single-objective continuous minimiser that supports box constraints.
- *
- * @see http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms#SLSQP
+ * @see http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms#Augmented_Lagrangian_algorithm
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
@@ -73,15 +66,15 @@ class __PAGMO_VISIBLE nlopt_aug_lag: public base_nlopt
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base_nlopt>(*this);
-			ar & m_l_algo_id;	
-			ar & const_cast<std::size_t &>(m_l_max_iter);
-			ar & const_cast<double &>(m_l_ftol);
-			ar & const_cast<double &>(m_l_xtol);
+			ar & m_aux_algo_id;
+			ar & const_cast<std::size_t &>(m_aux_max_iter);
+			ar & const_cast<double &>(m_aux_ftol);
+			ar & const_cast<double &>(m_aux_xtol);
 		}  
-		int m_l_algo_id;
-		const std::size_t	m_l_max_iter;
-		const double		m_l_ftol;
-		const double		m_l_xtol;
+		int m_aux_algo_id;
+		const std::size_t	m_aux_max_iter;
+		const double		m_aux_ftol;
+		const double		m_aux_xtol;
 };
 
 }}
