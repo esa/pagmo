@@ -20,8 +20,6 @@ def _get_algorithm_list():
 	try:
 		import scipy, numpy
 		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))]
-		from PyGMO import __version__
-		__version__ = __version__ + "GTOP " + "GSL " + "SciPy "
 	except ImportError as e:
 		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
 	return algorithm_list

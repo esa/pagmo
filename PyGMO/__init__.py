@@ -25,7 +25,9 @@ import core, algorithm, migration, problem, topology, test
 
 __doc__ = 'PyGMO is a pretty cool guy. eh kills aleins and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
-__version__ = "PyGMO Version is 1.0 - Compile Options: "
+__major__ = 1
+__minor__ = 1
+__bugfix__ = 1
 
 # For convenience, bring all core classes into the root namespace when importing *.
 from core import *
@@ -34,6 +36,36 @@ __all__ += filter(lambda name: not name.startswith('_'),dir(core))
 problem_list = problem._get_problem_list()
 algorithm_list = algorithm._get_algorithm_list()
 island_list = core._get_island_list()
+
+# Fill up the __extensions__ variable
+__extensions__ = ""
+if "nlopt" in str(algorithm._get_algorithm_list()):
+	__extensions__ = __extensions__ + " NLOPT "
+if "gsl" in str(algorithm._get_algorithm_list()):
+	__extensions__ = __extensions__ + " GSL "
+if "snopt" in str(algorithm._get_algorithm_list()):
+	__extensions__ = __extensions__ + " SNOPT "
+if "ipopt" in str(algorithm._get_algorithm_list()):
+	__extensions__ = __extensions__ + " IPOPT "
+if "cassini" in str(problem._get_problem_list()):
+	__extensions__ = __extensions__ + " GTOP "
+try:
+	import scipy
+	__extensions__ = __extensions__ + " SCIPY "
+except:
+	pass
+try:
+	import networkx
+	__extensions__ = __extensions__ + " NETWORKX "
+except:
+	pass
+try:
+	import visual
+	__extensions__ = __extensions__ + " VPYTHON "
+except:
+	pass
+
+
 
 def run_test():
 	from PyGMO import problem, algorithm, island

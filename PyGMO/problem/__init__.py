@@ -9,8 +9,6 @@ from _pl2pl import py_pl2pl
 
 try:
 	from _gtop import *
-	from PyGMO import __version__
-	__version__ = __version__ + "GTOP "
 except:
 	pass
 
