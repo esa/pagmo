@@ -54,7 +54,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE base_stochastic : public base
 {
 	public:
-		base_stochastic(int, unsigned int);
+		base_stochastic(int, unsigned int = 0u);
 		void change_seed() const;
 	private:
 		friend class boost::serialization::access;

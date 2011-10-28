@@ -40,6 +40,7 @@
 #include "../../src/config.h"
 #include "../utils.h"
 #include "python_base.h"
+#include "python_base_stochastic.h"
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
         #include "../../src/keplerian_toolbox/keplerian_toolbox.h"
@@ -53,6 +54,20 @@ template <class Problem>
 static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *name, const char *descr)
 {
 	class_<Problem,bases<problem::base> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
+	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	return retval;
+}
+
+// Wrapper to expose problems.
+template <class Problem>
+static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > stochastic_problem_wrapper(const char *name, const char *descr)
+{
+	class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > retval(name,descr,init<const Problem &>());
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
@@ -112,7 +127,50 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
 		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
-	
+
+	// Expose base stochastic problem class, including the virtual methods.
+	class_<problem::python_base_stochastic, boost::noncopyable>("_base_stochastic",init<int,optional<unsigned int> >())
+		.def("__repr__", &problem::base::human_readable)
+		// Dimensions.
+		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
+		.add_property("f_dimension", &problem::base::get_f_dimension, "Fitness dimension.")
+		.add_property("i_dimension", &problem::base::get_i_dimension, "Integer dimension.")
+		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
+		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
+		// Constraints tolerance.
+		.add_property("c_tol", &problem::base::get_c_tol, "Tolerance used in constraints analysis.")
+		// Bounds.
+		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
+		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")
+		.def("set_bounds",bounds_setter_value(&problem::base::set_bounds),"Set all bounds to the input values.")
+		.def("set_bounds",bounds_setter_vectors(&problem::base::set_bounds),"Set bounds to the input vectors.")
+		.add_property("diameter",&problem::base::get_diameter, "Problem's diameter.")
+		// Useful operators.
+		.def(self == self)
+		.def(self != self)
+		.def("is_compatible",&problem::base::is_compatible,"Check compatibility with other problem.")
+		// Comparisons.
+		.def("compare_x",&problem::base::compare_x,"Compare decision vectors.")
+		.def("verify_x",&problem::base::verify_x,"Check if decision vector is compatible with problem.")
+		.def("compare_fc",&problem::base::compare_fc,"Simultaneous fitness-constraint comparison.")
+		// Constraints.
+		.def("compare_constraints",&problem::base::compare_constraints,"Compare constraint vectors.")
+		.def("compute_constraints",return_constraints(&problem::base::compute_constraints),"Compute and return constraint vector.")
+		.def("feasibility_x",&problem::base::feasibility_x,"Determine feasibility of decision vector.")
+		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
+		// Fitness.
+		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
+		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
+		// Seed.
+		.def("change_seed",&problem::base_stochastic::change_seed,"Change seed.")
+		// Virtual methods that can be (re)implemented.
+		.def("get_name",&problem::base::get_name,&problem::python_base_stochastic::default_get_name)
+		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base_stochastic::default_human_readable_extra)
+		.def("_get_typename",&problem::python_base_stochastic::get_typename)
+		.def("_objfun_impl",&problem::python_base_stochastic::py_objfun)
+		.def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
+		.def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
+		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
 	// Ackley problem.
 	problem_wrapper<problem::ackley>("ackley","Ackley function.")
@@ -131,7 +189,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<int, optional<int> >());
 
 	// Inventory problem.
-	problem_wrapper<problem::inventory>("inventory","Inventory problem.")
+	stochastic_problem_wrapper<problem::inventory>("inventory","Inventory problem.")
 		.def(init<int, int>());
 
 	// Lennard Jones problem.
@@ -294,7 +352,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 #ifdef PAGMO_ENABLE_GSL
 	// Spheres Problems
-	problem_wrapper<problem::spheres>("mit_spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
+	stochastic_problem_wrapper<problem::spheres>("mit_spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
 		.def(init< optional<int,int,double,unsigned int, bool, double> >())
 		.def("post_evaluate", &problem::spheres::post_evaluate)
 		.def("simulate", &problem::spheres::simulate);
