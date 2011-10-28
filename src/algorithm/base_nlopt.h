@@ -94,6 +94,7 @@ class __PAGMO_VISIBLE base_nlopt: public base
 	private:
 		const bool		m_constrained;
 		const bool		m_only_ineq;
+	protected:
 		const std::size_t	m_max_iter;
 		const double		m_ftol;
 		const double		m_xtol;

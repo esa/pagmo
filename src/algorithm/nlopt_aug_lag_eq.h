@@ -62,6 +62,7 @@ class __PAGMO_VISIBLE nlopt_aug_lag_eq: public base_nlopt
 		base_ptr clone() const;
 		std::string get_name() const;
 		void set_local(size_t) const;
+		std::string human_readable_extra() const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

@@ -190,7 +190,7 @@ class scipy_slsqp(_scipy_base):
 		pop.set_x(pop.get_best_idx(),self._check_new_chromosome(new_chromosome,prob))
 		return pop
 	def human_readable_extra(self):
-		return "maxiter = " + str(self.maxiter) + ", acc = " + str(self.acc) + ", epsilon = " + str(self.epsilon)
+		return "maxiter = " + str(self.max_iter) + ", acc = " + str(self.acc) + ", epsilon = " + str(self.epsilon)
 
 class scipy_tnc(_scipy_base):
 	"""
