@@ -38,7 +38,8 @@ Common Name                        Name in PyGMO                             Typ
 Monotonic Basin Hopping (MBH)      :class:`PyGMO.algorithm.mbh`                    N/A          
 Multistart (MS)                    :class:`PyGMO.algorithm.ms`                     N/A      
 Penalty Function (PF)                                                                        Planned 
-Augmented Lagrangian (AL)                                                                    Planned
+Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`          C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
+Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
 ================================== ========================================= =============== ===========================================
 
 Local optimization 
@@ -211,6 +212,14 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.nlopt_mma
 
    .. automethod:: PyGMO.algorithm.nlopt_mma.__init__
+
+.. autoclass:: PyGMO.algorithm.nlopt_auglag
+
+   .. automethod:: PyGMO.algorithm.nlopt_auglag.__init__
+
+.. autoclass:: PyGMO.algorithm.nlopt_auglag_eq
+
+   .. automethod:: PyGMO.algorithm.nlopt_auglag_eq.__init__
 
 .. autoclass:: PyGMO.algorithm.nlopt_slsqp
 

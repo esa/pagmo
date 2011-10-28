@@ -146,6 +146,7 @@ IF(ENABLE_NLOPT)
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_slsqp.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_mma.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_aug_lag.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nlopt_aug_lag_eq.cpp
 	)
 ENDIF(ENABLE_NLOPT)
 

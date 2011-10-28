@@ -445,9 +445,9 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs an Augmented agrangian Algotihm (NLOPT)
 
-		USAGE: algorithm.nlopt_mma(l_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, l_max_iter = 100, l_ftol = 1e-6, l_xtol = 1e-6)
+		USAGE: algorithm.nlopt_mma(aux_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, aux_max_iter = 100, aux_ftol = 1e-6, aux_xtol = 1e-6)
 
-		* l_algo_id: auxiliary (local) optimizer id
+		* aux_algo_id: auxiliary  optimizer id
 			1: SBPLX
 			2: COBYLA
 			3: BOBYQA
@@ -455,22 +455,51 @@ if "nlopt" in str(_get_algorithm_list()):
 		* max_iter: stop-criteria (number of iterations)
 		* ftol: stop-criteria (absolute on the obj-fun)
 		* xtol: stop-criteria (absolute on the chromosome)
-		* l_max_iter: stop-criteria for the local optimizer (number of iterations)
-		* l_ftol: stop-criteria for the local optimizer (absolute on the obj-fun)
-		* l_xtol: stop-criteria for the local optimizer (absolute on the chromosome)
+		* aux_max_iter: stop-criteria for the auxiliary optimizer (number of iterations)
+		* aux_ftol: stop-criteria for the auxiliary optimizer (absolute on the obj-fun)
+		* aux_xtol: stop-criteria for the auxiliary optimizer (absolute on the chromosome)
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('l_algo_id', 1))
+		arg_list.append(kwargs.pop('aux_algo_id', 1))
 		arg_list.append(kwargs.pop('max_iter', 100))
 		arg_list.append(kwargs.pop('ftol', 1e-6))
 		arg_list.append(kwargs.pop('xtol', 1e-6))
-		arg_list.append(kwargs.pop('l_max_iter', 100))
-		arg_list.append(kwargs.pop('l_ftol', 1e-6))
-		arg_list.append(kwargs.pop('l_xtol', 1e-6))
+		arg_list.append(kwargs.pop('aux_max_iter', 100))
+		arg_list.append(kwargs.pop('aux_ftol', 1e-6))
+		arg_list.append(kwargs.pop('aux_xtol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_auglag._orig_init = nlopt_auglag.__init__
 	nlopt_auglag.__init__ = _nlopt_auglag_ctor
+
+	def _nlopt_auglag_eq_ctor(self,**kwargs):
+		"""
+		Constructs an Augmented agrangian Algotihm (using penalties only for the equalities) (NLOPT)
+
+		USAGE: algorithm.nlopt_auglag_eq(aux_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, aux_max_iter = 100, aux_ftol = 1e-6, aux_xtol = 1e-6)
+
+		* aux_algo_id: auxiliary (local) optimizer id
+			1: COBYLA
+			2: MMA
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		* aux_max_iter: stop-criteria for the auxiliary optimizer (number of iterations)
+		* aux_ftol: stop-criteria for the auxiliary optimizer (absolute on the obj-fun)
+		* aux_xtol: stop-criteria for the auxiliary optimizer (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('aux_algo_id', 1))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(kwargs.pop('aux_max_iter', 100))
+		arg_list.append(kwargs.pop('aux_ftol', 1e-6))
+		arg_list.append(kwargs.pop('aux_xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_auglag_eq._orig_init = nlopt_auglag_eq.__init__
+	nlopt_auglag_eq.__init__ = _nlopt_auglag_eq_ctor
 
 	def _nlopt_slsqp_ctor(self,**kwargs):
 		"""

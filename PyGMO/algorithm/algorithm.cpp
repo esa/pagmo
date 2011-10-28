@@ -272,6 +272,11 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::nlopt_aug_lag>("nlopt_auglag","NLopt's Augmented agrangian algorithm.")
 		.def(init<optional<int, int, const double &, const double &,int, const double &, const double &> >());
 
+	// NLopt's Aumented Lagrangian (EQ)
+	algorithm_wrapper<algorithm::nlopt_aug_lag_eq>("nlopt_auglag_eq","NLopt's Augmented agrangian algorithm (using penalties only for the equalities).")
+		.def(init<optional<int, int, const double &, const double &,int, const double &, const double &> >());
+
+
 	#endif
 
 	// Snopt solver.

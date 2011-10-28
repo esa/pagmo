@@ -78,6 +78,7 @@
 	#include "algorithm/nlopt_slsqp.h"
 	#include "algorithm/nlopt_mma.h"
 	#include "algorithm/nlopt_aug_lag.h"
+	#include "algorithm/nlopt_aug_lag_eq.h"
 #endif
 
 #endif

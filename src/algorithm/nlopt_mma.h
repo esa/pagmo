@@ -33,7 +33,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Wrapper for NLopt's Slsqp algorithm.
+/// Wrapper for NLopt's Method of Moving Asymptotes algorithm.
 /**
  * From NLopt's documentation:
  *
