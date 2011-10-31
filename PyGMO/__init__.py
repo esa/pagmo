@@ -26,8 +26,8 @@ import core, algorithm, migration, problem, topology, test
 __doc__ = 'PyGMO is a pretty cool guy. eh kills aleins and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
 __major__ = 1
-__minor__ = 1
-__bugfix__ = 1
+__minor__ = 0
+__bugfix__ = 0
 
 # For convenience, bring all core classes into the root namespace when importing *.
 from core import *
@@ -37,7 +37,7 @@ problem_list = problem._get_problem_list()
 algorithm_list = algorithm._get_algorithm_list()
 island_list = core._get_island_list()
 
-# Fill up the __extensions__ variable
+# Fill up the __extensions__ variable with all detected extensions
 __extensions__ = ""
 if "nlopt" in str(algorithm._get_algorithm_list()):
 	__extensions__ = __extensions__ + " NLOPT "
