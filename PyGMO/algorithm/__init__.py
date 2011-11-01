@@ -4,6 +4,7 @@ from _algorithm import _base
 from _base import base
 from _example import py_example
 from _cross_entropy import py_cross_entropy
+from _cmaes import py_cmaes
 from _scipy_algos import *
 
 _base = _algorithm._base
