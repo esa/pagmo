@@ -30,8 +30,12 @@ namespace pagmo { namespace problem {
 base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_seed(seed) {
 }
 
-void base_stochastic::change_seed() const {
-	m_seed = rand();
+void base_stochastic::set_seed(unsigned int seed) const {
+	m_seed = seed;
+}
+
+unsigned int base_stochastic::get_seed() const {
+	return m_seed;
 }
 
 }} //namespaces

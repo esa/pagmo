@@ -55,7 +55,8 @@ class __PAGMO_VISIBLE base_stochastic : public base
 {
 	public:
 		base_stochastic(int, unsigned int = 0u);
-		void change_seed() const;
+		unsigned int get_seed() const;
+		void set_seed(unsigned int) const; //This is marked const as m_seed is mutable (needs to be)
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

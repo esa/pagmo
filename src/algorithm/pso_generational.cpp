@@ -332,10 +332,10 @@ void pso_generational::evolve(population &pop) const
 
 
 
-		// Change problem seed if the problem is a stochastic optimization
+		// If the problem is a stochastic optimization chage the seed and re-evaluate taking care to update also best and local bests
 		try
 		{
-			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).change_seed();
+			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
 			prob.reset_caches();
 			pop.clear();
 
@@ -350,7 +350,7 @@ void pso_generational::evolve(population &pop) const
 				pop.set_x(p,X[p]);
 				pop.set_v(p,V[p]);
 			}
-			//UPDATE BEST_FIT and BEST to acount for the new seed
+			//UPDATE BEST_FIT and BEST to account for the new seed
 			best_fit = fit[0];
 			best_neighb = X[0];
 			for( p = 1; p < swarm_size; p++ ){
