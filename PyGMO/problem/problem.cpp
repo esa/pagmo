@@ -162,7 +162,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
 		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
 		// Seed.
-		.def("change_seed",&problem::base_stochastic::change_seed,"Change seed.")
+		.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,"Random seed used in the objective function evaluation.")
 		// Virtual methods that can be (re)implemented.
 		.def("get_name",&problem::base::get_name,&problem::python_base_stochastic::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base_stochastic::default_human_readable_extra)
