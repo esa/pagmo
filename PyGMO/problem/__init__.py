@@ -1,7 +1,9 @@
 # -*- coding: iso-8859-1 -*-
 from _base import base
+from _base_stochastic import base_stochastic
 from _problem import *
 from _problem import _base
+from _problem import _base_stochastic
 from _example import py_example
 from _pl2pl import py_pl2pl
 
@@ -52,7 +54,7 @@ except:
 #Creating the list of problems
 def _get_problem_list():
 	from PyGMO import problem
-	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and issubclass(problem.__dict__[n],problem._base),dir(problem))]
+	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic)),dir(problem))]
 
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
 def _rastrigin_ctor(self,dim = 10):
