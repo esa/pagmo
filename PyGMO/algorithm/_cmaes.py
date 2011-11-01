@@ -4,7 +4,7 @@ class py_cmaes(base):
 	"""
 	Covariance Matrix Adaptation Evolutionary Strategy (Python)
 	"""
-	def __init__(self, gen = 500, elite = 0.5, cc = -1, cs = -1, c1 = -1, cmu = -1, screen_output = False):
+	def __init__(self, gen = 500, elite = 0.5, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, screen_output = False):
 		"""
 		Covariance Matrix Adaptation Evolutionary Strategy (Python)
 
@@ -16,10 +16,11 @@ class py_cmaes(base):
 
 		* gen: number of generations
 		* elite: fraction of the population considered as elite (in (0,1])
-		* cc: time constant for C cumulation (in [0,1])
-		* cs: time constant for sigma cumulation (in [0,1])
-		* c1: learning rate for rank-1 update (in [0,1])
-		* cmu: learning rate for rank-mu update (in [0,1])
+		* cc: time constant for C cumulation (in [0,1]) if -1 automatic values are set
+		* cs: time constant for sigma cumulation (in [0,1]) if -1 automatic values are set
+		* c1: learning rate for rank-1 update (in [0,1]) if -1 automatic values are set
+		* cmu: learning rate for rank-mu update (in [0,1]) if -1 automatic values are set
+		* sigma0: starting step (std)
 		* screen_output: activates screen_output (output at each generation)
 		"""
 		try:
@@ -46,13 +47,14 @@ class py_cmaes(base):
 		self.__cmu = cmu
 		self.__gen = gen
 		self.__elite = elite
+		self.__sigma0 = sigma0
 		self.screen_output = screen_output
 		np.random.seed()
 
 	def evolve(self,pop):
 		from numpy import matrix,array,log, diag, eye,sqrt, exp, ones
-		from numpy.random import multivariate_normal,random,normal
-		from numpy.linalg import norm, cholesky, LinAlgError, eig
+		from numpy.random import normal, random
+		from numpy.linalg import norm, eig
 
 		# Let's rename some variables
 		prob = pop.problem
@@ -90,7 +92,7 @@ class py_cmaes(base):
 		if self.__cmu == -1:
 			cmu = 2 * (mueff-2+1/mueff) / ((N+2)**2+mueff);		# and for rank-mu update
 
-		damps = 1 + 2*max(0, sqrt((mueff-1)/(N+1))-1) + cs;	#damping for sigma
+		damps = 1 + 2*max(0, sqrt((mueff-1)/(N+1))-1) + cs;		#damping for sigma
 
 		# Initializing and allocationg
 		mean = matrix(pop.champion.x).T
@@ -105,7 +107,7 @@ class py_cmaes(base):
 		ps = matrix([[0]]*N)
 		counteval = 0
 		eigeneval = 0
-		sigma=1
+		sigma=self.__sigma0
 
 		# Let's start the algorithm
 		for gen in range(self.__gen):
@@ -157,16 +159,17 @@ class py_cmaes(base):
 			C = (1-c1-cmu)*Cold + cmu*C + c1 * ((pc * pc.T) + (1-hsig) * cc*(2-cc) * Cold)
 
 			#6 - Adapt sigma
-			sigma *= exp((cs/damps)*(norm(ps)/chiN - 1));
+			sigma *= exp( (cs/damps)*(norm(ps)/chiN - 1));
 
-			#7 -
+			#7 - Perform eigen-decomposition of C
 			#if ( (counteval - eigeneval) > (lam/(c1+cmu)/N/10) ):		#achieve O(N^2)
 			eigeneval = counteval;
 			C = (C+C.T)/2					#enforce symmetry
 			D,B = eig(C);					#eigen decomposition, B==normalized eigenvectors
-			D = [s**0.5 for s in D]			#D contains standard deviations now
-				#if not (0 in D):
+			D = [s**0.5 for s in D]				#D contains standard deviations now
+			#if not (0 in D):				#Avoids numerical nans skipping evaluation of invsqrtC
 			invsqrtC = B*diag([1/d for d in D])*B.T
+
 
 			#8 - We print to screen if necessary
 			if self.screen_output:
@@ -181,4 +184,4 @@ class py_cmaes(base):
 	def get_name(self):
 		return "CMAES (Python)"
 	def human_readable_extra(self):
-		return "gen=" + str(self.__gen) + " elite fraction=" + str(self.__elite) + " cc=" + str(self.__cc) + " cs=" + str(self.__cs) + " c1=" + str(self.__c1) + " cmu=" + str(self.__cmu)
+		return "gen=" + str(self.__gen) + " elite fraction=" + str(self.__elite) + " cc=" + str(self.__cc) + " cs=" + str(self.__cs) + " c1=" + str(self.__c1) + " cmu=" + str(self.__cmu) + " sigma0=" + str(self.__sigma0)
