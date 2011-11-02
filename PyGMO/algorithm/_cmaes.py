@@ -4,7 +4,7 @@ class py_cmaes(base):
 	"""
 	Covariance Matrix Adaptation Evolutionary Strategy (Python)
 	"""
-	def __init__(self, gen = 500, elite = 0.5, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, fabs = -1.0**300, screen_output = False):
+	def __init__(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, fabs = -1.0**300, screen_output = False):
 		"""
 		Covariance Matrix Adaptation Evolutionary Strategy (Python)
 
@@ -53,7 +53,6 @@ class py_cmaes(base):
 		self.__c1 = c1
 		self.__cmu = cmu
 		self.__gen = gen
-		self.__elite = elite
 		self.__xtol = xtol
 		self.__ftol = ftol
 		self.__fabs = fabs
@@ -64,7 +63,6 @@ class py_cmaes(base):
 		self.__mean = 0
 		self.__variation = 0
 		self.__newpop = np.matrix([[1]])
-		self.__chiN = 0
 		self.__B = 0
 		self.__D = 0
 		self.__C = 0

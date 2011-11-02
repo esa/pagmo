@@ -57,15 +57,9 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if number of generations is < 1 or elite outside [0,1]
  * 
  * */
-cross_entropy::cross_entropy(int gen, double elite, double scale, int variant, bool screen_output):base(),
-			m_gen(boost::numeric_cast<std::size_t>(gen)),m_elite(elite),
-			m_scale(scale), m_variant(variant), m_screen_output(screen_output) {
-	if (gen < 1 || elite < 0 || elite > 1) {
-		pagmo_throw(value_error,"number of generation must be > 0 and elite must be in [0,1]");
-	}
-	if (variant<1 || variant>2){
-		pagmo_throw(value_error,"variant must be one of [1,2]");
-	}
+cross_entropy::cross_entropy(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol):base(),
+			m_gen(boost::numeric_cast<std::size_t>(gen)) {
+
 }
 /// Clone method.
 base_ptr cross_entropy::clone() const
@@ -87,7 +81,7 @@ void cross_entropy::evolve(population &pop) const
 	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), D = prob.get_dimension(), Dc = D - prob_i_dimension, prob_c_dimension = prob.get_c_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = pop.size();
-	const population::size_type n_elite = boost::numeric_cast<population::size_type>(m_elite * NP);
+	const population::size_type n_elite = boost::numeric_cast<population::size_type>(NP/2);
 
 	//We perform some checks to determine whether the problem/population are suitable for Cross Entropy
 	if ( Dc == 0 ) {
@@ -152,28 +146,12 @@ void cross_entropy::evolve(population &pop) const
 		}
 
 		// 2 - We estimate the Covariance Matrix 
-		if (m_variant==1) { //as least square estimator of the elite (with mean mu)
+		if (1) { //as least square estimator of the elite (with mean mu)
 			tmp = (elite[0] - mu);
 			C = tmp*tmp.transpose();
 			for ( population::size_type i = 1; i<n_elite; ++i ) { 
 				tmp = (elite[i] - mu);
 				C += tmp*tmp.transpose();
-			}
-		}
-		else if (m_variant==2) { //Using Dario's approach
-			for (problem::base::size_type row = 0; row < Dc; ++row) {
-				for (problem::base::size_type col = 0; col < Dc; ++col) {
-					C(row,col) = elite[0](col) - mu(row);
-				}
-			}
-			C = C.transpose()*C;
-			for ( population::size_type i = 1; i<n_elite; ++i ) {
-				for (problem::base::size_type row = 0; row < Dc; ++row) {
-					for (problem::base::size_type col = 0; col < Dc; ++col) {
-						U(row,col) = elite[i](col) - mu(row);
-					}
-				}
-				C += U.transpose()*U;
 			}
 		}
 		C = C / n_elite;
@@ -197,7 +175,7 @@ void cross_entropy::evolve(population &pop) const
 			// 4b - We use Cholesky Triangular form to generate multivariate normaldistribution (note that our matrix is not positive definite)
 
 			variation =  U.transpose()*tmp;
-			newgen[i] = mu + variation * m_scale;
+			newgen[i] = mu + variation * m_sigma;
 
 
 			// 4c - If generated point is outside the bounds ... fixit!!
@@ -262,9 +240,6 @@ std::string cross_entropy::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "elite fraction:" << m_elite << ' ';
-	s << "scaling:" << m_scale << ' ';
-	s << "variant:" << m_variant << ' ';
 	return s.str();
 }
 

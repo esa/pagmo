@@ -33,38 +33,51 @@
 #include "../population.h"
 #include "../types.h"
 #include "../serialization.h"
+#include "../Eigen/Dense"
 
 
 
 
 namespace pagmo { namespace algorithm {
 
-/// A Cross Entropy Study (CE)
+/// Covariance Matrix Adaptation Evolutionary Startegy (CMAES)
 /**
- * The cross-entropy (CE) method attributed to Reuven Rubinstein is a general Monte Carlo
- * approach to combinatorial and continuous multi-extremal optimization and importance sampling.
- *
- * It is similar to CMA-ES in many ways and the variant "Dario's" here implemented is original with PaGMO
- * and can be considered a 'study' on sampling methods
- *
- * NOTE1: at each call of the evolve method a number of function evaluations equal
- * to iter * pop.size() is performed.
- *
- * NOTE2: The Covariance Matrix is evaluated considering the average vector mu of the previous iteration
- * (not the current one) importing one of the key ideas of CMA-ES into this algorithm
- *
- * @see http://ie.technion.ac.il/CE/files/Misc/tutorial.pdf
- *
- * @author Dario Izzo (dario.izzo@googlemail.com)
+
  */
 
 class __PAGMO_VISIBLE cross_entropy: public base
 {
 public:
-	cross_entropy(int gen = 500, double elite = 0.5, double scale = 0.2, int variant = 1, bool screen_output = false);
+	cross_entropy(int gen = 500, double cc = -1, double cs = -1, double c1 = -1, double cmu = -1, double sigma0=0.5, double ftol = 1e-6, double xtol = 1e-6);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
+
+	// Setters and Getters (needed for all as we want to fine control the iterations .... )
+//	void set_gen(const int gen);
+//	int  get_gen() const;
+
+//	void   set_cc(const double p);
+//	double get_cc() const;
+
+//	void   set_cs(const double p);
+//	double get_cs() const;
+
+//	void   set_c1(const double p);
+//	double get_c1() const;
+
+//	void   set_cmu(const double p);
+//	double get_cmu() const;
+
+//	void   set_sigma(const double p);
+//	double get_sigma() const;
+
+//	void   set_xtol(const double p);
+//	double get_xtol() const;
+
+//	void   set_ftol(const double p);
+//	double get_ftol() const;
+
 	void set_screen_output(const bool p);
 	bool get_screen_output() const;
 protected:
@@ -76,16 +89,49 @@ private:
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<std::size_t &>(m_gen);
-		ar & const_cast<double &>(m_elite);
-		ar & const_cast<double &>(m_scale);
-		ar & const_cast<int &>(m_variant);
+		ar & m_cc;
+		ar & m_cs;
+		ar & m_c1;
+		ar & m_cmu;
+		ar & m_sigma;
+		ar & m_xtol;
+		ar & m_ftol;
 		ar & m_screen_output;
+		ar & mean;
+		ar & variation;
+		ar & newpop;
+		ar & B;
+		ar & D;
+		ar & C;
+		ar & invsqrtC;
+		ar & pc;
+		ar & ps;
+		ar & counteval;
+		ar & eigeneval;
 	}
+	// "Real" data members
 	const std::size_t m_gen;
-	const double m_elite;
-	const double m_scale;
-	const int m_variant;
+	double m_cc;
+	double m_cs;
+	double m_c1;
+	double m_cmu;
+	double m_sigma;
+	double m_xtol;
+	double m_ftol;
 	bool m_screen_output;
+
+	// "Memory" data members (these are here as to enable control over each single generation)
+	mutable Eigen::VectorXd mean;
+	mutable Eigen::VectorXd variation;
+	mutable std::vector<Eigen::VectorXd> newpop;
+	mutable Eigen::MatrixXd B;
+	mutable Eigen::MatrixXd D;
+	mutable Eigen::MatrixXd C;
+	mutable Eigen::MatrixXd invsqrtC;
+	mutable Eigen::VectorXd pc;
+	mutable Eigen::VectorXd ps;
+	mutable int counteval;
+	mutable int eigeneval;
 };
 
 }} //namespaces
