@@ -86,6 +86,8 @@ BOOST_PYTHON_MODULE(_topology) {
 		.add_property("number_of_vertices",&topology::base::get_number_of_vertices)
 		.add_property("number_of_edges",&topology::base::get_number_of_edges)
 		.def("get_average_shortest_path_length",&topology::base::get_average_shortest_path_length,"Calculate average shortest path length.")
+                .def("get_clustering_coefficient",&topology::base::get_clustering_coefficient,"Calculate the clustering coefficient.")
+                .def("get_degree_distribution",&topology::base::get_degree_distribution,"Calculate the degree distribution.")
 		.def("push_back",&topology::base::push_back,"Add vertex to the topology and connect it.")
 		.def("are_adjacent",&topology_are_adjacent,"Check whether two vertices are adjacent.")
 		.def("are_inv_adjacent",&topology_are_inv_adjacent,"Check whether two vertices are inversely adjacent.")
@@ -96,7 +98,9 @@ BOOST_PYTHON_MODULE(_topology) {
 
 	// Topologies.
 	topology_wrapper<topology::barabasi_albert>("barabasi_albert", "Barabasi-Albert topology.").def(init<optional<int,int> >());
-	topology_wrapper<topology::custom>("custom", "Custom topology.")
+        topology_wrapper<topology::clustered_ba>("clustered_ba", "Clustered Barabasi-Albert topology.").def(init<optional<int,int,double> >());
+        topology_wrapper<topology::ageing_clustered_ba>("ageing_clustered_ba", "Clustered Barabasi-Albert with Ageing topology.").def(init<optional<int,int,double,int> >());
+        topology_wrapper<topology::custom>("custom", "Custom topology.")
 		.def(init<const topology::base &>())
 		.def("add_edge",&topology::custom::add_edge,"Add edge.")
 		.def("remove_edge",&topology::custom::remove_edge,"Remove edge.")

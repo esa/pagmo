@@ -28,6 +28,8 @@
 // Header including all topologies implemented in PaGMO.
 
 #include "topology/barabasi_albert.h"
+#include "topology/clustered_ba.h"
+#include "topology/ageing_clustered_ba.h"
 #include "topology/custom.h"
 #include "topology/erdos_renyi.h"
 #include "topology/fully_connected.h"

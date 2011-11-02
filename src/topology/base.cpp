@@ -394,6 +394,67 @@ double base::get_average_shortest_path_length() const
 	}
 }
 
+/// Calculate clustering coefficient
+double base::get_clustering_coefficient() const
+{
+        // Output value.
+        double cc = 0.0;
+        // Get the vertices.
+        std::pair<v_iterator, v_iterator> vertices;
+        std::vector<base::vertices_size_type> adj_vertices;
+        vertices  = get_vertices();
+        // Loop through vertices and calculate individual clustering coeffient.
+        for(; vertices.first != vertices.second; vertices.first++) {
+                adj_vertices = get_v_adjacent_vertices(*vertices.first);
+                if(adj_vertices.size() > 1) {
+                        // Count the number of nodes in adj_vertices that are adjacent to one another.
+                        for(int i = 0; i < adj_vertices.size()-1; i++) {
+                                for(int j = i; j < adj_vertices.size(); j++) {
+                                        if(i != j && are_adjacent(adj_vertices[i],adj_vertices[j])) {
+                                                cc += 2.0/(adj_vertices.size() * (adj_vertices.size() - 1));
+                                        }
+                                }
+                        }
+                        // Now get the clustering coefficient of the node by dividing by...
+                        //c /= adj_vertices.size() * (adj_vertices.size() - 1);
+                } else {
+                    // In the case that a node only has one neighbour
+                    // the node has a clustering coefficient of 1.
+                    cc += 1.0;
+                }
+                // Update the network clustering coefficient
+                //cc += c;
+        }
+        // Average clustering coefficient
+        cc /= get_number_of_vertices();
+        // Output
+        return cc;
+}
+
+/// Constructs the Degree Distribution
+std::vector<double> base::get_degree_distribution()
+{
+    // First, find the maximum degree of any node and define the output vector
+    std::pair<v_iterator, v_iterator> vertices;
+    int mx = 0;
+    vertices = get_vertices();
+    double ne = (get_number_of_edges());
+    ne = 1/ne;
+    for(; vertices.first != vertices.second; vertices.first++) {
+        if((int)get_num_adjacent_vertices(*vertices.first) > mx) mx = (int)get_num_adjacent_vertices(*vertices.first);
+    }
+    std::vector<double> deg_dist(mx+1);
+    for(int i = 0; i < mx; i++) deg_dist[i] = 0;
+    // Loop through each vertex and increment deg_dist accordingly
+    vertices = get_vertices();
+    for(; vertices.first != vertices.second; vertices.first++) {
+        deg_dist[get_num_adjacent_vertices(*vertices.first)]+=ne;
+
+    }
+//    // Return the degree distribution vector
+    return deg_dist;
+}
+
 /// Push back vertex.
 /**
  * This method will add a vertex and will then call connect() to establish the connections between the newly-added node

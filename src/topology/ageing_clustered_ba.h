@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_TOPOLOGY_CLUSTERED_BA_H
-#define PAGMO_TOPOLOGY_CLUSTERED_BA_H
+#ifndef PAGMO_TOPOLOGY_AGEING_CLUSTERED_BA_H
+#define PAGMO_TOPOLOGY_AGEING_CLUSTERED_BA_H
 
 #include <cstddef>
 #include <string>
@@ -35,16 +35,17 @@
 
 namespace pagmo { namespace topology {
 
-/// Barabási-Albert graph topology.
+/// Clustered Barabási-Albert with Ageing vertices graph topology.
 /**
- * \image html clusteredba.png "Clustered Barabási-Albert network with m0 = 4, m = 4, p = 0.4 and 200 vertices."
+ * \image html ageingcba.png "Ageing Clustered Barabási-Albert network with m0 = 4, m = 4, p = 0.4, a = 100 and 200 vertices."
  *
- * Topology based on the Barabási-Albert (BA) model for the generation of random undirected scale-free networks. A clustering
- * mechanism has been added to increase clustering coefficient of generated networks. The construction of this topology
+ * Topology based on the Barabási-Albert (BA) model for the generation of random undirected scale-free networks. Ageing and clustering
+ * mechanisms have been added to increase clustering coefficient and community structure. The construction of this topology
  * consists internally of three phases:
  * - the first m0 elements added to the network constitute a kernel of nodes connected to each other with high probability;
  * - after the kernel is built, the next elements added to the network are connected randomly to up to m of the existing nodes; the probability
- *   of connection is biased linearly towards the most connected nodes.
+ *   of connection is biased linearly towards the most connected nodes, and nodes that are 'older' than the maximum age, a, cannot
+ *   be connected to.
  * - Pairs of nodes that have been connected to are connected to eachother with probability, p.
  *
  * @author Luke O'Connor (lumoconnor@gmail.com)
@@ -52,10 +53,10 @@ namespace pagmo { namespace topology {
  * @author Marek Ruciński (marek.rucinski@gmail.com)
  *
  */
-class __PAGMO_VISIBLE clustered_ba : public base
+class __PAGMO_VISIBLE ageing_clustered_ba : public base
 {
 	public:
-                clustered_ba(int m0 = 3, int m = 2, double p = 0.5);
+                ageing_clustered_ba(int m0 = 3, int m = 2, double p = 0.5, int a = 1000);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -78,6 +79,8 @@ class __PAGMO_VISIBLE clustered_ba : public base
 		const std::size_t	m_m;
                 // Probability that nodes adjacent to the newly-inserted node are connected to each other.
                 const double       m_p;
+                // The maximum age of vertices
+                const int          m_a;
 		// Double random number generator
 		rng_double		m_drng;
 		// Integer random number generator.
@@ -86,6 +89,6 @@ class __PAGMO_VISIBLE clustered_ba : public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::clustered_ba);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::ageing_clustered_ba);
 
 #endif

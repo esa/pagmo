@@ -121,6 +121,8 @@ class __PAGMO_VISIBLE base
 		edges_size_type get_number_of_edges() const;
 		void push_back();
 		double get_average_shortest_path_length() const;
+                double get_clustering_coefficient() const;
+                std::vector<double> get_degree_distribution();
 		bool are_adjacent(const vertices_size_type &, const vertices_size_type &) const;
 		bool are_inv_adjacent(const vertices_size_type &,const vertices_size_type &) const;
 		std::vector<vertices_size_type> get_v_adjacent_vertices(const vertices_size_type &) const;
