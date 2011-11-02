@@ -99,19 +99,19 @@ void barabasi_albert::connect(const vertices_size_type &idx)
 			add_edge(idx,rnd);
 		}
 	} else {
-		// Let's find the current total number of edges.
-		const edges_size_type n_edges = get_number_of_edges();
-		pagmo_assert(n_edges > 0);
 		// Now we need to add m edges, choosing the nodes with a probability
 		// proportional to their number of connections. We keep track of the
 		// connection established in order to avoid connecting twice to the same
 		// node.
-		boost::uniform_int<edges_size_type> uni_int(0,n_edges - 1);
 		std::size_t i = 0;
 		std::pair<v_iterator,v_iterator> vertices;
 		std::pair<a_iterator,a_iterator> adj_vertices;
-		while (i < m_m) {
-			// Here we choose a random number between 0 and n_edges - 1.
+                while (i < m_m) {
+                        // Let's find the current total number of edges.
+                        const edges_size_type n_edges = get_number_of_edges();
+                        pagmo_assert(n_edges > 0);
+                        boost::uniform_int<edges_size_type> uni_int(0,n_edges - 1 - i);
+                        // Here we choose a random number between 0 and n_edges - 1 - i.
 			const edges_size_type rn = uni_int(m_urng);
 			edges_size_type n = 0;
 			// Iterate over all vertices and accumulate the number of edges for each of them. Stop when the accumulated number of edges is greater
@@ -119,15 +119,16 @@ void barabasi_albert::connect(const vertices_size_type &idx)
 			// You can think of this process as selecting a random edge among all the existing edges and connecting to the vertex from which the
 			// selected edge departs.
 			vertices = get_vertices();
-			for (; vertices.first != vertices.second; ++vertices.first) {
+                        for (; vertices.first != vertices.second; ++vertices.first) {
 				// Do not consider it_n.
-				if (*vertices.first != idx) {
+                                if (*vertices.first != idx) {
 					adj_vertices = get_adjacent_vertices(*vertices.first);
 					n += boost::numeric_cast<edges_size_type>(std::distance(adj_vertices.first,adj_vertices.second));
-					if (n > rn) {
+                                        //std::cout << "vertex " << *vertices.first << "rn is " << rn << " and n is " << n << std::endl;
+                                        if (n > rn) {
 						break;
 					}
-				}
+                                }
 			}
 			pagmo_assert(vertices.first != vertices.second);
 			// If the candidate was not already connected, then add it.
