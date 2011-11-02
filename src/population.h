@@ -249,7 +249,7 @@ __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::individual_type &);
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::champion_type &);
 
-struct population_access
+struct __PAGMO_VISIBLE population_access
 {
 	static problem::base_ptr &get_problem_ptr(population &);
 };

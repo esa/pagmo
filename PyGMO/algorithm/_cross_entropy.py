@@ -4,7 +4,7 @@ class py_cross_entropy(base):
        """
        Cross-Entropy algorithm (Python)
        """
-       def __init__(self, gen = 500, elite = 0.5, scale = 0.05, variant=1, screen_output = False):
+       def __init__(self, gen = 500, elite = 0.5, scale = 0.3, variant=1, screen_output = False):
 	      """
 	      Constructs a Cross-Entropy Algorithm (Python)
 
@@ -32,13 +32,15 @@ class py_cross_entropy(base):
 	      self.__elite = elite
 	      self.__scale = scale
 	      self.__screen_output = screen_output
+	      self.__weights = [] 
 	      self.__variant = variant
 	      np.random.seed()
 
        def evolve(self,pop):
-	       from numpy import matrix,array
+	       from numpy import matrix,array,log, diag
 	       from numpy.random import multivariate_normal,random,normal
-	       from numpy.linalg import norm, cholesky, LinAlgError
+	       from numpy.linalg import norm, cholesky, LinAlgError, eig
+	       import matplotlib.pyplot as pl
 
 	       # Let's rename some variables
 	       prob = pop.problem
@@ -72,40 +74,59 @@ class py_cross_entropy(base):
 	       variation = array([[0.0]*dim]*np)
 	       newpop = array([[0.0]*dim]*np)
 
+	       self.__weights = [log(n_elite+0.5) - log(i+1) for i in range(n_elite)]  # recombination weights
+               self.__weights = [w / sum(self.__weights) for w in self.__weights]      # normalize recombination weights array
+
 	       for gen in range(self.__gen):
 
 		       #1 - We extract the elite from this generation (NOTE: we use best_f to rank)	       	       
 		       elite = [matrix(pop[idx].best_x) for idx in pop.get_best_idx(n_elite)]
 
+		       pl.plot(0,0.1,'og')
+		       for ind in elite:
+		       		pl.plot(ind[0,0],ind[0,1],'or')
+		       pl.show()
+		       raw_input()
+
+
 		       #2 - We evaluate the Covariance Matrix 
 		       if self.__variant==1:
 		       		# as least square estimator of the elite (with mean mu)
-		       		C = (elite[0]-mu).T*(elite[0]-mu)
+		       		C = (elite[0]-mu).T*(elite[0]-mu)*self.__weights[0]
 		       		for i in range(1,n_elite):
-		       			C = C + (elite[i]-mu).T*(elite[i]-mu)
+		       			C = C + (elite[i]-mu).T*(elite[i]-mu)*self.__weights[i]
+		       			1/0
 	               if self.__variant==2:
 	               		# using Dario's method
 	       	       		mu = mu.T
-		       		C = (elite[0]-mu).T*(elite[0]-mu)
+		       		C = (elite[0]-mu).T*(elite[0]-mu)*self.__weights[0]
 		       		for i in range(1,n_elite):
-		       			C = C + (elite[i]-mu).T*(elite[i]-mu)
-		       C = C / n_elite
+		       			C = C + (elite[i]-mu).T*(elite[i]-mu)*self.__weights[i]
+		       #C = C / n_elite
 		       
 		       #3 - We compute the new elite mean
-		       mu = elite[0]
+		       mu = elite[0]*self.__weights[0]
 		       for i in range(1,n_elite):
-		       		mu = mu + elite[i]
-		       mu = mu / n_elite	
+		       		mu = mu + elite[i]*self.__weights[i]	
+		       pl.plot(mu[0,0],mu[0,1],'ob')
+		       raw_input()
 
 		       #4 - We generate the new sample  
 		       variation = multivariate_normal([0]*dim,C,[np]) 
+		       D, B = eig(C)       	# eigen decomposition, B==normalized eigenvectors, O(N**3)
+		       D = [d**0.5 for d in D]  # D contains standard deviations now
+		       variation = [B * diag(D) * normal(0,1,[dim,1]) for i in range(np)]
+		       variation = [[j[0,0] for j in matr] for matr in variation]
+		       
 		       #U = cholesky(C)		
 		       #for i in range(np):
 		       	#	y = normal(0,1,[dim,1])
 		       	#	variation[i] = (U*y).T 
 		       for i,d_mu in enumerate(variation):
 		       		newpop[i] = mu + d_mu * self.__scale
-		       	
+		       		pl.plot(newpop[i][0],newpop[i][1],'ok')
+		       pl.show()
+		       raw_input()
 
 		       #5 - We fix it within the bounds
 		       for row in range(newpop.shape[0]):
@@ -117,8 +138,8 @@ class py_cross_entropy(base):
 
 		       #6 - And perform reinsertion
 		       for i in range(np):
-	       	      		idx = pop.get_worst_idx()
-		       		pop.set_x(idx,newpop[i])
+	       	      		#idx = pop.get_worst_idx()
+		       		pop.set_x(i,newpop[i])
 
 		       #7 - We print to screen if necessary
 		       if self.__screen_output:

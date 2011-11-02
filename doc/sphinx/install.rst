@@ -53,12 +53,37 @@ Here is a typical example of the output obtained (gentoo system):
 Compiling and Installing under Windows
 --------------------------------------
 
-Same as under Unix, just make sure that
+We here outline the procedure we followed when providing the Windows Binaries. In our system, we had
+CMake 2.8.6, Python 2.7, Boost 1.47.0 and MinGW with Msys 1.0.11 (all installed in C:)
 
-* You have compiled the boost libraries correctly (i.e invoking bjam with the option toolset=gcc link=shared). 
-* Place the whole boost directory where the CMake script can find it (e.g. in C:/boost). This may also require renaming the folder from boost_x_xx_xx to boost)
+* We compiled the boost libraries with the command ".\b2 toolset=gcc link=shared" 
+* NOTE: The whole boost directory must be placed where the CMake script can find it (e.g. in C:/boost). 
+  This required renaming the folder from "boost_x_xx_xx" to "boost") Alternatively, one can directly tell CMake where the boost_x_xx_xx folder is, in which case make sure to fill in both
+  the header and the library fields (toggling advanced view)
 * Check, when running CMake, that all libraries are found correctly
-* When running a make install, Windows will probably put your PyGMO directory under Program Files/pagmo,
+* When running a make install, Windows will probably put your PyGMO directory under Program Files/PyGMO,
   move it to the correct place (e.g. C:/Python27/Lib/site-packages/)
-* Put all dll in PyGMO/core
-* Hope for the best (honestly, if it works for you just download the binaries.... it is easier)
+* Remember to place the necessary libraries in Windows/System32. In particular you will need
+ a) the pagmo library (libpagmo.dll)
+ b) the boost date-time library
+ c) the boost serialization library
+ d) the boost python library
+ e) the boost thread library
+* You need to place the minGW ibraries libgfortran-3.dll, libquadmath-0.dll and pthreadGC2 in the core directory.
+
+* If the option GSL is activated you need to provide the GSL libraries, in particular 
+	a) libgslcblas.a b) libgsl.a c) the include dir of gsl. We have compiled gsl-1.15 using msys 1.0.11 configure make install
+	(it first required to define "#define HAVE_DECL_ISNAN 1" and " #define HAVE_DECL_FINITE 1" in config.h of the gsl downloaded distribution). The static libs
+	are then created in cblas/.lib and /lib. We have pointed CMake to those files and to msys local/include for the include files.
+	One could also link to the dynamic .dll files that are created in the local/lib directry of msys after make install. In
+	this case remember to put those libraries (libgsl-0.dll and libgslcblas-0.dll) in the folder System32 too.
+	
+* If the option Ipopt is activated you need to tell CMake explicitly where to find Ipopt, in particular 
+  a) libcoinblas.a b) libcoinlapack.a c) libcoinmumps.a d) libipopt.a e) The include dir of ipopt.
+  We have compiled Ipopt 3.10.1 using msys 1.0.11 and the usual config make install procedure ..... 
+  (MUMPS is used as linear solver) and later linked to the static libraries created in lib/.
+  
+* If the option NLOPT is activated you need to tell CMake explicitly where to find NLOPT and in particular
+  a) nlopt-0.dll b) nlopt.h and nlopt.hhp. We downloaded the already available Windows binaries for NLOPT 2.2.3
+  
+  

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from _algorithm import *
+from _algorithm import _base
 from _base import base
 from _example import py_example
 from _cross_entropy import py_cross_entropy
+from _cmaes import py_cmaes
 from _scipy_algos import *
 
 _base = _algorithm._base
@@ -82,9 +84,12 @@ def _pso_ctor(self,**kwargs):
 		1. gbest neighbourhood topology (fully connected)
 		2. lbest neighbourhood topology (ring)
 		3. Von-Neumann neighbourhood topology (square lattice)
-		4. Randomly-varying neighbourhood topology (not yet implemented)
-	* neighb_param: in the lbest topology defines how many links 
-		are there in the ring (half to the right and half to the left)
+		4. Randomly-varying neighbourhood topology
+	* neighb_param: if the lbest topology is selected, it represents each particle's indegree
+		(also outdegree) in the swarm topology. Particles have neighbours up
+		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
+		The minimum outdegree is 1 (the particle always connects back to itself).
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -127,9 +132,12 @@ def _pso_gen_ctor(self,**kwargs):
 		1. gbest neighbourhood topology (fully connected)
 		2. lbest neighbourhood topology (ring)
 		3. Von-Neumann neighbourhood topology (square lattice)
-		4. Randomly-varying neighbourhood topology (not yet implemented)
-	* neighb_param: in the lbest topology defines how many links 
-		are there in the ring (half to the right and half to the left)
+		4. Randomly-varying neighbourhood topology
+	* neighb_param: if the lbest topology is selected, it represents each particle's indegree
+		(also outdegree) in the swarm topology. Particles have neighbours up
+		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
+		The minimum outdegree is 1 (the particle always connects back to itself).
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -360,15 +368,17 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a BOBYQA algorithm (Bound Optimization BY Quadratic Approximation) (NLOPT)
 	
-		USAGE: algorithm.nlopt_bobyqa(max_iter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_bobyqa(max_iter = 100, ftol = 1e-6, xtol = 1e-6);
 	
-		* max_iter: maximum number of iterations
-		* tol: tolerance to achieve to stop the algorithm
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
 		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-6))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_bobyqa._orig_init = nlopt_bobyqa.__init__
 	nlopt_bobyqa.__init__ = _nlopt_bobyqa_ctor
@@ -377,15 +387,17 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of subspaces) (NLOPT)
 	
-		USAGE: algorithm.nlopt_sbplx(max_iter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_sbplx(max_iter = 100, ftol = 1e-6, xtol = 1e-6);
 	
-		* max_iter: maximum number of iterations
-		* tol: tolerance to achieve to stop the algorithm
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
 		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-6))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_sbplx._orig_init = nlopt_sbplx.__init__
 	nlopt_sbplx.__init__ = _nlopt_sbplx_ctor
@@ -394,18 +406,118 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm (NLOPT)
 	
-		USAGE: algorithm.nlopt_cobyla(max_iter = 100, tol = 1e-6);
+		USAGE: algorithm.nlopt_cobyla(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
 	
-		* max_iter: maximum number of iterations
-		* tol: tolerance to achieve to stop the algorithm
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
 		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-6))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
 		self._orig_init(*arg_list)
 	nlopt_cobyla._orig_init = nlopt_cobyla.__init__
 	nlopt_cobyla.__init__ = _nlopt_cobyla_ctor
+
+	def _nlopt_mma_ctor(self,**kwargs):
+		"""
+		Constructs a Method of Moving Asymptotes (MMA) algorithm (NLOPT)
+
+		USAGE: algorithm.nlopt_mma(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
+
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_mma._orig_init = nlopt_mma.__init__
+	nlopt_mma.__init__ = _nlopt_mma_ctor
+
+	def _nlopt_auglag_ctor(self,**kwargs):
+		"""
+		Constructs an Augmented agrangian Algotihm (NLOPT)
+
+		USAGE: algorithm.nlopt_mma(aux_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, aux_max_iter = 100, aux_ftol = 1e-6, aux_xtol = 1e-6)
+
+		* aux_algo_id: auxiliary  optimizer id
+			1: SBPLX
+			2: COBYLA
+			3: BOBYQA
+			4: Low Storage BFGS
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		* aux_max_iter: stop-criteria for the auxiliary optimizer (number of iterations)
+		* aux_ftol: stop-criteria for the auxiliary optimizer (absolute on the obj-fun)
+		* aux_xtol: stop-criteria for the auxiliary optimizer (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('aux_algo_id', 1))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(kwargs.pop('aux_max_iter', 100))
+		arg_list.append(kwargs.pop('aux_ftol', 1e-6))
+		arg_list.append(kwargs.pop('aux_xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_auglag._orig_init = nlopt_auglag.__init__
+	nlopt_auglag.__init__ = _nlopt_auglag_ctor
+
+	def _nlopt_auglag_eq_ctor(self,**kwargs):
+		"""
+		Constructs an Augmented agrangian Algotihm (using penalties only for the equalities) (NLOPT)
+
+		USAGE: algorithm.nlopt_auglag_eq(aux_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, aux_max_iter = 100, aux_ftol = 1e-6, aux_xtol = 1e-6)
+
+		* aux_algo_id: auxiliary (local) optimizer id
+			1: COBYLA
+			2: MMA
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		* aux_max_iter: stop-criteria for the auxiliary optimizer (number of iterations)
+		* aux_ftol: stop-criteria for the auxiliary optimizer (absolute on the obj-fun)
+		* aux_xtol: stop-criteria for the auxiliary optimizer (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('aux_algo_id', 1))
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(kwargs.pop('aux_max_iter', 100))
+		arg_list.append(kwargs.pop('aux_ftol', 1e-6))
+		arg_list.append(kwargs.pop('aux_xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_auglag_eq._orig_init = nlopt_auglag_eq.__init__
+	nlopt_auglag_eq.__init__ = _nlopt_auglag_eq_ctor
+
+	def _nlopt_slsqp_ctor(self,**kwargs):
+		"""
+		Constructs a Sequential Least SQuares Programming algorithm (SLSQP) algorithm (NLOPT)
+
+		USAGE: algorithm.nlopt_slsqp(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
+
+		* max_iter: stop-criteria (number of iterations)
+		* ftol: stop-criteria (absolute on the obj-fun)
+		* xtol: stop-criteria (absolute on the chromosome)
+		"""
+		# We set the defaults or the kwargs
+		arg_list=[]
+		arg_list.append(kwargs.pop('max_iter', 100))
+		arg_list.append(kwargs.pop('ftol', 1e-6))
+		arg_list.append(kwargs.pop('xtol', 1e-6))
+		self._orig_init(*arg_list)
+	nlopt_slsqp._orig_init = nlopt_slsqp.__init__
+	nlopt_slsqp.__init__ = _nlopt_slsqp_ctor
 
 #GSL algorithms (only if PyGMO has been compiled with gsl option activated)
 if "gsl" in str(_get_algorithm_list()):

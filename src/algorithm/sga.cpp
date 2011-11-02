@@ -34,7 +34,6 @@
 #include "../exceptions.h"
 #include "../population.h"
 #include "../problem/base.h"
-#include "../problem/base_stochastic.h"
 #include "../types.h"
 #include "base.h"
 #include "sga.h"

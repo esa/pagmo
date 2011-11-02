@@ -67,7 +67,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 			Iterator n_it = it + 3 * n;
 			kep_toolbox::array3D tmp = {{ *n_it, *(n_it + 1), *(n_it + 2)}};
 			const double seg_duration = (end.mjd() - start.mjd()) / m_n_seg;
-			return kep_toolbox::sims_flanagan::throttle(kep_toolbox::epoch(start.mjd() + seg_duration * n,kep_toolbox::epoch::MJD),
+			return kep_toolbox::sims_flanagan::throttle( kep_toolbox::epoch(start.mjd() + seg_duration * n,kep_toolbox::epoch::MJD),
 				kep_toolbox::epoch(start.mjd() + seg_duration * (n + 1),kep_toolbox::epoch::MJD),
 				tmp);
 		}
@@ -79,15 +79,15 @@ class __PAGMO_VISIBLE gtoc_2: public base
 			ar & const_cast<int &>(m_n_seg);
 			ar & m_asteroids;
 			ar & m_legs;
-			ar & const_cast<kep_toolbox::sims_flanagan::spacecraft &>(m_spacecraft);
+			ar & const_cast< kep_toolbox::sims_flanagan::spacecraft &>(m_spacecraft);
 			ar & m_obj;
 		}
 	private:
-		const int						m_n_seg;
-		std::vector<kep_toolbox::asteroid_gtoc2>		m_asteroids;
-		mutable std::vector<kep_toolbox::sims_flanagan::leg>	m_legs;
-		const kep_toolbox::sims_flanagan::spacecraft		m_spacecraft;
-		objective						m_obj;
+		const int												m_n_seg;
+		std::vector< kep_toolbox::asteroid_gtoc2>				m_asteroids;
+		mutable std::vector< kep_toolbox::sims_flanagan::leg>	m_legs;
+		const kep_toolbox::sims_flanagan::spacecraft			m_spacecraft;
+		objective												m_obj;
 };
 
 } } // namespaces

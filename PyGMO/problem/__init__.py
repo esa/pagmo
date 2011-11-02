@@ -1,61 +1,61 @@
 # -*- coding: iso-8859-1 -*-
 from _base import base
+from _base_stochastic import base_stochastic
 from _problem import *
+from _problem import _base
+from _problem import _base_stochastic
 from _example import py_example
 from _pl2pl import py_pl2pl
 
 # If GTOP database support is active import interplanetary trajectory problems
 
 try:
-        from _gtop import *
+	from _gtop import *
 except:
-        print "PyGMO was compiled without the GTOP database support activated .... interplanetary trajectory problems are not imported"
+	pass
 
 # If GSL support is active import mit_sphere
 try:
-        from _mit_spheres import visualize as _visualize
-	#from _spheres_q import visualize as _visualize_q
+	from _mit_spheres import visualize as _visualize
 	mit_spheres.visualize = _visualize
-	#spheres_q.visualize = _visualize_q
-
-        def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
-                """
-                Construct a Neurocontroller Evolution problem that seeks to drive three point masses to form a triangle
-                This problem was used to design a contorller for the MIT SPHERES test bed on boear the ISS
-
-                USAGE: problem.mit_spheres(sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
-
-                * sample_size: number of initial conditions the neurocontroller is tested from
-                * n_hidden: number of hidden  for the feed-forward neural network
-                * ode_prec: relative numerical precision of neurons the ODE integrator
-                * seed: integer used as starting random seed to build the pseudorandom sequences used to generate the sample
-                * symmetric: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
-                * simulation_time: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
-        """
-
-                # We construct the arg list for the original constructor exposed by boost_python
-                arg_list=[]
-                arg_list.append(sample_size)
-                arg_list.append(n_hidden)
-                arg_list.append(ode_prec)
-                arg_list.append(seed)
-                arg_list.append(symmetric)
-                arg_list.append(simulation_time)
-                self._orig_init(*arg_list)
-        mit_spheres._orig_init = mit_spheres.__init__
-        mit_spheres.__init__ = _mit_spheres_ctor
-
+	def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
+		"""
+		Construct a Neurocontroller Evolution problem that seeks to drive three point masses to form a triangle
+		This problem was used to design a contorller for the MIT SPHERES test bed on boear the ISS
+		
+		USAGE: problem.mit_spheres(sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
+		
+		* sample_size: number of initial conditions the neurocontroller is tested from
+		* n_hidden: number of hidden  for the feed-forward neural network
+		* ode_prec: relative numerical precision of neurons the ODE integrator
+		* seed: integer used as starting random seed to build the pseudorandom sequences used to generate the sample
+		* symmetric: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
+		* simulation_time: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
+	"""
+		
+		# We construct the arg list for the original constructor exposed by boost_python
+		arg_list=[]
+		arg_list.append(sample_size)
+		arg_list.append(n_hidden)
+		arg_list.append(ode_prec)
+		arg_list.append(seed)
+		arg_list.append(symmetric)
+		arg_list.append(simulation_time)
+		self._orig_init(*arg_list)
+	mit_spheres._orig_init = mit_spheres.__init__
+	mit_spheres.__init__ = _mit_spheres_ctor
+	
+	from PyGMO import __version__
+	__version__ = __version__ + "GTOP " + "GSL "
 
 except:
-	print "PyGMO was compiled without GSL support activated .... some problems are not imported"
+	pass
 
-# Raw C++ base class.
-_base = _problem._base
 	
 #Creating the list of problems
 def _get_problem_list():
 	from PyGMO import problem
-	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and issubclass(problem.__dict__[n],problem._base),dir(problem))]
+	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic)),dir(problem))]
 
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
 def _rastrigin_ctor(self,dim = 10):

@@ -39,6 +39,7 @@
 #include "../../src/algorithm/base.h"
 #include "../../src/archipelago.h"
 #include "../../src/base_island.h"
+#include "../../src/config.h"
 #include "../../src/exceptions.h"
 #include "../../src/migration/base_r_policy.h"
 #include "../../src/migration/base_s_policy.h"
@@ -113,7 +114,7 @@ inline static void population_set_v(population &pop, int n, const decision_vecto
 	pop.set_v(boost::numeric_cast<population::size_type>(n),v);
 }
 
-struct population_pickle_suite : boost::python::pickle_suite
+struct __PAGMO_VISIBLE population_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const population &pop)
 	{
@@ -143,7 +144,7 @@ struct population_pickle_suite : boost::python::pickle_suite
 };
 
 template <class Island>
-struct island_pickle_suite : boost::python::pickle_suite
+struct __PAGMO_VISIBLE island_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const Island &isl)
 	{
@@ -174,7 +175,7 @@ struct island_pickle_suite : boost::python::pickle_suite
 	}
 };
 
-struct archipelago_pickle_suite : boost::python::pickle_suite
+struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const archipelago &)
 	{

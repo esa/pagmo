@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_NLOPT_SBPLX_H
-#define PAGMO_ALGORITHM_NLOPT_SBPLX_H
+#ifndef PAGMO_ALGORITHM_NLOPT_AUG_LAG_H
+#define PAGMO_ALGORITHM_NLOPT_AUG_LAG_H
 
 #include <string>
 
@@ -33,39 +33,53 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Wrapper for NLopt's Sbplx algorithm.
+/// Wrapper for NLopt's Augmented Lagrangian algorithm.
 /**
  * From NLopt's documentation:
  *
- * <EM>This is my re-implementation of Tom Rowan's "Subplex" algorithm. As Rowan expressed a preference that other implementations of
- * his algorithm use a different name, I called my implementation "Sbplx" [...].
- * Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of subspaces) is claimed to be much more efficient and robust
- * than the original Nelder-Mead, while retaining the latter's facility with discontinuous objectives, and in my experience these claims
- * seem to be true in many cases.</EM>
+ * <EM>This method combines the objective function and the nonlinear inequality/equality constraints (if any)
+ * in to a single function: essentially, the objective plus a "penalty" for any violated constraints.
+ * This modified objective function is then passed to another optimization algorithm with no nonlinear
+ * constraints [the auxiliary algorithm]. If the constraints are violated by the solution of this sub-problem, then the size
+ * of the penalties is increased and the process is repeated; eventually, the process must converge
+ * to the desired solution (if it exists).</EM>
  *
- * This algorithm is a derivative-free single-objective continuous minimiser that supports box constraints.
+ * The inclusion in PaGMO required to give a fixed choice forthe auxiliary algorithms as nlopt interface is
+ * too different from pagmo's to allow pagmo algorithm being passed as auxiliaries.
  *
- * @see T. Rowan, "Functional Stability Analysis of Numerical Algorithms", Ph.D. thesis, Department of Computer Sciences, University of Texas at Austin, 1990.
+ * This algorithm is a single-objective continuous minimiser that supports any type of constraints
  *
- * @author Francesco Biscani (bluescarni@gmail.com)
+ * @see http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms#Augmented_Lagrangian_algorithm
+ *
+ * @author Dario Izzo (dario.izzo@googlemail.com)
  */
-class __PAGMO_VISIBLE nlopt_sbplx: public base_nlopt
+class __PAGMO_VISIBLE nlopt_aug_lag: public base_nlopt
 {
 	public:
-		nlopt_sbplx(int = 100, const double & = 1E-6, const double & = 1E-6);
+		nlopt_aug_lag(int=1, int = 100, const double & = 1E-6, const double & = 1E-6, int = 100, const double & = 1E-6, const double & = 1E-6);
 		base_ptr clone() const;
 		std::string get_name() const;
+		void set_local(size_t) const;
+		std::string human_readable_extra() const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base_nlopt>(*this);	
+			ar & boost::serialization::base_object<base_nlopt>(*this);
+			ar & m_aux_algo_id;
+			ar & const_cast<std::size_t &>(m_aux_max_iter);
+			ar & const_cast<double &>(m_aux_ftol);
+			ar & const_cast<double &>(m_aux_xtol);
 		}  
+		int m_aux_algo_id;
+		const std::size_t	m_aux_max_iter;
+		const double		m_aux_ftol;
+		const double		m_aux_xtol;
 };
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_sbplx);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_aug_lag);
 
 #endif

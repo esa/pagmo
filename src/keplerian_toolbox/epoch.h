@@ -32,8 +32,9 @@
 
 // Serialization code
 #include "serialization.h"
-// Serialization code (END)
 #include "config.h"
+// Serialization code (END)
+
 
 
 /// Keplerian Toolbox
@@ -98,11 +99,11 @@ private:
 	double mjd2000_m;
 };
 
-__KEP_TOOL_VISIBLE std::ostream &operator<<(std::ostream &s, const epoch &epoch_in );
+__KEP_TOOL_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const epoch &epoch_in );
 
-__KEP_TOOL_VISIBLE epoch epoch_from_string(const std::string date);
+__KEP_TOOL_VISIBLE_FUNC epoch epoch_from_string(const std::string date);
 
-__KEP_TOOL_VISIBLE epoch epoch_from_iso_string(const std::string date);
+__KEP_TOOL_VISIBLE_FUNC epoch epoch_from_iso_string(const std::string date);
 
 
 } // end of namespace kep_toolbox

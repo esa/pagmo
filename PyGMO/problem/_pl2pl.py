@@ -13,7 +13,7 @@ class py_pl2pl(base):
 	The method high_fidelity allows to use a continuous thrust model rather than impulses
 	"""
 
-	def __init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=0,nseg=10,departure = None, target = None, optimise4mass = False):
+	def __init__(self,mass=1000,Tmax=0.05,Isp=2500,Vinf_0=3,Vinf_f=1e-12,nseg=10,departure = None, target = None, optimise4mass = False):
 		"""
 		Constructs a low-thrust transfer between a departure planet and a target planet (Constrained Continuous Single-Objective)
 

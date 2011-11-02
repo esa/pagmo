@@ -22,22 +22,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "base_stochastic.h"
-#include "../serialization.h"
+#include <nlopt.hpp>
 
-namespace pagmo { namespace problem {
+#include "base_nlopt.h"
+#include "nlopt_slsqp.h"
 
-base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_seed(seed) {
+namespace pagmo { namespace algorithm {
+
+/// Constructor.
+/**
+ * @see pagmo::algorithm::base_nlopt::base_nlopt()
+ */
+nlopt_slsqp::nlopt_slsqp(int max_iter, const double &ftol, const double &xtol):base_nlopt(nlopt::LD_SLSQP,true,false,max_iter,ftol,xtol) {}
+
+base_ptr nlopt_slsqp::clone() const
+{
+	return base_ptr(new nlopt_slsqp(*this));
 }
 
-void base_stochastic::set_seed(unsigned int seed) const {
-	m_seed = seed;
+/// Algorithm name
+std::string nlopt_slsqp::get_name() const
+{
+	return "SLSQP (NLOPT)";
 }
 
-unsigned int base_stochastic::get_seed() const {
-	return m_seed;
-}
+}}
 
-}} //namespaces
-
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::base_stochastic);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_slsqp);

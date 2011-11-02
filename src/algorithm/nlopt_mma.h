@@ -22,59 +22,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_BASE_STOCHASTIC_H
-#define PAGMO_PROBLEM_BASE_STOCHASTIC_H
+#ifndef PAGMO_ALGORITHM_NLOPT_MMA_H
+#define PAGMO_ALGORITHM_NLOPT_MMA_H
 
-#include "base.h"
+#include <string>
+
+#include "../config.h"
 #include "../serialization.h"
-#include "../rng.h"
+#include "base_nlopt.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace algorithm {
 
-/// Base Stochastic Optimization Problem.
+/// Wrapper for NLopt's Method of Moving Asymptotes algorithm.
 /**
- * A stochastic optimization problem is a problem that has an objective function
- * \f$ J(\mathbf x) = E_s(\mathbf x,s) \f$
- * being the average over some stochastic variable(s) \f$ s \f$. These types of problems need to
- * iherit from this base class that provides a-pseudo random number generator and a seed
- * that must be used in the objective function definition to generate pseudo random instances of
- * \f$ s\f$. These are then used to approximate the expected value with the average over n instances of s.
- * Look at pagmo::problem::inventory and pagmo::problem::spheres for typical examples.
+ * From NLopt's documentation:
  *
- * Optimization techniques that want to deal with these types of problems need to take care
- * of changing appropriately the seed along the optimization process as to avoid overfitting (that is
- * to avoid solving the problem only for one pseudo random sequence of s, and not for any). This must be done by
- * by a call to the change_seed() method.
- * See pagmo::algorithm::pso_stochastic
- * for a good example of such techniques.
+ * <EM>This is an improved variant of the original MMA algorithm published by Svanberg in 1987,
+ * which has become popular for topology optimization. (Note: "globally convergent" does not mean
+ * that this algorithm converges to the global optimum; it means that it is guaranteed to converge
+ * to some local minimum from any feasible starting point.) At each point x, MMA forms a local
+ * approximation using the gradient of f and the constraint functions, plus a quadratic "penalty"
+ * term to make the approximations "conservative" (upper bounds for the exact functions).
+ * The precise approximation MMA forms is difficult to describe in a few words, because it
+ * includes nonlinear terms consisting of a poles at some distance from x (outside of the current
+ * trust region), almost a kind of Pade approximant. .</EM>
  *
- * @author Dario Izzo (dario.izzo@gmail.com)
+ * The inclusion in PaGMO required to write central difference code for the automated, numercal evaluation
+ * of gradients. the rest was left unchaged
+ *
+ * This algorithm is a single-objective continuous minimiser that supports box constraints.
+ *
+ * @see http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms#MMA_.28Method_of_Moving_Asymptotes.29
+ *
+ * @author Dario Izzo (dario.izzo@googlemail.com)
  */
-
-class __PAGMO_VISIBLE base_stochastic : public base
+class __PAGMO_VISIBLE nlopt_mma: public base_nlopt
 {
 	public:
-		base_stochastic(int, unsigned int = 0u);
-		unsigned int get_seed() const;
-		void set_seed(unsigned int) const; //This is marked const as m_seed is mutable (needs to be)
+		nlopt_mma(int = 100, const double & = 1E-6, const double & = 1E-6);
+		base_ptr clone() const;
+		std::string get_name() const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & m_drng;
-			ar & m_seed;
-		}
-
-	protected:
-		mutable rng_double				m_drng;
-		mutable unsigned int				m_seed;
-
+			ar & boost::serialization::base_object<base_nlopt>(*this);	
+		}  
 };
 
-}} //namespaces
+}}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::base_stochastic);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_mma);
 
-#endif // PAGMO_PROBLEM_BASE_STOCHASTIC_H
+#endif

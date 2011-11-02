@@ -26,7 +26,7 @@
 #define PAGMO_ALGORITHM_BASE_NLOPT_H
 
 #include <cstddef>
-#include <nlopt.h>
+#include <nlopt.hpp>
 #include <string>
 
 #include "../config.h"
@@ -53,43 +53,51 @@ namespace pagmo { namespace algorithm {
  *
  * @see http://ab-initio.mit.edu/wiki/index.php/NLopt
  *
- * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Francesco Biscani (bluescarni@gmail.com), Dario Izzo(dario.izzo@googlemail.com)
  */
 class __PAGMO_VISIBLE base_nlopt: public base
 {
 	protected:
-		base_nlopt(nlopt_algorithm, bool, int, const double &);
+		base_nlopt(nlopt::algorithm, bool, bool, int, const double &, const double &);
 		void evolve(population &) const;
 		std::string human_readable_extra() const;
 	private:
 		struct nlopt_wrapper_data
 		{
 			problem::base const		*prob;
-			decision_vector			*x;
-			fitness_vector			*f;
-			constraint_vector		*c;
+			decision_vector			x;
+			decision_vector			dx;
+			fitness_vector			f;
+			constraint_vector		c;
 			problem::base::c_size_type	c_comp;
 		};
 		int get_last_status() const;
-		static double objfun_wrapper(int, const double *, double *, void *);
-		static double constraints_wrapper(int, const double *, double *, void *);
+		static double objfun_wrapper(const std::vector<double> &, std::vector<double> &, void*);
+		static double constraints_wrapper(const std::vector<double> &, std::vector<double> &, void*);
+		virtual void set_local(size_t d) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<nlopt_algorithm &>(m_algo);
+			ar & const_cast<nlopt::algorithm &>(m_algo);
 			ar & const_cast<bool &>(m_constrained);
+			ar & const_cast<bool &>(m_only_ineq);
 			ar & const_cast<std::size_t &>(m_max_iter);
-			ar & const_cast<double &>(m_tol);
-			ar & m_last_status;
-		}  
-		const nlopt_algorithm	m_algo;
+			ar & const_cast<double &>(m_ftol);
+			ar & const_cast<double &>(m_xtol);
+		}
+		const nlopt::algorithm	m_algo;
+	protected:
+		mutable nlopt::opt	m_opt;
+	private:
 		const bool		m_constrained;
+		const bool		m_only_ineq;
+	protected:
 		const std::size_t	m_max_iter;
-		const double		m_tol;
-		mutable int		m_last_status;
+		const double		m_ftol;
+		const double		m_xtol;
 };
 
 }}

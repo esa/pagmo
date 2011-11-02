@@ -132,7 +132,7 @@ blah
 	+ __GNUC_PATCHLEVEL__ * 10)
 #endif
 
-#ifdef PAGMO_WIN32
+#ifdef _WIN32
 	#ifdef PAGMO_DLL_EXPORT_API
 		#define __PAGMO_VISIBLE __declspec(dllexport)
 	#elif defined ( PAGMO_DLL_IMPORT_API )

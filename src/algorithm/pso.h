@@ -82,7 +82,7 @@ public:
 	void initialize_topology__gbest( const population &pop, decision_vector &gbX, fitness_vector &gbfit, std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__von( std::vector< std::vector<int> > &neighb ) const;
-	void initialize_topology__randomly_varying( std::vector< std::vector<int> > &neighb ) const;
+	void initialize_topology__adaptive_random( std::vector< std::vector<int> > &neighb ) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;

@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <nlopt.h>
+#include <nlopt.hpp>
 
 #include "base_nlopt.h"
 #include "nlopt_cobyla.h"
@@ -33,7 +33,7 @@ namespace pagmo { namespace algorithm {
 /**
  * @see pagmo::algorithm::base_nlopt::base_nlopt()
  */
-nlopt_cobyla::nlopt_cobyla(int max_iter, const double &tol):base_nlopt(NLOPT_LN_COBYLA,true,max_iter,tol) {}
+nlopt_cobyla::nlopt_cobyla(int max_iter, const double &ftol, const double &xtol):base_nlopt(nlopt::LN_COBYLA,true,false,max_iter,ftol,xtol) {}
 
 base_ptr nlopt_cobyla::clone() const
 {
