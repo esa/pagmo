@@ -53,6 +53,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "Eigen/Dense"
 
 namespace pagmo {
 
@@ -177,10 +178,79 @@ void load(Archive &ar, boost::unordered_map<Key,Mapped,Hash,Pred,Alloc> &um, uns
 	}
 }
 
+
 template <class Archive, class Key, class Mapped, class Hash, class Pred, class Alloc>
 void serialize(Archive &ar, boost::unordered_map<Key,Mapped,Hash,Pred,Alloc> &um, unsigned int version)
 {
 	split_free(ar, um, version);
+}
+
+template <class Archive>
+void save(Archive &ar, const Eigen::MatrixXd &cb, unsigned int)
+{
+	// Let's first save the dimension
+	std::size_t nrows = cb.rows(), ncols = cb.cols();
+	ar << nrows;
+	ar << ncols;
+	//And then the numbers
+	for (std::size_t i = 0; i < cb.rows(); ++i) {
+		for (std::size_t j = 0; i < cb.cols(); ++i) {
+			ar << cb(i,j);
+		}
+	}
+}
+
+template <class Archive>
+void load(Archive &ar, Eigen::MatrixXd &cb, unsigned int)
+{
+	std::size_t rows, cols;
+	// Let's first restore the dimension
+	ar >> rows;
+	ar >> cols;
+	cb.resize(rows,cols);
+	//And then the numbers
+	for (std::size_t i = 0; i < cb.rows(); ++i) {
+		for (std::size_t j = 0; i < cb.cols(); ++i) {
+			ar >> cb(i,j);
+		}
+	}
+}
+
+template <class Archive>
+void serialize(Archive &ar, Eigen::MatrixXd &cb, const unsigned int version)
+{
+	split_free(ar, cb, version);
+}
+
+template <class Archive>
+void save(Archive &ar, const Eigen::VectorXd &cb, unsigned int)
+{
+	std::size_t nrows = cb.rows();
+	// Let's first save the dimension
+	ar << nrows;
+	//And then the numbers
+	for (std::size_t i = 0; i < cb.rows(); ++i) {
+		ar << cb(i);
+	}
+}
+
+template <class Archive>
+void load(Archive &ar, Eigen::VectorXd &cb, unsigned int)
+{
+	std::size_t rows;
+	// Let's first restore the dimension
+	ar >> rows;
+	cb.resize(rows);
+	//And then the numbers
+	for (std::size_t i = 0; i < cb.rows(); ++i) {
+		ar >> cb(i);
+	}
+}
+
+template <class Archive>
+void serialize(Archive &ar, Eigen::VectorXd &cb, const unsigned int version)
+{
+	split_free(ar, cb, version);
 }
 
 }}
