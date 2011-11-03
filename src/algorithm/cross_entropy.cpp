@@ -25,6 +25,8 @@
 #include <string>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
+#include <math.h>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -58,7 +60,34 @@ namespace pagmo { namespace algorithm {
  * 
  * */
 cross_entropy::cross_entropy(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol):base(),
-			m_gen(boost::numeric_cast<std::size_t>(gen)) {
+			m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), m_cmu(cmu), m_sigma(sigma0),
+			m_ftol(ftol), m_xtol(xtol), m_screen_output(false) {
+	if (gen < 0) {
+		pagmo_throw(value_error,"number of generations must be nonnegative");
+	}
+	if ( ((cc < 0) || (cc > 0)) && !(cc==-1) ){
+		pagmo_throw(value_error,"cc needs to be in [0,1] or -1 for auto value");
+	}
+	if ( ((cs < 0) || (cs > 0)) && !(cs==-1) ){
+		pagmo_throw(value_error,"cs needs to be in [0,1] or -1 for auto value");
+	}
+	if ( ((c1 < 0) || (c1 > 0)) && !(c1==-1) ){
+		pagmo_throw(value_error,"c1 needs to be in [0,1] or -1 for auto value");
+	}
+	if ( ((cmu < 0) || (cmu > 0)) && !(cmu==-1) ){
+		pagmo_throw(value_error,"cmu needs to be in [0,1] or -1 for auto value");
+	}
+
+	//Initialize the algorithm memory
+	m_mean = Eigen::VectorXd(1);
+	m_B = Eigen::MatrixXd(1,1);
+	m_D = Eigen::VectorXd(1);
+	m_C = Eigen::MatrixXd(1,1);
+	m_invsqrtC = Eigen::MatrixXd(1,1);
+	m_pc = Eigen::VectorXd(1);
+	m_ps = Eigen::VectorXd(1);
+	m_counteval = 0;
+	m_eigeneval = 0;
 
 }
 /// Clone method.
@@ -78,13 +107,13 @@ void cross_entropy::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
-	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), D = prob.get_dimension(), Dc = D - prob_i_dimension, prob_c_dimension = prob.get_c_dimension();
+	const problem::base::size_type prob_i_dimension = prob.get_i_dimension(), dim = prob.get_dimension(), N = dim - prob_i_dimension, prob_c_dimension = prob.get_c_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type NP = pop.size();
-	const population::size_type n_elite = boost::numeric_cast<population::size_type>(NP/2);
+	const population::size_type lam = pop.size();
+	const population::size_type mu = boost::numeric_cast<population::size_type>(lam/2);
 
 	//We perform some checks to determine whether the problem/population are suitable for Cross Entropy
-	if ( Dc == 0 ) {
+	if ( N == 0 ) {
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for CE to optimise");
 	}
 
@@ -100,8 +129,8 @@ void cross_entropy::evolve(population &pop) const
 		pagmo_throw(value_error,"The problem has an integer part and CE is not suitable to solve it");
 	}
 
-	if (NP < 2) {
-		pagmo_throw(value_error,"for CE at least 2 individuals in the population are needed");
+	if (lam < 5) {
+		pagmo_throw(value_error,"for CE at least 5 individuals in the population are required");
 	}
 
 	// Get out if there is nothing to do.
@@ -109,102 +138,176 @@ void cross_entropy::evolve(population &pop) const
 		return;
 	}
 
-	if (n_elite < 1) {
-		pagmo_throw(value_error,"The population elite contains no individuals ..... maybe increase the elite parameter?");
-	}
-
 	using namespace Eigen;
-	// We allocate the memory necessary for the multivariate random vector generation
-	MatrixXd C(Dc,Dc);					//Covariance Matrix
-	MatrixXd U(Dc,Dc);					//Upper Triangular Cholesky Factorization of C
-	LLT<MatrixXd> llt(Dc);					//Cholesky Factorization
-	VectorXd mu(Dc), tmp(Dc), variation(Dc);		//Mean and a temp vector
-	std::vector<VectorXd> elite(n_elite,mu);		//Container of the elite chromosomes
-	std::vector<VectorXd> newgen(NP,mu);			//Container of the new generation
-	std::vector<population::size_type> elite_idx(n_elite);	//Container of the elite indexes in pop
-	decision_vector dumb(Dc);				//This is used to copy teh VectorXd into a decision_vector
 
+	// Initializing the random number generators
 	boost::normal_distribution<double> normal(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > normally_distributed_number(m_drng,normal);
 	boost::uniform_real<double> uniform(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > randomly_distributed_number(m_drng,uniform);
 
-
-	// We start from the champion as the mean
-	for (problem::base::size_type i=0;i<Dc;++i){
-		mu(i) = pop.champion().x[i];
+	// Setting coefficients for Selection
+	VectorXd weights(mu);
+	for (int i = 0; i < weights.rows(); ++i){
+		weights[i] = log(mu+0.5) - log(i+1);
 	}
+	weights /= weights.sum();						// weights for weighted recombination
+	double mueff = 1.0 / (weights.transpose()*weights);			// variance-effectiveness of sum w_i x_i
 
-	// Main loop
-	for (std::size_t g = 0; g < m_gen; ++g) {
-		// 1 - We extract the elite from this generation (NOTE: we use best_f to rank)
-		elite_idx = pop.get_best_idx(n_elite);
-		for ( population::size_type i = 0; i<n_elite; ++i ) { 
-			for ( problem::base::size_type j=0; j<Dc; ++j ){
-				elite[i](j) = pop.get_individual(elite_idx[i]).best_x[j];
-			}
-		}
-
-		// 2 - We estimate the Covariance Matrix 
-		if (1) { //as least square estimator of the elite (with mean mu)
-			tmp = (elite[0] - mu);
-			C = tmp*tmp.transpose();
-			for ( population::size_type i = 1; i<n_elite; ++i ) { 
-				tmp = (elite[i] - mu);
-				C += tmp*tmp.transpose();
-			}
-		}
-		C = C / n_elite;
-		
-		// 3 - We compute the new elite mean
-		mu = elite[0];
-		for ( population::size_type i = 1; i<n_elite; ++i ) { 
-			mu += elite[i];
-		}
-		mu /= n_elite;
+	// Setting coefficients for Adaptation automatically or to user defined data
+	double cc(m_cc), cs(m_cs), c1(m_c1), cmu(m_cmu);
+	if (m_cc == -1) {
+		cc = (4 + mueff/N) / (N+4 + 2*mueff/N);			// t-const for cumulation for C
+	}
+	if (m_cs == -1) {
+		cs = (mueff+2) / (N+mueff+5);				// t-const for cumulation for sigma control
+	}
+	if (m_c1 == -1) {
+		c1 = 2 / ((N+1.3)*(N+1.3)+mueff);			// learning rate for rank-one update of C
+	}
+	if (m_cmu == -1) {
+		cmu = 2 * (mueff-2+1/mueff) / ((N+2)*(N+2)+mueff);	// and for rank-mu update
+	}
 	
-		// 4 - We sample a new generation
-		llt.compute(C);
-		U = llt.matrixU();
+	double damps = 1 + 2*std::max(0.0, sqrt((mueff-1)/(N+1))-1) + cs;	// damping for sigma
+	double chiN = pow(N,0.5)*(1-1/(4*N)+1/(21*N*N));			// expectation of ||N(0,I)|| == norm(randn(N,1))
 
-		for (population::size_type i = 0; i<NP; ++i ) {
-			// 4a - We generate a random vector normally distributed with zero mean and unit variance
-			for (problem::base::size_type j=0;j<Dc;++j){
-				tmp[j] = normally_distributed_number();
+	// Initializing and allocating (here one could use mutable data member to avoid redefinition of non const data)
+	VectorXd mean(m_mean);
+	VectorXd meanold(N);
+	VectorXd variation(m_variation);
+	std::vector<VectorXd> newpop(m_newpop);
+	MatrixXd B(m_B);
+	MatrixXd D(m_D);
+	MatrixXd Dinv(N,N);
+	MatrixXd C(m_C);
+	MatrixXd Cold(N,N);
+	MatrixXd invsqrtC(m_invsqrtC);
+	VectorXd pc(m_pc);
+	VectorXd ps(m_ps);
+	int counteval(m_counteval);
+	int eigeneval(m_eigeneval);
+	double sigma(m_sigma);
+
+	VectorXd tmp = VectorXd::Zero(N);
+	std::vector<VectorXd> elite(mu,tmp);
+
+	decision_vector dumb(N,0);
+
+	// If the algorithm is called for the first time on this problem dimension / pop size we erease the memory
+	if ( !((m_newpop.size() == lam) && (m_newpop[0].rows() == N)) ) {
+		for (problem::base::size_type i=0;i<N;++i){
+			mean(i) = pop.champion().x[i];
+		}
+
+		newpop = std::vector<VectorXd>(lam,tmp);
+		variation = VectorXd(N);
+		B = MatrixXd::Identity(N,N);					//B defines the coordinate system
+		D = MatrixXd::Identity(N,N);					//diagonal D defines the scaling
+		C = MatrixXd::Identity(N,N);					//covariance matrix C
+		invsqrtC = MatrixXd::Identity(N,N);					//inverse of sqrt(C)
+		pc = VectorXd::Zero(N);
+		ps = VectorXd::Zero(N);
+		counteval = 0;
+		eigeneval = 0;
+	}
+	
+	// ----------------------------------------------//
+	// HERE WE START THE REAL ALGORITHM              //
+	// ----------------------------------------------//
+	
+	SelfAdjointEigenSolver<MatrixXd> es(N);
+	for (std::size_t g = 0; g < m_gen; ++g) {
+		// 1 - We generate and evaluate lam new individuals
+		for (population::size_type i = 0; i<lam; ++i ) {
+			// 1a - we create a randomly normal distributed vector
+			for (problem::base::size_type j=0;j<N;++j){
+				tmp(j) = normally_distributed_number();
 			}
-			// 4b - We use Cholesky Triangular form to generate multivariate normaldistribution (note that our matrix is not positive definite)
-
-			variation =  U.transpose()*tmp;
-			newgen[i] = mu + variation * m_sigma;
-
-
-			// 4c - If generated point is outside the bounds ... fixit!!
-			size_t i2 = 0;
-			while (i2<Dc) {
-				if ((newgen[i](i2) < lb[i2]) || (newgen[i](i2) > ub[i2]))
-					newgen[i](i2) = lb[i2] + randomly_distributed_number()*(ub[i2]-lb[i2]);
-				++i2;
+			// 1b - and store its transformed value in the newpop
+			newpop[i] = mean + sigma * B * D * tmp;
+		}
+		// 1c - we fix the bounds and reinsert
+		for (population::size_type i = 0; i<lam; ++i ) {
+			for (decision_vector::size_type j = 0; j<N; ++i ) {
+				if ((newpop[i](j) < lb[j]) || (newpop[i](j) > ub[j]) ) {
+					newpop[i](j) = lb[j] + randomly_distributed_number() * (ub[j] - lb[j]);
+				}
 			}
 		}
-		// 5 - We reinsert
-		for (population::size_type i = 0; i<NP; ++i ) {
-			for (problem::base::size_type j=0;j<Dc;++j){
-					dumb[j] = newgen[i](j);
+		for (population::size_type i = 0; i<lam; ++i ) {
+			for (decision_vector::size_type j = 0; j<N; ++i ) {
+				dumb[j] = newpop[i](j);
 			}
-			population::size_type idx = pop.get_worst_idx();
+			int idx = pop.get_worst_idx();
 			pop.set_x(idx,dumb);
 		}
-		
-		// 6 - We print on screen if required
-		if (m_screen_output) {
-			if (!(g%20))
-				std::cout << std::endl << std::left << std::setw(20) <<"Gen." << std::setw(20) << "Champion " << 
-				        std::setw(20) << "Best " << std::setw(20) << "Worst" << std::setw(20) << "Variation" << std::endl; 
-				
-			std::cout << std::left << std::setprecision(14) << std::setw(20) << g << std::setw(20)<< pop.champion().f[0] << std::setw(20) << 
-					pop.get_individual(pop.get_best_idx()).best_f[0] << std::setw(20) << 
-					pop.get_individual(pop.get_worst_idx()).best_f[0] << std::setw(20) << variation.norm() << std::endl;
+		counteval += lam;
+
+		// 2 - We extract the elite from this generation
+		std::vector<population::size_type> best_idx = pop.get_best_idx(mu);
+		for (population::size_type i = 0; i<mu; ++i ) {
+			for (decision_vector::size_type j = 0; j<N; ++i ) {
+				elite[i](j) = pop.get_individual(best_idx[i]).best_x[j];
+			}
 		}
+
+		// 3 - Compute the new elite mean storing the old one
+		meanold=mean;
+		mean = elite[0]*weights[0];
+		for (population::size_type i = 0; i<mu; ++i ) {
+			mean += elite[i]*weights[i];
+		}
+
+		// 4 - Update evolution paths
+		ps = (1 - cs) * ps + sqrt(cs*(2-cs)*mueff) * invsqrtC * (mean-meanold) / sigma;
+		int hsig = (ps.squaredNorm() / N / (1-pow((1-cs),(2*counteval/lam))) ) < (2 + 4/(N+1));
+		pc = (1-cc) * pc + hsig * sqrt(cc*(2-cc)*mueff) * (mean-meanold) / sigma;
+
+		// 5 - Adapt Covariance Matrix
+		Cold = C;
+		C = (elite[0]-meanold)*(elite[0]-meanold).transpose()*weights[0];
+		for (population::size_type i = 0; i<mu; ++i ) {
+			C += (elite[i]-meanold)*(elite[i]-meanold).transpose()*weights[i];
+		}
+		C /= sigma*sigma;
+		C = (1-c1-cmu)*Cold + cmu*C + c1 * ((pc * pc.transpose()) + (1-hsig) * cc*(2-cc) * Cold);
+
+		//6 - Adapt sigma
+		sigma *= exp( (cs/damps)*(ps.norm()/chiN - 1));
+
+		//7 - Perform eigen-decomposition of C
+		if ( (counteval - eigeneval) > (lam/(c1+cmu)/N/10) ) {		//achieve O(N^2)
+			eigeneval = counteval;
+			//C = (C+C.T)/2						//enforce symmetry
+			es.solve(C);						//eigen decomposition
+			B = es.eigenvectors();
+			D = es.eigenvalues().asDiagonal();
+			for (decision_vector::size_type j = 0; j<N; ++i ) {
+				D(j,j) = sqrt(D(j,j));				//D contains standard deviations now
+			}
+			for (decision_vector::size_type j = 0; j<N; ++i ) {
+				Dinv(j,j) = 1 / D(j,j);
+			}
+			invsqrtC = B*Dinv*B.transpose();
+		}
+	}
+	
+
+
+	
+		
+	// 6 - We print on screen if required
+	if (m_screen_output) {
+		if (1)
+			std::cout << std::endl << std::left << std::setw(20) <<"Gen." << std::setw(20) << "Champion " << 
+				std::setw(20) << "Best " << std::setw(20) << "Worst" << std::setw(20) << "Variation" << std::endl; 
+				
+		std::cout << std::left << std::setprecision(14) << std::setw(20) << 
+			1 << std::setw(20)<< pop.champion().f[0] << std::setw(20) << 
+			pop.get_individual(pop.get_best_idx()).best_f[0] << std::setw(20) << 
+			pop.get_individual(pop.get_worst_idx()).best_f[0] << std::setw(20) << 32.22 << std::endl;
+		
 	}
 
 }

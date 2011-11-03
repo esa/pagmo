@@ -97,17 +97,17 @@ private:
 		ar & m_xtol;
 		ar & m_ftol;
 		ar & m_screen_output;
-		ar & mean;
-		ar & variation;
-		ar & newpop;
-		ar & B;
-		ar & D;
-		ar & C;
-		ar & invsqrtC;
-		ar & pc;
-		ar & ps;
-		ar & counteval;
-		ar & eigeneval;
+		ar & m_mean;
+		ar & m_variation;
+		ar & m_newpop;
+		ar & m_B;
+		ar & m_D;
+		ar & m_C;
+		ar & m_invsqrtC;
+		ar & m_pc;
+		ar & m_ps;
+		ar & m_counteval;
+		ar & m_eigeneval;
 	}
 	// "Real" data members
 	const std::size_t m_gen;
@@ -116,22 +116,22 @@ private:
 	double m_c1;
 	double m_cmu;
 	double m_sigma;
-	double m_xtol;
 	double m_ftol;
+	double m_xtol;
 	bool m_screen_output;
 
 	// "Memory" data members (these are here as to enable control over each single generation)
-	mutable Eigen::VectorXd mean;
-	mutable Eigen::VectorXd variation;
-	mutable std::vector<Eigen::VectorXd> newpop;
-	mutable Eigen::MatrixXd B;
-	mutable Eigen::MatrixXd D;
-	mutable Eigen::MatrixXd C;
-	mutable Eigen::MatrixXd invsqrtC;
-	mutable Eigen::VectorXd pc;
-	mutable Eigen::VectorXd ps;
-	mutable int counteval;
-	mutable int eigeneval;
+	mutable Eigen::VectorXd m_mean;
+	mutable Eigen::VectorXd m_variation;
+	mutable std::vector<Eigen::VectorXd> m_newpop;
+	mutable Eigen::MatrixXd m_B;
+	mutable Eigen::MatrixXd m_D;
+	mutable Eigen::MatrixXd m_C;
+	mutable Eigen::MatrixXd m_invsqrtC;
+	mutable Eigen::VectorXd m_pc;
+	mutable Eigen::VectorXd m_ps;
+	mutable int m_counteval;
+	mutable int m_eigeneval;
 };
 
 }} //namespaces

@@ -33,17 +33,20 @@ class py_cmaes(base):
 		except ImportError:
 			raise ImportError("This algorithm needs numpy to run. Is numpy installed?")
 
+		if ( gen <= 0 ):
+			raise ValueError("gen needs to be > 0")
+			
 		if ( (cc<0 or cc>1) and not cc==-1):
-			raise ValueError("cc needs to be in [0,1]")
+			raise ValueError("cc needs to be in [0,1] or -1 for auto value")
 
 		if ( (cs<0 or cs>1) and not cc==-1):
-			raise ValueError("cs needs to be in [0,1]")
+			raise ValueError("cs needs to be in [0,1] or -1 for auto value")
 
 		if ( (c1<0 or c1>1) and not cc==-1):
-			raise ValueError("c1 needs to be in [0,1]")
+			raise ValueError("c1 needs to be in [0,1] or -1 for auto value")
 
 		if ( (cmu<0 or cmu>1) and not cc==-1):
-			raise ValueError("cmu needs to be in [0,1]")
+			raise ValueError("cmu needs to be in [0,1] or -1 for auto value")
 
 		base.__init__(self)
 
@@ -83,17 +86,22 @@ class py_cmaes(base):
 		prob = pop.problem
 		lb = prob.lb
 		ub = prob.ub
-		dim, cont_dim, int_dim, c_dim = prob.dimension, prob.dimension - prob.i_dimension, prob.i_dimension, prob.c_dimension
+		dim, cont_dim, int_dim, c_dim, f_dim = prob.dimension, prob.dimension - prob.i_dimension, prob.i_dimension, prob.c_dimension, prob.f_dimension
 
 		# And perform checks on the problem type
 		if cont_dim == 0:
-			raise ValueError("There is no continuous dimension for cross_entropy to optimise!!")
+			raise ValueError("There is no continuous dimension for CMAES to optimise!!")
 
 		if c_dim > 0:
-			raise ValueError("This version of cross_entropy is not suitable for constrained optimisation")
+			raise ValueError("This version of CMAES is not suitable for constrained optimisation")
 
 		if int_dim > 0:
-			raise ValueError("The chromosome has an integer part .... this version of cross_entropy is not able to deal with it")
+			raise ValueError("The chromosome has an integer part .... this version of CMAES is not able to deal with it")
+		if f_dim > 0:
+			raise ValueError("The problem is not single objective and CMAES is not suitable to solve it")
+			
+		if len(pop) < 5:
+			raise ValueError("for CMAES at least 5 individuals in the population are required")
 
 		# Setting sizes .....
 		N = dim
@@ -102,10 +110,11 @@ class py_cmaes(base):
 
 		# Setting coefficients for Selection
 		weights = [log(mu+0.5) - log(i+1) for i in range(mu)]
-		weights = [w / sum(weights) for w in weights]			# weights for weighted recombination
-		mueff = sum(weights)**2 / sum(w**2 for w in weights)		# variance-effectiveness of sum w_i x_i
+		weights.normalize();						# weights for weighted recombination
+		mueff = 1 / sum(w**2 for w in weights)				# variance-effectiveness of sum w_i x_i
 
 		# Setting coefficients for Adaptation automatically or to user defined data
+		cc = self.__cc; cs = self.__cs; c1 = self.__c1; cmu = self.__cmu; 
 		if self.__cc == -1:
 			cc = (4 + mueff/N) / (N+4 + 2*mueff/N);			# t-const for cumulation for C
 		if self.__cs == -1:
@@ -145,6 +154,7 @@ class py_cmaes(base):
 			eigeneval = self.__eigeneval
 
 		sigma=self.__sigma0
+
 
 		# Let's start the algorithm
 		for gen in range(self.__gen):
