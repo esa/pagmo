@@ -52,24 +52,24 @@ namespace pagmo { namespace topology {
  * @param[in] a 'age' at which a node ceases to make new connections.
  */
 ageing_clustered_ba::ageing_clustered_ba(int m0, int m, double p, int a):
-        m_m0(boost::numeric_cast<std::size_t>(m0)),m_m(boost::numeric_cast<std::size_t>(m)), m_p(double(p)), m_a(int(a)),
+	m_m0(boost::numeric_cast<std::size_t>(m0)),m_m(boost::numeric_cast<std::size_t>(m)), m_p(double(p)), m_a(int(a)),
 	m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
 	if (m0 < 2 || m < 1 || m > m0) {
 		pagmo_throw(value_error,"the value of m and m0 must be at least 1 and 2, and m must not be greater than m0");
 	}
-        if(a < m) {
-                pagmo_throw(value_error,"the value a must be greater than the value of m");
-        }
-        if(p < 0 || p > 1) {
-                pagmo_throw(value_error,"the value of p must be between 0 and 1");
-        }
+	if(a < m) {
+		pagmo_throw(value_error,"the value a must be greater than the value of m");
+	}
+	if(p < 0 || p > 1) {
+		pagmo_throw(value_error,"the value of p must be between 0 and 1");
+	}
 }
 
 
 base_ptr ageing_clustered_ba::clone() const
 {
-        return base_ptr(new ageing_clustered_ba(*this));
+	return base_ptr(new ageing_clustered_ba(*this));
 }
 
 void ageing_clustered_ba::connect(const vertices_size_type &idx)
@@ -81,7 +81,7 @@ void ageing_clustered_ba::connect(const vertices_size_type &idx)
 		// We want to connect the newcomer island with high probability, and make sure that
 		// at least one connection exists (otherwise the island stays isolated).
 		// NOTE: is it worth to make it a user-tunable parameter?
-                const double prob = 0.0;
+		const double prob = 0.0;
 		// Flag indicating if at least 1 connection was added.
 		bool connection_added = false;
 		// Main loop.
@@ -103,7 +103,7 @@ void ageing_clustered_ba::connect(const vertices_size_type &idx)
 			// chance we end up on idx again.
 			boost::uniform_int<vertices_size_type> uni_int(0,get_number_of_vertices() - 1);
 			vertices_size_type rnd;
-                        do {
+			do {
 				rnd = uni_int(m_urng);
 			} while (rnd == idx);
 			// Add connections to the random vertex.
@@ -111,34 +111,34 @@ void ageing_clustered_ba::connect(const vertices_size_type &idx)
 			add_edge(idx,rnd);
 		}
 	} else {
-                // Now we need to add j edges, choosing the nodes with a probability
+		// Now we need to add j edges, choosing the nodes with a probability
 		// proportional to their number of connections. We keep track of the
 		// connection established in order to avoid connecting twice to the same
 		// node.
-                // j is a random integer in the range 1 to m.
-                boost::uniform_int<edges_size_type> uni_int2(1,m_m);
+		// j is a random integer in the range 1 to m.
+		boost::uniform_int<edges_size_type> uni_int2(1,m_m);
 		std::size_t i = 0;
-                std::size_t j = uni_int2(m_urng);
+		std::size_t j = uni_int2(m_urng);
 		std::pair<v_iterator,v_iterator> vertices;
 		std::pair<a_iterator,a_iterator> adj_vertices;
-                // Determine the lower bound (used by ageing mechanism)
-                int min_n_edges = 0;
-                vertices = get_vertices();
-                for(; vertices.first != vertices.second; ++vertices.first) {
-                    int a = *vertices.first;
-                    int b = idx - m_a;
-                    if(a < b) {
-                        min_n_edges += get_num_adjacent_vertices(*vertices.first);
-                    }
-                }
-                while (i < j) {
-                        // Let's find the current total number of edges.
-                        edges_size_type n_edges = get_number_of_edges();
-                        pagmo_assert(n_edges > 0);
-                        boost::uniform_int<edges_size_type> uni_int(min_n_edges,n_edges - 1 - i);
-                        // Here we choose a random number between min_n_edges and n_edges - 1 - i.
-                        const edges_size_type rn = uni_int(m_urng);
-                        edges_size_type n = 0;
+		// Determine the lower bound (used by ageing mechanism)
+		int min_n_edges = 0;
+		vertices = get_vertices();
+		for(; vertices.first != vertices.second; ++vertices.first) {
+		    int a = *vertices.first;
+		    int b = idx - m_a;
+		    if(a < b) {
+			min_n_edges += get_num_adjacent_vertices(*vertices.first);
+		    }
+		}
+		while (i < j) {
+			// Let's find the current total number of edges.
+			edges_size_type n_edges = get_number_of_edges();
+			pagmo_assert(n_edges > 0);
+			boost::uniform_int<edges_size_type> uni_int(min_n_edges,n_edges - 1 - i);
+			// Here we choose a random number between min_n_edges and n_edges - 1 - i.
+			const edges_size_type rn = uni_int(m_urng);
+			edges_size_type n = 0;
 			// Iterate over all vertices and accumulate the number of edges for each of them. Stop when the accumulated number of edges is greater
 			// than rn. This is equivalent to giving a chance of connection to vertex v directly proportional to the number of edges departing from v.
 			// You can think of this process as selecting a random edge among all the existing edges and connecting to the vertex from which the
@@ -157,16 +157,16 @@ void ageing_clustered_ba::connect(const vertices_size_type &idx)
 			pagmo_assert(vertices.first != vertices.second);
 			// If the candidate was not already connected, then add it.
 			if (!are_adjacent(idx,*vertices.first)) {
-                                // Connect to nodes that are already adjacent to idx with probability p.
-                                // This step increases clustering in the network.
-                                adj_vertices = get_adjacent_vertices(idx);
-                                for(;adj_vertices.first != adj_vertices.second; ++adj_vertices.first) {
-                                    if(m_drng() < m_p && *adj_vertices.first != *vertices.first && !are_adjacent(*adj_vertices.first,*vertices.first)) {
-                                        add_edge(*adj_vertices.first, *vertices.first);
-                                        add_edge(*vertices.first, *adj_vertices.first);
-                                    }
-                                }
-                                // Connect to idx
+				// Connect to nodes that are already adjacent to idx with probability p.
+				// This step increases clustering in the network.
+				adj_vertices = get_adjacent_vertices(idx);
+				for(;adj_vertices.first != adj_vertices.second; ++adj_vertices.first) {
+				    if(m_drng() < m_p && *adj_vertices.first != *vertices.first && !are_adjacent(*adj_vertices.first,*vertices.first)) {
+					add_edge(*adj_vertices.first, *vertices.first);
+					add_edge(*vertices.first, *adj_vertices.first);
+				    }
+				}
+				// Connect to idx
 				add_edge(*vertices.first,idx);
 				add_edge(idx,*vertices.first);
 				++i;
@@ -187,14 +187,14 @@ std::string ageing_clustered_ba::human_readable_extra() const
 	std::ostringstream oss;
 	oss << "\tm0 = " << m_m0 << '\n';
 	oss << "\tm = " << m_m << '\n';
-        oss << "\tp = " << m_p << '\n';
-        oss << "\ta = " << m_a << '\n';
+	oss << "\tp = " << m_p << '\n';
+	oss << "\ta = " << m_a << '\n';
 	return oss.str();
 }
 
 std::string ageing_clustered_ba::get_name() const
 {
-        return "Ageing Clustered Barabasi-Albert";
+	return "Ageing Clustered Barabasi-Albert";
 }
 
 }} //namespaces
