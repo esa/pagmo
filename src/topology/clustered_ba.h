@@ -48,8 +48,6 @@ namespace pagmo { namespace topology {
  * - Pairs of nodes that have been connected to are connected to eachother with probability, p.
  *
  * @author Luke O'Connor (lumoconnor@gmail.com)
- * @author Francesco Biscani (bluescarni@gmail.com)
- * @author Marek Ruciński (marek.rucinski@gmail.com)
  *
  */
 class __PAGMO_VISIBLE clustered_ba : public base
