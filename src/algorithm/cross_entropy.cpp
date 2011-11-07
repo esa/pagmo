@@ -80,6 +80,8 @@ cross_entropy::cross_entropy(int gen, double cc, double cs, double c1, double cm
 
 	//Initialize the algorithm memory
 	m_mean = Eigen::VectorXd(1);
+	m_variation = Eigen::VectorXd(1);
+	m_newpop = std::vector<Eigen::VectorXd>(1);
 	m_B = Eigen::MatrixXd(1,1);
 	m_D = Eigen::VectorXd(1);
 	m_C = Eigen::MatrixXd(1,1);
@@ -163,25 +165,24 @@ void cross_entropy::evolve(population &pop) const
 		cs = (mueff+2) / (N+mueff+5);				// t-const for cumulation for sigma control
 	}
 	if (m_c1 == -1) {
-		c1 = 2 / ((N+1.3)*(N+1.3)+mueff);			// learning rate for rank-one update of C
+		c1 = 2.0 / ((N+1.3)*(N+1.3)+mueff);			// learning rate for rank-one update of C
 	}
 	if (m_cmu == -1) {
-		cmu = 2 * (mueff-2+1/mueff) / ((N+2)*(N+2)+mueff);	// and for rank-mu update
+		cmu = 2.0 * (mueff-2+1/mueff) / ((N+2)*(N+2)+mueff);	// and for rank-mu update
 	}
 	
 	double damps = 1 + 2*std::max(0.0, sqrt((mueff-1)/(N+1))-1) + cs;	// damping for sigma
 	double chiN = pow(N,0.5)*(1-1/(4*N)+1/(21*N*N));			// expectation of ||N(0,I)|| == norm(randn(N,1))
 
 	// Initializing and allocating (here one could use mutable data member to avoid redefinition of non const data)
+
+	// Algorithm's Memory
 	VectorXd mean(m_mean);
-	VectorXd meanold(N);
 	VectorXd variation(m_variation);
 	std::vector<VectorXd> newpop(m_newpop);
 	MatrixXd B(m_B);
 	MatrixXd D(m_D);
-	MatrixXd Dinv(N,N);
 	MatrixXd C(m_C);
-	MatrixXd Cold(N,N);
 	MatrixXd invsqrtC(m_invsqrtC);
 	VectorXd pc(m_pc);
 	VectorXd ps(m_ps);
@@ -189,17 +190,19 @@ void cross_entropy::evolve(population &pop) const
 	int eigeneval(m_eigeneval);
 	double sigma(m_sigma);
 
+	// Storage
+	VectorXd meanold(N);
+	MatrixXd Dinv(N,N);
+	MatrixXd Cold(N,N);
 	VectorXd tmp = VectorXd::Zero(N);
 	std::vector<VectorXd> elite(mu,tmp);
-
 	decision_vector dumb(N,0);
 
 	// If the algorithm is called for the first time on this problem dimension / pop size we erease the memory
-	if ( !((m_newpop.size() == lam) && (m_newpop[0].rows() == N)) ) {
+	if ( !( (m_newpop.size() == lam) && (m_newpop[0].rows() == N) ) ) {
 		for (problem::base::size_type i=0;i<N;++i){
 			mean(i) = pop.champion().x[i];
 		}
-
 		newpop = std::vector<VectorXd>(lam,tmp);
 		variation = VectorXd(N);
 		B = MatrixXd::Identity(N,N);					//B defines the coordinate system
@@ -215,10 +218,15 @@ void cross_entropy::evolve(population &pop) const
 	// ----------------------------------------------//
 	// HERE WE START THE REAL ALGORITHM              //
 	// ----------------------------------------------//
+
+	if (m_screen_output) {
+		std::cout << "CMAES: " << std::endl; 
+	}
 	
 	SelfAdjointEigenSolver<MatrixXd> es(N);
 	for (std::size_t g = 0; g < m_gen; ++g) {
 		// 1 - We generate and evaluate lam new individuals
+//std::cout << "1" << std::endl;
 		for (population::size_type i = 0; i<lam; ++i ) {
 			// 1a - we create a randomly normal distributed vector
 			for (problem::base::size_type j=0;j<N;++j){
@@ -227,43 +235,45 @@ void cross_entropy::evolve(population &pop) const
 			// 1b - and store its transformed value in the newpop
 			newpop[i] = mean + sigma * B * D * tmp;
 		}
+//std::cout << "1c" << std::endl;
 		// 1c - we fix the bounds and reinsert
 		for (population::size_type i = 0; i<lam; ++i ) {
-			for (decision_vector::size_type j = 0; j<N; ++i ) {
-				if ((newpop[i](j) < lb[j]) || (newpop[i](j) > ub[j]) ) {
+			for (decision_vector::size_type j = 0; j<N; ++j ) {
+				if ( (newpop[i](j) < lb[j]) || (newpop[i](j) > ub[j]) ) {
 					newpop[i](j) = lb[j] + randomly_distributed_number() * (ub[j] - lb[j]);
 				}
 			}
 		}
+//std::cout << "1ca" << std::endl;
 		for (population::size_type i = 0; i<lam; ++i ) {
-			for (decision_vector::size_type j = 0; j<N; ++i ) {
+			for (decision_vector::size_type j = 0; j<N; ++j ) {
 				dumb[j] = newpop[i](j);
 			}
 			int idx = pop.get_worst_idx();
 			pop.set_x(idx,dumb);
 		}
 		counteval += lam;
-
+//std::cout << "2" << std::endl;
 		// 2 - We extract the elite from this generation
 		std::vector<population::size_type> best_idx = pop.get_best_idx(mu);
 		for (population::size_type i = 0; i<mu; ++i ) {
-			for (decision_vector::size_type j = 0; j<N; ++i ) {
+			for (decision_vector::size_type j = 0; j<N; ++j ) {
 				elite[i](j) = pop.get_individual(best_idx[i]).best_x[j];
 			}
 		}
-
+//std::cout << "3" << std::endl;
 		// 3 - Compute the new elite mean storing the old one
 		meanold=mean;
 		mean = elite[0]*weights[0];
 		for (population::size_type i = 0; i<mu; ++i ) {
 			mean += elite[i]*weights[i];
 		}
-
+//std::cout << "4" << std::endl;
 		// 4 - Update evolution paths
 		ps = (1 - cs) * ps + sqrt(cs*(2-cs)*mueff) * invsqrtC * (mean-meanold) / sigma;
 		int hsig = (ps.squaredNorm() / N / (1-pow((1-cs),(2*counteval/lam))) ) < (2 + 4/(N+1));
 		pc = (1-cc) * pc + hsig * sqrt(cc*(2-cc)*mueff) * (mean-meanold) / sigma;
-
+//std::cout << "5" << std::endl;
 		// 5 - Adapt Covariance Matrix
 		Cold = C;
 		C = (elite[0]-meanold)*(elite[0]-meanold).transpose()*weights[0];
@@ -272,44 +282,67 @@ void cross_entropy::evolve(population &pop) const
 		}
 		C /= sigma*sigma;
 		C = (1-c1-cmu)*Cold + cmu*C + c1 * ((pc * pc.transpose()) + (1-hsig) * cc*(2-cc) * Cold);
-
+//std::cout << "6" << std::endl;
 		//6 - Adapt sigma
 		sigma *= exp( (cs/damps)*(ps.norm()/chiN - 1));
-
+//std::cout << "7" << std::endl;
 		//7 - Perform eigen-decomposition of C
 		if ( (counteval - eigeneval) > (lam/(c1+cmu)/N/10) ) {		//achieve O(N^2)
 			eigeneval = counteval;
 			//C = (C+C.T)/2						//enforce symmetry
-			es.solve(C);						//eigen decomposition
+			es.compute(C);						//eigen decomposition
 			B = es.eigenvectors();
 			D = es.eigenvalues().asDiagonal();
-			for (decision_vector::size_type j = 0; j<N; ++i ) {
+			for (decision_vector::size_type j = 0; j<N; ++j ) {
 				D(j,j) = sqrt(D(j,j));				//D contains standard deviations now
 			}
-			for (decision_vector::size_type j = 0; j<N; ++i ) {
-				Dinv(j,j) = 1 / D(j,j);
+			for (decision_vector::size_type j = 0; j<N; ++j ) {
+				Dinv(j,j) = 1.0 / D(j,j);
 			}
 			invsqrtC = B*Dinv*B.transpose();
 		}
-	}
-	
-
-
-	
-		
-	// 6 - We print on screen if required
-	if (m_screen_output) {
-		if (1)
-			std::cout << std::endl << std::left << std::setw(20) <<"Gen." << std::setw(20) << "Champion " << 
-				std::setw(20) << "Best " << std::setw(20) << "Worst" << std::setw(20) << "Variation" << std::endl; 
+//std::cout << "8" << std::endl;
+		//8 - We print on screen if required
+		if (m_screen_output) {
+			if (g%20) {
+				std::cout << std::endl << std::left << std::setw(20) << 
+				"Gen." << std::setw(20) << 
+				"Champion " << std::setw(20) << 
+				"Highest " << std::setw(20) << 
+				"Lowest" << std::setw(20) << 
+				"Variation" << std::setw(20) << 
+				"Step" << std::endl; 
+			}
 				
-		std::cout << std::left << std::setprecision(14) << std::setw(20) << 
-			1 << std::setw(20)<< pop.champion().f[0] << std::setw(20) << 
-			pop.get_individual(pop.get_best_idx()).best_f[0] << std::setw(20) << 
-			pop.get_individual(pop.get_worst_idx()).best_f[0] << std::setw(20) << 32.22 << std::endl;
-		
-	}
+			std::cout << std::left << std::setprecision(14) << std::setw(20) << 
+				g << std::setw(20) << 
+				pop.champion().f[0] << std::setw(20) << 
+				pop.get_individual(pop.get_best_idx()).best_f[0] << std::setw(20) << 
+				pop.get_individual(pop.get_worst_idx()).best_f[0] << std::setw(20) << 
+				(sigma*B*D*tmp).norm() << std::setw(20) << 
+				sigma << std::endl;
+		}
+//std::cout << "9" << std::endl;
+		//9 - Check the exit conditions (every 40 generations)
+		if (g%40) {
+			if  ( (sigma*B*D*tmp).norm() < m_xtol ) {
+				if (m_screen_output) { 
+					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+				}
+				return;
+			}
 
+			double tmp = fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+
+			if (tmp < m_ftol) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+				}
+				return;
+			}
+		}
+		
+	} // end loop on g
 }
 
 /// Sets screen output

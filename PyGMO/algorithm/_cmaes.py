@@ -4,11 +4,11 @@ class py_cmaes(base):
 	"""
 	Covariance Matrix Adaptation Evolutionary Strategy (Python)
 	"""
-	def __init__(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, fabs = -1.0**300, screen_output = False):
+	def __init__(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False):
 		"""
 		Covariance Matrix Adaptation Evolutionary Strategy (Python)
 
-		USAGE: algorithm.py_cmaes(gen = 500, elite = 0.5, cc = -1, cs = -1, c1 = -1, cmu = -1, screen_output = False)
+		USAGE: algorithm.py_cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False)
 
 		NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
 		is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem
@@ -25,7 +25,6 @@ class py_cmaes(base):
 		* sigma0: starting step (std)
 		* xtol: stopping criteria on the x tolerance
 		* ftol: stopping criteria on the f tolerance
-		* fabs: stopping criteria on the f value reached
 		* screen_output: activates screen_output (output at each generation)
 		"""
 		try:
@@ -220,7 +219,7 @@ class py_cmaes(base):
 			#8 - Print to screen if necessary
 			if self.screen_output:
 				if not(gen%20):
-					print "\nGen.\tChampion\tHighest\t\tLowest\t\tVariation\t\tstep"
+					print "\nGen.\tChampion\tHighest\t\tLowest\t\tVariation\t\tStep"
 				print "%d\t%e\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],
 				    max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]),
 				    norm(d_mu), sigma)
@@ -230,11 +229,6 @@ class py_cmaes(base):
 				if (norm(d_mu) < self.__xtol):
 					if self.screen_output:
 						print("Exit condition -- xtol < ") + str(self.__xtol)
-					return pop
-
-				if (pop.champion.f[0] < self.__fabs):
-					if self.screen_output:
-						print("Exit condition -- fabs < ") + str(self.__fabs)
 					return pop
 
 				tmp = abs(pop[pop.get_worst_idx()].best_f[0] - pop[pop.get_best_idx()].best_f[0])
