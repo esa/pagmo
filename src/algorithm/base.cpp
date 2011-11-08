@@ -39,7 +39,7 @@ namespace algorithm {
 /**
  * Will initialise the internal random number generators using seeds provided by the thread-safe pagmo::static_rng_uint32.
  */
-base::base():m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>()) {}
+base::base():m_screen_output(false), m_drng(rng_generator::get<rng_double>()), m_urng(rng_generator::get<rng_uint32>()) {}
 
 /// Trivial destructor.
 /**
@@ -57,6 +57,22 @@ std::string base::get_name() const
 {
 	return typeid(*this).name();
 }
+
+/// Sets screen output
+/**
+ * Sets screen output boolean variable. When True the algorithm may print stuff on screen (careful, in multithreading this can mess up things)
+ *
+ * @param[in] p true or false
+ */
+void base::set_screen_output(const bool p) {m_screen_output = p;}
+
+/// Gets screen output
+/**
+ * Gets screen output boolean variable. When True the algorithm may print stuff on screen (careful, in multithreading this can mess up things)
+ *
+ * @param[out] boolean 
+ */
+bool base::get_screen_output() const {return m_screen_output;}
 
 /// Return human readable representation of the algorithm.
 /**

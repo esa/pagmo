@@ -70,7 +70,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE de: public base
 {
 public:
-	de(int = 1, const double & = 0.8, const double & = 0.9, int = 2);
+	de(int = 100, double  = 0.8, double = 0.9, int = 2, double = 1e-6, double = 1e-6);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -95,6 +95,9 @@ private:
 	const double m_cr;
 	// Startegy
 	const int m_strategy;
+	const double m_ftol;
+	const double m_xtol;
+	
 };
 
 }}

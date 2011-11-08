@@ -78,8 +78,6 @@ public:
 	void   set_ftol(const double p);
 	double get_ftol() const;
 
-	void set_screen_output(const bool p);
-	bool get_screen_output() const;
 protected:
 	std::string human_readable_extra() const;
 private:
@@ -97,7 +95,6 @@ private:
 		ar & m_xtol;
 		ar & m_ftol;
 		ar & m_memory;
-		ar & m_screen_output;
 		ar & m_mean;
 		ar & m_variation;
 		ar & m_newpop;
@@ -120,7 +117,6 @@ private:
 	double m_ftol;
 	double m_xtol;
 	bool m_memory;
-	bool m_screen_output;
 
 	// "Memory" data members (these are here as to enable control over each single generation)
 	mutable Eigen::VectorXd m_mean;

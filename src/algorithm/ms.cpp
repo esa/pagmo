@@ -44,7 +44,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] starts number of multistarts
  * @throws value_error if starts is negative
  */
-ms::ms(const base &algorithm, int starts):base(),m_starts(starts),m_screen_out(false)
+ms::ms(const base &algorithm, int starts):base(),m_starts(starts)
 {
 	m_algorithm = algorithm.clone();
 	if (starts < 0) {
@@ -53,7 +53,7 @@ ms::ms(const base &algorithm, int starts):base(),m_starts(starts),m_screen_out(f
 }
 
 /// Copy constructor (deep copy).
-ms::ms(const ms &other):base(other),m_algorithm(other.m_algorithm->clone()),m_starts(other.m_starts),m_screen_out(other.m_screen_out) {}
+ms::ms(const ms &other):base(other),m_algorithm(other.m_algorithm->clone()),m_starts(other.m_starts) {}
 
 /// Clone method.
 base_ptr ms::clone() const
@@ -94,30 +94,12 @@ void ms::evolve(population &pop) const
 			pop.set_x(pop.get_worst_idx(),working_pop.get_individual(working_pop.get_best_idx()).cur_x);
 			pop.set_v(pop.get_worst_idx(),working_pop.get_individual(working_pop.get_best_idx()).cur_v);
 		}
-		if (m_screen_out)
+		if (m_screen_output)
 		{
 			std::cout << i << ". " << "\tCurrent iteration best: " << working_pop.get_individual(working_pop.get_best_idx()).cur_f << "\tOverall champion: " << pop.champion().f << std::endl;
 		}
 	}
 }
-
-/// Sets screen output
-/**
- * Sets screen output. When True, everytime a new champion is found the following information is printed
- * on the screen: Number of iterations, best fitness
- *
- * @param[in] p true or false
- */
-void ms::set_screen_output(const bool p) {m_screen_out = p;}
-
-/// Gets screen output
-/**
- * Gets screen output. When True, everytime a new champion is found the following information is printed
- * on the screen: Number of iterations, best fitness
- *
- * @param[out] boolean
- */
-bool ms::get_screen_output() const {return m_screen_out;}
 
 
 /// Algorithm name

@@ -63,8 +63,6 @@ public:
 	ipopt(const int &max_iter = 100, const double &constr_viol_tol = 1e-8, const double &dual_inf_tol = 1e-8, const double & compl_inf_tol = 1e-8);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void set_screen_output(const bool p);
-	bool get_screen_output() const;
 	std::string get_name() const;
 
 protected:
@@ -80,13 +78,11 @@ private:
 		ar & const_cast<double &>(m_constr_viol_tol);
 		ar & const_cast<double &>(m_dual_inf_tol);
 		ar & const_cast<double &>(m_compl_inf_tol);
-		ar & m_screen_out;
 	}  
 	const int m_max_iter;
 	const double m_constr_viol_tol;
 	const double m_dual_inf_tol;
 	const double m_compl_inf_tol;
-	bool m_screen_out;
 };
 
 }} //namespaces

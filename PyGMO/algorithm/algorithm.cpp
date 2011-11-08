@@ -131,6 +131,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		// NOTE: This needs special treatment because its prototype changes in the wrapper.
 		.def("evolve",&algorithm::python_base::py_evolve, "Returns the evolved population")
 		.def("human_readable_extra", &algorithm::base::human_readable_extra, &algorithm::python_base::default_human_readable_extra)
+		.add_property("screen_output",&algorithm::base::get_screen_output,&algorithm::base::set_screen_output)
 		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
 	// Exposing enums
@@ -169,8 +170,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.add_property("cmu",&algorithm::cmaes::get_cmu,&algorithm::cmaes::set_cmu)
 		.add_property("sigma",&algorithm::cmaes::get_sigma,&algorithm::cmaes::set_sigma)
 		.add_property("ftol",&algorithm::cmaes::get_ftol,&algorithm::cmaes::set_ftol)
-		.add_property("xtol",&algorithm::cmaes::get_xtol,&algorithm::cmaes::set_xtol)
-		.add_property("screen_output",&algorithm::cmaes::get_screen_output,&algorithm::cmaes::set_screen_output);
+		.add_property("xtol",&algorithm::cmaes::get_xtol,&algorithm::cmaes::set_xtol);
+
 
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
@@ -192,14 +193,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::mbh>("mbh","Monotonic Basin Hopping.")
 		.def(init<optional<const algorithm::base &,int, double> >())
 		.def(init<optional<const algorithm::base &,int, const std::vector<double> &> >())
-		.add_property("algorithm",&algorithm::mbh::get_algorithm,&algorithm::mbh::set_algorithm)
-		.add_property("screen_output",&algorithm::mbh::get_screen_output,&algorithm::mbh::set_screen_output);
+		.add_property("algorithm",&algorithm::mbh::get_algorithm,&algorithm::mbh::set_algorithm);
 	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
 		.def(init<const algorithm::base &, int>())
-		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm)
-		.add_property("screen_output",&algorithm::ms::get_screen_output,&algorithm::ms::set_screen_output);
+		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm);
 	
 	// Particle Swarm Optimization (Steady state)
 	algorithm_wrapper<algorithm::pso>("pso", "Particle Swarm Optimization (steady-state)")
@@ -215,7 +214,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
-		.def(init<optional<int,const double &, const double &, int> >());
+		.def(init<optional<int,const double &, const double &, int, double, double> >());
 		
 	// Simulated annealing, Corana's version.
 	algorithm_wrapper<algorithm::sa_corana>("sa_corana","Simulated annealing, Corana's version with adaptive neighbourhood.")
@@ -290,16 +289,14 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Snopt solver.
 	#ifdef PAGMO_ENABLE_SNOPT
 	algorithm_wrapper<algorithm::snopt>("snopt","Snopt solver.")
-		.def(init<int, optional<double, double> >())
-		.add_property("screen_output",&algorithm::snopt::get_screen_output,&algorithm::snopt::set_screen_output);
+		.def(init<int, optional<double, double> >());
 	
 	#endif
 		
 	// Ipopt solver.
 	#ifdef PAGMO_ENABLE_IPOPT
 	algorithm_wrapper<algorithm::ipopt>("ipopt","Ipopt solver.")
-		.def(init<int, optional<double, double,double> >())
-		.add_property("screen_output",&algorithm::ipopt::get_screen_output,&algorithm::ipopt::set_screen_output);
+		.def(init<int, optional<double, double,double> >());
 	
 	#endif	
 

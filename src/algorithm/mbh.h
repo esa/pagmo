@@ -80,8 +80,6 @@ public:
 	mbh(const mbh &);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void set_screen_output(const bool);
-	bool get_screen_output() const;
 	std::string get_name() const;
 	base_ptr get_algorithm() const;
 	void set_algorithm(const base &);
@@ -96,16 +94,12 @@ private:
 		ar & m_local;
 		ar & const_cast<int &>(m_stop);
 		ar & m_perturb;
-		ar & m_screen_out;
 	}
 	base_ptr m_local;
 	// Consecutive non improving iterations
 	const int m_stop;
 	// Perturbation of the population
 	mutable std::vector<double> m_perturb;
-	// Activate screen output
-	bool m_screen_out;
-
 };
 
 }} //namespaces

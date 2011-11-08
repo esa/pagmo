@@ -100,7 +100,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] opt Optimality tolerance (refer to SNOPT manual).
  * @throws value_error if major is not positive, and feas,opt are not in \f$]0,1[\f$
  */
-snopt::snopt(const int major,const double feas, const double opt) : m_major(major),m_feas(feas),m_opt(opt),m_screen_out(false), m_file_out(false)
+snopt::snopt(const int major,const double feas, const double opt) : m_major(major),m_feas(feas),m_opt(opt), m_file_out(false)
 {
 	if (major < 0) {
 		pagmo_throw(value_error,"number of major iterations cannot be negative");
@@ -250,7 +250,7 @@ void snopt::evolve(population &pop) const
 	SnoptProblem.setUserFun    ( snopt_function_ );
 
 	//We set some parameters
-	if (m_screen_out) SnoptProblem.setIntParameter("Summary file",6);
+	if (m_screen_output) SnoptProblem.setIntParameter("Summary file",6);
 	if (m_file_out)   SnoptProblem.setPrintFile   ( name.c_str() );
 	SnoptProblem.setIntParameter ( "Derivative option", 0 );
 	SnoptProblem.setIntParameter ( "Major iterations limit", m_major);
@@ -282,7 +282,7 @@ void snopt::evolve(population &pop) const
 	} //the user did not implement the sparsity in the problem
 
 
-	if (m_screen_out)
+	if (m_screen_output)
 	{
 		std::cout << "PaGMO 4 SNOPT:" << std::endl << std::endl;
 		std::cout << "Sparsity pattern set, NeG = " << neG << std::endl;
@@ -325,21 +325,6 @@ void snopt::evolve(population &pop) const
 
 }
 
-/// Sets screen output
-/**
- * Sets SNOPT screen output by setting iSumm to 6
- *
- * @param[in] p true or false
- */
-void snopt::set_screen_output(const bool p) {m_screen_out = p;}
-
-/// Gets screen output
-/**
- * Gets SNOPT screen output 
- *
- * @param[out] boolean
- */
-bool snopt::get_screen_output() const {return m_screen_out;}
 
 /// Activate file output
 /**

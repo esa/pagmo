@@ -4,11 +4,11 @@ class py_cmaes(base):
 	"""
 	Covariance Matrix Adaptation Evolutionary Strategy (Python)
 	"""
-	def __init__(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False):
+	def __init__(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False):
 		"""
 		Constructs a Covariance Matrix Adaptation Evolutionary Strategy (Python)
 
-		USAGE: algorithm.py_cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False)
+		USAGE: algorithm.py_cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False)
 
 		NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
 		is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem
@@ -24,6 +24,7 @@ class py_cmaes(base):
 		* sigma0: starting step (std)
 		* xtol: stopping criteria on the x tolerance
 		* ftol: stopping criteria on the f tolerance
+		* memory: when True the algorithm preserves memory of covariance, step and more between successive runs
 		* screen_output: activates screen_output (output at each generation)
 		"""
 		try:
@@ -57,6 +58,7 @@ class py_cmaes(base):
 		self.__xtol = xtol
 		self.__ftol = ftol
 		self.__sigma0 = sigma0
+		self.__memory = memory
 		self.screen_output = screen_output
 
 		#Algorithm memory
@@ -126,19 +128,7 @@ class py_cmaes(base):
 		chiN = N**0.5*(1-1.0/(4*N)+1.0/(21*N**2))				#expectation of ||N(0,I)|| == norm(randn(N,1))
 
 		# Initializing and allocating
-		if not self.__newpop.shape==(N,lam):
-			mean = matrix(pop.champion.x).T
-			variation = array([[0.0]*N]*lam)
-			newpop = matrix([[0.0]*lam]*N)
-			B = matrix(eye(N,N));				#B defines the coordinate system
-			D = ones(N);					#diagonal D defines the scaling
-			C = matrix(eye(N,N));				#covariance matrix C
-			invsqrtC = matrix(eye(N,N));			#inverse of sqrt(C)
-			pc =matrix([[0]]*N)
-			ps = matrix([[0]]*N)
-			counteval = 0
-			eigeneval = 0
-		else:
+		if ( self.__newpop.shape==(N,lam) ) and (self.__memory):
 			mean = self.__mean
 			variation = self.__variation
 			newpop = self.__newpop
@@ -150,6 +140,18 @@ class py_cmaes(base):
 			ps = self.__ps
 			counteval = self.__counteval
 			eigeneval = self.__eigeneval
+		else:
+			mean = matrix(pop.champion.x).T
+			variation = array([[0.0]*N]*lam)
+			newpop = matrix([[0.0]*lam]*N)
+			B = matrix(eye(N,N));				#B defines the coordinate system
+			D = ones(N);					#diagonal D defines the scaling
+			C = matrix(eye(N,N));				#covariance matrix C
+			invsqrtC = matrix(eye(N,N));			#inverse of sqrt(C)
+			pc =matrix([[0]]*N)
+			ps = matrix([[0]]*N)
+			counteval = 0
+			eigeneval = 0
 
 		sigma=self.__sigma0
 
@@ -242,18 +244,19 @@ class py_cmaes(base):
 					return pop
 
 		#Update algorithm memory
-		self.__mean = mean
-		self.__variation = variation
-		self.__newpop = newpop
-		self.__B = B
-		self.__D = D
-		self.__C = C
-		self.__invsqrtC = invsqrtC
-		self.__pc = pc
-		self.__ps = ps
-		self.__counteval = counteval
-		self.__eigeneval = eigeneval
-		self.__sigma0 = sigma
+		if self.__memory:
+			self.__mean = mean
+			self.__variation = variation
+			self.__newpop = newpop
+			self.__B = B
+			self.__D = D
+			self.__C = C
+			self.__invsqrtC = invsqrtC
+			self.__pc = pc
+			self.__ps = ps
+			self.__counteval = counteval
+			self.__eigeneval = eigeneval
+			self.__sigma0 = sigma
 
 		if self.screen_output:
 			print("Exit condition -- iteration > ") + str(self.__gen)

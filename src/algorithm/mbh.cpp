@@ -47,7 +47,7 @@ namespace pagmo { namespace algorithm {
  * rounding to the floor
  * @throws value_error if stop is negative or perturb is not in [0,1]
  */
-mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb),m_screen_out(false)
+mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_perturb(1,perturb)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -69,7 +69,7 @@ mbh::mbh(const base & local, int stop, double perturb):base(),m_stop(stop),m_per
  * rounding to the floor
  * @throws value_error if stop is negative or perturb[i] is not in [0,1]
  */
-mbh::mbh(const base & local, int stop, const std::vector<double> &perturb):base(),m_stop(stop),m_perturb(perturb),m_screen_out(false)
+mbh::mbh(const base & local, int stop, const std::vector<double> &perturb):base(),m_stop(stop),m_perturb(perturb)
 {
 	m_local = local.clone();
 	if (stop < 0) {
@@ -85,7 +85,7 @@ mbh::mbh(const base & local, int stop, const std::vector<double> &perturb):base(
 }
 
 /// Copy constructor.
-mbh::mbh(const mbh &algo):base(algo),m_local(algo.m_local->clone()),m_stop(algo.m_stop),m_perturb(algo.m_perturb),m_screen_out(algo.m_screen_out)
+mbh::mbh(const mbh &algo):base(algo),m_local(algo.m_local->clone()),m_stop(algo.m_stop),m_perturb(algo.m_perturb)
 {}
 
 /// Clone method.
@@ -167,7 +167,7 @@ void mbh::evolve(population &pop) const
 
 		//2. Evolve population with selected algorithm
 		m_local->evolve(pert_pop); i++;
-		if (m_screen_out)
+		if (m_screen_output)
 		{
 			std::cout << i << ". " << "\tLocal solution: " << pert_pop.champion().f << "\tGlobal best: " << pop.champion().f << std::endl;
 		}
@@ -176,7 +176,7 @@ void mbh::evolve(population &pop) const
 		if (pert_pop.problem().compare_fc(pert_pop.champion().f,pert_pop.champion().c,pop.champion().f,pop.champion().c) )
 		{
 			i = 0;
-			if (m_screen_out) {
+			if (m_screen_output) {
 				std::cout << "New solution accepted. Constraints vector: " << pert_pop.champion().c << '\n';
 			}
 			//update pop
@@ -190,25 +190,6 @@ void mbh::evolve(population &pop) const
 
 	}
 }
-
-/// Sets screen output
-/**
- * Sets screen output. When true, everytime a new champion is found the following information is printed
- * on the screen: Number of consecutive non improving iterations, best fitness
- *
- * @param[in] p true or false
- */
-void mbh::set_screen_output(const bool p) {m_screen_out = p;}
-
-/// Gets screen output
-/**
- * Gets screen output. When true, everytime a new champion is found the following information is printed
- * on the screen: Number of consecutive non improving iterations, best fitness
- *
- * @param[out] boolean
- */
-bool mbh::get_screen_output() const {return m_screen_out;}
-
 
 /// Algorithm name
 std::string mbh::get_name() const

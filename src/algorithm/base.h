@@ -103,7 +103,12 @@ return base_ptr(new derived_algorithm(*this));
 		std::string human_readable() const;
 		virtual std::string get_name() const;
 		virtual std::string human_readable_extra() const;
+		/// Setter-Getter for protected m_screen_output data
+		void set_screen_output(const bool p);
+		bool get_screen_output() const;
 	protected:
+		/// Indicates to the derived class whether to print stuff on screen
+		bool m_screen_output;
 		/// Random number generator for double-precision floating point values.
 		mutable rng_double	m_drng;
 		/// Random number generator for unsigned integer values.
@@ -115,6 +120,7 @@ return base_ptr(new derived_algorithm(*this));
 		{
 			ar & m_drng;
 			ar & m_urng; 
+			ar & m_screen_output;
 		}
 };
 

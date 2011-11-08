@@ -60,7 +60,7 @@ namespace pagmo { namespace algorithm {
  * */
 cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool memory):
 		base(), m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), 
-		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_memory(memory), m_screen_output(false) {
+		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_memory(memory) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -380,21 +380,6 @@ void cmaes::evolve(population &pop) const
 	} // end loop on g
 }
 
-/// Sets screen output
-/**
- * Sets CMES screen output at a default level
- *
- * @param[in] p true or false
- */
-void cmaes::set_screen_output(const bool p) {m_screen_output = p;}
-
-/// Gets screen output
-/**
- * Gets CMAES screen output level
- *
- * @param[out] boolean 
- */
-bool cmaes::get_screen_output() const {return m_screen_output;}
 
 void cmaes::set_gen(const int gen) {m_gen = gen;}
 int cmaes::get_gen() const {return m_gen;}

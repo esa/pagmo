@@ -63,8 +63,6 @@ public:
 	ms(const ms &);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void set_screen_output(const bool);
-	bool get_screen_output() const;
 	std::string get_name() const;
 	base_ptr get_algorithm() const;
 	void set_algorithm(const base &);
@@ -78,11 +76,9 @@ private:
 		ar & boost::serialization::base_object<base>(*this);
 		ar & m_algorithm;
 		ar & m_starts;
-		ar & m_screen_out;
 	}
 	base_ptr m_algorithm;
 	int m_starts;
-	bool m_screen_out;
 };
 
 }} //namespaces

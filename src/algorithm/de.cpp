@@ -43,9 +43,11 @@ namespace pagmo { namespace algorithm {
  * @param[in] f weight coefficient (dafault value is 0.8)
  * @param[in] cr crossover probability (dafault value is 0.9)
  * @param[in] strategy strategy (dafault strategy is 2: /rand/1/exp)
+ * @param[in] ftol stopping criteria on the x tolerance
+ * @param[in] xtol stopping criteria on the f tolerance
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-de::de(int gen, const double &f, const double &cr, int strategy):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy) {
+de::de(int gen, double f, double cr, int strategy, double ftol, double xtol):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy),m_ftol(ftol),m_xtol(xtol) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -293,7 +295,7 @@ void de::evolve(population &pop) const
 				fit[i]=newfitness;
 				popnew[i] = tmp;
 				// As a fitness improvment occured we move the point
-				// and thus can evaluate a velocity
+				// and thus can evaluate a new velocity
 				std::transform(tmp.begin(), tmp.end(), pop.get_individual(i).cur_x.begin(), tmp.begin(),std::minus<double>());
 				//updates x and v (cache avoids to recompute the objective function)
 				pop.set_x(i,popnew[i]);
@@ -315,7 +317,37 @@ void de::evolve(population &pop) const
 		/* swap population arrays. New generation becomes old one */
 		std::swap(popold, popnew);
 
+
+		//9 - Check the exit conditions (every 40 generations)
+		if (gen%40) {
+			double dx = 0;
+			for (decision_vector::size_type i = 0; i < D; ++i) {
+				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
+				dx += std::fabs(tmp[i]);
+			}
+			
+			if  ( dx < m_xtol ) {
+				if (m_screen_output) { 
+					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+				}
+				return;
+			}
+
+			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+
+			if (mah < m_ftol) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+				}
+				return;
+			}
+		}
+		
+
 	}//end main DE iterations
+	if (m_screen_output) {
+		std::cout << "Exit condition -- generations > " <<  m_gen << std::endl;
+	}
 
 }
 

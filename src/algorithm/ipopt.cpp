@@ -49,8 +49,7 @@ namespace pagmo { namespace algorithm {
 
 ipopt::ipopt(const int &max_iter,const double &constr_viol_tol, const double &dual_inf_tol, const double &compl_inf_tol) :
 		m_max_iter(max_iter),m_constr_viol_tol(constr_viol_tol),
-		m_dual_inf_tol(dual_inf_tol), m_compl_inf_tol(compl_inf_tol),
-		m_screen_out(false)
+		m_dual_inf_tol(dual_inf_tol), m_compl_inf_tol(compl_inf_tol)
 {
 	if (max_iter < 0) {
 		pagmo_throw(value_error,"number of maximum iterations cannot be negative");
@@ -112,7 +111,7 @@ void ipopt::evolve(population &pop) const
 	::Ipopt::SmartPtr< ::Ipopt::TNLP> pagmo_nlp = new ipopt_problem(&pop);
 
 	//create an instance of the IpoptApplication
-	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication(m_screen_out,false);
+	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication(m_screen_output,false);
 
 
 	m_app->Options()->SetStringValue("hessian_approximation", "limited-memory");
@@ -140,26 +139,10 @@ void ipopt::evolve(population &pop) const
 	status = m_app->OptimizeTNLP(pagmo_nlp);
 }
 
-/// Sets screen output
-/**
- * Sets IPOPT screen output at a default level
- *
- * @param[in] p true or false
- */
-void ipopt::set_screen_output(const bool p) {m_screen_out = p;}
-
-/// Gets screen output
-/**
- * Gest IPOPT screen output level
- *
- * @param[out] boolean 
- */
-bool ipopt::get_screen_output() const {return m_screen_out;}
-
 /// Algorithm name
 std::string ipopt::get_name() const
 {
-	return "IPOPT";
+	return "IPOPT - ";
 }
 
 /// Extra human readable algorithm info.

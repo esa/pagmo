@@ -73,8 +73,6 @@ public:
 	snopt(const int major = 100,const double feas=1e-10, const double opt = 1e-4);
 	base_ptr clone() const;
 	void evolve(population &) const;
-	void set_screen_output(const bool);
-	bool get_screen_output() const;
 	void file_output(const bool);
 	std::string get_name() const;
 
@@ -104,14 +102,12 @@ private:
 		ar & const_cast<int &>(m_major);
 		ar & const_cast<double &>(m_feas);
 		ar & const_cast<double &>(m_opt);
-		ar & m_screen_out;
 		ar & m_file_out;
 		ar & di_comodo;
 	}  
 	const int m_major;
 	const double m_feas;
 	const double m_opt;
-	bool m_screen_out;
 	bool m_file_out;
 
 	mutable preallocated_memory di_comodo;
