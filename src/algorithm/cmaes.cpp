@@ -54,12 +54,13 @@ namespace pagmo { namespace algorithm {
  * @param[in] sigma0 starting step (std)
  * @param[in] ftol stopping criteria on the x tolerance
  * @param[in] xtol stopping criteria on the f tolerance
+ * @param[in] memory when true the algorithm preserves memory of covariance, step and more between successive runs
  * @throws value_error if cc,cs,c1,cmu are not in [0,1] or not -1
  * 
  * */
-cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol):base(),
-			m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), m_cmu(cmu), m_sigma(sigma0),
-			m_ftol(ftol), m_xtol(xtol), m_screen_output(false) {
+cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool memory):
+		base(), m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), 
+		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_memory(memory), m_screen_output(false) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -174,7 +175,7 @@ void cmaes::evolve(population &pop) const
 
 	// Initializing and allocating (here one could use mutable data member to avoid redefinition of non const data)
 
-	// Algorithm's Memory
+	// Algorithm's Memory. This allows the algorithm to start from its last "state"
 	VectorXd mean(m_mean);
 	VectorXd variation(m_variation);
 	std::vector<VectorXd> newpop(m_newpop);
@@ -189,7 +190,7 @@ void cmaes::evolve(population &pop) const
 	double sigma(m_sigma);
 	double var_norm = 0;
 
-	// Storage
+	// Some buffers
 	VectorXd meanold = VectorXd::Zero(N);
 	MatrixXd Dinv = MatrixXd::Identity(N,N);
 	MatrixXd Cold = MatrixXd::Identity(N,N);
@@ -197,9 +198,8 @@ void cmaes::evolve(population &pop) const
 	std::vector<VectorXd> elite(mu,tmp);
 	decision_vector dumb(N,0);
 
-	// If the algorithm is called for the first time on this problem dimension / pop size we erease the memory
-	if ( !( (m_newpop.size() == lam) && (m_newpop[0].rows() == N) ) ) {
-
+	// If the algorithm is called for the first time on this problem dimension / pop size or if m_fresh_start is true we erease the memory of past calls
+	if ( (m_newpop.size() != lam) || (m_newpop[0].rows() != N) || (m_memory==false) ) {
 		mean.resize(N);
 		for (problem::base::size_type i=0;i<N;++i){
 			mean(i) = pop.champion().x[i];
@@ -286,7 +286,7 @@ void cmaes::evolve(population &pop) const
 		// 4 - Update evolution paths
 		ps = (1 - cs) * ps + std::sqrt(cs*(2-cs)*mueff) * invsqrtC * (mean-meanold) / sigma;
 		double hsig = 0;
-		hsig = (ps.squaredNorm() / N / (1-std::pow((1-cs),(2*counteval/lam))) ) < (2.0 + 4/(N+1));
+		hsig = (ps.squaredNorm() / N / (1-std::pow((1-cs),(2.0*counteval/lam))) ) < (2.0 + 4/(N+1));
 		pc = (1-cc) * pc + hsig * std::sqrt(cc*(2-cc)*mueff) * (mean-meanold) / sigma;
 
 		// 5 - Adapt Covariance Matrix
@@ -306,18 +306,19 @@ void cmaes::evolve(population &pop) const
 		//7 - Perform eigen-decomposition of C
 		if ( (counteval - eigeneval) > (lam/(c1+cmu)/N/10) ) {		//achieve O(N^2)
 			eigeneval = counteval;
-			C = (C+C.transpose())/2;				//enforce symmetry
+			//C = (C+C.transpose())/2;				//enforce symmetry
 			es.compute(C);						//eigen decomposition
-
-			B = es.eigenvectors();
-			D = es.eigenvalues().asDiagonal();
-			for (decision_vector::size_type j = 0; j<N; ++j ) {
-				D(j,j) = std::sqrt(D(j,j));				//D contains standard deviations now
-			}
-			for (decision_vector::size_type j = 0; j<N; ++j ) {
-				Dinv(j,j) = 1.0 / D(j,j);
-			}
-			invsqrtC = B*Dinv*B.transpose();
+			if (es.info()==Success) {
+				B = es.eigenvectors();
+				D = es.eigenvalues().asDiagonal();
+				for (decision_vector::size_type j = 0; j<N; ++j ) {
+					D(j,j) = std::sqrt( std::max(0.0,D(j,j)) );				//D contains standard deviations now
+				}
+				for (decision_vector::size_type j = 0; j<N; ++j ) {
+					Dinv(j,j) = 1.0 / D(j,j);
+				}
+				invsqrtC = B*Dinv*B.transpose();
+			} //if eigendecomposition fails just skip it and keep pevious succesful one.
 		}
 
 		//8 - We print on screen if required
@@ -361,18 +362,20 @@ void cmaes::evolve(population &pop) const
 		}
 
 	// Update algorithm memory
-	m_mean = mean;
-	m_variation = variation;
-	m_newpop = newpop;
-	m_B = B;
-	m_D = D;
-	m_C = C;
-	m_invsqrtC = invsqrtC;
-	m_pc = pc;
-	m_ps = ps;
-	m_counteval = counteval;
-	m_eigeneval = eigeneval;
-	m_sigma = sigma;
+	if (m_memory) {
+		m_mean = mean;
+		m_variation = variation;
+		m_newpop = newpop;
+		m_B = B;
+		m_D = D;
+		m_C = C;
+		m_invsqrtC = invsqrtC;
+		m_pc = pc;
+		m_ps = ps;
+		m_counteval = counteval;
+		m_eigeneval = eigeneval;
+		m_sigma = sigma;
+	}
 		
 	} // end loop on g
 }
@@ -438,7 +441,8 @@ std::string cmaes::human_readable_extra() const
 	  << "cmu:" << m_cmu << ' '
 	  << "sigma0:" << m_sigma << ' '
 	  << "ftol:" << m_ftol << ' '
-	  << "xtol:" << m_xtol;
+	  << "xtol:" << m_xtol << ' ' 
+	  << "memory:" << m_memory;
 	return s.str();
 }
 

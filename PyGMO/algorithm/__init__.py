@@ -344,17 +344,16 @@ def _ihs_ctor(self,**kwargs):
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
-	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False)
+	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False)
 
 	NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
 	is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem
 	are enforced, as to allow PaGMO machinery to work. Fine control on each iteration can be achieved
-	by calling the algo with gen=1 (algo state is stored, cmaes will continue at next call ... without
-	initializing again all its state!!)
+	by calling the algo with memory=True and gen=1
 
 	* gen: number of generations
 	* cc: time constant for C cumulation (in [0,1]) if -1 automatic values are set
@@ -364,6 +363,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	* sigma0: starting step (std)
 	* xtol: stopping criteria on the x tolerance
 	* ftol: stopping criteria on the f tolerance
+	* memory:  when True the algorithm preserves memory of covariance, step and more between successive runs
 	* screen_output: activates screen_output (output at each generation)
 	"""
 	# We set the defaults or the kwargs
@@ -376,6 +376,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	arg_list.append(sigma0)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
+	arg_list.append(memory)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 cmaes._orig_init = cmaes.__init__

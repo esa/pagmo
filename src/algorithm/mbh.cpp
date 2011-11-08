@@ -133,71 +133,61 @@ void mbh::evolve(population &pop) const
 	double dummy, width;
 
 	// Init the best fitness and constraint vector
-	fitness_vector best_f = pop.get_individual(pop.get_best_idx()).best_f;
-	constraint_vector best_c = pop.get_individual(pop.get_best_idx()).best_c;
-	population best_pop(pop);
+	population pert_pop(pop);
 
 	int i = 0;
 
 	//mbh main loop
-
 	while (i<m_stop){
 
-		//1. Perturb the current population (this could be moved in a pagmo::population method should other algorithm use it....
+		//1. Perturb the current population
+		pert_pop.clear();
 		for (population::size_type j =0; j < NP; ++j)
 		{
 			for (decision_vector::size_type k=0; k < Dc; ++k)
 			{
-				dummy = best_pop.get_individual(j).best_x[k];
+				dummy = pop.get_individual(j).best_x[k];
 				width = m_perturb[k];
 				tmp_x[k] = boost::uniform_real<double>(std::max(dummy-width*(ub[k]-lb[k]),lb[k]),std::min(dummy+width*(ub[k]-lb[k]),ub[k]))(m_drng);
-				dummy = best_pop.get_individual(j).cur_v[k];
+				dummy = pop.get_individual(j).cur_v[k];
 				tmp_v[k] = boost::uniform_real<double>(dummy-width*(ub[k]-lb[k]),dummy+width*(ub[k]-lb[k]))(m_drng);
 			}
 
 			for (decision_vector::size_type k=Dc; k < D; ++k)
 			{
-				dummy = best_pop.get_individual(j).best_x[k];
+				dummy = pop.get_individual(j).best_x[k];
 				width = m_perturb[k];
 				tmp_x[k] = boost::uniform_int<int>(std::max(dummy-std::floor(width*(ub[k]-lb[k])),lb[k]),std::min(dummy+std::floor(width*(ub[k]-lb[k])),ub[k]))(m_urng);
-				dummy = best_pop.get_individual(j).cur_v[k];
+				dummy = pop.get_individual(j).cur_v[k];
 				tmp_v[k] = boost::uniform_int<int>(std::max(dummy-std::floor(width*(ub[k]-lb[k])),lb[k]),std::min(dummy+std::floor(width*(ub[k]-lb[k])),ub[k]))(m_urng);
 			}
-			pop.set_x(j,tmp_x);
+			pert_pop.push_back(tmp_x);
 			pop.set_v(j,tmp_v);
 		}
 
 		//2. Evolve population with selected algorithm
-		m_local->evolve(pop); i++;
+		m_local->evolve(pert_pop); i++;
 		if (m_screen_out)
 		{
-			std::cout << i << ". " << "\tLocal solution: " << pop.get_individual(pop.get_best_idx()).best_f << "\tGlobal best: " << best_f << std::endl;
+			std::cout << i << ". " << "\tLocal solution: " << pert_pop.champion().f << "\tGlobal best: " << pop.champion().f << std::endl;
 		}
 
 		//3. Reset counter if improved
-		if (pop.problem().compare_fc(pop.get_individual(pop.get_best_idx()).best_f,pop.get_individual(pop.get_best_idx()).best_c,best_f,best_c) )
+		if (pert_pop.problem().compare_fc(pert_pop.champion().f,pert_pop.champion().c,pop.champion().f,pop.champion().c) )
 		{
 			i = 0;
-			best_f = pop.get_individual(pop.get_best_idx()).best_f;
-			best_c = pop.get_individual(pop.get_best_idx()).best_c;
 			if (m_screen_out) {
-				std::cout << "New solution accepted. Constraints vector: " << best_c << '\n';
+				std::cout << "New solution accepted. Constraints vector: " << pert_pop.champion().c << '\n';
 			}
-			//update best population
+			//update pop
 			for (population::size_type j=0; j<pop.size();++j)
 			{
-				best_pop.set_x(j,pop.get_individual(j).best_x);
-				best_pop.set_v(j,pop.get_individual(j).cur_v);
+				pop.set_x(j,pert_pop.get_individual(j).best_x);
+				pop.set_v(j,pert_pop.get_individual(j).cur_v);
 			}
 		}
 
 
-	}
-	//on exit set the population to the best one (discard perturbations)
-	for (population::size_type j=0; j<pop.size();++j)
-	{
-		pop.set_x(j,best_pop.get_individual(j).best_x);
-		pop.set_v(j,best_pop.get_individual(j).cur_v);
 	}
 }
 

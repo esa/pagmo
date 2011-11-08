@@ -521,7 +521,7 @@ population::size_type population::size() const
 
 /// Clear population.
 /**
- * Will clear the container of individuals, the domination lists and the champion. The problem and random unmber generators
+ * Will clear the container of individuals, the domination lists and the champion. The problem and random number generators
  * are left untouched.
  */
 void population::clear()
