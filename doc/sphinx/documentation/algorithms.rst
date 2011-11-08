@@ -21,12 +21,12 @@ Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`             
 Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
 Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
 Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
-Cross-Entropy Method (CE)          :class:`PyGMO.algorithm.py_cross_entropy`      C-U-S      Written in Python
 Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
 Monte Carlo Search (MC)            :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
 Monte Carlo Search (MC)            :class:`PyGMO.algorithm.py_example`           MI-C-S      Written in Python
 NSGA-II	                                                                                     Coming soon!!! (under testing)
-Covariance Matrix Adaptation-ES 	                                                     Coming soon!!! (under testing) 
+Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written in Python
+Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.cmaes`                 C-U-S
 Ant Colony Optimization                                                                      Planned
 ================================== ========================================= =============== ===========================================
 
@@ -165,9 +165,13 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.py_example.__init__
 
-.. autoclass:: PyGMO.algorithm.py_cross_entropy
+.. autoclass:: PyGMO.algorithm.py_cmaes
 
-   .. automethod:: PyGMO.algorithm.py_cross_entropy.__init__
+   .. automethod:: PyGMO.algorithm.py_cmaes.__init__
+
+.. autoclass:: PyGMO.algorithm.cmaes
+
+   .. automethod:: PyGMO.algorithm.cmaes.__init__
 
 .. autoclass:: PyGMO.algorithm.scipy_fmin
 

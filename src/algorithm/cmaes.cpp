@@ -47,13 +47,14 @@ namespace pagmo { namespace algorithm {
  * Allows to specify in detail all the parameters of the algorithm.
  *
  * @param[in] gen number of generations
- * @param[in] elite the fraction of samples to be considered elite
- * @param[in] scale multiplication coefficient for the generated points
- * @param[in] variant algoritmic variant to use (one of [1,2])
-		       1. 'Canonical' - Covariance Matrix is evaluated as sum (x_(i+1)-mu_i)^T (x_(i+1)-mu_i)
-		       2. 'Dario's' - Covariance Matrix is evaluated as   sum (x_(i+1)-mu_i^T)^T (x_(i+1)-mu_i^T)
- * @param[in] screen_output activates output to screen
- * @throws value_error if number of generations is < 1 or elite outside [0,1]
+ * @param[in] cc time constant for C cumulation (in [0,1]) if -1 automatic values are set
+ * @param[in] cs time constant for sigma cumulation (in [0,1]) if -1 automatic values are set
+ * @param[in] c1 learning rate for rank-1 update (in [0,1]) if -1 automatic values are set
+ * @param[in] cmu learning rate for rank-mu update (in [0,1]) if -1 automatic values are set
+ * @param[in] sigma0 starting step (std)
+ * @param[in] ftol stopping criteria on the x tolerance
+ * @param[in] xtol stopping criteria on the f tolerance
+ * @throws value_error if cc,cs,c1,cmu are not in [0,1] or not -1
  * 
  * */
 cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol):base(),
