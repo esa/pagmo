@@ -151,8 +151,8 @@ void cmaes::evolve(population &pop) const
 	for (int i = 0; i < weights.rows(); ++i){
 		weights(i) = std::log(mu+0.5) - std::log(i+1);
 	}
-	weights /= weights.sum();						// weights for weighted recombination
-	double mueff = 1.0 / (weights.transpose()*weights);			// variance-effectiveness of sum w_i x_i
+	weights /= weights.sum();					// weights for weighted recombination
+	double mueff = 1.0 / (weights.transpose()*weights);		// variance-effectiveness of sum w_i x_i
 
 	// Setting coefficients for Adaptation automatically or to user defined data
 	double cc(m_cc), cs(m_cs), c1(m_c1), cmu(m_cmu);
@@ -169,8 +169,8 @@ void cmaes::evolve(population &pop) const
 		cmu = 2.0 * (mueff-2+1/mueff) / ((N+2)*(N+2)+mueff);	// and for rank-mu update
 	}
 	
-	double damps = 1 + 2*std::max(0.0, std::sqrt((mueff-1)/(N+1))-1) + cs;		// damping for sigma
-	double chiN = std::sqrt(N) * (1-1.0/(4*N)+1.0/(21*N*N));			// expectation of ||N(0,I)|| == norm(randn(N,1))
+	double damps = 1 + 2*std::max(0.0, std::sqrt((mueff-1)/(N+1))-1) + cs;	// damping for sigma
+	double chiN = std::sqrt(N) * (1-1.0/(4*N)+1.0/(21*N*N));		// expectation of ||N(0,I)|| == norm(randn(N,1))
 
 	// Initializing and allocating (here one could use mutable data member to avoid redefinition of non const data)
 
