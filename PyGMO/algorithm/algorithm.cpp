@@ -159,10 +159,18 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::cs>("cs","Compass search solver.")
 		.def(init<const int &, const double &, optional<const double &, const double &> >());
 
-	// Cross-Entropy Study
-	algorithm_wrapper<algorithm::cross_entropy>("cross_entropy","Cross-Entropy Study solver")
-		.def(init<optional<int, double, double, int, bool> >())
-		.add_property("screen_output",&algorithm::cross_entropy::get_screen_output,&algorithm::cross_entropy::set_screen_output);
+	// CMAES
+	algorithm_wrapper<algorithm::cmaes>("cmaes","Covariance Matrix Adaptation Evolutionary Startegy")
+		.def(init<optional<int, double, double, double, double, double, double, double> >())
+		.add_property("gen",&algorithm::cmaes::get_gen,&algorithm::cmaes::set_gen)
+		.add_property("cc",&algorithm::cmaes::get_cc,&algorithm::cmaes::set_cc)
+		.add_property("cs",&algorithm::cmaes::get_cs,&algorithm::cmaes::set_cs)
+		.add_property("c1",&algorithm::cmaes::get_c1,&algorithm::cmaes::set_c1)
+		.add_property("cmu",&algorithm::cmaes::get_cmu,&algorithm::cmaes::set_cmu)
+		.add_property("sigma",&algorithm::cmaes::get_sigma,&algorithm::cmaes::set_sigma)
+		.add_property("ftol",&algorithm::cmaes::get_ftol,&algorithm::cmaes::set_ftol)
+		.add_property("xtol",&algorithm::cmaes::get_xtol,&algorithm::cmaes::set_xtol)
+		.add_property("screen_output",&algorithm::cmaes::get_screen_output,&algorithm::cmaes::set_screen_output);
 
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")

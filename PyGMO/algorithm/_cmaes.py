@@ -6,7 +6,7 @@ class py_cmaes(base):
 	"""
 	def __init__(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False):
 		"""
-		Covariance Matrix Adaptation Evolutionary Strategy (Python)
+		Constructs a Covariance Matrix Adaptation Evolutionary Strategy (Python)
 
 		USAGE: algorithm.py_cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False)
 
@@ -17,7 +17,6 @@ class py_cmaes(base):
 		initializing again all its state!!)
 
 		* gen: number of generations
-		* elite: fraction of the population considered as elite (in (0,1])
 		* cc: time constant for C cumulation (in [0,1]) if -1 automatic values are set
 		* cs: time constant for sigma cumulation (in [0,1]) if -1 automatic values are set
 		* c1: learning rate for rank-1 update (in [0,1]) if -1 automatic values are set
@@ -57,7 +56,6 @@ class py_cmaes(base):
 		self.__gen = gen
 		self.__xtol = xtol
 		self.__ftol = ftol
-		self.__fabs = fabs
 		self.__sigma0 = sigma0
 		self.screen_output = screen_output
 
@@ -96,7 +94,7 @@ class py_cmaes(base):
 
 		if int_dim > 0:
 			raise ValueError("The chromosome has an integer part .... this version of CMAES is not able to deal with it")
-		if f_dim > 0:
+		if f_dim > 1:
 			raise ValueError("The problem is not single objective and CMAES is not suitable to solve it")
 			
 		if len(pop) < 5:
@@ -109,8 +107,9 @@ class py_cmaes(base):
 
 		# Setting coefficients for Selection
 		weights = [log(mu+0.5) - log(i+1) for i in range(mu)]
-		weights.normalize();						# weights for weighted recombination
-		mueff = 1 / sum(w**2 for w in weights)				# variance-effectiveness of sum w_i x_i
+		sumW = sum(weights)
+		weights = [w/sumW for w in weights];				# weights for weighted recombination
+		mueff = 1.0 / sum(w**2 for w in weights)				# variance-effectiveness of sum w_i x_i
 
 		# Setting coefficients for Adaptation automatically or to user defined data
 		cc = self.__cc; cs = self.__cs; c1 = self.__c1; cmu = self.__cmu; 
@@ -124,7 +123,7 @@ class py_cmaes(base):
 			cmu = 2 * (mueff-2+1/mueff) / ((N+2)**2+mueff);		# and for rank-mu update
 
 		damps = 1 + 2*max(0, sqrt((mueff-1)/(N+1))-1) + cs;		#damping for sigma
-		chiN = N**0.5*(1-1/(4*N)+1/(21*N**2))				#expectation of ||N(0,I)|| == norm(randn(N,1))
+		chiN = N**0.5*(1-1.0/(4*N)+1.0/(21*N**2))				#expectation of ||N(0,I)|| == norm(randn(N,1))
 
 		# Initializing and allocating
 		if not self.__newpop.shape==(N,lam):
@@ -154,6 +153,10 @@ class py_cmaes(base):
 
 		sigma=self.__sigma0
 
+		if self.screen_output:
+			print "CMAES 4 PaGMO (Python)\n"
+			print "mu: " + str(mu) + " - lambda: " + str(lam) + " - N: " + str(N) + " - muef: " + str(mueff) + "\n"
+			print "cc: " + str(cc ) + " - cs: " + str(cs) + " - c1: " + str(c1) + " - cmu: " + str(cmu) + " - sigma: " + str(sigma) + " - damps: " + str(damps) + " - chiN: " + str(chiN) + "\n"
 
 		# Let's start the algorithm
 		for gen in range(self.__gen):
@@ -192,7 +195,7 @@ class py_cmaes(base):
 
 			#4 - Update evolution paths
 			ps = (1 - cs)*ps + sqrt(cs*(2-cs)*mueff)* invsqrtC * (mean-meanold) / sigma
-			hsig = ((ps.T*ps)[0,0] / (1-(1-cs)**(2*counteval/lam)) / N) < (2 + 4/(N+1));
+			hsig = ((ps.T*ps)[0,0] / (1-(1-cs)**(2.0*counteval/lam)) / N) < (2.0 + 4.0/(N+1));
 			hsig = int(hsig)
 			pc = (1-cc) * pc + hsig * sqrt(cc*(2-cc)*mueff) * (mean-meanold) / sigma;
 
@@ -242,7 +245,6 @@ class py_cmaes(base):
 		self.__mean = mean
 		self.__variation = variation
 		self.__newpop = newpop
-		self.__chiN = chiN
 		self.__B = B
 		self.__D = D
 		self.__C = C
@@ -261,4 +263,4 @@ class py_cmaes(base):
 	def get_name(self):
 		return "CMAES (Python)"
 	def human_readable_extra(self):
-		return "gen=" + str(self.__gen) + " elite fraction=" + str(self.__elite) + " cc=" + str(self.__cc) + " cs=" + str(self.__cs) + " c1=" + str(self.__c1) + " cmu=" + str(self.__cmu) + " sigma0=" + str(self.__sigma0) + " xtol=" + str(self.__xtol) + " ftol=" + str(self.__ftol) + " fabs=" + str(self.__fabs)
+		return "gen=" + str(self.__gen) + " cc=" + str(self.__cc) + " cs=" + str(self.__cs) + " c1=" + str(self.__c1) + " cmu=" + str(self.__cmu) + " sigma0=" + str(self.__sigma0) + " xtol=" + str(self.__xtol) + " ftol=" + str(self.__ftol)

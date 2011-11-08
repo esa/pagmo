@@ -40,7 +40,7 @@
 #include "algorithm/sga.h"
 #include "algorithm/bee_colony.h"
 //#include "algorithm/firefly.h"
-#include "algorithm/cross_entropy.h"
+#include "algorithm/cmaes.h"
 #include "algorithm/aco.h"
 #include "algorithm/nsga2.h"
 

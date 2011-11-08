@@ -26,22 +26,19 @@
 #include <iomanip>
 #include <vector>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
 
-#include "cross_entropy.h"
+#include "cmaes.h"
 #include "../exceptions.h"
 #include "../population.h"
 #include "../problem/base.h"
 #include "../types.h"
 #include "../Eigen/Dense"
-
-
-
 
 namespace pagmo { namespace algorithm {
 
@@ -59,7 +56,7 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if number of generations is < 1 or elite outside [0,1]
  * 
  * */
-cross_entropy::cross_entropy(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol):base(),
+cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol):base(),
 			m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), m_cmu(cmu), m_sigma(sigma0),
 			m_ftol(ftol), m_xtol(xtol), m_screen_output(false) {
 	if (gen < 0) {
@@ -79,23 +76,23 @@ cross_entropy::cross_entropy(int gen, double cc, double cs, double c1, double cm
 	}
 
 	//Initialize the algorithm memory
-	m_mean = Eigen::VectorXd(1);
-	m_variation = Eigen::VectorXd(1);
-	m_newpop = std::vector<Eigen::VectorXd>(1);
-	m_B = Eigen::MatrixXd(1,1);
-	m_D = Eigen::VectorXd(1);
-	m_C = Eigen::MatrixXd(1,1);
-	m_invsqrtC = Eigen::MatrixXd(1,1);
-	m_pc = Eigen::VectorXd(1);
-	m_ps = Eigen::VectorXd(1);
+	m_mean = Eigen::VectorXd::Zero(1);
+	m_variation = Eigen::VectorXd::Zero(1);
+	m_newpop = std::vector<Eigen::VectorXd>();
+	m_B = Eigen::MatrixXd::Identity(1,1);
+	m_D = Eigen::MatrixXd::Identity(1,1);
+	m_C = Eigen::MatrixXd::Identity(1,1);
+	m_invsqrtC = Eigen::MatrixXd::Identity(1,1);
+	m_pc = Eigen::VectorXd::Zero(1);
+	m_ps = Eigen::VectorXd::Zero(1);
 	m_counteval = 0;
 	m_eigeneval = 0;
 
 }
 /// Clone method.
-base_ptr cross_entropy::clone() const
+base_ptr cmaes::clone() const
 {
-	return base_ptr(new cross_entropy(*this));
+	return base_ptr(new cmaes(*this));
 }
 
 /// Evolve implementation.
@@ -105,7 +102,7 @@ base_ptr cross_entropy::clone() const
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
 
-void cross_entropy::evolve(population &pop) const
+void cmaes::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
@@ -151,28 +148,28 @@ void cross_entropy::evolve(population &pop) const
 	// Setting coefficients for Selection
 	VectorXd weights(mu);
 	for (int i = 0; i < weights.rows(); ++i){
-		weights[i] = log(mu+0.5) - log(i+1);
+		weights(i) = std::log(mu+0.5) - std::log(i+1);
 	}
 	weights /= weights.sum();						// weights for weighted recombination
 	double mueff = 1.0 / (weights.transpose()*weights);			// variance-effectiveness of sum w_i x_i
 
 	// Setting coefficients for Adaptation automatically or to user defined data
 	double cc(m_cc), cs(m_cs), c1(m_c1), cmu(m_cmu);
-	if (m_cc == -1) {
+	if (cc == -1) {
 		cc = (4 + mueff/N) / (N+4 + 2*mueff/N);			// t-const for cumulation for C
 	}
-	if (m_cs == -1) {
+	if (cs == -1) {
 		cs = (mueff+2) / (N+mueff+5);				// t-const for cumulation for sigma control
 	}
-	if (m_c1 == -1) {
+	if (c1 == -1) {
 		c1 = 2.0 / ((N+1.3)*(N+1.3)+mueff);			// learning rate for rank-one update of C
 	}
-	if (m_cmu == -1) {
+	if (cmu == -1) {
 		cmu = 2.0 * (mueff-2+1/mueff) / ((N+2)*(N+2)+mueff);	// and for rank-mu update
 	}
 	
-	double damps = 1 + 2*std::max(0.0, sqrt((mueff-1)/(N+1))-1) + cs;	// damping for sigma
-	double chiN = pow(N,0.5)*(1-1/(4*N)+1/(21*N*N));			// expectation of ||N(0,I)|| == norm(randn(N,1))
+	double damps = 1 + 2*std::max(0.0, std::sqrt((mueff-1)/(N+1))-1) + cs;		// damping for sigma
+	double chiN = std::sqrt(N) * (1-1.0/(4*N)+1.0/(21*N*N));			// expectation of ||N(0,I)|| == norm(randn(N,1))
 
 	// Initializing and allocating (here one could use mutable data member to avoid redefinition of non const data)
 
@@ -189,28 +186,31 @@ void cross_entropy::evolve(population &pop) const
 	int counteval(m_counteval);
 	int eigeneval(m_eigeneval);
 	double sigma(m_sigma);
+	double var_norm = 0;
 
 	// Storage
-	VectorXd meanold(N);
-	MatrixXd Dinv(N,N);
-	MatrixXd Cold(N,N);
+	VectorXd meanold = VectorXd::Zero(N);
+	MatrixXd Dinv = MatrixXd::Identity(N,N);
+	MatrixXd Cold = MatrixXd::Identity(N,N);
 	VectorXd tmp = VectorXd::Zero(N);
 	std::vector<VectorXd> elite(mu,tmp);
 	decision_vector dumb(N,0);
 
 	// If the algorithm is called for the first time on this problem dimension / pop size we erease the memory
 	if ( !( (m_newpop.size() == lam) && (m_newpop[0].rows() == N) ) ) {
+
+		mean.resize(N);
 		for (problem::base::size_type i=0;i<N;++i){
 			mean(i) = pop.champion().x[i];
 		}
 		newpop = std::vector<VectorXd>(lam,tmp);
-		variation = VectorXd(N);
-		B = MatrixXd::Identity(N,N);					//B defines the coordinate system
-		D = MatrixXd::Identity(N,N);					//diagonal D defines the scaling
-		C = MatrixXd::Identity(N,N);					//covariance matrix C
-		invsqrtC = MatrixXd::Identity(N,N);					//inverse of sqrt(C)
-		pc = VectorXd::Zero(N);
-		ps = VectorXd::Zero(N);
+		variation.resize(N);
+		B.resize(N,N); B = MatrixXd::Identity(N,N);			//B defines the coordinate system
+		D.resize(N,N); D = MatrixXd::Identity(N,N);			//diagonal D defines the scaling
+		C.resize(N,N); C = MatrixXd::Identity(N,N);			//covariance matrix C
+		invsqrtC.resize(N,N); invsqrtC = MatrixXd::Identity(N,N);	//inverse of sqrt(C)
+		pc.resize(N); pc = VectorXd::Zero(N);
+		ps.resize(N); ps = VectorXd::Zero(N);
 		counteval = 0;
 		eigeneval = 0;
 	}
@@ -220,22 +220,35 @@ void cross_entropy::evolve(population &pop) const
 	// ----------------------------------------------//
 
 	if (m_screen_output) {
-		std::cout << "CMAES: " << std::endl; 
+		std::cout << "CMAES 4 PaGMO: " << std::endl;
+		std::cout << "mu: " << mu
+			<< " - lambda: " << lam
+			<< " - mueff: " << mueff
+			<< " - N: " << N << std::endl;
+
+		std::cout << "cc: " << cc
+			<< " - cs: " << cs
+			<< " - c1: " << c1
+			<< " - cmu: " << cmu
+			<< " - sigma: " << sigma
+			<< " - damps: " << damps
+			<< " - chiN: " << chiN << std::endl;
 	}
 	
 	SelfAdjointEigenSolver<MatrixXd> es(N);
 	for (std::size_t g = 0; g < m_gen; ++g) {
 		// 1 - We generate and evaluate lam new individuals
-//std::cout << "1" << std::endl;
+
 		for (population::size_type i = 0; i<lam; ++i ) {
 			// 1a - we create a randomly normal distributed vector
-			for (problem::base::size_type j=0;j<N;++j){
+			for (problem::base::size_type j=0; j<N; ++j){
 				tmp(j) = normally_distributed_number();
 			}
 			// 1b - and store its transformed value in the newpop
 			newpop[i] = mean + sigma * B * D * tmp;
 		}
-//std::cout << "1c" << std::endl;
+		var_norm = (sigma * B * D * tmp).norm();
+
 		// 1c - we fix the bounds and reinsert
 		for (population::size_type i = 0; i<lam; ++i ) {
 			for (decision_vector::size_type j = 0; j<N; ++j ) {
@@ -244,7 +257,7 @@ void cross_entropy::evolve(population &pop) const
 				}
 			}
 		}
-//std::cout << "1ca" << std::endl;
+
 		for (population::size_type i = 0; i<lam; ++i ) {
 			for (decision_vector::size_type j = 0; j<N; ++j ) {
 				dumb[j] = newpop[i](j);
@@ -253,7 +266,7 @@ void cross_entropy::evolve(population &pop) const
 			pop.set_x(idx,dumb);
 		}
 		counteval += lam;
-//std::cout << "2" << std::endl;
+
 		// 2 - We extract the elite from this generation
 		std::vector<population::size_type> best_idx = pop.get_best_idx(mu);
 		for (population::size_type i = 0; i<mu; ++i ) {
@@ -261,50 +274,54 @@ void cross_entropy::evolve(population &pop) const
 				elite[i](j) = pop.get_individual(best_idx[i]).best_x[j];
 			}
 		}
-//std::cout << "3" << std::endl;
+
 		// 3 - Compute the new elite mean storing the old one
 		meanold=mean;
-		mean = elite[0]*weights[0];
-		for (population::size_type i = 0; i<mu; ++i ) {
-			mean += elite[i]*weights[i];
+		mean = elite[0]*weights(0);
+		for (population::size_type i = 1; i<mu; ++i ) {
+			mean += elite[i]*weights(i);
 		}
-//std::cout << "4" << std::endl;
+
 		// 4 - Update evolution paths
-		ps = (1 - cs) * ps + sqrt(cs*(2-cs)*mueff) * invsqrtC * (mean-meanold) / sigma;
-		int hsig = (ps.squaredNorm() / N / (1-pow((1-cs),(2*counteval/lam))) ) < (2 + 4/(N+1));
-		pc = (1-cc) * pc + hsig * sqrt(cc*(2-cc)*mueff) * (mean-meanold) / sigma;
-//std::cout << "5" << std::endl;
+		ps = (1 - cs) * ps + std::sqrt(cs*(2-cs)*mueff) * invsqrtC * (mean-meanold) / sigma;
+		double hsig = 0;
+		hsig = (ps.squaredNorm() / N / (1-std::pow((1-cs),(2*counteval/lam))) ) < (2.0 + 4/(N+1));
+		pc = (1-cc) * pc + hsig * std::sqrt(cc*(2-cc)*mueff) * (mean-meanold) / sigma;
+
 		// 5 - Adapt Covariance Matrix
 		Cold = C;
-		C = (elite[0]-meanold)*(elite[0]-meanold).transpose()*weights[0];
-		for (population::size_type i = 0; i<mu; ++i ) {
-			C += (elite[i]-meanold)*(elite[i]-meanold).transpose()*weights[i];
+		C = (elite[0]-meanold)*(elite[0]-meanold).transpose()*weights(0);
+		for (population::size_type i = 1; i<mu; ++i ) {
+			C += (elite[i]-meanold)*(elite[i]-meanold).transpose()*weights(i);
 		}
 		C /= sigma*sigma;
-		C = (1-c1-cmu)*Cold + cmu*C + c1 * ((pc * pc.transpose()) + (1-hsig) * cc*(2-cc) * Cold);
-//std::cout << "6" << std::endl;
+		C = (1-c1-cmu) * Cold +
+			cmu * C +
+			c1 * ((pc * pc.transpose()) + (1-hsig) * cc * (2-cc) * Cold);
+
 		//6 - Adapt sigma
-		sigma *= exp( (cs/damps)*(ps.norm()/chiN - 1));
-//std::cout << "7" << std::endl;
+		sigma *= std::exp( (cs/damps)*(ps.norm()/chiN - 1) );
+
 		//7 - Perform eigen-decomposition of C
 		if ( (counteval - eigeneval) > (lam/(c1+cmu)/N/10) ) {		//achieve O(N^2)
 			eigeneval = counteval;
-			//C = (C+C.T)/2						//enforce symmetry
+			C = (C+C.transpose())/2;				//enforce symmetry
 			es.compute(C);						//eigen decomposition
+
 			B = es.eigenvectors();
 			D = es.eigenvalues().asDiagonal();
 			for (decision_vector::size_type j = 0; j<N; ++j ) {
-				D(j,j) = sqrt(D(j,j));				//D contains standard deviations now
+				D(j,j) = std::sqrt(D(j,j));				//D contains standard deviations now
 			}
 			for (decision_vector::size_type j = 0; j<N; ++j ) {
 				Dinv(j,j) = 1.0 / D(j,j);
 			}
 			invsqrtC = B*Dinv*B.transpose();
 		}
-//std::cout << "8" << std::endl;
+
 		//8 - We print on screen if required
 		if (m_screen_output) {
-			if (g%20) {
+			if (!(g%20)) {
 				std::cout << std::endl << std::left << std::setw(20) << 
 				"Gen." << std::setw(20) << 
 				"Champion " << std::setw(20) << 
@@ -319,10 +336,10 @@ void cross_entropy::evolve(population &pop) const
 				pop.champion().f[0] << std::setw(20) << 
 				pop.get_individual(pop.get_best_idx()).best_f[0] << std::setw(20) << 
 				pop.get_individual(pop.get_worst_idx()).best_f[0] << std::setw(20) << 
-				(sigma*B*D*tmp).norm() << std::setw(20) << 
+				var_norm << std::setw(20) <<
 				sigma << std::endl;
 		}
-//std::cout << "9" << std::endl;
+
 		//9 - Check the exit conditions (every 40 generations)
 		if (g%40) {
 			if  ( (sigma*B*D*tmp).norm() < m_xtol ) {
@@ -332,39 +349,77 @@ void cross_entropy::evolve(population &pop) const
 				return;
 			}
 
-			double tmp = fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
 
-			if (tmp < m_ftol) {
+			if (mah < m_ftol) {
 				if (m_screen_output) {
 					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
 				}
 				return;
 			}
 		}
+
+	// Update algorithm memory
+	m_mean = mean;
+	m_variation = variation;
+	m_newpop = newpop;
+	m_B = B;
+	m_D = D;
+	m_C = C;
+	m_invsqrtC = invsqrtC;
+	m_pc = pc;
+	m_ps = ps;
+	m_counteval = counteval;
+	m_eigeneval = eigeneval;
+	m_sigma = sigma;
 		
 	} // end loop on g
 }
 
 /// Sets screen output
 /**
- * Sets CES screen output at a default level
+ * Sets CMES screen output at a default level
  *
  * @param[in] p true or false
  */
-void cross_entropy::set_screen_output(const bool p) {m_screen_output = p;}
+void cmaes::set_screen_output(const bool p) {m_screen_output = p;}
 
 /// Gets screen output
 /**
- * Gets CES screen output level
+ * Gets CMAES screen output level
  *
  * @param[out] boolean 
  */
-bool cross_entropy::get_screen_output() const {return m_screen_output;}
+bool cmaes::get_screen_output() const {return m_screen_output;}
+
+void cmaes::set_gen(const int gen) {m_gen = gen;}
+int cmaes::get_gen() const {return m_gen;}
+
+void cmaes::set_cc(const double cc) {m_cc = cc;}
+double cmaes::get_cc() const {return m_cc;}
+
+void cmaes::set_cs(const double cs) {m_cs = cs;}
+double cmaes::get_cs() const {return m_cs;}
+
+void cmaes::set_c1(const double c1) {m_c1 = c1;}
+double cmaes::get_c1() const {return m_c1;}
+
+void cmaes::set_cmu(const double cmu) {m_cmu = cmu;}
+double cmaes::get_cmu() const {return m_cmu;}
+
+void cmaes::set_sigma(const double sigma) {m_sigma = sigma;}
+double cmaes::get_sigma() const {return m_sigma;}
+
+void cmaes::set_ftol(const double ftol) {m_ftol = ftol;}
+double cmaes::get_ftol() const {return m_ftol;}
+
+void cmaes::set_xtol(const double xtol) {m_xtol = xtol;}
+double cmaes::get_xtol() const {return m_xtol;}
 
 /// Algorithm name
-std::string cross_entropy::get_name() const
+std::string cmaes::get_name() const
 {
-	return "Cross Entropy Study";
+	return "CMAES - ";
 }
 
 
@@ -372,13 +427,22 @@ std::string cross_entropy::get_name() const
 /**
  * Will return a formatted string displaying the parameters of the algorithm.
  */
-std::string cross_entropy::human_readable_extra() const
+std::string cmaes::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "gen:" << m_gen << ' ';
+	s << "gen:" << m_gen << ' '
+	  << "cc:" << m_cc << ' '
+	  << "cs:" << m_cs << ' '
+	  << "c1:" << m_c1 << ' '
+	  << "cmu:" << m_cmu << ' '
+	  << "sigma0:" << m_sigma << ' '
+	  << "ftol:" << m_ftol << ' '
+	  << "xtol:" << m_xtol;
 	return s.str();
 }
 
 
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cmaes);

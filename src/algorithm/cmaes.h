@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_CROSS_ENTROPY_H
-#define PAGMO_ALGORITHM_CROSS_ENTROPY_H
+#ifndef PAGMO_ALGORITHM_CMAES_H
+#define PAGMO_ALGORITHM_CMAES_H
 
 #include <string>
 
@@ -45,38 +45,38 @@ namespace pagmo { namespace algorithm {
 
  */
 
-class __PAGMO_VISIBLE cross_entropy: public base
+class __PAGMO_VISIBLE cmaes: public base
 {
 public:
-	cross_entropy(int gen = 500, double cc = -1, double cs = -1, double c1 = -1, double cmu = -1, double sigma0=0.5, double ftol = 1e-6, double xtol = 1e-6);
+	cmaes(int gen = 500, double cc = -1, double cs = -1, double c1 = -1, double cmu = -1, double sigma0=0.5, double ftol = 1e-6, double xtol = 1e-6);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
 
 	// Setters and Getters (needed for all as we want to fine control the iterations .... )
-//	void set_gen(const int gen);
-//	int  get_gen() const;
+	void set_gen(const int gen);
+	int  get_gen() const;
 
-//	void   set_cc(const double p);
-//	double get_cc() const;
+	void   set_cc(const double p);
+	double get_cc() const;
 
-//	void   set_cs(const double p);
-//	double get_cs() const;
+	void   set_cs(const double p);
+	double get_cs() const;
 
-//	void   set_c1(const double p);
-//	double get_c1() const;
+	void   set_c1(const double p);
+	double get_c1() const;
 
-//	void   set_cmu(const double p);
-//	double get_cmu() const;
+	void   set_cmu(const double p);
+	double get_cmu() const;
 
-//	void   set_sigma(const double p);
-//	double get_sigma() const;
+	void   set_sigma(const double p);
+	double get_sigma() const;
 
-//	void   set_xtol(const double p);
-//	double get_xtol() const;
+	void   set_xtol(const double p);
+	double get_xtol() const;
 
-//	void   set_ftol(const double p);
-//	double get_ftol() const;
+	void   set_ftol(const double p);
+	double get_ftol() const;
 
 	void set_screen_output(const bool p);
 	bool get_screen_output() const;
@@ -110,12 +110,12 @@ private:
 		ar & m_eigeneval;
 	}
 	// "Real" data members
-	const std::size_t m_gen;
+	std::size_t m_gen;
 	double m_cc;
 	double m_cs;
 	double m_c1;
 	double m_cmu;
-	double m_sigma;
+	mutable double m_sigma;
 	double m_ftol;
 	double m_xtol;
 	bool m_screen_output;
@@ -136,6 +136,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cross_entropy);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cmaes);
 
 #endif // CROSS_ENTROPY_H

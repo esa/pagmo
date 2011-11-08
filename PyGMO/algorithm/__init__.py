@@ -344,6 +344,43 @@ def _ihs_ctor(self,**kwargs):
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False):
+	"""
+	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
+
+	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, screen_output = False)
+
+	NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
+	is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem
+	are enforced, as to allow PaGMO machinery to work. Fine control on each iteration can be achieved
+	by calling the algo with gen=1 (algo state is stored, cmaes will continue at next call ... without
+	initializing again all its state!!)
+
+	* gen: number of generations
+	* cc: time constant for C cumulation (in [0,1]) if -1 automatic values are set
+	* cs: time constant for sigma cumulation (in [0,1]) if -1 automatic values are set
+	* c1: learning rate for rank-1 update (in [0,1]) if -1 automatic values are set
+	* cmu: learning rate for rank-mu update (in [0,1]) if -1 automatic values are set
+	* sigma0: starting step (std)
+	* xtol: stopping criteria on the x tolerance
+	* ftol: stopping criteria on the f tolerance
+	* screen_output: activates screen_output (output at each generation)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cc)
+	arg_list.append(cs)
+	arg_list.append(c1)
+	arg_list.append(cmu)
+	arg_list.append(sigma0)
+	arg_list.append(ftol)
+	arg_list.append(xtol)
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+cmaes._orig_init = cmaes.__init__
+cmaes.__init__ = _cmaes_ctor
+
 def _monte_carlo_ctor(self,**kwargs):
 	"""
 	Constructs a Monte Carlo Algorithm
