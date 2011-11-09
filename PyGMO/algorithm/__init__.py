@@ -26,11 +26,11 @@ def _get_algorithm_list():
 	return algorithm_list
 
 # Redefining the constructors of all algorithms to obtain good documentation and to allow kwargs
-def _de_ctor(self,**kwargs):
+def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6):
 	"""
 	Constructs a Differential Evolution algorithm:
 	
-	USAGE: algorithm.de(gen=1,f=0.8,cr=0.9,variant=2)
+	USAGE: algorithm.de(gen=1,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6, screen_output = False)
 	
 	* gen: number of generations
 	* f: weighting factor in [0,1]
@@ -46,14 +46,19 @@ def _de_ctor(self,**kwargs):
 		8. DE/rand-to-best/1/bin
 		9. DE/best/2/bin
 		10. DE/rand/2/bin
+	* ftol stop criteria on f
+	* xtol stop criteria on x
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('gen', 1))
-	arg_list.append(kwargs.pop('f', 0.8))
-	arg_list.append(kwargs.pop('cr', 0.9))
-	arg_list.append(kwargs.pop('variant', 2))
+	arg_list.append(gen)
+	arg_list.append(f)
+	arg_list.append(cr)
+	arg_list.append(kwargs.pop(variant)
+	arg_list.append(kwargs.pop(ftol)
+	arg_list.append(kwargs.pop(xtol)
 	self._orig_init(*arg_list)
+	self.screen_output = screen_output
 de._orig_init = de.__init__
 de.__init__ = _de_ctor
 
