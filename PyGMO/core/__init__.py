@@ -266,3 +266,69 @@ def _generic_archi_ctor(self,*args,**kwargs):
 
 archipelago.__original_init__ = archipelago.__init__
 archipelago.__init__ = _generic_archi_ctor
+
+def _archipelago_draw(self, layout = 'spring', color = 'fitness', n_size = 15, scale_by_degree = False, n_alpha = 0.5, e_alpha = 0.1, cmap = 'default'):
+	"""
+	Draw a visualization of the archipelago using networkx.
+
+	USAGE: pos = archipelago.draw(layout = 'spring', color = 'fitness', n_size = 15, scale_by_degree = False, n_alpha = 0.5, e_alpha = 0.1, cmap = 'default')
+
+	* layout: Network layout. Can be 'spring' or 'circular' or a list of values pos returned
+		by a previous call of the method (so that positions of the islands can be kept fixed.
+	* color_code = Defines the color code for the nodes. Can be one of 'fitness', 'links' 
+	* n_size: The size of nodes. Becomes scaling factor when scale_by_degree=True.
+	* scale_by_degree: When True, nodes will be sized proportional to their degree.
+	* n_alpha: Transparency of nodes. Takes value between 0 and 1.
+	* e_elpha: Transparency of edges. Takes value between 0 and 1.
+	* cmap: color map. one in matplotlib.pyplot.cm 
+	"""
+	try:
+		import networkx as nx
+	except ImportError:
+		raise ImportError('Could not import the networkx module.')
+	try:
+		import matplotlib.pyplot as pl
+	except ImportError:
+		raise ImportError('Could not improt the MatPlotLib module.')
+
+	#We set the graph in networkx
+	t = self.topology
+	G = t.to_networkx()
+
+	#We scale the node sizes
+	node_sizes = range(nx.number_of_nodes(G))
+	for i in range(nx.number_of_nodes(G)):
+		if scale_by_degree:
+			node_sizes[i] = nx.degree(G,i)*n_size
+		else:
+			node_sizes[i] = n_size
+
+	#We compute the layout
+	if layout == 'spring':
+		pos = nx.spring_layout(G)
+	elif layout == "circular":
+		pos = nx.circular_layout(G)
+	else:
+		pos = layout
+
+	#We compute the color_code
+	if color == 'fitness':
+		node_colors=[-isl.population.champion.f[0] for isl in self]
+	elif color == 'links':
+		node_colors=[t.get_num_adjacent_vertices(i) for i in range(len(self))]
+	else:
+		node_colors=[-isl.population.champion.f[0] for isl in self]
+	m = min(node_colors)
+	M = max(node_colors)
+	node_colors=[(node_colors[i] - m)/(M-m) for i in range(len(self))]
+
+	#And we draw the archipelago .....
+	pl.figure()
+	if cmap == 'default':
+		cmap = pl.cm.Reds_r
+	nx.draw_networkx_nodes(G,pos,nodelist=range(len(self)), node_color=node_colors, cmap=cmap, node_size=node_sizes,alpha=n_alpha)
+	nx.draw_networkx_edges(G,pos,alpha=e_alpha,arrows=True)
+	pl.show()
+	return pos
+archipelago.draw = _archipelago_draw
+	

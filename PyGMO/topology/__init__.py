@@ -165,14 +165,14 @@ def _clustered_ba_ctor(self, m0 = 3, m=3, p=0.5, nodes = 0):
 clustered_ba._orig_init = clustered_ba.__init__
 clustered_ba.__init__ = _clustered_ba_ctor
 
-def _ageing_clustered_ba_ctor(self, m0 = 3, m=3, p=0.5, nodes = 0):
+def _ageing_clustered_ba_ctor(self, m0 = 3, m=3, p=0.5, a=1000, nodes = 0):
 	"""
 	Constructs a Clustered Barabási-Albert with Ageing vertices graph topology.:
 
-	USAGE: topology.clustered_ba(mm0 = 3, m=3, p=0.5, a=1000, nodes = 0)
+	USAGE: topology.clustered_ba(m0 = 3, m=3, p=0.5, a=1000, nodes = 0)
 
 	* m0: kernel size
-	* m: nnumber of random connections to be established when a new node is added
+	* m: number of random connections to be established when a new node is added
 	* p: probability that a connection is established between two nodes that are adjacent to a new node
 	* a: 'age' at which a node ceases to make new connections.
 	* nodes: number of nodes
@@ -188,3 +188,116 @@ def _ageing_clustered_ba_ctor(self, m0 = 3, m=3, p=0.5, nodes = 0):
 		self.push_back()
 ageing_clustered_ba._orig_init = ageing_clustered_ba.__init__
 ageing_clustered_ba.__init__ = _ageing_clustered_ba_ctor
+
+def _fully_connected_ctor(self, nodes = 0):
+	"""
+	Constructs a fully connected topology:
+
+	USAGE: topology.fully_connected(nodes = 0)
+
+	* nodes: number of nodes
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	self._orig_init(*arg_list)
+	for i in range(nodes):
+		self.push_back()
+fully_connected._orig_init = fully_connected.__init__
+fully_connected.__init__ = _fully_connected_ctor
+
+def _hypercube_ctor(self, nodes = 0):
+	"""
+	Constructs a hypercube topology:
+
+	USAGE: topology.hypercube(nodes = 0)
+
+	* nodes: number of nodes
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	self._orig_init(*arg_list)
+	for i in range(nodes):
+		self.push_back()
+hypercube._orig_init = hypercube.__init__
+hypercube.__init__ = _hypercube_ctor
+
+def _one_way_ring_ctor(self, nodes = 0):
+	"""
+	Constructs a one_way_ring topology:
+
+	USAGE: topology.one_way_ring(nodes = 0)
+
+	* nodes: number of nodes
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	self._orig_init(*arg_list)
+	for i in range(nodes):
+		self.push_back()
+one_way_ring._orig_init = one_way_ring.__init__
+one_way_ring.__init__ = _one_way_ring_ctor
+
+def _pan_ctor(self, nodes = 0):
+	"""
+	Constructs a pan topology: this is, essentially, a ring with a sink node. This topology was 'invented' to support a local
+	optimization algorithm in the sink node
+
+	USAGE: topology.pan(nodes = 0)
+
+	* nodes: number of nodes
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	self._orig_init(*arg_list)
+	for i in range(nodes):
+		self.push_back()
+pan._orig_init = pan.__init__
+pan.__init__ = _pan_ctor
+
+def _rim_ctor(self, nodes = 0):
+	"""
+	Constructs a rim topology: this is, essentially, a ring + one node that connects all ring nodes bi-directionally
+
+	USAGE: topology.rim(nodes = 0)
+
+	* nodes: number of nodes
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	self._orig_init(*arg_list)
+	for i in range(nodes):
+		self.push_back()
+rim._orig_init = rim.__init__
+rim.__init__ = _rim_ctor
+
+def _ring_ctor(self, nodes = 0):
+	"""
+	Constructs a ring topology
+
+	USAGE: topology.ring(nodes = 0)
+
+	* nodes: number of nodes
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	self._orig_init(*arg_list)
+	for i in range(nodes):
+		self.push_back()
+ring._orig_init = ring.__init__
+ring.__init__ = _ring_ctor
+
+def _unconnected_ctor(self, nodes = 0):
+	"""
+	Constructs an unconnected topology
+
+	USAGE: topology.unconnected(nodes = 0)
+
+	* nodes: number of nodes
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	self._orig_init(*arg_list)
+	for i in range(nodes):
+		self.push_back()
+unconnected._orig_init = unconnected.__init__
+unconnected.__init__ = _unconnected_ctor
