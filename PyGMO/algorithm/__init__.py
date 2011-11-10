@@ -26,7 +26,7 @@ def _get_algorithm_list():
 	return algorithm_list
 
 # Redefining the constructors of all algorithms to obtain good documentation and to allow kwargs
-def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6):
+def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm:
 	
@@ -54,9 +54,9 @@ def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6):
 	arg_list.append(gen)
 	arg_list.append(f)
 	arg_list.append(cr)
-	arg_list.append(kwargs.pop(variant)
-	arg_list.append(kwargs.pop(ftol)
-	arg_list.append(kwargs.pop(xtol)
+	arg_list.append(variant)
+	arg_list.append(ftol)
+	arg_list.append(xtol)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 de._orig_init = de.__init__
