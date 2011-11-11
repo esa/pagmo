@@ -320,7 +320,8 @@ def _archipelago_draw(self, layout = 'spring', color = 'fitness', n_size = 15, s
 		node_colors=[-isl.population.champion.f[0] for isl in self]
 	m = min(node_colors)
 	M = max(node_colors)
-	node_colors=[(node_colors[i] - m)/(M-m) for i in range(len(self))]
+	if not m==M:
+		node_colors=[(node_colors[i] - m)/(M-m) for i in range(len(self))]
 
 	#And we draw the archipelago .....
 	pl.figure()
@@ -328,6 +329,7 @@ def _archipelago_draw(self, layout = 'spring', color = 'fitness', n_size = 15, s
 		cmap = pl.cm.Reds_r
 	nx.draw_networkx_nodes(G,pos,nodelist=range(len(self)), node_color=node_colors, cmap=cmap, node_size=node_sizes,alpha=n_alpha)
 	nx.draw_networkx_edges(G,pos,alpha=e_alpha,arrows=True)
+	pl.axis('off')
 	pl.show()
 	return pos
 archipelago.draw = _archipelago_draw

@@ -2,6 +2,9 @@
 Welcome to PyGMO (V1.0)!
 ========================================
 
+.. figure:: images/movie.gif   
+   :align: right
+
 PyGMO (the Python Parallel Global Multiobjective Optimizer) is a scientific library providing a large number
 of optimisation problems and algorithms under the same powerful parallelization
 abstraction built around our 'generalised island-model' paradigm. What this means to the user is that the available algorithms
@@ -18,7 +21,7 @@ implementations of established ones.
 
 PyGMO is interfaced with SciPy optimization algorithms, NLOPT algorithms, SNOPT, IPOPT and, hopefully .... more to come.
 
-NOTE: This is a pre-release web-site for PyGMO. Please send your comments via the `pagmo/PyGMO mailing list <http://sourceforge.net/mail/?group_id=238743>`_ and submit any
+NOTE: This is a pre-release website for PyGMO. Please send your comments via the `pagmo/PyGMO mailing list <http://sourceforge.net/mail/?group_id=238743>`_ and submit any
 bugs via our `pagmo/PyGMO bug-tracker <http://sourceforge.net/tracker/?group_id=238743&atid=1133009>`_
 
 
