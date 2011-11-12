@@ -267,7 +267,7 @@ Detailed Documentation
 
 .. autoclass:: PyGMO.algorithm.ipopt
 
-   .. automethod:: PyGMO.algorithm.ipopt.__init
+   .. automethod:: PyGMO.algorithm.ipopt.__init__
 
    .. attribute:: PyGMO.algorithm.ipopt.screen_output
 

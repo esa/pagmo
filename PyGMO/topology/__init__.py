@@ -20,7 +20,7 @@ def _to_networkx(self):
 	return retval
 _topology._base.to_networkx = _to_networkx
 
-def _draw(self, layout = "spring", n_size = 15, scale_by_degree = False, n_color = 'blue', n_alpha = 0.5, e_alpha = 0.1, e_arrows=False):
+def _draw(self, layout = 'spring', n_color = 'blue', n_size = 15, n_alpha = 0.5, e_alpha = 0.1, e_arrows=False, scale_by_degree = False):
 	"""
 	Draw topology using the draw() command from networkx.
 
@@ -33,6 +33,7 @@ def _draw(self, layout = "spring", n_size = 15, scale_by_degree = False, n_color
 	* n_alpha: Transparency of nodes. Takes value between 0 and 1.
 	* e_elpha: Transparency of edges. Takes value between 0 and 1.
 	* e_arrows: Plots arrows on the edges for directed graphs
+	* scale_by_degree: When True, nodes will be sized proportional to their degree.
 	"""
 	try:
 		import networkx as nx

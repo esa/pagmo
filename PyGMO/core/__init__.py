@@ -267,19 +267,20 @@ def _generic_archi_ctor(self,*args,**kwargs):
 archipelago.__original_init__ = archipelago.__init__
 archipelago.__init__ = _generic_archi_ctor
 
-def _archipelago_draw(self, layout = 'spring', color = 'fitness', n_size = 15, scale_by_degree = False, n_alpha = 0.5, e_alpha = 0.1, cmap = 'default'):
+def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15, n_alpha = 0.5, e_alpha = 0.1, e_arrows=False, scale_by_degree = False, cmap = 'default'):
 	"""
 	Draw a visualization of the archipelago using networkx.
 
-	USAGE: pos = archipelago.draw(layout = 'spring', color = 'fitness', n_size = 15, scale_by_degree = False, n_alpha = 0.5, e_alpha = 0.1, cmap = 'default')
+	USAGE: pos = archipelago.draw(layout = 'spring', color = 'fitness', n_size = 15, scale_by_degree = False, n_alpha = 0.5, e_alpha = 0.1, cmap = 'default', e_arrows=False)
 
 	* layout: Network layout. Can be 'spring' or 'circular' or a list of values pos returned
 		by a previous call of the method (so that positions of the islands can be kept fixed.
-	* color_code = Defines the color code for the nodes. Can be one of 'fitness', 'links' 
+	* n_color = Defines the color code for the nodes. Can be one of 'fitness', 'links', ... or the standard matplotlib 'blue' .. etc. 
 	* n_size: The size of nodes. Becomes scaling factor when scale_by_degree=True.
-	* scale_by_degree: When True, nodes will be sized proportional to their degree.
 	* n_alpha: Transparency of nodes. Takes value between 0 and 1.
+	* e_arrows: Plots arrows on the edges for directed graphs
 	* e_elpha: Transparency of edges. Takes value between 0 and 1.
+	* scale_by_degree: When True, nodes will be sized proportional to their degree.
 	* cmap: color map. one in matplotlib.pyplot.cm 
 	"""
 	try:
@@ -312,14 +313,19 @@ def _archipelago_draw(self, layout = 'spring', color = 'fitness', n_size = 15, s
 		pos = layout
 
 	#We compute the color_code
-	if color == 'fitness':
+	if n_color == 'fitness':
 		node_colors=[-isl.population.champion.f[0] for isl in self]
-	elif color == 'links':
+		m = min(node_colors)
+		M = max(node_colors)
+	elif n_color == 'links':
+		m = min(node_colors)
+		M = max(node_colors)
 		node_colors=[t.get_num_adjacent_vertices(i) for i in range(len(self))]
 	else:
-		node_colors=[-isl.population.champion.f[0] for isl in self]
-	m = min(node_colors)
-	M = max(node_colors)
+		node_colors=n_color
+		m=0;
+		M=0;
+		
 	if not m==M:
 		node_colors=[(node_colors[i] - m)/(M-m) for i in range(len(self))]
 
@@ -328,7 +334,7 @@ def _archipelago_draw(self, layout = 'spring', color = 'fitness', n_size = 15, s
 	if cmap == 'default':
 		cmap = pl.cm.Reds_r
 	nx.draw_networkx_nodes(G,pos,nodelist=range(len(self)), node_color=node_colors, cmap=cmap, node_size=node_sizes,alpha=n_alpha)
-	nx.draw_networkx_edges(G,pos,alpha=e_alpha,arrows=True)
+	nx.draw_networkx_edges(G,pos,alpha=e_alpha,arrows=e_arrows)
 	pl.axis('off')
 	pl.show()
 	return pos

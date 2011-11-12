@@ -198,6 +198,14 @@ island and that, in reality, is a helper function returning automatically the co
 
       Halts evolution at the first occasion in all islands.  
 
- 
+   .. automethod:: PyGMO.archipelago.draw()
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.rosenbrock(10)
+      algo = algorithm.cmaes(gen=100)
+      archi = archipelago(algo,prob,8,20,topology = topology.ring())
+      archi.draw()
 
                    
