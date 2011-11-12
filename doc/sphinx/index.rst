@@ -27,9 +27,9 @@ Please send your comments via the `pagmo/PyGMO mailing list <http://sourceforge.
 bugs via our `pagmo/PyGMO bug-tracker <http://sourceforge.net/tracker/?group_id=238743&atid=1133009>`_
 
 ON THE ANIMATION ABOVE: One animation is worth a lot of words!!! So here are the 'words' explaining what you see in the animation.
-This is a visualization of an evolution in a rather big PyGMO archipelago. Differential Evolution is used in 1000 islands each containing
-20 individuals on the interpanetary trajectory problem Cassini. This is a problem from the `GTOP database <http://www.esa.int/gsp/ACT/inf/op/globopt.htm>`_ (all of which included in PyGMO). Red dots are islands
-containing 'bad' solution, white dots are islands containing 'good' solutions. Note how the generalized migration operator allows for information spread across the archipelago coming in the form of 'waves'. The islands are connected using a Barabasi-Albert ageing clustered topology. The code below (ipython) reproduces the optimization and shows how to create one figure. The animation can then be made by putting together all figures produced.
+This is a visualization of an optimization (*evolution*) in a PyGMO archipelago containing 1024 islands. Differential Evolution is used in all islands each containing
+20 individuals. The interpanetary trajectory problem Cassini is being solved. This is a problem from the `GTOP database <http://www.esa.int/gsp/ACT/inf/op/globopt.htm>`_ (all of which included in PyGMO). Red dots are islands
+containing the worst solution do far, white dots are islands containing the best solution so far. All other islands colors are scaled from white to red according to their champion's fitness. The islands are connected using a Barabasi-Albert ageing clustered topology. The code below reproduces the optimization and shows how to create  figures. The animation can then be made by putting together all figures produced.
 
 .. code-block:: python
 
