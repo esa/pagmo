@@ -214,7 +214,9 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
-		.def(init<optional<int,const double &, const double &, int, double, double> >());
+		.def(init<optional<int,const double &, const double &, int, double, double> >())
+		.add_property("cr",&algorithm::de::get_cr,&algorithm::de::set_cr)
+		.add_property("f",&algorithm::de::get_f,&algorithm::de::set_f);
 		
 	// Simulated annealing, Corana's version.
 	algorithm_wrapper<algorithm::sa_corana>("sa_corana","Simulated annealing, Corana's version with adaptive neighbourhood.")

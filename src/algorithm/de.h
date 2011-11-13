@@ -74,6 +74,10 @@ public:
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
+	void set_cr(double cr);
+	double get_cr() const;
+	void set_f(double cr);
+	double get_f() const;
 protected:
 	std::string human_readable_extra() const;
 private:
@@ -90,9 +94,9 @@ private:
 	// Number of generations.
 	const int m_gen;
 	// Weighting factor
-	const double m_f;
+	double m_f;
 	// Crossover probability
-	const double m_cr;
+	double m_cr;
 	// Startegy
 	const int m_strategy;
 	const double m_ftol;

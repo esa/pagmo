@@ -357,6 +357,51 @@ std::string de::get_name() const
 	return "Differential Evolution";
 }
 
+/// Sets crossover parameter.
+/**
+ * 
+ * @param[in] cr new value for the crossover parameter
+ * @throws value_error if cr not in (0,1)
+ */
+void de::set_cr(double cr) {
+	if (cr < 0 || cr > 1 ) {
+		pagmo_throw(value_error,"the cr parameter must be in the [0,1] range");
+	}
+	m_cr = cr;
+}
+
+/// Sets f parameter.
+/**
+ * 
+ * @param[in] f new value for the crossover parameter
+ * @throws value_error if f not in (0,1)
+ */
+void de::set_f(double f) {
+	if (f < 0 || f > 1 ) {
+		pagmo_throw(value_error,"the cr parameter must be in the [0,1] range");
+	}
+	m_f = f;
+}
+
+/// Gets crossover parameter.
+/**
+ * 
+ * @param[out] the crossover parameter
+ */
+double de::get_cr() const {
+	return m_cr;
+}
+
+
+/// Gets f parameter.
+/**
+ * 
+ * @param[out] the f parameter
+ */
+double de::get_f() const {
+	return m_f;
+}
+
 
 /// Extra human readable algorithm info.
 /**
