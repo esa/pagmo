@@ -25,9 +25,7 @@ import core, algorithm, migration, problem, topology, test
 
 __doc__ = 'PyGMO is a pretty cool guy. eh kills aleins and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
-__major__ = 1
-__minor__ = 0
-__bugfix__ = 0
+__version__ = '1.0.0'
 
 # For convenience, bring all core classes into the root namespace when importing *.
 from core import *
@@ -38,47 +36,48 @@ algorithm_list = algorithm._get_algorithm_list()
 island_list = core._get_island_list()
 
 # Fill up the __extensions__ variable with all detected extensions
-__extensions__ = ""
+__extensions__ = {'nlopt': False, 'gsl': False,'snopt': False,'ipopt': False,'gtop': False,'scipy': False,'networkx': False,'vpython': False}
 if "nlopt" in str(algorithm._get_algorithm_list()):
-	__extensions__ = __extensions__ + " NLOPT "
+	__extensions__['nlopt']=True
 if "gsl" in str(algorithm._get_algorithm_list()):
-	__extensions__ = __extensions__ + " GSL "
+	__extensions__['gsl']=True
 if "snopt" in str(algorithm._get_algorithm_list()):
-	__extensions__ = __extensions__ + " SNOPT "
+	__extensions__['snopt']=True
 if "ipopt" in str(algorithm._get_algorithm_list()):
-	__extensions__ = __extensions__ + " IPOPT "
+	__extensions__['ipopt']=True
 if "cassini" in str(problem._get_problem_list()):
-	__extensions__ = __extensions__ + " GTOP "
+	__extensions__['gtop']=True
 try:
 	import scipy
-	__extensions__ = __extensions__ + " SCIPY "
+	__extensions__['scipy']=True
 except:
 	pass
 try:
 	import networkx
-	__extensions__ = __extensions__ + " NETWORKX "
+	__extensions__['networkx']=True
 except:
 	pass
 try:
 	import visual
-	__extensions__ = __extensions__ + " VPYTHON "
+	__extensions__['vpython']=True
 except:
 	pass
 
-
-
-def run_test():
+def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 	from PyGMO import problem, algorithm, island
 	from numpy import mean, std
-	number_of_trials = 200
-	number_of_individuals = 20
-	number_of_generations = 500
+	number_of_trials = n_trials
+	number_of_individuals = pop_size
+	number_of_generations = n_gen
 
-	prob_list = [problem.schwefel(10), problem.rastrigin(10), problem.rosenbrock(10), problem.ackley(10), problem.griewank(10)]
-	algo_list = [algorithm.pso(number_of_generations), algorithm.de(number_of_generations,0.8,0.8,2),algorithm.sa_corana(number_of_generations*number_of_individuals,1,0.1), algorithm.ihs(number_of_generations*number_of_individuals), algorithm.sga(number_of_generations,0.8,0.1)]
-
+	prob_list = [problem.schwefel(dim = 10), problem.rastrigin(dim = 10), problem.rosenbrock(dim = 10), problem.ackley(dim = 10), problem.griewank(dim = 10)]
+	if __extensions__['gtop']:
+		prob_list.append(problem.cassini_1())
+		prob_list.append(problem.cassini_2())
+	algo_list = [algorithm.pso(gen = number_of_generations), algorithm.de(gen = number_of_generations),algorithm.sa_corana(iter = number_of_generations*number_of_individuals,Ts = 1,Tf = 0.01), algorithm.ihs(iter = number_of_generations*number_of_individuals), algorithm.sga(gen = number_of_generations), algorithm.cmaes(gen = number_of_generations), algorithm.bee_colony(gen = number_of_generations/2)]
+	print('\nTrials: ' + str(n_trials) + ' - Population size: ' + str(pop_size) + ' - Generations: ' + str(n_gen))
 	for prob in prob_list:
-		print('\nTesting problem: ' + str(type(prob)) + ', Dimension: ' + str(prob.dimension))
+		print('\nTesting problem: ' + prob.get_name() + ', Dimension: ' + str(prob.dimension) + ', Population Size: ' + str(pop_size))
 		for algo in algo_list:
 			print(' ' + str(algo))
 			best = []
@@ -93,27 +92,25 @@ def run_test():
 			print(' Mean:\t' + str(mean(best)))
 			print(' Std:\t' + str(std(best)))
 
-def test_aco():
-	from PyGMO import problem, algorithm, island
-	from numpy import mean, std
-	number_of_islands = 5
-	number_of_individuals = 30
-	number_of_generations = 50
-	w = [ [0,1,100,1], [1,0,1,100], [100,1,0,1], [1, 100, 1, 0]]
-	prob_list = [problem.tsp(w)]
-	algo_list = [algorithm.aco(number_of_generations)]
-	for j in range(0,len(prob_list)):
-		print('Testing problem: ' + str(type(prob_list[j])) + ', Dimension: ' + str(prob_list[j].dimension))
-		for algo in algo_list:
-			print('        Testing algorithm: ' + str(algo))
-			best = []
-			best_x = []
-			for i in range(0,number_of_islands):
-				isl = island(prob_list[j],algo,number_of_individuals)
-				isl.evolve(1)
-				isl.join()
-				best.append(isl.population.champion.f)
-				best_x.append(isl.population.champion.x)
-				print('                Best fitness:\t' + str(best[i]))
-				print('                Best solution:\t' + str(best_x[i]))
+#def test_aco():
+#	from PyGMO import problem, algorithm, island
+#	from numpy import mean, std
+#	number_of_islands = 5
+#	number_of_individuals = 30
+#	number_of_generations = 50
+#	w = [ [0,1,100,1], [1,0,1,100], [100,1,0,1], [1, 100, 1, 0]]
+#	prob_list = [problem.tsp(w)]
+#	algo_list = [algorithm.aco(number_of_generations)]
+#	for j in range(0,len(prob_list)):
+#		print('Testing problem: ' + str(type(prob_list[j])) + ', Dimension: ' + str(prob_list[j].dimension))
+#		for algo in algo_list:
+#			print('        Testing algorithm: ' + str(algo))
+#			best = []
+#			best_x = []
+#			for i in range(0,number_of_islands):
+#				isl = island(prob_list[j],algo,number_of_individuals)
+#				best.append(isl.population.champion.f)
+#				best_x.append(isl.population.champion.x)
+#				print('                Best fitness:\t' + str(best[i]))
+#				print('                Best solution:\t' + str(best_x[i]))
 

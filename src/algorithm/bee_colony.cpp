@@ -284,7 +284,7 @@ std::string bee_colony::get_name() const
 std::string bee_colony::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "iter:" << m_iter << ' ';
+	s << "gen:" << m_iter << ' ';
 	s << "limit:" << m_limit << ' ';
 	return s.str();
 }

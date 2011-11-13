@@ -62,12 +62,12 @@ def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6, screen_out
 de._orig_init = de.__init__
 de.__init__ = _de_ctor
 
-def _pso_ctor(self,**kwargs):
+def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""
 	Constructs a Particle Swarm Optimization (steady-state). The position update is applied
 	immediately after the velocity update
 	
-	USAGE: algorithm.pso(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4])
+	USAGE: algorithm.pso(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4)
 
 	* gen: number of generations
 	* omega: constriction factor (or particle inertia weight) in [0,1]
@@ -98,19 +98,19 @@ def _pso_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('gen', 1))
-	arg_list.append(kwargs.pop('omega', 0.7298))
-	arg_list.append(kwargs.pop('eta1', 2.05))
-	arg_list.append(kwargs.pop('eta2', 2.05))
-	arg_list.append(kwargs.pop('vcoeff', 0.5))
-	arg_list.append(kwargs.pop('variant', 5))
-	arg_list.append(kwargs.pop('neighb_type', 2))
-	arg_list.append(kwargs.pop('neighb_param', 4))	
+	arg_list.append(gen)
+	arg_list.append(omega)
+	arg_list.append(eta1)
+	arg_list.append(eta2)
+	arg_list.append(vcoeff)
+	arg_list.append(variant)
+	arg_list.append(neighb_type)
+	arg_list.append(neighb_param)	
 	self._orig_init(*arg_list)
 pso._orig_init = pso.__init__
 pso.__init__ = _pso_ctor
 
-def _pso_gen_ctor(self,**kwargs):
+def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4)
 	"""
 	Constructs a Particle Swarm Optimization (generational). The position update is applied
 	immediately after the velocity update
@@ -146,23 +146,23 @@ def _pso_gen_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('gen', 1))
-	arg_list.append(kwargs.pop('omega', 0.7298))
-	arg_list.append(kwargs.pop('eta1', 2.05))
-	arg_list.append(kwargs.pop('eta2', 2.05))
-	arg_list.append(kwargs.pop('vcoeff', 0.5))
-	arg_list.append(kwargs.pop('variant', 5))
-	arg_list.append(kwargs.pop('neighb_type', 2))
-	arg_list.append(kwargs.pop('neighb_param', 4))	
+	arg_list.append(gen)
+	arg_list.append(omega)
+	arg_list.append(eta1)
+	arg_list.append(eta2)
+	arg_list.append(vcoeff)
+	arg_list.append(variant)
+	arg_list.append(neighb_type)
+	arg_list.append(neighb_param)	
 	self._orig_init(*arg_list)
 pso_gen._orig_init = pso_gen.__init__
 pso_gen.__init__ = _pso_gen_ctor
 
-def _sga_ctor(self,**kwargs):
+def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL)
 	"""
 	Constructs a Simple Genetic Algorithm (generational)
 	
-	USAGE: algorithm.sga(gen=1, cr=.95, m=.02, elitism=1, mutation=GAUSSIAN, width = 0.1, selection=ROULETTE, crossover=EXPONENTIAL)
+	USAGE: algorithm.sga(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL)
   
 	* gen: number of generations
 	* cr: crossover factor in [0,1]
@@ -176,14 +176,14 @@ def _sga_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('gen', 1))
-	arg_list.append(kwargs.pop('cr', 0.95))
-	arg_list.append(kwargs.pop('m', 0.02))
-	arg_list.append(kwargs.pop('elitism', 1))
-	arg_list.append(kwargs.pop('mutation', sga.mutation.GAUSSIAN))
-	arg_list.append(kwargs.pop('width', 0.1))
-	arg_list.append(kwargs.pop('selection', sga.selection.ROULETTE))
-	arg_list.append(kwargs.pop('crossover', sga.crossover.EXPONENTIAL))	
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(m)
+	arg_list.append(elitism)
+	arg_list.append(mutation)
+	arg_list.append(width)
+	arg_list.append(selection)
+	arg_list.append(crossover)	
 	self._orig_init(*arg_list)
 sga._orig_init = sga.__init__
 sga.__init__ = _sga_ctor
@@ -221,7 +221,7 @@ def _bee_colony_ctor(self,**kwargs):
 	"""
 	Constructs an Artificial Bee Colony Algorithm
 	
-	USAGE: algorithm.bee_colony(gen = 1, limit = 20)
+	USAGE: algorithm.bee_colony(gen = 100, limit = 20)
 	
 	* gen: number of 'generations' (each generation 2*NP function evaluations
 		are made where NP is the population size)
@@ -324,13 +324,13 @@ def _cs_ctor(self,**kwargs):
 cs._orig_init = cs.__init__
 cs.__init__ = _cs_ctor
 
-def _ihs_ctor(self,**kwargs):
+def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1):
 	"""
 	Constructs an Improved Harmony Search Algorithm
 	
-	USAGE: algorithm.ihs(gen = 1, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1);
+	USAGE: algorithm.ihs(iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1);
 	
-	* gen: number of generations (improvisations)
+	* iter: number of iterations (improvisations)
 	* hmcr: rate of choosing from memory (in ]0,1[)
 	* par_min: minimum pitch adjustment rate (in ]0,1[)
 	* par_max: maximum pitch adjustment rate (in ]0,1[, > par_min) 
@@ -339,12 +339,12 @@ def _ihs_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('gen', 1))
-	arg_list.append(kwargs.pop('hmcr', 0.85))
-	arg_list.append(kwargs.pop('par_min', 0.35))
-	arg_list.append(kwargs.pop('par_max', 0.99))
-	arg_list.append(kwargs.pop('bw_min', 1e-5))
-	arg_list.append(kwargs.pop('bw_max', 1))
+	arg_list.append(iter)
+	arg_list.append(hmcr)
+	arg_list.append(par_min)
+	arg_list.append(par_max)
+	arg_list.append(bw_min)
+	arg_list.append(bw_max)
 	self._orig_init(*arg_list)
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor

@@ -187,7 +187,7 @@ std::string ihs::get_name() const
 std::string ihs::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "gen:" << m_gen << ' ';
+	s << "iter:" << m_gen << ' ';
 	s << "phmcr:" << m_phmcr << ' ';
 	s << "ppar_min:" << m_ppar_min << ' ';
 	s << "ppar_max:" << m_ppar_max << ' ';
