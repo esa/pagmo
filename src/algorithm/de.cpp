@@ -413,7 +413,7 @@ std::string de::human_readable_extra() const
 	s << "gen:" << m_gen << ' ';
 	s << "F: " << m_f << ' ';
 	s << "CR: " << m_cr << ' ';
-	s << "strategy:" << m_strategy;
+	s << "variant:" << m_strategy;
 	return s.str();
 }
 

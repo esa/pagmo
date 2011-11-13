@@ -306,4 +306,3 @@ The user will mainly use these classes in the following way:
                                            #to the kwarg topology as the archipelago constructor only takes empty topologies
       archi.topology = topo                #sets the topology to the customly constructed one
       archi.topology.draw()                #Draws the topology (this requires networkx to be installed)
-, 

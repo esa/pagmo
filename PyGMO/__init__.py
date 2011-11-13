@@ -92,6 +92,23 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 			print(' Mean:\t' + str(mean(best)))
 			print(' Std:\t' + str(std(best)))
 
+def example_1(n_trials=30):
+	from PyGMO import problem, algorithm, island, archipelago
+	from PyGMO.topology import fully_connected
+	from numpy import mean, median
+	results = list()
+	prob = problem.messenger_full()
+	de_variants = [2,3,5,7]
+	algos = [algorithm.de(gen=50,variant=v) for v in de_variants]
+	for trial in range(n_trials):
+		archi = archipelago(topology=topology.fully_connected())
+		for algo in algos:
+			archi.push_back(island(algo,prob,25)) 
+		print "Trial N: " + str(trial)
+		archi.evolve(30)
+		results.append(min([isl.population.champion.f[0] for isl in archi]))
+	return (mean(results), median(results), min(results), max(results))
+
 #def test_aco():
 #	from PyGMO import problem, algorithm, island
 #	from numpy import mean, std
