@@ -321,13 +321,19 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 		m = min(node_colors)
 		M = max(node_colors)
 		node_colors=[t.get_num_adjacent_vertices(i) for i in range(len(self))]
+	elif n_color == 'rank':
+		vec = [-isl.population.champion.f[0] for isl in self]
+		node_colors=sorted(range(len(vec)), key=vec.__getitem__)
+		M = max(node_colors)
+		m= min(node_colors)
+		
 	else:
 		node_colors=n_color
 		m=0;
 		M=0;
 		
 	if not m==M:
-		node_colors=[(node_colors[i] - m)/(M-m) for i in range(len(self))]
+		node_colors=[(node_colors[i] - float(m))/(M-m) for i in range(len(self))]
 
 	#And we draw the archipelago .....
 	pl.figure()
