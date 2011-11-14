@@ -1,6 +1,6 @@
-================================================================
-Example 2: Monitoring the Information Flow among 1024 Islands
-================================================================
+=================================================================
+Example 2: Monitoring the Information Flow in a large archipelago
+=================================================================
 
 The effect of the generalized migration operator on the optimization process
 is complex. We here show how to use PyGMO to visualize and study it
@@ -20,8 +20,8 @@ fitness in the archipelago. We then save the figure in the current directory. Th
 
 .. image:: ../images/examples/ex2.png
 
-We then evolve 200 times producing the same picture of the archipealgo with the ranks updated 
-and saving it to file.
+We then evolve 200 times producing, at each step, the picture of the archipealgo with the new evolved 
+fitness
 
 .. code-block:: python
 
@@ -43,10 +43,10 @@ we obtain the animated gif  ...
 
 .. image:: ../images/examples/ex2_mov_ba_fit.gif
 
-where it is visualized how, in the particular archipealgo considered, the optimization proceeds in a centripetal
-fashion, that is from the 'suburbs' to the center. This basically allows us to learn how highly connected nodes
-(the hubs) are always behind in this optimization process as they receive **too much information**. This is
-a characteristic of the Barabasi Albert topology. Other topologies have different information 'spread' modes.
+NOTE: see how, in the particular archipealgo considered, the optimization proceeds in a *centripetal*
+fashion, that is from the 'suburbs' to the center. This allows us to learn that highly connected nodes
+(the hubs) are always behind in the optimization process as, probably, they receive **too much information**.
+This is a characteristic of the Barabasi Albert topology. Other topologies have different dynamics.
 If, for example, we were to use an ageing_clusterd_ba topology the movie below would be produced ...
 
 .. image:: ../images/examples/ex2_mov_agba_rank.gif
