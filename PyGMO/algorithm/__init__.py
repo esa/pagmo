@@ -188,7 +188,7 @@ def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSS
 sga._orig_init = sga.__init__
 sga.__init__ = _sga_ctor
 
-def _sa_corana_ctor(self,**kwargs):
+def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
 	Constructs Corana's Simulated Annealing
 	
@@ -207,17 +207,17 @@ def _sa_corana_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('iter', 10000))
-	arg_list.append(kwargs.pop('Ts', 10))
-	arg_list.append(kwargs.pop('Tf', 0.1))
-	arg_list.append(kwargs.pop('steps', 1))
-	arg_list.append(kwargs.pop('bin_size', 20))
-	arg_list.append(kwargs.pop('range', 1))	
+	arg_list.append(iter)
+	arg_list.append(Ts)
+	arg_list.append(Tf)
+	arg_list.append(steps)
+	arg_list.append(bin_size)
+	arg_list.append(range)
 	self._orig_init(*arg_list)
 sa_corana._orig_init = sa_corana.__init__
 sa_corana.__init__ = _sa_corana_ctor
 
-def _bee_colony_ctor(self,**kwargs):
+def _bee_colony_ctor(self, gen = 100, limit = 20):
 	"""
 	Constructs an Artificial Bee Colony Algorithm
 	
@@ -229,8 +229,8 @@ def _bee_colony_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('gen', 1))
-	arg_list.append(kwargs.pop('limit', 20))
+	arg_list.append(gen)
+	arg_list.append(limit)
 	self._orig_init(*arg_list)
 bee_colony._orig_init = bee_colony.__init__
 bee_colony.__init__ = _bee_colony_ctor
@@ -256,7 +256,7 @@ bee_colony.__init__ = _bee_colony_ctor
 #firefly._orig_init = firefly.__init__
 #firefly.__init__ = _firefly_ctor
 
-def _ms_ctor(self,**kwargs):
+def _ms_ctor(self, algorithm = _algorithm.de(), iter = 1):
 	"""
 	Constructs a Multistart Algorithm
 	
@@ -271,13 +271,13 @@ def _ms_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('algorithm', de()))
-	arg_list.append(kwargs.pop('iter', 1))
+	arg_list.append(algorithm)
+	arg_list.append(iter)
 	self._orig_init(*arg_list)
 ms._orig_init = ms.__init__
 ms.__init__ = _ms_ctor
 
-def _mbh_ctor(self,**kwargs):
+def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	"""
 	Constructs a Monotonic Basin Hopping Algorithm (generalized to accept any algorithm)
 	
@@ -294,14 +294,14 @@ def _mbh_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('algorithm', de()))
-	arg_list.append(kwargs.pop('stop', 1))
-	arg_list.append(kwargs.pop('perturb', 5e-2))
+	arg_list.append(algorithm)
+	arg_list.append(stop)
+	arg_list.append(perturb)
 	self._orig_init(*arg_list)
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
 
-def _cs_ctor(self,**kwargs):
+def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5):
 	"""
 	Constructs a Compass Search Algorithm 
 	
@@ -316,10 +316,10 @@ def _cs_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('max_eval', 10000))
-	arg_list.append(kwargs.pop('stop_range', 0.01))
-	arg_list.append(kwargs.pop('start_range', 0.1))
-	arg_list.append(kwargs.pop('reduction_coeff', 0.5))
+	arg_list.append(max_eval)
+	arg_list.append(stop_range)
+	arg_list.append(start_range)
+	arg_list.append(reduction_coeff)
 	self._orig_init(*arg_list)
 cs._orig_init = cs.__init__
 cs.__init__ = _cs_ctor
@@ -387,7 +387,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 cmaes._orig_init = cmaes.__init__
 cmaes.__init__ = _cmaes_ctor
 
-def _monte_carlo_ctor(self,**kwargs):
+def _monte_carlo_ctor(self, iter = 10000):
 	"""
 	Constructs a Monte Carlo Algorithm
 	
@@ -400,18 +400,18 @@ def _monte_carlo_ctor(self,**kwargs):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(kwargs.pop('iter', 10000))
+	arg_list.append(iter)
 	self._orig_init(*arg_list)
 monte_carlo._orig_init = monte_carlo.__init__
 monte_carlo.__init__ = _monte_carlo_ctor
 
 #NLOPT algorithms (only if PyGMO has been compiled woth nlopt option activated)
 if "nlopt" in str(_get_algorithm_list()):
-	def _nlopt_bobyqa_ctor(self,**kwargs):
+	def _nlopt_bobyqa_ctor(self, max_iter = 100, ftol = 1e-6, xtol = 1e-6):
 		"""
 		Constructs a BOBYQA algorithm (Bound Optimization BY Quadratic Approximation) (NLOPT)
 	
-		USAGE: algorithm.nlopt_bobyqa(max_iter = 100, ftol = 1e-6, xtol = 1e-6);
+		USAGE: algorithm.nlopt_bobyqa(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
 	
 		* max_iter: stop-criteria (number of iterations)
 		* ftol: stop-criteria (absolute on the obj-fun)
@@ -419,18 +419,18 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('ftol', 1e-6))
-		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(max_iter)
+		arg_list.append(ftol)
+		arg_list.append(xtol)
 		self._orig_init(*arg_list)
 	nlopt_bobyqa._orig_init = nlopt_bobyqa.__init__
 	nlopt_bobyqa.__init__ = _nlopt_bobyqa_ctor
 
-	def _nlopt_sbplx_ctor(self,**kwargs):
+	def _nlopt_sbplx_ctor(self, max_iter = 100, ftol = 1e-6, xtol = 1e-6):
 		"""
 		Constructs a Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of subspaces) (NLOPT)
 	
-		USAGE: algorithm.nlopt_sbplx(max_iter = 100, ftol = 1e-6, xtol = 1e-6);
+		USAGE: algorithm.nlopt_sbplx(max_iter = 100, ftol = 1e-6, xtol = 1e-6)
 	
 		* max_iter: stop-criteria (number of iterations)
 		* ftol: stop-criteria (absolute on the obj-fun)
@@ -438,14 +438,14 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('ftol', 1e-6))
-		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(max_iter)
+		arg_list.append(ftol)
+		arg_list.append(xtol)
 		self._orig_init(*arg_list)
 	nlopt_sbplx._orig_init = nlopt_sbplx.__init__
 	nlopt_sbplx.__init__ = _nlopt_sbplx_ctor
 
-	def _nlopt_cobyla_ctor(self,**kwargs):
+	def _nlopt_cobyla_ctor(self, max_iter = 100, ftol = 1e-6, xtol = 1e-6):
 		"""
 		Constructs a Constrained Optimization BY Linear Approximation (COBYLA) algorithm (NLOPT)
 	
@@ -457,14 +457,14 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('ftol', 1e-6))
-		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(max_iter)
+		arg_list.append(ftol)
+		arg_list.append(xtol)
 		self._orig_init(*arg_list)
 	nlopt_cobyla._orig_init = nlopt_cobyla.__init__
 	nlopt_cobyla.__init__ = _nlopt_cobyla_ctor
 
-	def _nlopt_mma_ctor(self,**kwargs):
+	def _nlopt_mma_ctor(self, max_iter = 100, ftol = 1e-6, xtol = 1e-6):
 		"""
 		Constructs a Method of Moving Asymptotes (MMA) algorithm (NLOPT)
 
@@ -476,14 +476,14 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('ftol', 1e-6))
-		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(max_iter)
+		arg_list.append(ftol)
+		arg_list.append(xtol)
 		self._orig_init(*arg_list)
 	nlopt_mma._orig_init = nlopt_mma.__init__
 	nlopt_mma.__init__ = _nlopt_mma_ctor
 
-	def _nlopt_auglag_ctor(self,**kwargs):
+	def _nlopt_auglag_ctor(self, aux_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, aux_max_iter = 100, aux_ftol = 1e-6, aux_xtol = 1e-6):
 		"""
 		Constructs an Augmented agrangian Algotihm (NLOPT)
 
@@ -503,18 +503,18 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('aux_algo_id', 1))
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('ftol', 1e-6))
-		arg_list.append(kwargs.pop('xtol', 1e-6))
-		arg_list.append(kwargs.pop('aux_max_iter', 100))
-		arg_list.append(kwargs.pop('aux_ftol', 1e-6))
-		arg_list.append(kwargs.pop('aux_xtol', 1e-6))
+		arg_list.append(aux_algo_id)
+		arg_list.append(max_iter)
+		arg_list.append(ftol)
+		arg_list.append(xtol)
+		arg_list.append(aux_max_iter)
+		arg_list.append(aux_ftol)
+		arg_list.append(aux_xtol)
 		self._orig_init(*arg_list)
 	nlopt_auglag._orig_init = nlopt_auglag.__init__
 	nlopt_auglag.__init__ = _nlopt_auglag_ctor
 
-	def _nlopt_auglag_eq_ctor(self,**kwargs):
+	def _nlopt_auglag_eq_ctor(self, aux_algo_id = 1, max_iter = 100, ftol = 1e-6, xtol = 1e-6, aux_max_iter = 100, aux_ftol = 1e-6, aux_xtol = 1e-6):
 		"""
 		Constructs an Augmented agrangian Algotihm (using penalties only for the equalities) (NLOPT)
 
@@ -532,18 +532,18 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('aux_algo_id', 1))
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('ftol', 1e-6))
-		arg_list.append(kwargs.pop('xtol', 1e-6))
-		arg_list.append(kwargs.pop('aux_max_iter', 100))
-		arg_list.append(kwargs.pop('aux_ftol', 1e-6))
-		arg_list.append(kwargs.pop('aux_xtol', 1e-6))
+		arg_list.append(aux_algo_id)
+		arg_list.append(max_iter)
+		arg_list.append(ftol)
+		arg_list.append(xtol)
+		arg_list.append(aux_max_iter)
+		arg_list.append(aux_ftol)
+		arg_list.append(aux_xtol)
 		self._orig_init(*arg_list)
 	nlopt_auglag_eq._orig_init = nlopt_auglag_eq.__init__
 	nlopt_auglag_eq.__init__ = _nlopt_auglag_eq_ctor
 
-	def _nlopt_slsqp_ctor(self,**kwargs):
+	def _nlopt_slsqp_ctor(self, max_iter = 100, ftol = 1e-6, xtol = 1e-6):
 		"""
 		Constructs a Sequential Least SQuares Programming algorithm (SLSQP) algorithm (NLOPT)
 
@@ -555,20 +555,20 @@ if "nlopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('ftol', 1e-6))
-		arg_list.append(kwargs.pop('xtol', 1e-6))
+		arg_list.append(max_iter)
+		arg_list.append(ftol)
+		arg_list.append(xtol)
 		self._orig_init(*arg_list)
 	nlopt_slsqp._orig_init = nlopt_slsqp.__init__
 	nlopt_slsqp.__init__ = _nlopt_slsqp_ctor
 
 #GSL algorithms (only if PyGMO has been compiled with gsl option activated)
 if "gsl" in str(_get_algorithm_list()):
-	def _gsl_bfgs_ctor(self,**kwargs):
+	def _gsl_bfgs_ctor(self, max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001):
 		"""
 		Constructs a BFGS Algorithm (GSL)
 	
-		USAGE: algorithm.gsl_bfgs(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001);
+		USAGE: algorithm.gsl_bfgs(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001)
 	
 		* max_iter: maximum number of iterations
 		* step_size: size of the first trial step.
@@ -578,16 +578,16 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('grad_tol', 1e-4))
-		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
-		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('step_size', 1e-8))
+		arg_list.append(max_iter)
+		arg_list.append(grad_tol)
+		arg_list.append(grad_step_size)
+		arg_list.append(tol)
+		arg_list.append(step_size)
 		self._orig_init(*arg_list)
 	gsl_bfgs._orig_init = gsl_bfgs.__init__
 	gsl_bfgs.__init__ = _gsl_bfgs_ctor
 
-	def _gsl_bfgs2_ctor(self,**kwargs):
+	def _gsl_bfgs2_ctor(self, max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001):
 		"""
 		Constructs a BFGS2 Algorithm (GSL)
 
@@ -603,20 +603,20 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('grad_tol', 1e-4))
-		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
-		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('step_size', 1e-8))
+		arg_list.append(max_iter)
+		arg_list.append(grad_tol)
+		arg_list.append(grad_step_size)
+		arg_list.append(tol)
+		arg_list.append(step_size)
 		self._orig_init(*arg_list)
 	gsl_bfgs2._orig_init = gsl_bfgs2.__init__
 	gsl_bfgs2.__init__ = _gsl_bfgs2_ctor
 
-	def _gsl_fr_ctor(self,**kwargs):
+	def _gsl_fr_ctor(self, max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001):
 		"""
 		Constructs a Fletcher-Reeves conjugate gradient (GSL)
 	
-		USAGE: algorithm.gsl_fr(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001);
+		USAGE: algorithm.gsl_fr(max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001)
 	
 		* max_iter: maximum number of iterations
 		* step_size: size of the first trial step.
@@ -626,16 +626,16 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('grad_tol', 1e-4))
-		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
-		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('step_size', 1e-8))
+		arg_list.append(max_iter)
+		arg_list.append(grad_tol)
+		arg_list.append(grad_step_size)
+		arg_list.append(tol)
+		arg_list.append(step_size)
 		self._orig_init(*arg_list)
 	gsl_fr._orig_init = gsl_fr.__init__
 	gsl_fr.__init__ = _gsl_fr_ctor
 
-	def _gsl_pr_ctor(self,**kwargs):
+	def _gsl_pr_ctor(self, max_iter = 100, step_size = 1e-8, tol = 1e-8, grad_step_size = 0.01, grad_tol = 0.0001):
 		"""
 		Constructs a Polak-Ribiere conjugate gradient (GSL)
 
@@ -649,16 +649,16 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('grad_tol', 1e-4))
-		arg_list.append(kwargs.pop('grad_step_size', 1e-2))
-		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('step_size', 1e-8))
+		arg_list.append(max_iter)
+		arg_list.append(grad_tol)
+		arg_list.append(grad_step_size)
+		arg_list.append(tol)
+		arg_list.append(step_size)
 		self._orig_init(*arg_list)
 	gsl_pr._orig_init = gsl_pr.__init__
 	gsl_pr.__init__ = _gsl_pr_ctor
 
-	def _gsl_nm_ctor(self,**kwargs):
+	def _gsl_nm_ctor(self, max_iter = 100, step_size = 1e-8, tol = 1e-8):
 		"""
 		Constructs a Nelder-Mead Algorithm (GSL)
 
@@ -670,18 +670,18 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('step_size', 1e-8))
+		arg_list.append(max_iter)
+		arg_list.append(tol)
+		arg_list.append(step_size)
 		self._orig_init(*arg_list)
 	gsl_nm._orig_init = gsl_nm.__init__
 	gsl_nm.__init__ = _gsl_nm_ctor
 
-	def _gsl_nm2_ctor(self,**kwargs):
+	def _gsl_nm2_ctor(self, max_iter = 100, step_size = 1e-8, tol = 1e-8):
 		"""
 		Constructs a Nelder-Mead algorithm (Variant2) (GSL)
 
-		USAGE: algorithm.gsl_nm2(max_iter = 100, step_size = 1e-8, tol = 1e-8);
+		USAGE: algorithm.gsl_nm2(max_iter = 100, step_size = 1e-8, tol = 1e-8)
 	
 		* max_iter: maximum number of iterations
 		* step_size: size of the first trial step.
@@ -689,14 +689,14 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('step_size', 1e-8))
+		arg_list.append(max_iter)
+		arg_list.append(tol)
+		arg_list.append(step_size)
 		self._orig_init(*arg_list)
 	gsl_nm2._orig_init = gsl_nm2.__init__
 	gsl_nm2.__init__ = _gsl_nm2_ctor
 
-	def _gsl_nm2rand_ctor(self,**kwargs):
+	def _gsl_nm2rand_ctor(self, max_iter = 100, step_size = 1e-8, tol = 1e-8):
 		"""
 		Constructs a Nelder-Mead algorithm (Variant2 + randomly oriented initial simplex) (GSL)
 
@@ -708,16 +708,16 @@ if "gsl" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('max_iter', 100))
-		arg_list.append(kwargs.pop('tol', 1e-8))
-		arg_list.append(kwargs.pop('step_size', 1e-8))
+		arg_list.append(max_iter)
+		arg_list.append(tol)
+		arg_list.append(step_size)
 		self._orig_init(*arg_list)
 	gsl_nm2rand._orig_init = gsl_nm2rand.__init__
 	gsl_nm2rand.__init__ = _gsl_nm2rand_ctor
 
 #IPOPT algorithm (only if PyGMO has been compiled with the ipopt option activated)
 if "ipopt" in str(_get_algorithm_list()):
-	def _ipopt_ctor(self,**kwargs):
+	def _ipopt_ctor(self, major_iter = 100, constr_viol_tol = 1e-08, dual_inf_tol = 1e-08, compl_inf_tol = 1e-08, screen_output = False):
 		"""
 		Constructs an Interior Point OPTimization Algorithm (IPOPT)
 	
@@ -731,18 +731,18 @@ if "ipopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('major_iter', 100))
-		arg_list.append(kwargs.pop('constr_viol_tol', 1e-8))
-		arg_list.append(kwargs.pop('dual_inf_tol', 1e-8))
-		arg_list.append(kwargs.pop('compl_inf_tol', 1e-8))
+		arg_list.append(major_iter)
+		arg_list.append(constr_viol_tol)
+		arg_list.append(dual_inf_tol)
+		arg_list.append(compl_inf_tol)
 		self._orig_init(*arg_list)
-		self.screen_output = kwargs.pop('screen_output', False)
+		self.screen_output = screen_output
 	ipopt._orig_init = ipopt.__init__
 	ipopt.__init__ = _ipopt_ctor
 
 #SNOPT algorithm (only if PyGMO has been compiled with the snopt option activated)
 if "snopt" in str(_get_algorithm_list()):
-	def _snopt_ctor(self,**kwargs):
+	def _snopt_ctor(self,major_iter = 100, feas_tol = 1e-6, opt_tol = 1e-6, screen_output = False):
 		"""
 		Constructs SNOPT Algorithm
 	
@@ -755,11 +755,11 @@ if "snopt" in str(_get_algorithm_list()):
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(kwargs.pop('major_iter', 100))
-		arg_list.append(kwargs.pop('feas_tol', 1e-8))
-		arg_list.append(kwargs.pop('opt_tol', 1e-8))
+		arg_list.append(major_iter)
+		arg_list.append(feas_tol)
+		arg_list.append(opt_tol)
 		self._orig_init(*arg_list)
-		self.screen_output = kwargs.pop('screen_output', False)
+		self.screen_output = screen_output
 	snopt._orig_init = snopt.__init__
 	snopt.__init__ = _snopt_ctor
 

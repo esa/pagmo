@@ -36,7 +36,7 @@ algorithm_list = algorithm._get_algorithm_list()
 island_list = core._get_island_list()
 
 # Fill up the __extensions__ variable with all detected extensions
-__extensions__ = {'nlopt': False, 'gsl': False,'snopt': False,'ipopt': False,'gtop': False,'scipy': False,'networkx': False,'vpython': False}
+__extensions__ = {'nlopt': False, 'gsl': False,'snopt': False,'ipopt': False,'gtop': False,'scipy': False,'networkx': False,'vpython': False, 'pykep': False}
 if "nlopt" in str(algorithm._get_algorithm_list()):
 	__extensions__['nlopt']=True
 if "gsl" in str(algorithm._get_algorithm_list()):
@@ -60,6 +60,12 @@ except:
 try:
 	import visual
 	__extensions__['vpython']=True
+except:
+	pass
+
+try:
+	import PyKEP
+	__extensions__['pykep']=True
 except:
 	pass
 
