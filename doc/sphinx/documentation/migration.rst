@@ -43,9 +43,11 @@ options can be followed:
 
 * 'destination': The internal migrants database stores, for each :class:`PyGMO.island`, the individuals that are meant to migrate from that island. Before each evolution, the :class:`PyGMO.island` will get migrating individuals from those made available by the islands connecting to it. After each evolution, the :class:`PyGMO.island` will update its list of best individuals in the database.
 
-* 'source': The internal migrants database stores for each :class:`PyGMO.island` the individuals that are meant to migrate to that :class:`PyGMO.island`. Before each evolution, an :class:`PyGMO.island` will check if individuals destined to it are available in the database, and, in such case will, migrate over incoming individuals before starting evolution.
-After each evolution, the :class:`PyGMO.island` will place its candidate individuals for emigration in the database slots of the island(s) to which
-it connects.
+* 'source': The internal migrants database stores for each :class:`PyGMO.island` the individuals that are
+meant to migrate to that :class:`PyGMO.island`. Before each evolution, an :class:`PyGMO.island` will
+check if individuals destined to it are available in the database, and, in such case will, migrate over
+incoming individuals before starting evolution. After each evolution, the :class:`PyGMO.island` will
+place its candidate individuals for emigration in the database slots of the island(s) to which it connects.
 
 The *migration* direction is set by the 'migration_direction' kwarg in the :class:`PyGMO.archipelago` constructor
 
@@ -114,6 +116,7 @@ only
 * 'migration.random_r_policy': replaces random individuals in the island with random incoming migrants
 
 * 'migration.worst_r_policy': replaces the worst individuals in the island with the best of the incoming migrants.
+
 
 The replacement policy is set by the 'r_policy' kwarg in the island constructor
 

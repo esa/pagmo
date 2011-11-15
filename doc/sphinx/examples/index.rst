@@ -7,5 +7,6 @@ Available Examples
 .. toctree::
    :maxdepth: 2
 
-   de_study_on_mess_full
+   example1
+   example2
    

@@ -109,6 +109,22 @@ def example_1(n_trials=30):
 		archi.evolve(30)
 		results.append(min([isl.population.champion.f[0] for isl in archi]))
 	return (mean(results), median(results), min(results), max(results))
+	
+def example_2(algo=algorithm.de(1), prob = problem.rosenbrock(10), topo = topology.barabasi_albert(3,3), n_evolve = 100, n_isl = 1024, pop_size = 20, color_code='rank'):
+	from PyGMO import problem, algorithm, island, archipelago
+	from matplotlib.pyplot import savefig, close
+	archi = archipelago(algo,prob,n_isl,pop_size,topology=topo)
+	print "Drawing Initial Condition .. "
+	pos = archi.draw(scale_by_degree=True,n_size=3,e_alpha=0.03, n_color = color_code)
+	savefig('archi000', dpi = 72)
+	close()
+	for i in range(1,n_evolve):
+		archi.evolve(1); 
+		archi.join();
+		print "Drawing"+ str(i) +  "-th evolution .. "
+		pos = archi.draw(layout = pos, scale_by_degree=True,n_size=3,e_alpha=0.03, n_color = color_code)
+		savefig('archi%03d' % i, dpi = 72);  
+		close()
 
 #def test_aco():
 #	from PyGMO import problem, algorithm, island
