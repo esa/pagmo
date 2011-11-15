@@ -99,9 +99,10 @@ def example_1(n_trials=30):
 	results = list()
 	prob = problem.messenger_full()
 	de_variants = [2,3,5,7]
-	algos = [algorithm.de(gen=50,variant=v) for v in de_variants]
+	algos = [algorithm.de(gen=50,variant=v, cr=0.9, f=0.5) for v in de_variants]
+	
 	for trial in range(n_trials):
-		archi = archipelago(topology=topology.fully_connected())
+		archi = archipelago(topology=fully_connected())
 		for algo in algos:
 			archi.push_back(island(algo,prob,25)) 
 		print "Trial N: " + str(trial)

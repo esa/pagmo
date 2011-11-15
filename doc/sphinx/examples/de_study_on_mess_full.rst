@@ -58,7 +58,7 @@ and return the mean, median, best and worst. The final script is
 	results = list()
 	prob = problem.messenger_full()
 	de_variants = [2,3,5,7]
-	algos = [algorithm.de(gen=50,variant=v) for v in de_variants]
+	algos = [algorithm.de(gen=50,variant=v, f=0.5) for v in de_variants]
 	for trial in range(n_trials):
 		archi = archipelago(topology=topology.fully_connected())
 		for algo in algos:
@@ -72,7 +72,7 @@ and results in the following output ....
 
 .. code-block:: python
 
-   out[6]: (14.85486848586072, 15.525128660055714, 8.411838858206712, 20.547962032112842)
+   out[6]: (13.412631298316265, 13.709524451210237, 7.920577719926438, 17.537444513522622)
 
 In case you find a better mean or min with another archipelago after 150,000 function evaluations (and 30 trials) ... send us your PyGMO code!!
 
