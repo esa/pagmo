@@ -16,6 +16,7 @@ Heuristic Optimization
 Common Name                        Name in PyGMO                             Type            Comments
 ================================== ========================================= =============== ===========================================
 Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S 
+Differential Evolution (DE)        :class:`PyGMO.algorithm.de_self_adaptive`      C-U-S      self-adaptive mechanism implemented
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      steady-state
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      generational (also problems deriving from base_stochastic)
 Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
@@ -80,6 +81,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.de
 
    .. automethod:: PyGMO.algorithm.de.__init__
+
+.. autoclass:: PyGMO.algorithm.de_self_adaptive
+
+   .. automethod:: PyGMO.algorithm.de_self_adaptive.__init__
 
 .. autoclass:: PyGMO.algorithm.pso
 

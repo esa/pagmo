@@ -98,14 +98,14 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 			print(' Mean:\t' + str(mean(best)))
 			print(' Std:\t' + str(std(best)))
 
-def example_1(n_trials=25):
+def example_1(n_trials=25, variant_adptv=0, restart=False):
 	from PyGMO import problem, algorithm, island, archipelago
 	from PyGMO.topology import fully_connected
 	from numpy import mean, median
 	results = list()
 	prob = problem.messenger_full()
-	de_variants = [2,3,5,7]
-	algos = [algorithm.de(gen=50,variant=v, cr=-1, f=-1) for v in de_variants]
+	de_variants = [14,16,18,12]
+	algos = [algorithm.de_self_adaptive(gen=50,variant=v, restart=restart, variant_adptv=variant_adptv) for v in de_variants]
 	
 	for trial in range(n_trials):
 		archi = archipelago(topology=fully_connected())

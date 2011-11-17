@@ -26,11 +26,11 @@ def _get_algorithm_list():
 	return algorithm_list
 
 # Redefining the constructors of all algorithms to obtain good documentation and to allow kwargs
-def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False):
+def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm:
 	
-	USAGE: algorithm.de(gen=1, f=-1, cr=-1, variant=2, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
+	USAGE: algorithm.de(gen=1, f=0.5, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, screen_output = False)
 	
 	* gen: number of generations
 	* f: weighting factor in [0,1] (if -1 self-adptation is used)
@@ -48,8 +48,6 @@ def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, rest
 		10. DE/rand/2/bin
 	* ftol stop criteria on f
 	* xtol stop criteria on x
-	* restart when self-adaptation is present if restart=true at each algorithmic call the memory of past self-adaptations
-	  is lost
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -59,11 +57,45 @@ def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, rest
 	arg_list.append(variant)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
-	arg_list.append(restart)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 de._orig_init = de.__init__
 de.__init__ = _de_ctor
+
+def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=0, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
+	"""
+	Constructs a Differential Evolution algorithm:
+	
+	USAGE: algorithm.de_self_adaptive(gen=1, variant=2, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
+	
+	* gen: number of generations
+	* variant: algoritmic variant to use (one of [1 .. 18])
+		1. best/1/exp				2. rand/1/exp
+		3. rand-to-best/1/exp			4. best/2/exp
+		5. rand/2/exp				6. best/1/bin
+		7. rand/1/bin				8. rand-to-best/1/bin
+		9. best/2/bin				10. rand/2/bin
+		11. best/3/exp				12. best/3/bin
+		13. rand/3/exp				14. rand/3/bin
+		15. rand-to-current/2/exp		16. rand-to-current/2/bin
+		17. rand-to-best-and-current/2/exp	18. rand-to-best-and-current/2/bin
+	* variant_adptv: adaptiv scheme to use (one of [0..1])
+		0. random param mutation		1. param mutation follows rand/3 scheme
+	* ftol: stop criteria on f
+	* xtol: stop criteria on x
+	* restart: if True parameters are reinitialized at each algorithmic call (no memory)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(variant)
+	arg_list.append(ftol)
+	arg_list.append(xtol)
+	arg_list.append(restart)	
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+de_self_adaptive._orig_init = de_self_adaptive.__init__
+de_self_adaptive.__init__ = _de_self_adaptive_ctor
 
 def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""

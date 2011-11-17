@@ -199,7 +199,7 @@ void cmaes::evolve(population &pop) const
 	decision_vector dumb(N,0);
 
 	// If the algorithm is called for the first time on this problem dimension / pop size or if m_fresh_start is true we erease the memory of past calls
-	if ( (m_newpop.size() != lam) || (m_newpop[0].rows() != N) || (m_restart==true) ) {
+	if ( (m_newpop.size() != lam) || ((unsigned int)(m_newpop[0].rows() ) != N) || (m_restart==true) ) {
 		mean.resize(N);
 		for (problem::base::size_type i=0;i<N;++i){
 			mean(i) = pop.champion().x[i];
