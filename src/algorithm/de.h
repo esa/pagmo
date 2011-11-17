@@ -61,8 +61,10 @@ namespace pagmo { namespace algorithm {
  *
  * NOTE3: the velocity is also updated along DE whenever a new chromosome is accepted.
  *
+ *
  * @see http://www.icsi.berkeley.edu/~storn/code.html for the official DE web site
  * @see http://www.springerlink.com/content/x555692233083677/ for the paper that introduces Differential Evolution
+ * @see http://sci2s.ugr.es/EAMHCO/pdfs/contributionsCEC11/05949732.pdf for the paper where the main ideas on self-adaptivness were taken from
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
@@ -70,7 +72,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE de: public base
 {
 public:
-	de(int = 100, double  = 0.8, double = 0.9, int = 2, double = 1e-6, double = 1e-6);
+	de(int = 100, double  = -1, double = -1, int = 2, double = 1e-6, double = 1e-6, bool = true);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -90,17 +92,32 @@ private:
 		ar & const_cast<double &>(m_f);
 		ar & const_cast<double &>(m_cr);
 		ar & const_cast<int &>(m_strategy);
+		ar & m_adapt_f;
+		ar & m_adapt_cr;
+		ar & m_restart;
 	}
+	
 	// Number of generations.
 	const int m_gen;
+	
 	// Weighting factor
 	double m_f;
+	
 	// Crossover probability
 	double m_cr;
+	
 	// Startegy
 	const int m_strategy;
 	const double m_ftol;
 	const double m_xtol;
+
+	// Resart option
+	bool m_restart;
+	
+	// Buffers
+	mutable std::vector<double> m_adapt_f;
+	mutable std::vector<double> m_adapt_cr;
+	
 	
 };
 

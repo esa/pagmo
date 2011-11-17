@@ -24,6 +24,7 @@
 
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
+#include <boost/random/normal_distribution.hpp>
 #include <string>
 #include <vector>
 
@@ -40,21 +41,23 @@ namespace pagmo { namespace algorithm {
  * Allows to specify in detail all the parameters of the algorithm.
  *
  * @param[in] gen number of generations.
- * @param[in] f weight coefficient (dafault value is 0.8)
- * @param[in] cr crossover probability (dafault value is 0.9)
+ * @param[in] f weight coefficient (dafault value is 0.8, -1 self-adapts)
+ * @param[in] cr crossover probability (dafault value is 0.9, -1 self-adapts)
  * @param[in] strategy strategy (dafault strategy is 2: /rand/1/exp)
  * @param[in] ftol stopping criteria on the x tolerance
  * @param[in] xtol stopping criteria on the f tolerance
+ * @param[in] restart when true the algorithm looses its memory of the parameter adaptation (if present) at each call
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-de::de(int gen, double f, double cr, int strategy, double ftol, double xtol):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy),m_ftol(ftol),m_xtol(xtol) {
+de::de(int gen, double f, double cr, int strategy, double ftol, double xtol, bool restart):base(), m_gen(gen), m_f(f), m_cr(cr), m_strategy(strategy),
+ m_ftol(ftol), m_xtol(xtol), m_restart(restart), m_adapt_f(0), m_adapt_cr(0) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
 	if (strategy < 1 || strategy > 10) {
 		pagmo_throw(value_error,"strategy index must be one of 1 ... 10");
 	}
-	if (cr < 0 || f < 0 || cr > 1 || f > 1) {
+	if ( ((cr < 0) && (!cr==-1)) || ((f < 0) && (!f==-1)) || cr > 1 || f > 1) {
 		pagmo_throw(value_error,"the f and cr parameters must be in the [0,1] range");
 	}
 }
@@ -124,6 +127,23 @@ void de::evolve(population &pop) const
 	gbfit=pop.champion().f;
 	// container for the best decision vector of generation
 	gbIter = gbX;
+	
+	// Initialize the F and CR vectors (only relevant for self-adaptation)
+	if ( (m_adapt_cr.size() != NP) || (m_adapt_f.size() != NP) || (m_restart) ){
+		if (m_cr == -1) {
+			m_adapt_cr.resize(NP);
+			for (size_t i = 0; i < NP; ++i){
+				m_adapt_cr[i] = boost::normal_distribution<double>(0.5,0.15)(m_drng);
+			}
+		}
+
+		if (m_f == -1) {
+			m_adapt_f.resize(NP);
+			for (size_t i = 0; i < NP; ++i){
+				m_adapt_f[i] = boost::normal_distribution<double>(0.5,0.15)(m_drng);
+			}
+		}
+	}
 
 	// Main DE iterations
 	size_t r1,r2,r3,r4,r5;	//indexes to the selected population members
@@ -155,7 +175,16 @@ void de::evolve(population &pop) const
 				r5 = boost::uniform_int<int>(0,NP-1)(m_urng);
 			} while ((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
 
-
+			// Adapt amplification factor and crossover probability if necessary
+			double F = m_f, CR = m_cr;
+			if (m_f == -1){
+				F = m_adapt_f[i] + boost::normal_distribution<double>(0.0,0.5)(m_drng) * (m_adapt_f[r1]-m_adapt_f[r2])
+						 + boost::normal_distribution<double>(0.0,0.5)(m_drng) * (m_adapt_f[r3]-m_adapt_f[r4]);
+			}
+			if (m_cr == -1){
+				CR = m_adapt_cr[i] + boost::normal_distribution<double>(0,0.5)(m_drng) * (m_adapt_cr[r1]-m_adapt_cr[r2])
+						   + boost::normal_distribution<double>(0,0.5)(m_drng) * (m_adapt_cr[r3]-m_adapt_cr[r4]);
+			}
 			/*-------DE/best/1/exp--------------------------------------------------------------------*/
 			/*-------Our oldest strategy but still not bad. However, we have found several------------*/
 			/*-------optimization problems where misconvergence occurs.-------------------------------*/
@@ -163,10 +192,10 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
 				do {
-					tmp[n] = gbIter[n] + m_f*(popold[r2][n]-popold[r3][n]);
+					tmp[n] = gbIter[n] + F*(popold[r2][n]-popold[r3][n]);
 					n = (n+1)%Dc;
 					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
+				} while ((m_drng() < CR) && (L < Dc));
 			}
 
 			/*-------DE/rand/1/exp-------------------------------------------------------------------*/
@@ -177,24 +206,24 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
 				do {
-					tmp[n] = popold[r1][n] + m_f*(popold[r2][n]-popold[r3][n]);
+					tmp[n] = popold[r1][n] + F*(popold[r2][n]-popold[r3][n]);
 					n = (n+1)%Dc;
 					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
+				} while ((m_drng() < CR) && (L < Dc));
 			}
 
 			/*-------DE/rand-to-best/1/exp-----------------------------------------------------------*/
-			/*-------This strategy seems to be one of the best strategies. Try m_f=0.85 and m_cr=1.------*/
+			/*-------This strategy seems to be one of the best strategies. Try m_f=0.85 and c=1.------*/
 			/*-------If you get misconvergence try to increase NP. If this doesn't help you----------*/
 			/*-------should play around with all three control variables.----------------------------*/
 			else if (m_strategy == 3) { /* similiar to DE2 but generally better */
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
 				do {
-					tmp[n] = tmp[n] + m_f*(gbIter[n] - tmp[n]) + m_f*(popold[r1][n]-popold[r2][n]);
+					tmp[n] = tmp[n] + F*(gbIter[n] - tmp[n]) + F*(popold[r1][n]-popold[r2][n]);
 					n = (n+1)%Dc;
 					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
+				} while ((m_drng() < CR) && (L < Dc));
 			}
 			/*-------DE/best/2/exp is another powerful strategy worth trying--------------------------*/
 			else if (m_strategy == 4) {
@@ -202,10 +231,10 @@ void de::evolve(population &pop) const
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
 				do {
 					tmp[n] = gbIter[n] +
-						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					n = (n+1)%Dc;
 					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
+				} while ((m_drng() < CR) && (L < Dc));
 			}
 			/*-------DE/rand/2/exp seems to be a robust optimizer for many functions-------------------*/
 			else if (m_strategy == 5) {
@@ -213,10 +242,10 @@ void de::evolve(population &pop) const
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
 				do {
 					tmp[n] = popold[r5][n] +
-						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					n = (n+1)%Dc;
 					++L;
-				} while ((m_drng() < m_cr) && (L < Dc));
+				} while ((m_drng() < CR) && (L < Dc));
 			}
 
 			/*=======Essentially same strategies but BINOMIAL CROSSOVER===============================*/
@@ -226,8 +255,8 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = gbIter[n] + m_f*(popold[r2][n]-popold[r3][n]);
+					if ((m_drng() < CR) || L + 1 == Dc) { /* change at least one parameter */
+						tmp[n] = gbIter[n] + F*(popold[r2][n]-popold[r3][n]);
 					}
 					n = (n+1)%Dc;
 				}
@@ -237,8 +266,8 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = popold[r1][n] + m_f*(popold[r2][n]-popold[r3][n]);
+					if ((m_drng() < CR) || L + 1 == Dc) { /* change at least one parameter */
+						tmp[n] = popold[r1][n] + F*(popold[r2][n]-popold[r3][n]);
 					}
 					n = (n+1)%Dc;
 				}
@@ -248,8 +277,8 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = tmp[n] + m_f*(gbIter[n] - tmp[n]) + m_f*(popold[r1][n]-popold[r2][n]);
+					if ((m_drng() < CR) || L + 1 == Dc) { /* change at least one parameter */
+						tmp[n] = tmp[n] + F*(gbIter[n] - tmp[n]) + F*(popold[r1][n]-popold[r2][n]);
 					}
 					n = (n+1)%Dc;
 				}
@@ -259,9 +288,9 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
+					if ((m_drng() < CR) || L + 1 == Dc) { /* change at least one parameter */
 						tmp[n] = gbIter[n] +
-							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					}
 					n = (n+1)%Dc;
 				}
@@ -271,9 +300,9 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
+					if ((m_drng() < CR) || L + 1 == Dc) { /* change at least one parameter */
 						tmp[n] = popold[r5][n] +
-							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*F;
 					}
 					n = (n+1)%Dc;
 				}
@@ -294,6 +323,12 @@ void de::evolve(population &pop) const
 			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;
+				if (m_cr==-1){
+					m_adapt_cr[i] = CR;
+				}
+				if (m_f==-1){
+					m_adapt_f[i] = F;
+				}
 				// As a fitness improvment occured we move the point
 				// and thus can evaluate a new velocity
 				std::transform(tmp.begin(), tmp.end(), pop.get_individual(i).cur_x.begin(), tmp.begin(),std::minus<double>());
@@ -414,6 +449,9 @@ std::string de::human_readable_extra() const
 	s << "F: " << m_f << ' ';
 	s << "CR: " << m_cr << ' ';
 	s << "variant:" << m_strategy;
+	s << "ftol:" << m_ftol;
+	s << "xtol:" << m_xtol;
+	s << "restart:" << m_restart;
 	return s.str();
 }
 

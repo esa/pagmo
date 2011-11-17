@@ -26,15 +26,15 @@ def _get_algorithm_list():
 	return algorithm_list
 
 # Redefining the constructors of all algorithms to obtain good documentation and to allow kwargs
-def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6, screen_output = False):
+def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm:
 	
-	USAGE: algorithm.de(gen=1,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6, screen_output = False)
+	USAGE: algorithm.de(gen=1, f=-1, cr=-1, variant=2, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
 	
 	* gen: number of generations
-	* f: weighting factor in [0,1]
-	* cr: crossover in [0,1]
+	* f: weighting factor in [0,1] (if -1 self-adptation is used)
+	* cr: crossover in [0,1] (if -1 self-adptation is used)
 	* variant: algoritmic variant to use (one of [1 .. 10])
 		1. DE/best/1/exp
 		2. DE/rand/1/exp
@@ -48,6 +48,8 @@ def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6, screen_out
 		10. DE/rand/2/bin
 	* ftol stop criteria on f
 	* xtol stop criteria on x
+	* restart when self-adaptation is present if restart=true at each algorithmic call the memory of past self-adaptations
+	  is lost
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -57,6 +59,7 @@ def _de_ctor(self,gen=100,f=0.8,cr=0.9,variant=2,ftol=1e-6,xtol=1e-6, screen_out
 	arg_list.append(variant)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
+	arg_list.append(restart)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 de._orig_init = de.__init__
@@ -349,7 +352,7 @@ def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
@@ -368,7 +371,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	* sigma0: starting step (std)
 	* xtol: stopping criteria on the x tolerance
 	* ftol: stopping criteria on the f tolerance
-	* memory:  when True the algorithm preserves memory of covariance, step and more between successive runs
+	* restart:  when True the algorithm loses its memory of covariance, step and other self-adapted quantities between successive calls
 	* screen_output: activates screen_output (output at each generation)
 	"""
 	# We set the defaults or the kwargs
@@ -381,7 +384,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	arg_list.append(sigma0)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
-	arg_list.append(memory)
+	arg_list.append(restart)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 cmaes._orig_init = cmaes.__init__

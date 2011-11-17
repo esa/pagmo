@@ -214,7 +214,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
-		.def(init<optional<int,const double &, const double &, int, double, double> >())
+		.def(init<optional<int,const double &, const double &, int, double, double, bool> >())
 		.add_property("cr",&algorithm::de::get_cr,&algorithm::de::set_cr)
 		.add_property("f",&algorithm::de::get_f,&algorithm::de::set_f);
 		
