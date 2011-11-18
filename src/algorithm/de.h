@@ -89,6 +89,8 @@ private:
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<double &>(m_f);
 		ar & const_cast<double &>(m_cr);
+		ar & const_cast<double &>(m_ftol);
+		ar & const_cast<double &>(m_xtol);
 		ar & const_cast<int &>(m_strategy);
 	}
 	// Number of generations.

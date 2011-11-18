@@ -302,17 +302,25 @@ void cmaes::evolve(population &pop) const
 
 		//6 - Adapt sigma
 		sigma *= std::exp( (cs/damps)*(ps.norm()/chiN - 1) );
+		if ( std::isnan(sigma) || std::isinf(sigma) || std::isinf(var_norm) || std::isnan(var_norm) ) {
+			std::cout << "eigen: " << es.info() << std::endl;
+			std::cout << "B: " << B << std::endl;
+			std::cout << "D: " << D << std::endl;
+			std::cout << "Dinv: " << D << std::endl;
+			std::cout << "invsqrtC: " << invsqrtC << std::endl;
+			pagmo_throw(value_error,"NaN!!!!!");
+		}
 
 		//7 - Perform eigen-decomposition of C
 		if ( (counteval - eigeneval) > (lam/(c1+cmu)/N/10) ) {		//achieve O(N^2)
 			eigeneval = counteval;
-			//C = (C+C.transpose())/2;				//enforce symmetry
+			C = (C+C.transpose())/2;				//enforce symmetry
 			es.compute(C);						//eigen decomposition
 			if (es.info()==Success) {
 				B = es.eigenvectors();
 				D = es.eigenvalues().asDiagonal();
 				for (decision_vector::size_type j = 0; j<N; ++j ) {
-					D(j,j) = std::sqrt( std::max(0.0,D(j,j)) );				//D contains standard deviations now
+					D(j,j) = std::sqrt( std::max(1e-20,D(j,j)) );				//D contains standard deviations now
 				}
 				for (decision_vector::size_type j = 0; j<N; ++j ) {
 					Dinv(j,j) = 1.0 / D(j,j);
@@ -408,7 +416,7 @@ double cmaes::get_xtol() const {return m_xtol;}
 /// Algorithm name
 std::string cmaes::get_name() const
 {
-	return "CMAES - ";
+	return "CMAES";
 }
 
 

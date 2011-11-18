@@ -62,11 +62,11 @@ def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, scre
 de._orig_init = de.__init__
 de.__init__ = _de_ctor
 
-def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=0, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
+def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm:
 	
-	USAGE: algorithm.de_self_adaptive(gen=1, variant=2, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
+	USAGE: algorithm.de_self_adaptive(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
 	
 	* gen: number of generations
 	* variant: algoritmic variant to use (one of [1 .. 18])
@@ -80,7 +80,7 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=0, ftol=1e-6,
 		15. rand-to-current/2/exp		16. rand-to-current/2/bin
 		17. rand-to-best-and-current/2/exp	18. rand-to-best-and-current/2/bin
 	* variant_adptv: adaptiv scheme to use (one of [0..1])
-		0. random param mutation		1. param mutation follows rand/3 scheme
+		1. random param mutation		2. param mutation follows rand/3 scheme
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
 	* restart: if True parameters are reinitialized at each algorithmic call (no memory)
@@ -89,6 +89,7 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=0, ftol=1e-6,
 	arg_list=[]
 	arg_list.append(gen)
 	arg_list.append(variant)
+	arg_list.append(variant_adptv)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
 	arg_list.append(restart)	

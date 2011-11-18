@@ -79,6 +79,8 @@ private:
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<int &>(m_variant);
 		ar & const_cast<int &>(m_variant_adptv);
+		ar & const_cast<double &>(m_ftol);
+		ar & const_cast<double &>(m_xtol);
 		ar & m_f;
 		ar & m_cr;
 		ar & const_cast<bool &>(m_restart);
@@ -93,7 +95,7 @@ private:
 	// Crossover probability
 	mutable std::vector<double> m_cr;
 	
-	// Startegy
+	// Strategy
 	const int m_variant;
 	const int m_variant_adptv;
 	const double m_ftol;

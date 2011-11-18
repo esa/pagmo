@@ -52,16 +52,17 @@ The final script (included in PyGMO) is:
 
 .. code-block:: python
 
-   def example_1(n_trials=30):
+   def example_1(n_trials=25, variant_adptv=2, restart=True):
 	from PyGMO import problem, algorithm, island, archipelago
 	from PyGMO.topology import fully_connected
 	from numpy import mean, median
 	results = list()
 	prob = problem.messenger_full()
-	de_variants = [2,3,5,7]
-	algos = [algorithm.de(gen=50,variant=v, f=0.5) for v in de_variants]
+	de_variants = [11,13,15,17]
+	algos = [algorithm.de_self_adaptive(gen=50,variant=v, restart=restart, variant_adptv=variant_adptv) for v in de_variants]
+	
 	for trial in range(n_trials):
-		archi = archipelago(topology=topology.fully_connected())
+		archi = archipelago(topology=fully_connected())
 		for algo in algos:
 			archi.push_back(island(algo,prob,25)) 
 		print "Trial N: " + str(trial)
@@ -69,11 +70,11 @@ The final script (included in PyGMO) is:
 		results.append(min([isl.population.champion.f[0] for isl in archi]))
 	return (mean(results), median(results), min(results), max(results))
 
-and results in the following output ....
+where we used the self-adaptive version of DE. The typical result will be ....
 
 .. code-block:: python
 
-   out[6]: (13.412631298316265, 13.709524451210237, 7.920577719926438, 17.537444513522622)
+   out[6]: (12.998491561914381, 12.842732158775831, 7.883450738472785, 18.493477879276586)
 
 In case you find a better mean or min with another archipelago after 150,000 function evaluations (and 30 trials) ... send us your PyGMO code!!
 
