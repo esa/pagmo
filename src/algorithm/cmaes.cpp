@@ -301,7 +301,7 @@ void cmaes::evolve(population &pop) const
 			c1 * ((pc * pc.transpose()) + (1-hsig) * cc * (2-cc) * Cold);
 
 		//6 - Adapt sigma
-		sigma *= std::exp( (cs/damps)*(ps.norm()/chiN - 1) );
+		sigma *= std::exp( std::min( 0.6, (cs/damps) * (ps.norm()/chiN - 1) ) );
 		if ( std::isnan(sigma) || std::isinf(sigma) || std::isinf(var_norm) || std::isnan(var_norm) ) {
 			std::cout << "eigen: " << es.info() << std::endl;
 			std::cout << "B: " << B << std::endl;
