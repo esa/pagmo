@@ -76,11 +76,11 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 	number_of_individuals = pop_size
 	number_of_generations = n_gen
 
-	prob_list = [problem.schwefel(dim = 10), problem.rastrigin(dim = 10), problem.rosenbrock(dim = 10), problem.ackley(dim = 10), problem.griewank(dim = 10)]
+	prob_list = [problem.schwefel(dim = 10), problem.michalewicz(dim = 10), problem.rastrigin(dim = 10), problem.rosenbrock(dim = 10), problem.ackley(dim = 10), problem.griewank(dim = 10)]
 	if __extensions__['gtop']:
 		prob_list.append(problem.cassini_1())
 		prob_list.append(problem.cassini_2())
-	algo_list = [algorithm.pso(gen = number_of_generations), algorithm.de(gen = number_of_generations), algorithm.de_self_adaptive(gen = number_of_generations, restart=True, variant_adptv=2), algorithm.sa_corana(iter = number_of_generations*number_of_individuals,Ts = 1,Tf = 0.01), algorithm.ihs(iter = number_of_generations*number_of_individuals), algorithm.sga(gen = number_of_generations), algorithm.cmaes(gen = number_of_generations), algorithm.bee_colony(gen = number_of_generations/2)]
+	algo_list = [algorithm.pso(gen = number_of_generations), algorithm.de(gen = number_of_generations,xtol=1e-30, ftol=1e-30), algorithm.de_self_adaptive(gen = number_of_generations, restart=True, variant_adptv=2,xtol=1e-30, ftol=1e-30), algorithm.sa_corana(iter = number_of_generations*number_of_individuals,Ts = 1,Tf = 0.01), algorithm.ihs(iter = number_of_generations*number_of_individuals), algorithm.sga(gen = number_of_generations), algorithm.cmaes(gen = number_of_generations,xtol=1e-30, ftol=1e-30), algorithm.bee_colony(gen = number_of_generations/2)]
 	print('\nTrials: ' + str(n_trials) + ' - Population size: ' + str(pop_size) + ' - Generations: ' + str(n_gen))
 	for prob in prob_list:
 		print('\nTesting problem: ' + prob.get_name() + ', Dimension: ' + str(prob.dimension) )

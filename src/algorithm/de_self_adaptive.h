@@ -54,7 +54,8 @@ namespace pagmo { namespace algorithm {
  * NOTE3: the pagmo::population::individual_type::cur_v is also updated along DE as soon as a new chromosome is accepted.
  *
  *
- * @see http://sci2s.ugr.es/EAMHCO/pdfs/contributionsCEC11/05949732.pdf for the paper where some of the variants implemented in this
+ * @see http://labraj.uni-mb.si/images/0/05/CEC09_slides_Brest.pdf  where m_variant_adptv = 1 is studied.
+ * @see http://sci2s.ugr.es/EAMHCO/pdfs/contributionsCEC11/05949732.pdf for a paper where a similar apporach to m_variant_adptv=2 is described
  * 'modern' de version are used.
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
@@ -95,8 +96,9 @@ private:
 	// Crossover probability
 	mutable std::vector<double> m_cr;
 	
-	// Strategy
+	// Algoritmic variant
 	const int m_variant;
+	// Self-adaptation strategy
 	const int m_variant_adptv;
 	const double m_ftol;
 	const double m_xtol;

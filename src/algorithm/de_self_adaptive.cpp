@@ -203,14 +203,6 @@ void de_self_adaptive::evolve(population &pop) const
 				F =  (r_dist() < 0.9) ? m_f[i]  : r_dist() * 0.9 + 0.1;
 				CR = (r_dist() < 0.9) ? m_cr[i] : r_dist();
 			}
-			//else if (m_variant_adptv==2) {
-			//	F =  m_f[i] + n_dist() * 0.5 * (m_f[r1]-m_f[r2])
-			//	   + n_dist() * 0.5 * (m_f[r3]-m_f[r4])
-			//	   + n_dist() * 0.5 * (m_f[r5]-m_f[r6]);
-			//	CR = m_cr[i] + n_dist() * 0.5 * (m_cr[r1]-m_cr[r2])
-			//	     + n_dist() * 0.5 * (m_cr[r3]-m_cr[r4])
-			//	     + n_dist() * 0.5 * (m_cr[r5]-m_cr[r6]);
-			//}
 					
 			/*-------DE/best/1/exp--------------------------------------------------------------------*/
 			/*-------Our oldest strategy but still not bad. However, we have found several------------*/
