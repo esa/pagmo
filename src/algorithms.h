@@ -31,6 +31,7 @@
 #include "algorithm/base.h"
 #include "algorithm/cs.h"
 #include "algorithm/de.h"
+#include "algorithm/de_1220.h"
 #include "algorithm/de_self_adaptive.h"
 #include "algorithm/ihs.h"
 #include "algorithm/monte_carlo.h"

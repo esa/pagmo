@@ -221,6 +221,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Differential evolution (self-adaptive)
 	algorithm_wrapper<algorithm::de_self_adaptive>("de_self_adaptive", "Differential Evolution Algorithm with self-adaptation.\n")
 		.def(init<optional<int, int, int, double, double, bool> >());
+
+	// Differential evolution (our own brew)
+	algorithm_wrapper<algorithm::de_1220>("de_1220", "Differential Evolution Algorithm (our brew ...).\n")
+		.def(init<optional<int, int, std::vector<int>, bool, double, double> >());
 		
 	// Simulated annealing, Corana's version.
 	algorithm_wrapper<algorithm::sa_corana>("sa_corana","Simulated annealing, Corana's version with adaptive neighbourhood.")
