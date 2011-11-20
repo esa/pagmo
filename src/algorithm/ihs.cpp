@@ -126,6 +126,8 @@ void ihs::evolve(population &pop) const
 				tmp.cur_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 			}
 		}
+
+		//Integer Part
 		for (problem::base::size_type i = prob_dimension - prob_i_dimension; i < prob_dimension; ++i) {
 			if (m_drng() < m_phmcr) {
 				tmp.cur_x[i] = pop.get_individual(uni_int(m_urng)).cur_x[i];

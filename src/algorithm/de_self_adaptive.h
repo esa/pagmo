@@ -34,7 +34,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Differential Evolution Algorithm - Self-Adaptive (2011)
+/// Differential Evolution Algorithm - Self-Adaptive C and R (2011)
 /**
  *
  * \image html de.jpg "Differential Evolution block diagram."
@@ -43,7 +43,7 @@ namespace pagmo { namespace algorithm {
  * Since its creation, the original Differential Evolution (pagmo::algorithm::de) algorithm
  * has been modified several times and many improvements have been suggested. We thus provide in PaGMO, together with the
  * original version of the algorithm, a modern version of the algorithm, with self-adaptation of its 
- * parameters pagmo::algorithm::de::m_cr and pagmo::algorithm::de::m_f and some of the most used recombination variants.
+ * parameters pagmo::algorithm::de::m_cr and pagmo::algorithm::de::m_f and some of more recombination variants.
  *
  * NOTE: when called on mixed-integer problems DE treats the integer part as fixed and optimizes
  * the continuous part.

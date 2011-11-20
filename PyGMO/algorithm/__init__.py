@@ -64,7 +64,7 @@ de.__init__ = _de_ctor
 
 def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
 	"""
-	Constructs a Differential Evolution algorithm:
+	Constructs a Differential Evolution algorithm that has self-adaptation on CR and F:
 	
 	USAGE: algorithm.de_self_adaptive(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
 	
@@ -79,7 +79,7 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6,
 		13. rand/3/exp				14. rand/3/bin
 		15. rand-to-current/2/exp		16. rand-to-current/2/bin
 		17. rand-to-best-and-current/2/exp	18. rand-to-best-and-current/2/bin
-	* variant_adptv: adaptiv scheme to use (one of [0..1])
+	* variant_adptv: adaptive scheme to use (one of [1..2])
 		1. random param mutation		2. param mutation follows rand/3 scheme
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
@@ -97,6 +97,42 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6,
 	self.screen_output = screen_output
 de_self_adaptive._orig_init = de_self_adaptive.__init__
 de_self_adaptive.__init__ = _de_self_adaptive_ctor
+
+def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,10)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
+	"""
+	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
+	
+	USAGE: algorithm.de_1220(gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,19)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False)
+	
+	* gen: number of generations
+	* variant_adptv: adaptiv scheme to use (one of [1..2])
+		1. random param mutation		2. param mutation follows relative DE scheme
+	* allowed_variants : a list of the algoritmic variants to mix and self-adapt. Allowed variants are ...
+		1. best/1/exp				2. rand/1/exp
+		3. rand-to-best/1/exp			4. best/2/exp
+		5. rand/2/exp				6. best/1/bin
+		7. rand/1/bin				8. rand-to-best/1/bin
+		9. best/2/bin				10. rand/2/bin
+		11. best/3/exp				12. best/3/bin
+		13. rand/3/exp				14. rand/3/bin
+		15. rand-to-current/2/exp		16. rand-to-current/2/bin
+		17. rand-to-best-and-current/2/exp	18. rand-to-best-and-current/2/bin
+	* ftol: stop criteria on f
+	* xtol: stop criteria on x
+	* restart: if True parameters are reinitialized at each algorithmic call (no memory)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(variant_adptv)
+	arg_list.append(allowed_variants)
+	arg_list.append(restart)
+	arg_list.append(ftol)
+	arg_list.append(xtol)
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+de_1220._orig_init = de_1220.__init__
+de_1220.__init__ = _de_1220_ctor
 
 def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""
