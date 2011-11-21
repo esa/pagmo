@@ -52,7 +52,9 @@ def _generic_island_ctor(self,*args,**kwargs):
 	from PyGMO.algorithm._algorithm import _base as _base_algorithm
 	from PyGMO.algorithm import base as base_algorithm
 	from PyGMO.problem._problem import _base as _base_problem
+	from PyGMO.problem._problem import _base_stochastic as _base_problem_stochastic
 	from PyGMO.problem import base as base_problem
+	from PyGMO.problem import base_stochastic as base_problem_stochastic
 	from PyGMO.migration._migration import best_s_policy, fair_r_policy, _base_s_policy, _base_r_policy
 	
 	if len(args) < 2 or len(args) > 3:
@@ -60,7 +62,7 @@ def _generic_island_ctor(self,*args,**kwargs):
 	if not isinstance(args[0],_base_algorithm):
 		raise TypeError("The first unnamed argument must be an algorithm.")
 	ctor_args = [args[0]]
-	if isinstance(args[1],_base_problem):
+	if isinstance(args[1],_base_problem) or isinstance(args[1],_base_problem_stochastic):
 		ctor_args.append(args[1])
 		if len(args) == 3:
 			if not isinstance(args[2],int):
@@ -105,9 +107,9 @@ def _generic_island_ctor(self,*args,**kwargs):
 		n_pythonic_items = 0
 		if isinstance(args[0],base_algorithm):
 			n_pythonic_items += 1
-		if isinstance(args[1],base_problem):
+		if isinstance(args[1],base_problem) or isinstance(args[1],base_problem_stochastic):
 			n_pythonic_items += 1
-		elif isinstance(args[1],population) and isinstance(args[1].problem,base_problem):
+		elif isinstance(args[1],population) and (isinstance(args[1].problem,base_problem) or isinstance(args[1],base_problem_stochastic)):
 			n_pythonic_items += 1
 		if n_pythonic_items > 0:
 			return py_island(*args,**kwargs)
@@ -255,7 +257,7 @@ def _generic_archi_ctor(self,*args,**kwargs):
 	if (len(args))==4:
 		if not isinstance(args[0],algorithm._base):
 			raise TypeError("The first unnamed argument must be an algorithm")
-		if not isinstance(args[1],problem._base):
+		if not (isinstance(args[1],problem._base) or isinstance(args[1],problem._base_stochastic)):
 			raise TypeError("The second unnamed argument must be a problem")
 		if not isinstance(args[2],int):
 			raise TypeError("The third unnamed argument must be an integer (i.e. number of islands)")

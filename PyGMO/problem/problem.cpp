@@ -128,8 +128,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
-	// Expose base stochastic problem class, including the virtual methods.
-	class_<problem::python_base_stochastic, boost::noncopyable>("_base_stochastic",init<int,optional<unsigned int> >())
+	// Expose base stochastic problem class, including the virtual methods. Here we explicitly 
+	// tell python that these objects can be passed where problem::base is expected .... in the previous
+	// case (problem::python_base) this was not necessary as problem::python_base derives from
+	// boost::python::wrapper<base> which informs python on the correct inheritance.
+	class_<problem::python_base_stochastic, boost::noncopyable, bases<problem::base> >("_base_stochastic",init<int,optional<unsigned int> >())
 		.def("__repr__", &problem::base::human_readable)
 		// Dimensions.
 		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
