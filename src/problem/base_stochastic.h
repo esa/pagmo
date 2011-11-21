@@ -70,7 +70,6 @@ class __PAGMO_VISIBLE base_stochastic : public base
 	protected:
 		mutable rng_double				m_drng;
 		mutable unsigned int				m_seed;
-
 };
 
 }} //namespaces

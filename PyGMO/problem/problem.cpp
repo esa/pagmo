@@ -358,7 +358,9 @@ BOOST_PYTHON_MODULE(_problem) {
 	stochastic_problem_wrapper<problem::spheres>("mit_spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
 		.def(init< optional<int,int,double,unsigned int, bool, double> >())
 		.def("post_evaluate", &problem::spheres::post_evaluate)
-		.def("simulate", &problem::spheres::simulate);
+		.def("simulate", &problem::spheres::simulate)
+		.add_property("seed",&problem::spheres::get_seed,&problem::spheres::set_seed,"Random seed used in the objective function evaluation.");
+
 
 	//problem_wrapper<problem::spheres_q>("spheres_q", "Spheres problem, a neurocontroller for the MIT test-bed (body-axis perception-action)")
 	//	.def(init< optional<int,int,double,unsigned int> >())
