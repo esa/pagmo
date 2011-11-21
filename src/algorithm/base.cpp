@@ -74,6 +74,8 @@ void base::set_screen_output(const bool p) {m_screen_output = p;}
  */
 bool base::get_screen_output() const {return m_screen_output;}
 
+void base::set_urng(const unsigned int p) const {m_urng = rng_uint32(p);}
+
 /// Return human readable representation of the algorithm.
 /**
  * Will return a formatted string containing the algorithm name from get_name().

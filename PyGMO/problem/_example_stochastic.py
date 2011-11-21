@@ -13,7 +13,7 @@ class py_example_stochastic(base_stochastic):
 		#We initialize the random number geneator of numpy using the 
 		#data member seed. This will be changed by the algorithm whenever it detects 
 		#a stochastic problem.
-		seed(self.seed)
+		seed(int(self.seed%12345))
 		print self.seed
 		
 		#And now we write the objfun that will always use the same pseudorandonm sequence
@@ -23,3 +23,5 @@ class py_example_stochastic(base_stochastic):
 			noise = rand()/10
 			f = f + (x[i] + noise)*(x[i] + noise)
 		return (f,)
+	def human_readable_extra(self):
+		return "\n\tSeed: " + str(self.seed)

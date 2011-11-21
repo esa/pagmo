@@ -611,7 +611,7 @@ void pso_generational::initialize_topology__adaptive_random( std::vector< std::v
 /// Algorithm name
 std::string pso_generational::get_name() const
 {
-	return "Particle Swarm optimization";
+	return "PSO - Generational";
 }
 
 
