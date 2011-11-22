@@ -1,27 +1,44 @@
 from _base_stochastic import base_stochastic
 
+
 class py_example_stochastic(base_stochastic):
 	"""
-	Noisy De Jong function implemented purely in Python.
+	Noisy De Jong (sphere) function implemented purely in Python.
+	
+	USAGE: py_example_stochastic(dim = 10, seed=0)
+
+	* dim problem dimension
+	* seed initial random seed
 	"""
-	def __init__(self, dim = 1, seed = 0):
-		super(py_example_stochastic,self).__init__(dim, seed)
+	def __init__(self, dim = 10, seed = 0):
+		#First we call the constructor of the base stochastic class. (Only
+		#unconstrained single objective problems can be stochastic in PyGMO)
+		super(my_problem_stochastic,self).__init__(dim, seed)
+
+		#then we set the problem bounds (in this case equal for all components)
 		self.set_bounds(-5.12,5.12)
-		self._dim = dim
+
+		#and we define some additional 'private' data members (not really necessary in
+		#this case, but ... hey this is a tutorial)
+		self.__dim = dim
+
 	def _objfun_impl(self,x):
-		from numpy.random import seed, rand	
-		#We initialize the random number geneator of numpy using the 
-		#data member seed. This will be changed by suitable algorithms when they
-		#detect that the problem is stochastic
+		from random import random as drng
+		from random import seed
+
+		#We initialize the random number generator using the 
+		#data member seed (in base_stochastic). This will be changed by suitable
+		#algorithms when a stochastic problem is used. The mod operation avoids overflows
 		
-		seed(int(self.seed%12345))
+		seed(self.seed)
 		
-		#And now we write the objfun that will always use the same pseudorandonm sequence
+		#We write the objfun using the same pseudorandonm sequence
 		#as long as self.seed is unchanged.
 		f = 0;
 		for i in range(self._dim):
-			noise = rand()/10
+			noise = (2 * drng() - 1) / 10
 			f = f + (x[i] + noise)*(x[i] + noise)
 		return (f,)
 	def human_readable_extra(self):
 		return "\n\tSeed: " + str(self.seed)
+
