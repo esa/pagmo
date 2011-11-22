@@ -107,7 +107,8 @@ return base_ptr(new derived_algorithm(*this));
 		void set_screen_output(const bool p);
 		bool get_screen_output() const;
 
-		void set_urng(const unsigned int) const;
+		/// Resets the seed of the internal rngs using a user-provided seed
+		void reset_rngs(const unsigned int) const;
 	protected:
 		/// Indicates to the derived class whether to print stuff on screen
 		bool m_screen_output;

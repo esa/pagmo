@@ -74,7 +74,16 @@ void base::set_screen_output(const bool p) {m_screen_output = p;}
  */
 bool base::get_screen_output() const {return m_screen_output;}
 
-void base::set_urng(const unsigned int p) const {m_urng = rng_uint32(p);}
+/// Resets the random number generators
+/**
+ * Resets the seed of the internal random number generators to p
+ *
+ * @param[in] p the new seed. It will be used to instantiate both drng and urng 
+ */
+void base::reset_rngs(const unsigned int p) const {
+	m_urng = rng_uint32(p);
+	m_drng = rng_double(p);
+}
 
 /// Return human readable representation of the algorithm.
 /**

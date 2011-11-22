@@ -11,10 +11,10 @@ class py_example_stochastic(base_stochastic):
 	def _objfun_impl(self,x):
 		from numpy.random import seed, rand	
 		#We initialize the random number geneator of numpy using the 
-		#data member seed. This will be changed by the algorithm whenever it detects 
-		#a stochastic problem.
+		#data member seed. This will be changed by suitable algorithms when they
+		#detect that the problem is stochastic
+		
 		seed(int(self.seed%12345))
-		print self.seed
 		
 		#And now we write the objfun that will always use the same pseudorandonm sequence
 		#as long as self.seed is unchanged.
