@@ -4,8 +4,10 @@ Problems
 A Quick Look
 ------------
 
-Problems in PyGMO are objects, first constructed and then used in conjunction to an algorithm. The user can implement its own problem directly
-in Python, in which case he needs to inherit from the :class:`PyGMO.problem.base` class. 
+Problems in PyGMO are objects, first constructed and then used in conjunction to an algorithm.
+The user can implement its own problem directly in Python, in which case he needs to inherit from 
+:class:`PyGMO.problem.base` or :class:`PyGMO.problem.base_stochastic` class. You may see 
+:ref:`tutorial1` or :ref:`tutorial2` 
 
 
 Box-Constrained Continuous Single-Objective

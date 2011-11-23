@@ -5,8 +5,8 @@ A Quick Look
 ------------
 
 Algorithms in PyGMO are objects, constructed and then used to optimize a problem via their evolve method. The user can
-implement his own algorithm in Python (in which case they need to derive from :class:`PyGMO.algorithm.base`), but we
-also provide a number of algorithms that are considered useful for general purposes. Each algorithm can be associated only to
+implement his own algorithm in Python (in which case they need to derive from :class:`PyGMO.algorithm.base`). You may follow the
+:ref:`tutorial3`. We also provide a number of algorithms that are considered useful for general purposes. Each algorithm can be associated only to
 problems of certain types: (Continuous, Integer or Mixed Integer)-(Constrained, Unconstrained)-(Single, Multi-objective).
 
 
