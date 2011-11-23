@@ -126,12 +126,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Expose base algorithm class, including the virtual methods.
 	class_<algorithm::python_base, boost::noncopyable>("_base", "All algorithms derive from this class. It cannot be instantiated", init<>())
 		.def("__repr__",&algorithm::base::human_readable)
+		.def("reset_rngs", &algorithm::base::reset_rngs)
+		.add_property("screen_output",&algorithm::base::get_screen_output,&algorithm::base::set_screen_output)
 		// Virtual methods that can be (re)implemented.
 		.def("get_name", &algorithm::base::get_name, &algorithm::python_base::default_get_name)
 		// NOTE: This needs special treatment because its prototype changes in the wrapper.
 		.def("evolve",&algorithm::python_base::py_evolve, "Returns the evolved population")
 		.def("human_readable_extra", &algorithm::base::human_readable_extra, &algorithm::python_base::default_human_readable_extra)
-		.add_property("screen_output",&algorithm::base::get_screen_output,&algorithm::base::set_screen_output)
 		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
 	// Exposing enums

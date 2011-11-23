@@ -98,7 +98,7 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6,
 de_self_adaptive._orig_init = de_self_adaptive.__init__
 de_self_adaptive.__init__ = _de_self_adaptive_ctor
 
-def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,10)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
+def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = range(1,11), restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
 	
@@ -425,7 +425,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
-	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False)
+	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, screen_output = False)
 
 	NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
 	is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem

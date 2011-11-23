@@ -76,6 +76,24 @@ def _rosetta_ctor(self):
 rosetta._orig_init = rosetta.__init__
 rosetta.__init__ = _rosetta_ctor
 
+def _messenger_full_ctor(self):
+	"""
+	Constructs a Mesenger Full Problem (Box-Constrained Continuous Single-Objective)
+	
+	NOTE: This problem (MGA-1DSM) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]
+	      
+	      Best known global minimum is at 2.970 [km/s], but physics indicate a minimum exist at 2.3 ....
+	      
+	USAGE: problem.messenger_full()
+	
+	"""
+	
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	self._orig_init(*arg_list)
+messenger_full._orig_init = messenger_full.__init__
+messenger_full.__init__ = _messenger_full_ctor
+
 def _tandem_ctor(self, prob_id = 7, max_tof = -1):
 	"""
 	Constructs a TandEM Problem (Box-Constrained Continuous Single-Objective)

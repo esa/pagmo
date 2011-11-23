@@ -82,12 +82,13 @@ Knapsack                           :class:`PyGMO.problem.knapsack`
 
 Stochastic Objective Function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-================================== ========================================= ===========================================
-Common Name                        Name in PyGMO                             Comments
-================================== ========================================= ===========================================
+================================== =============================================== ===========================================
+Common Name                        Name in PyGMO                                   Comments
+================================== =============================================== ===========================================
 Inventory Problem                  :class:`PyGMO.problem.inventory`
-mit_spheres                        :class:`PyGMO.problem.mit_spheres`
-================================== ========================================= ===========================================
+MIT SPHERES                        :class:`PyGMO.problem.mit_spheres`
+Noisy De Jong                      :class:`PyGMO.problem.py_example_stochastic`
+================================== =============================================== ===========================================
 
 
 
@@ -209,6 +210,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.inventory
 
    .. automethod:: PyGMO.problem.inventory.__init__
+
+.. autoclass:: PyGMO.problem.py_example_stochastic
+
+   .. automethod:: PyGMO.problem.py_example_stochastic.__init__
 
 .. autoclass:: PyGMO.problem.mit_spheres
 
