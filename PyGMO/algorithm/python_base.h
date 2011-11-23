@@ -41,7 +41,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<base>
 {
 	public:
-		python_base():base() {}
+		python_base():base(), boost::python::wrapper<base>() {}
 		base_ptr clone() const
 		{
 			base_ptr retval = this->get_override("__get_deepcopy__")();

@@ -59,7 +59,7 @@ class __PAGMO_VISIBLE python_base_stochastic: public base_stochastic, public boo
 {
 	public:
 		explicit python_base_stochastic(int n, unsigned int seed = 0):
-			base_stochastic(n,seed) {}
+			base_stochastic(n,seed), boost::python::wrapper<base_stochastic>() {}
 		base_ptr clone() const
 		{
 			base_ptr retval = this->get_override("__get_deepcopy__")();
