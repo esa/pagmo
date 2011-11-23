@@ -1,3 +1,5 @@
+.. _tutorial3:
+
 ================================================================
 Tutorial 3: Coding your own algorithm in Python
 ================================================================
@@ -7,7 +9,7 @@ We will write the algorithm so that it manage multi-objective, mixed_int, constr
 as this will allow us to explain all the basic PyGMO functioning. Clearly our algorithm will not
 be very good ... a random search always useful to benchmark against :)
 
-In a nutshell ... we will write a class deriving from algorithm.base
+In a nutshell ... we will write a class deriving from :class:`PyGMO.algorithm.base`
 and reimplement some of its 'virtual' methods, the main one being evolve!!!
 
 .. code-block:: python

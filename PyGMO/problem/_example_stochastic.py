@@ -13,7 +13,7 @@ class py_example_stochastic(base_stochastic):
 	def __init__(self, dim = 10, seed = 0):
 		#First we call the constructor of the base stochastic class. (Only
 		#unconstrained single objective problems can be stochastic in PyGMO)
-		super(my_problem_stochastic,self).__init__(dim, seed)
+		super(py_example_stochastic,self).__init__(dim, seed)
 
 		#then we set the problem bounds (in this case equal for all components)
 		self.set_bounds(-5.12,5.12)
@@ -35,7 +35,7 @@ class py_example_stochastic(base_stochastic):
 		#We write the objfun using the same pseudorandonm sequence
 		#as long as self.seed is unchanged.
 		f = 0;
-		for i in range(self._dim):
+		for i in range(self.__dim):
 			noise = (2 * drng() - 1) / 10
 			f = f + (x[i] + noise)*(x[i] + noise)
 		return (f,)

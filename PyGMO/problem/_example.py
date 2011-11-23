@@ -4,14 +4,14 @@ class py_example(base):
 	"""
 	De Jong (sphere) function implemented purely in Python.
 	
-	USAGE: my_problem(dim = 10)
+	USAGE: py_example(dim = 10)
 
 	* dim problem dimension
 	"""
 	def __init__(self, dim = 10):
 		#First we call the constructor of the base class telling
 		#essentially to PyGMO what kind of problem to expect (1 objective, 0 contraints etc.)
-		super(my_problem,self).__init__(dim)
+		super(py_example,self).__init__(dim)
 
 		#then we set the problem bounds (in this case equal for all components)
 		self.set_bounds(-5.12,5.12)

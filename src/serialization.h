@@ -193,8 +193,8 @@ void save(Archive &ar, const Eigen::MatrixXd &cb, unsigned int)
 	ar << nrows;
 	ar << ncols;
 	//And then the numbers
-	for (std::size_t i = 0; i < cb.rows(); ++i) {
-		for (std::size_t j = 0; i < cb.cols(); ++i) {
+	for (unsigned int i = 0; i < (unsigned int)cb.rows(); ++i) {
+		for (unsigned int j = 0; j < (unsigned int)cb.cols(); ++j) {
 			ar << cb(i,j);
 		}
 	}
@@ -209,8 +209,8 @@ void load(Archive &ar, Eigen::MatrixXd &cb, unsigned int)
 	ar >> cols;
 	cb.resize(rows,cols);
 	//And then the numbers
-	for (std::size_t i = 0; i < cb.rows(); ++i) {
-		for (std::size_t j = 0; i < cb.cols(); ++i) {
+	for (unsigned int i = 0; i < (unsigned int)cb.rows(); ++i) {
+		for (std::size_t j = 0; j < (unsigned int)cb.cols(); ++j) {
 			ar >> cb(i,j);
 		}
 	}
@@ -229,7 +229,7 @@ void save(Archive &ar, const Eigen::VectorXd &cb, unsigned int)
 	// Let's first save the dimension
 	ar << nrows;
 	//And then the numbers
-	for (std::size_t i = 0; i < cb.rows(); ++i) {
+	for (unsigned int i = 0; i < (unsigned int)cb.rows(); ++i) {
 		ar << cb(i);
 	}
 }
@@ -242,7 +242,7 @@ void load(Archive &ar, Eigen::VectorXd &cb, unsigned int)
 	ar >> rows;
 	cb.resize(rows);
 	//And then the numbers
-	for (std::size_t i = 0; i < cb.rows(); ++i) {
+	for (unsigned int i = 0; i < (unsigned int)cb.rows(); ++i) {
 		ar >> cb(i);
 	}
 }
