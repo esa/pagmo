@@ -408,8 +408,8 @@ double base::get_clustering_coefficient() const
                 adj_vertices = get_v_adjacent_vertices(*vertices.first);
                 if(adj_vertices.size() > 1) {
                         // Count the number of nodes in adj_vertices that are adjacent to one another.
-                        for(int i = 0; i < adj_vertices.size()-1; i++) {
-                                for(int j = i; j < adj_vertices.size(); j++) {
+                        for(unsigned int i = 0; i < adj_vertices.size()-1; i++) {
+                                for(unsigned int j = i; j < adj_vertices.size(); j++) {
                                         if(i != j && are_adjacent(adj_vertices[i],adj_vertices[j])) {
                                                 cc += 2.0/(adj_vertices.size() * (adj_vertices.size() - 1));
                                         }

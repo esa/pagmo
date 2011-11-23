@@ -98,7 +98,7 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6,
 de_self_adaptive._orig_init = de_self_adaptive.__init__
 de_self_adaptive.__init__ = _de_self_adaptive_ctor
 
-def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,10)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
+def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,11)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
 	
