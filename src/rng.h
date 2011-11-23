@@ -43,7 +43,7 @@ namespace pagmo
 /**
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
  */
-class rng_uint32: public boost::mt19937 {
+class __PAGMO_VISIBLE rng_uint32: public boost::mt19937 {
 		friend class boost::serialization::access;
 	public:
 		/// Return value of the generator.
@@ -85,7 +85,7 @@ class rng_uint32: public boost::mt19937 {
 /**
  * @see http://www.boost.org/doc/libs/release/libs/random/random-generators.html
  */
-class rng_double: public boost::lagged_fibonacci607 {
+class __PAGMO_VISIBLE rng_double: public boost::lagged_fibonacci607 {
 		friend class boost::serialization::access;
 	public:
 		/// Default constructor.
@@ -131,7 +131,7 @@ class rng_double: public boost::lagged_fibonacci607 {
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class rng_generator {
+class __PAGMO_VISIBLE rng_generator {
 	public:
 		/// Return pseudo-random number generator.
 		/**
@@ -149,8 +149,8 @@ class rng_generator {
 		}
 		static void set_seed(int);
 	private:
-		static boost::mutex	m_mutex;
-		static rng_uint32	m_seeder;
+		static  boost::mutex	m_mutex;
+		static  rng_uint32	m_seeder;
 };
 
 }
