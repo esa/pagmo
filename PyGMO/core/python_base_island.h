@@ -32,6 +32,7 @@
 #include <boost/python/object.hpp>
 #include <boost/python/tuple.hpp>
 #include <boost/python/extract.hpp>
+#include <boost/python/ptr.hpp>
 #include <boost/python/wrapper.hpp>
 #include <stdexcept>
 #include <sstream>
@@ -143,17 +144,17 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			scoped_gil_release release;
 			base_island::join();
 		}
-		population py_perform_evolution(algorithm::base_ptr a, const population &pop) const
+		population py_perform_evolution(const algorithm::base *a, const population &pop) const
 		{
 			if (boost::python::override f = this->get_override("_perform_evolution")) {
-				return f(a,pop);
+				return f(boost::python::ptr(a),pop);
 			}
 			pagmo_throw(not_implemented_error,"island's _perform_evolution method has not been implemented");
 		}
 	protected:
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
-			population retval(py_perform_evolution(a.clone(),pop));
+			population retval(py_perform_evolution(&a,pop));
 			a.reset_rngs(rng_generator::get<rng_uint32>()());
 			// Check that the implementation of the evolve method in Python did not screw up the problem.
 			if (pop.problem() != retval.problem()) {
