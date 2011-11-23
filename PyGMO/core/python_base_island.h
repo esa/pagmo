@@ -102,7 +102,7 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
 			base_island(algo,pop,migr_prob,s_policy,r_policy),m_gstate() {}
-		python_base_island(const python_base_island &isl):base_island(isl),m_gstate() {}
+		python_base_island(const python_base_island &isl):base_island(isl), boost::python::wrapper<base_island>(), m_gstate() {}
 		~python_base_island()
 		{
 			// Call the re-implemented join().
