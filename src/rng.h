@@ -36,6 +36,7 @@
 #include <string>
 
 #include "serialization.h"
+#include "config.h"
 
 namespace pagmo
 {

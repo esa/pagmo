@@ -154,6 +154,7 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 	protected:
 		void perform_evolution(const algorithm::base &a, population &pop) const
 		{
+			// note that we pass 'the real' a 
 			population retval(py_perform_evolution(&a,pop));
 			a.reset_rngs(rng_generator::get<rng_uint32>()());
 			// Check that the implementation of the evolve method in Python did not screw up the problem.
