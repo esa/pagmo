@@ -2,8 +2,8 @@
 Example 3: Testing Algorithms
 =================================================================
 
-PaGMO can be used to test the performance of algorithm on problem sets. Lets see how
-easy is this!!! 
+PaGMO can be used to test the performance of algorithms on problem sets. 
+We show how simple is to do so using a basic set-up..
 
 .. code-block:: python
 

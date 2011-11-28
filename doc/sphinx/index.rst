@@ -45,7 +45,7 @@ containing the worst solution do far, white dots are islands containing the best
    #Here we instantiate the archipelago with 1000 islands an 20 individuals per island .....
    archi = archipelago(algo,prob,1000,20,topo = topology.ageing_clustered_barabasi(a=100))
 
-   #We can draw anarchipelago it like this ... (takes some time the first time as the 'spring' layout of 
+   #We can draw an archipelago like this ... (takes some time the first time as the 'spring' layout of 
    #a huge graph is being calculated
    pos = archi.draw(n_size=40)
 
