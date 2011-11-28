@@ -217,6 +217,7 @@ def _kur_ctor(self):
 	
 	USAGE: problem.kur()
 	"""
+	self._orig_init(*arg_list)
 	
 kur._orig_init = kur.__init__
 kur.__init__ = _kur_ctor
@@ -227,6 +228,7 @@ def _fon_ctor(self):
 	
 	USAGE: problem.fon()
 	"""
+	self._orig_init(*arg_list)
 	
 fon._orig_init = fon.__init__
 fon.__init__ = _fon_ctor
@@ -237,6 +239,7 @@ def _pol_ctor(self):
 	
 	USAGE: problem.pol()
 	"""
+	self._orig_init(*arg_list)
 	
 pol._orig_init = pol.__init__
 pol.__init__ = _pol_ctor
@@ -247,6 +250,7 @@ def _sch_ctor(self):
 	
 	USAGE: problem.sch()
 	"""
+	self._orig_init(*arg_list)
 	
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
@@ -257,6 +261,7 @@ def _zdt1_ctor(self):
 	
 	USAGE: problem.zdt1()
 	"""
+	self._orig_init(*arg_list)
 	
 zdt1._orig_init = zdt1.__init__
 zdt1.__init__ = _zdt1_ctor
@@ -267,6 +272,7 @@ def _zdt2_ctor(self):
 	
 	USAGE: problem.zdt2()
 	"""
+	self._orig_init(*arg_list)
 	
 zdt2._orig_init = zdt2.__init__
 zdt2.__init__ = _zdt2_ctor
@@ -277,6 +283,7 @@ def _zdt4_ctor(self):
 	
 	USAGE: problem.zdt4()
 	"""
+	self._orig_init(*arg_list)
 	
 zdt4._orig_init = zdt4.__init__
 zdt4.__init__ = _zdt4_ctor
@@ -287,6 +294,7 @@ def _zdt6_ctor(self):
 	
 	USAGE: problem.zdt6()
 	"""
+	self._orig_init(*arg_list)
 	
 zdt6._orig_init = zdt6.__init__
 zdt6.__init__ = _zdt6_ctor
@@ -351,6 +359,7 @@ def _snopt_toyprob_ctor(self):
 	
 	USAGE: problem.snopt_toyprob()
 	"""
+	self._orig_init(*arg_list)
 	
 snopt_toyprob._orig_init = snopt_toyprob.__init__
 snopt_toyprob.__init__ = _snopt_toyprob_ctor
