@@ -64,7 +64,7 @@ void schwefel::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for (std::vector<double>::size_type i=0; i<n; i++){
 		value += x[i] * sin(sqrt(fabs(x[i])));
 		}
-		f[0] = 418.9829 * n - value;
+		f[0] = 418.9828872724338 * n - value;
 }
 
 std::string schwefel::get_name() const
