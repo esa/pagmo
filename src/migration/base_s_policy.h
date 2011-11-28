@@ -76,7 +76,7 @@ return base_ptr(new derived_policy(*this));
 		 *
 		 * \return a vector containing selected individuals.
 		 */
-		virtual std::vector<population::individual_type> select(const population &pop) const = 0;
+		virtual std::vector<population::individual_type> select(population &pop) const = 0;
 	private:	
 		friend class boost::serialization::access;
 		template <class Archive>

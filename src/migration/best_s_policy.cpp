@@ -56,7 +56,7 @@ struct best_s_policy::dom_comp {
 	const population &m_pop;
 };
 
-std::vector<population::individual_type> best_s_policy::select(const population &pop) const
+std::vector<population::individual_type> best_s_policy::select(population &pop) const
 {
 	const population::size_type migration_rate = get_n_individuals(pop);
 	// Create a temporary array of individuals.

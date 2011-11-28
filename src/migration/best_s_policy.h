@@ -47,7 +47,7 @@ class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 	public:
 		best_s_policy(const double &rate = 1, rate_type type = absolute);
 		base_s_policy_ptr clone() const;
-		std::vector<population::individual_type> select(const population &) const;
+		std::vector<population::individual_type> select(population &) const;
 	private:
 		struct dom_comp;
 		friend class boost::serialization::access;

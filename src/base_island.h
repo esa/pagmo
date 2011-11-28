@@ -147,7 +147,7 @@ class __PAGMO_VISIBLE base_island
 		//@}
 	private:
 		void accept_immigrants(const std::vector<population::individual_type> &);
-		std::vector<population::individual_type> get_emigrants() const;
+		std::vector<population::individual_type> get_emigrants();
 		// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
 		struct int_evolver;
 		// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.

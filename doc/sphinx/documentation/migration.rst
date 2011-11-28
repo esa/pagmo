@@ -182,7 +182,27 @@ The Classes
       best50pc = migration.best_s_policy(0.5,migration.rate_type.fractional)
       isl1 = island(algo,prob,10,s_policy = best2)  #2 of the best individuals will migrate
       isl2 = island(algo,prob,32,s_policy = best50pc) #50% of 32 (i.e. 16) best individuals will migrate
-  
+
+.. class:: PyGMO.migration.best_kill_s_policy([n=1, type = migration.rate_type.absolute])
+
+   A selection policy that selects the n best :class:`PyGMO.individual` in
+   the :class:`PyGMO.island`'s :class:`PyGMO.population` and kills them in the original population so that
+   only the migrant will survive. A new random individual will replace the migrant in the original population
+   If type is migration.rate_type.fractional then n, in [0,1], is interpreted
+   as the fraction of the population to be selected. This class is used exclusively in the :class:`PyGMO.island` 
+   constructor as a possible kwarg for the key 's_policy'
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.griewank(5)
+      algo = algorithm.abc(gen = 10) #instantiates artificial bee colony with default params and 10 generations
+      best2 = migration.best_kill_s_policy(2)
+      best50pc = migration.best_s_policy(0.5,migration.rate_type.fractional)
+      isl1 = island(algo,prob,10,s_policy = best2)  #2 of the best individuals will migrate and be reinitialized in pop
+      isl2 = island(algo,prob,32,s_policy = best50pc) #50% of 32 (i.e. 16) best individuals will migrate
+
+
 .. class:: PyGMO.migration.fair_r_policy([n=1, type = migration.rate_type.absolute])
 
    A replacement policy that replaces the worst n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s

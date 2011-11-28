@@ -587,7 +587,7 @@ void base_island::accept_immigrants(const std::vector<population::individual_typ
 }
 
 // Get individuals migrating from here.
-std::vector<population::individual_type> base_island::get_emigrants() const
+std::vector<population::individual_type> base_island::get_emigrants() 
 {
 	return m_s_policy->select(m_pop);
 }

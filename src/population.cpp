@@ -162,7 +162,7 @@ void population::reinit()
 /**
  * The continuous and integer parts of the chromosome will be picked randomly within the problem's bounds, the velocities
  * will be initialised randomly so that in one tick the particles travel at most half the bounds distance. Fitness and constraints
- * will be evaluated, and champion updated.
+ * will be evaluated, best_x and best_f set to the new values and the champion updated.
  *
  * @param[in] idx position of the individual to be re-initialised.
  *
