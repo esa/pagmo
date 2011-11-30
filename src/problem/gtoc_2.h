@@ -71,6 +71,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 				kep_toolbox::epoch(start.mjd() + seg_duration * (n + 1),kep_toolbox::epoch::MJD),
 				tmp);
 		}
+	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -82,11 +83,10 @@ class __PAGMO_VISIBLE gtoc_2: public base
 			ar & const_cast< kep_toolbox::sims_flanagan::spacecraft &>(m_spacecraft);
 			ar & m_obj;
 		}
-	private:
-		const int												m_n_seg;
+		const int								m_n_seg;
 		std::vector< kep_toolbox::asteroid_gtoc2>				m_asteroids;
-		mutable std::vector< kep_toolbox::sims_flanagan::leg>	m_legs;
-		const kep_toolbox::sims_flanagan::spacecraft			m_spacecraft;
+		mutable std::vector< kep_toolbox::sims_flanagan::leg>			m_legs;
+		const kep_toolbox::sims_flanagan::spacecraft				m_spacecraft;
 		objective												m_obj;
 };
 

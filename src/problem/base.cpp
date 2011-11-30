@@ -840,7 +840,7 @@ bool base::feasibility_x(const decision_vector &x) const
 
 /// Test i-th constraint of c (using tolerance information).
 /**
- * @return true if the constraint is satisfied, false otherwise.
+ * @return true if the constraint is satisfied (up to the numeric tolerance m_c_tol), false otherwise.
  */
 bool base::test_constraint(const constraint_vector &c, const c_size_type &i) const
 {
