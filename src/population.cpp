@@ -324,7 +324,7 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 	if (N > size()) {
 		pagmo_throw(value_error,"Best N individuals requested, but population has size smaller than N");
 	}
-		std::vector<population::size_type> retval;
+	std::vector<population::size_type> retval;
 	retval.reserve(size());
 	for (population::size_type i=0; i<size(); ++i){
 		retval.push_back(i);
