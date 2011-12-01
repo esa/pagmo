@@ -206,6 +206,10 @@ void cmaes::evolve(population &pop) const
 	double var_norm = 0;
 
 	// Some buffers
+	VectorXd scaling_of_variables = VectorXd::Zero(N);
+	for (problem::base::size_type i=0;i<N;++i){
+		scaling_of_variables(i) = (ub[i]-lb[i]) / 2.0;
+	}
 	VectorXd meanold = VectorXd::Zero(N);
 	MatrixXd Dinv = MatrixXd::Identity(N,N);
 	MatrixXd Cold = MatrixXd::Identity(N,N);
@@ -261,7 +265,7 @@ void cmaes::evolve(population &pop) const
 				tmp(j) = normally_distributed_number();
 			}
 			// 1b - and store its transformed value in the newpop
-			newpop[i] = mean + sigma * B * D * tmp;
+			newpop[i] = mean + scaling_of_variables.transpose() * (sigma * B * D * tmp);
 		}
 		//This is evaluated here on the ast tmp generated and will be used only as 
 		//a stopping criteria
