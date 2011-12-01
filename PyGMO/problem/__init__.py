@@ -302,7 +302,7 @@ def _zdt6_ctor(self):
 	USAGE: problem.zdt6()
 	"""
 	arg_list=[]
-	self._orig_init(*arg_list))
+	self._orig_init(*arg_list)
 	
 zdt6._orig_init = zdt6.__init__
 zdt6.__init__ = _zdt6_ctor
