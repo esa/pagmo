@@ -53,7 +53,7 @@ public:
 	void evolve(population &) const;
 	std::string get_name() const;
 
-	// Setters and Getters (needed for all as we want to fine control the iterations .... )
+	// Setters and Getters (needed for all if we fine control the iterations .... )
 	void set_gen(const int gen);
 	int  get_gen() const;
 
@@ -95,6 +95,7 @@ private:
 		ar & m_xtol;
 		ar & m_ftol;
 		ar & m_restart;
+		ar & m_homebrew;
 		ar & m_mean;
 		ar & m_variation;
 		ar & m_newpop;
@@ -117,6 +118,7 @@ private:
 	double m_ftol;
 	double m_xtol;
 	bool m_restart;
+	bool m_homebrew;
 
 	// "Memory" data members (these are here as to enable control over each single generation)
 	mutable Eigen::VectorXd m_mean;

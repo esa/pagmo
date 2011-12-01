@@ -60,7 +60,7 @@ namespace pagmo { namespace algorithm {
  * */
 cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool restart):
 		base(), m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), 
-		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_restart(restart) {
+		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_restart(restart), m_homebrew(false) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -96,6 +96,21 @@ base_ptr cmaes::clone() const
 {
 	return base_ptr(new cmaes(*this));
 }
+
+struct comparison
+{
+	comparison(const population &pop):m_pop(pop) {}
+	bool operator()(const population::size_type &i1, const population::size_type &i2) const
+	{
+		return (
+		m_pop.problem().compare_fc(
+		  m_pop.get_individual(i1).cur_f, m_pop.get_individual(i1).cur_c,
+		  m_pop.get_individual(i2).cur_f, m_pop.get_individual(i2).cur_c)
+		);
+	}
+	const population &m_pop;
+};
+
 
 /// Evolve implementation.
 /**
@@ -248,6 +263,8 @@ void cmaes::evolve(population &pop) const
 			// 1b - and store its transformed value in the newpop
 			newpop[i] = mean + sigma * B * D * tmp;
 		}
+		//This is evaluated here on the ast tmp generated and will be used only as 
+		//a stopping criteria
 		var_norm = (sigma * B * D * tmp).norm();
 
 		// 1c - we fix the bounds and reinsert
@@ -259,20 +276,52 @@ void cmaes::evolve(population &pop) const
 			}
 		}
 
-		for (population::size_type i = 0; i<lam; ++i ) {
-			for (decision_vector::size_type j = 0; j<N; ++j ) {
-				dumb[j] = newpop[i](j);
+		if (m_homebrew==true) {
+			//In PyGMO's brew of CMAES reinsertion is made replacing always the worst individual.
+			//Some individuals from the previos generation may thus survive
+			for (population::size_type i = 0; i<lam; ++i ) {
+				for (decision_vector::size_type j = 0; j<N; ++j ) {
+					dumb[j] = newpop[i](j);
+				}
+				int idx = pop.get_worst_idx();
+				pop.set_x(idx,dumb);
 			}
-			int idx = pop.get_worst_idx();
-			pop.set_x(idx,dumb);
-		}
-		counteval += lam;
+			counteval += lam;
 
-		// 2 - We extract the elite from this generation
-		std::vector<population::size_type> best_idx = pop.get_best_idx(mu);
-		for (population::size_type i = 0; i<mu; ++i ) {
-			for (decision_vector::size_type j = 0; j<N; ++j ) {
-				elite[i](j) = pop.get_individual(best_idx[i]).best_x[j];
+			// 2 - We extract the elite from this generation. In PyGMO's brew of CMAES mu elite
+			// individuals are extracted using the length of their dominance list as a criteria. 
+			// This is equivalent, in a minimization problem, to sort the individual w.r.t. best_f
+			// and take the first mu.
+			std::vector<population::size_type> best_idx = pop.get_best_idx(mu);
+			for (population::size_type i = 0; i<mu; ++i ) {
+				for (decision_vector::size_type j = 0; j<N; ++j ) {
+					elite[i](j) = pop.get_individual(best_idx[i]).best_x[j];
+				}
+			}
+		}
+		else {
+			// Reinsertion (original method)
+			for (population::size_type i = 0; i<lam; ++i ) {
+				for (decision_vector::size_type j = 0; j<N; ++j ) {
+					dumb[j] = newpop[i](j);
+				}
+				pop.set_x(i,dumb);
+			}
+			counteval += lam;
+			// 2 - We extract the elite from this generation. We use cur_f, equivalent to the
+			// original method
+			std::vector<population::size_type> best_idx;
+			best_idx.reserve(pop.size());
+			for (population::size_type i=0; i<pop.size(); ++i){
+				best_idx.push_back(i);
+			}
+			comparison cmp(pop);
+			std::sort(best_idx.begin(),best_idx.end(),cmp);
+		  	best_idx.resize(mu);
+			for (population::size_type i = 0; i<mu; ++i ) {
+				for (decision_vector::size_type j = 0; j<N; ++j ) {
+					elite[i](j) = pop.get_individual(best_idx[i]).cur_x[j];
+				}
 			}
 		}
 
@@ -308,7 +357,7 @@ void cmaes::evolve(population &pop) const
 			std::cout << "D: " << D << std::endl;
 			std::cout << "Dinv: " << D << std::endl;
 			std::cout << "invsqrtC: " << invsqrtC << std::endl;
-			pagmo_throw(value_error,"NaN!!!!!");
+			pagmo_throw(value_error,"NaN!!!!! in CMAES");
 		}
 
 		//7 - Perform eigen-decomposition of C
