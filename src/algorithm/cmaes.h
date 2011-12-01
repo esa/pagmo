@@ -48,7 +48,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cmaes: public base
 {
 public:
-	cmaes(int gen = 500, double cc = -1, double cs = -1, double c1 = -1, double cmu = -1, double sigma0=0.5, double ftol = 1e-6, double xtol = 1e-6, bool restart = true);
+	cmaes(int gen = 500, double cc = -1, double cs = -1, double c1 = -1, double cmu = -1, double sigma0=0.5, double ftol = 1e-6, double xtol = 1e-6, bool restart = true, bool homebrew = false);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

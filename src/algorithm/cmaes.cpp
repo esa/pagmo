@@ -58,9 +58,9 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if cc,cs,c1,cmu are not in [0,1] or not -1
  * 
  * */
-cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool restart):
+cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool restart, bool homebrew):
 		base(), m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), 
-		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_restart(restart), m_homebrew(false) {
+		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_restart(restart), m_homebrew(homebrew) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -97,9 +97,9 @@ base_ptr cmaes::clone() const
 	return base_ptr(new cmaes(*this));
 }
 
-struct comparison
+struct cmp_using_cur
 {
-	comparison(const population &pop):m_pop(pop) {}
+	cmp_using_cur(const population &pop):m_pop(pop) {}
 	bool operator()(const population::size_type &i1, const population::size_type &i2) const
 	{
 		return (
@@ -221,10 +221,20 @@ void cmaes::evolve(population &pop) const
 		}
 		newpop = std::vector<VectorXd>(lam,tmp);
 		variation.resize(N);
+
+		//We define the satrting B,D,C
 		B.resize(N,N); B = MatrixXd::Identity(N,N);			//B defines the coordinate system
-		D.resize(N,N); D = MatrixXd::Identity(N,N);			//diagonal D defines the scaling
+		D.resize(N,N); D = MatrixXd::Identity(N,N);			//diagonal D defines the scaling. By default this is the witdh of the box. 
+										//If this is too small... then 1e-6 is used
+		for (problem::base::size_type j=0; j<N; ++j){
+			D(j,j) = std::max((ub[j]-lb[j]),1e-6);
+		}
 		C.resize(N,N); C = MatrixXd::Identity(N,N);			//covariance matrix C
+		C = D*D;						
 		invsqrtC.resize(N,N); invsqrtC = MatrixXd::Identity(N,N);	//inverse of sqrt(C)
+		for (problem::base::size_type j=0; j<N; ++j){
+			invsqrtC(j,j) = 1 / D(j,j);
+		}
 		pc.resize(N); pc = VectorXd::Zero(N);
 		ps.resize(N); ps = VectorXd::Zero(N);
 		counteval = 0;
@@ -263,7 +273,7 @@ void cmaes::evolve(population &pop) const
 			// 1b - and store its transformed value in the newpop
 			newpop[i] = mean + (sigma * B * D * tmp);
 		}
-		//This is evaluated here on the ast tmp generated and will be used only as 
+		//This is evaluated here on the last generated tmp and will be used only as 
 		//a stopping criteria
 		var_norm = (sigma * B * D * tmp).norm();
 
@@ -315,7 +325,7 @@ void cmaes::evolve(population &pop) const
 			for (population::size_type i=0; i<pop.size(); ++i){
 				best_idx.push_back(i);
 			}
-			comparison cmp(pop);
+			cmp_using_cur cmp(pop);
 			std::sort(best_idx.begin(),best_idx.end(),cmp);
 		  	best_idx.resize(mu);
 			for (population::size_type i = 0; i<mu; ++i ) {
@@ -484,7 +494,8 @@ std::string cmaes::human_readable_extra() const
 	  << "sigma0:" << m_sigma << ' '
 	  << "ftol:" << m_ftol << ' '
 	  << "xtol:" << m_xtol << ' ' 
-	  << "restart:" << m_restart;
+	  << "restart:" << m_restart << ' ' 
+	  << "homebrew variant?:" << m_homebrew << ' ' 
 	return s.str();
 }
 
