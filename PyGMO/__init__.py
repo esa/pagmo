@@ -69,7 +69,19 @@ try:
 except:
 	pass
 
+
 def run_test(n_trials=200, pop_size = 20, n_gen = 500):
+	"""
+	This function runs some tests on the algorthm. Use it to verify the correct installation
+	of PyGMO.
+
+	USAGE: PyGMO.run_test(n_trials=200, pop_size = 20, n_gen = 500)
+
+	* n_trials: each algorithm will be called n_trials times on the same problem to then evaluate best, mean and std
+	* pop_size: this determines the population size 
+	* n_gen: this regulates the maximim number of function evaluation
+
+	"""
 	from PyGMO import problem, algorithm, island
 	from numpy import mean, std
 	number_of_trials = n_trials
@@ -135,6 +147,53 @@ def example_2(algo=algorithm.de(1), prob = problem.rosenbrock(10), topo = topolo
 		pos = archi.draw(layout = pos, scale_by_degree=True,n_size=3,e_alpha=0.03, n_color = color_code)
 		savefig('archi%03d' % i, dpi = 72);  
 		close()
+		
+class race2algos:
+	def __init__(self, algo1, algo2, prob, pop_size=20):
+		from random import randint
+		from copy import deepcopy
+		from sys import stdout
+		self.algo1=algo1
+		self.algo2=algo2
+		self.prob=prob
+		self.res1 = []
+		self.res2 = []
+		self.pop_size = pop_size
+		max_runs=200
+		print "Racing the algorithms ..."
+		
+		for i in range(max_runs):
+			stdout.write("\rRuns: %i" % i); stdout.flush()
+			#We reset the random number generators of the algorithm
+			algo1.reset_rngs(randint(0,9999999)); algo2.reset_rngs(randint(0,9999999))
+			#We create an island with 20 individuals. This also initalizes its population at random within the box bounds
+			isl1 = island(algo1,prob,self.pop_size)
+			#We copy the island and change its algo. Like this we make sure the two algorithms
+			#will evolve the same inital population (good practice)
+			isl2 = deepcopy(isl1)
+			isl2.algorithm = algo2
+			#We start the evolution (in parallel as we do not call the method join())
+			isl1.evolve(1); isl2.evolve(1)
+			#Here join is called implicitly as we try to access one of the islands during evolution
+			self.res1.append(isl1.population.champion.f[0])
+			self.res2.append(isl2.population.champion.f[0])
+			#We check that the race is over (only after haveing accumulated at least five samples)
+			if (i>6):
+				if (self.are_different(self.res1,self.res2)):
+					break
+				
+	def are_different(self, data1,data2):
+		from scipy.stats import ttest_ind
+		t,p = ttest_ind(data1,data2)
+		return (p < 0.05)
+		
+	def plot(self):
+		import matplotlib.pyplot as pl
+		pl.plot(sorted(self.res1),label = "1." + self.algo1.get_name())
+		pl.plot(sorted(self.res2), label = "2." + self.algo2.get_name())
+		pl.title(self.prob.get_name() + " dim: " + str(self.prob.dimension))
+		pl.legend()
+		pl.show()
 
 #def test_aco():
 #	from PyGMO import problem, algorithm, island
