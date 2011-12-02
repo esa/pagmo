@@ -420,7 +420,7 @@ def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, homebrew = True, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, homebrew = False, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 

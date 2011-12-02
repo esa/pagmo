@@ -95,7 +95,7 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 		prob_list.append(problem.cassini_2())
 		prob_list.append(problem.messenger_full())
 		
-	algo_list = [algorithm.cmaes(gen = number_of_generations,xtol=1e-30, ftol=1e-30)]
+	algo_list = [algorithm.pso(gen = number_of_generations), algorithm.de(gen = number_of_generations,xtol=1e-30, ftol=1e-30), algorithm.de_self_adaptive(gen = number_of_generations, restart=True,xtol=1e-30, ftol=1e-30), algorithm.de_1220(gen = number_of_generations, restart=True,xtol=1e-30, ftol=1e-30), algorithm.sa_corana(iter = number_of_generations*number_of_individuals,Ts = 1,Tf = 0.01), algorithm.ihs(iter = number_of_generations*number_of_individuals), algorithm.sga(gen = number_of_generations), algorithm.cmaes(gen = number_of_generations,xtol=1e-30, ftol=1e-30), algorithm.bee_colony(gen = number_of_generations/2)]
 	print('\nTrials: ' + str(n_trials) + ' - Population size: ' + str(pop_size) + ' - Generations: ' + str(n_gen))
 	for prob in prob_list:
 		print('\nTesting problem: ' + prob.get_name() + ', Dimension: ' + str(prob.dimension) )
@@ -113,6 +113,80 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 			print(' Best:\t' + str(min(best)[0]))
 			print(' Mean:\t' + str(mean(best)))
 			print(' Std:\t' + str(std(best)))
+			
+class race2algos:
+	"""
+	This class uses the concept of racing to compare two algorithms on a probem. It uses the same
+	population size for both algorithms. It can be useful to compare, for example, 
+	two parameter setting formthe same algorithm. 
+
+	"""
+	def __init__(self, algo1, algo2, prob, pop_size=20, min_trials=5):
+		"""
+		Upon construction of the class object the race is initialized and launched.
+		
+		USAGE: r = PyGMO.race2algos(algo1,algo2,prob,pop_size=20, min_trials=5)
+		
+		* algo1: first algorithm in the race
+		* algo2: second algorithm in the race
+		* prob: problem (i.e. the track the algos are racng upon)
+		* pop_size: population size of the island where the algos will perform evolution
+		* min_trials: minimum number of runs to comapre the algorithms
+		"""
+		from random import randint
+		from copy import deepcopy
+		from sys import stdout
+		self.algo1=algo1
+		self.algo2=algo2
+		self.prob=prob
+		self.res1 = []
+		self.res2 = []
+		self.pop_size = pop_size
+		max_runs=200
+		print "Racing the algorithms ..."
+		
+		for i in range(max_runs):
+			stdout.write("\rRuns: %i" % i); stdout.flush()
+			#We reset the random number generators of the algorithm
+			algo1.reset_rngs(randint(0,9999999)); algo2.reset_rngs(randint(0,9999999))
+			#We create an island with 20 individuals. This also initalizes its population at random within the box bounds
+			isl1 = island(algo1,prob,self.pop_size)
+			#We copy the island and change its algo. Like this we make sure the two algorithms
+			#will evolve the same inital population (good practice)
+			isl2 = deepcopy(isl1)
+			isl2.algorithm = algo2
+			#We start the evolution (in parallel as we do not call the method join())
+			isl1.evolve(1); isl2.evolve(1)
+			#Here join is called implicitly as we try to access one of the islands during evolution
+			self.res1.append(isl1.population.champion.f[0])
+			self.res2.append(isl2.population.champion.f[0])
+			#We check that the race is over (only after haveing accumulated at least five samples)
+			if (i>min_trials):
+				if (self.are_different(self.res1,self.res2)):
+					break
+				
+	def are_different(self, data1,data2):
+		from scipy.stats import ttest_ind
+		t,p = ttest_ind(data1,data2)
+		return (p < 0.05)
+		
+	def plot(self):
+	  	"""
+		Plots the result of the race
+		
+		USAGE: r.plot()
+		"""
+		import matplotlib.pyplot as pl
+		pl.subplot(1,2,1)
+		pl.plot(sorted(self.res1),label = "1." + self.algo1.get_name())
+		pl.plot(sorted(self.res2), label = "2." + self.algo2.get_name())
+		pl.title(self.prob.get_name() + " dim: " + str(self.prob.dimension))
+		pl.legend()
+		
+		pl.subplot(1,2,2)
+		pl.boxplot([self.res1,self.res2])
+		pl.ylabel('Obj.Fun.')
+		pl.show()
 
 def example_1(n_trials=25, variant_adptv=2, restart=True):
 	from PyGMO import problem, algorithm, island, archipelago
@@ -148,52 +222,7 @@ def example_2(algo=algorithm.de(1), prob = problem.rosenbrock(10), topo = topolo
 		savefig('archi%03d' % i, dpi = 72);  
 		close()
 		
-class race2algos:
-	def __init__(self, algo1, algo2, prob, pop_size=20):
-		from random import randint
-		from copy import deepcopy
-		from sys import stdout
-		self.algo1=algo1
-		self.algo2=algo2
-		self.prob=prob
-		self.res1 = []
-		self.res2 = []
-		self.pop_size = pop_size
-		max_runs=200
-		print "Racing the algorithms ..."
-		
-		for i in range(max_runs):
-			stdout.write("\rRuns: %i" % i); stdout.flush()
-			#We reset the random number generators of the algorithm
-			algo1.reset_rngs(randint(0,9999999)); algo2.reset_rngs(randint(0,9999999))
-			#We create an island with 20 individuals. This also initalizes its population at random within the box bounds
-			isl1 = island(algo1,prob,self.pop_size)
-			#We copy the island and change its algo. Like this we make sure the two algorithms
-			#will evolve the same inital population (good practice)
-			isl2 = deepcopy(isl1)
-			isl2.algorithm = algo2
-			#We start the evolution (in parallel as we do not call the method join())
-			isl1.evolve(1); isl2.evolve(1)
-			#Here join is called implicitly as we try to access one of the islands during evolution
-			self.res1.append(isl1.population.champion.f[0])
-			self.res2.append(isl2.population.champion.f[0])
-			#We check that the race is over (only after haveing accumulated at least five samples)
-			if (i>6):
-				if (self.are_different(self.res1,self.res2)):
-					break
-				
-	def are_different(self, data1,data2):
-		from scipy.stats import ttest_ind
-		t,p = ttest_ind(data1,data2)
-		return (p < 0.05)
-		
-	def plot(self):
-		import matplotlib.pyplot as pl
-		pl.plot(sorted(self.res1),label = "1." + self.algo1.get_name())
-		pl.plot(sorted(self.res2), label = "2." + self.algo2.get_name())
-		pl.title(self.prob.get_name() + " dim: " + str(self.prob.dimension))
-		pl.legend()
-		pl.show()
+
 
 #def test_aco():
 #	from PyGMO import problem, algorithm, island

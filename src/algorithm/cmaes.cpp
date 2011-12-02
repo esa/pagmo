@@ -495,7 +495,7 @@ std::string cmaes::human_readable_extra() const
 	  << "ftol:" << m_ftol << ' '
 	  << "xtol:" << m_xtol << ' ' 
 	  << "restart:" << m_restart << ' ' 
-	  << "homebrew variant?:" << m_homebrew;
+	  << "homebrew_variant?:" << m_homebrew;
 	return s.str();
 }
 
