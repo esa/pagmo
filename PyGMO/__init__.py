@@ -116,22 +116,24 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 			
 class race2algos:
 	"""
-	This class uses the concept of racing to compare two algorithms on a probem. It uses the same
-	population size for both algorithms. It can be useful to compare, for example, 
-	two parameter setting formthe same algorithm. 
+	This class uses the concept of racing to compare two algorithms on a probem. It runs repeatedly both
+	algorithms on equal starting populations up to when it finds a statistical difference between the obtained
+	samples. The difference is then detected using Wilcoxon ranksum test. The algorithms are tested on populations
+	of equal size.
 
 	"""
-	def __init__(self, algo1, algo2, prob, pop_size=20, min_trials=5):
+	def __init__(self, algo1, algo2, prob, pop_size=20, min_trials=20, p = 0.05, max_runs=200):
 		"""
 		Upon construction of the class object the race is initialized and launched.
 		
-		USAGE: r = PyGMO.race2algos(algo1,algo2,prob,pop_size=20, min_trials=5)
+		USAGE: r = PyGMO.race2algos(algo1,algo2,prob,pop_size=20, min_trials=20, p = 0.05, max_runs=200):
 		
 		* algo1: first algorithm in the race
 		* algo2: second algorithm in the race
-		* prob: problem (i.e. the track the algos are racng upon)
+		* prob: problem (i.e. the "track" the algos are racing upon)
 		* pop_size: population size of the island where the algos will perform evolution
-		* min_trials: minimum number of runs to comapre the algorithms
+		* min_trials: minimum number of runs to compare the algorithms
+		* p: confidence level
 		"""
 		from random import randint
 		from copy import deepcopy
@@ -142,7 +144,7 @@ class race2algos:
 		self.res1 = []
 		self.res2 = []
 		self.pop_size = pop_size
-		max_runs=200
+		self.p = p
 		print "Racing the algorithms ..."
 		
 		for i in range(max_runs):
@@ -166,9 +168,9 @@ class race2algos:
 					break
 				
 	def are_different(self, data1,data2):
-		from scipy.stats import ttest_ind
-		t,p = ttest_ind(data1,data2)
-		return (p < 0.05)
+		from scipy.stats import wilcoxon
+		z,p = wilcoxon(data1,data2)
+		return (p < self.p)
 		
 	def plot(self):
 	  	"""
