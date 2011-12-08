@@ -114,81 +114,87 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 			print(' Mean:\t' + str(mean(best)))
 			print(' Std:\t' + str(std(best)))
 			
-class race2algos:
-	"""
-	This class uses the concept of racing to compare two algorithms on a probem. It runs repeatedly both
-	algorithms on equal starting populations up to when it finds a statistical difference between the obtained
-	samples. The difference is then detected using Wilcoxon ranksum test. The algorithms are tested on populations
-	of equal size.
+if __extensions__['scipy']:			
+	class race2algos:
+		"""
+		This class uses the concept of racing to compare two algorithms
+		on a probem. It runs repeatedly both algorithms on equal 
+		starting populations up to when it finds a statistical difference between
+		the obtained samples. The difference is detected using Wilcoxon
+		ranksum test. The algorithms are tested on populations of equal size.
 
-	"""
-	def __init__(self, algo1, algo2, prob, pop_size=20, min_trials=20, p = 0.05, max_runs=200):
 		"""
-		Upon construction of the class object the race is initialized and launched.
-		
-		USAGE: r = PyGMO.race2algos(algo1,algo2,prob,pop_size=20, min_trials=20, p = 0.05, max_runs=200):
-		
-		* algo1: first algorithm in the race
-		* algo2: second algorithm in the race
-		* prob: problem (i.e. the "track" the algos are racing upon)
-		* pop_size: population size of the island where the algos will perform evolution
-		* min_trials: minimum number of runs to compare the algorithms
-		* p: confidence level
-		"""
-		from random import randint
-		from copy import deepcopy
-		from sys import stdout
-		self.algo1=algo1
-		self.algo2=algo2
-		self.prob=prob
-		self.res1 = []
-		self.res2 = []
-		self.pop_size = pop_size
-		self.p = p
-		print "Racing the algorithms ..."
-		
-		for i in range(max_runs):
-			stdout.write("\rRuns: %i" % i); stdout.flush()
-			#We reset the random number generators of the algorithm
-			algo1.reset_rngs(randint(0,9999999)); algo2.reset_rngs(randint(0,9999999))
-			#We create an island with 20 individuals. This also initalizes its population at random within the box bounds
-			isl1 = island(algo1,prob,self.pop_size)
-			#We copy the island and change its algo. Like this we make sure the two algorithms
-			#will evolve the same inital population (good practice)
-			isl2 = deepcopy(isl1)
-			isl2.algorithm = algo2
-			#We start the evolution (in parallel as we do not call the method join())
-			isl1.evolve(1); isl2.evolve(1)
-			#Here join is called implicitly as we try to access one of the islands during evolution
-			self.res1.append(isl1.population.champion.f[0])
-			self.res2.append(isl2.population.champion.f[0])
-			#We check that the race is over (only after haveing accumulated at least five samples)
-			if (i>min_trials):
-				if (self.are_different(self.res1,self.res2)):
-					break
-				
-	def are_different(self, data1,data2):
-		from scipy.stats import wilcoxon
-		z,p = wilcoxon(data1,data2)
-		return (p < self.p)
-		
-	def plot(self):
-	  	"""
-		Plots the result of the race
-		
-		USAGE: r.plot()
-		"""
-		import matplotlib.pyplot as pl
-		pl.subplot(1,2,1)
-		pl.plot(sorted(self.res1),label = "1." + self.algo1.get_name())
-		pl.plot(sorted(self.res2), label = "2." + self.algo2.get_name())
-		pl.title(self.prob.get_name() + " dim: " + str(self.prob.dimension))
-		pl.legend()
-		
-		pl.subplot(1,2,2)
-		pl.boxplot([self.res1,self.res2])
-		pl.ylabel('Obj.Fun.')
-		pl.show()
+		def __init__(self, algo1, algo2, prob, pop_size=20, min_trials=20, p = 0.05, max_runs=200):
+			"""
+			Upon construction of the class object the race is initialized and launched.
+			
+			USAGE: r = PyGMO.race2algos(algo1, algo2, prob, pop_size=20, min_trials=20, p = 0.05, max_runs=200):
+			
+			* algo1: first algorithm in the race
+			* algo2: second algorithm in the race
+			* prob: problem (i.e. the "track" the algos are racing upon)
+			* pop_size: population size of the island where the algos will perform evolution
+			* min_trials: minimum number of runs to compare the algorithms
+			* p: confidence level
+			* max_runs: maximum number of races ....
+			"""
+			from random import randint
+			from copy import deepcopy
+			from sys import stdout
+			self.algo1=algo1
+			self.algo2=algo2
+			self.prob=prob
+			self.res1 = []
+			self.res2 = []
+			self.pop_size = pop_size
+			self.p = 0
+			self.z = 0
+			self.p_req = p
+			print "Racing the algorithms ..."
+			
+			for i in range(max_runs):
+				stdout.write("\rRuns: %i" % i); stdout.flush()
+				#We reset the random number generators of the algorithm
+				algo1.reset_rngs(randint(0,9999999)); algo2.reset_rngs(randint(0,9999999))
+				#We create an island with 20 individuals. This also initalizes its population at random within the box bounds
+				isl1 = island(algo1,prob,self.pop_size)
+				#We copy the island and change its algo. Like this we make sure the two algorithms
+				#will evolve the same inital population (good practice)
+				isl2 = deepcopy(isl1)
+				isl2.algorithm = algo2
+				#We start the evolution (in parallel as we do not call the method join())
+				isl1.evolve(1); isl2.evolve(1)
+				#Here join is called implicitly as we try to access one of the islands during evolution
+				self.res1.append(isl1.population.champion.f[0])
+				self.res2.append(isl2.population.champion.f[0])
+				#We check that the race is over (only after haveing accumulated at least five samples)
+				if (i>min_trials):
+					if (self.are_different(self.res1,self.res2)):
+						break
+					
+		def are_different(self, data1,data2):
+			from scipy.stats import wilcoxon
+			self.z,self.p = wilcoxon(data1,data2)
+			return (self.p < self.p_req)
+			
+		def plot(self):
+			"""
+			Plots the result of the race
+			
+			USAGE: r.plot()
+			"""
+			import matplotlib.pyplot as pl
+			pl.subplot(1,2,1)
+			pl.plot(sorted(self.res1),label = "1." + self.algo1.get_name())
+			pl.plot(sorted(self.res2), label = "2." + self.algo2.get_name())
+			pl.title(self.prob.get_name() + " dim: " + str(self.prob.dimension))
+			pl.legend()
+			
+			pl.subplot(1,2,2)
+			pl.boxplot([self.res1,self.res2])
+			pl.ylabel('Obj.Fun.')
+			pl.title("p: %2.2e" % self.p + " z: " + str(self.z))
+			pl.show()
 
 def example_1(n_trials=25, variant_adptv=2, restart=True):
 	from PyGMO import problem, algorithm, island, archipelago
