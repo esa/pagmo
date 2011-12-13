@@ -11,7 +11,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
+	#${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp

@@ -207,10 +207,10 @@ void base_nlopt::evolve(population &pop) const
 	m_opt.set_xtol_abs(m_xtol);
 	m_opt.set_maxeval(m_max_iter);
 
-	nlopt::result result;
+	//nlopt::result result;
 	double dummy;
 	decision_vector x0(best_ind.cur_x);
-	result = m_opt.optimize(x0, dummy);
+	m_opt.optimize(x0, dummy);
 	pop.set_x(best_ind_idx,x0);
 }
 
