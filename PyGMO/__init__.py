@@ -25,7 +25,7 @@ import core, algorithm, migration, problem, topology, test
 
 __doc__ = 'PyGMO is a pretty cool guy. eh kills aleins and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 # For convenience, bring all core classes into the root namespace when importing *.
 from core import *
@@ -167,7 +167,7 @@ if __extensions__['scipy']:
 				#Here join is called implicitly as we try to access one of the islands during evolution
 				self.res1.append(isl1.population.champion.f[0])
 				self.res2.append(isl2.population.champion.f[0])
-				#We check that the race is over (only after haveing accumulated at least five samples)
+				#We check that the race is over (only after having accumulated at least min_trials samples)
 				if (i>min_trials):
 					if (self.are_different(self.res1,self.res2)):
 						break
@@ -188,12 +188,13 @@ if __extensions__['scipy']:
 			pl.plot(sorted(self.res1),label = "1." + self.algo1.get_name())
 			pl.plot(sorted(self.res2), label = "2." + self.algo2.get_name())
 			pl.title(self.prob.get_name() + " dim: " + str(self.prob.dimension))
+			pl.xlabel('rank')
 			pl.legend()
 			
 			pl.subplot(1,2,2)
 			pl.boxplot([self.res1,self.res2])
 			pl.ylabel('Obj.Fun.')
-			pl.title("p: %2.2e" % self.p + " z: " + str(self.z))
+			pl.title("Wilcoxon Test, p: %2.2e" % self.p + ", z: " + str(self.z))
 			pl.show()
 
 def example_1(n_trials=25, variant_adptv=2, restart=True):
