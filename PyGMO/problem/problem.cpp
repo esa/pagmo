@@ -350,7 +350,8 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Tandem.
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
-		.def(init< optional<int, double> >());
+		.def(init< optional<int, double> >())
+		.def("pretty", &problem::tandem::pretty);
 #endif
 
 #ifdef PAGMO_ENABLE_GSL

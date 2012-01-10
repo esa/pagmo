@@ -98,7 +98,7 @@ def _tandem_ctor(self, prob_id = 7, max_tof = -1):
 	"""
 	Constructs a TandEM Problem (Box-Constrained Continuous Single-Objective)
 	
-	NOTE: This problem (MGA-1DSM) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]
+	NOTE: This problem (MGA-1DSM) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]. The objective function is -log(m_final).
 	      
 	USAGE: problem.tandem(prob_id = 7, max_tof = -1)
 	
