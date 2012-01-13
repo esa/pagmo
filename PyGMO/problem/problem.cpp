@@ -193,7 +193,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Inventory problem.
 	stochastic_problem_wrapper<problem::inventory>("inventory","Inventory problem.")
-		.def(init<int, int>());
+		.def(init<optional<int, int, int> >());
 
 	// Lennard Jones problem.
 	problem_wrapper<problem::lennard_jones>("lennard_jones","Lennard Jones problem.")
