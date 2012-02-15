@@ -25,7 +25,7 @@ import core, algorithm, migration, problem, topology, test
 
 __doc__ = 'PyGMO is a pretty cool guy. eh kills aleins and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 # For convenience, bring all core classes into the root namespace when importing *.
 from core import *
