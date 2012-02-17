@@ -169,7 +169,11 @@ void mbh::evolve(population &pop) const
 		m_local->evolve(pert_pop); i++;
 		if (m_screen_output)
 		{
-			std::cout << i << ". " << "\tLocal solution: " << pert_pop.champion().f << "\tGlobal best: " << pop.champion().f << std::endl;
+			std::cout << i << ". " << "\tLocal solution: " << pert_pop.champion().f << "\tGlobal best: " << pop.champion().f;
+			if (!prob.feasibility_x(pop.champion().x)) {
+				std::cout << " i";
+			}
+			std::cout << std::endl;
 		}
 
 		//3. Reset counter if improved
