@@ -1,0 +1,8 @@
+CMakeLists.txt.user
+PyGMO/__init__.pyc
+PyGMO/core/__init__.pyc
+build/
+doc/doxygen/html/
+doc/doxygen/latex/
+doc/sphinx/_build/
+
