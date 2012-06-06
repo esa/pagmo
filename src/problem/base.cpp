@@ -516,34 +516,25 @@ bool base::compare_fitness(const fitness_vector &v_f1, const fitness_vector &v_f
 
 /// Implementation of fitness vectors comparison.
 /**
- * Return true if v_f1 is strictly better than v_f2, false otherwise. Default implementation will rank fitness vectors for minimisation.
- * I.e., each pair of corresponding elements in v_f1 and v_f2 is compared: if the number of elements in v_f1 that are less than the corresponding
- * element in v_f2 is greater than the number of elements in v_f1 that are not less than the corresponding element in v_f2, true will be returned.
- * Otherwise, false will be returned.
+ * Return true if v_f1 dominates v_f2, false otherwise. This default implementation will assume minimisation for each one of the v_f components
+ * I.e., each pair of corresponding elements in v_f1 and v_f2 is compared: if all elements in v_f1 are less than the corresponding
+ * element in v_f2, true will be returned. Otherwise, false will be returned.
  *
  * @param[in] v_f1 first fitness vector.
  * @param[in] v_f2 second fitness vector.
  *
- * @return true if v_f1 is a better fitness vector than v_f2, false otherwise.
+ * @return true if v_f1 is dominating v_f2, false otherwise.
  */
 bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
 {
 	pagmo_assert(v_f1.size() == v_f2.size() && v_f1.size() == m_f_dimension);
-	f_size_type count1 = 0, count2 = 0;
+	f_size_type count1 = 0;
 	for (f_size_type i = 0; i < m_f_dimension; ++i) {
 		if (v_f1[i] < v_f2[i]) {
 			++count1;
-		} else {
-			++count2;
-		}
+		} 
 	}
-	if (count1 > count2) {
-		return true;
-	} else if (count1 == count2) {
-		return std::accumulate(v_f1.begin(),v_f1.end(),0.) < std::accumulate(v_f2.begin(),v_f2.end(),0.);
-	} else {
-		return false;
-	}
+	return (count1 == m_f_dimension);
 }
 
 /// Return human readable representation of the problem.
