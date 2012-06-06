@@ -30,27 +30,26 @@ using namespace pagmo;
 int main()
 {
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
-// see what othert parameters do
-pagmo::algorithm::cmaes algo(10);
-algo.set_screen_output(true);
+
+pagmo::algorithm::de_self_adaptive alg(200);
+alg.set_screen_output(true);
 
 //This instantiate a 50 dimensional Rosenbrock problem
 pagmo::problem::rosenbrock prob(10);
 
 //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
 //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
-pagmo::island isl = island(algo,prob,50);
+pagmo::island isl = island(alg,prob,50);
 
 //This prints on screen the instantiated Rosenbrock problem
 std::cout << prob << std::endl;
 
-std::cout << isl.get_population().champion().f[0] << " " << std::endl;
-
 pagmo::population pop = isl.get_population();
+std::cout << pop.champion().f[0] << " " << std::endl;
 
 //Evolution is here started on the single island instantiated
-for (int i=0; i< 100; ++i){
-	algo.evolve(pop);
+for (int i=0; i< 5; ++i){
+    alg.evolve(pop);
 	std::cout << pop.champion().f[0] << " " << std::endl;
 }
 
