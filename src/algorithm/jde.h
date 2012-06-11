@@ -67,10 +67,10 @@ namespace pagmo { namespace algorithm {
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 
-class __PAGMO_VISIBLE de: public base
+class __PAGMO_VISIBLE jde: public base
 {
 public:
-	de(int = 100, double  = 0.8, double = 0.9, int = 2, double = 1e-6, double = 1e-6);
+	jde(int = 100, double  = 0.8, double = 0.9, int = 2, double = 1e-6, double = 1e-6);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

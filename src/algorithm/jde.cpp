@@ -31,7 +31,7 @@
 #include "../population.h"
 #include "../types.h"
 #include "base.h"
-#include "de.h"
+#include "jde.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -47,7 +47,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] xtol stopping criteria on the f tolerance
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-de::de(int gen, double f, double cr, int strategy, double ftol, double xtol):base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy),m_ftol(ftol),m_xtol(xtol) {
+jde::jde(int gen, double f, double cr, int strategy, double ftol, double xtol) : 
+	 base(),m_gen(gen),m_f(f),m_cr(cr),m_strategy(strategy),m_ftol(ftol),m_xtol(xtol) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -67,48 +68,53 @@ base_ptr de::clone() const
 
 /// Evolve implementation.
 /**
- * Run the DE algorithm for the number of generations specified in the constructors.
+ * Run the jDE algorithm for the number of generations specified in the constructors.
  * At each improvments velocity is also updated.
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
 
-void de::evolve(population &pop) const
+void jde::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
-	const problem::base::size_type D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
-	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
+	const problem::base::size_type D = prob.get_dimension(), 
+	      prob_i_dimension = prob.get_i_dimension(), 
+	      prob_c_dimension = prob.get_c_dimension(), 
+	      prob_f_dimension = prob.get_f_dimension();
+	const decision_vector &lb = prob.get_lb(), 
+	      &ub = prob.get_ub();
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
 
 
-	//We perform some checks to determine wether the problem/population are suitable for DE
+	//We perform some checks to determine wether the problem/population are suitable for jDE
 	if ( Dc == 0 ) {
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for DE to optimise");
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for jDE to optimise");
 	}
 
 	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and DE is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not box constrained and jDE is not suitable to solve it");
 	}
 
 	if ( prob_f_dimension != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and DE is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not single objective and jDE is not suitable to solve it");
 	}
 
 	if (NP < 6) {
-		pagmo_throw(value_error,"for DE at least 6 individuals in the population are needed");
+		pagmo_throw(value_error,"for jDE at least 6 individuals in the population are needed");
 	}
 
 	// Get out if there is nothing to do.
 	if (m_gen == 0) {
 		return;
 	}
+	
 	// Some vectors used during evolution are allocated here.
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
 	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness(1);	//new fitness of the mutaded candidate
+	fitness_vector newfitness(1);	//new fitness of the mutated candidate
 	fitness_vector gbfit(1);	//global best fitness
 	std::vector<fitness_vector> fit(NP,gbfit);
 
@@ -122,6 +128,7 @@ void de::evolve(population &pop) const
 	// Initialise the global bests
 	gbX=pop.champion().x;
 	gbfit=pop.champion().f;
+	
 	// container for the best decision vector of generation
 	gbIter = gbX;
 
@@ -130,35 +137,36 @@ void de::evolve(population &pop) const
 	for (int gen = 0; gen < m_gen; ++gen) {
 		//Start of the loop through the deme
 		for (size_t i = 0; i < NP; ++i) {
-			do {                       /* Pick a random population member */
+			do {                       /* Pick a random populationmember */
 				/* Endless loop for NP < 2 !!!     */
 				r1 = boost::uniform_int<int>(0,NP-1)(m_urng);
 			} while (r1==i);
 
-			do {                       /* Pick a random population member */
+			do {                       /* Pick a random populationmember */
 				/* Endless loop for NP < 3 !!!     */
 				r2 = boost::uniform_int<int>(0,NP-1)(m_urng);
 			} while ((r2==i) || (r2==r1));
 
-			do {                       /* Pick a random population member */
+			do {                       /* Pick a random populationmember */
 				/* Endless loop for NP < 4 !!!     */
 				r3 = boost::uniform_int<int>(0,NP-1)(m_urng);
 			} while ((r3==i) || (r3==r1) || (r3==r2));
 
-			do {                       /* Pick a random population member */
+			do {                       /* Pick a random populationmember */
 				/* Endless loop for NP < 5 !!!     */
 				r4 = boost::uniform_int<int>(0,NP-1)(m_urng);
 			} while ((r4==i) || (r4==r1) || (r4==r2) || (r4==r3));
 
-			do {                       /* Pick a random population member */
+			do {                       /* Pick a random populationmember */
 				/* Endless loop for NP < 6 !!!     */
 				r5 = boost::uniform_int<int>(0,NP-1)(m_urng);
 			} while ((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
 
 
+		
 			/*-------DE/best/1/exp--------------------------------------------------------------------*/
 			/*-------Our oldest strategy but still not bad. However, we have found several------------*/
-			/*-------optimization problems where misconvergence occurs.-------------------------------*/
+			/*-------optimization problems where misconvergenceoccurs.--------------------------------*/
 			if (m_strategy == 1) { /* strategy DE0 (not in our paper) */
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
@@ -183,6 +191,7 @@ void de::evolve(population &pop) const
 				} while ((m_drng() < m_cr) && (L < Dc));
 			}
 
+		
 			/*-------DE/rand-to-best/1/exp-----------------------------------------------------------*/
 			/*-------This strategy seems to be one of the best strategies. Try m_f=0.85 and m_cr=1.------*/
 			/*-------If you get misconvergence try to increase NP. If this doesn't help you----------*/
@@ -201,8 +210,7 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
 				do {
-					tmp[n] = gbIter[n] +
-						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+					tmp[n] = gbIter[n] + (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
 					n = (n+1)%Dc;
 					++L;
 				} while ((m_drng() < m_cr) && (L < Dc));
@@ -212,68 +220,74 @@ void de::evolve(population &pop) const
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng), L = 0;
 				do {
-					tmp[n] = popold[r5][n] +
-						 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+					tmp[n] = popold[r5][n] + (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
 					n = (n+1)%Dc;
 					++L;
 				} while ((m_drng() < m_cr) && (L < Dc));
 			}
 
 			/*=======Essentially same strategies but BINOMIAL CROSSOVER===============================*/
-
+		
 			/*-------DE/best/1/bin--------------------------------------------------------------------*/
 			else if (m_strategy == 6) {
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
+					if ((m_drng() < m_cr) || L + 1 == Dc) {
+						/* change at least one parameter */
 						tmp[n] = gbIter[n] + m_f*(popold[r2][n]-popold[r3][n]);
 					}
 					n = (n+1)%Dc;
 				}
 			}
+		
 			/*-------DE/rand/1/bin-------------------------------------------------------------------*/
 			else if (m_strategy == 7) {
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
+					if ((m_drng() < m_cr) || L + 1 == Dc) {
+						/* change at least one parameter */
 						tmp[n] = popold[r1][n] + m_f*(popold[r2][n]-popold[r3][n]);
 					}
 					n = (n+1)%Dc;
 				}
 			}
+		
 			/*-------DE/rand-to-best/1/bin-----------------------------------------------------------*/
 			else if (m_strategy == 8) {
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
+					if ((m_drng() < m_cr) || L + 1 == Dc) {
+						/* change at least one parameter */
 						tmp[n] = tmp[n] + m_f*(gbIter[n] - tmp[n]) + m_f*(popold[r1][n]-popold[r2][n]);
 					}
 					n = (n+1)%Dc;
 				}
 			}
+		
 			/*-------DE/best/2/bin--------------------------------------------------------------------*/
 			else if (m_strategy == 9) {
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = gbIter[n] +
-							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+					if ((m_drng() < m_cr) || L + 1 == Dc) {
+						/* change at least one parameter */
+						tmp[n] = gbIter[n] + (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
 					}
 					n = (n+1)%Dc;
 				}
 			}
+		
 			/*-------DE/rand/2/bin--------------------------------------------------------------------*/
 			else if (m_strategy == 10) {
 				tmp = popold[i];
 				size_t n = boost::uniform_int<int>(0,Dc-1)(m_urng);
 				for (size_t L = 0; L < Dc; ++L) { /* perform Dc binomial trials */
-					if ((m_drng() < m_cr) || L + 1 == Dc) { /* change at least one parameter */
-						tmp[n] = popold[r5][n] +
-							 (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
+					if ((m_drng() < m_cr) || L + 1 == Dc) {
+						/* change at least one parameter */
+						tmp[n] = popold[r5][n] + (popold[r1][n]+popold[r2][n]-popold[r3][n]-popold[r4][n])*m_f;
 					}
 					n = (n+1)%Dc;
 				}
@@ -291,7 +305,7 @@ void de::evolve(population &pop) const
 
 			//b) how good?
 			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
-			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
+			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) { /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;
 				// As a fitness improvment occured we move the point
@@ -308,8 +322,7 @@ void de::evolve(population &pop) const
 			} else {
 				popnew[i] = popold[i];
 			}
-
-		}//End of the loop through the deme
+		} //End of the loop through the deme
 
 		/* Save best population member of current iteration */
 		gbIter = gbX;
@@ -317,12 +330,12 @@ void de::evolve(population &pop) const
 		/* swap population arrays. New generation becomes old one */
 		std::swap(popold, popnew);
 
-
 		//9 - Check the exit conditions (every 40 generations)
 		if (gen%40) {
 			double dx = 0;
 			for (decision_vector::size_type i = 0; i < D; ++i) {
-				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
+				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] -
+					 pop.get_individual(pop.get_best_idx()).best_x[i];
 				dx += std::fabs(tmp[i]);
 			}
 			
@@ -333,7 +346,8 @@ void de::evolve(population &pop) const
 				return;
 			}
 
-			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] -
+					       pop.get_individual(pop.get_best_idx()).best_f[0]);
 
 			if (mah < m_ftol) {
 				if (m_screen_output) {
@@ -343,12 +357,10 @@ void de::evolve(population &pop) const
 			}
 		}
 		
-
 	}//end main DE iterations
 	if (m_screen_output) {
 		std::cout << "Exit condition -- generations > " <<  m_gen << std::endl;
 	}
-
 }
 
 /// Algorithm name
