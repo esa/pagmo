@@ -33,7 +33,7 @@
 #include "../population.h"
 #include "../types.h"
 #include "base.h"
-#include "de_self_adaptive.h"
+#include "jde.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -49,7 +49,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] restart when true the algorithm re-initialize randomly the parameters at each call
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-de_self_adaptive::de_self_adaptive(int gen, int variant, int variant_adptv, double ftol, double xtol, bool restart):base(), m_gen(gen), m_f(0), m_cr(0),
+jde::jde(int gen, int variant, int variant_adptv, double ftol, double xtol, bool restart):base(), m_gen(gen), m_f(0), m_cr(0),
 	 m_variant(variant), m_variant_adptv(variant_adptv), m_ftol(ftol), m_xtol(xtol), m_restart(restart) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -63,20 +63,20 @@ de_self_adaptive::de_self_adaptive(int gen, int variant, int variant_adptv, doub
 }
 
 /// Clone method.
-base_ptr de_self_adaptive::clone() const
+base_ptr jde::clone() const
 {
-	return base_ptr(new de_self_adaptive(*this));
+	return base_ptr(new jde(*this));
 }
 
 /// Evolve implementation.
 /**
- * Run the DE algorithm for the number of generations specified in the constructors.
+ * Run the jDE algorithm for the number of generations specified in the constructors.
  * At each improvments velocity is also updated.
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
 
-void de_self_adaptive::evolve(population &pop) const
+void jde::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
@@ -100,7 +100,7 @@ void de_self_adaptive::evolve(population &pop) const
 	}
 
 	if (NP < 8) {
-		pagmo_throw(value_error,"for DE Self-Adaptive at least 8 individuals in the population are needed");
+		pagmo_throw(value_error,"for jDE at least 8 individuals in the population are needed");
 	}
 
 	// Get out if there is nothing to do.
@@ -562,16 +562,16 @@ void de_self_adaptive::evolve(population &pop) const
 }
 
 /// Algorithm name
-std::string de_self_adaptive::get_name() const
+std::string jde::get_name() const
 {
-	return "DE - Self adaptive";
+	return "jDE";
 }
 
 /// Extra human readable algorithm info.
 /**
  * @return a formatted string displaying the parameters of the algorithm.
  */
-std::string de_self_adaptive::human_readable_extra() const
+std::string jde::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
@@ -586,4 +586,4 @@ std::string de_self_adaptive::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::de_self_adaptive);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::jde);

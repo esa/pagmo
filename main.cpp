@@ -31,7 +31,7 @@ int main()
 {
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
 
-pagmo::algorithm::de_self_adaptive alg(200);
+pagmo::algorithm::jde alg(200);
 alg.set_screen_output(true);
 
 //This instantiate a 50 dimensional Rosenbrock problem
