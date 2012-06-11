@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_DE_H
-#define PAGMO_ALGORITHM_DE_H
+#ifndef PAGMO_ALGORITHM_DE_SELF_ADAPTIVE_H
+#define PAGMO_ALGORITHM_DE_SELF_ADAPTIVE_H
 
 #include <string>
 
@@ -34,24 +34,16 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Differential Evolution Algorithm
+/// Differential Evolution Algorithm - Self-Adaptive C and R (2011)
 /**
  *
  * \image html de.jpg "Differential Evolution block diagram."
  * \image latex de.jpg "Differential Evolution block diagram." width=5cm
  *
- * Differential Evolution is an heuristic optimizer developed by Rainer Storn and Kenneth Price.
- *
- * ''A breakthrough happened, when Ken came up with the idea of using vector differences for perturbing
- * the vector population. Since this seminal idea a lively discussion between Ken and Rainer and endless
- * ruminations and computer simulations on both parts yielded many substantial improvements which
- * make DE the versatile and robust tool it is today'' (from the official web pages....)
- *
- * The implementation provided for PaGMO derives from the code provided in the official
- * DE web site and is suitable for box-constrained single-objective continuous optimization.
- *
- * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
- * is performed.
+ * Since its creation, the original Differential Evolution (pagmo::algorithm::de) algorithm
+ * has been modified several times and many improvements have been suggested. We thus provide in PaGMO, together with the
+ * original version of the algorithm, a modern version of the algorithm, with self-adaptation of its 
+ * parameters pagmo::algorithm::de::m_cr and pagmo::algorithm::de::m_f and some of more recombination variants.
  *
  * NOTE: when called on mixed-integer problems DE treats the integer part as fixed and optimizes
  * the continuous part.
@@ -59,25 +51,24 @@ namespace pagmo { namespace algorithm {
  * NOTE2: when called on stochastic optimization problems, DE changes the seed
  * at the end of each generation.
  *
- * NOTE3: the velocity is also updated along DE whenever a new chromosome is accepted.
+ * NOTE3: the pagmo::population::individual_type::cur_v is also updated along DE as soon as a new chromosome is accepted.
  *
- * @see http://www.icsi.berkeley.edu/~storn/code.html for the official DE web site
- * @see http://www.springerlink.com/content/x555692233083677/ for the paper that introduces Differential Evolution
+ *
+ * @see http://labraj.uni-mb.si/images/0/05/CEC09_slides_Brest.pdf  where m_variant_adptv = 1 is studied.
+ * @see http://sci2s.ugr.es/EAMHCO/pdfs/contributionsCEC11/05949732.pdf for a paper where a similar apporach to m_variant_adptv=2 is described
+ * 'modern' de version are used.
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 
-class __PAGMO_VISIBLE jde: public base
+class __PAGMO_VISIBLE de_self_adaptive: public base
 {
 public:
-	jde(int = 100, double  = 0.8, double = 0.9, int = 2, double = 1e-6, double = 1e-6);
+	de_self_adaptive(int = 100, int = 2, int = 1, double = 1e-6, double = 1e-6, bool = true);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
-	void set_cr(double cr);
-	double get_cr() const;
-	void set_f(double cr);
-	double get_f() const;
+
 protected:
 	std::string human_readable_extra() const;
 private:
@@ -87,27 +78,37 @@ private:
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
-		ar & const_cast<double &>(m_f);
-		ar & const_cast<double &>(m_cr);
+		ar & const_cast<int &>(m_variant);
+		ar & const_cast<int &>(m_variant_adptv);
 		ar & const_cast<double &>(m_ftol);
 		ar & const_cast<double &>(m_xtol);
-		ar & const_cast<int &>(m_strategy);
+		ar & m_f;
+		ar & m_cr;
+		ar & const_cast<bool &>(m_restart);
 	}
+	
 	// Number of generations.
 	const int m_gen;
+	
 	// Weighting factor
-	double m_f;
+	mutable std::vector<double> m_f;
+	
 	// Crossover probability
-	double m_cr;
-	// Startegy
-	const int m_strategy;
+	mutable std::vector<double> m_cr;
+	
+	// Algoritmic variant
+	const int m_variant;
+	// Self-adaptation strategy
+	const int m_variant_adptv;
 	const double m_ftol;
 	const double m_xtol;
-	
+
+	// Resart option
+	const bool m_restart;
 };
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::de);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::de_self_adaptive);
 
-#endif // DE_H
+#endif // DE_SELF_ADAPTIVE_H
