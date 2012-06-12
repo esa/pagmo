@@ -51,10 +51,11 @@ struct population_access;
  * ever appeared in the population. Methods are offered to get and manipulate the single individuals.
  *
  * Additionally, the population class holds for each individual I a "domination list", constituted by the list of individuals (identified by their positional index
- * in the population) which I dominates. Individual I1 is dominated by individual I2 if problem::base::compare_fc on the fitness and constraints vectors
+ * in the population) which I dominates, and a 'domination count' containing the number of individuals that dominate I. Individual I1 is dominated by individual I2 if problem::base::compare_fc on the fitness and constraints vectors
  * of I1 and I2 respectively returns true. The best individual in the population is the one dominating the highest number of individuals.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 class __PAGMO_VISIBLE population
 {
@@ -184,7 +185,11 @@ class __PAGMO_VISIBLE population
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
+		/// Domination managment
 		const std::vector<size_type> &get_domination_list(const size_type &) const;
+		size_type get_domination_count(const size_type &) const;
+		size_type n_dominated(const individual_type &) const;
+		
 		const problem::base &problem() const;
 		const champion_type &champion() const;
 		std::string human_readable_terse() const;
@@ -198,7 +203,7 @@ class __PAGMO_VISIBLE population
 		size_type size() const;
 		const_iterator begin() const;
 		const_iterator end() const;
-		size_type n_dominated(const individual_type &) const;
+
 		void reinit(const size_type &);
 		void reinit();
 		void clear();
@@ -206,7 +211,7 @@ class __PAGMO_VISIBLE population
 	private:
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
-		void update_dom_list(const size_type &);
+		void update_dom(const size_type &);
 		struct domination_comp {
 			domination_comp(const population &pop):m_pop(pop) {}
 			bool operator()(const individual_type &i1, const individual_type &i2) const
@@ -226,23 +231,26 @@ class __PAGMO_VISIBLE population
 			ar & m_prob;
 			ar & m_container;
 			ar & m_dom_list;
+			ar & m_dom_count;
 			ar & m_champion;
 			ar & m_drng;
 			ar & m_urng;
 		}
-		// Data members.
+        // Data members.
 		// Problem.
-		problem::base_ptr			m_prob;
+        problem::base_ptr                       m_prob;
 		// Container of individuals.
-		container_type				m_container;
+        container_type                          m_container;
 		// List of dominated individuals.
 		std::vector<std::vector<size_type> >	m_dom_list;
+		// Domination Count (number of dominant individuals)
+        std::vector<size_type>                  m_dom_count;
 		// Population champion.
 		champion_type				m_champion;
 		// Double precision random number generator.
 		mutable	rng_double			m_drng;
 		// uint32 random number generator.
-		mutable	rng_uint32			m_urng;
+        mutable	rng_uint32			m_urng;
 };
 
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);

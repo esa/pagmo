@@ -582,7 +582,7 @@ void base_island::accept_immigrants(const std::vector<population::individual_typ
 		pagmo_assert((*rep_it).first < m_pop.m_container.size() && (*rep_it).second < immigrants.size());
 		m_pop.m_container[(*rep_it).first] = immigrants[(*rep_it).second];
 		m_pop.update_champion((*rep_it).first);
-		m_pop.update_dom_list((*rep_it).first);
+		m_pop.update_dom((*rep_it).first);
 	}
 }
 

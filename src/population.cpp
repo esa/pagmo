@@ -55,9 +55,9 @@ problem::base_ptr &population_access::get_problem_ptr(population &pop)
  * @param[in] p problem::base that will be associated to the population.
  * @param[in] n integer number of individuals in the population.
  *
- * @throw piranha::value_error if n is negative.
+ * @throw value_error if n is negative.
  */
-population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
+population::population(const problem::base &p, int n):m_prob(p.clone()),m_dom_count(n,0), m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
@@ -84,19 +84,36 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 	}
 }
 
-// Update the domination lists.
-void population::update_dom_list(const size_type &n)
+// Update the domination list and the domination count.
+void population::update_dom(const size_type &n)
 {
+	//The algorithm works as follow:
+	// 1) For each element in m_dom_list[n] decrease the domination count by one. (m_dom_count[m_dom_list[n][j]] -= 1)
+	// 2) We empty the dom_list and reinitialize m_dom_count[n] = 0-
+	// 3) We loop over the population (j) and construct again m_dom_list[n] and m_dom_count, 
+	//    taking care to also keep m_dom_list[j] correctly updated
+	
 	const size_type size = m_container.size();
-	pagmo_assert(m_dom_list.size() == size && n < size);
+	pagmo_assert(m_dom_list.size() == size && m_dom_count.size() == size && n < size);
+	
+	// Decrease the domination count for the individuals that were dominated
+	for  (size_type i = 0; i < m_dom_list[n].size(); ++i) {
+		m_dom_count[ m_dom_list[n][i] ]--;
+	}
+	
 	// Empty the domination list of individual at position n.
 	m_dom_list[n].clear();
+	// Reset the dom_count of individual at position n.
+	m_dom_count[n] = 0;
+	
 	for (size_type i = 0; i < size; ++i) {
 		if (i != n) {
 			// Check if individual in position i dominates individual in position n.
 			if (m_prob->compare_fc(m_container[i].best_f,m_container[i].best_c,m_container[n].best_f,m_container[n].best_c)) {
-				// Need to update the domination list in i. If n is already present,
-				// do nothing, otherwise push_back.
+				// Update the domination count in n. 
+				m_dom_count[n]++;
+				// Update the domination list in i. 
+				//If n is already present, do nothing, otherwise push_back.
 				if (std::find(m_dom_list[i].begin(),m_dom_list[i].end(),n) == m_dom_list[i].end()) {
 					m_dom_list[i].push_back(n);
 				}
@@ -110,6 +127,7 @@ void population::update_dom_list(const size_type &n)
 			// Check if individual in position n dominates individual in position i.
 			if (m_prob->compare_fc(m_container[n].best_f,m_container[n].best_c,m_container[i].best_f,m_container[i].best_c)) {
 				m_dom_list[n].push_back(i);
+				m_dom_count[i]++;
 			}
 		}
 	}
@@ -162,7 +180,7 @@ void population::reinit()
 /**
  * The continuous and integer parts of the chromosome will be picked randomly within the problem's bounds, the velocities
  * will be initialised randomly so that in one tick the particles travel at most half the bounds distance. Fitness and constraints
- * will be evaluated, best_x and best_f set to the new values and the champion updated.
+ * will be evaluated, best_x and best_f are erasred and reset to the new values, the champion is updated.
  *
  * @param[in] idx position of the individual to be re-initialised.
  *
@@ -195,7 +213,7 @@ void population::reinit(const size_type &idx)
 	// Update the champion.
 	update_champion(idx);
 	// Update the domination lists.
-	update_dom_list(idx);
+	update_dom(idx);
 }
 
 /// Copy constructor.
@@ -204,7 +222,7 @@ void population::reinit(const size_type &idx)
  *
  * @param[in] p population used to initialise this.
  */
-population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),
+population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),m_dom_count(p.m_dom_count),
 	m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng)
 {}
 
@@ -266,6 +284,24 @@ const std::vector<population::size_type> &population::get_domination_list(const 
 		pagmo_throw(index_error,"invalid index");
 	}
 	return m_dom_list[idx];
+}
+
+/// Get domination count.
+/**
+ * Will return the domination count for the requested individual idx. That is the number of population individuals that dominate idx.
+ *
+ * @param[in] idx position of the individual whose domination count will be retrieved.
+ *
+ * @return the domination count
+ *
+ * @throws index_error if idx is not smaller than size().
+ */
+population::size_type population::get_domination_count(const size_type &idx) const
+{
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	return m_dom_count[idx];
 }
 
 /// Get position of worst individual.
@@ -372,6 +408,7 @@ std::string population::human_readable() const
 		for (size_type i = 0; i < size(); ++i) {
 			oss << '#' << i << ":\n";
 			oss << m_container[i] << "\tDominates:\t\t\t" << m_dom_list[i] << '\n';
+			oss << "\tIs dominated by:\t\t" << m_dom_count[i] << "\tindividuals" << '\n';
 		}
 	}
 	if (m_champion.x.size()) {
@@ -433,7 +470,7 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	// Update the champion.
 	update_champion(idx);
 	// Updated domination lists.
-	update_dom_list(idx);
+	update_dom(idx);
 }
 
 /// Append individual with given decision vector.
