@@ -59,7 +59,7 @@ void zdt2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 	f[0] = x[0];
 
-	for(problem::base::size_type i = 2; i < 30; ++i) {
+	for(problem::base::size_type i = 1; i < 30; ++i) {
 		g += x[i];
 	}
 	g = 1 + (9 * g) / 29;
