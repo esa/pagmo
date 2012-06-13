@@ -114,7 +114,7 @@ struct cmp_using_cur
 
 /// Evolve implementation.
 /**
- * Run Cross Entropy
+ * Run CMAES
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */

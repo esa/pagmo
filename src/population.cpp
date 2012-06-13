@@ -57,7 +57,7 @@ problem::base_ptr &population_access::get_problem_ptr(population &pop)
  *
  * @throw value_error if n is negative.
  */
-population::population(const problem::base &p, int n):m_prob(p.clone()),m_dom_count(n,0), m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
+population::population(const problem::base &p, int n):m_prob(p.clone()), m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
@@ -71,6 +71,7 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_dom_co
 		// Push back an empty individual.
 		m_container.push_back(individual_type());
 		m_dom_list.push_back(std::vector<size_type>());
+		m_dom_count.push_back(0);
 		// Resize individual's elements.
 		m_container.back().cur_x.resize(p_size);
 		m_container.back().cur_v.resize(p_size);
@@ -79,12 +80,13 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_dom_co
 		m_container.back().best_x.resize(p_size);
 		m_container.back().best_c.resize(c_size);
 		m_container.back().best_f.resize(f_size);
+//std::cout << "constructor: " << m_dom_list.size() << " " << m_dom_count.size() << " " <<  size << std::endl;
 		// Initialise randomly the individual.
 		reinit(i);
 	}
 }
 
-// Update the domination list and the domination count.
+// Update the domination list and the domination count when the individual at position n has changed
 void population::update_dom(const size_type &n)
 {
 	//The algorithm works as follow:
@@ -94,6 +96,7 @@ void population::update_dom(const size_type &n)
 	//    taking care to also keep m_dom_list[j] correctly updated
 	
 	const size_type size = m_container.size();
+//std::cout << "update_dom: " << m_dom_list.size() << " " << m_dom_count.size() << " " <<  size << std::endl;
 	pagmo_assert(m_dom_list.size() == size && m_dom_count.size() == size && n < size);
 	
 	// Decrease the domination count for the individuals that were dominated
@@ -131,6 +134,42 @@ void population::update_dom(const size_type &n)
 			}
 		}
 	}
+}
+
+/// Computes and returns the population pareto fronts
+/**
+ * 
+ * TBW
+ */
+std::vector<std::vector<population::size_type> > population::compute_pareto_fronts() const {
+	std::vector<std::vector<population::size_type> > retval;
+	std::vector<population::size_type> F,S;
+	std::vector<population::size_type> dom_count_copy(m_dom_count);
+	// We find the first Pareto Front
+	for (population::size_type i = 0; i < m_container.size(); ++i){
+		if (m_dom_count[i] == 0) {
+			F.push_back(i);
+		}
+	}
+	// And if not empty, we push it back to retval
+	if (F.size() != 0) retval.push_back(F);
+	
+	// We loop to find subsequent fronts
+	while (F.size()!=0) {
+		//For each individual F in the current front
+		for (population::size_type i=0; i < F.size(); ++i) {
+			//For each individual dominated by F
+			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
+				dom_count_copy[m_dom_list[F[i]][j]]--;
+				if (dom_count_copy[m_dom_list[F[i]][j]] == 0) S.push_back(m_dom_list[F[i]][j]);
+			}
+		}
+		F = S;
+		S.clear();
+		if (F.size() != 0) retval.push_back(F);
+	}
+	return retval;
+	
 }
 
 // Init randomly the velocity of the individual in position idx.
@@ -242,6 +281,7 @@ population &population::operator=(const population &p)
 		m_prob = p.m_prob->clone();
 		m_container = p.m_container;
 		m_dom_list = p.m_dom_list;
+		m_dom_count = p.m_dom_count;
 		m_champion = p.m_champion;
 		m_drng = p.m_drng;
 		m_urng = p.m_urng;
@@ -473,6 +513,39 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	update_dom(idx);
 }
 
+/// Erase individual idx
+/**
+ * The individual occupying position idx in the population will be erased from the population.
+ * This method takes care to update accordingly the domination structures of the population
+ * 
+ * @param[in] idx index of the individual to be erased
+ * 
+ * @throws index_error if idx is out of range
+ */
+
+void population::erase(const population::size_type & idx) {
+
+	pagmo_assert(m_dom_list.size() == size() && m_dom_count.size() == size() && idx < size());
+	
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid individual position");
+	}
+	for (population::size_type i = 0; i < m_dom_list[idx].size(); ++i) {
+		m_dom_count[m_dom_list[idx][i]]--;
+	}
+//std::cout << "sizes: " << m_container.size() << " " << m_dom_count.size() << " " << m_dom_list.size() << std::endl;
+	m_container.erase(m_container.begin() + idx);
+	m_dom_count.erase(m_dom_count.begin() + idx);
+	m_dom_list.erase(m_dom_list.begin() + idx);
+	// Since an element is erased indexes in dom_list need an update
+	for (population::size_type i=0; i<size(); ++i){
+		for(population::size_type j=0; j<m_dom_list[i].size();++j) {
+			if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
+			if (m_dom_list[i][j] == idx) m_dom_list[i].erase(m_dom_list[i].begin()+j);  
+		}
+	}
+}
+
 /// Append individual with given decision vector.
 /**
  * A new individual with decision vector x will be appended at the end of the population.
@@ -493,6 +566,7 @@ void population::push_back(const decision_vector &x)
 	// Push back an empty individual.
 	m_container.push_back(individual_type());
 	m_dom_list.push_back(std::vector<size_type>());
+	m_dom_count.push_back(0);
 	// Resize individual's elements.
 	m_container.back().cur_x.resize(p_size);
 	m_container.back().cur_v.resize(p_size);
@@ -565,6 +639,7 @@ void population::clear()
 {
 	m_container.clear();
 	m_dom_list.clear();
+	m_dom_count.clear();
 	m_champion = champion_type();
 }
 

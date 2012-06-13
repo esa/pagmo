@@ -55,7 +55,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE zdt3 : public base
 {
 	public:
-		zdt3();
+		zdt3(size_type  = 30);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:

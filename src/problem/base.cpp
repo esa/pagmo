@@ -517,7 +517,7 @@ bool base::compare_fitness(const fitness_vector &v_f1, const fitness_vector &v_f
 /// Implementation of fitness vectors comparison.
 /**
  * Return true if v_f1 dominates v_f2, false otherwise. This default implementation will assume minimisation for each one of the v_f components
- * I.e., each pair of corresponding elements in v_f1 and v_f2 is compared: if all elements in v_f1 are less than the corresponding
+ * I.e., each pair of corresponding elements in v_f1 and v_f2 is compared: if all elements in v_f1 are less or equal to the corresponding
  * element in v_f2, true will be returned. Otherwise, false will be returned.
  *
  * @param[in] v_f1 first fitness vector.
@@ -530,7 +530,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 	pagmo_assert(v_f1.size() == v_f2.size() && v_f1.size() == m_f_dimension);
 	f_size_type count1 = 0;
 	for (f_size_type i = 0; i < m_f_dimension; ++i) {
-		if (v_f1[i] < v_f2[i]) {
+		if (v_f1[i] <= v_f2[i]) {
 			++count1;
 		} 
 	}

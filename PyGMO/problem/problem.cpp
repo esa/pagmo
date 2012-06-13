@@ -268,13 +268,13 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<>());
 	// ZDT1
 	problem_wrapper<problem::zdt1>("zdt1","ZDT1")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 	// ZDT2
 	problem_wrapper<problem::zdt2>("zdt2","ZDT2")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 	// ZDT3
-	problem_wrapper<problem::zdt3>("zdt1","ZDT3")
-		.def(init<>());
+	problem_wrapper<problem::zdt3>("zdt3","ZDT3")
+		.def(init<optional<population::size_type> >());
 	// ZDT4
 	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
 		.def(init<>());

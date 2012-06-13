@@ -185,10 +185,11 @@ class __PAGMO_VISIBLE population
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
-		/// Domination managment
+		/// Pareto-Fronts managment
 		const std::vector<size_type> &get_domination_list(const size_type &) const;
 		size_type get_domination_count(const size_type &) const;
 		size_type n_dominated(const individual_type &) const;
+		std::vector<std::vector<size_type> > compute_pareto_fronts() const;
 		
 		const problem::base &problem() const;
 		const champion_type &champion() const;
@@ -200,6 +201,7 @@ class __PAGMO_VISIBLE population
 		void set_x(const size_type &, const decision_vector &);
 		void set_v(const size_type &, const decision_vector &);
 		void push_back(const decision_vector &);
+		void erase(const size_type &);
 		size_type size() const;
 		const_iterator begin() const;
 		const_iterator end() const;
@@ -219,7 +221,12 @@ class __PAGMO_VISIBLE population
 				pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
 				pagmo_assert(&i2 >= &m_pop.m_container.front() && &i2 <= &m_pop.m_container.back());
 				const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
-				return m_pop.m_dom_list[idx1].size() > m_pop.m_dom_list[idx2].size();
+				if (m_pop.m_dom_count[idx1] == m_pop.m_dom_count[idx2]) {
+					return m_pop.m_dom_list[idx1].size() < m_pop.m_dom_list[idx2].size();
+				}
+				else {
+					return m_pop.m_dom_count[idx1] < m_pop.m_dom_count[idx2];
+				}
 			}
 			const population &m_pop;
 		};
@@ -237,20 +244,20 @@ class __PAGMO_VISIBLE population
 			ar & m_urng;
 		}
         // Data members.
-		// Problem.
-        problem::base_ptr                       m_prob;
-		// Container of individuals.
-        container_type                          m_container;
-		// List of dominated individuals.
-		std::vector<std::vector<size_type> >	m_dom_list;
-		// Domination Count (number of dominant individuals)
-        std::vector<size_type>                  m_dom_count;
-		// Population champion.
-		champion_type				m_champion;
-		// Double precision random number generator.
-		mutable	rng_double			m_drng;
-		// uint32 random number generator.
-        mutable	rng_uint32			m_urng;
+	// Problem.
+        problem::base_ptr				m_prob;
+	// Container of individuals.
+        container_type					m_container;
+	// List of dominated individuals.
+	std::vector<std::vector<size_type> >		m_dom_list;
+	// Domination Count (number of dominant individuals)
+        std::vector<size_type>				m_dom_count;
+	// Population champion.
+	champion_type					m_champion;
+	// Double precision random number generator.
+	mutable	rng_double				m_drng;
+	// uint32 random number generator.
+        mutable	rng_uint32				m_urng;
 };
 
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);

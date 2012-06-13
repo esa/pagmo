@@ -259,29 +259,51 @@ def _sch_ctor(self):
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
 
-def _zdt1_ctor(self):
+def _zdt1_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT1 problem (Box-Constrained Continuous Multi-Objective)
 	
-	USAGE: problem.zdt1()
+	USAGE: problem.zdt1(dim = 30)
+	
+	* dim: problem dimension
 	"""
+	
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
 	
 zdt1._orig_init = zdt1.__init__
 zdt1.__init__ = _zdt1_ctor
 
-def _zdt2_ctor(self):
+def _zdt2_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT2 problem (Box-Constrained Continuous Multi-Objective)
 	
-	USAGE: problem.zdt2()
+	USAGE: problem.zdt2(dim = 30)
+	
+	* dim: problem dimension
 	"""
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
 	
 zdt2._orig_init = zdt2.__init__
 zdt2.__init__ = _zdt2_ctor
+
+def _zdt3_ctor(self, dim = 30):
+	"""
+	Constructs a ZDT3 problem (Box-Constrained Continuous Multi-Objective)
+	
+	USAGE: problem.zdt3(dim = 30)
+	
+	* dim: problem dimension
+	"""
+	arg_list=[]
+	arg_list.append(dim)
+	self._orig_init(*arg_list)
+	
+zdt3._orig_init = zdt3.__init__
+zdt3.__init__ = _zdt3_ctor
 
 def _zdt4_ctor(self):
 	"""

@@ -116,9 +116,9 @@ void ihs::evolve(population &pop) const
 					// Handle the case in which we added or subtracted too much and ended up out
 					// of boundaries.
 					if (tmp.cur_x[i] > ub[i]) {
-						tmp.cur_x[i] = ub[i];
+						tmp.cur_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 					} else if (tmp.cur_x[i] < lb[i]) {
-						tmp.cur_x[i] = lb[i];
+						tmp.cur_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 					}
 				}
 			} else {
@@ -150,28 +150,30 @@ void ihs::evolve(population &pop) const
 			}
 		}
 		// Compute fitness and constraints.
-		prob.objfun(tmp.cur_f,tmp.cur_x);
-		prob.compute_constraints(tmp.cur_c,tmp.cur_x);
-		// Locate the worst individual.
+		//prob.objfun(tmp.cur_f,tmp.cur_x);
+		//prob.compute_constraints(tmp.cur_c,tmp.cur_x);
+
+		// And we push him back
+		pop.push_back(tmp.cur_x);
+		// We locate the worst individual.
 		const population::size_type worst_idx = pop.get_worst_idx();
-		// We need to set the best values to use the n_dominated method which is based on comparing the best (since March 2011)
-		tmp.best_f = tmp.cur_f;
-		tmp.best_x = tmp.cur_x;
-		tmp.best_c = tmp.cur_c;
-		// If the new individual dominates at least as many individuals as the worst in the population, use it.
-		if (pop.n_dominated(tmp) >= pop.get_domination_list(worst_idx).size()) {
-			pop.set_x(worst_idx,tmp.cur_x);
-		}
-		population::size_type dom_size = 0;
-		for (population::size_type i = 0; i < pop.size(); ++i) {
-			dom_size += pop.get_domination_list(i).size();
-		}
+		// And we get rid of him :)
+		pop.erase(worst_idx);
+		
+		
+		//if (pop.n_dominated(tmp) >= pop.get_domination_list(worst_idx).size()) {
+		//	pop.set_x(worst_idx,tmp.cur_x);
+		//}
+		//population::size_type dom_size = 0;
+		//for (population::size_type i = 0; i < pop.size(); ++i) {
+		//	dom_size += pop.get_domination_list(i).size();
+		//}
 		// Re-init all individuals but one, if no one dominates no one.
-		if (!dom_size) {
-			for (population::size_type i = 1; i < pop.size(); ++i) {
-				pop.reinit(i);
-			}
-		}
+		//if (!dom_size) {
+		//	for (population::size_type i = 1; i < pop.size(); ++i) {
+		//		pop.reinit(i);
+		//	}
+		//}
 	}
 }
 
