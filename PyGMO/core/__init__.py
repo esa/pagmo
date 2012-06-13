@@ -347,4 +347,26 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 	pl.show()
 	return pos
 archipelago.draw = _archipelago_draw
+
+def _plot_pareto_fronts(self, comp = (0,1)):
+	"""
+	Plots the population pareto front in a 2-D graph
+
+	USAGE: pop.plot_pareto_front(comp = [0,1])
+
+	* comp: components of the fitness function to plot in the 2-D window
+	"""
+	from numpy import linspace
+	import matplotlib.pyplot as pl
+	if len(comp) !=2:
+		raise ValueError('You need to select two components of the objective function')
+	p_list = self.compute_pareto_fronts()
+        cl = linspace(0.9,0.1,len(p_list))
+
+	for id_f,f in enumerate(p_list):
+		for ind in f:
+			pl.plot(self[ind].cur_f[comp[0]],self[ind].cur_f[comp[1]], 'o', color=str(cl[id_f]))
+
+	pl.show()
+population.plot_pareto_fronts = _plot_pareto_fronts
 	
