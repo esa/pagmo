@@ -31,7 +31,7 @@ int main()
 {
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
 
-pagmo::algorithm::jde alg(200);
+pagmo::algorithm::mde_pbx alg(200);
 alg.set_screen_output(true);
 
 //This instantiate a 50 dimensional Rosenbrock problem
@@ -39,7 +39,7 @@ pagmo::problem::rosenbrock prob(10);
 
 //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
 //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
-pagmo::island isl = island(alg,prob,50);
+pagmo::island isl = island(alg,prob,100);
 
 //This prints on screen the instantiated Rosenbrock problem
 std::cout << prob << std::endl;

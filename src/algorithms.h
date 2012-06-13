@@ -34,6 +34,7 @@
 #include "algorithm/de_1220.h"
 #include "algorithm/jde.h"
 #include "algorithm/ihs.h"
+#include "algorithm/mde_pbx.h"
 #include "algorithm/monte_carlo.h"
 #include "algorithm/null.h"
 #include "algorithm/pso.h"
