@@ -43,16 +43,10 @@ class py_example(base):
 			tmp_int = [float(random.randint(lb[i],ub[i])) for i in range(cont_dim,dim)]
 			#and we assemble them into one decision vector
 			tmp_x = tmp_cont + tmp_int
-			#we compute the objective function of our mutated vector
-			tmp_f = prob.objfun(tmp_x)
-			#and the value of the constraints
-			tmp_c = prob.compute_constraints(tmp_x)
-			#we extract the current worst population individual
-			worst_idx = pop.get_worst_idx()
-			worst = pop[worst_idx]
-			#and subsitute it with the mutated if this is actually better
-			if prob.compare_fc(tmp_f,tmp_c,worst.cur_f,worst.cur_c):
-				pop.set_x(worst_idx,tmp_x)
+			#which we push back in the population
+			pop.push_back(tmp_x)
+			#to then remove the worst individual
+			pop.erase(pop.get_worst_idx())
 		#at the end of it all we return the 'evolved' population
 		return pop
 
