@@ -366,6 +366,11 @@ def _plot_pareto_fronts(self, comp = (0,1)):
 	for id_f,f in enumerate(p_list):
 		for ind in f:
 			pl.plot(self[ind].cur_f[comp[0]],self[ind].cur_f[comp[1]], 'o', color=str(cl[id_f]))
+		x = [self[ind].cur_f[comp[0]] for ind in f]
+		y = [self[ind].cur_f[comp[1]] for ind in f]
+		tmp = [(a,b) for a,b in zip(x,y)]
+		tmp = sorted(tmp, key = lambda k:k[0])
+		pl.plot([c[0] for c in tmp], [c[1] for c in tmp],color=str(cl[id_f]))
 
 	pl.show()
 population.plot_pareto_fronts = _plot_pareto_fronts
