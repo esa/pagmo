@@ -62,11 +62,11 @@ void zdt4::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 	f[0] = x[0];
 
-	for(problem::base::size_type i = 2; i < 10; ++i) {
+	for(problem::base::size_type i = 1; i < 10; ++i) {
 		g += x[i]*x[i] - 10 * cos(4 * m_pi * x[i]);
 	}
 	
-	f[1] = g * ( 1 - sqrt(x[0]/g));
+	f[1] = g * ( 1 - sqrt(x[0]/g) );
 	
 }
 
