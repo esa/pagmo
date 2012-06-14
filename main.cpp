@@ -31,7 +31,9 @@ int main()
 {
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
 // see what othert parameters do
-pagmo::algorithm::ihs algo(10000);
+
+pagmo::algorithm::cmaes algo(100);
+
 algo.set_screen_output(true);
 
 //This instantiate a 50 dimensional Rosenbrock problem
@@ -49,7 +51,8 @@ std::cout << isl.get_population().champion().f[0] << " " << std::endl;
 pagmo::population pop = isl.get_population();
 
 //Evolution is here started on the single island instantiated
-for (int i=0; i< 1; ++i){
+
+for (int i=0; i< 30; ++i){
 	algo.evolve(pop);
 	std::cout << pop.champion().f[0] << " " << std::endl;
 }
