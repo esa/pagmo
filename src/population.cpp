@@ -146,9 +146,9 @@ std::vector<std::vector<population::size_type> > population::compute_pareto_fron
 	std::vector<population::size_type> F,S;
 	std::vector<population::size_type> dom_count_copy(m_dom_count);
 	// We find the first Pareto Front
-	for (population::size_type i = 0; i < m_container.size(); ++i){
-		if (m_dom_count[i] == 0) {
-			F.push_back(i);
+	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
+		if (m_dom_count[idx] == 0) {
+			F.push_back(idx);
 		}
 	}
 	// And if not empty, we push it back to retval
@@ -540,8 +540,9 @@ void population::erase(const population::size_type & idx) {
 	// Since an element is erased indexes in dom_list need an update
 	for (population::size_type i=0; i<size(); ++i){
 		for(population::size_type j=0; j<m_dom_list[i].size();++j) {
-			if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
-			if (m_dom_list[i][j] == idx) m_dom_list[i].erase(m_dom_list[i].begin()+j);  
+			if (m_dom_list[i][j] == idx) m_dom_list[i].erase(m_dom_list[i].begin()+j);
+			else if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
+  
 		}
 	}
 }
