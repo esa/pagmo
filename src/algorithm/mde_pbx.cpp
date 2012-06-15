@@ -1,26 +1,26 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
- *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
- *   http://apps.sourceforge.net/mediawiki/pagmo                             *
- *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
- *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
- *   act@esa.int                                                             *
- *                                                                           *
- *   This program is free software; you can redistribute it and/or modify    *
- *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 2 of the License, or       *
- *   (at your option) any later version.                                     *
- *                                                                           *
- *   This program is distributed in the hope that it will be useful,         *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
- *   GNU General Public License for more details.                            *
- *                                                                           *
- *   You should have received a copy of the GNU General Public License       *
- *   along with this program; if not, write to the                           *
- *   Free Software Foundation, Inc.,                                         *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
- *****************************************************************************/
+*   Copyright (C) 2004-2009 The PaGMO development team,                     *
+*   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+*   http://apps.sourceforge.net/mediawiki/pagmo                             *
+*   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+*   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+*   act@esa.int                                                             *
+*                                                                           *
+*   This program is free software; you can redistribute it and/or modify    *
+*   it under the terms of the GNU General Public License as published by    *
+*   the Free Software Foundation; either version 2 of the License, or       *
+*   (at your option) any later version.                                     *
+*                                                                           *
+*   This program is distributed in the hope that it will be useful,         *
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+*   GNU General Public License for more details.                            *
+*                                                                           *
+*   You should have received a copy of the GNU General Public License       *
+*   along with this program; if not, write to the                           *
+*   Free Software Foundation, Inc.,                                         *
+*   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+*****************************************************************************/
 
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -39,20 +39,20 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor.
 /**
- * Allows to specify in detail all the parameters of the algorithm.
- *
- * @param[in] gen number of generations.
- * @param[in] qperc percentage of population to choose the best vector
- * @param[in] nexp exponent for the powermean
- * @param[in] ftol stopping criteria on the x tolerance
- * @param[in] xtol stopping criteria on the f tolerance
- * @param[in] restart when true the algorithm re-initialize randomly the parameters at each call
- * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
- */
+* Allows to specify in detail all the parameters of the algorithm.
+*
+* @param[in] gen number of generations.
+* @param[in] qperc percentage of population to choose the best vector
+* @param[in] nexp exponent for the powermean
+* @param[in] ftol stopping criteria on the x tolerance
+* @param[in] xtol stopping criteria on the f tolerance
+* @param[in] restart when true the algorithm re-initialize randomly the parameters at each call
+* @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
+*/
 
 mde_pbx::mde_pbx(int gen, double qperc, double nexp, double ftol, double xtol):base(), m_gen(gen), 
-	 m_f(0), m_fsuccess(0), m_fm(0.5), m_cr(0), m_crsuccess(0), m_crm(0.6), m_qperc(qperc), m_nexp(nexp), 
-	 m_ftol(ftol), m_xtol(xtol) {
+	m_f(0), m_fsuccess(0), m_fm(0.5), m_cr(0), m_crsuccess(0), m_crm(0.6), m_qperc(qperc), m_nexp(nexp), 
+	m_ftol(ftol), m_xtol(xtol) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -72,12 +72,11 @@ base_ptr mde_pbx::clone() const
 
 /// Evolve implementation.
 /**
- * Run the jDE algorithm for the number of generations specified in the constructors.
- * At each improvments velocity is also updated.
- *
- * @param[in,out] pop input/output pagmo::population to be evolved.
- */
-
+* Run the jDE algorithm for the number of generations specified in the constructors.
+* At each improvments velocity is also updated.
+*
+* @param[in,out] pop input/output pagmo::population to be evolved.
+*/
 void mde_pbx::evolve(population &pop) const
 {
 	// Let's store some useful variables.
@@ -90,9 +89,6 @@ void mde_pbx::evolve(population &pop) const
 	const population::size_type NP = pop.size();
 	const problem::base::size_type Dc = D - prob_i_dimension;
 	const population::size_type NP_Part = double_to_int::convert(m_qperc * NP);
-	
-	size_t trials; // used to prevent infinite loops
-	const size_t maxtrials = 5000; // maximum number of trials before throwing an error
 
 	//We perform some checks to determine wether the problem/population are suitable for DE
 	if ( Dc == 0 ) {
@@ -122,9 +118,8 @@ void mde_pbx::evolve(population &pop) const
 	// Some vectors used during evolution are allocated here.
 	decision_vector dummy(D), tmp(D); 		//dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
-	std::vector<decision_vector> poppart(NP_Part, dummy);	// vector used for the q%-subset of population
 	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness(1);			//new fitness of the mutaded candidate
+	fitness_vector newfitness(1);			//new fitness of the mutated candidate
 	fitness_vector gbfit(1);			//global best fitness
 	std::vector<fitness_vector> fit(NP,gbfit);
 	
@@ -159,18 +154,32 @@ void mde_pbx::evolve(population &pop) const
 	boost::uniform_int<int> r_c_idx(0,Dc-1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > c_idx(m_urng,r_c_idx);
 
-
+	boost::mt19937 generator(time(NULL));
+	
 	// We initialize the global best for F and CR as the first individual (this will soon be forgotten)
 	double gbIterF = m_f[0];
 	double gbIterCR = m_cr[0];
+	
+	double p;
 
 	// Main DE loop
-	size_t r1,r2;	//indexes to the selected population members
-	double p;
-		
 	for (int gen = 0; gen < m_gen; ++gen) {
+	    // Empty sets of successful scale factors and crossover probabilities
+	    m_fsuccess.clear();
+	    m_crsuccess.clear();
+	
+	    // evaluate fitness on all individuals
+	    // --> already done that
+	    
+	    p = ceil( (NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
+	    
+	    // get a random q% of the population
+	    
+	    
+	    
+	for (size_t i = 0; i < NP; i++) {
 	  
-	 //Check the exit conditions (every 40 generations)
+	//Check the exit conditions (every 40 generations)
 	    if (gen % 40) {
 		double dx = 0;
 		
@@ -197,10 +206,12 @@ void mde_pbx::evolve(population &pop) const
 	    }
 	}
 
+
 	if (m_screen_output) {
 		std::cout << "Exit condition -- generations > " <<  m_gen << std::endl;
 	}
 
+    }
 }
 
 /// Algorithm name
@@ -211,8 +222,8 @@ std::string mde_pbx::get_name() const
 
 /// Extra human readable algorithm info.
 /**
- * @return a formatted string displaying the parameters of the algorithm.
- */
+* @return a formatted string displaying the parameters of the algorithm.
+*/
 std::string mde_pbx::human_readable_extra() const
 {
 	std::ostringstream s;
