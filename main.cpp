@@ -39,7 +39,7 @@ pagmo::problem::rosenbrock prob(10);
 
 //This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
 //with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
-pagmo::island isl = island(alg,prob,100);
+pagmo::island isl = island(alg,prob,20);
 
 //This prints on screen the instantiated Rosenbrock problem
 std::cout << prob << std::endl;

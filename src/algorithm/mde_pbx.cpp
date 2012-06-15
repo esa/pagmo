@@ -161,7 +161,9 @@ void mde_pbx::evolve(population &pop) const
 	double gbIterCR = m_cr[0];
 	
 	double p;
-
+	size_t a[100];
+	size_t r1, r2;
+	
 	// Main DE loop
 	for (int gen = 0; gen < m_gen; ++gen) {
 	    // Empty sets of successful scale factors and crossover probabilities
@@ -173,38 +175,65 @@ void mde_pbx::evolve(population &pop) const
 	    
 	    p = ceil( (NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
 	    
-	    // get a random q% of the population
+	    // get q% random indices
+	    for (pagmo::population::size_type i = 0; i < NP; ++i) {
+		a[i] = i;
+	    }
 	    
+	    for (pagmo::population::size_type i = 0; i < NP_Part; ++i) {
+		r1 = double_to_int::convert( boost::uniform_int<int>(i,NP-1)(m_urng) );
+// 	        r1 = double_to_int::convert( m_drng() * (NP - i) + i - 1);
+ 		std::swap(a[i], a[r1]);
+	    }
 	    
-	    
-	for (size_t i = 0; i < NP; i++) {
-	  
-	//Check the exit conditions (every 40 generations)
-	    if (gen % 40) {
-		double dx = 0;
-		
-		for (decision_vector::size_type i = 0; i < D; ++i) {
-			tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
-			dx += std::fabs(tmp[i]);
-		}
-		
-		if  ( dx < m_xtol ) {
-			if (m_screen_output) { 
-				std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
-			}
-			return;
-		}
-
-		double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
-
-		if (mah < m_ftol) {
-			if (m_screen_output) {
-				std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
-			}
-			return;
+	    // find index of individual from q% sample with best fitness
+	    size_t best_idx = a[0];
+	    for (pagmo::population::size_type i = 1; i < NP_Part; ++i) {
+		if ( prob.compare_fitness(fit[a[i]], fit[best_idx]) ) {
+			best_idx = i;
 		}
 	    }
-	}
+
+	    // loop through all individuals
+	    for (size_t i = 0; i < NP; i++) {
+	      
+		// choose two random distinct pop members
+		do {    
+			/* Endless loop for NP < 2 !!!     */
+			r1 = boost::uniform_int<int>(0,NP-1)(m_urng);
+		} while (r1==i);
+
+		do {                       /* Pick a random population member */
+			/* Endless loop for NP < 3 !!!     */
+			r2 = boost::uniform_int<int>(0,NP-1)(m_urng);
+		} while ((r2==i) || (r2==r1));
+	  
+		//Check the exit conditions (every 40 generations)
+		if (gen % 40) {
+		    double dx = 0;
+		    
+		    for (decision_vector::size_type i = 0; i < D; ++i) {
+			    tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
+			    dx += std::fabs(tmp[i]);
+		    }
+		    
+		    if  ( dx < m_xtol ) {
+			    if (m_screen_output) { 
+				    std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+			    }
+			    return;
+		    }
+
+		    double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+
+		    if (mah < m_ftol) {
+			    if (m_screen_output) {
+				    std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+			    }
+			    return;
+		    }
+		}
+	    }
 
 
 	if (m_screen_output) {
