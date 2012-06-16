@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <cmath>
+#include <boost/math/constants/constants.hpp>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -41,7 +42,6 @@ zdt3::zdt3(size_type dim):base(dim,0,2)
 	// Set bounds.
 	set_lb(0.0);
 	set_ub(1.0);
-	m_pi = 4*atan(1.0);
 }
 
 /// Clone method.
@@ -65,7 +65,7 @@ void zdt3::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	}
 	g = 1 + (9 * g) / (x.size()-1);
 	
-	f[1] = g * ( 1 - sqrt(x[0]/g) - x[0]/g * sin(10 * m_pi * x[0]));
+	f[1] = g * ( 1 - sqrt(x[0]/g) - x[0]/g * sin(10 * boost::math::constants::pi<double>() * x[0]));
 	
 }
 

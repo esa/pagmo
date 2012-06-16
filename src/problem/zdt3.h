@@ -36,9 +36,9 @@ namespace pagmo{ namespace problem {
 /// ZDT3 problem
 /**
  *
- * This is a box-constrained continuous 30-dimension multi-objecive problem.
+ * This is a box-constrained continuous n-dimension multi-objecive problem.
  * \f[
- *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{30} x_i \right) / \left( n-1 \right)
+ *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
  * \f]
  * \f[
  * 	F_1 \left(x\right) = x_1
@@ -66,9 +66,7 @@ class __PAGMO_VISIBLE zdt3 : public base
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & m_pi;
 		}
-		double m_pi;
 };
 
 }} //namespaces

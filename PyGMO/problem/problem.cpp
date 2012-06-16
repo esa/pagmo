@@ -277,10 +277,10 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<optional<population::size_type> >());
 	// ZDT4
 	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 	// ZDT6
 	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
