@@ -214,20 +214,17 @@ class __PAGMO_VISIBLE population
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
 		void update_dom(const size_type &);
-		struct domination_comp {
-			domination_comp(const population &pop):m_pop(pop) {}
-			bool operator()(const individual_type &i1, const individual_type &i2) const
-			{
-				pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
-				pagmo_assert(&i2 >= &m_pop.m_container.front() && &i2 <= &m_pop.m_container.back());
-				const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
-				if (m_pop.m_dom_count[idx1] == m_pop.m_dom_count[idx2]) {
-					return m_pop.m_dom_list[idx1].size() < m_pop.m_dom_list[idx2].size();
-				}
-				else {
-					return m_pop.m_dom_count[idx1] < m_pop.m_dom_count[idx2];
-				}
-			}
+		struct crowded_comparison_operator {
+			crowded_comparison_operator(const population &);
+			bool operator()(const individual_type &i1, const individual_type &i2) const;
+			bool operator()(const size_type &idx1, const size_type &idx2) const;
+			const population &m_pop;
+			std::vector<double> m_crowding_d;
+		};
+		struct trivial_comparison_operator {
+			trivial_comparison_operator(const population &);
+			bool operator()(const individual_type &i1, const individual_type &i2) const;
+			bool operator()(const size_type &idx1, const size_type &idx2) const;
 			const population &m_pop;
 		};
 	private:

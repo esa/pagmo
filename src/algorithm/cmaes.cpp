@@ -300,8 +300,8 @@ void cmaes::evolve(population &pop) const
 
 			// 2 - We extract the elite from this generation. In PyGMO's brew of CMAES mu elite
 			// individuals are extracted using the length of their dominance list as a criteria. 
-			// This is equivalent, in a minimization problem, to sort the individual w.r.t. best_f
-			// and take the first mu.
+			// This is equivalent, in a minimization problem, to sort the individual w.r.t. 
+			// the trivial_comparison_operator implemented in population
 			std::vector<population::size_type> best_idx = pop.get_best_idx(mu);
 			for (population::size_type i = 0; i<mu; ++i ) {
 				for (decision_vector::size_type j = 0; j<N; ++j ) {
