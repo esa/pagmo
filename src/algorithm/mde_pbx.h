@@ -34,16 +34,15 @@
 
 namespace pagmo { namespace algorithm {
 
-/// jDE - Differential Evolution Algorithm - Self-Adaptive C and R (2011)
+/// MDE_pBX - Differential Evolution variant
 /**
  *
- * \image html de.jpg "Differential Evolution block diagram."
- * \image latex de.jpg "Differential Evolution block diagram." width=5cm
- *
- * Since its creation, the original Differential Evolution (pagmo::algorithm::de) algorithm
- * has been modified several times and many improvements have been suggested. We thus provide in PaGMO, together with the
- * original version of the algorithm, a modern version of the algorithm, with self-adaptation of its 
- * parameters pagmo::algorithm::de::m_cr and pagmo::algorithm::de::m_f and some of more recombination variants.
+ * MDE_pBX is a member of the Differential Evolution (pagmo::algorithm::de) algorithms.
+ * It uses the mutation scheme DE/current-to-gr_best/1 which uses the best individual on a q%
+ * sample of the population for the generation of the donor vector (by default: 15%). The crossover
+ * scheme used is p-best crossover which uses a random vector choosen uniformly out of the p best
+ * individual from the population. The fitness scale Factor F and Crossover Probability Cr are
+ * adapted each generation and thus do not need to be provided as input. 
  *
  * NOTE: when called on mixed-integer problems DE treats the integer part as fixed and optimizes
  * the continuous part.
@@ -53,18 +52,15 @@ namespace pagmo { namespace algorithm {
  *
  * NOTE3: the pagmo::population::individual_type::cur_v is also updated along DE as soon as a new chromosome is accepted.
  *
+ * NOTE4: No memory parameter is used, since the algorithm depends on the current generation (it is recommended to use a high
+ * number of generations in order to exploit this adaptive feature)
  *
- * @see http://labraj.uni-mb.si/images/0/05/CEC09_slides_Brest.pdf  where m_variant_adptv = 1 is studied.
- * @see http://sci2s.ugr.es/EAMHCO/pdfs/contributionsCEC11/05949732.pdf for a paper where a similar apporach to m_variant_adptv=2 is described
- * 'modern' de version are used.
+ * 
+ * @see paper not yet published
  *
- * @author Dario Izzo (dario.izzo@googlemail.com)
+ * @author Marcus Maertens (mmarcusx@gmail.com)
  */
 
-
-/**
- * No memory parameter used here because algorithm depends on the current generation
- */
 class __PAGMO_VISIBLE mde_pbx : public base
 {
 public:
@@ -90,24 +86,16 @@ private:
 		ar & const_cast<double &>(m_crm);
 		ar & m_fsuccess;
 		ar & m_crsuccess;
-		ar & m_f;
-		ar & m_cr;
 	}
 	
 	// Number of generations.
 	const int m_gen;
-	
-	// scale factor
-	mutable std::vector<double> m_f;
 
 	// this vector keeps track of successfull scale factors
 	mutable std::vector<double> m_fsuccess;
 	
 	// Current scale control factor
 	mutable double m_fm;
-	
-	// Crossover probability
-	mutable std::vector<double> m_cr;
 	
 	// this vector keeps track of successfull crossover probabilities
 	mutable std::vector<double> m_crsuccess;

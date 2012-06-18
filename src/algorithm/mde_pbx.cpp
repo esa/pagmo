@@ -52,9 +52,8 @@ namespace pagmo { namespace algorithm {
 * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
 */
 
-mde_pbx::mde_pbx(int gen, double qperc, double nexp, double ftol, double xtol):base(), m_gen(gen), 
-	m_f(0), m_fsuccess(0), m_fm(0.5), m_cr(0), m_crsuccess(0), m_crm(0.6), m_qperc(qperc), m_nexp(nexp), 
-	m_ftol(ftol), m_xtol(xtol) {
+mde_pbx::mde_pbx(int gen, double qperc, double nexp, double ftol, double xtol):base(), m_gen(gen), m_fsuccess(0), m_fm(0.5), 
+		 m_crsuccess(0), m_crm(0.6), m_qperc(qperc), m_nexp(nexp), m_ftol(ftol), m_xtol(xtol) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -120,11 +119,10 @@ void mde_pbx::evolve(population &pop) const
 	// Some vectors used during evolution are allocated here.
 	decision_vector dummy(D), tmp(D); 		//dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
-	decision_vector gbX(D),gbIter(D);
+	decision_vector gbX(D);				// global best inidivual
 	fitness_vector newfitness(1);			//new fitness of the mutated candidate
 	fitness_vector gbfit(1);			//global best fitness
 	std::vector<fitness_vector> fit(NP,gbfit);
-	std::map<fitness_vector, size_t> fitmap;
 	
 	//We extract from pop the chromosomes and fitness associated
 	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
@@ -133,53 +131,36 @@ void mde_pbx::evolve(population &pop) const
 	}
 	popnew = popold;
 
-	// Initialise the global bests
+	// Initialize the global bests
 	gbX=pop.champion().x;
 	gbfit=pop.champion().f;
-
-	// container for the best decision vector of generation
-	gbIter = gbX;
 
 	// reserve space for saving successful values for f and cr
 	m_fsuccess.reserve(NP);
 	m_crsuccess.reserve(NP);
-	m_cr.reserve(NP);
-	m_f.reserve(NP);
 	
 	// Initializing the random number generators
 	boost::uniform_real<double> uniform(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > r_dist(m_drng,uniform);
-
-	boost::uniform_int<int> r_p_idx(0,NP-1);
-	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,r_p_idx);
 
 	boost::uniform_int<int> r_c_idx(0,Dc-1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > c_idx(m_urng,r_c_idx);
 
 	boost::mt19937 generator(time(NULL));
 	
-	// We initialize the global best for F and CR as the first individual (this will soon be forgotten)
-// 	double gbIterF = m_f[0];
-// 	double gbIterCR = m_cr[0];
-	
-	size_t p;
-	size_t r1, r2;
-	size_t bestq_idx, bestp_idx;
-	size_t j_rand;
-
+	// Declaring temporary variables used by the main-loop
+	size_t p, r1, r2, bestq_idx, bestp_idx, j_rand;
 	size_t a[NP];
+	double cri, fi, wcr, wf;
 	
-	double cri, fi;
-	double wcr, wf;
-	
-	// Main DE loop
+	// Main Loop of differential evolution
 	for (int gen = 0; gen < m_gen; ++gen) {
-	    // Empty sets of successful scale factors and crossover probabilities
+	    // clear the sets of successful scale factors and crossover probabilities
 	    m_fsuccess.clear();
 	    m_crsuccess.clear();
 	
-	    // get the p best vectors
-	    p = ceil( (NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
+	    // adjust parameter p controlling the elite of individuals to choose from
+	    p = ceil((NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
 	    
 	    // update random distributions
 	    boost::normal_distribution<double> nd(m_crm,0.1);
@@ -189,10 +170,10 @@ void mde_pbx::evolve(population &pop) const
 	    boost::variate_generator<boost::lagged_fibonacci607 &, boost::cauchy_distribution<double> > cauchy(m_drng,cd);	    
 	    
 	    // loop through all individuals
-	    for (pagmo::population::size_type i = 0; i < NP; ++i) { //*****************
+	    for (pagmo::population::size_type i = 0; i < NP; ++i) {
 
 		// get q% random indices
-		for (pagmo::population::size_type k = 0; k < NP; ++k) { //*****************
+		for (pagmo::population::size_type k = 0; k < NP; ++k) {
 		    a[k] = k;
 		}
 		
@@ -205,7 +186,7 @@ void mde_pbx::evolve(population &pop) const
 		bestq_idx = a[0];
 		for (pagmo::population::size_type k = 1; k < NP_Part; ++k) {
 		    if ( prob.compare_fitness(fit[a[k]], fit[bestq_idx]) ) {
-			    bestq_idx = k;
+			    bestq_idx = a[k];
 		    }
 		}
 
@@ -213,24 +194,21 @@ void mde_pbx::evolve(population &pop) const
 		do {    
 			/* Endless loop for NP < 2 !!!     */
 			r1 = boost::uniform_int<pagmo::population::size_type>(0,NP-1)(m_urng);
-		} while (r1==i);//*****************
+		} while (r1==i);
 
-		do {                       /* Pick a random population member */
+		do {            
 			/* Endless loop for NP < 3 !!!     */
 			r2 = boost::uniform_int<pagmo::population::size_type>(0,NP-1)(m_urng);
 		} while ((r2==i) || (r2==r1));
 		
 		// get a random vector out of the p-best
 		bestp_idx = boost::uniform_int<int>(0,p-1)(m_urng);
-// 	    std::cout << "Random individual from p-best: " << fit[pop.get_best_idx(p).at(bestp_idx)] << std::endl;
-
-		
 		
 		// fix a random dimension index
 		j_rand = c_idx();
 		
 		// sample scale factors
-		// TODO: make this more safe (long loops possible)
+		// TODO: make this more safe (long loops possible?)
 		do {
 		  cri = gauss();
 		} while ((cri < 0) || (cri > 1));
@@ -239,7 +217,7 @@ void mde_pbx::evolve(population &pop) const
 		  fi = cauchy();
 		} while ((fi <= 0) || (fi > 1));
 		
-		// Mutate + Crossover
+		// Mutation + Crossover
 		tmp = popold[i];
 		for (size_t j = 0; j < Dc; ++j) {
 		    if (j == j_rand || r_dist() < cri) {
@@ -249,8 +227,8 @@ void mde_pbx::evolve(population &pop) const
 		    }
 		}
 		 
-		/*=======Trial mutation now in tmp[]. force feasibility and how good this choice really was.==================*/
-		// a) feasibility (throw in some random value if we fall out of the border)
+		/*=======Trial mutation now in tmp[]. Force feasibility and test how good this choice really was.==========*/
+		// a) feasibility (throw in some random value if we fall out of the borders)
 		size_t i2 = 0;
 		while (i2<Dc) {
 			if ((tmp[i2] < lb[i2]) || (tmp[i2] > ub[i2]))
