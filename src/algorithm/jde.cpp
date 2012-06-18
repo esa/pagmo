@@ -529,7 +529,7 @@ void jde::evolve(population &pop) const
 
 
 		//9 - Check the exit conditions (every 40 generations)
-		if (gen%40) {
+		if (gen % 40 == 0) {
 			double dx = 0;
 			for (decision_vector::size_type i = 0; i < D; ++i) {
 				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];

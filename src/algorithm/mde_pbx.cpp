@@ -29,6 +29,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "../exceptions.h"
 #include "../population.h"
@@ -158,15 +159,18 @@ void mde_pbx::evolve(population &pop) const
 	boost::mt19937 generator(time(NULL));
 	
 	// We initialize the global best for F and CR as the first individual (this will soon be forgotten)
-	double gbIterF = m_f[0];
-	double gbIterCR = m_cr[0];
+// 	double gbIterF = m_f[0];
+// 	double gbIterCR = m_cr[0];
 	
 	size_t p;
-	size_t a[100];
 	size_t r1, r2;
 	size_t bestq_idx, bestp_idx;
 	size_t j_rand;
+
+	size_t a[NP];
+	
 	double cri, fi;
+	double wcr, wf;
 	
 	// Main DE loop
 	for (int gen = 0; gen < m_gen; ++gen) {
@@ -245,16 +249,50 @@ void mde_pbx::evolve(population &pop) const
 		    }
 		}
 		 
-		// Check if new individual is better than the old one
+		/*=======Trial mutation now in tmp[]. force feasibility and how good this choice really was.==================*/
+		// a) feasibility (throw in some random value if we fall out of the border)
+		size_t i2 = 0;
+		while (i2<Dc) {
+			if ((tmp[i2] < lb[i2]) || (tmp[i2] > ub[i2]))
+				tmp[i2] = boost::uniform_real<double>(lb[i2],ub[i2])(m_drng);
+			++i2;
+		}
+
+		// b) Compare with the objective function
+		prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
+		if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
+			fit[i]=newfitness;
+			popnew[i] = tmp;
+			// As a fitness improvment occured we move the point
+			// and thus can evaluate a new velocity
+			std::transform(tmp.begin(), tmp.end(), pop.get_individual(i).cur_x.begin(), tmp.begin(),std::minus<double>());
+			// updates x and v (cache avoids to recompute the objective function)
+			pop.set_x(i,popnew[i]);
+			pop.set_v(i,tmp);
+			if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
+				/* if so...*/
+				gbfit=newfitness;          /* reset gbfit to new low...*/
+				gbX=tmp;
+			}
+			// remember our successful scale factors
+			m_crsuccess.push_back(cri);
+			m_fsuccess.push_back(fi);
+		} else {
+			popnew[i] = popold[i];
+		}
 		
 	    }
 		
 	    // Update Crossover Probability
+	    wcr = 0.9 + 0.1 * m_drng();
+	    m_crm = wcr * m_crm + (1.0 - wcr) * powermean(m_crsuccess);
 	    
 	    // Update Fitness Scale Factor
-		
+	    wf = 0.8 + 0.2 * m_drng();
+	    m_fm = wf * m_fm + (1.0 - wf) * powermean(m_fsuccess);
+
 	    //Check the exit conditions (every 40 generations)
-	    if (gen % 40) {
+	    if (gen % 40 == 0) {
 		double dx = 0;
 		
 		for (decision_vector::size_type k = 0; k < D; ++k) {
@@ -277,6 +315,14 @@ void mde_pbx::evolve(population &pop) const
 			}
 			return;
 		}
+		
+		// outputs current values
+		if (m_screen_output) {
+		    std::cout << "*** Generation " << gen << " ***" << std::endl;
+		    std::cout << "Best global fitness: " << gbfit << std::endl;
+		    std::cout << "Best global individual: " << gbX << std::endl;
+		    std::cout << "Fm: " << m_fm << ", Crm: " << m_crm << std::endl;
+		}
 	    }
 	} // End of Generation main iteration
 
@@ -289,6 +335,17 @@ void mde_pbx::evolve(population &pop) const
 std::string mde_pbx::get_name() const
 {
 	return "MDE_pBX";
+}
+
+/// Computes the powermean of a set given as a vector
+double mde_pbx::powermean(std::vector<double> v) const
+{
+	double sum = 0.0;
+	size_t vsize = v.size();
+	for (size_t i = 0; i < vsize; ++i) {
+	    sum += std::pow((std::pow(v[i], m_nexp) / vsize), (1.0 / m_nexp));
+	}
+	return sum;
 }
 
 /// Extra human readable algorithm info.
