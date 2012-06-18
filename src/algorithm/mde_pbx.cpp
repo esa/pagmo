@@ -25,6 +25,7 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/cauchy_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <string>
 #include <vector>
@@ -122,7 +123,7 @@ void mde_pbx::evolve(population &pop) const
 	fitness_vector newfitness(1);			//new fitness of the mutated candidate
 	fitness_vector gbfit(1);			//global best fitness
 	std::vector<fitness_vector> fit(NP,gbfit);
-	
+	std::map<fitness_vector, size_t> fitmap;
 	
 	//We extract from pop the chromosomes and fitness associated
 	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
@@ -160,9 +161,12 @@ void mde_pbx::evolve(population &pop) const
 	double gbIterF = m_f[0];
 	double gbIterCR = m_cr[0];
 	
-	double p;
+	size_t p;
 	size_t a[100];
 	size_t r1, r2;
+	size_t bestq_idx, bestp_idx;
+	size_t j_rand;
+	double cri, fi;
 	
 	// Main DE loop
 	for (int gen = 0; gen < m_gen; ++gen) {
@@ -170,77 +174,115 @@ void mde_pbx::evolve(population &pop) const
 	    m_fsuccess.clear();
 	    m_crsuccess.clear();
 	
-	    // evaluate fitness on all individuals
-	    // --> already done that
-	    
+	    // get the p best vectors
 	    p = ceil( (NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
 	    
-	    // get q% random indices
-	    for (pagmo::population::size_type i = 0; i < NP; ++i) {
-		a[i] = i;
-	    }
-	    
-	    for (pagmo::population::size_type i = 0; i < NP_Part; ++i) {
-		r1 = double_to_int::convert( boost::uniform_int<int>(i,NP-1)(m_urng) );
-// 	        r1 = double_to_int::convert( m_drng() * (NP - i) + i - 1);
- 		std::swap(a[i], a[r1]);
-	    }
-	    
-	    // find index of individual from q% sample with best fitness
-	    size_t best_idx = a[0];
-	    for (pagmo::population::size_type i = 1; i < NP_Part; ++i) {
-		if ( prob.compare_fitness(fit[a[i]], fit[best_idx]) ) {
-			best_idx = i;
-		}
-	    }
+	    // update random distributions
+	    boost::normal_distribution<double> nd(m_crm,0.1);
+	    boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > gauss(m_drng,nd);	    
 
+    	    boost::cauchy_distribution<double> cd(m_fm,0.1);
+	    boost::variate_generator<boost::lagged_fibonacci607 &, boost::cauchy_distribution<double> > cauchy(m_drng,cd);	    
+	    
 	    // loop through all individuals
-	    for (size_t i = 0; i < NP; i++) {
-	      
+	    for (pagmo::population::size_type i = 0; i < NP; ++i) { //*****************
+
+		// get q% random indices
+		for (pagmo::population::size_type k = 0; k < NP; ++k) { //*****************
+		    a[k] = k;
+		}
+		
+		for (pagmo::population::size_type k = 0; k < NP_Part; ++k) {
+		    r1 = double_to_int::convert( boost::uniform_int<int>(k,NP-1)(m_urng) );
+		    std::swap(a[k], a[r1]);
+		}
+		
+		// find index of individual from q% sample with best fitness
+		bestq_idx = a[0];
+		for (pagmo::population::size_type k = 1; k < NP_Part; ++k) {
+		    if ( prob.compare_fitness(fit[a[k]], fit[bestq_idx]) ) {
+			    bestq_idx = k;
+		    }
+		}
+
 		// choose two random distinct pop members
 		do {    
 			/* Endless loop for NP < 2 !!!     */
-			r1 = boost::uniform_int<int>(0,NP-1)(m_urng);
-		} while (r1==i);
+			r1 = boost::uniform_int<pagmo::population::size_type>(0,NP-1)(m_urng);
+		} while (r1==i);//*****************
 
 		do {                       /* Pick a random population member */
 			/* Endless loop for NP < 3 !!!     */
-			r2 = boost::uniform_int<int>(0,NP-1)(m_urng);
+			r2 = boost::uniform_int<pagmo::population::size_type>(0,NP-1)(m_urng);
 		} while ((r2==i) || (r2==r1));
-	  
-		//Check the exit conditions (every 40 generations)
-		if (gen % 40) {
-		    double dx = 0;
-		    
-		    for (decision_vector::size_type i = 0; i < D; ++i) {
-			    tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
-			    dx += std::fabs(tmp[i]);
-		    }
-		    
-		    if  ( dx < m_xtol ) {
-			    if (m_screen_output) { 
-				    std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
-			    }
-			    return;
-		    }
+		
+		// get a random vector out of the p-best
+		bestp_idx = boost::uniform_int<int>(0,p-1)(m_urng);
+// 	    std::cout << "Random individual from p-best: " << fit[pop.get_best_idx(p).at(bestp_idx)] << std::endl;
 
-		    double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
-
-		    if (mah < m_ftol) {
-			    if (m_screen_output) {
-				    std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
-			    }
-			    return;
+		
+		
+		// fix a random dimension index
+		j_rand = c_idx();
+		
+		// sample scale factors
+		// TODO: make this more safe (long loops possible)
+		do {
+		  cri = gauss();
+		} while ((cri < 0) || (cri > 1));
+		
+		do {
+		  fi = cauchy();
+		} while ((fi <= 0) || (fi > 1));
+		
+		// Mutate + Crossover
+		tmp = popold[i];
+		for (size_t j = 0; j < Dc; ++j) {
+		    if (j == j_rand || r_dist() < cri) {
+			tmp[j] = popold[i][j] + fi * (popold[bestq_idx][j] - popold[i][j] + popold[r1][j] - popold[r2][j]);
+		    } else {
+			tmp[j] = popold[bestp_idx][j];
 		    }
 		}
+		 
+		// Check if new individual is better than the old one
+		
 	    }
+		
+	    // Update Crossover Probability
+	    
+	    // Update Fitness Scale Factor
+		
+	    //Check the exit conditions (every 40 generations)
+	    if (gen % 40) {
+		double dx = 0;
+		
+		for (decision_vector::size_type k = 0; k < D; ++k) {
+			tmp[k] = pop.get_individual(pop.get_worst_idx()).best_x[k] - pop.get_individual(pop.get_best_idx()).best_x[k];
+			dx += std::fabs(tmp[k]);
+		}
+		
+		if  ( dx < m_xtol ) {
+			if (m_screen_output) { 
+				std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+			}
+			return;
+		}
 
+		double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+
+		if (mah < m_ftol) {
+			if (m_screen_output) {
+				std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+			}
+			return;
+		}
+	    }
+	} // End of Generation main iteration
 
 	if (m_screen_output) {
 		std::cout << "Exit condition -- generations > " <<  m_gen << std::endl;
 	}
-
-    }
 }
 
 /// Algorithm name
