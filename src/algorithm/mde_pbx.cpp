@@ -73,7 +73,7 @@ base_ptr mde_pbx::clone() const
 
 /// Evolve implementation.
 /**
-* Run the jDE algorithm for the number of generations specified in the constructors.
+* Run the MDE_pBX algorithm for the number of generations specified in the constructors.
 * At each improvments velocity is also updated.
 *
 * @param[in,out] pop input/output pagmo::population to be evolved.
@@ -93,15 +93,15 @@ void mde_pbx::evolve(population &pop) const
 
 	//We perform some checks to determine wether the problem/population are suitable for DE
 	if ( Dc == 0 ) {
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for DE to optimise");
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for MDE_pBX to optimise");
 	}
 
 	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and DE is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not box constrained and MDE_pBX is not suitable to solve it");
 	}
 
 	if ( prob_f_dimension != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and DE is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not single objective and MDE_pBX is not suitable to solve it");
 	}
 
 	if (NP < 3) {
@@ -126,12 +126,11 @@ void mde_pbx::evolve(population &pop) const
 	
 	//We extract from pop the chromosomes and fitness associated
 	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
-		popold[i] = pop.get_individual(i).cur_x;
+		popnew[i] = pop.get_individual(i).cur_x;
 		fit[i] = pop.get_individual(i).cur_f;
 	}
-	popnew = popold;
-
-	// Initialize the global bests
+	
+// 	// Initialize the global bests
 	gbX=pop.champion().x;
 	gbfit=pop.champion().f;
 
@@ -149,24 +148,28 @@ void mde_pbx::evolve(population &pop) const
 	boost::mt19937 generator(time(NULL));
 	
 	// Declaring temporary variables used by the main-loop
-	size_t p, r1, r2, bestq_idx, bestp_idx, j_rand;
+	pagmo::population::size_type p;
+	size_t r1, r2, bestq_idx, bestp_idx, j_rand, trials;
 	size_t a[NP];
 	double cri, fi, wcr, wf;
 	
 	// Main Loop of differential evolution
 	for (int gen = 0; gen < m_gen; ++gen) {
+	    // starting to evolve a new generation: latest generation becomes the old one
+	    std::swap(popold, popnew);
+	  
 	    // clear the sets of successful scale factors and crossover probabilities
 	    m_fsuccess.clear();
 	    m_crsuccess.clear();
-	
+	    
 	    // adjust parameter p controlling the elite of individuals to choose from
 	    p = ceil((NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
-	    
-	    // update random distributions
-	    boost::normal_distribution<double> nd(m_crm,0.1);
-	    boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > gauss(m_drng,nd);	    
 
-    	    boost::cauchy_distribution<double> cd(m_fm,0.1);
+	    // update random distributions
+	    boost::normal_distribution<double> nd(m_crm, 0.1);
+	    boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > gauss(m_drng,nd);	    
+	    
+    	    boost::cauchy_distribution<double> cd(m_fm, 0.1);
 	    boost::variate_generator<boost::lagged_fibonacci607 &, boost::cauchy_distribution<double> > cauchy(m_drng,cd);	    
 	    
 	    // loop through all individuals
@@ -202,21 +205,33 @@ void mde_pbx::evolve(population &pop) const
 		} while ((r2==i) || (r2==r1));
 		
 		// get a random vector out of the p-best
-		bestp_idx = boost::uniform_int<int>(0,p-1)(m_urng);
-		
-		// fix a random dimension index
-		j_rand = c_idx();
+		std::vector<population::size_type> pbest = pop.get_best_idx(p);
+		bestp_idx = pbest[boost::uniform_int<int>(0,p-1)(m_urng)];
 		
 		// sample scale factors
-		// TODO: make this more safe (long loops possible?)
+		trials = 0;
 		do {
 		  cri = gauss();
-		} while ((cri < 0) || (cri > 1));
+		  trials++;
+		} while ( ((cri < 0.0) || (cri > 1.0)) && (trials < 20) );
 		
+		if (trials > 20) {
+		    pagmo_throw(value_error,"Random number sampling for Cr is no longer efficient. Evolution aborted.");
+		}
+
+		trials = 0;
 		do {
 		  fi = cauchy();
-		} while ((fi <= 0) || (fi > 1));
+		  trials++;
+		} while ( ((fi <= 0.0) || (fi > 1.0)) && (trials < 20) );
 		
+		if (trials > 20) {
+		    pagmo_throw(value_error,"Random number sampling for F is no longer efficient. Evolution aborted.");
+		}
+
+		// fix a random dimension index
+		j_rand = c_idx();
+
 		// Mutation + Crossover
 		tmp = popold[i];
 		for (size_t j = 0; j < Dc; ++j) {
@@ -260,17 +275,21 @@ void mde_pbx::evolve(population &pop) const
 		}
 		
 	    }
-		
+		    
 	    // Update Crossover Probability
-	    wcr = 0.9 + 0.1 * m_drng();
-	    m_crm = wcr * m_crm + (1.0 - wcr) * powermean(m_crsuccess);
+	    if (!m_crsuccess.empty()) {
+	      wcr = 0.9  + (0.1 * m_drng());
+	      m_crm = (wcr * m_crm) + ((1.0 - wcr) * powermean(m_crsuccess));
+	    }
 	    
 	    // Update Fitness Scale Factor
-	    wf = 0.8 + 0.2 * m_drng();
-	    m_fm = wf * m_fm + (1.0 - wf) * powermean(m_fsuccess);
+	    if (!m_fsuccess.empty()) {
+	      wf = 0.8 + (0.2 * m_drng());
+	      m_fm = (wf * m_fm) + ((1.0 - wf) * powermean(m_fsuccess));
+	    }
 
 	    //Check the exit conditions (every 40 generations)
-	    if (gen % 40 == 0) {
+	    if (gen % 100 == 0) {
 		double dx = 0;
 		
 		for (decision_vector::size_type k = 0; k < D; ++k) {
@@ -285,21 +304,22 @@ void mde_pbx::evolve(population &pop) const
 			return;
 		}
 
-		double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+		// This is deactivated as algorithm is able to escape from bad local minima
+		/*double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
 
 		if (mah < m_ftol) {
 			if (m_screen_output) {
 				std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
 			}
 			return;
-		}
+		}*/
 		
 		// outputs current values
 		if (m_screen_output) {
-		    std::cout << "*** Generation " << gen << " ***" << std::endl;
-		    std::cout << "Best global fitness: " << gbfit << std::endl;
-		    std::cout << "Best global individual: " << gbX << std::endl;
-		    std::cout << "Fm: " << m_fm << ", Crm: " << m_crm << std::endl;
+		    std::cout << "Generation " << gen << " ***" << std::endl;
+		    std::cout << "    Best global fitness: " << gbfit << std::endl;
+		    std::cout << "    Best global individual: " << gbX << std::endl;
+		    std::cout << "    Fm: " << m_fm << ", Crm: " << m_crm << std::endl;
 		}
 	    }
 	} // End of Generation main iteration
@@ -320,10 +340,13 @@ double mde_pbx::powermean(std::vector<double> v) const
 {
 	double sum = 0.0;
 	size_t vsize = v.size();
+
+	if (vsize == 0) return 0;
+	
 	for (size_t i = 0; i < vsize; ++i) {
-	    sum += std::pow((std::pow(v[i], m_nexp) / vsize), (1.0 / m_nexp));
+	    sum += std::pow(v[i], m_nexp) ;
 	}
-	return sum;
+	return std::pow((sum / vsize), (1.0 / m_nexp));
 }
 
 /// Extra human readable algorithm info.

@@ -31,27 +31,45 @@ int main()
 {
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
 
-pagmo::algorithm::mde_pbx alg(200);
-alg.set_screen_output(true);
+pagmo::algorithm::mde_pbx mde(1000);
+pagmo::algorithm::jde jde(1000);
 
-//This instantiate a 50 dimensional Rosenbrock problem
+mde.set_screen_output(true);
+jde.set_screen_output(true);
+
+//This instantiate a 10 dimensional Schwefel problem
 pagmo::problem::rosenbrock prob(10);
 
-//This instantiate an island containing a population of 20 individuals initialized at random and having their fitness evaluated
-//with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
-pagmo::island isl = island(alg,prob,20);
+pagmo::population pop(prob, 100);
 
-//This prints on screen the instantiated Rosenbrock problem
+//This instantiate an island containing a population of 10 individuals initialized at random and having their fitness evaluated
+//with respect to the Schwefel problem. The island will evolve its population using the instantiated algorithm
+pagmo::island isla = island(mde, pop);
+pagmo::island islb = island(jde, pop);
+
+//This prints on screen the instantiated Schwefel problem
 std::cout << prob << std::endl;
 
-pagmo::population pop = isl.get_population();
-std::cout << pop.champion().f[0] << " " << std::endl;
+islb.evolve();
+pagmo::population popb = islb.get_population();
 
-//Evolution is here started on the single island instantiated
-for (int i=0; i< 5; ++i){
-    alg.evolve(pop);
-	std::cout << pop.champion().f[0] << " " << std::endl;
-}
+isla.evolve();
+pagmo::population popa = isla.get_population();
+
+
+// double ds[] = {1.0, 2.0, 3.0};
+// std::vector<double> v(ds, ds + sizeof(ds) / sizeof(double));
+// 
+// std::cout << "Powermean: " << mde.powermean(v) << std::endl;
+
+// pagmo::population popa = isla.get_population();
+// std::cout << popa.champion().f[0] << " evolving..." << std::endl;
+// 
+// mde.evolve(popa);
+
+
+std::cout << "Result jDE: " << popb.champion().f[0] << " " << std::endl;
+std::cout << "Result MDE_pBX: " << popa.champion().f[0] << " " << std::endl;
 
 return 0;
 }
