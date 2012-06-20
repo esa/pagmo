@@ -70,7 +70,7 @@ public:
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
-	double powermean(std::vector<double>) const;
+	double powermean(std::vector<double>, double) const;
 private:
 	friend class boost::serialization::access;
 	template <class Archive>

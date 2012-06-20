@@ -162,7 +162,8 @@ void mde_pbx::evolve(population &pop) const
 	    m_fsuccess.clear();
 	    m_crsuccess.clear();
 	    
-	    // adjust parameter p controlling the elite of individuals to choose from
+	    // adjust parameter p controlling the elite of individuals to choose from 
+	    // (as we start with gen=0 and not with gen=1 we use (gen) rather than gen - 1 here)
 	    p = ceil((NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
 
 	    // update random distributions
@@ -231,7 +232,7 @@ void mde_pbx::evolve(population &pop) const
 
 		// fix a random dimension index
 		j_rand = c_idx();
-
+		
 		// Mutation + Crossover
 		tmp = popold[i];
 		for (size_t j = 0; j < Dc; ++j) {
@@ -279,13 +280,13 @@ void mde_pbx::evolve(population &pop) const
 	    // Update Crossover Probability
 	    if (!m_crsuccess.empty()) {
 	      wcr = 0.9  + (0.1 * m_drng());
-	      m_crm = (wcr * m_crm) + ((1.0 - wcr) * powermean(m_crsuccess));
+	      m_crm = (wcr * m_crm) + ((1.0 - wcr) * powermean(m_crsuccess, m_nexp));
 	    }
 	    
-	    // Update Fitness Scale Factor
+// 	    Update Fitness Scale Factor
 	    if (!m_fsuccess.empty()) {
 	      wf = 0.8 + (0.2 * m_drng());
-	      m_fm = (wf * m_fm) + ((1.0 - wf) * powermean(m_fsuccess));
+	      m_fm = (wf * m_fm) + ((1.0 - wf) * powermean(m_fsuccess, m_nexp));
 	    }
 
 	    //Check the exit conditions (every 40 generations)
@@ -336,7 +337,7 @@ std::string mde_pbx::get_name() const
 }
 
 /// Computes the powermean of a set given as a vector
-double mde_pbx::powermean(std::vector<double> v) const
+double mde_pbx::powermean(std::vector<double> v, double exp) const
 {
 	double sum = 0.0;
 	size_t vsize = v.size();
@@ -344,9 +345,9 @@ double mde_pbx::powermean(std::vector<double> v) const
 	if (vsize == 0) return 0;
 	
 	for (size_t i = 0; i < vsize; ++i) {
-	    sum += std::pow(v[i], m_nexp) ;
+	    sum += std::pow(v[i], exp) ;
 	}
-	return std::pow((sum / vsize), (1.0 / m_nexp));
+	return std::pow((sum / vsize), (1.0 / exp));
 }
 
 /// Extra human readable algorithm info.
