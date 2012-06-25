@@ -38,25 +38,23 @@ namespace pagmo { namespace algorithm {
 /**
  *
  * MDE_pBX is a member of the Differential Evolution (pagmo::algorithm::de) algorithms.
- * It uses the mutation scheme DE/current-to-gr_best/1 which uses the best individual on a q%
- * sample of the population for the generation of the donor vector (by default: 15%). The crossover
- * scheme used is p-best crossover which uses a random vector choosen uniformly out of the p best
- * individual from the population. The fitness scale Factor F and Crossover Probability Cr are
- * adapted each generation and thus do not need to be provided as input. 
+ * It uses the mutation scheme DE/current-to-gr_best/1 which takes the best individual on a q%
+ * sample of the complete population for the generation of the donor vector (by default: q% = 15%). 
+ * The crossover scheme used is p-best crossover which uses a random vector choosen uniformly 
+ * out of the p best individual from the population. The fitness scale Factor F and 
+ * Crossover Probability Cr are adapted each generation and thus do not need to be provided as input.
+ * For each individual, Cr and F are drawn from a random distributions, defined by Cr_m and F_m.
+ * Each time, an individual with better fitness is created, the corresponding values for F and Cr
+ * are memorized. After one evolution step, the powermean of all these memorized successful factors
+ * is used to perturb the original random distributions, in order to generate better Cr and F
+ * in the next generation.
  *
- * NOTE: when called on mixed-integer problems DE treats the integer part as fixed and optimizes
- * the continuous part.
  *
- * NOTE2: when called on stochastic optimization problems, DE changes the seed
- * at the end of each generation.
- *
- * NOTE3: the pagmo::population::individual_type::cur_v is also updated along DE as soon as a new chromosome is accepted.
- *
- * NOTE4: No memory parameter is used, since the algorithm depends on the current generation (it is recommended to use a high
- * number of generations in order to exploit this adaptive feature)
- *
+ * NOTE: No memory parameter is used, since the algorithm depends on the current generation (it is recommended to use a high
+ * number of generations in order to exploit this adaptive feature. Running this algorithm 1000 times with just 10 Generations 
+ * consecutively on the same population will yield different results than i.e. evolving just once but for 10000 Generations!)
  * 
- * @see paper not yet published
+ * @see Sk. Minhazul Islam, S. Das, S. Ghosh, S. Roy, and P. N. Suganthan, "An Adaptive Differential Evolution Algorithm with Novel Mutation and Crossover Strategies for Global Numerical Optimization", IEEE Trans. on  Systems, Man, and Cybernetics, Part B: Cybernetics, Vol. 42, No. 2, pp.  482-500, 2012.
  *
  * @author Marcus Maertens (mmarcusx@gmail.com)
  */
@@ -64,7 +62,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mde_pbx : public base
 {
 public:
-	mde_pbx(int = 100, double = 0.15, double = 1.5, double = 1e-6, double = 1e-6);
+	mde_pbx(int = 100, double = 0.15, double = 5.0, double = 1e-30, double = 1e-30);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

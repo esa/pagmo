@@ -31,16 +31,18 @@ int main()
 {
 // This instantiates a differential evolution algorithm that will run for 500 generations. Refer to the documentation to
 
-pagmo::algorithm::mde_pbx alg_mde(1000);
+pagmo::algorithm::mde_pbx alg_mde(1000, 0.15, 5.0);
 pagmo::algorithm::jde alg_jde(1000);
 pagmo::algorithm::de alg_de(1000, 0.8, 0.9, 6);
 
-alg_mde.set_screen_output(false);
+std::cout << alg_mde << std::endl;
+
+alg_mde.set_screen_output(true);
 alg_jde.set_screen_output(false);
 alg_de.set_screen_output(false);
 
 //This instantiate a 10 dimensional Schwefel problem
-pagmo::problem::schwefel prob(30);
+pagmo::problem::rastrigin prob(10);
 // prob.set_bounds(-100, 100);
 
 // pagmo::population pop(prob, 100);

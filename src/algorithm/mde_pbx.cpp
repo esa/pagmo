@@ -82,25 +82,20 @@ void mde_pbx::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
-	const problem::base::size_type D = prob.get_dimension(), 
-	      prob_i_dimension = prob.get_i_dimension(), 
-	      prob_c_dimension = prob.get_c_dimension(), 
-	      prob_f_dimension = prob.get_f_dimension();
+	const problem::base::size_type D = prob.get_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type NP = pop.size();
-	const problem::base::size_type Dc = D - prob_i_dimension;
-	const population::size_type NP_Part = double_to_int::convert(m_qperc * NP);
+	const population::size_type NP = pop.size(), NP_Part = double_to_int::convert(m_qperc * NP);
 
 	//We perform some checks to determine wether the problem/population are suitable for DE
-	if ( Dc == 0 ) {
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for MDE_pBX to optimise");
+	if ( D == 0 ) {
+		pagmo_throw(value_error,"Dimension of the problem shall not be zero!");
 	}
 
-	if ( prob_c_dimension != 0 ) {
+	if ( prob.get_c_dimension() != 0 ) {
 		pagmo_throw(value_error,"The problem is not box constrained and MDE_pBX is not suitable to solve it");
 	}
 
-	if ( prob_f_dimension != 1 ) {
+	if ( prob.get_f_dimension() != 1 ) {
 		pagmo_throw(value_error,"The problem is not single objective and MDE_pBX is not suitable to solve it");
 	}
 
@@ -119,10 +114,9 @@ void mde_pbx::evolve(population &pop) const
 	// Some vectors used during evolution are allocated here.
 	decision_vector dummy(D), tmp(D); 		//dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
-	decision_vector gbX(D);				// global best inidivual
 	fitness_vector newfitness(1);			//new fitness of the mutated candidate
 	fitness_vector gbfit(1);			//global best fitness
-	std::vector<fitness_vector> fit(NP,gbfit);
+	std::vector<fitness_vector> fit(NP,gbfit);	//saves current fitness of all individuals
 	
 	//We extract from pop the chromosomes and fitness associated
 	for (std::vector<double>::size_type i = 0; i < NP; ++i) {
@@ -130,9 +124,8 @@ void mde_pbx::evolve(population &pop) const
 		fit[i] = pop.get_individual(i).cur_f;
 	}
 	
-// 	// Initialize the global bests
-	gbX=pop.champion().x;
-	gbfit=pop.champion().f;
+	// Initialize the global bests
+// 	gbfit=pop.champion().f;
 
 	// reserve space for saving successful values for f and cr
 	m_fsuccess.reserve(NP);
@@ -142,10 +135,8 @@ void mde_pbx::evolve(population &pop) const
 	boost::uniform_real<double> uniform(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > r_dist(m_drng,uniform);
 
-	boost::uniform_int<int> r_c_idx(0,Dc-1);
+	boost::uniform_int<int> r_c_idx(0,D-1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > c_idx(m_urng,r_c_idx);
-
-	boost::mt19937 generator(time(NULL));
 	
 	// Declaring temporary variables used by the main-loop
 	pagmo::population::size_type p;
@@ -153,7 +144,7 @@ void mde_pbx::evolve(population &pop) const
 	size_t a[NP];
 	double cri, fi, wcr, wf;
 	
-	// Main Loop of differential evolution
+	// **** Main Loop of differential evolution ****
 	for (int gen = 0; gen < m_gen; ++gen) {
 	    // starting to evolve a new generation: latest generation becomes the old one
 	    std::swap(popold, popnew);
@@ -163,7 +154,7 @@ void mde_pbx::evolve(population &pop) const
 	    m_crsuccess.clear();
 	    
 	    // adjust parameter p controlling the elite of individuals to choose from 
-	    // (as we start with gen=0 and not with gen=1 we use (gen) rather than gen - 1 here)
+	    // as we start counting with gen=0 and not with gen=1 we use (gen) instead of (gen - 1) here
 	    p = ceil((NP / 2.0) * ( 1.0 - (static_cast<double>(gen) / m_gen)));
 
 	    // update random distributions
@@ -181,6 +172,7 @@ void mde_pbx::evolve(population &pop) const
 		    a[k] = k;
 		}
 		
+		// We only swap the first q% of the indices
 		for (pagmo::population::size_type k = 0; k < NP_Part; ++k) {
 		    r1 = double_to_int::convert( boost::uniform_int<int>(k,NP-1)(m_urng) );
 		    std::swap(a[k], a[r1]);
@@ -235,7 +227,7 @@ void mde_pbx::evolve(population &pop) const
 		
 		// Mutation + Crossover
 		tmp = popold[i];
-		for (size_t j = 0; j < Dc; ++j) {
+		for (size_t j = 0; j < D; ++j) {
 		    if (j == j_rand || r_dist() < cri) {
 			tmp[j] = popold[i][j] + fi * (popold[bestq_idx][j] - popold[i][j] + popold[r1][j] - popold[r2][j]);
 		    } else {
@@ -246,7 +238,7 @@ void mde_pbx::evolve(population &pop) const
 		/*=======Trial mutation now in tmp[]. Force feasibility and test how good this choice really was.==========*/
 		// a) feasibility (throw in some random value if we fall out of the borders)
 		size_t i2 = 0;
-		while (i2<Dc) {
+		while (i2<D) {
 			if ((tmp[i2] < lb[i2]) || (tmp[i2] > ub[i2]))
 				tmp[i2] = boost::uniform_real<double>(lb[i2],ub[i2])(m_drng);
 			++i2;
@@ -263,11 +255,6 @@ void mde_pbx::evolve(population &pop) const
 			// updates x and v (cache avoids to recompute the objective function)
 			pop.set_x(i,popnew[i]);
 			pop.set_v(i,tmp);
-			if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
-				/* if so...*/
-				gbfit=newfitness;          /* reset gbfit to new low...*/
-				gbX=tmp;
-			}
 			// remember our successful scale factors
 			m_crsuccess.push_back(cri);
 			m_fsuccess.push_back(fi);
@@ -279,18 +266,18 @@ void mde_pbx::evolve(population &pop) const
 		    
 	    // Update Crossover Probability
 	    if (!m_crsuccess.empty()) {
-	      wcr = 0.9  + (0.1 * m_drng());
+	      wcr = 0.9  + (0.1 * r_dist());
 	      m_crm = (wcr * m_crm) + ((1.0 - wcr) * powermean(m_crsuccess, m_nexp));
 	    }
 	    
 // 	    Update Fitness Scale Factor
 	    if (!m_fsuccess.empty()) {
-	      wf = 0.8 + (0.2 * m_drng());
+	      wf = 0.8 + (0.2 * r_dist());
 	      m_fm = (wf * m_fm) + ((1.0 - wf) * powermean(m_fsuccess, m_nexp));
 	    }
 
 	    //Check the exit conditions (every 40 generations)
-	    if (gen % 100 == 0) {
+	    if (gen % 30 == 0) {
 		double dx = 0;
 		
 		for (decision_vector::size_type k = 0; k < D; ++k) {
@@ -305,21 +292,19 @@ void mde_pbx::evolve(population &pop) const
 			return;
 		}
 
-		// This is deactivated as algorithm is able to escape from bad local minima
-		/*double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+		double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
 
 		if (mah < m_ftol) {
 			if (m_screen_output) {
 				std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
 			}
 			return;
-		}*/
+		}
 		
 		// outputs current values
 		if (m_screen_output) {
 		    std::cout << "Generation " << gen << " ***" << std::endl;
-		    std::cout << "    Best global fitness: " << gbfit << std::endl;
-		    std::cout << "    Best global individual: " << gbX << std::endl;
+		    std::cout << "    Best global fitness: " << pop.champion().f << std::endl;
 		    std::cout << "    Fm: " << m_fm << ", Crm: " << m_crm << std::endl;
 		}
 	    }
@@ -339,6 +324,7 @@ std::string mde_pbx::get_name() const
 /// Computes the powermean of a set given as a vector
 double mde_pbx::powermean(std::vector<double> v, double exp) const
 {
+	// correct implementation of the power mean
 	double sum = 0.0;
 	size_t vsize = v.size();
 
@@ -348,6 +334,7 @@ double mde_pbx::powermean(std::vector<double> v, double exp) const
 	    sum += std::pow(v[i], exp) ;
 	}
 	return std::pow((sum / vsize), (1.0 / exp));
+
 }
 
 /// Extra human readable algorithm info.
