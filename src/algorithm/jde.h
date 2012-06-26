@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_DE_SELF_ADAPTIVE_H
-#define PAGMO_ALGORITHM_DE_SELF_ADAPTIVE_H
+#ifndef PAGMO_ALGORITHM_JDE_H
+#define PAGMO_ALGORITHM_JDE_H
 
 #include <string>
 
@@ -34,7 +34,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Differential Evolution Algorithm - Self-Adaptive C and R (2011)
+/// jDE - Differential Evolution Algorithm - Self-Adaptive C and R (2011)
 /**
  *
  * \image html de.jpg "Differential Evolution block diagram."
@@ -61,10 +61,10 @@ namespace pagmo { namespace algorithm {
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 
-class __PAGMO_VISIBLE de_self_adaptive: public base
+class __PAGMO_VISIBLE jde : public base
 {
 public:
-	de_self_adaptive(int = 100, int = 2, int = 1, double = 1e-6, double = 1e-6, bool = true);
+	jde(int = 100, int = 2, int = 1, double = 1e-6, double = 1e-6, bool = true);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -109,6 +109,6 @@ private:
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::de_self_adaptive);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::jde);
 
-#endif // DE_SELF_ADAPTIVE_H
+#endif // JDE_H

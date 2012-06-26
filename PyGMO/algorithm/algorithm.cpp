@@ -224,9 +224,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.add_property("cr",&algorithm::de::get_cr,&algorithm::de::set_cr)
 		.add_property("f",&algorithm::de::get_f,&algorithm::de::set_f);
 
-	// Differential evolution (self-adaptive)
-	algorithm_wrapper<algorithm::de_self_adaptive>("de_self_adaptive", "Differential Evolution Algorithm with self-adaptation.\n")
+	// Differential evolution (jDE)
+	algorithm_wrapper<algorithm::jde>("jde", "Self-Adaptive Differential Evolution Algorithm: jDE.\n")
 		.def(init<optional<int, int, int, double, double, bool> >());
+		
+	// Differential evolution (mde_pbx)
+	algorithm_wrapper<algorithm::mde_pbx>("mde_pbx", "Self-Adaptive Differential Evolution Algorithm: mde_pbx.\n")
+		.def(init<optional<int, double, double, double, double> >());
 
 	// Differential evolution (our own brew)
 	algorithm_wrapper<algorithm::de_1220>("de_1220", "Differential Evolution Algorithm (our brew ...).\n")
