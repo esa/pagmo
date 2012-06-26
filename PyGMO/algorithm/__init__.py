@@ -61,11 +61,11 @@ def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, scre
 de._orig_init = de.__init__
 de.__init__ = _de_ctor
 
-def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
+def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
 	"""
-	Constructs a Differential Evolution algorithm that has self-adaptation on CR and F:
+	Constructs a jDE algorithm (self-adaptive DE)
 	
-	USAGE: algorithm.de_self_adaptive(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
+	USAGE: algorithm.jde(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
 	
 	* gen: number of generations
 	* variant: algoritmic variant to use (one of [1 .. 18])
@@ -94,8 +94,32 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6,
 	arg_list.append(restart)	
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
-de_self_adaptive._orig_init = de_self_adaptive.__init__
-de_self_adaptive.__init__ = _de_self_adaptive_ctor
+jde._orig_init = jde.__init__
+jde.__init__ = _jde_ctor
+
+def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
+	"""
+	Constructs a mde_pbx algorithm (self-adaptive DE)
+	
+	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
+	
+	* gen: number of generations
+	* qperc: percentage of population to choose the best vector
+	* nexp: exponent for the powermean
+	* ftol: stop criteria on f
+	* xtol: stop criteria on x
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(qperc)
+	arg_list.append(nexp)
+	arg_list.append(ftol)
+	arg_list.append(xtol)	
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+mde_pbx._orig_init = mde_pbx.__init__
+mde_pbx.__init__ = _mde_pbx_ctor
 
 def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,11)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
