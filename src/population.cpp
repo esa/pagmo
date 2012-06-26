@@ -758,9 +758,11 @@ void population::erase(const population::size_type & idx) {
 	// Since an element is erased indexes in dom_list need an update
 	for (population::size_type i=0; i<size(); ++i){
 		for(population::size_type j=0; j<m_dom_list[i].size();++j) {
-			if (m_dom_list[i][j] == idx) m_dom_list[i].erase(m_dom_list[i].begin()+j);
+            if (m_dom_list[i][j] == idx) {
+                m_dom_list[i].erase(m_dom_list[i].begin()+j);
+                if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
+            }
 			else if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
-  
 		}
 	}
 }
