@@ -54,7 +54,7 @@ base_ptr zdt6::clone() const
 void zdt6::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 2);
-	pagmo_assert(x.size() == this.get_dimension());
+    pagmo_assert(x.size() == get_dimension());
 
 	double g = 0;
 

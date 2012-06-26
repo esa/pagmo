@@ -43,6 +43,7 @@
 namespace pagmo
 {
 
+/// TODO: check if this is really needed!!!! 
 problem::base_ptr &population_access::get_problem_ptr(population &pop)
 {
 	return pop.m_prob;
@@ -58,7 +59,7 @@ problem::base_ptr &population_access::get_problem_ptr(population &pop)
  *
  * @throw value_error if n is negative.
  */
-population::population(const problem::base &p, int n):m_prob(p.clone()), m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
+population::population(const problem::base &p, int n):m_prob(p.clone()), m_pareto_rank(n), m_crowding_d(n), m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
@@ -81,23 +82,57 @@ population::population(const problem::base &p, int n):m_prob(p.clone()), m_drng(
 		m_container.back().best_x.resize(p_size);
 		m_container.back().best_c.resize(c_size);
 		m_container.back().best_f.resize(f_size);
-//std::cout << "constructor: " << m_dom_list.size() << " " << m_dom_count.size() << " " <<  size << std::endl;
 		// Initialise randomly the individual.
 		reinit(i);
 	}
 }
 
+/// Copy constructor.
+/**
+ * Will perform a deep copy of all the elements.
+ *
+ * @param[in] p population used to initialise this.
+ */
+population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),m_dom_count(p.m_dom_count),
+	m_champion(p.m_champion), m_pareto_rank(p.m_pareto_rank), m_crowding_d(p.m_crowding_d),m_drng(p.m_drng),m_urng(p.m_urng)
+{}
+
+/// Assignment operator.
+/**
+ * Performs a deep copy of all the elements of p into this.
+ *
+ * @param[in] p population to be assigned to this.
+ *
+ * @return reference to this.
+ */
+population &population::operator=(const population &p)
+{
+	if (this != &p) {
+		pagmo_assert(m_prob && p.m_prob);
+		// Perform the copies.
+		m_prob = p.m_prob->clone();
+		m_container = p.m_container;
+		m_dom_list = p.m_dom_list;
+		m_dom_count = p.m_dom_count;
+		m_champion = p.m_champion;
+		m_pareto_rank = p.m_pareto_rank;
+		m_crowding_d = p.m_crowding_d;
+		m_drng = p.m_drng;
+		m_urng = p.m_urng;
+	}
+	return *this;
+}
+
 // Update the domination list and the domination count when the individual at position n has changed
 void population::update_dom(const size_type &n)
 {
-	//The algorithm works as follow:
+	// The algorithm works as follow:
 	// 1) For each element in m_dom_list[n] decrease the domination count by one. (m_dom_count[m_dom_list[n][j]] -= 1)
 	// 2) We empty the dom_list and reinitialize m_dom_count[n] = 0-
 	// 3) We loop over the population (j) and construct again m_dom_list[n] and m_dom_count, 
 	//    taking care to also keep m_dom_list[j] correctly updated
 	
 	const size_type size = m_container.size();
-//std::cout << "update_dom: " << m_dom_list.size() << " " << m_dom_count.size() << " " <<  size << std::endl;
 	pagmo_assert(m_dom_list.size() == size && m_dom_count.size() == size && n < size);
 	
 	// Decrease the domination count for the individuals that were dominated
@@ -135,45 +170,6 @@ void population::update_dom(const size_type &n)
 			}
 		}
 	}
-}
-
-/// Computes and returns the population Pareto fronts
-/**
- * This method computes all Pareto Fronts of the population, returning the individuals idx1
- * belonging to each Pareto front.
- * 
- * @return a vector containing, for each Pareto front, a vector of the individuals idx that belong to
- * each front
- */
-std::vector<std::vector<population::size_type> > population::compute_pareto_fronts() const {
-	std::vector<std::vector<population::size_type> > retval;
-	std::vector<population::size_type> F,S;
-	std::vector<population::size_type> dom_count_copy(m_dom_count);
-	// We find the first Pareto Front
-	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
-		if (m_dom_count[idx] == 0) {
-			F.push_back(idx);
-		}
-	}
-	// And if not empty, we push it back to retval
-	if (F.size() != 0) retval.push_back(F);
-	
-	// We loop to find subsequent fronts
-	while (F.size()!=0) {
-		//For each individual F in the current front
-		for (population::size_type i=0; i < F.size(); ++i) {
-			//For each individual dominated by F
-			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
-				dom_count_copy[m_dom_list[F[i]][j]]--;
-				if (dom_count_copy[m_dom_list[F[i]][j]] == 0) S.push_back(m_dom_list[F[i]][j]);
-			}
-		}
-		F = S;
-		S.clear();
-		if (F.size() != 0) retval.push_back(F);
-	}
-	return retval;
-	
 }
 
 // Init randomly the velocity of the individual in position idx.
@@ -259,39 +255,6 @@ void population::reinit(const size_type &idx)
 	update_dom(idx);
 }
 
-/// Copy constructor.
-/**
- * Will perform a deep copy of all the elements.
- *
- * @param[in] p population used to initialise this.
- */
-population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),m_dom_count(p.m_dom_count),
-	m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng)
-{}
-
-/// Assignment operator.
-/**
- * Performs a deep copy of all the elements of p into this.
- *
- * @param[in] p population to be assigned to this.
- *
- * @return reference to this.
- */
-population &population::operator=(const population &p)
-{
-	if (this != &p) {
-		pagmo_assert(m_prob && p.m_prob);
-		// Perform the copies.
-		m_prob = p.m_prob->clone();
-		m_container = p.m_container;
-		m_dom_list = p.m_dom_list;
-		m_dom_count = p.m_dom_count;
-		m_champion = p.m_champion;
-		m_drng = p.m_drng;
-		m_urng = p.m_urng;
-	}
-	return *this;
-}
 
 /// Get constant reference to individual at position n.
 /**
@@ -348,7 +311,49 @@ population::size_type population::get_domination_count(const size_type &idx) con
 	return m_dom_count[idx];
 }
 
-/// This functor is used to sort (minimization assumed) along a particular fitness dimension
+/// Get Pareto rank
+/**
+ * Will return the Pareto rank for the requested individual idx (that is the Pareto front it belongs to, starting from 0,1,2....N).
+ * A call to population::update_pareto_ranks() is needed if the population has
+ * changed since the last time the Pareto ranks were computed
+ *
+ * @param[in] idx position of the individual whose Pareto rank will be returned
+ *
+ * @return the Pareto rank of indiviual idx
+ *
+ * @throws index_error if idx is not smaller than m_pareto_rank.size().
+ */
+population::size_type population::get_pareto_rank(const size_type &idx) const
+{
+	if (idx >= m_pareto_rank.size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	return m_pareto_rank[idx];
+}
+
+/// Get Crowding Distance 
+/**
+ * Will return the crowding distance for the requested individual idx. A call to population::update_crowding_d() is needed if the population has
+ * changed since the last time the Pareto ranks were computed. The crowding distance is computed as defined in Deb's work
+ * 
+ * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
+ *
+ * @param[in] idx position of the individual whose Crowding Distance  will be returned
+ *
+ * @return the Crowding Distance of indiviual idx
+ *
+ * @throws index_error if idx is not smaller than m_crowding_distance.size().
+ */
+double population::get_crowding_d(const size_type &idx) const
+{
+	if (idx >= m_crowding_d.size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	return m_crowding_d[idx];
+}
+
+// This functor is used to sort (minimization assumed) along a particular fitness dimension. 
+// Needed for the computations of the crowding distance
 struct one_dim_fit_comp {
 	one_dim_fit_comp(const population &pop, fitness_vector::size_type dim):m_pop(pop), m_dim(dim) {};
 	bool operator()(const population::size_type& idx1, const population::size_type& idx2) const
@@ -359,64 +364,152 @@ struct one_dim_fit_comp {
 	fitness_vector::size_type m_dim;
 };
 
-/// Crowded comparison operator struct constructor. The crowding distances are computed upon construction
-/// for the whole population. This is very time consuming. A bottleneck.... it requires sorting
-/// along each fitness dimension!
-population::crowded_comparison_operator::crowded_comparison_operator(const population &pop):m_pop(pop),m_crowding_d(pop.size(),0.0) 
-{
-	pagmo_assert(m_pop.size() >= 2);
-	pagmo_assert(m_pop.problem().get_f_dimension() >= 2);
+// We compute all pareto fronts and thus update the pareto ranks
+void population::update_pareto_ranks() const {
+	// Population size can change between calls and m_pareto_rank is updated if necessary
+	m_pareto_rank.resize(size());
+
+	// We initialize the ranks to zero
+	std::fill(m_pareto_rank.begin(), m_pareto_rank.end(), 0);
 	
-	// here we keep indices associated to the individuals, i.e. 0,1,2,...,pop.size()-1
+	// We define some utility vectors .....
+	std::vector<population::size_type> F,S;
+	
+	// And make a copy of the domination count
+	std::vector<population::size_type> dom_count_copy(m_dom_count);
+	
+	// 1 - Find the first Pareto Front
+	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
+		if (m_dom_count[idx] == 0) {
+			F.push_back(idx);
+		}
+	}
+
+	unsigned int irank = 1;
+	// We loop to find subsequent fronts
+	while (F.size()!=0) {
+		//For each individual F in the current front
+		for (population::size_type i=0; i < F.size(); ++i) {
+			//For each individual dominated by F
+			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
+				dom_count_copy[m_dom_list[F[i]][j]]--;
+				if (dom_count_copy[m_dom_list[F[i]][j]] == 0){
+					S.push_back(m_dom_list[F[i]][j]);
+					m_pareto_rank[m_dom_list[F[i]][j]] = irank;
+				}
+			}
+		}
+		F = S;
+		S.clear();
+		irank++;
+	}
+}
+
+// We update m_crowding_d 
+void population::update_crowding_d() const {
+	
+	// Population size can change between calls and m_crowding_d is updated if necessary
+	m_crowding_d.resize(size());
+	
+	// We initialize all distances to zero
+	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
+	
+	// here we keep indexes associated to the individuals, i.e. 0,1,2,...,pop.size()-1
 	std::vector<population::size_type> I;
-	I.reserve(m_pop.size());
-	for (population::size_type i=0; i<m_pop.size(); ++i){
+	I.reserve(size());
+	for (population::size_type i=0; i < size(); ++i){
 		I.push_back(i);
 	} 
 	
 	// we construct the comparison functor along the first fitness component
-	one_dim_fit_comp funct(m_pop,0);
+	one_dim_fit_comp funct(*this,0);
 	
 	// we loop along fitness components
-	for (fitness_vector::size_type i = 0; i<m_pop.problem().get_f_dimension(); ++i) {
+	for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
 		funct.m_dim = i;
 		// we sort I along the fitness_dimension i
 		std::sort(I.begin(),I.end(), funct );
 		// assign Inf to the boundaries
 		m_crowding_d[I[0]] = std::numeric_limits<double>::max();
-		m_crowding_d[I[m_pop.size()-1]] = std::numeric_limits<double>::max();
+		m_crowding_d[I[size()-1]] = std::numeric_limits<double>::max();
 		//and compute the crowding distance
-		double df = m_pop.get_individual(I[m_pop.size()-1]).cur_f[i] - m_pop.get_individual(I[0]).cur_f[i];
-		for (population::size_type j = 1; j < m_pop.size()-1; ++j) {
-			m_crowding_d[j] += (m_pop.get_individual(I[j+1]).cur_f[i] - m_pop.get_individual(I[j-1]).cur_f[i])/df;
+		double df = get_individual(I[size()-1]).cur_f[i] - get_individual(I[0]).cur_f[i];
+		for (population::size_type j = 1; j < size()-1; ++j) {
+			m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
 		}
 	}
+}
+
+/// Computes and returns the population Pareto fronts
+/**
+ * This method computes all Pareto Fronts of the population, returning the individuals idx1
+ * belonging to each Pareto front.
+ * 
+ * @return a vector containing, for each Pareto front, a vector of the individuals idx that belong to
+ * each front
+ */
+std::vector<std::vector<population::size_type> > population::compute_pareto_fronts() const {
+	std::vector<std::vector<population::size_type> > retval;
+	std::vector<population::size_type> F,S;
+	std::vector<population::size_type> dom_count_copy(m_dom_count);
+	
+	// We find the first Pareto Front
+	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
+		if (m_dom_count[idx] == 0) {
+			F.push_back(idx);
+		}
+	}
+	// And if not empty, we push it back to retval
+	if (F.size() != 0) retval.push_back(F);
+	
+	// We loop to find subsequent fronts
+	while (F.size()!=0) {
+		//For each individual F in the current front
+		for (population::size_type i=0; i < F.size(); ++i) {
+			//For each individual dominated by F
+			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
+				dom_count_copy[m_dom_list[F[i]][j]]--;
+				if (dom_count_copy[m_dom_list[F[i]][j]] == 0) S.push_back(m_dom_list[F[i]][j]);
+			}
+		}
+		F = S;
+		S.clear();
+		if (F.size() != 0) retval.push_back(F);
+	}
+	return retval;
+}
+
+// Crowded comparison operator struct constructor.
+population::crowded_comparison_operator::crowded_comparison_operator(const population &pop):m_pop(pop)
+{
+	pagmo_assert(m_pop.size() >= 2);
+	pagmo_assert(m_pop.problem().get_f_dimension() >= 2);
 };
 bool population::crowded_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const 
 {
 	pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
 	pagmo_assert(&i2 >= &m_pop.m_container.front() && &i2 <= &m_pop.m_container.back());
 	const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
-	if (m_pop.m_dom_count[idx1] == m_pop.m_dom_count[idx2]) {
-		return m_crowding_d[idx1] > m_crowding_d[idx2];
+	if (m_pop.m_pareto_rank[idx1] == m_pop.m_pareto_rank[idx2]) {
+		return (m_pop.m_crowding_d[idx1] > m_pop.m_crowding_d[idx2]);
 	}
 	else {
-		return m_pop.m_dom_count[idx1] < m_pop.m_dom_count[idx2];
+		return (m_pop.m_pareto_rank[idx1] < m_pop.m_pareto_rank[idx2]);
 	}
 }
 bool population::crowded_comparison_operator::operator()(const size_type &idx1, const size_type &idx2) const
 {
-	pagmo_assert(&idx1 >= 0 && &idx1 <= &m_pop.size());
-	pagmo_assert(&idx2 >= 0 && &idx2 <= &m_pop.size());
-	if (m_pop.m_dom_count[idx1] == m_pop.m_dom_count[idx2]) {
-		return m_crowding_d[idx1] > m_crowding_d[idx2];
+	pagmo_assert(idx1 <= m_pop.size());
+	pagmo_assert(idx2 <= m_pop.size());
+	if (m_pop.m_pareto_rank[idx1] == m_pop.m_pareto_rank[idx2]) {
+		return (m_pop.m_crowding_d[idx1] > m_pop.m_crowding_d[idx2]);
 	}
 	else {
-		return m_pop.m_dom_count[idx1] < m_pop.m_dom_count[idx2];
+		return (m_pop.m_pareto_rank[idx1] < m_pop.m_pareto_rank[idx2]);
 	}
 }
 
-/// Trivial comparison operator struct
+// Trivial comparison operator struct constructor.
 population::trivial_comparison_operator::trivial_comparison_operator(const population &pop):m_pop(pop) {};
 bool population::trivial_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const
 {
@@ -427,8 +520,8 @@ bool population::trivial_comparison_operator::operator()(const individual_type &
 }
 bool population::trivial_comparison_operator::operator()(const size_type &idx1, const size_type &idx2) const
 {
-	pagmo_assert(&idx1 >= 0 && &idx1 <= &m_pop.size());
-	pagmo_assert(&idx2 >= 0 && &idx2 <= &m_pop.size());
+	pagmo_assert(idx1 <= m_pop.size());
+	pagmo_assert(idx2 <= m_pop.size());
 	return m_pop.problem().compare_fc(m_pop.get_individual(idx1).cur_f, m_pop.get_individual(idx1).cur_c, m_pop.get_individual(idx2).cur_f,m_pop.get_individual(idx2).cur_c);
 }
 
@@ -458,6 +551,8 @@ population::size_type population::get_worst_idx() const
 		it = std::max_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
 	}
 	else {
+		update_crowding_d();
+		update_pareto_ranks();
 		it = std::max_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
 	}
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
@@ -488,6 +583,8 @@ population::size_type population::get_best_idx() const
 		it = std::min_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
 	}
 	else {
+		update_crowding_d();
+		update_pareto_ranks();
 		it = std::min_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
 	}	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
@@ -525,6 +622,8 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 		std::sort(retval.begin(),retval.end(),trivial_comparison_operator(*this));
 	}
 	else {
+		update_crowding_d();
+		update_pareto_ranks();
 		std::sort(retval.begin(),retval.end(),crowded_comparison_operator(*this));
 	}
 	retval.resize(N);
@@ -653,7 +752,6 @@ void population::erase(const population::size_type & idx) {
 	for (population::size_type i = 0; i < m_dom_list[idx].size(); ++i) {
 		m_dom_count[m_dom_list[idx][i]]--;
 	}
-//std::cout << "sizes: " << m_container.size() << " " << m_dom_count.size() << " " << m_dom_list.size() << std::endl;
 	m_container.erase(m_container.begin() + idx);
 	m_dom_count.erase(m_dom_count.begin() + idx);
 	m_dom_list.erase(m_dom_list.begin() + idx);
@@ -849,3 +947,4 @@ std::ostream &operator<<(std::ostream &s, const population::champion_type &champ
 }
 
 }
+

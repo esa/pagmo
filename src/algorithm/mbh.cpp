@@ -38,7 +38,7 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor.
 /**
- * Specify an mbh algorithm with uniform neighbourhoods
+ * Constructs an mbh algorithm with uniform neighbourhoods
  *
  * @param[in] local pagmo::algorithm to use as 'local' optimization method
  * @param[in] stop number of consecutive step allowed without any improvement
