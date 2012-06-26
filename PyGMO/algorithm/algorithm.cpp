@@ -213,6 +213,11 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::sga>("sga", "A simple genetic algorithm (generational)")
 		.def(init<int, optional<const double &, const double &, int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
 	
+	// NSGA II
+	algorithm_wrapper<algorithm::nsga2>("nsga_II", "The multi-objective NSGA-II algorithm")
+		.def(init<optional<int, double, double, double, double> >());
+
+		
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
 		.def(init<optional<int,const double &, const double &, int, double, double> >())
