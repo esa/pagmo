@@ -52,7 +52,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE cassini_1: public base
 {
 	public:
-		cassini_1();
+		cassini_1(unsigned int = 1);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -64,11 +64,13 @@ class __PAGMO_VISIBLE cassini_1: public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
+			ar & m_mo;
 			ar & Delta_V;
 			ar & rp;
 			ar & t;
 		}
 		mgaproblem problem;
+		unsigned int m_mo;
 		// Variables used in the call to MGA.
 		mutable std::vector<double> Delta_V;
 		mutable std::vector<double> rp;

@@ -335,8 +335,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init< const std::vector<int> &>());
 
 	// Cassini 1.
-	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
-
+	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.")
+		.def(init<optional<unsigned int> >());
 	// Messenger full.
 	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
 
