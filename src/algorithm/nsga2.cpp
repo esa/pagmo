@@ -78,10 +78,10 @@ base_ptr nsga2::clone() const
 
 pagmo::population::size_type nsga2::tournament_selection(pagmo::population::size_type idx1, pagmo::population::size_type idx2, const pagmo::population& pop) const
 {
-	if (pop.get_domination_count(idx1) < pop.get_domination_count(idx2)) return idx1;
-	if (pop.get_domination_count(idx1) > pop.get_domination_count(idx2)) return idx2;
-	if (pop.get_domination_list(idx1).size() > pop.get_domination_list(idx2).size()) return idx1;
-	if (pop.get_domination_list(idx1).size() < pop.get_domination_list(idx2).size()) return idx2;
+//	if (pop.get_pareto_rank(idx1) < pop.get_pareto_rank(idx2)) return idx1;
+//	if (pop.get_pareto_rank(idx1) > pop.get_pareto_rank(idx2)) return idx2;
+//	if (pop.get_crowding_d(idx1) > pop.get_crowding_d(idx2)) return idx1;
+//	if (pop.get_crowding_d(idx1) < pop.get_crowding_d(idx2)) return idx2;
 	return ((m_drng() > 0.5) ? idx1 : idx2);
 }
 
@@ -224,6 +224,9 @@ void nsga2::evolve(population &pop) const
 	// Main NSGA-II loop
 	for (int g = 0; g<m_gen; g++) {
 		//At each generation we make a copy of the population into popnew
+		// We compute the crowding distance and the pareto rank of pop
+		pop.update_crowding_d();
+		pop.update_pareto_ranks();
 		population popnew(pop);
 		
 		//We create some random permutation of the poulation indexes
