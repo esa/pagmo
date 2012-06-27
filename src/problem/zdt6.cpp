@@ -54,7 +54,7 @@ base_ptr zdt6::clone() const
 void zdt6::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 2);
-    pagmo_assert(x.size() == get_dimension());
+	pagmo_assert(x.size() == get_dimension());
 
 	double g = 0;
 
@@ -63,7 +63,7 @@ void zdt6::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for(problem::base::size_type i = 1; i < x.size(); ++i) {
 		g += x[i];
 	}
-	g = 1 + (9 * g) / 9;
+	g = 1 + 9 * pow((g/(x.size()-1)),0.25);
 	
 	f[1] = g * ( 1 - (f[0]/g)*(f[0]/g));
 	
