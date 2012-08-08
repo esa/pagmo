@@ -56,8 +56,8 @@ struct population_access;
  * Additionally, the population class keeps for each individual I a "domination list", constituted by the list of individuals
  * (identified by their positional index in the population) which I dominates, and a 'domination count' containing the number
  * of individuals that dominate I. Individual I1 is dominated by individual I2 if problem::base::compare_fc 
- * on the fitness and constraints vectors of I1 and I2 respectively returns true. The best/worst individuals in the population
- * are computed according to the crowding distance operator.
+ * on the fitness and constraints vectors of I1 and I2 respectively returns true. 
+ * The best/worst individuals in the population are computed according to the crowding distance operator (in case of multi-objective problems)
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  * @author Dario Izzo (dario.izzo@googlemail.com)

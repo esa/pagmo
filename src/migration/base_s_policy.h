@@ -72,7 +72,8 @@ return base_ptr(new derived_policy(*this));
 		 * This is the method that actually implements the policy.
 		 * Output vector should contain copies of selected individuals.
 		 *
-		 * \param[in] pop source population.
+		 * \param[in,out] pop source population. In some cases (see best_kill_s-policy)
+		 * it can be modified (e.g. killing the selected individual)
 		 *
 		 * \return a vector containing selected individuals.
 		 */

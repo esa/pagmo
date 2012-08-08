@@ -38,9 +38,12 @@ namespace pagmo { namespace migration {
 /// "Choose best" migration selection policy.
 /**
  * This policy is to choose best individuals from the population as migrating individuals.
+ * In a multi-objective case, the crowded distance comparison will be used as the population::get_best_idx method is called.
  *
- * @author Marek Ruciński (marek.rucinski@gmail.com)
+ * @author Marek Rucinski (marek.rucinski@gmail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
+ * 
  */
 class __PAGMO_VISIBLE best_s_policy: public base_s_policy
 {

@@ -19,7 +19,6 @@ Population
 
       .. code-block:: python
 
-
          from PyGMO import *
          prob = problem.schwefel(50)
          pop1 = population(prob) #empty population
@@ -55,7 +54,8 @@ Population
 
    .. method:: erase((int) idx)
 
-      Erases the :class:`individual` with index idx from the *population*. Domination list and count are updated accordingly.
+      Erases the :class:`individual` with index idx from the *population*. Domination list and 
+      domination count are updated accordingly.
 
       NOTE: after such an operation all indexes will be renamed so that if the individual with idx = n is erased, 
       after the erase has completed the individual that had idx=n+1 will have idx = n
@@ -135,15 +135,17 @@ Population
          pop = population(prob,100)
          pf = pop.plot_pareto_fronts()
 
-   .. method:: get_best_idx()
+   .. method:: get_best_idx((int) n)
 
-      Returns the index of the best :class:`PyGMO.individual` in a *population*. The best :class:`PyGMO.individual` is the one with the least
-      domination count. In case of equal domination counts, the individual with the shortest domination list wins
+      Returns the n best indexes of the :class:`PyGMO.individual` in a *population*. The best 
+      :class:`PyGMO.individual`s are computed according to non-dominated sorting in populations that
+      have a multi-objective problem.
 
    .. method:: get_worst_idx()
 
-      Returns the index of the worst :class:`PyGMO.individual` in a *population*. The worst :class:`PyGMO.individual` is the one with the largest
-      domination count. In case of equal domination counts, the individual with the longest domination list is worst
+      Returns the index of the worst :class:`PyGMO.individual` in a *population*. The worst 
+      :class:`PyGMO.individual` is computed according to non-dominated sorting in populations that
+      have a multi-objective problem.
 
       .. code-block:: python
 

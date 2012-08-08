@@ -12,6 +12,8 @@ def _cassini_1_ctor(self, objectives = 1):
 	      
 	USAGE: problem.cassini_1(objectives = 1)
 	
+	* objectives: number of objectives. 1=DV, 2=DV,DT
+	
 	"""
 	
 	# We construct the arg list for the original constructor exposed by boost_python

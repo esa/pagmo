@@ -43,7 +43,7 @@ namespace pagmo { namespace migration {
  * population. The replacement is moreover subject to the requirement that the new individuals must be better than the ones
  * being replaced.
  *
- * @author Marek Ruciński (marek.rucinski@gmail.com)
+ * @author Marek Rucinski (marek.rucinski@gmail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE fair_r_policy: public base_r_policy

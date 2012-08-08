@@ -27,8 +27,10 @@
 
 /*! \mainpage PaGMO (Parallel Global Multiobjective Optimizer)
 \section intro_sec Introduction 
-PaGMO is a generalization of the island model paradigm to parallelize global and local optimization algorithms using multiple threads/processes. It provides a set of C++ classes
-and their exposition in Python language as to allow the user to solve, in a parallel fashion, global optimization tasks in the form: \n\n
+PaGMO offers a generalization of the island model paradigm able parallelize global and local optimization
+algorithms using multiple threads/processes. It provides a set of C++ classes
+and their exposition in Python language as to allow the user to solve, in a parallel fashion,
+global optimization tasks in the form: \n\n
 <center>
 	\f$
 	\begin{array}{rl}
@@ -41,17 +43,27 @@ and their exposition in Python language as to allow the user to solve, in a para
 	\f$
 </center>\n\n
 
+.... yes it is that good ... its framework is applicable to single-objective, multiple-objectives, 
+continuous, integer, box-constrained, non linear constrained, stochastic, deterministic optimization!!!!
+
+ * @see Izzo, D., PyGMO and PyKEP: Open Source Tools for Massively Parallel Optimization in Astrodynamics (the case of interplanetary trajectory optimization), International Conference on Astrodynamics Tools and Techniques - ICATT, 2012. 
+ * @see Izzo, D., Rucinski, M., and Biscani, F., The Generalized Island Model, Parallel Architectures and Bioinspired Algorithms, Springer Berlin/Heidelberg, pp.151--169, 2012.
+ * @see Rucinski, M., Izzo, D., and Biscani, F., On the Impact of the Migration Topology on the Island Model, Parallel Computing, 36, Elsevier, pp.555-571, 2010.
+ 
 \section algorithms Algorithms currently implemented in PaGMO
 
 A number of algorithms are already implemented in PaGMO and thus immediately
 available after installation. The user can implement his own algorithms both in C++
 and directly in Python. Check the algorithm documentation to verify whether a particolar problem class
-can be fed to it (i.e. box-constrained or mixed integer etc.):
+can be fed to it (i.e. box-constrained, mixed integer etc.):
 
 - A Simple Genetic Algorithm (pagmo::algorithm::sga)
-- Differential Evolution (pagmo::algorithm::de)
+- Differential Evolution [the original algorithm] (pagmo::algorithm::de)
+- jDE [self-adaptive Differential volution] (pagmo::algorithm::jde)
+- mde_pbx [self-adaptive Differential volution] (pagmo::algorithm::mde_pbx)
 - Particle Swarm Optimization (pagmo::algorithm::pso)
-- Particle Swarm Optimization (generational version) (pagmo::algorithm::pso_generational)
+- Particle Swarm Optimization [generational version] (pagmo::algorithm::pso_generational)
+- Non-dominated Sorting Genetic Algorithm (pagmo::algorithm::nsga2)
 - Adaptive Neighbourhood Simulated Annealing (pagmo::algorithm::sa_corana)
 - Improved Harmony Search (pagmo::algorithm::ihs)
 - Compass Search (pagmo::algorithm::cs)
@@ -83,7 +95,7 @@ directly in Python.
  - Integer Programming
   - Golomb Ruler, Knapsack Problem
  - Multi-objective, continuous, box-constrained
-  - The SCH and FON problems from nsga-II
+  - The SCH, FON and ZDT problems 
  - Stochastic, continuous and box bounded
   - A simple inventory problem
 - Engineering Problems

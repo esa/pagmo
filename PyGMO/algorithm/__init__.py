@@ -82,7 +82,9 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, r
 		1. random param mutation		2. param mutation follows rand/3 scheme
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
-	* restart: if True parameters are reinitialized at each algorithmic call (no memory)
+	* restart: if True the adapted parameters are reinitialized at each algorithmic call (no memory)
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -108,6 +110,8 @@ def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, scr
 	* nexp: exponent for the powermean
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -282,6 +286,29 @@ def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSS
 	self._orig_init(*arg_list)
 sga._orig_init = sga.__init__
 sga.__init__ = _sga_ctor
+
+def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
+	"""
+	Constructs a Non-dominated Sorting Genetic Algorithm (NSGA_II)
+	
+	USAGE: algorithm.nsga__II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+  
+	* gen: number of generations
+	* cr: crossover factor [0,1[
+	* eta_c: Distribution index for crossover
+	* m: mutation probability [0,1]
+	* eta_m: Distribution index for mutation
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(eta_c)
+	arg_list.append(m)
+	arg_list.append(eta_m)
+	self._orig_init(*arg_list)
+nsga_II._orig_init = nsga_II.__init__
+nsga_II.__init__ = _nsga_II_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
@@ -463,9 +490,10 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	* sigma0: starting step (std)
 	* xtol: stopping criteria on the x tolerance
 	* ftol: stopping criteria on the f tolerance
-	* restart:  when True the algorithm loses its memory of covariance, step and other self-adapted quantities between successive calls
+	* restart:  when True the algorithm reinitialize covariance, step and other self-adapted quantities between successive calls
 	* homebrew: when True CMAES becames a variant using population memory to define the elite and reinserting in steady-state (our own homebrew)
-	* screen_output: activates screen_output (output at each generation)
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]

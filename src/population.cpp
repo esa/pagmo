@@ -315,7 +315,7 @@ population::size_type population::get_domination_count(const size_type &idx) con
 /**
  * Will return the Pareto rank for the requested individual idx (that is the Pareto front it belongs to, starting from 0,1,2....N).
  * A call to population::update_pareto_ranks() is needed if the population has
- * changed since the last time the Pareto ranks were computed
+ * changed since the last time the Pareto rank was computed
  *
  * @param[in] idx position of the individual whose Pareto rank will be returned
  *
@@ -334,7 +334,7 @@ population::size_type population::get_pareto_rank(const size_type &idx) const
 /// Get Crowding Distance 
 /**
  * Will return the crowding distance for the requested individual idx. A call to population::update_crowding_d() is needed if the population has
- * changed since the last time the Pareto ranks were computed. The crowding distance is computed as defined in Deb's work
+ * changed since the last time the Crowding Distance was computed. The crowding distance is computed as defined in Deb's work
  * 
  * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
  *
@@ -442,8 +442,8 @@ void population::update_crowding_d() const {
 
 /// Computes and returns the population Pareto fronts
 /**
- * This method computes all Pareto Fronts of the population, returning the individuals idx1
- * belonging to each Pareto front.
+ * This method computes all Pareto Fronts of the population, returning the positional indexes
+ * of the individuals belonging to each Pareto front.
  * 
  * @return a vector containing, for each Pareto front, a vector of the individuals idx that belong to
  * each front
@@ -537,7 +537,9 @@ bool population::trivial_comparison_operator::operator()(const size_type &idx1, 
  * we do not use the front rank,  but the m_dom_count (which is related but not identical). 
  * 
  * 
- * NOTE: population.get_worst_idx assumes a weak strict ordering defined in problem::compare_fc.
+ * NOTE: population.get_worst_idx assumes a weak strict ordering defined in problem::compare_fc. If the user
+ * reimplements such a virtual method at the problem level, he needs to make sure this condition
+ * is met (or pay the consequences :)
  *
  * @return the positional index of the worst individual.
  */
@@ -569,8 +571,10 @@ population::size_type population::get_worst_idx() const
  * what originally defined by Deb in "A Fast and Elitist Multiobjective Genetic Algorithm: NSGA II",
  * we do not use the front rank,  but the m_dom_count (which is related but not identical). 
  * 
- * NOTE: population.get_best_idx assumes a weak strict ordering defined in problem::compare_fc.
- *
+ * NOTE: population.get_best_idx assumes a weak strict ordering defined in problem::compare_fc. If the user
+ * reimplements such a virtual method at the problem level, he needs to make sure this condition
+ * is met (or pay the consequences :)
+ * 
  * @return the positional index of the best individual.
  */
 population::size_type population::get_best_idx() const
@@ -600,8 +604,10 @@ population::size_type population::get_best_idx() const
  * what originally defined by Deb in "A Fast and Elitist Multiobjective Genetic Algorithm: NSGA II",
  * we do not use the front rank,  but the m_dom_count (which is related but not identical). 
  * 
- * NOTE: population.get_best_idx assumes a weak strict ordering defined in problem::compare_fc.
- *
+ * NOTE: population.get_best_idx assumes a weak strict ordering defined in problem::compare_fc. If the user
+ * reimplements such a virtual method at the problem level, he needs to make sure this condition
+ * is met (or pay the consequences :)
+ * 
  * @return a std::vector of positional indexes of the best N individuals.
  * @throws value_error if N is larger than the population size or the population is empty
  */

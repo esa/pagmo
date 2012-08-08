@@ -38,13 +38,16 @@ namespace pagmo{ namespace problem {
 /// Cassini MGA problem
 /**
  * This is a rather simple six dimensional Multiple Gravity Aassist problem
- * related to the Cassini spacecraft trajectory design problem. The spacecraft route (fly by sequence) is
- * Earth-Venus-Venus-Earth-Jupiter and the mission objective is to minimize the total chemical \f$ \Delta V\f$
- * to reach a highly elliptical orbit around Jupiter. At each fly-by, a chemical \f$\Delta V\f$ is allowed
- * at the pericenter of the planetocentric hyperbola. Each interplanetary leg is otherwise ballistic.
- * The problem is also part of the Global Trajectory Optimization database (GTOP)
+ * related to the Cassini spacecraft trajectory design problem. The spacecraft route
+ * (fly by sequence) is Earth-Venus-Venus-Earth-Jupiter and the mission objectives are
+ * to minimize the total chemical \f$ \Delta V\f$ and minimize the mission time \f$ T \f$
+ * to reach a highly elliptical orbit around Jupiter. At each fly-by, a chemical
+ * \f$\Delta V\f$ is allowed at the pericenter of the planetocentric hyperbola.
+ * Each interplanetary leg is otherwise ballistic. The problem (its single objective version)
+ * is also part of the Global Trajectory Optimization database (GTOP)
  *
- * Cassini_1 is a box constrained single objective, continuous optimization problem of dimension six.
+ * Cassini_1 is a box constrained single or multi-objective objective, continuous 
+ * optimization problem of dimension six.
  *
  * @see http://www.esa.int/gsp/ACT/inf/op/globopt/evvejs.htm
  * @author Dario Izzo (dario.izzo@esa.int)
@@ -64,13 +67,11 @@ class __PAGMO_VISIBLE cassini_1: public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & problem;
-			ar & m_mo;
 			ar & Delta_V;
 			ar & rp;
 			ar & t;
 		}
 		mgaproblem problem;
-		unsigned int m_mo;
 		// Variables used in the call to MGA.
 		mutable std::vector<double> Delta_V;
 		mutable std::vector<double> rp;

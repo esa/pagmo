@@ -82,7 +82,7 @@ SET(PAGMO_LIB_SRC_LIST
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.
-IF(ENABLE_KEPLERIAN_TOOLBOX)
+IF(ENABLE_GTOP_DATABASE)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
@@ -121,7 +121,7 @@ IF(ENABLE_KEPLERIAN_TOOLBOX)
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/spacecraft.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/core_functions/jorba.c
 	)
-ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+ENDIF(ENABLE_GTOP_DATABASE)
 
 # Additional files for GSL support.
 IF(ENABLE_GSL)

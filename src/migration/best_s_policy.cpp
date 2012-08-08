@@ -29,6 +29,7 @@
 #include "base.h"
 #include "base_s_policy.h"
 #include "best_s_policy.h"
+#include "../exceptions.h"
 
 namespace pagmo { namespace migration {
 
@@ -46,25 +47,19 @@ base_s_policy_ptr best_s_policy::clone() const
 	return base_s_policy_ptr(new best_s_policy(*this));
 }
 
-// Comparison based on the number of individual dominated in the population.
-struct best_s_policy::dom_comp {
-	dom_comp(const population &pop):m_pop(pop) {}
-	bool operator()(const population::individual_type &i1, const population::individual_type &i2) const
-	{
-		return m_pop.n_dominated(i1) > m_pop.n_dominated(i2);
-	}
-	const population &m_pop;
-};
-
 std::vector<population::individual_type> best_s_policy::select(population &pop) const
 {
+	pagmo_assert(get_n_individuals(pop) <= pop.size() && get_n_individuals(pop) >=0);
+	// Gets the number of individuals to select
 	const population::size_type migration_rate = get_n_individuals(pop);
 	// Create a temporary array of individuals.
-	std::vector<population::individual_type> result(pop.begin(),pop.end());
-	// Sort the individuals (best go first).
-	std::sort(result.begin(),result.end(),dom_comp(pop));
-	// Leave only desired number of elements in the result.
-	result.erase(result.begin() + migration_rate,result.end());
+	std::vector<population::individual_type> result;
+	// Gets the indexes of the best individuals
+	std::vector<population::size_type> best_idx = pop.get_best_idx(migration_rate);
+	// Puts the best individuals in results
+	for (population::size_type i =0; i< migration_rate; ++i) {
+		result.push_back(pop.get_individual(best_idx[i]));
+	}
 	return result;
 }
 

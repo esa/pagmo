@@ -16,20 +16,20 @@ Heuristic Optimization
 Common Name                        Name in PyGMO                             Type            Comments
 ================================== ========================================= =============== ===================================================================
 Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S      the original algorithm
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de_self_adaptive`      C-U-S      self-adaptive F, CR
+Self-adaptive DE (jDE)             :class:`PyGMO.algorithm.jde`                   C-U-S      self-adaptive F, CR
+DE with p-best crossover (mde_pbx) :class:`PyGMO.algorithm.mde_pbx`               C-U-S      self-adaptive F, CR
 Differential Evolution (DE)        :class:`PyGMO.algorithm.de_1220`               C-U-S      our own brew. self adaptive F, CR and variants 
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      steady-state
+Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO 2009 algorithm
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      generational (also problems deriving from base_stochastic)
 Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
+Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               M-U-S      NSGA-II
 Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
 Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
 Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
 Monte Carlo Search (MC)            :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
 Monte Carlo Search (MC)            :class:`PyGMO.algorithm.py_example`           MI-C-S      Written in Python
-NSGA-II	                                                                                     Coming soon!!! (under testing)
 Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written in Python
 Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.cmaes`                 C-U-S
-Ant Colony Optimization                                                                      Planned
 ================================== ========================================= =============== ===================================================================
 
 Meta-algorithms 
@@ -83,9 +83,13 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.de.__init__
 
-.. autoclass:: PyGMO.algorithm.de_self_adaptive
+.. autoclass:: PyGMO.algorithm.jde
 
-   .. automethod:: PyGMO.algorithm.de_self_adaptive.__init__
+   .. automethod:: PyGMO.algorithm.jde.__init__
+
+.. autoclass:: PyGMO.algorithm.mde_pbx
+
+   .. automethod:: PyGMO.algorithm.mde_pbx.__init__
 
 .. autoclass:: PyGMO.algorithm.de_1220
 
@@ -126,6 +130,10 @@ Detailed Documentation
    .. attribute:: PyGMO.algorithm.sga.crossover.EXPONENTIAL
 
      Exponential crossover
+
+.. autoclass:: PyGMO.algorithm.nsga_II
+
+   .. automethod:: PyGMO.algorithm.nsga_II.__init__
 
 .. autoclass:: PyGMO.algorithm.sa_corana
 

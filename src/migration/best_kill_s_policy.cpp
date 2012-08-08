@@ -48,16 +48,19 @@ base_s_policy_ptr best_kill_s_policy::clone() const
 
 std::vector<population::individual_type> best_kill_s_policy::select(population &pop) const
 {
+	pagmo_assert(get_n_individuals(pop) <= pop.size() && get_n_individuals(pop) >=0);
+	// Gets the number of individuals to select
 	const population::size_type migration_rate = get_n_individuals(pop);
 	// Create a temporary array of individuals.
-	std::vector<population::individual_type> result(migration_rate);
-	// Get the idx of the best ones (dominance criteria here)
+	std::vector<population::individual_type> result;
+	// Gets the indexes of the best individuals
 	std::vector<population::size_type> best_idx = pop.get_best_idx(migration_rate);
-	// Copy them into results
-	for (population::size_type i=0 ; i<migration_rate; ++i) {
-		result[i] = pop.get_individual(best_idx[i]);
+	// Puts the best individuals in results
+	for (population::size_type i =0; i< migration_rate; ++i) {
+		result.push_back(pop.get_individual(best_idx[i]));
 	}
-	// Kill them from the population (note: the champion will still carry information on the guy ...)
+	// Remove them from the original population 
+	// (note: the champion will still carry information on the best guy ...)
 	for (population::size_type i=0 ; i<migration_rate; ++i) {
 		pop.reinit(best_idx[i]);
 	}

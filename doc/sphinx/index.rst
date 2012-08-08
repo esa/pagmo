@@ -1,5 +1,5 @@
 ========================================
-Welcome to PyGMO (V1.1)!
+Welcome to PyGMO (V1.1.0)!
 ========================================
 
 .. figure:: images/movie.gif   

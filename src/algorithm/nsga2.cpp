@@ -45,11 +45,11 @@ namespace pagmo { namespace algorithm {
  * Constructs a NSGA II algorithm 
  *
  * @param[in] gen Number of generations to evolve.
- * @param[in] cr Crossover probability (of each allele if binomial crossover)
- * @param[in] m Mutation probability (of each allele)
- * @param[in] width Width of the gaussian mutation bell (relative to ub-lb)
+ * @param[in] cr Crossover probability
+ * @param[in] eta_c Distribution index for crossover
+ * @param[in] m Mutation probability
+ * @param[in] eta_m Distribution index for mutation
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1[\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
-
  */
 nsga2::nsga2(int gen, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m)
 {
@@ -62,11 +62,11 @@ nsga2::nsga2(int gen, double cr, double eta_c, double m, double eta_m):base(),m_
 	if (m < 0 || m > 1) {
 		pagmo_throw(value_error,"mutation probability must be in the [0,1] range");
 	}
-	if (eta_c <1 || eta_c >100) {
-		pagmo_throw(value_error,"crossover distribution index must be in 1..100");
+	if (eta_c <1 || eta_c >= 100) {
+		pagmo_throw(value_error,"Distribution index for crossover must be in 1..100");
 	}
-	if (eta_m <1 || eta_m >100) {
-		pagmo_throw(value_error,"mutation distribution index must be in 1..100");
+	if (eta_m <1 || eta_m >= 100) {
+		pagmo_throw(value_error,"Distribution index for mutation must be in 1..100");
 	}
 }
 
@@ -78,10 +78,10 @@ base_ptr nsga2::clone() const
 
 pagmo::population::size_type nsga2::tournament_selection(pagmo::population::size_type idx1, pagmo::population::size_type idx2, const pagmo::population& pop) const
 {
-//	if (pop.get_pareto_rank(idx1) < pop.get_pareto_rank(idx2)) return idx1;
-//	if (pop.get_pareto_rank(idx1) > pop.get_pareto_rank(idx2)) return idx2;
-//	if (pop.get_crowding_d(idx1) > pop.get_crowding_d(idx2)) return idx1;
-//	if (pop.get_crowding_d(idx1) < pop.get_crowding_d(idx2)) return idx2;
+	if (pop.get_pareto_rank(idx1) < pop.get_pareto_rank(idx2)) return idx1;
+	if (pop.get_pareto_rank(idx1) > pop.get_pareto_rank(idx2)) return idx2;
+	if (pop.get_crowding_d(idx1) > pop.get_crowding_d(idx2)) return idx1;
+	if (pop.get_crowding_d(idx1) < pop.get_crowding_d(idx2)) return idx2;
 	return ((m_drng() > 0.5) ? idx1 : idx2);
 }
 
@@ -198,7 +198,7 @@ void nsga2::evolve(population &pop) const
 
 	//We perform some checks to determine wether the problem/population are suitable for NSGA-II
 	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and SGA is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not box constrained and NSSGA-II is not suitable to solve it");
 	}
 	
 	if (Di != 0) {
@@ -207,6 +207,10 @@ void nsga2::evolve(population &pop) const
 
 	if (NP < 5 or (NP % 4 != 0) ) {
 		pagmo_throw(value_error,"for NSGA-II at least 5 individuals in the population are needed and the population size must be a multiple of 4");
+	}
+	
+	if ( prob.get_f_dimension() < 2 ) {
+		pagmo_throw(value_error,"The problem is not multiobjective, try some other algorithm than NSGA-II");
 	}
 
 	// Get out if there is nothing to do.
@@ -262,7 +266,6 @@ void nsga2::evolve(population &pop) const
 		// champion is thus destroyed)
 		pop.clear();
 		for (population::size_type i=0; i < NP; ++i) pop.push_back(popnew.get_individual(best_idx[i]).best_x);
-
 	} // end of main SGA loop
 }
 
@@ -280,9 +283,9 @@ std::string nsga2::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "CR:" << m_cr << ' ';	
+	s << "cr:" << m_cr << ' ';	
 	s << "eta_c:" << m_eta_c << ' ';
-	s << "M:" << m_m << ' ';
+	s << "m:" << m_m << ' ';
 	s << "eta_m:" << m_eta_m << std::endl;
 
 	return s.str();

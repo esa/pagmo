@@ -70,28 +70,65 @@ struct indirect_individual_sorter
 std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 	fair_r_policy::select(const std::vector<population::individual_type> &immigrants, const population &dest) const
 {
+	// Computes the number of immigrants to be selected (accounting for the destination pop size)
 	const population::size_type rate_limit = std::min<population::size_type>(get_n_individuals(dest),boost::numeric_cast<population::size_type>(immigrants.size()));
+	
+	// Defines the retvalue
+	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > result;
+
+	// Makes a copy of the destination population
+	population pop_copy(dest);
+	
+	// Creates a population combining all (INEFFICIENT: function evaluations are performed here)
+	for (population::size_type i  = 0; i < rate_limit; ++i) {
+		pop_copy.push_back(immigrants[i].cur_x);
+	}
+	
+	// Extracts the best of the combined population
+	std::vector<population::size_type> best_idx(pop_copy.get_best_idx(pop_copy.size()));
+	
+	std::vector<population::size_type>::iterator left = best_idx.begin();
+	std::vector<population::size_type>::iterator right = best_idx.end() - 1;
+	
+	// Best idx now contains, sorted, all indexes of the augmented pop. Indexes from 0 to pop.size()
+	// belong to the original population, the others are immigrants
+	while (left < right) {
+		// If the index belongs to one of the immigrants
+		if (*left >= dest.size()) {
+			// Move the right iterator up to when it points to the worst of the natives
+			while (*right >= dest.size()) {
+				--right;
+			};
+			if (right>left) {
+				result.push_back(std::make_pair(*right,*left-dest.size()));
+			--right;
+			}
+		}
+		++left;
+	}
+	
+	
 	// Temporary vectors to store sorted indices of the populations.
-	std::vector<population::size_type> immigrants_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(immigrants.size()));
-	std::vector<population::size_type> dest_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(dest.size()));
+//	std::vector<population::size_type> immigrants_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(immigrants.size()));
+//	std::vector<population::size_type> dest_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(dest.size()));
 	// Fill in the arrays of indices.
-	iota(immigrants_idx.begin(),immigrants_idx.end(),population::size_type(0));
-	iota(dest_idx.begin(),dest_idx.end(),population::size_type(0));
+//	iota(immigrants_idx.begin(),immigrants_idx.end(),population::size_type(0));
+//	iota(dest_idx.begin(),dest_idx.end(),population::size_type(0));
 	// Sort the arrays of indices.
 	// From best to worst.
-	std::sort(immigrants_idx.begin(),immigrants_idx.end(),indirect_individual_sorter<std::vector<population::individual_type> >(immigrants,dest));
+//	std::sort(immigrants_idx.begin(),immigrants_idx.end(),indirect_individual_sorter<std::vector<population::individual_type> >(immigrants,dest));
 	// From worst to best.
-	std::sort(dest_idx.begin(),dest_idx.end(),indirect_individual_sorter<population>(dest,dest));
-	std::reverse(dest_idx.begin(),dest_idx.end());
+//	std::sort(dest_idx.begin(),dest_idx.end(),indirect_individual_sorter<population>(dest,dest));
+//	std::reverse(dest_idx.begin(),dest_idx.end());
 	// Create the result.
-	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > result;
-	for (population::size_type i = 0; i < rate_limit; ++i) {
-		if (dest.n_dominated(immigrants[immigrants_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)]]) >
-			dest.n_dominated(*(dest.begin() + dest_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)])))
-		{
-			result.push_back(std::make_pair(dest_idx[i],immigrants_idx[i]));
-		}
-	}
+//	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > result;
+//	for (population::size_type i = 0; i < rate_limit; ++i) {
+//		if (dest.n_dominated(immigrants[immigrants_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)]]) >
+//		dest.n_dominated(*(dest.begin() + dest_idx[boost::numeric_cast<std::vector<population::size_type>::size_type>(i)])))
+//		{
+//			result.push_back(std::make_pair(dest_idx[i],immigrants_idx[i]));
+//		}
+//	}
 	return result;
 }
 

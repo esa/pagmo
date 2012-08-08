@@ -49,6 +49,7 @@ ZDT1                               :class:`PyGMO.problem.zdt1`
 ZDT2                               :class:`PyGMO.problem.zdt2`         
 ZDT4                               :class:`PyGMO.problem.zdt4`
 ZDT6                               :class:`PyGMO.problem.zdt6`
+Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
 ================================== ========================================= ===========================================
 
 Constrained Continuous Single-Objective

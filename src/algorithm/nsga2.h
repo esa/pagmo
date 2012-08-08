@@ -38,7 +38,10 @@ namespace pagmo { namespace algorithm {
  * It genererates offspring with crossover and mutation and select the next
  * generation according to nondominated-sorting and crowding distance comparison.
  *
- * The algorithm can be applied to all problem types
+ * The algorithm can be applied to continuous box-bounded optimization. The version for mixed integer
+ * and constrained optimization is also planned.
+ * 
+ * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
  *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */

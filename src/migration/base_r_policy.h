@@ -50,8 +50,9 @@ typedef boost::shared_ptr<base_r_policy> base_r_policy_ptr;
  * The base::get_n_individuals() method for this class is meant to represent the maximum number of individuals in the target population
  * that can be replaced by the immigrants. How many of these will actually be replaced will depend on the specific policy implementation.
  *
- * @author Marek Ruciński (marek.rucinski@gmail.com)
+ * @author Marek Rucinski (marek.rucinski@gmail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
  */
 class __PAGMO_VISIBLE base_r_policy: public base
 {

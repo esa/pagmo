@@ -34,6 +34,8 @@ namespace pagmo { namespace problem {
 /**
  * Will construct ZDT1.
  *
+ * @param[in] dim integer dimension of the problem.
+ * 
  * @see problem::base constructors.
  */
 zdt1::zdt1(size_type dim):base(dim,0,2)
