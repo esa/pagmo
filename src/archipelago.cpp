@@ -359,8 +359,8 @@ bool archipelago::destruction_checks() const
 }
 
 // Helper function to insert a list of candidates immigrants into an immigrants vector, given the source and destination island.
-void archipelago::build_immigrants_vector(std::vector<individual_type> &immigrants, const base_island &src_isl,
-	base_island &dest_isl, const std::vector<individual_type> &candidates, migr_hist_type &h) const
+void archipelago::build_immigrants_vector(std::vector<std::pair<population::size_type, individual_type > > &immigrants, const base_island &src_isl,
+	base_island &dest_isl, const std::vector<individual_type> &candidates) const
 {
 	for (std::vector<individual_type>::const_iterator ind_it = candidates.begin();
 		ind_it != candidates.end(); ++ind_it)
@@ -370,34 +370,28 @@ void archipelago::build_immigrants_vector(std::vector<individual_type> &immigran
 		if (!dest_isl.m_pop.problem().verify_x(ind_it->cur_x)) {
 			continue;
 		}
-		immigrants.push_back(*ind_it);
+		immigrants.push_back(std::make_pair(locate_island(src_isl),*ind_it));
 	}
-	// Record the migration history.
-	h.push_back(boost::make_tuple(
-		boost::numeric_cast<population::size_type>(immigrants.size()),
-		locate_island(src_isl),
-		locate_island(dest_isl)
-	));
 }
 
 // Re-evaluate vector of immigrants before insertion into destination island.
-void archipelago::reevaluate_immigrants(std::vector<individual_type> &immigrants, const base_island &isl) const
+void archipelago::reevaluate_immigrants(std::vector<std::pair<population::size_type, individual_type> > &immigrants, const base_island &isl) const
 {
 	individual_type tmp;
 	tmp.cur_v.resize(isl.m_pop.problem().get_dimension());
 	tmp.cur_f.resize(isl.m_pop.problem().get_f_dimension());
 	tmp.cur_c.resize(isl.m_pop.problem().get_c_dimension());
-	for (std::vector<individual_type>::iterator ind_it = immigrants.begin(); ind_it != immigrants.end(); ++ind_it) {
-		tmp.cur_x = ind_it->cur_x;
+	for (std::vector<std::pair<population::size_type, individual_type> >::iterator ind_it = immigrants.begin(); ind_it != immigrants.end(); ++ind_it) {
+		tmp.cur_x = (*ind_it).second.cur_x;
 		isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
 		isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
 		// Set the best properties to the current ones. (TODO: maybe here one could
 		// reevaluate the old best in the new environment and keep it if still better than the 
-		// reevaluated current ...... discuss!!
+		// reevaluated current ...... discuss!! (Anche no, grazie!!)
 		tmp.best_x = tmp.cur_x;
 		tmp.best_f = tmp.cur_f;
 		tmp.best_c = tmp.cur_c;
-		*ind_it = tmp;
+		(*ind_it).second = tmp;
 	}
 }
 
@@ -413,23 +407,21 @@ void archipelago::pre_evolution(base_island &isl)
 	// Determine the island's index in the archipelago.
 	const size_type isl_idx = locate_island(isl);
 	pagmo_assert(isl_idx < m_container.size());
-	// Migration history for this migration.
-	migr_hist_type h;
 	//1. Obtain immigrants.
-	std::vector<individual_type> immigrants;
+	std::vector<std::pair<population::size_type, individual_type> > immigrants;
 	switch (m_migr_dir) {
 		case source:
 		{
 			lock_type lock(m_migr_mutex);
 			// For source migration direction, migration map contains islands' "inboxes". Or, in other words, it contains
-			// the individuals that are destined to go into the islands. Such inboxes have been assembled previously,
+			// the individuals that are destined to go into the island. Such inboxes have been assembled previously,
 			// during a post_evolution operation.
 			// Iterate over all the vectors of individuals provided by the different islands.
 			for (boost::unordered_map<size_type,std::vector<individual_type> >::iterator it = m_migr_map[isl_idx].begin();
 				it != m_migr_map[isl_idx].end(); ++it)
 			{
 				pagmo_assert(it->first < m_container.size());
-				build_immigrants_vector(immigrants,*m_container[it->first],isl,it->second,h);
+				build_immigrants_vector(immigrants,*m_container[it->first],isl,it->second);
 			}
 			// Delete stuff in the migration map.
 			m_migr_map.erase(isl_idx);
@@ -452,7 +444,7 @@ void archipelago::pre_evolution(base_island &isl)
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
 						pagmo_assert(m_migr_map[rn_isl_idx].size() <= 1);
-						build_immigrants_vector(immigrants,*m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx],h);
+						build_immigrants_vector(immigrants,*m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx]);
 						break;
 					}
 					case broadcast:
@@ -462,7 +454,7 @@ void archipelago::pre_evolution(base_island &isl)
 						for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
-							build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx],h);
+							build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx]);
 						}
 					}
 				}
@@ -476,12 +468,22 @@ void archipelago::pre_evolution(base_island &isl)
 			next_rng = m_drng();
 		}
 		if (next_rng < isl.m_migr_prob) {
-			// We always re-evaluate the incoming individuals according
-			// to destination island's problem.
+			// We re-evaluate the incoming individuals according
+			// to destination island's problem. This will make sure that stochastic problems
+			// are correctly dealt with
 			reevaluate_immigrants(immigrants,isl);
-			isl.accept_immigrants(immigrants);
+			// We then insert the incoming individuals into the population, storing how many from where
+			std::vector<std::pair<population::size_type, size_type> > rec_history;
+			rec_history = isl.accept_immigrants(immigrants);
 			lock_type lock(m_migr_mutex);
-			m_migr_hist.insert(m_migr_hist.end(),h.begin(),h.end());
+			// Record the migration history.
+			for (size_t i =0; i< rec_history.size(); ++i) { 
+				m_migr_hist.push_back( boost::make_tuple(
+					rec_history[i].first,
+					rec_history[i].second,
+					locate_island(isl) )
+				);
+			}
 		}
 	}
 }

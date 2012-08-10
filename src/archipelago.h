@@ -149,13 +149,15 @@ class __PAGMO_VISIBLE archipelago
 		void pre_evolution(base_island &);
 		void post_evolution(base_island &);
 		void reset_barrier(const size_type &);
-		void build_immigrants_vector(std::vector<individual_type> &, const base_island &,
-			base_island &, const std::vector<individual_type> &, migr_hist_type &) const;
+		void build_immigrants_vector(std::vector<std::pair<population::size_type, individual_type > > &,
+			const base_island &, base_island &,
+			const std::vector<individual_type> &) const;
 		void check_migr_attributes() const;
 		void sync_island_start() const;
 		size_type locate_island(const base_island &) const;
 		bool destruction_checks() const;
-		void reevaluate_immigrants(std::vector<individual_type> &, const base_island &) const;
+		void reevaluate_immigrants(std::vector<std::pair<population::size_type, individual_type> > &,
+			const base_island &) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

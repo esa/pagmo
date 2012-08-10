@@ -79,7 +79,7 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	// Makes a copy of the destination population
 	population pop_copy(dest);
 	
-	// Creates a population combining all (INEFFICIENT: function evaluations are performed here)
+	// Creates a population combining all (INEFFICIENT: not-needed function evaluations are performed here)
 	for (population::size_type i  = 0; i < rate_limit; ++i) {
 		pop_copy.push_back(immigrants[i].cur_x);
 	}
