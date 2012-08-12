@@ -399,6 +399,29 @@ def _ms_ctor(self, algorithm = _algorithm.de(), iter = 1):
 ms._orig_init = ms.__init__
 ms.__init__ = _ms_ctor
 
+def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5):
+	"""
+	Constructs a Compass Search Algorithm 
+	
+	USAGE: algorithm.cs(max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5);
+	
+
+	* max_eval: maximum number of function evaluations
+	* stop_range: when the range is reduced to a value smaller than stop_range cs stops
+	* start_range: starting range (non-dimensional wrt ub-lb)
+	* reduction_coeff: the range is multiplied by reduction_coeff whenever no improvment is made
+	                   across one chromosome
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(max_eval)
+	arg_list.append(stop_range)
+	arg_list.append(start_range)
+	arg_list.append(reduction_coeff)
+	self._orig_init(*arg_list)
+cs._orig_init = cs.__init__
+cs.__init__ = _cs_ctor
+
 def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	"""
 	Constructs a Monotonic Basin Hopping Algorithm (generalized to accept any algorithm)
@@ -422,29 +445,6 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	self._orig_init(*arg_list)
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
-
-def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5):
-	"""
-	Constructs a Compass Search Algorithm 
-	
-	USAGE: algorithm.cs(max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5);
-	
-
-	* max_eval: maximum number of function evaluations
-	* stop_range: when the range is reduced to a value smaller than stop_range cs stops
-	* start_range: starting range (non-dimensional wrt ub-lb)
-	* reduction_coeff: the range is multiplied by reduction_coeff whenever no improvment is made
-	                   across one chromosome
-	"""
-	# We set the defaults or the kwargs
-	arg_list=[]
-	arg_list.append(max_eval)
-	arg_list.append(stop_range)
-	arg_list.append(start_range)
-	arg_list.append(reduction_coeff)
-	self._orig_init(*arg_list)
-cs._orig_init = cs.__init__
-cs.__init__ = _cs_ctor
 
 def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1):
 	"""
