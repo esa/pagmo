@@ -6,6 +6,7 @@ from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
 
+
 _base = _algorithm._base
 
 # Renaming and placing the enums
@@ -23,6 +24,8 @@ def _get_algorithm_list():
 	except ImportError as e:
 		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
 	return algorithm_list
+	
+
 
 # Redefining the constructors of all algorithms to obtain good documentation and to allow kwargs
 def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, screen_output = False):
@@ -60,6 +63,8 @@ def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, scre
 	self.screen_output = screen_output
 de._orig_init = de.__init__
 de.__init__ = _de_ctor
+
+
 
 def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
 	"""
@@ -125,7 +130,7 @@ def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, scr
 mde_pbx._orig_init = mde_pbx.__init__
 mde_pbx.__init__ = _mde_pbx_ctor
 
-def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,11)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
+def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
 	
@@ -256,6 +261,8 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 	self._orig_init(*arg_list)
 pso_gen._orig_init = pso_gen.__init__
 pso_gen.__init__ = _pso_gen_ctor
+
+
 
 def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL):
 	"""
@@ -887,8 +894,4 @@ if "snopt" in str(_get_algorithm_list()):
 		self.screen_output = screen_output
 	snopt._orig_init = snopt.__init__
 	snopt.__init__ = _snopt_ctor
-
-
-	
-	
 
