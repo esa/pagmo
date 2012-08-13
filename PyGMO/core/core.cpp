@@ -31,6 +31,7 @@
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
+#include <boost/python/converter/registry.hpp>
 #include <boost/python/tuple.hpp>
 #include <boost/utility.hpp> // For boost::noncopyable.
 #include <sstream>
@@ -214,8 +215,18 @@ BOOST_PYTHON_MODULE(_core)
 	common_module_init();
 
 	// Enable handy automatic conversions.
-	to_tuple_mapping<std::vector<double> >();
-	from_python_sequence<std::vector<double>,variable_capacity_policy>();
+	
+
+
+	boost::python::type_info info = boost::python::type_id<std::vector<double> >();
+	const boost::python::converter::registration* reg = boost::python::converter::registry::query(info);
+	if (reg == NULL)
+	{
+	  	//registry YourType
+		to_tuple_mapping<std::vector<double> >();
+		from_python_sequence<std::vector<double>,variable_capacity_policy>();
+	}
+
 	to_tuple_mapping<std::vector<int> >();
 	from_python_sequence<std::vector<int>,variable_capacity_policy>();
 	to_tuple_mapping<std::vector<topology::base::vertices_size_type> >();
