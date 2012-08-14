@@ -1,7 +1,6 @@
 #ifndef KEP_TOOL_CONFIG_H
 #define KEP_TOOL_CONFIG_H
 
-
 /// The following lines define the behaviour of the symbols that will be included in libraries. These are, by default, 
 /// made visible in unix systems, otherwise they need to be made visible explicitely in windows systems
 #ifdef _WIN32

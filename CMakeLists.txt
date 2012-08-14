@@ -68,7 +68,7 @@ OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 # Build Option: when active the GTOP database problems are built.
 OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
 IF(ENABLE_GTOP_DATABASE)
-        ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
+        ADD_DEFINITIONS(-DENABL)
 ENDIF(ENABLE_GTOP_DATABASE)
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
