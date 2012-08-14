@@ -66,11 +66,11 @@ de.__init__ = _de_ctor
 
 
 
-def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory=True, screen_output = False):
+def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory=False, screen_output = False):
 	"""
 	Constructs a jDE algorithm (self-adaptive DE)
 	
-	USAGE: algorithm.jde(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory = True, screen_output = False)
+	USAGE: algorithm.jde(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory = False, screen_output = False)
 	
 	* gen: number of generations
 	* variant: algoritmic variant to use (one of [1 .. 18])
@@ -130,11 +130,11 @@ def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, scr
 mde_pbx._orig_init = mde_pbx.__init__
 mde_pbx.__init__ = _mde_pbx_ctor
 
-def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], memory = True, ftol=1e-6, xtol=1e-6, screen_output = False):
+def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], memory = False, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
 	
-	USAGE: algorithm.de_1220(gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,19)], memory = True, ftol=1e-6, xtol=1e-6, screen_output = False)
+	USAGE: algorithm.de_1220(gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,19)], memory = False, ftol=1e-6, xtol=1e-6, screen_output = False)
 	
 	* gen: number of generations
 	* variant_adptv: adaptiv scheme to use (one of [1..2])
@@ -478,11 +478,11 @@ def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = True, homebrew = False, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, homebrew = False, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
-	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = True, screen_output = False)
+	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False)
 
 	NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
 	is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem
