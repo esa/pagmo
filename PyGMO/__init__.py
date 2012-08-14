@@ -23,9 +23,9 @@
 
 import core, algorithm, migration, problem, topology, test
 
-__doc__ = 'PyGMO is a pretty cool guy. eh kills aleins and doesnt afraid of anything...'
+__doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
-__version__ = '1.0.0'
+__version__ = '1.1.1'
 
 # For convenience, bring all core classes into the root namespace when importing *.
 from core import *
@@ -48,28 +48,40 @@ if "ipopt" in str(algorithm._get_algorithm_list()):
 if "cassini" in str(problem._get_problem_list()):
 	__extensions__['gtop']=True
 try:
-	import scipy
+	from scipy import __version__ as __scipy_version__
 	__extensions__['scipy']=True
 except:
 	pass
 try:
-	import networkx
+	from networkx.version import version_info as __networkx_version__
 	__extensions__['networkx']=True
 except:
 	pass
 try:
-	import visual
+	from visual import version as __visual_version__
 	__extensions__['vpython']=True
 except:
 	pass
 
 try:
-	import PyKEP
+	from PyKEP import __version__ as __pykep_version
 	__extensions__['pykep']=True
 except:
 	pass
 
+
 def run_test(n_trials=200, pop_size = 20, n_gen = 500):
+	"""
+	This function runs some tests on the algorthm. Use it to verify the correct installation
+	of PyGMO.
+
+	USAGE: PyGMO.run_test(n_trials=200, pop_size = 20, n_gen = 500)
+
+	* n_trials: each algorithm will be called n_trials times on the same problem to then evaluate best, mean and std
+	* pop_size: this determines the population size 
+	* n_gen: this regulates the maximim number of function evaluation
+
+	"""
 	from PyGMO import problem, algorithm, island
 	from numpy import mean, std
 	number_of_trials = n_trials
@@ -83,7 +95,7 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 		prob_list.append(problem.cassini_2())
 		prob_list.append(problem.messenger_full())
 		
-	algo_list = [algorithm.pso(gen = number_of_generations), algorithm.de(gen = number_of_generations,xtol=1e-30, ftol=1e-30), algorithm.de_self_adaptive(gen = number_of_generations, restart=True,xtol=1e-30, ftol=1e-30), algorithm.de_1220(gen = number_of_generations, restart=True,xtol=1e-30, ftol=1e-30), algorithm.sa_corana(iter = number_of_generations*number_of_individuals,Ts = 1,Tf = 0.01), algorithm.ihs(iter = number_of_generations*number_of_individuals), algorithm.sga(gen = number_of_generations), algorithm.cmaes(gen = number_of_generations,xtol=1e-30, ftol=1e-30), algorithm.bee_colony(gen = number_of_generations/2)]
+	algo_list = [algorithm.pso(gen = number_of_generations), algorithm.mde_pbx(gen = number_of_generations, xtol=1e-30, ftol=1e-30), algorithm.de(gen = number_of_generations,xtol=1e-30, ftol=1e-30), algorithm.jde(gen = number_of_generations, memory=False,xtol=1e-30, ftol=1e-30), algorithm.de_1220(gen = number_of_generations, memory=False,xtol=1e-30, ftol=1e-30), algorithm.sa_corana(iter = number_of_generations*number_of_individuals,Ts = 1,Tf = 0.01), algorithm.ihs(iter = number_of_generations*number_of_individuals), algorithm.sga(gen = number_of_generations), algorithm.cmaes(gen = number_of_generations,xtol=1e-30, ftol=1e-30, memory=False), algorithm.bee_colony(gen = number_of_generations/2)]
 	print('\nTrials: ' + str(n_trials) + ' - Population size: ' + str(pop_size) + ' - Generations: ' + str(n_gen))
 	for prob in prob_list:
 		print('\nTesting problem: ' + prob.get_name() + ', Dimension: ' + str(prob.dimension) )
@@ -101,6 +113,89 @@ def run_test(n_trials=200, pop_size = 20, n_gen = 500):
 			print(' Best:\t' + str(min(best)[0]))
 			print(' Mean:\t' + str(mean(best)))
 			print(' Std:\t' + str(std(best)))
+			
+if __extensions__['scipy']:			
+	class race2algos:
+		"""
+		This class uses the concept of racing to compare two algorithms
+		on a probem. It runs repeatedly both algorithms on equal 
+		starting populations up to when it finds a statistical difference between
+		the obtained samples. The difference is detected using Wilcoxon
+		ranksum test. The algorithms are tested on populations of equal size.
+
+		"""
+		def __init__(self, algo1, algo2, prob, pop_size=20, min_trials=20, p = 0.05, max_runs=200):
+			"""
+			Upon construction of the class object the race is initialized and launched.
+			
+			USAGE: r = PyGMO.race2algos(algo1, algo2, prob, pop_size=20, min_trials=20, p = 0.05, max_runs=200):
+			
+			* algo1: first algorithm in the race
+			* algo2: second algorithm in the race
+			* prob: problem (i.e. the "track" the algos are racing upon)
+			* pop_size: population size of the island where the algos will perform evolution
+			* min_trials: minimum number of runs to compare the algorithms
+			* p: confidence level
+			* max_runs: maximum number of races ....
+			"""
+			from random import randint
+			from copy import deepcopy
+			from sys import stdout
+			self.algo1=algo1
+			self.algo2=algo2
+			self.prob=prob
+			self.res1 = []
+			self.res2 = []
+			self.pop_size = pop_size
+			self.p = 0
+			self.z = 0
+			self.p_req = p
+			print "Racing the algorithms ..."
+			
+			for i in range(max_runs):
+				stdout.write("\rRuns: %i" % i); stdout.flush()
+				#We reset the random number generators of the algorithm
+				algo1.reset_rngs(randint(0,9999999)); algo2.reset_rngs(randint(0,9999999))
+				#We create an island with 20 individuals. This also initalizes its population at random within the box bounds
+				isl1 = island(algo1,prob,self.pop_size)
+				#We copy the island and change its algo. Like this we make sure the two algorithms
+				#will evolve the same inital population (good practice)
+				isl2 = deepcopy(isl1)
+				isl2.algorithm = algo2
+				#We start the evolution (in parallel as we do not call the method join())
+				isl1.evolve(1); isl2.evolve(1)
+				#Here join is called implicitly as we try to access one of the islands during evolution
+				self.res1.append(isl1.population.champion.f[0])
+				self.res2.append(isl2.population.champion.f[0])
+				#We check that the race is over (only after having accumulated at least min_trials samples)
+				if (i>min_trials):
+					if (self.are_different(self.res1,self.res2)):
+						break
+					
+		def are_different(self, data1,data2):
+			from scipy.stats import wilcoxon
+			self.z,self.p = wilcoxon(data1,data2)
+			return (self.p < self.p_req)
+			
+		def plot(self):
+			"""
+			Plots the result of the race
+			
+			USAGE: r.plot()
+			"""
+			import matplotlib.pyplot as pl
+			pl.subplot(1,2,1)
+			pl.plot(sorted(self.res1),label = "1." + self.algo1.get_name())
+			pl.plot(sorted(self.res2), label = "2." + self.algo2.get_name())
+			pl.title(self.prob.get_name() + " dim: " + str(self.prob.dimension))
+			pl.xlabel('rank')
+			pl.legend()
+			
+			pl.subplot(1,2,2)
+			pl.boxplot([self.res1,self.res2])
+			pl.ylabel('Obj.Fun.')
+			pl.title("Wilcoxon Test, p: %2.2e" % self.p + ", z: " + str(self.z))
+			pl.show()
 
 def example_1(n_trials=25, variant_adptv=2, restart=True):
 	from PyGMO import problem, algorithm, island, archipelago
@@ -135,6 +230,8 @@ def example_2(algo=algorithm.de(1), prob = problem.rosenbrock(10), topo = topolo
 		pos = archi.draw(layout = pos, scale_by_degree=True,n_size=3,e_alpha=0.03, n_color = color_code)
 		savefig('archi%03d' % i, dpi = 72);  
 		close()
+		
+
 
 #def test_aco():
 #	from PyGMO import problem, algorithm, island

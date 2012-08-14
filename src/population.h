@@ -46,26 +46,32 @@ struct population_access;
 
 /// Population class.
 /**
- * This class contains an instance of an optimisation problem and a group of candidate solutions represented by the class individual_type. On creation,
- * the population is associated to a problem and initialised with random decision vectors. An instance of champion_type automatically keeps track of the best solution
- * ever appeared in the population. Methods are offered to get and manipulate the single individuals.
+ * This class contains an instance of an optimisation problem and a group of candidate solutions represented by the class individual_type.
+ * On creation, the population is associated to a problem and initialised with random decision vectors. 
+ * An instance of champion_type automatically keeps track of the best solution ever appeared in the population. This is only meaningful
+ * in single objective optimization problems.
+ * 
+ * Methods are offered to get and manipulate the single individuals.
  *
- * Additionally, the population class holds for each individual I a "domination list", constituted by the list of individuals (identified by their positional index
- * in the population) which I dominates. Individual I1 is dominated by individual I2 if problem::base::compare_fc on the fitness and constraints vectors
- * of I1 and I2 respectively returns true. The best individual in the population is the one dominating the highest number of individuals.
+ * Additionally, the population class keeps for each individual I a "domination list", constituted by the list of individuals
+ * (identified by their positional index in the population) which I dominates, and a 'domination count' containing the number
+ * of individuals that dominate I. Individual I1 is dominated by individual I2 if problem::base::compare_fc 
+ * on the fitness and constraints vectors of I1 and I2 respectively returns true. 
+ * The best/worst individuals in the population are computed according to the crowding distance operator (in case of multi-objective problems)
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 class __PAGMO_VISIBLE population
 {
-		friend class base_island;
-		friend struct population_access;
+	friend class base_island;
+	friend struct population_access;
 	public:
 		/// Individuals stored in the population.
 		/**
-		 * Individuals store the current decision and velocity vectors, the current constraint vector and the current fitness vector. They also
-		 * keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
-		 */
+		* Individuals store the current decision and velocity vectors, the current constraint vector and the current fitness vector. They also
+		* keep memory of the best decision, constraint and fitness vectors "experienced" so far by the individual.
+		*/
 		struct individual_type
 		{
 				/// Current decision vector.
@@ -130,8 +136,8 @@ class __PAGMO_VISIBLE population
 		};
 		/// Population champion.
 		/**
-		 * A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
-		 */
+		* A champion is the best individual that ever lived in the population. It is defined by a decision vector, a constraint vector and a fitness vector.
+		*/
 		struct champion_type
 		{
 				/// Decision vector.
@@ -176,15 +182,27 @@ class __PAGMO_VISIBLE population
 		};
 		/// Underlying container type.
 		typedef std::vector<individual_type> container_type;
+		
 		/// Population size type.
 		typedef container_type::size_type size_type;
+		
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
 		explicit population(const problem::base &, int = 0);
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
+		
+		// Multi-Objective stuff
 		const std::vector<size_type> &get_domination_list(const size_type &) const;
+		size_type get_domination_count(const size_type &) const;
+		size_type get_pareto_rank(const size_type &) const;
+		double get_crowding_d(const size_type &) const;
+		void update_pareto_ranks() const;
+		void update_crowding_d() const;
+		size_type n_dominated(const individual_type &) const;
+		std::vector<std::vector<size_type> > compute_pareto_fronts() const;
+		
 		const problem::base &problem() const;
 		const champion_type &champion() const;
 		std::string human_readable_terse() const;
@@ -195,10 +213,11 @@ class __PAGMO_VISIBLE population
 		void set_x(const size_type &, const decision_vector &);
 		void set_v(const size_type &, const decision_vector &);
 		void push_back(const decision_vector &);
+		void erase(const size_type &);
 		size_type size() const;
 		const_iterator begin() const;
 		const_iterator end() const;
-		size_type n_dominated(const individual_type &) const;
+
 		void reinit(const size_type &);
 		void reinit();
 		void clear();
@@ -206,19 +225,24 @@ class __PAGMO_VISIBLE population
 	private:
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
-		void update_dom_list(const size_type &);
-		struct domination_comp {
-			domination_comp(const population &pop):m_pop(pop) {}
-			bool operator()(const individual_type &i1, const individual_type &i2) const
-			{
-				pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
-				pagmo_assert(&i2 >= &m_pop.m_container.front() && &i2 <= &m_pop.m_container.back());
-				const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
-				return m_pop.m_dom_list[idx1].size() > m_pop.m_dom_list[idx2].size();
-			}
+		
+		// Multi-objective stuff
+		void update_dom(const size_type &);
+		struct crowded_comparison_operator {
+			crowded_comparison_operator(const population &);
+			bool operator()(const individual_type &i1, const individual_type &i2) const;
+			bool operator()(const size_type &idx1, const size_type &idx2) const;
+			const population &m_pop;
+		};
+		
+		struct trivial_comparison_operator {
+			trivial_comparison_operator(const population &);
+			bool operator()(const individual_type &i1, const individual_type &i2) const;
+			bool operator()(const size_type &idx1, const size_type &idx2) const;
 			const population &m_pop;
 		};
 	private:
+		// Data members + their serialization
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -226,23 +250,31 @@ class __PAGMO_VISIBLE population
 			ar & m_prob;
 			ar & m_container;
 			ar & m_dom_list;
+			ar & m_dom_count;
+			ar & m_pareto_rank;
+			ar & m_crowding_d;
 			ar & m_champion;
 			ar & m_drng;
 			ar & m_urng;
 		}
-		// Data members.
 		// Problem.
-		problem::base_ptr			m_prob;
+		problem::base_ptr				m_prob;
 		// Container of individuals.
-		container_type				m_container;
+		container_type					m_container;
 		// List of dominated individuals.
-		std::vector<std::vector<size_type> >	m_dom_list;
+		std::vector<std::vector<size_type> >		m_dom_list;
+		// Domination Count (number of dominant individuals)
+		std::vector<size_type>				m_dom_count;
 		// Population champion.
-		champion_type				m_champion;
+		champion_type					m_champion;
+		// Pareto rank
+		mutable std::vector<size_type>			m_pareto_rank;
+		// Crowding distance
+		mutable std::vector<double>			m_crowding_d;
 		// Double precision random number generator.
-		mutable	rng_double			m_drng;
+		mutable	rng_double				m_drng;
 		// uint32 random number generator.
-		mutable	rng_uint32			m_urng;
+		mutable	rng_uint32				m_urng;
 };
 
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);

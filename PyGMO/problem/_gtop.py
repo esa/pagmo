@@ -2,20 +2,23 @@ from _problem import *
 from _problem import _gtoc_2_objective 
 		
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
-def _cassini_1_ctor(self):
+def _cassini_1_ctor(self, objectives = 1):
 	"""
 	Constructs a Cassini 1 Problem (Box-Constrained Continuous Single-Objective)
 	
 	NOTE: This problem (MGA) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]
-	      It has a global minimum at 4.9307 [km/s], and it is a deceptive problem
-	      with a larger minimum at 5.303 [km/s]
+	      Its single objective version has a global minimum at 4.9307 [km/s],
+	      and it is a deceptive problem with a larger minimum at 5.303 [km/s]
 	      
-	USAGE: problem.cassini_1()
+	USAGE: problem.cassini_1(objectives = 1)
+	
+	* objectives: number of objectives. 1=DV, 2=DV,DT
 	
 	"""
 	
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
+	arg_list.append(objectives)
 	self._orig_init(*arg_list)
 cassini_1._orig_init = cassini_1.__init__
 cassini_1.__init__ = _cassini_1_ctor
@@ -98,7 +101,7 @@ def _tandem_ctor(self, prob_id = 7, max_tof = -1):
 	"""
 	Constructs a TandEM Problem (Box-Constrained Continuous Single-Objective)
 	
-	NOTE: This problem (MGA-1DSM) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]
+	NOTE: This problem (MGA-1DSM) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]. The objective function is -log(m_final).
 	      
 	USAGE: problem.tandem(prob_id = 7, max_tof = -1)
 	

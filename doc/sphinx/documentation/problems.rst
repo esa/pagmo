@@ -49,6 +49,7 @@ ZDT1                               :class:`PyGMO.problem.zdt1`
 ZDT2                               :class:`PyGMO.problem.zdt2`         
 ZDT4                               :class:`PyGMO.problem.zdt4`
 ZDT6                               :class:`PyGMO.problem.zdt6`
+Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
 ================================== ========================================= ===========================================
 
 Constrained Continuous Single-Objective
@@ -97,6 +98,29 @@ Noisy De Jong                      :class:`PyGMO.problem.py_example_stochastic`
 Detailed Documentation
 ----------------------
 
+.. autoclass:: PyGMO.problem.base
+
+   .. automethod:: PyGMO.problem.base.__init__
+   
+   .. method:: _objfun_impl(self, x)
+   
+      This is a virtual function tham must be re-implemented in the derived class and must return a tuple packing as many numbers as the 
+      problem objectives (n_obj)
+      
+   .. method:: _compute_constraints_impl(self, x)
+   
+      This is a virtual function tham can must be re-implemented in the derived class (if c_dim>0) and must return a tuple 
+      packing as many numbers as the declared dimension of the problem constraints (c_dim). 
+      Inequality constarints need to be packed at last.
+      
+   .. automethod:: PyGMO.problem.base.reset_caches
+
+   .. automethod:: PyGMO.problem.base.set_bounds
+   
+   .. automethod:: PyGMO.problem.base.feasibility_x
+   
+   .. automethod:: PyGMO.problem.base.feasibility_c  
+   
 .. autoclass:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__

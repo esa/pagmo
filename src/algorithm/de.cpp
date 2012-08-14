@@ -108,8 +108,8 @@ void de::evolve(population &pop) const
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
 	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness(1);	//new fitness of the mutaded candidate
-	fitness_vector gbfit(1);	//global best fitness
+	fitness_vector newfitness(prob_f_dimension);	//new fitness of the mutaded candidate
+	fitness_vector gbfit(prob_f_dimension);	//global best fitness
 	std::vector<fitness_vector> fit(NP,gbfit);
 
 	//We extract from pop the chromosomes and fitness associated
@@ -319,7 +319,7 @@ void de::evolve(population &pop) const
 
 
 		//9 - Check the exit conditions (every 40 generations)
-		if (gen%40) {
+		if (gen % 40 == 0) {
 			double dx = 0;
 			for (decision_vector::size_type i = 0; i < D; ++i) {
 				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];

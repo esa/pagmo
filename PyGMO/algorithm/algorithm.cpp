@@ -163,7 +163,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// CMAES
 	algorithm_wrapper<algorithm::cmaes>("cmaes","Covariance Matrix Adaptation Evolutionary Startegy")
-		.def(init<optional<int, double, double, double, double, double, double, double, bool> >())
+		.def(init<optional<int, double, double, double, double, double, double, double, bool, bool> >())
 		.add_property("gen",&algorithm::cmaes::get_gen,&algorithm::cmaes::set_gen)
 		.add_property("cc",&algorithm::cmaes::get_cc,&algorithm::cmaes::set_cc)
 		.add_property("cs",&algorithm::cmaes::get_cs,&algorithm::cmaes::set_cs)
@@ -213,15 +213,23 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::sga>("sga", "A simple genetic algorithm (generational)")
 		.def(init<int, optional<const double &, const double &, int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
 	
+	// NSGA II
+	algorithm_wrapper<algorithm::nsga2>("nsga_II", "The NSGA-II algorithm")
+		.def(init<optional<int, double, double, double, double> >());
+
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
 		.def(init<optional<int,const double &, const double &, int, double, double> >())
 		.add_property("cr",&algorithm::de::get_cr,&algorithm::de::set_cr)
 		.add_property("f",&algorithm::de::get_f,&algorithm::de::set_f);
 
-	// Differential evolution (self-adaptive)
-	algorithm_wrapper<algorithm::de_self_adaptive>("de_self_adaptive", "Differential Evolution Algorithm with self-adaptation.\n")
+	// Differential evolution (jDE)
+	algorithm_wrapper<algorithm::jde>("jde", "Self-Adaptive Differential Evolution Algorithm: jDE.\n")
 		.def(init<optional<int, int, int, double, double, bool> >());
+		
+	// Differential evolution (mde_pbx)
+	algorithm_wrapper<algorithm::mde_pbx>("mde_pbx", "Self-Adaptive Differential Evolution Algorithm: mde_pbx.\n")
+		.def(init<optional<int, double, double, double, double> >());
 
 	// Differential evolution (our own brew)
 	algorithm_wrapper<algorithm::de_1220>("de_1220", "Differential Evolution Algorithm (our brew ...).\n")

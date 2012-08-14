@@ -22,73 +22,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_MIGRATION_BASE_S_POLICY_H
-#define PAGMO_MIGRATION_BASE_S_POLICY_H
+#ifndef PAGMO_MIGRATION_BEST_KILL_S_POLICY_H
+#define PAGMO_MIGRATION_BEST_KILL_S_POLICY_H
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 #include "../config.h"
 #include "../population.h"
 #include "../serialization.h"
 #include "base.h"
+#include "base_s_policy.h"
 
 namespace pagmo { namespace migration {
 
-// Base class for selection policies for migration.
-class base_s_policy;
-
-/// Shared pointer to base selection policy.
-typedef boost::shared_ptr<base_s_policy> base_s_policy_ptr;
-
-/// Base class for migration selection policies.
+/// "Choose best and kill him" migration selection policy.
 /**
- * The task of a migration selection policy is to select in a population the individuals that will emigrate. The selection
- * is performed by the pure virtual select() method.
+ * This policy is to choose best individuals from the population as migrating individuals and kill tem in the current
+ * population replacing them with random individuals.
  *
- * The base::get_n_individuals() method for this class is meant to represent the number of individuals emigrating from the population.
- *
+ * @author Dario Izzo (dario.izzo@gmail.com)
  * @author Marek Ruciński (marek.rucinski@gmail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE base_s_policy: public base
+class __PAGMO_VISIBLE best_kill_s_policy: public base_s_policy
 {
 	public:
-		base_s_policy(const double &rate = 1, rate_type type = absolute);
-		virtual ~base_s_policy();
-		/// Clone method.
-		/**
-		 * Provided that the derived policy implements properly the copy constructor, virtually all implementations of this method will
-		 * look like this:
-@verbatim
-return base_ptr(new derived_policy(*this));
-@endverbatim
-		 *
-		 * @return migration::base_s_policy_ptr to a copy of this.
-		 */
-		virtual base_s_policy_ptr clone() const = 0;
-		/// Select individuals to emigrate from the given population.
-		/**
-		 * This is the method that actually implements the policy.
-		 * Output vector should contain copies of selected individuals.
-		 *
-		 * \param[in,out] pop source population. In some cases (see best_kill_s-policy)
-		 * it can be modified (e.g. killing the selected individual)
-		 *
-		 * \return a vector containing selected individuals.
-		 */
-		virtual std::vector<population::individual_type> select(population &pop) const = 0;
-	private:	
+		best_kill_s_policy(const double &rate = 1, rate_type type = absolute);
+		base_s_policy_ptr clone() const;
+		std::vector<population::individual_type> select(population &) const;
+	private:
+		struct dom_comp;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_s_policy>(*this);
 		}
 };
 
-}}
+} }
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::migration::base_s_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::best_kill_s_policy);
 
 #endif

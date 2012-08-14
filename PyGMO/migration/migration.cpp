@@ -41,6 +41,7 @@ static inline class_<MSPolicy,bases<migration::base_s_policy> > migration_s_poli
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<MSPolicy>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<MSPolicy>);
+	retval.def("__repr__", &migration::base::human_readable);
 	retval.def_pickle(generic_pickle_suite<MSPolicy>());
 	retval.def("cpp_loads", &py_cpp_loads<MSPolicy>);
 	retval.def("cpp_dumps", &py_cpp_dumps<MSPolicy>);
@@ -54,6 +55,7 @@ static inline class_<MRPolicy,bases<migration::base_r_policy> > migration_r_poli
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<MRPolicy>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<MRPolicy>);
+	retval.def("__repr__", &migration::base::human_readable);
 	retval.def_pickle(generic_pickle_suite<MRPolicy>());
 	retval.def("cpp_loads", &py_cpp_loads<MRPolicy>);
 	retval.def("cpp_dumps", &py_cpp_dumps<MRPolicy>);
@@ -75,6 +77,10 @@ BOOST_PYTHON_MODULE(_migration) {
 
 	// Best selection policy.
 	migration_s_policy_wrapper<migration::best_s_policy>("best_s_policy","Best migration selection policy.")
+		.def(init<optional<const double &, migration::rate_type> >());
+		
+	// Best Kill selection policy.
+	migration_s_policy_wrapper<migration::best_kill_s_policy>("best_kill_s_policy","Best Kill migration selection policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
 
 	// Expose migration replacement policies.	

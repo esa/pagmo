@@ -82,7 +82,7 @@ int xantA5(const double &x) {
 
 int yantA5(const double &y) {
 	int i;
-	for(i=1; i<12; i++) {
+	for(i=1; i<14; i++) {
 		if (y_atl[i]>y) break;
 	}
 	return i-1;
@@ -95,8 +95,8 @@ double interp2SF(const double &VINF, const double &declination) {
 	double retval;
 	int v_indx=xant(VINF);
 	int dec_indx=yant(declination);
-	if (fabs(declination)>=90) return 0;
-	if ((VINF<1)||(VINF>5)) return 0;
+	if (fabs(declination)>=90) return 1e-3;
+	if ((VINF<1)||(VINF>5)) return 1e-3;
 
 	double dx = x_sf[v_indx+1]-x_sf[v_indx];
     double dydx = dx * (y_sf[dec_indx+1]-y_sf[dec_indx]);
@@ -113,8 +113,8 @@ double interp2A5(const double &VINF, const double &declination) {
     double retval;
     int v_indx=xantA5(VINF);
     int dec_indx=yantA5(declination);
-    if ((VINF<2.5)||(VINF>6)) return 0;\
-    if (fabs(declination)>=90) return 0;
+    if ((VINF<2.5)||(VINF>6)) return 1e-1;
+    if (fabs(declination)>=90) return 1e-1;
 
     double dx = x_atl[v_indx+1]-x_atl[v_indx];
     double dydx = dx * (y_atl[dec_indx+1]-y_atl[dec_indx]);

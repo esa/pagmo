@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <cmath>
+#include <boost/math/constants/constants.hpp>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -34,14 +35,15 @@ namespace pagmo { namespace problem {
 /**
  * Will construct ZDT6.
  *
+ * @param[in] dim integer dimension of the problem.
+ * 
  * @see problem::base constructors.
  */
-zdt6::zdt6():base(10,0,2)
+zdt6::zdt6(size_type dim):base(dim,0,2)
 {
 	// Set bounds.
 	set_lb(0.0);
 	set_ub(1.0);
-	m_pi = 4*atan(1.0);
 }
 
 /// Clone method.
@@ -54,16 +56,16 @@ base_ptr zdt6::clone() const
 void zdt6::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 2);
-	pagmo_assert(x.size() == 10);
+	pagmo_assert(x.size() == get_dimension());
 
 	double g = 0;
 
-	f[0] = 1 - exp(-4*x[0])*pow(sin(6*m_pi*x[0]),6);
+	f[0] = 1 - exp(-4*x[0])*pow(sin(6*boost::math::constants::pi<double>()*x[0]),6);
 
-	for(problem::base::size_type i = 2; i < 10; ++i) {
+	for(problem::base::size_type i = 1; i < x.size(); ++i) {
 		g += x[i];
 	}
-	g = 1 + (9 * g) / 9;
+	g = 1 + 9 * pow((g/(x.size()-1)),0.25);
 	
 	f[1] = g * ( 1 - (f[0]/g)*(f[0]/g));
 	

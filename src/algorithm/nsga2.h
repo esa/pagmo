@@ -26,8 +26,8 @@
 #define PAGMO_ALGORITHM_NSGA2_H
 
 #include "../config.h"
+#include "../serialization.h"
 #include "base.h"
-#include "../problem/base.h"
 
 
 namespace pagmo { namespace algorithm {
@@ -38,61 +38,54 @@ namespace pagmo { namespace algorithm {
  * It genererates offspring with crossover and mutation and select the next
  * generation according to nondominated-sorting and crowding distance comparison.
  *
- * The algorithm works on continuous box-constrained multi objective problems.
+ * The algorithm can be applied to continuous box-bounded optimization. The version for mixed integer
+ * and constrained optimization is also planned.
+ * 
+ * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
  *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 
 class __PAGMO_VISIBLE nsga2: public base
 {
 public:
-	/// Mutation operator info
-	struct mutation {
-		/// Mutation type, gaussian or random
-		enum type {GAUSSIAN = 0, RANDOM = 1};
-		/// Constructor
-		/**
-		 * \param[in] t the mutation type
-		 * \param[in] width the width of the gaussian bell in case of a gaussian mutation. The
-		 *		parameter is otherwise ignored. width is a percentage with respect to the
-		 *		ub[i]-lb[i] width.
-		 */
-		mutation(mutation::type t, double width) : m_type(t),m_width(width) {}
-		/// Mutation type
-		type m_type;
-		/// Mutation width
-		double m_width;
-	};
-
-	/// Crossover operator info
-	struct crossover {
-		/// Crossover type, binomial or exponential
-		enum type {BINOMIAL = 0, EXPONENTIAL = 1};
-	};
-
-	nsga2(int gen, const double &cr, const double &m,
-	    mutation::type mut  = mutation::GAUSSIAN, double width = 0.05,
-	    crossover::type cro = crossover::EXPONENTIAL);
+	nsga2(int gen=100, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
+	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const pagmo::population&) const;
+	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
+	void mutate(decision_vector&, const pagmo::population&) const;
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_cr);
+		ar & const_cast<double &>(m_eta_c);
+		ar & const_cast<double &>(m_m);
+		ar & const_cast<double &>(m_eta_m);
+	}
 	//Number of generations
 	const int m_gen;
 	//Crossover rate
 	const double m_cr;
-	//Mutation rate
-		const double m_m;
-	//Mutation
-	const mutation m_mut;
-	//Crossover_type
-	const crossover::type m_cro;
+	// Ditribution index for crossover
+	const double m_eta_c;
+	// Mutation rate
+	const double m_m;
+	// Ditribution index for mutation
+	const double m_eta_m;
 
 
 };
 
 }} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nsga2);
 
 #endif // PAGMO_ALGORITHM_NSGA2_H

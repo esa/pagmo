@@ -107,6 +107,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(self == self)
 		.def(self != self)
 		.def("is_compatible",&problem::base::is_compatible,"Check compatibility with other problem.")
+		.def("reset_caches",&problem::base::reset_caches,"Resets the internal caching system of PyGMO. This needs to be called whenever the state of the problem is changed i.e. the seed in a stochastic optimization problem or the trajectory model in a low-thrust optimization etc..")
 		// Comparisons.
 		.def("compare_x",&problem::base::compare_x,"Compare decision vectors.")
 		.def("verify_x",&problem::base::verify_x,"Check if decision vector is compatible with problem.")
@@ -193,7 +194,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Inventory problem.
 	stochastic_problem_wrapper<problem::inventory>("inventory","Inventory problem.")
-		.def(init<int, int>());
+		.def(init<optional<int, int, int> >());
 
 	// Lennard Jones problem.
 	problem_wrapper<problem::lennard_jones>("lennard_jones","Lennard Jones problem.")
@@ -267,19 +268,19 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<>());
 	// ZDT1
 	problem_wrapper<problem::zdt1>("zdt1","ZDT1")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 	// ZDT2
 	problem_wrapper<problem::zdt2>("zdt2","ZDT2")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 	// ZDT3
-	problem_wrapper<problem::zdt3>("zdt1","ZDT3")
-		.def(init<>());
+	problem_wrapper<problem::zdt3>("zdt3","ZDT3")
+		.def(init<optional<population::size_type> >());
 	// ZDT4
 	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 	// ZDT6
 	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
-		.def(init<>());
+		.def(init<optional<population::size_type> >());
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
@@ -334,8 +335,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init< const std::vector<int> &>());
 
 	// Cassini 1.
-	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.");
-
+	problem_wrapper<problem::cassini_1>("cassini_1","Cassini 1 interplanetary trajectory problem.")
+		.def(init<optional<unsigned int> >());
 	// Messenger full.
 	problem_wrapper<problem::messenger_full>("messenger_full","Full Messenger problem.");
 
@@ -350,7 +351,8 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Tandem.
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
-		.def(init< optional<int, double> >());
+		.def(init< optional<int, double> >())
+		.def("pretty", &problem::tandem::pretty);
 #endif
 
 #ifdef PAGMO_ENABLE_GSL

@@ -208,4 +208,10 @@ island and that, in reality, is a helper function returning automatically the co
       archi = archipelago(algo,prob,8,20,topology = topology.ring())
       archi.draw()
 
+   .. method:: PyGMO.archipelago.dump_migration_history()
+
+      Returns a temporal history of all the archipelago migrations in one string. Each entry is in the form 
+      (n,src_isl,dest_isl) and logs that n individuals, from the *island* having the index src_isl,
+      successfully replaced n individuals in the *population* of the *island* having the index dest_isl.
+
                    

@@ -47,7 +47,7 @@ namespace algorithm {
 /**
  * Allows to specify in detail the parameters of the algorithm.
  *
- * @param[in] gen number of generations.
+ * @param[in] iterations number of iterations.
  * @param[in] phmcr rate of choosing from memory.
  * @param[in] ppar_min minimum pitch adjustment rate.
  * @param[in] ppar_max maximum pitch adjustment rate.
@@ -56,8 +56,8 @@ namespace algorithm {
  * @throws value_error if phmcr is not in the ]0,1[ interval, ppar min/max are not in the ]0,1[ interval,
  * min/max quantities are less than/greater than max/min quantities.
  */
-ihs::ihs(int gen, const double &phmcr, const double &ppar_min, const double &ppar_max, const double &bw_min, const double &bw_max):
-	base(),m_gen(boost::numeric_cast<std::size_t>(gen)),m_phmcr(phmcr),m_ppar_min(ppar_min),m_ppar_max(ppar_max),m_bw_min(bw_min),m_bw_max(bw_max)
+ihs::ihs(int iterations, const double &phmcr, const double &ppar_min, const double &ppar_max, const double &bw_min, const double &bw_max):
+	base(),m_gen(boost::numeric_cast<std::size_t>(iterations)),m_phmcr(phmcr),m_ppar_min(ppar_min),m_ppar_max(ppar_max),m_bw_min(bw_min),m_bw_max(bw_max)
 {
 	if (phmcr > 1 || phmcr < 0 || ppar_min > 1 || ppar_min < 0 || ppar_max > 1 || ppar_max < 0) {
 		pagmo_throw(value_error,"probability of choosing from memory and pitch adjustment rates must be in the [0,1] range");
@@ -116,9 +116,9 @@ void ihs::evolve(population &pop) const
 					// Handle the case in which we added or subtracted too much and ended up out
 					// of boundaries.
 					if (tmp.cur_x[i] > ub[i]) {
-						tmp.cur_x[i] = ub[i];
+						tmp.cur_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 					} else if (tmp.cur_x[i] < lb[i]) {
-						tmp.cur_x[i] = lb[i];
+						tmp.cur_x[i] = boost::uniform_real<double>(lb[i],ub[i])(m_drng);
 					}
 				}
 			} else {
@@ -149,29 +149,12 @@ void ihs::evolve(population &pop) const
 				tmp.cur_x[i] = boost::uniform_int<int>(lb[i],ub[i])(m_urng);
 			}
 		}
-		// Compute fitness and constraints.
-		prob.objfun(tmp.cur_f,tmp.cur_x);
-		prob.compute_constraints(tmp.cur_c,tmp.cur_x);
-		// Locate the worst individual.
+		// And we push him back
+		pop.push_back(tmp.cur_x);
+		// We locate the worst individual.
 		const population::size_type worst_idx = pop.get_worst_idx();
-		// We need to set the best values to use the n_dominated method which is based on comparing the best (since March 2011)
-		tmp.best_f = tmp.cur_f;
-		tmp.best_x = tmp.cur_x;
-		tmp.best_c = tmp.cur_c;
-		// If the new individual dominates at least as many individuals as the worst in the population, use it.
-		if (pop.n_dominated(tmp) >= pop.get_domination_list(worst_idx).size()) {
-			pop.set_x(worst_idx,tmp.cur_x);
-		}
-		population::size_type dom_size = 0;
-		for (population::size_type i = 0; i < pop.size(); ++i) {
-			dom_size += pop.get_domination_list(i).size();
-		}
-		// Re-init all individuals but one, if no one dominates no one.
-		if (!dom_size) {
-			for (population::size_type i = 1; i < pop.size(); ++i) {
-				pop.reinit(i);
-			}
-		}
+		// And we get rid of him :)
+		pop.erase(worst_idx);
 	}
 }
 

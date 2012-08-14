@@ -57,6 +57,7 @@ namespace pagmo { namespace algorithm {
  * @see http://dx.doi.org/10.1016/j.amc.2006.11.033 for the paper that introduces and explains improved harmony search.
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
+ * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 class __PAGMO_VISIBLE ihs: public base
 {

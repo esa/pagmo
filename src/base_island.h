@@ -146,8 +146,10 @@ class __PAGMO_VISIBLE base_island
 		void set_population(const population &);
 		//@}
 	private:
-		void accept_immigrants(const std::vector<population::individual_type> &);
-		std::vector<population::individual_type> get_emigrants() const;
+		// NOTE: in the next code line, it should be std::vector<std::pair<population::size_type, archipelago::size_type> >,
+		// but this creates problems as at this point archipelago::siz_type is not defined and cannot be!!!
+		std::vector<std::pair<population::size_type, population::size_type> > accept_immigrants(std::vector<std::pair<population::size_type, population::individual_type> > &);
+		std::vector<population::individual_type> get_emigrants();
 		// Evolver thread object. This is a callable helper object used to launch an evolution for a given number of iterations.
 		struct int_evolver;
 		// Time-dependent evolver thread object. This is a callable helper object used to launch an evolution for a specified amount of time.

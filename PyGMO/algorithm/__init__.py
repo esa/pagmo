@@ -3,9 +3,9 @@ from _algorithm import *
 from _algorithm import _base
 from _base import base
 from _example import py_example
-from _cross_entropy import py_cross_entropy
 from _cmaes import py_cmaes
 from _scipy_algos import *
+
 
 _base = _algorithm._base
 
@@ -24,6 +24,8 @@ def _get_algorithm_list():
 	except ImportError as e:
 		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
 	return algorithm_list
+	
+
 
 # Redefining the constructors of all algorithms to obtain good documentation and to allow kwargs
 def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, screen_output = False):
@@ -62,11 +64,13 @@ def _de_ctor(self, gen=100, f=0.8, cr=0.9, variant=2, ftol=1e-6, xtol=1e-6, scre
 de._orig_init = de.__init__
 de.__init__ = _de_ctor
 
-def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
+
+
+def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory=False, screen_output = False):
 	"""
-	Constructs a Differential Evolution algorithm that has self-adaptation on CR and F:
+	Constructs a jDE algorithm (self-adaptive DE)
 	
-	USAGE: algorithm.de_self_adaptive(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
+	USAGE: algorithm.jde(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory = False, screen_output = False)
 	
 	* gen: number of generations
 	* variant: algoritmic variant to use (one of [1 .. 18])
@@ -83,7 +87,9 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6,
 		1. random param mutation		2. param mutation follows rand/3 scheme
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
-	* restart: if True parameters are reinitialized at each algorithmic call (no memory)
+	* memory: if True the algorithm internal state is saved and used for the next call
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -92,17 +98,43 @@ def _de_self_adaptive_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6,
 	arg_list.append(variant_adptv)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
-	arg_list.append(restart)	
+	arg_list.append(memory)	
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
-de_self_adaptive._orig_init = de_self_adaptive.__init__
-de_self_adaptive.__init__ = _de_self_adaptive_ctor
+jde._orig_init = jde.__init__
+jde.__init__ = _jde_ctor
 
-def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,11)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
+def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
+	"""
+	Constructs a mde_pbx algorithm (self-adaptive DE)
+	
+	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
+	
+	* gen: number of generations
+	* qperc: percentage of population to choose the best vector
+	* nexp: exponent for the powermean
+	* ftol: stop criteria on f
+	* xtol: stop criteria on x
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(qperc)
+	arg_list.append(nexp)
+	arg_list.append(ftol)
+	arg_list.append(xtol)	
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+mde_pbx._orig_init = mde_pbx.__init__
+mde_pbx.__init__ = _mde_pbx_ctor
+
+def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], memory = False, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
 	
-	USAGE: algorithm.de_1220(gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,19)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False)
+	USAGE: algorithm.de_1220(gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,19)], memory = False, ftol=1e-6, xtol=1e-6, screen_output = False)
 	
 	* gen: number of generations
 	* variant_adptv: adaptiv scheme to use (one of [1..2])
@@ -119,14 +151,14 @@ def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [i for i in
 		17. rand-to-best-and-current/2/exp	18. rand-to-best-and-current/2/bin
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
-	* restart: if True parameters are reinitialized at each algorithmic call (no memory)
+	* memory: if True the algorithm internal state is saved and used for the next call
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
 	arg_list.append(gen)
 	arg_list.append(variant_adptv)
 	arg_list.append(allowed_variants)
-	arg_list.append(restart)
+	arg_list.append(memory)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
 	self._orig_init(*arg_list)
@@ -230,6 +262,8 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 pso_gen._orig_init = pso_gen.__init__
 pso_gen.__init__ = _pso_gen_ctor
 
+
+
 def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL):
 	"""
 	Constructs a Simple Genetic Algorithm (generational)
@@ -259,6 +293,29 @@ def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSS
 	self._orig_init(*arg_list)
 sga._orig_init = sga.__init__
 sga.__init__ = _sga_ctor
+
+def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
+	"""
+	Constructs a Non-dominated Sorting Genetic Algorithm (NSGA_II)
+	
+	USAGE: algorithm.nsga__II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+  
+	* gen: number of generations
+	* cr: crossover factor [0,1[
+	* eta_c: Distribution index for crossover
+	* m: mutation probability [0,1]
+	* eta_m: Distribution index for mutation
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(eta_c)
+	arg_list.append(m)
+	arg_list.append(eta_m)
+	self._orig_init(*arg_list)
+nsga_II._orig_init = nsga_II.__init__
+nsga_II.__init__ = _nsga_II_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
@@ -349,6 +406,29 @@ def _ms_ctor(self, algorithm = _algorithm.de(), iter = 1):
 ms._orig_init = ms.__init__
 ms.__init__ = _ms_ctor
 
+def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5):
+	"""
+	Constructs a Compass Search Algorithm 
+	
+	USAGE: algorithm.cs(max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5);
+	
+
+	* max_eval: maximum number of function evaluations
+	* stop_range: when the range is reduced to a value smaller than stop_range cs stops
+	* start_range: starting range (non-dimensional wrt ub-lb)
+	* reduction_coeff: the range is multiplied by reduction_coeff whenever no improvment is made
+	                   across one chromosome
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(max_eval)
+	arg_list.append(stop_range)
+	arg_list.append(start_range)
+	arg_list.append(reduction_coeff)
+	self._orig_init(*arg_list)
+cs._orig_init = cs.__init__
+cs.__init__ = _cs_ctor
+
 def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	"""
 	Constructs a Monotonic Basin Hopping Algorithm (generalized to accept any algorithm)
@@ -372,29 +452,6 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	self._orig_init(*arg_list)
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
-
-def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5):
-	"""
-	Constructs a Compass Search Algorithm 
-	
-	USAGE: algorithm.cs(max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction_coeff = 0.5);
-	
-
-	* max_eval: maximum number of function evaluations
-	* stop_range: when the range is reduced to a value smaller than stop_range cs stops
-	* start_range: starting range (non-dimensional wrt ub-lb)
-	* reduction_coeff: the range is multiplied by reduction_coeff whenever no improvment is made
-	                   across one chromosome
-	"""
-	# We set the defaults or the kwargs
-	arg_list=[]
-	arg_list.append(max_eval)
-	arg_list.append(stop_range)
-	arg_list.append(start_range)
-	arg_list.append(reduction_coeff)
-	self._orig_init(*arg_list)
-cs._orig_init = cs.__init__
-cs.__init__ = _cs_ctor
 
 def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1):
 	"""
@@ -421,11 +478,11 @@ def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, homebrew = False, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
-	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, screen_output = False)
+	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False)
 
 	NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
 	is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem
@@ -440,8 +497,10 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	* sigma0: starting step (std)
 	* xtol: stopping criteria on the x tolerance
 	* ftol: stopping criteria on the f tolerance
-	* restart:  when True the algorithm loses its memory of covariance, step and other self-adapted quantities between successive calls
-	* screen_output: activates screen_output (output at each generation)
+	* memory: if True the algorithm internal state is saved and used for the next call	
+	* homebrew: when True CMAES becames a variant using population memory to define the elite and reinserting in steady-state (our own homebrew)
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -453,7 +512,8 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	arg_list.append(sigma0)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
-	arg_list.append(restart)
+	arg_list.append(memory)
+	arg_list.append(homebrew)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 cmaes._orig_init = cmaes.__init__
@@ -834,8 +894,4 @@ if "snopt" in str(_get_algorithm_list()):
 		self.screen_output = screen_output
 	snopt._orig_init = snopt.__init__
 	snopt.__init__ = _snopt_ctor
-
-
-	
-	
 

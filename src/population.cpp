@@ -32,6 +32,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include "problem/base.h"
 #include "exceptions.h"
@@ -42,6 +43,7 @@
 namespace pagmo
 {
 
+/// TODO: check if this is really needed!!!! 
 problem::base_ptr &population_access::get_problem_ptr(population &pop)
 {
 	return pop.m_prob;
@@ -55,9 +57,9 @@ problem::base_ptr &population_access::get_problem_ptr(population &pop)
  * @param[in] p problem::base that will be associated to the population.
  * @param[in] n integer number of individuals in the population.
  *
- * @throw piranha::value_error if n is negative.
+ * @throw value_error if n is negative.
  */
-population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
+population::population(const problem::base &p, int n):m_prob(p.clone()), m_pareto_rank(n), m_crowding_d(n), m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
@@ -71,6 +73,7 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 		// Push back an empty individual.
 		m_container.push_back(individual_type());
 		m_dom_list.push_back(std::vector<size_type>());
+		m_dom_count.push_back(0);
 		// Resize individual's elements.
 		m_container.back().cur_x.resize(p_size);
 		m_container.back().cur_v.resize(p_size);
@@ -84,19 +87,72 @@ population::population(const problem::base &p, int n):m_prob(p.clone()),m_drng(r
 	}
 }
 
-// Update the domination lists.
-void population::update_dom_list(const size_type &n)
+/// Copy constructor.
+/**
+ * Will perform a deep copy of all the elements.
+ *
+ * @param[in] p population used to initialise this.
+ */
+population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),m_dom_count(p.m_dom_count),
+	m_champion(p.m_champion), m_pareto_rank(p.m_pareto_rank), m_crowding_d(p.m_crowding_d),m_drng(p.m_drng),m_urng(p.m_urng)
+{}
+
+/// Assignment operator.
+/**
+ * Performs a deep copy of all the elements of p into this.
+ *
+ * @param[in] p population to be assigned to this.
+ *
+ * @return reference to this.
+ */
+population &population::operator=(const population &p)
 {
+	if (this != &p) {
+		pagmo_assert(m_prob && p.m_prob);
+		// Perform the copies.
+		m_prob = p.m_prob->clone();
+		m_container = p.m_container;
+		m_dom_list = p.m_dom_list;
+		m_dom_count = p.m_dom_count;
+		m_champion = p.m_champion;
+		m_pareto_rank = p.m_pareto_rank;
+		m_crowding_d = p.m_crowding_d;
+		m_drng = p.m_drng;
+		m_urng = p.m_urng;
+	}
+	return *this;
+}
+
+// Update the domination list and the domination count when the individual at position n has changed
+void population::update_dom(const size_type &n)
+{
+	// The algorithm works as follow:
+	// 1) For each element in m_dom_list[n] decrease the domination count by one. (m_dom_count[m_dom_list[n][j]] -= 1)
+	// 2) We empty the dom_list and reinitialize m_dom_count[n] = 0-
+	// 3) We loop over the population (j) and construct again m_dom_list[n] and m_dom_count, 
+	//    taking care to also keep m_dom_list[j] correctly updated
+	
 	const size_type size = m_container.size();
-	pagmo_assert(m_dom_list.size() == size && n < size);
+	pagmo_assert(m_dom_list.size() == size && m_dom_count.size() == size && n < size);
+	
+	// Decrease the domination count for the individuals that were dominated
+	for  (size_type i = 0; i < m_dom_list[n].size(); ++i) {
+		m_dom_count[ m_dom_list[n][i] ]--;
+	}
+	
 	// Empty the domination list of individual at position n.
 	m_dom_list[n].clear();
+	// Reset the dom_count of individual at position n.
+	m_dom_count[n] = 0;
+	
 	for (size_type i = 0; i < size; ++i) {
 		if (i != n) {
 			// Check if individual in position i dominates individual in position n.
 			if (m_prob->compare_fc(m_container[i].best_f,m_container[i].best_c,m_container[n].best_f,m_container[n].best_c)) {
-				// Need to update the domination list in i. If n is already present,
-				// do nothing, otherwise push_back.
+				// Update the domination count in n. 
+				m_dom_count[n]++;
+				// Update the domination list in i. 
+				//If n is already present, do nothing, otherwise push_back.
 				if (std::find(m_dom_list[i].begin(),m_dom_list[i].end(),n) == m_dom_list[i].end()) {
 					m_dom_list[i].push_back(n);
 				}
@@ -110,6 +166,7 @@ void population::update_dom_list(const size_type &n)
 			// Check if individual in position n dominates individual in position i.
 			if (m_prob->compare_fc(m_container[n].best_f,m_container[n].best_c,m_container[i].best_f,m_container[i].best_c)) {
 				m_dom_list[n].push_back(i);
+				m_dom_count[i]++;
 			}
 		}
 	}
@@ -162,7 +219,7 @@ void population::reinit()
 /**
  * The continuous and integer parts of the chromosome will be picked randomly within the problem's bounds, the velocities
  * will be initialised randomly so that in one tick the particles travel at most half the bounds distance. Fitness and constraints
- * will be evaluated, and champion updated.
+ * will be evaluated, best_x and best_f are erasred and reset to the new values, the champion is updated.
  *
  * @param[in] idx position of the individual to be re-initialised.
  *
@@ -195,41 +252,9 @@ void population::reinit(const size_type &idx)
 	// Update the champion.
 	update_champion(idx);
 	// Update the domination lists.
-	update_dom_list(idx);
+	update_dom(idx);
 }
 
-/// Copy constructor.
-/**
- * Will perform a deep copy of all the elements.
- *
- * @param[in] p population used to initialise this.
- */
-population::population(const population &p):m_prob(p.m_prob->clone()),m_container(p.m_container),m_dom_list(p.m_dom_list),
-	m_champion(p.m_champion),m_drng(p.m_drng),m_urng(p.m_urng)
-{}
-
-/// Assignment operator.
-/**
- * Performs a deep copy of all the elements of p into this.
- *
- * @param[in] p population to be assigned to this.
- *
- * @return reference to this.
- */
-population &population::operator=(const population &p)
-{
-	if (this != &p) {
-		pagmo_assert(m_prob && p.m_prob);
-		// Perform the copies.
-		m_prob = p.m_prob->clone();
-		m_container = p.m_container;
-		m_dom_list = p.m_dom_list;
-		m_champion = p.m_champion;
-		m_drng = p.m_drng;
-		m_urng = p.m_urng;
-	}
-	return *this;
-}
 
 /// Get constant reference to individual at position n.
 /**
@@ -268,9 +293,253 @@ const std::vector<population::size_type> &population::get_domination_list(const 
 	return m_dom_list[idx];
 }
 
+/// Get domination count.
+/**
+ * Will return the domination count for the requested individual idx. That is the number of population individuals that dominate idx.
+ *
+ * @param[in] idx position of the individual whose domination count will be retrieved.
+ *
+ * @return the domination count
+ *
+ * @throws index_error if idx is not smaller than size().
+ */
+population::size_type population::get_domination_count(const size_type &idx) const
+{
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	return m_dom_count[idx];
+}
+
+/// Get Pareto rank
+/**
+ * Will return the Pareto rank for the requested individual idx (that is the Pareto front it belongs to, starting from 0,1,2....N).
+ * A call to population::update_pareto_ranks() is needed if the population has
+ * changed since the last time the Pareto rank was computed
+ *
+ * @param[in] idx position of the individual whose Pareto rank will be returned
+ *
+ * @return the Pareto rank of indiviual idx
+ *
+ * @throws index_error if idx is not smaller than m_pareto_rank.size().
+ */
+population::size_type population::get_pareto_rank(const size_type &idx) const
+{
+	if (idx >= m_pareto_rank.size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	return m_pareto_rank[idx];
+}
+
+/// Get Crowding Distance 
+/**
+ * Will return the crowding distance for the requested individual idx. A call to population::update_crowding_d() is needed if the population has
+ * changed since the last time the Crowding Distance was computed. The crowding distance is computed as defined in Deb's work
+ * 
+ * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
+ *
+ * @param[in] idx position of the individual whose Crowding Distance  will be returned
+ *
+ * @return the Crowding Distance of indiviual idx
+ *
+ * @throws index_error if idx is not smaller than m_crowding_distance.size().
+ */
+double population::get_crowding_d(const size_type &idx) const
+{
+	if (idx >= m_crowding_d.size()) {
+		pagmo_throw(index_error,"invalid index");
+	}
+	return m_crowding_d[idx];
+}
+
+// This functor is used to sort (minimization assumed) along a particular fitness dimension. 
+// Needed for the computations of the crowding distance
+struct one_dim_fit_comp {
+	one_dim_fit_comp(const population &pop, fitness_vector::size_type dim):m_pop(pop), m_dim(dim) {};
+	bool operator()(const population::size_type& idx1, const population::size_type& idx2) const
+	{
+		return m_pop.get_individual(idx1).cur_f[m_dim] < m_pop.get_individual(idx2).cur_f[m_dim];
+	}
+	const population& m_pop;
+	fitness_vector::size_type m_dim;
+};
+
+// We compute all pareto fronts and thus update the pareto ranks
+void population::update_pareto_ranks() const {
+	// Population size can change between calls and m_pareto_rank is updated if necessary
+	m_pareto_rank.resize(size());
+
+	// We initialize the ranks to zero
+	std::fill(m_pareto_rank.begin(), m_pareto_rank.end(), 0);
+	
+	// We define some utility vectors .....
+	std::vector<population::size_type> F,S;
+	
+	// And make a copy of the domination count
+	std::vector<population::size_type> dom_count_copy(m_dom_count);
+	
+	// 1 - Find the first Pareto Front
+	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
+		if (m_dom_count[idx] == 0) {
+			F.push_back(idx);
+		}
+	}
+
+	unsigned int irank = 1;
+	// We loop to find subsequent fronts
+	while (F.size()!=0) {
+		//For each individual F in the current front
+		for (population::size_type i=0; i < F.size(); ++i) {
+			//For each individual dominated by F
+			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
+				dom_count_copy[m_dom_list[F[i]][j]]--;
+				if (dom_count_copy[m_dom_list[F[i]][j]] == 0){
+					S.push_back(m_dom_list[F[i]][j]);
+					m_pareto_rank[m_dom_list[F[i]][j]] = irank;
+				}
+			}
+		}
+		F = S;
+		S.clear();
+		irank++;
+	}
+}
+
+// We update m_crowding_d 
+void population::update_crowding_d() const {
+	
+	// Population size can change between calls and m_crowding_d is updated if necessary
+	m_crowding_d.resize(size());
+	
+	// We initialize all distances to zero
+	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
+	
+	// here we keep indexes associated to the individuals, i.e. 0,1,2,...,pop.size()-1
+	std::vector<population::size_type> I;
+	I.reserve(size());
+	for (population::size_type i=0; i < size(); ++i){
+		I.push_back(i);
+	} 
+	
+	// we construct the comparison functor along the first fitness component
+	one_dim_fit_comp funct(*this,0);
+	
+	// we loop along fitness components
+	for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
+		funct.m_dim = i;
+		// we sort I along the fitness_dimension i
+		std::sort(I.begin(),I.end(), funct );
+		// assign Inf to the boundaries
+		m_crowding_d[I[0]] = std::numeric_limits<double>::max();
+		m_crowding_d[I[size()-1]] = std::numeric_limits<double>::max();
+		//and compute the crowding distance
+		double df = get_individual(I[size()-1]).cur_f[i] - get_individual(I[0]).cur_f[i];
+		for (population::size_type j = 1; j < size()-1; ++j) {
+			m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
+		}
+	}
+}
+
+/// Computes and returns the population Pareto fronts
+/**
+ * This method computes all Pareto Fronts of the population, returning the positional indexes
+ * of the individuals belonging to each Pareto front.
+ * 
+ * @return a vector containing, for each Pareto front, a vector of the individuals idx that belong to
+ * each front
+ */
+std::vector<std::vector<population::size_type> > population::compute_pareto_fronts() const {
+	std::vector<std::vector<population::size_type> > retval;
+	std::vector<population::size_type> F,S;
+	std::vector<population::size_type> dom_count_copy(m_dom_count);
+	
+	// We find the first Pareto Front
+	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
+		if (m_dom_count[idx] == 0) {
+			F.push_back(idx);
+		}
+	}
+	// And if not empty, we push it back to retval
+	if (F.size() != 0) retval.push_back(F);
+	
+	// We loop to find subsequent fronts
+	while (F.size()!=0) {
+		//For each individual F in the current front
+		for (population::size_type i=0; i < F.size(); ++i) {
+			//For each individual dominated by F
+			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
+				dom_count_copy[m_dom_list[F[i]][j]]--;
+				if (dom_count_copy[m_dom_list[F[i]][j]] == 0) S.push_back(m_dom_list[F[i]][j]);
+			}
+		}
+		F = S;
+		S.clear();
+		if (F.size() != 0) retval.push_back(F);
+	}
+	return retval;
+}
+
+// Crowded comparison operator struct constructor.
+population::crowded_comparison_operator::crowded_comparison_operator(const population &pop):m_pop(pop)
+{
+	pagmo_assert(m_pop.size() >= 2);
+	pagmo_assert(m_pop.problem().get_f_dimension() >= 2);
+};
+bool population::crowded_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const 
+{
+	pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
+	pagmo_assert(&i2 >= &m_pop.m_container.front() && &i2 <= &m_pop.m_container.back());
+	const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
+	if (m_pop.m_pareto_rank[idx1] == m_pop.m_pareto_rank[idx2]) {
+		return (m_pop.m_crowding_d[idx1] > m_pop.m_crowding_d[idx2]);
+	}
+	else {
+		return (m_pop.m_pareto_rank[idx1] < m_pop.m_pareto_rank[idx2]);
+	}
+}
+bool population::crowded_comparison_operator::operator()(const size_type &idx1, const size_type &idx2) const
+{
+	pagmo_assert(idx1 <= m_pop.size());
+	pagmo_assert(idx2 <= m_pop.size());
+	if (m_pop.m_pareto_rank[idx1] == m_pop.m_pareto_rank[idx2]) {
+		return (m_pop.m_crowding_d[idx1] > m_pop.m_crowding_d[idx2]);
+	}
+	else {
+		return (m_pop.m_pareto_rank[idx1] < m_pop.m_pareto_rank[idx2]);
+	}
+}
+
+// Trivial comparison operator struct constructor.
+population::trivial_comparison_operator::trivial_comparison_operator(const population &pop):m_pop(pop) {};
+bool population::trivial_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const
+{
+	pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
+	pagmo_assert(&i2 >= &m_pop.m_container.front() && &i2 <= &m_pop.m_container.back());
+	const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
+	return m_pop.problem().compare_fc(m_pop.get_individual(idx1).cur_f, m_pop.get_individual(idx1).cur_c, m_pop.get_individual(idx2).cur_f,m_pop.get_individual(idx2).cur_c);
+}
+bool population::trivial_comparison_operator::operator()(const size_type &idx1, const size_type &idx2) const
+{
+	pagmo_assert(idx1 <= m_pop.size());
+	pagmo_assert(idx2 <= m_pop.size());
+	return m_pop.problem().compare_fc(m_pop.get_individual(idx1).cur_f, m_pop.get_individual(idx1).cur_c, m_pop.get_individual(idx2).cur_f,m_pop.get_individual(idx2).cur_c);
+}
+
 /// Get position of worst individual.
 /**
- * The worst individual is the one dominating the smallest number of other individuals in the population.
+ * The definition of what makes an individual worst with respect to another differs in single objective
+ * optimization from multiple objectives optimization.
+ * 
+ * Single objective optimization: the comparison operator is the virtual method problem::compare_fc. 
+ * 
+ * Multi objective optimization: the crowded comparison operator is used. Note that with respect to 
+ * what originally defined by Deb in "A Fast and Elitist Multiobjective Genetic Algorithm: NSGA II",
+ * we do not use the front rank,  but the m_dom_count (which is related but not identical). 
+ * 
+ * 
+ * NOTE: population.get_worst_idx assumes a weak strict ordering defined in problem::compare_fc. If the user
+ * reimplements such a virtual method at the problem level, he needs to make sure this condition
+ * is met (or pay the consequences :)
  *
  * @return the positional index of the worst individual.
  */
@@ -279,14 +548,33 @@ population::size_type population::get_worst_idx() const
 	if (!size()) {
 		pagmo_throw(value_error,"empty population, cannot compute position of worst individual");
 	}
-	container_type::const_iterator it = std::max_element(m_container.begin(),m_container.end(),domination_comp(*this));
+	container_type::const_iterator it;
+	if (m_prob->get_f_dimension() == 1) {
+		it = std::max_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
+	}
+	else {
+		update_crowding_d();
+		update_pareto_ranks();
+		it = std::max_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
+	}
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
 
 /// Get position of best individual.
 /**
-* The best individual is the one dominating the highest number of other individuals in the population.
- *
+ * The definition of what makes an individual best with respect to another differs in single objective
+ * optimization from multiple objectives optimization.
+ * 
+ * Single objective optimization: the comparison operator is the virtual method problem::compare_fc. 
+ * 
+ * Multi objective optimization: the crowded comparison operator is used. Note that with respect to 
+ * what originally defined by Deb in "A Fast and Elitist Multiobjective Genetic Algorithm: NSGA II",
+ * we do not use the front rank,  but the m_dom_count (which is related but not identical). 
+ * 
+ * NOTE: population.get_best_idx assumes a weak strict ordering defined in problem::compare_fc. If the user
+ * reimplements such a virtual method at the problem level, he needs to make sure this condition
+ * is met (or pay the consequences :)
+ * 
  * @return the positional index of the best individual.
  */
 population::size_type population::get_best_idx() const
@@ -294,25 +582,32 @@ population::size_type population::get_best_idx() const
 	if (!size()) {
 		pagmo_throw(value_error,"empty population, cannot compute position of best individual");
 	}
-	container_type::const_iterator it = std::min_element(m_container.begin(),m_container.end(),domination_comp(*this));
-	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
-}
-
-struct pair_order
-{
-	pair_order(const population &pop):m_pop(pop) {}
-	bool operator()(const population::size_type &i1, const population::size_type &i2) const
-	{
-		return m_pop.get_domination_list(i1).size() > m_pop.get_domination_list(i2).size();
+	container_type::const_iterator it;
+	if (m_prob->get_f_dimension() == 1) {
+		it = std::min_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
 	}
-	const population &m_pop;
-};
+	else {
+		update_crowding_d();
+		update_pareto_ranks();
+		it = std::min_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
+	}	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
+}
 
 /// Get positions of N best individuals.
 /**
-* The best individuals are the one dominating the highest number of other individuals
- * in the population.
- *
+ * The definition of what makes an individual best with respect to another differs in single objective
+ * optimization from multiple objectives optimization.
+ * 
+ * Single objective optimization: the comparison operator is the virtual method problem::compare_fc. 
+ * 
+ * Multi objective optimization: the crowded comparison operator is used. Note that with respect to 
+ * what originally defined by Deb in "A Fast and Elitist Multiobjective Genetic Algorithm: NSGA II",
+ * we do not use the front rank,  but the m_dom_count (which is related but not identical). 
+ * 
+ * NOTE: population.get_best_idx assumes a weak strict ordering defined in problem::compare_fc. If the user
+ * reimplements such a virtual method at the problem level, he needs to make sure this condition
+ * is met (or pay the consequences :)
+ * 
  * @return a std::vector of positional indexes of the best N individuals.
  * @throws value_error if N is larger than the population size or the population is empty
  */
@@ -324,13 +619,19 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 	if (N > size()) {
 		pagmo_throw(value_error,"Best N individuals requested, but population has size smaller than N");
 	}
-		std::vector<population::size_type> retval;
+	std::vector<population::size_type> retval;
 	retval.reserve(size());
 	for (population::size_type i=0; i<size(); ++i){
 		retval.push_back(i);
+	} 
+	if (m_prob->get_f_dimension() == 1) {
+		std::sort(retval.begin(),retval.end(),trivial_comparison_operator(*this));
 	}
-	pair_order po(*this);
-	std::sort(retval.begin(),retval.end(),po);
+	else {
+		update_crowding_d();
+		update_pareto_ranks();
+		std::sort(retval.begin(),retval.end(),crowded_comparison_operator(*this));
+	}
 	retval.resize(N);
 	return retval;
 }
@@ -372,6 +673,7 @@ std::string population::human_readable() const
 		for (size_type i = 0; i < size(); ++i) {
 			oss << '#' << i << ":\n";
 			oss << m_container[i] << "\tDominates:\t\t\t" << m_dom_list[i] << '\n';
+			oss << "\tIs dominated by:\t\t" << m_dom_count[i] << "\tindividuals" << '\n';
 		}
 	}
 	if (m_champion.x.size()) {
@@ -433,7 +735,46 @@ void population::set_x(const size_type &idx, const decision_vector &x)
 	// Update the champion.
 	update_champion(idx);
 	// Updated domination lists.
-	update_dom_list(idx);
+	update_dom(idx);
+}
+
+/// Erase individual idx
+/**
+ * The individual occupying position idx in the population will be erased from the population.
+ * This method takes care to update accordingly the domination structures of the population
+ * 
+ * @param[in] idx index of the individual to be erased
+ * 
+ * @throws index_error if idx is out of range
+ */
+
+void population::erase(const population::size_type & idx) {
+
+	pagmo_assert(m_dom_list.size() == size() && m_dom_count.size() == size() && idx < size());
+	
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid individual position");
+	}
+	for (population::size_type i = 0; i < m_dom_list[idx].size(); ++i) {
+		m_dom_count[m_dom_list[idx][i]]--;
+	}
+	m_container.erase(m_container.begin() + idx);
+	m_dom_count.erase(m_dom_count.begin() + idx);
+	m_dom_list.erase(m_dom_list.begin() + idx);
+	// Since an element is erased indexes in dom_list need an update
+	for (population::size_type i=0; i<m_dom_list.size(); ++i){
+		for(population::size_type j=0; j<m_dom_list[i].size();++j) {
+            if (m_dom_list[i][j] == idx) {
+                m_dom_list[i].erase(m_dom_list[i].begin()+j);
+		// If we did not erase the last individual
+		if (m_dom_list.size() > i) {
+			//check the next individual which would be skipped otherwise
+			if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
+		}
+            }
+			else if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
+		}
+	}
 }
 
 /// Append individual with given decision vector.
@@ -456,6 +797,7 @@ void population::push_back(const decision_vector &x)
 	// Push back an empty individual.
 	m_container.push_back(individual_type());
 	m_dom_list.push_back(std::vector<size_type>());
+	m_dom_count.push_back(0);
 	// Resize individual's elements.
 	m_container.back().cur_x.resize(p_size);
 	m_container.back().cur_v.resize(p_size);
@@ -528,6 +870,7 @@ void population::clear()
 {
 	m_container.clear();
 	m_dom_list.clear();
+	m_dom_count.clear();
 	m_champion = champion_type();
 }
 
@@ -616,3 +959,4 @@ std::ostream &operator<<(std::ostream &s, const population::champion_type &champ
 }
 
 }
+

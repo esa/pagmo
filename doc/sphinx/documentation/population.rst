@@ -5,10 +5,10 @@ Population
 
    This class represents the concept of a *population* as a collection of :class:`PyGMO.individual` evaluated w.r.t. a :class:`PyGMO.problem`.
    A *population* in PyGMO makes sure that all the individuals it contains are consistent w.r.t. the problem and it constantly keeps
-   its :class:`PyGMO.champion` updated. Also, the *population*, keeps constantly updated the domination list, that
-   is a list containing, per individual I, the individuals that I dominates (only useful for multiobjective optimization)
-   From an evolutionary point of view one can see the *population* as a set of individuals
-   living in an environment (the :class:`problem`) which defines their fitness values
+   its :class:`PyGMO.champion` updated. Also (relevant only for multi-objective problems) the *population*, keeps constantly updated
+   1) a domination list that is a list containing, per individual I, the indexes of the individuals I dominates, and 2) a domination count
+   that is a list containing, per individual I, the number of individuals that dominate individual I.
+   From an evolutionary point of view one can see the *population* as a set of individuals living in an environment (the :class:`problem`) which defines their fitness values
 
    .. method:: __init__((PyGMO.problem)prob [, (int)n_individuals])
 
@@ -17,7 +17,6 @@ Population
       in [(:class:`problem.lb`-:class:`problem.ub`)/2, (:class:`problem.ub`- :class:`problem.lb`)/2]
 
       .. code-block:: python
-
 
          from PyGMO import *
          prob = problem.schwefel(50)
@@ -38,7 +37,7 @@ Population
 
    .. method:: push_back((list) x)
 
-      Appends the :class:`individual` having chromosme x to the population, if compatible with the :class:`problem`. Its velocity
+      Appends an :class:`individual` having chromosme x to the population, if compatible with the :class:`problem`. Its velocity
       is initialized at random, its memory is set equal to the current position.
 
       NOTE: There is no way to push_back into a *population* directly an :class:`PyGMO.individual`
@@ -51,6 +50,21 @@ Population
          prob = problem.schwefel(2)
          pop = population(prob)
          pop.push_back([1.12,2.34])
+
+   .. method:: erase((int) idx)
+
+      Erases the :class:`individual` with index idx from the *population*. Domination list and 
+      domination count are updated accordingly.
+
+      NOTE: after such an operation all indexes will be renamed so that if the individual with idx = n is erased, 
+      after the erase has completed the individual that had idx=n+1 will have idx = n
+
+      .. code-block:: python
+
+         from PyGMO import *
+         prob = problem.schwefel(2)
+         pop = population(prob,5)
+         pop.erase(0)
 
    .. method:: set_x((int)idx, (list) x)
 
@@ -82,24 +96,61 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.schwefel(2)
+         prob = problem.zdt1()
          pop = population(prob,10)
-         pop.get_domination_list(1)
+         ls = pop.get_domination_list(1)
 
-   .. method:: get_best_idx()
+   .. method:: get_domination_count((int)idx)
 
-      Returns the index of the best :class:`PyGMO.individual` in a *population*. The best :class:`PyGMO.individual` is the one dominating the most
-      number of individuals
-
-   .. method:: get_worst_idx()
-
-      Returns the index of the worst :class:`PyGMO.individual` in a *population*. The worst :class:`PyGMO.individual` is the one dominating the least
-      number of individuals
+      Returns the domination count for the individual idx (that is how many individuals in the population dominate idx?)
 
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.schwefel(3)
+         prob = problem.zdt1()
+         pop = population(prob,10)
+         c = pop.get_domination_count(1)
+
+   .. method:: compute_pareto_fronts()
+
+      Returns the Pareto fronts of the population in form of a list of lists each one containing the idx
+      of the individuals belonging to a particular Pareto Front
+
+      .. code-block:: python
+
+         from PyGMO import *
+         prob = problem.zdt1()
+         pop = population(prob,10)
+         pf = pop.compute_pareto_fronts()
+
+  .. method:: plot_pareto_fronts(comp = [0,1])
+
+      Plots the pareto fronts in a sliced 2-D graph representing the two objective function components specified
+      in comp
+
+      .. code-block:: python
+
+         from PyGMO import *
+         prob = problem.zdt1()
+         pop = population(prob,100)
+         pf = pop.plot_pareto_fronts()
+
+   .. method:: get_best_idx((int) n)
+
+      Returns the n best indexes of the :class:`PyGMO.individual` in a *population*. The best 
+      :class:`PyGMO.individual`s are computed according to non-dominated sorting in populations that
+      have a multi-objective problem.
+
+   .. method:: get_worst_idx()
+
+      Returns the index of the worst :class:`PyGMO.individual` in a *population*. The worst 
+      :class:`PyGMO.individual` is computed according to non-dominated sorting in populations that
+      have a multi-objective problem.
+
+      .. code-block:: python
+
+         from PyGMO import *
+         prob = problem.zdt3()
          pop = population(prob,3) #population with 3 individuals
          best_guy = pop.get_best_idx()
          worst_guy = pop.get_worst_idx()

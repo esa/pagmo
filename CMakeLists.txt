@@ -60,16 +60,16 @@ ENDIF(COMMAND CMAKE_POLICY)
 
 # Provides build options to CMake.
 # Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
-OPTION(BUILD_MAIN "Build 'main.cpp'." OFF)
+OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
 # Build Option: when active the bindings to Python are compiled and linked (installation).
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
-# Build Option: when active the keplerian toolbox and GTOP database problems are built.
-OPTION(ENABLE_KEPLERIAN_TOOLBOX "Enable the GTOP database problems (interplanetary transfers)." ON)
-IF(ENABLE_KEPLERIAN_TOOLBOX)
+# Build Option: when active the GTOP database problems are built.
+OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
+IF(ENABLE_GTOP_DATABASE)
         ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
-ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+ENDIF(ENABLE_GTOP_DATABASE)
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
 
@@ -102,9 +102,9 @@ SET(REQUIRED_BOOST_LIBS serialization thread)
 IF(BUILD_PYGMO)
 	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
 ENDIF(BUILD_PYGMO)
-IF(ENABLE_KEPLERIAN_TOOLBOX)
+IF(ENABLE_GTOP_DATABASE)
 	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} date_time)
-ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+ENDIF(ENABLE_GTOP_DATABASE)
 MESSAGE(STATUS "Required Boost libraries: ${REQUIRED_BOOST_LIBS}")
 
 FIND_PACKAGE(Boost 1.42.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
@@ -114,9 +114,9 @@ MESSAGE(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
 MESSAGE(STATUS "Boost libraries: ${Boost_LIBRARIES}")
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 SET(MANDATORY_BOOST_LIBS ${Boost_THREAD_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
-IF(ENABLE_KEPLERIAN_TOOLBOX)
+IF(ENABLE_GTOP_DATABASE)
 	SET(MANDATORY_BOOST_LIBS ${MANDATORY_BOOST_LIBS} ${Boost_DATE_TIME_LIBRARY})
-ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+ENDIF(ENABLE_GTOP_DATABASE)
 SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${MANDATORY_BOOST_LIBS})
 
 # Initial thread setup.

@@ -36,9 +36,9 @@ namespace pagmo{ namespace problem {
 /// ZDT4 problem
 /**
  *
- * This is a box-constrained continuous 30-dimension multi-objecive problem.
+ * This is a box-constrained continuous n-dimension multi-objecive problem.
  * \f[
- *	g\left(x\right) = 91 + \sum_{i=2}^{10} \left[x_i^2 - 10 \cos \left(4\pi x_i \right) \right]
+ *	g\left(x\right) = 91 + \sum_{i=2}^{n} \left[x_i^2 - 10 \cos \left(4\pi x_i \right) \right]
  * \f]
  * \f[
  * 	F_1 \left(x\right) = x_1
@@ -55,7 +55,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE zdt4 : public base
 {
 	public:
-		zdt4();
+		zdt4(size_type = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -66,9 +66,7 @@ class __PAGMO_VISIBLE zdt4 : public base
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & m_pi;
 		}
-		double m_pi;
 };
 
 }} //namespaces

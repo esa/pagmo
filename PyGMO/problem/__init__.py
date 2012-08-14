@@ -215,6 +215,8 @@ def _kur_ctor(self):
 	"""
 	Constructs a Kursawe's study problem (Box-Constrained Continuous Multi-Objective)
 	
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
 	USAGE: problem.kur()
 	"""
 	arg_list=[]
@@ -226,6 +228,8 @@ kur.__init__ = _kur_ctor
 def _fon_ctor(self):
 	"""
 	Constructs a Fonseca and Fleming's study problem (Box-Constrained Continuous Multi-Objective)
+	
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 	
 	USAGE: problem.fon()
 	"""
@@ -239,6 +243,8 @@ def _pol_ctor(self):
 	"""
 	Constructs a Poloni's study study problem (Box-Constrained Continuous Multi-Objective)
 	
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
 	USAGE: problem.pol()
 	"""
 	arg_list=[]
@@ -251,6 +257,8 @@ def _sch_ctor(self):
 	"""
 	Constructs a Schaffer's study problem (Box-Constrained Continuous Multi-Objective)
 	
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
 	USAGE: problem.sch()
 	"""
 	arg_list=[]
@@ -259,49 +267,87 @@ def _sch_ctor(self):
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
 
-def _zdt1_ctor(self):
+def _zdt1_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT1 problem (Box-Constrained Continuous Multi-Objective)
 	
-	USAGE: problem.zdt1()
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
+	USAGE: problem.zdt1(dim = 30)
+	
+	* dim: problem dimension
 	"""
+	
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
 	
 zdt1._orig_init = zdt1.__init__
 zdt1.__init__ = _zdt1_ctor
 
-def _zdt2_ctor(self):
+def _zdt2_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT2 problem (Box-Constrained Continuous Multi-Objective)
 	
-	USAGE: problem.zdt2()
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
+	USAGE: problem.zdt2(dim = 30)
+	
+	* dim: problem dimension
 	"""
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
 	
 zdt2._orig_init = zdt2.__init__
 zdt2.__init__ = _zdt2_ctor
 
-def _zdt4_ctor(self):
+def _zdt3_ctor(self, dim = 30):
+	"""
+	Constructs a ZDT3 problem (Box-Constrained Continuous Multi-Objective)
+	
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
+	USAGE: problem.zdt3(dim = 30)
+	
+	* dim: problem dimension
+	"""
+	arg_list=[]
+	arg_list.append(dim)
+	self._orig_init(*arg_list)
+	
+zdt3._orig_init = zdt3.__init__
+zdt3.__init__ = _zdt3_ctor
+
+def _zdt4_ctor(self, dim = 10):
 	"""
 	Constructs a ZDT4 problem (Box-Constrained Continuous Multi-Objective)
 	
-	USAGE: problem.zdt4()
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
+	USAGE: problem.zdt4(dim = 10)
+	
+	* dim: problem dimension
 	"""
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
 	
 zdt4._orig_init = zdt4.__init__
 zdt4.__init__ = _zdt4_ctor
 
-def _zdt6_ctor(self):
+def _zdt6_ctor(self, dim = 10):
 	"""
 	Constructs a ZDT6 problem (Box-Constrained Continuous Multi-Objective)
 	
-	USAGE: problem.zdt6()
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	
+	USAGE: problem.zdt6(dim = 10)
+	
+	* dim: problem dimension
 	"""
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
 	
 zdt6._orig_init = zdt6.__init__

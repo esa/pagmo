@@ -84,13 +84,13 @@ class scipy_l_bfgs_b(_scipy_base):
 	"""
 	Wrapper around SciPy's fmin_l_bfgs_b optimiser (uses L-BFGS-B algorithm)
 	"""
-	def __init__(self, maxfun = 1, m = 10, factr = 10000000.0, pgtol = 1.0000000000000001e-05, epsilon = 1e-08, screen_output = False):
+	def __init__(self, maxfun = 1, m = 10, factr = 10000000.0, pgtol = 1e-05, epsilon = 1e-08, screen_output = False):
 		"""
 		Constructs a L-BFGS-B algorithm (SciPy)
 
 		NOTE: gradient is numerically approximated
 
-		USAGE: algorithm.scipy_l_bfgs_b(maxfun = 15000, m = 10, factr = 10000000.0, pgtol = 1.0000000000000001e-05, epsilon = 1e-08, screen_output = False)
+		USAGE: algorithm.scipy_l_bfgs_b(maxfun = 15000, m = 10, factr = 10000000.0, pgtol = 1e-05, epsilon = 1e-08, screen_output = False):
 
 		* maxfun: maximum number of function evaluations
 		* m: the maximum number of variable metric corrections

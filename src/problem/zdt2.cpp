@@ -34,9 +34,11 @@ namespace pagmo { namespace problem {
 /**
  * Will construct ZDT2.
  *
+ * @param[in] dim integer dimension of the problem.
+ * 
  * @see problem::base constructors.
  */
-zdt2::zdt2():base(30,0,2)
+zdt2::zdt2(size_type dim):base(dim,0,2)
 {
 	// Set bounds.
 	set_lb(0.0);
@@ -53,16 +55,16 @@ base_ptr zdt2::clone() const
 void zdt2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 2);
-	pagmo_assert(x.size() == 30);
+    pagmo_assert(x.size() == get_dimension());
 
 	double g = 0;
 
 	f[0] = x[0];
 
-	for(problem::base::size_type i = 2; i < 30; ++i) {
+	for(problem::base::size_type i = 1; i < x.size(); ++i) {
 		g += x[i];
 	}
-	g = 1 + (9 * g) / 29;
+	g = 1 + (9 * g) / (x.size() - 1);
 	
 	f[1] = g * ( 1 - (x[0]/g)*(x[0]/g));
 	

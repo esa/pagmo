@@ -39,7 +39,7 @@ namespace pagmo{ namespace problem {
  *
  * This is a box-constrained continuous 30-dimension multi-objecive problem.
  * \f[
- *	g\left(x\right) = 1 + 9 \left[\left(\sum_{i=2}^{10} x_i \right) / \left( n-1 \right)\right]^{0.25}
+ *	g\left(x\right) = 1 + 9 \left[\left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)\right]^{0.25}
  * \f]
  * \f[
  * 	F_1 \left(x\right) = 1 - \exp(-4 x_1) \sin^6(6 \pi \ x_1)
@@ -56,7 +56,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE zdt6 : public base
 {
 	public:
-		zdt6();
+		zdt6(size_type = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -67,9 +67,7 @@ class __PAGMO_VISIBLE zdt6 : public base
 		void serialize(Archive &ar, const unsigned int)
 		{
 	 		ar & boost::serialization::base_object<base>(*this);
-			ar & m_pi;
 		}
-		double m_pi;
 };
 
 }} //namespaces

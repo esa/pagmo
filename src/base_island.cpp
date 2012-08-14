@@ -569,25 +569,53 @@ void base_island::set_population(const population &pop)
 	m_pop = pop;
 }
 
-// Accept individuals incoming from a migration operation.
-void base_island::accept_immigrants(const std::vector<population::individual_type> &immigrants)
+struct unary_predicate {
+	unary_predicate(std::pair<population::size_type, archipelago::size_type> pair) : m_pair(pair) {};
+	bool operator()(std::pair<population::size_type, archipelago::size_type> x){
+		return (m_pair.second == x.second);
+	}
+	std::pair<population::size_type, archipelago::size_type> m_pair;
+	
+};
+// Accept individuals incoming from a migration operation. Returns an std::vector containing the number of accepted individuals from each island
+std::vector<std::pair<population::size_type, archipelago::size_type> > base_island::accept_immigrants(std::vector<std::pair<population::size_type, population::individual_type> > &immigrant_pairs)
 {
+	std::vector<std::pair<population::size_type, archipelago::size_type> > retval;
 	// Make sure we are in an archipelago.
 	pagmo_assert(m_archi);
-	const std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > rep =
-		m_r_policy->select(immigrants,m_pop);
+	// We shuffle the immigrants as to make sure not to give preference to a particular island
+	std::random_shuffle(immigrant_pairs.begin(),immigrant_pairs.end());
+	// We extract the immigrants from the pair
+	std::vector<population::individual_type> immigrants;
+	immigrants.reserve(immigrant_pairs.size());
+	for (size_t i=0;i<immigrant_pairs.size();++i) {
+		immigrants.push_back(immigrant_pairs[i].second);
+	}
+	
+	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> > rep;
+	rep = m_r_policy->select(immigrants,m_pop);
 	for (std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >::const_iterator
 		rep_it = rep.begin(); rep_it != rep.end(); ++rep_it)
 	{
 		pagmo_assert((*rep_it).first < m_pop.m_container.size() && (*rep_it).second < immigrants.size());
 		m_pop.m_container[(*rep_it).first] = immigrants[(*rep_it).second];
 		m_pop.update_champion((*rep_it).first);
-		m_pop.update_dom_list((*rep_it).first);
+		m_pop.update_dom((*rep_it).first);
+		std::pair<population::size_type, archipelago::size_type> pair = std::make_pair(1.0, immigrant_pairs[(*rep_it).second].first);
+		std::vector<std::pair<population::size_type, archipelago::size_type> >::iterator where;
+		where = std::find_if(retval.begin(), retval.end(), unary_predicate(pair));
+		if (where == retval.end()) {
+			retval.push_back(pair);
+		}
+		else {
+			(*where).first++;
+		}
 	}
+	return(retval);
 }
 
 // Get individuals migrating from here.
-std::vector<population::individual_type> base_island::get_emigrants() const
+std::vector<population::individual_type> base_island::get_emigrants() 
 {
 	return m_s_policy->select(m_pop);
 }

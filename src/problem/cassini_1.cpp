@@ -25,16 +25,24 @@
 #include <string>
 
 #include "cassini_1.h"
+#include "../exceptions.h"
 #include "../AstroToolbox/mga.h"
 
 namespace pagmo { namespace problem {
 
 /// Problem Constructor
 /**
+ * 
+ * @param[in] objectives when equal to 1, the problem will be a single objective problem (DV)
+ * When equal to 2, the problem is instantiated as a multiple-objectiove problem (DV,DT)
+ * 
  * @see problem::base constructors.
  */
-cassini_1::cassini_1():base(6),Delta_V(6),rp(4),t(6)
+cassini_1::cassini_1(unsigned int objectives):base(6,0,objectives),Delta_V(6),rp(4),t(6)
 {
+	if (objectives != 1 and objectives !=2) {
+		pagmo_throw(value_error,"Cassini_1 problem has either one or two objectives");
+	}
 	// Set bounds.
 	const double lb[6] = {-1000,  30, 100, 30 , 400 , 1000};
 	const double ub[6] = {0    , 400, 470, 400, 2000, 6000};
@@ -64,7 +72,10 @@ base_ptr cassini_1::clone() const
 void cassini_1::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	MGA(x,problem,rp,Delta_V,f[0]);
-}
+	if (get_f_dimension() == 2) {
+		f[1] = (x[2]+x[3]+x[4]+x[5]); // + std::max(0.0,f[0] - 20) * 365.25;
+	}	
+	}
 
 std::string cassini_1::get_name() const
 {

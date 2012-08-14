@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <cmath>
+#include <boost/math/constants/constants.hpp>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -34,14 +35,15 @@ namespace pagmo { namespace problem {
 /**
  * Will construct ZDT3.
  *
+ * @param[in] dim integer dimension of the problem.
+ * 
  * @see problem::base constructors.
  */
-zdt3::zdt3():base(30,0,2)
+zdt3::zdt3(size_type dim):base(dim,0,2)
 {
 	// Set bounds.
 	set_lb(0.0);
 	set_ub(1.0);
-	m_pi = 4*atan(1.0);
 }
 
 /// Clone method.
@@ -54,18 +56,18 @@ base_ptr zdt3::clone() const
 void zdt3::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 2);
-	pagmo_assert(x.size() == 30);
+    pagmo_assert(x.size() == get_dimension());
 
 	double g = 0;
 
 	f[0] = x[0];
 
-	for(problem::base::size_type i = 2; i < 30; ++i) {
+	for(problem::base::size_type i = 1; i < x.size(); ++i) {
 		g += x[i];
 	}
-	g = 1 + (9 * g) / 29;
+	g = 1 + (9 * g) / (x.size()-1);
 	
-	f[1] = g * ( 1 - sqrt(x[0]/g) - x[0]/g * sin(10 * m_pi * x[0]));
+	f[1] = g * ( 1 - sqrt(x[0]/g) - x[0]/g * sin(10 * boost::math::constants::pi<double>() * x[0]));
 	
 }
 

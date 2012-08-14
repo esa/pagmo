@@ -6,12 +6,13 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de_self_adaptive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/jde.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mde_pbx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de_1220.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
+	#${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
@@ -27,6 +28,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_s_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_kill_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/worst_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_r_policy.cpp
@@ -80,7 +82,7 @@ SET(PAGMO_LIB_SRC_LIST
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.
-IF(ENABLE_KEPLERIAN_TOOLBOX)
+IF(ENABLE_GTOP_DATABASE)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
@@ -119,7 +121,7 @@ IF(ENABLE_KEPLERIAN_TOOLBOX)
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/spacecraft.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/core_functions/jorba.c
 	)
-ENDIF(ENABLE_KEPLERIAN_TOOLBOX)
+ENDIF(ENABLE_GTOP_DATABASE)
 
 # Additional files for GSL support.
 IF(ENABLE_GSL)

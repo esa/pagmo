@@ -36,9 +36,9 @@ namespace pagmo{ namespace problem {
 /// ZDT2 problem
 /**
  *
- * This is a box-constrained continuous 30-dimension multi-objecive problem.
+ * This is a box-constrained continuous n-dimension multi-objecive problem.
  * \f[
- *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{30} x_i \right) / \left( n-1 \right)
+ *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
  * \f]
  * \f[
  * 	F_1 \left(x\right) = x_1
@@ -55,7 +55,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE zdt2 : public base
 {
 	public:
-		zdt2();
+		zdt2(size_type = 30);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
