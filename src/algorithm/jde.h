@@ -64,7 +64,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE jde : public base
 {
 public:
-	jde(int = 100, int = 2, int = 1, double = 1e-6, double = 1e-6, bool = true);
+	jde(int = 100, int = 2, int = 1, double = 1e-6, double = 1e-6, bool = false);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -84,7 +84,7 @@ private:
 		ar & const_cast<double &>(m_xtol);
 		ar & m_f;
 		ar & m_cr;
-		ar & const_cast<bool &>(m_restart);
+		ar & const_cast<bool &>(m_memory);
 	}
 	
 	// Number of generations.
@@ -103,8 +103,8 @@ private:
 	const double m_ftol;
 	const double m_xtol;
 
-	// Resart option
-	const bool m_restart;
+	// Memory option
+	const bool m_memory;
 };
 
 }}

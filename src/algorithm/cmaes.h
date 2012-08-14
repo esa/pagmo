@@ -48,7 +48,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cmaes: public base
 {
 public:
-	cmaes(int gen = 500, double cc = -1, double cs = -1, double c1 = -1, double cmu = -1, double sigma0=0.5, double ftol = 1e-6, double xtol = 1e-6, bool restart = true, bool homebrew = false);
+	cmaes(int gen = 500, double cc = -1, double cs = -1, double c1 = -1, double cmu = -1, double sigma0=0.5, double ftol = 1e-6, double xtol = 1e-6, bool memory = true, bool homebrew = false);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -94,7 +94,7 @@ private:
 		ar & m_sigma;
 		ar & m_xtol;
 		ar & m_ftol;
-		ar & m_restart;
+		ar & m_memory;
 		ar & m_homebrew;
 		ar & m_mean;
 		ar & m_variation;
@@ -117,7 +117,7 @@ private:
 	mutable double m_sigma;
 	double m_ftol;
 	double m_xtol;
-	bool m_restart;
+	bool m_memory;
 	bool m_homebrew;
 
 	// "Memory" data members (these are here as to enable control over each single generation)

@@ -48,14 +48,14 @@ std::vector<int> de_1220::default_startegies(tmp,tmp+8);
  * @param[in] gen number of generations.
  * @param[in] variant_adptv parameter adaptation scheme to be used (one of 1..2)
  * @param[in] allowed_variants a vector of integers containing mutation variants allowed (in the 1..18 range)
- * @param[in] restart when true the algorithm re-initialize randomly the parameters at each call
+ * @param[in] memory when true the algorithm re-initialize randomly the parameters at each call
  * @param[in] ftol stopping criteria on the x tolerance
  * @param[in] xtol stopping criteria on the f tolerance
  * @throws value_error if gen is negative, variant_adptv is not in [1,2], varianis contains value outside
  * the [1,18] range
  */
-de_1220::de_1220(int gen, int variant_adptv, const std::vector<int> & allowed_variants, bool restart, double ftol, double xtol):base(), m_gen(gen),
-	 m_variant_adptv(variant_adptv), m_allowed_variants(allowed_variants), m_restart(restart), m_ftol(ftol), m_xtol(xtol), m_f(0), m_cr(0), m_variants(0) {
+de_1220::de_1220(int gen, int variant_adptv, const std::vector<int> & allowed_variants, bool memory, double ftol, double xtol):base(), m_gen(gen),
+	 m_variant_adptv(variant_adptv), m_allowed_variants(allowed_variants), m_memory(memory), m_ftol(ftol), m_xtol(xtol), m_f(0), m_cr(0), m_variants(0) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -149,7 +149,7 @@ void de_1220::evolve(population &pop) const
 
 	
 	// Initialize the F, CR and variant vectors
-	if ( (m_cr.size() != NP) || (m_f.size() != NP) || (m_variants.size() != NP) || (m_restart) ) {
+	if ( (m_cr.size() != NP) || (m_f.size() != NP) || (m_variants.size() != NP) || (m_memory) ) {
 		m_cr.resize(NP); m_f.resize(NP);  m_variants.resize(NP);
 		if (m_variant_adptv==1) {
 			for (size_t i = 0; i < NP; ++i) {
@@ -592,7 +592,7 @@ std::string de_1220::human_readable_extra() const
 	s << "gen:" << m_gen << ' ';
 	s << "self_adaptation:" << m_variant_adptv << ' ';
 	s << "variants:" << m_allowed_variants << ' ';
-	s << "restart:" << m_restart << ' ';
+	s << "memory:" << m_memory << ' ';
 	s << "ftol:" << m_ftol << ' ';
 	s << "xtol:" << m_xtol;
 

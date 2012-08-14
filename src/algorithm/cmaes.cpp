@@ -54,13 +54,13 @@ namespace pagmo { namespace algorithm {
  * @param[in] sigma0 starting step (std)
  * @param[in] ftol stopping criteria on the x tolerance
  * @param[in] xtol stopping criteria on the f tolerance
- * @param[in] restart when the algorithm looses its memory of the parameter adaptation (C, p etc ....) at each call
+ * @param[in] memory when true the algorithm preserves its memory of the parameter adaptation (C, p etc ....) at each call
  * @throws value_error if cc,cs,c1,cmu are not in [0,1] or not -1
  * 
  * */
-cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool restart, bool homebrew):
+cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool memory, bool homebrew):
 		base(), m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), 
-		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_restart(restart), m_homebrew(homebrew) {
+		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_memory(memory), m_homebrew(homebrew) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -214,7 +214,7 @@ void cmaes::evolve(population &pop) const
 	decision_vector dumb(N,0);
 
 	// If the algorithm is called for the first time on this problem dimension / pop size or if m_fresh_start is true we erease the memory of past calls
-	if ( (m_newpop.size() != lam) || ((unsigned int)(m_newpop[0].rows() ) != N) || (m_restart==true) ) {
+	if ( (m_newpop.size() != lam) || ((unsigned int)(m_newpop[0].rows() ) != N) || (m_memory==false) ) {
 		mean.resize(N);
 		for (problem::base::size_type i=0;i<N;++i){
 			mean(i) = pop.champion().x[i];
@@ -429,7 +429,7 @@ void cmaes::evolve(population &pop) const
 		}
 
 	// Update algorithm memory
-	if (!m_restart) {
+	if (m_memory) {
 		m_mean = mean;
 		m_variation = variation;
 		m_newpop = newpop;
@@ -494,7 +494,7 @@ std::string cmaes::human_readable_extra() const
 	  << "sigma0:" << m_sigma << ' '
 	  << "ftol:" << m_ftol << ' '
 	  << "xtol:" << m_xtol << ' ' 
-	  << "restart:" << m_restart << ' ' 
+	  << "memory:" << m_memory << ' ' 
 	  << "homebrew_variant?:" << m_homebrew;
 	return s.str();
 }

@@ -5,11 +5,10 @@ Population
 
    This class represents the concept of a *population* as a collection of :class:`PyGMO.individual` evaluated w.r.t. a :class:`PyGMO.problem`.
    A *population* in PyGMO makes sure that all the individuals it contains are consistent w.r.t. the problem and it constantly keeps
-   its :class:`PyGMO.champion` updated. Also, the *population*, keeps constantly updated the domination list that
-   is a list containing, per individual I, the individuals that I dominates (only useful for multiobjective optimization), and the domination count
-   a list containing, per individual I, the number of individuals that dominate individual I.
-   From an evolutionary point of view one can see the *population* as a set of individuals
-   living in an environment (the :class:`problem`) which defines their fitness values
+   its :class:`PyGMO.champion` updated. Also (relevant only for multi-objective problems) the *population*, keeps constantly updated
+   1) a domination list that is a list containing, per individual I, the indexes of the individuals I dominates, and 2) a domination count
+   that is a list containing, per individual I, the number of individuals that dominate individual I.
+   From an evolutionary point of view one can see the *population* as a set of individuals living in an environment (the :class:`problem`) which defines their fitness values
 
    .. method:: __init__((PyGMO.problem)prob [, (int)n_individuals])
 
@@ -126,7 +125,8 @@ Population
 
   .. method:: plot_pareto_fronts(comp = [0,1])
 
-      Plots the pareto fronts in a sliced 2-D graph representing two objective function components
+      Plots the pareto fronts in a sliced 2-D graph representing the two objective function components specified
+      in comp
 
       .. code-block:: python
 

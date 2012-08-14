@@ -679,7 +679,10 @@ std::string archipelago::dump_migr_history() const
 	join();
 	std::ostringstream oss;
 	for (migr_hist_type::const_iterator it = m_migr_hist.begin(); it != m_migr_hist.end(); ++it) {
-		oss << *it << '\n';
+		oss << "(" << (*it).get<0>()  
+			<< "," << (*it).get<1>()
+			<< "," << (*it).get<2>() << ")"
+			<< '\n';
 	}
 	return oss.str();
 }

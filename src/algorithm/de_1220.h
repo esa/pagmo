@@ -74,7 +74,7 @@ private:
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<int &>(m_variant_adptv);
 		ar & const_cast<std::vector<int> &>(m_allowed_variants);
-		ar & const_cast<bool &>(m_restart);
+		ar & const_cast<bool &>(m_memory);
 		ar & const_cast<double &>(m_ftol);
 		ar & const_cast<double &>(m_xtol);
 		ar & m_f;
@@ -92,7 +92,7 @@ private:
 	const std::vector<int> m_allowed_variants;
 
 	//Resart option
-	const bool m_restart;
+	const bool m_memory;
 
 	//Tolerances
 	const double m_ftol;

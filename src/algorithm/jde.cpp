@@ -46,11 +46,11 @@ namespace pagmo { namespace algorithm {
  * @param[in] variant_adptv parameter adaptation scheme to be used (one of 1..2)
  * @param[in] ftol stopping criteria on the x tolerance
  * @param[in] xtol stopping criteria on the f tolerance
- * @param[in] restart when true the algorithm re-initialize randomly the parameters at each call
+ * @param[in] memory when true the algorithm preserves its internal state (adapted parameters) through successive calls
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
-jde::jde(int gen, int variant, int variant_adptv, double ftol, double xtol, bool restart):base(), m_gen(gen), m_f(0), m_cr(0),
-	 m_variant(variant), m_variant_adptv(variant_adptv), m_ftol(ftol), m_xtol(xtol), m_restart(restart) {
+jde::jde(int gen, int variant, int variant_adptv, double ftol, double xtol, bool memory):base(), m_gen(gen), m_f(0), m_cr(0),
+	 m_variant(variant), m_variant_adptv(variant_adptv), m_ftol(ftol), m_xtol(xtol), m_memory(memory) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -140,7 +140,7 @@ void jde::evolve(population &pop) const
 
 	
 	// Initialize the F and CR vectors
-	if ( (m_cr.size() != NP) || (m_f.size() != NP) || (m_restart) ) {
+	if ( (m_cr.size() != NP) || (m_f.size() != NP) || (m_memory) ) {
 		m_cr.resize(NP); m_f.resize(NP);
 		if (m_variant_adptv==1) {
 			for (size_t i = 0; i < NP; ++i) {
@@ -577,7 +577,7 @@ std::string jde::human_readable_extra() const
 	s << "gen:" << m_gen << ' ';
 	s << "variant:" << m_variant << ' ';
 	s << "self_adaptation:" << m_variant_adptv << ' ';
-	s << "restart:" << m_restart << ' ';
+	s << "memory:" << m_memory << ' ';
 	s << "ftol:" << m_ftol << ' ';
 	s << "xtol:" << m_xtol;
 

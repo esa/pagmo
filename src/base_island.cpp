@@ -583,7 +583,7 @@ std::vector<std::pair<population::size_type, archipelago::size_type> > base_isla
 	std::vector<std::pair<population::size_type, archipelago::size_type> > retval;
 	// Make sure we are in an archipelago.
 	pagmo_assert(m_archi);
-	// We shuffle the immigrants as top make sure not to give preference to a particular island
+	// We shuffle the immigrants as to make sure not to give preference to a particular island
 	std::random_shuffle(immigrant_pairs.begin(),immigrant_pairs.end());
 	// We extract the immigrants from the pair
 	std::vector<population::individual_type> immigrants;

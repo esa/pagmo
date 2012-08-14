@@ -66,11 +66,11 @@ de.__init__ = _de_ctor
 
 
 
-def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart=True, screen_output = False):
+def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory=True, screen_output = False):
 	"""
 	Constructs a jDE algorithm (self-adaptive DE)
 	
-	USAGE: algorithm.jde(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, restart = True, screen_output = False)
+	USAGE: algorithm.jde(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory = True, screen_output = False)
 	
 	* gen: number of generations
 	* variant: algoritmic variant to use (one of [1 .. 18])
@@ -87,7 +87,7 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, r
 		1. random param mutation		2. param mutation follows rand/3 scheme
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
-	* restart: if True the adapted parameters are reinitialized at each algorithmic call (no memory)
+	* memory: if True the algorithm internal state is saved and used for the next call
 	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
 	* 		 different island outputs)
 	"""
@@ -98,7 +98,7 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, r
 	arg_list.append(variant_adptv)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
-	arg_list.append(restart)	
+	arg_list.append(memory)	
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 jde._orig_init = jde.__init__
@@ -130,11 +130,11 @@ def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, scr
 mde_pbx._orig_init = mde_pbx.__init__
 mde_pbx.__init__ = _mde_pbx_ctor
 
-def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False):
+def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], memory = True, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
 	
-	USAGE: algorithm.de_1220(gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,19)], restart = True, ftol=1e-6, xtol=1e-6, screen_output = False)
+	USAGE: algorithm.de_1220(gen=100, variant_adptv=1, allowed_variants = [i for i in range(1,19)], memory = True, ftol=1e-6, xtol=1e-6, screen_output = False)
 	
 	* gen: number of generations
 	* variant_adptv: adaptiv scheme to use (one of [1..2])
@@ -151,14 +151,14 @@ def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,
 		17. rand-to-best-and-current/2/exp	18. rand-to-best-and-current/2/bin
 	* ftol: stop criteria on f
 	* xtol: stop criteria on x
-	* restart: if True parameters are reinitialized at each algorithmic call (no memory)
+	* memory: if True the algorithm internal state is saved and used for the next call
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
 	arg_list.append(gen)
 	arg_list.append(variant_adptv)
 	arg_list.append(allowed_variants)
-	arg_list.append(restart)
+	arg_list.append(memory)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
 	self._orig_init(*arg_list)
@@ -478,11 +478,11 @@ def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, homebrew = False, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = True, homebrew = False, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
-	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, restart = True, screen_output = False)
+	USAGE: algorithm.cmaes(gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = True, screen_output = False)
 
 	NOTE: In our variant of the algorithm, particle memory is used to extract the elite and reinsertion
 	is made aggressively ..... getting rid of the worst guy). Also, the bounds of the problem
@@ -497,7 +497,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	* sigma0: starting step (std)
 	* xtol: stopping criteria on the x tolerance
 	* ftol: stopping criteria on the f tolerance
-	* restart:  when True the algorithm reinitialize covariance, step and other self-adapted quantities between successive calls
+	* memory: if True the algorithm internal state is saved and used for the next call	
 	* homebrew: when True CMAES becames a variant using population memory to define the elite and reinserting in steady-state (our own homebrew)
 	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
 	* 		 different island outputs)
@@ -512,7 +512,7 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	arg_list.append(sigma0)
 	arg_list.append(ftol)
 	arg_list.append(xtol)
-	arg_list.append(restart)
+	arg_list.append(memory)
 	arg_list.append(homebrew)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
