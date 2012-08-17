@@ -209,36 +209,33 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 	}
 };
 
+#define PYGMO_REGISTER_CONVERTER(T,policy) \
+{\
+boost::python::type_info info = boost::python::type_id<T >(); \
+const boost::python::converter::registration* reg = boost::python::converter::registry::query(info); \
+if (reg == NULL) \
+{ \
+	to_tuple_mapping<T >();\
+	from_python_sequence<T,policy>();\
+}\
+}
+
+
+
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
 	common_module_init();
 
-	// Enable handy automatic conversions.
-	
+	//Register std converters to lists if not already registered by some other module
+	PYGMO_REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
+	PYGMO_REGISTER_CONVERTER(std::vector<int>, variable_capacity_policy);
+	PYGMO_REGISTER_CONVERTER(std::vector<topology::base::vertices_size_type>, variable_capacity_policy);
+	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<double> >, variable_capacity_policy);
+	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
+	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
+	PYGMO_REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);
 
-
-	boost::python::type_info info = boost::python::type_id<std::vector<double> >();
-	const boost::python::converter::registration* reg = boost::python::converter::registry::query(info);
-	if (reg == NULL)
-	{
-	  	//registry YourType
-		to_tuple_mapping<std::vector<double> >();
-		from_python_sequence<std::vector<double>,variable_capacity_policy>();
-	}
-
-	to_tuple_mapping<std::vector<int> >();
-	from_python_sequence<std::vector<int>,variable_capacity_policy>();
-	to_tuple_mapping<std::vector<topology::base::vertices_size_type> >();
-	from_python_sequence<std::vector<topology::base::vertices_size_type>,variable_capacity_policy>();
-	to_tuple_mapping<std::vector<std::vector<double> > >();
-	from_python_sequence<std::vector<std::vector<double> >,variable_capacity_policy>();
-	to_tuple_mapping<std::vector<std::vector<int> > >();
-	from_python_sequence<std::vector<std::vector<int> >,variable_capacity_policy>();
-	to_tuple_mapping<std::vector<std::vector<topology::base::vertices_size_type> > >();
-	from_python_sequence<std::vector<std::vector<topology::base::vertices_size_type> >,variable_capacity_policy>();
-	to_tuple_mapping<std::vector<base_island_ptr> >();
-	from_python_sequence<std::vector<base_island_ptr>,variable_capacity_policy>();
 
 	// Expose population class.
 
