@@ -70,6 +70,10 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 	"""
 	Constructs a jDE algorithm (self-adaptive DE)
 	
+	REF: "Self-adaptive differential evolution algorithm in constrained real-parameter optimization"
+	J Brest, V Zumer, MS Maucec - Evolutionary Computation, 2006. 
+	http://dsp.szu.edu.cn/DSP2006/research/publication/yan/WebEdit/UploadFile/Self-adaptive%20Differential%20Evolution%20Algorithm%20for%20Constrained%20Real-Parameter%20Optimization.pdf
+	
 	USAGE: algorithm.jde(gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, memory = False, screen_output = False)
 	
 	* gen: number of generations
@@ -107,6 +111,10 @@ jde.__init__ = _jde_ctor
 def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a mde_pbx algorithm (self-adaptive DE)
+	
+	REF: "An Adaptive Differential Evolution Algorithm With Novel Mutation and Crossover
+	Strategies for Global Numerical Optimization" - IEEE TRANSACTIONS ON SYSTEMS, MAN, AND CYBERNETICS?PART B: CYBERNETICS, VOL. 42, NO. 2, APRIL 20 
+
 	
 	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
 	
@@ -171,6 +179,10 @@ def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.
 	Constructs a Particle Swarm Optimization (steady-state). The position update is applied
 	immediately after the velocity update
 	
+	REF (for variants 5-6): http://cswww.essex.ac.uk/staff/rpoli/papers/PoliKennedyBlackwellSI2007.pdf
+	
+	REF (for variants 1-4): Kennedy, J.; Eberhart, R. (1995). "Particle Swarm Optimization". Proceedings of IEEE International Conference on Neural Networks. IV. pp. 1942?1948.
+	
 	USAGE: algorithm.pso(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4)
 
 	* gen: number of generations
@@ -217,7 +229,7 @@ pso.__init__ = _pso_ctor
 def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""
 	Constructs a Particle Swarm Optimization (generational). The position update is applied
-	immediately after the velocity update
+	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
 	
 	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4])
 

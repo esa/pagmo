@@ -15,12 +15,12 @@ Heuristic Optimization
 ================================== ========================================= =============== ===================================================================
 Common Name                        Name in PyGMO                             Type            Comments
 ================================== ========================================= =============== ===================================================================
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S      the original algorithm
-Self-adaptive DE (jDE)             :class:`PyGMO.algorithm.jde`                   C-U-S      self-adaptive F, CR
-DE with p-best crossover (mde_pbx) :class:`PyGMO.algorithm.mde_pbx`               C-U-S      self-adaptive F, CR
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de_1220`               C-U-S      our own brew. self adaptive F, CR and variants 
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO 2009 algorithm (steady-state)
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      generational (also problems deriving from base_stochastic)
+Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S      The original algorithm
+Self-adaptive DE (jDE)             :class:`PyGMO.algorithm.jde`                   C-U-S      Self-adaptive F, CR
+DE with p-best crossover (mde_pbx) :class:`PyGMO.algorithm.mde_pbx`               C-U-S      Self-adaptive F, CR
+Differential Evolution (DE)        :class:`PyGMO.algorithm.de_1220`               C-U-S      Our own brew. self adaptive F, CR and variants 
+Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
+Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
 Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
 Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               M-U-S      NSGA-II
 Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
