@@ -209,12 +209,13 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 	}
 };
 
+
 #define PYGMO_REGISTER_CONVERTER(T,policy) \
 {\
-boost::python::type_info info = boost::python::type_id<T >(); \
-const boost::python::converter::registration* reg = boost::python::converter::registry::query(info); \
-if (reg == NULL) \
-{ \
+/* boost::python::type_info info = boost::python::type_id<T >(); \
+   const boost::python::converter::registration* reg = boost::python::converter::registry::query(info); \
+   if (reg == NULL) */ \
+{\
 	to_tuple_mapping<T >();\
 	from_python_sequence<T,policy>();\
 }\
