@@ -102,7 +102,6 @@ for (int i=0; i< n_gen; ++i){
 	else {
 		 (buff[i%50] = best_f);
 	}
-
 	double mean = 0.0;
 	mean = std::accumulate(buff.begin(),buff.end(),mean);
 	mean /= (double)buff.size();

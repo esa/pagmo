@@ -286,10 +286,10 @@ void cmaes::evolve(population &pop) const
 			}
 		}
 
-		// Evaluate the new population (if the problem is stochastic change seed first)
+		// 2 - We Evaluate the new population (if the problem is stochastic change seed first)
 		try
 		{	//TODO: check if it is really necessary to clear the pop and reset the caches, also
-			//cwould it make sense to use best_x also?
+			//would it make sense to use best_x also?
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
 			prob.reset_caches();
 			pop.clear();
