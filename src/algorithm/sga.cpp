@@ -33,10 +33,10 @@
 
 #include "../exceptions.h"
 #include "../population.h"
-#include "../problem/base.h"
 #include "../types.h"
 #include "base.h"
 #include "sga.h"
+#include "../problem/base_stochastic.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -295,20 +295,49 @@ void sga::evolve(population &pop) const
 			}
 		}
 
-		//4 - Evaluate Xnew
-		for (pagmo::population::size_type i = 0; i < NP;i++) {
-			prob.objfun(fit[i],Xnew[i]);
-			dummy = Xnew[i];
-			std::transform(dummy.begin(), dummy.end(), pop.get_individual(i).cur_x.begin(), dummy.begin(),std::minus<double>());
-			//updates x and v (cache avoids to recompute the objective function and constraints)
-			pop.set_x(i,Xnew[i]);
-			pop.set_v(i,dummy);
-			if (prob.compare_fitness(fit[i], bestfit)) {
-				bestfit = fit[i];
-				bestX = Xnew[i];
+		// If the problem is a stochastic optimization chage the seed and re-evaluate taking care to update also best and local bests
+		try
+		{
+			//4 - Evaluate the new population (stochastic problem)
+			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
+			prob.reset_caches();
+			pop.clear();
+			
+			// We re-evaluate the best individual (for elitism)
+			prob.objfun(bestfit,bestX);
+			// Re-evaluate wrt new seed the particle position and memory
+			for (pagmo::population::size_type i = 0; i < NP;i++) {
+				// We evaluate here the new individual fitness
+				prob.objfun(fit[i],Xnew[i]);
+				// We update the velocity (in case coupling with PSO via archipelago)
+				//dummy = Xnew[i];
+				//std::transform(dummy.begin(), dummy.end(), pop.get_individual(i).cur_x.begin(), dummy.begin(),std::minus<double>());
+				///We now set the cleared pop. cur_x is the best_x, re-evaluated with new seed.
+				pop.push_back(Xnew[i]);
+				//pop.set_v(i,dummy);
+				if (prob.compare_fitness(fit[i], bestfit)) {
+					bestfit = fit[i];
+					bestX = Xnew[i];
+				}
 			}
 		}
-
+		catch (const std::bad_cast& e)
+		{
+			//4 - Evaluate the new population (deterministic problem)
+			for (pagmo::population::size_type i = 0; i < NP;i++) {
+				prob.objfun(fit[i],Xnew[i]);
+				dummy = Xnew[i];
+				std::transform(dummy.begin(), dummy.end(), pop.get_individual(i).cur_x.begin(), dummy.begin(),std::minus<double>());
+				//updates x and v (cache avoids to recompute the objective function and constraints)
+				pop.set_x(i,Xnew[i]);
+				pop.set_v(i,dummy);
+				if (prob.compare_fitness(fit[i], bestfit)) {
+					bestfit = fit[i];
+					bestX = Xnew[i];
+				}
+			}
+		}
+		
 		//5 - Reinsert best individual every m_elitism generations
 		if (j % m_elitism == 0) {
 			int worst=0;

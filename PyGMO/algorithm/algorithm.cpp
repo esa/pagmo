@@ -163,7 +163,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// CMAES
 	algorithm_wrapper<algorithm::cmaes>("cmaes","Covariance Matrix Adaptation Evolutionary Startegy")
-		.def(init<optional<int, double, double, double, double, double, double, double, bool, bool> >())
+		.def(init<optional<int, double, double, double, double, double, double, double, bool> >())
 		.add_property("gen",&algorithm::cmaes::get_gen,&algorithm::cmaes::set_gen)
 		.add_property("cc",&algorithm::cmaes::get_cc,&algorithm::cmaes::set_cc)
 		.add_property("cs",&algorithm::cmaes::get_cs,&algorithm::cmaes::set_cs)

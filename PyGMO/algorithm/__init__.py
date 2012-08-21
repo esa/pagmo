@@ -490,7 +490,7 @@ def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, homebrew = False, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
@@ -510,7 +510,6 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	* xtol: stopping criteria on the x tolerance
 	* ftol: stopping criteria on the f tolerance
 	* memory: if True the algorithm internal state is saved and used for the next call	
-	* homebrew: when True CMAES becames a variant using population memory to define the elite and reinserting in steady-state (our own homebrew)
 	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
 	* 		 different island outputs)
 	"""
@@ -525,7 +524,6 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	arg_list.append(ftol)
 	arg_list.append(xtol)
 	arg_list.append(memory)
-	arg_list.append(homebrew)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 cmaes._orig_init = cmaes.__init__
