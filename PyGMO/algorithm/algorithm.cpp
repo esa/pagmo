@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
