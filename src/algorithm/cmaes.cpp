@@ -291,6 +291,7 @@ void cmaes::evolve(population &pop) const
 		{	//TODO: check if it is really necessary to clear the pop and reset the caches, also
 			//would it make sense to use best_x also?
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
+			std::cout << "messing" << std::endl;
 			prob.reset_caches();
 			pop.clear();
 			for (population::size_type i = 0; i<lam; ++i ) {

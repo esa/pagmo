@@ -52,14 +52,14 @@ base_ptr kur::clone() const
 /// Implementation of the objective function.
 void kur::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	int n = 3;
+	unsigned int n = 3;
 	pagmo_assert(f.size() == 2);
 	pagmo_assert(x.size() == 3);
 
 	f[0] = 0;
 	f[1] = 0;
 	
-	for(problem::base::size_type i = 0; i < n-1; ++i) {
+	for(unsigned int i = 0; i < n-1; ++i) {
 		f[0] += -10 * exp( -0.2 * sqrt(x[i]*x[i] + x[i+1]*x[i+1]));
 		f[1] += pow(x[i],0.8) + 5 * sin(pow(x[i],3));
 	}

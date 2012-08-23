@@ -370,7 +370,7 @@ def _plot_pareto_fronts(self, comp = (0,1)):
 		y = [self[ind].best_f[comp[1]] for ind in f]
 		tmp = [(a,b) for a,b in zip(x,y)]
 		tmp = sorted(tmp, key = lambda k:k[0])
-		pl.plot([c[0] for c in tmp], [c[1] for c in tmp],color=str(cl[id_f]))
+		pl.step([c[0] for c in tmp], [c[1] for c in tmp],color=str(cl[id_f]))
 
 	pl.show()
 population.plot_pareto_fronts = _plot_pareto_fronts
