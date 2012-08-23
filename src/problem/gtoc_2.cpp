@@ -166,7 +166,7 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 		m_legs[i].set_x_i(sc_state(r,v,initial_mass));
 		// Throttles.
 		for (int j = 0; j < m_n_seg; ++j) {
-			m_legs[i].set_throttle(j,get_nth_throttle(j,x.begin() + 15 + 3 * i * m_n_seg,start,end));
+			m_legs[i].set_throttles(j,get_nth_throttle(j,x.begin() + 15 + 3 * i * m_n_seg,start,end));
 		}
 		// Final state.
 		m_asteroids[i + 1].get_eph(end,r,v);

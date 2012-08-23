@@ -21,45 +21,42 @@
  *   Free Software Foundation, Inc.,                                         *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
+#ifndef FB_CON_H
+#define FB_CON_H
 
-#ifndef KEPLERIAN_TOOLBOX_LAMBERT_FIND_N_H
-#define KEPLERIAN_TOOLBOX_LAMBERT_FIND_N_H
+#include<cmath>
 
-#include <boost/bind.hpp>
-#include <boost/math/tools/minima.hpp>
+#include"../planet.h"
 
-#include "x2tof.h"
-
-
-namespace kep_toolbox {
-
-/// Finds multi rev. number in Lambert's problem
+/// Compute fly-by constraints
 /**
- * The function returns the maximum number of revolutions for a particular Lambert's problem to
- * admit a solution. It tries to avoid the calculation of the minima of the relevant tof curve by
- * pruning out obvious cases
+ * This template function can be used to evaluate the feasibility of a fly-by described by relative planetary velocities
+ * before and after.
  *
- * \param[in] s semi perimeter of the triangle formed by r1,r2
- * \param[in] c chord
- * \param[in] tof time of flight. Units such as MU=1.
- * \param[in] lw when 1 the transfer with theta > pi is selected
- *
- * \return Maximum number of revolutions allowed
+ * \param[out] eq_V2 Equality constraint on the modulus of the incoming and outgoing velocities. |v_rel_in|² - |v_rel_out|² (need to be zero for the fly-by to be feasible)
+ * \param[out] ineq_delta Inequality constraints on the asymptote deflection. delta - delta_max, needs to be smaller than zero for the fly-by to be feasible
+ * \param[in] v_rel_in  initial position vector. On output contains the propagated position. (r0[1],r0[2],r0[3] need to be preallocated, suggested template type is boost::array<double,3))
+ * \param[in] v_rel_out initial velocity vector. On output contains the propagated velocity. (v0[1],v0[2],v0[3] need to be preallocated, suggested template type is boost::array<double,3))
+ * \param[in] pl planet d
+ * \param[in] safe safety factor (the number of planet radii one can safely perform the fly-by at)
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
 
-inline int lambert_find_N(const double &s,const double &c, const double &tof, const int &lw) {
-    double Tm = M_PI/2 * sqrt(2*s*s*s);		//Minimum energy ellipse period
-    int Ntemp = tof / Tm;				//It is either Nmax=Ntemp or Nmax = Ntemp-1
-    if (Ntemp == 0) return 0;
-    double Tmax = x2tof(0,s,c,lw,Ntemp);
-    if (tof > Tmax) return Ntemp;
-    std::pair<double,double> res = boost::math::tools::brent_find_minima(boost::bind(x2tof,_1,s,c,lw,Ntemp),0.0,0.5,8);
-    if (res.second < tof) return Ntemp;
-    return Ntemp - 1;
+namespace kep_toolbox {
+
+template<class vettore3D>
+inline void fb_con(double& eq_V2, double& ineq_delta, const vettore3D& v_rel_in, const vettore3D& v_rel_out, const planet &pl)
+{
+    double Vin2  = v_rel_in[0]*v_rel_in[0]+v_rel_in[1]*v_rel_in[1]+v_rel_in[2]*v_rel_in[2];
+    double Vout2 = v_rel_out[0]*v_rel_out[0]+v_rel_out[1]*v_rel_out[1]+v_rel_out[2]*v_rel_out[2];
+    eq_V2 = Vin2 - Vout2;
+
+    double e_min = 1 + pl.get_safe_radius() / pl.get_mu_self() * Vin2;
+    double alpha = acos( (v_rel_in[0]*v_rel_out[0] + v_rel_in[1]*v_rel_out[1] + v_rel_in[2]*v_rel_out[2]) / sqrt(Vin2 * Vout2) );
+    ineq_delta = alpha - 2 * asin(1/e_min);
+    return;
 }
+} // namespace end
 
-} //namespaces
-
-#endif // KEPLERIAN_TOOLBOX_LAMBERT_FIND_N_H
+#endif // FB_CON_H
