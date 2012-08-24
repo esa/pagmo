@@ -100,6 +100,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/misc4Tandem.cpp

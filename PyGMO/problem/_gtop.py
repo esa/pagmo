@@ -1,4 +1,4 @@
-from _problem import *
+from _problem import cassini_1, gtoc_1,cassini_2, rosetta, messenger_full, tandem, laplace, sagas, gtoc_2, mga_1dsm
 from _problem import _gtoc_2_objective 
 		
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
@@ -186,3 +186,90 @@ def _gtoc_2_ctor(self, ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10
 	self._orig_init(*arg_list)
 gtoc_2._orig_init = gtoc_2.__init__
 gtoc_2.__init__ = _gtoc_2_ctor
+
+try:
+	from PyKEP import __version__ as d
+	del d;
+	#Plot of the trajectory for an mga_1dsm problem
+	def _mga_1dsm_plot(self,x):
+		"""
+		Plots the trajectory represented by the decision vector x
+		"""
+		import matplotlib as mpl
+		from mpl_toolkits.mplot3d import Axes3D
+		import matplotlib.pyplot as plt
+		from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
+		from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
+		from math import pi, acos, cos, sin
+		from scipy.linalg import norm
+
+		mpl.rcParams['legend.fontsize'] = 10
+		fig = plt.figure()
+		ax = fig.gca(projection='3d')
+		ax.scatter(0,0,0, color='y')
+		
+		seq = self.get_sequence()
+		
+		n = len(x)/4
+		#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
+		T = list([0]*(n))
+		#a[-i] = x[-1-(i-1)*4]
+		for i in xrange(n-1):	
+			j = i+1;
+			T[-j] = (x[5] - sum(T[-(j-1):])) * x[-1-(j-1)*4]
+		T[0] = x[5] - sum(T)
+		
+		#2 - We compute the epochs and ephemerides of the planetary encounters
+		t_P = list([None] * (n+1))
+		r_P = list([None] * (n+1))
+		v_P = list([None] * (n+1))
+		DV = list([None] * (n+1))
+		
+		for i,planet in enumerate(seq):
+			t_P[i] = epoch(x[0] + sum(T[0:i]))
+			r_P[i],v_P[i] = planet.eph(t_P[i])
+			plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = AU)
+
+		#3 - We start with the first leg
+		theta = 2*pi*x[1]
+		phi = acos(2*x[2]-1)-pi/2
+
+		Vinfx = x[3]*cos(phi)*cos(theta)
+		Vinfy =	x[3]*cos(phi)*sin(theta)
+		Vinfz = x[3]*sin(phi)
+
+		v0 = [a+b for a,b in zip(v_P[0],[Vinfx,Vinfy,Vinfz])]
+		r,v = propagate_lagrangian(r_P[0],v0,x[4]*T[0]*DAY2SEC,MU_SUN)
+		plot_kepler(ax,r_P[0],v0,x[4]*T[0]*DAY2SEC,MU_SUN,N = 100, color='b', legend=False, units = AU)
+
+		#Lambert arc to reach seq[1]
+		dt = (1-x[4])*T[0]*DAY2SEC
+		l = lambert_problem(r,r_P[1],dt,MU_SUN)
+		plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
+		v_end_l = l.get_v2()[0]
+		v_beg_l = l.get_v1()[0]
+
+		#First DSM occuring at time nu1*T1
+		DV[0] = norm([a-b for a,b in zip(v_beg_l,v)])
+
+		#4 - And we proceed with each successive leg
+		for i in range(1,n):
+			#Fly-by 
+			v_out = fb_prop(v_end_l,v_P[i],x[7+(i-1)*4]*seq[i].radius,x[6+(i-1)*4],seq[i].mu_self)
+			#s/c propagation before the DSM
+			r,v = propagate_lagrangian(r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,MU_SUN)
+			plot_kepler(ax,r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,MU_SUN,N = 100, color='b', legend=False, units = AU)
+			#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
+			dt = (1-x[8+(i-1)*4])*T[i]*DAY2SEC
+			l = lambert_problem(r,r_P[i+1],dt,MU_SUN)
+			plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
+			v_end_l = l.get_v2()[0]
+			v_beg_l = l.get_v1()[0]
+			#DSM occuring at time nu2*T2
+			DV[i] = norm([a-b for a,b in zip(v_beg_l,v)])
+
+		plt.show()
+	mga_1dsm.plot = _mga_1dsm_plot
+	
+except:
+	pass

@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
@@ -53,6 +54,10 @@
 #include "../utils.h"
 #include "python_base_island.h"
 #include "python_island.h"
+
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
+	#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
+#endif
 
 using namespace boost::python;
 using namespace pagmo;
@@ -236,7 +241,10 @@ BOOST_PYTHON_MODULE(_core)
 	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
 	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
 	PYGMO_REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);
-
+	
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
+	PYGMO_REGISTER_CONVERTER(std::vector<kep_toolbox::planet_ptr>, variable_capacity_policy);
+#endif
 
 	// Expose population class.
 

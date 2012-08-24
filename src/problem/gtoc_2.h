@@ -87,7 +87,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 		std::vector< kep_toolbox::asteroid_gtoc2>				m_asteroids;
 		mutable std::vector< kep_toolbox::sims_flanagan::leg>			m_legs;
 		const kep_toolbox::sims_flanagan::spacecraft				m_spacecraft;
-		objective												m_obj;
+		objective								m_obj;
 };
 
 } } // namespaces

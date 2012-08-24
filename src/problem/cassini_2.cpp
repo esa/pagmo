@@ -111,7 +111,7 @@ std::string cassini_2::pretty(const std::vector<double> &x) const
 	return s.str();
 }
 
-/// Implementation of the sparsity structure.
+/// Implementation of the sparsity structure. (just to check the method call ... it is only used in some solvers i.e. snopt, and not mandatory anyway)
 /**
  * No sparsity present (box-constrained problem).
  */
