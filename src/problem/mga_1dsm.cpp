@@ -50,8 +50,8 @@ namespace pagmo { namespace problem {
 mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
 			 const double tof_l, const double tof_u, 
-			 const double vinf, const bool mo) : 
-			 base( 6 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1)
+			 const double vinf, const bool mo, const bool add_vinf) : 
+			 base( 6 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf(add_vinf)
 {
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
 	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < seq.size(); ++i) {
@@ -86,7 +86,7 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 }
 
 /// Copy Constructor. Performs a deep copy
-mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_n_legs(p.m_n_legs)
+mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_n_legs(p.m_n_legs), m_add_vinf(p.m_add_vinf)
 {
 	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
@@ -167,8 +167,12 @@ void mga_1dsm::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	kep_toolbox::diff(v, v_end_l, v_P[m_n_legs]);
 	DV[m_n_legs] = kep_toolbox::norm(v);
 	
+	
 	// Now we return the objective(s) function
 	f[0] = std::accumulate(DV.begin(),DV.end(),0.0); 
+	if (m_add_vinf) {
+		f[0] += x[3];
+	}
 	if (get_dimension() == 2){
 		f[1] = std::accumulate(T.begin(),T.end(),0.0);
 	} 
