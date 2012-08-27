@@ -248,6 +248,25 @@ void base::set_bounds(const double &l_value, const double &u_value)
 	normalise_bounds();
 }
 
+/// Set bounds to specified values.
+/**
+ * Set i-th lower bound to l_value and i-th upper bound to u_value. Will fail if l_value > u_value.
+ *
+ * @param[in] n index of the lower bound to be set.
+ * @param[in] l_value value for lower bounds.
+ * @param[in] u_value value for upper bounds.
+ */
+void base::set_bounds(int n, const double &l_value, const double &u_value)
+{
+	if (l_value > u_value) {
+		pagmo_throw(value_error,"lower bound cannot be greater than upper bound in set_bounds()");
+	}
+	m_lb[n] = l_value;
+	m_ub[n] = u_value;
+	// Normalise bounds.
+	normalise_bounds();
+}
+
 /// Set lower bounds from pagmo::decision_vector.
 /**
  * Will fail if lb's size is different from the global size or if at least one lower bound is greater than the corresponding upper bound.

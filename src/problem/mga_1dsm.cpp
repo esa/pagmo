@@ -72,7 +72,7 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 	// Successive legs
 	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < m_n_legs - 1; ++i) {
 		lb[6+4*i] = - 2 * boost::math::constants::pi<double>();    ub[6+4*i] = 2 * boost::math::constants::pi<double>();
-		lb[7+4*i] = 1.1;  ub[7+4*i] = 30;
+		lb[7+4*i] = 1.1;  ub[7+4*i] = 100;
 		lb[8+4*i] = 1e-5; ub[8+4*i] = 1-1e-5;
 		lb[9+4*i] = 1e-5; ub[9+4*i] = 1-1e-5;
 	}
@@ -286,8 +286,7 @@ std::string mga_1dsm::get_name() const
  * @param[in] tu Upper bownd on the time of flight in years
  */
 void mga_1dsm::set_tof(double tl, double tu) {
-	set_lb(5,tl*365.25);
-	set_ub(5,tu*365.25);
+	set_bounds(5,tl*365.25,tu*365.25);
 }
 
 /// Sets the mission launch window
@@ -298,8 +297,7 @@ void mga_1dsm::set_tof(double tl, double tu) {
  * @param[in] end final epoch of the launch window
  */
 void mga_1dsm::set_launch_window(const kep_toolbox::epoch& start, const kep_toolbox::epoch& end) {
-	set_lb(0,start.mjd2000());
-	set_ub(0,end.mjd2000());
+	set_bounds(0,start.mjd2000(),end.mjd2000());
 }
 
 /// Sets the launch hyperbolic velocity

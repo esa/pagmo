@@ -300,6 +300,7 @@ class __PAGMO_VISIBLE base
 			normalise_bounds();
 		}
 		void set_bounds(const double &, const double &);
+		void set_bounds(int, const double &, const double &);
 		void set_lb(const decision_vector &);
 		void set_lb(int, const double &);
 		void set_lb(const double &);
