@@ -361,7 +361,7 @@ def _plot_pareto_fronts(self, comp = (0,1)):
 	if len(comp) !=2:
 		raise ValueError('You need to select two components of the objective function')
 	p_list = self.compute_pareto_fronts()
-        cl = linspace(0.9,0.1,len(p_list))
+        cl = linspace(0.1,0.9,len(p_list))
 
 	for id_f,f in enumerate(p_list):
 		for ind in f:
