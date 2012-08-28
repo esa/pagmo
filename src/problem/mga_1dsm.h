@@ -60,7 +60,7 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 		mga_1dsm(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(0), const kep_toolbox::epoch t0_r = kep_toolbox::epoch(1000),
 			 const double tof_0 = 1.0, const double tof_r = 5.0, 
-			 const double vinf = 2.5, const bool mo = false, const bool add_vinf = false);
+			 const double vinf = 2.5, const bool mo = false, const bool add_vinf = true);
 		mga_1dsm(const mga_1dsm&);
 		base_ptr clone() const;
 		
@@ -72,7 +72,7 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		
+		std::string human_readable_extra() const;
 		static const std::vector<kep_toolbox::planet_ptr> construct_default_sequence() {
 			std::vector<kep_toolbox::planet_ptr> retval;
 			retval.push_back(kep_toolbox::planet_ss("earth").clone());

@@ -322,6 +322,22 @@ std::vector<kep_toolbox::planet_ptr> mga_1dsm::get_sequence() const {
 	return m_seq;
 }
 
+/// Extra human readable info for the problem.
+/**
+ * Will return a formatted string containing the values vector, the weights vectors and the max weight. It is concatenated
+ * with the base::problem human_readable
+ */
+std::string mga_1dsm::human_readable_extra() const
+{
+	std::ostringstream oss;
+	oss << "\n\tSequence: ";
+	for (size_t i = 0; i<m_seq.size() ;++i) {
+		oss << m_seq[i]->get_name() << " ";
+	}
+	oss << "\n\tAdd launcher vinf to the objective?: " << (m_add_vinf? " True":" False") << std::endl;
+	return oss.str();
+}
+
 }} //namespaces
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_1dsm);

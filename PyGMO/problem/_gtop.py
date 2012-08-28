@@ -160,9 +160,9 @@ def _gtoc_2_ctor(self, ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10
 	"""
 	Constructs a GTOC 2 Problem (Constrained Continuous Single-Objective)
 
-	NOTE: This problem is a quite faitful transcription of the problem used during the GTOC2 competition
+	NOTE: This problem is a quite faithful transcription of the problem used during the GTOC2 competition
 	      It Transcribe the whole OCP resulting from the low-thrust dynamics into an NLP. As such it is very
-	      difficult to find feasible solutions. Note that by default the asteroid sequence isa the winning one
+	      difficult to find feasible solutions. Note that by default the asteroid sequence is the winning one
 	      from Turin University.
 
 	USAGE: problem.gtoc_2(ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10, objective = gtoc_2.obj.MASS_TIME)
@@ -187,9 +187,37 @@ def _gtoc_2_ctor(self, ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10
 gtoc_2._orig_init = gtoc_2.__init__
 gtoc_2.__init__ = _gtoc_2_ctor
 
+
 try:
-	from PyKEP import __version__ as d
-	del d;
+	from PyKEP import planet_ss, epoch
+	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = 2.5, multi_objective = False, add_vinf = True):
+		"""
+		Constructs an mga_1dsm problem
+
+		USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = 2.5, multi_objective = False, add_vinf = True)
+
+		* seq: list of PyKEP planets defining the encounter sequence (including the starting launch)
+		* t0: list of two epoch defining the launch window
+		* tof: list of two floats defining the minimum and maximum allowed mission lenght (years)
+		* vinf: maximum allowed initial hyperbolic velocity (at launch), in km/sec
+		* multi_objective: when True constructs a multiobjective problem (dv, T)
+		* add_vinf: when True the computed Dv includes the initial hyperbolic velocity (at launch)
+		"""
+		
+		# We construct the arg list for the original constructor exposed by boost_python
+		arg_list=[]
+		arg_list.append(seq)
+		arg_list.append(t0[0])
+		arg_list.append(t0[1])
+		arg_list.append(tof[0])
+		arg_list.append(tof[1])
+		arg_list.append(vinf)
+		arg_list.append(multi_objective)
+		arg_list.append(add_vinf)
+		self._orig_init(*arg_list)
+	mga_1dsm._orig_init = mga_1dsm.__init__
+	mga_1dsm.__init__ = _mga_1dsm_ctor
+	
 	#Plot of the trajectory for an mga_1dsm problem
 	def _mga_1dsm_plot(self,x):
 		"""
