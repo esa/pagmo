@@ -408,12 +408,23 @@ void population::update_pareto_ranks() const {
 // We update m_crowding_d 
 void population::update_crowding_d() const {
 	
-	// Population size can change between calls and m_crowding_d is updated if necessary
+    std::cout << "entering update_crowding_d() - size: " << size() << std::endl;
+
+    // Population size can change between calls and m_crowding_d is updated if necessary
 	m_crowding_d.resize(size());
 	
 	// We initialize all distances to zero
 	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
 	
+    // We get the pareto-fronts
+    std::vector<std::vector<population::size_type> > fronts;
+    fronts = population::compute_pareto_fronts();
+
+    for ( std::vector<std::vector <population::size_type> >::iterator fi = fronts.begin() ; fi < fronts.end(); ++fi) {
+        std::cout << "Fronts: " << *fi << std::endl;
+    }
+
+    
 	// here we keep indexes associated to the individuals, i.e. 0,1,2,...,pop.size()-1
 	std::vector<population::size_type> I;
 	I.reserve(size());
@@ -421,6 +432,8 @@ void population::update_crowding_d() const {
 		I.push_back(i);
 	} 
 	
+    std::cout << "Indices: " << I << std::endl;
+
 	// we construct the comparison functor along the first fitness component
 	one_dim_fit_comp funct(*this,0);
 	
