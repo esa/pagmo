@@ -60,7 +60,14 @@ class __PAGMO_VISIBLE ipopt: public base
 {
 public:
 
-	ipopt(const int &max_iter = 100, const double &constr_viol_tol = 1e-8, const double &dual_inf_tol = 1e-8, const double & compl_inf_tol = 1e-8);
+	ipopt(const int &max_iter = 100, 
+		const double &constr_viol_tol = 1e-8, 
+		const double &dual_inf_tol = 1e-8, 
+		const double &compl_inf_tol = 1e-8,
+		const bool &nlp_scaling_method = true,
+		const double &obj_scaling_factor = 1.0,
+		const double &mu_init = 0.1
+ 	    );
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -78,11 +85,17 @@ private:
 		ar & const_cast<double &>(m_constr_viol_tol);
 		ar & const_cast<double &>(m_dual_inf_tol);
 		ar & const_cast<double &>(m_compl_inf_tol);
+		ar & const_cast<bool &>(m_nlp_scaling_method);
+		ar & const_cast<double &>(m_obj_scaling_factor);
+		ar & const_cast<double &>(m_mu_init);
 	}  
 	const int m_max_iter;
 	const double m_constr_viol_tol;
 	const double m_dual_inf_tol;
 	const double m_compl_inf_tol;
+	const bool m_nlp_scaling_method;
+	const double m_obj_scaling_factor;
+	const double m_mu_init;
 };
 
 }} //namespaces
