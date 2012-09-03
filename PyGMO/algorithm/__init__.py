@@ -441,7 +441,7 @@ def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction
 cs._orig_init = cs.__init__
 cs.__init__ = _cs_ctor
 
-def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
+def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, screen_output = False):
 	"""
 	Constructs a Monotonic Basin Hopping Algorithm (generalized to accept any algorithm)
 	
@@ -455,6 +455,8 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	* stop: number of no improvements before halting the optimization
 	* perturb: non-dimentional perturbation width (can be a list, in which case
 		it has to have the same dimension of the problem mbh will be applied to)
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -462,6 +464,7 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	arg_list.append(stop)
 	arg_list.append(perturb)
 	self._orig_init(*arg_list)
+	self.screen_output = screen_output
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
 
