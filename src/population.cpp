@@ -408,8 +408,6 @@ void population::update_pareto_ranks() const {
 // We update m_crowding_d 
 void population::update_crowding_d() const {
 	
-    std::cout << "entering update_crowding_d() - size: " << size() << std::endl;
-
     // Population size can change between calls and m_crowding_d is updated if necessary
 	m_crowding_d.resize(size());
 	
@@ -417,40 +415,41 @@ void population::update_crowding_d() const {
 	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
 	
     // We get the pareto-fronts
-    std::vector<std::vector<population::size_type> > fronts;
-    fronts = population::compute_pareto_fronts();
+    std::vector<std::vector<population::size_type> > fronts = population::compute_pareto_fronts();
 
-    for ( std::vector<std::vector <population::size_type> >::iterator fi = fronts.begin() ; fi < fronts.end(); ++fi) {
-        std::cout << "Fronts: " << *fi << std::endl;
-    }
-
+    // here we keep indexes associated to the individuals, i.e. 0,1,2,...,pop.size()-1
+   	std::vector<population::size_type> I;
+    size_type lastidx;
     
-	// here we keep indexes associated to the individuals, i.e. 0,1,2,...,pop.size()-1
-	std::vector<population::size_type> I;
-	I.reserve(size());
-	for (population::size_type i=0; i < size(); ++i){
-		I.push_back(i);
-	} 
-	
-    std::cout << "Indices: " << I << std::endl;
+    for ( std::vector<std::vector<population::size_type> >::iterator fi = fronts.begin() ; fi < fronts.end(); ++fi) {
+    
+        I.reserve(fi->size());
+        for (std::vector<population::size_type>::iterator it = fi->begin(); it < fi->end(); ++it) {
+            I.push_back(*it);
+        }
 
-	// we construct the comparison functor along the first fitness component
-	one_dim_fit_comp funct(*this,0);
+        lastidx = I.size() - 1;
+	    
+        	// we construct the comparison functor along the first fitness component
+        	one_dim_fit_comp funct(*this,0);
 	
-	// we loop along fitness components
-	for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
-		funct.m_dim = i;
-		// we sort I along the fitness_dimension i
-		std::sort(I.begin(),I.end(), funct );
-		// assign Inf to the boundaries
-		m_crowding_d[I[0]] = std::numeric_limits<double>::max();
-		m_crowding_d[I[size()-1]] = std::numeric_limits<double>::max();
-		//and compute the crowding distance
-		double df = get_individual(I[size()-1]).cur_f[i] - get_individual(I[0]).cur_f[i];
-		for (population::size_type j = 1; j < size()-1; ++j) {
-			m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
-		}
-	}
+	        // we loop along fitness components
+        	for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
+        		funct.m_dim = i;
+    	    	// we sort I along the fitness_dimension i
+	    	    std::sort(I.begin(),I.end(), funct );
+        		// assign Inf to the boundaries
+        		m_crowding_d[I[0]] = std::numeric_limits<double>::max();
+	        	m_crowding_d[I[lastidx]] = std::numeric_limits<double>::max();
+        		//and compute the crowding distance
+        		double df = get_individual(I[lastidx]).cur_f[i] - get_individual(I[0]).cur_f[i];
+    		for (population::size_type j = 1; j < lastidx; ++j) {
+	    		m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
+    		}
+    	}
+
+        I.clear();
+    }
 }
 
 /// Computes and returns the population Pareto fronts
