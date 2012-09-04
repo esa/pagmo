@@ -316,7 +316,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Ipopt solver.
 	#ifdef PAGMO_ENABLE_IPOPT
 	algorithm_wrapper<algorithm::ipopt>("ipopt","Ipopt solver.")
-		.def(init<int, optional<double, double,double> >());
+		.def(init<int, optional<double, double,double,bool,double,double> >());
 	
 	#endif	
 
