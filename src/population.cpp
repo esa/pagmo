@@ -417,7 +417,7 @@ void population::update_crowding_d() const {
     // We get the pareto-fronts
     std::vector<std::vector<population::size_type> > fronts = population::compute_pareto_fronts();
 
-    // here we keep indexes associated to the individuals, i.e. 0,1,2,...,pop.size()-1
+    // here we keep indexes associated to the individuals, i.e. 0,1,2,..., size of the front-1
    	std::vector<population::size_type> I;
     size_type lastidx;
     
