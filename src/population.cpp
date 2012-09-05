@@ -314,7 +314,7 @@ population::size_type population::get_domination_count(const size_type &idx) con
 /// Get Pareto rank
 /**
  * Will return the Pareto rank for the requested individual idx (that is the Pareto front it belongs to, starting from 0,1,2....N).
- * A call to population::update_pareto_ranks() is needed if the population has
+ * A call to population::update_pareto_information() is needed if the population has
  * changed since the last time the Pareto rank was computed
  *
  * @param[in] idx position of the individual whose Pareto rank will be returned
@@ -366,11 +366,14 @@ struct one_dim_fit_comp {
 };
 
 
-// We update pareto ranks and crowding distance
-void population::update_pareto_information() const {
+/// Update Pareto Information
 /**
- * This method computes all pareto fronts, updating the pareto rank and the crowding distance of each individual 
+ * Computes all pareto fronts, updates the pareto rank and the crowding distance of each individual. Member variables for rank and
+ * crowding distance are set to zero and domination lists and domination count are used to for the computation. This method should
+ * be called each time to assure that the information about the pareto fronts are correct.
  */
+
+void population::update_pareto_information() const {
 	// Population size can change between calls and m_pareto_rank, m_crowding_d are updated if necessary
 	m_pareto_rank.resize(size());
 	m_crowding_d.resize(size());
@@ -418,13 +421,17 @@ void population::update_pareto_information() const {
 }
 
 
-// We update m_crowding_d 
-void population::update_crowding_d(std::vector<population::size_type> I) const {
+/// Update Crowding Distance
 /**
- * This method computes the crowding distance of a complete pareto front
+ * This method computes the crowding distance of a complete pareto front. This distance is saved
+ * in the member variable m_crowding_d.
+ *
+ * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
+ *
  * @param[in] I indices of the individuals of the pareto front
  *
  */	
+void population::update_crowding_d(std::vector<population::size_type> I) const {
 	
 	size_type lastidx = I.size() - 1;
    
@@ -449,7 +456,7 @@ void population::update_crowding_d(std::vector<population::size_type> I) const {
 
 /// Computes and returns the population Pareto fronts
 /**
- * This method computes all Pareto Fronts of the population, returning the positional indexes
+ * This method computes all Pareto Fronts of the population, returning the positional indices
  * of the individuals belonging to each Pareto front.
  * 
  * @return a vector containing, for each Pareto front, a vector of the individuals idx that belong to
@@ -457,32 +464,17 @@ void population::update_crowding_d(std::vector<population::size_type> I) const {
  */
 std::vector<std::vector<population::size_type> > population::compute_pareto_fronts() const {
 	std::vector<std::vector<population::size_type> > retval;
-	std::vector<population::size_type> F,S;
-	std::vector<population::size_type> dom_count_copy(m_dom_count);
-	
-	// We find the first Pareto Front
-	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
-		if (m_dom_count[idx] == 0) {
-			F.push_back(idx);
-		}
+
+	// Be sure to have actual information about pareto rank 
+	population::update_pareto_information();
+
+	for (population::size_type idx = 0; idx < size(); ++idx) {
+		if (m_pareto_rank[idx] >= retval.size()) {
+			retval.resize(m_pareto_rank[idx] + 1);
+		} 
+		retval[m_pareto_rank[idx]].push_back(idx);
 	}
-	// And if not empty, we push it back to retval
-	if (F.size() != 0) retval.push_back(F);
-	
-	// We loop to find subsequent fronts
-	while (F.size()!=0) {
-		//For each individual F in the current front
-		for (population::size_type i=0; i < F.size(); ++i) {
-			//For each individual dominated by F
-			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
-				dom_count_copy[m_dom_list[F[i]][j]]--;
-				if (dom_count_copy[m_dom_list[F[i]][j]] == 0) S.push_back(m_dom_list[F[i]][j]);
-			}
-		}
-		F = S;
-		S.clear();
-		if (F.size() != 0) retval.push_back(F);
-	}
+
 	return retval;
 }
 
