@@ -127,7 +127,7 @@ void nsga2::crossover(decision_vector& child1, decision_vector& child2, pagmo::p
 				} else {
 					betaq = std::pow((1.0/(2.0 - rand*alpha)),(1.0/(m_eta_c+1.0)));
 				}
-				c2 = 0.5*((y1+y2)-betaq*(y2-y1));
+				c2 = 0.5*((y1+y2)+betaq*(y2-y1));
 				
 				if (c1<lb[i]) c1=lb[i];
 				if (c2<lb[i]) c2=lb[i];

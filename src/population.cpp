@@ -875,14 +875,16 @@ population::size_type population::size() const
 
 /// Clear population.
 /**
- * Will clear the container of individuals, the domination lists and the champion. The problem and random number generators
- * are left untouched.
+ * Will clear the container of individuals, the domination lists, pareto ranks, crowding distance and the champion. 
+ * The problem and random number generators are left untouched.
  */
 void population::clear()
 {
 	m_container.clear();
 	m_dom_list.clear();
 	m_dom_count.clear();
+    m_crowding_d.clear();
+    m_pareto_rank.clear();
 	m_champion = champion_type();
 }
 
