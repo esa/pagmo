@@ -173,7 +173,7 @@ void mga_1dsm::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	if (m_add_vinf) {
 		f[0] += x[3];
 	}
-	if (get_dimension() == 2){
+	if (get_f_dimension() == 2){
 		f[1] = std::accumulate(T.begin(),T.end(),0.0);
 	} 
 }
