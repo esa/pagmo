@@ -190,11 +190,11 @@ gtoc_2.__init__ = _gtoc_2_ctor
 
 try:
 	from PyKEP import planet_ss, epoch
-	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = 2.5, multi_objective = False, add_vinf = True):
+	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = 2.5, multi_objective = False, add_vinf = False):
 		"""
 		Constructs an mga_1dsm problem
 
-		USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = 2.5, multi_objective = False, add_vinf = True)
+		USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = 2.5, multi_objective = False, add_vinf = False)
 
 		* seq: list of PyKEP planets defining the encounter sequence (including the starting launch)
 		* t0: list of two epoch defining the launch window
