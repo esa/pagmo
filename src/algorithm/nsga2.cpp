@@ -229,8 +229,7 @@ void nsga2::evolve(population &pop) const
 	for (int g = 0; g<m_gen; g++) {
 		//At each generation we make a copy of the population into popnew
 		// We compute the crowding distance and the pareto rank of pop
-		pop.update_crowding_d();
-		pop.update_pareto_ranks();
+		pop.update_pareto_information();
 		population popnew(pop);
 		
 		//We create some random permutation of the poulation indexes

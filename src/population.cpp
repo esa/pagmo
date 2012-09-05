@@ -333,8 +333,9 @@ population::size_type population::get_pareto_rank(const size_type &idx) const
 
 /// Get Crowding Distance 
 /**
- * Will return the crowding distance for the requested individual idx. A call to population::update_crowding_d() is needed if the population has
- * changed since the last time the Crowding Distance was computed. The crowding distance is computed as defined in Deb's work
+ * Will return the crowding distance for the requested individual idx. A call to population::update_pareto_information() is needed 
+ * if the population has changed since the last time the Crowding Distance was computed. The crowding distance is computed as
+ * defined in Deb's work
  * 
  * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
  *
@@ -364,20 +365,26 @@ struct one_dim_fit_comp {
 	fitness_vector::size_type m_dim;
 };
 
-// We compute all pareto fronts and thus update the pareto ranks
-void population::update_pareto_ranks() const {
-	// Population size can change between calls and m_pareto_rank is updated if necessary
-	m_pareto_rank.resize(size());
 
-	// We initialize the ranks to zero
+// We update pareto ranks and crowding distance
+void population::update_pareto_information() const {
+/**
+ * This method computes all pareto fronts, updating the pareto rank and the crowding distance of each individual 
+ */
+	// Population size can change between calls and m_pareto_rank, m_crowding_d are updated if necessary
+	m_pareto_rank.resize(size());
+	m_crowding_d.resize(size());
+
+	// We initialize the ranks and all distances to zero
 	std::fill(m_pareto_rank.begin(), m_pareto_rank.end(), 0);
-	
+	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
+
 	// We define some utility vectors .....
 	std::vector<population::size_type> F,S;
-	
-	// And make a copy of the domination count
+
+	// And make a copy of the domination count (number of individuals that dominating one individual)
 	std::vector<population::size_type> dom_count_copy(m_dom_count);
-	
+
 	// 1 - Find the first Pareto Front
 	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
 		if (m_dom_count[idx] == 0) {
@@ -386,8 +393,11 @@ void population::update_pareto_ranks() const {
 	}
 
 	unsigned int irank = 1;
+
 	// We loop to find subsequent fronts
 	while (F.size()!=0) {
+		// update crowding distance of the current pareto front
+		population::update_crowding_d(F);
 		//For each individual F in the current front
 		for (population::size_type i=0; i < F.size(); ++i) {
 			//For each individual dominated by F
@@ -403,53 +413,38 @@ void population::update_pareto_ranks() const {
 		S.clear();
 		irank++;
 	}
+
+
 }
 
+
 // We update m_crowding_d 
-void population::update_crowding_d() const {
+void population::update_crowding_d(std::vector<population::size_type> I) const {
+/**
+ * This method computes the crowding distance of a complete pareto front
+ * @param[in] I indices of the individuals of the pareto front
+ *
+ */	
 	
-    // Population size can change between calls and m_crowding_d is updated if necessary
-	m_crowding_d.resize(size());
+	size_type lastidx = I.size() - 1;
+   
+	// we construct the comparison functor along the first fitness component
+        one_dim_fit_comp funct(*this,0);
 	
-	// We initialize all distances to zero
-	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
-	
-    // We get the pareto-fronts
-    std::vector<std::vector<population::size_type> > fronts = population::compute_pareto_fronts();
-
-    // here we keep indexes associated to the individuals, i.e. 0,1,2,..., size of the front-1
-   	std::vector<population::size_type> I;
-    size_type lastidx;
-    
-    for ( std::vector<std::vector<population::size_type> >::iterator fi = fronts.begin() ; fi < fronts.end(); ++fi) {
-    
-        I.reserve(fi->size());
-        for (std::vector<population::size_type>::iterator it = fi->begin(); it < fi->end(); ++it) {
-            I.push_back(*it);
-        }
-
-        lastidx = I.size() - 1;
-	    
-        	// we construct the comparison functor along the first fitness component
-        	one_dim_fit_comp funct(*this,0);
-	
-	        // we loop along fitness components
-        	for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
-        		funct.m_dim = i;
+	// we loop along fitness components
+        for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
+        	funct.m_dim = i;
     	    	// we sort I along the fitness_dimension i
-	    	    std::sort(I.begin(),I.end(), funct );
-        		// assign Inf to the boundaries
-        		m_crowding_d[I[0]] = std::numeric_limits<double>::max();
-	        	m_crowding_d[I[lastidx]] = std::numeric_limits<double>::max();
-        		//and compute the crowding distance
-        		double df = get_individual(I[lastidx]).cur_f[i] - get_individual(I[0]).cur_f[i];
+		std::sort(I.begin(),I.end(), funct );
+        	// assign Inf to the boundaries
+        	m_crowding_d[I[0]] = std::numeric_limits<double>::max();
+	        m_crowding_d[I[lastidx]] = std::numeric_limits<double>::max();
+       		//and compute the crowding distance
+       		double df = get_individual(I[lastidx]).cur_f[i] - get_individual(I[0]).cur_f[i];
     		for (population::size_type j = 1; j < lastidx; ++j) {
 	    		m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
     		}
     	}
-
-        I.clear();
-    }
 }
 
 /// Computes and returns the population Pareto fronts
@@ -565,8 +560,7 @@ population::size_type population::get_worst_idx() const
 		it = std::max_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
 	}
 	else {
-		update_crowding_d();
-		update_pareto_ranks();
+		update_pareto_information();
 		it = std::max_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
 	}
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
@@ -599,8 +593,7 @@ population::size_type population::get_best_idx() const
 		it = std::min_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
 	}
 	else {
-		update_crowding_d();
-		update_pareto_ranks();
+		update_pareto_information();
 		it = std::min_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
 	}	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
@@ -640,8 +633,7 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 		std::sort(retval.begin(),retval.end(),trivial_comparison_operator(*this));
 	}
 	else {
-		update_crowding_d();
-		update_pareto_ranks();
+		update_pareto_information();
 		std::sort(retval.begin(),retval.end(),crowded_comparison_operator(*this));
 	}
 	retval.resize(N);

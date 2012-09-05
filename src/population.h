@@ -198,8 +198,8 @@ class __PAGMO_VISIBLE population
 		size_type get_domination_count(const size_type &) const;
 		size_type get_pareto_rank(const size_type &) const;
 		double get_crowding_d(const size_type &) const;
-		void update_pareto_ranks() const;
-		void update_crowding_d() const;
+		void update_pareto_information() const;
+		void update_crowding_d(std::vector<size_type>) const;
 		size_type n_dominated(const individual_type &) const;
 		std::vector<std::vector<size_type> > compute_pareto_fronts() const;
 		
