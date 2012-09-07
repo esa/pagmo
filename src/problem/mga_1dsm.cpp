@@ -103,7 +103,7 @@ base_ptr mga_1dsm::clone() const
 /// Implementation of the objective function.
 void mga_1dsm::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-
+try {
 	// 1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
 	std::vector<double> T(m_n_legs,0.0);
 	
@@ -176,6 +176,13 @@ void mga_1dsm::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	if (get_f_dimension() == 2){
 		f[1] = std::accumulate(T.begin(),T.end(),0.0);
 	} 
+//Here the lambert solver or the lagrangian propagator went wrong
+} catch (...) {
+	f[0] = boost::numeric::bounds<double>::highest();
+	if (get_f_dimension() == 2){
+		f[1] = boost::numeric::bounds<double>::highest();
+	}
+} 
 }
 
 /// Outputs a stream with the trajectory data
