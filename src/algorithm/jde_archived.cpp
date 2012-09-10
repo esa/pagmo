@@ -128,8 +128,8 @@ void jde_archived::evolve(population &pop) const
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
 	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness(1);	//new fitness of the mutaded candidate
-	fitness_vector gbfit(1);	//global best fitness
+	fitness_vector newfitness(2);	//new fitness of the mutaded candidate
+	fitness_vector gbfit(2);	//global best fitness
 	std::vector<fitness_vector> fitold(NP,gbfit);
     std::vector<fitness_vector> fitnew(NP,gbfit);
     std::vector<double> dist;   // used for saving distances in behavior space

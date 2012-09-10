@@ -84,6 +84,7 @@
         #include "problem/gtoc5_self_flyby.h"
         #include "problem/earth_planet.h"
         #include "problem/mga_1dsm.h"
+        #include "problem/mga_1dsm_novelty.h"
 #endif
 
 #endif
