@@ -47,6 +47,9 @@ namespace pagmo { namespace problem {
  * @param[in] vinf_l  minimum launch hyperbolic velocity allowed (in km/s)
  * @param[in] vinf_u  maximum launch hyperbolic velocity allowed (in km/s)
  * @param[in] mo: when true defines the problem as a multi-objective problem, returning total DV and time of flight
+ * @param[in] ad_vinf: when true the objective functions contains also the contribution of the launch hypebolic velocity
+ * 
+ * @throws value_error if the planets in seq do not all have the same central body gravitational constant
  */
 mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
@@ -55,6 +58,14 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 			 const bool mo, const bool add_vinf) : 
 			 base( 6 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf(add_vinf)
 {
+	// We check that all planets have equal central body
+	std::vector<double> mus(seq.size());
+	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
+		mus[i] = seq[i]->get_mu_central_body();
+	}
+	if ((unsigned int)std::count(mus.begin(), mus.end(), mus[0]) != mus.size()) {
+		pagmo_throw(value_error,"The planets do not all have the same mu_central_body");  
+	}
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
 	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < seq.size(); ++i) {
 		m_seq.push_back(seq[i]->clone());
@@ -83,7 +94,6 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 	for (std::vector<kep_toolbox::planet>::size_type i = 1; i < m_n_legs; ++i) {
 		lb[3 + 4*i] = m_seq[i]->get_safe_radius() / m_seq[i]->get_radius();
 	}
-	
 	set_bounds(lb,ub);
 }
 
@@ -106,6 +116,7 @@ base_ptr mga_1dsm::clone() const
 void mga_1dsm::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 try {
+	double common_mu = m_seq[0]->get_mu_central_body();
 	// 1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
 	std::vector<double> T(m_n_legs,0.0);
 	
@@ -132,11 +143,11 @@ try {
 	kep_toolbox::array3D v0;
 	kep_toolbox::sum(v0, v_P[0], Vinf);
 	kep_toolbox::array3D r(r_P[0]), v(v0);
-	kep_toolbox::propagate_lagrangian(r,v,x[4]*T[0]*ASTRO_DAY2SEC,ASTRO_MU_SUN);
+	kep_toolbox::propagate_lagrangian(r,v,x[4]*T[0]*ASTRO_DAY2SEC,common_mu);
 
 	// Lambert arc to reach seq[1]
 	double dt = (1-x[4])*T[0]*ASTRO_DAY2SEC;
-	kep_toolbox::lambert_problem l(r,r_P[1],dt,ASTRO_MU_SUN);
+	kep_toolbox::lambert_problem l(r,r_P[1],dt,common_mu);
 	kep_toolbox::array3D v_end_l = l.get_v2()[0];
 	kep_toolbox::array3D v_beg_l = l.get_v1()[0];
 
@@ -152,11 +163,11 @@ try {
 		// s/c propagation before the DSM
 		r = r_P[i];
 		v = v_out;
-		kep_toolbox::propagate_lagrangian(r,v,x[8+(i-1)*4]*T[i]*ASTRO_DAY2SEC,ASTRO_MU_SUN);
+		kep_toolbox::propagate_lagrangian(r,v,x[8+(i-1)*4]*T[i]*ASTRO_DAY2SEC,common_mu);
 
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 		dt = (1-x[8+(i-1)*4])*T[i]*ASTRO_DAY2SEC;
-		kep_toolbox::lambert_problem l2(r,r_P[i+1],dt,ASTRO_MU_SUN);
+		kep_toolbox::lambert_problem l2(r,r_P[i+1],dt,common_mu);
 	  	v_end_l = l2.get_v2()[0];
 		v_beg_l = l2.get_v1()[0];
 
@@ -200,6 +211,7 @@ try {
 
 std::string mga_1dsm::pretty(const std::vector<double> &x) const {
   
+	double common_mu = m_seq[0]->get_mu_central_body();
 	// We set the std output format
 	std::ostringstream s;
 	s.precision(15);
@@ -237,11 +249,11 @@ std::string mga_1dsm::pretty(const std::vector<double> &x) const {
 	kep_toolbox::array3D v0;
 	kep_toolbox::sum(v0, v_P[0], Vinf);
 	kep_toolbox::array3D r(r_P[0]), v(v0);
-	kep_toolbox::propagate_lagrangian(r,v,x[4]*T[0]*ASTRO_DAY2SEC,ASTRO_MU_SUN);
+	kep_toolbox::propagate_lagrangian(r,v,x[4]*T[0]*ASTRO_DAY2SEC,common_mu);
 
 	// Lambert arc to reach seq[1]
 	double dt = (1-x[4])*T[0]*ASTRO_DAY2SEC;
-	kep_toolbox::lambert_problem l(r,r_P[1],dt,ASTRO_MU_SUN);
+	kep_toolbox::lambert_problem l(r,r_P[1],dt,common_mu);
 	kep_toolbox::array3D v_end_l = l.get_v2()[0];
 	kep_toolbox::array3D v_beg_l = l.get_v1()[0];
 
@@ -263,11 +275,11 @@ std::string mga_1dsm::pretty(const std::vector<double> &x) const {
 		// s/c propagation before the DSM
 		r = r_P[i];
 		v = v_out;
-		kep_toolbox::propagate_lagrangian(r,v,x[8+(i-1)*4]*T[i]*ASTRO_DAY2SEC,ASTRO_MU_SUN);
+		kep_toolbox::propagate_lagrangian(r,v,x[8+(i-1)*4]*T[i]*ASTRO_DAY2SEC,common_mu);
 
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 		dt = (1-x[8+(i-1)*4])*T[i]*ASTRO_DAY2SEC;
-		kep_toolbox::lambert_problem l2(r,r_P[i+1],dt,ASTRO_MU_SUN);
+		kep_toolbox::lambert_problem l2(r,r_P[i+1],dt,common_mu);
 	  	v_end_l = l2.get_v2()[0];
 		v_beg_l = l2.get_v1()[0];
 
