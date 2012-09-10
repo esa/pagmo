@@ -7,6 +7,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/jde.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/jde_archived.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mde_pbx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de_1220.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp

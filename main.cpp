@@ -29,8 +29,8 @@ using namespace pagmo;
 
 int main()
 {
-pagmo::algorithm::ihs algo(10000);
-pagmo::problem::zdt1 prob;
+pagmo::algorithm::jde_archived algo(10);
+pagmo::problem::schwefel prob;
 pagmo::island isl = island(algo, prob, 100);
 isl.evolve(1);
 std::cout << isl.get_population().champion().f << std::endl;

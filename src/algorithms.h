@@ -33,6 +33,7 @@
 #include "algorithm/de.h"
 #include "algorithm/de_1220.h"
 #include "algorithm/jde.h"
+#include "algorithm/jde_archived.h"
 #include "algorithm/ihs.h"
 #include "algorithm/mde_pbx.h"
 #include "algorithm/monte_carlo.h"
