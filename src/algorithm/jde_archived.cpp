@@ -523,38 +523,12 @@ void jde_archived::evolve(population &pop) const
             popnew[i] = tmp;
             prob.objfun(fitnew[i], tmp);
             
-            //b) how good?
-//			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
-//			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
-/*				fit[i]=newfitness;
-				popnew[i] = tmp;
-				
-				// Update the adapted parameters
-				m_cr[i] = CR;
-				m_f[i] = F;
-				
-				// As a fitness improvment occured we move the point
-				// and thus can evaluate a new velocity
-				std::transform(tmp.begin(), tmp.end(), pop.get_individual(i).cur_x.begin(), tmp.begin(),std::minus<double>());
-				
-				//updates x and v (cache avoids to recompute the objective function)
-				pop.set_x(i,popnew[i]);
-				pop.set_v(i,tmp);
-				if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
-*/					/* if so...*/
-//					gbfit=newfitness;          /* reset gbfit to new low...*/
-/*					gbX=tmp;
-				}
-			} else {
-				popnew[i] = popold[i];
-			}*/
 
 		}//End of the loop through the deme
 
+        // loop through old population and compute distances
         dist.clear();
         ind.clear();
-
-        // loop through old population and compute distances
         for (pagmo::population::size_type i = 0; i < NP; ++i) {
             for (pagmo::population::size_type j = 0; j < NP; ++j) {
                 dist.push_back(cdist(fitold[i], fitold[j], prob_f_dimension));
@@ -562,8 +536,8 @@ void jde_archived::evolve(population &pop) const
             for (pagmo::population::size_type j = 0; j < NP; ++j) {
                 dist.push_back(cdist(fitold[i], fitnew[j], prob_f_dimension));
             }
-            for (std::vector<fitness_vector>::size_type j = 0; j < m_archive_f.size(); ++j) {
-                dist.push_back(cdist(fitold[i], m_archive_d[j], prob_f_dimension));
+            for (std::vector<fitness_vector>::size_type j = 0; j < m_archive.size(); ++j) {
+                dist.push_back(cdist(fitold[i], m_archive[j], prob_f_dimension));
             }
 
             // copy distance vector
@@ -594,24 +568,70 @@ void jde_archived::evolve(population &pop) const
             old_novelty[i] = acc / KPARAM;
         }
             
+        // loop through candidate soluations and compute distances
+        dist.clear();
+        ind.clear();
+        for (pagmo::population::size_type i = 0; i < NP; ++i) {
+            for (pagmo::population::size_type j = 0; j < NP; ++j) {
+                dist.push_back(cdist(fitnew[i], fitold[j], prob_f_dimension));
+            }
+            for (pagmo::population::size_type j = 0; j < NP; ++j) {
+                dist.push_back(cdist(fitnew[i], fitnew[j], prob_f_dimension));
+            }
+            for (std::vector<fitness_vector>::size_type j = 0; j < m_archive.size(); ++j) {
+                dist.push_back(cdist(fitnew[i], m_archive[j], prob_f_dimension));
+            }
+
+            // copy distance vector
+            dist_copy = dist;
+
+            // determine k nearest neighbours
+            for (size_t k = 0; k < KPARAM; ++k) {
+                minind = 0;
+                minval = dist[0];
+                for (size_t j = 1; j < dist_copy.size(); ++j) {
+                    if (minval < dist_copy[j]) {
+                        minval = dist_copy[j];
+                        minind = j;
+                    }
+                }
+                // poison vector with infinity
+                dist_copy[minind] = 1.7e+300;
+                ind.push_back(minind);
+            }
+             
+            // compute novelty metric
+            acc = 0.0;
+            for (size_t k = 0; k < KPARAM; ++k) {
+                for (size_t j = 0; j < ind.size(); ++j) {
+                    acc += dist[ind[j]];
+                }
+            }
+            new_novelty[i] = acc / KPARAM;
+        }
         
-        // loop through new candidates
-        // compute all distances
-        // determine k nearest neighbours
-        // compute novelty metric
-        //
         // compare old and new via novelty metric
-        // if old was better, popnew[i] = popold[i]
-        // if new was better, popnew stays
-        //
-        // compare to threshold and push to archive
-        // handle full archive
+		for (size_t i = 0; i < NP; ++i) {
+            if ( old_novelty[i] > new_novelty[i] ) {
+                popnew[i] = popold[i];  // old individual has stronger novelty
+            } else {
+				// adapt parameters of a succesful solution
+//                m_cr[i] = CR;
+//				m_f[i] = F;
 
-
-        
+                // individual change due to higher novelty of new solution
+                pop.set_x(i, popnew[i]);
+            }
+            // check with archive
+            if (m_archive.size() < m_max_archive_size) {
+                if (new_novelty[i] > m_archive_threshold) {
+                    m_archive.push_back(popnew[i]);
+                }
+            }
+        }
 
 		/* Save best population member of current iteration */
-		gbIter = gbX;
+		gbIter = gbX;       // today: give solution with highest novelty
 
 		/* swap population arrays. New generation becomes old one */
 		std::swap(popold, popnew);

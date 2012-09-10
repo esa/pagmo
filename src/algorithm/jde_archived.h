@@ -68,13 +68,13 @@ class __PAGMO_VISIBLE jde_archived : public base
 public:
 	jde_archived(int = 100, int = 2, int = 1, double = 1e-6, double = 1e-6, bool = false, int = 200, double=0.0);
 	base_ptr clone() const;
-    double cdist(fitness_vector, fitness_vector, problem::base::size_type) const;
 	void evolve(population &) const;
 	std::string get_name() const;
 
 protected:
 	std::string human_readable_extra() const;
 private:
+    double cdist(fitness_vector, fitness_vector, problem::base::size_type) const;
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -88,9 +88,8 @@ private:
 		ar & m_f;
 		ar & m_cr;
 		ar & const_cast<bool &>(m_memory);
-        ar & const_cast<int &>(m_max_archive_size);
-        ar & m_archive_d;
-        ar & m_archive_f;
+        ar & const_cast<size_t &>(m_max_archive_size);
+        ar & m_archive;
         ar & const_cast<double &>(m_archive_threshold);
 	}
 	
@@ -115,9 +114,8 @@ private:
 	const bool m_memory;
 
     // Archive
-    const int m_max_archive_size;
-    mutable std::vector<decision_vector> m_archive_d;
-    mutable std::vector<fitness_vector> m_archive_f;
+    const size_t m_max_archive_size;
+    mutable std::vector<decision_vector> m_archive;
     const double m_archive_threshold;
 };
 
