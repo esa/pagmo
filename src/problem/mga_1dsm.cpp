@@ -44,13 +44,15 @@ namespace pagmo { namespace problem {
  * @param[in] t0_r kep_toolbox::epoch representing the upper bound for the launch epoch
  * @param[in] tof_l lower bound for the mission duration (in years)
  * @param[in] tof_r upper bound for the mission duration (in years)
- * @param[in] vinf  maximum launch hyperbolic velocity allowed (in km/s)
+ * @param[in] vinf_l  minimum launch hyperbolic velocity allowed (in km/s)
+ * @param[in] vinf_u  maximum launch hyperbolic velocity allowed (in km/s)
  * @param[in] mo: when true defines the problem as a multi-objective problem, returning total DV and time of flight
  */
 mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
 			 const double tof_l, const double tof_u, 
-			 const double vinf, const bool mo, const bool add_vinf) : 
+			 const double vinf_l, const double vinf_u, 
+			 const bool mo, const bool add_vinf) : 
 			 base( 6 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf(add_vinf)
 {
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
@@ -65,7 +67,7 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 	// First leg
 	lb[0] = t0_l.mjd2000(); ub[0] = t0_u.mjd2000();
 	lb[1] = 0; lb[2] = 0; ub[1] = 1; ub[2] = 1;
-	lb[3] = 0; ub[3] = vinf * 1000;
+	lb[3] = vinf_l * 1000; ub[3] = vinf_u * 1000;
 	lb[4] = 1e-5; ub[4] = 1-1e-5;
 	lb[5] = tof_l * 365.25; ub[5] = tof_u *365.25;
 	

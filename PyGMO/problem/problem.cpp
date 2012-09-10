@@ -356,7 +356,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("pretty", &problem::tandem::pretty);
 
 	problem_wrapper<problem::mga_1dsm>("mga_1dsm", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
-		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, bool, bool> >())
+		.def(init< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool>())
 		.def("pretty", &problem::mga_1dsm::pretty)
 		.def("set_tof", &problem::mga_1dsm::set_tof)
 		.def("set_launch_window", &problem::mga_1dsm::set_launch_window)
