@@ -190,7 +190,7 @@ gtoc_2.__init__ = _gtoc_2_ctor
 
 try:
 	from PyKEP import planet_ss, epoch
-	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf = False):
+	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
 		"""
 		Constructs an mga_1dsm problem
 
@@ -214,7 +214,8 @@ try:
 		arg_list.append(vinf[0])
 		arg_list.append(vinf[1])
 		arg_list.append(multi_objective)
-		arg_list.append(add_vinf)
+		arg_list.append(add_vinf_dep)
+		arg_list.append(add_vinf_arr)
 		self._orig_init(*arg_list)
 	mga_1dsm._orig_init = mga_1dsm.__init__
 	mga_1dsm.__init__ = _mga_1dsm_ctor
@@ -268,12 +269,12 @@ try:
 		Vinfz = x[3]*sin(phi)
 
 		v0 = [a+b for a,b in zip(v_P[0],[Vinfx,Vinfy,Vinfz])]
-		r,v = propagate_lagrangian(r_P[0],v0,x[4]*T[0]*DAY2SEC,MU_SUN)
-		plot_kepler(ax,r_P[0],v0,x[4]*T[0]*DAY2SEC,MU_SUN,N = 100, color='b', legend=False, units = AU)
+		r,v = propagate_lagrangian(r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body)
+		plot_kepler(ax,r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
 
 		#Lambert arc to reach seq[1]
 		dt = (1-x[4])*T[0]*DAY2SEC
-		l = lambert_problem(r,r_P[1],dt,MU_SUN)
+		l = lambert_problem(r,r_P[1],dt,seq[0].mu_central_body)
 		plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
@@ -286,11 +287,11 @@ try:
 			#Fly-by 
 			v_out = fb_prop(v_end_l,v_P[i],x[7+(i-1)*4]*seq[i].radius,x[6+(i-1)*4],seq[i].mu_self)
 			#s/c propagation before the DSM
-			r,v = propagate_lagrangian(r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,MU_SUN)
-			plot_kepler(ax,r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,MU_SUN,N = 100, color='b', legend=False, units = AU)
+			r,v = propagate_lagrangian(r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body)
+			plot_kepler(ax,r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
 			#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 			dt = (1-x[8+(i-1)*4])*T[i]*DAY2SEC
-			l = lambert_problem(r,r_P[i+1],dt,MU_SUN)
+			l = lambert_problem(r,r_P[i+1],dt,seq[0].mu_central_body)
 			plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
 			v_end_l = l.get_v2()[0]
 			v_beg_l = l.get_v1()[0]

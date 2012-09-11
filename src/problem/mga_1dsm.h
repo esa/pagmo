@@ -61,7 +61,7 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(0), const kep_toolbox::epoch t0_r = kep_toolbox::epoch(1000),
 			 const double tof_l = 1.0, const double tof_u = 5.0, 
 			 const double vinf_l = 0.5, const double vinf_u = 2.5, 
-			 const bool mo = false, const bool add_vinf = false);
+			 const bool mo = false, const bool add_vinf_dep = false, const bool add_vinf_arr = true);
 		mga_1dsm(const mga_1dsm&);
 		base_ptr clone() const;
 		
@@ -89,10 +89,13 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_seq;
 			ar & const_cast<size_t &>(m_n_legs);
+			ar & m_add_vinf_dep;
+			ar & m_add_vinf_arr;
 		}
 		std::vector<kep_toolbox::planet_ptr> m_seq;
 		const size_t m_n_legs;
-		bool m_add_vinf;
+		bool m_add_vinf_dep;
+		bool m_add_vinf_arr;
 };
 
 }} // namespaces

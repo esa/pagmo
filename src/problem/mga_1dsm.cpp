@@ -47,7 +47,8 @@ namespace pagmo { namespace problem {
  * @param[in] vinf_l  minimum launch hyperbolic velocity allowed (in km/s)
  * @param[in] vinf_u  maximum launch hyperbolic velocity allowed (in km/s)
  * @param[in] mo: when true defines the problem as a multi-objective problem, returning total DV and time of flight
- * @param[in] ad_vinf: when true the objective functions contains also the contribution of the launch hypebolic velocity
+ * @param[in] add_vinf_dep: when true the objective functions contains also the contribution of the launch hypebolic velocity
+ * @param[in] add_vinf_arr: when true the objective functions contains also the contribution of the arrival hypebolic velocity
  * 
  * @throws value_error if the planets in seq do not all have the same central body gravitational constant
  */
@@ -55,8 +56,8 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
 			 const double tof_l, const double tof_u, 
 			 const double vinf_l, const double vinf_u, 
-			 const bool mo, const bool add_vinf) : 
-			 base( 6 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf(add_vinf)
+			 const bool mo, const bool add_vinf_dep, const bool add_vinf_arr) : 
+			 base( 6 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf_dep(add_vinf_dep), m_add_vinf_arr(add_vinf_arr)
 {
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
@@ -98,7 +99,7 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 }
 
 /// Copy Constructor. Performs a deep copy
-mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_n_legs(p.m_n_legs), m_add_vinf(p.m_add_vinf)
+mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr) 
 {
 	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
@@ -182,9 +183,12 @@ try {
 	
 	
 	// Now we return the objective(s) function
-	f[0] = std::accumulate(DV.begin(),DV.end(),0.0); 
-	if (m_add_vinf) {
+	f[0] = std::accumulate(DV.begin(),DV.end()-1,0.0); 
+	if (m_add_vinf_dep) {
 		f[0] += x[3];
+	}
+	if (m_add_vinf_arr) {
+		f[0] += DV[DV.size()-1];
 	}
 	if (get_f_dimension() == 2){
 		f[1] = std::accumulate(T.begin(),T.end(),0.0);
@@ -355,7 +359,8 @@ std::string mga_1dsm::human_readable_extra() const
 	for (size_t i = 0; i<m_seq.size() ;++i) {
 		oss << m_seq[i]->get_name() << " ";
 	}
-	oss << "\n\tAdd launcher vinf to the objective?: " << (m_add_vinf? " True":" False") << std::endl;
+	oss << "\n\tAdd launcher vinf to the objective?: " << (m_add_vinf_dep? " True":" False") << std::endl;
+	oss << "\n\tAdd arrival vinf to the objective?: " << (m_add_vinf_arr? " True":" False") << std::endl;
 	return oss.str();
 }
 
