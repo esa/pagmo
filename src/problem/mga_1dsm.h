@@ -32,7 +32,8 @@
 #include "../types.h"
 #include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/keplerian_toolbox.h"
+#include "../keplerian_toolbox/planet_js.h"
+#include "../keplerian_toolbox/epoch.h"
 
 
 namespace pagmo{ namespace problem {
@@ -76,9 +77,9 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 		std::string human_readable_extra() const;
 		static const std::vector<kep_toolbox::planet_ptr> construct_default_sequence() {
 			std::vector<kep_toolbox::planet_ptr> retval;
-			retval.push_back(kep_toolbox::planet_ss("earth").clone());
-			retval.push_back(kep_toolbox::planet_ss("venus").clone());
-			retval.push_back(kep_toolbox::planet_ss("earth").clone());
+			retval.push_back(kep_toolbox::planet_js("io").clone());
+			retval.push_back(kep_toolbox::planet_js("io").clone());
+			retval.push_back(kep_toolbox::planet_js("europa").clone());
 			return retval;
 		};
 	private:
