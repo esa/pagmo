@@ -362,6 +362,12 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("set_launch_window", &problem::mga_1dsm::set_launch_window)
 		.def("set_vinf", &problem::mga_1dsm::set_vinf)
 		.def("get_sequence", &problem::mga_1dsm::get_sequence);
+		
+	problem_wrapper<problem::mga_incipit>("mga_incipit", "Jupiter capture problem from the first part of gtoc6")
+		.def(init< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > >())
+		.def("pretty", &problem::mga_incipit::pretty)
+		.def("set_tof", &problem::mga_incipit::set_tof)
+		.def("get_sequence", &problem::mga_incipit::get_sequence);
 #endif
 
 #ifdef PAGMO_ENABLE_GSL

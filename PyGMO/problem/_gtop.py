@@ -189,7 +189,7 @@ gtoc_2.__init__ = _gtoc_2_ctor
 
 
 try:
-	from PyKEP import planet_ss, epoch
+	from PyKEP import planet_ss, epoch, planet_js
 	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
 		"""
 		Constructs an mga_1dsm problem
@@ -300,6 +300,39 @@ try:
 
 		plt.show()
 	mga_1dsm.plot = _mga_1dsm_plot
+	
+	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
+		"""
+		Constructs an mga_1dsm problem
+
+		USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf = False)
+
+		* seq: list of PyKEP planets defining the encounter sequence (including the starting launch)
+		* t0: list of two epochs defining the launch window
+		* tof: list of two floats defining the minimum and maximum allowed mission lenght (years)
+		* vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity (at launch), in km/sec
+		* multi_objective: when True constructs a multiobjective problem (dv, T)
+		* add_vinf: when True the computed Dv includes the initial hyperbolic velocity (at launch)
+		"""
+		
+		# We construct the arg list for the original constructor exposed by boost_python
+		arg_list=[]
+		arg_list.append(seq)
+		arg_list.append(t0[0])
+		arg_list.append(t0[1])
+		arg_list.append(tof[0])
+		arg_list.append(tof[1])
+		arg_list.append(vinf[0])
+		arg_list.append(vinf[1])
+		arg_list.append(multi_objective)
+		arg_list.append(add_vinf_dep)
+		arg_list.append(add_vinf_arr)
+		self._orig_init(*arg_list)
+	mga_1dsm._orig_init = mga_1dsm.__init__
+	mga_1dsm.__init__ = _mga_1dsm_ctor
+	
+	
+	
 	
 except:
 	pass
