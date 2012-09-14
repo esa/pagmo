@@ -191,6 +191,8 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 	std::ostringstream s;
 	s.precision(15);
 	s << std::scientific;
+	
+	double d,ra,d2,ra2;
 
 	double common_mu = m_seq[0]->get_mu_central_body();
 	// 1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
@@ -213,10 +215,12 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 	double theta = 2*boost::math::constants::pi<double>()*x[1];
 	double phi = acos(2*x[2]-1)-boost::math::constants::pi<double>() / 2;
 	kep_toolbox::array3D r = { {ASTRO_JR * 1000*cos(phi)*sin(theta), ASTRO_JR * 1000*cos(phi)*cos(theta), ASTRO_JR * 1000*sin(phi)} };
+	kep_toolbox::array3D v;
 	
 	kep_toolbox::lambert_problem l(r,r_P[0],T[0]*ASTRO_DAY2SEC,common_mu,false,false);
 	kep_toolbox::array3D v_beg_l = l.get_v1()[0];
 	kep_toolbox::array3D v_end_l = l.get_v2()[0];
+	kep_toolbox::closest_distance(d,ra,r,v_beg_l, r_P[0], v_end_l, common_mu);
 
 	DV[0] = std::abs(kep_toolbox::norm(v_beg_l)-3400.0);
 	kep_toolbox::array3D v_out;
@@ -227,6 +231,7 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 	s << "\tInitial Velocity Increment (m/s): " << DV[0] << std::endl; 
 	kep_toolbox::diff(v_out, v_end_l, v_P[0]);
 	s << "\tArrival relative velocity at " << m_seq[0]->get_name() << " (m/s): " << kep_toolbox::norm(v_out)  << std::endl; 
+	s << "\tClosest distance: " << d / ASTRO_JR;
 	
 	// 4 - And we proceed with each successive leg (if any)
 	for (size_t i = 1; i<m_seq.size(); ++i) {
@@ -234,14 +239,26 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 		kep_toolbox::fb_prop(v_out, v_end_l, v_P[i-1], x[4*i+1] * m_seq[i-1]->get_radius(), x[4*i], m_seq[i-1]->get_mu_self());
 		// s/c propagation before the DSM
 		r = r_P[i-1];
-		kep_toolbox::propagate_lagrangian(r,v_out,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
-
+		v = v_out;
+		
+		kep_toolbox::propagate_lagrangian(r,v,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
+		kep_toolbox::closest_distance(d, ra, r_P[i-1], v_out, r, v, common_mu);
+		
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 		double dt = (1-x[4*i+2])*T[i]*ASTRO_DAY2SEC;
 		kep_toolbox::lambert_problem l2(r,r_P[i],dt,common_mu,false,false);
 		v_end_l = l2.get_v2()[0];
 		v_beg_l = l2.get_v1()[0];
-
+		kep_toolbox::closest_distance(d2,ra2,r,v_beg_l, r_P[i], v_end_l, common_mu);
+		
+		if (d < d2)
+		{
+			d = d/ASTRO_JR;
+			ra = ra/ASTRO_JR;
+		} else {
+			d = d2/ASTRO_JR;
+			ra = ra2/ASTRO_JR;
+		}
 		// DSM occuring at time nu2*T2
 		kep_toolbox::diff(v_out, v_beg_l, v_out);
 		DV[i] = kep_toolbox::norm(v_out);
@@ -251,7 +268,9 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 		s <<  "\tFly-by altitude (km): " << (x[4*i+1]*m_seq[i-1]->get_radius()-m_seq[i-1]->get_radius())/1000.0 << std::endl; 
 		s <<  "\tDSM after (days): "  << x[4*i+2]*T[i] << std::endl; 
 		s <<  "\tDSM magnitude (m/s): " << DV[i] << std::endl; 
-	}
+		s <<  "\tClosest distance: " << d << std::endl; 
+		s <<  "\tApoapsis at closest distance: " << ra << std::endl; 
+ 	}
 	
 	s << "\nArrival at " << m_seq[m_seq.size()-1]->get_name() << std::endl; 
 	kep_toolbox::diff(v_out, v_end_l, v_P[m_seq.size()-1]);
