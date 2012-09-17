@@ -61,6 +61,7 @@ class __PAGMO_VISIBLE mga_incipit: public base
 		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;
 		void set_tof(const std::vector<std::vector<double> >&);
+		const std::vector<std::vector<double> >& get_tof() const;
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

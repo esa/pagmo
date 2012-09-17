@@ -55,14 +55,20 @@ class __PAGMO_VISIBLE mga_part: public base
 		mga_part(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
 			 const std::vector<std::vector<double> > tof = construct_default_tofs(),
 			 const kep_toolbox::epoch t0 = kep_toolbox::epoch(11000),
-			 const kep_toolbox::array3D v_inf_in = construct_default_v()
+			 const kep_toolbox::array3D vinf_in = construct_default_v()
 			 );
 		mga_part(const mga_part&);
 		base_ptr clone() const;
 		
 		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;
+		
 		void set_tof(const std::vector<std::vector<double> >&);
+		const std::vector<std::vector<double> >& get_tof() const;
+		void set_t0(const kep_toolbox::epoch&);
+		const kep_toolbox::epoch& get_t0() const;
+		void set_vinf_in(const kep_toolbox::array3D&);
+		const kep_toolbox::array3D& get_vinf_in() const;
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
@@ -96,12 +102,12 @@ class __PAGMO_VISIBLE mga_part: public base
 			ar & m_seq;
 			ar & m_tof;
 			ar & m_t0;
-			ar & m_v_inf_in;
+			ar & m_vinf_in;
 		}
 		std::vector<kep_toolbox::planet_ptr> 		m_seq;
 		std::vector<std::vector<double> > 		m_tof;
 		kep_toolbox::epoch				m_t0;
-		kep_toolbox::array3D				m_v_inf_in;
+		kep_toolbox::array3D				m_vinf_in;
 };
 
 }} // namespaces

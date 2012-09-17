@@ -366,14 +366,17 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::mga_incipit>("mga_incipit", "Jupiter capture problem from the first part of gtoc6")
 		.def(init< optional< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > > >())
 		.def("pretty", &problem::mga_incipit::pretty)
-		.def("set_tof", &problem::mga_incipit::set_tof)
-		.def("get_sequence", &problem::mga_incipit::get_sequence);
+		.def("get_sequence", &problem::mga_incipit::get_sequence)
+		.add_property("tof",make_function(&problem::mga_incipit::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit::set_tof,"bound on the times of flight for the different legs");
+
 		
 	problem_wrapper<problem::mga_part>("mga_part", "A part of the Jupiter moon tour from gtoc6") 
 		.def(init< optional <std::vector<kep_toolbox::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
 		.def("pretty", &problem::mga_part::pretty)
-		.def("set_tof", &problem::mga_part::set_tof)
-		.def("get_sequence", &problem::mga_part::get_sequence);
+		.def("get_sequence", &problem::mga_part::get_sequence)
+		.add_property("vinf_in",make_function(&problem::mga_part::get_vinf_in, return_value_policy<copy_const_reference>()), &problem::mga_part::set_vinf_in,"initial incoming relative spacecraft velocity")
+		.add_property("t0",make_function(&problem::mga_part::get_t0, return_value_policy<copy_const_reference>()), &problem::mga_part::set_t0, "start epoch")
+		.add_property("tof",make_function(&problem::mga_part::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_part::set_tof,"bound on the times of flight for the different legs");
 #endif
 
 #ifdef PAGMO_ENABLE_GSL

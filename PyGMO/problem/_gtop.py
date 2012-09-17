@@ -1,5 +1,5 @@
-from _problem import cassini_1, gtoc_1,cassini_2, rosetta, messenger_full, tandem, laplace, sagas, gtoc_2, mga_1dsm, mga_incipit
-from _problem import _gtoc_2_objective 
+from _problem import cassini_1, gtoc_1,cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm, mga_incipit, mga_part
+#from _problem import _gtoc_2_objective 
 		
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
 def _cassini_1_ctor(self, objectives = 1):
@@ -155,240 +155,316 @@ def _sagas_ctor(self):
 sagas._orig_init = sagas.__init__
 sagas.__init__ = _sagas_ctor
 
-gtoc_2.obj = _gtoc_2_objective
-def _gtoc_2_ctor(self, ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10,  objective = gtoc_2.obj.MASS_TIME):
+#gtoc_2.obj = _gtoc_2_objective
+#def _gtoc_2_ctor(self, ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10,  objective = gtoc_2.obj.MASS_TIME):
+#	"""
+#	Constructs a GTOC 2 Problem (Constrained Continuous Single-Objective)
+#
+#	NOTE: This problem is a quite faithful transcription of the problem used during the GTOC2 competition
+#	      It Transcribe the whole OCP resulting from the low-thrust dynamics into an NLP. As such it is very
+#	      difficult to find feasible solutions. Note that by default the asteroid sequence is the winning one
+#	      from Turin University.
+#
+#	USAGE: problem.gtoc_2(ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10, objective = gtoc_2.obj.MASS_TIME)
+#
+#	* ast1 id of the first asteroid to visit (Group 1:   0 - 95)
+#	* ast2 id of the second asteroid to visit (Group 2:  96 - 271)
+#	* ast3 id of the third asteroid to visit (Group 3: 272 - 571)
+#	* ast4 id of the fourth asteroid to visit (Group 4: 572 - 909)
+#	* n_seg number of segments to be used per leg
+#	* obj objective function in the enum {MASS,TIME,MASS_TIME}
+#	"""
+#	
+#	# We construct the arg list for the original constructor exposed by boost_python
+#	arg_list=[]
+#	arg_list.append(ast1)
+#	arg_list.append(ast2)
+#	arg_list.append(ast3)
+#	arg_list.append(ast4)
+#	arg_list.append(n_seg)
+#	arg_list.append(objective)
+#	self._orig_init(*arg_list)
+#gtoc_2._orig_init = gtoc_2.__init__
+#gtoc_2.__init__ = _gtoc_2_ctor
+
+
+
+from PyKEP import planet_ss, epoch, planet_js
+
+def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
 	"""
-	Constructs a GTOC 2 Problem (Constrained Continuous Single-Objective)
+	Constructs an mga_1dsm problem
 
-	NOTE: This problem is a quite faithful transcription of the problem used during the GTOC2 competition
-	      It Transcribe the whole OCP resulting from the low-thrust dynamics into an NLP. As such it is very
-	      difficult to find feasible solutions. Note that by default the asteroid sequence is the winning one
-	      from Turin University.
+	USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf = False)
 
-	USAGE: problem.gtoc_2(ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10, objective = gtoc_2.obj.MASS_TIME)
-
-	* ast1 id of the first asteroid to visit (Group 1:   0 - 95)
-	* ast2 id of the second asteroid to visit (Group 2:  96 - 271)
-	* ast3 id of the third asteroid to visit (Group 3: 272 - 571)
-	* ast4 id of the fourth asteroid to visit (Group 4: 572 - 909)
-	* n_seg number of segments to be used per leg
-	* obj objective function in the enum {MASS,TIME,MASS_TIME}
+	* seq: list of PyKEP planets defining the encounter sequence (including the starting launch)
+	* t0: list of two epochs defining the launch window
+	* tof: list of two floats defining the minimum and maximum allowed mission lenght (years)
+	* vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity (at launch), in km/sec
+	* multi_objective: when True constructs a multiobjective problem (dv, T)
+	* add_vinf: when True the computed Dv includes the initial hyperbolic velocity (at launch)
 	"""
 	
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
-	arg_list.append(ast1)
-	arg_list.append(ast2)
-	arg_list.append(ast3)
-	arg_list.append(ast4)
-	arg_list.append(n_seg)
-	arg_list.append(objective)
+	arg_list.append(seq)
+	arg_list.append(t0[0])
+	arg_list.append(t0[1])
+	arg_list.append(tof[0])
+	arg_list.append(tof[1])
+	arg_list.append(vinf[0])
+	arg_list.append(vinf[1])
+	arg_list.append(multi_objective)
+	arg_list.append(add_vinf_dep)
+	arg_list.append(add_vinf_arr)
 	self._orig_init(*arg_list)
-gtoc_2._orig_init = gtoc_2.__init__
-gtoc_2.__init__ = _gtoc_2_ctor
+mga_1dsm._orig_init = mga_1dsm.__init__
+mga_1dsm.__init__ = _mga_1dsm_ctor
 
+def _mga_incipit_ctor(self, seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)],tof = [[100,200],[3,200],[4,100]]):
+	"""
+	USAGE: mga_incipit(seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]])
 
-try:
-	from PyKEP import planet_ss, epoch, planet_js
+	* seq: list of jupiter moons defining the trajectory incipit
+	* t0:  list of two epochs defining the launch window
+	* tof: list of n lists containing the lower and upper bounds for the legs flight times (days)
+	"""
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(seq)
+	arg_list.append(t0[0])
+	arg_list.append(t0[1])
+	arg_list.append(tof)
+	self._orig_init(*arg_list)
+mga_incipit._orig_init = mga_incipit.__init__
+mga_incipit.__init__ = _mga_incipit_ctor
+
+def _mga_part_ctor(self, seq = [planet_js('europa'),planet_js('europa'),planet_js('europa')], tof = [[5,50],[5,50]], t0 = epoch(11000), v_inf_in = [1500.0,350.0,145.0]):
+	"""
+	USAGE: mga_part(seq = [planet_js('europa'),planet_js('europa'),planet_js('europa')], tof = [[5,50],[5,50]], t0 = epoch(11000), v_inf_in[1500.0,350.0,145.0])
+
+	* seq: list of jupiter moons defining the trajectory incipit
+	* tof: list of n lists containing the lower and upper bounds for the legs flight times (days)
+	* t0:  starting epoch
+	* v_inf_in: Incoming spacecraft relative velocity
+	"""
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(seq)
+	arg_list.append(tof)
+	arg_list.append(t0)
+	arg_list.append(v_inf_in)
+	self._orig_init(*arg_list)
+mga_part._orig_init = mga_part.__init__
+mga_part.__init__ = _mga_part_ctor
+
+#Plot of the trajectory for an mga_1dsm problem
+def _mga_1dsm_plot(self,x):
+	"""
+	Plots the trajectory represented by the decision vector x
+	"""
+	import matplotlib as mpl
+	from mpl_toolkits.mplot3d import Axes3D
+	import matplotlib.pyplot as plt
+	from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
+	from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
+	from math import pi, acos, cos, sin
+	from scipy.linalg import norm
+
+	mpl.rcParams['legend.fontsize'] = 10
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	ax.scatter(0,0,0, color='y')
 	
-	def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
-		"""
-		Constructs an mga_1dsm problem
-
-		USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf = False)
-
-		* seq: list of PyKEP planets defining the encounter sequence (including the starting launch)
-		* t0: list of two epochs defining the launch window
-		* tof: list of two floats defining the minimum and maximum allowed mission lenght (years)
-		* vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity (at launch), in km/sec
-		* multi_objective: when True constructs a multiobjective problem (dv, T)
-		* add_vinf: when True the computed Dv includes the initial hyperbolic velocity (at launch)
-		"""
-		
-		# We construct the arg list for the original constructor exposed by boost_python
-		arg_list=[]
-		arg_list.append(seq)
-		arg_list.append(t0[0])
-		arg_list.append(t0[1])
-		arg_list.append(tof[0])
-		arg_list.append(tof[1])
-		arg_list.append(vinf[0])
-		arg_list.append(vinf[1])
-		arg_list.append(multi_objective)
-		arg_list.append(add_vinf_dep)
-		arg_list.append(add_vinf_arr)
-		self._orig_init(*arg_list)
-	mga_1dsm._orig_init = mga_1dsm.__init__
-	mga_1dsm.__init__ = _mga_1dsm_ctor
+	seq = self.get_sequence()
 	
-	#Plot of the trajectory for an mga_1dsm problem
-	def _mga_1dsm_plot(self,x):
-		"""
-		Plots the trajectory represented by the decision vector x
-		"""
-		import matplotlib as mpl
-		from mpl_toolkits.mplot3d import Axes3D
-		import matplotlib.pyplot as plt
-		from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
-		from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
-		from math import pi, acos, cos, sin
-		from scipy.linalg import norm
+	n = len(x)/4
+	#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
+	T = list([0]*(n))
+	#a[-i] = x[-1-(i-1)*4]
+	for i in xrange(n-1):	
+		j = i+1;
+		T[-j] = (x[5] - sum(T[-(j-1):])) * x[-1-(j-1)*4]
+	T[0] = x[5] - sum(T)
+	
+	#2 - We compute the epochs and ephemerides of the planetary encounters
+	t_P = list([None] * (n+1))
+	r_P = list([None] * (n+1))
+	v_P = list([None] * (n+1))
+	DV = list([None] * (n+1))
+	
+	for i,planet in enumerate(seq):
+		t_P[i] = epoch(x[0] + sum(T[0:i]))
+		r_P[i],v_P[i] = planet.eph(t_P[i])
+		plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = AU)
 
-		mpl.rcParams['legend.fontsize'] = 10
-		fig = plt.figure()
-		ax = fig.gca(projection='3d')
-		ax.scatter(0,0,0, color='y')
-		
-		seq = self.get_sequence()
-		
-		n = len(x)/4
-		#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
-		T = list([0]*(n))
-		#a[-i] = x[-1-(i-1)*4]
-		for i in xrange(n-1):	
-			j = i+1;
-			T[-j] = (x[5] - sum(T[-(j-1):])) * x[-1-(j-1)*4]
-		T[0] = x[5] - sum(T)
-		
-		#2 - We compute the epochs and ephemerides of the planetary encounters
-		t_P = list([None] * (n+1))
-		r_P = list([None] * (n+1))
-		v_P = list([None] * (n+1))
-		DV = list([None] * (n+1))
-		
-		for i,planet in enumerate(seq):
-			t_P[i] = epoch(x[0] + sum(T[0:i]))
-			r_P[i],v_P[i] = planet.eph(t_P[i])
-			plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = AU)
+	#3 - We start with the first leg
+	theta = 2*pi*x[1]
+	phi = acos(2*x[2]-1)-pi/2
 
-		#3 - We start with the first leg
-		theta = 2*pi*x[1]
-		phi = acos(2*x[2]-1)-pi/2
+	Vinfx = x[3]*cos(phi)*cos(theta)
+	Vinfy =	x[3]*cos(phi)*sin(theta)
+	Vinfz = x[3]*sin(phi)
 
-		Vinfx = x[3]*cos(phi)*cos(theta)
-		Vinfy =	x[3]*cos(phi)*sin(theta)
-		Vinfz = x[3]*sin(phi)
+	v0 = [a+b for a,b in zip(v_P[0],[Vinfx,Vinfy,Vinfz])]
+	r,v = propagate_lagrangian(r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body)
+	plot_kepler(ax,r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
 
-		v0 = [a+b for a,b in zip(v_P[0],[Vinfx,Vinfy,Vinfz])]
-		r,v = propagate_lagrangian(r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body)
-		plot_kepler(ax,r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
+	#Lambert arc to reach seq[1]
+	dt = (1-x[4])*T[0]*DAY2SEC
+	l = lambert_problem(r,r_P[1],dt,seq[0].mu_central_body)
+	plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
+	v_end_l = l.get_v2()[0]
+	v_beg_l = l.get_v1()[0]
 
-		#Lambert arc to reach seq[1]
-		dt = (1-x[4])*T[0]*DAY2SEC
-		l = lambert_problem(r,r_P[1],dt,seq[0].mu_central_body)
+	#First DSM occuring at time nu1*T1
+	DV[0] = norm([a-b for a,b in zip(v_beg_l,v)])
+
+	#4 - And we proceed with each successive leg
+	for i in range(1,n):
+		#Fly-by 
+		v_out = fb_prop(v_end_l,v_P[i],x[7+(i-1)*4]*seq[i].radius,x[6+(i-1)*4],seq[i].mu_self)
+		#s/c propagation before the DSM
+		r,v = propagate_lagrangian(r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body)
+		plot_kepler(ax,r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
+		#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
+		dt = (1-x[8+(i-1)*4])*T[i]*DAY2SEC
+		l = lambert_problem(r,r_P[i+1],dt,seq[0].mu_central_body)
 		plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
+		#DSM occuring at time nu2*T2
+		DV[i] = norm([a-b for a,b in zip(v_beg_l,v)])
 
-		#First DSM occuring at time nu1*T1
-		DV[0] = norm([a-b for a,b in zip(v_beg_l,v)])
+	plt.show()
+mga_1dsm.plot = _mga_1dsm_plot
 
-		#4 - And we proceed with each successive leg
-		for i in range(1,n):
-			#Fly-by 
-			v_out = fb_prop(v_end_l,v_P[i],x[7+(i-1)*4]*seq[i].radius,x[6+(i-1)*4],seq[i].mu_self)
-			#s/c propagation before the DSM
-			r,v = propagate_lagrangian(r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body)
-			plot_kepler(ax,r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
-			#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
-			dt = (1-x[8+(i-1)*4])*T[i]*DAY2SEC
-			l = lambert_problem(r,r_P[i+1],dt,seq[0].mu_central_body)
-			plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
-			v_end_l = l.get_v2()[0]
-			v_beg_l = l.get_v1()[0]
-			#DSM occuring at time nu2*T2
-			DV[i] = norm([a-b for a,b in zip(v_beg_l,v)])
-
-		plt.show()
-	mga_1dsm.plot = _mga_1dsm_plot
+#Plot of the trajectory of an mga_incipit problem
+def _mga_incipit_plot(self,x):
+	"""
+	Plots the trajectory represented by the decision vector x
 	
-	def _mga_incipit_ctor(self, seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)],tof = [[100,200],[3,200],[4,100]]):
-		"""
-		USAGE: mga_incipit(seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]])
-
-		* seq: list of jupiter moons defining the trajectory incipit
-		* t0:  list of two epochs defining the launch window
-		* tof: list of n lists containing the lower and upper bounds for the legs flight times (days)
-		"""
-		# We construct the arg list for the original constructor exposed by boost_python
-		arg_list=[]
-		arg_list.append(seq)
-		arg_list.append(t0[0])
-		arg_list.append(t0[1])
-		arg_list.append(tof)
-		self._orig_init(*arg_list)
-	mga_incipit._orig_init = mga_incipit.__init__
-	mga_incipit.__init__ = _mga_incipit_ctor
+	Example::
 	
-	#Plot of the trajectory of an mga_incipit problem
-	def _mga_incipit_plot(self,x):
-		"""
-		Plots the trajectory represented by the decision vector x
-		
-		Example::
-		
-		  prob.plot(x)
-		"""
-		import matplotlib as mpl
-		from mpl_toolkits.mplot3d import Axes3D
-		import matplotlib.pyplot as plt
-		from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
-		from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
-		from math import pi, acos, cos, sin
-		from scipy.linalg import norm
+	  prob.plot(x)
+	"""
+	import matplotlib as mpl
+	from mpl_toolkits.mplot3d import Axes3D
+	import matplotlib.pyplot as plt
+	from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
+	from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
+	from math import pi, acos, cos, sin
+	from scipy.linalg import norm
 
-		mpl.rcParams['legend.fontsize'] = 10
-		fig = plt.figure()
-		ax = fig.gca(projection='3d')
-		ax.scatter(0,0,0, color='y')
-		
-		JR = 71492000.0
-		legs = len(x)/4
-		seq = self.get_sequence()
-		common_mu = seq[0].mu_central_body
-		
-		#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
-		T = x[3::4]
-		
-		#2 - We compute the epochs and ephemerides of the planetary encounters
-		t_P = list([None] * legs)
-		r_P = list([None] * legs)
-		v_P = list([None] * legs)
-		DV  = list([None] * legs)
-		
-		for i,planet in enumerate(seq):
-			t_P[i] = epoch(x[0]+sum(T[:i+1]))
-			r_P[i],v_P[i] = planet.eph(t_P[i])
-			plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = JR)
+	mpl.rcParams['legend.fontsize'] = 10
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	ax.scatter(0,0,0, color='y')
+	
+	JR = 71492000.0
+	legs = len(x)/4
+	seq = self.get_sequence()
+	common_mu = seq[0].mu_central_body
+	
+	#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
+	T = x[3::4]
+	
+	#2 - We compute the epochs and ephemerides of the planetary encounters
+	t_P = list([None] * legs)
+	r_P = list([None] * legs)
+	v_P = list([None] * legs)
+	DV  = list([None] * legs)
+	
+	for i,planet in enumerate(seq):
+		t_P[i] = epoch(x[0]+sum(T[:i+1]))
+		r_P[i],v_P[i] = planet.eph(t_P[i])
+		plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = JR)
 
-		#3 - We start with the first leg: a lambert arc
-		theta = 2*pi*x[1]
-		phi = acos(2*x[2]-1)-pi/2
-		r = [cos(phi)*sin(theta), cos(phi)*cos(theta), sin(phi)] #phi close to zero is in the moon orbit plane injection
-		r = [JR*1000*d for d in r]
-		
-		l = lambert_problem(r,r_P[0],T[0]*DAY2SEC,common_mu, False, False)
-		plot_lambert(ax,l, sol = 0, color='k', legend=False, units = JR, N=500)
+	#3 - We start with the first leg: a lambert arc
+	theta = 2*pi*x[1]
+	phi = acos(2*x[2]-1)-pi/2
+	r = [cos(phi)*sin(theta), cos(phi)*cos(theta), sin(phi)] #phi close to zero is in the moon orbit plane injection
+	r = [JR*1000*d for d in r]
+	
+	l = lambert_problem(r,r_P[0],T[0]*DAY2SEC,common_mu, False, False)
+	plot_lambert(ax,l, sol = 0, color='k', legend=False, units = JR, N=500)
 
-		#Lambert arc to reach seq[1]
+	#Lambert arc to reach seq[1]
+	v_end_l = l.get_v2()[0]
+	v_beg_l = l.get_v1()[0]
+
+	#4 - And we proceed with each successive leg
+	for i in xrange(1,legs):
+		#Fly-by 
+		v_out = fb_prop(v_end_l,v_P[i-1],x[1+4*i]*seq[i-1].radius,x[4*i],seq[i-1].mu_self)
+		#s/c propagation before the DSM
+		r,v = propagate_lagrangian(r_P[i-1],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu)
+		plot_kepler(ax,r_P[i-1],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu,N = 500, color='b', legend=False, units = JR)
+		#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
+		dt = (1-x[4*i+2])*T[i]*DAY2SEC
+		l = lambert_problem(r,r_P[i],dt,common_mu, False, False)
+		plot_lambert(ax,l, sol = 0, color='r', legend=False, units = JR, N=500)
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
+	plt.show()
+mga_incipit.plot = _mga_incipit_plot
 
-		#4 - And we proceed with each successive leg
-		for i in xrange(1,legs):
-			#Fly-by 
-			v_out = fb_prop(v_end_l,v_P[i-1],x[1+4*i]*seq[i-1].radius,x[4*i],seq[i-1].mu_self)
-			#s/c propagation before the DSM
-			r,v = propagate_lagrangian(r_P[i-1],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu)
-			plot_kepler(ax,r_P[i-1],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu,N = 500, color='b', legend=False, units = JR)
-			#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
-			dt = (1-x[4*i+2])*T[i]*DAY2SEC
-			l = lambert_problem(r,r_P[i],dt,common_mu, False, False)
-			plot_lambert(ax,l, sol = 0, color='r', legend=False, units = JR, N=500)
-			v_end_l = l.get_v2()[0]
-			v_beg_l = l.get_v1()[0]
-		plt.show()
-	mga_incipit.plot = _mga_incipit_plot
+#Plot of the trajectory of an mga_part problem
+def _mga_part_plot(self,x):
+	"""
+	Plots the trajectory represented by the decision vector x
+	
+	Example::
+	
+	  prob.plot(x)
+	"""
+	import matplotlib as mpl
+	from mpl_toolkits.mplot3d import Axes3D
+	import matplotlib.pyplot as plt
+	from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
+	from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
+	from math import pi, acos, cos, sin
+	from scipy.linalg import norm
 
-except:
-	pass
+	mpl.rcParams['legend.fontsize'] = 10
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	ax.scatter(0,0,0, color='y')
+	
+	JR = 71492000.0
+	legs = len(x)/4
+	seq = self.get_sequence()
+	common_mu = seq[0].mu_central_body
+	start_mjd2000 = self.t0.mjd2000
+	
+	#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
+	T = x[3::4]
+	
+	#2 - We compute the epochs and ephemerides of the planetary encounters
+	t_P = list([None] * (legs+1))
+	r_P = list([None] * (legs+1))
+	v_P = list([None] * (legs+1))
+	
+	for i,planet in enumerate(seq):
+		t_P[i] = epoch(start_mjd2000+sum(T[:i]))
+		r_P[i],v_P[i] = planet.eph(t_P[i])
+		plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = JR)
+
+	v_end_l = [a+b for a,b in zip(v_P[0],self.vinf_in)]
+	#4 - And we iterate on the legs
+	for i in xrange(0,legs):
+		#Fly-by 
+		v_out = fb_prop(v_end_l,v_P[i],x[1+4*i]*seq[i-1].radius,x[4*i],seq[i].mu_self)
+		#s/c propagation before the DSM
+		r,v = propagate_lagrangian(r_P[i],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu)
+		plot_kepler(ax,r_P[i],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu,N = 500, color='b', legend=False, units = JR)
+		#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
+		dt = (1-x[4*i+2])*T[i]*DAY2SEC
+		l = lambert_problem(r,r_P[i+1],dt,common_mu, False, False)
+		plot_lambert(ax,l, sol = 0, color='r', legend=False, units = JR, N=500)
+		v_end_l = l.get_v2()[0]
+		v_beg_l = l.get_v1()[0]
+	plt.show()
+mga_part.plot = _mga_part_plot
+
+

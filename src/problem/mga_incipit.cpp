@@ -284,6 +284,15 @@ std::string mga_incipit::get_name() const
 	return "MGA-INCIPIT (CAPTURE AT JUPITER)";
 }
 
+
+/// Gets the times of flight
+/**
+ * @param[out] tof vector of times of flight 
+ */
+const std::vector<std::vector<double> >& mga_incipit::get_tof() const {
+	return m_tof;
+}
+
 /// Sets the times of flight
 /**
  * This setter changes the problem bounds as to define a minimum and a maximum allowed total time of flight
@@ -291,6 +300,9 @@ std::string mga_incipit::get_name() const
  * @param[in] tof vector of times of flight 
  */
 void mga_incipit::set_tof(const std::vector<std::vector<double> >& tof) {
+	if (tof.size() != (m_seq.size())) {
+		pagmo_throw(value_error,"The time-of-flight vector (tof) has the wrong length");  
+	}
 	m_tof = tof;
 	for (size_t i=0; i< m_seq.size(); ++i) {
 		set_bounds(3+4*i,tof[i][0],tof[i][1]);
