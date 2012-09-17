@@ -85,6 +85,7 @@
         #include "problem/earth_planet.h"
         #include "problem/mga_1dsm.h"
         #include "problem/mga_incipit.h"
+        #include "problem/mga_part.h"
 #endif
 
 #endif

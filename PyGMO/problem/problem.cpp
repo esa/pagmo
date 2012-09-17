@@ -322,14 +322,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC 1 problem (chemical approximation).");
 
 	// GTOC2 problem.
-	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
-		.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
+	//problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
+	//	.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
 
 	// GTOC2's objectives enum.
-	enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
-		.value("MASS",problem::gtoc_2::MASS)
-		.value("TIME",problem::gtoc_2::TIME)
-		.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
+	//enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
+	//	.value("MASS",problem::gtoc_2::MASS)
+	//	.value("TIME",problem::gtoc_2::TIME)
+	//	.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
 
 	// Laplace problem.
 	problem_wrapper<problem::laplace>("laplace","Laplace problem.")
@@ -356,7 +356,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("pretty", &problem::tandem::pretty);
 
 	problem_wrapper<problem::mga_1dsm>("mga_1dsm", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
-		.def(init< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool>())
+		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool> >())
 		.def("pretty", &problem::mga_1dsm::pretty)
 		.def("set_tof", &problem::mga_1dsm::set_tof)
 		.def("set_launch_window", &problem::mga_1dsm::set_launch_window)
@@ -364,10 +364,16 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_sequence", &problem::mga_1dsm::get_sequence);
 		
 	problem_wrapper<problem::mga_incipit>("mga_incipit", "Jupiter capture problem from the first part of gtoc6")
-		.def(init< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > >())
+		.def(init< optional< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > > >())
 		.def("pretty", &problem::mga_incipit::pretty)
 		.def("set_tof", &problem::mga_incipit::set_tof)
 		.def("get_sequence", &problem::mga_incipit::get_sequence);
+		
+	problem_wrapper<problem::mga_part>("mga_part", "A part of the Jupiter moon tour from gtoc6") 
+		.def(init< optional <std::vector<kep_toolbox::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
+		.def("pretty", &problem::mga_part::pretty)
+		.def("set_tof", &problem::mga_part::set_tof)
+		.def("get_sequence", &problem::mga_part::get_sequence);
 #endif
 
 #ifdef PAGMO_ENABLE_GSL
