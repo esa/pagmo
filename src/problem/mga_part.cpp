@@ -65,7 +65,7 @@ mga_part::mga_part(const std::vector<kep_toolbox::planet_ptr> seq,
 		pagmo_throw(value_error,"The planets do not all have the same mu_central_body");  
 	}
 	// We check the consistency of the time of flights
-	if (tof.size() != seq.size()) {
+	if (tof.size() != (seq.size()-1)) {
 		pagmo_throw(value_error,"The time-of-flight vector (tof) has the wrong length");  
 	}
 	for (size_t i = 0; i < tof.size(); ++i) {
@@ -292,7 +292,7 @@ std::string mga_part::human_readable_extra() const
 		oss << m_seq[i]->get_name() << " ";
 	}
 	oss << "\n\tTime of flights: ";
-	for (size_t i=0; i<m_seq.size(); ++i) {
+	for (size_t i=0; i<(m_seq.size()-1); ++i) {
 	  oss << m_tof[i]<<' ';
 	}
 	oss << "\n\tStarting epoch: " << m_t0;

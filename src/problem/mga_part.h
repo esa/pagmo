@@ -85,8 +85,6 @@ class __PAGMO_VISIBLE mga_part: public base
 			retval.push_back(dumb);
 			dumb[0] = 10;dumb[1] = 40;
 			retval.push_back(dumb);
-			dumb[0] = 10;dumb[1] = 40;
-			retval.push_back(dumb);
 			return retval;
 		};
 	private:
