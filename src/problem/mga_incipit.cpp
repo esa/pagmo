@@ -140,8 +140,9 @@ try {
 	// 3 - We start with the first leg
 	double theta = 2*boost::math::constants::pi<double>()*x[1];
 	double phi = acos(2*x[2]-1)-boost::math::constants::pi<double>() / 2;
+	double d,d2,ra,ra2;
 	kep_toolbox::array3D r = { {ASTRO_JR*1000*cos(phi)*sin(theta), ASTRO_JR*1000*cos(phi)*cos(theta), ASTRO_JR*1000*sin(phi)} };
-	
+	kep_toolbox::array3D r_old,v_old;
 	kep_toolbox::lambert_problem l(r,r_P[0],T[0]*ASTRO_DAY2SEC,common_mu,false,false);
 	kep_toolbox::array3D v_beg_l = l.get_v1()[0];
 	kep_toolbox::array3D v_end_l = l.get_v2()[0];
@@ -153,19 +154,28 @@ try {
 	for (size_t i = 1; i<m_seq.size(); ++i) {
 		// Fly-by
 		kep_toolbox::fb_prop(v_out, v_end_l, v_P[i-1], x[4*i+1] * m_seq[i-1]->get_radius(), x[4*i], m_seq[i-1]->get_mu_self());
+	        r_old = r;
+		v_old = v;
 		// s/c propagation before the DSM
-		r = r_P[i-1];
 		kep_toolbox::propagate_lagrangian(r,v_out,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
+		kep_toolbox::closest_distance(d, ra, r_old, v_old, r, v, common_mu);
 
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 		double dt = (1-x[4*i+2])*T[i]*ASTRO_DAY2SEC;
 		kep_toolbox::lambert_problem l2(r,r_P[i],dt,common_mu,false,false);
 		v_end_l = l2.get_v2()[0];
 		v_beg_l = l2.get_v1()[0];
+		kep_toolbox::closest_distance(d2,ra2,r,v_beg_l, r_P[i], v_end_l, common_mu);
+		if (d < d2)
+		{
+			d = d/ASTRO_JR;
+		} else {
+			d = d2/ASTRO_JR;
+		}
 
 		// DSM occuring at time nu2*T2
 		kep_toolbox::diff(v_out, v_beg_l, v_out);
-		DV[i] = kep_toolbox::norm(v_out);
+		DV[i] = kep_toolbox::norm(v_out) + std::max((2.0-d),0.0) * 1000.0;
 	}
 	// Now we return the objective(s) function
 	f[0] = std::accumulate(DV.begin(),DV.end(),0.0); 
