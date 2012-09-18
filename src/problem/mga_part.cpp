@@ -295,6 +295,73 @@ const std::vector<std::vector<double> >& mga_part::get_tof() const {
 	return m_tof;
 }
 
+/// Sets the betas
+/**
+ * This setter changes the problem bounds as to define a minimum and a maximum allowed beta for
+ * each leg. Remember that beta controls the inclination of the planetocentric hyperbola
+ *
+ * @param[in] betas vector of bounds for betas (rad)
+ */
+void mga_part::set_betas(const std::vector<std::vector<double> >& betas) {
+	if (betas.size() != (m_seq.size()-1)) {
+		pagmo_throw(value_error,"The betas vector (betas) has the wrong length");  
+	}
+	for (size_t i=0; i< (m_seq.size()-1); ++i) {
+		if (betas[i].size() !=2) {
+			pagmo_throw(value_error,"Lower and upper bound vector needs to have dimension 2");  
+		}
+		set_bounds(4*i,betas[i][0],betas[i][1]);
+	}
+}
+
+/// Gets the betas
+/**
+ * @param[out] betas vector of betas bounds
+ */
+std::vector<std::vector<double> > mga_part::get_betas() const {
+    std::vector<std::vector<double> > retval;
+	std::vector<double> tmp(2);
+	for (size_t i=0; i< (m_seq.size()-1); ++i) {
+		tmp[0] = get_lb()[4*i];
+		tmp[1] = get_ub()[4*i];
+		retval.push_back(tmp);
+	}
+	return retval;
+}
+
+/// Sets the peri-planet bounds
+/**
+ * This setter changes the problem bounds as to define a minimum and a maximum allowed periplanet distance
+ *
+ * @param[in] rps vector of peri-planets (altitudes in km)
+ */
+void mga_part::set_rps(const std::vector<std::vector<double> >& rps) {
+	if (rps.size() != (m_seq.size()-1)) {
+		pagmo_throw(value_error,"The periplanets vector (rps) has the wrong length");  
+	}
+	for (size_t i=0; i< (m_seq.size()-1); ++i) {
+		if (rps[i].size() !=2) {
+			pagmo_throw(value_error,"Lower and upper bound vector needs to have dimension 2");  
+		}
+		set_bounds(1+4*i,(rps[i][0]*1000+m_seq[i]->get_radius())/m_seq[i]->get_radius(),(rps[i][1]*1000+m_seq[i]->get_radius())/m_seq[i]->get_radius());
+	}
+}
+
+/// Gets the peri-planet bounds
+/**
+ * @param[out] rps vector of periplanets (altitudes in km)
+ */
+std::vector<std::vector<double> > mga_part::get_rps() const {
+	std::vector<std::vector<double> > retval;
+	std::vector<double> tmp(2);
+	for (size_t i=0; i< (m_seq.size()-1); ++i) {
+		tmp[0] = ((get_lb()[4*i+1]*m_seq[i]->get_radius())-m_seq[i]->get_radius())/1000.0;
+		tmp[1] = ((get_ub()[4*i+1]*m_seq[i]->get_radius())-m_seq[i]->get_radius())/1000.0;
+		retval.push_back(tmp);
+	}
+	return retval;
+}
+
 /// Sets the start epoch
 /**
  * This setter changes the starting epoch

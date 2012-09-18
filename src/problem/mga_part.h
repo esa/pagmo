@@ -69,6 +69,10 @@ class __PAGMO_VISIBLE mga_part: public base
 		const kep_toolbox::epoch& get_t0() const;
 		void set_vinf_in(const kep_toolbox::array3D&);
 		const kep_toolbox::array3D& get_vinf_in() const;
+		void set_betas(const std::vector<std::vector<double> >&);
+		std::vector<std::vector<double> > get_betas() const;
+		void set_rps(const std::vector<std::vector<double> >&);
+		std::vector<std::vector<double> > get_rps() const;
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
