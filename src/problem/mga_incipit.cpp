@@ -155,10 +155,10 @@ try {
 		// Fly-by
 		kep_toolbox::fb_prop(v_out, v_end_l, v_P[i-1], x[4*i+1] * m_seq[i-1]->get_radius(), x[4*i], m_seq[i-1]->get_mu_self());
 	        r_old = r;
-		v_old = v;
+		v_old = v_out;
 		// s/c propagation before the DSM
 		kep_toolbox::propagate_lagrangian(r,v_out,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
-		kep_toolbox::closest_distance(d, ra, r_old, v_old, r, v, common_mu);
+		kep_toolbox::closest_distance(d, ra, r_old, v_old, r, v_out, common_mu);
 
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 		double dt = (1-x[4*i+2])*T[i]*ASTRO_DAY2SEC;
