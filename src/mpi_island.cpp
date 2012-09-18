@@ -105,25 +105,35 @@ void mpi_island::perform_evolution(const algorithm::base &algo, population &pop)
 		boost::lock_guard<boost::mutex> lock(m_mpi_mutex);
 		mpi_environment::send(out,processor);
 	}
+	bool successful = false;
 	boost::shared_ptr<population> in;
-	if (mpi_environment::is_multithread()) {
-		mpi_environment::recv(in,processor);
-	} else {
-		while (true) {
-			{
-				boost::lock_guard<boost::mutex> lock(m_mpi_mutex);
-				if (mpi_environment::iprobe(processor)) {
-					mpi_environment::recv(in,processor);
-					break;
+	try {
+		if (mpi_environment::is_multithread()) {
+			mpi_environment::recv(in,processor);
+		} else {
+			while (true) {
+				{
+					boost::lock_guard<boost::mutex> lock(m_mpi_mutex);
+					if (mpi_environment::iprobe(processor)) {
+						mpi_environment::recv(in,processor);
+						break;
+					}
 				}
+				boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 			}
-			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 		}
+		successful = true;
+	} catch (const boost::archive::archive_exception &e) {
+		std::cout << "MPI Recv Error during island evolution using " << algo.get_name() << ": " << e.what() << std::endl;
+	} catch (...) {
+		std::cout << "MPI Recv Error during island evolution using " << algo.get_name() << ", unknown exception caught. :(" << std::endl;
 	}
 	release_processor(processor);
-	// NOTE: implement via population::swap (to be written) in order to avoid
-	// extra copying?
-	pop = *in;
+	if (successful) {
+		// NOTE: implement via population::swap (to be written) in order to avoid
+		// extra copying?
+		pop = *in;
+	}
 }
 
 /// Return a string identifying the island's type.

@@ -291,9 +291,9 @@ void base_island::int_evolver::operator()()
 	} catch (const boost::thread_interrupted &) {
 		// In case of interruption, don't do anything special.
 	} catch (const std::exception &e) {
-		std::cout << "Error during island evolution: " << e.what() << '\n';
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ": " << e.what() << std::endl;
 	} catch (...) {
-		std::cout << "Error during island evolution, unknown exception caught. :(\n";
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ", unknown exception caught. :(" << std::endl;
 	}
 	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
 	try {
@@ -374,9 +374,9 @@ void base_island::t_evolver::operator()()
 	} catch (const boost::thread_interrupted &) {
 		// In case of interruption, don't do anything special.
 	} catch (const std::exception &e) {
-		std::cout << "Error during island evolution: " << e.what() << '\n';
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ": " << e.what() << std::endl;
 	} catch (...) {
-		std::cout << "Error during island evolution, unknown exception caught. :(\n";
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ", unknown exception caught. :(" << std::endl;
 	}
 	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
 	try {

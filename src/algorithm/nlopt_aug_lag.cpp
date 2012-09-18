@@ -109,14 +109,14 @@ std::string nlopt_aug_lag::get_name() const
 			local = "cobyla";
 		break;
 		case 3:
-			local = "bobya";
+			local = "bobyqa";
 		break;
 		case 4:
 			local = "lbfgs";
 		break;
 	}
 	
-	return "Augented Lagrangian - " + local + " (NLOPT)";
+	return "Augmented Lagrangian - " + local + " (NLOPT)";
 }
 
 }}
