@@ -217,7 +217,7 @@ std::string mga_part::pretty(const std::vector<double> &x) const {
 	}
 
 	// 4 - And we proceed with each successive leg (if any)
-	kep_toolbox::array3D v_out,r,v;
+	kep_toolbox::array3D v_out,r,v,mem_vin,mem_vout,mem_vP;
 	kep_toolbox::array3D v_beg_l,v_end_l;
 	kep_toolbox::sum(v_end_l, m_vinf_in, v_P[0]);
 	for (size_t i = 0; i<m_seq.size()-1; ++i) {
@@ -226,6 +226,10 @@ std::string mga_part::pretty(const std::vector<double> &x) const {
 		// s/c propagation before the DSM
 		r = r_P[i];
 		v = v_out;
+		
+		mem_vout = v_out;
+		mem_vin = v_end_l;
+		mem_vP = v_P[i];
 		
 		kep_toolbox::propagate_lagrangian(r,v,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
 		kep_toolbox::closest_distance(d, ra, r_P[i], v_out, r, v, common_mu);
@@ -257,6 +261,9 @@ std::string mga_part::pretty(const std::vector<double> &x) const {
 		s <<  "\tDSM magnitude (m/s): " << DV[i] << std::endl; 
 		s <<  "\tClosest distance (JR): " << d << std::endl; 
 		s <<  "\tApoapsis at closest distance (JR): " << ra << std::endl; 
+		s <<  "\tPlanet velocity: " << mem_vP << std::endl; 
+		s <<  "\tV inf in: " << mem_vin << std::endl; 
+		s <<  "\tV inf out: " << mem_vout << std::endl; 
  	}
 	
 	s << "\nArrival at " << m_seq[m_seq.size()-1]->get_name() << std::endl; 
