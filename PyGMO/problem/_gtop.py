@@ -340,7 +340,7 @@ def _mga_1dsm_plot(self,x):
 mga_1dsm.plot = _mga_1dsm_plot
 
 #Plot of the trajectory of an mga_incipit problem
-def _mga_incipit_plot(self,x,leg_0 = True):
+def _mga_incipit_plot(self,x, plot_leg_0 = False):
 	"""
 	Plots the trajectory represented by the decision vector x
 	
@@ -358,7 +358,7 @@ def _mga_incipit_plot(self,x,leg_0 = True):
 
 	mpl.rcParams['legend.fontsize'] = 10
 	fig = plt.figure()
-	ax = fig.gca(projection='3d')
+	ax = fig.gca(projection='3d',aspect='equal')
 	ax.scatter(0,0,0, color='y')
 	
 	JR = 71492000.0
@@ -387,7 +387,7 @@ def _mga_incipit_plot(self,x,leg_0 = True):
 	r = [JR*1000*d for d in r]
 	
 	l = lambert_problem(r,r_P[0],T[0]*DAY2SEC,common_mu, False, False)
-	if (leg_0):
+	if (plot_leg_0):
 		plot_lambert(ax,l, sol = 0, color='k', legend=False, units = JR, N=500)
 
 	#Lambert arc to reach seq[1]
@@ -429,7 +429,7 @@ def _mga_part_plot(self,x):
 
 	mpl.rcParams['legend.fontsize'] = 10
 	fig = plt.figure()
-	ax = fig.gca(projection='3d')
+	ax = fig.gca(projection='3d', aspect='equal')
 	ax.scatter(0,0,0, color='y')
 	
 	JR = 71492000.0
