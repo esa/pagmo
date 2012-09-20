@@ -279,13 +279,15 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 		s <<  "\tDuration: (days)" << T[i] << std::endl; 
 		s <<  "\tFly-by epoch: " << t_P[i] << " (" << t_P[i].mjd2000() << " mjd2000) " << std::endl; 
 		s <<  "\tFly-by altitude (km): " << (x[4*i+1]*m_seq[i-1]->get_radius()-m_seq[i-1]->get_radius())/1000.0 << std::endl; 
-		s <<  "\tDSM after (days): "  << x[4*i+2]*T[i] << std::endl; 
-		s <<  "\tDSM magnitude (m/s): " << DV[i] << std::endl; 
-		s <<  "\tClosest distance: " << d << std::endl; 
-		s <<  "\tApoapsis at closest distance: " << ra << std::endl; 
+		s <<  "\tPlanet position: " << r_P[i-1] << std::endl; 
 		s <<  "\tPlanet velocity: " << mem_vP << std::endl; 
 		s <<  "\tV inf in: " << mem_vin << std::endl; 
-		s <<  "\tV inf out: " << mem_vout << std::endl; 
+		s <<  "\tV inf out: " << mem_vout << std::endl << std::endl;
+
+		s <<  "\tDSM after (days): "  << x[4*i+2]*T[i] << std::endl; 
+		s <<  "\tDSM magnitude (m/s): " << DV[i] << std::endl; 
+		s <<  "\tClosest distance (JR): " << d << std::endl; 
+		s <<  "\tApoapsis at closest distance (JR): " << ra << std::endl; 
  	}
 	
 	s << "\nArrival at " << m_seq[m_seq.size()-1]->get_name() << std::endl; 
