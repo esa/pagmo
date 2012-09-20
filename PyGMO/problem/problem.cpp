@@ -376,7 +376,12 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_sequence", &problem::mga_part::get_sequence)
 		.add_property("vinf_in",make_function(&problem::mga_part::get_vinf_in, return_value_policy<copy_const_reference>()), &problem::mga_part::set_vinf_in,"initial incoming relative spacecraft velocity")
 		.add_property("t0",make_function(&problem::mga_part::get_t0, return_value_policy<copy_const_reference>()), &problem::mga_part::set_t0, "start epoch")
-		.add_property("tof",make_function(&problem::mga_part::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_part::set_tof,"bound on the times of flight for the different legs");
+		.add_property("tof",make_function(&problem::mga_part::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_part::set_tof,"bounds on the times of flight for the different legs")
+		.add_property("betas",&problem::mga_part::get_betas, &problem::mga_part::set_betas,"bounds on the beta angles for the different legs")
+		.add_property("rps",&problem::mga_part::get_rps, &problem::mga_part::set_rps,"bounds on the periplanet heights for the different legs");
+
+
+
 #endif
 
 #ifdef PAGMO_ENABLE_GSL
