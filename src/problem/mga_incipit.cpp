@@ -174,7 +174,7 @@ try {
 		}
 
 		// DSM occuring at time nu2*T2
-		kep_toolbox::diff(v, v_beg_l, v_out);
+		kep_toolbox::diff(v_out, v_beg_l, v);
 		DV[i] = kep_toolbox::norm(v_out) + std::max((2.0-d),0.0) * 1000.0;
 	}
 	// Now we return the objective(s) function
@@ -273,7 +273,7 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 			ra = ra2/ASTRO_JR;
 		}
 		// DSM occuring at time nu2*T2
-		kep_toolbox::diff(v, v_beg_l, v_out);
+		kep_toolbox::diff(v_out, v_beg_l, v);
 		DV[i] = kep_toolbox::norm(v_out);
 		s <<  "\nleg no. " << i+1 << ": " << m_seq[i-1]->get_name() << " to " << m_seq[i]->get_name() << std::endl; 
 		s <<  "\tDuration: (days)" << T[i] << std::endl; 
