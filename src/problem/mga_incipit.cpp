@@ -154,7 +154,7 @@ try {
 	for (size_t i = 1; i<m_seq.size(); ++i) {
 		// Fly-by
 		kep_toolbox::fb_prop(v_out, v_end_l, v_P[i-1], x[4*i+1] * m_seq[i-1]->get_radius(), x[4*i], m_seq[i-1]->get_mu_self());
-	        r = r_P[i-1];
+	    r = r_P[i-1];
 		v = v_out;
 		// s/c propagation before the DSM
 		kep_toolbox::propagate_lagrangian(r,v,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
@@ -174,7 +174,7 @@ try {
 		}
 
 		// DSM occuring at time nu2*T2
-		kep_toolbox::diff(v_out, v_beg_l, v_out);
+		kep_toolbox::diff(v, v_beg_l, v_out);
 		DV[i] = kep_toolbox::norm(v_out) + std::max((2.0-d),0.0) * 1000.0;
 	}
 	// Now we return the objective(s) function
@@ -236,7 +236,7 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 	kep_toolbox::array3D v_out,mem_vin,mem_vout,mem_vP;
 	
 	s << "\nFirst Leg: 1000JR to " << m_seq[0]->get_name() << std::endl; 
-	s << "\tDeparture: " << t_P[0] << " (" << t_P[0].mjd2000() << " mjd2000) " << std::endl; 
+	s << "\tDeparture: " << kep_toolbox::epoch(x[0]) << " (" << x[0] << " mjd2000) " << std::endl; 
 	s << "\tDuration: " << T[0] << "days" << std::endl; 
 	s << "\tInitial Velocity Increment (m/s): " << DV[0] << std::endl; 
 	kep_toolbox::diff(v_out, v_end_l, v_P[0]);
@@ -273,11 +273,11 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 			ra = ra2/ASTRO_JR;
 		}
 		// DSM occuring at time nu2*T2
-		kep_toolbox::diff(v_out, v_beg_l, v_out);
+		kep_toolbox::diff(v, v_beg_l, v_out);
 		DV[i] = kep_toolbox::norm(v_out);
 		s <<  "\nleg no. " << i+1 << ": " << m_seq[i-1]->get_name() << " to " << m_seq[i]->get_name() << std::endl; 
 		s <<  "\tDuration: (days)" << T[i] << std::endl; 
-		s <<  "\tFly-by epoch: " << t_P[i] << " (" << t_P[i].mjd2000() << " mjd2000) " << std::endl; 
+		s <<  "\tFly-by epoch: " << t_P[i-1] << " (" << t_P[i-1].mjd2000() << " mjd2000) " << std::endl; 
 		s <<  "\tFly-by altitude (km): " << (x[4*i+1]*m_seq[i-1]->get_radius()-m_seq[i-1]->get_radius())/1000.0 << std::endl; 
 		s <<  "\tPlanet position: " << r_P[i-1] << std::endl; 
 		s <<  "\tPlanet velocity: " << mem_vP << std::endl; 
