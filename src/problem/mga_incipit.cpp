@@ -279,10 +279,10 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 		s <<  "\tDuration: (days)" << T[i] << std::endl; 
 		s <<  "\tFly-by epoch: " << t_P[i-1] << " (" << t_P[i-1].mjd2000() << " mjd2000) " << std::endl; 
 		s <<  "\tFly-by altitude (km): " << (x[4*i+1]*m_seq[i-1]->get_radius()-m_seq[i-1]->get_radius())/1000.0 << std::endl; 
-		s <<  "\tPlanet position: " << r_P[i-1] << std::endl; 
-		s <<  "\tPlanet velocity: " << mem_vP << std::endl; 
-		s <<  "\tV inf in: " << mem_vin << std::endl; 
-		s <<  "\tV inf out: " << mem_vout << std::endl << std::endl;
+		s <<  "\tPlanet position (m): " << r_P[i-1] << std::endl; 
+		s <<  "\tPlanet velocity (m/s): " << mem_vP << std::endl; 
+		s <<  "\tV in (m/s): " << mem_vin << std::endl; 
+		s <<  "\tV out (m/s): " << mem_vout << std::endl << std::endl;
 
 		s <<  "\tDSM after (days): "  << x[4*i+2]*T[i] << std::endl; 
 		s <<  "\tDSM magnitude (m/s): " << DV[i] << std::endl; 
