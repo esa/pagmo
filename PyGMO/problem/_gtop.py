@@ -221,7 +221,7 @@ def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss(
 mga_1dsm._orig_init = mga_1dsm.__init__
 mga_1dsm.__init__ = _mga_1dsm_ctor
 
-def _mga_incipit_ctor(self, seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)],tof = [[100,200],[3,200],[4,100]]):
+def _mga_incipit_ctor(self, seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(7205.0),epoch(11323.0)],tof = [[100,200],[3,200],[4,100]]):
 	"""
 	USAGE: mga_incipit(seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]])
 
