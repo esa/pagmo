@@ -52,7 +52,7 @@ class __PAGMO_VISIBLE mga_incipit: public base
 {
 	public:
 		mga_incipit(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
-			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(7205.0), const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
+			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(7305.0), const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
 			 const std::vector<std::vector<double> > tof = construct_default_tofs()
 			 );
 		mga_incipit(const mga_incipit&);
