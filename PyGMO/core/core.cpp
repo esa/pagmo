@@ -215,15 +215,20 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 };
 
 
-#define PYGMO_REGISTER_CONVERTER(T,policy) \
+#define REGISTER_CONVERTER(T,policy) \
 {\
-/* boost::python::type_info info = boost::python::type_id<T >(); \
+   boost::python::type_info info = boost::python::type_id<T >(); \
    const boost::python::converter::registration* reg = boost::python::converter::registry::query(info); \
-   if (reg == NULL) */ \
-{\
+   if (reg == NULL)  \
+   {\
 	to_tuple_mapping<T >();\
 	from_python_sequence<T,policy>();\
-}\
+   }\
+   else if ((*reg).m_to_python == NULL)\
+   {\
+	to_tuple_mapping<T >();\
+	from_python_sequence<T,policy>();\
+   }\
 }
 
 
@@ -234,16 +239,16 @@ BOOST_PYTHON_MODULE(_core)
 	common_module_init();
 
 	//Register std converters to lists if not already registered by some other module
-	PYGMO_REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<int>, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<topology::base::vertices_size_type>, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<double> >, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<int>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<topology::base::vertices_size_type>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<std::vector<double> >, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);
 	
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-	PYGMO_REGISTER_CONVERTER(std::vector<kep_toolbox::planet_ptr>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<kep_toolbox::planet_ptr>, variable_capacity_policy);
 #endif
 
 	// Expose population class.

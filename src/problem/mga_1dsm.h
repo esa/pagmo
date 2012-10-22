@@ -45,12 +45,11 @@ namespace pagmo{ namespace problem {
  * as a Multiple Gravity Assist trajectory that allows one only Deep Space Manouvre between each leg.
  * 
  *
- * The decision vector is [t0,u,v,Vinf,eta1,T] + [beta, rp/rV, eta2,a2] ..... in the units: [mjd2000,nd,nd,km/s,nd,years] + [rad,nd,nd,nd] + ....
+ * The decision vector is [t0,u,v,Vinf,eta1,T] + [beta, rp/rP, eta2,a2] ..... in the units: [mjd2000,nd,nd,km/s,nd,years] + [rad,nd,nd,nd] + ....
  * where Vinf = Vinf_mag*(cos(theta)*cos(phi)i+cos(theta)*sin(phi)j+sin(phi)k) and theta = 2*pi*u and phi = acos(2*v-1)-pi/2
  * Each leg time-of-flight can be obtained as Tn = T*an, T(n-1) = (T - Tn)*a(n-1), .... , Ti = (T-T(i+1)-T(i+2)- .... - Tn)*ai
  * 
  * NOTE: The resulting problem is box-bounded (unconstrained). The resulting trajectory is time-bounded.
- *
  *
  * @see Izzo: "Global Optimization and Space Pruning for Spacecraft Trajectory Design, Spacecraft Trajectory Optimization, Conway, B. (Eds.), Cambridge University Press, pp.178-199, 2010)
  * @author Dario Izzo (dario.izzo@esa.int)
