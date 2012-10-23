@@ -449,7 +449,11 @@ void population::update_crowding_d(std::vector<population::size_type> I) const {
        		//and compute the crowding distance
        		double df = get_individual(I[lastidx]).cur_f[i] - get_individual(I[0]).cur_f[i];
     		for (population::size_type j = 1; j < lastidx; ++j) {
-	    		m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
+				if (df == 0.0) { 						// handles the case in which the pareto front collapses to one single point 
+					m_crowding_d[I[j]] += 0.0;			// avoiding creation of nans that can't be serialized
+				} else {
+					m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
+				}
     		}
     	}
 }
