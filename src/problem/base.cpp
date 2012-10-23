@@ -641,7 +641,9 @@ bool base::operator==(const base &p) const
  */
 bool base::is_compatible(const base &p) const
 {
-	if (typeid(*this) != typeid(p) || get_dimension() != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension ||
+//	if (typeid(*this) != typeid(p) || get_dimension() != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension ||
+//		m_c_dimension != p.m_c_dimension || m_ic_dimension != p.m_ic_dimension)
+	if (typeid(*this) != typeid(p) || get_dimension() != p.get_dimension() || m_i_dimension != p.m_i_dimension || 
 		m_c_dimension != p.m_c_dimension || m_ic_dimension != p.m_ic_dimension)
 	{
 		return false;

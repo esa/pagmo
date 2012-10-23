@@ -355,6 +355,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init< optional<int, double> >())
 		.def("pretty", &problem::tandem::pretty);
 
+	// MGA-1DSM
 	problem_wrapper<problem::mga_1dsm>("mga_1dsm", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
 		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, bool, bool> >())
 		.def("pretty", &problem::mga_1dsm::pretty)
@@ -362,6 +363,17 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("set_launch_window", &problem::mga_1dsm::set_launch_window)
 		.def("set_vinf", &problem::mga_1dsm::set_vinf)
 		.def("get_sequence", &problem::mga_1dsm::get_sequence);
+
+	// MGA-1DSM (Novelty search)
+	problem_wrapper<problem::mga_1dsm_novelty>("mga_1dsm_novelty", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem (novelty search)")
+		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, bool, bool> >())
+		.def("pretty", &problem::mga_1dsm::pretty)
+		.def("set_tof", &problem::mga_1dsm::set_tof)
+		.def("set_launch_window", &problem::mga_1dsm::set_launch_window)
+		.def("set_vinf", &problem::mga_1dsm::set_vinf)
+		.def("get_sequence", &problem::mga_1dsm::get_sequence);
+	
+
 #endif
 
 #ifdef PAGMO_ENABLE_GSL

@@ -35,7 +35,7 @@
 #include "base.h"
 #include "jde_archived.h"
 
-#define KPARAM 3
+#define KPARAM 5
 
 namespace pagmo { namespace algorithm {
 
@@ -128,8 +128,11 @@ void jde_archived::evolve(population &pop) const
 	decision_vector dummy(D), tmp(D); //dummy is used for initialisation purposes, tmp to contain the mutated candidate
 	std::vector<decision_vector> popold(NP,dummy), popnew(NP,dummy);
 	decision_vector gbX(D),gbIter(D);
-	fitness_vector newfitness(2);	//new fitness of the mutaded candidate
-	fitness_vector gbfit(2);	//global best fitness
+	//fitness_vector newfitness(2);	//new fitness of the mutaded candidate
+	//fitness_vector gbfit(2);	//global best fitness
+	//Changed for experimenting with novelty search
+	fitness_vector newfitness(4);	//new fitness of the mutaded candidate
+	fitness_vector gbfit(4);	//global best fitness
 	std::vector<fitness_vector> fitold(NP,gbfit);
     std::vector<fitness_vector> fitnew(NP,gbfit);
     std::vector<double> dist;   // used for saving distances in behavior space
@@ -613,11 +616,12 @@ void jde_archived::evolve(population &pop) const
         // compare old and new via novelty metric
 		for (size_t i = 0; i < NP; ++i) {
             if ( old_novelty[i] > new_novelty[i] ) {
-                popnew[i] = popold[i];  // old individual has stronger novelty
+//                popnew[i] = popold[i];  // old individual has stronger novelty
+				pop.set_x(i, popold[i]);
             } else {
 				// adapt parameters of a succesful solution
-//                m_cr[i] = CR;
-//				m_f[i] = F;
+            //    m_cr[i] = CR;    // WHY YOU NOT WORK?!?
+			//	m_f[i] = F;
 
                 // individual change due to higher novelty of new solution
                 pop.set_x(i, popnew[i]);
@@ -634,7 +638,7 @@ void jde_archived::evolve(population &pop) const
 		gbIter = gbX;       // today: give solution with highest novelty
 
 		/* swap population arrays. New generation becomes old one */
-		std::swap(popold, popnew);
+		//std::swap(popold, popnew);
 
 
 		//9 - Check the exit conditions (every 40 generations)
