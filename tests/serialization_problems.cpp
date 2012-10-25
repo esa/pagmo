@@ -34,35 +34,51 @@ using namespace pagmo;
 
 int main()
 {
-	// create and open a character archive for output
-	std::ofstream ofs("test.ar");
-
 	unsigned int dimension = 10;
-	// create class instance
-	const pagmo::problem::ackley prob(dimension);
 
-	// save data to archive
-	{
+	// create a container of pagmo::problems
+	std::vector<problem::base_ptr> probs;
+	std::vector<problem::base_ptr> probs_new;
+	
+	// fill it up with problems
+	probs.push_back(problem::ackley(dimension).clone());
+	probs_new.push_back(problem::ackley().clone());
+	probs.push_back(problem::rosenbrock(dimension).clone());
+	probs_new.push_back(problem::rosenbrock().clone());
+
+	for (size_t i=0; i< probs.size(); ++i) {
+		// create and open a character archive for output
+		std::ofstream ofs("test.ar");
+		// save data to archive
+		{
 		boost::archive::text_oarchive oa(ofs);
 		// write class instance to archive
-		oa << prob;
+		oa << (*(probs[i]));
 		// archive and stream closed when destructors are called
-	}
+		}
 	
-	
-	pagmo::problem::ackley prob_new;
-	{
+		{
 		// create and open an archive for input
 		std::ifstream ifs("test.ar");
 		boost::archive::text_iarchive ia(ifs);
 		// read class state from archive
-		ia >> prob_new;
+		ia >> *(probs_new[i]);
 		// archive and stream closed when destructors are called
+		}
+		
+		{
+		decision_vector x(probs[i]->get_dimension(),0);
+		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),0);
+		population pop(*(probs[i]),1);
+		x = pop.champion().x;
+		probs[i]->objfun(f1,x);
+		probs_new[i]->objfun(f2,x);
+		std::cout << f1 << " " << f2 << std::endl;
+		if (std::equal(f1.begin(),f1.end(),f2.begin())) {
+			continue;
+		} else { return 1;}
+		}
+	
 	}
-	decision_vector x(prob.get_dimension(),0);
-	fitness_vector f1(prob.get_f_dimension(),0), f2(prob.get_f_dimension(),0);
-	population(prob,1);
-	prob.objfun(f1,x);
-	prob_new.objfun(f2,x);
-	return (!std::equal(f1.begin(),f1.end(),f2.begin()));
+	return 0;
 }
