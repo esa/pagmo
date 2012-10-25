@@ -191,18 +191,19 @@ sagas.__init__ = _sagas_ctor
 
 from PyKEP import planet_ss, epoch, planet_js
 
-def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
+def _mga_1dsm_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [365.25,5.0 * 365.25], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
 	"""
-	Constructs an mga_1dsm problem
+	Constructs an mga_1dsm problem (alpha-encoding)
 
-	USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [1.0,5.0], vinf = [0.5, 2.5], multi_objective = False, add_vinf = False)
+	USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [365.25,5.0 * 365.25], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
 
-	* seq: list of PyKEP planets defining the encounter sequence (including the starting launch)
+	* seq: list of PyKEP planets defining the encounter sequence (including the starting planet)
 	* t0: list of two epochs defining the launch window
-	* tof: list of two floats defining the minimum and maximum allowed mission lenght (years)
-	* vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity (at launch), in km/sec
+	* tof: list of two floats defining the minimum and maximum allowed mission length (days)
+	* vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity at launch (km/sec)
 	* multi_objective: when True constructs a multiobjective problem (dv, T)
-	* add_vinf: when True the computed Dv includes the initial hyperbolic velocity (at launch)
+	* add_vinf_dep: when True the computed Dv includes the initial hyperbolic velocity (at launch)
+	* add_vinf_arr: when True the computed Dv includes the final hyperbolic velocity (at arrival)
 	"""
 	
 	# We construct the arg list for the original constructor exposed by boost_python
@@ -278,14 +279,16 @@ def _mga_1dsm_plot(self,x):
 	
 	seq = self.get_sequence()
 	
-	n = len(x)/4
+	n = (len(x)-1)/4
 	#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
 	T = list([0]*(n))
-	#a[-i] = x[-1-(i-1)*4]
-	for i in xrange(n-1):	
-		j = i+1;
-		T[-j] = (x[5] - sum(T[-(j-1):])) * x[-1-(j-1)*4]
-	T[0] = x[5] - sum(T)
+	alpha_sum = 0
+	for i in xrange(n):	
+		T[i] = x[1]*x[6+4*i]
+		alpha_sum += x[6+4*i]
+	for i in xrange(n):
+		T[i] /= alpha_sum
+
 	
 	#2 - We compute the epochs and ephemerides of the planetary encounters
 	t_P = list([None] * (n+1))
@@ -299,19 +302,19 @@ def _mga_1dsm_plot(self,x):
 		plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = AU)
 
 	#3 - We start with the first leg
-	theta = 2*pi*x[1]
-	phi = acos(2*x[2]-1)-pi/2
+	theta = 2*pi*x[2]
+	phi = acos(2*x[3]-1)-pi/2
 
-	Vinfx = x[3]*cos(phi)*cos(theta)
-	Vinfy =	x[3]*cos(phi)*sin(theta)
-	Vinfz = x[3]*sin(phi)
+	Vinfx = x[4]*cos(phi)*cos(theta)
+	Vinfy =	x[4]*cos(phi)*sin(theta)
+	Vinfz = x[4]*sin(phi)
 
 	v0 = [a+b for a,b in zip(v_P[0],[Vinfx,Vinfy,Vinfz])]
-	r,v = propagate_lagrangian(r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body)
-	plot_kepler(ax,r_P[0],v0,x[4]*T[0]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
+	r,v = propagate_lagrangian(r_P[0],v0,x[5]*T[0]*DAY2SEC,seq[0].mu_central_body)
+	plot_kepler(ax,r_P[0],v0,x[5]*T[0]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
 
 	#Lambert arc to reach seq[1]
-	dt = (1-x[4])*T[0]*DAY2SEC
+	dt = (1-x[5])*T[0]*DAY2SEC
 	l = lambert_problem(r,r_P[1],dt,seq[0].mu_central_body)
 	plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
 	v_end_l = l.get_v2()[0]
@@ -323,20 +326,19 @@ def _mga_1dsm_plot(self,x):
 	#4 - And we proceed with each successive leg
 	for i in range(1,n):
 		#Fly-by 
-		v_out = fb_prop(v_end_l,v_P[i],x[7+(i-1)*4]*seq[i].radius,x[6+(i-1)*4],seq[i].mu_self)
+		v_out = fb_prop(v_end_l,v_P[i],x[8+(i-1)*4]*seq[i].radius,x[7+(i-1)*4],seq[i].mu_self)
 		#s/c propagation before the DSM
-		r,v = propagate_lagrangian(r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body)
-		plot_kepler(ax,r_P[i],v_out,x[8+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
+		r,v = propagate_lagrangian(r_P[i],v_out,x[9+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body)
+		plot_kepler(ax,r_P[i],v_out,x[9+(i-1)*4]*T[i]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
 		#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
-		dt = (1-x[8+(i-1)*4])*T[i]*DAY2SEC
+		dt = (1-x[9+(i-1)*4])*T[i]*DAY2SEC
 		l = lambert_problem(r,r_P[i+1],dt,seq[0].mu_central_body)
 		plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
-		#DSM occuring at time nu2*T2
+		#DSM occurring at time nu2*T2
 		DV[i] = norm([a-b for a,b in zip(v_beg_l,v)])
-
-	plt.show()
+	return ax
 mga_1dsm.plot = _mga_1dsm_plot
 
 #Plot of the trajectory of an mga_incipit problem

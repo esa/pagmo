@@ -41,13 +41,13 @@ namespace pagmo{ namespace problem {
 /// A generic MGA-1DSM Problem
 /**
  *
- * This class represents a global optimization problem (box-bounded, continuous) relative to an interplanetary trajectory modelled
- * as a Multiple Gravity Assist trajectory that allows one only Deep Space Manouvre between each leg.
+ * This class defines the global optimization problem (box-bounded, continuous) of an interplanetary trajectory modelled
+ * as a Multiple Gravity Assist mission allowing one only Deep Space Manouvre per leg.
  * 
- *
- * The decision vector is [t0,u,v,Vinf,eta1,T] + [beta, rp/rP, eta2,a2] ..... in the units: [mjd2000,nd,nd,km/s,nd,years] + [rad,nd,nd,nd] + ....
+ * The decision vector is [t0,T] + [u,v,Vinf,eta1,a1] + [beta, rp/rP, eta2,a2] ..... in the units: [mjd2000, days] + [nd,nd,km/s,nd,nd] + [rad,nd,nd,nd] + ....
  * where Vinf = Vinf_mag*(cos(theta)*cos(phi)i+cos(theta)*sin(phi)j+sin(phi)k) and theta = 2*pi*u and phi = acos(2*v-1)-pi/2
- * Each leg time-of-flight can be obtained as Tn = T*an, T(n-1) = (T - Tn)*a(n-1), .... , Ti = (T-T(i+1)-T(i+2)- .... - Tn)*ai
+ * 
+ * Each leg time-of-flight can be obtained as Tn = (T*an) / sum(a). This is what we call alpha-encoding
  * 
  * NOTE: The resulting problem is box-bounded (unconstrained). The resulting trajectory is time-bounded.
  *
@@ -59,7 +59,7 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 	public:
 		mga_1dsm(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(0), const kep_toolbox::epoch t0_r = kep_toolbox::epoch(1000),
-			 const double tof_l = 1.0, const double tof_u = 5.0, 
+			 const double tof_l = 1.0*365.25, const double tof_u = 5.0*365.25, 
 			 const double vinf_l = 0.5, const double vinf_u = 2.5, 
 			 const bool mo = false, const bool add_vinf_dep = false, const bool add_vinf_arr = true);
 		mga_1dsm(const mga_1dsm&);
