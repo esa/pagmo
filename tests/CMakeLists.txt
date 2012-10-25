@@ -1,6 +1,11 @@
 ADD_EXECUTABLE(local_torture_test local_torture_test.cpp)
 TARGET_LINK_LIBRARIES(local_torture_test ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_TEST(local_torture_test local_torture_test)
+
+ADD_EXECUTABLE(serialization_problems serialization_problems.cpp)
+TARGET_LINK_LIBRARIES(serialization_problems ${MANDATORY_LIBRARIES} pagmo_static)
+ADD_TEST(serialization_problems serialization_problems)
+
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)
 	TARGET_LINK_LIBRARIES(mpi_torture_test ${MANDATORY_LIBRARIES} pagmo_static)
