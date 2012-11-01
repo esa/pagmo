@@ -60,7 +60,7 @@ typedef boost::array<double,7> array7D;
 
 namespace std
 {
-	/// Overload stream operator for arrayND
+	/// Overload stream insertion operator for arrayND
 	template <size_t N>
 	inline ostream &operator<<(ostream &os, const boost::array<double,N> &v)
 	{

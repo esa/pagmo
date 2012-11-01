@@ -322,14 +322,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC 1 problem (chemical approximation).");
 
 	// GTOC2 problem.
-	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
-		.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
+	//problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
+	//	.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
 
 	// GTOC2's objectives enum.
-	enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
-		.value("MASS",problem::gtoc_2::MASS)
-		.value("TIME",problem::gtoc_2::TIME)
-		.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
+	//enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
+	//	.value("MASS",problem::gtoc_2::MASS)
+	//	.value("TIME",problem::gtoc_2::TIME)
+	//	.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
 
 	// Laplace problem.
 	problem_wrapper<problem::laplace>("laplace","Laplace problem.")
@@ -357,7 +357,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// MGA-1DSM
 	problem_wrapper<problem::mga_1dsm>("mga_1dsm", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
-		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, bool, bool> >())
+		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool> >())
 		.def("pretty", &problem::mga_1dsm::pretty)
 		.def("set_tof", &problem::mga_1dsm::set_tof)
 		.def("set_launch_window", &problem::mga_1dsm::set_launch_window)
@@ -373,6 +373,22 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("set_vinf", &problem::mga_1dsm::set_vinf)
 		.def("get_sequence", &problem::mga_1dsm::get_sequence);
 	
+	problem_wrapper<problem::mga_incipit>("mga_incipit", "Jupiter capture problem from the first part of gtoc6")
+		.def(init< optional< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > > >())
+		.def("pretty", &problem::mga_incipit::pretty)
+		.def("get_sequence", &problem::mga_incipit::get_sequence)
+		.add_property("tof",make_function(&problem::mga_incipit::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit::set_tof,"bound on the times of flight for the different legs");
+
+	problem_wrapper<problem::mga_part>("mga_part", "A part of the Jupiter moon tour from gtoc6") 
+		.def(init< optional <std::vector<kep_toolbox::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
+		.def("pretty", &problem::mga_part::pretty)
+		.def("get_sequence", &problem::mga_part::get_sequence)
+		.add_property("vinf_in",make_function(&problem::mga_part::get_vinf_in, return_value_policy<copy_const_reference>()), &problem::mga_part::set_vinf_in,"initial incoming relative spacecraft velocity")
+		.add_property("t0",make_function(&problem::mga_part::get_t0, return_value_policy<copy_const_reference>()), &problem::mga_part::set_t0, "start epoch")
+		.add_property("tof",make_function(&problem::mga_part::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_part::set_tof,"bounds on the times of flight for the different legs")
+		.add_property("betas",&problem::mga_part::get_betas, &problem::mga_part::set_betas,"bounds on the beta angles for the different legs")
+		.add_property("rps",&problem::mga_part::get_rps, &problem::mga_part::set_rps,"bounds on the periplanet heights for the different legs");
+
 
 #endif
 

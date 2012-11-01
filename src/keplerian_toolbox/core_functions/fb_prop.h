@@ -28,7 +28,7 @@
 #include<cmath>
 
 #include"../astro_constants.h"
-#include"array3D_operations.h"
+#include"../core_functions/array3D_operations.h"
 
 /// Propagate a fly-by hyperbola
 /**

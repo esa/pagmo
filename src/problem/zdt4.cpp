@@ -60,8 +60,8 @@ void zdt4::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	pagmo_assert(f.size() == 2);
     pagmo_assert(x.size() == get_dimension());
 
-	double g = 91;
-
+	double g = 1 + 10 * (x.size() - 1);
+	
 	f[0] = x[0];
 
 	for(problem::base::size_type i = 1; i < x.size(); ++i) {

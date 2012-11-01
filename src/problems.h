@@ -78,13 +78,15 @@
         #include "problem/tandem.h"
         #include "problem/laplace.h"
         #include "problem/sample_return.h"
-        #include "problem/gtoc5_flyby.h"
-        #include "problem/gtoc5_launch.h"
-        #include "problem/gtoc5_rendezvous.h"
-        #include "problem/gtoc5_self_flyby.h"
+//        #include "problem/gtoc5_flyby.h"
+//        #include "problem/gtoc5_launch.h"
+//        #include "problem/gtoc5_rendezvous.h"
+//        #include "problem/gtoc5_self_flyby.h"
         #include "problem/earth_planet.h"
         #include "problem/mga_1dsm.h"
         #include "problem/mga_1dsm_novelty.h"
+        #include "problem/mga_incipit.h"
+        #include "problem/mga_part.h"
 #endif
 
 #endif

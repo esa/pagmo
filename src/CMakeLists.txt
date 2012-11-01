@@ -88,22 +88,24 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_1.cpp
-		//${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_2.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/sagas.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/rosetta.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_rendezvous.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_rendezvous.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_novelty.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_part.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/misc4Tandem.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Pl_Eph_An.cpp
@@ -114,6 +116,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_ss.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_js.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_mpcorb.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc5.cpp

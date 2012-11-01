@@ -89,7 +89,7 @@ class __PAGMO_VISIBLE inventory: public base_stochastic
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_stochastic>(*this);
 			ar & m_weeks;
 			ar & m_sample_size;
 		}

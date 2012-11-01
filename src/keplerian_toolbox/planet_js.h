@@ -1,9 +1,9 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2012 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
- *   http://apps.sourceforge.net/mediawiki/pagmo                             *
- *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
- *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+ *   http://keptoolbox.sourceforge.net/index.html                            *
+ *   http://keptoolbox.sourceforge.net/credits.html                          *
+ *                                                                           *
  *   act@esa.int                                                             *
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
@@ -22,19 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include "src/pagmo.h"
+#ifndef PLANET_JS_H
+#define PLANET_JS_H
 
-using namespace pagmo;
+#include "serialization.h"
+#include "planet.h"
+#include "config.h"
 
-int main()
+namespace kep_toolbox{
+
+/// Solar System Planet (keplerian)
+/**
+ * This class derives from the planet class and allow to instantiate moons of
+ * the Jupiter system by referring to their common names. Ephemerides are those 
+ * used during the GTOC6 competition
+ *
+ * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ */
+
+class __KEP_TOOL_VISIBLE planet_js : public planet
 {
-//pagmo::algorithm::jde_archived algo(40);
-pagmo::algorithm::jde algo(40);
-pagmo::problem::mga_1dsm_novelty prob;
-pagmo::island isl = island(algo, prob, 100);
-isl.evolve(10);
-std::cout << isl.get_population().champion().f << std::endl;
+public:
+    /**
+     * Construct a Jupiter moon from its common name
+     * \param[in] name a string describing a planet
+     */
+    planet_js(const std::string & = "io");
+    planet_ptr clone() const;
+private:
+// Serialization code
+    friend class boost::serialization::access;
+    template <class Archive>
+    void serialize(Archive &ar, const unsigned int)
+    {
+        ar & boost::serialization::base_object<planet>(*this);
+    }
+// Serialization code (END)
+};
 
-return 0;
-}
+
+} /// End of namespace kep_toolbox
+
+// Serialization code
+BOOST_CLASS_EXPORT_KEY(kep_toolbox::planet_js);
+// Serialization code (END)
+
+#endif // PLANET_JS_H
