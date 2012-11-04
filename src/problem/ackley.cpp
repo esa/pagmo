@@ -26,6 +26,7 @@
 #include <cmath>
 #include <string>
 
+
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
@@ -44,7 +45,7 @@ namespace pagmo { namespace problem {
 ackley::ackley(int n):base(n)
 {
 	// Set bounds.
-	set_lb(-15);
+	set_lb(-15.0);
 	set_ub(30);
 }
 
