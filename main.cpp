@@ -30,7 +30,7 @@ using namespace pagmo;
 int main()
 {
 pagmo::algorithm::ihs algo(10000);
-pagmo::problem::mga_part prob;
+pagmo::problem::ackley prob(10);
 std::cout << prob;
 
 return 0;
