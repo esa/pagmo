@@ -52,7 +52,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE kur : public base
 {
 	public:
-		kur();
+		kur(size_type = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:

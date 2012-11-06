@@ -123,7 +123,7 @@ void luksan_vlcek_2::set_sparsity(int& lenG, std::vector<int>& iGfun, std::vecto
 
 std::string luksan_vlcek_2::get_name() const
 {
-	return "Luksan-Vlcek_2";
+	return "Luksan-Vlcek 2";
 }
 
 }}
