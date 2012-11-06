@@ -64,16 +64,16 @@ cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
-	if ( ((cc < 0) || (cc > 0)) && !(cc==-1) ){
+	if ( ((cc < 0) || (cc > 1)) && !(cc==-1) ){
 		pagmo_throw(value_error,"cc needs to be in [0,1] or -1 for auto value");
 	}
-	if ( ((cs < 0) || (cs > 0)) && !(cs==-1) ){
+	if ( ((cs < 0) || (cs > 1)) && !(cs==-1) ){
 		pagmo_throw(value_error,"cs needs to be in [0,1] or -1 for auto value");
 	}
-	if ( ((c1 < 0) || (c1 > 0)) && !(c1==-1) ){
+	if ( ((c1 < 0) || (c1 > 1)) && !(c1==-1) ){
 		pagmo_throw(value_error,"c1 needs to be in [0,1] or -1 for auto value");
 	}
-	if ( ((cmu < 0) || (cmu > 0)) && !(cmu==-1) ){
+	if ( ((cmu < 0) || (cmu > 1)) && !(cmu==-1) ){
 		pagmo_throw(value_error,"cmu needs to be in [0,1] or -1 for auto value");
 	}
 

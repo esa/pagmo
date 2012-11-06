@@ -25,10 +25,9 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
-
-// include headers that implement a archive in simple text format
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
 #include "../src/pagmo.h"
 #include "../src/keplerian_toolbox/planet_ss.h"
 #include "../src/keplerian_toolbox/epoch.h"
@@ -52,6 +51,9 @@ static double c = 15;
 //laplace
 static const int default_sequence[5] = {3,2,2,1,5};
 //--------------------------------------------------------------------------------
+
+///The idea of this unit test is to serialize all pagmo::problems, deserialize them and check that
+///the objective function and the constraint implementation return the same in the original and in the deserialized object
 
 using namespace pagmo;
 int main()
@@ -191,13 +193,13 @@ int main()
 		probs_new[i]->compute_constraints(c2,x);
 		std::cout << std::endl << std::setw(40) << probs[i]->get_name();
 		if (std::equal(f1.begin(),f1.end(),f2.begin())) {
-			std::cout << ": Fitness OK,";
+			std::cout << ": Fitness pass,";
 		} else { 
 			std::cout << ": Fitness FAILED," << std::endl;
 			return 1;
 		}
 		if (std::equal(c1.begin(),c1.end(),c2.begin())) {
-			std::cout << " Constraints OK";
+			std::cout << " Constraints pass";
 		} else {
 			std::cout << " Constraints FAILED" << std::endl;
 			return 1;
