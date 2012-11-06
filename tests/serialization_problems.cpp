@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -79,7 +79,7 @@ int main()
 	probs_new.push_back(problem::griewank().clone());
 	probs.push_back(problem::himmelblau().clone());
 	probs_new.push_back(problem::himmelblau().clone());
-	probs.push_back(problem::string_match("Ma dai!!").clone());
+	probs.push_back(problem::string_match("e dai dai dai.....portiamolo a casa!!").clone());
 	probs_new.push_back(problem::string_match().clone());
 	probs.push_back(problem::inventory(7,8,1234).clone());
 	probs_new.push_back(problem::inventory().clone());
@@ -158,7 +158,7 @@ int main()
 #endif	
 
 	
-
+	//serialize probs and deserialize into probs_new checking they are then identical
 	for (size_t i=0; i< probs.size(); ++i) {
 		{
 		// create and open a character archive for output
