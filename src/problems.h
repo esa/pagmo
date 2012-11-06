@@ -29,6 +29,13 @@
 
 #include "problem/base.h"
 #include "problem/branin.h"
+#include "problem/dtlz1.h"
+#include "problem/dtlz2.h"
+#include "problem/dtlz3.h"
+#include "problem/dtlz4.h"
+#include "problem/dtlz5.h"
+#include "problem/dtlz6.h"
+#include "problem/dtlz7.h"
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
 #include "problem/rastrigin.h"
