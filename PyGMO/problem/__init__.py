@@ -201,7 +201,6 @@ def _dtlz1_ctor(self, k = 5, fdim = 3):
 dtlz1._orig_init = dtlz1.__init__
 dtlz1.__init__ = _dtlz1_ctor
 
-
 def _dtlz2_ctor(self, k = 10, fdim = 3):
 	"""
 	Constructs a DTLZ2 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)

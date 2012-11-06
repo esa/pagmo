@@ -119,6 +119,20 @@ int main()
 	probs_new.push_back(problem::zdt4().clone());
 	probs.push_back(problem::zdt6(dimension).clone());
 	probs_new.push_back(problem::zdt6().clone());
+	probs.push_back(problem::dtlz1(dimension).clone());
+	probs_new.push_back(problem::dtlz1().clone());
+	probs.push_back(problem::dtlz2(dimension).clone());
+	probs_new.push_back(problem::dtlz2().clone());
+	probs.push_back(problem::dtlz3(dimension).clone());
+	probs_new.push_back(problem::dtlz3().clone());
+	probs.push_back(problem::dtlz4(dimension).clone());
+	probs_new.push_back(problem::dtlz4().clone());
+	probs.push_back(problem::dtlz5(dimension).clone());
+	probs_new.push_back(problem::dtlz5().clone());
+	probs.push_back(problem::dtlz6(dimension).clone());
+	probs_new.push_back(problem::dtlz6().clone());
+	probs.push_back(problem::dtlz7(dimension).clone());
+	probs_new.push_back(problem::dtlz7().clone());
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
 	

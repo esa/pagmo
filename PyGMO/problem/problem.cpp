@@ -313,9 +313,9 @@ BOOST_PYTHON_MODULE(_problem) {
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
-	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
-		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
-		.def("get_delta_v",&problem::sample_return::get_delta_v);
+//	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
+//		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
+//		.def("get_delta_v",&problem::sample_return::get_delta_v);
 
 	// Earth-planet problem.
 	//problem_wrapper<problem::earth_planet>("earth_planet","Earth-planet low-thrust problem.")

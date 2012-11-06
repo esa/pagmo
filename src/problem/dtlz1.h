@@ -38,9 +38,9 @@ namespace pagmo{ namespace problem {
  *
  * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
  *
- * The optimal pareto front lies on a linear hyperplane \sum_{m=1}^M f_m = 0.5.
+ * The optimal pareto front lies on a linear hyperplane \f$ \sum_{m=1}^M f_m = 0.5 \f$ .
  *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
+ * The dimension of the decision space is \f$ k + fdim - 1 \f$, whereas fdim is the number of objectives and k a paramter.
  *
  * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
  * @author Marcus Maertens (mmarcusx@gmail.com)
