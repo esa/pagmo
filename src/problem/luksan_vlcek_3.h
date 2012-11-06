@@ -47,7 +47,7 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE luksan_vlcek_3: public base
 {
 	public:
-		luksan_vlcek_3(int = 6, const double & = 0, const double & = 0);
+		luksan_vlcek_3(int = 8, const double & = 0, const double & = 0);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:

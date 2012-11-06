@@ -40,4 +40,4 @@ unsigned int base_stochastic::get_seed() const {
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::base_stochastic);
+//BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::base_stochastic);

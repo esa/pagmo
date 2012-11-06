@@ -74,6 +74,6 @@ class __PAGMO_VISIBLE base_stochastic : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::base_stochastic);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_stochastic);
 
 #endif // PAGMO_PROBLEM_BASE_STOCHASTIC_H

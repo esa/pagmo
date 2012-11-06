@@ -356,15 +356,18 @@ def _michalewicz_ctor(self,dim = 10):
 michalewicz._orig_init = michalewicz.__init__
 michalewicz.__init__ = _michalewicz_ctor
 
-def _kur_ctor(self):
+def _kur_ctor(self,dim = 10):
 	"""
 	Constructs a Kursawe's study problem (Box-Constrained Continuous Multi-Objective)
 
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
 	USAGE: problem.kur()
+	
+	* dim: problem dimension
 	"""
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
 
 kur._orig_init = kur.__init__

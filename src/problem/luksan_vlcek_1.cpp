@@ -115,7 +115,7 @@ void luksan_vlcek_1::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vecto
 
 std::string luksan_vlcek_1::get_name() const
 {
-	return "Luksan-Vlcek_1";
+	return "Luksan-Vlcek 1";
 }
 
 } }
