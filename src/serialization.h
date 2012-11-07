@@ -31,6 +31,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/graph/adj_list_serialize.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/serialization/assume_abstract.hpp>
@@ -251,6 +252,14 @@ template <class Archive>
 void serialize(Archive &ar, Eigen::VectorXd &cb, const unsigned int version)
 {
 	split_free(ar, cb, version);
+}
+
+template <class Archive>
+void serialize(Archive &ar, boost::vecS &cb, const unsigned int version) 
+{ 
+	(void)(ar);
+	(void)(cb);
+	(void)(version);
 }
 
 }}

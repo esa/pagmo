@@ -1,4 +1,4 @@
-/*****************************************************************************
+ /*****************************************************************************
  *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
@@ -35,6 +35,7 @@
 
 //-------------------------------------------------------------------------------
 // static data needed to test the non-default constructor in some of the problems.
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX 
 //mga_1dsm
 const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 	std::vector<kep_toolbox::planet_ptr> retval;
@@ -43,6 +44,7 @@ const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 	retval.push_back(kep_toolbox::planet_ss("earth").clone());
 	return retval;
 };
+#endif
 
 //knapsack
 static std::vector<double> a(11,30), b(11,10);

@@ -144,10 +144,10 @@ void de_1220::evolve(population &pop) const
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,r_p_idx);
 	boost::uniform_int<int> r_c_idx(0,Dc-1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > c_idx(m_urng,r_c_idx);
-	boost::uniform_int<int> r_v_idx(1,m_allowed_variants.size());
+	boost::uniform_int<int> r_v_idx(0,m_allowed_variants.size()-1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > v_idx(m_urng,r_v_idx);
 
-	
+
 	// Initialize the F, CR and variant vectors
 	if ( (m_cr.size() != NP) || (m_f.size() != NP) || (m_variants.size() != NP) || (m_memory) ) {
 		m_cr.resize(NP); m_f.resize(NP);  m_variants.resize(NP);
@@ -164,7 +164,8 @@ void de_1220::evolve(population &pop) const
 			}
 		}
 		for (size_t i = 0; i < NP; ++i) {
-			m_variants[i] = m_allowed_variants[v_idx()];
+			int idx = v_idx();
+			m_variants[i] = m_allowed_variants[idx];
 		}
 	}
 	// We initialize the global best for F and CR as the first individual (this will soon be forgotten)
@@ -217,7 +218,7 @@ void de_1220::evolve(population &pop) const
 				CR = (r_dist() < 0.9) ? m_cr[i] : r_dist();
 			}
 			VARIANT = (r_dist() < 0.9) ? m_variants[i] : m_allowed_variants[v_idx()];
-					
+				
 			/*-------DE/best/1/exp--------------------------------------------------------------------*/
 			/*-------Our oldest strategy but still not bad. However, we have found several------------*/
 			/*-------optimization problems where misconvergence occurs.-------------------------------*/
