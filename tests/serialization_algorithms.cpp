@@ -76,7 +76,7 @@ int main()
 	algos_new.push_back(algorithm::pso().clone());
 	algos.push_back(algorithm::pso_generational(gen,0.5,0.5,0.5,0.5,3,3,3).clone());
 	algos_new.push_back(algorithm::pso_generational().clone());
-	algos.push_back(algorithm::sa_corana(15000,5.0,1e-5,25,10,0.5).clone());
+	algos.push_back(algorithm::sa_corana(gen*100,5.0,1e-5,25,10,0.5).clone());
 	algos_new.push_back(algorithm::sa_corana().clone());
 	algos.push_back(algorithm::sga(gen,.9, .021, 5, algorithm::sga::mutation::RANDOM, 0.3, algorithm::sga::selection::BEST20, algorithm::sga::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::sga().clone());
