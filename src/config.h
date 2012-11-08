@@ -95,7 +95,7 @@ directly in Python.
  - Integer Programming
   - Golomb Ruler, Knapsack Problem
  - Multi-objective, continuous, box-constrained
-  - The SCH, FON and ZDT problems 
+  - The SCH, FON, DTLZ and ZDT problems 
  - Stochastic, continuous and box bounded
   - A simple inventory problem
 - Engineering Problems
@@ -105,8 +105,10 @@ directly in Python.
 
 To install PaGMO from source code you will need git and CMake installed in your system. On Unix systems:
 
-- Clone the PaGMO git repository on your local machine: \code git clone git://pagmo.git.sourceforge.net/gitroot/pagmo/pagmo \endcode
-- Create a build directory in your pagmo directory and move there: \code cd pagmo \endcode \code mkdir build \endcode \code cd build \endcode
+- Clone the PaGMO git repository on your local machine: \code git clone git://git.code.sf.net/p/pagmo/code pagmo-code \endcode
+- Create a build directory in your pagmo directory and move there: \code 
+cd pagmo-code \endcode \code mkdir build \endcode \code cd build 
+\endcode
 - Run ccmake to configure your makefile (or project): \code ccmake ../ \endcode
 - In ccmake, press c to configure, then (see figure below) select the options that are desired (e.g. compile the main file?, compile  PyGMO?) press c to configure again and then g to generate the makefile. Selecting the option PyGMO you will also build the python version of the code. In this case make sure you have python installed. CMake will try to locate the current installation directory of your python and install there the code.
 
