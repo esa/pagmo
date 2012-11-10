@@ -212,7 +212,7 @@ std::string base_island::human_readable() const
  */
 void base_island::join() const
 {
-	if (m_evo_thread) {
+	if (m_evo_thread && m_evo_thread->joinable()) {
 		m_evo_thread->join();
 	}
 }

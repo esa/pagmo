@@ -32,6 +32,9 @@ int main()
 pagmo::algorithm::ihs algo(10000);
 pagmo::problem::ackley prob(10);
 std::cout << prob;
-
+pagmo::archipelago a(algo,prob,8,20);
+std::cout << "start evolution\n" << std::endl;
+a.evolve(1);
+std::cout << "evolution ended\n" << std::endl;
 return 0;
 }
