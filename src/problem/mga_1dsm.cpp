@@ -209,7 +209,7 @@ try {
 
 /// Outputs a stream with the trajectory data
 /**
- * While the chromosome contains all necessary information to describe a trajectory, mission analysits
+ * While the chromosome contains all necessary information to describe a trajectory, mission analysis
  * often require a different set of data to evaluate its use. This method outputs a stream with
  * information on the trajectory that is otherwise 'hidden' in the chromosome
  *
@@ -324,7 +324,7 @@ std::string mga_1dsm::get_name() const
  * @param[in] tu Upper bownd on the time of flight in days
  */
 void mga_1dsm::set_tof(double tl, double tu) {
-	set_bounds(6,tl,tu);
+	set_bounds(1,tl,tu);
 }
 
 /// Sets the mission launch window
