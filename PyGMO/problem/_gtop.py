@@ -279,7 +279,7 @@ def _mga_1dsm_plot(self,x):
 	
 	seq = self.get_sequence()
 	
-	n = (len(x)-1)/4
+	n = (len(seq)-1)
 	#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
 	T = list([0]*(n))
 	alpha_sum = 0
