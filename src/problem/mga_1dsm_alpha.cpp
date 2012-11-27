@@ -57,7 +57,7 @@ mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planet_ptr> seq,
 			 const double tof_l, const double tof_u, 
 			 const double vinf_l, const double vinf_u, 
 			 const bool mo, const bool add_vinf_dep, const bool add_vinf_arr) : 
-			 base( 7 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf_dep(add_vinf_dep), m_add_vinf_arr(add_vinf_arr)
+			 base( 7 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_seq(), m_n_legs(seq.size()-1), m_add_vinf_dep(add_vinf_dep), m_add_vinf_arr(add_vinf_arr)
 {
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
@@ -100,7 +100,7 @@ mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planet_ptr> seq,
 }
 
 /// Copy Constructor. Performs a deep copy
-mga_1dsm_alpha::mga_1dsm_alpha(const mga_1dsm_alpha &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr) 
+mga_1dsm_alpha::mga_1dsm_alpha(const mga_1dsm_alpha &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_seq(), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr) 
 {
 	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());

@@ -72,7 +72,7 @@ class __PAGMO_VISIBLE mga_1dsm_tof: public base
 		
 		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;
-		void set_tof(const std::vector<std::vector<double> >);
+		void set_tof(const std::vector<boost::array<double,2> >);
 		void set_launch_window(const kep_toolbox::epoch&, const kep_toolbox::epoch&);
 		void set_vinf(const double);
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
