@@ -383,14 +383,23 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init< optional<int, double> >())
 		.def("pretty", &problem::tandem::pretty);
 
-	problem_wrapper<problem::mga_1dsm>("mga_1dsm", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
+	problem_wrapper<problem::mga_1dsm_alpha>("mga_1dsm_alpha", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
 		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool> >())
-		.def("pretty", &problem::mga_1dsm::pretty)
-		.def("set_tof", &problem::mga_1dsm::set_tof)
-		.def("set_launch_window", &problem::mga_1dsm::set_launch_window)
-		.def("set_vinf", &problem::mga_1dsm::set_vinf)
-		.def("get_sequence", &problem::mga_1dsm::get_sequence);
+		.def("pretty", &problem::mga_1dsm_alpha::pretty)
+		.def("set_tof", &problem::mga_1dsm_alpha::set_tof)
+		.def("set_launch_window", &problem::mga_1dsm_alpha::set_launch_window)
+		.def("set_vinf", &problem::mga_1dsm_alpha::set_vinf)
+		.def("get_sequence", &problem::mga_1dsm_alpha::get_sequence);
 
+	problem_wrapper<problem::mga_1dsm_tof>("mga_1dsm_tof", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
+		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> >, double, double, bool, bool, bool> >())
+		.def("pretty", &problem::mga_1dsm_tof::pretty)
+		.def("set_tof", &problem::mga_1dsm_tof::set_tof)
+		.def("get_tof", &problem::mga_1dsm_tof::get_tof)
+		.def("set_launch_window", &problem::mga_1dsm_tof::set_launch_window)
+		.def("set_vinf", &problem::mga_1dsm_tof::set_vinf)
+		.def("get_sequence", &problem::mga_1dsm_tof::get_sequence);
+		
 	problem_wrapper<problem::mga_incipit>("mga_incipit", "Jupiter capture problem from the first part of gtoc6")
 		.def(init< optional< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > > >())
 		.def("pretty", &problem::mga_incipit::pretty)

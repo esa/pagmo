@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_MGA_1DSM_H
-#define PAGMO_PROBLEM_MGA_1DSM_H
+#ifndef PAGMO_PROBLEM_MGA_1DSM_TOF_H
+#define PAGMO_PROBLEM_MGA_1DSM_TOF_H
 
 #include <string>
 
@@ -44,33 +44,35 @@ namespace pagmo{ namespace problem {
  * This class defines the global optimization problem (box-bounded, continuous) of an interplanetary trajectory modelled
  * as a Multiple Gravity Assist mission allowing one only Deep Space Manouvre per leg.
  * 
- * The decision vector is [t0,T] + [u,v,Vinf,eta1,a1] + [beta, rp/rP, eta2,a2] ..... in the units: [mjd2000, days] + [nd,nd,km/s,nd,nd] + [rad,nd,nd,nd] + ....
+ * The decision vector is [t0] + [u,v,Vinf,eta1,T1] + [beta, rp/rP, eta2,T2] ..... in the units: [mjd2000, days] + [nd,nd,km/s,nd,days] + [rad,nd,nd,days] + ....
  * where Vinf = Vinf_mag*(cos(theta)*cos(phi)i+cos(theta)*sin(phi)j+sin(phi)k) and theta = 2*pi*u and phi = acos(2*v-1)-pi/2
- * 
- * Each leg time-of-flight can be obtained as Tn = (T*an) / sum(a). This is what we call alpha-encoding
+ *  
+ * Each leg time-of-flight is directly encoded (as T1, T2, ...) in contrast to mga_1dsm_alpha. Thus you have to define the bounds on the time of 
+ * flights for each leg separately upon construction.
  * 
  * NOTE: The resulting problem is box-bounded (unconstrained). The resulting trajectory is time-bounded.
  *
  * @see Izzo: "Global Optimization and Space Pruning for Spacecraft Trajectory Design, Spacecraft Trajectory Optimization, Conway, B. (Eds.), Cambridge University Press, pp.178-199, 2010)
  * @author Dario Izzo (dario.izzo@esa.int)
  */
-class __PAGMO_VISIBLE mga_1dsm: public base
+class __PAGMO_VISIBLE mga_1dsm_tof: public base
 {
 	public:
-		mga_1dsm(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
+		mga_1dsm_tof(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(0), const kep_toolbox::epoch t0_r = kep_toolbox::epoch(1000),
-			 const double tof_l = 1.0*365.25, const double tof_u = 5.0*365.25, 
-			 const double vinf_l = 0.5, const double vinf_u = 2.5, 
+			 const std::vector<std::vector<double> > = construct_default_tof(),
+			 const double vinf_l = 0.5, const double vinf_u = 2.5,
 			 const bool mo = false, const bool add_vinf_dep = false, const bool add_vinf_arr = true);
-		mga_1dsm(const mga_1dsm&);
+		mga_1dsm_tof(const mga_1dsm_tof&);
 		base_ptr clone() const;
 		
 		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;
-		void set_tof(const double, const double);
+		void set_tof(const std::vector<std::vector<double> >);
 		void set_launch_window(const kep_toolbox::epoch&, const kep_toolbox::epoch&);
 		void set_vinf(const double);
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
+		std::vector<std::vector<double> > get_tof() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
@@ -79,6 +81,18 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 			retval.push_back(kep_toolbox::planet_ss("earth").clone());
 			retval.push_back(kep_toolbox::planet_ss("venus").clone());
 			retval.push_back(kep_toolbox::planet_ss("earth").clone());
+			return retval;
+		};
+		static const std::vector<std::vector<double> > construct_default_tof() {
+			std::vector<std::vector <double> > retval;
+			std::vector<double> e2v;
+			e2v.push_back(200.0);
+			e2v.push_back(700.0);
+			std::vector<double> v2e;
+			e2v.push_back(200.0);
+			e2v.push_back(700.0);
+			retval.push_back(e2v);
+			retval.push_back(v2e);
 			return retval;
 		};
 	private:
@@ -100,5 +114,5 @@ class __PAGMO_VISIBLE mga_1dsm: public base
 
 }} // namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_1dsm);
-#endif // PAGMO_PROBLEM_MGA_1DSM_H
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_1dsm_tof);
+#endif // PAGMO_PROBLEM_MGA_1DSM_TOF_H

@@ -157,8 +157,8 @@ int main()
 	probs_new.push_back(problem::tandem().clone());
 	probs.push_back(problem::laplace(std::vector<int>(default_sequence,default_sequence + 5)).clone());
 	probs_new.push_back(problem::laplace().clone());
-	probs.push_back(problem::mga_1dsm(construct_sequence()).clone());
-	probs_new.push_back(problem::mga_1dsm().clone());
+	probs.push_back(problem::mga_1dsm_alpha(construct_sequence()).clone());
+	probs_new.push_back(problem::mga_1dsm_alpha().clone());
 #endif	
 
 	
