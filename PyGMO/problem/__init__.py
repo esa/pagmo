@@ -10,10 +10,11 @@ from _pl2pl import py_pl2pl
 
 # If GTOP database support is active import interplanetary trajectory problems
 
-try:
-	from _gtop import *
-except:
-	pass
+#try:
+from _gtop import *
+#except:
+#        print "wtf"
+#	pass
 
 # If GSL support is active import mit_sphere
 try:

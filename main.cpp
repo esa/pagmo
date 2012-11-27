@@ -29,12 +29,10 @@ using namespace pagmo;
 
 int main()
 {
-pagmo::algorithm::ihs algo(10000);
-pagmo::problem::ackley prob(10);
-std::cout << prob;
-pagmo::archipelago a(algo,prob,8,20);
-std::cout << "start evolution\n" << std::endl;
-a.evolve(1);
-std::cout << "evolution ended\n" << std::endl;
+std::vector<kep_toolbox::planet_ptr> retval;
+retval.push_back(kep_toolbox::planet_ss("earth").clone());
+retval.push_back(kep_toolbox::planet_ss("earth").clone());
+retval.push_back(kep_toolbox::planet_ss("earth").clone());
+pagmo::problem::mga_1dsm_tof prob;
 return 0;
 }

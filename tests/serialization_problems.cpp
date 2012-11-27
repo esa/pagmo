@@ -37,7 +37,7 @@
 // static data needed to test the non-default constructor in some of the problems.
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX 
 //mga_1dsm
-const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
+static const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 	std::vector<kep_toolbox::planet_ptr> retval;
 	retval.push_back(kep_toolbox::planet_ss("earth").clone());
 	retval.push_back(kep_toolbox::planet_ss("earth").clone());
@@ -159,6 +159,9 @@ int main()
 	probs_new.push_back(problem::laplace().clone());
 	probs.push_back(problem::mga_1dsm_alpha(construct_sequence()).clone());
 	probs_new.push_back(problem::mga_1dsm_alpha().clone());
+	probs.push_back(problem::mga_1dsm_tof(construct_sequence()).clone());
+	probs_new.push_back(problem::mga_1dsm_tof().clone());
+	problem::mga_1dsm_tof prob(construct_sequence());
 #endif	
 
 	

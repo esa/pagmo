@@ -35,6 +35,7 @@
 #include <boost/python/converter/registry.hpp>
 #include <boost/python/tuple.hpp>
 #include <boost/utility.hpp> // For boost::noncopyable.
+#include <boost/array.hpp>
 #include <sstream>
 #include <vector>
 
@@ -237,12 +238,14 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 BOOST_PYTHON_MODULE(_core)
 {
 	common_module_init();
-
+	typedef boost::array<double,2> array2D;
 	//Register std converters to lists if not already registered by some other module
+	REGISTER_CONVERTER(array2D,fixed_size_policy);
 	REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<int>, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<topology::base::vertices_size_type>, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<std::vector<double> >, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<array2D>, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);

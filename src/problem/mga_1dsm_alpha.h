@@ -44,14 +44,17 @@ namespace pagmo{ namespace problem {
  * This class defines the global optimization problem (box-bounded, continuous) of an interplanetary trajectory modelled
  * as a Multiple Gravity Assist mission allowing one only Deep Space Manouvre per leg.
  * 
- * The decision vector is [t0,T] + [u,v,Vinf,eta1,a1] + [beta, rp/rP, eta2,a2] ..... in the units: [mjd2000, days] + [nd,nd,km/s,nd,nd] + [rad,nd,nd,nd] + ....
- * where Vinf = Vinf_mag*(cos(theta)*cos(phi)i+cos(theta)*sin(phi)j+sin(phi)k) and theta = 2*pi*u and phi = acos(2*v-1)-pi/2
+ * \image html mga_1dsm.gif "Visualization of an inetrplanetary trajectory to jupiter as encoded by the mga_1dsm"
+ * \image latex mga_1dsm.png "Visualization of an inetrplanetary trajectory to jupiter as encoded by the mga_1dsm" width=5cm
  * 
- * Each leg time-of-flight can be obtained as Tn = (T*an) / sum(a). This is what we call alpha-encoding
+ * The decision vector is \f$ [t_0,T] + [u,v,V_{\infty},\eta_1,\alpha_1] + [\beta, r_p/r_P, \eta_2,\alpha_2]\f$ ..... in the units: [mjd2000, days] + [nd,nd,km/s,nd,nd] + [rad,nd,nd,nd] + ....
+ * where \f$ \mathbf V_{\infty} = V_{\infty}*(\cos(\theta)\cos(\phi)\mathbf i+\cos(\theta)\sin(\phi)\mathbf j+\sin(\phi)\mathbf k) \f$ and \f$ \theta = 2\pi u, \phi = acos(2v-1)-\pi/2 \f$
  * 
- * This encoding allows the optimizer more flexibility in choosing the flybys, but might greater a more difficult problem. The probability
- * of a leg having a duration smaller some T is the same for each planet in the sequence. If it is more likely to have legs of different
- * durations, the tof encoding is recommended.
+ * Each leg time-of-flight can be obtained as \f$ T_n = T\alpha_n / \sum_i(\alpha_i)\f$. This is what we call \f$\alpha\f$-encoding as opposed to the tof encoding implemented in mga_1dsm_tof
+ * 
+ * This encoding allows the optimizer more flexibility in choosing the flybys and creates a better multiobjective problem (the total tof can be set), but might greater a more difficult problem. 
+ * The probability of a leg having a duration smaller or larger than some T is the same for each planet in the sequence. If the trajectory is more likely to have legs of different
+ * durations, the tof encoding might be recommended.
  * 
  * NOTE: The resulting problem is box-bounded (unconstrained). The resulting trajectory is time-bounded.
  *

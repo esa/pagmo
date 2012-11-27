@@ -231,7 +231,7 @@ def _mga_1dsm_tof_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet
 
 	* seq: list of PyKEP planets defining the encounter sequence (including the starting planet)
 	* t0: list of two epochs defining the launch window
-	* tof: list of intervals defining the time of flights
+	* tof: list of intervals defining the times of flight (days)
 	* vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity at launch (km/sec)
 	* multi_objective: when True constructs a multiobjective problem (dv, T)
 	* add_vinf_dep: when True the computed Dv includes the initial hyperbolic velocity (at launch)

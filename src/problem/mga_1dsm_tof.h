@@ -26,6 +26,7 @@
 #define PAGMO_PROBLEM_MGA_1DSM_TOF_H
 
 #include <string>
+#include <boost/array.hpp>
 
 #include "../config.h"
 #include "../serialization.h"
@@ -38,14 +39,17 @@
 
 namespace pagmo{ namespace problem {
 
-/// A generic MGA-1DSM Problem
+/// A generic MGA-1DSM Problem (tof encoding)
 /**
  *
  * This class defines the global optimization problem (box-bounded, continuous) of an interplanetary trajectory modelled
  * as a Multiple Gravity Assist mission allowing one only Deep Space Manouvre per leg.
  * 
- * The decision vector is [t0] + [u,v,Vinf,eta1,T1] + [beta, rp/rP, eta2,T2] ..... in the units: [mjd2000, days] + [nd,nd,km/s,nd,days] + [rad,nd,nd,days] + ....
- * where Vinf = Vinf_mag*(cos(theta)*cos(phi)i+cos(theta)*sin(phi)j+sin(phi)k) and theta = 2*pi*u and phi = acos(2*v-1)-pi/2
+ * \image html mga_1dsm.gif "Visualization of an inetrplanetary trajectory to jupiter as encoded by the mga_1dsm"
+ * \image latex mga_1dsm.png "Visualization of an inetrplanetary trajectory to jupiter as encoded by the mga_1dsm" width=5cm
+ * 
+ * The decision vector is \f$ [t_0] + [u,v,V_{\infty},\eta_1,T_1] + [\beta, r_p/r_P, \eta_2,T_2]\f$ ..... in the units: [mjd2000] + [nd,nd,km/s,nd,days] + [rad,nd,nd,days] + ....
+ * where \f$ \mathbf V_{\infty} = V_{\infty}*(\cos(\theta)\cos(\phi)\mathbf i+\cos(\theta)\sin(\phi)\mathbf j+\sin(\phi)\mathbf k) \f$ and \f$ \theta = 2\pi u, \phi = acos(2v-1)-\pi/2 \f$
  *  
  * Each leg time-of-flight is directly encoded (as T1, T2, ...) in contrast to mga_1dsm_alpha. Thus you have to define the bounds on the time of 
  * flights for each leg separately upon construction.
@@ -60,7 +64,7 @@ class __PAGMO_VISIBLE mga_1dsm_tof: public base
 	public:
 		mga_1dsm_tof(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(0), const kep_toolbox::epoch t0_r = kep_toolbox::epoch(1000),
-			 const std::vector<std::vector<double> > = construct_default_tof(),
+			 const std::vector<boost::array<double,2> > = construct_default_tof(),
 			 const double vinf_l = 0.5, const double vinf_u = 2.5,
 			 const bool mo = false, const bool add_vinf_dep = false, const bool add_vinf_arr = true);
 		mga_1dsm_tof(const mga_1dsm_tof&);
@@ -83,16 +87,11 @@ class __PAGMO_VISIBLE mga_1dsm_tof: public base
 			retval.push_back(kep_toolbox::planet_ss("earth").clone());
 			return retval;
 		};
-		static const std::vector<std::vector<double> > construct_default_tof() {
-			std::vector<std::vector <double> > retval;
-			std::vector<double> e2v;
-			e2v.push_back(200.0);
-			e2v.push_back(700.0);
-			std::vector<double> v2e;
-			e2v.push_back(200.0);
-			e2v.push_back(700.0);
-			retval.push_back(e2v);
-			retval.push_back(v2e);
+		static const std::vector<boost::array<double,2> > construct_default_tof() {
+			std::vector<boost::array<double,2> > retval;
+			boost::array<double,2> dumb = {{ 200,700 }};  
+			retval.push_back(dumb);
+			retval.push_back(dumb);
 			return retval;
 		};
 	private:
