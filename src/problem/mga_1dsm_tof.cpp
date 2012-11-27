@@ -50,7 +50,7 @@ namespace pagmo { namespace problem {
  * @param[in] add_vinf_dep: when true the objective functions contains also the contribution of the launch hypebolic velocity
  * @param[in] add_vinf_arr: when true the objective functions contains also the contribution of the arrival hypebolic velocity
  * 
- * @throws value_error if the planets in seq do not all have the same central body gravitational constant
+ * @throws value_error if the planets in seq do not all have the same central body gravitational constant and if the tof dimension is not compatible with the sequence length
  */
 mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
@@ -93,7 +93,7 @@ mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planet_ptr> seq,
 		lb[6+4*i] = - 2 * boost::math::constants::pi<double>();    ub[6+4*i] = 2 * boost::math::constants::pi<double>();
 		lb[7+4*i] = 1.1;  ub[7+4*i] = 100;
 		lb[8+4*i] = 1e-5; ub[8+4*i] = 1-1e-5;
-		lb[9+4*i] = tof[i+1][0]; ub[9+4*i] = tof[i+1][1];\
+		lb[9+4*i] = tof[i+1][0]; ub[9+4*i] = tof[i+1][1];
 	}
 	// Adjusting the minimum allowed fly-by rp to the one defined in the kep_toolbox::planet class
 	for (std::vector<kep_toolbox::planet>::size_type i = 1; i < m_n_legs; ++i) {
@@ -317,7 +317,7 @@ std::string mga_1dsm_tof::get_name() const
  *
  * @param[in] tof std::vecotr
  */
-void mga_1dsm_tof::set_tof(const std::vector<std::vector<double> > tof) {
+void mga_1dsm_tof::set_tof(const std::vector<boost::array<double,2> > tof) {
 	if (m_seq.size()!= (tof.size()+1)) {
 		pagmo_throw(value_error,"The size of the time of flight is inconsistent");  
 	}
