@@ -47,6 +47,7 @@
 #include "../../src/migration/base_r_policy.h"
 #include "../../src/migration/base_s_policy.h"
 #include "../../src/migration/best_s_policy.h"
+#include "../../src/migration/random_s_policy.h"
 #include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
 #include "../../src/problem/base.h"
