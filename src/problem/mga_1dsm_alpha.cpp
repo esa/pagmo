@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -28,7 +28,7 @@
 #include <numeric>
 #include <cmath>
 
-#include "mga_1dsm.h"
+#include "mga_1dsm_alpha.h"
 #include "../keplerian_toolbox/keplerian_toolbox.h"
 
 namespace pagmo { namespace problem {
@@ -52,12 +52,12 @@ namespace pagmo { namespace problem {
  * 
  * @throws value_error if the planets in seq do not all have the same central body gravitational constant
  */
-mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq, 
+mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
 			 const double tof_l, const double tof_u, 
 			 const double vinf_l, const double vinf_u, 
 			 const bool mo, const bool add_vinf_dep, const bool add_vinf_arr) : 
-			 base( 7 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf_dep(add_vinf_dep), m_add_vinf_arr(add_vinf_arr)
+			 base( 7 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_seq(), m_n_legs(seq.size()-1), m_add_vinf_dep(add_vinf_dep), m_add_vinf_arr(add_vinf_arr)
 {
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
@@ -100,7 +100,7 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 }
 
 /// Copy Constructor. Performs a deep copy
-mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr) 
+mga_1dsm_alpha::mga_1dsm_alpha(const mga_1dsm_alpha &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_seq(), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr) 
 {
 	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
@@ -109,13 +109,13 @@ mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimen
 }
 
 /// Clone method.
-base_ptr mga_1dsm::clone() const
+base_ptr mga_1dsm_alpha::clone() const
 {
-	return base_ptr(new mga_1dsm(*this));
+	return base_ptr(new mga_1dsm_alpha(*this));
 }
 
 /// Implementation of the objective function.
-void mga_1dsm::objfun_impl(fitness_vector &f, const decision_vector &x) const
+void mga_1dsm_alpha::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 try {
 	double common_mu = m_seq[0]->get_mu_central_body();
@@ -145,7 +145,7 @@ try {
 	double theta = 2*boost::math::constants::pi<double>()*x[2];
 	double phi = acos(2*x[3]-1)-boost::math::constants::pi<double>() / 2;
 
-	kep_toolbox::array3D Vinf = { {x[4]*cos(phi)*cos(theta), x[5]*cos(phi)*sin(theta), x[6]*sin(phi)} };
+	kep_toolbox::array3D Vinf = { {x[4]*cos(phi)*cos(theta), x[4]*cos(phi)*sin(theta), x[4]*sin(phi)} };
 	kep_toolbox::array3D v0;
 	kep_toolbox::sum(v0, v_P[0], Vinf);
 	kep_toolbox::array3D r(r_P[0]), v(v0);
@@ -209,7 +209,7 @@ try {
 
 /// Outputs a stream with the trajectory data
 /**
- * While the chromosome contains all necessary information to describe a trajectory, mission analysits
+ * While the chromosome contains all necessary information to describe a trajectory, mission analysis
  * often require a different set of data to evaluate its use. This method outputs a stream with
  * information on the trajectory that is otherwise 'hidden' in the chromosome
  *
@@ -218,7 +218,7 @@ try {
  */
 
 
-std::string mga_1dsm::pretty(const std::vector<double> &x) const {
+std::string mga_1dsm_alpha::pretty(const std::vector<double> &x) const {
   
 	double common_mu = m_seq[0]->get_mu_central_body();
 	// We set the std output format
@@ -257,7 +257,7 @@ std::string mga_1dsm::pretty(const std::vector<double> &x) const {
 	double theta = 2*boost::math::constants::pi<double>()*x[2];
 	double phi = acos(2*x[3]-1)-boost::math::constants::pi<double>() / 2;
 
-	kep_toolbox::array3D Vinf = { {x[4]*cos(phi)*cos(theta), x[5]*cos(phi)*sin(theta), x[6]*sin(phi)} };
+	kep_toolbox::array3D Vinf = { {x[4]*cos(phi)*cos(theta), x[4]*cos(phi)*sin(theta), x[4]*sin(phi)} };
 
 	kep_toolbox::array3D v0;
 	kep_toolbox::sum(v0, v_P[0], Vinf);
@@ -311,7 +311,7 @@ std::string mga_1dsm::pretty(const std::vector<double> &x) const {
 	s << "Total mission time: " << std::accumulate(T.begin(),T.end(),0.0)/365.25 << " years" << std::endl;
 	return s.str();
 }
-std::string mga_1dsm::get_name() const
+std::string mga_1dsm_alpha::get_name() const
 {
 	return "MGA-1DSM (alpha-encoding)";
 }
@@ -323,8 +323,8 @@ std::string mga_1dsm::get_name() const
  * @param[in] tl Lower bownd on the time of flight in days
  * @param[in] tu Upper bownd on the time of flight in days
  */
-void mga_1dsm::set_tof(double tl, double tu) {
-	set_bounds(6,tl,tu);
+void mga_1dsm_alpha::set_tof(double tl, double tu) {
+	set_bounds(1,tl,tu);
 }
 
 /// Sets the mission launch window
@@ -334,7 +334,7 @@ void mga_1dsm::set_tof(double tl, double tu) {
  * @param[in] start starting epoch of the launch window
  * @param[in] end final epoch of the launch window
  */
-void mga_1dsm::set_launch_window(const kep_toolbox::epoch& start, const kep_toolbox::epoch& end) {
+void mga_1dsm_alpha::set_launch_window(const kep_toolbox::epoch& start, const kep_toolbox::epoch& end) {
 	set_bounds(0,start.mjd2000(),end.mjd2000());
 }
 
@@ -344,7 +344,7 @@ void mga_1dsm::set_launch_window(const kep_toolbox::epoch& start, const kep_tool
  *
  * @param[in] vinf maximum allowed hyperbolic velocity in km/sec
  */
-void mga_1dsm::set_vinf(const double vinf) {
+void mga_1dsm_alpha::set_vinf(const double vinf) {
 	set_ub(4,vinf*1000);
 }
 
@@ -352,7 +352,7 @@ void mga_1dsm::set_vinf(const double vinf) {
 /**
  * @return An std::vector containing the kep_toolbox::planets
  */
-std::vector<kep_toolbox::planet_ptr> mga_1dsm::get_sequence() const {
+std::vector<kep_toolbox::planet_ptr> mga_1dsm_alpha::get_sequence() const {
 	return m_seq;
 }
 
@@ -361,7 +361,7 @@ std::vector<kep_toolbox::planet_ptr> mga_1dsm::get_sequence() const {
  * Will return a formatted string containing the values vector, the weights vectors and the max weight. It is concatenated
  * with the base::problem human_readable
  */
-std::string mga_1dsm::human_readable_extra() const
+std::string mga_1dsm_alpha::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << "\n\tSequence: ";
@@ -375,4 +375,4 @@ std::string mga_1dsm::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_1dsm);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_1dsm_alpha);

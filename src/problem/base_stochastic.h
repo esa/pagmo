@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -74,6 +74,6 @@ class __PAGMO_VISIBLE base_stochastic : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::base_stochastic);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_stochastic);
 
 #endif // PAGMO_PROBLEM_BASE_STOCHASTIC_H

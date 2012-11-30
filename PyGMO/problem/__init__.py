@@ -10,10 +10,11 @@ from _pl2pl import py_pl2pl
 
 # If GTOP database support is active import interplanetary trajectory problems
 
-try:
-	from _gtop import *
-except:
-	pass
+#try:
+from _gtop import *
+#except:
+#        print "wtf"
+#	pass
 
 # If GSL support is active import mit_sphere
 try:
@@ -23,9 +24,9 @@ try:
 		"""
 		Construct a Neurocontroller Evolution problem that seeks to drive three point masses to form a triangle
 		This problem was used to design a contorller for the MIT SPHERES test bed on boear the ISS
-		
+
 		USAGE: problem.mit_spheres(sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
-		
+
 		* sample_size: number of initial conditions the neurocontroller is tested from
 		* n_hidden: number of hidden  for the feed-forward neural network
 		* ode_prec: relative numerical precision of neurons the ODE integrator
@@ -33,7 +34,7 @@ try:
 		* symmetric: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
 		* simulation_time: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
 	"""
-		
+
 		# We construct the arg list for the original constructor exposed by boost_python
 		arg_list=[]
 		arg_list.append(sample_size)
@@ -45,14 +46,14 @@ try:
 		self._orig_init(*arg_list)
 	mit_spheres._orig_init = mit_spheres.__init__
 	mit_spheres.__init__ = _mit_spheres_ctor
-	
+
 	from PyGMO import __version__
 	__version__ = __version__ + "GTOP " + "GSL "
 
 except:
 	pass
 
-	
+
 #Creating the list of problems
 def _get_problem_list():
 	from PyGMO import problem
@@ -62,12 +63,12 @@ def _get_problem_list():
 def _rastrigin_ctor(self,dim = 10):
 	"""
 	Constructs a Rastrigin problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.rastrigin(dim=10)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -78,12 +79,12 @@ rastrigin.__init__ = _rastrigin_ctor
 def _rosenbrock_ctor(self,dim = 10):
 	"""
 	Constructs a Rosenbrock problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.rosenbrock(dim=10)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -94,12 +95,12 @@ rosenbrock.__init__ = _rosenbrock_ctor
 def _ackley_ctor(self,dim = 10):
 	"""
 	Constructs a Ackley problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.ackley(dim=10)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -110,12 +111,12 @@ ackley.__init__ = _ackley_ctor
 def _schwefel_ctor(self,dim = 10):
 	"""
 	Constructs a Schwefel problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.schwefel(dim=10)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -126,12 +127,12 @@ schwefel.__init__ = _schwefel_ctor
 def _dejong_ctor(self,dim = 10):
 	"""
 	Constructs a De Jong problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.dejong(dim=10)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -142,12 +143,12 @@ dejong.__init__ = _dejong_ctor
 def _griewank_ctor(self,dim = 10):
 	"""
 	Constructs a Griewank problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.griewank(dim=10)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -158,12 +159,12 @@ griewank.__init__ = _dejong_ctor
 def _lennard_jones_ctor(self,n_atoms = 4):
 	"""
 	Constructs a Lennard-Jones problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.lennard_jones(n_atoms=4)
-	
+
 	* n_atoms: number of atoms
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(n_atoms)
@@ -174,20 +175,164 @@ lennard_jones.__init__ = _lennard_jones_ctor
 def _branin_ctor(self):
 	"""
 	Constructs a Branin problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.branin()
-	
+
 	"""
-	
+
 branin._orig_init = branin.__init__
 branin.__init__ = _branin_ctor
+
+def _dtlz1_ctor(self, k = 5, fdim = 3):
+	"""
+	Constructs a DTLZ1 problem (Box-Constrained, continuous, multimodal, scalable multi-objective)
+
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+
+	The optimal pareto front lies on a linear hyperplane \sum_{m=1}^M f_m = 0.5.
+	
+	USAGE: problem.dt1z1(k = 5, fdim=3)
+	* k: defines problemdimension as k + fdim - 1
+	* fdim: number of objectives
+	"""
+
+	arg_list=[k, fdim]
+	self._orig_init(*arg_list)
+
+dtlz1._orig_init = dtlz1.__init__
+dtlz1.__init__ = _dtlz1_ctor
+
+def _dtlz2_ctor(self, k = 10, fdim = 3):
+	"""
+	Constructs a DTLZ2 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
+
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+
+	The search space is continous, unimodal and the problem is not deceptive. A rather easy problem.
+	
+	USAGE: problem.dt1z2(k = 10, fdim=3)
+	* k: defines problemdimension as k + fdim - 1
+	* fdim: number of objectives
+	"""
+
+	arg_list=[k, fdim]
+	self._orig_init(*arg_list)
+
+dtlz2._orig_init = dtlz2.__init__
+dtlz2.__init__ = _dtlz2_ctor
+
+
+def _dtlz3_ctor(self, k = 10, fdim = 3):
+	"""
+	Constructs a DTLZ3 problem (Box-Constrained, continuous, multimodal, scalable multi-objective)
+
+	It is supposed to be harder to converge towards the optimal pareto front than DTLZ2
+
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+
+	USAGE: problem.dt1z3(k = 10, fdim=3)
+	* k: defines problemdimension as k + fdim - 1
+	* fdim: number of objectives
+	"""
+
+	arg_list=[k, fdim]
+	self._orig_init(*arg_list)
+
+dtlz3._orig_init = dtlz3.__init__
+dtlz3.__init__ = _dtlz3_ctor
+
+
+def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
+	"""
+	Constructs a DTLZ4 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
+
+	The search space contains a dense area of solutions next to the f_M/f_1 plane.
+
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+
+	USAGE: problem.dt1z4(k = 10, fdim=3, alpha=100)
+	* k: defines problem dimension as k + fdim - 1
+	* fdim: number of objectives
+	* alpha: parameter controlling density of solutions
+	"""
+
+	arg_list=[k, fdim, alpha]
+	self._orig_init(*arg_list)
+
+dtlz4._orig_init = dtlz4.__init__
+dtlz4.__init__ = _dtlz4_ctor
+
+
+def _dtlz5_ctor(self, k = 10, fdim = 3):
+	"""
+	Constructs a DTLZ5 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
+
+	This problem will test an MOEA's ability to converge to a cruve and will also allow an easier way to visually demonstrate
+	(just by plotting f_M with any other objective function) the performance of an MOEA. Since there is a natural bias for
+	solutions close to this Pareto-optimal curve, this problem may be easy for an algorithmn to solve. Because of its simplicity
+	its recommended to use a higher number of objectives M \in [5, 10].
+
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+
+	USAGE: problem.dt1z5(k = 10, fdim = 3)
+	* k: defines problem dimension as k + fdim - 1
+	* fdim: number of objectives
+	"""
+
+	arg_list=[k, fdim]
+	self._orig_init(*arg_list)
+
+dtlz5._orig_init = dtlz5.__init__
+dtlz5.__init__ = _dtlz5_ctor
+
+
+def _dtlz6_ctor(self, k = 10, fdim = 3):
+	"""
+	Constructs a DTLZ6 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
+
+	A more difficult version of the DTLZ6 problem: the non-linear distance function g makes it harder to convergence
+	against the pareto optimal curve.
+
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+
+	USAGE: problem.dt1z6(k = 10, fdim = 3)
+	* k: defines problem dimension as k + fdim - 1
+	* fdim: number of objectives
+	"""
+
+	arg_list=[k, fdim]
+	self._orig_init(*arg_list)
+
+dtlz6._orig_init = dtlz6.__init__
+dtlz6.__init__ = _dtlz6_ctor
+
+
+def _dtlz7_ctor(self, k = 20, fdim = 3):
+	"""
+	Constructs a DTLZ7 problem (Box-Constrained, continuous, scalable multi-objective)
+
+	This problem has disconnected Pareto-optimal regions in the search space.
+	
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+
+	USAGE: problem.dt1z7(k = 20, fdim = 3)
+	* k: defines problem dimension as k + fdim - 1
+	* fdim: number of objectives
+	"""
+
+	arg_list=[k, fdim]
+	self._orig_init(*arg_list)
+
+dtlz7._orig_init = dtlz7.__init__
+dtlz7.__init__ = _dtlz7_ctor
+
 
 def _himmelblau_ctor(self):
 	"""
 	Constructs a Himmelblau problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.himmelblau()
-	
+
 	"""
 
 himmelblau._orig_init = himmelblau.__init__
@@ -196,14 +341,14 @@ himmelblau.__init__ = _himmelblau_ctor
 def _michalewicz_ctor(self,dim = 10):
 	"""
 	Constructs a Michalewicz problem (Box-Constrained Continuous Single-Objective)
-	
+
 	USAGE: problem.michalewicz(dim=5)
-	
+
 	NOTE: Minimum is -4.687 for dim=5 and -9.66 for dim = 10
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -211,159 +356,162 @@ def _michalewicz_ctor(self,dim = 10):
 michalewicz._orig_init = michalewicz.__init__
 michalewicz.__init__ = _michalewicz_ctor
 
-def _kur_ctor(self):
+def _kur_ctor(self,dim = 10):
 	"""
 	Constructs a Kursawe's study problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.kur()
+	
+	* dim: problem dimension
 	"""
 	arg_list=[]
+	arg_list.append(dim)
 	self._orig_init(*arg_list)
-	
+
 kur._orig_init = kur.__init__
 kur.__init__ = _kur_ctor
 
 def _fon_ctor(self):
 	"""
 	Constructs a Fonseca and Fleming's study problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.fon()
 	"""
 	arg_list=[]
 	self._orig_init(*arg_list)
-	
+
 fon._orig_init = fon.__init__
 fon.__init__ = _fon_ctor
 
 def _pol_ctor(self):
 	"""
 	Constructs a Poloni's study study problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.pol()
 	"""
 	arg_list=[]
 	self._orig_init(*arg_list)
-	
+
 pol._orig_init = pol.__init__
 pol.__init__ = _pol_ctor
 
 def _sch_ctor(self):
 	"""
 	Constructs a Schaffer's study problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.sch()
 	"""
 	arg_list=[]
 	self._orig_init(*arg_list)
-	
+
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
 
 def _zdt1_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT1 problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.zdt1(dim = 30)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	arg_list=[]
 	arg_list.append(dim)
 	self._orig_init(*arg_list)
-	
+
 zdt1._orig_init = zdt1.__init__
 zdt1.__init__ = _zdt1_ctor
 
 def _zdt2_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT2 problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.zdt2(dim = 30)
-	
+
 	* dim: problem dimension
 	"""
 	arg_list=[]
 	arg_list.append(dim)
 	self._orig_init(*arg_list)
-	
+
 zdt2._orig_init = zdt2.__init__
 zdt2.__init__ = _zdt2_ctor
 
 def _zdt3_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT3 problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.zdt3(dim = 30)
-	
+
 	* dim: problem dimension
 	"""
 	arg_list=[]
 	arg_list.append(dim)
 	self._orig_init(*arg_list)
-	
+
 zdt3._orig_init = zdt3.__init__
 zdt3.__init__ = _zdt3_ctor
 
 def _zdt4_ctor(self, dim = 10):
 	"""
 	Constructs a ZDT4 problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.zdt4(dim = 10)
-	
+
 	* dim: problem dimension
 	"""
 	arg_list=[]
 	arg_list.append(dim)
 	self._orig_init(*arg_list)
-	
+
 zdt4._orig_init = zdt4.__init__
 zdt4.__init__ = _zdt4_ctor
 
 def _zdt6_ctor(self, dim = 10):
 	"""
 	Constructs a ZDT6 problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-	
+
 	USAGE: problem.zdt6(dim = 10)
-	
+
 	* dim: problem dimension
 	"""
 	arg_list=[]
 	arg_list.append(dim)
 	self._orig_init(*arg_list)
-	
+
 zdt6._orig_init = zdt6.__init__
 zdt6.__init__ = _zdt6_ctor
 
 def _luksan_vlcek_1_ctor(self,dim = 3):
 	"""
 	Constructs the first Luksan Vlcek problem (Constrained Continuous Single-Objective)
-	
+
 	NOTE: L. Luksan and J. Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
-	
+
 	USAGE: problem.luksan_vlcek_1(dim=3)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -374,14 +522,14 @@ luksan_vlcek_1.__init__ = _luksan_vlcek_1_ctor
 def _luksan_vlcek_2_ctor(self,dim = 16):
 	"""
 	Constructs the second Luksan Vlcek problem (Constrained Continuous Single-Objective)
-	
+
 	NOTE: L. Luksan and J. Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
-	
+
 	USAGE: problem.luksan_vlcek_2(dim=16)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -392,14 +540,14 @@ luksan_vlcek_2.__init__ = _luksan_vlcek_2_ctor
 def _luksan_vlcek_3_ctor(self,dim = 8):
 	"""
 	Constructs the third Luksan Vlcek problem (Constrained Continuous Single-Objective)
-	
+
 	NOTE: L. Luksan and J. Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
-	
+
 	USAGE: problem.luksan_vlcek_3(dim=8)
-	
+
 	* dim: problem dimension
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(dim)
@@ -410,25 +558,25 @@ luksan_vlcek_3.__init__ = _luksan_vlcek_3_ctor
 def _snopt_toyprob_ctor(self):
 	"""
 	Constructs SNOPT toy-problem (Box-Constrained Continuous Multi-Objective)
-	
+
 	USAGE: problem.snopt_toyprob()
 	"""
 	self._orig_init(*arg_list)
-	
+
 snopt_toyprob._orig_init = snopt_toyprob.__init__
 snopt_toyprob.__init__ = _snopt_toyprob_ctor
 
 def _string_match_ctor(self,string = "Can we use it for space?"):
 	"""
 	Constructs a string-match problem (Box-Constrained Integer Single-Objective)
-	
+
 	NOTE: This is the problem of matching a string. Transcribed as an optimization problem
-	
+
 	USAGE: problem.string_match(string = "mah")
-	
+
 	* string: string to match
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(string)
@@ -439,15 +587,15 @@ string_match.__init__ = _string_match_ctor
 def _golomb_ruler_ctor(self,order = 5, length=10):
 	"""
 	Constructs a Golomb Ruler problem (Constrained Integer Single-Objective)
-	
+
 	NOTE: see http://en.wikipedia.org/wiki/Golomb_ruler
-	
+
 	USAGE: problem.golomb_ruler(order = 5, length=10)
-	
+
 	* order: order of the Golomb ruler
 	* length: length of the Golomb ruler
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(order)
@@ -459,12 +607,12 @@ golomb_ruler.__init__ = _golomb_ruler_ctor
 def _tsp_ctor(self,matrix = [[0,1,2],[1,0,5],[2,5,0]]):
 	"""
 	Constructs a Travelling Salesman problem (Constrained Integer Single-Objective)
-	
+
 	USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0])
-	
+
 	* matrix: inter-city distances (symmetric matrix)
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(matrix)
@@ -475,14 +623,14 @@ tsp.__init__ = _tsp_ctor
 def _knapsack_ctor(self,values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], max_weight = 100):
 	"""
 	Constructs a 0-1 Knapsack Problem (Constrained Integer Single-Objective)
-	
+
 	USAGE: problem.knapsack(values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], max_weight = 100)
-	
+
 	* values: raw array of values
 	* weights: raw array of weights
 	* max_weight: maximum weight
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(values)
@@ -495,18 +643,18 @@ knapsack.__init__ = _knapsack_ctor
 def _inventory_ctor(self, weeks = 4, sample_size = 10, seed = 0):
 	"""
 	Constructs an Inventory Problem (Stochastic Objective Function)
-	
+
 	NOTE: see www2.isye.gatech.edu/people/faculty/Alex_Shapiro/SPbook.pdf
-	
+
 	USAGE: problem.inventory(weeks = 4, sample_size = 10, seed = 0):
-	
+
 	* week: dimension of the problem corresponding to the numer of weeks
 	                 to plan the inventory for.
 	* sample_size: dimension of the sample used to approximate the expected value
-	* seed: integer used as starting random seed to build the 
+	* seed: integer used as starting random seed to build the
 	                 pseudorandom sequences used to generate the sample
 	"""
-	
+
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	arg_list.append(weeks)
