@@ -322,7 +322,7 @@ void mga_1dsm_tof::set_tof(const std::vector<boost::array<double,2> > tof) {
 		pagmo_throw(value_error,"The size of the time of flight is inconsistent");  
 	}
 	// setting bounds
-	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < m_n_legs - 1; ++i) {
+	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < m_n_legs; ++i) {
 		set_bounds(5 + i*4,tof[i][0],tof[i][1]);
 	}
 }
