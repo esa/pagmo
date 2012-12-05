@@ -22,7 +22,7 @@ Differential Evolution (DE)        :class:`PyGMO.algorithm.de_1220`             
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
 Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
-Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               M-U-S      NSGA-II
+Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
 Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
 Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
 Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
