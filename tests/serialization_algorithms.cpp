@@ -155,9 +155,11 @@ int main()
 		ia & algos_new[i];
 		// archive and stream closed when destructors are called
 		}	
+
+
 		{
 		//copy the original population
-		population pop1(prob),pop2(prob);
+		population pop1(prob), pop2(prob);
 		if (i<n_mo) {
 			pop1 = population(pop_original_mo); 
 			pop2 = population(pop_original_mo);
@@ -174,6 +176,8 @@ int main()
 			std::cout << ": pass";
 		} else {
 			std::cout << ": Champion is different:" << std::endl;
+			std::cout << x1 << std::endl;
+			std::cout << x2 << std::endl;
 			return 1;
 		}
 		}

@@ -51,7 +51,7 @@ and that is changed by the algorithms that are compatible with stochastic optimi
 		#We write the objfun using the same pseudorandonm sequence
 		#as long as self.seed is unchanged.
 		f = 0;
-		for i in range(self._dim):
+		for i in range(self.__dim):
 			noise = (2 * drng() - 1) / 10
 			f = f + (x[i] + noise)*(x[i] + noise)
 		return (f,)
