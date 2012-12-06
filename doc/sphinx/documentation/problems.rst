@@ -109,7 +109,7 @@ Detailed Documentation
       
    .. method:: _compute_constraints_impl(self, x)
    
-      This is a virtual function tham can must be re-implemented in the derived class (if c_dim>0) and must return a tuple 
+      This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a tuple 
       packing as many numbers as the declared dimension of the problem constraints (c_dim). 
       Inequality constarints need to be packed at last.
       

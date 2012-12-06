@@ -160,7 +160,7 @@ void ipopt::evolve(population &pop) const
 /// Algorithm name
 std::string ipopt::get_name() const
 {
-	return "IPOPT - ";
+	return "IPOPT";
 }
 
 /// Extra human readable algorithm info.
