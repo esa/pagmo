@@ -22,67 +22,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#include <algorithm>
+#include <vector>
 
-// Header including all algorithms implemented in PaGMO.
+#include "../population.h"
+#include "base.h"
+#include "base_s_policy.h"
+#include "random_s_policy.h"
+#include "../exceptions.h"
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/de_1220.h"
-#include "algorithm/jde.h"
-#include "algorithm/ihs.h"
-#include "algorithm/mde_pbx.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/pso_generational.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-#include "algorithm/nsga2.h"
-#include "algorithm/bee_colony.h"
-//#include "algorithm/firefly.h"
-#include "algorithm/cmaes.h"
-#include "algorithm/aco.h"
-#include "algorithm/nsga2.h"
+namespace pagmo { namespace migration {
 
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+/// Constructor from migration rate and type.
+/**
+ * @param[in] rate migration rate.
+ * @param[in] type migration rate type.
+ *
+ * @see base_s_policy::base_s_policy.
+ */
+random_s_policy::random_s_policy(const double &rate, rate_type type):base_s_policy(rate,type) {}
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
+base_s_policy_ptr random_s_policy::clone() const
+{
+	return base_s_policy_ptr(new random_s_policy(*this));
+}
 
-// IPOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
+std::vector<population::individual_type> random_s_policy::select(population &pop) const
+{
+	pagmo_assert(get_n_individuals(pop) <= pop.size() && get_n_individuals(pop) >=0);
+	// Gets the number of individuals to select
+	const population::size_type migration_rate = get_n_individuals(pop);
+	
+	// Create a temporary array of individuals.
+	std::vector<population::individual_type> result;
+	
+	// Create an array of indices
+	std::vector<population::size_type> candidates_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(pop.size()));
+	
+	// Fill it with indices
+	iota(candidates_idx.begin(),candidates_idx.end(),population::size_type(0));
 
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
+	// shuffle
+	random_shuffle(candidates_idx.begin(),candidates_idx.end());
+	
+	// Selects the n first individuals
+	for (population::size_type i = 0; i< migration_rate; ++i) {
+		result.push_back(pop.get_individual(candidates_idx[i]));
+	}
+	
+	return result;
+}
 
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-	#include "algorithm/nlopt_slsqp.h"
-	#include "algorithm/nlopt_mma.h"
-	#include "algorithm/nlopt_aug_lag.h"
-	#include "algorithm/nlopt_aug_lag_eq.h"
-#endif
+}}
 
-#endif
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::random_s_policy);
