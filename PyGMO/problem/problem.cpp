@@ -236,12 +236,12 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// DTLZ1
 	problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >())
+		.def("p_distance", &problem::dtlz1::p_distance);
 	// DTLZ2
 	problem_wrapper<problem::dtlz2>("dtlz2","DTLZ2 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-
+//		.def("p_distance", &problem::dtlz2::p_distance);
 	// DTLZ3
 	problem_wrapper<problem::dtlz3>("dtlz3","DTLZ3 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
@@ -297,20 +297,25 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<>());
 	// ZDT1
 	problem_wrapper<problem::zdt1>("zdt1","ZDT1")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt1::p_distance);
 	// ZDT2
 	problem_wrapper<problem::zdt2>("zdt2","ZDT2")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt2::p_distance);
 	// ZDT3
 	problem_wrapper<problem::zdt3>("zdt3","ZDT3")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt3::p_distance);
 	// ZDT4
 	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt4::p_distance);
 	// ZDT6
 	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
-		.def(init<optional<population::size_type> >());
-
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt6::p_distance);
+		
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
 //	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")

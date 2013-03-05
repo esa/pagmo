@@ -55,6 +55,7 @@
 #include "problem/dejong.h"
 #include "problem/base_aco.h"
 #include "problem/base_stochastic.h"
+#include "problem/base_dtlz.h"
 #include "problem/tsp.h"
 #include "problem/knapsack.h"
 #include "problem/sch.h"

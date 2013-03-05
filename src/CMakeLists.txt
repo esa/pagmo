@@ -61,6 +61,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp

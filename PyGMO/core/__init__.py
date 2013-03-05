@@ -358,6 +358,9 @@ def _plot_pareto_fronts(self, comp = [0,1]):
 	"""
 	from numpy import linspace
 	import matplotlib.pyplot as pl
+
+	fig = pl.figure()
+
 	if len(comp) !=2:
 		raise ValueError('You need to select two components of the objective function')
 	p_list = self.compute_pareto_fronts()
@@ -372,5 +375,7 @@ def _plot_pareto_fronts(self, comp = [0,1]):
 		tmp = sorted(tmp, key = lambda k:k[0])
 		pl.step([c[0] for c in tmp], [c[1] for c in tmp],color=str(cl[id_f]),where='post')
 	pl.show()
+	return fig
+
 population.plot_pareto_fronts = _plot_pareto_fronts
 	

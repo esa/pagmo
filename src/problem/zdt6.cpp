@@ -27,6 +27,7 @@
 
 #include "../exceptions.h"
 #include "../types.h"
+#include "../population.h"
 #include "base.h"
 #include "zdt6.h"
 
@@ -51,6 +52,27 @@ base_ptr zdt6::clone() const
 {
 	return base_ptr(new zdt6(*this));
 }
+
+/// Gives a convergence metric for the population (0 = converged to the optimal front)
+double zdt6::p_distance(const pagmo::population &pop) const
+{
+    double c = 0.0;
+    double g = 0.0;
+
+    decision_vector x;
+
+    for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
+        x = pop.get_individual(i).cur_x;
+		g = 0.0;
+        for(problem::base::size_type i = 1; i < x.size(); ++i) {
+            g += x[i];
+        }
+        c += 1 + 9 * pow((g/(x.size()-1)),0.25);
+    }
+
+    return (c / pop.size()) - 1;
+}
+
 
 /// Implementation of the objective function.
 void zdt6::objfun_impl(fitness_vector &f, const decision_vector &x) const

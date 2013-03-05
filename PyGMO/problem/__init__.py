@@ -183,6 +183,81 @@ def _branin_ctor(self):
 branin._orig_init = branin.__init__
 branin.__init__ = _branin_ctor
 
+def _mo3d_plot(self, pop, a=40, comp=[0,1,2]):
+	"""
+	Generic plot-method for multi-objective optimization problems with more then 2 objectives
+
+	USAGE: prob.plot(pop, comp[0,2,3])
+	* pop: population of solutions to the problem
+	* a: angle of view on which the 3d-plot is created
+	* comp: indexes the fitness dimension for x,y and z axis in that order
+	"""
+	from mpl_toolkits.mplot3d import axes3d
+	import matplotlib.pyplot as plt
+	import numpy as np
+
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
+
+	fit = np.transpose([ind.cur_f for ind in pop])
+	try:
+		ax.plot(fit[comp[0]],fit[comp[1]],fit[comp[2]], 'ro')
+	except IndexError:
+		print 'Error. Please choose correct fitness dimensions for printing!'
+
+	ax.view_init(azim=a)
+	plt.show()
+	return ax
+
+
+def _dtlz234_plot(self, pop, a=40, comp=[0,1,2]):
+	"""
+	Specific plot-method for the DTLZ2, DTLZ3 and DTLZ4 - plotting also the optimal pareto-front
+
+	USAGE: prob.plot(pop, comp[0,2,3])
+	* pop: population of solutions to the problem
+	* a: angle of view on which the 3d-plot is created
+	* comp: indexes the fitness dimension for x,y and z axis in that order
+	"""
+
+	from mpl_toolkits.mplot3d import axes3d
+	import matplotlib.pyplot as plt
+	import numpy as np
+
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
+
+	# plot the wireframe of the known optimal pareto front
+	thetas = np.linspace(0, (np.pi / 2.0), 30)
+	#gammas = np.linspace(-np.pi / 4, np.pi / 4, 30)
+	gammas = np.linspace(0, (np.pi / 2.0), 30)
+
+	x_frame = np.outer(np.cos(thetas), np.cos(gammas))
+	y_frame = np.outer(np.cos(thetas), np.sin(gammas))
+	z_frame = np.outer(np.sin(thetas), np.ones(np.size(gammas)))
+
+	ax.view_init(azim=a)
+
+	ax.set_autoscalex_on(False)
+	ax.set_autoscaley_on(False)
+	ax.set_autoscalez_on(False)
+
+	ax.set_xlim(0, 1.8)
+	ax.set_ylim(0, 1.8)
+	ax.set_zlim(0, 1.8)
+
+	ax.plot_wireframe(x_frame,y_frame,z_frame)
+
+	# plot the individuals of the population
+	fit = np.transpose([ind.cur_f for ind in pop])
+	try:
+		ax.plot(fit[comp[0]],fit[comp[1]],fit[comp[2]], 'ro')
+	except IndexError:
+		print 'Error. Please choose correct fitness dimensions for printing!'
+	plt.show()
+	return ax
+
+
 def _dtlz1_ctor(self, k = 5, fdim = 3):
 	"""
 	Constructs a DTLZ1 problem (Box-Constrained, continuous, multimodal, scalable multi-objective)
@@ -190,7 +265,7 @@ def _dtlz1_ctor(self, k = 5, fdim = 3):
 	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
 
 	The optimal pareto front lies on a linear hyperplane \sum_{m=1}^M f_m = 0.5.
-	
+
 	USAGE: problem.dt1z1(k = 5, fdim=3)
 	* k: defines problemdimension as k + fdim - 1
 	* fdim: number of objectives
@@ -199,8 +274,24 @@ def _dtlz1_ctor(self, k = 5, fdim = 3):
 	arg_list=[k, fdim]
 	self._orig_init(*arg_list)
 
+
 dtlz1._orig_init = dtlz1.__init__
 dtlz1.__init__ = _dtlz1_ctor
+dtlz1.plot = _mo3d_plot
+
+def _dtlz1_p_distance(self, pop):
+	"""
+	This metric is the value of the distance function g inherent to this particular multi-objective problem	averaged over the whole population. It is 0.0 iff all individuals of the population are pareto-optimal.
+		
+	USAGE: x = prob.p_distance(isl.population)
+	
+	* pop: population to evaluate
+	"""
+	return self._orig_p_distance(pop)
+
+dtlz1._orig_p_distance = dtlz1.p_distance
+dtlz1.p_distance = _dtlz1_p_distance
+
 
 def _dtlz2_ctor(self, k = 10, fdim = 3):
 	"""
@@ -209,7 +300,7 @@ def _dtlz2_ctor(self, k = 10, fdim = 3):
 	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
 
 	The search space is continous, unimodal and the problem is not deceptive. A rather easy problem.
-	
+
 	USAGE: problem.dt1z2(k = 10, fdim=3)
 	* k: defines problemdimension as k + fdim - 1
 	* fdim: number of objectives
@@ -220,6 +311,7 @@ def _dtlz2_ctor(self, k = 10, fdim = 3):
 
 dtlz2._orig_init = dtlz2.__init__
 dtlz2.__init__ = _dtlz2_ctor
+dtlz2.plot = _dtlz234_plot
 
 
 def _dtlz3_ctor(self, k = 10, fdim = 3):
@@ -240,6 +332,7 @@ def _dtlz3_ctor(self, k = 10, fdim = 3):
 
 dtlz3._orig_init = dtlz3.__init__
 dtlz3.__init__ = _dtlz3_ctor
+dtlz3.plot = _dtlz234_plot
 
 
 def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
@@ -261,6 +354,7 @@ def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
 
 dtlz4._orig_init = dtlz4.__init__
 dtlz4.__init__ = _dtlz4_ctor
+dtlz4.plot = _dtlz234_plot
 
 
 def _dtlz5_ctor(self, k = 10, fdim = 3):
@@ -284,6 +378,7 @@ def _dtlz5_ctor(self, k = 10, fdim = 3):
 
 dtlz5._orig_init = dtlz5.__init__
 dtlz5.__init__ = _dtlz5_ctor
+dtlz5.plot = _mo3d_plot
 
 
 def _dtlz6_ctor(self, k = 10, fdim = 3):
@@ -305,6 +400,7 @@ def _dtlz6_ctor(self, k = 10, fdim = 3):
 
 dtlz6._orig_init = dtlz6.__init__
 dtlz6.__init__ = _dtlz6_ctor
+dtlz6.plot = _mo3d_plot
 
 
 def _dtlz7_ctor(self, k = 20, fdim = 3):
@@ -312,7 +408,7 @@ def _dtlz7_ctor(self, k = 20, fdim = 3):
 	Constructs a DTLZ7 problem (Box-Constrained, continuous, scalable multi-objective)
 
 	This problem has disconnected Pareto-optimal regions in the search space.
-	
+
 	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
 
 	USAGE: problem.dt1z7(k = 20, fdim = 3)
@@ -325,6 +421,7 @@ def _dtlz7_ctor(self, k = 20, fdim = 3):
 
 dtlz7._orig_init = dtlz7.__init__
 dtlz7.__init__ = _dtlz7_ctor
+dtlz7.plot = _mo3d_plot
 
 
 def _himmelblau_ctor(self):
@@ -363,7 +460,7 @@ def _kur_ctor(self,dim = 10):
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
 	USAGE: problem.kur()
-	
+
 	* dim: problem dimension
 	"""
 	arg_list=[]
@@ -415,6 +512,20 @@ def _sch_ctor(self):
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
 
+def _zdt1_p_distance(self, pop):
+	"""
+	This metric is the value of the distance function g inherent to this particular multi-objective problem	averaged over the whole population. It is 0.0 iff all individuals of the population are pareto-optimal.
+		
+	USAGE: x = prob.p_distance(isl.population)
+	
+	* pop: population to evaluate
+	"""
+	return self._orig_p_distance(pop)
+
+zdt1._orig_p_distance = zdt1.p_distance
+zdt1.p_distance = _zdt1_p_distance
+
+
 def _zdt1_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT1 problem (Box-Constrained Continuous Multi-Objective)
@@ -429,9 +540,24 @@ def _zdt1_ctor(self, dim = 30):
 	arg_list=[]
 	arg_list.append(dim)
 	self._orig_init(*arg_list)
-
+	
 zdt1._orig_init = zdt1.__init__
 zdt1.__init__ = _zdt1_ctor
+
+
+def _zdt2_p_distance(self, pop):
+	"""
+	This metric is the value of the distance function g inherent to this particular multi-objective problem	averaged over the whole population. It is 0.0 iff all individuals of the population are pareto-optimal.
+		
+	USAGE: x = prob.p_distance(isl.population)
+	
+	* pop: population to evaluate
+	"""
+	return self._orig_p_distance(pop)
+
+zdt2._orig_p_distance = zdt2.p_distance
+zdt2.p_distance = _zdt2_p_distance
+
 
 def _zdt2_ctor(self, dim = 30):
 	"""
@@ -450,6 +576,21 @@ def _zdt2_ctor(self, dim = 30):
 zdt2._orig_init = zdt2.__init__
 zdt2.__init__ = _zdt2_ctor
 
+
+def _zdt3_p_distance(self, pop):
+	"""
+	This metric is the value of the distance function g inherent to this particular multi-objective problem	averaged over the whole population. It is 0.0 iff all individuals of the population are pareto-optimal.
+		
+	USAGE: x = prob.p_distance(isl.population)
+	
+	* pop: population to evaluate
+	"""
+	return self._orig_p_distance(pop)
+
+zdt3._orig_p_distance = zdt3.p_distance
+zdt3.p_distance = _zdt3_p_distance
+
+
 def _zdt3_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT3 problem (Box-Constrained Continuous Multi-Objective)
@@ -467,6 +608,21 @@ def _zdt3_ctor(self, dim = 30):
 zdt3._orig_init = zdt3.__init__
 zdt3.__init__ = _zdt3_ctor
 
+
+def _zdt4_p_distance(self, pop):
+	"""
+	This metric is the value of the distance function g inherent to this particular multi-objective problem	averaged over the whole population. It is 0.0 iff all individuals of the population are pareto-optimal.
+		
+	USAGE: x = prob.p_distance(isl.population)
+	
+	* pop: population to evaluate
+	"""
+	return self._orig_p_distance(pop)
+
+zdt4._orig_p_distance = zdt4.p_distance
+zdt4.p_distance = _zdt4_p_distance
+
+
 def _zdt4_ctor(self, dim = 10):
 	"""
 	Constructs a ZDT4 problem (Box-Constrained Continuous Multi-Objective)
@@ -483,6 +639,21 @@ def _zdt4_ctor(self, dim = 10):
 
 zdt4._orig_init = zdt4.__init__
 zdt4.__init__ = _zdt4_ctor
+
+
+def _zdt6_p_distance(self, pop):
+	"""
+	This metric is the value of the distance function g inherent to this particular multi-objective problem	averaged over the whole population. It is 0.0 iff all individuals of the population are pareto-optimal.
+		
+	USAGE: x = prob.p_distance(isl.population)
+	
+	* pop: population to evaluate
+	"""
+	return self._orig_p_distance(pop)
+
+zdt6._orig_p_distance = zdt6.p_distance
+zdt6.p_distance = _zdt6_p_distance
+
 
 def _zdt6_ctor(self, dim = 10):
 	"""

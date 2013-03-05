@@ -29,10 +29,5 @@ using namespace pagmo;
 
 int main()
 {
-std::vector<kep_toolbox::planet_ptr> retval;
-retval.push_back(kep_toolbox::planet_ss("earth").clone());
-retval.push_back(kep_toolbox::planet_ss("earth").clone());
-retval.push_back(kep_toolbox::planet_ss("earth").clone());
-pagmo::problem::mga_1dsm_tof prob;
 return 0;
 }

@@ -29,7 +29,7 @@
 
 #include "../serialization.h"
 #include "../types.h"
-#include "base.h"
+#include "base_dtlz.h"
 
 namespace pagmo{ namespace problem {
 
@@ -45,10 +45,10 @@ namespace pagmo{ namespace problem {
  * @author Marcus Maertens (mmarcusx@gmail.com)
  */
 
-class __PAGMO_VISIBLE dtlz2 : public base
+class __PAGMO_VISIBLE dtlz2 : public base_dtlz
 {
 	public:
-		dtlz2(int = 10, fitness_vector::size_type = 3);
+		dtlz2(int = 10, int = 3);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
