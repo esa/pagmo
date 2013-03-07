@@ -348,34 +348,39 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 	return pos
 archipelago.draw = _archipelago_draw
 
-def _plot_pareto_fronts(self, comp = [0,1]):
+
+def _plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6):
 	"""
 	Plots the population pareto front in a 2-D graph
 
-	USAGE: pop.plot_pareto_front(comp = [0,1])
+	USAGE: pop.plot_pareto_front(comp = [0,1], rgb=(0,1,0))
 
 	* comp: components of the fitness function to plot in the 2-D window
+	* rgb: specify the color of the 1st front (use strong colors here)
+	* symbol: marker for the individual
+	* size: size of the markersymbol
 	"""
 	from numpy import linspace
-	import matplotlib.pyplot as pl
-
-	fig = pl.figure()
+	import matplotlib.pyplot as plt
 
 	if len(comp) !=2:
 		raise ValueError('You need to select two components of the objective function')
-	p_list = self.compute_pareto_fronts()
-        cl = linspace(0.1,0.9,len(p_list))
+
+	p_list = pop.compute_pareto_fronts()
+	cl = zip(linspace(0.9 if rgb[0] else 0.1,0.9, len(p_list)), 
+			 linspace(0.9 if rgb[1] else 0.1,0.9, len(p_list)),  
+			 linspace(0.9 if rgb[2] else 0.1,0.9, len(p_list)))  
 
 	for id_f,f in enumerate(p_list):
 		for ind in f:
-			pl.plot([self[ind].best_f[comp[0]]],[self[ind].best_f[comp[1]]], 'o', color=str(cl[id_f]))
-		x = [self[ind].best_f[comp[0]] for ind in f]
-		y = [self[ind].best_f[comp[1]] for ind in f]
+			plt.plot([pop[ind].best_f[comp[0]]],[pop[ind].best_f[comp[1]]], symbol, color=cl[id_f], markersize=size)
+		x = [pop[ind].best_f[comp[0]] for ind in f]
+		y = [pop[ind].best_f[comp[1]] for ind in f]
 		tmp = [(a,b) for a,b in zip(x,y)]
 		tmp = sorted(tmp, key = lambda k:k[0])
-		pl.step([c[0] for c in tmp], [c[1] for c in tmp],color=str(cl[id_f]),where='post')
-	pl.show()
-	return fig
+		plt.step([c[0] for c in tmp], [c[1] for c in tmp],color=cl[id_f],where='post')
+	plt.show()
+
 
 population.plot_pareto_fronts = _plot_pareto_fronts
 	

@@ -10,11 +10,10 @@ from _pl2pl import py_pl2pl
 
 # If GTOP database support is active import interplanetary trajectory problems
 
-#try:
-from _gtop import *
-#except:
-#        print "wtf"
-#	pass
+try:
+	from _gtop import *
+except:
+	pass
 
 # If GSL support is active import mit_sphere
 try:
@@ -278,6 +277,7 @@ def _dtlz1_ctor(self, k = 5, fdim = 3):
 dtlz1._orig_init = dtlz1.__init__
 dtlz1.__init__ = _dtlz1_ctor
 dtlz1.plot = _mo3d_plot
+
 
 def _dtlz1_p_distance(self, pop):
 	"""

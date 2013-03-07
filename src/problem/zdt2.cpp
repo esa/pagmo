@@ -64,8 +64,8 @@ double zdt2::p_distance(const pagmo::population &pop) const
     for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
         x = pop.get_individual(i).cur_x;
 		g = 0.0;
-        for(problem::base::size_type i = 1; i < x.size(); ++i) {
-            g += x[i];
+        for(problem::base::size_type j = 1; j < x.size(); ++j) {
+            g += x[j];
         }
         c += 1 + (9 * g) / (x.size()-1);
     }

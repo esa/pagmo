@@ -27,7 +27,7 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
+#include "base_dtlz.h"
 #include "dtlz7.h"
 
 namespace pagmo { namespace problem {
@@ -40,7 +40,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-dtlz7::dtlz7(int k, fitness_vector::size_type fdim):base(k + fdim - 1, 0, fdim)
+dtlz7::dtlz7(int k, fitness_vector::size_type fdim):base_dtlz(k + fdim - 1, fdim)
 {
 	// Set bounds.
 	set_lb(0.0);
@@ -56,22 +56,25 @@ base_ptr dtlz7::clone() const
 /// Implementation of the distance function g
 double dtlz7::g_func(const decision_vector &x) const
 {
+	// NOTE: the original g-function should return 1 + (9.0 / x.size()) * y but we drop the 1
+	// to have the minimum at 0.0 so we can use the p_distance implementation in base_dtlz
+	// to have the p_distance converging towards 0.0 rather then towards 1.0
 	double y = 0.0;
 	for(decision_vector::size_type i = 0; i < x.size(); ++i) {
 		y += x[i];
 	}
-	return 1 + (9.0 / x.size()) * y;
+	return (9.0 / x.size()) * y;
 }
 
 /// Implementation of the distribution function h
-double dtlz7::h_func(const fitness_vector &x, const double g) const
+double dtlz7::h_func(const fitness_vector &f, const double g) const
 {
-	// NOTE: we intentionally ignore the last element of the vector to make things easier (its replaced by g)
+	// NOTE: we intentionally ignore the last element of the vector to make things easier
 	int fdim = get_f_dimension();
 	double y = 0.0;
 
-	for(decision_vector::size_type i = 0; i < x.size() - 1; ++i) {
-		y += x[i] / (1 + g) * ( 1 + sin(3 * boost::math::constants::pi<double>() * x[i]) );
+	for(decision_vector::size_type i = 0; i < f.size() - 1; ++i) {
+		y += (f[i] / (1.0 + g)) * (1.0 + sin(3 * boost::math::constants::pi<double>() * f[i]) );
 	}
 	return fdim - y;
 }
@@ -94,7 +97,7 @@ void dtlz7::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		x_M.push_back(x[i]);
 	}
 
-	g = g_func(x_M);
+	g = 1.0 + g_func(x_M);		// +1.0 according to the original definition of the g-function for DTLZ7
 
 	// computing shape-functions
 	for(problem::base::size_type i = 0; i < f.size() - 1; ++i) {

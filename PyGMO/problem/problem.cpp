@@ -64,7 +64,7 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	return retval;
 }
 
-// Wrapper to expose problems.
+// Wrapper to expose stochastic problems.
 template <class Problem>
 static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > stochastic_problem_wrapper(const char *name, const char *descr)
 {
@@ -75,6 +75,21 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic
 	retval.def_pickle(generic_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	return retval;
+}
+
+// Wrapper to expose dtlz-type problems.
+template <class Problem>
+static inline class_<Problem,bases<problem::base>,bases<problem::base_dtlz> > dtlz_problem_wrapper(const char *name, const char *descr)
+{
+	class_<Problem,bases<problem::base>,bases<problem::base_dtlz> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
+	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.def("p_distance", &problem::base_dtlz::p_distance);
 	return retval;
 }
 
@@ -235,31 +250,25 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::branin>("branin","Branin's rcos function.");
 
 	// DTLZ1
-	problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >())
-		.def("p_distance", &problem::dtlz1::p_distance);
+	dtlz_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
 	// DTLZ2
-	problem_wrapper<problem::dtlz2>("dtlz2","DTLZ2 benchmark problem.")
+	dtlz_problem_wrapper<problem::dtlz2>("dtlz2","DTLZ2 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-//		.def("p_distance", &problem::dtlz2::p_distance);
 	// DTLZ3
-	problem_wrapper<problem::dtlz3>("dtlz3","DTLZ3 benchmark problem.")
+	dtlz_problem_wrapper<problem::dtlz3>("dtlz3","DTLZ3 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-
 	// DTLZ4
-	problem_wrapper<problem::dtlz4>("dtlz4","DTLZ4 benchmark problem.")
+	dtlz_problem_wrapper<problem::dtlz4>("dtlz4","DTLZ4 benchmark problem.")
 		.def(init<optional<const size_t, fitness_vector::size_type, const size_t> >());
-
 	// DTLZ5
-	problem_wrapper<problem::dtlz5>("dtlz5","DTLZ5 benchmark problem.")
+	dtlz_problem_wrapper<problem::dtlz5>("dtlz5","DTLZ5 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-
 	// DTLZ6
-	problem_wrapper<problem::dtlz6>("dtlz6","DTLZ6 benchmark problem.")
+	dtlz_problem_wrapper<problem::dtlz6>("dtlz6","DTLZ6 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-
 	// DTLZ7
-	problem_wrapper<problem::dtlz7>("dtlz7","DTLZ7 benchmark problem.")
+	dtlz_problem_wrapper<problem::dtlz7>("dtlz7","DTLZ7 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
 
 	// Luksan Vlcek problem 1.

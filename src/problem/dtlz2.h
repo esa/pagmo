@@ -48,7 +48,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE dtlz2 : public base_dtlz
 {
 	public:
-		dtlz2(int = 10, int = 3);
+		dtlz2(int = 10, fitness_vector::size_type = 3);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
@@ -59,7 +59,7 @@ class __PAGMO_VISIBLE dtlz2 : public base_dtlz
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_dtlz>(*this);
 		}
 };
 

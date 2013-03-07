@@ -29,5 +29,11 @@ using namespace pagmo;
 
 int main()
 {
+pagmo::algorithm::nsga2 alg(100);
+pagmo::problem::dtlz2 prob;
+pagmo::island isl = island(alg, prob, 100);
+isl.evolve(1);
+std::cout << prob.p_distance(isl.get_population()) << std::endl;
+
 return 0;
 }

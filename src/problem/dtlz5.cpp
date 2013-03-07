@@ -27,7 +27,7 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
+#include "base_dtlz.h"
 #include "dtlz5.h"
 
 namespace pagmo { namespace problem {
@@ -40,7 +40,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-dtlz5::dtlz5(int k, fitness_vector::size_type fdim):base(k + fdim - 1, 0, fdim)
+dtlz5::dtlz5(int k, fitness_vector::size_type fdim):base_dtlz(k + fdim - 1, fdim)
 {
 	// Set bounds.
 	set_lb(0.0);
