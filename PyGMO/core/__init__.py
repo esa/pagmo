@@ -239,6 +239,8 @@ def _generic_archi_ctor(self,*args,**kwargs):
 	"""
 
 	from PyGMO import topology, algorithm,problem
+	from difflib import get_close_matches
+	
 	if not((len(args)==4) or (len(args)==0)):
 		raise ValueError("Unnamed arguments list, when present, must be of length 4, but %d elements were found instead" % (len(args),))
 
@@ -246,9 +248,25 @@ def _generic_archi_ctor(self,*args,**kwargs):
 	ctor_args = []
 	for i in args:
 		ctor_args.append(i)
+	
+	#Pop all known keywords out of kwargs and add a default value if not provided
 	ctor_args.append(kwargs.pop('topology', topology.unconnected())) #unconnected is default
 	ctor_args.append(kwargs.pop('distribution_type', distribution_type.point_to_point)) #point-to-point is default
 	ctor_args.append(kwargs.pop('migration_direction', migration_direction.destination)) #destination is default
+	
+	#Check for unknown keywords
+	kwlist = ['topology', 'distribution_type', 'migration_direction']
+	if kwargs:
+		s = "The following unknown keyworded argument was passed to the construtor: " 
+		for kw in kwargs:
+			s += kw 
+			spam = get_close_matches(kw, kwlist)
+			if spam:
+				s += " (Did you mean %s?), " % spam[0]
+			else:
+				s += ", "
+			
+		raise ValueError(s[:-2])
 
 	#Constructs an empty archipelago with no islands using the C++ constructor
 	self.__original_init__(*ctor_args[-3:])

@@ -47,8 +47,18 @@ Poloni's study                     :class:`PyGMO.problem.pol`
 Shaffer's study                    :class:`PyGMO.problem.sch`
 ZDT1                               :class:`PyGMO.problem.zdt1`
 ZDT2                               :class:`PyGMO.problem.zdt2`         
+ZDT3                               :class:`PyGMO.problem.zdt3`
 ZDT4                               :class:`PyGMO.problem.zdt4`
 ZDT6                               :class:`PyGMO.problem.zdt6`
+DTLZ1                              :class:`PyGMO.problem.dtlz1`
+DTLZ2                              :class:`PyGMO.problem.dtlz2`
+DTLZ3                              :class:`PyGMO.problem.dtlz3`
+DTLZ4                              :class:`PyGMO.problem.dtlz4`
+DTLZ5                              :class:`PyGMO.problem.dtlz5`
+DTLZ6                              :class:`PyGMO.problem.dtlz6`
+DTLZ7                              :class:`PyGMO.problem.dtlz7`
+
+
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
 ================================== ========================================= ===========================================
 
@@ -109,7 +119,7 @@ Detailed Documentation
       
    .. method:: _compute_constraints_impl(self, x)
    
-      This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a tuple 
+      This is a virtual function tham can must be re-implemented in the derived class (if c_dim>0) and must return a tuple 
       packing as many numbers as the declared dimension of the problem constraints (c_dim). 
       Inequality constarints need to be packed at last.
       
@@ -193,17 +203,87 @@ Detailed Documentation
 
    .. automethod:: PyGMO.problem.zdt1.__init__
 
+   .. automethod:: PyGMO.problem.zdt1.p_distance
+
 .. autoclass:: PyGMO.problem.zdt2
 
    .. automethod:: PyGMO.problem.zdt2.__init__
+
+   .. automethod:: PyGMO.problem.zdt2.p_distance
+
+.. autoclass:: PyGMO.problem.zdt3
+
+   .. automethod:: PyGMO.problem.zdt3.__init__
+
+   .. automethod:: PyGMO.problem.zdt3.p_distance
 
 .. autoclass:: PyGMO.problem.zdt4
 
    .. automethod:: PyGMO.problem.zdt4.__init__
 
+   .. automethod:: PyGMO.problem.zdt4.p_distance
+
 .. autoclass:: PyGMO.problem.zdt6
 
    .. automethod:: PyGMO.problem.zdt6.__init__
+
+   .. automethod:: PyGMO.problem.zdt6.p_distance
+  
+.. autoclass:: PyGMO.problem.dtlz1
+
+   .. automethod:: PyGMO.problem.dtlz1.__init__
+   
+   .. automethod:: PyGMO.problem.dtlz1.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz1.plot
+
+.. autoclass:: PyGMO.problem.dtlz2
+
+   .. automethod:: PyGMO.problem.dtlz2.__init__
+
+   .. automethod:: PyGMO.problem.dtlz2.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz2.plot
+
+.. autoclass:: PyGMO.problem.dtlz3
+
+   .. automethod:: PyGMO.problem.dtlz3.__init__
+
+   .. automethod:: PyGMO.problem.dtlz3.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz3.plot
+
+.. autoclass:: PyGMO.problem.dtlz4
+
+   .. automethod:: PyGMO.problem.dtlz4.__init__
+
+   .. automethod:: PyGMO.problem.dtlz4.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz4.plot
+
+.. autoclass:: PyGMO.problem.dtlz5
+
+   .. automethod:: PyGMO.problem.dtlz5.__init__
+
+   .. automethod:: PyGMO.problem.dtlz5.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz5.plot
+
+.. autoclass:: PyGMO.problem.dtlz6
+
+   .. automethod:: PyGMO.problem.dtlz6.__init__
+
+   .. automethod:: PyGMO.problem.dtlz6.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz6.plot
+
+.. autoclass:: PyGMO.problem.dtlz7
+
+   .. automethod:: PyGMO.problem.dtlz7.__init__
+
+   .. automethod:: PyGMO.problem.dtlz7.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz7.plot
 
 .. autoclass:: PyGMO.problem.tsp
 
