@@ -12,7 +12,7 @@ from _pl2pl import py_pl2pl
 
 try:
 	from _gtop import *
-except:
+except ImportError:
 	pass
 
 # If GSL support is active import mit_sphere
