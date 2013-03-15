@@ -7,9 +7,9 @@ from _problem import _base_stochastic
 from _example import py_example
 from _example_stochastic import py_example_stochastic
 from _pl2pl import py_pl2pl
+from _mo import *
 
 # If GTOP database support is active import interplanetary trajectory problems
-
 try:
 	from _gtop import *
 except ImportError:
@@ -182,149 +182,6 @@ def _branin_ctor(self):
 branin._orig_init = branin.__init__
 branin.__init__ = _branin_ctor
 
-def _dtlz1_ctor(self, k = 5, fdim = 3):
-	"""
-	Constructs a DTLZ1 problem (Box-Constrained, continuous, multimodal, scalable multi-objective)
-
-	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
-
-	The optimal pareto front lies on a linear hyperplane \sum_{m=1}^M f_m = 0.5.
-	
-	USAGE: problem.dt1z1(k = 5, fdim=3)
-	* k: defines problemdimension as k + fdim - 1
-	* fdim: number of objectives
-	"""
-
-	arg_list=[k, fdim]
-	self._orig_init(*arg_list)
-
-dtlz1._orig_init = dtlz1.__init__
-dtlz1.__init__ = _dtlz1_ctor
-
-def _dtlz2_ctor(self, k = 10, fdim = 3):
-	"""
-	Constructs a DTLZ2 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
-
-	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
-
-	The search space is continous, unimodal and the problem is not deceptive. A rather easy problem.
-	
-	USAGE: problem.dt1z2(k = 10, fdim=3)
-	* k: defines problemdimension as k + fdim - 1
-	* fdim: number of objectives
-	"""
-
-	arg_list=[k, fdim]
-	self._orig_init(*arg_list)
-
-dtlz2._orig_init = dtlz2.__init__
-dtlz2.__init__ = _dtlz2_ctor
-
-
-def _dtlz3_ctor(self, k = 10, fdim = 3):
-	"""
-	Constructs a DTLZ3 problem (Box-Constrained, continuous, multimodal, scalable multi-objective)
-
-	It is supposed to be harder to converge towards the optimal pareto front than DTLZ2
-
-	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
-
-	USAGE: problem.dt1z3(k = 10, fdim=3)
-	* k: defines problemdimension as k + fdim - 1
-	* fdim: number of objectives
-	"""
-
-	arg_list=[k, fdim]
-	self._orig_init(*arg_list)
-
-dtlz3._orig_init = dtlz3.__init__
-dtlz3.__init__ = _dtlz3_ctor
-
-
-def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
-	"""
-	Constructs a DTLZ4 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
-
-	The search space contains a dense area of solutions next to the f_M/f_1 plane.
-
-	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
-
-	USAGE: problem.dt1z4(k = 10, fdim=3, alpha=100)
-	* k: defines problem dimension as k + fdim - 1
-	* fdim: number of objectives
-	* alpha: parameter controlling density of solutions
-	"""
-
-	arg_list=[k, fdim, alpha]
-	self._orig_init(*arg_list)
-
-dtlz4._orig_init = dtlz4.__init__
-dtlz4.__init__ = _dtlz4_ctor
-
-
-def _dtlz5_ctor(self, k = 10, fdim = 3):
-	"""
-	Constructs a DTLZ5 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
-
-	This problem will test an MOEA's ability to converge to a cruve and will also allow an easier way to visually demonstrate
-	(just by plotting f_M with any other objective function) the performance of an MOEA. Since there is a natural bias for
-	solutions close to this Pareto-optimal curve, this problem may be easy for an algorithmn to solve. Because of its simplicity
-	its recommended to use a higher number of objectives M \in [5, 10].
-
-	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
-
-	USAGE: problem.dt1z5(k = 10, fdim = 3)
-	* k: defines problem dimension as k + fdim - 1
-	* fdim: number of objectives
-	"""
-
-	arg_list=[k, fdim]
-	self._orig_init(*arg_list)
-
-dtlz5._orig_init = dtlz5.__init__
-dtlz5.__init__ = _dtlz5_ctor
-
-
-def _dtlz6_ctor(self, k = 10, fdim = 3):
-	"""
-	Constructs a DTLZ6 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
-
-	A more difficult version of the DTLZ6 problem: the non-linear distance function g makes it harder to convergence
-	against the pareto optimal curve.
-
-	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
-
-	USAGE: problem.dt1z6(k = 10, fdim = 3)
-	* k: defines problem dimension as k + fdim - 1
-	* fdim: number of objectives
-	"""
-
-	arg_list=[k, fdim]
-	self._orig_init(*arg_list)
-
-dtlz6._orig_init = dtlz6.__init__
-dtlz6.__init__ = _dtlz6_ctor
-
-
-def _dtlz7_ctor(self, k = 20, fdim = 3):
-	"""
-	Constructs a DTLZ7 problem (Box-Constrained, continuous, scalable multi-objective)
-
-	This problem has disconnected Pareto-optimal regions in the search space.
-	
-	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
-
-	USAGE: problem.dt1z7(k = 20, fdim = 3)
-	* k: defines problem dimension as k + fdim - 1
-	* fdim: number of objectives
-	"""
-
-	arg_list=[k, fdim]
-	self._orig_init(*arg_list)
-
-dtlz7._orig_init = dtlz7.__init__
-dtlz7.__init__ = _dtlz7_ctor
-
 
 def _himmelblau_ctor(self):
 	"""
@@ -362,7 +219,7 @@ def _kur_ctor(self,dim = 10):
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
 	USAGE: problem.kur()
-	
+
 	* dim: problem dimension
 	"""
 	arg_list=[]
@@ -414,91 +271,6 @@ def _sch_ctor(self):
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
 
-def _zdt1_ctor(self, dim = 30):
-	"""
-	Constructs a ZDT1 problem (Box-Constrained Continuous Multi-Objective)
-
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-
-	USAGE: problem.zdt1(dim = 30)
-
-	* dim: problem dimension
-	"""
-
-	arg_list=[]
-	arg_list.append(dim)
-	self._orig_init(*arg_list)
-
-zdt1._orig_init = zdt1.__init__
-zdt1.__init__ = _zdt1_ctor
-
-def _zdt2_ctor(self, dim = 30):
-	"""
-	Constructs a ZDT2 problem (Box-Constrained Continuous Multi-Objective)
-
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-
-	USAGE: problem.zdt2(dim = 30)
-
-	* dim: problem dimension
-	"""
-	arg_list=[]
-	arg_list.append(dim)
-	self._orig_init(*arg_list)
-
-zdt2._orig_init = zdt2.__init__
-zdt2.__init__ = _zdt2_ctor
-
-def _zdt3_ctor(self, dim = 30):
-	"""
-	Constructs a ZDT3 problem (Box-Constrained Continuous Multi-Objective)
-
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-
-	USAGE: problem.zdt3(dim = 30)
-
-	* dim: problem dimension
-	"""
-	arg_list=[]
-	arg_list.append(dim)
-	self._orig_init(*arg_list)
-
-zdt3._orig_init = zdt3.__init__
-zdt3.__init__ = _zdt3_ctor
-
-def _zdt4_ctor(self, dim = 10):
-	"""
-	Constructs a ZDT4 problem (Box-Constrained Continuous Multi-Objective)
-
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-
-	USAGE: problem.zdt4(dim = 10)
-
-	* dim: problem dimension
-	"""
-	arg_list=[]
-	arg_list.append(dim)
-	self._orig_init(*arg_list)
-
-zdt4._orig_init = zdt4.__init__
-zdt4.__init__ = _zdt4_ctor
-
-def _zdt6_ctor(self, dim = 10):
-	"""
-	Constructs a ZDT6 problem (Box-Constrained Continuous Multi-Objective)
-
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
-
-	USAGE: problem.zdt6(dim = 10)
-
-	* dim: problem dimension
-	"""
-	arg_list=[]
-	arg_list.append(dim)
-	self._orig_init(*arg_list)
-
-zdt6._orig_init = zdt6.__init__
-zdt6.__init__ = _zdt6_ctor
 
 def _luksan_vlcek_1_ctor(self,dim = 3):
 	"""

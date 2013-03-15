@@ -22,51 +22,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ7_H
-#define PAGMO_PROBLEM_DTLZ7_H
+#ifndef PAGMO_MIGRATION_RANDOM_S_POLICY_H
+#define PAGMO_MIGRATION_RANDOM_S_POLICY_H
 
-#include <string>
+#include <vector>
 
+#include "../config.h"
+#include "../population.h"
 #include "../serialization.h"
-#include "../types.h"
-#include "base_dtlz.h"
+#include "base.h"
+#include "base_s_policy.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace migration {
 
-/// DTLZ7 problem
+/// Random migration selection policy.
 /**
+ * This policy chooses the the individuals according to uniform random distribution
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem has disconnected Pareto-optimal regions in the search space.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
  * @author Marcus Maertens (mmarcusx@gmail.com)
+ * 
  */
-
-class __PAGMO_VISIBLE dtlz7 : public base_dtlz
+class __PAGMO_VISIBLE random_s_policy: public base_s_policy
 {
 	public:
-		dtlz7(int = 20, fitness_vector::size_type = 3);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		random_s_policy(const double &rate = 1, rate_type type = absolute);
+		base_s_policy_ptr clone() const;
+		std::vector<population::individual_type> select(population &) const;
 	private:
-		double g_func(const decision_vector &) const;
-		double h_func(const fitness_vector &, const double) const;
+		struct dom_comp;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_s_policy>(*this);
 		}
 };
 
-}} //namespaces
+} }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz7);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::random_s_policy);
 
-#endif // PAGMO_PROBLEM_DTLZ7_H
+#endif

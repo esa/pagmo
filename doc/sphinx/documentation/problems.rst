@@ -26,6 +26,8 @@ Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
 Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
 Himmelblau                         :class:`PyGMO.problem.himmelblau`         Bi-dimensional problem
 Michalewicz                        :class:`PyGMO.problem.michalewicz`
+MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
+MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
 Cassini 2                          :class:`PyGMO.problem.cassini_2`          Requires the GTOP database option active
 Rosetta                            :class:`PyGMO.problem.rosetta`            Requires the GTOP database option active
@@ -47,8 +49,18 @@ Poloni's study                     :class:`PyGMO.problem.pol`
 Shaffer's study                    :class:`PyGMO.problem.sch`
 ZDT1                               :class:`PyGMO.problem.zdt1`
 ZDT2                               :class:`PyGMO.problem.zdt2`         
+ZDT3                               :class:`PyGMO.problem.zdt3`
 ZDT4                               :class:`PyGMO.problem.zdt4`
 ZDT6                               :class:`PyGMO.problem.zdt6`
+DTLZ1                              :class:`PyGMO.problem.dtlz1`
+DTLZ2                              :class:`PyGMO.problem.dtlz2`
+DTLZ3                              :class:`PyGMO.problem.dtlz3`
+DTLZ4                              :class:`PyGMO.problem.dtlz4`
+DTLZ5                              :class:`PyGMO.problem.dtlz5`
+DTLZ6                              :class:`PyGMO.problem.dtlz6`
+DTLZ7                              :class:`PyGMO.problem.dtlz7`
+MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
+MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
 ================================== ========================================= ===========================================
 
@@ -109,7 +121,7 @@ Detailed Documentation
       
    .. method:: _compute_constraints_impl(self, x)
    
-      This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a tuple 
+      This is a virtual function tham can must be re-implemented in the derived class (if c_dim>0) and must return a tuple 
       packing as many numbers as the declared dimension of the problem constraints (c_dim). 
       Inequality constarints need to be packed at last.
       
@@ -193,17 +205,87 @@ Detailed Documentation
 
    .. automethod:: PyGMO.problem.zdt1.__init__
 
+   .. automethod:: PyGMO.problem.zdt1.p_distance
+
 .. autoclass:: PyGMO.problem.zdt2
 
    .. automethod:: PyGMO.problem.zdt2.__init__
+
+   .. automethod:: PyGMO.problem.zdt2.p_distance
+
+.. autoclass:: PyGMO.problem.zdt3
+
+   .. automethod:: PyGMO.problem.zdt3.__init__
+
+   .. automethod:: PyGMO.problem.zdt3.p_distance
 
 .. autoclass:: PyGMO.problem.zdt4
 
    .. automethod:: PyGMO.problem.zdt4.__init__
 
+   .. automethod:: PyGMO.problem.zdt4.p_distance
+
 .. autoclass:: PyGMO.problem.zdt6
 
    .. automethod:: PyGMO.problem.zdt6.__init__
+
+   .. automethod:: PyGMO.problem.zdt6.p_distance
+  
+.. autoclass:: PyGMO.problem.dtlz1
+
+   .. automethod:: PyGMO.problem.dtlz1.__init__
+   
+   .. automethod:: PyGMO.problem.dtlz1.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz1.plot
+
+.. autoclass:: PyGMO.problem.dtlz2
+
+   .. automethod:: PyGMO.problem.dtlz2.__init__
+
+   .. automethod:: PyGMO.problem.dtlz2.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz2.plot
+
+.. autoclass:: PyGMO.problem.dtlz3
+
+   .. automethod:: PyGMO.problem.dtlz3.__init__
+
+   .. automethod:: PyGMO.problem.dtlz3.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz3.plot
+
+.. autoclass:: PyGMO.problem.dtlz4
+
+   .. automethod:: PyGMO.problem.dtlz4.__init__
+
+   .. automethod:: PyGMO.problem.dtlz4.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz4.plot
+
+.. autoclass:: PyGMO.problem.dtlz5
+
+   .. automethod:: PyGMO.problem.dtlz5.__init__
+
+   .. automethod:: PyGMO.problem.dtlz5.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz5.plot
+
+.. autoclass:: PyGMO.problem.dtlz6
+
+   .. automethod:: PyGMO.problem.dtlz6.__init__
+
+   .. automethod:: PyGMO.problem.dtlz6.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz6.plot
+
+.. autoclass:: PyGMO.problem.dtlz7
+
+   .. automethod:: PyGMO.problem.dtlz7.__init__
+
+   .. automethod:: PyGMO.problem.dtlz7.p_distance
+   
+   .. automethod:: PyGMO.problem.dtlz7.plot
 
 .. autoclass:: PyGMO.problem.tsp
 
@@ -260,6 +342,75 @@ Detailed Documentation
 
       Requires VPython installed. It opens a graphical display and animate the motion of the three SPHERES
       as desribed by the world_state tuple (output from the simulate method)
+
+.. class:: PyGMO.problem.mga_1dsm_tof
+
+   .. method:: PyGMO.problem.mga_1dsm_tof.__init__(seq, t0, tof, vinf, multi_objective=False, add_vinf_dep=False, add_vinf_arr=True)
+   
+    Constructs an mga_1dsm problem (tof-encoding)
+
+    * seq: list of PyKEP planets defining the encounter sequence, including the starting planet (default: earth venus earth)
+    * t0: list of two epochs defining the launch window (default: 2000-Jan-01 00:00:00 to 2002-Sep-27 00:00:00)
+    * tof: list of intervals defining the times of flight in days (default: [[50,900],[50,900]])
+    * vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity at launch in km/sec (default: [0.5, 2.5])
+    * multi_objective: when True constructs a multiobjective problem (dv, T)
+    * add_vinf_dep: when True the computed Dv includes the initial hyperbolic velocity (at launch)
+    * add_vinf_arr: when True the computed Dv includes the final hyperbolic velocity (at arrival)
+
+    USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [200, 700], [200, 700] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
+
+    .. automethod:: PyGMO.problem.mga_1dsm_tof.plot
+
+    .. method:: PyGMO.problem.mga_1dsm_tof.set_tof(tof)
+
+    Resets the tof-bounds by the provided list of epochs. Needs a list consisting of lower/upper bound tuples.
+
+    .. method:: PyGMO.problem.mga_1dsm_tof.set_launch_window((tuple) t0)
+
+    Resets the launch windows to the lower and upper bounds given by tuple t0. Bounds need to be epochs.
+
+    .. method:: PyGMO.problem.mga_1dsm_tof.set_vinf((double) vinf_u)
+
+    Sets the upper bound for vinf to vinf_u
+
+    .. method:: PyGMO.problem.mga_1dsm_tof.pretty((tuple) x) -> (string) out
+
+    Returns a string with informations about tour encoded by x
+
+.. class:: PyGMO.problem.mga_1dsm_alpha
+
+   .. method:: PyGMO.problem.mga_1dsm_alpha.__init__(seq, t0, tof, vinf, multi_objective=False, add_vinf_dep=False, add_vinf_arr=True)
+   
+    Constructs an mga_1dsm problem (alpha-encoding)
+
+    * seq: list of PyKEP planets defining the encounter sequence, including the starting planet (default: earth venus earth)
+    * t0: list of two epochs defining the launch window (default: 2000-Jan-01 00:00:00 to 2002-Sep-27 00:00:00)
+    * tof: list of two floats defining the minimum and maximum allowed mission length in days (default: [365.25, 1826.35])
+    * vinf: list of two floats defining the minimum and maximum allowed initial hyperbolic velocity at launch in km/sec (default: [0.5, 2.5])
+    * multi_objective: when True constructs a multiobjective problem (dv, T)
+    * add_vinf_dep: when True the computed Dv includes the initial hyperbolic velocity (at launch)
+    * add_vinf_arr: when True the computed Dv includes the final hyperbolic velocity (at arrival)
+
+    USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [200, 700], [200, 700] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
+
+    .. automethod:: PyGMO.problem.mga_1dsm_alpha.plot
+
+    .. method:: PyGMO.problem.mga_1dsm_alpha.set_tof((tuple) tof)
+
+    Resets the tof-bounds by the provided tuple of epochs.
+
+    .. method:: PyGMO.problem.mga_1dsm_alpha.set_launch_window((tuple) t0)
+
+    Resets the launch windows to the lower and upper bounds given by tuple t0. Bounds need to be epochs.
+
+    .. method:: PyGMO.problem.mga_1dsm_alpha.set_vinf((double) vinf_u)
+
+    Sets the upper bound for vinf to vinf_u
+
+    .. method:: PyGMO.problem.mga_1dsm_alpha.pretty((tuple) x) -> (string) out
+
+    Returns a string with informations about tour encoded by x
+
 
 .. autoclass:: PyGMO.problem.cassini_1
 

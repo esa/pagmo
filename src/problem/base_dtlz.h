@@ -22,51 +22,63 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ7_H
-#define PAGMO_PROBLEM_DTLZ7_H
+#ifndef PAGMO_PROBLEM_BASE_DTLZ_H
+#define PAGMO_PROBLEM_BASE_DTLZ_H
 
-#include <string>
-
+#include "base.h"
 #include "../serialization.h"
-#include "../types.h"
-#include "base_dtlz.h"
 
 namespace pagmo{ namespace problem {
 
-/// DTLZ7 problem
+/// Base DTLZ Multi-objective optimization problem.
 /**
- *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem has disconnected Pareto-optimal regions in the search space.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
+ * The DTLZ test suite was introduced by Deb et. al in order to create benchmark problems
+ * with various features that are scalable to any number of objectives and dimensions. The first
+ * seven DTLZ problems are constructed with a bottom up approach: First, the pareto-optimal front is described by a surface. 
+ * Then, parallel layers of this surface are used to build the remainder of a decision space. 
+ * For this, a distance function g is introduced which is minimized for pareto-optimal solutions. 
+ * By evaluation of the g-function we thus get information how close the a solution is to the Pareto-optimal front. 
+ * This is used to define a simple convergence metric (p-distance) that is average value of the g-function over all individuals.
+ * 
+ * The first seven DTLZ problems are already implemented in PaGMO but you can create your own DTLZ-style problems
+ * by subclassing this base class. In order to do this, you have to implement a g-function. 
+ * The shape of the front itself has to be defined in the implementation
+ * of the objective function. The p-distance and a generic 3d-plot will then automatically be 
+ * available for your new problem.
+ * 
  * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
+ * 
  * @author Marcus Maertens (mmarcusx@gmail.com)
  */
-
-class __PAGMO_VISIBLE dtlz7 : public base_dtlz
+class __PAGMO_VISIBLE base_dtlz : public base
 {
 	public:
-		dtlz7(int = 20, fitness_vector::size_type = 3);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		base_dtlz(int, int);
+		double p_distance(const pagmo::population &) const;
+		/// Clone method.
+		/**
+		 * Provided that the derived problem implements properly the copy constructor, virtually all implementations of this method will
+		 * look like this:
+@verbatim
+return base_ptr(new derived_problem(*this));
+@endverbatim
+		 *
+		 * @return problem::base_ptr to a copy of this.
+		 */
+		virtual base_ptr clone() const = 0;
 	private:
-		double g_func(const decision_vector &) const;
-		double h_func(const fitness_vector &, const double) const;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
 		}
+	protected:
+		virtual double g_func(const decision_vector &) const;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz7);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_dtlz);
 
-#endif // PAGMO_PROBLEM_DTLZ7_H
+#endif

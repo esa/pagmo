@@ -29,10 +29,11 @@ using namespace pagmo;
 
 int main()
 {
-std::vector<kep_toolbox::planet_ptr> retval;
-retval.push_back(kep_toolbox::planet_ss("earth").clone());
-retval.push_back(kep_toolbox::planet_ss("earth").clone());
-retval.push_back(kep_toolbox::planet_ss("earth").clone());
-pagmo::problem::mga_1dsm_tof prob;
+pagmo::algorithm::nsga2 alg(100);
+pagmo::problem::dtlz2 prob;
+pagmo::island isl = island(alg, prob, 100);
+isl.evolve(1);
+std::cout << prob.p_distance(isl.get_population()) << std::endl;
+
 return 0;
 }

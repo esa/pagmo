@@ -55,7 +55,6 @@
 #include "problem/dejong.h"
 #include "problem/base_aco.h"
 #include "problem/base_stochastic.h"
-#include "problem/base_dtlz.h"
 #include "problem/tsp.h"
 #include "problem/knapsack.h"
 #include "problem/sch.h"
@@ -78,7 +77,7 @@
         #include "problem/cassini_1.h"
         #include "problem/cassini_2.h"
         #include "problem/gtoc_1.h"
-        #include "problem/gtoc_2.h"
+//        #include "problem/gtoc_2.h"
         #include "problem/sagas.h"
         #include "problem/rosetta.h"
         #include "problem/messenger.h"
@@ -90,9 +89,15 @@
 //        #include "problem/gtoc5_launch.h"
 //        #include "problem/gtoc5_rendezvous.h"
 //        #include "problem/gtoc5_self_flyby.h"
+<<<<<<< HEAD
+        #include "problem/earth_planet.h"
+        #include "problem/mga_1dsm.h"
+        #include "problem/mga_1dsm_novelty.h"
+=======
 //        #include "problem/earth_planet.h"
         #include "problem/mga_1dsm_alpha.h"
         #include "problem/mga_1dsm_tof.h"
+>>>>>>> development
         #include "problem/mga_incipit.h"
         #include "problem/mga_part.h"
 #endif

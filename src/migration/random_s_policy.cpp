@@ -22,51 +22,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ7_H
-#define PAGMO_PROBLEM_DTLZ7_H
+#include <algorithm>
+#include <vector>
 
-#include <string>
+#include "../population.h"
+#include "base.h"
+#include "base_s_policy.h"
+#include "random_s_policy.h"
+#include "../exceptions.h"
 
-#include "../serialization.h"
-#include "../types.h"
-#include "base_dtlz.h"
+namespace pagmo { namespace migration {
 
-namespace pagmo{ namespace problem {
-
-/// DTLZ7 problem
+/// Constructor from migration rate and type.
 /**
+ * @param[in] rate migration rate.
+ * @param[in] type migration rate type.
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem has disconnected Pareto-optimal regions in the search space.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
+ * @see base_s_policy::base_s_policy.
  */
+random_s_policy::random_s_policy(const double &rate, rate_type type):base_s_policy(rate,type) {}
 
-class __PAGMO_VISIBLE dtlz7 : public base_dtlz
+base_s_policy_ptr random_s_policy::clone() const
 {
-	public:
-		dtlz7(int = 20, fitness_vector::size_type = 3);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-	private:
-		double g_func(const decision_vector &) const;
-		double h_func(const fitness_vector &, const double) const;
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-		}
-};
+	return base_s_policy_ptr(new random_s_policy(*this));
+}
 
-}} //namespaces
+std::vector<population::individual_type> random_s_policy::select(population &pop) const
+{
+	pagmo_assert(get_n_individuals(pop) <= pop.size() && get_n_individuals(pop) >=0);
+	// Gets the number of individuals to select
+	const population::size_type migration_rate = get_n_individuals(pop);
+	
+	// Create a temporary array of individuals.
+	std::vector<population::individual_type> result;
+	
+	// Create an array of indices
+	std::vector<population::size_type> candidates_idx(boost::numeric_cast<std::vector<population::size_type>::size_type>(pop.size()));
+	
+	// Fill it with indices
+	iota(candidates_idx.begin(),candidates_idx.end(),population::size_type(0));
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz7);
+	// shuffle
+	random_shuffle(candidates_idx.begin(),candidates_idx.end());
+	
+	// Selects the n first individuals
+	for (population::size_type i = 0; i< migration_rate; ++i) {
+		result.push_back(pop.get_individual(candidates_idx[i]));
+	}
+	
+	return result;
+}
 
-#endif // PAGMO_PROBLEM_DTLZ7_H
+}}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::random_s_policy);

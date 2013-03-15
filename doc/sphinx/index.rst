@@ -7,7 +7,7 @@ Welcome to PyGMO (V1.1)!
 
 PyGMO (the Python Parallel Global Multiobjective Optimizer) is a scientific library providing a large number
 of optimisation problems and algorithms under the same powerful parallelization
-abstraction built around the *generalised island-model* paradigm. What this means to the user is that the available algorithms
+abstraction built around the *generalized island-model* paradigm. What this means to the user is that the available algorithms
 are all **automatically parallelized** (asynchronously, coarse-grained approach) thus making efficient use of the underlying multicore
 architecture. The user can also program his own solvers ... they also will be parallelized by PyGMO!! PyGMO's
 implementation of the *generalized migration operator* allows the user to easily define "migration paths" (topologies) between a large number of "islands" (CPU cores).

@@ -58,6 +58,7 @@ class __PAGMO_VISIBLE zdt2 : public base
 		zdt2(size_type = 30);
 		base_ptr clone() const;
 		std::string get_name() const;
+		double p_distance(const pagmo::population &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:

@@ -22,51 +22,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ7_H
-#define PAGMO_PROBLEM_DTLZ7_H
-
-#include <string>
-
-#include "../serialization.h"
-#include "../types.h"
 #include "base_dtlz.h"
+#include "../types.h"
+#include "../population.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace problem {
 
-/// DTLZ7 problem
-/**
- *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem has disconnected Pareto-optimal regions in the search space.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
- */
+/// Constructor
+base_dtlz::base_dtlz(int n, int nf):base(n, 0, nf, 0, 0, 0.0) {
+	};
 
-class __PAGMO_VISIBLE dtlz7 : public base_dtlz
+/// Gives a convergence metric for the population (0 = converged to the optimal front)
+double base_dtlz::p_distance(const pagmo::population &pop) const
 {
-	public:
-		dtlz7(int = 20, fitness_vector::size_type = 3);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-	private:
-		double g_func(const decision_vector &) const;
-		double h_func(const fitness_vector &, const double) const;
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
+	double c = 0.0;
+	f_size_type fdim = pop.problem().get_f_dimension();
+	decision_vector x_M;
+	decision_vector x;
+	
+    for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
+		x_M.clear();
+		x = pop.get_individual(i).cur_x;
+		for(problem::base::size_type j = fdim - 1; j < x.size(); ++j) {
+			x_M.push_back(x[j]);
 		}
-};
+		c += g_func(x_M);
+    }
+
+    return c / pop.size();
+}
+
+/// Implementation of the distance function g
+double base_dtlz::g_func(const decision_vector &x) const
+{
+	(void) x;	// to avoid warnings during compilation, parameter x is just used by the base classes
+	std::cout << "No g-function implemented, return 0.0 as function value" << std::endl;
+	return 0.0;
+}
 
 }} //namespaces
-
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz7);
-
-#endif // PAGMO_PROBLEM_DTLZ7_H

@@ -22,51 +22,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ7_H
-#define PAGMO_PROBLEM_DTLZ7_H
+#include <iostream>
+#include "src/pagmo.h"
 
-#include <string>
+using namespace pagmo;
 
-#include "../serialization.h"
-#include "../types.h"
-#include "base_dtlz.h"
-
-namespace pagmo{ namespace problem {
-
-/// DTLZ7 problem
-/**
- *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem has disconnected Pareto-optimal regions in the search space.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
- */
-
-class __PAGMO_VISIBLE dtlz7 : public base_dtlz
+int main()
 {
-	public:
-		dtlz7(int = 20, fitness_vector::size_type = 3);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-	private:
-		double g_func(const decision_vector &) const;
-		double h_func(const fitness_vector &, const double) const;
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-		}
-};
+<<<<<<< HEAD
+//pagmo::algorithm::jde_archived algo(40);
+pagmo::algorithm::jde algo(40);
+pagmo::problem::mga_1dsm_novelty prob;
+pagmo::island isl = island(algo, prob, 100);
+isl.evolve(10);
+std::cout << isl.get_population().champion().f << std::endl;
 
-}} //namespaces
-
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz7);
-
-#endif // PAGMO_PROBLEM_DTLZ7_H
+=======
+std::vector<kep_toolbox::planet_ptr> retval;
+retval.push_back(kep_toolbox::planet_ss("earth").clone());
+retval.push_back(kep_toolbox::planet_ss("earth").clone());
+retval.push_back(kep_toolbox::planet_ss("earth").clone());
+pagmo::problem::mga_1dsm_tof prob;
+>>>>>>> development
+return 0;
+}

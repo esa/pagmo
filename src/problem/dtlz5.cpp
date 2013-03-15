@@ -27,7 +27,7 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
+#include "base_dtlz.h"
 #include "dtlz5.h"
 
 namespace pagmo { namespace problem {
@@ -37,10 +37,10 @@ namespace pagmo { namespace problem {
  *
  * @param[in] k paramter defining integer dimension of the problem: k + fdim - 1
  * @param[in] fdim number of objectives
- * 
+ *
  * @see problem::base constructors.
  */
-dtlz5::dtlz5(int k, fitness_vector::size_type fdim):base(k + fdim - 1, 0, fdim)
+dtlz5::dtlz5(int k, fitness_vector::size_type fdim):base_dtlz(k + fdim - 1, fdim)
 {
 	// Set bounds.
 	set_lb(0.0);
@@ -65,15 +65,15 @@ double dtlz5::g_func(const decision_vector &x) const
 
 /// Implementation of the objective function.
 /* The chomosome: x_1, x_2, ........, x_M-1, x_M, .........., x_M+k
- *											 [------- Vector x_M -------]
+ *							    [------- Vector x_M -------]
  *               x[0], x[1], ... ,x[fdim-2], x[fdim-1], ... , x[fdim+k-1] */
 void dtlz5::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == get_f_dimension());
-    pagmo_assert(x.size() == get_dimension());
+	pagmo_assert(x.size() == get_dimension());
 
 	const double pi_half = boost::math::constants::pi<double>() / 2.0;
-	
+
 	// computing distance-function
 	decision_vector x_M;
 	double g;
@@ -81,18 +81,18 @@ void dtlz5::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for(problem::base::size_type i = f.size() - 1; i < x.size(); ++i) {
 		x_M.push_back(x[i]);
 	}
-	
+
 	g = g_func(x_M);
-	
+
 	// computing meta-variables
 	decision_vector theta(f.size(), 0.0);
 	double t;
 
-	theta[0] = x[0] * pi_half;
-	t = pi_half / 2 * (1 + g);
-	
+	theta[0] = x[0]; // * pi_half;
+	t =  1.0 / (2.0 * (1.0 + g));
+
 	for(problem::base::size_type i = 1; i < f.size(); ++i) {
-		theta[i] = t * (1 + (2 * g * x[i]));
+		theta[i] = t + ((g * x[i]) / (1.0 + g));
 	}
 
 	// computing shape-functions
@@ -100,7 +100,7 @@ void dtlz5::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for(problem::base::size_type i = 0; i < f.size() - 1; ++i) {
 		f[0] *= cos(theta[i] * pi_half);
 	}
-	
+
 	for(problem::base::size_type i = 1; i < f.size() - 1; ++i) {
 		f[i] = (1.0 + g);
 		for(problem::base::size_type j = 0; j < f.size() - (i+1); ++j) {

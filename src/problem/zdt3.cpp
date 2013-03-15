@@ -27,6 +27,7 @@
 
 #include "../exceptions.h"
 #include "../types.h"
+#include "../population.h"
 #include "base.h"
 #include "zdt3.h"
 
@@ -36,7 +37,7 @@ namespace pagmo { namespace problem {
  * Will construct ZDT3.
  *
  * @param[in] dim integer dimension of the problem.
- * 
+ *
  * @see problem::base constructors.
  */
 zdt3::zdt3(size_type dim):base(dim,0,2)
@@ -52,6 +53,27 @@ base_ptr zdt3::clone() const
 	return base_ptr(new zdt3(*this));
 }
 
+/// Gives a convergence metric for the population (0 = converged to the optimal front)
+double zdt3::p_distance(const pagmo::population &pop) const
+{
+    double c = 0.0;
+    double g = 0.0;
+
+    decision_vector x;
+
+    for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
+        x = pop.get_individual(i).cur_x;
+		g = 0.0;
+        for(problem::base::size_type j = 1; j < x.size(); ++j) {
+            g += x[j];
+        }
+        c += 1 + (9 * g) / (x.size()-1);
+    }
+
+    return (c / pop.size()) - 1;
+}
+
+
 /// Implementation of the objective function.
 void zdt3::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
@@ -66,9 +88,9 @@ void zdt3::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		g += x[i];
 	}
 	g = 1 + (9 * g) / (x.size()-1);
-	
+
 	f[1] = g * ( 1 - sqrt(x[0]/g) - x[0]/g * sin(10 * boost::math::constants::pi<double>() * x[0]));
-	
+
 }
 
 std::string zdt3::get_name() const

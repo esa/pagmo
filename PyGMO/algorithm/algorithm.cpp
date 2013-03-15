@@ -227,7 +227,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Differential evolution (jDE)
 	algorithm_wrapper<algorithm::jde>("jde", "Self-Adaptive Differential Evolution Algorithm: jDE.\n")
 		.def(init<optional<int, int, int, double, double, bool> >());
-		
+
 	// Differential evolution (mde_pbx)
 	algorithm_wrapper<algorithm::mde_pbx>("mde_pbx", "Self-Adaptive Differential Evolution Algorithm: mde_pbx.\n")
 		.def(init<optional<int, double, double, double, double> >());

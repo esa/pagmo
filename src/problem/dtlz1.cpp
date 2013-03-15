@@ -27,7 +27,8 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
+#include "../population.h"
+#include "base_dtlz.h"
 #include "dtlz1.h"
 
 namespace pagmo { namespace problem {
@@ -40,7 +41,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-dtlz1::dtlz1(int k, fitness_vector::size_type fdim):base(k + fdim - 1, 0, fdim)
+dtlz1::dtlz1(int k, fitness_vector::size_type fdim):base_dtlz(k + fdim - 1, fdim)
 {
 	// Set bounds.
 	set_lb(0.0);
@@ -51,6 +52,26 @@ dtlz1::dtlz1(int k, fitness_vector::size_type fdim):base(k + fdim - 1, 0, fdim)
 base_ptr dtlz1::clone() const
 {
 	return base_ptr(new dtlz1(*this));
+}
+
+/// Gives a convergence metric for the population (0 = converged to the optimal front)
+double dtlz1::p_distance(const pagmo::population &pop) const
+{
+	double c = 0.0;
+	f_size_type fdim = pop.problem().get_f_dimension();
+	decision_vector x_M;
+	decision_vector x;
+	
+    for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
+		x_M.clear();
+		x = pop.get_individual(i).cur_x;
+		for(problem::base::size_type j = fdim - 1; j < x.size(); ++j) {
+			x_M.push_back(x[j]);
+		}
+		c += g_func(x_M);
+    }
+
+    return c / pop.size();
 }
 
 /// Implementation of the distance function g
