@@ -29,7 +29,7 @@
 #include <cmath>
 
 #include "mga_incipit.h"
-#include "../keplerian_toolbox/keplerian_toolbox.h""
+#include "../keplerian_toolbox/keplerian_toolbox.h"
 
 namespace pagmo { namespace problem {
 
