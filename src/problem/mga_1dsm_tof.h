@@ -58,6 +58,7 @@ namespace pagmo{ namespace problem {
  *
  * @see Izzo: "Global Optimization and Space Pruning for Spacecraft Trajectory Design, Spacecraft Trajectory Optimization, Conway, B. (Eds.), Cambridge University Press, pp.178-199, 2010)
  * @author Dario Izzo (dario.izzo@esa.int)
+ * @author Marcus Maertens (mmarcusx@gmail.com)
  */
 class __PAGMO_VISIBLE mga_1dsm_tof: public base
 {
@@ -89,7 +90,7 @@ class __PAGMO_VISIBLE mga_1dsm_tof: public base
 		};
 		static const std::vector<boost::array<double,2> > construct_default_tof() {
 			std::vector<boost::array<double,2> > retval;
-			boost::array<double,2> dumb = {{ 200,700 }};  
+			boost::array<double,2> dumb = {{ 50,900 }};  
 			retval.push_back(dumb);
 			retval.push_back(dumb);
 			return retval;

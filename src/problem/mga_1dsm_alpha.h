@@ -60,6 +60,7 @@ namespace pagmo{ namespace problem {
  *
  * @see Izzo: "Global Optimization and Space Pruning for Spacecraft Trajectory Design, Spacecraft Trajectory Optimization, Conway, B. (Eds.), Cambridge University Press, pp.178-199, 2010)
  * @author Dario Izzo (dario.izzo@esa.int)
+ * @author Marcus Maertens (mmarcusx@gmail.com)
  */
 class __PAGMO_VISIBLE mga_1dsm_alpha: public base
 {
@@ -78,6 +79,7 @@ class __PAGMO_VISIBLE mga_1dsm_alpha: public base
 		void set_launch_window(const kep_toolbox::epoch&, const kep_toolbox::epoch&);
 		void set_vinf(const double);
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
+		std::vector<double> get_tof() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;

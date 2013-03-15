@@ -223,11 +223,11 @@ mga_1dsm_alpha._orig_init = mga_1dsm_alpha.__init__
 mga_1dsm_alpha.__init__ = _mga_1dsm_alpha_ctor
 
 
-def _mga_1dsm_tof_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [200, 700], [200, 700] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
+def _mga_1dsm_tof_ctor(self, seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [50, 900], [50, 900] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True):
 	"""
 	Constructs an mga_1dsm problem (tof-encoding)
 
-	USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [200, 700], [200, 700] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
+	USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [50, 900], [50, 900] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
 
 	* seq: list of PyKEP planets defining the encounter sequence (including the starting planet)
 	* t0: list of two epochs defining the launch window

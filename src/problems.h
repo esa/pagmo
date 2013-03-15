@@ -78,7 +78,7 @@
         #include "problem/cassini_1.h"
         #include "problem/cassini_2.h"
         #include "problem/gtoc_1.h"
-//        #include "problem/gtoc_2.h"
+        #include "problem/gtoc_2.h"
         #include "problem/sagas.h"
         #include "problem/rosetta.h"
         #include "problem/messenger.h"

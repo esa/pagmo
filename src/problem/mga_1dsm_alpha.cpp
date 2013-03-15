@@ -348,6 +348,20 @@ void mga_1dsm_alpha::set_vinf(const double vinf) {
 	set_ub(4,vinf*1000);
 }
 
+/// Gets the sequence of time of flights for the mga-1dsm mission
+/**
+ * @return An std::vector of two doubles containing the lower and upper bound on total time of flight
+ */
+std::vector<double> mga_1dsm_alpha::get_tof() const {
+	std::vector<double> retval;
+	const decision_vector lb = get_lb();
+	const decision_vector ub = get_ub();
+	retval.push_back(lb[1]);
+	retval.push_back(ub[1]);
+	return retval;
+}
+
+
 /// Gets the planetary sequence defining the interplanetary mga-1dsm mission
 /**
  * @return An std::vector containing the kep_toolbox::planets

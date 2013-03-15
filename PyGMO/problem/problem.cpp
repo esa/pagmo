@@ -364,14 +364,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::gtoc_1>("gtoc_1","GTOC 1 problem (chemical approximation).");
 
 	// GTOC2 problem.
-	//problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
-	//	.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
+	problem_wrapper<problem::gtoc_2>("gtoc_2","GTOC 2 problem (LT model).")
+		.def(init<optional<int,int,int,int,int,problem::gtoc_2::objective> >());
 
 	// GTOC2's objectives enum.
-	//enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
-	//	.value("MASS",problem::gtoc_2::MASS)
-	//	.value("TIME",problem::gtoc_2::TIME)
-	//	.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
+	enum_<problem::gtoc_2::objective>("_gtoc_2_objective")
+		.value("MASS",problem::gtoc_2::MASS)
+		.value("TIME",problem::gtoc_2::TIME)
+		.value("MASS_TIME",problem::gtoc_2::MASS_TIME);
 
 	// Laplace problem.
 	problem_wrapper<problem::laplace>("laplace","Laplace problem.")
@@ -401,6 +401,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool> >())
 		.def("pretty", &problem::mga_1dsm_alpha::pretty)
 		.def("set_tof", &problem::mga_1dsm_alpha::set_tof)
+		.def("get_tof", &problem::mga_1dsm_alpha::get_tof)
 		.def("set_launch_window", &problem::mga_1dsm_alpha::set_launch_window)
 		.def("set_vinf", &problem::mga_1dsm_alpha::set_vinf)
 		.def("get_sequence", &problem::mga_1dsm_alpha::get_sequence);
