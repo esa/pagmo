@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -76,6 +76,20 @@ class __PAGMO_VISIBLE base
 	protected:
 		virtual std::string human_readable_extra() const;
 	protected:
+		/// Iota function, usefull to fill iterator range with increasing values.
+		/**
+		 * This function will fill the contents in the range [first,last) with increasing values, starting from *first = value.
+		 *
+		 * @param[in] first start of the iterator range.
+		 * @param[in] last end of the iterator range.
+		 * @param[in] value initial value.
+		 */
+		template <class ForwardIterator, class T>
+		static void iota(ForwardIterator first, ForwardIterator last, T value)
+		{
+			for (; first != last; ++first, ++value)
+				*first = value;
+		}
 		/// Migration rate.
 		/**
 		 * It will be interpreted as an integer in case of absolute rate migration type, as a floating-point value

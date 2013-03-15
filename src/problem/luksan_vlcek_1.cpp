@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -115,7 +115,7 @@ void luksan_vlcek_1::set_sparsity(int &lenG, std::vector<int> &iGfun, std::vecto
 
 std::string luksan_vlcek_1::get_name() const
 {
-	return "Luksan-Vlcek_1";
+	return "Luksan-Vlcek 1";
 }
 
 } }

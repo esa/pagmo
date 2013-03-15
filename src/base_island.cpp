@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -212,7 +212,7 @@ std::string base_island::human_readable() const
  */
 void base_island::join() const
 {
-	if (m_evo_thread) {
+	if (m_evo_thread && m_evo_thread->joinable()) {
 		m_evo_thread->join();
 	}
 }

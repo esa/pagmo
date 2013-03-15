@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -29,11 +29,11 @@ using namespace pagmo;
 
 int main()
 {
-pagmo::algorithm::ihs algo(10000);
-pagmo::problem::zdt1 prob;
-pagmo::island isl = island(algo, prob, 100);
+pagmo::algorithm::nsga2 alg(100);
+pagmo::problem::dtlz2 prob;
+pagmo::island isl = island(alg, prob, 100);
 isl.evolve(1);
-std::cout << isl.get_population().champion().f << std::endl;
+std::cout << prob.p_distance(isl.get_population()) << std::endl;
 
 return 0;
 }

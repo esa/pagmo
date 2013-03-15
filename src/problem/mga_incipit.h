@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -52,7 +52,7 @@ class __PAGMO_VISIBLE mga_incipit: public base
 {
 	public:
 		mga_incipit(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
-			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(6905.0), const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
+			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(7305.0), const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
 			 const std::vector<std::vector<double> > tof = construct_default_tofs()
 			 );
 		mga_incipit(const mga_incipit&);
@@ -61,6 +61,7 @@ class __PAGMO_VISIBLE mga_incipit: public base
 		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;
 		void set_tof(const std::vector<std::vector<double> >&);
+		const std::vector<std::vector<double> >& get_tof() const;
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

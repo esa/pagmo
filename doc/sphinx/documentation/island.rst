@@ -102,6 +102,19 @@ island and that, in reality, is a helper function returning automatically the co
                                                            # as the 'attribute' population returns a copy
          isl.set_v(0,[0.02,0.03,-0.3,0.12,0.1])            # This works!!
 
+   .. method:: PyGMO.island.get_evolution_time()
+
+      Returns the time PyGMO has spent on evolving that island in milliseconds
+
+      .. code-block:: python
+
+         from PyGMO import *
+         prob = problem.ackley(5)
+         algo = algorithm.de(10) #instantiates differential evolution with default params and 10 generations
+         isl = island(algo,prob,40)
+         isl.evolve(100)
+         isl.get_evolution_time()
+
    .. attribute:: PyGMO.island.algorithm
 
       The *island* :class:`PyGMO.algorithm`. Can be set, but not modified via its methods.
