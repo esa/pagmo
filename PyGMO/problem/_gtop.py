@@ -519,6 +519,7 @@ def _mga_incipit_plot(self,x, plot_leg_0 = False):
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
 	plt.show()
+	return ax
 mga_incipit.plot = _mga_incipit_plot
 
 #Plot of the trajectory of an mga_part problem
@@ -577,6 +578,7 @@ def _mga_part_plot(self,x):
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
 	plt.show()
+	return ax
 mga_part.plot = _mga_part_plot
 
 
