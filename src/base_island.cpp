@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -212,7 +212,7 @@ std::string base_island::human_readable() const
  */
 void base_island::join() const
 {
-	if (m_evo_thread) {
+	if (m_evo_thread && m_evo_thread->joinable()) {
 		m_evo_thread->join();
 	}
 }
@@ -291,9 +291,9 @@ void base_island::int_evolver::operator()()
 	} catch (const boost::thread_interrupted &) {
 		// In case of interruption, don't do anything special.
 	} catch (const std::exception &e) {
-		std::cout << "Error during island evolution: " << e.what() << '\n';
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ": " << e.what() << std::endl;
 	} catch (...) {
-		std::cout << "Error during island evolution, unknown exception caught. :(\n";
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ", unknown exception caught. :(" << std::endl;
 	}
 	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
 	try {
@@ -374,9 +374,9 @@ void base_island::t_evolver::operator()()
 	} catch (const boost::thread_interrupted &) {
 		// In case of interruption, don't do anything special.
 	} catch (const std::exception &e) {
-		std::cout << "Error during island evolution: " << e.what() << '\n';
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ": " << e.what() << std::endl;
 	} catch (...) {
-		std::cout << "Error during island evolution, unknown exception caught. :(\n";
+		std::cout << "Error during island evolution using " << m_i->m_algo->get_name() << ", unknown exception caught. :(" << std::endl;
 	}
 	// Try to compute the evolution time before exiting. In case something goes wrong, do not do anything.
 	try {

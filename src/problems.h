@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -29,6 +29,13 @@
 
 #include "problem/base.h"
 #include "problem/branin.h"
+#include "problem/dtlz1.h"
+#include "problem/dtlz2.h"
+#include "problem/dtlz3.h"
+#include "problem/dtlz4.h"
+#include "problem/dtlz5.h"
+#include "problem/dtlz6.h"
+#include "problem/dtlz7.h"
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
 #include "problem/rastrigin.h"
@@ -48,6 +55,7 @@
 #include "problem/dejong.h"
 #include "problem/base_aco.h"
 #include "problem/base_stochastic.h"
+#include "problem/base_dtlz.h"
 #include "problem/tsp.h"
 #include "problem/knapsack.h"
 #include "problem/sch.h"
@@ -77,12 +85,16 @@
         #include "problem/messenger_full.h"
         #include "problem/tandem.h"
         #include "problem/laplace.h"
-        #include "problem/sample_return.h"
-        #include "problem/gtoc5_flyby.h"
-        #include "problem/gtoc5_launch.h"
-        #include "problem/gtoc5_rendezvous.h"
-        #include "problem/gtoc5_self_flyby.h"
-        #include "problem/earth_planet.h"
+//        #include "problem/sample_return.h"
+//        #include "problem/gtoc5_flyby.h"
+//        #include "problem/gtoc5_launch.h"
+//        #include "problem/gtoc5_rendezvous.h"
+//        #include "problem/gtoc5_self_flyby.h"
+//        #include "problem/earth_planet.h"
+        #include "problem/mga_1dsm_alpha.h"
+        #include "problem/mga_1dsm_tof.h"
+        #include "problem/mga_incipit.h"
+        #include "problem/mga_part.h"
 #endif
 
 #endif

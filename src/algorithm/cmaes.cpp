@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -36,7 +36,7 @@
 #include "cmaes.h"
 #include "../exceptions.h"
 #include "../population.h"
-#include "../problem/base.h"
+#include "../problem/base_stochastic.h"
 #include "../types.h"
 #include "../Eigen/Dense"
 
@@ -58,22 +58,22 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if cc,cs,c1,cmu are not in [0,1] or not -1
  * 
  * */
-cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool memory, bool homebrew):
+cmaes::cmaes(int gen, double cc, double cs, double c1, double cmu, double sigma0, double ftol, double xtol, bool memory):
 		base(), m_gen(boost::numeric_cast<std::size_t>(gen)), m_cc(cc), m_cs(cs), m_c1(c1), 
-		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_memory(memory), m_homebrew(homebrew) {
+		m_cmu(cmu), m_sigma(sigma0), m_ftol(ftol), m_xtol(xtol), m_memory(memory) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
-	if ( ((cc < 0) || (cc > 0)) && !(cc==-1) ){
+	if ( ((cc < 0) || (cc > 1)) && !(cc==-1) ){
 		pagmo_throw(value_error,"cc needs to be in [0,1] or -1 for auto value");
 	}
-	if ( ((cs < 0) || (cs > 0)) && !(cs==-1) ){
+	if ( ((cs < 0) || (cs > 1)) && !(cs==-1) ){
 		pagmo_throw(value_error,"cs needs to be in [0,1] or -1 for auto value");
 	}
-	if ( ((c1 < 0) || (c1 > 0)) && !(c1==-1) ){
+	if ( ((c1 < 0) || (c1 > 1)) && !(c1==-1) ){
 		pagmo_throw(value_error,"c1 needs to be in [0,1] or -1 for auto value");
 	}
-	if ( ((cmu < 0) || (cmu > 0)) && !(cmu==-1) ){
+	if ( ((cmu < 0) || (cmu > 1)) && !(cmu==-1) ){
 		pagmo_throw(value_error,"cmu needs to be in [0,1] or -1 for auto value");
 	}
 
@@ -213,7 +213,7 @@ void cmaes::evolve(population &pop) const
 	std::vector<VectorXd> elite(mu,tmp);
 	decision_vector dumb(N,0);
 
-	// If the algorithm is called for the first time on this problem dimension / pop size or if m_fresh_start is true we erease the memory of past calls
+	// If the algorithm is called for the first time on this problem dimension / pop size or if m_memory is false we erease the memory of past calls
 	if ( (m_newpop.size() != lam) || ((unsigned int)(m_newpop[0].rows() ) != N) || (m_memory==false) ) {
 		mean.resize(N);
 		for (problem::base::size_type i=0;i<N;++i){
@@ -277,7 +277,7 @@ void cmaes::evolve(population &pop) const
 		//a stopping criteria
 		var_norm = (sigma * B * D * tmp).norm();
 
-		// 1c - we fix the bounds and reinsert
+		// 1c - we fix the bounds 
 		for (population::size_type i = 0; i<lam; ++i ) {
 			for (decision_vector::size_type j = 0; j<N; ++j ) {
 				if ( (newpop[i](j) < lb[j]) || (newpop[i](j) > ub[j]) ) {
@@ -286,30 +286,24 @@ void cmaes::evolve(population &pop) const
 			}
 		}
 
-		if (m_homebrew==true) {
-			//In PyGMO's brew of CMAES reinsertion is made replacing always the worst individual.
-			//Some individuals from the previos generation may thus survive
+		// 2 - We Evaluate the new population (if the problem is stochastic change seed first)
+		try
+		{	//TODO: check if it is really necessary to clear the pop and reset the caches, also
+			//would it make sense to use best_x also?
+			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
+			std::cout << "messing" << std::endl;
+			prob.reset_caches();
+			pop.clear();
 			for (population::size_type i = 0; i<lam; ++i ) {
-				for (decision_vector::size_type j = 0; j<N; ++j ) {
+			  	for (decision_vector::size_type j = 0; j<N; ++j ) {
 					dumb[j] = newpop[i](j);
 				}
-				int idx = pop.get_worst_idx();
-				pop.set_x(idx,dumb);
+				pop.push_back(dumb);
 			}
 			counteval += lam;
-
-			// 2 - We extract the elite from this generation. In PyGMO's brew of CMAES mu elite
-			// individuals are extracted using the length of their dominance list as a criteria. 
-			// This is equivalent, in a minimization problem, to sort the individual w.r.t. 
-			// the trivial_comparison_operator implemented in population
-			std::vector<population::size_type> best_idx = pop.get_best_idx(mu);
-			for (population::size_type i = 0; i<mu; ++i ) {
-				for (decision_vector::size_type j = 0; j<N; ++j ) {
-					elite[i](j) = pop.get_individual(best_idx[i]).best_x[j];
-				}
-			}
 		}
-		else {
+		catch (const std::bad_cast& e)
+		{
 			// Reinsertion (original method)
 			for (population::size_type i = 0; i<lam; ++i ) {
 				for (decision_vector::size_type j = 0; j<N; ++j ) {
@@ -318,22 +312,24 @@ void cmaes::evolve(population &pop) const
 				pop.set_x(i,dumb);
 			}
 			counteval += lam;
-			// 2 - We extract the elite from this generation. We use cur_f, equivalent to the
-			// original method
-			std::vector<population::size_type> best_idx;
-			best_idx.reserve(pop.size());
-			for (population::size_type i=0; i<pop.size(); ++i){
-				best_idx.push_back(i);
-			}
-			cmp_using_cur cmp(pop);
-			std::sort(best_idx.begin(),best_idx.end(),cmp);
-		  	best_idx.resize(mu);
-			for (population::size_type i = 0; i<mu; ++i ) {
-				for (decision_vector::size_type j = 0; j<N; ++j ) {
-					elite[i](j) = pop.get_individual(best_idx[i]).cur_x[j];
-				}
+		}
+		
+		// 2 - We extract the elite from this generation. We use cur_f, equivalent to the
+		// original method
+		std::vector<population::size_type> best_idx;
+		best_idx.reserve(pop.size());
+		for (population::size_type i=0; i<pop.size(); ++i){
+			best_idx.push_back(i);
+		}
+		cmp_using_cur cmp(pop);
+		std::sort(best_idx.begin(),best_idx.end(),cmp);
+		best_idx.resize(mu);
+		for (population::size_type i = 0; i<mu; ++i ) {
+			for (decision_vector::size_type j = 0; j<N; ++j ) {
+				elite[i](j) = pop.get_individual(best_idx[i]).cur_x[j];
 			}
 		}
+
 
 		// 3 - Compute the new elite mean storing the old one
 		meanold=mean;
@@ -387,6 +383,8 @@ void cmaes::evolve(population &pop) const
 				invsqrtC = B*Dinv*B.transpose();
 			} //if eigendecomposition fails just skip it and keep pevious succesful one.
 		}
+		
+		
 
 		//8 - We print on screen if required
 		if (m_screen_output) {
@@ -494,8 +492,7 @@ std::string cmaes::human_readable_extra() const
 	  << "sigma0:" << m_sigma << ' '
 	  << "ftol:" << m_ftol << ' '
 	  << "xtol:" << m_xtol << ' ' 
-	  << "memory:" << m_memory << ' ' 
-	  << "homebrew_variant?:" << m_homebrew;
+	  << "memory:" << m_memory;
 	return s.str();
 }
 

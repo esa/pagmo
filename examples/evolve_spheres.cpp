@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -102,7 +102,6 @@ for (int i=0; i< n_gen; ++i){
 	else {
 		 (buff[i%50] = best_f);
 	}
-
 	double mean = 0.0;
 	mean = std::accumulate(buff.begin(),buff.end(),mean);
 	mean /= (double)buff.size();

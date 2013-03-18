@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -176,10 +176,30 @@ void mpi_environment::listen()
 			pagmo_assert(payload.second.get() == 0);
 			break;
 		}
-		// Perform the evolution.
-		payload.second->evolve(*payload.first);
-		// Send back to the master the evolved population.
-		send(payload.first,0);
+
+		// Create copy of data received
+		const boost::shared_ptr<population> pop_copy(new population(*payload.first));
+		try {
+			// Perform the evolution.
+			payload.second->evolve(*payload.first);
+		} catch (const std::exception &e) {
+			std::cout << "MPI Remote Error during island evolution using " << payload.second->get_name() << ": " << e.what() << std::endl;
+		} catch (...) {
+			std::cout << "MPI Remote Error during island evolution using " << payload.second->get_name() << ", unknown exception caught. :(" << std::endl;
+		}
+
+		try {                
+			// Send back to the master the evolved population.
+			send(payload.first,0);
+		} catch (const boost::archive::archive_exception &e) {
+			std::cout << "MPI Send Error during island evolution using " << payload.second->get_name() << ": " << e.what() << std::endl;
+			// Send back to the master the original population.
+			send(pop_copy,0);
+		} catch (...) {
+			std::cout << "MPI Send Error during island evolution using " << payload.second->get_name() << ", unknown exception caught. :(" << std::endl;
+			// Send back to the master the original population.
+			send(pop_copy,0);
+                }
 	}
 	// Destroy the MPI environment before exiting.
 	MPI_Finalize();

@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -27,10 +27,10 @@
 
 /*! \mainpage PaGMO (Parallel Global Multiobjective Optimizer)
 \section intro_sec Introduction 
-PaGMO offers a generalization of the island model paradigm able parallelize global and local optimization
-algorithms using multiple threads/processes. It provides a set of C++ classes
-and their exposition in Python language as to allow the user to solve, in a parallel fashion,
-global optimization tasks in the form: \n\n
+PaGMO offers a generalization of the island model paradigm working for global and local optimization
+algorithms. Its main parallelization approach makes use of multiple threads, but MPI is also implemented and can be 
+mixed in with multithreading. It provides a set of C++ classes and their exposition in Python language (PyGMO)
+as to allow the user to solve, in a parallel fashion, global optimization tasks in the form: \n\n
 <center>
 	\f$
 	\begin{array}{rl}
@@ -103,21 +103,28 @@ directly in Python.
   - Spheres (pagmo::problem::spheres, pagmo::problem::spheres_q). Two problems of neurocontroller evolution for the MIT SPHERE test-bed on board the ISS
 \section install Installation guide
 
-To install PaGMO from source code you will need git and CMake installed in your system. On Unix systems:
+To install PaGMO from source code you will need git and CMake installed in your system. 
+
+On Unix systems:
 
 - Clone the PaGMO git repository on your local machine: \code git clone git://git.code.sf.net/p/pagmo/code pagmo-code \endcode
 - Create a build directory in your pagmo directory and move there: \code 
 cd pagmo-code \endcode \code mkdir build \endcode \code cd build 
 \endcode
 - Run ccmake to configure your makefile (or project): \code ccmake ../ \endcode
-- In ccmake, press c to configure, then (see figure below) select the options that are desired (e.g. compile the main file?, compile  PyGMO?) press c to configure again and then g to generate the makefile. Selecting the option PyGMO you will also build the python version of the code. In this case make sure you have python installed. CMake will try to locate the current installation directory of your python and install there the code.
+- In ccmake, press c to configure, then (see figure below) select the options that are desired 
+(e.g. compile the main file?, compile  PyGMO?) press c to configure again and then g to generate the makefile. 
+Selecting the option PyGMO you will also build the python version of the code. 
+In this case make sure you have python installed. CMake will try to locate the current installation 
+directory of your python and install there the code upon make install.
 
 \image html ccmake.png
 - Build PaGMO: \code make \endcode
 - Test PaGMO (if tests are enabled in ccmake): \code make test\endcode
 - Install PaGMO: \code make install \endcode
 
-On Windows systems, the procedure is analogous (you will likely use the Windows CMake GUI instead of ccmake).
+On Windows systems, the procedure is analogous (you will likely use the Windows CMake GUI instead of ccmake). We have so 
+far tested compilation only using MinGW
 
 \section PyGMO Interactive python session
 

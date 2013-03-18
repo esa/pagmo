@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -31,6 +31,7 @@
 #include "migration/base_r_policy.h"
 #include "migration/base_s_policy.h"
 #include "migration/best_s_policy.h"
+#include "migration/random_s_policy.h"
 #include "migration/best_kill_s_policy.h"
 #include "migration/fair_r_policy.h"
 #include "migration/random_r_policy.h"

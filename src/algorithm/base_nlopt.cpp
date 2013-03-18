@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -76,7 +76,7 @@ std::string base_nlopt::human_readable_extra() const
 double base_nlopt::objfun_wrapper(const std::vector<double> &x, std::vector<double> &grad, void* data)
 {
 	nlopt_wrapper_data *d = (nlopt_wrapper_data *)data;
-	pagmo_assert(d->f->size() == 1);
+	pagmo_assert(d->f.size() == 1);
 
 	// Comupte the gradient by central diffs if necessary TODO: also ipopt has this code (or dimilar)
 	// It shold be moved elswhere in PaGMO. Plus be aware that here a chromsome outside the bounds
@@ -111,7 +111,7 @@ double base_nlopt::objfun_wrapper(const std::vector<double> &x, std::vector<doub
 double base_nlopt::constraints_wrapper(const std::vector<double> &x, std::vector<double> &grad, void* data)
 {
 	nlopt_wrapper_data *d = (nlopt_wrapper_data *)data;
-	pagmo_assert(d->c->size() == d->prob->get_c_dimension());
+	pagmo_assert(d->c.size() == d->prob->get_c_dimension());
 
 	// Compute the gradient by central diffs (if necessary). TODO: also ipopt has this code (or similar)
 	// It shold be moved elswhere in PaGMO. Plus be aware that here a chromsome outside the bounds

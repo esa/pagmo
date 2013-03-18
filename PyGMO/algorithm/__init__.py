@@ -441,7 +441,7 @@ def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction
 cs._orig_init = cs.__init__
 cs.__init__ = _cs_ctor
 
-def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
+def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, screen_output = False):
 	"""
 	Constructs a Monotonic Basin Hopping Algorithm (generalized to accept any algorithm)
 	
@@ -455,6 +455,8 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	* stop: number of no improvements before halting the optimization
 	* perturb: non-dimentional perturbation width (can be a list, in which case
 		it has to have the same dimension of the problem mbh will be applied to)
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -462,6 +464,7 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2):
 	arg_list.append(stop)
 	arg_list.append(perturb)
 	self._orig_init(*arg_list)
+	self.screen_output = screen_output
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
 
@@ -490,7 +493,7 @@ def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_
 ihs._orig_init = ihs.__init__
 ihs.__init__ = _ihs_ctor
 
-def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, homebrew = False, screen_output = False):
+def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5, ftol = 1e-6, xtol = 1e-6, memory = False, screen_output = False):
 	"""
 	Constructs a Covariance Matrix Adaptation Evolutionary Strategy (C++)
 
@@ -510,7 +513,6 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	* xtol: stopping criteria on the x tolerance
 	* ftol: stopping criteria on the f tolerance
 	* memory: if True the algorithm internal state is saved and used for the next call	
-	* homebrew: when True CMAES becames a variant using population memory to define the elite and reinserting in steady-state (our own homebrew)
 	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
 	* 		 different island outputs)
 	"""
@@ -525,7 +527,6 @@ def _cmaes_ctor(self, gen = 500, cc = -1, cs = -1, c1 = -1, cmu = -1, sigma0=0.5
 	arg_list.append(ftol)
 	arg_list.append(xtol)
 	arg_list.append(memory)
-	arg_list.append(homebrew)
 	self._orig_init(*arg_list)
 	self.screen_output = screen_output
 cmaes._orig_init = cmaes.__init__
@@ -861,24 +862,31 @@ if "gsl" in str(_get_algorithm_list()):
 
 #IPOPT algorithm (only if PyGMO has been compiled with the ipopt option activated)
 if "ipopt" in str(_get_algorithm_list()):
-	def _ipopt_ctor(self, major_iter = 100, constr_viol_tol = 1e-08, dual_inf_tol = 1e-08, compl_inf_tol = 1e-08, screen_output = False):
+	def _ipopt_ctor(self, max_iter = 100, constr_viol_tol = 1e-08, dual_inf_tol = 1e-08, compl_inf_tol = 1e-08, 
+	nlp_scaling_method = True, obj_scaling_factor = 1.0, mu_init = 0.1, screen_output = False):
 		"""
 		Constructs an Interior Point OPTimization Algorithm (IPOPT)
 	
 		USAGE: algorithm.ipopt(major_iter = 100, constr_viol_tol = 1e-08, dual_inf_tol = 1e-08, compl_inf_tol = 1e-08, screen_output = False);
 	
-		* major_iter: Maximum number of major iterations
+		* max_iter: Maximum number of major iterations
 		* constr_viol_tol: Constraint violation tolerance
 		* dual_inf_tol: Dual infeasibility tolerance
 		* compl_inf_tol: Complementary feasibility tolerance
+		* nlp_scaling_method Select if the "gradient-based" scaling of the  NLP should be used
+		* obj_scaling_factor Scaling factor for the objective function.
+		* mu_init Initial value for the barrier parameter.
 		* screen_output: Activates output on screen
 		"""
 		# We set the defaults or the kwargs
 		arg_list=[]
-		arg_list.append(major_iter)
+		arg_list.append(max_iter)
 		arg_list.append(constr_viol_tol)
 		arg_list.append(dual_inf_tol)
 		arg_list.append(compl_inf_tol)
+		arg_list.append(nlp_scaling_method)
+		arg_list.append(obj_scaling_factor)
+		arg_list.append(mu_init)
 		self._orig_init(*arg_list)
 		self.screen_output = screen_output
 	ipopt._orig_init = ipopt.__init__

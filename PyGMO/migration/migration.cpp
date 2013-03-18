@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -78,7 +78,11 @@ BOOST_PYTHON_MODULE(_migration) {
 	// Best selection policy.
 	migration_s_policy_wrapper<migration::best_s_policy>("best_s_policy","Best migration selection policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
-		
+
+	// Random selection policy.
+	migration_s_policy_wrapper<migration::random_s_policy>("random_s_policy","Selection policy for random individuals.")
+		.def(init<optional<const double &, migration::rate_type> >());
+
 	// Best Kill selection policy.
 	migration_s_policy_wrapper<migration::best_kill_s_policy>("best_kill_s_policy","Best Kill migration selection policy.")
 		.def(init<optional<const double &, migration::rate_type> >());

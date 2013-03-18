@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -109,14 +109,14 @@ std::string nlopt_aug_lag::get_name() const
 			local = "cobyla";
 		break;
 		case 3:
-			local = "bobya";
+			local = "bobyqa";
 		break;
 		case 4:
 			local = "lbfgs";
 		break;
 	}
 	
-	return "Augented Lagrangian - " + local + " (NLOPT)";
+	return "Augmented Lagrangian - " + local + " (NLOPT)";
 }
 
 }}

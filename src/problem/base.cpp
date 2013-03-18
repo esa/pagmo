@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -245,6 +245,25 @@ void base::set_bounds(const double &l_value, const double &u_value)
 	}
 	std::fill(m_lb.begin(),m_lb.end(),l_value);
 	std::fill(m_ub.begin(),m_ub.end(),u_value);
+	normalise_bounds();
+}
+
+/// Set bounds to specified values.
+/**
+ * Set i-th lower bound to l_value and i-th upper bound to u_value. Will fail if l_value > u_value.
+ *
+ * @param[in] n index of the lower bound to be set.
+ * @param[in] l_value value for lower bounds.
+ * @param[in] u_value value for upper bounds.
+ */
+void base::set_bounds(int n, const double &l_value, const double &u_value)
+{
+	if (l_value > u_value) {
+		pagmo_throw(value_error,"lower bound cannot be greater than upper bound in set_bounds()");
+	}
+	m_lb[n] = l_value;
+	m_ub[n] = u_value;
+	// Normalise bounds.
 	normalise_bounds();
 }
 
@@ -622,7 +641,10 @@ bool base::operator==(const base &p) const
  */
 bool base::is_compatible(const base &p) const
 {
-	if (typeid(*this) != typeid(p) || get_dimension() != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension ||
+// marcusm: changed this for experiments with migration between single- and multiobjective islands.
+/*	if (typeid(*this) != typeid(p) || get_dimension() != p.get_dimension() || m_i_dimension != p.m_i_dimension || m_f_dimension != p.m_f_dimension ||
+		m_c_dimension != p.m_c_dimension || m_ic_dimension != p.m_ic_dimension)*/
+	if (typeid(*this) != typeid(p) || get_dimension() != p.get_dimension() || m_i_dimension != p.m_i_dimension ||
 		m_c_dimension != p.m_c_dimension || m_ic_dimension != p.m_ic_dimension)
 	{
 		return false;

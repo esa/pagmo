@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -127,7 +127,7 @@ void nsga2::crossover(decision_vector& child1, decision_vector& child2, pagmo::p
 				} else {
 					betaq = std::pow((1.0/(2.0 - rand*alpha)),(1.0/(m_eta_c+1.0)));
 				}
-				c2 = 0.5*((y1+y2)-betaq*(y2-y1));
+				c2 = 0.5*((y1+y2)+betaq*(y2-y1));
 				
 				if (c1<lb[i]) c1=lb[i];
 				if (c2<lb[i]) c2=lb[i];
@@ -198,19 +198,19 @@ void nsga2::evolve(population &pop) const
 
 	//We perform some checks to determine wether the problem/population are suitable for NSGA-II
 	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error,"The problem is not box constrained and NSSGA-II is not suitable to solve it");
+		pagmo_throw(value_error, "The problem is not box constrained and NSGA-II is not suitable to solve it");
 	}
 	
 	if (Di != 0) {
-		pagmo_throw(value_error,"The problem has an integer dimension and NSGA II is not suitable for it");
+		pagmo_throw(value_error, "The problem has an integer dimension and NSGA-II is not suitable for it");
 	}
 
 	if (NP < 5 or (NP % 4 != 0) ) {
-		pagmo_throw(value_error,"for NSGA-II at least 5 individuals in the population are needed and the population size must be a multiple of 4");
+		pagmo_throw(value_error, "for NSGA-II at least 5 individuals in the population are needed and the population size must be a multiple of 4");
 	}
 	
 	if ( prob.get_f_dimension() < 2 ) {
-		pagmo_throw(value_error,"The problem is not multiobjective, try some other algorithm than NSGA-II");
+		pagmo_throw(value_error, "The problem is not multiobjective, try some other algorithm than NSGA-II");
 	}
 
 	// Get out if there is nothing to do.
@@ -225,17 +225,19 @@ void nsga2::evolve(population &pop) const
 	for (pagmo::population::size_type i=0; i< NP; i++) shuffle1[i] = i;
 	for (pagmo::population::size_type i=0; i< NP; i++) shuffle2[i] = i;
 	
+	boost::uniform_int<int> pop_idx(0,NP-1);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
+	
 	// Main NSGA-II loop
 	for (int g = 0; g<m_gen; g++) {
 		//At each generation we make a copy of the population into popnew
 		// We compute the crowding distance and the pareto rank of pop
-		pop.update_crowding_d();
-		pop.update_pareto_ranks();
+		pop.update_pareto_information();
 		population popnew(pop);
 		
-		//We create some random permutation of the poulation indexes
-		std::random_shuffle(shuffle1.begin(),shuffle1.end());
-		std::random_shuffle(shuffle2.begin(),shuffle2.end());
+		//We create some pseudo-random permutation of the poulation indexes
+		std::random_shuffle(shuffle1.begin(),shuffle1.end(),p_idx);
+		std::random_shuffle(shuffle2.begin(),shuffle2.end(),p_idx);
 		
 		//We then loop thorugh all individuals with increment 4 to select two pairs of parents that will
 		//each create 2 new offspring

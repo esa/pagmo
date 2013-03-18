@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -300,6 +300,7 @@ class __PAGMO_VISIBLE base
 			normalise_bounds();
 		}
 		void set_bounds(const double &, const double &);
+		void set_bounds(int, const double &, const double &);
 		void set_lb(const decision_vector &);
 		void set_lb(int, const double &);
 		void set_lb(const double &);

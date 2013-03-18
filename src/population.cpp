@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -314,7 +314,7 @@ population::size_type population::get_domination_count(const size_type &idx) con
 /// Get Pareto rank
 /**
  * Will return the Pareto rank for the requested individual idx (that is the Pareto front it belongs to, starting from 0,1,2....N).
- * A call to population::update_pareto_ranks() is needed if the population has
+ * A call to population::update_pareto_information() is needed if the population has
  * changed since the last time the Pareto rank was computed
  *
  * @param[in] idx position of the individual whose Pareto rank will be returned
@@ -333,8 +333,9 @@ population::size_type population::get_pareto_rank(const size_type &idx) const
 
 /// Get Crowding Distance 
 /**
- * Will return the crowding distance for the requested individual idx. A call to population::update_crowding_d() is needed if the population has
- * changed since the last time the Crowding Distance was computed. The crowding distance is computed as defined in Deb's work
+ * Will return the crowding distance for the requested individual idx. A call to population::update_pareto_information() is needed 
+ * if the population has changed since the last time the Crowding Distance was computed. The crowding distance is computed as
+ * defined in Deb's work
  * 
  * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
  *
@@ -364,20 +365,29 @@ struct one_dim_fit_comp {
 	fitness_vector::size_type m_dim;
 };
 
-// We compute all pareto fronts and thus update the pareto ranks
-void population::update_pareto_ranks() const {
-	// Population size can change between calls and m_pareto_rank is updated if necessary
-	m_pareto_rank.resize(size());
 
-	// We initialize the ranks to zero
+/// Update Pareto Information
+/**
+ * Computes all pareto fronts, updates the pareto rank and the crowding distance of each individual. Member variables for rank and
+ * crowding distance are set to zero and domination lists and domination count are used to for the computation. This method should
+ * be called each time to assure that the information about the pareto fronts are correct.
+ */
+
+void population::update_pareto_information() const {
+	// Population size can change between calls and m_pareto_rank, m_crowding_d are updated if necessary
+	m_pareto_rank.resize(size());
+	m_crowding_d.resize(size());
+
+	// We initialize the ranks and all distances to zero
 	std::fill(m_pareto_rank.begin(), m_pareto_rank.end(), 0);
-	
+	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
+
 	// We define some utility vectors .....
 	std::vector<population::size_type> F,S;
-	
-	// And make a copy of the domination count
+
+	// And make a copy of the domination count (number of individuals that dominating one individual)
 	std::vector<population::size_type> dom_count_copy(m_dom_count);
-	
+
 	// 1 - Find the first Pareto Front
 	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
 		if (m_dom_count[idx] == 0) {
@@ -386,8 +396,11 @@ void population::update_pareto_ranks() const {
 	}
 
 	unsigned int irank = 1;
+
 	// We loop to find subsequent fronts
 	while (F.size()!=0) {
+		// update crowding distance of the current pareto front
+		population::update_crowding_d(F);
 		//For each individual F in the current front
 		for (population::size_type i=0; i < F.size(); ++i) {
 			//For each individual dominated by F
@@ -403,46 +416,51 @@ void population::update_pareto_ranks() const {
 		S.clear();
 		irank++;
 	}
+
+
 }
 
-// We update m_crowding_d 
-void population::update_crowding_d() const {
+
+/// Update Crowding Distance
+/**
+ * This method computes the crowding distance of a complete pareto front. This distance is saved
+ * in the member variable m_crowding_d.
+ *
+ * @see Deb, K. and Pratap, A. and Agarwal, S. and Meyarivan, T., "A fast and elitist multiobjective genetic algorithm: NSGA-II"
+ *
+ * @param[in] I indices of the individuals of the pareto front
+ *
+ */	
+void population::update_crowding_d(std::vector<population::size_type> I) const {
 	
-	// Population size can change between calls and m_crowding_d is updated if necessary
-	m_crowding_d.resize(size());
-	
-	// We initialize all distances to zero
-	std::fill(m_crowding_d.begin(), m_crowding_d.end(), 0);
-	
-	// here we keep indexes associated to the individuals, i.e. 0,1,2,...,pop.size()-1
-	std::vector<population::size_type> I;
-	I.reserve(size());
-	for (population::size_type i=0; i < size(); ++i){
-		I.push_back(i);
-	} 
-	
+	size_type lastidx = I.size() - 1;
+   
 	// we construct the comparison functor along the first fitness component
-	one_dim_fit_comp funct(*this,0);
+        one_dim_fit_comp funct(*this,0);
 	
 	// we loop along fitness components
-	for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
-		funct.m_dim = i;
-		// we sort I along the fitness_dimension i
+        for (fitness_vector::size_type i = 0; i < problem().get_f_dimension(); ++i) {
+        	funct.m_dim = i;
+    	    	// we sort I along the fitness_dimension i
 		std::sort(I.begin(),I.end(), funct );
-		// assign Inf to the boundaries
-		m_crowding_d[I[0]] = std::numeric_limits<double>::max();
-		m_crowding_d[I[size()-1]] = std::numeric_limits<double>::max();
-		//and compute the crowding distance
-		double df = get_individual(I[size()-1]).cur_f[i] - get_individual(I[0]).cur_f[i];
-		for (population::size_type j = 1; j < size()-1; ++j) {
-			m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
-		}
-	}
+        	// assign Inf to the boundaries
+        	m_crowding_d[I[0]] = std::numeric_limits<double>::max();
+	        m_crowding_d[I[lastidx]] = std::numeric_limits<double>::max();
+       		//and compute the crowding distance
+       		double df = get_individual(I[lastidx]).cur_f[i] - get_individual(I[0]).cur_f[i];
+    		for (population::size_type j = 1; j < lastidx; ++j) {
+				if (df == 0.0) { 						// handles the case in which the pareto front collapses to one single point 
+					m_crowding_d[I[j]] += 0.0;			// avoiding creation of nans that can't be serialized
+				} else {
+					m_crowding_d[I[j]] += (get_individual(I[j+1]).cur_f[i] - get_individual(I[j-1]).cur_f[i])/df;
+				}
+    		}
+    	}
 }
 
 /// Computes and returns the population Pareto fronts
 /**
- * This method computes all Pareto Fronts of the population, returning the positional indexes
+ * This method computes all Pareto Fronts of the population, returning the positional indices
  * of the individuals belonging to each Pareto front.
  * 
  * @return a vector containing, for each Pareto front, a vector of the individuals idx that belong to
@@ -450,32 +468,17 @@ void population::update_crowding_d() const {
  */
 std::vector<std::vector<population::size_type> > population::compute_pareto_fronts() const {
 	std::vector<std::vector<population::size_type> > retval;
-	std::vector<population::size_type> F,S;
-	std::vector<population::size_type> dom_count_copy(m_dom_count);
-	
-	// We find the first Pareto Front
-	for (population::size_type idx = 0; idx < m_container.size(); ++idx){
-		if (m_dom_count[idx] == 0) {
-			F.push_back(idx);
-		}
+
+	// Be sure to have actual information about pareto rank 
+	population::update_pareto_information();
+
+	for (population::size_type idx = 0; idx < size(); ++idx) {
+		if (m_pareto_rank[idx] >= retval.size()) {
+			retval.resize(m_pareto_rank[idx] + 1);
+		} 
+		retval[m_pareto_rank[idx]].push_back(idx);
 	}
-	// And if not empty, we push it back to retval
-	if (F.size() != 0) retval.push_back(F);
-	
-	// We loop to find subsequent fronts
-	while (F.size()!=0) {
-		//For each individual F in the current front
-		for (population::size_type i=0; i < F.size(); ++i) {
-			//For each individual dominated by F
-			for (population::size_type j=0; j<m_dom_list[F[i]].size(); ++j) {
-				dom_count_copy[m_dom_list[F[i]][j]]--;
-				if (dom_count_copy[m_dom_list[F[i]][j]] == 0) S.push_back(m_dom_list[F[i]][j]);
-			}
-		}
-		F = S;
-		S.clear();
-		if (F.size() != 0) retval.push_back(F);
-	}
+
 	return retval;
 }
 
@@ -553,8 +556,7 @@ population::size_type population::get_worst_idx() const
 		it = std::max_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
 	}
 	else {
-		update_crowding_d();
-		update_pareto_ranks();
+		update_pareto_information();
 		it = std::max_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
 	}
 	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
@@ -587,8 +589,7 @@ population::size_type population::get_best_idx() const
 		it = std::min_element(m_container.begin(),m_container.end(),trivial_comparison_operator(*this));
 	}
 	else {
-		update_crowding_d();
-		update_pareto_ranks();
+		update_pareto_information();
 		it = std::min_element(m_container.begin(),m_container.end(),crowded_comparison_operator(*this));
 	}	return boost::numeric_cast<size_type>(std::distance(m_container.begin(),it));
 }
@@ -628,8 +629,7 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 		std::sort(retval.begin(),retval.end(),trivial_comparison_operator(*this));
 	}
 	else {
-		update_crowding_d();
-		update_pareto_ranks();
+		update_pareto_information();
 		std::sort(retval.begin(),retval.end(),crowded_comparison_operator(*this));
 	}
 	retval.resize(N);
@@ -863,14 +863,16 @@ population::size_type population::size() const
 
 /// Clear population.
 /**
- * Will clear the container of individuals, the domination lists and the champion. The problem and random number generators
- * are left untouched.
+ * Will clear the container of individuals, the domination lists, pareto ranks, crowding distance and the champion. 
+ * The problem and random number generators are left untouched.
  */
 void population::clear()
 {
 	m_container.clear();
 	m_dom_list.clear();
 	m_dom_count.clear();
+    m_crowding_d.clear();
+    m_pareto_rank.clear();
 	m_champion = champion_type();
 }
 

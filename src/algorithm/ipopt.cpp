@@ -1,5 +1,5 @@
 /*****************************************************************************
-  *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+  *   Copyright (C) 2004-2013 The PaGMO development team,                     *
   *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
   *   http://apps.sourceforge.net/mediawiki/pagmo                             *
   *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -44,12 +44,23 @@ namespace pagmo { namespace algorithm {
  * @param[in] constr_viol_tol Constraint violation tolerance
  * @param[in] dual_inf_tol Dual infeasibility tolerance
  * @param[in] compl_inf_tol Complementary feasibility tolerance
+ * @param[in] nlp_scaling_method Select if the "gradient-based" scaling of the  NLP should be used
+ * @param[in] obj_scaling_factor Scaling factor for the objective function.
+ * @param[in] mu_init Initial value for the barrier parameter.
  * @throws value_error if max_iter or tolerances are negative
  */
 
-ipopt::ipopt(const int &max_iter,const double &constr_viol_tol, const double &dual_inf_tol, const double &compl_inf_tol) :
+ipopt::ipopt(	const int &max_iter,
+		const double &constr_viol_tol, 
+		const double &dual_inf_tol, 
+		const double &compl_inf_tol,
+		const bool &nlp_scaling_method,
+		const double &obj_scaling_factor,
+		const double &mu_init) :
 		m_max_iter(max_iter),m_constr_viol_tol(constr_viol_tol),
-		m_dual_inf_tol(dual_inf_tol), m_compl_inf_tol(compl_inf_tol)
+		m_dual_inf_tol(dual_inf_tol), m_compl_inf_tol(compl_inf_tol), 
+		m_nlp_scaling_method(nlp_scaling_method), m_obj_scaling_factor(obj_scaling_factor), m_mu_init(mu_init)
+		
 {
 	if (max_iter < 0) {
 		pagmo_throw(value_error,"number of maximum iterations cannot be negative");
@@ -62,6 +73,9 @@ ipopt::ipopt(const int &max_iter,const double &constr_viol_tol, const double &du
 	}
 	if (compl_inf_tol < 0) {
 		pagmo_throw(value_error,"obj_tol is not in ]0,1[");
+	}
+	if (mu_init <= 0) {
+		pagmo_throw(value_error,"mu_init is not in ]0, inf[");
 	}
 
 }
@@ -113,7 +127,9 @@ void ipopt::evolve(population &pop) const
 	//create an instance of the IpoptApplication
 	::Ipopt::SmartPtr< ::Ipopt::IpoptApplication> m_app = new ::Ipopt::IpoptApplication(m_screen_output,false);
 
-
+	if (!m_nlp_scaling_method) {
+		m_app->Options()->SetStringValue("nlp_scaling_method", "none");
+	}
 	m_app->Options()->SetStringValue("hessian_approximation", "limited-memory");
 	m_app->Options()->SetIntegerValue("print_level", 5);
 
@@ -125,6 +141,8 @@ void ipopt::evolve(population &pop) const
 	m_app->Options()->SetNumericValue("dual_inf_tol", m_dual_inf_tol);
 	m_app->Options()->SetNumericValue("constr_viol_tol", m_constr_viol_tol);
 	m_app->Options()->SetNumericValue("compl_inf_tol", m_compl_inf_tol);
+	m_app->Options()->SetNumericValue("obj_scaling_factor", m_obj_scaling_factor);
+	m_app->Options()->SetNumericValue("mu_init", m_mu_init);
 
 
 
@@ -142,7 +160,7 @@ void ipopt::evolve(population &pop) const
 /// Algorithm name
 std::string ipopt::get_name() const
 {
-	return "IPOPT - ";
+	return "IPOPT";
 }
 
 /// Extra human readable algorithm info.
@@ -155,7 +173,10 @@ std::string ipopt::human_readable_extra() const
 	s << "major_iter:" << m_max_iter << " ";
 	s << "constr_viol_tol:"<< m_constr_viol_tol<<" ";
 	s << "dual_inf_tol:"<< m_dual_inf_tol<<" ";
-	s << "compl_inf_tol:"<< m_compl_inf_tol;
+	s << "compl_inf_tol:"<< m_compl_inf_tol<<" ";
+	s << "nlp_scaling_method:"<< (m_nlp_scaling_method? "True":"False") << " ";
+	s << "obj_scaling_factor:"<< m_obj_scaling_factor<<" ";
+	s << "mu_init:"<< m_mu_init;
 	return s.str();
 }
 

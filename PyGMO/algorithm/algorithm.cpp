@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
@@ -163,7 +164,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// CMAES
 	algorithm_wrapper<algorithm::cmaes>("cmaes","Covariance Matrix Adaptation Evolutionary Startegy")
-		.def(init<optional<int, double, double, double, double, double, double, double, bool, bool> >())
+		.def(init<optional<int, double, double, double, double, double, double, double, bool> >())
 		.add_property("gen",&algorithm::cmaes::get_gen,&algorithm::cmaes::set_gen)
 		.add_property("cc",&algorithm::cmaes::get_cc,&algorithm::cmaes::set_cc)
 		.add_property("cs",&algorithm::cmaes::get_cs,&algorithm::cmaes::set_cs)
@@ -226,7 +227,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Differential evolution (jDE)
 	algorithm_wrapper<algorithm::jde>("jde", "Self-Adaptive Differential Evolution Algorithm: jDE.\n")
 		.def(init<optional<int, int, int, double, double, bool> >());
-		
+
 	// Differential evolution (mde_pbx)
 	algorithm_wrapper<algorithm::mde_pbx>("mde_pbx", "Self-Adaptive Differential Evolution Algorithm: mde_pbx.\n")
 		.def(init<optional<int, double, double, double, double> >());
@@ -315,7 +316,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Ipopt solver.
 	#ifdef PAGMO_ENABLE_IPOPT
 	algorithm_wrapper<algorithm::ipopt>("ipopt","Ipopt solver.")
-		.def(init<int, optional<double, double,double> >());
+		.def(init<int, optional<double, double,double,bool,double,double> >());
 	
 	#endif	
 

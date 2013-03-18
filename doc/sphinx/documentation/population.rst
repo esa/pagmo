@@ -123,7 +123,7 @@ Population
          pop = population(prob,10)
          pf = pop.compute_pareto_fronts()
 
-  .. method:: plot_pareto_fronts(comp = [0,1])
+   .. method:: plot_pareto_fronts(comp = [0,1])
 
       Plots the pareto fronts in a sliced 2-D graph representing the two objective function components specified
       in comp

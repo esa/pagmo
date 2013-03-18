@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
 #include <boost/python/enum.hpp>
@@ -63,7 +64,7 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	return retval;
 }
 
-// Wrapper to expose problems.
+// Wrapper to expose stochastic problems.
 template <class Problem>
 static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > stochastic_problem_wrapper(const char *name, const char *descr)
 {
@@ -74,6 +75,21 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic
 	retval.def_pickle(generic_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	return retval;
+}
+
+// Wrapper to expose dtlz-type problems.
+template <class Problem>
+static inline class_<Problem,bases<problem::base>,bases<problem::base_dtlz> > dtlz_problem_wrapper(const char *name, const char *descr)
+{
+	class_<Problem,bases<problem::base>,bases<problem::base_dtlz> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
+	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.def("p_distance", &problem::base_dtlz::p_distance);
 	return retval;
 }
 
@@ -129,7 +145,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
-	// Expose base stochastic problem class, including the virtual methods. Here we explicitly 
+	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
 	// tell python that these objects can be passed where problem::base is expected .... in the previous
 	// case (problem::python_base) this was not necessary as problem::python_base derives from
 	// boost::python::wrapper<base> which informs python on the correct inheritance.
@@ -183,11 +199,11 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Griewank problem.
 	problem_wrapper<problem::griewank>("griewank","Griewank function.")
 		.def(init<int>());
-	
+
 	// De Jong's problem.
 	problem_wrapper<problem::dejong>("dejong","De Jong's function.")
 		.def(init<int>());
-	
+
 	// michalewicz's problem.
 	problem_wrapper<problem::michalewicz>("michalewicz","Michalewicz's function.")
 		.def(init<int, optional<int> >());
@@ -199,15 +215,15 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Lennard Jones problem.
 	problem_wrapper<problem::lennard_jones>("lennard_jones","Lennard Jones problem.")
 		.def(init<int>());
-	
+
 	// Levy5 problem.
 	problem_wrapper<problem::levy5>("levy5","Levy5 problem.")
 		.def(init<int>());
-	
+
 	// Rosenbrock problem.
 	problem_wrapper<problem::rosenbrock>("rosenbrock","Multi-dimensional Rosenbrock function.")
 		.def(init<int>());
-	
+
 	// Rastrigin problem.
 	problem_wrapper<problem::rastrigin>("rastrigin","Generalised Rastrigin function.")
 		.def(init<int>());
@@ -233,6 +249,28 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Branin's rcos funciotn.
 	problem_wrapper<problem::branin>("branin","Branin's rcos function.");
 
+	// DTLZ1
+	dtlz_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ2
+	dtlz_problem_wrapper<problem::dtlz2>("dtlz2","DTLZ2 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ3
+	dtlz_problem_wrapper<problem::dtlz3>("dtlz3","DTLZ3 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ4
+	dtlz_problem_wrapper<problem::dtlz4>("dtlz4","DTLZ4 benchmark problem.")
+		.def(init<optional<const size_t, fitness_vector::size_type, const size_t> >());
+	// DTLZ5
+	dtlz_problem_wrapper<problem::dtlz5>("dtlz5","DTLZ5 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ6
+	dtlz_problem_wrapper<problem::dtlz6>("dtlz6","DTLZ6 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ7
+	dtlz_problem_wrapper<problem::dtlz7>("dtlz7","DTLZ7 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+
 	// Luksan Vlcek problem 1.
 	problem_wrapper<problem::luksan_vlcek_1>("luksan_vlcek_1","Luksan Vlcek problem 1.")
 		.def(init<int, optional<const double &, const double &> >());
@@ -253,7 +291,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Traveling salesman problem
 	problem_wrapper<problem::tsp>("tsp","Traveling salesman problem")
 		.def(init<const std::vector<std::vector<double> > &>());
-	
+
 	// SCH
 	problem_wrapper<problem::sch>("sch","Shaffer's study problem.")
 		.def(init<>());
@@ -268,25 +306,30 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<>());
 	// ZDT1
 	problem_wrapper<problem::zdt1>("zdt1","ZDT1")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt1::p_distance);
 	// ZDT2
 	problem_wrapper<problem::zdt2>("zdt2","ZDT2")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt2::p_distance);
 	// ZDT3
 	problem_wrapper<problem::zdt3>("zdt3","ZDT3")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt3::p_distance);
 	// ZDT4
 	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
-		.def(init<optional<population::size_type> >());
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt4::p_distance);
 	// ZDT6
 	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
-		.def(init<optional<population::size_type> >());
-
+		.def(init<optional<population::size_type> >())
+		.def("p_distance", &problem::zdt6::p_distance);
+		
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
-	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
-		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
-		.def("get_delta_v",&problem::sample_return::get_delta_v);
+//	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
+//		.def(init<const ::kep_toolbox::planet &, optional<const double &> >())
+//		.def("get_delta_v",&problem::sample_return::get_delta_v);
 
 	// Earth-planet problem.
 	//problem_wrapper<problem::earth_planet>("earth_planet","Earth-planet low-thrust problem.")
@@ -353,6 +396,42 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::tandem>("tandem","Tandem problem.")
 		.def(init< optional<int, double> >())
 		.def("pretty", &problem::tandem::pretty);
+
+	problem_wrapper<problem::mga_1dsm_alpha>("mga_1dsm_alpha", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
+		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool> >())
+		.def("pretty", &problem::mga_1dsm_alpha::pretty)
+		.def("set_tof", &problem::mga_1dsm_alpha::set_tof)
+		.def("get_tof", &problem::mga_1dsm_alpha::get_tof)
+		.def("set_launch_window", &problem::mga_1dsm_alpha::set_launch_window)
+		.def("set_vinf", &problem::mga_1dsm_alpha::set_vinf)
+		.def("get_sequence", &problem::mga_1dsm_alpha::get_sequence);
+
+	problem_wrapper<problem::mga_1dsm_tof>("mga_1dsm_tof", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
+		.def(init< optional<std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<boost::array<double,2> >, double, double, bool, bool, bool> >())
+		.def("pretty", &problem::mga_1dsm_tof::pretty)
+		.def("set_tof", &problem::mga_1dsm_tof::set_tof)
+		.def("get_tof", &problem::mga_1dsm_tof::get_tof)
+		.def("set_launch_window", &problem::mga_1dsm_tof::set_launch_window)
+		.def("set_vinf", &problem::mga_1dsm_tof::set_vinf)
+		.def("get_sequence", &problem::mga_1dsm_tof::get_sequence);
+		
+	problem_wrapper<problem::mga_incipit>("mga_incipit", "Jupiter capture problem from the first part of gtoc6")
+		.def(init< optional< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > > >())
+		.def("pretty", &problem::mga_incipit::pretty)
+		.def("get_sequence", &problem::mga_incipit::get_sequence)
+		.add_property("tof",make_function(&problem::mga_incipit::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit::set_tof,"bound on the times of flight for the different legs");
+
+	problem_wrapper<problem::mga_part>("mga_part", "A part of the Jupiter moon tour from gtoc6")
+		.def(init< optional <std::vector<kep_toolbox::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
+		.def("pretty", &problem::mga_part::pretty)
+		.def("get_sequence", &problem::mga_part::get_sequence)
+		.add_property("vinf_in",make_function(&problem::mga_part::get_vinf_in, return_value_policy<copy_const_reference>()), &problem::mga_part::set_vinf_in,"initial incoming relative spacecraft velocity")
+		.add_property("t0",make_function(&problem::mga_part::get_t0, return_value_policy<copy_const_reference>()), &problem::mga_part::set_t0, "start epoch")
+		.add_property("tof",make_function(&problem::mga_part::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_part::set_tof,"bounds on the times of flight for the different legs")
+		.add_property("betas",&problem::mga_part::get_betas, &problem::mga_part::set_betas,"bounds on the beta angles for the different legs")
+		.add_property("rps",&problem::mga_part::get_rps, &problem::mga_part::set_rps,"bounds on the periplanet heights for the different legs");
+
+
 #endif
 
 #ifdef PAGMO_ENABLE_GSL

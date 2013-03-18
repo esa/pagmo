@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -33,10 +33,12 @@ namespace pagmo { namespace problem {
 
 /**
  * Will construct Kursawe's study problem.
+ * 
+ * @param[in] dim integer dimension of the problem.
  *
  * @see problem::base constructors.
  */
-kur::kur():base(3,0,2)
+kur::kur(size_type dim):base(dim,0,2)
 {
 	// Set bounds.
 	set_lb(-5.0);
@@ -52,18 +54,18 @@ base_ptr kur::clone() const
 /// Implementation of the objective function.
 void kur::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
+	unsigned int n = get_dimension();
 	pagmo_assert(f.size() == 2);
-	pagmo_assert(x.size() == 3);
+	pagmo_assert(x.size() == n);
 
 	f[0] = 0;
 	f[1] = 0;
-
-	f[0] += -10 * exp( -0.2 * sqrt(x[0]*x[0] - x[1]*x[1]));
-	f[1] += pow(x[0],0.8) + 5 * sin(pow(x[0],3));
-	for(problem::base::size_type i = 1; i < 3; ++i) {
-		f[0] += -10 * exp( -0.2 * sqrt(x[i-1]*x[i-1] - x[i]*x[i]));
-		f[1] += pow(x[i],0.8) + 5 * sin(pow(x[i],3));
+	
+	for(unsigned int i = 0; i < n-1; ++i) {
+		f[0] += -10 * exp( -0.2 * sqrt(x[i]*x[i] + x[i+1]*x[i+1]));
+		f[1] += pow(std::abs(x[i]),0.8) + 5 * sin(pow(x[i],3));
 	}
+	f[1] += pow(std::abs(x[n-1]),0.8) + 5 * sin(pow(x[n-1],3));
 }
 
 std::string kur::get_name() const

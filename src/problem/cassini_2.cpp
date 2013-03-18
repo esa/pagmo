@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -111,7 +111,7 @@ std::string cassini_2::pretty(const std::vector<double> &x) const
 	return s.str();
 }
 
-/// Implementation of the sparsity structure.
+/// Implementation of the sparsity structure. (just to check the method call ... it is only used in some solvers i.e. snopt, and not mandatory anyway)
 /**
  * No sparsity present (box-constrained problem).
  */

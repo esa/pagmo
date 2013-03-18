@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -198,8 +198,7 @@ class __PAGMO_VISIBLE population
 		size_type get_domination_count(const size_type &) const;
 		size_type get_pareto_rank(const size_type &) const;
 		double get_crowding_d(const size_type &) const;
-		void update_pareto_ranks() const;
-		void update_crowding_d() const;
+		void update_pareto_information() const;
 		size_type n_dominated(const individual_type &) const;
 		std::vector<std::vector<size_type> > compute_pareto_fronts() const;
 		
@@ -225,9 +224,12 @@ class __PAGMO_VISIBLE population
 	private:
 		void init_velocity(const size_type &);
 		void update_champion(const size_type &);
+
 		
 		// Multi-objective stuff
 		void update_dom(const size_type &);
+		void update_crowding_d(std::vector<size_type>) const;
+
 		struct crowded_comparison_operator {
 			crowded_comparison_operator(const population &);
 			bool operator()(const individual_type &i1, const individual_type &i2) const;

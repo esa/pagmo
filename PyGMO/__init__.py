@@ -25,7 +25,7 @@ import core, algorithm, migration, problem, topology, test
 
 __doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test']
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 
 # For convenience, bring all core classes into the root namespace when importing *.
 from core import *
@@ -50,23 +50,22 @@ if "cassini" in str(problem._get_problem_list()):
 try:
 	from scipy import __version__ as __scipy_version__
 	__extensions__['scipy']=True
-except:
+except ImportError:
 	pass
 try:
 	from networkx.version import version_info as __networkx_version__
 	__extensions__['networkx']=True
-except:
+except ImportError:
 	pass
 try:
 	from visual import version as __visual_version__
 	__extensions__['vpython']=True
-except:
+except ImportError:
 	pass
-
 try:
-	from PyKEP import __version__ as __pykep_version
+	from PyKEP import __version__ as __pykep_version__
 	__extensions__['pykep']=True
-except:
+except ImportError:
 	pass
 
 

@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <Python.h>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/copy_const_reference.hpp>
@@ -34,6 +35,7 @@
 #include <boost/python/converter/registry.hpp>
 #include <boost/python/tuple.hpp>
 #include <boost/utility.hpp> // For boost::noncopyable.
+#include <boost/array.hpp>
 #include <sstream>
 #include <vector>
 
@@ -45,6 +47,7 @@
 #include "../../src/migration/base_r_policy.h"
 #include "../../src/migration/base_s_policy.h"
 #include "../../src/migration/best_s_policy.h"
+#include "../../src/migration/random_s_policy.h"
 #include "../../src/migration/fair_r_policy.h"
 #include "../../src/population.h"
 #include "../../src/problem/base.h"
@@ -53,6 +56,10 @@
 #include "../utils.h"
 #include "python_base_island.h"
 #include "python_island.h"
+
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
+	#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
+#endif
 
 using namespace boost::python;
 using namespace pagmo;
@@ -210,15 +217,20 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 };
 
 
-#define PYGMO_REGISTER_CONVERTER(T,policy) \
+#define REGISTER_CONVERTER(T,policy) \
 {\
-/* boost::python::type_info info = boost::python::type_id<T >(); \
+   boost::python::type_info info = boost::python::type_id<T >(); \
    const boost::python::converter::registration* reg = boost::python::converter::registry::query(info); \
-   if (reg == NULL) */ \
-{\
+   if (reg == NULL)  \
+   {\
 	to_tuple_mapping<T >();\
 	from_python_sequence<T,policy>();\
-}\
+   }\
+   else if ((*reg).m_to_python == NULL)\
+   {\
+	to_tuple_mapping<T >();\
+	from_python_sequence<T,policy>();\
+   }\
 }
 
 
@@ -227,16 +239,21 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 BOOST_PYTHON_MODULE(_core)
 {
 	common_module_init();
-
+	typedef boost::array<double,2> array2D;
 	//Register std converters to lists if not already registered by some other module
-	PYGMO_REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<int>, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<topology::base::vertices_size_type>, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<double> >, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
-	PYGMO_REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);
-
+	REGISTER_CONVERTER(array2D,fixed_size_policy);
+	REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<int>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<topology::base::vertices_size_type>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<std::vector<double> >, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<array2D>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);
+	
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
+	REGISTER_CONVERTER(std::vector<kep_toolbox::planet_ptr>, variable_capacity_policy);
+#endif
 
 	// Expose population class.
 
@@ -257,6 +274,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def("get_domination_list",&population::get_domination_list,return_value_policy<copy_const_reference>(), "Get the domination list for an indivdual")
 		.def("get_domination_count",&population::get_domination_count, "Get the domination count for an indivdual")
 		.def("compute_pareto_fronts",&population::compute_pareto_fronts, "Computes all Pareto fronts")
+//		.def("get_crowding_d",&population::get_crowding_d, "returns crowding distance")
+//		.def("update_pareto_information",&population::update_pareto_information, "updates crowding distance and front informations")
 		.def("get_best_idx",get_best_1_idx(&population::get_best_idx),"Get index of best individual.")
 		.def("get_best_idx",get_best_N_idx(&population::get_best_idx),"Get index of best N individual.")
 		.def("get_worst_idx",&population::get_worst_idx,"Get index of worst individual.")
@@ -301,6 +320,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def(init<const algorithm::base &, const population &, optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def("__repr__",&base_island::human_readable)
 		.def("__len__", &base_island::get_size)
+		.def("get_evolution_time", &base_island::get_evolution_time,"Gives the evolution time in milliseconds.")
 		.def("evolve", &base_island::evolve,"Evolve island n times.")
 		.def("evolve_t", &base_island::evolve_t,"Evolve island for at least n milliseconds.")
 		.def("join", &base_island::join,"Wait for evolution to complete.")
