@@ -27,13 +27,19 @@
 
 using namespace pagmo;
 
+// Example in C++ of the use of PaGMO 1.1.4
+
 int main()
 {
-pagmo::algorithm::nsga2 alg(100);
-pagmo::problem::dtlz2 prob;
+pagmo::algorithm::nsga2 alg(10);
+std::cout << alg << std::endl;
+pagmo::problem::dtlz2 prob(40);
+std::cout << prob << std::endl;
 pagmo::island isl = island(alg, prob, 100);
-isl.evolve(1);
-std::cout << prob.p_distance(isl.get_population()) << std::endl;
+for (size_t i = 0; i< 10; ++i){
+    isl.evolve(1);
+    std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
+}
 
 return 0;
 }
