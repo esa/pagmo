@@ -83,7 +83,7 @@ void cs::evolve(population &pop) const
 	const problem::base::size_type Dc = D - prob_i_dimension;
 
 
-	//We perform some checks to determine wether the problem/population are suitable for sa_corana
+	//We perform some checks to determine whether the problem/population are suitable for compass search
 	if ( Dc == 0 ) {
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for compass search to optimise");
 	}
@@ -127,7 +127,6 @@ void cs::evolve(population &pop) const
 			if (prob.compare_fitness(newf,f)) {
 				f = newf;
 				x = newx;
-				pop.set_x(bestidx,x); //new evaluation is possible here......
 				flag=true;
 				break; //accept
 			}
@@ -141,7 +140,6 @@ void cs::evolve(population &pop) const
 			if (prob.compare_fitness(newf,f)) {  //accept
 				f = newf;
 				x = newx;
-				pop.set_x(bestidx,x); //new evaluation is possible here......
 				flag=true;
 				break;
 			}
@@ -150,8 +148,9 @@ void cs::evolve(population &pop) const
 			newrange *= m_reduction_coeff;
 		}
 	} //end while
-	std::transform(x.begin(), x.end(), pop.get_individual(bestidx).cur_x.begin(), x.begin(),std::minus<double>());
-	pop.set_v(bestidx,x);
+	std::transform(x.begin(), x.end(), pop.get_individual(bestidx).cur_x.begin(), newx.begin(),std::minus<double>()); // newx is now velocity
+	pop.set_x(bestidx,x); //new evaluation is possible here......
+	pop.set_v(bestidx,newx);
 }
 
 /// Algorithm name
