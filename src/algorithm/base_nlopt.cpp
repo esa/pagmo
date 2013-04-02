@@ -78,8 +78,8 @@ double base_nlopt::objfun_wrapper(const std::vector<double> &x, std::vector<doub
 	nlopt_wrapper_data *d = (nlopt_wrapper_data *)data;
 	pagmo_assert(d->f.size() == 1);
 
-	// Comupte the gradient by central diffs if necessary TODO: also ipopt has this code (or dimilar)
-	// It shold be moved elswhere in PaGMO. Plus be aware that here a chromsome outside the bounds
+	// Compute the gradient by central diffs if necessary TODO: also ipopt has this code (or similar)
+	// It should be moved elswhere in PaGMO. Plus be aware that here a chromsome outside the bounds
 	// can be created, thus invaidating its compatibility with the problem (exception will be thrown)
 
 	if (!grad.empty()) {
@@ -87,9 +87,11 @@ double base_nlopt::objfun_wrapper(const std::vector<double> &x, std::vector<doub
 		double central_diff;
 		const double h0=1e-8;
 		double h;
+		double mem;
 		for (size_t i =0; i < d->dx.size(); ++i)
 		{
 			h = h0 * std::max(1.,fabs(d->dx[i]));
+			mem = d->dx[i];
 			d->dx[i] += h;
 			d->prob->objfun(d->f,d->dx);
 			central_diff = d->f[0];
@@ -97,6 +99,7 @@ double base_nlopt::objfun_wrapper(const std::vector<double> &x, std::vector<doub
 			d->prob->objfun(d->f,d->dx);
 			central_diff = (central_diff-d->f[0]) / 2 / h;
 			grad[i] = central_diff;
+			d->dx[i] = mem;
 		}
 	}
 
@@ -114,7 +117,7 @@ double base_nlopt::constraints_wrapper(const std::vector<double> &x, std::vector
 	pagmo_assert(d->c.size() == d->prob->get_c_dimension());
 
 	// Compute the gradient by central diffs (if necessary). TODO: also ipopt has this code (or similar)
-	// It shold be moved elswhere in PaGMO. Plus be aware that here a chromsome outside the bounds
+	// It should be moved elswhere in PaGMO. Plus be aware that here a chromsome outside the bounds
 	// can be created, thus invaidating its compatibility with the problem (exception will be thrown)
 
 	if (!grad.empty()) {
@@ -122,9 +125,11 @@ double base_nlopt::constraints_wrapper(const std::vector<double> &x, std::vector
 		double central_diff;
 		const double h0=1e-8;
 		double h;
+		double mem;
 		for (size_t i =0; i < d->dx.size(); ++i)
 		{
 			h = h0 * std::max(1.,fabs(d->dx[i]));
+			mem = d->dx[i];
 			d->dx[i] += h;
 			d->prob->compute_constraints(d->c,d->dx);
 			central_diff = d->c[d->c_comp];
@@ -132,6 +137,7 @@ double base_nlopt::constraints_wrapper(const std::vector<double> &x, std::vector
 			d->prob->compute_constraints(d->c,d->dx);
 			central_diff = (central_diff-d->c[d->c_comp]) / 2 / h;
 			grad[i] = central_diff;
+			d->dx[i] = mem;
 		}
 	}
 
