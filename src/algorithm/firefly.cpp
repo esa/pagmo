@@ -59,7 +59,7 @@ firefly::firefly(int gen, double alpha, double beta, double gamma):base(),m_iter
 		pagmo_throw(value_error,"beta should be in [0,1]");
 	}
 	if (gamma < 0 || gamma > 1) {
-		pagmo_throw(value_error,"gamma should be in [0,1] intervall");
+		pagmo_throw(value_error,"gamma should be in [0,1] interval");
 	}
 }
 
@@ -83,7 +83,7 @@ void firefly::evolve(population &pop) const
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = (int) pop.size();
 
-	//We perform some checks to determine wether the problem/population are suitable for Firefly
+	//We perform some checks to determine whether the problem/population are suitable for Firefly
 	if ( Dc == 0 ) {
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for Firefly to optimise");
 	}
@@ -113,7 +113,7 @@ void firefly::evolve(population &pop) const
 	decision_vector::size_type best_firefly = 0;	//best firefly at the begining of an iteration
 	fitness_vector best_fitness = fit[0];		//fitness of the best firefly at the begining of an iteration
 
-	double r = 0;	//temp variable to store distances between fireflies
+	double r_sqrd = 0;	//temp variable to store distances squared between fireflies
 	double b = 0;	//temp variable to store attractiveness of a firefly
 
 	// Copy the fireflies position and their fitness
@@ -123,20 +123,20 @@ void firefly::evolve(population &pop) const
 	}
 	
 	//Find maximum distance between individuals
-	double r_max = 0;
-	double r_temp = 0;
+	double r_max_sqrd = 0;
 	for (population::size_type ii = 0; ii< NP; ++ii) {
-		for (population::size_type jj = 0; jj< NP; ++jj) {
+		for (population::size_type jj = ii+1; jj< NP; ++jj) {
+			double r_temp_sqrd = 0;
 			for(problem::base::size_type k=0; k < Dc; ++k) {
-				r_temp += (X[ii][k] - X[jj][k])*(X[ii][k]-X[jj][k]);
+				r_temp_sqrd += (X[ii][k] - X[jj][k])*(X[ii][k]-X[jj][k]);
 			}
-			r_temp = sqrt(r_temp);
-			if (r_temp > r_max) {
-				r_max = r_temp;
+			if (r_temp_sqrd > r_max_sqrd) {
+				r_max_sqrd = r_temp_sqrd;
 			}
 		}
 	}
 
+	double r_max = sqrt(r_max_sqrd);
 	double newgamma = m_gamma / r_max;
 
 
@@ -158,14 +158,12 @@ void firefly::evolve(population &pop) const
 				if(prob.compare_fitness(fit[jj], fit[ii])) { //if jj is better than ii
 					
 					//Calculate distance between X[ii] and X[jj]
-					r = 0;
+					r_sqrd = 0;
 					for(problem::base::size_type k=0; k < Dc; ++k) {
-						r += (X[ii][k] - X[jj][k]) * (X[ii][k] - X[jj][k]) ;
+						r_sqrd += (X[ii][k] - X[jj][k]) * (X[ii][k] - X[jj][k]) ;
 					}
-					r = sqrt(r);  //distance between X[ii] and X[jj]
 
-
-					b = m_beta * exp( -1 * newgamma * r*r); //calculate attractiveness
+					b = m_beta * exp( -1 * newgamma * r_sqrd); //calculate attractiveness
 
 					//Move the firefly ii torwards jj
 					for(problem::base::size_type k=0; k < Dc; ++k) {
@@ -175,7 +173,7 @@ void firefly::evolve(population &pop) const
 						if (X[ii][k] < lb[k]) {
 							X[ii][k] = lb[k];
 						}			
-						if (X[ii][k] > ub[k]) {
+						else if (X[ii][k] > ub[k]) {
 							X[ii][k] = ub[k];
 						}
 			
