@@ -78,7 +78,7 @@ void bee_colony::evolve(population &pop) const
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP = (int) pop.size();
 
-	//We perform some checks to determine wether the problem/population are suitable for ABC
+	//We perform some checks to determine whether the problem/population are suitable for ABC
 	if ( Dc == 0 ) {
 		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for ABC to optimise");
 	}
@@ -168,7 +168,7 @@ void bee_colony::evolve(population &pop) const
 				trial[ii] = 0;
 			}
 			else {
-				trial[ii]++; //if the solution can't be improved incrase its trial counter
+				trial[ii]++; //if the solution can't be improved increase its trial counter
 			}
 		} //End of loop on the population members
 
@@ -241,7 +241,7 @@ void bee_colony::evolve(population &pop) const
 				trial[ii] = 0;
 			}
 			else {
-				trial[ii]++; //if the solution can't be improved incrase its  trial counter
+				trial[ii]++; //if the solution can't be improved increase its trial counter
 			}
 		}
 
