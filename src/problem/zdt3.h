@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -58,6 +58,7 @@ class __PAGMO_VISIBLE zdt3 : public base
 		zdt3(size_type  = 30);
 		base_ptr clone() const;
 		std::string get_name() const;
+		double p_distance(const pagmo::population &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:

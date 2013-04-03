@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -89,7 +89,7 @@ class __PAGMO_VISIBLE inventory: public base_stochastic
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_stochastic>(*this);
 			ar & m_weeks;
 			ar & m_sample_size;
 		}

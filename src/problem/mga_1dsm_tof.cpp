@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -23,12 +23,13 @@
  *****************************************************************************/
 
 #include <string>
-#include <boost/math/constants/constants.hpp>
 #include <vector>
 #include <numeric>
 #include <cmath>
+#include <boost/math/constants/constants.hpp>
+#include <boost/array.hpp>
 
-#include "mga_1dsm.h"
+#include "mga_1dsm_tof.h"
 #include "../keplerian_toolbox/keplerian_toolbox.h"
 
 namespace pagmo { namespace problem {
@@ -42,23 +43,22 @@ namespace pagmo { namespace problem {
  * @param[in] seq std::vector of kep_toolbox::planet_ptr containing the encounter sequence for the trajectoty (including the initial planet)
  * @param[in] t0_l kep_toolbox::epoch representing the lower bound for the launch epoch
  * @param[in] t0_r kep_toolbox::epoch representing the upper bound for the launch epoch
- * @param[in] tof_l lower bound for the mission duration (in years)
- * @param[in] tof_r upper bound for the mission duration (in years)
+ * @param[in] tof std::vector of boost::array<double,2>, containing a list of intervals for the time of flight
  * @param[in] vinf_l  minimum launch hyperbolic velocity allowed (in km/s)
  * @param[in] vinf_u  maximum launch hyperbolic velocity allowed (in km/s)
  * @param[in] mo: when true defines the problem as a multi-objective problem, returning total DV and time of flight
  * @param[in] add_vinf_dep: when true the objective functions contains also the contribution of the launch hypebolic velocity
  * @param[in] add_vinf_arr: when true the objective functions contains also the contribution of the arrival hypebolic velocity
  * 
- * @throws value_error if the planets in seq do not all have the same central body gravitational constant
+ * @throws value_error if the planets in seq do not all have the same central body gravitational constant and if the tof dimension is not compatible with the sequence length
  */
-mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq, 
+mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
-			 const double tof_l, const double tof_u, 
+			 const std::vector<boost::array<double,2> > tof, 
 			 const double vinf_l, const double vinf_u, 
 			 const bool mo, const bool add_vinf_dep, const bool add_vinf_arr) : 
-			 base( 6 +  (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf_dep(add_vinf_dep), m_add_vinf_arr(add_vinf_arr)
-{
+			 base(6 + (int)(seq.size()-2) * 4, 0, 1 + (int)mo,0,0,0.0), m_n_legs(seq.size()-1), m_add_vinf_dep(add_vinf_dep), m_add_vinf_arr(add_vinf_arr)
+{	
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
 	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
@@ -67,39 +67,45 @@ mga_1dsm::mga_1dsm(const std::vector<kep_toolbox::planet_ptr> seq,
 	if ((unsigned int)std::count(mus.begin(), mus.end(), mus[0]) != mus.size()) {
 		pagmo_throw(value_error,"The planets do not all have the same mu_central_body");  
 	}
+	// And that the time of flights have the correct dimension
+	if (seq.size()!= (tof.size()+1)) {
+		pagmo_throw(value_error,"The number of time of flights is not compatible with the sequence length");  
+	}
+	
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
 	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < seq.size(); ++i) {
 		m_seq.push_back(seq[i]->clone());
 	}
-	
 	// Now setting the problem bounds
 	size_type dim(6 +  (m_n_legs-1) * 4);
 	decision_vector lb(dim), ub(dim);
-	
 	// First leg
 	lb[0] = t0_l.mjd2000(); ub[0] = t0_u.mjd2000();
+	
+	// TODO: implement
 	lb[1] = 0; lb[2] = 0; ub[1] = 1; ub[2] = 1;
 	lb[3] = vinf_l * 1000; ub[3] = vinf_u * 1000;
 	lb[4] = 1e-5; ub[4] = 1-1e-5;
-	lb[5] = tof_l * 365.25; ub[5] = tof_u *365.25;
-	
+	lb[5] = tof[0][0]; ub[5] = tof[0][1];
+
 	// Successive legs
 	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < m_n_legs - 1; ++i) {
 		lb[6+4*i] = - 2 * boost::math::constants::pi<double>();    ub[6+4*i] = 2 * boost::math::constants::pi<double>();
 		lb[7+4*i] = 1.1;  ub[7+4*i] = 100;
 		lb[8+4*i] = 1e-5; ub[8+4*i] = 1-1e-5;
-		lb[9+4*i] = 1e-5; ub[9+4*i] = 1-1e-5;
+		lb[9+4*i] = tof[i+1][0]; ub[9+4*i] = tof[i+1][1];
 	}
-	
 	// Adjusting the minimum allowed fly-by rp to the one defined in the kep_toolbox::planet class
 	for (std::vector<kep_toolbox::planet>::size_type i = 1; i < m_n_legs; ++i) {
 		lb[3 + 4*i] = m_seq[i]->get_safe_radius() / m_seq[i]->get_radius();
 	}
+
 	set_bounds(lb,ub);
+
 }
 
 /// Copy Constructor. Performs a deep copy
-mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr) 
+mga_1dsm_tof::mga_1dsm_tof(const mga_1dsm_tof &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_seq(), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr)
 {
 	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
@@ -108,23 +114,22 @@ mga_1dsm::mga_1dsm(const mga_1dsm &p) : base(p.get_dimension(), 0, p.get_f_dimen
 }
 
 /// Clone method.
-base_ptr mga_1dsm::clone() const
+base_ptr mga_1dsm_tof::clone() const
 {
-	return base_ptr(new mga_1dsm(*this));
+	return base_ptr(new mga_1dsm_tof(*this));
 }
 
 /// Implementation of the objective function.
-void mga_1dsm::objfun_impl(fitness_vector &f, const decision_vector &x) const
+void mga_1dsm_tof::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 try {
 	double common_mu = m_seq[0]->get_mu_central_body();
 	// 1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
 	std::vector<double> T(m_n_legs,0.0);
 	
-	for (size_t i = 0; i<(m_n_legs - 1); ++i) {
-		T[m_n_legs - 1- i] = (x[5] - std::accumulate(T.end()-i, T.end(), 0.0) ) * (*(x.end()-1-i*4));
+	for (size_t i = 0; i < m_n_legs; ++i) {
+		T[i] = x[5 + i*4];
 	}
-	T[0] = x[5] - std::accumulate(T.begin(), T.end(), 0.0);
 
 	// 2 - We compute the epochs and ephemerides of the planetary encounters
 	std::vector<kep_toolbox::epoch>   t_P(m_n_legs + 1);
@@ -204,7 +209,7 @@ try {
 
 /// Outputs a stream with the trajectory data
 /**
- * While the chromosome contains all necessary information to describe a trajectory, mission analysits
+ * While the chromosome contains all necessary information to describe a trajectory, mission analysis
  * often require a different set of data to evaluate its use. This method outputs a stream with
  * information on the trajectory that is otherwise 'hidden' in the chromosome
  *
@@ -213,7 +218,7 @@ try {
  */
 
 
-std::string mga_1dsm::pretty(const std::vector<double> &x) const {
+std::string mga_1dsm_tof::pretty(const std::vector<double> &x) const {
   
 	double common_mu = m_seq[0]->get_mu_central_body();
 	// We set the std output format
@@ -224,10 +229,9 @@ std::string mga_1dsm::pretty(const std::vector<double> &x) const {
 	// 1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
 	std::vector<double> T(m_n_legs,0.0);
 	
-	for (size_t i = 0; i<(m_n_legs - 1); ++i) {
-		T[m_n_legs - 1- i] = (x[5] - std::accumulate(T.end()-i, T.end(), 0.0) ) * (*(x.end()-1-i*4));
+	for (size_t i = 0; i < m_n_legs; ++i) {
+		T[i] = x[5 + i*4];
 	}
-	T[0] = x[5] - std::accumulate(T.begin(), T.end(), 0.0);
 
 	// 2 - We compute the epochs and ephemerides of the planetary encounters
 	std::vector<kep_toolbox::epoch>   t_P(m_n_legs + 1);
@@ -247,7 +251,7 @@ std::string mga_1dsm::pretty(const std::vector<double> &x) const {
 	s << "DSM after " << x[4]*T[0] << " days" << std::endl;
 	double theta = 2*boost::math::constants::pi<double>()*x[1];
 	double phi = acos(2*x[2]-1)-boost::math::constants::pi<double>() / 2;
-
+	
 	kep_toolbox::array3D Vinf = { {x[3]*cos(phi)*cos(theta), x[3]*cos(phi)*sin(theta), x[3]*sin(phi)} };
 
 	kep_toolbox::array3D v0;
@@ -302,20 +306,25 @@ std::string mga_1dsm::pretty(const std::vector<double> &x) const {
 	s << "Total mission time: " << std::accumulate(T.begin(),T.end(),0.0)/365.25 << " years" << std::endl;
 	return s.str();
 }
-std::string mga_1dsm::get_name() const
+std::string mga_1dsm_tof::get_name() const
 {
-	return "MGA-1DSM";
+	return "MGA-1DSM (tof-encoding)";
 }
 
 /// Sets the mission time of flight
 /**
  * This setter changes the problem bounds as to define a minimum and a maximum allowed total time of flight
  *
- * @param[in] tl Lower bownd on the time of flight in years
- * @param[in] tu Upper bownd on the time of flight in years
+ * @param[in] tof std::vecotr
  */
-void mga_1dsm::set_tof(double tl, double tu) {
-	set_bounds(5,tl*365.25,tu*365.25);
+void mga_1dsm_tof::set_tof(const std::vector<boost::array<double,2> > tof) {
+	if (m_seq.size()!= (tof.size()+1)) {
+		pagmo_throw(value_error,"The size of the time of flight is inconsistent");  
+	}
+	// setting bounds
+	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < m_n_legs; ++i) {
+		set_bounds(5 + i*4,tof[i][0],tof[i][1]);
+	}
 }
 
 /// Sets the mission launch window
@@ -325,7 +334,7 @@ void mga_1dsm::set_tof(double tl, double tu) {
  * @param[in] start starting epoch of the launch window
  * @param[in] end final epoch of the launch window
  */
-void mga_1dsm::set_launch_window(const kep_toolbox::epoch& start, const kep_toolbox::epoch& end) {
+void mga_1dsm_tof::set_launch_window(const kep_toolbox::epoch& start, const kep_toolbox::epoch& end) {
 	set_bounds(0,start.mjd2000(),end.mjd2000());
 }
 
@@ -335,15 +344,33 @@ void mga_1dsm::set_launch_window(const kep_toolbox::epoch& start, const kep_tool
  *
  * @param[in] vinf maximum allowed hyperbolic velocity in km/sec
  */
-void mga_1dsm::set_vinf(const double vinf) {
+void mga_1dsm_tof::set_vinf(const double vinf) {
 	set_ub(3,vinf*1000);
+}
+
+/// Gets the sequence of time of flights for the mga-1dsm mission
+/**
+ * @return An std::vector of std::vector of double containing the bounds on flight time for each leg
+ */
+std::vector<std::vector<double> > mga_1dsm_tof::get_tof() const {
+	std::vector<std::vector<double> > retval;
+	std::vector<double> tmp;
+	const decision_vector lb = get_lb();
+	const decision_vector ub = get_ub();
+	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < m_n_legs; ++i) {
+		tmp.push_back(lb[5+(i*4)]);
+		tmp.push_back(ub[5+(i*4)]);
+		retval.push_back(tmp);
+		tmp.clear();
+	}
+	return retval;
 }
 
 /// Gets the planetary sequence defining the interplanetary mga-1dsm mission
 /**
  * @return An std::vector containing the kep_toolbox::planets
  */
-std::vector<kep_toolbox::planet_ptr> mga_1dsm::get_sequence() const {
+std::vector<kep_toolbox::planet_ptr> mga_1dsm_tof::get_sequence() const {
 	return m_seq;
 }
 
@@ -352,7 +379,7 @@ std::vector<kep_toolbox::planet_ptr> mga_1dsm::get_sequence() const {
  * Will return a formatted string containing the values vector, the weights vectors and the max weight. It is concatenated
  * with the base::problem human_readable
  */
-std::string mga_1dsm::human_readable_extra() const
+std::string mga_1dsm_tof::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << "\n\tSequence: ";
@@ -366,4 +393,4 @@ std::string mga_1dsm::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_1dsm);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_1dsm_tof);

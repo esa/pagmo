@@ -91,7 +91,11 @@ Default value: migration.best_s_policy(1)
 
 The selection policy is the object responsible to choose out of a :class:`PyGMO.population` the individuals that will migrate. All selection policies derive from the same base class and currently a few are implemented:
 
-* 'migration.best_s_policy': simply selects the best individuals
+* 'migration.best_s_policy': Selects the best individuals for a single-objective optimization problem. For a multi-objective optimization problem, an individual is considered better as another individual if it has a lower non-domination rank or - if the non-domination ranks of both individuals are equal - a higher crowding distance.
+
+* 'migration.best_kill_s_policy': The same as 'migration.best_s_policy' but every selected individual gets reinitialized in the originating population.
+
+* 'migration.random_s_policy': Individuals are selected uniformly at random.
 
 The selection policy is set by the 's_policy' kwarg in the :class:`PyGMO.island` constructor
 
@@ -111,11 +115,11 @@ Default value: migration.fair_r_policy(1)
 The replacement policy is the object responsible to substitute the individuals in a population with the
 migrants. All replacement policies derive from the same base class and currently a few are implemented:
 
-* 'migration.fair_r_policy': simply replaces the worst individuals in the island  with the best of the incoming migrants. This is subject to the added condition that the migrants are better.
-only
+* 'migration.fair_r_policy': simply replaces the worst individuals in the island  with the best of the incoming migrants. This is subject to the added condition that the migrants are better. For multi-objective optimization problems, an individual is considered better than another individual if it has a lower non-domination rank or - if the non-domination ranks are equal - a higher crowding distance (compare with 'migration.best_s_policy')
+
 * 'migration.random_r_policy': replaces random individuals in the island with random incoming migrants
 
-* 'migration.worst_r_policy': replaces the worst individuals in the island with the best of the incoming migrants.
+* 'migration.worst_r_policy': replaces the worst individuals in the island with the best of the incoming migrants. In a multi-objective setting, the meaning of *better* is like in 'migration.fair_r_policy' or 'migration.best_s_policy').
 
 
 The replacement policy is set by the 'r_policy' kwarg in the island constructor
@@ -177,7 +181,7 @@ The Classes
 
       from PyGMO import *
       prob = problem.griewank(5)
-      algo = algorithm.abc(gen = 10) #instantiates artificial bee colony with default params and 10 generations
+      algo = algorithm.bee_colony(gen = 10) #instantiates artificial bee colony with default params and 10 generations
       best2 = migration.best_s_policy(2)
       best50pc = migration.best_s_policy(0.5,migration.rate_type.fractional)
       isl1 = island(algo,prob,10,s_policy = best2)  #2 of the best individuals will migrate
@@ -196,11 +200,27 @@ The Classes
 
       from PyGMO import *
       prob = problem.griewank(5)
-      algo = algorithm.abc(gen = 10) #instantiates artificial bee colony with default params and 10 generations
+      algo = algorithm.bee_colony(gen = 10) #instantiates artificial bee colony with default params and 10 generations
       best2 = migration.best_kill_s_policy(2)
       best50pc = migration.best_s_policy(0.5,migration.rate_type.fractional)
       isl1 = island(algo,prob,10,s_policy = best2)  #2 of the best individuals will migrate and be reinitialized in pop
       isl2 = island(algo,prob,32,s_policy = best50pc) #50% of 32 (i.e. 16) best individuals will migrate
+
+.. class:: PyGMO.migration.random_s_policy([n=1, type = migration.rate_type.absolute])
+
+   This selection policy selects n random :class:`PyGMO.individual` in the :class:`PyGMO.island`'s :class:`PyGMO.population`
+   selected uniformly. This class is used exclusively in the :class:`PyGMO.island` 
+   constructor as a possible kwarg for the key 's_policy'
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.griewank(5)
+      algo = algorithm.bee_colony(gen = 10) #instantiates artificial bee colony with default params and 10 generations
+      random10 = migration.random_s_policy(10)
+      best10 = migration.best_s_policy(10)
+      isl1 = island(algo,prob,50,s_policy = best10) #10 random individuals will be selected for migration
+      isl2 = island(algo,prob,50,s_policy = best10) #the 10 best individuals will be selected for migration
 
 
 .. class:: PyGMO.migration.fair_r_policy([n=1, type = migration.rate_type.absolute])
@@ -249,7 +269,7 @@ The Classes
       prob = problem.griewank(5)
       algo = algorithm.bee_colony(gen = 10) #instantiates artificial bee colony with default params and 10 generations
       worst2 = migration.worst_r_policy(2)
-      isl = island(algo,prob,10,r_policy = worst2)  #the 2 worst individuals will be replaced by the best mogrants
+      isl = island(algo,prob,10,r_policy = worst2)  #the 2 worst individuals will be replaced by the best migrants
 
 .. class:: PyGMO.distribution_type
 

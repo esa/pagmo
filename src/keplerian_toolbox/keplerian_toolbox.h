@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -38,6 +38,7 @@
 #include"core_functions/convert_dates.h"
 #include"core_functions/ic2par.h"
 #include"core_functions/par2ic.h"
+#include"core_functions/closest_distance.h"
 #include"core_functions/kepler_equations.h"
 #include"core_functions/lambert_2d.h"
 #include"core_functions/lambert_3d.h"

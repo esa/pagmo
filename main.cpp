@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -27,13 +27,19 @@
 
 using namespace pagmo;
 
+// Example in C++ of the use of PaGMO 1.1.4
+
 int main()
 {
-pagmo::algorithm::ihs algo(10000);
-pagmo::problem::zdt1 prob;
-pagmo::island isl = island(algo, prob, 100);
-isl.evolve(1);
-std::cout << isl.get_population().champion().f << std::endl;
+pagmo::algorithm::nsga2 alg(10);
+std::cout << alg << std::endl;
+pagmo::problem::dtlz2 prob(40);
+std::cout << prob << std::endl;
+pagmo::island isl = island(alg, prob, 100);
+for (size_t i = 0; i< 10; ++i){
+    isl.evolve(1);
+    std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
+}
 
 return 0;
 }

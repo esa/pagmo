@@ -239,6 +239,8 @@ def _generic_archi_ctor(self,*args,**kwargs):
 	"""
 
 	from PyGMO import topology, algorithm,problem
+	from difflib import get_close_matches
+	
 	if not((len(args)==4) or (len(args)==0)):
 		raise ValueError("Unnamed arguments list, when present, must be of length 4, but %d elements were found instead" % (len(args),))
 
@@ -246,9 +248,25 @@ def _generic_archi_ctor(self,*args,**kwargs):
 	ctor_args = []
 	for i in args:
 		ctor_args.append(i)
+	
+	#Pop all known keywords out of kwargs and add a default value if not provided
 	ctor_args.append(kwargs.pop('topology', topology.unconnected())) #unconnected is default
 	ctor_args.append(kwargs.pop('distribution_type', distribution_type.point_to_point)) #point-to-point is default
 	ctor_args.append(kwargs.pop('migration_direction', migration_direction.destination)) #destination is default
+	
+	#Check for unknown keywords
+	kwlist = ['topology', 'distribution_type', 'migration_direction']
+	if kwargs:
+		s = "The following unknown keyworded argument was passed to the construtor: " 
+		for kw in kwargs:
+			s += kw 
+			spam = get_close_matches(kw, kwlist)
+			if spam:
+				s += " (Did you mean %s?), " % spam[0]
+			else:
+				s += ", "
+			
+		raise ValueError(s[:-2])
 
 	#Constructs an empty archipelago with no islands using the C++ constructor
 	self.__original_init__(*ctor_args[-3:])
@@ -348,29 +366,39 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 	return pos
 archipelago.draw = _archipelago_draw
 
-def _plot_pareto_fronts(self, comp = [0,1]):
+
+def _plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6):
 	"""
 	Plots the population pareto front in a 2-D graph
 
-	USAGE: pop.plot_pareto_front(comp = [0,1])
+	USAGE: pop.plot_pareto_front(comp = [0,1], rgb=(0,1,0))
 
 	* comp: components of the fitness function to plot in the 2-D window
+	* rgb: specify the color of the 1st front (use strong colors here)
+	* symbol: marker for the individual
+	* size: size of the markersymbol
 	"""
 	from numpy import linspace
-	import matplotlib.pyplot as pl
+	import matplotlib.pyplot as plt
+
 	if len(comp) !=2:
 		raise ValueError('You need to select two components of the objective function')
-	p_list = self.compute_pareto_fronts()
-        cl = linspace(0.1,0.9,len(p_list))
+
+	p_list = pop.compute_pareto_fronts()
+	cl = zip(linspace(0.9 if rgb[0] else 0.1,0.9, len(p_list)), 
+			 linspace(0.9 if rgb[1] else 0.1,0.9, len(p_list)),  
+			 linspace(0.9 if rgb[2] else 0.1,0.9, len(p_list)))  
 
 	for id_f,f in enumerate(p_list):
 		for ind in f:
-			pl.plot([self[ind].best_f[comp[0]]],[self[ind].best_f[comp[1]]], 'o', color=str(cl[id_f]))
-		x = [self[ind].best_f[comp[0]] for ind in f]
-		y = [self[ind].best_f[comp[1]] for ind in f]
+			plt.plot([pop[ind].best_f[comp[0]]],[pop[ind].best_f[comp[1]]], symbol, color=cl[id_f], markersize=size)
+		x = [pop[ind].best_f[comp[0]] for ind in f]
+		y = [pop[ind].best_f[comp[1]] for ind in f]
 		tmp = [(a,b) for a,b in zip(x,y)]
 		tmp = sorted(tmp, key = lambda k:k[0])
-		pl.step([c[0] for c in tmp], [c[1] for c in tmp],color=str(cl[id_f]),where='post')
-	pl.show()
+		plt.step([c[0] for c in tmp], [c[1] for c in tmp],color=cl[id_f],where='post')
+	plt.show()
+
+
 population.plot_pareto_fronts = _plot_pareto_fronts
 	

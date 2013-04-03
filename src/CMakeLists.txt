@@ -28,6 +28,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_s_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_kill_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/worst_r_policy.cpp
@@ -38,6 +39,13 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/lennard_jones.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/ackley.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz1.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz3.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz4.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz5.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz6.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz7.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/inventory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_1.cpp
@@ -53,6 +61,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp
@@ -87,7 +96,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_1.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/cassini_2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_1.cpp
-		//${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_2.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc_2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/sagas.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/rosetta.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger.cpp
@@ -100,8 +109,10 @@ IF(ENABLE_GTOP_DATABASE)
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_alpha.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_tof.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_part.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/misc4Tandem.cpp

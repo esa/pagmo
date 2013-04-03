@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2009 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -30,8 +30,6 @@
 
 #include "mga_incipit.h"
 #include "../keplerian_toolbox/keplerian_toolbox.h"
-
-#define ASTRO_JR 71492000.0 //m
 
 namespace pagmo { namespace problem {
 
@@ -140,8 +138,9 @@ try {
 	// 3 - We start with the first leg
 	double theta = 2*boost::math::constants::pi<double>()*x[1];
 	double phi = acos(2*x[2]-1)-boost::math::constants::pi<double>() / 2;
+	double d,d2,ra,ra2;
 	kep_toolbox::array3D r = { {ASTRO_JR*1000*cos(phi)*sin(theta), ASTRO_JR*1000*cos(phi)*cos(theta), ASTRO_JR*1000*sin(phi)} };
-	
+	kep_toolbox::array3D v;
 	kep_toolbox::lambert_problem l(r,r_P[0],T[0]*ASTRO_DAY2SEC,common_mu,false,false);
 	kep_toolbox::array3D v_beg_l = l.get_v1()[0];
 	kep_toolbox::array3D v_end_l = l.get_v2()[0];
@@ -153,19 +152,28 @@ try {
 	for (size_t i = 1; i<m_seq.size(); ++i) {
 		// Fly-by
 		kep_toolbox::fb_prop(v_out, v_end_l, v_P[i-1], x[4*i+1] * m_seq[i-1]->get_radius(), x[4*i], m_seq[i-1]->get_mu_self());
+	    r = r_P[i-1];
+		v = v_out;
 		// s/c propagation before the DSM
-		r = r_P[i-1];
-		kep_toolbox::propagate_lagrangian(r,v_out,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
+		kep_toolbox::propagate_lagrangian(r,v,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
+		kep_toolbox::closest_distance(d, ra, r_P[i-1], v_out, r, v, common_mu);
 
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 		double dt = (1-x[4*i+2])*T[i]*ASTRO_DAY2SEC;
 		kep_toolbox::lambert_problem l2(r,r_P[i],dt,common_mu,false,false);
 		v_end_l = l2.get_v2()[0];
 		v_beg_l = l2.get_v1()[0];
+		kep_toolbox::closest_distance(d2,ra2,r,v_beg_l, r_P[i], v_end_l, common_mu);
+		if (d < d2)
+		{
+			d = d/ASTRO_JR;
+		} else {
+			d = d2/ASTRO_JR;
+		}
 
 		// DSM occuring at time nu2*T2
-		kep_toolbox::diff(v_out, v_beg_l, v_out);
-		DV[i] = kep_toolbox::norm(v_out);
+		kep_toolbox::diff(v_out, v_beg_l, v);
+		DV[i] = kep_toolbox::norm(v_out) + std::max((2.0-d),0.0) * 1000.0;
 	}
 	// Now we return the objective(s) function
 	f[0] = std::accumulate(DV.begin(),DV.end(),0.0); 
@@ -191,6 +199,8 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 	std::ostringstream s;
 	s.precision(15);
 	s << std::scientific;
+	
+	double d,ra,d2,ra2;
 
 	double common_mu = m_seq[0]->get_mu_central_body();
 	// 1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
@@ -213,20 +223,23 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 	double theta = 2*boost::math::constants::pi<double>()*x[1];
 	double phi = acos(2*x[2]-1)-boost::math::constants::pi<double>() / 2;
 	kep_toolbox::array3D r = { {ASTRO_JR * 1000*cos(phi)*sin(theta), ASTRO_JR * 1000*cos(phi)*cos(theta), ASTRO_JR * 1000*sin(phi)} };
+	kep_toolbox::array3D v;
 	
 	kep_toolbox::lambert_problem l(r,r_P[0],T[0]*ASTRO_DAY2SEC,common_mu,false,false);
 	kep_toolbox::array3D v_beg_l = l.get_v1()[0];
 	kep_toolbox::array3D v_end_l = l.get_v2()[0];
+	kep_toolbox::closest_distance(d,ra,r,v_beg_l, r_P[0], v_end_l, common_mu);
 
 	DV[0] = std::abs(kep_toolbox::norm(v_beg_l)-3400.0);
-	kep_toolbox::array3D v_out;
+	kep_toolbox::array3D v_out,mem_vin,mem_vout,mem_vP;
 	
 	s << "\nFirst Leg: 1000JR to " << m_seq[0]->get_name() << std::endl; 
-	s << "\tDeparture: " << t_P[0] << " (" << t_P[0].mjd2000() << " mjd2000) " << std::endl; 
+	s << "\tDeparture: " << kep_toolbox::epoch(x[0]) << " (" << x[0] << " mjd2000) " << std::endl; 
 	s << "\tDuration: " << T[0] << "days" << std::endl; 
 	s << "\tInitial Velocity Increment (m/s): " << DV[0] << std::endl; 
 	kep_toolbox::diff(v_out, v_end_l, v_P[0]);
 	s << "\tArrival relative velocity at " << m_seq[0]->get_name() << " (m/s): " << kep_toolbox::norm(v_out)  << std::endl; 
+	s << "\tClosest distance: " << d / ASTRO_JR;
 	
 	// 4 - And we proceed with each successive leg (if any)
 	for (size_t i = 1; i<m_seq.size(); ++i) {
@@ -234,24 +247,46 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 		kep_toolbox::fb_prop(v_out, v_end_l, v_P[i-1], x[4*i+1] * m_seq[i-1]->get_radius(), x[4*i], m_seq[i-1]->get_mu_self());
 		// s/c propagation before the DSM
 		r = r_P[i-1];
-		kep_toolbox::propagate_lagrangian(r,v_out,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
-
+		v = v_out;
+		mem_vout = v_out;
+		mem_vin = v_end_l;
+		mem_vP = v_P[i-1];
+		
+		kep_toolbox::propagate_lagrangian(r,v,x[4*i+2]*T[i]*ASTRO_DAY2SEC,common_mu);
+		kep_toolbox::closest_distance(d, ra, r_P[i-1], v_out, r, v, common_mu);
+		
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
 		double dt = (1-x[4*i+2])*T[i]*ASTRO_DAY2SEC;
 		kep_toolbox::lambert_problem l2(r,r_P[i],dt,common_mu,false,false);
 		v_end_l = l2.get_v2()[0];
 		v_beg_l = l2.get_v1()[0];
-
+		kep_toolbox::closest_distance(d2,ra2,r,v_beg_l, r_P[i], v_end_l, common_mu);
+		
+		if (d < d2)
+		{
+			d = d/ASTRO_JR;
+			ra = ra/ASTRO_JR;
+		} else {
+			d = d2/ASTRO_JR;
+			ra = ra2/ASTRO_JR;
+		}
 		// DSM occuring at time nu2*T2
-		kep_toolbox::diff(v_out, v_beg_l, v_out);
+		kep_toolbox::diff(v_out, v_beg_l, v);
 		DV[i] = kep_toolbox::norm(v_out);
 		s <<  "\nleg no. " << i+1 << ": " << m_seq[i-1]->get_name() << " to " << m_seq[i]->get_name() << std::endl; 
 		s <<  "\tDuration: (days)" << T[i] << std::endl; 
-		s <<  "\tFly-by epoch: " << t_P[i] << " (" << t_P[i].mjd2000() << " mjd2000) " << std::endl; 
+		s <<  "\tFly-by epoch: " << t_P[i-1] << " (" << t_P[i-1].mjd2000() << " mjd2000) " << std::endl; 
 		s <<  "\tFly-by altitude (km): " << (x[4*i+1]*m_seq[i-1]->get_radius()-m_seq[i-1]->get_radius())/1000.0 << std::endl; 
+		s <<  "\tPlanet position (m): " << r_P[i-1] << std::endl; 
+		s <<  "\tPlanet velocity (m/s): " << mem_vP << std::endl; 
+		s <<  "\tV in (m/s): " << mem_vin << std::endl; 
+		s <<  "\tV out (m/s): " << mem_vout << std::endl << std::endl;
+
 		s <<  "\tDSM after (days): "  << x[4*i+2]*T[i] << std::endl; 
 		s <<  "\tDSM magnitude (m/s): " << DV[i] << std::endl; 
-	}
+		s <<  "\tClosest distance (JR): " << d << std::endl; 
+		s <<  "\tApoapsis at closest distance (JR): " << ra << std::endl; 
+ 	}
 	
 	s << "\nArrival at " << m_seq[m_seq.size()-1]->get_name() << std::endl; 
 	kep_toolbox::diff(v_out, v_end_l, v_P[m_seq.size()-1]);
@@ -265,6 +300,15 @@ std::string mga_incipit::get_name() const
 	return "MGA-INCIPIT (CAPTURE AT JUPITER)";
 }
 
+
+/// Gets the times of flight
+/**
+ * @param[out] tof vector of times of flight 
+ */
+const std::vector<std::vector<double> >& mga_incipit::get_tof() const {
+	return m_tof;
+}
+
 /// Sets the times of flight
 /**
  * This setter changes the problem bounds as to define a minimum and a maximum allowed total time of flight
@@ -272,6 +316,9 @@ std::string mga_incipit::get_name() const
  * @param[in] tof vector of times of flight 
  */
 void mga_incipit::set_tof(const std::vector<std::vector<double> >& tof) {
+	if (tof.size() != (m_seq.size())) {
+		pagmo_throw(value_error,"The time-of-flight vector (tof) has the wrong length");  
+	}
 	m_tof = tof;
 	for (size_t i=0; i< m_seq.size(); ++i) {
 		set_bounds(3+4*i,tof[i][0],tof[i][1]);
