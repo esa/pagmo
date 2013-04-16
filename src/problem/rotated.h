@@ -1,0 +1,91 @@
+/*****************************************************************************
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
+
+#ifndef PAGMO_PROBLEM_ROTATED_H
+#define PAGMO_PROBLEM_ROTATED_H
+
+#include <string>
+
+#include "../serialization.h"
+#include "../types.h"
+#include "base.h"
+#include "../Eigen/Dense"
+
+namespace pagmo{ namespace problem {
+
+/// Shifted meta-problem
+/**
+ * Implements a meta-problem class that wraps some other problems,
+ * resulting in a rotated version of the underlying problem.
+ *
+ * @author Yung-Siang Liau (liauys@gmail.com)
+ */
+
+class __PAGMO_VISIBLE rotated : public base
+{
+	public:
+		rotated();
+		rotated(const base_ptr &, const Eigen::MatrixXd & rotation);
+		base_ptr clone() const;
+		std::string get_name() const;
+
+		//Need some set_rotation_matrix(), set_problem() functionalities?
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_original_problem;
+			ar & m_Rotate;
+			ar & m_InvRotate;
+			ar & m_normalize_translation;
+			ar & m_normalize_scale;
+		}
+		mutable base_ptr m_original_problem;
+		mutable Eigen::MatrixXd m_Rotate;
+		mutable Eigen::MatrixXd m_InvRotate;
+
+		decision_vector m_normalize_translation;
+		decision_vector m_normalize_scale;
+
+		void configure_shifted_bounds(const Eigen::MatrixXd & Rot,
+									  const decision_vector &,
+									  const decision_vector &);
+
+		decision_vector normalize_to_center(const decision_vector& x) const;
+		decision_vector denormalize_to_original(const decision_vector& x) const;
+		decision_vector projection_via_clipping(const decision_vector& x) const;
+		decision_vector get_inv_rotated_vars(const decision_vector &) const;
+};
+
+}} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::rotated);
+
+#endif // PAGMO_PROBLEM_ROTATED_H

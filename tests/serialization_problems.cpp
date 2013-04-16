@@ -32,6 +32,7 @@
 #include "../src/keplerian_toolbox/planet_ss.h"
 #include "../src/keplerian_toolbox/epoch.h"
 
+#include "../src/Eigen/Dense"
 
 //-------------------------------------------------------------------------------
 // static data needed to test the non-default constructor in some of the problems.
@@ -56,6 +57,8 @@ static const int default_sequence[5] = {3,2,2,1,5};
 
 ///The idea of this unit test is to serialize all pagmo::problems, deserialize them and check that
 ///the objective function and the constraint implementation return the same in the original and in the deserialized object
+
+#define PRINT_VEC(x) do{ std::cout<<"[ " #x " ] = "; for(unsigned int iii=0;iii<(x).size();iii++) std::cout<<(x)[iii]<<" "; std::cout<<std::endl; } while(0)
 
 using namespace pagmo;
 int main()
@@ -139,7 +142,25 @@ int main()
 	probs_new.push_back(problem::dtlz7().clone());
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
+
+	//----- Test meta-problems -----//
+	problem::base_ptr zdt1_before_transform1 = problem::zdt1(dimension).clone();
+	problem::base_ptr zdt1_before_transform2 = problem::zdt1().clone();
+	//----- shifted -----//
+	decision_vector trans1((int)zdt1_before_transform1->get_dimension(), 1);
+	decision_vector trans2((int)zdt1_before_transform2->get_dimension(), 5);
+	probs.push_back(problem::shifted(zdt1_before_transform1, trans1).clone());
+	probs_new.push_back(problem::shifted(zdt1_before_transform2, trans2).clone());
+	//----- rotated -----//	
+	int l_dim1 =  zdt1_before_transform1->get_dimension();
+	int l_dim2 =  zdt1_before_transform2->get_dimension();
+	Eigen::MatrixXd Rot1 = Eigen::MatrixXd::Identity(l_dim1, l_dim1);
+	Eigen::MatrixXd Rot2 = Eigen::MatrixXd::Random(l_dim2, l_dim2).householderQr().householderQ();
 	
+	probs.push_back(problem::rotated(zdt1_before_transform1, Rot1).clone());
+	probs_new.push_back(problem::rotated(zdt1_before_transform2, Rot2).clone());
+	
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	probs.push_back(problem::cassini_1(2).clone());
 	probs_new.push_back(problem::cassini_1().clone());
@@ -188,7 +209,7 @@ int main()
 		{
 		decision_vector x(probs[i]->get_dimension(),0);
 		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),0);
-		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension());
+		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension());	
 		population pop(*probs[i],1);
 		x = pop.champion().x;
 		probs[i]->objfun(f1,x);
@@ -196,9 +217,12 @@ int main()
 		probs[i]->compute_constraints(c1,x);
 		probs_new[i]->compute_constraints(c2,x);
 		std::cout << std::endl << std::setw(40) << probs[i]->get_name();
+
 		if (std::equal(f1.begin(),f1.end(),f2.begin())) {
 			std::cout << ": Fitness pass,";
 		} else { 
+			PRINT_VEC(f1);
+			PRINT_VEC(f2);
 			std::cout << ": Fitness FAILED," << std::endl;
 			return 1;
 		}

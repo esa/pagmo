@@ -67,6 +67,8 @@
 #include "problem/zdt3.h"
 #include "problem/zdt4.h"
 #include "problem/zdt6.h"
+#include "problem/shifted.h"
+#include "problem/rotated.h"
 
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL
