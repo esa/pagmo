@@ -29,6 +29,7 @@
 
 #include "../serialization.h"
 #include "../types.h"
+#include "ackley.h"
 #include "base.h"
 #include "../Eigen/Dense"
 
@@ -45,11 +46,13 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE rotated : public base
 {
 	public:
-		rotated();
-		rotated(const base&, const Eigen::MatrixXd &);
-		rotated(const base&, const std::vector<std::vector<double> > &);
-		base_ptr clone() const;
+		rotated(const base &, const Eigen::MatrixXd &);
+		rotated(const base &, const std::vector<std::vector<double> > &);
+		rotated(const base & = ackley(1));
 		rotated(const rotated &);
+		base_ptr clone() const;
+
+		const Eigen::MatrixXd& get_rotation_matrix() const;
 		std::string human_readable_extra() const;
 		std::string get_name() const;
 

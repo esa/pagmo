@@ -33,16 +33,6 @@
 namespace pagmo { namespace problem {
 
 /**
- * Default constructor so that boost::serialization does not complain
- *
- */
-
-shifted::shifted():
-	base(30,0,2)
-{
-}
-
-/**
  * Will construct the shifted meta-problem.
  *
  * @param[translation]: The vector specifying the translation
@@ -147,6 +137,10 @@ void shifted::compute_constraints_impl(constraint_vector &c, const decision_vect
 {
 	decision_vector x_translated = get_shifted_vars(x);
 	m_original_problem->compute_constraints(c, x_translated);
+}
+
+const decision_vector& shifted::get_shift_vector() const {
+	return m_translation;
 }
 
 std::string shifted::get_name() const

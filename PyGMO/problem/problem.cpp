@@ -29,6 +29,7 @@
 #include <boost/python/make_function.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/operators.hpp>
+#include <boost/python/make_constructor.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/utility.hpp>
 #include <cstddef>
@@ -49,6 +50,35 @@
 
 using namespace boost::python;
 using namespace pagmo;
+
+// Wrapper to expose the overloaded constructors of rotated
+static boost::shared_ptr<problem::base> construct_with_problem(const problem::base& prob)
+{
+	boost::shared_ptr<problem::rotated> obj;
+	obj.reset(new problem::rotated(prob));
+	return obj;
+}
+static boost::shared_ptr<problem::base> construct_with_problem_and_matrix(const problem::base& prob, const std::vector<std::vector<double> >& rot)
+{
+	boost::shared_ptr<problem::rotated> obj;
+	obj.reset(new problem::rotated(prob,rot));
+	return obj;
+}
+
+std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {
+	Eigen::MatrixXd rot = p.get_rotation_matrix();
+	pagmo_assert(rot.cols()==rot.rows());
+	size_t dim = rot.cols();
+	std::vector<double> dummy(dim,0);
+	std::vector<std::vector<double> > retval(dim,dummy);
+
+	for (size_t i=0; i<dim;++i){
+		for (size_t j=0; j<dim;++j){
+			retval[i][j] =rot(i,j);
+		}
+	}
+	return retval;
+}
 
 // Wrapper to expose problems.
 template <class Problem>
@@ -328,10 +358,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Meta-problems
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")
-		.def(init<const problem::base &,const decision_vector &>());
+		.def(init<const problem::base &,const decision_vector &>())
+		.add_property("shift_vector",make_function(&problem::shifted::get_shift_vector,return_value_policy<copy_const_reference>()));
 	// Rotated meta-problem
 	problem_wrapper<problem::rotated>("rotated","Rotated problem")
-		.def(init<const problem::base &,const std::vector<std::vector<double> > &>());
+		.def("__init__", make_constructor(&construct_with_problem))
+		.def("__init__", make_constructor(&construct_with_problem_and_matrix))
+		.add_property("rotation",&get_rotation_matrix_from_eigen);
+
 		
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)

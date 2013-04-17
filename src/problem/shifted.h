@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../serialization.h"
+#include "ackley.h"
 #include "../types.h"
 #include "base.h"
 
@@ -44,11 +45,12 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE shifted : public base
 {
 	public:
-		shifted();
-		shifted(const base &, const decision_vector &);
+		shifted(const base & = ackley(1), const decision_vector & = decision_vector(1,0));
 		shifted(const base &, const double);
 		shifted(const shifted &);
 		base_ptr clone() const;
+
+		const decision_vector& get_shift_vector() const;
 		std::string human_readable_extra() const;
 		std::string get_name() const;
 	protected:

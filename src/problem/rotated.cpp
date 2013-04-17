@@ -34,23 +34,16 @@
 namespace pagmo { namespace problem {
 
 /**
- * Default constructor so that boost::serialization does not complain
- *
- */
-rotated::rotated():
-	base(30,0,2)
-{}
-
-/**
  * Constructor using Eigen Matrix
  *
+ * @param[problem]: base::problem to be rotated
  * @param[rotation]: Eigen::MatrixXd expressing the problem rotation
  *
  * @see problem::base constructors.
  */
 
 rotated::rotated(const base &problem,
-				 const Eigen::MatrixXd & rotation):
+				 const Eigen::MatrixXd &rotation ):
 	base((int)problem.get_dimension(), // Ambiguous without the cast ...
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
@@ -72,6 +65,7 @@ rotated::rotated(const base &problem,
 /**
  * Constructor using std::vector (for python exposition purposes)
  *
+ * @param[problem]: base::problem to be rotated
  * @param[rotation]: std::vector<std::vector<double> > expressing the problem rotation
  *
  * @see problem::base constructors.
@@ -108,19 +102,48 @@ rotated::rotated(const base &problem,
 	configure_new_bounds();
 }
 
+/**
+ * Constructor with a random matrix
+ *
+ * @param[problem]: base::problem to be rotated
+ *
+ * @see problem::base constructors.
+ */
+
+rotated::rotated(const base &problem):
+	base((int)problem.get_dimension(), // Ambiguous without the cast ...
+		 problem.get_i_dimension(),
+		 problem.get_f_dimension(),
+		 problem.get_c_dimension(),
+		 problem.get_ic_dimension(),
+		 problem.get_c_tol()),
+	m_original_problem(problem.clone()),
+	m_normalize_translation(), m_normalize_scale()
+{
+	size_type dim = problem.get_dimension();
+	m_Rotate = Eigen::MatrixXd::Random(dim, dim).householderQr().householderQ();
+	m_InvRotate = m_Rotate.transpose();
+
+	Eigen::MatrixXd check = m_InvRotate * m_Rotate;
+	if(!check.isIdentity(1e-5)){
+		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
+	}
+	configure_new_bounds();
+}
+
 /// Copy Constructor (necessary as the class has a pointer as data member)
-rotated::rotated(const rotated &algo):
-	base((int)algo.get_dimension(), // Ambiguous without the cast
-		 algo.get_i_dimension(),
-		 algo.get_f_dimension(),
-		 algo.get_c_dimension(),
-		 algo.get_ic_dimension(),
-		 algo.get_c_tol()),
-		 m_original_problem(algo.m_original_problem->clone()),
-		 m_Rotate(algo.m_Rotate),
-		 m_InvRotate(algo.m_InvRotate),
-		 m_normalize_translation(algo.m_normalize_translation),
-		 m_normalize_scale(algo.m_normalize_scale) {}
+rotated::rotated(const rotated &prob):
+	base((int)prob.get_dimension(), // Ambiguous without the cast
+		 prob.get_i_dimension(),
+		 prob.get_f_dimension(),
+		 prob.get_c_dimension(),
+		 prob.get_ic_dimension(),
+		 prob.get_c_tol()),
+		 m_original_problem(prob.m_original_problem->clone()),
+		 m_Rotate(prob.m_Rotate),
+		 m_InvRotate(prob.m_InvRotate),
+		 m_normalize_translation(prob.m_normalize_translation),
+		 m_normalize_scale(prob.m_normalize_scale) {}
 
 /// Clone method.
 base_ptr rotated::clone() const
@@ -254,6 +277,10 @@ std::string rotated::human_readable_extra() const
 std::string rotated::get_name() const
 {
 	return m_original_problem->get_name() + " [Rotated]"; 
+}
+
+const Eigen::MatrixXd& rotated::get_rotation_matrix() const {
+	return m_Rotate;
 }
 
 }}
