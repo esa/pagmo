@@ -46,16 +46,25 @@ class __PAGMO_VISIBLE rotated : public base
 {
 	public:
 		rotated();
-		rotated(const base_ptr &, const Eigen::MatrixXd & rotation);
+		rotated(const base&, const Eigen::MatrixXd &);
+		rotated(const base&, const std::vector<std::vector<double> > &);
 		base_ptr clone() const;
+		rotated(const rotated &);
+		std::string human_readable_extra() const;
 		std::string get_name() const;
 
-		//Need some set_rotation_matrix(), set_problem() functionalities?
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 
 	private:
+		void configure_new_bounds();
+
+		decision_vector normalize_to_center(const decision_vector& x) const;
+		decision_vector denormalize_to_original(const decision_vector& x) const;
+		decision_vector projection_via_clipping(const decision_vector& x) const;
+		decision_vector compute_original_vars(const decision_vector &) const;
+	
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -67,21 +76,13 @@ class __PAGMO_VISIBLE rotated : public base
 			ar & m_normalize_translation;
 			ar & m_normalize_scale;
 		}
-		mutable base_ptr m_original_problem;
-		mutable Eigen::MatrixXd m_Rotate;
-		mutable Eigen::MatrixXd m_InvRotate;
-
+		base_ptr m_original_problem;
+		Eigen::MatrixXd m_Rotate;
+		Eigen::MatrixXd m_InvRotate;
 		decision_vector m_normalize_translation;
 		decision_vector m_normalize_scale;
 
-		void configure_shifted_bounds(const Eigen::MatrixXd & Rot,
-									  const decision_vector &,
-									  const decision_vector &);
 
-		decision_vector normalize_to_center(const decision_vector& x) const;
-		decision_vector denormalize_to_original(const decision_vector& x) const;
-		decision_vector projection_via_clipping(const decision_vector& x) const;
-		decision_vector get_inv_rotated_vars(const decision_vector &) const;
 };
 
 }} //namespaces

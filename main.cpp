@@ -31,15 +31,15 @@ using namespace pagmo;
 
 int main()
 {
-pagmo::algorithm::nsga2 alg(10);
-std::cout << alg << std::endl;
-pagmo::problem::dtlz2 prob(40);
-std::cout << prob << std::endl;
-pagmo::island isl = island(alg, prob, 100);
-for (size_t i = 0; i< 10; ++i){
-    isl.evolve(1);
-    std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
-}
-
-return 0;
+	pagmo::algorithm::nsga2 alg(10);
+	std::cout << alg << std::endl;
+	pagmo::problem::dtlz2 prob(40);
+	std::cout << prob << std::endl;
+	pagmo::island isl = island(alg, prob, 100);
+	for (size_t i = 0; i< 10; ++i){
+		isl.evolve(1);
+		std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
+	}
+	
+	return 0;
 }

@@ -36,8 +36,6 @@ using namespace pagmo;
 
 const double EPS = 10e-9;
 
-#define PRINT_VEC(x) do{ std::cout<<"[ " #x " ] = "; for(unsigned int iii=0;iii<(x).size();iii++) std::cout<<(x)[iii]<<" "; std::cout<<std::endl; } while(0);
-
 bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
 	if(f1.size() != f2.size()) return false;
 	for(unsigned int i = 0; i < f1.size(); i++){
@@ -87,7 +85,7 @@ int test_rotated(
 			Rot = Eigen::MatrixXd::Random(dim, dim).householderQr().householderQ();
 		}
 
-		pagmo::problem::rotated prob_rotated(probs[i]->clone(), Rot);
+		pagmo::problem::rotated prob_rotated(*(probs[i]), Rot);
 
 		std::cout<< std::setw(40) << prob_rotated.get_name();
 
@@ -133,8 +131,8 @@ int test_rotated(
 		}
 		else{	
 			std::cout << " fitness failed!"<<std::endl;
-			PRINT_VEC(f_original);
-			PRINT_VEC(f_rotated);
+			std::cout << "original fitness: " << f_original << std::endl;
+			std::cout << "new fitness: " << f_rotated << std::endl;
 			return 1;
 		}
 		if(is_eq(c_rotated, c_original, EPS)){
@@ -142,8 +140,8 @@ int test_rotated(
 		}
 		else{
 			std::cout <<" constraints failed!" <<std::endl;
-			PRINT_VEC(c_original);
-			PRINT_VEC(c_rotated);
+			std::cout << "original constraints: " << c_original << std::endl;
+			std::cout << "new constraints: " << c_rotated << std::endl;
 			return 1;
 		}	
 	}

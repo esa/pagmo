@@ -40,30 +40,31 @@ namespace pagmo { namespace problem {
 shifted::shifted():
 	base(30,0,2)
 {
-	//Or is it better to override the load_construct_data...?
 }
 
 /**
  * Will construct the shifted meta-problem.
  *
- * @param[translation]: Specify the amount of translation in each dimension
+ * @param[translation]: The vector specifying the translation
  *
  * @see problem::base constructors.
  */
 
-shifted::shifted(const base_ptr & problem,
+shifted::shifted(const base & problem,
 				 const decision_vector & translation):
-	base((int)problem->get_dimension(), // But ambiguous without the cast?
-		 problem->get_i_dimension(),
-		 problem->get_f_dimension(),
-		 problem->get_c_dimension(),
-		 problem->get_ic_dimension(),
-		 problem->get_c_tol()),
-	m_original_problem(problem->clone()), //TODO: to clone or not to clone?
-	m_translation(translation)
+	base((int)problem.get_dimension(), // Ambiguous without the cast ...
+		 problem.get_i_dimension(),
+		 problem.get_f_dimension(),
+		 problem.get_c_dimension(),
+		 problem.get_ic_dimension(),
+		 problem.get_c_tol()),
+		m_original_problem(problem.clone()), 
+		m_translation(translation)
 {
-	//TODO Ok to do this here?
-	configure_shifted_bounds(m_translation, problem->get_lb(), problem->get_ub());
+	if (translation.size() != problem.get_dimension()) {
+		pagmo_throw(value_error,"The size of the shifting vector must be equal to the problem dimension");
+	}
+	configure_shifted_bounds(m_translation);
 }
 
 
@@ -75,14 +76,30 @@ shifted::shifted(const base_ptr & problem,
  * @see problem::base constructors.
  */
 
-shifted::shifted(const base_ptr & problem,
+shifted::shifted(const base & problem,
 				 const double t):
-	base(problem->get_dimension(),0,problem->get_f_dimension()),
-	m_original_problem(problem->clone()),
-	m_translation(decision_vector(problem->get_dimension(), t))
+	base((int)problem.get_dimension(), // Ambiguous without the cast
+		 problem.get_i_dimension(),
+		 problem.get_f_dimension(),
+		 problem.get_c_dimension(),
+		 problem.get_ic_dimension(),
+		 problem.get_c_tol()),
+		m_original_problem(problem.clone()),
+		m_translation(decision_vector(problem.get_dimension(), t))
 {
-	configure_shifted_bounds(m_translation, problem->get_lb(), problem->get_ub());
+	configure_shifted_bounds(m_translation);
 }
+
+/// Copy Constructor (necessary as the class has a pointer as data member)
+shifted::shifted(const shifted &algo):
+	base((int)algo.get_dimension(), // Ambiguous without the cast
+		 algo.get_i_dimension(),
+		 algo.get_f_dimension(),
+		 algo.get_c_dimension(),
+		 algo.get_ic_dimension(),
+		 algo.get_c_tol()),
+		 m_original_problem(algo.m_original_problem->clone()),
+		 m_translation(algo.m_translation) {}
 
 /// Clone method.
 base_ptr shifted::clone() const
@@ -91,30 +108,17 @@ base_ptr shifted::clone() const
 }
 
 /// Set up new bounds for the shifted problem
-void shifted::configure_shifted_bounds(const decision_vector & translation,
-							  const decision_vector & original_lb,
-							  const decision_vector & original_ub)
+void shifted::configure_shifted_bounds(const decision_vector & translation)
 {
-	decision_vector shifted_lb = original_lb;
-	decision_vector shifted_ub = original_ub;
+	decision_vector shifted_lb = m_original_problem->get_lb();
+	decision_vector shifted_ub = m_original_problem->get_ub();
 
 	for(problem::base::size_type i = 0; i < shifted_lb.size(); ++i){
-		shifted_lb[i] = original_lb[i] + translation[i];
-		shifted_ub[i] = shifted_ub[i] + translation[i];
+		shifted_lb[i] += translation[i];
+		shifted_ub[i] += translation[i];
 	}
-	//Order of update matters here!
-	//(As bound sanity check is invoked immediately after each update,
-	// even if only lb or ub is changed...)
-	for(problem::base::size_type i = 0; i < shifted_lb.size(); ++i){
-		if(shifted_lb[i] > original_ub[i]){
-			set_ub(i, shifted_ub[i]);
-			set_lb(i, shifted_lb[i]);
-		}
-		else{
-			set_lb(i, shifted_lb[i]);
-			set_ub(i, shifted_ub[i]);
-		}
-	}
+
+	set_bounds(shifted_lb, shifted_ub);
 }
 
 /// Returns the shifted version of the decision variables,
@@ -148,6 +152,17 @@ void shifted::compute_constraints_impl(constraint_vector &c, const decision_vect
 std::string shifted::get_name() const
 {
 	return m_original_problem->get_name() + " [Shifted]"; 
+}
+
+/// Extra human readable info for the problem.
+/**
+ * Will return a formatted string containing the translation vector
+ */
+std::string shifted::human_readable_extra() const
+{
+	std::ostringstream oss;
+	oss << "\n\tShift vector: " << m_translation << std::endl;
+	return oss.str();
 }
 }}
 

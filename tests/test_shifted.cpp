@@ -48,7 +48,7 @@ bool is_eq(fitness_vector f1, fitness_vector f2, double eps){
 int shifted_test1(){
 	pagmo::problem::dtlz2 prob(40);	
 	decision_vector shift_vec(prob.get_dimension(), 6.0);
-	pagmo::problem::shifted prob_shifted(prob.clone(), shift_vec);
+	pagmo::problem::shifted prob_shifted(prob, shift_vec);
 	decision_vector p1_shifted_space(prob.get_dimension(), 6.2);
 	decision_vector p1_original_space(prob.get_dimension(), 0.2);
 	fitness_vector f_expected = prob.objfun(p1_original_space);
@@ -79,7 +79,7 @@ int shifted_test1(){
 int shifted_test2(){
 	pagmo::problem::dtlz1 prob(40);	
 	decision_vector shift_vec(prob.get_dimension(), -6.0);
-	pagmo::problem::shifted prob_shifted(prob.clone(), shift_vec);
+	pagmo::problem::shifted prob_shifted(prob, shift_vec);
 	decision_vector p1_shifted_space(prob.get_dimension(), -5.8);
 	decision_vector p1_original_space(prob.get_dimension(), 0.2);
 	fitness_vector f_expected = prob.objfun(p1_original_space);
@@ -109,7 +109,7 @@ int shifted_test2(){
 
 int shifted_test3(){
 	pagmo::problem::zdt1 prob(40);	
-	pagmo::problem::shifted prob_shifted(prob.clone(), -6); // Another interface
+	pagmo::problem::shifted prob_shifted(prob, -6); // Another interface
 	decision_vector p1_shifted_space(prob.get_dimension(), -5.8);
 	decision_vector p1_original_space(prob.get_dimension(), 0.2);
 	fitness_vector f_expected = prob.objfun(p1_original_space);
@@ -139,7 +139,7 @@ int shifted_test3(){
 
 int shifted_test4(){
 	pagmo::problem::ackley prob(40);	
-	pagmo::problem::shifted prob_shifted(prob.clone(), -6); // Another interface
+	pagmo::problem::shifted prob_shifted(prob, -6); // Another interface
 	decision_vector p1_shifted_space(prob.get_dimension(), -5.8);
 	decision_vector p1_original_space(prob.get_dimension(), 0.2);
 	fitness_vector f_expected = prob.objfun(p1_original_space);
@@ -198,7 +198,7 @@ int test_shifted(
 	std::endl;
 
 	for(unsigned int i = 0; i < probs.size(); i++){
-		pagmo::problem::shifted prob_shifted(probs[i]->clone(), amount_shift);
+		pagmo::problem::shifted prob_shifted(*(probs[i]), amount_shift);
 		decision_vector p_shifted_space = construct_test_point(prob_shifted.clone(), d_from_center);
 		// Obtain the corresponding point in the original space
 		decision_vector p_original_space(p_shifted_space.size(), 0);

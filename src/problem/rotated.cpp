@@ -37,36 +37,90 @@ namespace pagmo { namespace problem {
  * Default constructor so that boost::serialization does not complain
  *
  */
-
 rotated::rotated():
 	base(30,0,2)
-{
-	//Or is it better to override the load_construct_data...?
-}
+{}
 
 /**
- * Will construct the rotated meta-problem.
+ * Constructor using Eigen Matrix
  *
- * @param[rotation]: Rotate the problem using this rotation matrix
+ * @param[rotation]: Eigen::MatrixXd expressing the problem rotation
  *
  * @see problem::base constructors.
  */
 
-rotated::rotated(const base_ptr & problem,
+rotated::rotated(const base &problem,
 				 const Eigen::MatrixXd & rotation):
-	base((int)problem->get_dimension(), // But ambiguous without the cast?
-		 problem->get_i_dimension(),
-		 problem->get_f_dimension(),
-		 problem->get_c_dimension(),
-		 problem->get_ic_dimension(),
-		 problem->get_c_tol()),
-	m_original_problem(problem->clone()), //TODO: to clone or not to clone?
-	m_Rotate(rotation)
+	base((int)problem.get_dimension(), // Ambiguous without the cast ...
+		 problem.get_i_dimension(),
+		 problem.get_f_dimension(),
+		 problem.get_c_dimension(),
+		 problem.get_ic_dimension(),
+		 problem.get_c_tol()),
+	m_original_problem(problem.clone()), 
+	m_Rotate(rotation), m_normalize_translation(), m_normalize_scale()
 {
-	//m_InvRotate = m_Rotate.fullPivLu().inverse();
 	m_InvRotate = m_Rotate.transpose();
-	configure_shifted_bounds(rotation, problem->get_lb(), problem->get_ub());
+	
+	Eigen::MatrixXd check = m_InvRotate * m_Rotate;
+	if(!check.isIdentity(1e-5)){
+		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
+	}
+	configure_new_bounds();
 }
+
+/**
+ * Constructor using std::vector (for python exposition purposes)
+ *
+ * @param[rotation]: std::vector<std::vector<double> > expressing the problem rotation
+ *
+ * @see problem::base constructors.
+ */
+rotated::rotated(const base &problem,
+				 const std::vector<std::vector<double> > &rotation):
+	 base((int)problem.get_dimension(), // Ambiguous without the cast ...
+		 problem.get_i_dimension(),
+		 problem.get_f_dimension(),
+		 problem.get_c_dimension(),
+		 problem.get_ic_dimension(),
+		 problem.get_c_tol()),
+	m_original_problem(problem.clone()), 
+	m_Rotate(),m_normalize_translation(), m_normalize_scale()
+{
+	if(!(rotation.size()==get_dimension())){
+			pagmo_throw(value_error,"The input matrix dimensions seem incorrect");
+	}
+	m_Rotate.resize(rotation.size(),rotation.size());
+	for (base::size_type i = 0; i < rotation.size(); ++i) {
+		if(!(rotation.size()==rotation[i].size())){
+			pagmo_throw(value_error,"The input matrix seems not to be square");
+		}
+		for (base::size_type j = 0; j < rotation[i].size(); ++j) {
+			m_Rotate(i,j) = rotation[i][j];
+		}
+	}
+	m_InvRotate = m_Rotate.transpose();
+	
+	Eigen::MatrixXd check = m_InvRotate * m_Rotate;
+	if(!check.isIdentity(1e-5)){
+		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
+	}
+	configure_new_bounds();
+}
+
+/// Copy Constructor (necessary as the class has a pointer as data member)
+rotated::rotated(const rotated &algo):
+	base((int)algo.get_dimension(), // Ambiguous without the cast
+		 algo.get_i_dimension(),
+		 algo.get_f_dimension(),
+		 algo.get_c_dimension(),
+		 algo.get_ic_dimension(),
+		 algo.get_c_tol()),
+		 m_original_problem(algo.m_original_problem->clone()),
+		 m_Rotate(algo.m_Rotate),
+		 m_InvRotate(algo.m_InvRotate),
+		 m_normalize_translation(algo.m_normalize_translation),
+		 m_normalize_scale(algo.m_normalize_scale) {}
 
 /// Clone method.
 base_ptr rotated::clone() const
@@ -81,35 +135,21 @@ base_ptr rotated::clone() const
 // the real non-separable constraints. All the points in the original
 // search space will be searchable in the new constraint box. Some
 // additional points (that may be invalid) will be introduced this way,
-// so in the objfun_impl all these out-of-bounds point will be projected
-// back to the valid bounds.
-// (Note: Rot is used here just for othorgonality checking)
-void rotated::configure_shifted_bounds(const Eigen::MatrixXd & Rot,
-							  const decision_vector & original_lb,
-							  const decision_vector & original_ub)
+// so in the objfun_impl all these out-of-bounds point will have to be projected
+// back to valid bounds.
+
+void rotated::configure_new_bounds()
 {	
-	Eigen::MatrixXd check = m_InvRotate * Rot;
-	if(!check.isIdentity()){
-		// TODO: Is there a better way than this?
-		std::cout<<"Warning: Rotation matrix is not orthonormal!"<<std::endl;
-	}
-	//Normalize to [-1, 1]
-	m_normalize_translation.clear();
-	m_normalize_scale.clear();
-	for(base::size_type i = 0; i < original_lb.size(); i++){
-		double mean_t = (original_ub[i] + original_lb[i]) / 2;
-		double spread_t = original_ub[i] - original_lb[i]; // what if zero?!
+
+	for(base::size_type i = 0; i < get_lb().size(); i++){
+		double mean_t = (m_original_problem->get_ub()[i] + m_original_problem->get_lb()[i]) / 2;
+		double spread_t = m_original_problem->get_ub()[i] - m_original_problem->get_lb()[i]; // careful, if zero needs to be acounted for later
 		m_normalize_translation.push_back(mean_t); // Center to origin
 		m_normalize_scale.push_back(spread_t/2); // Scale to [-1, 1] centered at origin
 	}
-	decision_vector l_updated_lb = normalize_to_center(original_lb);
-	decision_vector l_updated_ub = normalize_to_center(original_ub);
-	// Expand the box to cover the whole original search space
-	for(base::size_type i = 0; i < original_lb.size(); i++){
-		l_updated_lb[i] = sqrt(2.0) * l_updated_lb[i];
-		l_updated_ub[i] = sqrt(2.0) * l_updated_ub[i];
-	}
-	set_bounds(l_updated_lb, l_updated_ub);
+	// Expand the box to cover the whole original search space. We may here call directly
+	// the set_bounds(const double &, const double &) as all dimensions are now equal
+	set_bounds(-sqrt(2), sqrt(2));
 }
 
 // Used to normalize the original upper and lower bounds
@@ -117,8 +157,13 @@ void rotated::configure_shifted_bounds(const Eigen::MatrixXd & Rot,
 decision_vector rotated::normalize_to_center(const decision_vector& x) const
 {
 	decision_vector normalized_x(x.size(), 0);
-	for(base::size_type i = 0; i < x.size(); i++){
-		normalized_x[i] = (x[i] - m_normalize_translation[i]) / m_normalize_scale[i];
+	for(base::size_type i = 0; i < x.size(); i++) {
+		if (m_normalize_scale[i] == 0) { //If the bounds witdth is zero
+			normalized_x[i] = 0;
+		} 
+		else {
+			normalized_x[i] = (x[i] - m_normalize_translation[i]) / m_normalize_scale[i];
+		}
 	}
 	return normalized_x;
 }
@@ -139,19 +184,16 @@ decision_vector rotated::denormalize_to_original(const decision_vector& x_normed
 decision_vector rotated::projection_via_clipping(const decision_vector& x) const
 {
 	decision_vector x_clipped = x;
-	decision_vector original_lb = m_original_problem->get_lb();
-	decision_vector original_ub = m_original_problem->get_ub();
 	for(base::size_type i = 0; i < x_clipped.size(); i++){
-		x_clipped[i] = std::max(x_clipped[i], original_lb[i]);
-		x_clipped[i] = std::min(x_clipped[i], original_ub[i]);
+		x_clipped[i] = std::max(x_clipped[i], m_original_problem->get_lb()[i]);
+		x_clipped[i] = std::min(x_clipped[i], m_original_problem->get_ub()[i]);
 	}
 	return x_clipped;
 }
 
-/// Returns the de-rotated version of the decision variables,
-/// obtained from inversed rotation operation, which is ready to be fed
-/// to the original obj. function
-decision_vector rotated::get_inv_rotated_vars(const decision_vector& x_normed) const
+/// Returns the original version of the decision variables ready to be fed
+/// to the original problem
+decision_vector rotated::compute_original_vars(const decision_vector& x_normed) const
 {
 	// This may be outside of the original domain, due to the 
 	// relaxed variable bounds after rotation -- project it back if so.
@@ -181,22 +223,39 @@ decision_vector rotated::get_inv_rotated_vars(const decision_vector& x_normed) c
 /// (Wraps over the original implementation with de-rotated input)
 void rotated::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	decision_vector x_inv_rotated = get_inv_rotated_vars(x);
-	m_original_problem->objfun(f, x_inv_rotated);
+	m_original_problem->objfun(f, compute_original_vars(x));
 }
 
 /// Implementation of the constraints computation.
 /// (Wraps over the original implementation with de-rotated input)
 void rotated::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	decision_vector x_inv_rotated = get_inv_rotated_vars(x);
-	m_original_problem->compute_constraints(c, x_inv_rotated);
+	m_original_problem->compute_constraints(c, compute_original_vars(x));
+}
+
+/// Extra human readable info for the problem.
+/**
+ * Will return a formatted string containing the string representation of the rotation matrix 
+ */
+std::string rotated::human_readable_extra() const
+{
+	std::ostringstream oss;
+	oss << "\n\tRotation matrix: " << std::endl;
+	if (m_Rotate.cols() > 5) {
+		oss << m_Rotate.block(0,0,5,5) << std::endl;
+		oss << "..." << std::endl;
+	}
+	else {
+		oss << m_Rotate << std::endl;
+	}
+	return oss.str();
 }
 
 std::string rotated::get_name() const
 {
 	return m_original_problem->get_name() + " [Rotated]"; 
 }
+
 }}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::rotated);

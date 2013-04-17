@@ -45,37 +45,29 @@ class __PAGMO_VISIBLE shifted : public base
 {
 	public:
 		shifted();
-		shifted(const base_ptr &, const decision_vector &);
-		shifted(const base_ptr &, const double);
+		shifted(const base &, const decision_vector &);
+		shifted(const base &, const double);
+		shifted(const shifted &);
 		base_ptr clone() const;
+		std::string human_readable_extra() const;
 		std::string get_name() const;
-		//TODO What about these specific member functions that are not 
-		//universal to all problems?
-		//double p_distance(const pagmo::population &) const;
-
-		//Need some set_translation_vector() functionalities?
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
-
 	private:
+		void configure_shifted_bounds(const decision_vector &);
+		decision_vector get_shifted_vars(const decision_vector &) const;
+
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_original_problem;
-			ar & m_translation;
+			ar & const_cast<decision_vector &>(m_translation);
 		}
 		base_ptr m_original_problem;
-		decision_vector m_translation;
-
-		void configure_shifted_bounds(const decision_vector &,
-									  const decision_vector &,
-									  const decision_vector &);
-
-		decision_vector get_shifted_vars(const decision_vector &) const;
-		
+		const decision_vector m_translation;
 };
 
 }} //namespaces

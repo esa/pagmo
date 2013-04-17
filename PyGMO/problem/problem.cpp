@@ -324,6 +324,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
 		.def(init<optional<population::size_type> >())
 		.def("p_distance", &problem::zdt6::p_distance);
+	
+	// Meta-problems
+	// Shifted meta-problem
+	problem_wrapper<problem::shifted>("shifted","Shifted problem")
+		.def(init<const problem::base &,const decision_vector &>());
+	// Rotated meta-problem
+	problem_wrapper<problem::rotated>("rotated","Rotated problem")
+		.def(init<const problem::base &,const std::vector<std::vector<double> > &>());
 		
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
