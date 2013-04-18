@@ -33,8 +33,9 @@
 namespace pagmo { namespace problem {
 
 /**
- * Will construct the shifted meta-problem.
+ * Construct with a specified shift
  *
+ * @param[problem]: base::problem to be shifted
  * @param[translation]: The vector specifying the translation
  *
  * @see problem::base constructors.
@@ -59,8 +60,9 @@ shifted::shifted(const base & problem,
 
 
 /**
- * Will construct the shifted meta-problem.
+ * Construct with a constant shift (across dimensions)
  *
+ * @param[problem]: base::problem to be shifted
  * @param[t]: Specify the amount of translation, applied universally to all dimensions
  *
  * @see problem::base constructors.
@@ -80,16 +82,43 @@ shifted::shifted(const base & problem,
 	configure_shifted_bounds(m_translation);
 }
 
+/**
+ * Construct with a random shift
+ *
+ * @param[problem]: base::problem to be shifted
+ *
+ * @see problem::base constructors.
+ */
+
+shifted::shifted(const base & problem):
+	base((int)problem.get_dimension(), // Ambiguous without the cast
+		 problem.get_i_dimension(),
+		 problem.get_f_dimension(),
+		 problem.get_c_dimension(),
+		 problem.get_ic_dimension(),
+		 problem.get_c_tol()),
+		m_original_problem(problem.clone()),
+		m_translation(decision_vector(problem.get_dimension(),0))
+{
+	for (size_t i=0; i< m_translation.size();++i) {
+		m_translation[i] = (2*((double) rand() / (RAND_MAX))-1) * (problem.get_ub()[i]-problem.get_lb()[i]);
+	}
+	configure_shifted_bounds(m_translation);
+}
+
+
 /// Copy Constructor (necessary as the class has a pointer as data member)
-shifted::shifted(const shifted &algo):
-	base((int)algo.get_dimension(), // Ambiguous without the cast
-		 algo.get_i_dimension(),
-		 algo.get_f_dimension(),
-		 algo.get_c_dimension(),
-		 algo.get_ic_dimension(),
-		 algo.get_c_tol()),
-		 m_original_problem(algo.m_original_problem->clone()),
-		 m_translation(algo.m_translation) {}
+shifted::shifted(const shifted &prob):
+	base((int)prob.get_dimension(), // Ambiguous without the cast
+		 prob.get_i_dimension(),
+		 prob.get_f_dimension(),
+		 prob.get_c_dimension(),
+		 prob.get_ic_dimension(),
+		 prob.get_c_tol()),
+		 m_original_problem(prob.m_original_problem->clone()),
+		 m_translation(prob.m_translation) {
+			set_bounds(prob.get_lb(),prob.get_ub());
+		}
 
 /// Clone method.
 base_ptr shifted::clone() const
@@ -155,6 +184,7 @@ std::string shifted::get_name() const
 std::string shifted::human_readable_extra() const
 {
 	std::ostringstream oss;
+	oss << m_original_problem->human_readable_extra() << std::endl;
 	oss << "\n\tShift vector: " << m_translation << std::endl;
 	return oss.str();
 }

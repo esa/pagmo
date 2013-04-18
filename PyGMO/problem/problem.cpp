@@ -51,19 +51,24 @@
 using namespace boost::python;
 using namespace pagmo;
 
-// Wrapper to expose the overloaded constructors of rotated
+// Wrappers to expose the overloaded constructors of rotated+ shifted
+template <class T>
 static boost::shared_ptr<problem::base> construct_with_problem(const problem::base& prob)
 {
-	boost::shared_ptr<problem::rotated> obj;
-	obj.reset(new problem::rotated(prob));
+	boost::shared_ptr<T> obj;
+	obj.reset(new T(prob));
 	return obj;
 }
-static boost::shared_ptr<problem::base> construct_with_problem_and_matrix(const problem::base& prob, const std::vector<std::vector<double> >& rot)
+
+template <class T, class arg_type>
+static boost::shared_ptr<problem::base> construct_with_problem_and_stuff(const problem::base& prob,const arg_type &shift)
 {
-	boost::shared_ptr<problem::rotated> obj;
-	obj.reset(new problem::rotated(prob,rot));
+	boost::shared_ptr<T> obj;
+	obj.reset(new T(prob,shift));
 	return obj;
 }
+
+
 
 std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {
 	Eigen::MatrixXd rot = p.get_rotation_matrix();
@@ -358,12 +363,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Meta-problems
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")
-		.def(init<const problem::base &,const decision_vector &>())
+		.def("__init__", make_constructor(&construct_with_problem<problem::shifted>))
+		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::shifted,std::vector<double> >))
+		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::shifted,double>))
 		.add_property("shift_vector",make_function(&problem::shifted::get_shift_vector,return_value_policy<copy_const_reference>()));
 	// Rotated meta-problem
 	problem_wrapper<problem::rotated>("rotated","Rotated problem")
-		.def("__init__", make_constructor(&construct_with_problem))
-		.def("__init__", make_constructor(&construct_with_problem_and_matrix))
+		.def("__init__", make_constructor(&construct_with_problem<problem::rotated>))
+		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::rotated, Eigen::MatrixXd>))
 		.add_property("rotation",&get_rotation_matrix_from_eigen);
 
 		

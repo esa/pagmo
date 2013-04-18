@@ -46,9 +46,12 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE rotated : public base
 {
 	public:
+		//constructors
 		rotated(const base &, const Eigen::MatrixXd &);
 		rotated(const base &, const std::vector<std::vector<double> > &);
 		rotated(const base & = ackley(1));
+		
+		//copy constructor
 		rotated(const rotated &);
 		base_ptr clone() const;
 

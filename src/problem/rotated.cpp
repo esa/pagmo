@@ -143,7 +143,9 @@ rotated::rotated(const rotated &prob):
 		 m_Rotate(prob.m_Rotate),
 		 m_InvRotate(prob.m_InvRotate),
 		 m_normalize_translation(prob.m_normalize_translation),
-		 m_normalize_scale(prob.m_normalize_scale) {}
+		 m_normalize_scale(prob.m_normalize_scale) {
+			set_bounds(prob.get_lb(),prob.get_ub());
+		 }
 
 /// Clone method.
 base_ptr rotated::clone() const
@@ -263,6 +265,7 @@ void rotated::compute_constraints_impl(constraint_vector &c, const decision_vect
 std::string rotated::human_readable_extra() const
 {
 	std::ostringstream oss;
+	oss << m_original_problem->human_readable_extra() << std::endl;
 	oss << "\n\tRotation matrix: " << std::endl;
 	if (m_Rotate.cols() > 5) {
 		oss << m_Rotate.block(0,0,5,5) << std::endl;

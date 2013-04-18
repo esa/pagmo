@@ -45,8 +45,12 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE shifted : public base
 {
 	public:
-		shifted(const base & = ackley(1), const decision_vector & = decision_vector(1,0));
+		//constructors
+		shifted(const base &, const decision_vector &);
 		shifted(const base &, const double);
+		shifted(const base & = ackley(1));
+		
+		//copy constructor
 		shifted(const shifted &);
 		base_ptr clone() const;
 
@@ -69,7 +73,7 @@ class __PAGMO_VISIBLE shifted : public base
 			ar & const_cast<decision_vector &>(m_translation);
 		}
 		base_ptr m_original_problem;
-		const decision_vector m_translation;
+		decision_vector m_translation;
 };
 
 }} //namespaces
