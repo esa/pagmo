@@ -53,6 +53,7 @@
 #include "problem/luksan_vlcek_3.h"
 #include "problem/inventory.h"
 #include "problem/michalewicz.h"
+#include "problem/onemax.h"
 #include "problem/dejong.h"
 #include "problem/base_aco.h"
 #include "problem/base_stochastic.h"

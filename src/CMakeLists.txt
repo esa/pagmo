@@ -5,6 +5,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/jde.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mde_pbx.cpp
