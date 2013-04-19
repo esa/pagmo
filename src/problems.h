@@ -38,6 +38,7 @@
 #include "problem/dtlz7.h"
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
+#include "problem/bukin_f6.h"
 #include "problem/rastrigin.h"
 #include "problem/rosenbrock.h"
 #include "problem/schwefel.h"

@@ -178,6 +178,7 @@ def _branin_ctor(self):
 	USAGE: problem.branin()
 
 	"""
+	self._orig_init()
 
 branin._orig_init = branin.__init__
 branin.__init__ = _branin_ctor
@@ -190,9 +191,22 @@ def _himmelblau_ctor(self):
 	USAGE: problem.himmelblau()
 
 	"""
+	self._orig_init()
 
 himmelblau._orig_init = himmelblau.__init__
 himmelblau.__init__ = _himmelblau_ctor
+
+def _bukin_ctor(self):
+	"""
+	Constructs a Bukin's f6 problem (Box-Constrained Continuous Single-Objective)
+
+	USAGE: problem.bukin()
+
+	"""
+	self._orig_init()
+
+bukin._orig_init = bukin.__init__
+bukin.__init__ = _bukin_ctor
 
 def _michalewicz_ctor(self,dim = 10):
 	"""

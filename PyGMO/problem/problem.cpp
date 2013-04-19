@@ -277,6 +277,9 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Himmelblau's function.
 	problem_wrapper<problem::himmelblau>("himmelblau","Himmelblau's function.");
+	
+	// Bukin's f6 unction.
+	problem_wrapper<problem::bukin>("bukin","Bukin's f6 function.");
 
 	// SNOPT toy problem.
 	problem_wrapper<problem::snopt_toyprob>("snopt_toyprob","SNOPT toy problem.");
