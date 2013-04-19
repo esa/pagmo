@@ -95,6 +95,7 @@ directly in Python.
  - Integer, constrained Single-Objective
   - Golomb Ruler, Knapsack Problem
  - Box-Constrained Integer Single-Objective
+  - The string match problem
  - Multi-objective, continuous, box-constrained
   - The SCH, FON, DTLZ and ZDT problems 
  - Stochastic, continuous and box-constrained
