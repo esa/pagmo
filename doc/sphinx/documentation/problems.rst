@@ -14,8 +14,8 @@ Meta-problems
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
-Rotated                            :class:`PyGMO.problem.rotated`                 
-Shifed                             :class:`PyGMO.problem.shifted`                 
+Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
+Shifed                             :class:`PyGMO.problem.shifted`            from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective

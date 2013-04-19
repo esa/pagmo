@@ -88,15 +88,16 @@ immediately available after installation. The user can implement his own problem
 directly in Python.
 
 - Classical Test Problems
- - Continuous, box bounded
-  - Paraboloid, Ackley, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, Himmelblau
- - Continuous, constrained
+ - Box-Constrained Contnuous Single-Objective
+  - Paraboloid, Ackley, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, Himmelblau ....
+ - Continuous, constrained Single-Objective
   - From Luksan-Vlcek book (3 problems also in the original IPOPT dist.), Toy-problem from SNOPT manual
- - Integer Programming
+ - Integer, constrained Single-Objective
   - Golomb Ruler, Knapsack Problem
+ - Box-Constrained Integer Single-Objective
  - Multi-objective, continuous, box-constrained
   - The SCH, FON, DTLZ and ZDT problems 
- - Stochastic, continuous and box bounded
+ - Stochastic, continuous and box-constrained
   - A simple inventory problem
 - Engineering Problems
   - All problems from the GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt.htm) and An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
