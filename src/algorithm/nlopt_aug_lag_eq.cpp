@@ -105,7 +105,7 @@ std::string nlopt_aug_lag_eq::get_name() const
 		break;
 	}
 	
-	return "Augented Lagrangian (EQ)- " + aux + " (NLOPT)";
+	return "Augmented Lagrangian (EQ) - " + aux + " (NLOPT)";
 }
 
 }}

@@ -52,6 +52,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/bukin_f6.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosenbrock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
@@ -73,6 +74,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt4.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt6.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp

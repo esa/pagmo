@@ -9,6 +9,14 @@ The user can implement its own problem directly in Python, in which case he need
 :class:`PyGMO.problem.base` or :class:`PyGMO.problem.base_stochastic` class. You may see 
 :ref:`tutorial1` or :ref:`tutorial2` 
 
+Meta-problems
+^^^^^^^^^^^^^
+================================== ========================================= ===========================================
+Common Name                        Name in PyGMO                             Comments
+================================== ========================================= ===========================================
+Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
+Shifed                             :class:`PyGMO.problem.shifted`            from V1.1.5
+================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -131,7 +139,23 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_x
    
-   .. automethod:: PyGMO.problem.base.feasibility_c  
+   .. automethod:: PyGMO.problem.base.feasibility_c
+   
+.. autoclass:: PyGMO.problem.shifted
+
+   .. automethod:: PyGMO.problem.shifted.__init__
+   
+   .. attribute:: shift_vector
+   
+      The shift vector defining the new problem
+   
+.. autoclass:: PyGMO.problem.rotated
+
+   .. automethod:: PyGMO.problem.rotated.__init__
+   
+   .. attribute:: rotation
+   
+      The rotation matrix defining the new problem
    
 .. autoclass:: PyGMO.problem.ackley
 

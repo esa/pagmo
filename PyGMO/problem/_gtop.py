@@ -85,7 +85,7 @@ def _messenger_full_ctor(self):
 	
 	NOTE: This problem (MGA-1DSM) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]
 	      
-	      Best known global minimum is at 2.970 [km/s], but physics indicate a minimum exist at 2.3 ....
+	      Best known global minimum is at 2.113
 	      
 	USAGE: problem.messenger_full()
 	
@@ -519,6 +519,7 @@ def _mga_incipit_plot(self,x, plot_leg_0 = False):
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
 	plt.show()
+	return ax
 mga_incipit.plot = _mga_incipit_plot
 
 #Plot of the trajectory of an mga_part problem
@@ -577,6 +578,7 @@ def _mga_part_plot(self,x):
 		v_end_l = l.get_v2()[0]
 		v_beg_l = l.get_v1()[0]
 	plt.show()
+	return ax
 mga_part.plot = _mga_part_plot
 
 

@@ -31,8 +31,6 @@
 #include "mga_incipit.h"
 #include "../keplerian_toolbox/keplerian_toolbox.h"
 
-#define ASTRO_JR 71492000.0 //m
-
 namespace pagmo { namespace problem {
 
  

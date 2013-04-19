@@ -38,6 +38,7 @@
 #include "problem/dtlz7.h"
 #include "problem/golomb_ruler.h"
 #include "problem/himmelblau.h"
+#include "problem/bukin_f6.h"
 #include "problem/rastrigin.h"
 #include "problem/rosenbrock.h"
 #include "problem/schwefel.h"
@@ -67,6 +68,8 @@
 #include "problem/zdt3.h"
 #include "problem/zdt4.h"
 #include "problem/zdt6.h"
+#include "problem/shifted.h"
+#include "problem/rotated.h"
 
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL

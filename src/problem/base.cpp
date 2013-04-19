@@ -62,7 +62,7 @@ namespace problem {
  * @param[in] nic number of inequality constraints.
  * @param[in] c_tol constraints tolerance.
  */
-base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol):
+base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO should we use size_type directly?
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
 	m_c_tol(c_tol),

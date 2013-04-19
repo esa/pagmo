@@ -178,6 +178,7 @@ def _branin_ctor(self):
 	USAGE: problem.branin()
 
 	"""
+	self._orig_init()
 
 branin._orig_init = branin.__init__
 branin.__init__ = _branin_ctor
@@ -190,9 +191,22 @@ def _himmelblau_ctor(self):
 	USAGE: problem.himmelblau()
 
 	"""
+	self._orig_init()
 
 himmelblau._orig_init = himmelblau.__init__
 himmelblau.__init__ = _himmelblau_ctor
+
+def _bukin_ctor(self):
+	"""
+	Constructs a Bukin's f6 problem (Box-Constrained Continuous Single-Objective)
+
+	USAGE: problem.bukin()
+
+	"""
+	self._orig_init()
+
+bukin._orig_init = bukin.__init__
+bukin.__init__ = _bukin_ctor
 
 def _michalewicz_ctor(self,dim = 10):
 	"""
@@ -435,4 +449,57 @@ def _inventory_ctor(self, weeks = 4, sample_size = 10, seed = 0):
 inventory._orig_init = inventory.__init__
 inventory.__init__ = _inventory_ctor
 
+def _shifted_ctor(self, problem = None, shift = None):
+	"""
+	Shifts a problem. 
+
+	NOTE: this meta-problem constructs a new problem where the objective function will be f(x+b),
+	      where b is the shift (bounds are also chaged accordingly)
+
+	USAGE: problem.(problem=PyGMO.ackley(1), shift = a random vector)
+
+	* problem: PyGMO problem one wants to shift
+	* shift: a value or a list containing the shifts. By default, a radnom shift is created within the problem bounds
+
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem=ackley(1)
+	arg_list.append(problem)
+	if shift != None:
+		arg_list.append(shift)
+	self._orig_init(*arg_list)
+shifted._orig_init = shifted.__init__
+shifted.__init__ = _shifted_ctor
+
+def _rotated_ctor(self, problem = None, rotation = None):
+	"""
+	Rotates a problem. (also reflections are possible)
+	The new objective function will be f(Rx_{normal}), where R is an orthogonal matrix and x_{normal}
+	is the decision vector normailized to [-1,1]
+
+	NOTE: To ensure all of the original space is included in the new box-constrained search space, bounds
+	of the normalized variables are expanded to [-sqrt(2),sqrt(2)]. It is still guaranteed theat the original
+	objective function will not be called outside of the original bounds by projecting points outside the original
+	space onto the boundary
+
+	USAGE: problem.(problem=PyGMO.ackley(1), rotation = a random orthogonal matrix)
+
+	* problem: PyGMO problem one wants to shift
+	* rotation: a list of lists (matrix). If not specified, a random orthogonal matrix is used.
+
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem=ackley(1)
+	arg_list.append(problem)
+	if rotation != None:
+		arg_list.append(rotation)
+	self._orig_init(*arg_list)
+rotated._orig_init = rotated.__init__
+rotated.__init__ = _rotated_ctor
 

@@ -764,14 +764,14 @@ void population::erase(const population::size_type & idx) {
 	// Since an element is erased indexes in dom_list need an update
 	for (population::size_type i=0; i<m_dom_list.size(); ++i){
 		for(population::size_type j=0; j<m_dom_list[i].size();++j) {
-            if (m_dom_list[i][j] == idx) {
-                m_dom_list[i].erase(m_dom_list[i].begin()+j);
-		// If we did not erase the last individual
-		if (m_dom_list.size() > i) {
-			//check the next individual which would be skipped otherwise
-			if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
-		}
-            }
+			if (m_dom_list[i][j] == idx) {
+				m_dom_list[i].erase(m_dom_list[i].begin()+j);
+				// If we did not erase the last individual
+				if (m_dom_list[i].size() > j) {
+					//check the next individual which would be skipped otherwise
+					if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
+				}
+			}
 			else if (m_dom_list[i][j] > idx) m_dom_list[i][j]--;
 		}
 	}

@@ -22,24 +22,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include "src/pagmo.h"
+#include <string>
 
-using namespace pagmo;
+#include "base.h"
+#include "bukin_f6.h"
 
-// Example in C++ of the use of PaGMO 1.1.4
+namespace pagmo { namespace problem {
 
-int main()
+/// Default constructor.
+bukin::bukin():base(2)
 {
-	pagmo::algorithm::nsga2 alg(10);
-	std::cout << alg << std::endl;
-	pagmo::problem::dtlz2 prob(40);
-	std::cout << prob << std::endl;
-	pagmo::island isl = island(alg, prob, 100);
-	for (size_t i = 0; i< 10; ++i){
-		isl.evolve(1);
-		std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
-	}
-	
-	return 0;
+	// Set bounds.
+	set_lb(0,-15.0);
+	set_ub(0,-5.0);
+	set_lb(1,-3.0);
+	set_ub(1,3.0);
 }
+
+/// Clone method.
+base_ptr bukin::clone() const
+{
+	return base_ptr(new bukin(*this));
+}
+
+/// Implementation of the objective function.
+void bukin::objfun_impl(fitness_vector &f, const decision_vector &vx) const
+{
+	pagmo_assert(f.size() == 1 && x.size() == 2);
+	const double x = vx[0], y = vx[1];
+	f[0] = 100 * sqrt(fabs(y - 0.01 * x * x)) + 0.01*fabs(x+10);
+}
+
+std::string bukin::get_name() const
+{
+	return "Bukin f6";
+}
+
+}}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::bukin);
