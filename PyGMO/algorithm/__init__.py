@@ -376,6 +376,21 @@ def _bee_colony_ctor(self, gen = 100, limit = 20):
 bee_colony._orig_init = bee_colony.__init__
 bee_colony.__init__ = _bee_colony_ctor
 
+def _ea_ctor(self, gen = 100, limit = 20):
+	"""
+	Constructs an (N+1)-EA: Evolutionary Algorithm
+
+	USAGE: algorithm.ea(gen = 1)
+
+	* gen: number of 'generations' (each generation is one function evaluation)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	self._orig_init(*arg_list)
+ea._orig_init = ea.__init__
+ea.__init__ = _ea_ctor
+
 #def _firefly_ctor(self,**kwargs):
 #	"""
 #	Constructs a Firefly Algorithm

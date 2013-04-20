@@ -58,6 +58,7 @@ and directly in Python. Check the algorithm documentation to verify whether a pa
 can be fed to it (i.e. box-constrained, mixed integer etc.):
 
 - A Simple Genetic Algorithm (pagmo::algorithm::sga)
+- A Simple Evolutionary Algorithm (N+1)-EA (pagmo::algorithm::ea)
 - Differential Evolution [the original algorithm] (pagmo::algorithm::de)
 - jDE [self-adaptive Differential volution] (pagmo::algorithm::jde)
 - mde_pbx [self-adaptive Differential volution] (pagmo::algorithm::mde_pbx)

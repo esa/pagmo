@@ -59,6 +59,9 @@ rotated::rotated(const base &problem,
 	if(!check.isIdentity(1e-5)){
 		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
 	}
+	if(problem.get_i_dimension()>0){
+		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
+	}
 	configure_new_bounds();
 }
 
@@ -83,6 +86,9 @@ rotated::rotated(const base &problem,
 {
 	if(!(rotation.size()==get_dimension())){
 			pagmo_throw(value_error,"The input matrix dimensions seem incorrect");
+	}
+	if(problem.get_i_dimension()>0){
+		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
 	}
 	m_Rotate.resize(rotation.size(),rotation.size());
 	for (base::size_type i = 0; i < rotation.size(); ++i) {
@@ -127,6 +133,9 @@ rotated::rotated(const base &problem):
 	Eigen::MatrixXd check = m_InvRotate * m_Rotate;
 	if(!check.isIdentity(1e-5)){
 		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
+	}
+	if(problem.get_i_dimension()>0){
+		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
 	}
 	configure_new_bounds();
 }

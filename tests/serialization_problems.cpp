@@ -144,15 +144,11 @@ int main()
 	//----- Test meta-problems -----//
 	problem::zdt1 zdt1_before_transform1(dimension);
 	//----- shifted -----//
-	decision_vector trans1(zdt1_before_transform1.get_dimension(), 1);
-	probs.push_back(problem::shifted(zdt1_before_transform1, trans1).clone());
-	probs_new.push_back(problem::ackley().clone());
+	probs.push_back(problem::shifted(zdt1_before_transform1).clone());
+	probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());
 	//----- rotated -----//	
-	int l_dim1 =  zdt1_before_transform1.get_dimension();
-	Eigen::MatrixXd Rot1 = Eigen::MatrixXd::Random(l_dim1, l_dim1).householderQr().householderQ();
-	
-	probs.push_back(problem::rotated(zdt1_before_transform1, Rot1).clone());
-	probs_new.push_back(problem::ackley().clone()); //TODO create null problem
+	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
+	probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
 	
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX

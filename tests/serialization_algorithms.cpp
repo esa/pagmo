@@ -80,6 +80,8 @@ int main()
 	algos_new.push_back(algorithm::sa_corana().clone());
 	algos.push_back(algorithm::sga(gen,.9, .021, 5, algorithm::sga::mutation::RANDOM, 0.3, algorithm::sga::selection::BEST20, algorithm::sga::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::sga().clone());
+	algos.push_back(algorithm::ea(100).clone());
+	algos_new.push_back(algorithm::ea().clone());
 
 #ifdef PAGMO_ENABLE_GSL
 	algos.push_back(algorithm::gsl_bfgs(gen,1e-3,1e-3,0.03,1e-3).clone());
