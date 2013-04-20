@@ -36,7 +36,7 @@ int main()
 {
 	unsigned int pop_size = 20;
 	unsigned int gen = 123;
-	
+
 	//increment this if you add a multiobjective problem
 	unsigned int n_mo = 1;
 
@@ -80,8 +80,6 @@ int main()
 	algos_new.push_back(algorithm::sa_corana().clone());
 	algos.push_back(algorithm::sga(gen,.9, .021, 5, algorithm::sga::mutation::RANDOM, 0.3, algorithm::sga::selection::BEST20, algorithm::sga::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::sga().clone());
-	algos.push_back(algorithm::ea(100).clone());
-	algos_new.push_back(algorithm::ea().clone());
 
 #ifdef PAGMO_ENABLE_GSL
 	algos.push_back(algorithm::gsl_bfgs(gen,1e-3,1e-3,0.03,1e-3).clone());
@@ -132,7 +130,7 @@ int main()
 	
 	// and pick a multiobjective one
 	problem::zdt1 prob_mo(10);
-	
+
 	// make a population out of it
 	population pop_original(prob,pop_size);
 	population pop_original_mo(prob_mo,pop_size);
@@ -167,7 +165,7 @@ int main()
 			pop2 = population(pop_original_mo);
 		}
 		else {
-			pop1 = population(pop_original); 
+			pop1 = population(pop_original);
 			pop2 = population(pop_original);
 		}
 		algos[i]->evolve(pop1);

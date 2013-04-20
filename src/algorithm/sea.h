@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_EA_H
-#define PAGMO_ALGORITHM_EA_H
+#ifndef PAGMO_ALGORITHM_SEA_H
+#define PAGMO_ALGORITHM_SEA_H
 
 #include "../config.h"
 #include "../problem/base.h"
@@ -42,14 +42,18 @@ namespace pagmo { namespace algorithm {
  *
  * This particular implementation of EA is able to solve integer box-contrained single-objective problems.
  *
+ * @see Oliveto, Pietro S., Jun He, and Xin Yao. "Time complexity of evolutionary algorithms for
+ * combinatorial optimization: A decade of results." International Journal of Automation and Computing
+ * 4.3 (2007): 281-293.
+ *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  *
  */
 
-class __PAGMO_VISIBLE ea: public base
+class __PAGMO_VISIBLE sea: public base
 {
 public:
-	ea(int gen  = 1);
+	sea(int gen  = 1);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -69,6 +73,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::ea);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sea);
 
-#endif // PAGMO_ALGORITHM_EA_H
+#endif // PAGMO_ALGORITHM_SEA_H

@@ -381,6 +381,9 @@ def _ea_ctor(self, gen = 100, limit = 20):
 	Constructs an (N+1)-EA: Evolutionary Algorithm
 
 	USAGE: algorithm.ea(gen = 1)
+	SEE : Oliveto, Pietro S., Jun He, and Xin Yao.
+		  "Time complexity of evolutionary algorithms for combinatorial optimization: A decade of results."
+		  International Journal of Automation and Computing 4.3 (2007): 281-293.
 
 	* gen: number of 'generations' (each generation is one function evaluation)
 	"""

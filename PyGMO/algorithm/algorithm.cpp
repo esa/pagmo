@@ -215,7 +215,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<int, optional<const double &, const double &, int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
 	
 	// (N+1)-EA - Simple Evolutionary Algorithm
-	algorithm_wrapper<algorithm::ea>("ea", "(N+1)-EA - A simple Evolutionary Algorithm")
+	algorithm_wrapper<algorithm::sea>("sea", "(N+1)-EA - A Simple Evolutionary Algorithm")
 		.def(init<optional<int> >());
 
 	// NSGA II

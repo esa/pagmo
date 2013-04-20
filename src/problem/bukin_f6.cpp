@@ -48,7 +48,7 @@ base_ptr bukin::clone() const
 /// Implementation of the objective function.
 void bukin::objfun_impl(fitness_vector &f, const decision_vector &vx) const
 {
-	pagmo_assert(f.size() == 1 && x.size() == 2);
+	pagmo_assert(f.size() == 1 && vx.size() == 2);
 	const double x = vx[0], y = vx[1];
 	f[0] = 100 * sqrt(fabs(y - 0.01 * x * x)) + 0.01*fabs(x+10);
 }

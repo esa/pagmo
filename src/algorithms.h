@@ -32,7 +32,7 @@
 #include "algorithm/cs.h"
 #include "algorithm/de.h"
 #include "algorithm/de_1220.h"
-#include "algorithm/ea.h"
+#include "algorithm/sea.h"
 #include "algorithm/jde.h"
 #include "algorithm/ihs.h"
 #include "algorithm/mde_pbx.h"

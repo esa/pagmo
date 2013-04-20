@@ -29,11 +29,11 @@ bugs via our `pagmo/PyGMO bug-tracker <http://sourceforge.net/tracker/?group_id=
 ON THE ANIMATION ABOVE: One animation is worth a lot of words!!! So here are the 'words' explaining what you see in the animation.
 This is a visualization of an optimization (*evolution*) in a PyGMO archipelago containing 490 islands. Particle Swarm optimization is used in all islands each containing
 20 individuals. The interpanetary trajectory problem Cassini is being solved. This is a problem from the `GTOP database <http://www.esa.int/gsp/ACT/inf/op/globopt.htm>`_ (all of which included in PyGMO). Red dots are islands
-containing the worst solution do far, white dots are islands containing the best solution so far. All other islands colors are scaled from white to red according to their champion's fitness. The islands are connected using a Barabasi-Albert ageing clustered topology. The code below reproduces the optimization and shows how to create  figures. The animation can then be made by putting together all figures produced.
+containing the worst solution so far, white dots are islands containing the best solution so far. All other islands colors are scaled from white to red according to their champion's fitness. The islands are connected using a Barabasi-Albert ageing clustered topology. The code below reproduces the optimization and shows how to create  figures. The animation can then be made by putting together all figures produced.
 
 .. code-block:: python
 
-	# We need networkx installed and PyGMO compiled with the keplerian_toolbox option ctivated
+	# We need networkx installed and PyGMO compiled with the keplerian_toolbox option activated
 	# Also start this in ipython with the --pylab option
 	from PyGMO import *
 	from matplotlib.pyplot import savefig, close
@@ -52,7 +52,7 @@ containing the worst solution do far, white dots are islands containing the best
 	savefig('archi000')
 	close()
 	
-	#And we start the evolution loops (each evolve will advance each island 10 geeration)
+	#And we start the evolution loops (each evolve will advance each island 10 generation)
 	for i in range(200):
 		#this opens 490 threads ..... each one evolving its population using algo!!!
 		archi.evolve(1)

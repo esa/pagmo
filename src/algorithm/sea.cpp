@@ -31,7 +31,7 @@
 #include "../population.h"
 #include "../types.h"
 #include "base.h"
-#include "ea.h"
+#include "sea.h"
 
 namespace pagmo { namespace algorithm {
 
@@ -43,7 +43,7 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if gen is negative, or the problem i not integer, box contrained and single-objective
  *
  */
-ea::ea(int gen)
+sea::sea(int gen)
 	:base(),m_gen(gen)
 {
 	if (gen < 0) {
@@ -52,9 +52,9 @@ ea::ea(int gen)
 }
 
 /// Clone method.
-base_ptr ea::clone() const
+base_ptr sea::clone() const
 {
-	return base_ptr(new ea(*this));
+	return base_ptr(new sea(*this));
 }
 
 /// Evolve implementation.
@@ -64,7 +64,7 @@ base_ptr ea::clone() const
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
 
-void ea::evolve(population &pop) const
+void sea::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
@@ -93,26 +93,26 @@ void ea::evolve(population &pop) const
 		decision_vector offspring = pop.get_individual(pop.get_best_idx()).cur_x;
 
 		// Mutation of the best individual. Each gene is flipped with probability 1/Di to a different value
-		for (pagmo::problem::base::size_type j = 0; j < Di;j++) {//for each integer variable
-			if (m_drng() < 1.0/Di) {
-				do {
-					new_gene = boost::uniform_int<int>(lb[j],ub[j])(m_urng);
-				} while(new_gene == offspring[j]);
-				offspring[j] = new_gene;
-			}
-		}
+		//for (pagmo::problem::base::size_type j = 0; j < Di;++j) {//for each integer variable
+			//if (m_drng() < 1.0/Di) {
+				//do {
+					//new_gene = boost::uniform_int<int>(lb[j],ub[j])(m_urng);
+				//} while(new_gene == offspring[j]);
+				//offspring[j] = new_gene;
+			//}
+		//}
 		
 		// We add the mutated individual to the population (this will also evaluate its fitness)
-		pop.push_back(offspring);
+		//pop.push_back(offspring);
 		// We get rid of the worst individual (in multi-objective this is computed using
 		// the crowding distance operator)
-		pop.erase(pop.get_worst_idx());
+		//pop.erase(pop.get_worst_idx());
 
 	} // end of main loop
 }
 
 /// Algorithm name
-std::string ea::get_name() const
+std::string sea::get_name() const
 {
 	return "(N+1)-EA Simple Evolutionary Algorithm";
 }
@@ -121,7 +121,7 @@ std::string ea::get_name() const
 /**
  * Will return a formatted string displaying the parameters of the algorithm.
  */
-std::string ea::human_readable_extra() const
+std::string sea::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
@@ -131,4 +131,4 @@ std::string ea::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::ea);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sea);
