@@ -376,9 +376,9 @@ def _bee_colony_ctor(self, gen = 100, limit = 20):
 bee_colony._orig_init = bee_colony.__init__
 bee_colony.__init__ = _bee_colony_ctor
 
-def _ea_ctor(self, gen = 100, limit = 20):
+def _sea_ctor(self, gen = 100, limit = 20):
 	"""
-	Constructs an (N+1)-EA: Evolutionary Algorithm
+	Constructs a simple (N+1)-EA: A Simple Evolutionary Algorithm
 
 	USAGE: algorithm.ea(gen = 1)
 	SEE : Oliveto, Pietro S., Jun He, and Xin Yao.
@@ -391,8 +391,8 @@ def _ea_ctor(self, gen = 100, limit = 20):
 	arg_list=[]
 	arg_list.append(gen)
 	self._orig_init(*arg_list)
-ea._orig_init = ea.__init__
-ea.__init__ = _ea_ctor
+sea._orig_init = sea.__init__
+sea.__init__ = _sea_ctor
 
 #def _firefly_ctor(self,**kwargs):
 #	"""
