@@ -449,6 +449,27 @@ def _inventory_ctor(self, weeks = 4, sample_size = 10, seed = 0):
 inventory._orig_init = inventory.__init__
 inventory.__init__ = _inventory_ctor
 
+def _normalized_ctor(self, problem = None):
+	"""
+	Normalizes a problem (e.g. maps all variables to [-1,1])
+
+	NOTE: this meta-problem constructs a new problem having normalized bounds/variables
+
+	USAGE: problem.(problem=PyGMO.ackley(1))
+
+	* problem: PyGMO problem one wants to normalize
+
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem=ackley(1)
+	arg_list.append(problem)
+	self._orig_init(*arg_list)
+normalized._orig_init = normalized.__init__
+normalized.__init__ = _normalized_ctor
+
 def _shifted_ctor(self, problem = None, shift = None):
 	"""
 	Shifts a problem. 

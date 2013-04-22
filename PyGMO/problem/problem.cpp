@@ -375,6 +375,10 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("__init__", make_constructor(&construct_with_problem<problem::rotated>))
 		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::rotated, Eigen::MatrixXd>))
 		.add_property("rotation",&get_rotation_matrix_from_eigen);
+	// Normalized meta-problem
+	problem_wrapper<problem::normalized>("normalized","Normalized problem")
+		.def(init<const problem::base &>())
+		.def("denormalize", &problem::normalized::denormalize);
 
 		
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX

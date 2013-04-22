@@ -87,7 +87,7 @@ void normalized::configure_new_bounds()
 }
 
 /// Returns the de-normalized version of the decision variables
-decision_vector normalized::compute_original_vars(const decision_vector& x) const
+decision_vector normalized::denormalize(const decision_vector& x) const
 {
 	decision_vector retval(x.size(), 0);
 	for(base::size_type i = 0; i < x.size(); ++i){
@@ -100,7 +100,7 @@ decision_vector normalized::compute_original_vars(const decision_vector& x) cons
 /// (Wraps over the original implementation with translated input x)
 void normalized::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	decision_vector x_original = compute_original_vars(x);
+	decision_vector x_original = denormalize(x);
 	m_original_problem->objfun(f, x_original);
 }
 
@@ -108,7 +108,7 @@ void normalized::objfun_impl(fitness_vector &f, const decision_vector &x) const
 /// (Wraps over the original implementation with translated input x)
 void normalized::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	decision_vector x_original = compute_original_vars(x);
+	decision_vector x_original = denormalize(x);
 	m_original_problem->compute_constraints(c, x_original);
 }
 

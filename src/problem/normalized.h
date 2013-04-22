@@ -55,7 +55,7 @@ class __PAGMO_VISIBLE normalized : public base
 		std::string human_readable_extra() const;
 		std::string get_name() const;
 		
-		decision_vector compute_original_vars(const decision_vector&) const;
+		decision_vector denormalize(const decision_vector&) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
