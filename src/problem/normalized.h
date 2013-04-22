@@ -1,0 +1,83 @@
+/*****************************************************************************
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
+
+#ifndef PAGMO_PROBLEM_NORMALIZED_H
+#define PAGMO_PROBLEM_NORMALIZED_H
+
+#include <string>
+
+#include "../serialization.h"
+#include "ackley.h"
+#include "../types.h"
+#include "base.h"
+
+namespace pagmo{ namespace problem {
+
+/// Normalized meta-problem
+/**
+ * Implements a meta-problem class resulting in a normalized version
+ * of the input problem, i.e. bounds in [-1,1]
+ *
+ * @author Dario Izzo (dario,izzo@gmail.com)
+ */
+
+class __PAGMO_VISIBLE normalized : public base
+{
+	public:
+		//constructor
+		normalized(const base & = ackley(1));
+		
+		//copy constructor
+		normalized(const normalized &);
+		base_ptr clone() const;
+
+		std::string human_readable_extra() const;
+		std::string get_name() const;
+		
+		decision_vector compute_original_vars(const decision_vector&) const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+	private:
+		void configure_new_bounds();
+	
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_original_problem;
+			ar & const_cast<decision_vector &>(m_normalization_center);
+			ar & const_cast<decision_vector &>(m_normalization_scale);
+		}
+		base_ptr m_original_problem;
+		decision_vector m_normalization_center;
+		decision_vector m_normalization_scale;
+};
+
+}} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::normalized);
+
+#endif // PAGMO_PROBLEM_NORMALIZED_H

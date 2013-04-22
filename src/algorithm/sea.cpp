@@ -93,20 +93,20 @@ void sea::evolve(population &pop) const
 		decision_vector offspring = pop.get_individual(pop.get_best_idx()).cur_x;
 
 		// Mutation of the best individual. Each gene is flipped with probability 1/Di to a different value
-		//for (pagmo::problem::base::size_type j = 0; j < Di;++j) {//for each integer variable
-			//if (m_drng() < 1.0/Di) {
-				//do {
-					//new_gene = boost::uniform_int<int>(lb[j],ub[j])(m_urng);
-				//} while(new_gene == offspring[j]);
-				//offspring[j] = new_gene;
-			//}
-		//}
+		for (pagmo::problem::base::size_type j = 0; j < Di;++j) {//for each integer variable
+			if (m_drng() < 1.0/Di) {
+				do {
+					new_gene = boost::uniform_int<int>(lb[j],ub[j])(m_urng);
+				} while(new_gene == offspring[j]);
+				offspring[j] = new_gene;
+			}
+		}
 		
 		// We add the mutated individual to the population (this will also evaluate its fitness)
-		//pop.push_back(offspring);
+		pop.push_back(offspring);
 		// We get rid of the worst individual (in multi-objective this is computed using
 		// the crowding distance operator)
-		//pop.erase(pop.get_worst_idx());
+		pop.erase(pop.get_worst_idx());
 
 	} // end of main loop
 }
