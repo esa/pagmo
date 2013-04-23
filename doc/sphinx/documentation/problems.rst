@@ -24,7 +24,8 @@ Box-Constrained Continuous Single-Objective
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
-Ackley                             :class:`PyGMO.problem.ackley`                 
+Ackley                             :class:`PyGMO.problem.ackley`            
+Bukin F6                           :class:`PyGMO.problem.bukin`              A difficult bi-dimensional problem
 Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
 Rastrigin                          :class:`PyGMO.problem.rastrigin`
 Schwefel                           :class:`PyGMO.problem.schwefel`
@@ -177,6 +178,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__
+   
+.. autoclass:: PyGMO.problem.bukin
+
+   .. automethod:: PyGMO.problem.bukin.__init__
 
 .. autoclass:: PyGMO.problem.rosenbrock
 
