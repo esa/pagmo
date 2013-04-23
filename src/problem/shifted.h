@@ -53,16 +53,17 @@ class __PAGMO_VISIBLE shifted : public base
 		//copy constructor
 		shifted(const shifted &);
 		base_ptr clone() const;
-
-		const decision_vector& get_shift_vector() const;
-		std::string human_readable_extra() const;
 		std::string get_name() const;
+		
+		decision_vector deshift(const decision_vector &) const;
+		const decision_vector& get_shift_vector() const;
+		
 	protected:
+		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 	private:
 		void configure_shifted_bounds(const decision_vector &);
-		decision_vector get_shifted_vars(const decision_vector &) const;
 
 		friend class boost::serialization::access;
 		template <class Archive>

@@ -41,9 +41,9 @@ namespace pagmo { namespace problem {
  *  
  * @param[in] seq std::vector of kep_toolbox::planet_ptr containing the encounter sequence for the trajectoty (including the initial planet)
  * @param[in] t0_l kep_toolbox::epoch representing the lower bound for the launch epoch
- * @param[in] t0_r kep_toolbox::epoch representing the upper bound for the launch epoch
+ * @param[in] t0_u kep_toolbox::epoch representing the upper bound for the launch epoch
  * @param[in] tof_l lower bound for the mission duration (in days)
- * @param[in] tof_r upper bound for the mission duration (in days)
+ * @param[in] tof_u upper bound for the mission duration (in days)
  * @param[in] vinf_l  minimum launch hyperbolic velocity allowed (in km/s)
  * @param[in] vinf_u  maximum launch hyperbolic velocity allowed (in km/s)
  * @param[in] mo: when true defines the problem as a multi-objective problem, returning total DV and time of flight

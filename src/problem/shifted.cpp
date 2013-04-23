@@ -35,8 +35,8 @@ namespace pagmo { namespace problem {
 /**
  * Construct with a specified shift
  *
- * @param[problem]: base::problem to be shifted
- * @param[translation]: The vector specifying the translation
+ * @param[in] problem base::problem to be shifted
+ * @param[in] translation The vector specifying the translation
  *
  * @see problem::base constructors.
  */
@@ -62,8 +62,8 @@ shifted::shifted(const base & problem,
 /**
  * Construct with a constant shift (across dimensions)
  *
- * @param[problem]: base::problem to be shifted
- * @param[t]: Specify the amount of translation, applied universally to all dimensions
+ * @param[in] problem pagmo::problem::base to be shifted
+ * @param[in] t Specify the amount of translation, applied universally to all dimensions
  *
  * @see problem::base constructors.
  */
@@ -85,29 +85,29 @@ shifted::shifted(const base & problem,
 /**
  * Construct with a random shift
  *
- * @param[problem]: base::problem to be shifted
+ * @param[in] p pagmo::problem::base to be shifted
  *
  * @see problem::base constructors.
  */
 
-shifted::shifted(const base & problem):
-	base((int)problem.get_dimension(), // Ambiguous without the cast
-		 problem.get_i_dimension(),
-		 problem.get_f_dimension(),
-		 problem.get_c_dimension(),
-		 problem.get_ic_dimension(),
-		 problem.get_c_tol()),
-		m_original_problem(problem.clone()),
-		m_translation(decision_vector(problem.get_dimension(),0))
+shifted::shifted(const base & p):
+	base((int)p.get_dimension(), // Ambiguous without the cast
+		 p.get_i_dimension(),
+		 p.get_f_dimension(),
+		 p.get_c_dimension(),
+		 p.get_ic_dimension(),
+		 p.get_c_tol()),
+		m_original_problem(p.clone()),
+		m_translation(decision_vector(p.get_dimension(),0))
 {
 	for (size_t i=0; i< m_translation.size();++i) {
-		m_translation[i] = (2*((double) rand() / (RAND_MAX))-1) * (problem.get_ub()[i]-problem.get_lb()[i]);
+		m_translation[i] = (2*((double) rand() / (RAND_MAX))-1) * (p.get_ub()[i]-p.get_lb()[i]);
 	}
 	configure_shifted_bounds(m_translation);
 }
 
 
-/// Copy Constructor (necessary as the class has a pointer as data member)
+/// Copy Constructor. Performs a deep copy
 shifted::shifted(const shifted &prob):
 	base((int)prob.get_dimension(), // Ambiguous without the cast
 		 prob.get_i_dimension(),
@@ -132,17 +132,19 @@ void shifted::configure_shifted_bounds(const decision_vector & translation)
 	decision_vector shifted_lb = m_original_problem->get_lb();
 	decision_vector shifted_ub = m_original_problem->get_ub();
 
-	for(problem::base::size_type i = 0; i < shifted_lb.size(); ++i){
+	for(problem::base::size_type i = 0; i < shifted_lb.size(); ++i) {
 		shifted_lb[i] += translation[i];
 		shifted_ub[i] += translation[i];
 	}
-
 	set_bounds(shifted_lb, shifted_ub);
 }
 
-/// Returns the shifted version of the decision variables,
-/// obtained from inversed translation
-decision_vector shifted::get_shifted_vars(const decision_vector& x) const
+/**
+ * Returns the de-shifted version of the decision variables
+ *
+ * @param[in] x decision vector to be de-shifted
+ */
+decision_vector shifted::deshift(const decision_vector& x) const
 {
 	//TODO Need some assertion here?
 	decision_vector x_translated(x.size(), 0);
@@ -156,7 +158,7 @@ decision_vector shifted::get_shifted_vars(const decision_vector& x) const
 /// (Wraps over the original implementation with translated input x)
 void shifted::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	decision_vector x_translated = get_shifted_vars(x);
+	decision_vector x_translated = deshift(x);
 	m_original_problem->objfun(f, x_translated);
 }
 
@@ -164,9 +166,15 @@ void shifted::objfun_impl(fitness_vector &f, const decision_vector &x) const
 /// (Wraps over the original implementation with translated input x)
 void shifted::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	decision_vector x_translated = get_shifted_vars(x);
+	decision_vector x_translated = deshift(x);
 	m_original_problem->compute_constraints(c, x_translated);
 }
+
+/**
+ * Gets the shift vector which defines the problem
+ *
+ * @return the shift std::vector
+ */
 
 const decision_vector& shifted::get_shift_vector() const {
 	return m_translation;

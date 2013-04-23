@@ -54,12 +54,13 @@ class __PAGMO_VISIBLE rotated : public base
 		//copy constructor
 		rotated(const rotated &);
 		base_ptr clone() const;
-
-		const Eigen::MatrixXd& get_rotation_matrix() const;
-		std::string human_readable_extra() const;
 		std::string get_name() const;
+		
+		decision_vector derotate(const decision_vector &) const;
+		const Eigen::MatrixXd& get_rotation_matrix() const;
 
 	protected:
+		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 
@@ -69,7 +70,6 @@ class __PAGMO_VISIBLE rotated : public base
 		decision_vector normalize_to_center(const decision_vector& x) const;
 		decision_vector denormalize_to_original(const decision_vector& x) const;
 		decision_vector projection_via_clipping(const decision_vector& x) const;
-		decision_vector compute_original_vars(const decision_vector &) const;
 	
 		friend class boost::serialization::access;
 		template <class Archive>

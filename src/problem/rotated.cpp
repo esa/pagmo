@@ -36,8 +36,8 @@ namespace pagmo { namespace problem {
 /**
  * Constructor using Eigen Matrix
  *
- * @param[problem]: base::problem to be rotated
- * @param[rotation]: Eigen::MatrixXd expressing the problem rotation
+ * @param[in] problem base::problem to be rotated
+ * @param[in] rotation Eigen::MatrixXd expressing the problem rotation
  *
  * @see problem::base constructors.
  */
@@ -68,8 +68,8 @@ rotated::rotated(const base &problem,
 /**
  * Constructor using std::vector (for python exposition purposes)
  *
- * @param[problem]: base::problem to be rotated
- * @param[rotation]: std::vector<std::vector<double> > expressing the problem rotation
+ * @param[in] problem base::problem to be rotated
+ * @param[in] rotation std::vector<std::vector<double> > expressing the problem rotation
  *
  * @see problem::base constructors.
  */
@@ -111,9 +111,7 @@ rotated::rotated(const base &problem,
 /**
  * Constructor with a random matrix
  *
- * @param[problem]: base::problem to be rotated
- *
- * @see problem::base constructors.
+ * @param[in] problem base::problem to be rotated
  */
 
 rotated::rotated(const base &problem):
@@ -140,7 +138,7 @@ rotated::rotated(const base &problem):
 	configure_new_bounds();
 }
 
-/// Copy Constructor (necessary as the class has a pointer as data member)
+/// Copy Constructor. Performs a deep copy
 rotated::rotated(const rotated &prob):
 	base((int)prob.get_dimension(), // Ambiguous without the cast
 		 prob.get_i_dimension(),
@@ -227,7 +225,7 @@ decision_vector rotated::projection_via_clipping(const decision_vector& x) const
 
 /// Returns the original version of the decision variables ready to be fed
 /// to the original problem
-decision_vector rotated::compute_original_vars(const decision_vector& x_normed) const
+decision_vector rotated::derotate(const decision_vector& x_normed) const
 {
 	// This may be outside of the original domain, due to the 
 	// relaxed variable bounds after rotation -- project it back if so.
@@ -257,14 +255,14 @@ decision_vector rotated::compute_original_vars(const decision_vector& x_normed) 
 /// (Wraps over the original implementation with de-rotated input)
 void rotated::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	m_original_problem->objfun(f, compute_original_vars(x));
+	m_original_problem->objfun(f, derotate(x));
 }
 
 /// Implementation of the constraints computation.
 /// (Wraps over the original implementation with de-rotated input)
 void rotated::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	m_original_problem->compute_constraints(c, compute_original_vars(x));
+	m_original_problem->compute_constraints(c, derotate(x));
 }
 
 /// Extra human readable info for the problem.
@@ -291,6 +289,11 @@ std::string rotated::get_name() const
 	return m_original_problem->get_name() + " [Rotated]"; 
 }
 
+/**
+ * Gets the rotation matrix
+ *
+ * @return an orthonormal Eigen::MatrixXd defining part of the transformation applied to the original problem
+ */
 const Eigen::MatrixXd& rotated::get_rotation_matrix() const {
 	return m_Rotate;
 }

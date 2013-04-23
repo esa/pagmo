@@ -51,12 +51,12 @@ class __PAGMO_VISIBLE normalized : public base
 		//copy constructor
 		normalized(const normalized &);
 		base_ptr clone() const;
-
-		std::string human_readable_extra() const;
 		std::string get_name() const;
 		
 		decision_vector denormalize(const decision_vector&) const;
+		
 	protected:
+		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 	private:

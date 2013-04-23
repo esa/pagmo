@@ -83,14 +83,15 @@ class __PAGMO_VISIBLE mga_1dsm_alpha: public base
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
+	private:
 		static const std::vector<kep_toolbox::planet_ptr> construct_default_sequence() {
 			std::vector<kep_toolbox::planet_ptr> retval;
 			retval.push_back(kep_toolbox::planet_ss("earth").clone());
 			retval.push_back(kep_toolbox::planet_ss("venus").clone());
 			retval.push_back(kep_toolbox::planet_ss("earth").clone());
 			return retval;
-		};
-	private:
+		}
+	
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)

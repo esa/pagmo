@@ -104,9 +104,9 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.pso_gen.__init__
 
-.. autoclass:: PyGMO.algorithm.ea
+.. autoclass:: PyGMO.algorithm.sea
 
-   .. automethod:: PyGMO.algorithm.ea.__init__
+   .. automethod:: PyGMO.algorithm.sea.__init__
 
 .. autoclass:: PyGMO.algorithm.sga
 

@@ -35,7 +35,7 @@ namespace pagmo { namespace problem {
 /**
  * Constructor
  *
- * @param[problem]: base::problem to be shifted
+ * @param[in] p base::problem to be shifted
  *
  * @see problem::base constructors.
  */
@@ -54,7 +54,7 @@ normalized::normalized(const base & p):
 	configure_new_bounds();
 }
 
-/// Copy Constructor (necessary as the class has a pointer as data member)
+/// Copy Constructor. Performs a deep copy
 normalized::normalized(const normalized &p):
 	base((int)p.get_dimension(), // Ambiguous without the cast
 		 p.get_i_dimension(),
@@ -118,10 +118,6 @@ std::string normalized::get_name() const
 	return m_original_problem->get_name() + " [Normalized]"; 
 }
 
-/// Extra human readable info for the problem.
-/**
- * Will return a formatted string containing the original problem extra information
- */
 std::string normalized::human_readable_extra() const
 {
 	std::ostringstream oss;

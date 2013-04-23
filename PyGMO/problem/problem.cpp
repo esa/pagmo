@@ -369,12 +369,16 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("__init__", make_constructor(&construct_with_problem<problem::shifted>))
 		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::shifted,std::vector<double> >))
 		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::shifted,double>))
-		.add_property("shift_vector",make_function(&problem::shifted::get_shift_vector,return_value_policy<copy_const_reference>()));
+		.add_property("shift_vector",make_function(&problem::shifted::get_shift_vector,return_value_policy<copy_const_reference>()))
+		.add_property("deshift",&problem::shifted::deshift);
+		
 	// Rotated meta-problem
 	problem_wrapper<problem::rotated>("rotated","Rotated problem")
 		.def("__init__", make_constructor(&construct_with_problem<problem::rotated>))
 		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::rotated, Eigen::MatrixXd>))
-		.add_property("rotation",&get_rotation_matrix_from_eigen);
+		.add_property("rotation_matrix",&get_rotation_matrix_from_eigen)
+		.add_property("derotate",&problem::rotated::derotate);
+		
 	// Normalized meta-problem
 	problem_wrapper<problem::normalized>("normalized","Normalized problem")
 		.def(init<const problem::base &>())

@@ -46,9 +46,9 @@ namespace pagmo { namespace algorithm {
  * @param[in] limit number of tries after which a source of food is dropped if not improved
  * @throws value_error if number of iterations or limit are negative
  */
-bee_colony::bee_colony(int iter, int limit):base(),m_iter(iter), m_limit(limit) {
-	if (iter < 0) {
-		pagmo_throw(value_error,"number of iterations must be nonnegative");
+bee_colony::bee_colony(int gen, int limit):base(),m_iter(gen), m_limit(limit) {
+	if (gen < 0) {
+		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
 
 	if (limit < 0) {
@@ -262,9 +262,6 @@ void bee_colony::evolve(population &pop) const
 			trial[maxtrialindex] = 0;
 			pop.set_x(maxtrialindex,X[maxtrialindex]);
 		}
-
-
-
 
 	} // end of main ABC loop
 

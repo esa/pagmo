@@ -149,6 +149,10 @@ Detailed Documentation
    .. attribute:: shift_vector
    
       The shift vector defining the new problem
+      
+   .. method:: PyGMO.problem.shifted.deshift((tuple) x)
+
+      Returns the de-shifted decision vector
    
 .. autoclass:: PyGMO.problem.rotated
 
@@ -157,14 +161,18 @@ Detailed Documentation
    .. attribute:: rotation
    
       The rotation matrix defining the new problem
+      
+   .. method:: PyGMO.problem.rotated.derotate((tuple) x)
+
+      Returns the de-rotated decision vector
 
 .. autoclass:: PyGMO.problem.normalized
 
    .. automethod:: PyGMO.problem.normalized.__init__
 
-	.. method:: PyGMO.problem.normalized.denormalize((tuple) x)
+      .. method:: PyGMO.problem.normalized.denormalize((tuple) x)
 
-	  Returns the de-normalized decision vector
+         Returns the de-normalized decision vector
    
 .. autoclass:: PyGMO.problem.ackley
 
