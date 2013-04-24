@@ -72,6 +72,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt4.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt5.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt6.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp

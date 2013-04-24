@@ -320,6 +320,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
 		.def(init<optional<population::size_type> >())
 		.def("p_distance", &problem::zdt4::p_distance);
+	// ZDT5
+	problem_wrapper<problem::zdt5>("zdt5","ZDT5")
+		.def(init<optional<int> >())
+		.def("p_distance", &problem::zdt5::p_distance);
 	// ZDT6
 	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
 		.def(init<optional<population::size_type> >())

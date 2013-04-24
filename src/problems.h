@@ -66,6 +66,7 @@
 #include "problem/zdt2.h"
 #include "problem/zdt3.h"
 #include "problem/zdt4.h"
+#include "problem/zdt5.h"
 #include "problem/zdt6.h"
 
 // GSL problems.
