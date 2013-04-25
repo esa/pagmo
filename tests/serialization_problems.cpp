@@ -122,6 +122,8 @@ int main()
 	probs_new.push_back(problem::zdt3().clone());
 	probs.push_back(problem::zdt4(dimension).clone());
 	probs_new.push_back(problem::zdt4().clone());
+	probs.push_back(problem::zdt5(dimension).clone());
+	probs_new.push_back(problem::zdt5().clone());
 	probs.push_back(problem::zdt6(dimension).clone());
 	probs_new.push_back(problem::zdt6().clone());
 	probs.push_back(problem::dtlz1(dimension).clone());
