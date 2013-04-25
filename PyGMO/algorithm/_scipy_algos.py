@@ -107,7 +107,7 @@ class scipy_l_bfgs_b(_scipy_base):
 		         max{|proj g_i | i = 1, ..., n} <= pgtol
 		         where pg_i is the ith component of the projected gradient.
 		* epsilon: step size used when approx_grad is true, for numerically
-                           calculating the gradient
+                         calculating the gradient
 		* screen_output: Set to True to print iterations
 		"""
 		_scipy_base.__init__(self,'fmin_l_bfgs_b',False)

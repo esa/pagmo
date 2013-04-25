@@ -32,6 +32,7 @@
 #include "../src/keplerian_toolbox/planet_ss.h"
 #include "../src/keplerian_toolbox/epoch.h"
 
+#include "../src/Eigen/Dense"
 
 //-------------------------------------------------------------------------------
 // static data needed to test the non-default constructor in some of the problems.
@@ -139,7 +140,17 @@ int main()
 	probs_new.push_back(problem::dtlz7().clone());
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
+
+	//----- Test meta-problems -----//
+	problem::zdt1 zdt1_before_transform1(dimension);
+	//----- shifted -----//
+	probs.push_back(problem::shifted(zdt1_before_transform1).clone());
+	probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());
+	//----- rotated -----//	
+	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
+	probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
 	
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	probs.push_back(problem::cassini_1(2).clone());
 	probs_new.push_back(problem::cassini_1().clone());
@@ -188,7 +199,7 @@ int main()
 		{
 		decision_vector x(probs[i]->get_dimension(),0);
 		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),0);
-		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension());
+		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension());	
 		population pop(*probs[i],1);
 		x = pop.champion().x;
 		probs[i]->objfun(f1,x);
@@ -196,6 +207,7 @@ int main()
 		probs[i]->compute_constraints(c1,x);
 		probs_new[i]->compute_constraints(c2,x);
 		std::cout << std::endl << std::setw(40) << probs[i]->get_name();
+
 		if (std::equal(f1.begin(),f1.end(),f2.begin())) {
 			std::cout << ": Fitness pass,";
 		} else { 

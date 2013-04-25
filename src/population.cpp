@@ -185,6 +185,7 @@ void population::init_velocity(const size_type &idx)
 	}
 }
 
+/// Computes the mean curent velocity of all individuals in the population
 double population::mean_velocity() const {
 	const population::size_type pop_size(m_container.size());
 	if (pop_size == 0) {
@@ -487,7 +488,8 @@ population::crowded_comparison_operator::crowded_comparison_operator(const popul
 {
 	pagmo_assert(m_pop.size() >= 2);
 	pagmo_assert(m_pop.problem().get_f_dimension() >= 2);
-};
+}
+
 bool population::crowded_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const 
 {
 	pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
@@ -513,7 +515,8 @@ bool population::crowded_comparison_operator::operator()(const size_type &idx1, 
 }
 
 // Trivial comparison operator struct constructor.
-population::trivial_comparison_operator::trivial_comparison_operator(const population &pop):m_pop(pop) {};
+population::trivial_comparison_operator::trivial_comparison_operator(const population &pop):m_pop(pop) {}
+
 bool population::trivial_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const
 {
 	pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());

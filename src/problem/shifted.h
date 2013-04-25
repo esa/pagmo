@@ -22,53 +22,63 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ5_H
-#define PAGMO_PROBLEM_DTLZ5_H
+#ifndef PAGMO_PROBLEM_SHIFTED_H
+#define PAGMO_PROBLEM_SHIFTED_H
 
 #include <string>
 
 #include "../serialization.h"
+#include "ackley.h"
 #include "../types.h"
-#include "base_dtlz.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
-/// DTLZ5 problem
+/// Shifted meta-problem
 /**
+ * Implements a meta-problem class that wraps some other problems,
+ * resulting in a shifted (translated) version of the underlying problem.
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem will test an MOEA's ability to converge to a cruve and will also allow an easier way to visually demonstrate
- * (just by plotting f_M with any other objective function) the performance of an MOEA. Since there is a natural bias for
- * solutions close to this Pareto-optimal curve, this problem may be easy for an algorithmn to solve. Because of its simplicity
- * its recommended to use a higher number of objectives \f$ M \in [5, 10]\f$.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
+ * @author Yung-Siang Liau (liauys@gmail.com)
  */
 
-class __PAGMO_VISIBLE dtlz5 : public base_dtlz
+class __PAGMO_VISIBLE shifted : public base
 {
 	public:
-		dtlz5(int = 10, fitness_vector::size_type = 3);
+		//constructors
+		shifted(const base &, const decision_vector &);
+		shifted(const base &, const double);
+		shifted(const base & = ackley(1));
+		
+		//copy constructor
+		shifted(const shifted &);
 		base_ptr clone() const;
 		std::string get_name() const;
+		
+		decision_vector deshift(const decision_vector &) const;
+		const decision_vector& get_shift_vector() const;
+		
 	protected:
+		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 	private:
-		double g_func(const decision_vector &) const;
+		void configure_shifted_bounds(const decision_vector &);
+
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
+			ar & m_original_problem;
+			ar & const_cast<decision_vector &>(m_translation);
 		}
+		base_ptr m_original_problem;
+		decision_vector m_translation;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz5);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::shifted);
 
-#endif // PAGMO_PROBLEM_DTLZ5_H
+#endif // PAGMO_PROBLEM_SHIFTED_H

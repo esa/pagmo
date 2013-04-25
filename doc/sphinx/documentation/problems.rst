@@ -9,13 +9,23 @@ The user can implement its own problem directly in Python, in which case he need
 :class:`PyGMO.problem.base` or :class:`PyGMO.problem.base_stochastic` class. You may see 
 :ref:`tutorial1` or :ref:`tutorial2` 
 
+Meta-problems
+^^^^^^^^^^^^^
+================================== ========================================= ===========================================
+Common Name                        Name in PyGMO                             Comments
+================================== ========================================= ===========================================
+Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
+Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
+Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
+================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
-Ackley                             :class:`PyGMO.problem.ackley`                 
+Ackley                             :class:`PyGMO.problem.ackley`            
+Bukin F6                           :class:`PyGMO.problem.bukin`              A difficult bi-dimensional problem
 Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
 Rastrigin                          :class:`PyGMO.problem.rastrigin`
 Schwefel                           :class:`PyGMO.problem.schwefel`
@@ -131,11 +141,47 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_x
    
-   .. automethod:: PyGMO.problem.base.feasibility_c  
+   .. automethod:: PyGMO.problem.base.feasibility_c
+   
+.. autoclass:: PyGMO.problem.shifted
+
+   .. automethod:: PyGMO.problem.shifted.__init__
+   
+   .. attribute:: shift_vector
+   
+      The shift vector defining the new problem
+      
+   .. method:: PyGMO.problem.shifted.deshift((tuple) x)
+
+      Returns the de-shifted decision vector
+   
+.. autoclass:: PyGMO.problem.rotated
+
+   .. automethod:: PyGMO.problem.rotated.__init__
+   
+   .. attribute:: rotation
+   
+      The rotation matrix defining the new problem
+      
+   .. method:: PyGMO.problem.rotated.derotate((tuple) x)
+
+      Returns the de-rotated decision vector
+
+.. autoclass:: PyGMO.problem.normalized
+
+   .. automethod:: PyGMO.problem.normalized.__init__
+
+      .. method:: PyGMO.problem.normalized.denormalize((tuple) x)
+
+         Returns the de-normalized decision vector
    
 .. autoclass:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__
+   
+.. autoclass:: PyGMO.problem.bukin
+
+   .. automethod:: PyGMO.problem.bukin.__init__
 
 .. autoclass:: PyGMO.problem.rosenbrock
 

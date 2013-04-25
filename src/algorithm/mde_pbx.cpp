@@ -48,7 +48,6 @@ namespace pagmo { namespace algorithm {
 * @param[in] nexp exponent for the powermean
 * @param[in] ftol stopping criteria on the x tolerance
 * @param[in] xtol stopping criteria on the f tolerance
-* @param[in] restart when true the algorithm re-initialize randomly the parameters at each call
 * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
 */
 

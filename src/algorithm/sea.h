@@ -22,53 +22,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ5_H
-#define PAGMO_PROBLEM_DTLZ5_H
+#ifndef PAGMO_ALGORITHM_SEA_H
+#define PAGMO_ALGORITHM_SEA_H
 
-#include <string>
-
+#include "../config.h"
+#include "../problem/base.h"
 #include "../serialization.h"
-#include "../types.h"
-#include "base_dtlz.h"
+#include "base.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace algorithm {
 
-/// DTLZ5 problem
+/// (N+1)-EA Simple Evolutionary Algorithm
 /**
+ * Used in many works dealing with
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
+ * At each generation the best individual is selected and offspring is generated performing a global
+ * mutation on it (for each dimension of the problem the gene is forced to a random gene inside the
+ * contrains).
  *
- * This problem will test an MOEA's ability to converge to a cruve and will also allow an easier way to visually demonstrate
- * (just by plotting f_M with any other objective function) the performance of an MOEA. Since there is a natural bias for
- * solutions close to this Pareto-optimal curve, this problem may be easy for an algorithmn to solve. Because of its simplicity
- * its recommended to use a higher number of objectives \f$ M \in [5, 10]\f$.
+ * This particular implementation of EA is able to solve integer box-contrained single-objective problems.
  *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
+ * @see Oliveto, Pietro S., Jun He, and Xin Yao. "Time complexity of evolutionary algorithms for
+ * combinatorial optimization: A decade of results." International Journal of Automation and Computing
+ * 4.3 (2007): 281-293.
  *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ *
  */
 
-class __PAGMO_VISIBLE dtlz5 : public base_dtlz
+class __PAGMO_VISIBLE sea: public base
 {
-	public:
-		dtlz5(int = 10, fitness_vector::size_type = 3);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-	private:
-		double g_func(const decision_vector &) const;
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-		}
+public:
+	sea(int gen  = 1);
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
+protected:
+	std::string human_readable_extra() const;
+private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+	}  
+	//Number of generations
+	const int m_gen;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz5);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sea);
 
-#endif // PAGMO_PROBLEM_DTLZ5_H
+#endif // PAGMO_ALGORITHM_SEA_H

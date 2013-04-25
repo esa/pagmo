@@ -376,6 +376,24 @@ def _bee_colony_ctor(self, gen = 100, limit = 20):
 bee_colony._orig_init = bee_colony.__init__
 bee_colony.__init__ = _bee_colony_ctor
 
+def _sea_ctor(self, gen = 100, limit = 20):
+	"""
+	Constructs a simple (N+1)-EA: A Simple Evolutionary Algorithm
+
+	USAGE: algorithm.ea(gen = 1)
+	SEE : Oliveto, Pietro S., Jun He, and Xin Yao.
+	"Time complexity of evolutionary algorithms for combinatorial optimization: A decade of results."
+	International Journal of Automation and Computing 4.3 (2007): 281-293.
+
+	* gen: number of 'generations' (each generation is one function evaluation)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	self._orig_init(*arg_list)
+sea._orig_init = sea.__init__
+sea.__init__ = _sea_ctor
+
 #def _firefly_ctor(self,**kwargs):
 #	"""
 #	Constructs a Firefly Algorithm

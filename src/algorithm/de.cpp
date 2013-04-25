@@ -386,7 +386,7 @@ void de::set_f(double f) {
 /// Gets crossover parameter.
 /**
  * 
- * @param[out] the crossover parameter
+ * @return the crossover parameter
  */
 double de::get_cr() const {
 	return m_cr;
@@ -396,7 +396,7 @@ double de::get_cr() const {
 /// Gets f parameter.
 /**
  * 
- * @param[out] the f parameter
+ * @return the f parameter
  */
 double de::get_f() const {
 	return m_f;

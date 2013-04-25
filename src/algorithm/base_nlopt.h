@@ -90,13 +90,17 @@ class __PAGMO_VISIBLE base_nlopt: public base
 		}
 		const nlopt::algorithm	m_algo;
 	protected:
+		/// NLOPT optimization method
 		mutable nlopt::opt	m_opt;
 	private:
 		const bool		m_constrained;
 		const bool		m_only_ineq;
 	protected:
+		/// Maximum number of iterations
 		const std::size_t	m_max_iter;
+		/// Tolerance on the fitness function variation (stopping criteria)
 		const double		m_ftol;
+		/// Tolerance on the decision_vector variation function (stopping criteria)
 		const double		m_xtol;
 };
 
