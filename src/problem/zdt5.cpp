@@ -35,17 +35,17 @@ namespace pagmo { namespace problem {
 /**
  * Will construct ZDT5.
  *
- * @param[in] dim integer dimension of the problem.
+ * @param[in] bnr number of bitstrings used for the problem (integer dimension is 30 + 5 * (bnr-1))
  *
  * @see problem::base constructors.
  */
-zdt5::zdt5(int dim):base(30 + 5 * (dim-1),30 + 5 * (dim-1),2)
+zdt5::zdt5(int bnr):base(30 + 5 * (bnr-1),30 + 5 * (bnr-1),2)
 {
 	// Set bounds.
 	set_lb(0);
 	set_ub(1);
      
-        if (dim <= 0) {
+        if (bnr <= 0) {
                 pagmo_throw(value_error,"invalid dimension(s)");
         }
 
@@ -116,7 +116,7 @@ double zdt5::p_distance(const pagmo::population &pop) const
         c +=  g;
     }
 
-    return (c / pop.size()) - 1;
+    return (c / pop.size()) - n_vectors + 1;
 
 }
 

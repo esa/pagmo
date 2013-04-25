@@ -61,6 +61,7 @@ ZDT1                               :class:`PyGMO.problem.zdt1`
 ZDT2                               :class:`PyGMO.problem.zdt2`         
 ZDT3                               :class:`PyGMO.problem.zdt3`
 ZDT4                               :class:`PyGMO.problem.zdt4`
+ZDT5                               :class:`PyGMO.problem.zdt5`
 ZDT6                               :class:`PyGMO.problem.zdt6`
 DTLZ1                              :class:`PyGMO.problem.dtlz1`
 DTLZ2                              :class:`PyGMO.problem.dtlz2`
@@ -270,6 +271,12 @@ Detailed Documentation
    .. automethod:: PyGMO.problem.zdt4.__init__
 
    .. automethod:: PyGMO.problem.zdt4.p_distance
+
+.. autoclass:: PyGMO.problem.zdt5
+
+   .. automethod:: PyGMO.problem.zdt5.__init__
+
+   .. automethod:: PyGMO.problem.zdt5.p_distance
 
 .. autoclass:: PyGMO.problem.zdt6
 

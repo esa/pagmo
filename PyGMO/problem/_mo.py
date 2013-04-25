@@ -240,18 +240,18 @@ zdt5._orig_p_distance = zdt5.p_distance
 zdt5.p_distance = _zdt5_p_distance
 
 
-def _zdt5_ctor(self, dim = 11):
+def _zdt5_ctor(self, bnr = 11):
 	"""
 	Constructs a ZDT5 problem (Box-Constrained Continuous Multi-Objective)
 
 	NOTE: E. Zitzler, K. Deb, L. Thiele: Comparison of Multiobjective Evolutionary Algorithms: Empirical Results, Evolutionary Computation, 2000
 
-	USAGE: problem.zdt5(dim = 11)
+	USAGE: problem.zdt5(bnr = 11)
 
-	* dim: problem dimension
+	* bnr: number of binary strings used for the problem (problem dimension is 30 + 5 * (bnr - 1))
 	"""
 	arg_list=[]
-	arg_list.append(dim)
+	arg_list.append(bnr)
 	self._orig_init(*arg_list)
 
 zdt5._orig_init = zdt5.__init__
