@@ -132,27 +132,27 @@ void mde_pbx::evolve(population &pop) const
 	pagmo::population::size_type a[NP-1];
 	double cri, fi, wcr, wf;
 
-	// **** Main Loop of differential evolution ****
+	// **** Main Loop of MDE-pBX ****
 	for (int gen = 0; gen < m_gen; ++gen) {
-
-		// We make a snapshot of the current population, pop will contain the new generation while pop_old remains unchanged
+		
+		// make a snapshot of the current population, pop will contain the new generation while pop_old remains unchanged
 		pagmo::population pop_old(pop);
 		
 		// clear the sets of successful scale factors and crossover probabilities
 		m_fsuccess.clear();
 		m_crsuccess.clear();
-
+		
 		// adjust parameter p controlling the elite of individuals to choose from
 		// as we start counting with gen=0 and not with gen=1 we use (gen) instead of (gen - 1) here
 		p = ceil((NP / 2.0) * ( 1.0 - (double)(gen) / m_gen));
-
+		
 		// update random distributions
 		boost::normal_distribution<double> nd(m_crm, 0.1);
 		boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > gauss(m_drng,nd);
-
+		
 		boost::cauchy_distribution<double> cd(m_fm, 0.1);
 		boost::variate_generator<boost::lagged_fibonacci607 &, boost::cauchy_distribution<double> > cauchy(m_drng,cd);
-
+		
 		// loop through all individuals
 		for (pagmo::population::size_type i = 0; i < NP; ++i) {
 			
@@ -246,51 +246,51 @@ void mde_pbx::evolve(population &pop) const
 				m_crsuccess.push_back(cri);
 				m_fsuccess.push_back(fi);
 			}
-		} //end of generation
+		} // end of one generation (loop over individuals)
 		
 		// Update Crossover Probability
 		if (!m_crsuccess.empty()) {
-		  wcr = 0.9  + (0.1 * r_dist());
-		  m_crm = (wcr * m_crm) + ((1.0 - wcr) * powermean(m_crsuccess, m_nexp));
+			wcr = 0.9  + (0.1 * r_dist());
+			m_crm = (wcr * m_crm) + ((1.0 - wcr) * powermean(m_crsuccess, m_nexp));
 		}
-
-// 	    Update Fitness Scale Factor
+		
+		// Update Fitness Scale Factor
 		if (!m_fsuccess.empty()) {
-		  wf = 0.8 + (0.2 * r_dist());
-		  m_fm = (wf * m_fm) + ((1.0 - wf) * powermean(m_fsuccess, m_nexp));
+			wf = 0.8 + (0.2 * r_dist());
+			m_fm = (wf * m_fm) + ((1.0 - wf) * powermean(m_fsuccess, m_nexp));
 		}
-
+		
 		//Check the exit conditions (every 40 generations)
 		if (gen % 30 == 0) {
-		double dx = 0;
-
-		for (decision_vector::size_type k = 0; k < D; ++k) {
-			tmp[k] = pop.get_individual(pop.get_worst_idx()).best_x[k] - pop.get_individual(pop.get_best_idx()).best_x[k];
-			dx += std::fabs(tmp[k]);
-		}
-
-		if  ( dx < m_xtol ) {
-			if (m_screen_output) {
-				std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+			double dx = 0;
+			
+			for (decision_vector::size_type k = 0; k < D; ++k) {
+				tmp[k] = pop.get_individual(pop.get_worst_idx()).best_x[k] - pop.get_individual(pop.get_best_idx()).best_x[k];
+				dx += std::fabs(tmp[k]);
 			}
-			return;
-		}
-
-		double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
-
-		if (mah < m_ftol) {
-			if (m_screen_output) {
-				std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+			
+			if  ( dx < m_xtol ) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+				}
+				return;
 			}
-			return;
-		}
-
-		// outputs current values
-		if (m_screen_output) {
-			std::cout << "Generation " << gen << " ***" << std::endl;
-			std::cout << "    Best global fitness: " << pop.champion().f << std::endl;
-			std::cout << "    Fm: " << m_fm << ", Crm: " << m_crm << std::endl;
-		}
+			
+			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+			
+			if (mah < m_ftol) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+				}
+				return;
+			}
+			
+			// outputs current values
+			if (m_screen_output) {
+				std::cout << "Generation " << gen << " ***" << std::endl;
+				std::cout << "    Best global fitness: " << pop.champion().f << std::endl;
+				std::cout << "    Fm: " << m_fm << ", Crm: " << m_crm << std::endl;
+			}
 		}
 	} // End of Generation main iteration
 

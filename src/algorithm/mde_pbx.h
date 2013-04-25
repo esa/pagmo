@@ -80,8 +80,8 @@ private:
 		ar & const_cast<double &>(m_nexp);
 		ar & const_cast<double &>(m_ftol);
 		ar & const_cast<double &>(m_xtol);
-		ar & const_cast<double &>(m_fm);
-		ar & const_cast<double &>(m_crm);
+		ar & m_fm;
+		ar & m_crm;
 		ar & m_fsuccess;
 		ar & m_crsuccess;
 	}
@@ -98,7 +98,7 @@ private:
 	// this vector keeps track of successfull crossover probabilities
 	mutable std::vector<double> m_crsuccess;
 
-        // Current crossover control factor
+    // Current crossover control factor
 	mutable double m_crm;
 	
 	// Control parameters
