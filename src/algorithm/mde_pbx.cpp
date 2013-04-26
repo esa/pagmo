@@ -138,7 +138,7 @@ void mde_pbx::evolve(population &pop) const
 	// Declaring temporary variables used by the main-loop
 	pagmo::population::size_type p;
 	pagmo::population::size_type r1, r2, bestq_idx, bestp_idx, j_rand, trials;
-	pagmo::population::size_type a[NP-1];
+	std::vector<pagmo::population::size_type> a(NP-1,0);
 	double cri, fi, wcr, wf;
 
 	// **** Main Loop of MDE-pBX ****
@@ -155,20 +155,20 @@ void mde_pbx::evolve(population &pop) const
 		// as we start counting with gen=0 and not with gen=1 we use (gen) instead of (gen - 1) here
 		p = ceil((NP / 2.0) * ( 1.0 - (double)(gen) / m_gen));
 		
-
+		// get the p-best individuals
+		std::vector<population::size_type> pbest = pop_old.get_best_idx(p);
 		
 		// loop through all individuals
 		for (pagmo::population::size_type i = 0; i < NP; ++i) {
 			
 			// Get q% random indices excluding i
-			// First we build the index list (for example i=5 -> a = [1,2,3,4,6,7,8, .... ])
+			// First we build the index list (for example i=5 -> a = [1,2,3,4,6,7,8, .... ]) containing NP-1 entries
 			for (pagmo::population::size_type k = 0; k < NP-1; ++k) {
 				(k<i) ? a[k] = k : a[k] = k+1;
 			}
-			
 			// Then we swap the first q% of the indexes
 			for (pagmo::population::size_type k = 0; k < NP_Part; ++k) {
-				r1 = double_to_int::convert( boost::uniform_int<int>(k,NP-2)(m_urng) );
+				r1 = boost::uniform_int<int>(k,NP-2)(m_urng);
 				std::swap(a[k], a[r1]);
 			}
 			
@@ -191,8 +191,6 @@ void mde_pbx::evolve(population &pop) const
 				r2 = p_idx();
 			} while ((r2==i) || (r2==r1) || (r2==bestq_idx));
 			
-			// get a random vector out of the p-best
-			std::vector<population::size_type> pbest = pop_old.get_best_idx(p);
 			bestp_idx = pbest[boost::uniform_int<int>(0,p-1)(m_urng)];
 			
 			// sample scale factors
@@ -223,25 +221,23 @@ void mde_pbx::evolve(population &pop) const
 			for (size_t j = 0; j < D; ++j) {
 				if (j == j_rand || r_dist() < cri) {
 					tmp[j] = pop_old.get_individual(i).cur_x[j] + fi * (pop_old.get_individual(bestq_idx).cur_x[j] - pop_old.get_individual(i).cur_x[j] + pop_old.get_individual(r1).cur_x[j] - pop_old.get_individual(r2).cur_x[j]);
+					if ((tmp[j] < lb[j]) || (tmp[j] > ub[j])) { // enforce box-bounds
+						tmp[j] = lb[j]+ r_dist()*(ub[j]-lb[j]);
+					}
 				} else {
 					tmp[j] = pop_old.get_individual(bestp_idx).cur_x[j];
 				}
 			}
 			
-			/*=======Trial mutation now in tmp[]. Force feasibility and test how good this choice really was.==========*/
-			// a) feasibility (throw in some random value if we fall out of the borders)
-			size_t i2 = 0;
-			while (i2<D) {
-				if ((tmp[i2] < lb[i2]) || (tmp[i2] > ub[i2]))
-					tmp[i2] = lb[i2]+ r_dist()*(ub[i2]-lb[i2]);
-				++i2;
-			}
+			/*=======Trial mutation now in tmp[] and feasible. Test how good this choice really was.==========*/
+
 			
 			// b) Compare with the objective function
-			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
+			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] and records it fitness in newfitness */
 			if ( pop.problem().compare_fitness(newfitness,pop_old.get_individual(i).cur_f) ) {  /* improved objective function value ? */
-				// As a fitness improvment occured we 
+				// As a fitness improvement occured we 
 				pop.set_x(i,tmp);
+				//pop_old.set_x(i,tmp); (un-comment for a steady-state version)
 				// and thus can evaluate a new velocity
 				std::transform(tmp.begin(), tmp.end(), pop_old.get_individual(i).cur_x.begin(), tmp.begin(),std::minus<double>());
 				// updates x and v (cache avoids to recompute the objective function)
@@ -279,7 +275,7 @@ void mde_pbx::evolve(population &pop) const
 				}
 				return;
 			}
-			
+
 			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
 			
 			if (mah < m_ftol) {
