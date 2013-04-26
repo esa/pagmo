@@ -62,7 +62,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mde_pbx : public base
 {
 public:
-	mde_pbx(int = 100, double = 0.15, double = 1.5, double = 1e-30, double = 1e-30);
+	mde_pbx(int = 100, double = 0.15, double = 15, double = 1e-30, double = 1e-30);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

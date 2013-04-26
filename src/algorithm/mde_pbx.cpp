@@ -125,6 +125,15 @@ void mde_pbx::evolve(population &pop) const
 
 	boost::uniform_int<int> r_c_idx(0,D-1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > c_idx(m_urng,r_c_idx);
+	
+	boost::uniform_int<int> r_p_idx(0,NP-1);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,r_p_idx);
+	
+	boost::normal_distribution<double> nd(0.0, 0.1);
+	boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > gauss(m_drng,nd);
+	
+	boost::cauchy_distribution<double> cd(0.0, 0.1);
+	boost::variate_generator<boost::lagged_fibonacci607 &, boost::cauchy_distribution<double> > cauchy(m_drng,cd);
 
 	// Declaring temporary variables used by the main-loop
 	pagmo::population::size_type p;
@@ -146,12 +155,7 @@ void mde_pbx::evolve(population &pop) const
 		// as we start counting with gen=0 and not with gen=1 we use (gen) instead of (gen - 1) here
 		p = ceil((NP / 2.0) * ( 1.0 - (double)(gen) / m_gen));
 		
-		// update random distributions
-		boost::normal_distribution<double> nd(m_crm, 0.1);
-		boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > gauss(m_drng,nd);
-		
-		boost::cauchy_distribution<double> cd(m_fm, 0.1);
-		boost::variate_generator<boost::lagged_fibonacci607 &, boost::cauchy_distribution<double> > cauchy(m_drng,cd);
+
 		
 		// loop through all individuals
 		for (pagmo::population::size_type i = 0; i < NP; ++i) {
@@ -179,12 +183,12 @@ void mde_pbx::evolve(population &pop) const
 			// choose two random distinct pop members
 			do {
 				/* Endless loop for NP < 2 !!!     */
-				r1 = boost::uniform_int<pagmo::population::size_type>(0,NP-1)(m_urng);
+				r1 = p_idx();
 			} while ((r1==i) || (r1==bestq_idx));
 			
 			do {
 				/* Endless loop for NP < 3 !!!     */
-				r2 = boost::uniform_int<pagmo::population::size_type>(0,NP-1)(m_urng);
+				r2 = p_idx();
 			} while ((r2==i) || (r2==r1) || (r2==bestq_idx));
 			
 			// get a random vector out of the p-best
@@ -194,7 +198,7 @@ void mde_pbx::evolve(population &pop) const
 			// sample scale factors
 			trials = 0;
 			do {
-				cri = gauss();
+				cri = gauss()+m_crm;
 				trials++;
 			} while ( ((cri < 0.0) || (cri > 1.0)) && (trials < 20) );
 			
@@ -204,7 +208,7 @@ void mde_pbx::evolve(population &pop) const
 			
 			trials = 0;
 			do {
-				fi = cauchy();
+				fi = cauchy()+m_fm;
 				trials++;
 			} while ( ((fi <= 0.0) || (fi > 1.0)) && (trials < 20) );
 			
@@ -229,7 +233,7 @@ void mde_pbx::evolve(population &pop) const
 			size_t i2 = 0;
 			while (i2<D) {
 				if ((tmp[i2] < lb[i2]) || (tmp[i2] > ub[i2]))
-					tmp[i2] = boost::uniform_real<double>(lb[i2],ub[i2])(m_drng);
+					tmp[i2] = lb[i2]+ r_dist()*(ub[i2]-lb[i2]);
 				++i2;
 			}
 			
@@ -289,7 +293,7 @@ void mde_pbx::evolve(population &pop) const
 			if (m_screen_output) {
 				std::cout << "Generation " << gen << " ***" << std::endl;
 				std::cout << "    Best global fitness: " << pop.champion().f << std::endl;
-				std::cout << "    Fm: " << m_fm << ", Crm: " << m_crm << std::endl;
+				std::cout << "    Fm: " << m_fm << ", Crm: " << m_crm << ", p: " << p << std::endl;
 			}
 		}
 	} // End of Generation main iteration

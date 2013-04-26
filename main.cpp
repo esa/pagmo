@@ -31,7 +31,7 @@ using namespace pagmo;
 
 int main()
 {
-	pagmo::algorithm::mde_pbx alg(1500, 0.5, 15, 1e-30, 1e-30);
+	pagmo::algorithm::mde_pbx alg(1500, 0.15, 1.5, 1e-30, 1e-30);
 	alg.set_screen_output(true);
 	std::cout << alg << std::endl;
 	pagmo::problem::schwefel prob(30);
