@@ -557,7 +557,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 			++count2;
 		}
 	}
-	return ( ( (count1+count2) == m_f_dimension)  and (count1>0) );
+	return ( ( (count1+count2) == m_f_dimension) && (count1>0) );
 }
 
 /// Return human readable representation of the problem.

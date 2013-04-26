@@ -205,7 +205,7 @@ void nsga2::evolve(population &pop) const
 		pagmo_throw(value_error, "The problem has an integer dimension and NSGA-II is not suitable for it");
 	}
 
-	if (NP < 5 or (NP % 4 != 0) ) {
+	if (NP < 5 || (NP % 4 != 0) ) {
 		pagmo_throw(value_error, "for NSGA-II at least 5 individuals in the population are needed and the population size must be a multiple of 4");
 	}
 	

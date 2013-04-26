@@ -61,9 +61,9 @@ class __PAGMO_VISIBLE dtlz4 : public base_dtlz
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<size_t &>(m_alpha);
+			ar & const_cast<double &>(m_alpha);
 		}
-		const size_t m_alpha;
+		const double m_alpha;
 
 };
 

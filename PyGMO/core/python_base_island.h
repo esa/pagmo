@@ -132,7 +132,11 @@ class __PAGMO_VISIBLE python_base_island:  public base_island, public boost::pyt
 		{
 			join();
 			if (boost::python::override f = this->get_override("get_name")) {
-				return f();
+			#if BOOST_WORKAROUND(BOOST_MSVC, <= 1700)
+				return boost::python::call<std::string>(this->get_override("get_name").ptr());
+			#else
+				return f();				
+			#endif
 			}
 			return base_island::get_name();
 		}

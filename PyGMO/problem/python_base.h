@@ -73,7 +73,11 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		std::string get_name() const
 		{
 			if (boost::python::override f = this->get_override("get_name")) {
-				return f();
+			#if BOOST_WORKAROUND(BOOST_MSVC, <= 1700)
+				return boost::python::call<std::string>(this->get_override("get_name").ptr());
+			#else
+				return f();				
+			#endif
 			}
 			return base::get_name();
 		}
@@ -84,7 +88,12 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		std::string human_readable_extra() const
 		{
 			if (boost::python::override f = this->get_override("human_readable_extra")) {
-				return f();
+			#if BOOST_WORKAROUND(BOOST_MSVC, <= 1700)
+				return boost::python::call<std::string>(this->get_override("human_readable_extra").ptr());
+			#else
+				return f();				
+			#endif
+
 			}
 			return base::human_readable_extra();
 		}
@@ -102,7 +111,11 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 		std::string get_typename() const
 		{
 			if (boost::python::override f = this->get_override("_get_typename")) {
-				return f();
+			#if BOOST_WORKAROUND(BOOST_MSVC, <= 1700)
+				return boost::python::call<std::string>(this->get_override("_get_typename").ptr());
+			#else
+				return f();				
+			#endif
 			}
 			pagmo_throw(not_implemented_error,"the '_get_typename' method has not been implemented");
 		}

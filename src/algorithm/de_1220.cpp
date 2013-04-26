@@ -35,11 +35,9 @@
 #include "base.h"
 #include "de_1220.h"
 
-static const int tmp[10] = {2,3,7,10,13,14,15,16};
+
 
 namespace pagmo { namespace algorithm {
-
-std::vector<int> de_1220::default_startegies(tmp,tmp+8);
 
 /// Constructor.
 /**
