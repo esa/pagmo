@@ -123,11 +123,11 @@ void mde_pbx::evolve(population &pop) const
 	boost::uniform_real<double> uniform(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > r_dist(m_drng,uniform);
 
-	boost::uniform_int<int> r_c_idx(0,D-1);
-	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > c_idx(m_urng,r_c_idx);
+	boost::uniform_int<decision_vector::size_type> r_c_idx(0,D-1);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<decision_vector::size_type> > c_idx(m_urng,r_c_idx);
 	
-	boost::uniform_int<int> r_p_idx(0,NP-1);
-	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,r_p_idx);
+	boost::uniform_int<population::size_type> r_p_idx(0,NP-1);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<population::size_type> > p_idx(m_urng,r_p_idx);
 	
 	boost::normal_distribution<double> nd(0.0, 0.1);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::normal_distribution<double> > gauss(m_drng,nd);
@@ -136,15 +136,16 @@ void mde_pbx::evolve(population &pop) const
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::cauchy_distribution<double> > cauchy(m_drng,cd);
 
 	// Declaring temporary variables used by the main-loop
-	pagmo::population::size_type p;
-	pagmo::population::size_type r1, r2, bestq_idx, bestp_idx, j_rand, trials;
-	std::vector<pagmo::population::size_type> a(NP-1,0);
+	population::size_type p;
+	population::size_type r1, r2, bestq_idx, bestp_idx, j_rand, trials;
+	std::vector<population::size_type> a(NP-1,0);
 	double cri, fi, wcr, wf;
 
 	// **** Main Loop of MDE-pBX ****
 	for (int gen = 0; gen < m_gen; ++gen) {
 		
-		// make a snapshot of the current population, pop will contain the new generation while pop_old remains unchanged
+		// make a snapshot of the current population
+		// as we loop over individuals pop will contain the new generation while pop_old remains unchanged
 		pagmo::population pop_old(pop);
 		
 		// clear the sets of successful scale factors and crossover probabilities
@@ -154,7 +155,7 @@ void mde_pbx::evolve(population &pop) const
 		// adjust parameter p controlling the elite of individuals to choose from
 		// as we start counting with gen=0 and not with gen=1 we use (gen) instead of (gen - 1) here
 		p = ceil((NP / 2.0) * ( 1.0 - (double)(gen) / m_gen));
-		
+p = 10;
 		// get the p-best individuals
 		std::vector<population::size_type> pbest = pop_old.get_best_idx(p);
 		
@@ -216,7 +217,7 @@ void mde_pbx::evolve(population &pop) const
 			
 			// fix a random dimension index
 			j_rand = c_idx();
-			
+fi = 0.8;cri=0.9;
 			// Mutation + Crossover
 			for (size_t j = 0; j < D; ++j) {
 				if (j == j_rand || r_dist() < cri) {
@@ -226,6 +227,7 @@ void mde_pbx::evolve(population &pop) const
 					}
 				} else {
 					tmp[j] = pop_old.get_individual(bestp_idx).cur_x[j];
+//tmp[j] = pop_old.get_individual(pop_old.get_best_idx()).cur_x[j];
 				}
 			}
 			
