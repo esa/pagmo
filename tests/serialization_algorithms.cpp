@@ -36,7 +36,7 @@ int main()
 {
 	unsigned int pop_size = 20;
 	unsigned int gen = 123;
-	
+
 	//increment this if you add a multiobjective problem
 	unsigned int n_mo = 1;
 
@@ -130,7 +130,7 @@ int main()
 	
 	// and pick a multiobjective one
 	problem::zdt1 prob_mo(10);
-	
+
 	// make a population out of it
 	population pop_original(prob,pop_size);
 	population pop_original_mo(prob_mo,pop_size);
@@ -165,7 +165,7 @@ int main()
 			pop2 = population(pop_original_mo);
 		}
 		else {
-			pop1 = population(pop_original); 
+			pop1 = population(pop_original);
 			pop2 = population(pop_original);
 		}
 		algos[i]->evolve(pop1);

@@ -62,7 +62,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE mde_pbx : public base
 {
 public:
-	mde_pbx(int = 100, double = 0.15, double = 5.0, double = 1e-30, double = 1e-30);
+	mde_pbx(int = 100, double = 0.15, double = 15, double = 1e-30, double = 1e-30);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -80,8 +80,8 @@ private:
 		ar & const_cast<double &>(m_nexp);
 		ar & const_cast<double &>(m_ftol);
 		ar & const_cast<double &>(m_xtol);
-		ar & const_cast<double &>(m_fm);
-		ar & const_cast<double &>(m_crm);
+		ar & m_fm;
+		ar & m_crm;
 		ar & m_fsuccess;
 		ar & m_crsuccess;
 	}
@@ -98,7 +98,7 @@ private:
 	// this vector keeps track of successfull crossover probabilities
 	mutable std::vector<double> m_crsuccess;
 
-        // Current crossover control factor
+    // Current crossover control factor
 	mutable double m_crm;
 	
 	// Control parameters

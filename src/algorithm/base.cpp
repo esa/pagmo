@@ -68,9 +68,10 @@ void base::set_screen_output(const bool p) {m_screen_output = p;}
 
 /// Gets screen output
 /**
- * Gets screen output boolean variable. When True the algorithm may print stuff on screen (careful, in multithreading this can mess up things)
+ * Gets screen output boolean variable. When True the algorithm may print stuff on screen 
+ * (careful, in multithreading this can mess up things)
  *
- * @param[out] boolean 
+ * return boolean value associated to the screen output option
  */
 bool base::get_screen_output() const {return m_screen_output;}
 

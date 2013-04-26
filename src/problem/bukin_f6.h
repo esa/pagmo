@@ -22,43 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ5_H
-#define PAGMO_PROBLEM_DTLZ5_H
+#ifndef PAGMO_PROBLEM_BUKINF6_H
+#define PAGMO_PROBLEM_BUKINF6_H
 
 #include <string>
 
+#include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "base_dtlz.h"
+#include "base.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace problem {
 
-/// DTLZ5 problem
+/// Bukin f6 function
 /**
+ * \image html bukin.jpg "Plot of Bukin's f6 function."
+ * \image latex bukin.jpg "Plot of Bukin's f6 function." width=3cm
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
+ * Bukin’s functions are almost fractal (with fine seesaw edges) in 
+ * the surroundings of their minimal points. Due to this property, they are extremely 
+ * difficult to optimize by any method of global (or local) optimization and find correct 
+ * values of decision variables (i.e. xi
+ * for i=1,2).
  *
- * This problem will test an MOEA's ability to converge to a cruve and will also allow an easier way to visually demonstrate
- * (just by plotting f_M with any other objective function) the performance of an MOEA. Since there is a natural bias for
- * solutions close to this Pareto-optimal curve, this problem may be easy for an algorithmn to solve. Because of its simplicity
- * its recommended to use a higher number of objectives \f$ M \in [5, 10]\f$.
+ * The function is defined by:
+ * \f[
+ * 	f(x, y) = 100\sqrt{\left|y - 0.01 x^2\right|} + 0.01\left|x+10\right|
+ * \f]
+ * The function has one local maximum at \f$ x = -10 \f$ and \f$ y = 1 \f$, where \f$ f(x,y) = 0 \f$
  *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
+ * The bounds of the search space are \f$ lb = [-15,-3], ub = [-5,3] \f$ range.
  *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
+ * @see http://mpra.ub.uni-muenchen.de/1743/1/MPRA_paper_1743.pdf
+ *
+ * @author Dario Izzo (dario.izzo@gmail.com)
  */
-
-class __PAGMO_VISIBLE dtlz5 : public base_dtlz
+class __PAGMO_VISIBLE bukin: public base
 {
 	public:
-		dtlz5(int = 10, fitness_vector::size_type = 3);
+		bukin();
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
-		double g_func(const decision_vector &) const;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -67,8 +74,8 @@ class __PAGMO_VISIBLE dtlz5 : public base_dtlz
 		}
 };
 
-}} //namespaces
+}}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz5);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::bukin);
 
-#endif // PAGMO_PROBLEM_DTLZ5_H
+#endif

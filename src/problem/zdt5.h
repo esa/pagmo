@@ -22,43 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ5_H
-#define PAGMO_PROBLEM_DTLZ5_H
+#ifndef PAGMO_PROBLEM_ZDT5_H
+#define PAGMO_PROBLEM_ZDT5_H
 
 #include <string>
 
 #include "../serialization.h"
 #include "../types.h"
-#include "base_dtlz.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
-/// DTLZ5 problem
-/**
+/// ZDT5 problem
+/*
+ *     This is a box-constrained integer n-dimension multi-objecive problem.
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem will test an MOEA's ability to converge to a cruve and will also allow an easier way to visually demonstrate
- * (just by plotting f_M with any other objective function) the performance of an MOEA. Since there is a natural bias for
- * solutions close to this Pareto-optimal curve, this problem may be easy for an algorithmn to solve. Because of its simplicity
- * its recommended to use a higher number of objectives \f$ M \in [5, 10]\f$.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
+ *       \f[ 
+ *           F_1\left(x\right) = 1 + u \left(x_{1} \right) 
+ *       \f]
+ *       \f[
+ *           g\left(x\right) = \sum_{i=2}^{11} v \left(u \left(x_{i} \right) \right) 
+ *       \f]
+ *       \f[
+ *           v\left(u\left(x_{i}\right)\right) =  2 + u \left(x_{i} \right)    if u \left(x_{i} \right) < 5
+ *           v\left(u\left(x_{i}\right)\right) =  1                            if u \left(x_{i} \right) = 5 
+ *       \f]
+ *       \f[
+ *           F_2 = g \left(x \right) * 1/F_1 \left(x \right) 
+ *       \f] 
+ * 
+ * @See = http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.30.5848&rep=rep1&type=pdf
+ * @author Jainit Purohit (mjainit@gmail.com)
  */
 
-class __PAGMO_VISIBLE dtlz5 : public base_dtlz
+class __PAGMO_VISIBLE zdt5 : public base
 {
 	public:
-		dtlz5(int = 10, fitness_vector::size_type = 3);
+		zdt5(int = 11);
 		base_ptr clone() const;
 		std::string get_name() const;
+		double p_distance(const pagmo::population &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
-		double g_func(const decision_vector &) const;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -69,6 +75,6 @@ class __PAGMO_VISIBLE dtlz5 : public base_dtlz
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz5);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::zdt5);
 
-#endif // PAGMO_PROBLEM_DTLZ5_H
+#endif // PAGMO_PROBLEM_ZDT5_H

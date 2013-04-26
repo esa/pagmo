@@ -58,7 +58,7 @@ We may then put this in a file, say my_module.py and use, for example, Artificia
    from  my_module import my_problem
 
    prob = my_problem(dim=10)
-   algo = algorithm.bee_colony(gen=100)
+   algo = algorithm.bee_colony(gen=500)
    isl = island(algo,prob,20)
    isl.evolve(1); isl.join()
    print isl.population.champion.f

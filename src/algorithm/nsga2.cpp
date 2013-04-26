@@ -87,16 +87,21 @@ pagmo::population::size_type nsga2::tournament_selection(pagmo::population::size
 
 void nsga2::crossover(decision_vector& child1, decision_vector& child2, pagmo::population::size_type parent1_idx, pagmo::population::size_type parent2_idx,const pagmo::population& pop) const
 {
-	//This implements a Simulated Binary Crossover SBX
-	problem::base::size_type D = child1.size();
+
+        problem::base::size_type D = pop.problem().get_dimension();
+        problem::base::size_type Di = pop.problem().get_i_dimension();
+        problem::base::size_type Dc = D - Di;        
 	const decision_vector &lb = pop.problem().get_lb(), &ub = pop.problem().get_ub();
 	const decision_vector& parent1 = pop.get_individual(parent1_idx).cur_x;
 	const decision_vector& parent2 = pop.get_individual(parent2_idx).cur_x;
 	double y1,y2,yl,yu, rand, beta, alpha, betaq, c1, c2;
 	child1 = parent1;
 	child2 = parent2;
+        int site1, site2;
+
+        //This implements a Simulated Binary Crossover SBX
 	if (m_drng() <= m_cr) {
-		for (pagmo::problem::base::size_type i = 0; i < D; i++) {
+		for (pagmo::problem::base::size_type i = 0; i < Dc; i++) {
 			if ( (m_drng() <= 0.5) && (std::fabs(parent1[i]-parent2[i]) ) > 1.0e-14) {
 				if (parent1[i] < parent2[i]) {
 					y1 = parent1[i];
@@ -140,18 +145,53 @@ void nsga2::crossover(decision_vector& child1, decision_vector& child2, pagmo::p
 				}
 			}
 		}
+ 
+            }
+        
+        //This implements two point binary crossover
+        for (pagmo::problem::base::size_type i = Dc; i < D; i++) {
+               if (m_drng() <= m_cr) {         
+                     boost::uniform_int<int> in_dist(0,Di-1);
+                     boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > ra_num(m_urng,in_dist);
+                     site1 = ra_num();
+                     site2 = ra_num();
+                     if (site1 > site2) std::swap(site1,site2);  
+                     for(int j=0; j<site1; j++)
+                     {
+                         child1[j] = parent1[j];
+                         child2[j] = parent2[j];
+                     }
+                     for(int j=site1; j<site2; j++) 
+                     {
+                         child1[j] = parent2[j];
+                         child2[j] = parent1[j];
+                     }
+                     for(pagmo::problem::base::size_type j=site2; j<Di; j++)
+                     {
+                         child1[j] = parent1[j];
+                         child2[j] = parent2[j];
+                     }                                                      
+              }
+              else {      
+                   child1[i] = parent1[i];
+                   child2[i] = parent2[i];                
+              }                        
 	}
 }
 
 void nsga2::mutate(decision_vector& child, const pagmo::population& pop) const
 {
-	//This implements the real polinomial mutation of an individual
+
 	problem::base::size_type D = pop.problem().get_dimension();
+        problem::base::size_type Di = pop.problem().get_i_dimension();
+        problem::base::size_type Dc = D - Di;
 	const decision_vector &lb = pop.problem().get_lb(), &ub = pop.problem().get_ub();
 	double rnd, delta1, delta2, mut_pow, deltaq;
 	double y, yl, yu, val, xy;
+        int gen_num;
 	
-	for (pagmo::problem::base::size_type j=0; j < D; ++j){
+        //This implements the real polinomial mutation of an individual
+	for (pagmo::problem::base::size_type j=0; j < Dc; ++j){
 		if (m_drng() <= m_m) {
 			y = child[j];
 			yl = lb[j];
@@ -178,8 +218,21 @@ void nsga2::mutate(decision_vector& child, const pagmo::population& pop) const
 			child[j] = y;
 		}
 	}
-}
 
+        //This implements the integer mutation for an individual
+         for (pagmo::problem::base::size_type j=Dc; j < D; ++j){
+               if (m_drng() <= m_m) {
+                        y = child[j];
+                        yl = lb[j];
+                        yu = ub[j]; 
+                        boost::uniform_int<int> in_dist(yl,yu-1);
+                        boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > ra_num(m_urng,in_dist);
+                        gen_num = ra_num();
+                        if (gen_num >= y) gen_num = gen_num + 1;
+                        child[j] = gen_num;                    
+         }
+      }
+}
 /// Evolve implementation.
 /**
  * Run the NSGA-II algorithm for the number of generations specified in the constructors.
@@ -192,18 +245,14 @@ void nsga2::evolve(population &pop) const
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
 	const problem::base::size_type D = prob.get_dimension();
-	const problem::base::size_type Di = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension();
+	const problem::base::size_type prob_c_dimension = prob.get_c_dimension();
 	const population::size_type NP = pop.size();
 
 
-	//We perform some checks to determine wether the problem/population are suitable for NSGA-II
-	if ( prob_c_dimension != 0 ) {
-		pagmo_throw(value_error, "The problem is not box constrained and NSGA-II is not suitable to solve it");
-	}
-	
-	if (Di != 0) {
-		pagmo_throw(value_error, "The problem has an integer dimension and NSGA-II is not suitable for it");
-	}
+       //We perform some checks to determine wether the problem/population are suitable for NSGA-II
+        if ( prob_c_dimension != 0 ) {
+                pagmo_throw(value_error, "The problem is not box constrained and NSGA-II is not suitable to solve it");
+        }
 
 	if (NP < 5 || (NP % 4 != 0) ) {
 		pagmo_throw(value_error, "for NSGA-II at least 5 individuals in the population are needed and the population size must be a multiple of 4");

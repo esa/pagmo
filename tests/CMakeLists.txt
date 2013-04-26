@@ -10,6 +10,14 @@ ADD_EXECUTABLE(serialization_algorithms serialization_algorithms.cpp)
 TARGET_LINK_LIBRARIES(serialization_algorithms pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(serialization_algorithms serialization_algorithms)
 
+ADD_EXECUTABLE(test_shifted test_shifted.cpp)
+TARGET_LINK_LIBRARIES(test_shifted pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(test_shifted test_shifted)
+
+ADD_EXECUTABLE(test_rotated test_rotated.cpp)
+TARGET_LINK_LIBRARIES(test_rotated pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(test_rotated test_rotated)
+
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)
 	TARGET_LINK_LIBRARIES(mpi_torture_test ${MANDATORY_LIBRARIES} pagmo_static)

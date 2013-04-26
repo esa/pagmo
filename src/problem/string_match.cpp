@@ -58,6 +58,11 @@ void string_match::objfun_impl(fitness_vector &f, const decision_vector &x) cons
 	f[0] = retval;
 }
 
+
+/// Returns the encoded string
+/**
+ * @return the encoded string (std::string)
+ */
 std::string string_match::pretty(const decision_vector &x) const {
 	std::string retval;
 	for (decision_vector::size_type i = 0; i < x.size(); ++i) {

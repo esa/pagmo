@@ -22,6 +22,7 @@ Differential Evolution (DE)        :class:`PyGMO.algorithm.de_1220`             
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
 Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
 Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
+(N+1)-EA Evol. Algorithm (SEA)     :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
 Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
 Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
 Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
@@ -102,6 +103,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.pso_gen
 
    .. automethod:: PyGMO.algorithm.pso_gen.__init__
+
+.. autoclass:: PyGMO.algorithm.sea
+
+   .. automethod:: PyGMO.algorithm.sea.__init__
 
 .. autoclass:: PyGMO.algorithm.sga
 

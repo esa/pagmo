@@ -22,53 +22,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DTLZ5_H
-#define PAGMO_PROBLEM_DTLZ5_H
-
 #include <string>
 
-#include "../serialization.h"
-#include "../types.h"
-#include "base_dtlz.h"
+#include "base.h"
+#include "bukin_f6.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace problem {
 
-/// DTLZ5 problem
-/**
- *
- * This is a box-constrained continuous n-dimensional multi-objecive problem, scalable in fitness dimension.
- *
- * This problem will test an MOEA's ability to converge to a cruve and will also allow an easier way to visually demonstrate
- * (just by plotting f_M with any other objective function) the performance of an MOEA. Since there is a natural bias for
- * solutions close to this Pareto-optimal curve, this problem may be easy for an algorithmn to solve. Because of its simplicity
- * its recommended to use a higher number of objectives \f$ M \in [5, 10]\f$.
- *
- * The dimension of the decision space is k + fdim - 1, whereas fdim is the number of objectives and k a paramter.
- *
- * @see K. Deb, L. Thiele, M. Laumanns, E. Zitzler, Scalable test problems for evoulationary multiobjective optimization
- * @author Marcus Maertens (mmarcusx@gmail.com)
- */
-
-class __PAGMO_VISIBLE dtlz5 : public base_dtlz
+/// Default constructor.
+bukin::bukin():base(2)
 {
-	public:
-		dtlz5(int = 10, fitness_vector::size_type = 3);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-	private:
-		double g_func(const decision_vector &) const;
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-		}
-};
+	// Set bounds.
+	set_lb(0,-15.0);
+	set_ub(0,-5.0);
+	set_lb(1,-3.0);
+	set_ub(1,3.0);
+}
 
-}} //namespaces
+/// Clone method.
+base_ptr bukin::clone() const
+{
+	return base_ptr(new bukin(*this));
+}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz5);
+/// Implementation of the objective function.
+void bukin::objfun_impl(fitness_vector &f, const decision_vector &vx) const
+{
+	pagmo_assert(f.size() == 1 && vx.size() == 2);
+	const double x = vx[0], y = vx[1];
+	f[0] = 100 * sqrt(fabs(y - 0.01 * x * x)) + 0.01*fabs(x+10);
+}
 
-#endif // PAGMO_PROBLEM_DTLZ5_H
+std::string bukin::get_name() const
+{
+	return "Bukin f6";
+}
+
+}}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::bukin);

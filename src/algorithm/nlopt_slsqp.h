@@ -37,7 +37,7 @@ namespace pagmo { namespace algorithm {
 /**
  * From NLopt's documentation:
  *
- * <EM>The algorithm optimizes successive second-order (quadratic/least-squares) approximations
+ * <em>The algorithm optimizes successive second-order (quadratic/least-squares) approximations
  * of the objective function (via BFGS updates), with first-order (affine) approximations of the
  * constraints. The Fortran code was obtained from the SciPy project, who are responsible for
  * obtaining permission to distribute it under a free-software (3-clause BSD) license.
@@ -47,12 +47,14 @@ namespace pagmo { namespace algorithm {
  * bounds. We fixed a bug in the LSEI subroutine (use of uninitialized variables) for the case
  * where the number of equality constraints equals the dimension of the problem. The LSQ
  * subroutine was modified to handle infinite lower/upper bounds (in which case those constraints
- * are omitted).</EM>
+ * are omitted).</em>
  *
  * The inclusion in PaGMO required to write central difference code for the automated, numercal evaluation
  * of gradients. the rest was left unchaged
  *
- * NOTE: Because the SLSQP code uses dense-matrix methods (ordinary BFGS, not low-storage BFGS), it requires O(n2) storage and O(n3) time in n dimensions, which makes it less practical for optimizing more than a few thousand parameters.</EM>
+ * NOTE: <em>Because the SLSQP code uses dense-matrix methods (ordinary BFGS, not low-storage BFGS),
+ * it requires O(n2) storage and O(n3) time in n dimensions, which makes it less practical for 
+ * optimizing more than a few thousand parameters.</em>
  *
  * This algorithm is a single-objective continuous minimiser that supports box constraints.
  *
