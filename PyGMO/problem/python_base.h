@@ -118,7 +118,25 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 			boost::python::override f = this->get_override("_compute_constraints_impl");
 			pagmo_assert(f);
 			return f(x);
-		}
+        }
+        bool py_compare_fitness_impl(const fitness_vector &f0, const fitness_vector &f1) const
+        {
+            boost::python::override f = this->get_override("_compare_fitness_impl");
+            pagmo_assert(f);
+            return f(f0, f1);
+        }
+        bool py_compare_constraints_impl(const constraint_vector &c0, const constraint_vector &c1) const
+        {
+            boost::python::override f = this->get_override("_compare_constraints_impl");
+            pagmo_assert(f);
+            return f(c0, c1);
+        }
+        bool py_compare_fc_impl(const fitness_vector &f0, const constraint_vector &c0, const fitness_vector &f1, const constraint_vector &c1) const
+        {
+            boost::python::override f = this->get_override("_compare_fc_impl");
+            pagmo_assert(f);
+            return f(f0, c0, f1, c1);
+        }
 	protected:
 		void objfun_impl(fitness_vector &f, const decision_vector &x) const
 		{
@@ -142,6 +160,36 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 				base::compute_constraints_impl(c,x);
 			}
 		}
+        bool compare_fitness_impl(const fitness_vector &f0, const fitness_vector &f1) const
+        {
+            if(this->get_override("_compare_fitness_impl")) {
+                // if the function is overidden, use it
+                return py_compare_fitness_impl(f0, f1);
+            } else {
+                // else, the base function is called directly
+                return problem::base::compare_fitness_impl(f0, f1);
+            }
+        }
+        bool compare_constraints_impl(const constraint_vector &c0, const constraint_vector &c1) const
+        {
+            if(this->get_override("_compare_constraints_impl")) {
+                // if the function is overidden, use it
+                return py_compare_constraints_impl(c0, c1);
+            } else {
+                // else, the base function is called directly
+                return problem::base::compare_constraints_impl(c0, c1);
+            }
+        }
+        bool compare_fc_impl(const fitness_vector &f0, const constraint_vector &c0, const fitness_vector &f1, const constraint_vector &c1) const
+        {
+            if(this->get_override("_compare_fc_impl")) {
+                // if the function is overidden, use it
+                return py_compare_fc_impl(f0, c0, f1, c1);
+            } else {
+                // else, the base function is called directly
+                return problem::base::compare_fc_impl(f0, c0, f1, c1);
+            }
+        }
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

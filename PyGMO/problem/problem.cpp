@@ -140,9 +140,12 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base::get_typename)
-		.def("_objfun_impl",&problem::python_base::py_objfun)
-		.def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
-		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
+        .def("_objfun_impl",&problem::python_base::py_objfun)
+        .def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
+        .def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
+        .def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
+        .def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
+        .def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
@@ -188,8 +191,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base_stochastic::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base_stochastic::get_typename)
 		.def("_objfun_impl",&problem::python_base_stochastic::py_objfun)
-		.def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
-		.def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
+        .def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
+        .def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
+        .def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
+        .def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
+        .def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
 	// Ackley problem.
