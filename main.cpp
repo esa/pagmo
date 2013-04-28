@@ -31,10 +31,12 @@ using namespace pagmo;
 
 int main()
 {
-	pagmo::algorithm::mde_pbx alg(1500, 0.15, 5, 1e-30, 1e-30);
+	pagmo::algorithm::mde_pbx alg(3000, 0.15, 1.5, 1e-30, 1e-30);
+	//pagmo::algorithm::de alg(1500,0.8,0.5,8);
 	alg.set_screen_output(true);
 	std::cout << alg << std::endl;
-	pagmo::problem::rastrigin prob(10);
+	pagmo::problem::rosenbrock prob(30);
+	prob.set_bounds(-100,100);
 	std::cout << prob << std::endl;
 	pagmo::island isl = island(alg, prob, 100);
 	for (size_t i = 0; i< 1; ++i){
