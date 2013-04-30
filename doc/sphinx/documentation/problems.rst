@@ -26,16 +26,17 @@ Common Name                        Name in PyGMO                             Com
 ================================== ========================================= ===========================================
 Ackley                             :class:`PyGMO.problem.ackley`            
 Bukin F6                           :class:`PyGMO.problem.bukin`              A difficult bi-dimensional problem
-Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
-Rastrigin                          :class:`PyGMO.problem.rastrigin`
-Schwefel                           :class:`PyGMO.problem.schwefel`
+Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
+CEC2013                            :class:`PyGMO.problem.cec2013`            28 problems part of CEC2013 Competition
 De Jong                            :class:`PyGMO.problem.dejong`
 De Jong                            :class:`PyGMO.problem.py_example`         Implemented directly in Python
 Griewank                           :class:`PyGMO.problem.griewank`
-Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
-Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
 Himmelblau                         :class:`PyGMO.problem.himmelblau`         Bi-dimensional problem
+Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
 Michalewicz                        :class:`PyGMO.problem.michalewicz`
+Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
+Rastrigin                          :class:`PyGMO.problem.rastrigin`
+Schwefel                           :class:`PyGMO.problem.schwefel`
 MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
 MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
@@ -183,6 +184,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.bukin
 
    .. automethod:: PyGMO.problem.bukin.__init__
+
+.. autoclass:: PyGMO.problem.cec2013
+
+   .. automethod:: PyGMO.problem.cec2013.__init__
 
 .. autoclass:: PyGMO.problem.rosenbrock
 

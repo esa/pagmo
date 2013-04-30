@@ -208,6 +208,26 @@ def _bukin_ctor(self):
 bukin._orig_init = bukin.__init__
 bukin.__init__ = _bukin_ctor
 
+def _cec2013_ctor(self, dim=10, prob_id=1, path="input_data/"):
+	"""
+	Constructs one of the 28 CEC2013 Competition Problems (Box-Constrained
+	Continuous Single-Objective)
+
+	NOTE: this problem requires two files to be put in the path indicated. "M_Dxx.txt" and "shift_data.txt"
+		  These files can be downloaded from the CEC2013 competition site
+
+	USAGE: problem.cec2013(dim = 10, prob_id=1, path="input_data/")
+
+	"""
+	arg_list=[]
+	arg_list.append(prob_id)
+	arg_list.append(dim)
+	arg_list.append(path)
+	self._orig_init(*arg_list)
+
+cec2013._orig_init = cec2013.__init__
+cec2013.__init__ = _cec2013_ctor
+
 def _michalewicz_ctor(self,dim = 10):
 	"""
 	Constructs a Michalewicz problem (Box-Constrained Continuous Single-Objective)
