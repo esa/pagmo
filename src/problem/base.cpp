@@ -454,9 +454,13 @@ return f;
  * @param[in] x decision vector whose fitness will be calculated.
  *
  * @return fitness vector of x.
+ * @throws value_error if the chromosome dimension does not match with the problem dimension
  */
 fitness_vector base::objfun(const decision_vector &x) const
 {
+	if (x.size()!=get_dimension()) {
+		pagmo_throw(value_error,"invalid chromosome length");
+	}
 	fitness_vector f(m_f_dimension);
 	objfun(f,x);
 	return f;

@@ -31,18 +31,12 @@ using namespace pagmo;
 
 int main()
 {
-	pagmo::algorithm::mde_pbx alg(1500, 0.15, 1.5, 1e-30, 1e-30);
-	alg.set_screen_output(true);
-	std::cout << alg << std::endl;
-	pagmo::problem::schwefel prob(30);
-	std::cout << prob << std::endl;
-	pagmo::island isl = island(alg, prob, 100);
-	for (size_t i = 0; i< 1; ++i){
-		isl.evolve(1);
-		std::cout << isl.get_population().champion().f << std::endl;
-		//std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
+	int d = 10;
+	for (int i=1;i<29;++i) {
+		pagmo::problem::cec2013 prob(i,d);
+		//std::cout << prob << std::endl;
+		std::vector<double> x(d,0);
+		std::cout << prob.objfun(x) <<std::endl;
 	}
-	isl.join(); //This is important to make sure the program is not terminated before the threads
-				//are destroyed, thus invoking illegal calls to pure virtual methods .....
 	return 0;
 }

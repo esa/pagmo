@@ -513,7 +513,7 @@ void jde::evolve(population &pop) const
 				if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
 					/* if so...*/
 					gbfit=newfitness;          /* reset gbfit to new low...*/
-					gbX=tmp;
+					gbX=popnew[i];
 				}
 			} else {
 				popnew[i] = popold[i];

@@ -57,12 +57,13 @@ namespace pagmo { namespace algorithm {
  * @see Sk. Minhazul Islam, S. Das, S. Ghosh, S. Roy, and P. N. Suganthan, "An Adaptive Differential Evolution Algorithm with Novel Mutation and Crossover Strategies for Global Numerical Optimization", IEEE Trans. on  Systems, Man, and Cybernetics, Part B: Cybernetics, Vol. 42, No. 2, pp.  482-500, 2012.
  *
  * @author Marcus Maertens (mmarcusx@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
  */
 
 class __PAGMO_VISIBLE mde_pbx : public base
 {
 public:
-	mde_pbx(int = 100, double = 0.15, double = 15, double = 1e-30, double = 1e-30);
+	mde_pbx(int = 100, double = 0.15, double = 1.5, double = 1e-30, double = 1e-30);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

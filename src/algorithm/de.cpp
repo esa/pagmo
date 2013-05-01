@@ -303,7 +303,7 @@ void de::evolve(population &pop) const
 				if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
 					/* if so...*/
 					gbfit=newfitness;          /* reset gbfit to new low...*/
-					gbX=tmp;
+					gbX=popnew[i];
 				}
 			} else {
 				popnew[i] = popold[i];
@@ -341,6 +341,15 @@ void de::evolve(population &pop) const
 				}
 				return;
 			}
+
+			// outputs current values
+			if (m_screen_output) {
+				std::cout << "Generation " << gen << " ***" << std::endl;
+				std::cout << "    Best global fitness: " << pop.champion().f << std::endl;
+				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
+				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
+			}
+
 		}
 		
 
