@@ -61,7 +61,7 @@ function evaluations (150000), we set up CMA-ES differently (i.e. we use a large
 		error.append(pop.champion.f[0] + 1400 - 100*i - 100*(i>13))
 	boxplot([error[s::28] for s in range(28)])
 
-Which helds the plot below.
+Which produces the plot below.
 
 .. image:: ../images/examples/ex6_cmaes_D_10.png
 
