@@ -55,6 +55,16 @@ class __PAGMO_VISIBLE cec2013 : public base
 	cec2013(unsigned int = 1, problem::base::size_type = 30, const std::string & = "input_data/");
 		base_ptr clone() const;
 		std::string get_name() const;
+
+		/** @name Getters.*/
+		//@{
+		/// Returns the origin shift used by the problem
+		/**
+		 * @returns the origin shift
+		 *
+		 */
+		std::vector<double> origin_shift() const {return m_origin_shift;}
+		//@}
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:

@@ -283,7 +283,8 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// CEC2013 Competition Problems.
 	problem_wrapper<problem::cec2013>("cec2013","CEC2013 Competition Problems.")
-			.def(init<unsigned int, problem::base::size_type, const std::string&>());
+			.def(init<unsigned int, problem::base::size_type, const std::string&>())
+			.add_property("origin_shift", &problem::cec2013::origin_shift, "Returns the origin shift used to define the problem");
 
 	// SNOPT toy problem.
 	problem_wrapper<problem::snopt_toyprob>("snopt_toyprob","SNOPT toy problem.");
