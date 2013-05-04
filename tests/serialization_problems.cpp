@@ -200,8 +200,8 @@ int main()
 		
 		{
 		decision_vector x(probs[i]->get_dimension(),0);
-		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),0);
-		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension());	
+		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),1);
+		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension(),1);
 		population pop(*probs[i],1);
 		x = pop.champion().x;
 		probs[i]->objfun(f1,x);
@@ -220,6 +220,8 @@ int main()
 			std::cout << " Constraints pass";
 		} else {
 			std::cout << " Constraints FAILED" << std::endl;
+			std::cout << " c1 = " << c1 << std::endl;
+			std::cout << " c2 = " << c2 << std::endl;
 			return 1;
 		}
 		}

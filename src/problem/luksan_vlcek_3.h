@@ -39,7 +39,9 @@ namespace pagmo { namespace problem {
 /**
  * Implementation of the Example 5.3 in "Sparse and Parially Separable
  * Test Problems for Unconstrained and Equality Constrained
- * Optimization" by Luksan and Vlcek. Code adapted from the Ipopt scalable problem examples
+ * Optimization" by Luksan and Vlcek. Equality constraints are transcribed as
+ * two inequality constraints lb <= g(x) <= ub. Setting lb=ub=0 (default choice) the
+ * problem is equivalent to the original LV problem.
  *
  * @author Dario Izzo (dario.izzo@esa.int)
  */
