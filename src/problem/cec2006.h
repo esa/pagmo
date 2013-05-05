@@ -90,6 +90,22 @@ class __PAGMO_VISIBLE cec2006 : public base
         void g15_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
         void g16_objfun_impl(fitness_vector &, const decision_vector &) const;
         void g16_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g17_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g17_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g18_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g18_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g19_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g19_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g20_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g20_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g21_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g21_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g22_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g22_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g23_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g23_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g24_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g24_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
 
         friend class boost::serialization::access;
         template <class Archive>

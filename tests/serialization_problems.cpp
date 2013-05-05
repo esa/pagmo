@@ -144,7 +144,7 @@ int main()
 	probs_new.push_back(problem::tsp().clone());
 
     //----- Test CEC2006 -----//
-    for(int i=1; i<=16; i++){
+    for(int i=1; i<=24; i++){
         probs.push_back(problem::cec2006(i).clone());
         probs_new.push_back(problem::cec2006(i).clone());
     }
