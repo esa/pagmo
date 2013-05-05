@@ -281,6 +281,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Bukin's f6 unction.
 	problem_wrapper<problem::bukin>("bukin","Bukin's f6 function.");
 
+	// CEC2006 Competition Problems.
+	problem_wrapper<problem::cec2006>("cec2006","CEC2006 Competition Problems.")
+			.def(init<unsigned int>());
+    
 	// CEC2013 Competition Problems.
 	problem_wrapper<problem::cec2013>("cec2013","CEC2013 Competition Problems.")
 			.def(init<unsigned int, problem::base::size_type, const std::string&>())

@@ -305,6 +305,22 @@ def _sch_ctor(self):
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
 
+def _cec2006_ctor(self, prob_id=1):
+	"""
+	Constructs one of the 24 CEC2006 Competition Problems (Constrained
+	Continuous Single-Objective)
+
+	USAGE: problem.cec2006(prob_id=1)
+	"""
+    
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(prob_id)
+	self._orig_init(*arg_list)
+
+cec2006._orig_init = cec2006.__init__
+cec2006.__init__ = _cec2006_ctor
+
 
 def _luksan_vlcek_1_ctor(self,dim = 3):
 	"""
