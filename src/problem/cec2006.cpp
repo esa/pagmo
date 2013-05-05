@@ -22,14 +22,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <boost/math/constants/constants.hpp>
+
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
 #include "cec2006.h"
 
+static int __check__(int N){
+	if (N > 24 || N < 1) {
+		pagmo_throw(value_error, "the problem id needs to be one of [1..24]");
+	}
+	return N;
+}
+
 namespace pagmo { namespace problem {
 
-const double PI = 4.* std::atan(1.);
+const double PI = boost::math::constants::pi<double>();
 
 // initialization of the problems, global constraints and inequality constraints dimension
 const decision_vector::size_type cec2006::m_problems_dimension[] =
@@ -45,7 +54,7 @@ const constraint_vector::size_type cec2006::m_problems_ic_dimension[] =
  *
  * @param[in] fun_id The problem id. One of [1,2,...,24]
  */
-cec2006::cec2006(unsigned int fun_id):base(m_problems_dimension[fun_id-1],0,1,m_problems_c_dimension[fun_id-1],m_problems_ic_dimension[fun_id-1]),m_problem_number(fun_id)
+cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,m_problems_c_dimension[__check__(fun_id)-1],m_problems_ic_dimension[__check__(fun_id)-1]),m_problem_number(__check__(fun_id))
 {
     // set the bounds for the current problem
     switch(m_problem_number)

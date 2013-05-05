@@ -39,6 +39,8 @@ namespace pagmo{ namespace problem {
  * on constrained real-parameter optimization problems that was organized in the
  * framework of the 2006 IEEE Congress on Evolutionary Computation.
  *
+ * NOTE: all problems are constrained, continuous, single objective problems.
+ *
  * @see http://www.ntu.edu.sg/home/EPNSugan/index_files/CEC-06/CEC06.htm
  *
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
@@ -47,7 +49,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE cec2006 : public base
 {
     public:
-        cec2006(unsigned int = 1);
+		cec2006(int = 1);
         base_ptr clone() const;
         std::string get_name() const;
 
@@ -110,10 +112,10 @@ class __PAGMO_VISIBLE cec2006 : public base
         void serialize(Archive &ar, const unsigned int)
         {
             ar & boost::serialization::base_object<base>(*this);
-            ar & const_cast<unsigned int&>(m_problem_number);
+			ar & const_cast<unsigned int&>(m_problem_number);
         }
 
-        const unsigned int m_problem_number;
+		const unsigned int m_problem_number;
 
         // no need to serialize these static vectors
         static const decision_vector::size_type m_problems_dimension[];

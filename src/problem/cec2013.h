@@ -40,9 +40,11 @@ namespace pagmo{ namespace problem {
  * single objective optimization problems that was organizd in the framework of the
  * 2013 IEEE Congress on Evolutionary Computation.
  *
- * Note: It requires the data files that can be downloaded from the link below
+ * NOTE: It requires the data files that can be downloaded from the link below
  * upon construction, it expects to find in the folder indicated by
  * the constructor argument std::string for two files named M_Dxx.txt and shift_data.txt.
+ *
+ * NOTE 2: all problems are unconstrained continuous single objective problems.
  *
  * @see http://www.ntu.edu.sg/home/EPNSugan/index_files/CEC2013/CEC2013.htm
  *

@@ -146,7 +146,7 @@ int main()
     //----- Test CEC2006 -----//
     for(int i=1; i<=24; i++){
         probs.push_back(problem::cec2006(i).clone());
-        probs_new.push_back(problem::cec2006(i).clone());
+		probs_new.push_back(problem::cec2006(i%24 + 1).clone());
     }
 
 	//----- Test meta-problems -----//
