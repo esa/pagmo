@@ -47,7 +47,7 @@ const constraint_vector::size_type cec2006::m_problems_ic_dimension[] =
  *
  * @param[in] fun_id The problem id. One of [1,2,...,24]
  */
-cec2006::cec2006(unsigned int fun_id):base(m_problems_dimension[fun_id],0,1,m_problems_c_dimension[fun_id],m_problems_ic_dimension[fun_id]),m_problem_number(fun_id)
+cec2006::cec2006(unsigned int fun_id):base(m_problems_dimension[fun_id-1],0,1,m_problems_c_dimension[fun_id-1],m_problems_ic_dimension[fun_id-1]),m_problem_number(fun_id)
 {
     // set the bounds for the current problem
     switch(m_problem_number)
@@ -194,6 +194,66 @@ void cec2006::objfun_impl(fitness_vector &f, const decision_vector &x) const
     case 4:
         this->g04_objfun_impl(f,x);
         break;
+    case 5:
+        this->g05_objfun_impl(f,x);
+        break;
+    case 6:
+        this->g06_objfun_impl(f,x);
+        break;
+    case 7:
+        this->g07_objfun_impl(f,x);
+        break;
+    case 8:
+        this->g08_objfun_impl(f,x);
+        break;
+    case 9:
+        this->g09_objfun_impl(f,x);
+        break;
+    case 10:
+        this->g10_objfun_impl(f,x);
+        break;
+    case 11:
+        this->g11_objfun_impl(f,x);
+        break;
+    case 12:
+        this->g12_objfun_impl(f,x);
+        break;
+    case 13:
+        this->g13_objfun_impl(f,x);
+        break;
+    case 14:
+        this->g14_objfun_impl(f,x);
+        break;
+    case 15:
+        this->g15_objfun_impl(f,x);
+        break;
+    case 16:
+        this->g16_objfun_impl(f,x);
+        break;/*
+    case 17:
+        this->g17_objfun_impl(f,x);
+        break;
+    case 18:
+        this->g18_objfun_impl(f,x);
+        break;
+    case 19:
+        this->g19_objfun_impl(f,x);
+        break;
+    case 20:
+        this->g20_objfun_impl(f,x);
+        break;
+    case 21:
+        this->g21_objfun_impl(f,x);
+        break;
+    case 22:
+        this->g22_objfun_impl(f,x);
+        break;
+    case 23:
+        this->g23_objfun_impl(f,x);
+        break;
+    case 24:
+        this->g24_objfun_impl(f,x);
+        break;*/
     default:
         pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
         break;
@@ -209,7 +269,74 @@ void cec2006::compute_constraints_impl(constraint_vector &c, const decision_vect
         this->g01_compute_constraints_impl(c,x);
         break;
     case 2:
+        this->g02_compute_constraints_impl(c,x);
         break;
+    case 3:
+        this->g03_compute_constraints_impl(c,x);
+        break;
+    case 4:
+        this->g04_compute_constraints_impl(c,x);
+        break;
+    case 5:
+        this->g05_compute_constraints_impl(c,x);
+        break;
+    case 6:
+        this->g06_compute_constraints_impl(c,x);
+        break;
+    case 7:
+        this->g07_compute_constraints_impl(c,x);
+        break;
+    case 8:
+        this->g08_compute_constraints_impl(c,x);
+        break;
+    case 9:
+        this->g09_compute_constraints_impl(c,x);
+        break;
+    case 10:
+        this->g10_compute_constraints_impl(c,x);
+        break;
+    case 11:
+        this->g11_compute_constraints_impl(c,x);
+        break;
+    case 12:
+        this->g12_compute_constraints_impl(c,x);
+        break;
+    case 13:
+        this->g13_compute_constraints_impl(c,x);
+        break;
+    case 14:
+        this->g14_compute_constraints_impl(c,x);
+        break;
+    case 15:
+        this->g15_compute_constraints_impl(c,x);
+        break;
+    case 16:
+        this->g16_compute_constraints_impl(c,x);
+        break;/*
+    case 17:
+        this->g17_compute_constraints_impl(c,x);
+        break;
+    case 18:
+        this->g18_compute_constraints_impl(c,x);
+        break;
+    case 19:
+        this->g019_compute_constraints_impl(c,x);
+        break;
+    case 20:
+        this->g20_compute_constraints_impl(c,x);
+        break;
+    case 21:
+        this->g21_compute_constraints_impl(c,x);
+        break;
+    case 22:
+        this->g22_compute_constraints_impl(c,x);
+        break;
+    case 23:
+        this->g23_compute_constraints_impl(c,x);
+        break;
+    case 24:
+        this->g24_compute_constraints_impl(c,x);
+        break;*/
     default:
         pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
         break;
@@ -431,417 +558,297 @@ void cec2006::g08_compute_constraints_impl(constraint_vector &c, const decision_
     c[1] = 1.0 - x[0] + (x[1] - 4.0) * (x[1] - 4.0);
 }
 
-//// -------------------------------------------
+// -------------------------------------------
 
-///// Default constructor
-//cec2006_g09::cec2006_g09():base(7,0,1,4,4)
-//{
-//}
+/// Implementation of the objective function.
+void cec2006::g09_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    /* objective function */
+    f[0] = (x[0] - 10.0) * (x[0] - 10.0) + 5.0 * (x[1] - 12.0) * (x[1] - 12.0) + pow (x[2], 4) +
+            3.0 * (x[3] - 11.0) * (x[3] - 11.0) + 10.0 * pow (x[4], 6) + 7.0 * x[5] * x[5] +
+            pow (x[6], 4) - 4.0 * x[5] * x[6] - 10.0 * x[5] - 8.0 * x[6];
+}
 
-///// Clone method.
-//base_ptr cec2006_g09::clone() const
-//{
-//    return base_ptr(new cec2006_g09(*this));
-//}
+/// Implementation of the constraint function.
+void cec2006::g09_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    /* constraints g<=0 */
+    c[0] = -127.0 + 2 * x[0] * x[0] + 3.0 * pow (x[1], 4) + x[2] + 4.0 * x[3] * x[3] + 5.0 * x[4];
+    c[1] = -282.0 + 7.0 * x[0] + 3.0 * x[1] + 10.0 * x[2] * x[2] + x[3] - x[4];
+    c[2] = -196.0 + 23.0 * x[0] + x[1] * x[1] + 6.0 * x[5] * x[5] - 8.0 * x[6];
+    c[3] = 4.0 * x[0] * x[0] + x[1] * x[1] - 3.0 * x[0] * x[1] + 2.0 * x[2] * x[2] + 5.0 * x[5] - 11.0 * x[6];
+}
 
-///// Implementation of the objective function.
-//void cec2006_g09::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    /* objective function */
-//    f[0] = (x[0] - 10.0) * (x[0] - 10.0) + 5.0 * (x[1] - 12.0) * (x[1] - 12.0) + pow (x[2], 4) +
-//            3.0 * (x[3] - 11.0) * (x[3] - 11.0) + 10.0 * pow (x[4], 6) + 7.0 * x[5] * x[5] +
-//            pow (x[6], 4) - 4.0 * x[5] * x[6] - 10.0 * x[5] - 8.0 * x[6];
-//}
+// -------------------------------------------
 
-///// Implementation of the constraint function.
-//void cec2006_g09::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    /* constraints g<=0 */
-//    c[0] = -127.0 + 2 * x[0] * x[0] + 3.0 * pow (x[1], 4) + x[2] + 4.0 * x[3] * x[3] + 5.0 * x[4];
-//    c[1] = -282.0 + 7.0 * x[0] + 3.0 * x[1] + 10.0 * x[2] * x[2] + x[3] - x[4];
-//    c[2] = -196.0 + 23.0 * x[0] + x[1] * x[1] + 6.0 * x[5] * x[5] - 8.0 * x[6];
-//    c[3] = 4.0 * x[0] * x[0] + x[1] * x[1] - 3.0 * x[0] * x[1] + 2.0 * x[2] * x[2] + 5.0 * x[5] - 11.0 * x[6];
-//}
 
-//std::string cec2006_g09::get_name() const
-//{
-//    return "CEC2006 - g09";
-//}
+/// Implementation of the objective function.
+void cec2006::g10_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    /* objective function */
+    f[0] = x[0] + x[1] + x[2];
+}
 
-//// -------------------------------------------
+/// Implementation of the constraint function.
+void cec2006::g10_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    /* constraints g<=0 */
+    c[0] = -1.0 + 0.0025 * (x[3] + x[5]);
+    c[1] = -1.0 + 0.0025 * (x[4] + x[6] - x[3]);
+    c[2] = -1.0 + 0.01 * (x[7] - x[4]);
+    c[3] = -x[0] * x[5] + 833.33252 * x[3] + 100.0 * x[0] - 83333.333;
+    c[4] = -x[1] * x[6] + 1250.0 * x[4] + x[1] * x[3] - 1250.0 * x[3];
+    c[5] = -x[2] * x[7] + 1250000.0 + x[2] * x[4] - 2500.0 * x[4];
+}
 
-///// Default constructor
-//cec2006_g10::cec2006_g10():base(8,0,1,6,6)
-//{
-//}
+// -------------------------------------------
 
-///// Clone method.
-//base_ptr cec2006_g10::clone() const
-//{
-//    return base_ptr(new cec2006_g10(*this));
-//}
+/// Implementation of the objective function.
+void cec2006::g11_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    /* objective function */
+    f[0] = x[0] * x[0] + (x[1] - 1.0) * (x[1] - 1.0);
+}
 
-///// Implementation of the objective function.
-//void cec2006_g10::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    /* objective function */
-//    f[0] = x[0] + x[1] + x[2];
-//}
+/// Implementation of the constraint function.
+void cec2006::g11_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    /* constraints h=0 */
+    c[0] = x[1] - x[0] * x[0];
+}
 
-///// Implementation of the constraint function.
-//void cec2006_g10::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    /* constraints g<=0 */
-//    c[0] = -1.0 + 0.0025 * (x[3] + x[5]);
-//    c[1] = -1.0 + 0.0025 * (x[4] + x[6] - x[3]);
-//    c[2] = -1.0 + 0.01 * (x[7] - x[4]);
-//    c[3] = -x[0] * x[5] + 833.33252 * x[3] + 100.0 * x[0] - 83333.333;
-//    c[4] = -x[1] * x[6] + 1250.0 * x[4] + x[1] * x[3] - 1250.0 * x[3];
-//    c[5] = -x[2] * x[7] + 1250000.0 + x[2] * x[4] - 2500.0 * x[4];
-//}
+// -------------------------------------------
 
-//std::string cec2006_g10::get_name() const
-//{
-//    return "CEC2006 - g10";
-//}
+/// Implementation of the objective function.
+void cec2006::g12_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    /* objective function */
+    f[0] = - (100. - (x[0] - 5.) * (x[0] - 5.) - (x[1] - 5.) * (x[1] - 5.) - (x[2] - 5.) * (x[2] - 5.)) / 100.;
+}
 
-//// -------------------------------------------
+/// Implementation of the constraint function.
+void cec2006::g12_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    double gt;
 
-///// Default constructor
-//cec2006_g11::cec2006_g11():base(2,0,1,1,0)
-//{
-//}
+    /* constraints g<=0 */
+    c[0] = (x[0] - 1.) * (x[0] - 1.) + (x[1] - 1.) * (x[1] - 1.) + (x[2] - 1.) * (x[2] - 1.) - 0.0625;
+    for (int i = 1; i <= 9; i++)
+    {
+        for (int j = 1; j <= 9; j++)
+        {
+            for (int k = 1; k <= 9; k++)
+            {
+                gt = (x[0] - i) * (x[0] - i) + (x[1] - j) * (x[1] - j) + (x[2] - k) * (x[2] - k) - 0.0625;
+                if (gt < c[0])
+                    c[0] = gt;
+            }
+        }
+    }
+}
 
-///// Clone method.
-//base_ptr cec2006_g11::clone() const
-//{
-//    return base_ptr(new cec2006_g11(*this));
-//}
+// -------------------------------------------
 
-///// Implementation of the objective function.
-//void cec2006_g11::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    /* objective function */
-//    f[0] = x[0] * x[0] + (x[1] - 1.0) * (x[1] - 1.0);
-//}
+/// Implementation of the objective function.
+void cec2006::g13_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    /* objective function */
+    f[0] = exp(x[0] * x[1] * x[2] * x[3] * x[4]);
+}
 
-///// Implementation of the constraint function.
-//void cec2006_g11::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    /* constraints h=0 */
-//    c[0] = x[1] - x[0] * x[0];
-//}
+/// Implementation of the constraint function.
+void cec2006::g13_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    /* constraints h(x) = 0 */
+    c[0] = x[0] * x[0] + x[1] * x[1] + x[2] * x[2] + x[3] * x[3] + x[4] * x[4] - 10.0;
+    c[1] = x[1] * x[2] - 5.0 * x[3] * x[4];
+    c[2] = pow(x[0], 3) + pow(x[1], 3) + 1.0;
+}
 
-//std::string cec2006_g11::get_name() const
-//{
-//    return "CEC2006 - g11";
-//}
+// -------------------------------------------
 
-//// -------------------------------------------
+/// Implementation of the objective function.
+void cec2006::g14_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    int i;
+    double sumlog = 0.0, sum = 0.0;
+    double C[10] = { -6.089, -17.164, -34.054, -5.914, -24.721, -14.986, -24.100, -10.708, -26.662, -22.179 };
 
-///// Default constructor
-//cec2006_g12::cec2006_g12():base(3,0,1,1,1)
-//{
-//}
+    /* objective function */
+    for (i = 0; i < 10; i++)
+        sumlog += x[i];
+    for (i = 0; i < 10; i++)
+        sum += x[i] * (C[i] + log (x[i] / sumlog));
+    f[0] = sum;
+}
 
-///// Clone method.
-//base_ptr cec2006_g12::clone() const
-//{
-//    return base_ptr(new cec2006_g12(*this));
-//}
+/// Implementation of the constraint function.
+void cec2006::g14_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    /* constraints h=0 */
+    c[0] = x[0] + 2.0 * x[1] + 2.0 * x[2] + x[5] + x[9] - 2.0;
+    c[1] = x[3] + 2.0 * x[4] + x[5] + x[6] - 1.0;
+    c[2] = x[2] + x[6] + x[7] + 2.0 * x[8] + x[9] - 1.0;
+}
 
-///// Implementation of the objective function.
-//void cec2006_g12::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    /* objective function */
-//    f[0] = - (100. - (x[0] - 5.) * (x[0] - 5.) - (x[1] - 5.) * (x[1] - 5.) - (x[2] - 5.) * (x[2] - 5.)) / 100.;
-//}
+// -------------------------------------------
 
-///// Implementation of the constraint function.
-//void cec2006_g12::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    double gt;
+/// Implementation of the objective function.
+void cec2006::g15_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    /* objective function */
+    f[0] = 1000.0 - pow(x[0], 2.0) - 2.0 * x[1] * x[1] - x[2] * x[2] - x[0] * x[1] - x[0] * x[2];
+}
 
-//    /* constraints g<=0 */
-//    g[0] = (x[0] - 1.) * (x[0] - 1.) + (x[1] - 1.) * (x[1] - 1.) + (x[2] - 1.) * (x[2] - 1.) - 0.0625;
-//    for (int i = 1; i <= 9; i++)
-//    {
-//        for (int j = 1; j <= 9; j++)
-//        {
-//            for (int k = 1; k <= 9; k++)
-//            {
-//                gt = (x[0] - i) * (x[0] - i) + (x[1] - j) * (x[1] - j) + (x[2] - k) * (x[2] - k) - 0.0625;
-//                if (gt < g[0])
-//                    g[0] = gt;
-//            }
-//        }
-//    }
-//}
+/// Implementation of the constraint function.
+void cec2006::g15_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    /* constraints h=0 */
+    c[0] = pow(x[0], 2.0) + pow(x[1], 2.0) + pow(x[2], 2.0) - 25.0;
+    c[1] = 8.0 * x[0] + 14.0 * x[1] + 7.0 * x[2] - 56.0;
+}
 
-//std::string cec2006_g12::get_name() const
-//{
-//    return "CEC2006 - g12";
-//}
+// -------------------------------------------
 
-//// -------------------------------------------
+/// Implementation of the objective function.
+void cec2006::g16_objfun_impl(fitness_vector &f, const decision_vector &x) const
+{
+    double x1, x2, x3, x4, x5;
+    double C[17], Y[17];
 
-///// Default constructor
-//cec2006_g13::cec2006_g13():base(5,0,1,3,0)
-//{
-//}
+    x1 = x[0];
+    x2 = x[1];
+    x3 = x[2];
+    x4 = x[3];
+    x5 = x[4];
 
-///// Clone method.
-//base_ptr cec2006_g13::clone() const
-//{
-//    return base_ptr(new cec2006_g13(*this));
-//}
+    Y[0] = x2 + x3 + 41.6;
+    C[0] = 0.024 * x4 - 4.62;
+    Y[1] = (12.5 / C[0]) + 12.0;
+    C[1] = 0.0003535 * pow (x1, 2.0) + 0.5311 * x1 + 0.08705 * Y[1] * x1;
+    C[2] = 0.052 * x1 + 78.0 + 0.002377 * Y[1] * x1;
+    Y[2] = C[1] / C[2];
+    Y[3] = 19.0 * Y[2];
+    C[3] = 0.04782 * (x1 - Y[2]) + ((0.1956 * pow (x1 - Y[2], 2.0)) / x2) + 0.6376 * Y[3] + 1.594 * Y[2];
+    C[4] = 100 * x2;
+    C[5] = x1 - Y[2] - Y[3];
+    C[6] = 0.950 - (C[3] / C[4]);
+    Y[4] = C[5] * C[6];
+    Y[5] = x1 - Y[4] - Y[3] - Y[2];
+    C[7] = (Y[4] + Y[3]) * 0.995;
+    Y[6] = C[7] / Y[0];
+    Y[7] = C[7] / 3798.0;
+    C[8] = Y[6] - (0.0663 * Y[6] / Y[7]) - 0.3153;
+    Y[8] = (96.82 / C[8]) + 0.321 * Y[0];
+    Y[9] = 1.29 * Y[4] + 1.258 * Y[3] + 2.29 * Y[2] + 1.71 * Y[5];
+    Y[10] = 1.71 * x1 - 0.452 * Y[3] + 0.580 * Y[2];
+    C[9] = 12.3 / 752.3;
+    C[10] = 1.75 * Y[1] * 0.995 * x1;
+    C[11] = 0.995 * Y[9] + 1998.0;
+    Y[11] = C[9] * x1 + (C[10] / C[11]);
+    Y[12] = C[11] - 1.75 * Y[1];
+    Y[13] = 3623.0 + 64.4 * x2 + 58.4 * x3 + (146312.0 / (Y[8] + x5));
+    C[12] = 0.995 * Y[9] + 60.8 * x2 + 48 * x4 - 0.1121 * Y[13] - 5095.0;
+    Y[14] = Y[12] / C[12];
+    Y[15] = 148000.0 - 331000.0 * Y[14] + 40.0 * Y[12] - 61.0 * Y[14] * Y[12];
+    C[13] = 2324 * Y[9] - 28740000 * Y[1];
+    Y[16] = 14130000 - 1328.0 * Y[9] - 531.0 * Y[10] + (C[13] / C[11]);
+    C[14] = (Y[12] / Y[14]) - (Y[12] / 0.52);
+    C[15] = 1.104 - 0.72 * Y[14];
+    C[16] = Y[8] + x5;
 
-///// Implementation of the objective function.
-//void cec2006_g13::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    /* objective function */
-//    f[0] = exp(x[0] * x[1] * x[2] * x[3] * x[4]);
-//}
+    /* objective function */
+    f[0] = 0.0000005843 * Y[16] - 0.000117 * Y[13] - 0.1365 - 0.00002358 * Y[12] - 0.000001502 * Y[15] - 0.0321 * Y[11] - 0.004324 * Y[4] - 0.0001 * (C[14] / C[15]) - 37.48 * (Y[1] / C[11]);
+    f[0] = -f[0]; /* Max-->Min, Modified by Jane,Nov 22 2005 */
+}
 
-///// Implementation of the constraint function.
-//void cec2006_g13::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    /* constraints h(x) = 0 */
-//    c[0] = x[0] * x[0] + x[1] * x[1] + x[2] * x[2] + x[3] * x[3] + x[4] * x[4] - 10.0;
-//    c[1] = x[1] * x[2] - 5.0 * x[3] * x[4];
-//    c[2] = pow(x[0], 3) + pow(x[1], 3) + 1.0;
-//}
+/// Implementation of the constraint function.
+void cec2006::g16_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+    double C[17];
+    double Y[17];
 
-//std::string cec2006_g13::get_name() const
-//{
-//    return "CEC2006 - g13";
-//}
+    double x1 = x[0];
+    double x2 = x[1];
+    double x3 = x[2];
+    double x4 = x[3];
+    double x5 = x[4];
 
-//// -------------------------------------------
+    Y[0] = x2 + x3 + 41.6;
+    C[0] = 0.024 * x4 - 4.62;
+    Y[1] = (12.5 / C[0]) + 12.0;
+    C[1] = 0.0003535 * pow (x1, 2.0) + 0.5311 * x1 + 0.08705 * Y[1] * x1;
+    C[2] = 0.052 * x1 + 78.0 + 0.002377 * Y[1] * x1;
+    Y[2] = C[1] / C[2];
+    Y[3] = 19.0 * Y[2];
+    C[3] = 0.04782 * (x1 - Y[2]) + ((0.1956 * pow (x1 - Y[2], 2.0)) / x2) + 0.6376 * Y[3] + 1.594 * Y[2];
+    C[4] = 100 * x2;
+    C[5] = x1 - Y[2] - Y[3];
+    C[6] = 0.950 - (C[3] / C[4]);
+    Y[4] = C[5] * C[6];
+    Y[5] = x1 - Y[4] - Y[3] - Y[2];
+    C[7] = (Y[4] + Y[3]) * 0.995;
+    Y[6] = C[7] / Y[0];
+    Y[7] = C[7] / 3798.0;
+    C[8] = Y[6] - (0.0663 * Y[6] / Y[7]) - 0.3153;
+    Y[8] = (96.82 / C[8]) + 0.321 * Y[0];
+    Y[9] = 1.29 * Y[4] + 1.258 * Y[3] + 2.29 * Y[2] + 1.71 * Y[5];
+    Y[10] = 1.71 * x1 - 0.452 * Y[3] + 0.580 * Y[2];
+    C[9] = 12.3 / 752.3;
+    C[10] = 1.75 * Y[1] * 0.995 * x1;
+    C[11] = 0.995 * Y[9] + 1998.0;
+    Y[11] = C[9] * x1 + (C[10] / C[11]);
+    Y[12] = C[11] - 1.75 * Y[1];
+    Y[13] = 3623.0 + 64.4 * x2 + 58.4 * x3 + (146312.0 / (Y[8] + x5));
+    C[12] = 0.995 * Y[9] + 60.8 * x2 + 48 * x4 - 0.1121 * Y[13] - 5095.0;
+    Y[14] = Y[12] / C[12];
+    Y[15] = 148000.0 - 331000.0 * Y[14] + 40.0 * Y[12] - 61.0 * Y[14] * Y[12];
+    C[13] = 2324 * Y[9] - 28740000 * Y[1];
+    Y[16] = 14130000 - 1328.0 * Y[9] - 531.0 * Y[10] + (C[13] / C[11]);
+    C[14] = (Y[12] / Y[14]) - (Y[12] / 0.52);
+    C[15] = 1.104 - 0.72 * Y[14];
+    C[16] = Y[8] + x5;
 
-///// Default constructor
-//cec2006_g14::cec2006_g14():base(10,0,1,3,0)
-//{
-//}
-
-///// Clone method.
-//base_ptr cec2006_g14::clone() const
-//{
-//    return base_ptr(new cec2006_g14(*this));
-//}
-
-///// Implementation of the objective function.
-//void cec2006_g14::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    int i;
-//    double sumlog = 0.0, sum = 0.0;
-//    double C[10] = { -6.089, -17.164, -34.054, -5.914, -24.721, -14.986, -24.100, -10.708, -26.662, -22.179 };
-
-//    /* objective function */
-//    for (i = 0; i < 10; i++)
-//        sumlog += x[i];
-//    for (i = 0; i < 10; i++)
-//        sum += x[i] * (C[i] + log (x[i] / sumlog));
-//    f[0] = sum;
-//}
-
-///// Implementation of the constraint function.
-//void cec2006_g14::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    /* constraints h=0 */
-//    c[0] = x[0] + 2.0 * x[1] + 2.0 * x[2] + x[5] + x[9] - 2.0;
-//    c[1] = x[3] + 2.0 * x[4] + x[5] + x[6] - 1.0;
-//    c[2] = x[2] + x[6] + x[7] + 2.0 * x[8] + x[9] - 1.0;
-//}
-
-//std::string cec2006_g14::get_name() const
-//{
-//    return "CEC2006 - g14";
-//}
-
-//// -------------------------------------------
-
-///// Default constructor
-//cec2006_g15::cec2006_g15():base(3,0,1,2,0)
-//{
-//}
-
-///// Clone method.
-//base_ptr cec2006_g15::clone() const
-//{
-//    return base_ptr(new cec2006_g15(*this));
-//}
-
-///// Implementation of the objective function.
-//void cec2006_g15::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    /* objective function */
-//    f[0] = 1000.0 - pow(x[0], 2.0) - 2.0 * x[1] * x[1] - x[2] * x[2] - x[0] * x[1] - x[0] * x[2];
-//}
-
-///// Implementation of the constraint function.
-//void cec2006_g15::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    /* constraints h=0 */
-//    h[0] = pow(x[0], 2.0) + pow(x[1], 2.0) + pow(x[2], 2.0) - 25.0;
-//    h[1] = 8.0 * x[0] + 14.0 * x[1] + 7.0 * x[2] - 56.0;
-//}
-
-//std::string cec2006_g15::get_name() const
-//{
-//    return "CEC2006 - g15";
-//}
-
-//// -------------------------------------------
-
-///// Default constructor
-//cec2006_g16::cec2006_g16():base(5,0,1,38,38)
-//{
-//}
-
-///// Clone method.
-//base_ptr cec2006_g16::clone() const
-//{
-//    return base_ptr(new cec2006_g16(*this));
-//}
-
-///// Implementation of the objective function.
-//void cec2006_g16::objfun_impl(fitness_vector &f, const decision_vector &x) const
-//{
-//    double x1, x2, x3, x4, x5;
-//    double C[17], Y[17];
-
-//    x1 = x[0];
-//    x2 = x[1];
-//    x3 = x[2];
-//    x4 = x[3];
-//    x5 = x[4];
-
-//    Y[0] = x2 + x3 + 41.6;
-//    C[0] = 0.024 * x4 - 4.62;
-//    Y[1] = (12.5 / C[0]) + 12.0;
-//    C[1] = 0.0003535 * pow (x1, 2.0) + 0.5311 * x1 + 0.08705 * Y[1] * x1;
-//    C[2] = 0.052 * x1 + 78.0 + 0.002377 * Y[1] * x1;
-//    Y[2] = C[1] / C[2];
-//    Y[3] = 19.0 * Y[2];
-//    C[3] = 0.04782 * (x1 - Y[2]) + ((0.1956 * pow (x1 - Y[2], 2.0)) / x2) + 0.6376 * Y[3] + 1.594 * Y[2];
-//    C[4] = 100 * x2;
-//    C[5] = x1 - Y[2] - Y[3];
-//    C[6] = 0.950 - (C[3] / C[4]);
-//    Y[4] = C[5] * C[6];
-//    Y[5] = x1 - Y[4] - Y[3] - Y[2];
-//    C[7] = (Y[4] + Y[3]) * 0.995;
-//    Y[6] = C[7] / Y[0];
-//    Y[7] = C[7] / 3798.0;
-//    C[8] = Y[6] - (0.0663 * Y[6] / Y[7]) - 0.3153;
-//    Y[8] = (96.82 / C[8]) + 0.321 * Y[0];
-//    Y[9] = 1.29 * Y[4] + 1.258 * Y[3] + 2.29 * Y[2] + 1.71 * Y[5];
-//    Y[10] = 1.71 * x1 - 0.452 * Y[3] + 0.580 * Y[2];
-//    C[9] = 12.3 / 752.3;
-//    C[10] = 1.75 * Y[1] * 0.995 * x1;
-//    C[11] = 0.995 * Y[9] + 1998.0;
-//    Y[11] = C[9] * x1 + (C[10] / C[11]);
-//    Y[12] = C[11] - 1.75 * Y[1];
-//    Y[13] = 3623.0 + 64.4 * x2 + 58.4 * x3 + (146312.0 / (Y[8] + x5));
-//    C[12] = 0.995 * Y[9] + 60.8 * x2 + 48 * x4 - 0.1121 * Y[13] - 5095.0;
-//    Y[14] = Y[12] / C[12];
-//    Y[15] = 148000.0 - 331000.0 * Y[14] + 40.0 * Y[12] - 61.0 * Y[14] * Y[12];
-//    C[13] = 2324 * Y[9] - 28740000 * Y[1];
-//    Y[16] = 14130000 - 1328.0 * Y[9] - 531.0 * Y[10] + (C[13] / C[11]);
-//    C[14] = (Y[12] / Y[14]) - (Y[12] / 0.52);
-//    C[15] = 1.104 - 0.72 * Y[14];
-//    C[16] = Y[8] + x5;
-
-//    /* objective function */
-//    f[0] = 0.0000005843 * Y[16] - 0.000117 * Y[13] - 0.1365 - 0.00002358 * Y[12] - 0.000001502 * Y[15] - 0.0321 * Y[11] - 0.004324 * Y[4] - 0.0001 * (C[14] / C[15]) - 37.48 * (Y[1] / C[11]);
-//    f[0] = -f[0]; /* Max-->Min, Modified by Jane,Nov 22 2005 */
-//}
-
-///// Implementation of the constraint function.
-//void cec2006_g16::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-//{
-//    double Y[17];
-
-//    Y[0] = x2 + x3 + 41.6;
-//    C[0] = 0.024 * x4 - 4.62;
-//    Y[1] = (12.5 / C[0]) + 12.0;
-//    C[1] = 0.0003535 * pow (x1, 2.0) + 0.5311 * x1 + 0.08705 * Y[1] * x1;
-//    C[2] = 0.052 * x1 + 78.0 + 0.002377 * Y[1] * x1;
-//    Y[2] = C[1] / C[2];
-//    Y[3] = 19.0 * Y[2];
-//    C[3] = 0.04782 * (x1 - Y[2]) + ((0.1956 * pow (x1 - Y[2], 2.0)) / x2) + 0.6376 * Y[3] + 1.594 * Y[2];
-//    C[4] = 100 * x2;
-//    C[5] = x1 - Y[2] - Y[3];
-//    C[6] = 0.950 - (C[3] / C[4]);
-//    Y[4] = C[5] * C[6];
-//    Y[5] = x1 - Y[4] - Y[3] - Y[2];
-//    C[7] = (Y[4] + Y[3]) * 0.995;
-//    Y[6] = C[7] / Y[0];
-//    Y[7] = C[7] / 3798.0;
-//    C[8] = Y[6] - (0.0663 * Y[6] / Y[7]) - 0.3153;
-//    Y[8] = (96.82 / C[8]) + 0.321 * Y[0];
-//    Y[9] = 1.29 * Y[4] + 1.258 * Y[3] + 2.29 * Y[2] + 1.71 * Y[5];
-//    Y[10] = 1.71 * x1 - 0.452 * Y[3] + 0.580 * Y[2];
-//    C[9] = 12.3 / 752.3;
-//    C[10] = 1.75 * Y[1] * 0.995 * x1;
-//    C[11] = 0.995 * Y[9] + 1998.0;
-//    Y[11] = C[9] * x1 + (C[10] / C[11]);
-//    Y[12] = C[11] - 1.75 * Y[1];
-//    Y[13] = 3623.0 + 64.4 * x2 + 58.4 * x3 + (146312.0 / (Y[8] + x5));
-//    C[12] = 0.995 * Y[9] + 60.8 * x2 + 48 * x4 - 0.1121 * Y[13] - 5095.0;
-//    Y[14] = Y[12] / C[12];
-//    Y[15] = 148000.0 - 331000.0 * Y[14] + 40.0 * Y[12] - 61.0 * Y[14] * Y[12];
-//    C[13] = 2324 * Y[9] - 28740000 * Y[1];
-//    Y[16] = 14130000 - 1328.0 * Y[9] - 531.0 * Y[10] + (C[13] / C[11]);
-//    C[14] = (Y[12] / Y[14]) - (Y[12] / 0.52);
-//    C[15] = 1.104 - 0.72 * Y[14];
-//    C[16] = Y[8] + x5;
-
-//    /* constraints g(x) <= 0 */
-//    g[0] = -Y[3] + (0.28 / 0.72) * Y[4];
-//    g[1] = -1.5 * x2 + x3;
-//    g[2] = -21.0 + 3496.0 * (Y[1] / C[11]);
-//    g[3] = -(62212.0 / C[16]) + 110.6 + Y[0];
-//    g[4] = 213.1 - Y[0];
-//    g[5] = Y[0] - 405.23;
-//    g[6] = 17.505 - Y[1];
-//    g[7] = Y[1] - 1053.6667;
-//    g[8] = 11.275 - Y[2];
-//    g[9] = Y[2] - 35.03;
-//    g[10] = 214.228 - Y[3];
-//    g[11] = Y[3] - 665.585;
-//    g[12] = 7.458 - Y[4];
-//    g[13] = Y[4] - 584.463;
-//    g[14] = 0.961 - Y[5];
-//    g[15] = Y[5] - 265.916;
-//    g[16] = 1.612 - Y[6];
-//    g[17] = Y[6] - 7.046;
-//    g[18] = 0.146 - Y[7];
-//    g[19] = Y[7] - 0.222;
-//    g[20] = 107.99 - Y[8];
-//    g[21] = Y[8] - 273.366;
-//    g[22] = 922.693 - Y[9];
-//    g[23] = Y[9] - 1286.105;
-//    g[24] = 926.832 - Y[10];
-//    g[25] = Y[10] - 1444.046;
-//    g[26] = 18.766 - Y[11];
-//    g[27] = Y[11] - 537.141;
-//    g[28] = 1072.163 - Y[12];
-//    g[29] = Y[12] - 3247.039;
-//    g[30] = 8961.448 - Y[13];
-//    g[31] = Y[13] - 26844.086;
-//    g[32] = 0.063 - Y[14];
-//    g[33] = Y[14] - 0.386;
-//    g[34] = 71084.33 - Y[15];
-//    g[35] = Y[15] - 140000.0;
-//    g[36] = 2802713.0 - Y[16];
-//    g[37] = Y[16] - 12146108.0;
-//}
-
-//std::string cec2006_g16::get_name() const
-//{
-//    return "CEC2006 - g16";
-//}
+    /* constraints g(x) <= 0 */
+    c[0] = -Y[3] + (0.28 / 0.72) * Y[4];
+    c[1] = -1.5 * x2 + x3;
+    c[2] = -21.0 + 3496.0 * (Y[1] / C[11]);
+    c[3] = -(62212.0 / C[16]) + 110.6 + Y[0];
+    c[4] = 213.1 - Y[0];
+    c[5] = Y[0] - 405.23;
+    c[6] = 17.505 - Y[1];
+    c[7] = Y[1] - 1053.6667;
+    c[8] = 11.275 - Y[2];
+    c[9] = Y[2] - 35.03;
+    c[10] = 214.228 - Y[3];
+    c[11] = Y[3] - 665.585;
+    c[12] = 7.458 - Y[4];
+    c[13] = Y[4] - 584.463;
+    c[14] = 0.961 - Y[5];
+    c[15] = Y[5] - 265.916;
+    c[16] = 1.612 - Y[6];
+    c[17] = Y[6] - 7.046;
+    c[18] = 0.146 - Y[7];
+    c[19] = Y[7] - 0.222;
+    c[20] = 107.99 - Y[8];
+    c[21] = Y[8] - 273.366;
+    c[22] = 922.693 - Y[9];
+    c[23] = Y[9] - 1286.105;
+    c[24] = 926.832 - Y[10];
+    c[25] = Y[10] - 1444.046;
+    c[26] = 18.766 - Y[11];
+    c[27] = Y[11] - 537.141;
+    c[28] = 1072.163 - Y[12];
+    c[29] = Y[12] - 3247.039;
+    c[30] = 8961.448 - Y[13];
+    c[31] = Y[13] - 26844.086;
+    c[32] = 0.063 - Y[14];
+    c[33] = Y[14] - 0.386;
+    c[34] = 71084.33 - Y[15];
+    c[35] = Y[15] - 140000.0;
+    c[36] = 2802713.0 - Y[16];
+    c[37] = Y[16] - 12146108.0;
+}
 
 // -------------------------------------------
 

@@ -37,7 +37,8 @@ namespace pagmo{ namespace problem {
 /// The CEC 2006 problems: Constrained Real-Parameter Optimization
 /**
  *
- * This class allows to instantiate any of the 24 problems of the competition on constrained real-parameter optimization problems that was organized in the
+ * This class allows to instantiate any of the 24 problems of the competition
+ * on constrained real-parameter optimization problems that was organized in the
  * framework of the 2006 IEEE Congress on Evolutionary Computation.
  *
  * @see http://www.ntu.edu.sg/home/EPNSugan/index_files/CEC-06/CEC06.htm
@@ -73,6 +74,22 @@ class __PAGMO_VISIBLE cec2006 : public base
         void g07_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
         void g08_objfun_impl(fitness_vector &, const decision_vector &) const;
         void g08_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g09_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g09_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g10_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g10_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g11_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g11_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g12_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g12_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g13_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g13_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g14_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g14_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g15_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g15_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+        void g16_objfun_impl(fitness_vector &, const decision_vector &) const;
+        void g16_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
 
         friend class boost::serialization::access;
         template <class Archive>

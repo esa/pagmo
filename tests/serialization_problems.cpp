@@ -143,6 +143,12 @@ int main()
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
 
+    //----- Test CEC2006 -----//
+    for(int i=1; i<=16; i++){
+        probs.push_back(problem::cec2006(i).clone());
+        probs_new.push_back(problem::cec2006(i).clone());
+    }
+
 	//----- Test meta-problems -----//
 	problem::zdt1 zdt1_before_transform1(dimension);
 	//----- shifted -----//
@@ -176,7 +182,6 @@ int main()
 	probs_new.push_back(problem::mga_1dsm_tof().clone());
 #endif	
 
-	
 	//serialize probs and deserialize into probs_new checking they are then identical
 	for (size_t i=0; i< probs.size(); ++i) {
 		{
