@@ -25,8 +25,6 @@
 #ifndef PAGMO_PROBLEM_CEC2006_H
 #define PAGMO_PROBLEM_CEC2006_H
 
-#include <string>
-
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
@@ -115,11 +113,12 @@ class __PAGMO_VISIBLE cec2006 : public base
             ar & const_cast<unsigned int&>(m_problem_number);
         }
 
+        const unsigned int m_problem_number;
+
+        // no need to serialize these static vectors
         static const decision_vector::size_type m_problems_dimension[];
         static const constraint_vector::size_type m_problems_c_dimension[];
         static const constraint_vector::size_type m_problems_ic_dimension[];
-
-        const unsigned int m_problem_number;
 };
 
 }} //namespaces
