@@ -79,7 +79,7 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 	* gen: number of generations
 	* variant: algoritmic variant to use (one of [1 .. 18])
 		1. best/1/exp				2. rand/1/exp
-		3. rand-to-best/1/exp			4. best/2/exp
+		3. rand-to-best/1/exp		4. best/2/exp
 		5. rand/2/exp				6. best/1/bin
 		7. rand/1/bin				8. rand-to-best/1/bin
 		9. best/2/bin				10. rand/2/bin
@@ -93,7 +93,7 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 	* xtol: stop criteria on x
 	* memory: if True the algorithm internal state is saved and used for the next call
 	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
-	* 		 different island outputs)
+	*				 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]

@@ -143,6 +143,12 @@ int main()
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
 
+    //----- Test CEC2006 -----//
+    for(int i=1; i<=24; i++){
+        probs.push_back(problem::cec2006(i).clone());
+		probs_new.push_back(problem::cec2006(i%24 + 1).clone());
+    }
+
 	//----- Test meta-problems -----//
 	problem::zdt1 zdt1_before_transform1(dimension);
 	//----- shifted -----//
@@ -176,7 +182,6 @@ int main()
 	probs_new.push_back(problem::mga_1dsm_tof().clone());
 #endif	
 
-	
 	//serialize probs and deserialize into probs_new checking they are then identical
 	for (size_t i=0; i< probs.size(); ++i) {
 		{
@@ -200,8 +205,8 @@ int main()
 		
 		{
 		decision_vector x(probs[i]->get_dimension(),0);
-		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),0);
-		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension());	
+		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),1);
+		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension(),1);
 		population pop(*probs[i],1);
 		x = pop.champion().x;
 		probs[i]->objfun(f1,x);
@@ -220,6 +225,8 @@ int main()
 			std::cout << " Constraints pass";
 		} else {
 			std::cout << " Constraints FAILED" << std::endl;
+			std::cout << " c1 = " << c1 << std::endl;
+			std::cout << " c2 = " << c2 << std::endl;
 			return 1;
 		}
 		}

@@ -81,6 +81,7 @@ Constrained Continuous Single-Objective
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
+CEC2006                            :class:`PyGMO.problem.cec2006`            24 problems part of CEC2006 Competition
 Luksan Vlcek 1                     :class:`PyGMO.problem.luksan_vlcek_1`
 Luksan Vlcek 2                     :class:`PyGMO.problem.luksan_vlcek_2`
 Luksan Vlcek 3                     :class:`PyGMO.problem.luksan_vlcek_3`
@@ -185,6 +186,10 @@ Detailed Documentation
 
    .. automethod:: PyGMO.problem.bukin.__init__
 
+.. autoclass:: PyGMO.problem.cec2006
+
+   .. automethod:: PyGMO.problem.cec2006.__init__
+   
 .. autoclass:: PyGMO.problem.cec2013
 
    .. automethod:: PyGMO.problem.cec2013.__init__

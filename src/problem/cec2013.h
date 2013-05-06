@@ -40,9 +40,11 @@ namespace pagmo{ namespace problem {
  * single objective optimization problems that was organizd in the framework of the
  * 2013 IEEE Congress on Evolutionary Computation.
  *
- * Note: It requires the data files that can be downloaded from the link below
+ * NOTE: It requires the data files that can be downloaded from the link below
  * upon construction, it expects to find in the folder indicated by
  * the constructor argument std::string for two files named M_Dxx.txt and shift_data.txt.
+ *
+ * NOTE 2: all problems are unconstrained continuous single objective problems.
  *
  * @see http://www.ntu.edu.sg/home/EPNSugan/index_files/CEC2013/CEC2013.htm
  *
@@ -55,6 +57,16 @@ class __PAGMO_VISIBLE cec2013 : public base
 	cec2013(unsigned int = 1, problem::base::size_type = 30, const std::string & = "input_data/");
 		base_ptr clone() const;
 		std::string get_name() const;
+
+		/** @name Getters.*/
+		//@{
+		/// Returns the origin shift used by the problem
+		/**
+		 * @returns the origin shift
+		 *
+		 */
+		std::vector<double> origin_shift() const {return m_origin_shift;}
+		//@}
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
