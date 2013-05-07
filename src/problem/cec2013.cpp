@@ -510,7 +510,7 @@ void cec2013::ackley_func (const double *x, double *f, int nx, const double *Os,
 void cec2013::weierstrass_func (const double *x, double *f, int nx, const double *Os,const double *Mr,int r_flag) const /* Weierstrass's  */
 {
 	int i,j,k_max;
-	double sum,sum2, a, b;
+	double sum=0,sum2=0, a, b;
 
 	shiftfunc(x, &m_y[0], nx, Os);
 	for (i=0; i<nx; i++)//shrink to the orginal search range
@@ -1082,7 +1082,7 @@ void cec2013::asyfunc (const double *x, double *xasy, int nx, double beta) const
 void cec2013::oszfunc (const double *x, double *xosz, int nx) const
 {
 	int i,sx;
-	double c1,c2,xx;
+	double c1,c2,xx=0;
 	for (i=0; i<nx; i++)
 	{
 		if (i==0||i==nx-1)

@@ -139,7 +139,7 @@ void mde_pbx::evolve(population &pop) const
 	population::size_type p;
 	population::size_type r1, r2, bestq_idx, bestp_idx, j_rand;
 	std::vector<population::size_type> a(NP-1,0);
-	double cri, fi, wcr, wf;
+	double cri, fi; //, wcr, wf;
 
 	// **** Main Loop of MDE-pBX ****
 	for (int gen = 0; gen < m_gen; ++gen) {

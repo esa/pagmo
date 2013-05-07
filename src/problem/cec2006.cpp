@@ -242,7 +242,6 @@ base_ptr cec2006::clone() const
 /// Implementation of the objective function.
 void cec2006::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-    size_type nx = get_dimension();
     switch(m_problem_number)
     {
     case 1:
@@ -909,7 +908,7 @@ void cec2006::g16_compute_constraints_impl(constraint_vector &c, const decision_
 /// Implementation of the objective function.
 void cec2006::g17_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-    double f1, f2, x1, x2, x3, x4, x5, x6;
+    double f1=0, f2=0, x1, x2, x3, x4, x5, x6;
     double aux1, aux2, aux5, aux4;
 
     x1 = x[0];
@@ -1006,11 +1005,11 @@ void cec2006::g19_objfun_impl(fitness_vector &f, const decision_vector &x) const
     double sum3 = 0.0;
 
     double B[10] = {-40.0,-2.0,-0.25,-4.0,-4.0,-1.0,-40.0,-60.0,5.0,1.0};
-    double C[5][5] = {30.0,-20.0,-10.0,32.0,-10.0,
-                      -20.0,39.0,-6.0,-31.0,32.0,
-                      -10.0,-6.0,10.0,-6.0,-10.0,
-                      32.0,-31.0,-6.0,39.0,-20.0,
-                      -10.0,32.0,-10.0,-20.0,30.0
+    double C[5][5] = {{30.0,-20.0,-10.0,32.0,-10.0},
+                      {-20.0,39.0,-6.0,-31.0,32.0},
+                      {-10.0,-6.0,10.0,-6.0,-10.0},
+                      {32.0,-31.0,-6.0,39.0,-20.0},
+                      {-10.0,32.0,-10.0,-20.0,30.0}
                      };
     double D[5] = {4.0,8.0,10.0,6.0,2.0};
 
@@ -1037,23 +1036,23 @@ void cec2006::g19_compute_constraints_impl(constraint_vector &c, const decision_
     double sum1 = 0.;
     double sum2 = 0.;
 
-    double A[10][5] = {-16.0,2.0,0.0,1.0,0.0,
-                       0.0,-2.0,0.0,0.4,2.0,
-                       -3.5,0.0,2.0,0.0,0.0,
-                       0.0,-2.0,0.0,-4.0,-1.0,
-                       0.0,-9.0,-2.0,1.0,-2.8,
-                       2.0,0.0,-4.0,0.0,0.0,
-                       -1.0,-1.0,-1.0,-1.0,-1.0,
-                       -1.0,-2.0,-3.0,-2.0,-1.0,
-                       1.0,2.0,3.0,4.0,5.0,
-                       1.0,1.0,1.0,1.0,1.0
+    double A[10][5] = {{-16.0,2.0,0.0,1.0,0.0},
+                       {0.0,-2.0,0.0,0.4,2.0},
+                       {-3.5,0.0,2.0,0.0,0.0},
+                       {0.0,-2.0,0.0,-4.0,-1.0},
+                       {0.0,-9.0,-2.0,1.0,-2.8},
+                       {2.0,0.0,-4.0,0.0,0.0},
+                       {-1.0,-1.0,-1.0,-1.0,-1.0},
+                       {-1.0,-2.0,-3.0,-2.0,-1.0},
+                       {1.0,2.0,3.0,4.0,5.0},
+                       {1.0,1.0,1.0,1.0,1.0}
                       };
 
-    double C[5][5] = {30.0,-20.0,-10.0,32.0,-10.0,
-                      -20.0,39.0,-6.0,-31.0,32.0,
-                      -10.0,-6.0,10.0,-6.0,-10.0,
-                      32.0,-31.0,-6.0,39.0,-20.0,
-                      -10.0,32.0,-10.0,-20.0,30.0
+    double C[5][5] = {{30.0,-20.0,-10.0,32.0,-10.0},
+                      {-20.0,39.0,-6.0,-31.0,32.0},
+                      {-10.0,-6.0,10.0,-6.0,-10.0},
+                      {32.0,-31.0,-6.0,39.0,-20.0},
+                      {-10.0,32.0,-10.0,-20.0,30.0}
                      };
 
     double D[5] = {4.0,8.0,10.0,6.0,2.0};
@@ -1076,7 +1075,6 @@ void cec2006::g19_compute_constraints_impl(constraint_vector &c, const decision_
 /// Implementation of the objective function.
 void cec2006::g20_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-    int i, j;
     double A[24] = {0.0693,0.0577,0.05,0.2,0.26,0.55,0.06,0.1,0.12,0.18,0.1,0.09,
                     0.0693,0.0577,0.05,0.2,0.26,0.55,0.06,0.1,0.12,0.18,0.1,0.09};
 
