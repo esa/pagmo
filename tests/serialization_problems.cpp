@@ -149,6 +149,17 @@ int main()
 		probs_new.push_back(problem::cec2006(i%24 + 1).clone());
     }
 
+    //----- Test CEC2009 - UF set-----//
+    for(int i=1; i<=10; i++){
+        probs.push_back(problem::cec2009(i, false, dimension).clone());
+		probs_new.push_back(problem::cec2009(i%10 + 1, false, 11).clone());
+    }
+    //----- Test CEC2009 - CF set-----//	
+    for(int i=1; i<=10; i++){
+        probs.push_back(problem::cec2009(i, true, dimension).clone());
+		probs_new.push_back(problem::cec2009(i%10 + 1, true, 17).clone());
+    }
+
 	//----- Test meta-problems -----//
 	problem::zdt1 zdt1_before_transform1(dimension);
 	//----- shifted -----//
@@ -157,7 +168,6 @@ int main()
 	//----- rotated -----//	
 	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
 	probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
-	
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	probs.push_back(problem::cassini_1(2).clone());
