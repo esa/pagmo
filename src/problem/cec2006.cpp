@@ -766,14 +766,13 @@ void cec2006::g15_compute_constraints_impl(constraint_vector &c, const decision_
 /// Implementation of the objective function.
 void cec2006::g16_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-    double x1, x2, x3, x4, x5;
     double C[17], Y[17];
 
-    x1 = x[0];
-    x2 = x[1];
-    x3 = x[2];
-    x4 = x[3];
-    x5 = x[4];
+    double x1 = x[0];
+    double x2 = x[1];
+    double x3 = x[2];
+    double x4 = x[3];
+    double x5 = x[4];
 
     Y[0] = x2 + x3 + 41.6;
     C[0] = 0.024 * x4 - 4.62;
@@ -908,20 +907,17 @@ void cec2006::g16_compute_constraints_impl(constraint_vector &c, const decision_
 /// Implementation of the objective function.
 void cec2006::g17_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-    double f1=0, f2=0, x1, x2, x3, x4, x5, x6;
-    double aux1, aux2, aux5, aux4;
+    double f1=0;
+    double f2=0;
 
-    x1 = x[0];
-    x2 = x[1];
-    x3 = x[2];
-    x4 = x[3];
-    x5 = x[4];
-    x6 = x[5];
+    double x1 = x[0];
+    double x2 = x[1];
+    double x3 = x[2];
+    double x4 = x[3];
+    double x6 = x[5];
 
-    aux1 = 300.0 - (((x3 * x4) * cos(1.48477 - x6)) - ((0.90798 * pow(x3, 2.0)) * cos(1.47588))) / 131.078;
-    aux2 = -(((x3 * x4)  * cos(1.48477 + x6)) - ((0.90798 * pow(x4, 2.0))  * cos(1.47588)))/ 131.078;
-    aux5 = -(((x3 * x4)  * sin(1.48477 + x6)) - ((0.90798 * pow(x4, 2.0))  * sin(1.47588)))/ 131.078;
-    aux4 = 200.0 - (((x3 * x4)  *sin (1.48477 - x6)) - ((0.90798 * pow(x3, 2.0)) * sin(1.47588)))/ 131.078;
+    double aux1 = 300.0 - (((x3 * x4) * cos(1.48477 - x6)) - ((0.90798 * pow(x3, 2.0)) * cos(1.47588))) / 131.078;
+    double aux2 = -(((x3 * x4)  * cos(1.48477 + x6)) - ((0.90798 * pow(x4, 2.0))  * cos(1.47588)))/ 131.078;
 
     /* objective fucntion */
     if (x1 >= 0.0 && x1 < 300.0) {
