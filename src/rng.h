@@ -145,8 +145,14 @@ class __PAGMO_VISIBLE rng_generator {
 		 *
 		 * @return pseudo-random number generator seeded with pseudo-random value.
 		 */
-		template <class Rng>
-		static Rng get();
+		//template <class Rng>
+		//static Rng get();
+		template <class Rng> 
+		static Rng get()
+		{
+			boost::lock_guard<boost::mutex> lock(rng_generator::m_mutex);
+			return Rng(rng_generator::m_seeder());
+		}
 		static void set_seed(int);
 
 	private:
