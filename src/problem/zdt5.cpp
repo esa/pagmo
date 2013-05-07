@@ -68,8 +68,8 @@ double zdt5::p_distance(const pagmo::population &pop) const
     x = pop.get_individual(0).cur_x;
     problem::base::size_type size_x = x.size();
     problem::base::size_type n_vectors = ((size_x-30)/5)  +  1;
-    int u[n_vectors];
-    int v[n_vectors];
+    std::vector<int> u(n_vectors);
+    std::vector<int> v(n_vectors);
     
 
   
@@ -130,8 +130,8 @@ void zdt5::objfun_impl(fitness_vector &f, const decision_vector &x) const
         problem::base::size_type size_x = x.size();
         problem::base::size_type n_vectors = ((size_x-30)/5)  +  1;         
         int j, k = 30;
-        int u[n_vectors];
-        int v[n_vectors];
+        std::vector<int> u(n_vectors);
+        std::vector<int> v(n_vectors);
     
 
         for (problem::base::size_type i=0; i<n_vectors; i++)
