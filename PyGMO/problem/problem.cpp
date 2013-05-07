@@ -290,6 +290,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	// CEC2006 Competition Problems.
 	problem_wrapper<problem::cec2006>("cec2006","CEC2006 Competition Problems.")
 			.def(init<int>());
+
+	// CEC2009 Competition Problems.
+	problem_wrapper<problem::cec2009>("cec2009","CEC2009 Competition Problems.")
+			.def(init<int, bool, problem::base::size_type>());
     
 	// CEC2013 Competition Problems.
 	problem_wrapper<problem::cec2013>("cec2013","CEC2013 Competition Problems.")

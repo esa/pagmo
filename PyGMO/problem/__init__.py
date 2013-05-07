@@ -321,6 +321,26 @@ def _cec2006_ctor(self, prob_id=1):
 cec2006._orig_init = cec2006.__init__
 cec2006.__init__ = _cec2006_ctor
 
+def _cec2009_ctor(self, prob_id=1, dim=30, is_constrained=False):
+	"""
+	Constructs one of the 20 CEC2009 Competition Problems (Constrained / Unconstrained Multi-Objective)
+
+	USAGE: problem.cec2009(prob_id=1, dim=30, is_constrained=False)
+
+	* prob_id: Index of the problem
+	* dim: Problem's dimension (default is 30)
+	* is_constrained: Whether the problem is constrained or unconstrained
+	"""
+    
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(prob_id)
+	arg_list.append(is_constrained)
+	arg_list.append(dim)
+	self._orig_init(*arg_list)
+
+cec2009._orig_init = cec2009.__init__
+cec2009.__init__ = _cec2009_ctor
 
 def _luksan_vlcek_1_ctor(self,dim = 3):
 	"""
