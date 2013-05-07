@@ -49,6 +49,10 @@ struct value_error: public p_base_exception {
 	value_error(const std::string &s): p_base_exception(s) {}
 };
 
+struct io_error: public p_base_exception {
+	io_error(const std::string &s): p_base_exception(s) {}
+};
+
 struct type_error: public p_base_exception {
 	type_error(const std::string &s): p_base_exception(s) {}
 };

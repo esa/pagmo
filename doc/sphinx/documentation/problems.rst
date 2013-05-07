@@ -9,23 +9,34 @@ The user can implement its own problem directly in Python, in which case he need
 :class:`PyGMO.problem.base` or :class:`PyGMO.problem.base_stochastic` class. You may see 
 :ref:`tutorial1` or :ref:`tutorial2` 
 
+Meta-problems
+^^^^^^^^^^^^^
+================================== ========================================= ===========================================
+Common Name                        Name in PyGMO                             Comments
+================================== ========================================= ===========================================
+Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
+Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
+Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
+================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
-Ackley                             :class:`PyGMO.problem.ackley`                 
-Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
-Rastrigin                          :class:`PyGMO.problem.rastrigin`
-Schwefel                           :class:`PyGMO.problem.schwefel`
+Ackley                             :class:`PyGMO.problem.ackley`            
+Bukin F6                           :class:`PyGMO.problem.bukin`              A difficult bi-dimensional problem
+Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
+CEC2013                            :class:`PyGMO.problem.cec2013`            28 problems part of CEC2013 Competition
 De Jong                            :class:`PyGMO.problem.dejong`
 De Jong                            :class:`PyGMO.problem.py_example`         Implemented directly in Python
 Griewank                           :class:`PyGMO.problem.griewank`
-Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
-Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
 Himmelblau                         :class:`PyGMO.problem.himmelblau`         Bi-dimensional problem
+Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
 Michalewicz                        :class:`PyGMO.problem.michalewicz`
+Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
+Rastrigin                          :class:`PyGMO.problem.rastrigin`
+Schwefel                           :class:`PyGMO.problem.schwefel`
 MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
 MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
@@ -51,6 +62,7 @@ ZDT1                               :class:`PyGMO.problem.zdt1`
 ZDT2                               :class:`PyGMO.problem.zdt2`         
 ZDT3                               :class:`PyGMO.problem.zdt3`
 ZDT4                               :class:`PyGMO.problem.zdt4`
+ZDT5                               :class:`PyGMO.problem.zdt5`
 ZDT6                               :class:`PyGMO.problem.zdt6`
 DTLZ1                              :class:`PyGMO.problem.dtlz1`
 DTLZ2                              :class:`PyGMO.problem.dtlz2`
@@ -69,6 +81,7 @@ Constrained Continuous Single-Objective
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
+CEC2006                            :class:`PyGMO.problem.cec2006`            24 problems part of CEC2006 Competition
 Luksan Vlcek 1                     :class:`PyGMO.problem.luksan_vlcek_1`
 Luksan Vlcek 2                     :class:`PyGMO.problem.luksan_vlcek_2`
 Luksan Vlcek 3                     :class:`PyGMO.problem.luksan_vlcek_3`
@@ -131,11 +144,55 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_x
    
-   .. automethod:: PyGMO.problem.base.feasibility_c  
+   .. automethod:: PyGMO.problem.base.feasibility_c
+   
+.. autoclass:: PyGMO.problem.shifted
+
+   .. automethod:: PyGMO.problem.shifted.__init__
+   
+   .. attribute:: shift_vector
+   
+      The shift vector defining the new problem
+      
+   .. method:: PyGMO.problem.shifted.deshift((tuple) x)
+
+      Returns the de-shifted decision vector
+   
+.. autoclass:: PyGMO.problem.rotated
+
+   .. automethod:: PyGMO.problem.rotated.__init__
+   
+   .. attribute:: rotation
+   
+      The rotation matrix defining the new problem
+      
+   .. method:: PyGMO.problem.rotated.derotate((tuple) x)
+
+      Returns the de-rotated decision vector
+
+.. autoclass:: PyGMO.problem.normalized
+
+   .. automethod:: PyGMO.problem.normalized.__init__
+
+      .. method:: PyGMO.problem.normalized.denormalize((tuple) x)
+
+         Returns the de-normalized decision vector
    
 .. autoclass:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__
+   
+.. autoclass:: PyGMO.problem.bukin
+
+   .. automethod:: PyGMO.problem.bukin.__init__
+
+.. autoclass:: PyGMO.problem.cec2006
+
+   .. automethod:: PyGMO.problem.cec2006.__init__
+   
+.. autoclass:: PyGMO.problem.cec2013
+
+   .. automethod:: PyGMO.problem.cec2013.__init__
 
 .. autoclass:: PyGMO.problem.rosenbrock
 
@@ -224,6 +281,12 @@ Detailed Documentation
    .. automethod:: PyGMO.problem.zdt4.__init__
 
    .. automethod:: PyGMO.problem.zdt4.p_distance
+
+.. autoclass:: PyGMO.problem.zdt5
+
+   .. automethod:: PyGMO.problem.zdt5.__init__
+
+   .. automethod:: PyGMO.problem.zdt5.p_distance
 
 .. autoclass:: PyGMO.problem.zdt6
 

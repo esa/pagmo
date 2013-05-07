@@ -1,4 +1,4 @@
-from _problem import zdt1, zdt2, zdt3, zdt4, zdt6, dtlz1, dtlz2, dtlz3, dtlz4, dtlz5, dtlz6, dtlz7
+from _problem import zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, dtlz1, dtlz2, dtlz3, dtlz4, dtlz5, dtlz6, dtlz7
 
 def _mo3d_plot(self, pop, a=40, comp=[0,1,2]):
 	"""
@@ -221,6 +221,41 @@ def _zdt4_ctor(self, dim = 10):
 
 zdt4._orig_init = zdt4.__init__
 zdt4.__init__ = _zdt4_ctor
+
+def _zdt5_p_distance(self, pop):
+	"""
+	The p distance is a convergence metric measuring the distance of a population from the pareto front.
+	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
+	defined for all dtlz and zdt problems and it is defined in the paper below.
+	
+	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
+	
+	USAGE: x = prob.p_distance(isl.population)
+	
+	* pop: population to evaluate
+	"""
+	return self._orig_p_distance(pop)
+
+zdt5._orig_p_distance = zdt5.p_distance
+zdt5.p_distance = _zdt5_p_distance
+
+
+def _zdt5_ctor(self, bnr = 11):
+	"""
+	Constructs a ZDT5 problem (Box-Constrained Continuous Multi-Objective)
+
+	NOTE: E. Zitzler, K. Deb, L. Thiele: Comparison of Multiobjective Evolutionary Algorithms: Empirical Results, Evolutionary Computation, 2000
+
+	USAGE: problem.zdt5(bnr = 11)
+
+	* bnr: number of binary strings used for the problem (problem dimension is 30 + 5 * (bnr - 1))
+	"""
+	arg_list=[]
+	arg_list.append(bnr)
+	self._orig_init(*arg_list)
+
+zdt5._orig_init = zdt5.__init__
+zdt5.__init__ = _zdt5_ctor
 
 
 def _zdt6_p_distance(self, pop):

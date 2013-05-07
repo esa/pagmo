@@ -63,7 +63,7 @@ void griewank::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	double p = 1.0;
 
 	for (decision_vector::size_type i=0; i<n; i++){ retval += x[i]*x[i];}
-	for (decision_vector::size_type i=0; i<n; i++){ p *= cos(x[i]/sqrt(i+1));}
+	for (decision_vector::size_type i=0; i<n; i++){ p *= cos(x[i]/sqrt(i+1.0));}
 	f[0] = (retval/fr - p + 1);
 }
 

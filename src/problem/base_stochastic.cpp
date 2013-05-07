@@ -27,13 +27,34 @@
 
 namespace pagmo { namespace problem {
 
+
+/// Constructor from global dimension and random seed
+/**
+ * Lower and upper bounds are set to 0 and 1 respectively. 
+ * The problem built is unconstrained, single objective and with no integer dimension. 
+ *
+ * @param[in] dim global dimension of the problem.
+ * @param[in] seed random number generator seed
+ */
 base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_seed(seed) {
 }
 
+/// Sets the pseudo random generator seed
+/**
+ * Sets the pseudo random generator seed.
+ *
+ * @param[in] seed random number generator seed
+ */
 void base_stochastic::set_seed(unsigned int seed) const {
 	m_seed = seed;
 }
 
+/// Gets the pseudo random generator seed
+/**
+ * Gets the pseudo random generator seed.
+ *
+ * @return random number generator seed
+ */
 unsigned int base_stochastic::get_seed() const {
 	return m_seed;
 }

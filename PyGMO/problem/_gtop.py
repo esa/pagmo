@@ -85,7 +85,7 @@ def _messenger_full_ctor(self):
 	
 	NOTE: This problem (MGA-1DSM) belongs to the GTOP database [http://www.esa.int/gsp/ACT/inf/op/globopt.htm]
 	      
-	      Best known global minimum is at 2.970 [km/s], but physics indicate a minimum exist at 2.3 ....
+	      Best known global minimum is at 2.113
 	      
 	USAGE: problem.messenger_full()
 	

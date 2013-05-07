@@ -31,6 +31,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 
 
 #include "cmaes.h"
@@ -165,7 +166,7 @@ void cmaes::evolve(population &pop) const
 	// Setting coefficients for Selection
 	VectorXd weights(mu);
 	for (int i = 0; i < weights.rows(); ++i){
-		weights(i) = std::log(mu+0.5) - std::log(i+1);
+		weights(i) = std::log(mu+0.5) - std::log(i+1.0);
 	}
 	weights /= weights.sum();					// weights for weighted recombination
 	double mueff = 1.0 / (weights.transpose()*weights);		// variance-effectiveness of sum w_i x_i
@@ -357,7 +358,7 @@ void cmaes::evolve(population &pop) const
 
 		//6 - Adapt sigma
 		sigma *= std::exp( std::min( 0.6, (cs/damps) * (ps.norm()/chiN - 1) ) );
-		if ( std::isnan(sigma) || std::isinf(sigma) || std::isinf(var_norm) || std::isnan(var_norm) ) {
+		if ( (boost::math::isnan)(sigma) || (boost::math::isnan)(sigma) || (boost::math::isinf)(var_norm) || (boost::math::isnan)(var_norm) ) {
 			std::cout << "eigen: " << es.info() << std::endl;
 			std::cout << "B: " << B << std::endl;
 			std::cout << "D: " << D << std::endl;
