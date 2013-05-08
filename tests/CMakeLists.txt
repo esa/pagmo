@@ -1,3 +1,7 @@
+ADD_EXECUTABLE(best_solutions_test best_solutions_test.cpp)
+TARGET_LINK_LIBRARIES(best_solutions_test pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(best_solutions_test best_solutions_test)
+
 ADD_EXECUTABLE(local_torture_test local_torture_test.cpp)
 TARGET_LINK_LIBRARIES(local_torture_test pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(local_torture_test local_torture_test)

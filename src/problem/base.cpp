@@ -442,6 +442,36 @@ double base::get_diameter() const
 	return std::sqrt(retval);
 }
 
+/// Get the best known constraint vector.
+/**
+ * @return the best known constraint vector for the problem.
+ *
+ */
+const constraint_vector& base::get_best_known_c_vector(void) const
+{
+    return this->m_best_known_constraint_vector;
+}
+
+/// Get the best known decision vector.
+/**
+ * @return the best known decision vector for the problem.
+ *
+ */
+const decision_vector& base::get_best_known_x_vector(void) const
+{
+    return this->m_best_known_decision_vector;
+}
+
+/// Get the best known fitness vector.
+/**
+ * @return the best known fitness vector for the problem.
+ *
+ */
+const fitness_vector& base::get_best_known_f_vector(void) const
+{
+    return this->m_best_known_fitness_vector;
+}
+
 /// Return fitness of pagmo::decision_vector.
 /**
  * Equivalent to:
@@ -1246,6 +1276,27 @@ void base::pre_evolution(population &pop) const
 void base::post_evolution(population &pop) const
 {
 	(void)pop;
+}
+
+/// Initialize the best known fitness, decision and constraints vectors
+/**
+ * This method should be called to set the best known fitness. If it has not been reimplemented
+ * in a derived class, then best known vectors are filled with NaN values.
+ *
+ */
+void base::initialize_best(void)
+{
+    double nan = std::numeric_limits<double>::quiet_NaN();
+
+    // the decision vector size is not known
+    m_best_known_decision_vector.resize(1);
+    m_best_known_constraint_vector.resize(m_c_dimension);
+    m_best_known_fitness_vector.resize(m_f_dimension);
+
+    // by default sets the vectors with nan values
+    std::fill(m_best_known_decision_vector.begin(),m_best_known_decision_vector.end(),nan);
+    std::fill(m_best_known_constraint_vector.begin(),m_best_known_constraint_vector.end(),nan);
+    std::fill(m_best_known_fitness_vector.begin(),m_best_known_fitness_vector.end(),nan);
 }
 
 /// Reset internal caches.
