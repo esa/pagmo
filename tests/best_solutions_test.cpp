@@ -150,22 +150,13 @@ int main()
         if(boost::math::isnan((probs.at(i)->get_best_known_x_vector())[0]))
             std::cout << "Best decision vector is not implemented." << std::endl;
         else {
-
-            std::cout << "best_known c" << probs[i]->get_best_known_c_vector() << std::endl;
-            std::cout << "best_known d" << probs[i]->get_best_known_x_vector() << std::endl;
-            std::cout << "best_known f" << probs[i]->get_best_known_f_vector() << std::endl;
-
-
             const decision_vector &x_best_known = probs.at(i)->get_best_known_x_vector();
-            fitness_vector f_computed;
-            constraint_vector c_computed;
-            probs[i]->objfun(f_computed,x_best_known);
-            probs[i]->compute_constraints(c_computed,x_best_known);
 
-            std::cout << "f_computed"<< f_computed << std::endl;
+            fitness_vector f_computed = probs[i]->objfun(x_best_known);
+            constraint_vector c_computed = probs[i]->compute_constraints(x_best_known);
 
             fitness_vector f_best_known = probs[i]->get_best_known_f_vector();
-            //constraint_vector c_best_known = probs[i]->get_best_known_c_vector();
+            constraint_vector c_best_known = probs[i]->get_best_known_c_vector();
 
             if(is_eq(f_computed, f_best_known, EPS)){
                 std::cout << " fitness passes, ";
@@ -173,6 +164,27 @@ int main()
             else{
                 std::cout << " fitness failed!"<<std::endl;
                 return 1;
+            }
+
+            bool check_constraints = true;
+            for(int j=0; j<c_computed.size(); j++)
+            {
+                if(boost::math::isnan(c_computed.at(j))) {
+                    std::cout << "Best constraint vector is not implemented." << std::endl;
+                    check_constraints = false;
+                    break;
+                }
+            }
+
+            if(check_constraints) {
+                if(is_eq(c_computed, c_best_known, EPS)){
+                    std::cout << " constraints passes, ";
+                }
+
+                else{
+                    std::cout << " constraints failed!"<<std::endl;
+                    return 1;
+                }
             }
         }
     }
