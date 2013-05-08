@@ -56,6 +56,7 @@ class __PAGMO_VISIBLE cec2006 : public base
     protected:
         void objfun_impl(fitness_vector &, const decision_vector &) const;
         void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+        void initialize_best(void);
 
     private:
         void g01_objfun_impl(fitness_vector &, const decision_vector &) const;
@@ -106,6 +107,8 @@ class __PAGMO_VISIBLE cec2006 : public base
         void g23_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
         void g24_objfun_impl(fitness_vector &, const decision_vector &) const;
         void g24_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
+
+        void set_best_known_solutions(const double x[], const double f[], const double c[]);
 
         friend class boost::serialization::access;
         template <class Archive>

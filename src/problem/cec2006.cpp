@@ -413,6 +413,283 @@ std::string cec2006::get_name() const
     return retval;
 }
 
+/// Initialize the best known solutions.
+void cec2006::initialize_best(void)
+{
+    switch(m_problem_number)
+    {
+    case 1:
+    {
+        const double x_vector[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,3.,3.,3.,1.};
+        const double f_vector[] = {-15.};
+        double c_vector[] = {0., 0., 0., -5., -5., -5., 0., 0., 0.};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 2:
+    {
+        const double x_vector[] = {3.16246061572185, 3.12833142812967, 3.09479212988791, 3.06145059523469,
+                                   3.02792915885555, 2.99382606701730, 2.95866871765285, 2.92184227312450,
+                                   0.49482511456933, 0.48835711005490, 0.48231642711865, 0.47664475092742,
+                                   0.47129550835493, 0.46623099264167, 0.46142004984199, 0.45683664767217,
+                                   0.45245876903267, 0.44826762241853, 0.44424700958760, 0.44038285956317};
+        const double f_vector[] = {-0.80361910412559};
+        double c_vector[] = {-1.2878587085651816e-14, -120.06741615259264};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 3:
+    {
+        const double x_vector[] = {0.31624357647283069, 0.316243577414338339, 0.316243578012345927, 0.316243575664017895,
+                                   0.316243578205526066, 0.31624357738855069, 0.316243575472949512, 0.316243577164883938,
+                                   0.316243578155920302, 0.316243576147374916};
+        const double f_vector[] = {-1.00050010001000};
+        double c_vector[] = {9.9999999999988987e-05};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 4:
+    {
+        const double x_vector[] = {78,33,29.9952560256815985,45,36.7758129057882073};
+        const double f_vector[] = {-3.066553867178332e+004};
+        double c_vector[] = {0., -92., -11.159499691073137, -8.8405003089268632, -4.9999999999999964, -3.5527136788005009e-15};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 5:
+    {
+        const double x_vector[] = {679.945148297028709,1026.06697600004691,0.118876369094410433,-0.39623348521517826};
+        const double f_vector[] = {5126.4967140071};
+        double c_vector[] = {9.9999999974897946e-05, 9.9999999974897946e-05, 9.9999999974897946e-05, -0.034890145690411378, -1.0651098543095887};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 6:
+    {
+        const double x_vector[] = {14.09500000000000064,0.8429607892154795668};
+        const double f_vector[] = {-6961.81387558015};
+        double c_vector[] = {0., 0.};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 7:
+    {
+        const double x_vector[] = {2.17199634142692, 2.3636830416034, 8.77392573913157, 5.09598443745173,
+                                   0.990654756560493, 1.43057392853463, 1.32164415364306, 9.82872576524495,
+                                   8.2800915887356, 8.3759266477347};
+        const double f_vector[] = {24.30620906818};
+        double c_vector[] = {5.6843418860808015e-14, -1.1723955140041653e-13, 3.907985046680551e-14, -6.0254023992456496e-12,
+                             -7.1054273576010019e-15, -2.8421709430404007e-14, -6.1485036896036398, -50.023961731838071};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 8:
+    {
+        const double x_vector[] = {1.22797135260752599, 4.24537336612274885};
+        const double f_vector[] = {-0.0958250414180359};
+        double c_vector[] = {-1.737459723297992, -0.16776326380511744};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 9:
+    {
+        const double x_vector[] = {2.33049935147405174, 1.95137236847114592, -0.477541399510615805, 4.36572624923625874, -0.624486959100388983, 1.03813099410962173, 1.5942266780671519};
+        const double f_vector[] = {680.630057374402};
+        double c_vector[] = {-1.3766765505351941e-14, -252.56171634346606, -144.87817845461515, -2.4868995751603507e-14};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 10:
+    {
+        const double x_vector[] = {579.306685017979589,1359.97067807935605,5109.97065743133317,182.01769963061534, 295.601173702746792, 217.982300369384632, 286.41652592786852, 395.601173702746735};
+        const double f_vector[] = {7049.24802052867};
+        double c_vector[] = {0, 0, -5.5511151231257827e-16, -1.4551915228366852e-11, -2.9103830456733704e-11, -1.1641532182693481e-10};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 11:
+    {
+        const double x_vector[] = {-0.707036070037170616, 0.500000004333606807};
+        const double f_vector[] = {0.7499};
+        double c_vector[] = {9.9999999999988987e-05};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 12:
+    {
+        const double x_vector[] = {5.,5.,5.};
+        const double f_vector[] = {-1.};
+        double c_vector[] = {9.9999999999988987e-05};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 13:
+    {
+        const double x_vector[] = {-1.71714224003, 1.59572124049468, 1.8272502406271, -0.763659881912867, -0.76365986736498};
+        const double f_vector[] = {0.053941514041898};
+        double c_vector[] = {9.9999999999988987e-05};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 14:
+    {
+        const double x_vector[] = {0.0406684113216282, 0.147721240492452, 0.783205732104114, 0.00141433931889084,
+                                   0.485293636780388, 0.000693183051556082, 0.0274052040687766, 0.0179509660214818,
+                                   0.0373268186859717, 0.0968844604336845};
+        const double f_vector[] = {0.053941514041898};
+        double c_vector[] = {-47.7648884594915};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 15:
+    {
+        const double x_vector[] = {3.51212812611795133,0.216987510429556135,3.55217854929179921};
+        const double f_vector[] = {0.053941514041898};
+        double c_vector[] = {961.715022289961};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 16:
+    {
+        const double x_vector[] = {705.174537070090537, 68.5999999999999943, 102.899999999999991, 282.324931593660324,
+                                   37.5841164258054832};
+        const double f_vector[] = {-1.90515525853479};
+        double c_vector[] = {961.715022289961};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 17:
+    {
+        const double x_vector[] = {201.784467214523659, 99.9999999999999005, 383.071034852773266, 420,
+                                   -10.9076584514292652, 0.0731482312084287128};
+        const double f_vector[] = {-1.90515525853479};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 18:
+    {
+        const double x_vector[] = {-0.657776192427943163, -0.153418773482438542, 0.323413871675240938, -0.946257611651304398,
+                                   -0.657776194376798906, -0.753213434632691414, 0.323413874123576972, -0.346462947962331735,
+                                   0.59979466285217542};
+        const double f_vector[] = {-0.866025403784439};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 19:
+    {
+        const double x_vector[] = {1.66991341326291344e-17, 3.95378229282456509e-16, 3.94599045143233784, 1.06036597479721211e-16,
+                                   3.2831773458454161, 9.99999999999999822, 1.12829414671605333e-17, 1.2026194599794709e-17,
+                                   2.50706276000769697e-15, 2.24624122987970677e-15, 0.370764847417013987, 0.278456024942955571,
+                                   0.523838487672241171, 0.388620152510322781,0.298156764974678579};
+        const double f_vector[] = {32.6555929502463};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 20:
+    {
+        const double x_vector[] = {1.28582343498528086e-18, 4.83460302526130664e-34, 0, 0, 6.30459929660781851e-18,
+                                   7.57192526201145068e-34, 5.03350698372840437e-34, 9.28268079616618064e-34, 0,
+                                   1.76723384525547359e-17, 3.55686101822965701e-34, 2.99413850083471346e-34, 0.158143376337580827,
+                                   2.29601774161699833e-19, 1.06106938611042947e-18, 1.31968344319506391e-18, 0.530902525044209539,
+                                   0, 2.89148310257773535e-18, 3.34892126180666159e-18, 0, 0.310999974151577319,
+                                   5.41244666317833561e-05, 4.84993165246959553e-16};
+        const double f_vector[] = {32.6555929502463};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 21:
+    {
+        const double x_vector[] = {193.724510070034967, 5.56944131553368433e-27, 17.3191887294084914, 100.047897801386839,
+                                   6.68445185362377892, 5.99168428444264833, 6.21451648886070451};
+        const double f_vector[] = {193.724510070035};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 22:
+    {
+        const double x_vector[] = {236.430975504001054, 135.82847151732463, 204.818152544824585, 6446.54654059436416,
+                                   3007540.83940215595, 4074188.65771341929, 32918270.5028952882, 130.075408394314167,
+                                   170.817294970528621, 299.924591605478554, 399.258113423595205, 330.817294971142758,
+                                   184.51831230897065, 248.64670239647424, 127.658546694545862, 269.182627528746707,
+                                   160.000016724090955, 5.29788288102680571, 5.13529735903945728, 5.59531526444068827,
+                                   5.43444479314453499, 5.07517453535834395};
+        const double f_vector[] = {236.430975504001};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 23:
+    {
+        const double x_vector[] = {0.00510000000000259465, 99.9947000000000514, 9.01920162996045897e-18, 99.9999000000000535,
+                                   0.000100000000027086086, 2.75700683389584542e-14, 99.9999999999999574, 2000.0100000100000100008};
+        const double f_vector[] = {-400.055099999999584};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    case 24:
+    {
+        const double x_vector[] = {2.32952019747762,3.17849307411774};
+        const double f_vector[] = {-5.50801327159536};
+        double c_vector[] = {8853.53967480648};
+
+        this->set_best_known_solutions(x_vector,f_vector,c_vector);
+        break;
+    }
+    default:
+    {
+        pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
+        break;
+    }
+
+    }
+
+}
+
+void cec2006::set_best_known_solutions(const double x[], const double f[], const double c[])
+{
+    int x_dimension = m_problems_dimension[m_problem_number-1];
+    int f_dimension = 1;
+    int c_dimension = m_problems_c_dimension[m_problem_number-1];
+
+    m_best_known_decision_vector.resize(x_dimension);
+    std::copy(x,x + x_dimension,m_best_known_decision_vector.begin());
+
+    m_best_known_fitness_vector.resize(f_dimension);
+    std::copy(f,f + f_dimension,m_best_known_fitness_vector.begin());
+
+    m_best_known_constraint_vector.resize(c_dimension);
+    std::copy(c,c + c_dimension,m_best_known_constraint_vector.begin());
+}
+
 // -------------------------------------------
 
 /// Implementation of the objective function.
