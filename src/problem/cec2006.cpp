@@ -38,7 +38,7 @@ static int __check__(int N){
 
 namespace pagmo { namespace problem {
 
-const double PI = boost::math::constants::pi<double>();
+static const double PI = boost::math::constants::pi<double>();
 
 // initialization of the problems, global constraints and inequality constraints dimension
 const decision_vector::size_type cec2006::m_problems_dimension[] =

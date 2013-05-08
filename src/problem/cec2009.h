@@ -34,7 +34,7 @@
 namespace pagmo{ namespace problem {
 
 /// The CEC 2009 problems: Competition on "Performance Assessment of Constrained / Bound
-//  Constrained Multi-Objective Optimization Algorithms"
+///  Constrained Multi-Objective Optimization Algorithms"
 /**
  *
  * This class instantiates any of the problems from CEC2009's competition
@@ -53,7 +53,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE cec2009 : public base
 {
 	public:
-	cec2009(unsigned int = 1, bool = false, problem::base::size_type = 30);
+		cec2009(unsigned int = 1, problem::base::size_type = 30, bool = false);
 		base_ptr clone() const;
 		std::string get_name() const;
 
@@ -84,8 +84,8 @@ class __PAGMO_VISIBLE cec2009 : public base
 		void CF9(const double *x, double *f, double *c, const unsigned int nx) const;
 		void CF10(const double *x, double *f, double *c, const unsigned int nx) const;
 
-		static decision_vector::size_type get_fitness_dimension(int);
-		static constraint_vector::size_type get_ic_dimension(int);
+		static fitness_vector::size_type cec2009_fitness_dimension(int);
+		static constraint_vector::size_type cec2009_ic_dimension(int);
 
 		void configure_bounds();
 

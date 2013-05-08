@@ -36,10 +36,11 @@
 #include "base.h"
 #include "cec2009.h"
 
-#define PI  3.1415926535897932384626433832795
 #define MYSIGN(x) ((x)>0?1.0:-1.0)
 
 namespace pagmo { namespace problem {
+
+static const double PI = boost::math::constants::pi<double>();
 
 /// Constructor
 /**
@@ -54,8 +55,8 @@ namespace pagmo { namespace problem {
  * @see http://www3.ntu.edu.sg/home/EPNSugan/index_files/CEC09-MOEA/CEC09-MOEA.htm
  *
  */
-cec2009::cec2009(unsigned int fun_id, bool is_constrained, problem::base::size_type prob_dim):
-	base(prob_dim, 0, get_fitness_dimension(fun_id), is_constrained?get_ic_dimension(fun_id):0, is_constrained?get_ic_dimension(fun_id):0, 0.0),
+cec2009::cec2009(unsigned int fun_id, size_type prob_dim, bool is_constrained):
+	base(prob_dim, 0, cec2009_fitness_dimension(fun_id), is_constrained?cec2009_ic_dimension(fun_id):0, is_constrained?cec2009_ic_dimension(fun_id):0, 0.0),
 	m_problem_number(fun_id),
 	m_is_constrained(is_constrained)
 {
@@ -81,8 +82,8 @@ std::string cec2009::get_name() const
 	return retval;
 }
 
-/// Returns the dimension of the objective values
-decision_vector::size_type cec2009::get_fitness_dimension(int problem_id)
+/// Returns the dimension of the fitness vector
+fitness_vector::size_type cec2009::cec2009_fitness_dimension(int problem_id)
 {
 	// UF/CF 1-7 2-objective, UF/CF8-10 3-objective
 	if(problem_id >= 1 && problem_id <= 7){
@@ -97,7 +98,7 @@ decision_vector::size_type cec2009::get_fitness_dimension(int problem_id)
 }
 
 /// Returns the number of inequality constraints for a particular CF problem
-constraint_vector::size_type cec2009::get_ic_dimension(int problem_id)
+constraint_vector::size_type cec2009::cec2009_ic_dimension(int problem_id)
 {
 	// Note: Only come here if you are CF!
 	// Only CF6 & CF7 have two inequality constraints, the rest has 1.
@@ -984,7 +985,6 @@ void cec2009::CF10(const double *x, double *f, double *c, const unsigned int nx)
 
 }} //namespaces
 
-#undef PI
 #undef MYSIGN
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cec2009);
