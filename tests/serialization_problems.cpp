@@ -154,7 +154,7 @@ int main()
         probs.push_back(problem::cec2009(i, false, dimension).clone());
 		probs_new.push_back(problem::cec2009(i%10 + 1, false, 11).clone());
     }
-    //----- Test CEC2009 - CF set-----//	
+    //----- Test CEC2009 - CF set-----//
     for(int i=1; i<=10; i++){
         probs.push_back(problem::cec2009(i, true, dimension).clone());
 		probs_new.push_back(problem::cec2009(i%10 + 1, true, 17).clone());
@@ -165,7 +165,7 @@ int main()
 	//----- shifted -----//
 	probs.push_back(problem::shifted(zdt1_before_transform1).clone());
 	probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());
-	//----- rotated -----//	
+	//----- rotated -----//
 	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
 	probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
 

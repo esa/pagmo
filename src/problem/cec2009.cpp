@@ -89,9 +89,9 @@ decision_vector::size_type cec2009::get_fitness_dimension(int problem_id)
 		return 2;
 	}
 	else if(problem_id >= 8 && problem_id <= 10){
-		return 3;	
+		return 3;
 	}
-	else{	
+	else{
 		pagmo_throw(value_error, "Error: CEC2009 unexpected problem id when determining fitness dimension.");
 	}
 }
@@ -256,7 +256,7 @@ void cec2009::objfun_impl(fitness_vector &f, const decision_vector &x) const
 			pagmo_throw(value_error, "Error: CEC2009 unexpected problem id when computing fitness values.");
 		}
 	}
-	else{	
+	else{
 		switch(m_problem_number)
 		{
 		// NULL means do not compute the constraint values.
@@ -290,7 +290,7 @@ void cec2009::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		case 10:
 			CF10(&x[0], &f[0], NULL, nx);
 			break;
-		default:	
+		default:
 			pagmo_throw(value_error, "Error: CEC2009 unexpected problem id when computing fitness values.");
 		}
 	}
@@ -358,16 +358,16 @@ void cec2009::UF1(const double *x, double *f, const unsigned int nx) const
 	
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1] - sin(6.0*PI*x[0] + j*PI/nx);
 		yj = yj * yj;
-		if(j % 2 == 0) 
+		if(j % 2 == 0)
 		{
 			sum2 += yj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			sum1 += yj;
 			count1++;
@@ -375,7 +375,7 @@ void cec2009::UF1(const double *x, double *f, const unsigned int nx) const
 	}
 	f[0] = x[0]				+ 2.0 * sum1 / (double)count1;
 	f[1] = 1.0 - sqrt(x[0]) + 2.0 * sum2 / (double)count2;
-} 
+}
 
 void cec2009::UF2(const double *x, double *f, const unsigned int nx) const
 {
@@ -384,14 +384,14 @@ void cec2009::UF2(const double *x, double *f, const unsigned int nx) const
 	
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		if(j % 2 == 0) {
 			yj = x[j-1]-0.3*x[0]*(x[0]*cos(24.0*PI*x[0]+4.0*j*PI/nx)+2.0)*sin(6.0*PI*x[0]+j*PI/nx);
 			sum2 += yj*yj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			yj = x[j-1]-0.3*x[0]*(x[0]*cos(24.0*PI*x[0]+4.0*j*PI/nx)+2.0)*cos(6.0*PI*x[0]+j*PI/nx);
 			sum1 += yj*yj;
@@ -410,17 +410,17 @@ void cec2009::UF3(const double *x, double *f, const unsigned int nx) const
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
 	prod1  = prod2  = 1.0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1]-pow(x[0],0.5*(1.0+3.0*(j-2.0)/(nx-2.0)));
 		pj = cos(20.0*yj*PI/sqrt(j+0.0));
-		if (j % 2 == 0) 
+		if (j % 2 == 0)
 		{
 			sum2  += yj*yj;
 			prod2 *= pj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			sum1  += yj*yj;
 			prod1 *= pj;
@@ -437,16 +437,16 @@ void cec2009::UF4(const double *x, double *f, const unsigned int nx) const
 	
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1]-sin(6.0*PI*x[0]+j*PI/nx);
 		hj = fabs(yj)/(1.0+exp(2.0*fabs(yj)));
-		if (j % 2 == 0) 
+		if (j % 2 == 0)
 		{
 			sum2  += hj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			sum1  += hj;
 			count1++;
@@ -464,16 +464,16 @@ void cec2009::UF5(const double *x, double *f, const unsigned int nx) const
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
 	N = 10.0; E = 0.1;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1]-sin(6.0*PI*x[0]+j*PI/nx);
 		hj = 2.0*yj*yj - cos(4.0*PI*yj) + 1.0;
-		if (j % 2 == 0) 
+		if (j % 2 == 0)
 		{
 			sum2  += hj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			sum1  += hj;
 			count1++;
@@ -493,17 +493,17 @@ void cec2009::UF6(const double *x, double *f, const unsigned int nx) const
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
 	prod1  = prod2  = 1.0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1]-sin(6.0*PI*x[0]+j*PI/nx);
 		pj = cos(20.0*yj*PI/sqrt(j+0.0));
-		if (j % 2 == 0) 
+		if (j % 2 == 0)
 		{
 			sum2  += yj*yj;
 			prod2 *= pj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			sum1  += yj*yj;
 			prod1 *= pj;
@@ -524,15 +524,15 @@ void cec2009::UF7(const double *x, double *f, const unsigned int nx) const
 	
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1] - sin(6.0*PI*x[0]+j*PI/nx);
-		if (j % 2 == 0) 
+		if (j % 2 == 0)
 		{
 			sum2  += yj*yj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			sum1  += yj*yj;
 			count1++;
@@ -550,15 +550,15 @@ void cec2009::UF8(const double *x, double *f, const unsigned int nx) const
 	
 	sum1   = sum2   = sum3   = 0.0;
 	count1 = count2 = count3 = 0;
-	for(j = 3; j <= nx; j++) 
+	for(j = 3; j <= nx; j++)
 	{
 		yj = x[j-1] - 2.0*x[1]*sin(2.0*PI*x[0]+j*PI/nx);
-		if(j % 3 == 1) 
+		if(j % 3 == 1)
 		{
 			sum1  += yj*yj;
 			count1++;
-		} 
-		else if(j % 3 == 2) 
+		}
+		else if(j % 3 == 2)
 		{
 			sum2  += yj*yj;
 			count2++;
@@ -582,15 +582,15 @@ void cec2009::UF9(const double *x, double *f, const unsigned int nx) const
 	E = 0.1;
 	sum1   = sum2   = sum3   = 0.0;
 	count1 = count2 = count3 = 0;
-	for(j = 3; j <= nx; j++) 
+	for(j = 3; j <= nx; j++)
 	{
 		yj = x[j-1] - 2.0*x[1]*sin(2.0*PI*x[0]+j*PI/nx);
-		if(j % 3 == 1) 
+		if(j % 3 == 1)
 		{
 			sum1  += yj*yj;
 			count1++;
-		} 
-		else if(j % 3 == 2) 
+		}
+		else if(j % 3 == 2)
 		{
 			sum2  += yj*yj;
 			count2++;
@@ -615,16 +615,16 @@ void cec2009::UF10(const double *x, double *f, const unsigned int nx) const
 	
 	sum1   = sum2   = sum3   = 0.0;
 	count1 = count2 = count3 = 0;
-	for(j = 3; j <= nx; j++) 
+	for(j = 3; j <= nx; j++)
 	{
 		yj = x[j-1] - 2.0*x[1]*sin(2.0*PI*x[0]+j*PI/nx);
 		hj = 4.0*yj*yj - cos(8.0*PI*yj) + 1.0;
-		if(j % 3 == 1) 
+		if(j % 3 == 1)
 		{
 			sum1  += hj;
 			count1++;
-		} 
-		else if(j % 3 == 2) 
+		}
+		else if(j % 3 == 2)
 		{
 			sum2  += hj;
 			count2++;
@@ -651,15 +651,15 @@ void cec2009::CF1(const double *x, double *f, double *c, const unsigned int nx) 
 	
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1]-pow(x[0],0.5*(1.0+3.0*(j-2.0)/(nx-2.0)));
-		if (j % 2 == 1) 
+		if (j % 2 == 1)
 		{
 			sum1  += yj*yj;
 			count1++;
-		} 
-		else 
+		}
+		else
 		{
 			sum2  += yj*yj;
 			count2++;
@@ -682,15 +682,15 @@ void cec2009::CF2(const double *x, double *f, double *c, const unsigned int nx) 
 	
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
-		if (j % 2 == 1) 
+		if (j % 2 == 1)
 		{
 			yj = x[j-1] - sin(6.0*PI*x[0] + j*PI/nx);
 			sum1  += yj*yj;
 			count1++;
-		} 
-		else 
+		}
+		else
 		{
 			yj = x[j-1] - cos(6.0*PI*x[0] + j*PI/nx);
 			sum2  += yj*yj;
@@ -716,17 +716,17 @@ void cec2009::CF3(const double *x, double *f, double *c, const unsigned int nx) 
 	sum1   = sum2   = 0.0;
 	count1 = count2 = 0;
 	prod1  = prod2  = 1.0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1]-sin(6.0*PI*x[0]+j*PI/nx);
 		pj = cos(20.0*yj*PI/sqrt(j+0.0));
-		if (j % 2 == 0) 
+		if (j % 2 == 0)
 		{
 			sum2  += yj*yj;
 			prod2 *= pj;
 			count2++;
-		} 
-		else 
+		}
+		else
 		{
 			sum1  += yj*yj;
 			prod1 *= pj;
@@ -749,13 +749,13 @@ void cec2009::CF4(const double *x, double *f, double *c, const unsigned int nx) 
 	double sum1, sum2, yj, t;
 
 	sum1   = sum2   = 0.0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
 		yj = x[j-1] - sin(6.0*PI*x[0] + j*PI/nx);
-		if (j % 2 == 1) 
+		if (j % 2 == 1)
 		{
 			sum1  += yj*yj;
-		} 
+		}
 		else
 		{
 			if (j==2)
@@ -780,14 +780,14 @@ void cec2009::CF5(const double *x, double *f, double *c, const unsigned int nx) 
 	double sum1, sum2, yj;
 
 	sum1   = sum2   = 0.0;
-	for(j = 2; j <= nx; j++) 
+	for(j = 2; j <= nx; j++)
 	{
-		if (j % 2 == 1) 
+		if (j % 2 == 1)
 		{
 			yj    = x[j-1] - 0.8*x[0]*cos(6.0*PI*x[0] + j*PI/nx);
 			sum1 += 2.0*yj*yj - cos(4.0*PI*yj) + 1.0;
-		} 
-		else 
+		}
+		else
 		{
 			yj = x[j-1] - 0.8*x[0]*sin(6.0*PI*x[0] + j*PI/nx);
 			if (j==2)
@@ -802,7 +802,7 @@ void cec2009::CF5(const double *x, double *f, double *c, const unsigned int nx) 
 	if(c != NULL){
 		c[0] = x[1] - 0.8*x[0]*sin(6.0*x[0]*PI+2.0*PI/nx) - 0.5*x[0] + 0.25;
 		c[0] = -c[0]; //convert to g(x) <= 0 form
-	}		
+	}
 }
 
 void cec2009::CF6(const double *x, double *f, double *c, const unsigned int nx) const
@@ -813,12 +813,12 @@ void cec2009::CF6(const double *x, double *f, double *c, const unsigned int nx) 
 	sum1   = sum2   = 0.0;
 	for(j = 2; j <= nx; j++)
 	{
-		if (j % 2 == 1) 
+		if (j % 2 == 1)
 		{
 			yj     = x[j-1] - 0.8*x[0]*cos(6.0*PI*x[0] + j*PI/nx);
 			sum1  += yj*yj;
-		} 
-		else 
+		}
+		else
 		{
 			yj     = x[j-1] - 0.8*x[0]*sin(6.0*PI*x[0] + j*PI/nx);
 			sum2  += yj*yj;
@@ -844,12 +844,12 @@ void cec2009::CF7(const double *x, double *f, double *c, const unsigned int nx) 
 	sum1   = sum2   = 0.0;
 	for(j = 2; j <= nx; j++)
 	{
-		if (j % 2 == 1) 
+		if (j % 2 == 1)
 		{
 			yj     = x[j-1] - cos(6.0*PI*x[0] + j*PI/nx);
 			sum1  += 2.0*yj*yj-cos(4.0*PI*yj)+1.0;
-		} 
-		else 
+		}
+		else
 		{
 			yj     = x[j-1] - sin(6.0*PI*x[0] + j*PI/nx);
 			if (j==2 || j==4)
@@ -878,15 +878,15 @@ void cec2009::CF8(const double *x, double *f, double *c, const unsigned int nx) 
 
 	sum1   = sum2   = sum3   = 0.0;
 	count1 = count2 = count3 = 0;
-	for(j = 3; j <= nx; j++) 
+	for(j = 3; j <= nx; j++)
 	{
 		yj = x[j-1] - 2.0*x[1]*sin(2.0*PI*x[0]+j*PI/nx);
-		if(j % 3 == 1) 
+		if(j % 3 == 1)
 		{
 			sum1  += yj*yj;
 			count1++;
-		} 
-		else if(j % 3 == 2) 
+		}
+		else if(j % 3 == 2)
 		{
 			sum2  += yj*yj;
 			count2++;
@@ -915,15 +915,15 @@ void cec2009::CF9(const double *x, double *f, double *c, const unsigned int nx) 
 
 	sum1   = sum2   = sum3   = 0.0;
 	count1 = count2 = count3 = 0;
-	for(j = 3; j <= nx; j++) 
+	for(j = 3; j <= nx; j++)
 	{
 		yj = x[j-1] - 2.0*x[1]*sin(2.0*PI*x[0]+j*PI/nx);
-		if(j % 3 == 1) 
+		if(j % 3 == 1)
 		{
 			sum1  += yj*yj;
 			count1++;
-		} 
-		else if(j % 3 == 2) 
+		}
+		else if(j % 3 == 2)
 		{
 			sum2  += yj*yj;
 			count2++;
@@ -952,16 +952,16 @@ void cec2009::CF10(const double *x, double *f, double *c, const unsigned int nx)
 
 	sum1   = sum2   = sum3   = 0.0;
 	count1 = count2 = count3 = 0;
-	for(j = 3; j <= nx; j++) 
+	for(j = 3; j <= nx; j++)
 	{
 		yj = x[j-1] - 2.0*x[1]*sin(2.0*PI*x[0]+j*PI/nx);
 		hj = 4.0*yj*yj - cos(8.0*PI*yj) + 1.0;
-		if(j % 3 == 1) 
+		if(j % 3 == 1)
 		{
 			sum1  += hj;
 			count1++;
-		} 
-		else if(j % 3 == 2) 
+		}
+		else if(j % 3 == 2)
 		{
 			sum2  += hj;
 			count2++;

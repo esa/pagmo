@@ -327,7 +327,7 @@ def _cec2009_ctor(self, prob_id=1, dim=30, is_constrained=False):
 
 	USAGE: problem.cec2009(prob_id=1, dim=30, is_constrained=False)
 
-	* prob_id: Index of the problem
+	* prob_id: Index of the problem, one of [1,2,...10]
 	* dim: Problem's dimension (default is 30)
 	* is_constrained: Whether the problem is constrained or unconstrained
 	"""
