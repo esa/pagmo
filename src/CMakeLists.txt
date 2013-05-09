@@ -5,6 +5,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/jde.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mde_pbx.cpp
@@ -52,6 +53,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/bukin_f6.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosenbrock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
@@ -72,10 +74,17 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt4.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt5.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt6.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2006.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2009.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2013.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/erdos_renyi.cpp

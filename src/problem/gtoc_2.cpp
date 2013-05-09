@@ -139,8 +139,6 @@ void gtoc_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	}
 }
 
-
-
 void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
 	// Cached values.
@@ -216,6 +214,10 @@ std::string gtoc_2::human_readable_extra() const {
 	return oss.str();
 }
 
+/// A pretty description of the chromosome
+/**
+ * @return a string containing the human readable decision vector description
+ */
 std::string gtoc_2::pretty(const std::vector<double> &x) const
 {
 	std::ostringstream s;

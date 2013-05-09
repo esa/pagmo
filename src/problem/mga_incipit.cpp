@@ -41,7 +41,7 @@ namespace pagmo { namespace problem {
  *  
  * @param[in] seq std::vector of kep_toolbox::planet_ptr containing the encounter sequence for the trajectoty (including the initial planet)
  * @param[in] t0_l kep_toolbox::epoch representing the lower bound for the launch epoch
- * @param[in] t0_r kep_toolbox::epoch representing the upper bound for the launch epoch
+ * @param[in] t0_u kep_toolbox::epoch representing the upper bound for the launch epoch
  * @param[in] tof time-of-flight vector containing lower and upper bounds (in days) for the various legs time of flights
  * 
  * @throws value_error if the planets in seq do not all have the same central body gravitational constant
@@ -303,7 +303,7 @@ std::string mga_incipit::get_name() const
 
 /// Gets the times of flight
 /**
- * @param[out] tof vector of times of flight 
+ * @return[out] vector of times of flight 
  */
 const std::vector<std::vector<double> >& mga_incipit::get_tof() const {
 	return m_tof;

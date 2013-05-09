@@ -52,14 +52,14 @@ The final script (included in PyGMO) is:
 
 .. code-block:: python
 
-   def example_1(n_trials=25, variant_adptv=2, restart=True):
+   def example_1(n_trials=25, variant_adptv=2, memory=True):
 	from PyGMO import problem, algorithm, island, archipelago
 	from PyGMO.topology import fully_connected
 	from numpy import mean, median
 	results = list()
 	prob = problem.messenger_full()
 	de_variants = [11,13,15,17]
-	algos = [algorithm.de_self_adaptive(gen=50,variant=v, restart=restart, variant_adptv=variant_adptv) for v in de_variants]
+	algos = [algorithm.jde(gen=50,variant=v, memory=memory, variant_adptv=variant_adptv) for v in de_variants]
 	
 	for trial in range(n_trials):
 		archi = archipelago(topology=fully_connected())

@@ -47,6 +47,8 @@ and reimplement some of its 'virtual' methods.
 	def human_readable_extra(self):
 		return "\n\t Problem dimension: " + str(self.__dim)
 
+Note that by default PyGMO will assume one wants to minimize the objective function. 
+
 We may then put this in a file, say my_module.py and use, for example, Artificial Bee Colony .... with
 20 individuals ....
 
@@ -56,7 +58,7 @@ We may then put this in a file, say my_module.py and use, for example, Artificia
    from  my_module import my_problem
 
    prob = my_problem(dim=10)
-   algo = algorithm.bee_colony(gen=100)
+   algo = algorithm.bee_colony(gen=500)
    isl = island(algo,prob,20)
    isl.evolve(1); isl.join()
    print isl.population.champion.f

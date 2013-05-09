@@ -382,7 +382,16 @@ def _plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6):
 	import matplotlib.pyplot as plt
 
 	if len(comp) !=2:
-		raise ValueError('You need to select two components of the objective function')
+		raise ValueError('Invalid components of the objective function selected for plot')
+
+	p_dim = pop.problem.f_dimension
+
+	if p_dim == 1:
+		raise ValueError('Pareto fronts of a 1-dimensional problem cannot be plotted')
+
+	if not all([c in range(0, p_dim) for c in comp]):
+		raise ValueError('You need to select valid components of the objective function')
+
 
 	p_list = pop.compute_pareto_fronts()
 	cl = zip(linspace(0.9 if rgb[0] else 0.1,0.9, len(p_list)), 

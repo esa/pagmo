@@ -62,7 +62,7 @@ namespace problem {
  * @param[in] nic number of inequality constraints.
  * @param[in] c_tol constraints tolerance.
  */
-base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol):
+base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO should we use size_type directly?
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
 	m_c_tol(c_tol),
@@ -454,9 +454,13 @@ return f;
  * @param[in] x decision vector whose fitness will be calculated.
  *
  * @return fitness vector of x.
+ * @throws value_error if the chromosome dimension does not match with the problem dimension
  */
 fitness_vector base::objfun(const decision_vector &x) const
 {
+	if (x.size()!=get_dimension()) {
+		pagmo_throw(value_error,"invalid chromosome length");
+	}
 	fitness_vector f(m_f_dimension);
 	objfun(f,x);
 	return f;
@@ -557,7 +561,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 			++count2;
 		}
 	}
-	return ( ( (count1+count2) == m_f_dimension)  and (count1>0) );
+	return ( ( (count1+count2) == m_f_dimension) && (count1>0) );
 }
 
 /// Return human readable representation of the problem.
