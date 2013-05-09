@@ -151,14 +151,14 @@ int main()
 
     //----- Test CEC2009 - UF set-----//
     for(int i=1; i<=10; i++){
-        probs.push_back(problem::cec2009(i, false, dimension).clone());
-		probs_new.push_back(problem::cec2009(i%10 + 1, false, 11).clone());
+		probs.push_back(problem::cec2009(i, dimension, false).clone());
+		probs_new.push_back(problem::cec2009(i%10 + 1, 11, false).clone());
     }
     //----- Test CEC2009 - CF set-----//
     for(int i=1; i<=10; i++){
-        probs.push_back(problem::cec2009(i, true, dimension).clone());
-		probs_new.push_back(problem::cec2009(i%10 + 1, true, 17).clone());
-    }
+		probs.push_back(problem::cec2009(i, dimension, true).clone());
+		probs_new.push_back(problem::cec2009(i%10 + 1, 17, true).clone());
+	}
 
 	//----- Test meta-problems -----//
 	problem::zdt1 zdt1_before_transform1(dimension);
