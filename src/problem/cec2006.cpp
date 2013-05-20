@@ -56,6 +56,9 @@ const constraint_vector::size_type cec2006::m_problems_ic_dimension[] =
  */
 cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,m_problems_c_dimension[__check__(fun_id)-1],m_problems_ic_dimension[__check__(fun_id)-1]),m_problem_number(__check__(fun_id))
 {
+    // initialize best solution
+    initialize_best();
+
     // set the bounds for the current problem
     switch(m_problem_number)
     {
@@ -425,6 +428,7 @@ void cec2006::initialize_best(void)
         double c_vector[] = {0., 0., 0., -5., -5., -5., 0., 0., 0.};
 
         this->set_best_known_solutions(x_vector,f_vector,c_vector);
+
         break;
     }
     case 2:
@@ -1514,6 +1518,57 @@ void cec2006::g24_compute_constraints_impl(constraint_vector &c, const decision_
 }
 
 // -------------------------------------------
+
+/// Get the best known constraint vector.
+/**
+ * @return the best known constraint vector for the problem.
+ *
+ */
+const constraint_vector& cec2006::get_best_known_c_vector(void) const
+{
+    return this->m_best_known_constraint_vector;
+}
+
+/// Get the best known decision vector.
+/**
+ * @return the best known decision vector for the problem.
+ *
+ */
+const decision_vector& cec2006::get_best_known_x_vector(void) const
+{
+    return this->m_best_known_decision_vector;
+}
+
+/// Get the best known fitness vector.
+/**
+ * @return the best known fitness vector for the problem.
+ *
+ */
+const fitness_vector& cec2006::get_best_known_f_vector(void) const
+{
+    return this->m_best_known_fitness_vector;
+}
+
+///// Initialize the best known fitness, decision and constraints vectors
+///**
+// * This method should be called to set the best known fitness. If it has not been reimplemented
+// * in a derived class, then best known vectors are filled with NaN values.
+// *
+// */
+//void cec2006::initialize_best(void)
+//{
+//    double nan = std::numeric_limits<double>::quiet_NaN();
+
+//    // the decision vector size is not known
+//    m_best_known_decision_vector.resize(1);
+//    m_best_known_constraint_vector.resize(m_c_dimension);
+//    m_best_known_fitness_vector.resize(m_f_dimension);
+
+//    // by default sets the vectors with nan values
+//    std::fill(m_best_known_decision_vector.begin(),m_best_known_decision_vector.end(),nan);
+//    std::fill(m_best_known_constraint_vector.begin(),m_best_known_constraint_vector.end(),nan);
+//    std::fill(m_best_known_fitness_vector.begin(),m_best_known_fitness_vector.end(),nan);
+//}
 
 }} //namespaces
 

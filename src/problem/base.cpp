@@ -88,7 +88,7 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO 
 	m_tmp_c1.resize(m_c_dimension);
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
-	normalise_bounds();
+    normalise_bounds();
 }
 
 /// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
@@ -134,7 +134,7 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
 	m_tmp_c1.resize(m_c_dimension);
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
-	normalise_bounds();
+    normalise_bounds();
 }
 
 /// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
@@ -173,7 +173,7 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 	m_tmp_c1.resize(m_c_dimension);
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
-	normalise_bounds();
+    normalise_bounds();
 }
 
 /// Trivial destructor.
@@ -440,36 +440,6 @@ double base::get_diameter() const
 		retval += (m_ub[i] - m_lb[i]) * (m_ub[i] - m_lb[i]);
 	}
 	return std::sqrt(retval);
-}
-
-/// Get the best known constraint vector.
-/**
- * @return the best known constraint vector for the problem.
- *
- */
-const constraint_vector& base::get_best_known_c_vector(void) const
-{
-    return this->m_best_known_constraint_vector;
-}
-
-/// Get the best known decision vector.
-/**
- * @return the best known decision vector for the problem.
- *
- */
-const decision_vector& base::get_best_known_x_vector(void) const
-{
-    return this->m_best_known_decision_vector;
-}
-
-/// Get the best known fitness vector.
-/**
- * @return the best known fitness vector for the problem.
- *
- */
-const fitness_vector& base::get_best_known_f_vector(void) const
-{
-    return this->m_best_known_fitness_vector;
 }
 
 /// Return fitness of pagmo::decision_vector.
@@ -1276,27 +1246,6 @@ void base::pre_evolution(population &pop) const
 void base::post_evolution(population &pop) const
 {
 	(void)pop;
-}
-
-/// Initialize the best known fitness, decision and constraints vectors
-/**
- * This method should be called to set the best known fitness. If it has not been reimplemented
- * in a derived class, then best known vectors are filled with NaN values.
- *
- */
-void base::initialize_best(void)
-{
-    double nan = std::numeric_limits<double>::quiet_NaN();
-
-    // the decision vector size is not known
-    m_best_known_decision_vector.resize(1);
-    m_best_known_constraint_vector.resize(m_c_dimension);
-    m_best_known_fitness_vector.resize(m_f_dimension);
-
-    // by default sets the vectors with nan values
-    std::fill(m_best_known_decision_vector.begin(),m_best_known_decision_vector.end(),nan);
-    std::fill(m_best_known_constraint_vector.begin(),m_best_known_constraint_vector.end(),nan);
-    std::fill(m_best_known_fitness_vector.begin(),m_best_known_fitness_vector.end(),nan);
 }
 
 /// Reset internal caches.

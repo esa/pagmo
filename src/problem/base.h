@@ -392,9 +392,6 @@ class __PAGMO_VISIBLE base
 		double get_c_tol() const;
 		double get_diameter() const;
         virtual std::string get_name() const;
-        const constraint_vector& get_best_known_c_vector(void) const;
-        const decision_vector& get_best_known_x_vector(void) const;
-        const fitness_vector& get_best_known_f_vector(void) const;
 		//@}
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;
@@ -421,8 +418,7 @@ return base_ptr(new derived_problem(*this));
 		bool verify_x(const decision_vector &) const;
         bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 		virtual void pre_evolution(population &) const;
-		virtual void post_evolution(population &) const;
-        virtual void initialize_best(void);
+        virtual void post_evolution(population &) const;
 	protected:
 		virtual bool equality_operator_extra(const base &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
@@ -488,10 +484,7 @@ return base_ptr(new derived_problem(*this));
 			ar & const_cast<c_size_type &>(m_ic_dimension);
 			ar & m_lb;
 			ar & m_ub;
-			ar & const_cast<double &>(m_c_tol);
-            ar & m_best_known_fitness_vector;
-            ar & m_best_known_decision_vector;
-            ar & m_best_known_constraint_vector;
+            ar & const_cast<double &>(m_c_tol);
 			ar & m_decision_vector_cache_f;
 			ar & m_fitness_vector_cache;
 			ar & m_decision_vector_cache_c;
@@ -501,6 +494,7 @@ return base_ptr(new derived_problem(*this));
 			ar & m_tmp_c1;
 			ar & m_tmp_c2;
 		}  
+
 		// Data members.
 		// Size of the integer part of the problem.
 		const size_type				m_i_dimension;
@@ -529,15 +523,7 @@ return base_ptr(new derived_problem(*this));
 		mutable fitness_vector			m_tmp_f2;
 		// Temporary storage used during constraints satisfaction testing and constraints comparison.
 		mutable constraint_vector		m_tmp_c1;
-		mutable constraint_vector		m_tmp_c2;
-
-    protected:
-        // Best known fitness vector
-        fitness_vector m_best_known_fitness_vector;
-        // Best known decision vector
-        decision_vector m_best_known_decision_vector;
-        // Best known constraint vector
-        constraint_vector m_best_known_constraint_vector;
+        mutable constraint_vector		m_tmp_c2;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);

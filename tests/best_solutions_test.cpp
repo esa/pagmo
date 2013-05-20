@@ -29,23 +29,6 @@
 #include <boost/archive/text_iarchive.hpp>
 
 #include "../src/pagmo.h"
-#include "../src/keplerian_toolbox/planet_ss.h"
-#include "../src/keplerian_toolbox/epoch.h"
-
-#include "../src/Eigen/Dense"
-
-//-------------------------------------------------------------------------------
-// static data needed to test the non-default constructor in some of the problems.
-#ifdef PAGMO_ENABLE_KEP_TOOLBOX 
-//mga_1dsm
-const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
-	std::vector<kep_toolbox::planet_ptr> retval;
-	retval.push_back(kep_toolbox::planet_ss("earth").clone());
-	retval.push_back(kep_toolbox::planet_ss("earth").clone());
-	retval.push_back(kep_toolbox::planet_ss("earth").clone());
-	return retval;
-};
-#endif
 
 //knapsack
 static std::vector<double> a(11,30), b(11,10);
@@ -72,85 +55,22 @@ bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
 
 int main()
 {
-	unsigned int dimension = 24;
-
-	// create two containers of pagmo::problems
-	std::vector<problem::base_ptr> probs;
-	
-	// fill it up with problems
-	probs.push_back(problem::ackley(dimension).clone());
-	probs.push_back(problem::rosenbrock(dimension).clone());
-	probs.push_back(problem::branin().clone());
-	probs.push_back(problem::dejong(dimension).clone());
-	probs.push_back(problem::fon().clone());
-	probs.push_back(problem::golomb_ruler(10,20).clone());
-	probs.push_back(problem::griewank(dimension).clone());
-	probs.push_back(problem::himmelblau().clone());
-	probs.push_back(problem::string_match("e dai dai dai.....portiamolo a casa!!").clone());
-	probs.push_back(problem::inventory(7,8,1234).clone());
-	probs.push_back(problem::knapsack(a,b,c).clone());
-	probs.push_back(problem::kur(dimension).clone());
-	probs.push_back(problem::lennard_jones(dimension).clone());
-	probs.push_back(problem::levy5(dimension).clone());
-	probs.push_back(problem::luksan_vlcek_1(dimension).clone());
-	probs.push_back(problem::luksan_vlcek_2(dimension).clone());
-	probs.push_back(problem::luksan_vlcek_3(dimension).clone());
-	probs.push_back(problem::michalewicz(dimension).clone());
-	probs.push_back(problem::pol().clone());
-	probs.push_back(problem::rastrigin(dimension).clone());
-	probs.push_back(problem::sch().clone());
-	probs.push_back(problem::schwefel(dimension).clone());
-	probs.push_back(problem::snopt_toyprob().clone());
-	probs.push_back(problem::zdt1(dimension).clone());
-	probs.push_back(problem::zdt2(dimension).clone());
-	probs.push_back(problem::zdt3(dimension).clone());
-	probs.push_back(problem::zdt4(dimension).clone());
-	probs.push_back(problem::zdt5(dimension).clone());
-	probs.push_back(problem::zdt6(dimension).clone());
-	probs.push_back(problem::dtlz1(dimension).clone());
-	probs.push_back(problem::dtlz2(dimension).clone());
-	probs.push_back(problem::dtlz3(dimension).clone());
-	probs.push_back(problem::dtlz4(dimension).clone());
-	probs.push_back(problem::dtlz5(dimension).clone());
-	probs.push_back(problem::dtlz6(dimension).clone());
-	probs.push_back(problem::dtlz7(dimension).clone());
-	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
+    //----- Test CEC2006 -----//
+    std::vector<problem::cec2006*> probs;
 
     //----- Test CEC2006 -----//
     for(int i=1; i<=24; i++){
-        probs.push_back(problem::cec2006(i).clone());
+        probs.push_back(new problem::cec2006(i));
     }
 
-	//----- Test meta-problems -----//
-	problem::zdt1 zdt1_before_transform1(dimension);
-	//----- shifted -----//
-	probs.push_back(problem::shifted(zdt1_before_transform1).clone());
-	//----- rotated -----//	
-	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
-
-#ifdef PAGMO_ENABLE_KEP_TOOLBOX
-	probs.push_back(problem::cassini_1(2).clone());
-	probs.push_back(problem::cassini_2().clone());
-	probs.push_back(problem::gtoc_1().clone());
-	probs.push_back(problem::messenger().clone());
-	probs.push_back(problem::rosetta().clone());
-	probs.push_back(problem::messenger_full().clone());
-	probs.push_back(problem::tandem(3,10).clone());
-	probs.push_back(problem::laplace(std::vector<int>(default_sequence,default_sequence + 5)).clone());
-    probs.push_back(problem::mga_1dsm_alpha(construct_sequence()).clone());
-    probs.push_back(problem::mga_1dsm_tof(construct_sequence()).clone());
-#endif	
-
     // initialize the best solution and retrieve the decision vector
-    for (size_t i=0; i< probs.size(); ++i) {
+    for (size_t i=0; i<probs.size(); ++i) {
         std::cout << std::endl << std::setw(40) << probs[i]->get_name() << std::endl;
 
-        probs.at(i)->initialize_best();
-
-        if(boost::math::isnan((probs.at(i)->get_best_known_x_vector())[0]))
+        if(boost::math::isnan(((probs[i]->get_best_known_x_vector())[0])))
             std::cout << "Best decision vector is not implemented." << std::endl;
         else {
-            const decision_vector &x_best_known = probs.at(i)->get_best_known_x_vector();
+            const decision_vector &x_best_known = probs[i]->get_best_known_x_vector();
 
             fitness_vector f_computed = probs[i]->objfun(x_best_known);
             constraint_vector c_computed = probs[i]->compute_constraints(x_best_known);
@@ -178,7 +98,7 @@ int main()
 
             if(check_constraints) {
                 if(is_eq(c_computed, c_best_known, EPS)){
-                    std::cout << " constraints passes, ";
+                    std::cout << " constraints passes.";
                 }
 
                 else{
@@ -188,7 +108,12 @@ int main()
             }
         }
     }
-    
+
+    //----- Delete test CEC2006 -----//
+    for(int i=1; i<=24; i++){
+        delete probs[i];
+    }
+
 	std::cout << std::endl;
 	return 0;
 }
