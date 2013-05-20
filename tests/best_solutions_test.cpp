@@ -30,12 +30,6 @@
 
 #include "../src/pagmo.h"
 
-//knapsack
-static std::vector<double> a(11,30), b(11,10);
-static double c = 15;
-
-//laplace
-static const int default_sequence[5] = {3,2,2,1,5};
 //--------------------------------------------------------------------------------
 
 const double EPS = 1e-9;
@@ -70,13 +64,13 @@ int main()
         if(boost::math::isnan(((probs[i]->get_best_known_x_vector())[0])))
             std::cout << "Best decision vector is not implemented." << std::endl;
         else {
-            const decision_vector &x_best_known = probs[i]->get_best_known_x_vector();
+            const std::vector<decision_vector> &x_best_known = probs[i]->get_best_known_x_vector();
 
-            fitness_vector f_computed = probs[i]->objfun(x_best_known);
-            constraint_vector c_computed = probs[i]->compute_constraints(x_best_known);
+            fitness_vector f_computed = probs[i]->objfun(x_best_known.at(0));
+            constraint_vector c_computed = probs[i]->compute_constraints(x_best_known.at(0));
 
-            fitness_vector f_best_known = probs[i]->get_best_known_f_vector();
-            constraint_vector c_best_known = probs[i]->get_best_known_c_vector();
+            fitness_vector f_best_known = probs[i]->get_best_known_f_vector().at(0);
+            constraint_vector c_best_known = probs[i]->get_best_known_c_vector().at(0);
 
             if(is_eq(f_computed, f_best_known, EPS)){
                 std::cout << " fitness passes, ";
@@ -100,7 +94,6 @@ int main()
                 if(is_eq(c_computed, c_best_known, EPS)){
                     std::cout << " constraints passes.";
                 }
-
                 else{
                     std::cout << " constraints failed!"<<std::endl;
                     return 1;

@@ -53,9 +53,9 @@ class __PAGMO_VISIBLE cec2006 : public base
         base_ptr clone() const;
         std::string get_name() const;
 
-        const constraint_vector& get_best_known_c_vector(void) const;
-        const decision_vector& get_best_known_x_vector(void) const;
-        const fitness_vector& get_best_known_f_vector(void) const;
+        const std::vector<constraint_vector>& get_best_known_c_vector(void) const;
+        const std::vector<decision_vector>& get_best_known_x_vector(void) const;
+        const std::vector<fitness_vector>& get_best_known_f_vector(void) const;
 
     protected:
         void objfun_impl(fitness_vector &, const decision_vector &) const;
@@ -133,9 +133,9 @@ class __PAGMO_VISIBLE cec2006 : public base
         static const constraint_vector::size_type m_problems_ic_dimension[];
 
         // Best known vectors
-        fitness_vector m_best_known_fitness_vector;
-        decision_vector m_best_known_decision_vector;
-        constraint_vector m_best_known_constraint_vector;
+        std::vector<fitness_vector> m_best_known_fitness_vector;
+        std::vector<decision_vector> m_best_known_decision_vector;
+        std::vector<constraint_vector> m_best_known_constraint_vector;
 };
 
 }} //namespaces

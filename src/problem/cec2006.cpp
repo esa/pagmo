@@ -677,9 +677,9 @@ void cec2006::initialize_best(void)
     }
     case 24:
     {
-        const double x_vector[] = {2.32952019747762,3.17849307411774};
-        const double f_vector[] = {-5.50801327159536};
-        double c_vector[] = {-4.8849813083506888e-14, 1.7053025658242404e-13};
+        static const double x_vector[] = {2.32952019747762,3.17849307411774};
+        static const double f_vector[] = {-5.50801327159536};
+        static const double c_vector[] = {-4.8849813083506888e-14, 1.7053025658242404e-13};
 
         this->set_best_known_solutions(x_vector,f_vector,c_vector);
         break;
@@ -694,20 +694,33 @@ void cec2006::initialize_best(void)
 
 }
 
+// might be called add best know solution, and should take vectors
 void cec2006::set_best_known_solutions(const double x[], const double f[], const double c[])
 {
+    m_best_known_decision_vector.resize(1);
+    m_best_known_fitness_vector.resize(1);
+    m_best_known_constraint_vector.resize(1);
+
     int x_dimension = m_problems_dimension[m_problem_number-1];
     int f_dimension = 1;
     int c_dimension = m_problems_c_dimension[m_problem_number-1];
 
-    m_best_known_decision_vector.resize(x_dimension);
-    std::copy(x,x + x_dimension,m_best_known_decision_vector.begin());
+    decision_vector best_known_decision;
+    fitness_vector best_known_fitness;
+    constraint_vector best_known_constraint;
 
-    m_best_known_fitness_vector.resize(f_dimension);
-    std::copy(f,f + f_dimension,m_best_known_fitness_vector.begin());
+    best_known_decision.resize(x_dimension);
+    std::copy(x,x + x_dimension,best_known_decision.begin());
 
-    m_best_known_constraint_vector.resize(c_dimension);
-    std::copy(c,c + c_dimension,m_best_known_constraint_vector.begin());
+    best_known_fitness.resize(f_dimension);
+    std::copy(f,f + f_dimension,best_known_fitness.begin());
+
+    best_known_constraint.resize(c_dimension);
+    std::copy(c,c + c_dimension,best_known_constraint.begin());
+
+    m_best_known_decision_vector[0] = best_known_decision;
+    m_best_known_fitness_vector[0] = best_known_fitness;
+    m_best_known_constraint_vector[0] = best_known_constraint;
 }
 
 // -------------------------------------------
@@ -1524,7 +1537,7 @@ void cec2006::g24_compute_constraints_impl(constraint_vector &c, const decision_
  * @return the best known constraint vector for the problem.
  *
  */
-const constraint_vector& cec2006::get_best_known_c_vector(void) const
+const std::vector<constraint_vector>& cec2006::get_best_known_c_vector(void) const
 {
     return this->m_best_known_constraint_vector;
 }
@@ -1534,7 +1547,7 @@ const constraint_vector& cec2006::get_best_known_c_vector(void) const
  * @return the best known decision vector for the problem.
  *
  */
-const decision_vector& cec2006::get_best_known_x_vector(void) const
+const std::vector<decision_vector>& cec2006::get_best_known_x_vector(void) const
 {
     return this->m_best_known_decision_vector;
 }
@@ -1544,7 +1557,7 @@ const decision_vector& cec2006::get_best_known_x_vector(void) const
  * @return the best known fitness vector for the problem.
  *
  */
-const fitness_vector& cec2006::get_best_known_f_vector(void) const
+const std::vector<fitness_vector>& cec2006::get_best_known_f_vector(void) const
 {
     return this->m_best_known_fitness_vector;
 }
