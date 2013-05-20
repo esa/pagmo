@@ -61,7 +61,7 @@ int main()
     for (size_t i=0; i<probs.size(); ++i) {
         std::cout << std::endl << std::setw(40) << probs[i]->get_name() << std::endl;
 
-        if(boost::math::isnan(((probs[i]->get_best_known_x_vector())[0])))
+        if(probs[i]->get_best_known_x_vector().size() == 0)
             std::cout << "Best decision vector is not implemented." << std::endl;
         else {
             const std::vector<decision_vector> &x_best_known_vector = probs[i]->get_best_known_x_vector();
