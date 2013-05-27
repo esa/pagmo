@@ -70,6 +70,7 @@
 #include "problem/zdt5.h"
 #include "problem/zdt6.h"
 #include "problem/cec2006.h"
+#include "problem/cec2009.h"
 #include "problem/cec2013.h"
 #include "problem/shifted.h"
 #include "problem/rotated.h"

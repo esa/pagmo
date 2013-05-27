@@ -208,26 +208,6 @@ def _bukin_ctor(self):
 bukin._orig_init = bukin.__init__
 bukin.__init__ = _bukin_ctor
 
-def _cec2013_ctor(self, dim=10, prob_id=1, path="input_data/"):
-	"""
-	Constructs one of the 28 CEC2013 Competition Problems (Box-Constrained
-	Continuous Single-Objective)
-
-	NOTE: this problem requires two files to be put in the path indicated. "M_Dxx.txt" and "shift_data.txt"
-		  These files can be downloaded from the CEC2013 competition site
-
-	USAGE: problem.cec2013(dim = 10, prob_id=1, path="input_data/")
-
-	"""
-	arg_list=[]
-	arg_list.append(prob_id)
-	arg_list.append(dim)
-	arg_list.append(path)
-	self._orig_init(*arg_list)
-
-cec2013._orig_init = cec2013.__init__
-cec2013.__init__ = _cec2013_ctor
-
 def _michalewicz_ctor(self,dim = 10):
 	"""
 	Constructs a Michalewicz problem (Box-Constrained Continuous Single-Objective)
@@ -307,10 +287,11 @@ sch.__init__ = _sch_ctor
 
 def _cec2006_ctor(self, prob_id=1):
 	"""
-	Constructs one of the 24 CEC2006 Competition Problems (Constrained
-	Continuous Single-Objective)
+	Constructs one of the 24 CEC2006 Competition Problems (Constrained Continuous Single-Objective)
 
 	USAGE: problem.cec2006(prob_id=1)
+
+	* prob_id: Problem number, one of [1,2,...24]
 	"""
     
 	# We construct the arg list for the original constructor exposed by boost_python
@@ -321,6 +302,49 @@ def _cec2006_ctor(self, prob_id=1):
 cec2006._orig_init = cec2006.__init__
 cec2006.__init__ = _cec2006_ctor
 
+def _cec2009_ctor(self, prob_id=1, dim=30, is_constrained=False):
+	"""
+	Constructs one of the 20 CEC2009 Competition Problems (Constrained / Unconstrained Multi-Objective)
+
+	USAGE: problem.cec2009(prob_id=1, dim=30, is_constrained=False)
+
+	* prob_id: Problem number, one of [1,2,...10]
+	* dim: Problem's dimension (default is 30, corresponding to the competition set-up)
+	* is_constrained: if True constructs the CF problems, otherwise the UF (constrained/unconstrained)
+	"""
+    
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(prob_id)
+	arg_list.append(dim)
+	arg_list.append(is_constrained)
+	self._orig_init(*arg_list)
+
+cec2009._orig_init = cec2009.__init__
+cec2009.__init__ = _cec2009_ctor
+
+def _cec2013_ctor(self, prob_id=1, dim=10, path="input_data/"):
+	"""
+	Constructs one of the 28 CEC2013 Competition Problems (Box-Constrained Continuous Single-Objective)
+
+	NOTE: this problem requires two files to be put in the path indicated: "M_Dxx.txt" and "shift_data.txt".
+	These files can be downloaded from the CEC2013 competition site: http://web.mysites.ntu.edu.sg/epnsugan/PublicSite/Shared%20Documents/CEC2013/cec13-c-code.zip
+
+	USAGE: problem.cec2013(dim = 10, prob_id=1, path="input_data/")
+
+	* prob_id: Problem number, one of [1,2,...10]
+	* dim: Problem's dimension (default is 10)
+	* path: Whether the problem is constrained or unconstrained
+
+	"""
+	arg_list=[]
+	arg_list.append(prob_id)
+	arg_list.append(dim)
+	arg_list.append(path)
+	self._orig_init(*arg_list)
+
+cec2013._orig_init = cec2013.__init__
+cec2013.__init__ = _cec2013_ctor
 
 def _luksan_vlcek_1_ctor(self,dim = 3):
 	"""

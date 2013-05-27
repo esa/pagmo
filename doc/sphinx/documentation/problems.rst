@@ -71,6 +71,7 @@ DTLZ4                              :class:`PyGMO.problem.dtlz4`
 DTLZ5                              :class:`PyGMO.problem.dtlz5`
 DTLZ6                              :class:`PyGMO.problem.dtlz6`
 DTLZ7                              :class:`PyGMO.problem.dtlz7`
+CEC2009 (UF1-UF10)                 :class:`PyGMO.problem.cec2009`            UF problems from CEC2009 Competition.
 MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
 MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
@@ -88,6 +89,14 @@ Luksan Vlcek 3                     :class:`PyGMO.problem.luksan_vlcek_3`
 Planet to Planet LT Transfer       :class:`PyGMO.problem.py_pl2pl`           Requires PyKEP. Implemented in Python
 SNOPT Toy-Problem                  :class:`PyGMO.problem.snopt_toyprob`      
 GTOC2 (Full Problem)               :class:`PyGMO.problem.gtoc_2`             Requires the GTOP database option active
+================================== ========================================= ===========================================
+
+Constrained Continuous Multi-Objective
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+================================== ========================================= ===========================================
+Common Name                        Name in PyGMO                             Comments
+================================== ========================================= ===========================================
+CEC2009 (CF1-CF10)                 :class:`PyGMO.problem.cec2009`            CF problems from CEC2009 Competition.
 ================================== ========================================= ===========================================
 
 Box-Constrained Integer Single-Objective
@@ -189,6 +198,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.cec2006
 
    .. automethod:: PyGMO.problem.cec2006.__init__
+
+.. autoclass:: PyGMO.problem.cec2009
+
+   .. automethod:: PyGMO.problem.cec2009.__init__
    
 .. autoclass:: PyGMO.problem.cec2013
 
