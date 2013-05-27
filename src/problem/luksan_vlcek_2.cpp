@@ -59,7 +59,7 @@ namespace pagmo { namespace problem {
  *
  * @see L.Luksan and J.Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
  */
-luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base(__check__(N),0,1,2*(__check__(N)-5),2*(__check__(N)-5))
+luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base(__check__(N),0,1,2*(__check__(N)-9),2*(__check__(N)-9))
 {
 
 	if (clb > cub)
@@ -68,8 +68,8 @@ luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base
 	}
 	set_lb(-5);
 	set_ub(5);
-	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(2*(N-5)),clb);
-	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(2*(N-5)),cub);
+	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(2*(N-9)),clb);
+	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(2*(N-9)),cub);
 }
 
 /// Clone method.
@@ -82,7 +82,7 @@ base_ptr luksan_vlcek_2::clone() const
 void luksan_vlcek_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	f[0] = 0.;
-	for (decision_vector::size_type i=0; i < x.size()/2; i++)
+	for (decision_vector::size_type i=0; i < (x.size()-2)/2; i++)
 	{
 		double a1 = x[2*i]*x[2*i] - x[2*i+1];
 		double a2 = x[2*i] - 1.;
