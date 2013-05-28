@@ -63,7 +63,7 @@ ENDIF(COMMAND CMAKE_POLICY)
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
 # Build Option: when active the bindings to Python are compiled and linked (installation).
-OPTION(BUILD_PYGMO "Build Python bindings." ON)
+OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: when active the GTOP database problems are built.
 OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)

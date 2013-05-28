@@ -107,7 +107,7 @@ int main()
     }
 
     //----- Delete test CEC2006 -----//
-    for(int i=1; i<=24; i++){
+    for(int i=0; i<probs.size(); i++){
         delete probs[i];
     }
 
