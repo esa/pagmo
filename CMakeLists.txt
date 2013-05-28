@@ -63,10 +63,10 @@ ENDIF(COMMAND CMAKE_POLICY)
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
 # Build Option: when active the bindings to Python are compiled and linked (installation).
-OPTION(BUILD_PYGMO "Build Python bindings." OFF)
+OPTION(BUILD_PYGMO "Build Python bindings." ON)
 
 # Build Option: when active the GTOP database problems are built.
-OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
+OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." ON)
 IF(ENABLE_GTOP_DATABASE)
         ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
 ENDIF(ENABLE_GTOP_DATABASE)
@@ -149,6 +149,8 @@ ELSE(UNIX)
 	IF(MSVC)
 	    #This flags are necessary for MSVC requires boost libs to be named in a stupid way. (i.e. without lib in front)
         ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+		#This flag is necesary for MSVC to access mathematical constants such as M_PI,...
+		ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
         #This is necessary to add Additional Library Directories in the linker path of MSVC
         link_directories(${Boost_LIBRARY_DIRS})
 	ENDIF(MSVC)
