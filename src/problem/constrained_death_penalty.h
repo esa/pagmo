@@ -22,35 +22,64 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include "src/pagmo.h"
+#ifndef PAGMO_PROBLEM_CONSTRAINED_DEATH_PENALTY_H
+#define PAGMO_PROBLEM_CONSTRAINED_DEATH_PENALTY_H
 
-using namespace pagmo;
+#include <string>
 
-// Example in C++ of the use of PaGMO 1.1.4
+#include "../serialization.h"
+#include "../types.h"
+#include "cec2006.h"
+#include "base.h"
 
-int main()
+namespace pagmo{ namespace problem {
+
+/// Constrainted death penalty meta-problem
+/**
+ * Implements a meta-problem class that wraps some other constrained problems,
+ * resulting in death penalty constraints handling.
+ *
+ * Two implementations of the death penalty are availlable. The first one
+ * is the most common simple death penalty. The second one is the death
+ * penalty defined by Angel Kuri Morales et al.
+ *
+ * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
+ */
+
+class __PAGMO_VISIBLE constrained_death_penalty : public base
 {
-    pagmo::problem::cec2006 prob(4);
-    pagmo::problem::constrained_death_penalty death_prob(prob, 0);
+	public:
+		//constructors
+        constrained_death_penalty(const base & = cec2006(4), const int = 0);
 
-    std::cout << death_prob <<std::endl;
+		//copy constructor
+        constrained_death_penalty(const constrained_death_penalty &);
+        base_ptr clone() const;
+		std::string get_name() const;
 
-    algorithm::cmaes algo;
+    protected:
+		std::string human_readable_extra() const;
+        void objfun_impl(fitness_vector &, const decision_vector &) const;
 
-    population pop = population(death_prob,10);
+    private:
+        void set_death_penalty_method(const int);
 
-    for(int i=0; i<15; i++) {
-        algo.evolve(pop);
-    }
+    private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+            ar & boost::serialization::base_object<base>(*this);
+            ar & m_original_problem;
+            ar & const_cast<int &>(m_death_penalty_method);
+		}
+        base_ptr m_original_problem;
 
-    std::cout << pop.champion() <<std::endl;
+        int m_death_penalty_method;
+};
 
-    //island my_island(algo,death_prob,100);
-    //my_island.evolve(100);
-    //std::cout << my_island;
+}} //namespaces
 
-    // std::cout << death_prob.objfun(x) <<std::endl;
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::constrained_death_penalty);
 
-	return 0;
-}
+#endif // PAGMO_PROBLEM_CONSTRAINED_DEATH_PENALTY_H

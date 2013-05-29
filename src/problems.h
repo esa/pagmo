@@ -72,6 +72,7 @@
 #include "problem/cec2006.h"
 #include "problem/cec2009.h"
 #include "problem/cec2013.h"
+#include "problem/constrained_death_penalty.h"
 #include "problem/shifted.h"
 #include "problem/rotated.h"
 #include "problem/normalized.h"

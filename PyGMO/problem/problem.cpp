@@ -51,7 +51,7 @@
 using namespace boost::python;
 using namespace pagmo;
 
-// Wrappers to expose the overloaded constructors of rotated+ shifted
+// Wrappers to expose the overloaded constructors of rotated + shifted/constraints handling
 template <class T>
 static boost::shared_ptr<problem::base> construct_with_problem(const problem::base& prob)
 {
@@ -387,6 +387,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("p_distance", &problem::zdt6::p_distance);
 	
 	// Meta-problems
+		
+	// Constrained death penalty meta-problem
+	problem_wrapper<problem::constrained_death_penalty>("constrained_death_penalty","Constrained death penalty problem")
+        .def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::constrained_death_penalty,int>));
+    
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")
 		.def("__init__", make_constructor(&construct_with_problem<problem::shifted>))

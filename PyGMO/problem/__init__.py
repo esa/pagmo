@@ -584,3 +584,26 @@ def _rotated_ctor(self, problem = None, rotation = None):
 rotated._orig_init = rotated.__init__
 rotated.__init__ = _rotated_ctor
 
+def _constrained_death_penalty_ctor(self, problem = None, death_penalty_method = None):
+	"""
+	Redefines a constrained problem to an unconstrained one with death penalty approach.
+	The new objective function will be f(x) if feasible and infinity otherwise, where x
+	is the decision vector.
+
+	USAGE: problem.(problem=PyGMO.cec2006(4), death_penalty_method=0)
+
+	* problem: PyGMO constrained problem one wants to treat with a death penalty approach
+    * death_method: Simple death method set with 0 and Kuri method set with 1
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem=cec2006(4)
+	arg_list.append(problem)
+	if death_penalty_method == None:
+		death_penalty_method=0
+	arg_list.append(death_penalty_method)
+	self._orig_init(*arg_list)
+constrained_death_penalty._orig_init = constrained_death_penalty.__init__
+constrained_death_penalty.__init__ = _constrained_death_penalty_ctor

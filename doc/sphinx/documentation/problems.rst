@@ -11,13 +11,14 @@ The user can implement its own problem directly in Python, in which case he need
 
 Meta-problems
 ^^^^^^^^^^^^^
-================================== ========================================= ===========================================
-Common Name                        Name in PyGMO                             Comments
-================================== ========================================= ===========================================
-Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
-Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
-Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
-================================== ========================================= ===========================================
+================================== ================================================= ===========================================
+Common Name                        Name in PyGMO                                     Comments
+================================== ================================================= ===========================================
+Constrained death penalty          :class:`PyGMO.problem.constrained_death_penalty`  from V1.1.5
+Rotated                            :class:`PyGMO.problem.rotated`                    from V1.1.5
+Shifted                            :class:`PyGMO.problem.shifted`                    from V1.1.5
+Normalized                         :class:`PyGMO.problem.normalized`                 from V1.1.5
+================================== ================================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -155,6 +156,10 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_c
    
+.. autoclass:: PyGMO.problem.constrained_death_penalty
+
+   .. automethod:: PyGMO.problem.constrained_death_penalty.__init__
+      
 .. autoclass:: PyGMO.problem.shifted
 
    .. automethod:: PyGMO.problem.shifted.__init__
