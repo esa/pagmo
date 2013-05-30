@@ -22,6 +22,10 @@ ADD_EXECUTABLE(test_rotated test_rotated.cpp)
 TARGET_LINK_LIBRARIES(test_rotated pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(test_rotated test_rotated)
 
+ADD_EXECUTABLE(test_noisy test_noisy.cpp)
+TARGET_LINK_LIBRARIES(test_noisy pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(test_noisy test_noisy)
+
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)
 	TARGET_LINK_LIBRARIES(mpi_torture_test ${MANDATORY_LIBRARIES} pagmo_static)

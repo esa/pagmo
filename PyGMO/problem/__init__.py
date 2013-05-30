@@ -568,7 +568,7 @@ def _rotated_ctor(self, problem = None, rotation = None):
 
 	USAGE: problem.(problem=PyGMO.ackley(1), rotation = a random orthogonal matrix)
 
-	* problem: PyGMO problem one wants to shift
+	* problem: PyGMO problem one wants to rotate
 	* rotation: a list of lists (matrix). If not specified, a random orthogonal matrix is used.
 
 	"""
@@ -584,3 +584,30 @@ def _rotated_ctor(self, problem = None, rotation = None):
 rotated._orig_init = rotated.__init__
 rotated.__init__ = _rotated_ctor
 
+def _noisy_ctor(self, problem = None, mu = None, sigma = None, seed = None):
+    """
+    Inject noise to a problem.
+    The new objective function will become stochastic, influence by a normally distributed noise.
+
+    USAGE: problem.(problem=PyGMO.ackley(1), mu=0.0, sigma=1.0, seed=0)
+
+    * problem: PyGMO problem on which one wants to add noises
+    * mu: Mean of the noise
+    * sigma: Standard deviation of the noise
+    * seed: Seed for the underlying RNG
+
+    """
+
+    # We construct the arg list for the original constructor exposed by boost_python
+    arg_list=[]
+    if problem == None:
+        problem=ackley(1)
+    arg_list.append(problem)
+    if mu != None:
+        arg_list.append(mu)
+        arg_list.append(sigma)
+        arg_list.append(seed)
+    self._orig_init(*arg_list)
+
+noisy._orig_init = noisy.__init__
+noisy.__init__ = _noisy_ctor
