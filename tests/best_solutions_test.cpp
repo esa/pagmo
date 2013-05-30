@@ -158,25 +158,30 @@ int main()
             std::cout << "Best decision vector is not implemented." << std::endl;
         else {
             const std::vector<decision_vector> &x_best_known_vector = probs[i]->get_best_known_x_vector();
-
+			//browse the solutions set
             for(int j=0; j<x_best_known_vector.size(); j++) {
                 const decision_vector &x_best_known = x_best_known_vector.at(j);
 
                 fitness_vector f_computed = probs[i]->objfun(x_best_known);
                 const fitness_vector &f_best_known = probs[i]->get_best_known_f_vector().at(j);
 
-                if(is_eq(f_computed, f_best_known, EPS)){
-                    std::cout << " fitness passes, ";
+                if(f_best_known.empty()) {
+                    std::cout << "Best fitness vector is not implemented." << std::endl;
                 }
-                else{
-                    std::cout << " fitness failed!"<<std::endl;
-                    return 1;
-                }
+				else{
+	                if(is_eq(f_computed, f_best_known, EPS)){
+		               std::cout << " fitness passes, ";
+			        }
+				    else{
+					    std::cout << " fitness failed!"<<std::endl;
+						return 1;
+					}
+				}
 
                 constraint_vector c_computed = probs[i]->compute_constraints(x_best_known);
                 const constraint_vector &c_best_known = probs[i]->get_best_known_c_vector().at(j);
 
-                if(c_best_known.empty()) {
+				if(c_best_known.empty() && probs[i]->get_c_dimension()>0) {
                     std::cout << "Best constraint vector is not implemented." << std::endl;
                 }
                 else {

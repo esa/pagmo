@@ -1242,17 +1242,26 @@ void base::initialize_best(void)
  * This method is called by initialize_best() and sets the base best know decision vectors members.
  *
  * @param[in] best known x pagmo::decision_vector.
- * @param[in] best known f pagmo::fitnedd_vector.
+ * @param[in] best known f pagmo::fitness_vector.
  * @param[in] best known c pagmo::constraints_vector.
  */
 void base::set_best_known_solutions(std::vector<decision_vector>& best_known_decision, std::vector<fitness_vector>& best_known_fitness, std::vector<constraint_vector>& best_known_constraint)
 {
-    if(best_known_decision.size() != 0)
+    if(best_known_decision.size() != 0){
+		for (int i=0; i<best_known_decision.size(); i++)
+			pagmo_assert(best_known_decision.at(i).size() == get_dimension());
         m_best_known_decision_vector = best_known_decision;
-    if(best_known_fitness.size() != 0)
+	}
+    if(best_known_fitness.size() != 0){
+		for (int i=0; i<best_known_fitness.size(); i++)
+			pagmo_assert(best_known_fitness.at(i).size() == m_f_dimension);
         m_best_known_fitness_vector = best_known_fitness;
-    if(best_known_constraint.size() != 0)
+	}
+    if(best_known_constraint.size() != 0){
+		for (int i=0; i<best_known_constraint.size(); i++)
+			pagmo_assert(best_known_constraint.at(i).size() == m_c_dimension);
         m_best_known_constraint_vector = best_known_constraint;
+	}
 }
 
 /// Get the best known constraint vector.
