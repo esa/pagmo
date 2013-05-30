@@ -1221,7 +1221,68 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 		}
 		x_new[j] = x0[j];
 	}
+}
 
+/// Initialize the best known fitness, decision and constraints vectors
+/**
+ * This method should be called to set the best known fitness. If it has not been reimplemented
+ * in a derived class, then best known vectors are empty by default.
+ */
+void base::initialize_best(void)
+{
+    std::vector<decision_vector> empty_decision_vector;
+    std::vector<fitness_vector> empty_fitness_vector;
+    std::vector<constraint_vector> empty_constraint_vector;
+
+    this->set_best_known_solutions(empty_decision_vector,empty_fitness_vector,empty_constraint_vector);
+}
+
+/// Sets the best known fitness, decision and constraints vectors
+/**
+ * This method is called by initialize_best() and sets the base best know decision vectors members.
+ *
+ * @param[in] best known x pagmo::decision_vector.
+ * @param[in] best known f pagmo::fitnedd_vector.
+ * @param[in] best known c pagmo::constraints_vector.
+ */
+void base::set_best_known_solutions(std::vector<decision_vector>& best_known_decision, std::vector<fitness_vector>& best_known_fitness, std::vector<constraint_vector>& best_known_constraint)
+{
+    if(best_known_decision.size() != 0)
+        m_best_known_decision_vector = best_known_decision;
+    if(best_known_fitness.size() != 0)
+        m_best_known_fitness_vector = best_known_fitness;
+    if(best_known_constraint.size() != 0)
+        m_best_known_constraint_vector = best_known_constraint;
+}
+
+/// Get the best known constraint vector.
+/**
+ * @return the best known constraint vector for the problem.
+ *
+ */
+const std::vector<constraint_vector>& base::get_best_known_c_vector(void) const
+{
+    return this->m_best_known_constraint_vector;
+}
+
+/// Get the best known decision vector.
+/**
+ * @return the best known decision vector for the problem.
+ *
+ */
+const std::vector<decision_vector>& base::get_best_known_x_vector(void) const
+{
+    return this->m_best_known_decision_vector;
+}
+
+/// Get the best known fitness vector.
+/**
+ * @return the best known fitness vector for the problem.
+ *
+ */
+const std::vector<fitness_vector>& base::get_best_known_f_vector(void) const
+{
+    return this->m_best_known_fitness_vector;
 }
 
 /// Pre-evolution hook.

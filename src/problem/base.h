@@ -437,7 +437,14 @@ return base_ptr(new derived_problem(*this));
 		void objfun(fitness_vector &, const decision_vector &) const;
 		bool compare_fitness(const fitness_vector &, const fitness_vector &) const;
 		void reset_caches() const;
-	protected:
+    public:
+        virtual void initialize_best(void);
+        const std::vector<constraint_vector>& get_best_known_c_vector(void) const;
+        const std::vector<decision_vector>& get_best_known_x_vector(void) const;
+        const std::vector<fitness_vector>& get_best_known_f_vector(void) const;
+    protected:
+        void set_best_known_solutions(std::vector<decision_vector>&, std::vector<fitness_vector>&, std::vector<constraint_vector>&);
+    protected:
 		virtual bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.
 		/**
@@ -493,6 +500,9 @@ return base_ptr(new derived_problem(*this));
 			ar & m_tmp_f2;
 			ar & m_tmp_c1;
 			ar & m_tmp_c2;
+            ar & m_best_known_fitness_vector;
+            ar & m_best_known_decision_vector;
+            ar & m_best_known_constraint_vector;
 		}  
 
 		// Data members.
@@ -524,6 +534,11 @@ return base_ptr(new derived_problem(*this));
 		// Temporary storage used during constraints satisfaction testing and constraints comparison.
 		mutable constraint_vector		m_tmp_c1;
         mutable constraint_vector		m_tmp_c2;
+
+        // Best known vectors
+        std::vector<fitness_vector> m_best_known_fitness_vector;
+        std::vector<decision_vector> m_best_known_decision_vector;
+        std::vector<constraint_vector> m_best_known_constraint_vector;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
