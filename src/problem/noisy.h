@@ -34,50 +34,9 @@
 #include "base_stochastic.h"
 
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 
 namespace pagmo{ namespace problem {
-
-/// Serializable boost::random distribution
-/**
- * Implements a serializable boost::normal_distribution,
- * which could then be used safely within the PaGMO framework.
- *
- */
-//TODO: If useful, can consider exposing this to a wider namespace, like rng_double?
-class __PAGMO_VISIBLE normal_distribution_serializable: public boost::normal_distribution<double>
-{
-	friend class boost::serialization::access;
-	public:
-		/// Return value of the generator.
-		typedef boost::normal_distribution<double>::input_type input_type;
-		typedef boost::normal_distribution<double>::result_type result_type;
-		/// Constructor from mean and sigma params
-		/**
-		 * Will invoke the corresponding base constructor.
-		 */	
-		normal_distribution_serializable(const double mean, const double sigma):boost::normal_distribution<double>(mean, sigma) {}
-
-	private:
-		// Serialization exploits the fact that the state of Boost distribution can be sent/received to/from standard streams.
-		template <class Archive>
-		void save(Archive &ar, const unsigned int) const
-		{
-			std::stringstream ss;
-			ss << *static_cast<boost::normal_distribution<double> const *>(this);
-			std::string tmp(ss.str());
-			ar << tmp;
-		}
-		template <class Archive>
-		void load(Archive &ar, const unsigned int)
-		{
-			std::string tmp;
-			ar >> tmp;
-			std::stringstream ss(tmp);
-			ss >> *static_cast<boost::normal_distribution<double> *>(this);
-		}
-		BOOST_SERIALIZATION_SPLIT_MEMBER();
-};
-
 
 /// Noisy meta-problem
 /**
@@ -90,9 +49,16 @@ class __PAGMO_VISIBLE normal_distribution_serializable: public boost::normal_dis
 class __PAGMO_VISIBLE noisy : public base_stochastic
 {
 	public:
+		/// Distribution type of the noise
+		struct noise_distribution{
+			enum type {NORMAL = 0, UNIFORM = 1};
+		};
 		//constructors
-		noisy(const base & = ackley(1));
-		noisy(const base &, const double mu, const double sigma, unsigned int seed);
+		noisy(const base & = ackley(1),
+			  const double param_first = 0.0,
+			  const double param_second = 0.1,
+			  noise_distribution::type noise_type = noise_distribution::NORMAL,
+			  unsigned int seed = 0);
 		
 		//copy constructor
 		noisy(const noisy &);
@@ -100,16 +66,15 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		std::string get_name() const;
 
 		void set_noise_param(double, double);
-		double get_param_mu();
-		double get_param_sigma();
+		double get_param_first();
+		double get_param_second();
 
 	protected:
 		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 
-	private:
-		void inject_noise_f(fitness_vector&) const;
+private: void inject_noise_f(fitness_vector&) const;
 		void inject_noise_c(constraint_vector&) const;
 
 		friend class boost::serialization::access;
@@ -119,13 +84,17 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 			ar & boost::serialization::base_object<base_stochastic>(*this);
 			ar & m_original_problem;
 			ar & m_normal_dist;
-			ar & m_param_mu;
-			ar & m_param_sigma;
+			ar & m_uniform_dist;
+			ar & m_param_first;
+			ar & m_param_second;
+			ar & m_noise_type;
 		}
 		base_ptr m_original_problem;			
-		mutable normal_distribution_serializable m_normal_dist;
-		double m_param_mu;
-		double m_param_sigma;
+		mutable boost::normal_distribution<double> m_normal_dist;
+		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;	
+		double m_param_first;
+		double m_param_second;
+		noise_distribution::type m_noise_type;
 };
 
 }} //namespaces

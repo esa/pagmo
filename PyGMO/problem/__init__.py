@@ -19,19 +19,19 @@ except ImportError:
 try:
 	from _mit_spheres import visualize as _visualize
 	mit_spheres.visualize = _visualize
-	def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
+	def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, siparam_firstlation_time = 50.0):
 		"""
 		Construct a Neurocontroller Evolution problem that seeks to drive three point masses to form a triangle
 		This problem was used to design a contorller for the MIT SPHERES test bed on boear the ISS
 
-		USAGE: problem.mit_spheres(sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
+		USAGE: problem.mit_spheres(sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, siparam_firstlation_time = 50.0):
 
 		* sample_size: number of initial conditions the neurocontroller is tested from
 		* n_hidden: number of hidden  for the feed-forward neural network
 		* ode_prec: relative numerical precision of neurons the ODE integrator
 		* seed: integer used as starting random seed to build the pseudorandom sequences used to generate the sample
 		* symmetric: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
-		* simulation_time: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
+		* siparam_firstlation_time: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
 	"""
 
 		# We construct the arg list for the original constructor exposed by boost_python
@@ -41,7 +41,7 @@ try:
 		arg_list.append(ode_prec)
 		arg_list.append(seed)
 		arg_list.append(symmetric)
-		arg_list.append(simulation_time)
+		arg_list.append(siparam_firstlation_time)
 		self._orig_init(*arg_list)
 	mit_spheres._orig_init = mit_spheres.__init__
 	mit_spheres.__init__ = _mit_spheres_ctor
@@ -214,7 +214,7 @@ def _michalewicz_ctor(self,dim = 10):
 
 	USAGE: problem.michalewicz(dim=5)
 
-	NOTE: Minimum is -4.687 for dim=5 and -9.66 for dim = 10
+	NOTE: Miniparam_firstm is -4.687 for dim=5 and -9.66 for dim = 10
 
 	* dim: problem dimension
 	"""
@@ -230,7 +230,7 @@ def _kur_ctor(self,dim = 10):
 	"""
 	Constructs a Kursawe's study problem (Box-Constrained Continuous Multi-Objective)
 
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist param_firstltiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
 	USAGE: problem.kur()
 
@@ -247,7 +247,7 @@ def _fon_ctor(self):
 	"""
 	Constructs a Fonseca and Fleming's study problem (Box-Constrained Continuous Multi-Objective)
 
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist param_firstltiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
 	USAGE: problem.fon()
 	"""
@@ -261,7 +261,7 @@ def _pol_ctor(self):
 	"""
 	Constructs a Poloni's study study problem (Box-Constrained Continuous Multi-Objective)
 
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist param_firstltiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
 	USAGE: problem.pol()
 	"""
@@ -275,7 +275,7 @@ def _sch_ctor(self):
 	"""
 	Constructs a Schaffer's study problem (Box-Constrained Continuous Multi-Objective)
 
-	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist param_firstltiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
 	USAGE: problem.sch()
 	"""
@@ -473,7 +473,7 @@ def _knapsack_ctor(self,values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], ma
 
 	* values: raw array of values
 	* weights: raw array of weights
-	* max_weight: maximum weight
+	* max_weight: maxiparam_firstm weight
 	"""
 
 	# We construct the arg list for the original constructor exposed by boost_python
@@ -584,16 +584,19 @@ def _rotated_ctor(self, problem = None, rotation = None):
 rotated._orig_init = rotated.__init__
 rotated.__init__ = _rotated_ctor
 
-def _noisy_ctor(self, problem = None, mu = None, sigma = None, seed = None):
+_problem.noisy.noise_distribution = _problem._noise_distribution
+
+def _noisy_ctor(self, problem = None, param_first = 0.0, param_second = 1.0, noise_type = noisy.noise_distribution.NORMAL, seed = 0):
     """
     Inject noise to a problem.
     The new objective function will become stochastic, influence by a normally distributed noise.
 
-    USAGE: problem.(problem=PyGMO.ackley(1), mu=0.0, sigma=1.0, seed=0)
+    USAGE: problem.(problem=PyGMO.ackley(1), param_first=0.0, param_second=1.0, noise_type = noisy.noise_distribution.NORMAL, seed=0)
 
     * problem: PyGMO problem on which one wants to add noises
-    * mu: Mean of the noise
-    * sigma: Standard deviation of the noise
+    * param_first: Mean of the Gaussian noise / Lower bound of the uniform noise
+    * param_second: Standard deviation of the Gaussian noise / Upper bound of the uniform noise
+    * noise_type: Whether to inject a normally distributed noise or uniformly distributed noise
     * seed: Seed for the underlying RNG
 
     """
@@ -601,13 +604,12 @@ def _noisy_ctor(self, problem = None, mu = None, sigma = None, seed = None):
     # We construct the arg list for the original constructor exposed by boost_python
     arg_list=[]
     if problem == None:
-        problem=ackley(1)
+        problem = ackley(1)
     arg_list.append(problem)
-    if mu != None:
-        arg_list.append(mu)
-        arg_list.append(sigma)
-        arg_list.append(seed)
+    arg_list.append(param_first)
+    arg_list.append(param_second)
+    arg_list.append(noise_type)
+    arg_list.append(seed)
     self._orig_init(*arg_list)
-
 noisy._orig_init = noisy.__init__
 noisy.__init__ = _noisy_ctor

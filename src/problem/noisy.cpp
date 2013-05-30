@@ -35,40 +35,20 @@ using namespace std;
 namespace pagmo { namespace problem {
 
 /**
- * Construct by using the default noise ~N(0,0.1)
+ * Construct by specifying a problem to be transformed and the noise distribution,
+ * controlled by a flag and two params. Currently two types of noise distribution is
+ * supported, namely the normally distributed noise (NORMAL) and uniformly distributed 
+ * noise (UNIFORM).
  *
  * @param[in] p pagmo::problem::base to be noisy
- *
+ * @param[in] param_first Mean of the Gaussian noise / Lower bound of the uniform noise
+ * @param[in] param_second Standard deviation of the Gaussian noise / Upper bound of the uniform noise
+ * @param[in] noise_type Two types of noise is currently supported: NORMAL or UNIFORM
+ * @param[in] seed seed for the underlying rng
  * @see problem::base_stochastic constructors.
  */
 
-noisy::noisy(const base & p):
-	base_stochastic((int)p.get_dimension(),
-		 p.get_i_dimension(),
-		 p.get_f_dimension(),
-		 p.get_c_dimension(),
-		 p.get_ic_dimension(),
-		 p.get_c_tol(), 0),
-	m_original_problem(p.clone()),
-	m_normal_dist(0, 0.1),
-	m_param_mu(0),
-	m_param_sigma(0.1)
-	
-{
-	set_bounds(p.get_lb(),p.get_ub());
-}
-
-/**
- * Construct by specifying a normally distributed noise
- *
- * @param[in] p pagmo::problem::base to be noisy
- * @param[in] mu Mean of the normal distribution underlying noise
- * @param[in] std Standard deviation of the normal distribution underlyig noise
- *
- * @see problem::base_stochastic constructors.
- */
-
-noisy::noisy(const base & p, const double mu, const double sigma, unsigned int seed):
+noisy::noisy(const base & p, const double param_first, const double param_second, noise_distribution::type noise_type, unsigned int seed):
 	base_stochastic((int)p.get_dimension(),
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
@@ -76,11 +56,16 @@ noisy::noisy(const base & p, const double mu, const double sigma, unsigned int s
 		 p.get_ic_dimension(),
 		 p.get_c_tol(), seed),
 	m_original_problem(p.clone()),
-	m_normal_dist(mu, sigma),
-	m_param_mu(mu),
-	m_param_sigma(sigma)
+	m_normal_dist(param_first, param_second),
+	m_uniform_dist(param_first, param_second),
+	m_param_first(param_first),
+	m_param_second(param_second),
+	m_noise_type(noise_type)
 	
 {
+	if(noise_type == noise_distribution::UNIFORM && param_first > param_second){
+		pagmo_throw(value_error, "Bounds specified for the uniform noise is not valid.");
+	}
 	set_bounds(p.get_lb(),p.get_ub());
 }
 
@@ -95,8 +80,8 @@ noisy::noisy(const noisy &prob):
 		 prob.m_seed),
 	m_original_problem(prob.m_original_problem->clone()),
 	m_normal_dist(prob.m_normal_dist),
-	m_param_mu(prob.m_param_mu),
-	m_param_sigma(prob.m_param_sigma)
+	m_param_first(prob.m_param_first),
+	m_param_second(prob.m_param_second)
 		 
 {
 	set_bounds(prob.get_lb(),prob.get_ub());
@@ -111,30 +96,36 @@ base_ptr noisy::clone() const
 /**
  * Configure parameters for the noise distribution
  * 
- * param[in] mu Mean of the noise
- * param[in] sigma Standard deviation of the noise
+ * param[in] param_first Mean of the Gaussian noise / Lower bound of the uniform noise
+ * param[in] param_second Standard deviation of the Gaussian noise / Upper bound of the uniform noise
  *
  */ 
-void noisy::set_noise_param(double mu, double sigma)
+void noisy::set_noise_param(double param_first, double param_second)
 {
-	boost::random::normal_distribution<double>::param_type params(mu, sigma);
-	m_normal_dist.param(params);
+	if(m_noise_type == noise_distribution::NORMAL){
+		boost::random::normal_distribution<double>::param_type params(param_first, param_second);
+		m_normal_dist.param(params);
+	}
+	else if(m_noise_type == noise_distribution::UNIFORM){
+		boost::random::uniform_real_distribution<double>::param_type params(param_first, param_second);
+		m_uniform_dist.param(params);
+	}
 }
 
 /**
  * Returns the noise parameter: Mean
 */
-double noisy::get_param_mu()
+double noisy::get_param_first()
 {
-	return m_param_mu;
+	return m_param_first;
 }
 
 /**
  * Return the noise parameter: Standard deviation
  */
-double noisy::get_param_sigma()
+double noisy::get_param_second()
 {
-	return m_param_sigma;
+	return m_param_second;
 }
 
 /// Implementation of the objective function.
@@ -157,7 +148,12 @@ void noisy::compute_constraints_impl(constraint_vector &c, const decision_vector
 void noisy::inject_noise_f(fitness_vector& f) const
 {
 	for(f_size_type i = 0; i < f.size(); i++){
-		f[i] += m_normal_dist(m_drng);
+		if(m_noise_type == noise_distribution::NORMAL){
+			f[i] += m_normal_dist(m_drng);
+		}
+		else if(m_noise_type == noise_distribution::UNIFORM){
+			f[i] += m_uniform_dist(m_drng);
+		}
 	}
 }
 
@@ -165,7 +161,12 @@ void noisy::inject_noise_f(fitness_vector& f) const
 void noisy::inject_noise_c(constraint_vector& c) const
 {
 	for(c_size_type i = 0; i < c.size(); i++){
-		c[i] += m_normal_dist(m_drng);
+		if(m_noise_type == noise_distribution::NORMAL){
+			c[i] += m_normal_dist(m_drng);
+		}
+		else if(m_noise_type == noise_distribution::UNIFORM){
+			c[i] += m_uniform_dist(m_drng);
+		}
 	}
 }
 
@@ -183,7 +184,15 @@ std::string noisy::human_readable_extra() const
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
 	oss << "\n\tNoise type: ";
-	oss << "\n\tNormal distribution of ("<<m_param_mu<<","<<m_param_sigma<<")";
+	if(m_noise_type == noise_distribution::NORMAL){
+		oss << "\n\tNormal distribution of ("<<m_param_first<<","<<m_param_second<<")";
+	}
+	else if(m_noise_type == noise_distribution::UNIFORM){
+		oss << "\n\tUniform distribution over ("<<m_param_first<<","<<m_param_second<<")";
+	}
+	else{
+		oss << "\n\t Unknown????";
+	}
 	//oss << "\n\tRNG state: "<<m_drng;
 	//oss << "\n\tDistribution state: "<<m_normal_dist;
 	return oss.str();

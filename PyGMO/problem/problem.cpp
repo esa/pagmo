@@ -69,11 +69,11 @@ static boost::shared_ptr<problem::base> construct_with_problem_and_stuff(const p
 }
 
 //TODO: Is there a more generic way of doing this (what if there's arg4, or only up to arg2, or ...)?
-template <class T, class arg_type1, class arg_type2, class arg_type3>
-static boost::shared_ptr<problem::base> construct_with_problem_and_args(const problem::base& prob, const arg_type1 &arg1, const arg_type2 &arg2, const arg_type3 &arg3)
+template <class T, class arg_type1, class arg_type2, class arg_type3, class arg_type4>
+static boost::shared_ptr<problem::base> construct_with_problem_and_args(const problem::base& prob, const arg_type1 &arg1, const arg_type2 &arg2, const arg_type3 &arg3, const arg_type4 &arg4)
 {
 	boost::shared_ptr<T> obj;
-	obj.reset(new T(prob, arg1, arg2, arg3));
+	obj.reset(new T(prob, arg1, arg2, arg3, arg4));
 	return obj;	
 }
 
@@ -413,12 +413,17 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
+
 	// Noisy meta-problem
+	// Exposing enums of problem::noisy
+	enum_<problem::noisy::noise_distribution::type>("_noise_distribution")
+		.value("NORMAL", problem::noisy::noise_distribution::NORMAL)
+		.value("UNIFORM", problem::noisy::noise_distribution::UNIFORM);
+
 	stochastic_problem_wrapper<problem::noisy>("noisy", "Noisy problem")
-		.def("__init__", make_constructor(&construct_with_problem<problem::noisy>))
-		.def("__init__", make_constructor(&construct_with_problem_and_args<problem::noisy, double, double, unsigned int>))
-		.add_property("noise_mean", &problem::noisy::get_param_mu)
-		.add_property("noise_stddev", &problem::noisy::get_param_sigma);
+		.def("__init__", make_constructor(&construct_with_problem_and_args<problem::noisy, double, double, problem::noisy::noise_distribution::type, unsigned int>))
+		.add_property("noise_param_first", &problem::noisy::get_param_first)
+		.add_property("noise_param_second", &problem::noisy::get_param_second);
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
