@@ -110,9 +110,9 @@ On Unix systems:
 - Clone the PaGMO git repository on your local machine: \code git
   clone git://git.code.sf.net/p/pagmo/code pagmo-code \endcode
 - Please check that all needed libraries are available. Pagmo/Pygmo is
-  based on boost so you might need to run \code sudo apt-get install
+  based on boost so you might need to run (example valid for apt-get package manager) \code sudo apt-get install
   libboost1.48-all-dev  \endcode  or simply  \code sudo apt-get install
-  libboost-all-dev  \endcode. This includes the serialization and thread library that are actually used here. 
+  libboost-all-dev  \endcode. This includes the syste, serialization, date-time, thread and python library that are actually used here. 
 - Create a build directory in your pagmo directory and move there: \code 
 cd pagmo-code \endcode \code mkdir build \endcode \code cd build 
 \endcode
@@ -134,7 +134,7 @@ directory of your python and install there the code upon make install.
 - Install PaGMO: \code make install \endcode , or possibly \code sudo make install \endcode.
 
 On Windows systems, the procedure is analogous (you will likely use the Windows CMake GUI instead of ccmake). We have so 
-far tested compilation only using MinGW
+far tested compilation only using MinGW and MSCV 11 (see here for more info on windows compilation (https://sourceforge.net/apps/mediawiki/pagmo/index.php?title=Main_Page)
 
 \section PyGMO Interactive python session
 
