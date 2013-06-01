@@ -113,7 +113,8 @@ void noisy::set_noise_param(double param_first, double param_second)
 }
 
 /**
- * Returns the noise parameter: Mean
+ * Returns the first parameter.
+ * Interpretation depends on the noise specified, see constructor.
 */
 double noisy::get_param_first()
 {
@@ -121,7 +122,8 @@ double noisy::get_param_first()
 }
 
 /**
- * Return the noise parameter: Standard deviation
+ * Return the second parameter.
+ * Interpretation depends on the noise specified, see constructor.
  */
 double noisy::get_param_second()
 {
@@ -132,6 +134,7 @@ double noisy::get_param_second()
 /// Add noises to the computed fitness vector.
 void noisy::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
+	m_drng.seed(m_seed);
 	m_original_problem->objfun(f, x);
 	inject_noise_f(f);
 }

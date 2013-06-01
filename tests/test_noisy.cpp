@@ -34,6 +34,7 @@
 using namespace pagmo;
 
 const double EPS = 10e-9;
+rng_uint32 rng_seed_provider;
 
 bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
 	if(f1.size() != f2.size()) return false;
@@ -90,6 +91,7 @@ int test_noisy(const std::vector<problem::base_ptr> & probs, double noise_mean, 
 		// (won't get to checking variance is noise_mean is not ok)
 		for(int tr = 0; tr < num_trials; tr++){
 			prob_noisy.reset_caches();
+			prob_noisy.set_seed(rng_seed_provider());
 			fitness_vector f_cur = prob_noisy.objfun(x);
 			for(unsigned int fi = 0; fi < f_cur.size(); fi++){
 				noise_sample_mean[fi] += (f_cur[fi] - f_noiseless[fi]) / (double)num_trials;
@@ -170,6 +172,7 @@ int test_noisy_uniform(const std::vector<problem::base_ptr> & probs, double nois
 		// as defined by the noise params.
 		for(int tr = 0; tr < num_trials; tr++){
 			prob_noisy.reset_caches();
+			prob_noisy.set_seed(rng_seed_provider());
 			fitness_vector f_cur = prob_noisy.objfun(x);
 			for(unsigned int fi = 0; fi < f_cur.size(); fi++){
 				double diff_t = f_cur[fi] - f_noiseless[fi];
@@ -207,15 +210,10 @@ int main()
 	int dimension = 10;
 	std::vector<problem::base_ptr> probs;
 	probs.push_back(problem::zdt1(dimension).clone());
-	probs.push_back(problem::zdt2(dimension).clone());
-	probs.push_back(problem::zdt3(dimension).clone());
-	probs.push_back(problem::zdt4(dimension).clone());
-	probs.push_back(problem::zdt6(dimension).clone());
 	probs.push_back(problem::ackley(dimension).clone());
-	probs.push_back(problem::rastrigin(dimension).clone());
 
-	return test_noisy(probs, 0.0, 0.1, 10000, 0.01) ||
-		   test_noisy(probs, 3.14, 0.1, 10000, 0.01) ||
-		   test_noisy_uniform(probs, 0.0, 0.1, 10000, 0.01) ||
-		   test_noisy_uniform(probs, -0.2, 0.2, 10000, 0.01);
+	return test_noisy(probs, 0.0, 0.1, 5000, 0.01) ||
+		   test_noisy(probs, 3.14, 0.1, 5000, 0.01) ||
+		   test_noisy_uniform(probs, 0.0, 0.1, 5000, 0.01) ||
+		   test_noisy_uniform(probs, -0.2, 0.2, 5000, 0.01);
 }
