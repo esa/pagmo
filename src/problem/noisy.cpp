@@ -23,13 +23,15 @@
  *****************************************************************************/
 
 #include <cmath>
+#include <iostream>
+#include <boost/functional/hash.hpp>
 
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
 #include "base.h"
 #include "noisy.h"
-#include <iostream>
+
 using namespace std;
 
 namespace pagmo { namespace problem {
@@ -58,10 +60,10 @@ noisy::noisy(const base & p, const double param_first, const double param_second
 	m_original_problem(p.clone()),
 	m_normal_dist(param_first, param_second),
 	m_uniform_dist(param_first, param_second),
+	m_decision_vector_hash(),
 	m_param_first(param_first),
 	m_param_second(param_second),
 	m_noise_type(noise_type)
-	
 {
 	if(noise_type == noise_distribution::UNIFORM && param_first > param_second){
 		pagmo_throw(value_error, "Bounds specified for the uniform noise is not valid.");
@@ -71,7 +73,7 @@ noisy::noisy(const base & p, const double param_first, const double param_second
 
 /// Copy Constructor. Performs a deep copy
 noisy::noisy(const noisy &prob):
-	base_stochastic((int)prob.get_dimension(), 
+	base_stochastic((int)prob.get_dimension(),
 		 prob.get_i_dimension(),
 		 prob.get_f_dimension(),
 		 prob.get_c_dimension(),
@@ -80,9 +82,11 @@ noisy::noisy(const noisy &prob):
 		 prob.m_seed),
 	m_original_problem(prob.m_original_problem->clone()),
 	m_normal_dist(prob.m_normal_dist),
+	m_uniform_dist(prob.m_param_first, prob.m_param_second),
+	m_decision_vector_hash(),
 	m_param_first(prob.m_param_first),
-	m_param_second(prob.m_param_second)
-		 
+	m_param_second(prob.m_param_second),
+	m_noise_type(prob.m_noise_type)
 {
 	set_bounds(prob.get_lb(),prob.get_ub());
 }
@@ -134,7 +138,8 @@ double noisy::get_param_second()
 /// Add noises to the computed fitness vector.
 void noisy::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	m_drng.seed(m_seed);
+	m_drng.seed(m_seed+m_decision_vector_hash(x));
+//std::cout << m_seed+m_decision_vector_hash(x) << std::endl;
 	m_original_problem->objfun(f, x);
 	inject_noise_f(f);
 }
@@ -143,7 +148,7 @@ void noisy::objfun_impl(fitness_vector &f, const decision_vector &x) const
 /// Add noises to the computed constraint vector.
 void noisy::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	m_drng.seed(m_seed);
+	m_drng.seed(m_seed+m_decision_vector_hash(x));
 	m_original_problem->compute_constraints(c, x);
 	inject_noise_c(c);
 }
@@ -197,7 +202,7 @@ std::string noisy::human_readable_extra() const
 	else{
 		oss << "\n\t Unknown????";
 	}
-	//oss << "\n\tRNG state: "<<m_drng;
+	oss << "\n\tseed: "<<m_seed;
 	//oss << "\n\tDistribution state: "<<m_normal_dist;
 	return oss.str();
 }

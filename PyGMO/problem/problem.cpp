@@ -45,7 +45,7 @@
 #include "python_base_stochastic.h"
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-        #include "../../src/keplerian_toolbox/keplerian_toolbox.h"
+		#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #endif
 
 using namespace boost::python;
@@ -67,15 +67,6 @@ static boost::shared_ptr<problem::base> construct_with_problem_and_stuff(const p
 	obj.reset(new T(prob,shift));
 	return obj;
 }
-
-//TODO: Is there a more generic way of doing this (what if there's arg4, or only up to arg2, or ...)?
-/* template <class T, class arg_type1, class arg_type2, class arg_type3, class arg_type4>
-static boost::shared_ptr<problem::base> construct_with_problem_and_args(const problem::base& prob, const arg_type1 &arg1, const arg_type2 &arg2, const arg_type3 &arg3, const arg_type4 &arg4)
-{
-	boost::shared_ptr<T> obj;
-	obj.reset(new T(prob, arg1, arg2, arg3, arg4));
-	return obj;	
-}*/
 
 std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {
 	Eigen::MatrixXd rot = p.get_rotation_matrix();
@@ -117,6 +108,7 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic
 	retval.def_pickle(generic_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,"Random seed used in the objective function evaluation.");
 	return retval;
 }
 

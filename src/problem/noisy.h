@@ -26,6 +26,9 @@
 #define PAGMO_PROBLEM_NOISY_H
 
 #include <string>
+#include <boost/functional/hash.hpp>
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 
 #include "../serialization.h"
 #include "ackley.h"
@@ -33,8 +36,7 @@
 #include "base.h"
 #include "base_stochastic.h"
 
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
+
 
 namespace pagmo{ namespace problem {
 
@@ -45,6 +47,7 @@ namespace pagmo{ namespace problem {
  * with either uniform or gaussian distribution.
  *
  * @author Yung-Siang Liau (liauys@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
  */
 class __PAGMO_VISIBLE noisy : public base_stochastic
 {
@@ -94,6 +97,7 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		base_ptr m_original_problem;
 		mutable boost::normal_distribution<double> m_normal_dist;
 		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;
+		mutable boost::hash<std::vector<double> > m_decision_vector_hash;
 		double m_param_first;
 		double m_param_second;
 		noise_distribution::type m_noise_type;
