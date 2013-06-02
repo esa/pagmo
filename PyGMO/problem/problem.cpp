@@ -69,13 +69,13 @@ static boost::shared_ptr<problem::base> construct_with_problem_and_stuff(const p
 }
 
 //TODO: Is there a more generic way of doing this (what if there's arg4, or only up to arg2, or ...)?
-template <class T, class arg_type1, class arg_type2, class arg_type3, class arg_type4>
+/* template <class T, class arg_type1, class arg_type2, class arg_type3, class arg_type4>
 static boost::shared_ptr<problem::base> construct_with_problem_and_args(const problem::base& prob, const arg_type1 &arg1, const arg_type2 &arg2, const arg_type3 &arg3, const arg_type4 &arg4)
 {
 	boost::shared_ptr<T> obj;
 	obj.reset(new T(prob, arg1, arg2, arg3, arg4));
 	return obj;	
-}
+}*/
 
 std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {
 	Eigen::MatrixXd rot = p.get_rotation_matrix();
@@ -181,12 +181,12 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base::get_typename)
-        .def("_objfun_impl",&problem::python_base::py_objfun)
-        .def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
-        .def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
-        .def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
-        .def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
-        .def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
+		.def("_objfun_impl",&problem::python_base::py_objfun)
+		.def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
+		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
+		.def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
+		.def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
+		.def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
@@ -232,11 +232,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base_stochastic::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base_stochastic::get_typename)
 		.def("_objfun_impl",&problem::python_base_stochastic::py_objfun)
-        .def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
-        .def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
-        .def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
-        .def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
-        .def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
+		.def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
+		.def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
+		.def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
+		.def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
+		.def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
 	// Ackley problem.
@@ -300,7 +300,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	// CEC2009 Competition Problems.
 	problem_wrapper<problem::cec2009>("cec2009","CEC2009 Competition Problems.")
 			.def(init<int, problem::base::size_type, bool>());
-    
+
 	// CEC2013 Competition Problems.
 	problem_wrapper<problem::cec2013>("cec2013","CEC2013 Competition Problems.")
 			.def(init<unsigned int, problem::base::size_type, const std::string&>())
@@ -413,7 +413,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
-
 	// Noisy meta-problem
 	// Exposing enums of problem::noisy
 	enum_<problem::noisy::noise_distribution::type>("_noise_distribution")
@@ -421,7 +420,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("UNIFORM", problem::noisy::noise_distribution::UNIFORM);
 
 	stochastic_problem_wrapper<problem::noisy>("noisy", "Noisy problem")
-		.def("__init__", make_constructor(&construct_with_problem_and_args<problem::noisy, double, double, problem::noisy::noise_distribution::type, unsigned int>))
+		.def(init<const problem::base &, const double, const double, problem::noisy::noise_distribution::type, unsigned int>())
 		.add_property("noise_param_first", &problem::noisy::get_param_first)
 		.add_property("noise_param_second", &problem::noisy::get_param_second);
 

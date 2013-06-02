@@ -264,15 +264,15 @@ void serialize(Archive &ar, boost::vecS &cb, const unsigned int version)
 	(void)(version);
 }
 
+
 // ---------- boost::normal_distribution<double> ----------
+// Serialization of boost::normal_distribution<double> exploits the fact that the
+// state of Boost distributions can be sent/received to/from standard streams.
 template <class Archive>
 void save(Archive &ar, const boost::normal_distribution<double> &cb, const unsigned int version) 
 { 
-	// Serialization exploits the fact that the state of Boost distribution 
-	// can be sent/received to/from standard streams.
 	std::stringstream ss;
 	ss << cb;
-	//ss << *static_cast<boost::normal_distribution<double> const *>(this);
 	std::string tmp(ss.str());
 	ar << tmp;
 }
@@ -283,7 +283,6 @@ void load(Archive &ar, boost::normal_distribution<double> &cb, const unsigned in
 	std::string tmp;
 	ar >> tmp;
 	std::stringstream ss(tmp);
-	//ss >> *static_cast<boost::normal_distribution<double> *>(this);
 	ss >> cb;
 }
 
@@ -294,11 +293,11 @@ void serialize(Archive &ar, boost::normal_distribution<double> &cb, const unsign
 }
 
 // ---------- boost::uniform_real_distribution -----------
+// Serialization of boost::uniform_real_distribution exploits the fact that the
+// state of Boost distributions can be sent/received to/from standard streams.
 template <class Archive>
 void save(Archive &ar, const boost::random::uniform_real_distribution<double> &cb, const unsigned int version) 
 { 
-	// Serialization exploits the fact that the state of Boost distribution 
-	// can be sent/received to/from standard streams.
 	std::stringstream ss;
 	ss << cb;
 	std::string tmp(ss.str());

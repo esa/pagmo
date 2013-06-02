@@ -598,7 +598,6 @@ def _noisy_ctor(self, problem = None, param_first = 0.0, param_second = 1.0, noi
     * param_second: Standard deviation of the Gaussian noise / Upper bound of the uniform noise
     * noise_type: Whether to inject a normally distributed noise or uniformly distributed noise
     * seed: Seed for the underlying RNG
-
     """
 
     # We construct the arg list for the original constructor exposed by boost_python

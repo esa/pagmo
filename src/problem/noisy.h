@@ -40,9 +40,9 @@ namespace pagmo{ namespace problem {
 
 /// Noisy meta-problem
 /**
- * Implements a meta-problem that transforms a problem into its stochastic 
- * version by injecting random noises to the fitness vector (and constraint vector)
- * with a certain distribution.
+ * A meta-problem that transforms a problem into its stochastic
+ * version by injecting noises to the fitness vector (and constraint vector)
+ * with either uniform or gaussian distribution.
  *
  * @author Yung-Siang Liau (liauys@gmail.com)
  */
@@ -74,7 +74,8 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 
-private: void inject_noise_f(fitness_vector&) const;
+	private:
+		void inject_noise_f(fitness_vector&) const;
 		void inject_noise_c(constraint_vector&) const;
 
 		friend class boost::serialization::access;
@@ -89,9 +90,10 @@ private: void inject_noise_f(fitness_vector&) const;
 			ar & m_param_second;
 			ar & m_noise_type;
 		}
-		base_ptr m_original_problem;			
+
+		base_ptr m_original_problem;
 		mutable boost::normal_distribution<double> m_normal_dist;
-		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;	
+		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;
 		double m_param_first;
 		double m_param_second;
 		noise_distribution::type m_noise_type;

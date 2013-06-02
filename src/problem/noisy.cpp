@@ -143,6 +143,7 @@ void noisy::objfun_impl(fitness_vector &f, const decision_vector &x) const
 /// Add noises to the computed constraint vector.
 void noisy::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
+	m_drng.seed(m_seed);
 	m_original_problem->compute_constraints(c, x);
 	inject_noise_c(c);
 }
