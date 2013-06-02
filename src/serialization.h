@@ -266,7 +266,7 @@ void serialize(Archive &ar, boost::vecS &cb, const unsigned int version)
 
 // ---------- boost::normal_distribution<double> ----------
 template <class Archive>
-void save(Archive &ar, const boost::normal_distribution<double> &cb, const unsigned int version) 
+void save(Archive &ar, const boost::normal_distribution<double> &cb, const unsigned int)
 { 
 	// Serialization exploits the fact that the state of Boost distribution 
 	// can be sent/received to/from standard streams.
@@ -278,7 +278,7 @@ void save(Archive &ar, const boost::normal_distribution<double> &cb, const unsig
 }
 
 template <class Archive>
-void load(Archive &ar, boost::normal_distribution<double> &cb, const unsigned int version)
+void load(Archive &ar, boost::normal_distribution<double> &cb, const unsigned int)
 {
 	std::string tmp;
 	ar >> tmp;
@@ -295,7 +295,7 @@ void serialize(Archive &ar, boost::normal_distribution<double> &cb, const unsign
 
 // ---------- boost::uniform_real_distribution -----------
 template <class Archive>
-void save(Archive &ar, const boost::random::uniform_real_distribution<double> &cb, const unsigned int version) 
+void save(Archive &ar, const boost::random::uniform_real_distribution<double> &cb, const unsigned int)
 { 
 	// Serialization exploits the fact that the state of Boost distribution 
 	// can be sent/received to/from standard streams.
@@ -306,7 +306,7 @@ void save(Archive &ar, const boost::random::uniform_real_distribution<double> &c
 }
 
 template <class Archive>
-void load(Archive &ar, boost::random::uniform_real_distribution<double> &cb, const unsigned int version)
+void load(Archive &ar, boost::random::uniform_real_distribution<double> &cb, const unsigned int)
 {
 	std::string tmp;
 	ar >> tmp;
