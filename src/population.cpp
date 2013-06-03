@@ -35,10 +35,12 @@
 #include <limits>
 
 #include "problem/base.h"
+#include "problem/base_stochastic.h"
 #include "exceptions.h"
 #include "population.h"
 #include "rng.h"
 #include "types.h"
+#include "util/racing.h"
 
 namespace pagmo
 {
@@ -918,6 +920,35 @@ population::size_type population::n_dominated(const individual_type &ind) const
 	}
 	return retval;
 }
+
+/// Race the individuals in the population.
+/**
+ * Perform racing on the individuals. Currently the race is based on F-Race
+ * which utilizes Friedman test. Alternative to racing the whole population,
+ * user can specify to race on only a subset of the individual. If the problem
+ * is not stochastic, it ignores all the parameters except N_final and behaves
+ * like the get_best_idx routine.
+ *
+ * @param[in] N_final Desired number of winners.
+ * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
+ * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
+ * @param[in] delta Confidence level for statistical testing.
+ * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
+ *
+ * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
+ */
+std::vector<population::size_type> population::race(const size_type N_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set) const
+{
+	if(active_set.size()==0){
+		std::vector<size_type> active_set_all(size());
+		for(unsigned int i = 0; i < active_set_all.size(); i++){
+			active_set_all[i] = i;
+		}
+		return util::racing::race(*this, active_set_all, N_final, min_trials, max_count, delta, m_urng());
+	}
+	return util::racing::race(*this, active_set, N_final, min_trials, max_count, delta, m_urng());
+}
+
 /// Overload stream operator for pagmo::population.
 /**
  * Equivalent to printing pagmo::population::human_readable() to stream.
@@ -964,4 +995,3 @@ std::ostream &operator<<(std::ostream &s, const population::champion_type &champ
 }
 
 }
-
