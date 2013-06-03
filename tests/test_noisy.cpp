@@ -90,8 +90,7 @@ int test_noisy(const std::vector<problem::base_ptr> & probs, double noise_mean, 
 		// Variance sanity will be check after mean's sanity, thus directly minus the noise_mean
 		// (won't get to checking variance is noise_mean is not ok)
 		for(int tr = 0; tr < num_trials; tr++){
-			prob_noisy.reset_caches();
-			prob_noisy.set_seed(rng_seed_provider());
+			prob_noisy.set_seed(rng_seed_provider()); // Automatically resets the cache
 			fitness_vector f_cur = prob_noisy.objfun(x);
 			for(unsigned int fi = 0; fi < f_cur.size(); fi++){
 				noise_sample_mean[fi] += (f_cur[fi] - f_noiseless[fi]) / (double)num_trials;
@@ -171,8 +170,7 @@ int test_noisy_uniform(const std::vector<problem::base_ptr> & probs, double nois
 		// At the same time monitor if any of the noised points exceed the range
 		// as defined by the noise params.
 		for(int tr = 0; tr < num_trials; tr++){
-			prob_noisy.reset_caches();
-			prob_noisy.set_seed(rng_seed_provider());
+			prob_noisy.set_seed(rng_seed_provider()); // Automatically resets the cache
 			fitness_vector f_cur = prob_noisy.objfun(x);
 			for(unsigned int fi = 0; fi < f_cur.size(); fi++){
 				double diff_t = f_cur[fi] - f_noiseless[fi];
