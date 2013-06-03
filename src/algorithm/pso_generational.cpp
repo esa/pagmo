@@ -336,7 +336,7 @@ void pso_generational::evolve(population &pop) const
 		try
 		{
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
-			prob.reset_caches();
+			//prob.reset_caches(); Not needed anymore as it is done in set_seed
 			pop.clear();
 
 			// Re-evaluate wrt new seed the particle position and memory

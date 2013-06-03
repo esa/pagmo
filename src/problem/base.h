@@ -103,6 +103,9 @@ typedef boost::shared_ptr<base> base_ptr;
  * mandatorily by an algorithm: each algorithm can decide to use its own ranking schemes during an optimisation. The ranking methods provided
  * by the problem are always used instead during the migration of decision vectors from one island to the other.
  *
+ * \section Caching
+ * A caching mechanism is implemented to make sure the objective function is never evaluated twice on the very same chromosome
+ *
  * \section Serialization
  * The problem classes are serialized for the purpose of transmitting their corresponding objects over a distributed environment, as being part of the population class.
  * Serializing a derived problem requires that the needed serialization libraries be declared in the header of the derived class. 

@@ -293,7 +293,7 @@ void cmaes::evolve(population &pop) const
 			//would it make sense to use best_x also?
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
 			std::cout << "messing" << std::endl;
-			prob.reset_caches();
+			//prob.reset_caches(); Not needed anymore as it is done in set_seed
 			pop.clear();
 			for (population::size_type i = 0; i<lam; ++i ) {
 			  	for (decision_vector::size_type j = 0; j<N; ++j ) {

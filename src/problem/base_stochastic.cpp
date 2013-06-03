@@ -62,6 +62,8 @@ base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const d
  */
 void base_stochastic::set_seed(unsigned int seed) const {
 	m_seed = seed;
+	// As the problem is now muted we must reset the caches that contain the evaluations w.r.t. the old seed
+	reset_caches();
 }
 
 /// Gets the pseudo random generator seed
