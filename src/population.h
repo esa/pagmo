@@ -221,14 +221,13 @@ class __PAGMO_VISIBLE population
 		void reinit();
 		void clear();
 		double mean_velocity() const;
-	private:
-		void init_velocity(const size_type &);
-		void update_champion(const size_type &);
 
-		
-		// Multi-objective stuff
-		void update_dom(const size_type &);
-		void update_crowding_d(std::vector<size_type>) const;
+		// Race routine wrapper
+		std::vector<size_type> race(const size_type N_final,
+									const unsigned int min_trials = 0,
+									const unsigned int max_count = 1000,
+									double delta = 0.05,
+									const std::vector<size_type>& = std::vector<size_type>()) const;
 
 		struct crowded_comparison_operator {
 			crowded_comparison_operator(const population &);
@@ -243,6 +242,16 @@ class __PAGMO_VISIBLE population
 			bool operator()(const size_type &idx1, const size_type &idx2) const;
 			const population &m_pop;
 		};
+
+	private:
+		void init_velocity(const size_type &);
+		void update_champion(const size_type &);
+
+		
+		// Multi-objective stuff
+		void update_dom(const size_type &);
+		void update_crowding_d(std::vector<size_type>) const;
+
 	private:
 		// Data members + their serialization
 		friend class boost::serialization::access;
