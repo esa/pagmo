@@ -1230,11 +1230,7 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
  */
 void base::initialize_best(void)
 {
-    std::vector<decision_vector> empty_decision_vector;
-    std::vector<fitness_vector> empty_fitness_vector;
-    std::vector<constraint_vector> empty_constraint_vector;
-
-    this->set_best_known_solutions(empty_decision_vector,empty_fitness_vector,empty_constraint_vector);
+    // no need to set empty best known solutions are they are already empty
 }
 
 /// Sets the best known fitness, decision and constraints vectors
@@ -1245,7 +1241,7 @@ void base::initialize_best(void)
  * @param[in] best known f pagmo::fitness_vector.
  * @param[in] best known c pagmo::constraints_vector.
  */
-void base::set_best_known_solutions(std::vector<decision_vector>& best_known_decision, std::vector<fitness_vector>& best_known_fitness, std::vector<constraint_vector>& best_known_constraint)
+void base::set_best_known_solutions(const std::vector<decision_vector>& best_known_decision, const std::vector<fitness_vector>& best_known_fitness, const std::vector<constraint_vector>& best_known_constraint)
 {
     if(best_known_decision.size() != 0){
 		for (int i=0; i<best_known_decision.size(); i++)

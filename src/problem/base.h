@@ -443,7 +443,7 @@ return base_ptr(new derived_problem(*this));
         const std::vector<decision_vector>& get_best_known_x_vector(void) const;
         const std::vector<fitness_vector>& get_best_known_f_vector(void) const;
     protected:
-        void set_best_known_solutions(std::vector<decision_vector>&, std::vector<fitness_vector>&, std::vector<constraint_vector>&);
+        void set_best_known_solutions(const std::vector<decision_vector>&, const std::vector<fitness_vector>& = std::vector<fitness_vector>(), const std::vector<constraint_vector>& = std::vector<constraint_vector>());
     protected:
 		virtual bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.
