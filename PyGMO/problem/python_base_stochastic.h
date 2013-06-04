@@ -146,7 +146,16 @@ class __PAGMO_VISIBLE python_base_stochastic: public base_stochastic, public boo
             boost::python::override f = this->get_override("_compare_fc_impl");
             pagmo_assert(f);
             return f(f0, c0, f1, c1);
-        }
+        }        
+        void py_initialize_best()
+        {
+            if (boost::python::override f = this->get_override("_initialize_best")) {
+                pagmo_assert(f);
+                f();
+            }
+            else
+                base::initialize_best();
+		}
 	protected:
 		void objfun_impl(fitness_vector &f, const decision_vector &x) const
 		{

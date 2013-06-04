@@ -171,6 +171,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		// Fitness.
 		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
 		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
+        // Best known solution
 		// Virtual methods that can be (re)implemented.
 		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
@@ -181,6 +182,7 @@ BOOST_PYTHON_MODULE(_problem) {
         .def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
         .def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
         .def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
+        .def("_initialize_best",&problem::python_base::py_initialize_best)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
@@ -231,6 +233,7 @@ BOOST_PYTHON_MODULE(_problem) {
         .def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
         .def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
         .def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
+        .def("_initialize_best",&problem::python_base_stochastic::py_initialize_best)
 		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
 	// Ackley problem.
