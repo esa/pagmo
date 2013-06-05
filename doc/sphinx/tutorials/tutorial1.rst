@@ -30,9 +30,12 @@ and reimplement some of its 'virtual' methods.
 		#then we set the problem bounds (in this case equal for all components)
 		self.set_bounds(-5.12,5.12)
 		
-		#and we define some additional 'private' data members (not really necessary in
+		#we define some additional 'private' data members (not really necessary in
 		#this case, but ... hey this is a tutorial)
 		self.__dim = dim
+        
+        # we specify that this problem has best know solutions and initialize them
+        self.initialize_best();
 
 	#We reimplement the virtual method that defines the objective function.
 	def _objfun_impl(self,x):
@@ -42,6 +45,14 @@ and reimplement some of its 'virtual' methods.
 		#note that we return a tuple with one element only. In PyGMO the objective functions
 		#return tuples so that multi-objective optimization is also possible.
 		return (f,)
+   
+    # reimplement the virtual method that defines the best point
+    def initialize_best(self):
+        best_decision_vector = [[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]];
+        best_fitness_vector = [[0.]];
+        best_constraint_vector = [];
+        self._set_best_known_solutions(best_decision_vector,best_fitness_vector,best_constraint_vector);
+
 
 	#Finally we also reimplement a virtual method that adds some output to the __repr__ method
 	def human_readable_extra(self):
@@ -54,14 +65,23 @@ We may then put this in a file, say my_module.py and use, for example, Artificia
 
 .. code-block:: python
 
-   from PyGMO import *
-   from  my_module import my_problem
+    from PyGMO import *
+    from  my_module import my_problem
 
-   prob = my_problem(dim=10)
-   algo = algorithm.bee_colony(gen=500)
-   isl = island(algo,prob,20)
-   isl.evolve(1); isl.join()
-   print isl.population.champion.f
+    prob = my_problem(dim=10)
+    algo = algorithm.bee_colony(gen=500)
+    isl = island(algo,prob,20)
+    isl.evolve(1); isl.join()
+    
+    print "Fitness found:"
+    print isl.population.champion.f
+   
+    print "Best fitness:"
+    print isl.population.champion.f
+
+    print "Fitness found compared to the best known fitness:"
+    for best_fitness in prob.get_best_known_f_vector():
+        print isl.population.champion.f[0] - best_fitness[0]
 
 And we are done!!!!! (the output will be something like 10^-27, no big deal for a sphere problem)
 
@@ -73,14 +93,20 @@ use the algorithm evolve method, for example
 
 .. code-block:: python
 
-   from PyGMO import *
-   from  my_module import my_problem
+    from PyGMO import *
+    from  my_module import my_problem
 
-   prob = my_problem(dim=10)
-   algo = algorithm.bee_colony(gen=100)
-   isl = island(algo,prob,20)
-   pop = island.population
-   pop = algo.evolve(pop)
-   print pop.champion.f
+    prob = my_problem(dim=10)
+    algo = algorithm.bee_colony(gen=100)
+    isl = island(algo,prob,20)
+    pop = island.population
+    pop = algo.evolve(pop)
+    
+    print "Best fitness:"
+    print pop.champion.f
+
+    print "Fitness found compared to the best known fitness:"
+    for best_fitness in prob.get_best_known_f_vector():
+        print pop.champion.f[0] - best_fitness[0]
 
 NOTE3: If performance is your goal, you should implement your problem in C++, and then expose it into python.
