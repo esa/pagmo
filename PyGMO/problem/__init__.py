@@ -586,14 +586,15 @@ rotated.__init__ = _rotated_ctor
 
 _problem.noisy.noise_distribution = _problem._noise_distribution
 
-def _noisy_ctor(self, problem = None, param_first = 0.0, param_second = 1.0, noise_type = noisy.noise_distribution.NORMAL, seed = 0):
+def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_second = 1.0, noise_type = noisy.noise_distribution.NORMAL, seed = 0):
 	"""
 	Inject noise to a problem.
 	The new objective function will become stochastic, influence by a normally distributed noise.
 
-	USAGE: problem.(problem=PyGMO.ackley(1), param_first=0.0, param_second=1.0, noise_type = problem.noisy.noise_distribution.NORMAL, seed=0)
+	USAGE: problem.(problem=PyGMO.ackley(1), trials = 1, param_first=0.0, param_second=1.0, noise_type = problem.noisy.noise_distribution.NORMAL, seed=0)
 
 	* problem: PyGMO problem on which one wants to add noises
+	* trials: number of trials to average around
 	* param_first: Mean of the Gaussian noise / Lower bound of the uniform noise
 	* param_second: Standard deviation of the Gaussian noise / Upper bound of the uniform noise
 	* noise_type: Whether to inject a normally distributed noise or uniformly distributed noise
@@ -605,6 +606,7 @@ def _noisy_ctor(self, problem = None, param_first = 0.0, param_second = 1.0, noi
 	if problem == None:
 		problem = ackley(1)
 	arg_list.append(problem)
+	arg_list.append(trials)
 	arg_list.append(param_first)
 	arg_list.append(param_second)
 	arg_list.append(noise_type)

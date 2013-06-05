@@ -50,7 +50,7 @@ namespace pagmo { namespace problem {
  * @see problem::base_stochastic constructors.
  */
 
-noisy::noisy(const base & p, const double param_first, const double param_second, noise_distribution::type noise_type, unsigned int seed):
+noisy::noisy(const base & p, unsigned int trials, const double param_first, const double param_second, noise_distribution::type noise_type, unsigned int seed):
 	base_stochastic((int)p.get_dimension(),
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
@@ -58,6 +58,7 @@ noisy::noisy(const base & p, const double param_first, const double param_second
 		 p.get_ic_dimension(),
 		 p.get_c_tol(), seed),
 	m_original_problem(p.clone()),
+	m_trials(trials),
 	m_normal_dist(param_first, param_second),
 	m_uniform_dist(param_first, param_second),
 	m_decision_vector_hash(),
@@ -81,6 +82,7 @@ noisy::noisy(const noisy &prob):
 		 prob.get_c_tol(),
 		 prob.m_seed),
 	m_original_problem(prob.m_original_problem->clone()),
+	m_trials(prob.m_trials),
 	m_normal_dist(prob.m_normal_dist),
 	m_uniform_dist(prob.m_param_first, prob.m_param_second),
 	m_decision_vector_hash(),
@@ -138,19 +140,40 @@ double noisy::get_param_second()
 /// Add noises to the computed fitness vector.
 void noisy::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
+	//1 - Initialize a temporary fitness vector storing one trial result
+	//and we use it also to init the return value 
+	fitness_vector tmp(f.size(),0.0);
+	f=tmp;
+	//2 - We set the seed
 	m_drng.seed(m_seed+m_decision_vector_hash(x));
-//std::cout << m_seed+m_decision_vector_hash(x) << std::endl;
-	m_original_problem->objfun(f, x);
-	inject_noise_f(f);
+	//3 - We average upon multiple runs
+	for (unsigned int j=0; j< m_trials; ++j) {
+		m_original_problem->objfun(tmp, x);
+		inject_noise_f(tmp);
+		for (fitness_vector::size_type i=0; i<f.size();++i) {
+			f[i] = f[i] + tmp[i];
+		}
+	}
 }
 
 /// Implementation of the constraints computation.
 /// Add noises to the computed constraint vector.
 void noisy::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
+	//1 - Initialize a temporary constraint vector storing one trial result
+	//and we use it also to init the return value 
+	constraint_vector tmp(c.size(),0.0);
+	c=tmp;
+	//2 - We set the seed
 	m_drng.seed(m_seed+m_decision_vector_hash(x));
-	m_original_problem->compute_constraints(c, x);
-	inject_noise_c(c);
+	//3 - We average upon multiple runs
+	for (unsigned int j=0; j< m_trials; ++j) {
+		m_original_problem->compute_constraints(c, x);
+		inject_noise_c(c);
+		for (constraint_vector::size_type i=0; i<c.size();++i) {
+			c[i] = c[i] + tmp[i];
+		}
+	}
 }
 
 /// Apply noise on a fitness vector
@@ -202,6 +225,7 @@ std::string noisy::human_readable_extra() const
 	else{
 		oss << "\n\t Unknown????";
 	}
+	oss << "\n\ttrials: "<<m_trials;
 	oss << "\n\tseed: "<<m_seed;
 	//oss << "\n\tDistribution state: "<<m_normal_dist;
 	return oss.str();

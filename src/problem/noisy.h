@@ -44,7 +44,11 @@ namespace pagmo{ namespace problem {
 /**
  * A meta-problem that transforms a problem into its stochastic
  * version by injecting noises to the fitness vector (and constraint vector)
- * with either uniform or gaussian distribution.
+ * with either uniform or gaussian distribution. The resulting value is then averaged upon m_trials
+ * as to rbe able to reproduce a typical set-up in Evolutionary Robotics, but aso in stochastic optimization
+ *
+ * NOTE: for m_trials->infinity one recovers a deterministic problem, but the objective function computation
+ * soon becomes very expensive. The trade-off is to keep m_trials small, while being able to get good convergence. 
  *
  * @author Yung-Siang Liau (liauys@gmail.com)
  * @author Dario Izzo (dario.izzo@gmail.com)
@@ -58,6 +62,7 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		};
 		//constructors
 		noisy(const base & = ackley(1),
+			  unsigned int trials = 1,
 			  const double param_first = 0.0,
 			  const double param_second = 0.1,
 			  noise_distribution::type noise_type = noise_distribution::NORMAL,
@@ -87,6 +92,7 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		{
 			ar & boost::serialization::base_object<base_stochastic>(*this);
 			ar & m_original_problem;
+			ar & const_cast<unsigned int &>(m_trials);
 			ar & m_normal_dist;
 			ar & m_uniform_dist;
 			ar & m_param_first;
@@ -95,6 +101,7 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		}
 
 		base_ptr m_original_problem;
+		const unsigned int m_trials;
 		mutable boost::normal_distribution<double> m_normal_dist;
 		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;
 		mutable boost::hash<std::vector<double> > m_decision_vector_hash;

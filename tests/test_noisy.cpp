@@ -60,6 +60,7 @@ int test_noisy(const std::vector<problem::base_ptr> & probs, double noise_mean, 
 		int dim = probs[i]->get_dimension();
 
 		pagmo::problem::noisy prob_noisy(*(probs[i]),
+										 1,
 										 noise_mean,
 										 noise_stddev,
 										 pagmo::problem::noisy::noise_distribution::NORMAL,
@@ -141,6 +142,7 @@ int test_noisy_uniform(const std::vector<problem::base_ptr> & probs, double nois
 		int dim = probs[i]->get_dimension();
 
 		pagmo::problem::noisy prob_noisy(*(probs[i]),
+										 1,
 										 noise_lb,
 										 noise_ub,
 										 pagmo::problem::noisy::noise_distribution::UNIFORM,

@@ -66,7 +66,7 @@ int main()
         else {
             const std::vector<decision_vector> &x_best_known_vector = probs[i]->get_best_known_x_vector();
 
-            for(int j=0; j<x_best_known_vector.size(); j++) {
+            for(decision_vector::size_type j=0; j<x_best_known_vector.size(); j++) {
                 const decision_vector &x_best_known = x_best_known_vector.at(j);
 
                 fitness_vector f_computed = probs[i]->objfun(x_best_known);
@@ -84,7 +84,7 @@ int main()
                 }
 
                 bool check_constraints = true;
-                for(int j=0; j<c_computed.size(); j++)
+                for(constraint_vector::size_type j=0; j<c_computed.size(); j++)
                 {
                     if(boost::math::isnan(c_computed.at(j))) {
                         std::cout << "Best constraint vector is not implemented." << std::endl;
@@ -107,7 +107,7 @@ int main()
     }
 
     //----- Delete test CEC2006 -----//
-    for(int i=0; i<probs.size(); i++){
+    for(size_t i=0; i<probs.size(); i++){
         delete probs[i];
     }
 
