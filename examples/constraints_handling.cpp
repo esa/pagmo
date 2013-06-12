@@ -72,7 +72,7 @@ double std_dev(archipelago a, double mean) {
 	return sqrt(retval / a.get_size());
 }
 
-std::string getSolutions(archipelago a) {
+std::string get_solutions(archipelago a) {
 	std::ostringstream sol;
 	int solSize = a.get_island(0)->get_population().champion().x.size();
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
@@ -85,8 +85,7 @@ std::string getSolutions(archipelago a) {
 	return sol.str();
 }
 
-problem::base_ptr getConstrainedProb(problem::base_ptr prob, int i) {
-    // death penalty technique
+problem::base_ptr get_constrained_prob(problem::base_ptr prob, int i) {
     switch(i) {
     case(0):
         return problem::constrained_death_penalty(*prob,0).clone();
@@ -95,6 +94,29 @@ problem::base_ptr getConstrainedProb(problem::base_ptr prob, int i) {
         return problem::constrained_death_penalty(*prob,1).clone();
         break;
     default:
+        return prob;
+        break;
+    }
+}
+
+algorithm::base_ptr get_constrained_algo(algorithm::base_ptr algo, int i) {
+    switch(i) {
+    default:
+        return algo;
+        break;
+    }
+}
+
+std::string get_constrained_name(int i) {
+    switch(i) {
+    case(0):
+        return "Death_penalty";
+        break;
+    case(1):
+        return "Death_penalty_Kuri";
+        break;
+    default:
+        return "No_constraint_technique";
         break;
     }
 }
@@ -102,6 +124,15 @@ problem::base_ptr getConstrainedProb(problem::base_ptr prob, int i) {
 void print_row(std::ostream &f, const std::string &topo_name, const double &mean, const double &dev)
 {
 	f << topo_name << " & " << mean << " & " << dev << "\\\\";
+}
+
+std::string underscore_to_space(std::string text) {
+    for(std::string::iterator it = text.begin(); it != text.end(); ++it) {
+        if(*it == '_') {
+            *it = ' ';
+        }
+    }
+    return text;
 }
 
 int main()
@@ -147,76 +178,73 @@ int main()
    // topo.push_back(topology::fully_connected().clone());
    // topo.push_back(topology::ring().clone());
 
-    //2 - We instantiate the constraints handling techniques
-    //3 - We build a container of algorithms
-	//4 - And a container of problems
-    //5 - And a container of topologies
-
-    std::vector<problem::base_ptr> constraints_handling_probs;
-    for(unsigned int i=0; i<probs.size(); i++) {
-      //  constraints_handling_probs.push_back(getConstrainedProb(probs[i], 0));
-        constraints_handling_probs.push_back(getConstrainedProb(probs[i], 1));
-    }
-
-
     std::vector<double> stored_best_optimum(probs.size(), boost::numeric::bounds<double>::highest());
     std::vector<std::string> stored_best_algorithm(probs.size(), "");
+    std::vector<std::string> stored_best_constraint_technique(probs.size(), "");
 
-    //Open the output file
-    std::ofstream myfile;
-    myfile.open((std::string("pagmo_constraints_") +
-                 "death_penalty_kuri" + ".tex").c_str());
-    myfile << std::setprecision(5);
+    // for each constraints handling technique:
+    for(unsigned int ch=0; ch < 2; ch++) {
 
-    // for each constraints loop to do
+        //Open the output file
+        std::ofstream myfile;
+        myfile.open((std::string("pagmo_constraints_") + get_constrained_name(ch) + ".tex").c_str());
+        myfile << std::setprecision(5);
 
-    myfile << "\\documentclass{article}\n";
-    myfile << "\\usepackage{array}\n";
-    myfile << "\\usepackage{rotating}\n";
-    myfile << "\\begin{document}\n";
-    for (unsigned int pr=0; pr<probs.size();++pr) {
-        myfile << "\\begin{sidewaystable}\n";
-        myfile << "\\centering\n";
-        myfile << "\\begin{tabular}{l|l|l|l|l|l|l}" << "\n";
-        myfile << probs[pr]->get_name();
-        myfile << "& Best & Worst & Mean & Std & Feasible rate & Success Rate \\\\";
-        myfile << "\\hline\n";
+        myfile << "\\documentclass{article}\n";
+        myfile << "\\usepackage{array}\n";
+        myfile << "\\usepackage{rotating}\n";
+        myfile << "\\begin{document}\n";
+        for (unsigned int pr=0; pr<probs.size();++pr) {
+            myfile << "\\begin{sidewaystable}\n";
+            myfile << "\\centering\n";
+            myfile << "\\begin{tabular}{l|l|l|l|l|l|l}" << "\n";
+            myfile << probs[pr]->get_name();
+            myfile << "& Best & Worst & Mean & Std & Feasible rate & Success Rate \\\\";
+            myfile << "\\hline\n";
 
-        std::cout << std::endl << "Problem: " << constraints_handling_probs[pr]->get_name()<<std::endl;
+            // we generate the constrained problem
+            problem::base_ptr constrained_problem = get_constrained_prob(probs[pr], ch);
 
-        for (unsigned int to=0; to<topo.size(); ++to) {
+            std::cout << std::endl << "Problem: " << constrained_problem->get_name()<<std::endl;
 
-            std::cout << topo[to]->get_name() << std::endl;
+            for (unsigned int to=0; to<topo.size(); ++to) {
 
-            for (unsigned int al=0; al<algos.size(); ++al) {
-                pagmo::archipelago a = pagmo::archipelago(*topo[to]);
+                std::cout << topo[to]->get_name() << std::endl;
 
-                for (unsigned int i=0; i<number_of_islands; ++i) {
-                    a.push_back(island(*algos[al], *constraints_handling_probs[pr], number_of_individuals));
-                }
-                a.evolve(number_of_migrations);
-                a.join();
+                for (unsigned int al=0; al<algos.size(); ++al) {
+                   // we generate the constrained algorithm
+                    algorithm::base_ptr constrained_algorithm = get_constrained_algo(algos[al], ch);
 
-                myfile << "$" << algos[al]->get_name() << "$";
-                myfile << " & " << best(a) << " & " << worst(a) << " & " << mean(a) << " & " << std_dev(a,mean(a)) << "& &";
-                myfile << "\\\\";
-                std::cout << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
+                    pagmo::archipelago a = pagmo::archipelago(*topo[to]);
 
-                // store the best solution for the recap
-                if(best(a) < stored_best_optimum[pr]) {
-                    stored_best_optimum[pr] = best(a);
-                    stored_best_algorithm[pr] = algos[al]->get_name() + constraints_handling_probs[pr]->get_name();
+                    for (unsigned int i=0; i<number_of_islands; ++i) {
+                        a.push_back(island(*constrained_algorithm, *constrained_problem, number_of_individuals));
+                    }
+                    a.evolve(number_of_migrations);
+                    a.join();
+
+                    myfile << "$" << constrained_algorithm->get_name() << "$";
+                    myfile << " & " << best(a) << " & " << worst(a) << " & " << mean(a) << " & " << std_dev(a,mean(a)) << "& &";
+                    myfile << "\\\\";
+                    std::cout << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
+
+                    // store the best solution for the recap
+                    if(best(a) < stored_best_optimum[pr]) {
+                        stored_best_optimum[pr] = best(a);
+                        stored_best_algorithm[pr] = constrained_algorithm->get_name();
+                        stored_best_constraint_technique[pr] = get_constrained_name(ch);
+                    }
                 }
             }
+            myfile << "\\hline\n";
+            myfile << "\\end{tabular}\n";
+            myfile << "\\end{sidewaystable}\n";
+            myfile << "\\clearpage\n";
         }
-        myfile << "\\hline\n";
-        myfile << "\\end{tabular}\n";
-        myfile << "\\end{sidewaystable}\n";
-        myfile << "\\clearpage\n";
-    }
 
-	myfile << "\\end{document}";
-    myfile.close();
+        myfile << "\\end{document}";
+        myfile.close();
+    }
 
     // recap
     std::ofstream recap_file;
@@ -231,10 +259,13 @@ int main()
     recap_file << "\\centering\n";
     recap_file << "\\begin{tabular}{l|l|l|l|l|l}" << "\n";
     recap_file << "Prob & Nbr inequality cstr & Nbr equality cstr & Best known optimum & Optimum found & Best algorithm \\\\";
-    for (unsigned int pr=0; pr<probs.size();++pr) {
-        recap_file << probs[pr]->get_name() << " & " << " & " << " & " << probs[pr]->get_best_known_f_vector()[0] << " & " << stored_best_optimum[pr] <<  " & " << "$" << stored_best_algorithm[pr] << "$" << "\\\\";
-    }
     recap_file << "\\hline\n";
+    for (unsigned int pr=0; pr<probs.size();++pr) {
+        recap_file << probs[pr]->get_name() << " & " << " & " << " & " << probs[pr]->get_best_known_f_vector()[0][0] << " & " << stored_best_optimum[pr] <<  " & " << underscore_to_space(stored_best_algorithm[pr]) << "\\\\";
+
+        recap_file << "" << " & " << "" << " & " << "" << " & " << "" << " & " << "" << " & " << underscore_to_space(stored_best_constraint_technique[pr]) << "\\\\";
+        recap_file << "\\hline\n";
+    }
     recap_file << "\\end{tabular}\n";
     recap_file << "\\end{sidewaystable}\n";
     recap_file << "\\end{document}";
