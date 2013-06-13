@@ -22,40 +22,56 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include "src/pagmo.h"
+#ifndef PAGMO_PROBLEM_DECOMPOSITION_H
+#define PAGMO_PROBLEM_DECOMPOSITION_H
 
-using namespace pagmo;
+#include <string>
 
-// Example in C++ of the use of PaGMO 1.1.4
+#include "../serialization.h"
+#include "../types.h"
+#include "base.h"
+#include "ackley.h"
 
-int main()
+namespace pagmo{ namespace problem {
+
+/// Decomposition meta-problem
+/**
+ * Implements a meta-problem class resulting in a decomposed version
+ * of the multi-objective input problem, i.e. a single-objective problem having as fitness function 
+ * a convex combination of the original fitness functions.
+ *
+ * @author Andrea Mambrini (andrea.mambrni@gmail.com)
+ */
+
+class __PAGMO_VISIBLE decomposition : public base
 {
-	pagmo::problem::zdt1 orig_prob(10);
+	public:
+		//constructor
+		decomposition(const base & = ackley(1), const std::vector<double> & = std::vector<double>(1,1));  //TODO: fix default vect with the proper size
+		
+		//copy constructor
+		decomposition(const decomposition &);
+		base_ptr clone() const;
+		std::string get_name() const;
+		
+	protected:
+		std::string human_readable_extra() const;
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_original_problem;
+			ar & m_weight;
+		}
+		base_ptr m_original_problem;
+		std::vector<double> m_weight;
+};
 
-	std::vector<double> weight(2,0.5);
-	pagmo::problem::decomposition decomposed_problem(orig_prob, weight);
+}} //namespaces
 
-	pagmo::algorithm::cmaes alg(100);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::decomposition);
 
-	std::cout << alg << std::endl;
-	std::cout << orig_prob << std::endl;
-	std::cout << decomposed_problem << std::endl;
-
-	pagmo::island isl = island(alg, decomposed_problem, 100);
-
-	int bestidx = isl.get_population().get_best_idx();
-	pagmo::population original_problem_pop = population(orig_prob, 1);
-
-	for (size_t i = 0; i< 10; ++i){
-	    isl.evolve(1);
-	    bestidx = isl.get_population().get_best_idx();
-	    original_problem_pop.set_x(0, isl.get_population().get_individual(bestidx).cur_x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(isl.get_population()) << std::endl;
-	    std::cout << "On index: " << bestidx << ", fit(decomposed): " << isl.get_population().get_individual(bestidx).cur_f << std::endl;// << ", genotype: " << isl.get_population().get_individual(bestidx).cur_x << std::endl;
-	    std::cout << "original fit[0]: " << original_problem_pop.get_individual(0).cur_f[0] << ", fit[1]: " << original_problem_pop.get_individual(0).cur_f[1] << std::endl;
-	  
-	}
-
-	return 0;
-}
+#endif // PAGMO_PROBLEM_DECOMPOSITION_H
