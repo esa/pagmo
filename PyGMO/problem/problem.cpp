@@ -133,6 +133,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	typedef void (problem::base::*bounds_setter)(const decision_vector &);
 	typedef void (problem::base::*bounds_setter_value)(const double &, const double &);
 	typedef void (problem::base::*bounds_setter_vectors)(const decision_vector &, const decision_vector &);
+	typedef void (problem::base::*best_x_setter)(const std::vector<decision_vector>&);
 	typedef constraint_vector (problem::base::*return_constraints)(const decision_vector &) const;
 	typedef fitness_vector (problem::base::*return_fitness)(const decision_vector &) const;
 	class_<problem::python_base, boost::noncopyable>("_base",init<int,optional<int,int,int,int,const double &> >())
@@ -169,7 +170,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		// Fitness.
 		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
 		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
-        // Best known solution
 		// Virtual methods that can be (re)implemented.
 		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
@@ -180,14 +180,11 @@ BOOST_PYTHON_MODULE(_problem) {
         .def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
         .def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
         .def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
-        .def("initialize_best",&problem::python_base::py_initialize_best)
-        .def("_set_best_known_solutions",&problem::python_base::set_best_known_solutions)
-        .def("get_best_known_c_vector",&problem::base::get_best_known_c_vector,
-             return_value_policy<copy_const_reference>(),"Best known constraint vector.")
-        .def("get_best_known_x_vector",&problem::base::get_best_known_x_vector,
-             return_value_policy<copy_const_reference>(),"Best known decision vector.")
-        .def("get_best_known_f_vector",&problem::base::get_best_known_f_vector,
-             return_value_policy<copy_const_reference>(),"Best known fitness vector.")
+		// Best known solution
+        .add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
+		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
+        .add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
+
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
@@ -238,14 +235,11 @@ BOOST_PYTHON_MODULE(_problem) {
         .def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
         .def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
         .def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
-        .def("initialize_best",&problem::base_stochastic::initialize_best)
-        .def("_set_best_known_solutions",&problem::python_base_stochastic::set_best_known_solutions)
-        .def("get_best_known_c_vector",&problem::base_stochastic::get_best_known_c_vector,
-             return_value_policy<copy_const_reference>(),"Best known constraint vector.")
-        .def("get_best_known_x_vector",&problem::base_stochastic::get_best_known_x_vector,
-             return_value_policy<copy_const_reference>(),"Best known decision vector.")
-        .def("get_best_known_f_vector",&problem::base_stochastic::get_best_known_f_vector,
-             return_value_policy<copy_const_reference>(),"Best known fitness vector.")
+        // Best known solution
+		.add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
+		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
+        .add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
+
 		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
 	// Ackley problem.

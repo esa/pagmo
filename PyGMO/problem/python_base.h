@@ -150,21 +150,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
             pagmo_assert(f);
             return f(f0, c0, f1, c1);
         }
-        void py_initialize_best()
-        {
-            if (boost::python::override f = this->get_override("initialize_best")) {
-                pagmo_assert(f);
-                f();
-            }
-            else
-                base::initialize_best();
-        }
-        void set_best_known_solutions(const std::vector<decision_vector>& x, 
-                                      const std::vector<fitness_vector>& f,
-                                      const std::vector<constraint_vector>& c)
-        {
-            problem::base::set_best_known_solutions(x,f,c);
-        }
+
 	protected:
 		void objfun_impl(fitness_vector &f, const decision_vector &x) const
 		{
@@ -218,6 +204,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
                 return problem::base::compare_fc_impl(f0, c0, f1, c1);
             }
         }
+
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

@@ -419,32 +419,19 @@ std::string cec2006::get_name() const
 void cec2006::initialize_best(void)
 {
     std::vector<decision_vector> best_known_decision_vector;
-    std::vector<decision_vector> best_known_fitness_vector;
-    std::vector<decision_vector> best_known_constraints_vector;
 
     int x_dimension = m_problems_dimension[m_problem_number - 1];
-    int f_dimension = 1;
-    int c_dimension = m_problems_c_dimension[m_problem_number - 1];
 
     switch(m_problem_number)
     {
     case 1:
     {
         const double x_vector[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,3.,3.,3.,1.};
-        const double f_vector[] = {-15.};
-        const double c_vector[] = {0., 0., 0., -5., -5., -5., 0., 0., 0.};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);\
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 2:
@@ -454,20 +441,11 @@ void cec2006::initialize_best(void)
                                    0.49482511456933, 0.48835711005490, 0.48231642711865, 0.47664475092742,
                                    0.47129550835493, 0.46623099264167, 0.46142004984199, 0.45683664767217,
                                    0.45245876903267, 0.44826762241853, 0.44424700958760, 0.44038285956317};
-        const double f_vector[] = {-0.80361910412559};
-        const double c_vector[] = {-1.2878587085651816e-14, -120.06741615259264};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 3:
@@ -475,77 +453,41 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {0.31624357647283069, 0.316243577414338339, 0.316243578012345927, 0.316243575664017895,
                                    0.316243578205526066, 0.31624357738855069, 0.316243575472949512, 0.316243577164883938,
                                    0.316243578155920302, 0.316243576147374916};
-        const double f_vector[] = {-1.00050010001000};
-        const double c_vector[] = {9.9999999999988987e-05};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
+	    best_known_decision_vector.push_back(best_known_decision);
 
-        best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
         break;
     }
     case 4:
     {
         const double x_vector[] = {78,33,29.9952560256815985,45,36.7758129057882073};
-        const double f_vector[] = {-3.066553867178332e+004};
-        const double c_vector[] = {0., -92., -11.159499691073137, -8.8405003089268632, -4.9999999999999964, -3.5527136788005009e-15};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
+	    std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 5:
     {
         const double x_vector[] = {679.945148297028709,1026.06697600004691,0.118876369094410433,-0.39623348521517826};
-        const double f_vector[] = {5126.4967140071};
-        const double c_vector[] = {9.9999999974897946e-05, 9.9999999974897946e-05, 9.9999999974897946e-05, -0.034890145690411378, -1.0651098543095887};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 6:
     {
         const double x_vector[] = {14.09500000000000064,0.8429607892154795668};
-        const double f_vector[] = {-6961.81387558015};
-        const double c_vector[] = {0., 0.};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 7:
@@ -553,135 +495,71 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {2.17199634142692, 2.3636830416034, 8.77392573913157, 5.09598443745173,
                                    0.990654756560493, 1.43057392853463, 1.32164415364306, 9.82872576524495,
                                    8.2800915887356, 8.3759266477347};
-        const double f_vector[] = {24.30620906818};
-        const double c_vector[] = {5.6843418860808015e-14, -1.1723955140041653e-13, 3.907985046680551e-14, -6.0254023992456496e-12,
-                                   -7.1054273576010019e-15, -2.8421709430404007e-14, -6.1485036896036398, -50.023961731838071};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 8:
     {
         const double x_vector[] = {1.22797135260752599, 4.24537336612274885};
-        const double f_vector[] = {-0.0958250414180359};
-        const double c_vector[] = {-1.737459723297992, -0.16776326380511744};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 9:
     {
         const double x_vector[] = {2.33049935147405174, 1.95137236847114592, -0.477541399510615805, 4.36572624923625874, -0.624486959100388983, 1.03813099410962173, 1.5942266780671519};
-        const double f_vector[] = {680.630057374402};
-        const double c_vector[] = {-1.3766765505351941e-14, -252.56171634346606, -144.87817845461515, -2.4868995751603507e-14};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
+		std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 10:
     {
         const double x_vector[] = {579.306685017979589,1359.97067807935605,5109.97065743133317,182.01769963061534, 295.601173702746792, 217.982300369384632, 286.41652592786852, 395.601173702746735};
-        const double f_vector[] = {7049.24802052867};
-        const double c_vector[] = {0, 0, -5.5511151231257827e-16, -1.4551915228366852e-11, -2.9103830456733704e-11, -1.1641532182693481e-10};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
-        break;
+
+		break;
     }
     case 11:
     {
         const double x_vector[] = {-0.707036070037170616, 0.500000004333606807};
-        const double f_vector[] = {0.7499};
-        const double c_vector[] = {9.9999999999988987e-05};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 12:
     {
         const double x_vector[] = {5.,5.,5.};
-        const double f_vector[] = {-1.};
-        const double c_vector[] = {-0.0625};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 13:
     {
         const double x_vector[] = {-1.71714224003, 1.59572124049468, 1.8272502406271, -0.763659881912867, -0.76365986736498};
-        const double f_vector[] = {0.053941514041898};
-        const double c_vector[] = {9.9999999994437871e-05, -0.00010000000000331966, 9.9999999998878764e-05};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 14:
@@ -689,87 +567,43 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {0.0406684113216282, 0.147721240492452, 0.783205732104114, 0.00141433931889084,
                                    0.485293636780388, 0.000693183051556082, 0.0274052040687766, 0.0179509660214818,
                                    0.0373268186859717, 0.0968844604336845};
-        const double f_vector[] = {-47.7648884594915};
-        const double c_vector[] = {0.00010000000000109921, 9.9999999999544897e-05, 0.00010000000000043308};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 15:
     {
         const double x_vector[] = {3.51212812611795133,0.216987510429556135,3.55217854929179921};
-        const double f_vector[] = {961.715022289961};
-        const double c_vector[] = {9.9999999999766942e-05, 9.9999999989108801e-05};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
-        break;
+
+		break;
     }
     case 16:
     {
         const double x_vector[] = {705.174537070090537, 68.5999999999999943, 102.899999999999991, 282.324931593660324,
                                    37.5841164258054832};
-        const double f_vector[] = {-1.90515525853479};
-        const double c_vector[] = {-81.790353283003498, 0, 0, -5.6843418860808015e-14,
-                                   0, -192.13000000000002, -0.29331594739664624, -1035.8683840526032, -0.094075252933153664,
-                                   -23.660924747066847, -1.7844298057299284, -449.5725701942701, -337.68448248701077,
-                                   -239.32051751298917, -131.68954952441663, -133.26545047558335, -1.0081273474015813,
-                                   -4.4258726525984189, -0.0010113580124478661, -0.074988641987552146, -46.616183234373679,
-                                   -118.75981676562631, -47.15206111982161, -316.25993888017842, -187.97290376436615,
-                                   -329.2410962356339, -0.13924565212261086, -518.23575434787733, -1859.6857829062783,
-                                   -315.19021709372191, -5850.0391214556676, -12032.598878544331, -0.18271094712517674,
-                                   -0.14028905287482327, -68915.669999999998, 0, -9275494.7446969859, -67900.25530301407};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 17:
     {
         const double x_vector[] = {201.784467214523659, 99.9999999999999005, 383.071034852773266, 420,
                                    -10.9076584514292652, 0.0731482312084287128};
-        const double f_vector[] = {8853.53967480648};
-        const double c_vector[] = {9.5279025970285147e-05, 9.9999999889632818e-05, -7.5298006409596496e-05, 9.9999999605415724e-05};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 18:
@@ -777,22 +611,11 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {-0.657776192427943163, -0.153418773482438542, 0.323413871675240938, -0.946257611651304398,
                                    -0.657776194376798906, -0.753213434632691414, 0.323413874123576972, -0.346462947962331735,
                                    0.59979466285217542};
-        const double f_vector[] = {-0.866025403784439};
-        const double c_vector[] = {0, -0.6402463624140452, 0, 0,
-                                   -0.64024636445565331, -1.5959455978986625e-16, -7.6327832942979512e-17, -0.64024636141023228,
-                                   0, -0.67204348836757655, -0.19398191412316787, -0.39453065073841909, -0.47149475433971377};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 19:
@@ -801,20 +624,11 @@ void cec2006::initialize_best(void)
                                    3.2831773458454161, 9.99999999999999822, 1.12829414671605333e-17, 1.2026194599794709e-17,
                                    2.50706276000769697e-15, 2.24624122987970677e-15, 0.370764847417013987, 0.278456024942955571,
                                    0.523838487672241171, 0.388620152510322781,0.298156764974678579};
-        const double f_vector[] = {32.6555929502463};
-        const double c_vector[] = {1.7763568394002505e-15, -0, -0, 8.8817841970012523e-16, -0};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+ 
         break;
     }
     case 20:
@@ -825,45 +639,22 @@ void cec2006::initialize_best(void)
                                    2.29601774161699833e-19, 1.06106938611042947e-18, 1.31968344319506391e-18, 0.530902525044209539,
                                    0, 2.89148310257773535e-18, 3.34892126180666159e-18, 0, 0.310999974151577319,
                                    5.41244666317833561e-05, 4.84993165246959553e-16};
-        const double f_vector[] = {0.20497940028563599};
-        const double c_vector[] = {9.9999999999766942e-05, -2.1972568189549347e-17, 1.5539704692828344e-18, 8.1753737821131767e-19,
-                                   9.9999999999766942e-05, -1.0383082213426958e-17, -2.992491915147666e-17, -3.20853810872953e-18,
-                                   0, 9.9999999999877964e-05, 9.9999999999840031e-05, 6.8665220979881771e-16,
-                                   9.9999999999988987e-05, -9.9999999999322853e-05, 0.14375363724895993, 1.7660316449634668e-19,
-                                   7.5785257203801829e-19, 2.2240466906989736e-18, 2.0929449795679412e-18, 0};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 21:
     {
         const double x_vector[] = {193.724510070034967, 5.56944131553368433e-27, 17.3191887294084914, 100.047897801386839,
                                    6.68445185362377892, 5.99168428444264833, 6.21451648886070451};
-        const double f_vector[] = {193.724510070035};
-        const double c_vector[] = {9.9999997473787516e-05, 0.00010000000111176632, 9.9999999999766942e-05, -9.9999999999766942e-05,
-                             -9.9999999999766942e-05, -2.8421709430404007e-14};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 22:
@@ -874,64 +665,32 @@ void cec2006::initialize_best(void)
                                    184.51831230897065, 248.64670239647424, 127.658546694545862, 269.182627528746707,
                                    160.000016724090955, 5.29788288102680571, 5.13529735903945728, 5.59531526444068827,
                                    5.43444479314453499, 5.07517453535834395};
-        const double f_vector[] = {236.430975504001};
-        const double c_vector[] = {-2.9260292649269104e-05, 9.1973692178726196e-05, -5.184859037399292e-05, -4.9985945224761963e-05,
-                                   7.2941184043884277e-05, 9.5665454864501953e-06, 5.6096352636814117e-05, 1.6726553440093994e-05,
-                                   5.4139643907546997e-05, -7.7500534302998858e-05, 1.6723476818469862e-05, 5.7372450426917965e-05,
-                                   5.7400810546504033e-05, 7.4797550418281844e-05, 7.4730862352545557e-05, -6.1559895403462406e-07,
-                                   6.1231858126120642e-06, -8.7799054654169595e-05, 9.5923077310544613e-05, -2.2079848349676467e-07};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
-        break;
+
+		break;
     }
     case 23:
     {
         const double x_vector[] = {0.00510000000000259465, 99.9947000000000514, 9.01920162996045897e-18, 99.9999000000000535,
                                    0.000100000000027086086, 2.75700683389584542e-14, 99.9999999999999574, 200, 0.0100000100000100008};
-        const double f_vector[] = {-400.055099999999584};
-        const double c_vector[] = {-0.00010000000000331966, 9.9999999999988987e-05, -9.9999999999507005e-05, -9.9999999974897946e-05,
-                                   -2.5000000001256605e-06, 0};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     case 24:
     {
         const double x_vector[] = {2.32952019747762,3.17849307411774};
-        const double f_vector[] = {-5.50801327159536};
-        const double c_vector[] = {-4.8849813083506888e-14, 1.7053025658242404e-13};
 
         decision_vector best_known_decision(x_dimension);
-        fitness_vector best_known_fitness(f_dimension);
-        constraint_vector best_known_constraint(c_dimension);
-
         std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        std::copy(f_vector,f_vector + f_dimension,best_known_fitness.begin());
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-
         best_known_decision_vector.push_back(best_known_decision);
-        best_known_fitness_vector.push_back(best_known_fitness);
-        best_known_constraints_vector.push_back(best_known_constraint);
+
         break;
     }
     default:
@@ -941,7 +700,7 @@ void cec2006::initialize_best(void)
     }
     }
 
-    this->set_best_known_solutions(best_known_decision_vector,best_known_fitness_vector,best_known_constraints_vector);
+    this->set_best_x(best_known_decision_vector);
 }
 // -------------------------------------------
 

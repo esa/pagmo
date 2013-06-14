@@ -437,13 +437,13 @@ return base_ptr(new derived_problem(*this));
 		void objfun(fitness_vector &, const decision_vector &) const;
 		bool compare_fitness(const fitness_vector &, const fitness_vector &) const;
 		void reset_caches() const;
-    public:
-        virtual void initialize_best(void);
-        const std::vector<constraint_vector>& get_best_known_c_vector(void) const;
-        const std::vector<decision_vector>& get_best_known_x_vector(void) const;
-        const std::vector<fitness_vector>& get_best_known_f_vector(void) const;
-    protected:
-        void set_best_known_solutions(const std::vector<decision_vector>&, const std::vector<fitness_vector>& = std::vector<fitness_vector>(), const std::vector<constraint_vector>& = std::vector<constraint_vector>());
+	protected:
+		virtual void initialize_best(void){}
+	public:
+        const std::vector<constraint_vector>& get_best_c(void) const;
+        const std::vector<decision_vector>& get_best_x(void) const;
+        const std::vector<fitness_vector>& get_best_f(void) const;
+		void set_best_x(const std::vector<decision_vector>&); 
     protected:
 		virtual bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.

@@ -1223,40 +1223,32 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 	}
 }
 
-/// Initialize the best known fitness, decision and constraints vectors
+/// Sets the best known decision vectors
 /**
- * This method should be called to set the best known fitness. If it has not been reimplemented
- * in a derived class, then best known vectors are empty by default.
- */
-void base::initialize_best(void)
-{
-    // no need to set empty best known solutions are they are already empty
-}
-
-/// Sets the best known fitness, decision and constraints vectors
-/**
- * This method is called by initialize_best() and sets the base best know decision vectors members.
+ * This method is used to set the best know decision vectors members.
  *
  * @param[in] best known x pagmo::decision_vector.
- * @param[in] best known f pagmo::fitness_vector.
- * @param[in] best known c pagmo::constraints_vector.
  */
-void base::set_best_known_solutions(const std::vector<decision_vector>& best_known_decision, const std::vector<fitness_vector>& best_known_fitness, const std::vector<constraint_vector>& best_known_constraint)
+void base::set_best_x(const std::vector<decision_vector>& best_known_decision)
 {
     if(best_known_decision.size() != 0){
-		for (int i=0; i<best_known_decision.size(); i++)
-			pagmo_assert(best_known_decision.at(i).size() == get_dimension());
-        m_best_known_decision_vector = best_known_decision;
-	}
-    if(best_known_fitness.size() != 0){
-		for (int i=0; i<best_known_fitness.size(); i++)
-			pagmo_assert(best_known_fitness.at(i).size() == m_f_dimension);
-        m_best_known_fitness_vector = best_known_fitness;
-	}
-    if(best_known_constraint.size() != 0){
-		for (int i=0; i<best_known_constraint.size(); i++)
-			pagmo_assert(best_known_constraint.at(i).size() == m_c_dimension);
-        m_best_known_constraint_vector = best_known_constraint;
+		size_type n_opts = best_known_decision.size();
+		m_best_known_decision_vector.resize(n_opts);
+		m_best_known_fitness_vector.resize(n_opts);
+		m_best_known_constraint_vector.resize(n_opts);
+		for (int i=0; i<n_opts; i++){
+			if(best_known_decision.at(i).size() != get_dimension())
+				pagmo_throw(value_error,"invalid size(s) for best known decision vector(s)");
+			else{
+				//save in the class data member the value of the decision variable of solution i
+				m_best_known_decision_vector.at(i) = best_known_decision.at(i);
+				//save in the class data member the corresponding value of objective(s)
+			    m_best_known_fitness_vector.at(i) = objfun(best_known_decision.at(i));
+				//save in the class data member the corresponding value of constraint(s)
+			    if(m_c_dimension>0)
+					m_best_known_constraint_vector.at(i) = compute_constraints(best_known_decision.at(i));
+			}
+		}
 	}
 }
 
@@ -1265,7 +1257,7 @@ void base::set_best_known_solutions(const std::vector<decision_vector>& best_kno
  * @return the best known constraint vector for the problem.
  *
  */
-const std::vector<constraint_vector>& base::get_best_known_c_vector(void) const
+const std::vector<constraint_vector>& base::get_best_c(void) const
 {
     return this->m_best_known_constraint_vector;
 }
@@ -1275,7 +1267,7 @@ const std::vector<constraint_vector>& base::get_best_known_c_vector(void) const
  * @return the best known decision vector for the problem.
  *
  */
-const std::vector<decision_vector>& base::get_best_known_x_vector(void) const
+const std::vector<decision_vector>& base::get_best_x(void) const
 {
     return this->m_best_known_decision_vector;
 }
@@ -1285,7 +1277,7 @@ const std::vector<decision_vector>& base::get_best_known_x_vector(void) const
  * @return the best known fitness vector for the problem.
  *
  */
-const std::vector<fitness_vector>& base::get_best_known_f_vector(void) const
+const std::vector<fitness_vector>& base::get_best_f(void) const
 {
     return this->m_best_known_fitness_vector;
 }
