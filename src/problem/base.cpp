@@ -60,12 +60,12 @@ namespace problem {
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance.
+ * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
  */
 base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO should we use size_type directly?
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-	m_c_tol(c_tol),
+    m_c_tol(nc,c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
@@ -91,6 +91,52 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO 
     normalise_bounds();
 }
 
+/// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
+/**
+ * n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
+ * Lower and upper bounds are set to 0 and 1 respectively. Constraints tolerance for equalities constraints must be positive.
+ *
+ * @param[in] n global dimension of the problem.
+ * @param[in] ni dimension of the combinatorial part of the problem.
+ * @param[in] nf dimension of the fitness vector of the problem.
+ * @param[in] nc global number of constraints.
+ * @param[in] nic number of inequality constraints.
+ * @param[in] c_tol constraints tolerance vector.
+ */
+base::base(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_tol): //TODO should we use size_type directly?
+    m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
+    m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+    m_c_tol(c_tol),
+    m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+    m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
+    m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+    m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+{
+    if (c_tol.size() != nc) {
+        pagmo_throw(value_error,"invalid constraints vector dimension");
+    }
+    for(unsigned int i=0; i<(m_c_dimension - m_ic_dimension);i++) {
+        if (c_tol[i] < 0) {
+            pagmo_throw(value_error,"constraints tolerance must be non-negative for equality constraints");
+        }
+    }
+    if (n <= 0 || !nf || ni > n || nic > nc) {
+        pagmo_throw(value_error,"invalid dimension(s)");
+    }
+    const size_type size = boost::numeric_cast<size_type>(n);
+    m_lb.resize(size);
+    m_ub.resize(size);
+    std::fill(m_lb.begin(),m_lb.end(),0);
+    std::fill(m_ub.begin(),m_ub.end(),1);
+    // Resize properly temporary fitness and constraint storage.
+    m_tmp_f1.resize(m_f_dimension);
+    m_tmp_f2.resize(m_f_dimension);
+    m_tmp_c1.resize(m_c_dimension);
+    m_tmp_c2.resize(m_c_dimension);
+    // Normalise bounds.
+    normalise_bounds();
+}
+
 /// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
 /**
  * l_value must not be greater than u_value, n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
@@ -103,12 +149,12 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO 
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance.
+ * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
  */
 base::base(const double &l_value, const double &u_value, int n, int ni, int nf, int nc, int nic, const double &c_tol):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-	m_c_tol(c_tol),
+    m_c_tol(nc,c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
@@ -149,12 +195,12 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance.
+ * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
  */
 base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf, int nc, int nic, const double &c_tol):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-	m_c_tol(c_tol),
+    m_c_tol(nc,c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
@@ -422,9 +468,9 @@ base::c_size_type base::get_ic_dimension() const
 /**
  * @return tolerance used in constraints analysis.
  */
-double base::get_c_tol() const
+std::vector<double> base::get_c_tol() const
 {
-	return m_c_tol;
+    return m_c_tol;
 }
 
 /// Get the diameter of the problem.
@@ -865,13 +911,13 @@ bool base::feasibility_x(const decision_vector &x) const
  */
 bool base::test_constraint(const constraint_vector &c, const c_size_type &i) const
 {
-	pagmo_assert(i < m_c_dimension);
-	if (i < m_c_dimension - m_ic_dimension) {
-		// Equality constraint testing.
-		return (std::abs(c[i]) <= m_c_tol);
-	} else {
-		return c[i] <= m_c_tol;
-	}
+    pagmo_assert(i < m_c_dimension);
+    if (i < m_c_dimension - m_ic_dimension) {
+        // Equality constraint testing.
+        return (std::abs(c[i]) <= m_c_tol[i]);
+    } else {
+        return c[i] <= m_c_tol[i];
+    }
 }
 
 /// Test feasibility of constraint vector.

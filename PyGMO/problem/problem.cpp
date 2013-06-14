@@ -186,6 +186,61 @@ BOOST_PYTHON_MODULE(_problem) {
         .add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
 
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
+             
+     	class_<problem::python_base, boost::noncopyable>("_base",init<int,optional<int,int,int,int,const std::vector<double> &> >())
+     		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int, const double &> >())
+     		.def("__repr__", &problem::base::human_readable)
+     		// Dimensions.
+    		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
+     		.add_property("f_dimension", &problem::base::get_f_dimension, "Fitness dimension.")
+     		.add_property("i_dimension", &problem::base::get_i_dimension, "Integer dimension.")
+     		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
+     		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
+     		// Constraints tolerance.
+     		.add_property("c_tol", &problem::base::get_c_tol, "Tolerance used in constraints analysis.")
+     		// Bounds.
+     		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
+     		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")
+     		.def("set_bounds",bounds_setter_value(&problem::base::set_bounds),"Set all bounds to the input values.")
+     		.def("set_bounds",bounds_setter_vectors(&problem::base::set_bounds),"Set bounds to the input vectors.")
+     		.add_property("diameter",&problem::base::get_diameter, "Problem's diameter.")
+     		// Useful operators.
+     		.def(self == self)
+     		.def(self != self)
+     		.def("is_compatible",&problem::base::is_compatible,"Check compatibility with other problem.")
+     		.def("reset_caches",&problem::base::reset_caches,"Resets the internal caching system of PyGMO. This needs to be called whenever the state of the problem is changed i.e. the seed in a stochastic optimization problem or the trajectory model in a low-thrust optimization etc..")
+     		// Comparisons.
+     		.def("compare_x",&problem::base::compare_x,"Compare decision vectors.")
+     		.def("verify_x",&problem::base::verify_x,"Check if decision vector is compatible with problem.")
+    		.def("compare_fc",&problem::base::compare_fc,"Simultaneous fitness-constraint comparison.")
+     		// Constraints.
+     		.def("compare_constraints",&problem::base::compare_constraints,"Compare constraint vectors.")
+     		.def("compute_constraints",return_constraints(&problem::base::compute_constraints),"Compute and return constraint vector.")
+     		.def("feasibility_x",&problem::base::feasibility_x,"Determine feasibility of decision vector.")
+     		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
+     		// Fitness.
+     		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
+     		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.")
+             // Best known solution
+     		// Virtual methods that can be (re)implemented.
+     		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
+     		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
+    		.def("_get_typename",&problem::python_base::get_typename)
+            .def("_objfun_impl",&problem::python_base::py_objfun)
+            .def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
+            .def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
+            .def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
+            .def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
+            .def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
+            .def("initialize_best",&problem::python_base::py_initialize_best)
+            .def("_set_best_known_solutions",&problem::python_base::set_best_known_solutions)
+            .def("get_best_known_c_vector",&problem::base::get_best_known_c_vector,
+                 return_value_policy<copy_const_reference>(),"Best known constraint vector.")
+            .def("get_best_known_x_vector",&problem::base::get_best_known_x_vector,
+                 return_value_policy<copy_const_reference>(),"Best known decision vector.")
+            .def("get_best_known_f_vector",&problem::base::get_best_known_f_vector,
+                return_value_policy<copy_const_reference>(),"Best known fitness vector.")
+     	    .def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
 	// tell python that these objects can be passed where problem::base is expected .... in the previous
