@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <iomanip>
 #include "src/pagmo.h"
 
 using namespace pagmo;
@@ -33,28 +34,25 @@ int main()
 {
 	pagmo::problem::zdt1 orig_prob(10);
 
-	std::vector<double> weight(2,0.5);
-	pagmo::problem::decomposition decomposed_problem(orig_prob, weight);
+	std::vector<double> weights(2,0.5);
+	pagmo::problem::decomposition decomposed_problem(orig_prob, weights);
 
-	pagmo::algorithm::cmaes alg(100);
+	pagmo::algorithm::jde alg(50);
 
 	std::cout << alg << std::endl;
 	std::cout << orig_prob << std::endl;
 	std::cout << decomposed_problem << std::endl;
 
 	pagmo::island isl = island(alg, decomposed_problem, 100);
-
-	int bestidx = isl.get_population().get_best_idx();
 	pagmo::population original_problem_pop = population(orig_prob, 1);
 
 	for (size_t i = 0; i< 10; ++i){
 	    isl.evolve(1);
-	    bestidx = isl.get_population().get_best_idx();
-	    original_problem_pop.set_x(0, isl.get_population().get_individual(bestidx).cur_x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(isl.get_population()) << std::endl;
-	    std::cout << "On index: " << bestidx << ", fit(decomposed): " << isl.get_population().get_individual(bestidx).cur_f << std::endl;// << ", genotype: " << isl.get_population().get_individual(bestidx).cur_x << std::endl;
-	    std::cout << "original fit[0]: " << original_problem_pop.get_individual(0).cur_f[0] << ", fit[1]: " << original_problem_pop.get_individual(0).cur_f[1] << std::endl;
-	  
+	    original_problem_pop.set_x(0, isl.get_population().champion().x);
+	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
+	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
+	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
+
 	}
 
 	return 0;

@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "base.h"
-#include "ackley.h"
+#include "zdt1.h"
 
 namespace pagmo{ namespace problem {
 
@@ -49,7 +49,7 @@ class __PAGMO_VISIBLE decomposition : public base
 {
 	public:
 		//constructor
-		decomposition(const base & = zdt(1), const std::vector<double> & = std::vector<double>());
+		decomposition(const base & = zdt1(1), const std::vector<double> & = std::vector<double>());
 		
 		//copy constructor
 		decomposition(const decomposition &);
