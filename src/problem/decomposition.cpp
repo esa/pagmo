@@ -36,12 +36,12 @@ namespace pagmo { namespace problem {
  * Constructor
  *
  * @param[in] p base::problem to be decomposed
- * @param[in] p weight::weight vector for the fitness functions
+ * @param[in] p weight::weight vector for the fitness functions (defaults to equal weights)
  *
  * @see problem::base constructors.
  */
 
-decomposition::decomposition(const base & p, const std::vector<double> & weight ):
+decomposition::decomposition(const base & p, const std::vector<double> & weights ):
 	base((int)p.get_dimension(), // Ambiguous without the cast ...
 		 p.get_i_dimension(),
 		 1, //it transforms the problem into a single-objective problem
@@ -49,16 +49,21 @@ decomposition::decomposition(const base & p, const std::vector<double> & weight 
 		 p.get_ic_dimension(),
 		 p.get_c_tol()),
 		 m_original_problem(p.clone()),
-		 m_weight(weight)
+		 m_weights(weights)
 {
 
-	//Check whether the weight vector sum to 1
-	double sum = 0;
-	for (std::vector<double>::size_type i=0; i<m_weight.size(); ++i) {
-		sum += m_weight[i];
+	//1 - Checks whether the weight vector has a dimension, if not, sets its default value
+	if (m_weights.size() == 0) {
+		m_weights = std::vector<double>(p.get_f_dimension(),1.0 / p.get_f_dimension());
 	}
-	if (abs(sum-1.0) > 0.0001) {
-		pagmo_throw(value_error,"the weight vector should sum to 1");
+	
+	//2 - Checks whether the weight vector sums to 1
+	double sum = 0.0;
+	for (std::vector<double>::size_type i=0; i<m_weights.size(); ++i) {
+		sum += m_weights[i];
+	}
+	if (fabs(sum-1.0) > 1E-8) {
+		pagmo_throw(value_error,"the weight vector should sum to 1 with a tolerance of E1-8");
 	}
 
 	//Initialise a random weight vector  
@@ -83,7 +88,7 @@ decomposition::decomposition(const decomposition &p):
 		 p.get_ic_dimension(),
 		 p.get_c_tol()),
 		 m_original_problem(p.m_original_problem->clone()),
-		 m_weight(p.m_weight)
+		 m_weights(p.m_weights)
 		 {}
 
 /// Clone method.
@@ -102,7 +107,7 @@ void decomposition::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	
 	f[0] = 0;
 	for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-		f[0]+= m_weight[i]*fit[i];	
+		f[0]+= m_weights[i]*fit[i];	
 	}
 }
 

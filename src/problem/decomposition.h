@@ -37,8 +37,10 @@ namespace pagmo{ namespace problem {
 /// Decomposition meta-problem
 /**
  * Implements a meta-problem class resulting in a decomposed version
- * of the multi-objective input problem, i.e. a single-objective problem having as fitness function 
- * a convex combination of the original fitness functions.
+ * of the multi-objective input problem, i.e. a single-objective problem
+ * having as fitness function a convex combination of the original fitness functions.
+ *
+ * TODO: write a latex example
  *
  * @author Andrea Mambrini (andrea.mambrni@gmail.com)
  */
@@ -47,7 +49,7 @@ class __PAGMO_VISIBLE decomposition : public base
 {
 	public:
 		//constructor
-		decomposition(const base & = ackley(1), const std::vector<double> & = std::vector<double>(1,1));  //TODO: fix default vect with the proper size
+		decomposition(const base & = zdt(1), const std::vector<double> & = std::vector<double>());
 		
 		//copy constructor
 		decomposition(const decomposition &);
@@ -64,10 +66,10 @@ class __PAGMO_VISIBLE decomposition : public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_original_problem;
-			ar & m_weight;
+			ar & m_weights;
 		}
 		base_ptr m_original_problem;
-		std::vector<double> m_weight;
+		std::vector<double> m_weights;
 };
 
 }} //namespaces
