@@ -257,7 +257,7 @@ int main()
     recap_file << "Prob & Nbr inequality cstr & Nbr equality cstr & Best known optimum & Optimum found & Best algorithm \\\\";
     recap_file << "\\hline\n";
     for (unsigned int pr=0; pr<probs.size();++pr) {
-        recap_file << probs[pr]->get_name() << " & " << " & " << " & " << probs[pr]->get_best_known_f_vector()[0][0] << " & " << stored_best_optimum[pr] <<  " & " << underscore_to_space(stored_best_algorithm[pr]) << "\\\\";
+        recap_file << probs[pr]->get_name() << " & " << " & " << " & " << probs[pr]->get_best_f()[0][0] << " & " << stored_best_optimum[pr] <<  " & " << underscore_to_space(stored_best_algorithm[pr]) << "\\\\";
 
         recap_file << "" << " & " << "" << " & " << "" << " & " << "" << " & " << "" << " & " << underscore_to_space(stored_best_constraint_technique[pr]) << "\\\\";
         recap_file << "\\hline\n";
