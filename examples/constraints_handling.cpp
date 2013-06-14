@@ -31,13 +31,9 @@
 #include "../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../src/pagmo.h"
 
-
 /**
 DESCRITPION: This example tests several algorithms, topologies and problems and prints out a latex
-table summarizing all results. The purpose is to show the effect of the generalized migration operator
-and of the topology in the archipelago.
-
-CPU TIME: each optimization open 20 threads. The example completes in minutes.
+table summarizing all results. The purpose is to show the effect of the constraints handling techniques.
 */
 
 using namespace pagmo;
