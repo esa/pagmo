@@ -147,21 +147,7 @@ class __PAGMO_VISIBLE python_base_stochastic: public base_stochastic, public boo
             pagmo_assert(f);
             return f(f0, c0, f1, c1);
         }        
-        void py_initialize_best()
-        {
-            if (boost::python::override f = this->get_override("initialize_best")) {
-                pagmo_assert(f);
-                f();
-            }
-            else
-                base::initialize_best();
-		}
-        void set_best_known_solutions(const std::vector<decision_vector>& x, 
-                                      const std::vector<fitness_vector>& f,
-                                      const std::vector<constraint_vector>& c)
-        {
-            problem::base::set_best_known_solutions(x,f,c);
-        }
+
 	protected:
 		void objfun_impl(fitness_vector &f, const decision_vector &x) const
 		{
