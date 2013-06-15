@@ -5,6 +5,7 @@ from _problem import *
 from _problem import _base
 from _problem import _base_stochastic
 from _example import py_example
+from _example import py_example_max
 from _example_stochastic import py_example_stochastic
 from _pl2pl import py_pl2pl
 from _mo import *

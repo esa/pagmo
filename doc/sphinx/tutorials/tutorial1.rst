@@ -4,11 +4,11 @@
 Tutorial 1: Coding an optimization problem in Python
 ================================================================
 
-In this Tutorial we will learn how to code a simple optimization problem
+In this Tutorial we will learn how to code simple optimization problems
 (continuous, single objective, unconstrained), so that PyGMO can then apply all of its
 algorithmic power to solve it.
 
-In a nutshell .... we will write a class deriving from problem.base
+In a nutshell .... we will write classes deriving from problem.base
 and reimplement some of its 'virtual' methods.
 
 .. code-block:: python
@@ -33,9 +33,6 @@ and reimplement some of its 'virtual' methods.
 		#we define some additional 'private' data members (not really necessary in
 		#this case, but ... hey this is a tutorial)
 		self.__dim = dim
-        
-        # we specify that this problem has best know solutions and initialize them
-        self.initialize_best();
 
 	#We reimplement the virtual method that defines the objective function.
 	def _objfun_impl(self,x):
@@ -45,14 +42,6 @@ and reimplement some of its 'virtual' methods.
 		#note that we return a tuple with one element only. In PyGMO the objective functions
 		#return tuples so that multi-objective optimization is also possible.
 		return (f,)
-   
-    # reimplement the virtual method that defines the best point
-    def initialize_best(self):
-        best_decision_vector = [[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]];
-        best_fitness_vector = [[0.]];
-        best_constraint_vector = [];
-        self._set_best_known_solutions(best_decision_vector,best_fitness_vector,best_constraint_vector);
-
 
 	#Finally we also reimplement a virtual method that adds some output to the __repr__ method
 	def human_readable_extra(self):
@@ -72,20 +61,78 @@ We may then put this in a file, say my_module.py and use, for example, Artificia
     algo = algorithm.bee_colony(gen=500)
     isl = island(algo,prob,20)
     isl.evolve(1); isl.join()
-    
-    print "Fitness found:"
     print isl.population.champion.f
-   
-    print "Best fitness:"
-    print isl.population.champion.f
-
-    print "Fitness found compared to the best known fitness:"
-    for best_fitness in prob.get_best_known_f_vector():
-        print isl.population.champion.f[0] - best_fitness[0]
 
 And we are done!!!!! (the output will be something like 10^-27, no big deal for a sphere problem)
 
-NOTE1: This simple tutorial is implemented in PyGMO under the name PyGMO.problem.py_example
+Let's consider now a maximization problem. To solve such a problem, two possibilities are available in PaGMO/PyGMO. The first one is to transcribe the original problem as a minimization problem by premultiplying the objective function by -1. If such a method is used, the final fitness value obtained with PyGMO has to be multiplied by -1 to get back to the correct value. The second method is to keep the original problem and to overload the function that compares two fitness vectors. This function is used by the algorithms to compare individual performances. Originally, this function compares the fitness f1 to a fitness f2 and returns true if f1 dominates f2. The resulting maximization problem looks like:
+
+.. code-block:: python
+
+    from PyGMO.problem import base
+    class my_problem(base):
+        """
+        Analytical function to maximize
+    
+        USAGE: my_problem()
+        """
+        def __init__(self):
+            # first we call the constructor of the base telling
+            # to PyGMO what kind of problem to expect (1 objective, 0 constraints etc...)
+            super(my_problem,self).__init__(2);
+        
+            # sets the problem bounds
+            self.set_bounds(-10,10);
+        
+            # define private data members
+            self.__dim = 2;
+        
+            # initialize best known solutions
+            self.best_x = [[1.,-1.]];
+        
+        # reimplement the virtual method that defines the obf function
+        def _objfun_impl(self,x):
+            f = ( - (1. - x[0])**2 - 100 * (-x[0]**2 - x[1])**2 - 1.);
+            return(f,)
+        
+        # reimplement the virtual method that compares fitnesses
+        def _compare_fitness_impl(self,f1,f2):
+            return f1[0]>f2[0];
+
+        # add some output to __repr__
+        def human_readable_extra(self):
+            return "\n\t Maximization problem"
+
+As before, we may put this in the file my_module.py and use our favorite optimization algorithm:
+
+.. code-block:: python
+    from PyGMO import *
+    from my_module import my_problem
+    from math import *
+
+    prob = my_problem();
+    algo = algorithm.de(gen=20);
+    isl = island(algo,prob,20);
+    isl.evolve(10); isl.join();
+
+    print "Best individual:"
+    print isl.population.champion
+
+    print "Comparison of the best found fitness with the best known fitness:"
+    for best_fitness in prob.best_f:
+        print best_fitness[0] - isl.population.champion.f[0]
+
+    print "L2 distance to the best decision vector"
+    for best_decision in prob.best_x:
+        l2_norm = 0;
+        for n in range(0, len(best_decision)):
+            l2_norm +=  (best_decision[n] - isl.population.champion.x[n])**2;
+        l2_norm = sqrt(l2_norm);
+        print l2_norm;
+
+Note here that we used the best_f and best_x methods which return the best known fitness and decision vectors. The best_f vector is automatically available as we defined best_x in the problem. With these vectors, we can have an idea of the optimizer performances. The result of this optimization is something like 10^-11 for the comparison with the best fitness and 10^-5 for the distance to the best decision vector.
+
+NOTE1: This simple tutorial is implemented in PyGMO under the name PyGMO.problem.py_example and PyGMO.problem.py_example_max
 NOTE2: When evolve is called from an island, the process is forked and transferred to another python or ipython
 instance. As a consequence, when writing your _obj_fun_impl you cannot use stuff like matplotlib to 
 make interactive plots and alike. If you need, during development, to have this kind of support,
