@@ -29,11 +29,26 @@
 #include "base.h"
 #include "cec2006.h"
 
-static int __check__(int N){
+static int __check__(int N)
+{
 	if (N > 24 || N < 1) {
 		pagmo_throw(value_error, "the problem id needs to be one of [1..24]");
 	}
 	return N;
+}
+
+static const std::vector<double> __constraint_tolerances__(int c_dimension, int ic_dimension)
+{
+    std::vector<double> constraint_tolerances(c_dimension);
+    // equality constraints
+    for(int i=0; i<c_dimension-ic_dimension; i++) {
+        constraint_tolerances[i] = 0.0001;
+    }
+    // inequality constraints
+    for(int i=c_dimension-ic_dimension; i<c_dimension; i++) {
+        constraint_tolerances[i] = 0.;
+    }
+    return constraint_tolerances;
 }
 
 namespace pagmo { namespace problem {
@@ -54,7 +69,7 @@ const constraint_vector::size_type cec2006::m_problems_ic_dimension[] =
  *
  * @param[in] fun_id The problem id. One of [1,2,...,24]
  */
-cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,m_problems_c_dimension[__check__(fun_id)-1],m_problems_ic_dimension[__check__(fun_id)-1]),m_problem_number(__check__(fun_id))
+cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,m_problems_c_dimension[__check__(fun_id)-1],m_problems_ic_dimension[__check__(fun_id)-1], __constraint_tolerances__(m_problems_c_dimension[__check__(fun_id)-1], m_problems_ic_dimension[__check__(fun_id)-1])),m_problem_number(__check__(fun_id))
 {
     // initialize best solution
     initialize_best();
