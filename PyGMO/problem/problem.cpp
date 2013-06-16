@@ -407,6 +407,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
+	// Decomposition meta-problem
+	problem_wrapper<problem::decomposition>("decomposition","Decomposed problem")
+		.def(init<const problem::base &, optional<const std::vector<double> &> >())
+		.add_property("weights", make_function(&problem::decomposition::get_weights, return_value_policy<copy_const_reference>()));
+
 		
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)

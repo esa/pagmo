@@ -14,3 +14,4 @@ Available Tutorials
    tutorial3
    tutorial4
    tutorial5
+   tutorial6

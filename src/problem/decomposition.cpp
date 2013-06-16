@@ -23,10 +23,12 @@
  *****************************************************************************/
 
 #include <cmath>
+#include <boost/random/uniform_real.hpp>
 
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
+#include "../rng.h"
 #include "base.h"
 #include "decomposition.h"
 
@@ -36,11 +38,10 @@ namespace pagmo { namespace problem {
  * Constructor
  *
  * @param[in] p base::problem to be decomposed
- * @param[in] p weight::weight vector for the fitness functions (defaults to equal weights)
+ * @param[in] weights the weight vector (by default is set to random weights)
  *
  * @see problem::base constructors.
  */
-
 decomposition::decomposition(const base & p, const std::vector<double> & weights ):
 	base((int)p.get_dimension(), // Ambiguous without the cast ...
 		 p.get_i_dimension(),
@@ -52,9 +53,19 @@ decomposition::decomposition(const base & p, const std::vector<double> & weights
 		 m_weights(weights)
 {
 
-	//1 - Checks whether the weight vector has a dimension, if not, sets its default value
+	//1 - Checks whether the weight vector has a dimension, if not, sets its default value 
 	if (m_weights.size() == 0) {
-		m_weights = std::vector<double>(p.get_f_dimension(),1.0 / p.get_f_dimension());
+		//Initialise a random weight vector  
+		rng_double m_drng = rng_generator::get<rng_double>();
+		m_weights = std::vector<double>((int)p.get_f_dimension(), 0.0);
+		double sum = 0;
+		for(std::vector<double>::size_type i = 0; i<m_weights.size(); ++i) {
+			m_weights[i] = boost::uniform_real<double>(0,1)(m_drng);
+			sum += m_weights[i];
+		} 
+		for(std::vector<double>::size_type i = 0; i<m_weights.size(); ++i) {
+			m_weights[i] /= sum;
+		} 
 	}
 	
 	//2 - Checks whether the weight vector sums to 1
@@ -65,17 +76,6 @@ decomposition::decomposition(const base & p, const std::vector<double> & weights
 	if (fabs(sum-1.0) > 1E-8) {
 		pagmo_throw(value_error,"the weight vector should sum to 1 with a tolerance of E1-8");
 	}
-
-	//Initialise a random weight vector  
-/*	m_weight.reserve((int)p.get_f_dimension());
-	double sum = 0;
-	for(base::f_size_type i = 0; i<p.get_f_dimension(); ++i) {
-		m_weight[i] = boost::uniform_real<double>(0,1)(m_drng);
-		sum += m_weight[i];
-	} 
-	for(base::f_size_type i = 0; i<p.get_f_dimension(); ++i) {
-		m_weight[i] /= sum;
-	} */
 	
 }
 
@@ -104,7 +104,6 @@ void decomposition::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	fitness_vector fit(m_original_problem->get_f_dimension());
 	m_original_problem->objfun(fit, x);
 	
-	
 	f[0] = 0;
 	for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
 		f[0]+= m_weights[i]*fit[i];	
@@ -121,6 +120,17 @@ std::string decomposition::human_readable_extra() const
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
 	return oss.str();
+}
+
+
+/**
+ * Get the weights vector
+ *
+ * \return the weight vector
+ */
+const std::vector<double>& decomposition::get_weights() const
+{
+	return m_weights;
 }
 }}
 

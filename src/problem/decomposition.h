@@ -40,9 +40,14 @@ namespace pagmo{ namespace problem {
  * of the multi-objective input problem, i.e. a single-objective problem
  * having as fitness function a convex combination of the original fitness functions.
  *
- * TODO: write a latex example
+ * Being
+ * \f$ F(X) = (F_1(X), \ldots, F_n(X)) \f$
+ * the original multi-objective fitness function and 
+ * \f$ w = (w_1, \ldots, w_n) \f$
+ * the weight vector, the decomposition problem has as single-objective fitness function
+ * \f[ F_d(X) = \sum_{i=1}^n w_i F_i(X) \f]
  *
- * @author Andrea Mambrini (andrea.mambrni@gmail.com)
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
 
 class __PAGMO_VISIBLE decomposition : public base
@@ -55,6 +60,7 @@ class __PAGMO_VISIBLE decomposition : public base
 		decomposition(const decomposition &);
 		base_ptr clone() const;
 		std::string get_name() const;
+		const std::vector<double>& get_weights() const;
 		
 	protected:
 		std::string human_readable_extra() const;
