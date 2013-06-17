@@ -51,6 +51,8 @@
 // TODO: serialize the functors.. allocator, Hash, Pred, etc.
 #include <boost/circular_buffer.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 #include <string>
 #include <utility>
 #include <vector>
@@ -260,6 +262,61 @@ void serialize(Archive &ar, boost::vecS &cb, const unsigned int version)
 	(void)(ar);
 	(void)(cb);
 	(void)(version);
+}
+
+
+// ---------- boost::normal_distribution<double> ----------
+// Serialization of boost::normal_distribution<double> exploits the fact that the
+// state of Boost distributions can be sent/received to/from standard streams.
+template <class Archive>
+void save(Archive &ar, const boost::normal_distribution<double> &cb, const unsigned int)
+{ 
+	std::stringstream ss;
+	ss << cb;
+	std::string tmp(ss.str());
+	ar << tmp;
+}
+
+template <class Archive>
+void load(Archive &ar, boost::normal_distribution<double> &cb, const unsigned int)
+{
+	std::string tmp;
+	ar >> tmp;
+	std::stringstream ss(tmp);
+	ss >> cb;
+}
+
+template <class Archive>
+void serialize(Archive &ar, boost::normal_distribution<double> &cb, const unsigned int version)
+{
+	split_free(ar, cb, version);
+}
+
+// ---------- boost::uniform_real_distribution -----------
+// Serialization of boost::uniform_real_distribution exploits the fact that the
+// state of Boost distributions can be sent/received to/from standard streams.
+template <class Archive>
+void save(Archive &ar, const boost::random::uniform_real_distribution<double> &cb, const unsigned int)
+{ 
+	std::stringstream ss;
+	ss << cb;
+	std::string tmp(ss.str());
+	ar << tmp;
+}
+
+template <class Archive>
+void load(Archive &ar, boost::random::uniform_real_distribution<double> &cb, const unsigned int)
+{
+	std::string tmp;
+	ar >> tmp;
+	std::stringstream ss(tmp);
+	ss >> cb;
+}
+
+template <class Archive>
+void serialize(Archive &ar, boost::random::uniform_real_distribution<double> &cb, const unsigned int version)
+{
+	split_free(ar, cb, version);
 }
 
 }}

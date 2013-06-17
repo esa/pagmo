@@ -40,7 +40,7 @@ namespace pagmo { namespace problem {
  */
 cassini_1::cassini_1(unsigned int objectives):base(6,0,objectives),Delta_V(6),rp(4),t(6)
 {
-	if (objectives != 1 and objectives !=2) {
+	if (objectives != 1 && objectives !=2) {
 		pagmo_throw(value_error,"Cassini_1 problem has either one or two objectives");
 	}
 	// Set bounds.

@@ -18,6 +18,7 @@ Rotated                            :class:`PyGMO.problem.rotated`            fro
 Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
 Decomposition                      :class:`PyGMO.problem.decomposition`      
+Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
@@ -179,6 +180,10 @@ Detailed Documentation
    .. method:: PyGMO.problem.rotated.derotate((tuple) x)
 
       Returns the de-rotated decision vector
+      
+.. autoclass:: PyGMO.problem.noisy
+
+   .. automethod:: PyGMO.problem.noisy.__init__
 
 .. autoclass:: PyGMO.problem.normalized
 

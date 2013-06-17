@@ -65,8 +65,9 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE laplace: public base
 {
 		static const int default_sequence[5];
+		static const int* get_default_sequence();
 	public:
-		laplace(const std::vector<int> & = std::vector<int>(default_sequence,default_sequence + 5));
+		laplace(const std::vector<int> & = std::vector<int>(get_default_sequence(),get_default_sequence() + 5));
 		base_ptr clone() const;
 		std::string get_name() const;
 		std::string pretty(const std::vector<double> &x) const;

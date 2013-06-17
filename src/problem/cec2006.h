@@ -53,6 +53,10 @@ class __PAGMO_VISIBLE cec2006 : public base
         base_ptr clone() const;
         std::string get_name() const;
 
+        const std::vector<constraint_vector>& get_best_known_c_vector(void) const;
+        const std::vector<decision_vector>& get_best_known_x_vector(void) const;
+        const std::vector<fitness_vector>& get_best_known_f_vector(void) const;
+
     protected:
         void objfun_impl(fitness_vector &, const decision_vector &) const;
         void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
@@ -107,12 +111,18 @@ class __PAGMO_VISIBLE cec2006 : public base
         void g24_objfun_impl(fitness_vector &, const decision_vector &) const;
         void g24_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
 
+        void initialize_best(void);
+        void set_best_known_solutions(const double x[], const double f[], const double c[]);
+
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
             ar & boost::serialization::base_object<base>(*this);
 			ar & const_cast<unsigned int&>(m_problem_number);
+            ar & m_best_known_fitness_vector;
+            ar & m_best_known_decision_vector;
+            ar & m_best_known_constraint_vector;
         }
 
 		const unsigned int m_problem_number;
@@ -121,6 +131,11 @@ class __PAGMO_VISIBLE cec2006 : public base
         static const decision_vector::size_type m_problems_dimension[];
         static const constraint_vector::size_type m_problems_c_dimension[];
         static const constraint_vector::size_type m_problems_ic_dimension[];
+
+        // Best known vectors
+        std::vector<fitness_vector> m_best_known_fitness_vector;
+        std::vector<decision_vector> m_best_known_decision_vector;
+        std::vector<constraint_vector> m_best_known_constraint_vector;
 };
 
 }} //namespaces

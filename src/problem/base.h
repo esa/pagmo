@@ -103,6 +103,9 @@ typedef boost::shared_ptr<base> base_ptr;
  * mandatorily by an algorithm: each algorithm can decide to use its own ranking schemes during an optimisation. The ranking methods provided
  * by the problem are always used instead during the migration of decision vectors from one island to the other.
  *
+ * \section Caching
+ * A caching mechanism is implemented to make sure the objective function is never evaluated twice on the very same chromosome
+ *
  * \section Serialization
  * The problem classes are serialized for the purpose of transmitting their corresponding objects over a distributed environment, as being part of the population class.
  * Serializing a derived problem requires that the needed serialization libraries be declared in the header of the derived class. 
@@ -391,7 +394,7 @@ class __PAGMO_VISIBLE base
 		c_size_type get_ic_dimension() const;
 		double get_c_tol() const;
 		double get_diameter() const;
-		virtual std::string get_name() const;
+        virtual std::string get_name() const;
 		//@}
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;
@@ -416,9 +419,9 @@ return base_ptr(new derived_problem(*this));
 		bool is_compatible(const base &) const;
 		bool compare_x(const decision_vector &, const decision_vector &) const;
 		bool verify_x(const decision_vector &) const;
-		bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
+        bool compare_fc(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 		virtual void pre_evolution(population &) const;
-		virtual void post_evolution(population &) const;
+        virtual void post_evolution(population &) const;
 	protected:
 		virtual bool equality_operator_extra(const base &) const;
 		virtual void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
@@ -484,7 +487,7 @@ return base_ptr(new derived_problem(*this));
 			ar & const_cast<c_size_type &>(m_ic_dimension);
 			ar & m_lb;
 			ar & m_ub;
-			ar & const_cast<double &>(m_c_tol);
+            ar & const_cast<double &>(m_c_tol);
 			ar & m_decision_vector_cache_f;
 			ar & m_fitness_vector_cache;
 			ar & m_decision_vector_cache_c;
@@ -494,6 +497,7 @@ return base_ptr(new derived_problem(*this));
 			ar & m_tmp_c1;
 			ar & m_tmp_c2;
 		}  
+
 		// Data members.
 		// Size of the integer part of the problem.
 		const size_type				m_i_dimension;
@@ -508,7 +512,7 @@ return base_ptr(new derived_problem(*this));
 		// Upper bounds.
 		decision_vector				m_ub;
 		// Tolerance for constraints analysis.
-		const double				m_c_tol;
+        const double				m_c_tol;
 		// Decision vector cache for fitness.
 		mutable decision_vector_cache_type	m_decision_vector_cache_f;
 		// Fitness vector cache.
@@ -522,7 +526,7 @@ return base_ptr(new derived_problem(*this));
 		mutable fitness_vector			m_tmp_f2;
 		// Temporary storage used during constraints satisfaction testing and constraints comparison.
 		mutable constraint_vector		m_tmp_c1;
-		mutable constraint_vector		m_tmp_c2;
+        mutable constraint_vector		m_tmp_c2;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);

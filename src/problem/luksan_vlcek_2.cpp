@@ -97,7 +97,7 @@ void luksan_vlcek_2::objfun_impl(fitness_vector &f, const decision_vector &x) co
 /// Implementation of the constraint function.
 void luksan_vlcek_2::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	for (decision_vector::size_type i=0; i < x.size()-5; i++)
+	for (decision_vector::size_type i=0; i < x.size()-9; i++)
 	{
 		c[2*i] = (2.+5.*x[i+5]*x[i+5])*x[i+5] + 1.;
 		for (decision_vector::size_type k = (i <= 5) ? 0 : i - 5; k<=i+1; k++) {

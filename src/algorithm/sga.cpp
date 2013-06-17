@@ -300,8 +300,7 @@ void sga::evolve(population &pop) const
 		{
 			//4 - Evaluate the new population (stochastic problem)
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
-			prob.reset_caches();
-			pop.clear();
+			pop.clear(); // Removes memory based on different seeds (champion and best_x, best_f, best_c)
 			
 			// We re-evaluate the best individual (for elitism)
 			prob.objfun(bestfit,bestX);

@@ -88,7 +88,7 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO 
 	m_tmp_c1.resize(m_c_dimension);
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
-	normalise_bounds();
+    normalise_bounds();
 }
 
 /// Constructor from values for lower and upper bounds, global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
@@ -134,7 +134,7 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
 	m_tmp_c1.resize(m_c_dimension);
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
-	normalise_bounds();
+    normalise_bounds();
 }
 
 /// Constructor from upper/lower bounds, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
@@ -173,7 +173,7 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 	m_tmp_c1.resize(m_c_dimension);
 	m_tmp_c2.resize(m_c_dimension);
 	// Normalise bounds.
-	normalise_bounds();
+    normalise_bounds();
 }
 
 /// Trivial destructor.

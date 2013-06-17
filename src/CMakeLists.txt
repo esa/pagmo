@@ -83,6 +83,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/decomposition.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/noisy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp
