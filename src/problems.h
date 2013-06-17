@@ -75,6 +75,8 @@
 #include "problem/shifted.h"
 #include "problem/rotated.h"
 #include "problem/normalized.h"
+#include "problem/decomposition.h"
+#include "problem/noisy.h"
 
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL

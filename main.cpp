@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <iomanip>
 #include "src/pagmo.h"
 
 using namespace pagmo;
@@ -31,12 +32,28 @@ using namespace pagmo;
 
 int main()
 {
-	int d = 10;
-	for (int i=1;i<29;++i) {
-		pagmo::problem::cec2013 prob(i,d);
-		//std::cout << prob << std::endl;
-		std::vector<double> x(d,0);
-		std::cout << prob.objfun(x) <<std::endl;
+	pagmo::problem::zdt1 orig_prob(10);
+
+	std::vector<double> weights(2,0.5);
+	pagmo::problem::decomposition decomposed_problem(orig_prob, weights);
+
+	pagmo::algorithm::jde alg(50);
+
+	std::cout << alg << std::endl;
+	std::cout << orig_prob << std::endl;
+	std::cout << decomposed_problem << std::endl;
+
+	pagmo::island isl = island(alg, decomposed_problem, 100);
+	pagmo::population original_problem_pop = population(orig_prob, 1);
+
+	for (size_t i = 0; i< 10; ++i){
+	    isl.evolve(1);
+	    original_problem_pop.set_x(0, isl.get_population().champion().x);
+	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
+	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
+	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
+
 	}
+
 	return 0;
 }

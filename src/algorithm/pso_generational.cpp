@@ -336,8 +336,7 @@ void pso_generational::evolve(population &pop) const
 		try
 		{
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
-			prob.reset_caches();
-			pop.clear();
+			pop.clear(); // Removes memory based on different seeds (champion and best_x, best_f, best_c)
 
 			// Re-evaluate wrt new seed the particle position and memory
 			for( p = 0; p < swarm_size; p++ ){

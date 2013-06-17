@@ -22,66 +22,64 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#ifndef PAGMO_PROBLEM_DECOMPOSITION_H
+#define PAGMO_PROBLEM_DECOMPOSITION_H
+
 #include <string>
 
-#include "cassini_1.h"
-#include "../exceptions.h"
-#include "../AstroToolbox/mga.h"
+#include "../serialization.h"
+#include "../types.h"
+#include "base.h"
+#include "zdt1.h"
 
-namespace pagmo { namespace problem {
+namespace pagmo{ namespace problem {
 
-/// Problem Constructor
+/// Decomposition meta-problem
 /**
- * 
- * @param[in] objectives when equal to 1, the problem will be a single objective problem (DV)
- * When equal to 2, the problem is instantiated as a multiple-objectiove problem (DV,DT)
- * 
- * @see problem::base constructors.
+ * Implements a meta-problem class resulting in a decomposed version
+ * of the multi-objective input problem, i.e. a single-objective problem
+ * having as fitness function a convex combination of the original fitness functions.
+ *
+ * Being
+ * \f$ F(X) = (F_1(X), \ldots, F_n(X)) \f$
+ * the original multi-objective fitness function and 
+ * \f$ w = (w_1, \ldots, w_n) \f$
+ * the weight vector, the decomposition problem has as single-objective fitness function
+ * \f[ F_d(X) = \sum_{i=1}^n w_i F_i(X) \f]
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
-cassini_1::cassini_1(unsigned int objectives):base(6,0,objectives),Delta_V(6),rp(4),t(6)
+
+class __PAGMO_VISIBLE decomposition : public base
 {
-	if (objectives != 1 && objectives !=2) {
-		pagmo_throw(value_error,"Cassini_1 problem has either one or two objectives");
-	}
-	// Set bounds.
-	const double lb[6] = {-1000,  30, 100, 30 , 400 , 1000};
-	const double ub[6] = {0    , 400, 470, 400, 2000, 6000};
-	set_bounds(lb,lb+6,ub,ub+6);
+	public:
+		//constructor
+		decomposition(const base & = zdt1(1), const std::vector<double> & = std::vector<double>());
+		
+		//copy constructor
+		decomposition(const decomposition &);
+		base_ptr clone() const;
+		std::string get_name() const;
+		const std::vector<double>& get_weights() const;
+		
+	protected:
+		std::string human_readable_extra() const;
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_original_problem;
+			ar & m_weights;
+		}
+		base_ptr m_original_problem;
+		std::vector<double> m_weights;
+};
 
-	// Set the mgaproblem data
-	problem.type = total_DV_orbit_insertion; //Optimization type
+}} //namespaces
 
-	int sequence_[6] = {3,2,2,3,5,6}; //Sequence of planets
-	problem.sequence.insert(problem.sequence.begin(), sequence_, sequence_+6);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::decomposition);
 
-	const int rev_[6] = {0,0,0,0,0,0}; //Sequence of clockwise legs
-	problem.rev_flag.insert(problem.rev_flag.begin(), rev_, rev_+6);
-
-	problem.e  = 0.98;      // Insertion orbit eccentricity
-	problem.rp = 108950;    // Insertion orbit pericenter
-	problem.DVlaunch = 0;   // Launcher DV
-}
-
-/// Clone method.
-base_ptr cassini_1::clone() const
-{
-	return base_ptr(new cassini_1(*this));
-}
-
-/// Implementation of the objective function.
-void cassini_1::objfun_impl(fitness_vector &f, const decision_vector &x) const
-{
-	MGA(x,problem,rp,Delta_V,f[0]);
-	if (get_f_dimension() == 2) {
-		f[1] = (x[2]+x[3]+x[4]+x[5]); // + std::max(0.0,f[0] - 20) * 365.25;
-	}	
-	}
-
-std::string cassini_1::get_name() const
-{
-	return "Cassini 1";
-}
-
-}}
-
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cassini_1);
+#endif // PAGMO_PROBLEM_DECOMPOSITION_H

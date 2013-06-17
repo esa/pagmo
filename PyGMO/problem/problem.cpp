@@ -45,7 +45,7 @@
 #include "python_base_stochastic.h"
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-        #include "../../src/keplerian_toolbox/keplerian_toolbox.h"
+		#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
 #endif
 
 using namespace boost::python;
@@ -67,8 +67,6 @@ static boost::shared_ptr<problem::base> construct_with_problem_and_stuff(const p
 	obj.reset(new T(prob,shift));
 	return obj;
 }
-
-
 
 std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {
 	Eigen::MatrixXd rot = p.get_rotation_matrix();
@@ -110,6 +108,7 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic
 	retval.def_pickle(generic_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,"Random seed used in the objective function evaluation.");
 	return retval;
 }
 
@@ -122,8 +121,7 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_dtlz> > dt
 	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
 	retval.def_pickle(generic_pickle_suite<Problem>());
-	retval.def("cpp_loads", &py_cpp_loads<Problem>);
-	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.def("cpp_loads", &py_cpp_loads<Problem>); retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	retval.def("p_distance", &problem::base_dtlz::p_distance);
 	return retval;
 }
@@ -175,12 +173,12 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base::get_typename)
-        .def("_objfun_impl",&problem::python_base::py_objfun)
-        .def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
-        .def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
-        .def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
-        .def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
-        .def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
+		.def("_objfun_impl",&problem::python_base::py_objfun)
+		.def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
+		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
+		.def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
+		.def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
+		.def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
@@ -226,11 +224,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base_stochastic::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base_stochastic::get_typename)
 		.def("_objfun_impl",&problem::python_base_stochastic::py_objfun)
-        .def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
-        .def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
-        .def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
-        .def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
-        .def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
+		.def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
+		.def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
+		.def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
+		.def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
+		.def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
 		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
 	// Ackley problem.
@@ -294,7 +292,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	// CEC2009 Competition Problems.
 	problem_wrapper<problem::cec2009>("cec2009","CEC2009 Competition Problems.")
 			.def(init<int, problem::base::size_type, bool>());
-    
+
 	// CEC2013 Competition Problems.
 	problem_wrapper<problem::cec2013>("cec2013","CEC2013 Competition Problems.")
 			.def(init<unsigned int, problem::base::size_type, const std::string&>())
@@ -407,7 +405,22 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
-		
+	// Decomposition meta-problem
+	problem_wrapper<problem::decomposition>("decomposition","Decomposed problem")
+		.def(init<const problem::base &, optional<const std::vector<double> &> >())
+		.add_property("weights", make_function(&problem::decomposition::get_weights, return_value_policy<copy_const_reference>()));
+
+	// Noisy meta-problem
+	// Exposing enums of problem::noisy
+	enum_<problem::noisy::noise_distribution::type>("_noise_distribution")
+		.value("NORMAL", problem::noisy::noise_distribution::NORMAL)
+		.value("UNIFORM", problem::noisy::noise_distribution::UNIFORM);
+
+	stochastic_problem_wrapper<problem::noisy>("noisy", "Noisy problem")
+		.def(init<const problem::base &, unsigned int, const double, const double, problem::noisy::noise_distribution::type, unsigned int>())
+		.add_property("noise_param_first", &problem::noisy::get_param_first)
+		.add_property("noise_param_second", &problem::noisy::get_param_second);
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
 //	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")

@@ -36,7 +36,22 @@ namespace pagmo { namespace problem {
  * @param[in] dim global dimension of the problem.
  * @param[in] seed random number generator seed
  */
-base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_seed(seed) {
+base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_seed(seed)
+{
+}
+
+/// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
+/**
+ * @param[in] n global dimension of the problem.
+ * @param[in] ni dimension of the combinatorial part of the problem.
+ * @param[in] nf dimension of the fitness vector of the problem.
+ * @param[in] nc global number of constraints.
+ * @param[in] nic number of inequality constraints.
+ * @param[in] c_tol constraints tolerance.
+ * @param[in] seed random number generator seed
+*/
+base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const double &c_tol, unsigned int seed): base((int)n, ni, nf, nc, nic, c_tol), m_drng(seed), m_seed(seed)
+{
 }
 
 /// Sets the pseudo random generator seed
@@ -47,6 +62,8 @@ base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng
  */
 void base_stochastic::set_seed(unsigned int seed) const {
 	m_seed = seed;
+	// As the problem is now muted we must reset the caches that contain the evaluations w.r.t. the old seed
+	reset_caches();
 }
 
 /// Gets the pseudo random generator seed

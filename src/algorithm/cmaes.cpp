@@ -289,12 +289,10 @@ void cmaes::evolve(population &pop) const
 
 		// 2 - We Evaluate the new population (if the problem is stochastic change seed first)
 		try
-		{	//TODO: check if it is really necessary to clear the pop and reset the caches, also
+		{	//TODO: check if it is really necessary to clear the pop, also
 			//would it make sense to use best_x also?
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
-			std::cout << "messing" << std::endl;
-			prob.reset_caches();
-			pop.clear();
+			pop.clear(); // Removes memory based on different seeds (champion and best_x, best_f, best_c)
 			for (population::size_type i = 0; i<lam; ++i ) {
 			  	for (decision_vector::size_type j = 0; j<N; ++j ) {
 					dumb[j] = newpop[i](j);

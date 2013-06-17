@@ -17,6 +17,8 @@ Common Name                        Name in PyGMO                             Com
 Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
 Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
+Decomposition                      :class:`PyGMO.problem.decomposition`      
+Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
@@ -178,15 +180,27 @@ Detailed Documentation
    .. method:: PyGMO.problem.rotated.derotate((tuple) x)
 
       Returns the de-rotated decision vector
+      
+.. autoclass:: PyGMO.problem.noisy
+
+   .. automethod:: PyGMO.problem.noisy.__init__
 
 .. autoclass:: PyGMO.problem.normalized
 
    .. automethod:: PyGMO.problem.normalized.__init__
 
-      .. method:: PyGMO.problem.normalized.denormalize((tuple) x)
+   .. method:: PyGMO.problem.normalized.denormalize((tuple) x)
 
-         Returns the de-normalized decision vector
+      Returns the de-normalized decision vector
+
+.. autoclass:: PyGMO.problem.decomposition
+
+   .. automethod:: PyGMO.problem.decomposition.__init__
    
+   .. attribute:: weights
+      
+      The weights vector
+
 .. autoclass:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__
