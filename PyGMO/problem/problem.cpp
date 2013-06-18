@@ -166,6 +166,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		// Constraints.
 		.def("compare_constraints",&problem::base::compare_constraints,"Compare constraint vectors.")
 		.def("compute_constraints",return_constraints(&problem::base::compute_constraints),"Compute and return constraint vector.")
+		.def("test_constraint",&problem::base::test_constraint,"Determine feasibility of the i-th constraint.")
 		.def("feasibility_x",&problem::base::feasibility_x,"Determine feasibility of decision vector.")
 		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
 		// Fitness.
@@ -219,6 +220,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		// Constraints.
 		.def("compare_constraints",&problem::base::compare_constraints,"Compare constraint vectors.")
 		.def("compute_constraints",return_constraints(&problem::base::compute_constraints),"Compute and return constraint vector.")
+		.def("test_constraint",&problem::base::test_constraint,"Determine feasibility of the i-th constraint.")
 		.def("feasibility_x",&problem::base::feasibility_x,"Determine feasibility of decision vector.")
 		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
 		// Fitness.

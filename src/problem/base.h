@@ -403,7 +403,7 @@ class __PAGMO_VISIBLE base
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;
 		bool compare_constraints(const constraint_vector &, const constraint_vector &) const;
-        bool test_constraint(const constraint_vector &, const c_size_type &) const;
+		bool test_constraint(const constraint_vector &, const c_size_type &) const;
 		bool feasibility_x(const decision_vector &) const;
 		bool feasibility_c(const constraint_vector &) const;
 		/// Clone method.
