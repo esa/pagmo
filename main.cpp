@@ -32,7 +32,7 @@ using namespace pagmo;
 int main()
 {
     pagmo::problem::cec2006 prob(4);
-    pagmo::problem::constrained_death_penalty death_prob(prob, 0);
+	pagmo::problem::death_penalty death_prob(prob, pagmo::problem::death_penalty::method::type::SIMPLE);
 
     std::cout << death_prob <<std::endl;
 

@@ -29,7 +29,7 @@
 #include "../types.h"
 #include "../population.h"
 #include "base.h"
-#include "constrained_death_penalty.h"
+#include "death_penalty.h"
 
 namespace pagmo { namespace problem {
 
@@ -43,27 +43,30 @@ namespace pagmo { namespace problem {
  *
  * @see Coello Coello, C. A. (2002). Theoretical and numerical constraint-handling techniques used with evolutionary algorithms: a survey of the state of the art. Computer methods in applied mechanics and engineering, 191(11), 1245-1287.
  */
-constrained_death_penalty::constrained_death_penalty(const base &problem, const int death_penalty_method):
+death_penalty::death_penalty(const base &problem, const method::type method):
     base((int)problem.get_dimension(),
          problem.get_i_dimension(),
          problem.get_f_dimension(),
          0,
          0,
          0.),
-    m_original_problem(problem.clone())
+    m_original_problem(problem.clone()),
+	m_method(method)
 {
     if(m_original_problem->get_c_dimension() <= 0){
         pagmo_throw(value_error,"The original problem has no constraints.");
     }
 
-    this->set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
+	if( method > 1 || method < 0) {
+        pagmo_throw(value_error, "the death penalty method must be set to 0 for simple death or to 1 for Kuri death.");
+    } 
 
-    // sets death penalty method
-    this->set_death_penalty_method(death_penalty_method);
+    set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
+
 }
 
 /// Copy Constructor. Performs a deep copy
-constrained_death_penalty::constrained_death_penalty(const constrained_death_penalty &prob):
+death_penalty::death_penalty(const death_penalty &prob):
     base((int)prob.get_dimension(),
          prob.get_i_dimension(),
          prob.get_f_dimension(),
@@ -71,30 +74,20 @@ constrained_death_penalty::constrained_death_penalty(const constrained_death_pen
          prob.get_ic_dimension(),
          prob.get_c_tol()),
     m_original_problem(prob.m_original_problem->clone()),
-    m_death_penalty_method(prob.m_death_penalty_method)
+    m_method(prob.m_method)
 {
-    this->set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
+    set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
 
 /// Clone method.
-base_ptr constrained_death_penalty::clone() const
+base_ptr death_penalty::clone() const
 {
-    return base_ptr(new constrained_death_penalty(*this));
-}
-
-/// Sets the death penalty method
-void constrained_death_penalty::set_death_penalty_method(const int death_penalty_method)
-{
-    if( death_penalty_method > 1 || death_penalty_method < 0) {
-        pagmo_throw(value_error, "the death penalty method must be set to 0 for simple death or to 1 for Kuri death.");
-    } else {
-        this->m_death_penalty_method = death_penalty_method;
-    }
+    return base_ptr(new death_penalty(*this));
 }
 
 /// Implementation of the objective function.
 /// (Wraps over the original implementation)
-void constrained_death_penalty::objfun_impl(fitness_vector &f, const decision_vector &x) const
+void death_penalty::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
     constraint_vector c(m_original_problem->get_c_dimension(),0);
     m_original_problem->compute_constraints(c,x);
@@ -104,14 +97,14 @@ void constrained_death_penalty::objfun_impl(fitness_vector &f, const decision_ve
     } else {
         double high_value = boost::numeric::bounds<double>::highest();
 
-        switch(m_death_penalty_method)
+        switch(m_method)
         {
-        case 0:
+		case method::type::SIMPLE:
         {
             std::fill(f.begin(),f.end(),high_value);
             break;
         }
-        case 1:
+        case method::type::KURI:
         {
             int number_of_constraints = c.size();
             int number_of_satisfied_constraints = 0;
@@ -139,22 +132,44 @@ void constrained_death_penalty::objfun_impl(fitness_vector &f, const decision_ve
 /**
  * Will return a formatted string containing the type of constraint handling
  */
-std::string constrained_death_penalty::human_readable_extra() const
+std::string death_penalty::human_readable_extra() const
 {
     std::ostringstream oss;
     oss << m_original_problem->human_readable_extra() << std::endl;
-    oss << "\n\tConstraints handled with death penalty." << std::endl;
-
-    return oss.str();
+    oss << "\n\tConstraints handled with death penalty, method "; 
+	switch(m_method){
+		case method::type::SIMPLE: {
+			oss << "SIMPLE "; 
+			break;
+		}
+		case method::type::KURI: {
+			oss << "KURI "; 
+			break;
+			}
+	}
+	oss << std::endl;
+	return oss.str();
 }
 
-std::string constrained_death_penalty::get_name() const
+std::string death_penalty::get_name() const
 {
-    return m_original_problem->get_name() + " [constrained_death_penalty, method_" +
-            boost::lexical_cast<std::string>(m_death_penalty_method) + "]";
+	std::string method;
+
+	switch(m_method){
+		case method::type::SIMPLE: {
+			method = "SIMPLE "; 
+			break;
+		}
+		case method::type::KURI: {
+			method = "KURI "; 
+			break;
+			}
+	}
+    return m_original_problem->get_name() + " [death_penalty, method_" +
+           method + "]";
 }
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::constrained_death_penalty);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::death_penalty);
 

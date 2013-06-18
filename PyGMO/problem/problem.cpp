@@ -138,6 +138,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	typedef fitness_vector (problem::base::*return_fitness)(const decision_vector &) const;
     class_<problem::python_base, boost::noncopyable>("_base",init<int,optional<int,int,int,int,const std::vector<double> &> >())
 		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int, const double &> >())
+		.def(init<int,int,int,int,int,const double>())
 		.def("__repr__", &problem::base::human_readable)
 		// Dimensions.
 		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
@@ -146,7 +147,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
 		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
 		// Constraints tolerance.
-		.add_property("c_tol", &problem::base::get_c_tol, "Tolerance used in constraints analysis.")
+		.add_property("c_tol", make_function(&problem::base::get_c_tol,return_value_policy<copy_const_reference>()), "Tolerance used in constraints analysis.")
 		// Bounds.
 		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
 		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")
@@ -174,16 +175,16 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_name",&problem::base::get_name,&problem::python_base::default_get_name)
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base::get_typename)
-        .def("_objfun_impl",&problem::python_base::py_objfun)
-        .def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
-        .def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
-        .def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
-        .def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
-        .def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
+		.def("_objfun_impl",&problem::python_base::py_objfun)
+		.def("_equality_operator_extra",&problem::python_base::py_equality_operator_extra)
+		.def("_compute_constraints_impl",&problem::python_base::py_compute_constraints_impl)
+		.def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
+		.def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
+		.def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
 		// Best known solution
-        .add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
+		.add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
 		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
-        .add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
+		.add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
 
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
@@ -200,7 +201,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
 		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
 		// Constraints tolerance.
-		.add_property("c_tol", &problem::base::get_c_tol, "Tolerance used in constraints analysis.")
+		.add_property("c_tol", make_function(&problem::base::get_c_tol,return_value_policy<copy_const_reference>()), "Tolerance used in constraints analysis.")
 		// Bounds.
 		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
 		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")
@@ -230,15 +231,15 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("human_readable_extra", &problem::base::human_readable_extra, &problem::python_base_stochastic::default_human_readable_extra)
 		.def("_get_typename",&problem::python_base_stochastic::get_typename)
 		.def("_objfun_impl",&problem::python_base_stochastic::py_objfun)
-        .def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
-        .def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
-        .def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
-        .def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
-        .def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
+		.def("_equality_operator_extra",&problem::python_base_stochastic::py_equality_operator_extra)
+		.def("_compute_constraints_impl",&problem::python_base_stochastic::py_compute_constraints_impl)
+		.def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
+		.def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
+		.def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
         // Best known solution
 		.add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
 		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
-        .add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
+		.add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
 
 		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
@@ -398,8 +399,13 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Meta-problems
 		
 	// Constrained death penalty meta-problem
-	problem_wrapper<problem::constrained_death_penalty>("constrained_death_penalty","Constrained death penalty problem")
-        .def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::constrained_death_penalty,int>));
+	enum_<problem::death_penalty::method::type>("_method_type")
+		.value("SIMPLE", problem::death_penalty::method::type::SIMPLE)
+		.value("KURI", problem::death_penalty::method::type::KURI);
+	// Expose death peanlty methods.
+	problem_wrapper<problem::death_penalty>("death_penalty","Constrained death penalty problem")
+		.def("__init__", make_constructor(&construct_with_problem<problem::death_penalty>))
+		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::death_penalty,problem::death_penalty::method::type>));
     
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")

@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_CONSTRAINED_DEATH_PENALTY_H
-#define PAGMO_PROBLEM_CONSTRAINED_DEATH_PENALTY_H
+#ifndef PAGMO_PROBLEM_DEATH_PENALTY_H
+#define PAGMO_PROBLEM_DEATH_PENALTY_H
 
 #include <string>
 
@@ -46,14 +46,25 @@ namespace pagmo{ namespace problem {
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
 
-class __PAGMO_VISIBLE constrained_death_penalty : public base
+
+class __PAGMO_VISIBLE death_penalty : public base
 {
 	public:
+		/// Type of death penalty.
+		/**
+		* Definition of two types of death penalty simple and kuri.
+		* Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the fitness function according to the rate of satisfied constraints.
+		*/
+		struct method {
+		//death penalty type simple or kuri
+		enum type {SIMPLE = 0, KURI = 1};
+		};
+
 		//constructors
-        constrained_death_penalty(const base & = cec2006(4), const int = 0);
+		death_penalty(const base & = cec2006(4), const method::type method = method::SIMPLE);
 
 		//copy constructor
-        constrained_death_penalty(const constrained_death_penalty &);
+        death_penalty(const death_penalty &);
         base_ptr clone() const;
 		std::string get_name() const;
 
@@ -62,24 +73,21 @@ class __PAGMO_VISIBLE constrained_death_penalty : public base
         void objfun_impl(fitness_vector &, const decision_vector &) const;
 
     private:
-        void set_death_penalty_method(const int);
-
-    private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
             ar & boost::serialization::base_object<base>(*this);
             ar & m_original_problem;
-            ar & const_cast<int &>(m_death_penalty_method);
+            ar & const_cast<method::type &>(m_method);
 		}
         base_ptr m_original_problem;
 
-        int m_death_penalty_method;
+        const method::type m_method;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::constrained_death_penalty);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::death_penalty);
 
-#endif // PAGMO_PROBLEM_CONSTRAINED_DEATH_PENALTY_H
+#endif // PAGMO_PROBLEM_DEATH_PENALTY_H

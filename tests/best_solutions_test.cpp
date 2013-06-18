@@ -64,15 +64,15 @@ using namespace pagmo;
 
 struct best_solutions_test{
 	problem::base_ptr problem;
-	std::vector<fitness_vector> best_known_fitness;
-    std::vector<constraint_vector> best_known_constraint;
+	std::vector<fitness_vector> best_f;
+    std::vector<constraint_vector> best_c;
 };
 
 best_solutions_test make_struct(problem::base_ptr pb, const std::vector<fitness_vector>& f = std::vector<fitness_vector>(), const std::vector<constraint_vector>& c = std::vector<fitness_vector>()){
 	best_solutions_test test;
 	test.problem = pb;
-	test.best_known_fitness = f;
-	test.best_known_constraint = c;
+	test.best_f = f;
+	test.best_c = c;
 	return test;
 }
 
@@ -174,19 +174,18 @@ int main()
         if(best_tests[i].problem->get_best_x().empty())
             std::cout << "Best decision vector is not implemented." << std::endl;
         else {
-            const std::vector<decision_vector> &x_best_known_vector = best_tests[i].problem->get_best_x();
+            const std::vector<decision_vector> &best_x = best_tests[i].problem->get_best_x();
 			//browse the solutions set
-            for(int j=0; j<x_best_known_vector.size(); j++) {
-                const decision_vector &x_best_known = x_best_known_vector.at(j);
+            for(int j=0; j<best_x.size(); j++) {
 
-                fitness_vector f_computed = best_tests[i].problem->get_best_f().at(j);
-				const fitness_vector &f_best_known = best_tests[i].best_known_fitness.at(j);
+                fitness_vector best_f_computed = best_tests[i].problem->get_best_f().at(j);
+				const fitness_vector &best_f = best_tests[i].best_f.at(j);
 
-                if(f_best_known.empty()) {
+                if(best_f.empty()) {
                     std::cout << "Best fitness vector is not implemented." << std::endl;
                 }
 				else{
-	                if(is_eq(f_computed, f_best_known, EPS)){
+	                if(is_eq(best_f_computed, best_f, EPS)){
 		               std::cout << " fitness passes, ";
 			        }
 				    else{
@@ -195,14 +194,14 @@ int main()
 					}
 				}
 
-                constraint_vector c_computed = best_tests[i].problem->get_best_c().at(j);
-				const constraint_vector &c_best_known = best_tests[i].best_known_constraint.at(j);
+                constraint_vector best_c_computed = best_tests[i].problem->get_best_c().at(j);
+				const constraint_vector &best_c = best_tests[i].best_c.at(j);
 
-				if(c_best_known.empty() && best_tests[i].problem->get_c_dimension()>0) {
+				if(best_c.empty() && best_tests[i].problem->get_c_dimension()>0) {
                     std::cout << "Best constraint vector is not implemented." << std::endl;
                 }
                 else {
-                    if(is_eq(c_computed, c_best_known, EPS)){
+                    if(is_eq(best_c_computed, best_c, EPS)){
                         std::cout << " constraints passes.";
                     }
                     else{
@@ -220,7 +219,7 @@ int main()
 
 
 std::vector<fitness_vector> get_cec2006_best_f(int id){
-	std::vector<decision_vector> best_known_fitness_vector;
+	std::vector<decision_vector> best_f;
 	int f_dimension = 1;
 	double f = 0.0;
 	switch(id)
@@ -228,169 +227,169 @@ std::vector<fitness_vector> get_cec2006_best_f(int id){
     case 1:
 	{
         f = -15.; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 2:
 	{
         f = -0.80361910412559; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 3:
 	{
         f = -1.00050010001000; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 4:
 	{
         f = -3.066553867178332e+004; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 5:
 	{
         f = 5126.4967140071; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 6:
 	{
         f = -6961.81387558015; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 7:
 	{
         f = 24.30620906818; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 8:
 	{
         f = -0.0958250414180359; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 9:
 	{
         f = 680.630057374402;
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 10:
 	{
         f = 7049.24802052867; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 11:
 	{
         f = 0.7499; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 12:
 	{
         f = -1.; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 13:
 	{
         f = 0.053941514041898; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 14:
 	{
         f = -47.7648884594915; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 15:
 	{
         f = 961.715022289961; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 16:
 	{
         f = -1.90515525853479; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 17:
 	{
         f = 8853.53967480648; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 18:
 	{
         f = -0.866025403784439; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 19:
 	{
         f = 32.6555929502463; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 20:
 	{
         f = 0.20497940028563599; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 21:
 	{
         f = 193.724510070035; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     case 22:
 	{
         f = 236.430975504001; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
 	case 23:
 	{
         f = -400.055099999999584; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
 	case 24:
 	{
         f = -5.50801327159536; 
-		fitness_vector best_known_fitness(f_dimension,f);
-		best_known_fitness_vector.push_back(best_known_fitness);
+		fitness_vector fitness(f_dimension,f);
+		best_f.push_back(fitness);
 		break;
 	}
     default:
@@ -398,132 +397,132 @@ std::vector<fitness_vector> get_cec2006_best_f(int id){
         break;
     }
 
-	return best_known_fitness_vector;
+	return best_f;
 }
 
 std::vector<constraint_vector> get_cec2006_best_c(int id, int c_dimension){
-	std::vector<constraint_vector> best_known_constraints_vector;
+	std::vector<constraint_vector> best_c;
     switch(id)
     {
     case 1:
     {
         const double c_vector[] = {0., 0., 0., -5., -5., -5., 0., 0., 0.};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 2:
     {
         const double c_vector[] = {-1.2878587085651816e-14, -120.06741615259264};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 3:
     {
         const double c_vector[] = {9.9999999999988987e-05};
-		constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+		constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 4:
     {
         const double c_vector[] = {0., -92., -11.159499691073137, -8.8405003089268632, -4.9999999999999964, -3.5527136788005009e-15};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 5:
     {
         const double c_vector[] = {9.9999999974897946e-05, 9.9999999974897946e-05, 9.9999999974897946e-05, -0.034890145690411378, -1.0651098543095887};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 6:
     {
         const double c_vector[] = {0., 0.};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 7:
     {
         const double c_vector[] = {5.6843418860808015e-14, -1.1723955140041653e-13, 3.907985046680551e-14, -6.0254023992456496e-12,
                                    -7.1054273576010019e-15, -2.8421709430404007e-14, -6.1485036896036398, -50.023961731838071};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 8:
     {
         const double c_vector[] = {-1.737459723297992, -0.16776326380511744};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 9:
     {
         const double c_vector[] = {-1.3766765505351941e-14, -252.56171634346606, -144.87817845461515, -2.4868995751603507e-14};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 10:
     {
         const double c_vector[] = {0, 0, -5.5511151231257827e-16, -1.4551915228366852e-11, -2.9103830456733704e-11, -1.1641532182693481e-10};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 11:
     {
         const double c_vector[] = {9.9999999999988987e-05};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 12:
     {
         const double c_vector[] = {-0.0625};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 13:
     {
         const double c_vector[] = {9.9999999994437871e-05, -0.00010000000000331966, 9.9999999998878764e-05};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 14:
     {
         const double c_vector[] = {0.00010000000000109921, 9.9999999999544897e-05, 0.00010000000000043308};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 15:
     {
         const double c_vector[] = {9.9999999999766942e-05, 9.9999999989108801e-05};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 16:
@@ -537,17 +536,17 @@ std::vector<constraint_vector> get_cec2006_best_c(int id, int c_dimension){
                                    -329.2410962356339, -0.13924565212261086, -518.23575434787733, -1859.6857829062783,
                                    -315.19021709372191, -5850.0391214556676, -12032.598878544331, -0.18271094712517674,
                                    -0.14028905287482327, -68915.669999999998, 0, -9275494.7446969859, -67900.25530301407};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 17:
     {
         const double c_vector[] = {9.5279025970285147e-05, 9.9999999889632818e-05, -7.5298006409596496e-05, 9.9999999605415724e-05};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 18:
@@ -555,17 +554,17 @@ std::vector<constraint_vector> get_cec2006_best_c(int id, int c_dimension){
         const double c_vector[] = {0, -0.6402463624140452, 0, 0,
                                    -0.64024636445565331, -1.5959455978986625e-16, -7.6327832942979512e-17, -0.64024636141023228,
                                    0, -0.67204348836757655, -0.19398191412316787, -0.39453065073841909, -0.47149475433971377};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 19:
     {
         const double c_vector[] = {1.7763568394002505e-15, -0, -0, 8.8817841970012523e-16, -0};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 20:
@@ -575,18 +574,18 @@ std::vector<constraint_vector> get_cec2006_best_c(int id, int c_dimension){
                                    0, 9.9999999999877964e-05, 9.9999999999840031e-05, 6.8665220979881771e-16,
                                    9.9999999999988987e-05, -9.9999999999322853e-05, 0.14375363724895993, 1.7660316449634668e-19,
                                    7.5785257203801829e-19, 2.2240466906989736e-18, 2.0929449795679412e-18, 0};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 21:
     {
         const double c_vector[] = {9.9999997473787516e-05, 0.00010000000111176632, 9.9999999999766942e-05, -9.9999999999766942e-05,
                              -9.9999999999766942e-05, -2.8421709430404007e-14};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 22:
@@ -596,26 +595,26 @@ std::vector<constraint_vector> get_cec2006_best_c(int id, int c_dimension){
                                    5.4139643907546997e-05, -7.7500534302998858e-05, 1.6723476818469862e-05, 5.7372450426917965e-05,
                                    5.7400810546504033e-05, 7.4797550418281844e-05, 7.4730862352545557e-05, -6.1559895403462406e-07,
                                    6.1231858126120642e-06, -8.7799054654169595e-05, 9.5923077310544613e-05, -2.2079848349676467e-07};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 23:
     {
         const double c_vector[] = {-0.00010000000000331966, 9.9999999999988987e-05, -9.9999999999507005e-05, -9.9999999974897946e-05,
                                    -2.5000000001256605e-06, 0};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     case 24:
     {
         const double c_vector[] = {-4.8849813083506888e-14, 1.7053025658242404e-13};
-        constraint_vector best_known_constraint(c_dimension);
-        std::copy(c_vector,c_vector + c_dimension,best_known_constraint.begin());
-        best_known_constraints_vector.push_back(best_known_constraint);
+        constraint_vector constraint(c_dimension);
+        std::copy(c_vector,c_vector + c_dimension,constraint.begin());
+        best_c.push_back(constraint);
         break;
     }
     default:
@@ -624,5 +623,5 @@ std::vector<constraint_vector> get_cec2006_best_c(int id, int c_dimension){
         break;
     }
     }
-	return best_known_constraints_vector;
+	return best_c;
 }

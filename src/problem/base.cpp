@@ -69,7 +69,10 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO 
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -110,7 +113,10 @@ base::base(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_
     m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
     m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
     m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-    m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+    m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
 {
     if (c_tol.size() != nc) {
         pagmo_throw(value_error,"invalid constraints vector dimension");
@@ -158,7 +164,10 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -204,7 +213,10 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -468,7 +480,7 @@ base::c_size_type base::get_ic_dimension() const
 /**
  * @return tolerance used in constraints analysis.
  */
-std::vector<double> base::get_c_tol() const
+const std::vector<double>& base::get_c_tol() const
 {
     return m_c_tol;
 }
@@ -1275,24 +1287,24 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
  *
  * @param[in] best known x pagmo::decision_vector.
  */
-void base::set_best_x(const std::vector<decision_vector>& best_known_decision)
+void base::set_best_x(const std::vector<decision_vector>& best_x)
 {
-    if(best_known_decision.size() != 0){
-		size_type n_opts = best_known_decision.size();
-		m_best_known_decision_vector.resize(n_opts);
-		m_best_known_fitness_vector.resize(n_opts);
-		m_best_known_constraint_vector.resize(n_opts);
+    if(best_x.size() != 0){
+		size_type n_opts = best_x.size();
+		m_best_x.resize(n_opts);
+		m_best_f.resize(n_opts);
+		m_best_c.resize(n_opts);
 		for (int i=0; i<n_opts; i++){
-			if(best_known_decision.at(i).size() != get_dimension())
+			if(best_x.at(i).size() != get_dimension())
 				pagmo_throw(value_error,"invalid size(s) for best known decision vector(s)");
 			else{
 				//save in the class data member the value of the decision variable of solution i
-				m_best_known_decision_vector.at(i) = best_known_decision.at(i);
+				m_best_x.at(i) = best_x.at(i);
 				//save in the class data member the corresponding value of objective(s)
-			    m_best_known_fitness_vector.at(i) = objfun(best_known_decision.at(i));
+			    m_best_f.at(i) = objfun(best_x.at(i));
 				//save in the class data member the corresponding value of constraint(s)
 			    if(m_c_dimension>0)
-					m_best_known_constraint_vector.at(i) = compute_constraints(best_known_decision.at(i));
+					m_best_c.at(i) = compute_constraints(best_x.at(i));
 			}
 		}
 	}
@@ -1305,7 +1317,7 @@ void base::set_best_x(const std::vector<decision_vector>& best_known_decision)
  */
 const std::vector<constraint_vector>& base::get_best_c(void) const
 {
-    return this->m_best_known_constraint_vector;
+    return m_best_c;
 }
 
 /// Get the best known decision vector.
@@ -1315,7 +1327,7 @@ const std::vector<constraint_vector>& base::get_best_c(void) const
  */
 const std::vector<decision_vector>& base::get_best_x(void) const
 {
-    return this->m_best_known_decision_vector;
+    return m_best_x;
 }
 
 /// Get the best known fitness vector.
@@ -1325,7 +1337,7 @@ const std::vector<decision_vector>& base::get_best_x(void) const
  */
 const std::vector<fitness_vector>& base::get_best_f(void) const
 {
-    return this->m_best_known_fitness_vector;
+    return m_best_f;
 }
 
 /// Pre-evolution hook.

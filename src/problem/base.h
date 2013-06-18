@@ -396,7 +396,7 @@ class __PAGMO_VISIBLE base
 		f_size_type get_f_dimension() const;
 		c_size_type get_c_dimension() const;
         c_size_type get_ic_dimension() const;
-        std::vector<double> get_c_tol() const;
+        const std::vector<double>& get_c_tol() const;
 		double get_diameter() const;
         virtual std::string get_name() const;
 		//@}
@@ -444,8 +444,6 @@ return base_ptr(new derived_problem(*this));
 		void objfun(fitness_vector &, const decision_vector &) const;
 		bool compare_fitness(const fitness_vector &, const fitness_vector &) const;
 		void reset_caches() const;
-	protected:
-		virtual void initialize_best(void){}
 	public:
         const std::vector<constraint_vector>& get_best_c(void) const;
         const std::vector<decision_vector>& get_best_x(void) const;
@@ -507,9 +505,9 @@ return base_ptr(new derived_problem(*this));
 			ar & m_tmp_f2;
 			ar & m_tmp_c1;
 			ar & m_tmp_c2;
-            ar & m_best_known_fitness_vector;
-            ar & m_best_known_decision_vector;
-            ar & m_best_known_constraint_vector;
+			ar & m_best_x;
+			ar & m_best_f;
+			ar & m_best_c;
 		}  
 
 		// Data members.
@@ -543,9 +541,9 @@ return base_ptr(new derived_problem(*this));
         mutable constraint_vector		m_tmp_c2;
 
         // Best known vectors
-        std::vector<fitness_vector> m_best_known_fitness_vector;
-        std::vector<decision_vector> m_best_known_decision_vector;
-        std::vector<constraint_vector> m_best_known_constraint_vector;
+        std::vector<fitness_vector> m_best_f;
+        std::vector<decision_vector> m_best_x;
+        std::vector<constraint_vector> m_best_c;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);

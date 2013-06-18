@@ -81,168 +81,168 @@ cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,100.,100.,100.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 2:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 3:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 4:
     {
         const double lb[] = {78.,33.,27.,27.,27.};
         const double ub[] = {102.,45.,45.,45.,45.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 5:
     {
         const double lb[] = {0.,0.,-0.55,-0.55};
         const double ub[] = {1.,1.,1.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 6:
     {
         const double lb[] = {13.,0.};
         const double ub[] = {100.,100.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 7:
     {
         const double lb[] = {-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 8:
     {
         const double lb[] = {0.,0.};
         const double ub[] = {10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 9:
     {
         const double lb[] = {-10.,-10.,-10.,-10.,-10.,-10.,-10.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 10:
     {
         const double lb[] = {100.,1000.,1000.,10.,10.,10.,10.,10.};
         const double ub[] = {10000.,10000.,10000.,1000.,1000.,1000.,1000.,1000.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 11:
     {
         const double lb[] = {-1.,-1.};
         const double ub[] = {1.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 12:
     {
         const double lb[] = {0.,0.,0.};
         const double ub[] = {10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 13:
     {
         const double lb[] = {-2.3,-2.3,-3.2,-3.2,-3.2};
         const double ub[] = {2.3,2.3,3.2,3.2,3.2};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 14:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 15:
     {
         const double lb[] = {0.,0.,0.};
         const double ub[] = {10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 16:
     {
         const double lb[] = {704.4148,68.6,0.,193.,25.};
         const double ub[] = {906.3855,288.88,134.75,287.0966,84.1988};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 17:
     {
         const double lb[] = {0.,0.,340.,340.,-1000.,0.};
         const double ub[] = {400.,1000.,420.,420.,1000.,0.5236};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 18:
     {
         const double lb[] = {-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,20.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 19:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 20:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 21:
     {
         const double lb[] = {0.,0.,0.,100.,6.3,5.9,4.5};
         const double ub[] = {1000.,40.,40.,300.,6.7,6.4,6.25};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 22:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,100.,100.,100.01,100.,100.,0.,0.,0.,0.01,0.01,-4.7,-4.7,-4.7,-4.7,-4.7};
         const double ub[] = {20000.,1e6,1e6,1e6,4e7,4e7,4e7,299.99,399.99,300,400,600,500,500,500,300.,400.,6.25,6.25,6.25,6.25,6.25};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 23:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.01};
         const double ub[] = {300.,300.,100.,200.,100.,300.,100.,200.,0.03};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 24:
     {
         const double lb[] = {0.,0.};
         const double ub[] = {3.,4.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     default:
@@ -263,76 +263,76 @@ void cec2006::objfun_impl(fitness_vector &f, const decision_vector &x) const
     switch(m_problem_number)
     {
     case 1:
-        this->g01_objfun_impl(f,x);
+        g01_objfun_impl(f,x);
         break;
     case 2:
-        this->g02_objfun_impl(f,x);
+        g02_objfun_impl(f,x);
         break;
     case 3:
-        this->g03_objfun_impl(f,x);
+        g03_objfun_impl(f,x);
         break;
     case 4:
-        this->g04_objfun_impl(f,x);
+        g04_objfun_impl(f,x);
         break;
     case 5:
-        this->g05_objfun_impl(f,x);
+        g05_objfun_impl(f,x);
         break;
     case 6:
-        this->g06_objfun_impl(f,x);
+        g06_objfun_impl(f,x);
         break;
     case 7:
-        this->g07_objfun_impl(f,x);
+        g07_objfun_impl(f,x);
         break;
     case 8:
-        this->g08_objfun_impl(f,x);
+        g08_objfun_impl(f,x);
         break;
     case 9:
-        this->g09_objfun_impl(f,x);
+        g09_objfun_impl(f,x);
         break;
     case 10:
-        this->g10_objfun_impl(f,x);
+        g10_objfun_impl(f,x);
         break;
     case 11:
-        this->g11_objfun_impl(f,x);
+        g11_objfun_impl(f,x);
         break;
     case 12:
-        this->g12_objfun_impl(f,x);
+        g12_objfun_impl(f,x);
         break;
     case 13:
-        this->g13_objfun_impl(f,x);
+        g13_objfun_impl(f,x);
         break;
     case 14:
-        this->g14_objfun_impl(f,x);
+        g14_objfun_impl(f,x);
         break;
     case 15:
-        this->g15_objfun_impl(f,x);
+        g15_objfun_impl(f,x);
         break;
     case 16:
-        this->g16_objfun_impl(f,x);
+        g16_objfun_impl(f,x);
         break;
     case 17:
-        this->g17_objfun_impl(f,x);
+        g17_objfun_impl(f,x);
         break;
     case 18:
-        this->g18_objfun_impl(f,x);
+        g18_objfun_impl(f,x);
         break;
     case 19:
-        this->g19_objfun_impl(f,x);
+        g19_objfun_impl(f,x);
         break;
     case 20:
-        this->g20_objfun_impl(f,x);
+        g20_objfun_impl(f,x);
         break;
     case 21:
-        this->g21_objfun_impl(f,x);
+        g21_objfun_impl(f,x);
         break;
     case 22:
-        this->g22_objfun_impl(f,x);
+        g22_objfun_impl(f,x);
         break;
     case 23:
-        this->g23_objfun_impl(f,x);
+        g23_objfun_impl(f,x);
         break;
     case 24:
-        this->g24_objfun_impl(f,x);
+        g24_objfun_impl(f,x);
         break;
     default:
         pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
@@ -346,76 +346,76 @@ void cec2006::compute_constraints_impl(constraint_vector &c, const decision_vect
     switch(m_problem_number)
     {
     case 1:
-        this->g01_compute_constraints_impl(c,x);
+        g01_compute_constraints_impl(c,x);
         break;
     case 2:
-        this->g02_compute_constraints_impl(c,x);
+        g02_compute_constraints_impl(c,x);
         break;
     case 3:
-        this->g03_compute_constraints_impl(c,x);
+        g03_compute_constraints_impl(c,x);
         break;
     case 4:
-        this->g04_compute_constraints_impl(c,x);
+        g04_compute_constraints_impl(c,x);
         break;
     case 5:
-        this->g05_compute_constraints_impl(c,x);
+        g05_compute_constraints_impl(c,x);
         break;
     case 6:
-        this->g06_compute_constraints_impl(c,x);
+        g06_compute_constraints_impl(c,x);
         break;
     case 7:
-        this->g07_compute_constraints_impl(c,x);
+        g07_compute_constraints_impl(c,x);
         break;
     case 8:
-        this->g08_compute_constraints_impl(c,x);
+        g08_compute_constraints_impl(c,x);
         break;
     case 9:
-        this->g09_compute_constraints_impl(c,x);
+        g09_compute_constraints_impl(c,x);
         break;
     case 10:
-        this->g10_compute_constraints_impl(c,x);
+        g10_compute_constraints_impl(c,x);
         break;
     case 11:
-        this->g11_compute_constraints_impl(c,x);
+        g11_compute_constraints_impl(c,x);
         break;
     case 12:
-        this->g12_compute_constraints_impl(c,x);
+        g12_compute_constraints_impl(c,x);
         break;
     case 13:
-        this->g13_compute_constraints_impl(c,x);
+        g13_compute_constraints_impl(c,x);
         break;
     case 14:
-        this->g14_compute_constraints_impl(c,x);
+        g14_compute_constraints_impl(c,x);
         break;
     case 15:
-        this->g15_compute_constraints_impl(c,x);
+        g15_compute_constraints_impl(c,x);
         break;
     case 16:
-        this->g16_compute_constraints_impl(c,x);
+        g16_compute_constraints_impl(c,x);
         break;
     case 17:
-        this->g17_compute_constraints_impl(c,x);
+        g17_compute_constraints_impl(c,x);
         break;
     case 18:
-        this->g18_compute_constraints_impl(c,x);
+        g18_compute_constraints_impl(c,x);
         break;
     case 19:
-        this->g19_compute_constraints_impl(c,x);
+        g19_compute_constraints_impl(c,x);
         break;
     case 20:
-        this->g20_compute_constraints_impl(c,x);
+        g20_compute_constraints_impl(c,x);
         break;
     case 21:
-        this->g21_compute_constraints_impl(c,x);
+        g21_compute_constraints_impl(c,x);
         break;
     case 22:
-        this->g22_compute_constraints_impl(c,x);
+        g22_compute_constraints_impl(c,x);
         break;
     case 23:
-        this->g23_compute_constraints_impl(c,x);
+        g23_compute_constraints_impl(c,x);
         break;
     case 24:
-        this->g24_compute_constraints_impl(c,x);
+        g24_compute_constraints_impl(c,x);
         break;
     default:
         pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
@@ -433,7 +433,7 @@ std::string cec2006::get_name() const
 
 void cec2006::initialize_best(void)
 {
-    std::vector<decision_vector> best_known_decision_vector;
+    std::vector<decision_vector> best_x;
 
     int x_dimension = m_problems_dimension[m_problem_number - 1];
 
@@ -443,9 +443,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,3.,3.,3.,1.};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -457,9 +457,9 @@ void cec2006::initialize_best(void)
                                    0.47129550835493, 0.46623099264167, 0.46142004984199, 0.45683664767217,
                                    0.45245876903267, 0.44826762241853, 0.44424700958760, 0.44038285956317};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -469,9 +469,9 @@ void cec2006::initialize_best(void)
                                    0.316243578205526066, 0.31624357738855069, 0.316243575472949512, 0.316243577164883938,
                                    0.316243578155920302, 0.316243576147374916};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-	    best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+	    best_x.push_back(x);
 
         break;
     }
@@ -479,9 +479,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {78,33,29.9952560256815985,45,36.7758129057882073};
 
-        decision_vector best_known_decision(x_dimension);
-	    std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+	    std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -489,9 +489,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {679.945148297028709,1026.06697600004691,0.118876369094410433,-0.39623348521517826};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -499,9 +499,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {14.09500000000000064,0.8429607892154795668};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -511,9 +511,9 @@ void cec2006::initialize_best(void)
                                    0.990654756560493, 1.43057392853463, 1.32164415364306, 9.82872576524495,
                                    8.2800915887356, 8.3759266477347};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -521,9 +521,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {1.22797135260752599, 4.24537336612274885};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -531,9 +531,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {2.33049935147405174, 1.95137236847114592, -0.477541399510615805, 4.36572624923625874, -0.624486959100388983, 1.03813099410962173, 1.5942266780671519};
 
-        decision_vector best_known_decision(x_dimension);
-		std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+		std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -541,9 +541,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {579.306685017979589,1359.97067807935605,5109.97065743133317,182.01769963061534, 295.601173702746792, 217.982300369384632, 286.41652592786852, 395.601173702746735};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
 		break;
     }
@@ -551,9 +551,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {-0.707036070037170616, 0.500000004333606807};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -561,9 +561,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {5.,5.,5.};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -571,9 +571,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {-1.71714224003, 1.59572124049468, 1.8272502406271, -0.763659881912867, -0.76365986736498};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -583,9 +583,9 @@ void cec2006::initialize_best(void)
                                    0.485293636780388, 0.000693183051556082, 0.0274052040687766, 0.0179509660214818,
                                    0.0373268186859717, 0.0968844604336845};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -593,9 +593,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {3.51212812611795133,0.216987510429556135,3.55217854929179921};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
 		break;
     }
@@ -604,9 +604,9 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {705.174537070090537, 68.5999999999999943, 102.899999999999991, 282.324931593660324,
                                    37.5841164258054832};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -615,9 +615,9 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {201.784467214523659, 99.9999999999999005, 383.071034852773266, 420,
                                    -10.9076584514292652, 0.0731482312084287128};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -627,9 +627,9 @@ void cec2006::initialize_best(void)
                                    -0.657776194376798906, -0.753213434632691414, 0.323413874123576972, -0.346462947962331735,
                                    0.59979466285217542};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -640,9 +640,9 @@ void cec2006::initialize_best(void)
                                    2.50706276000769697e-15, 2.24624122987970677e-15, 0.370764847417013987, 0.278456024942955571,
                                    0.523838487672241171, 0.388620152510322781,0.298156764974678579};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
  
         break;
     }
@@ -655,9 +655,9 @@ void cec2006::initialize_best(void)
                                    0, 2.89148310257773535e-18, 3.34892126180666159e-18, 0, 0.310999974151577319,
                                    5.41244666317833561e-05, 4.84993165246959553e-16};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -666,9 +666,9 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {193.724510070034967, 5.56944131553368433e-27, 17.3191887294084914, 100.047897801386839,
                                    6.68445185362377892, 5.99168428444264833, 6.21451648886070451};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -681,9 +681,9 @@ void cec2006::initialize_best(void)
                                    160.000016724090955, 5.29788288102680571, 5.13529735903945728, 5.59531526444068827,
                                    5.43444479314453499, 5.07517453535834395};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
 		break;
     }
@@ -692,9 +692,9 @@ void cec2006::initialize_best(void)
         const double x_vector[] = {0.00510000000000259465, 99.9947000000000514, 9.01920162996045897e-18, 99.9999000000000535,
                                    0.000100000000027086086, 2.75700683389584542e-14, 99.9999999999999574, 200, 0.0100000100000100008};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -702,9 +702,9 @@ void cec2006::initialize_best(void)
     {
         const double x_vector[] = {2.32952019747762,3.17849307411774};
 
-        decision_vector best_known_decision(x_dimension);
-        std::copy(x_vector,x_vector + x_dimension,best_known_decision.begin());
-        best_known_decision_vector.push_back(best_known_decision);
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
 
         break;
     }
@@ -715,7 +715,7 @@ void cec2006::initialize_best(void)
     }
     }
 
-    this->set_best_x(best_known_decision_vector);
+    set_best_x(best_x);
 }
 // -------------------------------------------
 
@@ -749,7 +749,7 @@ void cec2006::g01_compute_constraints_impl(constraint_vector &c, const decision_
 /// Implementation of the objective function.
 void cec2006::g02_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     /* objective function */
     double f1 = 0.;
@@ -768,7 +768,7 @@ void cec2006::g02_objfun_impl(fitness_vector &f, const decision_vector &x) const
 void cec2006::g02_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
     /* constraints g<=0 */
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     double g1 = 1.;
     double g2 = 0.;
@@ -788,7 +788,7 @@ void cec2006::g02_compute_constraints_impl(constraint_vector &c, const decision_
 void cec2006::g03_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
     /* objective function */
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     double f1 = 1.;
     double f3 = sqrt((double) nx);
@@ -803,7 +803,7 @@ void cec2006::g03_objfun_impl(fitness_vector &f, const decision_vector &x) const
 /// Implementation of the constraint function.
 void cec2006::g03_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     double f2 = 0.;
 
