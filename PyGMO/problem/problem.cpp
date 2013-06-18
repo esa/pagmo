@@ -51,7 +51,7 @@
 using namespace boost::python;
 using namespace pagmo;
 
-// Wrappers to expose the overloaded constructors of rotated+ shifted
+// Wrappers to expose the overloaded constructors of rotated + shifted/constraints handling
 template <class T>
 static boost::shared_ptr<problem::base> construct_with_problem(const problem::base& prob)
 {
@@ -133,10 +133,12 @@ BOOST_PYTHON_MODULE(_problem) {
 	typedef void (problem::base::*bounds_setter)(const decision_vector &);
 	typedef void (problem::base::*bounds_setter_value)(const double &, const double &);
 	typedef void (problem::base::*bounds_setter_vectors)(const decision_vector &, const decision_vector &);
+	typedef void (problem::base::*best_x_setter)(const std::vector<decision_vector>&);
 	typedef constraint_vector (problem::base::*return_constraints)(const decision_vector &) const;
 	typedef fitness_vector (problem::base::*return_fitness)(const decision_vector &) const;
-	class_<problem::python_base, boost::noncopyable>("_base",init<int,optional<int,int,int,int,const double &> >())
+    class_<problem::python_base, boost::noncopyable>("_base",init<int,optional<int,int,int,int,const std::vector<double> &> >())
 		.def(init<const decision_vector &, const decision_vector &, optional<int,int,int,int, const double &> >())
+		.def(init<int,int,int,int,int,const double>())
 		.def("__repr__", &problem::base::human_readable)
 		// Dimensions.
 		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
@@ -145,7 +147,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
 		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
 		// Constraints tolerance.
-		.add_property("c_tol", &problem::base::get_c_tol, "Tolerance used in constraints analysis.")
+		.add_property("c_tol", make_function(&problem::base::get_c_tol,return_value_policy<copy_const_reference>()), "Tolerance used in constraints analysis.")
 		// Bounds.
 		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
 		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")
@@ -164,6 +166,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		// Constraints.
 		.def("compare_constraints",&problem::base::compare_constraints,"Compare constraint vectors.")
 		.def("compute_constraints",return_constraints(&problem::base::compute_constraints),"Compute and return constraint vector.")
+		.def("test_constraint",&problem::base::test_constraint,"Determine feasibility of the i-th constraint.")
 		.def("feasibility_x",&problem::base::feasibility_x,"Determine feasibility of decision vector.")
 		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
 		// Fitness.
@@ -179,6 +182,10 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_compare_constraints_impl",&problem::python_base::py_compare_constraints_impl)
 		.def("_compare_fc_impl",&problem::python_base::py_compare_fc_impl)
 		.def("_compare_fitness_impl",&problem::python_base::py_compare_fitness_impl)
+		// Best known solution
+		.add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
+		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
+		.add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
@@ -194,7 +201,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
 		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
 		// Constraints tolerance.
-		.add_property("c_tol", &problem::base::get_c_tol, "Tolerance used in constraints analysis.")
+		.add_property("c_tol", make_function(&problem::base::get_c_tol,return_value_policy<copy_const_reference>()), "Tolerance used in constraints analysis.")
 		// Bounds.
 		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
 		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")
@@ -212,6 +219,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		// Constraints.
 		.def("compare_constraints",&problem::base::compare_constraints,"Compare constraint vectors.")
 		.def("compute_constraints",return_constraints(&problem::base::compute_constraints),"Compute and return constraint vector.")
+		.def("test_constraint",&problem::base::test_constraint,"Determine feasibility of the i-th constraint.")
 		.def("feasibility_x",&problem::base::feasibility_x,"Determine feasibility of decision vector.")
 		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
 		// Fitness.
@@ -229,6 +237,10 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("_compare_constraints_impl",&problem::python_base_stochastic::py_compare_constraints_impl)
 		.def("_compare_fc_impl",&problem::python_base_stochastic::py_compare_fc_impl)
 		.def("_compare_fitness_impl",&problem::python_base_stochastic::py_compare_fitness_impl)
+		// Best known solution
+		.add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
+		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
+		.add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
 		.def_pickle(python_class_pickle_suite<problem::python_base_stochastic>());
 
 	// Ackley problem.
@@ -385,6 +397,16 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("p_distance", &problem::zdt6::p_distance);
 	
 	// Meta-problems
+		
+	// Constrained death penalty meta-problem
+	enum_<problem::death_penalty::method_type>("_method_type")
+		.value("SIMPLE", problem::death_penalty::SIMPLE)
+		.value("KURI", problem::death_penalty::KURI);
+	// Expose death peanlty methods.
+	problem_wrapper<problem::death_penalty>("death_penalty","Constrained death penalty problem")
+		.def("__init__", make_constructor(&construct_with_problem<problem::death_penalty>))
+		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::death_penalty,problem::death_penalty::method_type>));
+    
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")
 		.def("__init__", make_constructor(&construct_with_problem<problem::shifted>))

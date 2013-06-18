@@ -17,8 +17,9 @@ Common Name                        Name in PyGMO                             Com
 Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
 Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
-Decomposition                      :class:`PyGMO.problem.decomposition`      
 Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
+Decomposition                      :class:`PyGMO.problem.decomposition`      from V1.1.5
+Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
@@ -157,6 +158,10 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_c
    
+.. autoclass:: PyGMO.problem.death_penalty
+
+   .. automethod:: PyGMO.problem.death_penalty.__init__
+
 .. autoclass:: PyGMO.problem.shifted
 
    .. automethod:: PyGMO.problem.shifted.__init__
@@ -541,4 +546,3 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.sagas
 
    .. automethod:: PyGMO.problem.sagas.__init__
-      

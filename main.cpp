@@ -54,6 +54,5 @@ int main()
 	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
 
 	}
-
 	return 0;
 }

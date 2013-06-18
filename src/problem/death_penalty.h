@@ -22,66 +22,73 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_BASE_STOCHASTIC_H
-#define PAGMO_PROBLEM_BASE_STOCHASTIC_H
+#ifndef PAGMO_PROBLEM_DEATH_PENALTY_H
+#define PAGMO_PROBLEM_DEATH_PENALTY_H
 
-#include "base.h"
+#include <string>
+
 #include "../serialization.h"
-#include "../rng.h"
+#include "../types.h"
+#include "cec2006.h"
+#include "base.h"
 
 namespace pagmo{ namespace problem {
 
-/// Base Stochastic Optimization Problem.
+/// Constrainted death penalty meta-problem
 /**
- * A stochastic optimization problem is a problem that seeks to optimize
- * \f$ J(\mathbf x) = E_s(\mathbf x,s) \f$, i.e. the expected value of some stochastic quantity
- * dependant from the doecision vector. 
+ * Implements a meta-problem class that wraps some other constrained problems,
+ * resulting in death penalty constraints handling.
  *
- * These types of problems, in PaGMO, need to
- * iherit from this base class and reimplement the pagmo::problem::base class virtual method objfun_impl
- * starting with the following line that sets the seed: m_drng.seed(m_seed);
+ * Two implementations of the death penalty are availlable. The first one
+ * is the most common simple death penalty. The second one is the death
+ * penalty defined by Angel Kuri Morales et al.
  *
- * Look at pagmo::problem::inventory and pagmo::problem::spheres for a typical example.
+ * @see: 
  *
- * Optimization techniques (pagmo::algorithm) that want to deal with these types of problems
- * need to take care to change appropriately the seed during the optimization 
- * process as to avoid overfitting (that is to avoid solving the problem only for one
- * pseudo random sequence, and not for any). This is done by a call to the change_seed() method.
- *
- * See pagmo::algorithm::pso_stochastic for a good example of such techniques.
- *
- * @author Dario Izzo (dario.izzo@gmail.com)
+ * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
 
-class __PAGMO_VISIBLE base_stochastic : public base
+
+class __PAGMO_VISIBLE death_penalty : public base
 {
 	public:
-		base_stochastic(int, unsigned int = 0u);
-		base_stochastic(int, int, int, int, int, const double&, unsigned int);
-		base_stochastic(int, int, int, int, int, const std::vector<double>&, unsigned int);
+		/// Type of death penalty.
+		/**
+		* Definition of two types of death penalty simple and kuri.
+		* Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
+		* fitness function according to the rate of satisfied constraints.
+		*/
+		//death penalty type simple or kuri
+		enum method_type {SIMPLE = 0, KURI = 1};
 
-		unsigned int get_seed() const;
-		void set_seed(unsigned int) const; //This is marked const as m_seed is mutable (needs to be)
+		//constructors
+		death_penalty(const base & = cec2006(4), const method_type = SIMPLE);
+
+		//copy constructor
+		death_penalty(const death_penalty &);
+		base_ptr clone() const;
+		std::string get_name() const;
+
+	protected:
+		std::string human_readable_extra() const;
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & m_drng;
-			ar & m_seed;
+			ar & m_original_problem;
+			ar & const_cast<method_type &>(m_method);
 		}
-		
-	protected:
-		/// Random number generator to be used in the objective function
-		mutable rng_double				m_drng;
-		/// Seed of the random number generator
-		mutable unsigned int			m_seed;
+		base_ptr m_original_problem;
 
+		const method_type m_method;
 };
 
 }} //namespaces
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_stochastic);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::death_penalty);
 
-#endif // PAGMO_PROBLEM_BASE_STOCHASTIC_H
+#endif // PAGMO_PROBLEM_DEATH_PENALTY_H
