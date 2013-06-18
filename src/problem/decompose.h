@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_DECOMPOSITION_H
-#define PAGMO_PROBLEM_DECOMPOSITION_H
+#ifndef PAGMO_PROBLEM_DECOMPOSE_H
+#define PAGMO_PROBLEM_DECOMPOSE_H
 
 #include <string>
 
@@ -34,7 +34,7 @@
 
 namespace pagmo{ namespace problem {
 
-/// Decomposition meta-problem
+/// Decompose meta-problem
 /**
  * Implements a meta-problem class resulting in a decomposed version
  * of the multi-objective input problem, i.e. a single-objective problem
@@ -50,14 +50,14 @@ namespace pagmo{ namespace problem {
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
 
-class __PAGMO_VISIBLE decomposition : public base
+class __PAGMO_VISIBLE decompose : public base
 {
 	public:
 		//constructor
-		decomposition(const base & = zdt1(1), const std::vector<double> & = std::vector<double>());
+		decompose(const base & = zdt1(1), const std::vector<double> & = std::vector<double>());
 		
 		//copy constructor
-		decomposition(const decomposition &);
+		decompose(const decompose &);
 		base_ptr clone() const;
 		std::string get_name() const;
 		const std::vector<double>& get_weights() const;
@@ -80,6 +80,6 @@ class __PAGMO_VISIBLE decomposition : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::decomposition);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::decompose);
 
-#endif // PAGMO_PROBLEM_DECOMPOSITION_H
+#endif // PAGMO_PROBLEM_DECOMPOSE_H

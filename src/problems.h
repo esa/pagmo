@@ -76,7 +76,7 @@
 #include "problem/shifted.h"
 #include "problem/rotated.h"
 #include "problem/normalized.h"
-#include "problem/decomposition.h"
+#include "problem/decompose.h"
 #include "problem/noisy.h"
 
 // GSL problems.

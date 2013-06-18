@@ -47,9 +47,10 @@ and reimplement some of its 'virtual' methods.
 	def human_readable_extra(self):
 		return "\n\t Problem dimension: " + str(self.__dim)
 
-Note that by default PyGMO will assume one wants to minimize the objective function. 
+Note that by default PyGMO will assume one wants to minimize the objective function. In the second
+part of this tutorial we will also see how it is possible to change this default behaviour.
 
-We may then put this in a file, say my_module.py and use, for example, Artificial Bee Colony .... with
+We may then put the above code in a file, say my_module.py and use, for example, Artificial Bee Colony .... with
 20 individuals ....
 
 .. code-block:: python
@@ -65,7 +66,19 @@ We may then put this in a file, say my_module.py and use, for example, Artificia
 
 And we are done!!!!! (the output will be something like 10^-27, no big deal for a sphere problem)
 
-Let's consider now a maximization problem. To solve such a problem, two possibilities are available in PaGMO/PyGMO. The first one is to transcribe the original problem as a minimization problem by premultiplying the objective function by -1. If such a method is used, the final fitness value obtained with PyGMO has to be multiplied by -1 to get back to the correct value. The second method is to keep the original problem and to overload the function that compares two fitness vectors. This function is used by the algorithms to compare individual performances. Originally, this function compares the fitness f1 to a fitness f2 and returns true if f1 dominates f2. The resulting maximization problem looks like:
+Let's consider now a maximization problem. To solve such a problem, two possibilities
+are available to the PaGMO/PyGMO user. The first one is to code the original
+problem as a minimization problem by premultiplying the objective function by -1 (a technique
+wich is often used and requires no particular effort). If such a method is used,
+the final fitness value obtained with PyGMO has to be multiplied by -1 to
+get back to the correct value.
+
+A second method, more elegant and most of all serving the purpose to show the use
+of another virtual method which can be reimplemented in python objects deriving from base,
+is to override the function that compares two fitness vectors. This function is used
+by all pagmo algorithms to compare performances of individuals. By default, this function
+compares the fitness f1 to a fitness f2 and returns true if f1 dominates f2 (which is single
+objective optimization correspond to minimization). Let us see how ....
 
 .. code-block:: python
 
@@ -84,10 +97,10 @@ Let's consider now a maximization problem. To solve such a problem, two possibil
             # sets the problem bounds
             self.set_bounds(-10,10);
         
-            # define private data members
-            self.__dim = 2;
+			# we do not need private members in this simple case
         
-            # initialize best known solutions
+			# initialize best known solutions (this is optional and is here only
+			# for demonstration purposes)
             self.best_x = [[1.,-1.]];
         
         # reimplement the virtual method that defines the obf function
@@ -101,9 +114,10 @@ Let's consider now a maximization problem. To solve such a problem, two possibil
 
         # add some output to __repr__
         def human_readable_extra(self):
-            return "\n\t Maximization problem"
+			return "\n\tMaximization problem"
 
-As before, we may put this in the file my_module.py and use our favorite optimization algorithm:
+As before, we may put this in the file my_module.py and use our favorite optimization
+algorithm:
 
 .. code-block:: python
     from PyGMO import *
@@ -130,9 +144,16 @@ As before, we may put this in the file my_module.py and use our favorite optimiz
         l2_norm = sqrt(l2_norm);
         print l2_norm;
 
-Note here that we used the best_f and best_x methods which return the best known fitness and decision vectors. The best_f vector is automatically available as we defined best_x in the problem. With these vectors, we can have an idea of the optimizer performances. The result of this optimization is something like 10^-11 for the comparison with the best fitness and 10^-5 for the distance to the best decision vector.
+Note here that we used the best_f and best_x methods which return the best known
+fitness and decision vectors. The best_f vector is automatically available as
+we defined best_x in the problem. With these vectors, we can have an idea of
+the optimizer performances. The result of this optimization is something
+like 10^-11 for the comparison with the best fitness and 10^-5 for
+the distance to the best decision vector.
 
-NOTE1: This simple tutorial is implemented in PyGMO under the name PyGMO.problem.py_example and PyGMO.problem.py_example_max
+NOTE1: This simple tutorial is implemented in PyGMO under the name PyGMO.problem.py_example
+and PyGMO.problem.py_example_max
+
 NOTE2: When evolve is called from an island, the process is forked and transferred to another python or ipython
 instance. As a consequence, when writing your _obj_fun_impl you cannot use stuff like matplotlib to 
 make interactive plots and alike. If you need, during development, to have this kind of support,
