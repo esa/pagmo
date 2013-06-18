@@ -620,10 +620,12 @@ _problem.death_penalty.method = _problem._method_type
 
 def _death_penalty_ctor(self, problem = None, method = None):
 	"""
-	Transforms a constrained problem into an unconstrained problem with death penalty approach.
-	The new objective function will be f(x) if feasible and infinity otherwise, where x
-	is the decision vector.
-
+	Implements a meta-problem class that wraps some other constrained problems, resulting in death penalty constraints handling.
+	Two implementations of the death penalty are available. The first one is the most common simple death penalty. The second one is the death
+	penalty defined by Angel Kuri Morales et al. (Kuri Morales, A. and Quezada, C.C. A Universal eclectic genetic algorithm for constrained optimization, Proceedings 6th European Congress on Intelligent Techniques & Soft Computing, EUFIT'98, 518-522, 1998.)
+	Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
+	fitness function according to the rate of satisfied constraints.
+	
 	USAGE: problem.(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
 
 	* problem: PyGMO constrained problem one wants to treat with a death penalty approach

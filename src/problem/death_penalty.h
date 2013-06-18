@@ -41,9 +41,11 @@ namespace pagmo{ namespace problem {
  *
  * Two implementations of the death penalty are availlable. The first one
  * is the most common simple death penalty. The second one is the death
- * penalty defined by Angel Kuri Morales et al.
+ * penalty defined by Angel Kuri Morales et al. Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
+ * fitness function according to the rate of satisfied constraints.
  *
- * @see: 
+ * @see Coello Coello, C. A. (2002). Theoretical and numerical constraint-handling techniques used with evolutionary algorithms: a survey of the state of the art. Computer methods in applied mechanics and engineering, 191(11), 1245-1287.
+ * @see Kuri Morales, A. and Quezada, C.C. A Universal eclectic genetic algorithm for constrained optimization, Proceedings 6th European Congress on Intelligent Techniques & Soft Computing, EUFIT'98, 518-522, 1998. 
  *
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */

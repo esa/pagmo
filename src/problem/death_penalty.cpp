@@ -39,9 +39,8 @@ namespace pagmo { namespace problem {
  * @param[in] problem base::problem to be modified to use a death penalty
  * as constraints handling technique.
  * @param[in] death_penalty_methos int to be modified to use a simple death penalty
- * if defined with 0 and a Kuri death penalty with a 1.
+ * if defined with SIMPLE and a Kuri death penalty with KURI.
  *
- * @see Coello Coello, C. A. (2002). Theoretical and numerical constraint-handling techniques used with evolutionary algorithms: a survey of the state of the art. Computer methods in applied mechanics and engineering, 191(11), 1245-1287.
  */
 death_penalty::death_penalty(const base &problem, const method_type method):
 	base((int)problem.get_dimension(),
