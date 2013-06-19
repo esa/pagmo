@@ -51,23 +51,7 @@
 using namespace boost::python;
 using namespace pagmo;
 
-// Wrappers to expose the overloaded constructors of rotated + shifted/constraints handling
-template <class T>
-static boost::shared_ptr<problem::base> construct_with_problem(const problem::base& prob)
-{
-	boost::shared_ptr<T> obj;
-	obj.reset(new T(prob));
-	return obj;
-}
-
-template <class T, class arg_type>
-static boost::shared_ptr<problem::base> construct_with_problem_and_stuff(const problem::base& prob,const arg_type &shift)
-{
-	boost::shared_ptr<T> obj;
-	obj.reset(new T(prob,shift));
-	return obj;
-}
-
+// Transforms an Eigen Matrix into a std::vector<std::vector<double> >
 std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {
 	Eigen::MatrixXd rot = p.get_rotation_matrix();
 	pagmo_assert(rot.cols()==rot.rows());
@@ -299,16 +283,16 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// CEC2006 Competition Problems.
 	problem_wrapper<problem::cec2006>("cec2006","CEC2006 Competition Problems.")
-			.def(init<int>());
+		.def(init<int>());
 
 	// CEC2009 Competition Problems.
 	problem_wrapper<problem::cec2009>("cec2009","CEC2009 Competition Problems.")
-			.def(init<int, problem::base::size_type, bool>());
+		.def(init<int, problem::base::size_type, bool>());
 
 	// CEC2013 Competition Problems.
 	problem_wrapper<problem::cec2013>("cec2013","CEC2013 Competition Problems.")
-			.def(init<unsigned int, problem::base::size_type, const std::string&>())
-			.add_property("origin_shift", &problem::cec2013::origin_shift, "Returns the origin shift used to define the problem");
+		.def(init<unsigned int, problem::base::size_type, const std::string&>())
+		.add_property("origin_shift", &problem::cec2013::origin_shift, "Returns the origin shift used to define the problem");
 
 	// SNOPT toy problem.
 	problem_wrapper<problem::snopt_toyprob>("snopt_toyprob","SNOPT toy problem.");
@@ -397,28 +381,27 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("p_distance", &problem::zdt6::p_distance);
 	
 	// Meta-problems
-		
-	// Constrained death penalty meta-problem
+
+	// Death penalty enums
 	enum_<problem::death_penalty::method_type>("_method_type")
 		.value("SIMPLE", problem::death_penalty::SIMPLE)
 		.value("KURI", problem::death_penalty::KURI);
-	// Expose death peanlty methods.
+	// Death penalty meta-problem
 	problem_wrapper<problem::death_penalty>("death_penalty","Constrained death penalty problem")
-		.def("__init__", make_constructor(&construct_with_problem<problem::death_penalty>))
-		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::death_penalty,problem::death_penalty::method_type>));
-    
+		.def(init<optional<const problem::base &, problem::death_penalty::method_type> >());
+
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")
-		.def("__init__", make_constructor(&construct_with_problem<problem::shifted>))
-		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::shifted,std::vector<double> >))
-		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::shifted,double>))
+		.def(init<const problem::base &>())
+		.def(init<const problem::base &, std::vector<double> >())
+		.def(init<const problem::base &, double>())
 		.add_property("shift_vector",make_function(&problem::shifted::get_shift_vector,return_value_policy<copy_const_reference>()))
 		.add_property("deshift",&problem::shifted::deshift);
 		
 	// Rotated meta-problem
 	problem_wrapper<problem::rotated>("rotated","Rotated problem")
-		.def("__init__", make_constructor(&construct_with_problem<problem::rotated>))
-		.def("__init__", make_constructor(&construct_with_problem_and_stuff<problem::rotated, Eigen::MatrixXd>))
+		.def(init<const problem::base &>())
+		.def(init<const problem::base &, Eigen::MatrixXd >())
 		.add_property("rotation_matrix",&get_rotation_matrix_from_eigen)
 		.add_property("derotate",&problem::rotated::derotate);
 		
