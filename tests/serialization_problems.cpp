@@ -33,7 +33,7 @@
 #include "../src/keplerian_toolbox/epoch.h"
 
 #include "../src/Eigen/Dense"
-
+#include <boost/shared_ptr.hpp>
 //-------------------------------------------------------------------------------
 // static data needed to test the non-default constructor in some of the problems.
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX 
@@ -168,6 +168,11 @@ int main()
 	//----- rotated -----//
 	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
 	probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
+	//----- noisy -----//
+	probs.push_back(problem::noisy(zdt1_before_transform1,0,0,
+				    problem::noisy::noise_distribution::NORMAL).clone());
+	probs_new.push_back(problem::noisy(zdt1_before_transform1,111,
+					    problem::noisy::noise_distribution::UNIFORM).clone());
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	probs.push_back(problem::cassini_1(2).clone());
@@ -224,11 +229,14 @@ int main()
 		probs[i]->compute_constraints(c1,x);
 		probs_new[i]->compute_constraints(c2,x);
 		std::cout << std::endl << std::setw(40) << probs[i]->get_name();
-
 		if (std::equal(f1.begin(),f1.end(),f2.begin())) {
 			std::cout << ": Fitness pass,";
 		} else { 
-			std::cout << ": Fitness FAILED," << std::endl;
+			std::cout << ": Fitness FAILED, " << std::endl;
+			std::cout << x<< std::endl;
+			std::cout << f1 << " " << f2 << std::endl;
+			std::cout << *probs[i]<<std::endl;
+			std::cout << *probs_new[i]<<std::endl;
 			return 1;
 		}
 		if (std::equal(c1.begin(),c1.end(),c2.begin())) {

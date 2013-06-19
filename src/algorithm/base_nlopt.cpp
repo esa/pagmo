@@ -203,10 +203,10 @@ void base_nlopt::evolve(population &pop) const
 	m_opt.set_upper_bounds(problem.get_ub());
 	m_opt.set_min_objective(objfun_wrapper, &data_objfun);
 	for (problem::base::c_size_type i =0; i<ec_size; ++i) {
-		m_opt.add_equality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol());
+		m_opt.add_equality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol().at(i));
 	}
 	for (problem::base::c_size_type i =ec_size; i<c_size; ++i) {
-		m_opt.add_inequality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol());
+		m_opt.add_inequality_constraint(constraints_wrapper, &data_constrfun[i], problem.get_c_tol().at(i));
 	}
 
 	m_opt.set_ftol_abs(m_ftol);

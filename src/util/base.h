@@ -22,37 +22,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#ifndef PAGMO_UTIL_BASE_H
+#define PAGMO_UTIL_BASE_H
+
 #include <iostream>
-#include <iomanip>
-#include "src/pagmo.h"
+#include <string>
 
-using namespace pagmo;
+#include "../config.h"
+#include "../serialization.h"
 
-// Example in C++ of the use of PaGMO 1.1.4
-
-int main()
+namespace pagmo
 {
-	pagmo::problem::zdt1 orig_prob(10);
 
-	std::vector<double> weights(2,0.5);
-	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
-
-	pagmo::algorithm::jde alg(50);
-
-	std::cout << alg << std::endl;
-	std::cout << orig_prob << std::endl;
-	std::cout << decomposed_problem << std::endl;
-
-	pagmo::island isl = island(alg, decomposed_problem, 100);
-	pagmo::population original_problem_pop = population(orig_prob, 1);
-
-	for (size_t i = 0; i< 10; ++i){
-	    isl.evolve(1);
-	    original_problem_pop.set_x(0, isl.get_population().champion().x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
-	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
-	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
-	}
-	return 0;
+/// util namespace.
+/**
+ * This namespace contains all auxilary functionality needed by core components of PaGMO, i.e. datastructures
+ * and helper functions.
+ */
+namespace util {
+;
 }
+
+}
+
+#endif

@@ -63,9 +63,13 @@ class __KEP_TOOL_VISIBLE lambert_problem
 {
     static const array3D default_r1;
     static const array3D default_r2;
+	static const array3D& get_default_r1();
+	static const array3D& get_default_r2();
+
 public:
-    friend std::ostream &operator<<(std::ostream &, const lambert_problem &);
-    lambert_problem(const array3D &r1 = default_r1, const array3D &r2 = default_r2, const double &tof = M_PI/2, const double& mu = 1., const int &cw = 0, const bool multi_revs=true);
+    friend std::ostream __KEP_TOOL_VISIBLE_FUNC &operator<<(std::ostream &, const lambert_problem &);
+	
+	lambert_problem(const array3D &r1 = get_default_r1(), const array3D &r2 = get_default_r2(), const double &tof = M_PI/2, const double& mu = 1., const int &cw = 0, const bool multi_revs=true);
     const std::vector<array3D>& get_v1() const;
     const std::vector<array3D>& get_v2() const;
     const array3D& get_r1() const;
@@ -117,7 +121,7 @@ private:
     bool m_multi_revs;
 
 };
-__KEP_TOOL_VISIBLE std::ostream &operator<<(std::ostream &, const lambert_problem &);
+__KEP_TOOL_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const lambert_problem &);
 } //namespaces
 
 #endif // KEPLERIAN_TOOLBOX_LAMBERT_PROBLEM_H

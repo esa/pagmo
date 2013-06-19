@@ -60,19 +60,71 @@ namespace problem {
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance.
+ * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
  */
 base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO should we use size_type directly?
+	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
+	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
+	m_c_tol(nc,c_tol),
+	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
+	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
+{
+	if (c_tol < 0) {
+		pagmo_throw(value_error,"constraints tolerance must be non-negative");
+	}
+	if (n <= 0 || !nf || ni > n || nic > nc) {
+		pagmo_throw(value_error,"invalid dimension(s)");
+	}
+	const size_type size = boost::numeric_cast<size_type>(n);
+	m_lb.resize(size);
+	m_ub.resize(size);
+	std::fill(m_lb.begin(),m_lb.end(),0);
+	std::fill(m_ub.begin(),m_ub.end(),1);
+	// Resize properly temporary fitness and constraint storage.
+	m_tmp_f1.resize(m_f_dimension);
+	m_tmp_f2.resize(m_f_dimension);
+	m_tmp_c1.resize(m_c_dimension);
+	m_tmp_c2.resize(m_c_dimension);
+	// Normalise bounds.
+	normalise_bounds();
+}
+
+/// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
+/**
+ * n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
+ * Lower and upper bounds are set to 0 and 1 respectively. Constraints tolerance for equalities constraints must be positive.
+ *
+ * @param[in] n global dimension of the problem.
+ * @param[in] ni dimension of the combinatorial part of the problem.
+ * @param[in] nf dimension of the fitness vector of the problem.
+ * @param[in] nc global number of constraints.
+ * @param[in] nic number of inequality constraints.
+ * @param[in] c_tol constraints tolerance vector.
+ */
+base::base(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_tol): //TODO should we use size_type directly?
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
 	m_c_tol(c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
 {
-	if (c_tol < 0) {
-		pagmo_throw(value_error,"constraints tolerance must be non-negative");
+	if (c_tol.size() != static_cast<constraint_vector::size_type>(nc) ) {
+		pagmo_throw(value_error,"invalid constraints vector dimension");
+	}
+	for(unsigned int i=0; i<(m_c_dimension - m_ic_dimension);i++) {
+		if (c_tol[i] < 0) {
+			pagmo_throw(value_error,"constraints tolerance must be non-negative for equality constraints");
+		}
 	}
 	if (n <= 0 || !nf || ni > n || nic > nc) {
 		pagmo_throw(value_error,"invalid dimension(s)");
@@ -103,16 +155,19 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO 
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance.
+ * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
  */
 base::base(const double &l_value, const double &u_value, int n, int ni, int nf, int nc, int nic, const double &c_tol):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-	m_c_tol(c_tol),
+	m_c_tol(nc,c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -149,16 +204,19 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance.
+ * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
  */
 base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf, int nc, int nic, const double &c_tol):
 	m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 	m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-	m_c_tol(c_tol),
+	m_c_tol(nc,c_tol),
 	m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 	m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 	m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
-	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity))
+	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
+	m_best_x(0),
+	m_best_f(0),
+	m_best_c(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -422,7 +480,7 @@ base::c_size_type base::get_ic_dimension() const
 /**
  * @return tolerance used in constraints analysis.
  */
-double base::get_c_tol() const
+const std::vector<double>& base::get_c_tol() const
 {
 	return m_c_tol;
 }
@@ -473,7 +531,7 @@ fitness_vector base::objfun(const decision_vector &x) const
  *
  * @param[out] f fitness vector to which x's fitness will be written.
  * @param[in] x decision vector whose fitness will be calculated.
- * 
+ *
  * @throws value_error if f's and/or x's dimensions are different from the corresponding dimensions of the problem.
  */
 void base::objfun(fitness_vector &f, const decision_vector &x) const
@@ -542,7 +600,7 @@ bool base::compare_fitness(const fitness_vector &v_f1, const fitness_vector &v_f
  * Return true if v_f1 Pareto dominate v_f2, false otherwise. This default implementation will assume minimisation for each one of the v_f components
  * I.e., each pair of corresponding elements in v_f1 and v_f2 is compared: if all elements in v_f1 are less or equal to the corresponding
  * element in v_f2, true will be returned. Otherwise, false will be returned.
- * 
+ *
  *
  * @param[in] v_f1 first fitness vector.
  * @param[in] v_f2 second fitness vector.
@@ -861,16 +919,21 @@ bool base::feasibility_x(const decision_vector &x) const
 
 /// Test i-th constraint of c (using tolerance information).
 /**
- * @return true if the constraint is satisfied (up to the numeric tolerance m_c_tol), false otherwise.
+ * This method will return true if the i-th constraint is satisfied, false otherwise.
+ *
+ * @param[in] c pagmo::constraint_vector to be tested.
+ * @param[in] i pagmo::constraint_vector index.
+ *
+ * @return true if the i-th constraint is satisfied (up to the numeric tolerance m_c_tol[i]), false otherwise.
  */
 bool base::test_constraint(const constraint_vector &c, const c_size_type &i) const
 {
 	pagmo_assert(i < m_c_dimension);
 	if (i < m_c_dimension - m_ic_dimension) {
 		// Equality constraint testing.
-		return (std::abs(c[i]) <= m_c_tol);
+		return (std::abs(c[i]) <= m_c_tol[i]);
 	} else {
-		return c[i] <= m_c_tol;
+		return c[i] <= m_c_tol[i];
 	}
 }
 
@@ -1221,7 +1284,65 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 		}
 		x_new[j] = x0[j];
 	}
+}
 
+/// Sets the best known decision vectors
+/**
+ * This method is used to set the best know decision vectors members.
+ *
+ * @param[in] best known x pagmo::decision_vector.
+ */
+void base::set_best_x(const std::vector<decision_vector>& best_x)
+{
+	if(best_x.size() != 0){
+		size_type n_opts = best_x.size();
+		m_best_x.resize(n_opts);
+		m_best_f.resize(n_opts);
+		m_best_c.resize(n_opts);
+		for (size_type i=0; i<n_opts; i++){
+			if(best_x.at(i).size() != get_dimension())
+				pagmo_throw(value_error,"invalid size(s) for best known decision vector(s)");
+			else{
+				//save in the class data member the value of the decision variable of solution i
+				m_best_x.at(i) = best_x.at(i);
+				//save in the class data member the corresponding value of objective(s)
+				m_best_f.at(i) = objfun(best_x.at(i));
+				//save in the class data member the corresponding value of constraint(s)
+				if(m_c_dimension>0)
+					m_best_c.at(i) = compute_constraints(best_x.at(i));
+			}
+		}
+	}
+}
+
+/// Get the best known constraint vector.
+/**
+ * @return the best known constraint vector for the problem.
+ *
+ */
+const std::vector<constraint_vector>& base::get_best_c(void) const
+{
+	return m_best_c;
+}
+
+/// Get the best known decision vector.
+/**
+ * @return the best known decision vector for the problem.
+ *
+ */
+const std::vector<decision_vector>& base::get_best_x(void) const
+{
+	return m_best_x;
+}
+
+/// Get the best known fitness vector.
+/**
+ * @return the best known fitness vector for the problem.
+ *
+ */
+const std::vector<fitness_vector>& base::get_best_f(void) const
+{
+	return m_best_f;
 }
 
 /// Pre-evolution hook.

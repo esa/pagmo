@@ -29,11 +29,26 @@
 #include "base.h"
 #include "cec2006.h"
 
-static int __check__(int N){
+static int __check__(int N)
+{
 	if (N > 24 || N < 1) {
 		pagmo_throw(value_error, "the problem id needs to be one of [1..24]");
 	}
 	return N;
+}
+
+static const std::vector<double> __constraint_tolerances__(int c_dimension, int ic_dimension)
+{
+    std::vector<double> constraint_tolerances(c_dimension);
+    // equality constraints
+    for(int i=0; i<c_dimension-ic_dimension; i++) {
+        constraint_tolerances[i] = 0.0001;
+    }
+    // inequality constraints
+    for(int i=c_dimension-ic_dimension; i<c_dimension; i++) {
+        constraint_tolerances[i] = 0.;
+    }
+    return constraint_tolerances;
 }
 
 namespace pagmo { namespace problem {
@@ -54,8 +69,11 @@ const constraint_vector::size_type cec2006::m_problems_ic_dimension[] =
  *
  * @param[in] fun_id The problem id. One of [1,2,...,24]
  */
-cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,m_problems_c_dimension[__check__(fun_id)-1],m_problems_ic_dimension[__check__(fun_id)-1]),m_problem_number(__check__(fun_id))
+cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,m_problems_c_dimension[__check__(fun_id)-1],m_problems_ic_dimension[__check__(fun_id)-1], __constraint_tolerances__(m_problems_c_dimension[__check__(fun_id)-1], m_problems_ic_dimension[__check__(fun_id)-1])),m_problem_number(__check__(fun_id))
 {
+    // initialize best solution
+    initialize_best();
+
     // set the bounds for the current problem
     switch(m_problem_number)
     {
@@ -63,168 +81,168 @@ cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,100.,100.,100.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 2:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 3:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 4:
     {
         const double lb[] = {78.,33.,27.,27.,27.};
         const double ub[] = {102.,45.,45.,45.,45.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 5:
     {
         const double lb[] = {0.,0.,-0.55,-0.55};
         const double ub[] = {1.,1.,1.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 6:
     {
         const double lb[] = {13.,0.};
         const double ub[] = {100.,100.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 7:
     {
         const double lb[] = {-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 8:
     {
         const double lb[] = {0.,0.};
         const double ub[] = {10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 9:
     {
         const double lb[] = {-10.,-10.,-10.,-10.,-10.,-10.,-10.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 10:
     {
         const double lb[] = {100.,1000.,1000.,10.,10.,10.,10.,10.};
         const double ub[] = {10000.,10000.,10000.,1000.,1000.,1000.,1000.,1000.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 11:
     {
         const double lb[] = {-1.,-1.};
         const double ub[] = {1.,1.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 12:
     {
         const double lb[] = {0.,0.,0.};
         const double ub[] = {10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 13:
     {
         const double lb[] = {-2.3,-2.3,-3.2,-3.2,-3.2};
         const double ub[] = {2.3,2.3,3.2,3.2,3.2};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 14:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 15:
     {
         const double lb[] = {0.,0.,0.};
         const double ub[] = {10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 16:
     {
         const double lb[] = {704.4148,68.6,0.,193.,25.};
         const double ub[] = {906.3855,288.88,134.75,287.0966,84.1988};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 17:
     {
         const double lb[] = {0.,0.,340.,340.,-1000.,0.};
         const double ub[] = {400.,1000.,420.,420.,1000.,0.5236};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 18:
     {
         const double lb[] = {-10.,-10.,-10.,-10.,-10.,-10.,-10.,-10.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,20.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 19:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 20:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
         const double ub[] = {10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.,10.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 21:
     {
         const double lb[] = {0.,0.,0.,100.,6.3,5.9,4.5};
         const double ub[] = {1000.,40.,40.,300.,6.7,6.4,6.25};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 22:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,100.,100.,100.01,100.,100.,0.,0.,0.,0.01,0.01,-4.7,-4.7,-4.7,-4.7,-4.7};
         const double ub[] = {20000.,1e6,1e6,1e6,4e7,4e7,4e7,299.99,399.99,300,400,600,500,500,500,300.,400.,6.25,6.25,6.25,6.25,6.25};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 23:
     {
         const double lb[] = {0.,0.,0.,0.,0.,0.,0.,0.,0.01};
         const double ub[] = {300.,300.,100.,200.,100.,300.,100.,200.,0.03};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     case 24:
     {
         const double lb[] = {0.,0.};
         const double ub[] = {3.,4.};
-        this->set_bounds(lb,ub);
+        set_bounds(lb,ub);
         break;
     }
     default:
@@ -245,76 +263,76 @@ void cec2006::objfun_impl(fitness_vector &f, const decision_vector &x) const
     switch(m_problem_number)
     {
     case 1:
-        this->g01_objfun_impl(f,x);
+        g01_objfun_impl(f,x);
         break;
     case 2:
-        this->g02_objfun_impl(f,x);
+        g02_objfun_impl(f,x);
         break;
     case 3:
-        this->g03_objfun_impl(f,x);
+        g03_objfun_impl(f,x);
         break;
     case 4:
-        this->g04_objfun_impl(f,x);
+        g04_objfun_impl(f,x);
         break;
     case 5:
-        this->g05_objfun_impl(f,x);
+        g05_objfun_impl(f,x);
         break;
     case 6:
-        this->g06_objfun_impl(f,x);
+        g06_objfun_impl(f,x);
         break;
     case 7:
-        this->g07_objfun_impl(f,x);
+        g07_objfun_impl(f,x);
         break;
     case 8:
-        this->g08_objfun_impl(f,x);
+        g08_objfun_impl(f,x);
         break;
     case 9:
-        this->g09_objfun_impl(f,x);
+        g09_objfun_impl(f,x);
         break;
     case 10:
-        this->g10_objfun_impl(f,x);
+        g10_objfun_impl(f,x);
         break;
     case 11:
-        this->g11_objfun_impl(f,x);
+        g11_objfun_impl(f,x);
         break;
     case 12:
-        this->g12_objfun_impl(f,x);
+        g12_objfun_impl(f,x);
         break;
     case 13:
-        this->g13_objfun_impl(f,x);
+        g13_objfun_impl(f,x);
         break;
     case 14:
-        this->g14_objfun_impl(f,x);
+        g14_objfun_impl(f,x);
         break;
     case 15:
-        this->g15_objfun_impl(f,x);
+        g15_objfun_impl(f,x);
         break;
     case 16:
-        this->g16_objfun_impl(f,x);
+        g16_objfun_impl(f,x);
         break;
     case 17:
-        this->g17_objfun_impl(f,x);
+        g17_objfun_impl(f,x);
         break;
     case 18:
-        this->g18_objfun_impl(f,x);
+        g18_objfun_impl(f,x);
         break;
     case 19:
-        this->g19_objfun_impl(f,x);
+        g19_objfun_impl(f,x);
         break;
     case 20:
-        this->g20_objfun_impl(f,x);
+        g20_objfun_impl(f,x);
         break;
     case 21:
-        this->g21_objfun_impl(f,x);
+        g21_objfun_impl(f,x);
         break;
     case 22:
-        this->g22_objfun_impl(f,x);
+        g22_objfun_impl(f,x);
         break;
     case 23:
-        this->g23_objfun_impl(f,x);
+        g23_objfun_impl(f,x);
         break;
     case 24:
-        this->g24_objfun_impl(f,x);
+        g24_objfun_impl(f,x);
         break;
     default:
         pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
@@ -328,76 +346,76 @@ void cec2006::compute_constraints_impl(constraint_vector &c, const decision_vect
     switch(m_problem_number)
     {
     case 1:
-        this->g01_compute_constraints_impl(c,x);
+        g01_compute_constraints_impl(c,x);
         break;
     case 2:
-        this->g02_compute_constraints_impl(c,x);
+        g02_compute_constraints_impl(c,x);
         break;
     case 3:
-        this->g03_compute_constraints_impl(c,x);
+        g03_compute_constraints_impl(c,x);
         break;
     case 4:
-        this->g04_compute_constraints_impl(c,x);
+        g04_compute_constraints_impl(c,x);
         break;
     case 5:
-        this->g05_compute_constraints_impl(c,x);
+        g05_compute_constraints_impl(c,x);
         break;
     case 6:
-        this->g06_compute_constraints_impl(c,x);
+        g06_compute_constraints_impl(c,x);
         break;
     case 7:
-        this->g07_compute_constraints_impl(c,x);
+        g07_compute_constraints_impl(c,x);
         break;
     case 8:
-        this->g08_compute_constraints_impl(c,x);
+        g08_compute_constraints_impl(c,x);
         break;
     case 9:
-        this->g09_compute_constraints_impl(c,x);
+        g09_compute_constraints_impl(c,x);
         break;
     case 10:
-        this->g10_compute_constraints_impl(c,x);
+        g10_compute_constraints_impl(c,x);
         break;
     case 11:
-        this->g11_compute_constraints_impl(c,x);
+        g11_compute_constraints_impl(c,x);
         break;
     case 12:
-        this->g12_compute_constraints_impl(c,x);
+        g12_compute_constraints_impl(c,x);
         break;
     case 13:
-        this->g13_compute_constraints_impl(c,x);
+        g13_compute_constraints_impl(c,x);
         break;
     case 14:
-        this->g14_compute_constraints_impl(c,x);
+        g14_compute_constraints_impl(c,x);
         break;
     case 15:
-        this->g15_compute_constraints_impl(c,x);
+        g15_compute_constraints_impl(c,x);
         break;
     case 16:
-        this->g16_compute_constraints_impl(c,x);
+        g16_compute_constraints_impl(c,x);
         break;
     case 17:
-        this->g17_compute_constraints_impl(c,x);
+        g17_compute_constraints_impl(c,x);
         break;
     case 18:
-        this->g18_compute_constraints_impl(c,x);
+        g18_compute_constraints_impl(c,x);
         break;
     case 19:
-        this->g19_compute_constraints_impl(c,x);
+        g19_compute_constraints_impl(c,x);
         break;
     case 20:
-        this->g20_compute_constraints_impl(c,x);
+        g20_compute_constraints_impl(c,x);
         break;
     case 21:
-        this->g21_compute_constraints_impl(c,x);
+        g21_compute_constraints_impl(c,x);
         break;
     case 22:
-        this->g22_compute_constraints_impl(c,x);
+        g22_compute_constraints_impl(c,x);
         break;
     case 23:
-        this->g23_compute_constraints_impl(c,x);
+        g23_compute_constraints_impl(c,x);
         break;
     case 24:
-        this->g24_compute_constraints_impl(c,x);
+        g24_compute_constraints_impl(c,x);
         break;
     default:
         pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
@@ -413,6 +431,292 @@ std::string cec2006::get_name() const
     return retval;
 }
 
+void cec2006::initialize_best(void)
+{
+    std::vector<decision_vector> best_x;
+
+    int x_dimension = m_problems_dimension[m_problem_number - 1];
+
+    switch(m_problem_number)
+    {
+    case 1:
+    {
+        const double x_vector[] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,3.,3.,3.,1.};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 2:
+    {
+        const double x_vector[] = {3.16246061572185, 3.12833142812967, 3.09479212988791, 3.06145059523469,
+                                   3.02792915885555, 2.99382606701730, 2.95866871765285, 2.92184227312450,
+                                   0.49482511456933, 0.48835711005490, 0.48231642711865, 0.47664475092742,
+                                   0.47129550835493, 0.46623099264167, 0.46142004984199, 0.45683664767217,
+                                   0.45245876903267, 0.44826762241853, 0.44424700958760, 0.44038285956317};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 3:
+    {
+        const double x_vector[] = {0.31624357647283069, 0.316243577414338339, 0.316243578012345927, 0.316243575664017895,
+                                   0.316243578205526066, 0.31624357738855069, 0.316243575472949512, 0.316243577164883938,
+                                   0.316243578155920302, 0.316243576147374916};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+	    best_x.push_back(x);
+
+        break;
+    }
+    case 4:
+    {
+        const double x_vector[] = {78,33,29.9952560256815985,45,36.7758129057882073};
+
+        decision_vector x(x_dimension);
+	    std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 5:
+    {
+        const double x_vector[] = {679.945148297028709,1026.06697600004691,0.118876369094410433,-0.39623348521517826};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 6:
+    {
+        const double x_vector[] = {14.09500000000000064,0.8429607892154795668};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 7:
+    {
+        const double x_vector[] = {2.17199634142692, 2.3636830416034, 8.77392573913157, 5.09598443745173,
+                                   0.990654756560493, 1.43057392853463, 1.32164415364306, 9.82872576524495,
+                                   8.2800915887356, 8.3759266477347};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 8:
+    {
+        const double x_vector[] = {1.22797135260752599, 4.24537336612274885};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 9:
+    {
+        const double x_vector[] = {2.33049935147405174, 1.95137236847114592, -0.477541399510615805, 4.36572624923625874, -0.624486959100388983, 1.03813099410962173, 1.5942266780671519};
+
+        decision_vector x(x_dimension);
+		std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 10:
+    {
+        const double x_vector[] = {579.306685017979589,1359.97067807935605,5109.97065743133317,182.01769963061534, 295.601173702746792, 217.982300369384632, 286.41652592786852, 395.601173702746735};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+		break;
+    }
+    case 11:
+    {
+        const double x_vector[] = {-0.707036070037170616, 0.500000004333606807};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 12:
+    {
+        const double x_vector[] = {5.,5.,5.};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 13:
+    {
+        const double x_vector[] = {-1.71714224003, 1.59572124049468, 1.8272502406271, -0.763659881912867, -0.76365986736498};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 14:
+    {
+        const double x_vector[] = {0.0406684113216282, 0.147721240492452, 0.783205732104114, 0.00141433931889084,
+                                   0.485293636780388, 0.000693183051556082, 0.0274052040687766, 0.0179509660214818,
+                                   0.0373268186859717, 0.0968844604336845};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 15:
+    {
+        const double x_vector[] = {3.51212812611795133,0.216987510429556135,3.55217854929179921};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+		break;
+    }
+    case 16:
+    {
+        const double x_vector[] = {705.174537070090537, 68.5999999999999943, 102.899999999999991, 282.324931593660324,
+                                   37.5841164258054832};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 17:
+    {
+        const double x_vector[] = {201.784467214523659, 99.9999999999999005, 383.071034852773266, 420,
+                                   -10.9076584514292652, 0.0731482312084287128};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 18:
+    {
+        const double x_vector[] = {-0.657776192427943163, -0.153418773482438542, 0.323413871675240938, -0.946257611651304398,
+                                   -0.657776194376798906, -0.753213434632691414, 0.323413874123576972, -0.346462947962331735,
+                                   0.59979466285217542};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 19:
+    {
+        const double x_vector[] = {1.66991341326291344e-17, 3.95378229282456509e-16, 3.94599045143233784, 1.06036597479721211e-16,
+                                   3.2831773458454161, 9.99999999999999822, 1.12829414671605333e-17, 1.2026194599794709e-17,
+                                   2.50706276000769697e-15, 2.24624122987970677e-15, 0.370764847417013987, 0.278456024942955571,
+                                   0.523838487672241171, 0.388620152510322781,0.298156764974678579};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+ 
+        break;
+    }
+    case 20:
+    {
+        const double x_vector[] = {1.28582343498528086e-18, 4.83460302526130664e-34, 0, 0, 6.30459929660781851e-18,
+                                   7.57192526201145068e-34, 5.03350698372840437e-34, 9.28268079616618064e-34, 0,
+                                   1.76723384525547359e-17, 3.55686101822965701e-34, 2.99413850083471346e-34, 0.158143376337580827,
+                                   2.29601774161699833e-19, 1.06106938611042947e-18, 1.31968344319506391e-18, 0.530902525044209539,
+                                   0, 2.89148310257773535e-18, 3.34892126180666159e-18, 0, 0.310999974151577319,
+                                   5.41244666317833561e-05, 4.84993165246959553e-16};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 21:
+    {
+        const double x_vector[] = {193.724510070034967, 5.56944131553368433e-27, 17.3191887294084914, 100.047897801386839,
+                                   6.68445185362377892, 5.99168428444264833, 6.21451648886070451};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 22:
+    {
+        const double x_vector[] = {236.430975504001054, 135.82847151732463, 204.818152544824585, 6446.54654059436416,
+                                   3007540.83940215595, 4074188.65771341929, 32918270.5028952882, 130.075408394314167,
+                                   170.817294970528621, 299.924591605478554, 399.258113423595205, 330.817294971142758,
+                                   184.51831230897065, 248.64670239647424, 127.658546694545862, 269.182627528746707,
+                                   160.000016724090955, 5.29788288102680571, 5.13529735903945728, 5.59531526444068827,
+                                   5.43444479314453499, 5.07517453535834395};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+		break;
+    }
+    case 23:
+    {
+        const double x_vector[] = {0.00510000000000259465, 99.9947000000000514, 9.01920162996045897e-18, 99.9999000000000535,
+                                   0.000100000000027086086, 2.75700683389584542e-14, 99.9999999999999574, 200, 0.0100000100000100008};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    case 24:
+    {
+        const double x_vector[] = {2.32952019747762,3.17849307411774};
+
+        decision_vector x(x_dimension);
+        std::copy(x_vector,x_vector + x_dimension,x.begin());
+        best_x.push_back(x);
+
+        break;
+    }
+    default:
+    {
+        pagmo_throw(value_error, "Error: There are only 24 test functions in this test suite!");
+        break;
+    }
+    }
+
+    set_best_x(best_x);
+}
 // -------------------------------------------
 
 /// Implementation of the objective function.
@@ -445,7 +749,7 @@ void cec2006::g01_compute_constraints_impl(constraint_vector &c, const decision_
 /// Implementation of the objective function.
 void cec2006::g02_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     /* objective function */
     double f1 = 0.;
@@ -464,7 +768,7 @@ void cec2006::g02_objfun_impl(fitness_vector &f, const decision_vector &x) const
 void cec2006::g02_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
     /* constraints g<=0 */
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     double g1 = 1.;
     double g2 = 0.;
@@ -484,7 +788,7 @@ void cec2006::g02_compute_constraints_impl(constraint_vector &c, const decision_
 void cec2006::g03_objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
     /* objective function */
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     double f1 = 1.;
     double f3 = sqrt((double) nx);
@@ -499,7 +803,7 @@ void cec2006::g03_objfun_impl(fitness_vector &f, const decision_vector &x) const
 /// Implementation of the constraint function.
 void cec2006::g03_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-    double nx = this->get_dimension();
+    double nx = get_dimension();
 
     double f2 = 0.;
 

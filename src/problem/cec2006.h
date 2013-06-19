@@ -107,12 +107,14 @@ class __PAGMO_VISIBLE cec2006 : public base
         void g24_objfun_impl(fitness_vector &, const decision_vector &) const;
         void g24_compute_constraints_impl(constraint_vector &c, const decision_vector &x) const;
 
+        void initialize_best(void);
+
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
             ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<unsigned int&>(m_problem_number);
+            ar & const_cast<unsigned int&>(m_problem_number);
         }
 
 		const unsigned int m_problem_number;

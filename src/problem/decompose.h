@@ -22,37 +22,64 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include <iomanip>
-#include "src/pagmo.h"
+#ifndef PAGMO_PROBLEM_DECOMPOSE_H
+#define PAGMO_PROBLEM_DECOMPOSE_H
 
-using namespace pagmo;
+#include <string>
 
-// Example in C++ of the use of PaGMO 1.1.4
+#include "../serialization.h"
+#include "../types.h"
+#include "base.h"
+#include "zdt1.h"
 
-int main()
+namespace pagmo{ namespace problem {
+
+/// Decompose meta-problem
+/**
+ * Implements a meta-problem class resulting in a decomposed version
+ * of the multi-objective input problem, i.e. a single-objective problem
+ * having as fitness function a convex combination of the original fitness functions.
+ *
+ * Being
+ * \f$ F(X) = (F_1(X), \ldots, F_n(X)) \f$
+ * the original multi-objective fitness function and 
+ * \f$ w = (w_1, \ldots, w_n) \f$
+ * the weight vector, the decomposition problem has as single-objective fitness function
+ * \f[ F_d(X) = \sum_{i=1}^n w_i F_i(X) \f]
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+
+class __PAGMO_VISIBLE decompose : public base
 {
-	pagmo::problem::zdt1 orig_prob(10);
+	public:
+		//constructor
+		decompose(const base & = zdt1(1), const std::vector<double> & = std::vector<double>());
+		
+		//copy constructor
+		decompose(const decompose &);
+		base_ptr clone() const;
+		std::string get_name() const;
+		const std::vector<double>& get_weights() const;
+		
+	protected:
+		std::string human_readable_extra() const;
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & m_original_problem;
+			ar & m_weights;
+		}
+		base_ptr m_original_problem;
+		std::vector<double> m_weights;
+};
 
-	std::vector<double> weights(2,0.5);
-	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
+}} //namespaces
 
-	pagmo::algorithm::jde alg(50);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::decompose);
 
-	std::cout << alg << std::endl;
-	std::cout << orig_prob << std::endl;
-	std::cout << decomposed_problem << std::endl;
-
-	pagmo::island isl = island(alg, decomposed_problem, 100);
-	pagmo::population original_problem_pop = population(orig_prob, 1);
-
-	for (size_t i = 0; i< 10; ++i){
-	    isl.evolve(1);
-	    original_problem_pop.set_x(0, isl.get_population().champion().x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
-	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
-	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
-	}
-	return 0;
-}
+#endif // PAGMO_PROBLEM_DECOMPOSE_H

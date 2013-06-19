@@ -71,7 +71,7 @@ typedef boost::shared_ptr<base> base_ptr;
  * - a constraint computation function,
  * - an objective function that takes as input a decision vector and returns a vector of fitnesses,
  * - a fitness dimension, i.e., the length of the fitness vector returned by the objective function,
- * - a constraints tolerance.
+ * - a constraints tolerance vector.
  *
  * All dimensions are invariant in the life cycle of a problem object.
  *
@@ -84,6 +84,12 @@ typedef boost::shared_ptr<base> base_ptr;
  *
  * If the first condition is not met, an error will be raised. If the second condition is not met, the bounds will be set to the extremes
  * of the allowed range and/or rounded to the nearest integer as necessary. After that, an error will be generated in order to alert the user.
+ *
+ * The constraint tolerance vector contains the tolerances for each constraints. This allows to implement constraints of type:
+ * - equality constraints h_i(x) < tol_i
+ * - inequality constraints g_k(x) < tol_k
+ *
+ * Note that if a single value is given to the problem constructor instead of a constraint tolerance vector, then a constraint tolerance vector of size the number of constraints filled with the given value is created.
  *
  * All problems implemented in PaGMO must derive from this base class and implement the following pure virtual methods:
  * - the clone() method, i.e., the polymorphic copy constructor,
@@ -103,9 +109,12 @@ typedef boost::shared_ptr<base> base_ptr;
  * mandatorily by an algorithm: each algorithm can decide to use its own ranking schemes during an optimisation. The ranking methods provided
  * by the problem are always used instead during the migration of decision vectors from one island to the other.
  *
+ * \section Caching
+ * A caching mechanism is implemented to make sure the objective function is never evaluated twice on the very same chromosome
+ *
  * \section Serialization
  * The problem classes are serialized for the purpose of transmitting their corresponding objects over a distributed environment, as being part of the population class.
- * Serializing a derived problem requires that the needed serialization libraries be declared in the header of the derived class. 
+ * Serializing a derived problem requires that the needed serialization libraries be declared in the header of the derived class.
  * Virtually all the derived problem classes need to have the following declared in their header files:
 @verbatim
 	friend class boost::serialization::access;
@@ -115,16 +124,16 @@ typedef boost::shared_ptr<base> base_ptr;
 @verbatim
 	ar & boost::serialization::base_object<base>(*this);
 @endverbatim
- * and the rest of the attributes simply as archive members: 
+ * and the rest of the attributes simply as archive members:
 @verbatim
 	ar & attribute_name;
 @endverbatim
- * In order to be able to identify the dervied problem class when deserializing an object declared as a base_pointer, the derived problem class needs to be registered. In the case where your derived problem class has a default constructor, this is done by registering the class in the "pagmo/src/problems.h", in the REGISTER_PROBLEM_SERIALIZATIONS() routine, by adding:
+ * In order to be able to identify the derived problem class when deserializing an object declared as a base_pointer, the derived problem class needs to be registered. In the case where your derived problem class has a default constructor, this is done by registering the class in the "pagmo/src/problems.h", in the REGISTER_PROBLEM_SERIALIZATIONS() routine, by adding:
 @verbatim
 ar.template register_type<problem::derived_problem>();
 @endverbatim
  * In the case where the derived problem does not have a default constructor, the serialization functions "load_construct_data" and "save_construct_data" need to be overriden. This done by invoking the non-default constructor in-place (in the load_construct_data) to initilize the memory (Examples can be found in the implemented problems or in the Boost Serialization libraray unde "Non-default constructor" section).W
- * Notes: 
+ * Notes:
  * - "const" attributes need to be cast as constants in the serialize method using const_cast
  * - attributes that that are not primitives, need be a serialized type as well
  * - pointers to primitives cannot be serialized (in this case one can split the serialize method into save/load methods and store the values, that the pointers refer to, into temporary variables which are serialized insted - see boost serialize documentation on the topic if needed)
@@ -147,6 +156,7 @@ class __PAGMO_VISIBLE base
 		/// Constraints' size type: the same as pagmo::constraint_vector's size type.
 		typedef constraint_vector::size_type c_size_type;
 		base(int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
+		base(int, int, int, int, int, const std::vector<double> &);
 		base(const double &, const double &, int, int = 0, int = 1, int = 0, int = 0, const double & = 0);
 		base(const decision_vector &, const decision_vector &, int = 0, int = 1, int = 0, int = 0, const double & = 0);
 		/// Constructor from raw arrays, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance.
@@ -163,13 +173,13 @@ class __PAGMO_VISIBLE base
 		 * @param[in] nf dimension of the fitness vector of the problem.
 		 * @param[in] nc global number of constraints.
 		 * @param[in] nic number of inequality constraints.
-		 * @param[in] c_tol constraints tolerance.
+		 * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
 		 */
 		template <std::size_t N>
 		base(const double (&v1)[N], const double (&v2)[N], int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-			m_c_tol(c_tol),
+			m_c_tol(nc,c_tol),
 			m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 			m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
@@ -212,13 +222,13 @@ class __PAGMO_VISIBLE base
 		 * @param[in] nf dimension of the fitness vector of the problem.
 		 * @param[in] nc global number of constraints.
 		 * @param[in] nic number of inequality constraints.
-		 * @param[in] c_tol constraints tolerance.
+		 * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol..
 		 */
 		template <class Iterator1, class Iterator2>
 		base(Iterator1 start1, Iterator1 end1, Iterator2 start2, Iterator2 end2, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			m_i_dimension(boost::numeric_cast<size_type>(ni)),m_f_dimension(boost::numeric_cast<f_size_type>(nf)),
 			m_c_dimension(boost::numeric_cast<c_size_type>(nc)),m_ic_dimension(boost::numeric_cast<c_size_type>(nic)),
-			m_c_tol(c_tol),
+			m_c_tol(nc,c_tol),
 			m_decision_vector_cache_f(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
 			m_fitness_vector_cache(boost::numeric_cast<fitness_vector_cache_type::size_type>(cache_capacity)),
 			m_decision_vector_cache_c(boost::numeric_cast<decision_vector_cache_type::size_type>(cache_capacity)),
@@ -389,13 +399,14 @@ class __PAGMO_VISIBLE base
 		f_size_type get_f_dimension() const;
 		c_size_type get_c_dimension() const;
 		c_size_type get_ic_dimension() const;
-		double get_c_tol() const;
+		const std::vector<double>& get_c_tol() const;
 		double get_diameter() const;
 		virtual std::string get_name() const;
 		//@}
 		constraint_vector compute_constraints(const decision_vector &) const;
 		void compute_constraints(constraint_vector &, const decision_vector &) const;
 		bool compare_constraints(const constraint_vector &, const constraint_vector &) const;
+		bool test_constraint(const constraint_vector &, const c_size_type &) const;
 		bool feasibility_x(const decision_vector &) const;
 		bool feasibility_c(const constraint_vector &) const;
 		/// Clone method.
@@ -426,7 +437,6 @@ return base_ptr(new derived_problem(*this));
 		virtual bool compare_fc_impl(const fitness_vector &, const constraint_vector &, const fitness_vector &, const constraint_vector &) const;
 		void estimate_sparsity(const decision_vector &, int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
 		void estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
-		bool test_constraint(const constraint_vector &, const c_size_type &) const;
 	public:
 		virtual void set_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int>& jGvar) const;
 		/** @name Objective function and fitness handling.
@@ -437,6 +447,11 @@ return base_ptr(new derived_problem(*this));
 		void objfun(fitness_vector &, const decision_vector &) const;
 		bool compare_fitness(const fitness_vector &, const fitness_vector &) const;
 		void reset_caches() const;
+	public:
+		const std::vector<constraint_vector>& get_best_c(void) const;
+		const std::vector<decision_vector>& get_best_x(void) const;
+		const std::vector<fitness_vector>& get_best_f(void) const;
+		void set_best_x(const std::vector<decision_vector>&);
 	protected:
 		virtual bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 		/// Objective function implementation.
@@ -484,7 +499,7 @@ return base_ptr(new derived_problem(*this));
 			ar & const_cast<c_size_type &>(m_ic_dimension);
 			ar & m_lb;
 			ar & m_ub;
-			ar & const_cast<double &>(m_c_tol);
+			ar & const_cast<std::vector<double> &>(m_c_tol);
 			ar & m_decision_vector_cache_f;
 			ar & m_fitness_vector_cache;
 			ar & m_decision_vector_cache_c;
@@ -493,7 +508,11 @@ return base_ptr(new derived_problem(*this));
 			ar & m_tmp_f2;
 			ar & m_tmp_c1;
 			ar & m_tmp_c2;
-		}  
+			ar & m_best_x;
+			ar & m_best_f;
+			ar & m_best_c;
+		}
+
 		// Data members.
 		// Size of the integer part of the problem.
 		const size_type				m_i_dimension;
@@ -508,7 +527,7 @@ return base_ptr(new derived_problem(*this));
 		// Upper bounds.
 		decision_vector				m_ub;
 		// Tolerance for constraints analysis.
-		const double				m_c_tol;
+		const std::vector<double>   m_c_tol;
 		// Decision vector cache for fitness.
 		mutable decision_vector_cache_type	m_decision_vector_cache_f;
 		// Fitness vector cache.
@@ -523,6 +542,11 @@ return base_ptr(new derived_problem(*this));
 		// Temporary storage used during constraints satisfaction testing and constraints comparison.
 		mutable constraint_vector		m_tmp_c1;
 		mutable constraint_vector		m_tmp_c2;
+
+		// Best known vectors
+		std::vector<decision_vector> m_best_x;
+		std::vector<fitness_vector> m_best_f;
+		std::vector<constraint_vector> m_best_c;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);

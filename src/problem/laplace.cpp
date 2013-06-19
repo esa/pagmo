@@ -56,6 +56,7 @@ static inline int laplace_get_dimension(const std::vector<int> &seq)
 }
 
 const int laplace::default_sequence[5] = {3,2,3,3,5};
+const int* laplace::get_default_sequence(){return default_sequence;}
 
 /// Constructor
 /**
