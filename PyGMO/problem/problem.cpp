@@ -423,12 +423,12 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Noisy meta-problem
 	// Exposing enums of problem::noisy
-	enum_<problem::noisy::noise_distribution::type>("_noise_distribution")
-		.value("NORMAL", problem::noisy::noise_distribution::NORMAL)
-		.value("UNIFORM", problem::noisy::noise_distribution::UNIFORM);
+	enum_<problem::noisy::noise_type>("_noise_distribution")
+		.value("NORMAL", problem::noisy::NORMAL)
+		.value("UNIFORM", problem::noisy::UNIFORM);
 
 	stochastic_problem_wrapper<problem::noisy>("noisy", "Noisy problem")
-		.def(init<const problem::base &, unsigned int, const double, const double, problem::noisy::noise_distribution::type, unsigned int>())
+		.def(init<const problem::base &, unsigned int, const double, const double, problem::noisy::noise_type, unsigned int>())
 		.add_property("noise_param_first", &problem::noisy::get_param_first)
 		.add_property("noise_param_second", &problem::noisy::get_param_second);
 

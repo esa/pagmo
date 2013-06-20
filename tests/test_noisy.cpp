@@ -63,7 +63,7 @@ int test_noisy(const std::vector<problem::base_ptr> & probs, double noise_mean, 
 										 1,
 										 noise_mean,
 										 noise_stddev,
-										 pagmo::problem::noisy::noise_distribution::NORMAL,
+										 pagmo::problem::noisy::NORMAL,
 										 i*177 + 23);
 
 		std::cout<< std::setw(40) << prob_noisy.get_name();
@@ -145,7 +145,7 @@ int test_noisy_uniform(const std::vector<problem::base_ptr> & probs, double nois
 										 1,
 										 noise_lb,
 										 noise_ub,
-										 pagmo::problem::noisy::noise_distribution::UNIFORM,
+										 pagmo::problem::noisy::UNIFORM,
 										 i*177 + 23);
 
 		std::cout<< std::setw(40) << prob_noisy.get_name();
