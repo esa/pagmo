@@ -13,7 +13,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
-	#${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
@@ -79,10 +79,11 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2006.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2009.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2013.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/decomposition.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/decompose.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/noisy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp

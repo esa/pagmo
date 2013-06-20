@@ -47,10 +47,24 @@ base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng
  * @param[in] nf dimension of the fitness vector of the problem.
  * @param[in] nc global number of constraints.
  * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance.
+ * @param[in] c_tol constraints tolerance (equal for all constraints)
  * @param[in] seed random number generator seed
 */
 base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const double &c_tol, unsigned int seed): base((int)n, ni, nf, nc, nic, c_tol), m_drng(seed), m_seed(seed)
+{
+}
+
+/// Constructor from global dimension, integer dimension, fitness dimension, global constraints dimension, inequality constraints dimension and constraints tolerance vector
+/**
+ * @param[in] n global dimension of the problem.
+ * @param[in] ni dimension of the combinatorial part of the problem.
+ * @param[in] nf dimension of the fitness vector of the problem.
+ * @param[in] nc global number of constraints.
+ * @param[in] nic number of inequality constraints.
+ * @param[in] c_tol constraints tolerance std::vector
+ * @param[in] seed random number generator seed
+*/
+base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_tol, unsigned int seed): base((int)n, ni, nf, nc, nic, c_tol), m_drng(seed), m_seed(seed)
 {
 }
 

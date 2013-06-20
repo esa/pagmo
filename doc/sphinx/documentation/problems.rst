@@ -17,8 +17,9 @@ Common Name                        Name in PyGMO                             Com
 Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
 Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
-Decomposition                      :class:`PyGMO.problem.decomposition`      
 Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
+Decomposition                      :class:`PyGMO.problem.decomposition`      from V1.1.5
+Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
@@ -145,9 +146,29 @@ Detailed Documentation
       
    .. method:: _compute_constraints_impl(self, x)
    
-      This is a virtual function tham can must be re-implemented in the derived class (if c_dim>0) and must return a tuple 
+      This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a tuple 
       packing as many numbers as the declared dimension of the problem constraints (c_dim). 
       Inequality constarints need to be packed at last.
+
+   .. method:: _compare_fitness_impl(self, f1, f2)
+   
+      This is a virtual function that can be re-implemented in the derived class and must return a boolean value.
+      Return true if f1 Pareto dominate f2, false otherwise. This default implementation will assume minimisation for each one of the f components
+      I.e., each pair of corresponding elements in f1 and f2 is compared: if all elements in f1 are less or equal to the corresponding
+      element in f2, true will be returned. Otherwise, false will be returned.     
+            
+   .. method:: _compare_constraints_impl(self, c1, c2)
+   
+      This is a virtual function tham can be re-implemented in the derived class (if c_dim>0) and must return a boolean value.
+      Return true if c1 is a strictly better constraint vector than c2, false otherwise. 
+      Default implementation will return true under the following conditions, tested in order: c1 satisfies more constraints than c2,
+      c1 and c2 satisfy the same number of constraints and the L2 norm of the constraint mismatches for c1 is smaller than for c2.
+      Otherwise, false will be returned.
+
+   .. method:: _compare_fc_impl(self, f1, c1, f2, c2)
+   
+      This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a boolean value. 
+      This function will perform sanity checks on the input arguments and will then call _compare_fc_impl() if the constraint dimensions is not null, _compare_fitness_impl() otherwise.   
       
    .. automethod:: PyGMO.problem.base.reset_caches
 
@@ -157,6 +178,10 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_c
    
+.. autoclass:: PyGMO.problem.death_penalty
+
+   .. automethod:: PyGMO.problem.death_penalty.__init__
+
 .. autoclass:: PyGMO.problem.shifted
 
    .. automethod:: PyGMO.problem.shifted.__init__
@@ -541,4 +566,3 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.sagas
 
    .. automethod:: PyGMO.problem.sagas.__init__
-      

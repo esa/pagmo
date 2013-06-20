@@ -30,7 +30,7 @@
 #include "../population.h"
 #include "../rng.h"
 #include "base.h"
-#include "decomposition.h"
+#include "decompose.h"
 
 namespace pagmo { namespace problem {
 
@@ -42,7 +42,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-decomposition::decomposition(const base & p, const std::vector<double> & weights ):
+decompose::decompose(const base & p, const std::vector<double> & weights ):
 	base((int)p.get_dimension(), // Ambiguous without the cast ...
 		 p.get_i_dimension(),
 		 1, //it transforms the problem into a single-objective problem
@@ -80,7 +80,7 @@ decomposition::decomposition(const base & p, const std::vector<double> & weights
 }
 
 /// Copy Constructor. Performs a deep copy
-decomposition::decomposition(const decomposition &p):
+decompose::decompose(const decompose &p):
 	base((int)p.get_dimension(), // Ambiguous without the cast
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
@@ -92,14 +92,14 @@ decomposition::decomposition(const decomposition &p):
 		 {}
 
 /// Clone method.
-base_ptr decomposition::clone() const
+base_ptr decompose::clone() const
 {
-	return base_ptr(new decomposition(*this));
+	return base_ptr(new decompose(*this));
 }
 
 /// Implementation of the objective function.
 /// (Wraps over the original implementation with translated input x)
-void decomposition::objfun_impl(fitness_vector &f, const decision_vector &x) const 
+void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	fitness_vector fit(m_original_problem->get_f_dimension());
 	m_original_problem->objfun(fit, x);
@@ -110,12 +110,12 @@ void decomposition::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	}
 }
 
-std::string decomposition::get_name() const
+std::string decompose::get_name() const
 {
 	return m_original_problem->get_name() + " [Decomposed]"; 
 }
 
-std::string decomposition::human_readable_extra() const
+std::string decompose::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
@@ -128,10 +128,10 @@ std::string decomposition::human_readable_extra() const
  *
  * \return the weight vector
  */
-const std::vector<double>& decomposition::get_weights() const
+const std::vector<double>& decompose::get_weights() const
 {
 	return m_weights;
 }
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::decomposition);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::decompose);

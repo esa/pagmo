@@ -5,6 +5,7 @@ from _problem import *
 from _problem import _base
 from _problem import _base_stochastic
 from _example import py_example
+from _example import py_example_max
 from _example_stochastic import py_example_stochastic
 from _pl2pl import py_pl2pl
 from _mo import *
@@ -51,7 +52,6 @@ try:
 
 except:
 	pass
-
 
 #Creating the list of problems
 def _get_problem_list():
@@ -600,7 +600,7 @@ def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_secon
 	* noise_type: Whether to inject a normally distributed noise or uniformly distributed noise
 	* seed: Seed for the underlying RNG
 	"""
-
+	
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
 	if problem == None:
@@ -614,3 +614,32 @@ def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_secon
 	self._orig_init(*arg_list)
 noisy._orig_init = noisy.__init__
 noisy.__init__ = _noisy_ctor
+
+# Renaming and placing the enums
+_problem.death_penalty.method = _problem._method_type
+
+def _death_penalty_ctor(self, problem = None, method = None):
+	"""
+	Implements a meta-problem class that wraps some other constrained problems, resulting in death penalty constraints handling.
+	Two implementations of the death penalty are available. The first one is the most common simple death penalty. The second one is the death
+	penalty defined by Angel Kuri Morales et al. (Kuri Morales, A. and Quezada, C.C. A Universal eclectic genetic algorithm for constrained optimization, Proceedings 6th European Congress on Intelligent Techniques & Soft Computing, EUFIT'98, 518-522, 1998.)
+	Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
+	fitness function according to the rate of satisfied constraints.
+	
+	USAGE: problem.(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
+
+	* problem: PyGMO constrained problem one wants to treat with a death penalty approach
+	* method: Simple death method set with SIMPLE and Kuri method set with KURI
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem = cec2006(4)
+	if method == None:
+		method = death_penalty.method.SIMPLE
+	arg_list.append(problem)
+	arg_list.append(method)
+	self._orig_init(*arg_list)
+death_penalty._orig_init = death_penalty.__init__
+death_penalty.__init__ = _death_penalty_ctor

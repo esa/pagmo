@@ -60,6 +60,8 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 	public:
 		explicit python_base(int n, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			base(n,ni,nf,nc,nic,c_tol), boost::python::wrapper<base>() {}
+		explicit python_base(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_tol):
+			base(n,ni,nf,nc,nic,c_tol), boost::python::wrapper<base>() {}
 		explicit python_base(const decision_vector &lb, const decision_vector &ub, int ni = 0, int nf = 1, int nc = 0, int nic = 0, const double &c_tol = 0):
 			base(lb,ub,ni,nf,nc,nic,c_tol), boost::python::wrapper<base>() {}
 		base_ptr clone() const
@@ -150,6 +152,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
             pagmo_assert(f);
             return f(f0, c0, f1, c1);
         }
+
 	protected:
 		void objfun_impl(fitness_vector &f, const decision_vector &x) const
 		{
@@ -203,6 +206,7 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
                 return problem::base::compare_fc_impl(f0, c0, f1, c1);
             }
         }
+
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

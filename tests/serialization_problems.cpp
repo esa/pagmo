@@ -232,7 +232,11 @@ int main()
 		if (std::equal(f1.begin(),f1.end(),f2.begin())) {
 			std::cout << ": Fitness pass,";
 		} else { 
-			std::cout << ": Fitness FAILED," << std::endl;
+			std::cout << ": Fitness FAILED, " << std::endl;
+			std::cout << x<< std::endl;
+			std::cout << f1 << " " << f2 << std::endl;
+			std::cout << *probs[i]<<std::endl;
+			std::cout << *probs_new[i]<<std::endl;
 			return 1;
 		}
 		if (std::equal(c1.begin(),c1.end(),c2.begin())) {
