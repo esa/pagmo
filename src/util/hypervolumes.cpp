@@ -26,27 +26,39 @@
 
 namespace pagmo { namespace util {
 
-/// Computes Hypervolume Indicator by LebMeasure
+/// Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
 /**
- * Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
- *
  * @see L. While, "A new analysis of the LebMeasure Algorithm for Calculating Hypervolume"
  *
  * @param[in] r reference point of the hypervolume
  * @param[in] point_set points describing the hypervolume
  *
+ * @throws value_error if sizes of reference point and pareto set do not match, when the pareto set is empty and when the dimension is lesser than 3
+ *
  * @return hypervolume of the pareto set.
  */
-double hypervolumes::hypervolume_lebmeasure(const std::vector<fitness_vector> &points, const fitness_vector &r)
+double hypervolumes::lebmeasure(const std::vector<fitness_vector> &points, const fitness_vector &r)
 {
-	//std::vector<std::vector<population::size_type> > pareto_fronts = compute_pareto_fronts();
+	if ( points.size() == 0 ) {
+		pagmo_throw(value_error, "Point set cannot be empty.");
+	}
+	if ( r.size() < 3 ) {
+		pagmo_throw(value_error, "Hypervolume of dimension lesser than 3 is not allowed for this method");
+	}
+	for (std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
+		if ( points[idx].size() != r.size() ) {
+			pagmo_throw(value_error, "Point set dimensions and reference point dimension must be equal.");
+		}
+	}
+
 	fitness_vector::size_type f_dim = points[0].size();
 
-	std::deque<std::pair<fitness_vector, fitness_vector::size_type> > point_set;
+	//prepare the original points (lebmeasure requires to track the the spawn dimension corresponding to each of the points)
+	lebmeasure_points point_set;
 	for (population::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		point_set.push_back(std::make_pair(points[idx], f_dim));
 	}
-	return lebmeasure::hypervolume_lebmeasure(point_set, r);
+	return lebmeasure::compute_hypervolume(point_set, r);
 }
 
 }}

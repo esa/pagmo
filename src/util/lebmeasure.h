@@ -38,15 +38,15 @@ namespace pagmo { namespace util {
 /// lebmeasure_points typedef
 /**
  * This is the main container type, used for LebMeasure.
- * std::deque is used for the purpose of fast insertion and removal from the front.
+ * std::deque is used for the purpose of fast insertion and removal at the two ends of the list.
  * Because we need to store a "spawn dimension" along with given point, we use std::deque of std::pair<fitness_vector, fitness_vector::size_type>.
- * Spawn dimension is originally equal to fitness_vector.size(), but it changes over the course of the algorithm.
+ * Spawn dimension is originally equal to fitness_vector.size() for each point, but it changes over the course of the algorithm.
  */
 typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmeasure_points;
 
 /// lebmeasure class.
 /**
- * This is the class containing implementation and methods for LebMeasure
+ * This is the class containing implementation of the LebMeasure algorithm
  *
  * @see L. While, "A new analysis of the LebMeasure Algorithm for Calculating Hypervolume"
  * @author Krzysztof Nowak (kn@kiryx.net)
@@ -54,13 +54,10 @@ typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmea
 class lebmeasure
 {
 	public:
-		static double hypervolume_lebmeasure(lebmeasure_points &, const fitness_vector &);
+		static double compute_hypervolume(lebmeasure_points &, const fitness_vector &);
 
 	private:
-		/// LebMeasure methods
-		/**
-		 * Methods below are used by LebMeasure algorithm (hypervolume_lebmeasure)
-		 */
+		/// Methods below are used by LebMeasure algorithm (compute_hypervolume)
 		static lebmeasure_points generate_spawns(const fitness_vector &, const fitness_vector::size_type, const fitness_vector &, lebmeasure_points &, const fitness_vector &);
 		static bool dominated(const fitness_vector &, lebmeasure_points &);
 		static double volume_between(const fitness_vector &, const fitness_vector &);

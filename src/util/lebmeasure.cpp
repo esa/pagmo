@@ -26,16 +26,14 @@
 
 namespace pagmo { namespace util {
 
-/// Computes Hypervolume Indicator by LebMeasure
+/// Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
 /**
- * Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
- *
  * @param[in] r reference point of the hypervolume
  * @param[in] point_set set of pairs <point, spawn_dimension> - each point is supplemented with it's spawn dimension
  *
  * @return hypervolume of the pareto set.
  */
-double lebmeasure::hypervolume_lebmeasure(lebmeasure_points &point_set, const fitness_vector &r)
+double lebmeasure::compute_hypervolume(lebmeasure_points &point_set, const fitness_vector &r)
 {
 	double hypervolume = 0.0;
 	while(point_set.size() > 0) {
@@ -51,10 +49,8 @@ double lebmeasure::hypervolume_lebmeasure(lebmeasure_points &point_set, const fi
 	return hypervolume;
 }
 
-/// Hypervolume Dominated
+/// Determinines whether given point p is strictly dominated by any point from given set of points.
 /**
- * Determinines whether given point p is strictly dominated by any point from given set of points.
- *
  * @param[in] p fitness vector describing given point in space
  * @param[in] point_set set of pairs <point, spawn_dimension>, p is compared against for strict dominance
  *
@@ -77,14 +73,12 @@ bool lebmeasure::dominated(const fitness_vector &p, lebmeasure_points &point_set
 	return false;
 }
 
-/// Generate Spawns
+/// Generates "spawn" points for given set of points.
 /**
- * Generates "spawn" points for given set of point.
- *
  * @param[in] p fitness vector describing given point in fitness space, from which spawn points are generated
  * @param[in] z number of dimensions to consider
- * @param[in] a point opposite to p (see function hv_get_opposite_point below)
- * @param[in] point_set set of pairs <point, spawn_dimension> forcing some restrictions on final spawned set
+ * @param[in] a point opposite to p (see method "get_opposite_point")
+ * @param[in] point_set set of pairs (point, spawn_dimension) forcing some restrictions on final spawned point set
  * @param[in] r reference point for hypervolume
  *
  * @return vector of points spawned from p along with the dimensions that spawned given point.
@@ -103,10 +97,9 @@ lebmeasure_points lebmeasure::generate_spawns(const fitness_vector &p, const fit
 	return ql;
 }
 
-/// Volume Between
+/// Compute volume between two points
 /**
  * Calculates the volume between points a and b (as defined for n-dimensional Euclidian spaces).
- * Part of LebMeasure algorithm.
  *
  * @param[in] a first point defining the hypercube
  * @param[in] b second point defining the hypercube
@@ -124,11 +117,10 @@ double lebmeasure::volume_between(const fitness_vector &a, const fitness_vector 
 	return (volume < 0 ? -volume : volume);
 }
 
-/// Get Opposite point
+/// Get point opposite to p
 /**
  * Generates the point opposite to p, restricted to points from the point_set.
- * It tries to find the point that is closest to original point p, generated (by each dimension) from the points in the point_set.
- * Part of LebMeasure algorithm.
+ * It tries to find the point that is closest to original point p, restricted (by each dimension) by the points in the point_set.
  *
  * @param[in] p point for which the opposite point is generated
  * @param[in] point_set set of points forcing restrictions on how "far" the opposite point can be
@@ -140,17 +132,15 @@ fitness_vector lebmeasure::get_opposite_point(const fitness_vector &p, lebmeasur
 {
 	fitness_vector a(p.size());
 	for (fitness_vector::size_type idx_dim = 0 ; idx_dim < p.size() ; ++idx_dim) {
-		double next_smaller = r[idx_dim];
+		double next_closer = r[idx_dim];
 		for(lebmeasure_points::iterator it = point_set.begin() ; it != point_set.end() ; ++it) {
-			if ( (*it).first[idx_dim] > p[idx_dim] && (*it).first[idx_dim] < next_smaller) {
-				next_smaller = (*it).first[idx_dim];
+			if ( (*it).first[idx_dim] > p[idx_dim] && (*it).first[idx_dim] < next_closer) {
+				next_closer = (*it).first[idx_dim];
 			}
 		}
-		a[idx_dim] = next_smaller;
+		a[idx_dim] = next_closer;
 	}
 	return a;
 }
-
-
 
 }}

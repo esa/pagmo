@@ -39,7 +39,6 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, double ep
 	int OK_counter=0;
 	for(int t=0 ; t < T ; ++t) {
 		input >> dim >> s;
-		//std::deque<std::pair<fitness_vector, fitness_vector::size_type> > ps(s, std::make_pair(fitness_vector(dim, 0.0), dim));
 		std::vector<fitness_vector> ps(s, fitness_vector(dim, 0.0));
 		fitness_vector r(dim, 0.0);
 		for(int d = 0 ; d < dim ; ++d) {
@@ -47,12 +46,11 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, double ep
 		}
 		for(int i = 0 ; i < s ; ++i) {
 			for(int d = 0 ; d < dim ; ++d) {
-				//input >> ps[i].first[d];
 				input >> ps[i][d];
 			}
 		}
 		input >> ans;
-		double hypvol = pagmo::util::hypervolumes::hypervolume_lebmeasure(ps, r);
+		double hypvol = pagmo::util::hypervolumes::lebmeasure(ps, r);
 		if (fabs(hypvol-ans) < eps)
 		{
 			++OK_counter;

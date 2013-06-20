@@ -40,13 +40,13 @@ namespace pagmo { namespace util {
 
 /// hypervolumes class.
 /**
- * This class contains all procedures that are later accessed by population class when computing hypervolumes
+ * This class contains all procedures that are later accessed by population class when computing hypervolumes using various methods
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
 class hypervolumes
 {
 	public:
-		static double hypervolume_lebmeasure(const std::vector<fitness_vector> &, const fitness_vector &);
+		static double lebmeasure(const std::vector<fitness_vector> &, const fitness_vector &);
 };
 
 } }
