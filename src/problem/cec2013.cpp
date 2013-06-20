@@ -72,7 +72,7 @@ cec2013::cec2013(unsigned int fun_id, problem::base::size_type d, const std::str
 	{
 	std::ifstream data_file(data_file_name.c_str());
 	if (!data_file.is_open()) {
-		pagmo_throw(io_error, std::string("Error: file not found. I was looking for ").append(data_file_name.c_str()));
+		pagmo_throw(io_error, std::string("Error: file not found. I was looking for (") + data_file_name.c_str() + ")");
 	}
 	std::istream_iterator<double> start(data_file), end;
 	m_rotation_matrix = std::vector<double>(start,end);
