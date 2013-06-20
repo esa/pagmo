@@ -27,7 +27,6 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
-#include "base.h"
 #include "zdt5.h"
 
 namespace pagmo { namespace problem {
@@ -39,15 +38,15 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-zdt5::zdt5(int bnr):base(30 + 5 * (bnr-1),30 + 5 * (bnr-1),2)
+zdt5::zdt5(int bnr):base_unc_mo(30 + 5 * (bnr-1),30 + 5 * (bnr-1),2)
 {
 	// Set bounds.
 	set_lb(0);
 	set_ub(1);
-     
-        if (bnr <= 0) {
-                pagmo_throw(value_error,"invalid dimension(s)");
-        }
+
+		if (bnr <= 0) {
+				pagmo_throw(value_error,"invalid dimension(s)");
+		}
 
 }
 
@@ -58,66 +57,47 @@ base_ptr zdt5::clone() const
 }
 
 
-// Gives a convergence metric for the population (0 = converged to the optimal front)
-double zdt5::p_distance(const pagmo::population &pop) const
+/// Convergence metric for a decision_vector (0 = converged to the optimal front)
+double zdt5::convergence_metric(const decision_vector &x) const
 {
-    double c = 0.0;
-    double g = 0.0;
-    int j, k;
-    decision_vector x;
-    x = pop.get_individual(0).cur_x;
-    problem::base::size_type size_x = x.size();
-    problem::base::size_type n_vectors = ((size_x-30)/5)  +  1;
-    std::vector<int> u(n_vectors);
-    std::vector<int> v(n_vectors);
-    
+	double c = 0.0;
+	double g = 0.0;
+	int k = 30;
 
-  
-    for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
-        x = pop.get_individual(i).cur_x;
-	g = 0.0;
-        k = 30;
-              
-        for (problem::base::size_type i=0; i<n_vectors; i++)
-        {
-           u[i] = 0;
-        }
-      
-        for (problem::base::size_type i=1; i<n_vectors; i++)
-        {
-           for (j=0; j<5; j++)
-           {
-             if (x[k] == 1)
-             {
-                 u[i]++;
-             }
-             k++;
-           }
-         }
+	problem::base::size_type n_vectors = ((x.size()-30)/5)  +  1;
+	std::vector<int> u(n_vectors,0);
+	std::vector<int> v(n_vectors);
 
-        for (problem::base::size_type i=1; i<n_vectors; i++)
-        {
-           if (u[i] < 5)
-           {
-              v[i] = 2 + u[i];
-           }
-           else
-           {
-              v[i] = 1;
-           }
-        }
-        g = 0;
-        for (problem::base::size_type i=1; i<n_vectors; i++)
-        {
-           g += v[i];
-        }
+	for (problem::base::size_type i=1; i<n_vectors; i++)
+	{
+		for (int j=0; j<5; j++)
+		{
+			if (x[k] == 1)
+			{
+				 u[i]++;
+			}
+			k++;
+		}
+	}
 
-         
-        c +=  g;
-    }
+	for (problem::base::size_type i=1; i<n_vectors; i++)
+	{
+		if (u[i] < 5)
+		{
+			v[i] = 2 + u[i];
+		}
+		else
+		{
+			v[i] = 1;
+		}
+	}
 
-    return (c / pop.size()) - n_vectors + 1;
-
+	for (problem::base::size_type i=1; i<n_vectors; i++)
+	{
+		g += v[i];
+	}
+	c +=  g;
+	return c - n_vectors + 1;
 }
 
 
@@ -125,58 +105,58 @@ double zdt5::p_distance(const pagmo::population &pop) const
 void zdt5::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 2);
-        pagmo_assert(x.size() == get_dimension());                   
- 	double g = 0;
-        problem::base::size_type size_x = x.size();
-        problem::base::size_type n_vectors = ((size_x-30)/5)  +  1;         
-        int j, k = 30;
-        std::vector<int> u(n_vectors);
-        std::vector<int> v(n_vectors);
-    
+		pagmo_assert(x.size() == get_dimension());
+	double g = 0;
+		problem::base::size_type size_x = x.size();
+		problem::base::size_type n_vectors = ((size_x-30)/5)  +  1;
+		int j, k = 30;
+		std::vector<int> u(n_vectors);
+		std::vector<int> v(n_vectors);
 
-        for (problem::base::size_type i=0; i<n_vectors; i++)
-        {
-           u[i] = 0;
-        }
-        for (j=0; j<30; j++)
-        {
-          if (x[j] == 1)
-          {
-             u[0]++;
-          }
-        }
-        for (problem::base::size_type i=1; i<n_vectors; i++)
-        {
-          for (j=0; j<5; j++)
-          { 
-            if (x[k] == 1)
-            {
-                u[i]++;              
-            }
-            k++;
-          }
-        }
-        f[0] = 1.0 + u[0];
-        for (problem::base::size_type i=1; i<n_vectors; i++)
-        {
-           if (u[i] < 5)
-           {
-              v[i] = 2 + u[i];
-           }
-           else
-           {
-              v[i] = 1;
-           }
-        }
-        g = 0;
-        for (problem::base::size_type i=1; i<n_vectors; i++)
-        {
-           g += v[i];
-        }
-       
-        f[1] = g * (1.0/f[0]);
-    
- 
+
+		for (problem::base::size_type i=0; i<n_vectors; i++)
+		{
+		   u[i] = 0;
+		}
+		for (j=0; j<30; j++)
+		{
+		  if (x[j] == 1)
+		  {
+			 u[0]++;
+		  }
+		}
+		for (problem::base::size_type i=1; i<n_vectors; i++)
+		{
+		  for (j=0; j<5; j++)
+		  {
+			if (x[k] == 1)
+			{
+				u[i]++;
+			}
+			k++;
+		  }
+		}
+		f[0] = 1.0 + u[0];
+		for (problem::base::size_type i=1; i<n_vectors; i++)
+		{
+		   if (u[i] < 5)
+		   {
+			  v[i] = 2 + u[i];
+		   }
+		   else
+		   {
+			  v[i] = 1;
+		   }
+		}
+		g = 0;
+		for (problem::base::size_type i=1; i<n_vectors; i++)
+		{
+		   g += v[i];
+		}
+
+		f[1] = g * (1.0/f[0]);
+
+
 }
 
 std::string zdt5::get_name() const

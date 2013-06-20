@@ -27,7 +27,6 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
-#include "base.h"
 #include "zdt2.h"
 
 namespace pagmo { namespace problem {
@@ -39,7 +38,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-zdt2::zdt2(size_type dim):base(dim,0,2)
+zdt2::zdt2(size_type dim):base_unc_mo(dim,0,2)
 {
 	// Set bounds.
 	set_lb(0.0);
@@ -52,25 +51,17 @@ base_ptr zdt2::clone() const
 	return base_ptr(new zdt2(*this));
 }
 
-
-/// Gives a convergence metric for the population (0 = converged to the optimal front)
-double zdt2::p_distance(const pagmo::population &pop) const
+/// Convergence metric for a decision_vector (0 = converged to the optimal front)
+double zdt2::convergence_metric(const decision_vector &x) const
 {
-    double c = 0.0;
-    double g = 0.0;
+	double c = 0.0;
+	double g = 0.0;
 
-    decision_vector x;
-
-    for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
-        x = pop.get_individual(i).cur_x;
-		g = 0.0;
-        for(problem::base::size_type j = 1; j < x.size(); ++j) {
-            g += x[j];
-        }
-        c += 1 + (9 * g) / (x.size()-1);
-    }
-
-    return (c / pop.size()) - 1;
+	for(problem::base::size_type j = 1; j < x.size(); ++j) {
+		g += x[j];
+	}
+	c += 1 + (9 * g) / (x.size()-1);
+	return c - 1;
 }
 
 /// Implementation of the objective function.

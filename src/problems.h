@@ -28,6 +28,10 @@
 // Header including all problems implemented in PaGMO.
 
 #include "problem/base.h"
+#include "problem/base_aco.h"
+#include "problem/base_stochastic.h"
+#include "problem/base_dtlz.h"
+#include "problem/base_unc_mo.h"
 #include "problem/branin.h"
 #include "problem/dtlz1.h"
 #include "problem/dtlz2.h"
@@ -54,9 +58,6 @@
 #include "problem/inventory.h"
 #include "problem/michalewicz.h"
 #include "problem/dejong.h"
-#include "problem/base_aco.h"
-#include "problem/base_stochastic.h"
-#include "problem/base_dtlz.h"
 #include "problem/tsp.h"
 #include "problem/knapsack.h"
 #include "problem/sch.h"
