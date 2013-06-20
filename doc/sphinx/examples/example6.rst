@@ -54,11 +54,12 @@ function evaluations (100000), we set up CMA-ES differently (i.e. we use a large
 	algo = algorithm.cmaes(1000,xtol=1e-9,ftol=1e-9)
 	D = 10
 	error = []
-	for i in range(28):
-		prob = problem.cec2013(dim=D, prob_id=i+1,path=dir)
-		pop = population(prob,100)
-		pop = algo.evolve(pop)
-		error.append(pop.champion.f[0] + 1400 - 100*i - 100*(i>13))
+	for j in range(25):
+		for i in range(28):
+			prob = problem.cec2013(dim=D, prob_id=i+1,path=dir)
+			pop = population(prob,100)
+			pop = algo.evolve(pop)
+			error.append(pop.champion.f[0] + 1400 - 100*i - 100*(i>13))
 	boxplot([error[s::28] for s in range(28)])
 
 Which produces the plot below.
