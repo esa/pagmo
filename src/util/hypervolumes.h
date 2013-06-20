@@ -34,6 +34,7 @@
 #include "../pagmo.h"
 
 #include "lebmeasure.h"
+#include "optimal2d.h"
 
 namespace pagmo { namespace util {
 
@@ -47,6 +48,7 @@ class hypervolumes
 {
 	public:
 		static double lebmeasure(const std::vector<fitness_vector> &, const fitness_vector &);
+		static double optimal2d(const std::vector<fitness_vector> &, const fitness_vector &);
 };
 
 } }

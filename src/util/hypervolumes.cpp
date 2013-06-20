@@ -43,7 +43,7 @@ double hypervolumes::lebmeasure(const std::vector<fitness_vector> &points, const
 		pagmo_throw(value_error, "Point set cannot be empty.");
 	}
 	if ( r.size() < 3 ) {
-		pagmo_throw(value_error, "Hypervolume of dimension lesser than 3 is not allowed for this method");
+		pagmo_throw(value_error, "Hypervolume of dimension lesser than 3 is not allowed for this method, use ptimal 2D instead");
 	}
 	for (std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		if ( points[idx].size() != r.size() ) {
@@ -59,6 +59,10 @@ double hypervolumes::lebmeasure(const std::vector<fitness_vector> &points, const
 		point_set.push_back(std::make_pair(points[idx], f_dim));
 	}
 	return lebmeasure::compute_hypervolume(point_set, r);
+}
+
+double hypervolumes::optimal2d(const std::vector<fitness_vector> & points, const fitness_vector & r) {
+	return optimal2d::compute_hypervolume(points, r);
 }
 
 }}

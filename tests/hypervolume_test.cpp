@@ -31,7 +31,7 @@
 
 using namespace pagmo;
 
-int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, double eps)
+int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::string &method_name, double eps)
 {
 	int T, dim, s;
 	double ans;
@@ -50,7 +50,17 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, double ep
 			}
 		}
 		input >> ans;
-		double hypvol = pagmo::util::hypervolumes::lebmeasure(ps, r);
+
+		double hypvol;
+		if (method_name == "lebmeasure") {
+			hypvol = pagmo::util::hypervolumes::lebmeasure(ps, r);
+		} else if (method_name == "optimal2d") {
+			hypvol = pagmo::util::hypervolumes::optimal2d(ps, r);
+		} else {
+			output << "Unknown method (" << method_name << ") .. exiting";
+			exit(1);
+		}
+
 		if (fabs(hypvol-ans) < eps)
 		{
 			++OK_counter;
@@ -79,14 +89,16 @@ if (ifs.is_open()) {
 		if (line == "" || line[0] == '#')
 			continue;
 		std::stringstream ss (line);
+		std::string method_name;
 		std::string test_name;
 		double eps;
+		ss >> method_name;
 		ss >> test_name;
 		ss >> eps;
 		std::ifstream input((input_data_testcases_dir + test_name).c_str());
 		if (input.is_open()){
 			output << "Test " << test_name << " (eps:" << eps << "): ";
-			test_result |= run_hypervolume_tests(input, output, eps);
+			test_result |= run_hypervolume_tests(input, output, method_name, eps);
 			input.close();
 		}
 		else {
