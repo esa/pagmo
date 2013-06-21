@@ -22,47 +22,40 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "hypervolumes.h"
+#include "optimal2d.h"
 
 namespace pagmo { namespace util {
 
-/// Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
+/// Computes hypervolume indicator for given pareto set using the optimal 2D algorithm.
 /**
- * @see L. While, "A new analysis of the LebMeasure Algorithm for Calculating Hypervolume"
+ * This method should be used both as a solution to 2D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
+ *
+ * Computational complexity: n*log(n)
  *
  * @param[in] r reference point of the hypervolume
- * @param[in] point_set points describing the hypervolume
- *
- * @throws value_error if sizes of reference point and pareto set do not match, when the pareto set is empty and when the dimension is lesser than 3
+ * @param[in] vector of points containing the pareto set
  *
  * @return hypervolume of the pareto set.
  */
-double hypervolumes::lebmeasure(const std::vector<fitness_vector> &points, const fitness_vector &r)
+double optimal2d::compute_hypervolume(std::vector<fitness_vector> points, const fitness_vector &r)
 {
-	if ( points.size() == 0 ) {
-		pagmo_throw(value_error, "Point set cannot be empty.");
+	if (r.size() != 2) {
+		pagmo_throw(value_error, "Optimal 2D hypervolume method works only for 2-dimensional cases.");
 	}
-	if ( r.size() < 3 ) {
-		pagmo_throw(value_error, "Hypervolume of dimension lesser than 3 is not allowed for this method, use optimal 2D instead");
+	sort(points.begin(), points.end(), compare_fitness);
+	double hypervolume = 0.0;
+	for( std::vector<fitness_vector>::size_type idx = 0; idx < points.size() - 1 ; ++idx) {
+		double area = (points[idx][0] - points[idx+1][0]) * (points[idx][1] - r[1]);
+		hypervolume += fabs(area);
 	}
-	for (std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
-		if ( points[idx].size() != r.size() ) {
-			pagmo_throw(value_error, "Point set dimensions and reference point dimension must be equal.");
-		}
-	}
+	fitness_vector &last = points.back();
+	hypervolume += fabs((r[0] - last[0]) * (r[1] - last[1]));
 
-	fitness_vector::size_type f_dim = points[0].size();
-
-	//prepare the original points (lebmeasure requires to track the the spawn dimension corresponding to each of the points)
-	lebmeasure_points point_set;
-	for (population::size_type idx = 0 ; idx < points.size() ; ++idx) {
-		point_set.push_back(std::make_pair(points[idx], f_dim));
-	}
-	return lebmeasure::compute_hypervolume(point_set, r);
+	return hypervolume;
 }
 
-double hypervolumes::optimal2d(const std::vector<fitness_vector> & points, const fitness_vector & r) {
-	return optimal2d::compute_hypervolume(points, r);
+inline bool compare_fitness(const fitness_vector &a, const fitness_vector &b) {
+	return a[0] < b[0];
 }
 
 }}
