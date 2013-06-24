@@ -54,9 +54,9 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::stri
 		double hypvol;
 		pagmo::util::hypervolume hv_obj = pagmo::util::hypervolume(ps);
 		if (method_name == "lebmeasure") {
-			hypvol = hv_obj.compute(r, pagmo::util::hv_lebmeasure);
+			hypvol = hv_obj.compute(r, pagmo::util::hypervolume::hv_lebmeasure);
 		} else if (method_name == "optimal2d") {
-			hypvol = hv_obj.compute(r, pagmo::util::hv_optimal2d);
+			hypvol = hv_obj.compute(r, pagmo::util::hypervolume::hv_optimal2d);
 		} else {
 			output << "Unknown method (" << method_name << ") .. exiting";
 			exit(1);

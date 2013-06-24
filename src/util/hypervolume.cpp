@@ -35,13 +35,13 @@ namespace pagmo { namespace util {
 
 hv_method_prototype hypervolume::hv_methods[] = { lebmeasure::compute, optimal2d::compute };
 
-hypervolume::hypervolume(const population & pop) : pop(&pop) {
-	this->f_dim = this->pop->problem().get_f_dimension();
-	std::vector<std::vector<population::size_type> > pareto_fronts = this->pop->compute_pareto_fronts();
-	this->points.resize(pareto_fronts[0].size());
+hypervolume::hypervolume(const population & pop) : m_pop(&pop) {
+	this->m_f_dim = this->m_pop->problem().get_f_dimension();
+	std::vector<std::vector<population::size_type> > pareto_fronts = this->m_pop->compute_pareto_fronts();
+	this->m_points.resize(pareto_fronts[0].size());
 	std::deque<std::pair<fitness_vector, fitness_vector::size_type> > point_set;
 	for (population::size_type idx = 0 ; idx < pareto_fronts[0].size() ; ++idx) {
-		this->points[idx] = fitness_vector(this->pop->get_individual(pareto_fronts[0][idx]).cur_f);
+		this->m_points[idx] = fitness_vector(this->m_pop->get_individual(pareto_fronts[0][idx]).cur_f);
 	}
 
 	verify_after_construct();
@@ -54,8 +54,8 @@ hypervolume::hypervolume(const population & pop) : pop(&pop) {
  * @params[in] 
  *
  */
-hypervolume::hypervolume(const std::vector<fitness_vector> & points) : pop(NULL), points(points) {
-	this->f_dim = points[0].size();
+hypervolume::hypervolume(const std::vector<fitness_vector> & points) : m_pop(NULL), m_points(points) {
+	this->m_f_dim = m_points[0].size();
 
 	verify_after_construct();
 }
@@ -67,12 +67,12 @@ hypervolume::hypervolume(const std::vector<fitness_vector> & points) : pop(NULL)
  * @throws value_error if point size is empty or when the dimensions among the points differ
  */
 void hypervolume::verify_after_construct() {
-	if ( this->points.size() == 0 ) {
+	if ( this->m_points.size() == 0 ) {
 		pagmo_throw(value_error, "Point set cannot be empty.");
 	}
-	fitness_vector::size_type reference_size = this->points[0].size();
-	for (std::vector<fitness_vector>::size_type idx = 1 ; idx < this->points.size() ; ++idx) {
-		if ( this->points[idx].size() != reference_size ) {
+	fitness_vector::size_type reference_size = this->m_points[0].size();
+	for (std::vector<fitness_vector>::size_type idx = 1 ; idx < this->m_points.size() ; ++idx) {
+		if ( this->m_points[idx].size() != reference_size ) {
 			pagmo_throw(value_error, "All point set dimensions must be equal.");
 		}
 	}
@@ -87,8 +87,8 @@ void hypervolume::verify_after_construct() {
  *
  * @throws value_error if reference_point's and point set dimension do not agree
  */
-void hypervolume::verify_before_compute(const fitness_vector & reference_point, const hv_method method) {
-	if ( this->points[0].size() != reference_point.size() ) {
+void hypervolume::verify_before_compute(const fitness_vector & reference_point, const hv_method & method) {
+	if ( this->m_points[0].size() != reference_point.size() ) {
 		pagmo_throw(value_error, "Point set dimensions and reference_point dimension must be equal.");
 	}
 }
@@ -102,9 +102,9 @@ void hypervolume::verify_before_compute(const fitness_vector & reference_point, 
  *
  * @return hypervolume indicator
  */
-double hypervolume::compute(const fitness_vector & reference_point, const hv_method method) {
+double hypervolume::compute(const fitness_vector & reference_point, const hv_method & method) {
 	this->verify_before_compute(reference_point, method);
-	return hypervolume::hv_methods[method](this->points, reference_point);
+	return hypervolume::hv_methods[method](this->m_points, reference_point);
 }
 
 }}

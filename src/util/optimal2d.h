@@ -36,21 +36,49 @@
 
 namespace pagmo { namespace util {
 
-// optimal2d class.
+// optimal2d namespace.
 /**
- * This is the class containing implementation of the optimal 2D algorithm for computing hypervolume.
+ * This is the namespace containing implementation of the optimal 2D algorithm for computing hypervolume.
  * This method achieves the lower bound of n*log(n) time.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class optimal2d
+namespace optimal2d { 
+
+inline bool compare_fitness(const fitness_vector &a, const fitness_vector &b) {
+	return a[0] < b[0];
+}
+
+// Computes hypervolume indicator for given pareto set using the optimal 2D algorithm.
+/**
+ * This method should be used both as a solution to 2D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
+ *
+ * Computational complexity: n*log(n)
+ *
+ * @param[in] reference_point reference point of the hypervolume
+ * @param[in] vector of points containing the pareto set
+ *
+ * @return hypervolume of the pareto set.
+ * @throws value_error when trying to compute the hypervolume for the dimension other than 2
+ */
+inline double compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point)
 {
-	public:
-		static double compute(const std::vector<fitness_vector> &, const fitness_vector &);
-};
+	if (reference_point.size() != 2) {
+		pagmo_throw(value_error, "optimal2d method method works only for 2-dimensional cases.");
+	}
+	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
+	sort(points_cpy.begin(), points_cpy.end(), compare_fitness);
+	double hypervolume = 0.0;
+	for(std::vector<fitness_vector>::size_type idx = 0; idx < points_cpy.size() - 1 ; ++idx) {
+		double area = (points_cpy[idx][0] - points_cpy[idx+1][0]) * (points_cpy[idx][1] - reference_point[1]);
+		hypervolume += fabs(area);
+	}
+	fitness_vector &last = points_cpy.back();
+	hypervolume += fabs((reference_point[0] - last[0]) * (reference_point[1] - last[1]));
 
-bool compare_fitness(const fitness_vector &, const fitness_vector &);
+	return hypervolume;
+}
 
-}}
+} } }
 
 #endif

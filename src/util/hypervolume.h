@@ -38,9 +38,9 @@
 
 namespace pagmo { namespace util {
 
-enum hv_method { hv_lebmeasure = 0, hv_optimal2d = 1};
  
 typedef double (*hv_method_prototype)(const std::vector<fitness_vector> &, const fitness_vector &);
+typedef int hv_method;
 
 /// hypervolume class.
 /**
@@ -52,18 +52,17 @@ class hypervolume
 	public:
 		hypervolume(const population &);
 		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &reference_point, const hv_method);
-		static double lebmeasure(const std::vector<fitness_vector> &, const fitness_vector &);
-		static double optimal2d(const std::vector<fitness_vector> &, const fitness_vector &);
+		double compute(const fitness_vector &, const hv_method &);
+		enum { hv_lebmeasure = 0, hv_optimal2d = 1};
+		static hv_method_prototype hv_methods[];
+
 	private:
 
 		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, const hv_method);
-
-		static hv_method_prototype hv_methods[];
-		const population *pop;
-		std::vector<fitness_vector> points;
-		fitness_vector::size_type f_dim;
+		void verify_before_compute(const fitness_vector &, const hv_method &);
+		const population *m_pop;
+		std::vector<fitness_vector> m_points;
+		fitness_vector::size_type m_f_dim;
 };
 
 } }
