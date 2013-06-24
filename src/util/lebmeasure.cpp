@@ -26,30 +26,42 @@
 
 namespace pagmo { namespace util {
 
-/// Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
+// Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
 /**
+ * @see L. While, "A new analysis of the LebMeasure Algorithm for Calculating Hypervolume"
+ *
  * @param[in] r reference point of the hypervolume
- * @param[in] point_set set of pairs <point, spawn_dimension> - each point is supplemented with it's spawn dimension
+ * @param[in] point_set points describing the hypervolume
+ *
+ * @throws value_error if sizes of reference point and pareto set do not match, when the pareto set is empty and when the dimension is lesser than 3
  *
  * @return hypervolume of the pareto set.
  */
-double lebmeasure::compute_hypervolume(lebmeasure_points &point_set, const fitness_vector &r)
-{
+double lebmeasure::compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point) {
+	if (reference_point.size() < 3) {
+		pagmo_throw(value_error, "Hypervolume of dimension lesser than 3 is not allowed for this method, use optimal 2D instead");
+	}
+	lebmeasure_points point_set;
+	fitness_vector::size_type f_dim = points[0].size();
+	for (population::size_type idx = 0 ; idx < points.size() ; ++idx) {
+		point_set.push_back(std::make_pair(points[idx], f_dim));
+	}
+
 	double hypervolume = 0.0;
 	while(point_set.size() > 0) {
 		std::pair<fitness_vector, fitness_vector::size_type> head = point_set.front();
 		fitness_vector p = head.first;
 		fitness_vector::size_type z = head.second;
 		point_set.pop_front();
-		fitness_vector a = get_opposite_point(p, point_set, r);
+		fitness_vector a = get_opposite_point(p, point_set, reference_point);
 		hypervolume += volume_between(p, a);
-		lebmeasure_points ql = generate_spawns(p, z, a, point_set, r);
+		lebmeasure_points ql = generate_spawns(p, z, a, point_set, reference_point);
 		point_set.insert(point_set.end(), ql.begin(), ql.end());
 	}
 	return hypervolume;
 }
 
-/// Determinines whether given point p is strictly dominated by any point from given set of points.
+// Determinines whether given point p is strictly dominated by any point from given set of points.
 /**
  * @param[in] p fitness vector describing given point in space
  * @param[in] point_set set of pairs <point, spawn_dimension>, p is compared against for strict dominance
@@ -73,21 +85,21 @@ bool lebmeasure::dominated(const fitness_vector &p, lebmeasure_points &point_set
 	return false;
 }
 
-/// Generates "spawn" points for given set of points.
+// Generates "spawn" points for given set of points.
 /**
  * @param[in] p fitness vector describing given point in fitness space, from which spawn points are generated
  * @param[in] z number of dimensions to consider
  * @param[in] a point opposite to p (see method "get_opposite_point")
  * @param[in] point_set set of pairs (point, spawn_dimension) forcing some restrictions on final spawned point set
- * @param[in] r reference point for hypervolume
+ * @param[in] reference_point reference point for hypervolume
  *
  * @return vector of points spawned from p along with the dimensions that spawned given point.
  */
-lebmeasure_points lebmeasure::generate_spawns(const fitness_vector &p, const fitness_vector::size_type z, const fitness_vector &a, lebmeasure_points &point_set, const fitness_vector &r)
+lebmeasure_points lebmeasure::generate_spawns(const fitness_vector &p, const fitness_vector::size_type z, const fitness_vector &a, lebmeasure_points &point_set, const fitness_vector &reference_point)
 {
 	lebmeasure_points ql; //pair here
 	for (fitness_vector::size_type idx_dim = 0 ; idx_dim < z ; ++idx_dim) {
-		if (a[idx_dim] != r[idx_dim]) {
+		if (a[idx_dim] != reference_point[idx_dim]) {
 			fitness_vector q = fitness_vector(p.begin(), p.end());
 			q[idx_dim] = a[idx_dim];
 			if (!dominated(q, point_set))
@@ -97,7 +109,7 @@ lebmeasure_points lebmeasure::generate_spawns(const fitness_vector &p, const fit
 	return ql;
 }
 
-/// Compute volume between two points
+// Compute volume between two points
 /**
  * Calculates the volume between points a and b (as defined for n-dimensional Euclidian spaces).
  *
@@ -117,22 +129,22 @@ double lebmeasure::volume_between(const fitness_vector &a, const fitness_vector 
 	return (volume < 0 ? -volume : volume);
 }
 
-/// Get point opposite to p
+// Get point opposite to p
 /**
  * Generates the point opposite to p, restricted to points from the point_set.
  * It tries to find the point that is closest to original point p, restricted (by each dimension) by the points in the point_set.
  *
  * @param[in] p point for which the opposite point is generated
  * @param[in] point_set set of points forcing restrictions on how "far" the opposite point can be
- * @param[in] r reference point of the hypervolume
+ * @param[in] reference_point reference point of the hypervolume
  *
  * @return point opposite to point p
  */
-fitness_vector lebmeasure::get_opposite_point(const fitness_vector &p, lebmeasure_points &point_set, const fitness_vector &r)
+fitness_vector lebmeasure::get_opposite_point(const fitness_vector &p, lebmeasure_points &point_set, const fitness_vector &reference_point)
 {
 	fitness_vector a(p.size());
 	for (fitness_vector::size_type idx_dim = 0 ; idx_dim < p.size() ; ++idx_dim) {
-		double next_closer = r[idx_dim];
+		double next_closer = reference_point[idx_dim];
 		for(lebmeasure_points::iterator it = point_set.begin() ; it != point_set.end() ; ++it) {
 			if ( (*it).first[idx_dim] > p[idx_dim] && (*it).first[idx_dim] < next_closer) {
 				next_closer = (*it).first[idx_dim];

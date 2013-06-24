@@ -54,10 +54,10 @@ typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmea
 class lebmeasure
 {
 	public:
-		static double compute_hypervolume(lebmeasure_points &, const fitness_vector &);
+		static double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 
 	private:
-		/// Methods below are used by LebMeasure algorithm (compute_hypervolume)
+		/// Methods below are used by the LebMeasure algorithm
 		static lebmeasure_points generate_spawns(const fitness_vector &, const fitness_vector::size_type, const fitness_vector &, lebmeasure_points &, const fitness_vector &);
 		static bool dominated(const fitness_vector &, lebmeasure_points &);
 		static double volume_between(const fitness_vector &, const fitness_vector &);

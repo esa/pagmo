@@ -36,22 +36,20 @@
 
 namespace pagmo { namespace util {
 
-/// optimal2d class.
+// optimal2d class.
 /**
  * This is the class containing implementation of the optimal 2D algorithm for computing hypervolume.
- * The general idea is to sort the points by one dimension, and compute the partial volumes linearly.
+ * This method achieves the lower bound of n*log(n) time.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
 class optimal2d
 {
 	public:
-		static double compute_hypervolume(std::vector<fitness_vector>, const fitness_vector &);
-	
+		static double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 };
 
 bool compare_fitness(const fitness_vector &, const fitness_vector &);
-
 
 }}
 

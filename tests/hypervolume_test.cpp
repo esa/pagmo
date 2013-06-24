@@ -27,7 +27,7 @@
 #include <sstream>
 #include <string>
 #include "../src/pagmo.h"
-#include "../src/util/hypervolumes.h"
+#include "../src/util/hypervolume.h"
 
 using namespace pagmo;
 
@@ -52,10 +52,11 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::stri
 		input >> ans;
 
 		double hypvol;
+		pagmo::util::hypervolume hv_obj = pagmo::util::hypervolume(ps);
 		if (method_name == "lebmeasure") {
-			hypvol = pagmo::util::hypervolumes::lebmeasure(ps, r);
+			hypvol = hv_obj.compute(r, pagmo::util::hv_lebmeasure);
 		} else if (method_name == "optimal2d") {
-			hypvol = pagmo::util::hypervolumes::optimal2d(ps, r);
+			hypvol = hv_obj.compute(r, pagmo::util::hv_optimal2d);
 		} else {
 			output << "Unknown method (" << method_name << ") .. exiting";
 			exit(1);

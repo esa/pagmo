@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HYPERVOLUMES_H
-#define PAGMO_UTIL_HYPERVOLUMES_H
+#ifndef PAGMO_UTIL_HYPERVOLUME_H
+#define PAGMO_UTIL_HYPERVOLUME_H
 
 #include <iostream>
 #include <string>
@@ -38,17 +38,32 @@
 
 namespace pagmo { namespace util {
 
+enum hv_method { hv_lebmeasure = 0, hv_optimal2d = 1};
+ 
+typedef double (*hv_method_prototype)(const std::vector<fitness_vector> &, const fitness_vector &);
 
-/// hypervolumes class.
+/// hypervolume class.
 /**
- * This class contains all procedures that are later accessed by population class when computing hypervolumes using various methods
+ * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class hypervolumes
+class hypervolume
 {
 	public:
+		hypervolume(const population &);
+		hypervolume(const std::vector<fitness_vector> &);
+		double compute(const fitness_vector &reference_point, const hv_method);
 		static double lebmeasure(const std::vector<fitness_vector> &, const fitness_vector &);
 		static double optimal2d(const std::vector<fitness_vector> &, const fitness_vector &);
+	private:
+
+		void verify_after_construct();
+		void verify_before_compute(const fitness_vector &, const hv_method);
+
+		static hv_method_prototype hv_methods[];
+		const population *pop;
+		std::vector<fitness_vector> points;
+		fitness_vector::size_type f_dim;
 };
 
 } }

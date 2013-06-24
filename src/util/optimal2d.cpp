@@ -32,24 +32,25 @@ namespace pagmo { namespace util {
  *
  * Computational complexity: n*log(n)
  *
- * @param[in] r reference point of the hypervolume
+ * @param[in] reference_point reference point of the hypervolume
  * @param[in] vector of points containing the pareto set
  *
  * @return hypervolume of the pareto set.
  */
-double optimal2d::compute_hypervolume(std::vector<fitness_vector> points, const fitness_vector &r)
+double optimal2d::compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point)
 {
-	if (r.size() != 2) {
+	if (reference_point.size() != 2) {
 		pagmo_throw(value_error, "Optimal 2D hypervolume method works only for 2-dimensional cases.");
 	}
-	sort(points.begin(), points.end(), compare_fitness);
+	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
+	sort(points_cpy.begin(), points_cpy.end(), compare_fitness);
 	double hypervolume = 0.0;
-	for( std::vector<fitness_vector>::size_type idx = 0; idx < points.size() - 1 ; ++idx) {
-		double area = (points[idx][0] - points[idx+1][0]) * (points[idx][1] - r[1]);
+	for( std::vector<fitness_vector>::size_type idx = 0; idx < points_cpy.size() - 1 ; ++idx) {
+		double area = (points_cpy[idx][0] - points_cpy[idx+1][0]) * (points_cpy[idx][1] - reference_point[1]);
 		hypervolume += fabs(area);
 	}
-	fitness_vector &last = points.back();
-	hypervolume += fabs((r[0] - last[0]) * (r[1] - last[1]));
+	fitness_vector &last = points_cpy.back();
+	hypervolume += fabs((reference_point[0] - last[0]) * (reference_point[1] - last[1]));
 
 	return hypervolume;
 }
