@@ -9,13 +9,19 @@
 namespace pagmo{ namespace util{
 	
 namespace racing{
-/** --- Rank assignment (before every racing iteration) ---
+
+/// Friedman rank assignment (before every racing iteration)
+/**
  * Updates racers with the friedman ranks, assuming that the required individuals
  * in racing_pop have been re-evaluated with the newest seed. Ranking is the same
  * as the one returned by get_best_idx(N), but in case of ties an average rank
  * will be assigned among those who tied.
+ *
+ * param[out] racers Data strcture storing the racing data which will be updated
+ * param[in] racing_pop Population on which racing will run
+ *
 **/
-void FRace_assign_ranks(racing_pool_type& racers, const population& racing_pop)
+void f_race_assign_ranks(std::vector<racer_type>& racers, const population& racing_pop)
 {
 	// Update ranking to be used for stat test
 	// Note that the ranking returned by get_best_idx() requires some post-processing,
@@ -111,12 +117,17 @@ void FRace_assign_ranks(racing_pool_type& racers, const population& racing_pop)
 	//std::cout << "Adjusted ranking: "; for(size_type i = 0; i < ordered_idx_active.size(); i++) std::cout << "(" << ordered_idx_active[i] << ")-" << racers[ordered_idx_active[i]].m_hist.back() << " "; std::cout << std::endl;
 }
 
-/** --- Rank adjustment (after every racing iteration) ---
+/// Rank adjustment (after every racing iteration)
+/**
  * Once some individuals are removed (de-activated) from the racing pool,
  * adjust the previous ranks of the remaining individuals. The resulted ranks
  * are free of influence from those just-deleted individuals.
+ *
+ * param[out] racers Data structure for storing racing data which will be updated
+ * param[in] deleted_racers Indices of the individuals who have just be de-activated
+ *
 **/
-void FRace_adjust_ranks(racing_pool_type& racers, const std::vector<population::size_type>& deleted_racers)
+void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<population::size_type>& deleted_racers)
 {
 	for(unsigned int i = 0; i < racers.size(); i++){
 		if(!racers[i].active) continue;
@@ -223,6 +234,46 @@ stat_test_result friedman_test(const std::vector<std::vector<double> >& X, doubl
 
 }
 
+// Check if the provided active_set is valid.
+void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size)
+{
+	if(active_set.size() == 0)
+		return;
+	std::vector<bool> hit(pop_size, 0);
+	for(unsigned int i = 0; i < active_set.size(); i++){
+		if(active_set[i] >= pop_size){
+			pagmo_throw(index_error, "Racing: Active set contains invalid (out of bound) index.");
+		}
+		if(hit[active_set[i]] == true){
+			pagmo_throw(index_error, "Racing: Active set contains repeated indices.");
+		}
+		hit[active_set[i]] = true;
+	}
+}
+
+// Check if the problem is stochastic
+void _validate_problem_stochastic(const problem::base& prob)
+{
+	try
+	{
+		dynamic_cast<const pagmo::problem::base_stochastic &>(prob).get_seed();
+	}
+	catch (const std::bad_cast& e)
+	{
+		pagmo_throw(type_error, "Attempt to call racing routines ona non-stochastic problem, use get_best_idx() instead");
+	}
+}
+
+void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int, const unsigned int, double delta)
+{
+	if(n_final > pop.size()){
+		pagmo_throw(value_error, "Number of intended winner is too large");
+	}
+	if(delta < 0 || delta > 1){
+		pagmo_throw(value_error, "Confidence level should be a small value greater than zero");
+	}
+}
+
 /// Core implementation of the racing routine.
 /**
  * Internally it varies the problem's rng seed and re-evaluate the still-active
@@ -230,27 +281,41 @@ stat_test_result friedman_test(const std::vector<std::vector<double> >& X, doubl
  * whenever possible. As F-Race is based on rankings between the racing entities,
  * it requires a routine that can determine the ranking of the individual w.r.t.
  * any given rng seed. Here, get_best_idx() function will be used to retrieve
- * such rankings.
+ * such rankings. Specifically, racing contains the following steps:
  *
- * @param[in] N_final Desired number of winners.
+ * (1) Re-evaluate the active individuals with the newest random seed
+ * (2) Assign ranks to the active individuals and append to the observation data
+ * (3) Perform statistical test based on Friedman test (thus obtain pair-wise
+ *     comparison result with statistical significance)
+ * (4) Update three individual index lists: decided, in_race, discarded
+ * 	   - decided: No need to be further evaluated, clearly superior
+ * 	   - in_race: Undecided, more evaluations needed on them (a.k.a active)
+ * 	   - discarded: No need to be further evaluated, clearly inferior
+ * (5) Repeat (1) until termination condidtion met
+ * (6) Return decided. If too few individuals are in decided, append it
+ *     with individuals from in_race based on their rank sum (smaller the better).
+ *
+ * @param[in] n_final Desired number of winners.
  * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
  * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
+ * @param[in] screen_output Whether to log racing status on the console output.
  *
  * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
+ *
+ * @throws type_error if the underlying problem is not stochastic
+ * @throws index_error if active_set is invalid (out of bound / repeated indices)
+ * @throws value_error if other specified racing parameters are not sensible
  */
-std::vector<population::size_type> race(const population& pop_snapshot, const std::vector<population::size_type>& active_set, const population::size_type N_final, const unsigned int min_trials, const unsigned int max_count, double delta, unsigned int start_seed)
+std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, unsigned int start_seed, const std::vector<population::size_type>& active_set, bool screen_output)
 {
-	try
-	{
-		dynamic_cast<const pagmo::problem::base_stochastic &>(pop_snapshot.problem()).get_seed();
-	}
-	catch (const std::bad_cast& e)
-	{
-		std::cout << "Warning: Attempt to use racing for a non-stochastic problem. No racing is performed" << std::endl;
-		return pop_snapshot.get_best_idx(N_final);
-	}
+	// Problem has to be stochastic
+	_validate_problem_stochastic(pop.problem());
+	// active_set has to be valid
+	_validate_active_set(active_set, pop.size());
+	// Other parameters have to be sane
+	_validate_racing_params(pop, n_final, min_trials, max_count, delta);
 
 	typedef population::size_type size_type;
 
@@ -259,30 +324,31 @@ std::vector<population::size_type> race(const population& pop_snapshot, const st
 
 	race_termination_condition::type term_cond = race_termination_condition::EVAL_COUNT;
 	
-	// Make a local copy of population dedicated for racing, so that the 
-	// get_best_idx() utilities can be used but at the same time the public race()
-	// is still a const function. In the following, all problem / population related
-	// operations *should* be performed on this local copy.
-	population racing_pop(pop_snapshot);
+	population racing_pop(pop);
 
 	// Temporary: Consider a fresh start every time when race() is called
-	racing_pool_type racers(racing_pop.size(), racer_type());
+	std::vector<racer_type> racers(racing_pop.size(), racer_type());
 
-	// Indices of the racers who are currently active in the pop_snapshot's sense
+	// If active_set is empty, default to race all individuals
+	if(active_set.size() == 0){
+		for(size_type i = 0; i < pop.size(); i++){
+			racers[i].active = true;
+		}
+	}
+	else{
+		for(size_type i = 0; i < active_set.size(); i++){
+			racers[active_set[i]].active = true;
+		}
+	}
+
+	// Indices of the racers who are currently active in the pop's sense
 	// Examples:
-	// (1) in_race_list.size() == 5 ---> Only 5 individuals are still being raced.
-	// (2) pop_snapshot.get_individual(in_race_list[0]) gives a reference to an actual
+	// (1) in_race.size() == 5 ---> Only 5 individuals are still being raced.
+	// (2) pop.get_individual(in_race[0]) gives a reference to an actual
 	//     individual which is active in the race.
 	std::vector<size_type> in_race;
 	std::vector<size_type> decided;
 	std::vector<size_type> discarded;
-
-	for(size_type i = 0; i < active_set.size(); i++){
-		if(active_set[i] >= racing_pop.size()){
-			pagmo_throw(value_error,"Racing: Active set contains invalid index.");
-		}
-		racers[active_set[i]].active = true;
-	}
 
 	unsigned int N_begin = 0;
 
@@ -296,14 +362,16 @@ std::vector<population::size_type> race(const population& pop_snapshot, const st
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;
 
-	while(decided.size() < N_final &&
-		  decided.size() + in_race.size() > N_final &&
-		  discarded.size() < N_begin - N_final){
+	while(decided.size() < n_final &&
+		  decided.size() + in_race.size() > n_final &&
+		  discarded.size() < N_begin - n_final){
 		
-		// std::cout << "-----Iteration: " << count_iter << std::endl;
-		// std::cout << "Decided: " << std::vector<size_type>(decided.begin(), decided.end()) << std::endl;
-		// std::cout << "In-race: " << std::vector<size_type>(in_race.begin(), in_race.end()) << std::endl;
-		// std::cout << "Discarded: " << std::vector<size_type>(discarded.begin(), discarded.end()) << std::endl;
+		if(screen_output){
+			std::cout << "-----Iteration: " << count_iter << ", evaluation count = " << count_nfes << std::endl;
+			std::cout << "Decided: " << std::vector<size_type>(decided.begin(), decided.end()) << std::endl;
+			std::cout << "In-race: " << std::vector<size_type>(in_race.begin(), in_race.end()) << std::endl;
+			std::cout << "Discarded: " << std::vector<size_type>(discarded.begin(), discarded.end()) << std::endl;
+		}
 
 		// Check if there are enough budget for evaluation
 		if(term_cond == race_termination_condition::EVAL_COUNT && count_nfes + in_race.size() > max_count){
@@ -323,7 +391,7 @@ std::vector<population::size_type> race(const population& pop_snapshot, const st
 
 		// Do racing!!
 		// Evalute with the new rng seed
-		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); it++){
+		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it){
 	
 			// Re-evaluate the individuals under the new seed
 			count_nfes++;
@@ -332,7 +400,7 @@ std::vector<population::size_type> race(const population& pop_snapshot, const st
 
 		}
 
-		FRace_assign_ranks(racers, racing_pop);
+		f_race_assign_ranks(racers, racing_pop);
 
 		// Enforce a minimum required number of trials
 		if(count_iter < min_trials)
@@ -373,10 +441,10 @@ std::vector<population::size_type> race(const population& pop_snapshot, const st
 					}
 				}
 				// std::cout << "[" << *it_i << "]: vote_decide = " << vote_decide << ", vote_discard = " << vote_discard << std::endl;
-				if(vote_decide >= N_begin - N_final - discarded.size()){
+				if(vote_decide >= N_begin - n_final - discarded.size()){
 					to_decide[i] = true;
 				}
-				else if(vote_discard >= N_final - decided.size()){
+				else if(vote_discard >= n_final - decided.size()){
 				//else if(vote_discard >= 1){ // Equivalent to the previous more aggressive approach
 					to_discard[i] = true;
 				}
@@ -398,7 +466,7 @@ std::vector<population::size_type> race(const population& pop_snapshot, const st
 			in_race = new_in_race;
 
 			// Check if this is that important
-			// FRace_adjust_ranks(racers, out_of_race);
+			// f_race_adjust_ranks(racers, out_of_race);
 		}
 
 		count_iter++;
@@ -416,15 +484,15 @@ std::vector<population::size_type> race(const population& pop_snapshot, const st
 
 	};
 
-	// If required N_final not met, return the first best N_final indices
+	// If required n_final not met, return the first best n_final indices
 	std::vector<std::pair<double, size_type> > argsort;
-	if(decided.size() < N_final){	
-		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); it++){
+	if(decided.size() < n_final){	
+		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it){
 			argsort.push_back(std::make_pair(racers[*it].m_mean, *it));
 		}
 		std::sort(argsort.begin(), argsort.end());
 		int sorted_idx = 0;
-		while(decided.size() < N_final){
+		while(decided.size() < n_final){
 			decided.push_back(argsort[sorted_idx++].second);
 		}
 	}
