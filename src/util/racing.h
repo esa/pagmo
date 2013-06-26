@@ -43,31 +43,28 @@ namespace racing{
 	 */
 
 	// Racing the population
-	std::vector<population::size_type> race(
+	std::vector<population::size_type> race_pop(
 		const population &,
-		const std::vector<population::size_type> &,
-		const population::size_type N_final,
+		const population::size_type n_final,
 		const unsigned int min_trials,
 		const unsigned int max_count,
 		double delta,
-		unsigned int start_seed
+		unsigned int start_seed,
+		const std::vector<population::size_type> &,
+		bool screen_output
 	);
 
 	struct race_termination_condition{
 		enum type {ITER_COUNT = 0, EVAL_COUNT = 1};
 	};
 
-	typedef double measure_type;
-	typedef std::vector<measure_type> measure_history_type;
-	typedef double mean_measure_type;
-
 	struct racer_type
 	{
 		public:
 			racer_type(): m_mean(0), active(false) { }
 
-			measure_history_type m_hist;
-			mean_measure_type m_mean;
+			std::vector<double> m_hist;
+			double m_mean;
 			bool active;	
 
 			unsigned int length()
@@ -86,8 +83,6 @@ namespace racing{
 			}
 	};
 
-	typedef std::vector<racer_type> racing_pool_type;
-
 	struct stat_test_result{
 		public:
 			stat_test_result(): trivial(true), is_better(0, std::vector<bool>(0, false)) { }
@@ -105,8 +100,8 @@ namespace racing{
 	enum bound_type {HOEFFDING = 0, BERNSTEIN = 1};
 	stat_test_result bound_based_test(const std::vector<std::vector<double> > &, double delta, bound_type);
 
-	void FRace_assign_ranks(racing_pool_type &, const population &);
-	void FRace_adjust_ranks(racing_pool_type &, const std::vector<population::size_type> &);
+	void f_race_assign_ranks(std::vector<racer_type> &, const population &);
+	void f_race_adjust_ranks(std::vector<racer_type> &, const std::vector<population::size_type> &);
 
 }
 

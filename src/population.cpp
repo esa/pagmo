@@ -485,13 +485,42 @@ std::vector<std::vector<population::size_type> > population::compute_pareto_fron
 	return retval;
 }
 
-// Crowded comparison operator struct constructor.
+/// Crowded comparison operator struct constructor.
+/**
+ * A comparison operator to be used in sorting the individuals in the population,
+ * when the underlying problem has multiple objectives. When constructing, it
+ * requires that the dimension of the fitness to be more than 1, and that there
+ * is more than 1 individual in the population. Comparison between individuals
+ * will be made in the Pareto sense.
+ *
+ * NOTE: The user has to make sure that the Pareto information of the population
+ * is properly computed via update_pareto_information() before the use of this
+ * operator.
+ *
+ * @param[in] pop population over which the comparison operator should operate
+ *
+ * @throw assertion_error if the number of individuals is less than 2, or if the
+ * underlying problem is not of multi-objective
+ */
 population::crowded_comparison_operator::crowded_comparison_operator(const population &pop):m_pop(pop)
 {
 	pagmo_assert(m_pop.size() >= 2);
 	pagmo_assert(m_pop.problem().get_f_dimension() >= 2);
 }
 
+/// Comparison between individuals in the Pareto's sense.
+/**
+ * An individual i1 is better than the individual i2, if and only if:
+ * (i) i1 has a lower Pareto rank than i2; or
+ * (ii) i1 has a larger crowding distance than i2 if their Pareto ranks tied.
+ *
+ * @param[in] i1 reference to the first individual to be compared
+ * @param[in] i2 reference to the second individual to be compared
+ *
+ * @return true if the first individual is better than the second individual; false otherwise.
+ *
+ * @throw assertion_error if i1 or i2 is not within the population supplied
+ */
 bool population::crowded_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const 
 {
 	pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
@@ -504,6 +533,20 @@ bool population::crowded_comparison_operator::operator()(const individual_type &
 		return (m_pop.m_pareto_rank[idx1] < m_pop.m_pareto_rank[idx2]);
 	}
 }
+
+/// Comparison between individuals in the Pareto's sense.
+/**
+ * An individual i1 is better than the individual i2, if and only if:
+ * (i) i1 has a lower Pareto rank than i2; or
+ * (ii) i1 has a larger crowding distance than i2 if their Pareto ranks tied.
+ *
+ * @param[in] idx1 index of the first individual to be compared
+ * @param[in] idx2 index of the second individual to be compared
+ *
+ * @return true if the first individual is better than the second individual; false otherwise.
+ *
+ * @throw assertion_error if idx1 or idx2 is out of bound
+ */
 bool population::crowded_comparison_operator::operator()(const size_type &idx1, const size_type &idx2) const
 {
 	pagmo_assert(idx1 <= m_pop.size());
@@ -516,9 +559,28 @@ bool population::crowded_comparison_operator::operator()(const size_type &idx1, 
 	}
 }
 
-// Trivial comparison operator struct constructor.
+/// Trivial comparison operator struct constructor.
+/**
+ * A comparison operator to be used in sorting the individuals in the population,
+ * when the underlying problem is of single-objective.
+ *
+ * NOTE: population.get_worst_idx assumes a weak strict ordering defined in problem::compare_fc. If the user
+ * reimplements such a virtual method at the problem level, he needs to make sure this condition
+ * is met (or pay the consequences :)
+ *
+ * @param[in] pop population over which the comparison operator should operate
+ */
 population::trivial_comparison_operator::trivial_comparison_operator(const population &pop):m_pop(pop) {}
 
+/// Compare two individuals taking into account of fitness and constraints violation
+/**
+ * @param[in] i1 reference to the first individual to be compared
+ * @param[in] i2 reference to the second individual to be compared
+ *
+ * @return true if the first individual is better than the second individual; false otherwise.
+ *
+ * @throw assertion_error if i1 or i2 is not within the population supplied
+ */
 bool population::trivial_comparison_operator::operator()(const individual_type &i1, const individual_type &i2) const
 {
 	pagmo_assert(&i1 >= &m_pop.m_container.front() && &i1 <= &m_pop.m_container.back());
@@ -526,6 +588,16 @@ bool population::trivial_comparison_operator::operator()(const individual_type &
 	const size_type idx1 = &i1 - &m_pop.m_container.front(), idx2 = &i2 - &m_pop.m_container.front();
 	return m_pop.problem().compare_fc(m_pop.get_individual(idx1).cur_f, m_pop.get_individual(idx1).cur_c, m_pop.get_individual(idx2).cur_f,m_pop.get_individual(idx2).cur_c);
 }
+
+/// Compare two individuals taking into account of fitness values and constraint violation
+/**
+ * @param[in] idx1 index of the first individual to be compared
+ * @param[in] idx2 index of the second individual to be compared
+ *
+ * @return true if the first individual is better than the second individual; false otherwise.
+ *
+ * @throw assertion_error if idx1 or idx2 is out of bound
+ */
 bool population::trivial_comparison_operator::operator()(const size_type &idx1, const size_type &idx2) const
 {
 	pagmo_assert(idx1 <= m_pop.size());
@@ -923,30 +995,23 @@ population::size_type population::n_dominated(const individual_type &ind) const
 
 /// Race the individuals in the population.
 /**
- * Perform racing on the individuals. Currently the race is based on F-Race
- * which utilizes Friedman test. Alternative to racing the whole population,
- * user can specify to race on only a subset of the individual. If the problem
- * is not stochastic, it ignores all the parameters except N_final and behaves
- * like the get_best_idx routine.
+ * Perform racing on the individuals. Alternative to racing the whole population,
+ * user can specify to race on only a subset of the individual. This is simply
+ * a wrapper over the race_pop function in util::racing.
  *
- * @param[in] N_final Desired number of winners.
+ * @param[in] n_final Desired number of winners.
  * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
  * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
  *
  * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
+ *
+ * @see pagmo::util::racing::race
  */
-std::vector<population::size_type> population::race(const size_type N_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set) const
+std::vector<population::size_type> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set) const
 {
-	if(active_set.size()==0){
-		std::vector<size_type> active_set_all(size());
-		for(unsigned int i = 0; i < active_set_all.size(); i++){
-			active_set_all[i] = i;
-		}
-		return util::racing::race(*this, active_set_all, N_final, min_trials, max_count, delta, m_urng());
-	}
-	return util::racing::race(*this, active_set, N_final, min_trials, max_count, delta, m_urng());
+	return util::racing::race_pop(*this, n_final, min_trials, max_count, delta, m_urng(), active_set, false);
 }
 
 /// Overload stream operator for pagmo::population.
