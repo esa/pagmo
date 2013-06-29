@@ -76,10 +76,10 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::stri
 int main()
 {
 std::string line;
-std::string input_data_dir("hypervolume_testing_data/");
+std::string input_data_dir("hypervolume_test_data/");
 std::string input_data_testcases_dir(input_data_dir + "testcases/");
-std::ifstream ifs((input_data_dir + "testcases_list").c_str());
-std::ofstream output("hypervolume_testing_report");
+std::ifstream ifs((input_data_dir + "testcases_list.txt").c_str());
+std::ofstream output("hypervolume_test_report.txt");
 output.precision(15);
 
 int test_result = 0;
