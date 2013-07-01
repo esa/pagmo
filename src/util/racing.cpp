@@ -260,7 +260,7 @@ void _validate_problem_stochastic(const problem::base& prob)
 	}
 	catch (const std::bad_cast& e)
 	{
-		pagmo_throw(type_error, "Attempt to call racing routines ona non-stochastic problem, use get_best_idx() instead");
+		pagmo_throw(type_error, "Attempt to call racing routines on a non-stochastic problem, use get_best_idx() instead");
 	}
 }
 
@@ -287,10 +287,10 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * (2) Assign ranks to the active individuals and append to the observation data
  * (3) Perform statistical test based on Friedman test (thus obtain pair-wise
  *     comparison result with statistical significance)
- * (4) Update three individual index lists: decided, in_race, discarded
+ * (4) Update three individual index lists: decided, discarded, in_race
  * 	   - decided: No need to be further evaluated, clearly superior
- * 	   - in_race: Undecided, more evaluations needed on them (a.k.a active)
  * 	   - discarded: No need to be further evaluated, clearly inferior
+ * 	   - in_race: Undecided, more evaluations needed on them (a.k.a active)
  * (5) Repeat (1) until termination condidtion met
  * (6) Return decided. If too few individuals are in decided, append it
  *     with individuals from in_race based on their rank sum (smaller the better).
@@ -307,12 +307,15 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * @throws type_error if the underlying problem is not stochastic
  * @throws index_error if active_set is invalid (out of bound / repeated indices)
  * @throws value_error if other specified racing parameters are not sensible
+ *
+ * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
+ * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
 std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, unsigned int start_seed, const std::vector<population::size_type>& active_set, bool screen_output)
 {
 	// Problem has to be stochastic
 	_validate_problem_stochastic(pop.problem());
-	// active_set has to be valid
+	// active_set has to contain valid indexes
 	_validate_active_set(active_set, pop.size());
 	// Other parameters have to be sane
 	_validate_racing_params(pop, n_final, min_trials, max_count, delta);
@@ -326,7 +329,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 	
 	population racing_pop(pop);
 
-	// Temporary: Consider a fresh start every time when race() is called
+	// Temporary: Consider a fresh start every time race() is called
 	std::vector<racer_type> racers(racing_pop.size(), racer_type());
 
 	// If active_set is empty, default to race all individuals
@@ -350,14 +353,13 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 	std::vector<size_type> decided;
 	std::vector<size_type> discarded;
 
-	unsigned int N_begin = 0;
-
 	for(size_type i = 0; i < racers.size(); i++){
 		if(racers[i].active){
 			in_race.push_back(i);
-			N_begin++;
 		}
 	}
+	
+	size_type N_begin = in_race.size();
 
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;
@@ -373,7 +375,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 			std::cout << "Discarded: " << std::vector<size_type>(discarded.begin(), discarded.end()) << std::endl;
 		}
 
-		// Check if there are enough budget for evaluation
+		// Check if there is enough budget for evaluating the individuals in the race 
 		if(term_cond == race_termination_condition::EVAL_COUNT && count_nfes + in_race.size() > max_count){
 			break;
 		}
@@ -384,20 +386,18 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 		// NOTE: Here after resetting to a new seed, we do not perform re-evaluation of the
 		// whole population, as this defeats the purpose of doing race! Only the required
 		// individuals (i.e. those still active in racing) shall be re-evaluated. A direct 
-		// consequence is that the champion of the population is not valid anymore -- it 
-		// doesn't correspond to the latest seed. But this should be OK, as this only affects
-		// the local copy the population, which will not be accessed elsewhere, and the
-		// champion information is not utilized during racing.
+		// consequence is that the champion of the population is not valid anymore nor the 
+		// individuals best_x and best_f -- they do not correspond to the latest seed.
+		// This is OK, as this only affects the local copy the population, 
+		// which will not be accessed elsewhere, and the
+		// champion information is not used during racing.
 
 		// Do racing!!
 		// Evalute with the new rng seed
-		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it){
-	
+		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it) {
 			// Re-evaluate the individuals under the new seed
 			count_nfes++;
-
 			racing_pop.set_x(*it, racing_pop.get_individual(*it).cur_x);
-
 		}
 
 		f_race_assign_ranks(racers, racing_pop);
@@ -406,7 +406,9 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 		if(count_iter < min_trials)
 			continue;
 
-		// Observation data
+		// Observation data (TODO: is this necessary ? ... a lot of memory allocation gets done here and we
+		// already have in memory all we need. could we not pass by reference directly racers and in_race 
+		// to the friedman test?)
 		std::vector<std::vector<double> > X;
 		for(unsigned int i = 0; i < in_race.size(); i++){
 			X.push_back(racers[in_race[i]].m_hist);
@@ -422,7 +424,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 
 			// std::cout << "Null hypothesis 0 rejected!" << std::endl;
 
-			std::vector<size_type> out_of_race;
+			// std::vector<size_type> out_of_race;
 
 			std::vector<bool> to_decide(in_race.size(), false), to_discard(in_race.size(), false);
 
@@ -473,7 +475,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 
 		bool termination_condition = false;
 		if(term_cond == race_termination_condition::EVAL_COUNT){
-			termination_condition = (count_nfes >= max_count);
+			termination_condition = (count_nfes >= max_count); //I think this condition will never happen as we check the budget before
 		}
 		else if(term_cond == race_termination_condition::ITER_COUNT){
 			termination_condition = (count_iter >= max_count);
