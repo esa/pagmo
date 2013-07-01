@@ -35,12 +35,11 @@
 
 namespace pagmo{ namespace util {
 
+/// racing namespace.
+/**
+ * Utilities for the racing mechanism.
+*/
 namespace racing{
-
-	/// racing namespace.
-	/**
-	 * Utilities for the racing mechanism.
-	 */
 
 	// Racing the population
 	std::vector<population::size_type> race_pop(
@@ -63,7 +62,7 @@ namespace racing{
 		public:
 			racer_type(): m_mean(0), active(false) { }
 
-			std::vector<double> m_hist;
+			std::vector<double> m_hist; ///Should this not be a std::vector<size_type> ??
 			double m_mean;
 			bool active;	
 

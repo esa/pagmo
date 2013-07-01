@@ -29,6 +29,7 @@
 #include <cmath>
 #include <vector>
 #include <cassert>
+
 #include "../src/pagmo.h"
 
 using namespace pagmo;
@@ -44,101 +45,116 @@ bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
 	return true;
 }
 
-// Receives a regular problem, and record the index of the best individual.
-// Transform it to a stochastic one (currently using noisy), and then deliberately
-// duplicate several copies of the best individual into the population. If race()
-// is sane, all these duplicated copies should be in the final race winner list.
-// Also check for basic sanity e.g. correct final race list size, etc.
-int test_racing(const problem::base_ptr& prob, population::size_type start_size, population::size_type end_size, population::size_type num_best_copy)
+// This function takes a non-stochastic problem and creates a random
+// population associated to it. Then it transforms the problem into
+// a stochastic one (using the noisy meta-problem), and creates an
+// associated population that contains the same individuals ordered
+// with respect to the denoised problem objective function.
+// It then tests that race returns, as it should [0,1,2,3,....,end_size-1].
+// Such a check cannot be strict as for the stochastic natire of race.
+// So some error is allowed. In particular
+// it is only requested that a permutation of the correct indexes is returned
+// and some small error in rankings is allowed:
+//
+// Examples: 
+//			[0]     --> Pass (correct answer)
+//			[1]     --> Pass (allowed error met)
+//			[2]     --> Failed (allowed error not met)
+//			[0,1]   --> Pass (correct answer)
+//			[1,0]   --> Pass (correct permutation)
+//			[0,2]   --> Pass (allowed error met)
+//			[4,0]   --> Failed (allowed error not met)
+//			[0,1,2] --> Pass (correct answer)
+//			[0,2,1] --> Pass (correct permutation)
+//			[0,3,2] --> Pass (allowed error met)
+//			[1,3,5] --> Failed (allowed error not met)
+//
+// The error is defined as the difference between the true ranks sum and the
+// returned ranks sum. For example if race returns [1,3,5], then the error is
+// (1+3+5) - (0+1+2) = 6. The allowed error is the size of the returned list,
+// corresponding, to allow just losing the winner (i.e. [1,2,3] is still valid, but
+// [1,2,4] not)
+
+
+int test_racing(const problem::base_ptr& prob, population::size_type pop_size, 
+				population::size_type end_size)
 {
-	if(start_size < end_size){
+	// sanity checks on test inputs
+	if(pop_size < end_size){
 		std::cout << "End size larger than start size! Test can never pass -- test case invalid." << std::endl;
 		return 1;
 	}
-	if((1 + num_best_copy) > end_size){
-		std::cout << "(Number of best copy + 1) larger than end size! Test can never pass -- test case invalid." << std::endl;
-		return 1;
-	}
 
-	population pop_original_prob(*prob, start_size);
+	// we create a random population associated to the input problem and compute its ordering
+	population pop_original_prob(*prob, pop_size);
+	std::vector<population::size_type> best_idx_order = pop_original_prob.get_best_idx(pop_size);
 
-	population::size_type best_idx = pop_original_prob.get_best_idx();
-	std::vector<population::size_type> best_idx_order = pop_original_prob.get_best_idx(start_size);
-
-	std::cout << "original best order: " << best_idx_order << std::endl;
-
+	// we create the noisy version of the problem
 	problem::noisy prob_noisy(*prob, 1, 0, 0.1, problem::noisy::NORMAL);
 
-	population pop(prob_noisy, start_size);
+	// and a random empty population associated to it
+	population pop(prob_noisy);
 
-	for(population::size_type i = 0; i < start_size; i++){
-		pop.set_x(i, pop_original_prob.get_individual(i).cur_x);
-	}
-
-	/*		
-	for(population::size_type i = num_best_copy; i < start_size; i++){
-		population::size_type some_bad_idx = best_idx_order[(start_size - 1)- (i % end_size)];
-		pop.set_x(best_idx_order[i], pop_original_prob.get_individual(some_bad_idx).cur_x);
-	}
-	*/
-
-	// If we do the following, by definition race should return [0, ... , num_best_copy-1]
-	// PLUS best_idx, in no particular order.
-	pop.set_x(best_idx, pop_original_prob.get_individual(best_idx).cur_x);
-	for(population::size_type i = 0; i < num_best_copy; i++){
-		pop.set_x(i, pop_original_prob.get_individual(best_idx).cur_x);
+	// We push_back the old population chromosomes in the new population according to their rank 
+	// If we do this, by definition, race should return [0,1,2,3,4,5,...,end_size-1]
+	for(population::size_type i = 0; i < pop_size; i++){
+		pop.push_back(pop_original_prob.get_individual(best_idx_order[i]).cur_x);
 	}
 
 	std::vector<population::size_type> winners = pop.race(end_size, 0, 500, 0.01);
-	std::cout << "winners: " << winners << ", true best_idx = " << best_idx << std::endl;
-
+	std::cout << "sorted winners (OK if [0,1,2,...]): " << winners << std::endl;
 
 	if(winners.size() != end_size){
 		std::cout << " Winner list size failed." << std::endl;
 		return 1;
 	}
 
-	std::vector<bool> found(start_size, false);
-
-	for(population::size_type i = 0; i < winners.size(); i++){
-		found[winners[i]] = true;
-	}
-
-	// Check if indeed every best copies are in place in the final winner list.
-	for(population::size_type i = 0; i < pop.size(); i++){
-		if( (i < num_best_copy || i == best_idx) && !found[i] ){
-			std::cout << " Expected individual indexed " << i << " to be in the list but turned out not, failed! " << std::endl;
-			std::cout << " Original best idx: " << best_idx << std::endl;
-			std::cout << " Final winner list: " << winners << std::endl;
-			std::cout << " Expected " << num_best_copy + 1 << " of the copies to be in the list." << std::endl;
-			return 1;
-		}
+	double acceptable = ((winners.size()-1)+1) * (winners.size()-1) / 2 + winners.size();
+	
+	if (std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>()) > acceptable ) {
+		std::cout << " Racing failed miserably ... something is wrong ... " << std::endl;
+		std::cout << " Sum of inexes is: " << std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>()) << std::endl;
+		std::cout << " Acceptable sum was: " << acceptable << std::endl;
+		return 1;
 	}
 	
+	bool flag = false;
+	for (size_t i = 0; i<winners.size(); ++i){
+		if (!(winners[i] == i)){
+			flag=true;
+			break;
+		}
+	}
+	if (flag) {
+		std::cout << "Racing failed to reconstruct the true ranking. (test not failed as this can happen)" << std::endl;
+	}
+
 	std::cout << prob->get_name() << " racing passed." << std::endl;
 	return 0;
 }
 
+// This second test only checks the implementation of the active_set
+// so that subset_size individuals are raced and all of them returned
 int test_racing_subset(const problem::base_ptr& prob)
 {
 	std::cout << "Testing race() on a subset of population" << std::endl;
 
-	unsigned int N = 50;	
-	unsigned int ActiveN = 20;
-	std::vector<pagmo::population::size_type> active_set(20);
-	for(unsigned int i = 0; i < ActiveN; i++){
+	unsigned int pop_size = 50;	
+	unsigned int subset_size = 20;
+	std::vector<pagmo::population::size_type> active_set(subset_size);
+	for(unsigned int i = 0; i < subset_size; i++){
 		active_set[i] = i*2;
 	}
 
 	problem::noisy prob_noisy(*prob, 1, 0, 0.3, problem::noisy::NORMAL);
-	population pop(prob_noisy, N);
+	population pop(prob_noisy, pop_size);
 
 	// Race until ActiveN individuals remain, with ActiveN individuals being active
 	// at the beginning. This implies that the winners should be exactly the same as
 	// active_set.
-	std::vector<pagmo::population::size_type> winners = pop.race(ActiveN, 0, 500, 0.05, active_set);
+	std::vector<pagmo::population::size_type> winners = pop.race(subset_size, 0, 500, 0.05, active_set);
 
-	if(winners.size() != ActiveN){
+	if(winners.size() != subset_size){
 		std::cout << " Winner list size failed." << std::endl;	
 		return 1;
 	}
@@ -161,9 +177,16 @@ int main()
 {
 	int dimension = 10;
 	problem::base_ptr prob_ackley(new problem::ackley(dimension));
-	return test_racing(prob_ackley, 10, 2, 1) || 
-		   test_racing(prob_ackley, 20, 2, 1) ||
-		   test_racing(prob_ackley, 100, 50, 0) ||
-		   test_racing(prob_ackley, 5, 1, 0) ||
-		   test_racing_subset(prob_ackley);
+	problem::base_ptr prob_zdt1(new problem::zdt1(dimension));
+	
+	return test_racing(prob_ackley, 10, 2) || 
+		   test_racing(prob_ackley, 20, 2) ||
+		   test_racing(prob_ackley, 100, 5) ||
+		   test_racing(prob_ackley, 5, 1) ||
+		   test_racing_subset(prob_ackley) ||
+		   test_racing(prob_zdt1, 10, 10) || 
+		   test_racing(prob_zdt1, 20, 20) ||
+		   test_racing(prob_zdt1, 30, 30) ||
+		   test_racing(prob_zdt1, 5, 5) ||
+		   test_racing_subset(prob_zdt1);
 }
