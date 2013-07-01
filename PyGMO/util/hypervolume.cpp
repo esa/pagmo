@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 2 of the License, or       *
+ *   the Free Software Foundation; either version 3 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,43 +22,41 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HYPERVOLUME_H
-#define PAGMO_UTIL_HYPERVOLUME_H
+#include <Python.h>
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/python/class.hpp>
+#include <boost/python/module.hpp>
+#include <boost/python/register_ptr_to_python.hpp>
+#include <boost/utility.hpp>
 
-#include <iostream>
-#include <string>
-#include <vector>
+#include "../../src/util/hypervolume.h"
+#include "../../src/util/hv_algorithm/base.h"
+#include "../../src/util/hv_algorithm/lebmeasure.h"
+#include "../../src/util/hv_algorithm/optimal2d.h"
+#include "../utils.h"
 
-#include "../config.h"
-#include "../serialization.h"
-#include "../pagmo.h"
-#include "hv_algorithm/base.h"
+using namespace boost::python;
+using namespace pagmo;
 
-#include "lebmeasure.h"
-#include "optimal2d.h"
-
-namespace pagmo { namespace util {
-
-/// hypervolume class.
-/**
- * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
- * @author Krzysztof Nowak (kn@kiryx.net)
- */
-class hypervolume
+template <class HVAlgorithm>
+static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
 {
-	public:
-		hypervolume(const population &);
-		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &, hv_algorithm::base &);
+	class_<HVAlgorithm,bases<util::hv_algorithm::base> > retval(name,descr,init<const HVAlgorithm &>());
+	retval.def(init<>());
+	retval.def("compute", &HVAlgorithm::compute);
+	return retval;
+}
 
-	private:
-		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, hv_algorithm::base &);
-		const population *m_pop;
-		std::vector<fitness_vector> m_points;
-		fitness_vector::size_type m_f_dim;
-};
+BOOST_PYTHON_MODULE(_hypervolume) {
+	common_module_init();
 
-} }
+	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
+		.def("compute", &util::hv_algorithm::base::compute);
 
-#endif
+	algorithm_wrapper<util::hv_algorithm::lebmeasure>("lebmeasure","LebMeasure algorithm.");
+	algorithm_wrapper<util::hv_algorithm::optimal2d>("optimal2d","Optimal2D algorithm.");
+
+	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
+		.def(init<const population &>())
+		.def("compute", &util::hypervolume::compute);
+}

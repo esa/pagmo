@@ -22,43 +22,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HYPERVOLUME_H
-#define PAGMO_UTIL_HYPERVOLUME_H
-
 #include <iostream>
+#include <sstream>
 #include <string>
-#include <vector>
+#include <typeinfo>
 
-#include "../config.h"
-#include "../serialization.h"
-#include "../pagmo.h"
-#include "hv_algorithm/base.h"
+#include "base.h"
 
-#include "lebmeasure.h"
-#include "optimal2d.h"
+namespace pagmo { namespace util { namespace hv_algorithm {
 
-namespace pagmo { namespace util {
+/// Default constructor.
+base::base(){}
 
-/// hypervolume class.
-/**
- * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
- * @author Krzysztof Nowak (kn@kiryx.net)
- */
-class hypervolume
-{
-	public:
-		hypervolume(const population &);
-		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &, hv_algorithm::base &);
+/// Destructor
+base::~base() {}
 
-	private:
-		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, hv_algorithm::base &);
-		const population *m_pop;
-		std::vector<fitness_vector> m_points;
-		fitness_vector::size_type m_f_dim;
-};
-
-} }
-
-#endif
+} } }

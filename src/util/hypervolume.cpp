@@ -32,9 +32,6 @@ namespace pagmo { namespace util {
  *
  * @param[in] pop reference to population object from which pareto front is computed
  */
-
-hv_method_prototype hypervolume::hv_methods[] = { lebmeasure::compute, optimal2d::compute };
-
 hypervolume::hypervolume(const population & pop) : m_pop(&pop) {
 	this->m_f_dim = this->m_pop->problem().get_f_dimension();
 	std::vector<std::vector<population::size_type> > pareto_fronts = this->m_pop->compute_pareto_fronts();
@@ -52,7 +49,6 @@ hypervolume::hypervolume(const population & pop) : m_pop(&pop) {
  * Constructs a hypervolume object from a provided set of points.
  *
  * @params[in] 
- *
  */
 hypervolume::hypervolume(const std::vector<fitness_vector> & points) : m_pop(NULL), m_points(points) {
 	this->m_f_dim = m_points[0].size();
@@ -83,28 +79,28 @@ void hypervolume::verify_after_construct() {
  * Verifies whether reference point and the hypervolume method meet certain criteria
  *
  * @params[in] reference_point fitness vector describing the reference point
- * @params[in] method algorithm used for computing the hypervolume
  *
  * @throws value_error if reference_point's and point set dimension do not agree
  */
-void hypervolume::verify_before_compute(const fitness_vector & reference_point, const hv_method & method) {
+void hypervolume::verify_before_compute(const fitness_vector & reference_point, hv_algorithm::base &hv_algorithm) {
 	if ( this->m_points[0].size() != reference_point.size() ) {
 		pagmo_throw(value_error, "Point set dimensions and reference_point dimension must be equal.");
 	}
+	hv_algorithm.verify_before_compute(this->m_points, reference_point);
 }
 
 // compute hypervolume
 /*
- * Computes hypervolume provided a reference_point and a method
+ * Computes hypervolume provided a reference_point and an algorithm object
  *
  * @params[in] reference_point fitness vector describing the reference point
- * @params[in] method algorithm used for computing the hypervolume
+ * @params[in] hv_algorithm algorithm object used for computing the hypervolume
  *
- * @return hypervolume indicator
+ * @return hypervolume
  */
-double hypervolume::compute(const fitness_vector & reference_point, const hv_method & method) {
-	this->verify_before_compute(reference_point, method);
-	return hypervolume::hv_methods[method](this->m_points, reference_point);
+double hypervolume::compute(const fitness_vector & reference_point, hv_algorithm::base & hv_algorithm) {
+	this->verify_before_compute(reference_point, hv_algorithm);
+	return hv_algorithm.compute(this->m_points, reference_point);
 }
 
 }}

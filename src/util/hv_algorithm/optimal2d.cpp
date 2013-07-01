@@ -22,43 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HYPERVOLUME_H
-#define PAGMO_UTIL_HYPERVOLUME_H
 
-#include <iostream>
-#include <string>
-#include <vector>
-
-#include "../config.h"
-#include "../serialization.h"
-#include "../pagmo.h"
-#include "hv_algorithm/base.h"
-
-#include "lebmeasure.h"
 #include "optimal2d.h"
 
-namespace pagmo { namespace util {
+namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// hypervolume class.
+optimal2d::optimal2d() { }
+
+optimal2d::~optimal2d() { }
+
+// Computes hypervolume indicator for given pareto set using the optimal 2D algorithm.
 /**
- * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
- * @author Krzysztof Nowak (kn@kiryx.net)
+ * This method should be used both as a solution to 2D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
+ *
+ * Computational complexity: n*log(n)
+ *
+ * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
+ * @param[in] reference_point reference point for the points
+ *
+ * @return hypervolume of the pareto set.
+ * @throws value_error when trying to compute the hypervolume for the dimension other than 2
  */
-class hypervolume
+double optimal2d::compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point)
 {
-	public:
-		hypervolume(const population &);
-		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &, hv_algorithm::base &);
+	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
+	sort(points_cpy.begin(), points_cpy.end(), compare_fitness);
+	double hypervolume = 0.0;
+	for(std::vector<fitness_vector>::size_type idx = 0; idx < points_cpy.size() - 1 ; ++idx) {
+		double area = (points_cpy[idx][0] - points_cpy[idx+1][0]) * (points_cpy[idx][1] - reference_point[1]);
+		hypervolume += fabs(area);
+	}
+	fitness_vector &last = points_cpy.back();
+	hypervolume += fabs((reference_point[0] - last[0]) * (reference_point[1] - last[1]));
 
-	private:
-		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, hv_algorithm::base &);
-		const population *m_pop;
-		std::vector<fitness_vector> m_points;
-		fitness_vector::size_type m_f_dim;
-};
+	return hypervolume;
+}
 
-} }
+void optimal2d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point) {
+	if (reference_point.size() != 2) {
+		pagmo_throw(value_error, "optimal2d method method works only for 2-dimensional cases.");
+	}
+}
 
-#endif
+bool compare_fitness(const fitness_vector &a, const fitness_vector &b) {
+	return a[0] < b[0];
+}
+
+} } }

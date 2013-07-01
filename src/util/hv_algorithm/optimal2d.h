@@ -22,43 +22,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HYPERVOLUME_H
-#define PAGMO_UTIL_HYPERVOLUME_H
+#ifndef PAGMO_UTIL_HV_ALGORITHM_OPTIMAL2D_H
+#define PAGMO_UTIL_HV_ALGORITHM_OPTIMAL2D_H
 
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
+#include <algorithm>
 
-#include "../config.h"
-#include "../serialization.h"
-#include "../pagmo.h"
-#include "hv_algorithm/base.h"
+#include "../../config.h"
+#include "../../pagmo.h"
+#include "base.h"
 
-#include "lebmeasure.h"
-#include "optimal2d.h"
+namespace pagmo { namespace util { namespace hv_algorithm {
 
-namespace pagmo { namespace util {
-
-/// hypervolume class.
+// optimal2d class
 /**
- * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
+ * This is the class containing the implementation of the optimal2D algorithm for computing hypervolume.
+ * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then compute partial areas linearly.
+ *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class hypervolume
-{
+class __PAGMO_VISIBLE optimal2d : public base {
 	public:
-		hypervolume(const population &);
-		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &, hv_algorithm::base &);
+		optimal2d();
+		~optimal2d();
+		double compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
+		void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
 
-	private:
-		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, hv_algorithm::base &);
-		const population *m_pop;
-		std::vector<fitness_vector> m_points;
-		fitness_vector::size_type m_f_dim;
 };
 
-} }
+inline bool compare_fitness(const fitness_vector &, const fitness_vector &);
+
+} } }
 
 #endif

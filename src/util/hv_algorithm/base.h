@@ -22,43 +22,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HYPERVOLUME_H
-#define PAGMO_UTIL_HYPERVOLUME_H
+#ifndef PAGMO_UTIL_HV_ALGORITHM_BASE_H
+#define PAGMO_UTIL_HV_ALGORITHM_BASE_H
 
 #include <iostream>
 #include <string>
-#include <vector>
+#include <typeinfo>
 
-#include "../config.h"
-#include "../serialization.h"
-#include "../pagmo.h"
-#include "hv_algorithm/base.h"
+#include "../../pagmo.h"
+#include "../../config.h"
 
-#include "lebmeasure.h"
-#include "optimal2d.h"
 
 namespace pagmo { namespace util {
-
-/// hypervolume class.
+/// Hypervolume algorithm namespace.
 /**
- * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
- * @author Krzysztof Nowak (kn@kiryx.net)
+ * This namespace contains all the algorithms implemented for the purpose of calculating the hypervolume indicator
  */
-class hypervolume
+namespace hv_algorithm {
+
+/// Base hypervolume algorithm class.
+class base;
+
+/// Alias for shared pointer to base algorithm.
+typedef boost::shared_ptr<base> base_ptr;
+
+class __PAGMO_VISIBLE base
 {
 	public:
-		hypervolume(const population &);
-		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &, hv_algorithm::base &);
-
-	private:
-		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, hv_algorithm::base &);
-		const population *m_pop;
-		std::vector<fitness_vector> m_points;
-		fitness_vector::size_type m_f_dim;
+		base();
+		virtual ~base();
+		virtual double compute(const std::vector<fitness_vector> &, const fitness_vector &) = 0;
+		virtual void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) = 0;
 };
 
-} }
 
+} } }
 #endif
