@@ -34,9 +34,6 @@
 #include "../pagmo.h"
 #include "hv_algorithm/base.h"
 
-#include "lebmeasure.h"
-#include "optimal2d.h"
-
 namespace pagmo { namespace util {
 
 /// hypervolume class.
