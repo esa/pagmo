@@ -4,14 +4,14 @@
 Tutorial 6: Solving a multi-objective problem by decomposition
 ================================================================
 
-In this tutorial we will learn how to use the decomposition meta-problems to solve a multi-objective problem. The decomposition meta-problem transforms a multi-objective problem into a single-objective one having as fitness function a convex combination (defined by a weight vector) of the original objectives. 
+In this tutorial we will learn how to use the decompose meta-problems to solve a multi-objective problem. The decompose meta-problem transforms a multi-objective problem into a single-objective one having as fitness function a convex combination (defined by a weight vector) of the original objectives. 
 Let us start creating a decomposed problem from a multi-objective one.
 
 .. code-block:: python
    
 	In [1]: from PyGMO import *
 	In [2]: orig_prob = problem.zdt1(10)
-	In [3]: prob = problem.decomposition(orig_prob, [0.5, 0.5])
+	In [3]: prob = problem.decompose(orig_prob, [0.5, 0.5])
 
 In this way the 2 objectives of the original problem are equally weighted. If we don't define the weight vector then it is randomly generated.
 

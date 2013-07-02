@@ -530,6 +530,32 @@ def _normalized_ctor(self, problem = None):
 normalized._orig_init = normalized.__init__
 normalized.__init__ = _normalized_ctor
 
+def _decompose_ctor(self, problem = None, weights = None):
+	"""
+	Implements a meta-problem class resulting in a decomposed version
+	of the multi-objective input problem, i.e. a single-objective problem
+	having as fitness function a convex combination of the original fitness functions.
+
+	NOTE: this meta-problem constructs a new single-objective problem
+
+	USAGE: problem.(problem=PyGMO.zdt1(2), weights)
+
+	* problem: PyGMO problem one wants to decompose
+	* weights: the weight vector to build the new fitness function
+
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem=zdt1(2)
+	arg_list.append(problem)
+	if weights != None:
+		arg_list.append(weights)
+	self._orig_init(*arg_list)
+decompose._orig_init = decompose.__init__
+decompose.__init__ = _decompose_ctor
+
 def _shifted_ctor(self, problem = None, shift = None):
 	"""
 	Shifts a problem. 

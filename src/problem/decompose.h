@@ -54,7 +54,7 @@ class __PAGMO_VISIBLE decompose : public base
 {
 	public:
 		//constructor
-		decompose(const base & = zdt1(1), const std::vector<double> & = std::vector<double>());
+		decompose(const base & = zdt1(2), const std::vector<double> & = std::vector<double>());
 		
 		//copy constructor
 		decompose(const decompose &);
