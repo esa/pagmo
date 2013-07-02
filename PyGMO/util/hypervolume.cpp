@@ -50,13 +50,13 @@ static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wra
 BOOST_PYTHON_MODULE(_hypervolume) {
 	common_module_init();
 
+	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
+		.def(init<const population &>())
+		.def("compute", &util::hypervolume::compute);
+
 	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
 		.def("compute", &util::hv_algorithm::base::compute);
 
 	algorithm_wrapper<util::hv_algorithm::lebmeasure>("lebmeasure","LebMeasure algorithm.");
 	algorithm_wrapper<util::hv_algorithm::optimal2d>("optimal2d","Optimal2D algorithm.");
-
-	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
-		.def(init<const population &>())
-		.def("compute", &util::hypervolume::compute);
 }

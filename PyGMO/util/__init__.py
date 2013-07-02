@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _hypervolume import hypervolume, optimal2d, lebmeasure
+from _hypervolume import hypervolume, lebmeasure, optimal2d
 
 def _hypervolume_ctor(self, *args, **kwargs):
 	"""
@@ -29,14 +29,18 @@ def _hypervolume_compute(self, r = None, algorithm = None):
 	USAGE:
 		hv.compute(r=[5.0]*2, hv_algorithm=optimal2d())
 	"""
-	if (algorithm == None):
-		algorithm = lebmeasure()
 	if not isinstance(r, list):
 		raise TypeError("Reference point must be a list of lists of real numbers, e.g.: r = [1.0, 1.0, 1.0]")
 	try:
 		r = [float(ri) for ri in r]
 	except ValueError:
 		raise TypeError("Every item in reference point (r), must be castable to float, e.g.: r = [1, '2.5', 10e-4]")
+
+	if (algorithm == None):
+		if (len(r[0]) == 2):
+			algorithm = optimal2d()
+		else:
+			algorithm = lebmeasure()
 	return self._original_compute(r, algorithm)
 
 hypervolume._original_compute = hypervolume.compute
@@ -65,4 +69,3 @@ def _lebmeasure_ctor(self):
 
 lebmeasure._original_init = lebmeasure.__init__
 lebmeasure.__init__ = _lebmeasure_ctor
-
