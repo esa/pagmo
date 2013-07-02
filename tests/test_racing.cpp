@@ -102,35 +102,27 @@ int test_racing(const problem::base_ptr& prob, population::size_type pop_size,
 		pop.push_back(pop_original_prob.get_individual(best_idx_order[i]).cur_x);
 	}
 
-	std::vector<population::size_type> winners = pop.race(end_size, 0, 500, 0.01);
-	std::cout << "sorted winners (OK if [0,1,2,...]): " << winners << std::endl;
+	std::vector<population::size_type> winners = pop.race(end_size, 50, 5000, 0.05);
+	double ground_truth = ((winners.size()-1)+1) * (winners.size()-1) / 2;
+	double obtained = std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>());
+	double acceptable = winners.size();
+
+	std::cout << prob->get_name() << std::endl;
+	std::cout << "\tRace winners: " << winners << std::endl;
+	std::cout << "\tError: " << obtained-ground_truth << std::endl;
+	std::cout << "\tAcceptable: " << acceptable << std::endl;
 
 	if(winners.size() != end_size){
 		std::cout << " Winner list size failed." << std::endl;
 		return 1;
 	}
 
-	double acceptable = ((winners.size()-1)+1) * (winners.size()-1) / 2 + winners.size();
-	
-	if (std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>()) > acceptable ) {
-		std::cout << " Racing failed miserably ... something is wrong ... " << std::endl;
-		std::cout << " Sum of indexes is: " << std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>()) << std::endl;
-		std::cout << " Acceptable sum was: " << acceptable << std::endl;
+	if (obtained-ground_truth > acceptable ) {
+		std::cout << "\tFAILED" << std::endl;
 		return 1;
 	}
-	
-	bool flag = false;
-	for (size_t i = 0; i<winners.size(); ++i){
-		if (!(winners[i] == i)){
-			flag=true;
-			break;
-		}
-	}
-	if (flag) {
-		std::cout << "Racing failed to reconstruct the true ranking. (test not failed as this can happen)" << std::endl;
-	}
 
-	std::cout << prob->get_name() << " racing passed." << std::endl;
+	std::cout << "\tPASSED" << std::endl<< std::endl;
 	return 0;
 }
 
@@ -185,9 +177,8 @@ int main()
 		   test_racing(prob_ackley, 100, 5) ||
 		   test_racing(prob_ackley, 5, 1) ||
 		   test_racing_subset(prob_ackley) ||
-		   test_racing(prob_zdt1, 10, 10) || 
-		   test_racing(prob_zdt1, 20, 20) ||
-		   test_racing(prob_zdt1, 30, 30) ||
-		   test_racing(prob_zdt1, 5, 5) ||
+		   test_racing(prob_zdt1, 10, 5) ||
+		   test_racing(prob_zdt1, 20, 5) ||
+		   test_racing(prob_zdt1, 30, 5) ||
 		   test_racing_subset(prob_zdt1);
 }
