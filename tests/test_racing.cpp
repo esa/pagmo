@@ -29,6 +29,7 @@
 #include <cmath>
 #include <vector>
 #include <cassert>
+#include <numeric>
 
 #include "../src/pagmo.h"
 
@@ -113,7 +114,7 @@ int test_racing(const problem::base_ptr& prob, population::size_type pop_size,
 	
 	if (std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>()) > acceptable ) {
 		std::cout << " Racing failed miserably ... something is wrong ... " << std::endl;
-		std::cout << " Sum of inexes is: " << std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>()) << std::endl;
+		std::cout << " Sum of indexes is: " << std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>()) << std::endl;
 		std::cout << " Acceptable sum was: " << acceptable << std::endl;
 		return 1;
 	}
@@ -149,7 +150,7 @@ int test_racing_subset(const problem::base_ptr& prob)
 	problem::noisy prob_noisy(*prob, 1, 0, 0.3, problem::noisy::NORMAL);
 	population pop(prob_noisy, pop_size);
 
-	// Race until ActiveN individuals remain, with ActiveN individuals being active
+	// Race until subset_size individuals remain, with subset_size individuals being active
 	// at the beginning. This implies that the winners should be exactly the same as
 	// active_set.
 	std::vector<pagmo::population::size_type> winners = pop.race(subset_size, 0, 500, 0.05, active_set);

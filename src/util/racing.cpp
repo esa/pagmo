@@ -17,8 +17,8 @@ namespace racing{
  * as the one returned by get_best_idx(N), but in case of ties an average rank
  * will be assigned among those who tied.
  *
- * param[out] racers Data strcture storing the racing data which will be updated
- * param[in] racing_pop Population on which racing will run
+ * @param[out] racers Data strcture storing the racing data which will be updated
+ * @param[in] racing_pop Population on which racing will run
  *
 **/
 void f_race_assign_ranks(std::vector<racer_type>& racers, const population& racing_pop)
@@ -123,8 +123,8 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const population& raci
  * adjust the previous ranks of the remaining individuals. The resulted ranks
  * are free of influence from those just-deleted individuals.
  *
- * param[out] racers Data structure for storing racing data which will be updated
- * param[in] deleted_racers Indices of the individuals who have just be de-activated
+ * @param[out] racers Data structure for storing racing data which will be updated
+ * @param[in] deleted_racers Indices of the individuals who have just be de-activated
  *
 **/
 void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<population::size_type>& deleted_racers)
@@ -145,7 +145,20 @@ void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<popu
 	//TODO: Tie cases not handled yet, worth it?
 }
 
-
+/// Perform a Friedman test
+/**
+ * Friedman test has the following procedures:
+ * (1) Check if the null hypothesis that all rakings of the treatments are
+ *     equivalent can be rejected. This involves the use of a chi-squared
+ *     distribution.
+ * (2) If so, perform pair-wise comparison betwen the treatments based on
+ *     rank sum. This can be achieved by using a t-distribution.
+ *
+ * @param[in] X Observation data, each element (vector) represents the measurements for each "treatment"
+ * @param[in] delta Confidence level for the statistical test
+ *
+ * @return Result of the statistical test 
+ */
 stat_test_result friedman_test(const std::vector<std::vector<double> >& X, double delta)
 {	
 	// TODO: throw when X is empty
@@ -264,6 +277,7 @@ void _validate_problem_stochastic(const problem::base& prob)
 	}
 }
 
+// Check if the other parameters for racing are sensible
 void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int, const unsigned int, double delta)
 {
 	if(n_final > pop.size()){
