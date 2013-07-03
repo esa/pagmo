@@ -170,6 +170,7 @@ int main()
 {
 	int dimension = 10;
 	problem::base_ptr prob_ackley(new problem::ackley(dimension));
+	problem::base_ptr prob_cec2006(new problem::cec2006(5));
 	problem::base_ptr prob_zdt1(new problem::zdt1(dimension));
 	
 	return test_racing(prob_ackley, 10, 2) || 
@@ -177,6 +178,11 @@ int main()
 		   test_racing(prob_ackley, 100, 5) ||
 		   test_racing(prob_ackley, 5, 1) ||
 		   test_racing_subset(prob_ackley) ||
+		   test_racing(prob_cec2006, 10, 2) ||
+		   test_racing(prob_cec2006, 20, 2) ||
+		   test_racing(prob_cec2006, 100, 5) ||
+		   test_racing(prob_cec2006, 5, 1) ||
+		   test_racing_subset(prob_cec2006) ||
 		   test_racing(prob_zdt1, 10, 5) ||
 		   test_racing(prob_zdt1, 20, 5) ||
 		   test_racing(prob_zdt1, 30, 5) ||
