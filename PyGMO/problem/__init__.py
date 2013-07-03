@@ -515,7 +515,7 @@ def _normalized_ctor(self, problem = None):
 
 	NOTE: this meta-problem constructs a new problem having normalized bounds/variables
 
-	USAGE: problem.(problem=PyGMO.ackley(1))
+	USAGE: problem.normalized(problem=PyGMO.ackley(1))
 
 	* problem: PyGMO problem one wants to normalize
 
@@ -538,7 +538,7 @@ def _decompose_ctor(self, problem = None, weights = None):
 
 	NOTE: this meta-problem constructs a new single-objective problem
 
-	USAGE: problem.(problem=PyGMO.zdt1(2), weights)
+	USAGE: problem.decompose(problem=PyGMO.zdt1(2), weights=a random vector (summing to one))
 
 	* problem: PyGMO problem one wants to decompose
 	* weights: the weight vector to build the new fitness function
@@ -563,7 +563,7 @@ def _shifted_ctor(self, problem = None, shift = None):
 	NOTE: this meta-problem constructs a new problem where the objective function will be f(x+b),
 	      where b is the shift (bounds are also chaged accordingly)
 
-	USAGE: problem.(problem=PyGMO.ackley(1), shift = a random vector)
+	USAGE: problem.shifted(problem=PyGMO.ackley(1), shift = a random vector)
 
 	* problem: PyGMO problem one wants to shift
 	* shift: a value or a list containing the shifts. By default, a radnom shift is created within the problem bounds
@@ -592,7 +592,7 @@ def _rotated_ctor(self, problem = None, rotation = None):
 	objective function will not be called outside of the original bounds by projecting points outside the original
 	space onto the boundary
 
-	USAGE: problem.(problem=PyGMO.ackley(1), rotation = a random orthogonal matrix)
+	USAGE: problem.rotated(problem=PyGMO.ackley(1), rotation = a random orthogonal matrix)
 
 	* problem: PyGMO problem one wants to rotate
 	* rotation: a list of lists (matrix). If not specified, a random orthogonal matrix is used.
@@ -617,7 +617,7 @@ def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_secon
 	Inject noise to a problem.
 	The new objective function will become stochastic, influence by a normally distributed noise.
 
-	USAGE: problem.(problem=PyGMO.ackley(1), trials = 1, param_first=0.0, param_second=1.0, noise_type = problem.noisy.noise_distribution.NORMAL, seed=0)
+	USAGE: problem.noisy(problem=PyGMO.ackley(1), trials = 1, param_first=0.0, param_second=1.0, noise_type = problem.noisy.noise_distribution.NORMAL, seed=0)
 
 	* problem: PyGMO problem on which one wants to add noises
 	* trials: number of trials to average around
@@ -652,7 +652,7 @@ def _death_penalty_ctor(self, problem = None, method = None):
 	Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
 	fitness function according to the rate of satisfied constraints.
 	
-	USAGE: problem.(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
+	USAGE: problem.death_penalty(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
 
 	* problem: PyGMO constrained problem one wants to treat with a death penalty approach
 	* method: Simple death method set with SIMPLE and Kuri method set with KURI
