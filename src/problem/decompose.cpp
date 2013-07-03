@@ -119,6 +119,7 @@ std::string decompose::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
+	oss << "\n\tWeight vector: " << m_weights << std::endl;
 	return oss.str();
 }
 
