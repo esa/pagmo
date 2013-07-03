@@ -26,12 +26,9 @@
 #define PAGMO_UTIL_HYPERVOLUME_H
 
 #include <iostream>
-#include <string>
 #include <vector>
 
-#include "../config.h"
-#include "../serialization.h"
-#include "../pagmo.h"
+#include "../population.h"
 #include "hv_algorithm/base.h"
 
 namespace pagmo { namespace util {
@@ -41,16 +38,16 @@ namespace pagmo { namespace util {
  * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class hypervolume
+class __PAGMO_VISIBLE hypervolume
 {
 	public:
 		hypervolume(const population &);
 		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &, hv_algorithm::base &);
+		double compute(const fitness_vector &, hv_algorithm::base_ptr);
 
 	private:
 		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, hv_algorithm::base &);
+		void verify_before_compute(const fitness_vector &, hv_algorithm::base_ptr);
 		const population *m_pop;
 		std::vector<fitness_vector> m_points;
 		fitness_vector::size_type m_f_dim;

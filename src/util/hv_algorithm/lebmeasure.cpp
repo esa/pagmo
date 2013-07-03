@@ -35,10 +35,6 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmeasure_points;
 
-lebmeasure::lebmeasure() { }
-
-lebmeasure::~lebmeasure() { }
-
 // Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
 /**
  * @param[in] points set of points describing the hypervolume
@@ -51,7 +47,7 @@ lebmeasure::~lebmeasure() { }
 double lebmeasure::compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point) {
 	lebmeasure_points point_set;
 	fitness_vector::size_type f_dim = points[0].size();
-	for (population::size_type idx = 0 ; idx < points.size() ; ++idx) {
+	for (std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		point_set.push_back(std::make_pair(points[idx], f_dim));
 	}
 
@@ -79,6 +75,13 @@ double lebmeasure::compute(const std::vector<fitness_vector> & points, const fit
 void lebmeasure::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point) {
 	if (reference_point.size() < 3) {
 		pagmo_throw(value_error, "Hypervolume of dimension lesser than 3 is not allowed for this method, use optimal 2D instead");
+	}
+	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
+		for(fitness_vector::size_type f_idx = 0 ; f_idx < points[idx].size() ; ++f_idx) {
+			if (reference_point[f_idx] <= points[idx][f_idx]) {
+				pagmo_throw(value_error, "Reference point must dominate every other point.");
+			}
+		}
 	}
 }
 

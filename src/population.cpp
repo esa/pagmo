@@ -639,7 +639,6 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 	return retval;
 }
 
-
 /// Return terse human-readable representation.
 /**
  * Will return a formatted string displaying:

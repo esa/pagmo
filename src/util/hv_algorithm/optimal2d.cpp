@@ -27,10 +27,6 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-optimal2d::optimal2d() { }
-
-optimal2d::~optimal2d() { }
-
 // Computes hypervolume indicator for given pareto set using the optimal 2D algorithm.
 /**
  * This method should be used both as a solution to 2D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
@@ -61,6 +57,13 @@ double optimal2d::compute(const std::vector<fitness_vector> & points, const fitn
 void optimal2d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point) {
 	if (reference_point.size() != 2) {
 		pagmo_throw(value_error, "optimal2d method method works only for 2-dimensional cases.");
+	}
+	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
+		for(fitness_vector::size_type f_idx = 0 ; f_idx < points[idx].size() ; ++f_idx) {
+			if (reference_point[f_idx] <= points[idx][f_idx]) {
+				pagmo_throw(value_error, "Reference point must dominate every other point.");
+			}
+		}
 	}
 }
 

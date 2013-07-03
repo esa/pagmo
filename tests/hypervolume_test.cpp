@@ -26,8 +26,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "../src/pagmo.h"
 #include "../src/util/hypervolume.h"
+#include "../src/util/hv_algorithm/base.h"
 #include "../src/util/hv_algorithm/optimal2d.h"
 #include "../src/util/hv_algorithm/lebmeasure.h"
 
@@ -54,14 +54,14 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::stri
 		input >> ans;
 
 		double hypvol;
-		pagmo::util::hypervolume hv_obj = pagmo::util::hypervolume(ps);
-		util::hv_algorithm::base *method;
+		util::hypervolume hv_obj = util::hypervolume(ps);
+		util::hv_algorithm::base_ptr method;
 		if (method_name == "lebmeasure") {
-			method = new util::hv_algorithm::lebmeasure();
-			hypvol = hv_obj.compute(r, *method);
+			method = util::hv_algorithm::base_ptr( new util::hv_algorithm::lebmeasure() );
+			hypvol = hv_obj.compute(r, method);
 		} else if (method_name == "optimal2d") {
-			method = new util::hv_algorithm::optimal2d();
-			hypvol = hv_obj.compute(r, *method);
+			method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal2d());
+			hypvol = hv_obj.compute(r, method);
 		} else {
 			output << "Unknown method (" << method_name << ") .. exiting";
 			exit(1);

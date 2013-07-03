@@ -29,9 +29,10 @@
 #include <string>
 #include <typeinfo>
 
-#include "../../pagmo.h"
 #include "../../config.h"
-
+#include "../../exceptions.h"
+#include "../../serialization.h"
+#include "../../types.h"
 
 namespace pagmo { namespace util {
 /// Hypervolume algorithm namespace.
@@ -49,7 +50,6 @@ typedef boost::shared_ptr<base> base_ptr;
 class __PAGMO_VISIBLE base
 {
 	public:
-		base();
 		virtual ~base();
 		virtual double compute(const std::vector<fitness_vector> &, const fitness_vector &) = 0;
 		virtual void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) = 0;

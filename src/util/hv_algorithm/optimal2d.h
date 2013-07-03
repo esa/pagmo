@@ -26,13 +26,10 @@
 #define PAGMO_UTIL_HV_ALGORITHM_OPTIMAL2D_H
 
 #include <iostream>
-#include <string>
 #include <vector>
 #include <cmath>
 #include <algorithm>
 
-#include "../../config.h"
-#include "../../pagmo.h"
 #include "base.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
@@ -46,8 +43,6 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 class __PAGMO_VISIBLE optimal2d : public base {
 	public:
-		optimal2d();
-		~optimal2d();
 		double compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
 		void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
 

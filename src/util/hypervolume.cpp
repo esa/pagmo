@@ -82,11 +82,11 @@ void hypervolume::verify_after_construct() {
  *
  * @throws value_error if reference_point's and point set dimension do not agree
  */
-void hypervolume::verify_before_compute(const fitness_vector & reference_point, hv_algorithm::base &hv_algorithm) {
+void hypervolume::verify_before_compute(const fitness_vector & reference_point, hv_algorithm::base_ptr hv_algorithm) {
 	if ( this->m_points[0].size() != reference_point.size() ) {
 		pagmo_throw(value_error, "Point set dimensions and reference_point dimension must be equal.");
 	}
-	hv_algorithm.verify_before_compute(this->m_points, reference_point);
+	hv_algorithm->verify_before_compute(this->m_points, reference_point);
 }
 
 // compute hypervolume
@@ -98,9 +98,9 @@ void hypervolume::verify_before_compute(const fitness_vector & reference_point, 
  *
  * @return hypervolume
  */
-double hypervolume::compute(const fitness_vector & reference_point, hv_algorithm::base & hv_algorithm) {
+double hypervolume::compute(const fitness_vector & reference_point, hv_algorithm::base_ptr hv_algorithm) {
 	this->verify_before_compute(reference_point, hv_algorithm);
-	return hv_algorithm.compute(this->m_points, reference_point);
+	return hv_algorithm->compute(this->m_points, reference_point);
 }
 
 }}

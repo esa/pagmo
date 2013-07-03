@@ -26,12 +26,9 @@
 #define PAGMO_UTIL_HV_ALGORITHM_LEBMEASURE_H
 
 #include <iostream>
-#include <string>
 #include <vector>
 #include <cmath>
 
-#include "../../config.h"
-#include "../../pagmo.h"
 #include "base.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
@@ -55,15 +52,13 @@ typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmea
 class __PAGMO_VISIBLE lebmeasure : public base {
 
 	public:
-		lebmeasure();
-		~lebmeasure();
-
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
+		void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
+	private:
 		lebmeasure_points generate_spawns(const fitness_vector &, const fitness_vector::size_type, const fitness_vector &, lebmeasure_points &, const fitness_vector &);
 		bool dominated(const fitness_vector &, lebmeasure_points &);
 		double volume_between(const fitness_vector &, const fitness_vector &);
 		fitness_vector get_opposite_point(const fitness_vector &, lebmeasure_points &, const fitness_vector &);
-		void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
 
 };
 
