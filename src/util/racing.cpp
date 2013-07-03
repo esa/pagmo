@@ -382,6 +382,8 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 		  decided.size() + in_race.size() > n_final &&
 		  discarded.size() < N_begin - n_final){
 		
+		count_iter++;
+
 		if(screen_output){
 			std::cout << "-----Iteration: " << count_iter << ", evaluation count = " << count_nfes << std::endl;
 			std::cout << "Decided: " << std::vector<size_type>(decided.begin(), decided.end()) << std::endl;
@@ -470,9 +472,11 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 			for(unsigned int i = 0; i < in_race.size(); i++){
 				if(to_decide[i]){
 					decided.push_back(in_race[i]);
+					racers[in_race[i]].active = false;
 				}
 				else if(to_discard[i]){
 					discarded.push_back(in_race[i]);
+					racers[in_race[i]].active = false;
 				}
 				else{
 					new_in_race.push_back(in_race[i]);
@@ -484,8 +488,6 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 			// Check if this is that important
 			// f_race_adjust_ranks(racers, out_of_race);
 		}
-
-		count_iter++;
 
 		bool termination_condition = false;
 		if(term_cond == race_termination_condition::EVAL_COUNT){
