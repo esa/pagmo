@@ -57,18 +57,18 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE de_1220: public base
 {
 public:
-	de_1220(int = 100, int = 1, const std::vector<int>& = construct_default_startegies(), bool = true, double = 1e-6, double = 1e-6);
+	de_1220(int = 100, int = 1, const std::vector<int>& = construct_default_strategies(), bool = true, double = 1e-6, double = 1e-6);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
-
-protected:
-	std::string human_readable_extra() const;
-	static const std::vector<int> construct_default_startegies() {
+	static const std::vector<int> construct_default_strategies() {
 			const int tmp[8] = {2,3,7,10,13,14,15,16};
 			std::vector<int> retval(tmp,tmp+8);
 			return retval;
-	};
+	}
+
+protected:
+	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
 	template <class Archive>

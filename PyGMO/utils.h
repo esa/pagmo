@@ -151,13 +151,12 @@ inline std::string py_cpp_dumps(const T &x)
 	return ss.str();
 }
 
+
 #define common_module_init() \
 /* Initialise Python thread support. */ \
 PyEval_InitThreads(); \
 /* Translate exceptions for this module. */ \
 translate_exceptions(); \
 /* Disable docstring C++ signature. */ \
-boost::python::docstring_options doc_options; \
-doc_options.disable_cpp_signatures();
-
+boost::python::docstring_options local_docstring_options(true,true,false); 
 #endif

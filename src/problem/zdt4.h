@@ -29,7 +29,7 @@
 
 #include "../serialization.h"
 #include "../types.h"
-#include "base.h"
+#include "base_unc_mo.h"
 
 namespace pagmo{ namespace problem {
 
@@ -52,21 +52,21 @@ namespace pagmo{ namespace problem {
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
 
-class __PAGMO_VISIBLE zdt4 : public base
+class __PAGMO_VISIBLE zdt4 : public base_unc_mo
 {
 	public:
 		zdt4(size_type = 10);
 		base_ptr clone() const;
 		std::string get_name() const;
-		double p_distance(const pagmo::population &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		double convergence_metric(const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_unc_mo>(*this);
 		}
 };
 

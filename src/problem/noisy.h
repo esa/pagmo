@@ -57,15 +57,14 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 {
 	public:
 		/// Distribution type of the noise
-		struct noise_distribution{
-			enum type {NORMAL = 0, UNIFORM = 1};
-		};
+		enum noise_type {NORMAL = 0, UNIFORM = 1};
+		
 		//constructors
 		noisy(const base & = ackley(1),
 			  unsigned int trials = 1,
 			  const double param_first = 0.0,
 			  const double param_second = 0.1,
-			  noise_distribution::type noise_type = noise_distribution::NORMAL,
+			  noise_type = NORMAL,
 			  unsigned int seed = 0);
 		
 		//copy constructor
@@ -107,7 +106,7 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		mutable boost::hash<std::vector<double> > m_decision_vector_hash;
 		double m_param_first;
 		double m_param_second;
-		noise_distribution::type m_noise_type;
+		noise_type m_noise_type;
 };
 
 }} //namespaces

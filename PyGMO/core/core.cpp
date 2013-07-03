@@ -238,6 +238,7 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
+
 	common_module_init();
 	typedef boost::array<double,2> array2D;
 	//Register std converters to lists if not already registered by some other module

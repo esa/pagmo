@@ -42,8 +42,8 @@ namespace pagmo{ namespace problem {
 /**
  *
  * A PyGMO global optimization problem (box-bounded, continuous) representing the gtoc6 preliminary trajectory capture
-	
- * Decision vector:
+ *
+Decision vector:
  * [t0,u,v,T0] + [beta1, rp1/rP1, eta1,T1] + .... 
  * 
  * @author Dario Izzo (dario.izzo@esa.int)

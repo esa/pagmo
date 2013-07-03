@@ -40,7 +40,7 @@ namespace pagmo { namespace problem {
  *
  * @see problem::base constructors.
  */
-zdt4::zdt4(size_type dim):base(dim,0,2)
+zdt4::zdt4(size_type dim):base_unc_mo(dim,0,2)
 {
 	// Set bounds.
 	set_lb(-5.0);
@@ -55,24 +55,17 @@ base_ptr zdt4::clone() const
 	return base_ptr(new zdt4(*this));
 }
 
-/// Gives a convergence metric for the population (0 = converged to the optimal front)
-double zdt4::p_distance(const pagmo::population &pop) const
+/// Convergence metric for a decision_vector (0 = converged to the optimal front)
+double zdt4::convergence_metric(const decision_vector &x) const
 {
-    double c = 0.0;
-    double g = 0.0;
+	double c = 0.0;
+	double g = 0.0;
 
-    decision_vector x;
-
-    for (std::vector<double>::size_type i = 0; i < pop.size(); ++i) {
-        x = pop.get_individual(i).cur_x;
-		g = 0.0;
-        for(problem::base::size_type j = 1; j < x.size(); ++j) {
-            g += x[j]*x[j] - 10 * cos(4 * boost::math::constants::pi<double>() * x[j]);
-        }
-        c += 1 + 10 * (x.size()-1) + g;
-    }
-
-    return (c / pop.size()) - 1;
+	for(problem::base::size_type j = 1; j < x.size(); ++j) {
+		g += x[j]*x[j] - 10 * cos(4 * boost::math::constants::pi<double>() * x[j]);
+	}
+	c += 1 + 10 * (x.size()-1) + g;
+	return c  - 1;
 }
 
 // ZDT4': lambda x: 1 + 10 * (len(x) - 1) + sum([xi**2 - 10*np.cos(4*np.pi*xi) for xi in x[1:]])

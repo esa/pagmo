@@ -77,25 +77,6 @@ def _dtlz234_plot(self, pop, a=40, comp=[0,1,2]):
 	plt.show()
 	return ax
 
-
-def _zdt1_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-zdt1._orig_p_distance = zdt1.p_distance
-zdt1.p_distance = _zdt1_p_distance
-
-
 def _zdt1_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT1 problem (Box-Constrained Continuous Multi-Objective)
@@ -114,25 +95,6 @@ def _zdt1_ctor(self, dim = 30):
 zdt1._orig_init = zdt1.__init__
 zdt1.__init__ = _zdt1_ctor
 
-
-def _zdt2_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-zdt2._orig_p_distance = zdt2.p_distance
-zdt2.p_distance = _zdt2_p_distance
-
-
 def _zdt2_ctor(self, dim = 30):
 	"""
 	Constructs a ZDT2 problem (Box-Constrained Continuous Multi-Objective)
@@ -149,25 +111,6 @@ def _zdt2_ctor(self, dim = 30):
 
 zdt2._orig_init = zdt2.__init__
 zdt2.__init__ = _zdt2_ctor
-
-
-def _zdt3_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-zdt3._orig_p_distance = zdt3.p_distance
-zdt3.p_distance = _zdt3_p_distance
-
 
 def _zdt3_ctor(self, dim = 30):
 	"""
@@ -186,25 +129,6 @@ def _zdt3_ctor(self, dim = 30):
 zdt3._orig_init = zdt3.__init__
 zdt3.__init__ = _zdt3_ctor
 
-
-def _zdt4_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-zdt4._orig_p_distance = zdt4.p_distance
-zdt4.p_distance = _zdt4_p_distance
-
-
 def _zdt4_ctor(self, dim = 10):
 	"""
 	Constructs a ZDT4 problem (Box-Constrained Continuous Multi-Objective)
@@ -221,24 +145,6 @@ def _zdt4_ctor(self, dim = 10):
 
 zdt4._orig_init = zdt4.__init__
 zdt4.__init__ = _zdt4_ctor
-
-def _zdt5_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-zdt5._orig_p_distance = zdt5.p_distance
-zdt5.p_distance = _zdt5_p_distance
-
 
 def _zdt5_ctor(self, bnr = 11):
 	"""
@@ -257,25 +163,6 @@ def _zdt5_ctor(self, bnr = 11):
 zdt5._orig_init = zdt5.__init__
 zdt5.__init__ = _zdt5_ctor
 
-
-def _zdt6_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-zdt6._orig_p_distance = zdt6.p_distance
-zdt6.p_distance = _zdt6_p_distance
-
-
 def _zdt6_ctor(self, dim = 10):
 	"""
 	Constructs a ZDT6 problem (Box-Constrained Continuous Multi-Objective)
@@ -292,25 +179,6 @@ def _zdt6_ctor(self, dim = 10):
 
 zdt6._orig_init = zdt6.__init__
 zdt6.__init__ = _zdt6_ctor
-
-
-def _dtlz1_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-dtlz1._orig_p_distance = dtlz1.p_distance
-dtlz1.p_distance = _dtlz1_p_distance
-
 
 def _dtlz1_ctor(self, k = 5, fdim = 3):
 	"""
@@ -335,25 +203,6 @@ dtlz1._orig_init = dtlz1.__init__
 dtlz1.__init__ = _dtlz1_ctor
 dtlz1.plot = _mo3d_plot
 
-
-def _dtlz2_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-dtlz2._orig_p_distance = dtlz2.p_distance
-dtlz2.p_distance = _dtlz2_p_distance
-
-
 def _dtlz2_ctor(self, k = 10, fdim = 3):
 	"""
 	Constructs a DTLZ2 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
@@ -375,24 +224,6 @@ def _dtlz2_ctor(self, k = 10, fdim = 3):
 dtlz2._orig_init = dtlz2.__init__
 dtlz2.__init__ = _dtlz2_ctor
 dtlz2.plot = _dtlz234_plot
-
-
-def _dtlz3_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-dtlz3._orig_p_distance = dtlz3.p_distance
-dtlz3.p_distance = _dtlz3_p_distance
 
 
 def _dtlz3_ctor(self, k = 10, fdim = 3):
@@ -417,25 +248,6 @@ dtlz3._orig_init = dtlz3.__init__
 dtlz3.__init__ = _dtlz3_ctor
 dtlz3.plot = _dtlz234_plot
 
-
-def _dtlz4_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-dtlz4._orig_p_distance = dtlz4.p_distance
-dtlz4.p_distance = _dtlz4_p_distance
-
-
 def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
 	"""
 	Constructs a DTLZ4 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
@@ -459,23 +271,6 @@ def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
 dtlz4._orig_init = dtlz4.__init__
 dtlz4.__init__ = _dtlz4_ctor
 dtlz4.plot = _dtlz234_plot
-
-def _dtlz5_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-dtlz5._orig_p_distance = dtlz5.p_distance
-dtlz5.p_distance = _dtlz5_p_distance
 
 
 def _dtlz5_ctor(self, k = 10, fdim = 3):
@@ -503,25 +298,6 @@ dtlz5._orig_init = dtlz5.__init__
 dtlz5.__init__ = _dtlz5_ctor
 dtlz5.plot = _mo3d_plot
 
-
-def _dtlz6_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-dtlz6._orig_p_distance = dtlz6.p_distance
-dtlz6.p_distance = _dtlz6_p_distance
-
-
 def _dtlz6_ctor(self, k = 10, fdim = 3):
 	"""
 	Constructs a DTLZ6 problem (Box-Constrained, continuous, unimodal, scalable multi-objective)
@@ -544,25 +320,6 @@ def _dtlz6_ctor(self, k = 10, fdim = 3):
 dtlz6._orig_init = dtlz6.__init__
 dtlz6.__init__ = _dtlz6_ctor
 dtlz6.plot = _mo3d_plot
-
-
-def _dtlz7_p_distance(self, pop):
-	"""
-	The p distance is a convergence metric measuring the distance of a population from the pareto front.
-	It is 0.0 if all individuals of the population lie on the Pareto-front. The metric is based on the distance function g
-	defined for all dtlz and zdt problems and it is defined in the paper below.
-	
-	NOTE: M Maertens, D Izzo, The asynchronous island model and NSGA-II: study of a new migration operator and its performance, to be published in GECCO2013
-	
-	USAGE: x = prob.p_distance(isl.population)
-	
-	* pop: population to evaluate
-	"""
-	return self._orig_p_distance(pop)
-
-dtlz7._orig_p_distance = dtlz7.p_distance
-dtlz7.p_distance = _dtlz7_p_distance
-
 
 def _dtlz7_ctor(self, k = 20, fdim = 3):
 	"""

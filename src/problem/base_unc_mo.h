@@ -22,56 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_ZDT3_H
-#define PAGMO_PROBLEM_ZDT3_H
+#ifndef PAGMO_PROBLEM_BASE_UNC_MO_H
+#define PAGMO_PROBLEM_BASE_UNC_MO_H
 
-#include <string>
-
+#include "base.h"
 #include "../serialization.h"
-#include "../types.h"
-#include "base_unc_mo.h"
 
 namespace pagmo{ namespace problem {
 
-/// ZDT3 problem
+/// Base Class for Unconstrained Multi-objective problems
 /**
+ * This class adds to pagmo::problem::base the virtual method p_distance
+ * which returns the convergence metric of an individual or a population if
+ * the user re-implemented the convergence_metric virtual method.
+ * Only unconstrained multi-objective problems can derive from this class.
+ * 
+ * In problems where it is possible, the user needs to derive from
+ * pagmo::problem::base_unc_mo and reimplement the virtual method
+ * double base_unc_mo::convergence_metric(const decision_vector &x)
+ * (typically returning 0 if x lies on the Pareto Front)
  *
- * This is a box-constrained continuous n-dimension multi-objecive problem.
- * \f[
- *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
- * \f]
- * \f[
- * 	F_1 \left(x\right) = x_1
- * \f]
- * \f[
- *      F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} - x_1/g(x) \sin(10 \pi x_1) \right]  x \in \left[ 0,1 \right].
- *
- * \f]
- *
- * @see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.18.4257&rep=rep1&type=pdf
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
  */
-
-class __PAGMO_VISIBLE zdt3 : public base_unc_mo
+class __PAGMO_VISIBLE base_unc_mo : public base
 {
 	public:
-		zdt3(size_type  = 30);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		double convergence_metric(const decision_vector &) const;
+		base_unc_mo(base::size_type, base::size_type, base::f_size_type);
+		
+		// p_distance methods
+		double p_distance(const decision_vector &) const;
+		double p_distance(const pagmo::population &) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base_unc_mo>(*this);
+			ar & boost::serialization::base_object<base>(*this);
 		}
+	protected:
+		virtual double convergence_metric(const decision_vector &) const;
+
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::zdt3);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_unc_mo);
 
-#endif // PAGMO_PROBLEM_ZDT3_H
+#endif //PAGMO_PROBLEM_BASE_UNC_MO_H

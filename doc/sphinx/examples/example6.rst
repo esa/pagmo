@@ -12,12 +12,12 @@ in the folder called input_files. We will assume, in the rest of this tutorial, 
 files in the directory ~/Documents/input_files/.
 
 Let us start with trying out for problem dimension D=2 the algorithm CMA-ES. As the competition rules
-allow D * 15000 function evaluation, we choose a population of 60 with 500 generation.
+allow D * 10000 function evaluation, we choose a population of 50 with 400 generations.
 
 .. code-block:: python
 
 	from PyGMO import * 
-	dir = "~/Documents/input_data/"
+	dir = "/home/my_user/Documents/input_data/"
 	algo = algorithm.cmaes(500,xtol=1e-9,ftol=1e-9)
 	D = 2
 	error = []
@@ -45,20 +45,21 @@ Which produces the output below.
 From the image above we see immediately that the problems from 1 to 20 are significantly easier to solve for CMA-ES than the last eight.
 
 We may now try to do the same with a larger number of dimensions, say D=10. As we can now take advantage of an increased number of
-function evaluations (150000), we set up CMA-ES differently (i.e. we use a larger population and more maximum iterations).
+function evaluations (100000), we set up CMA-ES differently (i.e. we use a larger population and more maximum iterations).
 
 .. code-block:: python
 
 	from PyGMO import * 
-	dir = "~/Documents/input_data/"
-	algo = algorithm.cmaes(1500,xtol=1e-9,ftol=1e-9)
+	dir = "/home/my_user/Documents/input_data/"
+	algo = algorithm.cmaes(1000,xtol=1e-9,ftol=1e-9)
 	D = 10
 	error = []
-	for i in range(28):
-		prob = problem.cec2013(dim=D, prob_id=i+1,path=dir)
-		pop = population(prob,100)
-		pop = algo.evolve(pop)
-		error.append(pop.champion.f[0] + 1400 - 100*i - 100*(i>13))
+	for j in range(25):
+		for i in range(28):
+			prob = problem.cec2013(dim=D, prob_id=i+1,path=dir)
+			pop = population(prob,100)
+			pop = algo.evolve(pop)
+			error.append(pop.champion.f[0] + 1400 - 100*i - 100*(i>13))
 	boxplot([error[s::28] for s in range(28)])
 
 Which produces the plot below.

@@ -22,56 +22,68 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_ZDT3_H
-#define PAGMO_PROBLEM_ZDT3_H
-
-#include <string>
-
-#include "../serialization.h"
 #include "../types.h"
+#include "../population.h"
+#include "../exceptions.h"
 #include "base_unc_mo.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace problem {
 
-/// ZDT3 problem
+/// Constructor from dimension and fitness dimension
+/**
+ * Will construct an n dimensional unconstrained multi-objective problem
+ * with nf objectives
+ *
+ * @param[in] n dimension of the problem.
+ * @param[in] ni integer dimension of the problem.
+ * @param[in] nf number of objectives
+ *
+ * @see problem::base constructors.
+ */
+base_unc_mo::base_unc_mo(size_type n, size_type ni, f_size_type nf):base(n, ni, nf, 0, 0, 0.0) {}
+
+/// Distance from the Pareto front (of a population)
+/**
+ * Will return the average across the entire population of the convergence metric
+ *
+ * @param[in] pop population to be assigned a pareto distance
+ *
+ * @see problem::base_unc_mo::p_distance virtual method.
+ */
+double base_unc_mo::p_distance(const pagmo::population &pop) const
+{
+	double c = 0.0;
+	for (population::size_type i = 0; i < pop.size(); ++i) {
+		c += convergence_metric(pop.get_individual(i).cur_x);
+	}
+
+	return c / pop.size();
+}
+
+/// Distance from the Pareto front (of a decision_vector)
+/**
+ * Will return the convergence metric of the decision_vector
+ *
+ * @param[in] x decision_vector 
+ *
+ */
+double base_unc_mo::p_distance(const decision_vector &x) const
+{
+	return convergence_metric(x);
+}
+
+/// Default implementation for a convergence metric
 /**
  *
- * This is a box-constrained continuous n-dimension multi-objecive problem.
- * \f[
- *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
- * \f]
- * \f[
- * 	F_1 \left(x\right) = x_1
- * \f]
- * \f[
- *      F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} - x_1/g(x) \sin(10 \pi x_1) \right]  x \in \left[ 0,1 \right].
+ * @param[in] x decision_vector 
  *
- * \f]
+ * @throws not_implemented_error always
  *
- * @see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.18.4257&rep=rep1&type=pdf
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
-
-class __PAGMO_VISIBLE zdt3 : public base_unc_mo
+double base_unc_mo::convergence_metric(const decision_vector &x) const
 {
-	public:
-		zdt3(size_type  = 30);
-		base_ptr clone() const;
-		std::string get_name() const;
-	protected:
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		double convergence_metric(const decision_vector &) const;
-	private:
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base_unc_mo>(*this);
-		}
-};
+	(void) x;	// avoids warnings during compilation
+	pagmo_throw(not_implemented_error, "Error: a convergence metric is not implemented for this problem.");
+}
 
-}} //namespaces
-
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::zdt3);
-
-#endif // PAGMO_PROBLEM_ZDT3_H
+}} // namespaces
