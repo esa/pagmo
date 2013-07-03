@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _hypervolume import hypervolume, lebmeasure, optimal2d
+from _hypervolume import hypervolume, lebmeasure, optimal2d, optimal3d
 
 def _hypervolume_ctor(self, *args, **kwargs):
 	"""
@@ -57,6 +57,18 @@ def _optimal2d_ctor(self):
 
 optimal2d._original_init = optimal2d.__init__
 optimal2d.__init__ = _optimal2d_ctor
+
+def _optimal3d_ctor(self):
+	"""
+	Hypervolume algorithm: Optimal3D algorithm.
+
+	USAGE:
+		optimal3d()
+	"""
+	return self._original_init()
+
+optimal3d._original_init = optimal3d.__init__
+optimal3d.__init__ = _optimal3d_ctor
 
 def _lebmeasure_ctor(self):
 	"""

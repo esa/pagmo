@@ -8,7 +8,7 @@
  *                                                                           *
  *   This program is free software; you can redistribute it and/or modify    *
  *   it under the terms of the GNU General Public License as published by    *
- *   the Free Software Foundation; either version 3 of the License, or       *
+ *   the Free Software Foundation; either version 2 of the License, or       *
  *   (at your option) any later version.                                     *
  *                                                                           *
  *   This program is distributed in the hope that it will be useful,         *
@@ -22,43 +22,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <Python.h>
-#include <boost/numeric/conversion/cast.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/register_ptr_to_python.hpp>
-#include <boost/utility.hpp>
+#ifndef PAGMO_UTIL_HV_ALGORITHM_OPTIMAL3D_H
+#define PAGMO_UTIL_HV_ALGORITHM_OPTIMAL3D_H
 
-#include "../../src/util/hypervolume.h"
-#include "../../src/util/hv_algorithm/base.h"
-#include "../../src/util/hv_algorithm/lebmeasure.h"
-#include "../../src/util/hv_algorithm/optimal2d.h"
-#include "../../src/util/hv_algorithm/optimal3d.h"
-#include "../utils.h"
+#include <iostream>
+#include <limits>
+#include <string>
+#include <vector>
+#include <cmath>
+#include <set>
+#include <algorithm>
 
-using namespace boost::python;
-using namespace pagmo;
+#include "base.h"
 
-template <class HVAlgorithm>
-static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
-{
-	class_<HVAlgorithm,bases<util::hv_algorithm::base> > retval(name,descr,init<const HVAlgorithm &>());
-	retval.def(init<>());
-	retval.def("compute", &HVAlgorithm::compute);
-	return retval;
-}
+namespace pagmo { namespace util { namespace hv_algorithm {
 
-BOOST_PYTHON_MODULE(_hypervolume) {
-	common_module_init();
+// optimal3d class
+/**
+ * This is the class containing the implementation of the optimal3D algorithm for computing hypervolume.
+ * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
+ *	Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
+ *
+ * @author Krzysztof Nowak (kn@kiryx.net)
+ */
+class __PAGMO_VISIBLE optimal3d : public base {
+	public:
+		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
+		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 
-	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
-		.def(init<const population &>())
-		.def("compute", &util::hypervolume::compute);
+};
 
-	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
-		.def("compute", &util::hv_algorithm::base::compute);
+inline bool compare_fitness(const fitness_vector &, const fitness_vector &);
 
-	algorithm_wrapper<util::hv_algorithm::lebmeasure>("lebmeasure","LebMeasure algorithm.");
-	algorithm_wrapper<util::hv_algorithm::optimal2d>("optimal2d","Optimal2D algorithm.");
-	algorithm_wrapper<util::hv_algorithm::optimal3d>("optimal3d","Optimal3D algorithm.");
-}
+struct ltcmp {
+	inline bool operator()(const fitness_vector &, const fitness_vector &);
+};
+
+} } }
+
+#endif
