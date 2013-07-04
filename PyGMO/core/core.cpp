@@ -262,7 +262,7 @@ BOOST_PYTHON_MODULE(_core)
 	typedef std::vector<population::size_type> (population::*get_best_N_idx)(const population::size_type& N) const;
 
 
-	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
+	class_<population>("population", "Population class.", init<const problem::base &,optional<int, boost::uint32_t> >())
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
 		.def("__deepcopy__", &Py_deepcopy_from_ctor<population>)
