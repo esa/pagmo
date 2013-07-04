@@ -81,7 +81,6 @@ double optimal3d::compute(const std::vector<fitness_vector> & points, const fitn
 				A -= fabs(((*rev_it)[0] - (*rev_it_pred)[0])*((*rev_it)[1] - (*q)[1]));
 				++rev_it;
 			}
-			
 			A += fabs(((*p)[0] - (*(rev_it))[0])*((*p)[1] - (*q)[1]));
 			T.erase(rev_it.base(),erase_begin.base());
 		}
@@ -89,8 +88,8 @@ double optimal3d::compute(const std::vector<fitness_vector> & points, const fitn
 	V += A * fabs(z3 - r[2]);
 
 	return V;
-
 }
+
 
 // Verifies whether given method suits the problem
 /**

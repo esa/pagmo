@@ -26,6 +26,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/python/class.hpp>
 #include <boost/python/module.hpp>
+#include <boost/python/scope.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
 #include <boost/utility.hpp>
 
@@ -42,23 +43,39 @@ using namespace pagmo;
 template <class HVAlgorithm>
 static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
 {
+
 	class_<HVAlgorithm,bases<util::hv_algorithm::base> > retval(name,descr,init<const HVAlgorithm &>());
 	retval.def(init<>());
 	retval.def("compute", &HVAlgorithm::compute);
 	return retval;
 }
 
-BOOST_PYTHON_MODULE(_hypervolume) {
-	common_module_init();
-
-	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
-		.def(init<const population &>())
-		.def("compute", &util::hypervolume::compute);
-
+void expose_hv_algorithm() {
 	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
 		.def("compute", &util::hv_algorithm::base::compute);
-
 	algorithm_wrapper<util::hv_algorithm::lebmeasure>("lebmeasure","LebMeasure algorithm.");
 	algorithm_wrapper<util::hv_algorithm::optimal2d>("optimal2d","Optimal2D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::optimal3d>("optimal3d","Optimal3D algorithm.");
+}
+
+void expose_hypervolume() {
+	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
+		.def(init<const population &>())
+		.def("compute", &util::hypervolume::compute);
+}
+
+BOOST_PYTHON_MODULE(_util) {
+	common_module_init();
+
+	expose_hypervolume();
+
+	scope current;
+	std::string submoduleName(extract<const char*>(current.attr("__name__")));
+	submoduleName.append(".hv_algorithm");
+
+	object submodule(borrowed(PyImport_AddModule(submoduleName.c_str())));
+	current.attr("hv_algorithm") = submodule;
+	scope submoduleScope = submodule;
+	expose_hv_algorithm();
+
 }
