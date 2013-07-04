@@ -78,7 +78,7 @@ bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
 
 
 int test_racing(const problem::base_ptr& prob, population::size_type pop_size, 
-				population::size_type end_size)
+				population::size_type end_size, double noise_std_dev = 0.1)
 {
 	// sanity checks on test inputs
 	if(pop_size < end_size){
@@ -92,7 +92,7 @@ int test_racing(const problem::base_ptr& prob, population::size_type pop_size,
 	std::vector<population::size_type> best_idx_order = pop_original_prob.get_best_idx(pop_size);
 
 	// we create the noisy version of the problem
-	problem::noisy prob_noisy(*prob, 1, 0, 0.1, problem::noisy::NORMAL,seed);
+	problem::noisy prob_noisy(*prob, 1, 0, noise_std_dev, problem::noisy::NORMAL, seed);
 	std::cout << prob_noisy << std::endl;
 
 	// and a random empty population associated to it
@@ -167,7 +167,6 @@ int test_racing_subset(const problem::base_ptr& prob)
 	return 0;
 }
 
-// TODO: This test is fragile -- ``most" of the time it passes.
 int main()
 {
 	int dimension = 10;
@@ -175,18 +174,18 @@ int main()
 	problem::base_ptr prob_cec2006(new problem::cec2006(5));
 	problem::base_ptr prob_zdt1(new problem::zdt1(dimension));
 	
-	return //test_racing(prob_ackley, 10, 2) || 
-		   //test_racing(prob_ackley, 20, 2) ||
-		   //test_racing(prob_ackley, 100, 5) ||
-		   //test_racing(prob_ackley, 5, 1) ||
-		   //test_racing_subset(prob_ackley) ||
-		   //test_racing(prob_cec2006, 10, 2) ||
-		   //test_racing(prob_cec2006, 20, 2) ||
-		   //test_racing(prob_cec2006, 100, 5) ||
-		   //test_racing(prob_cec2006, 5, 1) ||
-		   //test_racing_subset(prob_cec2006) ||
-		   //test_racing(prob_zdt1, 10, 5) ||
-		   //test_racing(prob_zdt1, 20, 5) ||
-		   test_racing(prob_zdt1, 30, 5) ||
+	return test_racing(prob_ackley, 10, 2) || 
+		   test_racing(prob_ackley, 20, 2) ||
+		   test_racing(prob_ackley, 100, 5) ||
+		   test_racing(prob_ackley, 5, 1) ||
+		   test_racing_subset(prob_ackley) ||
+		   test_racing(prob_cec2006, 10, 2) ||
+		   test_racing(prob_cec2006, 20, 2) ||
+		   test_racing(prob_cec2006, 100, 5) ||
+		   test_racing(prob_cec2006, 5, 1) ||
+		   test_racing_subset(prob_cec2006) ||
+		   test_racing(prob_zdt1, 10, 5, 0.03) ||
+		   test_racing(prob_zdt1, 20, 5, 0.03) ||
+		   test_racing(prob_zdt1, 30, 5, 0.03) ||
 		   test_racing_subset(prob_zdt1);
 }
