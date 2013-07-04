@@ -52,7 +52,7 @@ namespace racing{
 		const std::vector<population::size_type> &,
 		bool screen_output
 	);
-
+//! @cond
 	struct race_termination_condition{
 		enum type {ITER_COUNT = 0, EVAL_COUNT = 1};
 	};
@@ -102,6 +102,7 @@ namespace racing{
 	void f_race_assign_ranks(std::vector<racer_type> &, const population &);
 	void f_race_adjust_ranks(std::vector<racer_type> &, const std::vector<population::size_type> &);
 
+//! @endcond
 }
 
 }}
