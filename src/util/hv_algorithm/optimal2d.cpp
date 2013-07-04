@@ -34,37 +34,32 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  * Computational complexity: n*log(n)
  *
  * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
- * @param[in] reference_point reference point for the points
+ * @param[in] r_point reference point for the points
  *
  * @return hypervolume of the pareto set.
- * @throws value_error when trying to compute the hypervolume for the dimension other than 2
+ * @throws value_error when trying to compute the hypervolume for the dimension other than 2 or non-maximal reference point
  */
-double optimal2d::compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point)
+double optimal2d::compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point)
 {
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 	sort(points_cpy.begin(), points_cpy.end(), compare_fitness);
 	double hypervolume = 0.0;
 	for(std::vector<fitness_vector>::size_type idx = 0; idx < points_cpy.size() - 1 ; ++idx) {
-		double area = (points_cpy[idx][0] - points_cpy[idx+1][0]) * (points_cpy[idx][1] - reference_point[1]);
+		double area = (points_cpy[idx][0] - points_cpy[idx+1][0]) * (points_cpy[idx][1] - r_point[1]);
 		hypervolume += fabs(area);
 	}
 	fitness_vector &last = points_cpy.back();
-	hypervolume += fabs((reference_point[0] - last[0]) * (reference_point[1] - last[1]));
+	hypervolume += fabs((r_point[0] - last[0]) * (r_point[1] - last[1]));
 
 	return hypervolume;
 }
 
-void optimal2d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point) {
-	if (reference_point.size() != 2) {
+void optimal2d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
+	if (r_point.size() != 2) {
 		pagmo_throw(value_error, "optimal2d method method works only for 2-dimensional cases.");
 	}
-	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
-		for(fitness_vector::size_type f_idx = 0 ; f_idx < points[idx].size() ; ++f_idx) {
-			if (reference_point[f_idx] <= points[idx][f_idx]) {
-				pagmo_throw(value_error, "Reference point must dominate every other point.");
-			}
-		}
-	}
+
+	base::assert_maximal_reference_point(points, r_point);
 }
 
 bool compare_fitness(const fitness_vector &a, const fitness_vector &b) {

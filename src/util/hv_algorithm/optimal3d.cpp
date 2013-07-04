@@ -35,11 +35,11 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  * Computational complexity: n*log(n)
  *
  * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
- * @param[in] r reference point for the points
+ * @param[in] r_point reference point for the points
  *
  * @return hypervolume.
  */
-double optimal3d::compute(const std::vector<fitness_vector> & points, const fitness_vector & r)
+double optimal3d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
 	// copy the initial set
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
@@ -48,16 +48,16 @@ double optimal3d::compute(const std::vector<fitness_vector> & points, const fitn
 	double A = 0.0; // varying area of the sweeping plane
 	std::multiset<fitness_vector, ltcmp> T;
 
-	// sentinel points (r[0], -INF, r[2]) and (-INF, r[1], r[2])
+	// sentinel points (r_point[0], -INF, r_point[2]) and (-INF, r_point[1], r_point[2])
 	const double INF = std::numeric_limits<double>::max();
-	fitness_vector sA(r.begin(), r.end()); sA[1] = -INF;
-	fitness_vector sB(r.begin(), r.end()); sB[0] = -INF;
+	fitness_vector sA(r_point.begin(), r_point.end()); sA[1] = -INF;
+	fitness_vector sB(r_point.begin(), r_point.end()); sB[0] = -INF;
 
 	T.insert(sA);
 	T.insert(sB);
 	double z3 = points_cpy[0][2];
 	T.insert(points_cpy[0]);
-	A = fabs((points_cpy[0][0] - r[0]) * (points_cpy[0][1] - r[1]));
+	A = fabs((points_cpy[0][0] - r_point[0]) * (points_cpy[0][1] - r_point[1]));
 
 	std::multiset<fitness_vector>::iterator p;
 	std::multiset<fitness_vector>::iterator q;
@@ -85,7 +85,7 @@ double optimal3d::compute(const std::vector<fitness_vector> & points, const fitn
 			T.erase(rev_it.base(),erase_begin.base());
 		}
 	}
-	V += A * fabs(z3 - r[2]);
+	V += A * fabs(z3 - r_point[2]);
 
 	return V;
 }
@@ -98,21 +98,23 @@ double optimal3d::compute(const std::vector<fitness_vector> & points, const fitn
  * Computational complexity: n*log(n)
  *
  * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
- * @param[in] r reference point for the points
+ * @param[in] r_point reference point for the vector of points
  *
- * @throws value_error when trying to compute the hypervolume for the dimension other than 3
+ * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void optimal3d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r) {
-	if (r.size() != 3) {
+void optimal3d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
+	if (r_point.size() != 3) {
 		pagmo_throw(value_error, "optimal3d method method works only for 3-dimensional cases.");
 	}
+
+	base::assert_maximal_reference_point(points, r_point);
 }
 
 bool compare_fitness(const fitness_vector &a, const fitness_vector &b) {
 	return a[2] < b[2];
 }
 
-bool ltcmp::operator()(const fitness_vector & a, const fitness_vector & b){
+bool ltcmp::operator()(const fitness_vector &a, const fitness_vector &b){
 	return a[0] > b[0];
 }
 

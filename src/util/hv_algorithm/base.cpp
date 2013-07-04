@@ -30,4 +30,15 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 // Destructor
 base::~base() {}
 
+// Assert that reference point dominates every other point from the set.
+void base::assert_maximal_reference_point(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
+	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
+		for(fitness_vector::size_type f_idx = 0 ; f_idx < points[idx].size() ; ++f_idx) {
+			if (r_point[f_idx] <= points[idx][f_idx]) {
+				pagmo_throw(value_error, "Reference point must dominate every other point from the set");
+			}
+		}
+	}
+}
+
 } } }

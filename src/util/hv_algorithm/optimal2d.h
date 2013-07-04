@@ -43,8 +43,8 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 class __PAGMO_VISIBLE optimal2d : public base {
 	public:
-		double compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
-		void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
+		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
+		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 
 };
 

@@ -53,7 +53,7 @@ class __PAGMO_VISIBLE lebmeasure : public base {
 
 	public:
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & reference_point);
+		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 	private:
 		lebmeasure_points generate_spawns(const fitness_vector &, const fitness_vector::size_type, const fitness_vector &, lebmeasure_points &, const fitness_vector &);
 		bool dominated(const fitness_vector &, lebmeasure_points &);

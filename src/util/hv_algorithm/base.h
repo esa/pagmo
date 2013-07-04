@@ -53,6 +53,8 @@ class __PAGMO_VISIBLE base
 		virtual ~base();
 		virtual double compute(const std::vector<fitness_vector> &, const fitness_vector &) = 0;
 		virtual void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) = 0;
+	protected:
+		void assert_maximal_reference_point(const std::vector<fitness_vector> &, const fitness_vector &);
 };
 
 
