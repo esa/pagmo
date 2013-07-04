@@ -93,6 +93,34 @@ class __PAGMO_VISIBLE base
 		void assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
 };
 
+///Fitness vector comparator struct
+/**
+ * This is a helper structure that allows for generation of comparator objects.
+ * Since many hypervolume algorithms use comparator functions for sorting, or data structures that differ only by the dimension number,
+ * we provide a general comparator structure for that purpose.
+ */
+struct fitness_vector_cmp {
+
+	///Constructor
+	/**
+	 * Create a comparator object, that compares items by given dimension.
+	 */
+	fitness_vector_cmp(int dim, int method) : m_dim(dim), m_method(method){}
+	inline bool operator()(const fitness_vector &a, const fitness_vector &b) {
+		return m_method == 0 ? le(a,b) : ge(a,b);
+	}
+	inline bool le(const fitness_vector &a, const fitness_vector &b) {
+		return a[m_dim] < b[m_dim];
+	}
+	inline bool ge(const fitness_vector &a, const fitness_vector &b) {
+		return a[m_dim] > b[m_dim];
+	}
+	int m_dim;
+	int m_method;
+	const static int LE = 0;
+	const static int GE = 1;
+};
+
 } } }
 
 

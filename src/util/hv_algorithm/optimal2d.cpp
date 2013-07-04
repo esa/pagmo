@@ -41,7 +41,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 double optimal2d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
-	sort(points_cpy.begin(), points_cpy.end(), compare_fitness);
+	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(0,fitness_vector_cmp::LE));
 	double hypervolume = 0.0;
 	for(std::vector<fitness_vector>::size_type idx = 0; idx < points_cpy.size() - 1 ; ++idx) {
 		double area = (points_cpy[idx][0] - points_cpy[idx+1][0]) * (points_cpy[idx][1] - r_point[1]);
@@ -75,10 +75,6 @@ void optimal2d::verify_before_compute(const std::vector<fitness_vector> &points,
 	}
 
 	base::assert_maximal_reference_point(points, r_point);
-}
-
-bool compare_fitness(const fitness_vector &a, const fitness_vector &b) {
-	return a[0] < b[0];
 }
 
 } } }

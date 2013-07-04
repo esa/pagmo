@@ -53,8 +53,6 @@ class __PAGMO_VISIBLE optimal3d : public base {
 		base_ptr clone() const;
 };
 
-inline bool compare_fitness(const fitness_vector &, const fitness_vector &);
-
 struct ltcmp {
 	inline bool operator()(const fitness_vector &, const fitness_vector &);
 };
