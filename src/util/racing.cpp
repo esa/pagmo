@@ -309,10 +309,12 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * (6) Return decided. If too few individuals are in decided, append it
  *     with individuals from in_race based on their rank sum (smaller the better).
  *
+ * @param[in] pop population containing the individuals to race
  * @param[in] n_final Desired number of winners.
  * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
  * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
+ * @param[in] seed random seed for the race
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
  * @param[in] screen_output Whether to log racing status on the console output.
  *
@@ -336,8 +338,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 
 	typedef population::size_type size_type;
 
-	unsigned int cur_seed = start_seed;
-	rng_uint32 seeder = rng_generator::get<rng_uint32>();
+	rng_uint32 seeder(start_seed);
 
 	race_termination_condition::type term_cond = race_termination_condition::EVAL_COUNT;
 	
@@ -396,7 +397,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 			break;
 		}
 
-		cur_seed = seeder();
+		unsigned int cur_seed = seeder();
 		dynamic_cast<const pagmo::problem::base_stochastic &>(racing_pop.problem()).set_seed(cur_seed);	
 
 		// NOTE: Here after resetting to a new seed, we do not perform re-evaluation of the

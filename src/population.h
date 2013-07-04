@@ -188,7 +188,7 @@ class __PAGMO_VISIBLE population
 		
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
-		explicit population(const problem::base &, int = 0);
+		explicit population(const problem::base &, int = 0, const boost::uint32_t &seed = rng_generator::get<rng_uint32>()());
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;

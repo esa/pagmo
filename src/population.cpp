@@ -58,10 +58,11 @@ problem::base_ptr &population_access::get_problem_ptr(population &pop)
  *
  * @param[in] p problem::base that will be associated to the population.
  * @param[in] n integer number of individuals in the population.
+ * @param[in] seed rng seed (used to initialize the pop and in race)
  *
  * @throw value_error if n is negative.
  */
-population::population(const problem::base &p, int n):m_prob(p.clone()), m_pareto_rank(n), m_crowding_d(n), m_drng(rng_generator::get<rng_double>()),m_urng(rng_generator::get<rng_uint32>())
+population::population(const problem::base &p, int n, const boost::uint32_t &seed):m_prob(p.clone()), m_pareto_rank(n), m_crowding_d(n), m_drng(seed),m_urng(seed)
 {
 	if (n < 0) {
 		pagmo_throw(value_error,"number of individuals cannot be negative");
@@ -1024,7 +1025,8 @@ population::size_type population::n_dominated(const individual_type &ind) const
  */
 std::vector<population::size_type> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set) const
 {
-	return util::racing::race_pop(*this, n_final, min_trials, max_count, delta, m_urng(), active_set, false);
+	return util::racing::race_pop(*this, n_final, min_trials, max_count,
+									 delta, m_urng(), active_set, false);
 }
 
 /// Overload stream operator for pagmo::population.
