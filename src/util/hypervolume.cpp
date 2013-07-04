@@ -32,7 +32,7 @@ namespace pagmo { namespace util {
  *
  * @param[in] pop reference to population object from which pareto front is computed
  */
-hypervolume::hypervolume(const population & pop) : m_pop(&pop) {
+hypervolume::hypervolume(boost::shared_ptr<population> pop) : m_pop(pop) {
 	this->m_f_dim = this->m_pop->problem().get_f_dimension();
 	std::vector<std::vector<population::size_type> > pareto_fronts = this->m_pop->compute_pareto_fronts();
 	this->m_points.resize(pareto_fronts[0].size());
@@ -50,7 +50,7 @@ hypervolume::hypervolume(const population & pop) : m_pop(&pop) {
  *
  * @params[in] 
  */
-hypervolume::hypervolume(const std::vector<fitness_vector> & points) : m_pop(NULL), m_points(points) {
+hypervolume::hypervolume(const std::vector<fitness_vector> & points) : m_points(points) {
 	this->m_f_dim = m_points[0].size();
 
 	verify_after_construct();

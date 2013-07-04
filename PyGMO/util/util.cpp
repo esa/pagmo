@@ -60,7 +60,7 @@ void expose_hv_algorithm() {
 
 void expose_hypervolume() {
 	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
-		.def(init<const population &>())
+		.def(init<boost::shared_ptr<population> >())
 		.def("compute", &util::hypervolume::compute);
 }
 

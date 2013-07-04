@@ -41,14 +41,14 @@ namespace pagmo { namespace util {
 class __PAGMO_VISIBLE hypervolume
 {
 	public:
-		hypervolume(const population &);
+		hypervolume(boost::shared_ptr<population>);
 		hypervolume(const std::vector<fitness_vector> &);
 		double compute(const fitness_vector &, hv_algorithm::base_ptr);
 
 	private:
 		void verify_after_construct();
 		void verify_before_compute(const fitness_vector &, hv_algorithm::base_ptr);
-		const population *m_pop;
+		boost::shared_ptr<population> m_pop;
 		std::vector<fitness_vector> m_points;
 		fitness_vector::size_type m_f_dim;
 };
