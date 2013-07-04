@@ -327,7 +327,7 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, unsigned int start_seed, const std::vector<population::size_type>& active_set, bool screen_output)
+std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, unsigned int seed, const std::vector<population::size_type>& active_set, bool screen_output)
 {
 	// Problem has to be stochastic
 	_validate_problem_stochastic(pop.problem());
@@ -338,7 +338,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 
 	typedef population::size_type size_type;
 
-	rng_uint32 seeder(start_seed);
+	rng_uint32 seeder(seed);
 
 	race_termination_condition::type term_cond = race_termination_condition::EVAL_COUNT;
 	
@@ -410,9 +410,8 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 		// champion information is not used during racing.
 
 		// Do racing!!
-		// Evalute with the new rng seed
+		// Re-evaluate the individuals with the new rng seed
 		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it) {
-			// Re-evaluate the individuals under the new seed
 			count_nfes++;
 			racing_pop.set_x(*it, racing_pop.get_individual(*it).cur_x);
 		}

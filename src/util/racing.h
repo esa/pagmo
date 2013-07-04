@@ -48,7 +48,7 @@ namespace racing{
 		const unsigned int min_trials,
 		const unsigned int max_count,
 		double delta,
-		unsigned int start_seed,
+		unsigned int seed,
 		const std::vector<population::size_type> &,
 		bool screen_output
 	);
