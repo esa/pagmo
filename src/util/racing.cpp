@@ -9,7 +9,7 @@
 namespace pagmo{ namespace util{
 	
 namespace racing{
-
+//! @cond Doxygen skips the following
 /// Friedman rank assignment (before every racing iteration)
 /**
  * Updates racers with the friedman ranks, assuming that the required individuals
@@ -288,14 +288,18 @@ void _validate_racing_params(const population& pop, const population::size_type 
 	}
 }
 
-/// Core implementation of the racing routine.
+ //! @endcond Doxygen comments the following
+
+/// Races some individuals in a population
 /**
- * Internally it varies the problem's rng seed and re-evaluate the still-active
- * individuals, perform stat. test and drop statistically inferior individual
- * whenever possible. As F-Race is based on rankings between the racing entities,
- * it requires a routine that can determine the ranking of the individual w.r.t.
- * any given rng seed. Here, get_best_idx() function will be used to retrieve
- * such rankings. Specifically, racing contains the following steps:
+ * Performs an F-Race among certain individuals in a population.
+ * F-Races are based on the Friedman test, thus
+ * a routine to determine the ranking of individuals w.r.t.
+ * any given rng seed is needed. Here, population::get_best_idx() is used
+ * extending the whole racing concept to multi-objective and constrained
+ * optimization.
+ *
+ * Specifically, racing contains the following steps:
  *
  * (1) Re-evaluate the active individuals with the newest random seed
  * (2) Assign ranks to the active individuals and append to the observation data
@@ -314,7 +318,7 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
  * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
- * @param[in] seed random seed for the race
+ * @param[in] seed Seed used to seed the race
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
  * @param[in] screen_output Whether to log racing status on the console output.
  *
@@ -327,7 +331,7 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, unsigned int seed, const std::vector<population::size_type>& active_set, bool screen_output)
+std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, const double delta, const unsigned int seed, const std::vector<population::size_type>& active_set, const bool screen_output)
 {
 	// Problem has to be stochastic
 	_validate_problem_stochastic(pop.problem());
