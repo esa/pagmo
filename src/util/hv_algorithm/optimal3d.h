@@ -37,11 +37,12 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-// optimal3d class
+/// Optimal3D hypervolume algorithm class
 /**
  * This is the class containing the implementation of the optimal3D algorithm for computing hypervolume.
+ *
  * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
- *	Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
+ * Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */

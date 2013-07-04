@@ -30,7 +30,14 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 // Destructor
 base::~base() {}
 
-// Assert that reference point dominates every other point from the set.
+/// Assert that reference point dominates every other point from the set.
+/**
+ * This is a method that can be referenced from verify_before_compute method.
+ * The method checks whether provided reference point is "no worse" and in at least one objective "better" for each of the points from the set.
+ *
+ * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
+ * @param[in] r_point - distringuished "reference point".
+*/
 void base::assert_maximal_reference_point(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
 	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		for(fitness_vector::size_type f_idx = 0 ; f_idx < points[idx].size() ; ++f_idx) {

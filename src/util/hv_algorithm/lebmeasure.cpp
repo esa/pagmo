@@ -35,8 +35,10 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmeasure_points;
 
-// Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
+/// lebmeasure::compute
 /**
+ * Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
+ *
  * @param[in] points set of points describing the hypervolume
  * @param[in] r_point reference point for the hypervolume
  *
@@ -65,8 +67,10 @@ double lebmeasure::compute(const std::vector<fitness_vector> & points, const fit
 	return hypervolume;
 }
 
-// Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
+// lebmeasure::verify_before_compute
 /**
+ * Verifies whether this method is aplicable to given hypervolume problem.
+ *
  * @param[in] points set of points describing the hypervolume
  * @param[in] r_point reference point for the hypervolume
  *

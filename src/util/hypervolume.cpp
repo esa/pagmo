@@ -48,7 +48,7 @@ hypervolume::hypervolume(boost::shared_ptr<population> pop) : m_pop(pop) {
 /**
  * Constructs a hypervolume object from a provided set of points.
  *
- * @params[in] 
+ * @param[in] points vector of points for which the hypervolume is computed
  */
 hypervolume::hypervolume(const std::vector<fitness_vector> & points) : m_points(points) {
 	this->m_f_dim = m_points[0].size();
@@ -58,7 +58,7 @@ hypervolume::hypervolume(const std::vector<fitness_vector> & points) : m_points(
 
 // verify after construct
 /**
- * Verifies whether basic requirements are met for the initial set of points
+ * Verifies whether basic requirements are met for the initial set of points.
  *
  * @throws value_error if point size is empty or when the dimensions among the points differ
  */
@@ -76,9 +76,9 @@ void hypervolume::verify_after_construct() {
 
 // verify before compute
 /**
- * Verifies whether reference point and the hypervolume method meet certain criteria
+ * Verifies whether reference point and the hypervolume method meet certain criteria.
  *
- * @params[in] r_point fitness vector describing the reference point
+ * @param[in] r_point fitness vector describing the reference point
  *
  * @throws value_error if reference point's and point set dimension do not agree
  */
@@ -90,13 +90,13 @@ void hypervolume::verify_before_compute(const fitness_vector & r_point, hv_algor
 }
 
 // compute hypervolume
-/*
- * Computes hypervolume provided a reference point and an algorithm object
+/**
+ * Computes hypervolume provided a reference point and an algorithm object.
  *
- * @params[in] r_point fitness vector describing the reference point
- * @params[in] hv_algorithm algorithm object used for computing the hypervolume
+ * @param[in] r_point fitness vector describing the reference point
+ * @param[in] hv_algorithm algorithm object used for computing the hypervolume
  *
- * @return hypervolume
+ * @return value representing the hypervolume
  */
 double hypervolume::compute(const fitness_vector & r_point, hv_algorithm::base_ptr hv_algorithm) {
 	this->verify_before_compute(r_point, hv_algorithm);

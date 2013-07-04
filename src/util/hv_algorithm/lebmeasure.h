@@ -42,9 +42,9 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmeasure_points;
 
-/// lebmeasure namespace.
+/// LebMeasure algorithm class.
 /**
- * This is the namespace containing implementation of the LebMeasure algorithm
+ * This is the class containing the implementation of the LebMeasure algorithm.
  *
  * @see L. While, "A new analysis of the LebMeasure Algorithm for Calculating Hypervolume"
  * @author Krzysztof Nowak (kn@kiryx.net)

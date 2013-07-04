@@ -9,17 +9,14 @@ def _hypervolume_ctor(self, *args, **kwargs):
 	Constructs a hypervolume object used for the computation of hypervolue and exclusive hypervolume.
 	Constructors use unnamed arguments.
 
+	Object can be constructed from the population object, or from a fixed list of points
+	Points within a fixed list must all be of equal size, larger than 1.
+
 	USAGE:
-		Construction by population object:
-
+		from PyGMO import *
 		hv = hypervolume(pop)
-		* pop - instance of the population object
+		hv = hypervolume([[1,1,2],[2,1,2],[2,2,3]])
 
-		Construction by fixed list of points:
-
-		hv = hypervolume(points_list)
-
-		* points_list - non-empty list of lists, all of equal size >= 2.
 	"""
 	return self._original_init(*args, **kwargs)
 

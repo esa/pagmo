@@ -34,10 +34,10 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-// optimal2d class
+/// Optimal2D hypervolume algorithm class
 /**
  * This is the class containing the implementation of the optimal2D algorithm for computing hypervolume.
- * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then compute partial areas linearly.
+ * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then computing the partial areas linearly.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */

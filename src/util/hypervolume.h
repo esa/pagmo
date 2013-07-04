@@ -33,7 +33,7 @@
 
 namespace pagmo { namespace util {
 
-/// hypervolume class.
+/// Hypervolume class.
 /**
  * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
  * @author Krzysztof Nowak (kn@kiryx.net)

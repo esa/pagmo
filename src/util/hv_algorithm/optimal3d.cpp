@@ -91,11 +91,9 @@ double optimal3d::compute(const std::vector<fitness_vector> &points, const fitne
 }
 
 
-// Verifies whether given method suits the problem
+// verify_before_compute
 /**
- * This method should be used both as a solution to 3D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 3D.
- *
- * Computational complexity: n*log(n)
+ * Verifies whether given algorithm suits the requested data.
  *
  * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the vector of points

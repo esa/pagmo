@@ -37,7 +37,6 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  * @param[in] r_point reference point for the points
  *
  * @return hypervolume of the pareto set.
- * @throws value_error when trying to compute the hypervolume for the dimension other than 2 or non-maximal reference point
  */
 double optimal2d::compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point)
 {
@@ -54,6 +53,16 @@ double optimal2d::compute(const std::vector<fitness_vector> & points, const fitn
 	return hypervolume;
 }
 
+
+// verify_before_compute
+/**
+ * Verifies whether given algorithm suits the requested data.
+ *
+ * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the vector of points
+ *
+ * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
+ */
 void optimal2d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
 	if (r_point.size() != 2) {
 		pagmo_throw(value_error, "optimal2d method method works only for 2-dimensional cases.");
