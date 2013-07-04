@@ -54,7 +54,9 @@ namespace pagmo { namespace util {
 
 /// Hypervolume class.
 /**
- * This class contains all procedures that are later accessed by population class when computing hypervolume using various methods
+ * This class allows for setting up, and solving the hypervolume computation problems.
+ * Construction of the problem is either done using the population object, or from a fixed set of points.
+ *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
 class __PAGMO_VISIBLE hypervolume

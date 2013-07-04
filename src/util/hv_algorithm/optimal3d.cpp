@@ -100,7 +100,7 @@ double optimal3d::compute(const std::vector<fitness_vector> &points, const fitne
  *
  * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void optimal3d::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
+void optimal3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	if (r_point.size() != 3) {
 		pagmo_throw(value_error, "optimal3d method method works only for 3-dimensional cases.");
 	}

@@ -28,6 +28,7 @@
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <boost/lexical_cast.hpp>
 
 #include "../../config.h"
 #include "../../exceptions.h"
@@ -70,7 +71,7 @@ class __PAGMO_VISIBLE base
 		 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 		 * @param[in] r_point - distinguished "reference point".
 		 */
-		virtual double compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) = 0;
+		virtual double compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
 
 		/// Verification of input
 		/**
@@ -80,7 +81,7 @@ class __PAGMO_VISIBLE base
 		 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 		 * @param[in] r_point - distringuished "reference point".
 		 */
-		virtual void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) = 0;
+		virtual void verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
 
 		/// Clone method.
 		/**

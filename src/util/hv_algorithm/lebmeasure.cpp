@@ -37,7 +37,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @return hypervolume of the pareto set.
  */
-double lebmeasure::compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
+double lebmeasure::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	lebmeasure_points point_set;
 	fitness_vector::size_type f_dim = points[0].size();
 	for (std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
@@ -67,7 +67,7 @@ double lebmeasure::compute(const std::vector<fitness_vector> & points, const fit
  *
  * @throws value_error if the reference point is of the the dimension lesser than 3 or non-maximal reference point
  */
-void lebmeasure::verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) {
+void lebmeasure::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	if (r_point.size() < 3) {
 		pagmo_throw(value_error, "Hypervolume of dimension lesser than 3 is not allowed for this method, use optimal 2D instead");
 	}
