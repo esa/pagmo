@@ -45,7 +45,7 @@ class __PAGMO_VISIBLE optimal2d : public base {
 	public:
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-
+		base_ptr clone() const;
 };
 
 inline bool compare_fitness(const fitness_vector &, const fitness_vector &);

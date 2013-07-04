@@ -26,15 +26,6 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// lebmeasure_points typedef
-/**
- * This is the main container type, used for LebMeasure.
- * std::deque is used for the purpose of fast insertion and removal at the two ends of the list.
- * Because we need to store a "spawn dimension" along with given point, we use std::deque of std::pair<fitness_vector, fitness_vector::size_type>.
- * Spawn dimension is originally equal to fitness_vector.size() for each point, but it changes over the course of the algorithm.
- */
-typedef std::deque<std::pair<fitness_vector, fitness_vector::size_type> > lebmeasure_points;
-
 /// lebmeasure::compute
 /**
  * Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
@@ -83,8 +74,17 @@ void lebmeasure::verify_before_compute(const std::vector<fitness_vector> & point
 	base::assert_maximal_reference_point(points, r_point);
 }
 
-// Determinines whether given point p is strictly dominated by any point from given set of points.
+
+/// Clone method.
+base_ptr lebmeasure::clone() const
+{
+	return base_ptr(new lebmeasure(*this));
+}
+
+/// Dominated method
 /**
+ * Determinines whether given point p is strictly dominated by any point from given set of points.
+ *
  * @param[in] p fitness vector describing given point in space
  * @param[in] point_set set of pairs <point, spawn_dimension>, p is compared against for strict dominance
  *

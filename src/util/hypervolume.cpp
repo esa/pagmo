@@ -26,14 +26,13 @@
 
 namespace pagmo { namespace util {
 
-// hypervolume constructor
+/// Constructor from population
 /**
  * Constructs a hypervolume object, where points are elicited from the referenced population object.
  *
  * @param[in] pop reference to population object from which pareto front is computed
  */
 hypervolume::hypervolume(boost::shared_ptr<population> pop) : m_pop(pop) {
-	this->m_f_dim = this->m_pop->problem().get_f_dimension();
 	std::vector<std::vector<population::size_type> > pareto_fronts = this->m_pop->compute_pareto_fronts();
 	this->m_points.resize(pareto_fronts[0].size());
 	std::deque<std::pair<fitness_vector, fitness_vector::size_type> > point_set;
@@ -44,19 +43,25 @@ hypervolume::hypervolume(boost::shared_ptr<population> pop) : m_pop(pop) {
 	verify_after_construct();
 }
 
-// hypervolume constructor
+/// Constructor from a vector of points
 /**
  * Constructs a hypervolume object from a provided set of points.
  *
  * @param[in] points vector of points for which the hypervolume is computed
  */
 hypervolume::hypervolume(const std::vector<fitness_vector> & points) : m_points(points) {
-	this->m_f_dim = m_points[0].size();
-
 	verify_after_construct();
 }
 
-// verify after construct
+/// Copy constructor.
+/**
+ * Will perform a deep copy of hypervolume object
+ *
+ * @param[in] hv hypervolume object to be copied
+ */
+hypervolume::hypervolume(const hypervolume &hv): m_pop(hv.m_pop), m_points(hv.m_points) { }
+
+/// verify after construct
 /**
  * Verifies whether basic requirements are met for the initial set of points.
  *
@@ -103,4 +108,11 @@ double hypervolume::compute(const fitness_vector & r_point, hv_algorithm::base_p
 	return hv_algorithm->compute(this->m_points, r_point);
 }
 
+hypervolume_ptr hypervolume::clone() const
+{
+	return hypervolume_ptr(new hypervolume(*this));
+}
+
 }}
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hypervolume);

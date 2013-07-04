@@ -54,12 +54,12 @@ class __PAGMO_VISIBLE lebmeasure : public base {
 	public:
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+		base_ptr clone() const;
 	private:
 		lebmeasure_points generate_spawns(const fitness_vector &, const fitness_vector::size_type, const fitness_vector &, lebmeasure_points &, const fitness_vector &);
 		bool dominated(const fitness_vector &, lebmeasure_points &);
 		double volume_between(const fitness_vector &, const fitness_vector &);
 		fitness_vector get_opposite_point(const fitness_vector &, lebmeasure_points &, const fitness_vector &);
-
 };
 
 } } }

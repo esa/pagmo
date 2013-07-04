@@ -61,16 +61,18 @@ typedef boost::shared_ptr<base> base_ptr;
 class __PAGMO_VISIBLE base
 {
 	public:
+		/// Compute method
 		/**
-		 * This method returns hypervolume.
-		 * It accepts a list of points as an input, and the distringuished "reference point".
+		 * This method computes the hypervolume.
+		 * It accepts a list of points as an input, and the distinguished "reference point".
 		 * Hypervolume is then computed as a joint hypervolume of hypercubes, generated pairwise with the reference point and each point from the set.
 		 *
 		 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
-		 * @param[in] r_point - distringuished "reference point".
+		 * @param[in] r_point - distinguished "reference point".
 		 */
 		virtual double compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) = 0;
 
+		/// Verification of input
 		/**
 		 * This method serves as a verification method.
 		 * Not every algorithm is suited of every type of problem.
@@ -79,11 +81,18 @@ class __PAGMO_VISIBLE base
 		 * @param[in] r_point - distringuished "reference point".
 		 */
 		virtual void verify_before_compute(const std::vector<fitness_vector> & points, const fitness_vector & r_point) = 0;
+
+		/// Clone method.
+		/**
+		 * @return pagmo::util::hv_algorithm::base_ptr to a copy of this.
+		 */
+		virtual base_ptr clone() const = 0;
 		virtual ~base();
 	protected:
 		void assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
 };
 
-
 } } }
+
+
 #endif

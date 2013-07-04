@@ -108,6 +108,12 @@ void optimal3d::verify_before_compute(const std::vector<fitness_vector> & points
 	base::assert_maximal_reference_point(points, r_point);
 }
 
+/// Clone method.
+base_ptr optimal3d::clone() const
+{
+	return base_ptr(new optimal3d(*this));
+}
+
 bool compare_fitness(const fitness_vector &a, const fitness_vector &b) {
 	return a[2] < b[2];
 }
