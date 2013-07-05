@@ -69,4 +69,20 @@ void base::assert_maximal_reference_point(const std::vector<fitness_vector> &poi
 	}
 }
 
+///Constructor of the comparator object
+/**
+ * Create a comparator object, that compares items by given dimension, according to given inequality function.
+ *
+ * @param[in] dim dimension index by which we compare the fitness vectors
+ * @param[in] cmp_type inequality expression used for comparison, either character '<' or '>'
+ */
+fitness_vector_cmp::fitness_vector_cmp(int dim, char cmp_type) {
+	if (cmp_type == '<') {
+		m_cmp_obj = boost::shared_ptr<cmp_fun>( new cmp_le(dim));
+	}
+	else {
+		m_cmp_obj = boost::shared_ptr<cmp_fun>( new cmp_ge(dim));
+	}
+}
+
 } } }

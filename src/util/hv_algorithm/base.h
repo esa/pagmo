@@ -97,36 +97,60 @@ class __PAGMO_VISIBLE base
 		void serialize(Archive &ar, const unsigned int) {
 			(void)ar;
 		}
-
-
 };
 
-///Fitness vector comparator struct
+///Fitness vector comparator class
 /**
- * This is a helper structure that allows for generation of comparator objects.
- * Since many hypervolume algorithms use comparator functions for sorting, or data structures that differ only by the dimension number,
- * we provide a general comparator structure for that purpose.
+ * This is a helper class that allows for the generation of comparator objects.
+ * Many hypervolume algorithms use comparator functions for sorting, or data structures handling.
+ * In most cases the difference between the comparator functions differ either by the dimension number, or the inequality sign ('>' or '<').
+ * We provide a general comparator class for that purpose.
  */
-struct fitness_vector_cmp {
+class fitness_vector_cmp {
 
-	///Constructor
-	/**
-	 * Create a comparator object, that compares items by given dimension.
-	 */
-	fitness_vector_cmp(int dim, int method) : m_dim(dim), m_method(method){}
-	inline bool operator()(const fitness_vector &a, const fitness_vector &b) {
-		return m_method == 0 ? le(a,b) : ge(a,b);
-	}
-	inline bool le(const fitness_vector &a, const fitness_vector &b) {
-		return a[m_dim] < b[m_dim];
-	}
-	inline bool ge(const fitness_vector &a, const fitness_vector &b) {
-		return a[m_dim] > b[m_dim];
-	}
-	int m_dim;
-	int m_method;
-	const static int LE = 0;
-	const static int GE = 1;
+	public:
+		fitness_vector_cmp(int dim, char cmp_type);
+	
+		///Overloaded operator()
+		/**
+		 * Overloading call operator is required for all sorting and data structure key comparators in stl library.
+		 *
+		 * @param[in] lhs fitness_vector on the left hand side
+		 * @param[in] rhs fitness_vector on the right hand side
+		 *
+		 * @return boolean variable stating whether given expression is true for fitness_vectors.
+		 */
+		inline bool operator()(const fitness_vector &lhs, const fitness_vector &rhs) {
+			return (*m_cmp_obj)(lhs,rhs);
+		}
+	private:
+		struct cmp_fun {
+			int m_dim;
+			cmp_fun(int dim) : m_dim(dim) { }
+			virtual ~cmp_fun() { };
+			/// virtual operator() - It is never called anyway, so we could have gone with pure virtual, yet then we would not be able to use inline.
+			virtual inline bool operator()(const fitness_vector &lhs, const fitness_vector &rhs) {
+				return true;
+				// some default "safe" comparison.
+				return lhs[0] < rhs[0];
+			}
+		};
+
+		struct cmp_le : cmp_fun {	
+			cmp_le(int dim) : cmp_fun(dim) { }
+			inline bool operator()(const fitness_vector &lhs, const fitness_vector &rhs) {
+				return lhs[m_dim] < rhs[m_dim];
+			}
+		};
+
+		struct cmp_ge : cmp_fun {	
+			cmp_ge(int dim) : cmp_fun(dim) { }
+			inline bool operator()(const fitness_vector &lhs, const fitness_vector &rhs) {
+				return lhs[m_dim] > rhs[m_dim];
+			}
+		};
+
+		struct boost::shared_ptr<cmp_fun> m_cmp_obj;
 };
 
 } } }

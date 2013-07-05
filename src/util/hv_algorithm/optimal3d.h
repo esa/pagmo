@@ -61,10 +61,6 @@ class __PAGMO_VISIBLE optimal3d : public base {
 
 };
 
-struct ltcmp {
-	inline bool operator()(const fitness_vector &, const fitness_vector &);
-};
-
 } } }
 
 BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::optimal3d);

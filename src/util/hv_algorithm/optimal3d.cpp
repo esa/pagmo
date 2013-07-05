@@ -43,10 +43,10 @@ double optimal3d::compute(const std::vector<fitness_vector> &points, const fitne
 {
 	// copy the initial set
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
-	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(2,fitness_vector_cmp::LE));
+	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(2,'<'));
 	double V = 0.0; // hypervolume
 	double A = 0.0; // varying area of the sweeping plane
-	std::multiset<fitness_vector, fitness_vector_cmp> T(fitness_vector_cmp(0, fitness_vector_cmp::GE));
+	std::multiset<fitness_vector, fitness_vector_cmp> T(fitness_vector_cmp(0, '>'));
 
 	// sentinel points (r_point[0], -INF, r_point[2]) and (-INF, r_point[1], r_point[2])
 	const double INF = std::numeric_limits<double>::max();
@@ -112,10 +112,6 @@ void optimal3d::verify_before_compute(const std::vector<fitness_vector> &points,
 base_ptr optimal3d::clone() const
 {
 	return base_ptr(new optimal3d(*this));
-}
-
-bool ltcmp::operator()(const fitness_vector &a, const fitness_vector &b){
-	return a[0] > b[0];
 }
 
 } } }
