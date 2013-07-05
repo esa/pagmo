@@ -119,3 +119,5 @@ bool ltcmp::operator()(const fitness_vector &a, const fitness_vector &b){
 }
 
 } } }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::optimal3d);

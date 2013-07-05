@@ -78,3 +78,5 @@ void optimal2d::verify_before_compute(const std::vector<fitness_vector> &points,
 }
 
 } } }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::optimal2d);

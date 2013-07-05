@@ -21,42 +21,57 @@
  *   Free Software Foundation, Inc.,                                         *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
-
-#ifndef PAGMO_UTIL_HV_ALGORITHM_OPTIMAL2D_H
-#define PAGMO_UTIL_HV_ALGORITHM_OPTIMAL2D_H
-
+#include <fstream>
 #include <iostream>
-#include <vector>
-#include <cmath>
+#include <iomanip>
 #include <algorithm>
 
-#include "base.h"
+// include headers that implement a archive in simple text format
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include "../src/util/hypervolume.h"
 
-namespace pagmo { namespace util { namespace hv_algorithm {
+using namespace pagmo;
+int main()
+{
+	unsigned int points_size = 10;
+	unsigned int dim_size = 3;
 
-/// Optimal2D hypervolume algorithm class
-/**
- * This is the class containing the implementation of the optimal2D algorithm for computing hypervolume.
- * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then computing the partial areas linearly.
- *
- * @author Krzysztof Nowak (kn@kiryx.net)
- */
-class __PAGMO_VISIBLE optimal2d : public base {
-	public:
-		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		base_ptr clone() const;
-	private:
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
+	std::vector<fitness_vector> points(points_size, fitness_vector(dim_size, 0.0));
+	for(unsigned int i = 0 ; i < points_size ; ++i) {
+		for(unsigned int j = 0 ; j < dim_size ; ++j) {
+			points[i][j] = i*dim_size + j;
 		}
-};
+	}
 
-} } }
+	util::hypervolume_ptr hv_obj = util::hypervolume(points).clone();
+	util::hypervolume_ptr hv_obj_new = util::hypervolume().clone();
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::optimal2d);
+	// create and open a character archive for output
+	{
+	std::ofstream ofs("test.ar");
+	// save data to archive
+	boost::archive::text_oarchive oa(ofs);
+	// write class instance to archive
+	oa & hv_obj;
+	} // archive closes on destructor
+	
+	// create and open an archive for input
+	{
+	std::ifstream ifs("test.ar");
+	// load data from the archive
+	boost::archive::text_iarchive ia(ifs);
+	// read class state from archive
+	ia & hv_obj_new;
+	} // archive closes on destructor
 
-#endif
+	for(unsigned int i = 0 ; i < points_size ; ++i) {
+		for(unsigned int j = 0 ; j < dim_size ; ++j) {
+			if (hv_obj->get_points()[i][j] != hv_obj_new->get_points()[i][j]) {
+				std::cout << "Different points found! p_idx:" << i << " d_idx:" << j << ": " << hv_obj->get_points()[i][j] << " vs " << hv_obj_new->get_points()[i][j] << std::endl;
+				return 1;
+			}
+		}
+	}
+	return 0;
+}

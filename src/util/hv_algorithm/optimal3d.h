@@ -51,6 +51,14 @@ class __PAGMO_VISIBLE optimal3d : public base {
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		base_ptr clone() const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
+
 };
 
 struct ltcmp {
@@ -58,5 +66,7 @@ struct ltcmp {
 };
 
 } } }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::optimal3d);
 
 #endif

@@ -38,20 +38,6 @@ class hypervolume;
 /// Alias for the shared pointer to a pagmo::util::hypervolume.
 typedef boost::shared_ptr<hypervolume> hypervolume_ptr;
 
-}}
-
-namespace boost { namespace serialization {
-
-template <class Archive>
-void save_construct_data(Archive &, const pagmo::util::hypervolume *, const unsigned int);
-
-template <class Archive>
-inline void load_construct_data(Archive &, pagmo::util::hypervolume *, const unsigned int);
-
-}}
-
-namespace pagmo { namespace util {
-
 /// Hypervolume class.
 /**
  * This class allows for setting up, and solving the hypervolume computation problems.
@@ -62,52 +48,26 @@ namespace pagmo { namespace util {
 class __PAGMO_VISIBLE hypervolume
 {
 	public:
+		hypervolume();
 		hypervolume(const hypervolume &);
 		hypervolume(boost::shared_ptr<population>);
 		hypervolume(const std::vector<fitness_vector> &);
 		double compute(const fitness_vector &, hv_algorithm::base_ptr);
 		hypervolume_ptr clone() const;
+		const std::vector<fitness_vector> &get_points() const;
 
 	private:
+		std::vector<fitness_vector> m_points;
 		void verify_after_construct();
 		void verify_before_compute(const fitness_vector &, hv_algorithm::base_ptr);
-		boost::shared_ptr<population> m_pop;
-		std::vector<fitness_vector> m_points;
 
-		template <class Archive>
-		friend void boost::serialization::save_construct_data(Archive &, const hypervolume *, const unsigned int);
-		template <class Archive>
-		friend void boost::serialization::load_construct_data(Archive &, hypervolume *, const unsigned int);
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & m_pop;
+			ar & m_points;
 		}
 };
-
-}}
-
-namespace boost { namespace serialization {
-
-template <class Archive>
-inline void save_construct_data(Archive &ar, const pagmo::util::hypervolume *hv, const unsigned int)
-{
-	// Save data required to construct instance.
-	// I can't really make a clone of m_pop
-	boost::shared_ptr<pagmo::population> pop = hv->m_pop;
-	ar << pop;
-}
-
-template <class Archive>
-inline void load_construct_data(Archive &ar, pagmo::util::hypervolume *hv, const unsigned int)
-{
-	// Retrieve data from archive required to construct new instance.
-	boost::shared_ptr<pagmo::population> pop;
-	ar >> pop;
-	// I'm not sure whether I should init from pop of points
-	::new(hv)pagmo::util::hypervolume(pop);
-}
 
 }}
 

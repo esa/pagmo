@@ -177,5 +177,6 @@ fitness_vector lebmeasure::get_opposite_point(const fitness_vector &p, lebmeasur
 	return a;
 }
 
-
 } } }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::lebmeasure);

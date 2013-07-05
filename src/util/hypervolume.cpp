@@ -32,11 +32,11 @@ namespace pagmo { namespace util {
  *
  * @param[in] pop reference to population object from which pareto front is computed
  */
-hypervolume::hypervolume(boost::shared_ptr<population> pop) : m_pop(pop) {
-	std::vector<std::vector<population::size_type> > pareto_fronts = m_pop->compute_pareto_fronts();
+hypervolume::hypervolume(boost::shared_ptr<population> pop) {
+	std::vector<std::vector<population::size_type> > pareto_fronts = pop->compute_pareto_fronts();
 	m_points.resize(pareto_fronts[0].size());
 	for (population::size_type idx = 0 ; idx < pareto_fronts[0].size() ; ++idx) {
-		m_points[idx] = fitness_vector(m_pop->get_individual(pareto_fronts[0][idx]).cur_f);
+		m_points[idx] = fitness_vector(pop->get_individual(pareto_fronts[0][idx]).cur_f);
 	}
 
 	verify_after_construct();
@@ -58,7 +58,17 @@ hypervolume::hypervolume(const std::vector<fitness_vector> &points) : m_points(p
  *
  * @param[in] hv hypervolume object to be copied
  */
-hypervolume::hypervolume(const hypervolume &hv): m_pop(hv.m_pop), m_points(hv.m_points) { }
+hypervolume::hypervolume(const hypervolume &hv): m_points(hv.m_points) { }
+
+
+/// Default constructor
+/**
+ * Initiates hypervolume with empty set of points.
+ * Used for serialization purposes.
+ */
+hypervolume::hypervolume() {
+	m_points.resize(0);
+}
 
 /// verify after construct
 /**
@@ -108,6 +118,16 @@ void hypervolume::verify_before_compute(const fitness_vector &r_point, hv_algori
 double hypervolume::compute(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) {
 	verify_before_compute(r_point, hv_algorithm);
 	return hv_algorithm->compute(m_points, r_point);
+}
+
+/// Get points
+/**
+ * Will return a vector containing the points as they were set up during construction of the hypervolume object.
+ *
+ * @return const reference to the vector containing the fitness_vectors representing the points in the hyperspace.
+ */
+const std::vector<fitness_vector> &hypervolume::get_points() const {
+	return m_points;
 }
 
 hypervolume_ptr hypervolume::clone() const

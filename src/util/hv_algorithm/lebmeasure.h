@@ -60,8 +60,19 @@ class __PAGMO_VISIBLE lebmeasure : public base {
 		bool dominated(const fitness_vector &, lebmeasure_points &);
 		double volume_between(const fitness_vector &, const fitness_vector &);
 		fitness_vector get_opposite_point(const fitness_vector &, lebmeasure_points &, const fitness_vector &);
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
+
 };
 
 } } }
 
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::lebmeasure);
+
 #endif
+

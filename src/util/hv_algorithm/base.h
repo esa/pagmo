@@ -91,6 +91,14 @@ class __PAGMO_VISIBLE base
 		virtual ~base();
 	protected:
 		void assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int) {
+			(void)ar;
+		}
+
+
 };
 
 ///Fitness vector comparator struct
@@ -123,5 +131,6 @@ struct fitness_vector_cmp {
 
 } } }
 
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::util::hv_algorithm::base);
 
 #endif

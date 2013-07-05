@@ -30,6 +30,10 @@ ADD_EXECUTABLE(hypervolume_test hypervolume_test.cpp)
 TARGET_LINK_LIBRARIES(hypervolume_test pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(hypervolume_test hypervolume_test)
 
+ADD_EXECUTABLE(serialization_hypervolume serialization_hypervolume.cpp)
+TARGET_LINK_LIBRARIES(serialization_hypervolume pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(serialization_hypervolume serialization_hypervolume)
+
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)
 	TARGET_LINK_LIBRARIES(mpi_torture_test ${MANDATORY_LIBRARIES} pagmo_static)

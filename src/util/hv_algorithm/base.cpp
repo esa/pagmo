@@ -27,7 +27,7 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-// Destructor
+/// Destructor required for pure virtual methods
 base::~base() {}
 
 /// Assert that reference point dominates every other point from the set.
