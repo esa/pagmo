@@ -28,14 +28,12 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// lebmeasure::compute
 /**
- * Computes hypervolume indicator for given pareto set using the LebMeasure algorithm.
+ * Computes hypervolume indicator for given set of points using the LebMeasure algorithm.
  *
  * @param[in] points set of points describing the hypervolume
  * @param[in] r_point reference point for the hypervolume
  *
- * @throws value_error if sizes of reference point and pareto set do not match, when the pareto set is empty and when the dimension is lesser than 3
- *
- * @return hypervolume of the pareto set.
+ * @return value of the hypervolume
  */
 double lebmeasure::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	lebmeasure_points point_set;
@@ -60,7 +58,7 @@ double lebmeasure::compute(const std::vector<fitness_vector> &points, const fitn
 
 // lebmeasure::verify_before_compute
 /**
- * Verifies whether this method is aplicable to given hypervolume problem.
+ * Verifies whether this method is applicable to given hypervolume problem.
  *
  * @param[in] points set of points describing the hypervolume
  * @param[in] r_point reference point for the hypervolume
@@ -83,7 +81,7 @@ base_ptr lebmeasure::clone() const
 
 /// Dominated method
 /**
- * Determinines whether given point p is strictly dominated by any point from given set of points.
+ * Determines whether given point p is strictly dominated by any point from given set of points.
  *
  * @param[in] p fitness vector describing given point in space
  * @param[in] point_set set of pairs <point, spawn_dimension>, p is compared against for strict dominance
@@ -133,7 +131,7 @@ lebmeasure_points lebmeasure::generate_spawns(const fitness_vector &p, const fit
 
 // Compute volume between two points
 /**
- * Calculates the volume between points a and b (as defined for n-dimensional Euclidian spaces).
+ * Calculates the volume between points a and b (as defined for n-dimensional Euclidean spaces).
  *
  * @param[in] a first point defining the hypercube
  * @param[in] b second point defining the hypercube

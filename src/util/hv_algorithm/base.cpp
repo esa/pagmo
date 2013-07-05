@@ -36,7 +36,7 @@ base::~base() {}
  * The method checks whether provided reference point is "no worse" and in at least one objective "better" for each of the points from the set.
  *
  * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
- * @param[in] r_point - distringuished "reference point".
+ * @param[in] r_point - distinguished "reference point".
 */
 void base::assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {

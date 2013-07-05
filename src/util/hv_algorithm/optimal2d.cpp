@@ -36,7 +36,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
  *
- * @return hypervolume of the pareto set.
+ * @return hypervolume
  */
 double optimal2d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {

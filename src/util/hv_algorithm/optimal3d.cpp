@@ -28,7 +28,7 @@
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 
-// Computes hypervolume indicator for given pareto set using the optimal 3D algorithm.
+/// Compute hypervolume 
 /**
  * This method should be used both as a solution to 3D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 3D.
  *

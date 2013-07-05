@@ -51,11 +51,11 @@ typedef boost::shared_ptr<base> base_ptr;
 /// Base hypervolume class.
 /**
  * This class represents the abstract hypervolume algorithm used for computing
- * the hypervolume indicator (also known as lebesgue measure, or S-metric).
+ * the hypervolume indicator (also known as Lebesgue measure, or S-metric).
  *
  * Every hypervolume algorithm that extends this base class implement the following methods:
  * - compute() which takes a list of points and a reference point.
- * - verify_before_compute() which raises an exception for special cases of misue of this method (e.g. method working only for some number of dimensions).
+ * - verify_before_compute() which raises an exception for special cases of misuse of this method (e.g. method working only for some number of dimensions).
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
@@ -79,7 +79,7 @@ class __PAGMO_VISIBLE base
 		 * Not every algorithm is suited of every type of problem.
 		 *
 		 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
-		 * @param[in] r_point - distringuished "reference point".
+		 * @param[in] r_point - distinguished "reference point".
 		 */
 		virtual void verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
 
@@ -118,7 +118,7 @@ class fitness_vector_cmp {
 		 * @param[in] lhs fitness_vector on the left hand side
 		 * @param[in] rhs fitness_vector on the right hand side
 		 *
-		 * @return boolean variable stating whether given expression is true for fitness_vectors.
+		 * @return Boolean variable stating whether given expression is true for fitness_vectors.
 		 */
 		inline bool operator()(const fitness_vector &lhs, const fitness_vector &rhs) {
 			return (*m_cmp_obj)(lhs,rhs);
