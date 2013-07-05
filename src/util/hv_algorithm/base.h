@@ -130,8 +130,6 @@ class fitness_vector_cmp {
 			virtual ~cmp_fun() { };
 			/// virtual operator() - It is never called anyway, so we could have gone with pure virtual, yet then we would not be able to use inline.
 			virtual inline bool operator()(const fitness_vector &lhs, const fitness_vector &rhs) {
-				return true;
-				// some default "safe" comparison.
 				return lhs[0] < rhs[0];
 			}
 		};
