@@ -166,7 +166,7 @@ Population
          pop = population(prob,30) 
          v = pop.mean_velocity()
 
-   .. method:: race(pop, n_winners, min_trials=0, max_feval=500, delta=0.05, racers_idx=[])
+   .. method:: race((int) n_winners, (int) min_trials=0, (int) max_feval=500, (float) delta=0.05, (list) racers_idx=[])
 
 	  Races individuals in a population
 
