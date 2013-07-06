@@ -33,7 +33,6 @@
 #include "../serialization.h"
 #include "ackley.h"
 #include "../types.h"
-#include "base.h"
 #include "base_stochastic.h"
 
 
@@ -73,8 +72,8 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		std::string get_name() const;
 
 		void set_noise_param(double, double);
-		double get_param_first();
-		double get_param_second();
+		double get_param_first() const;
+		double get_param_second() const;
 
 	protected:
 		std::string human_readable_extra() const;
