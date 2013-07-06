@@ -122,7 +122,7 @@ void noisy::set_noise_param(double param_first, double param_second)
  * Returns the first parameter.
  * Interpretation depends on the noise specified, see constructor.
 */
-double noisy::get_param_first()
+double noisy::get_param_first() const
 {
 	return m_param_first;
 }
@@ -131,7 +131,7 @@ double noisy::get_param_first()
  * Return the second parameter.
  * Interpretation depends on the noise specified, see constructor.
  */
-double noisy::get_param_second()
+double noisy::get_param_second() const
 {
 	return m_param_second;
 }
