@@ -235,9 +235,6 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
    }\
 }
 
-// To support specifying default arguments for the original member function
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(race_overloads, population::race, 1, 5);
-
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
@@ -289,14 +286,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.")
 		.def("erase", &population::erase, "Erase individual at position")
 		.def("mean_velocity", &population::mean_velocity, "Calculates the mean velocity across particles")
-		.def("race", &population::race,
-			 race_overloads(args("n_final", "min_trials = 0", "max_count = 1000", "delta = 0.05", "active_set: []"),
-				"Race the individuals:\n"
-				"\tn_final: Number of winners\n"
-				"\tmin_trials: Minimum number of evaluation for all individuals\n"
-				"\tmax_count: Number of allowed objective evaluation\n"
-				"\tdelta: Confidence level\n"
-				"\tactive_set: List containing the indices of individuals to be raced. An empty list selects all.\n"))
+		.def("race", &population::race, "Race the individuals")
 		.def("cpp_loads", &py_cpp_loads<population>)
 		.def("cpp_dumps", &py_cpp_dumps<population>)
 		.def_pickle(population_pickle_suite());
