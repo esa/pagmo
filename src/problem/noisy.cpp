@@ -151,7 +151,7 @@ void noisy::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		m_original_problem->objfun(tmp, x);
 		inject_noise_f(tmp);
 		for (fitness_vector::size_type i=0; i<f.size();++i) {
-			f[i] = f[i] + tmp[i];
+			f[i] = f[i] + tmp[i] / (double)m_trials;
 		}
 	}
 }
@@ -168,10 +168,10 @@ void noisy::compute_constraints_impl(constraint_vector &c, const decision_vector
 	m_drng.seed(m_seed+m_decision_vector_hash(x));
 	//3 - We average upon multiple runs
 	for (unsigned int j=0; j< m_trials; ++j) {
-		m_original_problem->compute_constraints(c, x);
-		inject_noise_c(c);
+		m_original_problem->compute_constraints(tmp, x);
+		inject_noise_c(tmp);
 		for (constraint_vector::size_type i=0; i<c.size();++i) {
-			c[i] = c[i] + tmp[i];
+			c[i] = c[i] + tmp[i] / (double)m_trials;
 		}
 	}
 }
