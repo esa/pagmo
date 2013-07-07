@@ -414,7 +414,7 @@ def _pop_race(self, n_winners, min_trials = 0, max_feval = 500, delta=0.05, race
 	"""
 	Races individuals in a population
 
-	USAGE: pop.race(n_winners, min_trials = 0, max_feval = 500, delta=0.05, racers_idx = [])
+	USAGE: pop.race(n_winners, min_trials = 0, max_feval = 500, delta = 0.05, racers_idx = [])
 
 	* n_winners: number of winners in the race
 	* min_trials: minimum amount of evaluations before an individual can stop racing
