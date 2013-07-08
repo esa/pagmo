@@ -31,6 +31,7 @@
 #include "../src/util/hv_algorithm/optimal2d.h"
 #include "../src/util/hv_algorithm/optimal3d.h"
 #include "../src/util/hv_algorithm/lebmeasure.h"
+#include "../src/util/hv_algorithm/wfg.h"
 
 using namespace pagmo;
 
@@ -59,17 +60,17 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::stri
 		util::hv_algorithm::base_ptr method;
 		if (method_name == "lebmeasure") {
 			method = util::hv_algorithm::base_ptr( new util::hv_algorithm::lebmeasure());
-			hypvol = hv_obj.compute(r, method);
 		} else if (method_name == "optimal2d") {
 			method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal2d());
-			hypvol = hv_obj.compute(r, method);
 		} else if (method_name == "optimal3d") {
 			method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal3d());
-			hypvol = hv_obj.compute(r, method);
+		} else if (method_name == "wfg") {
+			method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::wfg());
 		} else {
 			output << "Unknown method (" << method_name << ") .. exiting";
 			exit(1);
 		}
+		hypvol = hv_obj.compute(r, method);
 
 		if (fabs(hypvol-ans) < eps)
 		{
@@ -78,7 +79,7 @@ int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::stri
 			output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << ans;
 		}
 	}
-	output << std::endl<< " " << OK_counter << "/" << T << " passed\n";
+	output << std::endl<< " " << OK_counter << "/" << T << " passed\n\n";
 	return (OK_counter < T ? 1 : 0);
 }
 
@@ -107,7 +108,7 @@ if (ifs.is_open()) {
 		ss >> eps;
 		std::ifstream input((input_data_testcases_dir + test_name).c_str());
 		if (input.is_open()){
-			output << "Test " << test_name << " (eps:" << eps << "): ";
+			output << method_name << " / " << test_name << " / eps:" << eps;;
 			test_result |= run_hypervolume_tests(input, output, method_name, eps);
 			input.close();
 		}
