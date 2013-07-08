@@ -288,6 +288,41 @@ void _validate_racing_params(const population& pop, const population::size_type 
 	}
 }
 
+// Construct the output (winner / loser) list based on the book kept data
+// Two possible scenarios:
+// (1) Goal is BEST: Output will be decided + best ones from in_race (if required).
+// (2) Goal is WORST: Output will be discarded + worst ones from in_race (if required).
+std::vector<population::size_type> construct_output_list(
+		const std::vector<racer_type>& racers,
+		const std::vector<population::size_type>& decided,
+		const std::vector<population::size_type>& in_race,
+		const std::vector<population::size_type>& discarded,
+		const population::size_type n_final,
+		const race_goal_t race_goal)
+{
+	typedef population::size_type size_type;
+	// To be sorted either in ascending (BEST) or descending (WORST)
+	std::vector<std::pair<double, size_type> > argsort;
+	for(std::vector<size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it){
+		argsort.push_back(std::make_pair(racers[*it].m_mean, *it));
+	}
+	std::vector<size_type> output;
+	if(race_goal == BEST){
+		output = decided;
+		std::sort(argsort.begin(), argsort.end(), std::less<std::pair<double, size_type> >());
+	}
+	else{
+		output = discarded;
+		std::sort(argsort.begin(), argsort.end(), std::greater<std::pair<double, size_type> >());
+	}
+	int sorted_idx = 0;
+	while(output.size() < n_final){
+		output.push_back(argsort[sorted_idx++].second);
+	}
+	return output;
+}
+
+
  //! @endcond Doxygen comments the following
 
 /// Races some individuals in a population
@@ -320,6 +355,7 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] seed Seed used to seed the race
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
+ * @param[in] race_goal Whether to extract the best or the worst individuals.
  * @param[in] screen_output Whether to log racing status on the console output.
  *
  * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
@@ -331,7 +367,7 @@ void _validate_racing_params(const population& pop, const population::size_type 
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, const double delta, const unsigned int seed, const std::vector<population::size_type>& active_set, const bool screen_output)
+std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, const double delta, const unsigned int seed, const std::vector<population::size_type>& active_set, const race_goal_t race_goal, const bool screen_output)
 {
 	// Problem has to be stochastic
 	_validate_problem_stochastic(pop.problem());
@@ -379,13 +415,20 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 	}
 	
 	size_type N_begin = in_race.size();
+	size_type n_final_adjusted;
+
+	// Complimentary relationship between race-for-best and race-for-worst
+	if(race_goal == BEST){
+		n_final_adjusted = n_final;
+	}
+	else{
+		n_final_adjusted = N_begin - n_final;
+	}
 
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;
 
-	while(decided.size() < n_final &&
-		  decided.size() + in_race.size() > n_final &&
-		  discarded.size() < N_begin - n_final){
+	while(decided.size() < n_final_adjusted && decided.size() + in_race.size() > n_final_adjusted){
 		
 		count_iter++;
 
@@ -463,10 +506,10 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 					}
 				}
 				// std::cout << "[" << *it_i << "]: vote_decide = " << vote_decide << ", vote_discard = " << vote_discard << std::endl;
-				if(vote_decide >= N_begin - n_final - discarded.size()){
+				if(vote_decide >= N_begin - n_final_adjusted - discarded.size()){
 					to_decide[i] = true;
 				}
-				else if(vote_discard >= n_final - decided.size()){
+				else if(vote_discard >= n_final_adjusted - decided.size()){
 				//else if(vote_discard >= 1){ // Equivalent to the previous more aggressive approach
 					to_discard[i] = true;
 				}
@@ -493,33 +536,16 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 			// f_race_adjust_ranks(racers, out_of_race);
 		}
 
-		bool termination_condition = false;
-		if(term_cond == race_termination_condition::EVAL_COUNT){
-			termination_condition = (count_nfes >= max_count); //I think this condition will never happen as we check the budget before
-		}
-		else if(term_cond == race_termination_condition::ITER_COUNT){
-			termination_condition = (count_iter >= max_count);
-		}
-		if(termination_condition){
+		//TODO: Is this termination condition useful at all?
+		if(term_cond == race_termination_condition::ITER_COUNT){
 			break;
 		}
 
 	};
-
-	// If required n_final not met, return the first best n_final indices
-	std::vector<std::pair<double, size_type> > argsort;
-	if(decided.size() < n_final){	
-		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it){
-			argsort.push_back(std::make_pair(racers[*it].m_mean, *it));
-		}
-		std::sort(argsort.begin(), argsort.end());
-		int sorted_idx = 0;
-		while(decided.size() < n_final){
-			decided.push_back(argsort[sorted_idx++].second);
-		}
-	}
-
-	std::vector<size_type> winners(decided.begin(), decided.end());
+	
+	// Note that n_final (instead of the adjusted one) is required here
+	std::vector<size_type> winners =
+		construct_output_list(racers, decided, in_race, discarded, n_final, race_goal);
 
 	// std::cout << "Race ends after " << count_iter << " iterations, incurred nfes = " << count_nfes << std::endl;
 	// std::cout << "Returning winners: " << std::vector<size_type>(winners.begin(), winners.end()) << std::endl;
