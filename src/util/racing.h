@@ -41,6 +41,8 @@ namespace pagmo{ namespace util {
 */
 namespace racing{
 
+	enum race_goal_t {BEST = 0, WORST = 1};
+
 	// Racing the population
 	std::vector<population::size_type> race_pop(
 		const population &,
@@ -50,6 +52,7 @@ namespace racing{
 		double delta,
 		unsigned int seed,
 		const std::vector<population::size_type> &,
+		race_goal_t race_goal,
 		bool screen_output
 	);
 //! @cond

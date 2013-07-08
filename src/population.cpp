@@ -1007,7 +1007,7 @@ population::size_type population::n_dominated(const individual_type &ind) const
 	return retval;
 }
 
-/// Race the individuals in the population.
+/// Race the individuals in the population and return the best individuals.
 /**
  * Perform racing on the individuals. Alternative to racing the whole population,
  * user can specify to race on only a subset of the individual. This is simply
@@ -1026,9 +1026,30 @@ population::size_type population::n_dominated(const individual_type &ind) const
 std::vector<population::size_type> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set) const
 {
 	return util::racing::race_pop(*this, n_final, min_trials, max_count,
-									 delta, m_urng(), active_set, false);
+									 delta, m_urng(), active_set, util::racing::BEST, false);
 }
 
+/// Race the individuals in the population and return the worst individuals.
+/**
+ * Perform racing on the individuals. Alternative to racing the whole population,
+ * user can specify to race on only a subset of the individual. This is simply
+ * a wrapper over the race_pop function in util::racing.
+ *
+ * @param[in] n_final Desired number of losers.
+ * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
+ * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
+ * @param[in] delta Confidence level for statistical testing.
+ * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
+ *
+ * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
+ *
+ * @see pagmo::util::racing::race
+ */
+std::vector<population::size_type> population::race_worst(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set) const
+{
+	return util::racing::race_pop(*this, n_final, min_trials, max_count,
+									 delta, m_urng(), active_set, util::racing::WORST, false);
+}
 /// Overload stream operator for pagmo::population.
 /**
  * Equivalent to printing pagmo::population::human_readable() to stream.

@@ -229,6 +229,12 @@ class __PAGMO_VISIBLE population
 									double delta = 0.05,
 									const std::vector<size_type>& = std::vector<size_type>()) const;
 
+		std::vector<size_type> race_worst(const size_type n_final,
+									const unsigned int min_trials = 0,
+									const unsigned int max_count = 1000,
+									double delta = 0.05,
+									const std::vector<size_type>& = std::vector<size_type>()) const;
+
 		struct crowded_comparison_operator {
 			crowded_comparison_operator(const population &);
 			bool operator()(const individual_type &i1, const individual_type &i2) const;

@@ -128,6 +128,59 @@ int test_racing(const problem::base_ptr& prob, population::size_type pop_size,
 	return 0;
 }
 
+int test_racing_worst(const problem::base_ptr& prob, population::size_type pop_size, 
+		population::size_type end_size, double noise_std_dev = 0.1)
+{
+	std::cout << ":::test_racing_worst" << std::endl;
+	// sanity checks on test inputs
+	if(pop_size < end_size){
+		std::cout << "End size larger than start size! Test can never pass -- test case invalid." << std::endl;
+		return 1;
+	}
+
+	unsigned int seed = 1234;
+	// we create a random population associated to the input problem and compute its ordering
+	population pop_original_prob(*prob, pop_size,seed);
+	std::vector<population::size_type> best_idx_order = pop_original_prob.get_best_idx(pop_size);
+
+	// we create the noisy version of the problem
+	problem::noisy prob_noisy(*prob, 1, 0, noise_std_dev, problem::noisy::NORMAL, seed);
+	std::cout << prob_noisy << std::endl;
+
+	// and a random empty population associated to it
+	population pop(prob_noisy,0,seed);
+
+	// We push_back the old population chromosomes in the new population according to their rank
+	// If we do this, by definition, race should return [0,1,2,3,4,5,...,end_size-1]
+	for(population::size_type i = 0; i < pop_size; i++){
+		pop.push_back(pop_original_prob.get_individual(best_idx_order[pop_size-1-i]).cur_x);
+	}
+
+	// NOTE: now winners are actually losers
+	std::vector<population::size_type> winners = pop.race_worst(end_size, 50, 5000, 0.05);
+	double ground_truth = ((winners.size()-1)+1) * (winners.size()-1) / 2;
+	double obtained = std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>());
+	double acceptable = winners.size();
+
+	std::cout << prob->get_name() << std::endl;
+	std::cout << "\tRace winners: " << winners << std::endl;
+	std::cout << "\tError: " << obtained-ground_truth << std::endl;
+	std::cout << "\tAcceptable: " << acceptable << std::endl;
+
+	if(winners.size() != end_size){
+		std::cout << " Winner list size failed." << std::endl;
+		return 1;
+	}
+
+	if (obtained-ground_truth > acceptable ) {
+		std::cout << "\tFAILED" << std::endl;
+		return 1;
+	}
+
+	std::cout << "\tPASSED" << std::endl<< std::endl;
+	return 0;
+}
+
 // This second test only checks the implementation of the active_set
 // so that subset_size individuals are raced and all of them returned
 int test_racing_subset(const problem::base_ptr& prob)
@@ -174,7 +227,7 @@ int main()
 	problem::base_ptr prob_cec2006(new problem::cec2006(5));
 	problem::base_ptr prob_zdt1(new problem::zdt1(dimension));
 	
-	return test_racing(prob_ackley, 10, 2) || 
+	return test_racing(prob_ackley, 10, 2) ||
 		   test_racing(prob_ackley, 20, 2) ||
 		   test_racing(prob_ackley, 100, 5) ||
 		   test_racing(prob_ackley, 5, 1) ||
@@ -187,5 +240,17 @@ int main()
 		   test_racing(prob_zdt1, 10, 5, 0.03) ||
 		   test_racing(prob_zdt1, 20, 5, 0.03) ||
 		   test_racing(prob_zdt1, 30, 5, 0.03) ||
-		   test_racing_subset(prob_zdt1);
+		   test_racing_subset(prob_zdt1) ||
+
+		   test_racing_worst(prob_ackley, 10, 2) || 
+		   test_racing_worst(prob_ackley, 20, 2) ||
+		   test_racing_worst(prob_ackley, 100, 5) ||
+		   test_racing_worst(prob_ackley, 5, 1) ||
+		   test_racing_worst(prob_cec2006, 10, 2) ||
+		   test_racing_worst(prob_cec2006, 20, 2) ||
+		   test_racing_worst(prob_cec2006, 100, 5) ||
+		   test_racing_worst(prob_cec2006, 5, 1) ||
+		   test_racing_worst(prob_zdt1, 10, 5, 0.03) ||
+		   test_racing_worst(prob_zdt1, 20, 5, 0.03) ||
+		   test_racing_worst(prob_zdt1, 30, 5, 0.03);
 }
