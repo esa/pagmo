@@ -59,8 +59,7 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const population& raci
 	}	
 	else{
 		// Multi-objective case
-		// TODO: crowding distance will now be affected by outdated
-		// objective function values wrt current seed.
+		// TODO: Possibe big jumps in observation data due to Pareto ranks
 		population::crowded_comparison_operator comparator(racing_pop);
 		for(size_type i = 0; i < ordered_idx_active.size() - 1; i++){	
 			size_type idx1 = ordered_idx_active[i];
@@ -415,20 +414,20 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 	}
 	
 	size_type N_begin = in_race.size();
-	size_type n_final_adjusted;
+	size_type n_final_best;
 
 	// Complimentary relationship between race-for-best and race-for-worst
 	if(race_goal == BEST){
-		n_final_adjusted = n_final;
+		n_final_best = n_final;
 	}
 	else{
-		n_final_adjusted = N_begin - n_final;
+		n_final_best = N_begin - n_final;
 	}
 
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;
 
-	while(decided.size() < n_final_adjusted && decided.size() + in_race.size() > n_final_adjusted){
+	while(decided.size() < n_final_best && decided.size() + in_race.size() > n_final_best){
 		
 		count_iter++;
 
@@ -506,10 +505,10 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 					}
 				}
 				// std::cout << "[" << *it_i << "]: vote_decide = " << vote_decide << ", vote_discard = " << vote_discard << std::endl;
-				if(vote_decide >= N_begin - n_final_adjusted - discarded.size()){
+				if(vote_decide >= N_begin - n_final_best - discarded.size()){
 					to_decide[i] = true;
 				}
-				else if(vote_discard >= n_final_adjusted - decided.size()){
+				else if(vote_discard >= n_final_best - decided.size()){
 				//else if(vote_discard >= 1){ // Equivalent to the previous more aggressive approach
 					to_discard[i] = true;
 				}
@@ -543,7 +542,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 
 	};
 	
-	// Note that n_final (instead of the adjusted one) is required here
+	// Note that n_final (instead of n_final_best) is required here
 	std::vector<size_type> winners =
 		construct_output_list(racers, decided, in_race, discarded, n_final, race_goal);
 
