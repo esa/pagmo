@@ -432,6 +432,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("noise_param_first", &problem::noisy::get_param_first)
 		.add_property("noise_param_second", &problem::noisy::get_param_second);
 
+	// Robust meta-problem
+	stochastic_problem_wrapper<problem::robust>("robust", "Robust problem")
+		.def(init<const problem::base &, const double, unsigned int>())
+		.add_property("rho", &problem::robust::get_rho);
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
 //	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")
