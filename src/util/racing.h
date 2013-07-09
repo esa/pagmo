@@ -65,7 +65,8 @@ namespace racing{
 		public:
 			racer_type(): m_mean(0), active(false) { }
 
-			std::vector<double> m_hist; ///Should this not be a std::vector<size_type> ??
+			// Using double type to cater for tied ranks
+			std::vector<double> m_hist;
 			double m_mean;
 			bool active;	
 
