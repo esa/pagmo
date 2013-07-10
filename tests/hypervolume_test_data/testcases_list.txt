@@ -8,17 +8,17 @@
 #lebmeasure max_t10_d4_n16 10e-3
 #lebmeasure max_t10_d5_n8 10e-3
 
-optimal2d max_d2_handcrafted 10e-9
-optimal2d max_t100_d2_n16 10e-9
-optimal2d max_t100_d2_n32 10e-9
-optimal2d max_t100_d2_n64 10e-9
-optimal2d max_t100_d2_n128 10e-9
+#optimal2d max_d2_handcrafted 10e-9
+#optimal2d max_t100_d2_n16 10e-9
+#optimal2d max_t100_d2_n32 10e-9
+#optimal2d max_t100_d2_n64 10e-9
+#optimal2d max_t100_d2_n128 10e-9
 
-optimal3d max_d3_handcrafted 10e-9
-optimal3d max_t1_d3_n8 10e-9
-optimal3d max_t10_d3_n32 10e-9
-optimal3d max_t100_d3_n64 10e-9
-optimal3d max_t100_d3_n128 10e-9
+#optimal3d max_d3_handcrafted 10e-9
+#optimal3d max_t1_d3_n8 10e-9
+#optimal3d max_t10_d3_n32 10e-9
+#optimal3d max_t100_d3_n64 10e-9
+#optimal3d max_t100_d3_n128 10e-9
 
 wfg max_d3_handcrafted 10e-9
 wfg max_t1_d7_n64 10e-9
@@ -27,6 +27,5 @@ wfg max_t1_d3_n1024 10e-9
 wfg max_t1_d5_n1024 10e-9
 wfg max_t10_d4_n16 10e-5
 wfg max_t10_d5_n8 10e-5
-wfg max_t100_d2_n128 10e-9
 wfg max_t100_d2_n64 10e-9
 wfg max_t100_d3_n128 10e-9
