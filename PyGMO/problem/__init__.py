@@ -650,14 +650,15 @@ def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_secon
 noisy._orig_init = noisy.__init__
 noisy.__init__ = _noisy_ctor
 
-def _robust_ctor(self, problem = None, rho = 0.1, seed = 0):
+def _robust_ctor(self, problem = None, trials = 1, rho = 0.1, seed = 0):
     """
     Inject noise to a problem in the decision space.
     The solution to the resulting problem is robust the the noise in the rho area.
 
-    USAGE: problem.robust(problem=PyGMO.ackley(10), rho=0.1, seed=0)
+    USAGE: problem.robust(problem=PyGMO.ackley(10), trials=1, rho=0.1, seed=0)
 
     * problem: PyGMO problem to be transformed to its robust version
+    * trials: number of trials to average around
     * rho: Parameter controlling the magnitude of noise
     * seed: Seed for the underlying RNG
     """
@@ -665,6 +666,7 @@ def _robust_ctor(self, problem = None, rho = 0.1, seed = 0):
     if problem == None:
         problem = ackley(10)
     arg_list.append(problem)
+    arg_list.append(trials)
     arg_list.append(rho)
     arg_list.append(seed)
     self._orig_init(*arg_list)

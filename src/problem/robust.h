@@ -54,8 +54,9 @@ class __PAGMO_VISIBLE robust : public base_stochastic
 
 		//constructors
 		robust(const base & = ackley(1),
-			  const double param_rho = 0.1,
-			  unsigned int seed = 0);
+			   unsigned int trials = 1,
+			   const double param_rho = 0.1,
+			   unsigned int seed = 0);
 		
 		//copy constructor
 		robust(const robust &);
@@ -81,6 +82,7 @@ class __PAGMO_VISIBLE robust : public base_stochastic
 			ar & m_original_problem;
 			ar & m_normal_dist;
 			ar & m_uniform_dist;
+			ar & m_trials;
 			ar & m_rho;
 		}
 
@@ -88,6 +90,7 @@ class __PAGMO_VISIBLE robust : public base_stochastic
 		mutable boost::normal_distribution<double> m_normal_dist;
 		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;
 		mutable boost::hash<std::vector<double> > m_decision_vector_hash;
+		unsigned int m_trials;
 		double m_rho;
 };
 

@@ -441,7 +441,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Robust meta-problem
 	stochastic_problem_wrapper<problem::robust>("robust", "Robust problem")
-		.def(init<const problem::base &, const double, unsigned int>())
+		.def(init<const problem::base &,unsigned int, const double, unsigned int>())
 		.add_property("rho", &problem::robust::get_rho);
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
