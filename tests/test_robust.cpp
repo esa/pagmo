@@ -71,13 +71,13 @@ const double EPS = 1e-8;
 
 // Test strategy:
 // Use white_box problem to probe and check if the perturbation is as expected
-int test_robust(unsigned int dim, double rho, unsigned int seed = 0)
+int test_robust(unsigned int dim, unsigned int n_trials, double rho, unsigned int seed = 0)
 {
 
 	std::cout << "[START] Testing robust meta-problem using white_box (rho = " << rho << ")" << std::endl;
 
 	problem::white_box prob_white_box(dim);
-	problem::robust robust_white_box(prob_white_box, rho, seed);
+	problem::robust robust_white_box(prob_white_box, n_trials, rho, seed);
 
 	const unsigned int num_points = 500;
 
@@ -142,5 +142,8 @@ int test_robust(unsigned int dim, double rho, unsigned int seed = 0)
 
 int main()
 {
-	return test_robust(10, 0.001) || test_robust(20, 0.01) || test_robust(30, 0.1);
+	return test_robust(10, 1, 0.001) ||
+		   test_robust(20, 1, 0.01) ||
+		   test_robust(30, 1, 0.1) ||
+		   test_robust(40, 5, 0.5);
 }

@@ -39,13 +39,14 @@ namespace pagmo { namespace problem {
  * Construct by specifying a problem to be transformed and the parameter rho.
  *
  * @param[in] p pagmo::problem::base to be robust
+ * @param[in] trials number of times to average over in objective / constraint function
  * @param[in] param_rho parameter controlling the magnitude of noise
  * @param[in] seed seed for the underlying rng
  *
  * @see problem::base_stochastic constructors.
  */
 
-robust::robust(const base & p, const double param_rho, unsigned int seed):
+robust::robust(const base & p, unsigned int trials, const double param_rho, unsigned int seed):
 	base_stochastic((int)p.get_dimension(),
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
@@ -56,6 +57,7 @@ robust::robust(const base & p, const double param_rho, unsigned int seed):
 	m_normal_dist(0, 1),
 	m_uniform_dist(0, param_rho),
 	m_decision_vector_hash(),
+	m_trials(trials),
 	m_rho(param_rho)
 {
 	if(param_rho < 0){
@@ -76,6 +78,7 @@ robust::robust(const robust &prob):
 	m_original_problem(prob.m_original_problem->clone()),
 	m_uniform_dist(0, prob.m_rho),
 	m_decision_vector_hash(),
+	m_trials(prob.m_trials),
 	m_rho(prob.m_rho)
 {
 	set_bounds(prob.get_lb(),prob.get_ub());
@@ -112,24 +115,44 @@ double robust::get_rho() const
 /// Add noises to the decision vector before calling the actual objective function.
 void robust::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
+	// Temporary storage used for averaging
+	fitness_vector tmp(f.size(),0.0);
+	f = tmp;
+
 	// Set the seed
 	m_drng.seed(m_seed+m_decision_vector_hash(x));
+
 	// Perturb decision vector and evaluate
-	decision_vector x_perturbed(x);
-	inject_noise_x(x_perturbed);
-	m_original_problem->objfun(f, x_perturbed);
+	for(unsigned int i = 0; i < m_trials; ++i){
+		decision_vector x_perturbed(x);
+		inject_noise_x(x_perturbed);
+		m_original_problem->objfun(tmp, x_perturbed);
+		for(fitness_vector::size_type j = 0; j < f.size(); ++j){
+			f[j] += tmp[j] / (double)m_trials;
+		}
+	}
 }
 
 /// Implementation of the constraints computation.
 /// Add noises to the decision vector before calling the actual constraint function.
 void robust::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
+	// Temporary storage used for averaging
+	constraint_vector tmp(c.size(), 0.0);
+	c = tmp;
+
 	// Set the seed
 	m_drng.seed(m_seed+m_decision_vector_hash(x));
+
 	// Perturb decision vector and evaluate
-	decision_vector x_perturbed(x);
-	inject_noise_x(x_perturbed);
-	m_original_problem->compute_constraints(c, x_perturbed);
+	for(unsigned int i = 0; i < m_trials; ++i){
+		decision_vector x_perturbed(x);
+		inject_noise_x(x_perturbed);
+		m_original_problem->compute_constraints(tmp, x_perturbed);
+		for(constraint_vector::size_type j = 0; j < c.size(); ++j){
+			c[j] = tmp[j] / (double)m_trials;
+		}
+	}
 }
 
 /// Apply noise on the decision vector based on rho
@@ -160,6 +183,11 @@ void robust::inject_noise_x(decision_vector &x) const
 	for(size_type i = 0; i < perturbation.size(); i++){
 		x[i] += rho_num * perturbation[i];
 	}
+	// 4. Clip the variables to the valid bounds
+	for(base::size_type i = 0; i < x.size(); i++){
+		x[i] = std::max(x[i], get_lb()[i]);
+		x[i] = std::min(x[i], get_ub()[i]);
+	}
 }
 
 std::string robust::get_name() const
@@ -176,6 +204,7 @@ std::string robust::human_readable_extra() const
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
 	oss << "\n\tParameter rho = " << m_rho;
+	oss << "\n\ttrials: "<<m_trials;
 	oss << "\n\tseed: "<<m_seed;
 	//oss << "\n\tDistribution state: "<<m_normal_dist;
 	return oss.str();
