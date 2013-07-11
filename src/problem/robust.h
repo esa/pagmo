@@ -39,10 +39,10 @@ namespace pagmo{ namespace problem {
 
 /// Robust meta-problem
 /**
- * Transform a problem into a stochastic version, in which the input vector will
- * be purturbed by a small noise whose magnitude is characterized by a parameter
- * rho. The solution to the resulting problem is robust to input noises in the
- * rho area.
+ * Transforms any problem into a stochastic problem where the objective
+ * function is evaluated sampling at random in a neighbourhood of the input
+ * chromosome. The solution to the resulting problem is robust
+ * to input noises in the given neighbourhood.
  *
  * @author Yung-Siang Liau (liauys@gmail.com)
  * @author Dario Izzo (dario.izzo@gmail.com)
@@ -56,7 +56,7 @@ class __PAGMO_VISIBLE robust : public base_stochastic
 		robust(const base & = ackley(1),
 			   unsigned int trials = 1,
 			   const double param_rho = 0.1,
-			   unsigned int seed = 0);
+			   unsigned int seed = 0u);
 		
 		//copy constructor
 		robust(const robust &);
@@ -89,7 +89,6 @@ class __PAGMO_VISIBLE robust : public base_stochastic
 		base_ptr m_original_problem;
 		mutable boost::normal_distribution<double> m_normal_dist;
 		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;
-		mutable boost::hash<std::vector<double> > m_decision_vector_hash;
 		unsigned int m_trials;
 		double m_rho;
 };

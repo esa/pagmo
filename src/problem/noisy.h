@@ -64,7 +64,7 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 			  const double param_first = 0.0,
 			  const double param_second = 0.1,
 			  noise_type = NORMAL,
-			  unsigned int seed = 0);
+			  unsigned int seed = 0u);
 		
 		//copy constructor
 		noisy(const noisy &);
