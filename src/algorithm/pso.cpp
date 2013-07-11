@@ -29,8 +29,6 @@
 #include <iostream>
 
 #include "pso.h"
-#include "../problem/base_stochastic.h"
-
 
 namespace pagmo { namespace algorithm {
 

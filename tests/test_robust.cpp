@@ -42,9 +42,6 @@ class white_box: public base
 
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-
-	private:
-
 };
 
 white_box::white_box(size_type x_dim): base((int)x_dim, 0, x_dim, 0, 0, 0.0)
@@ -73,7 +70,6 @@ const double EPS = 1e-8;
 // Use white_box problem to probe and check if the perturbation is as expected
 int test_robust(unsigned int dim, unsigned int n_trials, double rho, unsigned int seed = 0)
 {
-
 	std::cout << "[START] Testing robust meta-problem using white_box (rho = " << rho << ")" << std::endl;
 
 	problem::white_box prob_white_box(dim);
