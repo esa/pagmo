@@ -120,6 +120,62 @@ double hypervolume::compute(const fitness_vector &r_point, hv_algorithm::base_pt
 	return hv_algorithm->compute(m_points, r_point);
 }
 
+// compute exclusive contribution
+/**
+ * Computes exclusive hypervolume for given indivdual.
+ *
+ * @param[in] p_idx index of the individual for whom we compute the exclusive contribution to the hypervolume
+ * @param[in] r_point fitness vector describing the reference point
+ * @param[in] hv_algorithm algorithm object used for computing the hypervolume
+ *
+ * @return value representing the hypervolume
+ */
+double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) {
+	verify_before_compute(r_point, hv_algorithm);
+	if (p_idx >= m_points.size()) {
+		pagmo_throw(value_error, "Index of the individual is out of bounds.");
+
+	}
+	return hv_algorithm->exclusive(p_idx, m_points, r_point);
+}
+
+// locate the least contributing individual
+/**
+ * Locates the individual contributing the least to the total hypervolume.
+ *
+ * @param[in] r_point fitness vector describing the reference point
+ * @param[in] hv_algorithm algorithm object used for computation
+ *
+ * @return value representing the hypervolume
+ */
+std::pair<unsigned int, double> hypervolume::least_contributor(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) {
+	return hv_algorithm->least_contributor(m_points, r_point);
+
+}
+
+// calculate the nadir point
+/**
+ * Calculates the nadir point, used as the reference point
+ *
+ * @param[in] epsilon value that is to be added to each objective to assure strict domination nadir point by each other point in a set
+ *
+ * @return value representing the hypervolume
+ */
+fitness_vector hypervolume::get_nadir_point(const double epsilon) {
+	fitness_vector nadir_point(m_points[0].begin(), m_points[0].end());
+	for (std::vector<fitness_vector>::size_type idx = 0 ; idx < m_points.size() ; ++ idx){
+		for (fitness_vector::size_type f_idx = 0 ; f_idx < m_points[0].size() ; ++f_idx){
+			// assuming minimization
+			nadir_point[f_idx] = fmax(nadir_point[f_idx], m_points[idx][f_idx]);
+		}
+	}
+	for (fitness_vector::size_type f_idx = 0 ; f_idx < m_points[0].size() ; ++f_idx) {
+		nadir_point[f_idx] += epsilon;
+	}
+	return nadir_point;
+}
+
+
 /// Get points
 /**
  * Will return a vector containing the points as they were set up during construction of the hypervolume object.

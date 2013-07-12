@@ -73,6 +73,10 @@ class __PAGMO_VISIBLE base
 		 */
 		virtual double compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
 
+		virtual double exclusive(const unsigned int p_idx, const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+
+		virtual std::pair<unsigned int, double> least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+
 		/// Verification of input
 		/**
 		 * This method serves as a verification method.

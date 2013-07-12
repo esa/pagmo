@@ -69,6 +69,55 @@ void base::assert_maximal_reference_point(const std::vector<fitness_vector> &poi
 	}
 }
 
+/// Exclusive hypervolume method
+/**
+ * This method computes the exclusive hypervolume for given individual.
+ * It accepts a list of points as an input, and the distinguished "reference point".
+ * Hypervolume is then computed as a joint hypervolume of hypercubes, generated pairwise with the reference point and each point from the set.
+ *
+ * @param[in] p_idx index of the individual
+ * @param[in] points vector of fitness_vectors for which the hypervolume is computed
+ * @param[in] r_point distinguished "reference point".
+ *
+ * @return exlusive hypervolume contributed by the individual at index p_idx
+ */
+double base::exclusive(const unsigned int p_idx, const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+	double hypvol_total = compute(points, r_point);
+	std::vector<fitness_vector> points_less;
+
+	points_less.reserve(points.size()-1);
+	copy(points.begin(), points.begin()+p_idx, back_inserter(points_less));
+	copy(points.begin()+p_idx+1, points.end(), back_inserter(points_less));
+	double hypvol_less_p = compute(points_less, r_point);
+	return hypvol_total - hypvol_less_p;
+}
+
+/// least contributor method
+/**
+ * This method establishes the individual that contributes the least to the hypervolume.
+ * By default it computes each individual contribution, and chooses the one that contributes the least.
+ * Other algorithms may overload this method for more efficient means of eliciting the
+ *
+ * @param[in] points vector of fitness_vectors for which the hypervolume is computed
+ * @param[in] r_point distinguished "reference point".
+ *
+ * @return pair consisting of indivitual's index and its hypervolume
+ */
+std::pair<unsigned int, double> base::least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+	double min_hv = exclusive(0, points, r_point);
+	double min_idx = 0;
+	for(std::vector<fitness_vector>::size_type idx = 1 ; idx < points.size() ; ++idx) {
+		double exclusive_hv = exclusive(idx, points, r_point);
+		if(exclusive_hv < min_hv) {
+			min_hv = exclusive_hv;
+			min_idx = idx;
+		}
+	}
+
+	return std::pair<unsigned int, double>(min_idx, min_hv);
+}
+
+
 ///Constructor of the comparator object
 /**
  * Create a comparator object, that compares items by given dimension, according to given inequality function.

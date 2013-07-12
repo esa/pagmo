@@ -26,6 +26,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <locale>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "../src/util/hypervolume.h"
 #include "../src/util/hv_algorithm/base.h"
 #include "../src/util/hv_algorithm/optimal2d.h"
@@ -35,90 +37,177 @@
 
 using namespace pagmo;
 
-int run_hypervolume_tests(std::ifstream &input, std::ofstream &output, std::string &method_name, double eps)
-{
-	int T, dim, s;
-	double ans;
-	input >> T;
-	int OK_counter=0;
-	for(int t=0 ; t < T ; ++t) {
-		input >> dim >> s;
-		std::vector<fitness_vector> ps(s, fitness_vector(dim, 0.0));
-		fitness_vector r(dim, 0.0);
-		for(int d = 0 ; d < dim ; ++d) {
-			input >> r[d];
+// used for generating the report files and outputing to the std::cout
+class dual_stream {
+	public:
+		dual_stream(std::ostream &os1, std::ostream &os2) : m_os1(os1), m_os2(os2) {
+			m_os1.precision(15);
+			m_os2.precision(15);
 		}
-		for(int i = 0 ; i < s ; ++i) {
-			for(int d = 0 ; d < dim ; ++d) {
-				input >> ps[i][d];
+		template<class T>
+		dual_stream& operator<<(const T& item) {
+			m_os1 << item;
+			m_os2 << item;
+			return *this;
+		}
+	private:
+		std::ostream &m_os1;
+		std::ostream &m_os2;
+
+};
+
+class hypervolume_test {
+	public:
+		hypervolume_test(std::istream &input, dual_stream &output, std::string test_type, std::string method_name, double eps)
+			: m_input(input), m_output(output), m_test_type(test_type), m_eps(eps) {
+			// create correct algorithm object
+			if (method_name == "lebmeasure") {
+				m_method = util::hv_algorithm::base_ptr( new util::hv_algorithm::lebmeasure());
+			} else if (method_name == "optimal2d") {
+				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal2d());
+			} else if (method_name == "optimal3d") {
+				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal3d());
+			} else if (method_name == "wfg") {
+				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::wfg());
+			} else {
+				output << "Unknown method (" << method_name << ") .. exiting";
+				exit(1);
 			}
 		}
-		input >> ans;
 
-		double hypvol;
-		util::hypervolume hv_obj = util::hypervolume(ps);
-		util::hv_algorithm::base_ptr method;
-		if (method_name == "lebmeasure") {
-			method = util::hv_algorithm::base_ptr( new util::hv_algorithm::lebmeasure());
-		} else if (method_name == "optimal2d") {
-			method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal2d());
-		} else if (method_name == "optimal3d") {
-			method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal3d());
-		} else if (method_name == "wfg") {
-			method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::wfg());
-		} else {
-			output << "Unknown method (" << method_name << ") .. exiting";
-			exit(1);
-		}
-		hypvol = hv_obj.compute(r, method);
+		int run_test() {
+			m_input >> m_num_tests;
 
-		if (fabs(hypvol-ans) < eps)
-		{
-			++OK_counter;
-		} else {
-			output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << ans;
+			int OK_counter=0;
+			for(int t=0 ; t < m_num_tests ; ++t) {
+				load_common();
+				util::hypervolume hv_obj = util::hypervolume(m_points);
+
+				// run correct test
+				if (m_test_type == "compute") {
+					load_compute();
+					double hypvol = hv_obj.compute(m_ref_point, m_method);
+					if (fabs(hypvol-m_hv_ans) < m_eps) {
+						++OK_counter;
+					} else {
+						m_output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << m_hv_ans;
+					}
+
+				} else if (m_test_type == "exclusive") {
+					load_exclusive();
+					double hypvol = hv_obj.exclusive(m_p_idx, m_ref_point, m_method);
+					if (fabs(hypvol-m_hv_ans) < m_eps) {
+						++OK_counter;
+					} else {
+						m_output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << m_hv_ans;
+					}
+
+				} else if (m_test_type == "least_contributor") {
+					load_least_contributor();
+					std::pair<unsigned int, double> answer = hv_obj.least_contributor(m_ref_point, m_method);
+					if (answer.first == m_idx_ans) {
+						++OK_counter;
+					} else {
+						m_output << "\n Error in test " << t << ". Got: " << answer.first << ", Expected: " << m_idx_ans;
+					}
+
+				} else {
+					m_output << "Unknown test type (" << m_test_type << ") .. exiting";
+					exit(1);
+				}
+			}
+			m_output << "\n" << " " << OK_counter << "/" << m_num_tests << " passed\n\n";
+			return (OK_counter < m_num_tests ? 1 : 0);
 		}
-	}
-	output << std::endl<< " " << OK_counter << "/" << T << " passed\n\n";
-	return (OK_counter < T ? 1 : 0);
-}
+	private:
+		// f_dim
+		// num_tests
+		// ref_point
+		// points
+		void load_common() {
+			m_input >> m_f_dim >> m_num_points;
+			m_points = std::vector<fitness_vector>(m_num_points, fitness_vector(m_f_dim, 0.0));
+			m_ref_point = fitness_vector(m_f_dim, 0.0);
+			for(int d = 0 ; d < m_f_dim ; ++d) {
+				m_input >> m_ref_point[d];
+			}
+			for(int i = 0 ; i < m_num_points ; ++i) {
+				for(int d = 0 ; d < m_f_dim ; ++d) {
+					m_input >> m_points[i][d];
+				}
+			}
+		}
+		// hv_ans
+		void load_compute() {
+			m_input >> m_hv_ans;
+		}
+		// p_idx
+		// hv_ans
+		void load_exclusive() {
+			m_input >> m_p_idx;
+			m_input >> m_hv_ans;
+		}
+		// idx_ans
+		void load_least_contributor() {
+			m_input >> m_idx_ans;
+		}
+
+		int m_num_tests, m_f_dim, m_num_points, m_p_idx;
+		unsigned int m_idx_ans;
+		double m_hv_ans;
+		fitness_vector m_ref_point;
+		std::vector<fitness_vector> m_points;
+
+		util::hv_algorithm::base_ptr m_method;
+		std::istream &m_input;
+		dual_stream &m_output;
+		std::string m_test_type;
+		double m_eps;
+};
 
 int main()
 {
-std::string line;
-std::string input_data_dir("hypervolume_test_data/");
-std::string input_data_testcases_dir(input_data_dir + "testcases/");
-std::ifstream ifs((input_data_dir + "testcases_list.txt").c_str());
-std::ofstream output("hypervolume_test_report.txt");
-output.precision(15);
+	std::string line;
+	std::string input_data_dir("hypervolume_test_data/");
+	std::string input_data_testcases_dir(input_data_dir + "testcases/");
+	std::ifstream ifs((input_data_dir + "testcases_list.txt").c_str());
+	std::ofstream report_stream("hypervolume_test_report.txt");
+	dual_stream output(report_stream, std::cout);
 
-int test_result = 0;
-if (ifs.is_open()) {
-	while(ifs.good()) {
-		std::string line;
-		getline(ifs,line);
-		if (line == "" || line[0] == '#')
-			continue;
-		std::stringstream ss (line);
-		std::string method_name;
-		std::string test_name;
-		double eps;
-		ss >> method_name;
-		ss >> test_name;
-		ss >> eps;
-		std::ifstream input((input_data_testcases_dir + test_name).c_str());
-		if (input.is_open()){
-			output << method_name << " / " << test_name << " / eps:" << eps;;
-			test_result |= run_hypervolume_tests(input, output, method_name, eps);
+	// date and time for the reference
+	output << boost::posix_time::second_clock::local_time() << "\n";
+	int test_result = 0;
+	if (ifs.is_open()) {
+		while(ifs.good()) {
+			std::string line;
+			getline(ifs,line);
+			if (line == "" || line[0] == '#')
+				continue;
+			std::stringstream ss (line);
+			std::string test_type;
+			std::string method_name;
+			std::string test_name;
+			double eps;
+			ss >> test_type;
+			ss >> method_name;
+			ss >> test_name;
+			ss >> eps;
+			std::ifstream input((input_data_testcases_dir + test_name).c_str());
+			if (input.is_open()){
+				output << test_type << " / " << method_name << " / " << test_name << " / eps:" << eps;;
+
+				hypervolume_test hvt(input, output, test_type, method_name, eps);
+				test_result |= hvt.run_test();
+
+				input.close();
+			}
+			else {
+				output << "Could not open: " << (input_data_testcases_dir + test_name) << "\n";
+			}
 			input.close();
 		}
-		else {
-			output << "Could not open: " << (input_data_testcases_dir + test_name) << std::endl;
-		}
-		input.close();
+		ifs.close();
 	}
-	ifs.close();
-}
 
-return test_result;
+	return test_result;
 }
