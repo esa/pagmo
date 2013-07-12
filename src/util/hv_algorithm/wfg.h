@@ -51,11 +51,12 @@ class __PAGMO_VISIBLE wfg : public base {
 		base_ptr clone() const;
 
 	private:
-		std::vector<fitness_vector> limitset(const std::vector<fitness_vector> &, unsigned int);
-		double inclusive_hv(const fitness_vector &, const fitness_vector &);
-		int dom_cmp(const fitness_vector &, const fitness_vector &);
-		double exclusive_hv(const std::vector<fitness_vector> &, unsigned int, const fitness_vector &);
-		double compute_hv(const std::vector<fitness_vector> &, const fitness_vector &);
+		inline fitness_vector get_opposite_point(const std::vector<fitness_vector> &, const fitness_vector &, unsigned int);
+		inline std::vector<fitness_vector> limitset(const std::vector<fitness_vector> &, unsigned int, const fitness_vector &);
+		inline double inclusive_hv(const fitness_vector &, const fitness_vector &);
+		inline int dom_cmp(const fitness_vector &, const fitness_vector &);
+		inline double exclusive_hv(const std::vector<fitness_vector> &, unsigned int, const fitness_vector &);
+		inline double compute_hv(const std::vector<fitness_vector> &, const fitness_vector &);
 
 		friend class boost::serialization::access;
 		template <class Archive>

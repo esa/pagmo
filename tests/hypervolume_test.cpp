@@ -116,7 +116,7 @@ class hypervolume_test {
 					exit(1);
 				}
 			}
-			m_output << "\n" << " " << OK_counter << "/" << m_num_tests << " passed\n\n";
+			m_output << "\n" << " " << OK_counter << "/" << m_num_tests << " passed";
 			return (OK_counter < m_num_tests ? 1 : 0);
 		}
 	private:
@@ -194,10 +194,16 @@ int main()
 			ss >> eps;
 			std::ifstream input((input_data_testcases_dir + test_name).c_str());
 			if (input.is_open()){
-				output << test_type << " / " << method_name << " / " << test_name << " / eps:" << eps;;
+				output << test_type << " / " << method_name << " / " << test_name << " / eps:" << eps;
 
 				hypervolume_test hvt(input, output, test_type, method_name, eps);
+
+				boost::posix_time::ptime time_start(boost::posix_time::microsec_clock::local_time());
 				test_result |= hvt.run_test();
+				boost::posix_time::ptime time_end(boost::posix_time::microsec_clock::local_time());
+				boost::posix_time::time_duration time_diff(time_end - time_start);
+
+				output << " (Time " << time_diff.total_milliseconds() / 1000.0 << " s)\n\n";
 
 				input.close();
 			}
