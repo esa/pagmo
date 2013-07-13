@@ -104,11 +104,11 @@ class hypervolume_test {
 
 				} else if (m_test_type == "least_contributor") {
 					load_least_contributor();
-					std::pair<unsigned int, double> answer = hv_obj.least_contributor(m_ref_point, m_method);
-					if (answer.first == m_idx_ans) {
+					unsigned int point_idx = hv_obj.least_contributor(m_ref_point, m_method);
+					if (point_idx == m_idx_ans) {
 						++OK_counter;
 					} else {
-						m_output << "\n Error in test " << t << ". Got: " << answer.first << ", Expected: " << m_idx_ans;
+						m_output << "\n Error in test " << t << ". Got: " << point_idx << ", Expected: " << m_idx_ans;
 					}
 
 				} else {

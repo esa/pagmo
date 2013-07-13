@@ -53,7 +53,7 @@ class __PAGMO_VISIBLE hypervolume
 		hypervolume(const std::vector<fitness_vector> &);
 		double compute(const fitness_vector &, hv_algorithm::base_ptr);
 		double exclusive(const unsigned int, const fitness_vector &, hv_algorithm::base_ptr);
-		std::pair<unsigned int, double> least_contributor(const fitness_vector &, hv_algorithm::base_ptr);
+		unsigned int least_contributor(const fitness_vector &, hv_algorithm::base_ptr);
 		fitness_vector get_nadir_point(const double);
 
 		hypervolume_ptr clone() const;

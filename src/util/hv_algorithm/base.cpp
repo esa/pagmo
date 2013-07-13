@@ -92,18 +92,18 @@ double base::exclusive(const unsigned int p_idx, const std::vector<fitness_vecto
 	return hypvol_total - hypvol_less_p;
 }
 
-/// least contributor method
+/// Least contributing point method
 /**
  * This method establishes the individual that contributes the least to the hypervolume.
  * By default it computes each individual contribution, and chooses the one that contributes the least.
- * Other algorithms may overload this method for more efficient means of eliciting the
+ * Other algorithms may overload this method for a more efficient solution.
  *
  * @param[in] points vector of fitness_vectors for which the hypervolume is computed
  * @param[in] r_point distinguished "reference point".
  *
- * @return pair consisting of indivitual's index and its hypervolume
+ * @return index of the least contributing point
  */
-std::pair<unsigned int, double> base::least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int base::least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	double min_hv = exclusive(0, points, r_point);
 	double min_idx = 0;
 	for(std::vector<fitness_vector>::size_type idx = 1 ; idx < points.size() ; ++idx) {
@@ -114,7 +114,7 @@ std::pair<unsigned int, double> base::least_contributor(const std::vector<fitnes
 		}
 	}
 
-	return std::pair<unsigned int, double>(min_idx, min_hv);
+	return min_idx;
 }
 
 
@@ -132,6 +132,17 @@ fitness_vector_cmp::fitness_vector_cmp(int dim, char cmp_type) {
 	else {
 		m_cmp_obj = boost::shared_ptr<cmp_fun>( new cmp_ge(dim));
 	}
+}
+
+/// Get algorithm's name.
+/**
+ * Default implementation will return the algorithm's mangled C++ name.
+ *
+ * @return name of the algorithm.
+ */
+std::string base::get_name() const
+{
+	return typeid(*this).name();
 }
 
 } } }

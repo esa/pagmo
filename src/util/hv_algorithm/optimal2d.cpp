@@ -60,6 +60,11 @@ base_ptr optimal2d::clone() const
 	return base_ptr(new optimal2d(*this));
 }
 
+/// Algorithm name
+std::string optimal2d::get_name() const {
+	return "Optimal2D algorithm";
+}
+
 /// Verify input method.
 /**
  * Verifies whether Optimal2D algorithm suits the requested data.

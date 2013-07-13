@@ -114,6 +114,12 @@ base_ptr optimal3d::clone() const
 	return base_ptr(new optimal3d(*this));
 }
 
+/// Algorithm name
+std::string optimal3d::get_name() const {
+	return "Optimal3D algorithm";
+}
+
+
 } } }
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::optimal3d);

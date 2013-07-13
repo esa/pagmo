@@ -75,7 +75,7 @@ class __PAGMO_VISIBLE base
 
 		virtual double exclusive(const unsigned int p_idx, const std::vector<fitness_vector> &points, const fitness_vector &r_point);
 
-		virtual std::pair<unsigned int, double> least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+		virtual unsigned int least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
 
 		/// Verification of input
 		/**
@@ -91,6 +91,8 @@ class __PAGMO_VISIBLE base
 		/**
 		 * @return pagmo::util::hv_algorithm::base_ptr to a copy of this.
 		 */
+
+		virtual std::string get_name() const;
 		virtual base_ptr clone() const = 0;
 		virtual ~base();
 	protected:

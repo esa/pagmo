@@ -146,9 +146,9 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
  * @param[in] r_point fitness vector describing the reference point
  * @param[in] hv_algorithm algorithm object used for computation
  *
- * @return value representing the hypervolume
+ * @return index of the least contributing point
  */
-std::pair<unsigned int, double> hypervolume::least_contributor(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) {
+unsigned int hypervolume::least_contributor(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) {
 	return hv_algorithm->least_contributor(m_points, r_point);
 
 }

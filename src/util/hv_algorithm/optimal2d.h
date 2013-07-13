@@ -46,6 +46,8 @@ class __PAGMO_VISIBLE optimal2d : public base {
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		base_ptr clone() const;
+		std::string get_name() const;
+
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

@@ -35,6 +35,7 @@
 #include "../../src/util/hv_algorithm/lebmeasure.h"
 #include "../../src/util/hv_algorithm/optimal2d.h"
 #include "../../src/util/hv_algorithm/optimal3d.h"
+#include "../../src/util/hv_algorithm/wfg.h"
 #include "../utils.h"
 
 using namespace boost::python;
@@ -52,16 +53,21 @@ static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wra
 
 void expose_hv_algorithm() {
 	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
-		.def("compute", &util::hv_algorithm::base::compute);
+		.def("compute", &util::hv_algorithm::base::compute)
+		.def("get_name", &util::hv_algorithm::base::get_name);
 	algorithm_wrapper<util::hv_algorithm::lebmeasure>("lebmeasure","LebMeasure algorithm.");
 	algorithm_wrapper<util::hv_algorithm::optimal2d>("optimal2d","Optimal2D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::optimal3d>("optimal3d","Optimal3D algorithm.");
+	algorithm_wrapper<util::hv_algorithm::wfg>("wfg","WFG algorithm.");
 }
 
 void expose_hypervolume() {
 	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
 		.def(init<boost::shared_ptr<population> >())
-		.def("compute", &util::hypervolume::compute);
+		.def("compute", &util::hypervolume::compute)
+		.def("exclusive", &util::hypervolume::exclusive)
+		.def("least_contributor", &util::hypervolume::least_contributor)
+		.def("get_nadir_point", &util::hypervolume::get_nadir_point);
 }
 
 BOOST_PYTHON_MODULE(_util) {

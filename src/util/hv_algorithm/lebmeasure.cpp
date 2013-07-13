@@ -79,6 +79,11 @@ base_ptr lebmeasure::clone() const
 	return base_ptr(new lebmeasure(*this));
 }
 
+/// Algorithm name
+std::string lebmeasure::get_name() const {
+	return "LebMeasure algorithm";
+}
+
 /// Dominated method
 /**
  * Determines whether given point p is strictly dominated by any point from given set of points.

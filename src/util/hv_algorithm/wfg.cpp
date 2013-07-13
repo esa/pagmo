@@ -210,6 +210,11 @@ base_ptr wfg::clone() const
 	return base_ptr(new wfg(*this));
 }
 
+/// Algorithm name
+std::string wfg::get_name() const {
+	return "WFG algorithm";
+}
+
 } } }
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::wfg);
