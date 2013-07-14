@@ -277,13 +277,19 @@ void _validate_problem_stochastic(const problem::base& prob)
 }
 
 // Check if the other parameters for racing are sensible
-void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int, const unsigned int, double delta)
+void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size)
 {
 	if(n_final > pop.size()){
 		pagmo_throw(value_error, "Number of intended winner is too large");
 	}
 	if(delta < 0 || delta > 1){
 		pagmo_throw(value_error, "Confidence level should be a small value greater than zero");
+	}
+	if (max_f_evals < active_set_size) {
+		pagmo_throw(value_error, "Maximum number of function evaluations is smaller than the number of racers");
+	}
+	if (max_f_evals < min_trials*active_set_size) {
+		pagmo_throw(value_error, "You are asking for a mimimum amount of trials which cannot be made with the allowed function evaluation budget");
 	}
 }
 
@@ -297,7 +303,7 @@ std::vector<population::size_type> construct_output_list(
 		const std::vector<population::size_type>& in_race,
 		const std::vector<population::size_type>& discarded,
 		const population::size_type n_final,
-		const race_goal_t race_goal)
+		const bool race_best)
 {
 	typedef population::size_type size_type;
 	// To be sorted either in ascending (BEST) or descending (WORST)
@@ -306,7 +312,7 @@ std::vector<population::size_type> construct_output_list(
 		argsort.push_back(std::make_pair(racers[*it].m_mean, *it));
 	}
 	std::vector<size_type> output;
-	if(race_goal == BEST){
+	if(race_best){
 		output = decided;
 		std::sort(argsort.begin(), argsort.end(), std::less<std::pair<double, size_type> >());
 	}
@@ -350,7 +356,7 @@ std::vector<population::size_type> construct_output_list(
  * @param[in] pop population containing the individuals to race
  * @param[in] n_final Desired number of winners.
  * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
- * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
+ * @param[in] max_f_evals Maximum number of objective function evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] seed Seed used to seed the race
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
@@ -366,21 +372,26 @@ std::vector<population::size_type> construct_output_list(
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_count, const double delta, const unsigned int seed, const std::vector<population::size_type>& active_set, const race_goal_t race_goal, const bool screen_output)
+std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const unsigned int seed, const std::vector<population::size_type>& active_set, const bool race_best, const bool screen_output)
 {
-	// Problem has to be stochastic
+	// We start validating the inputs:
+	// a - Problem has to be stochastic
 	_validate_problem_stochastic(pop.problem());
-	// active_set has to contain valid indexes
+	// b - active_set has to contain valid indexes
 	_validate_active_set(active_set, pop.size());
-	// Other parameters have to be sane
-	_validate_racing_params(pop, n_final, min_trials, max_count, delta);
+	// c - Other parameters have to be sane
+	_validate_racing_params(pop, n_final, min_trials, max_f_evals, delta, active_set.size());
 
 	typedef population::size_type size_type;
 
+	// This rng will be used to change the stochastic problem seed.
 	rng_uint32 seeder(seed);
 
-	race_termination_condition::type term_cond = race_termination_condition::EVAL_COUNT;
+	// The race will terminate when a given number of function evaluations will be exceeded
+	//race_termination_condition::type term_cond = race_termination_condition::EVAL_COUNT;
 	
+	// We make copy of the population as we will need to change the problem seed and do not want
+	// to touch the original pop
 	population racing_pop(pop);
 
 	// Temporary: Consider a fresh start every time race() is called
@@ -398,7 +409,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 		}
 	}
 
-	// Indices of the racers who are currently active in the pop's sense
+	// Indices of racers who are currently active in the pop's sense
 	// Examples:
 	// (1) in_race.size() == 5 ---> Only 5 individuals are still being raced.
 	// (2) pop.get_individual(in_race[0]) gives a reference to an actual
@@ -417,7 +428,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 	size_type n_final_best;
 
 	// Complimentary relationship between race-for-best and race-for-worst
-	if(race_goal == BEST){
+	if(race_best){
 		n_final_best = n_final;
 	}
 	else{
@@ -427,19 +438,21 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;
 
+	// Start of the main loop. It will stop as soon as we have decided enough winners or
+	// discarded enough losers
 	while(decided.size() < n_final_best && decided.size() + in_race.size() > n_final_best){
 		
 		count_iter++;
 
 		if(screen_output){
 			std::cout << "-----Iteration: " << count_iter << ", evaluation count = " << count_nfes << std::endl;
-			std::cout << "Decided: " << std::vector<size_type>(decided.begin(), decided.end()) << std::endl;
-			std::cout << "In-race: " << std::vector<size_type>(in_race.begin(), in_race.end()) << std::endl;
-			std::cout << "Discarded: " << std::vector<size_type>(discarded.begin(), discarded.end()) << std::endl;
+			std::cout << "Decided: " << decided << std::endl;
+			std::cout << "In-race: " << in_race << std::endl;
+			std::cout << "Discarded: " << discarded << std::endl;
 		}
 
 		// Check if there is enough budget for evaluating the individuals in the race 
-		if(term_cond == race_termination_condition::EVAL_COUNT && count_nfes + in_race.size() > max_count){
+		if(count_nfes + in_race.size() > max_f_evals){
 			break;
 		}
 
@@ -536,15 +549,15 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 		}
 
 		//TODO: Is this termination condition useful at all?
-		if(term_cond == race_termination_condition::ITER_COUNT){
-			break;
-		}
+		//if(term_cond == race_termination_condition::ITER_COUNT){
+		//	break;
+		//}
 
 	};
 	
 	// Note that n_final (instead of n_final_best) is required here
 	std::vector<size_type> winners =
-		construct_output_list(racers, decided, in_race, discarded, n_final, race_goal);
+		construct_output_list(racers, decided, in_race, discarded, n_final, race_best);
 
 	// std::cout << "Race ends after " << count_iter << " iterations, incurred nfes = " << count_nfes << std::endl;
 	// std::cout << "Returning winners: " << std::vector<size_type>(winners.begin(), winners.end()) << std::endl;
