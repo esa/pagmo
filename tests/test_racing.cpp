@@ -157,7 +157,7 @@ int test_racing_worst(const problem::base_ptr& prob, population::size_type pop_s
 	}
 
 	// NOTE: now winners are actually losers
-	std::vector<population::size_type> winners = pop.race_worst(end_size, 50, 5000, 0.05);
+	std::vector<population::size_type> winners = pop.race(end_size, 50, 5000, 0.05, std::vector<population::size_type>(), false);
 	double ground_truth = ((winners.size()-1)+1) * (winners.size()-1) / 2;
 	double obtained = std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>());
 	double acceptable = winners.size();

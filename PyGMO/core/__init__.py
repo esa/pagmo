@@ -410,16 +410,17 @@ def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size =
 
 population.plot_pareto_fronts = _pop_plot_pareto_fronts
 	
-def _pop_race(self, n_winners, min_trials = 0, max_feval = 500, delta=0.05, racers_idx = []):
+def _pop_race(self, n_winners, min_trials = 0, max_feval = 500, delta=0.05, racers_idx = [], race_best=True):
 	"""
 	Races individuals in a population
 
-	USAGE: pop.race(n_winners, min_trials = 0, max_feval = 500, delta = 0.05, racers_idx = [])
+	USAGE: pop.race(n_winners, min_trials = 0, max_feval = 500, delta = 0.05, racers_idx = [], race_best=True)
 
 	* n_winners: number of winners in the race
 	* min_trials: minimum amount of evaluations before an individual can stop racing
 	* delta: Statistical test confidence
 	* racers_idx: indices of the individuals in pop to be raced
+	* race_best: when True winners are the best, otherwise winners are the worst
 	"""
 	arg_list=[]
 	arg_list.append(n_winners)
@@ -427,6 +428,7 @@ def _pop_race(self, n_winners, min_trials = 0, max_feval = 500, delta=0.05, race
 	arg_list.append(max_feval)
 	arg_list.append(delta)
 	arg_list.append(racers_idx)
+	arg_list.append(race_best)
 	return self._orig_race(*arg_list)
 
 population._orig_race = population.race
