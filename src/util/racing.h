@@ -53,6 +53,8 @@ namespace racing{
 		const bool race_best,
 		const bool screen_output
 	);
+	
+///Doxygen will ignore whatever is in //! @cond
 //! @cond
 	//struct race_termination_condition{
 	//	enum type {ITER_COUNT = 0, EVAL_COUNT = 1};

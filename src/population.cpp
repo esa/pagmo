@@ -1019,15 +1019,16 @@ population::size_type population::n_dominated(const individual_type &ind) const
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
  * @param[in] race_best If true winners are the best, otherwise winners are the worst
+ * @param[in] screen_output If true some screen output is produced
  *
  * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
  *
  * @see pagmo::util::racing::race
  */
-std::vector<population::size_type> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set, const bool race_best) const
+std::vector<population::size_type> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set, const bool race_best, const bool screen_output) const
 {
 	return util::racing::race_pop(*this, n_final, min_trials, max_count,
-									 delta, m_urng(), active_set, race_best, false);
+									 delta, m_urng(), active_set, race_best, screen_output);
 }
 
 /// Overload stream operator for pagmo::population.

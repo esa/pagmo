@@ -215,18 +215,18 @@ std::string noisy::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
-	oss << "\n\tNoise type: ";
+	oss << "\tNoise type: ";
 	if(m_noise_type == NORMAL){
-		oss << "\n\tNormal distribution of ("<<m_param_first<<","<<m_param_second<<")";
+		oss << "Normal distribution of ("<<m_param_first<<","<<m_param_second<<")";
 	}
 	else if(m_noise_type == UNIFORM){
-		oss << "\n\tUniform distribution over ("<<m_param_first<<","<<m_param_second<<")";
+		oss << "Uniform distribution over ("<<m_param_first<<","<<m_param_second<<")";
 	}
 	else{
 		oss << "\n\t Unknown????";
 	}
 	oss << "\n\ttrials: "<<m_trials;
-	oss << "\n\tseed: "<<m_seed;
+	oss << "\n\tseed: "<<m_seed << std::endl;
 	//oss << "\n\tDistribution state: "<<m_normal_dist;
 	return oss.str();
 }

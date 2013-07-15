@@ -228,7 +228,8 @@ class __PAGMO_VISIBLE population
 									const unsigned int max_count = 1000,
 									double delta = 0.05,
 									const std::vector<size_type>& = std::vector<size_type>(),
-									const bool race_best = true) const;
+									const bool race_best = true,
+									const bool screen_output = false) const;
 
 		struct crowded_comparison_operator {
 			crowded_comparison_operator(const population &);
