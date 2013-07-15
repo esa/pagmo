@@ -22,56 +22,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include <iomanip>
-#include "src/pagmo.h"
+#ifndef PAGMO_ALGORITHM_PADE_H
+#define PAGMO_ALGORITHM_PADE_H
 
-using namespace pagmo;
+#include "../config.h"
+#include "../serialization.h"
+#include "base.h"
+#include "jde.h"
 
-// Example in C++ of the use of PaGMO 1.1.4
 
-int main()
+
+namespace pagmo { namespace algorithm {
+
+/// Parallel Decomposition (PaDe)
+/**
+ *
+ * This class implement a multi-objective optimization algorithm based on parallel decomposition.
+ * For each element of the population a different single objective problem is generated having as fitness function a random
+ * convex combination of the different objectives. Those single-objective problems are thus solved in parallel.
+ * At the end of the evolution the population is set as the best individual for each single-objective problem.
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ **/
+
+class __PAGMO_VISIBLE pade: public base
 {
-    /*
-	pagmo::problem::zdt1 orig_prob(10);
-
-	std::vector<double> weights(2,0.5);
-	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
-
-	pagmo::algorithm::jde alg(50);
-
-	std::cout << alg << std::endl;
-	std::cout << orig_prob << std::endl;
-	std::cout << decomposed_problem << std::endl;
-
-	pagmo::island isl = island(alg, decomposed_problem, 100);
-	pagmo::population original_problem_pop = population(orig_prob, 1);
-
-    for (size_t i = 0; i< 10; ++i){
-	    isl.evolve(1);
-	    original_problem_pop.set_x(0, isl.get_population().champion().x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
-	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
-	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
+public:
+    pade(int gen=100, const pagmo::algorithm::base & = pagmo::algorithm::jde());
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
+	
+protected:
+	std::string human_readable_extra() const;
+	
+private:
+	
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+        ar & m_solver;
 	}
-	return 0;
-    */
-    pagmo::problem::zdt1 prob(10);
-    pagmo::algorithm::pade alg(10000);
+	//Number of generations
+	const int m_gen;
+    base_ptr m_solver;
+};
 
-    std::cout << alg << std::endl;
-    std::cout << prob << std::endl;
+}} //namespaces
 
-    pagmo::island isl = island(alg, prob, 8);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pade);
 
-    for (size_t i = 0; i<10; ++i){
-        isl.evolve(1);
-        std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
-        //std::cout << "Original fitness: " << isl.get_population() << std::endl;
-        //std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
-    }
-    std::cout << "Finished" << std::endl;
-    return 0;
-}
+#endif // PAGMO_ALGORITHM_PADE_H

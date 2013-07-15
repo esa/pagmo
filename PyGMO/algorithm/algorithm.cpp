@@ -221,6 +221,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// NSGA II
 	algorithm_wrapper<algorithm::nsga2>("nsga_II", "The NSGA-II algorithm")
 		.def(init<optional<int, double, double, double, double> >());
+	
+	// PaDe
+	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
+		.def(init<optional<int, const algorithm::base &> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")

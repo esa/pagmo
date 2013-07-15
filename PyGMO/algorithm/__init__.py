@@ -310,7 +310,7 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""
 	Constructs a Non-dominated Sorting Genetic Algorithm (NSGA_II)
 	
-	USAGE: algorithm.nsga__II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+	USAGE: algorithm.nsga_II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
   
 	* gen: number of generations
 	* cr: crossover factor [0,1[
@@ -328,6 +328,25 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	self._orig_init(*arg_list)
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
+
+def _pade_ctor(self, gen=100, solver = None):
+	"""
+	Constructs a Parallel Decomposition Algorithm (PaDe)
+	
+	USAGE: algorithm.pade(self, gen=100, solver)
+  
+	* gen: number of generations
+	* solver: the algorithm to use to solve the single-objective problems
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	if solver == None:
+		solver = jde(50)
+	arg_list.append(solver)
+	self._orig_init(*arg_list)
+pade._orig_init = pade.__init__
+pade.__init__ = _pade_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
