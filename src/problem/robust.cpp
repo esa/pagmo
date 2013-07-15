@@ -194,9 +194,9 @@ std::string robust::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
-	oss << "\n\tNeighbourhood radius = " << m_rho;
+	oss << "\tNeighbourhood radius = " << m_rho;
 	oss << "\n\ttrials: "<<m_trials;
-	oss << "\n\tseed: "<<m_seed;
+	oss << "\n\tseed: "<<m_seed<< std::endl;
 	return oss.str();
 }
 }}
