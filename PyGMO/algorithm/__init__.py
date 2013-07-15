@@ -329,6 +329,29 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
 
+def _sms_emoa_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
+	"""
+	Constructs a S-Metric Selection Evolutionary Multiobjective Optimiser Algorithm (SMS-EMOA)
+
+	USAGE: algorithm.sms_emoa(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+
+	* gen: number of generations
+	* cr: crossover factor [0,1[
+	* eta_c: Distribution index for crossover
+	* m: mutation probability [0,1]
+	* eta_m: Distribution index for mutation
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(eta_c)
+	arg_list.append(m)
+	arg_list.append(eta_m)
+	self._orig_init(*arg_list)
+sms_emoa._orig_init = sms_emoa.__init__
+sms_emoa.__init__ = _sms_emoa_ctor
+
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
 	Constructs Corana's Simulated Annealing

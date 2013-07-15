@@ -222,6 +222,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::nsga2>("nsga_II", "The NSGA-II algorithm")
 		.def(init<optional<int, double, double, double, double> >());
 
+	// SMS-EMOA
+	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")
+		.def(init<optional<int, double, double, double, double> >());
+
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
 		.def(init<optional<int,const double &, const double &, int, double, double> >())
