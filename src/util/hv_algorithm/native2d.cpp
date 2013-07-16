@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 
-#include "optimal2d.h"
+#include "native2d.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
@@ -38,7 +38,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @return hypervolume
  */
-double optimal2d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double native2d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(0, '<'));
@@ -55,28 +55,28 @@ double optimal2d::compute(const std::vector<fitness_vector> &points, const fitne
 
 
 /// Clone method.
-base_ptr optimal2d::clone() const
+base_ptr native2d::clone() const
 {
-	return base_ptr(new optimal2d(*this));
+	return base_ptr(new native2d(*this));
 }
 
 /// Algorithm name
-std::string optimal2d::get_name() const {
-	return "Optimal2D algorithm";
+std::string native2d::get_name() const {
+	return "Native2D algorithm";
 }
 
 /// Verify input method.
 /**
- * Verifies whether Optimal2D algorithm suits the requested data.
+ * Verifies whether Native2D algorithm suits the requested data.
  *
  * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the vector of points
  *
  * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void optimal2d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+void native2d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	if (r_point.size() != 2) {
-		pagmo_throw(value_error, "optimal2d method method works only for 2-dimensional cases.");
+		pagmo_throw(value_error, "native2d method method works only for 2-dimensional cases.");
 	}
 
 	base::assert_maximal_reference_point(points, r_point);
@@ -84,4 +84,4 @@ void optimal2d::verify_before_compute(const std::vector<fitness_vector> &points,
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::optimal2d);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::native2d);

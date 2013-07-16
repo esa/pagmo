@@ -36,15 +36,15 @@ You can also explicitly request an particular algorithm for the computation:
 
    from PyGMO import *
    hv = hypervolume([[2,1,1] , [1,2,1], [1,1,2]])
-   print hv.compute(r = [3.5]*3, algorithm = hv_algorithm.optimal3d())
+   print hv.compute(r = [3.5]*3, algorithm = hv_algorithm.beume3d())
 
 Available Hypervolume algorithms
 ^^^^^^^^^^^^^^^^^^^^^^
 ================================== ======================================== ===================================================================
 Common Name                        Name in PyGMO                            Comments
 ================================== ======================================== ===================================================================
-Optimal2D                          :class:`PyGMO.hv_algorithm.optimal2d`    Algorithm for optimal computation of 2D hypervolumes.
-Optimal3D                          :class:`PyGMO.hv_algorithm.optimal3d`    Algorithm for optimal computation of 3D hypervolumes.
+Native2D                           :class:`PyGMO.hv_algorithm.native2d`     Algorithm for optimal computation of 2D hypervolumes.
+Beume3D                            :class:`PyGMO.hv_algorithm.beume3d`      Algorithm for optimal computation of 3D hypervolumes.
 LebMeasure                         :class:`PyGMO.hv_algorithm.lebmeasure`   General algorithm for any size of dimension > 2, (caution: very slow)
 ================================== ======================================== ===================================================================
 
@@ -86,32 +86,32 @@ Detailed Documentation
       Computes the hypervolume for given problem, using the provided reference point r.
       Keyword `algorithm` must be an instance of algorithms that can be found inside `PyGMO.hv_algorithm` module.
       If the keyword is not provided, PyGMO chooses one automatically using the information about the reference point.
-      In case of 2 and 3 dimensions, methods Optimal2D and Optimal3D are used.
+      In case of 2 and 3 dimensions, methods Native2D and Beume3D are used.
       For larger dimensions the default method is the LebMeasure.
       As of yet, it is required that reference point is numerically no lesser by each dimension than any point from the previously constructed set of points.
 
       USAGE:
          print hv.compute([3,3,3])
 
-         print hv.compute([3,3,3], algorithm = hv_algorithm.optimal3d())
+         print hv.compute([3,3,3], algorithm = hv_algorithm.beume3d())
 
          print hv.compute([3,3,3], algorithm = hv_algorithm.lebmeasure())
 
-.. class:: PyGMO.hv_algorithm.optimal2d()
+.. class:: PyGMO.hv_algorithm.native2d()
 
     This is the optimal algorithm the 2 dimensional problems.
 
    .. method:: __init__()
 
-      Creates an instance of `PyGMO.hv_algorithm.optimal2d` class that serves as a parameter to the hypervolume object.
+      Creates an instance of `PyGMO.hv_algorithm.native2d` class that serves as a parameter to the hypervolume object.
 
-.. class:: PyGMO.hv_algorithm.optimal3d()
+.. class:: PyGMO.hv_algorithm.beume3d()
 
     This is the optimal algorithm for the 3 dimensional problems.
 
    .. method:: __init__()
 
-      Creates an instance of `PyGMO.hv_algorithm.optimal3d` class that serves as a parameter to the hypervolume object.
+      Creates an instance of `PyGMO.hv_algorithm.beume3d` class that serves as a parameter to the hypervolume object.
 
 .. class:: PyGMO.hv_algorithm.lebmeasure()
 

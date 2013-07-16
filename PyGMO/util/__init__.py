@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import hypervolume, hv_algorithm
-from _util.hv_algorithm import lebmeasure, optimal2d, optimal3d, wfg
+from _util.hv_algorithm import lebmeasure, native2d, beume3d, wfg
 
 __all__ = ['hypervolume', 'hv_algorithm']
 
@@ -28,9 +28,9 @@ def _default_best_algorithm(f_dim):
 	Choose the best suited method for given dimension.
 	"""
 	if f_dim == 2:
-		return optimal2d()
+		return native2d()
 	elif f_dim == 3:
-		return optimal3d()
+		return beume3d()
 	else:
 		return wfg()
 
@@ -40,7 +40,7 @@ def _hypervolume_compute(self, r, algorithm = None):
 
 	USAGE:
 		hv.compute(r=[5.0]*2)
-		hv.compute(r=[5.0]*2, algorithm = hv_algorithm.optimal2d())
+		hv.compute(r=[5.0]*2, algorithm = hv_algorithm.native2d())
 		* r - reference point
 		* algorithm - optional argument: hypervolume algorithm used for the computation.
 	"""
@@ -66,7 +66,7 @@ def _hypervolume_exclusive(self, p_idx, r, algorithm = None):
 
 	USAGE:
 		hv.exclusive(0, [5.0]*2)
-		hv.exclusive(0, [5.0]*2, algorithm = hv_algorithm.optimal2d())
+		hv.exclusive(0, [5.0]*2, algorithm = hv_algorithm.native2d())
 		* p_idx - index of the point
 		* r - reference point
 		* algorithm - optional argument: hypervolume algorithm used for the computation.
@@ -93,7 +93,7 @@ def _hypervolume_least_contributor(self, r, algorithm = None):
 
 	USAGE:
 		hv.least_contributor([5.0]*2)
-		hv.least_contributor([5.0]*2, algorithm = hv_algorithm.optimal2d())
+		hv.least_contributor([5.0]*2, algorithm = hv_algorithm.native2d())
 		* r - reference point
 		* algorithm - optional argument: hypervolume algorithm used for the computation.
 	"""
@@ -128,23 +128,23 @@ def _hypervolume_get_nadir_point(self, eps = 0.0):
 hypervolume._original_get_nadir_point = hypervolume.get_nadir_point
 hypervolume.get_nadir_point = _hypervolume_get_nadir_point
 
-def _optimal2d_ctor(self):
+def _native2d_ctor(self):
 	"""
-	Hypervolume algorithm: Optimal2D algorithm.
+	Hypervolume algorithm: Native2D algorithm.
 	Points are initially sorted by one dimension, after which the partial areas are summed linearly.
 	Computational complexity: O(n*logn)
 
 	USAGE:
-		hv.compute(r=[1.5]*2, algorithm = hv_algorithm.optimal2d())
+		hv.compute(r=[1.5]*2, algorithm = hv_algorithm.native2d())
 	"""
 	return self._original_init()
 
-optimal2d._original_init = optimal2d.__init__
-optimal2d.__init__ = _optimal2d_ctor
+native2d._original_init = native2d.__init__
+native2d.__init__ = _native2d_ctor
 
-def _optimal3d_ctor(self):
+def _beume3d_ctor(self):
 	"""
-	Hypervolume algorithm: Optimal3D algorithm.
+	Hypervolume algorithm: Beume3D algorithm.
 	Computational complexity: O(n*logn)
 
 	REF: "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
@@ -152,12 +152,12 @@ def _optimal3d_ctor(self):
 	IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTTATION. VOL. 13, NO. 5, OCTOBER 2009
 
 	USAGE:
-		hv.compute(r=[1.5]*3, algorithm = hv_algorithm.optimal3d())
+		hv.compute(r=[1.5]*3, algorithm = hv_algorithm.beume3d())
 	"""
 	return self._original_init()
 
-optimal3d._original_init = optimal3d.__init__
-optimal3d.__init__ = _optimal3d_ctor
+beume3d._original_init = beume3d.__init__
+beume3d.__init__ = _beume3d_ctor
 
 def _lebmeasure_ctor(self):
 	"""

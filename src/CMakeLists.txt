@@ -104,8 +104,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hypervolume.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/lebmeasure.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/optimal2d.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/optimal3d.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/native2d.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/beume3d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/wfg.cpp
 )
 

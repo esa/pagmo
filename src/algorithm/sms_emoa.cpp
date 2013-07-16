@@ -253,7 +253,7 @@ unsigned int sms_emoa::evaluate_s_metric_selection(const population & pop) const
 	pagmo::util::hypervolume hypvol(points);
 	fitness_vector r = hypvol.get_nadir_point(1.0);
 
-	unsigned int least_idx = hypvol.least_contributor(r, util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal2d()));
+	unsigned int least_idx = hypvol.least_contributor(r, util::hv_algorithm::base_ptr( new util::hv_algorithm::native2d()));
 
 	return fronts[last_front][least_idx];
 }

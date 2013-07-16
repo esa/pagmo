@@ -30,8 +30,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "../src/util/hypervolume.h"
 #include "../src/util/hv_algorithm/base.h"
-#include "../src/util/hv_algorithm/optimal2d.h"
-#include "../src/util/hv_algorithm/optimal3d.h"
+#include "../src/util/hv_algorithm/native2d.h"
+#include "../src/util/hv_algorithm/beume3d.h"
 #include "../src/util/hv_algorithm/lebmeasure.h"
 #include "../src/util/hv_algorithm/wfg.h"
 
@@ -63,10 +63,10 @@ class hypervolume_test {
 			// create correct algorithm object
 			if (method_name == "lebmeasure") {
 				m_method = util::hv_algorithm::base_ptr( new util::hv_algorithm::lebmeasure());
-			} else if (method_name == "optimal2d") {
-				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal2d());
-			} else if (method_name == "optimal3d") {
-				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::optimal3d());
+			} else if (method_name == "native2d") {
+				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::native2d());
+			} else if (method_name == "beume3d") {
+				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::beume3d());
 			} else if (method_name == "wfg") {
 				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::wfg());
 			} else {

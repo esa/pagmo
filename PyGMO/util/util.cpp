@@ -33,8 +33,8 @@
 #include "../../src/util/hypervolume.h"
 #include "../../src/util/hv_algorithm/base.h"
 #include "../../src/util/hv_algorithm/lebmeasure.h"
-#include "../../src/util/hv_algorithm/optimal2d.h"
-#include "../../src/util/hv_algorithm/optimal3d.h"
+#include "../../src/util/hv_algorithm/native2d.h"
+#include "../../src/util/hv_algorithm/beume3d.h"
 #include "../../src/util/hv_algorithm/wfg.h"
 #include "../utils.h"
 
@@ -56,8 +56,8 @@ void expose_hv_algorithm() {
 		.def("compute", &util::hv_algorithm::base::compute)
 		.def("get_name", &util::hv_algorithm::base::get_name);
 	algorithm_wrapper<util::hv_algorithm::lebmeasure>("lebmeasure","LebMeasure algorithm.");
-	algorithm_wrapper<util::hv_algorithm::optimal2d>("optimal2d","Optimal2D algorithm.");
-	algorithm_wrapper<util::hv_algorithm::optimal3d>("optimal3d","Optimal3D algorithm.");
+	algorithm_wrapper<util::hv_algorithm::native2d>("native2d","Native2D algorithm.");
+	algorithm_wrapper<util::hv_algorithm::beume3d>("beume3d","Beume3D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::wfg>("wfg","WFG algorithm.");
 }
 

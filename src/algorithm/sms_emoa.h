@@ -29,8 +29,8 @@
 #include "../serialization.h"
 #include "base.h"
 #include "../util/hypervolume.h"
-#include "../util/hv_algorithm/optimal2d.h"
-#include "../util/hv_algorithm/optimal3d.h"
+#include "../util/hv_algorithm/native2d.h"
+#include "../util/hv_algorithm/beume3d.h"
 
 
 namespace pagmo { namespace algorithm {

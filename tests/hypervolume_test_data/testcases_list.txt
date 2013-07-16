@@ -10,22 +10,22 @@
 ## Tests generated from Fast Dimension-Sweep algorithm using external library (http://ls11-www.cs.uni-dortmund.de/rudolph/hypervolume/start)
 
 #compute lebmeasure c_max_t100_d3_n128 10e-3
-compute optimal2d c_max_t100_d2_n128 10e-9
-compute optimal3d c_max_t100_d3_n128 10e-9
-compute optimal3d c_max_t1_d3_n2048 10e-9
+compute native2d c_max_t100_d2_n128 10e-9
+compute beume3d c_max_t100_d3_n128 10e-9
+compute beume3d c_max_t1_d3_n2048 10e-9
 compute wfg c_max_t1_d3_n2048 10e-9
 compute wfg c_max_t100_d3_n128 10e-9
 #compute wfg c_max_t1_d7_n64 10e-2
 compute wfg c_max_t1_d5_n1024 10e-4
 
-exclusive optimal3d e_max_d3 10e-9
-least_contributor optimal3d lc_max_d3 10e-9
+exclusive beume3d e_max_d3 10e-9
+least_contributor beume3d lc_max_d3 10e-9
 
 #compute wfg extra/max_WFGa_t20_d13_n100 10e-9
 #compute wfg extra/max_WFGa_spherical_t10_d9_n160 10e-9
 #compute wfg extra/max_WFGa_discontinuous_d6_n650 10e-9
 #compute wfg extra/max_single 10e-9
-#compute optimal3d extra/max_single 10e-9
+#compute beume3d extra/max_single 10e-9
 #compute wfg extra/max_t1_d3_n512 10e-9
 #compute wfg extra/max_t1_d3_n1024 10e-9
 #compute wfg extra/max_t10_d4_n16 10e-3

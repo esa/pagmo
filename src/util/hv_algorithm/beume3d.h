@@ -22,26 +22,31 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HV_ALGORITHM_OPTIMAL2D_H
-#define PAGMO_UTIL_HV_ALGORITHM_OPTIMAL2D_H
+#ifndef PAGMO_UTIL_HV_ALGORITHM_BEUME3D_H
+#define PAGMO_UTIL_HV_ALGORITHM_BEUME3D_H
 
 #include <iostream>
+#include <limits>
+#include <string>
 #include <vector>
 #include <cmath>
+#include <set>
 #include <algorithm>
 
 #include "base.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// Optimal2D hypervolume algorithm class
+/// Beume3D hypervolume algorithm class
 /**
- * This is the class containing the implementation of the optimal2D algorithm for computing hypervolume.
- * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then computing the partial areas linearly.
+ * This is the class containing the implementation of the Beume3D algorithm for computing hypervolume.
+ *
+ * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
+ * Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE optimal2d : public base {
+class __PAGMO_VISIBLE beume3d : public base {
 	public:
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
@@ -55,10 +60,11 @@ class __PAGMO_VISIBLE optimal2d : public base {
 		{
 			ar & boost::serialization::base_object<base>(*this);
 		}
+
 };
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::optimal2d);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::beume3d);
 
 #endif

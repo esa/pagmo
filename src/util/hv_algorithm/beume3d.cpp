@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 
-#include "optimal3d.h"
+#include "beume3d.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
@@ -39,7 +39,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @return hypervolume.
  */
-double optimal3d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double beume3d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
 	// copy the initial set
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
@@ -100,26 +100,26 @@ double optimal3d::compute(const std::vector<fitness_vector> &points, const fitne
  *
  * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void optimal3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+void beume3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	if (r_point.size() != 3) {
-		pagmo_throw(value_error, "optimal3d method method works only for 3-dimensional cases.");
+		pagmo_throw(value_error, "beume3d method method works only for 3-dimensional cases.");
 	}
 
 	base::assert_maximal_reference_point(points, r_point);
 }
 
 /// Clone method.
-base_ptr optimal3d::clone() const
+base_ptr beume3d::clone() const
 {
-	return base_ptr(new optimal3d(*this));
+	return base_ptr(new beume3d(*this));
 }
 
 /// Algorithm name
-std::string optimal3d::get_name() const {
-	return "Optimal3D algorithm";
+std::string beume3d::get_name() const {
+	return "Beume3D algorithm";
 }
 
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::optimal3d);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::beume3d);
