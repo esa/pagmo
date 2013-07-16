@@ -1073,7 +1073,7 @@ population::size_type population::n_dominated(const individual_type &ind) const
  *
  * @see pagmo::util::racing::race
  */
-std::vector<population::size_type> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set, const bool race_best, const bool screen_output) const
+std::pair<std::vector<population::size_type>, unsigned int> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set, const bool race_best, const bool screen_output) const
 {
 	return util::racing::race_pop(*this, n_final, min_trials, max_count,
 									 delta, m_urng(), active_set, race_best, screen_output);

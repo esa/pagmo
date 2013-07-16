@@ -225,7 +225,7 @@ class __PAGMO_VISIBLE population
 		double mean_velocity() const;
 
 		// Race routine wrappers
-		std::vector<size_type> race(const size_type n_final,
+		std::pair<std::vector<population::size_type>, unsigned int> race(const size_type n_final,
 									const unsigned int min_trials = 0,
 									const unsigned int max_count = 1000,
 									double delta = 0.05,

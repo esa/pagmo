@@ -363,7 +363,8 @@ std::vector<population::size_type> construct_output_list(
  * @param[in] race_goal Whether to extract the best or the worst individuals.
  * @param[in] screen_output Whether to log racing status on the console output.
  *
- * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
+ * @return std::pair containing first: the indices of the individuals that remain in the
+ * race in the end, a.k.a the winners, second: the function evaluations needed
  *
  * @throws type_error if the underlying problem is not stochastic
  * @throws index_error if active_set is invalid (out of bound / repeated indices)
@@ -372,7 +373,7 @@ std::vector<population::size_type> construct_output_list(
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::vector<population::size_type> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const unsigned int seed, const std::vector<population::size_type>& active_set, const bool race_best, const bool screen_output)
+std::pair<std::vector<population::size_type>, unsigned int> race_pop(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const unsigned int seed, const std::vector<population::size_type>& active_set, const bool race_best, const bool screen_output)
 {
 	// We start validating the inputs:
 	// a - Problem has to be stochastic
@@ -445,7 +446,7 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 		count_iter++;
 
 		if(screen_output){
-			std::cout << "-----Iteration: " << count_iter << ", evaluation count = " << count_nfes << std::endl;
+			std::cout << "\n-----Iteration: " << count_iter << ", evaluation count = " << count_nfes << std::endl;
 			std::cout << "Decided: " << decided << std::endl;
 			std::cout << "In-race: " << in_race << std::endl;
 			std::cout << "Discarded: " << discarded << std::endl;
@@ -559,9 +560,11 @@ std::vector<population::size_type> race_pop(const population& pop, const populat
 	std::vector<size_type> winners =
 		construct_output_list(racers, decided, in_race, discarded, n_final, race_best);
 
-	// std::cout << "Race ends after " << count_iter << " iterations, incurred nfes = " << count_nfes << std::endl;
-	// std::cout << "Returning winners: " << std::vector<size_type>(winners.begin(), winners.end()) << std::endl;
-	return winners;
+	if(screen_output){
+		std::cout << "\nRace ends after " << count_iter << " iterations, incurred nfes = " << count_nfes << std::endl;
+		std::cout << "Returning winners: " << std::vector<size_type>(winners.begin(), winners.end()) << std::endl;
+	}
+	return std::make_pair(winners, count_nfes);
 }
 
 }}}

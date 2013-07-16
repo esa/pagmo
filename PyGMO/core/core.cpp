@@ -71,6 +71,17 @@ static inline problem::base_ptr problem_from_pop(const population &pop)
 	return pop.problem().clone();
 }
 
+static inline boost::python::tuple race_return_tuple(const population &pop, const population::size_type n_final,
+									const unsigned int min_trials = 0,
+									const unsigned int max_count = 1000,
+									double delta = 0.05,
+									const std::vector<population::size_type> &active_set = std::vector<population::size_type>(),
+									const bool race_best = true,
+									const bool screen_output = false) {
+	std::pair<std::vector<pagmo::population::size_type>, unsigned int> res = pop.race(n_final,min_trials, max_count, delta, active_set, race_best ,screen_output);
+	return boost::python::make_tuple(res.first,res.second);
+}
+
 #define TRIVIAL_GETTER_SETTER(type1,type2,name) \
 static inline type2 get_##name(const type1 &arg) \
 { \
@@ -241,6 +252,7 @@ BOOST_PYTHON_MODULE(_core)
 
 	common_module_init();
 	typedef boost::array<double,2> array2D;
+	typedef std::pair<std::vector<int>, int> new_pair;
 	//Register std converters to lists if not already registered by some other module
 	REGISTER_CONVERTER(array2D,fixed_size_policy);
 	REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
@@ -286,7 +298,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.")
 		.def("erase", &population::erase, "Erase individual at position")
 		.def("mean_velocity", &population::mean_velocity, "Calculates the mean velocity across particles")
-		.def("race", &population::race, "Race the individuals")
+		.def("race", &race_return_tuple, "Race the individuals")
 		.def("cpp_loads", &py_cpp_loads<population>)
 		.def("cpp_dumps", &py_cpp_dumps<population>)
 		.def_pickle(population_pickle_suite());
