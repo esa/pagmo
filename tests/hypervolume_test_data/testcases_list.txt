@@ -19,7 +19,9 @@ compute wfg c_max_t100_d3_n128 10e-9
 compute wfg c_max_t1_d5_n1024 10e-4
 
 exclusive beume3d e_max_d3 10e-9
+exclusive native2d e_max_d2 10e-9
 least_contributor beume3d lc_max_d3 10e-9
+least_contributor native2d lc_max_d2 10e-9
 
 #compute wfg extra/max_WFGa_t20_d13_n100 10e-9
 #compute wfg extra/max_WFGa_spherical_t10_d9_n160 10e-9

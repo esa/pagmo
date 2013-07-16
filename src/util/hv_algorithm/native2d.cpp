@@ -53,6 +53,60 @@ double native2d::compute(const std::vector<fitness_vector> &points, const fitnes
 	return hypervolume;
 }
 
+// custom comparison method for sorting pairs of (point, index)
+// required for native2d::least_contributor method
+bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
+	return a.first[0] > b.first[0];
+}
+
+// Least contributing point method
+/**
+ * This method overloads the default method for calculating the least contributing point.
+ * It uses a similar method as compute method, that is, sort each point by one dimension, and then find the least contributor in a linear fashion.
+ *
+ * @see Nicola Beume, Boris Naujoks, Michael Emmerich, "SMS-EMOA: Multiobjective selection based on dominated hypervolume", Section 2.3. "Calculation of contributing hypervolume".
+ *
+ * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
+ *
+ * @return index of the least contributing point
+ */
+unsigned int native2d::least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+	if (points.size() == 1) {
+		return 0;
+	}
+	// introduce a pair of <point, index> in order to return the correct original index
+	// otherwise, we would loose index information after sorting
+	std::vector<std::pair<fitness_vector, unsigned int> > points_cpy;
+	points_cpy.resize(points.size());
+	for(std::vector<std::pair<fitness_vector, unsigned int> >::size_type idx = 0; idx < points.size() ; ++idx) {
+		points_cpy[idx] = std::pair<fitness_vector, unsigned int>(points[idx], idx);
+	}
+
+	sort(points_cpy.begin(), points_cpy.end(), point_pairs_cmp);
+
+	// compute first point separately
+	double least_contrib_idx = 0;
+	double least_hv = fabs((points_cpy[0].first[0] - r_point[0]) * (points_cpy[0].first[1] - points_cpy[1].first[1]));
+
+	// compute points 2nd to (m-1)th
+	for(std::vector<fitness_vector>::size_type idx = 1; idx < points_cpy.size() - 1 ; ++idx) {
+		double exclusive_hv = fabs((points_cpy[idx].first[0] - points_cpy[idx - 1].first[0]) * (points_cpy[idx].first[1] - points_cpy[idx+1].first[1]));
+		if (exclusive_hv < least_hv) {
+			least_hv = exclusive_hv;
+			least_contrib_idx = idx;
+		}
+	}
+	unsigned int last_idx = points_cpy.size() - 1;
+
+	// compute last point separately
+	double last_exclusive_hv = fabs((points_cpy[last_idx].first[0] - points_cpy[last_idx - 1].first[0]) * (points_cpy[last_idx].first[1] - r_point[1]));
+	if (last_exclusive_hv < least_hv) {
+		least_contrib_idx = last_idx;
+	}
+
+	return points_cpy[least_contrib_idx].second;
+}
 
 /// Clone method.
 base_ptr native2d::clone() const
