@@ -104,7 +104,8 @@ int test_racing(const problem::base_ptr& prob, population::size_type pop_size,
 		pop.push_back(pop_original_prob.get_individual(best_idx_order[i]).cur_x);
 	}
 
-	std::vector<population::size_type> winners = pop.race(end_size, 50, 5000, 0.05);
+	std::pair<std::vector<population::size_type>, unsigned int> race_results = pop.race(end_size, 50, 5000, 0.05);
+	std::vector<population::size_type> winners = race_results.first;
 	double ground_truth = ((winners.size()-1)+1) * (winners.size()-1) / 2;
 	double obtained = std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>());
 	double acceptable = winners.size();
@@ -157,7 +158,8 @@ int test_racing_worst(const problem::base_ptr& prob, population::size_type pop_s
 	}
 
 	// NOTE: now winners are actually losers
-	std::vector<population::size_type> winners = pop.race(end_size, 50, 5000, 0.05, std::vector<population::size_type>(), false);
+	std::pair<std::vector<population::size_type>, unsigned int> race_results = pop.race(end_size, 50, 5000, 0.05, std::vector<population::size_type>(), false);
+	std::vector<population::size_type> winners = race_results.first;
 	double ground_truth = ((winners.size()-1)+1) * (winners.size()-1) / 2;
 	double obtained = std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>());
 	double acceptable = winners.size();
@@ -200,8 +202,8 @@ int test_racing_subset(const problem::base_ptr& prob)
 	// Race until subset_size individuals remain, with subset_size individuals being active
 	// at the beginning. This implies that the winners should be exactly the same as
 	// active_set.
-	std::vector<pagmo::population::size_type> winners = pop.race(subset_size, 0, 500, 0.05, active_set);
-
+	std::pair<std::vector<pagmo::population::size_type>, unsigned int> race_results = pop.race(subset_size, 0, 500, 0.05, active_set);
+	std::vector<pagmo::population::size_type> winners = race_results.first;
 	if(winners.size() != subset_size){
 		std::cout << " Winner list size failed." << std::endl;	
 		return 1;

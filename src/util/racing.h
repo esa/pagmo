@@ -42,7 +42,7 @@ namespace pagmo{ namespace util {
 namespace racing{
 
 	// Racing the population
-	std::vector<population::size_type> race_pop(
+	std::pair<std::vector<population::size_type>, unsigned int>  race_pop(
 		const population &,
 		const population::size_type n_final,
 		const unsigned int min_trials,

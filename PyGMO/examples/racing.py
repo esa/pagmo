@@ -83,7 +83,7 @@ def get_capture_rates(prob_orig = problem.ackley(10), noise = 0.3, pop_n = 20, n
 	winners_orig = pop_orig.get_best_idx(num_winner)
 
 	# Results from different methods:
-	winners_racing = pop_noisy.race(num_winner, 0, eval_budget, 0.05, [])
+	winners_racing, fevals = pop_noisy.race(num_winner, 0, eval_budget, 0.05, [])
 	capture_race = 100.0 * sum([int(p in winners_orig) for p in winners_racing]) / num_winner
 	rates.append(capture_race)
 
@@ -131,7 +131,7 @@ def get_rank_sum_errors(prob_orig = problem.ackley(10), noise = 0.3, pop_n = 20,
 	errors = []
 
 	# Results from different methods:
-	winners_racing = pop_noisy.race(num_winner, 0, eval_budget, 0.05, [])
+	winners_racing, fevals = pop_noisy.race(num_winner, 0, eval_budget, 0.05, [])
 	error_race = sum(winners_racing) - ground_truth
 	errors.append(error_race)
 
