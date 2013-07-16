@@ -41,6 +41,8 @@ namespace pagmo { namespace problem {
  * @param[in] weights the weight vector (by default is set to random weights)
  *
  * @see problem::base constructors.
+ * @see "A. Jaszkiewicz -- On the Performance of Multiple-Objective Genetic Local Search
+on the 0/1 Knapsack Problem—A Comparative Experiment" for the random weights vector generation
  */
 decompose::decompose(const base & p, const std::vector<double> & weights ):
 	base((int)p.get_dimension(), // Ambiguous without the cast ...
@@ -54,28 +56,31 @@ decompose::decompose(const base & p, const std::vector<double> & weights ):
 {
 
 	//1 - Checks whether the weight vector has a dimension, if not, sets its default value 
-	if (m_weights.size() == 0) {
-		//Initialise a random weight vector  
-		rng_double m_drng = rng_generator::get<rng_double>();
-		m_weights = std::vector<double>((int)p.get_f_dimension(), 0.0);
-		double sum = 0;
-		for(std::vector<double>::size_type i = 0; i<m_weights.size(); ++i) {
-			m_weights[i] = boost::uniform_real<double>(0,1)(m_drng);
-			sum += m_weights[i];
-		} 
-		for(std::vector<double>::size_type i = 0; i<m_weights.size(); ++i) {
-			m_weights[i] /= sum;
-		} 
-	}
-	
-	//2 - Checks whether the weight vector sums to 1
-	double sum = 0.0;
-	for (std::vector<double>::size_type i=0; i<m_weights.size(); ++i) {
-		sum += m_weights[i];
-	}
-	if (fabs(sum-1.0) > 1E-8) {
-		pagmo_throw(value_error,"the weight vector should sum to 1 with a tolerance of E1-8");
-	}
+    if (m_weights.size() == 0) {
+        //Initialise a random weight vector
+        rng_double m_drng = rng_generator::get<rng_double>();
+        m_weights = std::vector<double>((int)p.get_f_dimension(), 0.0);
+        double sum = 0;
+        for(std::vector<double>::size_type i = 0; i<m_weights.size(); ++i) {
+            m_weights[i] = (1-sum) * (1 - pow(boost::uniform_real<double>(0,1)(m_drng), 1.0 / (m_weights.size() - i - 1)));
+            sum += m_weights[i];
+        }
+    } else {
+        //2 - Checks whether the weight has lenght equal to the fitness size
+        if (m_weights.size() != p.get_f_dimension()) {
+            pagmo_throw(value_error,"the weight vector must have length equal to the fitness size");
+        }
+
+        //3 - Checks whether the weight vector sums to 1
+        double sum = 0.0;
+        for (std::vector<double>::size_type i=0; i<m_weights.size(); ++i) {
+            sum += m_weights[i];
+        }
+        if (fabs(sum-1.0) > 1E-8) {
+            pagmo_throw(value_error,"the weight vector should sum to 1 with a tolerance of E1-8");
+        }
+    }
+
 	
 }
 

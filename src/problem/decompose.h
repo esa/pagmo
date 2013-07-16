@@ -48,6 +48,7 @@ namespace pagmo{ namespace problem {
  * \f[ F_d(X) = \sum_{i=1}^n w_i F_i(X) \f]
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @see "Q. Zhang -- MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition"
  */
 
 class __PAGMO_VISIBLE decompose : public base
