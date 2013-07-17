@@ -29,6 +29,9 @@
 #include <vector>
 #include "../population.h"
 #include "hv_algorithm/base.h"
+#include "hv_algorithm/native2d.h"
+#include "hv_algorithm/beume3d.h"
+#include "hv_algorithm/wfg.h"
 
 namespace pagmo { namespace util {
 
@@ -54,6 +57,7 @@ class __PAGMO_VISIBLE hypervolume
 		double compute(const fitness_vector &, hv_algorithm::base_ptr);
 		double exclusive(const unsigned int, const fitness_vector &, hv_algorithm::base_ptr);
 		unsigned int least_contributor(const fitness_vector &, hv_algorithm::base_ptr);
+		unsigned int least_contributor(const fitness_vector &);
 		fitness_vector get_nadir_point(const double);
 
 		hypervolume_ptr clone() const;

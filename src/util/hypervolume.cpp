@@ -154,6 +154,26 @@ unsigned int hypervolume::least_contributor(const fitness_vector &r_point, hv_al
 
 }
 
+// locate the least contributing individual
+/**
+ * Locates the individual contributing the least to the total hypervolume.
+ * This method chooses the best performing algorithm for given dimension.
+ *
+ * @param[in] r_point fitness vector describing the reference point
+ *
+ * @return index of the least contributing point
+ */
+unsigned int hypervolume::least_contributor(const fitness_vector &r_point) {
+	unsigned int f_dim = m_points[0].size();
+	if(f_dim == 2) {
+		return least_contributor(r_point, util::hv_algorithm::base_ptr( new util::hv_algorithm::native2d()));
+	} else if (f_dim == 3) {
+		return least_contributor(r_point, util::hv_algorithm::base_ptr( new util::hv_algorithm::beume3d()));
+	} else {
+		return least_contributor(r_point, util::hv_algorithm::base_ptr( new util::hv_algorithm::wfg()));
+	}
+}
+
 // calculate the nadir point
 /**
  * Calculates the nadir point, used as the reference point

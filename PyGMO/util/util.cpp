@@ -62,11 +62,16 @@ void expose_hv_algorithm() {
 }
 
 void expose_hypervolume() {
+
+	typedef unsigned int (util::hypervolume::*least_contributor_custom)(const fitness_vector &, util::hv_algorithm::base_ptr);
+	typedef unsigned int (util::hypervolume::*least_contributor_dynamic)(const fitness_vector &);
+
 	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
 		.def(init<boost::shared_ptr<population> >())
 		.def("compute", &util::hypervolume::compute)
 		.def("exclusive", &util::hypervolume::exclusive)
-		.def("least_contributor", &util::hypervolume::least_contributor)
+		.def("least_contributor", least_contributor_custom(&util::hypervolume::least_contributor), "Get the least contributor of the hypervolume using provided hypervolume algorithm.")
+		.def("least_contributor", least_contributor_dynamic(&util::hypervolume::least_contributor), "Get the least contributor of the hypervolume.")
 		.def("get_nadir_point", &util::hypervolume::get_nadir_point);
 }
 
