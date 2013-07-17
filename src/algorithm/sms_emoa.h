@@ -31,6 +31,7 @@
 #include "../util/hypervolume.h"
 #include "../util/hv_algorithm/native2d.h"
 #include "../util/hv_algorithm/beume3d.h"
+#include "../util/hv_algorithm/wfg.h"
 
 
 namespace pagmo { namespace algorithm {

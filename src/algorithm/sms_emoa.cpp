@@ -234,29 +234,32 @@ void sms_emoa::mutate(decision_vector& child, const pagmo::population& pop) cons
 	}
 }
 
+// Find the index of the least contributing individual
 unsigned int sms_emoa::evaluate_s_metric_selection(const population & pop) const {
 
 	std::vector< std::vector< population::size_type> > fronts = pop.compute_pareto_fronts();
-	unsigned int last_front = fronts.size() - 1;
 
-	if (fronts[last_front].size() == 1) {
-		return fronts[last_front][0];
+	const std::vector< population::size_type> &last_front = fronts.back();
+
+	if (last_front.size() == 1) {
+		return last_front[0];
 	}
 
 	std::vector<fitness_vector> points;
-	points.resize(fronts[last_front].size());
+	points.resize(last_front.size());
 
-	for (population::size_type idx = 0 ; idx < fronts[last_front].size() ; ++idx) {
-		points[idx] = fitness_vector(pop.get_individual(fronts[last_front][idx]).cur_f);
+	for (population::size_type idx = 0 ; idx < last_front.size() ; ++idx) {
+		points[idx] = fitness_vector(pop.get_individual(last_front[idx]).cur_f);
 	}
 
 	pagmo::util::hypervolume hypvol(points);
 	fitness_vector r = hypvol.get_nadir_point(1.0);
 
-	unsigned int least_idx = hypvol.least_contributor(r, util::hv_algorithm::base_ptr( new util::hv_algorithm::native2d()));
+	unsigned int least_idx = hypvol.least_contributor(r, util::hv_algorithm::base_ptr( new util::hv_algorithm::beume3d()));
 
-	return fronts[last_front][least_idx];
+	return last_front[least_idx];
 }
+
 
 /// Evolve implementation.
 /**
@@ -273,8 +276,6 @@ void sms_emoa::evolve(population &pop) const
 	const problem::base::size_type prob_c_dimension = prob.get_c_dimension();
 	const population::size_type NP = pop.size();
 
-
-	//I'm not sure whether sms-emoa requires a box constrainment
 	if ( prob_c_dimension != 0 ) {
 		pagmo_throw(value_error, "The problem is not box constrained and SMS-EMOA is not suitable to solve it");
 	}
@@ -292,25 +293,17 @@ void sms_emoa::evolve(population &pop) const
 	decision_vector child1(D), child2(D);
 	
 	// Main SMS-EMOA loop
-	for (int g = 0; g<m_gen; g++) {
-		//At each generation we make a copy of the population into popnew
-		population popnew(pop);
-		
+	for (int g = 0; g < m_gen; g++) {
 		// select two different parent indices from the population
 		parent1_idx = m_urng() % NP;
 		parent2_idx = ((m_urng() % (NP-1)) + parent1_idx) % NP;
 
 		crossover(child1, child2, parent1_idx, parent2_idx, pop);
 		mutate(child1, pop);
-		popnew.push_back(child1);
-		unsigned int least_contrib_idx = evaluate_s_metric_selection(popnew);
-		pop.clear();
-		for (population::size_type i=0; i <= NP; ++i) {
-			if (i != least_contrib_idx) {
-				pop.push_back(popnew.get_individual(i).best_x);
-			}
-		}
-	} // end of main SGA loop
+		pop.push_back(child1);
+		unsigned int least_contrib_idx = evaluate_s_metric_selection(pop);
+		pop.erase(least_contrib_idx);
+	}
 }
 
 /// Algorithm name
