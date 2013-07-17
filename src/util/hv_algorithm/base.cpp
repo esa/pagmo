@@ -90,8 +90,7 @@ double base::exclusive(const unsigned int p_idx, const std::vector<fitness_vecto
 	points_less.reserve(points.size()-1);
 	copy(points.begin(), points.begin()+p_idx, back_inserter(points_less));
 	copy(points.begin()+p_idx+1, points.end(), back_inserter(points_less));
-	double hypvol_less_p = compute(points_less, r_point);
-	return hypvol_total - hypvol_less_p;
+	return hypvol_total - compute(points_less, r_point);
 }
 
 /// Least contributing point method
@@ -106,17 +105,28 @@ double base::exclusive(const unsigned int p_idx, const std::vector<fitness_vecto
  * @return index of the least contributing point
  */
 unsigned int base::least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
-	double min_hv = exclusive(0, points, r_point);
-	double min_idx = 0;
-	for(std::vector<fitness_vector>::size_type idx = 1 ; idx < points.size() ; ++idx) {
-		double exclusive_hv = exclusive(idx, points, r_point);
-		if(exclusive_hv < min_hv) {
-			min_hv = exclusive_hv;
-			min_idx = idx;
+	if (points.size() == 1) {
+		return 0;
+	}
+
+	double hv_total = compute(points, r_point);
+	std::vector<fitness_vector> points_cpy(points.begin() + 1, points.end());
+	double idx_min = 0;
+	double hv_min = hv_total - compute(points_cpy, r_point);
+
+	for(unsigned int idx = 1 ; idx < points.size() ; ++idx) {
+		std::vector<fitness_vector> points_less;
+		points_less.reserve(points.size()-1);
+		copy(points.begin(), points.begin()+idx, back_inserter(points_less));
+		copy(points.begin()+idx+1, points.end(), back_inserter(points_less));
+		double hv = hv_total - compute(points_less, r_point);
+		if (hv < hv_min) {
+			hv_min = hv;
+			idx_min = idx;
 		}
 	}
 
-	return min_idx;
+	return idx_min;
 }
 
 
