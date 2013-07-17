@@ -46,37 +46,7 @@ double wfg::compute(const std::vector<fitness_vector> &points, const fitness_vec
 	return compute_hv(points_cpy, r_point);
 }
 
-/// find the point "opposite" to points[p_idx]
-fitness_vector wfg::get_opposite_point(const std::vector<fitness_vector> & points, const fitness_vector &r, unsigned int p_idx) {
-
-	// z is the point opposite to points[p_idx] (reference point as first candidate)
-	fitness_vector z(r);
-
-	const fitness_vector& p = points[p_idx];
-	int worse_dim_idx;
-	unsigned int f_dim = r.size();
-	for(std::vector<fitness_vector>::size_type idx = p_idx + 1 ; idx < points.size(); ++idx) {
-
-		worse_dim_idx = -1; // initiate the possible opposite point dimension by -1 (no candidate)
-
-		for(fitness_vector::size_type f_idx = 0; f_idx < f_dim; ++f_idx) {
-			// if any point is worse by given dimension, it's the potential opposite point dimension
-			if (points[idx][f_idx] >= p[f_idx]) {
-				if (worse_dim_idx != -1) { // if given point is already worse in any previous dimension, skip to next point as it's a bad candidate
-					worse_dim_idx = -1; // set the result to "no candidate" and break
-					break;
-				}
-				worse_dim_idx = f_idx;
-			}
-		}
-		if (worse_dim_idx != -1){ // if given point was worse only in one dimension it's the potential candidate for the opposite point
-			z[worse_dim_idx] = fmin(z[worse_dim_idx], points[idx][worse_dim_idx]);
-		}
-	}
-	return z;
-}
-
-std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & points, unsigned int p_idx, const fitness_vector &z) {
+std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & points, unsigned int p_idx) {
 	std::vector<fitness_vector> q;
 
 	const fitness_vector& p = points[p_idx];
@@ -84,20 +54,8 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 	for(std::vector<fitness_vector>::size_type idx = p_idx + 1; idx < points.size(); ++idx) {
 
 		fitness_vector s(points[idx]);
-		bool point_outside_opposite = false;
 		for(fitness_vector::size_type f_idx = 0; f_idx < points[idx].size(); ++f_idx) {
-
-			// check if given point is outside boundaries of the opposite point
-			if (s[f_idx] >= z[f_idx]) {
-				point_outside_opposite = true;
-
-				break;
-			}
 			s[f_idx] = fmax(s[f_idx], p[f_idx]);
-		}
-
-		if (point_outside_opposite) {
-			continue;
 		}
 
 		int cmp_results[q.size()];
@@ -149,14 +107,13 @@ double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_
 }
 
 double wfg::exclusive_hv(const std::vector<fitness_vector> &points, unsigned int p_idx, const fitness_vector &r) {
-	fitness_vector z = get_opposite_point(points, r, p_idx);
-	std::vector<fitness_vector> q = limitset(points, p_idx, z);
+	std::vector<fitness_vector> q = limitset(points, p_idx);
 
-	double hypervolume = inclusive_hv(points[p_idx], z);
+	double hypervolume = inclusive_hv(points[p_idx], r);
 	if (q.size() == 1) {
-		hypervolume -= inclusive_hv(q[0],z);
+		hypervolume -= inclusive_hv(q[0],r);
 	} else if (q.size() > 1) {
-		hypervolume -= compute_hv(q, z);
+		hypervolume -= compute_hv(q, r);
 	}
 	return hypervolume;
 }

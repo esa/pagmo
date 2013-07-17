@@ -52,8 +52,7 @@ class __PAGMO_VISIBLE wfg : public base {
 		std::string get_name() const;
 
 	private:
-		inline fitness_vector get_opposite_point(const std::vector<fitness_vector> &, const fitness_vector &, unsigned int);
-		inline std::vector<fitness_vector> limitset(const std::vector<fitness_vector> &, unsigned int, const fitness_vector &);
+		inline std::vector<fitness_vector> limitset(const std::vector<fitness_vector> &, unsigned int);
 		inline double inclusive_hv(const fitness_vector &, const fitness_vector &);
 		inline int dom_cmp(const fitness_vector &, const fitness_vector &);
 		inline double exclusive_hv(const std::vector<fitness_vector> &, unsigned int, const fitness_vector &);
