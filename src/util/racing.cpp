@@ -363,8 +363,8 @@ std::vector<population::size_type> construct_output_list(
  * @param[in] race_goal Whether to extract the best or the worst individuals.
  * @param[in] screen_output Whether to log racing status on the console output.
  *
- * @return std::pair containing first: the indices of the individuals that remain in the
- * race in the end, a.k.a the winners, second: the function evaluations needed
+ * @return std::pair first: the indices of the individuals that remain in the
+ * race in the end, a.k.a the winners, second: the function evaluations actually needed
  *
  * @throws type_error if the underlying problem is not stochastic
  * @throws index_error if active_set is invalid (out of bound / repeated indices)
