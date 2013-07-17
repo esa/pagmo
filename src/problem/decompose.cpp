@@ -34,17 +34,21 @@
 
 namespace pagmo { namespace problem {
 
+
 /**
  * Constructor
  *
  * @param[in] p base::problem to be decomposed
+ * @param[in] method decomposition method (WEIGHTS, TCHEBYCHEFF, BI)
  * @param[in] weights the weight vector (by default is set to random weights)
+ * @param[in] z reference point (used in Tchebycheff and Boundary Intersection (BI) methods, by default it is set to 0)
  *
- * @see problem::base constructors.
- * @see "A. Jaszkiewicz -- On the Performance of Multiple-Objective Genetic Local Search
-on the 0/1 Knapsack Problem—A Comparative Experiment" for the random weights vector generation
+ * @see For the uniform random generation of weights vector see Appendix 2 in "A. Jaszkiewicz - On the Performance of Multiple-Objective Genetic Local Search
+on the 0/1 Knapsack Problem—A Comparative Experiment"
+ * @see For the different decomposition methods see "Q. Zhang - MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition"
+
  */
-decompose::decompose(const base & p, const std::vector<double> & weights ):
+decompose::decompose(const base & p, decomposition_method method, const std::vector<double> & weights, const std::vector<double> & z):
 	base((int)p.get_dimension(), // Ambiguous without the cast ...
 		 p.get_i_dimension(),
 		 1, //it transforms the problem into a single-objective problem
@@ -52,8 +56,18 @@ decompose::decompose(const base & p, const std::vector<double> & weights ):
 		 p.get_ic_dimension(),
 		 p.get_c_tol()),
 		 m_original_problem(p.clone()),
-		 m_weights(weights)
+         m_method(method),
+         m_weights(weights),
+         m_z(z)
 {
+
+    //1 - Check whether the method is an existing one
+    if(m_method != WEIGHTED && m_method != TCHEBYCHEFF && m_method != BI) {
+        pagmo_throw(value_error,"non existing decomposition method");
+    }
+    if(m_method == BI) {
+        pagmo_throw(value_error,"SORRY, BI METHOD NOT YET IMPLEMENTED");
+    }
 
 	//1 - Checks whether the weight vector has a dimension, if not, sets its default value 
     if (m_weights.size() == 0) {
@@ -81,7 +95,13 @@ decompose::decompose(const base & p, const std::vector<double> & weights ):
         }
     }
 
-	
+    //1 - Checks whether the reference point has a dimension, if not, sets its default value
+    if (m_z.size() == 0) {
+        m_z = std::vector<double>((int)p.get_f_dimension(), 0.0);
+        for(std::vector<double>::size_type i = 0; i<z.size(); ++i) {
+            m_z[i] = 0;
+        }
+    }
 }
 
 /// Copy Constructor. Performs a deep copy
@@ -92,8 +112,10 @@ decompose::decompose(const decompose &p):
 		 p.get_c_dimension(),
 		 p.get_ic_dimension(),
 		 p.get_c_tol()),
-		 m_original_problem(p.m_original_problem->clone()),
-		 m_weights(p.m_weights)
+         m_original_problem(p.m_original_problem->clone()),
+         m_method(p.m_method),
+         m_weights(p.m_weights),
+         m_z(p.m_z)
 		 {}
 
 /// Clone method.
@@ -103,16 +125,29 @@ base_ptr decompose::clone() const
 }
 
 /// Implementation of the objective function.
-/// (Wraps over the original implementation with translated input x)
 void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	fitness_vector fit(m_original_problem->get_f_dimension());
 	m_original_problem->objfun(fit, x);
 	
-	f[0] = 0;
-	for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-		f[0]+= m_weights[i]*fit[i];	
-	}
+    if(m_method == WEIGHTED) {
+        f[0] = 0;
+        for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
+            f[0]+= m_weights[i]*fit[i];
+        }
+    } else if (m_method == TCHEBYCHEFF) {
+        f[0] = m_weights[0] * fabs(fit[0] - m_z[0]);
+        double tmp;
+        for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
+            tmp = m_weights[i] * fabs(fit[i] - m_z[i]);
+            if(tmp > f[0]) {
+                f[0] = tmp;
+            }
+        }
+    } else { //BI method
+        pagmo_throw(value_error,"YOU SHOULD NOT BE HERE!!!, BI METHOD IS NOT YET IMPLEMENTED");
+        //TODO: not yet implemented
+    }
 }
 
 std::string decompose::get_name() const
@@ -124,7 +159,9 @@ std::string decompose::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
+    oss << "\n\tDecomposition method: " << m_method << std::endl;
 	oss << "\n\tWeight vector: " << m_weights << std::endl;
+    oss << "\n\tReference point: " << m_z << std::endl;
 	return oss.str();
 }
 

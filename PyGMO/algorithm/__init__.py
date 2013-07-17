@@ -5,6 +5,9 @@ from _base import base
 from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
+import sys
+sys.path.append('/usr/local/lib/python2.7/dist-packages/PyGMO/problem/')
+from _problem import _decomposition_method
 
 
 _base = _algorithm._base
@@ -329,20 +332,25 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
 
-def _pade_ctor(self, gen=100, solver = None):
+def _pade_ctor(self, gen=10, max_parallelism = 1, method = _decomposition_method.WEIGHTED, solver = None):
 	"""
-	Constructs a Parallel Decomposition Algorithm (PaDe)
-	
-	USAGE: algorithm.pade(self, gen=100, solver)
+	Constructs a Parallel Decomposition Algorithm (PaDe).
+	For each element of the population a different single objective problem is generated using a decomposition method. Those single-objective problems are thus solved in parallel.
+	At the end of the evolution the population is set as the best individual for each single-objective problem.
+	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, method = problem.decompose.decomposition_method.WEIGHTED, solver=jde(10))
   
 	* gen: number of generations
+	* max_parallelism: the maximum number of single-objective problems to solve at the same time
+	* method = the decomposition method to use (Weighted, Tchebycheff or BI)
 	* solver: the algorithm to use to solve the single-objective problems
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
 	arg_list.append(gen)
+	arg_list.append(max_parallelism)
+	arg_list.append(method)
 	if solver == None:
-		solver = jde(50)
+		solver = jde(10)
 	arg_list.append(solver)
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__

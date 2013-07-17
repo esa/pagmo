@@ -224,7 +224,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	// PaDe
 	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
-		.def(init<optional<int, const algorithm::base &> >());
+		.def(init<optional<int, int, pagmo::problem::decompose::decomposition_method, const algorithm::base &> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")

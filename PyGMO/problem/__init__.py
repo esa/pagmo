@@ -530,18 +530,21 @@ def _normalized_ctor(self, problem = None):
 normalized._orig_init = normalized.__init__
 normalized.__init__ = _normalized_ctor
 
-def _decompose_ctor(self, problem = None, weights = None):
+_problem.decompose.decomposition_method = _problem._decomposition_method
+def _decompose_ctor(self, problem = None, method = decompose.decomposition_method.WEIGHTED, weights = None, z = None):
 	"""
 	Implements a meta-problem class resulting in a decomposed version
 	of the multi-objective input problem, i.e. a single-objective problem
-	having as fitness function a convex combination of the original fitness functions.
+	having as fitness function some kind of combination of the original fitness functions.
 
 	NOTE: this meta-problem constructs a new single-objective problem
 
-	USAGE: problem.decompose(problem=PyGMO.zdt1(2), weights=a random vector (summing to one))
+	USAGE: problem.decompose(problem=PyGMO.zdt1(2), method = problem.decompose.decomposition_method.WEIGHTED, weights=a random vector (summing to one), z= a zero vector)
 
 	* problem: PyGMO problem one wants to decompose
+	* method: the decomposition method to use (WEIGHTED, TCHEBYCHEEF or BI)
 	* weights: the weight vector to build the new fitness function
+	* z: the reference point (used in TCHEBYCHEEF and BI methods)
 
 	"""
 
@@ -550,8 +553,11 @@ def _decompose_ctor(self, problem = None, weights = None):
 	if problem == None:
 		problem=zdt1(2)
 	arg_list.append(problem)
+	arg_list.append(method)
 	if weights != None:
 		arg_list.append(weights)
+	if z != None:
+		arg_list.append(z)
 	self._orig_init(*arg_list)
 decompose._orig_init = decompose.__init__
 decompose.__init__ = _decompose_ctor
@@ -610,8 +616,8 @@ def _rotated_ctor(self, problem = None, rotation = None):
 rotated._orig_init = rotated.__init__
 rotated.__init__ = _rotated_ctor
 
-_problem.noisy.noise_distribution = _problem._noise_distribution
 
+_problem.noisy.noise_distribution = _problem._noise_distribution
 def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_second = 1.0, noise_type = noisy.noise_distribution.NORMAL, seed = 0):
 	"""
 	Inject noise to a problem.

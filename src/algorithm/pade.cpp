@@ -45,11 +45,14 @@ namespace pagmo { namespace algorithm {
  * Constructs a PaDe algorithm
  *
  * @param[in] gen Number of generations to evolve.
+ * @param[in] max_parallelism the maximum number of single-objective problems to solve at the same time
+ * @param[in] method the decomposition method to use (Weighted, Tchebycheff or BI)
  * @param[in] solver the algorithm to solve the single objective problems.
  *
  * @throws value_error if gen is negative
+ * @see pagmo::problem::decompose::decomposition_method
  */
-pade::pade(int gen, const pagmo::algorithm::base & solver):base(),m_gen(gen),m_solver(solver.clone())
+pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::decomposition_method method, const pagmo::algorithm::base & solver):base(),m_gen(gen),m_max_parallelism(max_parallelism),m_method(method),m_solver(solver.clone())
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -76,32 +79,41 @@ void pade::evolve(population &pop) const
         return;
     }
 
-    pagmo::archipelago arch;
-    arch.set_topology(topology::unconnected());
-    //std::vector<pagmo::population> decomposed_pop;
+    population::size_type NP = pop.size();
+    decision_vector dummy(pop.get_individual(0).cur_x.size(),0); //used for initialisation purposes
+    std::vector<decision_vector> X(NP,dummy);           //set of population chromosomes
 
-    //Each island in the archipelago solve a different single-objective problem
-    for(pagmo::population::size_type i=0; i<pop.size();++i) {
-        pagmo::problem::decompose prob(pop.problem());
-        std::cout << "Vector " << i << ": "<< prob.get_weights() << std::endl;
 
-        pagmo::population decomposed_pop(prob,0);
-
-        //decomposed_pop.push_back(pagmo::population(prob,0));
-
-        //Set the individual of the new population of the island
-        for(pagmo::population::size_type j=0; j<pop.size();++j) {
-            decomposed_pop.push_back(pop.get_individual(j).cur_x);
-        }
-        arch.push_back(pagmo::island(*m_solver,decomposed_pop));
+    // Copy the population chromosomes
+    for ( population::size_type i = 0; i<NP; i++ ) {
+        X[i]	=	pop.get_individual(i).cur_x;
     }
-    arch.evolve(m_gen);
-    arch.join();
+    //clear the current population
+    pop.clear();
 
-    //The population is set to contain the best individual of each island
-    for(pagmo::population::size_type i=0; i<pop.size();++i) {
-        pop.set_x(i, arch.get_island(i)->get_population().champion().x);
-        std::cout << "Champion " << i << ": "<< arch.get_island(i)->get_population().champion().x << std::endl;
+    for(population::size_type p = 0; p < NP /m_max_parallelism + 1; p++) {
+        pagmo::archipelago arch;
+        arch.set_topology(topology::unconnected());
+
+        //Each island in the archipelago solve a different single-objective problem
+        for(pagmo::population::size_type i=0; i<m_max_parallelism && p*m_max_parallelism + i < NP;++i) {
+            pagmo::problem::decompose prob(pop.problem(), m_method);
+            pagmo::population decomposed_pop(prob,0);
+
+            //Set the individual of the new population of the island
+            for(pagmo::population::size_type j=0; j<NP;++j) {
+                decomposed_pop.push_back(X[j]);
+            }
+            arch.push_back(pagmo::island(*m_solver,decomposed_pop));
+        }
+        arch.evolve(m_gen);
+        arch.join();
+
+
+        //The population is set to contain the best individual of each island
+        for(pagmo::population::size_type i=0; i<m_max_parallelism && p*m_max_parallelism + i < NP;++i) {
+            pop.push_back(arch.get_island(i)->get_population().champion().x);
+        }
     }
 }
 
@@ -119,6 +131,8 @@ std::string pade::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
+    s << "max_parallelism:" << m_max_parallelism << ' ';
+    s << "method:" << m_method << ' ';
     s << "solver:" << m_solver << ' ';
 	return s.str();
 }

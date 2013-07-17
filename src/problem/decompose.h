@@ -34,18 +34,25 @@
 
 namespace pagmo{ namespace problem {
 
+
 /// Decompose meta-problem
 /**
  * Implements a meta-problem class resulting in a decomposed version
  * of the multi-objective input problem, i.e. a single-objective problem
- * having as fitness function a convex combination of the original fitness functions.
+ * having as fitness function some kind of combination of the original fitness functions
  *
  * Being
  * \f$ F(X) = (F_1(X), \ldots, F_n(X)) \f$
  * the original multi-objective fitness function and 
  * \f$ w = (w_1, \ldots, w_n) \f$
- * the weight vector, the decomposition problem has as single-objective fitness function
- * \f[ F_d(X) = \sum_{i=1}^n w_i F_i(X) \f]
+ * \f$ z = (z_1, \ldots, z_n) \f$
+ * respectively a weight vector and a reference point,
+ * the decomposed problem has as single-objective fitness function one of the following according to which
+ * decomposition methods is choosed:
+ *
+ * WEIGHTED: \f$ F_d(X) = \sum_{i=1}^n w_i F_i(X) \f$
+ *
+ * TCHEBYCHEFF \f$ F_d(X) = max_{1 \leq i \leq m} w_i \vert F_i(X) - z_i \vert   \f$
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  * @see "Q. Zhang -- MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition"
@@ -54,14 +61,19 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE decompose : public base
 {
 	public:
+        enum decomposition_method {WEIGHTED=0, TCHEBYCHEFF=1, BI=2};
+
 		//constructor
-		decompose(const base & = zdt1(2), const std::vector<double> & = std::vector<double>());
+        decompose(const base & = zdt1(2), decomposition_method = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
 		
 		//copy constructor
 		decompose(const decompose &);
 		base_ptr clone() const;
 		std::string get_name() const;
 		const std::vector<double>& get_weights() const;
+        //const std::vector<double>& get_z() const;
+        //void set_weights(const std::vector<double>& );
+        //void set_z(const std::vector<double>& );
 		
 	protected:
 		std::string human_readable_extra() const;
@@ -73,10 +85,14 @@ class __PAGMO_VISIBLE decompose : public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_original_problem;
+            ar & m_method;
 			ar & m_weights;
+            ar & m_z;
 		}
 		base_ptr m_original_problem;
-		std::vector<double> m_weights;
+        decomposition_method m_method;
+        std::vector<double> m_weights;
+        std::vector<double> m_z;
 };
 
 }} //namespaces

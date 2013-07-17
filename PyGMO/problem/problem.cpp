@@ -416,9 +416,15 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
+
 	// Decomposition meta-problem
+	// Exposing enums of problem::decompose
+	enum_<problem::decompose::decomposition_method>("_decomposition_method")
+		.value("WEIGHTED", problem::decompose::WEIGHTED)
+		.value("TCHEBYCHEFF", problem::decompose::TCHEBYCHEFF)
+		.value("BI", problem::decompose::BI);
 	problem_wrapper<problem::decompose>("decompose","Decomposed problem")
-		.def(init<const problem::base &, optional<const std::vector<double> &> >())
+		.def(init<const problem::base &, optional<problem::decompose::decomposition_method, const std::vector<double> &, const std::vector<double> &> >())
 		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()));
 
 	// Noisy meta-problem

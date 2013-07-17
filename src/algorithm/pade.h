@@ -29,6 +29,7 @@
 #include "../serialization.h"
 #include "base.h"
 #include "jde.h"
+#include "../problem/decompose.h"
 
 
 
@@ -38,9 +39,10 @@ namespace pagmo { namespace algorithm {
 /**
  *
  * This class implement a multi-objective optimization algorithm based on parallel decomposition.
- * For each element of the population a different single objective problem is generated having as fitness function a random
- * convex combination of the different objectives. Those single-objective problems are thus solved in parallel.
+ * For each element of the population a different single objective problem is generated using a decomposition method. Those single-objective problems are thus solved in parallel.
  * At the end of the evolution the population is set as the best individual for each single-objective problem.
+ *
+ * PaDe assumes all the objectives need to be minimized.
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  **/
@@ -48,7 +50,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pade: public base
 {
 public:
-    pade(int gen=100, const pagmo::algorithm::base & = pagmo::algorithm::jde());
+    pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::decomposition_method =  pagmo::problem::decompose::WEIGHTED, const pagmo::algorithm::base & = pagmo::algorithm::jde(10));
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -64,10 +66,15 @@ private:
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
+        ar & m_max_parallelism;
+        ar & m_method;
         ar & m_solver;
+
 	}
 	//Number of generations
 	const int m_gen;
+    unsigned int m_max_parallelism;
+    pagmo::problem::decompose::decomposition_method m_method;
     base_ptr m_solver;
 };
 
