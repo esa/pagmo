@@ -49,7 +49,7 @@ class __PAGMO_VISIBLE hypervolume
 	public:
 		hypervolume();
 		hypervolume(const hypervolume &);
-		hypervolume(boost::shared_ptr<population>);
+		hypervolume(boost::shared_ptr<population>, unsigned int front_idx = 0);
 		hypervolume(const std::vector<fitness_vector> &);
 		double compute(const fitness_vector &, hv_algorithm::base_ptr);
 		double exclusive(const unsigned int, const fitness_vector &, hv_algorithm::base_ptr);

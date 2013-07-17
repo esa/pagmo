@@ -31,12 +31,13 @@ namespace pagmo { namespace util {
  * Constructs a hypervolume object, where points are elicited from the referenced population object.
  *
  * @param[in] pop reference to population object from which Pareto front is computed
+ * @param[in] front_idx index of the front for which the hypervolume is to be computed
  */
-hypervolume::hypervolume(boost::shared_ptr<population> pop) {
+hypervolume::hypervolume(boost::shared_ptr<population> pop, unsigned int front_idx) {
 	std::vector<std::vector<population::size_type> > pareto_fronts = pop->compute_pareto_fronts();
-	m_points.resize(pareto_fronts[0].size());
-	for (population::size_type idx = 0 ; idx < pareto_fronts[0].size() ; ++idx) {
-		m_points[idx] = fitness_vector(pop->get_individual(pareto_fronts[0][idx]).cur_f);
+	m_points.resize(pareto_fronts[front_idx].size());
+	for (population::size_type idx = 0 ; idx < pareto_fronts[front_idx].size() ; ++idx) {
+		m_points[idx] = fitness_vector(pop->get_individual(pareto_fronts[front_idx][idx]).cur_f);
 	}
 
 	verify_after_construct();
