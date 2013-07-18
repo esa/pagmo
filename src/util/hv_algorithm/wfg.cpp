@@ -27,6 +27,16 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
+bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
+	for(unsigned int i=0; i < a.size() ; ++i){
+		if (a[i] > b[i]) {
+			return true;
+		} else if(a[i] < b[i]) {
+			return false;
+		}
+	}
+	return true;
+};
 
 /// Compute hypervolume 
 /**
@@ -35,18 +45,17 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @return hypervolume.
  */
-
 double wfg::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	// copy the initial set
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 
 	// sort the initial set by first dimension
-	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(0,'>'));
+	sort(points_cpy.begin(), points_cpy.end(), wfg_cmp);
 
 	return compute_hv(points_cpy, r_point);
 }
 
-std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & points, unsigned int p_idx) const {
+std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & points, const unsigned int p_idx) const {
 	std::vector<fitness_vector> q;
 	q.reserve(points.size());
 
@@ -98,7 +107,6 @@ double wfg::inclusive_hv(const fitness_vector &p, const fitness_vector &r) const
 	return fabs(total_hv);
 }
 
-
 double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_vector &r) const {
 	double H = 0.0;
 	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
@@ -107,7 +115,7 @@ double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_
 	return H;
 }
 
-double wfg::exclusive_hv(const std::vector<fitness_vector> &points, unsigned int p_idx, const fitness_vector &r) const {
+double wfg::exclusive_hv(const std::vector<fitness_vector> &points, const unsigned int p_idx, const fitness_vector &r) const {
 	std::vector<fitness_vector> q = limitset(points, p_idx);
 
 	double hypervolume = inclusive_hv(points[p_idx], r);
