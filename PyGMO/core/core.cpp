@@ -262,7 +262,7 @@ BOOST_PYTHON_MODULE(_core)
 	typedef std::vector<population::size_type> (population::*get_best_N_idx)(const population::size_type& N) const;
 
 
-	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
+	class_<population>("population", "Population class.", init<const problem::base &,optional<int, boost::uint32_t> >())
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
 		.def("__deepcopy__", &Py_deepcopy_from_ctor<population>)
@@ -285,6 +285,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.")
 		.def("erase", &population::erase, "Erase individual at position")
 		.def("mean_velocity", &population::mean_velocity, "Calculates the mean velocity across particles")
+		.def("race", &population::race, "Race the individuals")
 		.def("cpp_loads", &py_cpp_loads<population>)
 		.def("cpp_dumps", &py_cpp_dumps<population>)
 		.def_pickle(population_pickle_suite());
