@@ -41,13 +41,14 @@ double wfg::compute(const std::vector<fitness_vector> &points, const fitness_vec
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 
 	// sort the initial set by first dimension
-	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(0,'<'));
+	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(0,'>'));
 
 	return compute_hv(points_cpy, r_point);
 }
 
-std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & points, unsigned int p_idx) {
+std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & points, unsigned int p_idx) const {
 	std::vector<fitness_vector> q;
+	q.reserve(points.size());
 
 	const fitness_vector& p = points[p_idx];
 
@@ -89,7 +90,7 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 	return q;
 }
 
-double wfg::inclusive_hv(const fitness_vector &p, const fitness_vector &r) {
+double wfg::inclusive_hv(const fitness_vector &p, const fitness_vector &r) const {
 	double total_hv = 1.0;
 	for(fitness_vector::size_type idx = 0 ; idx < p.size() ; ++idx) {
 		total_hv *= (r[idx] - p[idx]);
@@ -98,7 +99,7 @@ double wfg::inclusive_hv(const fitness_vector &p, const fitness_vector &r) {
 }
 
 
-double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_vector &r) {
+double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_vector &r) const {
 	double H = 0.0;
 	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		H += exclusive_hv(points, idx, r);
@@ -106,7 +107,7 @@ double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_
 	return H;
 }
 
-double wfg::exclusive_hv(const std::vector<fitness_vector> &points, unsigned int p_idx, const fitness_vector &r) {
+double wfg::exclusive_hv(const std::vector<fitness_vector> &points, unsigned int p_idx, const fitness_vector &r) const {
 	std::vector<fitness_vector> q = limitset(points, p_idx);
 
 	double hypervolume = inclusive_hv(points[p_idx], r);
@@ -126,7 +127,7 @@ double wfg::exclusive_hv(const std::vector<fitness_vector> &points, unsigned int
  * return 1 if ('a' DOMINATES 'b') or ('a' EQUAL TO 'b')
  * return 0 otherwise
  */
-int wfg::dom_cmp(const fitness_vector &a, const fitness_vector &b) {
+int wfg::dom_cmp(const fitness_vector &a, const fitness_vector &b) const {
 	for(fitness_vector::size_type i = 0; i < a.size() ; ++i) {
 		if (a[i] > b[i]) {
 			for(fitness_vector::size_type j = i + 1; j < a.size() ; ++j) {
@@ -136,9 +137,9 @@ int wfg::dom_cmp(const fitness_vector &a, const fitness_vector &b) {
 			}
 			return -1;
 		}
-		else if (a[i] > b[i]) {
+		else if (a[i] < b[i]) {
 			for(fitness_vector::size_type j = i + 1 ; j < a.size() ; ++j) {
-				if (a[j] < b[j]) {
+				if (a[j] > b[j]) {
 					return 0;
 				}
 			}
