@@ -76,15 +76,6 @@ base_ptr sms_emoa::clone() const
 	return base_ptr(new sms_emoa(*this));
 }
 
-pagmo::population::size_type sms_emoa::tournament_selection(pagmo::population::size_type idx1, pagmo::population::size_type idx2, const pagmo::population& pop) const
-{
-	if (pop.get_pareto_rank(idx1) < pop.get_pareto_rank(idx2)) return idx1;
-	if (pop.get_pareto_rank(idx1) > pop.get_pareto_rank(idx2)) return idx2;
-	if (pop.get_crowding_d(idx1) > pop.get_crowding_d(idx2)) return idx1;
-	if (pop.get_crowding_d(idx1) < pop.get_crowding_d(idx2)) return idx2;
-	return ((m_drng() > 0.5) ? idx1 : idx2);
-}
-
 void sms_emoa::crossover(decision_vector& child1, decision_vector& child2, pagmo::population::size_type parent1_idx, pagmo::population::size_type parent2_idx,const pagmo::population& pop) const
 {
 

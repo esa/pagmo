@@ -57,7 +57,6 @@ protected:
 	std::string human_readable_extra() const;
 	
 private:
-	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const pagmo::population&) const;
 	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
 	void mutate(decision_vector&, const pagmo::population&) const;
 	unsigned int evaluate_s_metric_selection(const population & pop) const;
