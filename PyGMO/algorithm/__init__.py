@@ -6,9 +6,8 @@ from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
 import sys
-sys.path.append('/usr/local/lib/python2.7/dist-packages/PyGMO/problem/')
-from _problem import _decomposition_method
 
+from PyGMO.problem import decompose
 
 _base = _algorithm._base
 
@@ -332,7 +331,7 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
 
-def _pade_ctor(self, gen=10, max_parallelism = 1, method = _decomposition_method.WEIGHTED, solver = None):
+def _pade_ctor(self, gen=10, max_parallelism = 1, method = decompose.decomposition_method.WEIGHTED, solver = None):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	For each element of the population a different single objective problem is generated using a decomposition method. Those single-objective problems are thus solved in parallel.

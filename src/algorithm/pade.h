@@ -39,7 +39,8 @@ namespace pagmo { namespace algorithm {
 /**
  *
  * This class implement a multi-objective optimization algorithm based on parallel decomposition.
- * For each element of the population a different single objective problem is generated using a decomposition method. Those single-objective problems are thus solved in parallel.
+ * For each element of the population a different single objective problem is generated using
+ * a decomposition method. Those single-objective problems are thus solved in parallel.
  * At the end of the evolution the population is set as the best individual for each single-objective problem.
  *
  * PaDe assumes all the objectives need to be minimized.
@@ -50,32 +51,34 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pade: public base
 {
 public:
-    pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::decomposition_method =  pagmo::problem::decompose::WEIGHTED, const pagmo::algorithm::base & = pagmo::algorithm::jde(10));
+	pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED, const pagmo::algorithm::base & = pagmo::algorithm::jde(10));
+	pade(const pade &);
+
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
-	
+
 protected:
 	std::string human_readable_extra() const;
-	
+
 private:
-	
+
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
-        ar & m_max_parallelism;
-        ar & m_method;
-        ar & m_solver;
+		ar & m_max_parallelism;
+		ar & m_method;
+		ar & m_solver;
 
 	}
 	//Number of generations
 	const int m_gen;
-    unsigned int m_max_parallelism;
-    pagmo::problem::decompose::decomposition_method m_method;
-    base_ptr m_solver;
+	unsigned int m_max_parallelism;
+	pagmo::problem::decompose::method_type m_method;
+	base_ptr m_solver;
 };
 
 }} //namespaces

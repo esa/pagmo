@@ -42,7 +42,7 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor
  /**
- * Constructs a NSGA II algorithm 
+ * Constructs a NSGA II algorithm
  *
  * @param[in] gen Number of generations to evolve.
  * @param[in] cr Crossover probability
@@ -88,18 +88,18 @@ pagmo::population::size_type nsga2::tournament_selection(pagmo::population::size
 void nsga2::crossover(decision_vector& child1, decision_vector& child2, pagmo::population::size_type parent1_idx, pagmo::population::size_type parent2_idx,const pagmo::population& pop) const
 {
 
-        problem::base::size_type D = pop.problem().get_dimension();
-        problem::base::size_type Di = pop.problem().get_i_dimension();
-        problem::base::size_type Dc = D - Di;        
+		problem::base::size_type D = pop.problem().get_dimension();
+		problem::base::size_type Di = pop.problem().get_i_dimension();
+		problem::base::size_type Dc = D - Di;
 	const decision_vector &lb = pop.problem().get_lb(), &ub = pop.problem().get_ub();
 	const decision_vector& parent1 = pop.get_individual(parent1_idx).cur_x;
 	const decision_vector& parent2 = pop.get_individual(parent2_idx).cur_x;
 	double y1,y2,yl,yu, rand, beta, alpha, betaq, c1, c2;
 	child1 = parent1;
 	child2 = parent2;
-        int site1, site2;
+		int site1, site2;
 
-        //This implements a Simulated Binary Crossover SBX
+		//This implements a Simulated Binary Crossover SBX
 	if (m_drng() <= m_cr) {
 		for (pagmo::problem::base::size_type i = 0; i < Dc; i++) {
 			if ( (m_drng() <= 0.5) && (std::fabs(parent1[i]-parent2[i]) ) > 1.0e-14) {
@@ -113,27 +113,27 @@ void nsga2::crossover(decision_vector& child1, decision_vector& child2, pagmo::p
 				yl = lb[i];
 				yu = ub[i];
 				rand = m_drng();
-				
+
 				beta = 1.0 + (2.0*(y1-yl)/(y2-y1));
 				alpha = 2.0 - std::pow(beta,-(m_eta_c+1.0));
-				if (rand <= (1.0/alpha)) 
+				if (rand <= (1.0/alpha))
 				{
 					betaq = std::pow((rand*alpha),(1.0/(m_eta_c+1.0)));
 				} else {
 					betaq = std::pow((1.0/(2.0 - rand*alpha)),(1.0/(m_eta_c+1.0)));
 				}
 				c1 = 0.5*((y1+y2)-betaq*(y2-y1));
-				
+
 				beta = 1.0 + (2.0*(yu-y2)/(y2-y1));
 				alpha = 2.0 - std::pow(beta,-(m_eta_c+1.0));
-				if (rand <= (1.0/alpha)) 
+				if (rand <= (1.0/alpha))
 				{
 					betaq = std::pow((rand*alpha),(1.0/(m_eta_c+1.0)));
 				} else {
 					betaq = std::pow((1.0/(2.0 - rand*alpha)),(1.0/(m_eta_c+1.0)));
 				}
 				c2 = 0.5*((y1+y2)+betaq*(y2-y1));
-				
+
 				if (c1<lb[i]) c1=lb[i];
 				if (c2<lb[i]) c2=lb[i];
 				if (c1>ub[i]) c1=ub[i];
@@ -145,37 +145,37 @@ void nsga2::crossover(decision_vector& child1, decision_vector& child2, pagmo::p
 				}
 			}
 		}
- 
-            }
-        
-        //This implements two point binary crossover
-        for (pagmo::problem::base::size_type i = Dc; i < D; i++) {
-               if (m_drng() <= m_cr) {         
-                     boost::uniform_int<int> in_dist(0,Di-1);
-                     boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > ra_num(m_urng,in_dist);
-                     site1 = ra_num();
-                     site2 = ra_num();
-                     if (site1 > site2) std::swap(site1,site2);  
-                     for(int j=0; j<site1; j++)
-                     {
-                         child1[j] = parent1[j];
-                         child2[j] = parent2[j];
-                     }
-                     for(int j=site1; j<site2; j++) 
-                     {
-                         child1[j] = parent2[j];
-                         child2[j] = parent1[j];
-                     }
-                     for(pagmo::problem::base::size_type j=site2; j<Di; j++)
-                     {
-                         child1[j] = parent1[j];
-                         child2[j] = parent2[j];
-                     }                                                      
-              }
-              else {      
-                   child1[i] = parent1[i];
-                   child2[i] = parent2[i];                
-              }                        
+
+			}
+
+		//This implements two point binary crossover
+		for (pagmo::problem::base::size_type i = Dc; i < D; i++) {
+			   if (m_drng() <= m_cr) {
+					 boost::uniform_int<int> in_dist(0,Di-1);
+					 boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > ra_num(m_urng,in_dist);
+					 site1 = ra_num();
+					 site2 = ra_num();
+					 if (site1 > site2) std::swap(site1,site2);
+					 for(int j=0; j<site1; j++)
+					 {
+						 child1[j] = parent1[j];
+						 child2[j] = parent2[j];
+					 }
+					 for(int j=site1; j<site2; j++)
+					 {
+						 child1[j] = parent2[j];
+						 child2[j] = parent1[j];
+					 }
+					 for(pagmo::problem::base::size_type j=site2; j<Di; j++)
+					 {
+						 child1[j] = parent1[j];
+						 child2[j] = parent2[j];
+					 }
+			  }
+			  else {
+				   child1[i] = parent1[i];
+				   child2[i] = parent2[i];
+			  }
 	}
 }
 
@@ -183,14 +183,14 @@ void nsga2::mutate(decision_vector& child, const pagmo::population& pop) const
 {
 
 	problem::base::size_type D = pop.problem().get_dimension();
-        problem::base::size_type Di = pop.problem().get_i_dimension();
-        problem::base::size_type Dc = D - Di;
+		problem::base::size_type Di = pop.problem().get_i_dimension();
+		problem::base::size_type Dc = D - Di;
 	const decision_vector &lb = pop.problem().get_lb(), &ub = pop.problem().get_ub();
 	double rnd, delta1, delta2, mut_pow, deltaq;
 	double y, yl, yu, val, xy;
-        int gen_num;
-	
-        //This implements the real polinomial mutation of an individual
+		int gen_num;
+
+		//This implements the real polinomial mutation of an individual
 	for (pagmo::problem::base::size_type j=0; j < Dc; ++j){
 		if (m_drng() <= m_m) {
 			y = child[j];
@@ -219,19 +219,19 @@ void nsga2::mutate(decision_vector& child, const pagmo::population& pop) const
 		}
 	}
 
-        //This implements the integer mutation for an individual
-         for (pagmo::problem::base::size_type j=Dc; j < D; ++j){
-               if (m_drng() <= m_m) {
-                        y = child[j];
-                        yl = lb[j];
-                        yu = ub[j]; 
-                        boost::uniform_int<int> in_dist(yl,yu-1);
-                        boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > ra_num(m_urng,in_dist);
-                        gen_num = ra_num();
-                        if (gen_num >= y) gen_num = gen_num + 1;
-                        child[j] = gen_num;                    
-         }
-      }
+		//This implements the integer mutation for an individual
+		 for (pagmo::problem::base::size_type j=Dc; j < D; ++j){
+			   if (m_drng() <= m_m) {
+						y = child[j];
+						yl = lb[j];
+						yu = ub[j];
+						boost::uniform_int<int> in_dist(yl,yu-1);
+						boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > ra_num(m_urng,in_dist);
+						gen_num = ra_num();
+						if (gen_num >= y) gen_num = gen_num + 1;
+						child[j] = gen_num;
+		 }
+	  }
 }
 /// Evolve implementation.
 /**
@@ -249,15 +249,15 @@ void nsga2::evolve(population &pop) const
 	const population::size_type NP = pop.size();
 
 
-       //We perform some checks to determine wether the problem/population are suitable for NSGA-II
-        if ( prob_c_dimension != 0 ) {
-                pagmo_throw(value_error, "The problem is not box constrained and NSGA-II is not suitable to solve it");
-        }
+	//We perform some checks to determine wether the problem/population are suitable for NSGA-II
+	if ( prob_c_dimension != 0 ) {
+			pagmo_throw(value_error, "The problem is not box constrained and NSGA-II is not suitable to solve it");
+	}
 
 	if (NP < 5 || (NP % 4 != 0) ) {
 		pagmo_throw(value_error, "for NSGA-II at least 5 individuals in the population are needed and the population size must be a multiple of 4");
 	}
-	
+
 	if ( prob.get_f_dimension() < 2 ) {
 		pagmo_throw(value_error, "The problem is not multiobjective, try some other algorithm than NSGA-II");
 	}
@@ -266,28 +266,28 @@ void nsga2::evolve(population &pop) const
 	if (m_gen == 0) {
 		return;
 	}
-	
+
 	std::vector<population::size_type> best_idx(NP), shuffle1(NP),shuffle2(NP);
 	population::size_type parent1_idx, parent2_idx;
 	decision_vector child1(D), child2(D);
-	
+
 	for (pagmo::population::size_type i=0; i< NP; i++) shuffle1[i] = i;
 	for (pagmo::population::size_type i=0; i< NP; i++) shuffle2[i] = i;
-	
+
 	boost::uniform_int<int> pop_idx(0,NP-1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
-	
+
 	// Main NSGA-II loop
 	for (int g = 0; g<m_gen; g++) {
 		//At each generation we make a copy of the population into popnew
 		// We compute the crowding distance and the pareto rank of pop
 		pop.update_pareto_information();
 		population popnew(pop);
-		
+
 		//We create some pseudo-random permutation of the poulation indexes
 		std::random_shuffle(shuffle1.begin(),shuffle1.end(),p_idx);
 		std::random_shuffle(shuffle2.begin(),shuffle2.end(),p_idx);
-		
+
 		//We then loop thorugh all individuals with increment 4 to select two pairs of parents that will
 		//each create 2 new offspring
 		for (pagmo::population::size_type i=0; i< NP; i+=4) {
@@ -299,7 +299,7 @@ void nsga2::evolve(population &pop) const
 			mutate(child2,pop);
 			popnew.push_back(child1);
 			popnew.push_back(child2);
-			
+
 			// We repeat with the shuffled list 2
 			parent1_idx = tournament_selection(shuffle2[i], shuffle2[i+1],pop);
 			parent2_idx = tournament_selection(shuffle2[i+2], shuffle2[i+3],pop);
@@ -309,11 +309,11 @@ void nsga2::evolve(population &pop) const
 			popnew.push_back(child1);
 			popnew.push_back(child2);
 		} // popnew now contains 2NP individuals
-		
+
 		// This method returns the sorted N best individuals in the population according to the crowded comparison operator
 		// defined in population.cpp
 		best_idx = popnew.get_best_idx(NP);
-		// We completely cancel the population (NOTE: memory of all individuals and the notion of 
+		// We completely cancel the population (NOTE: memory of all individuals and the notion of
 		// champion is thus destroyed)
 		pop.clear();
 		for (population::size_type i=0; i < NP; ++i) pop.push_back(popnew.get_individual(best_idx[i]).best_x);
@@ -334,7 +334,7 @@ std::string nsga2::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "cr:" << m_cr << ' ';	
+	s << "cr:" << m_cr << ' ';
 	s << "eta_c:" << m_eta_c << ' ';
 	s << "m:" << m_m << ' ';
 	s << "eta_m:" << m_eta_m << std::endl;

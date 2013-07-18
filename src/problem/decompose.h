@@ -43,7 +43,7 @@ namespace pagmo{ namespace problem {
  *
  * Being
  * \f$ F(X) = (F_1(X), \ldots, F_n(X)) \f$
- * the original multi-objective fitness function and 
+ * the original multi-objective fitness function and
  * \f$ w = (w_1, \ldots, w_n) \f$
  * \f$ z = (z_1, \ldots, z_n) \f$
  * respectively a weight vector and a reference point,
@@ -61,20 +61,20 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE decompose : public base
 {
 	public:
-        enum decomposition_method {WEIGHTED=0, TCHEBYCHEFF=1, BI=2};
+		enum method_type {WEIGHTED=0, TCHEBYCHEFF=1, BI=2};
 
 		//constructor
-        decompose(const base & = zdt1(2), decomposition_method = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
-		
+		decompose(const base & = zdt1(2), method_type = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
+
 		//copy constructor
 		decompose(const decompose &);
 		base_ptr clone() const;
 		std::string get_name() const;
 		const std::vector<double>& get_weights() const;
-        //const std::vector<double>& get_z() const;
-        //void set_weights(const std::vector<double>& );
-        //void set_z(const std::vector<double>& );
-		
+		//const std::vector<double>& get_z() const;
+		//void set_weights(const std::vector<double>& );
+		//void set_z(const std::vector<double>& );
+
 	protected:
 		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
@@ -85,14 +85,14 @@ class __PAGMO_VISIBLE decompose : public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_original_problem;
-            ar & m_method;
+			ar & m_method;
 			ar & m_weights;
-            ar & m_z;
+			ar & m_z;
 		}
 		base_ptr m_original_problem;
-        decomposition_method m_method;
-        std::vector<double> m_weights;
-        std::vector<double> m_z;
+		method_type m_method;
+		fitness_vector m_weights;
+		fitness_vector m_z;
 };
 
 }} //namespaces
