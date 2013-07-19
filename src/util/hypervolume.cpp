@@ -150,8 +150,8 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
  * @return index of the least contributing point
  */
 unsigned int hypervolume::least_contributor(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) {
+	verify_before_compute(r_point, hv_algorithm);
 	return hv_algorithm->least_contributor(m_points, r_point);
-
 }
 
 // locate the least contributing individual

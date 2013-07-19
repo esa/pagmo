@@ -38,7 +38,7 @@ int main()
 	unsigned int gen = 123;
 
 	//increment this if you add a multiobjective problem
-	unsigned int n_mo = 1;
+	unsigned int n_mo = 2;
 
 	// create two containers of pagmo::algorithms
 	std::vector<algorithm::base_ptr> algos;
@@ -46,6 +46,8 @@ int main()
 	
 	// fill it up with algorithm (first the multiobjective ones
 
+	algos.push_back(algorithm::sms_emoa(gen,0.5,11,0.3,11).clone());
+	algos_new.push_back(algorithm::sms_emoa().clone());
 	algos.push_back(algorithm::nsga2(gen,0.5,11,0.3,11).clone());
 	algos_new.push_back(algorithm::nsga2().clone());
 	algos.push_back(algorithm::bee_colony(gen,19).clone());

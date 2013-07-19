@@ -329,7 +329,7 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
 
-def _sms_emoa_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
+def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""
 	Constructs a S-Metric Selection Evolutionary Multiobjective Optimiser Algorithm (SMS-EMOA)
 
@@ -343,6 +343,9 @@ def _sms_emoa_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
+
+	if hv_algorithm:
+		arg_list.append(hv_algorithm)
 	arg_list.append(gen)
 	arg_list.append(cr)
 	arg_list.append(eta_c)

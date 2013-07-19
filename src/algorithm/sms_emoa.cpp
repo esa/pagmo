@@ -42,7 +42,7 @@ namespace pagmo { namespace algorithm {
 
 /// Constructor
  /**
- * Constructs the SMS-EMOA algorithm
+ * Constructs the SMS-EMOA algorithm.
  *
  * @param[in] gen Number of generations to evolve.
  * @param[in] cr Crossover probability
@@ -51,29 +51,65 @@ namespace pagmo { namespace algorithm {
  * @param[in] eta_m Distribution index for mutation
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1[\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
  */
-sms_emoa::sms_emoa(int gen, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m)
-{
-	if (gen < 0) {
-		pagmo_throw(value_error,"number of generations must be nonnegative");
+sms_emoa::sms_emoa(int gen, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
+	validate_parameters();
+}
+
+/// Copy constructor
+ /**
+  * Copy constructor of SMS-EMOA.
+  *
+  * @param[in] orig Original instance of SMS-EMOA to make a copy from
+  */
+sms_emoa::sms_emoa(const sms_emoa &orig) : base(),m_gen(orig.m_gen),m_cr(orig.m_cr),m_eta_c(orig.m_eta_c),m_m(orig.m_m),m_eta_m(orig.m_eta_m) {
+	if (orig.m_hv_algorithm) {
+		m_hv_algorithm = orig.m_hv_algorithm->clone();
 	}
-	if (cr >= 1 || cr < 0) {
-		pagmo_throw(value_error,"crossover probability must be in the [0,1] range");
-	}
-	if (m < 0 || m > 1) {
-		pagmo_throw(value_error,"mutation probability must be in the [0,1] range");
-	}
-	if (eta_c <1 || eta_c >= 100) {
-		pagmo_throw(value_error,"Distribution index for crossover must be in 1..100");
-	}
-	if (eta_m <1 || eta_m >= 100) {
-		pagmo_throw(value_error,"Distribution index for mutation must be in 1..100");
-	}
+}
+
+/// Constructor
+ /**
+ * Constructs the SMS-EMOA algorithm with the preferred hypervolume algorithm for computation.
+ *
+ * @param[in] gen Number of generations to evolve.
+ * @param[in] cr Crossover probability
+ * @param[in] eta_c Distribution index for crossover
+ * @param[in] m Mutation probability
+ * @param[in] eta_m Distribution index for mutation
+ * @param[in] hv_algorithm Hypervolume algorithm used for the computation of the least contributor
+ * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1[\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
+ */
+sms_emoa::sms_emoa(pagmo::util::hv_algorithm::base_ptr hv_algorithm, int gen, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
+	m_hv_algorithm = hv_algorithm;
+	validate_parameters();
+}
+
+pagmo::util::hv_algorithm::base_ptr sms_emoa::get_hv_algorithm() const {
+	return m_hv_algorithm;
 }
 
 /// Clone method.
 base_ptr sms_emoa::clone() const
 {
 	return base_ptr(new sms_emoa(*this));
+}
+
+void sms_emoa::validate_parameters() {
+	if (m_gen < 0) {
+		pagmo_throw(value_error,"number of generations must be nonnegative");
+	}
+	if (m_cr >= 1 || m_cr < 0) {
+		pagmo_throw(value_error,"crossover probability must be in the [0,1] range");
+	}
+	if (m_m < 0 || m_m > 1) {
+		pagmo_throw(value_error,"mutation probability must be in the [0,1] range");
+	}
+	if (m_eta_c <1 || m_eta_c >= 100) {
+		pagmo_throw(value_error,"Distribution index for crossover must be in 1..100");
+	}
+	if (m_eta_m <1 || m_eta_m >= 100) {
+		pagmo_throw(value_error,"Distribution index for mutation must be in 1..100");
+	}
 }
 
 void sms_emoa::crossover(decision_vector& child1, decision_vector& child2, pagmo::population::size_type parent1_idx, pagmo::population::size_type parent2_idx,const pagmo::population& pop) const
@@ -246,7 +282,13 @@ unsigned int sms_emoa::evaluate_s_metric_selection(const population & pop) const
 	pagmo::util::hypervolume hypvol(points);
 	fitness_vector r = hypvol.get_nadir_point(1.0);
 
-	unsigned int least_idx = hypvol.least_contributor(r);
+	unsigned int least_idx;
+
+	if (m_hv_algorithm) {
+		least_idx = hypvol.least_contributor(r, m_hv_algorithm);
+	} else {
+		least_idx = hypvol.least_contributor(r);
+	}
 
 	return last_front[least_idx];
 }
