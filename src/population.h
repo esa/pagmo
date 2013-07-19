@@ -252,8 +252,10 @@ class __PAGMO_VISIBLE population
 		void update_champion(const size_type &);
 
 		// Multi-objective stuff
-		void update_dom(const size_type &);
 		void update_crowding_d(std::vector<size_type>) const;
+
+	protected:
+		void update_dom(const size_type &);
 
 	private:
 		// Data members + their serialization
