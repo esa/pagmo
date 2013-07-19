@@ -250,8 +250,10 @@ class __PAGMO_VISIBLE population
 		void update_champion(const size_type &);
 
 		// Multi-objective stuff
-		void update_dom(const size_type &);
 		void update_crowding_d(std::vector<size_type>) const;
+
+	protected:
+		void update_dom(const size_type &);
 
 	private:
 		// Data members + their serialization
@@ -271,8 +273,11 @@ class __PAGMO_VISIBLE population
 		}
 		// Problem.
 		problem::base_ptr				m_prob;
-		// Container of individuals.
+	protected:
+		// Container of individuals. Needs to be protected so that a derived class can override
+		// the set_x mechanism avoiding function re-evaluations. (use this option at your own risk)
 		container_type					m_container;
+	private:
 		// List of dominated individuals.
 		std::vector<std::vector<size_type> >		m_dom_list;
 		// Domination Count (number of dominant individuals)

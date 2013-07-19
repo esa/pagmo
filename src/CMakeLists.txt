@@ -103,6 +103,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/racing.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/race_pop.cpp
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.

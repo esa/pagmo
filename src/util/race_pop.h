@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_RACING_H
-#define PAGMO_UTIL_RACING_H
+#ifndef PAGMO_UTIL_RACE_POP_H
+#define PAGMO_UTIL_RACE_POP_H
 
 #include <iostream>
 #include <string>
@@ -31,7 +31,8 @@
 
 #include "../config.h"
 #include "../serialization.h"
-#include "../population.h"
+#include "../problem/base.h"
+#include "racing.h"
 
 namespace pagmo{ namespace util {
 
@@ -40,75 +41,66 @@ namespace pagmo{ namespace util {
  * Utilities for the racing mechanism.
 */
 namespace racing{
-	
-///Doxygen will ignore whatever is in //! @cond
-//! @cond
-	
-	class __PAGMO_VISIBLE racing_population : public population
+
+class __PAGMO_VISIBLE race_pop
+{
+public:
+
+	race_pop(const population&, unsigned int seed = 0);
+
+	std::pair<std::vector<population::size_type>, unsigned int>  run(
+		const population::size_type n_final,
+		const unsigned int min_trials,
+		const unsigned int max_count,
+		double delta,
+		const std::vector<population::size_type> &,
+		const bool race_best,
+		const bool screen_output
+	);
+
+	void reset_cache();
+
+private:
+
+	// Atoms of the cache
+	struct eval_data
 	{
-	public:
-		racing_population(const population &);
-		void set_x_noeval(const size_type, const decision_vector &);
-		void set_fc(const size_type, const fitness_vector &, const constraint_vector &);
+		eval_data(const fitness_vector& _f = fitness_vector(), const constraint_vector& _c = constraint_vector()): f(_f), c(_c) { }
+		fitness_vector f;
+		constraint_vector c;
 	};
 
-	struct racer_type
-	{
-		public:
-			racer_type(): m_mean(0), active(false) { }
+	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size);
+	void _validate_problem_stochastic(const problem::base& prob);
+	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size);
+	std::vector<population::size_type> construct_output_list(
+			const std::vector<racer_type>& racers,
+			const std::vector<population::size_type>& decided,
+			const std::vector<population::size_type>& in_race,
+			const std::vector<population::size_type>& discarded,
+			const population::size_type n_final,
+			const bool race_best);
 
-			// Using double type to cater for tied ranks
-			std::vector<double> m_hist;
-			double m_mean;
-			bool active;
+	// Caching routines
+	void cache_insert_data(unsigned int, const fitness_vector &, const constraint_vector &);
+	void cache_delete_entry(unsigned int);
+	bool cache_data_exist(unsigned int, unsigned int) const;
+	const eval_data &cache_get_entry(unsigned int, unsigned int) const;
 
-			unsigned int length()
-			{
-				return m_hist.size();
-			}
+	racing_population m_pop;
 
-			void reset()
-			{
-				m_hist.clear();
-				m_mean = 0;
-				active = false;
-			}
+	// Seeding control
+	void generate_seeds(unsigned int);
+	unsigned int get_current_seed(unsigned int);
+
+	std::vector<unsigned int> m_seeds;
+	rng_uint32 m_seeder;
+
+	std::vector<std::vector<eval_data> > m_cache_data;
+};
 
 
-		private:
-			friend class boost::serialization::access;
-			template <class Archive>
-			void serialize(Archive &ar, const unsigned int)
-			{
-				ar & m_hist;
-				ar & m_mean;
-				ar & active;
-			}
-	};
 
-	struct stat_test_result{
-		public:
-			stat_test_result(): trivial(true), is_better(0, std::vector<bool>(0, false)) { }
-			bool trivial;
-			std::vector<std::vector<bool> > is_better;
-	};
-
-	// TODO: May create a base class statistical_test_base and then
-	// let specific stat tests derive from there.
-	
-	// Used in F-Race
-	stat_test_result friedman_test(const std::vector<std::vector<double> > &, double delta);
-
-	// Used in Hoeffding / Bernstein race
-	enum bound_type {HOEFFDING = 0, BERNSTEIN = 1};
-	stat_test_result bound_based_test(const std::vector<std::vector<double> > &, double delta, bound_type);
-
-	void f_race_assign_ranks(std::vector<racer_type> &, const racing_population &);
-	void f_race_adjust_ranks(std::vector<racer_type> &, const std::vector<population::size_type> &);
-
-//! @endcond
-}
-
-}}
+}}}
 
 #endif

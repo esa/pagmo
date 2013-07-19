@@ -41,6 +41,7 @@
 #include "rng.h"
 #include "types.h"
 #include "util/racing.h"
+#include "util/race_pop.h"
 
 namespace pagmo
 {
@@ -1027,8 +1028,9 @@ population::size_type population::n_dominated(const individual_type &ind) const
  */
 std::pair<std::vector<population::size_type>, unsigned int> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set, const bool race_best, const bool screen_output) const
 {
-	return util::racing::race_pop(*this, n_final, min_trials, max_count,
-									 delta, m_urng(), active_set, race_best, screen_output);
+	unsigned int seed = m_urng();
+	util::racing::race_pop m_race_pop(*this, seed);
+	return m_race_pop.run(n_final, min_trials, max_count, delta, active_set, race_best, screen_output);
 }
 
 /// Overload stream operator for pagmo::population.

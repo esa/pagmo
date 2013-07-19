@@ -32,7 +32,6 @@
 #include "../problem/base_stochastic.h"
 
 
-
 namespace pagmo { namespace algorithm {
 
 /// Constructor.
@@ -47,6 +46,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] variant algorithm variant to use
  * @param[in] neighb_type swarm topology to use
  * @param[in] neighb_param if the lbest topology is selected (neighb_type=2), it represents each particle's indegree
+ * @param[in] use_racing Whether to use racing when solving stochastic optimization problem
+ * @param[in] max_fevals Maximum allowed number of fevals as the additional termination condition to gen number
  * (also outdegree) in the swarm topology. Particles have neighbours up
  * to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
  * is selected (neighb_type=4), neighb_param represents each particle's maximum outdegree in the swarm topology.
@@ -55,7 +56,7 @@ namespace pagmo { namespace algorithm {
  * vcoeff is not in ]0,1], variant is not one of 1 .. 6, neighb_type is not one of 1 .. 4
  */
 
-pso_generational::pso_generational(int gen, double omega, double eta1, double eta2, double vcoeff, int variant, int neighb_type, int neighb_param):base(),m_gen(gen),m_omega(omega),m_eta1(eta1),m_eta2(eta2),m_vcoeff(vcoeff),m_variant(variant),m_neighb_type(neighb_type),m_neighb_param(neighb_param) {
+pso_generational::pso_generational(int gen, double omega, double eta1, double eta2, double vcoeff, int variant, int neighb_type, int neighb_param, bool use_racing, unsigned int max_fevals):base(),m_gen(gen),m_omega(omega),m_eta1(eta1),m_eta2(eta2),m_vcoeff(vcoeff),m_variant(variant),m_neighb_type(neighb_type),m_neighb_param(neighb_param), m_use_racing(use_racing), m_fevals(0), m_max_fevals(max_fevals) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -197,10 +198,22 @@ void pso_generational::evolve(population &pop) const
 	double r1 = 0.0;
 	double r2 = 0.0;
 
+	m_fevals = 0;
+
+	bool forced_terminate = false;
 	/* --- Main PSO loop ---
 	 */
 	// For each generation
-	for( int g = 0; g < m_gen; ++g ){
+	int g = 0;
+	while( g < m_gen &&  m_fevals < m_max_fevals ){
+		g++;
+
+		// Store local bests inside a population so that racing can be used
+		population lbpop(pop.problem());
+		for( p  = 0; p < swarm_size; p++ ){
+			lbpop.push_back(lbX[p]); // TODO: Wasted objfun calls here?
+		}
+		util::racing::race_pop race(lbpop, m_urng());
 
 		// Update Velocity
 		for( p = 0; p < swarm_size; p++ ){
@@ -208,9 +221,25 @@ void pso_generational::evolve(population &pop) const
 			// identify the current particle's best neighbour
 			// . not needed if m_neighb_type == 1 (gbest): best_neighb directly tracked in this function
 			// . not needed if m_variant == 6 (FIPS): all neighbours are considered, no need to identify the best one
-			if( m_neighb_type != 1 && m_variant != 6)
-				best_neighb = particle__get_best_neighbor( p, neighb, lbX, lbfit, prob );
-
+			if( m_neighb_type != 1 && m_variant != 6){
+				if( !m_use_racing ){
+					best_neighb = particle__get_best_neighbor( p, neighb, lbX, lbfit, prob );
+				}
+				else{
+					best_neighb = particle__racing_get_best_neighbor( p, neighb, lbX, race );
+					// If the swarm has not been completely processed but
+					// racing has exhausted the allowable evaluation budget, we
+					// have to terminate. The final feval count is capped at
+					// its maximum. This is still fair as the information
+					// gained from the exceeded fevals will not used at all
+					// within the evolution.
+					if(m_fevals > m_max_fevals){
+						m_fevals = m_max_fevals;
+						forced_terminate = true;
+						break;
+					}
+				}
+			}
 
 			/*-------PSO canonical (with inertia weight) ---------------------------------------------*/
 			/*-------Original algorithm used in PaGMO paper-------------------------------------------*/
@@ -294,6 +323,10 @@ void pso_generational::evolve(population &pop) const
 			}
 		}
 
+		if(forced_terminate){
+			break;
+		}
+
 		// Update Position
 		for( p = 0; p < swarm_size; p++ ){
 			// We now check that the velocity does not exceed the maximum allowed per component
@@ -330,14 +363,20 @@ void pso_generational::evolve(population &pop) const
 			}
 		}
 
-
-
+		int required_fevals = 0;
 		// If the problem is a stochastic optimization chage the seed and re-evaluate taking care to update also best and local bests
 		try
 		{
 			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
-			pop.clear(); // Removes memory based on different seeds (champion and best_x, best_f, best_c)
+	
+			// Check if there is enough evaluation budget before proceeding
+			required_fevals = swarm_size * 2;
+			if (m_fevals + required_fevals > m_max_fevals){
+				forced_terminate = true;
+				break;
+			}
 
+			pop.clear(); // Removes memory based on different seeds (champion and best_x, best_f, best_c)
 			// Re-evaluate wrt new seed the particle position and memory
 			for( p = 0; p < swarm_size; p++ ){
 				// We evaluate here the new individual fitness
@@ -358,10 +397,15 @@ void pso_generational::evolve(population &pop) const
 					best_neighb = X[p];
 				}
 			}
-
 		}
 		catch (const std::bad_cast& e)
 		{
+			// Check if there is enough evaluation budget before proceeding
+			required_fevals = swarm_size;
+			if (m_fevals + required_fevals > m_max_fevals){
+				forced_terminate = true;
+				break;
+			}
 			//Only evaluate new position
 			for( p = 0; p < swarm_size; p++ ){
 				// We evaluate here the new individual fitness
@@ -370,8 +414,14 @@ void pso_generational::evolve(population &pop) const
 				pop.set_v(p,V[p]);
 			}
 		}
+	
+		// If we run out of budget in the previous loop, the following
+		// operations are not meaningful as they may be out-of-date
+		if(forced_terminate){
+			break;
+		}
 
-
+		m_fevals += required_fevals;
 
 		// We update the particles memory if a better point has been reached
 		best_fit_improved = false;
@@ -397,6 +447,7 @@ void pso_generational::evolve(population &pop) const
 			initialize_topology__adaptive_random( neighb );
 		}
 	} // end of main PSO loop
+	std::cout << "PSO terminated: gen = " << g << ", incurred fevals = " << m_fevals << std::endl;
 }
 
 
@@ -410,7 +461,7 @@ void pso_generational::evolve(population &pop) const
  *  @param[in] prob problem undergoing optimization
  *  @return best position already visited by any of the considered particle's neighbours
  */
-decision_vector pso_generational::particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob ) const
+decision_vector pso_generational::particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob) const
 {
 	population::size_type  nidx, bnidx;		// neighbour index; best neighbour index
 
@@ -432,6 +483,18 @@ decision_vector pso_generational::particle__get_best_neighbor( population::size_
 	}
 }
 
+/// Extracts best neighbor via racing
+decision_vector pso_generational::particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop& race) const
+{
+	std::vector<population::size_type> active_indices;
+	for(population::size_type nidx = 0; nidx < neighb[pidx].size(); nidx++){
+		active_indices.push_back(neighb[pidx][nidx]);
+	}
+	std::pair<std::vector<population::size_type>, unsigned int> race_res = race.run(1, 0, 100, 0.05, active_indices, true, false);
+	std::vector<population::size_type> winners = race_res.first;
+	m_fevals += race_res.second;
+	return lbX[winners[0]];
+}
 
 /**
  *  @brief Defines the Swarm topology as a fully connected graph, where particles are influenced by all other particles in the swarm
