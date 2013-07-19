@@ -62,6 +62,7 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
+	void reksum(std::vector<std::vector<double> > &, const std::vector<unsigned int>&, unsigned int, unsigned int, std::vector<double> = std::vector<double>() ) const;
 
 	friend class boost::serialization::access;
 	template <class Archive>
