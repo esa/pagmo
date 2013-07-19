@@ -46,8 +46,8 @@ class __PAGMO_VISIBLE sms_emoa: public base
 {
 public:
 	sms_emoa(const sms_emoa &);
-	sms_emoa(int gen=100, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50);
-	sms_emoa(pagmo::util::hv_algorithm::base_ptr hv_algorithm, int gen=100, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50);
+	sms_emoa(int gen=100, int sel_m = 2, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50);
+	sms_emoa(pagmo::util::hv_algorithm::base_ptr hv_algorithm, int gen=100, int sel_m = 2, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50);
 	base_ptr clone() const;
 	pagmo::util::hv_algorithm::base_ptr get_hv_algorithm() const;
 	void evolve(population &) const;
@@ -60,22 +60,29 @@ private:
 	void validate_parameters();
 	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
 	void mutate(decision_vector&, const pagmo::population&) const;
-	unsigned int evaluate_s_metric_selection(const population & pop) const;
+	population::size_type evaluate_s_metric_selection(const population & pop) const;
 	
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
+		ar & m_hv_algorithm;
 		ar & const_cast<int &>(m_gen);
+		ar & const_cast<int &>(m_sel_m);
 		ar & const_cast<double &>(m_cr);
 		ar & const_cast<double &>(m_eta_c);
 		ar & const_cast<double &>(m_m);
 		ar & const_cast<double &>(m_eta_m);
-		ar & m_hv_algorithm;
 	}
+	// Algorithm used for computation of the least contributor
+	pagmo::util::hv_algorithm::base_ptr m_hv_algorithm;
 	//Number of generations
 	const int m_gen;
+	// Selection method for dominated fronts
+	// 1 - always use least contributor for every front
+	// 2 - use domination count for points in fronts other than front[0]
+	const int m_sel_m;
 	//Crossover rate
 	const double m_cr;
 	// Ditribution index for crossover
@@ -84,8 +91,6 @@ private:
 	const double m_m;
 	// Ditribution index for mutation
 	const double m_eta_m;
-	// Algorithm used for computation of the least contributor
-	pagmo::util::hv_algorithm::base_ptr m_hv_algorithm;
 
 };
 

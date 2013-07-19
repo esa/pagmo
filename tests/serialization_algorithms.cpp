@@ -46,7 +46,7 @@ int main()
 	
 	// fill it up with algorithm (first the multiobjective ones
 
-	algos.push_back(algorithm::sms_emoa(gen,0.5,11,0.3,11).clone());
+	algos.push_back(algorithm::sms_emoa(gen,2,0.5,11,0.3,11).clone());
 	algos_new.push_back(algorithm::sms_emoa().clone());
 	algos.push_back(algorithm::nsga2(gen,0.5,11,0.3,11).clone());
 	algos_new.push_back(algorithm::nsga2().clone());

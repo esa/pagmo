@@ -51,7 +51,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] eta_m Distribution index for mutation
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1[\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
  */
-sms_emoa::sms_emoa(int gen, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
+sms_emoa::sms_emoa(int gen, int sel_m, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),
+	m_sel_m(sel_m),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
 	validate_parameters();
 }
 
@@ -61,7 +62,8 @@ sms_emoa::sms_emoa(int gen, double cr, double eta_c, double m, double eta_m):bas
   *
   * @param[in] orig Original instance of SMS-EMOA to make a copy from
   */
-sms_emoa::sms_emoa(const sms_emoa &orig) : base(),m_gen(orig.m_gen),m_cr(orig.m_cr),m_eta_c(orig.m_eta_c),m_m(orig.m_m),m_eta_m(orig.m_eta_m) {
+sms_emoa::sms_emoa(const sms_emoa &orig) : base(),m_gen(orig.m_gen),m_sel_m(orig.m_sel_m),
+	m_cr(orig.m_cr),m_eta_c(orig.m_eta_c),m_m(orig.m_m),m_eta_m(orig.m_eta_m) {
 	if (orig.m_hv_algorithm) {
 		m_hv_algorithm = orig.m_hv_algorithm->clone();
 	}
@@ -79,7 +81,8 @@ sms_emoa::sms_emoa(const sms_emoa &orig) : base(),m_gen(orig.m_gen),m_cr(orig.m_
  * @param[in] hv_algorithm Hypervolume algorithm used for the computation of the least contributor
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1[\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
  */
-sms_emoa::sms_emoa(pagmo::util::hv_algorithm::base_ptr hv_algorithm, int gen, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
+sms_emoa::sms_emoa(pagmo::util::hv_algorithm::base_ptr hv_algorithm, int gen, int sel_m, double cr, double eta_c, double m, double eta_m):base(),
+	m_gen(gen),m_sel_m(sel_m), m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
 	m_hv_algorithm = hv_algorithm;
 	validate_parameters();
 }
@@ -97,6 +100,9 @@ base_ptr sms_emoa::clone() const
 void sms_emoa::validate_parameters() {
 	if (m_gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
+	}
+	if (m_sel_m < 1 || m_sel_m > 2) {
+		pagmo_throw(value_error,"selection method must be equal to 1 (least contributor) or 2 (domination count)");
 	}
 	if (m_cr >= 1 || m_cr < 0) {
 		pagmo_throw(value_error,"crossover probability must be in the [0,1] range");
@@ -262,7 +268,7 @@ void sms_emoa::mutate(decision_vector& child, const pagmo::population& pop) cons
 }
 
 // Find the index of the least contributing individual
-unsigned int sms_emoa::evaluate_s_metric_selection(const population & pop) const {
+population::size_type sms_emoa::evaluate_s_metric_selection(const population & pop) const {
 
 	std::vector< std::vector< population::size_type> > fronts = pop.compute_pareto_fronts();
 
@@ -272,25 +278,39 @@ unsigned int sms_emoa::evaluate_s_metric_selection(const population & pop) const
 		return last_front[0];
 	}
 
-	std::vector<fitness_vector> points;
-	points.resize(last_front.size());
+	if (m_sel_m == 1 || fronts.size() == 1) { // if method is always to choose least contributor, or working with first front
+		std::vector<fitness_vector> points;
+		points.resize(last_front.size());
 
-	for (population::size_type idx = 0 ; idx < last_front.size() ; ++idx) {
-		points[idx] = fitness_vector(pop.get_individual(last_front[idx]).cur_f);
+		for (population::size_type idx = 0 ; idx < last_front.size() ; ++idx) {
+			points[idx] = fitness_vector(pop.get_individual(last_front[idx]).cur_f);
+		}
+
+		pagmo::util::hypervolume hypvol(points);
+		fitness_vector r = hypvol.get_nadir_point(1.0);
+
+		population::size_type least_idx;
+
+		if (m_hv_algorithm) {
+			least_idx = hypvol.least_contributor(r, m_hv_algorithm);
+		} else {
+			least_idx = hypvol.least_contributor(r);
+		}
+
+		return last_front[least_idx];
+	} else { // if m_sel_m == 2 && fronts.size() > 1
+		population::size_type max_dom_count = 0;
+		population::size_type individual_idx = 0;
+
+		for (population::size_type idx = 0 ; idx < last_front.size() ; ++idx) {
+			population::size_type current_dom_count = pop.get_domination_count(last_front[idx]);
+			if (current_dom_count > max_dom_count) {
+				max_dom_count = current_dom_count;
+				individual_idx = idx;
+			}
+		}
+		return last_front[individual_idx];
 	}
-
-	pagmo::util::hypervolume hypvol(points);
-	fitness_vector r = hypvol.get_nadir_point(1.0);
-
-	unsigned int least_idx;
-
-	if (m_hv_algorithm) {
-		least_idx = hypvol.least_contributor(r, m_hv_algorithm);
-	} else {
-		least_idx = hypvol.least_contributor(r);
-	}
-
-	return last_front[least_idx];
 }
 
 

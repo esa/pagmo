@@ -329,13 +329,14 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
 
-def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
+def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""
 	Constructs a S-Metric Selection Evolutionary Multiobjective Optimiser Algorithm (SMS-EMOA)
 
-	USAGE: algorithm.sms_emoa(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+	USAGE: algorithm.sms_emoa(self, gen=100, sel_m = 2, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
 
 	* gen: number of generations
+	* sel_m: selection method for points in dominated fronts. 1 - always use least contributor, 2 - use domination count for fronts > 1
 	* cr: crossover factor [0,1[
 	* eta_c: Distribution index for crossover
 	* m: mutation probability [0,1]
@@ -347,6 +348,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, cr = 0.95, eta_c = 10, m 
 	if hv_algorithm:
 		arg_list.append(hv_algorithm)
 	arg_list.append(gen)
+	arg_list.append(sel_m)
 	arg_list.append(cr)
 	arg_list.append(eta_c)
 	arg_list.append(m)

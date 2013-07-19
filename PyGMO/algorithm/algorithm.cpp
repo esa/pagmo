@@ -224,8 +224,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// SMS-EMOA
 	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")
-		.def(init<optional<int, double, double, double, double> >())
-		.def(init<optional<util::hv_algorithm::base_ptr, int, double, double, double, double> >());
+		.def(init<optional<int, int, double, double, double, double> >())
+		.def(init<optional<util::hv_algorithm::base_ptr, int, int, double, double, double, double> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
