@@ -69,6 +69,30 @@ base_ptr pade::clone() const
 	return base_ptr(new pade(*this));
 }
 
+//Recursive function building all m-ple of elements of X summing to s
+void pade::reksum(std::vector<std::vector<double> > &retval, 
+	       const std::vector<unsigned int>& X, 
+	       unsigned int m, 
+	       unsigned int s, 
+	       std::vector<double> eggs) const {
+	
+	if (m==1) {
+		if (std::find(X.begin(),X.end(),s) == X.end()) { //not found
+			return;
+		} else {
+			eggs.push_back(s);
+			retval.push_back(eggs);
+		}
+	} else {
+		for (unsigned int i=0; i<X.size(); ++i) {
+			eggs.push_back(X[i]);
+			reksum(retval,X,m-1,s-X[i],eggs);
+			eggs.pop_back();
+		}
+	}
+}
+
+
 /// Evolve implementation.
 /**
  * Run the PaDe algorithm for the number of generations specified in the constructors.
@@ -101,14 +125,29 @@ void pade::evolve(population &pop) const
 	}
 	//clear the current population
 	pop.clear();
+	
+	// generate the weights
+	const unsigned int H = 21;
+	std::vector<unsigned int> range;
+	for (unsigned int i=0; i<H;++i) {
+		range.push_back(i);
+	}
+	std::vector<fitness_vector> weights;
+	reksum(weights, range, prob.get_f_dimension(), H-1);
+	for(unsigned int i=0; i< weights.size(); ++i) {
+		for(unsigned int j=0; j< weights[i].size(); ++j) {
+			weights[i][j] /= (H-1);
+		}
+	}
 
+	unsigned int count = 0;
 	for(population::size_type p = 0; p < NP /m_max_parallelism + 1; p++) {
 		pagmo::archipelago arch;
 		arch.set_topology(topology::unconnected());
 
 		//Each island in the archipelago solve a different single-objective problem
 		for(pagmo::population::size_type i=0; i<m_max_parallelism && p*m_max_parallelism + i < NP;++i) {
-			pagmo::problem::decompose decomposed_prob(prob, m_method);
+			pagmo::problem::decompose decomposed_prob(prob, m_method,weights[count++]);
 			pagmo::population decomposed_pop(decomposed_prob);
 
 			//Set the individuals of the new population
