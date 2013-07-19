@@ -35,7 +35,7 @@ bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
 			return false;
 		}
 	}
-	return true;
+	return false;
 };
 
 /// Compute hypervolume 
