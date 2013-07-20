@@ -269,8 +269,11 @@ class __PAGMO_VISIBLE population
 		}
 		// Problem.
 		problem::base_ptr				m_prob;
-		// Container of individuals.
+	protected:
+		// Container of individuals. Needs to be protected so that a derived class can override
+		// the set_x mechanism avoiding function re-evaluations. (use this option at your own risk)
 		container_type					m_container;
+	private:
 		// List of dominated individuals.
 		std::vector<std::vector<size_type> >		m_dom_list;
 		// Domination Count (number of dominant individuals)
