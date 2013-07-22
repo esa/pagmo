@@ -11,6 +11,10 @@
 using namespace std;
 namespace pagmo{ namespace util {namespace discrepancy {
 
+base::~base() {}
+
+
+
 /// Van Der Corput sequence
 /**
  * Returns the n-th number in the Halton sequence
@@ -239,7 +243,6 @@ unsigned int prime_ge ( unsigned int n )
 	}
 	if (n == min_p) return min_p;
 	if (n == max_p) return max_p;
-	unsigned int i = PRIME_MAX/2;
 	while(!(ub-lb==1)) {
 		unsigned int tmp = (ub+lb)/2;
 		unsigned int new_p = prime(tmp);
@@ -396,9 +399,6 @@ void faure::faure_orig ( unsigned int dim_num, unsigned int *seed, double quasi[
 //
 {
   int hisum;
-  int i;
-  int j;
-  int k;
   int ktemp;
   int ltemp;
   int mtemp;
@@ -420,15 +420,8 @@ void faure::faure_orig ( unsigned int dim_num, unsigned int *seed, double quasi[
 	}
 	m_hisum_save = -1;
   }
-//
-//  If SEED < 0, reset for recommended initial skip.
-//
-  if ( *seed < 0 )
-  {
-	hisum = 3;
-	*seed = i4_power ( m_qs, hisum + 1 ) - 1;
-  }
-  else if ( *seed == 0 )
+
+  if ( *seed == 0 )
   {
 	hisum = 0;
   }
@@ -469,7 +462,7 @@ void faure::faure_orig ( unsigned int dim_num, unsigned int *seed, double quasi[
   ktemp = i4_power ( m_qs, hisum + 1 );
   ltemp = *seed;
 
-  for ( i = hisum; 0 <= i; i-- )
+  for ( int i = hisum; 0 <= i; i-- )
   {
 	ktemp = ktemp / m_qs;
 	mtemp = ltemp % ktemp;
@@ -484,7 +477,7 @@ void faure::faure_orig ( unsigned int dim_num, unsigned int *seed, double quasi[
 //  Compute QUASI(1) using nested multiplication.
 //
   r = ( ( double ) m_ytemp[hisum] );
-  for ( i = hisum-1; 0 <= i; i-- )
+  for ( int i = hisum-1; 0 <= i; i-- )
   {
 	r = ( ( double ) m_ytemp[i] ) + r / ( ( double ) m_qs );
   }
@@ -493,15 +486,15 @@ void faure::faure_orig ( unsigned int dim_num, unsigned int *seed, double quasi[
 //
 //  Find components QUASI(2:DIM_NUM) using the Faure method.
 //
-  for ( k = 1; k < dim_num; k++ )
+  for ( unsigned int k = 1; k < dim_num; k++ )
   {
 	quasi[k] = 0.0;
 	r = 1.0 / ( ( double ) m_qs );
 
-	for ( j = 0; j <= hisum; j++ )
+	for ( int j = 0; j <= hisum; j++ )
 	{
 	  ztemp = 0;
-	  for ( i = j; i <= hisum; i++ )
+	  for ( int i = j; i <= hisum; i++ )
 	  {
 		ztemp = ztemp + m_ytemp[i] * m_coef[i+j*(hisum+1)];
 	  }
@@ -521,56 +514,6 @@ void faure::faure_orig ( unsigned int dim_num, unsigned int *seed, double quasi[
   *seed = *seed + 1;
 
   return;
-}
-//****************************************************************************80
-
-double *faure::faure_generate ( int dim_num, int n, int skip )
-
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    FAURE_GENERATE generates a Faure dataset.
-//
-//  Licensing:
-//
-//    This code is distributed under the GNU LGPL license.
-//
-//  Modified:
-//
-//    11 December 2009
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    Input, int DIM_NUM, the spatial dimension.
-//
-//    Input, int N, the number of points to generate.
-//
-//    Input, int SKIP, the number of initial points to skip.
-//
-//    Output, double FAURE_GENERATE[DIM_NUM*N], the points.
-//
-{
-  int base;
-  int j;
-  double *r;
-  unsigned int seed;
-
-  base = prime_ge ( dim_num );
-
-  r = new double[dim_num*n];
-
-  seed = skip;
-  for ( j = 0; j < n; j++ )
-  {
-	faure_orig ( dim_num, &seed, r+j*dim_num );
-  }
-
-  return r;
 }
 //****************************************************************************80
 
@@ -782,5 +725,120 @@ int faure::i4_power ( int i, int j )
   return value;
 }
 
+/// Clone method.
+base_ptr halton::clone() const
+{
+	return base_ptr(new halton(*this));
+}
+/// Operator ()
+/**
+ * Returns the next point in the sequence
+ *
+ * @return an std::vector<double> containing the next point
+ */
+std::vector<double> halton::operator()() {
+	std::vector<double> retval;
+	for (size_t i=0; i<m_dim; ++i) {
+		retval.push_back(van_der_corput(m_count,m_primes.at(i)));
+	}
+	m_count++;
+	return retval;
+}
+/// Operator (size_t n)
+/**
+ * Returns the n-th point in the sequence
+ *
+ * @param[in] n the point along the sequence to be returned
+ * @return an std::vector<double> containing the n-th point
+ */
+std::vector<double> halton::operator()(unsigned int n) {
+	if (n == 0) {
+		pagmo_throw(value_error,"Halton sequence first point id is 1");
+	}
+	std::vector<double> retval;
+	for (size_t i=0; i<m_primes.size(); ++i) {
+		retval.push_back(van_der_corput(n,m_primes.at(i)));
+	}
+	m_count = n+1;
+	return retval;
+}
+
+/// Constructor
+/**
+ * @param[in] dim dimension of the hypercube
+ * @param[in] count starting point of the sequence (the first point is  [0.5,0.33333, ....])
+ *
+ * @throws value_error if dim>10
+*/
+halton::halton(unsigned int dim, unsigned int count) : base(dim,count), m_primes() {
+	if (dim >10) {
+		pagmo_throw(value_error,"Halton sequences should not be used in dimension >10");
+	}
+	if (count == 0) {
+		pagmo_throw(value_error,"The first element of the sequence has index 1");
+	}
+	for (size_t i=1; i<=dim; ++i) {
+		m_primes.push_back(prime(i));
+	}
+}
+
+/// Constructor
+/**
+ * @param[in] dim dimension of the hypercube
+ * @param[in] count starting point of the sequence
+ *
+ * @throws value_error if dim not in [2,23]
+*/
+faure::faure(unsigned int dim, unsigned int count) : base(dim, count), m_coef(NULL), m_hisum_save(-1), m_qs(-1), m_ytemp(NULL) {
+		if (dim >23 || dim <2) {
+			pagmo_throw(value_error,"Faure sequences can have dimension [2,23]");
+		}
+	}
+/// Clone method.
+base_ptr faure::clone() const
+{
+	return base_ptr(new faure(*this));
+}
+/// Operator ()
+/**
+ * Returns the next point in the sequence
+ *
+ * @return an std::vector<double> containing the next point
+ */
+std::vector<double> faure::operator()() {
+	std::vector<double> retval(m_dim,0.0);
+	faure_orig(m_dim, &m_count, &retval[0]);
+	return retval;
+}
+/// Operator (unsigned int n)
+/**
+ * Returns the n-th point in the sequence
+ *
+ * @param[in] n the point along the sequence to be returned
+ * @return an std::vector<double> containing the n-th point
+ */
+std::vector<double> faure::operator()(unsigned int n) {
+	m_count = n;
+	std::vector<double> retval(m_dim,0.0);
+	faure_orig(m_dim, &m_count, &retval[0]);
+	return retval;
+}
+
+simplex::simplex(unsigned int dim, unsigned int count) : base(dim,count), m_generator(dim-1), m_projector(dim) {}
+/// Clone method.
+base_ptr simplex::clone() const
+{
+	return base_ptr(new simplex(*this));
+}
+std::vector<double> simplex::operator()() {
+	std::vector<double> tmp = m_generator();
+//std::cout << tmp[0] << " " << tmp[1] << " " << std::endl;
+	std::vector<double> retval = m_projector(tmp);
+	return retval;
+}
+std::vector<double> simplex::operator()(unsigned int n) {
+	std::vector<double> retval = m_projector(m_generator(n));
+	return retval;
+}
 
 }}} //namespaces
