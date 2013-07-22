@@ -53,21 +53,30 @@ class __PAGMO_VISIBLE hypervolume
 	public:
 		hypervolume();
 		hypervolume(const hypervolume &);
-		hypervolume(boost::shared_ptr<population>, unsigned int front_idx = 0);
+		hypervolume(const boost::shared_ptr<population>, const unsigned int front_idx = 0);
 		hypervolume(const std::vector<fitness_vector> &);
-		double compute(const fitness_vector &, hv_algorithm::base_ptr);
-		double exclusive(const unsigned int, const fitness_vector &, hv_algorithm::base_ptr);
-		unsigned int least_contributor(const fitness_vector &, hv_algorithm::base_ptr);
-		unsigned int least_contributor(const fitness_vector &);
-		fitness_vector get_nadir_point(const double);
+
+		double compute(const fitness_vector &, const hv_algorithm::base_ptr) const;
+		double compute(const fitness_vector &) const;
+
+		double exclusive(const unsigned int, const fitness_vector &, const hv_algorithm::base_ptr) const;
+		double exclusive(const unsigned int, const fitness_vector &) const;
+
+		unsigned int least_contributor(const fitness_vector &, const hv_algorithm::base_ptr) const;
+		unsigned int least_contributor(const fitness_vector &) const;
+
+		fitness_vector get_nadir_point(const double epsilon = 1.0) const;
 
 		hypervolume_ptr clone() const;
 		const std::vector<fitness_vector> &get_points() const;
 
 	private:
+		// Method returning the best performing algorithm for given computational task
+		hv_algorithm::base_ptr get_best_method(const fitness_vector &) const;
+
 		std::vector<fitness_vector> m_points;
-		void verify_after_construct();
-		void verify_before_compute(const fitness_vector &, hv_algorithm::base_ptr);
+		void verify_after_construct() const;
+		void verify_before_compute(const fitness_vector &, const hv_algorithm::base_ptr) const;
 
 		friend class boost::serialization::access;
 		template <class Archive>

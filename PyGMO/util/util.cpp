@@ -63,13 +63,22 @@ void expose_hv_algorithm() {
 
 void expose_hypervolume() {
 
-	typedef unsigned int (util::hypervolume::*least_contributor_custom)(const fitness_vector &, util::hv_algorithm::base_ptr);
-	typedef unsigned int (util::hypervolume::*least_contributor_dynamic)(const fitness_vector &);
+	typedef double (util::hypervolume::*compute_custom)(const fitness_vector &, const util::hv_algorithm::base_ptr) const;
+	typedef double (util::hypervolume::*compute_dynamic)(const fitness_vector &) const;
+
+	typedef double (util::hypervolume::*exclusive_custom)(const unsigned int, const fitness_vector &, const util::hv_algorithm::base_ptr) const;
+	typedef double (util::hypervolume::*exclusive_dynamic)(const unsigned int, const fitness_vector &) const;
+
+	typedef unsigned int (util::hypervolume::*least_contributor_custom)(const fitness_vector &, const util::hv_algorithm::base_ptr) const;
+	typedef unsigned int (util::hypervolume::*least_contributor_dynamic)(const fitness_vector &) const;
+
 
 	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
 		.def(init<boost::shared_ptr<population> >())
-		.def("compute", &util::hypervolume::compute)
-		.def("exclusive", &util::hypervolume::exclusive)
+		.def("compute", compute_custom(&util::hypervolume::compute), "Computes the hypervolume using the provided hypervolume algorithm.")
+		.def("compute", compute_dynamic(&util::hypervolume::compute), "Computes the hypervolume.")
+		.def("exclusive", exclusive_custom(&util::hypervolume::exclusive), "Computes the exclusive hypervolume using the provided hypervolume algorithm.")
+		.def("exclusive", exclusive_dynamic(&util::hypervolume::exclusive), "Computes the exclusive hypervolume.")
 		.def("least_contributor", least_contributor_custom(&util::hypervolume::least_contributor), "Get the least contributor of the hypervolume using provided hypervolume algorithm.")
 		.def("least_contributor", least_contributor_dynamic(&util::hypervolume::least_contributor), "Get the least contributor of the hypervolume.")
 		.def("get_nadir_point", &util::hypervolume::get_nadir_point);
