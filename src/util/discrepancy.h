@@ -28,6 +28,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <algorithm>
 #include <boost/shared_ptr.hpp>
 
 #include "../config.h"
@@ -60,6 +61,7 @@ public:
 	virtual std::vector<double> operator()() = 0;
 	virtual std::vector<double> operator()(size_t) = 0;
 	virtual base_ptr clone() const = 0;
+	virtual~base() {}
 protected:
 	unsigned int m_dim;
 	unsigned int m_count;
@@ -201,26 +203,55 @@ class __PAGMO_VISIBLE faure : public base
 
 };
 
+class __PAGMO_VISIBLE project_2_simplex
+{
+	public:
+		project_2_simplex(unsigned int dim) : m_dim(dim) {}
+		std::vector<double> operator()(std::vector<double> retval) const {
+			if (retval.size() == m_dim-1) {
+				std::sort(retval.begin(),retval.end());
+				retval.insert(retval.begin(),0.0);
+				retval.push_back(1.0);
+				double cumsum=0;
+				for (unsigned int i = 0; i<retval.size()-1;++i) {
+					retval[i] = retval[i+1] - retval[i];
+					cumsum += retval[i];
+				}
+				retval.pop_back();
+				for (unsigned int i = 0; i<retval.size();++i) {
+					retval[i] /= cumsum;
+				}
+				return retval;
+			}
+			else {
+				pagmo_throw(value_error,"To project on this simplex you need a point in dimension m_dim-1");
+			}
+		}
+	private:
+		unsigned int m_dim;
+};
+
 class __PAGMO_VISIBLE simplex : public base
 {
 public:
-	simplex(unsigned int dim, unsigned int count) : base(dim,count) {
-		if (dim ==2) {
-			m_generator = static_cast<base_ptr>(new halton(dim-1,count));
-		} else {
-			m_generator = static_cast<base_ptr>(new faure(dim-1,count));
-		}
+	simplex(unsigned int dim, unsigned int count) : base(dim,count), m_generator(dim-1), m_projector(dim) {}
+	/// Clone method.
+	base_ptr clone() const
+	{
+		return base_ptr(new simplex(*this));
 	}
 	std::vector<double> operator()() {
-		std::vector<double> retval = m_projector(*m_generator());
+		std::vector<double> tmp = m_generator();
+//std::cout << tmp[0] << " " << tmp[1] << " " << std::endl;
+		std::vector<double> retval = m_projector(tmp);
 		return retval;
 	}
-	std::vector<double> operator()(unsigned int n) {
-		std::vector<double> retval = m_projector(*m_generator(n));
+	std::vector<double> operator()(size_t n) {
+		std::vector<double> retval = m_projector(m_generator(n));
 		return retval;
 	}
 private:
-	base_ptr m_generator;
+	halton m_generator;
 	project_2_simplex m_projector;
 };
 
