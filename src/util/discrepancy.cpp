@@ -725,6 +725,25 @@ int faure::i4_power ( int i, int j )
   return value;
 }
 
+/// Constructor
+/**
+ * @param[in] dim dimension of the hypercube
+ * @param[in] count starting point of the sequence (the first point is  [0.5,0.33333, ....])
+ *
+ * @throws value_error if dim not in [1,10]
+*/
+halton::halton(unsigned int dim, unsigned int count) : base(dim,count), m_primes() {
+	if (dim >10 || dim==0) {
+		pagmo_throw(value_error,"Halton sequences should not be used in dimension >10");
+	}
+	if (count == 0) {
+		pagmo_throw(value_error,"The first element of the sequence has index 1");
+	}
+	for (size_t i=1; i<=dim; ++i) {
+		m_primes.push_back(prime(i));
+	}
+}
+
 /// Clone method.
 base_ptr halton::clone() const
 {
@@ -763,24 +782,7 @@ std::vector<double> halton::operator()(unsigned int n) {
 	return retval;
 }
 
-/// Constructor
-/**
- * @param[in] dim dimension of the hypercube
- * @param[in] count starting point of the sequence (the first point is  [0.5,0.33333, ....])
- *
- * @throws value_error if dim>10
-*/
-halton::halton(unsigned int dim, unsigned int count) : base(dim,count), m_primes() {
-	if (dim >10) {
-		pagmo_throw(value_error,"Halton sequences should not be used in dimension >10");
-	}
-	if (count == 0) {
-		pagmo_throw(value_error,"The first element of the sequence has index 1");
-	}
-	for (size_t i=1; i<=dim; ++i) {
-		m_primes.push_back(prime(i));
-	}
-}
+
 
 /// Constructor
 /**
@@ -824,18 +826,46 @@ std::vector<double> faure::operator()(unsigned int n) {
 	return retval;
 }
 
-simplex::simplex(unsigned int dim, unsigned int count) : base(dim,count), m_generator(dim-1), m_projector(dim) {}
+/// Constructor
+/**
+ * @param[in] dim dimension of the hypercube
+ * @param[in] count starting point of the sequence
+ *
+ * @throws value_error if dim not in [1..10] or count ==0
+*/
+simplex::simplex(unsigned int dim, unsigned int count) : base(dim,count), m_generator(dim-1), m_projector(dim) {
+	if (dim >10 || dim==0) {
+		pagmo_throw(value_error,"Halton sequences should not be used in dimension >10");
+	}
+	if (count == 0) {
+		pagmo_throw(value_error,"The first element of the sequence has index 1");
+	}
+}
+
 /// Clone method.
 base_ptr simplex::clone() const
 {
 	return base_ptr(new simplex(*this));
 }
+/// Operator ()
+/**
+ * Returns the next point in the sequence
+ *
+ * @return an std::vector<double> containing the next point
+ */
 std::vector<double> simplex::operator()() {
 	std::vector<double> tmp = m_generator();
 //std::cout << tmp[0] << " " << tmp[1] << " " << std::endl;
 	std::vector<double> retval = m_projector(tmp);
 	return retval;
 }
+/// Operator (unsigned int n)
+/**
+ * Returns the n-th point in the sequence
+ *
+ * @param[in] n the point along the sequence to be returned
+ * @return an std::vector<double> containing the n-th point
+ */
 std::vector<double> simplex::operator()(unsigned int n) {
 	std::vector<double> retval = m_projector(m_generator(n));
 	return retval;
