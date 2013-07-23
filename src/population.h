@@ -188,7 +188,7 @@ class __PAGMO_VISIBLE population
 		
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
-		explicit population(const problem::base &, int = 0);
+		explicit population(const problem::base &, int = 0, const boost::uint32_t &seed = rng_generator::get<rng_uint32>()());
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
@@ -221,14 +221,13 @@ class __PAGMO_VISIBLE population
 		void reinit();
 		void clear();
 		double mean_velocity() const;
-	private:
-		void init_velocity(const size_type &);
-		void update_champion(const size_type &);
 
-		
-		// Multi-objective stuff
-		void update_dom(const size_type &);
-		void update_crowding_d(std::vector<size_type>) const;
+		// Race routine wrapper
+		std::vector<size_type> race(const size_type n_final,
+									const unsigned int min_trials = 0,
+									const unsigned int max_count = 1000,
+									double delta = 0.05,
+									const std::vector<size_type>& = std::vector<size_type>()) const;
 
 		struct crowded_comparison_operator {
 			crowded_comparison_operator(const population &);
@@ -243,6 +242,15 @@ class __PAGMO_VISIBLE population
 			bool operator()(const size_type &idx1, const size_type &idx2) const;
 			const population &m_pop;
 		};
+
+	private:
+		void init_velocity(const size_type &);
+		void update_champion(const size_type &);
+
+		// Multi-objective stuff
+		void update_dom(const size_type &);
+		void update_crowding_d(std::vector<size_type>) const;
+
 	private:
 		// Data members + their serialization
 		friend class boost::serialization::access;
@@ -261,8 +269,11 @@ class __PAGMO_VISIBLE population
 		}
 		// Problem.
 		problem::base_ptr				m_prob;
-		// Container of individuals.
+	protected:
+		// Container of individuals. Needs to be protected so that a derived class can override
+		// the set_x mechanism avoiding function re-evaluations. (use this option at your own risk)
 		container_type					m_container;
+	private:
 		// List of dominated individuals.
 		std::vector<std::vector<size_type> >		m_dom_list;
 		// Domination Count (number of dominant individuals)
