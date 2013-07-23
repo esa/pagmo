@@ -100,3 +100,8 @@ def run_full_test_suite():
 	from PyGMO import test
 	suite = _ut.TestLoader().loadTestsFromModule(test)
 	_ut.TextTestRunner(verbosity = 2).run(suite)
+
+def run_hv_test_suite():
+	"""Run the hypervolume test suite."""
+	from _hypervolume_tests import get_hv_suite
+	_ut.TextTestRunner(verbosity = 2).run(get_hv_suite())

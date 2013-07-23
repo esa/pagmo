@@ -26,37 +26,50 @@ class HypervolumeValidation:
 	# Raised when the reference point is a tuple/list but the items are non-castable to float, e.g. r = [1.0, 2.0, 'foo']
 	err_rp_items_type = TypeError("Every item in reference point list/tuple must be castable to float, e.g.: r = [1, '2.5', 10e-4]")
 
-	# Raised when the hypervolume object is constructed by anything other than a population object, tuple or a list, e.g. hypervolume("foo bar")
+	# Raised when the user does not provide a reference point (mandatory in for every method)
+	err_rp_none = TypeError("Reference point (keyword argument 'r') is mandatory")
+
+	# Raised when the user provides something weird as a hv_algorithm, e.g. hv.compute(r=refp, hv_algorithm="A string")
+	err_hv_type = TypeError("Hypervolume algorithm must be an instance of a correct type, e.g.: algo = hv_algorithm.wfg()")
+
+	# Raised when the hypervolume object is constructed by anything other than a population object, tuple or a list, e.g. hypervolume("foo bar"), hypervolume([[1,2],[2,"foo"]]) etc.
 	err_hv_ctor_type = TypeError("Hypervolume object must be constructed from a list/tuple of points or a population object")
+
+	# Raised when the hypervolume object is constructed with an incorrect keyword argument
+	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
+
+	# types of hypervolume algorithms
+	types_hv_algo = (native2d, beume3d, wfg, lebmeasure, )
+
+	# allowed types for the refernce point
+	types_rp = (list, tuple,)
 
 	@classmethod
 	def handle_refpoint(cls, hypvol, r):
 		"""
 		Common way of validation for the reference point being passed as parameter to 'compute', 'exclusive' and 'least_contributor' methods.
-		1. Check if user provided the reference point (use nadir point otherwise)
+		1. Check if user provided the reference point (mandatory)
 		2. Make sure that the reference point is of correct type
 		3. Make sure that items of the reference point vector are castable to float
 		"""
 		if r:
-			allowed_types = (list, tuple,)
-			if not any(isinstance(r, T) for T in allowed_types):
+			if not any(isinstance(r, T) for T in cls.types_rp):
 				raise cls.err_rp_type
 			try:
 				r = [float(ri) for ri in r]
 			except ValueError:
 				raise cls.err_rp_items_type
 		else:
-			r = hypvol.get_nadir_point()
+			raise cls.err_rp_none
 		return r
 
 	@classmethod
-	def handle_algorithm(cls, algorithm):
+	def validate_hv_algorithm(cls, algorithm):
 		"""
-		Common way of validation for the hv_algorithm object being passed as parameter to 'compute', 'exclusive' and 'least_contributor' methods.
+		Common way of validation for the hv_algorithm object being passed as parameter to 'compute', 'exclusive' and 'least_contributor' methods, as well as the SMS-EMOA algorithm.
 		"""
-		hv_algo_types = (native2d, beume3d, wfg, lebmeasure, )
-		if not any(isinstance(algorithm, T) for T in hv_algo_types):
-			raise TypeError("'algorithm' keyword must be an instance of a hypervolume algorithm, e.g.: algorithm=hv_algorithm.wfg()")
+		if not any(isinstance(algorithm, T) for T in cls.types_hv_algo):
+			raise cls.err_hv_type
 		return algorithm
 
 
@@ -75,7 +88,7 @@ def _hypervolume_ctor(self, data_src = None, *args, **kwargs):
 
 	"""
 	if not data_src or len(args) > 0 or len(kwargs) > 0:
-		raise TypeError("Hypervolume takes exactly one argument in the constructor: population, list or a tuple object")
+		raise HypervolumeValidation.err_hv_ctor_args
 
 	allowed_types = (population, list, tuple,)
 	if not any(isinstance(data_src, T) for T in allowed_types):
@@ -99,7 +112,7 @@ def _hypervolume_compute(self, r = None, algorithm = None, *args, **kwargs):
 		hv.compute()
 		hv.compute(r=[5.0]*2)
 		hv.compute(r=[5.0]*2, algorithm = hv_algorithm.native2d())
-		* r (optional) - reference point, uses nadir point with default epsilon (see 'hypervolume.get_nadir_point?')
+		* r - reference point used for computation
 		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default.
 	"""
 	if len(args) > 0 or len(kwargs) > 0:
@@ -109,7 +122,7 @@ def _hypervolume_compute(self, r = None, algorithm = None, *args, **kwargs):
 	args = []
 	args.append(r)
 	if algorithm:
-		algorithm = HypervolumeValidation.handle_algorithm(algorithm)
+		algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
 		args.append(algorithm)
 	return self._original_compute(*args)
 
@@ -126,7 +139,7 @@ def _hypervolume_exclusive(self, p_idx = None, r = None, algorithm = None, *args
 		hv.exclusive(p_idx=0, r=[5.0]*2)
 		hv.exclusive(p_idx=0, r=[5.0]*2, algorithm=hv_algorithm.native2d())
 		* p_idx - index of the point
-		* r (optional) - reference point, uses nadir point with default epsilon (see 'hypervolume.get_nadir_point?')
+		* r - reference point used for computation
 		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
 	"""
 	if p_idx == None:
@@ -143,7 +156,7 @@ def _hypervolume_exclusive(self, p_idx = None, r = None, algorithm = None, *args
 	args.append(p_idx)
 	args.append(r)
 	if algorithm:
-		algorithm = HypervolumeValidation.handle_algorithm(algorithm)
+		algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
 		args.append(algorithm)
 	return self._original_exclusive(*args)
 
@@ -159,7 +172,7 @@ def _hypervolume_least_contributor(self, r = None, algorithm = None, *args, **kw
 		hv.least_contributor()
 		hv.least_contributor(r=[5.0]*3)
 		hv.least_contributor(r=[5.0]*3, algorithm=hv_algorithm.beume3d())
-		* r (optional) - reference point, uses nadir point with default epsilon (see 'hypervolume.get_nadir_point?')
+		* r - reference point used for computation
 		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
 	"""
 
@@ -169,7 +182,7 @@ def _hypervolume_least_contributor(self, r = None, algorithm = None, *args, **kw
 	args = []
 	args.append(r)
 	if algorithm:
-		algorithm = HypervolumeValidation.handle_algorithm(algorithm)
+		algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
 		args.append(algorithm)
 	return self._original_least_contributor(*args)
 
@@ -184,6 +197,11 @@ def _hypervolume_get_nadir_point(self, eps = 1.0):
 		hv.nadir_point(eps = 1.0)
 		* eps (optional) - value added to every objective in order to assert a strong dominance of reference point (1.0 by default).
 	"""
+	try:
+		eps = float(eps)
+	except ValueError:
+		raise TypeError("Epsilon must be castable to float.")
+
 	if eps < 0.0:
 		raise ValueError("Epsilon must be a positive value.")
 

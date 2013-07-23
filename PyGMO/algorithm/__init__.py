@@ -6,6 +6,8 @@ from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
 
+from ..util import HypervolumeValidation
+
 
 _base = _algorithm._base
 
@@ -335,9 +337,10 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 
 	USAGE: algorithm.sms_emoa(self, gen=100, sel_m = 2, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
 
+	* hv_algorithm: hypervolume algorithm object used for the computation of the hypervolume
 	* gen: number of generations
 	* sel_m: selection method for points in dominated fronts. 1 - always use least contributor, 2 - use domination count for fronts > 1
-	* cr: crossover factor [0,1[
+	* cr: crossover factor [0,1]
 	* eta_c: Distribution index for crossover
 	* m: mutation probability [0,1]
 	* eta_m: Distribution index for mutation
@@ -346,6 +349,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 	arg_list=[]
 
 	if hv_algorithm:
+		hv_algorithm = HypervolumeValidation.validate_hv_algorithm(hv_algorithm)
 		arg_list.append(hv_algorithm)
 	arg_list.append(gen)
 	arg_list.append(sel_m)

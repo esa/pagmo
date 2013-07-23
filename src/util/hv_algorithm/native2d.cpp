@@ -130,7 +130,7 @@ std::string native2d::get_name() const {
  */
 void native2d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	if (r_point.size() != 2) {
-		pagmo_throw(value_error, "native2d method method works only for 2-dimensional cases.");
+		pagmo_throw(value_error, "Algorithm Native2D method works only for 2-dimensional cases.");
 	}
 
 	base::assert_maximal_reference_point(points, r_point);
