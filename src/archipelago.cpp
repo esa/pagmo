@@ -565,6 +565,33 @@ void archipelago::evolve(int n)
 	}
 }
 
+/// Run the evolution for the given number of iterations.
+/**
+ * Will iteratively call island::evolve(n) on batches of b islands of the archipelago and then return.
+ *
+ * \param[in] n number of time each island will be evolved.
+ * \param[in] b the size of the batch of islands to evolve at the same time.
+ */
+void archipelago::evolve_batch(int n, unsigned int b)
+{
+    join();
+
+    // Reset thread barrier.
+    reset_barrier(b);
+
+    for(size_type p = 0; p < m_container.size()/b + 1; ++p) {
+        if(p == m_container.size()/b) { //for the last batch of islands decrease the barrier
+            reset_barrier(m_container.size() - p*b);
+        }
+        for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
+            m_container[p*b+i]->evolve(n);
+        }
+        for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
+            m_container[p*b+i]->join();
+        }
+    }
+}
+
 /// Run the evolution for a minimum amount of time.
 /**
  * Will iteratively call island::evolve_t(n) on each island of the archipelago and then return.

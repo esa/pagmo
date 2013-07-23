@@ -27,6 +27,8 @@
 #include <vector>
 #include <algorithm>
 
+#include <boost/math/special_functions/binomial.hpp>
+
 #include "../exceptions.h"
 #include "../population.h"
 #include "../problem/base.h"
@@ -34,7 +36,12 @@
 #include "../island.h"
 #include "../population.h"
 #include "../topology/unconnected.h"
+#include "../topology/fully_connected.h"
+#include "../topology/ring.h"
+#include "../topology/custom.h"
 #include "../problem/decompose.h"
+#include "../migration/worst_r_policy.h"
+#include "../migration/best_s_policy.h"
 #include "../types.h"
 #include "base.h"
 #include "pade.h"
@@ -48,19 +55,23 @@ namespace pagmo { namespace algorithm {
  * @param[in] max_parallelism limits the amounts of threads spawned
  * @param[in] method the decomposition method to use (Weighted, Tchebycheff or BI)
  * @param[in] solver the algorithm to solve the single objective problems.
+ * @param[in] T the size of the population on each subproblem (must be an even number)
  *
  * @throws value_error if gen is negative
  * @see pagmo::problem::decompose::method_type
  */
-pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method, const pagmo::algorithm::base & solver):base(),m_gen(gen),m_max_parallelism(max_parallelism),m_method(method),m_solver(solver.clone())
+pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method, const pagmo::algorithm::base & solver, population::size_type T):base(),m_gen(gen),m_max_parallelism(max_parallelism),m_method(method),m_solver(solver.clone()),m_T(T)
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
+    if (T % 2 != 0) {
+        pagmo_throw(value_error,"T must be an even number");
+    }
 }
 
 /// Copy constructor. Performs a deep copy.
-pade::pade(const pade &algo):base(algo), m_gen(algo.m_gen),m_max_parallelism(algo.m_max_parallelism),m_method(algo.m_method),m_solver(algo.m_solver->clone())
+pade::pade(const pade &algo):base(algo), m_gen(algo.m_gen),m_max_parallelism(algo.m_max_parallelism),m_method(algo.m_method),m_solver(algo.m_solver->clone()),m_T(algo.m_T)
 {}
 
 /// Clone method.
@@ -118,7 +129,6 @@ void pade::evolve(population &pop) const
 	decision_vector dummy(pop.get_individual(0).cur_x.size(),0); //used for initialisation purposes
 	std::vector<decision_vector> X(NP,dummy); //set of population chromosomes
 
-
 	// Copy the population chromosomes into X
 	for ( population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
@@ -126,45 +136,92 @@ void pade::evolve(population &pop) const
 	//clear the current population
 	pop.clear();
 	
-	// generate the weights
-	const unsigned int H = 21;
+    //select H
+    unsigned int H;
+    if (prob.get_f_dimension() == 2) {
+        H = NP-1;
+    } else if (prob.get_f_dimension() == 3) {
+        H = floor(0.5 * (sqrt(8*NP + 1) - 3));
+    } else { //Never tested for this case
+        H = 1;
+        while(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)) {
+            ++H;
+        }
+        H--;
+    }
+
+    // Generate the weights
 	std::vector<unsigned int> range;
-	for (unsigned int i=0; i<H;++i) {
+    for (unsigned int i=0; i<H+1;++i) {
 		range.push_back(i);
 	}
 	std::vector<fitness_vector> weights;
-	reksum(weights, range, prob.get_f_dimension(), H-1);
+    double epsilon = 1E-6;
+    reksum(weights, range, prob.get_f_dimension(), H);
 	for(unsigned int i=0; i< weights.size(); ++i) {
 		for(unsigned int j=0; j< weights[i].size(); ++j) {
-			weights[i][j] /= (H-1);
+            weights[i][j] += epsilon;  //to avoid to have any weight equal to zero
+            weights[i][j] /= H+epsilon*weights[i].size();
 		}
 	}
 
-	unsigned int count = 0;
-	for(population::size_type p = 0; p < NP /m_max_parallelism + 1; p++) {
-		pagmo::archipelago arch;
-		arch.set_topology(topology::unconnected());
+    //Create the archipelago of NP islands
+    //Each island in the archipelago solve a different single-objective problem
+    pagmo::archipelago arch(pagmo::archipelago::broadcast);
+    const pagmo::migration::best_s_policy  selection_policy;
+    const pagmo::migration::worst_r_policy replacement_policy(m_T);
 
-		//Each island in the archipelago solve a different single-objective problem
-		for(pagmo::population::size_type i=0; i<m_max_parallelism && p*m_max_parallelism + i < NP;++i) {
-			pagmo::problem::decompose decomposed_prob(prob, m_method,weights[count++]);
-			pagmo::population decomposed_pop(decomposed_prob);
+    for(pagmo::population::size_type i=0; i<NP;++i) {
+        pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i]);
+        pagmo::population decomposed_pop(decomposed_prob);
 
-			//Set the individuals of the new population
-			for(pagmo::population::size_type j=0; j<NP;++j) {
-				decomposed_pop.push_back(X[j]);
-			}
-			arch.push_back(pagmo::island(*m_solver,decomposed_pop));
-		}
-		arch.evolve(m_gen);
-		arch.join();
+        //Set the individuals of the new population as one individual of the original population plus T
+        //neighbours individuals
+        for(pagmo::population::size_type j=0; j<m_T+1;++j) {
+            if(m_T < NP) {
+                for(unsigned int j = 1; j <= m_T/2; ++j) {
+                    decomposed_pop.push_back(X[(i+j)%NP]);
+                    decomposed_pop.push_back(X[(i+(NP-j))%NP]);
+                }
+            } else { //complete topology
+                for(unsigned int j = 1 ; j < NP; ++j) {
+                    decomposed_pop.push_back(X[(i+j)%NP]);
+                }
+            }
+        }
+        arch.push_back(pagmo::island(*m_solver,decomposed_pop, 1.0, selection_policy, replacement_policy));
+    }
 
+    if(m_T >= NP) {
+        arch.set_topology(topology::fully_connected());
+    } else { //Each island is connect to T/2 preceding it and T/2 following it
+        topology::custom top;
+        for(unsigned int i = 0; i < NP; ++i) {
+            top.push_back();
+        }
+        for(unsigned int i = 0; i < NP; ++i) {
+            for(unsigned int j = 1; j <= m_T/2; ++j) {
+                top.add_edge(i,(i+j)%NP);
+                top.add_edge(i,(i+(NP-j))%NP);
+            }
+        }
+        arch.set_topology(top);
+    }
 
-		//The population is set to contain the best individual of each island
-		for(pagmo::population::size_type i=0; i<m_max_parallelism && p*m_max_parallelism + i < NP;++i) {
-			pop.push_back(arch.get_island(i)->get_population().champion().x);
-		}
-	}
+    //Evolve the archipelago for m_gen generations
+    if(m_max_parallelism == NP) { //asynchronous island evolution
+        arch.evolve(m_gen);
+        arch.join();
+    } else {
+        for(int g = 0; g < m_gen; ++g) { //batched island evolution
+            arch.evolve_batch(1, m_max_parallelism);
+        }
+    }
+
+    //The original population is set to contain the best individual of each island
+    for(pagmo::population::size_type i=0; i<NP ;++i) {
+        pop.push_back(arch.get_island(i)->get_population().champion().x);
+    }
 }
 
 /// Algorithm name
