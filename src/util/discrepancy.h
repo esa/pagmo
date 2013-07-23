@@ -160,7 +160,6 @@ class __PAGMO_VISIBLE halton : public base
 class __PAGMO_VISIBLE faure : public base
 {
 	public:
-
 	faure(unsigned int dim, unsigned int count = 1);
 	base_ptr clone() const;
 	std::vector<double> operator()();
@@ -180,6 +179,15 @@ class __PAGMO_VISIBLE faure : public base
 
 };
 
+/// Halton sequence projected on a simplex
+/**
+ * Class that generates a quasi-random sequence of
+ * points on a n-dimensional simplex. In essence we sample a point such that:
+ * \f$ \sum_i x_{i} = 1 \f$
+ * And we do this using Halton sequence. The algorithm is original (as far as we know).
+ *
+ * @author dario.izzo@gmail.com
+*/
 class __PAGMO_VISIBLE simplex : public base
 {
 public:
