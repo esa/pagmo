@@ -127,6 +127,16 @@ void death_penalty::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	}
 }
 
+/// Implementation of fitness vectors comparison.
+/**
+ * @brief compare_fitness_impl calls the compare_fitness method of the original problem.
+ * @return true if v_f1 is dominating v_f2, false otherwise.
+ */
+bool death_penalty::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
+{
+	return m_original_problem->compare_fitness(v_f1,v_f2);
+}
+
 /// Extra human readable info for the problem.
 /**
  * Will return a formatted string containing the type of constraint handling
