@@ -65,42 +65,38 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 	if(m_method != WEIGHTED && m_method != TCHEBYCHEFF && m_method != BI) {
 		pagmo_throw(value_error,"non existing decomposition method");
 	}
-	if(m_method == BI) {
-		pagmo_throw(value_error,"SORRY, BI METHOD NOT YET IMPLEMENTED");
-	}
 
 	//1 - Checks whether the weight vector has a dimension, if not, sets its default value
 	if (m_weights.size() == 0) {
 		//Initialise a random weight vector
 		rng_double m_drng = rng_generator::get<rng_double>();
-		m_weights = std::vector<double>((int)p.get_f_dimension(), 0.0);
+        m_weights = std::vector<double>((int)p.get_f_dimension(), 0.0);
 		double sum = 0;
 		for(std::vector<double>::size_type i = 0; i<m_weights.size(); ++i) {
 			m_weights[i] = (1-sum) * (1 - pow(boost::uniform_real<double>(0,1)(m_drng), 1.0 / (m_weights.size() - i - 1)));
 			sum += m_weights[i];
 		}
 	} else {
+
 		//1.1 - Checks whether the weight has lenght equal to the fitness size
 		if (m_weights.size() != p.get_f_dimension()) {
-			pagmo_throw(value_error,"the weight vector must have lequal length to the fitness size");
-		}
+            pagmo_throw(value_error,"the weight vector must have length equal to the fitness size");
+        }
 
-		//1.2 - Checks whether the weight vector sums to 1
+
+        //1.2 - Checks whether the weight vector sums to 1
 		double sum = 0.0;
 		for (std::vector<double>::size_type i=0; i<m_weights.size(); ++i) {
 			sum += m_weights[i];
 		}
-		if (fabs(sum-1.0) > 1E-8) {
+        if (fabs(sum-1.0) > 1E-8) {
 			pagmo_throw(value_error,"the weight vector should sum to 1 with a tolerance of E1-8");
-		}
+        }
 	}
 
 	//2 - Checks whether the reference point has a dimension, if not, sets its default value
 	if (m_z.size() == 0) {
-		m_z = std::vector<double>((int)p.get_f_dimension(), 0.0);
-		for(std::vector<double>::size_type i = 0; i<z.size(); ++i) {
-			m_z[i] = 0;
-		}
+        m_z = std::vector<double>((int)p.get_f_dimension(), 0.0); //by default m_z = (0, ..., 0)
 	} else {
 		//2.1 - Checks whether the reference point has lenght equal to the fitness size
 		if (m_z.size() != p.get_f_dimension()) {
@@ -136,7 +132,7 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	m_original_problem->objfun(fit, x);
 
 	if(m_method == WEIGHTED) {
-		f[0] = 0;
+        f[0] = 0.0;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
 			f[0]+= m_weights[i]*fit[i];
 		}
@@ -150,8 +146,23 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 			}
 		}
 	} else { //BI method
-		pagmo_throw(value_error,"YOU SHOULD NOT BE HERE!!!, BI METHOD IS NOT YET IMPLEMENTED");
-		//TODO: not yet implemented
+        const double THETA = 5.0;
+        double d1 = 0.0;
+        double weight_norm = 0.0;
+        for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
+            d1 += (m_z[i] - fit[i]) * m_weights[i];
+            weight_norm += pow(m_weights[i],2);
+        }
+        weight_norm = sqrt(weight_norm);
+        d1 = fabs(d1)/weight_norm;
+
+        double d2 = 0.0;
+        for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
+            d2 += pow(fit[i] - (m_z[i] + d1*m_weights[i]), 2);
+        }
+        d2 = sqrt(d2);
+
+        f[0] = d1 + THETA * d2;
 	}
 }
 
