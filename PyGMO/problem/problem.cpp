@@ -343,7 +343,8 @@ BOOST_PYTHON_MODULE(_problem) {
 	// POL
 	problem_wrapper<problem::pol>("pol","Poloni's study problem.");
 	// KUR
-	problem_wrapper<problem::kur>("kur","Kursawe's study problem.");
+	problem_wrapper<problem::kur>("kur","Kursawe's study problem.")
+		.def(init<int>());
 	
 	// DTLZ1
 	unc_mo_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
