@@ -193,7 +193,7 @@ class __PAGMO_VISIBLE archipelago
 		}
 		// Container of islands.
 		container_type				m_container;
-		// A barrier used to synchronise the start time of all islands.
+		// A barrier used to synchronise the start time of islands.
 		boost::scoped_ptr<boost::barrier>	m_islands_sync_point;
 		// Topology.
 		topology::base_ptr			m_topology;
