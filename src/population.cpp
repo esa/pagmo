@@ -474,14 +474,62 @@ std::vector<std::vector<population::size_type> > population::compute_pareto_fron
 	// Be sure to have actual information about pareto rank
 	population::update_pareto_information();
 
-	for (population::size_type idx = 0; idx < size(); ++idx) {
+    for (population::size_type idx = 0; idx < size(); ++idx) {
 		if (m_pareto_rank[idx] >= retval.size()) {
-			retval.resize(m_pareto_rank[idx] + 1);
+            retval.resize(m_pareto_rank[idx] + 1);
 		}
 		retval[m_pareto_rank[idx]].push_back(idx);
 	}
 
 	return retval;
+}
+
+/// Compute and return the ideal objective vector
+/**
+ * This method returns the ideal objective vector for the current optimal pareto set.
+ * The components of the ideal objective vector are defined as:
+ * \f[ z_i^{\mbox{ideal}} = \mbox{min}_{x \in X : x \mbox{ is Pareto Optimal}} f_i(x) \f]
+ *
+ * @return the ideal objective vector for the current optimal pareto set
+ */
+fitness_vector population::compute_ideal() const {
+    update_pareto_information();
+
+    fitness_vector ideal(m_champion.f);
+    for (population::size_type idx = 0; idx < size(); ++idx) {
+        if (m_pareto_rank[idx] == 0) { //it is in the first pareto front
+            for(fitness_vector::size_type i = 0; i < ideal.size(); ++i) {
+                if (m_container[idx].cur_f[i] < ideal[i]) {
+                    ideal[i] = m_container[idx].cur_f[i];
+                }
+            }
+        }
+    }
+    return ideal;
+}
+
+/// Compute and return the nadir objective vector
+/**
+ * This method returns the nadir objective vector for the current optimal pareto set.
+ * The components of the nadir objective vector are defined as:
+ * \f[ z_i^{\mbox{nadir}} = \mbox{max}_{x \in X : x \mbox{ is Pareto Optimal}} f_i(x) \f]
+ *
+ * @return the nadir objective vector for the current optimal pareto set
+ */
+fitness_vector population::compute_nadir() const {
+    update_pareto_information();
+
+    fitness_vector nadir(m_champion.f);
+    for (population::size_type idx = 0; idx < size(); ++idx) {
+        if (m_pareto_rank[idx] == 0) { //it is in the first pareto front
+            for(fitness_vector::size_type i = 0; i < nadir.size(); ++i) {
+                if (m_container[idx].cur_f[i] > nadir[i]) {
+                    nadir[i] = m_container[idx].cur_f[i];
+                }
+            }
+        }
+    }
+    return nadir;
 }
 
 /// Crowded comparison functor.

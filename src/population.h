@@ -201,6 +201,8 @@ class __PAGMO_VISIBLE population
 		void update_pareto_information() const;
 		size_type n_dominated(const individual_type &) const;
 		std::vector<std::vector<size_type> > compute_pareto_fronts() const;
+        fitness_vector compute_ideal() const;
+        fitness_vector compute_nadir() const;
 		
 		const problem::base &problem() const;
 		const champion_type &champion() const;
