@@ -35,11 +35,10 @@
 #include "../archipelago.h"
 #include "../island.h"
 #include "../population.h"
-#include "../topology/unconnected.h"
 #include "../topology/fully_connected.h"
-#include "../topology/ring.h"
 #include "../topology/custom.h"
 #include "../problem/decompose.h"
+#include "../util/discrepancy.h"
 #include "../migration/worst_r_policy.h"
 #include "../migration/best_s_policy.h"
 #include "../types.h"
@@ -56,22 +55,31 @@ namespace pagmo { namespace algorithm {
  * @param[in] method the decomposition method to use (Weighted, Tchebycheff or BI)
  * @param[in] solver the algorithm to solve the single objective problems.
  * @param[in] T the size of the population on each subproblem (must be an even number)
+ * @param[in] weight_generation the method to generate the weight vectors
  *
  * @throws value_error if gen is negative
  * @see pagmo::problem::decompose::method_type
  */
-pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method, const pagmo::algorithm::base & solver, population::size_type T):base(),m_gen(gen),m_max_parallelism(max_parallelism),m_method(method),m_solver(solver.clone()),m_T(T)
+pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method,
+           const pagmo::algorithm::base & solver, population::size_type T, weight_generation_type weight_generation)
+    :base(),m_gen(gen),m_max_parallelism(max_parallelism),
+      m_method(method),m_solver(solver.clone()),m_T(T),m_weight_generation(weight_generation)
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
+    //0 - Check whether method is implemented
+    if(m_weight_generation != RANDOM && m_weight_generation != GRID && m_weight_generation != LOW_DISCREPANCY) {
+        pagmo_throw(value_error,"non existing weight generation method");
+    }
     if (T % 2 != 0) {
         pagmo_throw(value_error,"T must be an even number");
     }
 }
 
 /// Copy constructor. Performs a deep copy.
-pade::pade(const pade &algo):base(algo), m_gen(algo.m_gen),m_max_parallelism(algo.m_max_parallelism),m_method(algo.m_method),m_solver(algo.m_solver->clone()),m_T(algo.m_T)
+pade::pade(const pade &algo):base(algo), m_gen(algo.m_gen),m_max_parallelism(algo.m_max_parallelism),
+    m_method(algo.m_method),m_solver(algo.m_solver->clone()),m_T(algo.m_T),m_weight_generation(algo.m_weight_generation)
 {}
 
 /// Clone method.
@@ -136,34 +144,58 @@ void pade::evolve(population &pop) const
 	//clear the current population
 	pop.clear();
 	
-    //select H
-    unsigned int H;
-    if (prob.get_f_dimension() == 2) {
-        H = NP-1;
-    } else if (prob.get_f_dimension() == 3) {
-        H = floor(0.5 * (sqrt(8*NP + 1) - 3));
-    } else { //Never tested for this case
-        H = 1;
-        while(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)) {
-            ++H;
-        }
-        H--;
-    }
 
     // Generate the weights
-	std::vector<unsigned int> range;
-    for (unsigned int i=0; i<H+1;++i) {
-		range.push_back(i);
-	}
-	std::vector<fitness_vector> weights;
-    double epsilon = 1E-6;
-    reksum(weights, range, prob.get_f_dimension(), H);
-	for(unsigned int i=0; i< weights.size(); ++i) {
-		for(unsigned int j=0; j< weights[i].size(); ++j) {
-            weights[i][j] += epsilon;  //to avoid to have any weight equal to zero
-            weights[i][j] /= H+epsilon*weights[i].size();
-		}
-	}
+    std::vector<fitness_vector> weights;
+    if(m_weight_generation == GRID) {
+        std::cout << "weight_generation = GRID" << std::endl;
+        //select H
+        unsigned int H;
+        if (prob.get_f_dimension() == 2) {
+            H = NP-1;
+        } else if (prob.get_f_dimension() == 3) {
+            H = floor(0.5 * (sqrt(8*NP + 1) - 3));
+        } else { //Never tested for this case
+            H = 1;
+            while(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)) {
+                ++H;
+            }
+            H--;
+        }
+        if (fabs(NP-(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1))) > 1E-8) {
+            std::cout << "pop size: " << NP << " -- should be "
+                      << boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
+                      << std::endl;
+            std::ostringstream error_message;
+            error_message << "Invalid population size. Select " << boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
+                    << " or " << boost::math::binomial_coefficient<double>(H+1+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
+                    << ".";
+            pagmo_throw(value_error,error_message.str());
+        }
+
+        // Generate the weights
+        std::vector<unsigned int> range;
+        for (unsigned int i=0; i<H+1;++i) {
+            range.push_back(i);
+        }
+        double epsilon = 1E-6;
+        reksum(weights, range, prob.get_f_dimension(), H);
+        for(unsigned int i=0; i< weights.size(); ++i) {
+            for(unsigned int j=0; j< weights[i].size(); ++j) {
+                weights[i][j] += epsilon;  //to avoid to have any weight equal to zero
+                weights[i][j] /= H+epsilon*weights[i].size();
+            }
+        }
+    } else if(m_weight_generation == LOW_DISCREPANCY) {
+        pagmo::util::discrepancy::simplex generator(prob.get_f_dimension(),0);
+        for(unsigned int i = 0; i <NP; ++i) {
+            weights.push_back(generator());
+        }
+    }
+
+    for(unsigned int i = 0 ; i < weights.size(); ++i) {
+        std::cout << weights[i] << std::endl;
+    }
 
     //Create the archipelago of NP islands
     //Each island in the archipelago solve a different single-objective problem
@@ -172,8 +204,15 @@ void pade::evolve(population &pop) const
     const pagmo::migration::worst_r_policy replacement_policy(m_T);
 
     for(pagmo::population::size_type i=0; i<NP;++i) {
-        pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i]);
-        pagmo::population decomposed_pop(decomposed_prob);
+       pagmo::problem::decompose *decomposed_prob;
+        if(m_weight_generation == RANDOM) {
+            decomposed_prob = new pagmo::problem::decompose(prob, m_method);
+        } else {
+            decomposed_prob = new pagmo::problem::decompose(prob, m_method,weights[i]);
+        }
+       // pagmo::problem::decompose decomposed_prob(prob, m_method, weights[i]);
+        pagmo::population decomposed_pop(*decomposed_prob);
+
 
         //Set the individuals of the new population as one individual of the original population plus T
         //neighbours individuals

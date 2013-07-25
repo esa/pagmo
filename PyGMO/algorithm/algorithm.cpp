@@ -223,8 +223,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<int, double, double, double, double> >());
 	
 	// PaDe
+	enum_<algorithm::pade::weight_generation_type>("_weight_generation")
+		.value("RANDOM", algorithm::pade::RANDOM)
+		.value("GRID", algorithm::pade::GRID)
+		.value("LOW_DISCREPANCY", algorithm::pade::LOW_DISCREPANCY);
 	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
-		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type> >());
+		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")

@@ -51,7 +51,8 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pade: public base
 {
 public:
-    pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED, const pagmo::algorithm::base & = pagmo::algorithm::jde(10), population::size_type = 8);
+    enum weight_generation_type {RANDOM=0, GRID=1, LOW_DISCREPANCY=2};
+    pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED, const pagmo::algorithm::base & = pagmo::algorithm::jde(10), population::size_type = 8, weight_generation_type = LOW_DISCREPANCY);
 	pade(const pade &);
 
 	base_ptr clone() const;
@@ -81,6 +82,7 @@ private:
 	pagmo::problem::decompose::method_type m_method;
 	base_ptr m_solver;
     population::size_type m_T;
+    weight_generation_type m_weight_generation;
 };
 
 }} //namespaces
