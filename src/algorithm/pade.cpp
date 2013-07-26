@@ -28,6 +28,7 @@
 #include <algorithm>
 
 #include <boost/math/special_functions/binomial.hpp>
+#include <boost/random/uniform_real.hpp>
 
 #include "../exceptions.h"
 #include "../population.h"
@@ -39,6 +40,7 @@
 #include "../topology/custom.h"
 #include "../problem/decompose.h"
 #include "../util/discrepancy.h"
+#include "../util/neighbourhood.h"
 #include "../migration/worst_r_policy.h"
 #include "../migration/best_s_policy.h"
 #include "../types.h"
@@ -147,6 +149,7 @@ void pade::evolve(population &pop) const
 
     // Generate the weights
     std::vector<fitness_vector> weights;
+
     if(m_weight_generation == GRID) {
         std::cout << "weight_generation = GRID" << std::endl;
         //select H
@@ -186,16 +189,44 @@ void pade::evolve(population &pop) const
                 weights[i][j] /= H+epsilon*weights[i].size();
             }
         }
+
     } else if(m_weight_generation == LOW_DISCREPANCY) {
         pagmo::util::discrepancy::simplex generator(prob.get_f_dimension(),0);
         for(unsigned int i = 0; i <NP; ++i) {
             weights.push_back(generator());
         }
+
+    } else if(m_weight_generation == RANDOM) {
+        for(unsigned int i = 0; i <NP; ++i) {
+            std::vector<double> new_weight = std::vector<double>((int)prob.get_f_dimension(), 0.0);
+            double sum = 0;
+            for(std::vector<double>::size_type i = 0; i < new_weight.size(); ++i) {
+                new_weight[i] = (1-sum) * (1 - pow(boost::uniform_real<double>(0,1)(m_drng), 1.0 / (new_weight.size() - i - 1)));
+                sum += new_weight[i];
+            }
+            weights.push_back(new_weight);
+        }
+
     }
 
-    for(unsigned int i = 0 ; i < weights.size(); ++i) {
-        std::cout << weights[i] << std::endl;
-    }
+    //Compute the neighours
+    std::vector<std::vector<int> > indices;
+    pagmo::util::neighbourhood::euclidian::compute_neighbours(indices, weights);
+
+    /* std::cout << "WEIGHTS:" << std::endl;
+     for(unsigned int i = 0 ; i < weights.size(); ++i) {
+         std::cout << weights[i] << std::endl;
+     }
+
+    std::cout << "INDICES:" << std::endl;
+    for(unsigned int i = 0 ; i < indices.size(); ++i) {
+        std::cout << "[";
+        for(unsigned int j = 0 ; j < indices[i].size(); ++j) {
+            std::cout << indices[i][j] << ", ";
+        }
+        std::cout << "]" << std::endl;
+    }*/
+
 
     //Create the archipelago of NP islands
     //Each island in the archipelago solve a different single-objective problem
@@ -204,28 +235,19 @@ void pade::evolve(population &pop) const
     const pagmo::migration::worst_r_policy replacement_policy(m_T);
 
     for(pagmo::population::size_type i=0; i<NP;++i) {
-       pagmo::problem::decompose *decomposed_prob;
-        if(m_weight_generation == RANDOM) {
-            decomposed_prob = new pagmo::problem::decompose(prob, m_method);
-        } else {
-            decomposed_prob = new pagmo::problem::decompose(prob, m_method,weights[i]);
-        }
-       // pagmo::problem::decompose decomposed_prob(prob, m_method, weights[i]);
-        pagmo::population decomposed_pop(*decomposed_prob);
+        pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i]);
+        pagmo::population decomposed_pop(decomposed_prob);
 
 
         //Set the individuals of the new population as one individual of the original population plus T
         //neighbours individuals
-        for(pagmo::population::size_type j=0; j<m_T+1;++j) {
-            if(m_T < NP) {
-                for(unsigned int j = 1; j <= m_T/2; ++j) {
-                    decomposed_pop.push_back(X[(i+j)%NP]);
-                    decomposed_pop.push_back(X[(i+(NP-j))%NP]);
-                }
-            } else { //complete topology
-                for(unsigned int j = 1 ; j < NP; ++j) {
-                    decomposed_pop.push_back(X[(i+j)%NP]);
-                }
+        if(m_T < NP) {
+            for(pagmo::population::size_type  j = 1; j <= m_T; ++j) {
+                decomposed_pop.push_back(X[indices[i][j]]);
+            }
+        } else { //complete topology
+            for(pagmo::population::size_type  j = 1 ; j < NP; ++j) {
+                decomposed_pop.push_back(X[(i+j)%NP]);
             }
         }
         arch.push_back(pagmo::island(*m_solver,decomposed_pop, 1.0, selection_policy, replacement_policy));
@@ -233,15 +255,14 @@ void pade::evolve(population &pop) const
 
     if(m_T >= NP) {
         arch.set_topology(topology::fully_connected());
-    } else { //Each island is connect to T/2 preceding it and T/2 following it
+    } else {
         topology::custom top;
         for(unsigned int i = 0; i < NP; ++i) {
             top.push_back();
         }
-        for(unsigned int i = 0; i < NP; ++i) {
-            for(unsigned int j = 1; j <= m_T/2; ++j) {
-                top.add_edge(i,(i+j)%NP);
-                top.add_edge(i,(i+(NP-j))%NP);
+        for(unsigned int i = 0; i < NP; ++i) { //connect each island with the T closest neighbours
+            for(unsigned int j = 1; j <= m_T; ++j) { //start from 1 to avoid to connect with itself
+                top.add_edge(i,indices[i][j]);
             }
         }
         arch.set_topology(top);

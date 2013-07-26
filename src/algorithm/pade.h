@@ -64,7 +64,8 @@ protected:
 
 private:
 	void reksum(std::vector<std::vector<double> > &, const std::vector<unsigned int>&, unsigned int, unsigned int, std::vector<double> = std::vector<double>() ) const;
-
+    void compute_neighbours(std::vector<std::vector<int> > &, const std::vector<std::vector <double> > &);
+    double distance(pagmo::fitness_vector , pagmo::fitness_vector);
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)

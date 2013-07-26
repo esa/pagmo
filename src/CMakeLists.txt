@@ -104,6 +104,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/racing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/discrepancy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/neighbourhood.cpp
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.
