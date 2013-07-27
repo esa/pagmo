@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import hypervolume, hv_algorithm
-from _util.hv_algorithm import lebmeasure, native2d, beume3d, wfg
+from _util.hv_algorithm import lebmeasure, native2d, beume3d, wfg, bf_approx
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -12,6 +12,7 @@ hv_algorithm.__doc__ = """Module containing available algorithms for the hypervo
 		hv_algorithm.native2d()
 		hv_algorithm.beume3d
 		hv_algorithm.wfg()
+		hv_algorithm.bf_approx()
 """
 
 class HypervolumeValidation:
@@ -39,7 +40,7 @@ class HypervolumeValidation:
 	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
 	# types of hypervolume algorithms
-	types_hv_algo = (native2d, beume3d, wfg, lebmeasure, )
+	types_hv_algo = (native2d, beume3d, wfg, lebmeasure, bf_approx)
 
 	# allowed types for the refernce point
 	types_rp = (list, tuple,)
@@ -286,3 +287,20 @@ def _wfg_ctor(self):
 	return self._original_init()
 wfg._original_init = wfg.__init__
 wfg.__init__ = _wfg_ctor
+
+def _bf_approx_ctor(self, eps = 1e-1, delta = 1e-4, gamma = 0.25):
+	"""
+	Hypervolume algorithm: Bringmann-Friedrich approximation.
+
+	USAGE:
+		hv = hypervolume(...) # see 'hypervolume?' for usage
+		refpoint = [1.0]*7
+		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.bf_approx())
+	"""
+	args = []
+	args.append(eps)
+	args.append(delta)
+	args.append(gamma)
+	return self._original_init(*args)
+bf_approx._original_init = bf_approx.__init__
+bf_approx.__init__ = _bf_approx_ctor

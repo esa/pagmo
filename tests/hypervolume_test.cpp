@@ -29,11 +29,6 @@
 #include <locale>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "../src/util/hypervolume.h"
-#include "../src/util/hv_algorithm/base.h"
-#include "../src/util/hv_algorithm/native2d.h"
-#include "../src/util/hv_algorithm/beume3d.h"
-#include "../src/util/hv_algorithm/lebmeasure.h"
-#include "../src/util/hv_algorithm/wfg.h"
 
 using namespace pagmo;
 
@@ -62,15 +57,17 @@ class hypervolume_test {
 			: m_input(input), m_output(output), m_test_type(test_type), m_eps(eps) {
 			// create correct algorithm object
 			if (method_name == "lebmeasure") {
-				m_method = util::hv_algorithm::base_ptr( new util::hv_algorithm::lebmeasure());
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::lebmeasure());
 			} else if (method_name == "native2d") {
-				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::native2d());
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::native2d());
 			} else if (method_name == "beume3d") {
-				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::beume3d());
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::beume3d());
 			} else if (method_name == "wfg") {
-				m_method =  util::hv_algorithm::base_ptr( new util::hv_algorithm::wfg());
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::wfg());
+			} else if (method_name == "bf_approx") {
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_approx());
 			} else {
-				output << "Unknown method (" << method_name << ") .. exiting";
+				output << "Unknown method (" << method_name << ") .. exiting\n";
 				exit(1);
 			}
 		}

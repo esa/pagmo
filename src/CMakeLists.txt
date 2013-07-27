@@ -107,6 +107,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/native2d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/beume3d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/wfg.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_approx.cpp
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.

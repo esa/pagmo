@@ -1,0 +1,136 @@
+/*****************************************************************************
+ *   Copyright (C) 2004-2013 The PaGMO development team,                     *
+ *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
+ *   http://apps.sourceforge.net/mediawiki/pagmo                             *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
+ *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Credits     *
+ *   act@esa.int                                                             *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 2 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
+
+#ifndef PAGMO_UTIL_HV_ALGORITHM_BF_APPROX_H
+#define PAGMO_UTIL_HV_ALGORITHM_BF_APPROX_H
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <iterator>
+#include "../../rng.h"
+
+#include "base.h"
+
+namespace pagmo { namespace util { namespace hv_algorithm {
+
+/// Bringmann-Friedrich approximation method
+/**
+ * This is the class containing the implementation of the Bringmann-Friedrich approximation method for the computation of the least contributor to the hypervolume.
+ *
+ * @see "Approximating the least hypervolume contributor: NP-hard in general, but fast in practice", Karl Bringmann, Tobias Friedrich.
+ *
+ * @author Krzysztof Nowak (kn@kiryx.net)
+ */
+class __PAGMO_VISIBLE bf_approx : public base {
+	public:
+
+		bf_approx(const bf_approx &orig);
+		bf_approx(const double eps = 1e-1, const double delta = 1e-4, const double gamma = 0.25, const double delta_multiplier=0.775, const double start_delta = 1e-1);
+
+		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
+		unsigned int least_contributor(const std::vector<fitness_vector> &, const fitness_vector &);
+
+		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+		base_ptr clone() const;
+		std::string get_name() const;
+
+	private:
+		inline double chernoff(const unsigned int, const unsigned int) const;
+		inline fitness_vector compute_bounding_box(const std::vector<fitness_vector> &, const fitness_vector &, const unsigned int) const;
+		inline int dom_cmp(const fitness_vector &, const fitness_vector &) const;
+		inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
+		inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
+
+		const double m_eps;
+		const double m_delta;
+		const double m_gamma;
+
+		mutable rng_double	m_drng;
+
+		// number of elementary operations performed for each point
+		std::vector<unsigned long long> m_no_ops;
+
+		// number of samples for given box
+		std::vector<unsigned long long> m_no_samples;
+
+		// number of "successful" samples that fell into the exclusive hypervolume
+		std::vector<unsigned long long> m_no_succ_samples;
+
+		// stores the indices of points that were not yet removed during the progress of the algorithm
+		std::vector<unsigned int> m_point_set;
+
+		// exact hypervolumes of the bounding boxes
+		std::vector<double> m_box_volume;
+	
+		// approximated exlusive hypervolume of each point
+		std::vector<double> m_approx_volume;
+	
+		// deltas computed for each point using chernoff inequality component
+		std::vector<double> m_point_delta;
+
+		// pair (boxes[idx], points[idx]) form a box in which monte carlo sampling is performed
+		std::vector<fitness_vector> m_boxes;
+
+		// list of indices of points that overlap the bounding box of each point
+		// during monte carlo sampling it suffices to check only these points when deciding whether the sampling was "successful"
+		std::vector<std::vector<unsigned int> > m_box_points;
+
+		// precomputed log factor for the point delta computation
+		double m_log_factor;
+
+		// multiplier of the round delta value
+		const double m_delta_multiplier;
+		const double m_start_delta;
+
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<double &>(m_eps);
+			ar & const_cast<double &>(m_delta);
+			ar & const_cast<double &>(m_gamma);
+			ar & m_drng;
+			ar & m_no_ops;
+			ar & m_no_samples;
+			ar & m_no_succ_samples;
+			ar & m_point_set;
+			ar & m_box_volume;
+			ar & m_approx_volume;
+			ar & m_point_delta;
+			ar & m_boxes;
+			ar & m_box_points;
+			ar & m_log_factor;
+			ar & const_cast<double &>(m_delta_multiplier);
+			ar & const_cast<double &>(m_start_delta);
+		}
+};
+
+} } }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::bf_approx);
+
+#endif

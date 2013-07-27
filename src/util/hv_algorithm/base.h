@@ -97,6 +97,7 @@ class __PAGMO_VISIBLE base
 		virtual ~base();
 	protected:
 		void assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+		double volume_between(const fitness_vector &, const fitness_vector &) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

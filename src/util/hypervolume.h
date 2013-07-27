@@ -33,6 +33,7 @@
 #include "hv_algorithm/native2d.h"
 #include "hv_algorithm/beume3d.h"
 #include "hv_algorithm/wfg.h"
+#include "hv_algorithm/bf_approx.h"
 
 namespace pagmo { namespace util {
 
