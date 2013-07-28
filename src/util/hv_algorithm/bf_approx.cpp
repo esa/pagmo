@@ -192,44 +192,14 @@ double bf_approx::chernoff(const unsigned int round_no, const unsigned int idx) 
 		);
 }
 
-/// dominance comparison
-/**
- * Establishes the domination relationship between two points.
- *
- * return 1 if 'a' IS DOMINATED BY 'b'
- * return 2 if 'a' DOMINATES 'b'
- * return 3 if 'a' IS EQUAL TO 'b'
- * return 4 otherwise
- */
-int bf_approx::dom_cmp(const fitness_vector &a, const fitness_vector &b) const {
-	for(fitness_vector::size_type i = 0; i < a.size() ; ++i) {
-		if (a[i] > b[i]) {
-			for(fitness_vector::size_type j = i + 1; j < a.size() ; ++j) {
-				if (a[j] < b[j]) {
-					return 4;
-				}
-			}
-			return 1;
-		}
-		else if (a[i] < b[i]) {
-			for(fitness_vector::size_type j = i + 1 ; j < a.size() ; ++j) {
-				if (a[j] > b[j]) {
-					return 4;
-				}
-			}
-			return 2;
-		}
-	}
-	return 3;
-}
-
+/// Determine whether point 'p' influences the volume of box (a, b)
 // return 0 - box (p, R) has no overlapping volume with box (a, b)
-// return 1 - box (p, R) overlaps some volume with the box (a,b)
-// return 2 - point p dominates the point a (in which case, contribution by box (a,b) is guaranteed to be 0)
-// return 3 - point p is equal to point a (in which case we remove one of them)
+// return 1 - box (p, R) overlaps some volume with the box (a, b)
+// return 2 - point p dominates the point a (in which case, contribution by box (a, b) is guaranteed to be 0)
+// return 3 - point p is equal to point a (box (a, b) also contributes 0 hypervolume)
 // R is reference point (implicit)
 int bf_approx::point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const { 
-	int cmp_a_p = dom_cmp(a, p);
+	int cmp_a_p = base::dom_cmp(a, p);
 
 	// point a is equal to point p (duplicate)
 	if (cmp_a_p == 3) {
@@ -237,7 +207,7 @@ int bf_approx::point_in_box(const fitness_vector &p, const fitness_vector &a, co
 	// point a is dominated by p (a is the least contributor)
 	} else if (cmp_a_p == 1) {
 		return 2;
-	} else if(dom_cmp(b, p) == 1) {
+	} else if(base::dom_cmp(b, p) == 1) {
 		return 1;
 	} else {
 		return 0;

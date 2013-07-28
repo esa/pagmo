@@ -53,8 +53,6 @@ class __PAGMO_VISIBLE wfg : public base {
 
 	private:
 		inline std::vector<fitness_vector> limitset(const std::vector<fitness_vector> &, const unsigned int) const;
-		inline double inclusive_hv(const fitness_vector &, const fitness_vector &) const;
-		inline int dom_cmp(const fitness_vector &, const fitness_vector &) const;
 		inline double exclusive_hv(const std::vector<fitness_vector> &, const unsigned int, const fitness_vector &) const;
 		inline double compute_hv(const std::vector<fitness_vector> &, const fitness_vector &) const;
 

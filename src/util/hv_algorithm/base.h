@@ -91,13 +91,61 @@ class __PAGMO_VISIBLE base
 		/**
 		 * @return pagmo::util::hv_algorithm::base_ptr to a copy of this.
 		 */
+		virtual base_ptr clone() const = 0;
 
 		virtual std::string get_name() const;
-		virtual base_ptr clone() const = 0;
 		virtual ~base();
 	protected:
 		void assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
-		double volume_between(const fitness_vector &, const fitness_vector &) const;
+
+		/// Compute volume between two points
+		/**
+		 * Calculates the volume between points a and b (as defined for n-dimensional Euclidean spaces).
+		 *
+		 * @param[in] a first point defining the hypercube
+		 * @param[in] b second point defining the hypercube
+		 *
+		 * @return volume of hypercube defined by points a and b
+		 */
+		inline double volume_between(const fitness_vector &a, const fitness_vector &b) const {
+			double volume = 1.0;
+			for (fitness_vector::size_type idx = 0; idx < a.size() ; ++idx) {
+				volume *= (a[idx] - b[idx]);
+			}
+			return (volume < 0 ? -volume : volume);
+		}
+
+		/// dominance comparison method
+		/**
+		 * Establishes the domination relationship between two points.
+		 *
+		 * return 1 if 'a' IS DOMINATED BY 'b'
+		 * return 2 if 'b' DOMINATES 'a'
+		 * return 3 if 'a' IS EQUAL TO 'b'
+		 * return 4 otherwise
+		 */
+		inline int dom_cmp(const fitness_vector &a, const fitness_vector &b) const {
+			for(fitness_vector::size_type i = 0; i < a.size() ; ++i) {
+				if (a[i] > b[i]) {
+					for(fitness_vector::size_type j = i + 1; j < a.size() ; ++j) {
+						if (a[j] < b[j]) {
+							return 4;
+						}
+					}
+					return 1;
+				}
+				else if (a[i] < b[i]) {
+					for(fitness_vector::size_type j = i + 1 ; j < a.size() ; ++j) {
+						if (a[j] > b[j]) {
+							return 4;
+						}
+					}
+					return 2;
+				}
+			}
+			return 3;
+		}
+
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

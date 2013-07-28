@@ -69,24 +69,6 @@ void base::assert_maximal_reference_point(const std::vector<fitness_vector> &poi
 	}
 }
 
-// Compute volume between two points
-/**
- * Calculates the volume between points a and b (as defined for n-dimensional Euclidean spaces).
- *
- * @param[in] a first point defining the hypercube
- * @param[in] b second point defining the hypercube
- *
- * @return volume of hypercube defined by points a and b
- */
-double base::volume_between(const fitness_vector &a, const fitness_vector &b) const {
-	pagmo_assert(a.size() == b.size());
-	pagmo_assert(a.size() >= 2);
-	double volume = 1.0;
-	for (fitness_vector::size_type idx = 0; idx < a.size() ; ++idx) {
-		volume *= (a[idx] - b[idx]);
-	}
-	return (volume < 0 ? -volume : volume);
-}
 
 /// Exclusive hypervolume method
 /**

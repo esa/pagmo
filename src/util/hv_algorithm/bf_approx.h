@@ -60,7 +60,6 @@ class __PAGMO_VISIBLE bf_approx : public base {
 	private:
 		inline double chernoff(const unsigned int, const unsigned int) const;
 		inline fitness_vector compute_bounding_box(const std::vector<fitness_vector> &, const fitness_vector &, const unsigned int) const;
-		inline int dom_cmp(const fitness_vector &, const fitness_vector &) const;
 		inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
 		inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
 

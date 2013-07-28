@@ -74,8 +74,8 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 
 		// check whether any point is dominating the point 's'
 		for(std::vector<fitness_vector>::size_type q_idx = 0; q_idx < q.size(); ++q_idx) {
-			cmp_results[q_idx] = dom_cmp(s,q[q_idx]);
-			if (cmp_results[q_idx] == -1){
+			cmp_results[q_idx] = base::dom_cmp(s,q[q_idx]);
+			if (cmp_results[q_idx] == 1){
 				keep_s = false;
 				break;
 			}
@@ -86,7 +86,7 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 			int cmp_index = 0;
 			// loop over points by iterator, but maintain the counter of previously stored comparison results
 			while(q_it != q.end()) {
-				if( cmp_results[cmp_index] == 1) {
+				if( cmp_results[cmp_index] == 2 || cmp_results[cmp_index] == 3) {
 					q_it = q.erase(q_it);
 				} else {
 					++q_it;
@@ -97,14 +97,6 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 		}
 	}
 	return q;
-}
-
-double wfg::inclusive_hv(const fitness_vector &p, const fitness_vector &r) const {
-	double total_hv = 1.0;
-	for(fitness_vector::size_type idx = 0 ; idx < p.size() ; ++idx) {
-		total_hv *= (r[idx] - p[idx]);
-	}
-	return fabs(total_hv);
 }
 
 double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_vector &r) const {
@@ -118,43 +110,13 @@ double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_
 double wfg::exclusive_hv(const std::vector<fitness_vector> &points, const unsigned int p_idx, const fitness_vector &r) const {
 	std::vector<fitness_vector> q = limitset(points, p_idx);
 
-	double hypervolume = inclusive_hv(points[p_idx], r);
+	double hypervolume = base::volume_between(points[p_idx], r);
 	if (q.size() == 1) {
-		hypervolume -= inclusive_hv(q[0],r);
+		hypervolume -= base::volume_between(q[0],r);
 	} else if (q.size() > 1) {
 		hypervolume -= compute_hv(q, r);
 	}
 	return hypervolume;
-}
-
-/// dominance comparison
-/** 
- * Establishes the relationship between two points.
- *
- * return -1 if 'a' IS DOMINATED BY 'b'
- * return 1 if ('a' DOMINATES 'b') or ('a' EQUAL TO 'b')
- * return 0 otherwise
- */
-int wfg::dom_cmp(const fitness_vector &a, const fitness_vector &b) const {
-	for(fitness_vector::size_type i = 0; i < a.size() ; ++i) {
-		if (a[i] > b[i]) {
-			for(fitness_vector::size_type j = i + 1; j < a.size() ; ++j) {
-				if (a[j] < b[j]) {
-					return 0;
-				}
-			}
-			return -1;
-		}
-		else if (a[i] < b[i]) {
-			for(fitness_vector::size_type j = i + 1 ; j < a.size() ; ++j) {
-				if (a[j] > b[j]) {
-					return 0;
-				}
-			}
-			return 1;
-		}
-	}
-	return 1;
 }
 
 // verify_before_compute
