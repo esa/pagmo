@@ -288,19 +288,34 @@ def _wfg_ctor(self):
 wfg._original_init = wfg.__init__
 wfg.__init__ = _wfg_ctor
 
-def _bf_approx_ctor(self, eps = 1e-1, delta = 1e-4, gamma = 0.25):
+def _bf_approx_ctor(self, trivial_subcase_size = 1, use_exact = True, eps = 1e-1, delta = 1e-4, gamma = 0.25, delta_multiplier = 0.775, initial_delta_coeff = 1e-1, alpha = 0.2):
 	"""
 	Hypervolume algorithm: Bringmann-Friedrich approximation.
+	It is suggested to alter only 'use_exact', 'eps' and 'delta' parameters.
+
+	REF: "Approximating the least hypervolume contributor: NP-hard in general, but fast in practice", Karl Bringmann, Tobias Friedrich.
 
 	USAGE:
+		* trivial_subcase_size - when the number of points overlapping the bounding box is smaller or equal to that argument, we compute the exlusive hypervolume exactly
+		* use_exact - should bf_approx use exact methods for computation
+		* eps - accuracy of approximation
+		* delta - confidence of approximation
+		* gamma - constant used for computation of delta for each of the points during the sampling
+		* delta_multiplier - factor with which delta diminishes each round
+		* initial_delta_coeff - initial coefficient multiplied by the delta at round 0
+		* alpha - coefficicient stating how accurately current lowest contributor should be sampled
 		hv = hypervolume(...) # see 'hypervolume?' for usage
 		refpoint = [1.0]*7
 		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.bf_approx())
 	"""
 	args = []
+	args.append(use_exact)
 	args.append(eps)
 	args.append(delta)
 	args.append(gamma)
+	args.append(delta_multiplier)
+	args.append(initial_delta_coeff)
+	args.append(alpha)
 	return self._original_init(*args)
 bf_approx._original_init = bf_approx.__init__
 bf_approx.__init__ = _bf_approx_ctor

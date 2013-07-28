@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include "../population.h"
 #include "hv_algorithm/base.h"
 #include "hv_algorithm/lebmeasure.h"
@@ -65,6 +66,8 @@ class __PAGMO_VISIBLE hypervolume
 
 		unsigned int least_contributor(const fitness_vector &, const hv_algorithm::base_ptr) const;
 		unsigned int least_contributor(const fitness_vector &) const;
+
+		static unsigned long long get_expected_operations(const unsigned int n, const unsigned int d);
 
 		fitness_vector get_nadir_point(const double epsilon = 1.0) const;
 

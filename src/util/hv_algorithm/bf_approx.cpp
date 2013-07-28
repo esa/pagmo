@@ -27,12 +27,11 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-bf_approx::bf_approx(const double eps, const double delta, const double gamma, const double delta_multiplier, const double initial_delta_coeff, const double alpha)
-	: m_eps(eps), m_delta(delta), m_gamma(gamma), m_delta_multiplier(delta_multiplier), m_initial_delta_coeff(initial_delta_coeff), m_alpha(alpha) { }
+bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double gamma, const double delta_multiplier, const double initial_delta_coeff, const double alpha)
+	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_gamma(gamma), m_delta_multiplier(delta_multiplier), m_initial_delta_coeff(initial_delta_coeff), m_alpha(alpha) { }
 
-bf_approx::bf_approx(const bf_approx &orig)
-	: m_eps(orig.m_eps), m_delta(orig.m_delta), m_gamma(orig.m_gamma), m_delta_multiplier(orig.m_delta_multiplier),
-	m_initial_delta_coeff(orig.m_initial_delta_coeff), m_alpha(orig.m_alpha) { }
+bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_trivial_subcase_size(orig.m_trivial_subcase_size), m_eps(orig.m_eps), m_delta(orig.m_delta), m_gamma(orig.m_gamma), 
+	m_delta_multiplier(orig.m_delta_multiplier), m_initial_delta_coeff(orig.m_initial_delta_coeff), m_alpha(orig.m_alpha) { }
 
 /// Least contributor method
 /**
@@ -47,7 +46,7 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 
 	m_no_samples = std::vector<unsigned long long>(points.size(), 0);
 	m_no_succ_samples = std::vector<unsigned long long>(points.size(), 0);
-	m_no_ops = std::vector<unsigned long long>(points.size(), 0);
+	m_no_ops = std::vector<unsigned long long>(points.size(), 1);
 	m_point_set = std::vector<unsigned int>(points.size(), 0);
 	m_box_volume = std::vector<double>(points.size(), 0.0);
 	m_approx_volume = std::vector<double>(points.size(), 0.0);
@@ -158,8 +157,47 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 	return LC;
 }
 
-/// performs a single sampling round for give point at index 'idx'
+/// performs a single round of sampling for given point at index 'idx'
 void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx ) {
+
+	if (m_use_exact) {
+
+		// if the sampling for given point was already resolved using exact method
+		if (m_no_ops[idx] == 0) {
+			return;
+		}
+		
+		// if the exact computation is trivial OR when the sampling takes too long in terms of elementary operations
+		if ( m_box_points[idx].size() <= m_trivial_subcase_size || m_no_ops[idx] >= hypervolume::get_expected_operations(m_box_points[idx].size(), points[0].size()) ) {
+			const std::vector<unsigned int> &bp = m_box_points[idx];
+			if (bp.size() == 0) {
+				m_approx_volume[idx] = m_box_volume[idx];
+			} else {
+
+				int f_dim = points[0].size();
+
+				const fitness_vector &p = points[idx];
+
+				std::vector<fitness_vector> sub_front(bp.size(), fitness_vector(f_dim, 0.0));
+
+				for(unsigned int p_idx = 0 ; p_idx < sub_front.size() ; ++p_idx) {
+					for(unsigned int d_idx = 0 ; d_idx < sub_front[0].size() ; ++d_idx) {
+						sub_front[p_idx][d_idx] = fmax( p[d_idx], points[bp[p_idx]][d_idx] );
+					}
+				}
+
+				const fitness_vector &refpoint = m_boxes[idx];
+				double hv = hypervolume(sub_front).compute(refpoint);
+				m_approx_volume[idx] = m_box_volume[idx] - hv;
+			}
+
+			m_point_delta[idx] = 0.0;
+			m_no_ops[idx] = 0;
+
+			return;
+		}
+	}
+	
 	double tmp = m_box_volume[idx] / delta;
 	double required_no_samples = 0.5 * ( (1. + m_gamma) * log( round ) + m_log_factor ) * tmp * tmp;
 

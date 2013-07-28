@@ -209,6 +209,22 @@ unsigned int hypervolume::least_contributor(const fitness_vector &r_point) const
 	return least_contributor(r_point, get_best_method(r_point));
 }
 
+/// get expected numer of operations
+/**
+ * Returns the expected average amount of elementary operations for given front size (n) and dimension size (d).
+ * As of yet it is relatively simple way of handling that.
+ *
+ */
+unsigned long long hypervolume::get_expected_operations(const unsigned int n, const unsigned int d) {
+	if (d == 2) {
+		return 2. * n * log(n);  // native2d
+	} else if (d == 3) {
+		return 3. * n * log(n);  // beume3d
+	} else {
+		return n * log(n) * pow(n,d/2);  // temporary complexity of hso, while we don't know good candiate for wfg yet
+	}
+}
+
 // calculate the nadir point
 /**
  * Calculates the nadir point, used as the reference point

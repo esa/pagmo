@@ -34,6 +34,8 @@
 
 #include "base.h"
 
+#include "../hypervolume.h"
+
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// Bringmann-Friedrich approximation method
@@ -48,7 +50,7 @@ class __PAGMO_VISIBLE bf_approx : public base {
 	public:
 
 		bf_approx(const bf_approx &orig);
-		bf_approx(const double eps = 1e-1, const double delta = 1e-4, const double gamma = 0.25, const double delta_multiplier = 0.775, const double initial_delta_coeff = 1e-1, const double m_alpha = 0.2);
+		bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double gamma = 0.25, const double delta_multiplier = 0.775, const double initial_delta_coeff = 1e-1, const double m_alpha = 0.2);
 
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int least_contributor(const std::vector<fitness_vector> &, const fitness_vector &);
@@ -63,6 +65,13 @@ class __PAGMO_VISIBLE bf_approx : public base {
 		inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
 		inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int);
 		inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
+
+		// flag stating whether BF approximation should use exact computation for some exclusive hypervolumes
+		const bool m_use_exact;
+		
+		// if the number of points overlapping the bounding box is small enough we can just compute that exactly
+		// following variable states the number of points for which we perform the optimization
+		const unsigned int m_trivial_subcase_size;
 
 		const double m_eps;
 		const double m_delta;
@@ -110,6 +119,7 @@ class __PAGMO_VISIBLE bf_approx : public base {
 		// alpha coefficient used for pushing on the sampling of the current least contributor
 		const double m_alpha;
 
+
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -132,6 +142,7 @@ class __PAGMO_VISIBLE bf_approx : public base {
 			ar & const_cast<double &>(m_delta_multiplier);
 			ar & const_cast<double &>(m_initial_delta_coeff);
 			ar & const_cast<double &>(m_alpha);
+			ar & const_cast<bool &>(m_use_exact);
 		}
 };
 
