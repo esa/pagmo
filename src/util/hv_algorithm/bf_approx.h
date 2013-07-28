@@ -48,7 +48,7 @@ class __PAGMO_VISIBLE bf_approx : public base {
 	public:
 
 		bf_approx(const bf_approx &orig);
-		bf_approx(const double eps = 1e-1, const double delta = 1e-4, const double gamma = 0.25, const double delta_multiplier=0.775, const double start_delta = 1e-1);
+		bf_approx(const double eps = 1e-1, const double delta = 1e-4, const double gamma = 0.25, const double delta_multiplier = 0.775, const double initial_delta_coeff = 1e-1, const double m_alpha = 0.2);
 
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int least_contributor(const std::vector<fitness_vector> &, const fitness_vector &);
@@ -61,6 +61,7 @@ class __PAGMO_VISIBLE bf_approx : public base {
 		inline double chernoff(const unsigned int, const unsigned int) const;
 		inline fitness_vector compute_bounding_box(const std::vector<fitness_vector> &, const fitness_vector &, const unsigned int) const;
 		inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
+		inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int);
 		inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
 
 		const double m_eps;
@@ -102,7 +103,12 @@ class __PAGMO_VISIBLE bf_approx : public base {
 
 		// multiplier of the round delta value
 		const double m_delta_multiplier;
-		const double m_start_delta;
+
+		// initial coefficient of the delta at round 0
+		const double m_initial_delta_coeff;
+
+		// alpha coefficient used for pushing on the sampling of the current least contributor
+		const double m_alpha;
 
 		friend class boost::serialization::access;
 		template <class Archive>
@@ -124,7 +130,8 @@ class __PAGMO_VISIBLE bf_approx : public base {
 			ar & m_box_points;
 			ar & m_log_factor;
 			ar & const_cast<double &>(m_delta_multiplier);
-			ar & const_cast<double &>(m_start_delta);
+			ar & const_cast<double &>(m_initial_delta_coeff);
+			ar & const_cast<double &>(m_alpha);
 		}
 };
 

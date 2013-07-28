@@ -27,11 +27,12 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-bf_approx::bf_approx(const double eps, const double delta, const double gamma, const double delta_multiplier, const double start_delta)
-	: m_eps(eps), m_delta(delta), m_gamma(gamma), m_delta_multiplier(delta_multiplier), m_start_delta(start_delta) { }
+bf_approx::bf_approx(const double eps, const double delta, const double gamma, const double delta_multiplier, const double initial_delta_coeff, const double alpha)
+	: m_eps(eps), m_delta(delta), m_gamma(gamma), m_delta_multiplier(delta_multiplier), m_initial_delta_coeff(initial_delta_coeff), m_alpha(alpha) { }
 
 bf_approx::bf_approx(const bf_approx &orig)
-	: m_eps(orig.m_eps), m_delta(orig.m_delta), m_gamma(orig.m_gamma), m_delta_multiplier(orig.m_delta_multiplier), m_start_delta(orig.m_start_delta) { }
+	: m_eps(orig.m_eps), m_delta(orig.m_delta), m_gamma(orig.m_gamma), m_delta_multiplier(orig.m_delta_multiplier),
+	m_initial_delta_coeff(orig.m_initial_delta_coeff), m_alpha(orig.m_alpha) { }
 
 /// Least contributor method
 /**
@@ -99,7 +100,7 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 	}
 
 	// decrease the initial maximum volume by a constant factor
-	r_delta *= m_start_delta;
+	r_delta *= m_initial_delta_coeff;
 
 	// Main loop
 	do {
@@ -108,21 +109,21 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 
 		for(unsigned int _i = 0 ; _i < m_point_set.size() ; ++_i) {
 			unsigned int idx = m_point_set[_i];
-			do {
-				++m_no_samples[idx];
-				if (sample_successful(points, idx)) {
-					++m_no_succ_samples[idx];
-				}
-				m_approx_volume[idx] = static_cast<double>(m_no_succ_samples[idx]) / static_cast<double>(m_no_samples[idx]) * m_box_volume[idx];
-				m_point_delta[idx] = chernoff(round_no, idx) * m_box_volume[idx];
-			} while (m_point_delta[idx] > r_delta);
+			sampling_round(points, r_delta , round_no, idx);
+		}
 
-			// update the least contributor
+		// sample the least contributor
+		sampling_round(points, m_alpha * r_delta , round_no, LC);
+
+		// find the new least contributor
+		for(unsigned int _i = 0 ; _i < m_point_set.size() ; ++_i) {
+			unsigned int idx = m_point_set[_i];
 			if(m_approx_volume[LC] > m_approx_volume[idx]) {
 				LC = idx;
 			}
 		}
 
+		// erase known non-least contributors
 		std::vector<unsigned int>::iterator it = m_point_set.begin();
 		while(it != m_point_set.end()) {
 			unsigned int idx = *it;
@@ -134,7 +135,7 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 			}
 		}
 
-
+		// check termination condidion
 		stop_condition = false;
 		if (m_point_set.size() <= 1) {
 			stop_condition = true;
@@ -152,10 +153,23 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 				}
 			}
 		}
-
 	} while (!stop_condition);
 
 	return LC;
+}
+
+/// performs a single sampling round for give point at index 'idx'
+void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx ) {
+	double tmp = m_box_volume[idx] / delta;
+	double required_no_samples = 0.5 * ( (1. + m_gamma) * log( round ) + m_log_factor ) * tmp * tmp;
+
+	for( ; m_no_samples[idx] == 0 || m_no_samples[idx] < required_no_samples; ++m_no_samples[idx] ) {
+		if (sample_successful(points, idx)) {
+			++m_no_succ_samples[idx];
+		}
+	}
+	m_approx_volume[idx] = static_cast<double>(m_no_succ_samples[idx]) / static_cast<double>(m_no_samples[idx]) * m_box_volume[idx];
+	m_point_delta[idx] = chernoff(round, idx) * m_box_volume[idx];
 }
 
 /// samples the bounding box and returns true if it fell into the exclusive hypervolume
@@ -183,7 +197,6 @@ bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, con
 	}
 	return true;
 }
-
 
 double bf_approx::chernoff(const unsigned int round_no, const unsigned int idx) const {
 	return sqrt(
