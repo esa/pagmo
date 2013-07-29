@@ -51,8 +51,8 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pade: public base
 {
 public:
-    enum weight_generation_type {RANDOM=0, GRID=1, LOW_DISCREPANCY=2};
-    pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED, const pagmo::algorithm::base & = pagmo::algorithm::jde(10), population::size_type = 8, weight_generation_type = LOW_DISCREPANCY);
+	enum weight_generation_type {RANDOM=0, GRID=1, LOW_DISCREPANCY=2};
+	pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED, const pagmo::algorithm::base & = pagmo::algorithm::jde(10), population::size_type = 8, weight_generation_type = LOW_DISCREPANCY);
 	pade(const pade &);
 
 	base_ptr clone() const;
@@ -64,26 +64,27 @@ protected:
 
 private:
 	void reksum(std::vector<std::vector<double> > &, const std::vector<unsigned int>&, unsigned int, unsigned int, std::vector<double> = std::vector<double>() ) const;
-    void compute_neighbours(std::vector<std::vector<int> > &, const std::vector<std::vector <double> > &);
-    double distance(pagmo::fitness_vector , pagmo::fitness_vector);
+	void compute_neighbours(std::vector<std::vector<int> > &, const std::vector<std::vector <double> > &);
+	double distance(pagmo::fitness_vector , pagmo::fitness_vector);
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
-		ar & m_max_parallelism;
-		ar & m_method;
-		ar & m_solver;
-        ar & m_T;
+		ar & const_cast<unsigned int &>(m_max_parallelism);
+		ar & const_cast<pagmo::problem::decompose::method_type &>(m_method);
+		ar & const_cast<base_ptr &>(m_solver);
+		ar & const_cast<population::size_type &>(m_T);
+		ar & const_cast<weight_generation_type &>(m_weight_generation);
 	}
 	//Number of generations
 	const int m_gen;
-	unsigned int m_max_parallelism;
-	pagmo::problem::decompose::method_type m_method;
-	base_ptr m_solver;
-    population::size_type m_T;
-    weight_generation_type m_weight_generation;
+	const unsigned int m_max_parallelism;
+	const pagmo::problem::decompose::method_type m_method;
+	const base_ptr m_solver;
+	const population::size_type m_T;
+	const weight_generation_type m_weight_generation;
 };
 
 }} //namespaces
