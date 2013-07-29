@@ -568,7 +568,9 @@ void archipelago::evolve(int n)
 /// Run the evolution for the given number of iterations in batches
 /**
  * Will iteratively call island::evolve(n) on batches of b islands of the archipelago and then return.
- * Each batch will wait 
+ * Each batch will wait to complete the n evolves before ending. It is typically called with n=1 as 
+ * for n>1 this set-up creates a strange effect on the migration flux (the first batch that evolves does not
+ * make use of the islands in the remaining batches)
  *
  * \param[in] n number of time each island will be evolved.
  * \param[in] b the size of the batch of islands to evolve at the same time.

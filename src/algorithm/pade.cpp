@@ -29,6 +29,7 @@
 
 #include <boost/math/special_functions/binomial.hpp>
 #include <boost/random/uniform_real.hpp>
+#include <boost/random/variate_generator.hpp>
 
 #include "../exceptions.h"
 #include "../population.h"
@@ -129,11 +130,19 @@ void pade::evolve(population &pop) const
 	if ( prob.get_f_dimension() < 2 ) {
 		pagmo_throw(value_error, "The problem is not multiobjective, try some other algorithm than PaDE");
 	}
+	
+	if ( m_T > NP-1 ) {
+		pagmo_throw(value_error, "Too many neighbours specified");
+	}
 
 	// Get out if there is nothing to do.
 	if (m_gen == 0) {
 		return;
 	}
+
+	// Definition of useful probability distributions
+	boost::uniform_real<double> uniform(0.0,1.0);
+	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > r_dist(m_drng,uniform);
 
 	decision_vector dummy(pop.get_individual(0).cur_x.size(),0); //used for initialisation purposes
 	std::vector<decision_vector> X(NP,dummy); //set of population chromosomes
@@ -149,19 +158,21 @@ void pade::evolve(population &pop) const
 	std::vector<fitness_vector> weights;
 
 	if(m_weight_generation == GRID) {
-		//select H
+		//find the largest H resulting in a population smaller or equal to NP
 		unsigned int H;
 		if (prob.get_f_dimension() == 2) {
 			H = NP-1;
 		} else if (prob.get_f_dimension() == 3) {
 			H = floor(0.5 * (sqrt(8*NP + 1) - 3));
-		} else { //Never tested for this case
+		} else { //Never tested for this case (BUGGY, CHECK. When dtlz(f_dim=4) is solved by pade on a dim 100)
 			H = 1;
 			while(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1) <= NP) {
 				++H;
 			}
 			H--;
 		}
+		
+		// We check that NP equals the population size rsulting from H
 		if (fabs(NP-(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1))) > 1E-8) {
 			std::cout << "pop size: " << NP << " -- should be "
 					  << boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
@@ -173,7 +184,7 @@ void pade::evolve(population &pop) const
 			pagmo_throw(value_error,error_message.str());
 		}
 
-		// Generate the weights
+		// We generate the weights
 		std::vector<unsigned int> range;
 		for (unsigned int i=0; i<H+1;++i) {
 			range.push_back(i);
@@ -194,75 +205,64 @@ void pade::evolve(population &pop) const
 		}
 
 	} else if(m_weight_generation == RANDOM) {
-		for(unsigned int i = 0; i <NP; ++i) {
-			std::vector<double> new_weight = std::vector<double>((int)prob.get_f_dimension(), 0.0);
-			double sum = 0;
-			for(std::vector<double>::size_type i = 0; i < new_weight.size(); ++i) {
-				new_weight[i] = (1-sum) * (1 - pow(boost::uniform_real<double>(0,1)(m_drng), 1.0 / (new_weight.size() - i - 1)));
-				sum += new_weight[i];
+		pagmo::util::discrepancy::project_2_simplex projection(prob.get_f_dimension());
+		for (unsigned int i = 0; i<NP; ++i) {
+			fitness_vector dummy(prob.get_f_dimension(),0.0);
+			for(unsigned int j = 0; j <prob.get_f_dimension(); ++j) {
+				dummy[j] = r_dist();
 			}
-			weights.push_back(new_weight);
+			weights.push_back(projection(dummy));
 		}
-
 	}
 
-	//Compute the neighours
+
+	// We then compute, for each weight vector, which ones are the closest ones (this will form the topology later on)
 	std::vector<std::vector<int> > indices;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(indices, weights);
 
-	/* std::cout << "WEIGHTS:" << std::endl;
-	 for(unsigned int i = 0 ; i < weights.size(); ++i) {
-		 std::cout << weights[i] << std::endl;
-	 }
-
-	std::cout << "INDICES:" << std::endl;
-	for(unsigned int i = 0 ; i < indices.size(); ++i) {
-		std::cout << "[";
-		for(unsigned int j = 0 ; j < indices[i].size(); ++j) {
-			std::cout << indices[i][j] << ", ";
-		}
-		std::cout << "]" << std::endl;
-	}*/
-
-
-	//Create the archipelago of NP islands
-	//Each island in the archipelago solve a different single-objective problem
+	// Create the archipelago of NP islands:
+	// each island in the archipelago solves a different single-objective problem.
+	// We use here the broadcast migration model. This will force, at each migration,
+	// to have individuals from all connected island to be inserted.
 	pagmo::archipelago arch(pagmo::archipelago::broadcast);
+	
+	// Best individual will be selected for migration
 	const pagmo::migration::best_s_policy  selection_policy;
+	
+	// As m_T neighbours are connected, we replace m_T individuals on the island
 	const pagmo::migration::worst_r_policy replacement_policy(m_T);
 
 	for(pagmo::population::size_type i=0; i<NP;++i) {
 		pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i]);
 		pagmo::population decomposed_pop(decomposed_prob);
 
-
-		//Set the individuals of the new population as one individual of the original population plus T
+		//Set the individuals of the new population as one individual of the original population plus m_T
 		//neighbours individuals
-		if(m_T < NP) {
-			for(pagmo::population::size_type  j = 1; j <= m_T; ++j) {
+		if(m_T < NP-1) {
+			for(pagmo::population::size_type  j = 0; j <= m_T; ++j) { 
 				decomposed_pop.push_back(X[indices[i][j]]);
 			}
 		} else { //complete topology
-			for(pagmo::population::size_type  j = 1 ; j < NP; ++j) {
-				decomposed_pop.push_back(X[(i+j)%NP]);
+			for(pagmo::population::size_type  j = 0 ; j < NP; ++j) {
+				decomposed_pop.push_back(X[j]);
 			}
 		}
 		arch.push_back(pagmo::island(*m_solver,decomposed_pop, 1.0, selection_policy, replacement_policy));
 	}
 
-	if(m_T >= NP) {
+	if(m_T >= NP-1) {
 		arch.set_topology(topology::fully_connected());
 	} else {
-		topology::custom top;
+		topology::custom topo;
 		for(unsigned int i = 0; i < NP; ++i) {
-			top.push_back();
+			topo.push_back();
 		}
 		for(unsigned int i = 0; i < NP; ++i) { //connect each island with the T closest neighbours
 			for(unsigned int j = 1; j <= m_T; ++j) { //start from 1 to avoid to connect with itself
-				top.add_edge(i,indices[i][j]);
+				topo.add_edge(i,indices[i][j]);
 			}
 		}
-		arch.set_topology(top);
+		arch.set_topology(topo);
 	}
 
 	//Evolve the archipelago for m_gen generations
@@ -298,6 +298,8 @@ std::string pade::human_readable_extra() const
 	s << "max_parallelism:" << m_max_parallelism << ' ';
 	s << "method:" << m_method << ' ';
 	s << "solver:" << m_solver << ' ';
+	s << "neighbours:" << m_T << ' ';
+	s << "weight generation method:" << m_weight_generation << ' ';
 	return s.str();
 }
 

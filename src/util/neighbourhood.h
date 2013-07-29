@@ -44,21 +44,21 @@ namespace neighbourhood {
 
 template<class T> class __PAGMO_VISIBLE sorter {
 public:
-    sorter(const std::vector<T> &v) : values(v) {}
-    bool operator()(int a, int b) { return values[a] < values[b]; }
+	sorter(const std::vector<T> &v) : values(v) {}
+	bool operator()(int a, int b) { return values[a] < values[b]; }
 private:
-    const std::vector<T> &values;
+	const std::vector<T> &values;
 };
 
 /// Sort according the the values in the values vector but return the permutation
 template<class T> std::vector<int> order(const std::vector<T> &values)
 {
-    std::vector<int> rv(values.size());
-    int idx = 0;
-    for (std::vector<int>::iterator i = rv.begin(); i != rv.end(); i++)
-        *i = idx++;
-    std::sort(rv.begin(), rv.end(), sorter<T>(values));
-    return rv;
+	std::vector<int> rv(values.size());
+	int idx = 0;
+	for (std::vector<int>::iterator i = rv.begin(); i != rv.end(); i++)
+		*i = idx++;
+	std::sort(rv.begin(), rv.end(), sorter<T>(values));
+	return rv;
 }
 
 /**
@@ -67,8 +67,8 @@ template<class T> std::vector<int> order(const std::vector<T> &values)
  */
 class __PAGMO_VISIBLE euclidian {
 public:
-    static void compute_neighbours(std::vector<std::vector<int> > &, const std::vector<std::vector<double> > &);
-    static double distance(const std::vector<double> &, const std::vector<double> &);
+	static void compute_neighbours(std::vector<std::vector<int> > &, const std::vector<std::vector<double> > &);
+	static double distance(const std::vector<double> &, const std::vector<double> &);
 };
 
 }}}

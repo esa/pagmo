@@ -18,13 +18,13 @@ namespace pagmo{ namespace util {namespace neighbourhood {
  * @param[in]  weights the vector of real vectors
  */
 void euclidian::compute_neighbours(std::vector<std::vector<int> > &retval, const std::vector<std::vector<double> > &weights) {
-    for(unsigned int i = 0; i < weights.size(); ++i) {
-        std::vector<double> distances;
-        for(unsigned int j = 0; j < weights.size(); ++j) {
-            distances.push_back(distance(weights[i],weights[j]));
-        }
-        retval.push_back(order(distances));
-    }
+	for(unsigned int i = 0; i < weights.size(); ++i) {
+		std::vector<double> distances;
+		for(unsigned int j = 0; j < weights.size(); ++j) {
+			distances.push_back(distance(weights[i],weights[j]));
+		}
+		retval.push_back(order(distances));
+	}
 }
 
 /**
@@ -34,11 +34,11 @@ void euclidian::compute_neighbours(std::vector<std::vector<int> > &retval, const
  * @return euclidian distance between the vectors
  */
 double euclidian::distance(const std::vector<double> &a, const std::vector<double> &b) {
-    double rtr = 0.0;
-    for(std::vector<double>::size_type i = 0; i < a.size(); ++i) {
-        rtr += pow(a[i]-b[i], 2);
-    }
-    return sqrt(rtr);
+	double rtr = 0.0;
+	for(std::vector<double>::size_type i = 0; i < a.size(); ++i) {
+		rtr += pow(a[i]-b[i], 2);
+	}
+	return sqrt(rtr);
 }
 
 }}} //namespaces
