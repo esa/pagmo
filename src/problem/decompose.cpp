@@ -103,6 +103,10 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 			pagmo_throw(value_error,"the the reference point vector must have equal length to the fitness size");
 		}
 	}
+
+	//Setting the bounds according to the original problem
+	set_lb(m_original_problem->get_lb());
+	set_ub(m_original_problem->get_ub());
 }
 
 /// Copy Constructor. Performs a deep copy
@@ -117,7 +121,7 @@ decompose::decompose(const decompose &p):
 		 m_method(p.m_method),
 		 m_weights(p.m_weights),
 		 m_z(p.m_z)
-		 {}
+		{set_lb(p.get_lb()); set_ub(p.get_ub());}
 
 /// Clone method.
 base_ptr decompose::clone() const
@@ -150,7 +154,7 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
         double d1 = 0.0;
         double weight_norm = 0.0;
         for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-            d1 += (m_z[i] - fit[i]) * m_weights[i];
+            d1 += (fit[i] - m_z[i]) * m_weights[i];
             weight_norm += pow(m_weights[i],2);
         }
         weight_norm = sqrt(weight_norm);
@@ -158,7 +162,7 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
         double d2 = 0.0;
         for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-            d2 += pow(fit[i] - (m_z[i] + d1*m_weights[i]), 2);
+            d2 += pow(fit[i] - (m_z[i] + d1*m_weights[i]/weight_norm), 2);
         }
         d2 = sqrt(d2);
 
