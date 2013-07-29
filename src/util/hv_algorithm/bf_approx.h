@@ -127,8 +127,13 @@ class __PAGMO_VISIBLE bf_approx : public base {
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<bool &>(m_use_exact);
+			ar & const_cast<unsigned int &>(m_trivial_subcase_size);
 			ar & const_cast<double &>(m_eps);
 			ar & const_cast<double &>(m_delta);
+			ar & const_cast<double &>(m_delta_multiplier);
+			ar & const_cast<double &>(m_alpha);
+			ar & const_cast<double &>(m_initial_delta_coeff);
 			ar & const_cast<double &>(m_gamma);
 			ar & m_drng;
 			ar & m_no_ops;
@@ -140,10 +145,6 @@ class __PAGMO_VISIBLE bf_approx : public base {
 			ar & m_point_delta;
 			ar & m_boxes;
 			ar & m_box_points;
-			ar & const_cast<double &>(m_delta_multiplier);
-			ar & const_cast<double &>(m_initial_delta_coeff);
-			ar & const_cast<double &>(m_alpha);
-			ar & const_cast<bool &>(m_use_exact);
 		}
 };
 

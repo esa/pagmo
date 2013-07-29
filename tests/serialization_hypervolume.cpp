@@ -30,6 +30,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include "../src/util/hypervolume.h"
+#include "../src/pagmo.h"
 
 using namespace pagmo;
 int main()
@@ -73,5 +74,32 @@ int main()
 			}
 		}
 	}
+
+	// implementation of the hypervolume algorithms
+	util::hv_algorithm::base_ptr bf = util::hv_algorithm::bf_approx(true, 99, 0.9, 0.99, 0.9, 0.9, 0.9, 0.9).clone();
+	util::hv_algorithm::base_ptr bf_new = util::hv_algorithm::bf_approx().clone();
+
+	problem::dtlz1 prob(10,7);
+
+	// save/load the object
+	{
+		std::ofstream ofs("test.ar");
+		boost::archive::text_oarchive oa(ofs);
+		oa & bf;
+	}
+	{
+		std::ifstream ifs("test.ar");
+		boost::archive::text_iarchive ia(ifs);
+		ia & bf_new;
+	}
+
+	util::hypervolume hv(boost::shared_ptr<population>(new population(prob, 100)));
+	fitness_vector nadir_p = hv.get_nadir_point(1.0);
+	unsigned int lc1 = hv.least_contributor(nadir_p, bf);
+	unsigned int lc2 = hv.least_contributor(nadir_p, bf_new);
+	if (lc1 != lc2) {
+		return 1;
+	}
+
 	return 0;
 }
