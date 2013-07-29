@@ -30,7 +30,6 @@
 #include <cmath>
 #include "../population.h"
 #include "hv_algorithm/base.h"
-#include "hv_algorithm/lebmeasure.h"
 #include "hv_algorithm/native2d.h"
 #include "hv_algorithm/beume3d.h"
 #include "hv_algorithm/wfg.h"
@@ -69,7 +68,7 @@ class __PAGMO_VISIBLE hypervolume
 
 		static unsigned long long get_expected_operations(const unsigned int n, const unsigned int d);
 
-		fitness_vector get_nadir_point(const double epsilon = 1.0) const;
+		fitness_vector get_nadir_point(const double epsilon = 0.0) const;
 
 		hypervolume_ptr clone() const;
 		const std::vector<fitness_vector> &get_points() const;

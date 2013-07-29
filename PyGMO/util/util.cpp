@@ -50,12 +50,12 @@ void expose_hv_algorithm() {
 	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
 		.def("compute", &util::hv_algorithm::base::compute)
 		.def("get_name", &util::hv_algorithm::base::get_name);
-	algorithm_wrapper<util::hv_algorithm::lebmeasure>("lebmeasure","LebMeasure algorithm.");
 	algorithm_wrapper<util::hv_algorithm::native2d>("native2d","Native2D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::beume3d>("beume3d","Beume3D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::wfg>("wfg","WFG algorithm.");
 
-	class_<util::hv_algorithm::bf_approx, bases<util::hv_algorithm::base> >("bf_approx","Bringmann-Friedrich approximated algorithm.", init<const double, const double, const double>());
+	class_<util::hv_algorithm::bf_approx, bases<util::hv_algorithm::base> >("bf_approx","Bringmann-Friedrich approximated algorithm.", 
+			init<const bool, const unsigned int, const double, const double, const double, const double, const double, const double>());
 }
 
 void expose_hypervolume() {

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import hypervolume, hv_algorithm
-from _util.hv_algorithm import lebmeasure, native2d, beume3d, wfg, bf_approx
+from _util.hv_algorithm import native2d, beume3d, wfg, bf_approx
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -8,7 +8,6 @@ __all__ = ['hypervolume', 'hv_algorithm']
 hv_algorithm.__doc__ = """Module containing available algorithms for the hypervolume computation
 
 	USAGE:
-		hv_algorithm.lebmeasure()
 		hv_algorithm.native2d()
 		hv_algorithm.beume3d
 		hv_algorithm.wfg()
@@ -40,7 +39,7 @@ class HypervolumeValidation:
 	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
 	# types of hypervolume algorithms
-	types_hv_algo = (native2d, beume3d, wfg, lebmeasure, bf_approx)
+	types_hv_algo = (native2d, beume3d, wfg, bf_approx)
 
 	# allowed types for the refernce point
 	types_rp = (list, tuple,)
@@ -190,12 +189,12 @@ def _hypervolume_least_contributor(self, r = None, algorithm = None, *args, **kw
 hypervolume._original_least_contributor = hypervolume.least_contributor
 hypervolume.least_contributor = _hypervolume_least_contributor
 
-def _hypervolume_get_nadir_point(self, eps = 1.0):
+def _hypervolume_get_nadir_point(self, eps = 0.0):
 	"""
 	Return Nadir point for given set of points.
 
 	USAGE:
-		hv.nadir_point(eps = 1.0)
+		hv.nadir_point(eps = 0.0)
 		* eps (optional) - value added to every objective in order to assert a strong dominance of reference point (1.0 by default).
 	"""
 	try:
@@ -250,25 +249,6 @@ def _beume3d_ctor(self):
 beume3d._original_init = beume3d.__init__
 beume3d.__init__ = _beume3d_ctor
 
-def _lebmeasure_ctor(self):
-	"""
-	Hypervolume algorithm: LebMeasure.
-	Computational complexity: O(n * 2^d) (very slow)
-	Applicable to hypervolume computation problems of dimension in [3, ..]
-
-	REF: "A new analysis of the LebMeasure Algorithm for Calculating Hypervolume", L. While.
-
-	USAGE:
-		hv = hypervolume(...) # see 'hypervolume?' for usage
-		refpoint = [1.0]*7
-		hv.compute(r=refpoint, algorithm=hv_algorithm.lebmeasure())
-		hv.exclusive(p_idx=13, r=refpoint, algorithm=hv_algorithm.lebmeasure())
-		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.lebmeasure())
-	"""
-	return self._original_init()
-lebmeasure._original_init = lebmeasure.__init__
-lebmeasure.__init__ = _lebmeasure_ctor
-
 def _wfg_ctor(self):
 	"""
 	Hypervolume algorithm: WFG.
@@ -288,7 +268,7 @@ def _wfg_ctor(self):
 wfg._original_init = wfg.__init__
 wfg.__init__ = _wfg_ctor
 
-def _bf_approx_ctor(self, trivial_subcase_size = 1, use_exact = True, eps = 1e-1, delta = 1e-4, gamma = 0.25, delta_multiplier = 0.775, initial_delta_coeff = 1e-1, alpha = 0.2):
+def _bf_approx_ctor(self, use_exact = True, trivial_subcase_size = 1, eps = 1e-1, delta = 1e-4, gamma = 0.25, delta_multiplier = 0.775, initial_delta_coeff = 1e-1, alpha = 0.2):
 	"""
 	Hypervolume algorithm: Bringmann-Friedrich approximation.
 	It is suggested to alter only 'use_exact', 'eps' and 'delta' parameters.
@@ -296,8 +276,8 @@ def _bf_approx_ctor(self, trivial_subcase_size = 1, use_exact = True, eps = 1e-1
 	REF: "Approximating the least hypervolume contributor: NP-hard in general, but fast in practice", Karl Bringmann, Tobias Friedrich.
 
 	USAGE:
-		* trivial_subcase_size - when the number of points overlapping the bounding box is smaller or equal to that argument, we compute the exlusive hypervolume exactly
 		* use_exact - should bf_approx use exact methods for computation
+		* trivial_subcase_size - when the number of points overlapping the bounding box is smaller or equal to that argument, we compute the exlusive hypervolume exactly
 		* eps - accuracy of approximation
 		* delta - confidence of approximation
 		* gamma - constant used for computation of delta for each of the points during the sampling
@@ -310,6 +290,7 @@ def _bf_approx_ctor(self, trivial_subcase_size = 1, use_exact = True, eps = 1e-1
 	"""
 	args = []
 	args.append(use_exact)
+	args.append(trivial_subcase_size)
 	args.append(eps)
 	args.append(delta)
 	args.append(gamma)

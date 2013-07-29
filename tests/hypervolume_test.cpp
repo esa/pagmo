@@ -56,9 +56,7 @@ class hypervolume_test {
 		hypervolume_test(std::istream &input, dual_stream &output, std::string test_type, std::string method_name, double eps)
 			: m_input(input), m_output(output), m_test_type(test_type), m_eps(eps) {
 			// create correct algorithm object
-			if (method_name == "lebmeasure") {
-				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::lebmeasure());
-			} else if (method_name == "native2d") {
+			if (method_name == "native2d") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::native2d());
 			} else if (method_name == "beume3d") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::beume3d());
