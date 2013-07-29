@@ -27,11 +27,32 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double gamma, const double delta_multiplier, const double initial_delta_coeff, const double alpha)
-	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_gamma(gamma), m_delta_multiplier(delta_multiplier), m_initial_delta_coeff(initial_delta_coeff), m_alpha(alpha) { }
+/// Constructor
+/*
+ * Constructs an instance of the algorithm
+ *
+ * @param[in] use_exact boolean flag stating whether algorithm is allowed to use exact computation for some sub problems
+ * @param[in] trivial_subcase_size size of the sub-front (points overlapping the bounding box) for which algorithm skips to the exact computation
+ * @param[in] eps accuracy of approximation
+ * @param[in] delta confidence of the approximation
+ * @param[in] gamma constant used for computation of delta for each of the points during the sampling
+ * @param[in] delta_multiplier factor with which delta diminishes each round
+ * @param[in] initial_delta_coeff initial coefficient multiplied by the delta at round 0
+ * @param[in] alpha coefficicient stating how accurately current lowest contributor should be sampled
+ */
+bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double gamma, 
+	const double delta_multiplier, const double initial_delta_coeff, const double alpha)
+	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_gamma(gamma), 
+	m_delta_multiplier(delta_multiplier), m_initial_delta_coeff(initial_delta_coeff), m_alpha(alpha) { }
 
-bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_trivial_subcase_size(orig.m_trivial_subcase_size), m_eps(orig.m_eps), m_delta(orig.m_delta), m_gamma(orig.m_gamma), 
-	m_delta_multiplier(orig.m_delta_multiplier), m_initial_delta_coeff(orig.m_initial_delta_coeff), m_alpha(orig.m_alpha) { }
+
+/// Copy constructor
+/*
+ * @param[in] orig instance of the bf_approx algorithm to be copied from
+ */
+bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_trivial_subcase_size(orig.m_trivial_subcase_size), m_eps(orig.m_eps), m_delta(orig.m_delta), 
+	m_gamma(orig.m_gamma), m_delta_multiplier(orig.m_delta_multiplier), m_initial_delta_coeff(orig.m_initial_delta_coeff), m_alpha(orig.m_alpha) { }
+
 
 /// Least contributor method
 /**
@@ -207,7 +228,7 @@ void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const 
 		}
 	}
 	m_approx_volume[idx] = static_cast<double>(m_no_succ_samples[idx]) / static_cast<double>(m_no_samples[idx]) * m_box_volume[idx];
-	m_point_delta[idx] = chernoff(round, idx) * m_box_volume[idx];
+	m_point_delta[idx] = compute_point_delta(round, idx) * m_box_volume[idx];
 }
 
 /// samples the bounding box and returns true if it fell into the exclusive hypervolume
@@ -236,7 +257,7 @@ bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, con
 	return true;
 }
 
-double bf_approx::chernoff(const unsigned int round_no, const unsigned int idx) const {
+double bf_approx::compute_point_delta(const unsigned int round_no, const unsigned int idx) const {
 	return sqrt(
 			0.5 * ((1. + m_gamma) * log(static_cast<double>(round_no)) + m_log_factor)
 			/ (static_cast<double>(m_no_samples[idx]))

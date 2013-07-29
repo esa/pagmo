@@ -64,7 +64,7 @@ double beume3d::compute(const std::vector<fitness_vector> &points, const fitness
 	for(std::vector<fitness_vector>::size_type idx = 1 ; idx < points_cpy.size() ; ++idx) {
 		p = T.insert(points_cpy[idx]);
 		q = (p);
-		++q; //set up q to be a successor of p
+		++q; //setup q to be a successor of p
 		if ( (*q)[1] <= (*p)[1] ) { // current point is dominated
 			T.erase(p); // disregard the point from further calculation
 		} else {

@@ -40,6 +40,9 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 /// Beume3D hypervolume algorithm class
 /**
  * This is the class containing the implementation of the Beume3D algorithm for computing hypervolume.
+ * The implementation uses std::multiset (which is based on red-black tree data structure) as a container for the sweeping front.
+ * Original implementation by Beume et. al uses AVL-tree. 
+ * The difference is insiginificant as the important characteristics (maintaining order, self-balancing) of both structures and the asymptotical times (O(log n) updates) are the same.
  *
  * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
  * Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
