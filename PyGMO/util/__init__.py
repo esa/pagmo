@@ -271,7 +271,9 @@ wfg.__init__ = _wfg_ctor
 def _bf_approx_ctor(self, use_exact = True, trivial_subcase_size = 1, eps = 1e-1, delta = 1e-4, gamma = 0.25, delta_multiplier = 0.775, initial_delta_coeff = 1e-1, alpha = 0.2):
 	"""
 	Hypervolume algorithm: Bringmann-Friedrich approximation.
-	It is suggested to alter only 'use_exact', 'eps' and 'delta' parameters.
+
+	Default values for the parameters of the algorithm were obtained from the shark implementation of the algorithm:
+		http://image.diku.dk/shark/doxygen_pages/html/_least_contributor_approximator_8hpp_source.html
 
 	REF: "Approximating the least hypervolume contributor: NP-hard in general, but fast in practice", Karl Bringmann, Tobias Friedrich.
 
@@ -288,15 +290,16 @@ def _bf_approx_ctor(self, use_exact = True, trivial_subcase_size = 1, eps = 1e-1
 		refpoint = [1.0]*7
 		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.bf_approx())
 	"""
+
 	args = []
 	args.append(use_exact)
 	args.append(trivial_subcase_size)
 	args.append(eps)
 	args.append(delta)
-	args.append(gamma)
 	args.append(delta_multiplier)
-	args.append(initial_delta_coeff)
 	args.append(alpha)
+	args.append(initial_delta_coeff)
+	args.append(gamma)
 	return self._original_init(*args)
 bf_approx._original_init = bf_approx.__init__
 bf_approx.__init__ = _bf_approx_ctor

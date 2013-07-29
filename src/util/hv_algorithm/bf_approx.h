@@ -41,6 +41,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 /// Bringmann-Friedrich approximation method
 /**
  * This is the class containing the implementation of the Bringmann-Friedrich approximation method for the computation of the least contributor to the hypervolume.
+ * Default values for the parameters of the algorithm were obtained from the shark implementation of the algorithm (http://image.diku.dk/shark/doxygen_pages/html/_least_contributor_approximator_8hpp_source.html)
  *
  * @see "Approximating the least hypervolume contributor: NP-hard in general, but fast in practice", Karl Bringmann, Tobias Friedrich.
  *
@@ -50,7 +51,7 @@ class __PAGMO_VISIBLE bf_approx : public base {
 	public:
 
 		bf_approx(const bf_approx &orig);
-		bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double gamma = 0.25, const double delta_multiplier = 0.775, const double initial_delta_coeff = 1e-1, const double m_alpha = 0.2);
+		bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 1e-1, const double gamma = 0.25);
 
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int least_contributor(const std::vector<fitness_vector> &, const fitness_vector &);
@@ -60,10 +61,10 @@ class __PAGMO_VISIBLE bf_approx : public base {
 		std::string get_name() const;
 
 	private:
-		inline double compute_point_delta(const unsigned int, const unsigned int) const;
+		inline double compute_point_delta(const unsigned int, const unsigned int, const double) const;
 		inline fitness_vector compute_bounding_box(const std::vector<fitness_vector> &, const fitness_vector &, const unsigned int) const;
 		inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
-		inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int);
+		inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int, const double);
 		inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
 
 		// flag stating whether BF approximation should use exact computation for some exclusive hypervolumes
@@ -73,8 +74,22 @@ class __PAGMO_VISIBLE bf_approx : public base {
 		// following variable states the number of points for which we perform the optimization
 		const unsigned int m_trivial_subcase_size;
 
+		// accuracy of the approximation
 		const double m_eps;
+
+		// confidence of the approximation 
 		const double m_delta;
+
+		// multiplier of the round delta value
+		const double m_delta_multiplier;
+
+		// alpha coefficient used for pushing on the sampling of the current least contributor
+		const double m_alpha;
+
+		// initial coefficient of the delta at round 0
+		const double m_initial_delta_coeff;
+
+		// constant used for the computation of point delta
 		const double m_gamma;
 
 		mutable rng_double	m_drng;
@@ -107,19 +122,6 @@ class __PAGMO_VISIBLE bf_approx : public base {
 		// during monte carlo sampling it suffices to check only these points when deciding whether the sampling was "successful"
 		std::vector<std::vector<unsigned int> > m_box_points;
 
-		// precomputed log factor for the point delta computation
-		double m_log_factor;
-
-		// multiplier of the round delta value
-		const double m_delta_multiplier;
-
-		// initial coefficient of the delta at round 0
-		const double m_initial_delta_coeff;
-
-		// alpha coefficient used for pushing on the sampling of the current least contributor
-		const double m_alpha;
-
-
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
@@ -138,7 +140,6 @@ class __PAGMO_VISIBLE bf_approx : public base {
 			ar & m_point_delta;
 			ar & m_boxes;
 			ar & m_box_points;
-			ar & m_log_factor;
 			ar & const_cast<double &>(m_delta_multiplier);
 			ar & const_cast<double &>(m_initial_delta_coeff);
 			ar & const_cast<double &>(m_alpha);

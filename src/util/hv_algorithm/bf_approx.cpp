@@ -40,10 +40,9 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  * @param[in] initial_delta_coeff initial coefficient multiplied by the delta at round 0
  * @param[in] alpha coefficicient stating how accurately current lowest contributor should be sampled
  */
-bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double gamma, 
-	const double delta_multiplier, const double initial_delta_coeff, const double alpha)
-	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_gamma(gamma), 
-	m_delta_multiplier(delta_multiplier), m_initial_delta_coeff(initial_delta_coeff), m_alpha(alpha) { }
+
+bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double delta_multiplier, const double alpha, const double initial_delta_coeff, const double gamma)
+	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_delta_multiplier(delta_multiplier), m_alpha(alpha), m_initial_delta_coeff(initial_delta_coeff), m_gamma(gamma) { }
 
 
 /// Copy constructor
@@ -51,7 +50,7 @@ bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_si
  * @param[in] orig instance of the bf_approx algorithm to be copied from
  */
 bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_trivial_subcase_size(orig.m_trivial_subcase_size), m_eps(orig.m_eps), m_delta(orig.m_delta), 
-	m_gamma(orig.m_gamma), m_delta_multiplier(orig.m_delta_multiplier), m_initial_delta_coeff(orig.m_initial_delta_coeff), m_alpha(orig.m_alpha) { }
+	m_delta_multiplier(orig.m_delta_multiplier), m_alpha(orig.m_alpha), m_initial_delta_coeff(orig.m_initial_delta_coeff), m_gamma(orig.m_gamma) { }
 
 
 /// Least contributor method
@@ -74,7 +73,9 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 	m_point_delta = std::vector<double>(points.size(), 0.0);
 	m_boxes = std::vector<fitness_vector>(points.size());
 	m_box_points = std::vector<std::vector<unsigned int> >(points.size());
-	m_log_factor = log (2. * points.size() * (1. + m_gamma) / (m_delta * m_gamma) );
+
+	// precomputed log factor for the point delta computation
+	const double log_factor = log (2. * points.size() * (1. + m_gamma) / (m_delta * m_gamma) );
 
 	// round counter
 	unsigned int round_no = 0;
@@ -129,11 +130,11 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 
 		for(unsigned int _i = 0 ; _i < m_point_set.size() ; ++_i) {
 			unsigned int idx = m_point_set[_i];
-			sampling_round(points, r_delta , round_no, idx);
+			sampling_round(points, r_delta , round_no, idx, log_factor);
 		}
 
 		// sample the least contributor
-		sampling_round(points, m_alpha * r_delta , round_no, LC);
+		sampling_round(points, m_alpha * r_delta , round_no, LC, log_factor);
 
 		// find the new least contributor
 		for(unsigned int _i = 0 ; _i < m_point_set.size() ; ++_i) {
@@ -179,7 +180,7 @@ unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &poi
 }
 
 /// performs a single round of sampling for given point at index 'idx'
-void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx ) {
+void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx, const double log_factor ) {
 
 	if (m_use_exact) {
 
@@ -220,15 +221,17 @@ void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const 
 	}
 	
 	double tmp = m_box_volume[idx] / delta;
-	double required_no_samples = 0.5 * ( (1. + m_gamma) * log( round ) + m_log_factor ) * tmp * tmp;
+	double required_no_samples = 0.5 * ( (1. + m_gamma) * log( round ) + log_factor ) * tmp * tmp;
 
-	for( ; m_no_samples[idx] == 0 || m_no_samples[idx] < required_no_samples; ++m_no_samples[idx] ) {
+	while(m_no_samples[idx] < required_no_samples) {
+		++m_no_samples[idx];
 		if (sample_successful(points, idx)) {
 			++m_no_succ_samples[idx];
 		}
 	}
+
 	m_approx_volume[idx] = static_cast<double>(m_no_succ_samples[idx]) / static_cast<double>(m_no_samples[idx]) * m_box_volume[idx];
-	m_point_delta[idx] = compute_point_delta(round, idx) * m_box_volume[idx];
+	m_point_delta[idx] = compute_point_delta(round, idx, log_factor) * m_box_volume[idx];
 }
 
 /// samples the bounding box and returns true if it fell into the exclusive hypervolume
@@ -241,15 +244,22 @@ bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, con
 	}
 
 	for(unsigned int i = 0 ; i < m_box_points[idx].size() ; ++i) {
+
+		// box_p is a point overlapping the bounding box volume
 		const fitness_vector &box_p = points[m_box_points[idx][i]];
+
+		// assume that box_p DOMINATES the random point and try to prove it otherwise below
 		bool dominates = true;
+
+		// increase the number of operations by the dimension size
 		m_no_ops[idx] += box_p.size() + 1;
 		for(unsigned int d_idx = 0 ; d_idx < box_p.size() ; ++d_idx) {
-			if(rnd_p[d_idx] < box_p[d_idx]) {
+			if(rnd_p[d_idx] < box_p[d_idx]) {  // box_p does not dominate rnd_p
 				dominates=false;
 				break;
 			}
 		}
+		// if the box_p dominated the rnd_p return the sample as false
 		if (dominates) {
 			return false;
 		}
@@ -257,9 +267,12 @@ bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, con
 	return true;
 }
 
-double bf_approx::compute_point_delta(const unsigned int round_no, const unsigned int idx) const {
+// compute delta for given point
+// uses chernoff inequality as it was proposed in the paper
+// the concrete method was taked from the shark implementation
+double bf_approx::compute_point_delta(const unsigned int round_no, const unsigned int idx, const double log_factor) const {
 	return sqrt(
-			0.5 * ((1. + m_gamma) * log(static_cast<double>(round_no)) + m_log_factor)
+			0.5 * ((1. + m_gamma) * log(static_cast<double>(round_no)) + log_factor)
 			/ (static_cast<double>(m_no_samples[idx]))
 		);
 }
