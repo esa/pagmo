@@ -42,12 +42,17 @@ namespace pagmo{ namespace util {
 */
 namespace racing{
 
+/// Racing mechanism for a population
+/**
+ * This class contains ...
+ */
 class __PAGMO_VISIBLE race_pop
 {
 public:
 
 	race_pop(const population&, unsigned int seed = 0);
 
+	// Main method containing all the juice
 	std::pair<std::vector<population::size_type>, unsigned int>  run(
 		const population::size_type n_final,
 		const unsigned int min_trials,
@@ -61,6 +66,10 @@ public:
 	void reset_cache();
 
 private:
+	// Helper methods to validate input data
+	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size);
+	void _validate_problem_stochastic(const problem::base& prob);
+	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size);
 
 	// Atoms of the cache
 	struct eval_data
@@ -70,9 +79,6 @@ private:
 		constraint_vector c;
 	};
 
-	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size);
-	void _validate_problem_stochastic(const problem::base& prob);
-	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size);
 	std::vector<population::size_type> construct_output_list(
 			const std::vector<racer_type>& racers,
 			const std::vector<population::size_type>& decided,
@@ -87,19 +93,16 @@ private:
 	bool cache_data_exist(unsigned int, unsigned int) const;
 	const eval_data &cache_get_entry(unsigned int, unsigned int) const;
 
-	racing_population m_pop;
-
 	// Seeding control
 	void generate_seeds(unsigned int);
 	unsigned int get_current_seed(unsigned int);
-
+	
+	// Data members
+	racing_population m_pop;
 	std::vector<unsigned int> m_seeds;
 	rng_uint32 m_seeder;
-
 	std::vector<std::vector<eval_data> > m_cache_data;
 };
-
-
 
 }}}
 
