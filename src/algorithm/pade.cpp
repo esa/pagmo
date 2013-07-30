@@ -59,30 +59,31 @@ namespace pagmo { namespace algorithm {
  * @param[in] solver the algorithm to solve the single objective problems.
  * @param[in] T the size of the population on each subproblem (must be an even number)
  * @param[in] weight_generation the method to generate the weight vectors (RANDOM, GRID or LOW-DISCREPANCY)
+ * @param[in] z the reference point used for decomposition (with Tchebycheff and BI)
  *
- * @throws value_error if gen is negative, weight_generation is not sane or T is odd
+ * @throws value_error if gen is negative, weight_generation is not sane
  * @see pagmo::problem::decompose::method_type
  */
 pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method,
-		   const pagmo::algorithm::base & solver, population::size_type T, weight_generation_type weight_generation)
+		   const pagmo::algorithm::base & solver, population::size_type T, weight_generation_type weight_generation,
+		   const fitness_vector &z)
 	:base(),m_gen(gen),m_max_parallelism(max_parallelism),
-	  m_method(method),m_solver(solver.clone()),m_T(T),m_weight_generation(weight_generation)
+	  m_method(method),m_solver(solver.clone()),m_T(T),m_weight_generation(weight_generation),m_z(z)
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
+
 	//0 - Check whether method is implemented
 	if(m_weight_generation != RANDOM && m_weight_generation != GRID && m_weight_generation != LOW_DISCREPANCY) {
 		pagmo_throw(value_error,"non existing weight generation method");
-	}
-	if (T % 2 != 0) {
-		pagmo_throw(value_error,"T must be an even number");
 	}
 }
 
 /// Copy constructor. Performs a deep copy. Necessary as a pointer to a base algorithm is here contained
 pade::pade(const pade &algo):base(algo), m_gen(algo.m_gen),m_max_parallelism(algo.m_max_parallelism),
-	m_method(algo.m_method),m_solver(algo.m_solver->clone()),m_T(algo.m_T),m_weight_generation(algo.m_weight_generation)
+	m_method(algo.m_method),m_solver(algo.m_solver->clone()),m_T(algo.m_T),
+	m_weight_generation(algo.m_weight_generation),m_z(algo.m_z)
 {}
 
 /// Clone method.
@@ -164,19 +165,17 @@ void pade::evolve(population &pop) const
 			H = NP-1;
 		} else if (prob.get_f_dimension() == 3) {
 			H = floor(0.5 * (sqrt(8*NP + 1) - 3));
-		} else { //Never tested for this case (BUGGY, CHECK. When dtlz(f_dim=4) is solved by pade on a dim 100)
+		} else {
+			std::cout << "Fitness dimension is " << prob.get_f_dimension() << std::endl;
 			H = 1;
 			while(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1) <= NP) {
 				++H;
 			}
 			H--;
 		}
-		
+
 		// We check that NP equals the population size rsulting from H
 		if (fabs(NP-(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1))) > 1E-8) {
-			std::cout << "pop size: " << NP << " -- should be "
-					  << boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
-					  << std::endl;
 			std::ostringstream error_message;
 			error_message << "Invalid population size. Select " << boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
 					<< " or " << boost::math::binomial_coefficient<double>(H+1+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
@@ -199,7 +198,7 @@ void pade::evolve(population &pop) const
 		}
 
 	} else if(m_weight_generation == LOW_DISCREPANCY) {
-		pagmo::util::discrepancy::simplex generator(prob.get_f_dimension(),0);
+		pagmo::util::discrepancy::simplex generator(prob.get_f_dimension(),1);
 		for(unsigned int i = 0; i <NP; ++i) {
 			weights.push_back(generator());
 		}
@@ -233,7 +232,7 @@ void pade::evolve(population &pop) const
 	const pagmo::migration::worst_r_policy replacement_policy(m_T);
 
 	for(pagmo::population::size_type i=0; i<NP;++i) {
-		pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i]);
+		pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i],m_z);
 		pagmo::population decomposed_pop(decomposed_prob);
 
 		//Set the individuals of the new population as one individual of the original population plus m_T
