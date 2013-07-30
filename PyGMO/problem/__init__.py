@@ -56,7 +56,7 @@ except:
 #Creating the list of problems
 def _get_problem_list():
 	from PyGMO import problem
-	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic)),dir(problem))]
+	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n =="base_stochastic" and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic)),dir(problem))]
 
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
 def _rastrigin_ctor(self,dim = 10):
@@ -232,7 +232,7 @@ def _kur_ctor(self,dim = 10):
 
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
-	USAGE: problem.kur()
+	USAGE: problem.kur(dim = 10)
 
 	* dim: problem dimension
 	"""
@@ -406,6 +406,7 @@ def _snopt_toyprob_ctor(self):
 
 	USAGE: problem.snopt_toyprob()
 	"""
+	arg_list=[]
 	self._orig_init(*arg_list)
 
 snopt_toyprob._orig_init = snopt_toyprob.__init__
