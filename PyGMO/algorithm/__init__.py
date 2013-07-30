@@ -335,7 +335,7 @@ nsga_II.__init__ = _nsga_II_ctor
 _algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
 _algorithm.pade.GRID = _algorithm._weight_generation.GRID
 _algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
-def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM):
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM, z = None):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
@@ -352,6 +352,7 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	* T: the size of the population on each subproblem (must be an even number)
 	* decomposition = the decomposition method to use (Weighted, Tchebycheff or BI)
 	* weights: the weight generation method
+	* z: the reference point (used with Tchebycheff and BI decomposition methods)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -361,6 +362,8 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	arg_list.append(solver)
 	arg_list.append(T)
 	arg_list.append(weights)
+	if z != None:
+		arg_list.append(z)
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
