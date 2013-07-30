@@ -3,12 +3,15 @@
 
 namespace pagmo { namespace util { namespace racing {
 
-/// Constructor of the racing object
+/// Constructor
 /**
+ * Construct a race_pop object from an external population and a seed. The seed
+ * will determine all racing conditions.
+ *
  * @param[in] pop population containing the individuals to race
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(const population& pop, unsigned int seed): m_pop(pop), m_seeder(seed), m_cache_data(pop.size())
+race_pop::race_pop(const population& pop, unsigned int seed): m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size())
 {
 }
 

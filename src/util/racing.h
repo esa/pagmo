@@ -35,10 +35,6 @@
 
 namespace pagmo{ namespace util {
 
-/// racing namespace.
-/**
- * Utilities for the racing mechanism.
-*/
 namespace racing{
 	
 ///Doxygen will ignore whatever is in //! @cond
