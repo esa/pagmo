@@ -25,7 +25,7 @@
 #ifndef PAGMO_PROBLEM_BASE_DTLZ_H
 #define PAGMO_PROBLEM_BASE_DTLZ_H
 
-#include "base.h"
+#include "base_unc_mo.h"
 #include "../serialization.h"
 
 namespace pagmo{ namespace problem {
@@ -50,31 +50,22 @@ namespace pagmo{ namespace problem {
  * 
  * @author Marcus Maertens (mmarcusx@gmail.com)
  */
-class __PAGMO_VISIBLE base_dtlz : public base
+class __PAGMO_VISIBLE base_dtlz : public base_unc_mo
 {
 	public:
 		base_dtlz(int, int);
-		double p_distance(const pagmo::population &) const;
 		/// Clone method.
-		/**
-		 * Provided that the derived problem implements properly the copy constructor, virtually all implementations of this method will
-		 * look like this:
-@verbatim
-return base_ptr(new derived_problem(*this));
-@endverbatim
-		 *
-		 * @return problem::base_ptr to a copy of this.
-		 */
 		virtual base_ptr clone() const = 0;
+	protected:
+		virtual double g_func(const decision_vector &) const = 0;
 	private:
+		double convergence_metric(const decision_vector &) const;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_unc_mo>(*this);
 		}
-	protected:
-		virtual double g_func(const decision_vector &) const;
 };
 
 }} //namespaces

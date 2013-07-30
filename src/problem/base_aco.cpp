@@ -32,7 +32,7 @@ namespace pagmo { namespace problem {
 	 * @param[in] nic inequality constraints dimension
 	 */
 	base_aco::base_aco(int n, int nc, int nic):base(n,n,1,nc,nic,0.){
-	};
+	}
 
 //the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
 void base_aco::set_heuristic_information_matrix() {

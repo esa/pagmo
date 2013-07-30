@@ -386,7 +386,7 @@ void archipelago::reevaluate_immigrants(std::vector<std::pair<population::size_t
 		isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
 		isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
 		// Set the best properties to the current ones. (TODO: maybe here one could
-		// reevaluate the old best in the new environment and keep it if still better than the 
+		// reevaluate the old best in the new environment and keep it if still better than the
 		// reevaluated current ...... discuss!! (Anche no, grazie!!)
 		tmp.best_x = tmp.cur_x;
 		tmp.best_f = tmp.cur_f;
@@ -477,7 +477,7 @@ void archipelago::pre_evolution(base_island &isl)
 			rec_history = isl.accept_immigrants(immigrants);
 			lock_type lock(m_migr_mutex);
 			// Record the migration history.
-			for (size_t i =0; i< rec_history.size(); ++i) { 
+			for (size_t i =0; i< rec_history.size(); ++i) {
 				m_migr_hist.push_back( boost::make_tuple(
 					rec_history[i].first,
 					rec_history[i].second,
@@ -565,6 +565,34 @@ void archipelago::evolve(int n)
 	}
 }
 
+/// Run the evolution for the given number of iterations in batches
+/**
+ * Will iteratively call island::evolve(n) on batches of b islands of the archipelago and then return.
+ * Each batch will wait to complete the n evolves before ending. It is typically called with n=1 as 
+ * for n>1 this set-up creates a strange effect on the migration flux (the first batch that evolves does not
+ * make use of the islands in the remaining batches)
+ *
+ * \param[in] n number of time each island will be evolved.
+ * \param[in] b the size of the batch of islands to evolve at the same time.
+ */
+void archipelago::evolve_batch(int n, unsigned int b)
+{
+	join();
+	for(size_type p = 0; p < m_container.size()/b + 1; ++p) {
+		if(p == m_container.size()/b) { //for the last batch of islands decrease the barrier
+			reset_barrier(m_container.size() - p*b);
+		} else {
+			reset_barrier(b);
+		}
+		for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
+			m_container[p*b+i]->evolve(n);
+		}
+		for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
+			m_container[p*b+i]->join();
+		}
+	}
+}
+
 /// Run the evolution for a minimum amount of time.
 /**
  * Will iteratively call island::evolve_t(n) on each island of the archipelago and then return.
@@ -611,7 +639,7 @@ void archipelago::interrupt()
 /// Island getter.
 /**
  * @param[in] idx index of the desired island.
- * 
+ *
  * @return a copy of the island at position idx.
  *
  * @throw index_error if idx is not less than the size of the archipelago.
@@ -679,7 +707,7 @@ std::string archipelago::dump_migr_history() const
 	join();
 	std::ostringstream oss;
 	for (migr_hist_type::const_iterator it = m_migr_hist.begin(); it != m_migr_hist.end(); ++it) {
-		oss << "(" << (*it).get<0>()  
+		oss << "(" << (*it).get<0>()
 			<< "," << (*it).get<1>()
 			<< "," << (*it).get<2>() << ")"
 			<< '\n';

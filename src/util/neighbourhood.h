@@ -22,56 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#ifndef PAGMO_UTIL_NEIGHBOURHOOD_H
+#define PAGMO_UTIL_NEIGHBOURHOOD_H
+
 #include <iostream>
-#include <iomanip>
-#include "src/pagmo.h"
+#include <vector>
+#include <math.h>
+#include <algorithm>
+#include <boost/shared_ptr.hpp>
 
-using namespace pagmo;
+#include "../config.h"
+#include "../exceptions.h"
 
-// Example in C++ of the use of PaGMO 1.1.4
+namespace pagmo{ namespace util {
 
-int main()
+/**
+ * Utilities to build a neighbourhood graph given some vectors
+ *
+*/
+namespace neighbourhood {
+
+template<class T> class __PAGMO_VISIBLE sorter {
+public:
+	sorter(const std::vector<T> &v) : values(v) {}
+	bool operator()(int a, int b) { return values[a] < values[b]; }
+private:
+	const std::vector<T> &values;
+};
+
+/// Sort according the the values in the values vector but return the permutation
+template<class T> std::vector<int> order(const std::vector<T> &values)
 {
-    /*
-	pagmo::problem::zdt1 orig_prob(10);
-
-	std::vector<double> weights(2,0.5);
-	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
-
-	pagmo::algorithm::jde alg(50);
-
-	std::cout << alg << std::endl;
-	std::cout << orig_prob << std::endl;
-	std::cout << decomposed_problem << std::endl;
-
-	pagmo::island isl = island(alg, decomposed_problem, 100);
-	pagmo::population original_problem_pop = population(orig_prob, 1);
-
-    for (size_t i = 0; i< 10; ++i){
-	    isl.evolve(1);
-	    original_problem_pop.set_x(0, isl.get_population().champion().x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
-	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
-	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
-	}
-	return 0;
-    */
-    pagmo::problem::zdt1 prob(10);
-    pagmo::algorithm::pade alg(10000);
-
-    std::cout << alg << std::endl;
-    std::cout << prob << std::endl;
-
-    pagmo::island isl = island(alg, prob, 8);
-
-    for (size_t i = 0; i<10; ++i){
-        isl.evolve(1);
-        std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
-        //std::cout << "Original fitness: " << isl.get_population() << std::endl;
-        //std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
-    }
-    std::cout << "Finished" << std::endl;
-    return 0;
+	std::vector<int> rv(values.size());
+	int idx = 0;
+	for (std::vector<int>::iterator i = rv.begin(); i != rv.end(); i++)
+		*i = idx++;
+	std::sort(rv.begin(), rv.end(), sorter<T>(values));
+	return rv;
 }
+
+/**
+ * Build a neighbourhood graph for vectors of real numbers using the euclidian distance
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ */
+class __PAGMO_VISIBLE euclidian {
+public:
+	static void compute_neighbours(std::vector<std::vector<int> > &, const std::vector<std::vector<double> > &);
+	static double distance(const std::vector<double> &, const std::vector<double> &);
+};
+
+}}}
+
+#endif

@@ -5,9 +5,11 @@ from _base import base
 from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
+import sys
 
 from ..util import HypervolumeValidation
 
+from PyGMO.problem import decompose
 
 _base = _algorithm._base
 
@@ -312,7 +314,7 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""
 	Constructs a Non-dominated Sorting Genetic Algorithm (NSGA_II)
 	
-	USAGE: algorithm.nsga__II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+	USAGE: algorithm.nsga_II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
   
 	* gen: number of generations
 	* cr: crossover factor [0,1[
@@ -360,6 +362,39 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 	self._orig_init(*arg_list)
 sms_emoa._orig_init = sms_emoa.__init__
 sms_emoa.__init__ = _sms_emoa_ctor
+
+_algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
+_algorithm.pade.GRID = _algorithm._weight_generation.GRID
+_algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM):
+	"""
+	Constructs a Parallel Decomposition Algorithm (PaDe).
+	
+	For each element of the population a different single objective problem is generated using a decomposition method.
+	Those single-objective problems are thus solved in an island model.
+	At the end of the evolution the population is set as the best individual in each single-objective island.
+	This algorithm, original with PaGMO, builds upon the MOEA/D framework
+	
+	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM)
+
+	* gen: number of generations
+	* max_parallelism: the maximum number of single-objective problems to solve at the same time
+	* solver: the algorithm to use to solve the single-objective problems
+	* T: the size of the population on each subproblem (must be an even number)
+	* decomposition = the decomposition method to use (Weighted, Tchebycheff or BI)
+	* weights: the weight generation method
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(max_parallelism)
+	arg_list.append(decomposition)
+	arg_list.append(solver)
+	arg_list.append(T)
+	arg_list.append(weights)
+	self._orig_init(*arg_list)
+pade._orig_init = pade.__init__
+pade.__init__ = _pade_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""

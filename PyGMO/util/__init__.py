@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _util import hypervolume, hv_algorithm
+from _util import *
 from _util.hv_algorithm import native2d, beume3d, wfg, bf_approx
 from ..core._core import population
 

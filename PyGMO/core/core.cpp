@@ -238,6 +238,7 @@ struct __PAGMO_VISIBLE archipelago_pickle_suite : boost::python::pickle_suite
 // Instantiate the core module.
 BOOST_PYTHON_MODULE(_core)
 {
+
 	common_module_init();
 	typedef boost::array<double,2> array2D;
 	//Register std converters to lists if not already registered by some other module
@@ -261,7 +262,7 @@ BOOST_PYTHON_MODULE(_core)
 	typedef std::vector<population::size_type> (population::*get_best_N_idx)(const population::size_type& N) const;
 
 
-	class_<population>("population", "Population class.", init<const problem::base &,optional<int> >())
+	class_<population>("population", "Population class.", init<const problem::base &,optional<int, boost::uint32_t> >())
 		.def(init<const population &>())
 		.def("__copy__", &Py_copy_from_ctor<population>)
 		.def("__deepcopy__", &Py_deepcopy_from_ctor<population>)
@@ -272,7 +273,8 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("_problem_reference",make_function(&population::problem,return_value_policy<reference_existing_object>()))
 		.add_property("champion",make_function(&population::champion,return_value_policy<copy_const_reference>()))
 		.def("get_domination_list",&population::get_domination_list,return_value_policy<copy_const_reference>(), "Get the domination list for an indivdual")
-		.def("get_domination_count",&population::get_domination_count, "Get the domination count for an indivdual")
+		.def("compute_nadir",&population::compute_nadir, "Get the nadir objective vector")
+		.def("compute_ideal",&population::compute_ideal, "Get the ideal objective vector")
 		.def("compute_pareto_fronts",&population::compute_pareto_fronts, "Computes all Pareto fronts")
 //		.def("get_crowding_d",&population::get_crowding_d, "returns crowding distance")
 //		.def("update_pareto_information",&population::update_pareto_information, "updates crowding distance and front informations")
@@ -284,6 +286,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("push_back", &population::push_back,"Append individual with given decision vector at the end of the population.")
 		.def("erase", &population::erase, "Erase individual at position")
 		.def("mean_velocity", &population::mean_velocity, "Calculates the mean velocity across particles")
+		.def("race", &population::race, "Race the individuals")
 		.def("cpp_loads", &py_cpp_loads<population>)
 		.def("cpp_dumps", &py_cpp_dumps<population>)
 		.def_pickle(population_pickle_suite());
@@ -368,6 +371,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("__setitem__", &archipelago_set_island)
 		.def("get_islands", &archipelago::get_islands)
 		.def("evolve", &archipelago::evolve,"Evolve archipelago *n* times.",boost::python::args("n"))
+		.def("evolve_batch", &archipelago::evolve_batch,"Evolve archipelago *n* times in batches of *b* islands.",boost::python::args("n","b"))
 		.def("evolve_t", &archipelago::evolve_t,"Evolve archipelago for at least *n* milliseconds.",boost::python::args("n"))
 		.def("join", &archipelago::join,"Wait for evolution to complete.")
 		.def("interrupt", &archipelago::interrupt,"Interrupt evolution.")

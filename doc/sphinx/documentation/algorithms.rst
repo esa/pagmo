@@ -25,6 +25,7 @@ Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                 
 (N+1)-EA Evol. Algorithm (SEA)     :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
 Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
 S-Metric Selection EMOA (SMS-EMOA  :class:`PyGMO.algorithm.sms_emoa`              C-U-M      Relies on the hypervolume computation.
+Parallel Decomposition (PADE)      :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition
 Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
 Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
 Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
@@ -144,6 +145,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.sms_emoa
 
    .. automethod:: PyGMO.algorithm.sms_emoa.__init__
+
+.. autoclass:: PyGMO.algorithm.pade
+
+   .. automethod:: PyGMO.algorithm.pade.__init__
 
 .. autoclass:: PyGMO.algorithm.sa_corana
 

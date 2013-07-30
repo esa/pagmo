@@ -25,7 +25,7 @@ import core, algorithm, migration, problem, topology, test, util
 from util import hypervolume, hv_algorithm
 
 __doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
-__all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test', 'hypervolume', 'hv_algorithm']
+__all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test', 'util', 'hypervolume', 'hv_algorithm']
 __version__ = '1.1.5'
 
 # For convenience, bring all core classes into the root namespace when importing *.

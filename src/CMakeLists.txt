@@ -26,6 +26,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
@@ -36,6 +37,10 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/worst_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_unc_mo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/griewank.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/levy5.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/lennard_jones.cpp
@@ -62,9 +67,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp
@@ -107,6 +109,9 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/beume3d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/wfg.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_approx.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/racing.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/discrepancy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/neighbourhood.cpp
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.

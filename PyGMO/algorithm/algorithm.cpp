@@ -221,6 +221,14 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// NSGA II
 	algorithm_wrapper<algorithm::nsga2>("nsga_II", "The NSGA-II algorithm")
 		.def(init<optional<int, double, double, double, double> >());
+	
+	// PaDe
+	enum_<algorithm::pade::weight_generation_type>("_weight_generation")
+		.value("RANDOM", algorithm::pade::RANDOM)
+		.value("GRID", algorithm::pade::GRID)
+		.value("LOW_DISCREPANCY", algorithm::pade::LOW_DISCREPANCY);
+	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
+		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type> >());
 
 	// SMS-EMOA
 	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")

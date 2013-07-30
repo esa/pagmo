@@ -31,10 +31,47 @@
 #include <boost/utility.hpp>
 
 #include "../../src/util/hypervolume.h"
+#include"../../src/util/discrepancy.h"
 #include "../utils.h"
 
 using namespace boost::python;
 using namespace pagmo;
+using namespace pagmo::util;
+
+namespace pagmo {namespace util{ namespace discrepancy{
+
+
+class __PAGMO_VISIBLE py_simplex
+{
+	public:
+		py_simplex(unsigned int dim, unsigned int count) : m_original_class(dim,count) {}
+		std::vector<double> operator ()() {return m_original_class();}
+		std::vector<double> operator ()(unsigned int n) {return m_original_class(n);}
+	private:
+		pagmo::util::discrepancy::simplex m_original_class;
+};
+
+class __PAGMO_VISIBLE py_halton
+{
+	public:
+		py_halton(unsigned int dim, unsigned int count) : m_original_class(dim,count) {}
+		std::vector<double> operator ()() {return m_original_class();}
+		std::vector<double> operator ()(unsigned int n) {return m_original_class(n);}
+	private:
+		pagmo::util::discrepancy::halton m_original_class;
+};
+
+class __PAGMO_VISIBLE py_faure
+{
+	public:
+		py_faure(unsigned int dim, unsigned int count) : m_original_class(dim,count) {}
+		std::vector<double> operator ()() {return m_original_class();}
+		std::vector<double> operator ()(unsigned int n) {return m_original_class(n);}
+	private:
+		pagmo::util::discrepancy::faure m_original_class;
+};
+
+}}}
 
 template <class HVAlgorithm>
 static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
@@ -84,6 +121,24 @@ void expose_hypervolume() {
 BOOST_PYTHON_MODULE(_util) {
 	common_module_init();
 
+	typedef std::vector<double> (discrepancy::py_simplex::*my_first_overload)() ;
+	typedef std::vector<double> (discrepancy::py_simplex::*my_second_overload)(unsigned int) ;
+	class_<discrepancy::py_simplex>("simplex", init<unsigned int , unsigned int>())
+		.def("next", my_first_overload(&discrepancy::py_simplex::operator()))
+		.def("next", my_second_overload(&discrepancy::py_simplex::operator()));
+		
+	typedef std::vector<double> (discrepancy::py_halton::*my_first_overload_h)() ;
+	typedef std::vector<double> (discrepancy::py_halton::*my_second_overload_h)(unsigned int) ;
+	class_<discrepancy::py_halton>("halton", init<unsigned int , unsigned int>())
+		.def("next", my_first_overload_h(&discrepancy::py_halton::operator()))
+		.def("next", my_second_overload_h(&discrepancy::py_halton::operator()));
+
+	typedef std::vector<double> (discrepancy::py_faure::*my_first_overload_f)() ;
+	typedef std::vector<double> (discrepancy::py_faure::*my_second_overload_f)(unsigned int) ;
+	class_<discrepancy::py_faure>("faure", init<unsigned int , unsigned int>())
+		.def("next", my_first_overload_f(&discrepancy::py_faure::operator()))
+		.def("next", my_second_overload_f(&discrepancy::py_faure::operator()));
+
 	expose_hypervolume();
 
 	scope current;
@@ -94,5 +149,4 @@ BOOST_PYTHON_MODULE(_util) {
 	current.attr("hv_algorithm") = submodule;
 	scope submoduleScope = submodule;
 	expose_hv_algorithm();
-
 }

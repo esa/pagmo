@@ -50,7 +50,7 @@ namespace pagmo { namespace problem {
  * @see problem::base_stochastic constructors.
  */
 
-noisy::noisy(const base & p, unsigned int trials, const double param_first, const double param_second, noise_distribution::type noise_type, unsigned int seed):
+noisy::noisy(const base & p, unsigned int trials, const double param_first, const double param_second, noise_type noise_type_, unsigned int seed):
 	base_stochastic((int)p.get_dimension(),
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
@@ -64,10 +64,10 @@ noisy::noisy(const base & p, unsigned int trials, const double param_first, cons
 	m_decision_vector_hash(),
 	m_param_first(param_first),
 	m_param_second(param_second),
-	m_noise_type(noise_type)
+	m_noise_type(noise_type_)
 {
-	if(noise_type == noise_distribution::UNIFORM && param_first > param_second){
-		pagmo_throw(value_error, "Bounds specified for the uniform noise is not valid.");
+	if(noise_type_ == UNIFORM && param_first > param_second){
+		pagmo_throw(value_error, "Bounds specified for the uniform noise are not valid.");
 	}
 	set_bounds(p.get_lb(),p.get_ub());
 }
@@ -108,11 +108,11 @@ base_ptr noisy::clone() const
  */ 
 void noisy::set_noise_param(double param_first, double param_second)
 {
-	if(m_noise_type == noise_distribution::NORMAL){
+	if(m_noise_type == NORMAL){
 		boost::random::normal_distribution<double>::param_type params(param_first, param_second);
 		m_normal_dist.param(params);
 	}
-	else if(m_noise_type == noise_distribution::UNIFORM){
+	else if(m_noise_type == UNIFORM){
 		boost::random::uniform_real_distribution<double>::param_type params(param_first, param_second);
 		m_uniform_dist.param(params);
 	}
@@ -180,10 +180,10 @@ void noisy::compute_constraints_impl(constraint_vector &c, const decision_vector
 void noisy::inject_noise_f(fitness_vector& f) const
 {
 	for(f_size_type i = 0; i < f.size(); i++){
-		if(m_noise_type == noise_distribution::NORMAL){
+		if(m_noise_type == NORMAL){
 			f[i] += m_normal_dist(m_drng);
 		}
-		else if(m_noise_type == noise_distribution::UNIFORM){
+		else if(m_noise_type == UNIFORM){
 			f[i] += m_uniform_dist(m_drng);
 		}
 	}
@@ -193,10 +193,10 @@ void noisy::inject_noise_f(fitness_vector& f) const
 void noisy::inject_noise_c(constraint_vector& c) const
 {
 	for(c_size_type i = 0; i < c.size(); i++){
-		if(m_noise_type == noise_distribution::NORMAL){
+		if(m_noise_type == NORMAL){
 			c[i] += m_normal_dist(m_drng);
 		}
-		else if(m_noise_type == noise_distribution::UNIFORM){
+		else if(m_noise_type == UNIFORM){
 			c[i] += m_uniform_dist(m_drng);
 		}
 	}
@@ -216,10 +216,10 @@ std::string noisy::human_readable_extra() const
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
 	oss << "\n\tNoise type: ";
-	if(m_noise_type == noise_distribution::NORMAL){
+	if(m_noise_type == NORMAL){
 		oss << "\n\tNormal distribution of ("<<m_param_first<<","<<m_param_second<<")";
 	}
-	else if(m_noise_type == noise_distribution::UNIFORM){
+	else if(m_noise_type == UNIFORM){
 		oss << "\n\tUniform distribution over ("<<m_param_first<<","<<m_param_second<<")";
 	}
 	else{

@@ -81,6 +81,34 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	return retval;
 }
 
+
+// Wrapper to expose unconstrained multi-objective problems.
+template <class Problem>
+static inline class_<Problem,bases<problem::base>,bases<problem::base_unc_mo> > unc_mo_problem_wrapper(const char *name, const char *descr)
+{
+	// allows for overload of p_distance
+	double (problem::base_unc_mo::*p_dist_o1)(const decision_vector &) const = &problem::base_unc_mo::p_distance;
+	double (problem::base_unc_mo::*p_dist_o2)(const population &) const = &problem::base_unc_mo::p_distance;
+	
+	// actual class exposition
+	class_<Problem,bases<problem::base>,bases<problem::base_unc_mo> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
+	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.def("p_distance", p_dist_o1,
+		"The p distance is a convergence metric measuring the distance of a population or individual from the pareto front.\n"
+		"It is typically 0.0 if the individuals lie on the Pareto-front.\n\n" 
+		"  USAGE: x = prob.p_distance(pop)\n"
+		"  USAGE: x = prob.p_distance(x)\n\n"
+		"  * pop: population to evaluate\n"
+		"  * x: chromosome to evaluate");
+	retval.def("p_distance", p_dist_o2);
+	return retval;
+}
+
 // Wrapper to expose stochastic problems.
 template <class Problem>
 static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > stochastic_problem_wrapper(const char *name, const char *descr)
@@ -92,21 +120,8 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic
 	retval.def_pickle(generic_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
-	retval.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,"Random seed used in the objective function evaluation.");
-	return retval;
-}
-
-// Wrapper to expose dtlz-type problems.
-template <class Problem>
-static inline class_<Problem,bases<problem::base>,bases<problem::base_dtlz> > dtlz_problem_wrapper(const char *name, const char *descr)
-{
-	class_<Problem,bases<problem::base>,bases<problem::base_dtlz> > retval(name,descr,init<const Problem &>());
-	retval.def(init<>());
-	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
-	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
-	retval.def_pickle(generic_pickle_suite<Problem>());
-	retval.def("cpp_loads", &py_cpp_loads<Problem>); retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
-	retval.def("p_distance", &problem::base_dtlz::p_distance);
+	retval.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,
+		"Random seed used in the objective function evaluation.");
 	return retval;
 }
 
@@ -300,28 +315,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Branin's rcos funciotn.
 	problem_wrapper<problem::branin>("branin","Branin's rcos function.");
 
-	// DTLZ1
-	dtlz_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ2
-	dtlz_problem_wrapper<problem::dtlz2>("dtlz2","DTLZ2 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ3
-	dtlz_problem_wrapper<problem::dtlz3>("dtlz3","DTLZ3 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ4
-	dtlz_problem_wrapper<problem::dtlz4>("dtlz4","DTLZ4 benchmark problem.")
-		.def(init<optional<const size_t, fitness_vector::size_type, const size_t> >());
-	// DTLZ5
-	dtlz_problem_wrapper<problem::dtlz5>("dtlz5","DTLZ5 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ6
-	dtlz_problem_wrapper<problem::dtlz6>("dtlz6","DTLZ6 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ7
-	dtlz_problem_wrapper<problem::dtlz7>("dtlz7","DTLZ7 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-
 	// Luksan Vlcek problem 1.
 	problem_wrapper<problem::luksan_vlcek_1>("luksan_vlcek_1","Luksan Vlcek problem 1.")
 		.def(init<int, optional<const double &, const double &> >());
@@ -344,41 +337,55 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const std::vector<std::vector<double> > &>());
 
 	// SCH
-	problem_wrapper<problem::sch>("sch","Shaffer's study problem.")
-		.def(init<>());
+	problem_wrapper<problem::sch>("sch","Shaffer's study problem.");
 	// FON
-	problem_wrapper<problem::fon>("fon","Fonseca and Fleming's study problem.")
-		.def(init<>());
+	problem_wrapper<problem::fon>("fon","Fonseca and Fleming's study problem.");
 	// POL
-	problem_wrapper<problem::pol>("pol","Poloni's study problem.")
-		.def(init<>());
+	problem_wrapper<problem::pol>("pol","Poloni's study problem.");
 	// KUR
 	problem_wrapper<problem::kur>("kur","Kursawe's study problem.")
-		.def(init<>());
+		.def(init<int>());
+	
+	// DTLZ1
+	unc_mo_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ2
+	unc_mo_problem_wrapper<problem::dtlz2>("dtlz2","DTLZ2 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ3
+	unc_mo_problem_wrapper<problem::dtlz3>("dtlz3","DTLZ3 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ4
+	unc_mo_problem_wrapper<problem::dtlz4>("dtlz4","DTLZ4 benchmark problem.")
+		.def(init<optional<const size_t, fitness_vector::size_type, const size_t> >());
+	// DTLZ5
+	unc_mo_problem_wrapper<problem::dtlz5>("dtlz5","DTLZ5 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ6
+	unc_mo_problem_wrapper<problem::dtlz6>("dtlz6","DTLZ6 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	// DTLZ7
+	unc_mo_problem_wrapper<problem::dtlz7>("dtlz7","DTLZ7 benchmark problem.")
+		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
+	
 	// ZDT1
-	problem_wrapper<problem::zdt1>("zdt1","ZDT1")
-		.def(init<optional<population::size_type> >())
-		.def("p_distance", &problem::zdt1::p_distance);
+	unc_mo_problem_wrapper<problem::zdt1>("zdt1","ZDT1")
+		.def(init<problem::base::size_type>());
 	// ZDT2
-	problem_wrapper<problem::zdt2>("zdt2","ZDT2")
-		.def(init<optional<population::size_type> >())
-		.def("p_distance", &problem::zdt2::p_distance);
+	unc_mo_problem_wrapper<problem::zdt2>("zdt2","ZDT2")
+		.def(init<problem::base::size_type>());
 	// ZDT3
-	problem_wrapper<problem::zdt3>("zdt3","ZDT3")
-		.def(init<optional<population::size_type> >())
-		.def("p_distance", &problem::zdt3::p_distance);
+	unc_mo_problem_wrapper<problem::zdt3>("zdt3","ZDT3")
+		.def(init<problem::base::size_type>());
 	// ZDT4
-	problem_wrapper<problem::zdt4>("zdt4","ZDT4")
-		.def(init<optional<population::size_type> >())
-		.def("p_distance", &problem::zdt4::p_distance);
+	unc_mo_problem_wrapper<problem::zdt4>("zdt4","ZDT4")
+		.def(init<problem::base::size_type>());
 	// ZDT5
-	problem_wrapper<problem::zdt5>("zdt5","ZDT5")
-		.def(init<optional<int> >())
-		.def("p_distance", &problem::zdt5::p_distance);
+	unc_mo_problem_wrapper<problem::zdt5>("zdt5","ZDT5")
+		.def(init<problem::base::size_type>());
 	// ZDT6
-	problem_wrapper<problem::zdt6>("zdt6","ZDT6")
-		.def(init<optional<population::size_type> >())
-		.def("p_distance", &problem::zdt6::p_distance);
+	unc_mo_problem_wrapper<problem::zdt6>("zdt6","ZDT6")
+		.def(init<problem::base::size_type>());
 	
 	// Meta-problems
 
@@ -410,19 +417,25 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
+
 	// Decomposition meta-problem
+	// Exposing enums of problem::decompose
+	enum_<problem::decompose::method_type>("_decomposition_method")
+		.value("WEIGHTED", problem::decompose::WEIGHTED)
+		.value("TCHEBYCHEFF", problem::decompose::TCHEBYCHEFF)
+		.value("BI", problem::decompose::BI);
 	problem_wrapper<problem::decompose>("decompose","Decomposed problem")
-		.def(init<const problem::base &, optional<const std::vector<double> &> >())
+		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &> >())
 		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()));
 
 	// Noisy meta-problem
 	// Exposing enums of problem::noisy
-	enum_<problem::noisy::noise_distribution::type>("_noise_distribution")
-		.value("NORMAL", problem::noisy::noise_distribution::NORMAL)
-		.value("UNIFORM", problem::noisy::noise_distribution::UNIFORM);
+	enum_<problem::noisy::noise_type>("_noise_distribution")
+		.value("NORMAL", problem::noisy::NORMAL)
+		.value("UNIFORM", problem::noisy::UNIFORM);
 
 	stochastic_problem_wrapper<problem::noisy>("noisy", "Noisy problem")
-		.def(init<const problem::base &, unsigned int, const double, const double, problem::noisy::noise_distribution::type, unsigned int>())
+		.def(init<const problem::base &, unsigned int, const double, const double, problem::noisy::noise_type, unsigned int>())
 		.add_property("noise_param_first", &problem::noisy::get_param_first)
 		.add_property("noise_param_second", &problem::noisy::get_param_second);
 

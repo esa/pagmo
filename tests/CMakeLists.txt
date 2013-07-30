@@ -34,6 +34,10 @@ ADD_EXECUTABLE(serialization_hypervolume serialization_hypervolume.cpp)
 TARGET_LINK_LIBRARIES(serialization_hypervolume pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(serialization_hypervolume serialization_hypervolume)
 
+ADD_EXECUTABLE(test_racing test_racing.cpp)
+TARGET_LINK_LIBRARIES(test_racing pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(test_racing test_racing)
+
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)
 	TARGET_LINK_LIBRARIES(mpi_torture_test ${MANDATORY_LIBRARIES} pagmo_static)

@@ -22,56 +22,68 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <iostream>
-#include <iomanip>
-#include "src/pagmo.h"
+#include "../types.h"
+#include "../population.h"
+#include "../exceptions.h"
+#include "base_unc_mo.h"
 
-using namespace pagmo;
+namespace pagmo { namespace problem {
 
-// Example in C++ of the use of PaGMO 1.1.4
+/// Constructor from dimension and fitness dimension
+/**
+ * Will construct an n dimensional unconstrained multi-objective problem
+ * with nf objectives
+ *
+ * @param[in] n dimension of the problem.
+ * @param[in] ni integer dimension of the problem.
+ * @param[in] nf number of objectives
+ *
+ * @see problem::base constructors.
+ */
+base_unc_mo::base_unc_mo(size_type n, size_type ni, f_size_type nf):base(n, ni, nf, 0, 0, 0.0) {}
 
-int main()
+/// Distance from the Pareto front (of a population)
+/**
+ * Will return the average across the entire population of the convergence metric
+ *
+ * @param[in] pop population to be assigned a pareto distance
+ *
+ * @see problem::base_unc_mo::p_distance virtual method.
+ */
+double base_unc_mo::p_distance(const pagmo::population &pop) const
 {
-    /*
-	pagmo::problem::zdt1 orig_prob(10);
-
-	std::vector<double> weights(2,0.5);
-	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
-
-	pagmo::algorithm::jde alg(50);
-
-	std::cout << alg << std::endl;
-	std::cout << orig_prob << std::endl;
-	std::cout << decomposed_problem << std::endl;
-
-	pagmo::island isl = island(alg, decomposed_problem, 100);
-	pagmo::population original_problem_pop = population(orig_prob, 1);
-
-    for (size_t i = 0; i< 10; ++i){
-	    isl.evolve(1);
-	    original_problem_pop.set_x(0, isl.get_population().champion().x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
-	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
-	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
+	double c = 0.0;
+	for (population::size_type i = 0; i < pop.size(); ++i) {
+		c += convergence_metric(pop.get_individual(i).cur_x);
 	}
-	return 0;
-    */
-    pagmo::problem::zdt1 prob(10);
-    pagmo::algorithm::pade alg(10000);
 
-    std::cout << alg << std::endl;
-    std::cout << prob << std::endl;
-
-    pagmo::island isl = island(alg, prob, 8);
-
-    for (size_t i = 0; i<10; ++i){
-        isl.evolve(1);
-        std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
-        //std::cout << "Original fitness: " << isl.get_population() << std::endl;
-        //std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
-    }
-    std::cout << "Finished" << std::endl;
-    return 0;
+	return c / pop.size();
 }
+
+/// Distance from the Pareto front (of a decision_vector)
+/**
+ * Will return the convergence metric of the decision_vector
+ *
+ * @param[in] x decision_vector 
+ *
+ */
+double base_unc_mo::p_distance(const decision_vector &x) const
+{
+	return convergence_metric(x);
+}
+
+/// Default implementation for a convergence metric
+/**
+ *
+ * @param[in] x decision_vector 
+ *
+ * @throws not_implemented_error always
+ *
+ */
+double base_unc_mo::convergence_metric(const decision_vector &x) const
+{
+	(void) x;	// avoids warnings during compilation
+	pagmo_throw(not_implemented_error, "Error: a convergence metric is not implemented for this problem.");
+}
+
+}} // namespaces

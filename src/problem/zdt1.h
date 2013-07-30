@@ -29,14 +29,14 @@
 
 #include "../serialization.h"
 #include "../types.h"
-#include "base.h"
+#include "base_unc_mo.h"
 
 namespace pagmo{ namespace problem {
 
 /// ZDT1 problem
 /**
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem.
+ * This is a box-constrained continuous n-dimensional (n>1) multi-objecive problem.
  * \f[
  *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
  * \f]
@@ -53,21 +53,21 @@ namespace pagmo{ namespace problem {
  * @author Dario Izzo (dario.izzo@googlemail.com)
  */
 
-class __PAGMO_VISIBLE zdt1 : public base
+class __PAGMO_VISIBLE zdt1 : public base_unc_mo
 {
 	public:
 		zdt1(size_type = 30);
 		base_ptr clone() const;
 		std::string get_name() const;
-		double p_distance(const pagmo::population &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		double convergence_metric(const decision_vector &) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
+			ar & boost::serialization::base_object<base_unc_mo>(*this);
 		}
 };
 
