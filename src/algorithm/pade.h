@@ -46,6 +46,7 @@ namespace pagmo { namespace algorithm {
  * PaDe assumes all the objectives need to be minimized.
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
  **/
 
 class __PAGMO_VISIBLE pade: public base

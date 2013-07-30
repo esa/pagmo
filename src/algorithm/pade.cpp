@@ -207,8 +207,8 @@ void pade::evolve(population &pop) const
 	} else if(m_weight_generation == RANDOM) {
 		pagmo::util::discrepancy::project_2_simplex projection(prob.get_f_dimension());
 		for (unsigned int i = 0; i<NP; ++i) {
-			fitness_vector dummy(prob.get_f_dimension(),0.0);
-			for(unsigned int j = 0; j <prob.get_f_dimension(); ++j) {
+			fitness_vector dummy(prob.get_f_dimension()-1,0.0);
+			for(unsigned int j = 0; j <prob.get_f_dimension()-1; ++j) {
 				dummy[j] = r_dist();
 			}
 			weights.push_back(projection(dummy));
@@ -296,10 +296,28 @@ std::string pade::human_readable_extra() const
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
 	s << "max_parallelism:" << m_max_parallelism << ' ';
-	s << "method:" << m_method << ' ';
-	s << "solver:" << m_solver << ' ';
+	s << "solver:" << m_solver->get_name() << ' ';
 	s << "neighbours:" << m_T << ' ';
-	s << "weight generation method:" << m_weight_generation << ' ';
+	s << "decomposition:";
+	switch (m_method)
+	{
+		case pagmo::problem::decompose::BI : s << "BI" << ' ';
+			break;
+		case pagmo::problem::decompose::WEIGHTED : s << "WEIGHTED" << ' ';
+			break;
+		case pagmo::problem::decompose::TCHEBYCHEFF : s << "TCHEBYCHEFF" << ' ';
+			break;
+	}
+	s << "weights:";
+	switch (m_weight_generation)
+	{
+		case RANDOM : s << "RANDOM" << ' ';
+			break;
+		case LOW_DISCREPANCY : s << "LOW_DISCREPANCY" << ' ';
+			break;
+		case GRID : s << "GRID" << ' ';
+			break;
+	}
 	return s.str();
 }
 

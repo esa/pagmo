@@ -331,31 +331,36 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
 
-_algorithm.pade.weight_generation = _algorithm._weight_generation
-def _pade_ctor(self, gen=10, max_parallelism = 1, method = decompose.decomposition_method.WEIGHTED, solver = None, T = 8, weight_generation = pade.weight_generation.RANDOM):
+
+_algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
+_algorithm.pade.GRID = _algorithm._weight_generation.GRID
+_algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
-	For each element of the population a different single objective problem is generated using a decomposition method. Those single-objective problems are thus solved in parallel.
-	At the end of the evolution the population is set as the best individual for each single-objective problem.
-	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, method = problem.decompose.decomposition_method.WEIGHTED, solver=jde(10))
-  
+	
+	For each element of the population a different single objective problem is generated using a decomposition method.
+	Those single-objective problems are thus solved in an island model.
+	At the end of the evolution the population is set as the best individual in each single-objective island.
+	This algorithm, original with PaGMO, builds upon the MOEA/D framework
+	
+	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM)
+
 	* gen: number of generations
 	* max_parallelism: the maximum number of single-objective problems to solve at the same time
-	* method = the decomposition method to use (Weighted, Tchebycheff or BI)
 	* solver: the algorithm to use to solve the single-objective problems
 	* T: the size of the population on each subproblem (must be an even number)
-	* weight_generation: the weight generation method
+	* decomposition = the decomposition method to use (Weighted, Tchebycheff or BI)
+	* weights: the weight generation method
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
 	arg_list.append(gen)
 	arg_list.append(max_parallelism)
-	arg_list.append(method)
-	if solver == None:
-		solver = jde(10)
+	arg_list.append(decomposition)
 	arg_list.append(solver)
 	arg_list.append(T)
-	arg_list.append(weight_generation)
+	arg_list.append(weights)
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
