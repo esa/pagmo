@@ -28,25 +28,24 @@
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// Constructor
-/*
+/**
  * Constructs an instance of the algorithm
  *
- * @param[in] use_exact boolean flag stating whether algorithm is allowed to use exact computation for some sub problems
- * @param[in] trivial_subcase_size size of the sub-front (points overlapping the bounding box) for which algorithm skips to the exact computation
- * @param[in] eps accuracy of approximation
+ * @param[in] use_exact boolean flag stating whether algorithm is allowed to use exact algorithms for the computation
+ * @param[in] trivial_subcase_size size of the sub-front (points overlapping the bounding box) for which algorithm skips to the exact computation right away
+ * @param[in] eps accuracy of the approximation
  * @param[in] delta confidence of the approximation
  * @param[in] gamma constant used for computation of delta for each of the points during the sampling
  * @param[in] delta_multiplier factor with which delta diminishes each round
  * @param[in] initial_delta_coeff initial coefficient multiplied by the delta at round 0
  * @param[in] alpha coefficicient stating how accurately current lowest contributor should be sampled
  */
-
 bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double delta_multiplier, const double alpha, const double initial_delta_coeff, const double gamma)
 	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_delta_multiplier(delta_multiplier), m_alpha(alpha), m_initial_delta_coeff(initial_delta_coeff), m_gamma(gamma) { }
 
 
 /// Copy constructor
-/*
+/**
  * @param[in] orig instance of the bf_approx algorithm to be copied from
  */
 bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_trivial_subcase_size(orig.m_trivial_subcase_size), m_eps(orig.m_eps), m_delta(orig.m_delta), 

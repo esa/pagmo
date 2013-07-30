@@ -63,7 +63,6 @@ class __PAGMO_VISIBLE beume3d : public base {
 		{
 			ar & boost::serialization::base_object<base>(*this);
 		}
-
 };
 
 } } }

@@ -29,11 +29,11 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 
 // Computes hypervolume method.
 /**
- * This method should be used both as a solution to 2D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
+ * This method should be used both as a solution to 2-dimensional cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
  *
  * Computational complexity: n*log(n)
  *
- * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
+ * @param[in] points vector of points containing the 2-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
  *
  * @return hypervolume

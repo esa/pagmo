@@ -30,11 +30,11 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// Compute hypervolume 
 /**
- * This method should be used both as a solution to 3D cases, and as a general termination method for algorithms that reduce n-dimensional problem to 3D.
+ * This method should be used both as a solution to 3D cases, and as a general termination method for algorithms that reduce D-dimensional problem to 3-dimensional one.
  *
- * Computational complexity: n*log(n)
+ * Computational complexity: O(n*log(n))
  *
- * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
+ * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
  *
  * @return hypervolume.
@@ -45,7 +45,7 @@ double beume3d::compute(const std::vector<fitness_vector> &points, const fitness
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(2,'<'));
 	double V = 0.0; // hypervolume
-	double A = 0.0; // varying area of the sweeping plane
+	double A = 0.0; // area of the sweeping plane
 	std::multiset<fitness_vector, fitness_vector_cmp> T(fitness_vector_cmp(0, '>'));
 
 	// sentinel points (r_point[0], -INF, r_point[2]) and (-INF, r_point[1], r_point[2])
@@ -118,7 +118,6 @@ base_ptr beume3d::clone() const
 std::string beume3d::get_name() const {
 	return "Beume3D algorithm";
 }
-
 
 } } }
 

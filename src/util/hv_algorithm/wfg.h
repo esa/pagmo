@@ -35,9 +35,9 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// WFG hypervolume algorithm class
+/// WFG hypervolume algorithm
 /**
- * This is the class containing the implementation of the WFG algorithm for computing hypervolume.
+ * This is the class containing the implementation of the WFG algorithm for the computation of hypervolume indicator.
  *
  * @see "While, Lyndon, Lucas Bradstreet, and Luigi Barone. "A fast way of calculating exact hypervolumes." Evolutionary Computation, IEEE Transactions on 16.1 (2012): 86-95."
  * @see "Lyndon While and Lucas Bradstreet. Applying the WFG Algorithm To Calculate Incremental Hypervolumes. 2012 IEEE Congress on Evolutionary Computation. CEC 2012, pages 489-496. IEEE, June 2012."

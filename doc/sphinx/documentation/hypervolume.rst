@@ -38,6 +38,19 @@ You can also explicitly request an particular algorithm for the computation:
    hv = hypervolume([[2,1,1] , [1,2,1], [1,1,2]])
    print hv.compute(r = [3.5]*3, algorithm = hv_algorithm.beume3d())
 
+Besides the computation of the hypervolume of given pareto front (which may serve as a quality indicator), other methods are available as well:
+
+.. code-block:: python
+
+   from PyGMO import *
+   hv = hypervolume([[2,1,1] , [1,2,1], [1,1,2]])
+   print hv.exclusive(p_idx = 0, r = [3.5]*3)  # returns the exclusive volume by point 0
+   print hv.least_contributor(r = [3.5]*3)  # returns the index of the least contributor
+
+Method 'exlusive' computes the hypervolume of the point at given index.
+Method 'least_contributors' returns the index of the individual (point) contributing the least to the hypervolume.
+
+
 Available Hypervolume algorithms
 ^^^^^^^^^^^^^^^^^^^^^^
 ================================== ======================================== ===================================================================
@@ -45,7 +58,8 @@ Common Name                        Name in PyGMO                            Comm
 ================================== ======================================== ===================================================================
 Native2D                           :class:`PyGMO.hv_algorithm.native2d`     Algorithm for optimal computation of 2D hypervolumes.
 Beume3D                            :class:`PyGMO.hv_algorithm.beume3d`      Algorithm for optimal computation of 3D hypervolumes.
-LebMeasure                         :class:`PyGMO.hv_algorithm.lebmeasure`   General algorithm for any size of dimension > 2, (caution: very slow)
+WFG                                :class:`PyGMO.hv_algorithm.wfg`          General algorithm for any dimension.
+Bringmann-Friedrich approximation  :class:`PyGMO.hv_algorithm.bf_approx`    Approximated algorithm for any size of dimension.
 ================================== ======================================== ===================================================================
 
 Detailed Documentation
@@ -90,12 +104,44 @@ Detailed Documentation
       For larger dimensions the default method is the LebMeasure.
       As of yet, it is required that reference point is numerically no lesser by each dimension than any point from the previously constructed set of points.
 
+      * r - reference point used for computation
+      * algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
+
       USAGE:
          print hv.compute([3,3,3])
 
          print hv.compute([3,3,3], algorithm = hv_algorithm.beume3d())
 
          print hv.compute([3,3,3], algorithm = hv_algorithm.lebmeasure())
+
+   .. method:: exclusive(p_idx, r, algorithm = None)
+      
+      Computes the exlusive hypervolume for point at given index 'p_idx', using the provided reference point 'r' and the hypervolume algorithm (optional).
+      Keyword `algorithm` must be an instance of algorithms that can be found inside `PyGMO.hv_algorithm` module.
+      If the keyword is not provided, PyGMO chooses one automatically using the information about the reference point.
+
+      * p_idx - index of the point for which we compute the exclusive hypervolume
+      * r - reference point used for computation
+      * algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
+
+      USAGE:
+         hv.exclusive(p_idx=5, r=[5.0]*3)
+
+         hv.exclusive(p_idx=5, r=[5.0]*3, algorithm=hv_algorithm.beume3d())
+
+   .. method:: least_contributor(r, algorithm = None)
+      
+      Computes the least contributor to the hypervolume using provided reference point 'r' and the hypervolume algorithm (optional).
+      Keyword `algorithm` must be an instance of algorithms that can be found inside `PyGMO.hv_algorithm` module.
+      If the keyword is not provided, PyGMO chooses one automatically using the information about the reference point.
+
+      * r - reference point used for computation
+      * algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
+
+      USAGE:
+         hv.least_contributor(r=[5.0]*3)
+
+         hv.least_contributor(r=[5.0]*3, algorithm=hv_algorithm.bf_approx())
 
 .. class:: PyGMO.hv_algorithm.native2d()
 
@@ -113,12 +159,33 @@ Detailed Documentation
 
       Creates an instance of `PyGMO.hv_algorithm.beume3d` class that serves as a parameter to the hypervolume object.
 
-.. class:: PyGMO.hv_algorithm.lebmeasure()
+.. class:: PyGMO.hv_algorithm.wfg()
 
-    This is the implementation of the LebMeasure algorithm.
-    Its main purpose is handling hypervolume computation for 3 or more dimensions.
-    This algorithm is quite slow due to its high computational complexity.
+    This is the implementation of the WFG algorithm.
+    Its main purpose is handling hypervolume computation for any dimension.
 
    .. method:: __init__()
 
-      Creates an instance of `PyGMO.hv_algorithm.lebmeasure` class that serves as a parameter to the hypervolume object.
+      Creates an instance of `PyGMO.hv_algorithm.wfg` class that serves as a parameter to the hypervolume object.
+
+.. class:: PyGMO.hv_algorithm.bf_approx()
+
+    This is the implementation of the Bringmann-Friedrich approximation algorithm.
+    Its main purpose is handling hypervolume computation for any dimension.
+    Algorithm's output is an approximation of the exact one to a certain degree of accuracy and certain confidence.
+
+   .. method:: __init__(use_exact = True, trivial_subcase_size = 1, eps = 1e-1, delta = 1e-4, gamma = 0.25, delta_multiplier = 0.775, initial_delta_coeff = 1e-1, alpha = 0.2)
+
+      Creates an instance of `PyGMO.hv_algorithm.wfg` class that serves as a parameter to the hypervolume object.
+      Default values for the parameters of the algorithm were obtained from the shark implementation of the algorithm:
+         http://image.diku.dk/shark/doxygen_pages/html/_least_contributor_approximator_8hpp_source.html
+
+      Parameters:
+      	* use_exact - should bf_approx use exact methods for computation
+      	* trivial_subcase_size - when the number of points overlapping the bounding box is smaller or equal to that argument, we compute the exlusive hypervolume exactly
+      	* eps - accuracy of approximation
+      	* delta - confidence of approximation
+      	* gamma - constant used for computation of delta for each of the points during the sampling
+      	* delta_multiplier - factor with which delta diminishes each round
+      	* initial_delta_coeff - initial coefficient multiplied by the delta at round 0
+      	* alpha - coefficicient stating how accurately current lowest contributor should be sampled

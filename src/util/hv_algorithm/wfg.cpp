@@ -40,7 +40,7 @@ bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
 
 /// Compute hypervolume 
 /**
- * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
+ * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
  *
  * @return hypervolume.
@@ -123,7 +123,7 @@ double wfg::exclusive_hv(const std::vector<fitness_vector> &points, const unsign
 /**
  * Verifies whether given algorithm suits the requested data.
  *
- * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
+ * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the vector of points
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
