@@ -18,6 +18,7 @@ compute wfg c_max_t100_d3_n128 10e-9
 #compute wfg c_max_t1_d7_n64 10e-2
 compute wfg c_max_t1_d5_n1024 10e-4
 
+exclusive wfg e_max_d5 10e-9
 exclusive beume3d e_max_d3 10e-9
 exclusive native2d e_max_d2 10e-9
 least_contributor beume3d lc_max_d3 10e-9

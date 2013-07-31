@@ -40,6 +40,11 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 double native2d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
+	if (points.size() == 0) {
+		return 0.0;
+	} else if (points.size() == 1) {
+		return base::volume_between(points[0], r_point);
+	}
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(0, '<'));
 	double hypervolume = 0.0;

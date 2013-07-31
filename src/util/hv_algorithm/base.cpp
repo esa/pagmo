@@ -88,9 +88,9 @@ double base::exclusive(const unsigned int p_idx, const std::vector<fitness_vecto
 		return hypvol_total;
 	}
 	std::vector<fitness_vector> points_less;
-	points_less.reserve(points.size()-1);
-	copy(points.begin(), points.begin()+p_idx, back_inserter(points_less));
-	copy(points.begin()+p_idx+1, points.end(), back_inserter(points_less));
+	points_less.reserve(points.size() - 1);
+	copy(points.begin(), points.begin() + p_idx, back_inserter(points_less));
+	copy(points.begin() + p_idx + 1, points.end(), back_inserter(points_less));
 	return hypvol_total - compute(points_less, r_point);
 }
 
