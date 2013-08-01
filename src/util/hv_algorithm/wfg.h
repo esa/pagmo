@@ -32,6 +32,7 @@
 #include <iterator>
 
 #include "base.h"
+#include "../hypervolume.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
@@ -46,21 +47,29 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 class __PAGMO_VISIBLE wfg : public base {
 	public:
+		wfg();
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		base_ptr clone() const;
 		std::string get_name() const;
 
+
 	private:
+
 		inline std::vector<fitness_vector> limitset(const std::vector<fitness_vector> &, const unsigned int) const;
 		inline double exclusive_hv(const std::vector<fitness_vector> &, const unsigned int, const fitness_vector &) const;
 		inline double compute_hv(const std::vector<fitness_vector> &, const fitness_vector &) const;
+
+		mutable unsigned int m_current_dim;
+		mutable unsigned int m_max_dim;
 
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<unsigned int&>(m_current_dim);
+			ar & const_cast<unsigned int&>(m_max_dim);
 		}
 };
 

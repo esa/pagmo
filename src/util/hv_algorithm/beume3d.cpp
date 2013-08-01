@@ -27,6 +27,11 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
+// Copy constructor
+beume3d::beume3d(const beume3d &orig) : m_initial_sorting(orig.m_initial_sorting) { }
+
+// Constructor
+beume3d::beume3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
 
 /// Compute hypervolume 
 /**
@@ -43,7 +48,9 @@ double beume3d::compute(const std::vector<fitness_vector> &points, const fitness
 {
 	// copy the initial set
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
-	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(2,'<'));
+	if (m_initial_sorting) {
+		sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(2,'<'));
+	}
 	double V = 0.0; // hypervolume
 	double A = 0.0; // area of the sweeping plane
 	std::multiset<fitness_vector, fitness_vector_cmp> T(fitness_vector_cmp(0, '>'));

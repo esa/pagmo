@@ -24,11 +24,15 @@
 
 
 #include "wfg.h"
+#include "base.h"
+#include "beume3d.h"
+#include <algorithm>
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
+// comparator function for initial sorting
 bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
-	for(unsigned int i=0; i < a.size() ; ++i){
+	for(int i=a.size() - 1; i >=0 ; --i){
 		if (a[i] > b[i]) {
 			return true;
 		} else if(a[i] < b[i]) {
@@ -37,6 +41,10 @@ bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
 	}
 	return false;
 };
+
+// Constructor
+wfg::wfg() : m_current_dim(0) {
+}
 
 /// Compute hypervolume 
 /**
@@ -49,8 +57,10 @@ double wfg::compute(const std::vector<fitness_vector> &points, const fitness_vec
 	// copy the initial set
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 
-	// sort the initial set by first dimension
-	sort(points_cpy.begin(), points_cpy.end(), wfg_cmp);
+	// variable holding the current "depth" of dimension slicing
+	// we slice by reducing dimensions from the end
+	m_current_dim = r_point.size();
+	m_max_dim = m_current_dim;
 
 	return compute_hv(points_cpy, r_point);
 }
@@ -64,7 +74,7 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 	for(std::vector<fitness_vector>::size_type idx = p_idx + 1; idx < points.size(); ++idx) {
 
 		fitness_vector s(points[idx]);
-		for(fitness_vector::size_type f_idx = 0; f_idx < points[idx].size(); ++f_idx) {
+		for(fitness_vector::size_type f_idx = 0; f_idx < m_current_dim; ++f_idx) {
 			s[f_idx] = fmax(s[f_idx], p[f_idx]);
 		}
 
@@ -74,7 +84,7 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 
 		// check whether any point is dominating the point 's'
 		for(std::vector<fitness_vector>::size_type q_idx = 0; q_idx < q.size(); ++q_idx) {
-			cmp_results[q_idx] = base::dom_cmp(s,q[q_idx]);
+			cmp_results[q_idx] = base::dom_cmp(s, q[q_idx], m_current_dim);
 			if (cmp_results[q_idx] == 1){
 				keep_s = false;
 				break;
@@ -100,23 +110,43 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 }
 
 double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_vector &r) const {
-	double H = 0.0;
-	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
-		H += exclusive_hv(points, idx, r);
+
+	std::vector<fitness_vector> points_cpy(points.size());
+
+	for(unsigned int i = 0 ; i < points_cpy.size() ; ++i){
+		points_cpy[i] = fitness_vector(points[i].begin(), points[i].begin() + m_current_dim);
 	}
+	fitness_vector r_cpy(r.begin(), r.begin() + m_current_dim);
+
+	sort(points_cpy.begin(), points_cpy.end(), wfg_cmp);
+
+
+	// dimension at which we use other algorithms
+	if (m_current_dim == 2) {
+		reverse(points_cpy.begin(), points_cpy.end());
+		return hypervolume(points_cpy).compute(r_cpy, base_ptr(new native2d(false)) );
+	}
+	double H = 0.0;
+	--m_current_dim;
+	for(std::vector<fitness_vector>::size_type i = 0 ; i < points.size() ; ++i) {
+		H += fabs((points_cpy[i][m_current_dim] - r_cpy[m_current_dim]) * exclusive_hv(points_cpy, i, r_cpy));
+	}
+	++m_current_dim;
 	return H;
 }
 
 double wfg::exclusive_hv(const std::vector<fitness_vector> &points, const unsigned int p_idx, const fitness_vector &r) const {
 	std::vector<fitness_vector> q = limitset(points, p_idx);
 
-	double hypervolume = base::volume_between(points[p_idx], r);
+	double H = base::volume_between(points[p_idx], r, m_current_dim);
+
 	if (q.size() == 1) {
-		hypervolume -= base::volume_between(q[0],r);
+		H -= base::volume_between(q[0], r, m_current_dim );
 	} else if (q.size() > 1) {
-		hypervolume -= compute_hv(q, r);
+		H -= compute_hv(q, r);
 	}
-	return hypervolume;
+
+	return H;
 }
 
 // verify_before_compute

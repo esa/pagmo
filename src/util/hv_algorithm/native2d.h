@@ -43,6 +43,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 class __PAGMO_VISIBLE native2d : public base {
 	public:
+		native2d(const bool initial_sorting = true);
 		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int least_contributor(const std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
@@ -50,11 +51,15 @@ class __PAGMO_VISIBLE native2d : public base {
 		std::string get_name() const;
 
 	private:
+		// flag stating whether the points should be sorted in the first step of the algorithm
+		const bool m_initial_sorting;
+
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
+			ar & const_cast<bool &>(m_initial_sorting);
 		}
 };
 

@@ -104,12 +104,16 @@ class __PAGMO_VISIBLE base
 		 *
 		 * @param[in] a first point defining the hypercube
 		 * @param[in] b second point defining the hypercube
+		 * @param[in] dim_bound dimension boundary for the volume. If equal to 0, then compute the volume of whole vector. Any positive number limits the computation from dimension 0 to dim_bound INCLUSIVE.
 		 *
 		 * @return volume of hypercube defined by points a and b
 		 */
-		inline double volume_between(const fitness_vector &a, const fitness_vector &b) const {
+		inline double volume_between(const fitness_vector &a, const fitness_vector &b, unsigned int dim_bound = 0) const {
+			if (dim_bound == 0) { 
+				dim_bound = a.size();
+			}
 			double volume = 1.0;
-			for (fitness_vector::size_type idx = 0; idx < a.size() ; ++idx) {
+			for (fitness_vector::size_type idx = 0; idx < dim_bound ; ++idx) {
 				volume *= (a[idx] - b[idx]);
 			}
 			return (volume < 0 ? -volume : volume);
@@ -124,10 +128,13 @@ class __PAGMO_VISIBLE base
 		 * return 3 if 'a' IS EQUAL TO 'b'
 		 * return 4 otherwise
 		 */
-		inline int dom_cmp(const fitness_vector &a, const fitness_vector &b) const {
-			for(fitness_vector::size_type i = 0; i < a.size() ; ++i) {
+		inline int dom_cmp(const fitness_vector &a, const fitness_vector &b, unsigned int dim_bound = 0) const {
+			if (dim_bound == 0) {
+				dim_bound = a.size();
+			}
+			for(fitness_vector::size_type i = 0; i < dim_bound ; ++i) {
 				if (a[i] > b[i]) {
-					for(fitness_vector::size_type j = i + 1; j < a.size() ; ++j) {
+					for(fitness_vector::size_type j = i + 1; j < dim_bound ; ++j) {
 						if (a[j] < b[j]) {
 							return 4;
 						}
@@ -135,7 +142,7 @@ class __PAGMO_VISIBLE base
 					return 1;
 				}
 				else if (a[i] < b[i]) {
-					for(fitness_vector::size_type j = i + 1 ; j < a.size() ; ++j) {
+					for(fitness_vector::size_type j = i + 1 ; j < dim_bound ; ++j) {
 						if (a[j] > b[j]) {
 							return 4;
 						}

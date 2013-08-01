@@ -27,6 +27,9 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
+// Constructor
+native2d::native2d(const bool initial_sorting) : m_initial_sorting(initial_sorting) { }
+
 // Computes hypervolume method.
 /**
  * This method should be used both as a solution to 2-dimensional cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
@@ -46,14 +49,18 @@ double native2d::compute(const std::vector<fitness_vector> &points, const fitnes
 		return base::volume_between(points[0], r_point);
 	}
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
-	sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(0, '<'));
+
+	if (m_initial_sorting) {
+		sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(1, '<'));
+	}
+
 	double hypervolume = 0.0;
 	for(std::vector<fitness_vector>::size_type idx = 0; idx < points_cpy.size() - 1 ; ++idx) {
-		double area = (points_cpy[idx][0] - points_cpy[idx+1][0]) * (points_cpy[idx][1] - r_point[1]);
+		double area = (points_cpy[idx][1] - points_cpy[idx+1][1]) * (points_cpy[idx][0] - r_point[0]);
 		hypervolume += fabs(area);
 	}
 	fitness_vector &last = points_cpy.back();
-	hypervolume += fabs((r_point[0] - last[0]) * (r_point[1] - last[1]));
+	hypervolume += fabs((r_point[1] - last[1]) * (r_point[0] - last[0]));
 
 	return hypervolume;
 }
@@ -61,7 +68,7 @@ double native2d::compute(const std::vector<fitness_vector> &points, const fitnes
 // custom comparison method for sorting pairs of (point, index)
 // required for native2d::least_contributor method
 bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
-	return a.first[0] > b.first[0];
+	return a.first[1] > b.first[1];
 }
 
 // Least contributing point method
@@ -92,11 +99,11 @@ unsigned int native2d::least_contributor(const std::vector<fitness_vector> &poin
 
 	// compute first point separately
 	double least_contrib_idx = 0;
-	double least_hv = fabs((points_cpy[0].first[0] - r_point[0]) * (points_cpy[0].first[1] - points_cpy[1].first[1]));
+	double least_hv = fabs((points_cpy[0].first[1] - r_point[1]) * (points_cpy[0].first[0] - points_cpy[1].first[0]));
 
 	// compute points 2nd to (m-1)th
 	for(std::vector<fitness_vector>::size_type idx = 1; idx < points_cpy.size() - 1 ; ++idx) {
-		double exclusive_hv = fabs((points_cpy[idx].first[0] - points_cpy[idx - 1].first[0]) * (points_cpy[idx].first[1] - points_cpy[idx+1].first[1]));
+		double exclusive_hv = fabs((points_cpy[idx].first[1] - points_cpy[idx - 1].first[1]) * (points_cpy[idx].first[0] - points_cpy[idx+1].first[0]));
 		if (exclusive_hv < least_hv) {
 			least_hv = exclusive_hv;
 			least_contrib_idx = idx;
@@ -105,7 +112,7 @@ unsigned int native2d::least_contributor(const std::vector<fitness_vector> &poin
 	unsigned int last_idx = points_cpy.size() - 1;
 
 	// compute last point separately
-	double last_exclusive_hv = fabs((points_cpy[last_idx].first[0] - points_cpy[last_idx - 1].first[0]) * (points_cpy[last_idx].first[1] - r_point[1]));
+	double last_exclusive_hv = fabs((points_cpy[last_idx].first[1] - points_cpy[last_idx - 1].first[1]) * (points_cpy[last_idx].first[0] - r_point[0]));
 	if (last_exclusive_hv < least_hv) {
 		least_contrib_idx = last_idx;
 	}
