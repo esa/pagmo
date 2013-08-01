@@ -35,26 +35,17 @@
 
 namespace pagmo{ namespace util {
 
-/// racing namespace.
-/**
- * Utilities for the racing mechanism.
-*/
 namespace racing{
-
-	// Racing the population
-	std::vector<population::size_type> race_pop(
-		const population &,
-		const population::size_type n_final,
-		const unsigned int min_trials,
-		const unsigned int max_count,
-		double delta,
-		unsigned int seed,
-		const std::vector<population::size_type> &,
-		bool screen_output
-	);
+	
+///Doxygen will ignore whatever is in //! @cond
 //! @cond
-	struct race_termination_condition{
-		enum type {ITER_COUNT = 0, EVAL_COUNT = 1};
+	
+	class __PAGMO_VISIBLE racing_population : public population
+	{
+	public:
+		racing_population(const population &);
+		void set_x_noeval(const size_type, const decision_vector &);
+		void set_fc(const size_type, const fitness_vector &, const constraint_vector &);
 	};
 
 	struct racer_type
@@ -62,14 +53,23 @@ namespace racing{
 		public:
 			racer_type(): m_mean(0), active(false) { }
 
-			std::vector<double> m_hist; ///Should this not be a std::vector<size_type> ??
+			// Using double type to cater for tied ranks
+			std::vector<double> m_hist;
 			double m_mean;
-			bool active;	
+			bool active;
 
 			unsigned int length()
 			{
 				return m_hist.size();
 			}
+
+			void reset()
+			{
+				m_hist.clear();
+				m_mean = 0;
+				active = false;
+			}
+
 
 		private:
 			friend class boost::serialization::access;
@@ -99,7 +99,7 @@ namespace racing{
 	enum bound_type {HOEFFDING = 0, BERNSTEIN = 1};
 	stat_test_result bound_based_test(const std::vector<std::vector<double> > &, double delta, bound_type);
 
-	void f_race_assign_ranks(std::vector<racer_type> &, const population &);
+	void f_race_assign_ranks(std::vector<racer_type> &, const racing_population &);
 	void f_race_adjust_ranks(std::vector<racer_type> &, const std::vector<population::size_type> &);
 
 //! @endcond

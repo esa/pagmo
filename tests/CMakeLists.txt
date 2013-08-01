@@ -26,6 +26,10 @@ ADD_EXECUTABLE(test_noisy test_noisy.cpp)
 TARGET_LINK_LIBRARIES(test_noisy pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(test_noisy test_noisy)
 
+ADD_EXECUTABLE(test_robust test_robust.cpp)
+TARGET_LINK_LIBRARIES(test_robust pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(test_robust test_robust)
+
 ADD_EXECUTABLE(test_racing test_racing.cpp)
 TARGET_LINK_LIBRARIES(test_racing pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(test_racing test_racing)

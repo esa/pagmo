@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_NOISY_H
-#define PAGMO_PROBLEM_NOISY_H
+#ifndef PAGMO_PROBLEM_ROBUST_H
+#define PAGMO_PROBLEM_ROBUST_H
 
 #include <string>
 #include <boost/functional/hash.hpp>
@@ -35,45 +35,36 @@
 #include "../types.h"
 #include "base_stochastic.h"
 
-
-
 namespace pagmo{ namespace problem {
 
-/// Noisy meta-problem
+/// Robust meta-problem
 /**
- * A meta-problem that transforms a problem into its stochastic
- * version by injecting noises to the fitness vector (and constraint vector)
- * with either uniform or gaussian distribution. The resulting value is then averaged upon m_trials
- * as to rbe able to reproduce a typical set-up in Evolutionary Robotics, but aso in stochastic optimization
- *
- * NOTE: for m_trials->infinity one recovers a deterministic problem, but the objective function computation
- * soon becomes very expensive. The trade-off is to keep m_trials small, while being able to get good convergence. 
+ * Transforms any problem into a stochastic problem where the objective
+ * function is evaluated sampling at random in a neighbourhood of the input
+ * chromosome. The solution to the resulting problem is robust
+ * to input noises in the given neighbourhood.
  *
  * @author Yung-Siang Liau (liauys@gmail.com)
  * @author Dario Izzo (dario.izzo@gmail.com)
+ *
  */
-class __PAGMO_VISIBLE noisy : public base_stochastic
+class __PAGMO_VISIBLE robust : public base_stochastic
 {
 	public:
-		/// Distribution type of the noise
-		enum noise_type {NORMAL = 0, UNIFORM = 1};
-		
+
 		//constructors
-		noisy(const base & = ackley(1),
-			  unsigned int trials = 1,
-			  const double param_first = 0.0,
-			  const double param_second = 0.1,
-			  noise_type = NORMAL,
-			  unsigned int seed = 0u);
+		robust(const base & = ackley(1),
+			   unsigned int trials = 1,
+			   const double param_rho = 0.1,
+			   unsigned int seed = 0u);
 		
 		//copy constructor
-		noisy(const noisy &);
+		robust(const robust &);
 		base_ptr clone() const;
 		std::string get_name() const;
 
-		void set_noise_param(double, double);
-		double get_param_first() const;
-		double get_param_second() const;
+		void set_rho(double);
+		double get_rho() const;
 
 	protected:
 		std::string human_readable_extra() const;
@@ -81,8 +72,7 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 
 	private:
-		void inject_noise_f(fitness_vector&) const;
-		void inject_noise_c(constraint_vector&) const;
+		void inject_noise_x(decision_vector &) const;
 
 		friend class boost::serialization::access;
 		template <class Archive>
@@ -90,26 +80,21 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 		{
 			ar & boost::serialization::base_object<base_stochastic>(*this);
 			ar & m_original_problem;
-			ar & const_cast<unsigned int &>(m_trials);
 			ar & m_normal_dist;
 			ar & m_uniform_dist;
-			ar & m_param_first;
-			ar & m_param_second;
-			ar & m_noise_type;
+			ar & m_trials;
+			ar & m_rho;
 		}
 
 		base_ptr m_original_problem;
-		const unsigned int m_trials;
 		mutable boost::normal_distribution<double> m_normal_dist;
 		mutable boost::random::uniform_real_distribution<double> m_uniform_dist;
-		mutable boost::hash<std::vector<double> > m_decision_vector_hash;
-		double m_param_first;
-		double m_param_second;
-		noise_type m_noise_type;
+		unsigned int m_trials;
+		double m_rho;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::noisy);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::robust);
 
-#endif // PAGMO_PROBLEM_NOISY_H
+#endif // PAGMO_PROBLEM_ROBUST_H

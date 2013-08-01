@@ -367,7 +367,7 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 archipelago.draw = _archipelago_draw
 
 
-def _plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6):
+def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6):
 	"""
 	Plots the population pareto front in a 2-D graph
 
@@ -408,6 +408,31 @@ def _plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6):
 		plt.step([c[0] for c in tmp], [c[1] for c in tmp],color=cl[id_f],where='post')
 	plt.show()
 
-
-population.plot_pareto_fronts = _plot_pareto_fronts
+population.plot_pareto_fronts = _pop_plot_pareto_fronts
 	
+def _pop_race(self, n_winners, min_trials = 0, max_feval = 500, 
+	delta=0.05, racers_idx = [], race_best=True, screen_output=False):
+	"""
+	Races individuals in a population
+
+	USAGE: pop.race(n_winners, min_trials = 0, max_feval = 500, delta = 0.05, racers_idx = [], race_best=True, screen_output=False)
+
+	* n_winners: number of winners in the race
+	* min_trials: minimum amount of evaluations before an individual can stop racing
+	* delta: Statistical test confidence
+	* racers_idx: indices of the individuals in pop to be raced
+	* race_best: when True winners are the best, otherwise winners are the worst
+	* screen_output: produces some screen output at each iteration of the race
+	"""
+	arg_list=[]
+	arg_list.append(n_winners)
+	arg_list.append(min_trials)
+	arg_list.append(max_feval)
+	arg_list.append(delta)
+	arg_list.append(racers_idx)
+	arg_list.append(race_best)
+	arg_list.append(screen_output)
+	return self._orig_race(*arg_list)
+
+population._orig_race = population.race
+population.race = _pop_race

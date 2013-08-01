@@ -224,12 +224,14 @@ class __PAGMO_VISIBLE population
 		void clear();
 		double mean_velocity() const;
 
-		// Race routine wrapper
-		std::vector<size_type> race(const size_type n_final,
+		// Race routine wrappers
+		std::pair<std::vector<population::size_type>, unsigned int> race(const size_type n_final,
 									const unsigned int min_trials = 0,
 									const unsigned int max_count = 1000,
 									double delta = 0.05,
-									const std::vector<size_type>& = std::vector<size_type>()) const;
+									const std::vector<size_type>& = std::vector<size_type>(),
+									const bool race_best = true,
+									const bool screen_output = false) const;
 
 		struct crowded_comparison_operator {
 			crowded_comparison_operator(const population &);
@@ -250,8 +252,10 @@ class __PAGMO_VISIBLE population
 		void update_champion(const size_type &);
 
 		// Multi-objective stuff
-		void update_dom(const size_type &);
 		void update_crowding_d(std::vector<size_type>) const;
+
+	protected:
+		void update_dom(const size_type &);
 
 	private:
 		// Data members + their serialization

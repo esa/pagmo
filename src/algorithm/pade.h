@@ -53,9 +53,15 @@ class __PAGMO_VISIBLE pade: public base
 {
 public:
 	enum weight_generation_type {RANDOM=0, GRID=1, LOW_DISCREPANCY=2};
-	pade(int gen=10, unsigned int max_parallelism = 1, pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED,
-		 const pagmo::algorithm::base & = pagmo::algorithm::jde(10), population::size_type = 8,
-		 weight_generation_type = LOW_DISCREPANCY, const fitness_vector & = std::vector<double>());
+	pade(
+		  int gen=10, 
+		  unsigned int max_parallelism = 1, 
+		  pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED,
+		  const pagmo::algorithm::base & = pagmo::algorithm::jde(10), 
+		  population::size_type = 8,
+		  weight_generation_type = LOW_DISCREPANCY, 
+		  const fitness_vector & = std::vector<double>()
+		);
 	pade(const pade &);
 
 	base_ptr clone() const;
