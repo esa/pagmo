@@ -5,9 +5,6 @@ from _base import base
 from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
-import sys
-
-from PyGMO.problem import decompose
 
 _base = _algorithm._base
 
@@ -110,36 +107,6 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 jde._orig_init = jde.__init__
 jde.__init__ = _jde_ctor
 
-def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
-	"""
-	Constructs a mde_pbx algorithm (self-adaptive DE)
-	
-	REF: "An Adaptive Differential Evolution Algorithm With Novel Mutation and Crossover
-	Strategies for Global Numerical Optimization" - IEEE TRANSACTIONS ON SYSTEMS, MAN, AND CYBERNETICS?PART B: CYBERNETICS, VOL. 42, NO. 2, APRIL 20 
-
-	
-	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
-	
-	* gen: number of generations
-	* qperc: percentage of population to choose the best vector
-	* nexp: exponent for the powermean
-	* ftol: stop criteria on f
-	* xtol: stop criteria on x
-	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
-	* 		 different island outputs)
-	"""
-	# We set the defaults or the kwargs
-	arg_list=[]
-	arg_list.append(gen)
-	arg_list.append(qperc)
-	arg_list.append(nexp)
-	arg_list.append(ftol)
-	arg_list.append(xtol)	
-	self._orig_init(*arg_list)
-	self.screen_output = screen_output
-mde_pbx._orig_init = mde_pbx.__init__
-mde_pbx.__init__ = _mde_pbx_ctor
-
 def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], memory = False, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
@@ -175,6 +142,37 @@ def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,
 	self.screen_output = screen_output
 de_1220._orig_init = de_1220.__init__
 de_1220.__init__ = _de_1220_ctor
+
+def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
+	"""
+	Constructs a mde_pbx algorithm (self-adaptive DE)
+	
+	REF: "An Adaptive Differential Evolution Algorithm With Novel Mutation and Crossover
+	Strategies for Global Numerical Optimization" - IEEE TRANSACTIONS ON SYSTEMS, MAN, AND CYBERNETICS?PART B: CYBERNETICS, VOL. 42, NO. 2, APRIL 20 
+
+	
+	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
+	
+	* gen: number of generations
+	* qperc: percentage of population to choose the best vector
+	* nexp: exponent for the powermean
+	* ftol: stop criteria on f
+	* xtol: stop criteria on x
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(qperc)
+	arg_list.append(nexp)
+	arg_list.append(ftol)
+	arg_list.append(xtol)	
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+mde_pbx._orig_init = mde_pbx.__init__
+mde_pbx.__init__ = _mde_pbx_ctor
+
 
 def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""
@@ -340,6 +338,7 @@ nsga_II.__init__ = _nsga_II_ctor
 _algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
 _algorithm.pade.GRID = _algorithm._weight_generation.GRID
 _algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
+from PyGMO.problem import decompose
 def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM, z = None):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
@@ -349,7 +348,7 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	At the end of the evolution the population is set as the best individual in each single-objective island.
 	This algorithm, original with PaGMO, builds upon the MOEA/D framework
 	
-	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM)
+	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM, z = None)
 
 	* gen: number of generations
 	* max_parallelism: the maximum number of single-objective problems to solve at the same time
@@ -372,6 +371,7 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
+del decompose
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
