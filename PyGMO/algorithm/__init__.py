@@ -368,6 +368,21 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
 
+def _mopso_ctor(self, gen=10):
+	"""
+	Constructs a Multi Objective PSO
+	
+	USAGE: algorithm.mopso(self, gen=10)
+
+	* gen: number of generations
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	self._orig_init(*arg_list)
+mopso._orig_init = mopso.__init__
+mopso.__init__ = _mopso_ctor
+
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
 	Constructs Corana's Simulated Annealing

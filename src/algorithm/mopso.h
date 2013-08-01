@@ -22,70 +22,51 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PAGMO_ALGORITHM_MOPSO_H
+#define PAGMO_ALGORITHM_MOPSO_H
 
-// Header including all algorithms implemented in PaGMO.
+#include "../config.h"
+#include "../serialization.h"
+#include "base.h"
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/de_1220.h"
-#include "algorithm/sea.h"
-#include "algorithm/jde.h"
-#include "algorithm/ihs.h"
-#include "algorithm/mde_pbx.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/pso_generational.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-#include "algorithm/nsga2.h"
-#include "algorithm/bee_colony.h"
-#include "algorithm/firefly.h"
-#include "algorithm/cmaes.h"
-#include "algorithm/aco.h"
-#include "algorithm/nsga2.h"
-#include "algorithm/pade.h"
-#include "algorithm/mopso.h"
+namespace pagmo { namespace algorithm {
 
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+/// Multi Objective Particle Swarm Optimizer (MOPSO)
+/**
+ *
+ * asd
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
+ **/
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
+class __PAGMO_VISIBLE mopso: public base
+{
+public:
+	mopso(int gen=10);
+	mopso(const mopso &);
 
-// IPOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
+	base_ptr clone() const;
+	void evolve(population &) const;
+	std::string get_name() const;
 
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
+protected:
+	std::string human_readable_extra() const;
 
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-	#include "algorithm/nlopt_slsqp.h"
-	#include "algorithm/nlopt_mma.h"
-	#include "algorithm/nlopt_aug_lag.h"
-	#include "algorithm/nlopt_aug_lag_eq.h"
-#endif
+private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<int &>(m_gen);
+	}
+	//Number of generations
+	const int m_gen;
+};
 
-#endif
+}} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::mopso);
+
+#endif // PAGMO_ALGORITHM_MOPSO_H
