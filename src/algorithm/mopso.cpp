@@ -29,6 +29,7 @@
 
 #include <boost/math/special_functions/binomial.hpp>
 #include <boost/random/uniform_real.hpp>
+#include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
 
 #include "../exceptions.h"
@@ -97,14 +98,33 @@ void mopso::evolve(population &pop) const
 	}
 
 
+
+
 	for(int g = 0; g < m_gen; ++g) {
-		decision_vector bestX = pop.champion().x;
+		std::cout<<"gen: " << g << std::endl;
+
+		//The first NP individuals contain the actual population (that will be mutated) the last NP contains
+		// individuals having as X the best_x of each individual of the current population
+		population newPop = population(pop);
 		for(population::size_type idx = 0; idx < NP; ++idx) {
+			newPop.push_back(pop.get_individual(idx).best_x);
+			newPop.set_v(idx+NP, pop.get_individual(idx).cur_v);
+		}
+		//Calculate the best 20% individuals of the original population according to the crowing distance
+		std::vector<population::size_type> bestIndividuals = pop.get_best_idx(NP/5); //best 20%
+		for(population::size_type idx = 0; idx < NP; ++idx) {
+
+			//Set as a leader for the current particle a random particle among the 20% best ones
+			decision_vector bestX = pop.get_individual(boost::uniform_int<int>(0,NP/5 -1)(m_drng)).cur_x;
+
+			//Calculate some random factors
 			const double W  = boost::uniform_real<double>(0.1,0.5)(m_drng);
 			const double C1 = boost::uniform_real<double>(1.5,2)(m_drng);
 			const double C2 = boost::uniform_real<double>(1.5,2)(m_drng);
 			const double r1 = boost::uniform_real<double>(0,1)(m_drng);
 			const double r2 = boost::uniform_real<double>(0,1)(m_drng);
+
+			//Calculate new velocity and new position for each particle
 			decision_vector newX;
 			decision_vector newV;
 			for(decision_vector::size_type i = 0; i < pop.get_individual(i).cur_x.size(); ++i) {
@@ -122,8 +142,19 @@ void mopso::evolve(population &pop) const
 				newV.push_back(v);
 				newX.push_back(x);
 			}
-			pop.set_v(idx, newV);
-			pop.set_x(idx, newX);
+			newPop.set_v(idx, newV);
+			newPop.set_x(idx, newX);
+
+			//Select the best NP individuals in the new population (of size 2*NP) according to the crowding distance
+			std::vector<population::size_type> bestIndices = newPop.get_best_idx(NP);
+
+			//Set the population accordingly
+			pop.clear();
+			for(population::size_type i = 0; i < NP; ++i) {
+					pop.push_back(newPop.get_individual(bestIndices[i]).best_x); //This to force best_x being the best_x of particle bestindices[i]
+					pop.set_x(i, newPop.get_individual(bestIndices[i]).cur_x); //Then we set cur_x and cur_v
+					pop.set_v(i, newPop.get_individual(bestIndices[i]).cur_v);
+			}
 		}
 	}
 
