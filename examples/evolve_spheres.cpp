@@ -45,75 +45,71 @@ int archi_best_idx(archipelago archi) {
 
 int main()
 {
-// EXPERIMENT SET-UP //
-		const int n_isl = 8;
-		const int pop_size = 512;
-		const int n_eval = 5;
-		const int n_gen = 400;
-// END OF EXPERIMENT SET-UP //
+	// EXPERIMENT SET-UP //
+	const int n_isl = 8;
+	const int pop_size = 512;
+	const int n_eval = 5;
+	const int n_gen = 400;
+	// END OF EXPERIMENT SET-UP //
 
-// Buffer
-std::vector<double> buff;
-// We instantiate a PSO algorithm capable of coping with stochastic prolems
-algorithm::pso_generational algo(1,0.7298,2.05,2.05,0.05);
+	// Buffer
+	std::vector<double> buff;
+	// We instantiate a PSO algorithm capable of coping with stochastic prolems
+	algorithm::pso_generational algo(1,0.7298,2.05,2.05,0.05);
 
+	// This instantiates the spheres problem
+	std::cout << "Initializing ...." << std::endl;
 
+	archipelago archi = archipelago(topology::fully_connected());
 
-// This instantiates the spheres problem
+	for (int j=0;j<n_isl; ++j) {
 
+		problem::spheres prob(n_eval,10,1e-6,rand(), false);
+		// This instantiates a population within the original bounds (-1,1)
+		population pop_temp(prob,pop_size);
 
-std::cout << "Initializing ...." << std::endl;
+		// We make the bounds larger to allow neurons weights to grow
+		prob.set_bounds(-10,10);
 
-archipelago archi = archipelago(topology::fully_connected());
-
-for (int j=0;j<n_isl; ++j) {
-
-	problem::spheres prob(n_eval,10,1e-6,rand(), false);
-	// This instantiates a population within the original bounds (-1,1)
-	population pop_temp(prob,pop_size);
-
-	// We make the bounds larger to allow neurons weights to grow
-	prob.set_bounds(-10,10);
-
-	// We create an empty population on the new prolem (-10,10)
-	population pop(prob);
+		// We create an empty population on the new prolem (-10,10)
+		population pop(prob);
 
 
-	// And we fill it up with (-1,1) individuals having zero velocities
-	decision_vector v(prob.get_dimension(),0);
-	for (int i =0; i<pop_size; ++i) {
-		pop.push_back(pop_temp.get_individual(i).cur_x);
-		pop.set_v(i,v);
+		// And we fill it up with (-1,1) individuals having zero velocities
+		decision_vector v(prob.get_dimension(),0);
+		for (int i =0; i<pop_size; ++i) {
+			pop.push_back(pop_temp.get_individual(i).cur_x);
+			pop.set_v(i,v);
+		}
+		archi.push_back(island(algo,pop));
 	}
-	archi.push_back(island(algo,pop));
-}
 
-//Evolution is here started on the archipelago
-for (int i=0; i< n_gen; ++i){
+	//Evolution is here started on the archipelago
+	for (int i=0; i< n_gen; ++i){
+		int idx = archi_best_idx(archi);
+		if (!(i%100)) {
+			std::cout << "best so far ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
+		}
+		double best_f = archi.get_island(idx)->get_population().champion().f[0];
+
+		if (i<50) {
+			 buff.push_back(best_f);
+		}
+		else {
+			 (buff[i%50] = best_f);
+		}
+		double mean = 0.0;
+		mean = std::accumulate(buff.begin(),buff.end(),mean);
+		mean /= (double)buff.size();
+		std::cout << "gen: "<< std::setw(12) << i << std::setw(12) <<
+		best_f << std::setw(12) <<
+		archi.get_island(idx)->get_population().mean_velocity() << std::setw(12) <<
+		mean <<	 std::endl;
+		archi.evolve(1);
+	 }
+
 	int idx = archi_best_idx(archi);
-	if (!(i%100)) {
-		std::cout << "best so far ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
-	}
-	double best_f = archi.get_island(idx)->get_population().champion().f[0];
+	std::cout << "and the winner is ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
 
-	if (i<50) {
-		 buff.push_back(best_f);
-	}
-	else {
-		 (buff[i%50] = best_f);
-	}
-	double mean = 0.0;
-	mean = std::accumulate(buff.begin(),buff.end(),mean);
-	mean /= (double)buff.size();
-	std::cout << "gen: "<< std::setw(12) << i << std::setw(12) <<
-	best_f << std::setw(12) <<
-	archi.get_island(idx)->get_population().mean_velocity() << std::setw(12) <<
-	mean <<	 std::endl;
-	archi.evolve(1);
- }
-
-int idx = archi_best_idx(archi);
-std::cout << "and the winner is ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
-
-return 0;
+	return 0;
 }
