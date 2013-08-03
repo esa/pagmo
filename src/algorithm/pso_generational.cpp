@@ -492,7 +492,7 @@ decision_vector pso_generational::particle__racing_get_best_neighbor( population
 	for(population::size_type nidx = 0; nidx < neighb[pidx].size(); nidx++){
 		active_indices.push_back(neighb[pidx][nidx]);
 	}
-	const unsigned int racing_fevals_budget = neighb[pidx].size() * 2;
+	const unsigned int racing_fevals_budget = neighb[pidx].size() * 40;
 	std::pair<std::vector<population::size_type>, unsigned int> race_res = pop_racer.run(1, 0, racing_fevals_budget, 0.05, active_indices, true, false);
 	std::vector<population::size_type> winners = race_res.first;
 	m_fevals += race_res.second;

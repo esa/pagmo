@@ -58,6 +58,7 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 
 	const int max_fevals_per_split = max_fevals / n_split;
 
+	const int prob_n_eval_racing = 5;
 	const int prob_n_eval = 5;
 
 	algorithm::base_ptr algo;
@@ -71,7 +72,7 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 		std::cout << "Not using racing: " << std::endl;
 		std::cout << "\t-> Splitting into " << n_split << " times of evolves, each consuming " << (n_gen / n_split) * pop_size << " fevals." << std::endl;
 		std::cout << "\t-> Total fevals = " << n_gen * pop_size << std::endl;
-		algo = algorithm::pso_generational(n_gen / n_split / 2 / prob_n_eval, 0.7298, 2.05, 2.05, 0.05).clone();
+		algo = algorithm::pso_generational(n_gen / n_split / 2, 0.7298, 2.05, 2.05, 0.05).clone();
 	}
 
 	std::cout << "Initializing ..." << std::endl;
@@ -81,7 +82,7 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 
 		problem::base_ptr p_prob;
 		if(use_racing){
-			p_prob = problem::spheres(1, 10, 1e-6, rand(), false).clone();
+			p_prob = problem::spheres(prob_n_eval_racing, 10, 1e-6, rand(), false).clone();
 		}
 		else{
 			p_prob = problem::spheres(prob_n_eval, 10, 1e-6, rand(), false).clone();
@@ -128,10 +129,17 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 	 }
 
 	int idx = archi_best_idx(archi);
+	decision_vector winner_x = archi.get_island(idx)->get_population().champion().x;
 	//std::cout << "and the winner is ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
+	/*
 	double final_f = archi.get_island(idx)->get_population().champion().f[0];
-	//std::cout << "Final f = " << final_f << std::endl;
+	std::cout << "Final f = " << final_f << std::endl;
+	*/	
+	int eval_count = 50;
+	problem::spheres prob_for_evaluation(eval_count, 10, 1e-6, rand(), false);
+	double final_f = prob_for_evaluation.objfun(winner_x)[0];
 	std::cout << "fevals "<< std::setw(12) << max_fevals_per_split << std::setw(12) << final_f << std::endl;
+
 	return final_f;
 }
 
