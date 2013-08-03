@@ -213,7 +213,7 @@ void pso_generational::evolve(population &pop) const
 		for( p  = 0; p < swarm_size; p++ ){
 			lbpop.push_back(lbX[p]); // TODO: Wasted objfun calls here?
 		}
-		util::racing::race_pop race(lbpop, m_urng());
+		util::racing::race_pop pop_racer(lbpop, m_urng());
 
 		// Update Velocity
 		for( p = 0; p < swarm_size; p++ ){
@@ -226,7 +226,7 @@ void pso_generational::evolve(population &pop) const
 					best_neighb = particle__get_best_neighbor( p, neighb, lbX, lbfit, prob );
 				}
 				else{
-					best_neighb = particle__racing_get_best_neighbor( p, neighb, lbX, race );
+					best_neighb = particle__racing_get_best_neighbor( p, neighb, lbX, pop_racer );
 					// If the swarm has not been completely processed but
 					// racing has exhausted the allowable evaluation budget, we
 					// have to terminate. The final feval count is capped at
@@ -447,7 +447,9 @@ void pso_generational::evolve(population &pop) const
 			initialize_topology__adaptive_random( neighb );
 		}
 	} // end of main PSO loop
-	std::cout << "PSO terminated: gen = " << g << ", incurred fevals = " << m_fevals << std::endl;
+	//if( m_use_racing ){
+		std::cout << "\nPSO terminated: gen = " << g << ", incurred fevals = " << m_fevals << std::endl;
+	//}
 }
 
 
@@ -484,13 +486,14 @@ decision_vector pso_generational::particle__get_best_neighbor( population::size_
 }
 
 /// Extracts best neighbor via racing
-decision_vector pso_generational::particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop& race) const
+decision_vector pso_generational::particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop& pop_racer) const
 {
 	std::vector<population::size_type> active_indices;
 	for(population::size_type nidx = 0; nidx < neighb[pidx].size(); nidx++){
 		active_indices.push_back(neighb[pidx][nidx]);
 	}
-	std::pair<std::vector<population::size_type>, unsigned int> race_res = race.run(1, 0, 100, 0.05, active_indices, true, false);
+	const unsigned int racing_fevals_budget = neighb[pidx].size() * 2;
+	std::pair<std::vector<population::size_type>, unsigned int> race_res = pop_racer.run(1, 0, racing_fevals_budget, 0.05, active_indices, true, false);
 	std::vector<population::size_type> winners = race_res.first;
 	m_fevals += race_res.second;
 	return lbX[winners[0]];
