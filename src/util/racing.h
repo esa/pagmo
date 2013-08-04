@@ -46,6 +46,8 @@ namespace racing{
 		racing_population(const population &);
 		void set_x_noeval(const size_type, const decision_vector &);
 		void set_fc(const size_type, const fitness_vector &, const constraint_vector &);
+		void push_back_noeval(const decision_vector &);
+		std::vector<double> get_rankings();
 	};
 
 	struct racer_type

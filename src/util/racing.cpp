@@ -78,6 +78,126 @@ void racing_population::set_fc(const size_type idx, const fitness_vector &f, con
 	update_dom(idx);
 }
 
+
+/// Append individual with given decision vector without invoking objective function
+/**
+ * Only allocates spaces for the incoming decision vector in m_container,
+ * m_dom_list, and m_dom_count. If the fitnesses and contraints will be used,
+ * make sure to call set_fc() prior to using them, or bear the consequences.
+ *
+ * NOTE: Differences compared with the real push_back:
+ * - No evaluation (no set_x)
+ * - No initialization of velocities (v's are all zeros) 
+ * - Champion will not be allocated correctly subsequently (requires real set_x)
+ **/
+void racing_population::push_back_noeval(const decision_vector &x)
+{
+	if (!problem().verify_x(x)) {
+		pagmo_throw(value_error,"decision vector is not compatible with problem");
+
+	}
+	// Store sizes temporarily.
+	const fitness_vector::size_type f_size = problem().get_f_dimension();
+	const constraint_vector::size_type c_size = problem().get_c_dimension();
+	const decision_vector::size_type p_size = problem().get_dimension();
+	// Push back an empty individual.
+	m_container.push_back(individual_type());
+	m_dom_list.push_back(std::vector<size_type>());
+	m_dom_count.push_back(0);
+	// Resize individual's elements.
+	m_container.back().cur_x.resize(p_size);
+	m_container.back().cur_v.resize(p_size);
+	m_container.back().cur_c.resize(c_size);
+	m_container.back().cur_f.resize(f_size);
+	// NOTE: do not allocate space for bests, as they are not defined yet. set_x will take
+	// care of it. No -- it won't now!
+	// Set the individual.
+	//set_x(m_container.size() - 1,x);
+	// TODO: Noeval options made the concept a champion invalid. And champions
+	// are not used in racing. How to prevent invalid use of champion?
+	set_x_noeval(m_container.size() - 1, x);
+	// Initialise randomly the velocity vector.
+	//init_velocity(m_container.size() - 1);
+}
+
+
+/// Returns the ``rankings" of the individuals.
+/**
+ * The rankings are obtained using get_best_idx() in the base population class.
+ * The rankings are further processed to cater for possible ties, which is a
+ * step typically required by ranking-based statistical testing.
+ **/
+std::vector<double> racing_population::get_rankings()
+{
+	std::vector<double> rankings(size());
+	std::vector<size_type> raw_order = get_best_idx(size());
+
+	int cur_rank = 1;
+	for(size_type i = 0; i < raw_order.size(); i++){
+		int ind_idx = raw_order[i];
+		rankings[ind_idx] = cur_rank;
+		cur_rank++;
+	}
+	
+	// --Adjust ranking to cater for ties--
+	// 1. Check consecutively ranked individuals whether they are tied.
+	std::vector<bool> tied(size() - 1, false);
+	if(problem().get_f_dimension() == 1){
+		// Single-objective case
+		population::trivial_comparison_operator comparator(*this);
+		for(size_type i = 0; i < size() - 1; i++){	
+			if (!comparator(i, i+1) && !comparator(i+1, i)){
+				tied[i] = true;
+			}
+		}
+	}	
+	else{
+		// Multi-objective case
+		// TODO: Possibe big jumps in observation data due to Pareto ranks
+		population::crowded_comparison_operator comparator(*this);
+		for(size_type i = 0; i < size() - 1; i++){	
+			if (!comparator(i, i+1) && !comparator(i+1, i)){
+				tied[i] = true;
+			}
+		}
+	}
+	// std::cout << "Tied stats: "; for(size_type i = 0; i < tied.size(); i++) std::cout << tied[i] <<" "; std::cout<<std::endl;
+
+	// 2. For all the individuals who are tied, modify their rankings to
+	// be the average rankings in case of no tie.
+	size_type cur_pos = 0;
+	size_type begin_avg_pos;
+	while(cur_pos < tied.size()){
+		begin_avg_pos = cur_pos;
+		while(tied[cur_pos]==1){
+			cur_pos++;
+			if(cur_pos >= tied.size()){
+				break;
+			}
+		}
+
+		double avg_rank = 0;
+		// std::cout << "Ties between: ";
+		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
+			avg_rank += rankings[i] / ((double)cur_pos - begin_avg_pos + 1);
+			// std::cout << ordered_idx_active[i] << " (r=" << racers[ordered_idx_active[i]].m_hist.back() << ") ";
+		}
+		// std::cout << std::endl;
+		// if(cur_pos - begin_avg_pos + 1 > 1)
+			// std::cout << "Setting tied ranks between " << cur_pos - begin_avg_pos + 1 << " individuals to be " << avg_rank   << std::endl;
+		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
+			rankings[i] = avg_rank;
+		}
+
+		// If no tie at all for this begin pos
+		if(begin_avg_pos == cur_pos){
+			cur_pos++;
+		}
+	}
+	return rankings;
+}
+
+
 /// Friedman rank assignment (before every racing iteration)
 /**
  * Updates racers with the friedman ranks, assuming that the required individuals
@@ -97,6 +217,7 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 
 	typedef population::size_type size_type;
 
+	
 	std::vector<size_type> raw_order = racing_pop.get_best_idx(racing_pop.size());
 	int cur_rank = 1;
 	std::vector<size_type> ordered_idx_active;
@@ -180,7 +301,6 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 			cur_racer.m_mean += (cur_racer.m_hist[i]) / (double)cur_racer.length();
 		}
 	}
-
 	//std::cout << "Adjusted ranking: "; for(size_type i = 0; i < ordered_idx_active.size(); i++) std::cout << "(" << ordered_idx_active[i] << ")-" << racers[ordered_idx_active[i]].m_hist.back() << " "; std::cout << std::endl;
 }
 
