@@ -45,7 +45,7 @@ int archi_best_idx(archipelago archi) {
 }
 
 
-double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool use_racing)
+double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool use_racing, int seed=123)
 {
 	// Amount of evaluation budget derived from conventional set-up
 	const int max_fevals = n_gen * pop_size;
@@ -64,16 +64,18 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 	algorithm::base_ptr algo;
 	if(use_racing){
 		std::cout << "Using racing: " << std::endl;
-		std::cout << "\t-> Splitting into " << n_split << " times of evolves, each consuming " << max_fevals_per_split << " fevals." << std::endl;
-		std::cout << "\t-> Total fevals = " << n_split * max_fevals_per_split << std::endl;
-		algo = algorithm::pso_generational(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, true, max_fevals_per_split).clone();
+		//std::cout << "\t-> Splitting into " << n_split << " times of evolves, each consuming " << max_fevals_per_split << " fevals." << std::endl;
+		//std::cout << "\t-> Total fevals = " << n_split * max_fevals_per_split << std::endl;
+		//algo = algorithm::pso_generational(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, true, max_fevals_per_split).clone();
+		algo = algorithm::pso_generational(n_gen / n_split / 2, 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, true).clone();
 	}
 	else{
 		std::cout << "Not using racing: " << std::endl;
-		std::cout << "\t-> Splitting into " << n_split << " times of evolves, each consuming " << (n_gen / n_split) * pop_size << " fevals." << std::endl;
-		std::cout << "\t-> Total fevals = " << n_gen * pop_size << std::endl;
+		//std::cout << "\t-> Splitting into " << n_split << " times of evolves, each consuming " << (n_gen / n_split) * pop_size << " fevals." << std::endl;
+		//std::cout << "\t-> Total fevals = " << n_gen * pop_size << std::endl;
 		algo = algorithm::pso_generational(n_gen / n_split / 2, 0.7298, 2.05, 2.05, 0.05).clone();
 	}
+	algo->reset_rngs(seed);
 
 	std::cout << "Initializing ..." << std::endl;
 	archipelago archi = archipelago(topology::fully_connected());
@@ -82,20 +84,20 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 
 		problem::base_ptr p_prob;
 		if(use_racing){
-			p_prob = problem::spheres(prob_n_eval_racing, 10, 1e-6, rand(), false).clone();
+			p_prob = problem::spheres(prob_n_eval_racing, 10, 1e-6, seed, false).clone();
 		}
 		else{
-			p_prob = problem::spheres(prob_n_eval, 10, 1e-6, rand(), false).clone();
+			p_prob = problem::spheres(prob_n_eval, 10, 1e-6, seed, false).clone();
 		}
 		//problem::spheres prob(prob_n_eval, 10, 1e-6, rand(), false);
 		// This instantiates a population within the original bounds (-1,1)
-		population pop_temp(*p_prob,pop_size);
+		population pop_temp(*p_prob,pop_size, seed);
 
 		// We make the bounds larger to allow neurons weights to grow
 		p_prob->set_bounds(-10,10);
 
 		// We create an empty population on the new prolem (-10,10)
-		population pop(*p_prob);
+		population pop(*p_prob, 0, seed);
 
 		// And we fill it up with (-1,1) individuals having zero velocities
 		decision_vector v(p_prob->get_dimension(),0);
@@ -136,7 +138,7 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 	double final_f = archi.get_island(idx)->get_population().champion().f[0];
 	std::cout << "Final f = " << final_f << std::endl;
 	*/	
-	int eval_count = 50;
+	int eval_count = 20000;
 	problem::spheres prob_for_evaluation(eval_count, 10, 1e-6, rand(), false);
 	double final_f = prob_for_evaluation.objfun(winner_x)[0];
 	std::cout << "fevals "<< std::setw(12) << max_fevals_per_split << std::setw(12) << final_f << std::endl;
@@ -155,7 +157,7 @@ int main(int argc, char* argv[])
 	const bool use_racing = false;
 	// END OF EXPERIMENT SET-UP //
 	*/	
-	const int n_isl = 2;
+	const int n_isl = 1;
 	const int pop_size = 512;
 	const int n_gen = 400;
 	const int n_repeat_experiments = 10;
@@ -167,9 +169,11 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	unsigned int seed = 5;
+
 	double avg_final_f = 0;
-	for(int i = 0; i < n_repeat_experiments; i++){
-		double final_f = run_experiment(n_isl, pop_size, n_gen, use_racing);
+	for(int i = 0; i < n_repeat_experiments; i++, seed+=123){
+		double final_f = run_experiment(n_isl, pop_size, n_gen, use_racing, seed);
 		avg_final_f += final_f / (double)n_repeat_experiments;
 	}
 	

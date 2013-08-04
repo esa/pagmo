@@ -446,6 +446,8 @@ void pso_generational::evolve(population &pop) const
 		{
 			initialize_topology__adaptive_random( neighb );
 		}
+
+		std::cout << "Gen " << g << ": champion is " << pop.champion().f[0] << std::endl;
 	} // end of main PSO loop
 	//if( m_use_racing ){
 		std::cout << "\nPSO terminated: gen = " << g << ", incurred fevals = " << m_fevals << std::endl;
