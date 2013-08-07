@@ -30,7 +30,7 @@
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 // comparator function for initial sorting
-bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
+bool wfg::cmp_points(const fitness_vector &a, const fitness_vector &b) {
 	for(int i=a.size() - 1; i >=0 ; --i){
 		if (a[i] > b[i]) {
 			return true;
@@ -126,7 +126,7 @@ double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_
 		return hv.compute(r_cpy);
 	} else {
 		// else sort the points in preparation for wfg
-		sort(points_cpy.begin(), points_cpy.end(), wfg_cmp);
+		sort(points_cpy.begin(), points_cpy.end(), wfg::cmp_points);
 	}
 
 	double H = 0.0;

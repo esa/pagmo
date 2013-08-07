@@ -60,6 +60,8 @@ class __PAGMO_VISIBLE wfg : public base {
 		inline double exclusive_hv(const std::vector<fitness_vector> &, const unsigned int, const fitness_vector &) const;
 		inline double compute_hv(const std::vector<fitness_vector> &, const fitness_vector &) const;
 
+		static bool cmp_points(const fitness_vector &a, const fitness_vector &b);
+
 		mutable unsigned int m_current_slice;
 		const unsigned int m_stop_dimension;
 
