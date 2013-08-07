@@ -73,7 +73,7 @@ class HypervolumeValidation:
 		return algorithm
 
 
-def _hypervolume_ctor(self, data_src = None, *args, **kwargs):
+def _hypervolume_ctor(self, data_src = None, verify = True, *args, **kwargs):
 	"""
 	Constructs a hypervolume object used for the computation of hypervolue and exclusive hypervolume.
 
@@ -85,7 +85,7 @@ def _hypervolume_ctor(self, data_src = None, *args, **kwargs):
 		hv = hypervolume(pop)
 		hv = hypervolume([[1,1,2],[2,1,2],[2,2,3]])
 		hv = hypervolume(((1,2), (3,0.5), (1.5, 1.5))
-
+		hv = hypervolume(data_src = ((1,2),(2,3)), verify=False)
 	"""
 	if not data_src or len(args) > 0 or len(kwargs) > 0:
 		raise HypervolumeValidation.err_hv_ctor_args
@@ -96,6 +96,7 @@ def _hypervolume_ctor(self, data_src = None, *args, **kwargs):
 
 	args = []
 	args.append(data_src)
+	args.append(verify)
 	try:
 		return self._original_init(*args)
 	except TypeError:
@@ -249,7 +250,7 @@ def _beume3d_ctor(self):
 beume3d._original_init = beume3d.__init__
 beume3d.__init__ = _beume3d_ctor
 
-def _wfg_ctor(self):
+def _wfg_ctor(self, stop_dimension = 2):
 	"""
 	Hypervolume algorithm: WFG.
 	Applicable to hypervolume computation problems of dimension in [2, ..]
@@ -264,7 +265,9 @@ def _wfg_ctor(self):
 		hv.exclusive(p_idx=13,r=refpoint, algorithm=hv_algorithm.wfg())
 		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.wfg())
 	"""
-	return self._original_init()
+	args = []
+	args.append(stop_dimension)
+	return self._original_init(*args)
 wfg._original_init = wfg.__init__
 wfg.__init__ = _wfg_ctor
 

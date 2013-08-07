@@ -54,7 +54,7 @@ class __PAGMO_VISIBLE beume3d : public base {
 
 		beume3d(const beume3d &orig);
 		beume3d(bool initial_sorting = true);
-		double compute(const std::vector<fitness_vector> &, const fitness_vector &);
+		double compute(std::vector<fitness_vector> &, const fitness_vector &);
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		base_ptr clone() const;
 		std::string get_name() const;

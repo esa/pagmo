@@ -33,14 +33,16 @@ namespace pagmo { namespace util {
  * @param[in] pop reference to population object from which Pareto front is computed
  * @param[in] front_idx index of the front for which the hypervolume is to be computed
  */
-hypervolume::hypervolume(boost::shared_ptr<population> pop, unsigned int front_idx) {
+hypervolume::hypervolume(boost::shared_ptr<population> pop, unsigned int front_idx, const bool verify) : m_copy_points(true), m_verify(verify) {
 	std::vector<std::vector<population::size_type> > pareto_fronts = pop->compute_pareto_fronts();
 	m_points.resize(pareto_fronts[front_idx].size());
 	for (population::size_type idx = 0 ; idx < pareto_fronts[front_idx].size() ; ++idx) {
 		m_points[idx] = fitness_vector(pop->get_individual(pareto_fronts[front_idx][idx]).cur_f);
 	}
 
-	verify_after_construct();
+	if (m_verify) {
+		verify_after_construct();
+	}
 }
 
 /// Constructor from a vector of points
@@ -49,8 +51,38 @@ hypervolume::hypervolume(boost::shared_ptr<population> pop, unsigned int front_i
  *
  * @param[in] points vector of points for which the hypervolume is computed
  */
-hypervolume::hypervolume(const std::vector<fitness_vector> &points) : m_points(points) {
-	verify_after_construct();
+hypervolume::hypervolume(const std::vector<fitness_vector> &points, const bool verify) : m_points(points), m_copy_points(true), m_verify(verify) {
+	if  (m_verify) {
+		verify_after_construct();
+	}
+}
+
+/// Set hypervolume object for single use
+/**
+ * Sets the hypervolume as a single use object.
+ * It is used in cases where we are certain that we can alter the original set of points from the hypervolume object.
+ * This is useful when we don't want to make a copy of the points first, as most algorithms alter the original set.
+ *
+ * This may result in unexpected behaviour when used incorrectly (e.g. requesting the computation twice out of the same object)
+ *
+ * @param[in] copy_points boolean value stating whether the hypervolume computation may use original set
+ */
+void hypervolume::set_copy_points(const bool copy_points) {
+	m_copy_points = copy_points;
+}
+
+/// Set the verification phase
+/**
+ * Turns off the verification phase.
+ * By default, the hypervolume object verifies whether certain characteristics of the point set before computing, such as valid dimension sizes, or matchin reference point.
+ * In order to optimize the computation when the rules above are certain, we can turn off that phase.
+ *
+ * This may result in unexpected behaviour when used incorrectly (e.g. requesting the computation of empty set of points)
+ *
+ * @param[in] verify boolean value stating whether the hypervolume computation is to be executed without verification
+ */
+void hypervolume::set_verify(const bool verify) {
+	m_verify = verify;
 }
 
 /// Copy constructor.
@@ -131,8 +163,18 @@ hv_algorithm::base_ptr hypervolume::get_best_method(const fitness_vector &r_poin
  * @return value representing the hypervolume
  */
 double hypervolume::compute(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) const {
-	verify_before_compute(r_point, hv_algorithm);
-	return hv_algorithm->compute(m_points, r_point);
+
+	if (m_verify) {
+		verify_before_compute(r_point, hv_algorithm);
+	}
+
+	// copy the initial set of points, as the algorithm may alter its contents
+	if (m_copy_points) {
+		std::vector<fitness_vector> points_cpy(m_points.begin(), m_points.end());
+		return hv_algorithm->compute(points_cpy, r_point);
+	} else {
+		return hv_algorithm->compute(const_cast<std::vector<fitness_vector> &>(m_points), r_point);
+	}
 }
 
 // compute hypervolume
@@ -160,12 +202,23 @@ double hypervolume::compute(const fitness_vector &r_point) const {
  * @return value representing the hypervolume
  */
 double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) const {
-	verify_before_compute(r_point, hv_algorithm);
+
+	if (m_verify) {
+		verify_before_compute(r_point, hv_algorithm);
+	}
+
 	if (p_idx >= m_points.size()) {
 		pagmo_throw(value_error, "Index of the individual is out of bounds.");
 
 	}
-	return hv_algorithm->exclusive(p_idx, m_points, r_point);
+
+	// copy the initial set of points, as the algorithm may alter its contents
+	if (m_copy_points) {
+		std::vector<fitness_vector> points_cpy(m_points.begin(), m_points.end());
+		return hv_algorithm->exclusive(p_idx, points_cpy, r_point);
+	} else {
+		return hv_algorithm->exclusive(p_idx, const_cast<std::vector<fitness_vector> &>(m_points), r_point);
+	}
 }
 
 // compute exclusive contribution
@@ -192,8 +245,18 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
  * @return index of the least contributing point
  */
 unsigned int hypervolume::least_contributor(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) const {
-	verify_before_compute(r_point, hv_algorithm);
-	return hv_algorithm->least_contributor(m_points, r_point);
+
+	if (m_verify) {
+		verify_before_compute(r_point, hv_algorithm);
+	}
+
+	// copy the initial set of points, as the algorithm may alter its contents
+	if (m_copy_points) {
+		std::vector<fitness_vector> points_cpy(m_points.begin(), m_points.end());
+		return hv_algorithm->least_contributor(points_cpy, r_point);
+	} else {
+		return hv_algorithm->least_contributor(const_cast<std::vector<fitness_vector> &>(m_points), r_point);
+	}
 }
 
 // locate the least contributing individual

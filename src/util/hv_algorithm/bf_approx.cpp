@@ -61,7 +61,7 @@ bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_t
  *
  * @return index of the least contributing point
  */
-unsigned int bf_approx::least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 
 	m_no_samples = std::vector<unsigned long long>(points.size(), 0);
 	m_no_succ_samples = std::vector<unsigned long long>(points.size(), 0);
@@ -350,7 +350,7 @@ void bf_approx::verify_before_compute(const std::vector<fitness_vector> &points,
 	base::assert_maximal_reference_point(points, r_point);
 }
 
-double bf_approx::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double bf_approx::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	(void)points;
 	(void)r_point;
 	pagmo_throw(value_error, "Compute hypervolume method is not yet implemented.");

@@ -79,18 +79,15 @@ static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wra
 
 	class_<HVAlgorithm,bases<util::hv_algorithm::base> > retval(name,descr,init<const HVAlgorithm &>());
 	retval.def(init<>());
-	retval.def("compute", &HVAlgorithm::compute);
 	return retval;
 }
 
 void expose_hv_algorithm() {
 	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
-		.def("compute", &util::hv_algorithm::base::compute)
 		.def("get_name", &util::hv_algorithm::base::get_name);
 	algorithm_wrapper<util::hv_algorithm::native2d>("native2d","Native2D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::beume3d>("beume3d","Beume3D algorithm.");
-	algorithm_wrapper<util::hv_algorithm::wfg>("wfg","WFG algorithm.");
-
+	class_<util::hv_algorithm::wfg, bases<util::hv_algorithm::base> >("wfg","WFG algorithm.", init<const unsigned int>());
 	class_<util::hv_algorithm::bf_approx, bases<util::hv_algorithm::base> >("bf_approx","Bringmann-Friedrich approximated algorithm.", 
 			init<const bool, const unsigned int, const double, const double, const double, const double, const double, const double>());
 }
@@ -107,8 +104,8 @@ void expose_hypervolume() {
 	typedef unsigned int (util::hypervolume::*least_contributor_dynamic)(const fitness_vector &) const;
 
 
-	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &>())
-		.def(init<boost::shared_ptr<population> >())
+	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &, const bool >())
+		.def(init<boost::shared_ptr<population>, const unsigned int, const bool >())
 		.def("compute", compute_custom(&util::hypervolume::compute), "Computes the hypervolume using the provided hypervolume algorithm.")
 		.def("compute", compute_dynamic(&util::hypervolume::compute), "Computes the hypervolume.")
 		.def("exclusive", exclusive_custom(&util::hypervolume::exclusive), "Computes the exclusive hypervolume using the provided hypervolume algorithm.")

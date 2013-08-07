@@ -71,11 +71,11 @@ class __PAGMO_VISIBLE base
 		 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 		 * @param[in] r_point - distinguished "reference point".
 		 */
-		virtual double compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
+		virtual double compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
 
-		virtual double exclusive(const unsigned int p_idx, const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+		virtual double exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point);
 
-		virtual unsigned int least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+		virtual unsigned int least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point);
 
 		/// Verification of input
 		/**

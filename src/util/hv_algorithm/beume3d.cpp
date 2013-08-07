@@ -44,12 +44,10 @@ beume3d::beume3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
  *
  * @return hypervolume.
  */
-double beume3d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double beume3d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
-	// copy the initial set
-	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 	if (m_initial_sorting) {
-		sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(2,'<'));
+		sort(points.begin(), points.end(), fitness_vector_cmp(2,'<'));
 	}
 	double V = 0.0; // hypervolume
 	double A = 0.0; // area of the sweeping plane
@@ -62,14 +60,14 @@ double beume3d::compute(const std::vector<fitness_vector> &points, const fitness
 
 	T.insert(sA);
 	T.insert(sB);
-	double z3 = points_cpy[0][2];
-	T.insert(points_cpy[0]);
-	A = fabs((points_cpy[0][0] - r_point[0]) * (points_cpy[0][1] - r_point[1]));
+	double z3 = points[0][2];
+	T.insert(points[0]);
+	A = fabs((points[0][0] - r_point[0]) * (points[0][1] - r_point[1]));
 
 	std::multiset<fitness_vector>::iterator p;
 	std::multiset<fitness_vector>::iterator q;
-	for(std::vector<fitness_vector>::size_type idx = 1 ; idx < points_cpy.size() ; ++idx) {
-		p = T.insert(points_cpy[idx]);
+	for(std::vector<fitness_vector>::size_type idx = 1 ; idx < points.size() ; ++idx) {
+		p = T.insert(points[idx]);
 		q = (p);
 		++q; //setup q to be a successor of p
 		if ( (*q)[1] <= (*p)[1] ) { // current point is dominated

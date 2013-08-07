@@ -41,25 +41,25 @@ native2d::native2d(const bool initial_sorting) : m_initial_sorting(initial_sorti
  *
  * @return hypervolume
  */
-double native2d::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double native2d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
 	if (points.size() == 0) {
 		return 0.0;
 	} else if (points.size() == 1) {
 		return base::volume_between(points[0], r_point);
 	}
-	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
+	//std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 
 	if (m_initial_sorting) {
-		sort(points_cpy.begin(), points_cpy.end(), fitness_vector_cmp(1, '<'));
+		sort(points.begin(), points.end(), fitness_vector_cmp(1, '<'));
 	}
 
 	double hypervolume = 0.0;
-	for(std::vector<fitness_vector>::size_type idx = 0; idx < points_cpy.size() - 1 ; ++idx) {
-		double area = (points_cpy[idx][1] - points_cpy[idx+1][1]) * (points_cpy[idx][0] - r_point[0]);
+	for(std::vector<fitness_vector>::size_type idx = 0; idx < points.size() - 1 ; ++idx) {
+		double area = (points[idx][1] - points[idx+1][1]) * (points[idx][0] - r_point[0]);
 		hypervolume += fabs(area);
 	}
-	fitness_vector &last = points_cpy.back();
+	fitness_vector &last = points.back();
 	hypervolume += fabs((r_point[1] - last[1]) * (r_point[0] - last[0]));
 
 	return hypervolume;
@@ -83,7 +83,7 @@ bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std
  *
  * @return index of the least contributing point
  */
-unsigned int native2d::least_contributor(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int native2d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	if (points.size() == 1) {
 		return 0;
 	}

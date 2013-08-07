@@ -83,7 +83,6 @@ class HVComputeTest(unittest.TestCase):
 
 	def test_bad_algo(self):
 		self.assertRaises(ValueError, self.hv2d.compute, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
-		self.assertRaises(ValueError, self.hv2d.compute, [4, 4], hv_algorithm.lebmeasure())  # lebmeasure to 2d problem
 
 class HVLeastContribTest(unittest.TestCase):
 
@@ -96,7 +95,12 @@ class HVLeastContribTest(unittest.TestCase):
 		self.hv2d_2 = hypervolume([[3,1],[2,2],[1,3.5]])
 	
 	def test_correct_out(self):
-		self.assertEqual(self.hv2d_eq_0.least_contributor(r=self.r), 0)
+		out1 = self.hv2d_eq_0.least_contributor(r=self.r)
+		self.assertTrue(out1 in [0,1,2])
+
+		out2 = self.hv2d_eq_1.least_contributor(r=self.r)
+		self.assertTrue(out2 in [1,2])
+
 		self.assertEqual(self.hv2d_eq_1.least_contributor(r=self.r), 1)
 		self.assertEqual(self.hv2d_0.least_contributor(r=self.r), 0)
 		self.assertEqual(self.hv2d_1.least_contributor(r=self.r), 1)
@@ -113,7 +117,6 @@ class HVLeastContribTest(unittest.TestCase):
 
 	def test_bad_algo(self):
 		self.assertRaises(ValueError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
-		self.assertRaises(ValueError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.lebmeasure())  # lebmeasure to 2d problem
 
 class HVExclusiveTest(unittest.TestCase):
 	def setUp(self):
@@ -156,7 +159,6 @@ class HVExclusiveTest(unittest.TestCase):
 
 	def test_bad_algo(self):
 		self.assertRaises(ValueError, self.hv2d.exclusive, 0, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
-		self.assertRaises(ValueError, self.hv2d.exclusive, 0, [4, 4], hv_algorithm.lebmeasure())  # lebmeasure to 2d problem
 
 class HVNadirPointTest(unittest.TestCase):
 
@@ -164,7 +166,7 @@ class HVNadirPointTest(unittest.TestCase):
 		self.hv2d = hypervolume([[3,1],[2,2],[1,3]])
 
 	def test_nadir_point(self):
-		self.assertEqual(tuple(self.hv2d.get_nadir_point()), (4,4))  # default nadir point
+		self.assertEqual(tuple(self.hv2d.get_nadir_point()), (3,3))  # default nadir point
 		self.assertEqual(tuple(self.hv2d.get_nadir_point(5.0)), (8,8))  # custom nadir point
 		self.assertEqual(tuple(self.hv2d.get_nadir_point(0.0)), (3,3))  # nadir point with eps=0.0
 		self.assertEqual(tuple(self.hv2d.get_nadir_point(-0.0)), (3,3))  # nadir point with eps=-0.0 is ok
@@ -174,6 +176,12 @@ class HVNadirPointTest(unittest.TestCase):
 		self.assertRaises(TypeError, self.hv2d.get_nadir_point, "foo") # bad arg
 		self.assertRaises(TypeError, self.hv2d.get_nadir_point, epsilon=1.0)  # bad kwarg name
 
+class HVAlgorithms(unittest.TestCase):
+
+	def test_wfg(self):
+		self.assertRaises(ValueError, hv_algorithm.wfg, stop_dimension = 0) # stop_dimension = 0
+		self.assertRaises(ValueError, hv_algorithm.wfg, stop_dimension = 1) # stop_dimension = 1
+
 def get_hv_suite():
 	suite = unittest.TestSuite()
 	suite.addTests(unittest.makeSuite(HVCtorTest))
@@ -181,4 +189,5 @@ def get_hv_suite():
 	suite.addTests(unittest.makeSuite(HVLeastContribTest))
 	suite.addTests(unittest.makeSuite(HVExclusiveTest))
 	suite.addTests(unittest.makeSuite(HVNadirPointTest))
+	suite.addTests(unittest.makeSuite(HVAlgorithms))
 	return suite

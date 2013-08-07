@@ -54,8 +54,8 @@ class __PAGMO_VISIBLE hypervolume
 	public:
 		hypervolume();
 		hypervolume(const hypervolume &);
-		hypervolume(const boost::shared_ptr<population>, const unsigned int front_idx = 0);
-		hypervolume(const std::vector<fitness_vector> &);
+		hypervolume(const boost::shared_ptr<population>, const unsigned int front_idx = 0, const bool verify = true);
+		hypervolume(const std::vector<fitness_vector> &, const bool verify = true);
 
 		double compute(const fitness_vector &, const hv_algorithm::base_ptr) const;
 		double compute(const fitness_vector &) const;
@@ -68,6 +68,9 @@ class __PAGMO_VISIBLE hypervolume
 
 		static unsigned long long get_expected_operations(const unsigned int n, const unsigned int d);
 
+		void set_copy_points(const bool);
+		void set_verify(const bool);
+
 		fitness_vector get_nadir_point(const double epsilon = 0.0) const;
 
 		hypervolume_ptr clone() const;
@@ -76,16 +79,21 @@ class __PAGMO_VISIBLE hypervolume
 	private:
 		// Method returning the best performing algorithm for given computational task
 		hv_algorithm::base_ptr get_best_method(const fitness_vector &) const;
-
-		std::vector<fitness_vector> m_points;
 		void verify_after_construct() const;
 		void verify_before_compute(const fitness_vector &, const hv_algorithm::base_ptr) const;
+
+		std::vector<fitness_vector> m_points;
+		bool m_copy_points;
+		bool m_verify;
+
 
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & m_points;
+			ar & m_copy_points;
+			ar & m_verify;
 		}
 };
 

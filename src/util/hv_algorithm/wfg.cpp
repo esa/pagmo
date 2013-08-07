@@ -25,7 +25,6 @@
 
 #include "wfg.h"
 #include "base.h"
-#include "beume3d.h"
 #include <algorithm>
 
 namespace pagmo { namespace util { namespace hv_algorithm {
@@ -43,7 +42,10 @@ bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
 };
 
 // Constructor
-wfg::wfg() : m_current_slice(0) {
+wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimension(stop_dimension) {
+	if (stop_dimension < 2 ) {
+		pagmo_throw(value_error, "Stop dimension for WFG must be greater than or equal to 2");
+	}
 }
 
 /// Compute hypervolume 
@@ -53,7 +55,7 @@ wfg::wfg() : m_current_slice(0) {
  *
  * @return hypervolume.
  */
-double wfg::compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	// copy the initial set
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 
@@ -117,9 +119,11 @@ double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_
 	}
 	fitness_vector r_cpy(r.begin(), r.begin() + m_current_slice);
 
-	if (m_current_slice == 2) {
+	if (m_current_slice == m_stop_dimension) {
 		// if already sliced to dimension at which we use another algorithm
-		return hypervolume(points_cpy).compute(r_cpy, base_ptr(new native2d()) );
+		hypervolume hv = hypervolume(points_cpy, false);
+		hv.set_copy_points(false);
+		return hv.compute(r_cpy);
 	} else {
 		// else sort the points in preparation for wfg
 		sort(points_cpy.begin(), points_cpy.end(), wfg_cmp);
