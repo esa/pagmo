@@ -43,7 +43,7 @@ bool wfg_cmp(const fitness_vector &a, const fitness_vector &b) {
 };
 
 // Constructor
-wfg::wfg() : m_current_dim(0) {
+wfg::wfg() : m_current_slice(0) {
 }
 
 /// Compute hypervolume 
@@ -59,8 +59,7 @@ double wfg::compute(const std::vector<fitness_vector> &points, const fitness_vec
 
 	// variable holding the current "depth" of dimension slicing
 	// we slice by reducing dimensions from the end
-	m_current_dim = r_point.size();
-	m_max_dim = m_current_dim;
+	m_current_slice = r_point.size();
 
 	return compute_hv(points_cpy, r_point);
 }
@@ -74,7 +73,7 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 	for(std::vector<fitness_vector>::size_type idx = p_idx + 1; idx < points.size(); ++idx) {
 
 		fitness_vector s(points[idx]);
-		for(fitness_vector::size_type f_idx = 0; f_idx < m_current_dim; ++f_idx) {
+		for(fitness_vector::size_type f_idx = 0; f_idx < m_current_slice; ++f_idx) {
 			s[f_idx] = fmax(s[f_idx], p[f_idx]);
 		}
 
@@ -84,7 +83,7 @@ std::vector<fitness_vector> wfg::limitset(const std::vector<fitness_vector> & po
 
 		// check whether any point is dominating the point 's'
 		for(std::vector<fitness_vector>::size_type q_idx = 0; q_idx < q.size(); ++q_idx) {
-			cmp_results[q_idx] = base::dom_cmp(s, q[q_idx], m_current_dim);
+			cmp_results[q_idx] = base::dom_cmp(s, q[q_idx], m_current_slice);
 			if (cmp_results[q_idx] == 1){
 				keep_s = false;
 				break;
@@ -114,34 +113,34 @@ double wfg::compute_hv(const std::vector<fitness_vector> &points, const fitness_
 	std::vector<fitness_vector> points_cpy(points.size());
 
 	for(unsigned int i = 0 ; i < points_cpy.size() ; ++i){
-		points_cpy[i] = fitness_vector(points[i].begin(), points[i].begin() + m_current_dim);
+		points_cpy[i] = fitness_vector(points[i].begin(), points[i].begin() + m_current_slice);
 	}
-	fitness_vector r_cpy(r.begin(), r.begin() + m_current_dim);
+	fitness_vector r_cpy(r.begin(), r.begin() + m_current_slice);
 
-	sort(points_cpy.begin(), points_cpy.end(), wfg_cmp);
-
-
-	// dimension at which we use other algorithms
-	if (m_current_dim == 2) {
-		reverse(points_cpy.begin(), points_cpy.end());
-		return hypervolume(points_cpy).compute(r_cpy, base_ptr(new native2d(false)) );
+	if (m_current_slice == 2) {
+		// if already sliced to dimension at which we use another algorithm
+		return hypervolume(points_cpy).compute(r_cpy, base_ptr(new native2d()) );
+	} else {
+		// else sort the points in preparation for wfg
+		sort(points_cpy.begin(), points_cpy.end(), wfg_cmp);
 	}
+
 	double H = 0.0;
-	--m_current_dim;
+	--m_current_slice;
 	for(std::vector<fitness_vector>::size_type i = 0 ; i < points.size() ; ++i) {
-		H += fabs((points_cpy[i][m_current_dim] - r_cpy[m_current_dim]) * exclusive_hv(points_cpy, i, r_cpy));
+		H += fabs((points_cpy[i][m_current_slice] - r_cpy[m_current_slice]) * exclusive_hv(points_cpy, i, r_cpy));
 	}
-	++m_current_dim;
+	++m_current_slice;
 	return H;
 }
 
 double wfg::exclusive_hv(const std::vector<fitness_vector> &points, const unsigned int p_idx, const fitness_vector &r) const {
 	std::vector<fitness_vector> q = limitset(points, p_idx);
 
-	double H = base::volume_between(points[p_idx], r, m_current_dim);
+	double H = base::volume_between(points[p_idx], r, m_current_slice);
 
 	if (q.size() == 1) {
-		H -= base::volume_between(q[0], r, m_current_dim );
+		H -= base::volume_between(q[0], r, m_current_slice );
 	} else if (q.size() > 1) {
 		H -= compute_hv(q, r);
 	}
