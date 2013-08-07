@@ -208,7 +208,9 @@ void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const 
 				}
 
 				const fitness_vector &refpoint = m_boxes[idx];
-				double hv = hypervolume(sub_front).compute(refpoint);
+				hypervolume hv_obj = hypervolume(sub_front, false);
+				hv_obj.set_copy_points(false);
+				double hv = hv_obj.compute(refpoint);
 				m_approx_volume[idx] = m_box_volume[idx] - hv;
 			}
 
