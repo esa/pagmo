@@ -56,7 +56,7 @@ except:
 #Creating the list of problems
 def _get_problem_list():
 	from PyGMO import problem
-	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic)),dir(problem))]
+	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n =="base_stochastic" and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic)),dir(problem))]
 
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
 def _rastrigin_ctor(self,dim = 10):
@@ -232,7 +232,7 @@ def _kur_ctor(self,dim = 10):
 
 	NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
 
-	USAGE: problem.kur()
+	USAGE: problem.kur(dim = 10)
 
 	* dim: problem dimension
 	"""
@@ -406,6 +406,7 @@ def _snopt_toyprob_ctor(self):
 
 	USAGE: problem.snopt_toyprob()
 	"""
+	arg_list=[]
 	self._orig_init(*arg_list)
 
 snopt_toyprob._orig_init = snopt_toyprob.__init__
@@ -515,7 +516,7 @@ def _normalized_ctor(self, problem = None):
 
 	NOTE: this meta-problem constructs a new problem having normalized bounds/variables
 
-	USAGE: problem.(problem=PyGMO.ackley(1))
+	USAGE: problem.normalized(problem=PyGMO.ackley(1))
 
 	* problem: PyGMO problem one wants to normalize
 
@@ -530,6 +531,40 @@ def _normalized_ctor(self, problem = None):
 normalized._orig_init = normalized.__init__
 normalized.__init__ = _normalized_ctor
 
+_problem.decompose.WEIGHTED = _problem._decomposition_method.WEIGHTED
+_problem.decompose.BI = _problem._decomposition_method.BI
+_problem.decompose.TCHEBYCHEFF = _problem._decomposition_method.TCHEBYCHEFF
+def _decompose_ctor(self, problem = None, method = decompose.WEIGHTED, weights = None, z = None):
+	"""
+	Implements a meta-problem class resulting in a decomposed version
+	of the multi-objective input problem, i.e. a single-objective problem
+	having as fitness function some kind of combination of the original fitness functions.
+
+	NOTE: this meta-problem constructs a new single-objective problem
+
+	USAGE: problem.decompose(problem=PyGMO.zdt1(2), method = problem.decompose.decomposition_method.WEIGHTED, weights=a random vector (summing to one), z= a zero vector)
+
+	* problem: PyGMO problem one wants to decompose
+	* method: the decomposition method to use (WEIGHTED, TCHEBYCHEEF or BI)
+	* weights: the weight vector to build the new fitness function
+	* z: the reference point (used in TCHEBYCHEEF and BI methods)
+
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem=zdt1(2)
+	arg_list.append(problem)
+	arg_list.append(method)
+	if weights != None:
+		arg_list.append(weights)
+	if z != None:
+		arg_list.append(z)
+	self._orig_init(*arg_list)
+decompose._orig_init = decompose.__init__
+decompose.__init__ = _decompose_ctor
+
 def _shifted_ctor(self, problem = None, shift = None):
 	"""
 	Shifts a problem. 
@@ -537,7 +572,7 @@ def _shifted_ctor(self, problem = None, shift = None):
 	NOTE: this meta-problem constructs a new problem where the objective function will be f(x+b),
 	      where b is the shift (bounds are also chaged accordingly)
 
-	USAGE: problem.(problem=PyGMO.ackley(1), shift = a random vector)
+	USAGE: problem.shifted(problem=PyGMO.ackley(1), shift = a random vector)
 
 	* problem: PyGMO problem one wants to shift
 	* shift: a value or a list containing the shifts. By default, a radnom shift is created within the problem bounds
@@ -566,7 +601,7 @@ def _rotated_ctor(self, problem = None, rotation = None):
 	objective function will not be called outside of the original bounds by projecting points outside the original
 	space onto the boundary
 
-	USAGE: problem.(problem=PyGMO.ackley(1), rotation = a random orthogonal matrix)
+	USAGE: problem.rotated(problem=PyGMO.ackley(1), rotation = a random orthogonal matrix)
 
 	* problem: PyGMO problem one wants to rotate
 	* rotation: a list of lists (matrix). If not specified, a random orthogonal matrix is used.
@@ -584,14 +619,14 @@ def _rotated_ctor(self, problem = None, rotation = None):
 rotated._orig_init = rotated.__init__
 rotated.__init__ = _rotated_ctor
 
-_problem.noisy.noise_distribution = _problem._noise_distribution
 
+_problem.noisy.noise_distribution = _problem._noise_distribution
 def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_second = 1.0, noise_type = noisy.noise_distribution.NORMAL, seed = 0):
 	"""
 	Inject noise to a problem.
 	The new objective function will become stochastic, influence by a normally distributed noise.
 
-	USAGE: problem.(problem=PyGMO.ackley(1), trials = 1, param_first=0.0, param_second=1.0, noise_type = problem.noisy.noise_distribution.NORMAL, seed=0)
+	USAGE: problem.noisy(problem=PyGMO.ackley(1), trials = 1, param_first=0.0, param_second=1.0, noise_type = problem.noisy.noise_distribution.NORMAL, seed=0)
 
 	* problem: PyGMO problem on which one wants to add noises
 	* trials: number of trials to average around
@@ -615,6 +650,29 @@ def _noisy_ctor(self, problem = None, trials = 1, param_first = 0.0, param_secon
 noisy._orig_init = noisy.__init__
 noisy.__init__ = _noisy_ctor
 
+def _robust_ctor(self, problem = None, trials = 1, rho = 0.1, seed = 0):
+    """
+    Inject noise to a problem in the decision space.
+    The solution to the resulting problem is robust the the noise in the rho area.
+
+    USAGE: problem.robust(problem=PyGMO.ackley(10), trials=1, rho=0.1, seed=0)
+
+    * problem: PyGMO problem to be transformed to its robust version
+    * trials: number of trials to average around
+    * rho: Parameter controlling the magnitude of noise
+    * seed: Seed for the underlying RNG
+    """
+    arg_list=[]
+    if problem == None:
+        problem = ackley(10)
+    arg_list.append(problem)
+    arg_list.append(trials)
+    arg_list.append(rho)
+    arg_list.append(seed)
+    self._orig_init(*arg_list)
+robust._orig_init = robust.__init__
+robust.__init__ = _robust_ctor
+
 # Renaming and placing the enums
 _problem.death_penalty.method = _problem._method_type
 
@@ -626,7 +684,7 @@ def _death_penalty_ctor(self, problem = None, method = None):
 	Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
 	fitness function according to the rate of satisfied constraints.
 	
-	USAGE: problem.(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
+	USAGE: problem.death_penalty(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
 
 	* problem: PyGMO constrained problem one wants to treat with a death penalty approach
 	* method: Simple death method set with SIMPLE and Kuri method set with KURI

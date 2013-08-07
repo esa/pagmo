@@ -18,7 +18,7 @@ Rotated                            :class:`PyGMO.problem.rotated`            fro
 Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
 Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
-Decomposition                      :class:`PyGMO.problem.decomposition`      from V1.1.5
+Decompose	                   :class:`PyGMO.problem.decompose`          from V1.1.5
 Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5
 ================================== ========================================= ===========================================
 
@@ -218,9 +218,9 @@ Detailed Documentation
 
       Returns the de-normalized decision vector
 
-.. autoclass:: PyGMO.problem.decomposition
+.. autoclass:: PyGMO.problem.decompose
 
-   .. automethod:: PyGMO.problem.decomposition.__init__
+   .. automethod:: PyGMO.problem.decompose.__init__
    
    .. attribute:: weights
       

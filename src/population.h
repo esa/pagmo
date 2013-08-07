@@ -188,7 +188,7 @@ class __PAGMO_VISIBLE population
 		
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
-		explicit population(const problem::base &, int = 0);
+		explicit population(const problem::base &, int = 0, const boost::uint32_t &seed = rng_generator::get<rng_uint32>()());
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
@@ -201,6 +201,8 @@ class __PAGMO_VISIBLE population
 		void update_pareto_information() const;
 		size_type n_dominated(const individual_type &) const;
 		std::vector<std::vector<size_type> > compute_pareto_fronts() const;
+        fitness_vector compute_ideal() const;
+        fitness_vector compute_nadir() const;
 		
 		const problem::base &problem() const;
 		const champion_type &champion() const;
@@ -221,14 +223,15 @@ class __PAGMO_VISIBLE population
 		void reinit();
 		void clear();
 		double mean_velocity() const;
-	private:
-		void init_velocity(const size_type &);
-		void update_champion(const size_type &);
 
-		
-		// Multi-objective stuff
-		void update_dom(const size_type &);
-		void update_crowding_d(std::vector<size_type>) const;
+		// Race routine wrappers
+		std::pair<std::vector<population::size_type>, unsigned int> race(const size_type n_final,
+									const unsigned int min_trials = 0,
+									const unsigned int max_count = 1000,
+									double delta = 0.05,
+									const std::vector<size_type>& = std::vector<size_type>(),
+									const bool race_best = true,
+									const bool screen_output = false) const;
 
 		struct crowded_comparison_operator {
 			crowded_comparison_operator(const population &);
@@ -243,6 +246,17 @@ class __PAGMO_VISIBLE population
 			bool operator()(const size_type &idx1, const size_type &idx2) const;
 			const population &m_pop;
 		};
+
+	private:
+		void init_velocity(const size_type &);
+		void update_champion(const size_type &);
+
+		// Multi-objective stuff
+		void update_crowding_d(std::vector<size_type>) const;
+
+	protected:
+		void update_dom(const size_type &);
+
 	private:
 		// Data members + their serialization
 		friend class boost::serialization::access;
@@ -261,8 +275,11 @@ class __PAGMO_VISIBLE population
 		}
 		// Problem.
 		problem::base_ptr				m_prob;
-		// Container of individuals.
+	protected:
+		// Container of individuals. Needs to be protected so that a derived class can override
+		// the set_x mechanism avoiding function re-evaluations. (use this option at your own risk)
 		container_type					m_container;
+	private:
 		// List of dominated individuals.
 		std::vector<std::vector<size_type> >		m_dom_list;
 		// Domination Count (number of dominant individuals)

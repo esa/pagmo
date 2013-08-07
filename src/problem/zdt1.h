@@ -36,7 +36,7 @@ namespace pagmo{ namespace problem {
 /// ZDT1 problem
 /**
  *
- * This is a box-constrained continuous n-dimensional multi-objecive problem.
+ * This is a box-constrained continuous n-dimensional (n>1) multi-objecive problem.
  * \f[
  *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
  * \f]

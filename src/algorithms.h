@@ -48,6 +48,7 @@
 #include "algorithm/cmaes.h"
 #include "algorithm/aco.h"
 #include "algorithm/nsga2.h"
+#include "algorithm/pade.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

@@ -122,7 +122,7 @@ void noisy::set_noise_param(double param_first, double param_second)
  * Returns the first parameter.
  * Interpretation depends on the noise specified, see constructor.
 */
-double noisy::get_param_first()
+double noisy::get_param_first() const
 {
 	return m_param_first;
 }
@@ -131,7 +131,7 @@ double noisy::get_param_first()
  * Return the second parameter.
  * Interpretation depends on the noise specified, see constructor.
  */
-double noisy::get_param_second()
+double noisy::get_param_second() const
 {
 	return m_param_second;
 }
@@ -151,7 +151,7 @@ void noisy::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		m_original_problem->objfun(tmp, x);
 		inject_noise_f(tmp);
 		for (fitness_vector::size_type i=0; i<f.size();++i) {
-			f[i] = f[i] + tmp[i];
+			f[i] = f[i] + tmp[i] / (double)m_trials;
 		}
 	}
 }
@@ -168,10 +168,10 @@ void noisy::compute_constraints_impl(constraint_vector &c, const decision_vector
 	m_drng.seed(m_seed+m_decision_vector_hash(x));
 	//3 - We average upon multiple runs
 	for (unsigned int j=0; j< m_trials; ++j) {
-		m_original_problem->compute_constraints(c, x);
-		inject_noise_c(c);
+		m_original_problem->compute_constraints(tmp, x);
+		inject_noise_c(tmp);
 		for (constraint_vector::size_type i=0; i<c.size();++i) {
-			c[i] = c[i] + tmp[i];
+			c[i] = c[i] + tmp[i] / (double)m_trials;
 		}
 	}
 }
@@ -215,18 +215,18 @@ std::string noisy::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
-	oss << "\n\tNoise type: ";
+	oss << "\tNoise type: ";
 	if(m_noise_type == NORMAL){
-		oss << "\n\tNormal distribution of ("<<m_param_first<<","<<m_param_second<<")";
+		oss << "Normal distribution of ("<<m_param_first<<","<<m_param_second<<")";
 	}
 	else if(m_noise_type == UNIFORM){
-		oss << "\n\tUniform distribution over ("<<m_param_first<<","<<m_param_second<<")";
+		oss << "Uniform distribution over ("<<m_param_first<<","<<m_param_second<<")";
 	}
 	else{
 		oss << "\n\t Unknown????";
 	}
 	oss << "\n\ttrials: "<<m_trials;
-	oss << "\n\tseed: "<<m_seed;
+	oss << "\n\tseed: "<<m_seed << std::endl;
 	//oss << "\n\tDistribution state: "<<m_normal_dist;
 	return oss.str();
 }

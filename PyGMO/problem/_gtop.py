@@ -150,7 +150,6 @@ def _sagas_ctor(self):
 	
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
-	arg_list.append(seq)
 	self._orig_init(*arg_list)
 sagas._orig_init = sagas.__init__
 sagas.__init__ = _sagas_ctor

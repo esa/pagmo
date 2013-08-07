@@ -40,6 +40,9 @@ namespace pagmo { namespace problem {
  */
 zdt1::zdt1(size_type dim):base_unc_mo(dim,0,2)
 {
+	if(dim < 2) {
+		pagmo_throw(value_error,"The dimension of the problem should be at least 2");		
+	}
 	// Set bounds.
 	set_lb(0.0);
 	set_ub(1.0);

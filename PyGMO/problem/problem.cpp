@@ -343,7 +343,8 @@ BOOST_PYTHON_MODULE(_problem) {
 	// POL
 	problem_wrapper<problem::pol>("pol","Poloni's study problem.");
 	// KUR
-	problem_wrapper<problem::kur>("kur","Kursawe's study problem.");
+	problem_wrapper<problem::kur>("kur","Kursawe's study problem.")
+		.def(init<int>());
 	
 	// DTLZ1
 	unc_mo_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
@@ -416,9 +417,15 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
+
 	// Decomposition meta-problem
+	// Exposing enums of problem::decompose
+	enum_<problem::decompose::method_type>("_decomposition_method")
+		.value("WEIGHTED", problem::decompose::WEIGHTED)
+		.value("TCHEBYCHEFF", problem::decompose::TCHEBYCHEFF)
+		.value("BI", problem::decompose::BI);
 	problem_wrapper<problem::decompose>("decompose","Decomposed problem")
-		.def(init<const problem::base &, optional<const std::vector<double> &> >())
+		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &> >())
 		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()));
 
 	// Noisy meta-problem
@@ -431,6 +438,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &, unsigned int, const double, const double, problem::noisy::noise_type, unsigned int>())
 		.add_property("noise_param_first", &problem::noisy::get_param_first)
 		.add_property("noise_param_second", &problem::noisy::get_param_second);
+
+	// Robust meta-problem
+	stochastic_problem_wrapper<problem::robust>("robust", "Robust problem")
+		.def(init<const problem::base &,unsigned int, const double, unsigned int>())
+		.add_property("rho", &problem::robust::get_rho);
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)

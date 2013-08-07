@@ -49,7 +49,7 @@ int main()
 		const int n_isl = 8;
 		const int pop_size = 512;
 		const int n_eval = 5;
-		const int n_gen = 10000;
+		const int n_gen = 400;
 // END OF EXPERIMENT SET-UP //
 
 // Buffer
