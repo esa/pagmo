@@ -272,6 +272,43 @@ unsigned int hypervolume::least_contributor(const fitness_vector &r_point) const
 	return least_contributor(r_point, get_best_method(r_point));
 }
 
+// locate the most contributing individual
+/**
+ * Locates the individual contributing the most to the total hypervolume.
+ *
+ * @param[in] r_point fitness vector describing the reference point
+ * @param[in] hv_algorithm algorithm object used for computation
+ *
+ * @return index of the most contributing point
+ */
+unsigned int hypervolume::greatest_contributor(const fitness_vector &r_point, hv_algorithm::base_ptr hv_algorithm) const {
+
+	if (m_verify) {
+		verify_before_compute(r_point, hv_algorithm);
+	}
+
+	// copy the initial set of points, as the algorithm may alter its contents
+	if (m_copy_points) {
+		std::vector<fitness_vector> points_cpy(m_points.begin(), m_points.end());
+		return hv_algorithm->greatest_contributor(points_cpy, r_point);
+	} else {
+		return hv_algorithm->greatest_contributor(const_cast<std::vector<fitness_vector> &>(m_points), r_point);
+	}
+}
+
+// locate the most contributing individual
+/**
+ * Locates the individual contributing the most to the total hypervolume.
+ * This method chooses the best performing hv_algorithm dynamically
+ *
+ * @param[in] r_point fitness vector describing the reference point
+ *
+ * @return index of the most contributing point
+ */
+unsigned int hypervolume::greatest_contributor(const fitness_vector &r_point) const {
+	return greatest_contributor(r_point, get_best_method(r_point));
+}
+
 /// get expected numer of operations
 /**
  * Returns the expected average amount of elementary operations for given front size (n) and dimension size (d).

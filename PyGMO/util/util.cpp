@@ -103,6 +103,9 @@ void expose_hypervolume() {
 	typedef unsigned int (util::hypervolume::*least_contributor_custom)(const fitness_vector &, const util::hv_algorithm::base_ptr) const;
 	typedef unsigned int (util::hypervolume::*least_contributor_dynamic)(const fitness_vector &) const;
 
+	typedef unsigned int (util::hypervolume::*greatest_contributor_custom)(const fitness_vector &, const util::hv_algorithm::base_ptr) const;
+	typedef unsigned int (util::hypervolume::*greatest_contributor_dynamic)(const fitness_vector &) const;
+
 
 	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &, const bool >())
 		.def(init<boost::shared_ptr<population>, const unsigned int, const bool >())
@@ -112,6 +115,8 @@ void expose_hypervolume() {
 		.def("exclusive", exclusive_dynamic(&util::hypervolume::exclusive), "Computes the exclusive hypervolume.")
 		.def("least_contributor", least_contributor_custom(&util::hypervolume::least_contributor), "Get the least contributor of the hypervolume using provided hypervolume algorithm.")
 		.def("least_contributor", least_contributor_dynamic(&util::hypervolume::least_contributor), "Get the least contributor of the hypervolume.")
+		.def("greatest_contributor", greatest_contributor_custom(&util::hypervolume::greatest_contributor), "Get the greatest contributor of the hypervolume using provided hypervolume algorithm.")
+		.def("greatest_contributor", greatest_contributor_dynamic(&util::hypervolume::greatest_contributor), "Get the greatest contributor of the hypervolume.")
 		.def("get_nadir_point", &util::hypervolume::get_nadir_point);
 }
 

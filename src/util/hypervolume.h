@@ -66,6 +66,9 @@ class __PAGMO_VISIBLE hypervolume
 		unsigned int least_contributor(const fitness_vector &, const hv_algorithm::base_ptr) const;
 		unsigned int least_contributor(const fitness_vector &) const;
 
+		unsigned int greatest_contributor(const fitness_vector &, const hv_algorithm::base_ptr) const;
+		unsigned int greatest_contributor(const fitness_vector &) const;
+
 		static unsigned long long get_expected_operations(const unsigned int n, const unsigned int d);
 
 		void set_copy_points(const bool);

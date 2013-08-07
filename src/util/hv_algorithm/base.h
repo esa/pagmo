@@ -77,6 +77,8 @@ class __PAGMO_VISIBLE base
 
 		virtual unsigned int least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point);
 
+		virtual unsigned int greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point);
+
 		/// Verification of input
 		/**
 		 * This method serves as a verification method.
@@ -154,6 +156,12 @@ class __PAGMO_VISIBLE base
 		}
 
 	private:
+
+		unsigned int extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double));
+
+		static bool cmp_least(const double, const double);
+		static bool cmp_greatest(const double, const double);
+
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int) {

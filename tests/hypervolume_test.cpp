@@ -106,6 +106,15 @@ class hypervolume_test {
 						m_output << "\n Error in test " << t << ". Got: " << point_idx << ", Expected: " << m_idx_ans;
 					}
 
+				} else if (m_test_type == "greatest_contributor") {
+					load_least_contributor(); // loads the same data as least contributor
+					unsigned int point_idx = hv_obj.greatest_contributor(m_ref_point, m_method);
+					if (point_idx == m_idx_ans) {
+						++OK_counter;
+					} else {
+						m_output << "\n Error in test " << t << ". Got: " << point_idx << ", Expected: " << m_idx_ans;
+					}
+
 				} else {
 					m_output << "Unknown test type (" << m_test_type << ") .. exiting";
 					exit(1);
