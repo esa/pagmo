@@ -22,20 +22,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_MIGRATION_H
-#define PAGMO_MIGRATION_H
+#ifndef PAGMO_MIGRATION_HV_GREEDY_S_POLICY_H
+#define PAGMO_MIGRATION_HV_GREEDY_S_POLICY_H
 
-// Header including all migration classes implemented in PaGMO.
+#include <vector>
 
-#include "migration/base.h"  
-#include "migration/base_r_policy.h"
-#include "migration/base_s_policy.h"
-#include "migration/best_s_policy.h"
-#include "migration/random_s_policy.h"
-#include "migration/best_kill_s_policy.h"
-#include "migration/hv_greedy_s_policy.h"
-#include "migration/fair_r_policy.h"
-#include "migration/random_r_policy.h"
-#include "migration/worst_r_policy.h"
+#include "../config.h"
+#include "../population.h"
+#include "../serialization.h"
+#include "base.h"
+#include "base_s_policy.h"
+
+namespace pagmo { namespace migration {
+
+///  Choose 'n' successive greatest contributors migration policy
+/**
+ * This policy revolves around choosing the indviduals that contribute the greatest amount of volume to the total hypervolume.
+ * Individuals are chosen iteratively, thus it is regarded as a greedy strategy.
+ *
+ * @author Krzysztof Nowak (kn@kiryx.net)
+ */
+class __PAGMO_VISIBLE hv_greedy_s_policy: public base_s_policy
+{
+	public:
+		hv_greedy_s_policy(const double &rate = 1, rate_type type = absolute);
+		base_s_policy_ptr clone() const;
+		std::vector<population::individual_type> select(population &) const;
+	private:
+		struct dom_comp;
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base_s_policy>(*this);
+		}
+};
+
+} }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_greedy_s_policy);
 
 #endif

@@ -87,6 +87,10 @@ BOOST_PYTHON_MODULE(_migration) {
 	migration_s_policy_wrapper<migration::best_kill_s_policy>("best_kill_s_policy","Best Kill migration selection policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
 
+	// Hypervolume greedy selection policy
+	migration_s_policy_wrapper<migration::hv_greedy_s_policy>("hv_greedy_s_policy","Hypervolume Greedy migration selection policy.")
+		.def(init<optional<const double &, migration::rate_type> >());
+
 	// Expose migration replacement policies.	
 
 	// Base.
