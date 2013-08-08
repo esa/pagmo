@@ -308,6 +308,66 @@ int test_racing_cache_transfer(const problem::base_ptr &prob)
 	return 0;
 }
 
+/// Check if the returned mean fitness by race_pop is sensible
+int test_racing_get_mean_fitness(const problem::base_ptr &prob)
+{
+	std::cout << "Testing get_mean_fitness()" << std::endl;
+	
+	unsigned int seed = 123;
+	// we create the noisy version of the problem
+	problem::noisy prob_noisy(*prob, 1, 0, 0.5, problem::noisy::NORMAL, seed);
+	std::cout << prob_noisy << std::endl;
+
+	population pop(prob_noisy, 5, seed);
+
+	util::racing::race_pop race_pop_dev(pop, seed);
+
+	// Race everyone
+	std::vector<population::size_type> active_set;
+	for(unsigned int i = 0; i < pop.size(); i++){
+		active_set.push_back(i);
+	}
+	population::size_type n_final = 1;
+
+	std::pair<std::vector<population::size_type>, unsigned int> res = race_pop_dev.run(n_final, 0, 5000, 0.05, active_set, true, true);
+
+	// Check that the dimension is correct
+	unsigned int winner_idx = res.first[0];
+	active_set.clear();
+	active_set.push_back(winner_idx);
+	fitness_vector mean_fitness_race = race_pop_dev.get_mean_fitness(active_set)[0];
+	if(mean_fitness_race.size() != prob->get_f_dimension()){
+		std::cout << "\tFAILED get_mean_fitness: Wrong fitness dimension" << std::endl;
+		return 1;
+	}
+	
+	// Check that the returned mean fitness is about the same as the fitness
+	// obtained by repeated evaluation.
+	unsigned int n_evals = 100;
+	fitness_vector mean_fitness_repeated_eval(prob->get_f_dimension(),0);
+	for(unsigned int i = 0; i < n_evals; i++){
+		fitness_vector cur_f = prob->objfun(pop.get_individual(winner_idx).cur_x);
+		for(unsigned int j = 0; j < prob->get_f_dimension(); j++){
+			mean_fitness_repeated_eval[j] += cur_f[j] / (double)n_evals;
+		}
+	}
+
+	// Tolerance is a bit large here as race could not and should not perform
+	// too much evaluation, hence affecting the accuracy.
+	double eps = 0.2;
+	for(unsigned int i = 0; i < mean_fitness_race.size(); i++){
+		if(fabs(mean_fitness_repeated_eval[i]-mean_fitness_race[i]) > eps){	
+			std::cout << "\tFAILED get_mean_fitness: Dimension #"  << i << " had too much deviation" << std::endl;
+			std::cout << "From repeated evaluation: " << mean_fitness_repeated_eval << std::endl;
+			std::cout << "From racing: " << mean_fitness_race << std::endl;
+			return 1;
+		}
+	}
+
+	std::cout << "\tPASSED get_mean_fitness" << std::endl;
+	return 0;
+}
+
 int main()
 {
 	int dimension = 10;
@@ -343,5 +403,7 @@ int main()
 		   test_racing_worst(prob_zdt1, 30, 5, 0.03) ||
 
 		   test_racing_cache(prob_ackley) ||
-		   test_racing_cache_transfer(prob_ackley);
+		   test_racing_cache_transfer(prob_ackley) ||
+
+		   test_racing_get_mean_fitness(prob_ackley);
 }

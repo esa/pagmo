@@ -14,7 +14,7 @@ namespace pagmo { namespace util { namespace racing {
  * @param[in] pop population containing the individuals to race
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size())
+race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
 {
 	cache_register_signatures(pop);
 }
@@ -338,7 +338,30 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		std::cout << "\nRace ends after " << count_iter << " iterations, incurred nfes = " << count_nfes << std::endl;
 		std::cout << "Returning winners: " << std::vector<size_type>(winners.begin(), winners.end()) << std::endl;
 	}
+
 	return std::make_pair(winners, count_nfes);
+}
+
+/// Returns mean fitness of the individuals based on past evaluation data
+/**
+ * @param[in] active_set The indices of the individuals whose mean fitness
+ * vectors are to be extracted.
+ * 
+ * @throws value_error if any of the requested individuals has not been raced before.
+ *
+ * @return Mean fitness vectors of the individuals in active_set.
+ **/
+std::vector<fitness_vector> race_pop::get_mean_fitness(const std::vector<population::size_type> &active_set)
+{
+	_validate_active_set(active_set, m_pop.size());
+	std::vector<fitness_vector> mean_fitness(active_set.size());
+	for(unsigned int i = 0; i < active_set.size(); i++){
+		if(m_cache_data[active_set[i]].size() == 0){
+			pagmo_throw(value_error, "Request the mean fitness of an individual which has not been raced before");
+		}
+		mean_fitness[i] = m_cache_averaged_data[active_set[i]].f;
+	}
+	return mean_fitness;
 }
 
 /// Clear all the cache
@@ -359,6 +382,25 @@ void race_pop::cache_insert_data(unsigned int key_idx, const fitness_vector &f, 
 		pagmo_throw(index_error, "cache_insert_data: Invalid key index");
 	}
 	m_cache_data[key_idx].push_back(eval_data(f,c));
+	// Update the averaged data to be returned upon each race call
+	if(m_cache_data[key_idx].size() == 1){
+		m_cache_averaged_data[key_idx] = m_cache_data[key_idx].back();
+	}
+	else{
+		unsigned int len = m_cache_data[key_idx].size();
+		// Average for each fitness dimension
+		for(unsigned int i = 0; i < m_cache_averaged_data[key_idx].f.size(); i++){
+			m_cache_averaged_data[key_idx].f[i] =
+				(m_cache_averaged_data[key_idx].f[i]*(len-1) +
+				 m_cache_data[key_idx].back().f[i]) / (double)len;
+		}
+		// Average for each constraint dimension
+		for(unsigned int i = 0; i < m_cache_averaged_data[key_idx].c.size(); i++){
+			m_cache_averaged_data[key_idx].c[i] =
+				(m_cache_averaged_data[key_idx].c[i]*(len-1) +
+				 m_cache_data[key_idx].back().c[i]) / (double)len;
+		}
+	}
 }
 
 /// Delete the data associated with the key index corresponding to the
@@ -431,6 +473,7 @@ void race_pop::inherit_memory(const race_pop& src)
 			if(src.m_cache_data[it->second].size() > m_cache_data[i].size()){
 				//std::cout << "OK, transferring." << std::endl;
 				m_cache_data[i] = src.m_cache_data[it->second];
+				m_cache_averaged_data[i] = src.m_cache_averaged_data[it->second];
 				cnt_transferred++;
 			}
 		}

@@ -65,6 +65,7 @@ public:
 
 	void reset_cache();
 	void inherit_memory(const race_pop&);
+	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &);
 
 private:
 	// Helper methods to validate input data
@@ -105,6 +106,7 @@ private:
 	std::vector<unsigned int> m_seeds;
 	rng_uint32 m_seeder;
 	std::vector<std::vector<eval_data> > m_cache_data;
+	std::vector<eval_data> m_cache_averaged_data;
 	std::vector<decision_vector> m_cache_signatures;
 };
 
