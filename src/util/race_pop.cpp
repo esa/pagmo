@@ -415,7 +415,7 @@ void race_pop::inherit_memory(const race_pop& src)
 {
 	// If seeds are different, no memory transfer is possible
 	if(src.m_race_seed != m_race_seed){
-		return;
+		pagmo_throw(value_error, "Incompatible seed in inherit_memory");
 	}
 	std::map<decision_vector, unsigned int> src_cache_locations;
 	for(unsigned int i = 0; i < src.m_cache_data.size(); i++){
