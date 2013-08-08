@@ -96,33 +96,37 @@ double base::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &po
 
 /// compute the extreme contributor
 /**
- * Computes the index of the individual that contributes the most or the least to the hypervolume (depending on the function)
+ * Computes the index of the individual that contributes the most or the least to the hypervolume (depending on the prodivded comparison function)
  */
 unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) {
+	// trivial case
 	if (points.size() == 1) {
 		return 0;
 	}
 
+	// compute the total hypervolume for the reverence
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 	double hv_total = compute(points_cpy, r_point);
 
+	// first individual as a candidate
 	points_cpy = std::vector<fitness_vector>(points.begin() + 1, points.end());
-	double idx_min = 0;
-	double hv_min = hv_total - compute(points_cpy, r_point);
+	double idx_extreme = 0;
+	double hv_extreme = hv_total - compute(points_cpy, r_point);
 
+	// check the remaining ones using the provided comparison function
 	for(unsigned int idx = 1 ; idx < points.size() ; ++idx) {
 		std::vector<fitness_vector> points_less;
-		points_less.reserve(points.size()-1);
-		copy(points.begin(), points.begin()+idx, back_inserter(points_less));
-		copy(points.begin()+idx+1, points.end(), back_inserter(points_less));
+		points_less.reserve(points.size() - 1);
+		copy(points.begin(), points.begin() + idx, back_inserter(points_less));
+		copy(points.begin() + idx + 1, points.end(), back_inserter(points_less));
 		double hv = hv_total - compute(points_less, r_point);
-		if (cmp_func(hv, hv_min)) {
-			hv_min = hv;
-			idx_min = idx;
+		if (cmp_func(hv, hv_extreme)) {
+			hv_extreme = hv;
+			idx_extreme = idx;
 		}
 	}
 
-	return idx_min;
+	return idx_extreme;
 }
 
 bool base::cmp_least(const double a, const double b) {
@@ -132,7 +136,6 @@ bool base::cmp_least(const double a, const double b) {
 bool base::cmp_greatest(const double a, const double b) {
 	return a > b;
 }
-
 
 /// Least contributing point method
 /**
@@ -149,7 +152,6 @@ unsigned int base::least_contributor(std::vector<fitness_vector> &points, const 
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
 
-
 /// Most contributing point method
 /**
  * This method establishes the individual that contributes the most to the hypervolume.
@@ -164,7 +166,6 @@ unsigned int base::least_contributor(std::vector<fitness_vector> &points, const 
 unsigned int base::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }
-
 
 ///Constructor of the comparator object
 /**
