@@ -69,7 +69,6 @@ void base::assert_maximal_reference_point(const std::vector<fitness_vector> &poi
 	}
 }
 
-
 /// Exclusive hypervolume method
 /**
  * This method computes the exclusive hypervolume for given individual.
@@ -104,11 +103,11 @@ unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, cons
 		return 0;
 	}
 
-	// compute the total hypervolume for the reverence
+	// compute the total hypervolume for the reference
 	std::vector<fitness_vector> points_cpy(points.begin(), points.end());
 	double hv_total = compute(points_cpy, r_point);
 
-	// first individual as a candidate
+	// points[0] as a first candidate
 	points_cpy = std::vector<fitness_vector>(points.begin() + 1, points.end());
 	double idx_extreme = 0;
 	double hv_extreme = hv_total - compute(points_cpy, r_point);
@@ -137,7 +136,7 @@ bool base::cmp_greatest(const double a, const double b) {
 	return a > b;
 }
 
-/// Least contributing point method
+/// Least contributor method
 /**
  * This method establishes the individual that contributes the least to the hypervolume.
  * By default it computes each individual contribution, and chooses the one with the lowest contribution.
@@ -146,13 +145,13 @@ bool base::cmp_greatest(const double a, const double b) {
  * @param[in] points vector of fitness_vectors for which the hypervolume is computed
  * @param[in] r_point distinguished "reference point".
  *
- * @return index of the least contributing point
+ * @return index of the least contributor
  */
 unsigned int base::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
 
-/// Most contributing point method
+/// Greatest contributor method
 /**
  * This method establishes the individual that contributes the most to the hypervolume.
  * By default it computes each individual contribution, and chooses the one with the highest contribution.
@@ -161,7 +160,7 @@ unsigned int base::least_contributor(std::vector<fitness_vector> &points, const 
  * @param[in] points vector of fitness_vectors for which the hypervolume is computed
  * @param[in] r_point distinguished "reference point".
  *
- * @return index of the least contributing point
+ * @return index of the greatest contributor
  */
 unsigned int base::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	return extreme_contributor(points, r_point, base::cmp_greatest);

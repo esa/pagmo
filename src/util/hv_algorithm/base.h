@@ -62,6 +62,7 @@ typedef boost::shared_ptr<base> base_ptr;
 class __PAGMO_VISIBLE base
 {
 	public:
+
 		/// Compute method
 		/**
 		 * This method computes the hypervolume.
@@ -97,8 +98,16 @@ class __PAGMO_VISIBLE base
 
 		virtual std::string get_name() const;
 		virtual ~base();
+
 	protected:
+
 		void assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+
+		virtual unsigned int extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*)(double, double));
+
+		// comparison functions for the least and the greatest contributor methods
+		static bool cmp_least(const double, const double);
+		static bool cmp_greatest(const double, const double);
 
 		/// Compute volume between two points
 		/**
@@ -156,11 +165,6 @@ class __PAGMO_VISIBLE base
 		}
 
 	private:
-
-		unsigned int extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double));
-
-		static bool cmp_least(const double, const double);
-		static bool cmp_greatest(const double, const double);
 
 		friend class boost::serialization::access;
 		template <class Archive>

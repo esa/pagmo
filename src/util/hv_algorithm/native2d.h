@@ -47,6 +47,7 @@ class __PAGMO_VISIBLE native2d : public base {
 
 		double compute(std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+		unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		base_ptr clone() const;
@@ -55,6 +56,8 @@ class __PAGMO_VISIBLE native2d : public base {
 	private:
 		// flag stating whether the points should be sorted in the first step of the algorithm
 		const bool m_initial_sorting;
+
+		unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
 
 		friend class boost::serialization::access;
 		template <class Archive>
