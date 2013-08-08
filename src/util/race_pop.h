@@ -64,6 +64,7 @@ public:
 	);
 
 	void reset_cache();
+	void inherit_memory(const race_pop&);
 
 private:
 	// Helper methods to validate input data
@@ -92,16 +93,19 @@ private:
 	void cache_delete_entry(unsigned int);
 	bool cache_data_exist(unsigned int, unsigned int) const;
 	const eval_data &cache_get_entry(unsigned int, unsigned int) const;
+	void cache_register_signatures(const population&); 
 
 	// Seeding control
 	void generate_seeds(unsigned int);
 	unsigned int get_current_seed(unsigned int);
-	
+	unsigned int m_race_seed;
+
 	// Data members
 	racing_population m_pop;
 	std::vector<unsigned int> m_seeds;
 	rng_uint32 m_seeder;
 	std::vector<std::vector<eval_data> > m_cache_data;
+	std::vector<decision_vector> m_cache_signatures;
 };
 
 }}}

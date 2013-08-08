@@ -261,6 +261,53 @@ int test_racing_cache(const problem::base_ptr& prob)
 	return 0;
 }
 
+int test_racing_cache_transfer(const problem::base_ptr &prob)
+{
+	std::cout << "Testing the caching mechanism (memory transfer aspect) of racing" << std::endl;
+	
+	unsigned int seed = 123;
+	// we create the noisy version of the problem
+	problem::noisy prob_noisy(*prob, 1, 0, 0.5, problem::noisy::NORMAL, seed);
+	std::cout << prob_noisy << std::endl;
+
+	population pop(prob_noisy, 5, seed);
+
+	util::racing::race_pop race_pop_dev1(pop, seed);
+	util::racing::race_pop race_pop_dev2(pop, seed);
+
+	// Race [0,1,2,3,4] using race_pop_dev1, then transfer the memory to
+	// race_pop_dev2, which should accept all the cache data as they contain
+	// identical population, and same seed is being used.
+	std::vector<population::size_type> active_set;
+	for(unsigned int i = 0; i <= 4; i++){
+		active_set.push_back(i);
+	}
+	population::size_type n_final = 1;
+
+	// Race on device 1
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, true, false);	
+
+	// Transfer to device 2
+	race_pop_dev2.inherit_memory(race_pop_dev1);
+
+	// Race on device 2
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, true, false);
+
+	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
+
+	if(res1.first != res2.first){
+		std::cout << "\tFAILED Caching: Winners are different!" << std::endl;
+	}
+
+	if(res2.second > 0){
+		std::cout << "\tFAILED Caching: Second race consumed fevals!" << std::endl;
+		return 1;
+	}
+
+	std::cout << "\tPASSED Caching (memory transfer)." << std::endl;
+	return 0;
+}
+
 int main()
 {
 	int dimension = 10;
@@ -295,5 +342,6 @@ int main()
 		   test_racing_worst(prob_zdt1, 20, 5, 0.03) ||
 		   test_racing_worst(prob_zdt1, 30, 5, 0.03) ||
 
-		   test_racing_cache(prob_ackley); 
+		   test_racing_cache(prob_ackley) ||
+		   test_racing_cache_transfer(prob_ackley);
 }

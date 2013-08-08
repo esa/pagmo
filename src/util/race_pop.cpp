@@ -1,6 +1,9 @@
 #include "race_pop.h"
 #include "../problem/base_stochastic.h"
 
+#include <map>
+#include <utility>
+
 namespace pagmo { namespace util { namespace racing {
 
 /// Constructor
@@ -11,8 +14,9 @@ namespace pagmo { namespace util { namespace racing {
  * @param[in] pop population containing the individuals to race
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(const population& pop, unsigned int seed): m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size())
+race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size())
 {
+	cache_register_signatures(pop);
 }
 
 // Check if the provided active_set is valid.
@@ -392,8 +396,51 @@ const race_pop::eval_data &race_pop::cache_get_entry(unsigned int key_idx, unsig
 	return m_cache_data[key_idx][data_location];
 }
 
+// Each cache entry is dedicated to an individual in the population, and it can
+// be associated with a signature based on the decision vector of the
+// individual. This can be useful to identify a match when trying to inherit
+// memory from another race_pop structure to maximize information reuse.
+void race_pop::cache_register_signatures(const population& pop)
+{
+	m_cache_signatures.clear();	
+	for(population::size_type i = 0; i < pop.size(); i++){
+		m_cache_signatures.push_back(pop.get_individual(i).cur_x);
+	}
+}
+
+// If compatible, inherits past evaluation data from another race_pop object.
+// Generally to be used in scenarios when racing individuals in a cross
+// generation setting.
+void race_pop::inherit_memory(const race_pop& src)
+{
+	// If seeds are different, no memory transfer is possible
+	if(src.m_race_seed != m_race_seed){
+		return;
+	}
+	std::map<decision_vector, unsigned int> src_cache_locations;
+	for(unsigned int i = 0; i < src.m_cache_data.size(); i++){
+		src_cache_locations.insert(std::make_pair(src.m_cache_signatures[i], i));
+	}
+	int cnt_transferred = 0;
+	for(unsigned int i = 0; i < m_cache_data.size(); i++){
+		//std::cout << "Data entry " << i << std::endl;
+		std::map<decision_vector, unsigned int>::iterator it
+			= src_cache_locations.find(m_cache_signatures[i]);
+		if(it != src_cache_locations.end()){
+			//std::cout << "Found match!" << std::endl;
+			if(src.m_cache_data[it->second].size() > m_cache_data[i].size()){
+				//std::cout << "OK, transferring." << std::endl;
+				m_cache_data[i] = src.m_cache_data[it->second];
+				cnt_transferred++;
+			}
+		}
+	}
+	//std::cout << "Number of transferred entries = " << cnt_transferred << std::endl;
+}
+
 // Produce new seeds and append to the list of seeds
-void race_pop::generate_seeds(unsigned int num_seeds){
+void race_pop::generate_seeds(unsigned int num_seeds)
+{
 	for(unsigned int i = 0; i < num_seeds; i++){
 		m_seeds.push_back(m_seeder());
 	}
@@ -402,7 +449,8 @@ void race_pop::generate_seeds(unsigned int num_seeds){
 // Get the n-th seed to be used for evaluation of the n-th data point. With
 // this we can ensure that all the aligned data points are generated using the
 // same rng seed.
-unsigned int race_pop::get_current_seed(unsigned int seed_idx){
+unsigned int race_pop::get_current_seed(unsigned int seed_idx)
+{
 	if(seed_idx >= m_seeds.size()){
 		const unsigned int expanding_length = 500;
 		generate_seeds(expanding_length);
