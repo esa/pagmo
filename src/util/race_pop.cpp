@@ -292,7 +292,6 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 				cache_insert_data(*it, f_vec, c_vec);
 			}
 		}
-
 		f_race_assign_ranks(racers, m_pop);
 
 		// Enforce a minimum required number of trials

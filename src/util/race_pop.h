@@ -54,7 +54,7 @@ public:
 	race_pop(unsigned int seed = 0);
 
 	// Main method containing all the juice
-	std::pair<std::vector<population::size_type>, unsigned int>  run(
+	std::pair<std::vector<population::size_type>, unsigned int> run(
 		const population::size_type n_final,
 		const unsigned int min_trials,
 		const unsigned int max_count,

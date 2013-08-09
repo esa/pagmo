@@ -22,6 +22,17 @@ racing_population::racing_population(const population &pop): population(pop)
 {
 }
 
+/// Constructor based on a problem
+/**
+ * Creates an empty population which can be further manipulated using special
+ * routines in racing_population
+ *
+ * param[in] prob Problem of interest
+ **/
+racing_population::racing_population(const problem::base &prob): population(prob)
+{
+}
+
 /// Update decision_vector without invoking objective function
 /**
  * One of the most bizarre things you could in the world of PaGMO -- setting a
@@ -68,7 +79,7 @@ void racing_population::set_fc(const size_type idx, const fitness_vector &f, con
 	}
 	m_container[idx].cur_f = f;
 	m_container[idx].cur_c = c;
-	if (!m_container[idx].best_x.size() ||
+	if (!m_container[idx].best_f.size() ||
 		problem().compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_container[idx].best_f,m_container[idx].best_c))
 	{
 		m_container[idx].best_x = m_container[idx].cur_x;
@@ -111,6 +122,13 @@ void racing_population::push_back_noeval(const decision_vector &x)
 	m_container.back().cur_f.resize(f_size);
 	// NOTE: do not allocate space for bests, as they are not defined yet. set_x will take
 	// care of it. No -- it won't now!
+
+	// As we bypass set_x which will allocate spaces for bests, they must be
+	// explicitly allocated here. Some secretive functions like update_dom()
+	// will love to use the bests instead of curs.
+	m_container.back().best_f.resize(f_size);
+	m_container.back().best_c.resize(c_size);
+	
 	// Set the individual.
 	//set_x(m_container.size() - 1,x);
 	// TODO: Noeval options made the concept a champion invalid. And champions

@@ -66,8 +66,8 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 		std::cout << "Using racing: " << std::endl;
 		//std::cout << "\t-> Splitting into " << n_split << " times of evolves, each consuming " << max_fevals_per_split << " fevals." << std::endl;
 		//std::cout << "\t-> Total fevals = " << n_split * max_fevals_per_split << std::endl;
-		//algo = algorithm::pso_generational(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, true, max_fevals_per_split).clone();
-		algo = algorithm::pso_generational(n_gen / n_split / 2, 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, true).clone();
+		algo = algorithm::pso_generational(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, true, max_fevals_per_split).clone();
+		//algo = algorithm::pso_generational(n_gen / n_split / 2, 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, true).clone();
 	}
 	else{
 		std::cout << "Not using racing: " << std::endl;
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 	// END OF EXPERIMENT SET-UP //
 	*/	
 	const int n_isl = 1;
-	const int pop_size = 512;
+	const int pop_size = 20;
 	const int n_gen = 400;
 	const int n_repeat_experiments = 10;
 	bool use_racing = false;
