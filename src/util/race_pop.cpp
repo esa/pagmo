@@ -1,4 +1,5 @@
 #include "race_pop.h"
+#include "../problems.h"
 #include "../problem/base_stochastic.h"
 
 #include <map>
@@ -16,7 +17,40 @@ namespace pagmo { namespace util { namespace racing {
  */
 race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
 {
+	register_population(pop);
+}
+
+/// Constructor
+/**
+ * Construct a race_pop object from a seed. The seed will determine all racing
+ * conditions. The exact population on which race will run can be (and must be)
+ * supplied later via register_population().
+ *
+ * @param[in] seed seed of the race
+ */
+race_pop::race_pop(unsigned int seed): m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_cache_data(0), m_cache_averaged_data(0)
+{
+}
+
+/// Update the population on which the race will run
+/**
+ * This also re-allocate the spaces required to the cache entries.
+ *
+ * TODO: Before clearing the cache altogether, check if anything in the memory
+ * can be re-used and keep them?
+ *
+ * @param[in] pop The new population
+ **/
+void race_pop::register_population(const population &pop)
+{
+	m_pop = pop;
+	reset_cache();
+	if(m_cache_data.size() != pop.size()){
+		m_cache_data.resize(pop.size());
+		m_cache_averaged_data.resize(pop.size());
+	}
 	cache_register_signatures(pop);
+	m_pop_registered = true;
 }
 
 // Check if the provided active_set is valid.
@@ -143,6 +177,10 @@ std::vector<population::size_type> race_pop::construct_output_list(
  */
 std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const std::vector<population::size_type>& active_set, const bool race_best, const bool screen_output)
 {
+	// First check whether the a population has been properly registered
+	if(!m_pop_registered){
+		pagmo_throw(value_error, "Attempt to run race but no population is registered");
+	}
 	// We start validating the inputs:
 	// a - Problem has to be stochastic
 	_validate_problem_stochastic(m_pop.problem());
@@ -367,7 +405,11 @@ std::vector<fitness_vector> race_pop::get_mean_fitness(const std::vector<populat
 /// Clear all the cache
 void race_pop::reset_cache()
 {
-	m_cache_data.clear();
+	for(unsigned int i = 0; i < m_cache_data.size(); i++){
+		m_cache_data[i].clear();
+		m_cache_averaged_data[i].f.clear();
+		m_cache_averaged_data[i].c.clear();
+	}
 }
 
 /// Insert a data_point

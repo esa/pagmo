@@ -368,6 +368,53 @@ int test_racing_get_mean_fitness(const problem::base_ptr &prob)
 	return 0;
 }
 
+/// Check if the second type of constructor (population deferred) is sane
+int test_race_pop_constructor(const problem::base_ptr& prob)
+{
+	std::cout << "Testing the constructor without population" << std::endl;
+	
+	unsigned int seed = 123;
+	// we create the noisy version of the problem
+	problem::noisy prob_noisy(*prob, 1, 0, 0.5, problem::noisy::NORMAL, seed);
+	std::cout << prob_noisy << std::endl;
+
+	population pop(prob_noisy, 5, seed);
+
+	// Two construction methods
+	util::racing::race_pop race_pop_dev1(pop, seed);
+	util::racing::race_pop race_pop_dev2(seed);
+
+	// [0,1,2,3,4] then again
+	std::vector<population::size_type> active_set;
+	for(unsigned int i = 0; i <= 4; i++){
+		active_set.push_back(i);
+	}
+	population::size_type n_final = 1;
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, true, false);
+
+	// Register the population
+	race_pop_dev2.register_population(pop);
+	// Try to inherit memory from the other race structure
+	race_pop_dev2.inherit_memory(race_pop_dev1);
+
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, true, false);
+
+	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
+
+	if(res1.first != res2.first){
+		std::cout << "\tFAILED Caching: Winners are different!" << std::endl;
+	}
+
+	if(res2.second > 0){
+		std::cout << "\tFAILED Caching: Second race consumed fevals!" << std::endl;
+		return 1;
+	}
+
+	std::cout << "\tPASSED race_pop constructor without population." << std::endl;
+	return 0;
+}
+
+
 int main()
 {
 	int dimension = 10;
@@ -405,5 +452,7 @@ int main()
 		   test_racing_cache(prob_ackley) ||
 		   test_racing_cache_transfer(prob_ackley) ||
 
-		   test_racing_get_mean_fitness(prob_ackley);
+		   test_racing_get_mean_fitness(prob_ackley) ||
+
+		   test_race_pop_constructor(prob_ackley);
 }

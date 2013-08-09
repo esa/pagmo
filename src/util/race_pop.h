@@ -50,7 +50,8 @@ class __PAGMO_VISIBLE race_pop
 {
 public:
 
-	race_pop(const population&, unsigned int seed = 0);
+	race_pop(const population &, unsigned int seed = 0);
+	race_pop(unsigned int seed = 0);
 
 	// Main method containing all the juice
 	std::pair<std::vector<population::size_type>, unsigned int>  run(
@@ -64,6 +65,7 @@ public:
 	);
 
 	void reset_cache();
+	void register_population(const population &);
 	void inherit_memory(const race_pop&);
 	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &);
 
@@ -103,6 +105,7 @@ private:
 
 	// Data members
 	racing_population m_pop;
+	bool m_pop_registered;
 	std::vector<unsigned int> m_seeds;
 	rng_uint32 m_seeder;
 	std::vector<std::vector<eval_data> > m_cache_data;
