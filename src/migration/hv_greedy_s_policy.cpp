@@ -58,6 +58,7 @@ std::vector<population::individual_type> hv_greedy_s_policy::select(population &
 	const population::size_type migration_rate = get_n_individuals(pop);
 	// Create a temporary array of individuals.
 	std::vector<population::individual_type> result;
+
 	if (pop.problem().get_f_dimension() == 1) {
 		// Gets the indexes of the best individuals
 		std::vector<population::size_type> best_idx = pop.get_best_idx(migration_rate);
@@ -92,41 +93,26 @@ std::vector<population::individual_type> hv_greedy_s_policy::select(population &
 		unsigned int front_idx = 0;
 		unsigned int processed_individuals = 0;
 
-		// Set for maintaining the indices of already chosen individuals.
-		// We have to keep track of that, since as we remove points from the front, indices are shifted by one.
-		std::set<unsigned int> S;
+		// Vector for maintaining the original indices of points
+		std::vector<unsigned int> orig_indices(fronts_i[front_idx].size());
+		iota(orig_indices.begin(), orig_indices.end(), 0);
+
 		while (processed_individuals < migration_rate) {
 			// If current front is depleted, load next front.
 			if (fronts_f[front_idx].size() == 0) {
-				// Dump points from the std::set S to the result.
-				for (std::set<unsigned int>::iterator it = S.begin() ; it != S.end() ; ++it) {
-					result.push_back(pop.get_individual(fronts_i[front_idx][*it]));
-				}
-				// Increase front and clear the set.
+				// Increase front and reset the orig_indices
 				++front_idx;
-				S.clear();
+				orig_indices.resize(fronts_i[front_idx].size());
+				iota(orig_indices.begin(), orig_indices.end(), 0);
 			}
 			hypervolume hv(fronts_f[front_idx], false);
 			hv.set_copy_points(false);
 
 			unsigned int lc_idx = hv.greatest_contributor(refpoint);
-
-			// Fix the indexing issue resulting from the diminishing of the point set, using std::set for efficiency.
-			for (std::set<unsigned int>::iterator it = S.begin() ; it != S.end() ; ++it) {
-				if (*it <= lc_idx) {
-					++lc_idx;
-				} else {
-					S.insert(lc_idx);
-					break;
-				}
-			}
-			++processed_individuals;
+			result.push_back(pop.get_individual(fronts_i[front_idx][orig_indices[lc_idx]]));
+			orig_indices.erase(orig_indices.begin() + lc_idx);
 			fronts_f[front_idx].erase(fronts_f[front_idx].begin() + lc_idx);
-		}
-
-		// Dump points from the std::set S to the result.
-		for (std::set<unsigned int>::iterator it = S.begin() ; it != S.end() ; ++it) {
-			result.push_back(pop.get_individual(fronts_i[front_idx][*it]));
+			++processed_individuals;
 		}
 	}
 
