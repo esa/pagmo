@@ -31,13 +31,13 @@ namespace pagmo { namespace util {
  * Constructs a hypervolume object, where points are elicited from the referenced population object.
  *
  * @param[in] pop reference to population object from which Pareto front is computed
- * @param[in] front_idx index of the front for which the hypervolume is to be computed
+ * @param[in] verify flag stating whether the points should be verified after the construction. This turns off the validation for the further computation as well, use 'set_verify' flag to alter it later.
  */
-hypervolume::hypervolume(boost::shared_ptr<population> pop, unsigned int front_idx, const bool verify) : m_copy_points(true), m_verify(verify) {
+hypervolume::hypervolume(boost::shared_ptr<population> pop, const bool verify) : m_copy_points(true), m_verify(verify) {
 	std::vector<std::vector<population::size_type> > pareto_fronts = pop->compute_pareto_fronts();
-	m_points.resize(pareto_fronts[front_idx].size());
-	for (population::size_type idx = 0 ; idx < pareto_fronts[front_idx].size() ; ++idx) {
-		m_points[idx] = fitness_vector(pop->get_individual(pareto_fronts[front_idx][idx]).cur_f);
+	m_points.resize(pareto_fronts[0].size());
+	for (population::size_type idx = 0 ; idx < pareto_fronts[0].size() ; ++idx) {
+		m_points[idx] = fitness_vector(pop->get_individual(pareto_fronts[0][idx]).cur_f);
 	}
 
 	if (m_verify) {
@@ -50,6 +50,7 @@ hypervolume::hypervolume(boost::shared_ptr<population> pop, unsigned int front_i
  * Constructs a hypervolume object from a provided set of points.
  *
  * @param[in] points vector of points for which the hypervolume is computed
+ * @param[in] verify flag stating whether the points should be verified after the construction. This turns off the validation for the further computation as well, use 'set_verify' flag to alter it later.
  */
 hypervolume::hypervolume(const std::vector<fitness_vector> &points, const bool verify) : m_points(points), m_copy_points(true), m_verify(verify) {
 	if  (m_verify) {

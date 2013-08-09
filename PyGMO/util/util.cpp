@@ -108,7 +108,7 @@ void expose_hypervolume() {
 
 
 	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &, const bool >())
-		.def(init<boost::shared_ptr<population>, const unsigned int, const bool >())
+		.def(init<boost::shared_ptr<population>, const bool>())
 		.def("compute", compute_custom(&util::hypervolume::compute), "Computes the hypervolume using the provided hypervolume algorithm.")
 		.def("compute", compute_dynamic(&util::hypervolume::compute), "Computes the hypervolume.")
 		.def("exclusive", exclusive_custom(&util::hypervolume::exclusive), "Computes the exclusive hypervolume using the provided hypervolume algorithm.")

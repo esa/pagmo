@@ -54,7 +54,7 @@ class __PAGMO_VISIBLE hypervolume
 	public:
 		hypervolume();
 		hypervolume(const hypervolume &);
-		hypervolume(const boost::shared_ptr<population>, const unsigned int front_idx = 0, const bool verify = true);
+		hypervolume(const boost::shared_ptr<population>, const bool verify = true);
 		hypervolume(const std::vector<fitness_vector> &, const bool verify = true);
 
 		double compute(const fitness_vector &, const hv_algorithm::base_ptr) const;

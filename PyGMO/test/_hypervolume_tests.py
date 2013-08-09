@@ -13,6 +13,20 @@ class HVCtorTest(unittest.TestCase):
 		self.assertRaises(ValueError, hypervolume, [[],])  # empty set of points
 		self.assertRaises(ValueError, hypervolume, [[1,2,3], [3,3]])  # point dimensions are not equal
 		self.assertRaises(TypeError, hypervolume, [])  # empty set of points #2
+
+	def test_pop_ctor(self):
+		# constructs the hypervolume object from a population object, expects to not raise any error
+		prob = problem.zdt2()
+		pop = population(prob, 100)
+
+		# construction from a population object
+		hypervolume(pop)
+
+		# setting verification flag to False
+		hypervolume(pop, False)
+
+		# setting verification flag to True
+		hypervolume(pop, True)
 	
 	def test_hypervolume_ctor_points(self):
 		# test various possibilities of construction

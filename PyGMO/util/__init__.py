@@ -73,7 +73,7 @@ class HypervolumeValidation:
 		return algorithm
 
 
-def _hypervolume_ctor(self, data_src = None, pop_front_idx = 0, verify = True, *args, **kwargs):
+def _hypervolume_ctor(self, data_src = None, verify = True, *args, **kwargs):
 	"""
 	Constructs a hypervolume object used for the computation of hypervolue and exclusive hypervolume.
 
@@ -82,8 +82,7 @@ def _hypervolume_ctor(self, data_src = None, pop_front_idx = 0, verify = True, *
 
 	USAGE:
 		from PyGMO import *
-		hv = hypervolume(pop)  # pull the points from the population object (by default, use front 0)
-		hv = hypervolume(pop, 2)  # pull the points from the population object, from the second front
+		hv = hypervolume(pop)  # pulls the points from the population's pareto front at index 0
 		hv = hypervolume([[1,1,2],[2,1,2],[2,2,3]])
 		hv = hypervolume(((1,2), (3,0.5), (1.5, 1.5))
 		hv = hypervolume(data_src = ((1,2),(2,3)), verify=False)
@@ -97,9 +96,6 @@ def _hypervolume_ctor(self, data_src = None, pop_front_idx = 0, verify = True, *
 
 	args = []
 	args.append(data_src)
-	# if the data is a population object, append the front idx to args
-	if isinstance(data_src, population):
-		args.append(pop_front_idx)
 	args.append(verify)
 	try:
 		return self._original_init(*args)
