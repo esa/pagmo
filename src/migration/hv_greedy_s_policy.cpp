@@ -44,7 +44,7 @@ namespace pagmo { namespace migration {
  *
  * @see base_s_policy::base_s_policy.
  */
-hv_greedy_s_policy::hv_greedy_s_policy(const double &rate, rate_type type):base_s_policy(rate,type) {}
+hv_greedy_s_policy::hv_greedy_s_policy(const double &rate, rate_type type, const double nadir_eps):base_s_policy(rate,type), m_nadir_eps(nadir_eps) {}
 
 base_s_policy_ptr hv_greedy_s_policy::clone() const
 {
@@ -87,6 +87,11 @@ std::vector<population::individual_type> hv_greedy_s_policy::select(population &
 					refpoint[d_idx] = fmax(refpoint[d_idx], fronts_f[f_idx][p_idx][d_idx]);
 				}
 			}
+		}
+
+		// Epsilon is added to nadir point
+		for (unsigned int d_idx = 0 ; d_idx < refpoint.size() ; ++d_idx) {
+			refpoint[d_idx] += m_nadir_eps;
 		}
 
 		// Store which front we process (start with front 0) and the number of processed individuals.

@@ -22,47 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_MIGRATION_HV_GREEDY_S_POLICY_H
-#define PAGMO_MIGRATION_HV_GREEDY_S_POLICY_H
+#ifndef PAGMO_MIGRATION_HV_GREEDY_R_POLICY_H
+#define PAGMO_MIGRATION_HV_GREEDY_R_POLICY_H
 
+#include <utility>
 #include <vector>
 
 #include "../config.h"
 #include "../population.h"
 #include "../serialization.h"
 #include "base.h"
-#include "base_s_policy.h"
+#include "base_r_policy.h"
 
 namespace pagmo { namespace migration {
 
-///  Choose 'n' successive greatest contributors migration policy
+/// Replace the 'n' successive least contributors with the incoming set.
 /**
- * This policy revolves around choosing the indviduals that contribute the greatest amount of volume to the total hypervolume.
- * Individuals are chosen iteratively, thus it is regarded as a greedy strategy.
+ * Policy revolving around replacing a set of successive least contributors with the incoming set of immigrants in a 'fair' way.
+ * Least contributors are chosen iteratively, thus it is regarded as a greedy strategy.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE hv_greedy_s_policy: public base_s_policy
+class __PAGMO_VISIBLE hv_greedy_r_policy: public base_r_policy
 {
 	public:
-		hv_greedy_s_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 0.0);
-		base_s_policy_ptr clone() const;
-		std::vector<population::individual_type> select(population &) const;
+		hv_greedy_r_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 0.0);
+		base_r_policy_ptr clone() const;
+		std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
+			select(const std::vector<population::individual_type> &, const population &) const;
 	private:
-		struct dom_comp;
+		static bool ind_cmp(const std::pair<unsigned int, double> &, const std::pair<unsigned int, double> &);
 		const double m_nadir_eps;
 
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base_s_policy>(*this);
+			ar & boost::serialization::base_object<base_r_policy>(*this);
 			ar & const_cast<double &>(m_nadir_eps);
 		}
 };
 
-} }
+}}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_greedy_s_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_greedy_r_policy);
 
 #endif

@@ -37,5 +37,6 @@
 #include "migration/fair_r_policy.h"
 #include "migration/random_r_policy.h"
 #include "migration/worst_r_policy.h"
+#include "migration/hv_greedy_r_policy.h"
 
 #endif
