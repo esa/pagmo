@@ -104,6 +104,7 @@ double run_experiment(const int n_isl, const int pop_size, const int n_gen, bool
 			pop.set_v(i,v);
 		}
 
+		algo->reset_rngs(seed + j);
 		archi.push_back(island(*algo,pop));
 	}
 
