@@ -140,6 +140,39 @@ std::vector<population::size_type> race_pop::construct_output_list(
 	return output;
 }
 
+// Update m_pop with the evaluation data w.r.t current seed for Friedman test
+//
+// The resulting population is aligned with the racers, i.e. m_pop[0]
+// corresponds to racers[0], storing the newest fitness and constraint vector
+// evaluated under the new seed. Evaluation data can come from cache or fresh
+// computation.
+// 
+// @return The number of objective function calls made
+unsigned int race_pop::prepare_population_friedman(const std::vector<population::size_type>& in_race, unsigned int count_iter)
+{
+	unsigned int count_nfes = 0;
+	// Perform re-evaluation on necessary individuals under current seed
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it) {
+		// Case 1: Current racer has previous data that can be reused, no
+		// need to be evaluated with this seed
+		if(cache_data_exist(*it, count_iter-1)){
+			const eval_data& cached_data = cache_get_entry(*it, count_iter-1);
+			m_pop.set_fc(*it, cached_data.f, cached_data.c);
+		}
+		// Case 2: No previous data can be reused, perform actual
+		// re-evaluation and update the cache
+		else{
+			count_nfes++;
+			const population::individual_type &ind = m_pop.get_individual(*it);
+			fitness_vector f_vec = m_pop.problem().objfun(ind.cur_x);
+			constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
+			m_pop.set_fc(*it, f_vec, c_vec);
+			cache_insert_data(*it, f_vec, c_vec);
+		}
+	}
+	return count_nfes;
+}
+
 /// Races some individuals in a population
 /**
  * Performs an F-Race among certain individuals in a population.
@@ -279,41 +312,13 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		// population, which will not be accessed elsewhere, and the champion
 		// information is not used during racing.
 
-		// Perform re-evaluation on necessary individuals under current seed
-		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it) {
-			// Case 1: Current racer has previous data that can be reused, no
-			// need to be evaluated with this seed
-			if(cache_data_exist(*it, count_iter-1)){
-				const eval_data& cached_data = cache_get_entry(*it, count_iter-1);
-				m_pop.set_fc(*it, cached_data.f, cached_data.c);
-			}
-			// Case 2: No previous data can be reused, perform actual
-			// re-evaluation and update the cache
-			else{
-				count_nfes++;
-				const population::individual_type &ind = m_pop.get_individual(*it);
-				fitness_vector f_vec = m_pop.problem().objfun(ind.cur_x);
-				constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
-				m_pop.set_fc(*it, f_vec, c_vec);
-				cache_insert_data(*it, f_vec, c_vec);
-			}
-		}
-		f_race_assign_ranks(racers, m_pop);
+		// Update m_pop with re-evaluation results or possibly data from cache
+		count_nfes += prepare_population_friedman(in_race, count_iter);
+		// Perform Friedman test
+		stat_test_result ss_result = friedman_test(racers, in_race, m_pop, delta);
 
-		// Enforce a minimum required number of trials
 		if(count_iter < min_trials)
 			continue;
-
-		// Observation data (TODO: is this necessary ? ... a lot of memory allocation gets done here and we
-		// already have in memory all we need. could we not pass by reference directly racers and in_race 
-		// to the friedman test?)
-		std::vector<std::vector<double> > X;
-		for(unsigned int i = 0; i < in_race.size(); i++){
-			X.push_back(racers[in_race[i]].m_hist);
-		}
-
-		// Friedman Test
-		stat_test_result ss_result = friedman_test(X, delta);
 
 		if(!ss_result.trivial){
 			// Inside here some pairs must be statistically different, let's find them out

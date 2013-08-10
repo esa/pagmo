@@ -92,18 +92,21 @@ namespace racing{
 			std::vector<std::vector<bool> > is_better;
 	};
 
+	// F-Race routines
+	stat_test_result friedman_test(std::vector<racer_type> &, const std::vector<population::size_type> &, const racing_population&, double);
+	stat_test_result core_friedman_test(const std::vector<std::vector<double> > &, double delta);
+	void f_race_assign_ranks(std::vector<racer_type> &, const racing_population &);
+	void f_race_adjust_ranks(std::vector<racer_type> &, const std::vector<population::size_type> &);
+
 	// TODO: May create a base class statistical_test_base and then
 	// let specific stat tests derive from there.
 	
 	// Used in F-Race
-	stat_test_result friedman_test(const std::vector<std::vector<double> > &, double delta);
 
 	// Used in Hoeffding / Bernstein race
 	enum bound_type {HOEFFDING = 0, BERNSTEIN = 1};
 	stat_test_result bound_based_test(const std::vector<std::vector<double> > &, double delta, bound_type);
 
-	void f_race_assign_ranks(std::vector<racer_type> &, const racing_population &);
-	void f_race_adjust_ranks(std::vector<racer_type> &, const std::vector<population::size_type> &);
 
 //! @endcond
 }

@@ -76,6 +76,8 @@ private:
 	void _validate_problem_stochastic(const problem::base& prob);
 	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size);
 
+	unsigned int prepare_population_friedman(const std::vector<population::size_type> &in_race, unsigned int count_iter);
+
 	// Atoms of the cache
 	struct eval_data
 	{

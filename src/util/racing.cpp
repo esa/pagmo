@@ -306,7 +306,7 @@ void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<popu
  *
  * @return Result of the statistical test 
  */
-stat_test_result friedman_test(const std::vector<std::vector<double> >& X, double delta)
+stat_test_result core_friedman_test(const std::vector<std::vector<double> >& X, double delta)
 {	
 	// TODO: throw when X is empty
 	
@@ -393,6 +393,32 @@ stat_test_result friedman_test(const std::vector<std::vector<double> >& X, doubl
 	return res;
 
 }
+
+/// Returns the pair-wise statistical testing results based on Friedman Test
+/**
+ * @param[in] racers List of racers which will be filled up with rank data
+ * @param[in] pop Population storing the updated fitness and constraint of each
+ * active individual in race.
+ * @return A structure containing the statistical testing results 
+ **/
+stat_test_result friedman_test(std::vector<racer_type> &racers, const std::vector<population::size_type> &in_race, const racing_population &pop, double delta)
+{
+	f_race_assign_ranks(racers, pop);
+
+	// Observation data (TODO: is this necessary ? ... a lot of memory
+	// allocation gets done here and we already have in memory all we need.
+	// could we not pass by reference directly racers and in_race to the
+	// friedman test?)
+	std::vector<std::vector<double> > X;
+	for(unsigned int i = 0; i < in_race.size(); i++){
+		X.push_back(racers[in_race[i]].m_hist);
+	}
+
+	// Friedman Test
+	stat_test_result ss_result = core_friedman_test(X, delta);
+	return ss_result;
+}
+
 //! @endcond Doxygen comments the following
 
 }}}
