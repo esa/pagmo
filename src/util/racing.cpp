@@ -61,7 +61,8 @@ void racing_population::set_x_noeval(const size_type idx, const decision_vector 
  * One of the most bizarre things you could do in the world of PaGMO --
  * directly setting fitness and constraint vectors. It only does what it says
  * -- set_fc -- meaning cur_x and best_x might become invalid as set_fc simply
- *  ignores and does not check their validity. Only use this if you know what
+ *  ignores and does not check their validity. Another note is that best_f and
+ *  best_c will always mirror cur_f and cur_c. Only use this if you know what
  *  you are doing.
  *
  *  (Essentially, this is the last halve of the canonical set_x)
@@ -79,13 +80,11 @@ void racing_population::set_fc(const size_type idx, const fitness_vector &f, con
 	}
 	m_container[idx].cur_f = f;
 	m_container[idx].cur_c = c;
-	if (!m_container[idx].best_f.size() ||
-		problem().compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_container[idx].best_f,m_container[idx].best_c))
-	{
-		m_container[idx].best_x = m_container[idx].cur_x;
-		m_container[idx].best_f = m_container[idx].cur_f;
-		m_container[idx].best_c = m_container[idx].cur_c;
-	}
+	// NOTE: As update_dom() uses best_f and best_c when computing Pareto ranks
+	// and hence, racing_population can be used a way to by pass this in order
+	// to respect more the concept of racing
+	m_container[idx].best_f = f;
+	m_container[idx].best_c = c;
 	update_dom(idx);
 }
 
@@ -171,7 +170,6 @@ std::vector<double> racing_population::get_rankings()
 	}	
 	else{
 		// Multi-objective case
-		// TODO: Possibe big jumps in observation data due to Pareto ranks
 		population::crowded_comparison_operator comparator(*this);
 		for(size_type i = 0; i < size() - 1; i++){	
 			if (!comparator(i, i+1) && !comparator(i+1, i)){
@@ -227,7 +225,7 @@ std::vector<double> racing_population::get_rankings()
  * @param[in] racing_pop Population on which racing will run
  *
 **/
-void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_population& racing_pop)
+void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_population& racing_pop_full)
 {
 	// Update ranking to be used for stat test
 	// Note that the ranking returned by get_best_idx() requires some post-processing,
@@ -235,90 +233,34 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 
 	typedef population::size_type size_type;
 
-	
-	std::vector<size_type> raw_order = racing_pop.get_best_idx(racing_pop.size());
-	int cur_rank = 1;
-	std::vector<size_type> ordered_idx_active;
-	for(size_type i = 0; i < raw_order.size(); i++){
-		int ind_idx = raw_order[i];
-		// Note that some individuals would have been dropped along the way and
-		// become inactive. They should do not affect the latest rankings in any way.
-		if(racers[ind_idx].active){
-			racers[ind_idx].m_hist.push_back(cur_rank);
-			cur_rank++;
-			ordered_idx_active.push_back(ind_idx);
+	// Construct a more condensed population with only active individuals
+	racing_population racing_pop(racing_pop_full.problem());
+	decision_vector dummy_x(racing_pop_full.problem().get_dimension(), 0);
+	std::vector<size_type> idx_mapping;
+	for(size_type i = 0; i < racers.size(); i++){
+		if(racers[i].active){
+			racing_pop.push_back_noeval(dummy_x);
+			racing_pop.set_fc(racing_pop.size()-1, racing_pop_full.get_individual(i).cur_f, racing_pop_full.get_individual(i).cur_c);
+			idx_mapping.push_back(i);
 		}
 	}
 	
-	// --Adjust ranking to cater for ties--
-	// 1. Check consecutively ranked individuals whether they are tied.
-	std::vector<bool> tied(ordered_idx_active.size() - 1, false);
-	if(racing_pop.problem().get_f_dimension()==1){
-		// Single-objective case
-		population::trivial_comparison_operator comparator(racing_pop);
-		for(size_type i = 0; i < ordered_idx_active.size() - 1; i++){	
-			size_type idx1 = ordered_idx_active[i];
-			size_type idx2 = ordered_idx_active[i+1];
-			if (!comparator(idx1, idx2) && !comparator(idx2, idx1)){
-				tied[i] = true;
-			}
-		}
-	}	
-	else{
-		// Multi-objective case
-		// TODO: Possibe big jumps in observation data due to Pareto ranks
-		population::crowded_comparison_operator comparator(racing_pop);
-		for(size_type i = 0; i < ordered_idx_active.size() - 1; i++){	
-			size_type idx1 = ordered_idx_active[i];
-			size_type idx2 = ordered_idx_active[i+1];
-			if (!comparator(idx1, idx2) && !comparator(idx2, idx1)){
-				tied[i] = true;
-			}
-		}
-	}
-	// std::cout << "Tied stats: "; for(size_type i = 0; i < tied.size(); i++) std::cout << tied[i] <<" "; std::cout<<std::endl;
-
-	// 2. For all the individuals who are tied, modify their rankings to
-	// be the average rankings in case of no tie.
-	size_type cur_pos = 0;
-	size_type begin_avg_pos;
-	while(cur_pos < tied.size()){
-		begin_avg_pos = cur_pos;
-		while(tied[cur_pos]==1){
-			cur_pos++;
-			if(cur_pos >= tied.size()){
-				break;
-			}
-		}
-
-		double avg_rank = 0;
-		// std::cout << "Ties between: ";
-		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
-			avg_rank += racers[ordered_idx_active[i]].m_hist.back() / ((double)cur_pos - begin_avg_pos + 1);
-			// std::cout << ordered_idx_active[i] << " (r=" << racers[ordered_idx_active[i]].m_hist.back() << ") ";
-		}
-		// std::cout << std::endl;
-		// if(cur_pos - begin_avg_pos + 1 > 1)
-			// std::cout << "Setting tied ranks between " << cur_pos - begin_avg_pos + 1 << " individuals to be " << avg_rank   << std::endl;
-		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
-			racers[ordered_idx_active[i]].m_hist.back() = avg_rank;
-		}
-
-		// If no tie at all for this begin pos
-		if(begin_avg_pos == cur_pos){
-			cur_pos++;
-		}
+	// Get the rankings in the sense of satistical testing
+	std::vector<double> rankings = racing_pop.get_rankings();
+	for(unsigned int i = 0; i < racing_pop.size(); i++){
+		racers[idx_mapping[i]].m_hist.push_back(rankings[i]);
 	}
 
-	// Update mean of rank (which also reflects the sum of rank, useful for later
-	// pair-wise test)
-	for(size_type i = 0; i < ordered_idx_active.size(); i++){
-		racer_type& cur_racer = racers[ordered_idx_active[i]];
+	// Update mean of rank (which also reflects the sum of rank, useful for
+	// later pair-wise test)
+	for(size_type i = 0; i < rankings.size(); i++){
+		racer_type& cur_racer = racers[idx_mapping[i]];
 		cur_racer.m_mean = 0;
-		for(unsigned int i = 0; i < cur_racer.length(); i++){
-			cur_racer.m_mean += (cur_racer.m_hist[i]) / (double)cur_racer.length();
+		for(unsigned int j = 0; j < cur_racer.length(); j++){
+			cur_racer.m_mean += (cur_racer.m_hist[j]) / (double)cur_racer.length();
 		}
 	}
+	
 	//std::cout << "Adjusted ranking: "; for(size_type i = 0; i < ordered_idx_active.size(); i++) std::cout << "(" << ordered_idx_active[i] << ")-" << racers[ordered_idx_active[i]].m_hist.back() << " "; std::cout << std::endl;
 }
 
