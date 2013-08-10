@@ -63,11 +63,12 @@ public:
 		const bool race_best,
 		const bool screen_output
 	);
-
+	
+	population::size_type size();
 	void reset_cache();
 	void register_population(const population &);
 	void inherit_memory(const race_pop&);
-	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &);
+	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &active_set = std::vector<population::size_type>());
 
 private:
 	// Helper methods to validate input data

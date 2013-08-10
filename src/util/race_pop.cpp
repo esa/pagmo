@@ -53,6 +53,12 @@ void race_pop::register_population(const population &pop)
 	m_pop_registered = true;
 }
 
+/// Get the number of individuals in the registered population
+population::size_type race_pop::size()
+{
+	return m_pop.size();
+}
+
 // Check if the provided active_set is valid.
 void race_pop::_validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size)
 {
@@ -381,16 +387,30 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 
 /// Returns mean fitness of the individuals based on past evaluation data
 /**
- * @param[in] active_set The indices of the individuals whose mean fitness
- * vectors are to be extracted.
+ * @param[in] ind_list The indices of the individuals whose mean fitness
+ * vectors are to be extracted. If this is empty, mean data of all the
+ * individuals will be returned.
  * 
  * @throws value_error if any of the requested individuals has not been raced before.
  *
- * @return Mean fitness vectors of the individuals in active_set.
+ * @return Mean fitness vectors of the individuals in ind_list
  **/
-std::vector<fitness_vector> race_pop::get_mean_fitness(const std::vector<population::size_type> &active_set)
+std::vector<fitness_vector> race_pop::get_mean_fitness(const std::vector<population::size_type> &ind_list)
 {
-	_validate_active_set(active_set, m_pop.size());
+	_validate_active_set(ind_list, m_pop.size());
+
+	std::vector<population::size_type> active_set;
+	// If empty list is given then assume all individuals are of interest
+	if(ind_list.size() == 0){
+		active_set.resize(size());
+		for(population::size_type i = 0; i < size(); i++){
+			active_set[i] = i;
+		}
+	}
+	else{
+		active_set = ind_list;
+	}
+
 	std::vector<fitness_vector> mean_fitness(active_set.size());
 	for(unsigned int i = 0; i < active_set.size(); i++){
 		if(m_cache_data[active_set[i]].size() == 0){

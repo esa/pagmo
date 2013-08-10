@@ -57,11 +57,14 @@ public:
 	base_ptr clone() const;
 	void evolve(population &) const;
 	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob) const;
-	decision_vector particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop&) const;
 	void initialize_topology__gbest( const population &pop, decision_vector &gbX, fitness_vector &gbfit, std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__von( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__adaptive_random( std::vector< std::vector<int> > &neighb ) const;
+
+	// Helper routines for racing related features
+	decision_vector particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop& ) const;
+	//void racing__construct_race_environment( race_pop &, const std::vector<decision_vector> &, const std::vector<decision_vector> &x_list2 = std::vector<decision_vector>() );
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;

@@ -95,6 +95,52 @@ base_ptr pso_generational::clone() const
 	return base_ptr(new pso_generational(*this));
 }
 
+// Construct the racing structure from lists of decision vectors tailored to
+// this pso_gen implementation. If only a single list of decision vectors is
+// required, simply leave the second list empty.
+void racing__construct_race_environment( util::racing::race_pop & race_structure, const problem::base& prob, const std::vector<decision_vector> &x_list1, const std::vector<decision_vector> &x_list2 )
+{	
+	util::racing::racing_population lbpop( prob );
+	for( unsigned int p  = 0; p < x_list1.size(); p++ ){
+		lbpop.push_back_noeval( x_list1[p] );
+	}
+	for( unsigned int p = 0; p < x_list2.size(); p++ ){
+		lbpop.push_back_noeval( x_list2[p] );	
+	}
+	race_structure.register_population( lbpop );
+}
+
+// Run several kinds of racing encountered in pso_gen:
+//
+// 1) Between two individuals: Their indices should be set as idx1 and idx2
+// respectively.
+// 2) Among the whole population: In this case set idx1 and idx2 both to -1.
+//
+// A tuple containing the index of the winner, and the number of fitness
+// evaluation consumed will be returned.
+std::pair<population::size_type, unsigned int> racing__race_for_winner( util::racing::race_pop &race_structure, int idx1, int idx2, unsigned int max_fevals)
+{
+	// Check if the provided indices are valid
+	if(!(idx1<0 && idx2<0) && !(idx1>=0 && idx2>=0)){
+		pagmo_throw(value_error, "The pair must either be both -1 (race all) or both explicitly specified.");
+	}
+	std::vector<population::size_type> active_set;
+	// Run race on all the individuals
+	if(idx1 < 0){
+		active_set.resize(race_structure.size());
+		for(population::size_type i = 0; i < race_structure.size(); i++){
+			active_set[i] = i;
+		}
+	}
+	// Race between the two specified individuals
+	else{
+		active_set.resize(2);
+		active_set[0] = idx1;
+		active_set[1] = idx2;
+	}
+	std::pair<std::vector<population::size_type>, unsigned int>  res = race_structure.run(1, 0, max_fevals, 0.05, active_set, true, false);
+	return std::make_pair(res.first[0], res.second);
+}
 
 /// Evolve implementation.
 /**
@@ -200,26 +246,28 @@ void pso_generational::evolve(population &pop) const
 	util::racing::race_pop race_lbX(racing_seed);
 	util::racing::race_pop race_lbX_and_X(racing_seed);
 
+	/*
 	util::racing::racing_population lbpop(pop.problem());
 	for( p  = 0; p < swarm_size; p++ ){
 		lbpop.push_back_noeval(lbX[p]);
 	}
 	//util::racing::race_pop race_lbX(lbpop, racing_seed);
 	race_lbX.register_population(lbpop);
+	*/
+	racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<fitness_vector>());
 
 	if( m_use_racing ){
 		
 		if( m_neighb_type == 1 ){
 			// Using the gbest (fully connected) topology; best position
 			// visited so far in the swarm must be determined through racing
-			std::vector<population::size_type> active_set(pop.size());
-			for(population::size_type i = 0; i < pop.size(); i++){
-				active_set.push_back(i);
-			}
-			std::pair<std::vector<population::size_type>, unsigned int>  res = race_lbX.run(1, 0, pop.size()*5, 0.05, active_set, true, false);
-			//TODO: Set lbfit to be the averaged fitness values from racing
-			best_idx = res.first[0]; 
+			//std::pair<std::vector<population::size_type>, unsigned int>  res = race_lbX.run(1, 0, pop.size()*5, 0.05, active_set, true, false);
+			std::pair<population::size_type, unsigned int> res
+				= racing__race_for_winner(race_lbX, -1, -1, pop.size()*5);
+			best_idx = res.first;
 			m_fevals += res.second;
+			// Set lbfit to be the averaged fitness values from racing
+			lbfit = race_lbX.get_mean_fitness();
 			best_neighb = lbX[ best_idx ];
 			best_fit = lbfit[ best_idx ];
 		}
@@ -248,7 +296,9 @@ void pso_generational::evolve(population &pop) const
 	while( g < m_gen &&  m_fevals < m_max_fevals ){
 		g++;
 	
-		std::cout << "fevals: " << m_fevals << " f = " << pop.champion().f << std::endl;
+		if(g % 10 == 0){
+			std::cout << "gen: " << g << " fevals: " << m_fevals << " f = " << pop.champion().f << std::endl;
+		}
 
 		// Construct the race structure which will be used to extract the best
 		// neighbors, when m_neighb_type != 1 and m_variant type != 6. Come on
@@ -401,7 +451,6 @@ void pso_generational::evolve(population &pop) const
 				X[p][d] = new_x;
 			}
 		}
-		int required_fevals = 0;
 		std::vector<bool> local_bests_improved = std::vector<bool>(lbX.size(), false);
 		// If the problem is a stochastic optimization change the seed and re-evaluate taking care to update also best and local bests
 		try
@@ -414,7 +463,7 @@ void pso_generational::evolve(population &pop) const
 				
 				pop.clear(); // Removes memory based on different seeds (champion and best_x, best_f, best_c)
 				// Check if there is enough evaluation budget before proceeding
-				required_fevals = swarm_size * 2;
+				unsigned int required_fevals = swarm_size * 2;
 
 				if (m_fevals + required_fevals > m_max_fevals){
 					forced_terminate = true;
@@ -451,31 +500,20 @@ void pso_generational::evolve(population &pop) const
 				// booking so that the evaluation data can be used in the next
 				// generation
 
-				util::racing::racing_population pop_lbX_and_X(pop.problem());
-				// first swarm_size positions of lbpop contain particles'
-				// previous best positions
-				for( p  = 0; p < swarm_size; p++ )
-					pop_lbX_and_X.push_back_noeval( lbX[p] );
-				// the last swarm_size positions of lbpop contain particles'
-				// current positions
-				for( p  = 0; p < swarm_size; p++ )
-					pop_lbX_and_X.push_back_noeval( X[p] );
-				//util::racing::race_pop race_lbX_and_X(lbpop, racing_seed);
-				race_lbX_and_X.register_population(pop_lbX_and_X);
+				racing__construct_race_environment(race_lbX_and_X, pop.problem(), lbX, X);
 				race_lbX_and_X.inherit_memory(race_lbX);
 
 				for( p = 0; p < swarm_size && !forced_terminate; p++ ){
-					std::vector<population::size_type> active_set(2);
-					active_set[0] = p;
-					active_set[1] = p+swarm_size;
-					std::pair<std::vector<population::size_type>, unsigned int> res =
-						race_lbX_and_X.run(1, 0, 10, 0.05, active_set, true, false);
+
+					std::pair<population::size_type, unsigned int> res =
+						racing__race_for_winner(race_lbX_and_X, p, p+swarm_size, 10);
+
 					m_fevals += res.second;
-					if (m_fevals + required_fevals > m_max_fevals){
+					if (m_fevals > m_max_fevals){
 						forced_terminate = true;
 						break;
 					}
-					if(res.first[0] == p+swarm_size){
+					if(res.first == p+swarm_size){
 						local_bests_improved[p] = true;	
 					}
 				}
@@ -486,19 +524,13 @@ void pso_generational::evolve(population &pop) const
 					// on and update pop
 					pop.clear();
 
-					std::vector<population::size_type> active_set(2*swarm_size);
-					for(unsigned int i = 0; i < 2*swarm_size; i++){
-						active_set[i] = i;
-					}
 					// Update lbfit and fit to hold the averaged fitness values
-					/*
 					std::vector<fitness_vector> averaged_fitness =
-						race_lbX_and_X.get_mean_fitness(active_set);
+						race_lbX_and_X.get_mean_fitness();
 					for(unsigned int i = 0; i < swarm_size; i++){
 						lbfit[i] = averaged_fitness[i];
 						fit[i] = averaged_fitness[i+swarm_size];
 					}
-					*/
 				}
 			}
 		}
@@ -507,7 +539,7 @@ void pso_generational::evolve(population &pop) const
 			// deterministic problem
 			
 			// Check if there is enough evaluation budget before proceeding
-			required_fevals = swarm_size;
+			unsigned int required_fevals = swarm_size;
 			if (m_fevals + required_fevals > m_max_fevals){
 				forced_terminate = true;
 				break;
@@ -549,7 +581,6 @@ void pso_generational::evolve(population &pop) const
 			}
 		}
 		else{
-			util::racing::racing_population pop_lbX_new(pop.problem());
 			for( p = 0; p < swarm_size; p++ ){
 				// Use racing to update local bests
 				if(local_bests_improved[p]){
@@ -563,7 +594,6 @@ void pso_generational::evolve(population &pop) const
 					if( p == best_idx )
 						best_fit_improved = true;
 				}
-				pop_lbX_new.push_back_noeval(lbX[p]);
 				pop.push_back(lbX[p]);
 				pop.set_v(p,V[p]);
 				// Luis's note: "pop.set_x(p,X[p]);" is
@@ -575,24 +605,28 @@ void pso_generational::evolve(population &pop) const
 				// to the best solution identified through racing's superior
 				// evaluation.
 			}
-			// Pass on the memory to the next generation -- some new memory may
-			// come from the previous race between lbX and X
-			race_lbX.register_population(pop_lbX_new);
+			// Construct the new race environment with the updated lbX. Pass on
+			// the memory to the next generation -- some new memory may come
+			// from the previous race between lbX and X
+			racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<fitness_vector>());
 			race_lbX.inherit_memory(race_lbX_and_X);
 
 			// update the best position observed so far by any particle in the swarm
 			// (only performed if swarm topology is gbest or random varying)
 			if( m_neighb_type == 1 ){
 				// Race to get the best in lbX
-				std::vector<population::size_type> active_set(swarm_size);
-				for(unsigned int i = 0; i < swarm_size; i++){
-					active_set.push_back(i);
-				}
-				std::pair<std::vector<population::size_type>, unsigned int> res =
-					race_lbX.run(1, 0, swarm_size*3, 0.05, active_set, true, false);
-				// TODO: Set fitness to the averaged fitness from race
+				std::pair<population::size_type, unsigned int> res =
+					racing__race_for_winner(race_lbX, -1, -1, swarm_size*3);
+
+				// Set fitness to the averaged fitness from race
+				// TODO: Check if this is required -- in m_neighb_type==4 and
+				// with racing, the exact values of lbfit are not used directly
+				// at all?
+				lbfit = race_lbX.get_mean_fitness();
+
 				m_fevals += res.second;
-				p = res.first[0];
+
+				p = res.first;
 				if( p != best_idx ){
 					best_idx = p;
 					best_fit_improved = true;
