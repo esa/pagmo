@@ -78,6 +78,7 @@ private:
 	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size) const;
 
 	unsigned int prepare_population_friedman(const std::vector<population::size_type> &in_race, unsigned int count_iter);
+	unsigned int prepare_population_wilcoxon(const std::vector<population::size_type> &in_race, unsigned int count_iter);
 
 	// Atoms of the cache
 	struct eval_data
@@ -101,6 +102,7 @@ private:
 	bool cache_data_exist(unsigned int, unsigned int) const;
 	const eval_data &cache_get_entry(unsigned int, unsigned int) const;
 	void cache_register_signatures(const population&); 
+	void print_cache_stats(const std::vector<population::size_type> &) const;
 
 	// Seeding control
 	void generate_seeds(unsigned int);
@@ -109,6 +111,7 @@ private:
 
 	// Data members
 	racing_population m_pop;
+	racing_population m_pop_wilcoxon;
 	bool m_pop_registered;
 	std::vector<unsigned int> m_seeds;
 	rng_uint32 m_seeder;

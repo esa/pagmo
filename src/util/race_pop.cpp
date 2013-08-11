@@ -15,7 +15,7 @@ namespace pagmo { namespace util { namespace racing {
  * @param[in] pop population containing the individuals to race
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
+race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_pop_wilcoxon(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
 {
 	register_population(pop);
 }
@@ -28,7 +28,7 @@ race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed),
  *
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(unsigned int seed): m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_cache_data(0), m_cache_averaged_data(0)
+race_pop::race_pop(unsigned int seed): m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_wilcoxon(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_cache_data(0), m_cache_averaged_data(0)
 {
 }
 
@@ -44,6 +44,8 @@ race_pop::race_pop(unsigned int seed): m_race_seed(seed), m_pop(population(probl
 void race_pop::register_population(const population &pop)
 {
 	m_pop = pop;
+	// This is merely to set up the problem in wilcoxon pop
+	m_pop_wilcoxon = pop;
 	reset_cache();
 	if(m_cache_data.size() != pop.size()){
 		m_cache_data.resize(pop.size());
@@ -136,7 +138,15 @@ std::vector<population::size_type> race_pop::construct_output_list(
 	int sorted_idx = 0;
 	while(output.size() < n_final){
 		output.push_back(argsort[sorted_idx++].second);
+	}	
+
+	/*
+	std::vector<double> mean_list;
+	for(std::vector<size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it){
+		mean_list.push_back(racers[*it].m_mean);
 	}
+	std::cout << "DEBUG mean_list --> " << mean_list << std::endl;
+	*/
 	return output;
 }
 
@@ -170,6 +180,60 @@ unsigned int race_pop::prepare_population_friedman(const std::vector<population:
 			cache_insert_data(*it, f_vec, c_vec);
 		}
 	}
+	return count_nfes;
+}
+
+/// Update m_pop_wilcoxon to contain evaluation data required for Wilcoxon test
+/**
+ * In the end, m_pop_wilcoxon should hold all the fc vectors evaluated so far
+ * for the two active individuals. This is to facilitate the rankings required
+ * by Wilcoxon rank-sum test.
+ **/
+unsigned int race_pop::prepare_population_wilcoxon(const std::vector<population::size_type>& in_race, unsigned int count_iter)
+{
+	unsigned int count_nfes = 0;
+	if(in_race.size() != 2){
+		pagmo_throw(value_error, "Wilcoxon rank sum test is only applicable when there are two active individuals");
+	}	
+
+	// Need to bootstrap by pulling all the previous evaluation data into
+	// wilcoxon_pop for the first time when race is left with the two
+	// individuals. Subsequent racing iterations can just re-use this
+	// wilcoxon_pop memory structure and pad in necessary fc data for each
+	// particular iteration.
+	unsigned int start_count_iter;
+	if(m_pop_wilcoxon.size() == 0){
+		start_count_iter = 1;
+	}
+	else{
+		start_count_iter = count_iter;
+	}
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it) {
+		//decision_vector dummy_x = m_pop.get_individual(*it).cur_x;
+		decision_vector dummy_x;
+		for(unsigned int i = start_count_iter; i <= count_iter; i++){
+			// Case 1: Current racer has previous data that can be reused, no
+			// need to be evaluated with this seed
+			if(cache_data_exist(*it, i-1)){
+				// TODO: It is a bit inefficient here, x has no use at all
+				m_pop_wilcoxon.push_back_noeval(dummy_x);
+				const eval_data& cached_data = cache_get_entry(*it, i-1);
+				m_pop_wilcoxon.set_fc(m_pop_wilcoxon.size()-1, cached_data.f, cached_data.c);
+			}
+			// Case 2: No previous data can be reused, perform actual
+			// re-evaluation and update the cache
+			else{
+				count_nfes++;
+				const population::individual_type &ind = m_pop.get_individual(*it);
+				fitness_vector f_vec = m_pop.problem().objfun(ind.cur_x);
+				constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
+				m_pop_wilcoxon.push_back_noeval(dummy_x);
+				m_pop_wilcoxon.set_fc(m_pop_wilcoxon.size()-1, f_vec, c_vec);
+				cache_insert_data(*it, f_vec, c_vec);
+			}
+		}
+	}
+	// std::cout << "size of wilcoxon pop = " << m_pop_wilcoxon.size() << std::endl;
 	return count_nfes;
 }
 
@@ -277,6 +341,10 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		n_final_best = N_begin - n_final;
 	}
 
+	// Reset data holder for wilcoxon test
+	m_pop_wilcoxon.clear();
+	bool use_wilcoxon = true;
+
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;
 
@@ -293,6 +361,8 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			std::cout << "Discarded: " << discarded << std::endl;
 		}
 
+		//print_cache_stats(in_race);
+		
 		// Check if there is enough budget for evaluating the individuals in the race 
 		// TODO: Need to discount for caching mechanism
 		if(count_nfes + in_race.size() > max_f_evals){
@@ -312,10 +382,20 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		// population, which will not be accessed elsewhere, and the champion
 		// information is not used during racing.
 
-		// Update m_pop with re-evaluation results or possibly data from cache
-		count_nfes += prepare_population_friedman(in_race, count_iter);
-		// Perform Friedman test
-		stat_test_result ss_result = friedman_test(racers, in_race, m_pop, delta);
+		// Update m_pop with re-evaluation results or possibly data from cache,
+		// and invoke statistical testing routines.
+		stat_test_result ss_result;
+		if(use_wilcoxon && in_race.size() == 2 /* && count_iter >= 4 */){
+			// Perform Wilcoxon rank-sum test
+			count_nfes += prepare_population_wilcoxon(in_race, count_iter);
+			ss_result = wilcoxon_ranksum_test(racers, in_race, m_pop_wilcoxon, delta);
+		}
+		else{
+			// Perform Friedman test
+			count_nfes += prepare_population_friedman(in_race, count_iter);
+			ss_result = friedman_test(racers, in_race, m_pop, delta);
+
+		}
 
 		if(count_iter < min_trials)
 			continue;
@@ -537,7 +617,7 @@ void race_pop::inherit_memory(const race_pop& src)
 		if(it != src_cache_locations.end()){
 			//std::cout << "Found match!" << std::endl;
 			if(src.m_cache_data[it->second].size() > m_cache_data[i].size()){
-				//std::cout << "OK, transferring." << std::endl;
+				//std::cout << "OK, transferring from source idx " << it->second << " to current idx " << i << std::endl;
 				m_cache_data[i] = src.m_cache_data[it->second];
 				m_cache_averaged_data[i] = src.m_cache_averaged_data[it->second];
 				cnt_transferred++;
@@ -546,6 +626,16 @@ void race_pop::inherit_memory(const race_pop& src)
 	}
 	//std::cout << "Number of transferred entries = " << cnt_transferred << std::endl;
 }
+
+
+/// Print some stats about the cache, for debugging purposes
+void race_pop::print_cache_stats(const std::vector<population::size_type> &in_race) const
+{
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); it++){
+		std::cout << "Cache of ind#" << *it << ": length = " << m_cache_data[*it].size() << std::endl;
+	}
+}
+
 
 /// Set a new racing seed.
 /**

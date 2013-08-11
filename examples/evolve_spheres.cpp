@@ -141,21 +141,24 @@ int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool
 	// Buffer
 	std::vector<double> buff;
 
-	int gen_batch_size = 1;
+	int gen_batch_size = 10;
 
 	// We instantiate a PSO algorithm capable of coping with stochastic prolems
 	algorithm::base_ptr algo_ptr;
 	int pso_variant = 5;
-	int pso_neighb_type = 2;
+	int pso_neighb_type = 4;
 	int pso_neighb_param = 4;
-	//unsigned int max_fevals = gen_batch_size * pop_size * 2 * n_eval + pop_size * n_eval;
+
+	// The implicit maximum evaluation budget based on the parameters
+	unsigned int max_fevals = gen_batch_size * pop_size * 2 * n_eval + pop_size * n_eval;
+
 	if(use_racing){
 		std::cout << "Using racing: " << std::endl;
-		algo_ptr = algorithm::pso_generational(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval, true).clone();
+		algo_ptr = algorithm::pso_generational(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval, true, max_fevals).clone();
 	}
 	else{
 		std::cout << "Not using racing: " << std::endl;
-		algo_ptr = algorithm::pso_generational(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval, false).clone();
+		algo_ptr = algorithm::pso_generational(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval, false, max_fevals).clone();
 	}
 
 	algorithm::base &algo = *algo_ptr;
@@ -188,7 +191,7 @@ int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool
 		archi.push_back(island(algo,pop));
 	}
 
-	int window_width = 50;
+	int window_width = 10;
 
 	//Evolution is here started on the archipelago
 	for (int i=0; i< n_gen; ++i){
@@ -220,14 +223,18 @@ int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool
 	return 0;
 }
 
-int main(int argc, char* argv[])
-{	
 
+// Usage:
+// To evolve using pso_gen with racing, invoke the program as follows:
+// $ examples/evolve_spheres 1
+// Otherwise, pso_gen without racing will be used for the evolution.
+int main(int argc, char* argv[])
+{
 	// EXPERIMENT SET-UP //
 	const int n_isl = 1;
-	const int pop_size = 20;
+	const int pop_size = 40;
 	const int nr_eval_per_x = 5;
-	const int n_gen = 200;
+	const int n_gen = 400;
 	bool use_racing = false;
 	// END OF EXPERIMENT SET-UP //
 

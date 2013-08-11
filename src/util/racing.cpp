@@ -48,10 +48,13 @@ void racing_population::set_x_noeval(const size_type idx, const decision_vector 
 	if (idx >= size()) {
 		pagmo_throw(index_error,"invalid individual position");
 	}
+	// TODO: Add option to disable / enable this check
+	/*
 	if (!problem().verify_x(x)) {
 		pagmo_throw(value_error,"decision vector is not compatible with problem");
 
 	}
+	*/
 	// Set decision vector.
 	m_container[idx].cur_x = x;
 }
@@ -102,10 +105,14 @@ void racing_population::set_fc(const size_type idx, const fitness_vector &f, con
  **/
 void racing_population::push_back_noeval(const decision_vector &x)
 {
+	// To allow passing in a dummy x, when the focus of all is on the fitness
+	// and constraint vectors, i.e. when using this just to allocate spaces.
+	/*
 	if (!problem().verify_x(x)) {
 		pagmo_throw(value_error,"decision vector is not compatible with problem");
 
 	}
+	*/
 	// Store sizes temporarily.
 	const fitness_vector::size_type f_size = problem().get_f_dimension();
 	const constraint_vector::size_type c_size = problem().get_c_dimension();
@@ -144,7 +151,7 @@ void racing_population::push_back_noeval(const decision_vector &x)
  * The rankings are further processed to cater for possible ties, which is a
  * step typically required by ranking-based statistical testing.
  **/
-std::vector<double> racing_population::get_rankings()
+std::vector<double> racing_population::get_rankings() const
 {
 	std::vector<double> rankings(size());
 	std::vector<size_type> raw_order = get_best_idx(size());
@@ -417,6 +424,135 @@ stat_test_result friedman_test(std::vector<racer_type> &racers, const std::vecto
 	// Friedman Test
 	stat_test_result ss_result = core_friedman_test(X, delta);
 	return ss_result;
+}
+
+/// Returns the pair-wise statistical testing results based on Wilcoxon test
+/**
+ * @param[in] racers Racers structure whose m_hist fields will be updated
+ * @param[in] in_race Indices of the two active individuals
+ * @param[in] pop Population storing full evaluation history of the two active
+ * individuals
+ * @return A structure containing the statistical testing results 
+ **/
+stat_test_result wilcoxon_ranksum_test(std::vector<racer_type> &racers, const std::vector<population::size_type> &in_race, const racing_population& wilcoxon_pop, double delta)
+{
+	pagmo_assert(in_race.size() == 2);
+
+	// Get the rankings of all the data points
+	std::vector<double> rankings = wilcoxon_pop.get_rankings();
+	
+	// Need to update racers in case no statistical significant results can be
+	// found, which will then default to selecting the one with best mean. Two
+	// specific individuals in the wilcoxon_pop correspond to the newest two
+	// evaluated points.
+	racers[in_race[0]].m_hist.push_back(rankings[wilcoxon_pop.size()/2 - 1]);
+	racers[in_race[1]].m_hist.push_back(rankings[wilcoxon_pop.size() - 1]);
+	// TODO: Can be optimized if bothered
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); it++){
+		racer_type& cur_racer = racers[*it];
+		cur_racer.m_mean = 0;
+		for(unsigned int j = 0; j < cur_racer.length(); j++){
+			cur_racer.m_mean += (cur_racer.m_hist[j]) / (double)cur_racer.length();
+		}
+	}
+
+	std::vector<std::vector<double> > X(2);
+	unsigned int n_samples = wilcoxon_pop.size() / 2;
+	for(unsigned int i = 0; i < 2; i++){
+		X[i].resize(n_samples);
+	}
+	for(unsigned int i = 0; i < wilcoxon_pop.size(); i++){
+		X[i%2][i/2] = rankings[i];
+	}
+	return core_wilcoxon_ranksum_test(X, delta);
+}
+
+std::size_t wilcoxon_faculty( std::size_t n )
+{
+	if( n == 1 )
+		return( 1 );
+
+	return( n * wilcoxon_faculty( n-1 ) );
+}
+
+double wilcoxon_frequency( double u, int sampleSizeA, int sampleSizeB )
+{
+	if( u < 0. || sampleSizeA < 0 || sampleSizeB < 0 )
+		return( 0. );
+	
+	if( u == 0 && sampleSizeA >= 0 && sampleSizeB >= 0 )
+		return( 1 );
+
+	return( wilcoxon_frequency( u - sampleSizeB, sampleSizeA - 1, sampleSizeB ) + wilcoxon_frequency( u, sampleSizeA, sampleSizeB - 1 ) );
+}
+
+// Performs Wilcoxon Rank Sum Test (a.k.a.Wilcoxon–Mann–Whitney test)
+// Intended to be used when the number of active racers is only two, as it has
+// been reported that under such circumstances this test is more data efficient
+// than Friedman test.
+stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double> > &X, double delta)
+{
+	if(X.size() != 2){
+		pagmo_throw(value_error, "Wilcoxon rank-sum test is applicable only when the group size is 2");
+	}
+	unsigned int N = 2;
+
+	// Compute sum of ranks
+	std::vector<double> rank_sum(N, 0);
+	for(unsigned int i = 0; i < N; i++){
+		for(unsigned int j = 0; j < X[i].size(); j++){
+			rank_sum[i] += X[i][j];
+		}
+	}
+
+	// Fill in pair-wise comparison results
+	stat_test_result res(N);
+
+	int sizeA = X[0].size();
+	int sizeB = X[1].size();
+	if(sizeA < 12 && sizeB < 12){
+		// Cannot use normal approximation for the rank-sum statistic when
+		// sample size is small. Boost does not have the required Wilcoxon
+		// rank-sum distribution (currently in their todo list)... This piece
+		// of code is adapted from the Shark machine learning library.
+		// TODO: Check the validity
+		int wA = rank_sum[0];
+		//int wB = rank_sum[1];
+		double uA = wA - sizeA * ( sizeA + 1 ) / 2.;
+		//double uB = wB - sizeB * ( sizeB + 1 ) / 2.;
+		double pA = (double)( wilcoxon_faculty( sizeA ) * wilcoxon_faculty( sizeB ) ) / (double)( wilcoxon_faculty( sizeA + sizeB ) ) * wilcoxon_frequency( uA, sizeA, sizeB );
+		//double pB = (double)( wilcoxon_faculty( sizeA ) * wilcoxon_faculty( sizeB ) ) / (double)( wilcoxon_faculty( sizeA + sizeB ) ) * wilcoxon_frequency( uB, sizeA, sizeB );
+		if(pA < delta){
+			res.trivial = false;
+			if(rank_sum[0] > rank_sum[1]){
+				res.is_better[1][0] = true;
+			}
+			else{
+				res.is_better[0][1] = true;
+			}
+		}
+	}	
+	else{
+		// Use the normal approximation
+		using boost::math::normal;
+		int n1 = X[0].size();
+		int n2 = X[1].size();
+		normal normal_dist(n1*n2/2, sqrt(n1*n2*(n1+n2+1.0)/12.0)); //TODO: Check the formulaa for standard deviation	
+		double delta_quantile_upp = quantile(normal_dist, 1 - delta);
+		//double delta_quantile_low = quantile(normal_dist, delta);
+		//std::cout << "quantile upp = " << delta_quantile_upp << ", quantile low = " << delta_quantile_low << std::endl;
+		//std::cout << "rank sum = " << rank_sum << std::endl;	
+		if(rank_sum[0] > rank_sum[1] && rank_sum[0] > delta_quantile_upp){
+			res.trivial = false;
+			res.is_better[1][0] = true;
+		}
+		else if(rank_sum[1] > rank_sum[0] && rank_sum[1] > delta_quantile_upp){
+			res.trivial = false;
+			res.is_better[0][1] = true;
+		}
+	}
+
+	return res;
 }
 
 //! @endcond Doxygen comments the following

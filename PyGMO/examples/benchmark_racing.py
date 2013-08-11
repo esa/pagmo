@@ -3,21 +3,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 prob_orig = problem.ackley(10)
-prob = problem.noisy(prob_orig, param_second = 0.8)
-fevals_max = 200000
+prob = problem.noisy(prob_orig, param_second = 0.5)
+fevals_max = 100000
 #fevals_max = 50000
-pop_size = 20
+pop_size = 40
+nr_eval_per_x = 5
 
-num_trials = 30
+num_trials = 20
 
 def get_pso_gen():
     print 'pso_gen without racing'
-    algo = algorithm.pso_gen(100000,0.7298,2.05,2.05,0.05,5,2,4,5,False,fevals_max)
+    algo = algorithm.pso_gen(100000,0.7298,2.05,2.05,0.05,5,2,4,nr_eval_per_x,False,fevals_max)
     return algo
 
 def get_pso_gen_racing():
     print 'pso_gen with racing'
-    algo = algorithm.pso_gen(100000,0.7298,2.05,2.05,0.05,5,2,4,5,True,fevals_max)
+    algo = algorithm.pso_gen(100000,0.7298,2.05,2.05,0.05,5,2,4,nr_eval_per_x,True,fevals_max)
     return algo
 
 def run_algo(algo, seed):
@@ -28,10 +29,14 @@ def run_algo(algo, seed):
 
     pop = algo.evolve(pop)
 
-    champion_fitness = prob_orig.objfun(pop.champion.x)
-    #print 'Final champion =', champion_fitness
+    winner_idx = pop.race(1)[0][0];
+    #print "race winner", winner_idx, "vs champion idx", pop.get_best_idx()
+    champion_true_fitness = prob_orig.objfun(pop[winner_idx].cur_x)
 
-    return champion_fitness
+    #champion_true_fitness = prob_orig.objfun(pop.champion.x)
+    #print 'Final champion =', champion_true_fitness
+
+    return champion_true_fitness
 
 if __name__ == '__main__':
     fitnesses = []

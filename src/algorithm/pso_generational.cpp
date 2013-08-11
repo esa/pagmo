@@ -313,12 +313,6 @@ void pso_generational::evolve(population &pop) const
 		// all lbX vectors, as above.  That inaccuracy will simply lead to an
 		// acceptable change in the time the first topology rewiring is
 		// triggered.
-		/*
-		else{
-			particle__average_fitness_set_best(prob, lbfit, best_idx, best_fit, lbX);
-			m_fevals += m_nr_eval_per_x * pop.size();
-		}
-		*/
 	}
 	else if ( is_stochastic && !m_use_racing ){
 		particle__average_fitness_set_best(prob, lbfit, best_idx, best_fit, lbX);
@@ -333,6 +327,10 @@ void pso_generational::evolve(population &pop) const
 	double r2 = 0.0;
 
 	bool forced_terminate = false;
+
+	bool use_race_neighbourhood = false;
+	bool flush_cache_every_iter = false;
+
 	/* --- Main PSO loop ---
 	 */
 	// For each generation
@@ -343,10 +341,13 @@ void pso_generational::evolve(population &pop) const
 		if(g % 10 == 0){
 			std::cout << "gen: " << g << " fevals: " << m_fevals << " f = " << pop.champion().f << std::endl;
 		}
-
-		// Construct the race structure which will be used to extract the best
-		// neighbors, when m_neighb_type != 1 and m_variant type != 6. Come on
-		// we need some enums...
+	
+		if( flush_cache_every_iter ){
+			// Initialize a new list of internal seeds for use in racing
+			unsigned int cur_racing_seed = m_urng();
+			race_lbX.set_seed(cur_racing_seed);
+			race_lbX_and_X.set_seed(cur_racing_seed);
+		}
 
 		// Update Velocity
 		for( p = 0; p < swarm_size; p++ ){
@@ -356,7 +357,7 @@ void pso_generational::evolve(population &pop) const
 			// function . not needed if m_variant == 6 (FIPS): all neighbours
 			// are considered, no need to identify the best one
 			if( m_neighb_type != 1 && m_variant != 6){
-				if( !m_use_racing ){
+				if( !use_race_neighbourhood || !m_use_racing ){
 					best_neighb = particle__get_best_neighbor( p, neighb, lbX, lbfit, prob );
 				}
 				else{
@@ -550,11 +551,11 @@ void pso_generational::evolve(population &pop) const
 
 			// Change the ground seed of the race object so that a new list of
 			// internal seeds list will be generated. Also clear the cache.
-			//race_lbX.set_seed(m_urng());
-			//race_lbX_and_X.set_seed(m_urng());
+			// race_lbX.set_seed(m_urng());
+			// race_lbX_and_X.set_seed(m_urng());
 
 			racing__construct_race_environment(race_lbX_and_X, pop.problem(), lbX, X);
-			race_lbX_and_X.inherit_memory(race_lbX); // TODO: With above set_seed, no need already?
+			race_lbX_and_X.inherit_memory(race_lbX);
 
 			for( p = 0; p < swarm_size && !forced_terminate; p++ ){
 				std::pair<population::size_type, unsigned int> res =
