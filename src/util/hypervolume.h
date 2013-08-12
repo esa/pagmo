@@ -72,7 +72,9 @@ class __PAGMO_VISIBLE hypervolume
 		static unsigned long long get_expected_operations(const unsigned int n, const unsigned int d);
 
 		void set_copy_points(const bool);
+		bool get_copy_points();
 		void set_verify(const bool);
+		bool get_verify();
 
 		fitness_vector get_nadir_point(const double epsilon = 0.0) const;
 

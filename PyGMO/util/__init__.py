@@ -237,6 +237,38 @@ def _hypervolume_get_nadir_point(self, eps = 0.0):
 hypervolume._original_get_nadir_point = hypervolume.get_nadir_point
 hypervolume.get_nadir_point = _hypervolume_get_nadir_point
 
+def _hypervolume_set_copy_points(self, b):
+	"""
+	Determine whether the hypervolume object should make a copy of points before doing the computation.
+	In most cases, only the first computation behaves as expected.
+	Used in cases when the hypervolume object is to be used a 'single use' instance only.
+
+	USAGE:
+		hv.set_copy_points(True)
+	"""
+	if not isinstance(b, bool):
+		raise TypeError("Argument must be of type 'bool'")
+
+	return self._original_set_copy_points(b)
+
+hypervolume._original_set_copy_points = hypervolume.set_copy_points
+hypervolume.set_copy_points = _hypervolume_set_copy_points
+
+def _hypervolume_set_verify(self, b):
+	"""
+	Determines whether the hypervolume object should verify whether the set of points and the reference point meet certain conditions.
+
+	USAGE:
+		hv.set_verify(True)
+	"""
+	if not isinstance(b, bool):
+		raise TypeError("Argument must be of type 'bool'")
+
+	return self._original_set_verify(b)
+
+hypervolume._original_set_verify = hypervolume.set_verify
+hypervolume.set_verify = _hypervolume_set_verify
+
 def _native2d_ctor(self):
 	"""
 	Hypervolume algorithm: Native2D.

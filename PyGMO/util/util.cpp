@@ -118,7 +118,10 @@ void expose_hypervolume() {
 		.def("greatest_contributor", greatest_contributor_custom(&util::hypervolume::greatest_contributor), "Get the greatest contributor of the hypervolume using provided hypervolume algorithm.")
 		.def("greatest_contributor", greatest_contributor_dynamic(&util::hypervolume::greatest_contributor), "Get the greatest contributor of the hypervolume.")
 		.def("get_nadir_point", &util::hypervolume::get_nadir_point)
-		.def("set_copy_points", &util::hypervolume::set_copy_points);
+		.def("set_copy_points", &util::hypervolume::set_copy_points)
+		.def("get_copy_points", &util::hypervolume::get_copy_points)
+		.def("set_verify", &util::hypervolume::set_verify)
+		.def("get_verify", &util::hypervolume::get_verify);
 }
 
 BOOST_PYTHON_MODULE(_util) {

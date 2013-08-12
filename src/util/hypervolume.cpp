@@ -58,7 +58,7 @@ hypervolume::hypervolume(const std::vector<fitness_vector> &points, const bool v
 	}
 }
 
-/// Set hypervolume object for single use
+/// Setter for m_copy_points flag
 /**
  * Sets the hypervolume as a single use object.
  * It is used in cases where we are certain that we can alter the original set of points from the hypervolume object.
@@ -72,7 +72,12 @@ void hypervolume::set_copy_points(const bool copy_points) {
 	m_copy_points = copy_points;
 }
 
-/// Set the verification phase
+/// Getter for m_copy_points flag
+bool hypervolume::get_copy_points() {
+	return m_copy_points;
+}
+
+/// Setter the m_verify flag
 /**
  * Turns off the verification phase.
  * By default, the hypervolume object verifies whether certain characteristics of the point set before computing, such as valid dimension sizes, or matchin reference point.
@@ -84,6 +89,11 @@ void hypervolume::set_copy_points(const bool copy_points) {
  */
 void hypervolume::set_verify(const bool verify) {
 	m_verify = verify;
+}
+
+/// Getter for the m_verify flag
+bool hypervolume::get_verify() {
+	return m_verify;
 }
 
 /// Copy constructor.

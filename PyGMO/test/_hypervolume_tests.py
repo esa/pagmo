@@ -39,6 +39,16 @@ class HVCtorTest(unittest.TestCase):
 		self.assertRaises(TypeError, hypervolume, foo=self.good_ps_2d)  # bad kwarg
 		self.assertRaises(TypeError, hypervolume, self.good_ps_2d, foo="bar") # extra kwarg
 
+class HVFlagsTest(unittest.TestCase):
+
+	def test_gettersetter(self):
+		hv = hypervolume([[1,2,3],[4,5,6]])
+		self.assertTrue(hv.get_verify() == True)
+		self.assertTrue(hv.get_copy_points() == True)
+		hv.set_verify(False)
+		hv.set_copy_points(False)
+		self.assertTrue(hv.get_verify() == False)
+		self.assertTrue(hv.get_copy_points() == False)
 
 class HVComputeTest(unittest.TestCase):
 
@@ -204,4 +214,5 @@ def get_hv_suite():
 	suite.addTests(unittest.makeSuite(HVExclusiveTest))
 	suite.addTests(unittest.makeSuite(HVNadirPointTest))
 	suite.addTests(unittest.makeSuite(HVAlgorithms))
+	suite.addTests(unittest.makeSuite(HVFlagsTest))
 	return suite
