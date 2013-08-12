@@ -58,19 +58,22 @@ int main()
 	return 0;
     */
     pagmo::problem::zdt1 prob(10);
-    pagmo::algorithm::pade alg(10000);
+	pagmo::algorithm::mopso alg(100);
 
-    std::cout << alg << std::endl;
+	std::cout << alg << std::endl;
     std::cout << prob << std::endl;
 
-    pagmo::island isl = island(alg, prob, 8);
+    pagmo::island isl = island(alg, prob, 100);
 
-    for (size_t i = 0; i<10; ++i){
+    for (size_t i = 0; i<1; ++i){
         isl.evolve(1);
         std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
         //std::cout << "Original fitness: " << isl.get_population() << std::endl;
         //std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
+		std::vector<population::size_type> front0_index = isl.get_population().compute_pareto_fronts()[0];
+		for(int i=0; i<front0_index.size(); i++){
+			std::cout<<isl.get_population().get_individual(front0_index[i]).cur_f<<std::endl;
+		}
     }
     std::cout << "Finished" << std::endl;
     return 0;
