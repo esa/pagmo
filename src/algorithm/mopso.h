@@ -37,13 +37,16 @@ namespace pagmo { namespace algorithm {
  * asd
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
- * @author Dario Izzo (dario.izzo@gmail.com)
+ * @author Annalisa Riccardi (nina1983@gmail.com)
+ *
+ * @see "Xiaodong Li - A Non-dominated Sorting Particle Swarm Optimizer for Multiobjective Optimization"
  **/
 
 class __PAGMO_VISIBLE mopso: public base
 {
 public:
-	mopso(int gen=10);
+	mopso(int gen=10, double minW = 0.4, double maxW = 1.0, double C1 = 2.0, double C2 = 2.0,
+		  double CHI = 1.0, double v_coeff = 0.5, int leader_selection_range = 5);
 	mopso(const mopso &);
 
 	base_ptr clone() const;
@@ -60,9 +63,25 @@ private:
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_minW);
+		ar & const_cast<double &>(m_maxW);
+		ar & const_cast<double &>(m_C1);
+		ar & const_cast<double &>(m_C2);
+		ar & const_cast<double &>(m_CHI);
+		ar & const_cast<double &>(m_v_coeff);
+		ar & const_cast<int &>(m_leader_selection_range);
+
 	}
 	//Number of generations
 	const int m_gen;
+	const double m_minW;
+	const double m_maxW;
+	const double m_C1;
+	const double m_C2;
+	const double m_CHI;
+	const double m_v_coeff;
+	const int m_leader_selection_range;
+
 };
 
 }} //namespaces

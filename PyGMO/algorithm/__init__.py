@@ -373,17 +373,33 @@ pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
 del decompose
 
-def _mopso_ctor(self, gen=10):
+def _mopso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5):
 	"""
 	Constructs a Multi Objective PSO
 	
-	USAGE: algorithm.mopso(self, gen=10)
+	USAGE: algorithm.mopso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection = 5):
 
 	* gen: number of generations
+	* minW: minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+	* maxW: maximum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+	* C1: magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
+	* C2: magnitude of the force, applied to the particle's velocity, in the direction of its global best (leader)
+   	* CHI: velocity scaling factor
+	* v_coeff: velocity coefficient (determining the maximum allowed particle velocity)
+	* leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
 	arg_list.append(gen)
+	arg_list.append(minW)
+	arg_list.append(maxW)
+	arg_list.append(C1)
+	arg_list.append(C2)
+	arg_list.append(CHI)
+	arg_list.append(v_coeff)
+	arg_list.append(leader_selection_range)
 	self._orig_init(*arg_list)
 mopso._orig_init = mopso.__init__
 mopso.__init__ = _mopso_ctor

@@ -49,25 +49,58 @@
 #include "base.h"
 #include "mopso.h"
 
+
 namespace pagmo { namespace algorithm {
 /// Constructor
  /**
  * Constructs a mopso algorithm
  *
  * @param[in] gen Number of generations to evolve.
+ * @param[in] minW minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+ * @param[in] maxW maximum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+ * @param[in] C1 magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
+ * @param[in] C2 magnitude of the force, applied to the particle's velocity, in the direction of its global best (leader)
+ * @param[in] CHI velocity scaling factor
+ * @param[in] m_v_coeff velocity coefficient (determining the maximum allowed particle velocity)
+ * @param[in] leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
  *
  * @throws value_error if gen is negative
  */
-mopso::mopso(int gen)
-	:base(),m_gen(gen)
+mopso::mopso(int gen, double minW, double maxW, double C1, double C2,
+	  double CHI, double v_coeff, int leader_selection_range):base(),
+	m_gen(gen),
+	m_minW(minW),
+	m_maxW(maxW),
+	m_C1(C1),
+	m_C2(C2),
+	m_CHI(CHI),
+	m_v_coeff(v_coeff),
+	m_leader_selection_range(leader_selection_range)
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
+
+	if (minW <= 0 || maxW <= 0 || C1 <=0 || C2 <= 0 || CHI <=0) {
+		pagmo_throw(value_error,"minW, maxW, C1, C2 and CHI should be greater than 0");
+	}
+
+	if (minW > maxW) {
+		pagmo_throw(value_error,"minW should be lower than maxW");
+	}
+
+	if (v_coeff <= 0 || v_coeff > 1) {
+		pagmo_throw(value_error,"v_coeff should be in the ]0,1] range");
+	}
+
+	if (leader_selection_range <=0 || leader_selection_range > 100) {
+		pagmo_throw(value_error,"leader_selection_range should be in the ]0,100] range");
+	}
 }
 
 /// Copy constructor. Performs a deep copy. Necessary as a pointer to a base algorithm is here contained
-mopso::mopso(const mopso &algo):base(algo), m_gen(algo.m_gen)
+mopso::mopso(const mopso &algo):base(algo), m_gen(algo.m_gen),m_minW(algo.m_minW), m_maxW(algo.m_maxW),m_C1(algo.m_C1),
+	m_C2(algo.m_C2), m_CHI(algo.m_CHI), m_v_coeff(algo.m_v_coeff), m_leader_selection_range(algo.m_leader_selection_range)
 {}
 
 /// Clone method.
@@ -85,64 +118,94 @@ base_ptr mopso::clone() const
 void mopso::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	const problem::base &prob = pop.problem();
-	const population::size_type NP = pop.size();
+	const problem::base             &prob = pop.problem();
+	const problem::base::size_type   D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
+	const problem::base::size_type   Dc = D - prob_i_dimension;
+	const decision_vector           &lb = prob.get_lb(), &ub = prob.get_ub();
+	const population::size_type      NP = pop.size();
 
-	if ( prob.get_f_dimension() < 2 ) {
-		pagmo_throw(value_error, "The problem is not multiobjective, try some other algorithm than mopso");
+	//We perform some checks to determine wether the problem/population are suitable for PSO
+	if( Dc == 0 ){
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for MOPSO to optimise");
+	}
+
+	if( prob_c_dimension != 0 ){
+		pagmo_throw(value_error,"The problem is not box constrained and MOPSO is not suitable to solve it");
+	}
+
+	if( prob_f_dimension < 2 ){
+		pagmo_throw(value_error,"The problem is not multi-objective. Use a single-objectie optimization algorithm instead");
 	}
 
 	// Get out if there is nothing to do.
-	if (m_gen == 0) {
+	if (NP == 0 || m_gen == 0) {
 		return;
 	}
 
+	decision_vector minV(Dc), maxV(Dc);	// Maximum and minimum velocity allowed
+
+	// Initialise the minimum and maximum velocity
+	for(problem::base::size_type d = 0; d < Dc; d++ ){
+		double v_width  = (ub[d] - lb[d]) * m_v_coeff;
+		minV[d] = -1.0 * v_width;
+		maxV[d] = v_width;
+	}
+
 	for(int g = 0; g < m_gen; ++g) {
-		std::cout<<"gen: " << g << std::endl;
+		std::cout << "gen: " << g << std::endl;
 
 		population pop_best_x(pop);
 		pop_best_x.clear();
 		for(population::size_type idx = 0; idx < NP; ++idx) {
 			pop_best_x.push_back(pop.get_individual(idx).best_x);
+			pop_best_x.set_v(idx, pop.get_individual(idx).cur_v);
 		}
 
-		//Calculate the best 5% individuals of the original population according to the crowing distance
-		std::vector<population::size_type> bestIndividuals = pop.get_best_idx((int)ceil(NP/20)); //best 5%
+		//Calculate the best leader_selection_range% individuals of the original population according to the crowing distance
+		std::vector<population::size_type> bestIndividuals = pop.get_best_idx((int)ceil(NP*m_leader_selection_range/100.0));
+
+		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g; //W decreased from maxW to minW troughout the run
+
 		for(population::size_type idx = 0; idx < NP; ++idx) {
 
-			//Set as a leader for the current particle a random particle among the 5% best ones
-			decision_vector bestX = pop.get_individual(
+			//Set as a leader for the current particle a random particle among the best ones in the leader_selection_range percentile
+			const decision_vector &leader = pop.get_individual(
 						bestIndividuals[boost::uniform_int<int>(0,bestIndividuals.size()-1)(m_drng)]).cur_x;
 
 			//Calculate some random factors
-			const double W  = 1-0.6/m_gen*g;//boost::uniform_real<double>(0.1,0.5)(m_drng);
-			const double C1 = 2.0;//boost::uniform_real<double>(1.5,2)(m_drng);
-			const double C2 = 2.0;//boost::uniform_real<double>(1.5,2)(m_drng);
 			const double r1 = boost::uniform_real<double>(0,1)(m_drng);
 			const double r2 = boost::uniform_real<double>(0,1)(m_drng);
-			const double chi = 1.0;
-			decision_vector maxV = pop.problem().get_ub();
+
+			const decision_vector &best_X = pop.get_individual(idx).best_x;
+			const decision_vector &cur_X = pop.get_individual(idx).cur_x;
+			const decision_vector &cur_V = pop.get_individual(idx).cur_v;
 
 			//Calculate new velocity and new position for each particle
-			decision_vector newX;
-			decision_vector newV;
-			for(decision_vector::size_type i = 0; i < pop.get_individual(idx).cur_x.size(); ++i) {
-				double v = W*pop.get_individual(idx).cur_v[i] +
-								C1*r1*(pop.get_individual(idx).best_x[i] - pop.get_individual(idx).cur_x[i]) +
-								C2*r2*(bestX[i] - pop.get_individual(idx).cur_x[i]);
-				double x = pop.get_individual(idx).cur_x[i] + chi*v;
-				if(v>maxV.at(i)){
-					v = maxV.at(i);
+			decision_vector newX(Dc);
+			decision_vector newV(Dc);
+			for(decision_vector::size_type i = 0; i < cur_X.size(); ++i) {
+				double v = W*cur_V[i] +
+								m_C1*r1*(best_X[i] - cur_X[i]) +
+								m_C2*r2*(leader[i] - cur_X[i]);
+
+				if(v > maxV[i]){
+					v = maxV[i];
 				}
-				if(x > pop.problem().get_ub()[i]) {
-					x = pop.problem().get_ub()[i];
+				else if(v < minV[i]) {
+					v = minV[i];
+				}
+
+				double x = cur_X[i] + m_CHI*v;
+				if(x > ub[i]) {
+					x = ub[i];
 					v = 0;
-				} else if (x < pop.problem().get_lb()[i]) {
-					x = pop.problem().get_lb()[i];
+				} else if (x < lb[i]) {
+					x = lb[i];
 					v = 0;
 				}
-				newV.push_back(v);
-				newX.push_back(x);
+
+				newV[i] = v;
+				newX[i] = x;
 			}
 
 			pop.set_x(idx, newX); 
@@ -155,6 +218,7 @@ void mopso::evolve(population &pop) const
 		population newPop = population(pop);
 		for(population::size_type idx = 0; idx < NP; ++idx) {
 			newPop.push_back(pop_best_x.get_individual(idx).cur_x);
+			newPop.set_v(idx+NP,pop_best_x.get_individual(idx).cur_v);
 		}
 
 		//Select the best NP individuals in the new population (of size 2*NP) according to the crowding distance
@@ -187,6 +251,13 @@ std::string mopso::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
+	s << "minW:" << m_minW << ' ';
+	s << "maxW:" << m_maxW << ' ';
+	s << "C1:" << m_C1 << ' ';
+	s << "C2:" << m_C2 << ' ';
+	s << "CHI:" << m_CHI << ' ';
+	s << "v_coeff:" << m_v_coeff << ' ';
+	s << "leader_selection_range:" << m_leader_selection_range << ' ';
 	return s.str();
 }
 

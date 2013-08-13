@@ -232,7 +232,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// MOPSO
 	algorithm_wrapper<algorithm::mopso>("mopso", "Multi Objective PSO")
-		.def(init<optional<int> >());
+		.def(init<optional<int, double, double, double, double, double, double, int> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
