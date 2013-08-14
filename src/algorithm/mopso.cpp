@@ -154,11 +154,13 @@ void mopso::evolve(population &pop) const
 	for(int g = 0; g < m_gen; ++g) {
 		std::cout << "gen: " << g << std::endl;
 
-		population pop_best_x(pop);
-		pop_best_x.clear();
+		// The first NP individuals of the new population (size 2*NP) contain the actual population
+		// (that will be mutated) the last NP contains individuals having as X the best_x of each individual
+		// of the current population and as velocity the current velocity
+		population newPop(pop);
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-			pop_best_x.push_back(pop.get_individual(idx).best_x);
-			pop_best_x.set_v(idx, pop.get_individual(idx).cur_v);
+			newPop.push_back(pop.get_individual(idx).best_x);
+			newPop.set_v(idx+NP, pop.get_individual(idx).cur_v);
 		}
 
 		//Calculate the best leader_selection_range% individuals of the original population according to the crowing distance
@@ -208,28 +210,20 @@ void mopso::evolve(population &pop) const
 				newX[i] = x;
 			}
 
-			pop.set_x(idx, newX); 
-			pop.set_v(idx, newV);
+			newPop.set_x(idx, newX);
+			newPop.set_v(idx, newV);
 		}
 
-
-		//The first NP individuals contain the actual population (that will be mutated) the last NP contains
-		// individuals having as X the best_x of each individual of the current population
-		population newPop = population(pop);
-		for(population::size_type idx = 0; idx < NP; ++idx) {
-			newPop.push_back(pop_best_x.get_individual(idx).cur_x);
-			newPop.set_v(idx+NP,pop_best_x.get_individual(idx).cur_v);
-		}
-
-		//Select the best NP individuals in the new population (of size 2*NP) according to the crowding distance
+		//Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
+		// and the crowding distance
 		std::vector<population::size_type> bestIndices = newPop.get_best_idx(NP);
 
-		//Set the population accordingly
+		//Set the population for the next generation accordingly
 		pop.clear();
 		for(population::size_type i = 0; i < NP; ++i) {
 			pop.push_back(newPop.get_individual(bestIndices[i]).cur_x);
 			pop.set_x(i, newPop.get_individual(bestIndices[i]).best_x);
-			pop.set_x(i, newPop.get_individual(bestIndices[i]).cur_x); 
+			pop.set_x(i, newPop.get_individual(bestIndices[i]).cur_x);
 			pop.set_v(i, newPop.get_individual(bestIndices[i]).cur_v);
 		}
 
