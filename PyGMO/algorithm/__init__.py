@@ -369,16 +369,16 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	if z != None:
 		arg_list.append(z)
 	self._orig_init(*arg_list)
-pade._orig_init = pade.__init__
-pade.__init__ = _pade_ctor
-del decompose
+	pade._orig_init = pade.__init__
+	pade.__init__ = _pade_ctor
+	del decompose
 
 def _mopso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5):
 	"""
 	Constructs a Multi Objective PSO
 	
-	USAGE: algorithm.mopso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+	USAGE: algorithm.nspso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 		CHI = 1.0, v_coeff = 0.5, leader_selection = 5):
 
 	* gen: number of generations
@@ -401,8 +401,8 @@ def _mopso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 	arg_list.append(v_coeff)
 	arg_list.append(leader_selection_range)
 	self._orig_init(*arg_list)
-mopso._orig_init = mopso.__init__
-mopso.__init__ = _mopso_ctor
+	nspso._orig_init = nspso.__init__
+	nspso.__init__ = _mopso_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""

@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_MOPSO_H
-#define PAGMO_ALGORITHM_MOPSO_H
+#ifndef PAGMO_ALGORITHM_NSPSO_H
+#define PAGMO_ALGORITHM_NSPSO_H
 
 #include "../config.h"
 #include "../serialization.h"
@@ -31,7 +31,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Multi Objective Particle Swarm Optimizer (MOPSO)
+/// Non-dominated Sorting Particle Swarm Optimizer (NSPSO)
 /**
  *
  * asd
@@ -42,12 +42,12 @@ namespace pagmo { namespace algorithm {
  * @see "Xiaodong Li - A Non-dominated Sorting Particle Swarm Optimizer for Multiobjective Optimization"
  **/
 
-class __PAGMO_VISIBLE mopso: public base
+class __PAGMO_VISIBLE nspso: public base
 {
 public:
-	mopso(int gen=10, double minW = 0.4, double maxW = 1.0, double C1 = 2.0, double C2 = 2.0,
+	nspso(int gen=10, double minW = 0.4, double maxW = 1.0, double C1 = 2.0, double C2 = 2.0,
 		  double CHI = 1.0, double v_coeff = 0.5, int leader_selection_range = 5);
-	mopso(const mopso &);
+	nspso(const nspso &);
 
 	base_ptr clone() const;
 	void evolve(population &) const;
@@ -86,6 +86,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::mopso);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nspso);
 
-#endif // PAGMO_ALGORITHM_MOPSO_H
+#endif // PAGMO_ALGORITHM_NSPSO_H

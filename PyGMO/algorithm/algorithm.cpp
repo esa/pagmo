@@ -230,8 +230,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
 		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type, pagmo::fitness_vector> >());
 
-	// MOPSO
-	algorithm_wrapper<algorithm::mopso>("mopso", "Multi Objective PSO")
+	// NSPSO
+	algorithm_wrapper<algorithm::nspso>("nspso", "Non-dominated Sorting Particle Swarm Optimizer")
 		.def(init<optional<int, double, double, double, double, double, double, int> >());
 
 	// Differential evolution.

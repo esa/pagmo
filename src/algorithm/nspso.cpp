@@ -35,25 +35,15 @@
 #include "../exceptions.h"
 #include "../population.h"
 #include "../problem/base.h"
-#include "../archipelago.h"
-#include "../island.h"
 #include "../population.h"
-#include "../topology/fully_connected.h"
-#include "../topology/custom.h"
-#include "../problem/decompose.h"
-#include "../util/discrepancy.h"
-#include "../util/neighbourhood.h"
-#include "../migration/worst_r_policy.h"
-#include "../migration/best_s_policy.h"
-#include "../types.h"
 #include "base.h"
-#include "mopso.h"
+#include "nspso.h"
 
 
 namespace pagmo { namespace algorithm {
 /// Constructor
  /**
- * Constructs a mopso algorithm
+ * Constructs a NSPSO algorithm (multi objective PSO)
  *
  * @param[in] gen Number of generations to evolve.
  * @param[in] minW minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
@@ -66,7 +56,7 @@ namespace pagmo { namespace algorithm {
  *
  * @throws value_error if gen is negative
  */
-mopso::mopso(int gen, double minW, double maxW, double C1, double C2,
+nspso::nspso(int gen, double minW, double maxW, double C1, double C2,
 	  double CHI, double v_coeff, int leader_selection_range):base(),
 	m_gen(gen),
 	m_minW(minW),
@@ -99,23 +89,23 @@ mopso::mopso(int gen, double minW, double maxW, double C1, double C2,
 }
 
 /// Copy constructor. Performs a deep copy. Necessary as a pointer to a base algorithm is here contained
-mopso::mopso(const mopso &algo):base(algo), m_gen(algo.m_gen),m_minW(algo.m_minW), m_maxW(algo.m_maxW),m_C1(algo.m_C1),
+nspso::nspso(const nspso &algo):base(algo), m_gen(algo.m_gen),m_minW(algo.m_minW), m_maxW(algo.m_maxW),m_C1(algo.m_C1),
 	m_C2(algo.m_C2), m_CHI(algo.m_CHI), m_v_coeff(algo.m_v_coeff), m_leader_selection_range(algo.m_leader_selection_range)
 {}
 
 /// Clone method.
-base_ptr mopso::clone() const
+base_ptr nspso::clone() const
 {
-	return base_ptr(new mopso(*this));
+	return base_ptr(new nspso(*this));
 }
 
 /// Evolve implementation.
 /**
- * Run the MOPSO algorithm for the number of generations specified in the constructors.
+ * Run the NSPSO algorithm for the number of generations specified in the constructors.
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
-void mopso::evolve(population &pop) const
+void nspso::evolve(population &pop) const
 {
 	// Let's store some useful variables.
 	const problem::base             &prob = pop.problem();
@@ -126,11 +116,11 @@ void mopso::evolve(population &pop) const
 
 	//We perform some checks to determine wether the problem/population are suitable for PSO
 	if( Dc == 0 ){
-		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for MOPSO to optimise");
+		pagmo_throw(value_error,"There is no continuous part in the problem decision vector for NSPSO to optimise");
 	}
 
 	if( prob_c_dimension != 0 ){
-		pagmo_throw(value_error,"The problem is not box constrained and MOPSO is not suitable to solve it");
+		pagmo_throw(value_error,"The problem is not box constrained and NSPSO is not suitable to solve it");
 	}
 
 	if( prob_f_dimension < 2 ){
@@ -151,8 +141,11 @@ void mopso::evolve(population &pop) const
 		maxV[d] = v_width;
 	}
 
+	//std::vector<population::size_type> bestIndices;
+	//population newPop(pop);
+
 	for(int g = 0; g < m_gen; ++g) {
-		std::cout << "gen: " << g << std::endl;
+		//std::cout << "gen: " << g << std::endl;
 
 		// The first NP individuals of the new population (size 2*NP) contain the actual population
 		// (that will be mutated) the last NP contains individuals having as X the best_x of each individual
@@ -216,6 +209,7 @@ void mopso::evolve(population &pop) const
 
 		//Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
 		// and the crowding distance
+
 		std::vector<population::size_type> bestIndices = newPop.get_best_idx(NP);
 
 		//Set the population for the next generation accordingly
@@ -232,16 +226,16 @@ void mopso::evolve(population &pop) const
 }
 
 /// Algorithm name
-std::string mopso::get_name() const
+std::string nspso::get_name() const
 {
-	return "Multi Objective Particle Swarm Optimizer (MOPSO)";
+	return "Non-dominated Sorting Particle Swarm Optimizer (NSPSO)";
 }
 
 /// Extra human readable algorithm info.
 /**
  * Will return a formatted string displaying the parameters of the algorithm.
  */
-std::string mopso::human_readable_extra() const
+std::string nspso::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
@@ -258,4 +252,4 @@ std::string mopso::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::mopso);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nspso);

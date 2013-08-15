@@ -58,7 +58,7 @@ int main()
 	return 0;
     */
     pagmo::problem::zdt1 prob(10);
-	pagmo::algorithm::mopso alg(100);
+	pagmo::algorithm::nspso alg(100);
 
 	std::cout << alg << std::endl;
     std::cout << prob << std::endl;

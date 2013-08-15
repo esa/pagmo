@@ -49,7 +49,7 @@
 #include "algorithm/aco.h"
 #include "algorithm/nsga2.h"
 #include "algorithm/pade.h"
-#include "algorithm/mopso.h"
+#include "algorithm/nspso.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"
