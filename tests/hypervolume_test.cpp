@@ -171,12 +171,22 @@ class hypervolume_test {
 		double m_eps;
 };
 
-int main()
+int main(int argc, char *argv[])
 {
 	std::string line;
+
+	// root directory of the hypervolume data
 	std::string input_data_dir("hypervolume_test_data/");
+	// root directory of the testcases
 	std::string input_data_testcases_dir(input_data_dir + "testcases/");
-	std::ifstream ifs((input_data_dir + "testcases_list.txt").c_str());
+	// testcases list filename
+	std::ifstream ifs;
+	if (argc > 1) {
+		std::string testcases_file = argv[1];
+		ifs.open(testcases_file.c_str());
+	} else {
+		ifs.open((input_data_dir + "testcases_list.txt").c_str());
+	}
 	std::ofstream report_stream("hypervolume_test_report.txt");
 	dual_stream output(report_stream, std::cout);
 
