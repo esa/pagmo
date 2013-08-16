@@ -70,10 +70,12 @@ class __PAGMO_VISIBLE hoy : public base {
 		inline int is_pile(const double cub[], const double reg_low[]) const;
 		inline double compute_trellis(const double reg_low[], const double reg_up[], const double trellis[]) const;
 		inline double get_median(double* bounds, unsigned int n) const;
-		inline void stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover);
+		inline void stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level);
 
-		// Member variables used for the 'compute' method are initialized in the method itself.
+		// Member variables used for the 'compute' method are initialized in the method itself and freed after the computation.
+		// At no point in-between the 'compute' calls, their state is expected to be defined.
 		int		m_dimension;
+		int		m_total_size;
 		double	m_sqrt_size;
 		double	m_volume;
 		double	*m_region_up;
@@ -82,6 +84,7 @@ class __PAGMO_VISIBLE hoy : public base {
 		double	*m_trellis;
 		double	*m_boundaries;
 		double	*m_no_boundaries;
+		std::vector<double**> m_child_points;
 
 		friend class boost::serialization::access;
 		template <class Archive>

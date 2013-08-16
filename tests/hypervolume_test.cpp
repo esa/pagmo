@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 			ss >> eps;
 			std::ifstream input((input_data_testcases_dir + test_name).c_str());
 			if (input.is_open()){
-				output << test_type << " / " << method_name << " / " << test_name << " / eps:" << eps;
+				output << test_type << " / " << method_name << " / " << test_name << " / eps:" << eps << "\n";
 
 				hypervolume_test hvt(input, output, test_type, method_name, eps);
 

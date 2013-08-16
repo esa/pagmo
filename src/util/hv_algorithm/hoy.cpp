@@ -29,6 +29,7 @@
 #include <bitset>
 #include <cmath>
 #include <limits>
+#include <boost/numeric/conversion/cast.hpp>
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
@@ -45,16 +46,17 @@ hoy::hoy() { }
 double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 
 	m_dimension = r_point.size();
-	m_sqrt_size = sqrt((double)points.size());
+	m_total_size = points.size();
+	m_sqrt_size = sqrt(boost::numeric_cast<double>(m_total_size));
 	m_volume = 0.0;
 
 	sort(points.begin(), points.end(), fitness_vector_cmp(m_dimension - 1, '<'));
 
 	m_region_low = new double[m_dimension - 1];
 	m_region_up = new double[m_dimension - 1];
-	m_boundaries = new double[points.size()];
-	m_no_boundaries = new double[points.size()];
-	m_piles = new int[points.size()];
+	m_boundaries = new double[m_total_size];
+	m_no_boundaries = new double[m_total_size];
+	m_piles = new int[m_total_size];
 	m_trellis = new double[m_dimension - 1];
 
 	// initialize the D-1 dimensional region vectors and D-dimensional reference point
@@ -63,8 +65,8 @@ double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 		m_region_low[i] = std::numeric_limits<double>::max();
 	}
 
-	double** initial_points = new double*[points.size()];
-	for (unsigned int n = 0 ; n < points.size() ; ++n) {
+	double** initial_points = new double*[m_total_size];
+	for (int n = 0 ; n < m_total_size ; ++n) {
 		initial_points[n] = new double[m_dimension];
 
 		initial_points[n][m_dimension - 1] = points[n][m_dimension - 1];
@@ -77,9 +79,16 @@ double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 	}
 
 	// call stream initially
-	stream(m_region_low, m_region_up, initial_points, points.size(), 0, r_point[m_dimension - 1]);
+	stream(m_region_low, m_region_up, initial_points, m_total_size, 0, r_point[m_dimension - 1], 0);
 
-	for (unsigned int n = 0; n < points.size() ; ++n) {
+	// free the memory for child node points
+	for (unsigned int n = 0; n < m_child_points.size() ; ++n) {
+		delete[] m_child_points[n];
+	}
+	m_child_points.clear();
+
+	// free the memory of the initial points
+	for (int n = 0; n < m_total_size ; ++n) {
 		delete[] initial_points[n];
 	}
 	delete[] initial_points;
@@ -186,7 +195,7 @@ double hoy::get_median(double* bounds, unsigned int n) const {
 }
 
 // Recursive calculation of hypervolume.
-void hoy::stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover) {
+void hoy::stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level) {
 
 	double cover_old = cover;
 	unsigned int cover_index = 0;
@@ -300,8 +309,12 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 				++split;
 			}
 		} while (not_found);
-			
-		double** child_points = new double*[cover_index];
+
+		// if new frame for child_points is required
+		if (rec_level >= m_child_points.size()) {
+			m_child_points.push_back(new double*[m_total_size]);
+		}
+
 		unsigned int n_cp = 0;
 	
 		double d_last = m_region_up[split];
@@ -309,12 +322,11 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 		m_region_up[split] = bound;
 		for (unsigned int i = 0; i < cover_index ; ++i) {
 			if (part_covers(points[i], m_region_up)) {
-				child_points[n_cp++] = points[i];
-				//child_points.push_back(points[i]);
+				m_child_points[rec_level][n_cp++] = points[i];
 			} 
 		}
 		if (n_cp > 0) {
-			stream(m_region_low, m_region_up, child_points, n_cp, split, cover);
+			stream(m_region_low, m_region_up, m_child_points[rec_level], n_cp, split, cover, rec_level + 1);
 		}
 
 		// Right child
@@ -324,15 +336,13 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 		m_region_low[split] = bound;
 		for (unsigned int i = 0 ; i < cover_index ; ++i) {
 			if (part_covers(points[i], m_region_up)) {
-				child_points[n_cp++] = points[i];
+				m_child_points[rec_level][n_cp++] = points[i];
 			} 
 		}
 		if (n_cp > 0) {
-			stream(m_region_low, m_region_up, child_points, n_cp, split, cover);
+			stream(m_region_low, m_region_up, m_child_points[rec_level], n_cp, split, cover, rec_level + 1);
 		}
 		m_region_low[split] = d_last;
-
-		delete[] child_points;
 	}
 } 
 
