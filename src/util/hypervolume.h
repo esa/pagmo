@@ -34,6 +34,7 @@
 #include "hv_algorithm/beume3d.h"
 #include "hv_algorithm/wfg.h"
 #include "hv_algorithm/bf_approx.h"
+#include "hv_algorithm/hoy.h"
 
 namespace pagmo { namespace util {
 

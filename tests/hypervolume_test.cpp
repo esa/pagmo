@@ -64,6 +64,8 @@ class hypervolume_test {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::wfg());
 			} else if (method_name == "bf_approx") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_approx());
+			} else if (method_name == "hoy") {
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hoy());
 			} else {
 				output << "Unknown method (" << method_name << ") .. exiting\n";
 				exit(1);

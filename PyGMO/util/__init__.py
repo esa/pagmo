@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import *
-from _util.hv_algorithm import native2d, beume3d, wfg, bf_approx
+from _util.hv_algorithm import native2d, beume3d, wfg, bf_approx, hoy
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -12,6 +12,7 @@ hv_algorithm.__doc__ = """Module containing available algorithms for the hypervo
 		hv_algorithm.beume3d
 		hv_algorithm.wfg()
 		hv_algorithm.bf_approx()
+		hv_algorithm.hoy()
 """
 
 class HypervolumeValidation:
@@ -39,7 +40,7 @@ class HypervolumeValidation:
 	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
 	# types of hypervolume algorithms
-	types_hv_algo = (native2d, beume3d, wfg, bf_approx)
+	types_hv_algo = (native2d, beume3d, wfg, bf_approx, hoy)
 
 	# allowed types for the refernce point
 	types_rp = (list, tuple,)
@@ -307,6 +308,27 @@ def _beume3d_ctor(self):
 	return self._original_init()
 beume3d._original_init = beume3d.__init__
 beume3d.__init__ = _beume3d_ctor
+
+def _hoy_ctor(self):
+	"""
+	Hypervolume algorithm: HOY.
+	Computational complexity: O(n*log(n) + n^(d/2))
+	Applicable to hypervolume computation problems of dimension in [2, ..]
+
+
+	REF: Nicola Beume and Guenter Rudolph, "Faster S-Metric Calculation by Considering Dominated Hypervolume as Klee's Measure Problem.",
+	In: B. Kovalerchuk (ed.): Proceedings of the Second IASTED Conference on Computational Intelligence (CI 2006), pp. 231-236.  ACTA Press: Anaheim, 2006. 
+
+	USAGE:
+		hv = hypervolume(...) # see 'hypervolume?' for usage
+		refpoint = [1.0]*5
+		hv.compute(r=refpoint, algorithm=hv_algorithm.hoy())
+		hv.exclusive(p_idx=13, r=refpoint, algorithm=hv_algorithm.hoy())
+		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hoy())
+	"""
+	return self._original_init()
+hoy._original_init = hoy.__init__
+hoy.__init__ = _hoy_ctor
 
 def _wfg_ctor(self, stop_dimension = 2):
 	"""
