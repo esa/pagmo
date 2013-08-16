@@ -226,7 +226,7 @@ def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.
 pso._orig_init = pso.__init__
 pso.__init__ = _pso_ctor
 
-def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, use_racing = False, max_fevals = -1):
+def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, nr_eval_per_x = 1, use_racing = False, max_fevals = 10000000):
 	"""
 	Constructs a Particle Swarm Optimization (generational). The position update is applied
 	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
@@ -272,6 +272,7 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 	arg_list.append(variant)
 	arg_list.append(neighb_type)
 	arg_list.append(neighb_param)	
+	arg_list.append(nr_eval_per_x)
 	arg_list.append(use_racing)
 	if max_fevals > 0:
 		arg_list.append(max_fevals)

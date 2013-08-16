@@ -64,17 +64,18 @@ public:
 		const bool screen_output
 	);
 	
-	population::size_type size();
+	population::size_type size() const;
 	void reset_cache();
 	void register_population(const population &);
 	void inherit_memory(const race_pop&);
-	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &active_set = std::vector<population::size_type>());
+	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &active_set = std::vector<population::size_type>()) const;
+	void set_seed(unsigned int);
 
 private:
 	// Helper methods to validate input data
-	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size);
-	void _validate_problem_stochastic(const problem::base& prob);
-	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size);
+	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size) const;
+	void _validate_problem_stochastic(const problem::base& prob) const;
+	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size) const;
 
 	unsigned int prepare_population_friedman(const std::vector<population::size_type> &in_race, unsigned int count_iter);
 

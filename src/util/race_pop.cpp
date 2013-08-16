@@ -54,13 +54,13 @@ void race_pop::register_population(const population &pop)
 }
 
 /// Get the number of individuals in the registered population
-population::size_type race_pop::size()
+population::size_type race_pop::size() const
 {
 	return m_pop.size();
 }
 
 // Check if the provided active_set is valid.
-void race_pop::_validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size)
+void race_pop::_validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size) const
 {
 	if(active_set.size() == 0)
 		return;
@@ -77,7 +77,7 @@ void race_pop::_validate_active_set(const std::vector<population::size_type>& ac
 }
 
 // Check if the problem is stochastic
-void race_pop::_validate_problem_stochastic(const problem::base& prob)
+void race_pop::_validate_problem_stochastic(const problem::base& prob) const
 {
 	try
 	{
@@ -90,7 +90,7 @@ void race_pop::_validate_problem_stochastic(const problem::base& prob)
 }
 
 // Check if the other parameters for racing are sensible
-void race_pop::_validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size)
+void race_pop::_validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size) const
 {
 	if(n_final > pop.size()){
 		pagmo_throw(value_error, "Number of intended winner is too large");
@@ -400,7 +400,7 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
  *
  * @return Mean fitness vectors of the individuals in ind_list
  **/
-std::vector<fitness_vector> race_pop::get_mean_fitness(const std::vector<population::size_type> &ind_list)
+std::vector<fitness_vector> race_pop::get_mean_fitness(const std::vector<population::size_type> &ind_list) const
 {
 	_validate_active_set(ind_list, m_pop.size());
 
@@ -545,6 +545,21 @@ void race_pop::inherit_memory(const race_pop& src)
 		}
 	}
 	//std::cout << "Number of transferred entries = " << cnt_transferred << std::endl;
+}
+
+/// Set a new racing seed.
+/**
+ * Internally, the list of seed is cleared, all cache entry get invalidated,
+ * and a new list of seeds will of be generated as required when racing
+ * starts subsequently.
+ *
+ * @param[in] seed New seed to be set
+ */
+void race_pop::set_seed(unsigned int seed)
+{
+	m_seeder.seed(seed);
+	m_seeds.clear();
+	reset_cache();
 }
 
 // Produce new seeds and append to the list of seeds
