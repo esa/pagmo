@@ -46,7 +46,7 @@ class __PAGMO_VISIBLE nspso: public base
 {
 public:
 	nspso(int gen=10, double minW = 0.4, double maxW = 1.0, double C1 = 2.0, double C2 = 2.0,
-		  double CHI = 1.0, double v_coeff = 0.5, int leader_selection_range = 5);
+		  double CHI = 1.0, double v_coeff = 0.5, int leader_selection_range = 30);
 	nspso(const nspso &);
 
 	base_ptr clone() const;

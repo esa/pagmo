@@ -148,24 +148,30 @@ void nspso::evolve(population &pop) const
 		//std::cout << "gen: " << g << std::endl;
 
 		// The first NP individuals of the new population (size 2*NP) contain the actual population
-		// (that will be mutated) the last NP contains individuals having as X the best_x of each individual
+		// (that will be moved) the last NP contains individuals having as X the best_x of each individual
 		// of the current population and as velocity the current velocity
-		population newPop(pop);
+		population nextPopList(pop);
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-			newPop.push_back(pop.get_individual(idx).best_x);
-			newPop.set_v(idx+NP, pop.get_individual(idx).cur_v);
+			nextPopList.push_back(pop.get_individual(idx).best_x);
+			nextPopList.set_v(idx+NP, pop.get_individual(idx).cur_v);
 		}
 
-		//Calculate the best leader_selection_range% individuals of the original population according to the crowing distance
-		std::vector<population::size_type> bestIndividuals = pop.get_best_idx((int)ceil(NP*m_leader_selection_range/100.0));
+		//compute non_dominated_population
+		std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
+		population nonDomPSOList(prob);
+		for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
+			nonDomPSOList.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
+		}
+		//std::cout << "Non dominated size: " << nonDomPSOList.size() << std::endl;
+
+		std::vector<population::size_type> bestNonDomIndices = nonDomPSOList.get_best_idx((int)ceil(nonDomPSOList.size()*m_leader_selection_range/100.0));
+		//std::cout << "bestNonDomIndices size: " << bestNonDomIndices.size() << std::endl;
 
 		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g; //W decreased from maxW to minW troughout the run
 
 		for(population::size_type idx = 0; idx < NP; ++idx) {
 
-			//Set as a leader for the current particle a random particle among the best ones in the leader_selection_range percentile
-			const decision_vector &leader = pop.get_individual(
-						bestIndividuals[boost::uniform_int<int>(0,bestIndividuals.size()-1)(m_drng)]).cur_x;
+			const decision_vector &leader = nonDomPSOList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,bestNonDomIndices.size()-1)(m_drng)]).cur_x;
 
 			//Calculate some random factors
 			const double r1 = boost::uniform_real<double>(0,1)(m_drng);
@@ -203,24 +209,37 @@ void nspso::evolve(population &pop) const
 				newX[i] = x;
 			}
 
-			newPop.set_x(idx, newX);
-			newPop.set_v(idx, newV);
+			nextPopList.set_x(idx, newX);
+			nextPopList.set_v(idx, newV);
 		}
 
 		//Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
-		// and the crowding distance
+		std::vector<std::vector<population::size_type> > nextPop_pareto_fronts = nextPopList.compute_pareto_fronts();
+		std::vector<population::size_type> bestNextPopIndices(NP,0);
 
-		std::vector<population::size_type> bestIndices = newPop.get_best_idx(NP);
+		for(unsigned int f = 0, i=0; i<NP && f < nextPop_pareto_fronts.size(); ++f) {
+			if(nextPop_pareto_fronts[f].size() < NP-i) { //then push the whole front in the population
+				for(unsigned int j = 0; j < nextPop_pareto_fronts[f].size(); ++j) {
+					bestNextPopIndices[i] = nextPop_pareto_fronts[f][j];
+					++i;
+				}
+			} else {
+				std::random_shuffle(nextPop_pareto_fronts[f].begin(), nextPop_pareto_fronts[f].end());
+				for(unsigned int j = 0; i<NP; ++j) {
+					bestNextPopIndices[i] = nextPop_pareto_fronts[f][j];
+					++i;
+				}
+			}
+		}
 
 		//Set the population for the next generation accordingly
 		pop.clear();
 		for(population::size_type i = 0; i < NP; ++i) {
-			pop.push_back(newPop.get_individual(bestIndices[i]).cur_x);
-			pop.set_x(i, newPop.get_individual(bestIndices[i]).best_x);
-			pop.set_x(i, newPop.get_individual(bestIndices[i]).cur_x);
-			pop.set_v(i, newPop.get_individual(bestIndices[i]).cur_v);
+			pop.push_back(nextPopList.get_individual(bestNextPopIndices[i]).cur_x);
+			pop.set_x(i, nextPopList.get_individual(bestNextPopIndices[i]).best_x);
+			pop.set_x(i, nextPopList.get_individual(bestNextPopIndices[i]).cur_x);
+			pop.set_v(i, nextPopList.get_individual(bestNextPopIndices[i]).cur_v);
 		}
-
 	}
 
 }
