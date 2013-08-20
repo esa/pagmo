@@ -36,6 +36,7 @@
 #include "../population.h"
 #include "../problem/base.h"
 #include "../population.h"
+#include "../util/neighbourhood.h"
 #include "base.h"
 #include "nspso.h"
 
@@ -141,9 +142,6 @@ void nspso::evolve(population &pop) const
 		maxV[d] = v_width;
 	}
 
-	//std::vector<population::size_type> bestIndices;
-	//population newPop(pop);
-
 	for(int g = 0; g < m_gen; ++g) {
 		//std::cout << "gen: " << g << std::endl;
 
@@ -152,26 +150,62 @@ void nspso::evolve(population &pop) const
 		// of the current population and as velocity the current velocity
 		population nextPopList(pop);
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-			nextPopList.push_back(pop.get_individual(idx).best_x);
+			nextPopList.push_back(pop.get_individual(idx).cur_x);
 			nextPopList.set_v(idx+NP, pop.get_individual(idx).cur_v);
 		}
 
-		//compute non_dominated_population
-		std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
+		//compute non dominated_population (for crowding distance)
+		/*std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
 		population nonDomPSOList(prob);
 		for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
 			nonDomPSOList.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
+		}*/
+
+		//compute non dominated_population (for niche count)
+		std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
+		std::vector<std::vector<double> > nonDomChromosomes;
+		for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
+			nonDomChromosomes.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
 		}
 		//std::cout << "Non dominated size: " << nonDomPSOList.size() << std::endl;
 
-		std::vector<population::size_type> bestNonDomIndices = nonDomPSOList.get_best_idx((int)ceil(nonDomPSOList.size()*m_leader_selection_range/100.0));
-		//std::cout << "bestNonDomIndices size: " << bestNonDomIndices.size() << std::endl;
+
+		//using niche count
+		std::vector<double> nadir = pop.compute_nadir();
+		std::vector<double> ideal = pop.compute_ideal();
+
+		//ORIGINAL PAPER VERSION FOR COMPUTING DELTA
+		/*double delta = 0;
+		for(unsigned int i=0; i<nadir.size(); ++i) {
+			delta += nadir[i] - ideal[i];
+		}
+		delta /= nonDomChromosomes.size();
+		*/
+
+		//MY "GENERALIZATION" FOR HIGHER DIMENSIONS
+		double delta = 1;
+		for(unsigned int i=0; i<nadir.size(); ++i) {
+			delta *= nadir[i] - ideal[i];
+		}
+		delta = pow(delta, 1.0/nadir.size())/nonDomChromosomes.size();
+
+		std::vector<int> count(nonDomChromosomes.size(),0);
+		compute_niche_count(count, nonDomChromosomes, delta);
+		std::vector<int> bestNonDomIndices = pagmo::util::neighbourhood::order(count);
+		std::cout << "niche count: " << count << std::endl;
+		std::cout << "bestNonDomIndices: " << bestNonDomIndices << std::endl;
+		std::cout << "DELTA: " << delta << std::endl;
+
+		//using crowding distance
+		//std::vector<population::size_type> bestNonDomIndices = nonDomPSOList.get_best_idx((int)ceil(nonDomPSOList.size()*m_leader_selection_range/100.0));
 
 		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g; //W decreased from maxW to minW troughout the run
 
 		for(population::size_type idx = 0; idx < NP; ++idx) {
 
-			const decision_vector &leader = nonDomPSOList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,bestNonDomIndices.size()-1)(m_drng)]).cur_x;
+			//const decision_vector &leader = nonDomPSOList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,bestNonDomIndices.size()-1)(m_drng)]).cur_x;
+			const decision_vector &leader = nonDomChromosomes[
+					bestNonDomIndices[boost::uniform_int<int>(0,bestNonDomIndices.size()-1)(m_drng)]];
 
 			//Calculate some random factors
 			const double r1 = boost::uniform_real<double>(0,1)(m_drng);
@@ -243,6 +277,29 @@ void nspso::evolve(population &pop) const
 	}
 
 }
+double nspso::euclidian_distance(const std::vector<double> &x, const std::vector<double> &y) const
+{
+	pagmo_assert(x.size() == y.size());
+	double sum = 0;
+	for(unsigned int i = 0; i < x.size(); ++i) {
+		sum+= pow(x[i]-y[i],2);
+	}
+	return sqrt(sum);
+}
+
+void nspso::compute_niche_count(std::vector<int> &count, const std::vector<std::vector<double> > &chromosomes, double delta) const
+{
+	std::fill(count.begin(), count.end(),0);
+	for(unsigned int i=0; i<chromosomes.size(); ++i) {
+		for(unsigned int j=0; j<chromosomes.size(); ++j) {
+			if(euclidian_distance(chromosomes[i], chromosomes[j]) < delta) {
+				count[i]++;
+			}
+		}
+	}
+
+}
+
 
 /// Algorithm name
 std::string nspso::get_name() const

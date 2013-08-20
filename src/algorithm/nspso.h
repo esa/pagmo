@@ -57,6 +57,8 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
+	void compute_niche_count(std::vector<int> &, const std::vector<std::vector<double> > &, double) const;
+	double euclidian_distance(const std::vector<double> &, const std::vector<double> &) const;
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
