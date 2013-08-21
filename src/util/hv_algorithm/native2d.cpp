@@ -65,6 +65,35 @@ double native2d::compute(std::vector<fitness_vector> &points, const fitness_vect
 	return hypervolume;
 }
 
+bool native2d::cmp_double_2d(double* a, double* b) {
+	return a[1] < b[1];
+}
+
+double native2d::compute(double**points , unsigned int n_points, double* r_point)
+{
+	if (n_points == 0) {
+		return 0.0;
+	}
+	else if (n_points == 1) {
+		return base::volume_between(points[0], r_point, 2);
+	}
+
+	if (m_initial_sorting) {
+		std::sort(points, points + n_points, native2d::cmp_double_2d);
+	}
+
+	double hypervolume = 0.0;
+	for(unsigned int idx = 0; idx < n_points - 1 ; ++idx) {
+		double area = (points[idx][1] - points[idx+1][1]) * (points[idx][0] - r_point[0]);
+		hypervolume += fabs(area);
+	}
+	//fitness_vector &last = points.back();
+	double* last = points[n_points - 1];
+	hypervolume += fabs((r_point[1] - last[1]) * (r_point[0] - last[0]));
+
+	return hypervolume;
+}
+
 // custom comparison method for sorting pairs of (point, index)
 // required for native2d::least_contributor method
 bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {

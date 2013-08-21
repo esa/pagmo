@@ -46,6 +46,7 @@ class __PAGMO_VISIBLE native2d : public base {
 		native2d(const bool initial_sorting = true);
 
 		double compute(std::vector<fitness_vector> &, const fitness_vector &);
+		double compute(double**, unsigned int n_points, double*);
 		unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
@@ -56,6 +57,9 @@ class __PAGMO_VISIBLE native2d : public base {
 	private:
 		// flag stating whether the points should be sorted in the first step of the algorithm
 		const bool m_initial_sorting;
+
+		// comparison function for arrays of double
+		static bool cmp_double_2d(double*, double*);
 
 		unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
 

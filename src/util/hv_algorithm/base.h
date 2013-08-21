@@ -130,14 +130,41 @@ class __PAGMO_VISIBLE base
 			return (volume < 0 ? -volume : volume);
 		}
 
+		/// Compute volume between two points
+		/**
+		 * Calculates the volume between points a and b (as defined for n-dimensional Euclidean spaces).
+		 *
+		 * @param[in] a first point defining the hypercube
+		 * @param[in] b second point defining the hypercube
+		 * @param[in] size dimension of the vectors.
+		 *
+		 * @return volume of hypercube defined by points a and b
+		 */
+		inline double volume_between(double* a, double* b, unsigned int size) const {
+			double volume = 1.0;
+			while(size--) {
+				volume *= (b[size] - a[size]);
+
+			}
+			return (volume < 0 ? -volume : volume);
+		}
+
+		// Domination results of the 'dom_cmp' methods
+		enum {
+			DOM_CMP_B_DOMINATES_A = 1, // second argument dominates the first one
+			DOM_CMP_A_DOMINATES_B = 2, // first argument dominates the second one
+			DOM_CMP_A_B_EQUAL = 3, // both points are equal
+			DOM_CMP_INCOMPARABLE = 4 // points are incomparable
+		};
+
 		/// dominance comparison method
 		/**
 		 * Establishes the domination relationship between two points.
 		 *
-		 * return 1 if 'a' IS DOMINATED BY 'b'
-		 * return 2 if 'b' DOMINATES 'a'
-		 * return 3 if 'a' IS EQUAL TO 'b'
-		 * return 4 otherwise
+		 * returns DOM_CMP_B_DOMINATES_A if point 'b' DOMINATES point 'a'
+		 * returns DOM_CMP_A_DOMINATES_B if point 'a' DOMINATES point 'b'
+		 * returns DOM_CMP_A_B_EQUAL if point 'a' IS EQUAL TO 'b'
+		 * returns DOM_CMP_INCOMPARABLE otherwise
 		 */
 		inline int dom_cmp(const fitness_vector &a, const fitness_vector &b, unsigned int dim_bound = 0) const {
 			if (dim_bound == 0) {
@@ -147,21 +174,52 @@ class __PAGMO_VISIBLE base
 				if (a[i] > b[i]) {
 					for(fitness_vector::size_type j = i + 1; j < dim_bound ; ++j) {
 						if (a[j] < b[j]) {
-							return 4;
+							return DOM_CMP_INCOMPARABLE;
 						}
 					}
-					return 1;
+					return DOM_CMP_B_DOMINATES_A;
 				}
 				else if (a[i] < b[i]) {
 					for(fitness_vector::size_type j = i + 1 ; j < dim_bound ; ++j) {
 						if (a[j] > b[j]) {
-							return 4;
+							return DOM_CMP_INCOMPARABLE;
 						}
 					}
-					return 2;
+					return DOM_CMP_A_DOMINATES_B;
 				}
 			}
-			return 3;
+			return DOM_CMP_A_B_EQUAL;
+		}
+
+		/// dominance comparison method
+		/**
+		 * Establishes the domination relationship between two points (overloaded for double*);
+		 *
+		 * returns DOM_CMP_B_DOMINATES_A if point 'b' DOMINATES point 'a'
+		 * returns DOM_CMP_A_DOMINATES_B if point 'a' DOMINATES point 'b'
+		 * returns DOM_CMP_A_B_EQUAL if point 'a' IS EQUAL TO 'b'
+		 * returns DOM_CMP_INCOMPARABLE otherwise
+		 */
+		inline int dom_cmp(double *a, double* b, unsigned int size) const {
+			for(fitness_vector::size_type i = 0; i < size ; ++i) {
+				if (a[i] > b[i]) {
+					for(fitness_vector::size_type j = i + 1; j < size ; ++j) {
+						if (a[j] < b[j]) {
+							return DOM_CMP_INCOMPARABLE;
+						}
+					}
+					return DOM_CMP_B_DOMINATES_A;
+				}
+				else if (a[i] < b[i]) {
+					for(fitness_vector::size_type j = i + 1 ; j < size ; ++j) {
+						if (a[j] > b[j]) {
+							return DOM_CMP_INCOMPARABLE;
+						}
+					}
+					return DOM_CMP_A_DOMINATES_B;
+				}
+			}
+			return DOM_CMP_A_B_EQUAL;
 		}
 
 	private:

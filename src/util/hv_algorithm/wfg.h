@@ -56,14 +56,28 @@ class __PAGMO_VISIBLE wfg : public base {
 
 	private:
 
-		inline std::vector<fitness_vector> limitset(const std::vector<fitness_vector> &, const unsigned int) const;
-		inline double exclusive_hv(const std::vector<fitness_vector> &, const unsigned int, const fitness_vector &) const;
-		inline double compute_hv(const std::vector<fitness_vector> &, const fitness_vector &) const;
+		void limitset(double**, const unsigned int, const unsigned int, const unsigned int);
+		double exclusive_hv(double**, const unsigned int, const unsigned int, const unsigned int);
+		double compute_hv(double**, const unsigned int, const unsigned int);
 
-		static bool cmp_points(const fitness_vector &a, const fitness_vector &b);
+		bool cmp_func(double* a, double* b);
 
 		mutable unsigned int m_current_slice;
 		const unsigned int m_stop_dimension;
+
+		// Array of point sets for each recursive level.
+		double*** m_frames;
+
+		// Maintains the number of points at given recursion level.
+		unsigned int* m_frames_size;
+
+		// Keeps track of currently allocated number of frames.
+		unsigned int m_n_frames;
+
+		double* m_refpoint;
+
+		unsigned int m_max_points;
+		unsigned int m_max_dim;
 
 		friend class boost::serialization::access;
 		template <class Archive>
