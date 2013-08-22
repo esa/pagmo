@@ -28,22 +28,6 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-#define DEBUG_ON 0
-#define SPACER_ON 1
-#define SPACER_CHAR "-"
-#define SPACER_VAL rec_level
-#define DEBUG(x) if(DEBUG_ON) {std::cout << #x << ": " << (x) << std::endl;}
-#define DEBUGV(x) if(DEBUG_ON) {std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (x).size() ; ++ _idx){ std::cout << " " << (x)[_idx];} std::cout << std::endl;}
-#define DEBUGA(x,s) if(DEBUG_ON) {std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (s) ; ++ _idx){ std::cout << " " << (x)[_idx];} std::cout << std::endl;}
-#define DEBUGVP(x) if(DEBUG_ON) {std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (x).size() ; ++ _idx){ std::cout << " (" << (x)[_idx].first << "," << (x)[_idx].second << ")";} std::cout << std::endl;}
-#define DEBUGVV(x) if(DEBUG_ON) {std::cout << #x << ":" << std::endl; for(unsigned int _idx = 0; _idx < (x).size() ; ++_idx) {std::cout << " " << #x << "[" << _idx << "]:"; for(unsigned int _idx2 = 0; _idx2 < ((x)[_idx]).size() ; ++ _idx2) {std::cout << " " << (x)[_idx][_idx2]; } std::cout << std::endl; } }
-#define PRINT(__x) if(DEBUG_ON) {std::cout << __x << std::endl;}
-#define _SPACER() if(SPACER_ON){for(unsigned int _ii= 0 ;  _ii < SPACER_VAL ; ++_ii) {std::cout << SPACER_CHAR;}}
-#define SDEBUG(x) if(DEBUG_ON) {_SPACER(); std::cout << #x << ": " << (x) << std::endl;}
-#define SDEBUGV(x) if(DEBUG_ON) { _SPACER();std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (x).size() ; ++ _idx){ std::cout << " " << (x)[_idx];} std::cout << std::endl;}
-#define SDEBUGVV(x) if(DEBUG_ON) { _SPACER(); std::cout << #x << ":" << std::endl; for(unsigned int _idx = 0; _idx < (x).size() ; ++_idx) { _SPACER(); std::cout << " " << #x << "[" << _idx << "]:"; for(unsigned int _idx2 = 0; _idx2 < ((x)[_idx]).size() ; ++ _idx2) { std::cout << " " << (x)[_idx][_idx2]; } std::cout << std::endl; } }
-#define SPRINT(__x) if(DEBUG_ON) { _SPACER();std::cout << __x << std::endl;}
-
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 bool wfg::cmp_func(double* a, double* b) {
