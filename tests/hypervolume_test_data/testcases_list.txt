@@ -5,37 +5,20 @@
 # * compute - hypervolume computation test
 # * exclusive - exclusive hypervolume computation test
 # * least_contributor - test for the least contributor in a set
+# * greatest_contributor - test for the least contributor in a set
 # Tests with "max_" prefix have reference point as the upper boundary (Ri > Xi for any X in pareto set) - likewise for the "min_" prefix.
 
 ## Tests generated from Fast Dimension-Sweep algorithm using external library (http://ls11-www.cs.uni-dortmund.de/rudolph/hypervolume/start)
 
-#compute lebmeasure c_max_t100_d3_n128 10e-3
-#compute native2d c_max_t100_d2_n128 10e-9
-#compute beume3d c_max_t100_d3_n128 10e-9
-#compute beume3d c_max_t1_d3_n2048 10e-9
-#compute wfg c_max_t1_d3_n2048 10e-9
-#compute wfg c_max_t100_d3_n128 10e-9
-#compute wfg c_max_t1_d5_n1024 10e-4
-#
-#exclusive wfg e_max_d5 10e-9
-#exclusive beume3d e_max_d3 10e-9
-#exclusive native2d e_max_d2 10e-9
-#least_contributor beume3d lc_max_d3 10e-9
-#least_contributor native2d lc_max_d2 10e-9
+compute native2d c_max_t100_d2_n128 10e-9
+compute beume3d c_max_t100_d3_n128 10e-9
+compute beume3d c_max_t1_d3_n2048 10e-9
+compute wfg c_max_t1_d3_n2048 10e-9
+compute wfg c_max_t100_d3_n128 10e-9
+compute wfg c_max_t1_d5_n1024 10e-4
 
-#compute wfg extra/max_WFGa_t20_d13_n100 10e-9
-#compute wfg extra/max_WFGa_spherical_t10_d9_n160 10e-9
-#compute wfg extra/max_WFGa_discontinuous_d6_n650 10e-9
-#compute wfg extra/wfg_t20_d4_n20 10e-9
-#compute wfg extra/wfg_sphere_t10_d6_n1000 10e-9
-compute wfg extra/wfg_spherical_t20_d6_n1000 10e-9
-#compute wfg extra/wfg_t20_d4_n1000 10e-9
-#compute wfg extra/wfg_t10_d9_n160 10e-9
-#compute wfg extra/max_single 10e-9
-#compute beume3d extra/max_single 10e-9
-#compute wfg extra/max_t1_d3_n512 10e-9
-#compute wfg extra/max_t1_d3_n1024 10e-9
-#compute wfg extra/max_t10_d4_n16 10e-3
-#compute wfg extra/max_t10_d5_n8 10e-5
-#compute wfg extra/max_t100_d2_n64 10e-9
-#compute wfg extra/max_t100_d3_n128 10e-9
+exclusive wfg e_max_d5 10e-9
+exclusive beume3d e_max_d3 10e-9
+exclusive native2d e_max_d2 10e-9
+least_contributor beume3d lc_max_d3 10e-9
+least_contributor native2d lc_max_d2 10e-9
