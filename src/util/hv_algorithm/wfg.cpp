@@ -172,6 +172,20 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 
 double wfg::compute_hv(double** points, const unsigned int n_points, const unsigned int rec_level) {
 
+	// Simple inclusion-exclusion for one and two points
+	if (n_points == 1) {
+		return base::volume_between(points[0], m_refpoint, m_current_slice);
+	}
+	else if (n_points == 2) {
+		double hv = base::volume_between(points[0], m_refpoint, m_current_slice)
+			+ base::volume_between(points[1], m_refpoint, m_current_slice);
+		double isect = 1.0;
+		for(unsigned int i=0;i<m_current_slice;++i) {
+			isect *= (m_refpoint[i] - fmax(points[0][i], points[1][i]));
+		}
+		return hv - isect;
+	}
+
 	// If already sliced to dimension at which we use another algorithm.
 	if (m_current_slice == m_stop_dimension) {
 
