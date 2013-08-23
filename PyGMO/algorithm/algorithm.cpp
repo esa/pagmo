@@ -231,8 +231,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type, pagmo::fitness_vector> >());
 
 	// NSPSO
+	enum_<algorithm::nspso::diversity_mechanism_type>("_diversity_mechanism")
+		.value("CROWDING_DISTANCE", algorithm::nspso::CROWDING_DISTANCE)
+		.value("NICHE_COUNT", algorithm::nspso::NICHE_COUNT)
+		.value("MAXMIN", algorithm::nspso::MAXMIN);
 	algorithm_wrapper<algorithm::nspso>("nspso", "Non-dominated Sorting Particle Swarm Optimizer")
-		.def(init<optional<int, double, double, double, double, double, double, int> >());
+		.def(init<optional<int, double, double, double, double, double, double, int, algorithm::nspso::diversity_mechanism_type> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")

@@ -51,11 +51,11 @@ private:
 };
 
 /// Sort according the the values in the values vector but return the permutation
-template<class T> std::vector<int> order(const std::vector<T> &values)
+template<class T> std::vector<unsigned long int> order(const std::vector<T> &values)
 {
-	std::vector<int> rv(values.size());
+	std::vector<unsigned long int> rv(values.size());
 	int idx = 0;
-	for (std::vector<int>::iterator i = rv.begin(); i != rv.end(); i++)
+	for (std::vector<unsigned long int>::iterator i = rv.begin(); i != rv.end(); i++)
 		*i = idx++;
 	std::sort(rv.begin(), rv.end(), sorter<T>(values));
 	return rv;
@@ -67,7 +67,7 @@ template<class T> std::vector<int> order(const std::vector<T> &values)
  */
 class __PAGMO_VISIBLE euclidian {
 public:
-	static void compute_neighbours(std::vector<std::vector<int> > &, const std::vector<std::vector<double> > &);
+	static void compute_neighbours(std::vector<std::vector<unsigned long int> > &, const std::vector<std::vector<double> > &);
 	static double distance(const std::vector<double> &, const std::vector<double> &);
 };
 

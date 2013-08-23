@@ -17,7 +17,7 @@ namespace pagmo{ namespace util {namespace neighbourhood {
  * @param[out] retval a matrix representing the neigborhood graph
  * @param[in]  weights the vector of real vectors
  */
-void euclidian::compute_neighbours(std::vector<std::vector<int> > &retval, const std::vector<std::vector<double> > &weights) {
+void euclidian::compute_neighbours(std::vector<std::vector<unsigned long int> > &retval, const std::vector<std::vector<double> > &weights) {
 	for(unsigned int i = 0; i < weights.size(); ++i) {
 		std::vector<double> distances;
 		for(unsigned int j = 0; j < weights.size(); ++j) {

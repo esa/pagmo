@@ -216,7 +216,7 @@ void pade::evolve(population &pop) const
 
 
 	// We then compute, for each weight vector, which ones are the closest ones (this will form the topology later on)
-	std::vector<std::vector<int> > indices;
+	std::vector<std::vector<unsigned long int> > indices;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(indices, weights);
 
 	// Create the archipelago of NP islands:

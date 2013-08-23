@@ -58,7 +58,7 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if gen is negative
  */
 nspso::nspso(int gen, double minW, double maxW, double C1, double C2,
-	  double CHI, double v_coeff, int leader_selection_range):base(),
+	  double CHI, double v_coeff, int leader_selection_range, diversity_mechanism_type diversity_mechanism):base(),
 	m_gen(gen),
 	m_minW(minW),
 	m_maxW(maxW),
@@ -66,7 +66,8 @@ nspso::nspso(int gen, double minW, double maxW, double C1, double C2,
 	m_C2(C2),
 	m_CHI(CHI),
 	m_v_coeff(v_coeff),
-	m_leader_selection_range(leader_selection_range)
+	m_leader_selection_range(leader_selection_range),
+	m_diversity_mechanism(diversity_mechanism)
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -89,10 +90,11 @@ nspso::nspso(int gen, double minW, double maxW, double C1, double C2,
 	}
 }
 
+/*
 /// Copy constructor. Performs a deep copy. Necessary as a pointer to a base algorithm is here contained
 nspso::nspso(const nspso &algo):base(algo), m_gen(algo.m_gen),m_minW(algo.m_minW), m_maxW(algo.m_maxW),m_C1(algo.m_C1),
 	m_C2(algo.m_C2), m_CHI(algo.m_CHI), m_v_coeff(algo.m_v_coeff), m_leader_selection_range(algo.m_leader_selection_range)
-{}
+{}*/
 
 /// Clone method.
 base_ptr nspso::clone() const
@@ -128,6 +130,10 @@ void nspso::evolve(population &pop) const
 		pagmo_throw(value_error,"The problem is not multi-objective. Use a single-objectie optimization algorithm instead");
 	}
 
+	if(m_diversity_mechanism != CROWDING_DISTANCE && m_diversity_mechanism != NICHE_COUNT && m_diversity_mechanism != MAXMIN) {
+		pagmo_throw(value_error,"non existing diversity mechanism method");
+	}
+
 	// Get out if there is nothing to do.
 	if (NP == 0 || m_gen == 0) {
 		return;
@@ -154,47 +160,72 @@ void nspso::evolve(population &pop) const
 			nextPopList.set_v(idx+NP, pop.get_individual(idx).cur_v);
 		}
 
-		//compute non dominated_population (for crowding distance)
-		/*std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
-		population nonDomPSOList(prob);
-		for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
-			nonDomPSOList.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
-		}*/
-
-		//compute non dominated_population (for niche count)
-		std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
-		std::vector<std::vector<double> > nonDomChromosomes;
-		for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
-			nonDomChromosomes.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
+		decision_vector dummy(pop.get_individual(0).cur_x.size(),0); //used for initialisation purposes
+		std::vector<decision_vector> X(NP,dummy); //set of population chromosomes
+		std::vector<decision_vector> nonDomChromosomes;
+		std::vector<population::size_type> bestNonDomIndices;
+		std::vector<fitness_vector> fit(NP);// particles' current fitness values
+		// Copy the population chromosomes into X
+		for ( population::size_type i = 0; i<NP; i++ ) {
+			X[i]	=	pop.get_individual(i).cur_x;
+			fit[i]	=	pop.get_individual(i).cur_f;
 		}
-		//std::cout << "Non dominated size: " << nonDomPSOList.size() << std::endl;
 
 
-		//using niche count
-		std::vector<double> nadir = pop.compute_nadir();
-		std::vector<double> ideal = pop.compute_ideal();
-
-		//ORIGINAL PAPER VERSION FOR COMPUTING DELTA
-		/*double delta = 0;
-		for(unsigned int i=0; i<nadir.size(); ++i) {
-			delta += nadir[i] - ideal[i];
+		if(m_diversity_mechanism == CROWDING_DISTANCE) {
+			std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
+			population nonDomPSOList(prob);
+			for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
+				nonDomPSOList.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
+				nonDomChromosomes.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
+			}
+			bestNonDomIndices = nonDomPSOList.get_best_idx(nonDomPSOList.size());
+			//std::cout << "bestNonDomIndices" << bestNonDomIndices << std::endl;
 		}
-		delta /= nonDomChromosomes.size();
-		*/
+		else if(m_diversity_mechanism == NICHE_COUNT) {
+			//compute non dominated_population (for niche count)
+			std::vector<std::vector<population::size_type> > pareto_fronts = pop.compute_pareto_fronts();
+			for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
+				nonDomChromosomes.push_back(pop.get_individual(pareto_fronts[0][i]).cur_x);
+			}
+			//std::cout << "Non dominated size: " << nonDomPSOList.size() << std::endl;
 
-		//MY "GENERALIZATION" FOR HIGHER DIMENSIONS
-		double delta = 1;
-		for(unsigned int i=0; i<nadir.size(); ++i) {
-			delta *= nadir[i] - ideal[i];
+
+			//using niche count
+			std::vector<double> nadir = pop.compute_nadir();
+			std::vector<double> ideal = pop.compute_ideal();
+
+			//ORIGINAL PAPER VERSION FOR COMPUTING DELTA
+			/*double delta = 0;
+			for(unsigned int i=0; i<nadir.size(); ++i) {
+				delta += nadir[i] - ideal[i];
+			}
+			delta /= nonDomChromosomes.size();
+			*/
+
+			//MY "GENERALIZATION" FOR HIGHER DIMENSIONS
+			double delta = 1;
+			for(unsigned int i=0; i<nadir.size(); ++i) {
+				delta *= nadir[i] - ideal[i];
+			}
+			delta = pow(delta, 1.0/nadir.size())/nonDomChromosomes.size();
+
+			std::vector<int> count(nonDomChromosomes.size(),0);
+			compute_niche_count(count, nonDomChromosomes, delta);
+			bestNonDomIndices = pagmo::util::neighbourhood::order(count);
+			//std::cout << "niche count: " << count << std::endl;
+			//std::cout << "bestNonDomIndices: " << bestNonDomIndices << std::endl;
+			//std::cout << "DELTA: " << delta << std::endl;
+		} else { // m_diversity_method == MAXMIN
+			std::vector<double> maxmin(NP,0);
+			compute_maxmin(maxmin, fit);
+			bestNonDomIndices = pagmo::util::neighbourhood::order(maxmin);
+			unsigned int i = 0;
+			for(;maxmin[bestNonDomIndices[i]] < 0 && i < bestNonDomIndices.size(); ++i);
+			bestNonDomIndices = std::vector<population::size_type>(bestNonDomIndices.begin(), bestNonDomIndices.begin() + i); //keep just the non dominated
+			//std::cout << "bestNonDomIndices.size()" << bestNonDomIndices.size() <<
+			//		 " -- non dominated size " << pop.compute_pareto_fronts()[0].size() << std::endl;
 		}
-		delta = pow(delta, 1.0/nadir.size())/nonDomChromosomes.size();
-
-		std::vector<int> count(nonDomChromosomes.size(),0);
-		compute_niche_count(count, nonDomChromosomes, delta);
-		std::vector<int> bestNonDomIndices = pagmo::util::neighbourhood::order(count);
-		std::cout << "niche count: " << count << std::endl;
-		std::cout << "bestNonDomIndices: " << bestNonDomIndices << std::endl;
-		std::cout << "DELTA: " << delta << std::endl;
 
 		//using crowding distance
 		//std::vector<population::size_type> bestNonDomIndices = nonDomPSOList.get_best_idx((int)ceil(nonDomPSOList.size()*m_leader_selection_range/100.0));
@@ -202,18 +233,24 @@ void nspso::evolve(population &pop) const
 		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g; //W decreased from maxW to minW troughout the run
 
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-
-			//const decision_vector &leader = nonDomPSOList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,bestNonDomIndices.size()-1)(m_drng)]).cur_x;
-			const decision_vector &leader = nonDomChromosomes[
-					bestNonDomIndices[boost::uniform_int<int>(0,bestNonDomIndices.size()-1)(m_drng)]];
-
-			//Calculate some random factors
-			const double r1 = boost::uniform_real<double>(0,1)(m_drng);
-			const double r2 = boost::uniform_real<double>(0,1)(m_drng);
-
 			const decision_vector &best_X = pop.get_individual(idx).best_x;
 			const decision_vector &cur_X = pop.get_individual(idx).cur_x;
 			const decision_vector &cur_V = pop.get_individual(idx).cur_v;
+
+			decision_vector leader(cur_X.size(),0);
+			if(m_diversity_mechanism == CROWDING_DISTANCE || m_diversity_mechanism == NICHE_COUNT) {
+				leader = nonDomChromosomes[
+									bestNonDomIndices[boost::uniform_int<int>(0,ceil(bestNonDomIndices.size()*m_leader_selection_range/100.0)-1)(m_drng)]];
+			}
+			else { // m_diversity_method == MAXMIN
+				for(unsigned int i = 0; i < leader.size(); ++i) {
+					leader[i] = X[
+							bestNonDomIndices[boost::uniform_int<int>(0,ceil(bestNonDomIndices.size()*m_leader_selection_range/100.0)-1)(m_drng)]][i];
+				}
+			}
+			//Calculate some random factors
+			const double r1 = boost::uniform_real<double>(0,1)(m_drng);
+			const double r2 = boost::uniform_real<double>(0,1)(m_drng);
 
 			//Calculate new velocity and new position for each particle
 			decision_vector newX(Dc);
@@ -277,6 +314,37 @@ void nspso::evolve(population &pop) const
 	}
 
 }
+
+double nspso::minfit(unsigned int i, unsigned int j, const std::vector<fitness_vector> &fit) const
+{
+	double min = fit[i][0] - fit[j][0];
+	for(unsigned int f=0; f<fit[i].size(); ++f) {
+		double tmp = fit[i][f] - fit[j][f];
+		if(tmp < min) {
+			min = tmp;
+		}
+	}
+	return min;
+}
+
+void nspso::compute_maxmin(std::vector<double> &maxmin, const std::vector<fitness_vector> &fit) const
+{
+	const unsigned int NP = fit.size();
+	for(unsigned int i=0; i<NP; ++i) {
+		maxmin[i] = minfit(i, (i+1)%NP, fit);
+		for(unsigned j=0; j<NP; ++j) {
+			if(i != j) {
+				double tmp = minfit(i, j, fit);
+				if(tmp > maxmin[i]) {
+					maxmin[i] = tmp;
+				}
+			}
+		}
+	}
+}
+
+
+
 double nspso::euclidian_distance(const std::vector<double> &x, const std::vector<double> &y) const
 {
 	pagmo_assert(x.size() == y.size());

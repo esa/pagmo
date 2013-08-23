@@ -373,8 +373,11 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	pade.__init__ = _pade_ctor
 	del decompose
 
-def _mopso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
-		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5):
+_algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
+_algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
+_algorithm.nspso.MAXMIN = _algorithm._diversity_mechanism.MAXMIN
+def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5, diversity_mechanism = nspso.MAXMIN):
 	"""
 	Constructs a Multi Objective PSO
 	
@@ -400,6 +403,7 @@ def _mopso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 	arg_list.append(CHI)
 	arg_list.append(v_coeff)
 	arg_list.append(leader_selection_range)
+	arg_list.append(diversity_mechanism)
 	self._orig_init(*arg_list)
 	nspso._orig_init = nspso.__init__
 	nspso.__init__ = _mopso_ctor

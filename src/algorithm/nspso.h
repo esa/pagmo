@@ -45,9 +45,10 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE nspso: public base
 {
 public:
+	enum diversity_mechanism_type {CROWDING_DISTANCE=0, NICHE_COUNT=1, MAXMIN=2};
 	nspso(int gen=10, double minW = 0.4, double maxW = 1.0, double C1 = 2.0, double C2 = 2.0,
-		  double CHI = 1.0, double v_coeff = 0.5, int leader_selection_range = 30);
-	nspso(const nspso &);
+		  double CHI = 1.0, double v_coeff = 0.5, int leader_selection_range = 30, diversity_mechanism_type = MAXMIN);
+	//nspso(const nspso &);
 
 	base_ptr clone() const;
 	void evolve(population &) const;
@@ -57,6 +58,8 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
+	double minfit(unsigned int, unsigned int, const std::vector<fitness_vector> &) const;
+	void compute_maxmin(std::vector<double> &, const std::vector<fitness_vector> &) const;
 	void compute_niche_count(std::vector<int> &, const std::vector<std::vector<double> > &, double) const;
 	double euclidian_distance(const std::vector<double> &, const std::vector<double> &) const;
 	friend class boost::serialization::access;
@@ -83,6 +86,7 @@ private:
 	const double m_CHI;
 	const double m_v_coeff;
 	const int m_leader_selection_range;
+	const diversity_mechanism_type m_diversity_mechanism;
 
 };
 
