@@ -26,7 +26,7 @@ namespace metrics_algos {
 class standard : public problem::base_stochastic
 {
 	public:
-		standard(const problem::base &prob = problem::ackley(), const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), unsigned int seed = 0, unsigned int pop_size = 100);
+		standard(const std::vector<problem::base_ptr> &probs = std::vector<problem::base_ptr>(), const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), unsigned int seed = 0, unsigned int pop_size = 100);
 
 	protected:
 		//copy constructor
@@ -44,10 +44,14 @@ class standard : public problem::base_stochastic
 		{
 			ar & boost::serialization::base_object<base_stochastic>(*this);
 			ar & m_algos;
+			ar & m_probs;
+			ar & m_pop_size;
 		}
 
+		void setup(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos);
+
 		std::vector<algorithm::base_ptr> m_algos;
-		problem::base_ptr m_prob;
+		std::vector<problem::base_ptr> m_probs;
 		unsigned int m_pop_size;
 };
 
@@ -65,12 +69,46 @@ class standard : public problem::base_stochastic
  * @param[in] seed Seed to be used internally as a stochastic problem
  * @param[in] pop_size Size of the population to be evolved
  *
+ * @throws value_error if there are incompatible problems in the supplied set. All the problems need to have the same fitness and constraint dimension.
+ *
  */
-standard::standard(const problem::base &prob, const std::vector<algorithm::base_ptr> &algos, unsigned int seed, unsigned int pop_size): base_stochastic(1, 1, prob.get_f_dimension(), prob.get_c_dimension(), prob.get_ic_dimension(), 0, seed), m_prob(prob.clone()), m_pop_size(pop_size)
+standard::standard(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos, unsigned int seed, unsigned int pop_size): base_stochastic(1, 1, probs.front()->get_f_dimension(), probs.front()->get_c_dimension(), probs.front()->get_ic_dimension(), 0, seed), m_pop_size(pop_size)
 {
+	setup(probs, algos);
+}
+
+/// Set up the internal structures of target problem and algorithm sets
+/**
+ * Check the sanity of the supplied problems. All fitness and constraint
+ * dimensions have to be the same across all the problems. This is one of the
+ * assumption made in the current implementation of race_algo.
+ */
+void standard::setup(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos)
+{
+	// Sanity check on the algos and probs
+	if(algos.size() == 0){
+		pagmo_throw(value_error, "Empty algorithm set in race_algo");
+	}
+	problem::base::f_size_type fdim = probs[0]->get_f_dimension();
+	problem::base::c_size_type cdim = probs[0]->get_c_dimension();
+	for(unsigned int i = 1; i < probs.size(); i++){
+		if(probs[i]->get_f_dimension() != fdim){
+			pagmo_throw(value_error, "Incompatible fitness dimension among the problems");
+		}
+		if(probs[i]->get_c_dimension() != cdim){
+			pagmo_throw(value_error, "Incompatible constraint dimension among the problems");
+		}
+	}
+	
+	// Take snapshots of the supplied algos and problems
 	for(unsigned int i = 0; i < algos.size(); i++){
 		m_algos.push_back(algos[i]->clone());
 	}
+	for(unsigned int i = 0; i < probs.size(); i++){
+		m_probs.push_back(probs[i]->clone());
+	}
+	
+	// Set bounds. Decision variable is simply the index of the selected algorithm
 	set_bounds(0, m_algos.size()-1);
 }
 
@@ -81,7 +119,7 @@ standard::standard(const standard &standard_copy):
 			standard_copy.get_c_dimension(),
 			standard_copy.get_ic_dimension(), 0, standard_copy.m_seed),
 	m_algos(standard_copy.m_algos),
-	m_prob(standard_copy.m_prob),
+	m_probs(standard_copy.m_probs),
 	m_pop_size(standard_copy.m_pop_size)
 {
 	set_bounds(standard_copy.get_lb(), standard_copy.get_ub());
@@ -104,13 +142,25 @@ void standard::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	if(x[0] < 0 || x[0] >= m_algos.size()){
 		pagmo_throw(value_error, "Out of bound algorithm index");
 	}
+
 	// Seeding control
 	for(unsigned int i = 0; i < m_algos.size(); i++){
 		m_algos[i]->reset_rngs(m_seed);
 	}
+	m_drng.seed(m_seed);
+
+	// Randomly sample a problem if required
+	unsigned int prob_idx;
+	if(m_probs.size() == 1){
+		prob_idx = 0;
+	}
+	else{
+		prob_idx = (unsigned int)(m_drng() * 100000) % m_probs.size();
+	}
+
 	// Fitness defined as the quality of the champion in the evolved
 	// population, evolved by the selected algorithm
-	population pop(*m_prob, m_pop_size, m_seed);
+	population pop(*m_probs[prob_idx], m_pop_size, m_seed);
 	m_algos[x[0]]->evolve(pop);
 	f = pop.champion().f;
 }
@@ -126,18 +176,39 @@ void standard::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 /// Constructor of the racing mechanism for algorithms
 /**
+ * Construct for a single problem
+ *
  * @param[in] algos The set of algorithms to be raced
  * @param[in] prob The problem to be considered
  * @param[in] The size of the population that the algorithms will be evolving
  * @param[in] seed Seed to be used in racing mechanisms
  */
-race_algo::race_algo(const std::vector<algorithm::base_ptr> &algos, const problem::base &prob, unsigned int pop_size, unsigned int seed): m_prob(prob.clone()), m_pop_size(pop_size), m_seed(seed)
+race_algo::race_algo(const std::vector<algorithm::base_ptr> &algos, const problem::base &prob, unsigned int pop_size, unsigned int seed): m_pop_size(pop_size), m_seed(seed)
 {
 	for(unsigned int i = 0; i < algos.size(); i++){
 		m_algos.push_back(algos[i]->clone());
 	}
+	m_probs.push_back(prob.clone());
 }
 
+/// Constructor of the racing mechanism for algorithms
+/**
+ * Construct for a set of problems
+ *
+ * @param[in] algos The set of algorithms to be raced
+ * @param[in] probs The set of problems to be considered
+ * @param[in] The size of the population that the algorithms will be evolving
+ * @param[in] seed Seed to be used in racing mechanisms
+ */
+race_algo::race_algo(const std::vector<algorithm::base_ptr> &algos, const std::vector<problem::base_ptr> &probs, unsigned int pop_size, unsigned int seed): m_pop_size(pop_size), m_seed(seed)
+{
+	for(unsigned int i = 0; i < algos.size(); i++){
+		m_algos.push_back(algos[i]->clone());
+	}
+	for(unsigned int i = 0; i < probs.size(); i++){
+		m_probs.push_back(probs[i]->clone());
+	}
+}
 
 /// Juice of racing mechanisms for algorithms
 /**
@@ -176,7 +247,7 @@ std::pair<std::vector<unsigned int>, unsigned int> race_algo::run(
 
 	// Construct an internal population, such that the winners of the race in
 	// this population corresponds to the winning algorithm
-	metrics_algos::standard metrics(*m_prob, m_algos, m_seed, m_pop_size);
+	metrics_algos::standard metrics(m_probs, m_algos, m_seed, m_pop_size);
 	population algos_pop(metrics);
 	for(unsigned int i = 0; i < m_algos.size(); i++){
 		decision_vector algo_idx(1);

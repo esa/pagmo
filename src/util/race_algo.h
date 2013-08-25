@@ -46,6 +46,7 @@ class __PAGMO_VISIBLE race_algo
 {
 	public:
 		race_algo(const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), const problem::base &prob = problem::ackley(), unsigned int pop_size = 100, unsigned int seed = 0);
+		race_algo(const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), const std::vector<problem::base_ptr> &prob = std::vector<problem::base_ptr>(), unsigned int pop_size = 100, unsigned int seed = 0);
 
 		// Main method containing all the juice
 		std::pair<std::vector<unsigned int>, unsigned int> run(
@@ -60,8 +61,7 @@ class __PAGMO_VISIBLE race_algo
 
 	private:	
 		std::vector<algorithm::base_ptr> m_algos;
-		// TODO: How to generalize this?
-		problem::base_ptr m_prob;
+		std::vector<problem::base_ptr> m_probs;
 		unsigned int m_pop_size;
 		unsigned int m_seed;
 };

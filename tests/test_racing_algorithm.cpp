@@ -94,6 +94,63 @@ int varied_n_gen(const problem::base& prob, unsigned int n_winner)
 	return 0;
 }
 
+// Same as above but test on multiple problems
+int varied_n_gen(const std::vector<problem::base_ptr> &probs, unsigned int n_winner)
+{
+	std::vector<algorithm::base_ptr> algos;
+	unsigned int gen_interval = 50;
+	unsigned int num_instances = 5;
+
+	std::cout << "Testing on multiple problems  (" << probs.size() << " of them), n_winner = " << n_winner << std::endl;
+
+	for(unsigned int i = 1; i <= num_instances - 1; i++){
+		algos.push_back(algorithm::base_ptr(new algorithm::pso_generational(i * gen_interval, 0.7298, 2.05, 2.05, 0.5, 1, 2, 4)));
+	}
+	// Create a super-algo so that when n_winner == 1 test passes faster
+	algos.push_back(algorithm::base_ptr(new algorithm::pso_generational(500, 0.7298, 2.05, 2.05, 0.5, 1, 2, 4)));
+
+	unsigned int pop_size = 50;
+
+	util::racing::race_algo race_dev(algos, probs, pop_size);
+	
+	std::pair<std::vector<unsigned int>, unsigned int> res = race_dev.run(n_winner, 1, 500, 0.05, std::vector<unsigned int>(), true, true);
+	std::vector<unsigned int> winners = res.first;	
+
+	if(winners.size() != n_winner){
+		std::cout << "\tError in size of winner list!" << std::endl;
+		return 1;
+	}
+
+	// Check if all the expected winners are in place
+
+	std::vector<bool> found(num_instances, false);
+
+	for(unsigned int i = 0; i < n_winner; i++){
+		if(winners[i] >= num_instances){
+			std::cout << "\tError in winner index!" << std::endl;
+			return 1;
+		}
+		found[winners[i]] = true;
+	}
+
+	// Only those with large gen_num should win
+	for(unsigned int i = 0; i < num_instances; i++){
+		if(i < (num_instances - n_winner) && found[i]){
+			std::cout << "\tAlgo[" << i << "] found to be winner, but it is not!" << std::endl;
+			return 1;
+		}
+		if(i >= (num_instances - n_winner) && !found[i]){
+			std::cout << "\tAlgo[" << i << "] found not to be winner, but it is!" << std::endl;
+			return 1;
+		}
+	}
+
+	std::cout << "Test passed [varied_n_gen on multiple problems]" << std::endl;
+	return 0;
+}
+
+
+
 /*
 // TODO: Find out offline which variant works best and verify in this test?
 int varied_pso_variant(const problem::base_ptr& prob)
@@ -113,7 +170,15 @@ int main()
 {
 	int dimension = 10;
 	problem::ackley prob(dimension);
+	problem::ackley prob2(dimension*2);
+	problem::ackley prob3(dimension*3);
+	std::vector<problem::base_ptr> prob_list;	
+	prob_list.push_back(prob.clone());
+	prob_list.push_back(prob2.clone());
+	prob_list.push_back(prob3.clone());
 	return
 		varied_n_gen(prob, 1) || 
-		varied_n_gen(prob, 2);
+		varied_n_gen(prob, 2) ||
+		varied_n_gen(prob_list, 1) ||
+		varied_n_gen(prob_list, 2);
 }
