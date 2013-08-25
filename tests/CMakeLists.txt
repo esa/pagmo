@@ -34,6 +34,10 @@ ADD_EXECUTABLE(test_racing test_racing.cpp)
 TARGET_LINK_LIBRARIES(test_racing pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(test_racing test_racing)
 
+ADD_EXECUTABLE(test_racing_algorithm test_racing_algorithm.cpp)
+TARGET_LINK_LIBRARIES(test_racing_algorithm pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(test_racing_algorithm test_racing_algorithm)
+
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)
 	TARGET_LINK_LIBRARIES(mpi_torture_test ${MANDATORY_LIBRARIES} pagmo_static)
