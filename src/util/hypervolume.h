@@ -35,6 +35,7 @@
 #include "hv_algorithm/wfg.h"
 #include "hv_algorithm/bf_approx.h"
 #include "hv_algorithm/hoy.h"
+#include "hv_algorithm/hv4d.h"
 
 namespace pagmo { namespace util {
 
