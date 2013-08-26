@@ -390,6 +390,16 @@ std::string nspso::human_readable_extra() const
 	s << "CHI:" << m_CHI << ' ';
 	s << "v_coeff:" << m_v_coeff << ' ';
 	s << "leader_selection_range:" << m_leader_selection_range << ' ';
+	s << "diversity_mechanism: ";
+	switch (m_diversity_mechanism)
+	{
+		case CROWDING_DISTANCE : s << "CROWDING_DISTANCE" << ' ';
+			break;
+		case NICHE_COUNT : s << "NICHE_COUNT" << ' ';
+			break;
+		case MAXMIN : s << "MAXMIN" << ' ';
+			break;
+	}
 	return s.str();
 }
 
