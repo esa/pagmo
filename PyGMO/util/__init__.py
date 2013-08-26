@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import *
-from _util.hv_algorithm import native2d, beume3d, wfg, bf_approx, hoy
+from _util.hv_algorithm import native2d, beume3d, hv4d, wfg, bf_approx, hoy
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -9,7 +9,8 @@ hv_algorithm.__doc__ = """Module containing available algorithms for the hypervo
 
 	USAGE:
 		hv_algorithm.native2d()
-		hv_algorithm.beume3d
+		hv_algorithm.beume3d()
+		hv_algorithm.hv4d()
 		hv_algorithm.wfg()
 		hv_algorithm.bf_approx()
 		hv_algorithm.hoy()
@@ -40,7 +41,7 @@ class HypervolumeValidation:
 	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
 	# types of hypervolume algorithms
-	types_hv_algo = (native2d, beume3d, wfg, bf_approx, hoy)
+	types_hv_algo = (native2d, beume3d, hv4d, wfg, bf_approx, hoy)
 
 	# allowed types for the refernce point
 	types_rp = (list, tuple,)
@@ -308,6 +309,26 @@ def _beume3d_ctor(self):
 	return self._original_init()
 beume3d._original_init = beume3d.__init__
 beume3d.__init__ = _beume3d_ctor
+
+def _hv4d_ctor(self):
+	"""
+	Hypervolume algorithm: HV4d.
+	Computational complexity: O(n^2)
+	Applicable to hypervolume computation problems of dimension=4
+
+	REF: Andreia P. Guerreiro, Carlos M. Fonseca, Michael T. Emmerich, "A Fast Dimension-Sweep Algorithm for the Hypervolume Indicator in Four Dimensions",
+	CCCG 2012, Charlottetown, P.E.I., August 8–10, 2012.
+
+	USAGE:
+		hv = hypervolume(...) # see 'hypervolume?' for usage
+		refpoint = [1.0]*4
+		hv.compute(r=refpoint, algorithm=hv_algorithm.hv4d())
+		hv.exclusive(p_idx=13, r=refpoint, algorithm=hv_algorithm.hv4d())
+		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hv4d())
+	"""
+	return self._original_init()
+hv4d._original_init = hv4d.__init__
+hv4d.__init__ = _hv4d_ctor
 
 def _hoy_ctor(self):
 	"""

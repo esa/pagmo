@@ -201,10 +201,23 @@ class HVNadirPointTest(unittest.TestCase):
 		self.assertRaises(TypeError, self.hv2d.get_nadir_point, epsilon=1.0)  # bad kwarg name
 
 class HVAlgorithms(unittest.TestCase):
+	def setUp(self):
+		self.ps4d_0 = [[1.,]*4,]
+		self.ps3d_0 = [[1.,]*3,]
+		self.r4d_0 = [2,]*4
+		self.r3d_0 = [2,]*3
 
 	def test_wfg(self):
 		self.assertRaises(ValueError, hv_algorithm.wfg, stop_dimension = 0) # stop_dimension = 0
 		self.assertRaises(ValueError, hv_algorithm.wfg, stop_dimension = 1) # stop_dimension = 1
+	def test_hv4d(self):
+		hv3d = hypervolume(self.ps3d_0)
+		hv4d = hypervolume(self.ps4d_0)
+
+		self.assertEqual(1.0, hv4d.compute(self.r4d_0, algorithm=hv_algorithm.hv4d()))
+		self.assertRaises(ValueError, hv3d.compute, r=self.r3d_0, algorithm=hv_algorithm.hv4d())
+		self.assertRaises(ValueError, hv3d.compute, r=self.r4d_0, algorithm=hv_algorithm.hv4d())
+		self.assertRaises(ValueError, hv4d.compute, r=self.r3d_0, algorithm=hv_algorithm.hv4d())
 
 def get_hv_suite():
 	suite = unittest.TestSuite()
