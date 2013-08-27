@@ -92,6 +92,7 @@ void expose_hv_algorithm() {
 	class_<util::hv_algorithm::wfg, bases<util::hv_algorithm::base> >("wfg","WFG algorithm.", init<const unsigned int>());
 	class_<util::hv_algorithm::bf_approx, bases<util::hv_algorithm::base> >("bf_approx","Bringmann-Friedrich approximated algorithm.", 
 			init<const bool, const unsigned int, const double, const double, const double, const double, const double, const double>());
+	class_<util::hv_algorithm::bf_fpras, bases<util::hv_algorithm::base> >("bf_fpras","Hypervolume approximation based on FPRAS", init<const double, const double>());
 }
 
 void expose_hypervolume() {

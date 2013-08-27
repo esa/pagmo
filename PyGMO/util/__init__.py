@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import *
-from _util.hv_algorithm import native2d, beume3d, hv4d, wfg, bf_approx, hoy
+from _util.hv_algorithm import native2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -13,6 +13,7 @@ hv_algorithm.__doc__ = """Module containing available algorithms for the hypervo
 		hv_algorithm.hv4d()
 		hv_algorithm.wfg()
 		hv_algorithm.bf_approx()
+		hv_algorithm.bf_fpras()
 		hv_algorithm.hoy()
 """
 
@@ -41,7 +42,7 @@ class HypervolumeValidation:
 	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
 	# types of hypervolume algorithms
-	types_hv_algo = (native2d, beume3d, hv4d, wfg, bf_approx, hoy)
+	types_hv_algo = (native2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy)
 
 	# allowed types for the refernce point
 	types_rp = (list, tuple,)
@@ -407,3 +408,28 @@ def _bf_approx_ctor(self, use_exact = True, trivial_subcase_size = 1, eps = 1e-1
 	return self._original_init(*args)
 bf_approx._original_init = bf_approx.__init__
 bf_approx.__init__ = _bf_approx_ctor
+
+def _bf_fpras_ctor(self, eps = 1e-2, delta = 1e-2):
+	"""
+	Hypervolume algorithm: Bringmann-Friedrich approximation.
+
+	Default values for the parameters of the algorithm were obtained from the shark implementation of the algorithm:
+		http://image.diku.dk/shark/doxygen_pages/html/_least_contributor_approximator_8hpp_source.html
+
+	REF: "Approximating the volume of unions and intersections of high-dimensional geometric objects", Karl Bringmann, Tobias Friedrich.
+
+	USAGE:
+		* eps - accuracy of approximation
+		* delta - confidence of approximation
+
+		hv = hypervolume(...) # see 'hypervolume?' for usage
+		refpoint = [1.0]*7
+		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.bf_fpras())
+	"""
+
+	args = []
+	args.append(eps)
+	args.append(delta)
+	return self._original_init(*args)
+bf_fpras._original_init = bf_fpras.__init__
+bf_fpras.__init__ = _bf_fpras_ctor

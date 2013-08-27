@@ -64,6 +64,8 @@ class hypervolume_test {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::wfg());
 			} else if (method_name == "bf_approx") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_approx());
+			} else if (method_name == "bf_fpras") {
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_fpras());
 			} else if (method_name == "hoy") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hoy());
 			} else if (method_name == "hv4d") {
@@ -89,7 +91,7 @@ class hypervolume_test {
 					if (fabs(hypvol-m_hv_ans) < m_eps) {
 						++OK_counter;
 					} else {
-						m_output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << m_hv_ans;
+						m_output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << m_hv_ans << " (abs error: " << fabs(hypvol-m_hv_ans) << ")";
 					}
 
 				} else if (m_test_type == "exclusive") {
@@ -98,7 +100,7 @@ class hypervolume_test {
 					if (fabs(hypvol-m_hv_ans) < m_eps) {
 						++OK_counter;
 					} else {
-						m_output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << m_hv_ans;
+						m_output << "\n Error in test " << t << ". Got: " << hypvol << ", Expected: " << m_hv_ans << " (abs error: " << fabs(hypvol-m_hv_ans) << ")";
 					}
 
 				} else if (m_test_type == "least_contributor") {
@@ -107,7 +109,7 @@ class hypervolume_test {
 					if (point_idx == m_idx_ans) {
 						++OK_counter;
 					} else {
-						m_output << "\n Error in test " << t << ". Got: " << point_idx << ", Expected: " << m_idx_ans;
+						m_output << "\n Error in test " << t << ". Got: " << point_idx << ", Expected: " << m_idx_ans ;
 					}
 
 				} else if (m_test_type == "greatest_contributor") {
