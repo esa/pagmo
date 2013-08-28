@@ -156,7 +156,7 @@ void nspso::evolve(population &pop) const
 		// of the current population and as velocity the current velocity
 		population nextPopList(pop);
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-			nextPopList.push_back(pop.get_individual(idx).cur_x);
+			nextPopList.push_back(pop.get_individual(idx).best_x);
 			nextPopList.set_v(idx+NP, pop.get_individual(idx).cur_v);
 		}
 
@@ -204,11 +204,33 @@ void nspso::evolve(population &pop) const
 			*/
 
 			//MY "GENERALIZATION" FOR HIGHER DIMENSIONS
-			double delta = 1;
+			/*double delta = 1;
 			for(unsigned int i=0; i<nadir.size(); ++i) {
 				delta *= nadir[i] - ideal[i];
 			}
 			delta = pow(delta, 1.0/nadir.size())/nonDomChromosomes.size();
+			*/
+
+			//Fonseca-Fleming setting for delta
+			double delta;
+			if (prob_f_dimension == 2) {
+				delta = ( (nadir[0] - ideal[0]) + (nadir[1] - ideal[1]) ) / (nonDomChromosomes.size()-1);
+			} else if (prob_f_dimension == 3) {
+				const double d1 = nadir[0] - ideal[0];
+				const double d2 = nadir[1] - ideal[1];
+				const double d3 = nadir[2] - ideal[2];
+				const double N = nonDomChromosomes.size();
+				delta = sqrt(4*d2*d1*N + 4*d3*d1*N + 4*d2*d3*N + pow(d1,2) + pow(d2,2) + pow(d3,2)
+							 - 2*d2*d1 - 2*d3*d1 - 2*d2*d3 + d1 + d2 + d3) / (2*(N-1));
+			} else { //for higher dimension we just divide equally the entire volume containing the pareto front
+				for(unsigned int i=0; i<nadir.size(); ++i) {
+					delta *= nadir[i] - ideal[i];
+				}
+				delta = pow(delta, 1.0/nadir.size())/nonDomChromosomes.size();
+			}
+			std::cout << "Non dominated size: " << nonDomChromosomes.size() << std::endl;
+			std::cout << "delta: " << delta << std::endl;
+
 
 			std::vector<int> count(nonDomChromosomes.size(),0);
 			compute_niche_count(count, nonDomChromosomes, delta);

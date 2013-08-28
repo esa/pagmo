@@ -40,6 +40,7 @@ namespace pagmo { namespace algorithm {
  * @author Annalisa Riccardi (nina1983@gmail.com)
  *
  * @see "Xiaodong Li - A Non-dominated Sorting Particle Swarm Optimizer for Multiobjective Optimization"
+ * @see "Carlos M. Fonseca, Peter J. Fleming - Genetic Algorithms for Multiobjective Optimization: Formulation, Discussion and Generalization"
  **/
 
 class __PAGMO_VISIBLE nspso: public base
