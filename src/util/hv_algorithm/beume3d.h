@@ -54,7 +54,10 @@ class __PAGMO_VISIBLE beume3d : public base {
 
 		beume3d(const beume3d &orig);
 		beume3d(bool initial_sorting = true);
+
 		double compute(std::vector<fitness_vector> &, const fitness_vector &);
+		unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		base_ptr clone() const;
 		std::string get_name() const;
@@ -62,6 +65,19 @@ class __PAGMO_VISIBLE beume3d : public base {
 	private:
 		// flag stating whether the points should be sorted in the first step of the algorithm
 		const bool m_initial_sorting;
+
+		struct box3d {
+			box3d(double _lx, double _ly, double _lz, double _ux, double _uy, double _uz)
+				: lx(_lx), ly(_ly), lz(_lz), ux(_ux), uy(_uy), uz(_uz) { }
+			double lx;
+			double ly;
+			double lz;
+			double ux;
+			double uy;
+			double uz;
+		};
+
+		double volume(box3d &b);
 
 		friend class boost::serialization::access;
 		template <class Archive>

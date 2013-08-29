@@ -95,6 +95,166 @@ double beume3d::compute(std::vector<fitness_vector> &points, const fitness_vecto
 	return V;
 }
 
+struct multiset_cmp {
+	bool operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b) {
+		return a.first[0] > b.first[0];
+	}
+};
+
+double beume3d::volume(box3d &b) {
+	return fabs((b.ux - b.lx) * (b.uy - b.ly) * (b.uz - b.lz));
+}
+
+bool sort_pairs(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
+	return a.first[2] < b.first[2];
+}
+
+/// least_contributor method
+/**
+ * This method overloads the virtual method in pagmo::util::hv_algorithm::base.
+ * This is the implementation of the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
+ *
+ * @see "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
+ *
+ * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
+ *
+ * @return index of the least contributor.
+ */
+unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+	std::vector<std::pair<fitness_vector, unsigned int> > point_pairs;
+	point_pairs.reserve(points.size());
+	for(unsigned int i = 0 ; i < points.size() ; ++i) {
+		point_pairs.push_back(std::make_pair(points[i], i));
+	}
+	sort(point_pairs.begin(), point_pairs.end(), sort_pairs);
+	for(unsigned int i = 0 ; i < points.size() ; ++i) {
+		points[i] = point_pairs[i].first;
+	}
+
+	typedef std::multiset<std::pair<fitness_vector, int>, multiset_cmp > tree_t;
+
+	unsigned int n = points.size();
+	const double INF = std::numeric_limits<double>::max();
+
+	// Placeholder value for undefined lower z value.
+	const double NaN = INF;
+
+	// Contributions
+	std::vector<double> c(n, 0.0);
+
+	// Sentinel points
+	fitness_vector s_x(3, -INF); s_x[0] = r_point[0]; // (r,oo,oo)
+	fitness_vector s_y(3, -INF); s_y[1] = r_point[1]; // (oo,r,oo)
+	fitness_vector s_z(3, -INF); s_z[2] = r_point[2]; // (oo,oo,r)
+
+	points.push_back(s_z); // points[n]
+	points.push_back(s_x); // points[n + 1]
+	points.push_back(s_y); // points[n + 2]
+
+	tree_t T;
+	T.insert(std::make_pair(points[0], 0));
+	T.insert(std::make_pair(s_x, n + 1));
+	T.insert(std::make_pair(s_y, n + 2));
+
+	// Boxes
+	std::vector<std::deque<box3d> > L(n + 3);
+
+	box3d b(r_point[0], r_point[1], NaN, points[0][0], points[0][1], points[0][2]);
+	L[0].push_front(b);
+
+	for (unsigned int i = 1 ; i < n + 1 ; ++i) {
+		std::pair<fitness_vector, int> pi(points[i], i);
+
+		tree_t::iterator it = T.lower_bound(pi);
+
+		// Point is dominated
+		if (points[i][1] >= (*it).first[1]) {
+			continue;
+		}
+
+		tree_t::reverse_iterator r_it(it);
+
+		std::vector<int> d;
+
+		while((*r_it).first[1] > points[i][1]) {
+			d.push_back((*r_it).second);
+			++r_it;
+		}
+		tree_t::iterator erase_begin = r_it.base();
+		tree_t::iterator erase_end(it);
+
+		T.erase(erase_begin, erase_end);
+
+		int r = (*it).second;
+		int t = (*r_it).second;
+
+		// Process right neighbor region, region R
+		while(!L[r].empty()) {
+			box3d& b = L[r].front();
+			if(b.ux >= points[i][0]) {
+				b.lz = points[i][2];
+				c[r] += volume(b);
+				L[r].pop_front();
+			} else if(b.lx > points[i][0]) {
+				b.lz = points[i][2];
+				c[r] += volume(b);
+				b.lx = points[i][0];
+				b.uz = points[i][2];
+				b.lz = NaN;
+				break;
+			} else {
+				break;
+			}
+		}
+
+		// Process dominated points, region M
+		double xleft = points[t][0];
+		std::vector<int>::reverse_iterator r_it_idx = d.rbegin();
+		std::vector<int>::reverse_iterator r_it_idx_e = d.rend();
+		for(;r_it_idx != r_it_idx_e ; ++r_it_idx) {
+			int jdom = *r_it_idx;
+			while(!L[jdom].empty()) {
+				box3d& b = L[jdom].front();
+				b.lz = points[i][2];
+				c[jdom] += volume(b);
+				L[jdom].pop_front();
+			}
+			L[i].push_back(box3d(xleft, points[jdom][1], NaN, points[jdom][0], points[i][1], points[i][2]));
+			xleft = points[jdom][0];
+		}
+		L[i].push_back(box3d(xleft, points[r][1], NaN, points[i][0], points[i][1], points[i][2]));
+		xleft = points[t][0];
+
+		// Process left neighbor region, region L
+		while(!L[t].empty()) {
+			box3d &b = L[t].back();
+			if(b.ly > points[i][1]) {
+				b.lz = points[i][2];
+				c[t] += volume(b);
+				xleft = b.lx;
+				L[t].pop_back();
+			} else {
+				break;
+			}
+		}
+		if (xleft > points[t][0]) {
+			L[t].push_back(box3d(xleft, points[i][1], NaN, points[t][0], points[t][1], points[i][2]));
+		}
+		T.insert(std::make_pair(points[i], i));
+	}
+
+	unsigned int min_i = 0;
+	double min_c = c[min_i];
+	for(unsigned int i = 1 ; i < n ; ++i) {
+		if ( c[i] < min_c) {
+			min_i = i;
+			min_c = c[i];
+		}
+	}
+
+	return point_pairs[min_i].second;
+}
 
 // verify_before_compute
 /**
