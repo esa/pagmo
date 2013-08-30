@@ -174,8 +174,8 @@ double wfg::compute_hv(double** points, const unsigned int n_points, const unsig
 	if (m_current_slice == m_stop_dimension) {
 
 		if (m_stop_dimension == 2) {
-			// Use a very efficient version of native2d.
-			return native2d().compute(points, n_points, m_refpoint);
+			// Use a very efficient version of hv2d
+			return hv2d().compute(points, n_points, m_refpoint);
 		} else {
 			// Let hypervolume object pick the best method otherwise.
 

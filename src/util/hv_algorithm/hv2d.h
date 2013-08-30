@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HV_ALGORITHM_NATIVE2D_H
-#define PAGMO_UTIL_HV_ALGORITHM_NATIVE2D_H
+#ifndef PAGMO_UTIL_HV_ALGORITHM_HV2D_H
+#define PAGMO_UTIL_HV_ALGORITHM_HV2D_H
 
 #include <iostream>
 #include <vector>
@@ -34,16 +34,16 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// Native2D hypervolume algorithm class
+/// Hv2D hypervolume algorithm class
 /**
- * This is the class containing the implementation of the native2d algorithm for computing hypervolume.
+ * This is the class containing the implementation of the hypervolume algorithm for the 2-dimensional fronts.
  * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then computing the partial areas linearly.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE native2d : public base {
+class __PAGMO_VISIBLE hv2d : public base {
 	public:
-		native2d(const bool initial_sorting = true);
+		hv2d(const bool initial_sorting = true);
 
 		double compute(std::vector<fitness_vector> &, const fitness_vector &);
 		double compute(double**, unsigned int n_points, double*);
@@ -55,12 +55,10 @@ class __PAGMO_VISIBLE native2d : public base {
 		std::string get_name() const;
 
 	private:
-		// flag stating whether the points should be sorted in the first step of the algorithm
+		// Flag stating whether the points should be sorted in the first step of the algorithm.
 		const bool m_initial_sorting;
 
-		// comparison function for arrays of double
 		static bool cmp_double_2d(double*, double*);
-
 		unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
 
 		friend class boost::serialization::access;
@@ -74,6 +72,6 @@ class __PAGMO_VISIBLE native2d : public base {
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::native2d);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv2d);
 
 #endif

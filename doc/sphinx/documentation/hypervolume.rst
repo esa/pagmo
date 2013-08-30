@@ -56,8 +56,8 @@ Available Hypervolume algorithms
 ================================== ======================================== ===================================================================
 Common Name                        Name in PyGMO                            Comments
 ================================== ======================================== ===================================================================
-Native2D                           :class:`PyGMO.hv_algorithm.native2d`     Algorithm for optimal computation of 2D hypervolumes.
-Beume3D                            :class:`PyGMO.hv_algorithm.beume3d`      Algorithm for optimal computation of 3D hypervolumes.
+hv2d                               :class:`PyGMO.hv_algorithm.hv2d`         Algorithm for optimal computation of 2d hypervolumes.
+Beume3D                            :class:`PyGMO.hv_algorithm.beume3d`      Algorithm for optimal computation of 3d hypervolumes.
 WFG                                :class:`PyGMO.hv_algorithm.wfg`          General algorithm for any dimension.
 Bringmann-Friedrich approximation  :class:`PyGMO.hv_algorithm.bf_approx`    Approximated algorithm for any size of dimension.
 ================================== ======================================== ===================================================================
@@ -100,7 +100,7 @@ Detailed Documentation
       Computes the hypervolume for given problem, using the provided reference point r.
       Keyword `algorithm` must be an instance of algorithms that can be found inside `PyGMO.hv_algorithm` module.
       If the keyword is not provided, PyGMO chooses one automatically using the information about the reference point.
-      In case of 2 and 3 dimensions, methods Native2D and Beume3D are used.
+      In case of 2 and 3 dimensions, algorithms hv2d and Beume3D are used.
       For larger dimensions the default method is the LebMeasure.
       As of yet, it is required that reference point is numerically no lesser by each dimension than any point from the previously constructed set of points.
 
@@ -143,13 +143,13 @@ Detailed Documentation
 
          hv.least_contributor(r=[5.0]*3, algorithm=hv_algorithm.bf_approx())
 
-.. class:: PyGMO.hv_algorithm.native2d()
+.. class:: PyGMO.hv_algorithm.hv2d()
 
     This is the optimal algorithm the 2 dimensional problems.
 
    .. method:: __init__()
 
-      Creates an instance of `PyGMO.hv_algorithm.native2d` class that serves as a parameter to the hypervolume object.
+      Creates an instance of `PyGMO.hv_algorithm.hv2d` class that serves as a parameter to the hypervolume object.
 
 .. class:: PyGMO.hv_algorithm.beume3d()
 

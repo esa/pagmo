@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import *
-from _util.hv_algorithm import native2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy
+from _util.hv_algorithm import hv2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -8,7 +8,7 @@ __all__ = ['hypervolume', 'hv_algorithm']
 hv_algorithm.__doc__ = """Module containing available algorithms for the hypervolume computation
 
 	USAGE:
-		hv_algorithm.native2d()
+		hv_algorithm.hv2d()
 		hv_algorithm.beume3d()
 		hv_algorithm.hv4d()
 		hv_algorithm.wfg()
@@ -42,7 +42,7 @@ class HypervolumeValidation:
 	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
 	# types of hypervolume algorithms
-	types_hv_algo = (native2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy)
+	types_hv_algo = (hv2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy)
 
 	# allowed types for the refernce point
 	types_rp = (list, tuple,)
@@ -115,7 +115,7 @@ def _hypervolume_compute(self, r = None, algorithm = None, *args, **kwargs):
 	USAGE:
 		hv.compute()
 		hv.compute(r=[5.0]*2)
-		hv.compute(r=[5.0]*2, algorithm = hv_algorithm.native2d())
+		hv.compute(r=[5.0]*2, algorithm = hv_algorithm.hv2d())
 		* r - reference point used for computation
 		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default.
 	"""
@@ -141,7 +141,7 @@ def _hypervolume_exclusive(self, p_idx = None, r = None, algorithm = None, *args
 	USAGE:
 		hv.exclusive(p_idx=0)
 		hv.exclusive(p_idx=0, r=[5.0]*2)
-		hv.exclusive(p_idx=0, r=[5.0]*2, algorithm=hv_algorithm.native2d())
+		hv.exclusive(p_idx=0, r=[5.0]*2, algorithm=hv_algorithm.hv2d())
 		* p_idx - index of the point
 		* r - reference point used for computation
 		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
@@ -272,9 +272,9 @@ def _hypervolume_set_verify(self, b):
 hypervolume._original_set_verify = hypervolume.set_verify
 hypervolume.set_verify = _hypervolume_set_verify
 
-def _native2d_ctor(self):
+def _hv2d_ctor(self):
 	"""
-	Hypervolume algorithm: Native2D.
+	Hypervolume algorithm: hv2d.
 	Points are initially sorted by one dimension, after which the partial areas are summed linearly.
 	Computational complexity: O(n*logn)
 	Applicable to hypervolume computation problems of dimension=2
@@ -282,13 +282,13 @@ def _native2d_ctor(self):
 	USAGE:
 		hv = hypervolume(...) # see 'hypervolume?' for usage
 		refpoint=[1.0]*2
-		hv.compute(r=refpoint, algorithm=hv_algorithm.native2d())
-		hv.exclusive(p_idx=13, refpoint, algorithm=hv_algorithm.native2d())
-		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.native2d())
+		hv.compute(r=refpoint, algorithm=hv_algorithm.hv2d())
+		hv.exclusive(p_idx=13, refpoint, algorithm=hv_algorithm.hv2d())
+		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hv2d())
 	"""
 	return self._original_init()
-native2d._original_init = native2d.__init__
-native2d.__init__ = _native2d_ctor
+hv2d._original_init = hv2d.__init__
+hv2d.__init__ = _hv2d_ctor
 
 def _beume3d_ctor(self):
 	"""

@@ -85,7 +85,7 @@ static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wra
 void expose_hv_algorithm() {
 	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
 		.def("get_name", &util::hv_algorithm::base::get_name);
-	algorithm_wrapper<util::hv_algorithm::native2d>("native2d","Native2D algorithm.");
+	algorithm_wrapper<util::hv_algorithm::hv2d>("hv2d","hv2d algorithm.");
 	algorithm_wrapper<util::hv_algorithm::beume3d>("beume3d","Beume3D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::hv4d>("hv4d","HV4D algorithm.");
 	algorithm_wrapper<util::hv_algorithm::hoy>("hoy","HOY by Beume algorithm.");

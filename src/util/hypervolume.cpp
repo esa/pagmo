@@ -154,7 +154,7 @@ void hypervolume::verify_before_compute(const fitness_vector &r_point, hv_algori
 hv_algorithm::base_ptr hypervolume::get_best_method(const fitness_vector &r_point) const {
 	switch(r_point.size()) {
 		case 2:
-			return hv_algorithm::base_ptr(new hv_algorithm::native2d());
+			return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
 			break;
 		case 3:
 			return hv_algorithm::base_ptr(new hv_algorithm::beume3d());
@@ -331,9 +331,9 @@ unsigned int hypervolume::greatest_contributor(const fitness_vector &r_point) co
  */
 unsigned long long hypervolume::get_expected_operations(const unsigned int n, const unsigned int d) {
 	if (d == 2) {
-		return 2. * n * log(n);  // native2d
+		return 2. * n * log(n);  // hv2d
 	} else if (d == 3) {
-		return 3. * n * log(n);  // beume3d
+		return 3. * n * log(n);  // hv3d
 	} else {
 		return n * log(n) * pow(n,d/2);  // temporary complexity of hso, while we don't know good candiate for wfg yet
 	}

@@ -55,7 +55,7 @@ class HVComputeTest(unittest.TestCase):
 	def setUp(self):
 		self.hv2d = hypervolume([[3,1],[2,2],[1,3]])
 
-	def test_correct_out(self): 
+	def test_correct_out(self):
 		# simple 3D test
 		hv = hypervolume([[1,1,1],[2,2,2,]])
 		self.assertEqual(hv.compute(r = [3,3,3]), 8)
@@ -91,19 +91,19 @@ class HVComputeTest(unittest.TestCase):
 
 	def test_kwargs(self):
 		self.assertEqual(self.hv2d.compute(r=[3.5, 3.5]), 3.25)  # using kwarg 'r' correctly
-		self.assertEqual(self.hv2d.compute(r=[3.5, 3.5], algorithm=hv_algorithm.native2d()), 3.25)  # using kwargs 'r', 'algorithm' correctly
+		self.assertEqual(self.hv2d.compute(r=[3.5, 3.5], algorithm=hv_algorithm.hv2d()), 3.25)  # using kwargs 'r', 'algorithm' correctly
 	
 		self.assertRaises(TypeError, self.hv2d.compute, refpoint=[4, 4])  # bad kwarg for reference point
 		self.assertRaises(TypeError, self.hv2d.compute, r=[4, 4], foo="Something extra")  # we do not accept random kwargs
 		self.assertRaises(TypeError, self.hv2d.compute, [4, 4], foo="Something extra")  # we do not accept random kwargs (as above but with ref point as arg)
-		self.assertRaises(TypeError, self.hv2d.compute, [4, 4], hv_algorithm.native2d(), foo="Something extra")  # we do not accept random kwargs
+		self.assertRaises(TypeError, self.hv2d.compute, [4, 4], hv_algorithm.hv2d(), foo="Something extra")  # we do not accept random kwargs
 
 	def test_kwargs_hv_algo(self):
-		self.assertEqual(self.hv2d.compute(r=[4,4], algorithm=hv_algorithm.native2d()), 6)  # using kwargs correctly
-		self.assertEqual(self.hv2d.compute(algorithm=hv_algorithm.native2d(), r=[4,4]), 6)  # using kwargs in reversed order
-		self.assertEqual(self.hv2d.compute([4,4], algorithm=hv_algorithm.native2d()), 6)  # arg + kwarg
-		self.assertEqual(self.hv2d.compute([4,4], hv_algorithm.native2d()), 6)  # arg + arg
-		self.assertRaises(TypeError, self.hv2d.compute, algorithm=hv_algorithm.native2d())  # should use nadir point
+		self.assertEqual(self.hv2d.compute(r=[4,4], algorithm=hv_algorithm.hv2d()), 6)  # using kwargs correctly
+		self.assertEqual(self.hv2d.compute(algorithm=hv_algorithm.hv2d(), r=[4,4]), 6)  # using kwargs in reversed order
+		self.assertEqual(self.hv2d.compute([4,4], algorithm=hv_algorithm.hv2d()), 6)  # arg + kwarg
+		self.assertEqual(self.hv2d.compute([4,4], hv_algorithm.hv2d()), 6)  # arg + arg
+		self.assertRaises(TypeError, self.hv2d.compute, algorithm=hv_algorithm.hv2d())  # should use nadir point
 
 	def test_bad_algo(self):
 		self.assertRaises(ValueError, self.hv2d.compute, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
@@ -132,12 +132,12 @@ class HVLeastContribTest(unittest.TestCase):
 	
 	def test_kwargs(self):
 		self.assertEqual(self.hv2d_1.least_contributor(r=self.r), 1)  # using kwarg 'r' correctly
-		self.assertEqual(self.hv2d_1.least_contributor(r=self.r, algorithm=hv_algorithm.native2d()), 1)  # using kwarg 'r' and 'algorithm' correctly
+		self.assertEqual(self.hv2d_1.least_contributor(r=self.r, algorithm=hv_algorithm.hv2d()), 1)  # using kwarg 'r' and 'algorithm' correctly
 
 		self.assertRaises(TypeError, self.hv2d_0.least_contributor, refpoint=[4, 4])  # bad kwarg for reference point
 		self.assertRaises(TypeError, self.hv2d_0.least_contributor, r=[4, 4], foo="Something extra")  # we do not accept random kwargs
 		self.assertRaises(TypeError, self.hv2d_0.least_contributor, [4, 4], foo="Something extra")  # we do not accept random kwargs (as above but with ref point as arg)
-		self.assertRaises(TypeError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.native2d(), foo="Something extra")  # we do not accept random kwargs
+		self.assertRaises(TypeError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.hv2d(), foo="Something extra")  # we do not accept random kwargs
 
 	def test_bad_algo(self):
 		self.assertRaises(ValueError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
@@ -162,18 +162,18 @@ class HVExclusiveTest(unittest.TestCase):
 		self.assertEqual(self.hv2d.exclusive(0, r=self.r), 1)  # using kwarg 'r' correctly
 		self.assertEqual(self.hv2d.exclusive(p_idx=0, r=self.r), 1)  # using kwarg 'r' correctly
 
-		self.assertRaises(TypeError, self.hv2d.exclusive, p_idx=0, algorithm=hv_algorithm.native2d())  # no refpoint
-		self.assertEqual(self.hv2d.exclusive(0, self.r, hv_algorithm.native2d()), 1)  # all args
-		self.assertEqual(self.hv2d.exclusive(0, self.r, algorithm=hv_algorithm.native2d()), 1)  # last kwarg
-		self.assertEqual(self.hv2d.exclusive(p_idx=0, r=self.r, algorithm=hv_algorithm.native2d()), 1)  # all kwargs
-		self.assertEqual(self.hv2d.exclusive(algorithm=hv_algorithm.native2d(), r=self.r, p_idx=0), 1)  # all kwargs in reverse
+		self.assertRaises(TypeError, self.hv2d.exclusive, p_idx=0, algorithm=hv_algorithm.hv2d())  # no refpoint
+		self.assertEqual(self.hv2d.exclusive(0, self.r, hv_algorithm.hv2d()), 1)  # all args
+		self.assertEqual(self.hv2d.exclusive(0, self.r, algorithm=hv_algorithm.hv2d()), 1)  # last kwarg
+		self.assertEqual(self.hv2d.exclusive(p_idx=0, r=self.r, algorithm=hv_algorithm.hv2d()), 1)  # all kwargs
+		self.assertEqual(self.hv2d.exclusive(algorithm=hv_algorithm.hv2d(), r=self.r, p_idx=0), 1)  # all kwargs in reverse
 
 		self.assertRaises(TypeError, self.hv2d.exclusive, 0, refpoint=[4, 4])  # bad kwarg for reference point
 		self.assertRaises(TypeError, self.hv2d.exclusive, 0, r=[4, 4], foo="Something extra")  # we do not accept random kwargs
 		self.assertRaises(TypeError, self.hv2d.exclusive, 0, [4, 4], foo="Something extra")  # we do not accept random kwargs (as above but with ref point as arg)
-		self.assertRaises(TypeError, self.hv2d.exclusive, 0, [4, 4], hv_algorithm.native2d(), foo="Something extra")  # we do not accept random kwargs
-		self.assertRaises(TypeError, self.hv2d.exclusive, p_idx=0, r=self.r, algorithm=hv_algorithm.native2d(), foo="Something extra")
-		self.assertRaises(TypeError, self.hv2d.exclusive, r=self.r, algorithm=hv_algorithm.native2d()) # no p_idx 
+		self.assertRaises(TypeError, self.hv2d.exclusive, 0, [4, 4], hv_algorithm.hv2d(), foo="Something extra")  # we do not accept random kwargs
+		self.assertRaises(TypeError, self.hv2d.exclusive, p_idx=0, r=self.r, algorithm=hv_algorithm.hv2d(), foo="Something extra")
+		self.assertRaises(TypeError, self.hv2d.exclusive, r=self.r, algorithm=hv_algorithm.hv2d()) # no p_idx
 	
 	def test_p_idx(self):
 		self.assertRaises(TypeError, self.hv2d.exclusive, -1, self.r)  # negative idx
