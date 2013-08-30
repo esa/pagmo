@@ -237,6 +237,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.value("MAXMIN", algorithm::nspso::MAXMIN);
 	algorithm_wrapper<algorithm::nspso>("nspso", "Non-dominated Sorting Particle Swarm Optimizer")
 		.def(init<optional<int, double, double, double, double, double, double, int, algorithm::nspso::diversity_mechanism_type> >());
+	
+	//SPEA2
+	algorithm_wrapper<algorithm::spea2>("spea2", "Strength Pareto Evolutionary Algorithm 2")
+		.def(init<optional<int, double, double, double, double> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")

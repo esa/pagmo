@@ -408,6 +408,29 @@ def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 	nspso._orig_init = nspso.__init__
 	nspso.__init__ = _mopso_ctor
 
+def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50):
+	"""
+	Constructs a Strenght Pareto Evolutionary Algorithm 2
+	
+	USAGE: algorithm.spea2(gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50)
+
+	* gen: number of generations
+	* cr:
+	* eta_c
+	* m
+	* eta_m
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(eta_c)
+	arg_list.append(m)
+	arg_list.append(eta_m)
+	self._orig_init(*arg_list)
+	spea2._orig_init = spea2.__init__
+	spea2.__init__ = _spea2_ctor
+
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
 	Constructs Corana's Simulated Annealing

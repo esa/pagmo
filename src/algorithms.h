@@ -50,6 +50,7 @@
 #include "algorithm/nsga2.h"
 #include "algorithm/pade.h"
 #include "algorithm/nspso.h"
+#include "algorithm/spea2.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"
