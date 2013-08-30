@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HV_ALGORITHM_BEUME3D_H
-#define PAGMO_UTIL_HV_ALGORITHM_BEUME3D_H
+#ifndef PAGMO_UTIL_HV_ALGORITHM_HV3D_H
+#define PAGMO_UTIL_HV_ALGORITHM_HV3D_H
 
 #include <iostream>
 #include <limits>
@@ -37,7 +37,7 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// Beume3D hypervolume algorithm class
+/// hv3d hypervolume algorithm class
 /**
  *
  * This class contains the implementation of state-of-the art algorithm for the hypervolume computation of 3-dimensional hypervolumes.
@@ -46,11 +46,11 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE beume3d : public base {
+class __PAGMO_VISIBLE hv3d : public base {
 	public:
 
-		beume3d(const beume3d &orig);
-		beume3d(bool initial_sorting = true);
+		hv3d(const hv3d &orig);
+		hv3d(bool initial_sorting = true);
 
 		double compute(std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
@@ -95,6 +95,6 @@ class __PAGMO_VISIBLE beume3d : public base {
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::beume3d);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv3d);
 
 #endif

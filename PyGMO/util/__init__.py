@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from _util import *
-from _util.hv_algorithm import hv2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy
+from _util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -9,7 +9,7 @@ hv_algorithm.__doc__ = """Module containing available algorithms for the hypervo
 
 	USAGE:
 		hv_algorithm.hv2d()
-		hv_algorithm.beume3d()
+		hv_algorithm.hv3d()
 		hv_algorithm.hv4d()
 		hv_algorithm.wfg()
 		hv_algorithm.bf_approx()
@@ -42,7 +42,7 @@ class HypervolumeValidation:
 	err_hv_ctor_args = TypeError("Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
 	# types of hypervolume algorithms
-	types_hv_algo = (hv2d, beume3d, hv4d, wfg, bf_approx, bf_fpras, hoy)
+	types_hv_algo = (hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy)
 
 	# allowed types for the refernce point
 	types_rp = (list, tuple,)
@@ -175,7 +175,7 @@ def _hypervolume_least_contributor(self, r = None, algorithm = None, *args, **kw
 	USAGE:
 		hv.least_contributor()
 		hv.least_contributor(r=[5.0]*3)
-		hv.least_contributor(r=[5.0]*3, algorithm=hv_algorithm.beume3d())
+		hv.least_contributor(r=[5.0]*3, algorithm=hv_algorithm.hv3d())
 		* r - reference point used for computation
 		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
 	"""
@@ -201,7 +201,7 @@ def _hypervolume_greatest_contributor(self, r = None, algorithm = None, *args, *
 	USAGE:
 		hv.greatest_contributor()
 		hv.greatest_contributor(r=[5.0]*3)
-		hv.greatest_contributor(r=[5.0]*3, algorithm=hv_algorithm.beume3d())
+		hv.greatest_contributor(r=[5.0]*3, algorithm=hv_algorithm.hv3d())
 		* r - reference point used for computation
 		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
 	"""
@@ -275,7 +275,6 @@ hypervolume.set_verify = _hypervolume_set_verify
 def _hv2d_ctor(self):
 	"""
 	Hypervolume algorithm: hv2d.
-	Points are initially sorted by one dimension, after which the partial areas are summed linearly.
 	Computational complexity: O(n*logn)
 	Applicable to hypervolume computation problems of dimension=2
 
@@ -290,26 +289,28 @@ def _hv2d_ctor(self):
 hv2d._original_init = hv2d.__init__
 hv2d.__init__ = _hv2d_ctor
 
-def _beume3d_ctor(self):
+def _hv3d_ctor(self):
 	"""
-	Hypervolume algorithm: Beume3D.
+	Hypervolume algorithm: hv3d.
+	This class contains the implementation of efficient hypervolume algorithms for 3 dimensions.
 	Computational complexity: O(n*logn)
 	Applicable to hypervolume computation problems of dimension=3
 
 	REF: "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
-	Luis Paquete, Jan Vahrenhold.
-	IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTTATION. VOL. 13, NO. 5, OCTOBER 2009
+	Luis Paquete, Jan Vahrenhold.  IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTTATION. VOL. 13, NO. 5, OCTOBER 2009
+
+	REF: "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
 
 	USAGE:
 		hv = hypervolume(...) # see 'hypervolume?' for usage
 		refpoint = [1.0]*3
-		hv.compute(r=refpoint, algorithm=hv_algorithm.beume3d())
-		hv.exclusive(p_idx=13, r=refpoint, algorithm=hv_algorithm.beume3d())
-		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.beume3d())
+		hv.compute(r=refpoint, algorithm=hv_algorithm.hv3d())
+		hv.exclusive(p_idx=13, r=refpoint, algorithm=hv_algorithm.hv3d())
+		hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hv3d())
 	"""
 	return self._original_init()
-beume3d._original_init = beume3d.__init__
-beume3d.__init__ = _beume3d_ctor
+hv3d._original_init = hv3d.__init__
+hv3d.__init__ = _hv3d_ctor
 
 def _hv4d_ctor(self):
 	"""

@@ -58,18 +58,18 @@ class hypervolume_test {
 			// create correct algorithm object
 			if (method_name == "hv2d") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv2d());
-			} else if (method_name == "beume3d") {
-				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::beume3d());
+			} else if (method_name == "hv3d") {
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv3d());
+			} else if (method_name == "hv4d") {
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv4d());
 			} else if (method_name == "wfg") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::wfg());
+			} else if (method_name == "hoy") {
+				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hoy());
 			} else if (method_name == "bf_approx") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_approx());
 			} else if (method_name == "bf_fpras") {
 				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_fpras());
-			} else if (method_name == "hoy") {
-				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hoy());
-			} else if (method_name == "hv4d") {
-				m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv4d());
 			} else {
 				output << "Unknown method (" << method_name << ") .. exiting\n";
 				exit(1);

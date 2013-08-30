@@ -23,12 +23,12 @@
  *****************************************************************************/
 
 
-#include "beume3d.h"
+#include "hv3d.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 // Copy constructor
-beume3d::beume3d(const beume3d &orig) : m_initial_sorting(orig.m_initial_sorting) { }
+hv3d::hv3d(const hv3d &orig) : m_initial_sorting(orig.m_initial_sorting) { }
 
 /// Constructor
 /**
@@ -38,16 +38,16 @@ beume3d::beume3d(const beume3d &orig) : m_initial_sorting(orig.m_initial_sorting
  *
  * @param[in] initial_sorting when set to true (default), algorithm will sort the points ascending by third dimension
  */
-beume3d::beume3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
+hv3d::hv3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
 
 /// Compute hypervolume 
 /**
  * This method should be used both as a solution to 3D cases, and as a general termination method for algorithms that reduce D-dimensional problem to 3-dimensional one.
  *
- * This is the implementation of the Beume3D algorithm for computing hypervolume.
+ * This is the implementation of the algorithm for computing hypervolume as it was presented by Nicola Beume et al.
  * The implementation uses std::multiset (which is based on red-black tree data structure) as a container for the sweeping front.
  * Original implementation by Beume et. al uses AVL-tree.
- * The difference is insiginificant as the important characteristics (maintaining order, self-balancing) of both structures and the asymptotical times (O(log n) updates) are guaranteed.
+ * The difference is insiginificant as the important characteristics (maintaining order when traversing, self-balancing) of both structures and the asymptotical times (O(log n) updates) are guaranteed.
  * Computational complexity: O(n*log(n))
  *
  * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
@@ -58,7 +58,7 @@ beume3d::beume3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
  *
  * @return hypervolume.
  */
-double beume3d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double hv3d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
 	if (m_initial_sorting) {
 		sort(points.begin(), points.end(), fitness_vector_cmp(2,'<'));
@@ -110,7 +110,7 @@ double beume3d::compute(std::vector<fitness_vector> &points, const fitness_vecto
 }
 
 /// comparator method for hycon3d algorithm's tree structure
-bool beume3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b) {
+bool hv3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b) {
 	return a.first[0] > b.first[0];
 }
 
@@ -118,12 +118,12 @@ bool beume3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> 
 /**
  * Returns the volume of the box3d object
  */
-double beume3d::box_volume(const box3d &b) {
+double hv3d::box_volume(const box3d &b) {
 	return fabs((b.ux - b.lx) * (b.uy - b.ly) * (b.uz - b.lz));
 }
 
 // comparator method for the hycon3d algorithm's sorting procedure
-bool beume3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
+bool hv3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
 	return a.first[2] < b.first[2];
 }
 
@@ -139,7 +139,7 @@ bool beume3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a,
  *
  * @return index of the least contributor.
  */
-unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int hv3d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
 
@@ -155,7 +155,7 @@ unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, con
  *
  * @return index of the greatest contributor.
  */
-unsigned int beume3d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int hv3d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }
 
@@ -163,7 +163,7 @@ unsigned int beume3d::greatest_contributor(std::vector<fitness_vector> &points, 
 /**
  * This method elicites an "extreme" contributor (either min or max item) from a set of contributions computed by HyCon3D algorithm.
  */
-unsigned int beume3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) {
+unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) {
 
 	const std::vector<double> contributions = hycon3d(points, r_point);
 
@@ -183,7 +183,7 @@ unsigned int beume3d::extreme_contributor(std::vector<fitness_vector> &points, c
 /*
  * This algorithm computes the exclusive contribution to the hypervolume object by every point, using an efficient HyCon3D algorithm by Emmerich and Fonseca.
  */
-std::vector<double> beume3d::hycon3d(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	std::vector<std::pair<fitness_vector, unsigned int> > point_pairs;
 	point_pairs.reserve(points.size());
 	for(unsigned int i = 0 ; i < points.size() ; ++i) {
@@ -324,25 +324,25 @@ std::vector<double> beume3d::hycon3d(std::vector<fitness_vector> &points, const 
  *
  * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void beume3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+void hv3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	if (r_point.size() != 3) {
-		pagmo_throw(value_error, "Algorithm Beume3D works only for 3-dimensional cases");
+		pagmo_throw(value_error, "Algorithm hv3d works only for 3-dimensional cases");
 	}
 
 	base::assert_maximal_reference_point(points, r_point);
 }
 
 /// Clone method.
-base_ptr beume3d::clone() const
+base_ptr hv3d::clone() const
 {
-	return base_ptr(new beume3d(*this));
+	return base_ptr(new hv3d(*this));
 }
 
 /// Algorithm name
-std::string beume3d::get_name() const {
-	return "Beume3D algorithm";
+std::string hv3d::get_name() const {
+	return "hv3d algorithm";
 }
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::beume3d);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hv3d);

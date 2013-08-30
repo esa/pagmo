@@ -157,7 +157,7 @@ hv_algorithm::base_ptr hypervolume::get_best_method(const fitness_vector &r_poin
 			return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
 			break;
 		case 3:
-			return hv_algorithm::base_ptr(new hv_algorithm::beume3d());
+			return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
 			break;
 		case 4:
 			return hv_algorithm::base_ptr(new hv_algorithm::hv4d());

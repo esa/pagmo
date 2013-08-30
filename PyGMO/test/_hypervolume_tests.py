@@ -106,7 +106,7 @@ class HVComputeTest(unittest.TestCase):
 		self.assertRaises(TypeError, self.hv2d.compute, algorithm=hv_algorithm.hv2d())  # should use nadir point
 
 	def test_bad_algo(self):
-		self.assertRaises(ValueError, self.hv2d.compute, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
+		self.assertRaises(ValueError, self.hv2d.compute, [4, 4], hv_algorithm.hv3d())  # 3d method to 2d problem
 
 class HVLeastContribTest(unittest.TestCase):
 
@@ -140,7 +140,7 @@ class HVLeastContribTest(unittest.TestCase):
 		self.assertRaises(TypeError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.hv2d(), foo="Something extra")  # we do not accept random kwargs
 
 	def test_bad_algo(self):
-		self.assertRaises(ValueError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
+		self.assertRaises(ValueError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.hv3d())  # 3d method to 2d problem
 
 class HVExclusiveTest(unittest.TestCase):
 	def setUp(self):
@@ -182,7 +182,7 @@ class HVExclusiveTest(unittest.TestCase):
 		self.assertRaises(TypeError, self.hv2d.exclusive)  # p_idx not provided
 
 	def test_bad_algo(self):
-		self.assertRaises(ValueError, self.hv2d.exclusive, 0, [4, 4], hv_algorithm.beume3d())  # 3d method to 2d problem
+		self.assertRaises(ValueError, self.hv2d.exclusive, 0, [4, 4], hv_algorithm.hv3d())  # 3d method to 2d problem
 
 class HVNadirPointTest(unittest.TestCase):
 
