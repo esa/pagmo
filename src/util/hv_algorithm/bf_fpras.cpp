@@ -37,12 +37,6 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 bf_fpras::bf_fpras(const double eps, const double delta) : m_eps(eps), m_delta(delta) { }
 
-/// Copy constructor
-/**
- * @param[in] orig instance of the bf_fpras algorithm to be copied from
- */
-bf_fpras::bf_fpras(const bf_fpras &orig) : m_eps(orig.m_eps), m_delta(orig.m_delta) { }
-
 // verify_before_compute
 /**
  * Verifies whether given algorithm suits the requested data.

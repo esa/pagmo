@@ -43,15 +43,6 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double delta_multiplier, const double alpha, const double initial_delta_coeff, const double gamma)
 	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_delta_multiplier(delta_multiplier), m_alpha(alpha), m_initial_delta_coeff(initial_delta_coeff), m_gamma(gamma) { }
 
-
-/// Copy constructor
-/**
- * @param[in] orig instance of the bf_approx algorithm to be copied from
- */
-bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_trivial_subcase_size(orig.m_trivial_subcase_size), m_eps(orig.m_eps), m_delta(orig.m_delta), 
-	m_delta_multiplier(orig.m_delta_multiplier), m_alpha(orig.m_alpha), m_initial_delta_coeff(orig.m_initial_delta_coeff), m_gamma(orig.m_gamma) { }
-
-
 /// Least contributor method
 /**
  * This method establishes the individual that contributes the least to the hypervolume.

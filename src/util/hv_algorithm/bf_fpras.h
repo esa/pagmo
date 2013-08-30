@@ -48,7 +48,6 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 class __PAGMO_VISIBLE bf_fpras : public base
 {
 public:
-	bf_fpras(const bf_fpras &orig);
 	bf_fpras(const double eps = 1e-2, const double delta = 1e-2);
 
 	double compute(std::vector<fitness_vector> &, const fitness_vector &);
