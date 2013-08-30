@@ -27,9 +27,6 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-// Copy constructor
-hv3d::hv3d(const hv3d &orig) : m_initial_sorting(orig.m_initial_sorting) { }
-
 /// Constructor
 /**
  * Constructor of the algorithm object.
@@ -110,7 +107,8 @@ double hv3d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 }
 
 /// comparator method for hycon3d algorithm's tree structure
-bool hv3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b) {
+bool hv3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b)
+{
 	return a.first[0] > b.first[0];
 }
 
@@ -118,12 +116,14 @@ bool hv3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> &a,
 /**
  * Returns the volume of the box3d object
  */
-double hv3d::box_volume(const box3d &b) {
+double hv3d::box_volume(const box3d &b)
+{
 	return fabs((b.ux - b.lx) * (b.uy - b.ly) * (b.uz - b.lz));
 }
 
 // comparator method for the hycon3d algorithm's sorting procedure
-bool hv3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
+bool hv3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b)
+{
 	return a.first[2] < b.first[2];
 }
 
@@ -139,7 +139,8 @@ bool hv3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, co
  *
  * @return index of the least contributor.
  */
-unsigned int hv3d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int hv3d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
 
@@ -155,7 +156,8 @@ unsigned int hv3d::least_contributor(std::vector<fitness_vector> &points, const 
  *
  * @return index of the greatest contributor.
  */
-unsigned int hv3d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int hv3d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }
 
@@ -163,7 +165,8 @@ unsigned int hv3d::greatest_contributor(std::vector<fitness_vector> &points, con
 /**
  * This method elicites an "extreme" contributor (either min or max item) from a set of contributions computed by HyCon3D algorithm.
  */
-unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) {
+unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double))
+{
 
 	const std::vector<double> contributions = hycon3d(points, r_point);
 
@@ -183,7 +186,8 @@ unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, cons
 /*
  * This algorithm computes the exclusive contribution to the hypervolume object by every point, using an efficient HyCon3D algorithm by Emmerich and Fonseca.
  */
-std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	std::vector<std::pair<fitness_vector, unsigned int> > point_pairs;
 	point_pairs.reserve(points.size());
 	for(unsigned int i = 0 ; i < points.size() ; ++i) {
@@ -324,12 +328,13 @@ std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fit
  *
  * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void hv3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+void hv3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	if (r_point.size() != 3) {
 		pagmo_throw(value_error, "Algorithm hv3d works only for 3-dimensional cases");
 	}
 
-	base::assert_maximal_reference_point(points, r_point);
+	base::assert_minimisation(points, r_point);
 }
 
 /// Clone method.
@@ -339,7 +344,8 @@ base_ptr hv3d::clone() const
 }
 
 /// Algorithm name
-std::string hv3d::get_name() const {
+std::string hv3d::get_name() const
+{
 	return "hv3d algorithm";
 }
 

@@ -33,12 +33,14 @@ base::~base() {}
 /// Assert that reference point dominates every other point from the set.
 /**
  * This is a method that can be referenced from verify_before_compute method.
- * The method checks whether provided reference point is "no worse" and in at least one objective "better" for each of the points from the set.
+ * The method checks whether the provided reference point fits the minimisation assumption, e.g.,
+ * reference point must be "no worse" and in at least one objective and "better" for each of the points from the set.
  *
  * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
  * @param[in] r_point - distinguished "reference point".
 */
-void base::assert_maximal_reference_point(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+void base::assert_minimisation(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		bool outside_bounds = false;
 		bool all_equal = true;
@@ -48,6 +50,7 @@ void base::assert_maximal_reference_point(const std::vector<fitness_vector> &poi
 			all_equal &= (r_point[f_idx] == points[idx][f_idx]);
 		}
 		if (all_equal || outside_bounds) {
+			// Prepare error message.
 			std::stringstream ss;
 			std::string str_p("("), str_r("(");
 			for(fitness_vector::size_type f_idx = 0 ; f_idx < points[idx].size() ; ++f_idx) {
@@ -81,7 +84,8 @@ void base::assert_maximal_reference_point(const std::vector<fitness_vector> &poi
  *
  * @return exlusive hypervolume contributed by the individual at index p_idx
  */
-double base::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double base::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	if (points.size() == 1) {
 		return compute(points, r_point);
 	}
@@ -97,7 +101,8 @@ double base::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &po
 /**
  * Computes the index of the individual that contributes the most or the least to the hypervolume (depending on the prodivded comparison function)
  */
-unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) {
+unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double))
+{
 	// trivial case
 	if (points.size() == 1) {
 		return 0;
@@ -128,11 +133,13 @@ unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, cons
 	return idx_extreme;
 }
 
-bool base::cmp_least(const double a, const double b) {
+bool base::cmp_least(const double a, const double b)
+{
 	return a < b;
 }
 
-bool base::cmp_greatest(const double a, const double b) {
+bool base::cmp_greatest(const double a, const double b)
+{
 	return a > b;
 }
 
@@ -147,7 +154,8 @@ bool base::cmp_greatest(const double a, const double b) {
  *
  * @return index of the least contributor
  */
-unsigned int base::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int base::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
 
@@ -162,7 +170,8 @@ unsigned int base::least_contributor(std::vector<fitness_vector> &points, const 
  *
  * @return index of the greatest contributor
  */
-unsigned int base::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int base::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }
 
@@ -173,12 +182,13 @@ unsigned int base::greatest_contributor(std::vector<fitness_vector> &points, con
  * @param[in] dim dimension index by which we compare the fitness vectors
  * @param[in] cmp_type inequality expression used for comparison, either character '<' or '>'
  */
-fitness_vector_cmp::fitness_vector_cmp(int dim, char cmp_type) {
+fitness_vector_cmp::fitness_vector_cmp(int dim, char cmp_type)
+{
 	if (cmp_type == '<') {
-		m_cmp_obj = boost::shared_ptr<cmp_fun>( new cmp_le(dim));
+		m_cmp_obj = boost::shared_ptr<cmp_fun>(new cmp_le(dim));
 	}
 	else {
-		m_cmp_obj = boost::shared_ptr<cmp_fun>( new cmp_ge(dim));
+		m_cmp_obj = boost::shared_ptr<cmp_fun>(new cmp_ge(dim));
 	}
 }
 

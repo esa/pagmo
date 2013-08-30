@@ -30,7 +30,8 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-bool wfg::cmp_func(double* a, double* b) {
+bool wfg::cmp_func(double* a, double* b)
+{
 	for(int i = m_current_slice - 1; i >=0 ; --i){
 		if (a[i] > b[i]) {
 			return true;
@@ -42,7 +43,8 @@ bool wfg::cmp_func(double* a, double* b) {
 }
 
 // Constructor
-wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimension(stop_dimension) {
+wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimension(stop_dimension)
+{
 	if (stop_dimension < 2 ) {
 		pagmo_throw(value_error, "Stop dimension for WFG must be greater than or equal to 2");
 	}
@@ -55,7 +57,8 @@ wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimensi
  *
  * @return hypervolume.
  */
-double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	m_max_points = points.size();
 	m_max_dim = r_point.size();
 
@@ -101,7 +104,8 @@ double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 	return hv;
 }
 
-void wfg::limitset(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level) {
+void wfg::limitset(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level)
+{
 	int no_points = 0;
 
 	double* p = points[p_idx];
@@ -154,8 +158,8 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 	m_frames_size[rec_level] = no_points;
 }
 
-double wfg::compute_hv(double** points, const unsigned int n_points, const unsigned int rec_level) {
-
+double wfg::compute_hv(double** points, const unsigned int n_points, const unsigned int rec_level)
+{
 	// Simple inclusion-exclusion for one and two points
 	if (n_points == 1) {
 		return base::volume_between(points[0], m_refpoint, m_current_slice);
@@ -206,7 +210,8 @@ double wfg::compute_hv(double** points, const unsigned int n_points, const unsig
 	return H;
 }
 
-double wfg::exclusive_hv(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level) {
+double wfg::exclusive_hv(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level)
+{
 	if(rec_level >= m_n_frames) {
 		double** fr = new double*[m_max_points];
 		for(unsigned int i = 0 ; i < m_max_points ; ++i) {
@@ -239,8 +244,9 @@ double wfg::exclusive_hv(double** points, const unsigned int n_points, const uns
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void wfg::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
-	base::assert_maximal_reference_point(points, r_point);
+void wfg::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
+	base::assert_minimisation(points, r_point);
 }
 
 /// Clone method.
@@ -250,7 +256,8 @@ base_ptr wfg::clone() const
 }
 
 /// Algorithm name
-std::string wfg::get_name() const {
+std::string wfg::get_name() const
+{
 	return "WFG algorithm";
 }
 

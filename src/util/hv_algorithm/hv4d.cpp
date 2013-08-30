@@ -27,10 +27,6 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// Constructor
-hv4d::hv4d() { }
-
-
 /// Compute hypervolume 
 /**
  * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
@@ -38,7 +34,8 @@ hv4d::hv4d() { }
  *
  * @return hypervolume.
  */
-double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	double data[points.size() * 4];
 	double refpoint[4];
 	for (unsigned int d_idx = 0 ; d_idx < 4 ; ++d_idx) {
@@ -63,11 +60,12 @@ double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void hv4d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+void hv4d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	if (r_point.size() != 4) {
 		pagmo_throw(value_error, "Algorithm HV4D works only for 4-dimensional cases");
 	}
-	base::assert_maximal_reference_point(points, r_point);
+	base::assert_minimisation(points, r_point);
 }
 
 /// Clone method.
@@ -77,7 +75,8 @@ base_ptr hv4d::clone() const
 }
 
 /// Algorithm name
-std::string hv4d::get_name() const {
+std::string hv4d::get_name() const
+{
 	return "Four-dimensional hypervolume by Andreia P. Guerreiro";
 }
 

@@ -46,22 +46,21 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  * @see Andreia P. Guerreiro, Carlos M. Fonseca, Michael T. Emmerich, "A Fast Dimension-Sweep Algorithm for the Hypervolume Indicator in Four Dimensions", CCCG 2012, Charlottetown, P.E.I., August 8–10, 2012.
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE hv4d : public base {
-	public:
-		hv4d();
-		double compute(std::vector<fitness_vector> &, const fitness_vector &);
-		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		base_ptr clone() const;
-		std::string get_name() const;
+class __PAGMO_VISIBLE hv4d : public base
+{
+public:
+	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	base_ptr clone() const;
+	std::string get_name() const;
 
-	private:
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-		}
-
+private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+	}
 };
 
 } } }

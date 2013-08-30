@@ -43,7 +43,8 @@ hoy::hoy() { }
  *
  * @return hypervolume.
  */
-double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 
 	m_dimension = r_point.size();
 	m_total_size = points.size();
@@ -104,7 +105,8 @@ double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 	return m_volume;
 }
 
-bool hoy::covers(const double cub[], const double reg_low[]) const {
+bool hoy::covers(const double cub[], const double reg_low[]) const
+{
 	for (int i = 0; i < m_dimension - 1; ++i) {
 		if (cub[i] > reg_low[i]) {
 			return false;
@@ -113,7 +115,8 @@ bool hoy::covers(const double cub[], const double reg_low[]) const {
 	return true;
 }
 
-bool hoy::part_covers(const double cub[], const double reg_up[]) const {
+bool hoy::part_covers(const double cub[], const double reg_up[]) const
+{
 	for (int i = 0; i < m_dimension - 1; ++i) {
 		if (cub[i] >= reg_up[i]) {
 			return false;
@@ -122,7 +125,8 @@ bool hoy::part_covers(const double cub[], const double reg_up[]) const {
 	return true;
 }
 
-int hoy::contains_boundary(const double cub[], const double reg_low[], const int split) const {
+int hoy::contains_boundary(const double cub[], const double reg_low[], const int split) const
+{
 	// condition only checked for split>0
 	if (reg_low[split] >= cub[split]){
 		// boundary in m_dimension split not contained in region, thus
@@ -141,7 +145,8 @@ int hoy::contains_boundary(const double cub[], const double reg_low[], const int
 	return 0;
 }
 
-double hoy::get_measure(const double reg_low[], const double reg_up[]) const {
+double hoy::get_measure(const double reg_low[], const double reg_up[]) const
+{
 	double vol = 1.0;
 	for (int i = 0 ; i < m_dimension - 1 ; ++i) {
 		vol *= (reg_up[i] - reg_low[i]);
@@ -149,7 +154,8 @@ double hoy::get_measure(const double reg_low[], const double reg_up[]) const {
 	return vol;
 }
 
-int hoy::is_pile(const double cub[], const double reg_low[]) const {
+int hoy::is_pile(const double cub[], const double reg_low[]) const
+{
 
 	int pile = m_dimension;
 	// check all dimensions of the node
@@ -173,7 +179,8 @@ int hoy::is_pile(const double cub[], const double reg_low[]) const {
 	return pile;
 }
 
-double hoy::compute_trellis(const double reg_low[], const double reg_up[], const double trellis[]) const {
+double hoy::compute_trellis(const double reg_low[], const double reg_up[], const double trellis[]) const
+{
 
 	double total = 1.0; // total area region
 	double empty = 1.0; // inner "empty" box for trellis
@@ -185,7 +192,8 @@ double hoy::compute_trellis(const double reg_low[], const double reg_up[], const
 	return total - empty;
 }
 
-double hoy::get_median(double* bounds, unsigned int n) const {
+double hoy::get_median(double* bounds, unsigned int n) const
+{
 	if (n < 3) {
 		return bounds[n - 1];
 	}
@@ -195,7 +203,8 @@ double hoy::get_median(double* bounds, unsigned int n) const {
 }
 
 // Recursive calculation of hypervolume.
-void hoy::stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level) {
+void hoy::stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level)
+{
 
 	double cover_old = cover;
 	unsigned int cover_index = 0;
@@ -355,8 +364,9 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void hoy::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
-	base::assert_maximal_reference_point(points, r_point);
+void hoy::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
+	base::assert_minimisation(points, r_point);
 }
 
 /// Clone method.
@@ -366,8 +376,9 @@ base_ptr hoy::clone() const
 }
 
 /// Algorithm name
-std::string hoy::get_name() const {
-	return "Hypervolume by Overmars and Yapp (HOY) algorithm";
+std::string hoy::get_name() const
+{
+	return "HOY algorithm";
 }
 
 } } }

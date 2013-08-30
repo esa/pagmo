@@ -68,7 +68,8 @@ double hv2d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 /**
  * Required by the hv2d::compute method for the sorting of arrays of double*.
  */
-bool hv2d::cmp_double_2d(double* a, double* b) {
+bool hv2d::cmp_double_2d(double* a, double* b)
+{
 	return a[1] < b[1];
 }
 
@@ -113,7 +114,8 @@ double hv2d::compute(double** points , unsigned int n_points, double* r_point)
 /**
  * Required for hv2d::extreme_contributor method for keeping track of the original indices when sorting.
  */
-bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
+bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b)
+{
 	return a.first[1] > b.first[1];
 }
 
@@ -129,7 +131,8 @@ bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std
  *
  * @return index of the least contributing point
  */
-unsigned int hv2d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int hv2d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
 
@@ -145,7 +148,8 @@ unsigned int hv2d::least_contributor(std::vector<fitness_vector> &points, const 
  *
  * @return index of the greatest contributor
  */
-unsigned int hv2d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+unsigned int hv2d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }
 
@@ -218,7 +222,7 @@ void hv2d::verify_before_compute(const std::vector<fitness_vector> &points, cons
 		pagmo_throw(value_error, "Algorithm hv2d works only for 2-dimensional cases.");
 	}
 
-	base::assert_maximal_reference_point(points, r_point);
+	base::assert_minimisation(points, r_point);
 }
 
 } } }

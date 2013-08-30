@@ -47,105 +47,105 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE bf_approx : public base {
-	public:
+class __PAGMO_VISIBLE bf_approx : public base
+{
+public:
+	bf_approx(const bf_approx &orig);
+	bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 1e-1, const double gamma = 0.25);
 
-		bf_approx(const bf_approx &orig);
-		bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 1e-1, const double gamma = 0.25);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
-		double compute(std::vector<fitness_vector> &, const fitness_vector &);
-		unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	base_ptr clone() const;
+	std::string get_name() const;
 
-		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		base_ptr clone() const;
-		std::string get_name() const;
+private:
+	inline double compute_point_delta(const unsigned int, const unsigned int, const double) const;
+	inline fitness_vector compute_bounding_box(const std::vector<fitness_vector> &, const fitness_vector &, const unsigned int) const;
+	inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
+	inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int, const double);
+	inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
 
-	private:
-		inline double compute_point_delta(const unsigned int, const unsigned int, const double) const;
-		inline fitness_vector compute_bounding_box(const std::vector<fitness_vector> &, const fitness_vector &, const unsigned int) const;
-		inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
-		inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int, const double);
-		inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
-
-		// flag stating whether BF approximation should use exact computation for some exclusive hypervolumes
-		const bool m_use_exact;
-		
-		// if the number of points overlapping the bounding box is small enough we can just compute that exactly
-		// following variable states the number of points for which we perform the optimization
-		const unsigned int m_trivial_subcase_size;
-
-		// accuracy of the approximation
-		const double m_eps;
-
-		// confidence of the approximation 
-		const double m_delta;
-
-		// multiplier of the round delta value
-		const double m_delta_multiplier;
-
-		// alpha coefficient used for pushing on the sampling of the current least contributor
-		const double m_alpha;
-
-		// initial coefficient of the delta at round 0
-		const double m_initial_delta_coeff;
-
-		// constant used for the computation of point delta
-		const double m_gamma;
-
-		mutable rng_double	m_drng;
-
-		// number of elementary operations performed for each point
-		std::vector<unsigned long long> m_no_ops;
-
-		// number of samples for given box
-		std::vector<unsigned long long> m_no_samples;
-
-		// number of "successful" samples that fell into the exclusive hypervolume
-		std::vector<unsigned long long> m_no_succ_samples;
-
-		// stores the indices of points that were not yet removed during the progress of the algorithm
-		std::vector<unsigned int> m_point_set;
-
-		// exact hypervolumes of the bounding boxes
-		std::vector<double> m_box_volume;
+	// flag stating whether BF approximation should use exact computation for some exclusive hypervolumes
+	const bool m_use_exact;
 	
-		// approximated exlusive hypervolume of each point
-		std::vector<double> m_approx_volume;
-	
-		// deltas computed for each point using chernoff inequality component
-		std::vector<double> m_point_delta;
+	// if the number of points overlapping the bounding box is small enough we can just compute that exactly
+	// following variable states the number of points for which we perform the optimization
+	const unsigned int m_trivial_subcase_size;
 
-		// pair (boxes[idx], points[idx]) form a box in which monte carlo sampling is performed
-		std::vector<fitness_vector> m_boxes;
+	// accuracy of the approximation
+	const double m_eps;
 
-		// list of indices of points that overlap the bounding box of each point
-		// during monte carlo sampling it suffices to check only these points when deciding whether the sampling was "successful"
-		std::vector<std::vector<unsigned int> > m_box_points;
+	// confidence of the approximation 
+	const double m_delta;
 
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<bool &>(m_use_exact);
-			ar & const_cast<unsigned int &>(m_trivial_subcase_size);
-			ar & const_cast<double &>(m_eps);
-			ar & const_cast<double &>(m_delta);
-			ar & const_cast<double &>(m_delta_multiplier);
-			ar & const_cast<double &>(m_alpha);
-			ar & const_cast<double &>(m_initial_delta_coeff);
-			ar & const_cast<double &>(m_gamma);
-			ar & m_drng;
-			ar & m_no_ops;
-			ar & m_no_samples;
-			ar & m_no_succ_samples;
-			ar & m_point_set;
-			ar & m_box_volume;
-			ar & m_approx_volume;
-			ar & m_point_delta;
-			ar & m_boxes;
-			ar & m_box_points;
-		}
+	// multiplier of the round delta value
+	const double m_delta_multiplier;
+
+	// alpha coefficient used for pushing on the sampling of the current least contributor
+	const double m_alpha;
+
+	// initial coefficient of the delta at round 0
+	const double m_initial_delta_coeff;
+
+	// constant used for the computation of point delta
+	const double m_gamma;
+
+	mutable rng_double	m_drng;
+
+	// number of elementary operations performed for each point
+	std::vector<unsigned long long> m_no_ops;
+
+	// number of samples for given box
+	std::vector<unsigned long long> m_no_samples;
+
+	// number of "successful" samples that fell into the exclusive hypervolume
+	std::vector<unsigned long long> m_no_succ_samples;
+
+	// stores the indices of points that were not yet removed during the progress of the algorithm
+	std::vector<unsigned int> m_point_set;
+
+	// exact hypervolumes of the bounding boxes
+	std::vector<double> m_box_volume;
+
+	// approximated exlusive hypervolume of each point
+	std::vector<double> m_approx_volume;
+
+	// deltas computed for each point using chernoff inequality component
+	std::vector<double> m_point_delta;
+
+	// pair (boxes[idx], points[idx]) form a box in which monte carlo sampling is performed
+	std::vector<fitness_vector> m_boxes;
+
+	// list of indices of points that overlap the bounding box of each point
+	// during monte carlo sampling it suffices to check only these points when deciding whether the sampling was "successful"
+	std::vector<std::vector<unsigned int> > m_box_points;
+
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<bool &>(m_use_exact);
+		ar & const_cast<unsigned int &>(m_trivial_subcase_size);
+		ar & const_cast<double &>(m_eps);
+		ar & const_cast<double &>(m_delta);
+		ar & const_cast<double &>(m_delta_multiplier);
+		ar & const_cast<double &>(m_alpha);
+		ar & const_cast<double &>(m_initial_delta_coeff);
+		ar & const_cast<double &>(m_gamma);
+		ar & m_drng;
+		ar & m_no_ops;
+		ar & m_no_samples;
+		ar & m_no_succ_samples;
+		ar & m_point_set;
+		ar & m_box_volume;
+		ar & m_approx_volume;
+		ar & m_point_delta;
+		ar & m_boxes;
+		ar & m_box_points;
+	}
 };
 
 } } }

@@ -45,22 +45,22 @@ namespace pagmo { namespace migration {
  */
 class __PAGMO_VISIBLE hv_greedy_r_policy: public base_r_policy
 {
-	public:
-		hv_greedy_r_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 0.0);
-		base_r_policy_ptr clone() const;
-		std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
-			select(const std::vector<population::individual_type> &, const population &) const;
-	private:
-		static bool ind_cmp(const std::pair<unsigned int, double> &, const std::pair<unsigned int, double> &);
-		const double m_nadir_eps;
+public:
+	hv_greedy_r_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 0.0);
+	base_r_policy_ptr clone() const;
+	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
+		select(const std::vector<population::individual_type> &, const population &) const;
+private:
+	static bool ind_cmp(const std::pair<unsigned int, double> &, const std::pair<unsigned int, double> &);
+	const double m_nadir_eps;
 
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base_r_policy>(*this);
-			ar & const_cast<double &>(m_nadir_eps);
-		}
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base_r_policy>(*this);
+		ar & const_cast<double &>(m_nadir_eps);
+	}
 };
 
 }}

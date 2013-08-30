@@ -45,37 +45,36 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE bf_fpras : public base {
-	public:
+class __PAGMO_VISIBLE bf_fpras : public base
+{
+public:
+	bf_fpras(const bf_fpras &orig);
+	bf_fpras(const double eps = 1e-2, const double delta = 1e-2);
 
-		bf_fpras(const bf_fpras &orig);
-		bf_fpras(const double eps = 1e-2, const double delta = 1e-2);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &);
 
-		double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	base_ptr clone() const;
+	std::string get_name() const;
 
-		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		base_ptr clone() const;
-		std::string get_name() const;
+private:
+	// error of approximation
+	const double m_eps;
+	// probabiltiy of error
+	const double m_delta;
 
-	private:
-
-		// error of approximation
-		const double m_eps;
-		// probabiltiy of error
-		const double m_delta;
-
-		mutable rng_double m_drng;
+	mutable rng_double m_drng;
 
 
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<double &>(m_eps);
-			ar & const_cast<double &>(m_delta);
-			ar & m_drng;
-		}
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<double &>(m_eps);
+		ar & const_cast<double &>(m_delta);
+		ar & m_drng;
+	}
 };
 
 } } }

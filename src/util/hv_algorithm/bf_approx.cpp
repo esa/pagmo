@@ -61,8 +61,8 @@ bf_approx::bf_approx(const bf_approx &orig) : m_use_exact(orig.m_use_exact), m_t
  *
  * @return index of the least contributing point
  */
-unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
-
+unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	m_no_samples = std::vector<unsigned long long>(points.size(), 0);
 	m_no_succ_samples = std::vector<unsigned long long>(points.size(), 0);
 	m_no_ops = std::vector<unsigned long long>(points.size(), 1);
@@ -178,11 +178,10 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 	return LC;
 }
 
-/// performs a single round of sampling for given point at index 'idx'
-void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx, const double log_factor ) {
-
+/// Performs a single round of sampling for given point at index 'idx'
+void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx, const double log_factor )
+{
 	if (m_use_exact) {
-
 		// if the sampling for given point was already resolved using exact method
 		if (m_no_ops[idx] == 0) {
 			return;
@@ -236,7 +235,8 @@ void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const 
 }
 
 /// samples the bounding box and returns true if it fell into the exclusive hypervolume
-bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, const unsigned int idx) {
+bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, const unsigned int idx)
+{
 	const fitness_vector &lb = points[idx];
 	const fitness_vector &ub = m_boxes[idx];
 	fitness_vector rnd_p(lb.size(), 0.0);
@@ -268,10 +268,13 @@ bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, con
 	return true;
 }
 
-// compute delta for given point
-// uses chernoff inequality as it was proposed in the paper
-// the concrete method was taked from the shark implementation
-double bf_approx::compute_point_delta(const unsigned int round_no, const unsigned int idx, const double log_factor) const {
+/// Compute delta for given point
+/**
+ * Uses chernoff inequality as it was proposed in the article by Bringmann and Friedrich
+ * The parameters of the method are taked from the Shark implementation of the algorithm.
+ */
+double bf_approx::compute_point_delta(const unsigned int round_no, const unsigned int idx, const double log_factor) const
+{
 	return sqrt(
 			0.5 * ((1. + m_gamma) * log(static_cast<double>(round_no)) + log_factor)
 			/ (static_cast<double>(m_no_samples[idx]))
@@ -279,12 +282,14 @@ double bf_approx::compute_point_delta(const unsigned int round_no, const unsigne
 }
 
 /// Determine whether point 'p' influences the volume of box (a, b)
-// return 0 - box (p, R) has no overlapping volume with box (a, b)
-// return 1 - box (p, R) overlaps some volume with the box (a, b)
-// return 2 - point p dominates the point a (in which case, contribution by box (a, b) is guaranteed to be 0)
-// return 3 - point p is equal to point a (box (a, b) also contributes 0 hypervolume)
-// R is reference point (implicit)
-int bf_approx::point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const { 
+/**
+ * return 0 - box (p, R) has no overlapping volume with box (a, b)
+ * return 1 - box (p, R) overlaps some volume with the box (a, b)
+ * return 2 - point p dominates the point a (in which case, contribution by box (a, b) is guaranteed to be 0)
+ * return 3 - point p is equal to point a (box (a, b) also contributes 0 hypervolume)
+ */
+int bf_approx::point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const
+{
 	int cmp_a_p = base::dom_cmp(a, p);
 
 	// point a is equal to point p (duplicate)
@@ -310,7 +315,8 @@ int bf_approx::point_in_box(const fitness_vector &p, const fitness_vector &a, co
  *
  * @return fitness_vector describing the opposite corner of the bounding box
  */
-fitness_vector bf_approx::compute_bounding_box(const std::vector<fitness_vector> &points, const fitness_vector &r_point, const unsigned int p_idx) const {
+fitness_vector bf_approx::compute_bounding_box(const std::vector<fitness_vector> &points, const fitness_vector &r_point, const unsigned int p_idx) const
+{
 	// z is the opposite corner of the bounding box (reference point as a 'safe' first candidate - this is the MAXIMAL bounding box as of yet)
 	fitness_vector z(r_point);
 
@@ -339,7 +345,7 @@ fitness_vector bf_approx::compute_bounding_box(const std::vector<fitness_vector>
 	return z;
 }
 
-// verify_before_compute
+/// Verify before compute method
 /**
  * Verifies whether given algorithm suits the requested data.
  *
@@ -348,11 +354,13 @@ fitness_vector bf_approx::compute_bounding_box(const std::vector<fitness_vector>
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void bf_approx::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
-	base::assert_maximal_reference_point(points, r_point);
+void bf_approx::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
+	base::assert_minimisation(points, r_point);
 }
 
-double bf_approx::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double bf_approx::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	(void)points;
 	(void)r_point;
 	pagmo_throw(value_error, "Compute hypervolume method is not yet implemented.");
@@ -366,7 +374,8 @@ base_ptr bf_approx::clone() const
 }
 
 /// Algorithm name
-std::string bf_approx::get_name() const {
+std::string bf_approx::get_name() const
+{
 	return "Bringmann-Friedrich approximation method";
 }
 

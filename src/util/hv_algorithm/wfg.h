@@ -45,48 +45,49 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE wfg : public base {
-	public:
-		wfg(const unsigned int stop_dimension = 2);
-		double compute(std::vector<fitness_vector> &, const fitness_vector &);
-		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		base_ptr clone() const;
-		std::string get_name() const;
+class __PAGMO_VISIBLE wfg : public base
+{
+public:
+	wfg(const unsigned int stop_dimension = 2);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	base_ptr clone() const;
+	std::string get_name() const;
 
 
-	private:
+private:
 
-		void limitset(double**, const unsigned int, const unsigned int, const unsigned int);
-		double exclusive_hv(double**, const unsigned int, const unsigned int, const unsigned int);
-		double compute_hv(double**, const unsigned int, const unsigned int);
+	void limitset(double**, const unsigned int, const unsigned int, const unsigned int);
+	double exclusive_hv(double**, const unsigned int, const unsigned int, const unsigned int);
+	double compute_hv(double**, const unsigned int, const unsigned int);
 
-		bool cmp_func(double* a, double* b);
+	bool cmp_func(double* a, double* b);
 
-		mutable unsigned int m_current_slice;
-		const unsigned int m_stop_dimension;
+	mutable unsigned int m_current_slice;
+	const unsigned int m_stop_dimension;
 
-		// Array of point sets for each recursive level.
-		double*** m_frames;
+	// Array of point sets for each recursive level.
+	double*** m_frames;
 
-		// Maintains the number of points at given recursion level.
-		unsigned int* m_frames_size;
+	// Maintains the number of points at given recursion level.
+	unsigned int* m_frames_size;
 
-		// Keeps track of currently allocated number of frames.
-		unsigned int m_n_frames;
+	// Keeps track of currently allocated number of frames.
+	unsigned int m_n_frames;
 
-		double* m_refpoint;
+	double* m_refpoint;
 
-		unsigned int m_max_points;
-		unsigned int m_max_dim;
+	unsigned int m_max_points;
+	unsigned int m_max_dim;
 
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & m_current_slice;
-			ar & const_cast<unsigned int &>(m_stop_dimension);
-		}
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & m_current_slice;
+		ar & const_cast<unsigned int &>(m_stop_dimension);
+	}
 };
 
 } } }

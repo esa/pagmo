@@ -52,7 +52,8 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1[\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
  */
 sms_emoa::sms_emoa(int gen, int sel_m, double cr, double eta_c, double m, double eta_m):base(),m_gen(gen),
-	m_sel_m(sel_m),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
+	m_sel_m(sel_m),m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m)
+{
 	validate_parameters();
 }
 
@@ -63,7 +64,8 @@ sms_emoa::sms_emoa(int gen, int sel_m, double cr, double eta_c, double m, double
   * @param[in] orig Original instance of SMS-EMOA to make a copy from
   */
 sms_emoa::sms_emoa(const sms_emoa &orig) : base(),m_gen(orig.m_gen),m_sel_m(orig.m_sel_m),
-	m_cr(orig.m_cr),m_eta_c(orig.m_eta_c),m_m(orig.m_m),m_eta_m(orig.m_eta_m) {
+	m_cr(orig.m_cr),m_eta_c(orig.m_eta_c),m_m(orig.m_m),m_eta_m(orig.m_eta_m)
+{
 	if (orig.m_hv_algorithm) {
 		m_hv_algorithm = orig.m_hv_algorithm->clone();
 	}
@@ -82,12 +84,14 @@ sms_emoa::sms_emoa(const sms_emoa &orig) : base(),m_gen(orig.m_gen),m_sel_m(orig
  * @throws value_error if gen is negative, crossover probability is not \f$ \in [0,1[\f$, mutation probability or mutation width is not \f$ \in [0,1]\f$,
  */
 sms_emoa::sms_emoa(pagmo::util::hv_algorithm::base_ptr hv_algorithm, int gen, int sel_m, double cr, double eta_c, double m, double eta_m):base(),
-	m_gen(gen),m_sel_m(sel_m), m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m) {
+	m_gen(gen),m_sel_m(sel_m), m_cr(cr),m_eta_c(eta_c),m_m(m),m_eta_m(eta_m)
+{
 	m_hv_algorithm = hv_algorithm;
 	validate_parameters();
 }
 
-pagmo::util::hv_algorithm::base_ptr sms_emoa::get_hv_algorithm() const {
+pagmo::util::hv_algorithm::base_ptr sms_emoa::get_hv_algorithm() const
+{
 	return m_hv_algorithm;
 }
 
@@ -97,7 +101,8 @@ base_ptr sms_emoa::clone() const
 	return base_ptr(new sms_emoa(*this));
 }
 
-void sms_emoa::validate_parameters() {
+void sms_emoa::validate_parameters()
+{
 	if (m_gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -268,7 +273,8 @@ void sms_emoa::mutate(decision_vector& child, const pagmo::population& pop) cons
 }
 
 // Find the index of the least contributing individual
-population::size_type sms_emoa::evaluate_s_metric_selection(const population & pop) const {
+population::size_type sms_emoa::evaluate_s_metric_selection(const population & pop) const
+{
 
 	std::vector< std::vector< population::size_type> > fronts = pop.compute_pareto_fronts();
 

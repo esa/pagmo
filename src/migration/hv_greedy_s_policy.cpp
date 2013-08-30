@@ -44,7 +44,7 @@ namespace pagmo { namespace migration {
  *
  * @see base_s_policy::base_s_policy.
  */
-hv_greedy_s_policy::hv_greedy_s_policy(const double &rate, rate_type type, const double nadir_eps):base_s_policy(rate,type), m_nadir_eps(nadir_eps) {}
+hv_greedy_s_policy::hv_greedy_s_policy(const double &rate, rate_type type, const double nadir_eps):base_s_policy(rate,type), m_nadir_eps(nadir_eps) { }
 
 base_s_policy_ptr hv_greedy_s_policy::clone() const
 {

@@ -54,44 +54,44 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  * @author (refactoring) Krzysztof Nowak (kn@kiryx.net)
  */
 class __PAGMO_VISIBLE hoy : public base {
-	public:
-		hoy();
-		double compute(std::vector<fitness_vector> &, const fitness_vector &);
-		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		base_ptr clone() const;
-		std::string get_name() const;
+public:
+	hoy();
+	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	base_ptr clone() const;
+	std::string get_name() const;
 
-	private:
+private:
 
-		inline bool covers(const double cub[], const double reg_low[]) const;
-		inline bool part_covers(const double cub[], const double reg_up[]) const;
-		inline int contains_boundary(const double cub[], const double reg_low[], const int split) const;
-		inline double get_measure(const double reg_low[], const double reg_up[]) const;
-		inline int is_pile(const double cub[], const double reg_low[]) const;
-		inline double compute_trellis(const double reg_low[], const double reg_up[], const double trellis[]) const;
-		inline double get_median(double* bounds, unsigned int n) const;
-		inline void stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level);
+	inline bool covers(const double cub[], const double reg_low[]) const;
+	inline bool part_covers(const double cub[], const double reg_up[]) const;
+	inline int contains_boundary(const double cub[], const double reg_low[], const int split) const;
+	inline double get_measure(const double reg_low[], const double reg_up[]) const;
+	inline int is_pile(const double cub[], const double reg_low[]) const;
+	inline double compute_trellis(const double reg_low[], const double reg_up[], const double trellis[]) const;
+	inline double get_median(double* bounds, unsigned int n) const;
+	inline void stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level);
 
-		// Member variables used for the 'compute' method are initialized in the method itself and freed after the computation.
-		// At no point in-between the 'compute' calls, their state is expected to be defined.
-		int		m_dimension;
-		int		m_total_size;
-		double	m_sqrt_size;
-		double	m_volume;
-		double	*m_region_up;
-		double	*m_region_low;
-		int		*m_piles;
-		double	*m_trellis;
-		double	*m_boundaries;
-		double	*m_no_boundaries;
-		std::vector<double**> m_child_points;
+	// Member variables used for the 'compute' method are initialized in the method itself and freed after the computation.
+	// At no point in-between the 'compute' calls, their state is expected to be defined.
+	int		m_dimension;
+	int		m_total_size;
+	double	m_sqrt_size;
+	double	m_volume;
+	double	*m_region_up;
+	double	*m_region_low;
+	int		*m_piles;
+	double	*m_trellis;
+	double	*m_boundaries;
+	double	*m_no_boundaries;
+	std::vector<double**> m_child_points;
 
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-		}
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+	}
 };
 
 } } }

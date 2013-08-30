@@ -52,11 +52,13 @@ bf_fpras::bf_fpras(const bf_fpras &orig) : m_eps(orig.m_eps), m_delta(orig.m_del
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void bf_fpras::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) {
-	base::assert_maximal_reference_point(points, r_point);
+void bf_fpras::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
+	base::assert_minimisation(points, r_point);
 }
 
-double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+{
 	unsigned int n = points.size();
 	unsigned int dim = r_point.size();
 	boost::uint_fast64_t T = static_cast<boost::uint_fast64_t>( 12. * std::log( 1. / m_delta ) / std::log( 2. ) * n / m_eps / m_eps );
@@ -86,7 +88,6 @@ double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vect
 	fitness_vector rnd_point(dim, 0.0);
 
 	while(true) {
-
 		// Get the random volume in-between [0, V] range, in order to choose the box with probability sums[i] / V
 		double r = m_drng() * V;
 
@@ -118,7 +119,8 @@ base_ptr bf_fpras::clone() const
 }
 
 /// Algorithm name
-std::string bf_fpras::get_name() const {
+std::string bf_fpras::get_name() const
+{
 	return "Hypervolume algorithm based on FPRAS";
 }
 

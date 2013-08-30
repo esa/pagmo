@@ -63,7 +63,6 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	// Remove the duplicates from the set of immigrants
 	std::vector<population::individual_type>::iterator im_it = (const_cast<std::vector<population::individual_type> &>(immigrants)).begin();
 	for( ; im_it != immigrants.end() ; ++im_it) {
-
 		decision_vector im_x((*im_it).cur_x);
 
 		bool equal = true;
@@ -80,7 +79,6 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 				break;
 			}
 		}
-
 		if (!equal) {
 			filtered_immigrants.push_back(*im_it);
 		}
@@ -219,7 +217,7 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	sort(available_immigrants.begin(), available_immigrants.end(), hv_greedy_r_policy::ind_cmp);
 	sort(discarded_islanders.begin(), discarded_islanders.end(), hv_greedy_r_policy::ind_cmp);
 
-	// Number of exhanges is the minimum of the number of non discarded immigrants and the number of discarded islanders
+	// Number of exchanges is the minimum of the number of non discarded immigrants and the number of discarded islanders
 	unsigned int no_exchanges = std::min(no_available_immigrants, boost::numeric_cast<unsigned int>(discarded_islanders.size()));
 
 	it = available_immigrants.begin();

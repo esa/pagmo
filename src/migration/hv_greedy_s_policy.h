@@ -44,21 +44,20 @@ namespace pagmo { namespace migration {
  */
 class __PAGMO_VISIBLE hv_greedy_s_policy: public base_s_policy
 {
-	public:
-		hv_greedy_s_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 0.0);
-		base_s_policy_ptr clone() const;
-		std::vector<population::individual_type> select(population &) const;
-	private:
-		struct dom_comp;
-		const double m_nadir_eps;
+public:
+	hv_greedy_s_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 0.0);
+	base_s_policy_ptr clone() const;
+	std::vector<population::individual_type> select(population &) const;
+private:
+	const double m_nadir_eps;
 
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base_s_policy>(*this);
-			ar & const_cast<double &>(m_nadir_eps);
-		}
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base_s_policy>(*this);
+		ar & const_cast<double &>(m_nadir_eps);
+	}
 };
 
 } }

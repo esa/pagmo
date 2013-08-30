@@ -82,7 +82,8 @@ static inline class_<HVAlgorithm,bases<util::hv_algorithm::base> > algorithm_wra
 	return retval;
 }
 
-void expose_hv_algorithm() {
+void expose_hv_algorithm()
+{
 	class_<util::hv_algorithm::base,boost::noncopyable>("_base",no_init)
 		.def("get_name", &util::hv_algorithm::base::get_name);
 	algorithm_wrapper<util::hv_algorithm::hv2d>("hv2d","hv2d algorithm.");
@@ -95,8 +96,8 @@ void expose_hv_algorithm() {
 	class_<util::hv_algorithm::bf_fpras, bases<util::hv_algorithm::base> >("bf_fpras","Hypervolume approximation based on FPRAS", init<const double, const double>());
 }
 
-void expose_hypervolume() {
-
+void expose_hypervolume()
+{
 	typedef double (util::hypervolume::*compute_custom)(const fitness_vector &, const util::hv_algorithm::base_ptr) const;
 	typedef double (util::hypervolume::*compute_dynamic)(const fitness_vector &) const;
 
@@ -108,7 +109,6 @@ void expose_hypervolume() {
 
 	typedef unsigned int (util::hypervolume::*greatest_contributor_custom)(const fitness_vector &, const util::hv_algorithm::base_ptr) const;
 	typedef unsigned int (util::hypervolume::*greatest_contributor_dynamic)(const fitness_vector &) const;
-
 
 	class_<util::hypervolume>("hypervolume","Hypervolume class.", init<const std::vector<std::vector<double> > &, const bool >())
 		.def(init<boost::shared_ptr<population>, const bool>())
@@ -127,7 +127,8 @@ void expose_hypervolume() {
 		.def("get_verify", &util::hypervolume::get_verify);
 }
 
-BOOST_PYTHON_MODULE(_util) {
+BOOST_PYTHON_MODULE(_util)
+{
 	common_module_init();
 
 	typedef std::vector<double> (discrepancy::py_simplex::*my_first_overload)() ;

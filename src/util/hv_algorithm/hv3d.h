@@ -46,51 +46,51 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE hv3d : public base {
-	public:
+class __PAGMO_VISIBLE hv3d : public base
+{
+public:
+	hv3d(bool initial_sorting = true);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
-		hv3d(const hv3d &orig);
-		hv3d(bool initial_sorting = true);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	base_ptr clone() const;
+	std::string get_name() const;
 
-		double compute(std::vector<fitness_vector> &, const fitness_vector &);
-		unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
-		unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+private:
+	// flag stating whether the points should be sorted in the first step of the algorithm
+	const bool m_initial_sorting;
 
-		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
-		base_ptr clone() const;
-		std::string get_name() const;
+	struct box3d
+	{
+		box3d(double _lx, double _ly, double _lz, double _ux, double _uy, double _uz)
+			: lx(_lx), ly(_ly), lz(_lz), ux(_ux), uy(_uy), uz(_uz) { }
+		double lx;
+		double ly;
+		double lz;
+		double ux;
+		double uy;
+		double uz;
+	};
 
-	private:
-		// flag stating whether the points should be sorted in the first step of the algorithm
-		const bool m_initial_sorting;
+	struct hycon3d_tree_cmp
+	{
+		bool operator()(const std::pair<fitness_vector, int> &, const std::pair<fitness_vector, int> &);
+	};
 
-		struct box3d {
-			box3d(double _lx, double _ly, double _lz, double _ux, double _uy, double _uz)
-				: lx(_lx), ly(_ly), lz(_lz), ux(_ux), uy(_uy), uz(_uz) { }
-			double lx;
-			double ly;
-			double lz;
-			double ux;
-			double uy;
-			double uz;
-		};
+	static bool hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &, const std::pair<fitness_vector, unsigned int> &);
+	static double box_volume(const box3d &b);
+	std::vector<double> hycon3d(std::vector<fitness_vector> &, const fitness_vector &);
+	unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
 
-		struct hycon3d_tree_cmp {
-			bool operator()(const std::pair<fitness_vector, int> &, const std::pair<fitness_vector, int> &);
-		};
-
-		static bool hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &, const std::pair<fitness_vector, unsigned int> &);
-		static double box_volume(const box3d &b);
-		std::vector<double> hycon3d(std::vector<fitness_vector> &, const fitness_vector &);
-		unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
-
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & const_cast<bool &>(m_initial_sorting);
-		}
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<bool &>(m_initial_sorting);
+	}
 };
 
 } } }
