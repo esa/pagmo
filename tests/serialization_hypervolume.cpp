@@ -95,6 +95,37 @@ int main()
 
 	util::hypervolume hv(boost::shared_ptr<population>(new population(prob, 100)));
 	fitness_vector nadir_p = hv.get_nadir_point(1.0);
+
+
+	// Algorithms for which the compute method is available
+	std::vector<util::hv_algorithm::base_ptr> compute_algs;
+	std::vector<util::hv_algorithm::base_ptr> compute_algs_new;
+	compute_algs.push_back(util::hv_algorithm::bf_fpras(0.12345,0.12345).clone());
+	compute_algs_new.push_back(util::hv_algorithm::bf_fpras().clone());
+	compute_algs.push_back(util::hv_algorithm::wfg(4).clone());
+	compute_algs_new.push_back(util::hv_algorithm::wfg().clone());
+
+	for(unsigned int i = 0 ; i < compute_algs.size() ; ++i) {
+
+		// save/load the objects
+		{
+			std::ofstream ofs("test.ar");
+			boost::archive::text_oarchive oa(ofs);
+			oa & compute_algs[i];
+		}
+		{
+			std::ifstream ifs("test.ar");
+			boost::archive::text_iarchive ia(ifs);
+			ia & compute_algs_new[i];
+		}
+
+		double hv1 = hv.compute(nadir_p, compute_algs[i]);
+		double hv2 = hv.compute(nadir_p, compute_algs_new[i]);
+		if (hv1 != hv2) {
+			return 1;
+		}
+	}
+
 	unsigned int lc1 = hv.least_contributor(nadir_p, bf);
 	unsigned int lc2 = hv.least_contributor(nadir_p, bf_new);
 	if (lc1 != lc2) {
