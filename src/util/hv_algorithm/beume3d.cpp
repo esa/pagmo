@@ -30,14 +30,28 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 // Copy constructor
 beume3d::beume3d(const beume3d &orig) : m_initial_sorting(orig.m_initial_sorting) { }
 
-// Constructor
+/// Constructor
+/**
+ * Constructor of the algorithm object.
+ * In the very first step, algorithm requires the inital set of points to be sorted ASCENDING in the third dimension.
+ * If the input is already sorted, user can skip this step using "initial_sorting = false" option, saving some extra time.
+ *
+ * @param[in] initial_sorting when set to true (default), algorithm will sort the points ascending by third dimension
+ */
 beume3d::beume3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
 
 /// Compute hypervolume 
 /**
  * This method should be used both as a solution to 3D cases, and as a general termination method for algorithms that reduce D-dimensional problem to 3-dimensional one.
  *
+ * This is the implementation of the Beume3D algorithm for computing hypervolume.
+ * The implementation uses std::multiset (which is based on red-black tree data structure) as a container for the sweeping front.
+ * Original implementation by Beume et. al uses AVL-tree.
+ * The difference is insiginificant as the important characteristics (maintaining order, self-balancing) of both structures and the asymptotical times (O(log n) updates) are guaranteed.
  * Computational complexity: O(n*log(n))
+ *
+ * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
+ * Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
  *
  * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
@@ -95,24 +109,28 @@ double beume3d::compute(std::vector<fitness_vector> &points, const fitness_vecto
 	return V;
 }
 
-struct multiset_cmp {
-	bool operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b) {
-		return a.first[0] > b.first[0];
-	}
-};
+/// comparator method for hycon3d algorithm's tree structure
+bool beume3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b) {
+	return a.first[0] > b.first[0];
+}
 
-double beume3d::volume(box3d &b) {
+/// box_volume method
+/**
+ * Returns the volume of the box3d object
+ */
+double beume3d::box_volume(const box3d &b) {
 	return fabs((b.ux - b.lx) * (b.uy - b.ly) * (b.uz - b.lz));
 }
 
-bool sort_pairs(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
+// comparator method for the hycon3d algorithm's sorting procedure
+bool beume3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b) {
 	return a.first[2] < b.first[2];
 }
 
 /// least_contributor method
 /**
  * This method overloads the virtual method in pagmo::util::hv_algorithm::base.
- * This is the implementation of the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
+ * This method relies on the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
  *
  * @see "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
  *
@@ -122,17 +140,61 @@ bool sort_pairs(const std::pair<fitness_vector, unsigned int> &a, const std::pai
  * @return index of the least contributor.
  */
 unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+	return extreme_contributor(points, r_point, base::cmp_least);
+}
+
+/// greatest_contributor method
+/**
+ * This method overloads the virtual method in pagmo::util::hv_algorithm::base.
+ * This method relies on the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
+ *
+ * @see "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
+ *
+ * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
+ *
+ * @return index of the greatest contributor.
+ */
+unsigned int beume3d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
+	return extreme_contributor(points, r_point, base::cmp_greatest);
+}
+
+/// extreme_contributor method
+/**
+ * This method elicites an "extreme" contributor (either min or max item) from a set of contributions computed by HyCon3D algorithm.
+ */
+unsigned int beume3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) {
+
+	const std::vector<double> contributions = hycon3d(points, r_point);
+
+	unsigned int extr_i = 0;
+	double extr_c = contributions[extr_i];
+	for(unsigned int i = 1 ; i < contributions.size() ; ++i) {
+		if (cmp_func(contributions[i], extr_c)) {
+			extr_i = i;
+			extr_c = contributions[i];
+		}
+	}
+
+	return extr_i;
+}
+
+/// HyCon3D algorithm
+/*
+ * This algorithm computes the exclusive contribution to the hypervolume object by every point, using an efficient HyCon3D algorithm by Emmerich and Fonseca.
+ */
+std::vector<double> beume3d::hycon3d(std::vector<fitness_vector> &points, const fitness_vector &r_point) {
 	std::vector<std::pair<fitness_vector, unsigned int> > point_pairs;
 	point_pairs.reserve(points.size());
 	for(unsigned int i = 0 ; i < points.size() ; ++i) {
 		point_pairs.push_back(std::make_pair(points[i], i));
 	}
-	sort(point_pairs.begin(), point_pairs.end(), sort_pairs);
+	sort(point_pairs.begin(), point_pairs.end(), hycon3d_sort_cmp);
 	for(unsigned int i = 0 ; i < points.size() ; ++i) {
 		points[i] = point_pairs[i].first;
 	}
 
-	typedef std::multiset<std::pair<fitness_vector, int>, multiset_cmp > tree_t;
+	typedef std::multiset<std::pair<fitness_vector, int>, hycon3d_tree_cmp > tree_t;
 
 	unsigned int n = points.size();
 	const double INF = std::numeric_limits<double>::max();
@@ -194,11 +256,11 @@ unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, con
 			box3d& b = L[r].front();
 			if(b.ux >= points[i][0]) {
 				b.lz = points[i][2];
-				c[r] += volume(b);
+				c[r] += box_volume(b);
 				L[r].pop_front();
 			} else if(b.lx > points[i][0]) {
 				b.lz = points[i][2];
-				c[r] += volume(b);
+				c[r] += box_volume(b);
 				b.lx = points[i][0];
 				b.uz = points[i][2];
 				b.lz = NaN;
@@ -217,7 +279,7 @@ unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, con
 			while(!L[jdom].empty()) {
 				box3d& b = L[jdom].front();
 				b.lz = points[i][2];
-				c[jdom] += volume(b);
+				c[jdom] += box_volume(b);
 				L[jdom].pop_front();
 			}
 			L[i].push_back(box3d(xleft, points[jdom][1], NaN, points[jdom][0], points[i][1], points[i][2]));
@@ -231,7 +293,7 @@ unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, con
 			box3d &b = L[t].back();
 			if(b.ly > points[i][1]) {
 				b.lz = points[i][2];
-				c[t] += volume(b);
+				c[t] += box_volume(b);
 				xleft = b.lx;
 				L[t].pop_back();
 			} else {
@@ -244,16 +306,13 @@ unsigned int beume3d::least_contributor(std::vector<fitness_vector> &points, con
 		T.insert(std::make_pair(points[i], i));
 	}
 
-	unsigned int min_i = 0;
-	double min_c = c[min_i];
-	for(unsigned int i = 1 ; i < n ; ++i) {
-		if ( c[i] < min_c) {
-			min_i = i;
-			min_c = c[i];
-		}
+	// Fix the indices
+	std::vector<double> contribs;
+	contribs.reserve(n);
+	for(unsigned int i=0;i < c.size();++i) {
+		contribs.push_back(c[point_pairs[i].second]);
 	}
-
-	return point_pairs[min_i].second;
+	return contribs;
 }
 
 // verify_before_compute

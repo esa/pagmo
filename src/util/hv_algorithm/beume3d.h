@@ -39,13 +39,10 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// Beume3D hypervolume algorithm class
 /**
- * This is the class containing the implementation of the Beume3D algorithm for computing hypervolume.
- * The implementation uses std::multiset (which is based on red-black tree data structure) as a container for the sweeping front.
- * Original implementation by Beume et. al uses AVL-tree. 
- * The difference is insiginificant as the important characteristics (maintaining order, self-balancing) of both structures and the asymptotical times (O(log n) updates) are the same.
  *
- * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
- * Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
+ * This class contains the implementation of state-of-the art algorithm for the hypervolume computation of 3-dimensional hypervolumes.
+ * 'least[greatest]_contributor' methods rely on the HyCon3D algorithm by Emmerich and Fonseca.
+ * 'compute' method relies on the efficient algorithm as it was presented by Nicola Beume et al.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
@@ -57,6 +54,7 @@ class __PAGMO_VISIBLE beume3d : public base {
 
 		double compute(std::vector<fitness_vector> &, const fitness_vector &);
 		unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+		unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
 		void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
 		base_ptr clone() const;
@@ -77,7 +75,14 @@ class __PAGMO_VISIBLE beume3d : public base {
 			double uz;
 		};
 
-		double volume(box3d &b);
+		struct hycon3d_tree_cmp {
+			bool operator()(const std::pair<fitness_vector, int> &, const std::pair<fitness_vector, int> &);
+		};
+
+		static bool hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &, const std::pair<fitness_vector, unsigned int> &);
+		static double box_volume(const box3d &b);
+		std::vector<double> hycon3d(std::vector<fitness_vector> &, const fitness_vector &);
+		unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
 
 		friend class boost::serialization::access;
 		template <class Archive>
