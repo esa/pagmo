@@ -39,7 +39,7 @@ base::~base() {}
  * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
  * @param[in] r_point - distinguished "reference point".
 */
-void base::assert_minimisation(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+void base::assert_minimisation(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		bool outside_bounds = false;

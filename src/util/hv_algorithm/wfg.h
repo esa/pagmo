@@ -50,21 +50,25 @@ class __PAGMO_VISIBLE wfg : public base
 public:
 	wfg(const unsigned int stop_dimension = 2);
 	double compute(std::vector<fitness_vector> &, const fitness_vector &);
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 
-
 private:
-
 	void limitset(double**, const unsigned int, const unsigned int, const unsigned int);
 	double exclusive_hv(double**, const unsigned int, const unsigned int, const unsigned int);
 	double compute_hv(double**, const unsigned int, const unsigned int);
 
 	bool cmp_func(double* a, double* b);
 
+	/**
+	 * 'compute' method variables section.
+	 *
+	 * Variables below (especially the pointers m_frames, m_frames_size and m_refpoint) are initialized
+	 * at the beginning of the 'compute' method, and freed afterwards.
+	 * The state of the variables is irrelevant outside the scope of the compute method.
+	 */
 	mutable unsigned int m_current_slice;
-	const unsigned int m_stop_dimension;
 
 	// Array of point sets for each recursive level.
 	double*** m_frames;
@@ -75,10 +79,20 @@ private:
 	// Keeps track of currently allocated number of frames.
 	unsigned int m_n_frames;
 
+	// Copy of the reference point
 	double* m_refpoint;
 
+	// Size of the original front
 	unsigned int m_max_points;
+
+	// Size of the dimension
 	unsigned int m_max_dim;
+	/**
+	 * End of 'compute' method variables section.
+	 */
+
+	// Dimension at which WFG stops the slicing
+	const unsigned int m_stop_dimension;
 
 	friend class boost::serialization::access;
 	template <class Archive>

@@ -37,7 +37,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 bf_fpras::bf_fpras(const double eps, const double delta) : m_eps(eps), m_delta(delta) { }
 
-// verify_before_compute
+/// Verify before compute
 /**
  * Verifies whether given algorithm suits the requested data.
  *
@@ -46,11 +46,22 @@ bf_fpras::bf_fpras(const double eps, const double delta) : m_eps(eps), m_delta(d
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void bf_fpras::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+void bf_fpras::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	base::assert_minimisation(points, r_point);
 }
 
+/// Compute method
+/**
+ * Compute the hypervolume using FPRAS.
+ *
+ * @see "Approximating the volume of unions and intersections of high-dimensional geometric objects", Karl Bringmann, Tobias Friedrich.
+ *
+ * @param[in] points vector of fitness_vectors for which the hypervolume is computed
+ * @param[in] r_point distinguished "reference point".
+ *
+ * @return approximated hypervolume
+ */
 double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
 	unsigned int n = points.size();

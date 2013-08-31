@@ -39,18 +39,20 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// HV4D hypervolume algorithm
+/// hv4d hypervolume algorithm
 /**
  * This is the class containing the interface to the the hypervolume indicator in four dimensions as implemented by Andreia P. Guerreiro et al.
  *
  * @see Andreia P. Guerreiro, Carlos M. Fonseca, Michael T. Emmerich, "A Fast Dimension-Sweep Algorithm for the Hypervolume Indicator in Four Dimensions", CCCG 2012, Charlottetown, P.E.I., August 8–10, 2012.
- * @author Krzysztof Nowak (kn@kiryx.net)
+ *
+ * @author (original implementation) Andreia P. Guerreiro
+ * @author (C++ wrapper) Krzysztof Nowak (kn@kiryx.net)
  */
 class __PAGMO_VISIBLE hv4d : public base
 {
 public:
 	double compute(std::vector<fitness_vector> &, const fitness_vector &);
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 

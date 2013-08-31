@@ -39,7 +39,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// Bringmann-Friedrich approximation method
 /**
- * This is the class containing the implementation of the Bringmann-Friedrich approximation scheme (FPRAS), reduced to a special case of approximating the hypervolume indicator.
+ * This class contains the implementation of the Bringmann-Friedrich approximation scheme (FPRAS), reduced to a special case of approximating the hypervolume indicator.
  *
  * @see "Approximating the volume of unions and intersections of high-dimensional geometric objects", Karl Bringmann, Tobias Friedrich.
  *
@@ -52,18 +52,17 @@ public:
 
 	double compute(std::vector<fitness_vector> &, const fitness_vector &);
 
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 
 private:
-	// error of approximation
+	// error of the approximation
 	const double m_eps;
 	// probabiltiy of error
 	const double m_delta;
 
 	mutable rng_double m_drng;
-
 
 	friend class boost::serialization::access;
 	template <class Archive>

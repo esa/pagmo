@@ -85,7 +85,6 @@ public:
 	const std::vector<fitness_vector> &get_points() const;
 
 private:
-	// Method returning the best performing algorithm for given computational task
 	hv_algorithm::base_ptr get_best_method(const fitness_vector &) const;
 	void verify_after_construct() const;
 	void verify_before_compute(const fitness_vector &, const hv_algorithm::base_ptr) const;

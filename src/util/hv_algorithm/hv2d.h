@@ -34,7 +34,7 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// Hv2D hypervolume algorithm class
+/// hv2d hypervolume algorithm class
 /**
  * This is the class containing the implementation of the hypervolume algorithm for the 2-dimensional fronts.
  * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then computing the partial areas linearly.
@@ -50,7 +50,7 @@ public:
 	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 

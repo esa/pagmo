@@ -53,12 +53,29 @@ hypervolume::hypervolume(boost::shared_ptr<population> pop, const bool verify) :
  * @param[in] verify flag stating whether the points should be verified after the construction. This turns off the validation for the further computation as well, use 'set_verify' flag to alter it later.
  */
 hypervolume::hypervolume(const std::vector<fitness_vector> &points, const bool verify) : m_points(points), m_copy_points(true), m_verify(verify) {
-	if  (m_verify) {
+	if (m_verify) {
 		verify_after_construct();
 	}
 }
 
-/// Setter for m_copy_points flag
+/// Copy constructor.
+/**
+ * Will perform a deep copy of hypervolume object
+ *
+ * @param[in] hv hypervolume object to be copied
+ */
+hypervolume::hypervolume(const hypervolume &hv): m_points(hv.m_points), m_copy_points(hv.m_copy_points), m_verify(hv.m_verify) { }
+
+/// Default constructor
+/**
+ * Initiates hypervolume with empty set of points.
+ * Used for serialization purposes.
+ */
+hypervolume::hypervolume() : m_copy_points(true), m_verify(true) {
+	m_points.resize(0);
+}
+
+/// Setter for 'copy_points' flag
 /**
  * Sets the hypervolume as a single use object.
  * It is used in cases where we are certain that we can alter the original set of points from the hypervolume object.
@@ -72,15 +89,15 @@ void hypervolume::set_copy_points(const bool copy_points) {
 	m_copy_points = copy_points;
 }
 
-/// Getter for m_copy_points flag
+/// Getter for 'copy_points' flag
 bool hypervolume::get_copy_points() {
 	return m_copy_points;
 }
 
-/// Setter the m_verify flag
+/// Setter for the 'verify' flag
 /**
  * Turns off the verification phase.
- * By default, the hypervolume object verifies whether certain characteristics of the point set before computing, such as valid dimension sizes, or matchin reference point.
+ * By default, the hypervolume object verifies whether certain characteristics of the point set hold, such as valid dimension sizes or a reference point that suits the minimisation.
  * In order to optimize the computation when the rules above are certain, we can turn off that phase.
  *
  * This may result in unexpected behaviour when used incorrectly (e.g. requesting the computation of empty set of points)
@@ -91,30 +108,12 @@ void hypervolume::set_verify(const bool verify) {
 	m_verify = verify;
 }
 
-/// Getter for the m_verify flag
+/// Getter for the 'verify' flag
 bool hypervolume::get_verify() {
 	return m_verify;
 }
 
-/// Copy constructor.
-/**
- * Will perform a deep copy of hypervolume object
- *
- * @param[in] hv hypervolume object to be copied
- */
-hypervolume::hypervolume(const hypervolume &hv): m_points(hv.m_points) { }
-
-
-/// Default constructor
-/**
- * Initiates hypervolume with empty set of points.
- * Used for serialization purposes.
- */
-hypervolume::hypervolume() {
-	m_points.resize(0);
-}
-
-/// verify after construct
+/// Verify after construct method
 /**
  * Verifies whether basic requirements are met for the initial set of points.
  *
@@ -135,7 +134,7 @@ void hypervolume::verify_after_construct() const {
 	}
 }
 
-// verify before compute
+/// Verify before compute method
 /**
  * Verifies whether reference point and the hypervolume method meet certain criteria.
  *
@@ -150,7 +149,11 @@ void hypervolume::verify_before_compute(const fitness_vector &r_point, hv_algori
 	hv_algorithm->verify_before_compute(m_points, r_point);
 }
 
-// choose the best method for given dimension
+/// Choose the best hypervolume algorithm for given task
+/**
+ * Returns the best method for given hypervolume computation problem.
+ * As of yet, only the dimension size is taken into account.
+ */
 hv_algorithm::base_ptr hypervolume::get_best_method(const fitness_vector &r_point) const {
 	switch(r_point.size()) {
 		case 2:
@@ -167,12 +170,12 @@ hv_algorithm::base_ptr hypervolume::get_best_method(const fitness_vector &r_poin
 	}
 }
 
-// compute hypervolume
+/// Compute hypervolume
 /**
- * Computes hypervolume provided a reference point and an algorithm object.
+ * Computes hypervolume for given reference point, using given algorithm object.
  *
  * @param[in] r_point fitness vector describing the reference point
- * @param[in] hv_algorithm algorithm object used for computing the hypervolume
+ * @param[in] hv_algorithm instance of the algorithm object used for the computation
  *
  * @return value representing the hypervolume
  */
@@ -191,13 +194,12 @@ double hypervolume::compute(const fitness_vector &r_point, hv_algorithm::base_pt
 	}
 }
 
-// compute hypervolume
+/// Compute hypervolume
 /**
- * Computes hypervolume provided a reference point and an algorithm object.
+ * Computes hypervolume for given reference point.
  * This method chooses the hv_algorithm dynamically.
  *
  * @param[in] r_point fitness vector describing the reference point
- * @param[in] hv_algorithm algorithm object used for computing the hypervolume
  *
  * @return value representing the hypervolume
  */
@@ -205,13 +207,13 @@ double hypervolume::compute(const fitness_vector &r_point) const {
 	return compute(r_point, get_best_method(r_point));
 }
 
-// compute exclusive contribution
+/// Compute exclusive contribution
 /**
  * Computes exclusive hypervolume for given indivdual.
  *
  * @param[in] p_idx index of the individual for whom we compute the exclusive contribution to the hypervolume
  * @param[in] r_point fitness vector describing the reference point
- * @param[in] hv_algorithm algorithm object used for computing the hypervolume
+ * @param[in] hv_algorithm instance of the algorithm object used for the computation
  *
  * @return value representing the hypervolume
  */
@@ -235,7 +237,7 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
 	}
 }
 
-// compute exclusive contribution
+/// Compute exclusive contribution
 /**
  * Computes exclusive hypervolume for given indivdual.
  * This methods chooses the hv_algorithm dynamically.
@@ -249,12 +251,12 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
 	return exclusive(p_idx, r_point, get_best_method(r_point));
 }
 
-// locate the least contributing individual
+/// Find the least contributing individual
 /**
- * Locates the individual contributing the least to the total hypervolume.
+ * Establishes the individual contributing the least to the total hypervolume.
  *
  * @param[in] r_point fitness vector describing the reference point
- * @param[in] hv_algorithm algorithm object used for computation
+ * @param[in] hv_algorithm instance of the algorithm object used for the computation
  *
  * @return index of the least contributing point
  */
@@ -273,9 +275,9 @@ unsigned int hypervolume::least_contributor(const fitness_vector &r_point, hv_al
 	}
 }
 
-// locate the least contributing individual
+/// Find the least contributing individual
 /**
- * Locates the individual contributing the least to the total hypervolume.
+ * Establishes the individual contributing the least to the total hypervolume.
  * This method chooses the best performing hv_algorithm dynamically
  *
  * @param[in] r_point fitness vector describing the reference point
@@ -286,12 +288,12 @@ unsigned int hypervolume::least_contributor(const fitness_vector &r_point) const
 	return least_contributor(r_point, get_best_method(r_point));
 }
 
-// locate the most contributing individual
+/// Find the most contributing individual
 /**
- * Locates the individual contributing the most to the total hypervolume.
+ * Establish the individual contributing the most to the total hypervolume.
  *
  * @param[in] r_point fitness vector describing the reference point
- * @param[in] hv_algorithm algorithm object used for computation
+ * @param[in] hv_algorithm instance of the algorithm object used for the computation
  *
  * @return index of the most contributing point
  */
@@ -310,9 +312,9 @@ unsigned int hypervolume::greatest_contributor(const fitness_vector &r_point, hv
 	}
 }
 
-// locate the most contributing individual
+/// Find the most contributing individual
 /**
- * Locates the individual contributing the most to the total hypervolume.
+ * Establish the individual contributing the most to the total hypervolume.
  * This method chooses the best performing hv_algorithm dynamically
  *
  * @param[in] r_point fitness vector describing the reference point
@@ -323,11 +325,15 @@ unsigned int hypervolume::greatest_contributor(const fitness_vector &r_point) co
 	return greatest_contributor(r_point, get_best_method(r_point));
 }
 
-/// get expected numer of operations
+/// Get expected numer of operations
 /**
  * Returns the expected average amount of elementary operations for given front size (n) and dimension size (d).
- * As of yet it is relatively simple way of handling that.
+ * This method is used by the approximated algorithms that fall back to exact computation.
  *
+ * @param[in] n size of the front
+ * @param[in] d dimension size
+ *
+ * @return expected number of operations for given n and d
  */
 unsigned long long hypervolume::get_expected_operations(const unsigned int n, const unsigned int d) {
 	if (d == 2) {
@@ -335,11 +341,11 @@ unsigned long long hypervolume::get_expected_operations(const unsigned int n, co
 	} else if (d == 3) {
 		return 3. * n * log(n);  // hv3d
 	} else {
-		return n * log(n) * pow(n,d/2);  // temporary complexity of hso, while we don't know good candiate for wfg yet
+		return n * log(n) * pow(n,d/2);  // Complexity of HSO, while we don't know good candiate for wfg yet
 	}
 }
 
-// calculate the nadir point
+/// Calculate the nadir point
 /**
  * Calculates the nadir point, used as the reference point
  *

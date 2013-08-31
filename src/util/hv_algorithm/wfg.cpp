@@ -30,9 +30,13 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
+/// Comparator function for sorting
+/**
+ * Comparison function for WFG. Can't be static in order to have access to member variable m_current_slice.
+ */
 bool wfg::cmp_func(double* a, double* b)
 {
-	for(int i = m_current_slice - 1; i >=0 ; --i){
+	for(int i = m_current_slice - 1; i >= 0 ; --i){
 		if (a[i] > b[i]) {
 			return true;
 		} else if(a[i] < b[i]) {
@@ -42,7 +46,7 @@ bool wfg::cmp_func(double* a, double* b)
 	return false;
 }
 
-// Constructor
+/// Constructor
 wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimension(stop_dimension)
 {
 	if (stop_dimension < 2 ) {
@@ -50,8 +54,10 @@ wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimensi
 	}
 }
 
-/// Compute hypervolume 
+/// Compute hypervolume
 /**
+ * Computes the hypervolume using the WFG algorithm.
+ *
  * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
  *
@@ -84,7 +90,7 @@ double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 	m_frames_size[0] = m_max_points;
 	m_n_frames = 1;
 
-	// variable holding the current "depth" of dimension slicing. We progress by slicing dimensions from the end.
+	// Variable holding the current "depth" of dimension slicing. We progress by slicing dimensions from the end.
 	m_current_slice = m_max_dim;
 
 	double hv = compute_hv(m_frames[0], m_frames_size[0], 1);
@@ -104,6 +110,7 @@ double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 	return hv;
 }
 
+/// Limit the set of points to point at p_idx
 void wfg::limitset(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level)
 {
 	int no_points = 0;
@@ -122,7 +129,7 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 
 		bool keep_s = true;
 
-		// check whether any point is dominating the point 's'
+		// Check whether any point is dominating the point 's'.
 		for(int q_idx = 0; q_idx < no_points; ++q_idx) {
 			cmp_results[q_idx] = base::dom_cmp(s, frame[q_idx], m_current_slice);
 			if (cmp_results[q_idx] == base::DOM_CMP_B_DOMINATES_A) {
@@ -130,7 +137,7 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 				break;
 			}
 		}
-		// if neither is, remove points dominated by 's' (we store that during the first loop)
+		// If neither is, remove points dominated by 's' (we store that during the first loop).
 		if( keep_s ) {
 			int prev = 0;
 			int next = 0;
@@ -142,7 +149,7 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 						}
 					}
 					++prev;
-				} 
+				}
 				++next;
 			}
 			// Append 's' at the end, if prev==next it's not necessary as it's already there.
@@ -158,6 +165,7 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 	m_frames_size[rec_level] = no_points;
 }
 
+/// Compute the hypervolume recursively
 double wfg::compute_hv(double** points, const unsigned int n_points, const unsigned int rec_level)
 {
 	// Simple inclusion-exclusion for one and two points
@@ -182,8 +190,6 @@ double wfg::compute_hv(double** points, const unsigned int n_points, const unsig
 			return hv2d().compute(points, n_points, m_refpoint);
 		} else {
 			// Let hypervolume object pick the best method otherwise.
-
-			// Copy arrays into vectors
 			std::vector<fitness_vector> points_cpy;
 			points_cpy.reserve(n_points);
 			for(unsigned int i = 0 ; i < n_points ; ++i) {
@@ -210,6 +216,7 @@ double wfg::compute_hv(double** points, const unsigned int n_points, const unsig
 	return H;
 }
 
+/// Compute the exclusive hypervolume of point at p_idx
 double wfg::exclusive_hv(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level)
 {
 	if(rec_level >= m_n_frames) {
@@ -235,7 +242,7 @@ double wfg::exclusive_hv(double** points, const unsigned int n_points, const uns
 	return H;
 }
 
-// verify_before_compute
+/// Verify before compute method
 /**
  * Verifies whether given algorithm suits the requested data.
  *
@@ -244,7 +251,7 @@ double wfg::exclusive_hv(double** points, const unsigned int n_points, const uns
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void wfg::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+void wfg::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	base::assert_minimisation(points, r_point);
 }

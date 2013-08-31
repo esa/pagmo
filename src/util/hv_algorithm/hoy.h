@@ -36,33 +36,33 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// HOY hypervolume algorithm
+/// HOY algorithm
 /**
- * This is the class containing the implementation of the HOY (Hypervolume by Overmars and Yapp) algorithm for the computation of the hypervolume indicator.
- * This class contains a refactoring of the original implementation of HOY by Nicola Beume (nicola.beume@tu-dortmund.de)
- * Original source code can be found here: http://ls11-www.cs.tu-dortmund.de/people/beume/publications/hoy.cpp
+ * This class contains the implementation of the HOY (Hypervolume by Overmars and Yapp) algorithm for the computation of the hypervolume indicator.
+ * It is a refactoring of the original code, with minor improvements and optimizations.
+ * Original source code of HOY by Nicola Beume can be found here: http://ls11-www.cs.tu-dortmund.de/people/beume/publications/hoy.cpp
  *
  * I propose some improvements and modify the code to reuse the available methods where possible:
  *  - Computation of trellis is optimized so it doesn't use the inclusion-exclusion approach but works in O(d) time instead.
  *  - Some data types were altered to fit our conventions
  *  - Reusebility of some common methods
  *  - Making it work for the negative values of the objectives
+ *  - Optimization for memory allocation
  *
  * @see Nicola Beume and Guenter Rudolph, "Faster S-Metric Calculation by Considering Dominated Hypervolume as Klee's Measure Problem.", In: B. Kovalerchuk (ed.): Proceedings of the Second IASTED Conference on Computational Intelligence (CI 2006), pp. 231-236.  ACTA Press: Anaheim, 2006. 
  *
- * @author (original implementation) Nicola Beume (nicola.beume@tu-dortmund.de)
- * @author (refactoring) Krzysztof Nowak (kn@kiryx.net)
+ * @author (original implementation) Nicola Beume
+ * @author (refactoring and optimization) Krzysztof Nowak (kn@kiryx.net)
  */
 class __PAGMO_VISIBLE hoy : public base {
 public:
 	hoy();
 	double compute(std::vector<fitness_vector> &, const fitness_vector &);
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 
 private:
-
 	inline bool covers(const double cub[], const double reg_low[]) const;
 	inline bool part_covers(const double cub[], const double reg_up[]) const;
 	inline int contains_boundary(const double cub[], const double reg_low[], const int split) const;
@@ -72,8 +72,10 @@ private:
 	inline double get_median(double* bounds, unsigned int n) const;
 	inline void stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level);
 
-	// Member variables used for the 'compute' method are initialized in the method itself and freed after the computation.
-	// At no point in-between the 'compute' calls, their state is expected to be defined.
+	/**
+	 * All member variables are used by the 'compute' method, and are initialized in the method itself and freed after the computation.
+	 * They are never referenced or used outside the scope of the 'compute' calls.
+	 */
 	int		m_dimension;
 	int		m_total_size;
 	double	m_sqrt_size;

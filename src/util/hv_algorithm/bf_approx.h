@@ -53,7 +53,7 @@ public:
 	bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 1e-1, const double gamma = 0.25);
 	double compute(std::vector<fitness_vector> &, const fitness_vector &);
 	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 

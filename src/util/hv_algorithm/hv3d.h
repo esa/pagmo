@@ -54,7 +54,7 @@ public:
 	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &);
+	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 

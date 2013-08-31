@@ -37,7 +37,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 hv3d::hv3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
 
-/// Compute hypervolume 
+/// Compute hypervolume
 /**
  * This method should be used both as a solution to 3D cases, and as a general termination method for algorithms that reduce D-dimensional problem to 3-dimensional one.
  *
@@ -106,13 +106,13 @@ double hv3d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 	return V;
 }
 
-/// comparator method for hycon3d algorithm's tree structure
+/// Comparator method for hycon3d algorithm's tree structure
 bool hv3d::hycon3d_tree_cmp::operator()(const std::pair<fitness_vector, int> &a, const std::pair<fitness_vector, int> &b)
 {
 	return a.first[0] > b.first[0];
 }
 
-/// box_volume method
+/// Box volume method
 /**
  * Returns the volume of the box3d object
  */
@@ -121,13 +121,13 @@ double hv3d::box_volume(const box3d &b)
 	return fabs((b.ux - b.lx) * (b.uy - b.ly) * (b.uz - b.lz));
 }
 
-// comparator method for the hycon3d algorithm's sorting procedure
+/// Comparator method for the hycon3d algorithm's sorting procedure
 bool hv3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b)
 {
 	return a.first[2] < b.first[2];
 }
 
-/// least_contributor method
+/// Least contributor method
 /**
  * This method overloads the virtual method in pagmo::util::hv_algorithm::base.
  * This method relies on the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
@@ -144,7 +144,7 @@ unsigned int hv3d::least_contributor(std::vector<fitness_vector> &points, const 
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
 
-/// greatest_contributor method
+/// Greatest contributor method
 /**
  * This method overloads the virtual method in pagmo::util::hv_algorithm::base.
  * This method relies on the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
@@ -161,13 +161,13 @@ unsigned int hv3d::greatest_contributor(std::vector<fitness_vector> &points, con
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }
 
-/// extreme_contributor method
+/// Extreme contributor method
 /**
  * This method elicites an "extreme" contributor (either min or max item) from a set of contributions computed by HyCon3D algorithm.
  */
 unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double))
 {
-
+	// Compute the contributions using HyCon3D algorithm.
 	const std::vector<double> contributions = hycon3d(points, r_point);
 
 	unsigned int extr_i = 0;
@@ -184,7 +184,7 @@ unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, cons
 
 /// HyCon3D algorithm
 /*
- * This algorithm computes the exclusive contribution to the hypervolume object by every point, using an efficient HyCon3D algorithm by Emmerich and Fonseca.
+ * This algorithm computes the exclusive contribution to the hypervolume by every point, using an efficient HyCon3D algorithm by Emmerich and Fonseca.
  */
 std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
@@ -319,7 +319,7 @@ std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fit
 	return contribs;
 }
 
-// verify_before_compute
+/// Verify before compute
 /**
  * Verifies whether given algorithm suits the requested data.
  *
@@ -328,7 +328,7 @@ std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fit
  *
  * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void hv3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+void hv3d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	if (r_point.size() != 3) {
 		pagmo_throw(value_error, "Algorithm hv3d works only for 3-dimensional cases");

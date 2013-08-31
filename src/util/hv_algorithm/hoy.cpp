@@ -36,7 +36,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 /// Constructor
 hoy::hoy() { }
 
-/// Compute hypervolume 
+/// Compute hypervolume
 /**
  * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
@@ -45,7 +45,6 @@ hoy::hoy() { }
  */
 double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
-
 	m_dimension = r_point.size();
 	m_total_size = points.size();
 	m_sqrt_size = sqrt(boost::numeric_cast<double>(m_total_size));
@@ -127,12 +126,12 @@ bool hoy::part_covers(const double cub[], const double reg_up[]) const
 
 int hoy::contains_boundary(const double cub[], const double reg_low[], const int split) const
 {
-	// condition only checked for split>0
+	// condition only checked for split > 0
 	if (reg_low[split] >= cub[split]){
 		// boundary in m_dimension split not contained in region, thus
 		// boundary is no candidate for the splitting line
 		return -1;
-	} 
+	}
 	else {
 		for (int j = 0 ; j < split; ++j) { // check boundaries
 			if (reg_low[j] < cub[j]) {
@@ -160,7 +159,7 @@ int hoy::is_pile(const double cub[], const double reg_low[]) const
 	int pile = m_dimension;
 	// check all dimensions of the node
 	for (int k = 0 ; k < m_dimension - 1 ; ++k) {
-		// k-boundary of the node's region contained in the cuboid? 
+		// k-boundary of the node's region contained in the cuboid?
 		if (cub[k] > reg_low[k]) {
 			if (pile != m_dimension) {
 				// second dimension occured that is not completely covered
@@ -174,8 +173,8 @@ int hoy::is_pile(const double cub[], const double reg_low[]) const
 	// cuboid completely covers region
 	// case is not possible since covering cuboids have been removed before
 		
-	// region in only one dimenison not completly covered 
-	// ==> cuboid is a pile 
+	// region in only one dimenison not completly covered
+	// ==> cuboid is a pile
 	return pile;
 }
 
@@ -202,10 +201,9 @@ double hoy::get_median(double* bounds, unsigned int n) const
 	return bounds[n2];
 }
 
-// Recursive calculation of hypervolume.
+/// Recursive calculation of the hypervolume.
 void hoy::stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level)
 {
-
 	double cover_old = cover;
 	unsigned int cover_index = 0;
 		
@@ -216,19 +214,19 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 		if ( covers(points[cover_index], m_region_low) ) {
 			// new cover value
 			cover = points[cover_index][m_dimension - 1];
-			m_volume += plane_area * (cover_old - cover); 
+			m_volume += plane_area * (cover_old - cover);
 		}
 		else ++cover_index;
 	}
 
 	/* cover_index shall be the index of the first point in points which
 	 * is ignored in the remaining process
-	 * 
-	 * It may occur that that some points in front of cover_index have the same 
+	 *
+	 * It may occur that that some points in front of cover_index have the same
 	 * d-th coordinate as the point at cover_index. This points must be discarded
 	 * and therefore the following for-loop checks for this points and reduces
 	 * cover_index if necessary.
-	 */ 
+	 */
 	for (int c = cover_index ; c > 0; --c) {
 		if (points[c - 1][m_dimension - 1] == cover) {
 			--cover_index;
@@ -253,15 +251,13 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 	}
 	
 	/*
-	 * m_trellis[i] contains the values of the minimal i-coordinate of 
+	 * m_trellis[i] contains the values of the minimal i-coordinate of
 	 * the i-piles.
 	 * If there is no i-pile the default value is the upper bpund of the region.
 	 * The 1-dimensional KMP of the i-piles is: reg[1][i] - trellis[i]
-	 * 
+	 *
 	 */
-	
 	if (all_piles) { // Proceed with the sweeping.
-		
 		// Initialize trellis with region's upper bound
 		for (int c = 0 ; c < m_dimension - 1; ++c) {
 			m_trellis[c] = m_region_up[c];
@@ -305,12 +301,12 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 				}
 			}
 			
-			//if (boundaries.size() >  0) {
-			if (n_bounds >  0) {
+			//if (boundaries.size() > 0) {
+			if (n_bounds > 0) {
 				bound = get_median(m_boundaries, n_bounds);
 				not_found = false;
 			}
-			else if (n_no_bounds >  m_sqrt_size) {
+			else if (n_no_bounds > m_sqrt_size) {
 				bound = get_median(m_no_boundaries, n_no_bounds);
 				not_found = false;
 			}
@@ -332,7 +328,7 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 		for (unsigned int i = 0; i < cover_index ; ++i) {
 			if (part_covers(points[i], m_region_up)) {
 				m_child_points[rec_level][n_cp++] = points[i];
-			} 
+			}
 		}
 		if (n_cp > 0) {
 			stream(m_region_low, m_region_up, m_child_points[rec_level], n_cp, split, cover, rec_level + 1);
@@ -346,16 +342,16 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
 		for (unsigned int i = 0 ; i < cover_index ; ++i) {
 			if (part_covers(points[i], m_region_up)) {
 				m_child_points[rec_level][n_cp++] = points[i];
-			} 
+			}
 		}
 		if (n_cp > 0) {
 			stream(m_region_low, m_region_up, m_child_points[rec_level], n_cp, split, cover, rec_level + 1);
 		}
 		m_region_low[split] = d_last;
 	}
-} 
+}
 
-// verify_before_compute
+/// Verify before compute method
 /**
  * Verifies whether given algorithm suits the requested data.
  *
@@ -364,7 +360,7 @@ void hoy::stream(double m_region_low[], double m_region_up[], double** points, c
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void hoy::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+void hoy::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	base::assert_minimisation(points, r_point);
 }

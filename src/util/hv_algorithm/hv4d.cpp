@@ -27,7 +27,7 @@
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// Compute hypervolume 
+/// Compute hypervolume
 /**
  * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
@@ -36,6 +36,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
 {
+	// Prepare the initial data to suit the original code
 	double data[points.size() * 4];
 	double refpoint[4];
 	for (unsigned int d_idx = 0 ; d_idx < 4 ; ++d_idx) {
@@ -51,7 +52,7 @@ double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 	return guerreiro_hv4d(data, points.size(), refpoint);
 }
 
-/// verify_before_compute
+/// Verify before compute
 /**
  * Verifies whether given algorithm suits the requested data.
  *
@@ -60,7 +61,7 @@ double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &
  *
  * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
  */
-void hv4d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+void hv4d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	if (r_point.size() != 4) {
 		pagmo_throw(value_error, "Algorithm HV4D works only for 4-dimensional cases");

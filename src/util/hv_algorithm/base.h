@@ -53,9 +53,9 @@ typedef boost::shared_ptr<base> base_ptr;
  * This class represents the abstract hypervolume algorithm used for computing
  * the hypervolume indicator (also known as Lebesgue measure, or S-metric).
  *
- * Every hypervolume algorithm that extends this base class implement the following methods:
- * - compute() which takes a list of points and a reference point.
- * - verify_before_compute() which raises an exception for special cases of misuse of this method (e.g. method working only for some number of dimensions).
+ * Every hypervolume algorithm that extends this base class should implement the following methods:
+ * - compute which takes a list of points and a reference point.
+ * - verify_before_compute which raises an exception for special cases of misuse of given method (e.g. method working only for certain dimension sizes).
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
@@ -71,13 +71,10 @@ public:
 	 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 	 * @param[in] r_point - distinguished "reference point".
 	 */
-	virtual double compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
-
-	virtual double exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point);
-
-	virtual unsigned int least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point);
-
-	virtual unsigned int greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point);
+	virtual double compute(std::vector<fitness_vector> &, const fitness_vector &) = 0;
+	virtual double exclusive(const unsigned int, std::vector<fitness_vector> &, const fitness_vector &);
+	virtual unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+	virtual unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
 
 	/// Verification of input
 	/**
@@ -87,7 +84,7 @@ public:
 	 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 	 * @param[in] r_point - distinguished "reference point".
 	 */
-	virtual void verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) = 0;
+	virtual void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const = 0;
 
 	/// Clone method.
 	/**
@@ -99,9 +96,9 @@ public:
 	virtual ~base();
 
 protected:
-	void assert_minimisation(const std::vector<fitness_vector> &points, const fitness_vector &r_point);
+	void assert_minimisation(const std::vector<fitness_vector> &, const fitness_vector &) const;
 
-	virtual unsigned int extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*)(double, double));
+	virtual unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
 
 	// comparison functions for the least and the greatest contributor methods
 	static bool cmp_least(const double, const double);
@@ -113,13 +110,13 @@ protected:
 	 *
 	 * @param[in] a first point defining the hypercube
 	 * @param[in] b second point defining the hypercube
-	 * @param[in] dim_bound dimension boundary for the volume. If equal to 0, then compute the volume of whole vector. Any positive number limits the computation from dimension 0 to dim_bound INCLUSIVE.
+	 * @param[in] dim_bound dimension boundary for the volume. If equal to 0, then compute the volume of whole vector. Any positive number limits the computation from dimension 1 to dim_bound INCLUSIVE.
 	 *
 	 * @return volume of hypercube defined by points a and b
 	 */
 	inline double volume_between(const fitness_vector &a, const fitness_vector &b, unsigned int dim_bound = 0) const
 	{
-		if (dim_bound == 0) { 
+		if (dim_bound == 0) {
 			dim_bound = a.size();
 		}
 		double volume = 1.0;
@@ -156,7 +153,7 @@ protected:
 		DOM_CMP_INCOMPARABLE = 4 // points are incomparable
 	};
 
-	/// dominance comparison method
+	/// Dominance comparison method
 	/**
 	 * Establishes the domination relationship between two points.
 	 *
@@ -191,7 +188,7 @@ protected:
 		return DOM_CMP_A_B_EQUAL;
 	}
 
-	/// dominance comparison method
+	/// Dominance comparison method
 	/**
 	 * Establishes the domination relationship between two points (overloaded for double*);
 	 *
@@ -231,7 +228,7 @@ private:
 	}
 };
 
-///Fitness vector comparator class
+/// Fitness vector comparator class
 /**
  * This is a helper class that allows for the generation of comparator objects.
  * Many hypervolume algorithms use comparator functions for sorting, or data structures handling.

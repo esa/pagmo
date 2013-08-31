@@ -73,9 +73,9 @@ bool hv2d::cmp_double_2d(double* a, double* b)
 	return a[1] < b[1];
 }
 
-// Computes hypervolume method.
+/// Compute hypervolume method.
 /**
- * This method should be used both as a solution to 2-dimensional cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2D.
+ * This method should be used both as a solution to 2-dimensional cases, and as a general termination method for algorithms that reduce n-dimensional problem to 2d.
  * This method is overloaded to work with arrays of double, in order to provide other algorithms that internally work with arrays (such as hv_algorithm::wfg) with an efficient computation.
  *
  * Computational complexity: n*log(n)
@@ -216,7 +216,7 @@ std::string hv2d::get_name() const
  *
  * @throws value_error when trying to compute the hypervolume for the dimension other than 3 or non-maximal reference point
  */
-void hv2d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point)
+void hv2d::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	if (r_point.size() != 2) {
 		pagmo_throw(value_error, "Algorithm hv2d works only for 2-dimensional cases.");
