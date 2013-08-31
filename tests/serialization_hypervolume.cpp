@@ -75,11 +75,10 @@ int main()
 		}
 	}
 
-	// implementation of the hypervolume algorithms
+	// Implementation of the hypervolume algorithms
+	// Tested using least contributor method
 	util::hv_algorithm::base_ptr bf = util::hv_algorithm::bf_approx(true, 99, 0.9, 0.99, 0.9, 0.9, 0.9, 0.9).clone();
 	util::hv_algorithm::base_ptr bf_new = util::hv_algorithm::bf_approx().clone();
-
-	problem::dtlz1 prob(10,7);
 
 	// save/load the object
 	{
@@ -93,20 +92,50 @@ int main()
 		ia & bf_new;
 	}
 
-	util::hypervolume hv(boost::shared_ptr<population>(new population(prob, 100)));
-	fitness_vector nadir_p = hv.get_nadir_point(1.0);
+	util::hypervolume hv_7d(boost::shared_ptr<population>(new population(problem::dtlz1(10,7), 100)));
+	util::hypervolume hv_4d(boost::shared_ptr<population>(new population(problem::dtlz1(10,4), 100)));
+	util::hypervolume hv_3d(boost::shared_ptr<population>(new population(problem::dtlz1(10,3), 100)));
+	util::hypervolume hv_2d(boost::shared_ptr<population>(new population(problem::dtlz1(10,2), 100)));
+	fitness_vector nadir_7d = hv_7d.get_nadir_point(1.0);
+	fitness_vector nadir_4d = hv_4d.get_nadir_point(1.0);
+	fitness_vector nadir_3d = hv_3d.get_nadir_point(1.0);
+	fitness_vector nadir_2d = hv_2d.get_nadir_point(1.0);
 
+	unsigned int lc1 = hv_7d.least_contributor(nadir_7d, bf);
+	unsigned int lc2 = hv_7d.least_contributor(nadir_7d, bf_new);
+	if (lc1 != lc2) {
+		return 1;
+	}
 
 	// Algorithms for which the compute method is available
 	std::vector<util::hv_algorithm::base_ptr> compute_algs;
 	std::vector<util::hv_algorithm::base_ptr> compute_algs_new;
-	compute_algs.push_back(util::hv_algorithm::bf_fpras(0.12345,0.12345).clone());
+	std::vector<std::pair<util::hypervolume, fitness_vector> > compute_input;
+	compute_algs.push_back(util::hv_algorithm::bf_fpras(0.12345, 0.12345).clone());
 	compute_algs_new.push_back(util::hv_algorithm::bf_fpras().clone());
+	compute_input.push_back(std::make_pair(hv_7d, nadir_7d));
+
 	compute_algs.push_back(util::hv_algorithm::wfg(4).clone());
 	compute_algs_new.push_back(util::hv_algorithm::wfg().clone());
+	compute_input.push_back(std::make_pair(hv_7d, nadir_7d));
+
+	compute_algs.push_back(util::hv_algorithm::hoy().clone());
+	compute_algs_new.push_back(util::hv_algorithm::hoy().clone());
+	compute_input.push_back(std::make_pair(hv_7d, nadir_7d));
+
+	compute_algs.push_back(util::hv_algorithm::hv4d().clone());
+	compute_algs_new.push_back(util::hv_algorithm::hv4d().clone());
+	compute_input.push_back(std::make_pair(hv_4d, nadir_4d));
+
+	compute_algs.push_back(util::hv_algorithm::hv2d(false).clone());
+	compute_algs_new.push_back(util::hv_algorithm::hv2d().clone());
+	compute_input.push_back(std::make_pair(hv_2d, nadir_2d));
+
+	compute_algs.push_back(util::hv_algorithm::hv3d(false).clone());
+	compute_algs_new.push_back(util::hv_algorithm::hv3d().clone());
+	compute_input.push_back(std::make_pair(hv_3d, nadir_3d));
 
 	for(unsigned int i = 0 ; i < compute_algs.size() ; ++i) {
-
 		// save/load the objects
 		{
 			std::ofstream ofs("test.ar");
@@ -118,18 +147,14 @@ int main()
 			boost::archive::text_iarchive ia(ifs);
 			ia & compute_algs_new[i];
 		}
+		util::hypervolume &hv = compute_input[i].first;
+		fitness_vector &r = compute_input[i].second;
 
-		double hv1 = hv.compute(nadir_p, compute_algs[i]);
-		double hv2 = hv.compute(nadir_p, compute_algs_new[i]);
+		double hv1 = hv.compute(r, compute_algs[i]);
+		double hv2 = hv.compute(r, compute_algs_new[i]);
 		if (hv1 != hv2) {
 			return 1;
 		}
-	}
-
-	unsigned int lc1 = hv.least_contributor(nadir_p, bf);
-	unsigned int lc2 = hv.least_contributor(nadir_p, bf_new);
-	if (lc1 != lc2) {
-		return 1;
 	}
 
 	return 0;
