@@ -113,10 +113,10 @@ std::vector<population::individual_type> hv_greedy_s_policy::select(population &
 			hypervolume hv(fronts_f[front_idx], false);
 			hv.set_copy_points(false);
 
-			unsigned int lc_idx = hv.greatest_contributor(refpoint);
-			result.push_back(pop.get_individual(fronts_i[front_idx][orig_indices[lc_idx]]));
-			orig_indices.erase(orig_indices.begin() + lc_idx);
-			fronts_f[front_idx].erase(fronts_f[front_idx].begin() + lc_idx);
+			unsigned int gc_idx = hv.greatest_contributor(refpoint);
+			result.push_back(pop.get_individual(fronts_i[front_idx][orig_indices[gc_idx]]));
+			orig_indices.erase(orig_indices.begin() + gc_idx);
+			fronts_f[front_idx].erase(fronts_f[front_idx].begin() + gc_idx);
 			++processed_individuals;
 		}
 	}

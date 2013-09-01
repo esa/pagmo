@@ -39,6 +39,8 @@ namespace pagmo { namespace migration {
 /// Replace the 'n' successive least contributors with the incoming set.
 /**
  * Policy revolving around replacing a set of successive least contributors with the incoming set of immigrants in a 'fair' way.
+ * That is: an original inhabitant of the island is only substituted if its exclusive hypervolume contribution is less than the 
+ * the worst contribution of a replacing immigrant.
  * Least contributors are chosen iteratively, thus it is regarded as a greedy strategy.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)

@@ -56,9 +56,9 @@ Available Hypervolume algorithms
 ================================== ======================================== ===================================================================
 Common Name                        Name in PyGMO                            Comments
 ================================== ======================================== ===================================================================
-hv2d                               :class:`PyGMO.hv_algorithm.hv2d`         Algorithm for optimal computation of 2d hypervolumes.
-hv3d                               :class:`PyGMO.hv_algorithm.hv3d`         Algorithm for optimal computation of 3d hypervolumes.
-hv4d                               :class:`PyGMO.hv_algorithm.hv4d`         Algorithm for optimal computation of 4d hypervolumes.
+hv2d                               :class:`PyGMO.hv_algorithm.hv2d`         Algorithm for quick computation of 2d hypervolumes.
+hv3d                               :class:`PyGMO.hv_algorithm.hv3d`         Algorithm for quick computation of 3d hypervolumes.
+hv4d                               :class:`PyGMO.hv_algorithm.hv4d`         Algorithm for quick computation of 4d hypervolumes.
 WFG                                :class:`PyGMO.hv_algorithm.wfg`          General algorithm for any dimension.
 HOY                                :class:`PyGMO.hv_algorithm.hoy`          General algorithm for any dimension.
 Bringmann-Friedrich approximation  :class:`PyGMO.hv_algorithm.bf_approx`    Algorithm for computation of the approximated least contributor.
@@ -148,7 +148,7 @@ Detailed Documentation
 
 .. class:: PyGMO.hv_algorithm.hv2d()
 
-    This is the optimal algorithm the 2 dimensional problems.
+    This is the quick algorithm the 2 dimensional problems.
 
    .. method:: __init__()
 
@@ -156,7 +156,7 @@ Detailed Documentation
 
 .. class:: PyGMO.hv_algorithm.hv3d()
 
-    This is the optimal algorithm for the 3 dimensional problems.
+    This is the quick algorithm for the 3 dimensional problems.
 
    .. method:: __init__()
 
@@ -164,7 +164,7 @@ Detailed Documentation
 
 .. class:: PyGMO.hv_algorithm.hv4d()
 
-    This is the optimal algorithm for the 4 dimensional problems.
+    This is the quick algorithm for the 4 dimensional problems.
 
    .. method:: __init__()
 

@@ -354,7 +354,7 @@ double bf_approx::compute(std::vector<fitness_vector> &points, const fitness_vec
 {
 	(void)points;
 	(void)r_point;
-	pagmo_throw(value_error, "Compute hypervolume method is not yet implemented.");
+	pagmo_throw(value_error, "This algorithm can just approximate extreme contributions but not the hypervolume itself.");
 	return 0.0;
 }
 

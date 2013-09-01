@@ -135,7 +135,7 @@ void sms_emoa::crossover(decision_vector& child1, decision_vector& child2, pagmo
 	double y1,y2,yl,yu, rand, beta, alpha, betaq, c1, c2;
 	child1 = parent1;
 	child2 = parent2;
-		int site1, site2;
+	int site1, site2;
 
 	//This implements a Simulated Binary Crossover SBX
 	if (m_drng() <= m_cr) {
