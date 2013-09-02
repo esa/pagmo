@@ -27,6 +27,7 @@
 
 #include "../config.h"
 #include "../serialization.h"
+#include "../util/neighbourhood.h"
 #include "base.h"
 
 namespace pagmo { namespace algorithm {
@@ -41,6 +42,31 @@ namespace pagmo { namespace algorithm {
  *
  * @see "Xiaodong Li - A Non-dominated Sorting Particle Swarm Optimizer for Multiobjective Optimization"
  **/
+class  distance_sorter {
+public:
+	distance_sorter(const std::vector<std::vector<pagmo::population::size_type>  > &neighbours,
+					const std::vector<fitness_vector> &fit, int K):
+		m_neighbours(neighbours),
+		m_fit(fit),
+		m_K(K) {}
+	bool operator()(int a, int b) {
+		double delta_a, delta_b;
+		int i = 0;
+		do{
+			delta_a = pagmo::util::neighbourhood::euclidian::distance(m_fit[a], m_fit[m_neighbours[a][i]]);
+			delta_b = pagmo::util::neighbourhood::euclidian::distance(m_fit[b], m_fit[m_neighbours[b][i]]);
+			i++;
+		} while (i<m_K && delta_a == delta_b);
+		return delta_a > delta_b;
+	}
+private:
+	const std::vector<std::vector<pagmo::population::size_type>  > &m_neighbours;
+	const std::vector<fitness_vector> &m_fit;
+	const int m_K;
+};
+
+
+
 
 class __PAGMO_VISIBLE spea2: public base
 {
@@ -54,7 +80,12 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
-	void compute_spea2_fitness(std::vector<double> &, const pagmo::population &) const;
+	void order_by_delta(std::vector<population::size_type> &, const std::vector<std::vector<pagmo::population::size_type>  > &,
+													  const std::vector<fitness_vector> &, int) const;
+	void compute_spea2_fitness(std::vector<double> &,
+				const std::vector<std::vector<pagmo::population::size_type> > &,
+				const std::vector<fitness_vector> &,
+				const pagmo::population &) const;
 	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const std::vector<double>&) const;
 	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
 	void mutate(decision_vector&, const pagmo::population&) const;
