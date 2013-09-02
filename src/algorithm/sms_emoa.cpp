@@ -284,7 +284,8 @@ population::size_type sms_emoa::evaluate_s_metric_selection(const population & p
 		return last_front[0];
 	}
 
-	if (m_sel_m == 1 || fronts.size() == 1) { // if method is always to choose least contributor, or working with first front
+	// if the chosen method is to always to pick the least contributor, or when working solely on the first front
+	if (m_sel_m == 1 || fronts.size() == 1) {
 		std::vector<fitness_vector> points;
 		points.resize(last_front.size());
 
@@ -360,8 +361,7 @@ void sms_emoa::evolve(population &pop) const
 		crossover(child1, child2, parent1_idx, parent2_idx, pop);
 		mutate(child1, pop);
 		pop.push_back(child1);
-		unsigned int least_contrib_idx = evaluate_s_metric_selection(pop);
-		pop.erase(least_contrib_idx);
+		pop.erase(evaluate_s_metric_selection(pop));
 	}
 }
 
@@ -382,7 +382,14 @@ std::string sms_emoa::human_readable_extra() const
 	s << "cr:" << m_cr << ' ';	
 	s << "eta_c:" << m_eta_c << ' ';
 	s << "m:" << m_m << ' ';
-	s << "eta_m:" << m_eta_m << std::endl;
+	s << "eta_m:" << m_eta_m << ' ';
+	s << "hv_algorithm:";
+	if (m_hv_algorithm) {
+		s << m_hv_algorithm->get_name();
+	} else {
+		s << "Chosen dynamically";
+	}
+	s << std::endl;
 
 	return s.str();
 }

@@ -81,7 +81,6 @@ double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vect
 
 	// Total sum of every box
 	double V = 0.0;
-	//for(unsigned int i = 0 ; i < n ; ++i) {
 	for(it_p = points.begin() ; it_p != points.end() ; ++it_p) {
 		V = (sums[i++] = V + base::volume_between(*it_p, r_point));
 	}

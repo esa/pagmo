@@ -48,7 +48,7 @@ namespace pagmo { namespace migration {
 class __PAGMO_VISIBLE hv_greedy_r_policy: public base_r_policy
 {
 public:
-	hv_greedy_r_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 0.0);
+	hv_greedy_r_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 1.0);
 	base_r_policy_ptr clone() const;
 	std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 		select(const std::vector<population::individual_type> &, const population &) const;

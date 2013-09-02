@@ -203,7 +203,8 @@ double wfg::compute_hv(double** points, const unsigned int n_points, const unsig
 		}
 	} else {
 		// Otherwise, sort the points in preparation for the next recursive step
-		// Bind the cmp_func method so it can be used as a comparator function, while still being private and having access to member variables
+		// Bind the object under "this" pointer to the cmp_func method so it can be used as a valid comparator function for std::sort
+		// We need that in order for the cmp_func to have acces to the m_current_slice member variable.
 		std::sort(points, points + n_points, boost::bind(&wfg::cmp_func, this, _1, _2));
 	}
 
