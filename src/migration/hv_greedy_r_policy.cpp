@@ -60,8 +60,13 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	std::vector<population::individual_type> filtered_immigrants;
 	filtered_immigrants.reserve(immigrants.size());
 
+	// Keeps information on the original indexing of immigrants after we filter out the duplicates
+	std::vector<unsigned int> original_immigrant_indices;
+	original_immigrant_indices.reserve(immigrants.size());
+
 	// Remove the duplicates from the set of immigrants
 	std::vector<population::individual_type>::iterator im_it = (const_cast<std::vector<population::individual_type> &>(immigrants)).begin();
+	unsigned int im_idx = 0;
 	for( ; im_it != immigrants.end() ; ++im_it) {
 		decision_vector im_x((*im_it).cur_x);
 
@@ -81,7 +86,9 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 		}
 		if (!equal) {
 			filtered_immigrants.push_back(*im_it);
+			original_immigrant_indices.push_back(im_idx);
 		}
+		++im_idx;
 	}
 
 	// Computes the number of immigrants to be selected (accounting for the destination pop size)
@@ -229,7 +236,8 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 		if ((*r_it).second > (*it).second) {
 			break;
 		}
-		result.push_back(std::make_pair((*r_it).first, (*it).first - dest.size()));
+		// Push the pair (islander_idx, fixed_immigrant_idx) to the results
+		result.push_back(std::make_pair((*r_it).first, original_immigrant_indices[(*it).first - dest.size()]));
 		++r_it;
 		++it;
 	}
