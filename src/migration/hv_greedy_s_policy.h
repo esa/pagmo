@@ -37,8 +37,10 @@ namespace pagmo { namespace migration {
 
 ///  Choose 'n' successive greatest contributors migration policy
 /**
- * This policy revolves around choosing the indviduals that contribute the greatest amount of volume to the total hypervolume.
+ * This policy revolves around choosing the individuals that contribute the greatest amount of volume to the total hypervolume.
  * Individuals are chosen iteratively, thus it is regarded as a greedy strategy.
+ *
+ * Note: If the problem is a single objective one, we fall back to the pagmo::migration::best_s_policy instead.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */

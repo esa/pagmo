@@ -43,6 +43,8 @@ namespace pagmo { namespace migration {
  * the worst contribution of a replacing immigrant.
  * Least contributors are chosen iteratively, thus it is regarded as a greedy strategy.
  *
+ * Note: If the problem is a single objective one, we fall back to the pagmo::migration::fair_r_policy instead.
+ *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
 class __PAGMO_VISIBLE hv_greedy_r_policy: public base_r_policy

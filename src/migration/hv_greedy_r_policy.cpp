@@ -32,6 +32,7 @@
 #include "base.h"
 #include "base_r_policy.h"
 #include "hv_greedy_r_policy.h"
+#include "fair_r_policy.h"
 
 #include "../util/hypervolume.h"
 
@@ -57,6 +58,11 @@ base_r_policy_ptr hv_greedy_r_policy::clone() const
 std::vector<std::pair<population::size_type,std::vector<population::individual_type>::size_type> >
 	hv_greedy_r_policy::select(const std::vector<population::individual_type> &immigrants, const population &dest) const
 {
+	// Fall back to fair_r_policy when facing a single-objective problem.
+	if (dest.problem().get_f_dimension() == 1) {
+		return fair_r_policy(m_rate, m_type).select(immigrants, dest);
+	}
+
 	std::vector<population::individual_type> filtered_immigrants;
 	filtered_immigrants.reserve(immigrants.size());
 
