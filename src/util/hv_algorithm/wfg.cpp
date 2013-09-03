@@ -34,7 +34,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 /**
  * Comparison function for WFG. Can't be static in order to have access to member variable m_current_slice.
  */
-bool wfg::cmp_func(double* a, double* b)
+bool wfg::cmp_func(double* a, double* b) const
 {
 	for(int i = m_current_slice - 1; i >= 0 ; --i){
 		if (a[i] > b[i]) {
@@ -63,7 +63,7 @@ wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimensi
  *
  * @return hypervolume.
  */
-double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	m_max_points = points.size();
 	m_max_dim = r_point.size();
@@ -111,7 +111,7 @@ double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 }
 
 /// Limit the set of points to point at p_idx
-void wfg::limitset(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level)
+void wfg::limitset(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level) const
 {
 	int no_points = 0;
 
@@ -166,7 +166,7 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 }
 
 /// Compute the hypervolume recursively
-double wfg::compute_hv(double** points, const unsigned int n_points, const unsigned int rec_level)
+double wfg::compute_hv(double** points, const unsigned int n_points, const unsigned int rec_level) const
 {
 	// Simple inclusion-exclusion for one and two points
 	if (n_points == 1) {
@@ -218,7 +218,7 @@ double wfg::compute_hv(double** points, const unsigned int n_points, const unsig
 }
 
 /// Compute the exclusive hypervolume of point at p_idx
-double wfg::exclusive_hv(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level)
+double wfg::exclusive_hv(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level) const
 {
 	if(rec_level >= m_n_frames) {
 		double** fr = new double*[m_max_points];

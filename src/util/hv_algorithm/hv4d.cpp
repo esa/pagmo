@@ -34,7 +34,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  *
  * @return hypervolume.
  */
-double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	// Prepare the initial data to suit the original code
 	double data[points.size() * 4];

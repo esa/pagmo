@@ -57,7 +57,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 class __PAGMO_VISIBLE hoy : public base {
 public:
 	hoy();
-	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
@@ -70,23 +70,23 @@ private:
 	inline int is_pile(const double cub[], const double reg_low[]) const;
 	inline double compute_trellis(const double reg_low[], const double reg_up[], const double trellis[]) const;
 	inline double get_median(double* bounds, unsigned int n) const;
-	inline void stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level);
+	inline void stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level) const;
 
 	/**
 	 * All member variables are used by the 'compute' method, and are initialized in the method itself and freed after the computation.
 	 * They are never referenced or used outside the scope of the 'compute' calls.
 	 */
-	int		m_dimension;
-	int		m_total_size;
-	double	m_sqrt_size;
-	double	m_volume;
-	double	*m_region_up;
-	double	*m_region_low;
-	int		*m_piles;
-	double	*m_trellis;
-	double	*m_boundaries;
-	double	*m_no_boundaries;
-	std::vector<double**> m_child_points;
+	mutable int		m_dimension;
+	mutable int		m_total_size;
+	mutable double	m_sqrt_size;
+	mutable double	m_volume;
+	mutable double	*m_region_up;
+	mutable double	*m_region_low;
+	mutable int		*m_piles;
+	mutable double	*m_trellis;
+	mutable double	*m_boundaries;
+	mutable double	*m_no_boundaries;
+	mutable std::vector<double**> m_child_points;
 
 	friend class boost::serialization::access;
 	template <class Archive>

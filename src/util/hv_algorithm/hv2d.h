@@ -45,10 +45,10 @@ class __PAGMO_VISIBLE hv2d : public base
 {
 public:
 	hv2d(const bool initial_sorting = true);
-	double compute(std::vector<fitness_vector> &, const fitness_vector &);
-	double compute(double**, unsigned int n_points, double*);
-	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
-	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
+	double compute(double**, unsigned int n_points, double*) const;
+	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
+	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
@@ -58,8 +58,10 @@ private:
 	// Flag stating whether the points should be sorted in the first step of the algorithm.
 	const bool m_initial_sorting;
 
+	static bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &, const std::pair<fitness_vector, unsigned int> &);
+
 	static bool cmp_double_2d(double*, double*);
-	unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
+	unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double)) const;
 
 	friend class boost::serialization::access;
 	template <class Archive>

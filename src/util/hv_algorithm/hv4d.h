@@ -51,7 +51,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 class __PAGMO_VISIBLE hv4d : public base
 {
 public:
-	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;

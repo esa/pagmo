@@ -84,7 +84,7 @@ void base::assert_minimisation(const std::vector<fitness_vector> &points, const 
  *
  * @return exlusive hypervolume contributed by the individual at index p_idx
  */
-double base::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double base::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	if (points.size() == 1) {
 		return compute(points, r_point);
@@ -101,7 +101,7 @@ double base::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &po
 /**
  * Computes the index of the individual that contributes the most or the least to the hypervolume (depending on the prodivded comparison function)
  */
-unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double))
+unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) const
 {
 	// trivial case
 	if (points.size() == 1) {
@@ -154,7 +154,7 @@ bool base::cmp_greatest(const double a, const double b)
  *
  * @return index of the least contributor
  */
-unsigned int base::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+unsigned int base::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
@@ -170,7 +170,7 @@ unsigned int base::least_contributor(std::vector<fitness_vector> &points, const 
  *
  * @return index of the greatest contributor
  */
-unsigned int base::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+unsigned int base::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }

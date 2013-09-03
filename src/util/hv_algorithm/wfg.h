@@ -49,17 +49,17 @@ class __PAGMO_VISIBLE wfg : public base
 {
 public:
 	wfg(const unsigned int stop_dimension = 2);
-	double compute(std::vector<fitness_vector> &, const fitness_vector &);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 
 private:
-	void limitset(double**, const unsigned int, const unsigned int, const unsigned int);
-	double exclusive_hv(double**, const unsigned int, const unsigned int, const unsigned int);
-	double compute_hv(double**, const unsigned int, const unsigned int);
+	void limitset(double**, const unsigned int, const unsigned int, const unsigned int) const;
+	double exclusive_hv(double**, const unsigned int, const unsigned int, const unsigned int) const;
+	double compute_hv(double**, const unsigned int, const unsigned int) const;
 
-	bool cmp_func(double* a, double* b);
+	bool cmp_func(double* a, double* b) const;
 
 	/**
 	 * 'compute' method variables section.
@@ -71,22 +71,22 @@ private:
 	mutable unsigned int m_current_slice;
 
 	// Array of point sets for each recursive level.
-	double*** m_frames;
+	mutable double*** m_frames;
 
 	// Maintains the number of points at given recursion level.
-	unsigned int* m_frames_size;
+	mutable unsigned int* m_frames_size;
 
 	// Keeps track of currently allocated number of frames.
-	unsigned int m_n_frames;
+	mutable unsigned int m_n_frames;
 
 	// Copy of the reference point
-	double* m_refpoint;
+	mutable double* m_refpoint;
 
 	// Size of the original front
-	unsigned int m_max_points;
+	mutable unsigned int m_max_points;
 
 	// Size of the dimension
-	unsigned int m_max_dim;
+	mutable unsigned int m_max_dim;
 	/**
 	 * End of 'compute' method variables section.
 	 */
@@ -99,7 +99,6 @@ private:
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
-		ar & m_current_slice;
 		ar & const_cast<unsigned int &>(m_stop_dimension);
 	}
 };

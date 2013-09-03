@@ -71,10 +71,10 @@ public:
 	 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 	 * @param[in] r_point - distinguished "reference point".
 	 */
-	virtual double compute(std::vector<fitness_vector> &, const fitness_vector &) = 0;
-	virtual double exclusive(const unsigned int, std::vector<fitness_vector> &, const fitness_vector &);
-	virtual unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
-	virtual unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+	virtual double compute(std::vector<fitness_vector> &, const fitness_vector &) const = 0;
+	virtual double exclusive(const unsigned int, std::vector<fitness_vector> &, const fitness_vector &) const;
+	virtual unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
+	virtual unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 
 	/// Verification of input
 	/**
@@ -98,7 +98,7 @@ public:
 protected:
 	void assert_minimisation(const std::vector<fitness_vector> &, const fitness_vector &) const;
 
-	virtual unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
+	virtual unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double)) const;
 
 	// comparison functions for the least and the greatest contributor methods
 	static bool cmp_least(const double, const double);

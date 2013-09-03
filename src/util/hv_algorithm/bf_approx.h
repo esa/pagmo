@@ -51,8 +51,8 @@ class __PAGMO_VISIBLE bf_approx : public base
 {
 public:
 	bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 1e-1, const double gamma = 0.25);
-	double compute(std::vector<fitness_vector> &, const fitness_vector &);
-	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
+	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
@@ -61,8 +61,8 @@ private:
 	inline double compute_point_delta(const unsigned int, const unsigned int, const double) const;
 	inline fitness_vector compute_bounding_box(const std::vector<fitness_vector> &, const fitness_vector &, const unsigned int) const;
 	inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
-	inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int, const double);
-	inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int);
+	inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int, const double) const;
+	inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int) const;
 
 	// flag stating whether BF approximation should use exact computation for some exclusive hypervolumes
 	const bool m_use_exact;
@@ -91,33 +91,42 @@ private:
 
 	mutable rng_double	m_drng;
 
+	/**
+	 * 'least_contributor' method variables section
+	 *
+	 * Section below contains member variables that are relevant only to the least_contributor method.
+	 * They are not serialized as the members below are irrelevant outside of that scope.
+	 */
 	// number of elementary operations performed for each point
-	std::vector<unsigned long long> m_no_ops;
+	mutable std::vector<unsigned long long> m_no_ops;
 
 	// number of samples for given box
-	std::vector<unsigned long long> m_no_samples;
+	mutable std::vector<unsigned long long> m_no_samples;
 
 	// number of "successful" samples that fell into the exclusive hypervolume
-	std::vector<unsigned long long> m_no_succ_samples;
+	mutable std::vector<unsigned long long> m_no_succ_samples;
 
 	// stores the indices of points that were not yet removed during the progress of the algorithm
-	std::vector<unsigned int> m_point_set;
+	mutable std::vector<unsigned int> m_point_set;
 
 	// exact hypervolumes of the bounding boxes
-	std::vector<double> m_box_volume;
+	mutable std::vector<double> m_box_volume;
 
 	// approximated exlusive hypervolume of each point
-	std::vector<double> m_approx_volume;
+	mutable std::vector<double> m_approx_volume;
 
 	// deltas computed for each point using chernoff inequality component
-	std::vector<double> m_point_delta;
+	mutable std::vector<double> m_point_delta;
 
 	// pair (boxes[idx], points[idx]) form a box in which monte carlo sampling is performed
-	std::vector<fitness_vector> m_boxes;
+	mutable std::vector<fitness_vector> m_boxes;
 
 	// list of indices of points that overlap the bounding box of each point
 	// during monte carlo sampling it suffices to check only these points when deciding whether the sampling was "successful"
-	std::vector<std::vector<unsigned int> > m_box_points;
+	mutable std::vector<std::vector<unsigned int> > m_box_points;
+	/**
+	 * End of 'least_contributor' method variables section
+	 */
 
 	friend class boost::serialization::access;
 	template <class Archive>
@@ -133,15 +142,6 @@ private:
 		ar & const_cast<double &>(m_initial_delta_coeff);
 		ar & const_cast<double &>(m_gamma);
 		ar & m_drng;
-		ar & m_no_ops;
-		ar & m_no_samples;
-		ar & m_no_succ_samples;
-		ar & m_point_set;
-		ar & m_box_volume;
-		ar & m_approx_volume;
-		ar & m_point_delta;
-		ar & m_boxes;
-		ar & m_box_points;
 	}
 };
 

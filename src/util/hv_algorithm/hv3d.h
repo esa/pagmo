@@ -50,9 +50,9 @@ class __PAGMO_VISIBLE hv3d : public base
 {
 public:
 	hv3d(bool initial_sorting = true);
-	double compute(std::vector<fitness_vector> &, const fitness_vector &);
-	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &);
-	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &);
+	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
+	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
+	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
@@ -81,8 +81,8 @@ private:
 
 	static bool hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &, const std::pair<fitness_vector, unsigned int> &);
 	static double box_volume(const box3d &b);
-	std::vector<double> hycon3d(std::vector<fitness_vector> &, const fitness_vector &);
-	unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double));
+	std::vector<double> hycon3d(std::vector<fitness_vector> &, const fitness_vector &) const;
+	unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double)) const;
 
 	friend class boost::serialization::access;
 	template <class Archive>

@@ -43,7 +43,7 @@ hoy::hoy() { }
  *
  * @return hypervolume.
  */
-double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double hoy::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	m_dimension = r_point.size();
 	m_total_size = points.size();
@@ -202,7 +202,7 @@ double hoy::get_median(double* bounds, unsigned int n) const
 }
 
 /// Recursive calculation of the hypervolume.
-void hoy::stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level)
+void hoy::stream(double m_region_low[], double m_region_up[], double** points, const unsigned int n_points, int split, double cover, unsigned int rec_level) const
 {
 	double cover_old = cover;
 	unsigned int cover_index = 0;

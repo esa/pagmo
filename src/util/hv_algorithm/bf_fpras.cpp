@@ -62,7 +62,7 @@ void bf_fpras::verify_before_compute(const std::vector<fitness_vector> &points, 
  *
  * @return approximated hypervolume
  */
-double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	unsigned int n = points.size();
 	unsigned int dim = r_point.size();

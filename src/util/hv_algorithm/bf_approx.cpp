@@ -52,7 +52,7 @@ bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_si
  *
  * @return index of the least contributing point
  */
-unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	m_no_samples = std::vector<unsigned long long>(points.size(), 0);
 	m_no_succ_samples = std::vector<unsigned long long>(points.size(), 0);
@@ -170,7 +170,7 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 }
 
 /// Performs a single round of sampling for given point at index 'idx'
-void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx, const double log_factor )
+void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const double delta, const unsigned int round, const unsigned int idx, const double log_factor) const
 {
 	if (m_use_exact) {
 		// if the sampling for given point was already resolved using exact method
@@ -226,7 +226,7 @@ void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const 
 }
 
 /// samples the bounding box and returns true if it fell into the exclusive hypervolume
-bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, const unsigned int idx)
+bool bf_approx::sample_successful(const std::vector<fitness_vector> &points, const unsigned int idx) const
 {
 	const fitness_vector &lb = points[idx];
 	const fitness_vector &ub = m_boxes[idx];
@@ -350,7 +350,7 @@ void bf_approx::verify_before_compute(const std::vector<fitness_vector> &points,
 	base::assert_minimisation(points, r_point);
 }
 
-double bf_approx::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double bf_approx::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	(void)points;
 	(void)r_point;

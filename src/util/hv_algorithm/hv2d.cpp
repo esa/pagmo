@@ -41,7 +41,7 @@ hv2d::hv2d(const bool initial_sorting) : m_initial_sorting(initial_sorting) { }
  *
  * @return hypervolume
  */
-double hv2d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+double hv2d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	if (points.size() == 0) {
 		return 0.0;
@@ -86,7 +86,7 @@ bool hv2d::cmp_double_2d(double* a, double* b)
  *
  * @return hypervolume
  */
-double hv2d::compute(double** points , unsigned int n_points, double* r_point)
+double hv2d::compute(double** points , unsigned int n_points, double* r_point) const
 {
 	if (n_points == 0) {
 		return 0.0;
@@ -114,7 +114,7 @@ double hv2d::compute(double** points , unsigned int n_points, double* r_point)
 /**
  * Required for hv2d::extreme_contributor method for keeping track of the original indices when sorting.
  */
-bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b)
+bool hv2d::point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b)
 {
 	return a.first[1] > b.first[1];
 }
@@ -131,7 +131,7 @@ bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std
  *
  * @return index of the least contributing point
  */
-unsigned int hv2d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+unsigned int hv2d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	return extreme_contributor(points, r_point, base::cmp_least);
 }
@@ -148,7 +148,7 @@ unsigned int hv2d::least_contributor(std::vector<fitness_vector> &points, const 
  *
  * @return index of the greatest contributor
  */
-unsigned int hv2d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point)
+unsigned int hv2d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	return extreme_contributor(points, r_point, base::cmp_greatest);
 }
@@ -157,7 +157,7 @@ unsigned int hv2d::greatest_contributor(std::vector<fitness_vector> &points, con
 /**
  * Returns the extreme contributor (least or greatest) for 2d case, depending on the provided comparison function 'cmp_func'
  */
-unsigned int hv2d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double))
+unsigned int hv2d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) const
 {
 	if (points.size() == 1) {
 		return 0;
