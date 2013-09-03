@@ -1,7 +1,7 @@
-.. _tutorial7:
+.. _racing_individuals:
 
 =======================================================================
-Tutorial 7: Racing the individuals in stochastic optimization problems
+Racing the individuals in stochastic optimization problems
 =======================================================================
 
 Background
