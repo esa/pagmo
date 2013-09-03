@@ -39,10 +39,13 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// hv3d hypervolume algorithm class
 /**
+ * This class contains the implementation of efficient algorithms for the hypervolume computation in 3-dimensions.
  *
- * This class contains the implementation of state-of-the art algorithm for the hypervolume computation of 3-dimensional hypervolumes.
- * 'least[greatest]_contributor' methods rely on the HyCon3D algorithm by Emmerich and Fonseca.
  * 'compute' method relies on the efficient algorithm as it was presented by Nicola Beume et al.
+ * 'least[greatest]_contributor' methods rely on the HyCon3D algorithm by Emmerich and Fonseca.
+ *
+ * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez, Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
+ * @see "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
@@ -51,8 +54,6 @@ class __PAGMO_VISIBLE hv3d : public base
 public:
 	hv3d(bool initial_sorting = true);
 	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
-	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
-	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;

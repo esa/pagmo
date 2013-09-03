@@ -119,40 +119,6 @@ bool hv2d::point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, con
 	return a.first[1] > b.first[1];
 }
 
-/// Least contributor method
-/**
- * This method overloads the default method for calculating the least contributing point.
- * It uses a similar method as compute method, that is, sort each point by one dimension, and then find the least contributor in a linear fashion.
- *
- * @see Nicola Beume, Boris Naujoks, Michael Emmerich, "SMS-EMOA: Multiobjective selection based on dominated hypervolume", Section 2.3. "Calculation of contributing hypervolume".
- *
- * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
- * @param[in] r_point reference point for the points
- *
- * @return index of the least contributing point
- */
-unsigned int hv2d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
-{
-	return extreme_contributor(points, r_point, base::cmp_least);
-}
-
-// Greatest contributor method
-/**
- * This method overloads the default method for calculating the greatest contributor among the points
- * It uses a similar method as compute method, that is, sort each point by one dimension, and then find the greatest contributor in a linear fashion.
- *
- * @see Nicola Beume, Boris Naujoks, Michael Emmerich, "SMS-EMOA: Multiobjective selection based on dominated hypervolume", Section 2.3. "Calculation of contributing hypervolume".
- *
- * @param[in] points vector of points containing the d dimensional points for which we compute the hypervolume
- * @param[in] r_point reference point for the points
- *
- * @return index of the greatest contributor
- */
-unsigned int hv2d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
-{
-	return extreme_contributor(points, r_point, base::cmp_greatest);
-}
-
 /// Extreme contributor method
 /**
  * Returns the extreme contributor (least or greatest) for 2d case, depending on the provided comparison function 'cmp_func'

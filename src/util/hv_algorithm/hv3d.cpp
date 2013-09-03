@@ -44,11 +44,8 @@ hv3d::hv3d(bool initial_sorting) : m_initial_sorting(initial_sorting) { }
  * This is the implementation of the algorithm for computing hypervolume as it was presented by Nicola Beume et al.
  * The implementation uses std::multiset (which is based on red-black tree data structure) as a container for the sweeping front.
  * Original implementation by Beume et. al uses AVL-tree.
- * The difference is insiginificant as the important characteristics (maintaining order when traversing, self-balancing) of both structures and the asymptotical times (O(log n) updates) are guaranteed.
+ * The difference is insiginificant as the important characteristics (maintaining order when traversing, self-balancing) of both structures and the asymptotic times (O(log n) updates) are guaranteed.
  * Computational complexity: O(n*log(n))
- *
- * @see "On the Complexity of Computing the Hypervolume Indicator", Nicola Beume, Carlos M. Fonseca, Manuel Lopez-Ibanez,
- * Luis Paquete, Jan Vahrenhold. IEEE TRANSACTIONS ON EVOLUTIONARY COMPUTATION, VOL. 13, NO. 5, OCTOBER 2009
  *
  * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
  * @param[in] r_point reference point for the points
@@ -127,43 +124,10 @@ bool hv3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, co
 	return a.first[2] < b.first[2];
 }
 
-/// Least contributor method
-/**
- * This method overloads the virtual method in pagmo::util::hv_algorithm::base.
- * This method relies on the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
- *
- * @see "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
- *
- * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
- * @param[in] r_point reference point for the points
- *
- * @return index of the least contributor.
- */
-unsigned int hv3d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
-{
-	return extreme_contributor(points, r_point, base::cmp_least);
-}
-
-/// Greatest contributor method
-/**
- * This method overloads the virtual method in pagmo::util::hv_algorithm::base.
- * This method relies on the HyCon3D algorithm as it was presented in the article by Emmerich and Fonseca.
- *
- * @see "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
- *
- * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
- * @param[in] r_point reference point for the points
- *
- * @return index of the greatest contributor.
- */
-unsigned int hv3d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
-{
-	return extreme_contributor(points, r_point, base::cmp_greatest);
-}
 
 /// Extreme contributor method
 /**
- * This method elicites an "extreme" contributor (either min or max item) from a set of contributions computed by HyCon3D algorithm.
+ * This method elicits an "extreme" contributor (either min or max item) from a set of contributions computed by HyCon3D algorithm.
  */
 unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) const
 {
