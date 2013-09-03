@@ -1,7 +1,7 @@
-.. _tutorial4:
+.. _basic_mo_functionalities:
 
 ================================================================
-Tutorial 4: Using PyGMO for Multiple Objective Optimization
+Basic Multi-Objective Functionalities
 ================================================================
 
 In this tutorial we will learn how to use PyGMO to solve multiple-objective

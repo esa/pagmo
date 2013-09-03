@@ -1,10 +1,10 @@
-.. _tutorial2:
+.. _adding_a_new_stochastic_optimization_problem:
 
 ================================================================
-Tutorial 2: Coding a stochastic optimization problem in Python
+Adding a new stochastic optimization problem
 ================================================================
 
-Assuming you have made the :ref:`tutorial1`, 
+Assuming you have made the :ref:`adding_a_new_optimization_problem` tutorial, 
 this second tutorial should be rather straight forward. We will learn how to code
 a stochastic optimization problem, that is a problem where the objective function is stochastic.
 In other words, the objective function depends on pseudo-random numbers.
